@@ -1,0 +1,836 @@
+{
+  "verified_at_utc": "2026-11-04T12:22:47.728286+00:00",
+  "immutable_evidence_commit": "c093812fa1cdfd53e5e5e8d2e59669f88e1c8a72",
+  "source_commits": [
+    "dc0acdf00",
+    "0e49d084e8441bdbfa1e17249e54dfa4855c8505"
+  ],
+  "method": "Independent authenticated GitHub raw Git Blob downloads at pinned commit; every published file SHA256 and every tar.gz file-member SHA256 matched the independently downloaded publication manifest",
+  "initial_cli_raw_download_failure": "gh raw Contents emitted transform: short source buffer on binary archive; retry through byte-preserving raw Git Blob API passed",
+  "published_files_verified": 137,
+  "archive_members_verified": 240,
+  "rows": [
+    {
+      "path": "README.md",
+      "bytes": 8845,
+      "sha256": "4cafb98a53c660c113363907fa447f2e80dfdcee38bda35c4ee87aaa64b8587a",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-memory-bounds-220-221.json",
+      "bytes": 15958,
+      "sha256": "7f10c7c8ef57f672d07e732ed8db98816bc4655647239e7babbb82922306d76b",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-memory-comparison-221-226.json",
+      "bytes": 16002,
+      "sha256": "080e0ccbe02e2857331f0c8311b5c24fb3ccc5a9ca8d4ec55aef196cc9a13c1c",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-coupled-prefix-222/build-manifest.json",
+      "bytes": 14125,
+      "sha256": "84bdfb82a3c7b0a1dcc1c112d82025d177fa59b68d3105dbfc12969021bf1ea5",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-coupled-prefix-222/executed-runner.py",
+      "bytes": 3181,
+      "sha256": "ccd3e12fea5acfa618924cb211b3c8e2bb6dec053b4bc155c95441cf7911a157",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-coupled-prefix-222/execution-source-snapshots.tar.gz",
+      "bytes": 2142128,
+      "sha256": "3d246cf908782808b310646c80efd880e394281c8e6744c8432a19a1d3d996a3",
+      "archive_members_verified": 41
+    },
+    {
+      "path": "accepted-z0-coupled-prefix-222/execution-source.patch",
+      "bytes": 2179581,
+      "sha256": "12003e20d8c2ef83802a6fff5b63e6f0bc2c0fe726db95851a5781d20a380b60",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-coupled-prefix-222/install-motion.active.json",
+      "bytes": 415,
+      "sha256": "c89879f2df0080dc0357cec50b9908b786321b3a6d58a24877d25ef6563b4c82",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-coupled-prefix-222/install-motion.execution.json",
+      "bytes": 749,
+      "sha256": "358495d726014358d9d46053f8ea38d3e79248c1df5c95329d97cdfe93bd7c19",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-coupled-prefix-222/install-motion.plan.json",
+      "bytes": 107320,
+      "sha256": "202582005b604f87e43ed4f8685997e4acba3aca9b0e05804d0763a05b8f75a5",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-coupled-prefix-222/install-motion.stderr.log",
+      "bytes": 4644,
+      "sha256": "fad1b2fd64cdd868d18dc23f6173f6e28da065698e1a400516a9bfd9778f36de",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-coupled-prefix-222/install-motion.stdout.log",
+      "bytes": 220841,
+      "sha256": "cd6621cfadce3458708866de334a6b45ce902c245a640dcdb6a5f054ae1c64a9",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-coupled-prefix-222/preparation-resource-justification.json",
+      "bytes": 556,
+      "sha256": "062bd7fb08ceb3aa52c13b86545886db9d484b27aaddf94cb0640cfc6a801e37",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-coupled-prefix-222/resource-monitor.jsonl",
+      "bytes": 4418,
+      "sha256": "fc8e4259725c9a400f4462b4bc9286e554e4d276a04d939fec2335fb96c32b42",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-coupled-prefix-222/resource-policy.json",
+      "bytes": 352,
+      "sha256": "93a55a490a351740b61b38163932a45fa77718510d1ec0388ad1263dcad5805e",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-coupled-prefix-222/run_native_plan.py",
+      "bytes": 4982,
+      "sha256": "07ec23e753dfa18e5b027845797bddd9e84c75fd5ce975b153c41d742ea82922",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-coupled-prefix-222/runner.log",
+      "bytes": 9729,
+      "sha256": "905ca21d3465f35ffb5eb74a4e96f53cc5b5918d8bee45fef319f4a3e7561063",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-unscaled-prefix-223/build-manifest.json",
+      "bytes": 14126,
+      "sha256": "139bae88a83c5064426f06a2c89329d2dc7337b902f292ff73a54445a90bde73",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-unscaled-prefix-223/executed-runner.py",
+      "bytes": 3537,
+      "sha256": "014aa26a8df25deebdf74bf21b8c8c0a54b92f8b30257732f5db6e4238e47678",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-unscaled-prefix-223/execution-source-snapshots.tar.gz",
+      "bytes": 2141490,
+      "sha256": "eef8acd211402e4cd789b0a919735aeda021f8cefa64dbd3420d2394865ee869",
+      "archive_members_verified": 41
+    },
+    {
+      "path": "accepted-z0-unscaled-prefix-223/execution-source.patch",
+      "bytes": 2179581,
+      "sha256": "12003e20d8c2ef83802a6fff5b63e6f0bc2c0fe726db95851a5781d20a380b60",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-unscaled-prefix-223/install-motion.active.json",
+      "bytes": 416,
+      "sha256": "24d9414f82040c0308d3b1d308becb660e6e7784e7cbd54779de5cad92005c71",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-unscaled-prefix-223/install-motion.execution.json",
+      "bytes": 751,
+      "sha256": "fef2fa876dc501326fea8ba0eee581d2a374930834ca9dcf9f11a2ed0bd0d4d3",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-unscaled-prefix-223/install-motion.plan.json",
+      "bytes": 106636,
+      "sha256": "3f8470fcf602dda6cb8126dabb7d4dec1f4ca3c78f5f2d61c46aa222e8b5b34f",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-unscaled-prefix-223/install-motion.stderr.log",
+      "bytes": 67610,
+      "sha256": "0d99b9b92ae77b205a5963b33b127b549694d17d8065723625005efb3e7013f0",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-unscaled-prefix-223/install-motion.stdout.log",
+      "bytes": 360072,
+      "sha256": "ac10b18951353b1ee3541d7af1315f79ccff07209087ad6579a6f31b765c1063",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-unscaled-prefix-223/preparation-resource-justification.json",
+      "bytes": 325,
+      "sha256": "2e694d02eb950edcf37277a2988c8353c08bf90441f80cd509d490872bb38add",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-unscaled-prefix-223/resource-monitor.jsonl",
+      "bytes": 4889,
+      "sha256": "d8c8760886e7a5f367bc8ddddae4085d5446a54e1cafa35da34402874028da8e",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-unscaled-prefix-223/resource-policy.json",
+      "bytes": 352,
+      "sha256": "102cbf014cf5241ce81e83564348ab74094c3a4057095bc44bec7d46bbcf617a",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-unscaled-prefix-223/run_native_plan.py",
+      "bytes": 4982,
+      "sha256": "07ec23e753dfa18e5b027845797bddd9e84c75fd5ce975b153c41d742ea82922",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "accepted-z0-unscaled-prefix-223/runner.log",
+      "bytes": 9731,
+      "sha256": "4c83f3130739ee3028501162eeab5ba1fdd21cba5d23519d1f7df2f4f159f977",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "bounded-horizon-pool-219/plan.json",
+      "bytes": 688,
+      "sha256": "5c4eb57acec6197883ec231aac8a96723a359ecfd19b5a8985b30673deba0c44",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "bounded-horizon-pool-219/preimages.json",
+      "bytes": 229,
+      "sha256": "b65d67d0f367f6c816a6e6bdf63469019ad998c87224e7f25e94c0bf51212532",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "bounded-horizon-pool-219/preimages.tar.gz",
+      "bytes": 612392,
+      "sha256": "e56c10d815d054f578ffedeb9c63eee5e585282e098240bca46349178d994583",
+      "archive_members_verified": 2
+    },
+    {
+      "path": "cached-node-two-builder-final-220.log",
+      "bytes": 1289,
+      "sha256": "62e37495f98063c6054b7af68df1b9d4d8ab95ef1bba784fced98e0b810802b3",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "compact-native-traces.tar.gz",
+      "bytes": 13599443,
+      "sha256": "3e0cbce901facb75d6d0860804aeeac5331f4d3e4ce491138e6f93af7a8392cb",
+      "archive_members_verified": 22
+    },
+    {
+      "path": "compare-contact-cache-prefix-220.py",
+      "bytes": 2946,
+      "sha256": "a4c7c642da57082f05cc2670b03793697ff6bdda796cc258673c96457cedef8c",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "comparison-contact-cache-control-prefix-221-contact-cache-bounded-pool-prefix-220.json",
+      "bytes": 14546,
+      "sha256": "c30bf92a9eea4fa6c38b60a294ea370520cff7d322921206760a396f83314037",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "comparison-contact-cache-control-prefix-221-routine-control-prefix-226.json",
+      "bytes": 14669,
+      "sha256": "9a146bdb9f0509c798aa0900a24fa572493725f8e49e4c6785ed25c4df12256f",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "comparison-holistic-packed-patch-prefix-216-contact-cache-bounded-pool-prefix-220.json",
+      "bytes": 14549,
+      "sha256": "536f7bb538d81d39fb7997a8b73e288a82d968c42f873668d97f390459272aad",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "comparison-unscaled-recycle-223.json",
+      "bytes": 12834,
+      "sha256": "75e92602e8e5461d74b7f19ab65c5a3d3c0b4150bbc4b8615ad0fe8756f07232",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-bounded-pool-prefix-220/build-final.log",
+      "bytes": 22295,
+      "sha256": "8cb0a840598f0baf561c0a96031deafb69ebb648ea4a520abd2992f3228066ad",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-bounded-pool-prefix-220/build-manifest.json",
+      "bytes": 13814,
+      "sha256": "bb9ae231f9415656e77a02495bff822fa95e9888d9e173a7cbe614e749997190",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-bounded-pool-prefix-220/contact-cache-focused.stdout.log",
+      "bytes": 663,
+      "sha256": "e2e2fa72faeb4b94edcb1dca6204c1bedca64b3e412efe5486ec251cef121563",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-bounded-pool-prefix-220/executed-runner.py",
+      "bytes": 3292,
+      "sha256": "6a79681aec526da275dafddd3dd50d24a646e9dc53d11e374789f0561a681a9e",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-bounded-pool-prefix-220/execution-source-snapshots.tar.gz",
+      "bytes": 2134624,
+      "sha256": "544370d1cb619016a708ad80be44fff1430e68d3da9644c30dda1ca916e16654",
+      "archive_members_verified": 40
+    },
+    {
+      "path": "contact-cache-bounded-pool-prefix-220/execution-source.patch",
+      "bytes": 2179581,
+      "sha256": "12003e20d8c2ef83802a6fff5b63e6f0bc2c0fe726db95851a5781d20a380b60",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-bounded-pool-prefix-220/install-motion.active.json",
+      "bytes": 421,
+      "sha256": "819038e4ec0f96b843d8ef23724e70789c1d6ba0b290de045cbc731bb9401fad",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-bounded-pool-prefix-220/install-motion.execution.json",
+      "bytes": 757,
+      "sha256": "1b8af75010d8164d7b5867b975112415b6a08efb69bd265931c9bdebab2c6501",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-bounded-pool-prefix-220/install-motion.plan.json",
+      "bytes": 106768,
+      "sha256": "d7f2544d2374edc9cf944e01389e45bf476df9f248709f65e30d6b054e54c4bf",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-bounded-pool-prefix-220/install-motion.stderr.log",
+      "bytes": 561135,
+      "sha256": "d33b7bfa99e28072cc695b53188c82865ffaa2c1141d9ec254aed86eda094f48",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-bounded-pool-prefix-220/install-motion.stdout.log",
+      "bytes": 392875,
+      "sha256": "cb8f4f1264d4e0e08692cf21ccd9215c0e96253ddccf1b972b3d64831122101c",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-bounded-pool-prefix-220/preparation-resource-justification.json",
+      "bytes": 239,
+      "sha256": "859ad1b4d4dc655431168c044ad9ec12b96ac56c901acd585977b5a22a13aa8a",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-bounded-pool-prefix-220/resource-monitor.jsonl",
+      "bytes": 10354,
+      "sha256": "b5f7a31aa6dc20ed5fe25f0db5748e255ac9c6bd8270f8697ffbddce7542c9a5",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-bounded-pool-prefix-220/resource-policy.json",
+      "bytes": 352,
+      "sha256": "2b0c31184e03253ba2d13e9d263c58ccf8ab8cd77716f9680d913d33fb34e832",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-bounded-pool-prefix-220/run_native_plan.py",
+      "bytes": 4982,
+      "sha256": "07ec23e753dfa18e5b027845797bddd9e84c75fd5ce975b153c41d742ea82922",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-bounded-pool-prefix-220/runner.log",
+      "bytes": 9737,
+      "sha256": "a858a878b182aeb22a9ec16614cee0d7ce8d52e928ed5506b053645bbd462edb",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-bounded-pool-prefix-220/runtime-gravity-replay.stdout.log",
+      "bytes": 7011,
+      "sha256": "5f5954eb1b3b188684a3df41cf717c9c7953f2bf5021b52b1331340d071e9bab",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-bounded-pool-prefix-220/solver-final.stdout.log",
+      "bytes": 16671,
+      "sha256": "112344b7e058d6b86063e147ed3f96668743ce17cd657f9fe8326e4bbd31a30a",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-bounded-pool-prefix-220/verified-identical-mrv-clones.json",
+      "bytes": 2527,
+      "sha256": "320ca80c67b9d11f4e7087b00cd9dd936f91792ca4a233fa3cce21107660acbf",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-bounded-pool-source-220.patch",
+      "bytes": 38766,
+      "sha256": "b72c29d05e9c619e75f33be3827451717b50c8456be8642bd12227c383cf2cb0",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-build-218-reserved-identifier-failure.log",
+      "bytes": 17061,
+      "sha256": "82bacc7fc5d91bfb38e1e5c2fac59389befde85bda16da16479cf27d61b640f8",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/build-final.log",
+      "bytes": 22295,
+      "sha256": "8cb0a840598f0baf561c0a96031deafb69ebb648ea4a520abd2992f3228066ad",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/build-manifest.json",
+      "bytes": 13809,
+      "sha256": "c8fa82e42db3818281d9d506f5d961d8832289c510e35d3630543048008338be",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/contact-cache-focused.stdout.log",
+      "bytes": 663,
+      "sha256": "e2e2fa72faeb4b94edcb1dca6204c1bedca64b3e412efe5486ec251cef121563",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/executed-runner.py",
+      "bytes": 3208,
+      "sha256": "5a4d8ca46394edc8ea5d5185ffea1453cdb57a3ced6c328151869e101c144a03",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/execution-source-snapshots.tar.gz",
+      "bytes": 2134624,
+      "sha256": "55482fac41411222be593a71891525de9e27ce8d345be9b02c503b1e4e3302a8",
+      "archive_members_verified": 40
+    },
+    {
+      "path": "contact-cache-control-prefix-221/execution-source.patch",
+      "bytes": 2179581,
+      "sha256": "12003e20d8c2ef83802a6fff5b63e6f0bc2c0fe726db95851a5781d20a380b60",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/install-motion.active.json",
+      "bytes": 416,
+      "sha256": "effda0ec37b4abc4c9cfe4e4f5f39322a14d2a41f6da5f92afdb1f6c4b1d2c93",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/install-motion.execution.json",
+      "bytes": 751,
+      "sha256": "691bbf58b6d990393fc736d90e5fd14fabd47f0ab406f0b9da4a53f4e3c7ebed",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/install-motion.plan.json",
+      "bytes": 106644,
+      "sha256": "d28c878b3232a20eafc04e39e93e18bee9aa483d8bd2ecc0ca6e0f23601b3fd0",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/install-motion.stderr.log",
+      "bytes": 561025,
+      "sha256": "29f480ca55b59063c5c0f1b3e6ec641605a71efcb6dcf550bbc1b7d4722ce5a6",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/install-motion.stdout.log",
+      "bytes": 392828,
+      "sha256": "fd43dd84c1bdd8c521c44cee23ce86a2184d7e82184330e9e07c407012763091",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/prelaunch-original-preparation-policy.json",
+      "bytes": 239,
+      "sha256": "8c8637306385d31a3caa8f5cee057ddd509f355d068b72bbb617bcd9d7c17b0d",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/prelaunch-verified-identical-mrv-clones.json",
+      "bytes": 5304,
+      "sha256": "3af6799c082db981d2cf70d91b36319092f3f9c21b96dbc625e237d6e92b881b",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/preparation-resource-justification.json",
+      "bytes": 593,
+      "sha256": "84c34c878b5eaf0af8bfda8c13b8b9ed7e057bfb617c85e2eaa1791fcbe32015",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/resource-monitor.jsonl",
+      "bytes": 10136,
+      "sha256": "3eb014a680f65af17bc3f0110c594d916730000243c76db2738f6171491e369c",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/resource-policy.json",
+      "bytes": 352,
+      "sha256": "8934563fa6685d3b73a08e31687a6b8667a122f7e1a4c58a0af148cec520993b",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/run_native_plan.py",
+      "bytes": 4982,
+      "sha256": "07ec23e753dfa18e5b027845797bddd9e84c75fd5ce975b153c41d742ea82922",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/runner.log",
+      "bytes": 9731,
+      "sha256": "ea418cf5811f8e09d807e0782758d9dfdcd8ce3ae09f1a50c7e749d117627bf8",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/runtime-gravity-replay.stdout.log",
+      "bytes": 7011,
+      "sha256": "5f5954eb1b3b188684a3df41cf717c9c7953f2bf5021b52b1331340d071e9bab",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/solver-final.stdout.log",
+      "bytes": 16671,
+      "sha256": "112344b7e058d6b86063e147ed3f96668743ce17cd657f9fe8326e4bbd31a30a",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-control-prefix-221/verified-identical-mrv-clones.json",
+      "bytes": 2326,
+      "sha256": "a7f9946c58cbff23601dce61292b30de67472e10da40fab951a19a3e90c41609",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-final-build-218.log",
+      "bytes": 22295,
+      "sha256": "8cb0a840598f0baf561c0a96031deafb69ebb648ea4a520abd2992f3228066ad",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-final-focused-218.log",
+      "bytes": 663,
+      "sha256": "e2e2fa72faeb4b94edcb1dca6204c1bedca64b3e412efe5486ec251cef121563",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-final-full-218.log",
+      "bytes": 16671,
+      "sha256": "112344b7e058d6b86063e147ed3f96668743ce17cd657f9fe8326e4bbd31a30a",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-cache-final-runtime-218.log",
+      "bytes": 7011,
+      "sha256": "5f5954eb1b3b188684a3df41cf717c9c7953f2bf5021b52b1331340d071e9bab",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-certification-cache-218/plan.json",
+      "bytes": 998,
+      "sha256": "3a6aa0e5c699e83f5610f41b7c8f28e8fab17f897d9b8e3806eec4d5e86a235c",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-certification-cache-218/preimages.json",
+      "bytes": 330,
+      "sha256": "ee4643bbe30189ca58b1a10923350b26fa149cf61bfde1739b19df1ee92813d7",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "contact-certification-cache-218/preimages.tar.gz",
+      "bytes": 687366,
+      "sha256": "efe30d1456bcc72d359adef3cf3e83e455c1649d05c3cb03db4b9a6b36ce1ba0",
+      "archive_members_verified": 3
+    },
+    {
+      "path": "contact-certification-cache-218/rejected-execution-source.tar.gz",
+      "bytes": 1302822,
+      "sha256": "8033f46419b4f4d666c3ed57c2e1439f911f3ee81d339e6da22d58bc92a86d05",
+      "archive_members_verified": 5
+    },
+    {
+      "path": "cooperative-nodal-217/cooperative-nodal-benchmark-217.log",
+      "bytes": 1936,
+      "sha256": "ebd108ae5acd10fbda9076484e85d3704f95a1972b838dab1eaf4c48df39fc08",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "cooperative-nodal-217/cooperative-nodal-benchmark-build-217.log",
+      "bytes": 265,
+      "sha256": "68593558243014d691a1a9e43d592ada122bc7db7d9bc9cc78693489be947d78",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "cooperative-nodal-217/cooperative-nodal-build-217.log",
+      "bytes": 22519,
+      "sha256": "e1cf033d734877ac8f24369e4c18a3942cd1843134dafe470477ee4f252c2678",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "cooperative-nodal-217/cooperative-nodal-focused-217.log",
+      "bytes": 592,
+      "sha256": "5dd69aa401a63e6b3204fb0b6f1cd6fe70f088428d7c1ed851b40946ac82dba0",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "cooperative-nodal-217/plan.json",
+      "bytes": 890,
+      "sha256": "84f4d60c463874459c1f35e30258e61dd638db1db007e1de81cfe4d9f04f8d7e",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "cooperative-nodal-217/preimages.json",
+      "bytes": 327,
+      "sha256": "a968ef1bfc6ded31b77391f36fadeaadeb7cbf4190259245fea2451d860633fb",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "cooperative-nodal-217/preimages.tar.gz",
+      "bytes": 800139,
+      "sha256": "03ce183b928416cc3a49d661b6bbcbcd56f0368cb50a68ae8a2b544d3a13db8b",
+      "archive_members_verified": 3
+    },
+    {
+      "path": "cooperative-nodal-217/rejected-execution-source.tar.gz",
+      "bytes": 803034,
+      "sha256": "265bb01b84d085c1079f36a5b53a574124abc57cb37c87c656329f31510a8727",
+      "archive_members_verified": 3
+    },
+    {
+      "path": "cooperative-nodal-217/result.json",
+      "bytes": 693,
+      "sha256": "b59bbe83c51872120f7d902971fc9d7d21bb0c6bfcefa902398e5bb8b6990196",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "device.json",
+      "bytes": 320,
+      "sha256": "66fb8c5112621d97e20cdaf2f7828d276fbf4dd4ad9672ef5984deda3ab6726d",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "production-restoration-224.json",
+      "bytes": 445,
+      "sha256": "56f60ea96a13e1a6a0fff482541a01fb61c3782dd3f1c4ee014109ff1c1bdeda",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "production-restoration-final-build-224.log",
+      "bytes": 22736,
+      "sha256": "eca6a83e6e18f5996c5d9e95349a16c9106c6c3b3ed75509fab9a21e70eb8d5f",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "production-restoration-final-full-224.log",
+      "bytes": 16581,
+      "sha256": "634949d6e21c7e9b99f04733710594c2a785ffb1baecac66845f93a6c9a0c62a",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "production-restoration-final-runtime-224.log",
+      "bytes": 7011,
+      "sha256": "5f5954eb1b3b188684a3df41cf717c9c7953f2bf5021b52b1331340d071e9bab",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "production-restoration-stand-coupling-224-failed.log",
+      "bytes": 469,
+      "sha256": "118715da5d87d7abca3d968ec0cafdf76eb72a007760f32558ce0042bdf27119",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "reconcile-binding-225/MetalArticulatedOperator.before.mm",
+      "bytes": 970151,
+      "sha256": "3b2750b6e02248d0a6c3d3098249e4d1792ad58daea6ed5d4b39d715fdb62a8a",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "reconcile-binding-225/build.log",
+      "bytes": 982,
+      "sha256": "6f03ce44d45fe51c980d93d89a6592c30cd41b1e5efaa5844259290f7527af91",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "reconcile-binding-225/failure-before.log",
+      "bytes": 469,
+      "sha256": "118715da5d87d7abca3d968ec0cafdf76eb72a007760f32558ce0042bdf27119",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "reconcile-binding-225/plan.json",
+      "bytes": 371,
+      "sha256": "918bae84168b2f428f1cd913a2f16da3794d2920658f11975fb629f2785a2e49",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "reconcile-binding-225/result.json",
+      "bytes": 413,
+      "sha256": "d4dc4fdeb3589d74580a7347fb2d46c5e9cd9fe42e87a54f5309de859802f4f7",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "reconcile-binding-225/test.log",
+      "bytes": 35999,
+      "sha256": "0c50ac5eb8b7351a9e99f0caa67e64b08e397a36eced740661bcd163e057cf64",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "rejected-recycle223-mrv-manifest.json",
+      "bytes": 2141,
+      "sha256": "1c5574d7dcc010fd4630209116a550957014fb471a6026d32357f514cea1df7d",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "rejected-recycle223-remote-restoration.json",
+      "bytes": 2132,
+      "sha256": "3caeb209e04ecf7b732215f93329c9393b6ff5b3f032f3e25107c1417f3891bf",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "result.json",
+      "bytes": 651,
+      "sha256": "ca13b820a6fa0549a51816850db69cfb641cfdf0772e7736664fa813ee8c174f",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "routine-control-prefix-226/build-final.log",
+      "bytes": 95,
+      "sha256": "1a2660e24e018656e713ced7f109c415ae160cd62178edf1e5e868e6997f81e6",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "routine-control-prefix-226/build-manifest.json",
+      "bytes": 13803,
+      "sha256": "1d0da111daaa9ec4e85438fd823256bc923af7566e20477338bf2ae1551e0387",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "routine-control-prefix-226/executed-runner.py",
+      "bytes": 3215,
+      "sha256": "5209c5e479b95ae8f1bbbc349f0802aa8feb11cca5ce1316428b6c31506e7a72",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "routine-control-prefix-226/execution-source-snapshots.tar.gz",
+      "bytes": 2131712,
+      "sha256": "d94258a43ff58f4aabca5a5779364aef98aa8d0ec5f6ca8646b7fae658d9f71c",
+      "archive_members_verified": 40
+    },
+    {
+      "path": "routine-control-prefix-226/execution-source.patch",
+      "bytes": 2162178,
+      "sha256": "bdd493cd61a298c4df11c5359cedeefcf7782f4cd3ed515c50f988349c683375",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "routine-control-prefix-226/install-motion.active.json",
+      "bytes": 410,
+      "sha256": "ea75eef3f9366dc9eb38c7a063056cd74457aa2bd4e5431b94a6e35d44f2f498",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "routine-control-prefix-226/install-motion.execution.json",
+      "bytes": 745,
+      "sha256": "68fb65ba76b414ec4bfd2818418f7b752385239fdbef40b68c3aaebfa5989416",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "routine-control-prefix-226/install-motion.plan.json",
+      "bytes": 106532,
+      "sha256": "d2a769fcc6b90c12575b4ca8f0b1e0c2099657d6282558f4a1653e8f2e8bc861",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "routine-control-prefix-226/install-motion.stderr.log",
+      "bytes": 582085,
+      "sha256": "f55fc6cf9c9dfbeb8dbde8f6f0085826c5757abdb3f15f46c46eb6923365fcbb",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "routine-control-prefix-226/install-motion.stdout.log",
+      "bytes": 392806,
+      "sha256": "3fe58e98be248b2797e895676a4c52034057180ac9972cfc3da89491dfa27159",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "routine-control-prefix-226/prelaunch-original-preparation-policy.json",
+      "bytes": 307,
+      "sha256": "23a4122f53dd0c2ae799f6f4f44502bdc99284cf52b49b61c3208f35b995ce8d",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "routine-control-prefix-226/preparation-resource-justification.json",
+      "bytes": 385,
+      "sha256": "7775d57b022f2384674ec62f46cfae32be6330a00ec517c125567e62dff53989",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "routine-control-prefix-226/resource-monitor.jsonl",
+      "bytes": 9658,
+      "sha256": "ad953d1378b736d87dee5a5382fd9ad11e599f0c7cf22a8aaecc558cfff0ce5a",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "routine-control-prefix-226/resource-policy.json",
+      "bytes": 352,
+      "sha256": "771242cf3467b1041f591a8c6e2a01ab92a42647b06371e52e15b2510704cdd6",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "routine-control-prefix-226/run_native_plan.py",
+      "bytes": 4982,
+      "sha256": "07ec23e753dfa18e5b027845797bddd9e84c75fd5ce975b153c41d742ea82922",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "routine-control-prefix-226/runner.log",
+      "bytes": 9725,
+      "sha256": "07bea12dbb6d730e79f965af4f97de7c42170189ac411bba912c72b99efa811b",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "routine-control-prefix-226/verified-identical-mrv-clones.json",
+      "bytes": 2326,
+      "sha256": "fcefc84251cde89ef85744ff190642e37c45c3cd05fe6e9dd9a37a9b965658e5",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "run-human-accepted-z0-prefix-222.py",
+      "bytes": 3181,
+      "sha256": "ccd3e12fea5acfa618924cb211b3c8e2bb6dec053b4bc155c95441cf7911a157",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "run-human-accepted-z0-unscaled-prefix-223.py",
+      "bytes": 3537,
+      "sha256": "014aa26a8df25deebdf74bf21b8c8c0a54b92f8b30257732f5db6e4238e47678",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "solver-contact-memory-summary-220-221.json",
+      "bytes": 17838,
+      "sha256": "58f063571a5ffc7f9db58ef56c213b5edc549cf8e2297dc5a815e832dc9c3d95",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "trace-manifest.json",
+      "bytes": 11889,
+      "sha256": "6d138d49257236e3c3a04f4237a88d9e49b5221d0b4ead7ad9c61d94003763fc",
+      "archive_members_verified": 0
+    },
+    {
+      "path": "verified-identical-mass-clones-226.json",
+      "bytes": 6260,
+      "sha256": "e9bdfcb6e08a69652a80e690fb1a0d5d5485ef472b43afb24e78d9b88282ff8d",
+      "archive_members_verified": 0
+    }
+  ]
+}
