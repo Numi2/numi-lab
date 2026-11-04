@@ -1,0 +1,178 @@
+[
+  {
+    "trial": "shared-three-rhs-native-190",
+    "path": "install-motion/diagnostics/registered-skin-native.csv",
+    "bytes": 24147731,
+    "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+    "in_compact_archive": false,
+    "static_identity_retained_in_prior_trace_archive": true
+  },
+  {
+    "trial": "shared-three-rhs-native-190",
+    "path": "install-motion/resting-body-motion-partition.csv",
+    "bytes": 77592,
+    "sha256": "7c21bfc714718038488eda8d6b113da5e04dd9c8e7d257e265dd4bd92834ce3c",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "shared-three-rhs-native-190",
+    "path": "install-motion/resting-com-momentum-diagnostic.csv",
+    "bytes": 4189,
+    "sha256": "e682034c6d1d773459351cf5c6dabd77348e02d4d159648fe8578cce37e27979",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "shared-three-rhs-native-190",
+    "path": "install-motion/resting-com-q-index-map.csv",
+    "bytes": 6908,
+    "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "shared-three-rhs-native-190",
+    "path": "install-motion/resting-com-q-integration.csv",
+    "bytes": 20158,
+    "sha256": "5b5ed1810a69bbebfdd77e7f0e878e6f439b7c14b0f31d1ab87fc6519b3da082",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "shared-three-rhs-native-190",
+    "path": "install-motion/resting-com-q-support-slip.csv",
+    "bytes": 715,
+    "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "shared-three-rhs-native-190",
+    "path": "install-motion/resting-com-support-impulses.csv",
+    "bytes": 331,
+    "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "shared-three-rhs-native-190",
+    "path": "install-motion/resting-coupled.csv",
+    "bytes": 2447,
+    "sha256": "0adf272f8ad074e5d0661f92c3ef94b5988016f07b867a551b3f8c14ba934067",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "shared-three-rhs-native-190",
+    "path": "install-motion/resting-support-point-motion.csv",
+    "bytes": 371,
+    "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "shared-three-rhs-native-190",
+    "path": "install-motion/resting-support-selected-skin-witness.csv",
+    "bytes": 4684,
+    "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "shared-three-rhs-native-190",
+    "path": "install-motion/resting-surface-audit.csv",
+    "bytes": 2268,
+    "sha256": "afc5349c9dea5189a529ea988eab79556f68c8e14fc0190652da4b77aa8e8891",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "shared-three-rhs-prefix-191",
+    "path": "install-motion/diagnostics/registered-skin-native.csv",
+    "bytes": 24147731,
+    "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+    "in_compact_archive": false,
+    "static_identity_retained_in_prior_trace_archive": true
+  },
+  {
+    "trial": "shared-three-rhs-prefix-191",
+    "path": "install-motion/resting-body-motion-partition.csv",
+    "bytes": 2454129,
+    "sha256": "096dd197d7f3726f38527f94ca97b6aa8606e24a97e1ec23f4222f32a330432b",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "shared-three-rhs-prefix-191",
+    "path": "install-motion/resting-com-momentum-diagnostic.csv",
+    "bytes": 47720,
+    "sha256": "8a281f744506dd7cb79f61be6b2c7b5bf88bb25ac5bde70b18e85c03c6b3dd1e",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "shared-three-rhs-prefix-191",
+    "path": "install-motion/resting-com-q-index-map.csv",
+    "bytes": 6908,
+    "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "shared-three-rhs-prefix-191",
+    "path": "install-motion/resting-com-q-integration.csv",
+    "bytes": 658109,
+    "sha256": "cea5fc8bda631b20d7c804a96fa9948357a88f2dd1fba36a9d86f8b322eb4e2a",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "shared-three-rhs-prefix-191",
+    "path": "install-motion/resting-com-q-support-slip.csv",
+    "bytes": 715,
+    "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "shared-three-rhs-prefix-191",
+    "path": "install-motion/resting-com-support-impulses.csv",
+    "bytes": 331,
+    "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "shared-three-rhs-prefix-191",
+    "path": "install-motion/resting-coupled.csv",
+    "bytes": 24690,
+    "sha256": "433152781e87ab694027e67697235f6fc14e4fa6da2f9e38d4b0ec1a0121e148",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "shared-three-rhs-prefix-191",
+    "path": "install-motion/resting-support-point-motion.csv",
+    "bytes": 371,
+    "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "shared-three-rhs-prefix-191",
+    "path": "install-motion/resting-support-selected-skin-witness.csv",
+    "bytes": 4684,
+    "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  },
+  {
+    "trial": "shared-three-rhs-prefix-191",
+    "path": "install-motion/resting-surface-audit.csv",
+    "bytes": 2272,
+    "sha256": "8317708df3c614dce9edf181bdad5f86bbd89d9600fe3b3c86fd9610086e2606",
+    "in_compact_archive": true,
+    "static_identity_retained_in_prior_trace_archive": false
+  }
+]

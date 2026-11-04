@@ -1,0 +1,479 @@
+{
+  "base_snapshot": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/execution-source-snapshots-170.tar.gz",
+  "base_snapshot_sha256": "d6a4ea49c51cef60438e99254f3b9f6eb09ce94cf391739d464ef9728dc7d3c9",
+  "published_source_revision": "afd07c2f8",
+  "trials": {
+    "shared-three-rhs-native-190": [
+      {
+        "path": "matter/src/metal/contact.metalinc",
+        "sha256": "059136a31c3d99224efbaa9f9ffa4bf6e1fa80313b61593acd3fa114602fcbea",
+        "bytes": 768754,
+        "source": "afd07c2f8:matter/src/metal/contact.metalinc"
+      },
+      {
+        "path": "matter/src/metal/fem.metalinc",
+        "sha256": "ad8624bab5eebf1e53025816299468576dca65e868d158b597c7f159c935b5fb",
+        "bytes": 370040,
+        "source": "afd07c2f8:matter/src/metal/fem.metalinc"
+      },
+      {
+        "path": "matter/src/metal/fgmres.metalinc",
+        "sha256": "4b8f9a4c5d98c310f92fc8c27e1c28ee6693d268dfb55898364c5298523e90bf",
+        "bytes": 835685,
+        "source": "afd07c2f8:matter/src/metal/fgmres.metalinc"
+      },
+      {
+        "path": "matter/src/metal/vascular.metalinc",
+        "sha256": "25370c8c4013eac439f7deff5029f0a0b5da1191cfb2a66e5b5ee06982dae4eb",
+        "bytes": 200824,
+        "source": "afd07c2f8:matter/src/metal/vascular.metalinc"
+      },
+      {
+        "path": "matter/src/runtime.mm",
+        "sha256": "11f5746fdfbcb4e836e4f88efb25835cb75965a6e357535e92e4a09305dd04b1",
+        "bytes": 3529760,
+        "source": "afd07c2f8:matter/src/runtime.mm"
+      },
+      {
+        "path": "CMakeLists.txt",
+        "sha256": "1ac314a1997a083c1ed37d3d98f036ac95c5ed5cb318bea9e7f8ede575954b48",
+        "bytes": 277528,
+        "source": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/execution-source-snapshots-170.tar.gz:CMakeLists.txt"
+      },
+      {
+        "path": "apps/NumiHumanFEMOuterGroundAlignment.hpp",
+        "sha256": "cb0369ea7877b4220f071f348d584cac48d26dfb8a942431356f50409f133b37",
+        "bytes": 11088,
+        "source": "afd07c2f8:apps/NumiHumanFEMOuterGroundAlignment.hpp"
+      },
+      {
+        "path": "apps/NumiHumanFEMOuterGroundAlignmentCheck.cpp",
+        "sha256": "9a5188143ab4b1f1a9a6e9651efb330a18528fef1ad6375d2c6bb20ee6030788",
+        "bytes": 6496,
+        "source": "afd07c2f8:apps/NumiHumanFEMOuterGroundAlignmentCheck.cpp"
+      },
+      {
+        "path": "apps/NumiHumanRestingCoupling.hpp",
+        "sha256": "67455d6705384b952c26e9eac3182c4693c17a465c0b16299f7f5f7c5ab1bf5b",
+        "bytes": 90842,
+        "source": "afd07c2f8:apps/NumiHumanRestingCoupling.hpp"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatFixedCavityReconditioning.hpp",
+        "sha256": "0c703b9759c0189dbd76474742d9f74a803180878137b7ff20ac47fc45ac3e5f",
+        "bytes": 48778,
+        "source": "afd07c2f8:apps/NumiHumanSkinFatFixedCavityReconditioning.hpp"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatFixedCavityReconditioningCheck.cpp",
+        "sha256": "2f546df1e8e7ff28c53afd99f9e8ec9fe50612becfe0b1e6e7d32b5f90e99f65",
+        "bytes": 28833,
+        "source": "afd07c2f8:apps/NumiHumanSkinFatFixedCavityReconditioningCheck.cpp"
+      },
+      {
+        "path": "apps/compare_human_fem_endpoint_fidelity.py",
+        "sha256": "e6c1479a9f28f758f6151accc2ba19c83814d34a105b8297c15085076c0c29c7",
+        "bytes": 48564,
+        "source": "afd07c2f8:apps/compare_human_fem_endpoint_fidelity.py"
+      },
+      {
+        "path": "apps/numilab_human_myosim_visual_probe.mm",
+        "sha256": "151f70c29a9fe1c0eb78f5f34698dce905161d2d963c1ac2b78b2cf3d3be69a0",
+        "bytes": 2693963,
+        "source": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/execution-source-snapshots-170.tar.gz:apps/numilab_human_myosim_visual_probe.mm"
+      },
+      {
+        "path": "apps/test_compare_human_fem_endpoint_fidelity.py",
+        "sha256": "694ea2dd138e211276c67d0f274f3d5a0b444aeb3636f5b889a2d546cfd9d602",
+        "bytes": 21479,
+        "source": "afd07c2f8:apps/test_compare_human_fem_endpoint_fidelity.py"
+      },
+      {
+        "path": "include/metalrobo/MetalArticulatedOperator.hpp",
+        "sha256": "24fa2fe421b9b2c84498cf0d9740f0384af7f5902393a8643d4f468cf621a295",
+        "bytes": 134241,
+        "source": "afd07c2f8:include/metalrobo/MetalArticulatedOperator.hpp"
+      },
+      {
+        "path": "matter/include/numi/matter/shared.h",
+        "sha256": "8c554c69b6d90274a7c9800051d3495c35b7b8edae9189a007f617d05e2c7a6c",
+        "bytes": 66164,
+        "source": "afd07c2f8:matter/include/numi/matter/shared.h"
+      },
+      {
+        "path": "matter/src/metal/common.metalinc",
+        "sha256": "c88b01d6c066461b23df810653b7cd7fe859996b750e492dc96e0c32a1f4eac0",
+        "bytes": 163765,
+        "source": "afd07c2f8:matter/src/metal/common.metalinc"
+      },
+      {
+        "path": "matter/src/metal/mixed_fem.metalinc",
+        "sha256": "f5afdc6b84a5280c4a2ccffc9d59579588c783049e92b002dee4474e994e79c6",
+        "bytes": 88930,
+        "source": "afd07c2f8:matter/src/metal/mixed_fem.metalinc"
+      },
+      {
+        "path": "matter/src/metal/numi_human.metalinc",
+        "sha256": "090dc60d400dec8741487db64e1e2b8a93e704300086abfeb69b4be01234584a",
+        "bytes": 218721,
+        "source": "afd07c2f8:matter/src/metal/numi_human.metalinc"
+      },
+      {
+        "path": "matter/src/numi_human.mm",
+        "sha256": "594790dbc598a40a6f129eeb5586f1318c9596e978e541152456b60ae317d58a",
+        "bytes": 292245,
+        "source": "afd07c2f8:matter/src/numi_human.mm"
+      },
+      {
+        "path": "matter/src/regional_graph_schwarz.hpp",
+        "sha256": "9fe5ed05244f62ce79769ac372ae9b87d7eeba2562ddcebe36d071e795d28173",
+        "bytes": 37745,
+        "source": "afd07c2f8:matter/src/regional_graph_schwarz.hpp"
+      },
+      {
+        "path": "matter/tools/fem_material_frame_check.mm",
+        "sha256": "bc5d21cd7e479939362db8cb5df5843eadb767f0a69e4b6be424ce4315b9eb75",
+        "bytes": 116286,
+        "source": "afd07c2f8:matter/tools/fem_material_frame_check.mm"
+      },
+      {
+        "path": "matter/tools/fem_reference_check.mm",
+        "sha256": "9b24aad48c93bd7a38679f16298c37e0643294d3510efbe18ce2e2fb80fe5f4e",
+        "bytes": 107191,
+        "source": "afd07c2f8:matter/tools/fem_reference_check.mm"
+      },
+      {
+        "path": "matter/tools/fgmres_true_residual_native_check.mm",
+        "sha256": "43cef07e542f6814ac60ad27225295a17cbafbb17a611c8368a5900405dc2771",
+        "bytes": 1050260,
+        "source": "afd07c2f8:matter/tools/fgmres_true_residual_native_check.mm"
+      },
+      {
+        "path": "matter/tools/regional_graph_schwarz_layout_check.cpp",
+        "sha256": "3482e5dd57716b9c63abe20e0b4cfeb95f5f923af716228451af3e1d608a55d5",
+        "bytes": 48843,
+        "source": "afd07c2f8:matter/tools/regional_graph_schwarz_layout_check.cpp"
+      },
+      {
+        "path": "matter/src/metal/identification_scheduler.metalinc",
+        "sha256": "2ef3415bdb5a1c153fa314f39bb1c7904e70810bb56a33293888572092efaf29",
+        "bytes": 46076,
+        "source": "afd07c2f8:matter/src/metal/identification_scheduler.metalinc"
+      },
+      {
+        "path": "matter/CMakeLists.txt",
+        "sha256": "0362fe25d961123b10fe65f4d65310cc1ba35d241c120c11f1305eecab20b861",
+        "bytes": 155935,
+        "source": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/execution-source-snapshots-170.tar.gz:matter/CMakeLists.txt"
+      },
+      {
+        "path": "matter/tools/vascular_cavity_check.mm",
+        "sha256": "d87324371a47c1f974bd8db07074f80e7a4015519ffa3eecf36e6c091cc85c06",
+        "bytes": 212498,
+        "source": "afd07c2f8:matter/tools/vascular_cavity_check.mm"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_basis.hpp",
+        "sha256": "e57024d744fa35daa9dca3a7bb22dd8d2c0918f5f24fb0883c25bd6463ccd142",
+        "bytes": 28897,
+        "source": "afd07c2f8:matter/include/numi/matter/partitioned_reduction_basis.hpp"
+      },
+      {
+        "path": "matter/include/numi/matter/compiled_world_partitioned_reduction.hpp",
+        "sha256": "7b792e62ee544972d1a486a2835e080103a40cfae47cd7c36cd4966862b8711e",
+        "bytes": 53181,
+        "source": "afd07c2f8:matter/include/numi/matter/compiled_world_partitioned_reduction.hpp"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_mass_whitening.hpp",
+        "sha256": "75105c6199579c3e28f30c9046bb43b035ef775638ebed5e6cd9109fb80b53e0",
+        "bytes": 20248,
+        "source": "afd07c2f8:matter/include/numi/matter/partitioned_reduction_mass_whitening.hpp"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_sparse_support.hpp",
+        "sha256": "2a4388697b0584707e047d5562d2409ac471c0a19a136821f0b06b5774af3825",
+        "bytes": 31524,
+        "source": "afd07c2f8:matter/include/numi/matter/partitioned_reduction_sparse_support.hpp"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_fem_tangent.h",
+        "sha256": "b1752f3b6a0129baaad0a4a1c3b79c89f5ac4c0ba5891ccde9b72c062bb50b06",
+        "bytes": 12556,
+        "source": "afd07c2f8:matter/include/numi/matter/partitioned_reduction_fem_tangent.h"
+      },
+      {
+        "path": "matter/src/metal/partitioned_reduction_projection.metalinc",
+        "sha256": "f29076a148c77321a432839b6cf55deb9027e2b1262335c2e872fa5fdf71f4f9",
+        "bytes": 61676,
+        "source": "afd07c2f8:matter/src/metal/partitioned_reduction_projection.metalinc"
+      },
+      {
+        "path": "matter/src/metal/partitioned_reduction_fem_tangent.metalinc",
+        "sha256": "8018aadd5eac0b048f24b8927640a043854ce64917c215e73c5a75f8740e90d4",
+        "bytes": 40715,
+        "source": "afd07c2f8:matter/src/metal/partitioned_reduction_fem_tangent.metalinc"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatReductionLabels.hpp",
+        "sha256": "4df7ad93de75421f424da3116214b1d244e26bd79c583e81b488be37f72291e8",
+        "bytes": 207809,
+        "source": "afd07c2f8:apps/NumiHumanSkinFatReductionLabels.hpp"
+      },
+      {
+        "path": "matter/tools/partitioned_reduction_basis_check.cpp",
+        "sha256": "c4d7f02ef93a1614ae80c31675f735727654a02ab42d60b98930e2f1061d9069",
+        "bytes": 32225,
+        "source": "afd07c2f8:matter/tools/partitioned_reduction_basis_check.cpp"
+      },
+      {
+        "path": "matter/tools/compiled_world_partitioned_reduction_check.cpp",
+        "sha256": "ed42debb423f890deeea84d1ea808ca27f6d6b3eb9be0364ec7e59c4608f8207",
+        "bytes": 35950,
+        "source": "afd07c2f8:matter/tools/compiled_world_partitioned_reduction_check.cpp"
+      },
+      {
+        "path": "matter/tools/partitioned_reduction_projection_gpu_check.mm",
+        "sha256": "c410b8429232f4063ad0ab406b105c7a271cbb0539f80667b962206075807799",
+        "bytes": 101530,
+        "source": "afd07c2f8:matter/tools/partitioned_reduction_projection_gpu_check.mm"
+      }
+    ],
+    "shared-three-rhs-prefix-191": [
+      {
+        "path": "matter/src/metal/contact.metalinc",
+        "sha256": "059136a31c3d99224efbaa9f9ffa4bf6e1fa80313b61593acd3fa114602fcbea",
+        "bytes": 768754,
+        "source": "afd07c2f8:matter/src/metal/contact.metalinc"
+      },
+      {
+        "path": "matter/src/metal/fem.metalinc",
+        "sha256": "ad8624bab5eebf1e53025816299468576dca65e868d158b597c7f159c935b5fb",
+        "bytes": 370040,
+        "source": "afd07c2f8:matter/src/metal/fem.metalinc"
+      },
+      {
+        "path": "matter/src/metal/fgmres.metalinc",
+        "sha256": "4b8f9a4c5d98c310f92fc8c27e1c28ee6693d268dfb55898364c5298523e90bf",
+        "bytes": 835685,
+        "source": "afd07c2f8:matter/src/metal/fgmres.metalinc"
+      },
+      {
+        "path": "matter/src/metal/vascular.metalinc",
+        "sha256": "25370c8c4013eac439f7deff5029f0a0b5da1191cfb2a66e5b5ee06982dae4eb",
+        "bytes": 200824,
+        "source": "afd07c2f8:matter/src/metal/vascular.metalinc"
+      },
+      {
+        "path": "matter/src/runtime.mm",
+        "sha256": "11f5746fdfbcb4e836e4f88efb25835cb75965a6e357535e92e4a09305dd04b1",
+        "bytes": 3529760,
+        "source": "afd07c2f8:matter/src/runtime.mm"
+      },
+      {
+        "path": "CMakeLists.txt",
+        "sha256": "1ac314a1997a083c1ed37d3d98f036ac95c5ed5cb318bea9e7f8ede575954b48",
+        "bytes": 277528,
+        "source": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/execution-source-snapshots-170.tar.gz:CMakeLists.txt"
+      },
+      {
+        "path": "apps/NumiHumanFEMOuterGroundAlignment.hpp",
+        "sha256": "cb0369ea7877b4220f071f348d584cac48d26dfb8a942431356f50409f133b37",
+        "bytes": 11088,
+        "source": "afd07c2f8:apps/NumiHumanFEMOuterGroundAlignment.hpp"
+      },
+      {
+        "path": "apps/NumiHumanFEMOuterGroundAlignmentCheck.cpp",
+        "sha256": "9a5188143ab4b1f1a9a6e9651efb330a18528fef1ad6375d2c6bb20ee6030788",
+        "bytes": 6496,
+        "source": "afd07c2f8:apps/NumiHumanFEMOuterGroundAlignmentCheck.cpp"
+      },
+      {
+        "path": "apps/NumiHumanRestingCoupling.hpp",
+        "sha256": "67455d6705384b952c26e9eac3182c4693c17a465c0b16299f7f5f7c5ab1bf5b",
+        "bytes": 90842,
+        "source": "afd07c2f8:apps/NumiHumanRestingCoupling.hpp"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatFixedCavityReconditioning.hpp",
+        "sha256": "0c703b9759c0189dbd76474742d9f74a803180878137b7ff20ac47fc45ac3e5f",
+        "bytes": 48778,
+        "source": "afd07c2f8:apps/NumiHumanSkinFatFixedCavityReconditioning.hpp"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatFixedCavityReconditioningCheck.cpp",
+        "sha256": "2f546df1e8e7ff28c53afd99f9e8ec9fe50612becfe0b1e6e7d32b5f90e99f65",
+        "bytes": 28833,
+        "source": "afd07c2f8:apps/NumiHumanSkinFatFixedCavityReconditioningCheck.cpp"
+      },
+      {
+        "path": "apps/compare_human_fem_endpoint_fidelity.py",
+        "sha256": "e6c1479a9f28f758f6151accc2ba19c83814d34a105b8297c15085076c0c29c7",
+        "bytes": 48564,
+        "source": "afd07c2f8:apps/compare_human_fem_endpoint_fidelity.py"
+      },
+      {
+        "path": "apps/numilab_human_myosim_visual_probe.mm",
+        "sha256": "151f70c29a9fe1c0eb78f5f34698dce905161d2d963c1ac2b78b2cf3d3be69a0",
+        "bytes": 2693963,
+        "source": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/execution-source-snapshots-170.tar.gz:apps/numilab_human_myosim_visual_probe.mm"
+      },
+      {
+        "path": "apps/test_compare_human_fem_endpoint_fidelity.py",
+        "sha256": "694ea2dd138e211276c67d0f274f3d5a0b444aeb3636f5b889a2d546cfd9d602",
+        "bytes": 21479,
+        "source": "afd07c2f8:apps/test_compare_human_fem_endpoint_fidelity.py"
+      },
+      {
+        "path": "include/metalrobo/MetalArticulatedOperator.hpp",
+        "sha256": "24fa2fe421b9b2c84498cf0d9740f0384af7f5902393a8643d4f468cf621a295",
+        "bytes": 134241,
+        "source": "afd07c2f8:include/metalrobo/MetalArticulatedOperator.hpp"
+      },
+      {
+        "path": "matter/include/numi/matter/shared.h",
+        "sha256": "8c554c69b6d90274a7c9800051d3495c35b7b8edae9189a007f617d05e2c7a6c",
+        "bytes": 66164,
+        "source": "afd07c2f8:matter/include/numi/matter/shared.h"
+      },
+      {
+        "path": "matter/src/metal/common.metalinc",
+        "sha256": "c88b01d6c066461b23df810653b7cd7fe859996b750e492dc96e0c32a1f4eac0",
+        "bytes": 163765,
+        "source": "afd07c2f8:matter/src/metal/common.metalinc"
+      },
+      {
+        "path": "matter/src/metal/mixed_fem.metalinc",
+        "sha256": "f5afdc6b84a5280c4a2ccffc9d59579588c783049e92b002dee4474e994e79c6",
+        "bytes": 88930,
+        "source": "afd07c2f8:matter/src/metal/mixed_fem.metalinc"
+      },
+      {
+        "path": "matter/src/metal/numi_human.metalinc",
+        "sha256": "090dc60d400dec8741487db64e1e2b8a93e704300086abfeb69b4be01234584a",
+        "bytes": 218721,
+        "source": "afd07c2f8:matter/src/metal/numi_human.metalinc"
+      },
+      {
+        "path": "matter/src/numi_human.mm",
+        "sha256": "594790dbc598a40a6f129eeb5586f1318c9596e978e541152456b60ae317d58a",
+        "bytes": 292245,
+        "source": "afd07c2f8:matter/src/numi_human.mm"
+      },
+      {
+        "path": "matter/src/regional_graph_schwarz.hpp",
+        "sha256": "9fe5ed05244f62ce79769ac372ae9b87d7eeba2562ddcebe36d071e795d28173",
+        "bytes": 37745,
+        "source": "afd07c2f8:matter/src/regional_graph_schwarz.hpp"
+      },
+      {
+        "path": "matter/tools/fem_material_frame_check.mm",
+        "sha256": "bc5d21cd7e479939362db8cb5df5843eadb767f0a69e4b6be424ce4315b9eb75",
+        "bytes": 116286,
+        "source": "afd07c2f8:matter/tools/fem_material_frame_check.mm"
+      },
+      {
+        "path": "matter/tools/fem_reference_check.mm",
+        "sha256": "9b24aad48c93bd7a38679f16298c37e0643294d3510efbe18ce2e2fb80fe5f4e",
+        "bytes": 107191,
+        "source": "afd07c2f8:matter/tools/fem_reference_check.mm"
+      },
+      {
+        "path": "matter/tools/fgmres_true_residual_native_check.mm",
+        "sha256": "43cef07e542f6814ac60ad27225295a17cbafbb17a611c8368a5900405dc2771",
+        "bytes": 1050260,
+        "source": "afd07c2f8:matter/tools/fgmres_true_residual_native_check.mm"
+      },
+      {
+        "path": "matter/tools/regional_graph_schwarz_layout_check.cpp",
+        "sha256": "3482e5dd57716b9c63abe20e0b4cfeb95f5f923af716228451af3e1d608a55d5",
+        "bytes": 48843,
+        "source": "afd07c2f8:matter/tools/regional_graph_schwarz_layout_check.cpp"
+      },
+      {
+        "path": "matter/src/metal/identification_scheduler.metalinc",
+        "sha256": "2ef3415bdb5a1c153fa314f39bb1c7904e70810bb56a33293888572092efaf29",
+        "bytes": 46076,
+        "source": "afd07c2f8:matter/src/metal/identification_scheduler.metalinc"
+      },
+      {
+        "path": "matter/CMakeLists.txt",
+        "sha256": "0362fe25d961123b10fe65f4d65310cc1ba35d241c120c11f1305eecab20b861",
+        "bytes": 155935,
+        "source": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/execution-source-snapshots-170.tar.gz:matter/CMakeLists.txt"
+      },
+      {
+        "path": "matter/tools/vascular_cavity_check.mm",
+        "sha256": "d87324371a47c1f974bd8db07074f80e7a4015519ffa3eecf36e6c091cc85c06",
+        "bytes": 212498,
+        "source": "afd07c2f8:matter/tools/vascular_cavity_check.mm"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_basis.hpp",
+        "sha256": "e57024d744fa35daa9dca3a7bb22dd8d2c0918f5f24fb0883c25bd6463ccd142",
+        "bytes": 28897,
+        "source": "afd07c2f8:matter/include/numi/matter/partitioned_reduction_basis.hpp"
+      },
+      {
+        "path": "matter/include/numi/matter/compiled_world_partitioned_reduction.hpp",
+        "sha256": "7b792e62ee544972d1a486a2835e080103a40cfae47cd7c36cd4966862b8711e",
+        "bytes": 53181,
+        "source": "afd07c2f8:matter/include/numi/matter/compiled_world_partitioned_reduction.hpp"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_mass_whitening.hpp",
+        "sha256": "75105c6199579c3e28f30c9046bb43b035ef775638ebed5e6cd9109fb80b53e0",
+        "bytes": 20248,
+        "source": "afd07c2f8:matter/include/numi/matter/partitioned_reduction_mass_whitening.hpp"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_sparse_support.hpp",
+        "sha256": "2a4388697b0584707e047d5562d2409ac471c0a19a136821f0b06b5774af3825",
+        "bytes": 31524,
+        "source": "afd07c2f8:matter/include/numi/matter/partitioned_reduction_sparse_support.hpp"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_fem_tangent.h",
+        "sha256": "b1752f3b6a0129baaad0a4a1c3b79c89f5ac4c0ba5891ccde9b72c062bb50b06",
+        "bytes": 12556,
+        "source": "afd07c2f8:matter/include/numi/matter/partitioned_reduction_fem_tangent.h"
+      },
+      {
+        "path": "matter/src/metal/partitioned_reduction_projection.metalinc",
+        "sha256": "f29076a148c77321a432839b6cf55deb9027e2b1262335c2e872fa5fdf71f4f9",
+        "bytes": 61676,
+        "source": "afd07c2f8:matter/src/metal/partitioned_reduction_projection.metalinc"
+      },
+      {
+        "path": "matter/src/metal/partitioned_reduction_fem_tangent.metalinc",
+        "sha256": "8018aadd5eac0b048f24b8927640a043854ce64917c215e73c5a75f8740e90d4",
+        "bytes": 40715,
+        "source": "afd07c2f8:matter/src/metal/partitioned_reduction_fem_tangent.metalinc"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatReductionLabels.hpp",
+        "sha256": "4df7ad93de75421f424da3116214b1d244e26bd79c583e81b488be37f72291e8",
+        "bytes": 207809,
+        "source": "afd07c2f8:apps/NumiHumanSkinFatReductionLabels.hpp"
+      },
+      {
+        "path": "matter/tools/partitioned_reduction_basis_check.cpp",
+        "sha256": "c4d7f02ef93a1614ae80c31675f735727654a02ab42d60b98930e2f1061d9069",
+        "bytes": 32225,
+        "source": "afd07c2f8:matter/tools/partitioned_reduction_basis_check.cpp"
+      },
+      {
+        "path": "matter/tools/compiled_world_partitioned_reduction_check.cpp",
+        "sha256": "ed42debb423f890deeea84d1ea808ca27f6d6b3eb9be0364ec7e59c4608f8207",
+        "bytes": 35950,
+        "source": "afd07c2f8:matter/tools/compiled_world_partitioned_reduction_check.cpp"
+      },
+      {
+        "path": "matter/tools/partitioned_reduction_projection_gpu_check.mm",
+        "sha256": "c410b8429232f4063ad0ab406b105c7a271cbb0539f80667b962206075807799",
+        "bytes": 101530,
+        "source": "afd07c2f8:matter/tools/partitioned_reduction_projection_gpu_check.mm"
+      }
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "stdout": {
+    "schema": 1,
+    "original_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/shared-three-rhs-native-190/install-motion.stdout.log",
+    "original_sha256": "5f62eacc8fb62b40e9d78fc741a190ef9eae4ad360b6f83b0fef07cf326bc585",
+    "original_bytes": 828095210,
+    "gzip_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/shared-three-rhs-native-190/install-motion.stdout.log.gz",
+    "gzip_sha256": "aefa87208ffe25e77da85acfaf7827930915e3ecce58b0b6569b5c1601f14b54",
+    "gzip_bytes": 130859595,
+    "restored_sha256": "5f62eacc8fb62b40e9d78fc741a190ef9eae4ad360b6f83b0fef07cf326bc585",
+    "restored_bytes": 828095210,
+    "restoration_verified": true,
+    "removed_original_after_verification": true
+  },
+  "MRV": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/shared-three-rhs-native-190/install-motion/resting-human.mrvpack",
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/fresh-scaled-preflight-native-178/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "independent_inode": true
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/shared-three-rhs-native-190/install-motion/accepted-geometry/step-1.mrvpack",
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/fresh-scaled-preflight-native-178/install-motion/accepted-geometry/step-1.mrvpack",
+      "sha256": "78637f5ec7f4c3e6ad76a25c4cd01cb0205394bd067b2be204f373a72d9e2ad4",
+      "independent_inode": true
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/shared-three-rhs-native-190/install-motion/accepted-geometry/step-0.mrvpack",
+      "source": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/fresh-scaled-preflight-native-178/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "independent_inode": true
+    }
+  ]
+}

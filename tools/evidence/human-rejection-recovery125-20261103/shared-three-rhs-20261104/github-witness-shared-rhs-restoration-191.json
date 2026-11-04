@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "verified_utc": "2026-11-04T07:26:38.341493+00:00",
+  "files": [
+    {
+      "revision": "afd07c2f88d91cf8a208a22cc12b85ba3c343ac5",
+      "path": "matter/src/metal/fgmres.metalinc",
+      "github_blob": "a8dd1249db9840c8ce6a720ee06e63e6f4d2f3d0",
+      "bytes": 835685,
+      "sha256": "4b8f9a4c5d98c310f92fc8c27e1c28ee6693d268dfb55898364c5298523e90bf",
+      "independent_download_equal": true
+    },
+    {
+      "revision": "afd07c2f88d91cf8a208a22cc12b85ba3c343ac5",
+      "path": "matter/tools/fgmres_true_residual_native_check.mm",
+      "github_blob": "79aed835e1b85bff0f1c49baa9ed49a65780af7a",
+      "bytes": 1050260,
+      "sha256": "43cef07e542f6814ac60ad27225295a17cbafbb17a611c8368a5900405dc2771",
+      "independent_download_equal": true
+    },
+    {
+      "revision": "1e5c8eb1ef85df2ffea90f2b43289d29bf8b94e3",
+      "path": "tools/evidence/human-rejection-recovery125-20261103/residual-witness-and-refinement-20261104/README.md",
+      "github_blob": "3ac54c22fb603fe4e545b2639f0fd0d44e60075e",
+      "bytes": 3485,
+      "sha256": "2e1a16041c04da1014f01453c658ff3bd805c154b28223063cf945bfc16a2778",
+      "independent_download_equal": true
+    },
+    {
+      "revision": "1e5c8eb1ef85df2ffea90f2b43289d29bf8b94e3",
+      "path": "tools/evidence/human-rejection-recovery125-20261103/residual-witness-and-refinement-20261104/execution-source-reconstruction.json",
+      "github_blob": "0bc764494ca733b624ba7e816da115c8ec743c89",
+      "bytes": 33312,
+      "sha256": "86d33924454212aa09d3bcc262731a1bed232b4d880f74cf0a3c433e352f9ed0",
+      "independent_download_equal": true
+    },
+    {
+      "revision": "1e5c8eb1ef85df2ffea90f2b43289d29bf8b94e3",
+      "path": "tools/evidence/human-rejection-recovery125-20261103/residual-witness-and-refinement-20261104/execution-source-delta.tar.gz",
+      "github_blob": "c29426f47182461b4b2310fd5e04441119948f6c",
+      "bytes": 466692,
+      "sha256": "c9d55d6813a34008f9b48aece84a68bccfa35aa18277507ce7136261762bc0a5",
+      "independent_download_equal": true
+    },
+    {
+      "revision": "1e5c8eb1ef85df2ffea90f2b43289d29bf8b94e3",
+      "path": "tools/evidence/human-rejection-recovery125-20261103/residual-witness-and-refinement-20261104/compact-native-traces.tar.gz",
+      "github_blob": "cb14881ec4b24e1d521bb8577d546f165e29157f",
+      "bytes": 73242,
+      "sha256": "32c81d0055844b6153a365c1b5d23be1313ce04bf0965cc073ce7106cc9d96c1",
+      "independent_download_equal": true
+    },
+    {
+      "revision": "1e5c8eb1ef85df2ffea90f2b43289d29bf8b94e3",
+      "path": "tools/evidence/human-rejection-recovery125-20261103/residual-witness-and-refinement-20261104/trace-manifest.json",
+      "github_blob": "369e009c8947ffdade65106ccb2ce128e60f24d1",
+      "bytes": 7115,
+      "sha256": "89f0af74b1c0774d3c480b4b4d81ccb95abe055064eb32126c02906562d028d8",
+      "independent_download_equal": true
+    },
+    {
+      "revision": "1e5c8eb1ef85df2ffea90f2b43289d29bf8b94e3",
+      "path": "tools/evidence/human-rejection-recovery125-20261103/residual-witness-and-refinement-20261104/full-vs-refined-hybrid-fidelity-188.json",
+      "github_blob": "116e400b9cf90fac306e78841ab042f3927aa2ca",
+      "bytes": 295581,
+      "sha256": "2f608cedc56b8c0046178b03b3d1f67928d2f47f350b36bb102390cb6f2c977d",
+      "independent_download_equal": true
+    }
+  ],
+  "restored_source_pin_instances": 120,
+  "native_trace_archive_restoration_verified": true
+}
