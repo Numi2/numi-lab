@@ -7586,24 +7586,8 @@ RuntimeDiagnostics Runtime::initialize(
                     source.regionLabels;
                 candidate->femHumanHybridResidualWitnessRowRegions.assign(
                     source.basisNodeCount, NM_INVALID_INDEX);
-                for (std::uint32_t row = 0u; row < source.basisNodeCount; ++row) {
-                    double bestEnergy = 0.0;
-                    std::uint32_t bestRegion = NM_INVALID_INDEX;
-                    for (std::uint32_t region = 0u; region < source.regionCount; ++region) {
-                        double energy = 0.0;
-                        for (std::uint32_t local = 0u; local < source.blockModeCount; ++local) {
-                            const std::uint32_t mode = source.blockModeIndices[
-                                std::size_t(region) * source.blockModeCount + local];
-                            const nm_float4 value = humanPartitionedCoefficient(source,mode,row);
-                            energy += double(value.x) * value.x +
-                                double(value.y) * value.y + double(value.z) * value.z;
-                        }
-                        if (energy > bestEnergy) { bestEnergy = energy; bestRegion = region; }
-                    }
-                    if (bestRegion != NM_INVALID_INDEX && bestEnergy > 0.0)
-                        candidate->femHumanHybridResidualWitnessRowRegions[row] =
-                            source.regionLabels[bestRegion];
-                }
+                // Filled below from the existing validated node-mode support,
+                // avoiding a dense row*mode scan during Human preparation.
             }
             const std::uint32_t tileCount = static_cast<std::uint32_t>(
                 (static_cast<std::uint64_t>(source.basisNodeCount) +
@@ -15132,6 +15116,35 @@ RuntimeDiagnostics Runtime::initialize(
                 !sparseSupport.regionSupportRows.empty() &&
                 sparseSupport.nodeModeRanges.size() == source.basisNodeCount &&
                 !sparseSupport.nodeModeSlots.empty();
+            if (candidate->femHumanHybridResidualWitnessEnabled) {
+                if (!sparseSupportShapeValid) {
+                    diagnostics.message="hybrid witness requires validated exact node-mode support";
+                    return diagnostics;
+                }
+                for (std::uint32_t row=0;row<source.basisNodeCount;++row) {
+                    const auto range=sparseSupport.nodeModeRanges[row];
+                    double energy=0.0,best=0.0;
+                    std::uint32_t region=NM_INVALID_INDEX,bestRegion=NM_INVALID_INDEX;
+                    const auto finishRegion=[&] {
+                        if (energy>best || (energy==best && energy>0.0 && region<bestRegion)) {
+                            best=energy;bestRegion=region;
+                        }
+                    };
+                    for (auto i=range.first;i<range.first+range.count;++i) {
+                        const auto slot=sparseSupport.nodeModeSlots[i];
+                        const auto nextRegion=slot/source.blockModeCount;
+                        if (nextRegion!=region) {finishRegion();region=nextRegion;energy=0.0;}
+                        const auto v=source.sparseCoefficientEncoding
+                            ? source.sparseBasisValues[source.sparseNodeModeValueIndices[i]]
+                            : humanPartitionedCoefficient(source,source.blockModeIndices[slot],row);
+                        energy+=double(v.x)*v.x+double(v.y)*v.y+double(v.z)*v.z;
+                    }
+                    finishRegion();
+                    if (bestRegion!=NM_INVALID_INDEX && best>0.0)
+                        candidate->femHumanHybridResidualWitnessRowRegions[row]=
+                            source.regionLabels[bestRegion];
+                }
+            }
             if (candidate->femHumanHybridCoordinatesEnabled) {
                 if (!sparseSupportShapeValid ||
                     world.fem.nodes.size() != world.dispatch.femNodeCount ||
@@ -27564,7 +27577,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 // The certification mode uses the device-side fresh residual
                 // to control restart state, but does not request host readback.
                 // Keep this observer strictly selector-gated.
-                if (!femTrueResidualEnabled || !femTrueResidualRootSelected)
+                if (!femTrueResidualEnabled || !femTrueResidualRootSelected ||
+                    (femTrueResidualNewtonSelectorSpecified &&
+                     micro.solverIteration!=femTrueResidualNewtonIteration))
                     return true;
                 const bool capturedHybridScope =
                     state.femHumanHybridCoordinatesEnabled;
@@ -27594,15 +27609,26 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const NSUInteger statusBytes =
                     environments * sizeof(NMMatterStatusGPU);
                 const NSUInteger diagnosticStatusBytes = statusBytes;
-                const NSUInteger hybridVectorBytes = capturedHybridWitness
+                // The Human witness needs two floats per source row, not two
+                // whole solver vectors. Preserve the legacy full component
+                // observer on small fixtures; explicitly mark it unavailable
+                // when it exceeds its original 2MiB cap. Mandatory GPU physical
+                // and projected certificates are independent and unchanged.
+                const NSUInteger requestedHybridVectorBytes = capturedHybridWitness
                     ? static_cast<NSUInteger>(state.fgmresLayout.unknownCount) *
                         sizeof(nm_float4) : 0u;
+                const NSUInteger witnessBaseBytes=metricBytes+stateBytes+statusBytes+
+                    diagnosticStatusBytes+hybridMetricBytes+hybridWitnessBytes;
+                const bool captureHybridComponents=capturedHybridWitness &&
+                    witnessBaseBytes+2u*requestedHybridVectorBytes<=2u*1024u*1024u;
+                const NSUInteger hybridVectorBytes=captureHybridComponents
+                    ? requestedHybridVectorBytes : 0u;
                 const NSUInteger hybridRightHandSideOffset = metricBytes +
                     stateBytes + statusBytes + diagnosticStatusBytes +
                     hybridMetricBytes + hybridWitnessBytes;
                 const NSUInteger hybridOperatorValueOffset =
                     hybridRightHandSideOffset + hybridVectorBytes;
-                if (capturedHybridWitness &&
+                if (captureHybridComponents &&
                     (state.femTrueResidualRightHandSide == nil ||
                      state.femTrueResidualOperatorValue == nil ||
                      state.femTrueResidualRightHandSide.length < hybridVectorBytes ||
@@ -27615,7 +27641,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     diagnosticStatusBytes + hybridMetricBytes + hybridWitnessBytes +
                     2u * hybridVectorBytes;
                 const NSUInteger maximumSnapshotBytes = capturedHybridWitness
-                    ? 2u * 1024u * 1024u : 16u * 1024u;
+                    ? 4u * 1024u * 1024u : 16u * 1024u;
                 if (bytes > maximumSnapshotBytes) {
                     if (capturedHybridWitness)
                         std::fprintf(stderr,
@@ -27667,6 +27693,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         destinationOffset:metricBytes + stateBytes + statusBytes +
                             diagnosticStatusBytes + hybridMetricBytes
                         size:hybridWitnessBytes];
+                    if (hybridVectorBytes!=0u) {
                     [copy copyFromBuffer:state.femTrueResidualRightHandSide
                         sourceOffset:0u toBuffer:snapshot
                         destinationOffset:hybridRightHandSideOffset
@@ -27675,6 +27702,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         sourceOffset:0u toBuffer:snapshot
                         destinationOffset:hybridOperatorValueOffset
                         size:hybridVectorBytes];
+                    }
                 }
                 [copy endEncoding];
                 const auto capturedMetricBytes = metricBytes;
@@ -27742,12 +27770,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 2u * capturedStatusBytes + hybridMetricBytes)
                         : nullptr;
                     const auto* hybridResidualRightHandSide =
-                        capturedHybridWitnessEnabled
+                        capturedHybridWitnessEnabled && capturedHybridVectorBytes!=0u
                             ? reinterpret_cast<const nm_float4*>(data +
                                 capturedHybridRightHandSideOffset)
                             : nullptr;
                     const auto* hybridResidualOperatorValue =
-                        capturedHybridWitnessEnabled
+                        capturedHybridWitnessEnabled && capturedHybridVectorBytes!=0u
                             ? reinterpret_cast<const nm_float4*>(data +
                                 capturedHybridOperatorValueOffset)
                             : nullptr;
@@ -27790,7 +27818,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  << (hybridMetrics[environment].w > 0.5f ? "true" : "false")
                                  << '}';
                         }
-                        if (capturedHybridWitnessEnabled && environment == 0u) {
+                        if (capturedHybridWitnessEnabled && environment == 0u &&
+                            capturedHybridVectorBytes==0u)
+                            line<<",\"hybrid_coordinate_residual_components\":{"
+                                "\"available\":false,\"reason\":\"bounded_witness_only_capture\","
+                                "\"mandatory_gpu_certificate_retained\":true}";
+                        if (capturedHybridWitnessEnabled && environment == 0u &&
+                            capturedHybridVectorBytes!=0u) {
                             const auto appendHybridDouble = [](
                                 std::ostringstream& output, double value) {
                                 if (std::isfinite(value))
@@ -27998,24 +28032,34 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  << ",\"block_mode_count\":" << capturedHybridWitnessBlockModeCount
                                  << ",\"mode_count\":" << capturedHybridWitnessModeCount
                                  << ",\"top_per_region_limit\":4,\"regions\":[";
+                            // One source-row pass and bounded top-four storage,
+                            // rather than regions*rows scans and full-region sorts.
+                            std::map<std::uint32_t,std::size_t> regionByLabel;
+                            std::vector<std::vector<CandidateWitnessRow>> regionTop(
+                                capturedHybridWitnessRegionLabels.size());
+                            for(std::size_t region=0;region<regionTop.size();++region)
+                                regionByLabel.emplace(capturedHybridWitnessRegionLabels[region],region);
+                            const auto before=[](const auto& a,const auto& b) {
+                                return a.l2!=b.l2 ? a.l2>b.l2 : a.node<b.node;
+                            };
+                            for(std::size_t row=0;row<capturedHybridWitnessNodeIndices.size();++row) {
+                                const auto found=regionByLabel.find(capturedHybridWitnessRowRegions[row]);
+                                if(found==regionByLabel.end())continue;
+                                const auto metric=hybridWitnessRows[row];
+                                if(!std::isfinite(metric[0])||!std::isfinite(metric[1])||
+                                   metric[0]<0.0f||metric[1]<0.0f)continue;
+                                CandidateWitnessRow value{capturedHybridWitnessNodeIndices[row],
+                                    metric[0],metric[1]};
+                                auto& top=regionTop[found->second];
+                                const auto at=std::lower_bound(top.begin(),top.end(),value,before);
+                                if(at!=top.end()||top.size()<4u) {
+                                    top.insert(at,value);if(top.size()>4u)top.pop_back();
+                                }
+                            }
                             for (std::size_t region = 0u;
                                  region < capturedHybridWitnessRegionLabels.size(); ++region) {
                                 if (region != 0u) line << ',';
-                                std::vector<CandidateWitnessRow> ranked;
-                                for (std::size_t row = 0u;
-                                     row < capturedHybridWitnessNodeIndices.size(); ++row) {
-                                    if (capturedHybridWitnessRowRegions[row] !=
-                                        capturedHybridWitnessRegionLabels[region]) continue;
-                                    const auto metric = hybridWitnessRows[row];
-                                    if (!std::isfinite(metric[0]) || !std::isfinite(metric[1]) ||
-                                        metric[0] < 0.0f || metric[1] < 0.0f) continue;
-                                    ranked.push_back({capturedHybridWitnessNodeIndices[row],
-                                                      metric[0], metric[1]});
-                                }
-                                std::sort(ranked.begin(), ranked.end(),
-                                    [](const auto& a, const auto& b) {
-                                        return a.l2 != b.l2 ? a.l2 > b.l2 : a.node < b.node;
-                                    });
+                                const auto& ranked=regionTop[region];
                                 line << "{\"region_label\":"
                                      << capturedHybridWitnessRegionLabels[region]
                                      << ",\"nodes\":[";
