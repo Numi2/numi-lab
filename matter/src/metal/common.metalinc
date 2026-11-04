@@ -195,15 +195,38 @@ inline float ipcBarrierEnergy(
         0.5f * radialCurvature * displacement * displacement, 0.0f);
 }
 
+// Resolve the positive numerical-clearance gap in dimensionless coordinates.
+// The old linear tail capped repulsion and discarded normal curvature before
+// the hard CCD boundary. Keep the actual IPC polynomial there; no new force,
+// state, clearance or extrapolation at nonpositive gaps is introduced.
+inline MRCompensatedScalar nmFEMPositiveGapIPCEnergy(
+    MRCompensatedScalar gap,float width,float stiffness) {
+    const auto u=mrCompensatedDivide(gap,{width,0.0f});
+    const auto u2=mrCompensatedMultiply(u,u);
+    const auto v=mrCompensatedAdd(u2,{-1.0f,0.0f});
+    const auto logRatio=nmCompensatedLog(u2);
+    const auto width2=mrCompensatedProduct(width,width);
+    const auto scale=mrCompensatedMultiply(
+        mrCompensatedMultiply({stiffness,0.0f},width2),width2);
+    return mrCompensatedNegate(mrCompensatedMultiply(scale,
+        mrCompensatedMultiply(mrCompensatedMultiply(v,v),logRatio)));
+}
+
 inline float nmFEMClearanceAlignedEnergy(float separation,float thickness,float k,float offset) {
     if(offset==0.0f)return ipcBarrierEnergy(separation,thickness,k,false,0.0f);
     if(!isfinite(offset)||offset<0.0f||!(thickness>offset)||!(separation>offset))return NAN;
-    return ipcBarrierEnergy(separation-offset,thickness-offset,k,false,0.0f);
+    const float gap=separation-offset,width=thickness-offset;
+    if(gap<1.0e-4f*width && k>0.0f) {
+        const auto energy=nmFEMPositiveGapIPCEnergy({gap,0.0f},width,k);
+        return energy.high+energy.low;
+    }
+    return ipcBarrierEnergy(gap,width,k,false,0.0f);
 }
 
 // Two-word FEM IPC energy. With zero numerical offset this is the exact
 // legacy unshifted law; the optional immutable-source offset translates gap
-// and activation width together. The same C1 continuation is retained.
+// and activation width together. The unshifted legacy continuation is retained;
+// aligned positive gaps use the actual IPC polynomial below its old cutoff.
 constant bool nmFEMClearanceAlignedBarrier [[function_constant(39)]];
 constant bool nmFEMClearanceAlignedBarrierActive =
     is_function_constant_defined(nmFEMClearanceAlignedBarrier)
@@ -239,6 +262,8 @@ inline MRCompensatedScalar ipcFEMBarrierEnergyCompensated(
         separation, {-regularizationFloor, 0.0f});
     const bool belowFloor = floorDelta.high < 0.0f ||
         (floorDelta.high == 0.0f && floorDelta.low < 0.0f);
+    if(clearanceOffset>0.0f && belowFloor)
+        return nmFEMPositiveGapIPCEnergy(separation,thickness,stiffness);
     const MRCompensatedScalar distance = belowFloor
         ? MRCompensatedScalar{regularizationFloor, 0.0f}
         : separation;

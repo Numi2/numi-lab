@@ -729,6 +729,12 @@ kernel void nm_mixed_check_reference_contact_clearance(
 // The reported contact energy must use the same numerical domain as the
 // assembled force and Armijo potential. No physical state is changed here.
 inline float nmMixedDeformableContactEnergy(const NMDeformableContactGPU c) {
+    if(nmFEMClearanceAlignedBarrierActive&&c.barrierHessianRow2.w>0.0f&&
+       c.barrierHessianRow0.w>0.0f) {
+        const auto energy=nmFEMPositiveGapIPCEnergy(
+            {c.barrierHessianRow0.w,0.0f},c.barrier.z-c.barrierHessianRow2.w,c.barrier.w);
+        return energy.high+energy.low;
+    }
     return nmFEMClearanceAlignedEnergy(c.pointAndSeparation.w,c.barrier.z,c.barrier.w,
         nmFEMClearanceAlignedBarrierActive ? c.barrierHessianRow2.w : 0.0f);
 }

@@ -1,0 +1,292 @@
+{
+  "baseline": "early-tangent-native-139",
+  "candidate": "positive-gap-native-145",
+  "baseline_accepted_steps": 24,
+  "candidate_accepted_steps": 25,
+  "step_s": 1.5625e-05,
+  "candidate_simulated_s": 0.000390625,
+  "accepted_gpu_ms": 192001.34758337,
+  "gpu_only_real_time_factor": 2.0344909289263426e-06,
+  "common_prefix_steps": 24,
+  "common_prefix_gpu_ms": {
+    "baseline": 170877.01116667,
+    "candidate": 170676.39395837
+  },
+  "CSV_common_prefix": [
+    {
+      "path": "diagnostics/registered-skin-native.csv",
+      "baseline_rows": 61950,
+      "candidate_rows": 61950,
+      "common_rows": 61950,
+      "common_rows_equal": true
+    },
+    {
+      "path": "resting-body-motion-partition.csv",
+      "baseline_rows": 3768,
+      "candidate_rows": 3925,
+      "common_rows": 3768,
+      "common_rows_equal": true
+    },
+    {
+      "path": "resting-com-momentum-diagnostic.csv",
+      "baseline_rows": 24,
+      "candidate_rows": 25,
+      "common_rows": 24,
+      "common_rows_equal": true
+    },
+    {
+      "path": "resting-com-q-index-map.csv",
+      "baseline_rows": 132,
+      "candidate_rows": 132,
+      "common_rows": 132,
+      "common_rows_equal": true
+    },
+    {
+      "path": "resting-com-q-integration.csv",
+      "baseline_rows": 24,
+      "candidate_rows": 25,
+      "common_rows": 24,
+      "common_rows_equal": true
+    },
+    {
+      "path": "resting-com-q-support-slip.csv",
+      "baseline_rows": 0,
+      "candidate_rows": 0,
+      "common_rows": 0,
+      "common_rows_equal": true
+    },
+    {
+      "path": "resting-com-support-impulses.csv",
+      "baseline_rows": 0,
+      "candidate_rows": 0,
+      "common_rows": 0,
+      "common_rows_equal": true
+    },
+    {
+      "path": "resting-coupled.csv",
+      "baseline_rows": 24,
+      "candidate_rows": 25,
+      "common_rows": 24,
+      "common_rows_equal": true,
+      "physiology": [
+        {
+          "column": "time_s",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "lung_volume_ml",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "airflow_ml_s",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "alveolar_pa",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "pleural_pa",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "diaphragm_mm",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "rib_mm",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "PaO2_mmhg",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "PaCO2_mmhg",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "SaO2",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "oxygen_balance_error_stpd_ml",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "co2_balance_error_stpd_ml",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "breaths",
+          "L2_relative_difference": null,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "tidal_ml",
+          "L2_relative_difference": null,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "lv_mmhg",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "rv_mmhg",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "aorta_mmhg",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "pulmonary_artery_mmhg",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "lv_ml",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "rv_ml",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "blood_ml",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "blood_error_ml",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "aortic_ejected_ml",
+          "L2_relative_difference": null,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "pulmonary_ejected_ml",
+          "L2_relative_difference": null,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "complete_filling_ejection_cycles",
+          "L2_relative_difference": null,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "last_lv_stroke_ml",
+          "L2_relative_difference": null,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "right_atrium_ml",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "left_atrium_ml",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "blood_continuity_residual_accum_ml",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "blood_physical_delta_accum_ml",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "blood_residual_minus_physical_ml",
+          "L2_relative_difference": null,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "blood_endpoint_minus_physical_ml",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "inspired_volume_accum_ml",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "last_inspiration_step",
+          "L2_relative_difference": null,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "last_inspiration_time_s",
+          "L2_relative_difference": null,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "last_inspiration_volume_accum_ml",
+          "L2_relative_difference": null,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "last_complete_breath_inspired_ml",
+          "L2_relative_difference": null,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "respiratory_net_volume_ml",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        },
+        {
+          "column": "respiratory_volume_balance_ml",
+          "L2_relative_difference": 0.0,
+          "L2_absolute_difference": 0.0
+        }
+      ]
+    },
+    {
+      "path": "resting-support-point-motion.csv",
+      "baseline_rows": 0,
+      "candidate_rows": 0,
+      "common_rows": 0,
+      "common_rows_equal": true
+    },
+    {
+      "path": "resting-support-selected-skin-witness.csv",
+      "baseline_rows": 32,
+      "candidate_rows": 32,
+      "common_rows": 32,
+      "common_rows_equal": true
+    },
+    {
+      "path": "resting-surface-audit.csv",
+      "baseline_rows": 1,
+      "candidate_rows": 1,
+      "common_rows": 1,
+      "common_rows_equal": true
+    }
+  ],
+  "claim": "one extra accepted step; no sustained, resting or 0.1x qualification; numerical contact continuation changed; engineering checks incomplete without full fine-FEM endpoint comparison"
+}

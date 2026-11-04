@@ -1,0 +1,14 @@
+{
+  "purpose": "Avoid repeating already rejected convergence shortcuts",
+  "prior_run": "final-ew-midpoint-062",
+  "forcing_maximum_eta": 0.005,
+  "steps": 4,
+  "step_s": 1.5625e-05,
+  "source_report_sha256": "4ac80b48b1833231f3bd70c7999402276f8caf32d5ffdeb860795bce501f2740",
+  "force_fidelity_gate": "fail",
+  "force_anatomical_region_gate": "fail",
+  "strain_fidelity_gate": "fail",
+  "volume_weighted_strain_relative_error": 0.0015060503505151097,
+  "maximum_per_tet_strain_relative_error": 455.4125131006305,
+  "decision": "Do not promote the old loose-forcing setting or repeat it without addressing the failed regional fidelity evidence; unchanged final residual acceptance alone did not qualify fidelity."
+}

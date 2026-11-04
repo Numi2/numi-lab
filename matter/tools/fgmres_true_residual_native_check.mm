@@ -17179,6 +17179,12 @@ void checkFEMAlignedBarrier(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MT
                     parameters.push_back({inverseResponse,dt,
                         impactRatio*10.0f*remaining/dt,0.0f});
                 }
+    // Paired distances whose positive gap is lost or distorted by projecting
+    // the distance before subtracting clearance, including the native141 scale.
+    for(float low:{2.0e-17f,5.0e-17f,7.0e-16f,1.0e-19f}) {
+        input.push_back({1.0e-9f,2.0e-9f,1.0e-9f,low});
+        parameters.push_back({6.76168e12f,1.5625e-5f,0.0f,0.0f});
+    }
     const unsigned validCount=unsigned(input.size());
     for(unsigned mode=0;mode<4;++mode) {
         input.push_back({mode==0?1.0e-9f:mode==1?0.5e-9f:1.5e-9f,2.0e-9f,
@@ -17197,14 +17203,14 @@ void checkFEMAlignedBarrier(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MT
     };
     for(unsigned i=0;i<validCount;++i) {
         const auto a=input[i],p=parameters[i];
-        const double gap=double(a.x)-a.z,w=double(a.y)-a.z,dt=p.y;
+        const double gap=(double(a.x)-a.z)+a.w,w=double(a.y)-a.z,dt=p.y;
         require(meta[i].x==a.y,"aligned barrier changed activation metadata");
         if(gap>=w) {
             require(got[i].x==0&&got[i].y==0&&got[i].z==0&&got[i].w==0,
                 "aligned barrier must deactivate at unchanged world activation");continue;
         }
         require(std::isfinite(meta[i].y)&&meta[i].y>0,"aligned stiffness finite");
-        const double d=std::max(gap,1.0e-4*w),s=d*d-w*w;
+        const double d=gap,s=d*d-w*w;
         const double expectedScale=std::max(10.0/(double(p.x)*dt*dt),
             std::max(double(p.z),0.0)/(double(p.x)*dt*std::max(w-d,1.0e-3*w)));
         const double expectedK=expectedScale/(w*w);
@@ -17215,9 +17221,9 @@ void checkFEMAlignedBarrier(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MT
         const double first=-k*(2*s*l+s*s/(d*d));
         const double second=-k*(2*l+4*s/(d*d)-s*s/(d*d*d*d));
         const double e0=-k*s*s*l;
-        const double energy=e0+(gap<1.0e-4*w?2*d*first*(gap-1.0e-4*w):0.0);
+        const double energy=e0;
         const double impulse=-2*d*first*dt;
-        const double curvature=gap<1.0e-4*w?0.0:std::max(4*d*d*second+2*first,0.0)*dt*dt;
+        const double curvature=std::max(4*d*d*second+2*first,0.0)*dt*dt;
         const double gpuEnergy=double(got[i].x)+got[i].y;
         require(close(gpuEnergy,energy,5.0e-4),"shifted paired potential differs from Float64 IPC");
         require(close(got[i].z,impulse,5.0e-4),"shifted force is not potential derivative");
@@ -17225,7 +17231,7 @@ void checkFEMAlignedBarrier(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MT
             "shifted curvature differs from potential Hessian");
         require(close(meta[i].z,energy,8.0e-4),"shifted scalar and paired potential disagree");
         // Independent finite difference of the same potential with frozen k.
-        if(gap>2.0e-4*w&&gap<0.9*w) {
+        if(gap>0.0&&gap<0.9*w) {
             const auto energyAt=[&](double x) {const double s0=x*x-w*w;return -k*s0*s0*std::log(x*x/(w*w));};
             const double h=std::min(gap,w-gap)*1.0e-4;
             const double derivative=(energyAt(gap+h)-energyAt(gap-h))/(2*h);
@@ -17239,6 +17245,8 @@ void checkFEMAlignedBarrier(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MT
         contacts[i].pointAndSeparation.w=input[i].x;
         contacts[i].barrier.z=input[i].y;contacts[i].barrier.w=meta[i].y*0.25f;
         contacts[i].barrierHessianRow2.w=input[i].z;
+        if(input[i].w!=0.0f)contacts[i].barrierHessianRow0.w=
+            float((double(input[i].x)-input[i].z)+input[i].w);
     }
     auto certificateEnergy=makeBuffer(device,std::vector<float>(count+1,-7.0f));
     dispatch(device,queue,pipeline(device,library,
@@ -17255,7 +17263,7 @@ void checkFEMAlignedBarrier(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MT
     require(reported[count]==-7.0f,"certificate energy output canary");
     require(got[count].x==-7&&meta[count].w==-7,"aligned barrier output canary");
     std::cout<<"fem_clearance_aligned_barrier=true Float64_energy_force_curvature=true "
-        "nanometre_underflow_avoided=true independent_inertial_impact_scaling=true invalid_domain_rejected=true cases="<<count<<" PASS\n";
+        "nanometre_underflow_avoided=true positive_gap_no_flat_curvature=true paired_response_and_certificate=true independent_inertial_impact_scaling=true invalid_domain_rejected=true cases="<<count<<" PASS\n";
 }
 
 
