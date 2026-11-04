@@ -1,0 +1,163 @@
+{
+  "repository": "Numi2/numi-lab",
+  "revision": "fef212e50",
+  "verification": "Independent GitHub API download, decode and byte/hash comparison",
+  "files": [
+    {
+      "path": "matter/src/runtime.mm",
+      "git_blob": "996247313cad0e197ca2c790658c8948d475b6a8",
+      "sha256": "6b8c2a7ab7f66886a7b139fcc1cff8a2f73ebf46e7fe57a29568c0fd1aceac8d",
+      "bytes": 3526683
+    },
+    {
+      "path": "matter/tools/fgmres_true_residual_native_check.mm",
+      "git_blob": "b85da4e70dfa4fcb78931b0f8cef075d59e35119",
+      "sha256": "9ff006c79d18dea51057780ba6d771a93042024e2eb0007dcc7bca4199a7426c",
+      "bytes": 1046695
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/comparison-173-176.json",
+      "git_blob": "3bf62eca348167fc6f1d182d0d95a28b2f6f8d7e",
+      "sha256": "a38c24907116a2ac5006423004f1fc5c308564cf6f4e65f84790d4b2d0eb09e6",
+      "bytes": 14501
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/github-ordered-gather-publication-verification-176.json",
+      "git_blob": "15a4b4dd54ff6358d369d5299127fcd2fe619cf3",
+      "sha256": "e82818a9032f4c6605a9cc6570416e7bd9c797ec980d1e99117fb56a5ea9212a",
+      "bytes": 964
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/github-solver-census-publication-verification-174.json",
+      "git_blob": "6fd234caa41a3c3db2ec743cc6d0bf66c345561d",
+      "sha256": "84b0136a933d454d26a581f0ad638f3546f0e86a976165ae71a1c9c981a8eb71",
+      "bytes": 25227
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/comparison-171-175.json",
+      "git_blob": "41daf8d4952fb7a04f75c6a7926136cf07253ee8",
+      "sha256": "be8005ab1a0bfcb0ab7a40dcb8204b99b925393285579b205d020e6ec1d2a2e3",
+      "bytes": 5113
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/ordered-gather-full-174-final.log.gz",
+      "git_blob": "9e7eb7ee873c7f878183b74d587b0c8203a60e49",
+      "sha256": "a98fa9b9cc75faf8f412d3f1a69eb7e8a4eb3fce89f0bf122cab4db830301ffc",
+      "bytes": 4306
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/verified-mrv-clones-174.json",
+      "git_blob": "1416582292c88401ed8013310f3720349c63f241",
+      "sha256": "dcf23fdda32d631d9af851289508d18c9756c091dd1da384a35b01f675e48354",
+      "bytes": 2183
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/README.md",
+      "git_blob": "23ab3d1f0c86ba24c7ffb70d7fd8540a34dd5a6e",
+      "sha256": "8005c4fab592843e74148fc3bab1d66342d09b0100b993d8758ebf77f11f6e95",
+      "bytes": 2786
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/ordered-gather-build-174.log.gz",
+      "git_blob": "168204f2b5299fd35714c5ddac21cde9c608fb5a",
+      "sha256": "0820de9ff9d2ed11b5fb049a9888d7a125bee11e86adecbbe8c021eb7c012a70",
+      "bytes": 3077
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/verified-compression-clones-175.json",
+      "git_blob": "f4b9183d89cfebe0453338edf26d39f10213c5c0",
+      "sha256": "9fc4b50df4e49788421c1b884a9919c6f9dc6f9ba23224568af7f1615750c54b",
+      "bytes": 2181
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/verified-mrv-clones-176.json",
+      "git_blob": "eab9ea35dd56dea9b100f679ca64b5d6b4f0699b",
+      "sha256": "e2d09b8af0c487e89c98be6972abf4050677cea5b61e97ab17b23e95a6b5aed8",
+      "bytes": 2081
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/ordered-gather-focused-174-retry.log.gz",
+      "git_blob": "2969a740336cf4334c6a3076f23bd73f3e6801ce",
+      "sha256": "3b5b92e948fde4dbb0b8a4f20c06355598d8c33f5279fb05c44c16ff3b12e668",
+      "bytes": 195
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/ordered-gather-focused-174.log.gz",
+      "git_blob": "80fad438e4fe601f97816ce68976dfea99785936",
+      "sha256": "f0489af8eda43c8abd165497e0d2a599ad3fb709baef01645a889c99a430ddc8",
+      "bytes": 138
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/source-176-matches-175.json",
+      "git_blob": "c9152793d048d37ba90321d8653209ba84f46107",
+      "sha256": "3f1c9647be8e0173f8af6f1ae475af0c53cea8375f39c7d5473e44af66b0e47d",
+      "bytes": 58
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/ordered-gather-prefix-176/build-manifest.json.gz",
+      "git_blob": "a256872ac2022a8b365eebfeae7f89dd39c8c531",
+      "sha256": "5e1b7a69bf2cd0937ce8152ec9ce4d0c9d95c8b3bfcb7281e6c2082e4a80e7cb",
+      "bytes": 3390
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/ordered-gather-prefix-176/install-motion.execution.json.gz",
+      "git_blob": "04b3f63efbf0617db2e24b797e33132528ba563a",
+      "sha256": "8544f8df8b22f5a79d943821d83d53356a76367b2e6f921ebe762dbdef7f7363",
+      "bytes": 517
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/ordered-gather-prefix-176/executed-runner.py.gz",
+      "git_blob": "2939a78275febdc593ae3b5bd9f28efbdc32d0a6",
+      "sha256": "4c566f6410a7ac6285f7eb8cc91d5a22c11e4e80c6aa6b8a640e65783c43960d",
+      "bytes": 2449
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/ordered-gather-prefix-176/install-motion.stderr.log.gz",
+      "git_blob": "e17bd8ff521eb2235214b2c93b55ec30605c3ef2",
+      "sha256": "4d8a02bd8295ccac0de11aa93b5256648f8c96a1ba363d40f37bab7d9768b295",
+      "bytes": 31840
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/ordered-gather-prefix-176/preparation-resource-retry.json.gz",
+      "git_blob": "b5fbd888d41a4cd006656ec271d0877efc2570e5",
+      "sha256": "f14e853494b46a301a7da40f2dbd5258040db01771a4deb72781f6ed80d482f0",
+      "bytes": 252
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/ordered-gather-prefix-176/install-motion.plan.json.gz",
+      "git_blob": "f735b4ea2e6c14b267d3a83812b712de137bc587",
+      "sha256": "5447f675defd120e72afa55a778371e6589deda5e2c11abb81ecfe4f123ce7b5",
+      "bytes": 22855
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/ordered-gather-native-175/build-manifest.json.gz",
+      "git_blob": "fd3c3edb963f662ee0264fc2c46cd2641446453c",
+      "sha256": "82524affbc3df4295555c92c4f9a6628917d615946b362ebab3d8713ea1dbcf5",
+      "bytes": 3657
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/ordered-gather-native-175/install-motion.execution.json.gz",
+      "git_blob": "770a337b55734c0a13f4ffef0ce6a7cf58d84dd5",
+      "sha256": "73e4197a4b36c4aee27e3860c6cf06c7f4019d41d5016f6d1c23c8c291edffd4",
+      "bytes": 518
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/ordered-gather-native-175/executed-runner.py.gz",
+      "git_blob": "5f484649ab12d35ef7c044965c2aa2afe1b8000b",
+      "sha256": "cc99a1d526f79235fda1fc66800a0059c38f71781f1cdaaff208b72a27cd8eb9",
+      "bytes": 2262
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/ordered-gather-native-175/install-motion.stderr.log.gz",
+      "git_blob": "33622fe000a6e4f59b4753402dcece5525586500",
+      "sha256": "70643ac243664b60ac575859666d8dc8e5c190e503602554e4f0a211f7f1694c",
+      "bytes": 6034
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/ordered-gather-20261104/ordered-gather-native-175/install-motion.plan.json.gz",
+      "git_blob": "02932999c9a695397cd49a170346543bd194c4ee",
+      "sha256": "c39b1fbb9ec6cbfa334f80afe94a65ca1e1d31783ce6bc92c5471a4ec30b4674",
+      "bytes": 25689
+    }
+  ]
+}
