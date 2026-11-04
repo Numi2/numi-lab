@@ -9086,6 +9086,224 @@ kernel void nm_fgmres_gather_nodes(
     }
 }
 
+
+// Ordered cooperative counterpart; scalar production path stays independently testable.
+kernel void nm_fgmres_gather_nodes_simd(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(3)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
+    device const NMFEMElementVectorGPU* elementOperator [[buffer(5)]],
+    device const uint* nodeIncidence [[buffer(6)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(7)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(8)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(9)]],
+    device const float4* direction [[buffer(10)]],
+    device float4* work [[buffer(11)]],
+    constant NMPrimalContactArguments& contact [[buffer(12)]],
+    device const NMFGMRESStateGPU* states [[buffer(13)]],
+    constant uint& articulatedNv [[buffer(14)]],
+    device const float* coupledPointJacobians [[buffer(15)]],
+    uint globalThread [[thread_position_in_grid]],
+    uint lane [[thread_index_in_simdgroup]],
+    uint simdGroup [[simdgroup_index_in_threadgroup]]
+) {
+    const uint global = globalThread / 32u;
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    if (lane == 0u) work[global] = float4(0.0f);
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    const NMIncidenceRangeGPU range = nodeRanges[global];
+    if (range.objectIndex == NM_INVALID_INDEX ||
+        range.objectIndex >= dispatch.objectCount) return;
+    const uint objectIndex = range.objectIndex;
+    const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    if ((states[environment].diagnostics.z > 0.5f &&
+         (microstep.flags & NM_MICROSTEP_FGMRES_TRUE_RESIDUAL) == 0u) ||
+        object.representation != NM_REPRESENTATION_FEM ||
+        !objectDue(object, schedulers[objectGlobal], adaptive[objectGlobal],
+                   microstep))
+        return;
+    float3 derivativeForce = float3(0.0f);
+    float pressureOperator = 0.0f;
+    uint activeElements = 0u;
+    const uint elementBase = environment * dispatch.tetrahedronCount;
+    // One SIMD per node, eight independent nodes per 256-thread group.
+    // Evaluate incidences in lanes; lane0 folds the original CSR order.
+    // Skipped records are not added as zeros. No floating-point atomics.
+    threadgroup float4 values[256u];
+    threadgroup uint valid[256u];
+    const uint shared = simdGroup * 32u + lane;
+    for (uint tile = 0u; tile < range.count; tile += 32u) {
+        const uint local = tile + lane;
+        float4 value = float4(0.0f);
+        uint live = 0u;
+        if (local < range.count) {
+            const uint index = nodeIncidence[range.first + local];
+            if (index < dispatch.tetrahedronCount) {
+                const NMTetrahedronGPU tet = environmentTetrahedron(
+                    dispatch,tetrahedra,environment,index);
+                if ((tet.identity.w & NM_OBJECT_ACTIVE) != 0u) {
+                    value = elementNodeVector(elementOperator[elementBase+index],tet,node);
+                    live = 1u;
+                }
+            }
+        }
+        values[shared] = value;
+        valid[shared] = live;
+        simdgroup_barrier(mem_flags::mem_threadgroup);
+        if (lane == 0u) {
+            for (uint i = 0u; i < min(32u,range.count-tile); ++i) {
+                const uint row = simdGroup*32u+i;
+                if (valid[row] != 0u) {
+                    derivativeForce += values[row].xyz;
+                    pressureOperator += values[row].w;
+                    ++activeElements;
+                }
+            }
+        }
+        simdgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    const float dt = objectTimestep(dispatch, schedulers[objectGlobal]);
+    const bool fixedVelocity =
+        femStaticConstraint(candidate[global].restAndFixed.w);
+    if (lane == 0u) work[global] = float4(
+        fixedVelocity ? float3(0.0f) :
+            candidate[global].positionAndMass.w * direction[global].xyz -
+                dt * dt * derivativeForce,
+        activeElements > 0u
+            ? pressureOperator / float(activeElements) : 0.0f);
+    const uint unifiedNode = dispatch.gridNodeCount + node;
+    const NMIncidenceRangeGPU contactRange = contact.nodeRanges[unifiedNode];
+    for (uint tile = 0u; tile < contactRange.count; tile += 32u) {
+        const uint incidence = tile + lane;
+        float3 value = float3(0.0f);
+        uint live = 0u;
+        do {
+            if (incidence >= contactRange.count) break;
+            const uint pairIndex = contact.nodeIncidence[
+                contactRange.first + incidence];
+            if (pairIndex >= dispatch.contactPairCount ||
+                contact.pairs[pairIndex].objectIndex != objectIndex) break;
+            const NMContactSampleGPU sample = primalContactSample(
+                dispatch, contact, environment, pairIndex);
+            if ((sample.identity.w & NM_CONTACT_VALID) != 0u) {
+                const float3 rigidDirection = coupledRigidPointDirection(
+                    dispatch, contact, coupledPointJacobians,
+                    environment, pairIndex,
+                    articulatedNv, direction);
+                value = coupledBarrierDirectionalForce(
+                    sample, direction[global].xyz - rigidDirection) +
+                    coupledFreeBoxAngularBarrierCorrection(
+                        dispatch, contact, environment, pairIndex,
+                        articulatedNv, direction);
+                live = 1u;
+            }
+        } while (false);
+        values[shared] = float4(value,0.0f);
+        valid[shared] = live;
+        simdgroup_barrier(mem_flags::mem_threadgroup);
+        if (lane == 0u)
+            for (uint i = 0u; i < min(32u,contactRange.count-tile); ++i)
+                if (valid[simdGroup*32u+i] != 0u)
+                    work[global].xyz += values[simdGroup*32u+i].xyz;
+        simdgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    const uint deformableCapacity = dispatch.deformableContactCapacity;
+    const uint deformableBase = environment * deformableCapacity;
+    const uint unifiedCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+    const NMIncidenceRangeGPU deformableRange =
+        contact.deformableNodeRanges[
+            environment * unifiedCount + unifiedNode];
+    for (uint tile = 0u; tile < deformableRange.count; tile += 32u) {
+        const uint incidence = tile + lane;
+        float3 value = float3(0.0f);
+        uint live = 0u;
+        do {
+            if (incidence >= deformableRange.count) break;
+            const uint encoded = contact.deformableNodeIncidence[
+                deformableRange.first + incidence];
+            const uint slot = encoded >> 3u;
+            const uint local = encoded & 7u;
+            if (slot >= deformableCapacity || local >= 6u) break;
+            const NMDeformableContactGPU deformable =
+                contact.deformableContacts[deformableBase + slot];
+            if ((deformable.identity.w & NM_CONTACT_VALID) == 0u ||
+                deformableContactNode(deformable, local) != unifiedNode) break;
+            float3 exactContactAction = float3(0.0f);
+            const float contactTimestep = deformable.identity.x <
+                    dispatch.objectCount
+                ? objectTimestep(dispatch, schedulers[
+                    environment * dispatch.objectCount + deformable.identity.x])
+                : 0.0f;
+            if (deformableExactVertexTriangleDirectionalForce(
+                    dispatch, deformable, candidate, direction, environment,
+                    unifiedNode, contactTimestep, exactContactAction, false)) {
+                value = exactContactAction;
+                live = 1u;
+                break;
+            }
+            float3 relativeDirection = float3(0.0f);
+            float mollifierDirection = 0.0f;
+            for (uint other = 0u; other < 6u; ++other) {
+                const uint otherNode = deformableContactNode(deformable, other);
+                float3 otherDirection = float3(0.0f);
+                if (otherNode >= dispatch.gridNodeCount &&
+                    otherNode - dispatch.gridNodeCount < dispatch.femNodeCount) {
+                    otherDirection = direction[
+                        environment * dispatch.femNodeCount +
+                        otherNode - dispatch.gridNodeCount].xyz;
+                    relativeDirection += deformableContactWeight(deformable, other) *
+                        deformableContactTimeScale(deformable, other) * otherDirection;
+                } else if (otherNode < dispatch.gridNodeCount) {
+                    const uint activeSlot = contact.mpmNodeToActive[
+                        environment * dispatch.gridNodeCount + otherNode];
+                    if (activeSlot < contact.mpmActiveNodeCounts[environment]) {
+                        otherDirection = direction[fgmresMPMIndex(
+                            dispatch, environment, activeSlot)].xyz;
+                        relativeDirection += deformableContactWeight(deformable, other) *
+                            deformableContactTimeScale(deformable, other) * otherDirection;
+                    }
+                }
+                mollifierDirection += dot(
+                    deformableMollifierGradient(deformable, other),
+                    deformableContactTimeScale(deformable, other) * otherDirection);
+            }
+            value = deformableContactTimeScale(deformable, local) * (
+                deformableContactWeight(deformable, local) *
+                    deformableBarrierDirectionalForce(
+                        deformable, relativeDirection) +
+                deformableMollifierGradient(deformable, local) *
+                    (deformable.mollifier.z * mollifierDirection));
+            live = 1u;
+        } while (false);
+        values[shared] = float4(value,0.0f);
+        valid[shared] = live;
+        simdgroup_barrier(mem_flags::mem_threadgroup);
+        if (lane == 0u)
+            for (uint i = 0u; i < min(32u,deformableRange.count-tile); ++i)
+                if (valid[simdGroup*32u+i] != 0u)
+                    work[global].xyz += values[simdGroup*32u+i].xyz;
+        simdgroup_barrier(mem_flags::mem_threadgroup);
+    }
+}
+
+// Translate an existing GPU-selected node range, preserving its zero-work
+// decision. Canonical node groups are not inferred from allocation capacity.
+kernel void nm_fgmres_prepare_simd_gather_dispatch(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMIndirectDispatchGPU* source [[buffer(1)]],
+    device NMIndirectDispatchGPU* output [[buffer(2)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global != 0u) return;
+    const ulong sourceNodeGroups = ulong(source[0].threadgroupsX);
+    const ulong boundedGroups = (ulong(dispatch.femNodeCount)+7ul)/8ul;
+    output[0] = {uint(min(sourceNodeGroups*32ul,boundedGroups)),1u,1u,0u};
+}
+
 // Preserve the assembled, free-node base residual before FGMRES repurposes its
 // residual arena for restart vectors. This scratch is consumed only by the
 // opt-in base-state Cauchy fallback after the ordinary Newton Armijo search

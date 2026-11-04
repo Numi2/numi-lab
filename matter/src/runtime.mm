@@ -4143,6 +4143,8 @@ struct Runtime::State {
     // It is rebuilt at each Newton linearization and may feed FGMRES,
     // conditioning-only tangent preconditioners, and regional AP. Direct
     // residual and Armijo paths never read it.
+    bool femGatherSIMDEnabled = false;
+    id<MTLBuffer> femGatherSIMDDispatch = nil;
     bool femCachedNodeSIMDEnabled = false;
     id<MTLBuffer> femCachedNodeSIMDDispatch = nil;
     id<MTLBuffer> femAlgorithmicTangentCache = nil;
@@ -5903,6 +5905,14 @@ RuntimeDiagnostics Runtime::initialize(
                     NM_VASCULAR_LAYOUT_COMPENSATED_CAVITY_WORDS;
             }
         }
+        const char* gatherSIMD = std::getenv("NM_FEM_GATHER_SIMD");
+        if (gatherSIMD != nullptr && std::strcmp(gatherSIMD,"0") != 0 &&
+            std::strcmp(gatherSIMD,"1") != 0) {
+            diagnostics.message = "NM_FEM_GATHER_SIMD must be0 or1";
+            return diagnostics;
+        }
+        candidate->femGatherSIMDEnabled =
+            gatherSIMD != nullptr && std::strcmp(gatherSIMD,"1") == 0;
         const char* cachedNodeSIMD = std::getenv("NM_FEM_CACHED_NODE_SIMD");
         if (cachedNodeSIMD != nullptr && std::strcmp(cachedNodeSIMD,"0") != 0 &&
             std::strcmp(cachedNodeSIMD,"1") != 0) {
@@ -8876,6 +8886,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_apply_operator_elements",
             "nm_fgmres_add_cohesive_operator",
             "nm_fgmres_gather_nodes",
+            "nm_fgmres_gather_nodes_simd",
+            "nm_fgmres_prepare_simd_gather_dispatch",
             "nm_fgmres_assemble_tet_xyz_blocks",
             "nm_fgmres_assemble_xyz_block_csr",
             "nm_fgmres_assemble_xyz_block_csr_edges",
@@ -9438,6 +9450,7 @@ RuntimeDiagnostics Runtime::initialize(
                 || std::strcmp(name, "nm_fgmres_apply_primal_rigid_contacts") == 0
                 || std::strcmp(name, "nm_fgmres_apply_support_dual") == 0
                 || std::strcmp(name, "nm_fgmres_gather_nodes") == 0
+                || std::strcmp(name, "nm_fgmres_gather_nodes_simd") == 0
                 || std::strcmp(name, "nm_fgmres_apply_xyz_block_csr") == 0
                 || std::strcmp(name, "nm_fgmres_apply_xyz_block_csr_simdrow") == 0
                 || std::strcmp(name, "nm_human_equality_operator") == 0
@@ -9777,6 +9790,10 @@ RuntimeDiagnostics Runtime::initialize(
             if(world.mixedSolver.executionBudgets.z!=1u &&
                world.mixedSolver.executionBudgets.z!=2u &&
                std::strcmp(name,"nm_fgmres_build_tangent_fem_preconditioner")==0) continue;
+            if (!candidate->femGatherSIMDEnabled &&
+                (std::strcmp(name,"nm_fgmres_gather_nodes_simd")==0 ||
+                 std::strcmp(name,"nm_fgmres_prepare_simd_gather_dispatch")==0))
+                continue;
             if (!candidate->femCachedNodeSIMDEnabled &&
                 (std::strcmp(name,"nm_fgmres_build_tangent_fem_block_preconditioner_cached_simd")==0 ||
                  std::strcmp(name,"nm_fgmres_prepare_cached_node_simd_dispatch")==0))
@@ -13219,6 +13236,22 @@ RuntimeDiagnostics Runtime::initialize(
                 "same-Newton restart augmentation requires finite inactive FEM field-state backing, no Human rows, and no vascular unknowns";
             return diagnostics;
         }
+        if (candidate->femGatherSIMDEnabled &&
+            (world.dispatch.environmentCount != 1u || world.dispatch.femNodeCount == 0u ||
+             world.dispatch.femNodeCount > std::numeric_limits<std::uint32_t>::max()/32u ||
+             world.mixedSolver.executionBudgets.z != 6u ||
+             world.mixedSolver.executionBudgets.w != 2u ||
+             candidate->femHumanHybridCoordinatesEnabled ||
+             candidate->femHuman6SchurCondensedFGMRESEnabled ||
+             world.dispatch.mpmActiveNodeCapacity != 0u ||
+             candidate->pipeline("nm_fgmres_gather_nodes_simd") == nil ||
+             candidate->pipeline("nm_fgmres_prepare_simd_gather_dispatch") == nil ||
+             candidate->pipeline("nm_fgmres_gather_nodes_simd").threadExecutionWidth != 32u ||
+             candidate->pipeline("nm_fgmres_gather_nodes_simd").maxTotalThreadsPerThreadgroup < 256u)) {
+            diagnostics.message = "SIMD gather requires the checked full-coordinate "
+                "single-environment selector6/cache2 FEM path without MPM or Schur";
+            return diagnostics;
+        }
         if (candidate->femCachedNodeSIMDEnabled &&
             (world.dispatch.environmentCount != 1u || world.dispatch.femNodeCount == 0u ||
              world.dispatch.femNodeCount > std::numeric_limits<std::uint32_t>::max()/32u ||
@@ -15039,6 +15072,10 @@ RuntimeDiagnostics Runtime::initialize(
                     "algorithmic tangent cache exceeds one Metal buffer limit";
                 return diagnostics;
             }
+            if (candidate->femGatherSIMDEnabled)
+                candidate->femGatherSIMDDispatch =
+                    privateScratch<NMIndirectDispatchGPU>(candidate->device,1u,
+                        valid,candidate->residentBytes);
             if (candidate->femCachedNodeSIMDEnabled)
                 candidate->femCachedNodeSIMDDispatch =
                     privateScratch<NMIndirectDispatchGPU>(candidate->device,1u,
@@ -19922,24 +19959,47 @@ RuntimeDiagnostics Runtime::encodeImpl(
             if (count == 0u) {
                 return;
             }
-            const bool profileKernel = selectedGpuTimingKernel(name);
+            const bool simdGather = state.femGatherSIMDEnabled &&
+                std::strcmp(name,"nm_fgmres_gather_nodes")==0;
+            const char* kernelName = simdGather ? "nm_fgmres_gather_nodes_simd" : name;
+            const NSUInteger launchCount = simdGather ? count*32u : count;
+            const bool profileKernel = selectedGpuTimingKernel(kernelName);
             if (profileKernel) {
                 [encoder endEncoding]; encoder = nil;
                 encoder = detail::timedEncoder(commandBuffer, state.device,
-                    name, request.controlStep);
+                    kernelName, request.controlStep);
                 primalResourcesEncoder = nil;
                 if (encoder == nil) {
                     diagnostics.message = "failed to create selected kernel timing encoder";
                     return;
                 }
             }
-            id<MTLComputePipelineState> pipeline = state.pipeline(name);
+            id<MTLComputePipelineState> pipeline = state.pipeline(kernelName);
             const NSUInteger width = std::min<NSUInteger>(
                 256u, pipeline.maxTotalThreadsPerThreadgroup);
             explicitIndirectDispatch = prepareCompletedContactIncidenceDispatch(
                 (count + width - 1u) / width, explicitIndirectDispatch);
             [encoder setComputePipelineState:pipeline];
             bind();
+            const auto dispatchRange = [&](id<MTLBuffer> range) {
+                if (simdGather) {
+                    [encoder setComputePipelineState:state.pipeline(
+                        "nm_fgmres_prepare_simd_gather_dispatch")];
+                    [encoder setBytes:&state.dispatch length:sizeof(state.dispatch) atIndex:0u];
+                    [encoder setBuffer:range offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femGatherSIMDDispatch offset:0u atIndex:2u];
+                    [encoder dispatchThreads:MTLSizeMake(1u,1u,1u)
+                        threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    range = state.femGatherSIMDDispatch;
+                    [encoder setComputePipelineState:pipeline];
+                    bind();
+                }
+                [encoder useResource:range usage:MTLResourceUsageRead];
+                [encoder dispatchThreadgroupsWithIndirectBuffer:range
+                    indirectBufferOffset:0u
+                    threadsPerThreadgroup:MTLSizeMake(width,1u,1u)];
+            };
             id<MTLBuffer> fgmresActiveDispatch = nil;
             id<MTLBuffer> newtonTailActiveDispatch = nil;
             if (state.dispatch.environmentCount == 1u && width == 256u) {
@@ -19982,14 +20042,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder useResource:explicitIndirectDispatch
                              usage:MTLResourceUsageRead];
                 ++diagnostics.indirectDispatchCount;
-                [encoder dispatchThreadgroupsWithIndirectBuffer:
-                    explicitIndirectDispatch indirectBufferOffset:0u
-                    threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+                dispatchRange(explicitIndirectDispatch);
             } else if (newtonTailActiveDispatch != nil) {
                 ++diagnostics.indirectDispatchCount;
-                [encoder dispatchThreadgroupsWithIndirectBuffer:
-                    newtonTailActiveDispatch indirectBufferOffset:0u
-                    threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+                dispatchRange(newtonTailActiveDispatch);
             } else {
                 if (fgmresColumnDispatch &&
                     state.dispatch.environmentCount == 1u && width == 256u) {
@@ -20006,18 +20062,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         ++fgmresNodeIndirectDispatchCount;
                     else
                         ++fgmresElementIndirectDispatchCount;
-                    [encoder dispatchThreadgroupsWithIndirectBuffer:
-                        fgmresActiveDispatch indirectBufferOffset:0u
-                        threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+                    dispatchRange(fgmresActiveDispatch);
                 } else {
                     ++diagnostics.threadDispatchCount;
                     diagnostics.requestedThreadCount +=
-                        static_cast<std::uint64_t>(count);
-                    [encoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+                        static_cast<std::uint64_t>(launchCount);
+                    [encoder dispatchThreads:MTLSizeMake(launchCount, 1u, 1u)
                         threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
                 }
             }
-            observeFirstFailureAfterDispatch(name);
+            observeFirstFailureAfterDispatch(kernelName);
             if (profileKernel) {
                 [encoder endEncoding]; encoder = nil;
                 encoder = [commandBuffer computeCommandEncoder];
@@ -43257,7 +43311,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         if (graph == nil || graphCapacity == 0u ||
                             ordinal >= graphCapacity) return
                                 (id<MTLIndirectComputeCommand>)nil;
-                        id<MTLComputePipelineState> pipeline = state.pipeline(name);
+                        const bool simdGather = state.femGatherSIMDEnabled &&
+                            std::strcmp(name,"nm_fgmres_gather_nodes")==0;
+                        id<MTLComputePipelineState> pipeline = state.pipeline(simdGather
+                            ? "nm_fgmres_gather_nodes_simd" : name);
                         if (pipeline == nil ||
                             pipeline.maxTotalThreadsPerThreadgroup == 0u) return
                                 (id<MTLIndirectComputeCommand>)nil;
@@ -43282,7 +43339,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     };
                     const auto finish = [&](id<MTLIndirectComputeCommand> cmd,
                         const char* name, NSUInteger itemCount) {
-                        id<MTLComputePipelineState> pipeline = state.pipeline(name);
+                        const bool simdGather = state.femGatherSIMDEnabled &&
+                            std::strcmp(name,"nm_fgmres_gather_nodes")==0;
+                        id<MTLComputePipelineState> pipeline = state.pipeline(simdGather
+                            ? "nm_fgmres_gather_nodes_simd" : name);
+                        if (simdGather) itemCount *= 32u;
                         const NSUInteger width = std::min<NSUInteger>(
                             256u, pipeline.maxTotalThreadsPerThreadgroup);
                         const NSUInteger groups = std::max<NSUInteger>(
