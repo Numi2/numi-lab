@@ -1,0 +1,167 @@
+{
+  "source_base": "9116cbb9a7b771f09b6518a73defd21b41c7e941",
+  "changed_files": [
+    "matter/src/metal/partitioned_reduction_projection.metalinc",
+    "matter/src/metal/partitioned_reduction_fem_tangent.metalinc",
+    "matter/src/runtime.mm",
+    "matter/tools/partitioned_reduction_projection_gpu_check.mm"
+  ],
+  "source_snapshot_verified_pins": 39,
+  "tests": {
+    "direct_GPU_paired_dispatches": 13,
+    "families": {
+      "mode": 3,
+      "block": 2,
+      "tangent": 8
+    },
+    "bitwise": true,
+    "full_solver_checks": 917050
+  },
+  "native": {
+    "baseline": "interpolated-armijo-native-151",
+    "candidate": "packed-regional-native-158",
+    "baseline_accepted_steps": 32,
+    "candidate_accepted_steps": 32,
+    "step_s": 1.5625e-05,
+    "candidate_simulated_s": 0.0005,
+    "accepted_gpu_ms": 315336.14679168,
+    "gpu_only_real_time_factor": 1.5856095315654193e-06,
+    "common_prefix_steps": 32,
+    "common_prefix_gpu_ms": {
+      "baseline": 331854.68737494,
+      "candidate": 315336.14679168
+    },
+    "CSV_common_prefix": [
+      {
+        "path": "diagnostics/registered-skin-native.csv",
+        "baseline_rows": 61950,
+        "candidate_rows": 61950,
+        "common_rows": 61950,
+        "common_rows_equal": true
+      },
+      {
+        "path": "resting-body-motion-partition.csv",
+        "baseline_rows": 5024,
+        "candidate_rows": 5024,
+        "common_rows": 5024,
+        "common_rows_equal": true
+      },
+      {
+        "path": "resting-com-momentum-diagnostic.csv",
+        "baseline_rows": 32,
+        "candidate_rows": 32,
+        "common_rows": 32,
+        "common_rows_equal": true
+      },
+      {
+        "path": "resting-com-q-index-map.csv",
+        "baseline_rows": 132,
+        "candidate_rows": 132,
+        "common_rows": 132,
+        "common_rows_equal": true
+      },
+      {
+        "path": "resting-com-q-integration.csv",
+        "baseline_rows": 32,
+        "candidate_rows": 32,
+        "common_rows": 32,
+        "common_rows_equal": true
+      },
+      {
+        "path": "resting-com-q-support-slip.csv",
+        "baseline_rows": 0,
+        "candidate_rows": 0,
+        "common_rows": 0,
+        "common_rows_equal": true
+      },
+      {
+        "path": "resting-com-support-impulses.csv",
+        "baseline_rows": 0,
+        "candidate_rows": 0,
+        "common_rows": 0,
+        "common_rows_equal": true
+      },
+      {
+        "path": "resting-coupled.csv",
+        "baseline_rows": 32,
+        "candidate_rows": 32,
+        "common_rows": 32,
+        "common_rows_equal": true
+      },
+      {
+        "path": "resting-support-point-motion.csv",
+        "baseline_rows": 0,
+        "candidate_rows": 0,
+        "common_rows": 0,
+        "common_rows_equal": true
+      },
+      {
+        "path": "resting-support-selected-skin-witness.csv",
+        "baseline_rows": 32,
+        "candidate_rows": 32,
+        "common_rows": 32,
+        "common_rows_equal": true
+      },
+      {
+        "path": "resting-surface-audit.csv",
+        "baseline_rows": 3,
+        "candidate_rows": 3,
+        "common_rows": 3,
+        "common_rows_equal": true
+      }
+    ],
+    "claim": "Exact regional scheduling only. Exploratory matched prefix timing; no supported-rest, sustained motion, presentation or0.1x qualification. Full fine-FEM endpoint force/energy parity not measured.",
+    "accepted_gpu_ms_uninstrumented_roots1plus": {
+      "baseline": 325330.78462495,
+      "candidate": 308905.35229168
+    },
+    "execution": {
+      "exit_code": 0,
+      "elapsed_s": 531.3954071998596,
+      "plan_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/packed-regional-native-158/install-motion.plan.json",
+      "plan_sha256": "6f1b13489533ef6607811bde90f254b35db79995dbaa69e98d871d6c3002a521",
+      "stdout_sha256": "b3d4094629d3d84d6d10f210e36dd2bdeab9eb03b9c7f9bfdaee1dc6a457d109",
+      "stderr_sha256": "c8d87f9d814683fcc2f1402667d6732300e6206403eb59ed484bb11d42183d4e",
+      "physical_admission": false,
+      "resource_stop_reason": null,
+      "source_import_pass": false,
+      "accepted_steps_are_separately_recorded_in_native_report": true
+    },
+    "MRV": [
+      {
+        "path": "resting-human.mrvpack",
+        "baseline_sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+        "candidate_sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+        "byte_identical": true
+      },
+      {
+        "path": "accepted-geometry/step-0.mrvpack",
+        "baseline_sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+        "candidate_sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+        "byte_identical": true
+      },
+      {
+        "path": "accepted-geometry/step-32.mrvpack",
+        "baseline_sha256": "6262d7d73c950cd6edd9021bb6c5b54f17be3af49e14b05a412a793352ae9400",
+        "candidate_sha256": "6262d7d73c950cd6edd9021bb6c5b54f17be3af49e14b05a412a793352ae9400",
+        "byte_identical": true
+      }
+    ]
+  },
+  "timing": {
+    "matched_uninstrumented_roots": 31,
+    "baseline_gpu_ms": 325330.78462495,
+    "candidate_gpu_ms": 308905.35229168,
+    "throughput_ratio": 1.0531730260140022,
+    "exploratory_single_pair": true,
+    "sustained_or_integrated_claim": false
+  },
+  "work_counts": {
+    "node_tiles": 1670,
+    "prior_padded_node_tiles": 21842,
+    "tet_tiles": 9999,
+    "prior_padded_tet_tiles": 104646,
+    "immutable_metadata_bytes": 186704
+  },
+  "limits": "32 steps=0.5ms, release transient. Not supported rest, motion/physiology qualification, end-to-end presentation or0.1x. No model/timestep/mass/contact/certification relaxation. No full fine-FEM force/energy endpoint comparison was collected; direct kernel results, CSV traces and all retained MRV states are bitwise. Trial155 was resource stopped before any accepted root."
+}
