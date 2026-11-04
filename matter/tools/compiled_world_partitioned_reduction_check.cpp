@@ -563,7 +563,8 @@ void runRejectCase() {
             "selector zero admitted without an exact object- and world-bound source label map");
 }
 
-void runRankDeficientRegionPromotionCase() {
+void runRankDeficientRegionPromotionCase(
+    const std::size_t retainedNodeCount, const bool sparse) {
     using namespace numi::matter;
     const std::uint32_t attachment = nodeIndex(0u, 3u, 3u);
     const std::uint32_t contact = nodeIndex(2u, 1u, 1u);
@@ -599,9 +600,9 @@ void runRankDeficientRegionPromotionCase() {
             world.fem.nodes[global].restAndFixed.w == 1.0f)
             continue;
         retainedRegionOneNodes.push_back(global);
-        if (retainedRegionOneNodes.size() == 3u) break;
+        if (retainedRegionOneNodes.size() == retainedNodeCount) break;
     }
-    require(retainedRegionOneNodes.size() == 3u,
+    require(retainedRegionOneNodes.size() == retainedNodeCount,
             "rank-deficiency fixture could not retain three free regional nodes");
     std::set<std::uint32_t> retained(retainedRegionOneNodes.begin(),
                                      retainedRegionOneNodes.end());
@@ -621,6 +622,7 @@ void runRankDeficientRegionPromotionCase() {
         targetGlobalOffset + thorax};
     CompiledWorldPartitionedReductionOptions options;
     options.minimumCoordinateReductionFactor = 2u;
+    options.sparseCoefficientEncoding = sparse;
     options.activeContactAnchorGlobalFEMNodes =
         std::span<const std::uint32_t>(contactAnchors);
     options.thoraxAnchorGlobalFEMNodes =
@@ -631,9 +633,13 @@ void runRankDeficientRegionPromotionCase() {
     const auto rejected = buildCompiledWorldPartitionedReductionBasis(
         world, 1u, options);
     require(!rejected.valid() &&
-                rejected.error.find("rank deficient") != std::string::npos,
+                (rejected.error.find("rank deficient") != std::string::npos ||
+                 rejected.error.find("linearly dependent") != std::string::npos),
             "rank-deficient fine candidate did not fail closed with promotion disabled");
 
+    if (retainedNodeCount == 1u)
+        require(rejected.basis.rankDeficientRegionLabel == 1u,
+                "early rigid Gram failure lost the exact source-region witness");
     options.promoteRankDeficientRegionsToFine = true;
     const auto promoted = buildCompiledWorldPartitionedReductionBasis(
         world, 1u, options);
@@ -667,8 +673,7 @@ void runRankDeficientRegionPromotionCase() {
             const auto& descriptor = promoted.basis.modes[mode];
             if (descriptor.kind == PartitionedReductionModeKind::anchorTranslation)
                 continue;
-            const auto& value = promoted.basis.values[
-                static_cast<std::size_t>(mode) * promoted.basis.nodeCount + local];
+            const auto value = promoted.basis.coefficient(mode, local);
             require(value.x == 0.0f && value.y == 0.0f && value.z == 0.0f,
                     "promoted fine row still contributes to a reduced affine mode");
         }
@@ -689,7 +694,10 @@ int main() {
     runValidCase();
     runSelectorZeroExplicitSourceLabelsCase();
     runRejectCase();
-    runRankDeficientRegionPromotionCase();
+    for (const bool sparse : {false, true}) {
+        runRankDeficientRegionPromotionCase(3u, sparse); // affine-only rank loss
+        runRankDeficientRegionPromotionCase(1u, sparse); // earlier rigid rank loss
+    }
     std::cout << "compiled world partitioned reduction: compiled ancestry, fine anchors, "
                  "affine reproduction, B^T M B, B^T f, virtual work, and fail-closed "
                  "source labels passed\n";

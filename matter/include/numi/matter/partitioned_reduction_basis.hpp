@@ -181,6 +181,9 @@ struct PartitionedReductionBasis {
     // `values` and the supplied lumped nodal masses.
     std::vector<double> projectedMass;
     std::string error;
+    // Diagnostic only: a failed regional Gram pivot. The basis stays invalid;
+    // the compiled owner may retire this entire anatomical block to fine rows.
+    std::uint32_t rankDeficientRegionLabel = NM_INVALID_INDEX;
 
     [[nodiscard]] bool valid() const noexcept { return error.empty(); }
 };
@@ -265,8 +268,10 @@ namespace partitioned_reduction_detail {
 
 [[nodiscard]] inline bool choleskyPositiveDefinite(
     const std::span<const double> matrix,
-    const std::size_t dimension
+    const std::size_t dimension,
+    std::size_t* failedPivot = nullptr
 ) {
+    if (failedPivot != nullptr) *failedPivot = 0u;
     if (dimension == 0u || matrix.size() != dimension * dimension) return false;
     std::vector<double> lower(dimension * dimension, 0.0);
     double scale = 0.0;
@@ -281,7 +286,10 @@ namespace partitioned_reduction_detail {
                 value -= lower[row * dimension + k] *
                     lower[column * dimension + k];
             if (row == column) {
-                if (!(value > threshold) || !std::isfinite(value)) return false;
+                if (!(value > threshold) || !std::isfinite(value)) {
+                    if (failedPivot != nullptr) *failedPivot = row;
+                    return false;
+                }
                 lower[row * dimension + column] = std::sqrt(value);
             } else {
                 lower[row * dimension + column] = value /
@@ -289,6 +297,7 @@ namespace partitioned_reduction_detail {
             }
         }
     }
+    if (failedPivot != nullptr) *failedPivot = dimension;
     return true;
 }
 
@@ -524,8 +533,12 @@ namespace partitioned_reduction_detail {
             (sizeof(nm_float4)+sizeof(std::uint32_t)))
         return fail("partitioned sparse coefficient storage exceeds the checked byte budget");
     result.projectedMass = partitionedProjectedMass(result,input.lumpedMass);
-    if (!choleskyPositiveDefinite(result.projectedMass, result.modeCount))
+    std::size_t failedPivot = result.modeCount;
+    if (!choleskyPositiveDefinite(result.projectedMass, result.modeCount, &failedPivot)) {
+        if (failedPivot < result.modes.size())
+            result.rankDeficientRegionLabel = result.modes[failedPivot].regionLabel;
         return fail("partitioned basis modes are linearly dependent under the supplied nodal mass");
+    }
     return result;
 }
 

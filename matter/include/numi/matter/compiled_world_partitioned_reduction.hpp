@@ -885,18 +885,21 @@ buildCompiledWorldPartitionedReductionBasis(
             positions, masses, basisFixedMask, activeTetrahedra,
             activeRegionLabels, localAnchors};
         output.basis = buildPartitionedReductionBasis(input, baseOptions);
-        if (!output.basis.valid()) {
-            output.error = output.basis.error;
-            return output;
-        }
         std::uint32_t deficientRegion = NM_INVALID_INDEX;
-        if (finalizeAffineModes(output.basis,
-                                options.minimumCoordinateReductionFactor,
-                                options.maximumModeCount, positions, masses,
-                                basisFixedMask, &deficientRegion,
-                                options.maximumDenseCoefficientBytes)) {
-            output.error.clear();
-            break;
+        if (output.basis.valid()) {
+            if (finalizeAffineModes(output.basis,
+                                    options.minimumCoordinateReductionFactor,
+                                    options.maximumModeCount, positions, masses,
+                                    basisFixedMask, &deficientRegion,
+                                    options.maximumDenseCoefficientBytes)) {
+                output.error.clear();
+                break;
+            }
+        } else {
+            // Fine-row promotion can exhaust a rigid block before the affine
+            // builder is reached. Keep the failed basis invalid and use the
+            // same exact whole-region fallback as an affine Gram failure.
+            deficientRegion = output.basis.rankDeficientRegionLabel;
         }
         output.error = output.basis.error;
         if (deficientRegion != NM_INVALID_INDEX)
