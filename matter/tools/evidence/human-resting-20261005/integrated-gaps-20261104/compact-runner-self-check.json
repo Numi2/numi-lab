@@ -1,0 +1,7 @@
+{
+  "pass": true,
+  "native_nonzero_exit_preserved": 7,
+  "compressed_trace_round_trip": true,
+  "plaintext_sha256": "519b6baef4a86632785b885443b9d59474e349a8096a53c56f217bbcb45e769d",
+  "runner_sha256": "20b3f2168932125c64916b04c6c8acafbc8d859e8c29194f178b6a9f776ea7d8"
+}

@@ -15844,6 +15844,27 @@ namespace numi_matter_metal {
 // Once latched, no later statically encoded Newton tail changes the candidate.
 // The first Newton iteration always dispatches fully, even if the state buffer
 // still contains a latch from a previous transaction.
+// Cooperative bundles use eight tetrahedra per group. Keep each material
+// subset's exact domain and the existing accepted completed-tail predicate.
+// Mandatory residual and physical certification remain separately scheduled.
+kernel void nm_fem_prepare_cooperative_tangent_dispatch(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMFGMRESStateGPU* states [[buffer(2)]],
+    device const NMMatterStatusGPU* statuses [[buffer(3)]],
+    device const uint* groupCounts [[buffer(4)]],
+    constant uint& subsetCount [[buffer(5)]],
+    constant uint& forceCompletedCacheRebuild [[buffer(6)]],
+    device NMIndirectDispatchGPU* arguments [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global>=subsetCount) return;
+    const bool completedTail=forceCompletedCacheRebuild==0u &&
+        dispatch.environmentCount==1u && microstep.solverIteration>0u &&
+        environmentHealthy(statuses,0u) && states[0].nonlinear.w>0.5f;
+    arguments[global]={completedTail?0u:groupCounts[global],1u,1u,0u};
+}
+
 kernel void nm_fgmres_prepare_newton_tail_dispatch(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],

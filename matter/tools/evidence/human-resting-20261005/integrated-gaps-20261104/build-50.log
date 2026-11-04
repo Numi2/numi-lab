@@ -1,0 +1,6 @@
+[0/2] Re-checking globbed directories...
+[1/6] Linking CXX static library matter/libnumi_matter_runtime.a
+[2/6] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-contact-node-incidence-sort-native-check.dir/tools/cardboard_contact_node_incidence_sort_native_check.mm.o
+[3/6] Linking CXX executable matter/numi-matter-cardboard-contact-node-incidence-sort-native-check
+[4/6] Building OBJCXX object matter/CMakeFiles/numi-matter-fgmres-true-residual-native-check.dir/tools/fgmres_true_residual_native_check.mm.o
+[5/6] Linking CXX executable matter/numi-matter-fgmres-true-residual-native-check

@@ -307,7 +307,55 @@ void executeOwnerEnumeration(id<MTLDevice> device, id<MTLLibrary> library) {
     }
 }
 
+
+// Join the production legacy/bitonic/radix generators to the exact owner
+// enumerator, rather than only testing a separately authored incidence table.
+void verifyGeneratedOwnerEnumeration(
+    id<MTLDevice> device,id<MTLComputePipelineState> verify,
+    NMMatterDispatchGPU dispatch,
+    const std::vector<NMDeformableContactGPU>& contacts,
+    id<MTLBuffer> contactsBuffer,id<MTLBuffer> ranges,id<MTLBuffer> incidence,
+    const std::vector<std::uint32_t>& activeIndices,
+    const std::vector<std::uint32_t>& activeCounts) {
+    dispatch.objectCount=1u;
+    NMContinuumObjectGPU owner{};owner.representation=NM_REPRESENTATION_FEM;
+    owner.flags=NM_OBJECT_ACTIVE;owner.stateCount=dispatch.femNodeCount;
+    const auto db=inputBuffer(device,std::vector<NMMatterDispatchGPU>{dispatch});
+    const auto ob=inputBuffer(device,std::vector<NMContinuumObjectGPU>{owner});
+    const auto out=zeroBuffer<nm_uint4>(device,dispatch.environmentCount);
+    auto queue=[device newCommandQueue];auto command=[queue commandBuffer];
+    auto encoder=[command computeCommandEncoder];
+    [encoder setComputePipelineState:verify];
+    [encoder setBuffer:db offset:0 atIndex:0];[encoder setBuffer:ob offset:0 atIndex:1];
+    [encoder setBuffer:contactsBuffer offset:0 atIndex:2];
+    [encoder setBuffer:ranges offset:0 atIndex:3];[encoder setBuffer:incidence offset:0 atIndex:4];
+    [encoder setBuffer:out offset:0 atIndex:5];
+    [encoder dispatchThreads:MTLSizeMake(dispatch.environmentCount,1,1)
+        threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+    [encoder endEncoding];[command commit];[command waitUntilCompleted];
+    require(command.status==MTLCommandBufferStatusCompleted,"generated owner enumeration execution");
+    const auto* actual=static_cast<const nm_uint4*>(out.contents);
+    const std::uint32_t first=dispatch.gridNodeCount,last=first+dispatch.femNodeCount;
+    const auto capacity=dispatch.deformableContactCapacity;
+    for(std::uint32_t env=0;env<dispatch.environmentCount;++env) {
+        nm_uint4 expected{0u,0u,0u,1u};
+        for(std::uint32_t active=0;active<std::min(activeCounts[env],capacity);++active) {
+            const auto slot=activeIndices[env*capacity+active];
+            if(slot>=capacity)continue;
+            const auto& c=contacts[env*capacity+slot];
+            if((c.identity.w&NM_CONTACT_VALID)==0u||(c.identity.x!=0u&&c.identity.y!=0u))continue;
+            bool affectsOwner=false;
+            for(const auto n:{c.nodes.x,c.nodes.y,c.nodes.z,c.nodes.w,c.extraNodes.x,c.extraNodes.y})
+                affectsOwner=affectsOwner||(n>=first&&n<last);
+            if(affectsOwner) {++expected.x;expected.y+=slot;expected.z^=slot;}
+        }
+        require(std::memcmp(&actual[env],&expected,sizeof(expected))==0,
+            "generated incidence lost or duplicated an owning contact");
+    }
+}
+
 void executeCase(id<MTLDevice> device,
+                 id<MTLComputePipelineState> ownerVerify,
                  const std::vector<Environment>& environments,
                  id<MTLComputePipelineState> emit,
                  id<MTLComputePipelineState> bitonic,
@@ -675,11 +723,17 @@ void executeCase(id<MTLDevice> device,
          std::span<const NMMatterStatusGPU>(gpuLegacyStatuses, kEnvironments))
         require(status.code == 0u,
                 "native legacy incidence reported a capacity/status failure");
+    for(const auto& buffers:std::array{
+            std::pair{ranges,incidence},std::pair{legacyRanges,legacyIncidence},
+            std::pair{radixRanges,radixIncidence}})
+        verifyGeneratedOwnerEnumeration(device,ownerVerify,dispatch,
+            contacts,contactsBuffer,buffers.first,buffers.second,activeIndices,activeCounts);
 }
 
 
 void executeHierarchicalRadixCase(
     id<MTLDevice> device,
+    id<MTLComputePipelineState> ownerVerify,
     const std::vector<std::uint32_t>& requestedActiveCounts,
     id<MTLComputePipelineState> emit,
     id<MTLComputePipelineState> histogram,
@@ -989,6 +1043,8 @@ void executeHierarchicalRadixCase(
          std::span<const NMMatterStatusGPU>(gpuStatuses, environmentCount))
         require(status.code == 0u,
                 "hierarchical radix scan reported capacity/status failure");
+    verifyGeneratedOwnerEnumeration(device,ownerVerify,dispatch,
+        packedContacts,contactsBuffer,ranges,incidence,activeIndices,requestedActiveCounts);
 
     if (environmentCount == 1u) {
         const std::uint32_t activeCount =
@@ -2037,8 +2093,9 @@ int main() {
             executeColumnTrace(device, library);
             executeEmptyTransportPublication(device, library);
             executeOwnerEnumeration(device, library);
+            auto ownerVerify=makePipeline(device,library,"nm_mixed_owner_contact_enumeration_check");
             executeCompactionParity(device, library);
-            executeCase(device, explicitCase(), emit, bitonic, countSorted,
+            executeCase(device, ownerVerify, explicitCase(), emit, bitonic, countSorted,
                         countLegacy, scan, scatter, scatterLegacy,
                         radixHistogram, radixPrefix, radixScatter, countRadix,
                         copyRadix, scanTiles, scanTileOffsets, scanAddTileOffsets,
@@ -2046,7 +2103,7 @@ int main() {
             ++checks;
             // Preserve the previous seven-pass control for parity coverage;
             // the dynamic case above now exercises the production width.
-            executeCase(device, explicitCase(), emit, bitonic, countSorted,
+            executeCase(device, ownerVerify, explicitCase(), emit, bitonic, countSorted,
                         countLegacy, scan, scatter, scatterLegacy,
                         radixHistogram, radixPrefix, radixScatter, countRadix,
                         copyRadix, scanTiles, scanTileOffsets, scanAddTileOffsets,
@@ -2055,41 +2112,41 @@ int main() {
             // Force the full-width fallback on the small fixture. The high
             // key digit is zero here, while this exercises the even-pass
             // ping-pong parity and final copy used for large node domains.
-            executeCase(device, explicitCase(), emit, bitonic, countSorted,
+            executeCase(device, ownerVerify, explicitCase(), emit, bitonic, countSorted,
                         countLegacy, scan, scatter, scatterLegacy,
                         radixHistogram, radixPrefix, radixScatter, countRadix,
                         copyRadix, scanTiles, scanTileOffsets, scanAddTileOffsets,
                         8u);
             ++checks;
-            executeCase(device, zeroActiveCase(), emit, bitonic, countSorted,
+            executeCase(device, ownerVerify, zeroActiveCase(), emit, bitonic, countSorted,
                         countLegacy, scan, scatter, scatterLegacy,
                         radixHistogram, radixPrefix, radixScatter, countRadix,
                         copyRadix, scanTiles, scanTileOffsets, scanAddTileOffsets,
                         7u);
             ++checks;
-            executeCase(device, invalidSlotCase(), emit, bitonic, countSorted,
+            executeCase(device, ownerVerify, invalidSlotCase(), emit, bitonic, countSorted,
                         countLegacy, scan, scatter, scatterLegacy,
                         radixHistogram, radixPrefix, radixScatter, countRadix,
                         copyRadix, scanTiles, scanTileOffsets, scanAddTileOffsets,
                         7u);
             ++checks;
-            executeHierarchicalRadixCase(device, {1365u}, emit, radixHistogram,
+            executeHierarchicalRadixCase(device, ownerVerify, {1365u}, emit, radixHistogram,
                 radixPrefix, radixPrefixPrepare, radixPrefixBlocks,
                 radixPrefixChunkOffsets, prepareRadixDispatch, radixScatter,
                 countRadix, scanTiles, scanTileOffsets, scanAddTileOffsets);
             ++checks;
-            executeHierarchicalRadixCase(device, {1366u}, emit, radixHistogram,
+            executeHierarchicalRadixCase(device, ownerVerify, {1366u}, emit, radixHistogram,
                 radixPrefix, radixPrefixPrepare, radixPrefixBlocks,
                 radixPrefixChunkOffsets, prepareRadixDispatch, radixScatter,
                 countRadix, scanTiles, scanTileOffsets, scanAddTileOffsets);
             ++checks;
-            executeHierarchicalRadixCase(device, {1365u, 1366u}, emit,
+            executeHierarchicalRadixCase(device, ownerVerify, {1365u, 1366u}, emit,
                 radixHistogram, radixPrefix, radixPrefixPrepare,
                 radixPrefixBlocks, radixPrefixChunkOffsets,
                 prepareRadixDispatch, radixScatter, countRadix, scanTiles,
                 scanTileOffsets, scanAddTileOffsets);
             ++checks;
-            executeHierarchicalRadixCase(device, {0u, 1366u}, emit,
+            executeHierarchicalRadixCase(device, ownerVerify, {0u, 1366u}, emit,
                 radixHistogram, radixPrefix, radixPrefixPrepare,
                 radixPrefixBlocks, radixPrefixChunkOffsets,
                 prepareRadixDispatch, radixScatter, countRadix, scanTiles,

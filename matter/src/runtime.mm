@@ -4201,6 +4201,10 @@ struct Runtime::State {
     };
     std::vector<FEMMaterialPipelineVariant> femMaterialPipelineVariants;
     id<MTLBuffer> femMaterialPipelineTetrahedronIndices = nil;
+    // Cooperative subsets keep their own immutable dispatch domains.
+    std::uint32_t femCooperativeTangentDispatchCount = 0u;
+    id<MTLBuffer> femCooperativeTangentGroupCounts = nil;
+    id<MTLBuffer> femCooperativeTangentDispatch = nil;
     bool femNativeTangentVerifyRequested = false;
     std::uint32_t femNativeTangentWitnessTet = NM_INVALID_INDEX;
     // Source-bound, opt-in regional RAP preconditioner. femRegionalBasis is
@@ -8767,6 +8771,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_true_residual_distributed_partial",
             "nm_fgmres_true_residual_distributed_finish",
             "nm_fgmres_true_residual_distributed_replace",
+            "nm_fem_prepare_cooperative_tangent_dispatch",
             "nm_fgmres_prepare_newton_tail_dispatch",
             "nm_fgmres_prepare_newton_tail_icb",
             "nm_matter_gpu_timing_marker",
@@ -9975,6 +9980,9 @@ RuntimeDiagnostics Runtime::initialize(
                  std::strcmp(name, "nm_fem_armijo_measure_trial_finish") == 0 ||
                  std::strcmp(name, "nm_fem_armijo_validate_geometry_tiles") == 0 ||
                  std::strcmp(name, "nm_fem_armijo_validate_geometry_finish") == 0))
+                continue;
+            if (std::strcmp(name,"nm_fem_prepare_cooperative_tangent_dispatch")==0 &&
+                candidate->femTangentBundleMode!=2u)
                 continue;
             if (std::strcmp(name,"nm_fgmres_prepare_newton_tail_dispatch")==0 &&
                 (!std::getenv("NM_FEM_NEWTON_TAIL_DISPATCH") ||
@@ -11537,6 +11545,39 @@ RuntimeDiagnostics Runtime::initialize(
             if (!valid || candidate->femMaterialPipelineTetrahedronIndices == nil) {
                 diagnostics.message =
                     "failed to upload per-material FEM tetrahedron worklists";
+                return diagnostics;
+            }
+        }
+        if (candidate->femTangentBundleMode==2u &&
+            world.dispatch.environmentCount==1u &&
+            world.dispatch.tetrahedronCount!=0u) {
+            std::vector<std::uint32_t> cooperativeGroupCounts;
+            if (candidate->femMaterialPipelinesEnabled) {
+                for (const auto& variant:candidate->femMaterialPipelineVariants)
+                    cooperativeGroupCounts.push_back(
+                        variant.tetrahedronCount/8u+
+                        (variant.tetrahedronCount%8u!=0u?1u:0u));
+            } else {
+                cooperativeGroupCounts.push_back(
+                    world.dispatch.tetrahedronCount/8u+
+                    (world.dispatch.tetrahedronCount%8u!=0u?1u:0u));
+            }
+            if (cooperativeGroupCounts.empty() ||
+                cooperativeGroupCounts.size()>std::numeric_limits<std::uint32_t>::max()) {
+                diagnostics.message="cooperative tangent subsets exceed checked dispatch capacity";
+                return diagnostics;
+            }
+            candidate->femCooperativeTangentDispatchCount=
+                static_cast<std::uint32_t>(cooperativeGroupCounts.size());
+            candidate->femCooperativeTangentGroupCounts=uploads.one(
+                std::span<const std::uint32_t>(cooperativeGroupCounts),
+                valid,candidate->residentBytes);
+            candidate->femCooperativeTangentDispatch=privateScratch<NMIndirectDispatchGPU>(
+                candidate->device,cooperativeGroupCounts.size(),
+                valid,candidate->residentBytes);
+            if (!valid || candidate->femCooperativeTangentGroupCounts==nil ||
+                candidate->femCooperativeTangentDispatch==nil) {
+                diagnostics.message="failed to allocate cooperative tangent dispatch arguments";
                 return diagnostics;
             }
         }
@@ -20363,7 +20404,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
         // Trial contact, active candidates and final certification never inherit it.
         bool gateCompletedContactIncidence = false;
         const auto prepareCompletedContactIncidenceDispatch = [&](
-            NSUInteger groupCount, id<MTLBuffer> source) -> id<MTLBuffer> {
+            NSUInteger groupCount, id<MTLBuffer> source,
+            const NSUInteger sourceOffset = 0u) -> id<MTLBuffer> {
             if (!gateCompletedContactIncidence) return source;
             id<MTLBuffer> output = state.contactCompletedIncidenceDispatch;
             const nm_uint4 requested{
@@ -20375,7 +20417,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder setBuffer:state.contactGeometryReuseFlags offset:0u atIndex:1u];
             [encoder setBuffer:state.statuses offset:0u atIndex:2u];
             [encoder setBytes:&requested length:sizeof(requested) atIndex:3u];
-            [encoder setBuffer:source != nil ? source : output offset:0u atIndex:4u];
+            [encoder setBuffer:source != nil ? source : output
+                offset:source != nil ? sourceOffset : 0u atIndex:4u];
             [encoder setBuffer:output offset:0u atIndex:5u];
             [encoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
                 threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
@@ -20616,7 +20659,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const WorkDomain workDomain = WorkDomain::generic,
             id<MTLBuffer> indirectDispatch = nil,
             const NSUInteger threadsPerGroup = 32u,
-            id<MTLComputePipelineState> pipelineOverride = nil
+            id<MTLComputePipelineState> pipelineOverride = nil,
+            const NSUInteger indirectBufferOffset = 0u
         ) {
             if(state.emptyMpmKrylovDomain && isMpmOnlyKernel(name))
                 return ;
@@ -20640,8 +20684,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     profileKernel ? name : "vascular_dense45", request.controlStep);
                 primalResourcesEncoder = nil;
             }
+            const NSUInteger resolvedIndirectOffset =
+                gateCompletedContactIncidence ? 0u : indirectBufferOffset;
             indirectDispatch = prepareCompletedContactIncidenceDispatch(
-                groupCount, indirectDispatch);
+                groupCount, indirectDispatch, indirectBufferOffset);
             [encoder setComputePipelineState:pipelineOverride != nil
                 ? pipelineOverride : state.pipeline(name)];
             bind();
@@ -20650,7 +20696,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                              usage:MTLResourceUsageRead];
                 ++diagnostics.indirectDispatchCount;
                 [encoder dispatchThreadgroupsWithIndirectBuffer:indirectDispatch
-                    indirectBufferOffset:0u threadsPerThreadgroup:MTLSizeMake(threadsPerGroup, 1u, 1u)];
+                    indirectBufferOffset:resolvedIndirectOffset threadsPerThreadgroup:MTLSizeMake(threadsPerGroup, 1u, 1u)];
             } else {
             [encoder dispatchThreadgroups:MTLSizeMake(groupCount, 1u, 1u)
                 threadsPerThreadgroup:MTLSizeMake(threadsPerGroup, 1u, 1u)];
@@ -37459,7 +37505,29 @@ RuntimeDiagnostics Runtime::encodeImpl(
                    !femNewtonTailICBCacheEnabledForCurrentRoot) {
                     const char* cooperativeKernel =
                         "nm_fem_build_algorithmic_tangent_cache_bundle_cooperative";
+                    const bool cooperativeIndirect =
+                        femNewtonTailDispatchEnabledForCurrentRoot &&
+                        state.femCooperativeTangentDispatch!=nil &&
+                        state.femCooperativeTangentGroupCounts!=nil &&
+                        state.femCooperativeTangentDispatchCount!=0u;
+                    if (cooperativeIndirect) {
+                        dispatchThreads("nm_fem_prepare_cooperative_tangent_dispatch",
+                            state.femCooperativeTangentDispatchCount,[&] {
+                                setDispatch();
+                                [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:1u];
+                                [encoder setBuffer:state.fgmresStates offset:0u atIndex:2u];
+                                [encoder setBuffer:state.statuses offset:0u atIndex:3u];
+                                [encoder setBuffer:state.femCooperativeTangentGroupCounts offset:0u atIndex:4u];
+                                [encoder setBytes:&state.femCooperativeTangentDispatchCount
+                                    length:sizeof(state.femCooperativeTangentDispatchCount) atIndex:5u];
+                                [encoder setBytes:&forceCompletedCacheRebuild
+                                    length:sizeof(forceCompletedCacheRebuild) atIndex:6u];
+                                [encoder setBuffer:state.femCooperativeTangentDispatch offset:0u atIndex:7u];
+                            });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    }
                     if (state.femMaterialPipelinesEnabled) {
+                        NSUInteger materialDispatchOffset=0u;
                         for (const State::FEMMaterialPipelineVariant& variant :
                              state.femMaterialPipelineVariants) {
                             const std::uint32_t selectedCount =
@@ -37486,13 +37554,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     variant.cooperativePipelineName.c_str());
                             dispatchGroups32(cooperativeKernel,
                                 static_cast<NSUInteger>((selectedWork + 7u) / 8u),
-                                bindMaterialVariant, WorkDomain::generic, nil,
-                                96u, variantPipeline);
+                                bindMaterialVariant, WorkDomain::generic,
+                                cooperativeIndirect?state.femCooperativeTangentDispatch:nil,
+                                96u, variantPipeline, materialDispatchOffset);
+                            materialDispatchOffset+=sizeof(NMIndirectDispatchGPU);
                         }
                     } else {
                         dispatchGroups32(cooperativeKernel,
                             (tetrahedronTotal+7u)/8u,bindTangentCacheBuild,
-                            WorkDomain::generic,nil,96u);
+                            WorkDomain::generic,
+                            cooperativeIndirect?state.femCooperativeTangentDispatch:nil,96u);
                     }
                 } else if (!femNewtonTailICBCacheEnabledForCurrentRoot) {
                     const WorkDomain tangentCacheBuildDomain =

@@ -1,0 +1,16 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 532.5072078704834,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/specialized-cooperative-tangents-284/install-motion.plan.json",
+  "plan_sha256": "4f79225898d01aafa457533fd55b9cb959ca6ba85a53d678598596674e12aafa",
+  "stdout_path": "/Users/numi/Work/human-integrated-gaps-20261104/specialized-cooperative-tangents-284/install-motion.stdout.log.gz",
+  "stdout_encoding": "gzip",
+  "stdout_compressor_exit_code": 0,
+  "stdout_sha256": "19d5cc23bb10cdb5a78da3f50312468e6f39f75100a319f9c72c2ae0b4fffa55",
+  "stdout_uncompressed_sha256": "c677019730edf7a4f28c76fdbf660d48005c8cdf32c5326bf3fd41ecd72f46bc",
+  "stderr_sha256": "f229537ad6adfba8c5c39fa1b5f58f42c1af01b287343f17f1803ee13fa4c3a8",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": true,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

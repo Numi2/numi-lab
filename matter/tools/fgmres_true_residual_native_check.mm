@@ -17486,6 +17486,19 @@ void checkTiledMixedCertificateDomains(
         [ae setArgumentBuffer:ab offset:0];
         for(NSUInteger i=0;i<20u;++i)[ae setBuffer:zero offset:0 atIndex:i];
         [ae setBuffer:cb offset:0 atIndex:7];[ae setBuffer:counts offset:0 atIndex:14];
+        std::vector<NMIncidenceRangeGPU> ownerRanges(nodes.size());
+        std::vector<unsigned> ownerIncidence;
+        for(unsigned env=0;env<2u;++env)for(unsigned node:{0u,4u}) {
+            auto& range=ownerRanges[env*d.femNodeCount+node];
+            range.first=static_cast<unsigned>(ownerIncidence.size());range.count=519u;
+            for(unsigned slot=0;slot<519u;++slot)
+                ownerIncidence.push_back(slot*8u+(node==0u?0u:1u));
+        }
+        const auto ownerRangesBuffer=makeBuffer(device,ownerRanges);
+        const auto ownerIncidenceBuffer=makeBuffer(device,ownerIncidence);
+        const auto ownerSwitch=makeBuffer(device,std::vector<unsigned>{1u});
+        [ae setBuffer:ownerIncidenceBuffer offset:0 atIndex:8];
+        [ae setBuffer:ownerRangesBuffer offset:0 atIndex:9];
         NMFGMRESStateGPU st{};st.diagnostics.y=1;
         auto out=makeBuffer(device,std::vector<NMSolverCertificateGPU>(6));
         auto status=makeBuffer(device,std::vector<NMMatterStatusGPU>(2));
@@ -17502,7 +17515,7 @@ void checkTiledMixedCertificateDomains(
             {14,makeBuffer(device,correction)},{15,zero},{16,zero},{17,zero},
             {18,zero},{19,ab},{20,zero},{21,telemetry},{22,makeBuffer(device,indices)},
             {30,makeBuffer(device,std::vector<NMFGMRESLayoutGPU>{layout})}};
-        auto execute=[&](bool fast) {
+        auto execute=[&](bool fast,bool byOwner=false) {
             std::memset(out.contents,0,out.length);std::memset(status.contents,0,status.length);
             std::memset(telemetry.contents,0,telemetry.length);
             auto partial=makeBuffer(device,std::vector<nm_float4>(6u*128u*7u));
@@ -17511,6 +17524,9 @@ void checkTiledMixedCertificateDomains(
             [e useResource:zero usage:MTLResourceUsageRead];
             [e useResource:cb usage:MTLResourceUsageRead];
             [e useResource:counts usage:MTLResourceUsageRead];
+            [e useResource:ownerRangesBuffer usage:MTLResourceUsageRead];
+            [e useResource:ownerIncidenceBuffer usage:MTLResourceUsageRead];
+            [e setBuffer:byOwner?ownerSwitch:zero offset:0 atIndex:24];
             [e setComputePipelineState:fast?tiled:legacy];
             if(fast)[e setBuffer:partial offset:0 atIndex:23];
             [e dispatchThreadgroups:MTLSizeMake(6u*(fast?128u:1u),1,1)
@@ -17538,6 +17554,19 @@ void checkTiledMixedCertificateDomains(
             require(rs[env].code==as[env].code,"mixed tiled failure acceptance parity");
             if(fault==1&&env==0)require(as[env].failingIndex==317,
                 "mixed tiled deterministic contact witness");
+        }
+        execute(true,true);
+        actual=readBuffer<NMSolverCertificateGPU>(out,6);
+        as=readBuffer<NMMatterStatusGPU>(status,2);
+        a=reinterpret_cast<const float*>(actual.data());
+        for(unsigned i=0;i<6u*sizeof(NMSolverCertificateGPU)/sizeof(float);++i)
+            require((std::isnan(r[i])&&std::isnan(a[i]))||r[i]==a[i]||
+                std::abs(r[i]-a[i])<=1e-8f+1e-5f*std::abs(r[i]),
+                "owner incidence full certificate parity");
+        for(unsigned env=0;env<2u;++env) {
+            require(rs[env].code==as[env].code,"owner incidence failure acceptance parity");
+            if(fault==1&&env==0)require(as[env].failingIndex==317,
+                "owner incidence deterministic contact witness");
         }
     }
     std::cout<<"mixed_certificate_tiled domains=FEM_pressure_transport contacts=519 environments=2 objects=3 "
@@ -18759,6 +18788,46 @@ void checkCompactImmutableHumanContactRows(id<MTLDevice> device,
         "overflowed compact table offset accepted");
 }
 
+
+void checkCooperativeTangentDispatch(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    const auto prepare=pipeline(device,library,
+        "numi_matter_metal::nm_fem_prepare_cooperative_tangent_dispatch");
+    const std::vector<std::uint32_t> groups{0u,1u,185000u,0xffffffffu};
+    const auto counts=makeBuffer(device,groups);
+    const auto count=makeBuffer(device,std::vector<std::uint32_t>{4u});
+    for (std::uint32_t environments:{1u,2u})
+    for (std::uint32_t iteration:{0u,1u,15u})
+    for (bool completed:{false,true})
+    for (bool healthy:{false,true})
+    for (std::uint32_t force:{0u,1u}) {
+        NMMatterDispatchGPU domain{};domain.environmentCount=environments;
+        NMMicrostepGPU micro{};micro.solverIteration=iteration;
+        NMFGMRESStateGPU state{};state.nonlinear.w=completed?1.0f:0.0f;
+        NMMatterStatusGPU status{};
+        if(!healthy) status.code=NM_STATUS_NONFINITE_RESULT;
+        const auto domainBuffer=makeBuffer(device,std::vector<NMMatterDispatchGPU>{domain});
+        const auto microBuffer=makeBuffer(device,std::vector<NMMicrostepGPU>{micro});
+        const auto states=makeBuffer(device,std::vector<NMFGMRESStateGPU>{state,state});
+        const auto statuses=makeBuffer(device,std::vector<NMMatterStatusGPU>{status,status});
+        const auto rebuild=makeBuffer(device,std::vector<std::uint32_t>{force});
+        NMIndirectDispatchGPU sentinel{77u,88u,99u,111u};
+        const auto arguments=makeBuffer(device,std::vector<NMIndirectDispatchGPU>(5u,sentinel));
+        dispatch(device,queue,prepare,
+            {{0u,domainBuffer},{1u,microBuffer},{2u,states},{3u,statuses},
+             {4u,counts},{5u,count},{6u,rebuild},{7u,arguments}},1u,32u);
+        const auto out=readBuffer<NMIndirectDispatchGPU>(arguments,5u);
+        const bool skip=environments==1u&&iteration>0u&&completed&&healthy&&force==0u;
+        for(std::size_t i=0;i<groups.size();++i) {
+            NMIndirectDispatchGPU expected{skip?0u:groups[i],1u,1u,0u};
+            require(std::memcmp(&out[i],&expected,sizeof(expected))==0,
+                "cooperative tangent dispatch changed subset or tail policy");
+        }
+        require(std::memcmp(&out[4],&sentinel,sizeof(sentinel))==0,
+            "cooperative tangent dispatch exceeded argument capacity");
+    }
+}
+
 int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
@@ -18776,6 +18845,11 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            if(argc==2&&std::string(argv[1])=="--cooperative-tangent-dispatch-only") {
+                checkCooperativeTangentDispatch(device,queue,library);
+                std::cout<<"PASS cooperative tangent dispatch "<<checks<<" checks\n";
+                return 0;
+            }
             if(argc==2&&std::string(argv[1])=="--reference-surface-only") {
                 checkReferenceSurfaceGeometry(device,queue,library);
                 checkPolynomialReferenceSweep(device,queue,library);
@@ -19553,6 +19627,7 @@ int main(int argc, const char* argv[]) {
             require(argc==1||(argc==2&&std::string(argv[1])=="--refined-coupon"),"usage: true-residual check [--refined-coupon]");
             if(argc==2){checkLargeNodeResidualMeasurement(device,queue,measure,trueResidualPartial,trueResidualFinish,trueResidualReplace,20682u);checkLargeNodeResidualMeasurement(device,queue,measure,trueResidualPartial,trueResidualFinish,trueResidualReplace,32768u);}
             checkCompactImmutableHumanContactRows(device,queue,library);
+            checkCooperativeTangentDispatch(device,queue,library);
             checkTangentOwnerWorklist();
             checkLargeNodeResidualMeasurement(device,queue,measure,trueResidualPartial,trueResidualFinish,trueResidualReplace,4096u);
             checkLargeNodeResidualMeasurement(device,queue,measure,trueResidualPartial,trueResidualFinish,trueResidualReplace,8192u);

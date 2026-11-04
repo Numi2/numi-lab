@@ -1,0 +1,13 @@
+{
+  "source": "/Users/numi/Work/human-integrated-gaps-20261104/compact-immutable-contacts-276/install-motion.stdout.log",
+  "compressed": "/Users/numi/Work/human-integrated-gaps-20261104/compact-immutable-contacts-276/install-motion.stdout.log.gz",
+  "source_sha256": "e5c4d422f8ecbd4a7624ffe40cc79efecf37bc151eb0cb8d8bc2e367e9098cbe",
+  "source_bytes": 837635518,
+  "gzip_sha256": "7fad91ce12c8dbda21456c6a1245d5bc7e947d9fd7e6dcff932d87936874dc5a",
+  "gzip_bytes": 137649091,
+  "decompression_sha256": "e5c4d422f8ecbd4a7624ffe40cc79efecf37bc151eb0cb8d8bc2e367e9098cbe",
+  "content_retained_losslessly": true,
+  "free_before": 15324577792,
+  "free_after": 16018804736,
+  "physical_bytes_recovered": 694226944
+}

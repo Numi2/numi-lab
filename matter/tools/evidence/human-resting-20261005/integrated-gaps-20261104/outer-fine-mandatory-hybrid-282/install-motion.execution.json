@@ -1,0 +1,12 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 200.56907105445862,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/outer-fine-mandatory-hybrid-282/install-motion.plan.json",
+  "plan_sha256": "b3b6a9b54979bc1d1e3bb73c69b2027443332617227bd9a83a6374664ccc08f1",
+  "stdout_sha256": "375f41991bd99260b4f7a569067340d1980947ef7171490f053730db0470715f",
+  "stderr_sha256": "1df0cda9cc454b6e10edd40128b6e830cef61de09c11b546ddb4dad535c6b34a",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": false,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

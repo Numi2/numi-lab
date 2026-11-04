@@ -1,0 +1,12 @@
+[
+  {
+    "label": "cooperative-dispatch-check-49",
+    "exit": 0,
+    "seconds": 0.4822543750051409
+  },
+  {
+    "label": "fgmres-check-49",
+    "exit": 0,
+    "seconds": 1.9953190840024035
+  }
+]

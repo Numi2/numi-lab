@@ -1,0 +1,44 @@
+{
+  "free_before": 13719330816,
+  "operations": [
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/outer-fine-interior-hybrid-281/install-motion/resting-human.mrvpack",
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compact-tangent-ordinary-272/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "mtime_ns": 1793834276806939695
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/outer-fine-mandatory-hybrid-282/install-motion/resting-human.mrvpack",
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compact-tangent-ordinary-272/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "mtime_ns": 1793834551818938200
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/outer-fine-mandatory-hybrid-282/install-motion/accepted-geometry/step-0.mrvpack",
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/outer-fine-interior-hybrid-281/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "e0a540b9098efdd37cabc50c86ba2b009c46c1c75ecca52f8ef7df40c5764b5d",
+      "bytes": 321323008,
+      "mtime_ns": 1793834553304336831
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/outer-fine-hybrid-motion-283/install-motion/resting-human.mrvpack",
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compact-tangent-ordinary-272/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "mtime_ns": 1793834795704265086
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/outer-fine-hybrid-motion-283/install-motion/accepted-geometry/step-0.mrvpack",
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/outer-fine-interior-hybrid-281/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "e0a540b9098efdd37cabc50c86ba2b009c46c1c75ecca52f8ef7df40c5764b5d",
+      "bytes": 321323008,
+      "mtime_ns": 1793834797374776313
+    }
+  ],
+  "skipped": [],
+  "content_preserved": true,
+  "free_after": 15325986816,
+  "physical_bytes_recovered": 1606656000
+}

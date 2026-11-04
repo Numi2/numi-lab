@@ -311,3 +311,69 @@ retained in human-contact-storage-276.tar.zst on the cold-evidence
 release. Independent download and restoration verified all 40 members,
 content hashes, modes and nanosecond modification times before local
 retirement. Current full endpoint 276 remains local.
+
+## Cooperative tangent dispatch and owner-certificate composition (builds 49–50)
+
+Mode-2 cooperative cache builders now use GPU-written per-subset dispatch
+arguments for the completed-Newton latch. Each immutable material subset
+keeps its exact eight-tetrahedron group count. Iteration zero, forced
+rebuilds, unhealthy environments and other environment domains retain
+their required work. Command offsets and barriers are explicit; the
+mandatory physical certificate remains separately scheduled. This is not
+a new approximation or a default switch to mode 2.
+
+The complete FGMRES suite passes 2,671,255 checks in build 49 and
+2,671,801 in build 50. The added argument tests cover empty, large and
+overflow-edge counts, initial/late iterations, healthy/unhealthy and
+completed/noncompleted state, forced rebuilds, and padded canaries.
+
+Trial 284 uses mode 2 with all twenty material pipeline variants. Its
+318,974 node and 1,479,479 tetrahedron records reproduce endpoint SHA-256
+cc6eb0edd0b5ed60a24fc911f11e6965bde10a237151f59bb48e6e872f17d23b.
+All nine numerical CSV traces match 276 byte for byte. The surface audit
+omits one duplicate final row because extra MRV captures are disabled;
+all unique audit rows match. It accepts all 32 roots with unchanged
+144 solves, 2,304 columns and 62 exhaustions.
+
+Body time is 247.742629 s versus 235.947012 s for mode-1 reference 276,
+about 5.0% slower in this single pair. Inclusive time is 532.507208 s.
+No speedup is claimed, and the faster mode-1 configuration is retained.
+This is still only 0.5 ms of release motion, not supported rest or a
+sustained coupled performance result.
+
+The owner-incidence contact certificate now has a composition proof:
+actual legacy, bitonic and radix GPU incidence output feeds the production
+owner enumerator, compared against an independent active-list oracle.
+The fixtures include duplicate corners/active indices, invalid and
+inactive slots, empty input, multiple environments and the hierarchical
+radix threshold. The contact suite passes 8,102 checks. The complete
+certificate fixture also compares owner and legacy paths, including
+519 contacts, deterministic failure witnesses, pressure/transport and
+nonfinite/geometry failures. Production owner routing remains explicit;
+no physical contact is removed.
+
+## Bounded observation and moderate-reduction status
+
+The routine trial launcher streams the full native endpoint trace into
+lossless gzip, checks its CRC/UTF-8 stream and compressed/uncompressed
+hashes, propagates native failures, and retains compact physiological
+traces and the initial native-viewer pack. Its self-check preserves a
+deliberate exit code 7 and exact stream content. Optional extra MRVs are
+disabled for these performance trials; physical geometry checks remain.
+The 12 GiB disk, 3 GiB swap-growth and 900 s guards are unchanged.
+
+Five byte-identical closed MRVs were APFS-cloned with exact hash and
+metadata checks, recovering 1,606,656,000 physical bytes. Lossless
+compression of the retained 276 endpoint recovered another 694,226,944
+physical bytes after full independent decompression/hash verification.
+Current source, mass inputs and endpoint records remain available.
+
+Trial 282 initializes the moderate 3.85x coordinate reduction and accepts
+one physical step, then stops on a root-specific observer admission
+mismatch. Trial 283 removes that optional witness but is stopped by the
+12 GiB disk guard before a useful motion result. Both remain failed
+qualification evidence. The compact-output retry is 285. It retains the
+exact outer O boundary, 246,246 fine-complement coordinates, 1,956 reduced
+coordinates, full material/contact evaluation and mandatory full physical
+certification. Force, regional strain and sustained-motion gates have not
+yet passed. The old failed 66x basis is not promoted.
