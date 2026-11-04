@@ -37372,12 +37372,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:fullRanges.data() length:sizeof(fullRanges) atIndex:3u];
                     [encoder setBuffer:state.femHumanPartitionedCompletedBuilderRanges
                                  offset:0u atIndex:4u];
-                    const std::uint32_t forceFull = 0u, allDomains = 0u;
+                    const std::uint32_t forceFull = 0u, completedRegional = 3u;
                     // Nodal producers retain their established ownership;
                     // only the independent regional scratch producers are selected.
                     const std::uint32_t regionalProducers = 0x7fcu;
                     [encoder setBytes:&forceFull length:sizeof(forceFull) atIndex:5u];
-                    [encoder setBytes:&allDomains length:sizeof(allDomains) atIndex:6u];
+                    [encoder setBytes:&completedRegional length:sizeof(completedRegional) atIndex:6u];
                     [encoder setBytes:&regionalProducers length:sizeof(regionalProducers)
                               atIndex:7u];
                 });

@@ -1,0 +1,340 @@
+{
+  "scope": "exact selected root0 intervals; unscaled; encoder boundaries perturb execution",
+  "spans": [
+    {
+      "stage": "matter_pre",
+      "root": 0,
+      "elapsed_ns": 11802250
+    },
+    {
+      "stage": "brain_advance",
+      "root": 0,
+      "elapsed_ns": 7375
+    },
+    {
+      "stage": "respiratory_mechanics",
+      "root": 0,
+      "elapsed_ns": 4729416
+    },
+    {
+      "stage": "matter_after_frame_begin",
+      "root": 0,
+      "elapsed_ns": 865458
+    },
+    {
+      "stage": "matter_newton_assembly",
+      "root": 0,
+      "elapsed_ns": 241577459
+    },
+    {
+      "stage": "nm_partitioned_reduction_reduce_sparse_block_tiles",
+      "root": 0,
+      "elapsed_ns": 188898125
+    },
+    {
+      "stage": "nm_partitioned_reduction_fem_tangent_fused_tiles12",
+      "root": 0,
+      "elapsed_ns": 170722375
+    },
+    {
+      "stage": "matter_newton_linear",
+      "root": 0,
+      "elapsed_ns": 1315032458
+    },
+    {
+      "stage": "matter_newton_globalization",
+      "root": 0,
+      "elapsed_ns": 42924042
+    },
+    {
+      "stage": "matter_newton_assembly",
+      "root": 0,
+      "elapsed_ns": 208937000
+    },
+    {
+      "stage": "nm_partitioned_reduction_reduce_sparse_block_tiles",
+      "root": 0,
+      "elapsed_ns": 188843958
+    },
+    {
+      "stage": "nm_partitioned_reduction_fem_tangent_fused_tiles12",
+      "root": 0,
+      "elapsed_ns": 170413417
+    },
+    {
+      "stage": "matter_newton_linear",
+      "root": 0,
+      "elapsed_ns": 1313859166
+    },
+    {
+      "stage": "matter_newton_globalization",
+      "root": 0,
+      "elapsed_ns": 44271459
+    },
+    {
+      "stage": "matter_newton_assembly",
+      "root": 0,
+      "elapsed_ns": 210438458
+    },
+    {
+      "stage": "nm_partitioned_reduction_reduce_sparse_block_tiles",
+      "root": 0,
+      "elapsed_ns": 188860917
+    },
+    {
+      "stage": "nm_partitioned_reduction_fem_tangent_fused_tiles12",
+      "root": 0,
+      "elapsed_ns": 170558000
+    },
+    {
+      "stage": "matter_newton_linear",
+      "root": 0,
+      "elapsed_ns": 600626375
+    },
+    {
+      "stage": "matter_newton_globalization",
+      "root": 0,
+      "elapsed_ns": 29620500
+    },
+    {
+      "stage": "matter_newton_assembly",
+      "root": 0,
+      "elapsed_ns": 23849875
+    },
+    {
+      "stage": "matter_newton_linear",
+      "root": 0,
+      "elapsed_ns": 6420708
+    },
+    {
+      "stage": "matter_newton_globalization",
+      "root": 0,
+      "elapsed_ns": 31173250
+    },
+    {
+      "stage": "matter_newton_assembly",
+      "root": 0,
+      "elapsed_ns": 23805959
+    },
+    {
+      "stage": "matter_newton_linear",
+      "root": 0,
+      "elapsed_ns": 6424416
+    },
+    {
+      "stage": "matter_newton_globalization",
+      "root": 0,
+      "elapsed_ns": 28844125
+    },
+    {
+      "stage": "matter_newton_assembly",
+      "root": 0,
+      "elapsed_ns": 23832000
+    },
+    {
+      "stage": "matter_newton_linear",
+      "root": 0,
+      "elapsed_ns": 6418875
+    },
+    {
+      "stage": "matter_newton_globalization",
+      "root": 0,
+      "elapsed_ns": 28671584
+    },
+    {
+      "stage": "matter_newton_assembly",
+      "root": 0,
+      "elapsed_ns": 23879375
+    },
+    {
+      "stage": "matter_newton_linear",
+      "root": 0,
+      "elapsed_ns": 6405875
+    },
+    {
+      "stage": "matter_newton_globalization",
+      "root": 0,
+      "elapsed_ns": 28701458
+    },
+    {
+      "stage": "matter_newton_assembly",
+      "root": 0,
+      "elapsed_ns": 23823667
+    },
+    {
+      "stage": "matter_newton_linear",
+      "root": 0,
+      "elapsed_ns": 6669875
+    },
+    {
+      "stage": "matter_newton_globalization",
+      "root": 0,
+      "elapsed_ns": 28646833
+    },
+    {
+      "stage": "matter_newton_assembly",
+      "root": 0,
+      "elapsed_ns": 23869083
+    },
+    {
+      "stage": "matter_newton_linear",
+      "root": 0,
+      "elapsed_ns": 6431834
+    },
+    {
+      "stage": "matter_newton_globalization",
+      "root": 0,
+      "elapsed_ns": 28782916
+    },
+    {
+      "stage": "matter_newton_assembly",
+      "root": 0,
+      "elapsed_ns": 23788625
+    },
+    {
+      "stage": "matter_newton_linear",
+      "root": 0,
+      "elapsed_ns": 6405500
+    },
+    {
+      "stage": "matter_newton_globalization",
+      "root": 0,
+      "elapsed_ns": 28691042
+    },
+    {
+      "stage": "matter_newton_assembly",
+      "root": 0,
+      "elapsed_ns": 23852500
+    },
+    {
+      "stage": "matter_newton_linear",
+      "root": 0,
+      "elapsed_ns": 6418083
+    },
+    {
+      "stage": "matter_newton_globalization",
+      "root": 0,
+      "elapsed_ns": 28857625
+    },
+    {
+      "stage": "matter_newton_assembly",
+      "root": 0,
+      "elapsed_ns": 23829459
+    },
+    {
+      "stage": "matter_newton_linear",
+      "root": 0,
+      "elapsed_ns": 6417708
+    },
+    {
+      "stage": "matter_newton_globalization",
+      "root": 0,
+      "elapsed_ns": 28750542
+    },
+    {
+      "stage": "matter_newton_assembly",
+      "root": 0,
+      "elapsed_ns": 23904375
+    },
+    {
+      "stage": "matter_newton_linear",
+      "root": 0,
+      "elapsed_ns": 6423666
+    },
+    {
+      "stage": "matter_newton_globalization",
+      "root": 0,
+      "elapsed_ns": 28689125
+    },
+    {
+      "stage": "matter_newton_assembly",
+      "root": 0,
+      "elapsed_ns": 23733625
+    },
+    {
+      "stage": "matter_newton_linear",
+      "root": 0,
+      "elapsed_ns": 6406459
+    },
+    {
+      "stage": "matter_newton_globalization",
+      "root": 0,
+      "elapsed_ns": 28891750
+    },
+    {
+      "stage": "matter_newton_assembly",
+      "root": 0,
+      "elapsed_ns": 23879083
+    },
+    {
+      "stage": "matter_newton_linear",
+      "root": 0,
+      "elapsed_ns": 6390750
+    },
+    {
+      "stage": "matter_newton_globalization",
+      "root": 0,
+      "elapsed_ns": 29025125
+    },
+    {
+      "stage": "matter_newton_assembly",
+      "root": 0,
+      "elapsed_ns": 26524583
+    },
+    {
+      "stage": "nm_partitioned_reduction_reduce_sparse_block_tiles",
+      "root": 0,
+      "elapsed_ns": 188882041
+    },
+    {
+      "stage": "nm_partitioned_reduction_fem_tangent_fused_tiles12",
+      "root": 0,
+      "elapsed_ns": 170521125
+    },
+    {
+      "stage": "matter_newton_linear",
+      "root": 0,
+      "elapsed_ns": 516350417
+    },
+    {
+      "stage": "matter_newton_globalization",
+      "root": 0,
+      "elapsed_ns": 14828083
+    },
+    {
+      "stage": "matter_final_certificate",
+      "root": 0,
+      "elapsed_ns": 234214125
+    },
+    {
+      "stage": "respiratory_gas_exchange",
+      "root": 0,
+      "elapsed_ns": 1803125
+    },
+    {
+      "stage": "matter_after_candidate_ready",
+      "root": 0,
+      "elapsed_ns": 13197375
+    },
+    {
+      "stage": "matter_after_microstep",
+      "root": 0,
+      "elapsed_ns": 2355459
+    },
+    {
+      "stage": "matter_post",
+      "root": 0,
+      "elapsed_ns": 14507292
+    },
+    {
+      "stage": "brain_resolve",
+      "root": 0,
+      "elapsed_ns": 1334
+    },
+    {
+      "stage": "respiratory_resolve",
+      "root": 0,
+      "elapsed_ns": 703708
+    }
+  ]
+}

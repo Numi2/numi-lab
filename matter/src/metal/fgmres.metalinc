@@ -10540,11 +10540,19 @@ kernel void nm_fgmres_prepare_fresh_preconditioner_ranges(
         ? preflightStates[0].diagnostics.z : 0.0f;
     const float nonlinearCompleted = dispatch.environmentCount == 1u
         ? preflightStates[0].nonlinear.w : 0.0f;
+    // Mode 3 is restricted to the derived regional-cache producers. Once
+    // the full physical Newton latch freezes the candidate, later unused
+    // linear certificates may reset diagnostics.z to zero. That is not a
+    // change to the frozen candidate or its derived regional factors.
+    // Fresh-RHS preflight modes retain their independent linear proof.
+    const bool completedRegionalCache = skipDomainMode == 3u &&
+        skipProducerMask == 0x7fcu;
     const bool freshNoWork = dispatch.environmentCount == 1u &&
         environmentHealthy(statuses, 0u) && isfinite(convergedValue) &&
-        convergedValue > 0.5f && isfinite(nonlinearCompleted) &&
-        nonlinearCompleted > 0.5f;
-    const bool validSkipDomainMode = skipDomainMode <= 2u;
+        (completedRegionalCache || convergedValue > 0.5f) &&
+        isfinite(nonlinearCompleted) && nonlinearCompleted > 0.5f;
+    const bool validSkipDomainMode = skipDomainMode <= 2u ||
+        completedRegionalCache;
     const bool validSkipProducerMask = (skipProducerMask & ~0x7ffu) == 0u;
     const bool keepRange = skipDomainMode == 1u
         ? global < 2u

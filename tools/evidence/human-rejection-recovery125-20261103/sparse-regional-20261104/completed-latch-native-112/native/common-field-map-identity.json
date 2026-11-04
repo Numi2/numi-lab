@@ -1,0 +1,1115 @@
+{
+  "coordinate_order" : [
+    "RA",
+    "RV",
+    "LA",
+    "LV",
+    "RA-material",
+    "ventricular-material",
+    "LA-material"
+  ],
+  "domain_boxes" : {
+    "count" : 125,
+    "path" : "common-field-domain-boxes-f32.bin",
+    "record_stride_bytes" : 64,
+    "sha256" : "7652785c9ea164b16ee96f64a3dcf940398af36cfd535a5f9b7a7d6bd2c7a611"
+  },
+  "domain_record_layout" : "lower float4[2] followed by upper float4[2], padding lanes exact +0",
+  "geometry_mode" : "common_seven_coordinate_v1",
+  "map" : {
+    "path" : "common-field-map-f32.bin",
+    "record_count" : 621369,
+    "record_stride_bytes" : 112,
+    "sha256" : "0d88db155f7dfe9a93030badf6e570f49050164a7d0aa0ae011065aeada7d3da"
+  },
+  "map_record_layout" : "seven float4 displacements, xyz metres per unit dimensionless coordinate, W exact +0",
+  "parameters" : {
+    "path" : "common-field-parameters-f32.bin",
+    "record_bytes" : 3504,
+    "sha256" : "7ce8d1833bd1605cee56759f03370801602db21d6233333c2a1c03f11e518896"
+  },
+  "passive_attachment_ranges" : [
+    {
+      "body_index" : 20,
+      "first_vertex" : 586163,
+      "semantic" : 51011,
+      "stable_id" : 6,
+      "vertex_count" : 229
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 586392,
+      "semantic" : 51011,
+      "stable_id" : 7,
+      "vertex_count" : 381
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 586773,
+      "semantic" : 51011,
+      "stable_id" : 8,
+      "vertex_count" : 2351
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 589124,
+      "semantic" : 51011,
+      "stable_id" : 10,
+      "vertex_count" : 318
+    },
+    {
+      "attachment" : {
+        "anchor_body_index" : 7,
+        "rule" : "quintic_smoothstep",
+        "source_superior_axis" : 1,
+        "torso_body_index" : 20,
+        "transition_lower_m" : -0.10000000149011612,
+        "transition_upper_m" : -0.054999999701976776
+      },
+      "body_index" : 20,
+      "first_vertex" : 589442,
+      "original_body_index" : 7,
+      "semantic" : 51011,
+      "stable_id" : 11,
+      "vertex_count" : 707
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 590149,
+      "semantic" : 51021,
+      "stable_id" : 125,
+      "vertex_count" : 878
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 591027,
+      "semantic" : 51021,
+      "stable_id" : 126,
+      "vertex_count" : 66
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 591093,
+      "semantic" : 51021,
+      "stable_id" : 127,
+      "vertex_count" : 1292
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 592385,
+      "semantic" : 51021,
+      "stable_id" : 128,
+      "vertex_count" : 698
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 593083,
+      "semantic" : 51021,
+      "stable_id" : 129,
+      "vertex_count" : 276
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 593359,
+      "semantic" : 51021,
+      "stable_id" : 132,
+      "vertex_count" : 332
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 593691,
+      "semantic" : 51021,
+      "stable_id" : 133,
+      "vertex_count" : 85
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 593776,
+      "semantic" : 51021,
+      "stable_id" : 134,
+      "vertex_count" : 91
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 593867,
+      "semantic" : 51021,
+      "stable_id" : 135,
+      "vertex_count" : 224
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 594091,
+      "semantic" : 51021,
+      "stable_id" : 137,
+      "vertex_count" : 87
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 594178,
+      "semantic" : 51021,
+      "stable_id" : 138,
+      "vertex_count" : 242
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 594420,
+      "semantic" : 51021,
+      "stable_id" : 139,
+      "vertex_count" : 96
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 594516,
+      "semantic" : 51021,
+      "stable_id" : 140,
+      "vertex_count" : 1058
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 595574,
+      "semantic" : 51021,
+      "stable_id" : 141,
+      "vertex_count" : 306
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 595880,
+      "semantic" : 51021,
+      "stable_id" : 142,
+      "vertex_count" : 609
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 596489,
+      "semantic" : 51021,
+      "stable_id" : 143,
+      "vertex_count" : 85
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 596574,
+      "semantic" : 51021,
+      "stable_id" : 144,
+      "vertex_count" : 133
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 596707,
+      "semantic" : 51021,
+      "stable_id" : 145,
+      "vertex_count" : 105
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 596812,
+      "semantic" : 51021,
+      "stable_id" : 146,
+      "vertex_count" : 400
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 597212,
+      "semantic" : 51021,
+      "stable_id" : 147,
+      "vertex_count" : 354
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 597566,
+      "semantic" : 51021,
+      "stable_id" : 148,
+      "vertex_count" : 127
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 597693,
+      "semantic" : 51021,
+      "stable_id" : 149,
+      "vertex_count" : 147
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 597840,
+      "semantic" : 51021,
+      "stable_id" : 150,
+      "vertex_count" : 543
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 598383,
+      "semantic" : 51021,
+      "stable_id" : 151,
+      "vertex_count" : 131
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 598514,
+      "semantic" : 51021,
+      "stable_id" : 152,
+      "vertex_count" : 435
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 598949,
+      "semantic" : 51021,
+      "stable_id" : 153,
+      "vertex_count" : 101
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 599050,
+      "semantic" : 51021,
+      "stable_id" : 154,
+      "vertex_count" : 146
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 599196,
+      "semantic" : 51021,
+      "stable_id" : 155,
+      "vertex_count" : 184
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 599380,
+      "semantic" : 51021,
+      "stable_id" : 156,
+      "vertex_count" : 118
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 599498,
+      "semantic" : 51021,
+      "stable_id" : 157,
+      "vertex_count" : 125
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 599623,
+      "semantic" : 51021,
+      "stable_id" : 159,
+      "vertex_count" : 220
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 599843,
+      "semantic" : 51021,
+      "stable_id" : 160,
+      "vertex_count" : 121
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 599964,
+      "semantic" : 51021,
+      "stable_id" : 163,
+      "vertex_count" : 330
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 600294,
+      "semantic" : 51021,
+      "stable_id" : 164,
+      "vertex_count" : 164
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 600458,
+      "semantic" : 51021,
+      "stable_id" : 165,
+      "vertex_count" : 861
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 601319,
+      "semantic" : 51021,
+      "stable_id" : 166,
+      "vertex_count" : 397
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 601716,
+      "semantic" : 51022,
+      "stable_id" : 168,
+      "vertex_count" : 144
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 601860,
+      "semantic" : 51022,
+      "stable_id" : 169,
+      "vertex_count" : 178
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 602038,
+      "semantic" : 51022,
+      "stable_id" : 170,
+      "vertex_count" : 168
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 602206,
+      "semantic" : 51022,
+      "stable_id" : 171,
+      "vertex_count" : 98
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 602304,
+      "semantic" : 51022,
+      "stable_id" : 172,
+      "vertex_count" : 239
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 602543,
+      "semantic" : 51022,
+      "stable_id" : 173,
+      "vertex_count" : 150
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 602693,
+      "semantic" : 51022,
+      "stable_id" : 174,
+      "vertex_count" : 88
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 602781,
+      "semantic" : 51022,
+      "stable_id" : 175,
+      "vertex_count" : 161
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 602942,
+      "semantic" : 51022,
+      "stable_id" : 176,
+      "vertex_count" : 115
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 603057,
+      "semantic" : 51022,
+      "stable_id" : 177,
+      "vertex_count" : 228
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 603285,
+      "semantic" : 51022,
+      "stable_id" : 178,
+      "vertex_count" : 218
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 603503,
+      "semantic" : 51022,
+      "stable_id" : 179,
+      "vertex_count" : 125
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 603628,
+      "semantic" : 51022,
+      "stable_id" : 180,
+      "vertex_count" : 293
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 603921,
+      "semantic" : 51022,
+      "stable_id" : 181,
+      "vertex_count" : 90
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 604011,
+      "semantic" : 51022,
+      "stable_id" : 182,
+      "vertex_count" : 106
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 604117,
+      "semantic" : 51022,
+      "stable_id" : 184,
+      "vertex_count" : 109
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 604226,
+      "semantic" : 51022,
+      "stable_id" : 185,
+      "vertex_count" : 209
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 604435,
+      "semantic" : 51022,
+      "stable_id" : 186,
+      "vertex_count" : 117
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 604552,
+      "semantic" : 51022,
+      "stable_id" : 188,
+      "vertex_count" : 83
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 604635,
+      "semantic" : 51022,
+      "stable_id" : 189,
+      "vertex_count" : 119
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 604754,
+      "semantic" : 51022,
+      "stable_id" : 190,
+      "vertex_count" : 341
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 605095,
+      "semantic" : 51022,
+      "stable_id" : 191,
+      "vertex_count" : 82
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 605177,
+      "semantic" : 51022,
+      "stable_id" : 192,
+      "vertex_count" : 114
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 605291,
+      "semantic" : 51022,
+      "stable_id" : 193,
+      "vertex_count" : 92
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 605383,
+      "semantic" : 51022,
+      "stable_id" : 194,
+      "vertex_count" : 312
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 605695,
+      "semantic" : 51022,
+      "stable_id" : 195,
+      "vertex_count" : 93
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 605788,
+      "semantic" : 51022,
+      "stable_id" : 196,
+      "vertex_count" : 186
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 605974,
+      "semantic" : 51022,
+      "stable_id" : 197,
+      "vertex_count" : 274
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 606248,
+      "semantic" : 51022,
+      "stable_id" : 198,
+      "vertex_count" : 101
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 606349,
+      "semantic" : 51022,
+      "stable_id" : 199,
+      "vertex_count" : 103
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 606452,
+      "semantic" : 51022,
+      "stable_id" : 200,
+      "vertex_count" : 117
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 606569,
+      "semantic" : 51022,
+      "stable_id" : 203,
+      "vertex_count" : 100
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 606669,
+      "semantic" : 51021,
+      "stable_id" : 204,
+      "vertex_count" : 234
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 606903,
+      "semantic" : 51021,
+      "stable_id" : 205,
+      "vertex_count" : 88
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 606991,
+      "semantic" : 51021,
+      "stable_id" : 206,
+      "vertex_count" : 100
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 607091,
+      "semantic" : 51021,
+      "stable_id" : 207,
+      "vertex_count" : 408
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 607499,
+      "semantic" : 51021,
+      "stable_id" : 210,
+      "vertex_count" : 325
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 607824,
+      "semantic" : 51021,
+      "stable_id" : 211,
+      "vertex_count" : 165
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 607989,
+      "semantic" : 51021,
+      "stable_id" : 212,
+      "vertex_count" : 162
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 608151,
+      "semantic" : 51021,
+      "stable_id" : 213,
+      "vertex_count" : 90
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 608241,
+      "semantic" : 51021,
+      "stable_id" : 214,
+      "vertex_count" : 125
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 608366,
+      "semantic" : 51021,
+      "stable_id" : 215,
+      "vertex_count" : 167
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 608533,
+      "semantic" : 51021,
+      "stable_id" : 216,
+      "vertex_count" : 109
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 608642,
+      "semantic" : 51021,
+      "stable_id" : 219,
+      "vertex_count" : 296
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 608938,
+      "semantic" : 51021,
+      "stable_id" : 220,
+      "vertex_count" : 149
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 609087,
+      "semantic" : 51021,
+      "stable_id" : 223,
+      "vertex_count" : 76
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 609163,
+      "semantic" : 51021,
+      "stable_id" : 224,
+      "vertex_count" : 89
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 609252,
+      "semantic" : 51021,
+      "stable_id" : 225,
+      "vertex_count" : 130
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 609382,
+      "semantic" : 51021,
+      "stable_id" : 227,
+      "vertex_count" : 313
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 609695,
+      "semantic" : 51021,
+      "stable_id" : 228,
+      "vertex_count" : 366
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 610061,
+      "semantic" : 51021,
+      "stable_id" : 229,
+      "vertex_count" : 143
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 610204,
+      "semantic" : 51021,
+      "stable_id" : 231,
+      "vertex_count" : 120
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 610324,
+      "semantic" : 51021,
+      "stable_id" : 234,
+      "vertex_count" : 178
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 610502,
+      "semantic" : 51021,
+      "stable_id" : 235,
+      "vertex_count" : 173
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 610675,
+      "semantic" : 51021,
+      "stable_id" : 236,
+      "vertex_count" : 511
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 611186,
+      "semantic" : 51021,
+      "stable_id" : 238,
+      "vertex_count" : 241
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 611427,
+      "semantic" : 51021,
+      "stable_id" : 242,
+      "vertex_count" : 237
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 611664,
+      "semantic" : 51021,
+      "stable_id" : 243,
+      "vertex_count" : 730
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 612394,
+      "semantic" : 51021,
+      "stable_id" : 245,
+      "vertex_count" : 466
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 612860,
+      "semantic" : 51021,
+      "stable_id" : 246,
+      "vertex_count" : 118
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 612978,
+      "semantic" : 51021,
+      "stable_id" : 247,
+      "vertex_count" : 75
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 613053,
+      "semantic" : 51021,
+      "stable_id" : 249,
+      "vertex_count" : 71
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 613124,
+      "semantic" : 51021,
+      "stable_id" : 250,
+      "vertex_count" : 841
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 613965,
+      "semantic" : 51021,
+      "stable_id" : 251,
+      "vertex_count" : 376
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 614341,
+      "semantic" : 51021,
+      "stable_id" : 255,
+      "vertex_count" : 498
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 614839,
+      "semantic" : 51022,
+      "stable_id" : 256,
+      "vertex_count" : 158
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 614997,
+      "semantic" : 51022,
+      "stable_id" : 257,
+      "vertex_count" : 141
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 615138,
+      "semantic" : 51022,
+      "stable_id" : 258,
+      "vertex_count" : 109
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 615247,
+      "semantic" : 51022,
+      "stable_id" : 262,
+      "vertex_count" : 171
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 615418,
+      "semantic" : 51022,
+      "stable_id" : 263,
+      "vertex_count" : 111
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 615529,
+      "semantic" : 51022,
+      "stable_id" : 265,
+      "vertex_count" : 282
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 615811,
+      "semantic" : 51022,
+      "stable_id" : 266,
+      "vertex_count" : 140
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 615951,
+      "semantic" : 51022,
+      "stable_id" : 267,
+      "vertex_count" : 258
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 616209,
+      "semantic" : 51022,
+      "stable_id" : 268,
+      "vertex_count" : 75
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 616284,
+      "semantic" : 51022,
+      "stable_id" : 269,
+      "vertex_count" : 197
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 616481,
+      "semantic" : 51022,
+      "stable_id" : 270,
+      "vertex_count" : 117
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 616598,
+      "semantic" : 51022,
+      "stable_id" : 271,
+      "vertex_count" : 161
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 616759,
+      "semantic" : 51022,
+      "stable_id" : 272,
+      "vertex_count" : 212
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 616971,
+      "semantic" : 51022,
+      "stable_id" : 273,
+      "vertex_count" : 137
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 617108,
+      "semantic" : 51022,
+      "stable_id" : 274,
+      "vertex_count" : 123
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 617231,
+      "semantic" : 51022,
+      "stable_id" : 275,
+      "vertex_count" : 297
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 617528,
+      "semantic" : 51022,
+      "stable_id" : 276,
+      "vertex_count" : 134
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 617662,
+      "semantic" : 51022,
+      "stable_id" : 277,
+      "vertex_count" : 159
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 617821,
+      "semantic" : 51022,
+      "stable_id" : 278,
+      "vertex_count" : 98
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 617919,
+      "semantic" : 51022,
+      "stable_id" : 279,
+      "vertex_count" : 127
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 618046,
+      "semantic" : 51022,
+      "stable_id" : 280,
+      "vertex_count" : 121
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 618167,
+      "semantic" : 51022,
+      "stable_id" : 283,
+      "vertex_count" : 171
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 618338,
+      "semantic" : 51022,
+      "stable_id" : 284,
+      "vertex_count" : 284
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 618622,
+      "semantic" : 51022,
+      "stable_id" : 285,
+      "vertex_count" : 171
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 618793,
+      "semantic" : 51022,
+      "stable_id" : 288,
+      "vertex_count" : 143
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 618936,
+      "semantic" : 51022,
+      "stable_id" : 290,
+      "vertex_count" : 136
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 619072,
+      "semantic" : 51022,
+      "stable_id" : 291,
+      "vertex_count" : 89
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 619161,
+      "semantic" : 51022,
+      "stable_id" : 292,
+      "vertex_count" : 100
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 619261,
+      "semantic" : 51022,
+      "stable_id" : 293,
+      "vertex_count" : 231
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 619492,
+      "semantic" : 51022,
+      "stable_id" : 294,
+      "vertex_count" : 123
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 619615,
+      "semantic" : 51022,
+      "stable_id" : 297,
+      "vertex_count" : 97
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 619712,
+      "semantic" : 51022,
+      "stable_id" : 298,
+      "vertex_count" : 132
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 619844,
+      "semantic" : 51022,
+      "stable_id" : 299,
+      "vertex_count" : 95
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 619939,
+      "semantic" : 51022,
+      "stable_id" : 300,
+      "vertex_count" : 100
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 620039,
+      "semantic" : 51022,
+      "stable_id" : 303,
+      "vertex_count" : 185
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 620224,
+      "semantic" : 51022,
+      "stable_id" : 304,
+      "vertex_count" : 132
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 620356,
+      "semantic" : 51011,
+      "stable_id" : 471,
+      "vertex_count" : 362
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 620718,
+      "semantic" : 51011,
+      "stable_id" : 525,
+      "vertex_count" : 376
+    },
+    {
+      "body_index" : 20,
+      "first_vertex" : 621094,
+      "semantic" : 51011,
+      "stable_id" : 526,
+      "vertex_count" : 275
+    }
+  ],
+  "polynomials" : {
+    "coefficient_type" : "float32_le",
+    "monomial_order" : "lexicographic_e0_to_e6_total_degree_le_3",
+    "normalization" : "source_reference_volume",
+    "path" : "common-field-polynomials-f32.bin",
+    "sha256" : "7be4f62996c996c6cfdd49480d27766c8253387bb24aeb504fef73cd553ae699",
+    "term_count" : 120,
+    "volume_count" : 7
+  },
+  "schema" : "numi.human.cardiac_common_field_loaded_buffers.v1",
+  "source_anatomy_payload_sha256" : "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4",
+  "uploaded_buffer_bundle_sha256" : "d891bed7dd4b23a6c4aab32dae53cab48072bfce13610b958a68487479c88fba",
+  "vertex_ranges" : [
+    {
+      "first_vertex" : 0,
+      "stable_id" : 318,
+      "vertex_count" : 41817
+    },
+    {
+      "first_vertex" : 41817,
+      "stable_id" : 319,
+      "vertex_count" : 61077
+    },
+    {
+      "first_vertex" : 102894,
+      "stable_id" : 320,
+      "vertex_count" : 27587
+    },
+    {
+      "first_vertex" : 130481,
+      "stable_id" : 321,
+      "vertex_count" : 56300
+    },
+    {
+      "first_vertex" : 186781,
+      "stable_id" : 1,
+      "vertex_count" : 98920
+    },
+    {
+      "first_vertex" : 285701,
+      "stable_id" : 23,
+      "vertex_count" : 229869
+    },
+    {
+      "first_vertex" : 515570,
+      "stable_id" : 24,
+      "vertex_count" : 70593
+    }
+  ],
+  "volume_stable_ids" : [
+    318,
+    319,
+    320,
+    321,
+    1,
+    23,
+    24
+  ]
+}

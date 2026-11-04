@@ -1,0 +1,6 @@
+{
+  "stage": "runner preparation",
+  "error": "KeyError: environment; must use stages[0].environment",
+  "physical_execution": false,
+  "correction": "runner108 uses existing stage environment; source and binary unchanged"
+}

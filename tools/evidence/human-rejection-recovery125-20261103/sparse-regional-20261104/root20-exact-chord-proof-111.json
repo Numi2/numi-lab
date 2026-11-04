@@ -1,0 +1,128 @@
+{
+  "scope": "captured full-correction endpoint chord, not later rounded Armijo trial endpoints or full scene admission",
+  "method": "exact rational arithmetic on reconstructed Float32 high/low words; cubic Bernstein signed-volume lower bound and convex quadratic-normal norm upper bound over entire chord",
+  "source_log_sha256": "b3c9a610c2aec73f09f1ddba672b66a60914e610a4ea61c2511701c51604b7fb",
+  "witnesses": [
+    {
+      "contact_slot": 1209401,
+      "source": [
+        49441,
+        49602,
+        1209401,
+        1
+      ],
+      "lower_bound_m_display": 9.036812483064057e-10,
+      "exact_rational_zero_clearance_proof": true,
+      "exact_rational_1nm_clearance_proof": false,
+      "exact_rational_half_nm_clearance_proof": true,
+      "reported_numeric_thickness_m": 6.83123957e-09,
+      "reported_alpha": 9.53674316e-07
+    },
+    {
+      "contact_slot": 1209426,
+      "source": [
+        49442,
+        49602,
+        1209426,
+        1
+      ],
+      "lower_bound_m_display": 9.036812483064057e-10,
+      "exact_rational_zero_clearance_proof": true,
+      "exact_rational_1nm_clearance_proof": false,
+      "exact_rational_half_nm_clearance_proof": true,
+      "reported_numeric_thickness_m": 6.83123957e-09,
+      "reported_alpha": 9.53674316e-07
+    },
+    {
+      "contact_slot": 1209589,
+      "source": [
+        49457,
+        49602,
+        1209589,
+        1
+      ],
+      "lower_bound_m_display": 1.970572797169241e-09,
+      "exact_rational_zero_clearance_proof": true,
+      "exact_rational_1nm_clearance_proof": true,
+      "exact_rational_half_nm_clearance_proof": true,
+      "reported_numeric_thickness_m": 6.82203094e-09,
+      "reported_alpha": 4.76837158e-07
+    },
+    {
+      "contact_slot": 1209668,
+      "source": [
+        49603,
+        49602,
+        1209668,
+        1
+      ],
+      "lower_bound_m_display": 1.970572797169241e-09,
+      "exact_rational_zero_clearance_proof": true,
+      "exact_rational_1nm_clearance_proof": true,
+      "exact_rational_half_nm_clearance_proof": true,
+      "reported_numeric_thickness_m": 6.82203094e-09,
+      "reported_alpha": 4.76837158e-07
+    },
+    {
+      "contact_slot": 1209683,
+      "source": [
+        49605,
+        49602,
+        1209683,
+        1
+      ],
+      "lower_bound_m_display": 9.036812483064057e-10,
+      "exact_rational_zero_clearance_proof": true,
+      "exact_rational_1nm_clearance_proof": false,
+      "exact_rational_half_nm_clearance_proof": true,
+      "reported_numeric_thickness_m": 6.83123957e-09,
+      "reported_alpha": 9.53674316e-07
+    },
+    {
+      "contact_slot": 1209691,
+      "source": [
+        49606,
+        49602,
+        1209691,
+        1
+      ],
+      "lower_bound_m_display": 1.970572797169241e-09,
+      "exact_rational_zero_clearance_proof": true,
+      "exact_rational_1nm_clearance_proof": true,
+      "exact_rational_half_nm_clearance_proof": true,
+      "reported_numeric_thickness_m": 6.82203094e-09,
+      "reported_alpha": 4.76837158e-07
+    },
+    {
+      "contact_slot": 1700079,
+      "source": [
+        279652,
+        281198,
+        1700079,
+        1
+      ],
+      "lower_bound_m_display": 9.884808135185659e-08,
+      "exact_rational_zero_clearance_proof": true,
+      "exact_rational_1nm_clearance_proof": true,
+      "exact_rational_half_nm_clearance_proof": true,
+      "reported_numeric_thickness_m": 1.94007543e-09,
+      "reported_alpha": 9.53674316e-07
+    },
+    {
+      "contact_slot": 1700134,
+      "source": [
+        279893,
+        281198,
+        1700134,
+        1
+      ],
+      "lower_bound_m_display": 9.884808135185659e-08,
+      "exact_rational_zero_clearance_proof": true,
+      "exact_rational_1nm_clearance_proof": true,
+      "exact_rational_half_nm_clearance_proof": true,
+      "reported_numeric_thickness_m": 1.94007543e-09,
+      "reported_alpha": 9.53674316e-07
+    }
+  ],
+  "acceptance_changed": false
+}

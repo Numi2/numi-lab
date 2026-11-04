@@ -2126,7 +2126,7 @@ void runTailTrueResidualDistributedCase(id<MTLDevice> device,
     }
     std::cout<<caseName<<"_tail_true_residual=true rigid=9 q="<<q<<" support=2 "
                 "vascular=3 inactive_field_padding="<<(n-q)<<" prelatched=true "
-                "replacement=true result=PASS\\n";
+                "replacement=true result=PASS\n";
 }
 
 void checkHybridTailTrueResidualDistributed(id<MTLDevice> device,
@@ -8697,7 +8697,7 @@ void checkRegionalSchurInteriorExtraction(
     require(readBuffer<NMMatterStatusGPU>(factorShapeStatusBuffer, 1u)[0].code ==
                 NM_STATUS_INVALID_DISPATCH,
         "factor descriptor was accepted as an extraction descriptor");
-    std::cout << "regional_schur_Aii_extraction=exact descriptor_shapes=distinct bounds=guarded result=PASS\\n";
+    std::cout << "regional_schur_Aii_extraction=exact descriptor_shapes=distinct bounds=guarded result=PASS\n";
 }
 
 
@@ -15012,7 +15012,65 @@ void checkFreshRhsPreconditionerRanges(
     std::memcpy([skipProducerMaskBuffer contents], &skipProducerMask,
                 sizeof(skipProducerMask));
 
+    // Captured full-Human completed tails retain nonlinear.w but can have
+    // diagnostics.z reset by their unused linear certificate. Only the
+    // explicitly selected regional scratch producers may use that latch.
     skipDomainMode = 3u;
+    skipProducerMask = 0x7fcu;
+    state.diagnostics.z = 0.0f;
+    auto uploadCompletedCase = [&] {
+        std::memcpy([stateBuffer contents], &state, sizeof(state));
+        std::memcpy([skipDomainModeBuffer contents], &skipDomainMode, sizeof(skipDomainMode));
+        std::memcpy([skipProducerMaskBuffer contents], &skipProducerMask, sizeof(skipProducerMask));
+        std::memcpy([forceFullRangesBuffer contents], &forceFullRanges, sizeof(forceFullRanges));
+    };
+    uploadCompletedCase();
+    ranges = run();
+    for (std::size_t i = 0; i < ranges.size(); ++i) {
+        const auto& expected = i >= 2u ? empty : full[i];
+        require(std::memcmp(&ranges[i], &expected, sizeof(expected)) == 0,
+            "physical-completion mode did not suppress only regional scratch");
+    }
+    auto expectCompletedFull = [&](const char* message) {
+        uploadCompletedCase();
+        ranges = run();
+        require(std::memcmp(ranges.data(), full.data(),
+                full.size() * sizeof(full[0])) == 0, message);
+    };
+    skipDomainMode = 0u;
+    expectCompletedFull("fresh-RHS proof incorrectly accepted an unconverged linear certificate");
+    skipDomainMode = 3u;
+    state.diagnostics.z = std::numeric_limits<float>::quiet_NaN();
+    expectCompletedFull("nonfinite linear diagnostics suppressed regional scratch");
+    state.diagnostics.z = 0.0f;
+    state.nonlinear.w = 0.0f;
+    expectCompletedFull("active physical Newton candidate suppressed regional scratch");
+    state.nonlinear.w = std::numeric_limits<float>::quiet_NaN();
+    expectCompletedFull("nonfinite physical Newton latch suppressed regional scratch");
+    state.nonlinear.w = 1.0f;
+    forceFullRanges = 1u;
+    expectCompletedFull("forced final/diagnostic refresh suppressed regional scratch");
+    forceFullRanges = 0u;
+    NMMatterStatusGPU completedFailure = healthy;
+    completedFailure.code = NM_STATUS_CONTACT_FAILURE;
+    std::memcpy([statusBuffer contents], &completedFailure, sizeof(completedFailure));
+    expectCompletedFull("failed physical state suppressed regional scratch");
+    std::memcpy([statusBuffer contents], &healthy, sizeof(healthy));
+    dispatchData.environmentCount = 2u;
+    std::memcpy([dispatchBuffer contents], &dispatchData, sizeof(dispatchData));
+    expectCompletedFull("multi-environment mode suppressed regional scratch");
+    dispatchData.environmentCount = 1u;
+    std::memcpy([dispatchBuffer contents], &dispatchData, sizeof(dispatchData));
+    skipProducerMask = 0u;
+    expectCompletedFull("unrestricted completion mode suppressed nodal producers");
+    skipProducerMask = 0x800u;
+    expectCompletedFull("invalid completion producer mask suppressed work");
+    skipProducerMask = 0u;
+    state.diagnostics.z = 1.0f;
+    uploadCompletedCase();
+    std::cout << "completed_regional_cache_ranges=true physical_latch=true linear_tail_zero=true nodal_preserved=true fail_closed=true PASS\n";
+
+    skipDomainMode = 4u;
     std::memcpy([skipDomainModeBuffer contents], &skipDomainMode,
                 sizeof(skipDomainMode));
     ranges = run();
@@ -17962,6 +18020,7 @@ int main(int argc, const char* argv[]) {
             checkHybridFullPhysicalResidualDiagnostic(device, queue,
                 hybridPhysicalPreserve, hybridPhysicalPartial, hybridPhysicalFinish);
             checkFreshRhsPreconditionerBeginVerification(device, queue, library);
+            checkFreshRhsPreconditionerRanges(device, queue, library);
             checkCompactedHumanContactQueries(device,queue,library);
             checkHumanExactContactMotionCache(device,queue,library);
             checkCompletedContactGeometry(device,queue,library);
