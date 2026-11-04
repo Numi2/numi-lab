@@ -1,0 +1,92 @@
+{
+  "status": "PASS",
+  "native_device": "Apple M6",
+  "command": [
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/metalrobo_bodyparts3d_visual_probe",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-scene-view-229/install-motion/accepted-geometry/step-32.mrvpack",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-scene-view-229/skin-preview",
+    "--dimension",
+    "1024",
+    "--source-semantic-coverage",
+    "--supine-view",
+    "--accepted-receipt",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-scene-view-229/install-motion/accepted-geometry/step-32.receipt.json",
+    "--human-resting-skin"
+  ],
+  "original_pack": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-scene-view-229/install-motion/accepted-geometry/step-32.mrvpack",
+    "sha256": "6262d7d73c950cd6edd9021bb6c5b54f17be3af49e14b05a412a793352ae9400",
+    "bytes": 321323008
+  },
+  "original_receipt": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-scene-view-229/install-motion/accepted-geometry/step-32.receipt.json",
+    "sha256": "72ae235e23c11e7fea2b68cffa7bf5fdfe8be6c64d96d363d9f97e652a1ad4ce",
+    "bytes": 119855
+  },
+  "renderer_binary": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/metalrobo_bodyparts3d_visual_probe",
+    "sha256": "c35c407aa28b46234ed15b4dd63d98e68b26b807c2bfd154df4c6dd31cd96a6f",
+    "bytes": 118224
+  },
+  "renderer_source": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/bodyparts3d_visual_probe.mm",
+    "sha256": "5dc102ad2137eed25b44daf9281a576a5dfe9435e517cb229c5d0b036862cec8",
+    "bytes": 31668
+  },
+  "derived_pack": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-scene-view-229/skin-preview/accepted-skin-frozen.mrvpack",
+    "sha256": "eb5c112f951bb66c4e2c6f410eacc8a766518d14f697a10299b810f1e5b0bfe9",
+    "bytes": 321323008
+  },
+  "scope": "accepted-position replay and resting Skin visibility; no physics or surface coordinates changed",
+  "negative_gates": [
+    {
+      "flags": [
+        "--human-resting-skin"
+      ],
+      "exit_code": 1,
+      "error": "metalrobo_bodyparts3d_visual_probe: --human-resting-skin requires --accepted-receipt"
+    },
+    {
+      "flags": [
+        "--source-semantic-coverage",
+        "--source-semantic-coverage"
+      ],
+      "exit_code": 1,
+      "error": "metalrobo_bodyparts3d_visual_probe: --source-semantic-coverage may only be provided once"
+    },
+    {
+      "flags": [
+        "--supine-view",
+        "--supine-view"
+      ],
+      "exit_code": 1,
+      "error": "metalrobo_bodyparts3d_visual_probe: --supine-view may only be provided once"
+    },
+    {
+      "flags": [
+        "--accepted-receipt",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-scene-view-229/install-motion/accepted-geometry/step-0.receipt.json"
+      ],
+      "exit_code": 1,
+      "error": "metalrobo_bodyparts3d_visual_probe: accepted receipt does not certify this visual pack"
+    }
+  ],
+  "images": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-scene-view-229/skin-preview/supine_sagittal.png",
+      "sha256": "b5418855cde48ac03fcc4c9f53a057d3520e4dc3950d1aaf018901d36bf5b451",
+      "bytes": 66295
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-scene-view-229/skin-preview/supine_oblique.png",
+      "sha256": "11c8b1a1084488e0725e807d2b585c579ef88377f5c64125f6a574883c8fc88f",
+      "bytes": 69263
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-scene-view-229/skin-preview/supine_anterior.png",
+      "sha256": "1caf7bd3bcb55bcdb0a016caece862bc13b9bf29693e5ddf917d75eebb92545b",
+      "bytes": 89863
+    }
+  ]
+}

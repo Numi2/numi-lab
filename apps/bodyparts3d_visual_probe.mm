@@ -1,8 +1,10 @@
+#import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 
 #include "metalrobo/FrankaWorld.hpp"
 #include "metalrobo/MetalHybridRenderer.hpp"
 #include "metalrobo/VisualPlatform.hpp"
+#include "NumiHumanRestingInspectionLayers.hpp"
 
 #include <algorithm>
 #include <array>
@@ -13,6 +15,7 @@
 #include <iostream>
 #include <limits>
 #include <stdexcept>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -110,7 +113,8 @@ PackFraming packFraming(
     const metalrobo::VisualAssetPackV2& pack,
     const bool tightFrame,
     const bool focusLowerThird,
-    const bool fillFrame
+    const bool fillFrame,
+    const bool supineView
 ) {
     if (pack.vertices.empty()) {
         throw std::runtime_error("BodyParts3D visual pack has no vertices");
@@ -127,13 +131,39 @@ PackFraming packFraming(
         -std::numeric_limits<float>::infinity(),
         0.0f,
     };
-    for (const MRVisualVertexGPUV2& vertex : pack.vertices) {
-        minimum.x = std::min(minimum.x, vertex.position.x);
-        minimum.y = std::min(minimum.y, vertex.position.y);
-        minimum.z = std::min(minimum.z, vertex.position.z);
-        maximum.x = std::max(maximum.x, vertex.position.x);
-        maximum.y = std::max(maximum.y, vertex.position.y);
-        maximum.z = std::max(maximum.z, vertex.position.z);
+    const auto extend = [&](const mr_float4 position) {
+        if (!std::isfinite(position.x) || !std::isfinite(position.y) || !std::isfinite(position.z))
+            throw std::runtime_error("visual preview bounds contain nonfinite coordinates");
+        minimum.x = std::min(minimum.x, position.x);
+        minimum.y = std::min(minimum.y, position.y);
+        minimum.z = std::min(minimum.z, position.z);
+        maximum.x = std::max(maximum.x, position.x);
+        maximum.y = std::max(maximum.y, position.y);
+        maximum.z = std::max(maximum.z, position.z);
+    };
+    if (supineView) {
+        // Accepted Human exports freeze articulated instance transforms. Bounds
+        // must use those transforms, rather than mixing owner-local vertices
+        // with the world-space skin and contact bed.
+        for (const auto& instance : pack.instances) {
+            if (instance.binding.z != MR_VISUAL_BINDING_WORLD)
+                throw std::runtime_error("--supine-view unresolved binding kind="+std::to_string(instance.binding.z)+" owner="+std::to_string(instance.binding.y)+" semantic="+std::to_string(instance.identity.x)+" stable="+std::to_string(instance.identity.w));
+            for (std::uint32_t j = 0; j < instance.geometry.y; ++j) {
+                const auto& primitive = pack.primitives.at(instance.geometry.x + j);
+                for (std::uint32_t k = 0; k < primitive.geometry.y; ++k) {
+                    const auto p = pack.vertices.at(pack.indices.at(primitive.geometry.x + k)).position;
+                    const auto q = instance.orientation;
+                    const mr_float4 t{2.0f*(q.y*p.z-q.z*p.y),
+                        2.0f*(q.z*p.x-q.x*p.z), 2.0f*(q.x*p.y-q.y*p.x), 0.0f};
+                    const auto placement = instance.translationAndScale;
+                    extend({placement.x + placement.w*(p.x+q.w*t.x+q.y*t.z-q.z*t.y),
+                        placement.y + placement.w*(p.y+q.w*t.y+q.z*t.x-q.x*t.z),
+                        placement.z + placement.w*(p.z+q.w*t.z+q.x*t.y-q.y*t.x), 0.0f});
+                }
+            }
+        }
+    } else {
+        for (const auto& vertex : pack.vertices) extend(vertex.position);
     }
     const mr_float4 centre{
         0.5f * (minimum.x + maximum.x),
@@ -295,15 +325,42 @@ int main(int argc, char** argv) {
     @autoreleasepool {
         try {
             if (argc < 3) {
-                std::cerr << "usage: metalrobo_bodyparts3d_visual_probe PACK.mrvpack OUTPUT_DIRECTORY [--dimension <128..4096>] [--tight-frame] [--fill-frame] [--focus-lower-third]\n";
+                std::cerr << "usage: metalrobo_bodyparts3d_visual_probe PACK.mrvpack OUTPUT_DIRECTORY [--dimension <128..4096>] [--tight-frame] [--fill-frame] [--focus-lower-third] [--source-semantic-coverage] [--supine-view] [--accepted-receipt PATH] [--human-resting-skin]\n";
                 return 2;
             }
             std::uint32_t dimension = 512u;
             bool tightFrame = false;
             bool focusLowerThird = false;
             bool fillFrame = false;
+            bool sourceSemanticCoverage = false;
+            bool supineView = false;
+            bool humanRestingSkin = false;
+            std::filesystem::path acceptedReceipt;
             for (int argument = 3; argument < argc; ++argument) {
                 const std::string option{argv[argument]};
+                if (option == "--human-resting-skin") {
+                    if (humanRestingSkin)
+                        throw std::runtime_error("--human-resting-skin may only be provided once");
+                    humanRestingSkin = true;
+                    continue;
+                }
+                if (option == "--accepted-receipt") {
+                    if (!acceptedReceipt.empty() || ++argument >= argc)
+                        throw std::runtime_error("--accepted-receipt requires exactly one receipt path");
+                    acceptedReceipt = argv[argument];
+                    continue;
+                }
+                if (option == "--supine-view") {
+                    if (supineView) throw std::runtime_error("--supine-view may only be provided once");
+                    supineView = true;
+                    continue;
+                }
+                if (option == "--source-semantic-coverage") {
+                    if (sourceSemanticCoverage)
+                        throw std::runtime_error("--source-semantic-coverage may only be provided once");
+                    sourceSemanticCoverage = true;
+                    continue;
+                }
                 if (option == "--tight-frame") {
                     if (tightFrame) {
                         throw std::runtime_error("--tight-frame may only be provided once");
@@ -326,7 +383,7 @@ int main(int argc, char** argv) {
                     continue;
                 }
                 if (option != "--dimension" || ++argument >= argc) {
-                    throw std::runtime_error("expected --dimension <128..4096>, --tight-frame, --fill-frame, or --focus-lower-third");
+                    throw std::runtime_error("expected --dimension <128..4096>, --tight-frame, --fill-frame, --focus-lower-third, --source-semantic-coverage, --supine-view, --accepted-receipt PATH, or --human-resting-skin");
                 }
                 const std::string dimensionText{argv[argument]};
                 std::size_t parsed = 0u;
@@ -336,22 +393,124 @@ int main(int argc, char** argv) {
                 }
                 dimension = static_cast<std::uint32_t>(candidate);
             }
-            const std::filesystem::path packPath{argv[1]};
+            std::filesystem::path packPath{argv[1]};
             const std::filesystem::path outputDirectory{argv[2]};
             metalrobo::VisualAssetPackV2 pack;
             std::string reason;
             if (!metalrobo::readVisualAssetPack(packPath, pack, &reason)) {
                 throw std::runtime_error("could not read visual pack: " + reason);
             }
-            const PackFraming framing = packFraming(pack, tightFrame, focusLowerThird, fillFrame);
+            if (humanRestingSkin && acceptedReceipt.empty())
+                throw std::runtime_error("--human-resting-skin requires --accepted-receipt");
+            if (!acceptedReceipt.empty()) {
+                NSError* error = nil;
+                NSData* data = [NSData dataWithContentsOfFile:
+                    [NSString stringWithUTF8String:acceptedReceipt.c_str()]];
+                id decoded = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:&error] : nil;
+                if (![decoded isKindOfClass:[NSDictionary class]])
+                    throw std::runtime_error("accepted receipt is not a JSON object");
+                NSDictionary* receipt = decoded;
+                if (metalrobo::computeVisualAssetPackContentHash(pack) != pack.contentHash ||
+                    ![receipt[@"physical_endpoint"] isEqual:@"accepted"] ||
+                    ![receipt[@"surface_audit_endpoint"] isEqual:@"passed"] ||
+                    ![receipt[@"pack_content_hash"] isEqual:
+                        [NSString stringWithUTF8String:pack.contentHash.c_str()]])
+                    throw std::runtime_error("accepted receipt does not certify this visual pack");
+                NSArray* poses = receipt[@"accepted_body_poses"];
+                if (![poses isKindOfClass:[NSArray class]] ||
+                    poses.count != [receipt[@"accepted_body_pose_count"] unsignedIntegerValue])
+                    throw std::runtime_error("accepted receipt pose count differs");
+                std::size_t frozen = 0;
+                for (auto& instance : pack.instances) {
+                    if (instance.binding.z == MR_VISUAL_BINDING_WORLD) continue;
+                    if (instance.binding.z != MR_VISUAL_BINDING_ARTICULATED_LINK ||
+                        instance.binding.y >= poses.count)
+                        throw std::runtime_error("accepted receipt cannot resolve this instance binding");
+                    id bodyValue = poses[instance.binding.y];
+                    if (![bodyValue isKindOfClass:[NSDictionary class]])
+                        throw std::runtime_error("accepted receipt body pose is not an object");
+                    NSDictionary* body = bodyValue;
+                    NSArray* position = body[@"position_m"];
+                    NSArray* orientation = body[@"quaternion_xyzw"];
+                    if (![position isKindOfClass:[NSArray class]] ||
+                        ![orientation isKindOfClass:[NSArray class]] ||
+                        [body[@"body_index"] unsignedIntValue] != instance.binding.y ||
+                        position.count != 3 || orientation.count != 4)
+                        throw std::runtime_error("accepted receipt body pose is malformed");
+                    const mr_float4 b{[position[0] floatValue], [position[1] floatValue],
+                        [position[2] floatValue], 0.0f};
+                    const mr_float4 q{[orientation[0] floatValue], [orientation[1] floatValue],
+                        [orientation[2] floatValue], [orientation[3] floatValue]};
+                    const auto p = instance.translationAndScale;
+                    const mr_float4 t{2*(q.y*p.z-q.z*p.y), 2*(q.z*p.x-q.x*p.z),
+                        2*(q.x*p.y-q.y*p.x), 0};
+                    instance.translationAndScale = {b.x+p.x+q.w*t.x+q.y*t.z-q.z*t.y,
+                        b.y+p.y+q.w*t.y+q.z*t.x-q.x*t.z,
+                        b.z+p.z+q.w*t.z+q.x*t.y-q.y*t.x, p.w};
+                    const auto a = instance.orientation;
+                    instance.orientation = {q.w*a.x+q.x*a.w+q.y*a.z-q.z*a.y,
+                        q.w*a.y-q.x*a.z+q.y*a.w+q.z*a.x,
+                        q.w*a.z+q.x*a.y-q.y*a.x+q.z*a.w,
+                        q.w*a.w-q.x*a.x-q.y*a.y-q.z*a.z};
+                    instance.binding.z = MR_VISUAL_BINDING_WORLD;
+                    ++frozen;
+                }
+                if (humanRestingSkin) {
+                    // Resting Skin inspection retains outer O, bed, source iris,
+                    // and the owner's sclera/lens presentation clones. Inner I/D
+                    // boundaries and other anatomy stay in the pack, unmodified.
+                    const std::set<unsigned> noRetiredIris;
+                    for (auto& instance : pack.instances) {
+                        const auto semantic = instance.identity.x;
+                        const auto stable = instance.identity.w;
+                        unsigned mask = (semantic == 51007u && stable != 0xFFFFFD11u &&
+                            stable != 0xFFFFFD12u) || semantic == 51999u ? 1u : 0u;
+                        mask = numiHumanRestingInspectionLayerMask(
+                            semantic, stable, mask, 51010u, noRetiredIris);
+                        if (stable == kNumiHumanRightScleraWindowStableID ||
+                            stable == kNumiHumanLeftScleraWindowStableID ||
+                            stable == kNumiHumanRightPosteriorLensBackingStableID ||
+                            stable == kNumiHumanLeftPosteriorLensBackingStableID) mask |= 1u;
+                        if (!(mask & kNumiHumanSkinInspectionLayerBit)) instance.binding.w = 0u;
+                    }
+                    pack.preprocessingProvenance += "/resting_skin_inspection_visibility_only";
+                }
+                std::filesystem::create_directories(outputDirectory);
+                pack.preprocessingProvenance += "/accepted_receipt_instance_pose_replay";
+                pack.contentHash = metalrobo::computeVisualAssetPackContentHash(pack);
+                packPath = outputDirectory / (humanRestingSkin ? "accepted-skin-frozen.mrvpack" : "accepted-frozen.mrvpack");
+                if (!metalrobo::writeVisualAssetPack(pack, packPath, &reason))
+                    throw std::runtime_error("could not retain accepted replay pack: " + reason);
+                std::cout << "accepted_receipt=" << acceptedReceipt << " frozen_instances=" << frozen
+                          << " accepted_time_s=" << [receipt[@"accepted_time_s"] doubleValue] << '\n';
+            }
+            std::set<std::uint32_t> sourceSemantics{8601u};
+            if (sourceSemanticCoverage) {
+                for (const auto& primitive : pack.primitives)
+                    if (primitive.identity.x != 0u && primitive.identity.x != MR_INVALID_INDEX)
+                        sourceSemantics.insert(primitive.identity.x);
+                for (const auto& instance : pack.instances)
+                    if (instance.identity.x != 0u && instance.identity.x != MR_INVALID_INDEX)
+                        sourceSemantics.insert(instance.identity.x);
+            }
+            const PackFraming framing = packFraming(pack, tightFrame, focusLowerThird, fillFrame, supineView);
             mr_float4 target = framing.centre;
             if (focusLowerThird) {
                 target.z = framing.minimum.z + 0.32f * (framing.maximum.z - framing.minimum.z);
             }
+            if (supineView && (fillFrame || focusLowerThird))
+                throw std::runtime_error("--supine-view cannot use vertical crop options");
+            const auto distance = framing.distance;
             const std::array cameraDefinitions{
-                std::pair{"axis_negative_y", mr_float4{target.x, target.y - framing.distance, target.z + 0.08f, 0.0f}},
-                std::pair{"oblique_positive_x_negative_y", mr_float4{target.x + 0.82f * framing.distance, target.y - 0.82f * framing.distance, target.z + 0.24f * framing.distance, 0.0f}},
-                std::pair{"axis_positive_y", mr_float4{target.x, target.y + framing.distance, target.z + 0.08f, 0.0f}},
+                std::pair{supineView ? "supine_anterior" : "axis_negative_y", supineView
+                    ? mr_float4{target.x, target.y - 0.12f*distance, target.z + distance, 0.0f}
+                    : mr_float4{target.x, target.y - distance, target.z + 0.08f, 0.0f}},
+                std::pair{supineView ? "supine_oblique" : "oblique_positive_x_negative_y", supineView
+                    ? mr_float4{target.x + 0.55f*distance, target.y - 0.5f*distance, target.z + distance, 0.0f}
+                    : mr_float4{target.x + 0.82f*distance, target.y - 0.82f*distance, target.z + 0.24f*distance, 0.0f}},
+                std::pair{supineView ? "supine_sagittal" : "axis_positive_y", supineView
+                    ? mr_float4{target.x + distance, target.y, target.z + 0.2f*distance, 0.0f}
+                    : mr_float4{target.x, target.y + distance, target.z + 0.08f, 0.0f}},
             };
 
             const metalrobo::EngineModel model = metalrobo::makeFrankaPickPlaceEngineModel();
@@ -434,15 +593,22 @@ int main(int argc, char** argv) {
                 }
                 metalrobo::HybridObservationBatch observation;
                 require(renderer.readback(observation), "preview frame readback");
-                const std::size_t covered = static_cast<std::size_t>(std::count(
-                    observation.segmentation.begin(), observation.segmentation.end(), 8601u
+                const std::filesystem::path frame = outputDirectory /
+                    (std::string{cameraDefinitions[camera].first} + ".ppm");
+                writePpm(frame, observation);
+                const std::size_t covered = static_cast<std::size_t>(std::count_if(
+                    observation.segmentation.begin(), observation.segmentation.end(),
+                    [&](std::uint32_t semantic) {
+                        return sourceSemantics.contains(semantic);
+                    }
                 ));
                 if (covered == 0u) {
                     throw std::runtime_error("preview frame contains no BodyParts3D source pixels");
                 }
-                const std::filesystem::path frame = outputDirectory /
-                    (std::string{cameraDefinitions[camera].first} + ".ppm");
-                writePpm(frame, observation);
+                std::cout << "source_semantic_coverage=" << sourceSemanticCoverage
+                          << " supine_view=" << supineView
+                          << " human_resting_skin=" << humanRestingSkin
+                          << " eligible_source_ids=" << sourceSemantics.size() << ' ';
                 std::cout << "view=" << cameraDefinitions[camera].first
                           << " covered_pixels=" << covered
                           << " total_pixels=" << observation.segmentation.size()

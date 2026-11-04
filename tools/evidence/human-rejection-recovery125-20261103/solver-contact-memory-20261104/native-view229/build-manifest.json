@@ -1,0 +1,64 @@
+{
+  "native_binary": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native",
+    "sha256": "6f25cc739d382b24b0e01db1b1d701ee04f08b0b231ada358a29173f550f983f",
+    "bytes": 10556192
+  },
+  "runtime_dependencies": {
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib",
+      "sha256": "1529a36228ddb8621c8e24d7ab0503eb12e09e2b2ea5c7580b7bf6f542eccab1",
+      "bytes": 10479440
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib",
+      "sha256": "5cb2d4db83399fe3c7811ab36f5846a4db03b69339fa543cc0ea806d2c2ae24d",
+      "bytes": 31382575
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib": {
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib",
+      "sha256": "880f60be6eb17b6af781665c6016c6d050da069685fcf1e8e2cafda0fc2115c8",
+      "bytes": 560736
+    },
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-driver-pipelines.metalar": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-driver-pipelines.metalar",
+      "sha256": "fcb46cff6565ac3ce0493d893453d15c740a7ec3ed5f8ff8269b0c2dcbd605e6",
+      "bytes": 505946800
+    }
+  },
+  "source": {
+    "head": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+    "dirty_patch": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-scene-view-229/execution-source.patch",
+      "sha256": "bf0c148fdc78a8e23e9f2d6177ca7befd48c0caefcedc215dd3df6b7640e61ca",
+      "bytes": 2167179
+    },
+    "sources": {
+      "matter/src/metal/contact.metalinc": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/contact.metalinc",
+        "sha256": "059136a31c3d99224efbaa9f9ffa4bf6e1fa80313b61593acd3fa114602fcbea",
+        "bytes": 768754
+      },
+      "matter/src/metal/fem.metalinc": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fem.metalinc",
+        "sha256": "ad8624bab5eebf1e53025816299468576dca65e868d158b597c7f159c935b5fb",
+        "bytes": 370040
+      },
+      "matter/src/metal/fgmres.metalinc": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc",
+        "sha256": "8e81d95164514e6640ebacd70b787c6fce37fbea946d503ccfd7de2c004995ff",
+        "bytes": 845367
+      },
+      "matter/src/metal/vascular.metalinc": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/vascular.metalinc",
+        "sha256": "25370c8c4013eac439f7deff5029f0a0b5da1191cfb2a66e5b5ee06982dae4eb",
+        "bytes": 200824
+      },
+      "matter/src/runtime.mm": {
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm",
+        "sha256": "708678d672c31c119bf8c18d920462ce94e65085d09a7e823902cf728bc78abc",
+        "bytes": 3554289
+      }
+    }
+  }
+}
