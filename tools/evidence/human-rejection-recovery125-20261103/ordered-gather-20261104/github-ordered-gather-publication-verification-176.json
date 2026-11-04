@@ -1,0 +1,27 @@
+{
+  "commit": "9920baa7320c61cd29396f9eeabcf6a3d9b68c48",
+  "author": {
+    "name": "numi2",
+    "email": "33553832+Numi2@users.noreply.github.com",
+    "date": "2026-11-04T06:03:58Z"
+  },
+  "independently_downloaded_from_github": true,
+  "files": [
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "blob": "4df609a6f69356ccd26f13d810380ae07ca5ffa6",
+      "sha256": "d0b9fa99e41ca1674ef1b67169146c0da2e782f5f7c0ac5884705037f06d0d5a"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "blob": "3a9f38cadf822a5dc4320d20cf1f8c31cc35f61a",
+      "sha256": "959367cbd091fcabf152237809d7cb0096ee38ccab3406a70e8443f9530529f3"
+    },
+    {
+      "path": "matter/tools/fgmres_true_residual_native_check.mm",
+      "blob": "5097913a4682fb3ee67a9e3ec350af0b52424f19",
+      "sha256": "8f2a6ce03a1728856196a64973ddbb09f3e01841196c2e59aedc413d108b81a0"
+    }
+  ],
+  "full39file_execution_source_restored_from_published170_snapshot_and_this_commit": true
+}

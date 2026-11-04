@@ -1,0 +1,427 @@
+{
+  "commit": "88a8d94129c5f115a57c2a1a321227c0b7a44cb7",
+  "repository": "Numi2/numi-lab",
+  "independently_downloaded_and_hash_verified": true,
+  "files": [
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "03cde2f7443ecc47dfcdae9d12f39bc3cc51b69b87109eda53eb7423149340cf",
+      "blob": "a5f6a517aaac46fbafb4b6c854d1a4eddb157e1c"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/README.md",
+      "sha256": "d6c493f1e7ad00dc894a635af77b72301eb2ddb9404089a720e5db5fbb6b7346",
+      "blob": "5a9a3e6bc4f3ccf98dff4e0332df78ec64f6cc8a"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/archive-content-dedup-verification.json",
+      "sha256": "26af8d91b83b3d17945659794eff4e862a116306e870ec5305db95792686ce31",
+      "blob": "660a6daeb19b6ec99a0381188ba37721fe44ab2d"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/cached-node-simd-build-170.log.gz",
+      "sha256": "835a5d96652fd444e50bdfb6f2ef0f9e049fe324ba1f6956238452c2a42535fc",
+      "blob": "f39809e0d6a8706e458ecfd26d82a7a9682c57d8"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/cached-node-simd-focused-168.log.gz",
+      "sha256": "6651d40fed185b72dbb4b12e334c9f41565aa7f5605189516f69fd211ae76cce",
+      "blob": "8afb54c94eb144c6d77dc46e99f399eb5b60408a"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/cached-node-simd-full-170.log.gz",
+      "sha256": "8f85b88a4a6d41c7c1ad2e86b530a9b09efb12e4836c3307223c8593f5321071",
+      "blob": "c024a8ff77d1f661cdf37afedaa7cbcb6e903d28"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/cached-node-simd-native-169/build-manifest.json.gz",
+      "sha256": "5cf64b4ef91f7d208de47055a861f53ac299288950a3d2d3a53fb0166323c461",
+      "blob": "2df6e091cc3ba4cf59c8b58bc1a51907ebf551df"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/cached-node-simd-native-169/executed-runner.py.gz",
+      "sha256": "f63ef8334013ed13acc7ff54c3f04e0a28b70b8b952a236ff4ed68c7b6b5bd62",
+      "blob": "7ce93dc5323503b4f4a50e099b11f5a8b3e3c1c6"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/cached-node-simd-native-169/install-motion.execution.json.gz",
+      "sha256": "bb639703134491ff26098817e45377de6ab5c5769da58e509ecfc928d3b9d5a0",
+      "blob": "5462058bce7670b2214c93f809aca667de4ec480"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/cached-node-simd-native-169/install-motion.plan.json.gz",
+      "sha256": "1505f3902c81c3e9cf74532a25c41621f8b6607488c29d1494a46d6bcb8841fd",
+      "blob": "e9ab9962c84bb0152d34e613f46ed11ec4e55b51"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/cached-node-simd-native-169/install-motion.stderr.log.gz",
+      "sha256": "1ba11a2fc6d6a9bcbf28848ab9e9bb001bfd4f2333a9b0bc9680b2586566b37f",
+      "blob": "6ecd089d01b9d9e4b3d27f8196c1bee227b141c1"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/cached-node-simd-native-169/install-motion.stdout.log.gz",
+      "sha256": "43992bf77f357c46ca254814a610675238bb04718b1a21f34d924dbc4c5552a0",
+      "blob": "11442a6a5297c97b2983accb23c95fc687aa24cf"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/cached-node-simd-native-170/build-manifest.json.gz",
+      "sha256": "81c21de72efd14fd4362b3de51cd70786ba9916ddc4d3ebd5c50e68a0f55f2d6",
+      "blob": "b9a5dff6e81e18da5be8c4105515b9d26148f007"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/cached-node-simd-native-170/executed-runner.py.gz",
+      "sha256": "dcc05a0905119b7464f977f470724d482f0f70e3c32c46987c2dd60577e5f783",
+      "blob": "5886414db16d0a0250465932c301da2238ca5261"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/cached-node-simd-native-170/install-motion.execution.json.gz",
+      "sha256": "7622b45c78c018f532ef955182091fc66ccbb1cfb6d390210bcf43a341738cf3",
+      "blob": "1c77cc8c534f3870e34a751505073ebd6de83074"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/cached-node-simd-native-170/install-motion.plan.json.gz",
+      "sha256": "356b08b7182c4c13ba5929448988112de5ec16c5fbcc5abcdcc59d21a67f3c60",
+      "blob": "aa7fe7279d4529a417b613e0b3caab4fc379bb5d"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/cached-node-simd-native-170/install-motion.stderr.log.gz",
+      "sha256": "650792e96a2d38242eb8c0f96795499452aa43061200069aad2a5688bdf5bee0",
+      "blob": "0bbb11e2ede1cc64b9073496ca1089f26f2e924a"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/combined-simd-native-173/build-manifest.json.gz",
+      "sha256": "f40f7b3e36b5fd29c6327723ef7acc1722f1f78d5d56d9863e922610a2d3b185",
+      "blob": "dc5f5f5d1bed99a15fe29cfc05047548d4df5e1d"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/combined-simd-native-173/executed-runner.py.gz",
+      "sha256": "0a6409af62482d8cee0727681d57d96bd05f9c82b0157b9be859e050c8d49faf",
+      "blob": "3cc0f2e6d56777c1a5615bd2f9dc57f3da8cb5a6"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/combined-simd-native-173/install-motion.execution.json.gz",
+      "sha256": "aa57f2d7fd14a00fbe052570a26cb7baf6a975b6e9fe769f775851e5cc0e7d7e",
+      "blob": "2ac76c14e1cddcaf8c5b2465476c1b1d5dd87c90"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/combined-simd-native-173/install-motion.plan.json.gz",
+      "sha256": "f2b750347620bbc9378a1ff5b09b10149e100493599fde24168713ad36156992",
+      "blob": "155b783941a1f3419b741283c316ff8197cd0acb"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/combined-simd-native-173/install-motion.stderr.log.gz",
+      "sha256": "6ad26c028f7da59ed07519d80b9ceea66a2077b1f4334846409ec9b58681ecdc",
+      "blob": "3cb4c8d0aac3eea8d3bff3833d48de3d706aceee"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/compact-native-traces.tar.gz",
+      "sha256": "9521b0ab055f106e4afa69a9edb9f1f7587e8e1e27d0c41fb69ab6bc98217091",
+      "blob": "1225383e0c60c9f2dea748687b0874da60bad2f9"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/compare-native-exact.py",
+      "sha256": "2e5daed593269d5905f683e109fee4035a8580cf6ad1c86fad0dcf3f7ee6aa4c",
+      "blob": "5f2e001b96a15da4dc4d2cd71487a839eadb7208"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/compare-native-prefix.py",
+      "sha256": "2c9ad14ac1d1211e13bf74dd5c6b0462ce4785588da0944c317c8a370df7b222",
+      "blob": "f3ff943cf83303fad7d1b8ed1aa2816180c9c17d"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/comparison-158-173.json",
+      "sha256": "a3089859404692eb951e14fc657956a5fd75339fb2c6ad39b55bba1359e65e32",
+      "blob": "0d1d2274911f7036967c3ae23212a5734307b585"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/comparison-159-170.json",
+      "sha256": "90131a7635fdfe708b63f8520269c4eb02e2dd9fc3531acaaba4a149c21969f9",
+      "blob": "3c17ef707fd9f6ba324ae1becc8f88a3f27ea754"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/comparison-160-164.json",
+      "sha256": "c3b8275e24f190d40708504f087ff36d0907e2aacffc7e86a3b3531529dd0d95",
+      "blob": "fae700a2b50dc37faf9ef45d45289094c035fa50"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/comparison-170-171.json",
+      "sha256": "38a7abce0269e8b307ef22b6efaeb54aa0905ff56131d3a0ac42148f9432d3ed",
+      "blob": "6b3cee59035863af83f8eb30bb9c993b9b86fa16"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/execution-source-overrides.tar.gz",
+      "sha256": "1e45b2ce0ccfabac7eceb5af4844e4d92ca8db5176caf58d3a01a70c7d9c75dc",
+      "blob": "a74aaf4211096a15d06587646d038c2df08ef582"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/execution-source-snapshots-170.tar.gz",
+      "sha256": "d6a4ea49c51cef60438e99254f3b9f6eb09ce94cf391739d464ef9728dc7d3c9",
+      "blob": "e3b106cd5a485123b4833ba2659a48a334b73de7"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/explicit-linear-census-166/build-manifest.json.gz",
+      "sha256": "318e99b10f468ea341d28c851c0bbf683d34d3e8a5cc82f3738bb80f9cb8e9a4",
+      "blob": "fb099584fcfd990fd095cb427bb270b2d6233647"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/explicit-linear-census-166/executed-runner.py.gz",
+      "sha256": "6067bb649553e722cb7ca4442bca9b4aaac72c66ac00eca5abc6058be60f551d",
+      "blob": "45ea06128bc7065bb540a51316da2a5af35f47ff"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/explicit-linear-census-166/install-motion.execution.json.gz",
+      "sha256": "35694d7eac937e7e831228a355810371b09e2d2c558201ba45b362b86cac035e",
+      "blob": "9a477b557ba41f42ed14d997cc1d5ed28b183db1"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/explicit-linear-census-166/install-motion.plan.json.gz",
+      "sha256": "9bd868e9879db9a380f1a83fb246b450679074fb2f4de2f5f50d5da10d4eb172",
+      "blob": "cca7a09ae8bf424108d9abf14f414705a9b93704"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/explicit-linear-census-166/install-motion.stderr.log.gz",
+      "sha256": "f7093b2c7153692222c4527708a9c37043b30d2eca66286ba4e524e67873c0a3",
+      "blob": "c50bbbe4cb39351b58d4bf1c200344b420c21995"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/explicit-linear-census-166/install-motion.stdout.log.gz",
+      "sha256": "1438b53c889b58c9b2ff2b7c08601faadb80e65bce1ac0ef618639c43403037d",
+      "blob": "3ae45d64698d6bc8386c08fecd7dc42770cfe076"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/explicit-linear-census-167/build-manifest.json.gz",
+      "sha256": "baa62cc8042b2ff3a61956ca55025698d8b9308e3668c282a34ca37b5d847e3a",
+      "blob": "61741982748e7a952ebee16c8d066de606d8a3ea"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/explicit-linear-census-167/executed-runner.py.gz",
+      "sha256": "3878f1b909231e84bbcbad870ba24d867e332475f52d39a5f39519bf1481fbfe",
+      "blob": "b87a4f132c52f5592946623e95b9362f61055215"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/explicit-linear-census-167/install-motion.execution.json.gz",
+      "sha256": "a18418ec23c1e9fe8347138e19c9871ddb15d96402c70e2204502d14f79d7187",
+      "blob": "5e90bdd5056e97041dfe4647aa07dc5d042dfcc3"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/explicit-linear-census-167/install-motion.plan.json.gz",
+      "sha256": "79c8494028b373423ad5d037d9b7e725d20cc461f43059ee126a6831ba9cd44e",
+      "blob": "2b80df750d27776e1084b7d56c8cf3311da773fb"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/explicit-linear-census-167/install-motion.stderr.log.gz",
+      "sha256": "106d4deb13875f94a4fa6954ac47c4cbbf5c87ccf50782a4eb7c7f956574db8a",
+      "blob": "3eef15fb078e345217d7a1f6f22904a38fbb790e"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/explicit-linear-census-167/install-motion.stdout.log.gz",
+      "sha256": "65ff7cb6062f5a18e8777b044621a65f0be9ec69f7d19e5076ce7dca62972b72",
+      "blob": "d1b2e73480ea1100e591c44de2f7549485215531"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/explicit-linear-census-results-167.json",
+      "sha256": "337b9eb3888d512d0531f8489d268ed7696ca5baed04c6d8ed324ef5831e29e0",
+      "blob": "11aa586d84711b49b33a86618adba7f5cb888448"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/full-fidelity-native-159/build-manifest.json.gz",
+      "sha256": "53b1d3dcd32324f872bbdabddf43d635c064f9cef206ce59719a40c41555a997",
+      "blob": "2799d84c36f11f24330c27132546e9ca3d618682"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/full-fidelity-native-159/executed-runner.py.gz",
+      "sha256": "3d0739b0f19c9164e657ef3a2edc3b7f76d453b32dc797ca00db9a2c16231683",
+      "blob": "03c548c0b442307b10a1c2ee590a0ad6271d9e43"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/full-fidelity-native-159/install-motion.execution.json.gz",
+      "sha256": "c57313bc7a0bb7d615cb3ed542af4892a1efbcaef7e33fb9df36f722a5efdf2e",
+      "blob": "24c69f0cb9c8def468dd45cf6907c7b43f87ded4"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/full-fidelity-native-159/install-motion.plan.json.gz",
+      "sha256": "a2342632f66cc82ea8ce3bd57f61cb75f3ec3e057b52e6447ad5fb509c739169",
+      "blob": "ee52a75b0257982aa617087c622f98ad1883f5ac"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/full-fidelity-native-159/install-motion.stderr.log.gz",
+      "sha256": "cbb2255cd4755b74f45db2b91b116aec8d1d67fd15b30124dee411e00268c8ec",
+      "blob": "c7f6ba42ae34d4fb4a78d530db284d82c2c63607"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/full-kernel-census-165/build-manifest.json.gz",
+      "sha256": "da3807117d5608a53bed293d1ba4dce45b14eed9b682d2d233561cc6bce719ee",
+      "blob": "9a53f732097300d80652e347a9bb10b36150d875"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/full-kernel-census-165/executed-runner.py.gz",
+      "sha256": "bca2a0d3d94781e6c87e3e807c9c4b62b2e267fe8f91e8ae2ea07ca85ca6a43e",
+      "blob": "6268a394a5d654b4b6db433d244770f4c8fd9ddf"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/full-kernel-census-165/install-motion.execution.json.gz",
+      "sha256": "4978e5026cbbeb04f1526ce5a400fe1a2ab381faec3c9ac05ae16b02f66310ae",
+      "blob": "515739eda409e9ebe930013b250ca311a378c8d3"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/full-kernel-census-165/install-motion.plan.json.gz",
+      "sha256": "d292dad5ab38cea9e3b6514e2fa57e2db7431d9cb92e5eec9fb641115811b18d",
+      "blob": "8c1170f68d6aa36e86a66a9b9b3bfae2464af006"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/full-kernel-census-165/install-motion.stderr.log.gz",
+      "sha256": "02940e21171067010efeba4d6cbdfde3f3fceff9f29f1eafd7efd2f42c4044c5",
+      "blob": "4b358a065f57c44deee0e24c3520a966bf9e2190"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/full-kernel-census-165/install-motion.stdout.log.gz",
+      "sha256": "2601a51670fb1966a16faa2d6e9687253fa91cfd935a16ee9233b9a3902adfbc",
+      "blob": "1a02c7d0ef631aea0faf4e9a4f855187a5fa0527"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/full-kernel-census-results-165.json",
+      "sha256": "d2cd950346643b472d65150662352957cb5871d3686b9debe08b620baaa86994",
+      "blob": "df7f06524714c2e3edd1d0bea780b5e2788645f5"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/full-vs-strict-hybrid-fidelity-163.json",
+      "sha256": "30642c56ea202efadbdca21641b72628b9dc424f245054d52d3aad2204324bc7",
+      "blob": "8cc6299fac40ab020d365952584916e890d16bf3"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/github-cached-node-publication-verification-170.json",
+      "sha256": "9de333d7bdeec975f1b011a2b8512f3fa14ac94537d1c1f5b57795d77c8f366d",
+      "blob": "1b336fbf29ec5498a04f63b62312c43db277bf04"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/historical-retention-172.json",
+      "sha256": "bfb2b65b5fb5f9556df128f739b30eebfcddd69ea09d67f8aabe931a08ed3969",
+      "blob": "e635cb175751901f3dd694a5b47a32d206edc73c"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/hybrid-zero-action-focused-163.log.gz",
+      "sha256": "a04c216abaaac42fa107deadb60f5e2a616c72bac1d0c86c70fd8d8373cde5a0",
+      "blob": "0ffe72004f51764304d61b4b882d32409a658ecf"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/hybrid-zero-action-full-163.log.gz",
+      "sha256": "47f9842511db78ea5aff698115a0fa91f0f09f2ce09e6d99316e57a631bb45ee",
+      "blob": "58e0d06adf7a8f3d6cfb891223341e23f2c48888"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/hybrid-zero-action-old-shader-focused-163.log.gz",
+      "sha256": "b51d2ca99274bc03a330509c8471a65089b30d0b40043550d5f654787f0107e2",
+      "blob": "cb094a0d2c05babe70c4222bf2f7eb9c28849e7f"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/no-support-repeat-build-171.log.gz",
+      "sha256": "ead4100be14a015a47d0bcdcc2de572ba49f9787a81bd9f4592809ec0dcc9f50",
+      "blob": "3f743ae569cefb773d7057c56784026de6c69e5d"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/no-support-repeat-native-171/build-manifest.json.gz",
+      "sha256": "201b80141c93e067a6efc4a75cd0b32d62d26b0863a2e8577ccbce9eabcd02ae",
+      "blob": "69a1d8baeb591a6e5ba8f3f1e5e6b6158d4170c2"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/no-support-repeat-native-171/executed-runner.py.gz",
+      "sha256": "50785b8301c73b78bf435a188261d56dc4f88794c8ab399c5b50ed2c5df10aeb",
+      "blob": "986dc362ef59191741848ea52f618ca27939f806"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/no-support-repeat-native-171/install-motion.execution.json.gz",
+      "sha256": "ec111eae128df597fa5f158ca3c15211f3286bb1ed90e3692727a8db70a83dd3",
+      "blob": "421c7f6e5fb2877afb7abb9732ca8d64fc8ea2d9"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/no-support-repeat-native-171/install-motion.plan.json.gz",
+      "sha256": "878a89a0966d2e296e81d903795485291949fee7da9e6ebbc20daa9724fab29f",
+      "blob": "d3100d31134dabeca2cc4061518010333025e2cd"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/no-support-repeat-native-171/install-motion.stderr.log.gz",
+      "sha256": "a1f01ab1a1d6d21ac3baac9483802cc4ab5b7c352a8b5df0749f0c599bfca656",
+      "blob": "324ca460f43efcc34368f85db458166991e01f97"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/no-support-repeat-solver-171.log.gz",
+      "sha256": "8512cb0d21a8dffe39561b9e9fc16a28be2c581e43b8a003b3a2c2d9e199c1b1",
+      "blob": "6182af8a1f45704e5b21aacdbb0a9bce51a9a3e6"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/profile-parity-and-clones-168.json",
+      "sha256": "79932f4245c21af1aeabe4383ffe1d8b00f1937b7a7d226b7fca6bf435701431",
+      "blob": "7b0a5cff65ea0132fd3c1fd6f880ce083f206ad6"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/source-173-matches-171.json",
+      "sha256": "fe3a3b754d534908a66ee755ebf65570adc157a9fc66a31d6d3c87399ff30d9c",
+      "blob": "1ffd5fde9497cc908c8898f39bd9d6e08cbcacbc"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/source-restoration-verification.json",
+      "sha256": "005842e7240f79429fadb2253672ce193642b8099e505753dfc78fc498d220bd",
+      "blob": "f6dab7bc2f7c59d5016b868d257396d0da6bd5a9"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/strict-hybrid-native-160/build-manifest.json.gz",
+      "sha256": "2bc8b9d16284b61fa65d91901551774ff0172a81f52ccd49bb4989b2f5a39eed",
+      "blob": "b1605b1ad0bec00f394848a2f0871c8761480445"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/strict-hybrid-native-160/executed-runner.py.gz",
+      "sha256": "26dd7e1b374edfaf317fed4f2b12353f1aa911349ee0ec41726c026fd936c3c7",
+      "blob": "9c9b637bfa6d761781877fcb8a275ffe7a4cbda3"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/strict-hybrid-native-160/install-motion.execution.json.gz",
+      "sha256": "9dc863a7f4f947494dc1602df53d6a50328995e66d76959dde2398fbf5768f7b",
+      "blob": "563e87c76501a56287e76a44c5ffe0a132604027"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/strict-hybrid-native-160/install-motion.plan.json.gz",
+      "sha256": "97459b199801047e00fc2796596dcf35dc2362ccc9a1afa58fbb18e7b6642cf4",
+      "blob": "a522a5a45955e99e28bdd10bfda61450fd5a8328"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/strict-hybrid-native-160/install-motion.stderr.log.gz",
+      "sha256": "e76f7aae5980f0335c1cf9592d2bba378175e7ce7c2b2a7f6ce54155b36034ef",
+      "blob": "4f7fadb398de9996c8338ac5a3f0ba51e898a0a8"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/strict-hybrid-zero-action-164/build-manifest.json.gz",
+      "sha256": "601d2be1f22855f21b3bc6bbcafc1eb79d3655359f475d37b78341dabe81896b",
+      "blob": "0f724023084126345b8f140ebd2823e910ddc84a"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/strict-hybrid-zero-action-164/executed-runner.py.gz",
+      "sha256": "4d884e62b61abaad0a329db3138cdbe961451d81f9a29f365ac3111d7502a94b",
+      "blob": "ca6d3b3159c37f015b032fe4b0320bb066a8f279"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/strict-hybrid-zero-action-164/install-motion.execution.json.gz",
+      "sha256": "cad482f7df2103f2984807987a519318b9b4e65f27e0948bc67d723d7effc7b6",
+      "blob": "276d596bd8a5dc77eab895deebea9b04a810103f"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/strict-hybrid-zero-action-164/install-motion.plan.json.gz",
+      "sha256": "573a336ee59218de0e1be7942e6371c2c629e7c21a9201d0cba8cfc1ff5e8498",
+      "blob": "a45eea0a18495f4a879450c3659b13acf1481448"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/strict-hybrid-zero-action-164/install-motion.stderr.log.gz",
+      "sha256": "4acbfe0e3f250fa3581d7a60ec928e353d7bff10783e789b33272da0b388ea0b",
+      "blob": "9735d4352b87cfee238dafa28b8f452d87549f7a"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/verified-compression-clones-171.json",
+      "sha256": "a3e29f5f1edae59750cf5859b21bec613f95acccc289ba25ef607ae3e70d354c",
+      "blob": "568be0793c78f9fdd9edd518a2aeaca1cf15dd8a"
+    },
+    {
+      "path": "tools/evidence/human-rejection-recovery125-20261103/solver-native-census-20261104/verified-compression-clones-173.json",
+      "sha256": "585f42d5f02c0c9f61c6f8866b37d0c8c009d6bb22d6699ef619485e5f2cca9d",
+      "blob": "0b2ce1f235814ad1ffbf58f83e2c5171a1c94059"
+    }
+  ]
+}

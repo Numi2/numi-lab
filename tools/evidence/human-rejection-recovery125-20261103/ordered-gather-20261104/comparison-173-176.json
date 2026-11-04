@@ -1,0 +1,501 @@
+{
+  "baseline": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/combined-simd-native-173",
+  "candidate": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/ordered-gather-prefix-176",
+  "baseline_profile": {
+    "rows": [
+      {
+        "step": 1.0,
+        "command_ms": 5741.656916,
+        "gpu_ms": 5740.53075,
+        "host_copy_ms": 0.328042
+      },
+      {
+        "step": 2.0,
+        "command_ms": 5734.130666,
+        "gpu_ms": 5732.892125,
+        "host_copy_ms": 1.174625
+      },
+      {
+        "step": 3.0,
+        "command_ms": 5701.023708,
+        "gpu_ms": 5700.0295,
+        "host_copy_ms": 0.101208
+      },
+      {
+        "step": 4.0,
+        "command_ms": 5675.396125,
+        "gpu_ms": 5674.02333334,
+        "host_copy_ms": 0.1205
+      },
+      {
+        "step": 5.0,
+        "command_ms": 5685.58625,
+        "gpu_ms": 5684.0545,
+        "host_copy_ms": 0.049917
+      },
+      {
+        "step": 6.0,
+        "command_ms": 5726.622166,
+        "gpu_ms": 5725.94325,
+        "host_copy_ms": 0.050542
+      },
+      {
+        "step": 7.0,
+        "command_ms": 5718.80025,
+        "gpu_ms": 5717.66574999,
+        "host_copy_ms": 0.049
+      },
+      {
+        "step": 8.0,
+        "command_ms": 5733.220292,
+        "gpu_ms": 5732.29912501,
+        "host_copy_ms": 0.050042
+      },
+      {
+        "step": 9.0,
+        "command_ms": 5709.788916,
+        "gpu_ms": 5708.67587501,
+        "host_copy_ms": 0.048625
+      },
+      {
+        "step": 10.0,
+        "command_ms": 5688.114792,
+        "gpu_ms": 5687.07508333,
+        "host_copy_ms": 0.051708
+      },
+      {
+        "step": 11.0,
+        "command_ms": 5696.107458,
+        "gpu_ms": 5695.16316667,
+        "host_copy_ms": 0.048542
+      },
+      {
+        "step": 12.0,
+        "command_ms": 5731.710417,
+        "gpu_ms": 5730.62483333,
+        "host_copy_ms": 0.049541
+      },
+      {
+        "step": 13.0,
+        "command_ms": 8232.383875,
+        "gpu_ms": 8231.25241668,
+        "host_copy_ms": 0.051208
+      },
+      {
+        "step": 14.0,
+        "command_ms": 5695.544042,
+        "gpu_ms": 5694.71716667,
+        "host_copy_ms": 0.052958
+      },
+      {
+        "step": 15.0,
+        "command_ms": 5715.740667,
+        "gpu_ms": 5714.76037499,
+        "host_copy_ms": 0.05
+      },
+      {
+        "step": 16.0,
+        "command_ms": 6978.027458,
+        "gpu_ms": 6976.90733333,
+        "host_copy_ms": 0.050292
+      },
+      {
+        "step": 17.0,
+        "command_ms": 5743.129916,
+        "gpu_ms": 5741.97729166,
+        "host_copy_ms": 0.04825
+      },
+      {
+        "step": 18.0,
+        "command_ms": 5756.9195,
+        "gpu_ms": 5756.07262499,
+        "host_copy_ms": 0.050875
+      },
+      {
+        "step": 19.0,
+        "command_ms": 5795.600875,
+        "gpu_ms": 5794.94045833,
+        "host_copy_ms": 0.050166
+      },
+      {
+        "step": 20.0,
+        "command_ms": 5779.960167,
+        "gpu_ms": 5778.880375,
+        "host_copy_ms": 0.049083
+      },
+      {
+        "step": 21.0,
+        "command_ms": 5854.114709,
+        "gpu_ms": 5853.098625,
+        "host_copy_ms": 0.050291
+      },
+      {
+        "step": 22.0,
+        "command_ms": 5856.571625,
+        "gpu_ms": 5854.88562501,
+        "host_copy_ms": 0.052166
+      },
+      {
+        "step": 23.0,
+        "command_ms": 7100.398125,
+        "gpu_ms": 7099.191,
+        "host_copy_ms": 0.053625
+      },
+      {
+        "step": 24.0,
+        "command_ms": 10888.276,
+        "gpu_ms": 10887.3385833,
+        "host_copy_ms": 0.052208
+      },
+      {
+        "step": 25.0,
+        "command_ms": 18533.514208,
+        "gpu_ms": 18532.208125,
+        "host_copy_ms": 0.050209
+      },
+      {
+        "step": 26.0,
+        "command_ms": 21098.469125,
+        "gpu_ms": 21097.6186667,
+        "host_copy_ms": 0.056584
+      },
+      {
+        "step": 27.0,
+        "command_ms": 20648.925208,
+        "gpu_ms": 20645.24425,
+        "host_copy_ms": 0.195583
+      },
+      {
+        "step": 28.0,
+        "command_ms": 18653.278417,
+        "gpu_ms": 18651.972125,
+        "host_copy_ms": 0.049375
+      },
+      {
+        "step": 29.0,
+        "command_ms": 22801.558416,
+        "gpu_ms": 22800.7324583,
+        "host_copy_ms": 0.06025
+      },
+      {
+        "step": 30.0,
+        "command_ms": 8482.201375,
+        "gpu_ms": 8480.88804167,
+        "host_copy_ms": 0.054875
+      },
+      {
+        "step": 31.0,
+        "command_ms": 15957.387375,
+        "gpu_ms": 15956.26725,
+        "host_copy_ms": 0.055125
+      },
+      {
+        "step": 32.0,
+        "command_ms": 10977.6465,
+        "gpu_ms": 10976.6779583,
+        "host_copy_ms": 0.0515
+      }
+    ],
+    "completed_summary": [
+      "resting_integrated_body=completed simulated_s=0.00050000002374872565 wall_s=288.16750220900002 real_time_factor=1.7351020497310945e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+    ],
+    "sum_gpu_ms": 285054.60804161,
+    "sum_command_ms": 285091.805539,
+    "roots1_to31_gpu_ms": 279314.07729161
+  },
+  "candidate_profile": {
+    "rows": [
+      {
+        "step": 1.0,
+        "command_ms": 5443.546916,
+        "gpu_ms": 5437.78062501,
+        "host_copy_ms": 0.609125
+      },
+      {
+        "step": 2.0,
+        "command_ms": 5442.932792,
+        "gpu_ms": 5442.08891666,
+        "host_copy_ms": 2.324416
+      },
+      {
+        "step": 3.0,
+        "command_ms": 5407.7655,
+        "gpu_ms": 5406.94266667,
+        "host_copy_ms": 0.06925
+      },
+      {
+        "step": 4.0,
+        "command_ms": 5423.712209,
+        "gpu_ms": 5422.83800001,
+        "host_copy_ms": 0.056125
+      },
+      {
+        "step": 5.0,
+        "command_ms": 5449.512917,
+        "gpu_ms": 5448.398875,
+        "host_copy_ms": 0.0545
+      },
+      {
+        "step": 6.0,
+        "command_ms": 5476.648583,
+        "gpu_ms": 5475.35454166,
+        "host_copy_ms": 0.056209
+      },
+      {
+        "step": 7.0,
+        "command_ms": 5462.280959,
+        "gpu_ms": 5461.25429167,
+        "host_copy_ms": 0.052958
+      },
+      {
+        "step": 8.0,
+        "command_ms": 5477.231041,
+        "gpu_ms": 5476.11966667,
+        "host_copy_ms": 0.055375
+      },
+      {
+        "step": 9.0,
+        "command_ms": 5496.435542,
+        "gpu_ms": 5495.47320833,
+        "host_copy_ms": 0.054167
+      },
+      {
+        "step": 10.0,
+        "command_ms": 5427.335417,
+        "gpu_ms": 5425.915,
+        "host_copy_ms": 0.056708
+      },
+      {
+        "step": 11.0,
+        "command_ms": 5413.555,
+        "gpu_ms": 5412.69675001,
+        "host_copy_ms": 0.056084
+      },
+      {
+        "step": 12.0,
+        "command_ms": 5463.715584,
+        "gpu_ms": 5462.43920832,
+        "host_copy_ms": 0.053416
+      },
+      {
+        "step": 13.0,
+        "command_ms": 7710.915833,
+        "gpu_ms": 7709.81808333,
+        "host_copy_ms": 0.054792
+      },
+      {
+        "step": 14.0,
+        "command_ms": 5428.69375,
+        "gpu_ms": 5427.619875,
+        "host_copy_ms": 0.055583
+      },
+      {
+        "step": 15.0,
+        "command_ms": 5451.203417,
+        "gpu_ms": 5450.14375,
+        "host_copy_ms": 0.054791
+      },
+      {
+        "step": 16.0,
+        "command_ms": 6596.80125,
+        "gpu_ms": 6595.71337501,
+        "host_copy_ms": 0.052208
+      },
+      {
+        "step": 17.0,
+        "command_ms": 5478.1935,
+        "gpu_ms": 5477.0155,
+        "host_copy_ms": 0.053708
+      },
+      {
+        "step": 18.0,
+        "command_ms": 5482.774,
+        "gpu_ms": 5481.44916666,
+        "host_copy_ms": 0.054833
+      },
+      {
+        "step": 19.0,
+        "command_ms": 5502.346834,
+        "gpu_ms": 5501.21629167,
+        "host_copy_ms": 0.054583
+      },
+      {
+        "step": 20.0,
+        "command_ms": 5521.210417,
+        "gpu_ms": 5519.981625,
+        "host_copy_ms": 0.057291
+      },
+      {
+        "step": 21.0,
+        "command_ms": 5552.779375,
+        "gpu_ms": 5551.96608332,
+        "host_copy_ms": 0.056125
+      },
+      {
+        "step": 22.0,
+        "command_ms": 5521.125333,
+        "gpu_ms": 5519.92758334,
+        "host_copy_ms": 0.053458
+      },
+      {
+        "step": 23.0,
+        "command_ms": 6699.936833,
+        "gpu_ms": 6698.51375,
+        "host_copy_ms": 0.057542
+      },
+      {
+        "step": 24.0,
+        "command_ms": 10083.151791,
+        "gpu_ms": 10082.04675,
+        "host_copy_ms": 0.060209
+      },
+      {
+        "step": 25.0,
+        "command_ms": 16971.637584,
+        "gpu_ms": 16970.7284583,
+        "host_copy_ms": 0.059041
+      },
+      {
+        "step": 26.0,
+        "command_ms": 19260.30875,
+        "gpu_ms": 19259.2072083,
+        "host_copy_ms": 0.053
+      },
+      {
+        "step": 27.0,
+        "command_ms": 18856.522125,
+        "gpu_ms": 18850.0627083,
+        "host_copy_ms": 0.104458
+      },
+      {
+        "step": 28.0,
+        "command_ms": 17140.618042,
+        "gpu_ms": 17140.003625,
+        "host_copy_ms": 0.058291
+      },
+      {
+        "step": 29.0,
+        "command_ms": 20732.273708,
+        "gpu_ms": 20731.607125,
+        "host_copy_ms": 0.061125
+      },
+      {
+        "step": 30.0,
+        "command_ms": 7980.825916,
+        "gpu_ms": 7979.62275,
+        "host_copy_ms": 0.05725
+      },
+      {
+        "step": 31.0,
+        "command_ms": 14667.099875,
+        "gpu_ms": 14665.917375,
+        "host_copy_ms": 0.058792
+      },
+      {
+        "step": 32.0,
+        "command_ms": 10192.7845,
+        "gpu_ms": 10191.692875,
+        "host_copy_ms": 0.054084
+      }
+    ],
+    "completed_summary": [
+      "resting_integrated_body=completed simulated_s=0.00050000002374872565 wall_s=268.627904833 real_time_factor=1.8613108122909441e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+    ],
+    "sum_gpu_ms": 266171.55570824,
+    "sum_command_ms": 266215.875293,
+    "roots1_to31_gpu_ms": 260733.77508323
+  },
+  "CSV": [
+    {
+      "path": "diagnostics/registered-skin-native.csv",
+      "equal": true,
+      "source_sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "candidate_sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e"
+    },
+    {
+      "path": "resting-body-motion-partition.csv",
+      "equal": true,
+      "source_sha256": "096dd197d7f3726f38527f94ca97b6aa8606e24a97e1ec23f4222f32a330432b",
+      "candidate_sha256": "096dd197d7f3726f38527f94ca97b6aa8606e24a97e1ec23f4222f32a330432b"
+    },
+    {
+      "path": "resting-com-momentum-diagnostic.csv",
+      "equal": true,
+      "source_sha256": "8a281f744506dd7cb79f61be6b2c7b5bf88bb25ac5bde70b18e85c03c6b3dd1e",
+      "candidate_sha256": "8a281f744506dd7cb79f61be6b2c7b5bf88bb25ac5bde70b18e85c03c6b3dd1e"
+    },
+    {
+      "path": "resting-com-q-index-map.csv",
+      "equal": true,
+      "source_sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "candidate_sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab"
+    },
+    {
+      "path": "resting-com-q-integration.csv",
+      "equal": true,
+      "source_sha256": "cea5fc8bda631b20d7c804a96fa9948357a88f2dd1fba36a9d86f8b322eb4e2a",
+      "candidate_sha256": "cea5fc8bda631b20d7c804a96fa9948357a88f2dd1fba36a9d86f8b322eb4e2a"
+    },
+    {
+      "path": "resting-com-q-support-slip.csv",
+      "equal": true,
+      "source_sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "candidate_sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd"
+    },
+    {
+      "path": "resting-com-support-impulses.csv",
+      "equal": true,
+      "source_sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "candidate_sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2"
+    },
+    {
+      "path": "resting-coupled.csv",
+      "equal": true,
+      "source_sha256": "433152781e87ab694027e67697235f6fc14e4fa6da2f9e38d4b0ec1a0121e148",
+      "candidate_sha256": "433152781e87ab694027e67697235f6fc14e4fa6da2f9e38d4b0ec1a0121e148"
+    },
+    {
+      "path": "resting-support-point-motion.csv",
+      "equal": true,
+      "source_sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "candidate_sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8"
+    },
+    {
+      "path": "resting-support-selected-skin-witness.csv",
+      "equal": true,
+      "source_sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "candidate_sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d"
+    },
+    {
+      "path": "resting-surface-audit.csv",
+      "equal": true,
+      "source_sha256": "8317708df3c614dce9edf181bdad5f86bbd89d9600fe3b3c86fd9610086e2606",
+      "candidate_sha256": "8317708df3c614dce9edf181bdad5f86bbd89d9600fe3b3c86fd9610086e2606"
+    }
+  ],
+  "MRV": [
+    {
+      "path": "accepted-geometry/step-0.mrvpack",
+      "equal": true,
+      "source_sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "candidate_sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212"
+    },
+    {
+      "path": "accepted-geometry/step-32.mrvpack",
+      "equal": true,
+      "source_sha256": "6262d7d73c950cd6edd9021bb6c5b54f17be3af49e14b05a412a793352ae9400",
+      "candidate_sha256": "6262d7d73c950cd6edd9021bb6c5b54f17be3af49e14b05a412a793352ae9400"
+    },
+    {
+      "path": "resting-human.mrvpack",
+      "equal": true,
+      "source_sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "candidate_sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875"
+    }
+  ],
+  "all_11_traces_and_3_captures_equal": true,
+  "simulated_seconds": 0.0005,
+  "gpu_only_prefix_real_time_factor": 1.8784877244661993e-06,
+  "single_pair_uninstrumented_gpu_throughput_ratio": 1.071261585509775,
+  "qualification": "One matched release-transient prefix,0.5ms simulated. Root0 instrumented. Roots1..31 have no selected-kernel timing; whole-command GPU timings remain. Not settled supported rest, repeated breathing/heartbeat motion, sustained rate,15wall-fps presentation or0.1x. Three matched measurement pairs remain unfulfilled."
+}
