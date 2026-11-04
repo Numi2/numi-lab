@@ -442,7 +442,8 @@ kernel void nm_partitioned_reduction_fem_tangent_project_tiles_paired12(
 }
 
 // Opt-in streamed exact projection; the binary reduction tree is unchanged.
-kernel void nm_partitioned_reduction_fem_tangent_fused_tiles12(
+template <bool Packed>
+kernel void nm_partitioned_reduction_fem_tangent_fused_tiles12_impl(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMPartitionedReductionFEMTangentDispatchGPU& tangent [[buffer(30)]],
     device const NMPartitionedReductionSparseRangeGPU* regionTetRanges [[buffer(1)]],
@@ -459,9 +460,17 @@ kernel void nm_partitioned_reduction_fem_tangent_fused_tiles12(
     device const uint* basisLookup [[buffer(29)]],
     device const uint* blockModeIndices [[buffer(12)]],
     device float* partials [[buffer(13)]],
-    uint3 group [[threadgroup_position_in_grid]],
+    device const nm_uint4* packedTiles [[buffer(28)]],
+    uint3 packedGroup [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]]
 ) {
+    uint3 group=packedGroup;
+    if constexpr (Packed) {
+        const uint2 work=packedTiles[packedGroup.x].xy;
+        if(work.x>=tangent.regionCount) return;
+        group=uint3(work.y,packedGroup.y,packedGroup.z*tangent.regionCount+work.x);
+    }
+
     const uint tile = group.x;
     const uint rightLocalMode = group.y;
     const uint regionEnvironment = group.z;
@@ -573,6 +582,52 @@ kernel void nm_partitioned_reduction_fem_tangent_fused_tiles12(
         }
     }
 }
+template [[host_name("numi_matter_metal::nm_partitioned_reduction_fem_tangent_fused_tiles12")]]
+kernel void nm_partitioned_reduction_fem_tangent_fused_tiles12_impl<false>(
+    constant NMMatterDispatchGPU& dispatch,
+    constant NMPartitionedReductionFEMTangentDispatchGPU& tangent,
+    device const NMPartitionedReductionSparseRangeGPU* regionTetRanges,
+    device const uint* regionTetIndices,
+    device const uint* tetrahedronBasisRows,
+    device const NMTetrahedronGPU* tetrahedra,
+    device const NMContinuumObjectGPU* objects,
+    device const NMSchedulerStateGPU* schedulers,
+    device const NMAdaptiveStateGPU* adaptive,
+    constant NMMicrostepGPU& microstep,
+    device const float* tangentCache,
+    device const uint* tangentCacheValid,
+    device const nm_float4* basisValues,
+    device const uint* basisLookup,
+    device const uint* blockModeIndices,
+    device float* partials,
+    device const nm_uint4* packedTiles,
+    uint3 packedGroup,
+    uint lane
+);
+
+template [[host_name("numi_matter_metal::nm_partitioned_reduction_fem_tangent_fused_tiles12_packed")]]
+kernel void nm_partitioned_reduction_fem_tangent_fused_tiles12_impl<true>(
+    constant NMMatterDispatchGPU& dispatch,
+    constant NMPartitionedReductionFEMTangentDispatchGPU& tangent,
+    device const NMPartitionedReductionSparseRangeGPU* regionTetRanges,
+    device const uint* regionTetIndices,
+    device const uint* tetrahedronBasisRows,
+    device const NMTetrahedronGPU* tetrahedra,
+    device const NMContinuumObjectGPU* objects,
+    device const NMSchedulerStateGPU* schedulers,
+    device const NMAdaptiveStateGPU* adaptive,
+    constant NMMicrostepGPU& microstep,
+    device const float* tangentCache,
+    device const uint* tangentCacheValid,
+    device const nm_float4* basisValues,
+    device const uint* basisLookup,
+    device const uint* blockModeIndices,
+    device float* partials,
+    device const nm_uint4* packedTiles,
+    uint3 packedGroup,
+    uint lane
+);
+
 
 kernel void nm_partitioned_reduction_fem_tangent_add_partials(
     constant NMPartitionedReductionFEMTangentDispatchGPU& tangent [[buffer(30)]],

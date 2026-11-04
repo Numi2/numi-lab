@@ -26,6 +26,8 @@ namespace {
 
 using namespace numi::matter;
 using Vec3 = std::array<double, 3u>;
+std::size_t packedParityDispatches=0u;
+std::array<std::size_t,3> packedParityFamilies{};
 using Tet = std::array<std::uint32_t, 4u>;
 constexpr std::uint32_t kNX = 8u;
 constexpr std::uint32_t kNY = 7u;
@@ -180,6 +182,7 @@ struct DeviceKernels {
     id<MTLComputePipelineState> addSparseRegionCorrection = nil;
     id<MTLComputePipelineState> femTangentFDCheck = nil;
     id<MTLComputePipelineState> femTangentActions = nil, femTangentProject = nil, femTangentFused = nil;
+    id<MTLComputePipelineState> packedModeTiles=nil, packedBlockTiles=nil, packedFEMTiles=nil;
     id<MTLComputePipelineState> hybridCopy = nil;
     id<MTLComputePipelineState> hybridLift = nil;
     id<MTLComputePipelineState> hybridZeroSelected = nil;
@@ -256,6 +259,9 @@ struct DeviceKernels {
         femTangentActions=pipeline(@"nm_partitioned_reduction_fem_tangent_tiles");
         femTangentProject=pipeline(@"nm_partitioned_reduction_fem_tangent_project_tiles");
         femTangentFused=pipeline(@"nm_partitioned_reduction_fem_tangent_fused_tiles12");
+        packedModeTiles=pipeline(@"nm_partitioned_reduction_reduce_sparse_mode_tiles_packed");
+        packedBlockTiles=pipeline(@"nm_partitioned_reduction_reduce_sparse_block_tiles_packed");
+        packedFEMTiles=pipeline(@"nm_partitioned_reduction_fem_tangent_fused_tiles12_packed");
         hybridCopy = pipeline(@"nm_partitioned_reduction_hybrid_copy");
         hybridLift = pipeline(@"nm_partitioned_reduction_hybrid_lift");
         hybridZeroSelected = pipeline(@"nm_partitioned_reduction_hybrid_zero_selected");
@@ -309,6 +315,46 @@ struct DeviceKernels {
         [command waitUntilCompleted];
         need(command.status == MTLCommandBufferStatusCompleted,
              "projection tiled block dispatch failed");
+        // The same fixtures now certify packed scheduling against the exact
+        // padded kernels, including sparse encodings, partial/empty tiles,
+        // invalid caches, repeated RHSs, and two environments.
+        const bool mode=pipeline==reduceSparseModeTiles;
+        const bool block=pipeline==reduceSparseBlockTiles;
+        const bool fem=pipeline==femTangentFused;
+        if(mode||block||fem) {
+            const std::uint32_t regionCount=fem
+                ?static_cast<const NMPartitionedReductionFEMTangentDispatchGPU*>(
+                    buffers[30].contents)->regionCount
+                :static_cast<const NMPartitionedReductionBlockDispatchGPU*>(
+                    buffers[0].contents)->regionCount;
+            need(regionCount>0u && grid.depth%regionCount==0u,
+                "packed test domain is not a complete environment set");
+            const auto* ranges=static_cast<const NMPartitionedReductionSparseRangeGPU*>(
+                buffers[fem?1u:mode?7u:5u].contents);
+            const auto width=fem?NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH:256u;
+            std::vector<nm_uint4> tiles;
+            for(std::uint32_t region=0;region<regionCount;++region)
+                for(std::uint32_t tile=0;tile<(std::uint64_t(ranges[region].count)+width-1u)/width;++tile)
+                    tiles.push_back({region,tile,0u,0u});
+            const auto output=buffers[fem?13u:mode?5u:4u];
+            const auto* expectedPointer=static_cast<const unsigned char*>(output.contents);
+            need(expectedPointer!=nullptr,"packed parity requires a readable test output");
+            const std::vector<unsigned char> expected(expectedPointer,expectedPointer+output.length);
+            // The production upload explicitly zeros this immutable padding
+            // once. Test fresh initialization and later overwrites identically.
+            std::memset(output.contents,0,output.length);
+            auto packedBuffers=buffers;packedBuffers.resize(31u,nil);
+            packedBuffers[28]=makeBuffer(device,tiles);
+            if(buffers.size()<=29u) packedBuffers[29]=coefficientLookupOverride
+                ?coefficientLookupOverride:makeBuffer(device,std::vector<std::uint32_t>{0u,0u,0u,0u});
+            if(!tiles.empty()) dispatchGroups(fem?packedFEMTiles:mode?packedModeTiles:packedBlockTiles,
+                MTLSizeMake(tiles.size(),grid.height,grid.depth/regionCount),packedBuffers);
+            need(std::memcmp(expected.data(),output.contents,output.length)==0,
+                "packed regional scheduling changed output bits or invalid classification");
+            ++packedParityDispatches;
+            ++packedParityFamilies[fem?2u:mode?0u:1u];
+        }
+
     }
 
     void dispatchCompactICB(const id<MTLComputePipelineState> pipeline,
@@ -1731,6 +1777,12 @@ int main() {
     @autoreleasepool {
         try {
             verify();
+            std::cout<<"packed_families mode="<<packedParityFamilies[0]
+                <<" block="<<packedParityFamilies[1]<<" tangent="<<packedParityFamilies[2]<<"\n";
+            need(packedParityFamilies[0]>=3u && packedParityFamilies[1]>=2u &&
+                 packedParityFamilies[2]==8u,"packed corpus did not exercise each regional path");
+            std::cout<<"packed_regional_work=PASS bitwise=true reference_dispatches="
+                <<packedParityDispatches<<" padding_initialized=true environments=2\n";
             return 0;
         } catch (const std::exception& error) {
             std::cerr << "partitioned reduction projection check failed: "

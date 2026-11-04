@@ -4364,6 +4364,10 @@ struct Runtime::State {
     id<MTLBuffer> femHumanPartitionedCoefficientLookup = nil;
     id<MTLBuffer> femHumanPartitionedCompletedBuilderRanges = nil;
     std::uint32_t femHumanPartitionedSparseTileCount = 0u;
+    std::uint32_t femHumanPartitionedPackedNodeTileCount = 0u;
+    std::uint32_t femHumanPartitionedPackedTetTileCount = 0u;
+    id<MTLBuffer> femHumanPartitionedPackedNodeTiles = nil;
+    id<MTLBuffer> femHumanPartitionedPackedTetTiles = nil;
     // Optional exact cached-FEM off-diagonal contribution to selector-6's
     // regional block; default off and never changes the fine operator.
     bool femHumanPartitionedFEMTangentEnabled = false;
@@ -8665,7 +8669,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_partitioned_reduction_reduce_partials",
             "nm_partitioned_reduction_solve_region_blocks",
             "nm_partitioned_reduction_add_region_correction",
-            "nm_partitioned_reduction_reduce_sparse_mode_tiles",
+            "nm_partitioned_reduction_reduce_sparse_mode_tiles_packed",
             "nm_partitioned_reduction_reduce_sparse_mode_partials",
             "nm_partitioned_reduction_hybrid_copy",
             "nm_partitioned_reduction_hybrid_copy_modes",
@@ -8677,7 +8681,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_partitioned_reduction_hybrid_gather_q_rhs",
             "nm_partitioned_reduction_hybrid_pack_preconditioned_q",
             "nm_partitioned_reduction_hybrid_pack_unique_preconditioned_q",
-            "nm_partitioned_reduction_reduce_sparse_block_tiles",
+            "nm_partitioned_reduction_reduce_sparse_block_tiles_packed",
             "nm_partitioned_reduction_reduce_sparse_block_partials",
             "nm_partitioned_reduction_region_sparse_validity_tiles",
             "nm_partitioned_reduction_region_sparse_validity_partials",
@@ -8685,7 +8689,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_partitioned_reduction_fem_tangent_tiles",
             "nm_partitioned_reduction_fem_tangent_project_tiles",
             "nm_partitioned_reduction_fem_tangent_project_tiles_paired12",
-            "nm_partitioned_reduction_fem_tangent_fused_tiles12",
+            "nm_partitioned_reduction_fem_tangent_fused_tiles12_packed",
             "nm_partitioned_reduction_fem_tangent_add_partials",
             "nm_partitioned_reduction_hybrid_gs_correct_q_rhs",
             "nm_partitioned_reduction_hybrid_gs_add_fine_correction",
@@ -9443,7 +9447,7 @@ RuntimeDiagnostics Runtime::initialize(
                 || std::strcmp(name, "nm_fgmres_precondition_patches") == 0
                 || std::strcmp(name, "nm_fgmres_precondition_coarse") == 0
                 || std::strcmp(name, "nm_fem_human_attachment_map_direction") == 0
-                || std::strcmp(name, "nm_partitioned_reduction_reduce_sparse_mode_tiles") == 0
+                || std::strcmp(name, "nm_partitioned_reduction_reduce_sparse_mode_tiles_packed") == 0
                 || std::strcmp(name, "nm_partitioned_reduction_reduce_sparse_mode_partials") == 0
                 || std::strcmp(name, "nm_partitioned_reduction_solve_region_blocks") == 0
                 || std::strcmp(name, "nm_partitioned_reduction_add_sparse_region_correction") == 0
@@ -9686,7 +9690,7 @@ RuntimeDiagnostics Runtime::initialize(
                     sizeof("nm_partitioned_reduction_fem_tangent_") - 1u) == 0)
                 continue;
             if (!candidate->femHumanPartitionedFEMTangentFusedEnabled &&
-                std::strcmp(name,"nm_partitioned_reduction_fem_tangent_fused_tiles12")==0)
+                std::strcmp(name,"nm_partitioned_reduction_fem_tangent_fused_tiles12_packed")==0)
                 continue;
             if (!candidate->femHumanPartitionedFEMTangentPairedProjectEnabled &&
                 std::strcmp(name,
@@ -15383,7 +15387,43 @@ RuntimeDiagnostics Runtime::initialize(
                 diagnostics.message = "failed to allocate regional completed-builder ranges";
                 return diagnostics;
             }
+
+            // Exact immutable support lists replace region*maximum-tile grids.
+            // Padded output words are initialized once below and remain +0.
+            const auto packedTiles = [](const auto& ranges, std::uint32_t width) {
+                std::vector<nm_uint4> work;
+                for (std::size_t region=0u;region<ranges.size();++region) {
+                    const std::uint64_t tiles=(std::uint64_t(ranges[region].count)+width-1u)/width;
+                    for (std::uint64_t tile=0u;tile<tiles;++tile)
+                        work.push_back({std::uint32_t(region),std::uint32_t(tile),0u,0u});
+                }
+                return work;
+            };
+            const auto nodeTiles=packedTiles(sparseSupport.regionSupportRanges,256u);
+            const auto tetTiles=packedTiles(femTangentSupport.regionTetrahedronRanges,
+                NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH);
+            if (nodeTiles.size()>std::numeric_limits<std::uint32_t>::max() ||
+                tetTiles.size()>std::numeric_limits<std::uint32_t>::max() ||
+                !fitsOneBuffer(nodeTiles.size(),sizeof(nm_uint4)) ||
+                !fitsOneBuffer(tetTiles.size(),sizeof(nm_uint4))) {
+                diagnostics.message="regional packed worklist exceeds checked Metal indexing";
+                return diagnostics;
+            }
+            candidate->femHumanPartitionedPackedNodeTileCount=std::uint32_t(nodeTiles.size());
+            candidate->femHumanPartitionedPackedTetTileCount=std::uint32_t(tetTiles.size());
+
             UploadPlan humanPartitionedUploads(candidate->device, candidate->queue);
+            candidate->femHumanPartitionedPackedNodeTiles=humanPartitionedUploads.one(
+                std::span<const nm_uint4>(nodeTiles),valid,candidate->residentBytes);
+            candidate->femHumanPartitionedPackedTetTiles=humanPartitionedUploads.one(
+                std::span<const nm_uint4>(tetTiles),valid,candidate->residentBytes);
+            std::fprintf(stderr,"human_regional_work_tiles nodes=%u padded_nodes=%llu tets=%u padded_tets=%llu metadata_bytes=%llu\n",
+                candidate->femHumanPartitionedPackedNodeTileCount,
+                static_cast<unsigned long long>(source.regionCount)*candidate->femHumanPartitionedSparseTileCount,
+                candidate->femHumanPartitionedPackedTetTileCount,
+                static_cast<unsigned long long>(source.regionCount)*candidate->femHumanPartitionedFEMTangentDispatch.tileCount,
+                static_cast<unsigned long long>((nodeTiles.size()+tetTiles.size())*sizeof(nm_uint4)));
+
             if (candidate->femHumanPartitionedFEMTangentEnabled) {
                 candidate->femHumanPartitionedFEMTangentRegionTetRanges =
                     humanPartitionedUploads.one(std::span<const
@@ -15893,6 +15933,25 @@ RuntimeDiagnostics Runtime::initialize(
                         humanPartitionedUploadError
                     : "Human partitioned preconditioner allocation or dimension overflow";
                 return diagnostics;
+            }
+
+            if (sparseSupportFits) {
+                id<MTLCommandBuffer> zero=[candidate->queue commandBuffer];
+                id<MTLBlitCommandEncoder> blit=[zero blitCommandEncoder];
+                if(zero==nil || blit==nil) {
+                    diagnostics.message="could not initialize regional packed padding";
+                    return diagnostics;
+                }
+                for(id<MTLBuffer> buffer : {candidate->femHumanPartitionedSparseBlockPartials,
+                    candidate->femHumanPartitionedSparseProjectionPartials,
+                    candidate->femHumanPartitionedFEMTangentPartials}) {
+                    if(buffer!=nil) [blit fillBuffer:buffer range:NSMakeRange(0u,buffer.length) value:0u];
+                }
+                [blit endEncoding];[zero commit];[zero waitUntilCompleted];
+                if(zero.status!=MTLCommandBufferStatusCompleted) {
+                    diagnostics.message="regional packed padding initialization failed";
+                    return diagnostics;
+                }
             }
             if (candidate->femHumanHybridBlockGSEnabled &&
                 (candidate->femHumanHybridGSTermRanges == nil ||
@@ -21197,10 +21256,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const NSUInteger regions = state.femHumanPartitionedRegionCount;
             const NSUInteger localModes = state.femHumanPartitionedBlockModeCount;
             const NSUInteger regionEnvironments = environments * regions;
-            const NSUInteger tiles = state.femHumanPartitionedSparseTileCount;
             dispatchGroups256Grid(
-                "nm_partitioned_reduction_reduce_sparse_mode_tiles",
-                tiles, localModes, regionEnvironments, [&] {
+                "nm_partitioned_reduction_reduce_sparse_mode_tiles_packed",
+                state.femHumanPartitionedPackedNodeTileCount, localModes, environments, [&] {
                 [encoder setBytes:&state.femHumanPartitionedBlockDispatch
                            length:sizeof(state.femHumanPartitionedBlockDispatch) atIndex:0u];
                 [encoder setBuffer:fineVector offset:0u atIndex:1u];
@@ -21212,6 +21270,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femHumanPartitionedBlockModeIndices offset:0u atIndex:6u];
                 [encoder setBuffer:state.femHumanPartitionedRegionSupportRanges offset:0u atIndex:7u];
                 [encoder setBuffer:state.femHumanPartitionedRegionSupportRows offset:0u atIndex:8u];
+                [encoder setBuffer:state.femHumanPartitionedPackedNodeTiles offset:0u atIndex:28u];
             });
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             dispatchGroups256Grid(
@@ -37074,9 +37133,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const std::array<NMIndirectDispatchGPU, 11> fullRanges{{
                     {preconditionerGroups256(femNodeTotal), 1u, 1u, 0u},
                     {preconditionerGroups256(femNodeTotal), 1u, 1u, 0u},
-                    {state.femHumanPartitionedFEMTangentDispatch.tileCount,
+                    {state.femHumanPartitionedFEMTangentFusedEnabled
+                         ? state.femHumanPartitionedPackedTetTileCount
+                         : state.femHumanPartitionedFEMTangentDispatch.tileCount,
                      state.femHumanPartitionedFEMTangentDispatch.blockModeCount,
-                     static_cast<std::uint32_t>(tangentRegionEnvironmentCount), 0u},
+                     static_cast<std::uint32_t>(state.femHumanPartitionedFEMTangentFusedEnabled
+                         ? environments : tangentRegionEnvironmentCount), 0u},
                     {state.femHumanPartitionedFEMTangentDispatch.tileCount,
                      static_cast<std::uint32_t>(
                          state.femHumanPartitionedFEMTangentPairedProjectEnabled &&
@@ -37090,9 +37152,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         partitionedRegions), 1u, 1u, 0u},
                     {preconditionerGroups256(environments * partitionedRows),
                      1u, 1u, 0u},
-                    {static_cast<std::uint32_t>(partitionedReductionTiles),
+                    {state.femHumanPartitionedSparseSupportEnabled
+                         ? state.femHumanPartitionedPackedNodeTileCount
+                         : static_cast<std::uint32_t>(partitionedReductionTiles),
                      static_cast<std::uint32_t>(partitionedPairCount),
-                     static_cast<std::uint32_t>(partitionedRegionEnvironments), 0u},
+                     static_cast<std::uint32_t>(state.femHumanPartitionedSparseSupportEnabled
+                         ? environments : partitionedRegionEnvironments), 0u},
                     {1u, static_cast<std::uint32_t>(partitionedPairCount),
                      static_cast<std::uint32_t>(partitionedRegionEnvironments), 0u},
                     {static_cast<std::uint32_t>(partitionedReductionTiles),
@@ -37632,9 +37697,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchFreshPreconditionerGrid(
                     sparsePartitionedSupport
-                        ? "nm_partitioned_reduction_reduce_sparse_block_tiles"
+                        ? "nm_partitioned_reduction_reduce_sparse_block_tiles_packed"
                         : "nm_partitioned_reduction_reduce_block_tiles",
-                    reductionTileCount, pairCount, regionEnvironmentCount,
+                    sparsePartitionedSupport ? state.femHumanPartitionedPackedNodeTileCount : reductionTileCount,
+                    pairCount, sparsePartitionedSupport ? environments : regionEnvironmentCount,
                     7u, [&] {
                     [encoder setBytes:&state.femHumanPartitionedBlockDispatch
                                length:sizeof(state.femHumanPartitionedBlockDispatch)
@@ -37657,6 +37723,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:
                             state.femHumanPartitionedRegionSupportRows
                                      offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femHumanPartitionedPackedNodeTiles offset:0u atIndex:28u];
                     }
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -37740,11 +37807,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     dispatchFreshPreconditionerGrid(
                         state.femHumanPartitionedFEMTangentFusedEnabled
-                            ? "nm_partitioned_reduction_fem_tangent_fused_tiles12"
+                            ? "nm_partitioned_reduction_fem_tangent_fused_tiles12_packed"
                             : "nm_partitioned_reduction_fem_tangent_tiles",
-                        tangentDispatch.tileCount,
+                        state.femHumanPartitionedFEMTangentFusedEnabled
+                            ? state.femHumanPartitionedPackedTetTileCount : tangentDispatch.tileCount,
                         tangentDispatch.blockModeCount,
-                        tangentRegionEnvironmentCount, 2u, [&] {
+                        state.femHumanPartitionedFEMTangentFusedEnabled
+                            ? environments : tangentRegionEnvironmentCount, 2u, [&] {
                         setDispatch();
                         [encoder setBytes:&tangentDispatch
                                    length:sizeof(tangentDispatch)
@@ -37752,6 +37821,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:
                             state.femHumanPartitionedFEMTangentRegionTetRanges
                                      offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femHumanPartitionedPackedTetTiles offset:0u atIndex:28u];
                         [encoder setBuffer:
                             state.femHumanPartitionedFEMTangentRegionTetIndices
                                      offset:0u atIndex:2u];
@@ -37805,6 +37875,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:
                             state.femHumanPartitionedFEMTangentRegionTetRanges
                                      offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femHumanPartitionedPackedTetTiles offset:0u atIndex:28u];
                         [encoder setBuffer:
                             state.femHumanPartitionedFEMTangentRegionTetIndices
                                      offset:0u atIndex:2u];
@@ -40718,6 +40789,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.femHumanPartitionedBlockModeIndices,
                         state.femHumanPartitionedRegionSupportRanges,
                         state.femHumanPartitionedRegionSupportRows,
+                        state.femHumanPartitionedPackedNodeTiles,
+                        state.femHumanPartitionedPackedTetTiles,
                         state.femHumanPartitionedNodeModeRanges,
                         state.femHumanPartitionedNodeModeSlots,
                         state.femRegionalGraphPatches,
@@ -42123,12 +42196,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     } else {
                     dispatchGroups256Grid(
                         sparsePartitionedSupport
-                            ? "nm_partitioned_reduction_reduce_sparse_mode_tiles"
+                            ? "nm_partitioned_reduction_reduce_sparse_mode_tiles_packed"
                             : "nm_partitioned_reduction_reduce_tiles",
-                        reductionTileCount,
+                        sparsePartitionedSupport ? state.femHumanPartitionedPackedNodeTileCount : reductionTileCount,
                         sparsePartitionedSupport ? blockModeCount : modeCount,
-                        sparsePartitionedSupport ? regionEnvironmentCount
-                                                 : environmentCount, [&] {
+                        environmentCount, [&] {
                         if (sparsePartitionedSupport) {
                             [encoder setBytes:
                                 &state.femHumanPartitionedBlockDispatch
@@ -42166,6 +42238,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBuffer:
                                 state.femHumanPartitionedRegionSupportRows
                                          offset:0u atIndex:8u];
+                            [encoder setBuffer:state.femHumanPartitionedPackedNodeTiles offset:0u atIndex:28u];
                         }
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -42942,6 +43015,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
                         (__bridge void*)state.femHumanPartitionedRegionSupportRows));
                     mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femHumanPartitionedPackedNodeTiles));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
                         (__bridge void*)state.femHumanPartitionedNodeModeRanges));
                     mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
                         (__bridge void*)state.femHumanPartitionedNodeModeSlots));
@@ -43277,7 +43352,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                     if (femSelector6PartitionedPreconditionerICBForCurrentSolve) {
                         auto preCmd = makeCommand(prefixGraph, prefixOrdinal,
-                            "nm_partitioned_reduction_reduce_sparse_mode_tiles");
+                            "nm_partitioned_reduction_reduce_sparse_mode_tiles_packed");
                         if (preCmd == nil) {
                             diagnostics.message =
                                 "selector-6 sparse regional reduction ICB pipeline is unavailable";
@@ -43292,11 +43367,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         bind(preCmd, 6u, state.femHumanPartitionedBlockModeIndices);
                         bind(preCmd, 7u, state.femHumanPartitionedRegionSupportRanges);
                         bind(preCmd, 8u, state.femHumanPartitionedRegionSupportRows);
+                        bind(preCmd, 28u, state.femHumanPartitionedPackedNodeTiles);
                         if (!finishGrid256(preCmd,
-                                "nm_partitioned_reduction_reduce_sparse_mode_tiles",
-                                constants.partitionedSparseTileCount,
+                                "nm_partitioned_reduction_reduce_sparse_mode_tiles_packed",
+                                state.femHumanPartitionedPackedNodeTileCount,
                                 constants.partitionedBlockModeCount,
-                                constants.partitionedRegionEnvironmentCount)) {
+                                environments)) {
                             diagnostics.message =
                                 "selector-6 sparse regional reduction ICB dispatch is unavailable";
                             return diagnostics;
@@ -44091,6 +44167,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.femHumanPartitionedBlockModeIndices,
                         state.femHumanPartitionedRegionSupportRanges,
                         state.femHumanPartitionedRegionSupportRows,
+                        state.femHumanPartitionedPackedNodeTiles,
+                        state.femHumanPartitionedPackedTetTiles,
                         state.femHumanPartitionedNodeModeRanges,
                         state.femHumanPartitionedNodeModeSlots,
                         state.femRegionalGraphPatches,
@@ -45187,6 +45265,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.femHumanPartitionedBlockModeIndices,
                         state.femHumanPartitionedRegionSupportRanges,
                         state.femHumanPartitionedRegionSupportRows,
+                        state.femHumanPartitionedPackedNodeTiles,
+                        state.femHumanPartitionedPackedTetTiles,
                         state.femHumanPartitionedNodeModeRanges,
                         state.femHumanPartitionedNodeModeSlots,
                         state.femRegionalGraphPatches,

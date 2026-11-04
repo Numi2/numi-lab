@@ -679,7 +679,8 @@ namespace numi_matter_metal {
 // Sparse B^T f for only the regional block modes. Anchor modes remain outside
 // these blocks and continue to be covered by the fine smoother. Grid=(sparse
 // tile, local mode, environment*region).
-kernel void nm_partitioned_reduction_reduce_sparse_mode_tiles(
+template <bool Packed>
+kernel void nm_partitioned_reduction_reduce_sparse_mode_tiles_impl(
     constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
     device const nm_float4* fineValues [[buffer(1)]],
     device const nm_float4* basisValues [[buffer(2)]],
@@ -690,9 +691,17 @@ kernel void nm_partitioned_reduction_reduce_sparse_mode_tiles(
     device const uint* blockModeIndices [[buffer(6)]],
     device const NMPartitionedReductionSparseRangeGPU* regionSupportRanges [[buffer(7)]],
     device const uint* regionSupportRows [[buffer(8)]],
-    uint3 group [[threadgroup_position_in_grid]],
+    device const nm_uint4* packedTiles [[buffer(28)]],
+    uint3 packedGroup [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]]
 ) {
+    uint3 group=packedGroup;
+    if constexpr (Packed) {
+        const uint2 work=packedTiles[packedGroup.x].xy;
+        if(work.x>=dispatch.regionCount) return;
+        group=uint3(work.y,packedGroup.y,packedGroup.z*dispatch.regionCount+work.x);
+    }
+
     const uint sparseTile = group.x;
     const uint localMode = group.y;
     const uint regionEnvironment = group.z;
@@ -739,6 +748,40 @@ kernel void nm_partitioned_reduction_reduce_sparse_mode_tiles(
         partials[partial] = reduction[0];
     }
 }
+template [[host_name("numi_matter_metal::nm_partitioned_reduction_reduce_sparse_mode_tiles")]]
+kernel void nm_partitioned_reduction_reduce_sparse_mode_tiles_impl<false>(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch,
+    device const nm_float4* fineValues,
+    device const nm_float4* basisValues,
+    device const uint* basisLookup,
+    device const uint* globalNodeIndices,
+    device const float* basisMass,
+    device float* partials,
+    device const uint* blockModeIndices,
+    device const NMPartitionedReductionSparseRangeGPU* regionSupportRanges,
+    device const uint* regionSupportRows,
+    device const nm_uint4* packedTiles,
+    uint3 packedGroup,
+    uint lane
+);
+
+template [[host_name("numi_matter_metal::nm_partitioned_reduction_reduce_sparse_mode_tiles_packed")]]
+kernel void nm_partitioned_reduction_reduce_sparse_mode_tiles_impl<true>(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch,
+    device const nm_float4* fineValues,
+    device const nm_float4* basisValues,
+    device const uint* basisLookup,
+    device const uint* globalNodeIndices,
+    device const float* basisMass,
+    device float* partials,
+    device const uint* blockModeIndices,
+    device const NMPartitionedReductionSparseRangeGPU* regionSupportRanges,
+    device const uint* regionSupportRows,
+    device const nm_uint4* packedTiles,
+    uint3 packedGroup,
+    uint lane
+);
+
 
 kernel void nm_partitioned_reduction_reduce_sparse_mode_partials(
     constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
@@ -779,7 +822,8 @@ kernel void nm_partitioned_reduction_reduce_sparse_mode_partials(
             reduction[0];
 }
 
-kernel void nm_partitioned_reduction_reduce_sparse_block_tiles(
+template <bool Packed>
+kernel void nm_partitioned_reduction_reduce_sparse_block_tiles_impl(
     constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
     device const nm_float4* selectedBlockRows [[buffer(1)]],
     device const nm_float4* basisValues [[buffer(2)]],
@@ -788,9 +832,17 @@ kernel void nm_partitioned_reduction_reduce_sparse_block_tiles(
     device float* partials [[buffer(4)]],
     device const NMPartitionedReductionSparseRangeGPU* regionSupportRanges [[buffer(5)]],
     device const uint* regionSupportRows [[buffer(6)]],
-    uint3 group [[threadgroup_position_in_grid]],
+    device const nm_uint4* packedTiles [[buffer(28)]],
+    uint3 packedGroup [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]]
 ) {
+    uint3 group=packedGroup;
+    if constexpr (Packed) {
+        const uint2 work=packedTiles[packedGroup.x].xy;
+        if(work.x>=dispatch.regionCount) return;
+        group=uint3(work.y,packedGroup.y,packedGroup.z*dispatch.regionCount+work.x);
+    }
+
     const uint sparseTile = group.x;
     const uint localPair = group.y;
     const uint regionEnvironment = group.z;
@@ -842,6 +894,36 @@ kernel void nm_partitioned_reduction_reduce_sparse_block_tiles(
         partials[output] = reduction[0];
     }
 }
+template [[host_name("numi_matter_metal::nm_partitioned_reduction_reduce_sparse_block_tiles")]]
+kernel void nm_partitioned_reduction_reduce_sparse_block_tiles_impl<false>(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch,
+    device const nm_float4* selectedBlockRows,
+    device const nm_float4* basisValues,
+    device const uint* basisLookup,
+    device const uint* blockModeIndices,
+    device float* partials,
+    device const NMPartitionedReductionSparseRangeGPU* regionSupportRanges,
+    device const uint* regionSupportRows,
+    device const nm_uint4* packedTiles,
+    uint3 packedGroup,
+    uint lane
+);
+
+template [[host_name("numi_matter_metal::nm_partitioned_reduction_reduce_sparse_block_tiles_packed")]]
+kernel void nm_partitioned_reduction_reduce_sparse_block_tiles_impl<true>(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch,
+    device const nm_float4* selectedBlockRows,
+    device const nm_float4* basisValues,
+    device const uint* basisLookup,
+    device const uint* blockModeIndices,
+    device float* partials,
+    device const NMPartitionedReductionSparseRangeGPU* regionSupportRanges,
+    device const uint* regionSupportRows,
+    device const nm_uint4* packedTiles,
+    uint3 packedGroup,
+    uint lane
+);
+
 
 kernel void nm_partitioned_reduction_reduce_sparse_block_partials(
     constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
