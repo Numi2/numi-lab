@@ -49175,10 +49175,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
             // for the final common alpha. The following no-write support gate
             // rejects any further vascular reduction that is not also support
             // admissible before either subsystem applies state.
-            encodeHumanSupportLineSearchLimit();
-            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-            encodeVascularLineSearchLimit();
-            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            // With no support rows, the first vascular pass has already
+            // published the common alpha to every object. An empty support
+            // reconciliation cannot change it, so do not evaluate the same
+            // vascular merit a second time. Keep the diagnostic replay path
+            // and all nonempty support systems unchanged.
+            if (state.humanSupportDispatch.contactCount != 0u ||
+                state.fgmresLayout.supportContactCount != 0u ||
+                captureVascularRow16Direction) {
+                encodeHumanSupportLineSearchLimit();
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                encodeVascularLineSearchLimit();
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             dispatchGroups32(
                 "nm_human_support_validate_final_line_search",
                 environments,
