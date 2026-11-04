@@ -1,0 +1,142 @@
+{
+  "members": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-bounded-pool-prefix-220/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "member": "contact-cache-bounded-pool-prefix-220/install-motion/diagnostics/registered-skin-native.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-bounded-pool-prefix-220/install-motion/resting-body-motion-partition.csv",
+      "sha256": "096dd197d7f3726f38527f94ca97b6aa8606e24a97e1ec23f4222f32a330432b",
+      "bytes": 2454129,
+      "member": "contact-cache-bounded-pool-prefix-220/install-motion/resting-body-motion-partition.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-bounded-pool-prefix-220/install-motion/resting-com-momentum-diagnostic.csv",
+      "sha256": "8a281f744506dd7cb79f61be6b2c7b5bf88bb25ac5bde70b18e85c03c6b3dd1e",
+      "bytes": 47720,
+      "member": "contact-cache-bounded-pool-prefix-220/install-motion/resting-com-momentum-diagnostic.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-bounded-pool-prefix-220/install-motion/resting-com-q-index-map.csv",
+      "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "bytes": 6908,
+      "member": "contact-cache-bounded-pool-prefix-220/install-motion/resting-com-q-index-map.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-bounded-pool-prefix-220/install-motion/resting-com-q-integration.csv",
+      "sha256": "cea5fc8bda631b20d7c804a96fa9948357a88f2dd1fba36a9d86f8b322eb4e2a",
+      "bytes": 658109,
+      "member": "contact-cache-bounded-pool-prefix-220/install-motion/resting-com-q-integration.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-bounded-pool-prefix-220/install-motion/resting-com-q-support-slip.csv",
+      "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "bytes": 715,
+      "member": "contact-cache-bounded-pool-prefix-220/install-motion/resting-com-q-support-slip.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-bounded-pool-prefix-220/install-motion/resting-com-support-impulses.csv",
+      "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "bytes": 331,
+      "member": "contact-cache-bounded-pool-prefix-220/install-motion/resting-com-support-impulses.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-bounded-pool-prefix-220/install-motion/resting-coupled.csv",
+      "sha256": "433152781e87ab694027e67697235f6fc14e4fa6da2f9e38d4b0ec1a0121e148",
+      "bytes": 24690,
+      "member": "contact-cache-bounded-pool-prefix-220/install-motion/resting-coupled.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-bounded-pool-prefix-220/install-motion/resting-support-point-motion.csv",
+      "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "bytes": 371,
+      "member": "contact-cache-bounded-pool-prefix-220/install-motion/resting-support-point-motion.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-bounded-pool-prefix-220/install-motion/resting-support-selected-skin-witness.csv",
+      "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "bytes": 4684,
+      "member": "contact-cache-bounded-pool-prefix-220/install-motion/resting-support-selected-skin-witness.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-bounded-pool-prefix-220/install-motion/resting-surface-audit.csv",
+      "sha256": "8317708df3c614dce9edf181bdad5f86bbd89d9600fe3b3c86fd9610086e2606",
+      "bytes": 2272,
+      "member": "contact-cache-bounded-pool-prefix-220/install-motion/resting-surface-audit.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-control-prefix-221/install-motion/diagnostics/registered-skin-native.csv",
+      "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e",
+      "bytes": 24147731,
+      "member": "contact-cache-control-prefix-221/install-motion/diagnostics/registered-skin-native.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-control-prefix-221/install-motion/resting-body-motion-partition.csv",
+      "sha256": "096dd197d7f3726f38527f94ca97b6aa8606e24a97e1ec23f4222f32a330432b",
+      "bytes": 2454129,
+      "member": "contact-cache-control-prefix-221/install-motion/resting-body-motion-partition.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-control-prefix-221/install-motion/resting-com-momentum-diagnostic.csv",
+      "sha256": "8a281f744506dd7cb79f61be6b2c7b5bf88bb25ac5bde70b18e85c03c6b3dd1e",
+      "bytes": 47720,
+      "member": "contact-cache-control-prefix-221/install-motion/resting-com-momentum-diagnostic.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-control-prefix-221/install-motion/resting-com-q-index-map.csv",
+      "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "bytes": 6908,
+      "member": "contact-cache-control-prefix-221/install-motion/resting-com-q-index-map.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-control-prefix-221/install-motion/resting-com-q-integration.csv",
+      "sha256": "cea5fc8bda631b20d7c804a96fa9948357a88f2dd1fba36a9d86f8b322eb4e2a",
+      "bytes": 658109,
+      "member": "contact-cache-control-prefix-221/install-motion/resting-com-q-integration.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-control-prefix-221/install-motion/resting-com-q-support-slip.csv",
+      "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "bytes": 715,
+      "member": "contact-cache-control-prefix-221/install-motion/resting-com-q-support-slip.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-control-prefix-221/install-motion/resting-com-support-impulses.csv",
+      "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "bytes": 331,
+      "member": "contact-cache-control-prefix-221/install-motion/resting-com-support-impulses.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-control-prefix-221/install-motion/resting-coupled.csv",
+      "sha256": "433152781e87ab694027e67697235f6fc14e4fa6da2f9e38d4b0ec1a0121e148",
+      "bytes": 24690,
+      "member": "contact-cache-control-prefix-221/install-motion/resting-coupled.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-control-prefix-221/install-motion/resting-support-point-motion.csv",
+      "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "bytes": 371,
+      "member": "contact-cache-control-prefix-221/install-motion/resting-support-point-motion.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-control-prefix-221/install-motion/resting-support-selected-skin-witness.csv",
+      "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "bytes": 4684,
+      "member": "contact-cache-control-prefix-221/install-motion/resting-support-selected-skin-witness.csv"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-control-prefix-221/install-motion/resting-surface-audit.csv",
+      "sha256": "8317708df3c614dce9edf181bdad5f86bbd89d9600fe3b3c86fd9610086e2606",
+      "bytes": 2272,
+      "member": "contact-cache-control-prefix-221/install-motion/resting-surface-audit.csv"
+    }
+  ],
+  "archive": {
+    "path": "/Users/numi/Work/current-fractional-020-publication-20261101/tools/evidence/human-rejection-recovery125-20261103/solver-contact-memory-20261104/compact-native-traces.tar.gz",
+    "sha256": "3e0cbce901facb75d6d0860804aeeac5331f4d3e4ce491138e6f93af7a8392cb",
+    "bytes": 13599443
+  },
+  "MRV_policy": "All3 per trial retained locally as independent hash-verified COW files and pinned in comparisons; no new MRV archive claim."
+}

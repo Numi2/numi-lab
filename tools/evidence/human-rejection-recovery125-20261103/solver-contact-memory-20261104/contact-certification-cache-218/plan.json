@@ -1,0 +1,12 @@
+{
+  "hypothesis": "Compute the unchanged final deformable contact witness/energy once per active contact, reuse the result across anatomical owner certificates, and skip32-contact blocks absent from an object's owner mask. Preserve each lane's original active-index sum order and deterministic failure witness.",
+  "scratch": "Reuse dead contact corner-sort keys after final incidence use; retain authoritative node ranges/indices and contacts. Explicit size admission; no new bulk allocation.",
+  "mandatory_checks": [
+    "all final certificates and partials bitwise equal including invalid slots, inactive contacts, duplicate/self owner, nonfinite failures and multienvironment fixtures",
+    "full solver and runtime checks",
+    "complete full-Human fixed-step prefixes with unchanged geometry/mass/timestep/physics/rollback",
+    "GPU timing, working-set and disk guard"
+  ],
+  "default": "off until integrated parity and timing qualify",
+  "performance": "No predicted gain or0.1x claim."
+}

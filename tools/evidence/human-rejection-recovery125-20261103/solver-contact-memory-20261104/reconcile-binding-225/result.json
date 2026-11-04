@@ -1,0 +1,9 @@
+{
+  "source_commit": "0e49d084e8441bdbfa1e17249e54dfa4855c8505",
+  "regression": "existing stand coupling probe with MTL_DEBUG_LAYER=1",
+  "result": "PASS",
+  "before_exit": 134,
+  "after_exit": 0,
+  "scope": "minimal production-path multihorizon, replay and equality fixtures; full Human unchanged at this allocation size",
+  "source_sha256": "8b05e2adee1745934bc2039b47f8e2f7ea8c84bedaad8ef5ac7a8d01ad5f9f9f"
+}

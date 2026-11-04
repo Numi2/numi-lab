@@ -1,0 +1,9 @@
+{
+  "free_bytes": 15396343808,
+  "preparation_minimum_GiB": 15.8,
+  "hard_runtime_minimum_GiB": 12,
+  "maximum_swap_growth_GiB": 3,
+  "new_resident_cache_bytes": 0,
+  "maximum_wall_s": 900,
+  "no_physics_or_accuracy_guard_changed": true
+}

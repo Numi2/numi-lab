@@ -1,0 +1,9 @@
+{
+  "free_bytes": 15459512320,
+  "preparation_minimum_GiB": 14.25,
+  "hard_runtime_minimum_GiB": 12,
+  "maximum_swap_growth_GiB": 3,
+  "maximum_wall_s": 900,
+  "basis": "221 observed maximum disk excursion2.03GiB plus0.22GiB margin above unchanged12GiB runtime floor; independently restored rejected223 evidence retired before launch",
+  "no_physics_or_accuracy_guard_changed": true
+}

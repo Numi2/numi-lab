@@ -1,0 +1,674 @@
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -4027,6 +4027,7 @@
+     id<MTLBuffer> femArmijoCohesiveFaceForces = nil;
+     id<MTLBuffer> femArmijoMetrics = nil;
+     bool mixedCertificateTiledEnabled = false;
++    bool mixedContactCertificateCacheEnabled = false;
+     id<MTLBuffer> mixedCertificatePartials = nil;
+     bool femDistributedGlobalMeasurementsEnabled = false;
+     bool femDomainNonlinearLatchEnabled = false;
+@@ -6481,6 +6482,23 @@
+                 return diagnostics;
+             }
+         }
++        if (const char* setting=std::getenv("NM_MIXED_CERTIFICATE_CONTACT_CACHE")) {
++            if (std::strcmp(setting,"0")!=0 && std::strcmp(setting,"1")!=0) {
++                diagnostics.message="NM_MIXED_CERTIFICATE_CONTACT_CACHE requires0or1";
++                return diagnostics;
++            }
++            candidate->mixedContactCertificateCacheEnabled=std::strcmp(setting,"1")==0;
++            if (candidate->mixedContactCertificateCacheEnabled &&
++                (!candidate->mixedCertificateTiledEnabled ||
++                 world.dispatch.environmentCount!=1u ||
++                 world.dispatch.objectCount>32u ||
++                 world.dispatch.deformableContactCapacity==0u ||
++                 !candidate->deformableContactNodeIncidenceRadixEnabled)) {
++                diagnostics.message=
++                    "final contact cache requires tiled certification, one FEM environment, <=32 objects and radix contact scratch";
++                return diagnostics;
++            }
++        }
+         candidate->femDistributedGlobalMeasurementsEnabled = distributedGlobals != nullptr;
+         candidate->femDomainNonlinearLatchEnabled =
+             domainNonlinearLatchEnabled;
+@@ -8519,6 +8537,8 @@
+             "nm_mixed_build_residual_diagonal",
+             "nm_mixed_apply_kkt_solution",
+             "nm_mixed_certify",
++            "nm_mixed_prepare_contact_certificate_cache_dispatch",
++            "nm_mixed_build_contact_certificate_cache",
+             "nm_mixed_certify_partials",
+             "nm_mixed_certify_finish",
+             "nm_mixed_capture_contact_certificate_witness",
+@@ -9374,6 +9394,11 @@
+                     specialize=true;
+                     continue;
+                 }
++                if (constant.index==41u) {
++                    const bool enabled=candidate->mixedContactCertificateCacheEnabled;
++                    [values setConstantValue:&enabled type:MTLDataTypeBool atIndex:41u];
++                    specialize=true;continue;
++                }
+                 if (constant.index==39u) {
+                     [values setConstantValue:&alignedBarrierEnabled type:MTLDataTypeBool atIndex:39u];
+                     specialize=true;continue;
+@@ -9791,6 +9816,10 @@
+             if (!candidate->femHumanPartitionedFEMTangentPairedProjectEnabled &&
+                 std::strcmp(name,
+                     "nm_partitioned_reduction_fem_tangent_project_tiles_paired12") == 0)
++                continue;
++            if (!candidate->mixedContactCertificateCacheEnabled &&
++                (std::strcmp(name,"nm_mixed_prepare_contact_certificate_cache_dispatch")==0 ||
++                 std::strcmp(name,"nm_mixed_build_contact_certificate_cache")==0))
+                 continue;
+             if (!candidate->femDistributedGlobalMeasurementsEnabled &&
+                 (std::strncmp(name, "nm_fgmres_begin_distributed_", 27u) == 0 ||
+@@ -12732,6 +12761,29 @@
+                 static_cast<unsigned long long>(
+                     sortedCornerKeyTotalCount * sizeof(std::uint64_t) +
+                     sortedCornerTotalCount * sizeof(std::uint32_t)));
++        }
++        if (candidate->mixedContactCertificateCacheEnabled) {
++            const std::uint64_t capacity=world.dispatch.deformableContactCapacity;
++            const std::uint64_t bytes=32ull*capacity+4ull*((capacity+31ull)/32ull);
++            if (candidate->deformableContactNodeCornerSortKeys==nil ||
++                bytes>candidate->deformableContactNodeCornerSortKeys.length ||
++                candidate->radixTileDispatch==nil) {
++                diagnostics.message="final contact cache exceeds checked dead radix workspace";
++                return diagnostics;
++            }
++            const auto cachePipeline=candidate->pipeline(
++                "nm_mixed_build_contact_certificate_cache");
++            if (cachePipeline==nil || cachePipeline.threadExecutionWidth!=32u ||
++                cachePipeline.maxTotalThreadsPerThreadgroup<256u) {
++                diagnostics.message="final contact cache requires a256-thread SIMD32 pipeline";
++                return diagnostics;
++            }
++            candidate->executionFingerprint=mixFingerprint(
++                candidate->executionFingerprint,0x4345525443414348ull);
++            std::fprintf(stderr,
++                "mixed_contact_certificate_cache=1 entries_bytes=%llu owner_mask_bytes=%llu additional_resident_bytes=0\n",
++                static_cast<unsigned long long>(32ull*capacity),
++                static_cast<unsigned long long>(4ull*((capacity+31ull)/32ull)));
+         }
+         candidate->deformableContactActiveOffsets =
+             privateScratch<std::uint32_t>(
+@@ -51372,6 +51424,31 @@
+                     return diagnostics;
+                 }
+             }
++            // Radix key/scan scratch is dead after incidence publication.
++            // Do not touch the final ranges, sorted incidence, physical contact
++            // records, or completed-geometry reuse flags.
++            if (state.mixedContactCertificateCacheEnabled) {
++                dispatchThreads("nm_mixed_prepare_contact_certificate_cache_dispatch",1u,[&] {
++                    setDispatch();
++                    [encoder setBuffer:state.deformableContactActiveCounts offset:0u atIndex:1u];
++                    [encoder setBuffer:state.radixTileDispatch offset:0u atIndex:2u];
++                });
++                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                dispatchThreads("nm_mixed_build_contact_certificate_cache",
++                    state.dispatch.deformableContactCapacity,[&] {
++                    setDispatch();
++                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
++                    [encoder setBuffer:state.femAccepted offset:0u atIndex:2u];
++                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
++                    bindPrimalContactArguments(4u);
++                    [encoder setBuffer:state.deformableContactActiveIndices offset:0u atIndex:5u];
++                    [encoder setBuffer:state.deformableContactNodeCornerSortKeys offset:0u atIndex:6u];
++                    [encoder setBuffer:state.deformableContactNodeCornerSortKeys
++                        offset:NSUInteger(state.dispatch.deformableContactCapacity)*32u atIndex:7u];
++                    [encoder setBuffer:state.objects offset:0u atIndex:8u];
++                },WorkDomain::generic,state.radixTileDispatch);
++                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            }
+             dispatchGroups32(
+                 state.mixedCertificateTiledEnabled ? "nm_mixed_certify_partials" :
+                     "nm_mixed_certify",
+@@ -51403,8 +51480,16 @@
+                 // disabled it is neither initialized nor presented/read back.
+                 [encoder setBuffer:state.fgmresTelemetry offset:0u atIndex:21u];
+                 [encoder setBuffer:state.deformableContactActiveIndices offset:0u atIndex:22u];
+-                if (state.mixedCertificateTiledEnabled)
++                if (state.mixedCertificateTiledEnabled) {
+                     [encoder setBuffer:state.mixedCertificatePartials offset:0u atIndex:23u];
++                    id<MTLBuffer> cache=state.mixedContactCertificateCacheEnabled
++                        ? state.deformableContactNodeCornerSortKeys : state.dummy;
++                    [encoder setBuffer:cache offset:0u atIndex:24u];
++                    [encoder setBuffer:cache
++                        offset:state.mixedContactCertificateCacheEnabled
++                            ? NSUInteger(state.dispatch.deformableContactCapacity)*32u : 0u
++                        atIndex:25u];
++                }
+             });
+             if (state.mixedCertificateTiledEnabled) {
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+--- a/matter/src/metal/mixed_fem.metalinc
++++ b/matter/src/metal/mixed_fem.metalinc
+@@ -1203,6 +1203,96 @@
+         minimumJ, volumeNorm2, activeElements);
+ }
+ 
++
++// Read-only final-contact work cache. Its bytes live in dead radix key scratch,
++// never in accepted physical/contact state. Owner masks skip empty32-contact
++// blocks without changing the original lane/stride accumulation order.
++constant bool nmMixedContactCertificateCache [[function_constant(41)]];
++constant bool nmMixedContactCertificateCacheActive =
++    is_function_constant_defined(nmMixedContactCertificateCache)
++        ? nmMixedContactCertificateCache : false;
++struct NMMixedContactCertificateEntryGPU {
++    uint4 identity; // anatomical owners, validity/clearance flags, source slot
++    float4 metrics; // max barrier, separation, tangential impulse, energy
++};
++kernel void nm_mixed_prepare_contact_certificate_cache_dispatch(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const uint* activeCounts [[buffer(1)]],
++    device NMIndirectDispatchGPU* output [[buffer(2)]],
++    uint global [[thread_position_in_grid]]) {
++    if (global != 0u || dispatch.environmentCount != 1u) return;
++    output[0] = {(min(activeCounts[0], dispatch.deformableContactCapacity)+255u)/256u,
++        1u, 1u, 0u};
++}
++kernel void nm_mixed_build_contact_certificate_cache(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant NMMixedSolverGPU& solver [[buffer(1)]],
++    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(2)]],
++    device const NMFEMNodeStateGPU* candidateNodes [[buffer(3)]],
++    constant NMPrimalContactArguments& contact [[buffer(4)]],
++    device const uint* activeIndices [[buffer(5)]],
++    device NMMixedContactCertificateEntryGPU* entries [[buffer(6)]],
++    device uint* ownerMasks [[buffer(7)]],
++    device const NMContinuumObjectGPU* objects [[buffer(8)]],
++    uint localThread [[thread_index_in_threadgroup]],
++    uint group [[threadgroup_position_in_grid]],
++    uint lane [[thread_index_in_simdgroup]]) {
++    const uint capacity = dispatch.deformableContactCapacity;
++    if (capacity == 0u) return;
++    const uint tilesPerEnvironment = (capacity+255u)/256u;
++    const uint environment = group / tilesPerEnvironment;
++    if (environment >= dispatch.environmentCount) return;
++    const uint local = (group % tilesPerEnvironment)*256u+localThread;
++    const uint count = min(contact.deformableActiveCounts[environment],capacity);
++    uint owners = 0u;
++    if (local < count) {
++        const uint slot = activeIndices[environment*capacity+local];
++        NMMixedContactCertificateEntryGPU entry;
++        entry.identity = uint4(NM_INVALID_INDEX,NM_INVALID_INDEX,0u,slot);
++        entry.metrics = float4(0.0f);
++        if (slot >= capacity) {
++            entry.identity.z = 4u; // preserve every object's malformed-slot rejection
++            owners = 0xffffffffu;
++        } else {
++            const NMDeformableContactGPU deformable =
++                contact.deformableContacts[environment*capacity+slot];
++            const bool owner0 = deformable.identity.x < dispatch.objectCount &&
++                (objects[deformable.identity.x].representation == NM_REPRESENTATION_FEM ||
++                 objects[deformable.identity.x].representation == NM_REPRESENTATION_MPM);
++            const bool owner1 = deformable.identity.y < dispatch.objectCount &&
++                (objects[deformable.identity.y].representation == NM_REPRESENTATION_FEM ||
++                 objects[deformable.identity.y].representation == NM_REPRESENTATION_MPM);
++            if ((deformable.identity.w & NM_CONTACT_VALID) != 0u && (owner0 || owner1)) {
++                entry.identity.xy = deformable.identity.xy;
++                const float separation = deformable.pointAndSeparation.w;
++                const float clearance =
++                    solver.contactAcceptance.x*dispatch.numericalLimits.x;
++                const float legacyFloor = max(clearance,16.0f*kEpsilon*
++                    max(maximumAbsoluteCoordinate(
++                        deformable.pointAndSeparation.xyz),1.0e-12f));
++                const bool separated = isfinite(separation) &&
++                    (separation > legacyFloor ||
++                     nmMixedReferenceContactClearance(dispatch,deformable,
++                        candidateNodes,environment,clearance) ||
++                     nmMixedReferenceRestContactClearance(dispatch,deformable,
++                        candidateNodes,environment,clearance) ||
++                     nmMixedReferenceInitialContactNonclosing(dispatch,deformable,
++                        acceptedNodes,candidateNodes,environment,clearance));
++                entry.identity.z = 1u | (separated ? 2u : 0u);
++                entry.metrics = float4(max(deformable.barrier.x,0.0f),separation,
++                    length(deformable.impulseAndFriction.yz),
++                    nmMixedDeformableContactEnergy(deformable));
++                if (owner0 && deformable.identity.x < 32u) owners |= 1u<<deformable.identity.x;
++                if (owner1 && deformable.identity.y < 32u) owners |= 1u<<deformable.identity.y;
++            }
++        }
++        entries[environment*capacity+local] = entry;
++    }
++    owners = simd_or(owners);
++    if (lane == 0u && local < count)
++        ownerMasks[environment*((capacity+31u)/32u)+local/32u] = owners;
++}
++
+ kernel void nm_mixed_certify_partials(
+     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+@@ -1229,6 +1319,8 @@
+     device NMFGMRESTelemetryGPU* fgmresTelemetry [[buffer(21)]],
+     device const uint* deformableActiveIndices [[buffer(22)]],
+     device NMMixedCertificatePartialGPU* partials [[buffer(23)]],
++    device const NMMixedContactCertificateEntryGPU* contactCache [[buffer(24)]],
++    device const uint* contactOwnerMasks [[buffer(25)]],
+     uint lane [[thread_index_in_threadgroup]],
+     uint group [[threadgroup_position_in_grid]]
+ ) {
+@@ -1435,6 +1527,45 @@
+     const uint deformableCapacity = dispatch.deformableContactCapacity;
+     const uint deformableBase = environment * deformableCapacity;
+     const uint deformableCount=min(contact.deformableActiveCounts[environment],deformableCapacity);
++    if (nmMixedContactCertificateCacheActive) {
++    for (uint block=tile;block<(deformableCount+31u)/32u;
++         block+=kMixedCertificateTiles) {
++        const uint owners=contactOwnerMasks[
++            environment*((deformableCapacity+31u)/32u)+block];
++        if ((owners & (1u<<objectIndex)) == 0u) continue;
++        const uint activeSlot=block*32u+lane;
++        if (activeSlot>=deformableCount) continue;
++        const NMMixedContactCertificateEntryGPU entry=
++            contactCache[deformableBase+activeSlot];
++        if ((entry.identity.z & 4u)!=0u) {
++            contactClearancesValid=false;continue;
++        }
++        if ((entry.identity.z & 1u)==0u ||
++            (entry.identity.x!=objectIndex && entry.identity.y!=objectIndex)) continue;
++        ++geometricContactCount;
++        maximumBarrierImpulse=max(maximumBarrierImpulse,entry.metrics.x);
++        minimumSeparation=min(minimumSeparation,entry.metrics.y);
++        const bool separated=(entry.identity.z & 2u)!=0u;
++        const float failureScore=isfinite(entry.metrics.y)?entry.metrics.y:-INFINITY;
++        const uint slot=entry.identity.w;
++        if (!separated && (failureScore<firstInvalidSeparation ||
++            (failureScore==firstInvalidSeparation && slot<firstInvalidContact))) {
++            const NMDeformableContactGPU deformable=
++                contact.deformableContacts[deformableBase+slot];
++            const float separation=deformable.pointAndSeparation.w;
++            const float clearance=solver.contactAcceptance.x*dispatch.numericalLimits.x;
++            const float legacyFloor=max(clearance,16.0f*kEpsilon*
++                max(maximumAbsoluteCoordinate(deformable.pointAndSeparation.xyz),1.0e-12f));
++            firstInvalidSeparation=failureScore;
++            firstInvalidContact=slot;
++            firstInvalidContactValues=float4(separation,clearance,legacyFloor,
++                float(deformable.identity.z));
++        }
++        contactClearancesValid=contactClearancesValid&&separated;
++        maximumTangentialImpulse=max(maximumTangentialImpulse,entry.metrics.z);
++        contactEnergy+=entry.metrics.w;
++    }
++    } else {
+     for (uint activeSlot=first;activeSlot<deformableCount;activeSlot+=stride) {
+         const uint slot=deformableActiveIndices[deformableBase+activeSlot];
+         if(slot>=deformableCapacity){contactClearancesValid=false;continue;}
+@@ -1472,6 +1603,7 @@
+             maximumTangentialImpulse,
+             length(deformable.impulseAndFriction.yz));
+         contactEnergy += nmMixedDeformableContactEnergy(deformable);
++    }
+     }
+     maximumBarrierImpulse = simd_max(maximumBarrierImpulse);
+     minimumSeparation = simd_min(minimumSeparation);
+--- a/matter/tools/fgmres_true_residual_native_check.mm
++++ b/matter/tools/fgmres_true_residual_native_check.mm
+@@ -61,7 +61,7 @@
+ }
+ 
+ id<MTLComputePipelineState> pipeline(
+-    id<MTLDevice> device, id<MTLLibrary> library, const char* name, bool referenceContactWidth=false, bool alignedBarrier=false) {
++    id<MTLDevice> device, id<MTLLibrary> library, const char* name, bool referenceContactWidth=false, bool alignedBarrier=false, bool contactCache=false) {
+     NSString* functionName = [NSString stringWithUTF8String:name];
+     id<MTLFunction> function = [library newFunctionWithName:functionName];
+     require(function != nil, std::string("missing Metal function: ") + name);
+@@ -69,8 +69,9 @@
+     MTLFunctionConstantValues* contactConstants=[MTLFunctionConstantValues new];
+     bool specializeContact=false;
+     for (MTLFunctionConstant* constant in function.functionConstantsDictionary.allValues) {
+-        if (constant.index!=38u && constant.index!=39u) continue;
+-        const bool enabled=constant.index==38u ? referenceContactWidth : alignedBarrier;
++        if (constant.index!=38u && constant.index!=39u && constant.index!=41u) continue;
++        const bool enabled=constant.index==41u ? contactCache :
++            (constant.index==38u ? referenceContactWidth : alignedBarrier);
+         [contactConstants setConstantValue:&enabled type:MTLDataTypeBool atIndex:constant.index];
+         specializeContact=true;
+     }
+@@ -11865,6 +11866,149 @@
+ }
+ 
+ 
++// Explicit kernel microbenchmark, separate from physical qualification. A
++// structured anisotropic tetrahedral mesh supplies realistic overlapping node
++// stars; both kernels see identical coefficients, incidence and buffers.
++void benchmarkCachedNodeBuilders(id<MTLDevice> device,id<MTLCommandQueue> queue,
++                                id<MTLLibrary> library) {
++    constexpr std::uint32_t side=27u,N=side*side*side;
++    std::vector<NMTetrahedronGPU> tets;
++    std::vector<std::vector<std::uint32_t>> stars(N);
++    const std::uint32_t permutations[6][3]={
++        {0,1,2},{0,2,1},{1,0,2},{1,2,0},{2,0,1},{2,1,0}};
++    const std::uint32_t steps[3]={1u,side,side*side};
++    const double spacing[3]={0.003,0.004,0.0002};
++    for(std::uint32_t z=0;z+1u<side;++z)
++    for(std::uint32_t y=0;y+1u<side;++y)
++    for(std::uint32_t x=0;x+1u<side;++x)
++    for(const auto& perm:permutations) {
++        const std::uint32_t a=x+side*(y+side*z);
++        std::uint32_t ids[4]={a,a+steps[perm[0]],
++            a+steps[perm[0]]+steps[perm[1]],a+1u+side+side*side};
++        double m[9]{};
++        auto matrix=[&] {
++            for(unsigned col=0;col<3;++col) {
++                const auto v=ids[col+1u];
++                m[col]=double(int(v%side)-int(x))*spacing[0];
++                m[3+col]=double(int((v/side)%side)-int(y))*spacing[1];
++                m[6+col]=double(int(v/(side*side))-int(z))*spacing[2];
++            }
++        };
++        auto determinant=[&] {
++            return m[0]*(m[4]*m[8]-m[5]*m[7])-
++                m[1]*(m[3]*m[8]-m[5]*m[6])+
++                m[2]*(m[3]*m[7]-m[4]*m[6]);
++        };
++        matrix();
++        if(determinant()<0.0){std::swap(ids[1],ids[2]);matrix();}
++        const double det=determinant();
++        require(det>0.0,"benchmark tetrahedron positive volume");
++        NMTetrahedronGPU t{};t.nodes={ids[0],ids[1],ids[2],ids[3]};
++        t.identity={0u,0u,0u,NM_OBJECT_ACTIVE};
++        t.inverseRestRow0={float((m[4]*m[8]-m[5]*m[7])/det),
++            float((m[2]*m[7]-m[1]*m[8])/det),
++            float((m[1]*m[5]-m[2]*m[4])/det),float(det/6.0)};
++        t.inverseRestRow1={float((m[5]*m[6]-m[3]*m[8])/det),
++            float((m[0]*m[8]-m[2]*m[6])/det),
++            float((m[2]*m[3]-m[0]*m[5])/det),0.0f};
++        t.inverseRestRow2={float((m[3]*m[7]-m[4]*m[6])/det),
++            float((m[1]*m[6]-m[0]*m[7])/det),
++            float((m[0]*m[4]-m[1]*m[3])/det),0.0f};
++        t.materialFrameRotation={0.23f,-0.37f,0.11f,0.83f};
++        for(auto id:ids)stars[id].push_back(std::uint32_t(tets.size()));
++        tets.push_back(t);
++    }
++    const std::uint32_t T=std::uint32_t(tets.size());
++    std::vector<NMFEMNodeStateGPU> nodes(N);
++    std::vector<NMIncidenceRangeGPU> ranges(N),contactRanges(N);
++    std::vector<std::uint32_t> incidence;
++    for(std::uint32_t n=0;n<N;++n) {
++        nodes[n].positionAndMass.w=0.001f+float(n%31u)*0.00001f;
++        ranges[n].first=std::uint32_t(incidence.size());
++        ranges[n].count=std::uint32_t(stars[n].size());ranges[n].objectIndex=0u;
++        incidence.insert(incidence.end(),stars[n].begin(),stars[n].end());
++    }
++    std::vector<float> cache(T*81u);
++    for(std::uint32_t i=0;i<cache.size();++i)
++        cache[i]=(i%81u/9u==i%9u?20000.0f:0.0f)+
++            float(int((i*7u)%31u)-15)*0.13f;
++    NMMatterDispatchGPU d{};d.abiVersion=NM_MATTER_ABI_VERSION;
++    d.environmentCount=1;d.objectCount=1;d.femNodeCount=N;
++    d.tetrahedronCount=T;d.gravityAndTimestep.w=0.000015625f;
++    NMMixedSolverGPU solver{};solver.executionBudgets.z=6u;
++    NMContinuumObjectGPU object{};object.representation=NM_REPRESENTATION_FEM;
++    object.flags=NM_OBJECT_ACTIVE|NM_OBJECT_FEM_MATERIAL_FRAME;
++    NMSchedulerStateGPU scheduler{};scheduler.numerical.w=1.0f;
++    NMAdaptiveStateGPU adaptive{};adaptive.activeRepresentation=NM_REPRESENTATION_FEM;
++    NMMicrostepGPU micro{};NMFGMRESStateGPU state{};
++    NMMatterStatusGPU healthy{};healthy.code=NM_STATUS_SUCCESS;
++    auto dummy=makeBuffer(device,std::vector<std::uint32_t>(1024u,0u));
++    auto zero=makeBuffer(device,std::vector<std::uint32_t>{0u});
++    auto one=makeBuffer(device,std::vector<std::uint32_t>{1u});
++    auto cr=makeBuffer(device,contactRanges);
++    auto layout=[library newFunctionWithName:
++        @"numi_matter_metal::nm_primal_contact_argument_layout"];
++    auto ae=[layout newArgumentEncoderWithBufferIndex:0u];
++    auto args=[device newBufferWithLength:ae.encodedLength
++        options:MTLResourceStorageModeShared];
++    [ae setArgumentBuffer:args offset:0u];
++    for(NSUInteger i=0;i<20u;++i)[ae setBuffer:dummy offset:0u atIndex:i];
++    [ae setBuffer:cr offset:0u atIndex:3u];
++    auto output=makeBuffer(device,std::vector<nm_float4>(N*3u));
++    auto status=makeBuffer(device,std::vector{healthy});
++    std::vector<std::pair<NSUInteger,id<MTLBuffer>>> bindings{
++        {0,makeBuffer(device,std::vector{d})},
++        {1,makeBuffer(device,std::vector{solver})},
++        {2,makeBuffer(device,std::vector{object})},{3,makeBuffer(device,nodes)},
++        {4,makeBuffer(device,tets)},{5,makeBuffer(device,incidence)},
++        {6,makeBuffer(device,ranges)},{7,makeBuffer(device,std::vector{scheduler})},
++        {8,dummy},{9,dummy},{10,dummy},{11,dummy},{12,dummy},{13,dummy},
++        {14,args},{15,status},{16,output},{17,makeBuffer(device,cache)},
++        {18,makeBuffer(device,std::vector<std::uint32_t>(T,1u))},
++        {19,makeBuffer(device,std::vector<std::uint32_t>{2u})},{20,one},{21,zero},
++        {22,makeBuffer(device,std::vector{adaptive})},
++        {23,makeBuffer(device,std::vector{micro})},{24,zero},
++        {25,makeBuffer(device,std::vector{state})},{26,zero}};
++    id<MTLComputePipelineState> pipelines[2]={
++        pipeline(device,library,"numi_matter_metal::nm_fgmres_build_tangent_fem_block_preconditioner_cached"),
++        pipeline(device,library,"numi_matter_metal::nm_fgmres_build_tangent_fem_block_preconditioner_cached_simd")};
++    const char* names[2]={"scalar","incidence_simd"};
++    std::vector<nm_float4> expected;
++    for(unsigned round=0;round<4;++round)
++    for(unsigned order=0;order<2;++order) {
++        const unsigned variant=round==0?order:(order+round-1u)%2u;
++        std::memcpy(status.contents,&healthy,sizeof(healthy));
++        id<MTLCommandBuffer> cb=[queue commandBuffer];
++        id<MTLComputeCommandEncoder> enc=[cb computeCommandEncoder];
++        [enc setComputePipelineState:pipelines[variant]];
++        for(const auto& [index,buffer]:bindings) {
++            [enc setBuffer:buffer offset:0u atIndex:index];
++            [enc useResource:buffer usage:MTLResourceUsageRead|MTLResourceUsageWrite];
++        }
++        [enc useResource:cr usage:MTLResourceUsageRead];
++        [enc useResource:dummy usage:MTLResourceUsageRead];
++        const NSUInteger groups=variant==0?(N+255u)/256u:(N+7u)/8u;
++        [enc dispatchThreadgroups:MTLSizeMake(groups,1,1)
++            threadsPerThreadgroup:MTLSizeMake(256,1,1)];
++        [enc endEncoding];[cb commit];[cb waitUntilCompleted];
++        require(cb.status==MTLCommandBufferStatusCompleted,"benchmark GPU completion");
++        auto actual=readBuffer<nm_float4>(output,N*3u);
++        if(expected.empty())expected=actual;
++        require(std::memcmp(expected.data(),actual.data(),
++            actual.size()*sizeof(nm_float4))==0,"benchmark exact block parity");
++        require(readBuffer<NMMatterStatusGPU>(status,1)[0].code==NM_STATUS_SUCCESS,
++            "benchmark healthy output");
++        std::cout<<"cached_node_benchmark variant="<<names[variant]
++            <<" round="<<round<<" warmup="<<(round==0)
++            <<" nodes="<<N<<" tets="<<T<<" gpu_ms="
++            <<1000.0*(cb.GPUEndTime-cb.GPUStartTime)
++            <<" static_threadgroup_bytes="<<pipelines[variant].staticThreadgroupMemoryLength
++            <<" max_threads="<<pipelines[variant].maxTotalThreadsPerThreadgroup
++            <<" bitwise=true\n";
++    }
++}
++
++
+ void checkOrderedGatherSIMD(id<MTLDevice> device,id<MTLCommandQueue> queue,
+                             id<MTLLibrary> library) {
+     auto reference=pipeline(device,library,"numi_matter_metal::nm_fgmres_gather_nodes");
+@@ -16879,10 +17023,16 @@
+     const auto legacy=pipeline(device,library,"numi_matter_metal::nm_mixed_certify");
+     const auto tiled=pipeline(device,library,"numi_matter_metal::nm_mixed_certify_partials");
+     const auto finish=pipeline(device,library,"numi_matter_metal::nm_mixed_certify_finish");
++    const auto cached=pipeline(device,library,
++        "numi_matter_metal::nm_mixed_certify_partials",false,false,true);
++    const auto cacheBuilder=pipeline(device,library,
++        "numi_matter_metal::nm_mixed_build_contact_certificate_cache");
++    const auto cachePrepare=pipeline(device,library,
++        "numi_matter_metal::nm_mixed_prepare_contact_certificate_cache_dispatch");
+     auto f=[library newFunctionWithName:@"numi_matter_metal::nm_primal_contact_argument_layout"];
+     auto ae=[f newArgumentEncoderWithBufferIndex:0u];
+     require(ae!=nil,"mixed tiled domain argument encoder");
+-    for(unsigned fault=0;fault<5u;++fault) {
++    for(unsigned fault=0;fault<10u;++fault) {
+         NMMatterDispatchGPU d{};d.environmentCount=2;d.objectCount=3;
+         d.femNodeCount=519;d.tetrahedronCount=2;d.mixedMaterialCount=1;
+         d.deformableContactCapacity=520;d.numericalLimits={1e-5f,0,0.05f,0};
+@@ -16938,6 +17088,12 @@
+             indices[env*520u+i]=518u-i;
+         }
+         if(fault==1)for(unsigned i:{317u,320u})contacts[i].pointAndSeparation.w=0;
++        if(fault==5)indices[317]=d.deformableContactCapacity+1u;
++        if(fault==6)for(unsigned i=0;i<contacts.size();i+=7u)contacts[i].identity.w=0u;
++        if(fault==7)for(unsigned i=0;i<contacts.size();i+=5u)contacts[i].identity.y=0u;
++        if(fault==8)for(unsigned i=0;i<contacts.size();i+=3u)contacts[i].identity.y=31u;
++        if(fault==9)contacts[317].pointAndSeparation.w=NAN;
++
+         auto zero=makeBuffer(device,std::vector<unsigned>(4096,0));
+         auto cb=makeBuffer(device,contacts),counts=makeBuffer(device,std::vector<unsigned>{519,519});
+         auto ab=[device newBufferWithLength:ae.encodedLength options:MTLResourceStorageModeShared];
+@@ -16960,7 +17116,14 @@
+             {14,makeBuffer(device,correction)},{15,zero},{16,zero},{17,zero},
+             {18,zero},{19,ab},{20,zero},{21,telemetry},{22,makeBuffer(device,indices)},
+             {30,makeBuffer(device,std::vector<NMFGMRESLayoutGPU>{layout})}};
+-        auto execute=[&](bool fast) {
++        // Standalone fixture owns temporary cache bytes. Production aliases the
++        // checked dead radix workspace and adds no allocation.
++        auto cache=makeBuffer(device,std::vector<nm_float4>(2u*d.deformableContactCapacity*2u+4u,
++            {91.25f,-72.5f,63.75f,-54.0f}));
++        auto masks=makeBuffer(device,std::vector<unsigned>(
++            2u*((d.deformableContactCapacity+31u)/32u)+4u,0xdeadbeefu));
++        std::vector<nm_float4> referencePartials;
++        auto execute=[&](bool fast,bool useCache=false) {
+             std::memset(out.contents,0,out.length);std::memset(status.contents,0,status.length);
+             std::memset(telemetry.contents,0,telemetry.length);
+             auto partial=makeBuffer(device,std::vector<nm_float4>(6u*128u*7u));
+@@ -16969,7 +17132,26 @@
+             [e useResource:zero usage:MTLResourceUsageRead];
+             [e useResource:cb usage:MTLResourceUsageRead];
+             [e useResource:counts usage:MTLResourceUsageRead];
+-            [e setComputePipelineState:fast?tiled:legacy];
++            if(useCache) {
++                [e setComputePipelineState:cacheBuilder];
++                [e setBuffer:bindings[0].second offset:0 atIndex:0];
++                [e setBuffer:bindings[1].second offset:0 atIndex:1];
++                [e setBuffer:nb offset:0 atIndex:2];
++                [e setBuffer:nb offset:0 atIndex:3];
++                [e setBuffer:ab offset:0 atIndex:4];
++                [e setBuffer:bindings[22].second offset:0 atIndex:5];
++                [e setBuffer:cache offset:0 atIndex:6];
++                [e setBuffer:masks offset:0 atIndex:7];
++                [e setBuffer:bindings[2].second offset:0 atIndex:8];
++                [e dispatchThreadgroups:MTLSizeMake(
++                    2u*((d.deformableContactCapacity+255u)/256u),1,1)
++                    threadsPerThreadgroup:MTLSizeMake(256,1,1)];
++                [e memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                for(auto [i,b]:bindings)[e setBuffer:b offset:0 atIndex:i];
++            }
++            [e setBuffer:cache offset:0 atIndex:24];
++            [e setBuffer:masks offset:0 atIndex:25];
++            [e setComputePipelineState:useCache?cached:(fast?tiled:legacy)];
+             if(fast)[e setBuffer:partial offset:0 atIndex:23];
+             [e dispatchThreadgroups:MTLSizeMake(6u*(fast?128u:1u),1,1)
+                 threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+@@ -16981,25 +17163,64 @@
+             }
+             [e endEncoding];[command commit];[command waitUntilCompleted];
+             require(command.status==MTLCommandBufferStatusCompleted,"mixed domain GPU execution");
++            if(fast) {
++                auto values=readBuffer<nm_float4>(partial,6u*128u*7u);
++                if(!useCache)referencePartials=values;
++                else require(std::memcmp(values.data(),referencePartials.data(),
++                    values.size()*sizeof(nm_float4))==0,
++                    "cached contact partials preserve every bit and failure witness");
++            }
++
+         };
+         execute(false);auto ref=readBuffer<NMSolverCertificateGPU>(out,6);
+         auto rs=readBuffer<NMMatterStatusGPU>(status,2);
+         execute(true);auto actual=readBuffer<NMSolverCertificateGPU>(out,6);
+         auto as=readBuffer<NMMatterStatusGPU>(status,2);
++        execute(true,true);
++        auto cachedResult=readBuffer<NMSolverCertificateGPU>(out,6);
++        auto cachedStatus=readBuffer<NMMatterStatusGPU>(status,2);
++        require(std::memcmp(actual.data(),cachedResult.data(),
++            actual.size()*sizeof(NMSolverCertificateGPU))==0,
++            "cached contact final certificates bitwise parity");
++        for(unsigned env=0;env<2;++env)
++            require(as[env].code==cachedStatus[env].code &&
++                as[env].failingIndex==cachedStatus[env].failingIndex,
++                "cached contact failure status and deterministic witness");
++        const auto c=readBuffer<nm_float4>(cache,cache.length/sizeof(nm_float4));
++        const nm_float4 canary{91.25f,-72.5f,63.75f,-54.0f};
++        for(unsigned i=2u*d.deformableContactCapacity*2u;i<c.size();++i)
++            require(std::memcmp(&c[i],&canary,sizeof(canary))==0,
++                "contact cache capacity canary");
++        const auto m=readBuffer<unsigned>(masks,masks.length/sizeof(unsigned));
++        for(unsigned i=2u*((d.deformableContactCapacity+31u)/32u);i<m.size();++i)
++            require(m[i]==0xdeadbeefu,"contact cache owner mask canary");
++
+         const float* r=reinterpret_cast<const float*>(ref.data());
+         const float* a=reinterpret_cast<const float*>(actual.data());
+-        for(unsigned i=0;i<6u*sizeof(NMSolverCertificateGPU)/sizeof(float);++i)
++        for(unsigned i=0;fault<5u && i<6u*sizeof(NMSolverCertificateGPU)/sizeof(float);++i)
+             require((std::isnan(r[i])&&std::isnan(a[i]))||r[i]==a[i]||
+                 std::abs(r[i]-a[i])<=1e-8f+1e-5f*std::abs(r[i]),
+                 "tiled mixed node/field/contact/element certificate parity");
+         for(unsigned env=0;env<2;++env) {
+-            require(rs[env].code==as[env].code,"mixed tiled failure acceptance parity");
++            if(fault<5u)require(rs[env].code==as[env].code,"mixed tiled failure acceptance parity");
+             if(fault==1&&env==0)require(as[env].failingIndex==317,
+                 "mixed tiled deterministic contact witness");
+         }
+     }
+     std::cout<<"mixed_certificate_tiled domains=FEM_pressure_transport contacts=519 environments=2 objects=3 "
+-        "faults=clearance_residual_inversion_nonfinite PASS\n";
++        "faults=clearance_residual_inversion_nonfinite_invalid_slot_inactive_self_owner_outside_owner cached_partials_bitwise=true canaries=true PASS\n";
++    for(unsigned count:{0u,1u,255u,256u,257u,520u,900u}) {
++        NMMatterDispatchGPU d{};d.environmentCount=1u;d.deformableContactCapacity=520u;
++        auto output=makeBuffer(device,std::vector<NMIndirectDispatchGPU>(2u,{77u,88u,99u,111u}));
++        dispatch(device,queue,cachePrepare,{
++            {0,makeBuffer(device,std::vector{d})},
++            {1,makeBuffer(device,std::vector<unsigned>{count})},{2,output}},1u,1u);
++        const auto value=readBuffer<NMIndirectDispatchGPU>(output,2);
++        require(value[0].threadgroupsX==(std::min(count,520u)+255u)/256u &&
++            value[0].threadgroupsY==1u && value[0].threadgroupsZ==1u &&
++            value[1].threadgroupsX==77u,"contact cache bounded indirect range");
++    }
++
+ }
+ 
+ void checkCapturedInitialNonclosing(
+@@ -18360,6 +18581,11 @@
+                 checkBundledRegionalProjection(device,queue,library);
+                 std::cout<<"PASS parallel base preconditioner "<<checks<<" checks\n";return 0;
+             }
++            if (argc == 2 && std::string(argv[1]) == "--cached-node-benchmark-only") {
++                benchmarkCachedNodeBuilders(device,queue,library);
++                std::cout << "PASS cached node benchmark " << checks << " checks\n";
++                return 0;
++            }
+             if (argc == 2 && std::string(argv[1]) == "--cached-node-simd-only") {
+                 checkCachedThreeDirections(device,queue,library);
+                 checkCachedNodeSIMD(device,queue,library);
+--- a/src/metal/MetalArticulatedOperator.mm
++++ b/src/metal/MetalArticulatedOperator.mm
+@@ -13786,6 +13786,11 @@
+             std::uint32_t traceForceOffset = 0u, traceDofCount = 0u, traceQCount = 0u;
+             for (std::uint32_t horizonStep = 0u;
+                  horizonStep < horizonStepCount; ++horizonStep) {
++            // Long horizons must not retain autoreleased command/encoder
++            // temporaries until the entire run finishes. Metal submissions,
++            // pending results and runtime state keep their existing strong owners.
++            @autoreleasepool {
++
+             const std::uint32_t authoritativeStep =
+                 input.stand.stepIndexOffset + horizonStep;
+             diagnosticStepIndex = authoritativeStep;
+@@ -17365,6 +17370,7 @@
+                 }
+ 
+             }
++                } // Drain per-step autoreleased temporaries; strong owners retain live resources.
+             }
+ 
+             if (input.stand.numanXHumanMatterProgram.valid()) {
+--- a/apps/numilab_human_myosim_visual_probe.mm
++++ b/apps/numilab_human_myosim_visual_probe.mm
+@@ -39747,6 +39747,13 @@
+                         const auto& p=*static_cast<const NMHumanRespirationState*>(coupled.physiology.respiration->accepted.contents);
+                         require(p.status.x==step&&!p.status.w,"body/respiratory accepted clocks differ");
+                         const auto& b=result.standStatuses.front();
++                        if (const char* memory=std::getenv("NUMI_HUMAN_PREPARATION_MEMORY");
++                            memory!=nullptr && std::strcmp(memory,"1")==0) {
++                            char phase[64];
++                            std::snprintf(phase,sizeof(phase),"accepted_step_%u",step);
++                            emitHumanPreparationMemory(phase,coupled.physiology.device);
++                        }
++
+                         if (!restingHipCapsuleTerms.empty()) {
+                             const auto& articulation=rigid.model.articulations.front();
+                             require(result.standQ.size()==articulation.nq,

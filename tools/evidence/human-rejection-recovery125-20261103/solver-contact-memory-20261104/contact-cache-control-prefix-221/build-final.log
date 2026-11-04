@@ -1,0 +1,279 @@
+[0/2] Re-checking globbed directories...
+[1/7] Generating shaders/NumiMatter.metallib
+In file included from /Users/numi/Work/skin-fat-native-integration-209/matter/src/matter_kernels.metal:2:
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/partitioned_reduction_projection.metalinc:478:16: warning: unused variable 'region' [-Wunused-variable]
+    const uint region = gid % dispatch.regionCount;
+               ^
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/partitioned_reduction_projection.metalinc:479:16: warning: unused variable 'environment' [-Wunused-variable]
+    const uint environment = gid / dispatch.regionCount;
+               ^
+In file included from /Users/numi/Work/skin-fat-native-integration-209/matter/src/matter_kernels.metal:4:
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fem.metalinc:6809:13: warning: variable 'firstFailureLane' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+        if (lane == 0u) firstFailureLane = firstFailure;
+            ^~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fem.metalinc:6814:9: note: uninitialized use occurs here
+        firstFailureLane == NM_INVALID_INDEX || lane <= firstFailureLane
+        ^~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fem.metalinc:6809:9: note: remove the 'if' if its condition is always true
+        if (lane == 0u) firstFailureLane = firstFailure;
+        ^~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fem.metalinc:6805:9: warning: variable 'firstFailureLane' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (simdgroup == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fem.metalinc:6814:9: note: uninitialized use occurs here
+        firstFailureLane == NM_INVALID_INDEX || lane <= firstFailureLane
+        ^~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fem.metalinc:6805:5: note: remove the 'if' if its condition is always true
+    if (simdgroup == 0u) {
+    ^~~~~~~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fem.metalinc:6800:38: note: initialize the variable 'firstFailureLane' to silence this warning
+    threadgroup uint firstFailureLane;
+                                     ^
+                                      = 0
+In file included from /Users/numi/Work/skin-fat-native-integration-209/matter/src/matter_kernels.metal:6:
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:5037:9: warning: variable 'sourceValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:5082:9: note: uninitialized use occurs here
+    if (sourceValid == 0u) {
+        ^~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:5037:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:5031:33: note: initialize the variable 'sourceValid' to silence this warning
+    threadgroup uint sourceValid;
+                                ^
+                                 = 0
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:5914:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:5923:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:5914:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:5904:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6791:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:7099:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<48U, 256U>' requested here
+kernel void nm_fgmres_graph_solve_patches<48, 256u>(
+            ^
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6808:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6791:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6389:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6791:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:7132:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<48U, 32U>' requested here
+kernel void nm_fgmres_graph_solve_patches<48, 32u>(
+            ^
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6808:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6791:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6389:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6791:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:7165:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<96U, 32U>' requested here
+kernel void nm_fgmres_graph_solve_patches<96, 32u>(
+            ^
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6808:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6791:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6389:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6791:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:7198:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<96U, 256U>' requested here
+kernel void nm_fgmres_graph_solve_patches<96, 256u>(
+            ^
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6808:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6791:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6389:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6791:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:7231:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<192U, 256U>' requested here
+kernel void nm_fgmres_graph_solve_patches<192, 256u>(
+            ^
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6808:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6791:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6389:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6791:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:7264:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<384U, 256U>' requested here
+kernel void nm_fgmres_graph_solve_patches<384, 256u>(
+            ^
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6808:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6791:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6389:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6791:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:7297:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<768U, 256U>' requested here
+kernel void nm_fgmres_graph_solve_patches<768, 256u>(
+            ^
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6808:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6791:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc:6389:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+In file included from /Users/numi/Work/skin-fat-native-integration-209/matter/src/matter_kernels.metal:9:
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/vascular.metalinc:2394:9: warning: variable 'solveValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/vascular.metalinc:2424:9: note: uninitialized use occurs here
+    if (solveValid != 0u) {
+        ^~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/vascular.metalinc:2394:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/vascular.metalinc:2383:32: note: initialize the variable 'solveValid' to silence this warning
+    threadgroup uint solveValid;
+                               ^
+                                = 0
+In file included from /Users/numi/Work/skin-fat-native-integration-209/matter/src/matter_kernels.metal:13:
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/mixed_fem.metalinc:1456:17: warning: unused variable 'relativeResidual' [-Wunused-variable]
+    const float relativeResidual = sqrt(max(residualNorm2, 0.0f)) /
+                ^
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/mixed_fem.metalinc:1458:17: warning: unused variable 'relativeCorrection' [-Wunused-variable]
+    const float relativeCorrection = correction;
+                ^
+In file included from /Users/numi/Work/skin-fat-native-integration-209/matter/src/matter_kernels.metal:14:
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/contact.metalinc:1969:16: warning: unused variable 'local' [-Wunused-variable]
+    const uint local = global - environment * primitiveCount;
+               ^
+17 warnings generated.
+[2/7] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:10485:21: warning: format specifies type 'size_t' (aka 'unsigned long') but the argument has type 'nm_u32' (aka 'unsigned int') [-Wformat]
+ 10481 |                     "matter_graph_due_row_identity={\"schema\":1,\"enabled\":true,\"patches\":%zu,\"active_tets\":%zu,\"objects\":%zu}\n",
+       |                                                                                                                                   ~~~
+       |                                                                                                                                   %u
+ 10482 |                     graphSchwarz.layout.patches.size(),
+ 10483 |                     static_cast<std::size_t>(std::count(
+ 10484 |                         activeTets.begin(), activeTets.end(), 1u)),
+ 10485 |                     world.dispatch.objectCount);
+       |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:20260:72: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20260 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20261 |                     workDomain == WorkDomain::newtonAssemblyFemNodes ||
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:20260:72: note: place parentheses around the '&&' expression to silence this warning
+ 20260 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                                                                        ^
+       |                             (
+ 20261 |                     workDomain == WorkDomain::newtonAssemblyFemNodes ||
+       |                                                                     )
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:20262:67: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20261 |                     workDomain == WorkDomain::newtonAssemblyFemNodes ||
+       |                                                                      ~~
+ 20262 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20263 |                     workDomain == WorkDomain::femNodes) &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:20262:67: note: place parentheses around the '&&' expression to silence this warning
+ 20262 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                                                                   ^
+       |                     (
+ 20263 |                     workDomain == WorkDomain::femNodes) &&
+       |                                                       
+       |                                                       )
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:20267:72: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20267 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20268 |                     workDomain == WorkDomain::newtonAssemblyTetrahedra ||
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:20267:72: note: place parentheses around the '&&' expression to silence this warning
+ 20267 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                                                                        ^
+       |                             (
+ 20268 |                     workDomain == WorkDomain::newtonAssemblyTetrahedra ||
+       |                                                                       )
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:20269:67: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20268 |                     workDomain == WorkDomain::newtonAssemblyTetrahedra ||
+       |                                                                        ~~
+ 20269 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20270 |                     workDomain == WorkDomain::tetrahedra) &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:20269:67: note: place parentheses around the '&&' expression to silence this warning
+ 20269 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                                                                   ^
+       |                     (
+ 20270 |                     workDomain == WorkDomain::tetrahedra) &&
+       |                                                         
+       |                                                         )
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:23837:33: warning: variable 'reason' set but not used [-Wunused-but-set-variable]
+ 23837 |                 if (const char* reason = femNewtonTraceScope(false, 4096u))
+       |                                 ^
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:28592:28: warning: unused variable 'capturedEnvironmentCount' [-Wunused-variable]
+ 28592 |                 const auto capturedEnvironmentCount = environments;
+       |                            ^~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:39303:60: warning: values of type 'NSUInteger' should not be used as format arguments; add an explicit cast to 'unsigned long' instead [-Wformat]
+ 39301 |                     "fgmres_terminal_cache_capture_not_due={\"schema\":1,\"physics_substep\":%u,\"physics_substeps\":%u,\"microtick\":%u,\"microtick_count\":%u,\"environment_count\":%u,\"preflight_enabled\":%s,\"preconditioner_enabled\":%s,\"preconditioner_apply_enabled\":%s,\"fresh_rhs_may_skip\":%s,\"selector\":%u}\n",
+       |                                                                                                                                                                                       ~~
+       |                                                                                                                                                                                       %lu
+ 39302 |                     request.physicsSubstep, request.physicsSubsteps,
+ 39303 |                     micro.microtick, micro.microtickCount, environments,
+       |                                                            ^~~~~~~~~~~~
+       |                                                            static_cast<unsigned long>( )
+/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm:44683:35: warning: unused variable 'oldTailConstants' [-Wunused-variable]
+ 44683 |                     id<MTLBuffer> oldTailConstants =
+       |                                   ^~~~~~~~~~~~~~~~
+9 warnings generated.
+[3/7] Linking CXX shared library lib/libmetalrobo.dylib
+[4/7] Linking CXX static library matter/libnumi_matter_runtime.a
+[5/7] Linking OBJCXX executable bin/numi-human-native
+[6/7] Linking CXX executable matter/numi-matter-fem-selector6-signed-gravity-native-check

@@ -1,0 +1,1777 @@
+{
+  "purpose": "Exact published file and archive-member hashes; physical qualification is separately limited in README",
+  "files": {
+    "README.md": {
+      "sha256": "4cafb98a53c660c113363907fa447f2e80dfdcee38bda35c4ee87aaa64b8587a",
+      "bytes": 8845
+    },
+    "accepted-memory-bounds-220-221.json": {
+      "sha256": "7f10c7c8ef57f672d07e732ed8db98816bc4655647239e7babbb82922306d76b",
+      "bytes": 15958
+    },
+    "accepted-memory-comparison-221-226.json": {
+      "sha256": "080e0ccbe02e2857331f0c8311b5c24fb3ccc5a9ca8d4ec55aef196cc9a13c1c",
+      "bytes": 16002
+    },
+    "accepted-z0-coupled-prefix-222/build-manifest.json": {
+      "sha256": "84bdfb82a3c7b0a1dcc1c112d82025d177fa59b68d3105dbfc12969021bf1ea5",
+      "bytes": 14125
+    },
+    "accepted-z0-coupled-prefix-222/executed-runner.py": {
+      "sha256": "ccd3e12fea5acfa618924cb211b3c8e2bb6dec053b4bc155c95441cf7911a157",
+      "bytes": 3181
+    },
+    "accepted-z0-coupled-prefix-222/execution-source-snapshots.tar.gz": {
+      "sha256": "3d246cf908782808b310646c80efd880e394281c8e6744c8432a19a1d3d996a3",
+      "bytes": 2142128
+    },
+    "accepted-z0-coupled-prefix-222/execution-source.patch": {
+      "sha256": "12003e20d8c2ef83802a6fff5b63e6f0bc2c0fe726db95851a5781d20a380b60",
+      "bytes": 2179581
+    },
+    "accepted-z0-coupled-prefix-222/install-motion.active.json": {
+      "sha256": "c89879f2df0080dc0357cec50b9908b786321b3a6d58a24877d25ef6563b4c82",
+      "bytes": 415
+    },
+    "accepted-z0-coupled-prefix-222/install-motion.execution.json": {
+      "sha256": "358495d726014358d9d46053f8ea38d3e79248c1df5c95329d97cdfe93bd7c19",
+      "bytes": 749
+    },
+    "accepted-z0-coupled-prefix-222/install-motion.plan.json": {
+      "sha256": "202582005b604f87e43ed4f8685997e4acba3aca9b0e05804d0763a05b8f75a5",
+      "bytes": 107320
+    },
+    "accepted-z0-coupled-prefix-222/install-motion.stderr.log": {
+      "sha256": "fad1b2fd64cdd868d18dc23f6173f6e28da065698e1a400516a9bfd9778f36de",
+      "bytes": 4644
+    },
+    "accepted-z0-coupled-prefix-222/install-motion.stdout.log": {
+      "sha256": "cd6621cfadce3458708866de334a6b45ce902c245a640dcdb6a5f054ae1c64a9",
+      "bytes": 220841
+    },
+    "accepted-z0-coupled-prefix-222/preparation-resource-justification.json": {
+      "sha256": "062bd7fb08ceb3aa52c13b86545886db9d484b27aaddf94cb0640cfc6a801e37",
+      "bytes": 556
+    },
+    "accepted-z0-coupled-prefix-222/resource-monitor.jsonl": {
+      "sha256": "fc8e4259725c9a400f4462b4bc9286e554e4d276a04d939fec2335fb96c32b42",
+      "bytes": 4418
+    },
+    "accepted-z0-coupled-prefix-222/resource-policy.json": {
+      "sha256": "93a55a490a351740b61b38163932a45fa77718510d1ec0388ad1263dcad5805e",
+      "bytes": 352
+    },
+    "accepted-z0-coupled-prefix-222/run_native_plan.py": {
+      "sha256": "07ec23e753dfa18e5b027845797bddd9e84c75fd5ce975b153c41d742ea82922",
+      "bytes": 4982
+    },
+    "accepted-z0-coupled-prefix-222/runner.log": {
+      "sha256": "905ca21d3465f35ffb5eb74a4e96f53cc5b5918d8bee45fef319f4a3e7561063",
+      "bytes": 9729
+    },
+    "accepted-z0-unscaled-prefix-223/build-manifest.json": {
+      "sha256": "139bae88a83c5064426f06a2c89329d2dc7337b902f292ff73a54445a90bde73",
+      "bytes": 14126
+    },
+    "accepted-z0-unscaled-prefix-223/executed-runner.py": {
+      "sha256": "014aa26a8df25deebdf74bf21b8c8c0a54b92f8b30257732f5db6e4238e47678",
+      "bytes": 3537
+    },
+    "accepted-z0-unscaled-prefix-223/execution-source-snapshots.tar.gz": {
+      "sha256": "eef8acd211402e4cd789b0a919735aeda021f8cefa64dbd3420d2394865ee869",
+      "bytes": 2141490
+    },
+    "accepted-z0-unscaled-prefix-223/execution-source.patch": {
+      "sha256": "12003e20d8c2ef83802a6fff5b63e6f0bc2c0fe726db95851a5781d20a380b60",
+      "bytes": 2179581
+    },
+    "accepted-z0-unscaled-prefix-223/install-motion.active.json": {
+      "sha256": "24d9414f82040c0308d3b1d308becb660e6e7784e7cbd54779de5cad92005c71",
+      "bytes": 416
+    },
+    "accepted-z0-unscaled-prefix-223/install-motion.execution.json": {
+      "sha256": "fef2fa876dc501326fea8ba0eee581d2a374930834ca9dcf9f11a2ed0bd0d4d3",
+      "bytes": 751
+    },
+    "accepted-z0-unscaled-prefix-223/install-motion.plan.json": {
+      "sha256": "3f8470fcf602dda6cb8126dabb7d4dec1f4ca3c78f5f2d61c46aa222e8b5b34f",
+      "bytes": 106636
+    },
+    "accepted-z0-unscaled-prefix-223/install-motion.stderr.log": {
+      "sha256": "0d99b9b92ae77b205a5963b33b127b549694d17d8065723625005efb3e7013f0",
+      "bytes": 67610
+    },
+    "accepted-z0-unscaled-prefix-223/install-motion.stdout.log": {
+      "sha256": "ac10b18951353b1ee3541d7af1315f79ccff07209087ad6579a6f31b765c1063",
+      "bytes": 360072
+    },
+    "accepted-z0-unscaled-prefix-223/preparation-resource-justification.json": {
+      "sha256": "2e694d02eb950edcf37277a2988c8353c08bf90441f80cd509d490872bb38add",
+      "bytes": 325
+    },
+    "accepted-z0-unscaled-prefix-223/resource-monitor.jsonl": {
+      "sha256": "d8c8760886e7a5f367bc8ddddae4085d5446a54e1cafa35da34402874028da8e",
+      "bytes": 4889
+    },
+    "accepted-z0-unscaled-prefix-223/resource-policy.json": {
+      "sha256": "102cbf014cf5241ce81e83564348ab74094c3a4057095bc44bec7d46bbcf617a",
+      "bytes": 352
+    },
+    "accepted-z0-unscaled-prefix-223/run_native_plan.py": {
+      "sha256": "07ec23e753dfa18e5b027845797bddd9e84c75fd5ce975b153c41d742ea82922",
+      "bytes": 4982
+    },
+    "accepted-z0-unscaled-prefix-223/runner.log": {
+      "sha256": "4c83f3130739ee3028501162eeab5ba1fdd21cba5d23519d1f7df2f4f159f977",
+      "bytes": 9731
+    },
+    "bounded-horizon-pool-219/plan.json": {
+      "sha256": "5c4eb57acec6197883ec231aac8a96723a359ecfd19b5a8985b30673deba0c44",
+      "bytes": 688
+    },
+    "bounded-horizon-pool-219/preimages.json": {
+      "sha256": "b65d67d0f367f6c816a6e6bdf63469019ad998c87224e7f25e94c0bf51212532",
+      "bytes": 229
+    },
+    "bounded-horizon-pool-219/preimages.tar.gz": {
+      "sha256": "e56c10d815d054f578ffedeb9c63eee5e585282e098240bca46349178d994583",
+      "bytes": 612392
+    },
+    "cached-node-two-builder-final-220.log": {
+      "sha256": "62e37495f98063c6054b7af68df1b9d4d8ab95ef1bba784fced98e0b810802b3",
+      "bytes": 1289
+    },
+    "compact-native-traces.tar.gz": {
+      "sha256": "3e0cbce901facb75d6d0860804aeeac5331f4d3e4ce491138e6f93af7a8392cb",
+      "bytes": 13599443
+    },
+    "compare-contact-cache-prefix-220.py": {
+      "sha256": "a4c7c642da57082f05cc2670b03793697ff6bdda796cc258673c96457cedef8c",
+      "bytes": 2946
+    },
+    "comparison-contact-cache-control-prefix-221-contact-cache-bounded-pool-prefix-220.json": {
+      "sha256": "c30bf92a9eea4fa6c38b60a294ea370520cff7d322921206760a396f83314037",
+      "bytes": 14546
+    },
+    "comparison-contact-cache-control-prefix-221-routine-control-prefix-226.json": {
+      "sha256": "9a146bdb9f0509c798aa0900a24fa572493725f8e49e4c6785ed25c4df12256f",
+      "bytes": 14669
+    },
+    "comparison-holistic-packed-patch-prefix-216-contact-cache-bounded-pool-prefix-220.json": {
+      "sha256": "536f7bb538d81d39fb7997a8b73e288a82d968c42f873668d97f390459272aad",
+      "bytes": 14549
+    },
+    "comparison-unscaled-recycle-223.json": {
+      "sha256": "75e92602e8e5461d74b7f19ab65c5a3d3c0b4150bbc4b8615ad0fe8756f07232",
+      "bytes": 12834
+    },
+    "contact-cache-bounded-pool-prefix-220/build-final.log": {
+      "sha256": "8cb0a840598f0baf561c0a96031deafb69ebb648ea4a520abd2992f3228066ad",
+      "bytes": 22295
+    },
+    "contact-cache-bounded-pool-prefix-220/build-manifest.json": {
+      "sha256": "bb9ae231f9415656e77a02495bff822fa95e9888d9e173a7cbe614e749997190",
+      "bytes": 13814
+    },
+    "contact-cache-bounded-pool-prefix-220/contact-cache-focused.stdout.log": {
+      "sha256": "e2e2fa72faeb4b94edcb1dca6204c1bedca64b3e412efe5486ec251cef121563",
+      "bytes": 663
+    },
+    "contact-cache-bounded-pool-prefix-220/executed-runner.py": {
+      "sha256": "6a79681aec526da275dafddd3dd50d24a646e9dc53d11e374789f0561a681a9e",
+      "bytes": 3292
+    },
+    "contact-cache-bounded-pool-prefix-220/execution-source-snapshots.tar.gz": {
+      "sha256": "544370d1cb619016a708ad80be44fff1430e68d3da9644c30dda1ca916e16654",
+      "bytes": 2134624
+    },
+    "contact-cache-bounded-pool-prefix-220/execution-source.patch": {
+      "sha256": "12003e20d8c2ef83802a6fff5b63e6f0bc2c0fe726db95851a5781d20a380b60",
+      "bytes": 2179581
+    },
+    "contact-cache-bounded-pool-prefix-220/install-motion.active.json": {
+      "sha256": "819038e4ec0f96b843d8ef23724e70789c1d6ba0b290de045cbc731bb9401fad",
+      "bytes": 421
+    },
+    "contact-cache-bounded-pool-prefix-220/install-motion.execution.json": {
+      "sha256": "1b8af75010d8164d7b5867b975112415b6a08efb69bd265931c9bdebab2c6501",
+      "bytes": 757
+    },
+    "contact-cache-bounded-pool-prefix-220/install-motion.plan.json": {
+      "sha256": "d7f2544d2374edc9cf944e01389e45bf476df9f248709f65e30d6b054e54c4bf",
+      "bytes": 106768
+    },
+    "contact-cache-bounded-pool-prefix-220/install-motion.stderr.log": {
+      "sha256": "d33b7bfa99e28072cc695b53188c82865ffaa2c1141d9ec254aed86eda094f48",
+      "bytes": 561135
+    },
+    "contact-cache-bounded-pool-prefix-220/install-motion.stdout.log": {
+      "sha256": "cb8f4f1264d4e0e08692cf21ccd9215c0e96253ddccf1b972b3d64831122101c",
+      "bytes": 392875
+    },
+    "contact-cache-bounded-pool-prefix-220/preparation-resource-justification.json": {
+      "sha256": "859ad1b4d4dc655431168c044ad9ec12b96ac56c901acd585977b5a22a13aa8a",
+      "bytes": 239
+    },
+    "contact-cache-bounded-pool-prefix-220/resource-monitor.jsonl": {
+      "sha256": "b5f7a31aa6dc20ed5fe25f0db5748e255ac9c6bd8270f8697ffbddce7542c9a5",
+      "bytes": 10354
+    },
+    "contact-cache-bounded-pool-prefix-220/resource-policy.json": {
+      "sha256": "2b0c31184e03253ba2d13e9d263c58ccf8ab8cd77716f9680d913d33fb34e832",
+      "bytes": 352
+    },
+    "contact-cache-bounded-pool-prefix-220/run_native_plan.py": {
+      "sha256": "07ec23e753dfa18e5b027845797bddd9e84c75fd5ce975b153c41d742ea82922",
+      "bytes": 4982
+    },
+    "contact-cache-bounded-pool-prefix-220/runner.log": {
+      "sha256": "a858a878b182aeb22a9ec16614cee0d7ce8d52e928ed5506b053645bbd462edb",
+      "bytes": 9737
+    },
+    "contact-cache-bounded-pool-prefix-220/runtime-gravity-replay.stdout.log": {
+      "sha256": "5f5954eb1b3b188684a3df41cf717c9c7953f2bf5021b52b1331340d071e9bab",
+      "bytes": 7011
+    },
+    "contact-cache-bounded-pool-prefix-220/solver-final.stdout.log": {
+      "sha256": "112344b7e058d6b86063e147ed3f96668743ce17cd657f9fe8326e4bbd31a30a",
+      "bytes": 16671
+    },
+    "contact-cache-bounded-pool-prefix-220/verified-identical-mrv-clones.json": {
+      "sha256": "320ca80c67b9d11f4e7087b00cd9dd936f91792ca4a233fa3cce21107660acbf",
+      "bytes": 2527
+    },
+    "contact-cache-bounded-pool-source-220.patch": {
+      "sha256": "b72c29d05e9c619e75f33be3827451717b50c8456be8642bd12227c383cf2cb0",
+      "bytes": 38766
+    },
+    "contact-cache-build-218-reserved-identifier-failure.log": {
+      "sha256": "82bacc7fc5d91bfb38e1e5c2fac59389befde85bda16da16479cf27d61b640f8",
+      "bytes": 17061
+    },
+    "contact-cache-control-prefix-221/build-final.log": {
+      "sha256": "8cb0a840598f0baf561c0a96031deafb69ebb648ea4a520abd2992f3228066ad",
+      "bytes": 22295
+    },
+    "contact-cache-control-prefix-221/build-manifest.json": {
+      "sha256": "c8fa82e42db3818281d9d506f5d961d8832289c510e35d3630543048008338be",
+      "bytes": 13809
+    },
+    "contact-cache-control-prefix-221/contact-cache-focused.stdout.log": {
+      "sha256": "e2e2fa72faeb4b94edcb1dca6204c1bedca64b3e412efe5486ec251cef121563",
+      "bytes": 663
+    },
+    "contact-cache-control-prefix-221/executed-runner.py": {
+      "sha256": "5a4d8ca46394edc8ea5d5185ffea1453cdb57a3ced6c328151869e101c144a03",
+      "bytes": 3208
+    },
+    "contact-cache-control-prefix-221/execution-source-snapshots.tar.gz": {
+      "sha256": "55482fac41411222be593a71891525de9e27ce8d345be9b02c503b1e4e3302a8",
+      "bytes": 2134624
+    },
+    "contact-cache-control-prefix-221/execution-source.patch": {
+      "sha256": "12003e20d8c2ef83802a6fff5b63e6f0bc2c0fe726db95851a5781d20a380b60",
+      "bytes": 2179581
+    },
+    "contact-cache-control-prefix-221/install-motion.active.json": {
+      "sha256": "effda0ec37b4abc4c9cfe4e4f5f39322a14d2a41f6da5f92afdb1f6c4b1d2c93",
+      "bytes": 416
+    },
+    "contact-cache-control-prefix-221/install-motion.execution.json": {
+      "sha256": "691bbf58b6d990393fc736d90e5fd14fabd47f0ab406f0b9da4a53f4e3c7ebed",
+      "bytes": 751
+    },
+    "contact-cache-control-prefix-221/install-motion.plan.json": {
+      "sha256": "d28c878b3232a20eafc04e39e93e18bee9aa483d8bd2ecc0ca6e0f23601b3fd0",
+      "bytes": 106644
+    },
+    "contact-cache-control-prefix-221/install-motion.stderr.log": {
+      "sha256": "29f480ca55b59063c5c0f1b3e6ec641605a71efcb6dcf550bbc1b7d4722ce5a6",
+      "bytes": 561025
+    },
+    "contact-cache-control-prefix-221/install-motion.stdout.log": {
+      "sha256": "fd43dd84c1bdd8c521c44cee23ce86a2184d7e82184330e9e07c407012763091",
+      "bytes": 392828
+    },
+    "contact-cache-control-prefix-221/prelaunch-original-preparation-policy.json": {
+      "sha256": "8c8637306385d31a3caa8f5cee057ddd509f355d068b72bbb617bcd9d7c17b0d",
+      "bytes": 239
+    },
+    "contact-cache-control-prefix-221/prelaunch-verified-identical-mrv-clones.json": {
+      "sha256": "3af6799c082db981d2cf70d91b36319092f3f9c21b96dbc625e237d6e92b881b",
+      "bytes": 5304
+    },
+    "contact-cache-control-prefix-221/preparation-resource-justification.json": {
+      "sha256": "84c34c878b5eaf0af8bfda8c13b8b9ed7e057bfb617c85e2eaa1791fcbe32015",
+      "bytes": 593
+    },
+    "contact-cache-control-prefix-221/resource-monitor.jsonl": {
+      "sha256": "3eb014a680f65af17bc3f0110c594d916730000243c76db2738f6171491e369c",
+      "bytes": 10136
+    },
+    "contact-cache-control-prefix-221/resource-policy.json": {
+      "sha256": "8934563fa6685d3b73a08e31687a6b8667a122f7e1a4c58a0af148cec520993b",
+      "bytes": 352
+    },
+    "contact-cache-control-prefix-221/run_native_plan.py": {
+      "sha256": "07ec23e753dfa18e5b027845797bddd9e84c75fd5ce975b153c41d742ea82922",
+      "bytes": 4982
+    },
+    "contact-cache-control-prefix-221/runner.log": {
+      "sha256": "ea418cf5811f8e09d807e0782758d9dfdcd8ce3ae09f1a50c7e749d117627bf8",
+      "bytes": 9731
+    },
+    "contact-cache-control-prefix-221/runtime-gravity-replay.stdout.log": {
+      "sha256": "5f5954eb1b3b188684a3df41cf717c9c7953f2bf5021b52b1331340d071e9bab",
+      "bytes": 7011
+    },
+    "contact-cache-control-prefix-221/solver-final.stdout.log": {
+      "sha256": "112344b7e058d6b86063e147ed3f96668743ce17cd657f9fe8326e4bbd31a30a",
+      "bytes": 16671
+    },
+    "contact-cache-control-prefix-221/verified-identical-mrv-clones.json": {
+      "sha256": "a7f9946c58cbff23601dce61292b30de67472e10da40fab951a19a3e90c41609",
+      "bytes": 2326
+    },
+    "contact-cache-final-build-218.log": {
+      "sha256": "8cb0a840598f0baf561c0a96031deafb69ebb648ea4a520abd2992f3228066ad",
+      "bytes": 22295
+    },
+    "contact-cache-final-focused-218.log": {
+      "sha256": "e2e2fa72faeb4b94edcb1dca6204c1bedca64b3e412efe5486ec251cef121563",
+      "bytes": 663
+    },
+    "contact-cache-final-full-218.log": {
+      "sha256": "112344b7e058d6b86063e147ed3f96668743ce17cd657f9fe8326e4bbd31a30a",
+      "bytes": 16671
+    },
+    "contact-cache-final-runtime-218.log": {
+      "sha256": "5f5954eb1b3b188684a3df41cf717c9c7953f2bf5021b52b1331340d071e9bab",
+      "bytes": 7011
+    },
+    "contact-certification-cache-218/plan.json": {
+      "sha256": "3a6aa0e5c699e83f5610f41b7c8f28e8fab17f897d9b8e3806eec4d5e86a235c",
+      "bytes": 998
+    },
+    "contact-certification-cache-218/preimages.json": {
+      "sha256": "ee4643bbe30189ca58b1a10923350b26fa149cf61bfde1739b19df1ee92813d7",
+      "bytes": 330
+    },
+    "contact-certification-cache-218/preimages.tar.gz": {
+      "sha256": "efe30d1456bcc72d359adef3cf3e83e455c1649d05c3cb03db4b9a6b36ce1ba0",
+      "bytes": 687366
+    },
+    "contact-certification-cache-218/rejected-execution-source.tar.gz": {
+      "sha256": "8033f46419b4f4d666c3ed57c2e1439f911f3ee81d339e6da22d58bc92a86d05",
+      "bytes": 1302822
+    },
+    "cooperative-nodal-217/cooperative-nodal-benchmark-217.log": {
+      "sha256": "ebd108ae5acd10fbda9076484e85d3704f95a1972b838dab1eaf4c48df39fc08",
+      "bytes": 1936
+    },
+    "cooperative-nodal-217/cooperative-nodal-benchmark-build-217.log": {
+      "sha256": "68593558243014d691a1a9e43d592ada122bc7db7d9bc9cc78693489be947d78",
+      "bytes": 265
+    },
+    "cooperative-nodal-217/cooperative-nodal-build-217.log": {
+      "sha256": "e1cf033d734877ac8f24369e4c18a3942cd1843134dafe470477ee4f252c2678",
+      "bytes": 22519
+    },
+    "cooperative-nodal-217/cooperative-nodal-focused-217.log": {
+      "sha256": "5dd69aa401a63e6b3204fb0b6f1cd6fe70f088428d7c1ed851b40946ac82dba0",
+      "bytes": 592
+    },
+    "cooperative-nodal-217/plan.json": {
+      "sha256": "84f4d60c463874459c1f35e30258e61dd638db1db007e1de81cfe4d9f04f8d7e",
+      "bytes": 890
+    },
+    "cooperative-nodal-217/preimages.json": {
+      "sha256": "a968ef1bfc6ded31b77391f36fadeaadeb7cbf4190259245fea2451d860633fb",
+      "bytes": 327
+    },
+    "cooperative-nodal-217/preimages.tar.gz": {
+      "sha256": "03ce183b928416cc3a49d661b6bbcbcd56f0368cb50a68ae8a2b544d3a13db8b",
+      "bytes": 800139
+    },
+    "cooperative-nodal-217/rejected-execution-source.tar.gz": {
+      "sha256": "265bb01b84d085c1079f36a5b53a574124abc57cb37c87c656329f31510a8727",
+      "bytes": 803034
+    },
+    "cooperative-nodal-217/result.json": {
+      "sha256": "b59bbe83c51872120f7d902971fc9d7d21bb0c6bfcefa902398e5bb8b6990196",
+      "bytes": 693
+    },
+    "device.json": {
+      "sha256": "66fb8c5112621d97e20cdaf2f7828d276fbf4dd4ad9672ef5984deda3ab6726d",
+      "bytes": 320
+    },
+    "production-restoration-224.json": {
+      "sha256": "56f60ea96a13e1a6a0fff482541a01fb61c3782dd3f1c4ee014109ff1c1bdeda",
+      "bytes": 445
+    },
+    "production-restoration-final-build-224.log": {
+      "sha256": "eca6a83e6e18f5996c5d9e95349a16c9106c6c3b3ed75509fab9a21e70eb8d5f",
+      "bytes": 22736
+    },
+    "production-restoration-final-full-224.log": {
+      "sha256": "634949d6e21c7e9b99f04733710594c2a785ffb1baecac66845f93a6c9a0c62a",
+      "bytes": 16581
+    },
+    "production-restoration-final-runtime-224.log": {
+      "sha256": "5f5954eb1b3b188684a3df41cf717c9c7953f2bf5021b52b1331340d071e9bab",
+      "bytes": 7011
+    },
+    "production-restoration-stand-coupling-224-failed.log": {
+      "sha256": "118715da5d87d7abca3d968ec0cafdf76eb72a007760f32558ce0042bdf27119",
+      "bytes": 469
+    },
+    "reconcile-binding-225/MetalArticulatedOperator.before.mm": {
+      "sha256": "3b2750b6e02248d0a6c3d3098249e4d1792ad58daea6ed5d4b39d715fdb62a8a",
+      "bytes": 970151
+    },
+    "reconcile-binding-225/build.log": {
+      "sha256": "6f03ce44d45fe51c980d93d89a6592c30cd41b1e5efaa5844259290f7527af91",
+      "bytes": 982
+    },
+    "reconcile-binding-225/failure-before.log": {
+      "sha256": "118715da5d87d7abca3d968ec0cafdf76eb72a007760f32558ce0042bdf27119",
+      "bytes": 469
+    },
+    "reconcile-binding-225/plan.json": {
+      "sha256": "918bae84168b2f428f1cd913a2f16da3794d2920658f11975fb629f2785a2e49",
+      "bytes": 371
+    },
+    "reconcile-binding-225/result.json": {
+      "sha256": "d4dc4fdeb3589d74580a7347fb2d46c5e9cd9fe42e87a54f5309de859802f4f7",
+      "bytes": 413
+    },
+    "reconcile-binding-225/test.log": {
+      "sha256": "0c50ac5eb8b7351a9e99f0caa67e64b08e397a36eced740661bcd163e057cf64",
+      "bytes": 35999
+    },
+    "rejected-recycle223-mrv-manifest.json": {
+      "sha256": "1c5574d7dcc010fd4630209116a550957014fb471a6026d32357f514cea1df7d",
+      "bytes": 2141
+    },
+    "rejected-recycle223-remote-restoration.json": {
+      "sha256": "3caeb209e04ecf7b732215f93329c9393b6ff5b3f032f3e25107c1417f3891bf",
+      "bytes": 2132
+    },
+    "result.json": {
+      "sha256": "ca13b820a6fa0549a51816850db69cfb641cfdf0772e7736664fa813ee8c174f",
+      "bytes": 651
+    },
+    "routine-control-prefix-226/build-final.log": {
+      "sha256": "1a2660e24e018656e713ced7f109c415ae160cd62178edf1e5e868e6997f81e6",
+      "bytes": 95
+    },
+    "routine-control-prefix-226/build-manifest.json": {
+      "sha256": "1d0da111daaa9ec4e85438fd823256bc923af7566e20477338bf2ae1551e0387",
+      "bytes": 13803
+    },
+    "routine-control-prefix-226/executed-runner.py": {
+      "sha256": "5209c5e479b95ae8f1bbbc349f0802aa8feb11cca5ce1316428b6c31506e7a72",
+      "bytes": 3215
+    },
+    "routine-control-prefix-226/execution-source-snapshots.tar.gz": {
+      "sha256": "d94258a43ff58f4aabca5a5779364aef98aa8d0ec5f6ca8646b7fae658d9f71c",
+      "bytes": 2131712
+    },
+    "routine-control-prefix-226/execution-source.patch": {
+      "sha256": "bdd493cd61a298c4df11c5359cedeefcf7782f4cd3ed515c50f988349c683375",
+      "bytes": 2162178
+    },
+    "routine-control-prefix-226/install-motion.active.json": {
+      "sha256": "ea75eef3f9366dc9eb38c7a063056cd74457aa2bd4e5431b94a6e35d44f2f498",
+      "bytes": 410
+    },
+    "routine-control-prefix-226/install-motion.execution.json": {
+      "sha256": "68fb65ba76b414ec4bfd2818418f7b752385239fdbef40b68c3aaebfa5989416",
+      "bytes": 745
+    },
+    "routine-control-prefix-226/install-motion.plan.json": {
+      "sha256": "d2a769fcc6b90c12575b4ca8f0b1e0c2099657d6282558f4a1653e8f2e8bc861",
+      "bytes": 106532
+    },
+    "routine-control-prefix-226/install-motion.stderr.log": {
+      "sha256": "f55fc6cf9c9dfbeb8dbde8f6f0085826c5757abdb3f15f46c46eb6923365fcbb",
+      "bytes": 582085
+    },
+    "routine-control-prefix-226/install-motion.stdout.log": {
+      "sha256": "3fe58e98be248b2797e895676a4c52034057180ac9972cfc3da89491dfa27159",
+      "bytes": 392806
+    },
+    "routine-control-prefix-226/prelaunch-original-preparation-policy.json": {
+      "sha256": "23a4122f53dd0c2ae799f6f4f44502bdc99284cf52b49b61c3208f35b995ce8d",
+      "bytes": 307
+    },
+    "routine-control-prefix-226/preparation-resource-justification.json": {
+      "sha256": "7775d57b022f2384674ec62f46cfae32be6330a00ec517c125567e62dff53989",
+      "bytes": 385
+    },
+    "routine-control-prefix-226/resource-monitor.jsonl": {
+      "sha256": "ad953d1378b736d87dee5a5382fd9ad11e599f0c7cf22a8aaecc558cfff0ce5a",
+      "bytes": 9658
+    },
+    "routine-control-prefix-226/resource-policy.json": {
+      "sha256": "771242cf3467b1041f591a8c6e2a01ab92a42647b06371e52e15b2510704cdd6",
+      "bytes": 352
+    },
+    "routine-control-prefix-226/run_native_plan.py": {
+      "sha256": "07ec23e753dfa18e5b027845797bddd9e84c75fd5ce975b153c41d742ea82922",
+      "bytes": 4982
+    },
+    "routine-control-prefix-226/runner.log": {
+      "sha256": "07bea12dbb6d730e79f965af4f97de7c42170189ac411bba912c72b99efa811b",
+      "bytes": 9725
+    },
+    "routine-control-prefix-226/verified-identical-mrv-clones.json": {
+      "sha256": "fcefc84251cde89ef85744ff190642e37c45c3cd05fe6e9dd9a37a9b965658e5",
+      "bytes": 2326
+    },
+    "run-human-accepted-z0-prefix-222.py": {
+      "sha256": "ccd3e12fea5acfa618924cb211b3c8e2bb6dec053b4bc155c95441cf7911a157",
+      "bytes": 3181
+    },
+    "run-human-accepted-z0-unscaled-prefix-223.py": {
+      "sha256": "014aa26a8df25deebdf74bf21b8c8c0a54b92f8b30257732f5db6e4238e47678",
+      "bytes": 3537
+    },
+    "solver-contact-memory-summary-220-221.json": {
+      "sha256": "58f063571a5ffc7f9db58ef56c213b5edc549cf8e2297dc5a815e832dc9c3d95",
+      "bytes": 17838
+    },
+    "trace-manifest.json": {
+      "sha256": "6d138d49257236e3c3a04f4237a88d9e49b5221d0b4ead7ad9c61d94003763fc",
+      "bytes": 11889
+    },
+    "verified-identical-mass-clones-226.json": {
+      "sha256": "e9bdfcb6e08a69652a80e690fb1a0d5d5485ef472b43afb24e78d9b88282ff8d",
+      "bytes": 6260
+    }
+  },
+  "archives": {
+    "accepted-z0-coupled-prefix-222/execution-source-snapshots.tar.gz": [
+      {
+        "path": "matter/tools/regional_graph_schwarz_layout_check.cpp",
+        "bytes": 48843,
+        "sha256": "3482e5dd57716b9c63abe20e0b4cfeb95f5f923af716228451af3e1d608a55d5"
+      },
+      {
+        "path": "matter/src/numi_human.mm",
+        "bytes": 292245,
+        "sha256": "594790dbc598a40a6f129eeb5586f1318c9596e978e541152456b60ae317d58a"
+      },
+      {
+        "path": "matter/src/metal/identification_scheduler.metalinc",
+        "bytes": 46076,
+        "sha256": "2ef3415bdb5a1c153fa314f39bb1c7904e70810bb56a33293888572092efaf29"
+      },
+      {
+        "path": "matter/CMakeLists.txt",
+        "bytes": 155935,
+        "sha256": "0362fe25d961123b10fe65f4d65310cc1ba35d241c120c11f1305eecab20b861"
+      },
+      {
+        "path": "apps/compare_human_fem_endpoint_fidelity.py",
+        "bytes": 48564,
+        "sha256": "e6c1479a9f28f758f6151accc2ba19c83814d34a105b8297c15085076c0c29c7"
+      },
+      {
+        "path": "src/metal/MetalArticulatedOperator.mm",
+        "bytes": 970151,
+        "sha256": "3b2750b6e02248d0a6c3d3098249e4d1792ad58daea6ed5d4b39d715fdb62a8a"
+      },
+      {
+        "path": "matter/include/numi/matter/shared.h",
+        "bytes": 66164,
+        "sha256": "8c554c69b6d90274a7c9800051d3495c35b7b8edae9189a007f617d05e2c7a6c"
+      },
+      {
+        "path": "apps/numilab_human_myosim_visual_probe.mm",
+        "bytes": 2694381,
+        "sha256": "acb8639e349f14fd157944e7d14af57889e137ff0bc8a1186dc903a18a74e49d"
+      },
+      {
+        "path": "apps/NumiHumanFEMOuterGroundAlignmentCheck.cpp",
+        "bytes": 6496,
+        "sha256": "9a5188143ab4b1f1a9a6e9651efb330a18528fef1ad6375d2c6bb20ee6030788"
+      },
+      {
+        "path": "matter/src/runtime.mm",
+        "bytes": 3559718,
+        "sha256": "5e9baafcff5f66b9f316068ff231b32e5ac2f4e78432c1e5c22621c4bfc996fc"
+      },
+      {
+        "path": "include/metalrobo/MetalArticulatedOperator.hpp",
+        "bytes": 134241,
+        "sha256": "24fa2fe421b9b2c84498cf0d9740f0384af7f5902393a8643d4f468cf621a295"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatFixedCavityReconditioning.hpp",
+        "bytes": 48778,
+        "sha256": "0c703b9759c0189dbd76474742d9f74a803180878137b7ff20ac47fc45ac3e5f"
+      },
+      {
+        "path": "matter/tools/fgmres_true_residual_native_check.mm",
+        "bytes": 1086680,
+        "sha256": "08f598f27c5b5398b81a35bfc8a774df99e90b3fe9ca5ef4ab4ea42f72722346"
+      },
+      {
+        "path": "matter/src/metal/fgmres.metalinc",
+        "bytes": 845367,
+        "sha256": "8e81d95164514e6640ebacd70b787c6fce37fbea946d503ccfd7de2c004995ff"
+      },
+      {
+        "path": "matter/include/numi/matter/accepted_z0_recycle_admission.hpp",
+        "bytes": 4320,
+        "sha256": "8074f11efba49a84f1eb076533b32f4992c333502dcb4571ee0366aa845a873b"
+      },
+      {
+        "path": "matter/src/metal/numi_human.metalinc",
+        "bytes": 218721,
+        "sha256": "090dc60d400dec8741487db64e1e2b8a93e704300086abfeb69b4be01234584a"
+      },
+      {
+        "path": "matter/tools/fem_material_frame_check.mm",
+        "bytes": 116286,
+        "sha256": "bc5d21cd7e479939362db8cb5df5843eadb767f0a69e4b6be424ce4315b9eb75"
+      },
+      {
+        "path": "apps/test_compare_human_fem_endpoint_fidelity.py",
+        "bytes": 21479,
+        "sha256": "694ea2dd138e211276c67d0f274f3d5a0b444aeb3636f5b889a2d546cfd9d602"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_fem_tangent.h",
+        "bytes": 12556,
+        "sha256": "b1752f3b6a0129baaad0a4a1c3b79c89f5ac4c0ba5891ccde9b72c062bb50b06"
+      },
+      {
+        "path": "matter/src/metal/partitioned_reduction_fem_tangent.metalinc",
+        "bytes": 40715,
+        "sha256": "8018aadd5eac0b048f24b8927640a043854ce64917c215e73c5a75f8740e90d4"
+      },
+      {
+        "path": "apps/NumiHumanRestingCoupling.hpp",
+        "bytes": 90842,
+        "sha256": "67455d6705384b952c26e9eac3182c4693c17a465c0b16299f7f5f7c5ab1bf5b"
+      },
+      {
+        "path": "matter/src/metal/mixed_fem.metalinc",
+        "bytes": 96354,
+        "sha256": "749ceb5e7c382a6dbc95092f12a99d808d157807ac9e978621869160d8c27ab6"
+      },
+      {
+        "path": "matter/src/regional_graph_schwarz.hpp",
+        "bytes": 37745,
+        "sha256": "9fe5ed05244f62ce79769ac372ae9b87d7eeba2562ddcebe36d071e795d28173"
+      },
+      {
+        "path": "apps/NumiHumanFEMOuterGroundAlignment.hpp",
+        "bytes": 11088,
+        "sha256": "cb0369ea7877b4220f071f348d584cac48d26dfb8a942431356f50409f133b37"
+      },
+      {
+        "path": "matter/include/numi/matter/compiled_world_partitioned_reduction.hpp",
+        "bytes": 53181,
+        "sha256": "7b792e62ee544972d1a486a2835e080103a40cfae47cd7c36cd4966862b8711e"
+      },
+      {
+        "path": "CMakeLists.txt",
+        "bytes": 277528,
+        "sha256": "1ac314a1997a083c1ed37d3d98f036ac95c5ed5cb318bea9e7f8ede575954b48"
+      },
+      {
+        "path": "matter/tools/compiled_world_partitioned_reduction_check.cpp",
+        "bytes": 35950,
+        "sha256": "ed42debb423f890deeea84d1ea808ca27f6d6b3eb9be0364ec7e59c4608f8207"
+      },
+      {
+        "path": "matter/src/metal/vascular.metalinc",
+        "bytes": 200824,
+        "sha256": "25370c8c4013eac439f7deff5029f0a0b5da1191cfb2a66e5b5ee06982dae4eb"
+      },
+      {
+        "path": "matter/tools/vascular_cavity_check.mm",
+        "bytes": 212498,
+        "sha256": "d87324371a47c1f974bd8db07074f80e7a4015519ffa3eecf36e6c091cc85c06"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_mass_whitening.hpp",
+        "bytes": 20248,
+        "sha256": "75105c6199579c3e28f30c9046bb43b035ef775638ebed5e6cd9109fb80b53e0"
+      },
+      {
+        "path": "matter/src/metal/fem.metalinc",
+        "bytes": 370040,
+        "sha256": "ad8624bab5eebf1e53025816299468576dca65e868d158b597c7f159c935b5fb"
+      },
+      {
+        "path": "matter/tools/partitioned_reduction_projection_gpu_check.mm",
+        "bytes": 101530,
+        "sha256": "c410b8429232f4063ad0ab406b105c7a271cbb0539f80667b962206075807799"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatFixedCavityReconditioningCheck.cpp",
+        "bytes": 28833,
+        "sha256": "2f546df1e8e7ff28c53afd99f9e8ec9fe50612becfe0b1e6e7d32b5f90e99f65"
+      },
+      {
+        "path": "matter/src/metal/partitioned_reduction_projection.metalinc",
+        "bytes": 64986,
+        "sha256": "2879706df66438ece04f5d3c27ca19d929b0ae1d73fc591f373673b04a4355f5"
+      },
+      {
+        "path": "matter/src/metal/common.metalinc",
+        "bytes": 163765,
+        "sha256": "c88b01d6c066461b23df810653b7cd7fe859996b750e492dc96e0c32a1f4eac0"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_basis.hpp",
+        "bytes": 28897,
+        "sha256": "e57024d744fa35daa9dca3a7bb22dd8d2c0918f5f24fb0883c25bd6463ccd142"
+      },
+      {
+        "path": "matter/tools/fem_reference_check.mm",
+        "bytes": 107191,
+        "sha256": "9b24aad48c93bd7a38679f16298c37e0643294d3510efbe18ce2e2fb80fe5f4e"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_sparse_support.hpp",
+        "bytes": 31524,
+        "sha256": "2a4388697b0584707e047d5562d2409ac471c0a19a136821f0b06b5774af3825"
+      },
+      {
+        "path": "matter/src/metal/contact.metalinc",
+        "bytes": 768754,
+        "sha256": "059136a31c3d99224efbaa9f9ffa4bf6e1fa80313b61593acd3fa114602fcbea"
+      },
+      {
+        "path": "matter/tools/partitioned_reduction_basis_check.cpp",
+        "bytes": 32225,
+        "sha256": "c4d7f02ef93a1614ae80c31675f735727654a02ab42d60b98930e2f1061d9069"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatReductionLabels.hpp",
+        "bytes": 207809,
+        "sha256": "4df7ad93de75421f424da3116214b1d244e26bd79c583e81b488be37f72291e8"
+      }
+    ],
+    "accepted-z0-unscaled-prefix-223/execution-source-snapshots.tar.gz": [
+      {
+        "path": "apps/NumiHumanSkinFatFixedCavityReconditioningCheck.cpp",
+        "bytes": 28833,
+        "sha256": "2f546df1e8e7ff28c53afd99f9e8ec9fe50612becfe0b1e6e7d32b5f90e99f65"
+      },
+      {
+        "path": "matter/include/numi/matter/accepted_z0_recycle_admission.hpp",
+        "bytes": 4320,
+        "sha256": "8074f11efba49a84f1eb076533b32f4992c333502dcb4571ee0366aa845a873b"
+      },
+      {
+        "path": "matter/src/metal/partitioned_reduction_projection.metalinc",
+        "bytes": 64986,
+        "sha256": "2879706df66438ece04f5d3c27ca19d929b0ae1d73fc591f373673b04a4355f5"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_fem_tangent.h",
+        "bytes": 12556,
+        "sha256": "b1752f3b6a0129baaad0a4a1c3b79c89f5ac4c0ba5891ccde9b72c062bb50b06"
+      },
+      {
+        "path": "matter/src/metal/identification_scheduler.metalinc",
+        "bytes": 46076,
+        "sha256": "2ef3415bdb5a1c153fa314f39bb1c7904e70810bb56a33293888572092efaf29"
+      },
+      {
+        "path": "matter/src/metal/contact.metalinc",
+        "bytes": 768754,
+        "sha256": "059136a31c3d99224efbaa9f9ffa4bf6e1fa80313b61593acd3fa114602fcbea"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_mass_whitening.hpp",
+        "bytes": 20248,
+        "sha256": "75105c6199579c3e28f30c9046bb43b035ef775638ebed5e6cd9109fb80b53e0"
+      },
+      {
+        "path": "matter/src/numi_human.mm",
+        "bytes": 292245,
+        "sha256": "594790dbc598a40a6f129eeb5586f1318c9596e978e541152456b60ae317d58a"
+      },
+      {
+        "path": "matter/include/numi/matter/compiled_world_partitioned_reduction.hpp",
+        "bytes": 53181,
+        "sha256": "7b792e62ee544972d1a486a2835e080103a40cfae47cd7c36cd4966862b8711e"
+      },
+      {
+        "path": "src/metal/MetalArticulatedOperator.mm",
+        "bytes": 970151,
+        "sha256": "3b2750b6e02248d0a6c3d3098249e4d1792ad58daea6ed5d4b39d715fdb62a8a"
+      },
+      {
+        "path": "matter/CMakeLists.txt",
+        "bytes": 155935,
+        "sha256": "0362fe25d961123b10fe65f4d65310cc1ba35d241c120c11f1305eecab20b861"
+      },
+      {
+        "path": "matter/src/metal/common.metalinc",
+        "bytes": 163765,
+        "sha256": "c88b01d6c066461b23df810653b7cd7fe859996b750e492dc96e0c32a1f4eac0"
+      },
+      {
+        "path": "apps/NumiHumanRestingCoupling.hpp",
+        "bytes": 90842,
+        "sha256": "67455d6705384b952c26e9eac3182c4693c17a465c0b16299f7f5f7c5ab1bf5b"
+      },
+      {
+        "path": "include/metalrobo/MetalArticulatedOperator.hpp",
+        "bytes": 134241,
+        "sha256": "24fa2fe421b9b2c84498cf0d9740f0384af7f5902393a8643d4f468cf621a295"
+      },
+      {
+        "path": "apps/compare_human_fem_endpoint_fidelity.py",
+        "bytes": 48564,
+        "sha256": "e6c1479a9f28f758f6151accc2ba19c83814d34a105b8297c15085076c0c29c7"
+      },
+      {
+        "path": "matter/tools/vascular_cavity_check.mm",
+        "bytes": 212498,
+        "sha256": "d87324371a47c1f974bd8db07074f80e7a4015519ffa3eecf36e6c091cc85c06"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_basis.hpp",
+        "bytes": 28897,
+        "sha256": "e57024d744fa35daa9dca3a7bb22dd8d2c0918f5f24fb0883c25bd6463ccd142"
+      },
+      {
+        "path": "matter/src/metal/fem.metalinc",
+        "bytes": 370040,
+        "sha256": "ad8624bab5eebf1e53025816299468576dca65e868d158b597c7f159c935b5fb"
+      },
+      {
+        "path": "CMakeLists.txt",
+        "bytes": 277528,
+        "sha256": "1ac314a1997a083c1ed37d3d98f036ac95c5ed5cb318bea9e7f8ede575954b48"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatReductionLabels.hpp",
+        "bytes": 207809,
+        "sha256": "4df7ad93de75421f424da3116214b1d244e26bd79c583e81b488be37f72291e8"
+      },
+      {
+        "path": "matter/tools/regional_graph_schwarz_layout_check.cpp",
+        "bytes": 48843,
+        "sha256": "3482e5dd57716b9c63abe20e0b4cfeb95f5f923af716228451af3e1d608a55d5"
+      },
+      {
+        "path": "apps/test_compare_human_fem_endpoint_fidelity.py",
+        "bytes": 21479,
+        "sha256": "694ea2dd138e211276c67d0f274f3d5a0b444aeb3636f5b889a2d546cfd9d602"
+      },
+      {
+        "path": "matter/src/regional_graph_schwarz.hpp",
+        "bytes": 37745,
+        "sha256": "9fe5ed05244f62ce79769ac372ae9b87d7eeba2562ddcebe36d071e795d28173"
+      },
+      {
+        "path": "matter/tools/partitioned_reduction_projection_gpu_check.mm",
+        "bytes": 101530,
+        "sha256": "c410b8429232f4063ad0ab406b105c7a271cbb0539f80667b962206075807799"
+      },
+      {
+        "path": "matter/src/metal/vascular.metalinc",
+        "bytes": 200824,
+        "sha256": "25370c8c4013eac439f7deff5029f0a0b5da1191cfb2a66e5b5ee06982dae4eb"
+      },
+      {
+        "path": "matter/tools/fgmres_true_residual_native_check.mm",
+        "bytes": 1086680,
+        "sha256": "08f598f27c5b5398b81a35bfc8a774df99e90b3fe9ca5ef4ab4ea42f72722346"
+      },
+      {
+        "path": "apps/numilab_human_myosim_visual_probe.mm",
+        "bytes": 2694381,
+        "sha256": "acb8639e349f14fd157944e7d14af57889e137ff0bc8a1186dc903a18a74e49d"
+      },
+      {
+        "path": "matter/src/metal/fgmres.metalinc",
+        "bytes": 845367,
+        "sha256": "8e81d95164514e6640ebacd70b787c6fce37fbea946d503ccfd7de2c004995ff"
+      },
+      {
+        "path": "matter/include/numi/matter/shared.h",
+        "bytes": 66164,
+        "sha256": "8c554c69b6d90274a7c9800051d3495c35b7b8edae9189a007f617d05e2c7a6c"
+      },
+      {
+        "path": "matter/tools/fem_material_frame_check.mm",
+        "bytes": 116286,
+        "sha256": "bc5d21cd7e479939362db8cb5df5843eadb767f0a69e4b6be424ce4315b9eb75"
+      },
+      {
+        "path": "apps/NumiHumanFEMOuterGroundAlignment.hpp",
+        "bytes": 11088,
+        "sha256": "cb0369ea7877b4220f071f348d584cac48d26dfb8a942431356f50409f133b37"
+      },
+      {
+        "path": "matter/src/metal/mixed_fem.metalinc",
+        "bytes": 96354,
+        "sha256": "749ceb5e7c382a6dbc95092f12a99d808d157807ac9e978621869160d8c27ab6"
+      },
+      {
+        "path": "matter/tools/partitioned_reduction_basis_check.cpp",
+        "bytes": 32225,
+        "sha256": "c4d7f02ef93a1614ae80c31675f735727654a02ab42d60b98930e2f1061d9069"
+      },
+      {
+        "path": "matter/src/metal/partitioned_reduction_fem_tangent.metalinc",
+        "bytes": 40715,
+        "sha256": "8018aadd5eac0b048f24b8927640a043854ce64917c215e73c5a75f8740e90d4"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatFixedCavityReconditioning.hpp",
+        "bytes": 48778,
+        "sha256": "0c703b9759c0189dbd76474742d9f74a803180878137b7ff20ac47fc45ac3e5f"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_sparse_support.hpp",
+        "bytes": 31524,
+        "sha256": "2a4388697b0584707e047d5562d2409ac471c0a19a136821f0b06b5774af3825"
+      },
+      {
+        "path": "matter/src/metal/numi_human.metalinc",
+        "bytes": 218721,
+        "sha256": "090dc60d400dec8741487db64e1e2b8a93e704300086abfeb69b4be01234584a"
+      },
+      {
+        "path": "matter/src/runtime.mm",
+        "bytes": 3559718,
+        "sha256": "5e9baafcff5f66b9f316068ff231b32e5ac2f4e78432c1e5c22621c4bfc996fc"
+      },
+      {
+        "path": "matter/tools/compiled_world_partitioned_reduction_check.cpp",
+        "bytes": 35950,
+        "sha256": "ed42debb423f890deeea84d1ea808ca27f6d6b3eb9be0364ec7e59c4608f8207"
+      },
+      {
+        "path": "apps/NumiHumanFEMOuterGroundAlignmentCheck.cpp",
+        "bytes": 6496,
+        "sha256": "9a5188143ab4b1f1a9a6e9651efb330a18528fef1ad6375d2c6bb20ee6030788"
+      },
+      {
+        "path": "matter/tools/fem_reference_check.mm",
+        "bytes": 107191,
+        "sha256": "9b24aad48c93bd7a38679f16298c37e0643294d3510efbe18ce2e2fb80fe5f4e"
+      }
+    ],
+    "bounded-horizon-pool-219/preimages.tar.gz": [
+      {
+        "path": "src/metal/MetalArticulatedOperator.mm",
+        "bytes": 969785,
+        "sha256": "21ac83af576ba7501b5c036aced5158b01b1d8426b8e358343a51aa4579c56cc"
+      },
+      {
+        "path": "apps/numilab_human_myosim_visual_probe.mm",
+        "bytes": 2693963,
+        "sha256": "151f70c29a9fe1c0eb78f5f34698dce905161d2d963c1ac2b78b2cf3d3be69a0"
+      }
+    ],
+    "compact-native-traces.tar.gz": [
+      {
+        "path": "contact-cache-bounded-pool-prefix-220/install-motion/diagnostics/registered-skin-native.csv",
+        "bytes": 24147731,
+        "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e"
+      },
+      {
+        "path": "contact-cache-bounded-pool-prefix-220/install-motion/resting-body-motion-partition.csv",
+        "bytes": 2454129,
+        "sha256": "096dd197d7f3726f38527f94ca97b6aa8606e24a97e1ec23f4222f32a330432b"
+      },
+      {
+        "path": "contact-cache-bounded-pool-prefix-220/install-motion/resting-com-momentum-diagnostic.csv",
+        "bytes": 47720,
+        "sha256": "8a281f744506dd7cb79f61be6b2c7b5bf88bb25ac5bde70b18e85c03c6b3dd1e"
+      },
+      {
+        "path": "contact-cache-bounded-pool-prefix-220/install-motion/resting-com-q-index-map.csv",
+        "bytes": 6908,
+        "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab"
+      },
+      {
+        "path": "contact-cache-bounded-pool-prefix-220/install-motion/resting-com-q-integration.csv",
+        "bytes": 658109,
+        "sha256": "cea5fc8bda631b20d7c804a96fa9948357a88f2dd1fba36a9d86f8b322eb4e2a"
+      },
+      {
+        "path": "contact-cache-bounded-pool-prefix-220/install-motion/resting-com-q-support-slip.csv",
+        "bytes": 715,
+        "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd"
+      },
+      {
+        "path": "contact-cache-bounded-pool-prefix-220/install-motion/resting-com-support-impulses.csv",
+        "bytes": 331,
+        "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2"
+      },
+      {
+        "path": "contact-cache-bounded-pool-prefix-220/install-motion/resting-coupled.csv",
+        "bytes": 24690,
+        "sha256": "433152781e87ab694027e67697235f6fc14e4fa6da2f9e38d4b0ec1a0121e148"
+      },
+      {
+        "path": "contact-cache-bounded-pool-prefix-220/install-motion/resting-support-point-motion.csv",
+        "bytes": 371,
+        "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8"
+      },
+      {
+        "path": "contact-cache-bounded-pool-prefix-220/install-motion/resting-support-selected-skin-witness.csv",
+        "bytes": 4684,
+        "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d"
+      },
+      {
+        "path": "contact-cache-bounded-pool-prefix-220/install-motion/resting-surface-audit.csv",
+        "bytes": 2272,
+        "sha256": "8317708df3c614dce9edf181bdad5f86bbd89d9600fe3b3c86fd9610086e2606"
+      },
+      {
+        "path": "contact-cache-control-prefix-221/install-motion/diagnostics/registered-skin-native.csv",
+        "bytes": 24147731,
+        "sha256": "3b253de39c166eac29528b5723413168adafc71844e9f69292948648c3a7f13e"
+      },
+      {
+        "path": "contact-cache-control-prefix-221/install-motion/resting-body-motion-partition.csv",
+        "bytes": 2454129,
+        "sha256": "096dd197d7f3726f38527f94ca97b6aa8606e24a97e1ec23f4222f32a330432b"
+      },
+      {
+        "path": "contact-cache-control-prefix-221/install-motion/resting-com-momentum-diagnostic.csv",
+        "bytes": 47720,
+        "sha256": "8a281f744506dd7cb79f61be6b2c7b5bf88bb25ac5bde70b18e85c03c6b3dd1e"
+      },
+      {
+        "path": "contact-cache-control-prefix-221/install-motion/resting-com-q-index-map.csv",
+        "bytes": 6908,
+        "sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab"
+      },
+      {
+        "path": "contact-cache-control-prefix-221/install-motion/resting-com-q-integration.csv",
+        "bytes": 658109,
+        "sha256": "cea5fc8bda631b20d7c804a96fa9948357a88f2dd1fba36a9d86f8b322eb4e2a"
+      },
+      {
+        "path": "contact-cache-control-prefix-221/install-motion/resting-com-q-support-slip.csv",
+        "bytes": 715,
+        "sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd"
+      },
+      {
+        "path": "contact-cache-control-prefix-221/install-motion/resting-com-support-impulses.csv",
+        "bytes": 331,
+        "sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2"
+      },
+      {
+        "path": "contact-cache-control-prefix-221/install-motion/resting-coupled.csv",
+        "bytes": 24690,
+        "sha256": "433152781e87ab694027e67697235f6fc14e4fa6da2f9e38d4b0ec1a0121e148"
+      },
+      {
+        "path": "contact-cache-control-prefix-221/install-motion/resting-support-point-motion.csv",
+        "bytes": 371,
+        "sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8"
+      },
+      {
+        "path": "contact-cache-control-prefix-221/install-motion/resting-support-selected-skin-witness.csv",
+        "bytes": 4684,
+        "sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d"
+      },
+      {
+        "path": "contact-cache-control-prefix-221/install-motion/resting-surface-audit.csv",
+        "bytes": 2272,
+        "sha256": "8317708df3c614dce9edf181bdad5f86bbd89d9600fe3b3c86fd9610086e2606"
+      }
+    ],
+    "contact-cache-bounded-pool-prefix-220/execution-source-snapshots.tar.gz": [
+      {
+        "path": "CMakeLists.txt",
+        "bytes": 277528,
+        "sha256": "1ac314a1997a083c1ed37d3d98f036ac95c5ed5cb318bea9e7f8ede575954b48"
+      },
+      {
+        "path": "apps/NumiHumanFEMOuterGroundAlignment.hpp",
+        "bytes": 11088,
+        "sha256": "cb0369ea7877b4220f071f348d584cac48d26dfb8a942431356f50409f133b37"
+      },
+      {
+        "path": "apps/NumiHumanFEMOuterGroundAlignmentCheck.cpp",
+        "bytes": 6496,
+        "sha256": "9a5188143ab4b1f1a9a6e9651efb330a18528fef1ad6375d2c6bb20ee6030788"
+      },
+      {
+        "path": "apps/NumiHumanRestingCoupling.hpp",
+        "bytes": 90842,
+        "sha256": "67455d6705384b952c26e9eac3182c4693c17a465c0b16299f7f5f7c5ab1bf5b"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatFixedCavityReconditioning.hpp",
+        "bytes": 48778,
+        "sha256": "0c703b9759c0189dbd76474742d9f74a803180878137b7ff20ac47fc45ac3e5f"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatFixedCavityReconditioningCheck.cpp",
+        "bytes": 28833,
+        "sha256": "2f546df1e8e7ff28c53afd99f9e8ec9fe50612becfe0b1e6e7d32b5f90e99f65"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatReductionLabels.hpp",
+        "bytes": 207809,
+        "sha256": "4df7ad93de75421f424da3116214b1d244e26bd79c583e81b488be37f72291e8"
+      },
+      {
+        "path": "apps/compare_human_fem_endpoint_fidelity.py",
+        "bytes": 48564,
+        "sha256": "e6c1479a9f28f758f6151accc2ba19c83814d34a105b8297c15085076c0c29c7"
+      },
+      {
+        "path": "apps/numilab_human_myosim_visual_probe.mm",
+        "bytes": 2694381,
+        "sha256": "acb8639e349f14fd157944e7d14af57889e137ff0bc8a1186dc903a18a74e49d"
+      },
+      {
+        "path": "apps/test_compare_human_fem_endpoint_fidelity.py",
+        "bytes": 21479,
+        "sha256": "694ea2dd138e211276c67d0f274f3d5a0b444aeb3636f5b889a2d546cfd9d602"
+      },
+      {
+        "path": "include/metalrobo/MetalArticulatedOperator.hpp",
+        "bytes": 134241,
+        "sha256": "24fa2fe421b9b2c84498cf0d9740f0384af7f5902393a8643d4f468cf621a295"
+      },
+      {
+        "path": "matter/CMakeLists.txt",
+        "bytes": 155935,
+        "sha256": "0362fe25d961123b10fe65f4d65310cc1ba35d241c120c11f1305eecab20b861"
+      },
+      {
+        "path": "matter/include/numi/matter/compiled_world_partitioned_reduction.hpp",
+        "bytes": 53181,
+        "sha256": "7b792e62ee544972d1a486a2835e080103a40cfae47cd7c36cd4966862b8711e"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_basis.hpp",
+        "bytes": 28897,
+        "sha256": "e57024d744fa35daa9dca3a7bb22dd8d2c0918f5f24fb0883c25bd6463ccd142"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_fem_tangent.h",
+        "bytes": 12556,
+        "sha256": "b1752f3b6a0129baaad0a4a1c3b79c89f5ac4c0ba5891ccde9b72c062bb50b06"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_mass_whitening.hpp",
+        "bytes": 20248,
+        "sha256": "75105c6199579c3e28f30c9046bb43b035ef775638ebed5e6cd9109fb80b53e0"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_sparse_support.hpp",
+        "bytes": 31524,
+        "sha256": "2a4388697b0584707e047d5562d2409ac471c0a19a136821f0b06b5774af3825"
+      },
+      {
+        "path": "matter/include/numi/matter/shared.h",
+        "bytes": 66164,
+        "sha256": "8c554c69b6d90274a7c9800051d3495c35b7b8edae9189a007f617d05e2c7a6c"
+      },
+      {
+        "path": "matter/src/metal/common.metalinc",
+        "bytes": 163765,
+        "sha256": "c88b01d6c066461b23df810653b7cd7fe859996b750e492dc96e0c32a1f4eac0"
+      },
+      {
+        "path": "matter/src/metal/contact.metalinc",
+        "bytes": 768754,
+        "sha256": "059136a31c3d99224efbaa9f9ffa4bf6e1fa80313b61593acd3fa114602fcbea"
+      },
+      {
+        "path": "matter/src/metal/fem.metalinc",
+        "bytes": 370040,
+        "sha256": "ad8624bab5eebf1e53025816299468576dca65e868d158b597c7f159c935b5fb"
+      },
+      {
+        "path": "matter/src/metal/fgmres.metalinc",
+        "bytes": 845367,
+        "sha256": "8e81d95164514e6640ebacd70b787c6fce37fbea946d503ccfd7de2c004995ff"
+      },
+      {
+        "path": "matter/src/metal/identification_scheduler.metalinc",
+        "bytes": 46076,
+        "sha256": "2ef3415bdb5a1c153fa314f39bb1c7904e70810bb56a33293888572092efaf29"
+      },
+      {
+        "path": "matter/src/metal/mixed_fem.metalinc",
+        "bytes": 96354,
+        "sha256": "749ceb5e7c382a6dbc95092f12a99d808d157807ac9e978621869160d8c27ab6"
+      },
+      {
+        "path": "matter/src/metal/numi_human.metalinc",
+        "bytes": 218721,
+        "sha256": "090dc60d400dec8741487db64e1e2b8a93e704300086abfeb69b4be01234584a"
+      },
+      {
+        "path": "matter/src/metal/partitioned_reduction_fem_tangent.metalinc",
+        "bytes": 40715,
+        "sha256": "8018aadd5eac0b048f24b8927640a043854ce64917c215e73c5a75f8740e90d4"
+      },
+      {
+        "path": "matter/src/metal/partitioned_reduction_projection.metalinc",
+        "bytes": 64986,
+        "sha256": "2879706df66438ece04f5d3c27ca19d929b0ae1d73fc591f373673b04a4355f5"
+      },
+      {
+        "path": "matter/src/metal/vascular.metalinc",
+        "bytes": 200824,
+        "sha256": "25370c8c4013eac439f7deff5029f0a0b5da1191cfb2a66e5b5ee06982dae4eb"
+      },
+      {
+        "path": "matter/src/numi_human.mm",
+        "bytes": 292245,
+        "sha256": "594790dbc598a40a6f129eeb5586f1318c9596e978e541152456b60ae317d58a"
+      },
+      {
+        "path": "matter/src/regional_graph_schwarz.hpp",
+        "bytes": 37745,
+        "sha256": "9fe5ed05244f62ce79769ac372ae9b87d7eeba2562ddcebe36d071e795d28173"
+      },
+      {
+        "path": "matter/src/runtime.mm",
+        "bytes": 3559718,
+        "sha256": "5e9baafcff5f66b9f316068ff231b32e5ac2f4e78432c1e5c22621c4bfc996fc"
+      },
+      {
+        "path": "matter/tools/compiled_world_partitioned_reduction_check.cpp",
+        "bytes": 35950,
+        "sha256": "ed42debb423f890deeea84d1ea808ca27f6d6b3eb9be0364ec7e59c4608f8207"
+      },
+      {
+        "path": "matter/tools/fem_material_frame_check.mm",
+        "bytes": 116286,
+        "sha256": "bc5d21cd7e479939362db8cb5df5843eadb767f0a69e4b6be424ce4315b9eb75"
+      },
+      {
+        "path": "matter/tools/fem_reference_check.mm",
+        "bytes": 107191,
+        "sha256": "9b24aad48c93bd7a38679f16298c37e0643294d3510efbe18ce2e2fb80fe5f4e"
+      },
+      {
+        "path": "matter/tools/fgmres_true_residual_native_check.mm",
+        "bytes": 1086680,
+        "sha256": "08f598f27c5b5398b81a35bfc8a774df99e90b3fe9ca5ef4ab4ea42f72722346"
+      },
+      {
+        "path": "matter/tools/partitioned_reduction_basis_check.cpp",
+        "bytes": 32225,
+        "sha256": "c4d7f02ef93a1614ae80c31675f735727654a02ab42d60b98930e2f1061d9069"
+      },
+      {
+        "path": "matter/tools/partitioned_reduction_projection_gpu_check.mm",
+        "bytes": 101530,
+        "sha256": "c410b8429232f4063ad0ab406b105c7a271cbb0539f80667b962206075807799"
+      },
+      {
+        "path": "matter/tools/regional_graph_schwarz_layout_check.cpp",
+        "bytes": 48843,
+        "sha256": "3482e5dd57716b9c63abe20e0b4cfeb95f5f923af716228451af3e1d608a55d5"
+      },
+      {
+        "path": "matter/tools/vascular_cavity_check.mm",
+        "bytes": 212498,
+        "sha256": "d87324371a47c1f974bd8db07074f80e7a4015519ffa3eecf36e6c091cc85c06"
+      },
+      {
+        "path": "src/metal/MetalArticulatedOperator.mm",
+        "bytes": 970151,
+        "sha256": "3b2750b6e02248d0a6c3d3098249e4d1792ad58daea6ed5d4b39d715fdb62a8a"
+      }
+    ],
+    "contact-cache-control-prefix-221/execution-source-snapshots.tar.gz": [
+      {
+        "path": "CMakeLists.txt",
+        "bytes": 277528,
+        "sha256": "1ac314a1997a083c1ed37d3d98f036ac95c5ed5cb318bea9e7f8ede575954b48"
+      },
+      {
+        "path": "apps/NumiHumanFEMOuterGroundAlignment.hpp",
+        "bytes": 11088,
+        "sha256": "cb0369ea7877b4220f071f348d584cac48d26dfb8a942431356f50409f133b37"
+      },
+      {
+        "path": "apps/NumiHumanFEMOuterGroundAlignmentCheck.cpp",
+        "bytes": 6496,
+        "sha256": "9a5188143ab4b1f1a9a6e9651efb330a18528fef1ad6375d2c6bb20ee6030788"
+      },
+      {
+        "path": "apps/NumiHumanRestingCoupling.hpp",
+        "bytes": 90842,
+        "sha256": "67455d6705384b952c26e9eac3182c4693c17a465c0b16299f7f5f7c5ab1bf5b"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatFixedCavityReconditioning.hpp",
+        "bytes": 48778,
+        "sha256": "0c703b9759c0189dbd76474742d9f74a803180878137b7ff20ac47fc45ac3e5f"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatFixedCavityReconditioningCheck.cpp",
+        "bytes": 28833,
+        "sha256": "2f546df1e8e7ff28c53afd99f9e8ec9fe50612becfe0b1e6e7d32b5f90e99f65"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatReductionLabels.hpp",
+        "bytes": 207809,
+        "sha256": "4df7ad93de75421f424da3116214b1d244e26bd79c583e81b488be37f72291e8"
+      },
+      {
+        "path": "apps/compare_human_fem_endpoint_fidelity.py",
+        "bytes": 48564,
+        "sha256": "e6c1479a9f28f758f6151accc2ba19c83814d34a105b8297c15085076c0c29c7"
+      },
+      {
+        "path": "apps/numilab_human_myosim_visual_probe.mm",
+        "bytes": 2694381,
+        "sha256": "acb8639e349f14fd157944e7d14af57889e137ff0bc8a1186dc903a18a74e49d"
+      },
+      {
+        "path": "apps/test_compare_human_fem_endpoint_fidelity.py",
+        "bytes": 21479,
+        "sha256": "694ea2dd138e211276c67d0f274f3d5a0b444aeb3636f5b889a2d546cfd9d602"
+      },
+      {
+        "path": "include/metalrobo/MetalArticulatedOperator.hpp",
+        "bytes": 134241,
+        "sha256": "24fa2fe421b9b2c84498cf0d9740f0384af7f5902393a8643d4f468cf621a295"
+      },
+      {
+        "path": "matter/CMakeLists.txt",
+        "bytes": 155935,
+        "sha256": "0362fe25d961123b10fe65f4d65310cc1ba35d241c120c11f1305eecab20b861"
+      },
+      {
+        "path": "matter/include/numi/matter/compiled_world_partitioned_reduction.hpp",
+        "bytes": 53181,
+        "sha256": "7b792e62ee544972d1a486a2835e080103a40cfae47cd7c36cd4966862b8711e"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_basis.hpp",
+        "bytes": 28897,
+        "sha256": "e57024d744fa35daa9dca3a7bb22dd8d2c0918f5f24fb0883c25bd6463ccd142"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_fem_tangent.h",
+        "bytes": 12556,
+        "sha256": "b1752f3b6a0129baaad0a4a1c3b79c89f5ac4c0ba5891ccde9b72c062bb50b06"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_mass_whitening.hpp",
+        "bytes": 20248,
+        "sha256": "75105c6199579c3e28f30c9046bb43b035ef775638ebed5e6cd9109fb80b53e0"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_sparse_support.hpp",
+        "bytes": 31524,
+        "sha256": "2a4388697b0584707e047d5562d2409ac471c0a19a136821f0b06b5774af3825"
+      },
+      {
+        "path": "matter/include/numi/matter/shared.h",
+        "bytes": 66164,
+        "sha256": "8c554c69b6d90274a7c9800051d3495c35b7b8edae9189a007f617d05e2c7a6c"
+      },
+      {
+        "path": "matter/src/metal/common.metalinc",
+        "bytes": 163765,
+        "sha256": "c88b01d6c066461b23df810653b7cd7fe859996b750e492dc96e0c32a1f4eac0"
+      },
+      {
+        "path": "matter/src/metal/contact.metalinc",
+        "bytes": 768754,
+        "sha256": "059136a31c3d99224efbaa9f9ffa4bf6e1fa80313b61593acd3fa114602fcbea"
+      },
+      {
+        "path": "matter/src/metal/fem.metalinc",
+        "bytes": 370040,
+        "sha256": "ad8624bab5eebf1e53025816299468576dca65e868d158b597c7f159c935b5fb"
+      },
+      {
+        "path": "matter/src/metal/fgmres.metalinc",
+        "bytes": 845367,
+        "sha256": "8e81d95164514e6640ebacd70b787c6fce37fbea946d503ccfd7de2c004995ff"
+      },
+      {
+        "path": "matter/src/metal/identification_scheduler.metalinc",
+        "bytes": 46076,
+        "sha256": "2ef3415bdb5a1c153fa314f39bb1c7904e70810bb56a33293888572092efaf29"
+      },
+      {
+        "path": "matter/src/metal/mixed_fem.metalinc",
+        "bytes": 96354,
+        "sha256": "749ceb5e7c382a6dbc95092f12a99d808d157807ac9e978621869160d8c27ab6"
+      },
+      {
+        "path": "matter/src/metal/numi_human.metalinc",
+        "bytes": 218721,
+        "sha256": "090dc60d400dec8741487db64e1e2b8a93e704300086abfeb69b4be01234584a"
+      },
+      {
+        "path": "matter/src/metal/partitioned_reduction_fem_tangent.metalinc",
+        "bytes": 40715,
+        "sha256": "8018aadd5eac0b048f24b8927640a043854ce64917c215e73c5a75f8740e90d4"
+      },
+      {
+        "path": "matter/src/metal/partitioned_reduction_projection.metalinc",
+        "bytes": 64986,
+        "sha256": "2879706df66438ece04f5d3c27ca19d929b0ae1d73fc591f373673b04a4355f5"
+      },
+      {
+        "path": "matter/src/metal/vascular.metalinc",
+        "bytes": 200824,
+        "sha256": "25370c8c4013eac439f7deff5029f0a0b5da1191cfb2a66e5b5ee06982dae4eb"
+      },
+      {
+        "path": "matter/src/numi_human.mm",
+        "bytes": 292245,
+        "sha256": "594790dbc598a40a6f129eeb5586f1318c9596e978e541152456b60ae317d58a"
+      },
+      {
+        "path": "matter/src/regional_graph_schwarz.hpp",
+        "bytes": 37745,
+        "sha256": "9fe5ed05244f62ce79769ac372ae9b87d7eeba2562ddcebe36d071e795d28173"
+      },
+      {
+        "path": "matter/src/runtime.mm",
+        "bytes": 3559718,
+        "sha256": "5e9baafcff5f66b9f316068ff231b32e5ac2f4e78432c1e5c22621c4bfc996fc"
+      },
+      {
+        "path": "matter/tools/compiled_world_partitioned_reduction_check.cpp",
+        "bytes": 35950,
+        "sha256": "ed42debb423f890deeea84d1ea808ca27f6d6b3eb9be0364ec7e59c4608f8207"
+      },
+      {
+        "path": "matter/tools/fem_material_frame_check.mm",
+        "bytes": 116286,
+        "sha256": "bc5d21cd7e479939362db8cb5df5843eadb767f0a69e4b6be424ce4315b9eb75"
+      },
+      {
+        "path": "matter/tools/fem_reference_check.mm",
+        "bytes": 107191,
+        "sha256": "9b24aad48c93bd7a38679f16298c37e0643294d3510efbe18ce2e2fb80fe5f4e"
+      },
+      {
+        "path": "matter/tools/fgmres_true_residual_native_check.mm",
+        "bytes": 1086680,
+        "sha256": "08f598f27c5b5398b81a35bfc8a774df99e90b3fe9ca5ef4ab4ea42f72722346"
+      },
+      {
+        "path": "matter/tools/partitioned_reduction_basis_check.cpp",
+        "bytes": 32225,
+        "sha256": "c4d7f02ef93a1614ae80c31675f735727654a02ab42d60b98930e2f1061d9069"
+      },
+      {
+        "path": "matter/tools/partitioned_reduction_projection_gpu_check.mm",
+        "bytes": 101530,
+        "sha256": "c410b8429232f4063ad0ab406b105c7a271cbb0539f80667b962206075807799"
+      },
+      {
+        "path": "matter/tools/regional_graph_schwarz_layout_check.cpp",
+        "bytes": 48843,
+        "sha256": "3482e5dd57716b9c63abe20e0b4cfeb95f5f923af716228451af3e1d608a55d5"
+      },
+      {
+        "path": "matter/tools/vascular_cavity_check.mm",
+        "bytes": 212498,
+        "sha256": "d87324371a47c1f974bd8db07074f80e7a4015519ffa3eecf36e6c091cc85c06"
+      },
+      {
+        "path": "src/metal/MetalArticulatedOperator.mm",
+        "bytes": 970151,
+        "sha256": "3b2750b6e02248d0a6c3d3098249e4d1792ad58daea6ed5d4b39d715fdb62a8a"
+      }
+    ],
+    "contact-certification-cache-218/preimages.tar.gz": [
+      {
+        "path": "matter/src/runtime.mm",
+        "bytes": 3554289,
+        "sha256": "708678d672c31c119bf8c18d920462ce94e65085d09a7e823902cf728bc78abc"
+      },
+      {
+        "path": "matter/src/metal/mixed_fem.metalinc",
+        "bytes": 88930,
+        "sha256": "f5afdc6b84a5280c4a2ccffc9d59579588c783049e92b002dee4474e994e79c6"
+      },
+      {
+        "path": "matter/tools/fgmres_true_residual_native_check.mm",
+        "bytes": 1081811,
+        "sha256": "deae9494c7bf6ee685d75f6624e031831a3b65ff055862dae641c04920f5281b"
+      }
+    ],
+    "contact-certification-cache-218/rejected-execution-source.tar.gz": [
+      {
+        "path": "matter/src/runtime.mm",
+        "bytes": 3559718,
+        "sha256": "5e9baafcff5f66b9f316068ff231b32e5ac2f4e78432c1e5c22621c4bfc996fc"
+      },
+      {
+        "path": "matter/src/metal/mixed_fem.metalinc",
+        "bytes": 96354,
+        "sha256": "749ceb5e7c382a6dbc95092f12a99d808d157807ac9e978621869160d8c27ab6"
+      },
+      {
+        "path": "matter/tools/fgmres_true_residual_native_check.mm",
+        "bytes": 1086680,
+        "sha256": "08f598f27c5b5398b81a35bfc8a774df99e90b3fe9ca5ef4ab4ea42f72722346"
+      },
+      {
+        "path": "src/metal/MetalArticulatedOperator.mm",
+        "bytes": 970151,
+        "sha256": "3b2750b6e02248d0a6c3d3098249e4d1792ad58daea6ed5d4b39d715fdb62a8a"
+      },
+      {
+        "path": "apps/numilab_human_myosim_visual_probe.mm",
+        "bytes": 2694381,
+        "sha256": "acb8639e349f14fd157944e7d14af57889e137ff0bc8a1186dc903a18a74e49d"
+      }
+    ],
+    "cooperative-nodal-217/preimages.tar.gz": [
+      {
+        "path": "matter/src/runtime.mm",
+        "bytes": 3554289,
+        "sha256": "708678d672c31c119bf8c18d920462ce94e65085d09a7e823902cf728bc78abc"
+      },
+      {
+        "path": "matter/src/metal/fgmres.metalinc",
+        "bytes": 845367,
+        "sha256": "8e81d95164514e6640ebacd70b787c6fce37fbea946d503ccfd7de2c004995ff"
+      },
+      {
+        "path": "matter/tools/fgmres_true_residual_native_check.mm",
+        "bytes": 1073704,
+        "sha256": "4710ef3a57165ddef0dddc6b99ceb8aa22cbef1dfe2f502f2e8990935160b49f"
+      }
+    ],
+    "cooperative-nodal-217/rejected-execution-source.tar.gz": [
+      {
+        "path": "matter/src/runtime.mm",
+        "bytes": 3555632,
+        "sha256": "588a5f25b7829d97685c2302c0f6dd0dd2d74e7b57ef8d269e9002052f7c0c34"
+      },
+      {
+        "path": "matter/src/metal/fgmres.metalinc",
+        "bytes": 852657,
+        "sha256": "c707b84aa3896a09c153e90a4e3e023826978937c57301c95798b4f7695a28d2"
+      },
+      {
+        "path": "matter/tools/fgmres_true_residual_native_check.mm",
+        "bytes": 1082281,
+        "sha256": "3dfbbbc76230b96b73cfc8a0ef4c3c8fde75849d89d66bf9f85e755b63704c92"
+      }
+    ],
+    "routine-control-prefix-226/execution-source-snapshots.tar.gz": [
+      {
+        "path": "CMakeLists.txt",
+        "bytes": 277528,
+        "sha256": "1ac314a1997a083c1ed37d3d98f036ac95c5ed5cb318bea9e7f8ede575954b48"
+      },
+      {
+        "path": "apps/NumiHumanFEMOuterGroundAlignment.hpp",
+        "bytes": 11088,
+        "sha256": "cb0369ea7877b4220f071f348d584cac48d26dfb8a942431356f50409f133b37"
+      },
+      {
+        "path": "apps/NumiHumanFEMOuterGroundAlignmentCheck.cpp",
+        "bytes": 6496,
+        "sha256": "9a5188143ab4b1f1a9a6e9651efb330a18528fef1ad6375d2c6bb20ee6030788"
+      },
+      {
+        "path": "apps/NumiHumanRestingCoupling.hpp",
+        "bytes": 90842,
+        "sha256": "67455d6705384b952c26e9eac3182c4693c17a465c0b16299f7f5f7c5ab1bf5b"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatFixedCavityReconditioning.hpp",
+        "bytes": 48778,
+        "sha256": "0c703b9759c0189dbd76474742d9f74a803180878137b7ff20ac47fc45ac3e5f"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatFixedCavityReconditioningCheck.cpp",
+        "bytes": 28833,
+        "sha256": "2f546df1e8e7ff28c53afd99f9e8ec9fe50612becfe0b1e6e7d32b5f90e99f65"
+      },
+      {
+        "path": "apps/NumiHumanSkinFatReductionLabels.hpp",
+        "bytes": 207809,
+        "sha256": "4df7ad93de75421f424da3116214b1d244e26bd79c583e81b488be37f72291e8"
+      },
+      {
+        "path": "apps/compare_human_fem_endpoint_fidelity.py",
+        "bytes": 48564,
+        "sha256": "e6c1479a9f28f758f6151accc2ba19c83814d34a105b8297c15085076c0c29c7"
+      },
+      {
+        "path": "apps/numilab_human_myosim_visual_probe.mm",
+        "bytes": 2694381,
+        "sha256": "acb8639e349f14fd157944e7d14af57889e137ff0bc8a1186dc903a18a74e49d"
+      },
+      {
+        "path": "apps/test_compare_human_fem_endpoint_fidelity.py",
+        "bytes": 21479,
+        "sha256": "694ea2dd138e211276c67d0f274f3d5a0b444aeb3636f5b889a2d546cfd9d602"
+      },
+      {
+        "path": "include/metalrobo/MetalArticulatedOperator.hpp",
+        "bytes": 134241,
+        "sha256": "24fa2fe421b9b2c84498cf0d9740f0384af7f5902393a8643d4f468cf621a295"
+      },
+      {
+        "path": "matter/CMakeLists.txt",
+        "bytes": 155935,
+        "sha256": "0362fe25d961123b10fe65f4d65310cc1ba35d241c120c11f1305eecab20b861"
+      },
+      {
+        "path": "matter/include/numi/matter/compiled_world_partitioned_reduction.hpp",
+        "bytes": 53181,
+        "sha256": "7b792e62ee544972d1a486a2835e080103a40cfae47cd7c36cd4966862b8711e"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_basis.hpp",
+        "bytes": 28897,
+        "sha256": "e57024d744fa35daa9dca3a7bb22dd8d2c0918f5f24fb0883c25bd6463ccd142"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_fem_tangent.h",
+        "bytes": 12556,
+        "sha256": "b1752f3b6a0129baaad0a4a1c3b79c89f5ac4c0ba5891ccde9b72c062bb50b06"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_mass_whitening.hpp",
+        "bytes": 20248,
+        "sha256": "75105c6199579c3e28f30c9046bb43b035ef775638ebed5e6cd9109fb80b53e0"
+      },
+      {
+        "path": "matter/include/numi/matter/partitioned_reduction_sparse_support.hpp",
+        "bytes": 31524,
+        "sha256": "2a4388697b0584707e047d5562d2409ac471c0a19a136821f0b06b5774af3825"
+      },
+      {
+        "path": "matter/include/numi/matter/shared.h",
+        "bytes": 66164,
+        "sha256": "8c554c69b6d90274a7c9800051d3495c35b7b8edae9189a007f617d05e2c7a6c"
+      },
+      {
+        "path": "matter/src/metal/common.metalinc",
+        "bytes": 163765,
+        "sha256": "c88b01d6c066461b23df810653b7cd7fe859996b750e492dc96e0c32a1f4eac0"
+      },
+      {
+        "path": "matter/src/metal/contact.metalinc",
+        "bytes": 768754,
+        "sha256": "059136a31c3d99224efbaa9f9ffa4bf6e1fa80313b61593acd3fa114602fcbea"
+      },
+      {
+        "path": "matter/src/metal/fem.metalinc",
+        "bytes": 370040,
+        "sha256": "ad8624bab5eebf1e53025816299468576dca65e868d158b597c7f159c935b5fb"
+      },
+      {
+        "path": "matter/src/metal/fgmres.metalinc",
+        "bytes": 845367,
+        "sha256": "8e81d95164514e6640ebacd70b787c6fce37fbea946d503ccfd7de2c004995ff"
+      },
+      {
+        "path": "matter/src/metal/identification_scheduler.metalinc",
+        "bytes": 46076,
+        "sha256": "2ef3415bdb5a1c153fa314f39bb1c7904e70810bb56a33293888572092efaf29"
+      },
+      {
+        "path": "matter/src/metal/mixed_fem.metalinc",
+        "bytes": 88930,
+        "sha256": "f5afdc6b84a5280c4a2ccffc9d59579588c783049e92b002dee4474e994e79c6"
+      },
+      {
+        "path": "matter/src/metal/numi_human.metalinc",
+        "bytes": 218721,
+        "sha256": "090dc60d400dec8741487db64e1e2b8a93e704300086abfeb69b4be01234584a"
+      },
+      {
+        "path": "matter/src/metal/partitioned_reduction_fem_tangent.metalinc",
+        "bytes": 40715,
+        "sha256": "8018aadd5eac0b048f24b8927640a043854ce64917c215e73c5a75f8740e90d4"
+      },
+      {
+        "path": "matter/src/metal/partitioned_reduction_projection.metalinc",
+        "bytes": 64986,
+        "sha256": "2879706df66438ece04f5d3c27ca19d929b0ae1d73fc591f373673b04a4355f5"
+      },
+      {
+        "path": "matter/src/metal/vascular.metalinc",
+        "bytes": 200824,
+        "sha256": "25370c8c4013eac439f7deff5029f0a0b5da1191cfb2a66e5b5ee06982dae4eb"
+      },
+      {
+        "path": "matter/src/numi_human.mm",
+        "bytes": 292245,
+        "sha256": "594790dbc598a40a6f129eeb5586f1318c9596e978e541152456b60ae317d58a"
+      },
+      {
+        "path": "matter/src/regional_graph_schwarz.hpp",
+        "bytes": 37745,
+        "sha256": "9fe5ed05244f62ce79769ac372ae9b87d7eeba2562ddcebe36d071e795d28173"
+      },
+      {
+        "path": "matter/src/runtime.mm",
+        "bytes": 3554289,
+        "sha256": "708678d672c31c119bf8c18d920462ce94e65085d09a7e823902cf728bc78abc"
+      },
+      {
+        "path": "matter/tools/compiled_world_partitioned_reduction_check.cpp",
+        "bytes": 35950,
+        "sha256": "ed42debb423f890deeea84d1ea808ca27f6d6b3eb9be0364ec7e59c4608f8207"
+      },
+      {
+        "path": "matter/tools/fem_material_frame_check.mm",
+        "bytes": 116286,
+        "sha256": "bc5d21cd7e479939362db8cb5df5843eadb767f0a69e4b6be424ce4315b9eb75"
+      },
+      {
+        "path": "matter/tools/fem_reference_check.mm",
+        "bytes": 107191,
+        "sha256": "9b24aad48c93bd7a38679f16298c37e0643294d3510efbe18ce2e2fb80fe5f4e"
+      },
+      {
+        "path": "matter/tools/fgmres_true_residual_native_check.mm",
+        "bytes": 1081811,
+        "sha256": "deae9494c7bf6ee685d75f6624e031831a3b65ff055862dae641c04920f5281b"
+      },
+      {
+        "path": "matter/tools/partitioned_reduction_basis_check.cpp",
+        "bytes": 32225,
+        "sha256": "c4d7f02ef93a1614ae80c31675f735727654a02ab42d60b98930e2f1061d9069"
+      },
+      {
+        "path": "matter/tools/partitioned_reduction_projection_gpu_check.mm",
+        "bytes": 101530,
+        "sha256": "c410b8429232f4063ad0ab406b105c7a271cbb0539f80667b962206075807799"
+      },
+      {
+        "path": "matter/tools/regional_graph_schwarz_layout_check.cpp",
+        "bytes": 48843,
+        "sha256": "3482e5dd57716b9c63abe20e0b4cfeb95f5f923af716228451af3e1d608a55d5"
+      },
+      {
+        "path": "matter/tools/vascular_cavity_check.mm",
+        "bytes": 212498,
+        "sha256": "d87324371a47c1f974bd8db07074f80e7a4015519ffa3eecf36e6c091cc85c06"
+      },
+      {
+        "path": "src/metal/MetalArticulatedOperator.mm",
+        "bytes": 970787,
+        "sha256": "8b05e2adee1745934bc2039b47f8e2f7ea8c84bedaad8ef5ac7a8d01ad5f9f9f"
+      }
+    ]
+  }
+}

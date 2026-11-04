@@ -1,0 +1,558 @@
+{
+  "contact-cache-control-prefix-221": {
+    "rows": [
+      {
+        "available": 1,
+        "resident_bytes": 1871921152,
+        "footprint_bytes": 13567091664,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 1
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885011968,
+        "footprint_bytes": 13566780368,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 2
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885339648,
+        "footprint_bytes": 13566763984,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 3
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885339648,
+        "footprint_bytes": 13566763984,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 4
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885339648,
+        "footprint_bytes": 13566763984,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 5
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885372416,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 6
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 7
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 8
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 9
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 10
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 11
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 12
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 13
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 14
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 15
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 16
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 17
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 18
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 19
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 20
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 21
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 22
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 23
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 24
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 25
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 26
+      },
+      {
+        "available": 1,
+        "resident_bytes": 2022326272,
+        "footprint_bytes": 14392173664,
+        "metal_allocated_bytes": 10198351872,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 27
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1891205120,
+        "footprint_bytes": 13567452160,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 28
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1891221504,
+        "footprint_bytes": 13567452160,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 29
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1891221504,
+        "footprint_bytes": 13567452160,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 30
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1891221504,
+        "footprint_bytes": 13567452160,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 31
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1891221504,
+        "footprint_bytes": 13567452160,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 32
+      }
+    ],
+    "bounds": {
+      "metal_allocated_bytes": {
+        "min": 10033561600,
+        "max": 10198351872,
+        "max_steps": [
+          27
+        ]
+      },
+      "footprint_bytes": {
+        "min": 13566714832,
+        "max": 14392173664,
+        "max_steps": [
+          27
+        ]
+      }
+    }
+  },
+  "routine-control-prefix-226": {
+    "rows": [
+      {
+        "available": 1,
+        "resident_bytes": 1791737856,
+        "footprint_bytes": 13469311808,
+        "metal_allocated_bytes": 10159357952,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 1
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885044736,
+        "footprint_bytes": 13524067160,
+        "metal_allocated_bytes": 10138845184,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 2
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885700096,
+        "footprint_bytes": 13524116288,
+        "metal_allocated_bytes": 10033332224,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 3
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885700096,
+        "footprint_bytes": 13524067136,
+        "metal_allocated_bytes": 10078306304,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 4
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885863936,
+        "footprint_bytes": 13524067136,
+        "metal_allocated_bytes": 10138845184,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 5
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885863936,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10138910720,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 6
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885863936,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10138845184,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 7
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885863936,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10138845184,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 8
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885863936,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10138845184,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 9
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885863936,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10138845184,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 10
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885863936,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10138910720,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 11
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885863936,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10138845184,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 12
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1895825408,
+        "footprint_bytes": 13524001600,
+        "metal_allocated_bytes": 10190028800,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 13
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885880320,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10138845184,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 14
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885880320,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10138845184,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 15
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885880320,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10138845184,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 16
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885880320,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10138845184,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 17
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885880320,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10138845184,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 18
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885880320,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10138845184,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 19
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885880320,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10138845184,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 20
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885880320,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10138845184,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 21
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885880320,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10138845184,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 22
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885896704,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10138845184,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 23
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1895858176,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10195075072,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 24
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1925775360,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10164404224,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 25
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1935736832,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10195075072,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 26
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1935736832,
+        "footprint_bytes": 13524034392,
+        "metal_allocated_bytes": 10195075072,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 27
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1930756096,
+        "footprint_bytes": 13524034392,
+        "metal_allocated_bytes": 10195075072,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 28
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1960640512,
+        "footprint_bytes": 13511648088,
+        "metal_allocated_bytes": 10195075072,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 29
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1895874560,
+        "footprint_bytes": 13524018008,
+        "metal_allocated_bytes": 10190094336,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 30
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1925775360,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10184916992,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 31
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1905852416,
+        "footprint_bytes": 13524017984,
+        "metal_allocated_bytes": 10138910720,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 32
+      }
+    ],
+    "bounds": {
+      "metal_allocated_bytes": {
+        "min": 10033332224,
+        "max": 10195075072,
+        "max_steps": [
+          24,
+          26,
+          27,
+          28,
+          29
+        ]
+      },
+      "footprint_bytes": {
+        "min": 13469311808,
+        "max": 13524116288,
+        "max_steps": [
+          3
+        ]
+      }
+    }
+  }
+}

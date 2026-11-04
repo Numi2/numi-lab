@@ -1,0 +1,32 @@
+{
+  "release_url": "https://github.com/Numi2/numi-lab/releases/tag/human-metal-replay-history-20261021",
+  "archive_asset": "human-solver-contact-memory-recycle223-20261104.tar.gz",
+  "archive_sha256": "a2eaa4f28cc7dffecfb96c1929fa4619320d8270ae9a9099ec5be910472276db",
+  "independent_download_sha256_verified": true,
+  "restored_members": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/accepted-z0-unscaled-prefix-223/install-motion/resting-human.mrvpack",
+      "member": "accepted-z0-unscaled-prefix-223/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "remote_restoration_verified": true
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/accepted-z0-unscaled-prefix-223/install-motion/accepted-geometry/step-0.mrvpack",
+      "member": "accepted-z0-unscaled-prefix-223/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "remote_restoration_verified": true
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/accepted-z0-unscaled-prefix-223/install-motion/accepted-geometry/step-4.mrvpack",
+      "member": "accepted-z0-unscaled-prefix-223/install-motion/accepted-geometry/step-4.mrvpack",
+      "sha256": "7d1df3dd9af63d8bc603adec1f93e2e3d37bfc7a6190622ae9f7d3fbee7d109c",
+      "bytes": 321323008,
+      "remote_restoration_verified": true
+    }
+  ],
+  "retired_local_originals_only_after_remote_restoration": true,
+  "free_before": 13722832896,
+  "free_after": 15459663872
+}

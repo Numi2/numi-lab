@@ -1,0 +1,8 @@
+{
+  "free_bytes": 15812419584,
+  "preparation_minimum_GiB": 14.5,
+  "hard_runtime_minimum_GiB": 12,
+  "maximum_swap_growth_GiB": 3,
+  "maximum_wall_s": 900,
+  "rationale": "Same baseline scene. Validated recycler adds bounded accepted/candidate vectors and validity metadata. Observed220 plateau10.033GB GPU;221 consumed about2.03GiB disk at peak. Preparation14.5GiB retains12GiB runtime floor plus0.47GiB margin above that observed peak. Existing12GiB runtime floor,3GiB swap-growth stop and900s budget are unchanged. Stop on source admission failure."
+}

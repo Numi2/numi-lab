@@ -1,0 +1,24 @@
+{
+  "source_commits": [
+    "dc0acdf00",
+    "0e49d084e8441bdbfa1e17249e54dfa4855c8505"
+  ],
+  "routine_control226": {
+    "accepted_steps": 32,
+    "simulated_s": 0.0005000000237487257,
+    "loop_wall_s": 229.71753575,
+    "gpu_command_s": 227.29328812496,
+    "loop_real_time_factor": 2.1765862241046857e-06,
+    "all11CSV_and3MRV_bitwise": true,
+    "0.1x_qualified": false
+  },
+  "remaining": [
+    "active linear solves",
+    "skin/fat conditioning",
+    "repeated assembly",
+    "final contact/coupled certification",
+    "10.2GB GPU allocation",
+    "supported resting equilibrium and sustained motion"
+  ],
+  "no_useful_speedup_claim": true
+}

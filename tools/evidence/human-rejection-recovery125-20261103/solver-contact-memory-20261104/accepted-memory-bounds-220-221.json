@@ -1,0 +1,554 @@
+{
+  "contact-cache-bounded-pool-prefix-220": {
+    "rows": [
+      {
+        "available": 1,
+        "resident_bytes": 1748418560,
+        "footprint_bytes": 13499835560,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 1
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1764769792,
+        "footprint_bytes": 13519529128,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 2
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1764917248,
+        "footprint_bytes": 13530096808,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 3
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1764933632,
+        "footprint_bytes": 13530113192,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 4
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1764999168,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 5
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765015552,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 6
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 7
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 8
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 9
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 10
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 11
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 12
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 13
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 14
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 15
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 16
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 17
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 18
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 19
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 20
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 21
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 22
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 23
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 24
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 25
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1765146624,
+        "footprint_bytes": 13530178728,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 26
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1902067712,
+        "footprint_bytes": 14351361288,
+        "metal_allocated_bytes": 10198188032,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 27
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1771044864,
+        "footprint_bytes": 13530866904,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 28
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1771061248,
+        "footprint_bytes": 13530866904,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 29
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1771077632,
+        "footprint_bytes": 13530866904,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 30
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1771077632,
+        "footprint_bytes": 13530866904,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 31
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1771077632,
+        "footprint_bytes": 13530866904,
+        "metal_allocated_bytes": 10033397760,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 32
+      }
+    ],
+    "bounds": {
+      "metal_allocated_bytes": {
+        "min": 10033397760,
+        "max": 10198188032,
+        "max_steps": [
+          27
+        ]
+      },
+      "footprint_bytes": {
+        "min": 13499835560,
+        "max": 14351361288,
+        "max_steps": [
+          27
+        ]
+      }
+    }
+  },
+  "contact-cache-control-prefix-221": {
+    "rows": [
+      {
+        "available": 1,
+        "resident_bytes": 1871921152,
+        "footprint_bytes": 13567091664,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 1
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885011968,
+        "footprint_bytes": 13566780368,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 2
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885339648,
+        "footprint_bytes": 13566763984,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 3
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885339648,
+        "footprint_bytes": 13566763984,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 4
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885339648,
+        "footprint_bytes": 13566763984,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 5
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885372416,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 6
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 7
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 8
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 9
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 10
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 11
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 12
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 13
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 14
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 15
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 16
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 17
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 18
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 19
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 20
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 21
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 22
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 23
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 24
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 25
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1885388800,
+        "footprint_bytes": 13566714832,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 26
+      },
+      {
+        "available": 1,
+        "resident_bytes": 2022326272,
+        "footprint_bytes": 14392173664,
+        "metal_allocated_bytes": 10198351872,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 27
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1891205120,
+        "footprint_bytes": 13567452160,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 28
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1891221504,
+        "footprint_bytes": 13567452160,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 29
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1891221504,
+        "footprint_bytes": 13567452160,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 30
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1891221504,
+        "footprint_bytes": 13567452160,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 31
+      },
+      {
+        "available": 1,
+        "resident_bytes": 1891221504,
+        "footprint_bytes": 13567452160,
+        "metal_allocated_bytes": 10033561600,
+        "recommended_working_set_bytes": 12713115648,
+        "step": 32
+      }
+    ],
+    "bounds": {
+      "metal_allocated_bytes": {
+        "min": 10033561600,
+        "max": 10198351872,
+        "max_steps": [
+          27
+        ]
+      },
+      "footprint_bytes": {
+        "min": 13566714832,
+        "max": 14392173664,
+        "max_steps": [
+          27
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,4 @@
+cached_three_rhs=PASS cases=273 random_directions=true cancellation=true signed_zero=true nonfinite=true overflow=true bitwise_finite=true extra_buffers=0
+cached_node_simd=PASS cooperative=0 cases=16 valence=0,1,31,33,65 contact=true nonsymmetric=true cache_miss=true nonfinite=true fixed=true partial_group=true canary=true bitwise=1 max_relative_error=0
+cached_node_simd=PASS cooperative=1 cases=16 valence=0,1,31,33,65 contact=true nonsymmetric=true cache_miss=true nonfinite=true fixed=true partial_group=true canary=true bitwise=1 max_relative_error=0
+PASS cached node SIMD 17152 checks

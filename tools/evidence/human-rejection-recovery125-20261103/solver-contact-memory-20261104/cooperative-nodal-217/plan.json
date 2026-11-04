@@ -1,0 +1,17 @@
+{
+  "hypothesis": "Distribute the nine tangent output rows and three right-hand sides within each node's SIMD group, sharing cache reads and reducing per-lane temporary storage. Compare against existing scalar and incidence-parallel builders before a Human run. No predicted gain.",
+  "invariants": [
+    "same nine-term dot order and finite checks",
+    "same CSR incidence order",
+    "same material frames, timestep, mass, contact diagonal and inversion",
+    "no new bulk buffer",
+    "default legacy path; fail-closed runtime eligibility"
+  ],
+  "checks": [
+    "scalar/legacy/cooperative bitwise nodal blocks including failure states",
+    "repeat GPU kernel timing with phase rotation",
+    "full native solver suite",
+    "complete Human fixed-step comparison if focused gates pass"
+  ],
+  "scope": "Preconditioner work only; not a new physical model or a larger Human timestep."
+}

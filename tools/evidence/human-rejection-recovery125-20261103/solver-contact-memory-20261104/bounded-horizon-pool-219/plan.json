@@ -1,0 +1,10 @@
+{
+  "source_finding": "The articulated horizon loop has one enclosing autorelease pool for the whole horizon and no inner per-step pool. Bound temporary object lifetimes per step without replacing strong state/command owners.",
+  "not_established": "The prior disk spike has not yet been attributed to this lifetime. Do not claim it is fixed from source alone.",
+  "measurement": "Reuse existing opt-in preparation memory telemetry at each accepted observer boundary; retain OS disk/swap measurements. No extra synchronization/readback.",
+  "checks": [
+    "existing runtime tests",
+    "bitwise full-coordinate native traces/captures",
+    "32accepted fixed-step prefix resources"
+  ]
+}

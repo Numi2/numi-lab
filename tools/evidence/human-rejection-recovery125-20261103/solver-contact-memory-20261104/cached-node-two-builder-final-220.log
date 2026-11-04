@@ -1,0 +1,9 @@
+cached_node_benchmark variant=scalar round=0 warmup=1 nodes=19683 tets=105456 gpu_ms=20.1865 static_threadgroup_bytes=0 max_threads=1024 bitwise=true
+cached_node_benchmark variant=incidence_simd round=0 warmup=1 nodes=19683 tets=105456 gpu_ms=0.998 static_threadgroup_bytes=17440 max_threads=1024 bitwise=true
+cached_node_benchmark variant=scalar round=1 warmup=0 nodes=19683 tets=105456 gpu_ms=13.2555 static_threadgroup_bytes=0 max_threads=1024 bitwise=true
+cached_node_benchmark variant=incidence_simd round=1 warmup=0 nodes=19683 tets=105456 gpu_ms=0.996625 static_threadgroup_bytes=17440 max_threads=1024 bitwise=true
+cached_node_benchmark variant=incidence_simd round=2 warmup=0 nodes=19683 tets=105456 gpu_ms=0.998583 static_threadgroup_bytes=17440 max_threads=1024 bitwise=true
+cached_node_benchmark variant=scalar round=2 warmup=0 nodes=19683 tets=105456 gpu_ms=13.7485 static_threadgroup_bytes=0 max_threads=1024 bitwise=true
+cached_node_benchmark variant=scalar round=3 warmup=0 nodes=19683 tets=105456 gpu_ms=13.4789 static_threadgroup_bytes=0 max_threads=1024 bitwise=true
+cached_node_benchmark variant=incidence_simd round=3 warmup=0 nodes=19683 tets=105456 gpu_ms=0.99675 static_threadgroup_bytes=17440 max_threads=1024 bitwise=true
+PASS cached node benchmark 105543 checks

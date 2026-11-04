@@ -1,0 +1,3 @@
+2026-11-04 03:48:22.582 metalrobo_numi_human_stand_coupling_probe[77710:1040147] Metal API Validation Enabled
+validateComputeFunctionArguments:1070: failed assertion `Compute Function(mr_numi_human_stand_reconcile): argument contactWarmStartHistory[0] from Buffer(14) with offset(0) and length(132) has space for 132 bytes, but argument has a length(1088).'
+fp64_route_length_m=0.32695565421881972 fp64_route_tangent=1.1928223077229005 fp64_route_fd=1.1928223076773659

@@ -1,0 +1,82 @@
+{
+  "purpose": "Preserve independently writable evidence while sharing verified identical immutable mass reference extents",
+  "source": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/contact-cache-control-prefix-221/install-motion/diagnostics/tissue-mass-reference.txt",
+  "sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+  "bytes": 840655370,
+  "free_before": 14485868544,
+  "rows": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-coarse-parity-native-208/install-motion/diagnostics/tissue-mass-reference.txt",
+      "sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+      "bytes": 840655370,
+      "result": "independent_APFS_COW_clone"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-coarse-projection-prefix-214/install-motion/diagnostics/tissue-mass-reference.txt",
+      "sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+      "bytes": 840655370,
+      "result": "independent_APFS_COW_clone"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-coarse-rebuild-native-205/install-motion/diagnostics/tissue-mass-reference.txt",
+      "sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+      "bytes": 840655370,
+      "result": "independent_APFS_COW_clone"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-combined-prefix-213/install-motion/diagnostics/tissue-mass-reference.txt",
+      "sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+      "bytes": 840655370,
+      "result": "independent_APFS_COW_clone"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-exact-preconditioner-native-197/install-motion/diagnostics/tissue-mass-reference.txt",
+      "sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+      "bytes": 840655370,
+      "result": "independent_APFS_COW_clone"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-integrated-parity-native-212/install-motion/diagnostics/tissue-mass-reference.txt",
+      "sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+      "bytes": 840655370,
+      "result": "independent_APFS_COW_clone"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-lane-parity-native-210/install-motion/diagnostics/tissue-mass-reference.txt",
+      "sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+      "bytes": 840655370,
+      "result": "independent_APFS_COW_clone"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-packed-patch-prefix-215/install-motion/diagnostics/tissue-mass-reference.txt",
+      "sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+      "bytes": 840655370,
+      "result": "independent_APFS_COW_clone"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-packed-patch-prefix-216/install-motion/diagnostics/tissue-mass-reference.txt",
+      "sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+      "bytes": 840655370,
+      "result": "independent_APFS_COW_clone"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-patch-native-203/install-motion/diagnostics/tissue-mass-reference.txt",
+      "sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+      "bytes": 840655370,
+      "result": "independent_APFS_COW_clone"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-projection-native-201/install-motion/diagnostics/tissue-mass-reference.txt",
+      "sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+      "bytes": 840655370,
+      "result": "independent_APFS_COW_clone"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/holistic-reference-native-199/install-motion/diagnostics/tissue-mass-reference.txt",
+      "sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a",
+      "bytes": 840655370,
+      "result": "independent_APFS_COW_clone"
+    }
+  ],
+  "free_after": 14485721088
+}

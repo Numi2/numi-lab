@@ -1,0 +1,61 @@
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_parallel_base_preconditioner=1 components=7 tiles=1 tile_width=256 patch_scratch=element_operator coarse_metadata_bytes=48 coarse_scratch_bytes=1024 projection_mode_capacity=12
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=6144 element=2304 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=6144 element=2304 environment_count=1
+{"axis":0,"sign":1,"selector":6,"code":0,"mass":0.000183333322639,"velocity":[0.00122584117344,-3.21582206197e-07,-3.21581069329e-07],"bitwise_replay":true}
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_parallel_base_preconditioner=1 components=7 tiles=1 tile_width=256 patch_scratch=element_operator coarse_metadata_bytes=48 coarse_scratch_bytes=1024 projection_mode_capacity=12
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=6144 element=2304 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=6144 element=2304 environment_count=1
+{"axis":0,"sign":-1,"selector":6,"code":0,"mass":0.000183333322639,"velocity":[-0.00122582423501,3.26430040332e-07,3.26431290887e-07],"bitwise_replay":true}
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_parallel_base_preconditioner=1 components=7 tiles=1 tile_width=256 patch_scratch=element_operator coarse_metadata_bytes=48 coarse_scratch_bytes=1024 projection_mode_capacity=12
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=6144 element=2304 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=6144 element=2304 environment_count=1
+{"axis":1,"sign":1,"selector":6,"code":0,"mass":0.000183333322639,"velocity":[-3.21582888319e-07,0.00122584114433,-3.21581978824e-07],"bitwise_replay":true}
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_parallel_base_preconditioner=1 components=7 tiles=1 tile_width=256 patch_scratch=element_operator coarse_metadata_bytes=48 coarse_scratch_bytes=1024 projection_mode_capacity=12
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=6144 element=2304 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=6144 element=2304 environment_count=1
+{"axis":1,"sign":-1,"selector":6,"code":0,"mass":0.000183333322639,"velocity":[3.26425947605e-07,-0.00122582423501,3.26426629726e-07],"bitwise_replay":true}
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_parallel_base_preconditioner=1 components=7 tiles=1 tile_width=256 patch_scratch=element_operator coarse_metadata_bytes=48 coarse_scratch_bytes=1024 projection_mode_capacity=12
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=6144 element=2304 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=6144 element=2304 environment_count=1
+{"axis":2,"sign":1,"selector":6,"code":0,"mass":0.000183333322639,"velocity":[-3.21578909279e-07,-3.21579705087e-07,0.00122584117344],"bitwise_replay":true}
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_parallel_base_preconditioner=1 components=7 tiles=1 tile_width=256 patch_scratch=element_operator coarse_metadata_bytes=48 coarse_scratch_bytes=1024 projection_mode_capacity=12
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=6144 element=2304 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=6912 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=6144 element=2304 environment_count=1
+{"axis":2,"sign":-1,"selector":6,"code":0,"mass":0.000183333322639,"velocity":[3.26423446495e-07,3.26423332808e-07,-0.00122582426411],"bitwise_replay":true}
+PASS native selector6 +/- gravity on all three axes, analytic total momentum, bitwise replay

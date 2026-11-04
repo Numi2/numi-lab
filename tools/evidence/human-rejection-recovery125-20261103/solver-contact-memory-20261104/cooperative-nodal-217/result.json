@@ -1,0 +1,16 @@
+{
+  "promoted": false,
+  "reason": "Row-cooperative variant is about3.89times slower in the phase-rotated kernel fixture despite bitwise parity and384B versus17440B static threadgroup storage. No full Human run was launched; production source restored. Retain the benchmark instrument for existing production builders.",
+  "old_simd_gpu_ms": [
+    0.927167,
+    0.928125,
+    0.927042
+  ],
+  "row_cooperative_gpu_ms": [
+    3.6065,
+    3.60762,
+    3.61438
+  ],
+  "test": "17152 checks PASS;105567 benchmark checks PASS; three measurement pairs after warmup",
+  "scope": "Anisotropic19683node/105456tetrahedron fixture, not integrated throughput; no spill or occupancy counter attribution."
+}

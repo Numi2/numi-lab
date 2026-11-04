@@ -1,0 +1,10 @@
+{
+  "chip_type": "Apple M6",
+  "machine_model": "Mac18,5",
+  "machine_name": "Mac mini",
+  "number_processors": "proc 12:2:4:6",
+  "physical_memory": "16 GB",
+  "software": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A425\n",
+  "execution_host": "SSH Numi",
+  "source_publication": "dc0acdf00"
+}

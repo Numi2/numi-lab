@@ -1,0 +1,5 @@
+{
+  "failure": "Metal validation requires the optional history pointee extent, even when strides.w disables history accesses",
+  "fix": "Bound existing vector fallback allocation to one full 1088-byte slot only for nonempty Stand without optional history; logical vector extent, warmstart ownership and solver equations unchanged",
+  "before_log": "failure-before.log"
+}

@@ -1,0 +1,13 @@
+cached_node_benchmark variant=scalar round=0 warmup=1 nodes=19683 tets=105456 gpu_ms=21.3145 static_threadgroup_bytes=0 max_threads=1024 bitwise=true
+cached_node_benchmark variant=incidence_simd round=0 warmup=1 nodes=19683 tets=105456 gpu_ms=0.926333 static_threadgroup_bytes=17440 max_threads=1024 bitwise=true
+cached_node_benchmark variant=row_cooperative round=0 warmup=1 nodes=19683 tets=105456 gpu_ms=3.60846 static_threadgroup_bytes=384 max_threads=1024 bitwise=true
+cached_node_benchmark variant=scalar round=1 warmup=0 nodes=19683 tets=105456 gpu_ms=13.5266 static_threadgroup_bytes=0 max_threads=1024 bitwise=true
+cached_node_benchmark variant=incidence_simd round=1 warmup=0 nodes=19683 tets=105456 gpu_ms=0.927167 static_threadgroup_bytes=17440 max_threads=1024 bitwise=true
+cached_node_benchmark variant=row_cooperative round=1 warmup=0 nodes=19683 tets=105456 gpu_ms=3.6065 static_threadgroup_bytes=384 max_threads=1024 bitwise=true
+cached_node_benchmark variant=incidence_simd round=2 warmup=0 nodes=19683 tets=105456 gpu_ms=0.928125 static_threadgroup_bytes=17440 max_threads=1024 bitwise=true
+cached_node_benchmark variant=row_cooperative round=2 warmup=0 nodes=19683 tets=105456 gpu_ms=3.60762 static_threadgroup_bytes=384 max_threads=1024 bitwise=true
+cached_node_benchmark variant=scalar round=2 warmup=0 nodes=19683 tets=105456 gpu_ms=13.4083 static_threadgroup_bytes=0 max_threads=1024 bitwise=true
+cached_node_benchmark variant=row_cooperative round=3 warmup=0 nodes=19683 tets=105456 gpu_ms=3.61438 static_threadgroup_bytes=384 max_threads=1024 bitwise=true
+cached_node_benchmark variant=scalar round=3 warmup=0 nodes=19683 tets=105456 gpu_ms=13.4446 static_threadgroup_bytes=0 max_threads=1024 bitwise=true
+cached_node_benchmark variant=incidence_simd round=3 warmup=0 nodes=19683 tets=105456 gpu_ms=0.927042 static_threadgroup_bytes=17440 max_threads=1024 bitwise=true
+PASS cached node benchmark 105567 checks

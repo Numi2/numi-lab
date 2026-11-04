@@ -1,0 +1,8 @@
+{
+  "free_bytes": 16522809344,
+  "preparation_minimum_GiB": 15.2,
+  "hard_runtime_minimum_GiB": 12,
+  "maximum_swap_growth_GiB": 3,
+  "maximum_wall_s": 900,
+  "rationale": "Fresh same-binary cache-off control after completed220. Its GPU allocation plateaued at10.033GB and did not grow through32steps. macOS retains its2GB additional swap allocation after exit. Identical MRV data now use independently verified COW files. Existing12GiB runtime floor,3GiB swap-growth guard and900s budget remain unchanged. No physical or numerical guard changed; this control requests no new cache memory."
+}
