@@ -1,0 +1,155 @@
+{
+  "method": "verified byte-identical APFS clones; every pathname, content, mode and mtime retained",
+  "free_before": 15795802112,
+  "operations": [
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-cgs2-constant-probe-254/install-motion/accepted-geometry/step-0.mrvpack",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "mode": 420,
+      "mtime_ns": 1793818076187115988
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-cgs2-constant-probe-254/install-motion/resting-human.mrvpack",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "mode": 420,
+      "mtime_ns": 1793818074529371260
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-cgs2-input-retry-253/install-motion/accepted-geometry/step-0.mrvpack",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "mode": 420,
+      "mtime_ns": 1793817608201387325
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-cgs2-input-retry-253/install-motion/resting-human.mrvpack",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "mode": 420,
+      "mtime_ns": 1793817606568115163
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-command-guards-264/install-motion/accepted-geometry/step-0.mrvpack",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "mode": 420,
+      "mtime_ns": 1793823138564807551
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-command-guards-264/install-motion/resting-human.mrvpack",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "mode": 420,
+      "mtime_ns": 1793823137079043139
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-command-guards-265/install-motion/accepted-geometry/step-0.mrvpack",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "mode": 420,
+      "mtime_ns": 1793823499491135924
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-command-guards-265/install-motion/resting-human.mrvpack",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "mode": 420,
+      "mtime_ns": 1793823497944456341
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-constant-every-262/install-motion/accepted-geometry/step-0.mrvpack",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "mode": 420,
+      "mtime_ns": 1793822266660879065
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-constant-every-262/install-motion/resting-human.mrvpack",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "mode": 420,
+      "mtime_ns": 1793822265102350663
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-constant-stages-261/install-motion/accepted-geometry/step-0.mrvpack",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "mode": 420,
+      "mtime_ns": 1793821606395580592
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-constant-stages-261/install-motion/resting-human.mrvpack",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "mode": 420,
+      "mtime_ns": 1793821604952907130
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-ordered-barriers-263/install-motion/accepted-geometry/step-0.mrvpack",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "mode": 420,
+      "mtime_ns": 1793822622034372469
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-ordered-barriers-263/install-motion/resting-human.mrvpack",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "mode": 420,
+      "mtime_ns": 1793822620490613690
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-precommit-constants-257/install-motion/accepted-geometry/step-0.mrvpack",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "mode": 420,
+      "mtime_ns": 1793819114668776150
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-precommit-constants-257/install-motion/resting-human.mrvpack",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "mode": 420,
+      "mtime_ns": 1793819112969124185
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-validated-noarchive-260/install-motion/accepted-geometry/step-0.mrvpack",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/accepted-geometry/step-0.mrvpack",
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "bytes": 321323008,
+      "mode": 420,
+      "mtime_ns": 1793821146370100961
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/thin-validated-noarchive-260/install-motion/resting-human.mrvpack",
+      "clone_source": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "mode": 420,
+      "mtime_ns": 1793821142442566075
+    }
+  ],
+  "all_paths_preserved": true,
+  "free_after": 21579685888,
+  "recovered_bytes": 5783883776,
+  "all_outputs_independently_rehashed": true,
+  "status": "completed"
+}

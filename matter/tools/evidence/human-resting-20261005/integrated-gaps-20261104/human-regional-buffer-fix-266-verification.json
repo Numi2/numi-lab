@@ -1,0 +1,11 @@
+{
+  "status": "PASS_INDEPENDENT_DOWNLOAD_ALL_MEMBERS_AND_RESTORE",
+  "asset": "human-regional-buffer-fix-266.tar.gz",
+  "archive_sha256": "9496ffd51ecb23891164d679a24e1e67e108553010a9f739f80a092ecce8c6c1",
+  "manifest_sha256": "0bc00b9d2dae035e063537fcd09d8f01334d0e37bd770041497e2c8a4603dac2",
+  "member_count": 54,
+  "every_canonical_member_restored": true,
+  "all_manifest_modes_and_mtimes_checked": true,
+  "current_originals_retained": true,
+  "temporary_restore_removed_after_verification": true
+}

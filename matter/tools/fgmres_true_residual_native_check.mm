@@ -4,6 +4,7 @@
 #include "numi/matter/human_limits_gpu.h"
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
+#import <CommonCrypto/CommonDigest.h>
 
 #include "numi/matter/shared.h"
 #include "numi/matter/accepted_z0_recycle_admission.hpp"
@@ -19,6 +20,7 @@
 #include <cstring>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <random>
 #include <set>
 #include <stdexcept>
@@ -3573,6 +3575,310 @@ struct CGS2IndirectConstants {
     std::uint32_t pass1;
     float forcing;
 };
+
+
+// Read only the bounded, hash-pinned typed-array consumer capture produced
+// immediately before the actual Human's first CGS2 column.
+struct CGS2ReplayInput {
+    NSDictionary* manifest = nil;
+    NSData* payload = nil;
+    explicit CGS2ReplayInput(const char* path) {
+        auto text=[NSData dataWithContentsOfFile:[NSString stringWithUTF8String:path]];
+        NSError* error=nil;
+        manifest=text?[NSJSONSerialization JSONObjectWithData:text options:0 error:&error]:nil;
+        require(manifest!=nil&&[manifest[@"diagnostic_kind"]
+            isEqualToString:@"fgmres_cgs2_first_column_input"],"invalid CGS2 capture manifest");
+        payload=[NSData dataWithContentsOfFile:manifest[@"payload"][@"file"]];
+        require(payload!=nil&&payload.length<=32u*1024u*1024u&&
+            payload.length==[manifest[@"payload"][@"byte_count"] unsignedLongLongValue],
+            "CGS2 capture payload extent invalid");
+        unsigned char digest[CC_SHA256_DIGEST_LENGTH];
+        CC_SHA256(payload.bytes,static_cast<CC_LONG>(payload.length),digest);
+        NSMutableString* hash=[NSMutableString string];
+        for(auto byte:digest)[hash appendFormat:@"%02x",byte];
+        require([hash isEqualToString:manifest[@"payload"][@"sha256"]],
+                "CGS2 capture payload hash mismatch");
+    }
+    void load(const char* name,void* destination,NSUInteger bytes) const {
+        for(NSDictionary* array in manifest[@"arrays"]) {
+            if(![array[@"name"] isEqualToString:[NSString stringWithUTF8String:name]])continue;
+            const auto offset=[array[@"offset"] unsignedLongLongValue];
+            const auto count=[array[@"byte_count"] unsignedLongLongValue];
+            require(count==bytes&&offset<=payload.length&&count<=payload.length-offset,
+                std::string("CGS2 capture array extent invalid: ")+name);
+            std::memcpy(destination,static_cast<const char*>(payload.bytes)+offset,bytes);return;
+        }
+        require(false,std::string("CGS2 capture array missing: ")+name);
+    }
+};
+
+// Exercise consecutive columns on one encoder with the production shared range
+// and scratch arenas. Single-command-buffer replay catches ordering/constant
+// faults hidden by a host wait between each kernel or Arnoldi column.
+void checkCGS2ICBSequence(id<MTLDevice> device, id<MTLCommandQueue> queue,
+                        id<MTLLibrary> library, bool relativeForcing, const char* replayManifest=nullptr) {
+    std::unique_ptr<CGS2ReplayInput> replay;
+    if(replayManifest)replay=std::make_unique<CGS2ReplayInput>(replayManifest);
+    const std::uint32_t columns=replay?1u:NM_MIXED_FGMRES_RESTART;
+    std::uint32_t nodes=318974u;
+    NMMatterDispatchGPU shape{};
+    shape.abiVersion=NM_MATTER_ABI_VERSION; shape.environmentCount=1u;
+    shape.objectCount=1u; shape.femNodeCount=nodes;
+    NMFGMRESLayoutGPU layout{}; layout.unknownCount=2u*nodes; layout.reserved=1u|(1u<<23u);
+    NMMixedSolverGPU solver{}; solver.nonlinearIterations.y=columns;
+    solver.regularization.x=1.0e-12f; solver.residualTolerances.x=1.0e-12f;
+    float capturedForcing=1.0e-8f;
+    if(replay) {
+        replay->load("dispatch",&shape,sizeof(shape));
+        replay->load("layout",&layout,sizeof(layout));
+        replay->load("solver",&solver,sizeof(solver));
+        replay->load("forcing",&capturedForcing,sizeof(capturedForcing));
+        nodes=shape.femNodeCount;
+        std::cout << "cgs2_capture_domain env=" << shape.environmentCount
+            << " nodes=" << nodes << " unknowns=" << layout.unknownCount
+            << " dispatch_bytes=" << sizeof(shape) << " layout_bytes=" << sizeof(layout) << "\\n";
+        require(shape.environmentCount==1u&&nodes<=524288u&&
+            layout.unknownCount<=2u*524288u,"CGS2 capture domain not bounded");
+    }
+    const auto items=nodes+((layout.reserved&1u)==0u?nodes:0u)+
+        (((layout.reserved&4u)!=0u&&(layout.reserved&1u)!=0u)?layout.vascularReserved:0u)+
+        shape.mpmActiveNodeCapacity+shape.rigidGeneralizedCapacity+
+        layout.supportContactCount+layout.vascularUnknownCount;
+    const std::uint32_t groups=std::max(1u,(items+255u)/256u);
+    const std::uint32_t partialCount=8u*groups;
+    const NSUInteger vectorBytes=layout.unknownCount*sizeof(nm_float4);
+    auto shapeBuffer=makeBuffer(device,std::vector<NMMatterDispatchGPU>{shape});
+    auto solverBuffer=makeBuffer(device,std::vector<NMMixedSolverGPU>{solver});
+    std::vector<NMIncidenceRangeGPU> ranges(nodes);
+    std::vector<nm_float4> diagonal(nodes);
+    for(std::uint32_t i=0;i<nodes;++i) {
+        ranges[i].objectIndex=0u;
+        diagonal[i]={1.0f+float(i%997u),2.0f+float(i%313u),
+                     3.0f+float(i%193u),1.0f+float(i%71u)};
+    }
+    auto rangesBuffer=makeBuffer(device,ranges);
+    auto diagonalBuffer=makeBuffer(device,diagonal);
+    auto objectsBuffer=makeBuffer(device,std::vector<NMContinuumObjectGPU>(1));
+    const auto ordinaryOperator=pipeline(device,library,
+        "numi_matter_metal::nm_fgmres_precondition_empty_fields");
+    std::array<id<MTLComputePipelineState>,6> kernels{
+        indirectPipeline(device,library,"numi_matter_metal::nm_fgmres_cgs2_partial"),
+        indirectPipeline(device,library,"numi_matter_metal::nm_fgmres_cgs2_reduce_row"),
+        indirectPipeline(device,library,"numi_matter_metal::nm_fgmres_cgs2_update"),
+        indirectPipeline(device,library,"numi_matter_metal::nm_fgmres_cgs2_measure_norm"),
+        indirectPipelineWithRelativeInnerForcingDisabled(device,library,
+            "numi_matter_metal::nm_fgmres_cgs2_finish_column"),
+        indirectPipeline(device,library,"numi_matter_metal::nm_fgmres_cgs2_normalize")};
+    if(relativeForcing) {
+        auto values=[MTLFunctionConstantValues new];const bool enabled=true,disabled=false;
+        [values setConstantValue:&enabled type:MTLDataTypeBool atIndex:34u];
+        [values setConstantValue:&disabled type:MTLDataTypeBool atIndex:39u];
+        NSError* error=nil;
+        auto function=[library newFunctionWithName:
+            @"numi_matter_metal::nm_fgmres_cgs2_finish_column"
+            constantValues:values error:&error];
+        require(function!=nil,"CGS2 relative-forcing function unavailable");
+        auto descriptor=[MTLComputePipelineDescriptor new];
+        descriptor.computeFunction=function;descriptor.supportIndirectCommandBuffers=YES;
+        kernels[4]=[device newComputePipelineStateWithDescriptor:descriptor
+            options:MTLPipelineOptionNone reflection:nil error:&error];
+        require(kernels[4]!=nil,"CGS2 relative-forcing pipeline unavailable");
+    }
+    // Production also marks the range-preparation pipeline ICB-compatible,
+    // although its one-thread preparation is directly encoded.
+    auto prepare=indirectPipeline(device,library,
+        "numi_matter_metal::nm_fgmres_cgs2_prepare_range");
+    auto trace=pipeline(device,library,"numi_matter_metal::nm_fgmres_trace_column");
+    const auto run=[&](bool indirect,bool declareRange,bool privateWorkingSet) {
+        std::vector<nm_float4> initial((columns+1u)*layout.unknownCount);
+        const float entry=1.0f/std::sqrt(float(nodes)*4.0f);
+        for(std::uint32_t i=0;i<nodes;++i) initial[i]={entry,entry,entry,entry};
+        if(replay)replay->load("basis",initial.data(),vectorBytes);
+        auto basis=makeBuffer(device,initial);
+        std::vector<nm_float4> initialWork(layout.unknownCount);
+        if(replay)replay->load("work",initialWork.data(),vectorBytes);
+        auto work=makeBuffer(device,initialWork);
+        auto partials=makeBuffer(device,std::vector<float>(
+            2u*(NM_MIXED_FGMRES_RESTART+1u)*partialCount));
+        std::vector<float> initialH((NM_MIXED_FGMRES_RESTART+1u)*NM_MIXED_FGMRES_RESTART);
+        if(replay)replay->load("hessenberg",initialH.data(),initialH.size()*sizeof(float));
+        auto h=makeBuffer(device,initialH);
+        std::vector<NativeFloat2> initialRotations(NM_MIXED_FGMRES_RESTART,NativeFloat2{1.0f,0.0f});
+        if(replay)replay->load("rotations",initialRotations.data(),initialRotations.size()*sizeof(NativeFloat2));
+        auto rotations=makeBuffer(device,initialRotations);
+        std::vector<float> initialLS(NM_MIXED_FGMRES_RESTART+1u);initialLS[0]=1.0f;
+        if(replay)replay->load("least_squares",initialLS.data(),initialLS.size()*sizeof(float));
+        auto ls=makeBuffer(device,initialLS);
+        NMFGMRESStateGPU initialState{};initialState.diagnostics={1.0f,1.0f,0.0f,0.0f};
+        initialState.rowEquilibration.x=1.0f;
+        if(replay)replay->load("states",&initialState,sizeof(initialState));
+        auto states=makeBuffer(device,std::vector<NMFGMRESStateGPU>{initialState});
+        auto nodeActive=makeBuffer(device,std::vector<NMIndirectDispatchGPU>(1));
+        auto elementActive=makeBuffer(device,std::vector<NMIndirectDispatchGPU>(1));
+        auto executionRange=makeBuffer(device,std::vector<std::uint32_t>(4));
+        auto records=makeBuffer(device,std::vector<NMFGMRESStateGPU>(columns));
+        if(privateWorkingSet) {
+            // Match production storage, with one fixture upload before the
+            // uninterrupted column sequence. No host reads occur per column.
+            auto upload=[queue commandBuffer];auto copy=[upload blitCommandEncoder];
+            require(copy!=nil,"CGS2 private fixture blit allocation failed");
+            for(id<MTLBuffer> __strong* slot:{&basis,&work,&partials,&h,&rotations,&ls,
+                                    &states,&nodeActive,&elementActive,&executionRange,&records}) {
+                auto target=[device newBufferWithLength:(*slot).length
+                    options:MTLResourceStorageModePrivate];
+                require(target!=nil,"CGS2 private fixture allocation failed");
+                [copy copyFromBuffer:*slot sourceOffset:0 toBuffer:target
+                    destinationOffset:0 size:(*slot).length];*slot=target;
+            }
+            [copy endEncoding];[upload commit];[upload waitUntilCompleted];
+            require(upload.status==MTLCommandBufferStatusCompleted,
+                    "CGS2 private fixture upload failed");
+        }
+        // Do not keep fixture-only host retainers for indirectly bound
+        // constants or commands: the submitted timeline owns their lifetime.
+        auto commandDescriptor=[MTLCommandBufferDescriptor new];
+        commandDescriptor.errorOptions=MTLCommandBufferErrorOptionEncoderExecutionStatus;
+        auto command=[queue commandBufferWithDescriptor:commandDescriptor];
+        auto encoder=[command computeCommandEncoder];
+        require(command!=nil&&encoder!=nil,"CGS2 sequence encoder allocation failed");
+        const auto barrier=[&] {[encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];};
+        for(std::uint32_t column=0;column<columns;++column) {
+            CGS2IndirectConstants scalar{shape,layout,column,0u,1u,capturedForcing};
+            auto cb=[device newBufferWithBytes:&scalar length:sizeof(scalar)
+                      options:MTLResourceStorageModeShared];
+            if(!replay) {
+            [encoder setComputePipelineState:ordinaryOperator];
+            [encoder setBuffer:shapeBuffer offset:0 atIndex:0];
+            [encoder setBuffer:rangesBuffer offset:0 atIndex:1];
+            [encoder setBuffer:diagonalBuffer offset:0 atIndex:2];
+            [encoder setBuffer:basis offset:vectorBytes*column atIndex:3];
+            [encoder setBuffer:work offset:0 atIndex:4];
+            [encoder setBuffer:states offset:0 atIndex:5];
+            [encoder setBuffer:solverBuffer offset:0 atIndex:6];
+            [encoder setBuffer:objectsBuffer offset:0 atIndex:7];
+            [encoder dispatchThreadgroups:MTLSizeMake(groups,1,1)
+                threadsPerThreadgroup:MTLSizeMake(256,1,1)];barrier();
+            }
+            MTLIndirectCommandBufferDescriptor* descriptor=[MTLIndirectCommandBufferDescriptor new];
+            descriptor.commandTypes=MTLIndirectCommandTypeConcurrentDispatch;
+            descriptor.inheritBuffers=NO;descriptor.inheritPipelineState=NO;
+            descriptor.maxKernelBufferBindCount=31u;
+            auto graph=indirect?[device newIndirectCommandBufferWithDescriptor:descriptor
+                maxCommandCount:9u options:MTLResourceStorageModeShared]:nil;
+            if(indirect)require(graph!=nil,"CGS2 sequence graph allocation failed");
+            NSUInteger ordinal=0;
+            const auto encode=[&](unsigned kernel,unsigned groupCount,unsigned width,
+                std::initializer_list<std::tuple<NSUInteger,id<MTLBuffer>,NSUInteger>> bindings) {
+                auto k=kernels[kernel];
+                id<MTLIndirectComputeCommand> ic=indirect
+                    ?[graph indirectComputeCommandAtIndex:ordinal++]:nil;
+                if(indirect)[ic setComputePipelineState:k];else[encoder setComputePipelineState:k];
+                const auto bind=[&](NSUInteger index,id<MTLBuffer> buffer,NSUInteger offset) {
+                    if(indirect)[ic setKernelBuffer:buffer offset:offset atIndex:index];
+                    else[encoder setBuffer:buffer offset:offset atIndex:index];
+                };
+                bind(0,cb,offsetof(CGS2IndirectConstants,dispatch));
+                bind(30,cb,offsetof(CGS2IndirectConstants,layout));
+                for(auto [index,buffer,offset]:bindings)bind(index,buffer,offset);
+                if(indirect) {
+                    [ic setBarrier];
+                    [ic concurrentDispatchThreadgroups:MTLSizeMake(groupCount,1,1)
+                        threadsPerThreadgroup:MTLSizeMake(width,1,1)];
+                } else {
+                    [encoder dispatchThreadgroups:MTLSizeMake(groupCount,1,1)
+                        threadsPerThreadgroup:MTLSizeMake(width,1,1)];barrier();
+                }
+            };
+            const auto c=offsetof(CGS2IndirectConstants,column);
+            for(unsigned pass=0;pass<2;++pass) {
+                const auto p=pass?offsetof(CGS2IndirectConstants,pass1)
+                                 :offsetof(CGS2IndirectConstants,pass0);
+                encode(0,groups,256,{{1,cb,c},{2,cb,p},{3,basis,0},{4,work,0},{5,partials,0},{6,states,0}});
+                encode(1,column+1u,32,{{1,cb,c},{2,cb,p},{3,h,0},{4,partials,0},{5,states,0}});
+                encode(2,groups,256,{{1,cb,c},{2,cb,p},{3,basis,0},{4,work,0},{5,h,0},{6,partials,0},{7,states,0}});
+            }
+            encode(3,groups,256,{{1,work,0},{2,partials,0},{3,states,0}});
+            encode(4,1,32,{{1,solverBuffer,0},{2,cb,c},{3,h,0},{4,rotations,0},{5,ls,0},
+                {6,states,0},{7,cb,offsetof(CGS2IndirectConstants,forcing)},
+                {8,partials,0},{9,nodeActive,0},{10,elementActive,0}});
+            encode(5,groups,256,{{1,cb,c},{2,work,0},{3,basis,vectorBytes*(column+1u)},
+                {4,partials,0},{5,states,0}});
+            if(indirect) {
+                [encoder setComputePipelineState:prepare];
+                [encoder setBuffer:shapeBuffer offset:0 atIndex:0];
+                [encoder setBuffer:states offset:0 atIndex:1];
+                const std::uint32_t count=9u;
+                [encoder setBytes:&count length:sizeof(count) atIndex:2];
+                [encoder setBuffer:executionRange offset:0 atIndex:3];
+                [encoder dispatchThreads:MTLSizeMake(1,1,1)
+                    threadsPerThreadgroup:MTLSizeMake(256,1,1)];barrier();
+                for(id<MTLBuffer> buffer:{cb,basis,work,partials,h,rotations,ls,states,nodeActive,elementActive,solverBuffer})
+                    [encoder useResource:buffer usage:MTLResourceUsageRead|MTLResourceUsageWrite];
+                if(declareRange)[encoder useResource:executionRange usage:MTLResourceUsageRead|MTLResourceUsageWrite];
+                [encoder useResource:graph usage:MTLResourceUsageRead];
+                [encoder executeCommandsInBuffer:graph indirectBuffer:executionRange indirectBufferOffset:0];barrier();
+            }
+            const std::array<std::uint32_t,2> slot{column,column};
+            [encoder setComputePipelineState:trace];
+            [encoder setBuffer:shapeBuffer offset:0 atIndex:0];
+            [encoder setBuffer:states offset:0 atIndex:1];
+            [encoder setBytes:&slot length:sizeof(slot) atIndex:2];
+            [encoder setBuffer:records offset:0 atIndex:3];
+            [encoder setBuffer:h offset:0 atIndex:4];
+            [encoder setBuffer:ls offset:0 atIndex:5];
+            [encoder dispatchThreadgroups:MTLSizeMake(1,1,1)
+                threadsPerThreadgroup:MTLSizeMake(1,1,1)];barrier();
+        }
+        [encoder endEncoding];
+        std::vector<id<MTLBuffer>> resultBuffers{basis,work,h,rotations,ls,states,records};
+        if(privateWorkingSet) {
+            auto copy=[command blitCommandEncoder];
+            require(copy!=nil,"CGS2 private readback blit allocation failed");
+            for(auto& buffer:resultBuffers) {
+                auto shared=[device newBufferWithLength:buffer.length
+                    options:MTLResourceStorageModeShared];
+                require(shared!=nil,"CGS2 private readback allocation failed");
+                [copy copyFromBuffer:buffer sourceOffset:0 toBuffer:shared
+                    destinationOffset:0 size:buffer.length];buffer=shared;
+            }
+            [copy endEncoding];
+        }
+        [command commit];[command waitUntilCompleted];
+        require(command.status==MTLCommandBufferStatusCompleted,
+                "CGS2 sequence command buffer failed");
+        std::vector<std::byte> result;
+        for(id<MTLBuffer> buffer:resultBuffers) {
+            const auto* begin=static_cast<const std::byte*>(buffer.contents);
+            result.insert(result.end(),begin,begin+buffer.length);
+        }
+        auto history=readBuffer<NMFGMRESStateGPU>(resultBuffers.back(),columns);
+        require(history[0].diagnostics.w==1.0f&&(replay||history.back().diagnostics.w>1.0f),
+                "CGS2 sequence failed to execute consecutive columns");
+        for(const auto& item:history) {
+            require(std::isfinite(item.diagnostics.x)&&
+                    item.rowEquilibration.y>0.0f,
+                    "CGS2 sequence produced a nonfinite or zero triangular diagonal");
+        }
+        return result;
+    };
+    const auto direct=run(false,false,false);
+    require(direct==run(true,false,false),
+            "consecutive CGS2 ICB diverged from ordinary encoding");
+    require(direct==run(true,true,false),
+            "explicit range-resource CGS2 ICB diverged");
+    require(direct==run(false,false,true),
+            "private-storage ordinary CGS2 differs from shared-storage reference");
+    require(direct==run(true,false,true),
+            "private-storage CGS2 ICB diverged from ordinary encoding");
+    require(direct==run(true,true,true),
+            "private-storage explicit range CGS2 ICB diverged");
+    std::cout<<"cgs2_single_encoder_sequence=PASS columns="<<columns
+        <<" nodes="<<nodes<<" relative_forcing="<<relativeForcing
+        <<" replay_supplied_capture="<<(replay?"true":"false")
+        <<" header_reconstructed="<<((replay && replay->manifest[@"diagnostic_header_reconstruction"]!=nil)?"true":"false")
+        <<" ordinary_icb_bitwise_parity=true range_variants=2"
+          " storage_variants=2\n";
+}
 
 void checkCGS2IndirectRange(
     id<MTLDevice> device,
@@ -18483,6 +18789,17 @@ int main(int argc, const char* argv[]) {
                 std::cout << "PASS left row equilibration " << checks << " checks" << std::endl;
                 return 0;
             }
+            if (argc == 3 && std::string(argv[1]) == "--cgs2-replay") {
+                checkCGS2ICBSequence(device, queue, library, true, argv[2]);
+                std::cout << "PASS CGS2 captured-input replay checks=" << checks << std::endl;
+                return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--cgs2-sequence-only") {
+                checkCGS2ICBSequence(device, queue, library, false);
+                checkCGS2ICBSequence(device, queue, library, true);
+                std::cout << "PASS CGS2 single-encoder sequence " << checks << " checks" << std::endl;
+                return 0;
+            }
             if (argc == 2 && std::string(argv[1]) == "--selector6-prefix-icb-only") {
                 checkSelector6PrefixICB(device, queue, library);
                 checkSelector6PrefixICB(device, queue, library, false);
@@ -18759,6 +19076,8 @@ int main(int argc, const char* argv[]) {
                     library, "numi_matter_metal::nm_fgmres_cgs2_finish_column");
             auto cgs2NormalizeICB = indirectPipeline(device, library,
                 "numi_matter_metal::nm_fgmres_cgs2_normalize");
+            checkCGS2ICBSequence(device, queue, library, false);
+                checkCGS2ICBSequence(device, queue, library, true);
             checkCGS2IndirectRange(device, queue, cgs2PrepareRange,
                 cgs2PartialICB, cgs2ReduceRowICB, cgs2UpdateICB,
                 cgs2MeasureNormICB, cgs2FinishColumnICB, cgs2NormalizeICB);

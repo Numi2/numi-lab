@@ -61,7 +61,10 @@ is not evidence of an equilibrated supported checkpoint.
 | 236 | Same root 25 rejection | 85 / 1,360 / 32 | Direct CSR exactly matches 235 compact outputs/failure; removes 852,179,904 bytes |
 | 237 | 31 accepted, step 32 contact rejection | 172 / 2,752 / 79 | Contact proof-composition experiment failed; production change removed |
 | 238 | 32 accepted | 144 / 2,304 / 62 | Immutable element sharing; all ten compact CSV traces byte-identical to 234 |
-| 239 | 0 accepted, vascular line-search rejection | 1 solve / 7 columns / 0 budget exhaustions | Experimental thin-cell/regional composite is not enabled in this source increment |
+| 239 | 0 accepted, vascular line-search rejection | Corrupted constants; counts invalid as convergence evidence | Superseded by the ownership diagnosis below |
+| 266 | 1 accepted | All 4,096 memory snapshots intact | Instrumented correctness trial; excluded from performance |
+| 267 | 32 accepted | 93 solves / 1,488 columns / 7 budget exhaustions | Repaired composite, diagnostics removed |
+| 268 | 32 accepted | 144 / 2,304 / 62 | Same clean binary, regional reference; all ten compact traces byte-identical to 238 |
 
 All ten compact traces of 232 and 234 also match exactly. The parallel
 owner certificate changes 12 floating reduction outputs by at most
@@ -82,11 +85,55 @@ the initial norm; several accepted line-search fractions are about
 0.000346. Inner solve cost, conditioning and globalization remain coupled.
 No early-stopping omission is claimed; completed-work suppression exists.
 
-The new current-operator thin-cell/regional trial covers 30,768 nodes in
-8,290 local patches (11,335 selected cells). It reaches the linear target
-in seven columns, then rejects the shared vascular line search. Its
-failure is retained before any promotion. Stronger preconditioning must
-be tested against physical nonlinear progress, not column count alone.
+The opt-in thin-cell/regional composite combines the existing regional
+basis with 8,290 fine-cell patches covering 30,768 nodes (11,335 selected
+cells). It removes no physical rows. Its earlier apparent seven-column
+completion was invalid diagnostic evidence: initialization subsequently
+replaced its live regional basis/RHS/coefficient buffers with a 16-byte
+dummy intended only for the standalone thin-cell path. This affected the opt-in composite prototype introduced in this session;
+the regional reference did not use that cleanup branch. The sparse-mode
+reduction wrote beyond that placeholder and corrupted adjacent solver
+constants. The resulting zero correction and failed physical certificate
+were consequences of this ownership bug, not useful convergence.
+
+Trial 265 traced every dispatch and then the individual indirect
+commands: the first changed constant snapshot followed
+nm_partitioned_reduction_reduce_sparse_mode_partials. The corrected
+initialization retains the live regional buffers for the composite and
+checks their ownership and extents before installing the runtime.
+Trial 266 accepted one complete Human step, with all 4,096 GPU constant
+snapshots and the final host check intact. Replaying that captured current
+operator input, with its original unmodified headers, passed 311 checks
+and ordinary/ICB bitwise parity. This is a correctness result, not a
+performance claim. Earlier corrupted composite trials remain retained
+and are not used to judge solver convergence.
+
+Indirect-command barriers are now set before encoding their dispatches,
+as required by [Apple's setBarrier documentation](https://developer.apple.com/documentation/metal/mtlindirectcomputecommand/setbarrier/).
+The same correction covers Newton-tail, operator, owner-mass, vascular,
+CGS2 and aggregate-prepare commands. Certification and the command-buffer
+timeline remain mandatory. Temporary per-dispatch snapshots, source-header
+capture and shader-validation experiments were archived outside production
+runtime routing before the matched longer comparison.
+
+The clean build passed the complete 2,665,964-check FGMRES contract suite.
+Trials 267 and 268 completed the same bounded 32-root release horizon in
+the same clean binary. The composite used 93 solves / 1,488 columns / 7
+budget exhaustions, versus 144 / 2,304 / 62 for the regional reference.
+Body times were 194.554049 s and 228.821494 s respectively: 15.0% less
+body time, or 17.6% higher observed throughput in this one pair.
+The composite body rate is 0.000002569980x; 0.1x remains about 38,911x
+higher. These are initialization-excluded body timings, not sustained
+rest or qualified native presentation throughput.
+
+The clean reference reproduced all ten compact traces of 238 byte for
+byte; correcting barrier encoding did not change that reference trajectory.
+The composite has different accepted approximations. Its full endpoint
+force and regional strain comparison remains pending, so its setting
+stays explicitly opt-in and experimental. Trial 269 additionally compares
+the already admitted cooperative tangent builder and enables the existing
+terminal fidelity export. A smaller solve count does not by itself pass
+the force/strain or complete-Human qualification gates.
 
 Remaining: supported equilibrium initialization, efficient valid local
 and interface solves, conditioning of retained thin cells, compact
@@ -109,7 +156,9 @@ unrelated changes already present on main.
 Passing relevant native checks:
 * deterministic contact incidence and owner enumeration: 7,911 checks;
 * FGMRES true residual, scaling, empty fields, telemetry, assembled
-  products and ICB paths: 2,665,138 checks after removal of trial 237;
+  products and ICB paths: 2,665,964 checks in clean build 43;
+* captured current Human CGS2 input: 311 checks, original headers retained,
+  ordinary/ICB bitwise parity;
 * direct sparse assembly component: 5,123 checks;
 * immutable one/two-environment storage, restore/tamper and borrowed
   mutation admission: 362 checks;
@@ -127,3 +176,21 @@ dumps are hard-linked, not regenerated for each trial. Current
 source-carrier mass inputs are protected after verified restoration from
 the archived cold evidence; see the recovery receipts. Failed trials
 remain evidence, not defaults.
+
+## Additional verified storage recovery
+
+Byte-identical closed native outputs were replaced with verified APFS
+clones while preserving paths, contents, modes, owners and nanosecond
+modification times. The additional pass recovered 5,783,883,776 physical
+bytes (5.39 GiB): available bytes increased from 15,795,802,112 to
+21,579,685,888. This is a filesystem measurement, not the sum of logical
+file sizes. Current sources, mass inputs and failure evidence remain.
+
+The following closed-output pass recovered another 2,249,322,496 physical
+bytes (2.09 GiB), from 19,428,036,608 to 21,677,359,104 available bytes.
+The archive at
+[the verified cold-evidence release](https://github.com/Numi2/macmini-evidence-archive/releases/tag/numi-20261104-cold-human-evidence)
+also retains the bounded solver input and exact diagnostic source for
+the regional-buffer failure and correction. The independent download restored and verified all 54 archived members,
+including their hashes, modes and nanosecond modification times. Original
+current evidence is retained.

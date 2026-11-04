@@ -4327,6 +4327,7 @@ struct Runtime::State {
     // operator and all residual/final acceptance paths unchanged.
     bool femHuman6GraphSchwarzEnabled = false;
     bool femThinCellSchwarzEnabled = false;
+    bool femThinCellRegionalCompositeEnabled = false;
     bool femHuman6GraphFullPSDContactBlocksEnabled = false;
     // Strict opt-in identity rows for statically isolated not-due FEM objects.
     // This affects only the additive graph preconditioner; the full operator,
@@ -6889,10 +6890,43 @@ RuntimeDiagnostics Runtime::initialize(
         const bool human6GraphRequested = thinCellSchwarzRequested ||
             (human6GraphSetting != nullptr &&
              std::strcmp(human6GraphSetting, "1") == 0);
+        const char* thinRegionalSetting =
+            std::getenv("NM_FEM_THIN_CELL_REGIONAL_COMPOSITE");
+        if (thinRegionalSetting != nullptr &&
+            std::strcmp(thinRegionalSetting, "0") != 0 &&
+            std::strcmp(thinRegionalSetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_THIN_CELL_REGIONAL_COMPOSITE must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool thinRegionalRequested = thinRegionalSetting != nullptr &&
+            std::strcmp(thinRegionalSetting, "1") == 0 &&
+            hasCoupledFEMVascularOwner;
+        // Explicitly admit the composite, not an unrestricted bypass of the
+        // old no-basis slice. The existing checked sparse regional correction
+        // and eight-node fine graph solve are additive in the same unscaled
+        // velocity residual. Neither condenses nor removes any physical row.
+        const auto& thinRegionalSource = world.humanPartitionedPreconditioner;
+        const bool completeThinRegionalSource =
+            thinRegionalSource.enabled && !thinRegionalSource.opticOnly &&
+            thinRegionalSource.blockModeCount == 12u &&
+            thinRegionalSource.regionCount > 0u &&
+            thinRegionalSource.modeCount == 12u * thinRegionalSource.regionCount &&
+            thinRegionalSource.basisNodeCount > 0u &&
+            thinRegionalSource.basisNodeCount <= world.dispatch.femNodeCount &&
+            thinRegionalSource.globalFEMNodeIndices.size() ==
+                thinRegionalSource.basisNodeCount;
+        if (thinRegionalRequested &&
+            (!thinCellSchwarzRequested || !completeThinRegionalSource)) {
+            diagnostics.message =
+                "thin-cell regional composite requires the complete checked Human regional basis and scoped fine-cell Schwarz";
+            return diagnostics;
+        }
+        candidate->femThinCellRegionalCompositeEnabled = thinRegionalRequested;
         if (thinCellSchwarzRequested &&
             (world.mixedSolver.executionBudgets.z != 6u ||
              world.mixedSolver.executionBudgets.w != 2u ||
-             world.humanPartitionedPreconditioner.enabled ||
+             (world.humanPartitionedPreconditioner.enabled && !thinRegionalRequested) ||
              humanHybridRequested || candidate->hasMutableFEMTopology ||
              candidate->hasAdaptive || world.dispatch.environmentCount != 1u ||
              world.dispatch.femNodeCount > 524288u ||
@@ -6900,7 +6934,7 @@ RuntimeDiagnostics Runtime::initialize(
              world.dispatch.cohesiveFaceCount != 0u ||
              (human6GraphSetting != nullptr &&
               std::strcmp(human6GraphSetting, "0") == 0))) {
-            diagnostics.message = "thin-cell Schwarz requires immutable one-environment cached selector-6 full coordinates, no Human basis/MPM/cohesive rows";
+            diagnostics.message = "thin-cell Schwarz requires immutable one-environment cached selector-6 full coordinates, no MPM/cohesive rows, and an explicitly admitted composite for a Human basis";
             return diagnostics;
         }
 
@@ -8283,6 +8317,9 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x5448494e53434832ull); // THINSCH2 (cache81-only assembly)
         }
+        if (candidate->femThinCellRegionalCompositeEnabled)
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x5448494e52454731ull); // THINREG1
         if (graphSolveSIMD32Requested || thinCellSchwarzRequested) {
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x475253494d443332ull); // GRSIMD32
@@ -10729,6 +10766,15 @@ RuntimeDiagnostics Runtime::initialize(
             }
             candidate->femRegionalGraphSolveJacobiSweeps =
                 graphSolveJacobiSweepsRequested;
+            if (candidate->femThinCellRegionalCompositeEnabled)
+                std::fprintf(stderr,
+                    "matter_thin_regional_composite enabled=1 regions=%u modes=%u "
+                    "fine_patches=%zu covered_nodes=%zu physical_rows_removed=0\n",
+                    world.humanPartitionedPreconditioner.regionCount,
+                    world.humanPartitionedPreconditioner.modeCount,
+                    graphSchwarz.patches.size(),
+                    std::size_t(std::count(graphSchwarz.potentialMask.begin(),
+                        graphSchwarz.potentialMask.end(), std::uint8_t{1u})));
             candidate->femRegionalGraphPatchCount =
                 static_cast<std::uint32_t>(graphSchwarz.patches.size());
             candidate->femRegionalGraphPatchNodeCount =
@@ -17229,10 +17275,31 @@ RuntimeDiagnostics Runtime::initialize(
             }
             candidate->fgmresAggregateFirstCycleICBEnabled = true;
         }
-        if (candidate->femThinCellSchwarzEnabled) {
+        // Only the standalone thin-cell path has no regional consumers.
+        // The composite still projects and solves the complete regional basis.
+        if (candidate->femThinCellSchwarzEnabled &&
+            !candidate->femThinCellRegionalCompositeEnabled) {
             candidate->femHumanPartitionedBasis = candidate->dummy;
             candidate->femHumanPartitionedProjectedRHS = candidate->dummy;
             candidate->femHumanPartitionedCoefficients = candidate->dummy;
+        }
+        if(candidate->femThinCellRegionalCompositeEnabled) {
+            const auto& regional=world.humanPartitionedPreconditioner;
+            const std::uint64_t rhsBytes=std::uint64_t(regional.modeCount)*
+                world.dispatch.environmentCount*sizeof(float);
+            const std::uint64_t coefficientBytes=std::uint64_t(regional.regionCount)*
+                regional.blockModeCount*world.dispatch.environmentCount*sizeof(float);
+            if(candidate->femHumanPartitionedBasis==nil ||
+               candidate->femHumanPartitionedProjectedRHS==nil ||
+               candidate->femHumanPartitionedCoefficients==nil ||
+               candidate->femHumanPartitionedBasis==candidate->dummy ||
+               candidate->femHumanPartitionedProjectedRHS==candidate->dummy ||
+               candidate->femHumanPartitionedCoefficients==candidate->dummy ||
+               candidate->femHumanPartitionedProjectedRHS.length<rhsBytes ||
+               candidate->femHumanPartitionedCoefficients.length<coefficientBytes) {
+                diagnostics.message="thin-cell regional composite lost its live regional storage";
+                return diagnostics;
+            }
         }
         state_ = std::move(candidate);
         return diagnostics;
@@ -19248,9 +19315,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const NSUInteger forceGroups = std::max<NSUInteger>(1u,
                 (static_cast<NSUInteger>(state.dispatch.environmentCount) *
                  state.dispatch.tetrahedronCount + 255u) / 256u);
+            [forceCommand setBarrier];
             [forceCommand concurrentDispatchThreadgroups:MTLSizeMake(
                 forceGroups, 1u, 1u) threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
-            [forceCommand setBarrier];
 
             id<MTLIndirectComputeCommand> residualCommand =
                 makeCommand("nm_fem_build_mechanical_residual");
@@ -19283,9 +19350,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const NSUInteger residualGroups = std::max<NSUInteger>(1u,
                 (static_cast<NSUInteger>(state.dispatch.environmentCount) *
                  state.dispatch.femNodeCount + 255u) / 256u);
+            [residualCommand setBarrier];
             [residualCommand concurrentDispatchThreadgroups:MTLSizeMake(
                 residualGroups, 1u, 1u) threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
-            [residualCommand setBarrier];
             if (state.femNewtonTailICBCacheEnabled) {
                 id<MTLIndirectComputeCommand> prepareCacheCommand =
                     makeCommand("nm_fem_prepare_algorithmic_tangent_columns");
@@ -19300,10 +19367,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const NSUInteger prepareGroups = std::max<NSUInteger>(1u,
                     (static_cast<NSUInteger>(state.dispatch.environmentCount) *
                      state.dispatch.tetrahedronCount + 255u) / 256u);
+                [prepareCacheCommand setBarrier];
                 [prepareCacheCommand concurrentDispatchThreadgroups:MTLSizeMake(
                     prepareGroups, 1u, 1u)
                     threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
-                [prepareCacheCommand setBarrier];
 
                 id<MTLIndirectComputeCommand> buildCacheCommand =
                     makeCommand(tangentCacheKernel);
@@ -19351,10 +19418,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const NSUInteger buildGroups = std::max<NSUInteger>(1u,
                     cooperativeCache ? (cacheTetrahedra + 7u) / 8u
                                      : (cacheTetrahedra * 9u + 255u) / 256u);
+                [buildCacheCommand setBarrier];
                 [buildCacheCommand concurrentDispatchThreadgroups:MTLSizeMake(
                     buildGroups, 1u, 1u)
                     threadsPerThreadgroup:MTLSizeMake(cacheThreads, 1u, 1u)];
-                [buildCacheCommand setBarrier];
             }
             id<MTLIndirectCommandBuffer> retainedNewtonTailICB = femNewtonTailICB;
             id<MTLBuffer> retainedNewtonTailConstants = femNewtonTailICBConstants;
@@ -28385,7 +28452,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         static_cast<const NMFGMRESStateGPU*>(records.contents);
                     for (std::uint32_t slot = 0u; slot < columnTraceCapacity; ++slot) {
                         const auto& sample = samples[slot];
-                        if (!(sample.diagnostics.w > 0.0f)) continue;
+                        if (!(sample.diagnostics.w > 0.0f) && slot >= NM_MIXED_FGMRES_RESTART) continue;
                         const std::uint32_t cycle = slot / NM_MIXED_FGMRES_RESTART;
                         std::ostringstream line;
                         line << "fem_krylov_column={\"schema\":1,\"root\":" << root
@@ -28403,7 +28470,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         appendTraceFloat(line,sample.nonlinear.y);
                         line << ",\"cycle_accepted\":"
                              << (sample.diagnostics.z > 0.5f ? "true" : "false")
-                             << ",\"observational_only\":true}";
+                             << ",\"nonlinear_latch\":";
+                        appendTraceFloat(line,sample.nonlinear.w);
+                        line << ",\"observed_column_count\":";
+                        appendTraceFloat(line,sample.diagnostics.w);
+                        line << ",\"column_executed\":"
+                             << (sample.diagnostics.w == float(slot % NM_MIXED_FGMRES_RESTART + 1u)
+                                 ? "true" : "false")
+                             << ",\"triangular_diagonal\":";
+                        appendTraceFloat(line,sample.rowEquilibration.y);
+                        line << ",\"least_squares_column\":";
+                        appendTraceFloat(line,sample.rowEquilibration.z);
+                        line << ",\"least_squares_next\":";
+                        appendTraceFloat(line,sample.rowEquilibration.w);
+                        line << ",\"observational_only\":true}";
                         std::fprintf(stderr,"%s\n",line.str().c_str());
                     }
                 }];
@@ -43879,9 +43959,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             256u, pipeline.maxTotalThreadsPerThreadgroup);
                         const NSUInteger groups = std::max<NSUInteger>(
                             1u, (itemCount + width - 1u) / width);
+                        [cmd setBarrier];
                         [cmd concurrentDispatchThreadgroups:MTLSizeMake(groups, 1u, 1u)
                             threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
-                        [cmd setBarrier];
                     };
                     const auto finishGrid256 = [&](
                         id<MTLIndirectComputeCommand> cmd, const char* name,
@@ -43890,12 +43970,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         id<MTLComputePipelineState> pipeline = state.pipeline(name);
                         if (pipeline == nil ||
                             pipeline.maxTotalThreadsPerThreadgroup < 256u) return false;
+                        [cmd setBarrier];
                         [cmd concurrentDispatchThreadgroups:
                             MTLSizeMake(std::max<NSUInteger>(groupsX, 1u),
                                         std::max<NSUInteger>(groupsY, 1u),
                                         std::max<NSUInteger>(groupsZ, 1u))
                             threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
-                        [cmd setBarrier];
                         return true;
                     };
                     const auto finishGroups256 = [&](
@@ -43904,10 +43984,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         id<MTLComputePipelineState> pipeline = state.pipeline(name);
                         if (pipeline == nil ||
                             pipeline.maxTotalThreadsPerThreadgroup < 256u) return false;
+                        [cmd setBarrier];
                         [cmd concurrentDispatchThreadgroups:
                             MTLSizeMake(std::max<NSUInteger>(groupCount, 1u), 1u, 1u)
                             threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
-                        [cmd setBarrier];
                         return true;
                     };
                     const auto finishGroups32 = [&](
@@ -43916,10 +43996,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         id<MTLComputePipelineState> pipeline = state.pipeline(name);
                         if (pipeline == nil ||
                             pipeline.maxTotalThreadsPerThreadgroup < 32u) return false;
+                        [cmd setBarrier];
                         [cmd concurrentDispatchThreadgroups:
                             MTLSizeMake(std::max<NSUInteger>(groupCount, 1u), 1u, 1u)
                             threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
-                        [cmd setBarrier];
                         return true;
                     };
                     NSUInteger prefixOrdinal = 0u;
@@ -44581,13 +44661,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 ownerMassICBRecord.diagonalScaleScratch);
                         bind(massCommand, 8u,
                             (__bridge id<MTLBuffer>)ownerMassICBRecord.factorValidity);
+                        [massCommand setBarrier];
                         [massCommand concurrentDispatchThreadgroups:
                             MTLSizeMake(ownerMassICBRecord.groupCountX,
                                         ownerMassICBRecord.groupCountY,
                                         ownerMassICBRecord.groupCountZ)
                             threadsPerThreadgroup:MTLSizeMake(
                                 ownerMassICBRecord.threadgroupWidth, 1u, 1u)];
-                        [massCommand setBarrier];
 
                         cmd = makeCommand(tailGraph, tailOrdinal,
                             "nm_merge_source_mass_status_into_matter");
@@ -44705,10 +44785,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         bind(cmd, 25u, state.vascularCompartmentCavity);
                         bind(cmd, 26u, state.femCandidate); bind(cmd, 27u, state.femAccepted);
                         if (state.vascularCooperativeCavityOperator) {
+                            [cmd setBarrier];
                             [cmd concurrentDispatchThreadgroups:
                                 MTLSizeMake(vascularTotal, 1u, 1u)
                                 threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
-                            [cmd setBarrier];
                         } else {
                             finish(cmd, vascularOperator, vascularTotal);
                         }
@@ -45404,9 +45484,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             };
                             const auto finish = [&](id<MTLIndirectComputeCommand> cmd,
                                 const NSUInteger groups, const NSUInteger width) {
+                                // Metal requires the barrier to be set before
+                                // encoding the indirect dispatch.
+                                [cmd setBarrier];
                                 [cmd concurrentDispatchThreadgroups:MTLSizeMake(groups, 1u, 1u)
                                     threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
-                                [cmd setBarrier];
                             };
                             for (std::uint32_t pass = 0u; pass < 2u; ++pass) {
                                 const NSUInteger passOffset = pass == 0u
@@ -45736,6 +45818,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBytes:&traceSlotAndColumn
                             length:sizeof(traceSlotAndColumn) atIndex:2u];
                         [encoder setBuffer:fgmresColumnTrace offset:0u atIndex:3u];
+                         [encoder setBuffer:state.fgmresHessenberg offset:0u atIndex:4u];
+                         [encoder setBuffer:state.fgmresLeastSquares offset:0u atIndex:5u];
                     });
                 }
                 if (fgmresColumnDispatch)
@@ -45821,9 +45905,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [prep setKernelBuffer:scalars offset:0u atIndex:7u];
                     [prep setKernelBuffer:rangeSource
                         offset:2u * sizeof(std::uint32_t) atIndex:8u];
+                    [prep setBarrier];
                     [prep concurrentDispatchThreadgroups:MTLSizeMake(1u,1u,1u)
                         threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
-                    [prep setBarrier];
                     const std::uint32_t prefixCount =
                         state.fgmresOperatorICBPrefixCommandCounts[ci];
                     const std::uint32_t tailCount =

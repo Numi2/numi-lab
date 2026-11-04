@@ -10915,13 +10915,22 @@ kernel void nm_fgmres_trace_column(
     device const NMFGMRESStateGPU* states [[buffer(1)]],
     constant uint2& slotAndColumn [[buffer(2)]],
     device NMFGMRESStateGPU* records [[buffer(3)]],
+    device const float* hessenberg [[buffer(4)]],
+    device const float* leastSquares [[buffer(5)]],
     uint environment [[thread_position_in_grid]]
 ) {
-    if (environment >= dispatch.environmentCount) return;
-    const NMFGMRESStateGPU state = states[environment];
-    if (state.nonlinear.w > 0.5f ||
-        state.diagnostics.w != float(slotAndColumn.y + 1u)) return;
-    records[slotAndColumn.x + environment] = state;
+    if (environment >= dispatch.environmentCount ||
+        slotAndColumn.y >= NM_MIXED_FGMRES_RESTART) return;
+    NMFGMRESStateGPU sample = states[environment];
+    // These three fields belong only to this observational copy. Preserve
+    // the real scale in .x; never write altered solver state back.
+    sample.rowEquilibration.y = hessenberg[fgmresMatrixIndex(
+        environment, slotAndColumn.y, slotAndColumn.y)];
+    sample.rowEquilibration.z = leastSquares[fgmresVectorIndex(
+        environment, slotAndColumn.y)];
+    sample.rowEquilibration.w = leastSquares[fgmresVectorIndex(
+        environment, slotAndColumn.y + 1u)];
+    records[slotAndColumn.x + environment] = sample;
 }
 
 kernel void nm_fgmres_cgs2_finish_column(
