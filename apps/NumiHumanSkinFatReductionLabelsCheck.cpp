@@ -12,6 +12,9 @@
 #include <string>
 #include <set>
 #include <vector>
+#include <fstream>
+#include <sstream>
+#include <unistd.h>
 
 using namespace metalrobo::human::coarse_tissue;
 
@@ -964,6 +967,119 @@ void runCombinedOpticConsumerTest() {
                 static_cast<std::size_t>(a) * payload.modeCount + b]) <= 2.0e-5 * scale);
         }
     }
+    // Compile the same bilateral anatomical owner directly into compact
+    // storage; coefficient parity, source rows and masses remain exact.
+    auto compactWorld=world;
+    const char* oldSparse=std::getenv("NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS");
+    const bool hadSparse=oldSparse!=nullptr;
+    const std::string savedSparse=oldSparse==nullptr?std::string{}:std::string(oldSparse);
+    assert(::setenv("NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS","1",1)==0);
+    const auto compactCombined=buildAndInstallRegisteredSkinFatOpticPreconditioner(
+        compactWorld,0u,skinLabels,skin,
+        std::span<const RegisteredOpticNerveReductionObject>(opticObjects),
+        true,false,error);
+    if(hadSparse) assert(::setenv("NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS",savedSparse.c_str(),1)==0);
+    else assert(::unsetenv("NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS")==0);
+    assert(compactCombined.valid() && error.empty());
+    const auto& compactPayload=compactWorld.humanPartitionedPreconditioner;
+    assert(compactPayload.sparseCoefficientEncoding && compactPayload.basisValues.empty());
+    assert(compactCombined.basis.values.empty());
+    assert(compactPayload.globalFEMNodeIndices==payload.globalFEMNodeIndices);
+    assert(compactPayload.regionLabels==payload.regionLabels);
+    assert(compactPayload.modeCount==payload.modeCount);
+    assert(compactPayload.sourceWorldPhysicsFingerprint==payload.sourceWorldPhysicsFingerprint);
+    for(std::uint32_t mode=0;mode<payload.modeCount;++mode)
+        for(std::uint32_t row=0;row<payload.basisNodeCount;++row) {
+            const auto a=payload.basisValues[std::size_t(mode)*payload.basisNodeCount+row];
+            const auto b=numi::matter::humanPartitionedCoefficient(compactPayload,mode,row);
+            assert(a.x==b.x && a.y==b.y && a.z==b.z && a.w==b.w);
+        }
+    std::vector<std::uint32_t> denseFine,compactFine;
+    assert(numi::matter::collectPartitionedFineCoordinateRows(payload,denseFine,error));
+    assert(numi::matter::collectPartitionedFineCoordinateRows(compactPayload,compactFine,error));
+    assert(denseFine==compactFine);
+    for(std::uint32_t row=0;row<compactWorld.fem.nodes.size();++row)
+        assert(compactWorld.fem.nodes[row].positionAndMass.w==sourceMasses[row]);
+
+    // Exercise the complete source-bound trace -> selection -> recompilation
+    // path, including compact fine-row recovery and physical source retention.
+    numi::matter::detail::HumanPartitionedPreconditionerSource witnessPayload;
+    assert(::setenv("NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS","1",1)==0);
+    const auto embeddedCompact=buildAndInstallRegisteredSkinFatOpticPreconditioner(
+        compactWorld,0u,skinLabels,skin,
+        std::span<const RegisteredOpticNerveReductionObject>(opticObjects),
+        false,false,error,false,{},4u,false,true,&witnessPayload);
+    if(hadSparse) assert(::setenv("NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS",savedSparse.c_str(),1)==0);
+    else assert(::unsetenv("NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS")==0);
+    assert(embeddedCompact.valid() && witnessPayload.enabled && error.empty());
+    std::vector<std::uint32_t> initialWitnessFine;
+    assert(numi::matter::collectPartitionedFineCoordinateRows(witnessPayload,initialWitnessFine,error));
+    std::uint32_t witnessRow=NM_INVALID_INDEX,witnessRegion=NM_INVALID_INDEX;
+    for(std::uint32_t row=0;row<witnessPayload.basisNodeCount && witnessRow==NM_INVALID_INDEX;++row) {
+        double best=0.0;
+        for(std::uint32_t region=0;region<witnessPayload.regionCount;++region) {
+            double energy=0.0;
+            for(std::uint32_t local=0;local<witnessPayload.blockModeCount;++local) {
+                const auto v=numi::matter::humanPartitionedCoefficient(
+                    witnessPayload,region*witnessPayload.blockModeCount+local,row);
+                energy+=double(v.x)*v.x+double(v.y)*v.y+double(v.z)*v.z;
+            }
+            if(energy>best) {best=energy;witnessRegion=region;}
+        }
+        if(best>0.0) witnessRow=row;
+    }
+    assert(witnessRow!=NM_INVALID_INDEX && witnessRegion<witnessPayload.regionCount);
+    std::ostringstream trace;
+    trace<<"fem_true_residual_cycle={\"schema\":2,\"final_cycle\":true,"
+        "\"hybrid_physical_residual_witness\":{\"source_physics_fingerprint\":\""
+        <<std::hex<<witnessPayload.sourceWorldPhysicsFingerprint
+        <<"\",\"basis_layout_fingerprint_fnv1a64\":\""
+        <<numi::matter::partitionedReductionSourceLayoutFingerprint(witnessPayload)
+        <<"\",\"object_index\":"<<std::dec<<witnessPayload.objectIndex
+        <<",\"basis_node_count\":"<<witnessPayload.basisNodeCount
+        <<",\"region_count\":"<<witnessPayload.regionCount
+        <<",\"block_mode_count\":"<<witnessPayload.blockModeCount
+        <<",\"mode_count\":"<<witnessPayload.modeCount<<",\"regions\":[";
+    for(std::uint32_t region=0;region<witnessPayload.regionCount;++region) {
+        if(region)trace<<',';
+        trace<<"{\"region_label\":"<<witnessPayload.regionLabels[region]<<",\"nodes\":[";
+        if(region==witnessRegion)
+            trace<<"{\"global_node\":"<<witnessPayload.globalFEMNodeIndices[witnessRow]
+                <<",\"residual_l2\":1,\"residual_max_abs\":1}";
+        trace<<"]}";
+    }
+    trace<<"]}}\n";
+    char tracePath[]="/tmp/numi-compact-refinement-XXXXXX";
+    const auto traceFD=mkstemp(tracePath);assert(traceFD>=0);assert(close(traceFD)==0);
+    {std::ofstream output(tracePath);output<<trace.str();assert(output.good());}
+    const char* oldTrace=std::getenv("NM_FEM_HYBRID_RESIDUAL_REFINEMENT_TRACE");
+    const bool hadTrace=oldTrace!=nullptr;
+    const std::string savedTrace=oldTrace==nullptr?std::string{}:std::string(oldTrace);
+    assert(::setenv("NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS","1",1)==0);
+    assert(::setenv("NM_FEM_HYBRID_RESIDUAL_REFINEMENT_TRACE",tracePath,1)==0);
+    auto refinedWorld=world;
+    const auto refinedCompact=buildAndInstallRegisteredSkinFatOpticPreconditioner(
+        refinedWorld,0u,skinLabels,skin,
+        std::span<const RegisteredOpticNerveReductionObject>(opticObjects),
+        true,false,error,false,{},4u,true,true);
+    if(hadSparse) assert(::setenv("NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS",savedSparse.c_str(),1)==0);
+    else assert(::unsetenv("NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS")==0);
+    if(hadTrace) assert(::setenv("NM_FEM_HYBRID_RESIDUAL_REFINEMENT_TRACE",savedTrace.c_str(),1)==0);
+    else assert(::unsetenv("NM_FEM_HYBRID_RESIDUAL_REFINEMENT_TRACE")==0);
+    assert(unlink(tracePath)==0);
+    if(!refinedCompact.valid())std::cerr<<"compact refinement fixture: "<<error<<'\n';
+    assert(refinedCompact.valid() && error.empty());
+    const auto& refinedPayload=refinedWorld.humanPartitionedPreconditioner;
+    assert(refinedPayload.sparseCoefficientEncoding && refinedPayload.basisValues.empty());
+    assert(refinedPayload.globalFEMNodeIndices==witnessPayload.globalFEMNodeIndices);
+    assert(refinedPayload.sourceWorldPhysicsFingerprint==witnessPayload.sourceWorldPhysicsFingerprint);
+    assert(numi::matter::collectPartitionedFineCoordinateRows(refinedPayload,compactFine,error));
+    assert(std::includes(compactFine.begin(),compactFine.end(),initialWitnessFine.begin(),initialWitnessFine.end()));
+    assert(std::binary_search(compactFine.begin(),compactFine.end(),
+        witnessPayload.globalFEMNodeIndices[witnessRow]));
+    for(std::uint32_t row=0;row<refinedWorld.fem.nodes.size();++row)
+        assert(refinedWorld.fem.nodes[row].positionAndMass.w==sourceMasses[row]);
+
     auto opticOnlyWorld = world;
     const char* previousOpticOnlySetting =
         std::getenv("NM_FEM_HUMAN_PARTITIONED_OPTIC_ONLY");
@@ -1212,6 +1328,60 @@ void runResidualEnrichmentWitnessChecks() {
         source,witness,preservedFine,4u,1u,8u,result,error,&initialSelection));
     assert((result==std::vector<std::uint32_t>{10u,11u,13u}));
     assert(initialSelection.availableFineRowBudget == 2u);
+
+    // Compact refinement must select the same exact source rows as dense,
+    // without a dense compatibility copy. A trace from another encoding or
+    // coefficient layout remains stale, even when its dimensions agree.
+    auto compact=source;
+    PartitionedReductionBasis compactBasis;
+    compactBasis.nodeCount=source.basisNodeCount;
+    compactBasis.modeCount=source.modeCount;
+    compactBasis.values=source.basisValues;
+    assert(packSparseHumanPartitionedBasis(
+        compactBasis,compact.blockModeIndices,compact,error));
+    assert(compact.basisValues.empty());
+    auto compactWitness=witness;
+    compactWitness.sourceLayoutFingerprint=partitionedReductionSourceLayoutFingerprint(compact);
+    assert(compactWitness.sourceLayoutFingerprint!=witness.sourceLayoutFingerprint);
+    assert(selectPartitionedResidualEnrichmentFineNodes(
+        compact,compactWitness,preservedFine,4u,1u,8u,result,error));
+    assert((result==std::vector<std::uint32_t>{10u,11u,13u}));
+    assert(!selectPartitionedResidualEnrichmentFineNodes(
+        compact,witness,preservedFine,4u,1u,8u,result,error));
+    auto changedCompact=compact;
+    changedCompact.sparseBasisValues[0].x=2.0f;
+    assert(partitionedReductionSourceLayoutFingerprint(changedCompact)!=
+           compactWitness.sourceLayoutFingerprint);
+    assert(!selectPartitionedResidualEnrichmentFineNodes(
+        changedCompact,compactWitness,preservedFine,4u,1u,8u,result,error));
+    auto malformedCompact=compact;
+    malformedCompact.sparseNodeModeValueIndices[0]=0xFFFFFFFFu;
+    auto malformedWitness=compactWitness;
+    malformedWitness.sourceLayoutFingerprint=partitionedReductionSourceLayoutFingerprint(malformedCompact);
+    assert(!selectPartitionedResidualEnrichmentFineNodes(
+        malformedCompact,malformedWitness,preservedFine,4u,1u,8u,result,error));
+    malformedCompact=compact;
+    malformedCompact.sparseBasisValues[0].x=std::numeric_limits<float>::quiet_NaN();
+    malformedWitness.sourceLayoutFingerprint=partitionedReductionSourceLayoutFingerprint(malformedCompact);
+    assert(!selectPartitionedResidualEnrichmentFineNodes(
+        malformedCompact,malformedWitness,preservedFine,4u,1u,8u,result,error));
+    std::vector<std::uint32_t> fineDense,fineCompact;
+    assert(numi::matter::collectPartitionedFineCoordinateRows(source,fineDense,error));
+    assert(numi::matter::collectPartitionedFineCoordinateRows(compact,fineCompact,error));
+    assert(fineDense.empty() && fineDense==fineCompact);
+    auto zeroRowSource=source;
+    zeroRowSource.basisValues[3u*4u+3u]={};
+    auto zeroRowCompact=zeroRowSource;
+    compactBasis.values=zeroRowSource.basisValues;
+    assert(packSparseHumanPartitionedBasis(
+        compactBasis,zeroRowCompact.blockModeIndices,zeroRowCompact,error));
+    assert(numi::matter::collectPartitionedFineCoordinateRows(zeroRowSource,fineDense,error));
+    assert(numi::matter::collectPartitionedFineCoordinateRows(zeroRowCompact,fineCompact,error));
+    assert((fineDense==std::vector<std::uint32_t>{13u}) && fineDense==fineCompact);
+    assert(!collectPartitionedFineCoordinateRows(malformedCompact,fineCompact,error));
+    assert(fineCompact.empty());
+    auto invalidMap=compact; invalidMap.globalFEMNodeIndices[1]=10u;
+    assert(!collectPartitionedFineCoordinateRows(invalidMap,fineCompact,error));
 
     const std::array<std::uint32_t, 4> overBudgetExisting{10u,11u,12u,13u};
     assert(!selectPartitionedResidualEnrichmentFineNodes(

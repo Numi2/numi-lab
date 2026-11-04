@@ -1774,11 +1774,6 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
         failed.basis.error = error;
         return failed;
     }
-    if (sparseCoefficientEncoding && witnessTracePath!=nullptr) {
-        Candidate failed;failed.objectIndex=skinObjectIndex;
-        error="sparse preconditioner storage cannot consume a dense-layout residual refinement trace";
-        failed.error=failed.basis.error=error;return failed;
-    }
     if (installPayload && allowTraceRefinement && witnessTracePath != nullptr &&
         !requestedHybridResidualReductionFactor(
             buildReductionFactor, refinementReductionFactor, error)) {
@@ -2385,25 +2380,10 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
         std::vector<std::uint32_t> existingFineRows;
         std::size_t cumulativeAddedRows = 0u;
         for (std::size_t stage = 0u; stage < witnesses.size(); ++stage) {
-            existingFineRows.clear();
-            existingFineRows.reserve(activePayload.basisNodeCount);
-            for (std::uint32_t row = 0u; row < activePayload.basisNodeCount; ++row) {
-                bool hasBasisSupport = false;
-                for (std::uint32_t mode = 0u; mode < activePayload.modeCount; ++mode) {
-                    const auto value = activePayload.basisValues[
-                        std::size_t(mode) * activePayload.basisNodeCount + row];
-                    if (!std::isfinite(value.x) || !std::isfinite(value.y) ||
-                        !std::isfinite(value.z) || !std::isfinite(value.w)) {
-                        error = "current Human basis contains a non-finite coefficient during residual refinement";
-                        activeCandidate.error = error;
-                        activeCandidate.basis.error = error;
-                        return activeCandidate;
-                    }
-                    hasBasisSupport = hasBasisSupport || value.x != 0.0f ||
-                        value.y != 0.0f || value.z != 0.0f;
-                }
-                if (!hasBasisSupport)
-                    existingFineRows.push_back(activePayload.globalFEMNodeIndices[row]);
+            if (!numi::matter::collectPartitionedFineCoordinateRows(
+                    activePayload,existingFineRows,error)) {
+                activeCandidate.error=activeCandidate.basis.error=error;
+                return activeCandidate;
             }
             std::vector<std::uint32_t> selectedFineRows;
             numi::matter::PartitionedReductionResidualEnrichmentSelection selection;
@@ -2455,7 +2435,8 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
             Candidate refined = buildAndInstallRegisteredSkinFatOpticPreconditioner(
                 world, skinObjectIndex, skinLabels, skinSource, opticObjects,
                 false, massWhiten, error, keepSkinLayerZeroFine, selectedFineRows,
-                requestedFactor, false, embedContactBoundary, &rebuiltPayload);
+                requestedFactor, false, embedContactBoundary, &rebuiltPayload,
+                opticLongitudinalBinCount);
             if (!refined.valid()) return refined;
             if (!rebuiltPayload.enabled ||
                 rebuiltPayload.sourceWorldPhysicsFingerprint != sourceFingerprint) {
@@ -2465,24 +2446,9 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
                 return refined;
             }
             std::vector<std::uint32_t> rebuiltFineRows;
-            rebuiltFineRows.reserve(rebuiltPayload.basisNodeCount);
-            for (std::uint32_t row = 0u; row < rebuiltPayload.basisNodeCount; ++row) {
-                bool hasBasisSupport = false;
-                for (std::uint32_t mode = 0u; mode < rebuiltPayload.modeCount; ++mode) {
-                    const auto value = rebuiltPayload.basisValues[
-                        std::size_t(mode) * rebuiltPayload.basisNodeCount + row];
-                    if (!std::isfinite(value.x) || !std::isfinite(value.y) ||
-                        !std::isfinite(value.z) || !std::isfinite(value.w)) {
-                        error = "rebuilt residual stage contains a non-finite basis coefficient";
-                        refined.error = error;
-                        refined.basis.error = error;
-                        return refined;
-                    }
-                    hasBasisSupport = hasBasisSupport || value.x != 0.0f ||
-                        value.y != 0.0f || value.z != 0.0f;
-                }
-                if (!hasBasisSupport)
-                    rebuiltFineRows.push_back(rebuiltPayload.globalFEMNodeIndices[row]);
+            if (!numi::matter::collectPartitionedFineCoordinateRows(
+                    rebuiltPayload,rebuiltFineRows,error)) {
+                refined.error=refined.basis.error=error;return refined;
             }
             if (!std::includes(rebuiltFineRows.begin(), rebuiltFineRows.end(),
                                selectedFineRows.begin(), selectedFineRows.end())) {

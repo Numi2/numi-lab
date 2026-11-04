@@ -6,6 +6,7 @@
 
 #include "numi/matter/matter.hpp"
 #include "numi/matter/partitioned_reduction_basis.hpp"
+#include "numi/matter/partitioned_reduction_sparse_support.hpp"
 
 #include <algorithm>
 #include <array>
@@ -115,6 +116,24 @@ struct CompiledWorldPartitionedReductionBasis {
     for(auto x:source.globalFEMNodeIndices) mix(x);
     for(auto x:source.blockModeIndices) mix(x);
     for(const auto& v:source.basisValues){mix(std::bit_cast<std::uint32_t>(v.x));mix(std::bit_cast<std::uint32_t>(v.y));mix(std::bit_cast<std::uint32_t>(v.z));mix(std::bit_cast<std::uint32_t>(v.w));}
+    // Preserve legacy dense tokens exactly. Compact witnesses bind every
+    // coefficient and index arena; equal dimensions alone are not provenance.
+    if (source.sparseCoefficientEncoding) {
+        mix(0x53505253u);
+        const auto indices=[&](const auto& values) {
+            mix(static_cast<std::uint32_t>(values.size()));
+            for (const auto value:values) mix(value);
+        };
+        indices(source.sparseRegionSupportOffsets);
+        indices(source.sparseRegionSupportRows);
+        indices(source.sparseModeValueOffsets);
+        indices(source.sparseNodeModeValueIndices);
+        mix(static_cast<std::uint32_t>(source.sparseBasisValues.size()));
+        for (const auto& v:source.sparseBasisValues) {
+            mix(std::bit_cast<std::uint32_t>(v.x)); mix(std::bit_cast<std::uint32_t>(v.y));
+            mix(std::bit_cast<std::uint32_t>(v.z)); mix(std::bit_cast<std::uint32_t>(v.w));
+        }
+    }
     return h==0u?1u:h;
 }
 struct PartitionedReductionResidualWitnessNode {
@@ -237,6 +256,27 @@ template<class T> [[nodiscard]] inline bool unsignedNumber(std::string_view valu
     output=std::move(candidate);error.clear();return true;
 }
 
+// Zero-support rows are the existing exact fine complement. Recover them
+// from validated support in either encoding without scanning a dense mirror.
+[[nodiscard]] inline bool collectPartitionedFineCoordinateRows(
+    const detail::HumanPartitionedPreconditionerSource& source,
+    std::vector<std::uint32_t>& rows, std::string& error) {
+    rows.clear();
+    if (source.globalFEMNodeIndices.size()!=source.basisNodeCount ||
+        !std::is_sorted(source.globalFEMNodeIndices.begin(),source.globalFEMNodeIndices.end()) ||
+        std::adjacent_find(source.globalFEMNodeIndices.begin(),
+            source.globalFEMNodeIndices.end())!=source.globalFEMNodeIndices.end()) {
+        error="fine-coordinate source map is not exact, ordered and unique"; return false;
+    }
+    const auto support=buildPartitionedReductionSparseSupport(source);
+    if (!support.valid()) {error="fine-coordinate basis support is invalid: "+support.error;return false;}
+    rows.reserve(source.basisNodeCount);
+    for (std::uint32_t row=0;row<source.basisNodeCount;++row)
+        if (support.nodeModeRanges[row].count==0u)
+            rows.push_back(source.globalFEMNodeIndices[row]);
+    error.clear();return true;
+}
+
 // Select only exact mapped, region-owned interior rows; keep existing fine rows.
 [[nodiscard]] inline bool selectPartitionedResidualEnrichmentFineNodes(
     const detail::HumanPartitionedPreconditionerSource& source,
@@ -276,12 +316,20 @@ template<class T> [[nodiscard]] inline bool unsignedNumber(std::string_view valu
         std::adjacent_find(source.globalFEMNodeIndices.begin(),
                            source.globalFEMNodeIndices.end()) !=
             source.globalFEMNodeIndices.end() ||
-        source.basisValues.size() !=
-            std::size_t(source.modeCount) * source.basisNodeCount ||
+        (!source.sparseCoefficientEncoding &&
+         source.basisValues.size() !=
+            std::size_t(source.modeCount) * source.basisNodeCount) ||
         maximumPerRegion == 0u || maximumPerRegion > 8u ||
         maximumTotal == 0u ||
         maximumTotal > kHumanPartitionedBasisMaximumRegionCount * 4u)
         return fail("residual enrichment source or bounded selection dimensions are invalid");
+
+    PartitionedReductionSparseSupport compactSupport;
+    if (source.sparseCoefficientEncoding) {
+        compactSupport=buildPartitionedReductionSparseSupport(source);
+        if (!compactSupport.valid())
+            return fail("residual enrichment compact source support is invalid");
+    }
 
     const std::set<std::uint32_t> uniqueLabels(
         source.regionLabels.begin(), source.regionLabels.end());
@@ -338,8 +386,21 @@ template<class T> [[nodiscard]] inline bool unsignedNumber(std::string_view valu
             std::distance(source.globalFEMNodeIndices.begin(), it));
         std::uint32_t owner = NM_INVALID_INDEX;
         double strongest = 0.0;
+        std::vector<double> compactRegionEnergy;
+        if (source.sparseCoefficientEncoding) {
+            compactRegionEnergy.assign(source.regionCount,0.0);
+            const auto range=compactSupport.nodeModeRanges[row];
+            for (auto i=range.first;i<range.first+range.count;++i) {
+                const auto slot=compactSupport.nodeModeSlots[i];
+                const auto value=source.sparseBasisValues[source.sparseNodeModeValueIndices[i]];
+                compactRegionEnergy[slot/source.blockModeCount] +=
+                    double(value.x)*value.x+double(value.y)*value.y+double(value.z)*value.z;
+            }
+        }
         for (std::uint32_t region = 0u; region < source.regionCount; ++region) {
-            double energy = 0.0;
+            double energy = source.sparseCoefficientEncoding
+                ? compactRegionEnergy[region] : 0.0;
+            if (!source.sparseCoefficientEncoding)
             for (std::uint32_t local = 0u; local < source.blockModeCount; ++local) {
                 const auto mode = source.blockModeIndices[
                     std::size_t(region) * source.blockModeCount + local];
