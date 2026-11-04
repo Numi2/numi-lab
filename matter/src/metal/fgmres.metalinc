@@ -3781,6 +3781,84 @@ inline float3x3 fgmresApplyCachedTangent(
     return componentsMatrix(responseComponents);
 }
 
+// Same ordered scalar dots as fgmresApplyCachedTangent for three nodal
+// directions. Share each device cache load; no new cache, precision change,
+// reassociation, or omitted finite/product/partial-sum checks.
+inline void fgmresApplyCachedTangentThreeDirections(
+    device const float* tangentCache,
+    const uint globalTetrahedron,
+    thread const float3x3* localDirections,
+    thread float3x3* tangents,
+    thread bool* valid
+) {
+    float directions[3][9];
+    float responses[3][9];
+    for (uint axis = 0u; axis < 3u; ++axis) {
+        matrixComponents(localDirections[axis], directions[axis]);
+        valid[axis] = true;
+    }
+    const uint cacheBase = globalTetrahedron * 81u;
+    for (uint row = 0u; row < 9u; ++row) {
+        float response0 = 0.0f, response1 = 0.0f, response2 = 0.0f;
+        for (uint column = 0u; column < 9u; ++column) {
+            const float cacheValue = tangentCache[cacheBase + row * 9u + column];
+            const float component0 = directions[0][column];
+            const float component1 = directions[1][column];
+            const float component2 = directions[2][column];
+            const float product0 = cacheValue * component0;
+            const float product1 = cacheValue * component1;
+            const float product2 = cacheValue * component2;
+            response0 += cacheValue * component0;
+            response1 += cacheValue * component1;
+            response2 += cacheValue * component2;
+            const bool finiteCache = isfinite(cacheValue);
+            valid[0] = valid[0] && finiteCache && isfinite(component0) &&
+                isfinite(product0) && isfinite(response0);
+            valid[1] = valid[1] && finiteCache && isfinite(component1) &&
+                isfinite(product1) && isfinite(response1);
+            valid[2] = valid[2] && finiteCache && isfinite(component2) &&
+                isfinite(product2) && isfinite(response2);
+        }
+        responses[0][row] = response0;
+        responses[1][row] = response1;
+        responses[2][row] = response2;
+    }
+    for (uint axis = 0u; axis < 3u; ++axis)
+        tangents[axis] = componentsMatrix(responses[axis]);
+}
+
+// Native arithmetic verification of the production shared-RHS helper against
+// the unchanged one-direction evaluator. Not scheduled by the runtime.
+kernel void nm_fgmres_check_cached_three_directions(
+    device const float* cache [[buffer(0)]],
+    device const float* directions [[buffer(1)]],
+    device float4* result [[buffer(2)]],
+    device uint* finiteFlags [[buffer(3)]],
+    constant uint& count [[buffer(4)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= count) return;
+    float3x3 inputs[3], actual[3];
+    bool valid[3];
+    for (uint axis=0u;axis<3u;++axis) {
+        float components[9];
+        for (uint c=0u;c<9u;++c)
+            components[c]=directions[global*27u+axis*9u+c];
+        inputs[axis]=componentsMatrix(components);
+    }
+    fgmresApplyCachedTangentThreeDirections(cache,global,inputs,actual,valid);
+    for (uint axis=0u;axis<3u;++axis) {
+        bool referenceValid=true;
+        const float3x3 reference=fgmresApplyCachedTangent(
+            cache,global,inputs[axis],referenceValid);
+        finiteFlags[global*6u+axis]=valid[axis]?1u:0u;
+        finiteFlags[global*6u+3u+axis]=referenceValid?1u:0u;
+        for (uint column=0u;column<3u;++column) {
+            result[global*18u+axis*3u+column]=float4(actual[axis][column],0.0f);
+            result[global*18u+9u+axis*3u+column]=float4(reference[column],0.0f);
+        }
+    }
+}
+
 // Reuse mode 1 is exact completed-tail reuse; mode 2 is the explicit
 // conditioning-only lag option within one physical microstep. Iteration zero,
 // forced rebuilds, and selected diagnostic captures pass mode 0. Every mode
@@ -7674,6 +7752,8 @@ kernel void nm_fgmres_build_tangent_fem_block_preconditioner_cached_simd(
         }
         if (!foundLocalSlot) break;
         resultKind = 1u;
+        float3x3 deformationDirections[3];
+        float3x3 localDirections[3];
         for (uint axisIndex = 0u; axisIndex < 3u; ++axisIndex) {
             const float3 axis = axisIndex == 0u
                 ? float3(1.0f, 0.0f, 0.0f)
@@ -7683,13 +7763,19 @@ kernel void nm_fgmres_build_tangent_fem_block_preconditioner_cached_simd(
             const float3 p1 = localSlot == 1u ? axis : float3(0.0f);
             const float3 p2 = localSlot == 2u ? axis : float3(0.0f);
             const float3 p3 = localSlot == 3u ? axis : float3(0.0f);
-            const float3x3 deformationDirection =
+            deformationDirections[axisIndex] =
                 float3x3(p1 - p0, p2 - p0, p3 - p0) * inverseRest;
-            const float3x3 localDirection =
-                femMaterialInput(object, tetrahedron, deformationDirection);
-            bool valid = true;
-            float3x3 tangent = fgmresApplyCachedTangent(
-                tangentCache, globalTet, localDirection, valid);
+            localDirections[axisIndex] = femMaterialInput(
+                object, tetrahedron, deformationDirections[axisIndex]);
+        }
+        float3x3 tangents[3];
+        bool tangentValid[3];
+        fgmresApplyCachedTangentThreeDirections(
+            tangentCache, globalTet, localDirections, tangents, tangentValid);
+        for (uint axisIndex = 0u; axisIndex < 3u; ++axisIndex) {
+            const float3x3 deformationDirection = deformationDirections[axisIndex];
+            const bool valid = tangentValid[axisIndex];
+            float3x3 tangent = tangents[axisIndex];
             const bool finiteTangent = all(isfinite(tangent[0])) &&
                 all(isfinite(tangent[1])) && all(isfinite(tangent[2]));
             if (!valid || !finiteTangent) {

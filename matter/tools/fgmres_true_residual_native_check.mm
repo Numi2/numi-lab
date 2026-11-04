@@ -11287,6 +11287,59 @@ void checkCertifiedEmptyRestartReuse(
 
 
 
+void checkCachedThreeDirections(id<MTLDevice> device,id<MTLCommandQueue> queue,
+                                id<MTLLibrary> library) {
+    auto p=pipeline(device,library,
+        "numi_matter_metal::nm_fgmres_check_cached_three_directions");
+    constexpr std::uint32_t count=273u;
+    std::vector<float> cache(count*81u),directions(count*27u);
+    std::uint32_t seed=0x4b1d2173u;
+    const auto random=[&]() {
+        seed=1664525u*seed+1013904223u;
+        return float(int((seed>>8u)%4095u)-2047)*(1.0f/128.0f);
+    };
+    for(auto& v:cache)v=random();
+    for(auto& v:directions)v=random();
+    // Finite cancellation, sparse/signed-zero directions, invalid cache/input,
+    // and finite input whose product or partial sum overflows.
+    for(std::uint32_t c=0u;c<27u;++c)directions[256u*27u+c]=c%2u?-0.0f:0.0f;
+    for(std::uint32_t c=0u;c<81u;++c)cache[257u*81u+c]=(c%3u==0u?1.0e15f:(c%3u==1u?-1.0e15f:1.0f));
+    for(std::uint32_t c=0u;c<27u;++c)directions[257u*27u+c]=1.0f;
+    cache[258u*81u]=NAN;cache[259u*81u+80u]=INFINITY;
+    directions[260u*27u+9u]=NAN;directions[261u*27u+26u]=-INFINITY;
+    for(std::uint32_t c=0u;c<81u;++c)cache[262u*81u+c]=std::numeric_limits<float>::max();
+    for(std::uint32_t c=0u;c<27u;++c)directions[262u*27u+c]=2.0f;
+    for(std::uint32_t t=263u;t<count;++t) {
+        cache[t*81u+(t*7u)%81u]=t%2u?NAN:-INFINITY;
+        directions[t*27u+(t*11u)%27u]=t%3u?0.0f:NAN;
+    }
+    auto values=makeBuffer(device,std::vector<nm_float4>(count*18u));
+    auto flags=makeBuffer(device,std::vector<std::uint32_t>(count*6u));
+    dispatch(device,queue,p,{{0u,makeBuffer(device,cache)},
+        {1u,makeBuffer(device,directions)},{2u,values},{3u,flags},
+        {4u,makeBuffer(device,std::vector<std::uint32_t>{count})}},
+        (count+127u)/128u,128u);
+    const auto out=readBuffer<nm_float4>(values,count*18u);
+    const auto finite=readBuffer<std::uint32_t>(flags,count*6u);
+    for(std::uint32_t t=0u;t<count;++t)for(std::uint32_t axis=0u;axis<3u;++axis) {
+        require(finite[t*6u+axis]==finite[t*6u+3u+axis],
+            "shared three-RHS finite/product/partial-sum flag parity");
+        for(std::uint32_t c=0u;c<3u;++c) {
+            const auto& a=out[t*18u+axis*3u+c];
+            const auto& b=out[t*18u+9u+axis*3u+c];
+            const float* av=reinterpret_cast<const float*>(&a);
+            const float* bv=reinterpret_cast<const float*>(&b);
+            for(std::uint32_t k=0u;k<4u;++k)
+                require((std::isnan(av[k])&&std::isnan(bv[k])) ||
+                    std::memcmp(av+k,bv+k,sizeof(float))==0,
+                    "shared three-RHS exact ordered tangent product parity");
+        }
+    }
+    std::cout<<"cached_three_rhs=PASS cases="<<count
+        <<" random_directions=true cancellation=true signed_zero=true "
+          "nonfinite=true overflow=true bitwise_finite=true extra_buffers=0\n";
+}
+
 void checkCachedNodeSIMD(id<MTLDevice> device,id<MTLCommandQueue> queue,
                          id<MTLLibrary> library) {
     auto reference=pipeline(device,library,
@@ -11325,7 +11378,7 @@ void checkCachedNodeSIMD(id<MTLDevice> device,id<MTLCommandQueue> queue,
     [ae setBuffer:zero offset:0u atIndex:15u];
     [ae setBuffer:one offset:0u atIndex:16u];
     float maximumError=0.0f;bool bitwise=true;
-    for(std::uint32_t test=0u;test<12u;++test) {
+    for(std::uint32_t test=0u;test<16u;++test) {
         NMMatterDispatchGPU d{};d.abiVersion=NM_MATTER_ABI_VERSION;
         d.environmentCount=1u;d.objectCount=1u;d.femNodeCount=N;
         d.tetrahedronCount=T;d.contactPairCount=1u;
@@ -11333,6 +11386,7 @@ void checkCachedNodeSIMD(id<MTLDevice> device,id<MTLCommandQueue> queue,
         NMMixedSolverGPU solver{};solver.executionBudgets.z=6u;
         NMContinuumObjectGPU object{};object.representation=NM_REPRESENTATION_FEM;
         object.flags=test==4u?0u:NM_OBJECT_ACTIVE;
+        if(test==12u||test==13u)object.flags|=NM_OBJECT_FEM_MATERIAL_FRAME;
         NMSchedulerStateGPU scheduler{};scheduler.numerical.w=test==3u?0.0f:1.0f;
         NMAdaptiveStateGPU adaptive{};adaptive.activeRepresentation=NM_REPRESENTATION_FEM;
         NMMicrostepGPU micro{};
@@ -11351,6 +11405,7 @@ void checkCachedNodeSIMD(id<MTLDevice> device,id<MTLCommandQueue> queue,
             auto& t=tets[i];t.nodes={0u,1u,2u,3u};
             t.identity={0u,0u,0u,NM_OBJECT_ACTIVE};
             if(test==8u && i%3u==0u)t.identity.w=0u;
+            t.materialFrameRotation={0.23f,-0.37f,0.11f,0.83f};
             t.inverseRestRow0={1.1f,0.02f,-0.03f,0.2f};
             t.inverseRestRow1={-0.04f,0.9f,0.01f,0.0f};
             t.inverseRestRow2={0.05f,-0.07f,1.2f,0.0f};
@@ -11358,6 +11413,10 @@ void checkCachedNodeSIMD(id<MTLDevice> device,id<MTLCommandQueue> queue,
                 cache[i*81u+j]=(j/9u==j%9u?20.0f:0.0f)+
                     float(int((i*17u+j*7u)%31u)-15)*0.013f;
         }
+        if(test==13u)for(std::uint32_t i=0u;i<cache.size();++i)
+            cache[i]=(i%3u==0u?1.0e8f:(i%3u==1u?-1.0e8f:1.0f));
+        if(test==14u)for(std::uint32_t i=0u;i<cache.size();++i)
+            cache[i]=i%2u?-0.0f:0.0f;
         const std::uint32_t counts[4]={65u,33u,31u,1u};
         for(std::uint32_t n=0u;n<N;++n) {
             auto& r=ranges[n];r.first=incidence.size();r.objectIndex=0u;
@@ -11369,6 +11428,7 @@ void checkCachedNodeSIMD(id<MTLDevice> device,id<MTLCommandQueue> queue,
         }
         if(test==1u)valid[0]=0u;
         if(test==2u)valid[40]=0u;
+        if(test==15u){cache[80u]=INFINITY;for(std::uint32_t n=1u;n<N;++n)ranges[n].objectIndex=NM_INVALID_INDEX;}
         if(test==7u) {cache[0]=NAN;for(std::uint32_t n=1u;n<N;++n)ranges[n].objectIndex=NM_INVALID_INDEX;}
         auto db=makeBuffer(device,std::vector{d});
         auto sb=makeBuffer(device,std::vector{solver});
@@ -11418,7 +11478,8 @@ void checkCachedNodeSIMD(id<MTLDevice> device,id<MTLCommandQueue> queue,
         bitwise=bitwise && std::memcmp(actual.data(),expected.data(),
             actual.size()*sizeof(nm_float4))==0;
     }
-    std::cout<<"cached_node_simd=PASS cases=12 valence=0,1,31,33,65 "
+    require(bitwise,"cached-node shared three-RHS exact block and failure parity");
+    std::cout<<"cached_node_simd=PASS cases=16 valence=0,1,31,33,65 "
         "contact=true nonsymmetric=true cache_miss=true nonfinite=true fixed=true "
         "partial_group=true canary=true bitwise="<<bitwise
         <<" max_relative_error="<<maximumError<<"\n";
@@ -17931,6 +17992,7 @@ int main(int argc, const char* argv[]) {
                 std::cout<<"checks="<<checks<<" result=PASS\n";return 0;
             }
             if (argc == 2 && std::string(argv[1]) == "--cached-node-simd-only") {
+                checkCachedThreeDirections(device,queue,library);
                 checkCachedNodeSIMD(device,queue,library);
                 std::cout << "PASS cached node SIMD " << checks << " checks\n";
                 return 0;
@@ -18505,6 +18567,7 @@ int main(int argc, const char* argv[]) {
             checkHumanExactContactMotionCache(device,queue,library);
             checkCompletedContactGeometry(device,queue,library);
             checkCompletedZeroOperatorAction(device, queue, library);
+            checkCachedThreeDirections(device,queue,library);
             checkCachedNodeSIMD(device,queue,library);
             checkOrderedGatherSIMD(device,queue,library);
             checkTiledSchedulerObserve(device,queue,library);
