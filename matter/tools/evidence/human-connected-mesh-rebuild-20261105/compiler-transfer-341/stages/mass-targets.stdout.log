@@ -1,0 +1,28 @@
+{"primary_label_differences": 24}
+{
+  "scope": "CONSTRUCTION_CONSTRAINTS_NOT_SOURCE_FLOW_OR_NATIVE_ADMISSION",
+  "all_proposed_cell_masses": true,
+  "halo_rings": 0,
+  "baseline_cells": 1453060,
+  "candidate_cells": 1448885,
+  "direct_changed_star_cells": 20461,
+  "baseline_free_cells_including_halo": 20461,
+  "prescribed_cells": 1448885,
+  "candidate_free_cells": 0,
+  "prescribed_mass_kg": 13.939678963460477,
+  "unique_interior_nodes_mapped": 13166,
+  "ambiguous_interior_nodes_unprescribed": 703,
+  "additional_cells_unprescribed_for_ambiguous_mapping": 0,
+  "prescribed_material_labels_unchanged": true,
+  "primary_donor_region_label_differences": 24,
+  "primary_label_equivalence": "NOT_QUALIFIED",
+  "baseline_mass_kg": 13.939678963460477,
+  "all_prescribed_rest_tetrahedra_identical_f32": true,
+  "physical_density_transport_source_and_semantic_gates": "UNCHANGED_MUST_PASS_EXISTING_ALLOCATOR",
+  "prescribed_relative_tolerance": 1e-10,
+  "output": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/mass-targets/prescribed-child-mass.csv",
+    "sha256": "be44196fd4d44dc62c3913989adfabc95daf74b89ac9f2d6fc0a7bac8fbe2183"
+  },
+  "wall_s": 3.945617914199829
+}

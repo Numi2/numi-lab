@@ -1,0 +1,37 @@
+MASS_ALLOCATION 0 246.0495159626007
+31 support_sha256=617292ac1c5cca013f2ede1cdec7345c87566f72100e66b5b077be4e6fbbe5a4
+fractional_source_carriers=PASS carrier_rows=71639 packet_sha256=e40a45844064c13f8374e6e05f4d6fbd2c5bdd5ae7874e75d1ada50f8e6b20a6 max_distance_m=0.187444
+prescribed_child_mass=PINNED rows=1448885 sha256=be44196fd4d44dc62c3913989adfabc95daf74b89ac9f2d6fc0a7bac8fbe2183
+child_reference_transfer=PASS method=conservativeSpatialMassTransport mapping_path=bounded_conservative_spatial mapping_path_sha256=eb41e77165dd9211c17bafb73372384d96cac9c9bfe5cf1a76cb5bbda7535f14 scope=explicit_child_reference_preparation physical_admission=NOT_CLAIMED source_body_count=157 child_cells_mapped=1448885 child_tets=1448885 donor_region_mismatch_cells=224782 unique_regions=70 unique_stable_source_faces=3646 exact_index_dominant_parent_cells=0 flow_edges_crossing_stable_source_face_identity_diagnostic=1143170 fractional_semantic_opt_in=1 primary_donor_label_crossings_diagnostic=730656 primary_region_label_crossings_diagnostic=695559 fractional_semantic_group_allocations=1522222 fractional_admissible_evidence_sha256=9ca395667d04a1e93e6f54e5c116943bb205b1b09449625afa3ddf70cc208f44 fractional_carrier_packet_sha256=e40a45844064c13f8374e6e05f4d6fbd2c5bdd5ae7874e75d1ada50f8e6b20a6 exact_projection_rows=54206 rest_basis_projection_rejects=0 source_centroid_slot_rows=3746175 carrier_sidecar_rows=27476555 transport_edges=1606781 augmentations=1790663 source_donor_closure_groups=148 mapping_elapsed_s=240.817846084 mass_kg_parent=13.939678963460464 mass_kg_child=13.939678963460459 total_mass_closure_abs_kg=5.3290705182007514e-15 max_parent_mass_closure_abs_kg=7.1795867861990104e-16 max_source_donor_closure_abs_kg=6.794564910705958e-14 max_child_fraction_sum_error=0 max_transport_distance_used_m=0.18744399699168071 max_transport_distance_allowed_m=0.187444 min_child_density_kgm3=849.99999999999966 max_child_density_kgm3=1100.0000000000005 density_skin_15_bounds_kgm3=900:1100 density_fat_16_bounds_kgm3=850:950 child_mesh_sha256=0f2b4ea5d99a908063498529324686a214a6b30573b4c090db8fad2742d2e4f3 region_label_sha256=cc83376138d8549c321ce9628148be7499fb60011d538a9d8bfec963426cb14a coordinate_frame_sha256=0c6e10d411604cb317eb5a9da234da568d683e6cc0276ac184f80fd29067b80a transport_receipt_sha256=439c75f1e0da1fff905bbae18b5a9d7daad3ac4bd52122441128c170a3deeaa5
+fractional_outputs=PASS flow_path=/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/mass-allocation/allocator-output/flow.csv flow_sha256=0bc1f8aa3f98c7fcb5835221024fefc38907133e4ae5b72b635b085cccf199d6 semantic_groups_path=/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/mass-allocation/allocator-output/semantic-groups.csv semantic_groups_sha256=e5747959eb59115e1ad1c36da78c18dfb9022d8929636a40d0dc579f82ac827d source_donors_path=/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/mass-allocation/allocator-output/source-donors.csv source_donors_sha256=b5cdf67813ef84f81b12aa8631ada7325f4dafd6a1760229708139df5258dd37 carrier_trace_path=/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/mass-allocation/allocator-output/carrier-trace.csv carrier_trace_sha256=d47e68b65d6d3bc868d16949da6c30a609c6079db32880eb7054a71c0e99797b
+transfer_density_range material=15 min_kgm3=899.99999999999909 max_kgm3=1100.0000000000005
+transfer_density_range material=16 min_kgm3=849.99999999999966 max_kgm3=950.00000000000034
+
+5148 materialized_pairs=47238 completed_augmentations=47421
+implicit_dinic_bfs_end phase=maximum index=4 sink_depth=10 cumulative_implicit_offers=299518 bfs_pruned_child_group_entries=5951763 materialized_pairs=47238 completed_augmentations=47421 live_candidate_pairs=1591303
+implicit_dinic_bfs_start phase=maximum index=5 live_candidate_pairs=1595297 prior_implicit_offers=433888 materialized_pairs=51232 completed_augmentations=51446
+implicit_dinic_bfs_end phase=maximum index=5 sink_depth=12 cumulative_implicit_offers=823456 bfs_pruned_child_group_entries=16077168 materialized_pairs=51232 completed_augmentations=51446 live_candidate_pairs=1595297
+implicit_dinic_bfs_start phase=maximum index=6 live_candidate_pairs=1642835 prior_implicit_offers=1023277 materialized_pairs=98770 completed_augmentations=99587
+implicit_dinic_bfs_end phase=maximum index=6 sink_depth=-1 cumulative_implicit_offers=1023277 bfs_pruned_child_group_entries=16077168 materialized_pairs=98770 completed_augmentations=99587 live_candidate_pairs=1642835
+shared_capacity_implicit_dinic stage=maximum_flow phase=maximum result=complete bfs_phases=6 sink_depths=4,6,8,10,12,-1 implicit_arc_offers=1023277 bfs_pruned_child_group_entries=16077168 materialized_candidate_pairs=98770 augmentations=99587 live_candidate_edges=1642835
+shared_capacity_candidate_compaction call=2 active_candidate_edges_before=1642835 active_candidate_edges_after=1642835 removed_pair_events=0 cumulative_removed_pair_events=1780000 directed_edges_before=9224490 directed_edges_after=9224490 candidate_pair_insertions_not_unique=3422835
+shared_capacity_perf stage=complete seed_edges=2390608 cut_rounds=0 cut_edges_added=1032227 augment_calls=2 flow_augmentations=1790663
+      246.04 real       244.56 user         1.33 sys
+          5546278912  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              470697  page reclaims
+                   2  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                  96  voluntary context switches
+               15460  involuntary context switches
+       7308721053872  instructions retired
+       1130449274221  cycles elapsed
+          4665020664  peak memory footprint
+

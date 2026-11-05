@@ -1,0 +1,7 @@
+{
+  "paths": [
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/rich433/candidate-current-typed-volume.npz",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/p1-export/p1-anchor.npz"
+  ],
+  "reason": "Unpromoted326 generated compiler caches; source candidate, original335, current341 and traces remain local. Preserve archive/restore before retirement."
+}

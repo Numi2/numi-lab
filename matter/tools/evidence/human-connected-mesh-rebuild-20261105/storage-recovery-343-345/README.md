@@ -1,0 +1,5 @@
+Cold failed326 compiler outputs are retained in Numi2/macmini-evidence-archive release numi-20261104-cold-human-evidence. Both batches were independently downloaded, sequentially restored and checked against every original file size and SHA256 before source retirement. Source code, current341 inputs, original335 control and native traces remain local.
+
+The first text batch initially failed because the verifier treated tar hard-link members as regular files. No originals were retired on that failure. The retained recovery verifies regular payloads and every hard-link alias before retirement. The archive helper now dereferences hard links when creating future archives. The witness batch subsequently completed the full upload/download/restore/retirement path.
+
+Separate exact-hash deduplication replaced five duplicate completed static scene packs by atomic hard links. Every path and content hash remains available. Logical duplicate storage removed: 1,606,615,040 bytes; measured free space increased by that same amount during the operation. This is storage recovery, not a simulation performance claim.

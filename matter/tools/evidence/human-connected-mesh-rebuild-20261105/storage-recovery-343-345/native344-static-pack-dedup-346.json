@@ -1,0 +1,8 @@
+{
+  "status": "PASS_EXACT_STATIC_PACK_HASH_ALL_PATHS_PRESERVED",
+  "source": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interior-native-334/install-motion/resting-human.mrvpack",
+  "alias": "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-native-344/install-motion/resting-human.mrvpack",
+  "sha256": "c84252d72bfbc47fa0fa6845ff7711f0d763806898d6e3a7ab11e7d7cabe361e",
+  "free_before_bytes": 16768692224,
+  "free_after_bytes": 17090121728
+}

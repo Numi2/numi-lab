@@ -1,0 +1,8 @@
+{
+  "paths": [
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/handoff938/skin-fat-combined-facet-ancestry.csv.gz",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-support/fat-carrier-witnesses.csv.gz",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-support/skin-carrier-witnesses.csv.gz"
+  ],
+  "reason": "Cold source-carrier witness payloads for failed/unpromoted326 only; baseline335 and current341 inputs are distinct and preserved. Exact archive plus independent restore required."
+}

@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "stages": [
+    {
+      "name": "role-bridge",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/bridge_joint_role_volumes_64.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341"
+      ],
+      "source_sha256": "030e7477883f4ffee0987820ac95bf1ccfee536c0a1a2b40244da3972bdedfaa"
+    },
+    {
+      "name": "compiler",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/compile_joint64.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341"
+      ],
+      "source_sha256": "d99d999800f9e42e1e55fb94011cab7cc624ffedfc78d64eae9f1ecef2c9c3dd"
+    },
+    {
+      "name": "typed-adapters",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/prepare_interior_typed_adapters_326.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341"
+      ],
+      "source_sha256": "e263086e3f961cb9424114cc22173585a051d209f08b002b12b1ac7b52f8a92e"
+    },
+    {
+      "name": "p1",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/compile_joint64_p1.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341"
+      ],
+      "source_sha256": "7dff3613e8bbba8339be908029d6cbe00e1eeba6557278c4d55d8de6b4e764cd"
+    },
+    {
+      "name": "p1-export-rich",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/compile_joint64_export.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341"
+      ],
+      "source_sha256": "d9f82ecaf7a969fd1ffade1f8a7b4de3b4b4e047f8659a44d103ab1d15221b75"
+    },
+    {
+      "name": "assets",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/export_joint64_assets.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341"
+      ],
+      "source_sha256": "7dae60166ab70adc9f5f61fd9dc42d9bdf943305e933d514e0b88fad2091800c"
+    },
+    {
+      "name": "bindings",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/prepare_joint64_bindings.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341"
+      ],
+      "source_sha256": "7a23c975eef6f4b0a3aea41149c7fed481aa99de07fcc79ad90810250231d8ed"
+    },
+    {
+      "name": "mass-support",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/rebind_joint64_mass_support.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341"
+      ],
+      "source_sha256": "0ce39d20b75e7952e34a7894e479402728cb83f8c39e002dc090815c2d819245"
+    },
+    {
+      "name": "mass-targets",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/prepare_prescribed_local_mass_315.py",
+        "--candidate-root",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341",
+        "--output",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/mass-targets",
+        "--halo-rings",
+        "0",
+        "--all-proposed-cell-masses"
+      ],
+      "source_sha256": "a627705f76c3a63579ec1a5c78d9b3b9abed2fcc82ea10826013d0043f157ed5"
+    },
+    {
+      "name": "mass-allocation",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/allocate_joint64_mass.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341"
+      ],
+      "source_sha256": "5886313e2b1f12483c11e99549beb9a2c44080bc84de617240c6ef66db94abef"
+    },
+    {
+      "name": "source-qualification",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/qualify_joint64_source.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341"
+      ],
+      "source_sha256": "dfb5858649270a27577d97edd59140bb56b1d36d35b4dc5ddbe6c20e68264573"
+    },
+    {
+      "name": "mass-admission-prepare",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/prepare_joint64_mass_admission.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341"
+      ],
+      "source_sha256": "f7cdcc749a169a773f2814bddde9a25640163c29bd1ecbb3ba91ffe395706481"
+    }
+  ],
+  "minimum_free_bytes": 12884901888,
+  "maximum_rss_kib": 8388608,
+  "maximum_stage_wall_s": 900,
+  "physical_admission": false,
+  "native_steps": 0,
+  "source_surface_identity": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-1020-zero-skin-fat-source-qualified-root/proposal-exact-806/report.json",
+    "sha256": "797a15ea8bca5b7f92a6464222a19956518ecb4a0bcaf438f0bdcf2e0c901323",
+    "new_audit_executed": false
+  },
+  "reference_field_check": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/independent-reference-field.json",
+    "sha256": "7b2778043fb21bbc7ef44c348b7ebf0180a96060361935de91595dbdc522eebd"
+  },
+  "reason": "Carry reference-field screened, unchanged-boundary mesh through existing conservative compiler. No new format, constitutive law, residual gate or anatomy change."
+}

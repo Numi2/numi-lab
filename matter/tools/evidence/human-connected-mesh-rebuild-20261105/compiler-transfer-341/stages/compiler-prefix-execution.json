@@ -1,0 +1,62 @@
+{
+  "native_steps": 0,
+  "physical_admission": false,
+  "stages": [
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "role-bridge",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "a74eb074e9e536fb684e71017ab8eba6ab978c65c4a45e0d72bea03d0209f211",
+      "wall_s": 10.03632402420044
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "compiler",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "d110ae439f1e92bc9f28f916b8c8e8841b2cd2149d535f28121f3824de73bd74",
+      "wall_s": 135.4858980178833
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "typed-adapters",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "wall_s": 5.039383172988892
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "p1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "92f1422002844b5d3a3e3171c4f38c8afdcbf726f78785dfc910a6f991377d2a",
+      "wall_s": 45.17649984359741
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "p1-export-rich",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "14ffe3a22434431a9e29ed67db3cfc3a20a65df8c7987e8990515f6eb19e91af",
+      "wall_s": 265.9365060329437
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "assets",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "29c4569557c5688d0923000ad0e12deb3d1010e2a828ab85e74f69a16be9bbd2",
+      "wall_s": 85.3156521320343
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "bindings",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "12a285bc592dd05e1829b76fd75d16cb954b5a97efcfaf2279dfbf0347f5cf3a",
+      "wall_s": 15.073081016540527
+    }
+  ]
+}

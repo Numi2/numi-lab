@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/numi/Work/human-integrated-gaps-20261104/archive_cold_mesh_batch_326.py",
+    "/Users/numi/Work/human-integrated-gaps-20261104/human-failed326-witness-343",
+    "/Users/numi/Work/human-integrated-gaps-20261104/cold-failed326-witness-selection-343.json"
+  ],
+  "exit_code": 0,
+  "wall_s": 343.06221450000885
+}

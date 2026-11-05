@@ -1,0 +1,164 @@
+{
+  "groups": [
+    [
+      {
+        "path": "/Users/numi/Work/human-integrated-gaps-20261104/baseline-repeat-native-324/install-motion/resting-human.mrvpack",
+        "inode": 6946736,
+        "device": 16777232,
+        "mode": 33188,
+        "size": 321323008,
+        "mtime_ns": 1793901361772271114,
+        "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875"
+      },
+      {
+        "path": "/Users/numi/Work/human-integrated-gaps-20261104/shared-bundle-native-307/install-motion/resting-human.mrvpack",
+        "inode": 6922808,
+        "device": 16777232,
+        "mode": 33188,
+        "size": 321323008,
+        "mtime_ns": 1793853548107674789,
+        "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875"
+      },
+      {
+        "path": "/Users/numi/Work/human-integrated-gaps-20261104/predictor-default-off-control-304b/install-motion/resting-human.mrvpack",
+        "inode": 6913113,
+        "device": 16777232,
+        "mode": 33188,
+        "size": 321323008,
+        "mtime_ns": 1793849016592447188,
+        "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875"
+      },
+      {
+        "path": "/Users/numi/Work/human-integrated-gaps-20261104/matched-ccd-baseline-335/install-motion/resting-human.mrvpack",
+        "inode": 6951156,
+        "device": 16777232,
+        "mode": 33188,
+        "size": 321323008,
+        "mtime_ns": 1793908918380960834,
+        "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875"
+      }
+    ],
+    [
+      {
+        "path": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interior-native-334/install-motion/resting-human.mrvpack",
+        "inode": 6951041,
+        "device": 16777232,
+        "mode": 33188,
+        "size": 321323008,
+        "mtime_ns": 1793908270083672604,
+        "sha256": "c84252d72bfbc47fa0fa6845ff7711f0d763806898d6e3a7ab11e7d7cabe361e"
+      },
+      {
+        "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-native-327/install-motion/resting-human.mrvpack",
+        "inode": 6948858,
+        "device": 16777232,
+        "mode": 33188,
+        "size": 321323008,
+        "mtime_ns": 1793906178398895750,
+        "sha256": "c84252d72bfbc47fa0fa6845ff7711f0d763806898d6e3a7ab11e7d7cabe361e"
+      },
+      {
+        "path": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interior-native-331/install-motion/resting-human.mrvpack",
+        "inode": 6950499,
+        "device": 16777232,
+        "mode": 33188,
+        "size": 321323008,
+        "mtime_ns": 1793907579533594158,
+        "sha256": "c84252d72bfbc47fa0fa6845ff7711f0d763806898d6e3a7ab11e7d7cabe361e"
+      }
+    ]
+  ],
+  "all_candidates": [
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/baseline-repeat-native-324/install-motion/resting-human.mrvpack",
+      "inode": 6946736,
+      "device": 16777232,
+      "mode": 33188,
+      "size": 321323008,
+      "mtime_ns": 1793901361772271114,
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875"
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/connected-mesh-native-323/install-motion/resting-human.mrvpack",
+      "inode": 6946535,
+      "device": 16777232,
+      "mode": 33188,
+      "size": 316125184,
+      "mtime_ns": 1793900286110176354,
+      "sha256": "aa3d768a8d4d09cc6bb1a48c7d0dd1a2e5b5ef303770f2b3b45d9efb7fb899a9"
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interior-native-334/install-motion/resting-human.mrvpack",
+      "inode": 6951041,
+      "device": 16777232,
+      "mode": 33188,
+      "size": 321323008,
+      "mtime_ns": 1793908270083672604,
+      "sha256": "c84252d72bfbc47fa0fa6845ff7711f0d763806898d6e3a7ab11e7d7cabe361e"
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/shared-bundle-native-307/install-motion/resting-human.mrvpack",
+      "inode": 6922808,
+      "device": 16777232,
+      "mode": 33188,
+      "size": 321323008,
+      "mtime_ns": 1793853548107674789,
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875"
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/predictor-default-off-control-304b/install-motion/resting-human.mrvpack",
+      "inode": 6913113,
+      "device": 16777232,
+      "mode": 33188,
+      "size": 321323008,
+      "mtime_ns": 1793849016592447188,
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875"
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-native-327/install-motion/resting-human.mrvpack",
+      "inode": 6948858,
+      "device": 16777232,
+      "mode": 33188,
+      "size": 321323008,
+      "mtime_ns": 1793906178398895750,
+      "sha256": "c84252d72bfbc47fa0fa6845ff7711f0d763806898d6e3a7ab11e7d7cabe361e"
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-native-317/install-motion/resting-human.mrvpack",
+      "inode": 6943430,
+      "device": 16777232,
+      "mode": 33188,
+      "size": 321232896,
+      "mtime_ns": 1793893761808757146,
+      "sha256": "cb9b0e73c627ef4626f65b03a3615b0b1f1e6f27cf164816a940fd76ba3bacf9"
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/matched-ccd-baseline-335/install-motion/resting-human.mrvpack",
+      "inode": 6951156,
+      "device": 16777232,
+      "mode": 33188,
+      "size": 321323008,
+      "mtime_ns": 1793908918380960834,
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875"
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interior-native-331/install-motion/resting-human.mrvpack",
+      "inode": 6950499,
+      "device": 16777232,
+      "mode": 33188,
+      "size": 321323008,
+      "mtime_ns": 1793907579533594158,
+      "sha256": "c84252d72bfbc47fa0fa6845ff7711f0d763806898d6e3a7ab11e7d7cabe361e"
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-310/install-motion/resting-human.mrvpack",
+      "inode": 6941598,
+      "device": 16777232,
+      "mode": 33188,
+      "size": 321232896,
+      "mtime_ns": 1793888249972539674,
+      "sha256": "66f0df36074259557a96796a42890dcdf378719a5a36b89752eb3ff5bb3ddd34"
+    }
+  ],
+  "available_bytes": 18130849792
+}

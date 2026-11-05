@@ -1,0 +1,71 @@
+{
+  "maximum_rss_kib": 8388608,
+  "maximum_stage_wall_s": 900,
+  "minimum_free_bytes": 12884901888,
+  "native_steps": 0,
+  "physical_admission": false,
+  "reason": "Carry reference-field screened, unchanged-boundary mesh through existing conservative compiler. No new format, constitutive law, residual gate or anatomy change.",
+  "reference_field_check": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/independent-reference-field.json",
+    "sha256": "7b2778043fb21bbc7ef44c348b7ebf0180a96060361935de91595dbdc522eebd"
+  },
+  "schema": 1,
+  "source_surface_identity": {
+    "new_audit_executed": false,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-1020-zero-skin-fat-source-qualified-root/proposal-exact-806/report.json",
+    "sha256": "797a15ea8bca5b7f92a6464222a19956518ecb4a0bcaf438f0bdcf2e0c901323"
+  },
+  "stages": [
+    {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/rebind_joint64_mass_support.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341"
+      ],
+      "name": "mass-support",
+      "source_sha256": "0ce39d20b75e7952e34a7894e479402728cb83f8c39e002dc090815c2d819245"
+    },
+    {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/prepare_prescribed_local_mass_315.py",
+        "--candidate-root",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341",
+        "--output",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/mass-targets",
+        "--halo-rings",
+        "0",
+        "--all-proposed-cell-masses"
+      ],
+      "name": "mass-targets",
+      "source_sha256": "a627705f76c3a63579ec1a5c78d9b3b9abed2fcc82ea10826013d0043f157ed5"
+    },
+    {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/allocate_joint64_mass.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341"
+      ],
+      "name": "mass-allocation",
+      "source_sha256": "5886313e2b1f12483c11e99549beb9a2c44080bc84de617240c6ef66db94abef"
+    },
+    {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/qualify_joint64_source.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341"
+      ],
+      "name": "source-qualification",
+      "source_sha256": "dfb5858649270a27577d97edd59140bb56b1d36d35b4dc5ddbe6c20e68264573"
+    },
+    {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/prepare_joint64_mass_admission.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341"
+      ],
+      "name": "mass-admission-prepare",
+      "source_sha256": "f7cdcc749a169a773f2814bddde9a25640163c29bd1ecbb3ba91ffe395706481"
+    }
+  ]
+}

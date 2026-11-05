@@ -1,0 +1,15 @@
+{
+  "status": "PASS_INDEPENDENT_DOWNLOAD_ALL_MEMBERS_AND_RESTORE",
+  "archive_sha256": "5824e24a9111095810e709490a33aa760b768a359167191f870e2a0947f13b5a",
+  "archive_bytes": 1516768517,
+  "remote_asset": "https://github.com/Numi2/macmini-evidence-archive/releases/download/numi-20261104-cold-human-evidence/human-failed326-text-343.tar.zst",
+  "restore_verification": {
+    "status": "PASS_INDEPENDENT_DOWNLOAD_SEQUENTIAL_FILE_AND_HARDLINK_RESTORE",
+    "files": 49,
+    "hardlink_members": 3,
+    "all_sizes_and_sha256_verified": true
+  },
+  "free_before_retirement": 13883277312,
+  "free_after_retirement": 22497406976,
+  "retained_failed_attempt": "/Users/numi/Work/human-integrated-gaps-20261104/human-failed326-text-343-execution.json"
+}

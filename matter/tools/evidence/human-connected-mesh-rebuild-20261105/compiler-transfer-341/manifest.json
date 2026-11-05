@@ -1,0 +1,222 @@
+{
+  "files": [
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/prepare_interior_typed_adapters_326.py",
+      "retained": "sources/prepare_interior_typed_adapters_326.py",
+      "bytes": 1003,
+      "sha256": "e263086e3f961cb9424114cc22173585a051d209f08b002b12b1ac7b52f8a92e"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/check_mass_targets_326.py",
+      "retained": "sources/check_mass_targets_326.py",
+      "bytes": 1757,
+      "sha256": "33bb94873652c36e95d4ffc02c476bd6ee183f41965271b55d5b931e8541fe46"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/continue_reference_compiler_mass_341.py",
+      "retained": "sources/continue_reference_compiler_mass_341.py",
+      "bytes": 3812,
+      "sha256": "37ea65add529d5b44936c0de1c3e3b06c2fe716436afde83885a4d573bbccc61"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/prepare_current_runtime_344.py",
+      "retained": "sources/prepare_current_runtime_344.py",
+      "bytes": 4757,
+      "sha256": "85558efcaf303cceccb5872d229f3c59bdf4ba187f13c6d3c6c275a1f3c661e3"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/analyze_native_344.py",
+      "retained": "sources/analyze_native_344.py",
+      "bytes": 3413,
+      "sha256": "61af90941b2dd4571d8c87e318fffcc9d4694c6cb100bace6982d4adfcd95823"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/prepare_conditioning_347.py",
+      "retained": "sources/prepare_conditioning_347.py",
+      "bytes": 4310,
+      "sha256": "17b185519344273416c6f50ec558c5898e8bed7bd3ffdf14eac15bcdf7759fcf"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/analyze_native_347.py",
+      "retained": "sources/analyze_native_347.py",
+      "bytes": 3425,
+      "sha256": "ad4d5fa6c7239cd4af39e28345200601906b58f266685e2a4c476d1473c5b1db"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/native-screened-344-failure-summary.json",
+      "retained": "receipts/native-screened-344-failure-summary.json",
+      "bytes": 3186,
+      "sha256": "efbf8331be92609cba0e0be5998d56bbd67e0f6469a3df0fb264277fbee5fa99"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/compiler-prefix-execution.json",
+      "retained": "stages/compiler-prefix-execution.json",
+      "bytes": 2201,
+      "sha256": "3934eec6d51af43ab755693a9993e62583c9ff9971992bc5296c49e6369396de"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/admission-conversion-plan.json",
+      "retained": "stages/admission-conversion-plan.json",
+      "bytes": 3454,
+      "sha256": "a13a99b9ea44e1f093b1ea5399c344aa2a70a67f92af49241ca081e93a2fe19e"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/compiler-execution.json",
+      "retained": "stages/compiler-execution.json",
+      "bytes": 5328,
+      "sha256": "f5bfd307156d4dcb906fbe00bb7ce7949ad610cf2baee544b18dc0b1cc7d86f8"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/compiler-plan.json",
+      "retained": "stages/compiler-plan.json",
+      "bytes": 6021,
+      "sha256": "70025eab8f984d2a13d55f99b9f7859b251f53d17395d7d8c300eefcda7dfd2c"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/compiler-active.json",
+      "retained": "stages/compiler-active.json",
+      "bytes": 83,
+      "sha256": "845400e4c667debaac4c8f71865f4639337e231c1be430aa9d0d24f95a20ec9b"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/compiler-mass-plan.json",
+      "retained": "stages/compiler-mass-plan.json",
+      "bytes": 3247,
+      "sha256": "988531b1b741f93f5f2dde69cbb73dd72d08e6b9ab1a07d4fd69b9d1e6c4595c"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/compiler-prefix-plan.json",
+      "retained": "stages/compiler-prefix-plan.json",
+      "bytes": 3986,
+      "sha256": "60f324310c6c98c3c3ee7192ed3bb4c69863e2b8f1b4a2d9d7e58d316c2f3d07"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/mass-allocation.stdout.log",
+      "retained": "stages/mass-allocation.stdout.log",
+      "bytes": 6038,
+      "sha256": "e7d0630a61f0b8ce0169b2e69a4f3845af0adc820544bb65e639672c1cbd5969"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/role-bridge.stdout.log",
+      "retained": "stages/role-bridge.stdout.log",
+      "bytes": 1507,
+      "sha256": "a74eb074e9e536fb684e71017ab8eba6ab978c65c4a45e0d72bea03d0209f211"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/source-qualification.stdout.log",
+      "retained": "stages/source-qualification.stdout.log",
+      "bytes": 934,
+      "sha256": "d59a1e0d9890987aee56aab2a9d5d3a6855143fef3673a017fed44a3af6acfc7"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/mass-support.stdout.log",
+      "retained": "stages/mass-support.stdout.log",
+      "bytes": 684,
+      "sha256": "4de41d852027b553fc103a76f10a9cad9e9505f32f227aac98f901bae30443a0"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/p1-export-rich.stdout.log",
+      "retained": "stages/p1-export-rich.stdout.log",
+      "bytes": 235,
+      "sha256": "14ffe3a22434431a9e29ed67db3cfc3a20a65df8c7987e8990515f6eb19e91af"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/mass-targets.stdout.log",
+      "retained": "stages/mass-targets.stdout.log",
+      "bytes": 1222,
+      "sha256": "d418df129bc46d16a76b68ef75604f79a010092b98d665e3f67ec5ffa2be1d24"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/mass-receipt-341.stdout.log",
+      "retained": "stages/mass-receipt-341.stdout.log",
+      "bytes": 326,
+      "sha256": "a83da5856d428402d72a977895783b89f5fb35bee7a22f752d8f2a76e42c6425"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/mass-admission-prepare.stdout.log",
+      "retained": "stages/mass-admission-prepare.stdout.log",
+      "bytes": 80,
+      "sha256": "bf475bd277864b4c3e8f26a1b30b70c1617a528399e267e4ba9949d5a45e13dc"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/p1.stdout.log",
+      "retained": "stages/p1.stdout.log",
+      "bytes": 42,
+      "sha256": "92f1422002844b5d3a3e3171c4f38c8afdcbf726f78785dfc910a6f991377d2a"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/assets.stdout.log",
+      "retained": "stages/assets.stdout.log",
+      "bytes": 113,
+      "sha256": "29c4569557c5688d0923000ad0e12deb3d1010e2a828ab85e74f69a16be9bbd2"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/compiler.stdout.log",
+      "retained": "stages/compiler.stdout.log",
+      "bytes": 228,
+      "sha256": "d110ae439f1e92bc9f28f916b8c8e8841b2cd2149d535f28121f3824de73bd74"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/current-runtime-pins-344.stdout.log",
+      "retained": "stages/current-runtime-pins-344.stdout.log",
+      "bytes": 116,
+      "sha256": "9c647aa97c37769692c299f0559bdf0ffc627ec5d3e807998e85e0822898ea65"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/mass-target-parity-341.stdout.log",
+      "retained": "stages/mass-target-parity-341.stdout.log",
+      "bytes": 947,
+      "sha256": "626036594effb5858fe03eefeb9066914632836d617649bc31770f2b265c89f9"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/bindings.stdout.log",
+      "retained": "stages/bindings.stdout.log",
+      "bytes": 61,
+      "sha256": "12a285bc592dd05e1829b76fd75d16cb954b5a97efcfaf2279dfbf0347f5cf3a"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/mass-converter-341.stdout.log",
+      "retained": "stages/mass-converter-341.stdout.log",
+      "bytes": 1519,
+      "sha256": "a0228f0b33c8a1fd4cce1bd432db22fe65e3bb04a5e26bd7eab860ff0048da05"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/native-plan-344.stdout.log",
+      "retained": "stages/native-plan-344.stdout.log",
+      "bytes": 119,
+      "sha256": "659a661fa667c8e7047b83f6336f3cdaf0ef5ce215e309014836afa09ac7050c"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-reference-screened-341/typed-adapters.stdout.log",
+      "retained": "stages/typed-adapters.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/source-geometry-admission-001.json",
+      "retained": "receipts/source-geometry-admission-001.json",
+      "bytes": 17599,
+      "sha256": "08634d7ec87b5d7a49fe727232f95f43fa03028cdcc34fe2eaf28d71611646cb"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/source-geometry-admission-spec-001.json",
+      "retained": "receipts/source-geometry-admission-spec-001.json",
+      "bytes": 1497,
+      "sha256": "7592fedec12e862412edbd6987f46f637957b78b28c7f9ac7104f2a7270b2b11"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/signed-face-controls-receipt.json",
+      "retained": "receipts/signed-face-controls-receipt.json",
+      "bytes": 2817,
+      "sha256": "674253a2149e66afb50ce6298d6b9a3f5b251c3ac7f812d8ef37bd104d865219"
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/mass-admission/mass-receipt.json",
+      "retained": "receipts/mass-receipt.json",
+      "bytes": 14955,
+      "sha256": "d8fd1442345d2fb8f5e07266be7711f794e8f53733f92421e0d6660cf49eb1c2"
+    }
+  ],
+  "physical_admission": false,
+  "native344_promoted": false
+}

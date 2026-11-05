@@ -1,0 +1,36 @@
+{
+  "status": "SOURCE_ROLE_VOLUME_BRIDGE_CHECKED_NOT_PHYSICAL_ADMISSION",
+  "physical_admission": false,
+  "native_steps": 0,
+  "mass_mapping": "NOT_RUN",
+  "roles": {
+    "Skin": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/role-volumes-v2/skin-volume-proposal.npz",
+      "sha256": "daedbfd717848d1824ab887ed1dbdaad2540e70858e6f064081d7739abaa931f",
+      "cells": 705154,
+      "active_nodes": 201231,
+      "nonpositive_cells": 0,
+      "native_quality_failures": 0,
+      "minimum_volume_m3": 1.0012811762532554e-18,
+      "minimum_quality": 1.000000202919351e-05,
+      "joint_source_coordinate_difference_rms_m": 0.0,
+      "joint_source_coordinate_difference_max_m": 0.0,
+      "original_ordered_cell_domains_proven": true,
+      "immediate_parent_references": 1131813
+    },
+    "Fat": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/role-volumes-v2/fat-volume-proposal.npz",
+      "sha256": "a2c33a5b7f37f72d42344be23cf3719249938e422b304ebf7c19de2d5caee44b",
+      "cells": 743731,
+      "active_nodes": 228031,
+      "nonpositive_cells": 0,
+      "native_quality_failures": 0,
+      "minimum_volume_m3": 1.000290144947699e-18,
+      "minimum_quality": 1.0000000112925929e-05,
+      "joint_source_coordinate_difference_rms_m": 0.0,
+      "joint_source_coordinate_difference_max_m": 0.0,
+      "original_ordered_cell_domains_proven": true,
+      "immediate_parent_references": 1144336
+    }
+  }
+}

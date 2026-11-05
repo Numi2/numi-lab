@@ -1,0 +1,69 @@
+{
+  "maximum_rss_kib": 8388608,
+  "maximum_stage_wall_s": 900,
+  "minimum_free_bytes": 12884901888,
+  "native_steps": 0,
+  "physical_admission": false,
+  "stages": [
+    {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/mass-admission/build_current_fractional_mass_receipt_1061.py",
+        "--run-manifest",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/mass-admission/run-manifest.json",
+        "--execution",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/mass-admission/execution.json",
+        "--stdout-log",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/mass-allocation/stdout.log",
+        "--identity-config",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/mass-admission/identity.json",
+        "--control-manifest",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/mass-allocation/source-control.json",
+        "--output",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/mass-admission/mass-receipt.json",
+        "--source-projection-report",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/mass-admission/source-projection.json",
+        "--failure-report",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/compiler/mass-admission/failure.json"
+      ],
+      "name": "mass-receipt-341",
+      "source_sha256": "4bc0e23896632b72591c5cc88560bf9656bd7dd86e493917ff218e3d80f01f16"
+    },
+    {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/check_mass_targets_326.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341"
+      ],
+      "name": "mass-target-parity-341",
+      "source_sha256": "33bb94873652c36e95d4ffc02c476bd6ee183f41965271b55d5b931e8541fe46"
+    },
+    {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/convert_joint64_mass.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341"
+      ],
+      "name": "mass-converter-341",
+      "source_sha256": "cb695b8c7b19e69a2cbb1c8f4458ca0e2da512c9995051ce32bf48d183e86531"
+    },
+    {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/prepare_joint64_native.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341",
+        "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-native-344"
+      ],
+      "name": "native-plan-344",
+      "source_sha256": "c23bbdfe5696f3f044b2664d5b6b82592a9622c1a588637f62778dfad8e63c07"
+    },
+    {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/prepare_current_runtime_344.py"
+      ],
+      "name": "current-runtime-pins-344",
+      "source_sha256": "85558efcaf303cceccb5872d229f3c59bdf4ba187f13c6d3c6c275a1f3c661e3"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "status": "PASS_EXACT_HASH_ATOMIC_HARDLINK_REPLACEMENT_ALL_PATHS_PRESERVED",
+  "selection": "/Users/numi/Work/human-integrated-gaps-20261104/static-pack-exact-duplicates-345-selection.json",
+  "replaced": [
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/baseline-repeat-native-324/install-motion/resting-human.mrvpack",
+      "alias": "/Users/numi/Work/human-integrated-gaps-20261104/shared-bundle-native-307/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/baseline-repeat-native-324/install-motion/resting-human.mrvpack",
+      "alias": "/Users/numi/Work/human-integrated-gaps-20261104/predictor-default-off-control-304b/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/baseline-repeat-native-324/install-motion/resting-human.mrvpack",
+      "alias": "/Users/numi/Work/human-integrated-gaps-20261104/matched-ccd-baseline-335/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interior-native-334/install-motion/resting-human.mrvpack",
+      "alias": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-native-327/install-motion/resting-human.mrvpack",
+      "sha256": "c84252d72bfbc47fa0fa6845ff7711f0d763806898d6e3a7ab11e7d7cabe361e",
+      "bytes": 321323008
+    },
+    {
+      "source": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interior-native-334/install-motion/resting-human.mrvpack",
+      "alias": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interior-native-331/install-motion/resting-human.mrvpack",
+      "sha256": "c84252d72bfbc47fa0fa6845ff7711f0d763806898d6e3a7ab11e7d7cabe361e",
+      "bytes": 321323008
+    }
+  ],
+  "logical_duplicate_bytes": 1606615040,
+  "free_before_bytes": 17996595200,
+  "free_after_bytes": 19603243008,
+  "current_simulation_inputs_changed": false
+}
