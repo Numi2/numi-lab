@@ -1,0 +1,213 @@
+{
+  "argv": [
+    "/usr/bin/env",
+    "NUMI_H706_FRACTIONAL_CARRIERS_FAT_NPZ=/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-support/fat-source-carriers.npz",
+    "NUMI_H706_FRACTIONAL_CARRIERS_FAT_SHA256=f0812b3292e92dadcf338ef47cffc3207c63d003d9808d7ed06b7abac6f7e9a4",
+    "NUMI_H706_FRACTIONAL_CARRIERS_SKIN_NPZ=/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-support/skin-source-carriers.npz",
+    "NUMI_H706_FRACTIONAL_CARRIERS_SKIN_SHA256=c32faa1cae0bcc85cc767e2386b43e359830d5e27ea34e249f3919ad776a4366",
+    "NUMI_H706_FRACTIONAL_CARRIER_WITNESS_FAT_CSV=/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-support/fat-carrier-witnesses.csv.gz",
+    "NUMI_H706_FRACTIONAL_CARRIER_WITNESS_FAT_SHA256=037a14ce2d7780d074dade908d3ed3183090157a1107ac6c422ef82566a3e7fb",
+    "NUMI_H706_FRACTIONAL_CARRIER_WITNESS_SKIN_CSV=/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-support/skin-carrier-witnesses.csv.gz",
+    "NUMI_H706_FRACTIONAL_CARRIER_WITNESS_SKIN_SHA256=b6837fa516052a52d9a2f4929eafc5894911e8063bbd90624e1b8b27efb47386",
+    "NUMI_H706_FRACTIONAL_ENABLE=1",
+    "NUMI_H706_FRACTIONAL_EXACT_PROJECTION_CSV=/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-support/exact-projection-support.csv",
+    "NUMI_H706_FRACTIONAL_EXACT_PROJECTION_SHA256=873786cd5f80ad12f3b4a6b18cd947409afb1efdf359d3e14b4b6126bafc9962",
+    "NUMI_H706_FRACTIONAL_GEOMETRY_FAT_SHA256=0efcfceb95d7bf245e54be56ce6b8bea9b685d3a9964d0e9a4e049b8f31abeb1",
+    "NUMI_H706_FRACTIONAL_GEOMETRY_SKIN_SHA256=56d3ee884a17195e9c60ae033d07a3ce23b63f2d25a0f55d7c08779c855518cc",
+    "NUMI_H706_FRACTIONAL_OUTPUT_DIR=/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/allocation/allocator-output",
+    "NUMI_H706_FRACTIONAL_P1_FAT_NPZ=/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/p1-Fat/fat-current-p1-143-support.npz",
+    "NUMI_H706_FRACTIONAL_P1_FAT_SHA256=38370cb87fcb38563be86b5c93b8b7fc8475c99eea76a47c2996bacb096724ba",
+    "NUMI_H706_FRACTIONAL_P1_SKIN_NPZ=/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/p1-Skin/skin-current-p1-143-support.npz",
+    "NUMI_H706_FRACTIONAL_P1_SKIN_SHA256=1c462e12f77c5a858d18d6cd36242916d479d8ffcee27a7f24fd12f217b6a36f",
+    "NUMI_H706_FRACTIONAL_RUN_CONFIG_SHA256=131bdc1772bae9f5638e7eede8e100b94dbf3d9cc6170165e7051f3ca2688544",
+    "NUMI_H706_FRACTIONAL_SOURCE330_MASS_SHA256=c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679",
+    "NUMI_H706_FRACTIONAL_SOURCE330_NODES=/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.nodes.csv",
+    "NUMI_H706_FRACTIONAL_SOURCE330_NODES_SHA256=7044051353d173b94143a4027ba7dcc468b221512b3f41d5819d27025b36d044",
+    "NUMI_H706_FRACTIONAL_SOURCE330_TETS=/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.tets.csv",
+    "NUMI_H706_FRACTIONAL_SOURCE330_TETS_SHA256=82e20067454748a9eca91bc6f06ab343677c051a139797ae051c64022bd87992",
+    "NUMI_H706_FRACTIONAL_SOURCE_CENTROID_CSV=/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-support/source-centroid-slots.csv",
+    "NUMI_H706_FRACTIONAL_SOURCE_CENTROID_SHA256=f5d6c2892465a249d9c9370dbd07666d90cde7406e9980080a03415ef0e5fd43",
+    "NUMI_H706_FRACTIONAL_SOURCE_CONTROL_SHA256=808ad55a6904b307cc7c6bb426ba284ce203200c5a19b08bac1350d0779f5530",
+    "NUMI_H706_FRACTIONAL_STATE_SHA256=499cf8ec045a8932e12888eceb368fc65000d1c4a46430d17dc7dcbe50e949fd",
+    "NUMI_H706_FRACTIONAL_VOLUME_FAT_SHA256=0efcfceb95d7bf245e54be56ce6b8bea9b685d3a9964d0e9a4e049b8f31abeb1",
+    "NUMI_H706_FRACTIONAL_VOLUME_SKIN_SHA256=56d3ee884a17195e9c60ae033d07a3ce23b63f2d25a0f55d7c08779c855518cc",
+    "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/build/mass-cli",
+    "--current-fractional-semantic",
+    "--parent-mass-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv",
+    "--labels-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.labels.csv",
+    "--child-node-file",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/volume/mesh.node",
+    "--child-ele-file",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/volume/mesh.ele",
+    "--child-labels-csv",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/volume/child.labels.csv",
+    "--coordinate-frame-sha256",
+    "0c6e10d411604cb317eb5a9da234da568d683e6cc0276ac184f80fd29067b80a",
+    "--source-body-count",
+    "157",
+    "--maximum-transport-distance-m",
+    "0.187444",
+    "--child-mass-target-csv",
+    "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/targets-direct-005/prescribed-child-mass.csv",
+    "--child-mass-target-sha256",
+    "0dd4e415fb761b644f4a6308ff161c2072fa49682f81ee699431a930342c2c48"
+  ],
+  "binary": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/build/mass-cli",
+    "sha256": "34d4491a9e3c746301b006a94466c2cda8adfee4005d9128e90d9b9fd450c327",
+    "bytes": 1017352
+  },
+  "file_pins": [
+    {
+      "bytes": 1593,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/run-config.json",
+      "sha256": "900e91942fc245a78f3d4d6525d525a191c09d4992042c927e5b8ca2cd69f222"
+    },
+    {
+      "bytes": 548969,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/skin-source-carriers-with-regional-compensation-002.npz",
+      "sha256": "3780de3325f255c8a44696cb67641decd7a966f45f4204e09a72935a36e6778c"
+    },
+    {
+      "bytes": 947346,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.source.csv",
+      "sha256": "8e2424901318f25caca1540aeca412ca779fc014f68f49fe0cb6c17fb5aa0c1f"
+    }
+  ],
+  "named_input_pins": {
+    "candidate_fat_volume": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/canonical/fat-canonical-parent-union.npz",
+      "sha256": "0efcfceb95d7bf245e54be56ce6b8bea9b685d3a9964d0e9a4e049b8f31abeb1"
+    },
+    "candidate_skin_volume": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/canonical/skin-canonical-parent-union.npz",
+      "sha256": "56d3ee884a17195e9c60ae033d07a3ce23b63f2d25a0f55d7c08779c855518cc"
+    },
+    "carrier_fat_packet": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-support/fat-source-carriers.npz",
+      "sha256": "f0812b3292e92dadcf338ef47cffc3207c63d003d9808d7ed06b7abac6f7e9a4"
+    },
+    "carrier_skin_packet": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-support/skin-source-carriers.npz",
+      "sha256": "c32faa1cae0bcc85cc767e2386b43e359830d5e27ea34e249f3919ad776a4366"
+    },
+    "carrier_witness_fat": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-support/fat-carrier-witnesses.csv.gz",
+      "sha256": "037a14ce2d7780d074dade908d3ed3183090157a1107ac6c422ef82566a3e7fb"
+    },
+    "carrier_witness_skin": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-support/skin-carrier-witnesses.csv.gz",
+      "sha256": "b6837fa516052a52d9a2f4929eafc5894911e8063bbd90624e1b8b27efb47386"
+    },
+    "child_fat_elements": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/volume/mesh.ele",
+      "sha256": "a5f30fe2bd463c818b441f492e31a0930e8dde78d50aa9d082c82a1709a6488b"
+    },
+    "child_fat_labels": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/volume/child.labels.csv",
+      "sha256": "6d65475a03a4b38026c8ed10ff8d78b4a6bc39f369f1e540be1fa603084267d0"
+    },
+    "child_fat_node": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/volume/mesh.node",
+      "sha256": "9f65646c39728fbbac6d4dc6e1b1859e1e4491c0e2466d32ed0dff9510e8a5ca"
+    },
+    "child_skin_elements": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/volume/mesh.ele",
+      "sha256": "a5f30fe2bd463c818b441f492e31a0930e8dde78d50aa9d082c82a1709a6488b"
+    },
+    "child_skin_labels": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/volume/child.labels.csv",
+      "sha256": "6d65475a03a4b38026c8ed10ff8d78b4a6bc39f369f1e540be1fa603084267d0"
+    },
+    "child_skin_node": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/volume/mesh.node",
+      "sha256": "9f65646c39728fbbac6d4dc6e1b1859e1e4491c0e2466d32ed0dff9510e8a5ca"
+    },
+    "current_state": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-prefix/verified-state.json",
+      "sha256": "499cf8ec045a8932e12888eceb368fc65000d1c4a46430d17dc7dcbe50e949fd"
+    },
+    "p1_fat_support": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/p1-Fat/fat-current-p1-143-support.npz",
+      "sha256": "38370cb87fcb38563be86b5c93b8b7fc8475c99eea76a47c2996bacb096724ba"
+    },
+    "p1_skin_support": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/p1-Skin/skin-current-p1-143-support.npz",
+      "sha256": "1c462e12f77c5a858d18d6cd36242916d479d8ffcee27a7f24fd12f217b6a36f"
+    },
+    "projection_evidence": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-support/exact-projection-support.csv",
+      "sha256": "873786cd5f80ad12f3b4a6b18cd947409afb1efdf359d3e14b4b6126bafc9962"
+    },
+    "projection_report": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-admission/projection-report.json",
+      "sha256": "4a95e84870adc8529c3c5e3cad89b6663bb225cca4bc2dd38e671c144e80c72b"
+    },
+    "source330_labels": {
+      "bytes": 604836,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.labels.csv",
+      "sha256": "99d643f71a735ee49223cdcd7b863d2d0978b8cc490a138bad4a63012438a457"
+    },
+    "source330_mass": {
+      "bytes": 897942,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv",
+      "sha256": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679"
+    },
+    "source330_nodes": {
+      "bytes": 1694447,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.nodes.csv",
+      "sha256": "7044051353d173b94143a4027ba7dcc468b221512b3f41d5819d27025b36d044"
+    },
+    "source330_tets": {
+      "bytes": 2207254,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.tets.csv",
+      "sha256": "82e20067454748a9eca91bc6f06ab343677c051a139797ae051c64022bd87992"
+    },
+    "source_centroid_slots": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-support/source-centroid-slots.csv",
+      "sha256": "f5d6c2892465a249d9c9370dbd07666d90cde7406e9980080a03415ef0e5fd43"
+    }
+  },
+  "native_steps": 0,
+  "output_dir": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/allocation/allocator-output",
+  "physical_admission": false,
+  "raw_execution": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-allocation/execution.json",
+    "sha256": "b616d8a93edc018ab199956164c0d63f6400ae1aab98489c561faba040e005f3"
+  },
+  "raw_invocation": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-allocation/run-manifest.json",
+    "sha256": "f12ad5a4a3ddb26e1376e18954dc749fb4c2539be908fe15e073b75bbb2ab6a1"
+  },
+  "run_config": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/allocation/run-config.json",
+    "sha256": "131bdc1772bae9f5638e7eede8e100b94dbf3d9cc6170165e7051f3ca2688544",
+    "bytes": 3159
+  },
+  "schema": "numi.h706.current-fractional-mass-cli-run.v1",
+  "source": {
+    "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanCurrentFractionalMassMappingCLI.cpp",
+    "sha256": "3f84ef87daa1eb9a9b8ab5654cfd05849eb3ce9f2e6916eed18e0ae76e55e147",
+    "bytes": 44330
+  },
+  "source_closure": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/source-control.json",
+    "sha256": "808ad55a6904b307cc7c6bb426ba284ce203200c5a19b08bac1350d0779f5530",
+    "bytes": 12999
+  },
+  "source_control_manifest": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/source-control.json",
+    "sha256": "808ad55a6904b307cc7c6bb426ba284ce203200c5a19b08bac1350d0779f5530",
+    "bytes": 12999
+  },
+  "stderr_log": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/allocation/stderr.log",
+  "stdout_log": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/allocation/stdout.log",
+  "variant": "bounded-regional-compensation-1061+level-pruned-034+redundant-collector-cap-fix",
+  "prescribed_child_mass": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/targets-direct-005/prescribed-child-mass.csv",
+    "sha256": "0dd4e415fb761b644f4a6308ff161c2072fa49682f81ee699431a930342c2c48",
+    "bytes": 42327081
+  }
+}

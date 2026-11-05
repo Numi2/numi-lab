@@ -1566,7 +1566,8 @@ using PhysicalSkinFractionalSupportBinder = bool (*)(
         PhysicalSkinFractionalSupportBinder fractionalSupportBinder=nullptr,
         void* fractionalSupportBinderContext=nullptr,
         PhysicalSkinCurrentFractionalRecordedFlowLoader currentRecordedFlowLoader=nullptr,
-        void* currentRecordedFlowLoaderContext=nullptr) {
+        void* currentRecordedFlowLoaderContext=nullptr,
+        std::span<const double> prescribedChildMassKg={}) {
     using namespace physical_skin_child_mass_detail;
     const auto fail=[&](std::string message){error=std::move(message);return false;};
     const bool bindsFractionalSupport=fractionalSupportBinder!=nullptr||fractionalSupportOwner!=nullptr;
@@ -1816,6 +1817,7 @@ using PhysicalSkinFractionalSupportBinder = bool (*)(
     input.coordinateFrameSHA256=bundle.coordinateFrameSHA256;
     input.maximumTransportDistanceM=maximumTransportDistanceM;
     input.relativeClosureTolerance=1.0e-10;
+    input.prescribedChildMassKg=prescribedChildMassKg;
     input.absoluteMassToleranceKg=1.0e-13;
     input.absoluteMeasureToleranceM3=1.0e-15;
     // Keep the owning R build's selected capacity profile for every route.

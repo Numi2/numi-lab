@@ -1,0 +1,9 @@
+{
+  "elapsed_s": 39.77033591270447,
+  "exit_code": 0,
+  "manifest_sha256": "4b32872e533b4b110737366f2e0a4f9f6cfef99d5c31561a3e6c3f4e947d9bcd",
+  "native_steps": 0,
+  "physical_admission": false,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_sha256": "7af1d35230563e00a4b168f870ed87978ac282615b39b747da4b41d9c591a551"
+}

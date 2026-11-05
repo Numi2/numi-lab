@@ -1,0 +1,16 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 352.23749589920044,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-native-317/install-motion.plan.json",
+  "plan_sha256": "e284c0840fdf912d6f893ab3ebfa519ef1f81c1e072a2f77f067fb319d43a506",
+  "stdout_path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-native-317/install-motion.stdout.log.gz",
+  "stdout_encoding": "gzip",
+  "stdout_compressor_exit_code": 0,
+  "stdout_sha256": "0b47cb0875a523b906f9ff1006f077b887524991ca0ceb63aed2d28d71cdf96a",
+  "stdout_uncompressed_sha256": "c681dcd56cd8e0d8f7b3d8f302c3e338c4574a1aa89d35fa7c7ba2362256b323",
+  "stderr_sha256": "38fa4ad2cb3400d00641faa790d4b4c47a40abec3351dd39dbaa21b6bd82e8b1",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": true,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

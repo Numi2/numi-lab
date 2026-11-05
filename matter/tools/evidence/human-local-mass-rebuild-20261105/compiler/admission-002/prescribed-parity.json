@@ -1,0 +1,21 @@
+{
+  "flow": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/allocation/allocator-output/flow.csv",
+    "sha256": "4d3981f287d42b12843e31a975ab2f9d46e06703438a845e82d65b98ecc05353"
+  },
+  "mass_receipt": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/admission-002/mass-receipt.json",
+    "sha256": "c9c9e7feac97e62ff07b627b3ad6f1378fbb7616ed3589d8342b8f9c46623221"
+  },
+  "maximum_absolute_mass_difference_kg": 1.5360490657201353e-12,
+  "maximum_relative_mass_difference": 1.0000029528843e-10,
+  "native_steps": 0,
+  "physical_admission": false,
+  "prescribed_cells": 1405911,
+  "status": "PASS_INDEPENDENT_RECORDED_FLOW_TARGET_PARITY",
+  "target": {
+    "bytes": 42327081,
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/targets-direct-005/prescribed-child-mass.csv",
+    "sha256": "0dd4e415fb761b644f4a6308ff161c2072fa49682f81ee699431a930342c2c48"
+  }
+}

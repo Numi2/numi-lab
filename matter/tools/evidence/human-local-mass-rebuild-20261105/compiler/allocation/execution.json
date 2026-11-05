@@ -1,0 +1,19 @@
+{
+  "exit_code": 0,
+  "returncode": 0,
+  "stop_reason": null,
+  "wall_s": 257.7538421154022,
+  "manifest_sha256": "71fda076a5b4da851d60f881eb32f0580ccfa2be47d05132665ec71a1fa3b22e",
+  "stdout": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/allocation/stdout.log",
+    "sha256": "4f78cf47e67e209fa115daa80b2fbf4ee6aff83dbcac3235a4f173207b70136e",
+    "bytes": 4496
+  },
+  "stderr_gzip": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/allocation/stderr.log.gz",
+    "sha256": "8134ad590b6cc777186c9019fdd47986361c004b18dfad13a079be87b72c1ef3",
+    "bytes": 2074
+  },
+  "physical_admission": false,
+  "native_steps": 0
+}

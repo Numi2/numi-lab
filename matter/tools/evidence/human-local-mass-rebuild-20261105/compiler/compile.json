@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/usr/bin/clang++",
+    "-std=c++20",
+    "-O3",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-DNUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY=1",
+    "-I/Users/numi/Work/current-fractional-020-publication-20261101/apps",
+    "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/source/apps",
+    "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/matter/include",
+    "-I/Users/numi/Work/numi-human-connected-surface-069/publication-140/dependencies/include",
+    "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/include",
+    "-MMD",
+    "-MF",
+    "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/build/mass-cli.d",
+    "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanCurrentFractionalMassMappingCLI.cpp",
+    "-lz",
+    "-o",
+    "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/build/mass-cli"
+  ],
+  "exit_code": 0,
+  "wall_s": 5.354768991470337
+}

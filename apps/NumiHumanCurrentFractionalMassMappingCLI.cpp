@@ -310,6 +310,7 @@ bool writeCurrentFractionalArtifacts(
 int main(int argc, char** argv) {
     using namespace metalrobo::human::coarse_tissue;
     std::string massCSV, labelsCSV, childNodes, childElements, childLabels, coordinateFrame;
+    std::string prescribedMassCSV,prescribedMassSHA;
     std::size_t explicitBodyCount=0u;
     double transportDistance=0.0;
     bool identityTransfer = false;
@@ -323,6 +324,8 @@ int main(int argc, char** argv) {
         else if (argument == "--child-node-file" && i + 1 < argc) childNodes = argv[++i];
         else if (argument == "--child-ele-file" && i + 1 < argc) childElements = argv[++i];
         else if (argument == "--child-labels-csv" && i + 1 < argc) childLabels = argv[++i];
+        else if (argument == "--child-mass-target-csv" && i + 1 < argc) prescribedMassCSV = argv[++i];
+        else if (argument == "--child-mass-target-sha256" && i + 1 < argc) prescribedMassSHA = argv[++i];
         else if (argument == "--coordinate-frame-sha256" && i + 1 < argc) coordinateFrame = argv[++i];
         else if (argument == "--source-body-count" && i + 1 < argc) {
             if(!physical_skin_child_mass_detail::parseNumber(std::string(argv[++i]),explicitBodyCount))return 2;
@@ -336,7 +339,9 @@ int main(int argc, char** argv) {
                          "[--identity-transfer-control | --child-node-file <mesh.node> "
                          "--child-ele-file <mesh.ele> --child-labels-csv <labels.csv> "
                          "--coordinate-frame-sha256 <sha256> --source-body-count <count> "
-                         "--maximum-transport-distance-m <metres>]\n"
+                         "--maximum-transport-distance-m <metres>] "
+                         "[--current-fractional-semantic --child-mass-target-csv <child-mass.csv> "
+                         "--child-mass-target-sha256 <sha256>]\n"
                          "The identity control exercises conservative spatial mass "
                          "transport on exact native parent tetrahedra with child world/"
                          "reference nodes formed from parent current positions rounded to "
@@ -346,6 +351,10 @@ int main(int argc, char** argv) {
             std::cerr << "invalid argument: " << argument << "; run --help\n";
             return 2;
         }
+    }
+    if(prescribedMassCSV.empty()!=prescribedMassSHA.empty()||
+       (!prescribedMassCSV.empty()&&(!currentFractionalOptIn||identityTransfer))) {
+        std::cerr<<"prescribed child masses require paired path/SHA and current fractional allocation\n";return 2;
     }
     const bool hasChildArguments=!childNodes.empty()||!childElements.empty()||!childLabels.empty()||
         !coordinateFrame.empty()||explicitBodyCount!=0u||transportDistance!=0.0;
@@ -535,11 +544,43 @@ int main(int argc, char** argv) {
                  <<" max_distance_m="<<transportDistance<<"\n";
     }
 
+    std::vector<double> prescribedMass;
+    if(!prescribedMassCSV.empty()) {
+        using namespace physical_skin_child_mass_detail;
+        std::string actualSHA,line;
+        if(!validSHA256(prescribedMassSHA)||
+           !sha256File(prescribedMassCSV,actualSHA,error)||actualSHA!=prescribedMassSHA) {
+            std::cerr<<"prescribed_child_mass=REJECTED reason=input_SHA_mismatch\n";return 5;
+        }
+        std::ifstream file(prescribedMassCSV);
+        if(!std::getline(file,line)||splitCSV(line)!=std::vector<std::string>{"child_row","mass_kg"}) {
+            std::cerr<<"prescribed_child_mass=REJECTED reason=column_identity_mismatch\n";return 5;
+        }
+        prescribedMass.assign(bundle.childTetrahedra.size(),0.0);
+        std::size_t prescribedRows=0,previousChild=0;
+        while(std::getline(file,line)) {
+            const auto row=splitCSV(line);
+            std::size_t child=0;double mass=0.0;
+            if(row.size()!=2u||!parseNumber(row[0],child)||(prescribedRows&&child<=previousChild)||
+               !parseNumber(row[1],mass)||!std::isfinite(mass)||mass<=0.0||
+               child>=bundle.childTetrahedra.size()) {
+                std::cerr<<"prescribed_child_mass=REJECTED reason=invalid_or_duplicate_row\n";return 5;
+            }
+            prescribedMass[child]=mass;previousChild=child;++prescribedRows;
+        }
+        if(!file.eof()||prescribedRows==0u||
+           !sha256File(prescribedMassCSV,actualSHA,error)||actualSHA!=prescribedMassSHA) {
+            std::cerr<<"prescribed_child_mass=REJECTED reason=incomplete_or_changed_input\n";return 5;
+        }
+        std::cout<<"prescribed_child_mass=PINNED rows="<<prescribedRows
+                 <<" sha256="<<prescribedMassSHA<<"\n";
+    }
+
     const auto mappingStart = std::chrono::steady_clock::now();
     const bool mappingPrepared=fractionalPrepared?
         preparePhysicalSkinChildMassMapping(bundle,densityLower,densityUpper,transportDistance,
             sourceBodyCount,error,nullptr,&carrierView,&carrierTrace,&fractionalSupport,
-            &bindCurrentFractionalSemanticSupportProofs,&proofFiles):
+            &bindCurrentFractionalSemanticSupportProofs,&proofFiles,nullptr,nullptr,prescribedMass):
         preparePhysicalSkinChildMassMapping(bundle,densityLower,densityUpper,transportDistance,
             sourceBodyCount,error);
     if (!mappingPrepared) {

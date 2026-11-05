@@ -1,0 +1,14 @@
+{
+  "exit_code": 0,
+  "native_steps": 0,
+  "physical_admission": false,
+  "producer": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/admit_prescribed_local_mass_315_002.py",
+    "sha256": "c97e79c893a06605f81eed9b7b9e7245fc263282d31fb66f572b2914089335e9"
+  },
+  "unchanged_numerical_core_adapter": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-admission/build_current_fractional_mass_receipt_1061.py",
+    "sha256": "c4495a4df3c82ad4fb2ef925c633b6f086cc36fb56bd12ea4b9057718bfa8e0a"
+  },
+  "wall_s": 21.910242080688477
+}

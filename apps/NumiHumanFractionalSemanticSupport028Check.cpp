@@ -131,6 +131,79 @@ int main() {
         std::cerr << "valid 50/50 receipt failed replay: " << error << "\n";
         return 3;
     }
+    // Prescribed local mass is an additional capacity constraint. It cannot
+    // change source-group totals, density, radius, or permit a global nodal-mass
+    // redistribution outside the compiler's explicitly free repair rows.
+    {
+        auto local=makeInput();auto localSupport=makeSupport();
+        const std::array<SpatialMassTransportPoint,2> points{{{0,0,0},{0,0,0}}};
+        const std::array<double,2> volumes{5e-4,5e-4};
+        const std::array<std::uint32_t,2> materials{15,15},donors{1,1},regions{10,10};
+        const std::array<std::uint32_t,3> offsets{0,2,4};
+        const std::array<std::uint32_t,4> groups{0,1,0,1};
+        const std::array<double,4> fractions{.5,.5,.5,.5};
+        local.childCentroidsWorld=points;local.childReferenceVolumeM3=volumes;
+        local.childMaterialIndices=materials;local.childDonorBodyIndices=donors;
+        local.childAnatomicalRegionIndices=regions;
+        localSupport.childOffsets=offsets;localSupport.slotGroupIndices=groups;
+        localSupport.volumeFractions=fractions;
+        ConservativeSpatialMassTransportResult unprescribed,prescribed;
+        if(!assembleConservativeSpatialMassTransportWithSemanticSupport(
+                local,localSupport,unprescribed,error)) {
+            std::cerr<<"local target control failed: "<<error<<"\n";return 41;
+        }
+        std::array<double,2> target{.46,.54};
+        local.prescribedChildMassKg=target;
+        // The nonsemantic route must reject targets rather than ignore them.
+        auto unsupported=unprescribed;
+        if(assembleConservativeSpatialMassTransport(local,unsupported,error)||
+           error!="prescribed child masses require the shared semantic capacity allocator"||
+           unsupported.receiptSHA256!=unprescribed.receiptSHA256||
+           unsupported.childMassKg!=unprescribed.childMassKg) {
+            std::cerr<<"generic allocator ignored prescribed masses\n";return 48;
+        }
+        if(!assembleConservativeSpatialMassTransportWithSemanticSupport(
+                local,localSupport,prescribed,error)||
+           std::abs(prescribed.childMassKg[0]-.46)>5e-11||
+           std::abs(prescribed.childMassKg[1]-.54)>6e-11||
+           prescribed.parentMassTransferredKg!=std::vector<double>({.5,.5})||
+           prescribed.receiptSHA256==unprescribed.receiptSHA256||
+           !verifyRecordedConservativeSpatialMassTransportWithSemanticSupport(
+                local,localSupport,prescribed,error)) {
+            std::cerr<<"prescribed local allocation or replay failed: "<<error<<"\n";return 42;
+        }
+        target={.47,.53};
+        if(verifyRecordedConservativeSpatialMassTransportWithSemanticSupport(
+                local,localSupport,prescribed,error)) {
+            std::cerr<<"changed targets accepted an old receipt\n";return 43;
+        }
+        target={.46,0.0}; // second row remains free within actual density bounds
+        if(!assembleConservativeSpatialMassTransportWithSemanticSupport(
+                local,localSupport,prescribed,error)||
+           std::abs(prescribed.childMassKg[0]-.46)>5e-11||
+           std::abs(prescribed.childMassKg[1]-.54)>6e-11) {
+            std::cerr<<"sparse prescribed row failed: "<<error<<"\n";return 44;
+        }
+        for(const auto bad:std::array<std::array<double,2>,4>{{
+                {.4,.6},{.46,.53},{-.46,.54},
+                {std::numeric_limits<double>::quiet_NaN(),.54}}}) {
+            target=bad;auto unchanged=prescribed;
+            if(assembleConservativeSpatialMassTransportWithSemanticSupport(
+                    local,localSupport,unchanged,error)||
+               unchanged.receiptSHA256!=prescribed.receiptSHA256||
+               unchanged.childMassKg!=prescribed.childMassKg) {
+                std::cerr<<"invalid prescribed mass accepted or changed output\n";return 45;
+            }
+        }
+        const std::array<double,1> shortTarget{.46};local.prescribedChildMassKg=shortTarget;
+        if(assembleConservativeSpatialMassTransportWithSemanticSupport(
+                local,localSupport,prescribed,error))return 46;
+        const std::array<double,2> tinyTarget{1e-20,0};local.prescribedChildMassKg=tinyTarget;
+        if(spatial_mass_transport_detail::prescribedChildMassMatches(
+                local,0,1e-16,error)) {
+            std::cerr<<"absolute closure floor masked tiny-cell mass change\n";return 47;
+        }
+    }
     auto tampered = result;
     tampered.childParentVolumeFractions[0] += 0.01;
     if (verifyRecordedConservativeSpatialMassTransportWithSemanticSupport(

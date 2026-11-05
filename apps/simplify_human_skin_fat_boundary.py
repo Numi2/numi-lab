@@ -32,8 +32,66 @@ def link(cells,vs):
 def incidence(rows,n):
  order=np.argsort(rows.ravel(),kind="stable");off=np.r_[0,np.cumsum(np.bincount(rows.ravel(),minlength=n))]
  return lambda v:np.unique(order[off[v]:off[v+1]]//rows.shape[1])
+def compose_local_cell_mass(old_mass,old_material,new_material,new_volume,density_bounds):
+ """Conserve each cavity material mass without touching other cells.
+ This is construction eligibility, not source-flow or native admission.
+ Roundoff matches densityBoundRoundoff in the existing C++ mass owner.
+ """
+ old_mass=np.asarray(old_mass,dtype=np.float64)
+ old_material=np.asarray(old_material)
+ new_material=np.asarray(new_material)
+ new_volume=np.asarray(new_volume,dtype=np.float64)
+ if (old_mass.ndim!=1 or old_material.shape!=old_mass.shape or
+     new_volume.ndim!=1 or new_material.shape!=new_volume.shape or
+     not len(old_mass) or not len(new_volume) or
+     not np.all(np.isfinite(old_mass)&(old_mass>0)) or
+     not np.all(np.isfinite(new_volume)&(new_volume>0))):
+  raise ValueError("invalid local mass or volume domain")
+ if set(map(int,old_material))!=set(map(int,new_material)):
+  raise ValueError("cavity loses a material")
+ result=np.empty(len(new_volume),dtype=np.float64)
+ for material in np.unique(old_material):
+  rows=np.flatnonzero(new_material==material)
+  lower,upper=map(float,density_bounds[int(material)])
+  if not (np.isfinite(lower) and np.isfinite(upper) and 0<lower<=upper):
+   raise ValueError("invalid material density bounds")
+  total=float(np.sum(old_mass[old_material==material],dtype=np.float64))
+  volumes=new_volume[rows];volume=float(np.sum(volumes,dtype=np.float64))
+  density=total/volume
+  tolerance=64*np.finfo(np.float64).eps*max(1.,abs(lower),abs(upper),abs(density))
+  if not np.isfinite(density) or density<lower-tolerance or density>upper+tolerance:
+   raise ValueError("local material mass cannot fit unchanged density bounds")
+  portions=(volumes/volume)*total
+  # Put the final rounding residual on the largest cell. Assigning it to an
+  # arbitrarily tiny last cell can move its density outside the original bound.
+  pivot=int(np.argmax(volumes))
+  portions[pivot]=total-float(np.sum(np.delete(portions,pivot),dtype=np.float64))
+  actual=portions/volumes
+  tol=64*np.finfo(np.float64).eps*np.maximum.reduce([np.ones(len(rows)),np.full(len(rows),abs(lower)),np.full(len(rows),abs(upper)),np.abs(actual)])
+  if not np.all(np.isfinite(portions)&(portions>0)&(actual>=lower-tol)&(actual<=upper+tol)):
+   raise ValueError("rounded local cell mass violates unchanged density bounds")
+  result[rows]=portions
+ return result
+
+def load_reference_cell_mass(path,expected_sha,count):
+ if not expected_sha or sha(path)!=expected_sha:
+  raise ValueError("reference flow SHA mismatch")
+ # This is the existing flow CSV: child_row,source_parent_row,mass_kg,...
+ with Path(path).open() as stream:
+  if stream.readline().strip().split(",")[:3]!=["child_row","source_parent_row","mass_kg"]:
+   raise ValueError("reference flow column identities differ")
+ flow=np.loadtxt(path,delimiter=",",skiprows=1,usecols=(0,2),ndmin=2)
+ rows=flow[:,0].astype(np.int64)
+ if (not np.all(np.isfinite(flow)) or not np.array_equal(rows.astype(float),flow[:,0]) or
+     np.any(rows<0) or np.any(rows>=count) or np.any(flow[:,1]<=0)):
+  raise ValueError("invalid reference flow")
+ mass=np.bincount(rows,weights=flow[:,1],minlength=count)
+ if len(mass)!=count or not np.all(np.isfinite(mass)&(mass>0)):
+  raise ValueError("reference flow does not cover every original cell")
+ return mass
+
 def main():
- ap=argparse.ArgumentParser();ap.add_argument("--output",type=Path,required=True);ap.add_argument("--seconds",type=float,default=180);ap.add_argument("--max-operations",type=int,default=2048);ap.add_argument("--maximum-edge-m",type=float,default=.0001);ap.add_argument("--replay-report",type=Path);ap.add_argument("--exclude-operation-rows",type=Path);a=ap.parse_args()
+ ap=argparse.ArgumentParser();ap.add_argument("--output",type=Path,required=True);ap.add_argument("--seconds",type=float,default=180);ap.add_argument("--max-operations",type=int,default=2048);ap.add_argument("--maximum-edge-m",type=float,default=.0001);ap.add_argument("--replay-report",type=Path);ap.add_argument("--exclude-operation-rows",type=Path);ap.add_argument("--reference-flow-csv",type=Path);ap.add_argument("--reference-flow-sha256");a=ap.parse_args()
  a.output.mkdir(parents=True,exist_ok=False);shutil.copy2(__file__,a.output/"executed-runner.py");start=time.monotonic()
  with np.load(V) as z:
   p=z["points_reference_world_m_f64"].astype(np.float32);ot=z["volume_tetrahedra"];om=z["material_index"]
@@ -44,6 +102,29 @@ def main():
   kept=z["retained_input_cell_rows"];new=z["replacement_tetrahedra"];po=z["replacement_parent_offsets"];pr=z["replacement_parent_cell_rows"]
   t=np.concatenate([ot[kept],new]);labs=np.concatenate([rawlabs[kept],rawlabs[pr[po[:-1]]]])
   original_parents=[np.array([i],np.int64) for i in kept]+[pr[po[i]:po[i+1]] for i in range(len(new))]
+  cell_mass=None
+  density_bounds={15:(900.,1100.),16:(850.,950.)}
+  if bool(a.reference_flow_csv)!=bool(a.reference_flow_sha256):
+   raise ValueError("reference flow path and SHA must be provided together")
+  if a.reference_flow_csv:
+   original_mass=load_reference_cell_mass(a.reference_flow_csv,a.reference_flow_sha256,len(ot))
+   new_mass=np.empty(len(new),dtype=np.float64)
+   patch_offsets=z["replacement_tet_offsets"]
+   new_volume=measure(p,new)[0]/6
+   # Match the existing fixed-cavity owner: only repartition a patch's own mass.
+   for first,last in zip(patch_offsets[:-1],patch_offsets[1:]):
+    parents=pr[po[first]:po[first+1]]
+    # Reconstruct the already retained fixed-cavity baseline's own masses.
+    # Its exact geometry/density/source-flow certification remains the native
+    # fixed-cavity owner's authority. New quotient operations are screened below.
+    assert np.all(om[parents]==om[parents[0]])
+    total=float(original_mass[parents].sum())
+    portions=new_volume[first:last]/new_volume[first:last].sum()*total
+    portions[-1]=total-float(portions[:-1].sum())
+    assert np.all(np.isfinite(portions)&(portions>0))
+    new_mass[first:last]=portions
+   cell_mass=np.r_[original_mass[kept],new_mass]
+   input_cell_mass=cell_mass.copy()
   assert all(np.all(rawlabs[pr[po[i]:po[i+1]]]==labs[len(kept)+i]) for i in range(len(new)))
  det,q=measure(p,t);assert np.all((det/6>1e-18)&(q>=np.float32(1e-5)))
  getcells=incidence(t,len(p));alive=np.ones(len(t),bool);used=set();reject=collections.Counter();ops=[]
@@ -122,6 +203,13 @@ def main():
    good_coarsening=oldq.min()>=.001 and nq.min()>=.001 and int((~live).sum())>0
    conditioning_gain=nq.min()>=oldq.min() and cost(nq)<cost(oldq)-1e-6
    if not (good_coarsening or conditioning_gain):reject["no_conditioning_gain"]+=1;continue
+   proposed_mass=None
+   if cell_mass is not None:
+    try:
+     proposed_mass=compose_local_cell_mass(cell_mass[rows],labs[rows,0],
+      labs[rows[live],0],nd/6,density_bounds)
+    except ValueError:
+     reject["local_mass_density_infeasible"]+=1;continue
    delta=float((nd.sum()-det[rows].sum())/6)
    if abs(delta)>.01*det[rows].sum()/6 or changed_volume+abs(delta)>1e-4*total_volume:reject["geometric_volume_budget"]+=1;continue
    changes={};deleted=set();affected={}
@@ -144,6 +232,7 @@ def main():
    parents=np.unique(np.concatenate([original_parents[i] for i in rows]))
    for i in rows[live]:original_parents[int(i)]=parents[om[parents]==labs[i,0]]
    t[rows]=n;alive[rows[~live]]=False;q[rows[live]]=nq;det[rows[live]]=nd
+   if proposed_mass is not None:cell_mass[rows[live]]=proposed_mass
    for r,(fr,nf,fl) in affected.items():faces[r][fr]=nf;fa[r][fr[~fl]]=False
    for i,f in changes.items():allfaces[i]=f
    for i in deleted:allfaces[i]=[0,0,0]
@@ -155,6 +244,11 @@ def main():
  # Export joint volume with immediate parent unions in the established CSR representation.
  rows=np.flatnonzero(alive);parents=[original_parents[i] for i in rows];off=np.r_[0,np.cumsum([len(x) for x in parents])]
  np.savez_compressed(a.output/"candidate-volume.npz",points_reference_world_m_f64=p.astype(float),volume_tetrahedra=t[rows],material_index=labs[rows,0],geometric_donor_body=labs[rows,1],anatomical_region_id=labs[rows,2],replacement_parent_offsets=off,replacement_parent_cell_rows=np.concatenate(parents),source_volume_sha256=np.array(sha(V)))
+ if cell_mass is not None:
+  # Same established child-mass CSV columns; never a replacement for source-flow admission.
+  np.savetxt(a.output/"local-child-mass-proposal.csv",
+   np.column_stack((np.arange(len(rows)),cell_mass[rows])),delimiter=",",
+   header="child_row,mass_kg",comments="",fmt=["%d","%.17g"])
  # Typed surface emission and face-union composition happen only after accepted operations.
  for r in S:
   old=raw[r];keepf=np.flatnonzero(fa[r]);reverse=np.full(len(p),-1,np.int64);active=maps[r]>=0;reverse[maps[r][active]]=np.flatnonzero(active)
@@ -180,6 +274,16 @@ def main():
   payload["source_input_vertex_quotient"]=quotient
   np.savez_compressed(a.output/f"candidate-{r}-typed-current.npz",**payload)
  report=dict(status="JOINT_BOUNDARY_VOLUME_PROPOSAL_NOT_PHYSICAL_ADMISSION",physical_admission=False,native_steps=0,mass_mapping="PENDING",input_pins={str(x):sha(x) for x in [V,C,*S.values(),a.output/"executed-runner.py",*([a.replay_report] if a.replay_report else []),*([a.exclude_operation_rows] if a.exclude_operation_rows else [])]},operations=ops,rejections=dict(reject),input_cells=len(t),output_cells=len(rows),input_nodes=len(p),active_output_nodes=len(np.unique(t[rows])),low_quality_cells_before=int((measure(p,np.concatenate([ot[kept],new]))[1]<.001).sum()),low_quality_cells_after=int((q[rows]<.001).sum()),native_quality_failures=int(((det[rows]/6<=1e-18)|(q[rows]<np.float32(1e-5))).sum()),all_point_coordinates_unchanged=True,absolute_geometric_volume_change_m3=changed_volume,elapsed_s=time.monotonic()-start,remaining=["complete anatomical context including bones and containment","independent topology, F32, typed ancestry and volume checks","canonical parent and conservative source mass compiler","complete native scene comparison"])
+ if cell_mass is not None:
+  touched=np.unique(np.concatenate([np.asarray(o["source_cell_rows"],np.int64) for o in ops])) if ops else np.empty(0,np.int64)
+  unchanged=np.ones(len(t),bool);unchanged[touched]=False
+  assert np.array_equal(cell_mass[unchanged],input_cell_mass[unchanged])
+  report["local_mass_construction"]={"reference_flow_path":str(a.reference_flow_csv),
+   "reference_flow_sha256":a.reference_flow_sha256,"density_bounds_kg_m3":density_bounds,
+   "input_mass_kg":float(input_cell_mass.sum()),"output_mass_kg":float(cell_mass[rows].sum()),
+   "unchanged_cells":int(unchanged.sum()),"unchanged_cell_masses_exact":True,
+   "source_flow_and_donor_composition":"PENDING_EXISTING_CONSERVATIVE_COMPILER",
+   "proposal_path":str(a.output/"local-child-mass-proposal.csv")}
  (a.output/"report.json").write_text(json.dumps(report,indent=2)+"\n")
  print(json.dumps({k:v for k,v in report.items() if k!="operations"}),flush=True)
 if __name__=="__main__":main()

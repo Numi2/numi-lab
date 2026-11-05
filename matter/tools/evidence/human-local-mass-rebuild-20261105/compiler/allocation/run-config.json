@@ -1,0 +1,48 @@
+{
+  "question": "Does preserving masses of unchanged material/rest cells remove the global mass redistribution caused by fresh allocation?",
+  "prediction": "The allocator will preserve 1405911 prescribed cell masses (97.29 percent of candidate cells, 13.90335 kg) within1e-10 relative while satisfying all existing source-carrier, semantic, donor, density, radius and mass/measure closure checks. Native performance/fidelity is not predicted from compiler tests.",
+  "controls": "Same native310 geometry, materials, source mass/quadrature, body poses, source witnesses, compensation scope and transport radius. Only per-child capacities are additionally restricted outside changed cell stars. Primary-label differences in24 untouched cells remain explicit and unqualified.",
+  "stop": "900 seconds, disk below12GiB, swap growth above3GiB, or RSS above8GiB. One heavy worker. No source/native promotion on failure.",
+  "command": [
+    "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/build/mass-cli",
+    "--current-fractional-semantic",
+    "--parent-mass-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv",
+    "--labels-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.labels.csv",
+    "--child-node-file",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/volume/mesh.node",
+    "--child-ele-file",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/volume/mesh.ele",
+    "--child-labels-csv",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/volume/child.labels.csv",
+    "--coordinate-frame-sha256",
+    "0c6e10d411604cb317eb5a9da234da568d683e6cc0276ac184f80fd29067b80a",
+    "--source-body-count",
+    "157",
+    "--maximum-transport-distance-m",
+    "0.187444",
+    "--child-mass-target-csv",
+    "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/targets-direct-005/prescribed-child-mass.csv",
+    "--child-mass-target-sha256",
+    "0dd4e415fb761b644f4a6308ff161c2072fa49682f81ee699431a930342c2c48"
+  ],
+  "source_control_manifest": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/source-control.json",
+    "sha256": "808ad55a6904b307cc7c6bb426ba284ce203200c5a19b08bac1350d0779f5530",
+    "bytes": 12999
+  },
+  "target_row_check": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/allocation/target-row-domain.json",
+    "sha256": "ceae98c83e23fc48e9e357d980c553d6f25932a2edb4f2178afbd6293fc31f0a",
+    "bytes": 950
+  },
+  "resource_policy": {
+    "minimum_free_bytes": 12884901888,
+    "maximum_swap_growth_bytes": 3221225472,
+    "maximum_rss_bytes": 8589934592,
+    "maximum_wall_s": 900
+  },
+  "physical_admission": false,
+  "native_steps": 0
+}

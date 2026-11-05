@@ -1,0 +1,34 @@
+{
+  "controls": [
+    {
+      "argv": [
+        "--child-mass-target-csv",
+        "missing.csv"
+      ],
+      "exit_code": 2,
+      "stderr": "prescribed child masses require paired path/SHA and current fractional allocation\n"
+    },
+    {
+      "argv": [
+        "--child-mass-target-csv",
+        "missing.csv",
+        "--child-mass-target-sha256",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      "exit_code": 2,
+      "stderr": "prescribed child masses require paired path/SHA and current fractional allocation\n"
+    },
+    {
+      "argv": [
+        "--identity-transfer-control",
+        "--current-fractional-semantic",
+        "--child-mass-target-csv",
+        "missing.csv",
+        "--child-mass-target-sha256",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      "exit_code": 2,
+      "stderr": "prescribed child masses require paired path/SHA and current fractional allocation\n"
+    }
+  ]
+}

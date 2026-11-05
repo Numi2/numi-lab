@@ -1,0 +1,35 @@
+{
+  "scope": "CONSTRUCTION_CONSTRAINTS_NOT_SOURCE_FLOW_OR_NATIVE_ADMISSION",
+  "input_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1037/candidate-current-typed-volume.npz": "5d31c141b66628801a711c2e745f744f745611882a269e173eddfcd0e99d3372",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/connected-conditioning-134/fixed-boundary-volume-proposal.npz": "4be98e7d5710360407a561d10efaa02b86702efdaf1b4312c4b035d6d9a19cb8",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/allocator-output/flow.csv": "ab1b7b75d211ce2bdd94668914b59de2f8a3c908416a100a4455e7ca5419dfeb",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/volume/child.labels.csv": "c48c944a0f4080ecc3df3d6430bf6f8ec8abca00c90c8b990ffbfdd72dc2156d",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/rich433/candidate-current-typed-volume.npz": "0152c7b15febfc81f4d9ce995820a80438204635deb425193212409e31c5c323",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/report.json": "bddc717cfd7dcb08535e04a9674bc8acc887d2d067706ea489ae1544d8f197ba",
+    "/Users/numi/Work/human-integrated-gaps-20261104/prepare_prescribed_local_mass_315.py": "c66f6b432352856c341ac3edb642333e745c34df2d589c63fc332661f1f7a033"
+  },
+  "halo_rings": 0,
+  "baseline_cells": 1453060,
+  "candidate_cells": 1445018,
+  "direct_changed_star_cells": 47149,
+  "baseline_free_cells_including_halo": 47149,
+  "prescribed_cells": 1405911,
+  "candidate_free_cells": 39107,
+  "prescribed_mass_kg": 13.90335379478524,
+  "unique_interior_nodes_mapped": 13869,
+  "ambiguous_interior_nodes_unprescribed": 0,
+  "additional_cells_unprescribed_for_ambiguous_mapping": 0,
+  "prescribed_material_labels_unchanged": true,
+  "primary_donor_region_label_differences": 24,
+  "primary_label_equivalence": "NOT_QUALIFIED",
+  "baseline_mass_kg": 13.939678963460477,
+  "all_prescribed_rest_tetrahedra_identical_f32": true,
+  "physical_density_transport_source_and_semantic_gates": "UNCHANGED_MUST_PASS_EXISTING_ALLOCATOR",
+  "prescribed_relative_tolerance": 1e-10,
+  "output": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/targets-direct-005/prescribed-child-mass.csv",
+    "sha256": "0dd4e415fb761b644f4a6308ff161c2072fa49682f81ee699431a930342c2c48"
+  },
+  "wall_s": 2.838245153427124
+}

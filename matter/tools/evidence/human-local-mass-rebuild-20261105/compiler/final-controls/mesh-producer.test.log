@@ -1,0 +1,14 @@
+test_fractional_row_or_negative_source_mass_is_invalid (test_simplify_human_skin_fat_boundary.LocalMassConstruction.test_fractional_row_or_negative_source_mass_is_invalid) ... ok
+test_invalid_domains_are_rejected (test_simplify_human_skin_fat_boundary.LocalMassConstruction.test_invalid_domains_are_rejected) ... ok
+test_lost_material_is_not_silently_merged (test_simplify_human_skin_fat_boundary.LocalMassConstruction.test_lost_material_is_not_silently_merged) ... ok
+test_lower_density_limit_is_enforced (test_simplify_human_skin_fat_boundary.LocalMassConstruction.test_lower_density_limit_is_enforced) ... ok
+test_material_mass_cannot_cross_an_interface (test_simplify_human_skin_fat_boundary.LocalMassConstruction.test_material_mass_cannot_cross_an_interface) ... ok
+test_reference_flow_requires_exact_identity_and_complete_cells (test_simplify_human_skin_fat_boundary.LocalMassConstruction.test_reference_flow_requires_exact_identity_and_complete_cells) ... ok
+test_split_keeps_physical_mass_and_density (test_simplify_human_skin_fat_boundary.LocalMassConstruction.test_split_keeps_physical_mass_and_density) ... ok
+test_tiny_last_cell_does_not_absorb_large_cell_roundoff (test_simplify_human_skin_fat_boundary.LocalMassConstruction.test_tiny_last_cell_does_not_absorb_large_cell_roundoff) ... ok
+test_volume_change_cannot_be_hidden_by_global_reallocation (test_simplify_human_skin_fat_boundary.LocalMassConstruction.test_volume_change_cannot_be_hidden_by_global_reallocation) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.004s
+
+OK

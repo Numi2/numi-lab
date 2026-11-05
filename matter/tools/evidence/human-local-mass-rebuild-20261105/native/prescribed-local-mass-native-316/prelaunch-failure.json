@@ -1,0 +1,14 @@
+{
+  "gpu_launched": false,
+  "reason": "stale optional mutable driver cache hash; frozen native executable and metallibs unchanged",
+  "cache_old": {
+    "bytes": 1434097168,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-driver-pipelines.metalar",
+    "sha256": "a77b70b0e1f892aacf4d3841d36317769caefc525df4ba7b73b01eaa52e0886a"
+  },
+  "cache_current": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-driver-pipelines.metalar",
+    "sha256": "3058420c3785b2d2be753b39ad20d93542bd05f73655a0ffd16423d125b64522",
+    "bytes": 1502104640
+  }
+}

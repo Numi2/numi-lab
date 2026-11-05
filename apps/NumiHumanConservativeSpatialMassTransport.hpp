@@ -75,6 +75,12 @@ struct ConservativeSpatialMassTransportInput {
     double absoluteMeasureToleranceM3 = 1.0e-15;
     std::size_t maximumAllowedEdges = 3'000'000u;
     std::size_t maximumAugmentations = 300'000u;
+
+    // Optional compiler-owned mass targets after a local mesh repair. Shared
+    // real-child allocation intersects these with the unchanged density bounds.
+    // Zero marks an unprescribed row; nonzero targets must be finite/positive.
+    // Empty preserves the existing allocation and receipt bits.
+    std::span<const double> prescribedChildMassKg;
 };
 
 struct ConservativeSpatialMassTransportSourceDonorClosure {
@@ -365,6 +371,44 @@ inline double densityBoundRoundoff(const double lower, const double upper,
                                    const double density) {
     return 64.0 * std::numeric_limits<double>::epsilon() *
         std::max({1.0, std::abs(lower), std::abs(upper), std::abs(density)});
+}
+
+inline bool prescribedChildMassCapacity(const ConservativeSpatialMassTransportInput& in,
+        std::size_t child,double& lower,double& upper,std::string& error) {
+    if(in.prescribedChildMassKg.empty())return true;
+    if(in.prescribedChildMassKg.size()!=in.childReferenceVolumeM3.size()||
+       child>=in.prescribedChildMassKg.size()||
+       !std::isfinite(in.relativeClosureTolerance)||in.relativeClosureTolerance<0.0) {
+        error="prescribed child mass domain or tolerance is invalid";return false;
+    }
+    const double mass=in.prescribedChildMassKg[child];
+    if(mass==0.0)return true; // explicit unprescribed internal row
+    if(!std::isfinite(mass)||mass<0.0) {
+        error="prescribed child mass must be finite and nonnegative";return false;
+    }
+    // Relative-only: the general absolute closure floor would permit large
+    // relative mass changes in tiny skin cells. Never widen physical capacities.
+    const double tolerance=std::min(in.relativeClosureTolerance,1.0e-10)*mass;
+    lower=std::max(lower,mass-tolerance);
+    upper=std::min(upper,mass+tolerance);
+    if(!std::isfinite(lower)||!std::isfinite(upper)||lower<=0.0||upper<lower) {
+        error="prescribed child mass cannot fit unchanged material density bounds";return false;
+    }
+    return true;
+}
+inline bool prescribedChildMassMatches(const ConservativeSpatialMassTransportInput& in,
+        std::size_t child,double actual,std::string& error) {
+    if(in.prescribedChildMassKg.empty())return true;
+    double lower=0.0,upper=std::numeric_limits<double>::infinity();
+    if(!prescribedChildMassCapacity(in,child,lower,upper,error))return false;
+    const double target=in.prescribedChildMassKg[child];
+    if(target==0.0)return true;
+    const double tolerance=std::min(in.relativeClosureTolerance,1.0e-10)*target+
+        64.0*std::numeric_limits<double>::epsilon()*std::max(target,std::abs(actual));
+    if(!std::isfinite(actual)||std::abs(actual-target)>tolerance) {
+        error="allocated child mass differs from its prescribed local mass";return false;
+    }
+    return true;
 }
 
 inline bool validSHA256(const std::string_view value) {
@@ -1583,6 +1627,12 @@ inline void hashInputArrays(const ConservativeSpatialMassTransportInput& in,
         bounds.real(in.materialDensityLowerKgM3[material]);
         bounds.real(in.materialDensityUpperKgM3[material]);
     }
+    if(!in.prescribedChildMassKg.empty()) {
+        bounds.string("conservativeSpatialMassTransport.prescribed-child-mass.v1");
+        bounds.u64(in.prescribedChildMassKg.size());
+        for(double mass:in.prescribedChildMassKg)bounds.real(mass);
+        bounds.real(std::min(in.relativeClosureTolerance,1.0e-10));
+    }
     boundHash = bounds.finish();
 }
 
@@ -1663,6 +1713,9 @@ inline std::string receiptSHA256(const ConservativeSpatialMassTransportInput& in
         std::string& error, const bool sparseMode,
         const std::size_t priorAugmentationCount) {
     using namespace spatial_mass_transport_detail;
+    if(!in.prescribedChildMassKg.empty()) {
+        error="prescribed child masses require the shared semantic capacity allocator";return false;
+    }
     const auto fail = [&](std::string message) { error = std::move(message); return false; };
     const std::size_t np = in.parentMassKg.size();
     const std::size_t nc = in.childReferenceVolumeM3.size();
@@ -2567,6 +2620,9 @@ inline std::string receiptSHA256(const ConservativeSpatialMassTransportInput& in
         const ConservativeSpatialMassTransportResult& supplied,
         std::string& error) {
     using namespace spatial_mass_transport_detail;
+    if(!in.prescribedChildMassKg.empty()) {
+        error="prescribed child masses require the shared semantic capacity allocator";return false;
+    }
     const auto fail = [&](std::string message) { error = std::move(message); return false; };
     const std::size_t np = in.parentMassKg.size();
     const std::size_t nc = in.childReferenceVolumeM3.size();
@@ -2802,6 +2858,7 @@ inline std::string receiptSHA256(const ConservativeSpatialMassTransportInput& in
             density > in.materialDensityUpperKgM3[material] + densityTolerance ||
             supplied.childImpliedDensityKgM3[c] != density)
             return fail("recorded spatial transport current child density is outside actual material bounds");
+        if(!prescribedChildMassMatches(in,c,childMass[c],error))return false;
         minDensity = std::min(minDensity, density);
         maxDensity = std::max(maxDensity, density);
         const auto sourceBegin = supplied.childSourceDonorOffsets[c];

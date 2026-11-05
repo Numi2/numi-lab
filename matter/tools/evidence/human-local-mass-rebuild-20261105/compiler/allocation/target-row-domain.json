@@ -1,0 +1,21 @@
+{
+  "status": "PASS_ALL_EMITTED_F32_NODES_AND_MATERIAL_TETRAHEDRON_ROWS",
+  "nodes": 310880,
+  "cells": 1445018,
+  "target": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/targets-direct-005/prescribed-child-mass.csv",
+    "sha256": "0dd4e415fb761b644f4a6308ff161c2072fa49682f81ee699431a930342c2c48",
+    "bytes": 42327081
+  },
+  "mesh_node": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/volume/mesh.node",
+    "sha256": "9f65646c39728fbbac6d4dc6e1b1859e1e4491c0e2466d32ed0dff9510e8a5ca",
+    "bytes": 21364263
+  },
+  "mesh_ele": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/volume/mesh.ele",
+    "sha256": "a5f30fe2bd463c818b441f492e31a0930e8dde78d50aa9d082c82a1709a6488b",
+    "bytes": 53195439
+  },
+  "scope": "row-domain check, not anatomical or physical admission"
+}

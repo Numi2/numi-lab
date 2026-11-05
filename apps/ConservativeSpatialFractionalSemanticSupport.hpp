@@ -1577,6 +1577,7 @@ inline bool assembleSharedRealChildCapacity(
         const auto material=in.childMaterialIndices[c];
         childMinimum[c]=in.childReferenceVolumeM3[c]*in.materialDensityLowerKgM3[material];
         childMaximum[c]=in.childReferenceVolumeM3[c]*in.materialDensityUpperKgM3[material];
+        if(!prescribedChildMassCapacity(in,c,childMinimum[c],childMaximum[c],error))return false;
         if(!std::isfinite(childMinimum[c])||!std::isfinite(childMaximum[c])||
            childMinimum[c]<=0.0||childMaximum[c]<childMinimum[c])
             return fail("shared-capacity real-child density capacity is invalid");
@@ -3253,6 +3254,7 @@ inline bool assembleSharedRealChildCapacity(
                 <<" upper="<<in.materialDensityUpperKgM3[material];
             return fail(witness.str());
         }
+        if(!prescribedChildMassMatches(in,c,next.childMassKg[c],error))return false;
         next.childImpliedDensityKgM3[c]=density;
         next.minimumChildImpliedDensityKgM3=
             c==0u?density:std::min(next.minimumChildImpliedDensityKgM3,density);

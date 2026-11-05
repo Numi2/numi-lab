@@ -1,0 +1,30 @@
+{
+  "/Users/numi/Work/current-fractional-020-publication-20261101/apps/ConservativeSpatialFractionalSemanticSupport.hpp": {
+    "bytes": 196687,
+    "sha256": "24920c5dfa6a5b4b712bc33493bc622344b6c44f8e3589ebda432ce8e6c7e8be"
+  },
+  "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanConservativeSpatialMassTransport.hpp": {
+    "bytes": 169717,
+    "sha256": "f37b47cf4a09b29af859c7a5d57cef19d1b76a9836f90de1704e2254c25a7293"
+  },
+  "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanCurrentFractionalMassMappingCLI.cpp": {
+    "bytes": 44330,
+    "sha256": "3f84ef87daa1eb9a9b8ab5654cfd05849eb3ce9f2e6916eed18e0ae76e55e147"
+  },
+  "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanFractionalSemanticSupport028Check.cpp": {
+    "bytes": 34993,
+    "sha256": "234ef9e072b3f89e4be00bb0b590da5894771f935d3533c55419767414bd7b5f"
+  },
+  "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanPhysicalSkinChildMassMapping.hpp": {
+    "bytes": 156971,
+    "sha256": "62cc8fc694f9e656dbccbd6e338a7d7e3ed9f70734a1a0ad8a3173dd61665064"
+  },
+  "/Users/numi/Work/current-fractional-020-publication-20261101/apps/simplify_human_skin_fat_boundary.py": {
+    "bytes": 20302,
+    "sha256": "d102a1e4e3d5e0bc9e84b32a821e57588efc6705a38f1f994dd3f7a5e49f4057"
+  },
+  "/Users/numi/Work/current-fractional-020-publication-20261101/apps/test_simplify_human_skin_fat_boundary.py": {
+    "bytes": 3254,
+    "sha256": "2fbd1790cedca2f170c57b4918d192d2f9d78f96cbcfb71273f875b078501465"
+  }
+}
