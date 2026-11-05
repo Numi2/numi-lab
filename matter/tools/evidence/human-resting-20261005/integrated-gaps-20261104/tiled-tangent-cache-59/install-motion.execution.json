@@ -1,0 +1,16 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 522.4654290676117,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/tile32-native-305/install-motion.plan.json",
+  "plan_sha256": "940669700dfe1592ea345fff4ac5bdb2e90a7817e479829c471ecef733de6e22",
+  "stdout_path": "/Users/numi/Work/human-integrated-gaps-20261104/tile32-native-305/install-motion.stdout.log.gz",
+  "stdout_encoding": "gzip",
+  "stdout_compressor_exit_code": 0,
+  "stdout_sha256": "468e294c17790e13846148d1d908e1e808b0e6019086f73846092e65e7f7992b",
+  "stdout_uncompressed_sha256": "80ff3aacc649a3bc2aca13c0cbe273036b067e5ce91a6599b4942b1ad5d531a6",
+  "stderr_sha256": "c109aa5bf0f659c27ab0021ed4e7a2b1460fd2573365bed2d7e9c4d8f000f73a",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": true,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

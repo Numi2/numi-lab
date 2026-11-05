@@ -456,3 +456,11 @@ The production-default control 304b accepted all 32 roots and exactly matched
 reference 290's complete node/tetrahedron endpoint and numerical traces. Body
 time was 231.374 s, approximately 0.000002161x for 0.5 ms of release motion.
 This is neither a supported-rest checkpoint nor sustained qualification.
+
+## Experiment 59: tiled cache retired after an exact but slower run
+
+Tile32 candidate 305 exactly matched production control 304b's full 32-root
+state and numerical traces, but body time increased from 231.374 to 255.355 s
+in one pair. Its code was removed; the scoped patch, checks and execution pins
+are retained in [tiled-tangent-cache-59](tiled-tangent-cache-59/README.md).
+No performance gain or default change is claimed.

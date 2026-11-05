@@ -1,0 +1,78 @@
+{
+  "changes": [
+    {
+      "path": "matter/src/metal/common.metalinc",
+      "before_sha256": "b319477c206b65b291355d3bb8e8aefb30a4f0e0aca5f585d0470603602a1a49",
+      "after_sha256": "09f6e9c87d26bc3ed6c6d5feb907939515f2a2e9d47cb1918d55f0c54850e2d0",
+      "changed": true
+    },
+    {
+      "path": "matter/src/metal/fem.metalinc",
+      "before_sha256": "b9661d9dd5b1631b1a3ebc30d87b846eb8141d1abf6d182299720fa97a10e2d8",
+      "after_sha256": "30fed09e475b9c83c77f1415919c34fe871bc639d09b50063c5b11543b799ae7",
+      "changed": true
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "before_sha256": "2317b4ac8739229989cbb669587c520192fcae2620b67476f3f4520b2d171807",
+      "after_sha256": "008fb47d2b878dddc86237e30a717280217d6950d39e7f83941f49f1a6c07842",
+      "changed": true
+    },
+    {
+      "path": "matter/src/metal/partitioned_reduction_fem_tangent.metalinc",
+      "before_sha256": "8018aadd5eac0b048f24b8927640a043854ce64917c215e73c5a75f8740e90d4",
+      "after_sha256": "c5b84f402cb6ed73f501009933bf85e9f97ebd3b3019b6bfc1c9f28ce96c2441",
+      "changed": true
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "before_sha256": "8ba75ea24948bc22549489cebfcead3dd9ef229d1b3290357e93e22ac775b855",
+      "after_sha256": "9e43bca001d3ecd6302c7de553dbfd1369f58fad81fcd0f4a74491f6b8c64cda",
+      "changed": true
+    },
+    {
+      "path": "matter/tools/cardboard_fgmres_preconditioner_gpu_check.mm",
+      "before_sha256": "ac901501f0608d0d0881e83f9e63aaca43ee8aa47de755a056bb71b818a27d2f",
+      "after_sha256": "94995588dec6666b0f2f334652c6d052a0fe921f1b972630ca640a3212299231",
+      "changed": true
+    },
+    {
+      "path": "matter/tools/cardboard_graph_lu_search_native_check.mm",
+      "before_sha256": "947f6659dd8fb69c68643ca08d6673632272f0c0228fb83e968ff26c5ed9494c",
+      "after_sha256": "adcb369ae41c964ac3842956895eada5e013123d4ba6da92779ce44b3e033c1d",
+      "changed": true
+    },
+    {
+      "path": "matter/tools/cardboard_regional_rap_tail_preserve_native_check.mm",
+      "before_sha256": "af3cd88959007c2b2838ecfe5117818c4557f7b855246b413f461118b4ef327c",
+      "after_sha256": "db27b720ba1568783df486163825f6610ce3b5193f6ea15751c18bc99dc089d1",
+      "changed": true
+    },
+    {
+      "path": "matter/tools/cardboard_regional_recycle_masked_basis_native_check.mm",
+      "before_sha256": "6d5bd01778d09112ef02272a58e7347ca791387ceced1ed5a43537f0a9312447",
+      "after_sha256": "dfb3e4838a98afcb45b99e751a4f75423b093c66e90bcf39842c8dadbbf6c77b",
+      "changed": true
+    },
+    {
+      "path": "matter/tools/fem_material_frame_check.mm",
+      "before_sha256": "bc5d21cd7e479939362db8cb5df5843eadb767f0a69e4b6be424ce4315b9eb75",
+      "after_sha256": "05918debe93dd3e110c1283b6cba64a27c856f9c84086bfabc3a34c76a062fa7",
+      "changed": true
+    },
+    {
+      "path": "matter/tools/fem_regional_galerkin_native_check.mm",
+      "before_sha256": "8d52cda669ece9f75942c64bccf3b9a6bfeaa47fd239708e0f0518ea79859aab",
+      "after_sha256": "e521799921cd23abf7f495a8ade953379ee57263f183be9fbffb2f5bbed413aa",
+      "changed": true
+    },
+    {
+      "path": "matter/tools/fgmres_true_residual_native_check.mm",
+      "before_sha256": "aa5cf4901f98ea25a50c2a2ed88d52132308e0cabde8e7aa571690c66829426d",
+      "after_sha256": "a7c5493a8e862a9cec2cf1ac7def64fb74973cc723d4fd3888b550968590eeb5",
+      "changed": true
+    }
+  ],
+  "status": "rejected: exact state parity but one matched run 10.4 percent slower",
+  "restoration": "only files in before/ restored; unrelated checkout remains untouched"
+}
