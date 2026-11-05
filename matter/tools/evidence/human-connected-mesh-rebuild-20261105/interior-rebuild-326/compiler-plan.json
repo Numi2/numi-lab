@@ -1,0 +1,152 @@
+{
+  "stages": [
+    {
+      "name": "independent-volume",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/verify_joint_boundary_rebuild_64.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326"
+      ],
+      "source_sha256": "91e09dc91a02dec39325446c10ea75e34007f1a232ddfb3e8d1b0f58160cfe74"
+    },
+    {
+      "name": "boundary-parity",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/check_interior_boundary_parity_326.py"
+      ],
+      "source_sha256": "b23d8c3c38bad9421958fdfbd01df4e72bfe88c46fc2a8c294565cd7cae1a63d"
+    },
+    {
+      "name": "role-bridge",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/bridge_joint_role_volumes_64.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326"
+      ],
+      "source_sha256": "030e7477883f4ffee0987820ac95bf1ccfee536c0a1a2b40244da3972bdedfaa"
+    },
+    {
+      "name": "context",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/combined-surface-diff-audit-270/audit_combined_bounded_inner_layer_surface_diff_806_extended_250um_construction.py",
+        "--config",
+        "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/context-config.json",
+        "--out",
+        "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/full-context"
+      ],
+      "source_sha256": "1c20de7dffa2cbf55abf195310af988aed9c5a87f035a8e79e099a3f00c74377"
+    },
+    {
+      "name": "compiler",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/compile_joint64.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326"
+      ],
+      "source_sha256": "ded7731f804f3fe04006c2b2dd0d4465aae6f65f531f0f7213d3665e0a59bda9"
+    },
+    {
+      "name": "typed-adapters",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/prepare_interior_typed_adapters_326.py"
+      ],
+      "source_sha256": "d589f1e01e38b04d3e541e427282e61dd5d7399488ec3cbfa41bd01b681f4c68"
+    },
+    {
+      "name": "p1",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/compile_joint64_p1.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326"
+      ],
+      "source_sha256": "7dff3613e8bbba8339be908029d6cbe00e1eeba6557278c4d55d8de6b4e764cd"
+    },
+    {
+      "name": "p1-export-rich",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/compile_joint64_export.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326"
+      ],
+      "source_sha256": "d9f82ecaf7a969fd1ffade1f8a7b4de3b4b4e047f8659a44d103ab1d15221b75"
+    },
+    {
+      "name": "assets",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/export_joint64_assets.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326"
+      ],
+      "source_sha256": "7dae60166ab70adc9f5f61fd9dc42d9bdf943305e933d514e0b88fad2091800c"
+    },
+    {
+      "name": "bindings",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/prepare_joint64_bindings.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326"
+      ],
+      "source_sha256": "7a23c975eef6f4b0a3aea41149c7fed481aa99de07fcc79ad90810250231d8ed"
+    },
+    {
+      "name": "mass-support",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/rebind_joint64_mass_support.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326"
+      ],
+      "source_sha256": "0ce39d20b75e7952e34a7894e479402728cb83f8c39e002dc090815c2d819245"
+    },
+    {
+      "name": "mass-targets",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/prepare_prescribed_local_mass_315.py",
+        "--candidate-root",
+        "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326",
+        "--output",
+        "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-targets",
+        "--halo-rings",
+        "0",
+        "--all-proposed-cell-masses"
+      ],
+      "source_sha256": "a627705f76c3a63579ec1a5c78d9b3b9abed2fcc82ea10826013d0043f157ed5"
+    },
+    {
+      "name": "mass-allocation",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/allocate_joint64_mass.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326"
+      ],
+      "source_sha256": "5886313e2b1f12483c11e99549beb9a2c44080bc84de617240c6ef66db94abef"
+    },
+    {
+      "name": "source-qualification",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/qualify_joint64_source.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326"
+      ],
+      "source_sha256": "85eebcd736ff8260b780e7951fee8cc03f4f915bcbde503aa18a2bebab313fc2"
+    },
+    {
+      "name": "mass-admission-prepare",
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/prepare_joint64_mass_admission.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326"
+      ],
+      "source_sha256": "f7cdcc749a169a773f2814bddde9a25640163c29bd1ecbb3ba91ffe395706481"
+    }
+  ],
+  "minimum_free_bytes": 12884901888,
+  "maximum_rss_kib": 8388608,
+  "maximum_stage_wall_s": 900,
+  "physical_admission": false,
+  "native_steps": 0,
+  "surface_policy": "Exact boundaries, typed ancestry, attachment IDs unchanged; only interior contractions."
+}

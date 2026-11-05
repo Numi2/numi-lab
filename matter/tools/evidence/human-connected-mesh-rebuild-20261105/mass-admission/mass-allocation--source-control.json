@@ -1,0 +1,198 @@
+{
+  "schema": "numi.h706.current-fractional-cli-controls.reader-seed033.v1",
+  "variant": "bounded-regional-compensation-1061+level-pruned-034+redundant-collector-cap-fix",
+  "status": "PASS_FOCUSED_CONTROLS_FULL_ALLOCATOR_NOT_RUN",
+  "source": {
+    "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanCurrentFractionalMassMappingCLI.cpp",
+    "sha256": "3f84ef87daa1eb9a9b8ab5654cfd05849eb3ce9f2e6916eed18e0ae76e55e147"
+  },
+  "dependencies": [
+    {
+      "path": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/SDKSettings.json",
+      "sha256": "7b93ad7e534cc4b31c6a4e39d19b5e0288acf2168c2649479a796d1cb51939fb"
+    },
+    {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanCurrentFractionalMassMappingCLI.cpp",
+      "sha256": "3f84ef87daa1eb9a9b8ab5654cfd05849eb3ce9f2e6916eed18e0ae76e55e147"
+    },
+    {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanPhysicalSkinChildTetGen.hpp",
+      "sha256": "dafb99dec977c2116ded1968ec0ae3ef493331109da6be6b19eb0f7148ea9e0c"
+    },
+    {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanPhysicalSkinChildCapacity.hpp",
+      "sha256": "9f099b6710224ad0eda48b31ce9e04c83a27142d171a7e0f38a3901d8d7932a6"
+    },
+    {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanPhysicalSkinChildMassMapping.hpp",
+      "sha256": "62cc8fc694f9e656dbccbd6e338a7d7e3ed9f70734a1a0ad8a3173dd61665064"
+    },
+    {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanUnpairedSkinFatVolume.hpp",
+      "sha256": "552b685a285be4d5a83bf9318655bef771def3cd8f16ecf4f7e513cef44e631b"
+    },
+    {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanCoarseTissuePreparation.hpp",
+      "sha256": "c25892d9c18d16242f8bea2d39ab268c8a64b4bea42673d214fee8db1fe1496b"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/matter/include/numi/matter/matter.hpp",
+      "sha256": "b7e5b336edf592e9a080a979ee12ee7e7b18612dbd04725c56064ffdd172c23b"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/matter/include/numi/matter/shared.h",
+      "sha256": "e2dcede0637905078f08c38fed324de61f0c25e8a8e625646c06f74f21d51e7c"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/matter/include/numi/matter/human_equality_gpu.h",
+      "sha256": "7bf03f512c0fbdf9be0382a8bd655fb8f0d90b1703ddaf74302e60a38656f519"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/matter/include/numi/matter/human_limits_gpu.h",
+      "sha256": "adff1dd6bb8e7d67767bca38e959b03880376ec973f0d8a556564e4a87921dd9"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/matter/include/numi/matter/accepted_state_proof_gpu.h",
+      "sha256": "d0b17b52cbdd54c5116a3e400435e60a833c92b5b6e309d1fbc74f3062e1c24e"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/matter/include/numi/matter/physical_state_digest_gpu.h",
+      "sha256": "28f2d77c4619b7c2b1e37dfc8c823358b3ba392e07627fc21f7a5985bfbde916"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/matter/include/numi/matter/sha256_gpu.h",
+      "sha256": "53e3c5047b5dc2fe3449d2a4dc9770879c23297792b53495ecab73c855bb4681"
+    },
+    {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanRegisteredSurfaceIntersection.hpp",
+      "sha256": "6c05956f6b3348e8d71c668099ee42e7dc29e2325335f4b06df821b09e524f98"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/publication-140/dependencies/include/metalrobo/NumiHumanTissueMass.hpp",
+      "sha256": "9b78d4363ef0f1d9a4d99d40eba0df78b37636e78d59c8a14efe4d5985bca761"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/include/metalrobo/engine_types.h",
+      "sha256": "2f438bdc889275dd1133906ef73404df828fdf984e98c5b270f58e58fb669824"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/include/metalrobo/gpu_types.h",
+      "sha256": "55777caa42851b167780255c76e02c40e2285ee43cc6dda77063d8639f6728d8"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/include/metalrobo/compensated_translation_gpu.h",
+      "sha256": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/include/metalrobo/constraint_ir_shared.h",
+      "sha256": "1abad282fa1e88b809da2271c8e98bc0fcde6adc6629b61a7f8f7d7633c5403f"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/include/metalrobo/EngineModel.hpp",
+      "sha256": "04096227fc3ca3360c55fd199553e6c950f4a2620ef8f2c1d39af78a6f1d432e"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/include/metalrobo/Collision.hpp",
+      "sha256": "dad1688d6d8a8871aa22c98757ddea2f0da8c6e993980c962f0cd1d5a27ba929"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/include/metalrobo/ConstraintIR.hpp",
+      "sha256": "6610aaa7a447a50a6899a2be48e2a3e840fd41a8e82471ba2b4c7d13f813f582"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/include/metalrobo/OpenSimSpatialTransform.hpp",
+      "sha256": "8c1e2c43d6543e096fc26f4cdf68b96f0b6ed9eb3038233c87069f009c307046"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/include/metalrobo/OpenSimFunction.hpp",
+      "sha256": "c76d2aea6040ae9476ff1ccb4b3dc2e70344d95a390a7debad9dc93fd0a68246"
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/include/metalrobo/opensim_spatial_transform_gpu.h",
+      "sha256": "8e4c21a87be3c2b93db02cc3953f81bf36c7eba7318c5db575afb7cd1c51caf0"
+    },
+    {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanConservativeSpatialMassTransport.hpp",
+      "sha256": "f37b47cf4a09b29af859c7a5d57cef19d1b76a9836f90de1704e2254c25a7293"
+    },
+    {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/ConservativeSpatialFractionalSemanticSupport.hpp",
+      "sha256": "24920c5dfa6a5b4b712bc33493bc622344b6c44f8e3589ebda432ce8e6c7e8be"
+    },
+    {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/ConservativeSpatialSourceCarrierQuadrature.hpp",
+      "sha256": "5c31bccb19650c6f3efde96efba159c0e4c068d6bc8b09fb3a2e94b69af5a06c"
+    },
+    {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanParentReferenceMassTransfer.hpp",
+      "sha256": "9a188f98b93ea480ffd6de7fbb522e2e3ca5ee6b6a262a2b26a6ed721eb7eee5"
+    },
+    {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanSkinBoundaryNodeMap.hpp",
+      "sha256": "2faed73fdce51c442d7888928288e992163ffa4445f529a40fb499fccd975693"
+    },
+    {
+      "path": "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanCurrentFractionalSupportNPZ.hpp",
+      "sha256": "a00da100bb56381dd1aac7e14f9c4c577112e270606e9b89747dfed169a4fd20"
+    }
+  ],
+  "binary": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/final-controls/build/mass-cli",
+    "sha256": "381d5fcae2c4ae7f68d3837740bffb3aecd288d1d62c9cfa723904526d83ddeb"
+  },
+  "compile_command": [
+    "/usr/bin/clang++",
+    "-std=c++20",
+    "-O3",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-DNUMI_HUMAN_FULL_REFERENCE_SKIN_CAPACITY=1",
+    "-I/Users/numi/Work/current-fractional-020-publication-20261101/apps",
+    "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/source/apps",
+    "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/matter/include",
+    "-I/Users/numi/Work/numi-human-connected-surface-069/publication-140/dependencies/include",
+    "-I/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/direct-source-parent-retet-control-654/source/include",
+    "-MMD",
+    "-MF",
+    "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/final-controls/build/mass-cli.d",
+    "/Users/numi/Work/current-fractional-020-publication-20261101/apps/NumiHumanCurrentFractionalMassMappingCLI.cpp",
+    "-lz",
+    "-o",
+    "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/final-controls/build/mass-cli"
+  ],
+  "compile_execution": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/final-controls/compile.json",
+    "sha256": "0bca56294d0ca9a5b37aba427d867bf94ad8851a6fac9ead9113f17239f8e87c"
+  },
+  "focused_controls": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/prescribed-local-mass-315/final-controls/tests.json",
+    "sha256": "e3b55f3fae070564c08e8733570f9bd6d2ac5ec6459111f31300b27328851d3e"
+  },
+  "policy": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/policy-proposal-002.json",
+    "bytes": 871,
+    "sha256": "845f29435973064fb978b66bce83edfd96b74494cbb146f5f040048469acb744"
+  },
+  "solver_contract": {
+    "method": "implicit_dinic_feasibility_on_exact_residual_graph",
+    "postsolve_rescaling": false,
+    "scale_factor": 1.0,
+    "optimality_certified": false
+  },
+  "physical_admission": false,
+  "native_steps": 0,
+  "carrier_validation": "ascending explicit-allowlist child index; legacy predicate fallback retained",
+  "prescribed_child_mass": {
+    "input": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-targets/prescribed-child-mass.csv",
+      "sha256": "03c1f46b1e3d970b912a9b068de78f2fca1bb3ee5175d7ca2259935129995d31"
+    },
+    "construction": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-targets/receipt.json",
+      "sha256": "7b927c7ccafdd586abfcb8fafeb54d9f325082c63549862d0e249a400c80238c"
+    },
+    "relative_only_tolerance": 1e-10,
+    "density_radius_source_semantic_and_closure_checks": "UNCHANGED"
+  }
+}

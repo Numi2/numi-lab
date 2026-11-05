@@ -1,0 +1,25 @@
+{
+  "current_builder": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-admission/build_current_fractional_mass_receipt_1061.py",
+    "sha256": "eaee00c7a40efabbfc8c44056afd58e650f8ce1c98ad573b6f296be6e3d14939"
+  },
+  "existing_builder": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/postpass-005/build_current_fractional_mass_receipt_1061.py",
+    "sha256": "6d8bb132fd3960a61d353d12d065fbc0aa0d3cb39c36d6ebac799c355c80736b"
+  },
+  "geometry_envelope_maximum_m": 0.1874423157229725,
+  "identity": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-admission/identity.json",
+    "sha256": "f119ec27e17816b6b0061c64399747a4a51d86c7ebd60c1c2b2942f7b70e4c09"
+  },
+  "native_steps": 0,
+  "physical_admission": false,
+  "raw_execution": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-allocation/execution.json",
+    "sha256": "4e5fae2ba82a0e90fbd588813deed27aa4955b33eec95e4662b8cbc038e84448"
+  },
+  "raw_invocation": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-allocation/run-manifest.json",
+    "sha256": "b39fad581ade0b90d6f00ee307ea49c4fbbcbf37f92d6f1c3a001ec31722f08c"
+  }
+}

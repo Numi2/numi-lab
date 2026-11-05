@@ -177,8 +177,47 @@ def attachment_nodes(path,expected_sha,mapping):
  if not identities:raise ValueError("empty attachment requests")
  return result
 
+
+TET_FACES=np.array(((1,2,3),(0,3,2),(0,1,3),(0,2,1)))
+
+def volume_boundary_nodes(cells,materials):
+ """Pin all actual exterior and material-interface vertices, not just render rows."""
+ cells=np.asarray(cells)
+ materials=np.asarray(materials)
+ if cells.ndim!=2 or cells.shape[1]!=4 or len(materials)!=len(cells):
+  raise ValueError("invalid volume boundary domain")
+ chunks=[]
+ for material in np.unique(materials):
+  faces=np.sort(cells[materials==material][:,TET_FACES].reshape(-1,3),axis=1).astype(np.uint32)
+  keys=np.ascontiguousarray(faces).view(np.dtype((np.void,12))).ravel()
+  keys.sort()
+  start=np.r_[0,np.flatnonzero(keys[1:]!=keys[:-1])+1]
+  counts=np.diff(np.r_[start,len(keys)])
+  if np.any(counts>2):raise ValueError("nonmanifold volume boundary")
+  chunks.append(keys[start[counts==1]].view(np.uint32).reshape(-1))
+ return np.unique(np.concatenate(chunks)).astype(np.int64) if chunks else np.empty(0,np.int64)
+
+def interior_contraction_directions(u,v,fixed_nodes,protected_nodes):
+ """Keep pinned vertices at their exact coordinates; never retire a pinned row."""
+ if u==v:return []
+ return [(drop,keep) for drop,keep in [(int(u),int(v)),(int(v),int(u))]
+         if drop not in fixed_nodes and drop not in protected_nodes]
+
+def oriented_tet_boundary(cells):
+ result=collections.Counter()
+ for cell in np.asarray(cells):
+  if len(set(map(int,cell)))!=4:raise ValueError("repeated tetrahedron vertex")
+  for pattern in TET_FACES:
+   face=tuple(map(int,cell[pattern]));sign=1 if sum(face[i]>face[j] for i in range(3) for j in range(i+1,3))%2==0 else -1
+   result[tuple(sorted(face))]+=sign
+ return {k:v for k,v in result.items() if v}
+
+def unchanged_cavity_boundary(old,new):
+ """Exact integer incidence certificate; coordinates and existing positive-cell gates stay separate."""
+ return oriented_tet_boundary(old)==oriented_tet_boundary(new)
+
 def main():
- ap=argparse.ArgumentParser();ap.add_argument("--output",type=Path,required=True);ap.add_argument("--seconds",type=float,default=180);ap.add_argument("--max-operations",type=int,default=2048);ap.add_argument("--maximum-edge-m",type=float,default=.0001);ap.add_argument("--replay-report",type=Path);ap.add_argument("--exclude-operation-rows",type=Path);ap.add_argument("--reference-flow-csv",type=Path);ap.add_argument("--reference-flow-sha256");ap.add_argument("--passes",type=int,default=1);ap.add_argument("--bone-barriers",action="store_true");ap.add_argument("--attachment-requests-csv",type=Path);ap.add_argument("--attachment-requests-sha256");a=ap.parse_args()
+ ap=argparse.ArgumentParser();ap.add_argument("--output",type=Path,required=True);ap.add_argument("--seconds",type=float,default=180);ap.add_argument("--max-operations",type=int,default=2048);ap.add_argument("--maximum-edge-m",type=float,default=.0001);ap.add_argument("--replay-report",type=Path);ap.add_argument("--exclude-operation-rows",type=Path);ap.add_argument("--reference-flow-csv",type=Path);ap.add_argument("--reference-flow-sha256");ap.add_argument("--passes",type=int,default=1);ap.add_argument("--bone-barriers",action="store_true");ap.add_argument("--interior-only",action="store_true");ap.add_argument("--attachment-requests-csv",type=Path);ap.add_argument("--attachment-requests-sha256");a=ap.parse_args()
  if bool(a.attachment_requests_csv)!=bool(a.attachment_requests_sha256):raise ValueError("attachment path/SHA must be paired")
  if a.passes<1 or a.seconds<=0 or a.max_operations<0 or not np.isfinite(a.maximum_edge_m) or a.maximum_edge_m<=0:raise ValueError("invalid construction budget")
  a.output.mkdir(parents=True,exist_ok=False);shutil.copy2(__file__,a.output/"executed-runner.py");start=time.monotonic()
@@ -250,6 +289,11 @@ def main():
  routes=json.loads((H/"verified-volume-preparation-010-merged038005/rim/protected149-current-routes.json").read_text())
  for route in routes["surface_routes"]:
   r=route["role"];sp=raw[r]["points_world_m_f32"];rows=np.flatnonzero(np.all(sp==np.array(route["target_world_m_f32"],np.float32),axis=1));protected.update(map(int,maps[r][rows]))
+ fixed_nodes=set()
+ if a.interior_only:
+  fixed_nodes.update(map(int,volume_boundary_nodes(t,labs[:,0])))
+  fixed_nodes.update(map(int,np.concatenate(list(faces.values())).ravel()))
+  original_surfaces={r:f.copy() for r,f in faces.items()}
  total_volume=det.sum()/6;changed_volume=0.
  def crossing(changes,deleted):
   excluded=set(deleted);excluded.update(changes)
@@ -292,8 +336,13 @@ def main():
   for r in S:
    active_faces=np.flatnonzero(fa[r]);localfaces=incidence(faces[r][active_faces],len(p))
    getfaces[r]=(lambda v,rows=active_faces,lookup=localfaces:rows[lookup(v)])
-  spatial=[build_triangle_bins(pp,allfaces) for pp in positions]
-  edges=np.unique(np.sort(np.concatenate([f[:,e] for f in [faces[r][fa[r]] for r in S] for e in [[0,1],[1,2],[2,0]]]),axis=1),axis=0)
+  spatial=[[] for pp in positions] if a.interior_only else [build_triangle_bins(pp,allfaces) for pp in positions]
+  if a.interior_only:
+   edges=np.unique(np.sort(t[active_cells][:,[[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]]].reshape(-1,2),axis=1),axis=0)
+   interior=np.ones(len(p),bool);interior[np.fromiter(fixed_nodes,dtype=np.int64)]=False
+   edges=edges[interior[edges].any(axis=1)]
+  else:
+   edges=np.unique(np.sort(np.concatenate([f[:,e] for f in [faces[r][fa[r]] for r in S] for e in [[0,1],[1,2],[2,0]]]),axis=1),axis=0)
   length=np.linalg.norm(p[edges[:,0]].astype(float)-p[edges[:,1]].astype(float),axis=1);edges=edges[length<=a.maximum_edge_m];length=length[length<=a.maximum_edge_m]
   hits=np.bincount(t[alive&(q<.001)].ravel(),minlength=len(p))
   known_fold=np.all(edges==[22677,22679],axis=1)
@@ -308,15 +357,20 @@ def main():
    if time.monotonic()-start>a.seconds or len(ops)>=a.max_operations:break
    u=int(u);v=int(v)
    rows=np.union1d(getcells(u),getcells(v));nodes=set(map(int,t[rows].ravel()))
-   if nodes&used or u in protected or v in protected:reject["protected_or_dependent"]+=1;continue
+   if nodes&used or (not a.interior_only and (u in protected or v in protected)):reject["protected_or_dependent"]+=1;continue
    if not len(rows):reject["inactive_replay_edge"]+=1;continue
    if len(rows)>256:reject["unbounded_star"]+=1;continue
    if not np.all(labs[rows,1:]==labs[rows[0],1:]):reject["donor_or_region_interface"]+=1;continue
    if link(t[rows],[u])&link(t[rows],[v])!=link(t[rows],[u,v]):reject["volume_link"]+=1;continue
-   for drop,keep in ([(u,v)] if replay_directions else [(u,v),(v,u)]):
+   directions=([(u,v)] if replay_directions else [(u,v),(v,u)])
+   if a.interior_only:
+    directions=[e for e in directions if e in interior_contraction_directions(u,v,fixed_nodes,protected)]
+   for drop,keep in directions:
     n=t[rows].copy();n[n==drop]=keep;live=~np.any(np.diff(np.sort(n,axis=1),axis=1)==0,axis=1)
     nd,nq=measure(p,n[live])
     if not len(nd) or np.any((nd/6<=1e-18)|(nq<np.float32(1e-5))):reject["native_cell_quality"]+=1;continue
+    if a.interior_only and not unchanged_cavity_boundary(t[rows],n[live]):
+     reject["changed_exact_cavity_boundary"]+=1;continue
     oldq=q[rows];cost=lambda z:float(np.maximum(np.log(.001/z),0).sum())
     good_coarsening=oldq.min()>=.001 and nq.min()>=.001 and int((~live).sum())>0
     conditioning_gain=nq.min()>=oldq.min() and cost(nq)<cost(oldq)-1e-6
@@ -363,6 +417,9 @@ def main():
    active_cells=int(alive.sum()),elapsed_s=time.monotonic()-pass_start))
   print(json.dumps({"completed_pass":passes[-1]}),flush=True)
   if len(ops)==before_ops:break
+ if a.interior_only:
+  for r in S:
+   assert np.array_equal(faces[r],original_surfaces[r]) and np.all(fa[r]),"interior rebuild changed a typed surface"
  # Export joint volume with immediate parent unions in the established CSR representation.
  rows=np.flatnonzero(alive);parents=[original_parents[i] for i in rows];off=np.r_[0,np.cumsum([len(x) for x in parents])]
  np.savez_compressed(a.output/"candidate-volume.npz",points_reference_world_m_f64=p.astype(float),volume_tetrahedra=t[rows],material_index=labs[rows,0],geometric_donor_body=labs[rows,1],anatomical_region_id=labs[rows,2],replacement_parent_offsets=off,replacement_parent_cell_rows=np.concatenate(parents),source_volume_sha256=np.array(sha(V)))
@@ -391,7 +448,7 @@ def main():
    if r in op["roles"]:quotient[reverse[op["drop"]]]=reverse[op["keep"]]
   payload["source_input_vertex_quotient"]=quotient_closure(quotient)
   np.savez_compressed(a.output/f"candidate-{r}-typed-current.npz",**payload)
- report=dict(status="JOINT_BOUNDARY_VOLUME_PROPOSAL_NOT_PHYSICAL_ADMISSION",physical_admission=False,native_steps=0,mass_mapping="PENDING",input_pins={str(x):sha(x) for x in [V,C,*S.values(),a.output/"executed-runner.py",*([a.replay_report] if a.replay_report else []),*([a.exclude_operation_rows] if a.exclude_operation_rows else [])]},operations=ops,passes=passes,bone_barrier=bone_receipt,protected_attachment_requests=(dict(path=str(a.attachment_requests_csv),sha256=a.attachment_requests_sha256) if a.attachment_requests_csv else None),rejections=dict(reject),input_cells=len(t),output_cells=len(rows),input_nodes=len(p),active_output_nodes=len(np.unique(t[rows])),low_quality_cells_before=int((measure(p,np.concatenate([ot[kept],new]))[1]<.001).sum()),low_quality_cells_after=int((q[rows]<.001).sum()),native_quality_failures=int(((det[rows]/6<=1e-18)|(q[rows]<np.float32(1e-5))).sum()),all_point_coordinates_unchanged=True,absolute_geometric_volume_change_m3=changed_volume,elapsed_s=time.monotonic()-start,remaining=["complete anatomical context including bones and containment","independent topology, F32, typed ancestry and volume checks","canonical parent and conservative source mass compiler","complete native scene comparison"])
+ report=dict(interior_only=a.interior_only,actual_and_typed_boundary_nodes_fixed=(len(fixed_nodes) if a.interior_only else None),typed_surface_faces_unchanged=bool(a.interior_only),status="JOINT_BOUNDARY_VOLUME_PROPOSAL_NOT_PHYSICAL_ADMISSION",physical_admission=False,native_steps=0,mass_mapping="PENDING",input_pins={str(x):sha(x) for x in [V,C,*S.values(),a.output/"executed-runner.py",*([a.replay_report] if a.replay_report else []),*([a.exclude_operation_rows] if a.exclude_operation_rows else [])]},operations=ops,passes=passes,bone_barrier=bone_receipt,protected_attachment_requests=(dict(path=str(a.attachment_requests_csv),sha256=a.attachment_requests_sha256) if a.attachment_requests_csv else None),rejections=dict(reject),input_cells=len(t),output_cells=len(rows),input_nodes=len(p),active_output_nodes=len(np.unique(t[rows])),low_quality_cells_before=int((measure(p,np.concatenate([ot[kept],new]))[1]<.001).sum()),low_quality_cells_after=int((q[rows]<.001).sum()),native_quality_failures=int(((det[rows]/6<=1e-18)|(q[rows]<np.float32(1e-5))).sum()),all_point_coordinates_unchanged=True,absolute_geometric_volume_change_m3=changed_volume,elapsed_s=time.monotonic()-start,remaining=["complete anatomical context including bones and containment","independent topology, F32, typed ancestry and volume checks","canonical parent and conservative source mass compiler","complete native scene comparison"])
  if cell_mass is not None:
   touched=np.unique(np.concatenate([np.asarray(o["source_cell_rows"],np.int64) for o in ops])) if ops else np.empty(0,np.int64)
   unchanged=np.ones(len(t),bool);unchanged[touched]=False

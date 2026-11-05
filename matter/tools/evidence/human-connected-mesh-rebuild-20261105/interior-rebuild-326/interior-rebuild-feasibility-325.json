@@ -1,0 +1,14 @@
+{
+  "active_nodes": 311768,
+  "typed_boundary_nodes": 297899,
+  "interior_nodes": 13869,
+  "all_edges": 1945271,
+  "edges_with_interior_endpoint": 200019,
+  "eligible_counts": {
+    "1e-05": 1104,
+    "0.0001": 12930,
+    "0.0005": 60240,
+    "0.001": 99220
+  },
+  "scope": "Read-only count; no contraction or admission"
+}

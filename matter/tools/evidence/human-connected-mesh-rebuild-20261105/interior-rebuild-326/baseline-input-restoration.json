@@ -1,0 +1,54 @@
+{
+  "status": "PASS_EXACT_BASELINE_INPUT_RESTORATION",
+  "archive_sha256": "c3351046e923307004caab5d754b09c65835fff9fd757ada16cd956ce67f2111",
+  "files": [
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/roles/O-full86.csv",
+      "relative": "Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/roles/O-full86.csv",
+      "size": 148758341,
+      "bytes": 148758341,
+      "sha256": "f0883dd0bb2443d2a04ca8d287f48a8d3d13bc8e5b44b1a25c7a67476e102dba",
+      "inode": 6619107,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793539254700348354,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/roles/I-full86.csv",
+      "relative": "Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/roles/I-full86.csv",
+      "size": 230827308,
+      "bytes": 230827308,
+      "sha256": "97343f8dcc6e8f34bd303681442a11cb564efb7b7e641938b2aa3d7420b385a4",
+      "inode": 6619038,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793539262823559566,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/roles/D-full86.csv",
+      "relative": "Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/roles/D-full86.csv",
+      "size": 202926201,
+      "bytes": 202926201,
+      "sha256": "345622c477200685d8779f76a39cbc86e71c5e8e2080ac21b4c60da5576d3436",
+      "inode": 6619088,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793539271007973703,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/volume/mesh.ele",
+      "relative": "Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/volume/mesh.ele",
+      "size": 55099001,
+      "bytes": 55099001,
+      "sha256": "ca1ec9c3ac3afc8964dbddf92bc6db5d1c854e0dc873ed8c4f3dfe4b0c6addeb",
+      "inode": 6327179,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793539244619899688,
+      "retire": true
+    }
+  ]
+}

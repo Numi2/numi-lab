@@ -1,0 +1,88 @@
+{
+  "schema": "numi.h706.current-source-centroid-slot-execution.v1",
+  "status": "PREPARED_REBOUND_SUPPORT_REQUIRES_UNCHANGED_ALLOCATOR",
+  "inputs": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-role-p1-support-938-1027-pinned-230-dependency/actual-001/p1-Skin/skin-current-p1-143-support.npz": "86eeda29d80ee8e65651d044bdb6842a3d5cf1877966743c65a5144396ad685a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-role-p1-support-938-1027-pinned-230-dependency/actual-001/p1-Fat/fat-current-p1-143-support.npz": "9986e342dc5b29fe3350f1953b40e3b14ad4a3f4e3ced97bba6885f9ff76592d",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/skin-source-carriers-with-regional-compensation-002.npz": "3780de3325f255c8a44696cb67641decd7a966f45f4204e09a72935a36e6778c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/optimization-trial-032-adaptive-joint-packet/run-005/fat-adaptive-source-quadrature-032d.npz": "12068b0a15bcc24dd8adae0d452ad6bf49b443a8a4b78712093aaa26713126a8",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/actual-038-global-allchild-census-003/skin-global-allchild-witnesses-out007-v2.csv.gz": "e81884c98e3925983c3ecc6d0003acfe56bce11f04eea05e6feb883a603b7bee",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-fractional-semantic-native-1047/actual-038-global-allchild-census-003/fat-global-allchild-witnesses-out007-v2.csv.gz": "35d7a0505dc61e9b09d2e054b99926193d80036cca3b45a86a7eac036b59ec06",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/mass-group-audit-006/qualified-projection-support.csv": "5c98209b92d4602015ad6b10ea5bd742a186c004040ea2e79ee7a95d3c138a21",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/mass-support-runtime-012-root/combined-source-centroid-slots.csv": "d3330b274bb84cf6f8ffbf171691dd71d8cf3624b014f648934094c99f97f3b9",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1037/candidate-current-typed-volume.npz": "5d31c141b66628801a711c2e745f744f745611882a269e173eddfcd0e99d3372",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/canonical/skin-canonical-parent-union.npz": "3ae6874356eaf448b4767a013b2838ca2343ffb6f4ac17a95484a80a8d7cae27",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/canonical/fat-canonical-parent-union.npz": "c721efb4ed3cd8ac04a621c1825acdf29946b94123e51904132784c92fffd293",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-support/exact-projection-support.csv": "9576a345b2a2d37fc342e690c821867323336d74d5e230ce13c539245da981d6",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-support/fat-source-carriers.npz": "05c32b28a2582da8f1ce4bb588e57b2e66c70e330263c284eea49389bf15b96e",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-support/receiver-rebind.npz": "222332fa5bc228277dce19ea853c57cae73fcc002741fbad64799bd62b4899ee",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-support/skin-source-carriers.npz": "49db58126cf72101dace8a17f603d70b30b8ac4cda1cd7cd4aa742f8770670cd",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-support/fat-carrier-witnesses.csv.gz": "fd10c2972c797e1141cf8e3707739e41217672b367320b959c6965a3b8b02ead",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-support/source-centroid-slots.csv": "ea53f44db3aa34abe4805609f8c3626a9dae370677958e9c0edebb083ddd65cb",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-support/skin-carrier-witnesses.csv.gz": "e0b6ab0b2e05992d34348cd266892b2e3b30200b85c2b223e73a380e61521602"
+  },
+  "outputs": {
+    "exact-projection-support.csv": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-support/exact-projection-support.csv",
+      "sha256": "9576a345b2a2d37fc342e690c821867323336d74d5e230ce13c539245da981d6"
+    },
+    "fat-source-carriers.npz": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-support/fat-source-carriers.npz",
+      "sha256": "05c32b28a2582da8f1ce4bb588e57b2e66c70e330263c284eea49389bf15b96e"
+    },
+    "receiver-rebind.npz": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-support/receiver-rebind.npz",
+      "sha256": "222332fa5bc228277dce19ea853c57cae73fcc002741fbad64799bd62b4899ee"
+    },
+    "skin-source-carriers.npz": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-support/skin-source-carriers.npz",
+      "sha256": "49db58126cf72101dace8a17f603d70b30b8ac4cda1cd7cd4aa742f8770670cd"
+    },
+    "fat-carrier-witnesses.csv.gz": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-support/fat-carrier-witnesses.csv.gz",
+      "sha256": "fd10c2972c797e1141cf8e3707739e41217672b367320b959c6965a3b8b02ead"
+    },
+    "source-centroid-slots.csv": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-support/source-centroid-slots.csv",
+      "sha256": "ea53f44db3aa34abe4805609f8c3626a9dae370677958e9c0edebb083ddd65cb"
+    },
+    "skin-carrier-witnesses.csv.gz": {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-support/skin-carrier-witnesses.csv.gz",
+      "sha256": "e0b6ab0b2e05992d34348cd266892b2e3b30200b85c2b223e73a380e61521602"
+    }
+  },
+  "stats": {
+    "mapping": {
+      "old_cells": 1495294,
+      "new_cells": 1249809,
+      "support_links": 1514667,
+      "new_cells_covered": 1249809,
+      "maximum_receivers_per_old_cell": 8
+    },
+    "centroid": {
+      "input_rows": 3840486,
+      "output_rows": 3317944,
+      "inadmissible_or_out_of_bound": 163
+    },
+    "skin": {
+      "input_witness_rows": 15471086,
+      "output_witness_rows": 13253592,
+      "primary_carriers": 48573,
+      "dropped_inadmissible_or_out_of_bound_slots": 3322,
+      "quadrature_unchanged": true
+    },
+    "fat": {
+      "input_witness_rows": 12745177,
+      "output_witness_rows": 11062008,
+      "primary_carriers": 23066,
+      "dropped_inadmissible_or_out_of_bound_slots": 4080,
+      "quadrature_unchanged": true
+    },
+    "projections": {
+      "qualified_rows": 47782
+    }
+  },
+  "wall_s": 308.84532475471497,
+  "physical_admission": false,
+  "native_steps": 0
+}

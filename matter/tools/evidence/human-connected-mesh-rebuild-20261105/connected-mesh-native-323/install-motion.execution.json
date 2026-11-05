@@ -1,0 +1,16 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 306.92180705070496,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/connected-mesh-native-323/install-motion.plan.json",
+  "plan_sha256": "a4b8fdc8cab864d18428a854f5374c33606fe0a9bcbd8a534597ce6406d8da2f",
+  "stdout_path": "/Users/numi/Work/human-integrated-gaps-20261104/connected-mesh-native-323/install-motion.stdout.log.gz",
+  "stdout_encoding": "gzip",
+  "stdout_compressor_exit_code": 0,
+  "stdout_sha256": "f31500ce2993b92cac7f37d214df6251f8b0d5b7ecff763e9c3dec6f804f2676",
+  "stdout_uncompressed_sha256": "3104e029399673d0474625dde98242ffb99661051bff1ecc719caec5c5ae8d64",
+  "stderr_sha256": "0308ea6c17e9b3ac9f406716ecbbbe38dc3d65d80c8c4fcb87aafde6777910f0",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": true,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

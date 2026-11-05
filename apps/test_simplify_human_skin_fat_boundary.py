@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 import numpy as np
-from simplify_human_skin_fat_boundary import compose_local_cell_mass,load_reference_cell_mass,build_triangle_bins,query_triangle_bins,quotient_closure,compose_face_ancestry,attachment_nodes
+from simplify_human_skin_fat_boundary import compose_local_cell_mass,load_reference_cell_mass,build_triangle_bins,query_triangle_bins,quotient_closure,compose_face_ancestry,attachment_nodes,volume_boundary_nodes,interior_contraction_directions,unchanged_cavity_boundary
 
 class LocalMassConstruction(unittest.TestCase):
  def test_split_keeps_physical_mass_and_density(self):
@@ -119,5 +119,28 @@ class AttachmentConstructionControls(unittest.TestCase):
     p.write_text(header+data)
     with self.subTest(data=data),self.assertRaisesRegex(ValueError,"identity or source domain"):
      attachment_nodes(p,hashlib.sha256(p.read_bytes()).hexdigest(),np.array([4,9]))
+
+
+class InteriorOnlyControls(unittest.TestCase):
+ def setUp(self):
+  # A tetrahedron split around one interior node: all four outer facets stay exact.
+  self.old=np.array([[4,1,2,3],[0,4,2,3],[0,1,4,3],[0,1,2,4]])
+  self.outer=np.array([[0,1,2,3]])
+ def test_only_actual_interior_node_can_be_retired(self):
+  np.testing.assert_array_equal(volume_boundary_nodes(self.old,np.zeros(4,int)),[0,1,2,3])
+  self.assertEqual(interior_contraction_directions(0,4,{0,1,2,3},set()),[(4,0)])
+ def test_protected_attachment_is_never_retired(self):
+  self.assertEqual(interior_contraction_directions(4,0,{0,1,2,3},{4}),[])
+  self.assertEqual(interior_contraction_directions(4,0,{0,1,2,3},{0}),[(4,0)])
+ def test_material_interface_is_fixed_even_if_not_rendered(self):
+  np.testing.assert_array_equal(volume_boundary_nodes(self.old,[15,15,15,16]),np.arange(5))
+ def test_exact_boundary_chain_survives_interior_elimination(self):
+  self.assertTrue(unchanged_cavity_boundary(self.old,self.outer))
+ def test_open_or_orientation_changed_replacement_is_rejected(self):
+  self.assertFalse(unchanged_cavity_boundary(self.old,self.old[:-1]))
+  self.assertFalse(unchanged_cavity_boundary(self.old,self.outer[:,[1,0,2,3]]))
+ def test_nonmanifold_volume_rejects(self):
+  with self.assertRaisesRegex(ValueError,"nonmanifold"):
+   volume_boundary_nodes(np.tile(self.outer,(3,1)),np.zeros(3,int))
 
 if __name__=="__main__":unittest.main()

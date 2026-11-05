@@ -1,0 +1,46 @@
+{
+  "native_steps": 0,
+  "physical_admission": false,
+  "stages": [
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "mass-support-320-002",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "0d4cc9e238165b2a061d4f660d331113890da5f23c91669b8420dce4a4a6318f",
+      "wall_s": 311.0843210220337
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "mass-targets-320-002",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "1ada5241710cdc02b40dcb7d4718bb20caa581fdc79470f5f8d391e4f27f3229",
+      "wall_s": 5.0306878089904785
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "mass-allocation-320-002",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "7c7c23a3ecef02698e3389dc9ae82c9698499f74922ff25c0f0c2d9cc8106f50",
+      "wall_s": 210.77092790603638
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "source-qualification-320-002",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "5e6b3ce2af3ff945a604dcc522ee0ce4d4751052bdea12de202d04c6bdf08216",
+      "wall_s": 5.040365219116211
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "mass-admission-prepare-320-002",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "bf475bd277864b4c3e8f26a1b30b70c1617a528399e267e4ba9949d5a45e13dc",
+      "wall_s": 5.041010856628418
+    }
+  ]
+}

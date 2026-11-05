@@ -1,0 +1,6 @@
+{
+  "file": "comparison.json.gz",
+  "uncompressed_sha256": "ca65279969df2dfc14f5c637d8a512aaa408946c4f22bb06081049fd476ff384",
+  "bytes_uncompressed": 305518,
+  "scope": "Original complete comparison JSON, lossless gzip; diagnostic physical_fidelity_qualification remains false."
+}

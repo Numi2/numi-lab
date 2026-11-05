@@ -1,0 +1,28 @@
+{"primary_label_differences": 24}
+{
+  "scope": "CONSTRUCTION_CONSTRAINTS_NOT_SOURCE_FLOW_OR_NATIVE_ADMISSION",
+  "all_proposed_cell_masses": true,
+  "halo_rings": 0,
+  "baseline_cells": 1453060,
+  "candidate_cells": 1249809,
+  "direct_changed_star_cells": 634345,
+  "baseline_free_cells_including_halo": 634345,
+  "prescribed_cells": 1249809,
+  "candidate_free_cells": 0,
+  "prescribed_mass_kg": 13.939678963460478,
+  "unique_interior_nodes_mapped": 13869,
+  "ambiguous_interior_nodes_unprescribed": 0,
+  "additional_cells_unprescribed_for_ambiguous_mapping": 0,
+  "prescribed_material_labels_unchanged": true,
+  "primary_donor_region_label_differences": 24,
+  "primary_label_equivalence": "NOT_QUALIFIED",
+  "baseline_mass_kg": 13.939678963460477,
+  "all_prescribed_rest_tetrahedra_identical_f32": true,
+  "physical_density_transport_source_and_semantic_gates": "UNCHANGED_MUST_PASS_EXISTING_ALLOCATOR",
+  "prescribed_relative_tolerance": 1e-10,
+  "output": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-targets/prescribed-child-mass.csv",
+    "sha256": "03c1f46b1e3d970b912a9b068de78f2fca1bb3ee5175d7ca2259935129995d31"
+  },
+  "wall_s": 3.4033501148223877
+}

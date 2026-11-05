@@ -1,0 +1,42 @@
+{
+  "question": "Can short interior-edge contractions improve skin/fat conditioning while retaining every exterior and material-interface facet, attachment, existing equations and local mass constraints?",
+  "prediction": {
+    "native_body_wall_reduction_fraction_minimum": 0.02,
+    "force_relative_gate": 0.01,
+    "regional_strain_relative_gate": 0.05,
+    "unexplained_surface_or_cell_failures": 0
+  },
+  "scope": "Exploratory construction followed by matched complete native scene release-transient test; not supported rest, sustained motion, or 0.1x qualification.",
+  "baseline": "/Users/numi/Work/human-integrated-gaps-20261104/baseline-repeat-native-324",
+  "prior_model_rejected": "/Users/numi/Work/human-integrated-gaps-20261104/connected-mesh-native-323-comparison.json",
+  "unchanged_model_repeat": "/Users/numi/Work/human-integrated-gaps-20261104/baseline-repeat-native-324-comparison.json",
+  "argv": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/numi/Work/skin-fat-native-integration-209/apps/simplify_human_skin_fat_boundary.py",
+    "--output",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326",
+    "--interior-only",
+    "--seconds",
+    "120",
+    "--passes",
+    "4",
+    "--max-operations",
+    "4000",
+    "--maximum-edge-m",
+    ".0001",
+    "--reference-flow-csv",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/allocator-output/flow.csv",
+    "--reference-flow-sha256",
+    "ab1b7b75d211ce2bdd94668914b59de2f8a3c908416a100a4455e7ca5419dfeb",
+    "--attachment-requests-csv",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/bindings/deep-attachment-requests.csv",
+    "--attachment-requests-sha256",
+    "8eeac310187b8b51170d94a9b207dc82a39d822a7a106cf65e329c231aba40f5"
+  ],
+  "source_sha256": "ebfe7408042c5c3b1f39b750a2c7c4433b42fbf4952d14228b58485cfd466123",
+  "only_one_substantial_job": true,
+  "maximum_rss_kib": 8388608,
+  "minimum_free_bytes": 12884901888,
+  "maximum_wall_s": 240,
+  "physical_admission": false
+}

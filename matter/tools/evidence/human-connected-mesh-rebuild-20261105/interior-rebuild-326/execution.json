@@ -1,0 +1,14 @@
+{
+  "native_steps": 0,
+  "physical_admission": false,
+  "stages": [
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "interior-construction-326",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "f0e054c6e5fe316c80aac8df8db4eef20eb9be1b032982df4cbcd6942bf1cbbd",
+      "wall_s": 45.16240096092224
+    }
+  ]
+}

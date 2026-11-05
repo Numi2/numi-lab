@@ -1,0 +1,93 @@
+{
+  "interior_only": true,
+  "actual_and_typed_boundary_nodes_fixed": 297899,
+  "typed_surface_faces_unchanged": true,
+  "status": "JOINT_BOUNDARY_VOLUME_PROPOSAL_NOT_PHYSICAL_ADMISSION",
+  "physical_admission": false,
+  "native_steps": 0,
+  "mass_mapping": "PENDING",
+  "input_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1037/candidate-current-typed-volume.npz": "5d31c141b66628801a711c2e745f744f745611882a269e173eddfcd0e99d3372",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/connected-conditioning-134/fixed-boundary-volume-proposal.npz": "4be98e7d5710360407a561d10efaa02b86702efdaf1b4312c4b035d6d9a19cb8",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-937-b5-backtracking-root/proposal/candidate-O-typed-current.npz": "10169962e298586d63794bf94515ecc3a9b1ce91e66cc60566a6919d7c856ac3",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-1009-point-update-1018-root/actual-001/candidate-I-point-updated.npz": "5557cbb88b46ea83d7977d60e1d362a10c48c290b77afb39b273efa29d32e323",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-958-D014-root/proposal-003/candidate-D-typed-current.npz": "63cec05102fd2dc670d9220ec6472cd7d9ffa7085b4694719c605947086c7da9",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/executed-runner.py": "ebfe7408042c5c3b1f39b750a2c7c4433b42fbf4952d14228b58485cfd466123"
+  },
+  "passes": [
+    {
+      "pass_index": 0,
+      "operations": 508,
+      "active_cells": 1449985,
+      "elapsed_s": 4.441960583004402
+    },
+    {
+      "pass_index": 1,
+      "operations": 129,
+      "active_cells": 1449271,
+      "elapsed_s": 4.396167416998651
+    },
+    {
+      "pass_index": 2,
+      "operations": 50,
+      "active_cells": 1448968,
+      "elapsed_s": 4.423272208980052
+    },
+    {
+      "pass_index": 3,
+      "operations": 19,
+      "active_cells": 1448870,
+      "elapsed_s": 4.39065841701813
+    }
+  ],
+  "bone_barrier": null,
+  "protected_attachment_requests": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/bindings/deep-attachment-requests.csv",
+    "sha256": "8eeac310187b8b51170d94a9b207dc82a39d822a7a106cf65e329c231aba40f5"
+  },
+  "rejections": {
+    "native_cell_quality": 24227,
+    "donor_or_region_interface": 10618,
+    "no_conditioning_gain": 634,
+    "volume_link": 4084,
+    "protected_or_dependent": 7550
+  },
+  "input_cells": 1453060,
+  "output_cells": 1448870,
+  "input_nodes": 311768,
+  "active_output_nodes": 311062,
+  "low_quality_cells_before": 288479,
+  "low_quality_cells_after": 286149,
+  "native_quality_failures": 0,
+  "all_point_coordinates_unchanged": true,
+  "absolute_geometric_volume_change_m3": 5.421501139269753e-22,
+  "elapsed_s": 42.151197958010016,
+  "remaining": [
+    "complete anatomical context including bones and containment",
+    "independent topology, F32, typed ancestry and volume checks",
+    "canonical parent and conservative source mass compiler",
+    "complete native scene comparison"
+  ],
+  "local_mass_construction": {
+    "reference_flow_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/allocator-output/flow.csv",
+    "reference_flow_sha256": "ab1b7b75d211ce2bdd94668914b59de2f8a3c908416a100a4455e7ca5419dfeb",
+    "density_bounds_kg_m3": {
+      "15": [
+        900.0,
+        1100.0
+      ],
+      "16": [
+        850.0,
+        950.0
+      ]
+    },
+    "input_mass_kg": 13.939678963460477,
+    "output_mass_kg": 13.939678963460477,
+    "unchanged_cells": 1432517,
+    "unchanged_cell_masses_exact": true,
+    "source_flow_and_donor_composition": "PENDING_EXISTING_CONSERVATIVE_COMPILER",
+    "proposal_path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/local-child-mass-proposal.csv"
+  },
+  "full_report_sha256": "89b74031939d32622d06bea39007c6318c3268dc7845764d8f45e44cf4f2d271",
+  "operations_count": 706
+}

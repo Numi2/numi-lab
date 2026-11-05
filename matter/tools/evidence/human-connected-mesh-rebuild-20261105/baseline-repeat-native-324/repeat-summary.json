@@ -1,0 +1,10 @@
+{
+  "status": "PASS_UNCHANGED_MODEL_CAPTURED_QUANTITIES_REPEAT",
+  "body_wall_reference_s": 225.036409167,
+  "body_wall_repeat_s": 225.127895791,
+  "active_work_equal": true,
+  "regional_strain_all_captured_deltas_zero": true,
+  "force_all_captured_deltas_zero": true,
+  "trace_all_captured_deltas_zero": true,
+  "qualification_scope": "One repeated32-root0.5ms release transient. No physical truth, supported-rest, full-force-owner, sustained throughput or native-presentation qualification."
+}

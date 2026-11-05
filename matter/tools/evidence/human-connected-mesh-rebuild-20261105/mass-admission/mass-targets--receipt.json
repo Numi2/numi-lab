@@ -1,0 +1,38 @@
+{
+  "scope": "CONSTRUCTION_CONSTRAINTS_NOT_SOURCE_FLOW_OR_NATIVE_ADMISSION",
+  "all_proposed_cell_masses": true,
+  "input_pins": {
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1037/candidate-current-typed-volume.npz": "5d31c141b66628801a711c2e745f744f745611882a269e173eddfcd0e99d3372",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/connected-conditioning-134/fixed-boundary-volume-proposal.npz": "4be98e7d5710360407a561d10efaa02b86702efdaf1b4312c4b035d6d9a19cb8",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/full-allocation-003/allocator-output/flow.csv": "ab1b7b75d211ce2bdd94668914b59de2f8a3c908416a100a4455e7ca5419dfeb",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/volume-export/volume/child.labels.csv": "c48c944a0f4080ecc3df3d6430bf6f8ec8abca00c90c8b990ffbfdd72dc2156d",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/rich433/candidate-current-typed-volume.npz": "320f9737447c9eb72f17fa31ad7cba9c1dff6841c2bd48118e90892b3a12e3b5",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/report.json": "0ce04fae139f2131edc7afd416bc2eaadf3ef7349d03e70bdcbdb81493c2a4ba",
+    "/Users/numi/Work/human-integrated-gaps-20261104/prepare_prescribed_local_mass_315.py": "a627705f76c3a63579ec1a5c78d9b3b9abed2fcc82ea10826013d0043f157ed5",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/local-child-mass-proposal.csv": "8fe79c28fdf26f2d585ea748191a31c6c013cbecc49905f9aa5fb074b7a1a8e8",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/candidate-volume.npz": "fbb91545005ba3d4364fb72b82a37ddfdd49d2c1c28b0711cfce34d5165a9597"
+  },
+  "halo_rings": 0,
+  "baseline_cells": 1453060,
+  "candidate_cells": 1249809,
+  "direct_changed_star_cells": 634345,
+  "baseline_free_cells_including_halo": 634345,
+  "prescribed_cells": 1249809,
+  "candidate_free_cells": 0,
+  "prescribed_mass_kg": 13.939678963460478,
+  "unique_interior_nodes_mapped": 13869,
+  "ambiguous_interior_nodes_unprescribed": 0,
+  "additional_cells_unprescribed_for_ambiguous_mapping": 0,
+  "prescribed_material_labels_unchanged": true,
+  "primary_donor_region_label_differences": 24,
+  "primary_label_equivalence": "NOT_QUALIFIED",
+  "baseline_mass_kg": 13.939678963460477,
+  "all_prescribed_rest_tetrahedra_identical_f32": true,
+  "physical_density_transport_source_and_semantic_gates": "UNCHANGED_MUST_PASS_EXISTING_ALLOCATOR",
+  "prescribed_relative_tolerance": 1e-10,
+  "output": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320/compiler/mass-targets/prescribed-child-mass.csv",
+    "sha256": "03c1f46b1e3d970b912a9b068de78f2fca1bb3ee5175d7ca2259935129995d31"
+  },
+  "wall_s": 3.4033501148223877
+}
