@@ -1,6 +1,0 @@
-{
-  "reason": "mass support and allocation already complete; only metadata, receipt and role conversion remain",
-  "minimum_start_bytes": 13958643712,
-  "minimum_during_execution_bytes": 12884901888,
-  "physics_or_admission_gates_changed": false
-}

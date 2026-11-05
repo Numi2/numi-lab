@@ -1,9 +1,0 @@
-{
-  "argv": [
-    "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
-    "/Users/numi/Work/human-integrated-gaps-20261104/verify_joint_boundary_rebuild_64.py",
-    "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341"
-  ],
-  "exit_code": 0,
-  "wall_s": 3.357772749994183
-}

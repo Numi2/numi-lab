@@ -1,6 +1,0 @@
-{
-  "before": "96766 root   0.0 2848800 /System/Library/PrivateFrameworks/AppleNeuralEngine.framework/XPCServices/ANECompilerService.xpc/Contents/MacOS/ANECompilerService\n",
-  "reason": "Idle OS ANE compiler has 2.7GiB RSS with no simulation or compiler running; release unrelated background work before resource-bounded preparation.",
-  "action": "none_not_owned_or_not_identified",
-  "disk_after": "Filesystem     1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s1s1   239311296  18714972  16587680    54%  484017 165876800    0%   /\n"
-}

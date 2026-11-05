@@ -1,6 +1,0 @@
-{
-  "status": "PASS_INDEPENDENT_DOWNLOAD_SEQUENTIAL_FILE_AND_HARDLINK_RESTORE",
-  "files": 49,
-  "hardlink_members": 3,
-  "all_sizes_and_sha256_verified": true
-}

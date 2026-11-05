@@ -1,6 +1,0 @@
-MAPPING {'old_cells': 1495294, 'new_cells': 1249809, 'support_links': 1514667, 'new_cells_covered': 1249809, 'maximum_receivers_per_old_cell': 8}
-CENTROID {'input_rows': 3840486, 'output_rows': 3317944, 'inadmissible_or_out_of_bound': 163}
-CARRIER skin {'input_witness_rows': 15471086, 'output_witness_rows': 13253592, 'primary_carriers': 48573, 'dropped_inadmissible_or_out_of_bound_slots': 3322, 'quadrature_unchanged': True}
-CARRIER fat {'input_witness_rows': 12745177, 'output_witness_rows': 11062008, 'primary_carriers': 23066, 'dropped_inadmissible_or_out_of_bound_slots': 4080, 'quadrature_unchanged': True}
-EXACT_PROJECTION_QUERIES 47829
-MASS_SUPPORT_READY 308.84551882743835

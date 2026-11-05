@@ -1,7 +1,0 @@
-{
-  "cause": "saved watcher regex retained003 while the actual resumed compiler is004; watcher exited before executing any admission stage",
-  "failed_log": "/Users/numi/Work/human-integrated-gaps-20261104/compiler-interior-rebuild-326/admission-continuation-004.log",
-  "replacement_path": "/Users/numi/Work/human-integrated-gaps-20261104/continue_interior_admission_326_005.py",
-  "replacement_sha256": "5e5bdd35808446651fc0e2daaccbb4f81e9cf9304f7ee9169b366b52ae51bd55",
-  "physical_step_executed": false
-}

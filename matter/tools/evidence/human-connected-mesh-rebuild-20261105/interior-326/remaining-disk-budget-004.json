@@ -1,9 +1,0 @@
-{
-  "available_bytes": 16627204096,
-  "minimum_free_during_execution_bytes": 12884901888,
-  "minimum_start_bytes": 16106127360,
-  "estimated_additional_bytes": 2684354560,
-  "estimate_basis": "completed320 mass support/allocation/converter sizes, scaled for326 cell counts; existing partial support overwritten in place; include0.5GiB native output allowance",
-  "source_sha256": "a60eb0900621c6a9e33f51cc6a9c839d8ed049d667e08f1701c8e51314b3c0d5",
-  "physical_gates_changed": false
-}
