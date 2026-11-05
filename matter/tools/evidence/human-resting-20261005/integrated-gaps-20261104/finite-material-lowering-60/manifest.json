@@ -1,0 +1,16 @@
+{
+  "changes": [
+    {
+      "path": "matter/src/native_tangent_source.hpp",
+      "before_sha256": "0ed8f13d2c276cc6734df0ecfccd3980a3f50134cc48ed60be360bafb439a58d",
+      "after_sha256": "ac50848be8453157b206a367e41366b5a35cb27f655fcc9e57e48f9835936516"
+    },
+    {
+      "path": "matter/src/metal/generated_stateless_tangent.metalinc",
+      "before_sha256": "f36d8798b4f3b06cf0e5ccf08d9e08d6d791143900d115f0a1a0405d8b5e6b87",
+      "after_sha256": "396db06713930cc9f9851f731a0864acd013509ffc8907ccdddd59d63637495d"
+    }
+  ],
+  "status": "Metal scalar parity, generator parity, full native contract and exact 32-root Human comparison passed; sustained qualification pending",
+  "runtime_policy": "no new flag, equations/precision/checks unchanged"
+}

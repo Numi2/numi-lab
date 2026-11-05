@@ -464,3 +464,12 @@ state and numerical traces, but body time increased from 231.374 to 255.355 s
 in one pair. Its code was removed; the scoped patch, checks and execution pins
 are retained in [tiled-tangent-cache-59](tiled-tangent-cache-59/README.md).
 No performance gain or default change is claimed.
+
+## Exact finite-check lowering (60)
+
+The generated native material path now accumulates finite flags between required
+guards and side effects. All invalid-state checks and scalar arithmetic remain.
+Actual Metal parity passes 25,344 cases; the full native contract passes 2,743,464
+checks. Human trial 306 accepts 32 roots with an exact complete-state match.
+Body time is 227.226 s versus 231.374 s in one pair, a provisional 1.8% gain,
+not sustained qualification. See [evidence and reproduction](finite-material-lowering-60/README.md).

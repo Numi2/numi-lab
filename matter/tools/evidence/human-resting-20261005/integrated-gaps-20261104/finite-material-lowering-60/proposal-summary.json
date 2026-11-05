@@ -1,0 +1,8 @@
+{
+  "scope": "Proposal only, not installed or built",
+  "scalar_programs": 198,
+  "per_intermediate_branches_before": 29060,
+  "finite_block_flushes_after": 2348,
+  "arithmetic_precision_and_operation_order": "unchanged",
+  "domain_checks_cache_writes_and_scalar_return": "finite flags flushed first"
+}

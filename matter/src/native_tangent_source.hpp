@@ -333,7 +333,13 @@ static bool nmWriteNativeTangentSource(const World& w,const char* path,std::stri
         canonicalProgram[{direct,pi}]=inserted.first->second;
         if(!inserted.second)return;
         const std::string symbolPrefix=direct?"nmNativeDirectP":"nmNativeP";
-        functions<<"template <typename CachePointer>\ninline float "<<symbolPrefix<<pi<<"(device const float* p, thread const float* f, thread const float* d, thread const float* rate, float dt, float temp, CachePointer c, thread bool& valid, thread bool& nonfinite) {\n#pragma clang fp contract(off)\nif(!(dt>=0.0f)||!isfinite(dt)||!isfinite(temp)){valid=false;return 0.0f;}\n";
+        functions<<"template <typename CachePointer>\ninline float "<<symbolPrefix<<pi<<"(device const float* p, thread const float* f, thread const float* d, thread const float* rate, float dt, float temp, CachePointer c, thread bool& valid, thread bool& nonfinite) {\n#pragma clang fp contract(off)\nif(!(dt>=0.0f)||!isfinite(dt)||!isfinite(temp)){valid=false;return 0.0f;}\nbool finiteIntermediates = true;\n";
+        // Arithmetic order is unchanged. Accumulate finite flags through
+        // straight-line expressions and certify them before every observable
+        // cache write, domain/helper validity decision, and scalar return.
+        const auto flushFinite = [&]() {
+            functions << "if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}\n";
+        };
         std::vector<std::string> st;unsigned serial=0;
         auto pop=[&](){if(st.empty())throw std::runtime_error("native stack underflow");auto v=st.back();st.pop_back();return v;};
         auto push=[&](std::string expr){
@@ -342,7 +348,7 @@ static bool nmWriteNativeTangentSource(const World& w,const char* path,std::stri
             // final result. Preserve that rejection behavior in the direct
             // lowering as well as the legacy tangent-bundle lowering.
             functions<<"const float "<<v<<" = "<<expr<<";";
-            functions<<" if(!isfinite("<<v<<")) {nonfinite=true;valid=false;return 0.0f;}";
+            functions<<" finiteIntermediates &= isfinite("<<v<<");";
             functions<<"\n";
             st.push_back(v);
         };
@@ -362,12 +368,14 @@ static bool nmWriteNativeTangentSource(const World& w,const char* path,std::stri
             case NM_EXPR_RATE:push("rate["+idx+"]");break;
             case NM_EXPR_CACHE_STORE:
                 if(st.empty()||i.index>=NM_EXPRESSION_CACHE_CAPACITY)throw std::runtime_error("native cache store");
+                flushFinite();
                 functions<<"c["<<idx<<"]="<<st.back()<<";\n";break;
             case NM_EXPR_CACHE_LOAD:
                 if(i.index>=NM_EXPRESSION_CACHE_CAPACITY)throw std::runtime_error("native cache load");
                 push("c["+idx+"]");break;
             case NM_EXPR_ADD:case NM_EXPR_SUBTRACT:case NM_EXPR_MULTIPLY:case NM_EXPR_DIVIDE:case NM_EXPR_MIN:case NM_EXPR_MAX:{
                 auto b=pop(),a=pop();
+                if(i.opcode==NM_EXPR_DIVIDE) flushFinite();
                 if(i.opcode==NM_EXPR_DIVIDE)functions<<"if(abs("<<b<<")<=kGeometryFloor){valid=false;return 0.0f;}\n";
                 if(i.opcode==NM_EXPR_MIN||i.opcode==NM_EXPR_MAX)push(std::string(i.opcode==NM_EXPR_MIN?"min(":"max(")+a+","+b+")");
                 else push(a+(i.opcode==NM_EXPR_ADD?"+":i.opcode==NM_EXPR_SUBTRACT?"-":i.opcode==NM_EXPR_MULTIPLY?"*":"/")+b);
@@ -376,6 +384,7 @@ static bool nmWriteNativeTangentSource(const World& w,const char* path,std::stri
             case NM_EXPR_NEGATE:{auto a=pop();push("-"+a);break;}
             case NM_EXPR_LOG:case NM_EXPR_EXP:case NM_EXPR_SQRT:case NM_EXPR_ABS:case NM_EXPR_EXPM1_MINUS_X:{
                 auto a=pop();
+                if(i.opcode==NM_EXPR_LOG || i.opcode==NM_EXPR_SQRT) flushFinite();
                 if(i.opcode==NM_EXPR_LOG) {
                     if(direct)functions<<"if(!("<<a<<">0.0f)){valid=false;return 0.0f;}\n";
                     else functions<<"if("<<a<<"<=0.0f){valid=false;return 0.0f;}\n";
@@ -385,12 +394,14 @@ static bool nmWriteNativeTangentSource(const World& w,const char* path,std::stri
             }
             case NM_EXPR_POW_INTEGER:{
                 auto a=pop();const auto v="pow"+std::to_string(serial++);
+                if(i.integer<0) flushFinite();
                 if(i.integer<0)functions<<"if(abs("<<a<<")<=kGeometryFloor){valid=false;return 0.0f;}\n";
                 functions<<"float "<<v<<"=1.0f; {float factor="<<a<<"; uint power="<<std::uint32_t(i.integer<0?-std::int64_t(i.integer):i.integer)<<"u; while(power!=0u){if((power&1u)!=0u)"<<v<<"*=factor;factor*=factor;power>>=1u;}}\n";
                 push(i.integer<0?"1.0f/"+v:v);break;
             }
             case NM_EXPR_CLAMP:{
                 auto hi=pop(),lo=pop(),a=pop();
+                flushFinite();
                 functions<<"if("<<hi<<"<"<<lo<<"){valid=false;return 0.0f;}\n";
                 push("clamp("+a+","+lo+","+hi+")");break;
             }
@@ -399,17 +410,17 @@ static bool nmWriteNativeTangentSource(const World& w,const char* path,std::stri
             }
             case NM_EXPR_FIBER_EXP_LINEAR:{
                 auto limit=pop(),c5=pop(),c4=pop(),c3=pop(),a=pop();
+                flushFinite();
                 push("numi_matter_fiber::evaluate<float>("+a+","+c3+","+c4+","+c5+","+limit+","+std::to_string(i.integer)+"u,valid)");
+                flushFinite();
                 functions<<"if(!valid)return 0.0f;\n";break;
             }
             default:throw std::runtime_error("unsupported native material opcode "+std::to_string(i.opcode));
             }
         }
         if(st.size()!=1)throw std::runtime_error("native stack final");
-        if(direct)
-            functions<<"if(!isfinite("<<st.back()<<")){nonfinite=true;valid=false;return 0.0f;} return "<<st.back()<<"; }\n";
-        else
-            functions<<"return "<<st.back()<<"; }\n";
+        flushFinite();
+        functions<<"return "<<st.back()<<"; }\n";
     };
     const auto nativeProgramSymbol=[&](const std::uint32_t pi,const bool direct=false) {
         const auto found=canonicalProgram.find({direct,pi});

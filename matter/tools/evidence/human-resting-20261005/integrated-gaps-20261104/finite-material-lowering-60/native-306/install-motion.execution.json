@@ -1,0 +1,16 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 452.3130679130554,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/finite-material-native-306/install-motion.plan.json",
+  "plan_sha256": "9b2aabd7d563e21f180664cefa0a7dfb61401a5dcfab4ecc5b38e7391a02e910",
+  "stdout_path": "/Users/numi/Work/human-integrated-gaps-20261104/finite-material-native-306/install-motion.stdout.log.gz",
+  "stdout_encoding": "gzip",
+  "stdout_compressor_exit_code": 0,
+  "stdout_sha256": "765623d2b46971ff5ad7e595d0a26777fd06dcb51514375eae16c3ee4856aa90",
+  "stdout_uncompressed_sha256": "07e19c59e6b65b40dcbb84cdefd4b4fb4ea14293d8c25656592dc1b00377e93e",
+  "stderr_sha256": "25f8a39b12ee7d8fb52debf439bf8831e0124bd2ec2933d7a65be7de1efad68e",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": true,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}
