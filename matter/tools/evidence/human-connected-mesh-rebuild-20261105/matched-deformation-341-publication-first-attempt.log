@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/current-fractional-020-publication-20261101/matter/tools/evidence/human-connected-mesh-rebuild-20261105/test_matched_deformation_339.py", line 4, in <module>
+    from compare_matched_deformation_339 import retained_node_map, compare_matched
+  File "/Users/numi/Work/current-fractional-020-publication-20261101/matter/tools/evidence/human-connected-mesh-rebuild-20261105/compare_matched_deformation_339.py", line 11, in <module>
+    from compare_remeshed_native_310 import capture, strain_stats, delta, sha
+ModuleNotFoundError: No module named 'compare_remeshed_native_310'
