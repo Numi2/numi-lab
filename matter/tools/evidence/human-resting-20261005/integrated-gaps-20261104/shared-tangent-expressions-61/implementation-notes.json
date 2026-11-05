@@ -1,4 +1,5 @@
 {
-  "status": "candidate, not tested",
-  "scope": "read-only stateless derivative bundle exact CSE; cache consumers and physical state unchanged"
+  "scope": "read-only stateless derivative bundle exact CSE; cache consumers and physical state unchanged",
+  "status_at_proposal_creation": "candidate, not tested",
+  "final_status": "see manifest.json and comparison-307.json"
 }

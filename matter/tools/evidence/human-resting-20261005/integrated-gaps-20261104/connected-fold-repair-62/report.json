@@ -1,0 +1,173 @@
+{
+  "status": "OFFLINE_LOCAL_CONTRACTION_CHECK_ONLY",
+  "physical_admission": false,
+  "native_steps": 0,
+  "inputs": {
+    "source": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1037/candidate-current-typed-volume.npz",
+      "sha256": "5d31c141b66628801a711c2e745f744f745611882a269e173eddfcd0e99d3372"
+    },
+    "cavity": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/connected-conditioning-134/fixed-boundary-volume-proposal.npz",
+      "sha256": "4be98e7d5710360407a561d10efaa02b86702efdaf1b4312c4b035d6d9a19cb8"
+    },
+    "outer": {
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-937-b5-backtracking-root/proposal/candidate-O-typed-current.npz",
+      "sha256": "10169962e298586d63794bf94515ecc3a9b1ce91e66cc60566a6919d7c856ac3"
+    }
+  },
+  "predicates": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanRegisteredSurfaceIntersection.hpp",
+    "sha256": "6c05956f6b3348e8d71c668099ee42e7dc29e2325335f4b06df821b09e524f98"
+  },
+  "trials": [
+    {
+      "drop": 22677,
+      "keep": 22679,
+      "changed_retained_faces": 2,
+      "removed_faces": 2,
+      "affected_drop_incident_tets": 6,
+      "removed_tets": 3,
+      "minimum_retained_volume_m3": 1.7799669467610075e-17,
+      "minimum_quality": 7.397678186829321e-05,
+      "minimum_quality_before": 1.179095772658468e-05,
+      "nonpositive_cells": 0,
+      "below_unchanged_native_volume_gate": 0,
+      "below_unchanged_native_quality_gate": 0,
+      "normal_changes": [
+        {
+          "frame": "registered",
+          "minimum_normal_cosine": 0.9994527634622
+        },
+        {
+          "frame": "unposed_source",
+          "minimum_normal_cosine": 0.9994527634622
+        }
+      ],
+      "intersection_checks": {
+        "registered": {
+          "broadphase_exact_pairs": 60,
+          "crossings_beyond_shared_features": 0,
+          "witnesses": []
+        },
+        "unposed_source": {
+          "broadphase_exact_pairs": 60,
+          "crossings_beyond_shared_features": 0,
+          "witnesses": []
+        }
+      },
+      "local_patch_proposal": {
+        "path": "/Users/numi/Work/human-integrated-gaps-20261104/connected-fold-repair-62/collapse-22677-to-22679.npz",
+        "sha256": "e3c18c4a13fc490f44265ba6a48894fa8daa0f69bd835061c63556d4ad764ece"
+      }
+    },
+    {
+      "drop": 22679,
+      "keep": 22677,
+      "changed_retained_faces": 7,
+      "removed_faces": 2,
+      "affected_drop_incident_tets": 29,
+      "removed_tets": 3,
+      "minimum_retained_volume_m3": 1.0059244167583863e-18,
+      "minimum_quality": 1.1240562654881348e-05,
+      "minimum_quality_before": 1.2986674107320688e-05,
+      "nonpositive_cells": 0,
+      "below_unchanged_native_volume_gate": 0,
+      "below_unchanged_native_quality_gate": 0,
+      "normal_changes": [
+        {
+          "frame": "registered",
+          "minimum_normal_cosine": 0.9930271964099507
+        },
+        {
+          "frame": "unposed_source",
+          "minimum_normal_cosine": 0.9930271964099507
+        }
+      ],
+      "intersection_checks": {
+        "registered": {
+          "broadphase_exact_pairs": 283,
+          "crossings_beyond_shared_features": 8,
+          "witnesses": [
+            [
+              151194,
+              45853
+            ],
+            [
+              151194,
+              45854
+            ],
+            [
+              151194,
+              45856
+            ],
+            [
+              151194,
+              151197
+            ],
+            [
+              151194,
+              151198
+            ],
+            [
+              151194,
+              151199
+            ],
+            [
+              151195,
+              45853
+            ],
+            [
+              151195,
+              151197
+            ]
+          ]
+        },
+        "unposed_source": {
+          "broadphase_exact_pairs": 283,
+          "crossings_beyond_shared_features": 8,
+          "witnesses": [
+            [
+              151194,
+              45853
+            ],
+            [
+              151194,
+              45854
+            ],
+            [
+              151194,
+              45856
+            ],
+            [
+              151194,
+              151197
+            ],
+            [
+              151194,
+              151198
+            ],
+            [
+              151194,
+              151199
+            ],
+            [
+              151195,
+              45853
+            ],
+            [
+              151195,
+              151197
+            ]
+          ]
+        }
+      }
+    }
+  ],
+  "remaining": [
+    "full anatomical context and contained-volume checks",
+    "typed parent-union regeneration",
+    "conservative source mass/P1 rebinding",
+    "full native physical and motion checks"
+  ]
+}

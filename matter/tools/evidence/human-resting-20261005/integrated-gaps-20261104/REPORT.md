@@ -483,3 +483,13 @@ cases; the full solver and material/frame suites pass. Trial 307 accepts all
 in one pair (225.036 s versus 227.226 s). This does not establish a useful
 performance gain or resolve convergence, supported rest or 0.1x.
 See [source policy, tests and pins](shared-tangent-expressions-61/README.md).
+
+## Connected fold feasibility (62), not promoted geometry
+
+A measured 7.513 micrometre edge contraction repairs the repeated local fold
+without negative cells and passes changed-face exact-sign self-intersection
+checks. The reverse direction creates eight crossings and is rejected.
+The preferred local patch, failed witnesses and unchanged numerical gates are
+[retained here](connected-fold-repair-62/README.md).
+Typed ancestry, whole-context checks and conservative mass/P1 rebinding remain
+mandatory before native use; production geometry is unchanged.

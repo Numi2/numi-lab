@@ -1,0 +1,50 @@
+{
+  "scope": "Feasibility only; no source, runtime geometry, force, contact or mass mapping changed",
+  "source": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1037/candidate-current-typed-volume.npz",
+    "sha256": "5d31c141b66628801a711c2e745f744f745611882a269e173eddfcd0e99d3372"
+  },
+  "cavity": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/connected-conditioning-134/fixed-boundary-volume-proposal.npz",
+    "sha256": "4be98e7d5710360407a561d10efaa02b86702efdaf1b4312c4b035d6d9a19cb8"
+  },
+  "mesh_tets": 1453060,
+  "trials": [
+    {
+      "removed_joint_node": 22677,
+      "kept_joint_node": 22679,
+      "edge_length_m": 7.5126979140302195e-06,
+      "incident_tets": 32,
+      "baseline_nonpositive": 0,
+      "baseline_min_det_m3": 1.795576175792128e-17,
+      "removed_tets": 3,
+      "candidate_nonpositive": 0,
+      "candidate_min_det_m3": 4.5030931688888577e-17,
+      "removed_boundary_faces": 2,
+      "volume_link_condition": true,
+      "surface_link_condition": true,
+      "before_cavity_volume_m3": 2.7747238838004393e-11,
+      "after_cavity_volume_m3": 2.774724606491597e-11,
+      "changed_volume_m3": 7.226911575753292e-18,
+      "nonpositive_retained_input_cell_rows": []
+    },
+    {
+      "removed_joint_node": 22679,
+      "kept_joint_node": 22677,
+      "edge_length_m": 7.5126979140302195e-06,
+      "incident_tets": 32,
+      "baseline_nonpositive": 0,
+      "baseline_min_det_m3": 1.795576175792128e-17,
+      "removed_tets": 3,
+      "candidate_nonpositive": 0,
+      "candidate_min_det_m3": 6.035546500550318e-18,
+      "removed_boundary_faces": 2,
+      "volume_link_condition": true,
+      "surface_link_condition": true,
+      "before_cavity_volume_m3": 2.7747238838004393e-11,
+      "after_cavity_volume_m3": 2.7747324085220002e-11,
+      "changed_volume_m3": 8.52472156090204e-17,
+      "nonpositive_retained_input_cell_rows": []
+    }
+  ]
+}
