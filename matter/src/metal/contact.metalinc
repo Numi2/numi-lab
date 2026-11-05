@@ -5546,30 +5546,33 @@ inline bool endpointVertexTriangleContact(
 
 
 
-// Prove a complete linear vertex/triangle sweep clear with one fixed plane.
+// Prove a bounded interval of the original affine vertex/triangle sweep clear.
 // The axis comes from a compensated midpoint closest-point witness, but its
 // construction need not be exact: any represented nonzero axis is valid if
-// all point/corner projections at both exact Float32 endpoints exceed the
+// all point/corner projections at both interval endpoints exceed the
 // physical thickness. Each projection is affine in time, and the triangle is
 // the convex hull of its corners, so these six endpoint inequalities certify
-// the whole sweep. Two-word differences and products avoid a world-origin
+// the interval. Two-word differences and products avoid a world-origin
 // FP32 margin; the residual allowance is quadratic in Float32 epsilon.
-inline bool sweptVertexTriangleFeaturesSeparatedCompensated(
+inline bool sweptVertexTriangleFeaturesSeparatedCompensatedInterval(
     const float3 pointStart, const float3 pointFinish,
     thread const float3* triangleStart, thread const float3* triangleFinish,
-    const float thickness
+    const float thickness, const float lo, const float hi
 ) {
     if (!finite3(pointStart) || !finite3(pointFinish) ||
-        !isfinite(thickness) || thickness < 0.0f) return false;
+        !isfinite(thickness) || thickness < 0.0f ||
+        !isfinite(lo) || !isfinite(hi) ||
+        lo < 0.0f || hi > 1.0f || !(hi > lo)) return false;
     for (uint corner = 0u; corner < 3u; ++corner)
         if (!finite3(triangleStart[corner]) ||
             !finite3(triangleFinish[corner])) return false;
 
-    const float3 midpoint = mix(pointStart, pointFinish, 0.5f);
+    const float midpointTime = lo + 0.5f * (hi - lo);
+    const float3 midpoint = mix(pointStart, pointFinish, midpointTime);
     const float3 triangleMidpoint[3] = {
-        mix(triangleStart[0], triangleFinish[0], 0.5f),
-        mix(triangleStart[1], triangleFinish[1], 0.5f),
-        mix(triangleStart[2], triangleFinish[2], 0.5f)};
+        mix(triangleStart[0], triangleFinish[0], midpointTime),
+        mix(triangleStart[1], triangleFinish[1], midpointTime),
+        mix(triangleStart[2], triangleFinish[2], midpointTime)};
     float3 barycentric;
     float3 closestPoint;
     MRCompensatedPositionGPU axis;
@@ -5609,22 +5612,39 @@ inline bool sweptVertexTriangleFeaturesSeparatedCompensated(
         }
     }
     constexpr float epsilon = 1.1920928955078125e-7f;
-    const float arithmeticBound = 512.0f * epsilon * epsilon * max(
+    // Full-interval endpoints retain their existing arithmetic allowance.
+    // Subintervals additionally evaluate p0 + t*(p1-p0) in two-word
+    // arithmetic. Bound against ORIGINAL endpoint magnitudes even when
+    // interpolation cancels: a rounded interpolated coordinate is never
+    // substituted for the original affine sweep.
+    const float arithmeticFactor = lo == 0.0f && hi == 1.0f
+        ? 512.0f : 1024.0f;
+    const float arithmeticBound = arithmeticFactor * epsilon * epsilon * max(
         axisLength.high * relativeScale,
         max(thresholdBase.high, 1.0e-30f));
     if (!isfinite(arithmeticBound)) return false;
     const MRCompensatedScalar threshold = mrCompensatedAdd(
         thresholdBase, {arithmeticBound, 0.0f});
 
-    for (uint endpoint = 0u; endpoint < 2u; ++endpoint) {
-        const float3 point = endpoint == 0u ? pointStart : pointFinish;
-        for (uint corner = 0u; corner < 3u; ++corner) {
-            const float3 triangle = endpoint == 0u
-                ? triangleStart[corner] : triangleFinish[corner];
-            const MRCompensatedPositionGPU relative =
-                contactCompensatedVectorDifference(point, triangle);
-            const MRCompensatedScalar projection =
-                mrCompensatedVectorDot(axis, relative);
+    for (uint corner = 0u; corner < 3u; ++corner) {
+        const MRCompensatedScalar projectionStart = mrCompensatedVectorDot(
+            axis, contactCompensatedVectorDifference(
+                pointStart, triangleStart[corner]));
+        const MRCompensatedScalar projectionFinish = mrCompensatedVectorDot(
+            axis, contactCompensatedVectorDifference(
+                pointFinish, triangleFinish[corner]));
+        if (!mrCompensatedFinite(projectionStart.high) ||
+            !mrCompensatedFinite(projectionStart.low) ||
+            !mrCompensatedFinite(projectionFinish.high) ||
+            !mrCompensatedFinite(projectionFinish.low)) return false;
+        const MRCompensatedScalar projectionDelta =
+            contactCompensatedSubtract(projectionFinish, projectionStart);
+        for (uint endpoint = 0u; endpoint < 2u; ++endpoint) {
+            const float time = endpoint == 0u ? lo : hi;
+            const MRCompensatedScalar projection = time == 0.0f
+                ? projectionStart : (time == 1.0f ? projectionFinish
+                : mrCompensatedAdd(projectionStart,
+                    mrCompensatedMultiply({time, 0.0f}, projectionDelta)));
             if (!mrCompensatedFinite(projection.high) ||
                 !mrCompensatedFinite(projection.low) ||
                 mrCompensatedCompare(projection, threshold) <= 0)
@@ -5632,6 +5652,16 @@ inline bool sweptVertexTriangleFeaturesSeparatedCompensated(
         }
     }
     return true;
+}
+
+inline bool sweptVertexTriangleFeaturesSeparatedCompensated(
+    const float3 pointStart, const float3 pointFinish,
+    thread const float3* triangleStart, thread const float3* triangleFinish,
+    const float thickness
+) {
+    return sweptVertexTriangleFeaturesSeparatedCompensatedInterval(
+        pointStart, pointFinish, triangleStart, triangleFinish,
+        thickness, 0.0f, 1.0f);
 }
 
 // Narrowphase-only bounded interval fallback. A clear interval is accepted
@@ -5755,6 +5785,13 @@ inline bool vertexTriangleCCDIntervalFallback(
             certified = true;
             return true;
         }
+
+        // The same proof on ORIGINAL affine endpoint projections can resolve
+        // rotating, near-clear sweeps that have no single full-interval plane.
+        // Keep the existing subdivision/evaluation caps and physical thickness.
+        if (sweptVertexTriangleFeaturesSeparatedCompensatedInterval(
+                vertex0, vertex1, triangleStart, triangleFinish,
+                thickness, lo, hi)) continue;
 
         // A fixed separating plane gives a tighter geometric interval bound
         // than the global distance Lipschitz radius below. For any time in

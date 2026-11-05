@@ -1,0 +1,94 @@
+{
+  "native_steps": 0,
+  "physical_admission": false,
+  "stages": [
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "boundary-identity-reuse",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "8012d1b95801634052efc57a3440ff869c1b4db6ed422c27c912cffc185ed739",
+      "wall_s": 5.02035927772522
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "compiler",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "d110ae439f1e92bc9f28f916b8c8e8841b2cd2149d535f28121f3824de73bd74",
+      "wall_s": 140.5060670375824
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "typed-adapters",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "wall_s": 5.038722991943359
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "p1",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "92f1422002844b5d3a3e3171c4f38c8afdcbf726f78785dfc910a6f991377d2a",
+      "wall_s": 45.182990074157715
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "p1-export-rich",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "14ffe3a22434431a9e29ed67db3cfc3a20a65df8c7987e8990515f6eb19e91af",
+      "wall_s": 265.9534840583801
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "assets",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "29c4569557c5688d0923000ad0e12deb3d1010e2a828ab85e74f69a16be9bbd2",
+      "wall_s": 85.31218314170837
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "bindings",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "12a285bc592dd05e1829b76fd75d16cb954b5a97efcfaf2279dfbf0347f5cf3a",
+      "wall_s": 15.074255228042603
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "mass-support",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "476677dd59f8449bf3e4f534f316f78fc032ab9ae56cdd3145c0d8b7cbcba538",
+      "wall_s": 331.14357805252075
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "mass-targets",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "47d7465059c7336062b713dfff29d9ab315c4264aacccdebbca1619bba12519f",
+      "wall_s": 5.036494970321655
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "mass-allocation",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "d8380efa3e5fa9dac0acd4c508ce7eb56b431d1a13d3b89ba99f62ea9ea98562",
+      "wall_s": 250.90936017036438
+    },
+    {
+      "exit_code": 1,
+      "guard_stop": null,
+      "name": "source-qualification",
+      "stderr_sha256": "6d054460cfc8e73b5817b5c3e2091d57e86bb0ea309d23e71702b028c49800b9",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "wall_s": 5.039356231689453
+    }
+  ]
+}

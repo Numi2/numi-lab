@@ -1,0 +1,135 @@
+{
+  "status": "PASS_INDEPENDENT_DOWNLOAD_ALL_MEMBERS_AND_RESTORE",
+  "source_files": [
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/assembled-235/install-motion/accepted-geometry/step-0.mrvpack",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/assembled-235/install-motion/accepted-geometry/step-0.mrvpack",
+      "size": 321323008,
+      "bytes": 321323008,
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "inode": 6846172,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793808305383036083,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/assembled-235/install-motion/resting-human.mrvpack",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/assembled-235/install-motion/resting-human.mrvpack",
+      "size": 321323008,
+      "bytes": 321323008,
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "inode": 6846155,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793808303745911149,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/capacity-trace-233/install-motion/accepted-geometry/step-0.mrvpack",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/capacity-trace-233/install-motion/accepted-geometry/step-0.mrvpack",
+      "size": 321323008,
+      "bytes": 321323008,
+      "sha256": "dfdd53aafb57ce94d16c4b030f09cfd7abd7e29900000c5df589fcfd329f25b3",
+      "inode": 6824941,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793807140741155421,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/capacity-trace-233/install-motion/resting-human.mrvpack",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/capacity-trace-233/install-motion/resting-human.mrvpack",
+      "size": 321323008,
+      "bytes": 321323008,
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "inode": 6879080,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793807139163740017,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/combined-232/install-motion/accepted-geometry/step-0.mrvpack",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/combined-232/install-motion/accepted-geometry/step-0.mrvpack",
+      "size": 321323008,
+      "bytes": 321323008,
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "inode": 6878958,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793806361194701726,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/combined-232/install-motion/accepted-geometry/step-32.mrvpack",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/combined-232/install-motion/accepted-geometry/step-32.mrvpack",
+      "size": 321323008,
+      "bytes": 321323008,
+      "sha256": "6262d7d73c950cd6edd9021bb6c5b54f17be3af49e14b05a412a793352ae9400",
+      "inode": 6846211,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793806591425755212,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/combined-232/install-motion/resting-human.mrvpack",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/combined-232/install-motion/resting-human.mrvpack",
+      "size": 321323008,
+      "bytes": 321323008,
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "inode": 6879081,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793806359537118094,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/direct-edge-236/install-motion/accepted-geometry/step-0.mrvpack",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/direct-edge-236/install-motion/accepted-geometry/step-0.mrvpack",
+      "size": 321323008,
+      "bytes": 321323008,
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "inode": 6878962,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793808878717799348,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/direct-edge-236/install-motion/resting-human.mrvpack",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/direct-edge-236/install-motion/resting-human.mrvpack",
+      "size": 321323008,
+      "bytes": 321323008,
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "inode": 6879085,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793808877000942844,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/accepted-geometry/step-0.mrvpack",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/immutable-238/install-motion/accepted-geometry/step-0.mrvpack",
+      "size": 321323008,
+      "bytes": 321323008,
+      "sha256": "0a6559eec7cc1638f0833def48a7e03a91396b08f3afc6603d7ce487f7c1e212",
+      "inode": 6878963,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793810618951912824,
+      "retire": true
+    }
+  ],
+  "archive_sha256": "d9ebfc8e49db13030f461398e5bdf1e7eeeb57664235279a8885d677e6f31e1b",
+  "archive_bytes": 1187071859,
+  "remote_asset": "https://github.com/Numi2/macmini-evidence-archive/releases/download/numi-20261104-cold-human-evidence/human-cold-motion-328-00.tar.zst",
+  "restore_verification": {
+    "status": "PASS_INDEPENDENT_DOWNLOAD_SEQUENTIAL_FILE_RESTORE",
+    "files": 10,
+    "all_sizes_and_sha256_verified": true
+  },
+  "free_before_retirement": 11700408320,
+  "free_after_retirement": 14410891264
+}

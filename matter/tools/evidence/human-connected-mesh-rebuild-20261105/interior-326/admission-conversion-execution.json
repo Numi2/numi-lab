@@ -1,0 +1,38 @@
+{
+  "native_steps": 0,
+  "physical_admission": false,
+  "stages": [
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "mass-receipt-326",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "c79094a6846984b83d858d6594958fa99fdc9f71f483c035ee907ea88deb5b57",
+      "wall_s": 20.08287787437439
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "mass-target-parity-326",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "877b2dee89d093e1e00223c6c956ea10e1faafe69796d44403b134689850519c",
+      "wall_s": 5.0388829708099365
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "mass-converter-326",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "d88675972ed9d98fab5206cb09715353f1abea1bbc566cd0ee6a824ba67a1d13",
+      "wall_s": 40.16232514381409
+    },
+    {
+      "exit_code": 0,
+      "guard_stop": null,
+      "name": "native-plan-327",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "bbda04a3540d40268b24609713fe33f13097f170f32086d092df9ea01453041c",
+      "wall_s": 5.043245077133179
+    }
+  ]
+}

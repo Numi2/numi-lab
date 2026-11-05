@@ -1,0 +1,74 @@
+{
+  "schema": "numi.h706.current-433-signed-role-face-binding-controls.v1",
+  "status": "PASS",
+  "physical_admission": false,
+  "native_steps": 0,
+  "controls": [
+    {
+      "name": "valid_unchanged_source_context_and_typed_role",
+      "status": "PASS"
+    },
+    {
+      "name": "stale_current_asset_hash",
+      "status": "PASS",
+      "rejection": "source surface I SHA mismatch: /Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-1009-point-update-1018-root/actual-001/candidate-I-point-updated.npz"
+    },
+    {
+      "name": "stale_context_hash",
+      "status": "PASS",
+      "rejection": "current exact-context report SHA mismatch: /Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-1020-zero-skin-fat-source-qualified-root/proposal-exact-806/report.json"
+    },
+    {
+      "name": "out_of_domain_historical_quotient",
+      "status": "PASS",
+      "rejection": "current source-input vertex quotient is outside the output point domain"
+    },
+    {
+      "name": "inconsistent_historical_ancestry_csr",
+      "status": "PASS",
+      "rejection": "current typed face ancestry CSR has inconsistent offsets or lanes"
+    },
+    {
+      "name": "O_signed_match",
+      "status": "PASS"
+    },
+    {
+      "name": "I_signed_match",
+      "status": "PASS"
+    },
+    {
+      "name": "D_signed_match",
+      "status": "PASS"
+    },
+    {
+      "name": "wrong_historical_ancestry",
+      "status": "PASS",
+      "rejection": "I 1022 face ancestry differs from pinned typed source"
+    },
+    {
+      "name": "wrong_anatomical_identity",
+      "status": "PASS",
+      "rejection": "I shell face ID row map differs from typed source"
+    },
+    {
+      "name": "missing_face",
+      "status": "PASS",
+      "rejection": "I 1022 registered source triangles are not exact typed row order"
+    },
+    {
+      "name": "duplicate_face",
+      "status": "PASS",
+      "rejection": "I 1022 registered source triangles are not exact typed row order"
+    },
+    {
+      "name": "wrong_asset_hash",
+      "status": "PASS",
+      "rejection": "I current typed SHA mismatch"
+    }
+  ],
+  "sources": {
+    "/Users/numi/Work/human-integrated-gaps-20261104/qualify_joint64_source.py": "dfb5858649270a27577d97edd59140bb56b1d36d35b4dc5ddbe6c20e68264573",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/typed-adapter/typed-current-schema.py": "1d734c4c69068ba48a78face65955a1cd31b4d2ecc419dbe872d4ce1d5129166",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/typed-adapter/audit-role-orientation.py": "60d3e6f64a5fbc33ea24c7b8baeb6242d5b547bfde366c86db2a7e38754abb11"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "time": 1793907054.902106,
+  "files": {
+    "matter/src/metal/contact.metalinc": {
+      "sha256": "c6a6da16f6f8d61c712fc24a2f57fdb270b2b187d76f6feef1dbf9ee96597eb8",
+      "bytes": 770027
+    },
+    "matter/tools/cardboard_vtccd_iteration_budget_check.mm": {
+      "sha256": "15b891ec06035f785ff2a3478c16555a1360ea71c1dfec05e0ea820d912892a9",
+      "bytes": 48802
+    },
+    "build-native/matter/shaders/NumiMatter.metallib": {
+      "sha256": "3adc5086e2d86cb1873c6ff051933325328dab8c657431b1f2ed92a1fb86abde",
+      "bytes": 21874317
+    },
+    "build-native/matter/numi-matter-cardboard-vtccd-budget-replay-check": {
+      "sha256": "57475e976fbef0b1fa98471321746536c808ef5062ed60ace88e20c42cf7f348",
+      "bytes": 147376
+    }
+  }
+}

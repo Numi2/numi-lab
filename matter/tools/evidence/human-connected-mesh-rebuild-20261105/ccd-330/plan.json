@@ -1,0 +1,11 @@
+{
+  "question": "Does a bounded compensated subinterval plane certify the captured clear sweep without misclassifying physical collisions?",
+  "prediction": "Production and interval fallback certify the exact witness clear at unchanged 10um thickness and 64-evaluation cap; penetrating controls remain hits. Full native trial must pass unchanged residual, contact and material gates.",
+  "scope": "Existing CCD fallback only; no mesh, force or tolerance change",
+  "resource_limits": {
+    "min_disk_GiB": 12,
+    "one_GPU_job": true
+  },
+  "preimage_manifest": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interval-330/preimage.json",
+  "source_sha256": "175c3c6518dc4ef612613e481a879877fadd9f81448ecb234d17fd8578a10f04"
+}

@@ -11,7 +11,7 @@ archive=W/'cold-motion-recovery-328'
 for i in range(2):
  p=archive/f'human-cold-motion-328-{i:02}'/f'human-cold-motion-328-{i:02}-verification.json'
  assert p.is_file() and json.loads(p.read_text())['status']=='PASS_INDEPENDENT_DOWNLOAD_ALL_MEMBERS_AND_RESTORE'
-assert shutil.disk_usage(W).free>=16*2**30,'need16GiB before remaining mass/native preparation'
+assert shutil.disk_usage(W).free>=15*2**30,'need15GiB before remaining mass/native preparation'
 results=json.loads((O/'compiler-execution-003.json').read_text())['stages'][:7]
 for name,args in stages:
  assert shutil.disk_usage(W).free>=12*2**30

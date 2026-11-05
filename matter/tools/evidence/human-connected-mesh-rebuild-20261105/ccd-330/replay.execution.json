@@ -1,0 +1,31 @@
+{
+  "exit_code": 0,
+  "tool": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/numi-matter-cardboard-vtccd-budget-replay-check",
+    "bytes": 147920,
+    "sha256": "05467ed48c533fe9ed3ba223faba1679de7e5bca07029d2dd9aa05f1c6236aa2"
+  },
+  "metallib": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib",
+    "bytes": 21875885,
+    "sha256": "f21611e0e2df4723956fee7d1910431bea4167e20232b74d6e8cf5497b8cab50"
+  },
+  "source_log": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-contact-witness-329/failure-witness.log",
+    "bytes": 1198,
+    "sha256": "93c52d5c5f492c49f3d6af0b09541d8fb10e356756d299ddbfa5220f17927bf1"
+  },
+  "stdout": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interval-330/replay.stdout.log",
+    "bytes": 11600,
+    "sha256": "d08f67c262ebc9d187a2cac0fd5516fdddf60ed426747039e711ecca2a357a6b"
+  },
+  "stderr": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interval-330/replay.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "controls_passed": 9,
+  "elapsed_s": null,
+  "elapsed_note": "bounded shell invocation completed; individual execution duration was not instrumented"
+}

@@ -1,0 +1,49 @@
+{
+  "source_sha256": "93c52d5c5f492c49f3d6af0b09541d8fb10e356756d299ddbfa5220f17927bf1",
+  "scope": "independent double-precision diagnostic on exact round-tripped Float32 witness; not a replacement physical update",
+  "thickness_m": 9.999999747378752e-06,
+  "endpoint_gaps_m": [
+    5.2974566233745965e-09,
+    1.3975271513170644e-09
+  ],
+  "minimum_sampled_gap_m": 1.3975271513170644e-09,
+  "lipschitz_speed_bound_m_per_unit_time": 5.536291269005761e-08,
+  "conservative_sample_grid_lower_gap_m": 1.370494379598249e-09,
+  "fixed_plane_intervals": [
+    {
+      "partitions": 1,
+      "min_fixed_plane_margin_m": -2.3088086049416963e-08,
+      "all_intervals_clear": false
+    },
+    {
+      "partitions": 2,
+      "min_fixed_plane_margin_m": -1.0845563922277795e-08,
+      "all_intervals_clear": false
+    },
+    {
+      "partitions": 4,
+      "min_fixed_plane_margin_m": -4.724089543912832e-09,
+      "all_intervals_clear": false
+    },
+    {
+      "partitions": 8,
+      "min_fixed_plane_margin_m": -1.6632990277374297e-09,
+      "all_intervals_clear": false
+    },
+    {
+      "partitions": 16,
+      "min_fixed_plane_margin_m": -1.3289042472695975e-10,
+      "all_intervals_clear": false
+    },
+    {
+      "partitions": 32,
+      "min_fixed_plane_margin_m": 6.323171867729689e-10,
+      "all_intervals_clear": true
+    },
+    {
+      "partitions": 64,
+      "min_fixed_plane_margin_m": 1.014921852318126e-09,
+      "all_intervals_clear": true
+    }
+  ]
+}

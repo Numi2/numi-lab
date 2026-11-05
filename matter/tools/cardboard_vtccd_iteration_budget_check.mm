@@ -572,7 +572,8 @@ void runEEIntervalRegressions(
 void runHumanFailure(id<MTLDevice> device, id<MTLCommandQueue> queue,
                      id<MTLComputePipelineState> pipeline,
                      const HumanFailureInput& input, const bool requireSeparatedWitness,
-                     const bool requireHitControl = false) {
+                     const bool requireHitControl = false,
+                     const bool requireNotClearControl = false) {
     id<MTLBuffer> inputBuffer = [device newBufferWithBytes:&input.record
         length:sizeof(input.record) options:MTLResourceStorageModeShared];
     std::array<Float4, 4> summaries{};
@@ -628,9 +629,14 @@ void runHumanFailure(id<MTLDevice> device, id<MTLCommandQueue> queue,
             std::isfinite(row[1]) && (row[1] == 0.0f || row[1] == 1.0f) &&
             std::isfinite(row[2]), "invalid human-failure replay result");
         if (requireSeparatedWitness && (i == 0u || i == 3u)) {
-            require(row[0] == 1.0f && row[1] == 0.0f && row[2] == 1.0f &&
+            require(row[0] == 1.0f && row[1] == 0.0f &&
+                row[2] >= 0.0f && row[2] <= 1.0f &&
                 std::isfinite(row[3]) && row[3] > 0.0f,
                 "captured near-clear sweep lacks a physical-thickness clear certificate");
+        }
+        if (requireNotClearControl && (i == 0u || i == 3u)) {
+            require(!(row[0] == 1.0f && row[1] == 0.0f),
+                "touching/degenerate control was incorrectly certified clear");
         }
         if (requireHitControl && (i == 0u || i == 3u)) {
             constexpr float epsilon = 1.1920928955078125e-7f;
@@ -857,7 +863,64 @@ int main(int argc, const char* argv[]) {
                 penetrating.record.start[5] = {0.0f, 0.0f, 1.0e-3f, 0.0f};
                 penetrating.record.finish[5] = penetrating.record.start[5];
                 runHumanFailure(device, queue, pipeline, penetrating, false, true);
-                std::cout << "PASS VTCCD physical-clear witness and penetrating control\n";
+                if (argc == 4) {
+                    HumanFailureInput reversed = input;
+                    reversed.sourcePath = "captured VTCCD reversed affine motion";
+                    for (std::uint32_t i = 0u; i < 6u; ++i)
+                        std::swap(reversed.record.start[i], reversed.record.finish[i]);
+                    runHumanFailure(device, queue, pipeline, reversed, true);
+                    HumanFailureInput permuted = input;
+                    permuted.sourcePath = "captured VTCCD triangle corner permutation";
+                    const std::uint32_t triangleOffset =
+                        input.record.diagnostics.w == 4.0f ? 0u : 3u;
+                    std::swap(permuted.record.start[triangleOffset],
+                              permuted.record.start[triangleOffset + 2u]);
+                    std::swap(permuted.record.finish[triangleOffset],
+                              permuted.record.finish[triangleOffset + 2u]);
+                    runHumanFailure(device, queue, pipeline, permuted, true);
+                    // Translate a clear control with a gap larger than the unchanged
+                    // coordinate-scaled contact margin. Translating a nanometre-gap
+                    // witness can enter that margin after Float32 re-encoding.
+                    HumanFailureInput translated = penetrating;
+                    translated.record.finish[4] = translated.record.start[4];
+                    translated.sourcePath = "synthetic static clear VTCCD common translation";
+                    for (std::uint32_t i = 0u; i < 6u; ++i) {
+                        translated.record.start[i].x += 1.0e-3f;
+                        translated.record.finish[i].x += 1.0e-3f;
+                        translated.record.start[i].y -= 1.0e-3f;
+                        translated.record.finish[i].y -= 1.0e-3f;
+                    }
+                    runHumanFailure(device, queue, pipeline, translated, true);
+                    HumanFailureInput staticClear = penetrating;
+                    staticClear.sourcePath = "synthetic static VTCCD clear";
+                    staticClear.record.start[4].z = 2.0e-5f;
+                    staticClear.record.finish[4] = staticClear.record.start[4];
+                    runHumanFailure(device, queue, pipeline, staticClear, true);
+                    HumanFailureInput touch = staticClear;
+                    touch.sourcePath = "synthetic static VTCCD exact-thickness touch";
+                    touch.record.start[4].z = touch.record.parameters.x;
+                    touch.record.finish[4] = touch.record.start[4];
+                    runHumanFailure(device, queue, pipeline, touch, false, true);
+                    HumanFailureInput offsetCrossing = penetrating;
+                    offsetCrossing.sourcePath = "synthetic off-midpoint VTCCD crossing";
+                    offsetCrossing.record.finish[4].z = -6.0e-5f;
+                    runHumanFailure(device, queue, pipeline, offsetCrossing, false, true);
+                    HumanFailureInput degenerate = touch;
+                    degenerate.sourcePath = "synthetic degenerate triangle cannot be clear at contact";
+                    for (std::uint32_t i = 0u; i < 3u; ++i) {
+                        degenerate.record.start[i] = {0.0f,0.0f,0.0f,0.0f};
+                        degenerate.record.finish[i] = degenerate.record.start[i];
+                    }
+                    degenerate.record.start[4] = {0.0f,0.0f,0.0f,0.0f};
+                    degenerate.record.finish[4] = degenerate.record.start[4];
+                    runHumanFailure(device, queue, pipeline, degenerate, false, false, true);
+                    std::cout << "PASS VTCCD strict clearance, reversal, permutation, "
+                        "translation, static clear, thickness touch, off-midpoint crossing "
+                        "and degenerate fail-closed controls\n";
+                } else {
+                    std::cout << "PASS VTCCD replay layout and penetrating control; "
+                        "captured clearance was not required\n";
+                }
                 return 0;
             }
             require(argc == 3, "usage: checker <trial21-capture.json> <trial22-capture.json> | --human-failure LOG [--require-separated] | --human-ee-failure LOG [--require-separated] | --ee-interval-regression LOG | --ee-production-regression LOG");

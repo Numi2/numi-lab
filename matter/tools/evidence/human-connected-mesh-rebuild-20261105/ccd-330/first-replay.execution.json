@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/numi-matter-cardboard-vtccd-budget-replay-check",
+    "--human-failure",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-contact-witness-329/failure-witness.log",
+    "--require-separated"
+  ],
+  "exit_code": 1,
+  "elapsed_s": 3.1908740997314453,
+  "metallib_sha256": "f21611e0e2df4723956fee7d1910431bea4167e20232b74d6e8cf5497b8cab50",
+  "tool_sha256": "45355b4df0bb4a011d9f1f7eb7dd096658a4e40c83787589f9ef9bd516a4769e"
+}

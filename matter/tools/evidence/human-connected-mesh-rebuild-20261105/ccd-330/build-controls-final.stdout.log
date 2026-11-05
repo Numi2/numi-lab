@@ -1,0 +1,4 @@
+ninja: Entering directory `build-native'
+[0/2] Re-checking globbed directories...
+[1/3] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-vtccd-budget-replay-check.dir/tools/cardboard_vtccd_iteration_budget_check.mm.o
+[2/3] Linking CXX executable matter/numi-matter-cardboard-vtccd-budget-replay-check
