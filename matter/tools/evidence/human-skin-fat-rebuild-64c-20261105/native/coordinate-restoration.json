@@ -1,0 +1,5 @@
+{
+  "reason": "Native rest/position/reference-hi/reference-lo are Float32 values printed with10significant digits. Restore original Float32 values before double-precision Green-strain evaluation; using decimal text directly perturbs thin-cell shape gradients. Force arrays and physiological traces unaffected.",
+  "prior_result_retained": "joint-boundary-native-310-comparison-before-f32-restore.json",
+  "native_inputs_changed": false
+}

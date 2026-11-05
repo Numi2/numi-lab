@@ -1,0 +1,25 @@
+{
+  "status": "PASS_EXACT_STABLE_SOURCE_VERTEX_DOMAINS",
+  "checks": [
+    {
+      "role": "O",
+      "active_registered_rows": 76101,
+      "stable_source_vertex_domain_count": 76669,
+      "maximum_referenced_source_vertex": 76668
+    },
+    {
+      "role": "I",
+      "active_registered_rows": 117703,
+      "stable_source_vertex_domain_count": 125368,
+      "maximum_referenced_source_vertex": 125367
+    },
+    {
+      "role": "D",
+      "active_registered_rows": 103207,
+      "stable_source_vertex_domain_count": 120648,
+      "maximum_referenced_source_vertex": 120645
+    }
+  ],
+  "physical_admission": false,
+  "native_steps": 0
+}

@@ -1,0 +1,6 @@
+{
+  "status": "POSTPASS_INSTRUMENT_FAILED_BEFORE_COMPARISON",
+  "reason": "NumPy integer promotion rejects object-label namespace offset1000000 on int16 array",
+  "native_trial_unchanged": true,
+  "fix": "Explicit int32 widening before constructing diagnostic group keys; physics and stored native evidence unchanged"
+}

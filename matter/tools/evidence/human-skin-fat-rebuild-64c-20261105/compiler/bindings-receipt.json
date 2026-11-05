@@ -1,0 +1,350 @@
+{
+  "status": "PASS_CURRENT_DOMINANT_FRAME_REGISTRATION_ONLY",
+  "physical_admission": false,
+  "native_steps": 0,
+  "changed_boundary_nodes": 14,
+  "changed_combined_csv_rows": 15,
+  "world_geometry_changed": false,
+  "source_ids_changed": false,
+  "full86_weights_changed": false,
+  "physical_cell_semantics_changed": false,
+  "mass_allocation_changed": false,
+  "historical_registration_changed": false,
+  "inputs": {
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/rich433/candidate-current-typed-volume.npz": "0152c7b15febfc81f4d9ce995820a80438204635deb425193212409e31c5c323",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/registered/donor-frames.csv": "b1704fb7b846254583f4b6a08c394ed3cad1603554244078706ca4b3811ac674",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/roles/O-source.json": "fb952aa2d971600e46ea741af28864418ad0bc1ae39b20c5f8df92a22002305a",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/registered/registered-O.csv": "6bc67a66604cc2b62b6792e3ec045ed6707c0195ea8e1c23920bb6db8ebca27e",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/roles/I-source.json": "864b21e5434e0038f2243bc72b9536a8b66fe11b37ce01ff5dea7c6c2bf40a69",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/registered/registered-I.csv": "4400a02d19058dfff49c35fb51ce23238c2e2c756da7a874a17e2f7992507fe7",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/roles/D-source.json": "b5287a18af351ec47f0c624f432c2b73a2d4914cfa95c10c7230a8a41cc8cd48",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/registered/registered-D.csv": "c6ece3d40155c2f9546388b3950b132294b5237074a19f57b4b2ec5625dd77f7",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/volume-export/volume/combined-node-map.csv": "add9bb2d18fb4b9e852d529b48fb7a20425e4e68a41bb67ff33f1d1be5e7d5c6"
+  },
+  "outputs": {
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/bindings/registered-O.csv": {
+      "sha256": "b1c3512bb1f1efbbf0214d978abe39dec037f7447f9609cea49ca3556e38329b",
+      "changed_rows": 9
+    },
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/bindings/O-source.json": {
+      "sha256": "c63aa884c2c16c5a1032f02c68452cbef81ccaa4f9f9740bd57f2414ac7169c4",
+      "changed_rows": 9
+    },
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/bindings/registered-I.csv": {
+      "sha256": "f2488ef1c34d8255cdbe6698ffd21de82e0a48e4419b9f47284baa463c37b673",
+      "changed_rows": 1
+    },
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/bindings/I-source.json": {
+      "sha256": "99e7de287845e5c2cba0308a687c63c015469dc72292dbfe98577d06394c530f",
+      "changed_rows": 1
+    },
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/bindings/registered-D.csv": {
+      "sha256": "e2e07b894fed6b0c319f2a7cdff6babc3aba6fb8fe163261ee546142c080b577",
+      "changed_rows": 4
+    },
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/bindings/D-source.json": {
+      "sha256": "17b4c314c19fe179bd638d52eab047ad78b39a9266685cfdda86cc7815674f5b",
+      "changed_rows": 4
+    },
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/bindings/combined-node-map.csv": {
+      "sha256": "f02fb2b7f20d589be39c773a56d995995a1027a8db3e066175124d2e6b26cc25",
+      "changed_rows": 15
+    }
+  },
+  "witnesses": [
+    {
+      "layer": "O",
+      "compact_row": 6816,
+      "source_vertex_row": 6842,
+      "volume_node_row": 6816,
+      "old_frame_owner": 60,
+      "dominant_frame_owner": 59,
+      "dominant_binding": 26,
+      "dominant_weight": 0.38954904981881566,
+      "old_owner_weight": 0.38453849375470256,
+      "position_m": [
+        -0.30932337045669556,
+        -0.9861933588981628,
+        0.1461566984653473
+      ],
+      "new_donor_local_m": [
+        0.012354260249074283,
+        -0.044630819337818366,
+        0.003911979310499191
+      ]
+    },
+    {
+      "layer": "O",
+      "compact_row": 8333,
+      "source_vertex_row": 8370,
+      "volume_node_row": 8333,
+      "old_frame_owner": 69,
+      "dominant_frame_owner": 62,
+      "dominant_binding": 29,
+      "dominant_weight": 0.2694944405697247,
+      "old_owner_weight": 0.04011727128848711,
+      "position_m": [
+        -0.30804887413978577,
+        -0.9623187184333801,
+        0.10637468844652176
+      ],
+      "new_donor_local_m": [
+        -0.009847690220779054,
+        -0.04759384018653672,
+        0.006415021660517466
+      ]
+    },
+    {
+      "layer": "O",
+      "compact_row": 9337,
+      "source_vertex_row": 9384,
+      "volume_node_row": 9337,
+      "old_frame_owner": 69,
+      "dominant_frame_owner": 62,
+      "dominant_binding": 29,
+      "dominant_weight": 0.2575388540942129,
+      "old_owner_weight": 0.052710480245666456,
+      "position_m": [
+        -0.3067658543586731,
+        -0.9616056084632874,
+        0.10732286423444748
+      ],
+      "new_donor_local_m": [
+        -0.008907749514624379,
+        -0.04675118724802619,
+        0.005206654761053839
+      ]
+    },
+    {
+      "layer": "O",
+      "compact_row": 38477,
+      "source_vertex_row": 38735,
+      "volume_node_row": 38477,
+      "old_frame_owner": 100,
+      "dominant_frame_owner": 93,
+      "dominant_binding": 45,
+      "dominant_weight": 0.21378831044784996,
+      "old_owner_weight": 0.12324235244139464,
+      "position_m": [
+        0.23268890380859375,
+        -0.8558967113494873,
+        0.14126086235046387
+      ],
+      "new_donor_local_m": [
+        0.006587698289851651,
+        0.00012693816046452356,
+        -0.055631285551267846
+      ]
+    },
+    {
+      "layer": "O",
+      "compact_row": 40484,
+      "source_vertex_row": 40749,
+      "volume_node_row": 40484,
+      "old_frame_owner": 124,
+      "dominant_frame_owner": 120,
+      "dominant_binding": 67,
+      "dominant_weight": 0.19088227164297983,
+      "old_owner_weight": 0.1771976654118668,
+      "position_m": [
+        0.23861399292945862,
+        -0.9661742448806763,
+        0.09359441697597504
+      ],
+      "new_donor_local_m": [
+        -0.006908410466845582,
+        0.01564841316988534,
+        0.010651761956606665
+      ]
+    },
+    {
+      "layer": "O",
+      "compact_row": 40491,
+      "source_vertex_row": 40756,
+      "volume_node_row": 40491,
+      "old_frame_owner": 124,
+      "dominant_frame_owner": 120,
+      "dominant_binding": 67,
+      "dominant_weight": 0.19067134570662783,
+      "old_owner_weight": 0.17745423300088226,
+      "position_m": [
+        0.23864828050136566,
+        -0.9660919308662415,
+        0.09357151389122009
+      ],
+      "new_donor_local_m": [
+        -0.00693190041471409,
+        0.015726788774745638,
+        0.010609556827158906
+      ]
+    },
+    {
+      "layer": "O",
+      "compact_row": 40770,
+      "source_vertex_row": 41037,
+      "volume_node_row": 40770,
+      "old_frame_owner": 124,
+      "dominant_frame_owner": 120,
+      "dominant_binding": 67,
+      "dominant_weight": 0.2034970433843082,
+      "old_owner_weight": 0.1705386634453264,
+      "position_m": [
+        0.23923596739768982,
+        -0.967608630657196,
+        0.09348851442337036
+      ],
+      "new_donor_local_m": [
+        -0.0070096024331878564,
+        0.014158678742196592,
+        0.010176386591420125
+      ]
+    },
+    {
+      "layer": "O",
+      "compact_row": 40834,
+      "source_vertex_row": 41101,
+      "volume_node_row": 40834,
+      "old_frame_owner": 124,
+      "dominant_frame_owner": 120,
+      "dominant_binding": 67,
+      "dominant_weight": 0.200441663649337,
+      "old_owner_weight": 0.17317076602627263,
+      "position_m": [
+        0.23939894139766693,
+        -0.9668518304824829,
+        0.09334095567464828
+      ],
+      "new_donor_local_m": [
+        -0.007161868086771249,
+        0.014894749293603406,
+        0.009939540773756582
+      ]
+    },
+    {
+      "layer": "O",
+      "compact_row": 50660,
+      "source_vertex_row": 51025,
+      "volume_node_row": 50660,
+      "old_frame_owner": 119,
+      "dominant_frame_owner": 115,
+      "dominant_binding": 63,
+      "dominant_weight": 0.28584866929032215,
+      "old_owner_weight": 0.19345034626189958,
+      "position_m": [
+        0.26215192675590515,
+        -0.9767088294029236,
+        0.11100421100854874
+      ],
+      "new_donor_local_m": [
+        -0.009321455133750349,
+        0.008179937978619828,
+        -0.001106320828692786
+      ]
+    },
+    {
+      "layer": "I",
+      "compact_row": 71888,
+      "source_vertex_row": 77506,
+      "volume_node_row": 147990,
+      "old_frame_owner": 126,
+      "dominant_frame_owner": 120,
+      "dominant_binding": 67,
+      "dominant_weight": 0.3633866201946463,
+      "old_owner_weight": 0.012891633747334798,
+      "position_m": [
+        0.23957405984401703,
+        -0.9928223490715027,
+        0.08808310329914093
+      ],
+      "new_donor_local_m": [
+        -0.012284096484206973,
+        -0.010988635965347264,
+        0.012380172244332811
+      ]
+    },
+    {
+      "layer": "D",
+      "compact_row": 97504,
+      "source_vertex_row": 114340,
+      "volume_node_row": 298510,
+      "old_frame_owner": 109,
+      "dominant_frame_owner": 107,
+      "dominant_binding": 57,
+      "dominant_weight": 0.321482890192895,
+      "old_owner_weight": 0.2960461168577534,
+      "position_m": [
+        0.25255781412124634,
+        -0.9416033625602722,
+        0.1427101343870163
+      ],
+      "new_donor_local_m": [
+        0.009924971505864444,
+        -0.027902123115632546,
+        -0.005571591171915013
+      ]
+    },
+    {
+      "layer": "D",
+      "compact_row": 97588,
+      "source_vertex_row": 114431,
+      "volume_node_row": 298594,
+      "old_frame_owner": 109,
+      "dominant_frame_owner": 107,
+      "dominant_binding": 57,
+      "dominant_weight": 0.3212261275357533,
+      "old_owner_weight": 0.29718833720316,
+      "position_m": [
+        0.25278106331825256,
+        -0.9420394897460938,
+        0.14279310405254364
+      ],
+      "new_donor_local_m": [
+        0.010009215924622557,
+        -0.02835793294159907,
+        -0.005750676025081052
+      ]
+    },
+    {
+      "layer": "D",
+      "compact_row": 97589,
+      "source_vertex_row": 114433,
+      "volume_node_row": 298595,
+      "old_frame_owner": 109,
+      "dominant_frame_owner": 107,
+      "dominant_binding": 57,
+      "dominant_weight": 0.3212243084610134,
+      "old_owner_weight": 0.29719642943978386,
+      "position_m": [
+        0.25278347730636597,
+        -0.9420442581176758,
+        0.14279362559318542
+      ],
+      "new_donor_local_m": [
+        0.010009751533858174,
+        -0.02836291567039048,
+        -0.005752605338062111
+      ]
+    },
+    {
+      "layer": "D",
+      "compact_row": 97591,
+      "source_vertex_row": 114435,
+      "volume_node_row": 298597,
+      "old_frame_owner": 109,
+      "dominant_frame_owner": 107,
+      "dominant_binding": 57,
+      "dominant_weight": 0.32122366058430557,
+      "old_owner_weight": 0.2971993115487528,
+      "position_m": [
+        0.2527843713760376,
+        -0.942046046257019,
+        0.14279380440711975
+      ],
+      "new_donor_local_m": [
+        0.010009935674579085,
+        -0.028364783159513525,
+        -0.005753317625961283
+      ]
+    }
+  ]
+}

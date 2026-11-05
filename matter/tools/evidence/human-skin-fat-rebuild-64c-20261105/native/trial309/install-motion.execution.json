@@ -1,0 +1,16 @@
+{
+  "exit_code": -15,
+  "elapsed_s": 175.93090319633484,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-309/install-motion.plan.json",
+  "plan_sha256": "1b0c570a40a05e8026db96a64893dc72ed9853f75c86f4c5c4776010902cd767",
+  "stdout_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-309/install-motion.stdout.log.gz",
+  "stdout_encoding": "gzip",
+  "stdout_compressor_exit_code": 0,
+  "stdout_sha256": "f1ccef9550c03b5e95343ae6f619c96df4463515f0d6f3c6e3cefb8db5fbc789",
+  "stdout_uncompressed_sha256": "78c26021932d24a1254504a67262570446108e1ff39892a61f894e8dfbab77a9",
+  "stderr_sha256": "41fef403d8603d1442a20e5e5e4dc86b3d395290a172983276fd958ae61fc165",
+  "physical_admission": false,
+  "resource_stop_reason": "disk_below_12GiB",
+  "source_import_pass": true,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

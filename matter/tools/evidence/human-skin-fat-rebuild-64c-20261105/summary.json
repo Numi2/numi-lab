@@ -1,0 +1,51 @@
+{
+  "status": "NATIVE_PREFIX_EXECUTED_FIDELITY_NOT_QUALIFIED",
+  "geometry": {
+    "source_coordinates_unchanged": true,
+    "safe_contractions": 888,
+    "skin_fat_nodes_before": 311768,
+    "skin_fat_nodes_after": 310880,
+    "skin_fat_tets_before": 1453060,
+    "skin_fat_tets_after": 1445018,
+    "native_source_quality_failures": 0,
+    "exactly_positive_changed_cells": 39107,
+    "complete_new_containment_audit": false
+  },
+  "native": {
+    "accepted_roots": 32,
+    "physical_seconds": 0.0005000000237487257,
+    "reference_body_wall_s": 225.036409167,
+    "candidate_body_wall_s": 182.327167917,
+    "body_throughput_ratio": 1.23424507569515,
+    "reference_launch_wall_s": 442.4977653026581,
+    "candidate_launch_wall_s": 372.27497124671936,
+    "candidate_real_time_factor": 2.742323206469913e-06,
+    "reference_active_solves": 144,
+    "candidate_active_solves": 98,
+    "reference_krylov_columns": 2304,
+    "candidate_krylov_columns": 1568,
+    "reference_budget_exhaustions": 62,
+    "candidate_budget_exhaustions": 35,
+    "resource_stop": null,
+    "root_assistance": false,
+    "supported_rest": false,
+    "sustained_throughput_qualified": false
+  },
+  "fidelity": {
+    "promoted_to_default_scene": false,
+    "regional_strain_aggregate_changes_above_5percent": 32,
+    "such_regions_without_geometry_operations": 19,
+    "force_differences_above_1percent_observed": true,
+    "full_pointwise_ancestry_and_material_energy_comparison_complete": false,
+    "maximum_matching_node_displacement_difference_m": 1.3684194965275451e-06,
+    "matched_mass_l1_difference_kg": 0.02283645943990613,
+    "clinical_validation": false
+  },
+  "remaining": [
+    "resolve conservative mass locality and nonlinear stopping sensitivity before further coarsening",
+    "current geometry complete solid containment",
+    "canonical ancestry-based local force/strain/energy qualification",
+    "materially lower skin/fat execution work with validated approximation",
+    "supported longer native motion, then coupled resting qualification"
+  ]
+}

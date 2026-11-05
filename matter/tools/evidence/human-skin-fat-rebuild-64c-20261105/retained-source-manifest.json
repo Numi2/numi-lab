@@ -1,0 +1,314 @@
+{
+  "files": {
+    "apps/simplify_human_skin_fat_boundary.py": {
+      "source_path": "/Users/numi/Work/skin-fat-native-integration-209/apps/simplify_human_skin_fat_boundary.py",
+      "sha256": "72f3845f7e15a0abcf175d53fbcbc9d11d909b01a6f3dba774e5190e41e0e2f5",
+      "bytes": 14219
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/verify_joint_boundary_rebuild_64.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/verify_joint_boundary_rebuild_64.py",
+      "sha256": "91e09dc91a02dec39325446c10ea75e34007f1a232ddfb3e8d1b0f58160cfe74",
+      "bytes": 4046
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/bridge_joint_role_volumes_64.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/bridge_joint_role_volumes_64.py",
+      "sha256": "030e7477883f4ffee0987820ac95bf1ccfee536c0a1a2b40244da3972bdedfaa",
+      "bytes": 5411
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/compile_joint64.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/compile_joint64.py",
+      "sha256": "bb711b6529d427581cc7025d1b6c292496a26cdd34d4676552ba70a68421a205",
+      "bytes": 6281
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/compile_joint64_p1.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/compile_joint64_p1.py",
+      "sha256": "7f5edd1f2f45e2cf6c7acdf604d55713e384fdfe1ddd5902392d3fbf3aff2686",
+      "bytes": 3318
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/compile_joint64_export.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/compile_joint64_export.py",
+      "sha256": "6de19b03b66b6ef04d3695481d865d7e9b6f1ba78a9f8402d62b911c959b71cb",
+      "bytes": 5418
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/export_joint64_assets.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/export_joint64_assets.py",
+      "sha256": "4c458cfa19fbf6c85fbe4147b693ce440230b955ceed62e13da32dade28a349e",
+      "bytes": 4270
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/rebind_joint64_mass_support.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/rebind_joint64_mass_support.py",
+      "sha256": "fbaf7c679f816cf77ef58b08eeaad7b7bb13ffdda8a31b43bbbe7df60137a869",
+      "bytes": 12971
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/rebind_joint64_registration.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/rebind_joint64_registration.py",
+      "sha256": "10a788f701a6ed5168206e036d322f4389d362538d67725e0e2ba522bdbca086",
+      "bytes": 4412
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/rebind_joint64_semantics.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/rebind_joint64_semantics.py",
+      "sha256": "7a9914afb1105a7b197766b05a24ce1c9871d9058bc9674d899c4b9185956c26",
+      "bytes": 4075
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/prepare_joint64_bindings.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/prepare_joint64_bindings.py",
+      "sha256": "f7404d6d2a7f87851a1d5e52591a64d7569c2078aa420d13ad3eed9e2773cfc7",
+      "bytes": 4465
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/prepare_joint64_mass_admission.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/prepare_joint64_mass_admission.py",
+      "sha256": "ef76af6da32cc1560dad00251dddfaf72e2ef73ac296c3fe1c05af48c330d2fd",
+      "bytes": 10733
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/allocate_joint64_mass.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/allocate_joint64_mass.py",
+      "sha256": "aa9d3602c4d47cf92bee244b901e3b1848b03a139fd400fa48d2ab4a80c91784",
+      "bytes": 3792
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/convert_joint64_mass.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/convert_joint64_mass.py",
+      "sha256": "9e10c41f372e2c6d9c36bdc444ebdb8b975044e557472d04d5e75b612a44e811",
+      "bytes": 3894
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/prepare_joint64_native.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/prepare_joint64_native.py",
+      "sha256": "b7dc56bdac88d9ad172e740e66e075f411c69f3c4118ef0960990a0704a20008",
+      "bytes": 8403
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/qualify_joint64_source.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/qualify_joint64_source.py",
+      "sha256": "79228c47cc68760ab029ba091b091858155c70ff7e5d04d512bd24ab912c427e",
+      "bytes": 7225
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/compare_remeshed_native_310.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/compare_remeshed_native_310.py",
+      "sha256": "0181dd99e2dc5c9c47c0e9c725d6762edee5dd41ca2bd4329f328e42a85d2902",
+      "bytes": 8564
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/test_compare_remeshed_native_310.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/test_compare_remeshed_native_310.py",
+      "sha256": "c27e1ab46ea9b54a6135ba1817b075115ca5cf518e99e7f476c5e88c5dd0e586",
+      "bytes": 3901
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/check_native_mass_locality_310.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/check_native_mass_locality_310.py",
+      "sha256": "26755f476d93bad4e0421536816b513f67d93dae352d31e45ab5627450ce4a09",
+      "bytes": 2507
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/executed-adapters/typed-adapter/active-current-volume.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/typed-adapter/active-current-volume.py",
+      "sha256": "24936aadd39b75b20254375c15547eb7f1761bd17835a6403dc81d9317fb8d9f",
+      "bytes": 27900
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/executed-adapters/typed-adapter/audit-role-orientation.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/typed-adapter/audit-role-orientation.py",
+      "sha256": "60d3e6f64a5fbc33ea24c7b8baeb6242d5b547bfde366c86db2a7e38754abb11",
+      "bytes": 8699
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/executed-adapters/typed-adapter/signed-current-volume.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/typed-adapter/signed-current-volume.py",
+      "sha256": "896cd65d8e375330427e8d5776bbc6f03f1c244a3a75017cf38f9064de6325ac",
+      "bytes": 43166
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/executed-adapters/typed-adapter/typed-current-schema.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/typed-adapter/typed-current-schema.py",
+      "sha256": "1d734c4c69068ba48a78face65955a1cd31b4d2ecc419dbe872d4ce1d5129166",
+      "bytes": 11935
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/executed-adapters/bindings/dominant-frames.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/bindings/dominant-frames.py",
+      "sha256": "d62732554990fdd4d26a552df3ac59aa37ae8b324726d711782c6aad53aac0d8",
+      "bytes": 5137
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/executed-adapters/bindings/remap-attachments.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/bindings/remap-attachments.py",
+      "sha256": "bdf6f300486142bbd6ec410ef42654e51c951e7d81ade58d3d64346eb9f9626b",
+      "bytes": 5973
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/executed-adapters/bindings/restore-registration.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/bindings/restore-registration.py",
+      "sha256": "2cfaa0bf70ae6ba739178070303cb71e66de5fc3f9f9d17fad4417460b37b333",
+      "bytes": 2583
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/scripts/executed-adapters/mass-admission/build_current_fractional_mass_receipt_1061.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-admission/build_current_fractional_mass_receipt_1061.py",
+      "sha256": "c4495a4df3c82ad4fb2ef925c633b6f086cc36fb56bd12ea4b9057718bfa8e0a",
+      "bytes": 13802
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/geometry/proposal-report.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/report.json",
+      "sha256": "bddc717cfd7dcb08535e04a9674bc8acc887d2d067706ea489ae1544d8f197ba",
+      "bytes": 1206996
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/geometry/independent-checks.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/verification-310-source/independent-checks.json",
+      "sha256": "82f384681f8a61c1720f1798e2c83ac298548e84b33b262f6de887ff74600cd6",
+      "bytes": 768
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/geometry/verification-execution.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/verification-310-source/execution.json",
+      "sha256": "fecf794a84ea3f8821087f0f0a6c7e52af35411d46aef5c498700c958ddeedaa",
+      "bytes": 430
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/geometry/full-context-report.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/full-context/report.json",
+      "sha256": "fee78698ed1d066f5cd96fab719e5a6f0427f96563fe3b9232fe5018df55dbd6",
+      "bytes": 291307
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/compiler/signed-face-controls.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/signed-face-controls-receipt.json",
+      "sha256": "292fc03aa97b906eebfb1053a97d0e082417993855b528749e5e4a34f628dedf",
+      "bytes": 2323
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/compiler/source-geometry-admission.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/source-geometry-admission-001.json",
+      "sha256": "cdc478c8931b6e0957072b00d77e786e41f3fe5b01af8452cf522026521ce3a3",
+      "bytes": 16392
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/compiler/export-driver-source-replay.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/export-driver-source-replay.json",
+      "sha256": "ce35bf4d5bce3e1e1ddddd9b62ae985f861d28ffbb1e55dc76861347849b5fe9",
+      "bytes": 633
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/compiler/source-domain-checks.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/bindings/source-domain-checks.json",
+      "sha256": "612013f2427d67d7ce31f7e7be86e85593b0376bff739ce990863e086f2c1817",
+      "bytes": 641
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/compiler/bindings-receipt.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/bindings/receipt.json",
+      "sha256": "393a9f648866f0648b27790ac420dc667253ea343ff28d8c07bf1c7c024fde56",
+      "bytes": 11694
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/compiler/mass-receipt.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-admission/mass-receipt.json",
+      "sha256": "749896b9c57ec85b2be11247f0c7a21c9817c466957f35e6856648bfc328e8ad",
+      "bytes": 14817
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/compiler/mass-allocation-execution.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-allocation/execution.json",
+      "sha256": "b616d8a93edc018ab199956164c0d63f6400ae1aab98489c561faba040e005f3",
+      "bytes": 558
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/compiler/converter-execution.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/converter/execution.json",
+      "sha256": "b03a79779d4b79095958d80f34be702a5029b8007e4df66f2ac80eec48cec349",
+      "bytes": 370
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/comparison.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-310-comparison.json",
+      "sha256": "a21fa8c29e5b56382628d1b4081cbed5159c77609b0cec67e20f9803afc80aa8",
+      "bytes": 316758
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/postpass-controls.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-310-postpass-controls.json",
+      "sha256": "8e4f218ad90cf6b4555b12e30b87331efcd32475050b99f704ec9e1df8e4fd5e",
+      "bytes": 791
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/fidelity-witnesses.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-310-fidelity-witnesses.json",
+      "sha256": "aea0bad89df66ec6727b483872c51abb1a71bbc20c460bee3821b57c5f283e0d",
+      "bytes": 9170
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/mass-locality.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-310-mass-locality.json",
+      "sha256": "2a21e29304521bdacccd5aeb1b3f87980b17536253512b0ef938b61a7b2a4493",
+      "bytes": 14452
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/coordinate-restoration.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-310-coordinate-restoration.json",
+      "sha256": "5ba6ee1dd2b9110943a218a6177d126a48dfff654f55d1a8d05676b38f2b0910",
+      "bytes": 438
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/postpass-failure-001.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-310-comparison-failure-001.json",
+      "sha256": "db72fd380b883e914e7cbb691166daca28b9bb6de052d2123bac29415ce46f6f",
+      "bytes": 320
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/resources/cache-cleanup.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/cold-gpu-cache-cleanup-310.json",
+      "sha256": "67063483be0ef84ad8565ac86e62437ca1eef50fe412bdd8e900a1cdc83e6628",
+      "bytes": 3990149
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/trial308/install-motion.plan.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-308/install-motion.plan.json",
+      "sha256": "557ee54a9f1d6d14a228fc28c8514ab62c60f49ba521bc5eab6ff82d0d0300f8",
+      "bytes": 91043
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/trial308/install-motion.execution.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-308/install-motion.execution.json",
+      "sha256": "a993103816f553e93bd5f83f198caf227e92a39100c78dda2a2440d90a0e2aeb",
+      "bytes": 881
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/trial308/resource-policy.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-308/resource-policy.json",
+      "sha256": "76b09722e89d41b3e7f427364c1942bf0c9f25cf709907d2bdb66df96fa1aa32",
+      "bytes": 352
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/trial308/resource-monitor.jsonl": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-308/resource-monitor.jsonl",
+      "sha256": "c17f7aaa3b560440eb5fca3314a2c83215773dcdc71816159f564bc5b7bfdd2a",
+      "bytes": 230
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/trial308/run_native_plan.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-308/run_native_plan.py",
+      "sha256": "20b3f2168932125c64916b04c6c8acafbc8d859e8c29194f178b6a9f776ea7d8",
+      "bytes": 5889
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/trial309/install-motion.plan.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-309/install-motion.plan.json",
+      "sha256": "1b0c570a40a05e8026db96a64893dc72ed9853f75c86f4c5c4776010902cd767",
+      "bytes": 91804
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/trial309/install-motion.execution.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-309/install-motion.execution.json",
+      "sha256": "327e64a95ffa71e526dda0c64e48dc57a4242fce445026523a8410e0f9205053",
+      "bytes": 896
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/trial309/resource-policy.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-309/resource-policy.json",
+      "sha256": "76b09722e89d41b3e7f427364c1942bf0c9f25cf709907d2bdb66df96fa1aa32",
+      "bytes": 352
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/trial309/resource-monitor.jsonl": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-309/resource-monitor.jsonl",
+      "sha256": "48ce2c8bf69fd768219b2fe9d14e323be327e2ae034ff45d002030e93c5b99a1",
+      "bytes": 4187
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/trial309/run_native_plan.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-309/run_native_plan.py",
+      "sha256": "20b3f2168932125c64916b04c6c8acafbc8d859e8c29194f178b6a9f776ea7d8",
+      "bytes": 5889
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/trial310/install-motion.plan.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-310/install-motion.plan.json",
+      "sha256": "33f1b30ec960f8bad4f20d2f44237baa24a3b11d70cc5a2ccf68401ba7765d81",
+      "bytes": 92963
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/trial310/install-motion.execution.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-310/install-motion.execution.json",
+      "sha256": "9baa8272074c3f8c18681b12673051cc59ab7c2c160aa81dd52ca515afecaf67",
+      "bytes": 880
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/trial310/resource-policy.json": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-310/resource-policy.json",
+      "sha256": "1d4f1a8bc9ace7f86f649645e804b634f77c479e72c65bc1d061321680143d4c",
+      "bytes": 352
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/trial310/resource-monitor.jsonl": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-310/resource-monitor.jsonl",
+      "sha256": "a7532fe07df1a6e472ea61fe207f80b78e1e1a8a13162acffe0a722381e93cb8",
+      "bytes": 8623
+    },
+    "matter/tools/evidence/human-skin-fat-rebuild-64c-20261105/native/trial310/run_native_plan.py": {
+      "source_path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-native-310/run_native_plan.py",
+      "sha256": "2837929d111cda1d883763391d0c9845143631db453089a292662ca643dbcb25",
+      "bytes": 5883
+    }
+  },
+  "source_checkout": "/Users/numi/Work/skin-fat-native-integration-209",
+  "source_revision": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "execution_checkout_head": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+  "note": "Source snapshots/experiment receipts only. Large private anatomical NPZ/CSV inputs and native trace payloads stay pinned at their original protected SSH Numi paths. No general artifact schema or default scene admission added.",
+  "publication_base_revision": "3763ebe7936ed3a93b9fca4978594c3bc324254f"
+}

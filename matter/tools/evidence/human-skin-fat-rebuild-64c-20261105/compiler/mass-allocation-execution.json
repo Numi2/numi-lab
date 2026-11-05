@@ -1,0 +1,14 @@
+{
+  "returncode": 0,
+  "wall_s": 221.56906533241272,
+  "stdout": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-allocation/stdout.log",
+    "sha256": "a35b05cbc60cb7bc93e22f8e65a2f21800fa38ee9db5cbda14f2010fcb0844a2"
+  },
+  "stderr": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-allocation/stderr.log",
+    "sha256": "d30c2b95c760e6791f2659c4ef91f1503454a7139faec11e95e49ffb33ca67dc"
+  },
+  "physical_admission": false,
+  "native_steps": 0
+}

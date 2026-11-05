@@ -1,0 +1,10 @@
+{
+  "status": "PASS_SOURCE_GENERATOR_REPLAY",
+  "driver_path": "/Users/numi/Work/human-integrated-gaps-20261104/export_joint64_assets.py",
+  "driver_sha256": "4c458cfa19fbf6c85fbe4147b693ce440230b955ceed62e13da32dade28a349e",
+  "tested_adapter_sha256": "896cd65d8e375330427e8d5776bbc6f03f1c244a3a75017cf38f9064de6325ac",
+  "generated_adapter_byte_identical": true,
+  "all_runtime_shell_hash_checks_retained": true,
+  "native_scope": "adapter consumed by310 with32 accepted steps; source generator replay only, no second native trial",
+  "full_pipeline_reentrancy": "not claimed; outputs intentionally retained and not overwritten"
+}

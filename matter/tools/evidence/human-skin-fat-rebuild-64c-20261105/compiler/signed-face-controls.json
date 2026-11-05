@@ -1,0 +1,74 @@
+{
+  "schema": "numi.h706.current-433-signed-role-face-binding-controls.v1",
+  "status": "PASS",
+  "physical_admission": false,
+  "native_steps": 0,
+  "controls": [
+    {
+      "name": "valid_quotient_replay",
+      "status": "PASS"
+    },
+    {
+      "name": "stale_parent_hash",
+      "status": "PASS",
+      "rejection": "joint typed immediate parent pin mismatch"
+    },
+    {
+      "name": "duplicate_parent_face_row",
+      "status": "PASS",
+      "rejection": "joint typed immediate map domain mismatch"
+    },
+    {
+      "name": "out_of_domain_quotient",
+      "status": "PASS",
+      "rejection": "joint typed immediate map domain mismatch"
+    },
+    {
+      "name": "nonreplaying_winding",
+      "status": "PASS",
+      "rejection": "joint typed emitted faces do not replay their parent quotient"
+    },
+    {
+      "name": "O_signed_match",
+      "status": "PASS"
+    },
+    {
+      "name": "I_signed_match",
+      "status": "PASS"
+    },
+    {
+      "name": "D_signed_match",
+      "status": "PASS"
+    },
+    {
+      "name": "wrong_historical_ancestry",
+      "status": "PASS",
+      "rejection": "I 1022 face ancestry differs from pinned typed source"
+    },
+    {
+      "name": "wrong_anatomical_identity",
+      "status": "PASS",
+      "rejection": "I shell face ID row map differs from typed source"
+    },
+    {
+      "name": "missing_face",
+      "status": "PASS",
+      "rejection": "I 1022 registered source triangles are not exact typed row order"
+    },
+    {
+      "name": "duplicate_face",
+      "status": "PASS",
+      "rejection": "I 1022 registered source triangles are not exact typed row order"
+    },
+    {
+      "name": "wrong_asset_hash",
+      "status": "PASS",
+      "rejection": "I current typed SHA mismatch"
+    }
+  ],
+  "sources": {
+    "/Users/numi/Work/human-integrated-gaps-20261104/qualify_joint64_source.py": "79228c47cc68760ab029ba091b091858155c70ff7e5d04d512bd24ab912c427e",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/typed-adapter/typed-current-schema.py": "1d734c4c69068ba48a78face65955a1cd31b4d2ecc419dbe872d4ce1d5129166",
+    "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/typed-adapter/audit-role-orientation.py": "60d3e6f64a5fbc33ea24c7b8baeb6242d5b547bfde366c86db2a7e38754abb11"
+  }
+}

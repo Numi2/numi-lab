@@ -1,0 +1,22 @@
+{
+  "status": "PASS_ANALYTIC_POSTPASS_CONTROLS",
+  "controls": [
+    "unit_tet_volume",
+    "affine_green_strain",
+    "strain_squared_measure",
+    "affine_J",
+    "tet_subdivision_invariance",
+    "integrated_force_subdivision_invariance",
+    "unlabeled_int16_namespace",
+    "singular_cell_rejected",
+    "inverted_state_rejected",
+    "native_f32_text_roundtrip",
+    "complete_capture_parser",
+    "duplicate_node_rejected",
+    "truncated_capture_rejected"
+  ],
+  "instrument_path": "/Users/numi/Work/human-integrated-gaps-20261104/compare_remeshed_native_310.py",
+  "instrument_sha256": "0181dd99e2dc5c9c47c0e9c725d6762edee5dd41ca2bd4329f328e42a85d2902",
+  "test_source_sha256": "c27e1ab46ea9b54a6135ba1817b075115ca5cf518e99e7f476c5e88c5dd0e586",
+  "physical_qualification": false
+}

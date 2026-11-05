@@ -1,0 +1,8 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 3.536098792013945,
+  "owner": "/Users/numi/Work/human-integrated-gaps-20261104/verify_joint_boundary_rebuild_64.py",
+  "source_candidate": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c",
+  "native_steps_separately_proven_by_trial310": 32,
+  "predicate_scope": "source topology/CSR/material/exact affected-cell sign; not complete containment or physical fidelity"
+}
