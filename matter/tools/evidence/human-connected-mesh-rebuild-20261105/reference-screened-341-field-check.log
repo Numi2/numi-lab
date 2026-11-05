@@ -1,0 +1,19 @@
+parsed matched-ccd-baseline-335 318974 1479479
+{
+  "status": "PASS_FULL_REBUILD_MATCHED_REFERENCE_FIELD",
+  "inputs": {
+    "/Users/numi/Work/human-integrated-gaps-20261104/matched-ccd-baseline-335/install-motion.stdout.log.gz": "81fadd1929293125448f74e51496a1394aa86a42608d03e01863a5eaeb9c7de4",
+    "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/candidate-volume.npz": "0909eac848a3560ba6e35ecdd8282880ecacbb4c9f707889a900c75d99034db0",
+    "/Users/numi/Work/human-integrated-gaps-20261104/reference-screened-interior-341/report.json": "37f15651c94a08ca523b39fb56322b3863a481cb795f2e234ceff61e1dc29b50"
+  },
+  "summary": {
+    "metrics": 282,
+    "over_5percent": 0,
+    "maximum_relative_change": 0.007308198725160568
+  },
+  "all_source_coordinates_exact": true,
+  "force_or_material_energy_qualification": false,
+  "native_candidate_executed": false,
+  "physical_admission": false,
+  "scope": "Independent whole-output recomputation using emitted original335 displacement and retained exact nodes. Uses geometric donor labels exactly as declared by the legacy native capture. Does not predict candidate trajectory, constitutive force, or material energy."
+}

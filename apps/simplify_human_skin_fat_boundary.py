@@ -216,8 +216,90 @@ def unchanged_cavity_boundary(old,new):
  """Exact integer incidence certificate; coordinates and existing positive-cell gates stay separate."""
  return oriented_tet_boundary(old)==oriented_tet_boundary(new)
 
+
+def load_reference_deformation(path, expected_sha, p, t, labels):
+ """Read a pinned native endpoint; admit only the exact source node/cell order."""
+ import gzip
+ if sha(path)!=expected_sha:raise ValueError("reference endpoint SHA mismatch")
+ nodes=[];u=[];globals_=[];cells=[];regions=[];header=None;closed=False;body=False
+ owner="BodyParts3D whole-body skin-fat bonded shell"
+ with gzip.open(path,"rt") as f:
+  for line in f:
+   if "resting_FEM_endpoint_capture=begin " in line:
+    header=dict(x.split("=",1) for x in line.split("resting_FEM_endpoint_capture=begin ",1)[1].split() if "=" in x)
+   elif line.startswith("resting_FEM_node,object="+owner+","):
+    d=dict(x.split("=",1) for x in line.strip().split(",")[1:])
+    globals_.append(int(d["global"]));r=np.array([d["rest_"+a] for a in "xyz"],np.float32);nodes.append(r)
+    mode=int(float(d["reference_mode"]))
+    if mode not in (0,1):raise ValueError("invalid reference coordinate mode")
+    u.append([float(np.float32(d["reference_u_hi_"+a]))+float(np.float32(d["reference_u_lo_"+a])) if mode else float(np.float32(d["accepted_"+a]))-float(r[j]) for j,a in enumerate("xyz")])
+   elif line.startswith("resting_FEM_tet,object="+owner+","):
+    d=dict(x.split("=",1) for x in line.strip().split(",")[1:])
+    cells.append([int(d["n"+str(j)]) for j in range(4)]);regions.append(int(d["anatomical_region_id"]))
+    if not np.isfinite(float(d["J"])) or float(d["J"])<=0:raise ValueError("invalid reference endpoint cell")
+   elif "resting_FEM_endpoint_capture=end" in line:closed=True
+   elif "resting_integrated_body=completed " in line:body=True
+ if not header or not closed or not body or header.get("coordinate_unit")!="m" or header.get("strain_unit")!="1":raise ValueError("incomplete or wrong-unit reference endpoint")
+ if len(nodes)!=len(p) or not np.array_equal(np.asarray(nodes,np.float32),p):raise ValueError("reference source node order/coordinates mismatch")
+ if globals_!=list(range(globals_[0],globals_[0]+len(p))):raise ValueError("reference source nodes must be contiguous")
+ if not np.array_equal(np.asarray(cells,np.int64)-globals_[0],t) or not np.array_equal(regions,labels[:,1]):raise ValueError("reference source cell order/regions mismatch")
+ u=np.asarray(u,float)
+ if not np.all(np.isfinite(u)):raise ValueError("nonfinite reference displacement")
+ return u,dict(path=str(path),sha256=expected_sha,header=header,exact_source_nodes=len(p),exact_source_cells=len(t),native_capture_region_semantics="geometric_donor_body (legacy capture key anatomical_region_id)")
+
+class ReferenceDeformationGate:
+ """Initialization-only strain screen. No material-energy or motion admission."""
+ def __init__(self,p,t,u,regions,receipt):
+  self.p=p;self.u=u;self.regions=regions;self.receipt=receipt;self.rejected=[];self.rejected_count=0;self.checked=0
+  self.norm=np.zeros(len(t));self.vol=np.zeros(len(t))
+  for start in range(0,len(t),8192):
+   stop=min(start+8192,len(t));self.norm[start:stop],self.vol[start:stop]=self.evaluate(t[start:stop])
+  self.rows={int(r):np.flatnonzero(regions==r) for r in np.unique(regions)}
+  self.base={r:self.stats(rows) for r,rows in self.rows.items()};self.current={r:v.copy() for r,v in self.base.items()}
+ def evaluate(self,t):
+  r=self.p[t].astype(float);u=self.u[t];dm=np.swapaxes(r[:,1:]-r[:,:1],1,2);du=np.swapaxes(u[:,1:]-u[:,:1],1,2)
+  f=np.eye(3)+du@np.linalg.inv(dm);j=np.linalg.det(f)
+  if not np.all(np.isfinite(j)) or np.any(j<=0):raise ValueError("reference deformation inverts a proposed cell")
+  e=(np.swapaxes(f,1,2)@f-np.eye(3))*.5
+  return np.linalg.norm(e,axis=(1,2)),np.abs(np.linalg.det(dm))/6
+ def stats(self,rows):
+  n=self.norm[rows];v=self.vol[rows]
+  return np.array([(v*n).sum(),(v*n*n).sum(),n.max()])
+ def propose(self,rows,new,live):
+  self.checked+=1
+  try:n,v=self.evaluate(new[live])
+  except (ValueError,np.linalg.LinAlgError):
+   self.rejected_count+=1
+   if len(self.rejected)<32:self.rejected.append(dict(source_cell_rows=rows.tolist(),reason="reference_deformation_invalid"))
+   return None
+  oldn=self.norm[rows].copy();oldv=self.vol[rows].copy();self.norm[rows]=0;self.vol[rows]=0
+  self.norm[rows[live]]=n;self.vol[rows[live]]=v
+  proposed={int(r):self.stats(self.rows[int(r)]) for r in np.unique(self.regions[rows])}
+  self.norm[rows]=oldn;self.vol[rows]=oldv
+  failures=[]
+  for r,values in proposed.items():
+   base=self.base[r];bad=np.abs(values-base)>.05*np.abs(base)
+   if np.any(bad):failures.append(dict(region=r,baseline=base.tolist(),proposed=values.tolist(),failed_metric_indices=np.flatnonzero(bad).tolist()))
+  if failures:
+   self.rejected_count+=1
+   if len(self.rejected)<32:self.rejected.append(dict(source_cell_rows=rows.tolist(),failures=failures))
+   return None
+  return n,v,proposed
+ def commit(self,rows,live,proposal):
+  n,v,proposed=proposal;self.norm[rows]=0;self.vol[rows]=0;self.norm[rows[live]]=n;self.vol[rows[live]]=v;self.current.update(proposed)
+ def report(self):
+  return dict(scope="Pinned endpoint kinematic strain screen only; native force, material energy, motion and conservative mass qualification remain required",
+              threshold_relative=.05,metrics=["volume_weighted_strain_norm","volume_weighted_strain_squared","maximum_green_strain_norm"],
+              source=self.receipt,checked_operations=self.checked,rejected_operations=self.rejected_count,
+              failure_witnesses=self.rejected,
+              baseline={str(r):v.tolist() for r,v in self.base.items()},
+              accepted={str(r):v.tolist() for r,v in self.current.items()},physical_admission=False)
+
+
 def main():
- ap=argparse.ArgumentParser();ap.add_argument("--output",type=Path,required=True);ap.add_argument("--seconds",type=float,default=180);ap.add_argument("--max-operations",type=int,default=2048);ap.add_argument("--maximum-edge-m",type=float,default=.0001);ap.add_argument("--replay-report",type=Path);ap.add_argument("--exclude-operation-rows",type=Path);ap.add_argument("--reference-flow-csv",type=Path);ap.add_argument("--reference-flow-sha256");ap.add_argument("--passes",type=int,default=1);ap.add_argument("--bone-barriers",action="store_true");ap.add_argument("--interior-only",action="store_true");ap.add_argument("--attachment-requests-csv",type=Path);ap.add_argument("--attachment-requests-sha256");a=ap.parse_args()
+ ap=argparse.ArgumentParser();ap.add_argument("--output",type=Path,required=True);ap.add_argument("--seconds",type=float,default=180);ap.add_argument("--max-operations",type=int,default=2048);ap.add_argument("--maximum-edge-m",type=float,default=.0001);ap.add_argument("--replay-report",type=Path);ap.add_argument("--exclude-operation-rows",type=Path);ap.add_argument("--reference-flow-csv",type=Path);ap.add_argument("--reference-flow-sha256");ap.add_argument("--passes",type=int,default=1);ap.add_argument("--bone-barriers",action="store_true");ap.add_argument("--interior-only",action="store_true");ap.add_argument("--attachment-requests-csv",type=Path);ap.add_argument("--attachment-requests-sha256");ap.add_argument("--reference-endpoint-capture",type=Path);ap.add_argument("--reference-endpoint-sha256");a=ap.parse_args()
+ if bool(a.reference_endpoint_capture)!=bool(a.reference_endpoint_sha256):raise ValueError("reference endpoint path/SHA must be paired")
+ if a.reference_endpoint_capture and not a.interior_only:raise ValueError("reference deformation screening requires fixed interior-only coordinates")
  if bool(a.attachment_requests_csv)!=bool(a.attachment_requests_sha256):raise ValueError("attachment path/SHA must be paired")
  if a.passes<1 or a.seconds<=0 or a.max_operations<0 or not np.isfinite(a.maximum_edge_m) or a.maximum_edge_m<=0:raise ValueError("invalid construction budget")
  a.output.mkdir(parents=True,exist_ok=False);shutil.copy2(__file__,a.output/"executed-runner.py");start=time.monotonic()
@@ -255,6 +337,10 @@ def main():
    input_cell_mass=cell_mass.copy()
   assert all(np.all(rawlabs[pr[po[i]:po[i+1]]]==labs[len(kept)+i]) for i in range(len(new)))
  det,q=measure(p,t);assert np.all((det/6>1e-18)&(q>=np.float32(1e-5)))
+ deformation_gate=None
+ if a.reference_endpoint_capture:
+  reference_u,reference_receipt=load_reference_deformation(a.reference_endpoint_capture,a.reference_endpoint_sha256,p,t,labs)
+  deformation_gate=ReferenceDeformationGate(p,t,reference_u,labs[:,1],reference_receipt)
  getcells=incidence(t,len(p));alive=np.ones(len(t),bool);used=set();reject=collections.Counter();ops=[]
  raw={r:dict(np.load(path,allow_pickle=False)) for r,path in S.items()}
  faces={r:maps[r][raw[r]["faces"]] for r in S};assert all(np.all(f>=0) for f in faces.values())
@@ -375,6 +461,10 @@ def main():
     good_coarsening=oldq.min()>=.001 and nq.min()>=.001 and int((~live).sum())>0
     conditioning_gain=nq.min()>=oldq.min() and cost(nq)<cost(oldq)-1e-6
     if not (good_coarsening or conditioning_gain):reject["no_conditioning_gain"]+=1;continue
+    deformation_proposal=None
+    if deformation_gate:
+     deformation_proposal=deformation_gate.propose(rows,n,live)
+     if deformation_proposal is None:reject["reference_deformation_fidelity"]+=1;continue
     proposed_mass=None
     if cell_mass is not None:
      try:
@@ -403,6 +493,7 @@ def main():
     # Retained source cell ancestry is a union, not a nearest-cell guess.
     parents=np.unique(np.concatenate([original_parents[i] for i in rows]))
     for i in rows[live]:original_parents[int(i)]=parents[om[parents]==labs[i,0]]
+    if deformation_gate:deformation_gate.commit(rows,live,deformation_proposal)
     t[rows]=n;alive[rows[~live]]=False;q[rows[live]]=nq;det[rows[live]]=nd
     if proposed_mass is not None:cell_mass[rows[live]]=proposed_mass
     for r,(fr,nf,fl) in affected.items():faces[r][fr]=nf;fa[r][fr[~fl]]=False
@@ -462,6 +553,7 @@ def main():
    "unchanged_cells":int(unchanged.sum()),"unchanged_cell_masses_exact":True,
    "source_flow_and_donor_composition":"PENDING_EXISTING_CONSERVATIVE_COMPILER",
    "proposal_path":str(a.output/"local-child-mass-proposal.csv")}
+ if deformation_gate:report["reference_deformation_screen"]=deformation_gate.report()
  (a.output/"report.json").write_text(json.dumps(report,indent=2)+"\n")
  print(json.dumps({k:v for k,v in report.items() if k!="operations"}),flush=True)
 if __name__=="__main__":main()

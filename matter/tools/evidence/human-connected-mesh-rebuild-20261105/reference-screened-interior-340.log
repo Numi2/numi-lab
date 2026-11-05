@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/skin-fat-native-integration-209/apps/simplify_human_skin_fat_boundary.py", line 559, in <module>
+    if __name__=="__main__":main()
+                            ~~~~^^
+  File "/Users/numi/Work/skin-fat-native-integration-209/apps/simplify_human_skin_fat_boundary.py", line 342, in main
+    reference_u,reference_receipt=load_reference_deformation(a.reference_endpoint_capture,a.reference_endpoint_sha256,p,t,labs)
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/Work/skin-fat-native-integration-209/apps/simplify_human_skin_fat_boundary.py", line 245, in load_reference_deformation
+    if not np.array_equal(np.asarray(cells,np.int64)-globals_[0],t) or not np.array_equal(regions,labels[:,2]):raise ValueError("reference source cell order/regions mismatch")
+                                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: reference source cell order/regions mismatch

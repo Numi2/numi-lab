@@ -1,0 +1,15 @@
+test_affine_restriction (__main__.Mapping.test_affine_restriction) ... ok
+test_changed_constraint_rejected (__main__.Mapping.test_changed_constraint_rejected) ... ok
+test_coincident_changed_topology_rejected (__main__.Mapping.test_coincident_changed_topology_rejected) ... ok
+test_coincident_nodes_unchanged (__main__.Mapping.test_coincident_nodes_unchanged) ... ok
+test_duplicate_mass_change_rejected (__main__.Mapping.test_duplicate_mass_change_rejected) ... ok
+test_identity (__main__.Mapping.test_identity) ... ok
+test_missing_coordinate_rejected (__main__.Mapping.test_missing_coordinate_rejected) ... ok
+test_reordered_nodes (__main__.Mapping.test_reordered_nodes) ... ok
+test_wrong_owner_rejected (__main__.Mapping.test_wrong_owner_rejected) ... ok
+test_wrong_region_rejected (__main__.Mapping.test_wrong_region_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.036s
+
+OK

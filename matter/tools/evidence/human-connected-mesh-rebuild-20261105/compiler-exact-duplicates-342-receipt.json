@@ -1,0 +1,35 @@
+{
+  "status": "PASS_EXACT_BYTE_DEDUP_ALL_PATHS_PRESERVED",
+  "actions": [
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/volume/mesh.ele",
+      "canonical": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/handoff938/skin-fat-combined.ele",
+      "sha256": "6136b78c002ccbb69232837206b33fdaae506c4678983443308feccbf17ad33b",
+      "bytes": 53342423,
+      "old_inode": 6948046,
+      "new_inode": 6947833,
+      "old_mtime_ns": 1793903725764303979
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/p1-export/child.labels.csv",
+      "canonical": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/volume/child.labels.csv",
+      "sha256": "399dea9a4a7ce4baf87ae3211ba738d76cf3232f8a674605fd491a0f1fd08980",
+      "bytes": 33143825,
+      "old_inode": 6947883,
+      "new_inode": 6948051,
+      "old_mtime_ns": 1793903614486881813
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/rich433/candidate-canonical-f32.node",
+      "canonical": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/volume/mesh.node",
+      "sha256": "79702eca9e34e44087166d1080ededa89948dbf70377800c48b8099f38d21863",
+      "bytes": 21376846,
+      "old_inode": 6948034,
+      "new_inode": 6948045,
+      "old_mtime_ns": 1793903692285940367
+    }
+  ],
+  "free_before": 16985710592,
+  "free_after": 17093607424,
+  "source_paths_removed": 0
+}
