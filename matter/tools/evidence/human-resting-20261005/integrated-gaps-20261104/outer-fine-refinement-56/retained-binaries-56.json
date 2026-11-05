@@ -1,0 +1,39 @@
+{
+  "files": [
+    {
+      "original": "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native",
+      "retained": "/Users/numi/Work/human-integrated-gaps-20261104/build-56-retained/0-numi-human-native",
+      "bytes": 10556464,
+      "sha256": "3900d587e78526d70157f864ba438a48acf48b652fd873e6542319ebf3e2bc8a",
+      "copy": "verified APFS clone"
+    },
+    {
+      "original": "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib",
+      "retained": "/Users/numi/Work/human-integrated-gaps-20261104/build-56-retained/1-libmetalrobo.dylib",
+      "bytes": 10517552,
+      "sha256": "03568fc1a1637fa8f971d3193654a43d338978d88d3ecb507898bd737d791f61",
+      "copy": "verified APFS clone"
+    },
+    {
+      "original": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib",
+      "retained": "/Users/numi/Work/human-integrated-gaps-20261104/build-56-retained/2-NumiMatter.metallib",
+      "bytes": 31484610,
+      "sha256": "fb088d7061f0aea46dd0a994295fffe28dbc96d11cc663861e111a803fe4c741",
+      "copy": "verified APFS clone"
+    },
+    {
+      "original": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib",
+      "retained": "/Users/numi/Work/human-integrated-gaps-20261104/build-56-retained/3-HumanRespiration.metallib",
+      "bytes": 560736,
+      "sha256": "880f60be6eb17b6af781665c6016c6d050da069685fcf1e8e2cafda0fc2115c8",
+      "copy": "verified APFS clone"
+    },
+    {
+      "original": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-driver-pipelines.metalar",
+      "retained": "/Users/numi/Work/human-integrated-gaps-20261104/build-56-retained/4-native-driver-pipelines.metalar",
+      "bytes": 1079436000,
+      "sha256": "35d97362cc30a47509931a69ac38375f08bff29468e0969814e8e9df4466eb01",
+      "copy": "verified APFS clone"
+    }
+  ]
+}

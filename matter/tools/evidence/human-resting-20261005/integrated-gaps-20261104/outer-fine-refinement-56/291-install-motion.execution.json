@@ -1,0 +1,16 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 360.99950194358826,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/assembled-direct-native-291/install-motion.plan.json",
+  "plan_sha256": "6a800a48a547b248914673c22d6c925dfd881afc8dfb19dc9d598a7d96bfb3d5",
+  "stdout_path": "/Users/numi/Work/human-integrated-gaps-20261104/assembled-direct-native-291/install-motion.stdout.log.gz",
+  "stdout_encoding": "gzip",
+  "stdout_compressor_exit_code": 0,
+  "stdout_sha256": "ca148bf5384bdd323c4fa4d90ebb38bc2ae641fa0424c047268661c6c76896a4",
+  "stdout_uncompressed_sha256": "6526542ab7c16195c955f394dfdf2005227df28c1a8be6293d15101a94710ec0",
+  "stderr_sha256": "32247b25d81ba885a6e33950d877f0daceecd29ff26e1891cdf9e089b13f35dd",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": true,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

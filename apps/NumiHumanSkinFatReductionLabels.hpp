@@ -2432,6 +2432,30 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
         }
         Candidate activeCandidate = std::move(combined);
         auto activePayload = std::move(payload);
+        // Selection carries the complete fine complement forward. The
+        // registered outer rows are installed implicitly by keepSkinLayerZeroFine;
+        // they are not new residual promotions. Strip only that exact protected
+        // inventory from the recursive argument, retaining it in selectedFineRows
+        // for the post-rebuild inclusion and reduction-budget checks.
+        std::vector<std::uint32_t> protectedOuterFineRows;
+        if (keepSkinLayerZeroFine && !embedContactBoundary) {
+            std::vector<std::uint32_t> localRows;
+            if (!collectRegisteredSkinOuterFineRows(
+                    skinLabels, skinSource.femNodes.size(), localRows, error)) {
+                activeCandidate.error = activeCandidate.basis.error = error;
+                return activeCandidate;
+            }
+            const auto offset = world.objects[skinObjectIndex].stateOffset;
+            for (const auto local : localRows) {
+                if (offset > std::numeric_limits<std::uint32_t>::max() - local) {
+                    error = "protected outer fine row exceeds the compiled FEM index range";
+                    activeCandidate.error = activeCandidate.basis.error = error;
+                    return activeCandidate;
+                }
+                protectedOuterFineRows.push_back(offset + local);
+            }
+            std::sort(protectedOuterFineRows.begin(), protectedOuterFineRows.end());
+        }
         std::vector<std::uint32_t> existingFineRows;
         std::size_t cumulativeAddedRows = 0u;
         for (std::size_t stage = 0u; stage < witnesses.size(); ++stage) {
@@ -2486,10 +2510,14 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
             activeCandidate = Candidate{};
             activePayload = numi::matter::detail::HumanPartitionedPreconditionerSource{};
 
+            std::vector<std::uint32_t> residualPromotionRows;
+            std::set_difference(selectedFineRows.begin(), selectedFineRows.end(),
+                                protectedOuterFineRows.begin(), protectedOuterFineRows.end(),
+                                std::back_inserter(residualPromotionRows));
             numi::matter::detail::HumanPartitionedPreconditionerSource rebuiltPayload;
             Candidate refined = buildAndInstallRegisteredSkinFatOpticPreconditioner(
                 world, skinObjectIndex, skinLabels, skinSource, opticObjects,
-                false, massWhiten, error, keepSkinLayerZeroFine, selectedFineRows,
+                false, massWhiten, error, keepSkinLayerZeroFine, residualPromotionRows,
                 requestedFactor, false, embedContactBoundary, &rebuiltPayload,
                 opticLongitudinalBinCount);
             if (!refined.valid()) return refined;

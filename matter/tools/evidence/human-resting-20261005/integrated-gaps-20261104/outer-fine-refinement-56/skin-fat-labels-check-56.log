@@ -1,0 +1,8 @@
+human_hybrid_residual_selection={"schema":1,"stage":1,"stage_limit":2,"witness_candidates":1,"eligible_candidates":1,"after_region_cap":1,"selected_candidates":1,"dropped_by_global_cap":0,"global_cap":44,"available_fine_row_budget":3239,"global_cap_applied":false,"success":true}
+human_hybrid_residual_refinement={"schema":1,"stage":1,"stage_limit":2,"selected_new_rows":1,"added_fine_rows":1,"cumulative_added_fine_rows":1,"source_physics_fingerprint":"abcdef0123456789","witness_layout_fingerprint":"c5de84eb3497c962","rebuilt_minimum_reduction_factor":4}
+human_hybrid_residual_selection={"schema":1,"stage":1,"stage_limit":2,"witness_candidates":1,"eligible_candidates":1,"after_region_cap":1,"selected_candidates":1,"dropped_by_global_cap":0,"global_cap":44,"available_fine_row_budget":3239,"global_cap_applied":false,"success":true}
+human_hybrid_residual_refinement={"schema":1,"stage":1,"stage_limit":2,"selected_new_rows":1,"added_fine_rows":1,"cumulative_added_fine_rows":1,"source_physics_fingerprint":"abcdef0123456789","witness_layout_fingerprint":"6369a0660fdbe73b","rebuilt_minimum_reduction_factor":4}
+registered_outer_fine_policy=PASS retained_original_interiors=2 mapped_new_volume_interiors=3 corruptions_rejected=13
+typed_source_domain_metadata=PASS corruptions_rejected=13 source_role_namespaces=3
+outer_fine_rebuild=dense_and_sparse_pass protected_rows=retained duplicate_guard=unchanged physical_nodes_and_tets=bitwise
+registered_skin_fat_reduction_labels_check=pass

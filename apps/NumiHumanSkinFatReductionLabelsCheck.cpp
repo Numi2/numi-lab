@@ -1003,8 +1003,9 @@ void runCombinedOpticConsumerTest() {
 
     // Exercise the complete source-bound trace -> selection -> recompilation
     // path, including compact fine-row recovery and physical source retention.
+    for (const bool sparseRefinement : {false, true}) {
     numi::matter::detail::HumanPartitionedPreconditionerSource witnessPayload;
-    assert(::setenv("NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS","1",1)==0);
+    assert(::setenv("NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS",sparseRefinement?"1":"0",1)==0);
     const auto embeddedCompact=buildAndInstallRegisteredSkinFatOpticPreconditioner(
         compactWorld,0u,skinLabels,skin,
         std::span<const RegisteredOpticNerveReductionObject>(opticObjects),
@@ -1055,7 +1056,7 @@ void runCombinedOpticConsumerTest() {
     const char* oldTrace=std::getenv("NM_FEM_HYBRID_RESIDUAL_REFINEMENT_TRACE");
     const bool hadTrace=oldTrace!=nullptr;
     const std::string savedTrace=oldTrace==nullptr?std::string{}:std::string(oldTrace);
-    assert(::setenv("NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS","1",1)==0);
+    assert(::setenv("NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS",sparseRefinement?"1":"0",1)==0);
     assert(::setenv("NM_FEM_HYBRID_RESIDUAL_REFINEMENT_TRACE",tracePath,1)==0);
     auto refinedWorld=world;
     const auto refinedCompact=buildAndInstallRegisteredSkinFatOpticPreconditioner(
@@ -1070,7 +1071,8 @@ void runCombinedOpticConsumerTest() {
     if(!refinedCompact.valid())std::cerr<<"compact refinement fixture: "<<error<<'\n';
     assert(refinedCompact.valid() && error.empty());
     const auto& refinedPayload=refinedWorld.humanPartitionedPreconditioner;
-    assert(refinedPayload.sparseCoefficientEncoding && refinedPayload.basisValues.empty());
+    assert(refinedPayload.sparseCoefficientEncoding == sparseRefinement);
+    assert(refinedPayload.basisValues.empty() == sparseRefinement);
     assert(refinedPayload.globalFEMNodeIndices==witnessPayload.globalFEMNodeIndices);
     assert(refinedPayload.sourceWorldPhysicsFingerprint==witnessPayload.sourceWorldPhysicsFingerprint);
     assert(numi::matter::collectPartitionedFineCoordinateRows(refinedPayload,compactFine,error));
@@ -1079,6 +1081,71 @@ void runCombinedOpticConsumerTest() {
         witnessPayload.globalFEMNodeIndices[witnessRow]));
     for(std::uint32_t row=0;row<refinedWorld.fem.nodes.size();++row)
         assert(refinedWorld.fem.nodes[row].positionAndMass.w==sourceMasses[row]);
+
+    }
+
+    // Rebuild the exact-outer fine complement without reclassifying intrinsic O
+    // rows as new residual promotions. This tiny coupon cannot satisfy the
+    // production trace selector's global reduction budget with all optic
+    // contact rows fine; the full trace workflow is exercised above, and the
+    // source-bound Human trace qualifies that workflow with exact O boundaries.
+    for (const bool sparseRefinement : {false, true}) {
+        numi::matter::detail::HumanPartitionedPreconditionerSource outerPayload;
+        assert(::setenv("NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS",sparseRefinement?"1":"0",1)==0);
+        const auto outer = buildAndInstallRegisteredSkinFatOpticPreconditioner(
+            world,0u,skinLabels,skin,
+            std::span<const RegisteredOpticNerveReductionObject>(opticObjects),
+            false,false,error,true,{},4u,false,false,&outerPayload);
+        assert(outer.valid() && error.empty());
+        std::vector<std::uint32_t> completeFineRows;
+        assert(numi::matter::collectPartitionedFineCoordinateRows(
+            outerPayload,completeFineRows,error));
+        std::uint32_t promoted=NM_INVALID_INDEX;
+        const auto support=numi::matter::buildPartitionedReductionSparseSupport(outerPayload);
+        assert(support.valid());
+        for(std::uint32_t row=0;row<outerPayload.basisNodeCount;++row) {
+            if(support.nodeModeRanges[row].count!=0u) {
+                promoted=outerPayload.globalFEMNodeIndices[row];break;
+            }
+        }
+        assert(promoted!=NM_INVALID_INDEX);
+        completeFineRows.push_back(promoted);
+        std::sort(completeFineRows.begin(),completeFineRows.end());
+        std::vector<std::uint32_t> protectedOuterRows,residualPromotionRows;
+        assert(collectRegisteredSkinOuterFineRows(
+            skinLabels,skin.femNodes.size(),protectedOuterRows,error));
+        assert(!protectedOuterRows.empty());
+        for(auto& row : protectedOuterRows) row+=world.objects[0].stateOffset;
+        std::sort(protectedOuterRows.begin(),protectedOuterRows.end());
+        std::set_difference(completeFineRows.begin(),completeFineRows.end(),
+                            protectedOuterRows.begin(),protectedOuterRows.end(),
+                            std::back_inserter(residualPromotionRows));
+        auto outerRefinedWorld=world;
+        const auto rebuilt=buildAndInstallRegisteredSkinFatOpticPreconditioner(
+            outerRefinedWorld,0u,skinLabels,skin,
+            std::span<const RegisteredOpticNerveReductionObject>(opticObjects),
+            true,false,error,true,residualPromotionRows,2u,false,false);
+        assert(rebuilt.valid() && error.empty());
+        if(hadSparse) assert(::setenv("NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS",savedSparse.c_str(),1)==0);
+        else assert(::unsetenv("NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS")==0);
+        const auto& rebuiltPayload=outerRefinedWorld.humanPartitionedPreconditioner;
+        assert(rebuiltPayload.sparseCoefficientEncoding == sparseRefinement);
+        assert(rebuiltPayload.sourceWorldPhysicsFingerprint==outerPayload.sourceWorldPhysicsFingerprint);
+        assert(numi::matter::collectPartitionedFineCoordinateRows(rebuiltPayload,compactFine,error));
+        assert(std::includes(compactFine.begin(),compactFine.end(),
+                             completeFineRows.begin(),completeFineRows.end()));
+        assert(std::memcmp(outerRefinedWorld.fem.nodes.data(),world.fem.nodes.data(),
+                           world.fem.nodes.size()*sizeof(world.fem.nodes[0]))==0);
+        assert(std::memcmp(outerRefinedWorld.fem.tetrahedra.data(),world.fem.tetrahedra.data(),
+                           world.fem.tetrahedra.size()*sizeof(world.fem.tetrahedra[0]))==0);
+        const std::array<std::uint32_t,1> malformedPromotion{protectedOuterRows.front()};
+        const auto rejected=buildAndInstallRegisteredSkinFatPreconditioner(
+            outerRefinedWorld,0u,skinLabels,skin,false,false,error,true,malformedPromotion);
+        assert(!rejected.valid() && error.find("overlaps a protected skin row")!=std::string::npos);
+    }
+    std::cout<<"outer_fine_rebuild=dense_and_sparse_pass "
+             <<"protected_rows=retained duplicate_guard=unchanged "
+             <<"physical_nodes_and_tets=bitwise\n";
 
     auto opticOnlyWorld = world;
     const char* previousOpticOnlySetting =

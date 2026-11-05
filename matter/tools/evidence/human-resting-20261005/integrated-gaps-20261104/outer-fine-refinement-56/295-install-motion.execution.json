@@ -1,0 +1,16 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 275.7447941303253,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/outer-fine-hybrid-refined-295/install-motion.plan.json",
+  "plan_sha256": "0fbf154448b3dffce7251745217ca13f75bbfaa14d5c331ea68a37a03d5c3460",
+  "stdout_path": "/Users/numi/Work/human-integrated-gaps-20261104/outer-fine-hybrid-refined-295/install-motion.stdout.log.gz",
+  "stdout_encoding": "gzip",
+  "stdout_compressor_exit_code": 0,
+  "stdout_sha256": "60756f195aecb1948b9c50ba6437cdc56f4fa31efe2dd89f8d0bb6816250ecce",
+  "stdout_uncompressed_sha256": "960ea62069cdf23bf676aa15cd86c39d28e2a0b63cd361e0ed4b88f487e25061",
+  "stderr_sha256": "c88c45b17163557223e8efb180b577807550ec8c54dd04dc065a1185dc272f3b",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": true,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

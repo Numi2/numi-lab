@@ -434,3 +434,7 @@ second recovers 642,596,864 bytes (0.60 GiB). Sources, mass mapping, current
 assets and failed evidence are retained. These are historical filesystem
 deltas, not claims of current available space. Receipts and exact run pins
 are in compact-radix-54.
+
+## Protected outer-skin residual refinement (56)
+
+Fixed the recursive compiler handoff without weakening protected-row or budget guards. Dense/sparse metadata checks pass. Full-scene residual enrichment improves the accepted prefix 3 -> 5 -> 6 roots, then still fails the unchanged physical certificate; the reduced model is not promoted. Retired stale OS GPU compilation caches recovered 17.51 GiB. See [exact tests, failed trials, corrected contact audit and source pins](outer-fine-refinement-56/README.md). This does not establish sustained motion or 0.1x.

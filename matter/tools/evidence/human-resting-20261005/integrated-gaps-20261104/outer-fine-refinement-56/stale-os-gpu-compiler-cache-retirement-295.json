@@ -1,0 +1,532 @@
+{
+  "scope": "Regenerable, closed macOS GPU compiler temporary caches only; no source, input assets, native binary/archive, run measurements, or research evidence removed",
+  "checked_no_open_handles": true,
+  "minimum_age_seconds": 1800,
+  "retired": [
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-0335e8",
+      "file_count": 1123,
+      "logical_bytes": 214831552,
+      "allocated_bytes": 217890816,
+      "latest_mtime": 1793760525.3011749,
+      "earliest_mtime": 1793760333.673235
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-082136",
+      "file_count": 1123,
+      "logical_bytes": 272355040,
+      "allocated_bytes": 275415040,
+      "latest_mtime": 1793762586.8761017,
+      "earliest_mtime": 1793762558.4367337
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-1e6e4f",
+      "file_count": 1186,
+      "logical_bytes": 460543904,
+      "allocated_bytes": 463769600,
+      "latest_mtime": 1793834534.751535,
+      "earliest_mtime": 1793834533.3539572
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-210c1c",
+      "file_count": 1036,
+      "logical_bytes": 134366760,
+      "allocated_bytes": 137170944,
+      "latest_mtime": 1793730392.3371117,
+      "earliest_mtime": 1793730391.611492
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-2843e0",
+      "file_count": 1164,
+      "logical_bytes": 341692096,
+      "allocated_bytes": 344850432,
+      "latest_mtime": 1793791802.7609549,
+      "earliest_mtime": 1793791787.2855797
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-2b740d",
+      "file_count": 1040,
+      "logical_bytes": 138151584,
+      "allocated_bytes": 140963840,
+      "latest_mtime": 1793731772.4879289,
+      "earliest_mtime": 1793731771.4538124
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-2dec47",
+      "file_count": 1167,
+      "logical_bytes": 350521900,
+      "allocated_bytes": 353685504,
+      "latest_mtime": 1793806347.1452553,
+      "earliest_mtime": 1793806332.8823462
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-31a1a8",
+      "file_count": 1182,
+      "logical_bytes": 396223652,
+      "allocated_bytes": 399437824,
+      "latest_mtime": 1793813778.0022886,
+      "earliest_mtime": 1793813734.7112932
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-341eb0",
+      "file_count": 1169,
+      "logical_bytes": 357298192,
+      "allocated_bytes": 360472576,
+      "latest_mtime": 1793807126.8725,
+      "earliest_mtime": 1793807125.7566476
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-3591f1",
+      "file_count": 1185,
+      "logical_bytes": 421501796,
+      "allocated_bytes": 424726528,
+      "latest_mtime": 1793827254.9680562,
+      "earliest_mtime": 1793827211.3568027
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-378f11",
+      "file_count": 1192,
+      "logical_bytes": 620923084,
+      "allocated_bytes": 624168960,
+      "latest_mtime": 1793838404.1719084,
+      "earliest_mtime": 1793838393.0857215
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-392929",
+      "file_count": 1123,
+      "logical_bytes": 167421500,
+      "allocated_bytes": 170483712,
+      "latest_mtime": 1793750972.0251932,
+      "earliest_mtime": 1793750970.9923923
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-3a88f1",
+      "file_count": 1153,
+      "logical_bytes": 309447664,
+      "allocated_bytes": 312582144,
+      "latest_mtime": 1793779769.42906,
+      "earliest_mtime": 1793779768.4377959
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-3ac641",
+      "file_count": 1171,
+      "logical_bytes": 371113536,
+      "allocated_bytes": 374288384,
+      "latest_mtime": 1793809523.0923433,
+      "earliest_mtime": 1793809493.8401632
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-3fe40e",
+      "file_count": 1123,
+      "logical_bytes": 176248736,
+      "allocated_bytes": 179306496,
+      "latest_mtime": 1793758354.9407194,
+      "earliest_mtime": 1793758312.6143372
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-44c5d9",
+      "file_count": 1185,
+      "logical_bytes": 431876472,
+      "allocated_bytes": 435101696,
+      "latest_mtime": 1793828014.5555885,
+      "earliest_mtime": 1793827970.7259939
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-4511b1",
+      "file_count": 1119,
+      "logical_bytes": 162296888,
+      "allocated_bytes": 165343232,
+      "latest_mtime": 1793750003.125626,
+      "earliest_mtime": 1793750002.0552726
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-459c70",
+      "file_count": 1132,
+      "logical_bytes": 282862284,
+      "allocated_bytes": 285945856,
+      "latest_mtime": 1793766353.1746094,
+      "earliest_mtime": 1793766351.951261
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-4c812f",
+      "file_count": 1190,
+      "logical_bytes": 591405832,
+      "allocated_bytes": 594640896,
+      "latest_mtime": 1793836760.8045273,
+      "earliest_mtime": 1793836759.3734784
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-4f364f",
+      "file_count": 975,
+      "logical_bytes": 58973932,
+      "allocated_bytes": 61579264,
+      "latest_mtime": 1793720675.5295665,
+      "earliest_mtime": 1793720674.9734197
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-5320e3",
+      "file_count": 1029,
+      "logical_bytes": 131110336,
+      "allocated_bytes": 133885952,
+      "latest_mtime": 1793728685.2247074,
+      "earliest_mtime": 1793728547.1803489
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-53364a",
+      "file_count": 1186,
+      "logical_bytes": 464820556,
+      "allocated_bytes": 468045824,
+      "latest_mtime": 1793834778.5981534,
+      "earliest_mtime": 1793834777.2262845
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-53c629",
+      "file_count": 1175,
+      "logical_bytes": 381308328,
+      "allocated_bytes": 384499712,
+      "latest_mtime": 1793811131.8002257,
+      "earliest_mtime": 1793811130.5128794
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-53c911",
+      "file_count": 1156,
+      "logical_bytes": 320271488,
+      "allocated_bytes": 323411968,
+      "latest_mtime": 1793783626.6860948,
+      "earliest_mtime": 1793783625.6879568
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-5ca19f",
+      "file_count": 1123,
+      "logical_bytes": 169949884,
+      "allocated_bytes": 173006848,
+      "latest_mtime": 1793754374.4707768,
+      "earliest_mtime": 1793754373.6946094
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-5d6098",
+      "file_count": 1123,
+      "logical_bytes": 164850832,
+      "allocated_bytes": 167911424,
+      "latest_mtime": 1793750460.199483,
+      "earliest_mtime": 1793750459.4038033
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-5f1a85",
+      "file_count": 1026,
+      "logical_bytes": 103017420,
+      "allocated_bytes": 105787392,
+      "latest_mtime": 1793726013.4994175,
+      "earliest_mtime": 1793726012.8254552
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-663144",
+      "file_count": 1043,
+      "logical_bytes": 140712536,
+      "allocated_bytes": 143527936,
+      "latest_mtime": 1793733062.6029837,
+      "earliest_mtime": 1793733061.8498836
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-682f32",
+      "file_count": 1051,
+      "logical_bytes": 143412264,
+      "allocated_bytes": 146251776,
+      "latest_mtime": 1793734240.688641,
+      "earliest_mtime": 1793734239.964185
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-6c4c92",
+      "file_count": 1190,
+      "logical_bytes": 585604816,
+      "allocated_bytes": 588840960,
+      "latest_mtime": 1793836270.177405,
+      "earliest_mtime": 1793836268.5820286
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-6d7a67",
+      "file_count": 1158,
+      "logical_bytes": 323912548,
+      "allocated_bytes": 327053312,
+      "latest_mtime": 1793785883.5103643,
+      "earliest_mtime": 1793785882.4332275
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-6ea070",
+      "file_count": 1186,
+      "logical_bytes": 451818284,
+      "allocated_bytes": 455045120,
+      "latest_mtime": 1793831521.1645973,
+      "earliest_mtime": 1793831519.8612428
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-7375d2",
+      "file_count": 1141,
+      "logical_bytes": 302303504,
+      "allocated_bytes": 305410048,
+      "latest_mtime": 1793774896.7932856,
+      "earliest_mtime": 1793774895.7868922
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-745dc6",
+      "file_count": 1184,
+      "logical_bytes": 409887020,
+      "allocated_bytes": 413106176,
+      "latest_mtime": 1793825401.7879012,
+      "earliest_mtime": 1793825400.5987287
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-86f138",
+      "file_count": 1051,
+      "logical_bytes": 145753508,
+      "allocated_bytes": 148590592,
+      "latest_mtime": 1793736785.3284543,
+      "earliest_mtime": 1793736784.5730932
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-89320f",
+      "file_count": 1186,
+      "logical_bytes": 456321540,
+      "allocated_bytes": 459546624,
+      "latest_mtime": 1793834259.8661005,
+      "earliest_mtime": 1793834258.3275802
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-935050",
+      "file_count": 1132,
+      "logical_bytes": 288099304,
+      "allocated_bytes": 291184640,
+      "latest_mtime": 1793767503.4194884,
+      "earliest_mtime": 1793767502.467075
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-a04d59",
+      "file_count": 1007,
+      "logical_bytes": 97336532,
+      "allocated_bytes": 100044800,
+      "latest_mtime": 1793721866.915077,
+      "earliest_mtime": 1793721866.2527544
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-a37b36",
+      "file_count": 1141,
+      "logical_bytes": 305823536,
+      "allocated_bytes": 308932608,
+      "latest_mtime": 1793776608.3766303,
+      "earliest_mtime": 1793776607.2876937
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-a565ba",
+      "file_count": 1129,
+      "logical_bytes": 279363560,
+      "allocated_bytes": 282439680,
+      "latest_mtime": 1793763783.7532232,
+      "earliest_mtime": 1793763782.5680664
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-a666ee",
+      "file_count": 1192,
+      "logical_bytes": 640418896,
+      "allocated_bytes": 643661824,
+      "latest_mtime": 1793839465.0324721,
+      "earliest_mtime": 1793839463.521461
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-a90dd5",
+      "file_count": 1133,
+      "logical_bytes": 291569072,
+      "allocated_bytes": 294653952,
+      "latest_mtime": 1793768486.925134,
+      "earliest_mtime": 1793768485.8870203
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-ab1f22",
+      "file_count": 1016,
+      "logical_bytes": 100803776,
+      "allocated_bytes": 103546880,
+      "latest_mtime": 1793725198.7629108,
+      "earliest_mtime": 1793725198.1026852
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-ad3153",
+      "file_count": 1141,
+      "logical_bytes": 298774024,
+      "allocated_bytes": 301883392,
+      "latest_mtime": 1793772075.0321882,
+      "earliest_mtime": 1793772074.0654144
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-afd7f0",
+      "file_count": 1154,
+      "logical_bytes": 313056920,
+      "allocated_bytes": 316194816,
+      "latest_mtime": 1793780853.1143034,
+      "earliest_mtime": 1793780852.137527
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-b026aa",
+      "file_count": 1057,
+      "logical_bytes": 159436412,
+      "allocated_bytes": 162283520,
+      "latest_mtime": 1793746943.6564524,
+      "earliest_mtime": 1793746942.8436368
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-b36e89",
+      "file_count": 1190,
+      "logical_bytes": 599608460,
+      "allocated_bytes": 602845184,
+      "latest_mtime": 1793837591.3069525,
+      "earliest_mtime": 1793837579.1128702
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-b47145",
+      "file_count": 1190,
+      "logical_bytes": 490783432,
+      "allocated_bytes": 494018560,
+      "latest_mtime": 1793835457.4155765,
+      "earliest_mtime": 1793835363.0052974
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-b49e2a",
+      "file_count": 1163,
+      "logical_bytes": 329986268,
+      "allocated_bytes": 333144064,
+      "latest_mtime": 1793791094.4288082,
+      "earliest_mtime": 1793791082.359807
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-b690e3",
+      "file_count": 1123,
+      "logical_bytes": 256506464,
+      "allocated_bytes": 259563520,
+      "latest_mtime": 1793761362.8122556,
+      "earliest_mtime": 1793761179.5111492
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-bb9065",
+      "file_count": 951,
+      "logical_bytes": 57413764,
+      "allocated_bytes": 59944960,
+      "latest_mtime": 1793719777.0175626,
+      "earliest_mtime": 1793719641.132977
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-bf79b0",
+      "file_count": 1171,
+      "logical_bytes": 361266080,
+      "allocated_bytes": 364441600,
+      "latest_mtime": 1793808863.632912,
+      "earliest_mtime": 1793808862.5398257
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-bfde7c",
+      "file_count": 1156,
+      "logical_bytes": 316653576,
+      "allocated_bytes": 319795200,
+      "latest_mtime": 1793783176.8081105,
+      "earliest_mtime": 1793783175.8124175
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-c7bc56",
+      "file_count": 1007,
+      "logical_bytes": 99066300,
+      "allocated_bytes": 101773312,
+      "latest_mtime": 1793721868.0485048,
+      "earliest_mtime": 1793721867.4057178
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-ccb5a8",
+      "file_count": 1056,
+      "logical_bytes": 156958976,
+      "allocated_bytes": 159805440,
+      "latest_mtime": 1793745492.4959729,
+      "earliest_mtime": 1793745491.6732278
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-d1576d",
+      "file_count": 1053,
+      "logical_bytes": 149813440,
+      "allocated_bytes": 152657920,
+      "latest_mtime": 1793739815.5366702,
+      "earliest_mtime": 1793739811.6928658
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-df41aa",
+      "file_count": 1180,
+      "logical_bytes": 385457088,
+      "allocated_bytes": 388665344,
+      "latest_mtime": 1793812303.5834544,
+      "earliest_mtime": 1793812302.3455849
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-dfd7e0",
+      "file_count": 1055,
+      "logical_bytes": 154595440,
+      "allocated_bytes": 157446144,
+      "latest_mtime": 1793740475.2689037,
+      "earliest_mtime": 1793740474.474188
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-e30cc5",
+      "file_count": 1055,
+      "logical_bytes": 152128340,
+      "allocated_bytes": 154976256,
+      "latest_mtime": 1793740119.4699183,
+      "earliest_mtime": 1793740118.7061942
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-e5385a",
+      "file_count": 1005,
+      "logical_bytes": 93770448,
+      "allocated_bytes": 96473088,
+      "latest_mtime": 1793721865.5950131,
+      "earliest_mtime": 1793721778.4459293
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-e648d1",
+      "file_count": 1026,
+      "logical_bytes": 105126568,
+      "allocated_bytes": 107900928,
+      "latest_mtime": 1793726645.6384115,
+      "earliest_mtime": 1793726644.9667616
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-ec54cf",
+      "file_count": 1137,
+      "logical_bytes": 295028800,
+      "allocated_bytes": 298123264,
+      "latest_mtime": 1793769542.317003,
+      "earliest_mtime": 1793769541.3433566
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-f7c730",
+      "file_count": 1186,
+      "logical_bytes": 443581780,
+      "allocated_bytes": 446808064,
+      "latest_mtime": 1793829357.8993628,
+      "earliest_mtime": 1793829313.8993337
+    },
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-fb3033",
+      "file_count": 1181,
+      "logical_bytes": 389539604,
+      "allocated_bytes": 392744960,
+      "latest_mtime": 1793812740.1868424,
+      "earliest_mtime": 1793812738.9930463
+    }
+  ],
+  "retained": [
+    {
+      "path": "/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/C/com.apple.gpuarchiver/gpuarchiver-bfcc1a",
+      "file_count": 1192,
+      "logical_bytes": 646666512,
+      "allocated_bytes": 650633216,
+      "latest_mtime": 1793841058.0216408,
+      "earliest_mtime": 1793841056.3195467
+    }
+  ],
+  "free_before_bytes": 13092495360,
+  "free_after_bytes": 31895392256,
+  "physical_bytes_recovered": 18802896896
+}

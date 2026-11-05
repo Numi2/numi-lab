@@ -1,0 +1,472 @@
+{
+  "scope": "Nonvisual localization of repeated late line-search witness; no geometry or contact rule changed",
+  "source_map": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/dominant-frame-registration-042/combined-node-map.csv",
+  "source_map_sha256": "823068681d9dbafd5af58fecfb0cf9434faa02731cedd6ac62e15ab377bc4cd7",
+  "global_fem_to_source_joint_node_offset": 1666,
+  "offset_validation": "reference origin matches source row as exact Float32 coordinates within printed diagnostic rounding",
+  "source_rows": [
+    {
+      "joint_node_id": "22676",
+      "registered_surface_layer": "O",
+      "registered_surface_vertex_row": "22675",
+      "role": "O",
+      "current_x_m": "-0.1696626991033554",
+      "current_y_m": "-0.7368617057800293",
+      "current_z_m": "0.1383143812417984",
+      "geometric_donor_body": "20",
+      "anatomical_region_id": "128"
+    },
+    {
+      "joint_node_id": "22678",
+      "registered_surface_layer": "O",
+      "registered_surface_vertex_row": "22677",
+      "role": "O",
+      "current_x_m": "-0.16966040432453156",
+      "current_y_m": "-0.7368556261062622",
+      "current_z_m": "0.1383068859577179",
+      "geometric_donor_body": "20",
+      "anatomical_region_id": "128"
+    },
+    {
+      "joint_node_id": "22680",
+      "registered_surface_layer": "O",
+      "registered_surface_vertex_row": "22679",
+      "role": "O",
+      "current_x_m": "-0.16965866088867188",
+      "current_y_m": "-0.7368512153625488",
+      "current_z_m": "0.1383010596036911",
+      "geometric_donor_body": "20",
+      "anatomical_region_id": "128"
+    },
+    {
+      "joint_node_id": "22744",
+      "registered_surface_layer": "O",
+      "registered_surface_vertex_row": "22743",
+      "role": "O",
+      "current_x_m": "-0.16944432258605957",
+      "current_y_m": "-0.7332664728164673",
+      "current_z_m": "0.13980770111083984",
+      "geometric_donor_body": "20",
+      "anatomical_region_id": "128"
+    }
+  ],
+  "reference_point_triangle_plane_distance_m": 2.1642035483503545e-09,
+  "reference_orthogonal_barycentric": [
+    3.7175286770663174e-05,
+    0.566776668578967,
+    0.4331861561342623
+  ],
+  "reference_point_projects_inside_triangle": true,
+  "late_witness_count": 17,
+  "late_witnesses": [
+    {
+      "root": 24,
+      "iteration": 1,
+      "alpha": 0.0229054075,
+      "nodes": [
+        24343,
+        24409,
+        24345,
+        24341
+      ],
+      "separation_m": 1.00166808e-09,
+      "barrier_clearance_m": 9.99999972e-10,
+      "width_m": 1.99999994e-09,
+      "contact_normal": [
+        -0.972759843,
+        0.136805639,
+        -0.187143609
+      ],
+      "reference_origin_m": [
+        -0.169660404,
+        -0.736855626,
+        0.138306886
+      ]
+    },
+    {
+      "root": 24,
+      "iteration": 3,
+      "alpha": 0.0625,
+      "nodes": [
+        24343,
+        24409,
+        24345,
+        24341
+      ],
+      "separation_m": 1.00967867e-09,
+      "barrier_clearance_m": 9.99999972e-10,
+      "width_m": 1.99999994e-09,
+      "contact_normal": [
+        -0.972759783,
+        0.136805087,
+        -0.187144086
+      ],
+      "reference_origin_m": [
+        -0.169660404,
+        -0.736855626,
+        0.138306886
+      ]
+    },
+    {
+      "root": 24,
+      "iteration": 5,
+      "alpha": 0.0362751186,
+      "nodes": [
+        24343,
+        24409,
+        24345,
+        24341
+      ],
+      "separation_m": 1.00591047e-09,
+      "barrier_clearance_m": 9.99999972e-10,
+      "width_m": 1.99999994e-09,
+      "contact_normal": [
+        -0.972759783,
+        0.136805102,
+        -0.187143981
+      ],
+      "reference_origin_m": [
+        -0.169660404,
+        -0.736855626,
+        0.138306886
+      ]
+    },
+    {
+      "root": 24,
+      "iteration": 6,
+      "alpha": 0.0358069465,
+      "nodes": [
+        24343,
+        24409,
+        24345,
+        24341
+      ],
+      "separation_m": 1.00060793e-09,
+      "barrier_clearance_m": 9.99999972e-10,
+      "width_m": 1.99999994e-09,
+      "contact_normal": [
+        -0.972759724,
+        0.136805102,
+        -0.187143952
+      ],
+      "reference_origin_m": [
+        -0.169660404,
+        -0.736855626,
+        0.138306886
+      ]
+    },
+    {
+      "root": 24,
+      "iteration": 8,
+      "alpha": 0.00218765251,
+      "nodes": [
+        24343,
+        24409,
+        24345,
+        24341
+      ],
+      "separation_m": 1.00074615e-09,
+      "barrier_clearance_m": 9.99999972e-10,
+      "width_m": 1.99999994e-09,
+      "contact_normal": [
+        -0.972759783,
+        0.136805102,
+        -0.187143967
+      ],
+      "reference_origin_m": [
+        -0.169660404,
+        -0.736855626,
+        0.138306886
+      ]
+    },
+    {
+      "root": 24,
+      "iteration": 9,
+      "alpha": 0.00219124206,
+      "nodes": [
+        24343,
+        24409,
+        24345,
+        24341
+      ],
+      "separation_m": 1.00068376e-09,
+      "barrier_clearance_m": 9.99999972e-10,
+      "width_m": 1.99999994e-09,
+      "contact_normal": [
+        -0.972759783,
+        0.136805117,
+        -0.187143952
+      ],
+      "reference_origin_m": [
+        -0.169660404,
+        -0.736855626,
+        0.138306886
+      ]
+    },
+    {
+      "root": 24,
+      "iteration": 10,
+      "alpha": 0.00219725864,
+      "nodes": [
+        24343,
+        24409,
+        24345,
+        24341
+      ],
+      "separation_m": 1.00063158e-09,
+      "barrier_clearance_m": 9.99999972e-10,
+      "width_m": 1.99999994e-09,
+      "contact_normal": [
+        -0.972759783,
+        0.136805117,
+        -0.187143952
+      ],
+      "reference_origin_m": [
+        -0.169660404,
+        -0.736855626,
+        0.138306886
+      ]
+    },
+    {
+      "root": 24,
+      "iteration": 11,
+      "alpha": 0.0325766057,
+      "nodes": [
+        24343,
+        24409,
+        24345,
+        24341
+      ],
+      "separation_m": 1.00058872e-09,
+      "barrier_clearance_m": 9.99999972e-10,
+      "width_m": 1.99999994e-09,
+      "contact_normal": [
+        -0.972759724,
+        0.136805102,
+        -0.187143967
+      ],
+      "reference_origin_m": [
+        -0.169660404,
+        -0.736855626,
+        0.138306886
+      ]
+    },
+    {
+      "root": 25,
+      "iteration": 0,
+      "alpha": 0.0774992406,
+      "nodes": [
+        24343,
+        24409,
+        24345,
+        24341
+      ],
+      "separation_m": 1.01733988e-09,
+      "barrier_clearance_m": 9.99999972e-10,
+      "width_m": 1.99999994e-09,
+      "contact_normal": [
+        -0.972759724,
+        0.136805192,
+        -0.187143907
+      ],
+      "reference_origin_m": [
+        -0.169660404,
+        -0.736855626,
+        0.138306886
+      ]
+    },
+    {
+      "root": 25,
+      "iteration": 1,
+      "alpha": 0.0122898361,
+      "nodes": [
+        24343,
+        24409,
+        24345,
+        24341
+      ],
+      "separation_m": 1.00195108e-09,
+      "barrier_clearance_m": 9.99999972e-10,
+      "width_m": 1.99999994e-09,
+      "contact_normal": [
+        -0.972759783,
+        0.136805132,
+        -0.187143967
+      ],
+      "reference_origin_m": [
+        -0.169660404,
+        -0.736855626,
+        0.138306886
+      ]
+    },
+    {
+      "root": 25,
+      "iteration": 3,
+      "alpha": 0.00963898655,
+      "nodes": [
+        24343,
+        24409,
+        24345,
+        24341
+      ],
+      "separation_m": 1.00171815e-09,
+      "barrier_clearance_m": 9.99999972e-10,
+      "width_m": 1.99999994e-09,
+      "contact_normal": [
+        -0.972759724,
+        0.136804983,
+        -0.187144041
+      ],
+      "reference_origin_m": [
+        -0.169660404,
+        -0.736855626,
+        0.138306886
+      ]
+    },
+    {
+      "root": 25,
+      "iteration": 4,
+      "alpha": 0.0144391516,
+      "nodes": [
+        24343,
+        24409,
+        24345,
+        24341
+      ],
+      "separation_m": 1.00048614e-09,
+      "barrier_clearance_m": 9.99999972e-10,
+      "width_m": 1.99999994e-09,
+      "contact_normal": [
+        -0.972759724,
+        0.136804998,
+        -0.187144071
+      ],
+      "reference_origin_m": [
+        -0.169660404,
+        -0.736855626,
+        0.138306886
+      ]
+    },
+    {
+      "root": 25,
+      "iteration": 10,
+      "alpha": 0.0296678711,
+      "nodes": [
+        24343,
+        24409,
+        24345,
+        24341
+      ],
+      "separation_m": 1.00776609e-09,
+      "barrier_clearance_m": 9.99999972e-10,
+      "width_m": 1.99999994e-09,
+      "contact_normal": [
+        -0.972759724,
+        0.1368047,
+        -0.187144235
+      ],
+      "reference_origin_m": [
+        -0.169660404,
+        -0.736855626,
+        0.138306886
+      ]
+    },
+    {
+      "root": 25,
+      "iteration": 11,
+      "alpha": 0.00490662782,
+      "nodes": [
+        24343,
+        24409,
+        24345,
+        24341
+      ],
+      "separation_m": 1.00130604e-09,
+      "barrier_clearance_m": 9.99999972e-10,
+      "width_m": 1.99999994e-09,
+      "contact_normal": [
+        -0.972759724,
+        0.136804685,
+        -0.18714425
+      ],
+      "reference_origin_m": [
+        -0.169660404,
+        -0.736855626,
+        0.138306886
+      ]
+    },
+    {
+      "root": 25,
+      "iteration": 12,
+      "alpha": 0.0108883763,
+      "nodes": [
+        24343,
+        24409,
+        24345,
+        24341
+      ],
+      "separation_m": 1.00076269e-09,
+      "barrier_clearance_m": 9.99999972e-10,
+      "width_m": 1.99999994e-09,
+      "contact_normal": [
+        -0.972759664,
+        0.136804685,
+        -0.187144265
+      ],
+      "reference_origin_m": [
+        -0.169660404,
+        -0.736855626,
+        0.138306886
+      ]
+    },
+    {
+      "root": 25,
+      "iteration": 14,
+      "alpha": 0.00584847713,
+      "nodes": [
+        24343,
+        24409,
+        24345,
+        24341
+      ],
+      "separation_m": 1.00145903e-09,
+      "barrier_clearance_m": 9.99999972e-10,
+      "width_m": 1.99999994e-09,
+      "contact_normal": [
+        -0.972759783,
+        0.13680467,
+        -0.187144265
+      ],
+      "reference_origin_m": [
+        -0.169660404,
+        -0.736855626,
+        0.138306886
+      ]
+    },
+    {
+      "root": 25,
+      "iteration": 15,
+      "alpha": 0.0128818853,
+      "nodes": [
+        24343,
+        24409,
+        24345,
+        24341
+      ],
+      "separation_m": 1.00073339e-09,
+      "barrier_clearance_m": 9.99999972e-10,
+      "width_m": 1.99999994e-09,
+      "contact_normal": [
+        -0.972759783,
+        0.13680467,
+        -0.187144265
+      ],
+      "reference_origin_m": [
+        -0.169660404,
+        -0.736855626,
+        0.138306886
+      ]
+    }
+  ],
+  "interpretation": "Outer skin to outer skin in the same continuum. This close fold is an observed contact bottleneck, not proof that it alone explains whole-scene convergence."
+}

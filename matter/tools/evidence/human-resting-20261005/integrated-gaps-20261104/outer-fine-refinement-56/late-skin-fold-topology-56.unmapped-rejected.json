@@ -1,0 +1,732 @@
+{
+  "scope": "Nonvisual exact Float32 source-surface topology audit; no geometry, contact exclusions, or physics changed",
+  "source_asset": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-937-b5-backtracking-root/proposal/candidate-O-typed-current.npz",
+  "source_sha256": "10169962e298586d63794bf94515ecc3a9b1ce91e66cc60566a6919d7c856ac3",
+  "registered_points_source": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/dominant-frame-registration-042/combined-node-map.csv",
+  "registered_points_sha256": "823068681d9dbafd5af58fecfb0cf9434faa02731cedd6ac62e15ab377bc4cd7",
+  "active_registered_faces": 151327,
+  "source_joint_to_surface_row": "registered_surface_vertex_row from pinned current node map; four exact Float32 coordinate matches",
+  "source_point": 22677,
+  "source_triangle": [
+    22743,
+    22679,
+    22675
+  ],
+  "target_face_rows": [],
+  "shortest_surface_edge_distance_from_point": {
+    "22743": 1,
+    "22679": 7,
+    "22675": 4
+  },
+  "point_one_ring": [
+    22657,
+    22658,
+    22678,
+    22682,
+    22691,
+    22743
+  ],
+  "point_exact_float32_duplicate_rows": [
+    22677
+  ],
+  "incident_faces": [
+    {
+      "row": 44143,
+      "nodes": [
+        22743,
+        22600,
+        22581
+      ],
+      "area_m2": 5.4647917742320515e-08,
+      "min_edge_m": 2.880091871445873e-05,
+      "max_edge_m": 0.003933190841172644,
+      "triangle_mean_ratio": 0.012259919458789733,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68073,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44143,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44209,
+      "nodes": [
+        22762,
+        22771,
+        22743
+      ],
+      "area_m2": 3.6563011309042065e-06,
+      "min_edge_m": 0.0020429956995196494,
+      "max_edge_m": 0.004649084517320518,
+      "triangle_mean_ratio": 0.6420686497115461,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68173,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44209,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44216,
+      "nodes": [
+        22743,
+        22771,
+        22735
+      ],
+      "area_m2": 2.3095133283782563e-06,
+      "min_edge_m": 0.0036966579012335772,
+      "max_edge_m": 0.008641534563733549,
+      "triangle_mean_ratio": 0.14101997842722538,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68215,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44216,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44220,
+      "nodes": [
+        22836,
+        22827,
+        22743
+      ],
+      "area_m2": 2.9250339493110487e-07,
+      "min_edge_m": 0.00017465646522116357,
+      "max_edge_m": 0.005437361176958001,
+      "triangle_mean_ratio": 0.03512499016844736,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68220,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44220,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44221,
+      "nodes": [
+        22836,
+        22743,
+        22739
+      ],
+      "area_m2": 1.1486696174651062e-05,
+      "min_edge_m": 0.004459238590585678,
+      "max_edge_m": 0.008059562660105452,
+      "triangle_mean_ratio": 0.6956102626663272,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68222,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44221,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44222,
+      "nodes": [
+        22827,
+        22762,
+        22743
+      ],
+      "area_m2": 1.7245090314231175e-06,
+      "min_edge_m": 0.0009538919472479244,
+      "max_edge_m": 0.005300869617614481,
+      "triangle_mean_ratio": 0.2360137053584555,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68223,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44222,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44286,
+      "nodes": [
+        22721,
+        22799,
+        22675
+      ],
+      "area_m2": 1.7462010809526993e-05,
+      "min_edge_m": 0.004967733334423825,
+      "max_edge_m": 0.01862443542070936,
+      "triangle_mean_ratio": 0.21159933995516306,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68330,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44286,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44287,
+      "nodes": [
+        22799,
+        22766,
+        22675
+      ],
+      "area_m2": 1.9216631366518285e-05,
+      "min_edge_m": 0.0032915004397365837,
+      "max_edge_m": 0.016236759230613216,
+      "triangle_mean_ratio": 0.2804880449879039,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68331,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44287,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44301,
+      "nodes": [
+        22675,
+        22665,
+        22637
+      ],
+      "area_m2": 1.9862262475846164e-06,
+      "min_edge_m": 0.0009348369196353237,
+      "max_edge_m": 0.004568754564899408,
+      "triangle_mean_ratio": 0.3409803592803521,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68338,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44301,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44302,
+      "nodes": [
+        22721,
+        22675,
+        22637
+      ],
+      "area_m2": 4.6962501606535425e-06,
+      "min_edge_m": 0.002182518504831435,
+      "max_edge_m": 0.004967733334423825,
+      "triangle_mean_ratio": 0.6771198875083421,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68339,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44302,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44303,
+      "nodes": [
+        22766,
+        22665,
+        22675
+      ],
+      "area_m2": 7.0999274469870655e-06,
+      "min_edge_m": 0.0032915004397365837,
+      "max_edge_m": 0.0046697455968909615,
+      "triangle_mean_ratio": 0.919193562747675,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68340,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44303,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44340,
+      "nodes": [
+        22743,
+        22735,
+        22724
+      ],
+      "area_m2": 1.4041024227306838e-06,
+      "min_edge_m": 0.00034863284214522566,
+      "max_edge_m": 0.008773816187171324,
+      "triangle_mean_ratio": 0.06409320210107565,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68384,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44340,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44352,
+      "nodes": [
+        22743,
+        22691,
+        22677
+      ],
+      "area_m2": 4.700980393044705e-06,
+      "min_edge_m": 0.0038963006530794366,
+      "max_edge_m": 0.008162667224471818,
+      "triangle_mean_ratio": 0.316652666395128,
+      "point_incident": true,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68408,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44352,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44353,
+      "nodes": [
+        22743,
+        22581,
+        22739
+      ],
+      "area_m2": 5.510805055842232e-06,
+      "min_edge_m": 0.003933190841172644,
+      "max_edge_m": 0.008059562660105452,
+      "triangle_mean_ratio": 0.37649516186750553,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68074,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44353,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44376,
+      "nodes": [
+        22743,
+        22677,
+        22658
+      ],
+      "area_m2": 3.1303303626116337e-06,
+      "min_edge_m": 0.0038963006530794366,
+      "max_edge_m": 0.008583299975472521,
+      "triangle_mean_ratio": 0.1936309709067905,
+      "point_incident": true,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68457,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44376,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44377,
+      "nodes": [
+        22743,
+        22658,
+        22648
+      ],
+      "area_m2": 4.7978340882038216e-06,
+      "min_edge_m": 0.0013016737529430447,
+      "max_edge_m": 0.008583299975472521,
+      "triangle_mean_ratio": 0.2386431469957289,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68458,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44377,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44399,
+      "nodes": [
+        22623,
+        22606,
+        22743
+      ],
+      "area_m2": 5.3416674521927755e-06,
+      "min_edge_m": 0.003938384797730483,
+      "max_edge_m": 0.010976640371180742,
+      "triangle_mean_ratio": 0.1966257054932171,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68483,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44399,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44400,
+      "nodes": [
+        22606,
+        22600,
+        22743
+      ],
+      "area_m2": 1.6054424592692575e-06,
+      "min_edge_m": 0.0039257185017939535,
+      "max_edge_m": 0.010976640371180742,
+      "triangle_mean_ratio": 0.05984747313667862,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68484,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44400,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44403,
+      "nodes": [
+        22677,
+        22678,
+        22657
+      ],
+      "area_m2": 5.926583919597964e-06,
+      "min_edge_m": 0.002716425755315597,
+      "max_edge_m": 0.005141839246477154,
+      "triangle_mean_ratio": 0.7768125842022904,
+      "point_incident": true,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68487,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44403,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44405,
+      "nodes": [
+        22677,
+        22657,
+        22658
+      ],
+      "area_m2": 3.691087495267717e-06,
+      "min_edge_m": 0.001697637743836027,
+      "max_edge_m": 0.004811489487088402,
+      "triangle_mean_ratio": 0.5673635974652941,
+      "point_incident": true,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68489,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44405,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44611,
+      "nodes": [
+        22684,
+        22669,
+        22679
+      ],
+      "area_m2": 3.431523931899707e-08,
+      "min_edge_m": 1.3335815002445284e-05,
+      "max_edge_m": 0.005211535879805311,
+      "triangle_mean_ratio": 0.004378432221009459,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 31098,
+        "face_source_original_id": 1,
+        "source_input_face_rows": 44611,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44613,
+      "nodes": [
+        22684,
+        22679,
+        22681
+      ],
+      "area_m2": 2.588219436182894e-13,
+      "min_edge_m": 5.283948397541214e-06,
+      "max_edge_m": 1.3335815002445284e-05,
+      "triangle_mean_ratio": 0.006626637731271877,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 31098,
+        "face_source_original_id": 1,
+        "source_input_face_rows": 44613,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44623,
+      "nodes": [
+        22667,
+        22681,
+        22679
+      ],
+      "area_m2": 1.262393488388754e-08,
+      "min_edge_m": 5.283948397541214e-06,
+      "max_edge_m": 0.00478971032417184,
+      "triangle_mean_ratio": 0.0019063362670969216,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68669,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44623,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44626,
+      "nodes": [
+        22652,
+        22679,
+        22669
+      ],
+      "area_m2": 2.639186388583339e-06,
+      "min_edge_m": 0.0011266678518134488,
+      "max_edge_m": 0.005209449526769518,
+      "triangle_mean_ratio": 0.35379343401919755,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68672,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44626,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 44627,
+      "nodes": [
+        22652,
+        22667,
+        22679
+      ],
+      "area_m2": 3.2941157510710597e-07,
+      "min_edge_m": 0.00014138041835697897,
+      "max_edge_m": 0.004824359615792803,
+      "triangle_mean_ratio": 0.0493607195479849,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 68673,
+        "face_source_original_id": 1134834,
+        "source_input_face_rows": 44627,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 148160,
+      "nodes": [
+        22682,
+        22678,
+        22677
+      ],
+      "area_m2": 4.612318256055525e-08,
+      "min_edge_m": 1.9387418605662275e-05,
+      "max_edge_m": 0.005149220061049573,
+      "triangle_mean_ratio": 0.006034571157364881,
+      "point_incident": true,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 997,
+        "face_source_original_id": 120000100,
+        "source_input_face_rows": 148160,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 148161,
+      "nodes": [
+        22682,
+        22677,
+        22691
+      ],
+      "area_m2": 4.446430131762905e-08,
+      "min_edge_m": 1.9387418605662275e-05,
+      "max_edge_m": 0.004587463739780221,
+      "triangle_mean_ratio": 0.007319429326354366,
+      "point_incident": true,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 998,
+        "face_source_original_id": 120000100,
+        "source_input_face_rows": 148161,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 148162,
+      "nodes": [
+        22691,
+        22743,
+        22724
+      ],
+      "area_m2": 5.480222214233147e-06,
+      "min_edge_m": 0.0014355619029348956,
+      "max_edge_m": 0.008773816187171324,
+      "triangle_mean_ratio": 0.26064487501410133,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 999,
+        "face_source_original_id": 120000100,
+        "source_input_face_rows": 148162,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    },
+    {
+      "row": 149130,
+      "nodes": [
+        22623,
+        22743,
+        22648
+      ],
+      "area_m2": 2.268019273193235e-06,
+      "min_edge_m": 0.0013016737529430447,
+      "max_edge_m": 0.003938384797730483,
+      "triangle_mean_ratio": 0.5302578699617639,
+      "point_incident": false,
+      "target_face": false,
+      "ancestry": {
+        "face_source_layer": 0,
+        "face_source_body": -1,
+        "face_source_bone": -1,
+        "face_source_face_id": 1999,
+        "face_source_original_id": 120000100,
+        "source_input_face_rows": 149130,
+        "source_collapse_operation_rows": -1,
+        "source_diagonal_flip_operation_rows": -1
+      }
+    }
+  ],
+  "status": "REJECTED_AUDIT_ROW_MAP",
+  "reason": "Source O faces index original role rows; the registered volume/node CSV uses compacted rows. No anatomical or physical conclusion is admissible from this unremapped audit."
+}
