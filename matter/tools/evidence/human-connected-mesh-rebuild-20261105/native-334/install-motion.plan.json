@@ -1,0 +1,1054 @@
+{
+  "GPU_executed": false,
+  "allocation_diagnostic": {
+    "bounds_and_candidate_generation_unchanged": true,
+    "constitutive_laws_changed": false,
+    "new_skin_fat_candidate_capacity": 4000000,
+    "old_skin_fat_candidate_capacity": 262144,
+    "overflow_must_reject": true,
+    "physical_contact_rows_removed": 0
+  },
+  "already_compiled_conditioning": {
+    "evidence": {
+      "bytes": 603432,
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/report.json",
+      "sha256": "89b74031939d32622d06bea39007c6318c3268dc7845764d8f45e44cf4f2d271"
+    },
+    "reason": "candidate input composes accepted134 connectivity with current connected quotient",
+    "removed_reapplication": {
+      "NUMI_HUMAN_SKIN_FAT_FIXED_CAVITIES_NPZ": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/connected-conditioning-134/fixed-boundary-volume-proposal.npz",
+      "NUMI_HUMAN_SKIN_FAT_FIXED_CAVITIES_SHA256": "4be98e7d5710360407a561d10efaa02b86702efdaf1b4312c4b035d6d9a19cb8"
+    }
+  },
+  "attachment_remap": {
+    "bytes": 11762,
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/bindings/remap-receipt.json",
+    "sha256": "118bfec571c4b0e118b0fddfe88bed597f8ff0a81e6f9dacaf621ca3de1713d3"
+  },
+  "baseline_launch": {
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1025-launch/baseline-native-launch-016.json",
+    "sha256": "c2d4f75343615f7ef1bc557c775e0715fe5f01b341e9ae4e89536fa7003760b4"
+  },
+  "bounded_nonlinear_diagnostic": {
+    "FGMRES_budget": 1024,
+    "acceptance_tolerances_unchanged": true,
+    "newton_budget": 4,
+    "previous_newton_budget": 24,
+    "purpose": "diagnostic only: distinguish slow convergence from solver stagnation at same true-residual and physical tolerances; not a performance configuration",
+    "stage_timing_instrumented": true,
+    "true_residual_certification_required": true
+  },
+  "build_manifest": {
+    "bytes": 2570,
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/shared-bundle-native-307/build-manifest.json",
+    "sha256": "d7d1055367f5787d8da2eaeeb962566314d9a398ad41e30674efd3a06821eb89"
+  },
+  "ccd_repair": {
+    "contact_source": {
+      "bytes": 772124,
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/contact.metalinc",
+      "sha256": "175c3c6518dc4ef612613e481a879877fadd9f81448ecb234d17fd8578a10f04"
+    },
+    "isolated_gpu_controls": {
+      "bytes": 1345,
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interval-330/replay.execution.json",
+      "sha256": "895ec4ca8af63d604f15f5d24fcbb37c8de09dfb273b692b1516ba9b40029ead"
+    },
+    "plan": {
+      "bytes": 740,
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interval-330/plan.json",
+      "sha256": "a3b4dfb05594c507ff7c627c877fb91acc4f5529afa87c14b4ad30314cd4d15e"
+    },
+    "preimage": {
+      "bytes": 743,
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interval-330/preimage.json",
+      "sha256": "5fc567994c711ef026a3e02c34110074a24840b015d5afd3cca10ea084ddc248"
+    },
+    "scope": "Only unresolved bounded interval clear certificates changed; unchanged thickness, material and acceptance gates",
+    "source_delta": {
+      "bytes": 6668,
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interval-330/contact-330.patch",
+      "sha256": "78059637282c78e0230a566a18710704d13fda93cc4714aa5728c90a49512073"
+    }
+  },
+  "contact_rows_removed": 0,
+  "converter_execution": {
+    "bytes": 370,
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/execution.json",
+    "sha256": "91b5c458bb54f52121874908b43ad70549f92047e25d29c05b5be35281d487d9"
+  },
+  "converter_run": {
+    "bytes": 27622,
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/run-manifest.json",
+    "sha256": "0aaf526c60ce46ba734edb42041c78eb7a4ac5d3eeba31c18182063742073600"
+  },
+  "current_frame_registration": {
+    "bytes": 11774,
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/bindings/receipt.json",
+    "sha256": "59f8d9e8b0e0d26769b6a2a3cc808a0c015144df99b51d1980a66cf9d8f05571"
+  },
+  "current_source_domain_audit": {
+    "controls": {
+      "bytes": 2817,
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/signed-face-controls-receipt.json",
+      "sha256": "a7dc3cc19ac2b5e318b52d0d0963c940811936ac8428e0a874d6a5ef427e93da"
+    },
+    "orientation": {
+      "bytes": 6001,
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/role-orientation.json",
+      "sha256": "df2ffbac418fc70d3776ab5e477f47b82194bb80654b34998d9de5c224615b14"
+    },
+    "receipt": {
+      "bytes": 12410351,
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/receipt.json",
+      "sha256": "af86e8d24cdba805e15fe467c220a08dbe272538b083d27adeada5c34b49de7b"
+    },
+    "status": "PASS_EXACT_CURRENT_TYPED_COORDINATE_AND_SIGNED_FACE_BINDING_SOURCE_ONLY"
+  },
+  "diagnostic_change": "Keep historical serial contact partition for a matched vascular witness. Tiled FEM uses compact exact-minimum scratch. Existing vascular high/low cavity and state mode=True; no changed physical law or tolerance. This is not sustained throughput.",
+  "diagnostic_delta": "Reference regional preconditioner with corrected ICB dependency order; no temporary memory diagnostics; source and binary exactly match trial267.",
+  "duplicate_pack_storage_recovery": {
+    "bytes": 27287,
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/resource-recovery-333/duplicate-packs-receipt.json",
+    "sha256": "aff5eecea7b6b3dc37bd1c6934c39e3add2a3fa1e2fe8c67e44debb936fa4661"
+  },
+  "execution_performed": false,
+  "expected_accepted_steps": 32,
+  "full_execution_source_pins": {
+    "dirty_patch": {
+      "bytes": 7554029,
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/shared-bundle-native-307/execution-source.patch",
+      "sha256": "c065211479f922c60fff20fe60310ee57db488ed65d8fab5fa8f309923ecaf16"
+    },
+    "head": "f75955f08d6edf0f85027eac7614017ac9fbc996",
+    "sources": {
+      "matter/CMakeLists.txt": {
+        "bytes": 156071,
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/CMakeLists.txt",
+        "sha256": "45643b14bc3e6cc99aefba097e6932274ed21f33fff2e3f768cf3f9a2d485c9f"
+      },
+      "matter/src/compact_human_contact_rows.hpp": {
+        "bytes": 5627,
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/compact_human_contact_rows.hpp",
+        "sha256": "780cfc87c4b6744b2ad675e61dea2c5aca89e4aef4043727143d2647759a772b"
+      },
+      "matter/src/metal/contact.metalinc": {
+        "bytes": 770027,
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/contact.metalinc",
+        "sha256": "c6a6da16f6f8d61c712fc24a2f57fdb270b2b187d76f6feef1dbf9ee96597eb8"
+      },
+      "matter/src/metal/fem.metalinc": {
+        "bytes": 371140,
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fem.metalinc",
+        "sha256": "b9661d9dd5b1631b1a3ebc30d87b846eb8141d1abf6d182299720fa97a10e2d8"
+      },
+      "matter/src/metal/fgmres.metalinc": {
+        "bytes": 872241,
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/fgmres.metalinc",
+        "sha256": "2317b4ac8739229989cbb669587c520192fcae2620b67476f3f4520b2d171807"
+      },
+      "matter/src/metal/mixed_fem.metalinc": {
+        "bytes": 94438,
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/mixed_fem.metalinc",
+        "sha256": "4957f70c80ae1011cee5b9d132cc28008f9789863c3cbb89e9f9a1163c3c612f"
+      },
+      "matter/src/metal/numi_human.metalinc": {
+        "bytes": 222622,
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/numi_human.metalinc",
+        "sha256": "1451adc88ac405e33f825fb06b53dbe53d1c9fc8c94a4a98b88bd81b28f7a1b5"
+      },
+      "matter/src/metal/vascular.metalinc": {
+        "bytes": 200824,
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/metal/vascular.metalinc",
+        "sha256": "25370c8c4013eac439f7deff5029f0a0b5da1191cfb2a66e5b5ee06982dae4eb"
+      },
+      "matter/src/numi_human.mm": {
+        "bytes": 299145,
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/numi_human.mm",
+        "sha256": "d12c3b1656484f32c6ac35384cf62ff1c39acd3032df6d579304074772508406"
+      },
+      "matter/src/runtime.mm": {
+        "bytes": 3595061,
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/runtime.mm",
+        "sha256": "8ba75ea24948bc22549489cebfcead3dd9ef229d1b3290357e93e22ac775b855"
+      },
+      "matter/src/tangent_owner_worklist.hpp": {
+        "bytes": 1722,
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/src/tangent_owner_worklist.hpp",
+        "sha256": "bb623847b6b28743b4b928cc1e35dce5384593ae8e57c8c3979189574e6ea36a"
+      },
+      "matter/tools/cardboard_contact_node_incidence_sort_native_check.mm": {
+        "bytes": 117551,
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/tools/cardboard_contact_node_incidence_sort_native_check.mm",
+        "sha256": "37c5bbe8fb6c5ac8da41610e3887313afdfa0006502171a85f04d4c0ee65e62a"
+      },
+      "matter/tools/fem_static_surface_map_native_check.mm": {
+        "bytes": 29577,
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/tools/fem_static_surface_map_native_check.mm",
+        "sha256": "e56e78e853e1a7e6f12c9f1443753e5a404d6c809f374a5237195e5292e39aa9"
+      },
+      "matter/tools/fgmres_true_residual_native_check.mm": {
+        "bytes": 1146890,
+        "path": "/Users/numi/Work/skin-fat-native-integration-209/matter/tools/fgmres_true_residual_native_check.mm",
+        "sha256": "aa5cf4901f98ea25a50c2a2ed88d52132308e0cabde8e7aa571690c66829426d"
+      }
+    }
+  },
+  "geometry_admission": {
+    "claims": {
+      "I_D_exact_pairs": {
+        "equals": 0,
+        "path": "pair_counts.I_D"
+      },
+      "O_I_exact_pairs": {
+        "equals": 0,
+        "path": "pair_counts.O_I"
+      },
+      "all149_protected_routes": {
+        "equals": true,
+        "path": "checks.all149_protected_routes"
+      },
+      "all185_operand_coverage": {
+        "equals": true,
+        "path": "checks.all185_operand_coverage"
+      },
+      "closed_fat": {
+        "equals": true,
+        "path": "checks.closed_fat"
+      },
+      "closed_skin": {
+        "equals": true,
+        "path": "checks.closed_skin"
+      },
+      "existing_thickness_bounds": {
+        "equals": true,
+        "path": "checks.existing_thickness_bounds"
+      },
+      "native_f32_bone_pairs": {
+        "equals": 0,
+        "path": "pair_counts.native_f32_bone"
+      },
+      "physical_admission": {
+        "equals": false,
+        "path": "physical_admission"
+      },
+      "pinned_f64_bone_pairs": {
+        "equals": 0,
+        "path": "pair_counts.pinned_f64_bone"
+      },
+      "positive_f32_cells": {
+        "equals": true,
+        "path": "checks.positive_f32_cells"
+      },
+      "shared_I_exact_opposed": {
+        "equals": true,
+        "path": "checks.shared_I_exact_opposed"
+      },
+      "skin_fat_exact_pairs": {
+        "equals": 0,
+        "path": "pair_counts.skin_fat"
+      }
+    },
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/source-geometry-admission-001.json",
+    "sha256": "139747df2564c3d9420ba1fccc05419e865c2264faef42d92dd7be67a4fd2d39"
+  },
+  "hypothesis": "Attribute selected-root temporary memory excursion to optional deep diagnostics and establish a non-stage-profiled throughput control; no solver speedup predicted.",
+  "initial_optional_driver_archive": {
+    "bytes": 122207360,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-driver-pipelines.metalar",
+    "sha256": "6c91021f95b0353c11166bfba1d9a51a2aeb5838143e2a70dbede6fffb6267ce"
+  },
+  "input_pins": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/candidate.nhskin": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+    "/Users/n/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-reference-respiration.json": "70f4d235b988f9466b80e795ac0e793a82d6b13d03ebb01b84a313f0ad398e8a",
+    "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/compiled-tendon/numi-human-tendon-attachments.nhtendon": "d0f5da8c63d5e3335eef72e7e79e8e5780ae43f0cf254e840dd7ad604b72da48",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-anatomy-receipt.json": "76c6651a86e9353af9007ba6433beb2a7605b607d9c261def9537ab447d43a51",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-thorax.nhanatomy": "3b0acb6146358f3302f2b85e2214bafa9f2fae7b0e51af70fd0838d6609da4a4",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt": "4c31ce250a63bd730c066f6f92571295c761ddb51215a3eeb09275bc42d6992d",
+    "/Users/n/numi-human-separation-20261018/passive-fascia-source-173/payload/bodyparts3d-pectoralis-fascia.nhfascia": "5a89c6464564528d7f30ce03294793628a41b61bb1f3cdb98645344225d17de1",
+    "/Users/n/numi-lab-native-replay-publish-20261017/matter/materials/blood_high_shear_newtonian_proxy.nmatter": "d496433a864befbd1f37193e79af0c0bca7ae27aaf323bb1a519c91c2475412f",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/bindings/receipt.json": "59f8d9e8b0e0d26769b6a2a3cc808a0c015144df99b51d1980a66cf9d8f05571",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/bindings/registration-restoration.json": "5bcaeedc8678e32f2239f92b6dbf5b521a83698e851ee0222f60c767091f069c",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/bindings/remap-receipt.json": "118bfec571c4b0e118b0fddfe88bed597f8ff0a81e6f9dacaf621ca3de1713d3",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-admission/geometry-envelope.json": "cc24ce17415379f8d24a896e1d0c897ff680e898980b47cf59692f7bdeb27a9b",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-admission/mass-receipt.json": "f7e3e39e10c407cf806fd61e0d7a907446578005521c5b723359e1bd135f67a6",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-support/fat-carrier-witnesses.csv.gz": "0850b648acf4d6badd9fe9a426341f3cee9cc77839d27b411b956f85e91f5559",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-support/skin-carrier-witnesses.csv.gz": "cc2386556722d94f7efe18878129d001d4919a5aac940e33ce891fc20d3264d3",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/source-geometry-admission-001.json": "139747df2564c3d9420ba1fccc05419e865c2264faef42d92dd7be67a4fd2d39",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/receipt.json": "af86e8d24cdba805e15fe467c220a08dbe272538b083d27adeada5c34b49de7b",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/registered/donor-frames.csv": "b1704fb7b846254583f4b6a08c394ed3cad1603554244078706ca4b3811ac674",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/registered/node-parent-registration.csv": "f6fee2cace882673b3835cdf7f0721125b668d377d2dcf8d756727759b7aacab",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/registered/outer-face-ancestry.csv": "1ccbc01a1bd8af63299724561f4a112b0113b3e54232d614539d3739f984222f",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/registered/registered-D-faces.csv": "389feaef62e4fcac2924f7c6f6f2e0d620d54ab41dd710bffb8c19c1b9d2adaa",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/registered/registered-D.csv": "fcb4439268f7783c677d7f80f9ab135ea64604ce67f0c305b8bd71be921b2636",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/registered/registered-I-faces.csv": "84e26fe751e79405f92a391636ef9ab60bc1b5e52d34bda6d531a9e2fa233866",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/registered/registered-I.csv": "f28dee0523513b4c8824d325dbc4e56157fb110a5e298b257b361c84c932be23",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/registered/registered-O-faces.csv": "a67a9b2152739f68c5d224bec38db38522c97d63f48476f3bb4c7f3a9f031bd2",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/registered/registered-O.csv": "acd4fcfadd1667a75ca92df9c40689d12b6bfa3807ae1d15e4b021b999d5b38c",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/roles/D-contact-thickness.csv": "968035d9173e6d9a849119f2418fbc92de48ef9efb8b2b99b4f7f2f37e12698a",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/roles/D-full86.csv": "0b19572908cf8f2ba3c0d4ea656a81a0e54a8f6040e81fb3a08d5375ce9c63f2",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/roles/D-source.json": "596b0ea31f9f333c0b440e580534c0ca60c92748ce08f417462609b05221bf49",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/roles/I-contact-thickness.csv": "7191409f7b249013dfeacff156f4b424397fbb5cc85a5b1a2cc248184a6ca5cc",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/roles/I-full86.csv": "c608a7dd078f32800c60ba25ea11ba64b936ea20bd8ad6d5a01c53f53d727a06",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/roles/I-source.json": "1254d20d591a8caf91c95a4cd39bd8c959f66e4b39348bd84df65c676e261db1",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/roles/O-contact-thickness.csv": "010a977dd6a77585732e6805e7d449fc595e4ef4692623058fe1bc2e470b2617",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/roles/O-full86.csv": "382bfcd4dd962113703ae89f4c5e13bafd36940504c91724f5319b68b7bce684",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/roles/O-source.json": "2ef40c2d931ee90f9c8599c1ae9e502587d5f28210a4249ad763f3d8cc19ab21",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/source-domain-registry.json": "f7ae1ac3f3c179b19730c06958388fe340d1f3322449098e5e0acd22455fb580",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/volume/cell-parent-map.csv": "b845dca2fdc6f0baacc5814a17bb8d109e4981e5b1e78b6b62644cec1b2c4b54",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/volume/child.labels.csv": "399dea9a4a7ce4baf87ae3211ba738d76cf3232f8a674605fd491a0f1fd08980",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/volume/combined-node-map.csv": "c03bdf1f21691959492db7c7ce6187e6e143efc109ce2aba26a62a7f31011ee4",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/volume/facet-ancestry.csv": "5949d76067301dd4c127f885eed3fe2b3033124915257946d84b75cdce87b4a1",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/volume/mesh.ele": "6136b78c002ccbb69232837206b33fdaae506c4678983443308feccbf17ad33b",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/volume/mesh.node": "79702eca9e34e44087166d1080ededa89948dbf70377800c48b8099f38d21863",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-1009-point-update-1018-root/actual-001/candidate-I-point-updated.npz": "5557cbb88b46ea83d7977d60e1d362a10c48c290b77afb39b273efa29d32e323",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-1020-zero-skin-fat-source-qualified-root/proposal-exact-806/report.json": "797a15ea8bca5b7f92a6464222a19956518ecb4a0bcaf438f0bdcf2e0c901323",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-1020-zero-skin-fat-source-qualified-root/receipt.json": "ae08da49dc64d75a58678927b1c043da32546f0ba7cab99c04dc5f76255e7fe1",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-1020-zero-skin-fat-source-qualified-root/source-proof-808.json": "265961cf643de8e25c8161246569690b91f783a5e116ada36480d4463abefbbc",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-1020-zero-skin-fat-source-qualified-root/verified-state.json": "11044a88b2d45ab9a9625f9a2cac46b8a952032b9ac0a07274710c316f5a88a9",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-937-b5-backtracking-root/proposal/candidate-O-typed-current.npz": "10169962e298586d63794bf94515ecc3a9b1ce91e66cc60566a6919d7c856ac3",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-958-D014-root/proposal-003/candidate-D-typed-current.npz": "63cec05102fd2dc670d9220ec6472cd7d9ffa7085b4694719c605947086c7da9",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1037/candidate-current-typed-volume.npz": "5d31c141b66628801a711c2e745f744f745611882a269e173eddfcd0e99d3372",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1037/candidate-node-map.csv": "d71ede83bb69ea20304d561c658aa96050175bdf68688075777ea1f611e56bf9",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1037/inserted-node-ancestry.csv": "fbf7481c31f856cfc5f732bfce0b0363ab12141fdb18176e42a9786683b56a09",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1043/candidate-canonical-f32.node": "8f47890b86b3a71ce247caf69eff6e72cf4a7080af28a287b8f4cd40efa27424",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/1022-role-surface-orientation-audit.json": "cad9e484357d9340f2ca43638a3e83874156a5693ddb9192f919e5c91ee8ebed",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/mass-436/declared-envelope.stdout": "fc2f0ef4d811502a02d0f161404766e048a11aadbd9f73a7c167cfa5b4b3f0e5",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1024-root/current-433-1044/signed-face-controls-receipt.json": "8bc805e0c6e8111f1cd0fc578e6e8b845db5faea6901704237055a95e016ee1c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-native-1025-launch/current-native-1025-direct-o-006-source-geometry-scope/native-compatible-candidate-self-audit-001.json": "83dd8a2f568fc496393d0d64e0e96d521daf1ea57f8f603666d99901aef2d11a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/current-shell-1022-native/actual-001/receipt.json": "b5dd9f69a5a61331141ad69f06466225349526b26916de9d57c7bbbbd71ec10f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/verified-volume-preparation-010-merged038005/rim/protected149-current-routes.json": "ed6e15c6dc9324b09cd4514e1fc3a149fc92a07215128a9820d72fca3f350a71",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.labels.csv": "99d643f71a735ee49223cdcd7b863d2d0978b8cc490a138bad4a63012438a457",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.nodes.csv": "7044051353d173b94143a4027ba7dcc468b221512b3f41d5819d27025b36d044",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.source.csv": "8e2424901318f25caca1540aeca412ca779fc014f68f49fe0cb6c17fb5aa0c1f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.tets.csv": "82e20067454748a9eca91bc6f06ab343677c051a139797ae051c64022bd87992",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.weights.csv": "98205ae7de44401544b7969184788f5c2ee39cd4404cd34b8037377e7ae63a76",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/parent-layer-rows.csv": "ae8f0c96ce34f3dedf4b2950eb7009436f827998ad5a35b7f9287d2cf4cc384f",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/registered-skin-poses-100.json": "0c6e10d411604cb317eb5a9da234da568d683e6cc0276ac184f80fd29067b80a",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-registered-volume-parent-identity-physical-control-365/inputs/deep-attachment-requests.csv": "ae91cacdfe5057e7e7120bfbe501153eb85feb5a9371fa3cf07a673e81ebb742",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/candidate.npz": "2f547b21c6be0f3e21a021d80dad6c63c3a0e6af31d5ebe1780ca1b32c237a54",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/exact-self-521/receipt.json": "4f33f1779864b188a127e7a3df8ac68c58f7ba134695d1fd3d3613052f0ae34c",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/parent-reduced-boundary.ele": "49671889c6711fedd8dd5727bd264e9d652b3c8ef48e15783b6be7a44c32c347",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/parent-reduced-boundary.node": "d1238fc477b290c78970d5a7bbf01e7465a5e85aa00fe7414ee3b95503cc1b50",
+    "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/reconstructed-receipt.json": "70faa10f6952d85e5d7b788cddca4896fc329126c82102215489a97ffc7c685f",
+    "/Users/numi/Work/skin-fat-native-integration-209/apps/NumiHumanWholeBodySkinReduction.hpp": "d55b1995fff2ee1841d000bd5453f97402a3af25c7bfbf184df81d2718caa772",
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib": {
+      "bytes": 21874317,
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib",
+      "sha256": "3adc5086e2d86cb1873c6ff051933325328dab8c657431b1f2ed92a1fb86abde"
+    },
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/joint-functional-owner-audit-20261023/knee-projection-envelope-001/myosim-fullbody-core-reference.nhrigid": "c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue": "8874b3fede93825d2e4ddb248231dc9d2c598e0155f8473c624fcb935d6b1042"
+  },
+  "manifest_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/postpass-005/identity-003.json",
+  "manifest_sha256": "60c8b6f646dc201c1b66e6bda7d1bfca3be0fcfa84878f3474ebfdd3f0d829a4",
+  "mass_admission": {
+    "bytes": 14955,
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-admission/mass-receipt.json",
+    "sha256": "f7e3e39e10c407cf806fd61e0d7a907446578005521c5b723359e1bd135f67a6"
+  },
+  "measurement_scope": "32-root integrated release transient after bounded compensated CCD repair; not sustained motion or resting qualification",
+  "measurement_scope_recovery": {
+    "no_sustained_motion_claim": true,
+    "prior_result": "resource guard termination before first accepted step",
+    "prior_view_trials": [
+      "native-scene-view-227",
+      "native-scene-view-228"
+    ],
+    "recovery": "idle 2.8GiB ANE compiler released; source semantic preview compatibility corrected separately; exact226 config retained"
+  },
+  "native_binary": {
+    "bytes": 10556464,
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native",
+    "sha256": "3900d587e78526d70157f864ba438a48acf48b652fd873e6542319ebf3e2bc8a"
+  },
+  "native_comparison_reference": "unchanged baseline324;307 retained as its exact-response repeat control",
+  "native_runtime_executed": false,
+  "optional_driver_archive_disabled": {
+    "previous": {
+      "bytes": 1502104640,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-driver-pipelines.metalar",
+      "sha256": "3058420c3785b2d2be753b39ad20d93542bd05f73655a0ffd16423d125b64522"
+    },
+    "reason": "Avoid transient multi-GiB archive serialization with low disk headroom; only pipeline initialization cache disabled; matched future control uses identical setting."
+  },
+  "performance_changes": [
+    "tiled node validation",
+    "hierarchical force and reaction audits",
+    "source-order sparse anchor incidence",
+    "GPU-gated parallel whole-direction reset",
+    "deterministic corner topology incidence",
+    "cooperative spatial blood candidate search (conditional; current scene has blood MPM disabled)",
+    "certified inactive closed-solid AABB exclusion; no active contact omission",
+    "GPU-latched intermediate coupled nodal preconditioner retention; no host readback or new graph"
+  ],
+  "physical_admission": false,
+  "physical_equations_changed": false,
+  "predeclared_checks": {
+    "accepted_roots": 32,
+    "failure_rule": "retain failed or slower outcome; no relaxed certificate, density or physical gates",
+    "fidelity": {
+      "comparison_mapping": "canonical cell ancestry; never raw changed indices",
+      "integrated_force_relative_tolerance": 0.01,
+      "mass_conservation": true,
+      "physiological_relative_tolerance": 0.01,
+      "regional_energy_strain_relative_tolerance": 0.05,
+      "unchanged_contact_penetration_limits": true
+    },
+    "matched_binary_control_required": true,
+    "minimum_body_wall_reduction_fraction": 0.02,
+    "prediction": "Captured clear sweep no longer rejects root31; complete32roots under unchanged physical gates. Mesh performance and force/strain fidelity remain unproven.",
+    "primary_outcome": "accepted simulated time / measured body wall time",
+    "reference": {
+      "bytes": 100590,
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/baseline-repeat-native-324/install-motion.plan.json",
+      "sha256": "c58921019497ca748b695ba7596f6982b4f9f47801991f74e9f3f9e8e52a4de8"
+    },
+    "secondary": [
+      "active columns and budget exhaustion",
+      "process/GPU working set",
+      "contact/element certificates"
+    ],
+    "unchanged_dt_s": 1.5625e-05
+  },
+  "preparation_memory_change": {
+    "input_geometry_and_mass_pins_unchanged": true,
+    "physical_equations_changed": false,
+    "scope": "source/compiled/import lifetimes,32MiB staging bound, exact surface intersection cache, early impossible-basis rejection"
+  },
+  "purpose": "Matched complete-scene test of current connected skin/fat mechanics; surface-only and preparation results are not performance claims",
+  "recovery_from_trial_230": {
+    "reason": "A required source-carrier flow CSV had been archived; restored byte-exact from independently verified batch023; physics unchanged.",
+    "restoration_receipt": "/Users/numi/Work/human-integrated-gaps-20261104/mass-flow-recovery/receipt.json"
+  },
+  "registration_restoration": {
+    "bytes": 1094,
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/bindings/registration-restoration.json",
+    "sha256": "5bcaeedc8678e32f2239f92b6dbf5b521a83698e851ee0222f60c767091f069c"
+  },
+  "removed_optional_diagnostics": {
+    "NM_FEM_BACKTRACKING_TRACE_NEWTON": "10",
+    "NM_FEM_BACKTRACKING_TRACE_OBJECT": "15",
+    "NM_FEM_BACKTRACKING_TRACE_ROOT": "26",
+    "NM_FEM_DEFORMABLE_LIMIT_TRACE_MINIMA": "1",
+    "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT": "26",
+    "NM_FEM_NEWTON_TRACE_ROOT": "26"
+  },
+  "required_transitive_input_pins": [
+    {
+      "bytes": 17652852,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/current-manifest-recovery-004/eight-parent-carrier-registration-reemission-001/assets/parent-0.nhtissue",
+      "sha256": "773e9e71853d061532044f93f624579b9f78712ba9b46ec298db328d14ce953b"
+    },
+    {
+      "bytes": 20070020,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/deltoid75-78-existing-shared-parent-source-824/assets/deltoid75-78-shared-parent-source1.nhtissue",
+      "sha256": "ddaf670fdae63f067f4dcda6843be4c5ff95526539ed7f0d3409d131532d611e"
+    },
+    {
+      "bytes": 594632,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/current-manifest-recovery-004/eight-parent-carrier-registration-reemission-001/assets/parent-2.nhtissue",
+      "sha256": "155771968e7b72f31b73ea2ab627a981bc5d2653e2add94a2ef9bb5f1ddfb035"
+    },
+    {
+      "bytes": 1264456,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/current-manifest-recovery-004/eight-parent-carrier-registration-reemission-001/assets/parent-3.nhtissue",
+      "sha256": "d7bfc9450e0cdcaab6620dced94186d160fa86905a3cc6544662a01443036661"
+    },
+    {
+      "bytes": 172808,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/current-manifest-recovery-004/eight-parent-carrier-registration-reemission-001/assets/parent-4.nhtissue",
+      "sha256": "19ffde77ec237fb040fcaa17f61d20d310b2dc971e90f8564fa64a1c114bc79e"
+    },
+    {
+      "bytes": 46837692,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/current-manifest-recovery-004/eight-parent-carrier-registration-reemission-001/assets/parent-5.nhtissue",
+      "sha256": "09b05ef5df837fa018cf2e12158ab09ad2513d1af0c8ee4ad4e0db609df987fc"
+    },
+    {
+      "bytes": 317288,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/current-manifest-recovery-004/eight-parent-carrier-registration-reemission-001/assets/parent-6.nhtissue",
+      "sha256": "419f8478482adb43036fe0f6e4ad6162501e41f8872fa2e516369dee6c9a456d"
+    },
+    {
+      "bytes": 317312,
+      "path": "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/aortic7-connected-network036-deltoid868b-parent7-rest-registration-001/assets/parent-7.nhtissue",
+      "sha256": "50819725026ac710da1cd98e36489ac8d650b4a2b27fc5a5da812d25072e6120"
+    },
+    {
+      "bytes": 136905772,
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-allocation/allocator-output/flow.csv",
+      "role": "transitive recorded source-carrier mass allocation used by native role-local import",
+      "sha256": "7775eae08b2c5e9a05391bf013e8ddfa83a12105fb9d745554cec7d24221b16a"
+    },
+    {
+      "bytes": 162807061,
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-allocation/allocator-output/carrier-trace.csv",
+      "role": "native recorded source-carrier packet transitive input",
+      "sha256": "ecf5610b73a121486db30789551f1c075a150e463ada327858062212b19a4cb0"
+    },
+    {
+      "bytes": 71867708,
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-allocation/allocator-output/semantic-groups.csv",
+      "role": "native recorded source-carrier packet transitive input",
+      "sha256": "61c935a22b79f024d7f8a06fb61ffc0779d806f29e9fb83b734517a7fc011c8b"
+    },
+    {
+      "bytes": 10671,
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-allocation/allocator-output/source-donors.csv",
+      "role": "native recorded source-carrier packet donor accounting",
+      "sha256": "f242b00fe6630bd7dc9fac3f86b261cba320ccf55b47e15b65cb8e2df661f2e8"
+    }
+  ],
+  "required_transitive_mass_proofs": [
+    {
+      "archive": "part-002.tar.gz",
+      "bytes": 817700165,
+      "elapsed_s": 29.575343665999753,
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-support/skin-carrier-witnesses.csv.gz",
+      "sha256": "cc2386556722d94f7efe18878129d001d4919a5aac940e33ce891fc20d3264d3"
+    },
+    {
+      "archive": "part-003.tar.gz",
+      "bytes": 658359400,
+      "elapsed_s": 23.220061041000008,
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-support/fat-carrier-witnesses.csv.gz",
+      "sha256": "0850b648acf4d6badd9fe9a426341f3cee9cc77839d27b411b956f85e91f5559"
+    }
+  ],
+  "retained_checks": [
+    {
+      "bytes": 392,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-preconditioner-check-031.json",
+      "sha256": "121ac34d1161fc42d836524a44d3354ef35f85b5b7796a9677a007025a834c54"
+    },
+    {
+      "bytes": 18700,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/completed-preconditioner-check-031.log",
+      "sha256": "02cb2ff65018c535e5f539c0c131fb72de8c33c8912e764c047d8d986df1995e"
+    },
+    {
+      "bytes": 14,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/gravity-scale-check-031.log",
+      "sha256": "5391eae9bcd289aa4008b7a4d3f190c7bd854ac9fbe0585f7c912e1ebfc97ead"
+    }
+  ],
+  "retained_prior_plan": {
+    "bytes": 91021,
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-native-327/install-motion.plan.json",
+    "sha256": "69858386c59ee1fdc04b7de955bc2d9705c3a59913c45958d648027e504e45c1"
+  },
+  "retained_resource_failure": {
+    "bytes": 908,
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interior-native-331/install-motion.execution.json",
+    "sha256": "7335cf3da1347110fa9afa8b952427326940b4d35bb21f8eee0f353eb80e2b19"
+  },
+  "retained_trial_runner": {
+    "bytes": 4730,
+    "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-scene-view-229/run_native_plan.py",
+    "sha256": "0cb6adc68eecc6ef1319b2671e24f5109d751a246defdadca4a5aeb7ebefd37f"
+  },
+  "reused_immutable_preparation_dump": {
+    "producer_disabled": true,
+    "scope": "unchanged source mass preparation dump; full native source and mass-ledger checks still repeat",
+    "source": {
+      "bytes": 840655370,
+      "path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/native-import-078/source-preflight/diagnostics/tissue-mass-reference.txt",
+      "sha256": "b951634521d4df625c11425613cbe501d3ec6f4ec151b86e5742c14fb0b7296a"
+    },
+    "target_relative": "diagnostics/tissue-mass-reference.txt"
+  },
+  "role_input_pins": {
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/fat-child-mass.csv": "36eb597a2e0778ab0529c3d5057a4af0d9306aa8a39db2507bcf566231ee6564",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/fat-child-source-donor.csv": "de312719834997893343de2544d53f65fa6d71cfea7632d7e925dac3f6d578a5",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/fat-recorded-flow-receipt.json": "d9b7b04a8030665750ee9770b06c3ee52921a1ef4ec1317f33d380197b43312c",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/fat-source-carrier-flow.csv": "7cd5ed92ba51abd340b9ca4facc28ce172b555198c1421c731b1b046f8ed7631",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/fat-source-parent-donor.csv": "2f7a618e87dec02b748184a03502a6b19e68e8de5c763ae114fde52212c45bd7",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/fat-source-parent.csv": "d2c33a3391227346dcdf47360af69209cc80c5d6e1d687900e760e7e947e345d",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/fat-transport-flow.csv": "36af9a682665e04b5f35734f99715432630cd0cf4ad7458503f2a99a484b571d",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/skin-child-mass.csv": "b240bb836b377692d5809fb363e0a83e3db928dcab674d4af2571f2867a009ef",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/skin-child-source-donor.csv": "f8e20ea0708e24808736c594e4c41c9d8b57bf203d2f6459e8d6de80584d0db1",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/skin-recorded-flow-receipt.json": "e8be12bd5c2ca27bc14263de034432e21a43f8ab1106105311761304f3b39d9b",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/skin-source-carrier-flow.csv": "5e4224fd9e62f6ca5618caa22873c4257109c448b040100d7e8c75966600311a",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/skin-source-parent-donor.csv": "433a5debb87fa7491d3b1044e79b1c7cea44f950f5d3c9360cce3f02dab755ab",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/skin-source-parent.csv": "4ce250876d18e1fb1833c37dcd9d890418c8af9837e85cd2175b8d472f143a75",
+    "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/skin-transport-flow.csv": "fc45180ea87e49d95a4ddf900c3dc7960dbdcabe40722d805069dae9eaf06d59"
+  },
+  "routine_observation_policy": {
+    "extra_mrv_captures": 0,
+    "full_endpoint_retained": true,
+    "initial_native_pack_retained": true,
+    "physical_checks": "unchanged",
+    "stdout": "lossless streamed gzip"
+  },
+  "runtime_dependencies": {
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib": {
+      "bytes": 10538256,
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib",
+      "sha256": "06d58c5f3db43d53933639c7fb5e5db8730f7ec447c685ccdaa56738006ae269"
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib": {
+      "bytes": 560736,
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib",
+      "sha256": "880f60be6eb17b6af781665c6016c6d050da069685fcf1e8e2cafda0fc2115c8"
+    },
+    "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib": {
+      "bytes": 21875885,
+      "path": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib",
+      "sha256": "f21611e0e2df4723956fee7d1910431bea4167e20232b74d6e8cf5497b8cab50"
+    }
+  },
+  "runtime_launcher": {
+    "bytes": 5889,
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/run_native_plan_compact.py",
+    "sha256": "20b3f2168932125c64916b04c6c8acafbc8d859e8c29194f178b6a9f776ea7d8"
+  },
+  "schema": "numi.human.current-native-launch-1025-direct-o-recorded-flow.v1",
+  "shared_rhs_change": "Production215 packed preconditioner,219 bounded horizon pool and225 inactive history binding extent fix. Rejected218 contact cache removed.",
+  "source_preflight_reuse": {
+    "reason": "new compiled connected surface/volume mesh and conservative mass allocation require full admission",
+    "reused": false
+  },
+  "source_qualifier": {
+    "bytes": 17599,
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/source-geometry-admission-001.json",
+    "sha256": "139747df2564c3d9420ba1fccc05419e865c2264faef42d92dd7be67a4fd2d39"
+  },
+  "stages": [
+    {
+      "argv": [
+        "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/joint-functional-owner-audit-20261023/knee-projection-envelope-001/myosim-fullbody-core-reference.nhrigid",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+        "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+        "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interior-native-334/install-motion",
+        "--persistent-metal-stand",
+        "--muscle-step-seconds",
+        "0.000015625",
+        "--muscle-step-count",
+        "32",
+        "--support-contact-payload",
+        "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt",
+        "--joint-equality-payload",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+        "--tendon-payload",
+        "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/compiled-tendon/numi-human-tendon-attachments.nhtendon",
+        "--resting-scene",
+        "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+        "/Users/n/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-reference-respiration.json",
+        "--vascular-dense45",
+        "--resting-reference-mass-kg",
+        "97.13195069110952",
+        "--skin-payload",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/candidate.nhskin",
+        "--soft-tissue-payload",
+        "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+        "--torso-anatomy-payload",
+        "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-thorax.nhanatomy",
+        "--resting-anatomy-receipt",
+        "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-anatomy-receipt.json",
+        "--dimension",
+        "512",
+        "--muscle-activation",
+        "0.0",
+        "--stand-contact-iterations",
+        "64",
+        "--pectoralis-fascia-payload",
+        "/Users/n/numi-human-separation-20261018/passive-fascia-source-173/payload/bodyparts3d-pectoralis-fascia.nhfascia",
+        "--root-pose",
+        "-0.05000000074505806",
+        "0.20000000298023224",
+        "0.098855718970298767",
+        "-0.70316427946090698",
+        "-0.0014300436014309525",
+        "-0.0014054210623726249",
+        "0.71102458238601685",
+        "--resting-release-initialization",
+        "--pose-q",
+        "36",
+        "0.1",
+        "--pose-q",
+        "74",
+        "0.1",
+        "--pose-q",
+        "40",
+        "0.0",
+        "--pose-q",
+        "41",
+        "0.0",
+        "--pose-q",
+        "78",
+        "0.0",
+        "--pose-q",
+        "79",
+        "0.0",
+        "--resting-registered-ligaments"
+      ],
+      "cwd": "/Users/numi/Work/skin-fat-native-integration-209",
+      "environment": {
+        "DYLD_LIBRARY_PATH": "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib",
+        "MTL_DEBUG_LAYER": "0",
+        "NM_CONTACT_COMPACTION_ACTIVE_PREFIX": "1",
+        "NM_CONTACT_COMPLETED_GEOMETRY_CACHE": "1",
+        "NM_CONTACT_COMPLETED_INCIDENCE_REUSE": "1",
+        "NM_CONTACT_FINAL_ZERO_GEOMETRY_REUSE": "1",
+        "NM_CONTACT_NODE_INCIDENCE_HIERARCHICAL_PREFIX": "1",
+        "NM_CONTACT_NODE_INCIDENCE_RADIX": "1",
+        "NM_FEM_ALL_NATIVE_FLOAT_SPECIALIZATION": "1",
+        "NM_FEM_BACKTRACKING_CONSTITUTIVE_VALIDITY": "1",
+        "NM_FEM_CACHED_NODE_SIMD": "1",
+        "NM_FEM_CLEARANCE_ALIGNED_BARRIER": "1",
+        "NM_FEM_COMPENSATED_CONTACT_PLANE_CCD": "1",
+        "NM_FEM_DEFORMABLE_COLLISION_GAP": "1",
+        "NM_FEM_DEFORMABLE_LIMIT_TRACE_BOUND": "0.1",
+        "NM_FEM_DEFORMABLE_LIMIT_TRACE_FAILURES": "1",
+        "NM_FEM_DISTRIBUTED_GLOBAL_MEASUREMENTS": "1",
+        "NM_FEM_DOMAIN_MECHANICAL_TIGHTENING": "3",
+        "NM_FEM_DOMAIN_NONLINEAR_LATCH": "1",
+        "NM_FEM_FRESH_DIRECTION_ALPHA_RESET": "1",
+        "NM_FEM_FRESH_RHS_CLEAR_SKIPPED_CACHES": "0",
+        "NM_FEM_FRESH_RHS_PRECONDITIONER_PREFLIGHT": "1",
+        "NM_FEM_FRESH_RHS_PREFLIGHT_SKIP_DOMAIN_DIAGNOSTIC": "0",
+        "NM_FEM_GATHER_SIMD": "1",
+        "NM_FEM_HUMAN_PARTITIONED_FUSED_TANGENT": "1",
+        "NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS": "1",
+        "NM_FEM_NATIVE_TANGENT_BUNDLE": "1",
+        "NM_FEM_NEWTON_TAIL_DISPATCH": "1",
+        "NM_FEM_NEWTON_TAIL_ICB": "0",
+        "NM_FEM_NEWTON_TRACE_ROOT": "28",
+        "NM_FEM_NODAL_PSD_CONTACT_BLOCKS": "0",
+        "NM_FEM_PARALLEL_BACKTRACKING": "1",
+        "NM_FEM_PARALLEL_CONSTITUTIVE_BACKTRACKING": "1",
+        "NM_FEM_PRIVATE_CONTACT_FAILURE_CAPTURE": "1",
+        "NM_FEM_REFERENCE_SELF_CONTACT_WIDTH": "1",
+        "NM_FEM_RESOLVED_MOLLIFIER_CURVATURE": "1",
+        "NM_FEM_SHARE_IMMUTABLE_TETRAHEDRA": "1",
+        "NM_FEM_STATELESS_MATERIAL_SPECIALIZATION": "1",
+        "NM_FEM_STATELESS_TANGENT_BUNDLE": "1",
+        "NM_FEM_TANGENT_CENSUS": "1",
+        "NM_FEM_TANGENT_OWNER_TASKS": "1",
+        "NM_FEM_TERMINAL_CERTIFICATE_TRACE": "1",
+        "NM_FEM_THIN_CELL_SCHWARZ": "0",
+        "NM_FEM_TILED_DEFORMABLE_LIMIT": "1",
+        "NM_FEM_TRUE_RESIDUAL_CERTIFY": "1",
+        "NM_FEM_TRUE_RESIDUAL_ROOT": "0",
+        "NM_FEM_TRUE_RESIDUAL_ROW_WITNESS": "1",
+        "NM_FGMRES_AGGREGATE_CYCLE_ICB": "0",
+        "NM_FGMRES_AGGREGATE_FIRST_CYCLE_ICB": "0",
+        "NM_FGMRES_CGS2_ICB": "1",
+        "NM_FGMRES_COARSE_PARITY_DIAGNOSTIC": "0",
+        "NM_FGMRES_COUPLED_BORROWED_ENCODER": "1",
+        "NM_FGMRES_COUPLED_MASS_ACTION_INDIRECT": "1",
+        "NM_FGMRES_DISTRIBUTED_CGS2": "1",
+        "NM_FGMRES_FLAT_COLUMN_ICB": "0",
+        "NM_FGMRES_INEXACT_COUPLED_LINEAR_CERTIFICATE": "1",
+        "NM_FGMRES_INEXACT_NEWTON_FORCING": "1",
+        "NM_FGMRES_INEXACT_NEWTON_MAX_ETA": "0.0001",
+        "NM_FGMRES_INEXACT_NEWTON_TIGHTENING": "4",
+        "NM_FGMRES_LEFT_ROW_EQUILIBRATION": "1",
+        "NM_FGMRES_LEFT_ROW_EQUILIBRATION_COUPLED_FEM": "1",
+        "NM_FGMRES_LEFT_ROW_EQUILIBRATION_HUMAN_ONLY": "1",
+        "NM_FGMRES_OPERATOR_ICB": "1",
+        "NM_FGMRES_PARALLEL_BASE_PRECONDITIONER": "1",
+        "NM_FGMRES_PARALLEL_BASE_PRECONDITIONER_MASK": "7",
+        "NM_FGMRES_PREFIX_PRECONDITIONER_ICB": "1",
+        "NM_FGMRES_RELATIVE_INNER_FORCING": "1",
+        "NM_FGMRES_SKIP_COMPLETED_CYCLE_WORK": "1",
+        "NM_FGMRES_SKIP_COMPLETED_LINEAR_BUILDERS": "1",
+        "NM_FGMRES_SKIP_COMPLETED_ZERO_OPERATOR_ACTION": "1",
+        "NM_FGMRES_SKIP_EMPTY_FIELD_PRECONDITIONER": "1",
+        "NM_HUMAN_COMPACT_IMMUTABLE_CONTACTS": "1",
+        "NM_MATTER_CONTACT_ZERO_STEP_GEOMETRY_REUSE": "1",
+        "NM_MIXED_CERTIFICATE_CONTACT_CACHE": "0",
+        "NM_MIXED_CERTIFICATE_OWNER_INCIDENCE": "1",
+        "NM_MIXED_CERTIFICATE_TILED": "1",
+        "NM_SCHEDULER_TILED_FEM_OBSERVE": "1",
+        "NM_VASCULAR_COMPENSATED_CAVITY_WORDS": "1",
+        "NM_VASCULAR_COOPERATIVE_CAVITY_OPERATOR": "1",
+        "NM_VASCULAR_PERSISTENT_LOW_WORDS": "1",
+        "NM_VASCULAR_SEMISMOOTH_TRANSPORT": "0",
+        "NUMANX_COUPLED_HUMAN_COOPERATIVE_MASS_ACTION": "1",
+        "NUMI_EXPERIMENT_INITIAL_ROOT_POSE": "-0.05000000074505806,0.20000000298023224,0.098855718970298767,-0.70316427946090698,-0.0014300436014309525,-0.0014054210623726249,0.71102458238601685",
+        "NUMI_GPU_PROGRESS": "0",
+        "NUMI_GPU_PROGRESS_ROOT": "0",
+        "NUMI_H706_FRACTIONAL_CARRIERS_FAT_NPZ": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-support/fat-source-carriers.npz",
+        "NUMI_H706_FRACTIONAL_CARRIERS_FAT_SHA256": "48a63ca4cd971f2df3b82c348f3a01b216c2abc447721050b67bfdc61c3bf60a",
+        "NUMI_H706_FRACTIONAL_CARRIERS_SKIN_NPZ": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-support/skin-source-carriers.npz",
+        "NUMI_H706_FRACTIONAL_CARRIERS_SKIN_SHA256": "f593e02f2977598168706bf5ecec99a52241f11b60099c0227f590e7a3a5be71",
+        "NUMI_H706_FRACTIONAL_CARRIER_WITNESS_FAT_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-support/fat-carrier-witnesses.csv.gz",
+        "NUMI_H706_FRACTIONAL_CARRIER_WITNESS_FAT_SHA256": "0850b648acf4d6badd9fe9a426341f3cee9cc77839d27b411b956f85e91f5559",
+        "NUMI_H706_FRACTIONAL_CARRIER_WITNESS_SKIN_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-support/skin-carrier-witnesses.csv.gz",
+        "NUMI_H706_FRACTIONAL_CARRIER_WITNESS_SKIN_SHA256": "cc2386556722d94f7efe18878129d001d4919a5aac940e33ce891fc20d3264d3",
+        "NUMI_H706_FRACTIONAL_ENABLE": "1",
+        "NUMI_H706_FRACTIONAL_EXACT_PROJECTION_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-support/exact-projection-support.csv",
+        "NUMI_H706_FRACTIONAL_EXACT_PROJECTION_SHA256": "38dc39b3429f6cd5cebd569e2e6934f318f4871581a0f56f1811d0150a853d6a",
+        "NUMI_H706_FRACTIONAL_GEOMETRY_FAT_SHA256": "d240ae8d3678bf0f2ae12b25eb7c87f03f3bf50ff936fadb3f6e29f74d08cfad",
+        "NUMI_H706_FRACTIONAL_GEOMETRY_SKIN_SHA256": "fddb893b8e5390440a502229717953d1d78a3d397db4b42d68ac4ba95f436c0e",
+        "NUMI_H706_FRACTIONAL_P1_FAT_NPZ": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/p1-Fat/fat-current-p1-143-support.npz",
+        "NUMI_H706_FRACTIONAL_P1_FAT_SHA256": "8b06da580a1c6d69d58f6d9676293647a78238f613a3859f072162b7136c8175",
+        "NUMI_H706_FRACTIONAL_P1_SKIN_NPZ": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/p1-Skin/skin-current-p1-143-support.npz",
+        "NUMI_H706_FRACTIONAL_P1_SKIN_SHA256": "16a701cfecd6ed20ba3ef62ceb30ba68d82bc1b07fd2db5fc20ddf8719ac594b",
+        "NUMI_H706_FRACTIONAL_RECORDED_FLOW_ADMISSION_RECEIPT_JSON": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-admission/mass-receipt.json",
+        "NUMI_H706_FRACTIONAL_RECORDED_FLOW_ADMISSION_RECEIPT_SHA256": "f7e3e39e10c407cf806fd61e0d7a907446578005521c5b723359e1bd135f67a6",
+        "NUMI_H706_FRACTIONAL_SOURCE330_MASS_SHA256": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679",
+        "NUMI_H706_FRACTIONAL_SOURCE330_NODES": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.nodes.csv",
+        "NUMI_H706_FRACTIONAL_SOURCE330_NODES_SHA256": "7044051353d173b94143a4027ba7dcc468b221512b3f41d5819d27025b36d044",
+        "NUMI_H706_FRACTIONAL_SOURCE330_TETS": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.tets.csv",
+        "NUMI_H706_FRACTIONAL_SOURCE330_TETS_SHA256": "82e20067454748a9eca91bc6f06ab343677c051a139797ae051c64022bd87992",
+        "NUMI_H706_FRACTIONAL_SOURCE_CENTROID_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-support/source-centroid-slots.csv",
+        "NUMI_H706_FRACTIONAL_SOURCE_CENTROID_SHA256": "9e79a1a4e8ce4233472a078b7f12f7e42514d8d0c9695c99c2d7e699a12f826a",
+        "NUMI_H706_FRACTIONAL_STATE_SHA256": "bd034f50c89bf186273fe084fe87f5ce18fe2af236761544fdb14ac32541f3c0",
+        "NUMI_H706_FRACTIONAL_VOLUME_FAT_SHA256": "d240ae8d3678bf0f2ae12b25eb7c87f03f3bf50ff936fadb3f6e29f74d08cfad",
+        "NUMI_H706_FRACTIONAL_VOLUME_SKIN_SHA256": "fddb893b8e5390440a502229717953d1d78a3d397db4b42d68ac4ba95f436c0e",
+        "NUMI_HUMAN_ACCEPTED_BODY_MOTION_AUDIT": "1",
+        "NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT": "1",
+        "NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT_SEGMENT_STEPS": "1",
+        "NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT": "1",
+        "NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT_FIRST_STEP": "1",
+        "NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT_LAST_STEP": "32",
+        "NUMI_HUMAN_BLEEDING_ENABLED": "0",
+        "NUMI_HUMAN_BLOOD_MPM_ENABLED": "0",
+        "NUMI_HUMAN_BLOOD_MPM_GRID_BOUNDS_M": "-0.2655323961,-0.1162754487,1.3001966098,0.2344676039,0.3837245513,1.8001966098",
+        "NUMI_HUMAN_BLOOD_MPM_MATERIAL": "/Users/n/numi-lab-native-replay-publish-20261017/matter/materials/blood_high_shear_newtonian_proxy.nmatter",
+        "NUMI_HUMAN_CAPTURE_FEM_ENDPOINT_STATE": "1",
+        "NUMI_HUMAN_CONTACT_AABB_EXCLUSION": "1",
+        "NUMI_HUMAN_CONTACT_COMPACT_QUERIES": "1",
+        "NUMI_HUMAN_CONTACT_EXACT_MOTION_CACHE": "1",
+        "NUMI_HUMAN_CONTACT_GPU_TIMING": "0",
+        "NUMI_HUMAN_CONTACT_ROW_CACHE": "1",
+        "NUMI_HUMAN_CONTACT_WORKING_SET_GUARD": "1",
+        "NUMI_HUMAN_EXECUTION_STAGES": "1",
+        "NUMI_HUMAN_FEM_SKIN_SUPPORT": "1",
+        "NUMI_HUMAN_FEM_SUPPORT_BARRIER_RELEASE": "1",
+        "NUMI_HUMAN_GAS_TRANSPORT_SUBCYCLING": "1",
+        "NUMI_HUMAN_LOCAL_BLOOD_COMPACTION": "1",
+        "NUMI_HUMAN_MATERIAL_EXPRESSION_CACHE": "1",
+        "NUMI_HUMAN_PARALLEL_CONTACT_AUDIT": "1",
+        "NUMI_HUMAN_PARALLEL_CONTACT_WRENCH": "1",
+        "NUMI_HUMAN_PARALLEL_NODE_WORK": "1",
+        "NUMI_HUMAN_PARALLEL_RESPIRATORY_GAS": "0",
+        "NUMI_HUMAN_PARALLEL_RESPIRATORY_MUSCLES": "1",
+        "NUMI_HUMAN_PARTITIONED_MASS_WHITEN": "1",
+        "NUMI_HUMAN_PASSIVE_FEM_MAX_RATE_EXPONENT": "0",
+        "NUMI_HUMAN_PASSIVE_FEM_NEWTON_ITERATIONS": "16",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_DETAIL_BRIDGE": "0",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_DETAIL_BRIDGE_CANONICAL_FACE_EXPORT": "0",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_INSTALL": "1",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_OPERATIONAL_REFERENCE_SPLIT": "0",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT": "1",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_CHILD_LABELS": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/volume/child.labels.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_CHILD_LABELS_SHA256": "399dea9a4a7ce4baf87ae3211ba738d76cf3232f8a674605fd491a0f1fd08980",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_COMBINED_NODE_MAP_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/bindings/combined-node-map.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_COMBINED_NODE_MAP_SHA256": "bc1834d1089a5900a7af7a3a136cb17b360be5adf9261ba9608e021c475766ad",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_COORDINATE_FRAME_SHA256": "0c6e10d411604cb317eb5a9da234da568d683e6cc0276ac184f80fd29067b80a",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_D37_DEEP_FACE_COUNT": "4949",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_D37_INNER_FACE_COUNT": "4949",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_DEEP_ATTACHMENT_REQUESTS_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/bindings/deep-attachment-requests.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_DEEP_ATTACHMENT_REQUESTS_SHA256": "8eeac310187b8b51170d94a9b207dc82a39d822a7a106cf65e329c231aba40f5",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_DONOR_FRAMES_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/registered/donor-frames.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_DONOR_FRAMES_SHA256": "b1704fb7b846254583f4b6a08c394ed3cad1603554244078706ca4b3811ac674",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_FACET_ANCESTRY_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/volume/facet-ancestry.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_FACET_ANCESTRY_SHA256": "5949d76067301dd4c127f885eed3fe2b3033124915257946d84b75cdce87b4a1",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_MASS_TRANSPORT_ENVELOPE_RECEIPT": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/mass-admission/geometry-envelope.json",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_MASS_TRANSPORT_ENVELOPE_RECEIPT_SHA256": "cc24ce17415379f8d24a896e1d0c897ff680e898980b47cf59692f7bdeb27a9b",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_MAXIMUM_MASS_TRANSPORT_DISTANCE_M": "0.187444",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_MAX_PARENT_REGISTRATION_DISTANCE_M": "0.0004",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_NODE_REGISTRATION_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/bindings/complete-node-parent-registration.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_NODE_REGISTRATION_SHA256": "fbf9323517fecf757953da59c24028cc9d4afbdae0bb63b8555b4a3105fe69db",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CANDIDATE_PRODUCER_RECEIPT": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/receipt.json",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CANDIDATE_PRODUCER_RECEIPT_SHA256": "af86e8d24cdba805e15fe467c220a08dbe272538b083d27adeada5c34b49de7b",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CANDIDATE_SELF_AUDIT_RECEIPT": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/source-geometry-admission-001.json",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CANDIDATE_SELF_AUDIT_RECEIPT_SHA256": "139747df2564c3d9420ba1fccc05419e865c2264faef42d92dd7be67a4fd2d39",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CANDIDATE_VOLUME_ASSET": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/rich433/candidate-current-typed-volume.npz",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CANDIDATE_VOLUME_SHA256": "474a54575cc7322aa93c0cba43448cd28a5d0b5f4cadc172d4d9600d4d0d604d",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CONFORMING_REFINEMENT_ACTUAL_PROOF_RECEIPT_SHA256": "996bc967daee1b9b9ba78d15cd3e3785fc8203af2b0daf995e03a351553da187",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CONFORMING_REFINEMENT_CHAIN": "0",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_CONFORMING_REFINEMENT_SELF_AUDIT_RECEIPT_SHA256": "58b1337eda8e4d536037b273d126d6fd5290cb10a77000ef44419cd02fc935c4",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_ELEMENTS": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/parent-reduced-boundary.ele",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_ELEMENTS_SHA256": "49671889c6711fedd8dd5727bd264e9d652b3c8ef48e15783b6be7a44c32c347",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_LABELS": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/parent-reduced-boundary.labels.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_LABELS_SHA256": "c4f751327f3b47e24e892f397d726105e2c8be0846e7b3b07f99b2e202e5ae5c",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_NODE": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/parent-reduced-boundary.node",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_NODE_SHA256": "d1238fc477b290c78970d5a7bbf01e7465a5e85aa00fe7414ee3b95503cc1b50",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_PRODUCER_RECEIPT": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/reconstructed-receipt.json",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_PRODUCER_RECEIPT_SHA256": "70faa10f6952d85e5d7b788cddca4896fc329126c82102215489a97ffc7c685f",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_SELF_AUDIT_RECEIPT": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/exact-self-521/receipt.json",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_SELF_AUDIT_RECEIPT_SHA256": "4f33f1779864b188a127e7a3df8ac68c58f7ba134695d1fd3d3613052f0ae34c",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_VOLUME_ASSET": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/reduced-physical-boundary-400/attempt-002-parent-ancestry-walk/candidate.npz",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OPERATIONAL_SOURCE_VOLUME_SHA256": "2f547b21c6be0f3e21a021d80dad6c63c3a0e6af31d5ebe1780ca1b32c237a54",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OUTER_FACE_ANCESTRY_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/registered/outer-face-ancestry.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_OUTER_FACE_ANCESTRY_SHA256": "1ccbc01a1bd8af63299724561f4a112b0113b3e54232d614539d3739f984222f",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_LABELS_CSV": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv.labels.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_LABELS_SHA256": "99d643f71a735ee49223cdcd7b863d2d0978b8cc490a138bad4a63012438a457",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_NODES_SHA256": "7044051353d173b94143a4027ba7dcc468b221512b3f41d5819d27025b36d044",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_PACKET_CSV": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/native-physical-parent-mass-330/native-source-identity-control-003/compiled-parent-cell-mass.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_PACKET_SHA256": "c7823c42d64a2154a34c87cc0d4d202f0d5256f79217e74f5f62bcf1d5b31679",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_SOURCE_SHA256": "8e2424901318f25caca1540aeca412ca779fc014f68f49fe0cb6c17fb5aa0c1f",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_PARENT_TETS_SHA256": "82e20067454748a9eca91bc6f06ab343677c051a139797ae051c64022bd87992",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_D_CONTACT_THICKNESS_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/roles/D-contact-thickness.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_D_CONTACT_THICKNESS_SHA256": "968035d9173e6d9a849119f2418fbc92de48ef9efb8b2b99b4f7f2f37e12698a",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_D_FULL86_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/roles/D-full86.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_D_FULL86_SHA256": "0b19572908cf8f2ba3c0d4ea656a81a0e54a8f6040e81fb3a08d5375ce9c63f2",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_D_SOURCE_ASSET": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/bindings/D-source.json",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_D_SOURCE_ASSET_SHA256": "7ba30e31d428381f4df4ba48ea208e2791bbb68145b07f01815eba5bd44486f2",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_D_SOURCE_DOMAIN": "D37_coarse_parent",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_D_SOURCE_FACE_COUNT": "207901",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_D_SOURCE_VERTEX_COUNT": "120648",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_I_CONTACT_THICKNESS_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/roles/I-contact-thickness.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_I_CONTACT_THICKNESS_SHA256": "7191409f7b249013dfeacff156f4b424397fbb5cc85a5b1a2cc248184a6ca5cc",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_I_FULL86_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/roles/I-full86.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_I_FULL86_SHA256": "c608a7dd078f32800c60ba25ea11ba64b936ea20bd8ad6d5a01c53f53d727a06",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_I_SOURCE_ASSET": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/bindings/I-source.json",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_I_SOURCE_ASSET_SHA256": "06c0d2e707f04f5f11ec9a6f6f443673eafa84f52c9de46c50907ea0ef437423",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_I_SOURCE_DOMAIN": "D37_coarse_parent",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_I_SOURCE_FACE_COUNT": "236389",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_I_SOURCE_VERTEX_COUNT": "125368",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_O_CONTACT_THICKNESS_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/roles/O-contact-thickness.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_O_CONTACT_THICKNESS_SHA256": "010a977dd6a77585732e6805e7d449fc595e4ef4692623058fe1bc2e470b2617",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_O_FULL86_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/roles/O-full86.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_O_FULL86_SHA256": "382bfcd4dd962113703ae89f4c5e13bafd36940504c91724f5319b68b7bce684",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_O_SOURCE_ASSET": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/bindings/O-source.json",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_O_SOURCE_ASSET_SHA256": "78646327805967c668bffb612629b3ad41b1f579491189bbe5d8153768a51449",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_O_SOURCE_DOMAIN": "derived_connected_refinement433_O",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_O_SOURCE_FACE_COUNT": "152341",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_ROLE_O_SOURCE_VERTEX_COUNT": "76669",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_D_FACES_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/registered/registered-D-faces.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_D_FACES_SHA256": "389feaef62e4fcac2924f7c6f6f2e0d620d54ab41dd710bffb8c19c1b9d2adaa",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_D_NODES_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/bindings/registered-D.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_D_NODES_SHA256": "3e2c25fecf5579cb83cbb570eb38e72b33956a888784aee1d224392f5e6e8d35",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_D_STABLE_IDENTIFIER": "160001",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_I_FACES_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/registered/registered-I-faces.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_I_FACES_SHA256": "84e26fe751e79405f92a391636ef9ab60bc1b5e52d34bda6d531a9e2fa233866",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_I_NODES_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/bindings/registered-I.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_I_NODES_SHA256": "2b4bff02d3cfbd58918470cc8434e08ed7c839a56b3551341c39d09f15db52f3",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_I_STABLE_IDENTIFIER": "150002",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_O_FACES_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/registered/registered-O-faces.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_O_FACES_SHA256": "a67a9b2152739f68c5d224bec38db38522c97d63f48476f3bb4c7f3a9f031bd2",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_O_NODES_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/bindings/registered-O.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_O_NODES_SHA256": "e7a0b072ce21689d8ad5b2b4fc21e732cf67f581e48719c303afabc978b347c3",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_SURFACE_O_STABLE_IDENTIFIER": "150001",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_TETGEN_ELEMENTS": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/volume/mesh.ele",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_TETGEN_ELEMENTS_SHA256": "6136b78c002ccbb69232837206b33fdaae506c4678983443308feccbf17ad33b",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_TETGEN_NODE": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/volume-export/volume/mesh.node",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_PREFLIGHT_TETGEN_NODE_SHA256": "79702eca9e34e44087166d1080ededa89948dbf70377800c48b8099f38d21863",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_FAT_CHILD_MASS_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/fat-child-mass.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_FAT_CHILD_MASS_CSV_SHA256": "36eb597a2e0778ab0529c3d5057a4af0d9306aa8a39db2507bcf566231ee6564",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_FAT_CHILD_SOURCE_DONOR_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/fat-child-source-donor.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_FAT_CHILD_SOURCE_DONOR_CSV_SHA256": "de312719834997893343de2544d53f65fa6d71cfea7632d7e925dac3f6d578a5",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_FAT_RECEIPT_JSON": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/fat-recorded-flow-receipt.json",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_FAT_RECEIPT_SHA256": "d9b7b04a8030665750ee9770b06c3ee52921a1ef4ec1317f33d380197b43312c",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_FAT_SOURCE_CARRIER_FLOW_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/fat-source-carrier-flow.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_FAT_SOURCE_CARRIER_FLOW_CSV_SHA256": "7cd5ed92ba51abd340b9ca4facc28ce172b555198c1421c731b1b046f8ed7631",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_FAT_SOURCE_PARENT_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/fat-source-parent.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_FAT_SOURCE_PARENT_CSV_SHA256": "d2c33a3391227346dcdf47360af69209cc80c5d6e1d687900e760e7e947e345d",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_FAT_SOURCE_PARENT_DONOR_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/fat-source-parent-donor.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_FAT_SOURCE_PARENT_DONOR_CSV_SHA256": "2f7a618e87dec02b748184a03502a6b19e68e8de5c763ae114fde52212c45bd7",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_FAT_TRANSPORT_FLOW_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/fat-transport-flow.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_FAT_TRANSPORT_FLOW_CSV_SHA256": "36af9a682665e04b5f35734f99715432630cd0cf4ad7458503f2a99a484b571d",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_SKIN_CHILD_MASS_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/skin-child-mass.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_SKIN_CHILD_MASS_CSV_SHA256": "b240bb836b377692d5809fb363e0a83e3db928dcab674d4af2571f2867a009ef",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_SKIN_CHILD_SOURCE_DONOR_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/skin-child-source-donor.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_SKIN_CHILD_SOURCE_DONOR_CSV_SHA256": "f8e20ea0708e24808736c594e4c41c9d8b57bf203d2f6459e8d6de80584d0db1",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_SKIN_RECEIPT_JSON": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/skin-recorded-flow-receipt.json",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_SKIN_RECEIPT_SHA256": "e8be12bd5c2ca27bc14263de034432e21a43f8ab1106105311761304f3b39d9b",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_SKIN_SOURCE_CARRIER_FLOW_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/skin-source-carrier-flow.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_SKIN_SOURCE_CARRIER_FLOW_CSV_SHA256": "5e4224fd9e62f6ca5618caa22873c4257109c448b040100d7e8c75966600311a",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_SKIN_SOURCE_PARENT_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/skin-source-parent.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_SKIN_SOURCE_PARENT_CSV_SHA256": "4ce250876d18e1fb1833c37dcd9d890418c8af9837e85cd2175b8d472f143a75",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_SKIN_SOURCE_PARENT_DONOR_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/skin-source-parent-donor.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_SKIN_SOURCE_PARENT_DONOR_CSV_SHA256": "433a5debb87fa7491d3b1044e79b1c7cea44f950f5d3c9360cce3f02dab755ab",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_SKIN_TRANSPORT_FLOW_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/interior-preserved-boundary-326/compiler/converter/role-output/skin-transport-flow.csv",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_ALLOCATION_SKIN_TRANSPORT_FLOW_CSV_SHA256": "fc45180ea87e49d95a4ddf900c3dc7960dbdcabe40722d805069dae9eaf06d59",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_RECORDED_CARRIER_ALLOCATION_CSV": "1",
+        "NUMI_HUMAN_PHYSICAL_SKIN_REGISTERED_VOLUME_SOURCE_ONLY": "0",
+        "NUMI_HUMAN_PREPARATION_MEMORY": "1",
+        "NUMI_HUMAN_REGISTERED_VOLUME_CONTACT_CAPACITY": "4000000",
+        "NUMI_HUMAN_RESPIRATORY_SUBCYCLING": "1",
+        "NUMI_HUMAN_RESTING_AORTIC_WALL": "1",
+        "NUMI_HUMAN_RESTING_AORTIC_WALL_OUTER_CONTACT": "1",
+        "NUMI_HUMAN_RESTING_COMMON_FAILURE_RECEIPT": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interior-native-334/install-motion/diagnostics/common-field-failure.json",
+        "NUMI_HUMAN_RESTING_COUPLED_TANGENT_BLOCK": "1",
+        "NUMI_HUMAN_RESTING_EXPORT_MRV_STEPS": "",
+        "NUMI_HUMAN_RESTING_FGMRES_BUDGET": "16",
+        "NUMI_HUMAN_RESTING_INSPECTION_PERIOD_SECONDS": "0.05",
+        "NUMI_HUMAN_RESTING_INSPECTION_TOUR": "0",
+        "NUMI_HUMAN_RESTING_OPTIC_NERVE_FEM": "1",
+        "NUMI_HUMAN_RESTING_ORGAN_BATCH_FEM": "1",
+        "NUMI_HUMAN_RESTING_PASSIVE_FASCIA": "1",
+        "NUMI_HUMAN_RESTING_PROSTATE_FEM": "1",
+        "NUMI_HUMAN_RESTING_SKIN_FAT_FEM": "1",
+        "NUMI_HUMAN_RESTING_TRANSACTION_PROBE": "0",
+        "NUMI_HUMAN_RESTING_WHOLE_BODY_SKIN_FAT_FEM": "1",
+        "NUMI_HUMAN_SKIN_BONE_STATIC_BVH": "1",
+        "NUMI_HUMAN_SKIN_BONE_TRIANGLE_CONTACT": "1",
+        "NUMI_HUMAN_SKIN_FAT_COMPACT_MASS_CAPTURE": "1",
+        "NUMI_HUMAN_SKIN_FAT_PARENT_MASS_CAPTURE_ONLY": "0",
+        "NUMI_HUMAN_SKIN_FAT_PARENT_MASS_LEDGER_CSV": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interior-native-334/install-motion/diagnostics/skin-fat-parent-mass-ledger.csv",
+        "NUMI_HUMAN_SKIN_HARD_ATTACHMENT_REFERENCE": "0",
+        "NUMI_HUMAN_SKIN_INFLUENCE_TILE32": "0",
+        "NUMI_HUMAN_SKIN_REFERENCE_DUMP": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interior-native-334/install-motion/diagnostics/registered-skin-native.csv",
+        "NUMI_HUMAN_SKIN_REFERENCE_POSE_DUMP": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interior-native-334/install-motion/diagnostics/registered-skin-poses.json",
+        "NUMI_HUMAN_SPARSE_ANCHOR_PROJECTION": "1",
+        "NUMI_HUMAN_SPLIT_STAND": "1",
+        "NUMI_HUMAN_STAND_ANALYTIC_BODY_SPATIAL_JACOBIANS": "0",
+        "NUMI_HUMAN_STAND_CACHE_CONTACT_JACOBIAN": "0",
+        "NUMI_HUMAN_STAND_CACHE_LIMIT_EQUALITY": "0",
+        "NUMI_HUMAN_STAND_COMPENSATED_BODY_SUM": "1",
+        "NUMI_HUMAN_STAND_CONTACT_WARMSTART": "0",
+        "NUMI_HUMAN_STAND_DEFER_EQUALITY_DATA": "0",
+        "NUMI_HUMAN_STAND_DEFER_EQUALITY_DIAGNOSTICS": "0",
+        "NUMI_HUMAN_STAND_EQUALITY_DEFERRAL_FAULT": "none",
+        "NUMI_HUMAN_STAND_FIRST_SIMD_CONTACT_SWEEP": "0",
+        "NUMI_HUMAN_STAND_FORCE_PARITY_DIAGNOSTIC": "0",
+        "NUMI_HUMAN_STAND_FREE_SPLIT": "0",
+        "NUMI_HUMAN_STAND_FUSE_CANONICAL_BODY_PROBES": "0",
+        "NUMI_HUMAN_STAND_HYBRID_EQUALITY_FACTOR_CACHE": "0",
+        "NUMI_HUMAN_STAND_ONE_PASS_ORDERED_LIMITS": "0",
+        "NUMI_HUMAN_STAND_PGS_VELOCITY_RESIDUAL_TOLERANCE": "0.0",
+        "NUMI_HUMAN_STAND_REDUCED_BASE_PROJECTION": "1",
+        "NUMI_HUMAN_STAND_REDUCED_CHOLESKY": "0",
+        "NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES": "0",
+        "NUMI_HUMAN_STAND_SPARSE_OPERATOR": "0",
+        "NUMI_HUMAN_STAND_SPECULATIVE_CONTACT_DISTANCE_M": "0.02",
+        "NUMI_HUMAN_STAND_ZERO_CONTACT_RESPONSE_FASTPATH": "0",
+        "NUMI_HUMAN_STATIC_WEIGHTED_SKIN_SUPPORT": "1",
+        "NUMI_HUMAN_SUPPORT_ANCESTRY_PRUNE": "1",
+        "NUMI_HUMAN_TRAINING_PROFILE": "1",
+        "NUMI_HUMAN_UNPAIRED_IDENTITY_INSTALL": "0",
+        "NUMI_HUMAN_UNPAIRED_IDENTITY_PREFLIGHT": "0",
+        "NUMI_MATTER_ASYNC_PIPELINES": "1",
+        "NUMI_MATTER_GPU_TIMING": "0",
+        "NUMI_MATTER_GPU_TIMING_KERNELS": "",
+        "NUMI_MATTER_GPU_TIMING_PHASE": "44",
+        "NUMI_MATTER_GPU_TIMING_ROOT": "0",
+        "NUMI_MATTER_GPU_TIMING_SAMPLE_EVERY": "1",
+        "NUMI_MATTER_GPU_TIMING_STAGES": "0",
+        "NUMI_MATTER_HUMAN_PARTITIONED_FEM_TANGENT": "1",
+        "NUMI_MATTER_HUMAN_PARTITIONED_PRECONDITIONER": "1",
+        "NUMI_MATTER_METALLIB_OVERRIDE": "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib",
+        "NUMI_MATTER_NEWTON_PRECONDITIONER_REUSE": "1",
+        "NUMI_MATTER_PARALLEL_WORKING_SET_CLEAR": "1",
+        "NUMI_MATTER_SPARSE_TOPOLOGY_INCIDENCE": "1",
+        "NUMI_MATTER_VASCULAR_BLOCK_CAVITY_SCHUR": "1",
+        "NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER": "1",
+        "NUMI_MATTER_WORK_COUNTERS": "1"
+      },
+      "expected_accepted_steps": 32,
+      "expected_gpu": true,
+      "expected_runtime": true,
+      "name": "install-motion"
+    }
+  ],
+  "status": "PREPARED_NOT_EXECUTED",
+  "storage_recovery": {
+    "bytes": 7013,
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/resource-recovery-333/human-cold-motion-333-00/human-cold-motion-333-00-verification.json",
+    "sha256": "6435362ef5ce073958b318cc8c4b5a47172869f43640b273f36f3f16330bb099"
+  },
+  "trial_scope": "32 roots at unchanged 15.625us; no supported-rest, sustained physiology or presentation claim"
+}

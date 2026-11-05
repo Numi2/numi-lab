@@ -50,3 +50,22 @@ The exact captured sweep now certifies clear on the Apple GPU, including reversa
 Two failed control attempts remain: translating the nanometre-clear witness can enter the existing coordinate-scaled contact margin, and the first strict static control incorrectly required toi=1 although the legacy clear path validly returns toi=0. The final controls retain positive physical-clearance/hit requirements and accept a finite clear toi in[0,1]. No production contact margin was relaxed.
 
 Native331 reruns the complete interior326 scene with the new metallib and unchanged physical configuration. The optional device-specific pipeline archive is disabled to avoid multi-GiB temporary serialization; a matched control must use the same cache setting and metallib. Native331 stopped on the unchanged12GiB disk guard after245.826s, before any root completed. Source import passed. This is an invalid performance trial and does not evaluate the root31 CCD prediction. Additional verified storage recovery is required before retry.
+
+
+## Completed matched native334/335 comparison
+
+Both complete native runs accepted32 roots at unchanged15.625us (0.5ms total), with full source/mass admission, active coupled physiology and no resource stop or root assistance. This is release-transient execution; it contains no complete breath/heartbeat and is not supported-rest, sustained-throughput or native-presentation qualification.
+
+Control335 uses the original mesh and new CCD metallib with the optional pipeline archive disabled, matching candidate334. Against baseline324 its captured regional strain, all force aggregates and every coupled CSV value are exactly identical. Both use144 active solves/2304 columns/62 budget exhaustions. Body wall time is223.970s versus225.128s; a single0.51% timing difference is not an established speedup.
+
+Interior326/candidate334 completes in216.423s body time (392.377s total), uses136 active solves/2176 columns/74 budget exhaustions, and reaches2.310293431e-6x mechanics real time. It is3.37% lower body wall cost than matched335 but fails71/94 regional strain and78/388 force-channel gates. This candidate is **not promoted**, and its timing is not a qualified improvement. More budget-exhausted solves despite fewer total columns reinforces that convergence remains unresolved.
+
+Every uniquely identifiable retained native node has the same exact Float32 rest coordinate and regional key:318196 matches plus36 duplicate-coordinate groups in each capture. This rules out a broad emitted-rest-coordinate shift. On matched unique nodes, mass L1 difference is0.000307056kg (0.00213% of matched mass), with2881 nodes changing by more than1% and1256 by more than10%; changes near removed very-small-mass nodes remain relevant. Maximum matched displacement difference is1.532575um. This is an exact-coordinate diagnostic, not canonical-parent fidelity admission.
+
+Two extra GPU tests change only fixture thickness by+/-2nm. The captured sweep is detected as contact at+2nm and certified clear at-2nm, retaining the actual production thickness unchanged.
+
+## Storage recovery and retained failed trial
+
+Archive333 independently downloads and restores all11 members before local retirement, including the optional old-code pipeline cache. Exact-byte deduplication then scans63 old motion packs and shares58 duplicate paths across5 content groups; all paths and bytes are retained, with no open handles. Deduplication alone recovers3.213GB by live filesystem accounting. Approximately18.34GiB was available before restoring the baseline's exact9 archived inputs. No source mesh, current accepted evidence or physical criterion was deleted or weakened.
+
+Next work must diagnose the response error before another expensive geometry/transfer rebuild. The CCD repair and complete native execution are verified; the interior mesh's physical fidelity, useful long motion and performance target are not achieved.

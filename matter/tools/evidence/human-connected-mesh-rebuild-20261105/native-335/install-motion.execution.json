@@ -1,0 +1,16 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 412.43683409690857,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/matched-ccd-baseline-335/install-motion.plan.json",
+  "plan_sha256": "25188dbf8326b8d37eed587a38ea7fc8a2509484b163a89efc379eccd9f1d197",
+  "stdout_path": "/Users/numi/Work/human-integrated-gaps-20261104/matched-ccd-baseline-335/install-motion.stdout.log.gz",
+  "stdout_encoding": "gzip",
+  "stdout_compressor_exit_code": 0,
+  "stdout_sha256": "81fadd1929293125448f74e51496a1394aa86a42608d03e01863a5eaeb9c7de4",
+  "stdout_uncompressed_sha256": "83059b67f8926ac52e509c9f1b03b7837f6ee048fbc5dff2bbb45763980f237e",
+  "stderr_sha256": "2486c929c7be660bb16ae369ff53c593be18bdc5d24e103b95d7e53ffe4b5fd8",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": true,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

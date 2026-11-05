@@ -1,0 +1,16 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 392.3765959739685,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interior-native-334/install-motion.plan.json",
+  "plan_sha256": "3ec5571c12517e4ebced29a2971955a4b4589185b22cbcde8ccc47671fd20a1c",
+  "stdout_path": "/Users/numi/Work/human-integrated-gaps-20261104/compensated-interior-native-334/install-motion.stdout.log.gz",
+  "stdout_encoding": "gzip",
+  "stdout_compressor_exit_code": 0,
+  "stdout_sha256": "bf27ad9722d40117812b7f35673b67ee6b3b032c71f152d5cf963c2e9176edd9",
+  "stdout_uncompressed_sha256": "7d77b5409cbe172f963350da7db6951165c4414ae7d8a16d289f966b72c77db3",
+  "stderr_sha256": "44a688ce393add3c2dfbacb2e06695342f61862d2cb57ae47ee6be8fd843f3b4",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": true,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}
