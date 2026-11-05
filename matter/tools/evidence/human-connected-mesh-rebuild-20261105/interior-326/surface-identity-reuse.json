@@ -1,0 +1,34 @@
+{
+  "status": "EXACT_ORIGINAL_SURFACE_ASSETS_REUSED_FOR_INTERIOR_VOLUME_REBUILD",
+  "physical_admission": false,
+  "source": {
+    "path": "/Users/numi/Work/skin-fat-native-integration-209/apps/simplify_human_skin_fat_boundary.py",
+    "sha256": "e0361d4659edf48a749016200e92ef5fb4cfc1d1310ea151197c5dc59a799f1b"
+  },
+  "roles": {
+    "O": {
+      "prior_generated_sha256": "d16fb0afd493162c0aaa1ab9d93e5316c92d41ec03f123e4528755860434df6b",
+      "original_asset": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-937-b5-backtracking-root/proposal/candidate-O-typed-current.npz",
+      "original_sha256": "10169962e298586d63794bf94515ecc3a9b1ce91e66cc60566a6919d7c856ac3",
+      "current_resolved_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-937-b5-backtracking-root/proposal/candidate-O-typed-current.npz",
+      "current_sha256": "10169962e298586d63794bf94515ecc3a9b1ce91e66cc60566a6919d7c856ac3",
+      "geometry_and_typed_payload_parity_previously_passed": true
+    },
+    "I": {
+      "prior_generated_sha256": "b2ff2ccf03c6b982651d47ebaf125f051400598c55b937426152d3bc1c2cfc47",
+      "original_asset": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-1009-point-update-1018-root/actual-001/candidate-I-point-updated.npz",
+      "original_sha256": "5557cbb88b46ea83d7977d60e1d362a10c48c290b77afb39b273efa29d32e323",
+      "current_resolved_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-1009-point-update-1018-root/actual-001/candidate-I-point-updated.npz",
+      "current_sha256": "5557cbb88b46ea83d7977d60e1d362a10c48c290b77afb39b273efa29d32e323",
+      "geometry_and_typed_payload_parity_previously_passed": true
+    },
+    "D": {
+      "prior_generated_sha256": "854a05f05d5814aa2481761642b57e61919f02383367363e2c750fd687c7a43b",
+      "original_asset": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-958-D014-root/proposal-003/candidate-D-typed-current.npz",
+      "original_sha256": "63cec05102fd2dc670d9220ec6472cd7d9ffa7085b4694719c605947086c7da9",
+      "current_resolved_path": "/Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/all-quality-958-D014-root/proposal-003/candidate-D-typed-current.npz",
+      "current_sha256": "63cec05102fd2dc670d9220ec6472cd7d9ffa7085b4694719c605947086c7da9",
+      "geometry_and_typed_payload_parity_previously_passed": true
+    }
+  }
+}

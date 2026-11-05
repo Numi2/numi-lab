@@ -430,6 +430,9 @@ def main():
    header="child_row,mass_kg",comments="",fmt=["%d","%.17g"])
  # Typed surface emission and face-union composition happen only after accepted operations.
  for r in S:
+  if a.interior_only:
+   (a.output/f"candidate-{r}-typed-current.npz").symlink_to(S[r].resolve())
+   continue
   old=raw[r];keepf=np.flatnonzero(fa[r]);reverse=np.full(len(p),-1,np.int64);active=maps[r]>=0;reverse[maps[r][active]]=np.flatnonzero(active)
   nf=reverse[faces[r][keepf]];assert np.all(nf>=0)
   payload={k:old[k][keepf] for k in ["face_source_layer","face_source_body","face_source_bone","face_source_face_id","face_source_original_id","face_source_identity0","face_source_identity1"] if k in old}
