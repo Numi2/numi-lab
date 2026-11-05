@@ -1,0 +1,16 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 330.90350699424744,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/coupled-contact-graph-native-297/install-motion.plan.json",
+  "plan_sha256": "7519c0e3ea4090bf974dad5107f14973645b52c1fbac563083ce294c3258c883",
+  "stdout_path": "/Users/numi/Work/human-integrated-gaps-20261104/coupled-contact-graph-native-297/install-motion.stdout.log.gz",
+  "stdout_encoding": "gzip",
+  "stdout_compressor_exit_code": 0,
+  "stdout_sha256": "4fe7549fde0e293d7cb8a2c5c339402b74c8174147abbd8b3b328a9adc045b3a",
+  "stdout_uncompressed_sha256": "0bab77cc12f38c799c1b388f152c6df950dbd0444e06f15b78b4b026c99b0499",
+  "stderr_sha256": "4051f48b4226db64382d7713a896d66de21a5562c66e68cc097f4af6bcb9f2da",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": true,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

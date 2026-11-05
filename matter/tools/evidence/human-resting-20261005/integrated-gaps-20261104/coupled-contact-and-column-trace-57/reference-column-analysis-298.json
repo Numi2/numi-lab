@@ -1,0 +1,792 @@
+{
+  "scope": "observational root 28; reference full-coordinate physics; not sustained throughput",
+  "execution": {
+    "exit_code": 0,
+    "elapsed_s": 427.21604800224304,
+    "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/reference-column-trace-native-298/install-motion.plan.json",
+    "plan_sha256": "702e758a32ad16cf8b31a2bfb141d41a9d6578501172b6ef6d2af25067a816ed",
+    "stdout_path": "/Users/numi/Work/human-integrated-gaps-20261104/reference-column-trace-native-298/install-motion.stdout.log.gz",
+    "stdout_encoding": "gzip",
+    "stdout_compressor_exit_code": 0,
+    "stdout_sha256": "6ac9fdc9dc86e877d4ddd9b953545cfd78293867e3be97c3d0e4884d784365df",
+    "stdout_uncompressed_sha256": "9ed73b304e67ab8c5cbfbb994292a8a5e9904c54c86fc78c4805e18bb0c3a1c7",
+    "stderr_sha256": "8dd7d980c0709662facb91460728c7619a9c03c84ea2c98e05f48cf0971952dc",
+    "physical_admission": false,
+    "resource_stop_reason": null,
+    "source_import_pass": true,
+    "accepted_steps_are_separately_recorded_in_native_report": true
+  },
+  "per_newton": [
+    {
+      "newton": 0,
+      "columns": 16,
+      "scaled_initial": 6.83152056,
+      "scaled_first": 3.70617938,
+      "scaled_last": 0.0606193468,
+      "scaled_reduction": 0.008873477912800133,
+      "physical_rhs": 0.00159967993,
+      "alpha_by_stage": {
+        "before_contact_limits": [
+          1
+        ],
+        "after_deformable_limit": [
+          1
+        ],
+        "after_rigid_limit": [
+          1
+        ],
+        "after_support_limit": [
+          0.0136371115
+        ],
+        "after_vascular_limit": [
+          0.0136371115
+        ],
+        "final_line_search": [
+          0.0136371115
+        ]
+      },
+      "final_linear_diagnostics": [
+        {
+          "diagnostics": [
+            3.1310592e-05,
+            0.00159967993,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00159967993,
+            0.00159967993,
+            1.43293262,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ]
+    },
+    {
+      "newton": 1,
+      "columns": 16,
+      "scaled_initial": 6.73831129,
+      "scaled_first": 3.65563846,
+      "scaled_last": 0.0601119623,
+      "scaled_reduction": 0.008920923910002383,
+      "physical_rhs": 0.00157786743,
+      "alpha_by_stage": {
+        "before_contact_limits": [
+          1
+        ],
+        "after_deformable_limit": [
+          1
+        ],
+        "after_rigid_limit": [
+          1
+        ],
+        "after_support_limit": [
+          0.0025329201
+        ],
+        "after_vascular_limit": [
+          0.0025329201
+        ],
+        "final_line_search": [
+          0.0025329201
+        ]
+      },
+      "final_linear_diagnostics": [
+        {
+          "diagnostics": [
+            3.08600684e-05,
+            0.00157786743,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00159967993,
+            0.00157786743,
+            1.41338718,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ]
+    },
+    {
+      "newton": 2,
+      "columns": 16,
+      "scaled_initial": 6.72129679,
+      "scaled_first": 3.64641213,
+      "scaled_last": 0.06001864,
+      "scaled_reduction": 0.008929622046938356,
+      "physical_rhs": 0.00157387101,
+      "alpha_by_stage": {
+        "before_contact_limits": [
+          1
+        ],
+        "after_deformable_limit": [
+          1
+        ],
+        "after_rigid_limit": [
+          1
+        ],
+        "after_support_limit": [
+          0.000306416739
+        ],
+        "after_vascular_limit": [
+          0.000306416739
+        ],
+        "final_line_search": [
+          0.000306416739
+        ]
+      },
+      "final_linear_diagnostics": [
+        {
+          "diagnostics": [
+            3.0777639e-05,
+            0.00157387101,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00159967993,
+            0.00157387101,
+            1.40980327,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ]
+    },
+    {
+      "newton": 3,
+      "columns": 16,
+      "scaled_initial": 6.71925259,
+      "scaled_first": 3.64530087,
+      "scaled_last": 0.0600072518,
+      "scaled_reduction": 0.008930643847100858,
+      "physical_rhs": 0.00157338881,
+      "alpha_by_stage": {
+        "before_contact_limits": [
+          1
+        ],
+        "after_deformable_limit": [
+          1
+        ],
+        "after_rigid_limit": [
+          1
+        ],
+        "after_support_limit": [
+          0.000217527049
+        ],
+        "after_vascular_limit": [
+          0.000217527049
+        ],
+        "final_line_search": [
+          0.000217527049
+        ]
+      },
+      "final_linear_diagnostics": [
+        {
+          "diagnostics": [
+            3.07677437e-05,
+            0.00157338881,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00159967993,
+            0.00157338881,
+            1.40938544,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ]
+    },
+    {
+      "newton": 4,
+      "columns": 16,
+      "scaled_initial": 6.71778679,
+      "scaled_first": 3.64450717,
+      "scaled_last": 0.0599991307,
+      "scaled_reduction": 0.00893138359039823,
+      "physical_rhs": 0.00157304655,
+      "alpha_by_stage": {
+        "before_contact_limits": [
+          1
+        ],
+        "after_deformable_limit": [
+          1
+        ],
+        "after_rigid_limit": [
+          1
+        ],
+        "after_support_limit": [
+          0.00589306466
+        ],
+        "after_vascular_limit": [
+          0.00589306466
+        ],
+        "final_line_search": [
+          0.00589306466
+        ]
+      },
+      "final_linear_diagnostics": [
+        {
+          "diagnostics": [
+            3.07606242e-05,
+            0.00157304655,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00159967993,
+            0.00157304655,
+            1.4090904,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ]
+    },
+    {
+      "newton": 5,
+      "columns": 16,
+      "scaled_initial": 6.67815781,
+      "scaled_first": 3.62302732,
+      "scaled_last": 0.0597820953,
+      "scaled_reduction": 0.008951884187354955,
+      "physical_rhs": 0.00156377722,
+      "alpha_by_stage": {
+        "before_contact_limits": [
+          1
+        ],
+        "after_deformable_limit": [
+          1
+        ],
+        "after_rigid_limit": [
+          1
+        ],
+        "after_support_limit": [
+          1
+        ],
+        "after_vascular_limit": [
+          1
+        ],
+        "final_line_search": [
+          1
+        ]
+      },
+      "final_linear_diagnostics": [
+        {
+          "diagnostics": [
+            3.05689318e-05,
+            0.00156377722,
+            0,
+            16
+          ],
+          "nonlinear": [
+            0.00159967993,
+            0.00156377722,
+            1.40072131,
+            0
+          ],
+          "cycle_accepted": false
+        }
+      ]
+    },
+    {
+      "newton": 6,
+      "columns": 16,
+      "scaled_initial": 0.0665244609,
+      "scaled_first": 0.0560877174,
+      "scaled_last": 0.0188601762,
+      "scaled_reduction": 0.28350738878366466,
+      "physical_rhs": 3.07404443e-05,
+      "alpha_by_stage": {
+        "before_contact_limits": [
+          1
+        ],
+        "after_deformable_limit": [
+          1
+        ],
+        "after_rigid_limit": [
+          1
+        ],
+        "after_support_limit": [
+          0.0247508604
+        ],
+        "after_vascular_limit": [
+          0.0247508604
+        ],
+        "final_line_search": [
+          0.0247508604
+        ]
+      },
+      "final_linear_diagnostics": [
+        {
+          "diagnostics": [
+            6.07421453e-06,
+            3.07404443e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00159967993,
+            3.07404443e-05,
+            0.0603676736,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ]
+    },
+    {
+      "newton": 7,
+      "columns": 16,
+      "scaled_initial": 0.0655186027,
+      "scaled_first": 0.0548844039,
+      "scaled_last": 0.0186160002,
+      "scaled_reduction": 0.28413304668965417,
+      "physical_rhs": 3.01252858e-05,
+      "alpha_by_stage": {
+        "before_contact_limits": [
+          1
+        ],
+        "after_deformable_limit": [
+          1
+        ],
+        "after_rigid_limit": [
+          1
+        ],
+        "after_support_limit": [
+          0.00489767594
+        ],
+        "after_vascular_limit": [
+          0.00489767594
+        ],
+        "final_line_search": [
+          0.00489767594
+        ]
+      },
+      "final_linear_diagnostics": [
+        {
+          "diagnostics": [
+            5.86368697e-06,
+            3.01252858e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00159967993,
+            3.01252858e-05,
+            0.059088897,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ]
+    },
+    {
+      "newton": 8,
+      "columns": 16,
+      "scaled_initial": 0.0652857721,
+      "scaled_first": 0.054650154,
+      "scaled_last": 0.0185674559,
+      "scaled_reduction": 0.28440279256496687,
+      "physical_rhs": 3.00042011e-05,
+      "alpha_by_stage": {
+        "before_contact_limits": [
+          1
+        ],
+        "after_deformable_limit": [
+          1
+        ],
+        "after_rigid_limit": [
+          1
+        ],
+        "after_support_limit": [
+          0.0527653582
+        ],
+        "after_vascular_limit": [
+          0.0527653582
+        ],
+        "final_line_search": [
+          0.0527653582
+        ]
+      },
+      "final_linear_diagnostics": [
+        {
+          "diagnostics": [
+            5.82498069e-06,
+            3.00042011e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00159967993,
+            3.00042011e-05,
+            0.0588508435,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ]
+    },
+    {
+      "newton": 9,
+      "columns": 16,
+      "scaled_initial": 0.0626408234,
+      "scaled_first": 0.0521347262,
+      "scaled_last": 0.0180494804,
+      "scaled_reduction": 0.2881424512053908,
+      "physical_rhs": 2.86983795e-05,
+      "alpha_by_stage": {
+        "before_contact_limits": [
+          1
+        ],
+        "after_deformable_limit": [
+          1
+        ],
+        "after_rigid_limit": [
+          1
+        ],
+        "after_support_limit": [
+          0.00510878675
+        ],
+        "after_vascular_limit": [
+          0.00510878675
+        ],
+        "final_line_search": [
+          0.00510878675
+        ]
+      },
+      "final_linear_diagnostics": [
+        {
+          "diagnostics": [
+            5.42455018e-06,
+            2.86983795e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00159967993,
+            2.86983795e-05,
+            0.0562579297,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ]
+    },
+    {
+      "newton": 10,
+      "columns": 16,
+      "scaled_initial": 0.06240483,
+      "scaled_first": 0.0519013107,
+      "scaled_last": 0.0180009436,
+      "scaled_reduction": 0.2884543327816132,
+      "physical_rhs": 2.85773094e-05,
+      "alpha_by_stage": {
+        "before_contact_limits": [
+          1
+        ],
+        "after_deformable_limit": [
+          1
+        ],
+        "after_rigid_limit": [
+          1
+        ],
+        "after_support_limit": [
+          0.000345757115
+        ],
+        "after_vascular_limit": [
+          0.000345757115
+        ],
+        "final_line_search": [
+          0.000345757115
+        ]
+      },
+      "final_linear_diagnostics": [
+        {
+          "diagnostics": [
+            5.39458642e-06,
+            2.85773094e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00159967993,
+            2.85773094e-05,
+            0.0560044535,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ]
+    },
+    {
+      "newton": 11,
+      "columns": 16,
+      "scaled_initial": 0.0623903163,
+      "scaled_first": 0.051886145,
+      "scaled_last": 0.0179977324,
+      "scaled_reduction": 0.2884699656507432,
+      "physical_rhs": 2.85691185e-05,
+      "alpha_by_stage": {
+        "before_contact_limits": [
+          1
+        ],
+        "after_deformable_limit": [
+          1
+        ],
+        "after_rigid_limit": [
+          1
+        ],
+        "after_support_limit": [
+          0.000345880486
+        ],
+        "after_vascular_limit": [
+          0.000345880486
+        ],
+        "final_line_search": [
+          0.000345880486
+        ]
+      },
+      "final_linear_diagnostics": [
+        {
+          "diagnostics": [
+            5.39370103e-06,
+            2.85691185e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00159967993,
+            2.85691185e-05,
+            0.0559937656,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ]
+    },
+    {
+      "newton": 12,
+      "columns": 16,
+      "scaled_initial": 0.0623802878,
+      "scaled_first": 0.0518717915,
+      "scaled_last": 0.0179945249,
+      "scaled_reduction": 0.28846492272836227,
+      "physical_rhs": 2.85609258e-05,
+      "alpha_by_stage": {
+        "before_contact_limits": [
+          1
+        ],
+        "after_deformable_limit": [
+          1
+        ],
+        "after_rigid_limit": [
+          1
+        ],
+        "after_support_limit": [
+          0.000346020213
+        ],
+        "after_vascular_limit": [
+          0.000346020213
+        ],
+        "final_line_search": [
+          0.000346020213
+        ]
+      },
+      "final_linear_diagnostics": [
+        {
+          "diagnostics": [
+            5.38688528e-06,
+            2.85609258e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00159967993,
+            2.85609258e-05,
+            0.0559660234,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ]
+    },
+    {
+      "newton": 13,
+      "columns": 16,
+      "scaled_initial": 0.0623596944,
+      "scaled_first": 0.0518554114,
+      "scaled_last": 0.0179911144,
+      "scaled_reduction": 0.28850549338163534,
+      "physical_rhs": 2.85527476e-05,
+      "alpha_by_stage": {
+        "before_contact_limits": [
+          1
+        ],
+        "after_deformable_limit": [
+          1
+        ],
+        "after_rigid_limit": [
+          1
+        ],
+        "after_support_limit": [
+          0.00034616809
+        ],
+        "after_vascular_limit": [
+          0.00034616809
+        ],
+        "final_line_search": [
+          0.00034616809
+        ]
+      },
+      "final_linear_diagnostics": [
+        {
+          "diagnostics": [
+            5.38868198e-06,
+            2.85527476e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00159967993,
+            2.85527476e-05,
+            0.0559580848,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ]
+    },
+    {
+      "newton": 14,
+      "columns": 16,
+      "scaled_initial": 0.0623493306,
+      "scaled_first": 0.0518407896,
+      "scaled_last": 0.0179880727,
+      "scaled_reduction": 0.2885046643949053,
+      "physical_rhs": 2.85445276e-05,
+      "alpha_by_stage": {
+        "before_contact_limits": [
+          1
+        ],
+        "after_deformable_limit": [
+          1
+        ],
+        "after_rigid_limit": [
+          1
+        ],
+        "after_support_limit": [
+          0.000346398127
+        ],
+        "after_vascular_limit": [
+          0.000346398127
+        ],
+        "final_line_search": [
+          0.000346398127
+        ]
+      },
+      "final_linear_diagnostics": [
+        {
+          "diagnostics": [
+            5.37910228e-06,
+            2.85445276e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00159967993,
+            2.85445276e-05,
+            0.0559517555,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ]
+    },
+    {
+      "newton": 15,
+      "columns": 16,
+      "scaled_initial": 0.0623281449,
+      "scaled_first": 0.0518234521,
+      "scaled_last": 0.0179845467,
+      "scaled_reduction": 0.2885461572593668,
+      "physical_rhs": 2.85363567e-05,
+      "alpha_by_stage": {
+        "before_contact_limits": [
+          1
+        ],
+        "after_deformable_limit": [
+          1
+        ],
+        "after_rigid_limit": [
+          1
+        ],
+        "after_support_limit": [
+          0.000346435379
+        ],
+        "after_vascular_limit": [
+          0.000346435379
+        ],
+        "final_line_search": [
+          0.000346435379
+        ]
+      },
+      "final_linear_diagnostics": [
+        {
+          "diagnostics": [
+            5.38054974e-06,
+            2.85363567e-05,
+            1,
+            16
+          ],
+          "nonlinear": [
+            0.00159967993,
+            2.85363567e-05,
+            0.0559412353,
+            0
+          ],
+          "cycle_accepted": true
+        }
+      ]
+    }
+  ],
+  "true_residual": [
+    {
+      "schema": 2,
+      "root": 28,
+      "control_step": 28,
+      "newton_iteration": 15,
+      "restart_cycle": 0,
+      "final_cycle": true,
+      "restart_replacement": true,
+      "cohesive_face_count": 0,
+      "operator_scope": "full_coupled_direct_operator",
+      "semantics": {
+        "true_l2": "norm of freshly assembled b-Ax in the declared operator scope; impulse units for explicit mechanical rows",
+        "arnoldi_estimate": "projected least-squares estimate captured before replacement",
+        "rhs_l2": "initial assembled FGMRES right-hand-side norm",
+        "convergence": "unchanged forcing threshold applied to freshly recomputed residual"
+      },
+      "environments": [
+        {
+          "true_l2": 5.38054974e-06,
+          "arnoldi_estimate": 0.0179845467,
+          "true_max_abs": 1.6171789e-06,
+          "rhs_l2": 2.85363567e-05,
+          "diagnostics": [
+            5.38054974e-06,
+            2.85363567e-05,
+            1,
+            16
+          ],
+          "solver_status_code": 0,
+          "operator_status_code": 0
+        }
+      ]
+    }
+  ]
+}

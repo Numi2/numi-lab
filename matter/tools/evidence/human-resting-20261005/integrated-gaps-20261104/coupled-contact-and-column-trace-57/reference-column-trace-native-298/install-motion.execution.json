@@ -1,0 +1,16 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 427.21604800224304,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/reference-column-trace-native-298/install-motion.plan.json",
+  "plan_sha256": "702e758a32ad16cf8b31a2bfb141d41a9d6578501172b6ef6d2af25067a816ed",
+  "stdout_path": "/Users/numi/Work/human-integrated-gaps-20261104/reference-column-trace-native-298/install-motion.stdout.log.gz",
+  "stdout_encoding": "gzip",
+  "stdout_compressor_exit_code": 0,
+  "stdout_sha256": "6ac9fdc9dc86e877d4ddd9b953545cfd78293867e3be97c3d0e4884d784365df",
+  "stdout_uncompressed_sha256": "9ed73b304e67ab8c5cbfbb994292a8a5e9904c54c86fc78c4805e18bb0c3a1c7",
+  "stderr_sha256": "8dd7d980c0709662facb91460728c7619a9c03c84ea2c98e05f48cf0971952dc",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": true,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

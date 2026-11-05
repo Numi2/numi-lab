@@ -1,0 +1,22 @@
+{
+  "/Users/numi/Work/skin-fat-native-integration-209/build-native/bin/numi-human-native": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/build-57-retained/numi-human-native",
+    "sha256": "3900d587e78526d70157f864ba438a48acf48b652fd873e6542319ebf3e2bc8a",
+    "bytes": 10556464
+  },
+  "/Users/numi/Work/skin-fat-native-integration-209/build-native/lib/libmetalrobo.dylib": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/build-57-retained/libmetalrobo.dylib",
+    "sha256": "f4255643e44e20be8a0d24ad138e96d8d2002357b4e67fb320f03a0b286b5c5f",
+    "bytes": 10517552
+  },
+  "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/NumiMatter.metallib": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/build-57-retained/NumiMatter.metallib",
+    "sha256": "680675c7890544a598586e0c514d200b8d90cd21b42a995c0732d0aa4cf405e8",
+    "bytes": 31490541
+  },
+  "/Users/numi/Work/skin-fat-native-integration-209/build-native/matter/shaders/HumanRespiration.metallib": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/build-57-retained/HumanRespiration.metallib",
+    "sha256": "880f60be6eb17b6af781665c6016c6d050da069685fcf1e8e2cafda0fc2115c8",
+    "bytes": 560736
+  }
+}

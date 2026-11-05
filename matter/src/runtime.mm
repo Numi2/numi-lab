@@ -4337,6 +4337,7 @@ struct Runtime::State {
     bool femThinCellSchwarzEnabled = false;
     bool femThinCellRegionalCompositeEnabled = false;
     bool femHuman6GraphFullPSDContactBlocksEnabled = false;
+    bool femGraphCoupledContactBlocksEnabled = false;
     // Strict opt-in identity rows for statically isolated not-due FEM objects.
     // This affects only the additive graph preconditioner; the full operator,
     // nonlinear residual and true-residual certificate retain their owners.
@@ -6979,6 +6980,27 @@ RuntimeDiagnostics Runtime::initialize(
                 "full PSD contact graph blocks require the admitted selector-6 graph preconditioner";
             return diagnostics;
         }
+        const char* coupledGraphContactSetting =
+            std::getenv("NM_FGMRES_GRAPH_COUPLED_CONTACT_BLOCKS");
+        if (coupledGraphContactSetting != nullptr &&
+            std::strcmp(coupledGraphContactSetting, "0") != 0 &&
+            std::strcmp(coupledGraphContactSetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FGMRES_GRAPH_COUPLED_CONTACT_BLOCKS must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool coupledGraphContactRequested =
+            coupledGraphContactSetting != nullptr &&
+            std::strcmp(coupledGraphContactSetting, "1") == 0 &&
+            (!integratedThinCellScope || hasCoupledFEMVascularOwner);
+        if (coupledGraphContactRequested &&
+            (!thinCellSchwarzRequested || !graphPSDContactRequested)) {
+            diagnostics.message =
+                "coupled contact graph blocks require admitted bounded thin-cell Schwarz and full PSD contact blocks";
+            return diagnostics;
+        }
+        candidate->femGraphCoupledContactBlocksEnabled =
+            coupledGraphContactRequested;
         const char* graphOmitAuthoredFixedRowsSetting =
             std::getenv("NM_FEM_GRAPH_OMIT_AUTHORED_FIXED_ROWS");
         if (graphOmitAuthoredFixedRowsSetting != nullptr &&
@@ -8333,6 +8355,9 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x5448494e53434832ull); // THINSCH2 (cache81-only assembly)
         }
+        if (candidate->femGraphCoupledContactBlocksEnabled)
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x4752435443504c31ull); // GRCTCPL1
         if (candidate->femThinCellRegionalCompositeEnabled)
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x5448494e52454731ull); // THINREG1
@@ -9545,6 +9570,11 @@ RuntimeDiagnostics Runtime::initialize(
                     }
                     specialize=true;
                     continue;
+                }
+                if (constant.index == 42u) {
+                    const bool enabled = candidate->femGraphCoupledContactBlocksEnabled;
+                    [values setConstantValue:&enabled type:MTLDataTypeBool atIndex:42u];
+                    specialize = true; continue;
                 }
                 if (constant.index == 41u) {
                     const bool enabled = candidate->femTangentOwnerTasksEnabled;
@@ -39119,6 +39149,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.adaptive offset:0u atIndex:17u];
                         [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:18u];
                         [encoder setBytes:&schurDueRowsGraph length:sizeof(schurDueRowsGraph) atIndex:19u];
+                        [encoder setBuffer:state.femRegionalGraphPatchNodes offset:0u atIndex:20u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }

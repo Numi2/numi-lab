@@ -1502,6 +1502,103 @@ inline bool fgmresContactSpatialBlock(
     return true;
 }
 
+
+// Full principal PSD contact row on an existing bounded FEM Schwarz patch.
+// Incidence visits each row corner once; partner corners include duplicate node
+// IDs and all six mortar corners. Off-patch and authored-fixed columns stay out
+// of the principal free-coordinate block. No contact or physical equation is
+// omitted from the owning operator.
+inline bool fgmresGraphCoupledContactRow(
+    const NMMatterDispatchGPU dispatch,
+    constant NMPrimalContactArguments& contact,
+    device const NMFEMNodeStateGPU* candidate,
+    device const uint* patchNodes,
+    const uint patchFirst,
+    const uint patchNodeCount,
+    const uint environment,
+    const uint femNode,
+    const uint expectedObject,
+    const uint rowAxis,
+    thread float* values
+) {
+    if (patchNodeCount == 0u || patchNodeCount > 8u || rowAxis >= 3u)
+        return false;
+    for (uint i = 0u; i < patchNodeCount * 3u; ++i) values[i] = 0.0f;
+    uint localRowNode = NM_INVALID_INDEX;
+    for (uint i = 0u; i < patchNodeCount; ++i)
+        if (patchNodes[patchFirst + i] == femNode) localRowNode = i;
+    if (localRowNode == NM_INVALID_INDEX) return false;
+    const uint unifiedNode = dispatch.gridNodeCount + femNode;
+    float projected[9];
+    const NMIncidenceRangeGPU rigidRange = contact.nodeRanges[unifiedNode];
+    for (uint i = 0u; i < rigidRange.count; ++i) {
+        const uint pairIndex = contact.nodeIncidence[rigidRange.first + i];
+        if (pairIndex >= dispatch.contactPairCount) continue;
+        if (contact.pairs[pairIndex].objectIndex != expectedObject) continue;
+        const NMContactSampleGPU sample = primalContactSample(
+            dispatch, contact, environment, pairIndex);
+        if ((sample.identity.w & NM_CONTACT_VALID) == 0u) continue;
+        if (!fgmresPSDSpatialBlock(sample.barrierHessianRow0,
+                sample.barrierHessianRow1, sample.barrierHessianRow2,
+                projected)) return false;
+        for (uint axis = 0u; axis < 3u; ++axis)
+            values[localRowNode * 3u + axis] += projected[rowAxis * 3u + axis];
+    }
+    const uint capacity = dispatch.deformableContactCapacity;
+    if (capacity != 0u) {
+        const uint unifiedCount = dispatch.gridNodeCount + dispatch.femNodeCount;
+        const NMIncidenceRangeGPU range = contact.deformableNodeRanges[
+            environment * unifiedCount + unifiedNode];
+        for (uint incidence = 0u; incidence < range.count; ++incidence) {
+            const uint encoded = contact.deformableNodeIncidence[
+                range.first + incidence];
+            const uint slot = encoded >> 3u;
+            const uint local = encoded & 7u;
+            if (slot >= capacity || local >= 6u) continue;
+            const NMDeformableContactGPU c =
+                contact.deformableContacts[environment * capacity + slot];
+            if ((c.identity.w & NM_CONTACT_VALID) == 0u ||
+                deformableContactNode(c, local) != unifiedNode) continue;
+            const float ti = deformableContactTimeScale(c, local);
+            const float wi = ti * deformableContactWeight(c, local);
+            const float3 gi = deformableMollifierGradient(c, local);
+            if (!isfinite(ti) || !isfinite(wi) || !all(isfinite(gi)) ||
+                !isfinite(c.mollifier.z) ||
+                !fgmresPSDSpatialBlock(c.barrierHessianRow0,
+                    c.barrierHessianRow1, c.barrierHessianRow2,
+                    projected)) return false;
+            const float curvature = max(c.mollifier.z, 0.0f);
+            for (uint other = 0u; other < 6u; ++other) {
+                const uint partner = deformableContactNode(c, other);
+                if (partner < dispatch.gridNodeCount ||
+                    partner - dispatch.gridNodeCount >= dispatch.femNodeCount)
+                    continue;
+                const uint partnerFEM = partner - dispatch.gridNodeCount;
+                uint localColumn = NM_INVALID_INDEX;
+                for (uint j = 0u; j < patchNodeCount; ++j)
+                    if (patchNodes[patchFirst + j] == partnerFEM) localColumn = j;
+                if (localColumn == NM_INVALID_INDEX) continue;
+                if (candidate[environment * dispatch.femNodeCount +
+                              partnerFEM].restAndFixed.w != 0.0f) continue;
+                const float tj = deformableContactTimeScale(c, other);
+                const float wj = tj * deformableContactWeight(c, other);
+                const float3 gj = deformableMollifierGradient(c, other);
+                if (!isfinite(tj) || !isfinite(wj) || !all(isfinite(gj)))
+                    return false;
+                const float scale = wi * wj;
+                const float mollifierScale = curvature * ti * tj;
+                for (uint axis = 0u; axis < 3u; ++axis)
+                    values[localColumn * 3u + axis] +=
+                        scale * projected[rowAxis * 3u + axis] +
+                        mollifierScale * gi[rowAxis] * gj[axis];
+            }
+        }
+    }
+    for (uint i = 0u; i < patchNodeCount * 3u; ++i)
+        if (!isfinite(values[i])) return false;
+    return true;
+}
+
 inline bool fgmresGraphAddContactBlockRow(
     device float* patchMatrices,
     const uint matrixBase,
@@ -4213,6 +4310,7 @@ kernel void nm_fgmres_graph_add_psd_contact_blocks(
     device const NMAdaptiveStateGPU* adaptive [[buffer(17)]],
     constant NMMicrostepGPU& microstep [[buffer(18)]],
     constant uint& dueAwareRows [[buffer(19)]],
+    device const uint* patchNodes [[buffer(20)]],
     uint global [[thread_position_in_grid]]) {
     const uint total = dispatch.environmentCount * rowCount;
     if (global >= total || rowCount == 0u) return;
@@ -4277,6 +4375,37 @@ kernel void nm_fgmres_graph_add_psd_contact_blocks(
             object, schedulers[objectGlobal], adaptive[objectGlobal],
             microstep)) return;
 
+    if (nmGraphCoupledContactBlocksActive) {
+        if (patch.y > 8u || patchNodes[patch.x + row.y] != row.w) {
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                range.objectIndex, row.w,
+                float4(float(row.x), float(patch.y), float(row.y), 42.0f));
+            return;
+        }
+        float additions[24];
+        if (!fgmresGraphCoupledContactRow(
+                dispatch, contact, candidate, patchNodes, patch.x, patch.y,
+                environment, row.w, range.objectIndex, row.z, additions)) {
+            recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+                range.objectIndex, row.w,
+                float4(float(row.x), float(row.y), float(row.z), 42.0f));
+            return;
+        }
+        const uint base = environment * matrixFloatCount + patch.z +
+            (row.y * 3u + row.z) * n;
+        // Validate the complete row before publishing any entry.
+        for (uint j = 0u; j < n; ++j) {
+            additions[j] += patchMatrices[base + j];
+            if (!isfinite(additions[j])) {
+                recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+                    range.objectIndex, row.w,
+                    float4(float(row.x), float(row.y), float(j), 43.0f));
+                return;
+            }
+        }
+        for (uint j = 0u; j < n; ++j) patchMatrices[base + j] = additions[j];
+        return;
+    }
     float contactBlock[9];
     if (!fgmresContactSpatialBlock(
             dispatch, contact, environment,

@@ -438,3 +438,7 @@ are in compact-radix-54.
 ## Protected outer-skin residual refinement (56)
 
 Fixed the recursive compiler handoff without weakening protected-row or budget guards. Dense/sparse metadata checks pass. Full-scene residual enrichment improves the accepted prefix 3 -> 5 -> 6 roots, then still fails the unchanged physical certificate; the reduced model is not promoted. Retired stale OS GPU compilation caches recovered 17.51 GiB. See [exact tests, failed trials, corrected contact audit and source pins](outer-fine-refinement-56/README.md). This does not establish sustained motion or 0.1x.
+
+## Contact coupling and late-column diagnosis (57)
+
+Default-off eight-node principal PSD contact coupling passes its production-kernel oracle but rejects root 22 in trial 297; it is not promoted. Reference trial 298 preserves all 1,798,453 endpoint records exactly and exposes the combined poor late linear reduction and severe deformable-contact truncation. No sustained-performance claim follows. See [tests and exact failed/passing evidence](coupled-contact-and-column-trace-57/README.md).

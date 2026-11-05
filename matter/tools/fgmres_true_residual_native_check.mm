@@ -5930,6 +5930,285 @@ void checkGraphPSDContactBlock(
                  "axis, nonfinite checks PASS\n";
 }
 
+
+// Exercise the actual augmentation kernel, including the contact argument table,
+// incidence layout, fixed masks, environment strides, and matrix capacity.
+// The independent double oracle assembles weighted outer products globally,
+// then extracts each patch's free principal block.
+void checkGraphCoupledContactBlocks(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    id<MTLComputePipelineState> pipelines[3];
+    for (unsigned variant = 0u; variant < 3u; ++variant) {
+        MTLFunctionConstantValues* constants = [MTLFunctionConstantValues new];
+        const BOOL disabled = NO, enabled = variant == 1u ? YES : NO;
+        for (NSUInteger index : {34u, 37u})
+            [constants setConstantValue:&disabled type:MTLDataTypeBool atIndex:index];
+        if (variant != 2u)
+            [constants setConstantValue:&enabled type:MTLDataTypeBool atIndex:42u];
+        NSError* error = nil;
+        auto function = [library newFunctionWithName:
+            @"numi_matter_metal::nm_fgmres_graph_add_psd_contact_blocks"
+            constantValues:constants error:&error];
+        require(function != nil, "cannot specialize production contact graph kernel");
+        pipelines[variant] = [device newComputePipelineStateWithFunction:function
+            error:&error];
+        require(pipelines[variant] != nil, "cannot build production contact graph kernel");
+    }
+    constexpr unsigned E = 2u, N = 10u, G = 3u, U = N + G, C = 3u;
+    const auto u32 = [&](unsigned value) {
+        return makeBuffer(device, std::vector<unsigned>{value});
+    };
+    auto layout = [library newFunctionWithName:
+        @"numi_matter_metal::nm_primal_contact_argument_layout"];
+    auto ae = [layout newArgumentEncoderWithBufferIndex:0u];
+    require(ae != nil, "contact graph argument layout unavailable");
+    const auto component = [](nm_float4 v, unsigned axis) -> double {
+        return axis == 0u ? v.x : axis == 1u ? v.y : axis == 2u ? v.z : v.w;
+    };
+    std::vector<float> legacyControl;
+    double maximumError = 0.0, maximumProductError = 0.0;
+    unsigned cases = 0u;
+    for (unsigned mode = 0u; mode < 12u; ++mode) {
+        for (unsigned variant = 0u; variant < 3u; ++variant) {
+            if ((mode == 6u || mode == 7u) && variant != 1u) continue;
+            if (variant == 2u && mode != 0u) continue;
+            const bool coupled = variant == 1u;
+            std::vector<unsigned> patchNodes = mode == 6u
+                ? std::vector<unsigned>{0u,1u,2u,3u,4u,5u,6u,8u,9u}
+                : std::vector<unsigned>{0u,1u,2u,3u,5u,6u,8u,9u};
+            const unsigned K = patchNodes.size(), n = 3u*K;
+            const unsigned M = 7u + n*n, rowCount = n;
+            NMMatterDispatchGPU d{};
+            d.environmentCount = E; d.objectCount = 1u;
+            d.gridNodeCount = G; d.femNodeCount = N;
+            d.contactPairCount = 2u; d.deformableContactCapacity = mode == 1u ? 0u : C;
+            std::vector<NMFEMNodeStateGPU> nodes(E*N);
+            for (unsigned e=0u; e<E; ++e) for (unsigned i=0u; i<N; ++i) {
+                auto& node = nodes[e*N+i];
+                node.positionAndMass.w = 2.0f;
+                node.restAndFixed.w = i==6u ? 1.0f : 0.0f;
+                node.velocityAndInverseMass.w = i==6u ? 0.0f : 0.5f;
+            }
+            std::vector<NMDeformableContactGPU> contacts(E*C);
+            std::vector<std::array<unsigned,6>> ids(E*C);
+            std::vector<std::array<double,6>> weights(E*C), times(E*C);
+            std::vector<std::array<std::array<double,3>,6>> gradients(E*C);
+            for (unsigned e=0u;e<E;++e) for (unsigned slot=0u;slot<C;++slot) {
+                const unsigned z=e*C+slot;
+                auto& c=contacts[z];
+                ids[z]=slot==0u ? std::array<unsigned,6>{G,G+1u,G+2u,G+3u,G+5u,G+4u}
+                    : std::array<unsigned,6>{G+1u,G+1u,G+6u,G+8u,NM_INVALID_INDEX,G+9u};
+                c.nodes={ids[z][0],ids[z][1],ids[z][2],ids[z][3]};
+                c.extraNodes={ids[z][4],ids[z][5],0u,0u};
+                c.identity={0u,0u,slot==0u?NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE:
+                    NM_DEFORMABLE_CONTACT_EDGE_EDGE,
+                    slot<2u&&mode!=11u ? NM_CONTACT_VALID : 0u};
+                c.weights={1.0f,-0.3f,-0.4f,-0.3f};
+                c.extraWeights={0.2f,-0.2f,0.0f,0.0f};
+                c.timeScales={1.0f,0.5f,2.0f,0.75f};
+                c.extraTimeScales={1.25f,1.5f,0.0f,0.0f};
+                const float scale=1.0f+0.25f*e;
+                // H = a a^T + b b^T, with a=(2,1,-1), b=(-.25,1,.5).
+                c.barrierHessianRow0={4.0625f*scale,1.75f*scale,-2.125f*scale,0.0f};
+                c.barrierHessianRow1={1.75f*scale,2.0f*scale,-0.5f*scale,0.0f};
+                c.barrierHessianRow2={-2.125f*scale,-0.5f*scale,1.25f*scale,0.0f};
+                c.mollifier.z=slot==1u ? 2.0f*scale : -0.5f;
+                nm_float4 gs[6];
+                for (unsigned j=0u;j<6u;++j) {
+                    gs[j]={0.1f*float(j+1u),-0.07f*float(j+2u),0.03f*float(j+3u),0.0f};
+                    for (unsigned a=0u;a<3u;++a) gradients[z][j][a]=component(gs[j],a);
+                    weights[z][j]=component(j<4u?c.weights:c.extraWeights,j<4u?j:j-4u);
+                    times[z][j]=component(j<4u?c.timeScales:c.extraTimeScales,j<4u?j:j-4u);
+                }
+                c.mollifierGradientRow0=gs[0];c.mollifierGradientRow1=gs[1];
+                c.mollifierGradientRow2=gs[2];c.mollifierGradientRow3=gs[3];
+                c.mollifierGradientRow4=gs[4];c.mollifierGradientRow5=gs[5];
+                if (slot==2u || mode==3u)
+                    c.barrierHessianRow0.x=std::numeric_limits<float>::quiet_NaN();
+            }
+            std::vector<unsigned> incidence;
+            std::vector<NMIncidenceRangeGPU> ranges(E*U);
+            for(unsigned e=0u;e<E;++e)for(unsigned node=0u;node<U;++node) {
+                auto& range=ranges[e*U+node];range.first=incidence.size();
+                if(mode!=2u) for(unsigned slot=0u;slot<C;++slot)
+                    for(unsigned corner=0u;corner<6u;++corner)
+                        if(ids[e*C+slot][corner]==node)
+                            incidence.push_back((slot<<3u)|corner);
+                if(mode==10u) {
+                    incidence.push_back((C<<3u)|0u); // Out of capacity.
+                    incidence.push_back(7u);        // Invalid corner.
+                    if(node!=G)incidence.push_back(0u); // Wrong row owner.
+                }
+                range.count=incidence.size()-range.first;
+            }
+            if(incidence.empty())incidence.push_back(0u);
+            std::vector<unsigned> rigidIncidence{0u,1u};
+            std::vector<NMIncidenceRangeGPU> rigidRanges(U);
+            for(unsigned node=0u;node<N;++node)
+                rigidRanges[G+node]={0u,node%3u==0u?2u:0u,0u,0u};
+            std::vector<NMContactPairGPU> pairs(2u);
+            pairs[0].objectIndex=0u;pairs[1].objectIndex=1u; // Must be filtered.
+            std::vector<NMContactSampleGPU> samples(E*2u);
+            for(unsigned e=0u;e<E;++e)for(unsigned p=0u;p<2u;++p) {
+                auto& s=samples[e*2u+p];s.identity.w=NM_CONTACT_VALID;
+                const float k=p==1u?1000.0f:1.0f+0.5f*e;
+                s.barrierHessianRow0={3*k,0,0,0};
+                s.barrierHessianRow1={0,5*k,0,0};
+                s.barrierHessianRow2={0,0,7*k,0};
+            }
+            std::vector<nm_uint4> rows;
+            for(unsigned local=0u;local<K;++local)
+                for(unsigned axis=0u;axis<3u;++axis)
+                    rows.push_back({0u,local,axis,patchNodes[local]});
+            if(mode==7u)rows[0].w=3u; // Does not match the patch's row zero.
+            std::vector<unsigned> coverage(N,mode==4u?0u:1u);
+            std::vector<NMIncidenceRangeGPU> femRanges(E*N);
+            NMContinuumObjectGPU object{};object.representation=NM_REPRESENTATION_FEM;
+            object.flags=NM_OBJECT_ACTIVE;
+            std::vector<NMFGMRESStateGPU> states(E);
+            for(auto& s:states)s.nonlinear.w=mode==8u?1.0f:0.0f;
+            std::vector<float> before(E*M+8u);
+            for(unsigned i=0u;i<before.size();++i)
+                before[i]=0.03125f+0.00001f*float(i);
+            auto matrices=makeBuffer(device,before);
+            auto statuses=makeBuffer(device,std::vector<NMMatterStatusGPU>(E));
+            auto dummy=makeBuffer(device,std::vector<unsigned>(1024u,0u));
+            std::vector<std::pair<unsigned,id<MTLBuffer>>> resources{
+                {0u,makeBuffer(device,pairs)}, {1u,makeBuffer(device,samples)},
+                {2u,makeBuffer(device,rigidIncidence)}, {3u,makeBuffer(device,rigidRanges)},
+                {7u,makeBuffer(device,contacts)}, {8u,makeBuffer(device,incidence)},
+                {9u,makeBuffer(device,ranges)}};
+            id<MTLBuffer> args=[device newBufferWithLength:ae.encodedLength
+                options:MTLResourceStorageModeShared];
+            [ae setArgumentBuffer:args offset:0u];
+            for(unsigned i=0u;i<20u;++i)[ae setBuffer:dummy offset:0u atIndex:i];
+            for(auto [index,buffer]:resources)[ae setBuffer:buffer offset:0u atIndex:index];
+            std::vector<std::pair<unsigned,id<MTLBuffer>>> bindings{
+                {0u,makeBuffer(device,std::vector{d})}, {1u,args},
+                {2u,makeBuffer(device,std::vector{object})}, {3u,makeBuffer(device,nodes)},
+                {4u,makeBuffer(device,std::vector<nm_uint4>{{0u,K,7u,0u}})},
+                {5u,makeBuffer(device,coverage)}, {6u,makeBuffer(device,rows)},
+                {7u,matrices}, {8u,statuses}, {9u,u32(rowCount)}, {10u,u32(1u)},
+                {11u,u32(mode==5u?1u:M)}, {12u,makeBuffer(device,states)},
+                {13u,u32(mode==8u?1u:0u)},
+                {14u,makeBuffer(device,std::vector<unsigned>(E,1u))},
+                {15u,makeBuffer(device,femRanges)}, {16u,dummy}, {17u,dummy},
+                {18u,makeBuffer(device,std::vector<NMMicrostepGPU>{NMMicrostepGPU{}})},
+                {19u,u32(0u)}, {20u,makeBuffer(device,patchNodes)}};
+            auto command=[queue commandBuffer];
+            auto encoder=[command computeCommandEncoder];
+            [encoder setComputePipelineState:pipelines[variant]];
+            for(auto [index,buffer]:bindings) {
+                [encoder setBuffer:buffer offset:0u atIndex:index];
+                [encoder useResource:buffer usage:MTLResourceUsageRead|MTLResourceUsageWrite];
+            }
+            for(auto [index,buffer]:resources)[encoder useResource:buffer usage:MTLResourceUsageRead];
+            [encoder useResource:dummy usage:MTLResourceUsageRead];
+            [encoder dispatchThreads:MTLSizeMake(E*rowCount,1u,1u)
+                threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
+            [encoder endEncoding];[command commit];[command waitUntilCompleted];
+            require(command.status==MTLCommandBufferStatusCompleted,
+                "production coupled graph contact dispatch failed");
+            const auto result=readBuffer<float>(matrices,before.size());
+            const auto status=readBuffer<NMMatterStatusGPU>(statuses,E);
+            const bool bad=mode==3u||mode==5u||mode==6u||mode==7u;
+            for(unsigned e=0u;e<E;++e)
+                require(status[e].code==(bad?(mode==3u?NM_STATUS_NONFINITE_RESULT:
+                    NM_STATUS_INVALID_DISPATCH):NM_STATUS_SUCCESS),
+                    "coupled graph contact status/capacity/finiteness gate");
+            if(!bad) {
+                std::vector<double> expected(before.begin(),before.end());
+                const bool skip=mode==4u||mode==8u;
+                if(!skip)for(unsigned e=0u;e<E;++e)for(unsigned i=0u;i<K;++i) {
+                    const unsigned rowNode=patchNodes[i];
+                    if(rowNode==6u)continue;
+                    if(rowNode%3u==0u)for(unsigned a=0u;a<3u;++a)
+                        expected[e*M+7u+(3u*i+a)*n+3u*i+a]+=
+                            (a==0u?3.0:a==1u?5.0:7.0)*(1.0+0.5*e);
+                    if(mode==1u||mode==2u)continue;
+                    for(unsigned slot=0u;slot<C;++slot) {
+                        const unsigned z=e*C+slot;const auto& c=contacts[z];
+                        if(!(c.identity.w&NM_CONTACT_VALID))continue;
+                        for(unsigned ci=0u;ci<6u;++ci)if(ids[z][ci]==G+rowNode)
+                            for(unsigned cj=0u;cj<6u;++cj) {
+                                if(!coupled&&ci!=cj)continue;
+                                for(unsigned j=0u;j<K;++j)
+                                    if(ids[z][cj]==G+patchNodes[j]&&patchNodes[j]!=6u) {
+                                        const nm_float4 hs[3]={c.barrierHessianRow0,
+                                            c.barrierHessianRow1,c.barrierHessianRow2};
+                                        for(unsigned a=0u;a<3u;++a)for(unsigned b=0u;b<3u;++b)
+                                            expected[e*M+7u+(3u*i+a)*n+3u*j+b]+=
+                                                times[z][ci]*times[z][cj]*
+                                                (weights[z][ci]*weights[z][cj]*component(hs[a],b)+
+                                                std::max(0.0,double(c.mollifier.z))*
+                                                gradients[z][ci][a]*gradients[z][cj][b]);
+                                    }
+                            }
+                    }
+                }
+                for(unsigned i=0u;i<result.size();++i) {
+                    const double error=std::abs(double(result[i])-expected[i]);
+                    maximumError=std::max(maximumError,error);
+                    require(std::isfinite(result[i])&&error<=2.0e-5*std::max(1.0,std::abs(expected[i])),
+                        "production contact patch differs from independent double principal block");
+                }
+                if(coupled&&!skip)for(unsigned e=0u;e<E;++e)
+                    for(unsigned direction=0u;direction<9u;++direction)
+                        for(unsigned i=0u;i<n;++i) {
+                            double measured=0.0,reference=0.0;
+                            for(unsigned j=0u;j<n;++j) {
+                                const double v=std::sin(double(1u+j)*(direction+1u)*0.713);
+                                const unsigned index=e*M+7u+i*n+j;
+                                measured+=(result[index]-before[index])*v;
+                                reference+=(expected[index]-before[index])*v;
+                            }
+                            const double error=std::abs(measured-reference);
+                            maximumProductError=std::max(maximumProductError,error);
+                            require(error<=8.0e-5*std::max(1.0,std::abs(reference)),
+                                "random-direction principal contact product disagrees");
+
+                        }
+                if(coupled&&!skip)for(unsigned e=0u;e<E;++e)
+                    for(unsigned direction=0u;direction<9u;++direction) {
+                        double energy=0.0,magnitude=0.0;
+                        for(unsigned i=0u;i<n;++i)for(unsigned j=0u;j<n;++j) {
+                            const double vi=std::sin(double(1u+i)*(direction+1u)*0.713);
+                            const double vj=std::sin(double(1u+j)*(direction+1u)*0.713);
+                            const unsigned index=e*M+7u+i*n+j;
+                            const double a=double(result[index])-before[index];
+                            const double transposed=double(result[e*M+7u+j*n+i])-
+                                before[e*M+7u+j*n+i];
+                            require(std::abs(a-transposed)<=2.0e-5*
+                                std::max(1.0,std::abs(a)),"principal contact block is not symmetric");
+                            energy+=vi*a*vj;magnitude+=std::abs(vi*a*vj);
+                        }
+                        require(energy>=-1.0e-5*std::max(1.0,magnitude),
+                            "principal contact block has negative directional energy");
+                    }
+                if(mode==0u&&variant==0u)legacyControl=result;
+                if(mode==0u&&variant==2u)
+                    require(result==legacyControl,"undefined contact specialization changed the default path");
+            } else {
+                for(unsigned i=E*M;i<result.size();++i)
+                    require(result[i]==before[i],"contact failure overwrote the matrix tail canary");
+                if(mode==3u)for(unsigned e=0u;e<E;++e)
+                    for(unsigned j=0u;j<n;++j)
+                        require(result[e*M+7u+j]==before[e*M+7u+j],
+                            "nonfinite contact partially published its row");
+                if(mode==5u)require(result==before,"invalid matrix capacity performed writes");
+            }
+            ++cases;
+        }
+    }
+    std::cout<<"coupled_contact_graph production_cases="<<cases
+        <<" environments=2 max_nodes=8 six_corners=true repeated_nodes=true"
+        <<" fixed_columns=true outside_patch=true multirate=true mollifier=true"
+        <<" capacity_nonfinite_fail_closed=true completed_tail=true"
+        <<" default_parity=true max_entry_error="<<maximumError
+        <<" max_random_product_error="<<maximumProductError<<" PASS\n";
+}
+
+
 void checkAssembledXYZOperator(
     id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
     auto specializedPipeline = [&](const char* name) {
@@ -19025,6 +19304,7 @@ int main(int argc, const char* argv[]) {
             }
             if (argc == 2 && std::string(argv[1]) == "--graph-psd-contact-block-only") {
                 checkGraphPSDContactBlock(device, queue, library);
+                checkGraphCoupledContactBlocks(device, queue, library);
                 std::cout << "PASS graph PSD contact block " << checks << " checks" << std::endl;
                 return 0;
             }

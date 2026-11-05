@@ -1,0 +1,3 @@
+graph PSD contact block rotated-normal, indefinite-projection, axis, nonfinite checks PASS
+coupled_contact_graph production_cases=23 environments=2 max_nodes=8 six_corners=true repeated_nodes=true fixed_columns=true outside_patch=true multirate=true mollifier=true capacity_nonfinite_fail_closed=true completed_tail=true default_parity=true max_entry_error=8.85949e-07 max_random_product_error=1.4973e-06 PASS
+PASS graph PSD contact block 86544 checks
