@@ -1,0 +1,14 @@
+{
+  "native_steps": 0,
+  "physical_admission": false,
+  "stages": [
+    {
+      "exit_code": 1,
+      "guard_stop": null,
+      "name": "mass-support-320",
+      "stderr_sha256": "c046a36c4689fc24ba933ec16c42315f07b67ee99126f5c9e15f687e3c086214",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "wall_s": 5.041776895523071
+    }
+  ]
+}

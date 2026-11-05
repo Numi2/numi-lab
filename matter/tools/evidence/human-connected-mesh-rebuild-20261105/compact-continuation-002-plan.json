@@ -1,0 +1,72 @@
+{
+  "maximum_rss_kib": 8388608,
+  "maximum_stage_wall_s": 900,
+  "minimum_free_bytes": 12884901888,
+  "native_steps": 0,
+  "physical_admission": false,
+  "stages": [
+    {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/run_compact_joint_handoff.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320"
+      ],
+      "name": "compact-handoff-002",
+      "source_sha256": "bc1f755a4caf7af2a0fb32d4fee1144c2f234fec7c352aee05ae86b6346eb60c"
+    },
+    {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/compile_joint64_p1.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320"
+      ],
+      "name": "p1",
+      "source_sha256": "7dff3613e8bbba8339be908029d6cbe00e1eeba6557278c4d55d8de6b4e764cd"
+    },
+    {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/compile_joint64_export.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320"
+      ],
+      "name": "p1-export",
+      "source_sha256": "2740dead352c955df1e503959a21f951f76fa2871e70a4bada0a4e937660e605"
+    },
+    {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/rebind_joint64_registration.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320"
+      ],
+      "name": "registration",
+      "source_sha256": "46d39d1bc7c6379be13e3f98c21de943d65d2fcb1336f3c00dec0510f454f222"
+    },
+    {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/rebind_joint64_semantics.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320"
+      ],
+      "name": "semantics",
+      "source_sha256": "88a1e756d9d41fc6b7c38a0e17969a8b654928bd9748888658580c47bb2ba82b"
+    },
+    {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/export_joint64_assets.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320"
+      ],
+      "name": "assets",
+      "source_sha256": "5586643d42601a266a9762b6b7c37ed4c3205650d650e3caf9991e6393dfd5e4"
+    },
+    {
+      "argv": [
+        "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+        "/Users/numi/Work/human-integrated-gaps-20261104/prepare_joint64_bindings.py",
+        "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-bone-admitted-320"
+      ],
+      "name": "bindings",
+      "source_sha256": "7a23c975eef6f4b0a3aea41149c7fed481aa99de07fcc79ad90810250231d8ed"
+    }
+  ]
+}

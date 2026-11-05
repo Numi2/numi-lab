@@ -1,0 +1,11 @@
+{
+  "exit_code": 0,
+  "command": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/numi/Work/skin-fat-native-integration-209/apps/test_simplify_human_skin_fat_boundary.py"
+  ],
+  "sources": {
+    "/Users/numi/Work/skin-fat-native-integration-209/apps/simplify_human_skin_fat_boundary.py": "58f71215ce19b08bd97b59403d362d860acc1aebb0aa14ea32b820ec22ea4ee5",
+    "/Users/numi/Work/skin-fat-native-integration-209/apps/test_simplify_human_skin_fat_boundary.py": "ede1f1cc39823e3282b943be211d983d4ed92e4e42c7f8e401df2d4e14b8350f"
+  }
+}

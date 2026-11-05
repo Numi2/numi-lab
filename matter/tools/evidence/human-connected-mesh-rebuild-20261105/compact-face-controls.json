@@ -1,0 +1,11 @@
+{
+  "exit_code": 0,
+  "command": [
+    "/Users/numi/numi-human-prep-venv-20261005/bin/python3",
+    "/Users/numi/Work/skin-fat-native-integration-209/apps/test_numi_human_tet_face_incidence.py"
+  ],
+  "sources": {
+    "/Users/numi/Work/skin-fat-native-integration-209/apps/numi_human_tet_face_incidence.py": "24974a68351feeed9b7fa09cc424270f7a564ea210e9b26e2a5a2fe161002c9e",
+    "/Users/numi/Work/skin-fat-native-integration-209/apps/test_numi_human_tet_face_incidence.py": "fa2158debc938bdda203309dd9b0774c58f3c4d9d3e424346764035faa915830"
+  }
+}

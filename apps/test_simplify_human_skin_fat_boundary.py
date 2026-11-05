@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 import numpy as np
-from simplify_human_skin_fat_boundary import compose_local_cell_mass,load_reference_cell_mass
+from simplify_human_skin_fat_boundary import compose_local_cell_mass,load_reference_cell_mass,build_triangle_bins,query_triangle_bins,quotient_closure,compose_face_ancestry,attachment_nodes
 
 class LocalMassConstruction(unittest.TestCase):
  def test_split_keeps_physical_mass_and_density(self):
@@ -63,5 +63,61 @@ class LocalMassConstruction(unittest.TestCase):
     p.write_text("child_row,source_parent_row,mass_kg\n"+row+"\n")
     with self.subTest(row=row),self.assertRaisesRegex(ValueError,"invalid reference flow"):
      load_reference_cell_mass(p,hashlib.sha256(p.read_bytes()).hexdigest(),1)
+
+
+class ConnectedPassControls(unittest.TestCase):
+ def test_size_bins_conservatively_cover_intersecting_aabbs(self):
+  rng=np.random.default_rng(318)
+  xyz=rng.normal(size=(200,3,3))*10.**rng.uniform(-8,1,size=(200,1,1))
+  points=xyz.reshape(-1,3);faces=np.arange(len(points)).reshape(-1,3)
+  bins=build_triangle_bins(points,faces)
+  for tri in xyz[::7]:
+   expected=np.flatnonzero(np.all(xyz.max(1)>=tri.min(0),axis=1)&np.all(xyz.min(1)<=tri.max(0),axis=1))
+   found=query_triangle_bins(bins,tri)
+   self.assertTrue(set(expected)<=set(found))
+
+ def test_movement_padding_keeps_candidates_after_an_accepted_neighbor(self):
+  points=np.array([[0.,0,0],[0,1,0],[0,0,1]])
+  bins=build_triangle_bins(points,np.array([[0,1,2]]))
+  moved=points+[.25,0,0]
+  self.assertIn(0,query_triangle_bins(bins,moved,.25))
+  with self.assertRaises(ValueError):query_triangle_bins(bins,moved,-1)
+
+ def test_deleted_faces_are_not_indexed_and_empty_queries_are_valid(self):
+  points=np.array([[0.,0,0],[1,0,0],[0,1,0]])
+  bins=build_triangle_bins(points,np.array([[0,0,0],[0,1,2]]))
+  np.testing.assert_array_equal(query_triangle_bins(bins,points),[1])
+  self.assertEqual(len(query_triangle_bins([],points)),0)
+
+ def test_chained_quotient_resolves_and_cycles_reject(self):
+  np.testing.assert_array_equal(quotient_closure([1,2,2,3]),[2,2,2,3])
+  for q in [[1,0],[1,2,0],[0,4]]:
+   with self.subTest(q=q),self.assertRaises(ValueError):quotient_closure(q)
+
+ def test_repeated_face_repairs_retain_all_source_ancestors(self):
+  ops=[{"source_face_rows":{"O":[0,1,2]}},{"source_face_rows":{"O":[2,3]}},
+       {"source_face_rows":{"I":[4,5]}}]
+  out=compose_face_ancestry(ops,"O")
+  self.assertEqual(out[2],[0,1,2,3]);self.assertEqual(out[3],[0,1,2,3])
+  self.assertEqual(out[0],[0,1,2]);self.assertEqual(compose_face_ancestry(ops,"D"),{})
+
+
+class AttachmentConstructionControls(unittest.TestCase):
+ def test_exact_source_attachment_rows_are_protected(self):
+  with tempfile.TemporaryDirectory() as d:
+   p=Path(d)/"attachments.csv"
+   p.write_text("stable_attachment_id,donor_body,stable_source_vertex,source_domain\n7,20,1,D37_coarse_parent\n")
+   digest=hashlib.sha256(p.read_bytes()).hexdigest()
+   self.assertEqual(attachment_nodes(p,digest,np.array([4,9])),{9})
+   with self.assertRaisesRegex(ValueError,"SHA mismatch"):attachment_nodes(p,"0"*64,np.array([4,9]))
+   with self.assertRaisesRegex(ValueError,"source domain"):attachment_nodes(p,digest,np.array([4,-1]))
+
+ def test_duplicate_or_foreign_attachment_identities_are_rejected(self):
+  with tempfile.TemporaryDirectory() as d:
+   p=Path(d)/"attachments.csv";header="stable_attachment_id,donor_body,stable_source_vertex,source_domain\n"
+   for data in ["7,20,1,wrong\n","7,20,1,D37_coarse_parent\n7,20,0,D37_coarse_parent\n"]:
+    p.write_text(header+data)
+    with self.subTest(data=data),self.assertRaisesRegex(ValueError,"identity or source domain"):
+     attachment_nodes(p,hashlib.sha256(p.read_bytes()).hexdigest(),np.array([4,9]))
 
 if __name__=="__main__":unittest.main()

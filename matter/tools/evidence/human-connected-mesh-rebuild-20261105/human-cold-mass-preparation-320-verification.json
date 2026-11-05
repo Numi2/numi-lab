@@ -1,0 +1,147 @@
+{
+  "status": "PASS_INDEPENDENT_DOWNLOAD_ALL_MEMBERS_AND_RESTORE",
+  "source_files": [
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-support/fat-carrier-witnesses.csv.gz",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-support/fat-carrier-witnesses.csv.gz",
+      "size": 656686931,
+      "bytes": 656686931,
+      "sha256": "037a14ce2d7780d074dade908d3ed3183090157a1107ac6c422ef82566a3e7fb",
+      "inode": 6934561,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793885701029307602,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-support/skin-carrier-witnesses.csv.gz",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-support/skin-carrier-witnesses.csv.gz",
+      "size": 816363982,
+      "bytes": 816363982,
+      "sha256": "b6837fa516052a52d9a2f4929eafc5894911e8063bbd90624e1b8b27efb47386",
+      "inode": 6934491,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793885573844891638,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/p1-export/p1-anchor.npz",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/p1-export/p1-anchor.npz",
+      "size": 237290032,
+      "bytes": 237290032,
+      "sha256": "1e4d0baa22335e0796190de10f48daf8e6e96d95df0def8d303808ede7b5bc75",
+      "inode": 6934108,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793884294732706490,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-allocation/allocator-output/flow.csv",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-allocation/allocator-output/flow.csv",
+      "size": 209473318,
+      "bytes": 209473318,
+      "sha256": "6c5f25c64d0116b59a0392c4cdc864ff5a8dbd2ee4d0627c8e930f6482b75e57",
+      "inode": 6935336,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793886063585961749,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-allocation/allocator-output/semantic-groups.csv",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-allocation/allocator-output/semantic-groups.csv",
+      "size": 100474411,
+      "bytes": 100474411,
+      "sha256": "1df0290b1d56d89543ef9e58dfbbf4fb3742e2fbf8121df6f047b5e11a239bcc",
+      "inode": 6935337,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793886064549638821,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-allocation/allocator-output/carrier-trace.csv",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/mass-allocation/allocator-output/carrier-trace.csv",
+      "size": 224545796,
+      "bytes": 224545796,
+      "sha256": "ddeafb13c78aa6d37f4761d50d9edff702288eb967b4c282feef188193723ab4",
+      "inode": 6935339,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793886066499848275,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/converter/role-output/skin-transport-flow.csv",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/converter/role-output/skin-transport-flow.csv",
+      "size": 66544274,
+      "bytes": 66544274,
+      "sha256": "9321480ac55d9c9774717f97bb91dc30809337e6d4912b2d30c449323e70f763",
+      "inode": 6935621,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793886820380798267,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/converter/role-output/fat-source-carrier-flow.csv",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/converter/role-output/fat-source-carrier-flow.csv",
+      "size": 126187923,
+      "bytes": 126187923,
+      "sha256": "90ec183c7d707a3cc2d2e18037dde421782725998432d71fcd4f21e3d8ac89e7",
+      "inode": 6935629,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793886824247261253,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/converter/role-output/fat-transport-flow.csv",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/converter/role-output/fat-transport-flow.csv",
+      "size": 109579135,
+      "bytes": 109579135,
+      "sha256": "73aa9cde53d1e374c25ebe5e46f67b4dcd405c95b600e1b94c21aeac85327fcf",
+      "inode": 6935628,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793886823103690479,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/converter/role-output/skin-source-carrier-flow.csv",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/converter/role-output/skin-source-carrier-flow.csv",
+      "size": 79323621,
+      "bytes": 79323621,
+      "sha256": "41c4fdd83a8ea732ba0f08068cf56bca0320b78859bc33093d32380c9bd179a1",
+      "inode": 6935622,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793886821093582147,
+      "retire": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/converter/role-output/fat-child-source-donor.csv",
+      "relative": "Users/numi/Work/human-integrated-gaps-20261104/joint-boundary-rebuild-64c/compiler/converter/role-output/fat-child-source-donor.csv",
+      "size": 62883666,
+      "bytes": 62883666,
+      "sha256": "085b160f44bea9e6ae73fbf2330fdc76bc5bb7a49063b392b799c852a316f5a8",
+      "inode": 6935630,
+      "mode": 420,
+      "device": 16777232,
+      "mtime_ns": 1793886824812062568,
+      "retire": true
+    }
+  ],
+  "archive_sha256": "388d824a5b56688cd63a388654a0cf7dab9cbce7230a983f37ec73b0e946ccbf",
+  "archive_bytes": 2085470503,
+  "remote_asset": "https://github.com/Numi2/macmini-evidence-archive/releases/download/numi-20261104-cold-human-evidence/human-cold-mass-preparation-320.tar.zst",
+  "restore_verification": {
+    "status": "PASS_INDEPENDENT_DOWNLOAD_SEQUENTIAL_FILE_RESTORE",
+    "files": 11,
+    "all_sizes_and_sha256_verified": true
+  },
+  "free_before_retirement": 10100592640,
+  "free_after_retirement": 16975536128
+}
