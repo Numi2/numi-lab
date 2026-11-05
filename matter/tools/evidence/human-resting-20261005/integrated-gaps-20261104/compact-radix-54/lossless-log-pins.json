@@ -1,0 +1,12 @@
+[
+  {
+    "path": "build-55.log.gz",
+    "uncompressed_sha256": "7c350a1b8a2d243479e790deac10ee72917f6e1c55263e2a3e86bcb7221a0185",
+    "uncompressed_bytes": 22528
+  },
+  {
+    "path": "rejected-nodal-contact-prototype/scoped-candidate-53.patch.gz",
+    "uncompressed_sha256": "e45d96fd24b0ab4feba1109ee1954b792b7bb4f3b86cb10e5bf98cfaff30bb75",
+    "uncompressed_bytes": 15626
+  }
+]

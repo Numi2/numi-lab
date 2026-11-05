@@ -1,0 +1,7 @@
+{
+  "reason": "native289 rejects root21 after21 accepted steps; no full32-root qualification; removed from production rather than retaining an unhelpful flag",
+  "patch": "/Users/numi/Work/human-integrated-gaps-20261104/nodal-contact-blocks-52/scoped-candidate-53.patch",
+  "sha256": "e45d96fd24b0ab4feba1109ee1954b792b7bb4f3b86cb10e5bf98cfaff30bb75",
+  "recovery": "git apply scoped-candidate-53.patch on recorded before source; full execution patch and input pins retained in288/289",
+  "physical_operator_changed": false
+}

@@ -1,0 +1,28 @@
+{
+  "available_before_bytes": 17151905792,
+  "clones": [
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/outer-fine-hybrid-compact-285/install-motion/resting-human.mrvpack",
+      "canonical": "/Users/numi/Work/human-integrated-gaps-20261104/compact-immutable-contacts-276/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "all_paths_and_metadata_preserved": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/outer-fine-hybrid-headroom-287/install-motion/resting-human.mrvpack",
+      "canonical": "/Users/numi/Work/human-integrated-gaps-20261104/compact-immutable-contacts-276/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "all_paths_and_metadata_preserved": true
+    },
+    {
+      "path": "/Users/numi/Work/human-integrated-gaps-20261104/nodal-psd-contact-blocks-289/install-motion/resting-human.mrvpack",
+      "canonical": "/Users/numi/Work/human-integrated-gaps-20261104/compact-immutable-contacts-276/install-motion/resting-human.mrvpack",
+      "sha256": "d653a20880c472ca5e4e228a3a85af28e5a2d935d7da3e20e08eff7f0b966875",
+      "bytes": 321323008,
+      "all_paths_and_metadata_preserved": true
+    }
+  ],
+  "available_after_bytes": 17794502656,
+  "physical_bytes_recovered": 642596864
+}

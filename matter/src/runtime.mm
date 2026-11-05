@@ -5534,8 +5534,12 @@ RuntimeDiagnostics Runtime::initialize(
                     "sorted deformable corner record count exceeds the checked bitonic sort domain";
                 return diagnostics;
             }
-            sortedCornerPaddedCapacity = std::bit_ceil(
-                sortedCornerLogicalCount);
+            // Only the bitonic network requires power-of-two padding.
+            // Radix strides cover the complete logical capacity exactly.
+            sortedCornerPaddedCapacity =
+                candidate->deformableContactNodeIncidenceRadixEnabled
+                    ? sortedCornerLogicalCount
+                    : std::bit_ceil(sortedCornerLogicalCount);
             if (sortedCornerPaddedCapacity == 0u ||
                 sortedCornerPaddedCapacity >
                     std::numeric_limits<std::uint32_t>::max() ||
@@ -5566,8 +5570,12 @@ RuntimeDiagnostics Runtime::initialize(
                         candidate->deformableContactNodeIncidenceHierarchicalPrefixEnabled
                             ? hierarchicalPrefixWords : histogramWords)
                     : 0u;
-            const std::uint64_t keyStride = std::max(
-                sortedCornerPaddedCapacity, (scratchWords + 1u) / 2u);
+            // Radix uses this arena only for histograms and scan offsets;
+            // its payload-only emitter never writes the bitonic ulong keys.
+            const std::uint64_t keyStride =
+                candidate->deformableContactNodeIncidenceRadixEnabled
+                    ? (scratchWords + 1u) / 2u
+                    : sortedCornerPaddedCapacity;
             if (keyStride > std::numeric_limits<std::uint64_t>::max() / environments) {
                 diagnostics.message = "radix scratch sizing overflows uint64";
                 return diagnostics;
@@ -9090,6 +9098,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_scan_deformable_node_incidence",
             "nm_contact_scatter_deformable_node_incidence",
             "nm_contact_emit_deformable_node_corners",
+            "nm_contact_emit_deformable_node_radix_payloads",
             "nm_contact_prepare_radix_tile_dispatch",
             "nm_contact_prepare_radix_prefix_dispatch",
             "nm_contact_deformable_node_radix_histogram",
@@ -9628,6 +9637,8 @@ RuntimeDiagnostics Runtime::initialize(
                 std::strcmp(name, "nm_contact_scan_deformable_node_incidence_tiles") == 0 ||
                 std::strcmp(name, "nm_contact_scan_deformable_node_incidence_tile_offsets") == 0 ||
                 std::strcmp(name, "nm_contact_scan_deformable_node_incidence_add_tile_offsets") == 0 ||
+                std::strcmp(name,
+                       "nm_contact_emit_deformable_node_radix_payloads") == 0 ||
                 std::strcmp(name,
                        "nm_contact_emit_deformable_node_corners") == 0 ||
                 std::strcmp(name,
@@ -21248,7 +21259,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&recordsPerActive length:sizeof(recordsPerActive) atIndex:3u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                dispatchGroups32("nm_contact_emit_deformable_node_corners",
+                dispatchGroups32("nm_contact_emit_deformable_node_radix_payloads",
                     state.dispatch.environmentCount == 1u ? (padded + 31u) / 32u : (paddedThreads + 31u) / 32u, [&] {
                     setDispatch();
                     [encoder setBuffer:contacts offset:0u atIndex:1u];

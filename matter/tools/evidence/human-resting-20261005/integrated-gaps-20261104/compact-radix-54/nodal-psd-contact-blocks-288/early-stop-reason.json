@@ -1,0 +1,5 @@
+{
+  "reason": "preflight source inspection found nodal option lacked the existing coupled-owner scope; auxiliary runtimes would reject the global flag",
+  "pid": 1329,
+  "physics_result": false
+}

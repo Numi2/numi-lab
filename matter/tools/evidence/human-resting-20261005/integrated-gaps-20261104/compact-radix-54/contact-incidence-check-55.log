@@ -1,0 +1,1 @@
+PASS native deterministic radix contact incidence and surface Morton sort; checks=8116 ; incidence_runs=8; surface_runs=2; hierarchical_runs=4; environments=2; physical_steps=0

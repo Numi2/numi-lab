@@ -1,0 +1,16 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 340.9687509536743,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/nodal-psd-contact-blocks-289/install-motion.plan.json",
+  "plan_sha256": "6e5dab1e5e93212b2ac66778ee5f3751536e5b7d837fcbe0dd92e15760009fea",
+  "stdout_path": "/Users/numi/Work/human-integrated-gaps-20261104/nodal-psd-contact-blocks-289/install-motion.stdout.log.gz",
+  "stdout_encoding": "gzip",
+  "stdout_compressor_exit_code": 0,
+  "stdout_sha256": "dda57e9911c6bc3d82c029a415954825ad7d59c36912ac1f282952303f5d0732",
+  "stdout_uncompressed_sha256": "8f62324d815d6f23becdd0568b0a5a17998cdb7d0bdc5d750aefaf7291254ac2",
+  "stderr_sha256": "37aed073a6466a93906d9294737c308199575524b739bc086ca031f2becc4ca9",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": true,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

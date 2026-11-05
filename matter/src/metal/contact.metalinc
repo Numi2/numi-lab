@@ -9012,6 +9012,36 @@ kernel void nm_contact_scatter_deformable_active_work(
 // (unified node ID, compacted active slot, local corner), then gather the
 // records into the same per-node ordering as the legacy activeSlot/local loop.
 // The contact slot remains in payload so history identity is unchanged.
+inline uint deformableActiveCornerPayload(
+    constant NMMatterDispatchGPU& dispatch,
+    device const NMDeformableContactGPU* contacts,
+    device const uint* activeIndices,
+    device const uint* activeCounts,
+    const uint environment, const uint localRecord,
+    thread uint& node, thread uint& order
+) {
+    node = NM_INVALID_INDEX;
+    order = NM_INVALID_INDEX;
+    const uint capacity = dispatch.deformableContactCapacity;
+    if (ulong(localRecord) >= 6ul * ulong(capacity) || capacity == 0u)
+        return NM_INVALID_INDEX;
+    const uint activeSlot = localRecord / 6u;
+    const uint local = localRecord - activeSlot * 6u;
+    if (activeSlot >= min(activeCounts[environment], capacity))
+        return NM_INVALID_INDEX;
+    const uint slot = activeIndices[environment * capacity + activeSlot];
+    if (slot >= capacity) return NM_INVALID_INDEX;
+    const NMDeformableContactGPU contact = contacts[environment * capacity + slot];
+    if ((contact.identity.w & NM_CONTACT_VALID) == 0u)
+        return NM_INVALID_INDEX;
+    const uint sourceNode = deformableContactNode(contact, local);
+    if (sourceNode >= dispatch.gridNodeCount + dispatch.femNodeCount)
+        return NM_INVALID_INDEX;
+    node = sourceNode;
+    order = activeSlot * 8u + local;
+    return slot * 8u + local;
+}
+
 kernel void nm_contact_emit_deformable_node_corners(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMDeformableContactGPU* contacts [[buffer(1)]],
@@ -9023,38 +9053,37 @@ kernel void nm_contact_emit_deformable_node_corners(
     uint global [[thread_position_in_grid]]
 ) {
     if (paddedCapacity == 0u) return;
-    const uint capacity = dispatch.deformableContactCapacity;
-    const uint nodeCount = dispatch.gridNodeCount + dispatch.femNodeCount;
     const uint environment = global / paddedCapacity;
-    const uint localRecord = global - environment * paddedCapacity;
     if (environment >= dispatch.environmentCount) return;
-
-    constexpr ulong invalidKey = ~0ul;
-    ulong key = invalidKey;
-    uint payload = NM_INVALID_INDEX;
-    const ulong logicalRecordCount = 6ul * ulong(capacity);
-    if (ulong(localRecord) < logicalRecordCount && capacity != 0u) {
-        const uint activeSlot = localRecord / 6u;
-        const uint local = localRecord - activeSlot * 6u;
-        const uint activeCount = min(activeCounts[environment], capacity);
-        if (activeSlot < activeCount) {
-            const uint slot = activeIndices[environment * capacity + activeSlot];
-            if (slot < capacity) {
-                const NMDeformableContactGPU contact =
-                    contacts[environment * capacity + slot];
-                if ((contact.identity.w & NM_CONTACT_VALID) != 0u) {
-                    const uint node = deformableContactNode(contact, local);
-                    if (node < nodeCount) {
-                        const ulong order = ulong(activeSlot) * 8ul + ulong(local);
-                        key = (ulong(node) << 32u) | order;
-                        payload = 8u * slot + local;
-                    }
-                }
-            }
-        }
-    }
-    sortKeys[global] = key;
+    const uint localRecord = global - environment * paddedCapacity;
+    uint node, order;
+    const uint payload = deformableActiveCornerPayload(
+        dispatch, contacts, activeIndices, activeCounts,
+        environment, localRecord, node, order);
+    sortKeys[global] = node == NM_INVALID_INDEX
+        ? ~0ul : (ulong(node) << 32u) | ulong(order);
     sortPayloads[global] = payload;
+}
+
+// Radix sorting reconstructs each node key from its stable corner payload.
+// It neither consumes bitonic ulong keys nor needs power-of-two padding.
+// Keep the same binding slots so only the selected emitter changes.
+kernel void nm_contact_emit_deformable_node_radix_payloads(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMDeformableContactGPU* contacts [[buffer(1)]],
+    device const uint* activeIndices [[buffer(2)]],
+    device const uint* activeCounts [[buffer(3)]],
+    device uint* sortPayloads [[buffer(5)]],
+    constant uint& payloadStride [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (payloadStride == 0u) return;
+    const uint environment = global / payloadStride;
+    if (environment >= dispatch.environmentCount) return;
+    uint node, order;
+    sortPayloads[global] = deformableActiveCornerPayload(
+        dispatch, contacts, activeIndices, activeCounts, environment,
+        global - environment * payloadStride, node, order);
 }
 
 kernel void nm_contact_bitonic_sort_deformable_node_corners(

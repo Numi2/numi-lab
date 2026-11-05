@@ -358,6 +358,7 @@ void executeCase(id<MTLDevice> device,
                  id<MTLComputePipelineState> ownerVerify,
                  const std::vector<Environment>& environments,
                  id<MTLComputePipelineState> emit,
+                 id<MTLComputePipelineState> radixEmit,
                  id<MTLComputePipelineState> bitonic,
                  id<MTLComputePipelineState> countSorted,
                  id<MTLComputePipelineState> countLegacy,
@@ -498,17 +499,19 @@ void executeCase(id<MTLDevice> device,
         threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
 
+    const std::uint32_t radixStride = logicalCapacity;
+    const NSUInteger radixThreads = NSUInteger(radixStride) * kEnvironments;
     // Re-emit the compact active prefix before radix sorting; the prior
     // bitonic pass has permuted the payload records in place.
-    [encoder setComputePipelineState:emit];
+    [encoder setComputePipelineState:radixEmit];
     bindDispatch();
     [encoder setBuffer:contactsBuffer offset:0u atIndex:1u];
     [encoder setBuffer:activeIndicesBuffer offset:0u atIndex:2u];
     [encoder setBuffer:activeCountsBuffer offset:0u atIndex:3u];
     [encoder setBuffer:sortKeys offset:0u atIndex:4u];
     [encoder setBuffer:sortPayloads offset:0u atIndex:5u];
-    [encoder setBytes:&padded length:sizeof(padded) atIndex:6u];
-    [encoder dispatchThreads:MTLSizeMake(sortThreads, 1u, 1u)
+    [encoder setBytes:&radixStride length:sizeof(radixStride) atIndex:6u];
+    [encoder dispatchThreads:MTLSizeMake(radixThreads, 1u, 1u)
         threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
 
@@ -522,7 +525,7 @@ void executeCase(id<MTLDevice> device,
         [encoder setBuffer:radixIncidence offset:0u atIndex:3u];
         [encoder setBuffer:activeCountsBuffer offset:0u atIndex:4u];
         [encoder setBuffer:sortKeys offset:0u atIndex:5u];
-        [encoder setBytes:&padded length:sizeof(padded) atIndex:6u];
+        [encoder setBytes:&radixStride length:sizeof(radixStride) atIndex:6u];
         [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:7u];
         [encoder setBytes:&pass length:sizeof(pass) atIndex:8u];
         [encoder setBytes:&scratchStrideWords
@@ -552,7 +555,7 @@ void executeCase(id<MTLDevice> device,
         [encoder setBuffer:activeCountsBuffer offset:0u atIndex:4u];
         [encoder setBuffer:sortKeys offset:0u atIndex:5u];
         [encoder setBuffer:sortPayloads offset:0u atIndex:6u];
-        [encoder setBytes:&padded length:sizeof(padded) atIndex:7u];
+        [encoder setBytes:&radixStride length:sizeof(radixStride) atIndex:7u];
         [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:8u];
         [encoder setBytes:&pass length:sizeof(pass) atIndex:9u];
         [encoder setBytes:&scratchStrideWords
@@ -573,7 +576,7 @@ void executeCase(id<MTLDevice> device,
     [encoder setBuffer:activeCountsBuffer offset:0u atIndex:3u];
     [encoder setBuffer:radixRanges offset:0u atIndex:4u];
     const std::uint32_t sortedStride = (radixPassCount & 1u) != 0u
-        ? logicalCapacity : padded;
+        ? logicalCapacity : radixStride;
     [encoder setBytes:&sortedStride length:sizeof(sortedStride) atIndex:5u];
     [encoder dispatchThreads:MTLSizeMake(kEnvironments * kNodes, 1u, 1u)
         threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
@@ -614,8 +617,8 @@ void executeCase(id<MTLDevice> device,
         [encoder setBuffer:sortPayloads offset:0u atIndex:1u];
         [encoder setBuffer:activeCountsBuffer offset:0u atIndex:2u];
         [encoder setBuffer:radixIncidence offset:0u atIndex:3u];
-        [encoder setBytes:&padded length:sizeof(padded) atIndex:4u];
-        [encoder dispatchThreads:MTLSizeMake(sortThreads, 1u, 1u)
+        [encoder setBytes:&radixStride length:sizeof(radixStride) atIndex:4u];
+        [encoder dispatchThreads:MTLSizeMake(radixThreads, 1u, 1u)
             threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
     }
@@ -791,8 +794,7 @@ void executeHierarchicalRadixCase(
     }
 
     const std::uint64_t logicalRecords = std::uint64_t(6u) * capacity;
-    const std::uint32_t padded = static_cast<std::uint32_t>(
-        std::bit_ceil(logicalRecords));
+    const std::uint32_t padded = static_cast<std::uint32_t>(logicalRecords);
     const std::uint32_t maxTileCount = (padded + 31u) / 32u;
     const std::uint32_t maxChunkCount =
         (maxTileCount + chunkTiles - 1u) / chunkTiles;
@@ -801,9 +803,11 @@ void executeHierarchicalRadixCase(
     const std::uint64_t requiredScratchWords =
         histogramWords + std::uint64_t(bucketCount) * maxChunkCount +
         bucketCount;
-    const std::uint64_t keyStride = std::max<std::uint64_t>(
-        padded, (requiredScratchWords + 1u) / 2u);
+    const std::uint64_t keyStride = (requiredScratchWords + 1u) / 2u;
     const std::uint64_t scratchStrideWords = keyStride * 2u;
+    require(padded == logicalRecords && !std::has_single_bit(padded) &&
+                keyStride * 8u < std::bit_ceil(logicalRecords) * 8u,
+            "radix fixture must use logical stride and compact histogram arena");
     require(scratchStrideWords >= requiredScratchWords &&
                 scratchStrideWords == keyStride * 2u,
             "hierarchical radix per-environment scratch stride is too small");
@@ -819,12 +823,12 @@ void executeHierarchicalRadixCase(
     id<MTLBuffer> activeIndicesBuffer = inputBuffer(device, activeIndices);
     id<MTLBuffer> activeCountsBuffer = inputBuffer(device, requestedActiveCounts);
     id<MTLBuffer> sortKeys = zeroBuffer<std::uint64_t>(
-        device, keyStride * environmentCount, ~std::uint64_t{0});
+        device, keyStride * environmentCount + 1u, ~std::uint64_t{0});
     require(sortKeys.length / sizeof(std::uint32_t) >=
                 scratchStrideWords * environmentCount,
             "hierarchical radix scratch writes exceed the allocated per-environment key buffer");
     id<MTLBuffer> sortPayloads = zeroBuffer<std::uint32_t>(
-        device, padded * environmentCount, kInvalid);
+        device, padded * environmentCount + 1u, kInvalid);
     id<MTLBuffer> incidence = zeroBuffer<std::uint32_t>(
         device, logicalRecords * environmentCount, kInvalid);
     id<MTLBuffer> ranges = zeroBuffer<NMIncidenceRangeGPU>(
@@ -1025,6 +1029,10 @@ void executeHierarchicalRadixCase(
     Result actual;
     actual.ranges.resize(std::size_t(environmentCount) * nodeCount);
     actual.incidence.resize(std::size_t(environmentCount) * logicalRecords);
+    require(static_cast<const std::uint64_t*>(sortKeys.contents)[keyStride*environmentCount] ==
+                ~std::uint64_t{0}, "compact radix scratch end canary");
+    require(static_cast<const std::uint32_t*>(sortPayloads.contents)[padded*environmentCount] ==
+                kInvalid, "compact radix payload end canary");
     const auto* gpuRanges = static_cast<const NMIncidenceRangeGPU*>(ranges.contents);
     const auto* gpuIncidence = static_cast<const std::uint32_t*>(incidence.contents);
     for (std::size_t index = 0u; index < actual.ranges.size(); ++index) {
@@ -2015,6 +2023,9 @@ int main() {
                 : "cannot load Matter metallib");
             const auto emit = makePipeline(device, library,
                 "nm_contact_emit_deformable_node_corners");
+            auto radixEmit = makePipeline(device,library,
+                "nm_contact_emit_deformable_node_radix_payloads");
+
             const auto bitonic = makePipeline(device, library,
                 "nm_contact_bitonic_sort_deformable_node_corners");
             const auto countSorted = makePipeline(device, library,
@@ -2095,7 +2106,7 @@ int main() {
             executeOwnerEnumeration(device, library);
             auto ownerVerify=makePipeline(device,library,"nm_mixed_owner_contact_enumeration_check");
             executeCompactionParity(device, library);
-            executeCase(device, ownerVerify, explicitCase(), emit, bitonic, countSorted,
+            executeCase(device, ownerVerify, explicitCase(), emit, radixEmit, bitonic, countSorted,
                         countLegacy, scan, scatter, scatterLegacy,
                         radixHistogram, radixPrefix, radixScatter, countRadix,
                         copyRadix, scanTiles, scanTileOffsets, scanAddTileOffsets,
@@ -2103,7 +2114,7 @@ int main() {
             ++checks;
             // Preserve the previous seven-pass control for parity coverage;
             // the dynamic case above now exercises the production width.
-            executeCase(device, ownerVerify, explicitCase(), emit, bitonic, countSorted,
+            executeCase(device, ownerVerify, explicitCase(), emit, radixEmit, bitonic, countSorted,
                         countLegacy, scan, scatter, scatterLegacy,
                         radixHistogram, radixPrefix, radixScatter, countRadix,
                         copyRadix, scanTiles, scanTileOffsets, scanAddTileOffsets,
@@ -2112,41 +2123,41 @@ int main() {
             // Force the full-width fallback on the small fixture. The high
             // key digit is zero here, while this exercises the even-pass
             // ping-pong parity and final copy used for large node domains.
-            executeCase(device, ownerVerify, explicitCase(), emit, bitonic, countSorted,
+            executeCase(device, ownerVerify, explicitCase(), emit, radixEmit, bitonic, countSorted,
                         countLegacy, scan, scatter, scatterLegacy,
                         radixHistogram, radixPrefix, radixScatter, countRadix,
                         copyRadix, scanTiles, scanTileOffsets, scanAddTileOffsets,
                         8u);
             ++checks;
-            executeCase(device, ownerVerify, zeroActiveCase(), emit, bitonic, countSorted,
+            executeCase(device, ownerVerify, zeroActiveCase(), emit, radixEmit, bitonic, countSorted,
                         countLegacy, scan, scatter, scatterLegacy,
                         radixHistogram, radixPrefix, radixScatter, countRadix,
                         copyRadix, scanTiles, scanTileOffsets, scanAddTileOffsets,
                         7u);
             ++checks;
-            executeCase(device, ownerVerify, invalidSlotCase(), emit, bitonic, countSorted,
+            executeCase(device, ownerVerify, invalidSlotCase(), emit, radixEmit, bitonic, countSorted,
                         countLegacy, scan, scatter, scatterLegacy,
                         radixHistogram, radixPrefix, radixScatter, countRadix,
                         copyRadix, scanTiles, scanTileOffsets, scanAddTileOffsets,
                         7u);
             ++checks;
-            executeHierarchicalRadixCase(device, ownerVerify, {1365u}, emit, radixHistogram,
+            executeHierarchicalRadixCase(device, ownerVerify, {1365u}, radixEmit, radixHistogram,
                 radixPrefix, radixPrefixPrepare, radixPrefixBlocks,
                 radixPrefixChunkOffsets, prepareRadixDispatch, radixScatter,
                 countRadix, scanTiles, scanTileOffsets, scanAddTileOffsets);
             ++checks;
-            executeHierarchicalRadixCase(device, ownerVerify, {1366u}, emit, radixHistogram,
+            executeHierarchicalRadixCase(device, ownerVerify, {1366u}, radixEmit, radixHistogram,
                 radixPrefix, radixPrefixPrepare, radixPrefixBlocks,
                 radixPrefixChunkOffsets, prepareRadixDispatch, radixScatter,
                 countRadix, scanTiles, scanTileOffsets, scanAddTileOffsets);
             ++checks;
-            executeHierarchicalRadixCase(device, ownerVerify, {1365u, 1366u}, emit,
+            executeHierarchicalRadixCase(device, ownerVerify, {1365u, 1366u}, radixEmit,
                 radixHistogram, radixPrefix, radixPrefixPrepare,
                 radixPrefixBlocks, radixPrefixChunkOffsets,
                 prepareRadixDispatch, radixScatter, countRadix, scanTiles,
                 scanTileOffsets, scanAddTileOffsets);
             ++checks;
-            executeHierarchicalRadixCase(device, ownerVerify, {0u, 1366u}, emit,
+            executeHierarchicalRadixCase(device, ownerVerify, {0u, 1366u}, radixEmit,
                 radixHistogram, radixPrefix, radixPrefixPrepare,
                 radixPrefixBlocks, radixPrefixChunkOffsets,
                 prepareRadixDispatch, radixScatter, countRadix, scanTiles,

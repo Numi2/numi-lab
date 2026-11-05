@@ -377,3 +377,60 @@ exact outer O boundary, 246,246 fine-complement coordinates, 1,956 reduced
 coordinates, full material/contact evaluation and mandatory full physical
 certification. Force, regional strain and sustained-motion gates have not
 yet passed. The old failed 66x basis is not promoted.
+
+## Compact radix workspace and rejected contact-block experiment (builds 52–55)
+
+The radix incidence path no longer allocates or emits bitonic ulong keys.
+Its payload stride is the complete logical corner capacity rather than a
+power-of-two padding. The separate bitonic reference keeps its original
+keys and padding. Histogram/scan scratch remains independently sized for
+the full admitted capacity. Active records, deterministic order, duplicate
+corners, history identity and capacity/overflow checks are unchanged.
+
+For this Human, 4,207,296 contact slots require 25,243,776 logical corner
+records versus 33,554,432 padded records. Identified workspace decreases
+from 402,653,184 to 151,659,968 bytes: 250,993,216 bytes (239.37 MiB).
+The native contact suite passes 8,116 checks, including small odd/even
+radix passes, multiple environments, empty/invalid/duplicate corners and
+hierarchical scans with exactly sized buffers and end canaries.
+The complete FGMRES suite passes 2,671,801 checks in build 55.
+
+Trial 290 accepts all 32 roots. All 1,798,453 endpoint records and nine
+numerical traces match reference 276 byte for byte. The optional surface
+audit omits a duplicate export row; its unique rows match exactly.
+The strict all-file byte comparison remains false, while the numerical
+state comparison passes. Body time is 230.856208 s versus 235.947012 s:
+approximately 2.2% higher throughput in this single pair, not a repeated
+speedup estimate. Inclusive time is 432.311483 s versus 426.876769 s;
+startup differs and no end-to-end improvement is established.
+Metal allocation is 7,863,582,720 bytes. Its delta includes driver-dependent
+effects and must not be added to the identified workspace saving.
+All 144 active solves, 2,304 columns and 62 exhaustions remain unchanged.
+This is 0.5 ms of release motion at 0.00000216585x, not supported rest,
+sustained physiology, presentation qualification or the 0.1x goal.
+
+The separate nodal contact-block prototype reused the full PSD spatial
+3x3 metric, with component tests for rotated rigid and deformable contact,
+timescale factors and independent CPU double-precision inverses. Despite
+passing those tests, correctly scoped trial 289 rejects root 21 after 21
+accepted roots. Its final nonlinear norm is 0.000486566 and the latch is
+false after all 16 solves. Geometry remains positive; this is a physical
+nonlinear convergence failure, not an assertion that completed work was
+unsuppressed. The prototype is removed from production in build 55; its
+exact patch, failure and configuration are retained. Trial 288 was stopped
+before GPU measurement on discovery of an unscoped option.
+
+The moderate 3.85x coordinate trial 285 stops on the unchanged disk guard.
+After headroom recovery, trial 287 accepts three roots and rejects the
+fourth physical step with residual 1.34069e-5 against 1e-5. It is not
+promoted. Full material/contact certification and rollback remain intact.
+These trials establish failures requiring residual-directed refinement,
+not proof that a modest reduction cannot work.
+
+Two closed-output cleanup passes preserve every path, hash and metadata
+using verified APFS clones. The first also retires a regenerable validation
+pipeline cache and recovers 5,305,237,504 physical bytes (4.94 GiB); the
+second recovers 642,596,864 bytes (0.60 GiB). Sources, mass mapping, current
+assets and failed evidence are retained. These are historical filesystem
+deltas, not claims of current available space. Receipts and exact run pins
+are in compact-radix-54.

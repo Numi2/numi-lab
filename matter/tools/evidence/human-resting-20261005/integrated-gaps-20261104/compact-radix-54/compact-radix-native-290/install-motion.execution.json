@@ -1,0 +1,16 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 432.31148290634155,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/compact-radix-native-290/install-motion.plan.json",
+  "plan_sha256": "388e8f1e57bbd0a0531edc984a232767a8139e587403246f45a0f7320f159d96",
+  "stdout_path": "/Users/numi/Work/human-integrated-gaps-20261104/compact-radix-native-290/install-motion.stdout.log.gz",
+  "stdout_encoding": "gzip",
+  "stdout_compressor_exit_code": 0,
+  "stdout_sha256": "e5a186362c9ef2863160a2db0699091a07d2b7842b203d2cb92f6c92a96e13e4",
+  "stdout_uncompressed_sha256": "b78c9c4ef639780c3e0c04a0a61d2f61e21cce7f4463cc1bfe5f7b87fecda00d",
+  "stderr_sha256": "466493862bb307b57c0fe5fc46af8af6f48a8a1424324574993f86171a7cc4e0",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": true,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}
