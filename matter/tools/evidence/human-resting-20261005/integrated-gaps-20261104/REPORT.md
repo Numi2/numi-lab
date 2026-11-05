@@ -442,3 +442,17 @@ Fixed the recursive compiler handoff without weakening protected-row or budget g
 ## Contact coupling and late-column diagnosis (57)
 
 Default-off eight-node principal PSD contact coupling passes its production-kernel oracle but rejects root 22 in trial 297; it is not promoted. Reference trial 298 preserves all 1,798,453 endpoint records exactly and exposes the combined poor late linear reduction and severe deformable-contact truncation. No sustained-performance claim follows. See [tests and exact failed/passing evidence](coupled-contact-and-column-trace-57/README.md).
+
+## Increment 58: scaled rank-two predictor remains experimental
+
+The default-off prototype now uses the current Newton operator, row-scaled QR
+projection, physical and scaled nonincrease admission, and completed-tail guards.
+Synthetic native checks pass 2,743,464 assertions. Human trial 303 accepted 30
+roots and then rejected contact status 6; it is not promoted. Trials 299–303,
+including rejected and stopped attempts, are retained in
+[scaled-subspace-reuse-58](scaled-subspace-reuse-58/README.md).
+
+The production-default control 304b accepted all 32 roots and exactly matched
+reference 290's complete node/tetrahedron endpoint and numerical traces. Body
+time was 231.374 s, approximately 0.000002161x for 0.5 ms of release motion.
+This is neither a supported-rest checkpoint nor sustained qualification.

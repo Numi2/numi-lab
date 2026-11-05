@@ -2444,6 +2444,44 @@ void checkDistributedBeginAndCorrection(
             close(preservedPhysicalResidual[nodes].x, 1.0e20f),
         "begin reduction modified the original nonlinear RHS buffer");
 
+    // Scaled warm start: Krylov sees D*(b-A*x0), while forcing and EW
+    // retain D*b and the physical nonlinear latch retains b.
+    {
+        auto scaledLayout = predictorLayout;
+        scaledLayout.reserved |= (1u << 23u) | (1u << 25u);
+        std::memcpy(layoutBuffer.contents, &scaledLayout, sizeof(scaledLayout));
+        auto scales = makeBuffer(device, std::vector<float>(nodes, 100.0f));
+        auto referencePartials = makeBuffer(device, std::vector<float>(beginTiles));
+        auto partialBindings = predictorPartialBindings;
+        partialBindings.emplace_back(28u, scales);
+        partialBindings.emplace_back(29u, referencePartials);
+        auto finishBindings = predictorFinishBindings;
+        finishBindings.emplace_back(29u, referencePartials);
+        std::memcpy(stateBuffer.contents, &predictorInitialState,
+            sizeof(predictorInitialState));
+        dispatch(device, queue, beginPartial, partialBindings, beginTiles, 256u);
+        auto ewHistory = makeBuffer(device,
+            std::vector<nm_float4>{{200.0f,0.0f,1.0f,0.0f}});
+        auto ewEta = makeBuffer(device, std::vector<float>(1u));
+        dispatch(device, queue, pipeline(device, library,
+            "numi_matter_metal::nm_fgmres_prepare_inexact_newton_forcing"),
+            {{0u,dispatchBuffer},{1u,solverBuffer},{14u,restartBuffer},
+             {15u,forcingBuffer},{16u,iterationBuffer},{24u,beginPartials},
+             {25u,ewHistory},{26u,ewEta},
+             {27u,makeBuffer(device,std::vector<float>{0.0001f})},
+             {29u,referencePartials},{30u,layoutBuffer}},1u,32u);
+        dispatch(device, queue, beginFinish, finishBindings, 1u, 32u);
+        const auto scaledState = readBuffer<NMFGMRESStateGPU>(stateBuffer,1u)[0];
+        const auto history = readBuffer<nm_float4>(ewHistory,1u)[0];
+        require(close(scaledState.diagnostics.x,warmNorm,2.0e-5f) &&
+                close(scaledState.diagnostics.y,originalNorm,2.0e-5f) &&
+                close(scaledState.rowEquilibration.x,100.0f*originalNorm,2.0e-5f) &&
+                close(history.y,100.0f*originalNorm,2.0e-5f) &&
+                scaledState.nonlinear.w == 0.0f,
+            "scaled predictor changed raw physical norm, D*b target or EW history");
+        std::memcpy(layoutBuffer.contents,&predictorLayout,sizeof(predictorLayout));
+    }
+
     // The physical no-work proof is independent of the Arnoldi row scale
     // and linear forcing target. A tiny scaled norm must never replace the
     // raw mechanical/vascular nonlinear gates.
@@ -11555,6 +11593,18 @@ void checkAcceptedSubspacePredictor(
         "numi_matter_metal::nm_fgmres_accepted_subspace_project_partial");
     auto projectFinish = pipeline(device, library,
         "numi_matter_metal::nm_fgmres_accepted_subspace_project_finish");
+    auto qrPartial = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accepted_subspace_qr_partial");
+    auto qrFinish = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accepted_subspace_qr_finish");
+    const auto finishQR = [&](id<MTLBuffer> db, id<MTLBuffer> lb,
+        id<MTLBuffer> rhs, id<MTLBuffer> images, id<MTLBuffer> coeff,
+        id<MTLBuffer> partials, id<MTLBuffer> scale, unsigned tiles) {
+        dispatch(device,queue,qrPartial,{{0u,db},{30u,lb},{1u,rhs},
+            {2u,images},{3u,coeff},{4u,partials},{5u,scale}},tiles,256u);
+        dispatch(device,queue,qrFinish,{{0u,db},{30u,lb},{1u,partials},
+            {2u,coeff}},1u,32u);
+    };
     auto buildGuess = pipeline(device, library,
         "numi_matter_metal::nm_fgmres_accepted_subspace_build_guess");
     auto formResidual = pipeline(device, library,
@@ -11594,13 +11644,20 @@ void checkAcceptedSubspacePredictor(
     auto coefficientsBuffer = makeBuffer(device,
         std::vector<nm_float4>{{0,0,0,0}});
     auto guessBuffer = makeBuffer(device, std::vector<nm_float4>(4u));
+    NMFGMRESStateGPU predictorState{};
+    // Linear completion can be supplied by an accurate warm guess. Only the
+    // separate nonlinear completion latch suppresses that physical correction.
+    predictorState.diagnostics.z = 1.0f;
+    auto predictorStates = makeBuffer(device,std::vector{predictorState});
+
     dispatch(device, queue, projectPartial,
         {{0u, dispatchBuffer}, {1u, rhsBuffer}, {2u, imagesBuffer},
-         {3u, countsBuffer}, {4u, partialsBuffer}, {30u, layoutBuffer}},
+         {3u, countsBuffer}, {4u, partialsBuffer}, {5u, layoutBuffer}, {30u, layoutBuffer}},
         1u, 256u);
     dispatch(device, queue, projectFinish,
         {{0u, dispatchBuffer}, {1u, countsBuffer}, {2u, partialsBuffer},
          {3u, coefficientsBuffer}, {30u, layoutBuffer}}, 1u, 32u);
+    finishQR(dispatchBuffer,layoutBuffer,rhsBuffer,imagesBuffer,coefficientsBuffer,partialsBuffer,layoutBuffer,1u);
     auto coefficients = readBuffer<nm_float4>(coefficientsBuffer, 1u);
     require(close(coefficients[0].x, 3.0f, 2.0e-5f) &&
             close(coefficients[0].y, 2.0f, 2.0e-5f) &&
@@ -11609,13 +11666,15 @@ void checkAcceptedSubspacePredictor(
         "accepted-subspace least-squares projection must recover both coefficients");
     // Three tiles exercise every SIMD-group partial writer, the partial-tile
     // tail, cancellation, and a safely near-dependent image pair.
-    auto verifyWideProjection = [&](const bool nearDependent) {
+    auto verifyWideProjection = [&](const bool nearDependent, const bool scaled) {
         constexpr std::uint32_t rows = 600u;
         constexpr std::uint32_t tiles = (rows + 255u) / 256u;
         NMMatterDispatchGPU wideDispatch = dispatchData;
         wideDispatch.femNodeCount = rows;
         NMFGMRESLayoutGPU wideLayout = layout;
         wideLayout.unknownCount = rows;
+        if (scaled) wideLayout.reserved |= 1u << 23u;
+        std::vector<float> scales(rows, 1.0f);
         std::vector<nm_float4> wideImages(2u * rows, nm_float4{});
         std::vector<nm_float4> wideRhs(rows, nm_float4{});
         double g00 = 0.0, g01 = 0.0, g11 = 0.0, q0 = 0.0, q1 = 0.0;
@@ -11633,11 +11692,13 @@ void checkAcceptedSubspacePredictor(
             wideImages[i].x = c0;
             wideImages[rows + i].x = c1;
             wideRhs[i].x = b;
-            g00 += double(c0) * c0;
-            g01 += double(c0) * c1;
-            g11 += double(c1) * c1;
-            q0 += double(c0) * b;
-            q1 += double(c1) * b;
+            scales[i] = scaled ? (i % 2u ? 0.125f : 8.0f) : 1.0f;
+            const double weight = double(scales[i]) * scales[i];
+            g00 += weight * double(c0) * c0;
+            g01 += weight * double(c0) * c1;
+            g11 += weight * double(c1) * c1;
+            q0 += weight * double(c0) * b;
+            q1 += weight * double(c1) * b;
         }
         const double determinant = g00 * g11 - g01 * g01;
         require(determinant > 0.0, "wide projection oracle is singular");
@@ -11651,6 +11712,7 @@ void checkAcceptedSubspacePredictor(
         auto wideRhsBuffer = makeBuffer(device, wideRhs);
         auto widePartialsBuffer = makeBuffer(device,
             std::vector<float>(std::size_t(tiles) * 8u * 5u, 0.0f));
+        auto wideScaleBuffer = makeBuffer(device, scales);
         auto wideCountsBuffer = makeBuffer(device,
             std::vector<std::uint32_t>{2u});
         auto wideCoefficientsBuffer = makeBuffer(device,
@@ -11658,11 +11720,12 @@ void checkAcceptedSubspacePredictor(
         dispatch(device, queue, projectPartial,
             {{0u, wideDispatchBuffer}, {1u, wideRhsBuffer},
              {2u, wideImagesBuffer}, {3u, wideCountsBuffer},
-             {4u, widePartialsBuffer}, {30u, wideLayoutBuffer}}, tiles, 256u);
+             {4u, widePartialsBuffer}, {5u, wideScaleBuffer}, {30u, wideLayoutBuffer}}, tiles, 256u);
         dispatch(device, queue, projectFinish,
             {{0u, wideDispatchBuffer}, {1u, wideCountsBuffer},
              {2u, widePartialsBuffer}, {3u, wideCoefficientsBuffer},
              {30u, wideLayoutBuffer}}, 1u, 32u);
+        finishQR(wideDispatchBuffer,wideLayoutBuffer,wideRhsBuffer,wideImagesBuffer,wideCoefficientsBuffer,widePartialsBuffer,wideScaleBuffer,tiles);
         const auto wideCoefficients = readBuffer<nm_float4>(
             wideCoefficientsBuffer, 1u)[0];
         const float tolerance = nearDependent ? 1.5e-3f : 4.0e-4f;
@@ -11673,12 +11736,14 @@ void checkAcceptedSubspacePredictor(
                 ? "near-dependent multi-SIMD projection differs from double oracle"
                 : "multi-tile cancellation projection differs from double oracle");
     };
-    verifyWideProjection(false);
-    verifyWideProjection(true);
+    verifyWideProjection(false, false);
+    verifyWideProjection(true, false);
+    verifyWideProjection(false, true);
+    verifyWideProjection(true, true);
 
     dispatch(device, queue, buildGuess,
         {{0u, dispatchBuffer}, {1u, vectorsBuffer},
-         {2u, coefficientsBuffer}, {3u, guessBuffer}, {30u, layoutBuffer}},
+         {2u, coefficientsBuffer}, {3u, guessBuffer}, {4u, predictorStates}, {30u, layoutBuffer}},
         1u, 4u);
     auto guess = readBuffer<nm_float4>(guessBuffer, 4u);
     require(close(guess[0].x, 3.0f) && close(guess[1].x, 2.0f) &&
@@ -11704,7 +11769,7 @@ void checkAcceptedSubspacePredictor(
     auto solutionBuffer = makeBuffer(device, std::vector<nm_float4>{
         {10,0,0,0}, {20,0,0,0}, {30,0,0,0}, {40,0,0,0}});
     dispatch(device, queue, addGuess,
-        {{0u, dispatchBuffer}, {1u, guessBuffer}, {2u, solutionBuffer},
+        {{0u, dispatchBuffer}, {1u, guessBuffer}, {2u, solutionBuffer}, {3u,predictorStates},
          {30u, layoutBuffer}}, 1u, 4u);
     auto solution = readBuffer<nm_float4>(solutionBuffer, 4u);
     require(close(solution[0].x, 13.0f) && close(solution[1].x, 22.0f) &&
@@ -11717,29 +11782,93 @@ void checkAcceptedSubspacePredictor(
     dispatch(device, queue, commitVectors,
         {{0u, dispatchBuffer}, {1u, solutionBuffer}, {2u, fullCurrentAction},
          {3u, vectorsBuffer}, {4u, imagesBuffer}, {5u, countsBuffer},
-         {6u, alphaBuffer}, {7u, statuses}, {30u, layoutBuffer}}, 1u, 4u);
+         {6u, alphaBuffer}, {7u, statuses}, {8u,predictorStates},
+         {30u, layoutBuffer}}, 1u, 4u);
     dispatch(device, queue, commitCount,
-        {{0u, alphaBuffer}, {1u, statuses}, {2u, countsBuffer}}, 1u, 32u);
+        {{0u, alphaBuffer}, {1u, statuses}, {2u, countsBuffer}, {3u,predictorStates}}, 1u, 32u);
     auto committedVectors = readBuffer<nm_float4>(vectorsBuffer, 8u);
     auto committedImages = readBuffer<nm_float4>(imagesBuffer, 8u);
     auto committedCount = readBuffer<std::uint32_t>(countsBuffer, 1u);
-    require(close(committedVectors[0].x, 6.5f) &&
-            close(committedVectors[1].x, 11.0f) &&
-            close(committedVectors[2].x, 15.0f) &&
-            close(committedVectors[3].x, 20.0f) &&
+    require(close(committedVectors[0].x, 13.0f) &&
+            close(committedVectors[1].x, 22.0f) &&
+            close(committedVectors[2].x, 30.0f) &&
+            close(committedVectors[3].x, 40.0f) &&
             close(committedVectors[4].x, 1.0f) &&
-            close(committedImages[0].x, 28.5f) &&
-            close(committedImages[1].x, 4.5f) &&
-            close(committedImages[2].x, 24.0f) &&
-            close(committedImages[3].x, 20.0f) &&
+            close(committedImages[0].x, 57.0f) &&
+            close(committedImages[1].x, 9.0f) &&
+            close(committedImages[2].x, 48.0f) &&
+            close(committedImages[3].x, 40.0f) &&
             close(committedImages[4].x, 1.0f) &&
             close(committedImages[5].x, 2.0f) && committedCount[0] == 2u,
-        "accepted history must shift and store alpha-scaled correction/current image");
+        "predictor history must shift full linear directions and current images");
+
+    // Near-contact alpha must not make an otherwise nearby initial guess
+    // inadmissible solely because private history was rescaled by alpha.
+    *static_cast<float*>(alphaBuffer.contents) = 0.000346f;
+    dispatch(device, queue, commitVectors,
+        {{0u, dispatchBuffer}, {1u, solutionBuffer}, {2u, fullCurrentAction},
+         {3u, vectorsBuffer}, {4u, imagesBuffer}, {5u, countsBuffer},
+         {6u, alphaBuffer}, {7u, statuses}, {8u,predictorStates},
+         {30u, layoutBuffer}}, 1u, 4u);
+    *static_cast<std::uint32_t*>(countsBuffer.contents) = 1u;
+    dispatch(device, queue, projectPartial,
+        {{0u, dispatchBuffer}, {1u, fullCurrentAction}, {2u, imagesBuffer},
+         {3u, countsBuffer}, {4u, partialsBuffer}, {5u, layoutBuffer}, {30u, layoutBuffer}},
+        1u, 256u);
+    dispatch(device, queue, projectFinish,
+        {{0u, dispatchBuffer}, {1u, countsBuffer}, {2u, partialsBuffer},
+         {3u, coefficientsBuffer}, {30u, layoutBuffer}}, 1u, 32u);
+    finishQR(dispatchBuffer,layoutBuffer,fullCurrentAction,imagesBuffer,coefficientsBuffer,partialsBuffer,layoutBuffer,1u);
+    const auto smallAlpha = readBuffer<nm_float4>(coefficientsBuffer, 1u)[0];
+    require(smallAlpha.z == 1.0f && close(smallAlpha.x, 1.0f),
+        "tiny accepted alpha spuriously rejected an identical linear direction");
+
+    // Completed nonlinear tails leave the solved correction and private
+    // history unchanged, even when encoded again with a nonzero old guess.
+    const auto beforeTailSolution=readBuffer<nm_float4>(solutionBuffer,4u);
+    const auto beforeTailVectors=readBuffer<nm_float4>(vectorsBuffer,8u);
+    const auto beforeTailImages=readBuffer<nm_float4>(imagesBuffer,8u);
+    const auto beforeTailCount=readBuffer<std::uint32_t>(countsBuffer,1u);
+    predictorState.nonlinear.w=1.0f;
+    std::memcpy(predictorStates.contents,&predictorState,sizeof(predictorState));
+    for(unsigned tail=0u;tail<4u;++tail) {
+        dispatch(device, queue, addGuess,
+            {{0u,dispatchBuffer},{1u,guessBuffer},{2u,solutionBuffer},
+             {3u,predictorStates},{30u,layoutBuffer}},1u,4u);
+        dispatch(device,queue,commitVectors,
+            {{0u,dispatchBuffer},{1u,solutionBuffer},{2u,fullCurrentAction},
+             {3u,vectorsBuffer},{4u,imagesBuffer},{5u,countsBuffer},
+             {6u,alphaBuffer},{7u,statuses},{8u,predictorStates},
+             {30u,layoutBuffer}},1u,4u);
+        dispatch(device,queue,commitCount,
+            {{0u,alphaBuffer},{1u,statuses},{2u,countsBuffer},
+             {3u,predictorStates}},1u,32u);
+    }
+    const auto afterTailSolution=readBuffer<nm_float4>(solutionBuffer,4u);
+    const auto afterTailVectors=readBuffer<nm_float4>(vectorsBuffer,8u);
+    const auto afterTailImages=readBuffer<nm_float4>(imagesBuffer,8u);
+    require(std::memcmp(beforeTailSolution.data(),afterTailSolution.data(),
+                beforeTailSolution.size()*sizeof(nm_float4))==0 &&
+            std::memcmp(beforeTailVectors.data(),afterTailVectors.data(),
+                beforeTailVectors.size()*sizeof(nm_float4))==0 &&
+            std::memcmp(beforeTailImages.data(),afterTailImages.data(),
+                beforeTailImages.size()*sizeof(nm_float4))==0 &&
+            readBuffer<std::uint32_t>(countsBuffer,1u)==beforeTailCount,
+        "completed Newton tails reapplied predictor or advanced history");
+    dispatch(device, queue, buildGuess,
+        {{0u,dispatchBuffer},{1u,vectorsBuffer},{2u,coefficientsBuffer},
+         {3u,guessBuffer},{4u,predictorStates},{30u,layoutBuffer}},1u,4u);
+    for (const auto& v : readBuffer<nm_float4>(guessBuffer,4u))
+        require(v.x == 0.0f && v.y == 0.0f && v.z == 0.0f && v.w == 0.0f,
+            "completed nonlinear tail must build an exact zero private guess");
+
+    predictorState.nonlinear.w=0.0f;
+    std::memcpy(predictorStates.contents,&predictorState,sizeof(predictorState));
 
     // Rejection and root reset must not carry stale subspace vectors forward.
     *static_cast<float*>([alphaBuffer contents]) = 0.0f;
     dispatch(device, queue, commitCount,
-        {{0u, alphaBuffer}, {1u, statuses}, {2u, countsBuffer}}, 1u, 32u);
+        {{0u, alphaBuffer}, {1u, statuses}, {2u, countsBuffer}, {3u,predictorStates}}, 1u, 32u);
     committedCount = readBuffer<std::uint32_t>(countsBuffer, 1u);
     require(committedCount[0] == 0u,
         "rejected Newton step must clear accepted-subspace history");
@@ -11748,6 +11877,111 @@ void checkAcceptedSubspacePredictor(
     committedCount = readBuffer<std::uint32_t>(countsBuffer, 1u);
     require(committedCount[0] == 0u,
         "new physical root must clear accepted-subspace history");
+}
+
+void checkAcceptedSubspaceAdmission(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    const auto partial=pipeline(device,library,
+        "numi_matter_metal::nm_fgmres_accepted_subspace_admit_partial");
+    const auto finish=pipeline(device,library,
+        "numi_matter_metal::nm_fgmres_accepted_subspace_admit_finish");
+    const auto apply=pipeline(device,library,
+        "numi_matter_metal::nm_fgmres_accepted_subspace_admit_apply");
+    constexpr std::uint32_t n=600u, unknowns=2u*n+3u, tiles=3u;
+    NMMatterDispatchGPU d{};d.environmentCount=1u;d.femNodeCount=n;
+    d.rigidGeneralizedCapacity=2u;
+    NMFGMRESLayoutGPU l{};l.unknownCount=unknowns;l.reserved=1u|(1u<<23u);
+    l.vascularUnknownCount=1u;l.vascularBase=2u*n+2u;
+    auto db=makeBuffer(device,std::vector{d});
+    auto lb=makeBuffer(device,std::vector{l});
+    const nm_float4 sentinel{81.0f,-83.0f,89.0f,-97.0f};
+    for(unsigned test=0u;test<14u;++test) {
+        std::vector<nm_float4> b(unknowns,sentinel),a(unknowns,sentinel);
+        std::vector<float> scale(n,1.0f);
+        for(unsigned i=0u;i<n;++i) {
+            scale[i]=i%2u?1.0e-3f:1.0e3f;
+            b[i]={float(int(i%7u)-3),0.25f,-0.5f,0.75f};
+            const float f=test==1u?3.0f:test==2u?-1.0f:
+                test==8u?(i%2u?0.9f:-0.01f):
+                test==12u?(i%2u?-2.0f:0.5f):
+                test==13u?(i%2u?0.9f:-0.1f):0.75f;
+            a[i]={f*b[i].x,f*b[i].y,f*b[i].z,f*b[i].w};
+        }
+        b[2u*n]={2,INFINITY,NAN,INFINITY};
+        a[2u*n]={1,INFINITY,NAN,INFINITY};
+        b[2u*n+1u]={-3,INFINITY,NAN,INFINITY};
+        a[2u*n+1u]={-2,INFINITY,NAN,INFINITY};
+        b[2u*n+2u]={0.3f,0.4f,0.5f,0.6f};
+        a[2u*n+2u]={0.2f,0.3f,0.4f,0.5f};
+        if(test==3u)a[17].x=NAN;
+        if(test==4u)a[18].w=INFINITY;
+        if(test==5u)scale[19]=0.0f;
+        if(test==6u)scale[20]=-1.0f;
+        if(test==7u)scale[21]=NAN;
+        if(test==9u){l.reserved=1u;scale.assign(n,NAN);}
+        else l.reserved=1u|(1u<<23u);
+        std::memcpy(lb.contents,&l,sizeof(l));
+        NMMatterStatusGPU status{};status.code=
+            test==10u?NM_STATUS_NONFINITE_RESULT:NM_STATUS_SUCCESS;
+        double bn=0.0,rn=0.0,rawBn=0.0,rawRn=0.0;bool valid=test!=10u;
+        for(unsigned i=0u;i<unknowns;++i) {
+            if(i>=n&&i<2u*n)continue; // dead transport capacity
+            const bool rigid=i>=2u*n&&i<2u*n+2u;
+            const auto* bv=reinterpret_cast<const float*>(&b[i]);
+            const auto* av=reinterpret_cast<const float*>(&a[i]);
+            const float s=i<n&&(l.reserved&(1u<<23u))?scale[i]:1.0f;
+            valid=valid&&std::isfinite(s)&&s>0.0f;
+            for(unsigned c=0u;c<(rigid?1u:4u);++c) {
+                const double sc=i<n&&c<3u?s:1.0;
+                const double bb=double(bv[c])*sc,rr=double(bv[c]-av[c])*sc;
+                bn+=bb*bb;rn+=rr*rr;
+                rawBn+=double(bv[c])*bv[c];
+                rawRn+=double(bv[c]-av[c])*(bv[c]-av[c]);
+                valid=valid&&std::isfinite(bb)&&std::isfinite(rr);
+            }
+        }
+        valid=valid&&std::isfinite(bn)&&std::isfinite(rn)&&std::isfinite(rawBn)&&std::isfinite(rawRn)&&rn<=bn&&rawRn<=rawBn;
+        auto coeff=makeBuffer(device,std::vector<nm_float4>{{1,0,test==11u?0.0f:1.0f,1}});
+        valid=valid&&test!=11u;
+        auto bb=makeBuffer(device,b),ab=makeBuffer(device,a),sb=makeBuffer(device,scale);
+        auto ps=makeBuffer(device,std::vector<nm_float4>(tiles*8u+1u,sentinel));
+        auto guess=makeBuffer(device,std::vector<nm_float4>(unknowns+1u,sentinel));
+        auto residual=makeBuffer(device,std::vector<nm_float4>(unknowns+1u,sentinel));
+        dispatch(device,queue,partial,{{0u,db},{30u,lb},{1u,bb},{2u,ab},
+            {3u,sb},{4u,makeBuffer(device,std::vector{status})},{5u,ps}},tiles,256u);
+        dispatch(device,queue,finish,{{0u,db},{30u,lb},{1u,ps},{2u,coeff}},1u,32u);
+        const auto admitted=readBuffer<nm_float4>(coeff,1u)[0].z>0.5f;
+        require(admitted==valid,"current-operator admission differs from double oracle case="+std::to_string(test));
+        dispatch(device,queue,apply,{{0u,db},{30u,lb},{1u,bb},{2u,ab},
+            {3u,coeff},{4u,guess},{5u,residual}},(n+3u+255u)/256u,256u);
+        const auto rs=readBuffer<nm_float4>(residual,unknowns+1u);
+        const auto gs=readBuffer<nm_float4>(guess,unknowns+1u);
+        for(unsigned i=0u;i<unknowns;++i) {
+            if(i>=n&&i<2u*n) {
+                require(std::memcmp(&rs[i],&sentinel,sizeof(sentinel))==0,
+                    "predictor touched inactive transport");continue;
+            }
+            const bool rigid=i>=2u*n&&i<2u*n+2u;
+            const auto* bv=reinterpret_cast<const float*>(&b[i]);
+            const auto* av=reinterpret_cast<const float*>(&a[i]);
+            const auto* rv=reinterpret_cast<const float*>(&rs[i]);
+            const auto* gv=reinterpret_cast<const float*>(&gs[i]);
+            for(unsigned c=0u;c<4u;++c) {
+                const float expected=rigid&&c>0u?0.0f:
+                    valid?bv[c]-av[c]:bv[c];
+                require(rv[c]==expected,"admitted/zero-guess residual is incorrect");
+                if(!valid)require(gv[c]==0.0f,"rejected prediction retained a guess");
+            }
+        }
+        const auto pv=readBuffer<nm_float4>(ps,tiles*8u+1u);
+        require(std::memcmp(&pv.back(),&sentinel,sizeof(sentinel))==0&&
+                std::memcmp(&rs.back(),&sentinel,sizeof(sentinel))==0&&
+                std::memcmp(&gs.back(),&sentinel,sizeof(sentinel))==0,
+            "predictor admission exceeded active capacity");
+    }
+    std::cout<<"accepted_subspace_admission=true cases=14 current_operator=true physical_and_scaled_admission=true "
+        "row_scaling_xyz_only=true pressure_and_tail_identity=true "
+        "stale_nonfinite_worsening_fallback=true inactive_transport=true PASS\n";
 }
 
 void checkCertificationStateCopy(id<MTLDevice> device,
@@ -19124,6 +19358,12 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            if(argc==2&&std::string(argv[1])=="--accepted-subspace-only") {
+                checkAcceptedSubspacePredictor(device,queue,library);
+                checkAcceptedSubspaceAdmission(device,queue,library);
+                std::cout<<"PASS accepted subspace "<<checks<<" checks\n";
+                return 0;
+            }
             if(argc==2&&std::string(argv[1])=="--cooperative-tangent-dispatch-only") {
                 checkCooperativeTangentDispatch(device,queue,library);
                 std::cout<<"PASS cooperative tangent dispatch "<<checks<<" checks\n";
@@ -19407,6 +19647,7 @@ int main(int argc, const char* argv[]) {
             checkThinCellPartialCoverage(device, queue, library);
             checkIndirectMassActionDispatchArguments(device, queue, library);
             checkAcceptedSubspacePredictor(device, queue, library);
+            checkAcceptedSubspaceAdmission(device, queue, library);
             checkSourceMassStatusMerge(device, queue, library);
             checkHumanImplicitSpringReaction(device, queue, library);
             checkHybridBlockGaussSeidel(device, queue, library);

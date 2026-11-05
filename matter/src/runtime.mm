@@ -5308,6 +5308,20 @@ RuntimeDiagnostics Runtime::initialize(
                 return diagnostics;
             }
         }
+        const char* subspaceHumanScope = std::getenv(
+            "NM_FGMRES_ACCEPTED_SUBSPACE_PREDICTOR_HUMAN_ONLY");
+        if (subspaceHumanScope != nullptr) {
+            if (std::strcmp(subspaceHumanScope, "1") != 0 ||
+                acceptedSubspacePredictor == nullptr ||
+                std::strcmp(acceptedSubspacePredictor, "1") != 0) {
+                diagnostics.message =
+                    "Human subspace scope requires exact value 1 and explicit subspace predictor";
+                return diagnostics;
+            }
+            candidate->femAcceptedSubspacePredictorRequested =
+                candidate->femAcceptedSubspacePredictorRequested &&
+                hasCoupledFEMVascularOwner;
+        }
         const char* sameNewtonRestartAugmentation = std::getenv(
             "NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION");
         if (sameNewtonRestartAugmentation != nullptr) {
@@ -8787,8 +8801,13 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_accepted_subspace_reset",
             "nm_fgmres_accepted_subspace_project_partial",
             "nm_fgmres_accepted_subspace_project_finish",
+            "nm_fgmres_accepted_subspace_qr_partial",
+            "nm_fgmres_accepted_subspace_qr_finish",
             "nm_fgmres_accepted_subspace_build_guess",
             "nm_fgmres_accepted_subspace_copy_operator_status",
+            "nm_fgmres_accepted_subspace_admit_partial",
+            "nm_fgmres_accepted_subspace_admit_finish",
+            "nm_fgmres_accepted_subspace_admit_apply",
             "nm_fgmres_accepted_subspace_form_residual",
             "nm_fgmres_accepted_subspace_add_guess",
             "nm_fgmres_accepted_subspace_commit_vectors",
@@ -13543,7 +13562,12 @@ RuntimeDiagnostics Runtime::initialize(
         }
         if (candidate->femAcceptedSubspacePredictorRequested) {
             if (!candidate->femFullCoupledTrueResidualEnabled ||
-                candidate->fgmresInexactNewtonForcingEnabled ||
+                (candidate->fgmresInexactNewtonForcingEnabled &&
+                 !(candidate->femCoupledRowEquilibrationEnabled &&
+                   candidate->fgmresRelativeInnerForcingEnabled &&
+                   candidate->fgmresInexactCoupledLinearCertificateEnabled &&
+                   candidate->femDistributedGlobalMeasurementsEnabled &&
+                   candidate->fgmresDistributedCGS2Enabled)) ||
                 candidate->femHuman6SchurCondensedFGMRESEnabled ||
                 candidate->femHumanHybridCoordinatesEnabled ||
                 candidate->dispatch.environmentCount != 1u ||
@@ -13670,7 +13694,11 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->femHuman6SchurCondensedFGMRESEnabled ||
                 candidate->femHumanHybridCoordinatesEnabled ||
                 candidate->enableVascularDense45 ||
-                candidate->femAcceptedSubspacePredictorRequested ||
+                (candidate->femAcceptedSubspacePredictorRequested &&
+                 !(candidate->femAcceptedSubspacePredictorEnabled &&
+                   candidate->femCoupledRowEquilibrationEnabled &&
+                   candidate->femDistributedGlobalMeasurementsEnabled &&
+                   candidate->fgmresDistributedCGS2Enabled)) ||
                 candidate->femAcceptedZ0RecycleEnabled ||
                 (candidate->femCoupledRowEquilibrationEnabled &&
                  candidate->femHumanGlobalCoarseEnabled) ||
@@ -13705,6 +13733,15 @@ RuntimeDiagnostics Runtime::initialize(
             // Retain original ||b|| for the physical latch/certificate and
             // mark a separately stored S*b norm for Arnoldi forcing.
             candidate->fgmresLayout.reserved |= (1u << 22u) | (1u << 23u);
+            if (candidate->femAcceptedSubspacePredictorEnabled) {
+                // Separate ||D*b|| from ||D*(b-A*x0)||. All physical latches
+                // and certificates retain the original, unscaled RHS norm.
+                candidate->fgmresLayout.reserved |= (1u << 25u);
+                candidate->executionFingerprint = mixFingerprint(
+                    candidate->executionFingerprint, 0x53554253524f5731ull); // SUBSROW1
+                std::fprintf(stderr,
+                    "matter_accepted_subspace_scaled=1 rank=2 current_operator_admission=1 physical_certificate=unscaled\n");
+            }
         }
         if (candidate->fgmresFreshRhsPreconditionerPreflightRequested) {
             // Preflight writes only private begin state and evaluates the
@@ -21769,6 +21806,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         ? state.femTrueResidualRightHandSide
                         : state.femResidual;
                 [encoder setBuffer:physicalResidual offset:0u atIndex:26u];
+                [encoder setBuffer:state.femLeftRowEquilibrationScale != nil
+                    ? state.femLeftRowEquilibrationScale : state.dummy
+                    offset:0u atIndex:28u];
+                [encoder setBuffer:state.femAcceptedSubspacePartials != nil
+                    ? state.femAcceptedSubspacePartials : state.dummy
+                    offset:0u atIndex:29u];
             };
             const auto bindForcingConsumer = [&] {
                 bindPartials();
@@ -21779,6 +21822,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const auto bindBeginFinish = [&] {
                 bindForcingConsumer();
                 [encoder setBuffer:domainPartialsBuffer offset:0u atIndex:25u];
+                [encoder setBuffer:state.femAcceptedSubspacePartials != nil
+                    ? state.femAcceptedSubspacePartials : state.dummy
+                    offset:0u atIndex:29u];
                 const std::uint32_t skipCompletedWork =
                     femCompletedCycleWorkEnabled ? 1u : 0u;
                 [encoder setBytes:&skipCompletedWork
@@ -21814,6 +21860,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         offset:0u atIndex:26u];
                     [encoder setBytes:&state.fgmresInexactNewtonMaximumEta
                         length:sizeof(state.fgmresInexactNewtonMaximumEta) atIndex:27u];
+                    [encoder setBuffer:state.femAcceptedSubspacePartials != nil
+                        ? state.femAcceptedSubspacePartials : state.dummy
+                        offset:0u atIndex:29u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
@@ -37064,146 +37113,6 @@ RuntimeDiagnostics Runtime::encodeImpl(
 
             const bool useAcceptedSubspacePredictor =
                 captureAcceptedSubspaceHistory && nonlinearIteration > 0u;
-            if (useAcceptedSubspacePredictor) {
-                const std::uint32_t activeItems =
-                    state.dispatch.femNodeCount +
-                    (((state.fgmresLayout.reserved & 1u) == 0u)
-                        ? state.dispatch.femNodeCount : 0u) +
-                    (((state.fgmresLayout.reserved & 4u) != 0u &&
-                      (state.fgmresLayout.reserved & 1u) != 0u)
-                        ? state.fgmresLayout.vascularReserved : 0u) +
-                    state.dispatch.mpmActiveNodeCapacity +
-                    state.dispatch.rigidGeneralizedCapacity +
-                    state.fgmresLayout.supportContactCount +
-                    state.fgmresLayout.vascularUnknownCount;
-                const std::uint32_t tiles = (activeItems + 255u) / 256u;
-                const std::uint32_t projectionGroups =
-                    static_cast<std::uint32_t>(environments) * tiles;
-                dispatchGroups256(
-                    "nm_fgmres_accepted_subspace_project_partial",
-                    projectionGroups, [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.femTrueResidualRightHandSide
-                                 offset:0u atIndex:1u];
-                    [encoder setBuffer:state.femAcceptedSubspaceImages
-                                 offset:0u atIndex:2u];
-                    [encoder setBuffer:state.femAcceptedSubspaceCounts
-                                 offset:0u atIndex:3u];
-                    [encoder setBuffer:state.femAcceptedSubspacePartials
-                                 offset:0u atIndex:4u];
-                    [encoder setBytes:&state.fgmresLayout
-                               length:sizeof(state.fgmresLayout) atIndex:30u];
-                });
-                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                dispatchGroups32(
-                    "nm_fgmres_accepted_subspace_project_finish",
-                    environments, [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.femAcceptedSubspaceCounts
-                                 offset:0u atIndex:1u];
-                    [encoder setBuffer:state.femAcceptedSubspacePartials
-                                 offset:0u atIndex:2u];
-                    [encoder setBuffer:state.femAcceptedSubspaceCoefficients
-                                 offset:0u atIndex:3u];
-                    [encoder setBytes:&state.fgmresLayout
-                               length:sizeof(state.fgmresLayout) atIndex:30u];
-                });
-                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                dispatchThreads("nm_fgmres_clear_true_operator",
-                    state.fgmresLayout.unknownCount, [&] {
-                    setDispatch();
-                    [encoder setBytes:&state.fgmresLayout
-                               length:sizeof(state.fgmresLayout) atIndex:30u];
-                    [encoder setBuffer:state.femAcceptedSubspaceInitialGuess
-                                 offset:0u atIndex:1u];
-                });
-                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                dispatchThreads("nm_fgmres_accepted_subspace_build_guess",
-                    state.fgmresLayout.unknownCount, [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.femAcceptedSubspaceVectors
-                                 offset:0u atIndex:1u];
-                    [encoder setBuffer:state.femAcceptedSubspaceCoefficients
-                                 offset:0u atIndex:2u];
-                    [encoder setBuffer:state.femAcceptedSubspaceInitialGuess
-                                 offset:0u atIndex:3u];
-                    [encoder setBytes:&state.fgmresLayout
-                               length:sizeof(state.fgmresLayout) atIndex:30u];
-                });
-                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                dispatchThreads("nm_fgmres_clear_true_operator",
-                    state.fgmresLayout.unknownCount, [&] {
-                    setDispatch();
-                    [encoder setBytes:&state.fgmresLayout
-                               length:sizeof(state.fgmresLayout) atIndex:30u];
-                    [encoder setBuffer:state.femTrueResidualOperatorValue
-                                 offset:0u atIndex:1u];
-                });
-                dispatchThreads("nm_fgmres_clear_true_auxiliary",
-                    environments, [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.femTrueResidualStatuses
-                                 offset:0u atIndex:1u];
-                    [encoder setBuffer:state.femTrueResidualMetrics
-                                 offset:0u atIndex:2u];
-                });
-                dispatchThreads(
-                    "nm_fgmres_prepare_certification_operator_states",
-                    environments, [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.fgmresStates
-                                 offset:0u atIndex:1u];
-                    [encoder setBuffer:state.femTrueResidualOperatorStates
-                                 offset:0u atIndex:2u];
-                    [encoder setBuffer:state.statuses
-                                 offset:0u atIndex:3u];
-                    [encoder setBuffer:state.femTrueResidualStatuses
-                                 offset:0u atIndex:4u];
-                });
-                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                if (!encodeFullDirectOperator(
-                        state.femAcceptedSubspaceInitialGuess, 0u,
-                        state.femTrueResidualOperatorValue,
-                        state.femTrueResidualOperatorStates,
-                        state.femTrueResidualStatuses, operatorMicro, true)) {
-                    diagnostics.message =
-                        "failed to apply current full operator to accepted-subspace initial guess";
-                    ownership->preDynamicsOpen = false;
-                    return diagnostics;
-                }
-                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                dispatchThreads("nm_fgmres_clear_true_operator",
-                    state.fgmresLayout.unknownCount, [&] {
-                    setDispatch();
-                    [encoder setBytes:&state.fgmresLayout
-                               length:sizeof(state.fgmresLayout) atIndex:30u];
-                    [encoder setBuffer:state.femAcceptedSubspaceResidual offset:0u atIndex:1u];
-                });
-                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                dispatchGroups32(
-                    "nm_fgmres_accepted_subspace_copy_operator_status",
-                    environments, [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.femTrueResidualStatuses
-                                 offset:0u atIndex:0u];
-                    [encoder setBuffer:state.statuses offset:0u atIndex:1u];
-                });
-                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                dispatchThreads("nm_fgmres_accepted_subspace_form_residual",
-                    state.fgmresLayout.unknownCount, [&] {
-                    setDispatch();
-                    [encoder setBuffer:state.femTrueResidualRightHandSide
-                                 offset:0u atIndex:1u];
-                    [encoder setBuffer:state.femTrueResidualOperatorValue
-                                 offset:0u atIndex:2u];
-                    [encoder setBuffer:state.femAcceptedSubspaceResidual
-                                 offset:0u atIndex:3u];
-                    [encoder setBuffer:state.statuses offset:0u atIndex:4u];
-                    [encoder setBytes:&state.fgmresLayout
-                               length:sizeof(state.fgmresLayout) atIndex:30u];
-                });
-                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-            }
 
             const auto prepareSchurOperatorStates = [&]() -> bool {
                 if (state.femTrueResidualOperatorStates == nil ||
@@ -41239,6 +41148,199 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         std::uint32_t coarseColumn;
                     };
             static_assert(std::is_trivially_copyable_v<OperatorICBConstants>);
+            // Predictor admission uses this candidate's rebuilt tangent cache
+            // and row scales, never the previous Newton linearization.
+            if (useAcceptedSubspacePredictor) {
+                const std::uint32_t activeItems =
+                    state.dispatch.femNodeCount +
+                    (((state.fgmresLayout.reserved & 1u) == 0u)
+                        ? state.dispatch.femNodeCount : 0u) +
+                    (((state.fgmresLayout.reserved & 4u) != 0u &&
+                      (state.fgmresLayout.reserved & 1u) != 0u)
+                        ? state.fgmresLayout.vascularReserved : 0u) +
+                    state.dispatch.mpmActiveNodeCapacity +
+                    state.dispatch.rigidGeneralizedCapacity +
+                    state.fgmresLayout.supportContactCount +
+                    state.fgmresLayout.vascularUnknownCount;
+                const std::uint32_t tiles = (activeItems + 255u) / 256u;
+                const std::uint32_t projectionGroups =
+                    static_cast<std::uint32_t>(environments) * tiles;
+                dispatchGroups256(
+                    "nm_fgmres_accepted_subspace_project_partial",
+                    projectionGroups, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femTrueResidualRightHandSide
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femAcceptedSubspaceImages
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femAcceptedSubspaceCounts
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femAcceptedSubspacePartials
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femLeftRowEquilibrationScale != nil
+                        ? state.femLeftRowEquilibrationScale : state.dummy
+                        offset:0u atIndex:5u];
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups32(
+                    "nm_fgmres_accepted_subspace_project_finish",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femAcceptedSubspaceCounts
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femAcceptedSubspacePartials
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femAcceptedSubspaceCoefficients
+                                 offset:0u atIndex:3u];
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups256(
+                    "nm_fgmres_accepted_subspace_qr_partial",
+                    projectionGroups, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femTrueResidualRightHandSide offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femAcceptedSubspaceImages offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femAcceptedSubspaceCoefficients offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femAcceptedSubspacePartials offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femLeftRowEquilibrationScale != nil
+                        ? state.femLeftRowEquilibrationScale : state.dummy offset:0u atIndex:5u];
+                    [encoder setBytes:&state.fgmresLayout length:sizeof(state.fgmresLayout) atIndex:30u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups32("nm_fgmres_accepted_subspace_qr_finish",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femAcceptedSubspacePartials offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femAcceptedSubspaceCoefficients offset:0u atIndex:2u];
+                    [encoder setBytes:&state.fgmresLayout length:sizeof(state.fgmresLayout) atIndex:30u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fgmres_clear_true_operator",
+                    state.fgmresLayout.unknownCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                    [encoder setBuffer:state.femAcceptedSubspaceInitialGuess
+                                 offset:0u atIndex:1u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fgmres_accepted_subspace_build_guess",
+                    state.fgmresLayout.unknownCount, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femAcceptedSubspaceVectors
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femAcceptedSubspaceCoefficients
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femAcceptedSubspaceInitialGuess
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fgmres_clear_true_operator",
+                    state.fgmresLayout.unknownCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                    [encoder setBuffer:state.femTrueResidualOperatorValue
+                                 offset:0u atIndex:1u];
+                });
+                dispatchThreads("nm_fgmres_clear_true_auxiliary",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femTrueResidualStatuses
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femTrueResidualMetrics
+                                 offset:0u atIndex:2u];
+                });
+                dispatchThreads(
+                    "nm_fgmres_prepare_certification_operator_states",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.fgmresStates
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femTrueResidualOperatorStates
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.statuses
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femTrueResidualStatuses
+                                 offset:0u atIndex:4u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                if (!encodeFullDirectOperator(
+                        state.femAcceptedSubspaceInitialGuess, 0u,
+                        state.femTrueResidualOperatorValue,
+                        state.femTrueResidualOperatorStates,
+                        state.femTrueResidualStatuses, operatorMicro, true, true)) {
+                    diagnostics.message =
+                        "failed to apply current full operator to accepted-subspace initial guess";
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fgmres_clear_true_operator",
+                    state.fgmresLayout.unknownCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                    [encoder setBuffer:state.femAcceptedSubspaceResidual offset:0u atIndex:1u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups256(
+                    "nm_fgmres_accepted_subspace_admit_partial",
+                    projectionGroups, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femTrueResidualRightHandSide
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femTrueResidualOperatorValue
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femLeftRowEquilibrationScale != nil
+                        ? state.femLeftRowEquilibrationScale : state.dummy
+                        offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femTrueResidualStatuses
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femAcceptedSubspacePartials
+                                 offset:0u atIndex:5u];
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups32(
+                    "nm_fgmres_accepted_subspace_admit_finish",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femAcceptedSubspacePartials
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femAcceptedSubspaceCoefficients
+                                 offset:0u atIndex:2u];
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fgmres_accepted_subspace_admit_apply",
+                    state.fgmresLayout.unknownCount, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femTrueResidualRightHandSide
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femTrueResidualOperatorValue
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femAcceptedSubspaceCoefficients
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femAcceptedSubspaceInitialGuess
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femAcceptedSubspaceResidual
+                                 offset:0u atIndex:5u];
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
+
             for (std::uint32_t restartCycle = 0u;
                  restartCycle < restartCycleCount;
                  ++restartCycle) {
@@ -41246,7 +41348,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const std::uint32_t columnsThisCycle = std::min(
                 restart, linearIterationBudget - iterationOffset);
             if (state.femLeftRowEquilibrationEnabled)
-                applyLeftRowEquilibration(state.femResidual,
+                applyLeftRowEquilibration(
+                    useAcceptedSubspacePredictor && restartCycle == 0u
+                        ? state.femAcceptedSubspaceResidual : state.femResidual,
                     state.femLeftRowEquilibrationResidual);
             dispatchGlobalMeasurement("nm_fgmres_begin", restartCycle, [&] {
                 setDispatch();
@@ -41262,7 +41366,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                          restartCycle == 0u)
                     beginResidual = state.femHumanSchurRightHandSide;
                 else if (useAcceptedSubspacePredictor && restartCycle == 0u)
-                    beginResidual = state.femAcceptedSubspaceResidual;
+                    beginResidual = state.femLeftRowEquilibrationEnabled
+                        ? state.femLeftRowEquilibrationResidual
+                        : state.femAcceptedSubspaceResidual;
                 [encoder setBuffer:beginResidual offset:0u atIndex:3u];
                 [encoder setBuffer:state.fgmresBasis offset:0u atIndex:4u];
                 [encoder setBuffer:state.fgmresHessenberg offset:0u atIndex:5u];
@@ -46834,6 +46940,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:1u];
                     [encoder setBuffer:state.femSolution
                                  offset:0u atIndex:2u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
                     [encoder setBytes:&state.fgmresLayout
                                length:sizeof(state.fgmresLayout) atIndex:30u];
                 });
@@ -51147,6 +51254,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:6u];
                     [encoder setBuffer:state.statuses
                                  offset:0u atIndex:7u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
                     [encoder setBytes:&state.fgmresLayout
                                length:sizeof(state.fgmresLayout) atIndex:30u];
                 });
@@ -51160,6 +51268,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.statuses offset:0u atIndex:1u];
                     [encoder setBuffer:state.femAcceptedSubspaceCounts
                                  offset:0u atIndex:2u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }

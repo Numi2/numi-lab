@@ -1,0 +1,16 @@
+{
+  "exit_code": 1,
+  "elapsed_s": 195.56633400917053,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/scaled-subspace-native-299/install-motion.plan.json",
+  "plan_sha256": "ba215de9b376adbd8f0967a4d7860663c142024a91013f9a7665af2d99383bc0",
+  "stdout_path": "/Users/numi/Work/human-integrated-gaps-20261104/scaled-subspace-native-299/install-motion.stdout.log.gz",
+  "stdout_encoding": "gzip",
+  "stdout_compressor_exit_code": 0,
+  "stdout_sha256": "108d2b4ea0215d2b83163c40504f37f74902d12696415866796306cafb2de600",
+  "stdout_uncompressed_sha256": "a973398e3c0e36d000f0c6f59fa741d869bcef6b71fa39c3cf5a8b7b3cacf9df",
+  "stderr_sha256": "2868f75aca22dfb4acb73da2e07e9806564f50cfc822ae6f63bf2a0de0449f3d",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": true,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

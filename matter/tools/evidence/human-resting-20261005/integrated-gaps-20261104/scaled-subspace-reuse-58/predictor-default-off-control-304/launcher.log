@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/human-integrated-gaps-20261104/predictor-default-off-control-304/run_native_plan.py", line 7, in <module>
+    for raw,ref in plan['runtime_dependencies'].items():assert sha(raw)==ref['sha256'],raw
+                                                               ^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: /Users/numi/Work/numi-human-connected-surface-069/D/connected-obstacle-207/physical-transfer-209/fine-physical-volume-706/regional-compensation-1061-root/memory-performance-123/rejection-recovery-125/native-driver-pipelines.metalar

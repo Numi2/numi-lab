@@ -1,0 +1,6 @@
+{
+  "reason": "Predictor current operator ran before current tangent and row-scale rebuild; stop known invalid experiment and move its prelude after these rebuilds. No physical tolerance change.",
+  "pid": 6742,
+  "outcome": "SIGTERM sent to trial child",
+  "epoch": 1793846997.923734
+}

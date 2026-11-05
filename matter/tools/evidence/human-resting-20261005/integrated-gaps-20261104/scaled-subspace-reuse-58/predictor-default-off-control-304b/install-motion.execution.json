@@ -1,0 +1,16 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 422.31350326538086,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/predictor-default-off-control-304b/install-motion.plan.json",
+  "plan_sha256": "f8aaa7a1dc3a587cd0e8a957f08c058f9634696fe7b585be8042c03d4c7d655d",
+  "stdout_path": "/Users/numi/Work/human-integrated-gaps-20261104/predictor-default-off-control-304b/install-motion.stdout.log.gz",
+  "stdout_encoding": "gzip",
+  "stdout_compressor_exit_code": 0,
+  "stdout_sha256": "b2d77c4b3f23667395d316b829d4191243879245494822fc343e01124cb852ab",
+  "stdout_uncompressed_sha256": "f34fcd2f879cc3ad8efdb1b029a9ebadd4862d25dac148122bc4280b473950ae",
+  "stderr_sha256": "e82826b063585cfd707f22605c398f81051df23544c0467d3f5b0ed282bee57a",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": true,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}
