@@ -1,0 +1,97 @@
+{
+  "reference_directory": "/Users/numi/Work/human-integrated-gaps-20261104/finite-material-native-306",
+  "candidate_directory": "/Users/numi/Work/human-integrated-gaps-20261104/shared-bundle-native-307",
+  "reference_endpoint": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/finite-material-native-306/install-motion.stdout.log.gz",
+    "sha256": "cc6eb0edd0b5ed60a24fc911f11e6965bde10a237151f59bb48e6e872f17d23b",
+    "counts": {
+      "nodes": 318974,
+      "tets": 1479479
+    },
+    "body": "resting_integrated_body=completed simulated_s=0.00050000002374872565 wall_s=227.22552899999999 real_time_factor=2.2004570786970229e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending",
+    "file_sha256": "765623d2b46971ff5ad7e595d0a26777fd06dcb51514375eae16c3ee4856aa90"
+  },
+  "candidate_endpoint": {
+    "path": "/Users/numi/Work/human-integrated-gaps-20261104/shared-bundle-native-307/install-motion.stdout.log.gz",
+    "sha256": "cc6eb0edd0b5ed60a24fc911f11e6965bde10a237151f59bb48e6e872f17d23b",
+    "counts": {
+      "nodes": 318974,
+      "tets": 1479479
+    },
+    "body": "resting_integrated_body=completed simulated_s=0.00050000002374872565 wall_s=225.03640916699999 real_time_factor=2.221862789223919e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending",
+    "file_sha256": "18d628f5856e674da1ae48082e60af1eccd3f8f3ed92d42062e287d49af9fdb6"
+  },
+  "endpoint_bitwise_equal": true,
+  "compact_csv": {
+    "resting-body-motion-partition.csv": {
+      "reference_sha256": "096dd197d7f3726f38527f94ca97b6aa8606e24a97e1ec23f4222f32a330432b",
+      "candidate_sha256": "096dd197d7f3726f38527f94ca97b6aa8606e24a97e1ec23f4222f32a330432b",
+      "bitwise_equal": true
+    },
+    "resting-com-momentum-diagnostic.csv": {
+      "reference_sha256": "8a281f744506dd7cb79f61be6b2c7b5bf88bb25ac5bde70b18e85c03c6b3dd1e",
+      "candidate_sha256": "8a281f744506dd7cb79f61be6b2c7b5bf88bb25ac5bde70b18e85c03c6b3dd1e",
+      "bitwise_equal": true
+    },
+    "resting-com-q-index-map.csv": {
+      "reference_sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "candidate_sha256": "0d28196086180ad69256142c3c68db5000d9f431319ac2b4c9310956469ff9ab",
+      "bitwise_equal": true
+    },
+    "resting-com-q-integration.csv": {
+      "reference_sha256": "cea5fc8bda631b20d7c804a96fa9948357a88f2dd1fba36a9d86f8b322eb4e2a",
+      "candidate_sha256": "cea5fc8bda631b20d7c804a96fa9948357a88f2dd1fba36a9d86f8b322eb4e2a",
+      "bitwise_equal": true
+    },
+    "resting-com-q-support-slip.csv": {
+      "reference_sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "candidate_sha256": "ef4df1ea809c22d7fd3ebca1d8c11a7fc74daf525917196df89cd1aa4de29fcd",
+      "bitwise_equal": true
+    },
+    "resting-com-support-impulses.csv": {
+      "reference_sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "candidate_sha256": "c88c2b5999f6b48603b86e2c2c80afa7a12ea3d0305cc2efdb9dd6d226a75af2",
+      "bitwise_equal": true
+    },
+    "resting-coupled.csv": {
+      "reference_sha256": "433152781e87ab694027e67697235f6fc14e4fa6da2f9e38d4b0ec1a0121e148",
+      "candidate_sha256": "433152781e87ab694027e67697235f6fc14e4fa6da2f9e38d4b0ec1a0121e148",
+      "bitwise_equal": true
+    },
+    "resting-support-point-motion.csv": {
+      "reference_sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "candidate_sha256": "556de4a9741ccbb1cd67ce5139b0f233a8a25253f4f2d293fdcc31855b8a19a8",
+      "bitwise_equal": true
+    },
+    "resting-support-selected-skin-witness.csv": {
+      "reference_sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "candidate_sha256": "fd689a843cd12c9f085ae54c6edd04089b6def66656507647979b1647335926d",
+      "bitwise_equal": true
+    },
+    "resting-surface-audit.csv": {
+      "reference_sha256": "5a9cb4d51f141af0ab4d197dffe922fcec4caa461af4382d66fb7d14e54258fc",
+      "candidate_sha256": "5a9cb4d51f141af0ab4d197dffe922fcec4caa461af4382d66fb7d14e54258fc",
+      "bitwise_equal": true,
+      "unique_rows_equal": true
+    }
+  },
+  "roots_recorded": 32,
+  "active_work": {
+    "cycles_with_work": 144,
+    "used_columns_sum": 2304,
+    "budget_exhausted_solves": 62
+  },
+  "accepted_memory": [
+    {
+      "phase": "accepted_step_32",
+      "available": "1",
+      "resident_bytes": "895451136",
+      "footprint_bytes": "11324645920",
+      "metal_allocated_bytes": "7863304192",
+      "recommended_working_set_bytes": "12713115648"
+    }
+  ],
+  "scope": "32-root release transient / 0.5 ms only; not supported rest, physiological plausibility or sustained end-to-end qualification",
+  "pass_exact_bytes": true,
+  "pass_numerical_state": true
+}

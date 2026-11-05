@@ -296,6 +296,116 @@ static bool nmWriteNativeTangentSource(const World& w,const char* path,std::stri
     std::set<std::uint32_t> emitted,directEmitted;
     std::map<std::pair<bool,std::uint32_t>,std::uint32_t> canonicalProgram;
     std::map<std::string,std::uint32_t> canonicalBySignature[2];
+    // Optional value numbering is confined to a read-only derivative bundle.
+    // Operand order, float precision, domain checks and output order are exact.
+    const auto lowerProgram=[&](std::uint32_t pi, bool direct,
+                                std::ostream& functions, unsigned& serial,
+                                std::map<std::string,std::string>* common,
+                                const std::string& failure) {
+        const auto& p=w.scalarPrograms.at(pi);
+        // Arithmetic order is unchanged. Accumulate finite flags through
+        // straight-line expressions and certify them before every observable
+        // cache write, domain/helper validity decision, and scalar return.
+        const auto flushFinite = [&]() {
+            functions << "if(!finiteIntermediates){nonfinite=true;valid=false;"<<failure<<"}\n";
+        };
+        std::vector<std::string> st;
+        auto pop=[&](){if(st.empty())throw std::runtime_error("native stack underflow");auto v=st.back();st.pop_back();return v;};
+        auto push=[&](std::string expr){
+            if (common != nullptr) {
+                const auto found = common->find(expr);
+                if (found != common->end()) {
+                    st.push_back(found->second);
+                    return;
+                }
+            }
+            const auto v="v"+std::to_string(serial++);
+            if (common != nullptr) common->emplace(expr, v);
+            // The scalar VM checks every pushed intermediate, not only the
+            // final result. Preserve that rejection behavior in the direct
+            // lowering as well as the legacy tangent-bundle lowering.
+            functions<<"const float "<<v<<" = "<<expr<<";";
+            functions<<" finiteIntermediates &= isfinite("<<v<<");";
+            functions<<"\n";
+            st.push_back(v);
+        };
+        for(std::uint32_t j=0;j<p.instructionCount;++j) {
+            const auto& i=w.instructions.at(p.firstInstruction+j);
+            auto idx=std::to_string(i.index);
+            switch(i.opcode) {
+            case NM_EXPR_CONSTANT: {
+                std::uint32_t bits;float val=i.immediate.x;std::memcpy(&bits,&val,4);
+                push("as_type<float>("+std::to_string(bits)+"u)");break;
+            }
+            case NM_EXPR_PARAMETER:push("p["+idx+"]");break;
+            case NM_EXPR_F:push("f["+idx+"]");break;
+            case NM_EXPR_DF:push("d["+idx+"]");break;
+            case NM_EXPR_DT:push("dt");break;
+            case NM_EXPR_TEMPERATURE:push("temp");break;
+            case NM_EXPR_RATE:push("rate["+idx+"]");break;
+            case NM_EXPR_CACHE_STORE:
+                if(st.empty()||i.index>=NM_EXPRESSION_CACHE_CAPACITY)throw std::runtime_error("native cache store");
+                flushFinite();
+                functions<<"c["<<idx<<"]="<<st.back()<<";\n";break;
+            case NM_EXPR_CACHE_LOAD:
+                if(i.index>=NM_EXPRESSION_CACHE_CAPACITY)throw std::runtime_error("native cache load");
+                push("c["+idx+"]");break;
+            case NM_EXPR_ADD:case NM_EXPR_SUBTRACT:case NM_EXPR_MULTIPLY:case NM_EXPR_DIVIDE:case NM_EXPR_MIN:case NM_EXPR_MAX:{
+                auto b=pop(),a=pop();
+                if(i.opcode==NM_EXPR_DIVIDE) flushFinite();
+                if(i.opcode==NM_EXPR_DIVIDE)functions<<"if(abs("<<b<<")<=kGeometryFloor){valid=false;"<<failure<<"}\n";
+                if(i.opcode==NM_EXPR_MIN||i.opcode==NM_EXPR_MAX)push(std::string(i.opcode==NM_EXPR_MIN?"min(":"max(")+a+","+b+")");
+                else push(a+(i.opcode==NM_EXPR_ADD?"+":i.opcode==NM_EXPR_SUBTRACT?"-":i.opcode==NM_EXPR_MULTIPLY?"*":"/")+b);
+                break;
+            }
+            case NM_EXPR_NEGATE:{auto a=pop();push("-"+a);break;}
+            case NM_EXPR_LOG:case NM_EXPR_EXP:case NM_EXPR_SQRT:case NM_EXPR_ABS:case NM_EXPR_EXPM1_MINUS_X:{
+                auto a=pop();
+                if(i.opcode==NM_EXPR_LOG || i.opcode==NM_EXPR_SQRT) flushFinite();
+                if(i.opcode==NM_EXPR_LOG) {
+                    if(direct)functions<<"if(!("<<a<<">0.0f)){valid=false;"<<failure<<"}\n";
+                    else functions<<"if("<<a<<"<=0.0f){valid=false;"<<failure<<"}\n";
+                }
+                if(i.opcode==NM_EXPR_SQRT)functions<<"if("<<a<<"<0.0f){valid=false;"<<failure<<"}\n";
+                push(i.opcode==NM_EXPR_EXPM1_MINUS_X?"(exp("+a+")-1.0f)-"+a:std::string(i.opcode==NM_EXPR_LOG?"log(":i.opcode==NM_EXPR_EXP?"exp(":i.opcode==NM_EXPR_SQRT?"sqrt(":"abs(")+a+")");break;
+            }
+            case NM_EXPR_POW_INTEGER:{
+                auto a=pop();auto v="pow"+std::to_string(serial++);
+                if(i.integer<0) flushFinite();
+                if(i.integer<0)functions<<"if(abs("<<a<<")<=kGeometryFloor){valid=false;"<<failure<<"}\n";
+                const auto exponent=std::uint32_t(i.integer<0?-std::int64_t(i.integer):i.integer);
+                const auto key="#pow:"+std::to_string(exponent)+":"+a;
+                const bool reused=common!=nullptr && common->contains(key);
+                if(reused)v=common->at(key);
+                else {
+                    functions<<"float "<<v<<"=1.0f; {float factor="<<a<<"; uint power="<<exponent<<"u; while(power!=0u){if((power&1u)!=0u)"<<v<<"*=factor;factor*=factor;power>>=1u;}}\n";
+                    if(common!=nullptr)common->emplace(key,v);
+                }
+                push(i.integer<0?"1.0f/"+v:v);break;
+            }
+            case NM_EXPR_CLAMP:{
+                auto hi=pop(),lo=pop(),a=pop();
+                flushFinite();
+                functions<<"if("<<hi<<"<"<<lo<<"){valid=false;"<<failure<<"}\n";
+                push("clamp("+a+","+lo+","+hi+")");break;
+            }
+            case NM_EXPR_SELECT_NONNEGATIVE:{
+                auto neg=pop(),pos=pop(),cond=pop();push("("+cond+">=0.0f?"+pos+":"+neg+")");break;
+            }
+            case NM_EXPR_FIBER_EXP_LINEAR:{
+                auto limit=pop(),c5=pop(),c4=pop(),c3=pop(),a=pop();
+                flushFinite();
+                push("numi_matter_fiber::evaluate<float>("+a+","+c3+","+c4+","+c5+","+limit+","+std::to_string(i.integer)+"u,valid)");
+                flushFinite();
+                functions<<"if(!valid)"<<failure<<"\n";break;
+            }
+            default:throw std::runtime_error("unsupported native material opcode "+std::to_string(i.opcode));
+            }
+        }
+        if(st.size()!=1)throw std::runtime_error("native stack final");
+        flushFinite();
+        return st.back();
+    };
     const auto emit=[&](std::uint32_t pi,const bool direct=false) {
         auto& emittedPrograms=direct?directEmitted:emitted;
         if(!emittedPrograms.insert(pi).second)return;
@@ -334,93 +444,9 @@ static bool nmWriteNativeTangentSource(const World& w,const char* path,std::stri
         if(!inserted.second)return;
         const std::string symbolPrefix=direct?"nmNativeDirectP":"nmNativeP";
         functions<<"template <typename CachePointer>\ninline float "<<symbolPrefix<<pi<<"(device const float* p, thread const float* f, thread const float* d, thread const float* rate, float dt, float temp, CachePointer c, thread bool& valid, thread bool& nonfinite) {\n#pragma clang fp contract(off)\nif(!(dt>=0.0f)||!isfinite(dt)||!isfinite(temp)){valid=false;return 0.0f;}\nbool finiteIntermediates = true;\n";
-        // Arithmetic order is unchanged. Accumulate finite flags through
-        // straight-line expressions and certify them before every observable
-        // cache write, domain/helper validity decision, and scalar return.
-        const auto flushFinite = [&]() {
-            functions << "if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}\n";
-        };
-        std::vector<std::string> st;unsigned serial=0;
-        auto pop=[&](){if(st.empty())throw std::runtime_error("native stack underflow");auto v=st.back();st.pop_back();return v;};
-        auto push=[&](std::string expr){
-            const auto v="v"+std::to_string(serial++);
-            // The scalar VM checks every pushed intermediate, not only the
-            // final result. Preserve that rejection behavior in the direct
-            // lowering as well as the legacy tangent-bundle lowering.
-            functions<<"const float "<<v<<" = "<<expr<<";";
-            functions<<" finiteIntermediates &= isfinite("<<v<<");";
-            functions<<"\n";
-            st.push_back(v);
-        };
-        for(std::uint32_t j=0;j<p.instructionCount;++j) {
-            const auto& i=w.instructions.at(p.firstInstruction+j);
-            auto idx=std::to_string(i.index);
-            switch(i.opcode) {
-            case NM_EXPR_CONSTANT: {
-                std::uint32_t bits;float val=i.immediate.x;std::memcpy(&bits,&val,4);
-                push("as_type<float>("+std::to_string(bits)+"u)");break;
-            }
-            case NM_EXPR_PARAMETER:push("p["+idx+"]");break;
-            case NM_EXPR_F:push("f["+idx+"]");break;
-            case NM_EXPR_DF:push("d["+idx+"]");break;
-            case NM_EXPR_DT:push("dt");break;
-            case NM_EXPR_TEMPERATURE:push("temp");break;
-            case NM_EXPR_RATE:push("rate["+idx+"]");break;
-            case NM_EXPR_CACHE_STORE:
-                if(st.empty()||i.index>=NM_EXPRESSION_CACHE_CAPACITY)throw std::runtime_error("native cache store");
-                flushFinite();
-                functions<<"c["<<idx<<"]="<<st.back()<<";\n";break;
-            case NM_EXPR_CACHE_LOAD:
-                if(i.index>=NM_EXPRESSION_CACHE_CAPACITY)throw std::runtime_error("native cache load");
-                push("c["+idx+"]");break;
-            case NM_EXPR_ADD:case NM_EXPR_SUBTRACT:case NM_EXPR_MULTIPLY:case NM_EXPR_DIVIDE:case NM_EXPR_MIN:case NM_EXPR_MAX:{
-                auto b=pop(),a=pop();
-                if(i.opcode==NM_EXPR_DIVIDE) flushFinite();
-                if(i.opcode==NM_EXPR_DIVIDE)functions<<"if(abs("<<b<<")<=kGeometryFloor){valid=false;return 0.0f;}\n";
-                if(i.opcode==NM_EXPR_MIN||i.opcode==NM_EXPR_MAX)push(std::string(i.opcode==NM_EXPR_MIN?"min(":"max(")+a+","+b+")");
-                else push(a+(i.opcode==NM_EXPR_ADD?"+":i.opcode==NM_EXPR_SUBTRACT?"-":i.opcode==NM_EXPR_MULTIPLY?"*":"/")+b);
-                break;
-            }
-            case NM_EXPR_NEGATE:{auto a=pop();push("-"+a);break;}
-            case NM_EXPR_LOG:case NM_EXPR_EXP:case NM_EXPR_SQRT:case NM_EXPR_ABS:case NM_EXPR_EXPM1_MINUS_X:{
-                auto a=pop();
-                if(i.opcode==NM_EXPR_LOG || i.opcode==NM_EXPR_SQRT) flushFinite();
-                if(i.opcode==NM_EXPR_LOG) {
-                    if(direct)functions<<"if(!("<<a<<">0.0f)){valid=false;return 0.0f;}\n";
-                    else functions<<"if("<<a<<"<=0.0f){valid=false;return 0.0f;}\n";
-                }
-                if(i.opcode==NM_EXPR_SQRT)functions<<"if("<<a<<"<0.0f){valid=false;return 0.0f;}\n";
-                push(i.opcode==NM_EXPR_EXPM1_MINUS_X?"(exp("+a+")-1.0f)-"+a:std::string(i.opcode==NM_EXPR_LOG?"log(":i.opcode==NM_EXPR_EXP?"exp(":i.opcode==NM_EXPR_SQRT?"sqrt(":"abs(")+a+")");break;
-            }
-            case NM_EXPR_POW_INTEGER:{
-                auto a=pop();const auto v="pow"+std::to_string(serial++);
-                if(i.integer<0) flushFinite();
-                if(i.integer<0)functions<<"if(abs("<<a<<")<=kGeometryFloor){valid=false;return 0.0f;}\n";
-                functions<<"float "<<v<<"=1.0f; {float factor="<<a<<"; uint power="<<std::uint32_t(i.integer<0?-std::int64_t(i.integer):i.integer)<<"u; while(power!=0u){if((power&1u)!=0u)"<<v<<"*=factor;factor*=factor;power>>=1u;}}\n";
-                push(i.integer<0?"1.0f/"+v:v);break;
-            }
-            case NM_EXPR_CLAMP:{
-                auto hi=pop(),lo=pop(),a=pop();
-                flushFinite();
-                functions<<"if("<<hi<<"<"<<lo<<"){valid=false;return 0.0f;}\n";
-                push("clamp("+a+","+lo+","+hi+")");break;
-            }
-            case NM_EXPR_SELECT_NONNEGATIVE:{
-                auto neg=pop(),pos=pop(),cond=pop();push("("+cond+">=0.0f?"+pos+":"+neg+")");break;
-            }
-            case NM_EXPR_FIBER_EXP_LINEAR:{
-                auto limit=pop(),c5=pop(),c4=pop(),c3=pop(),a=pop();
-                flushFinite();
-                push("numi_matter_fiber::evaluate<float>("+a+","+c3+","+c4+","+c5+","+limit+","+std::to_string(i.integer)+"u,valid)");
-                flushFinite();
-                functions<<"if(!valid)return 0.0f;\n";break;
-            }
-            default:throw std::runtime_error("unsupported native material opcode "+std::to_string(i.opcode));
-            }
-        }
-        if(st.size()!=1)throw std::runtime_error("native stack final");
-        flushFinite();
-        functions<<"return "<<st.back()<<"; }\n";
+        unsigned serial=0;
+        const auto value=lowerProgram(pi,direct,functions,serial,nullptr,"return 0.0f;");
+        functions<<"return "<<value<<"; }\n";
     };
     const auto nativeProgramSymbol=[&](const std::uint32_t pi,const bool direct=false) {
         const auto found=canonicalProgram.find({direct,pi});
@@ -428,6 +454,53 @@ static bool nmWriteNativeTangentSource(const World& w,const char* path,std::stri
             throw std::runtime_error("native program symbol was not emitted");
         return std::string(direct?"nmNativeDirectP":"nmNativeP")+
             std::to_string(found->second);
+    };
+    std::map<std::array<std::uint32_t,9>,std::string> fusedBundles;
+    const auto emitFusedBundle=[&](const NMMaterialGPU& material,
+                                   const std::uint32_t first) {
+        if(!nmNativeStatelessTangentBundleMaterialEligible(w,material))
+            return std::string{};
+        // Cache stores and validity-changing helpers prevent cross-output reuse.
+        // Ineligible programs retain their original scalar path.
+        for(unsigned k=0;k<9;++k) {
+            const auto& program=w.scalarPrograms.at(first+k);
+            for(std::uint32_t j=0;j<program.instructionCount;++j) {
+                switch(w.instructions.at(program.firstInstruction+j).opcode) {
+                case NM_EXPR_CONSTANT:case NM_EXPR_PARAMETER:
+                case NM_EXPR_F:case NM_EXPR_DF:case NM_EXPR_DT:
+                case NM_EXPR_TEMPERATURE:case NM_EXPR_RATE:
+                case NM_EXPR_CACHE_LOAD:case NM_EXPR_ADD:
+                case NM_EXPR_SUBTRACT:case NM_EXPR_MULTIPLY:case NM_EXPR_DIVIDE:
+                case NM_EXPR_MIN:case NM_EXPR_MAX:case NM_EXPR_NEGATE:
+                case NM_EXPR_LOG:case NM_EXPR_EXP:case NM_EXPR_SQRT:
+                case NM_EXPR_ABS:case NM_EXPR_EXPM1_MINUS_X:
+                case NM_EXPR_POW_INTEGER:case NM_EXPR_CLAMP:
+                case NM_EXPR_SELECT_NONNEGATIVE:break;
+                default:return std::string{};
+                }
+            }
+        }
+        std::array<std::uint32_t,9> key;
+        for(unsigned k=0;k<9;++k)key[k]=canonicalProgram.at({false,first+k});
+        const auto found=fusedBundles.find(key);
+        if(found!=fusedBundles.end())return found->second;
+        const auto name="nmNativeFusedColumn"+std::to_string(key[0])+"_"+std::to_string(fusedBundles.size());
+        fusedBundles.emplace(key,name);
+        functions<<"// Exact read-only output bundle:";
+        for(const auto index:key)functions<<" nmNativeP"<<index;
+        functions<<"\ntemplate <typename CachePointer>\ninline void "<<name
+            <<"(device const float* p, thread const float* f, thread const float* d, thread const float* rate, float dt, float temp, CachePointer c, thread float* out, thread bool& valid, thread bool& nonfinite) {\n#pragma clang fp contract(off)\n"
+            <<"if(!(dt>=0.0f)||!isfinite(dt)||!isfinite(temp)){valid=false;out[0]=0.0f;return;}\nbool finiteIntermediates = true;\n";
+        unsigned serial=0;
+        std::map<std::string,std::string> common;
+        for(unsigned k=0;k<9;++k) {
+            const auto row=std::to_string(k);
+            const auto value=lowerProgram(first+k,false,functions,serial,&common,
+                "out["+row+"]=0.0f;return;");
+            functions<<"out["<<row<<"]="<<value<<";if(!valid)return;\n";
+        }
+        functions<<"}\n";
+        return name;
     };
     const auto groupAdjacentIdenticalCases=[](const std::string& input) {
         struct Group { std::vector<std::string> labels; std::string body; };
@@ -491,9 +564,12 @@ static bool nmWriteNativeTangentSource(const World& w,const char* path,std::stri
                 ++pi;
             }
             for(unsigned k=0;k<9;++k)emit(pi+k);
+            const auto fused=emitFusedBundle(m,pi);
             bundleVectorCases<<"case "<<m.tangentProgramOffset<<"u: {\n"
                 << "if(!evaluateNativeStatelessTangentBundlePrelude(material,parameters,f,rate,dt,temp,c,valid,nonfinite))return false;if(!valid)return true;\n";
-            for(unsigned k=0;k<9;++k)
+            if(!fused.empty())
+                bundleVectorCases<<fused<<"(p,f,d,rate,dt,temp,c,out,valid,nonfinite);\n";
+            else for(unsigned k=0;k<9;++k)
                 bundleVectorCases<<"out["<<k<<"u]="<<nativeProgramSymbol(pi+k)
                     <<"(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;\n";
             bundleVectorCases<<"return true;}\n";
@@ -505,7 +581,9 @@ static bool nmWriteNativeTangentSource(const World& w,const char* path,std::stri
                 <<"} return true; }\n";
             preludeCases<<"return true;}\n";
             columnCases<<"case "<<m.tangentProgramOffset<<"u: {\nfor(uint k=0u;k<9u;++k)d[k]=(k==column)?1.0f:0.0f;\n";
-            for(unsigned k=0;k<9;++k)columnCases<<"out["<<k<<"u]="<<nativeProgramSymbol(pi+k)<<"(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;\n";
+            if(!fused.empty())
+                columnCases<<fused<<"(p,f,d,rate,dt,temp,c,out,valid,nonfinite);\n";
+            else for(unsigned k=0;k<9;++k)columnCases<<"out["<<k<<"u]="<<nativeProgramSymbol(pi+k)<<"(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;\n";
             columnCases<<"return true;}\n";++eligible;
         }
         std::size_t viscousEligible=0u;

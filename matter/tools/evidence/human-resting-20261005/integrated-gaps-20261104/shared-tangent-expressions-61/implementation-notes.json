@@ -1,0 +1,4 @@
+{
+  "status": "candidate, not tested",
+  "scope": "read-only stateless derivative bundle exact CSE; cache consumers and physical state unchanged"
+}

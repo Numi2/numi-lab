@@ -4,6 +4,7 @@ from pathlib import Path
 import argparse,re,subprocess,json,shutil
 a=argparse.ArgumentParser()
 a.add_argument("before",type=Path);a.add_argument("after",type=Path)
+a.add_argument("--bundles",action="store_true",help="compare exact shared read-only derivative bundles")
 a.add_argument("--include",type=Path,required=True)
 a.add_argument("--output",type=Path,required=True)
 v=a.parse_args();v.output.mkdir(parents=True,exist_ok=True)
@@ -18,6 +19,17 @@ before,after=programs(v.before),programs(v.after)
 assert before.keys()==after.keys() and before
 pc=max(16,max(int(x) for s in before.values() for x in re.findall(r"p\[(\d+)\]",s))+1)
 cc=max(16,max(int(x) for s in before.values() for x in re.findall(r"c\[(\d+)\]",s))+1)
+fused={}
+if v.bundles:
+    text=v.after.read_text()
+    for m in re.finditer(r"// Exact read-only output bundle:([^\n]+)\ntemplate <typename CachePointer>\ninline void (nmNativeFusedColumn\w+)\(",text):
+        first=text.index("{",m.end());end=first+1;depth=1
+        while depth:depth+=(text[end]=="{")-(text[end]=="}");end+=1
+        rows=m.group(1).split()
+        assert len(rows)==9 and all(row in before for row in rows)
+        fused[m.group(2)]=(rows,text[m.start():end])
+    assert fused, "no eligible fused bundles"
+    after={name:item[1] for name,item in fused.items()}
 shader='#include <metal_stdlib>\n#include "numi/matter/fiber_exp_linear.h"\nusing namespace metal;\nconstant float kGeometryFloor=1e-12f;\n'
 for namespace,src in [("Before",before),("After",after)]:
     shader+='\nnamespace '+namespace+' {\n'+'\n'.join(src.values())+'\n}\n'
@@ -55,8 +67,39 @@ kernel void guardINDEX(device const float* params [[buffer(0)]],
  out[trial]=uint4(exact?1u:0u,va?1u:0u,va?0u:1u,na?1u:0u);
 }
 """
-for idx,name in enumerate(before):
-    shader+=wrapper.replace("INDEX",str(idx)).replace("NAME",name).replace("PC",str(pc)).replace("CC",str(cc))
+cases=4096 if v.bundles else 128
+entries=list(fused) if v.bundles else list(before)
+if v.bundles:
+    wrapper=wrapper.replace("float ca[CC],cb[CC],f[9],d[9],r[9];",
+        "float ca[CC],cb[CC],f[9],d[9],r[9];\n"
+        "uint rng=trial*747796405u+2891336453u;\n")
+    wrapper=wrapper.replace("float dt=1e-4f,temp=310.0f;",
+        "for(uint i=0;i<9u;++i){rng=rng*1664525u+1013904223u;"
+        "d[i]=float(int(rng>>16u)-32768)*1e-4f;"
+        "rng=rng*1664525u+1013904223u;"
+        "f[i]+=float(int(rng>>16u)-32768)*1e-5f;}\n"
+        "float dt=1e-4f,temp=310.0f;")
+    wrapper=wrapper.replace("trial>=16u","trial>=2048u")
+    oldcall=""" const float x=Before::NAME(p,f,d,r,dt,temp,ca,va,na);
+ const float y=After::NAME(p,f,d,r,dt,temp,cb,vb,nb);
+ bool exact=va==vb&&na==nb&&as_type<uint>(x)==as_type<uint>(y);"""
+    newcall=""" float xa[9],xb[9];
+ for(uint i=0;i<9u;++i)xa[i]=xb[i]=as_type<float>(0x7fc00100u+i);
+ CALLS
+ After::NAME(p,f,d,r,dt,temp,cb,xb,vb,nb);
+ bool exact=va==vb&&na==nb;
+ for(uint i=0;i<9u;++i)exact=exact&&as_type<uint>(xa[i])==as_type<uint>(xb[i]);"""
+    assert oldcall in wrapper
+    wrapper=wrapper.replace(oldcall,newcall)
+for idx,name in enumerate(entries):
+    code=wrapper
+    if v.bundles:
+        calls="do{"
+        for row,program in enumerate(fused[name][0]):
+            calls+=f"xa[{row}]=Before::{program}(p,f,d,r,dt,temp,ca,va,na);if(!va)break;"
+        calls+="}while(false);"
+        code=code.replace("CALLS",calls)
+    shader+=code.replace("INDEX",str(idx)).replace("NAME",name).replace("PC",str(pc)).replace("CC",str(cc)).replace("128u",str(cases)+"u")
 metal=v.output/'finite-guards.metal';metal.write_text(shader)
 host=r"""
 #import <Foundation/Foundation.h>
@@ -75,16 +118,16 @@ int main(int argc,char** argv){@autoreleasepool{try{
  id<MTLLibrary> lib=[device newLibraryWithURL:[NSURL fileURLWithPath:
   [NSString stringWithUTF8String:argv[1]]] error:&error];need(lib!=nil,"cannot load test library");
  id<MTLCommandQueue> queue=[device newCommandQueue];
- std::vector<float> params(128u*PCu);
+ std::vector<float> params(CASES u*PCu);
  float bad[]={std::numeric_limits<float>::quiet_NaN(),INFINITY,-INFINITY,
   std::numeric_limits<float>::max(),-std::numeric_limits<float>::max(),1e-35f,-1e-35f,0.0f};
- for(unsigned t=0;t<128;++t){
+ for(unsigned t=0;t<CASES;++t){
   for(unsigned i=0;i<PCu;++i)params[t*PCu+i]=1.01f+float((i+t)%7)*.013f;
-  if(t>=16&&t%7==3)params[t*PCu+(t/7)%PCu]=bad[(t/7)%8];
+  if(t>=THRESHOLD&&t%7==3)params[t*PCu+(t/7)%PCu]=bad[(t/7)%8];
  }
  id<MTLBuffer> input=[device newBufferWithBytes:params.data()
   length:params.size()*sizeof(float) options:MTLResourceStorageModeShared];
- id<MTLBuffer> output=[device newBufferWithLength:COUNTu*128u*sizeof(R)
+ id<MTLBuffer> output=[device newBufferWithLength:COUNTu*CASES u*sizeof(R)
   options:MTLResourceStorageModeShared];need(input!=nil&&output!=nil,"buffer allocation failed");
  id<MTLCommandBuffer> cmd=[queue commandBuffer];
  id<MTLComputeCommandEncoder> enc=[cmd computeCommandEncoder];
@@ -95,24 +138,24 @@ int main(int argc,char** argv){@autoreleasepool{try{
   need(pso!=nil,"test pipeline creation failed");
   [enc setComputePipelineState:pso];
   [enc setBuffer:input offset:0 atIndex:0];
-  [enc setBuffer:output offset:i*128u*sizeof(R) atIndex:1];
-  [enc dispatchThreads:MTLSizeMake(128,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+  [enc setBuffer:output offset:i*CASES u*sizeof(R) atIndex:1];
+  [enc dispatchThreads:MTLSizeMake(CASES,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
  }
  [enc endEncoding];[cmd commit];[cmd waitUntilCompleted];
  need(cmd.status==MTLCommandBufferStatusCompleted,"Metal command failed");
  auto* result=static_cast<const R*>(output.contents);
  unsigned valid=0,rejected=0,nonfinite=0;
- for(unsigned i=0;i<COUNTu*128u;++i){
-  if(result[i].exact!=1u){std::cerr<<"program_index="<<i/128u<<" trial="<<i%128u<<"\n";
+ for(unsigned i=0;i<COUNTu*CASES u;++i){
+  if(result[i].exact!=1u){std::cerr<<"program_index="<<i/CASES u<<" trial="<<i%CASES u<<"\n";
     throw std::runtime_error("native finite-guard result/flag/cache parity failed");}
   valid+=result[i].valid;rejected+=result[i].rejected;nonfinite+=result[i].nonfinite;
  }
- std::cout<<"PASS Metal scalar finite-guard parity device="<<[device name].UTF8String
-  <<" programs=COUNT cases="<<COUNTu*128u<<" valid="<<valid<<" rejected="<<rejected
+ std::cout<<"PASS Metal MODE parity device="<<[device name].UTF8String
+  <<" programs=COUNT cases="<<COUNTu*CASES u<<" valid="<<valid<<" rejected="<<rejected
   <<" nonfinite="<<nonfinite<<" exact_return_flags_and_cache=true\n";
  return 0;
 }catch(const std::exception& e){std::cerr<<"FAIL "<<e.what()<<"\n";return 1;}}}
-""".replace("PC",str(pc)).replace("COUNT",str(len(before)))
+""".replace("PC",str(pc)).replace("COUNT",str(len(entries))).replace("CASES u",str(cases)+"u").replace("CASES",str(cases)).replace("THRESHOLD","2048" if v.bundles else "16").replace("MODE","read-only bundle" if v.bundles else "scalar finite-guard")
 mm=v.output/'finite-guards.mm';mm.write_text(host)
 located=shutil.which('metal')
 binpath=Path(located).parent if located else Path.home()/'Library/Developer/Toolchains/Metal.xctoolchain/usr/bin'
@@ -124,5 +167,5 @@ subprocess.run([str(binpath/'metallib'),str(air),'-o',str(lib)],check=True)
 subprocess.run(['/usr/bin/clang++','-std=c++20','-O2','-fobjc-arc',str(mm),
  '-framework','Foundation','-framework','Metal','-o',str(exe)],check=True)
 subprocess.run([str(exe),str(lib)],check=True)
-print(json.dumps({"scope":"actual generated scalar Metal programs, not a simulation benchmark",
- "programs":len(before),"parameter_slots":pc,"cache_slots":cc}))
+print(json.dumps({"scope":("actual generated read-only tangent bundles" if v.bundles else "actual generated scalar Metal programs")+", not a simulation benchmark",
+ "programs":len(entries),"mode":"bundles" if v.bundles else "scalar","parameter_slots":pc,"cache_slots":cc}))

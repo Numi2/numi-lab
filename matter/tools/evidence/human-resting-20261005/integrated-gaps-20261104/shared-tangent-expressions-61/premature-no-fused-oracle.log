@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/numi/Work/skin-fat-native-integration-209/matter/tools/check_native_finite_guards_metal.py", line 31, in <module>
+    assert fused, "no eligible fused bundles"
+           ^^^^^
+AssertionError: no eligible fused bundles

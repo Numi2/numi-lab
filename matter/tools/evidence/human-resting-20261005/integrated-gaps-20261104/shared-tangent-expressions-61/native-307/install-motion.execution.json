@@ -1,0 +1,16 @@
+{
+  "exit_code": 0,
+  "elapsed_s": 442.4977653026581,
+  "plan_path": "/Users/numi/Work/human-integrated-gaps-20261104/shared-bundle-native-307/install-motion.plan.json",
+  "plan_sha256": "6f54fc5b808bd2ced2ac75b118e855985efbb72db89722875e2d9874e95fefe0",
+  "stdout_path": "/Users/numi/Work/human-integrated-gaps-20261104/shared-bundle-native-307/install-motion.stdout.log.gz",
+  "stdout_encoding": "gzip",
+  "stdout_compressor_exit_code": 0,
+  "stdout_sha256": "18d628f5856e674da1ae48082e60af1eccd3f8f3ed92d42062e287d49af9fdb6",
+  "stdout_uncompressed_sha256": "6fa9fdc0cce0cf443d456796468ad92afeed6c1cb441debc42bd9403dfc4e2eb",
+  "stderr_sha256": "d36e9b1ae11cf5a6469dd22f3f005dca05649b28b769dcd1ea50765d0372b5b6",
+  "physical_admission": false,
+  "resource_stop_reason": null,
+  "source_import_pass": true,
+  "accepted_steps_are_separately_recorded_in_native_report": true
+}

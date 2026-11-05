@@ -1,0 +1,50 @@
+{
+  "status": "exact Metal and full native state checks passed; one-pair throughput difference under 1%, no established performance gain",
+  "changes": [
+    {
+      "path": "matter/src/native_tangent_source.hpp",
+      "before_sha256": "ac50848be8453157b206a367e41366b5a35cb27f655fcc9e57e48f9835936516",
+      "after_sha256": "c79c8c1c8e121edba7b71881c06a3df79c192cc0ec335edf0de455e9dd40eec4"
+    },
+    {
+      "path": "matter/src/metal/generated_stateless_tangent.metalinc",
+      "before_sha256": "396db06713930cc9f9851f731a0864acd013509ffc8907ccdddd59d63637495d",
+      "after_sha256": "5367b3458c69ac67505c627b9a6c8c8e9b8fb10c1f770122426041758893c5a0"
+    }
+  ],
+  "bundles": [
+    {
+      "name": "nmNativeFusedColumn600_0",
+      "source_programs": [
+        "nmNativeP600",
+        "nmNativeP601",
+        "nmNativeP602",
+        "nmNativeP603",
+        "nmNativeP604",
+        "nmNativeP605",
+        "nmNativeP606",
+        "nmNativeP607",
+        "nmNativeP608"
+      ],
+      "emitted_scalar_values": 313,
+      "emitted_power_loops": 2
+    },
+    {
+      "name": "nmNativeFusedColumn741_1",
+      "source_programs": [
+        "nmNativeP741",
+        "nmNativeP742",
+        "nmNativeP743",
+        "nmNativeP744",
+        "nmNativeP745",
+        "nmNativeP746",
+        "nmNativeP747",
+        "nmNativeP748",
+        "nmNativeP749"
+      ],
+      "emitted_scalar_values": 473,
+      "emitted_power_loops": 1
+    }
+  ],
+  "scope": "two read-only stateless derivative families; no model reduction, preconditioner, tolerance, cache layout or force change"
+}

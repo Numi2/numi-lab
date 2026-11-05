@@ -473,3 +473,13 @@ Actual Metal parity passes 25,344 cases; the full native contract passes 2,743,4
 checks. Human trial 306 accepts 32 roots with an exact complete-state match.
 Body time is 227.226 s versus 231.374 s in one pair, a provisional 1.8% gain,
 not sustained qualification. See [evidence and reproduction](finite-material-lowering-60/README.md).
+
+## Exact cross-output tangent sharing (61)
+
+The compiler shares identical read-only derivative expressions with explicit
+side-effect/state exclusions. Metal parity passes 8,192 bundle and 25,344 scalar
+cases; the full solver and material/frame suites pass. Trial 307 accepts all
+32 roots with exact complete-state equality, but body time is only 0.96% lower
+in one pair (225.036 s versus 227.226 s). This does not establish a useful
+performance gain or resolve convergence, supported rest or 0.1x.
+See [source policy, tests and pins](shared-tangent-expressions-61/README.md).

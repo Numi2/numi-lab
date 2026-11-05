@@ -4136,6 +4136,418 @@ const float v283 = v103*v282; finiteIntermediates &= isfinite(v283);
 const float v284 = v102+v283; finiteIntermediates &= isfinite(v284);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 return v284; }
+// Exact read-only output bundle: nmNativeP600 nmNativeP601 nmNativeP602 nmNativeP603 nmNativeP604 nmNativeP605 nmNativeP606 nmNativeP607 nmNativeP608
+template <typename CachePointer>
+inline void nmNativeFusedColumn600_0(device const float* p, thread const float* f, thread const float* d, thread const float* rate, float dt, float temp, CachePointer c, thread float* out, thread bool& valid, thread bool& nonfinite) {
+#pragma clang fp contract(off)
+if(!(dt>=0.0f)||!isfinite(dt)||!isfinite(temp)){valid=false;out[0]=0.0f;return;}
+bool finiteIntermediates = true;
+const float v0 = c[29]; finiteIntermediates &= isfinite(v0);
+const float v1 = d[0]; finiteIntermediates &= isfinite(v1);
+const float v2 = v1+v1; finiteIntermediates &= isfinite(v2);
+const float v3 = as_type<float>(1073741824u); finiteIntermediates &= isfinite(v3);
+const float v4 = d[4]; finiteIntermediates &= isfinite(v4);
+const float v5 = f[8]; finiteIntermediates &= isfinite(v5);
+const float v6 = v4*v5; finiteIntermediates &= isfinite(v6);
+const float v7 = f[4]; finiteIntermediates &= isfinite(v7);
+const float v8 = d[8]; finiteIntermediates &= isfinite(v8);
+const float v9 = v7*v8; finiteIntermediates &= isfinite(v9);
+const float v10 = v6+v9; finiteIntermediates &= isfinite(v10);
+const float v11 = d[5]; finiteIntermediates &= isfinite(v11);
+const float v12 = f[7]; finiteIntermediates &= isfinite(v12);
+const float v13 = v11*v12; finiteIntermediates &= isfinite(v13);
+const float v14 = f[5]; finiteIntermediates &= isfinite(v14);
+const float v15 = d[7]; finiteIntermediates &= isfinite(v15);
+const float v16 = v14*v15; finiteIntermediates &= isfinite(v16);
+const float v17 = v13+v16; finiteIntermediates &= isfinite(v17);
+const float v18 = v10-v17; finiteIntermediates &= isfinite(v18);
+const float v19 = c[28]; finiteIntermediates &= isfinite(v19);
+const float v20 = v18*v19; finiteIntermediates &= isfinite(v20);
+const float v21 = c[17]; finiteIntermediates &= isfinite(v21);
+const float v22 = v1*v21; finiteIntermediates &= isfinite(v22);
+const float v23 = f[0]; finiteIntermediates &= isfinite(v23);
+const float v24 = v23*v18; finiteIntermediates &= isfinite(v24);
+const float v25 = v22+v24; finiteIntermediates &= isfinite(v25);
+const float v26 = d[1]; finiteIntermediates &= isfinite(v26);
+const float v27 = c[21]; finiteIntermediates &= isfinite(v27);
+const float v28 = v26*v27; finiteIntermediates &= isfinite(v28);
+const float v29 = f[1]; finiteIntermediates &= isfinite(v29);
+const float v30 = d[3]; finiteIntermediates &= isfinite(v30);
+const float v31 = v30*v5; finiteIntermediates &= isfinite(v31);
+const float v32 = f[3]; finiteIntermediates &= isfinite(v32);
+const float v33 = v32*v8; finiteIntermediates &= isfinite(v33);
+const float v34 = v31+v33; finiteIntermediates &= isfinite(v34);
+const float v35 = f[6]; finiteIntermediates &= isfinite(v35);
+const float v36 = v11*v35; finiteIntermediates &= isfinite(v36);
+const float v37 = d[6]; finiteIntermediates &= isfinite(v37);
+const float v38 = v14*v37; finiteIntermediates &= isfinite(v38);
+const float v39 = v36+v38; finiteIntermediates &= isfinite(v39);
+const float v40 = v34-v39; finiteIntermediates &= isfinite(v40);
+const float v41 = v29*v40; finiteIntermediates &= isfinite(v41);
+const float v42 = v28+v41; finiteIntermediates &= isfinite(v42);
+const float v43 = v25-v42; finiteIntermediates &= isfinite(v43);
+const float v44 = d[2]; finiteIntermediates &= isfinite(v44);
+const float v45 = c[26]; finiteIntermediates &= isfinite(v45);
+const float v46 = v44*v45; finiteIntermediates &= isfinite(v46);
+const float v47 = f[2]; finiteIntermediates &= isfinite(v47);
+const float v48 = v30*v12; finiteIntermediates &= isfinite(v48);
+const float v49 = v32*v15; finiteIntermediates &= isfinite(v49);
+const float v50 = v48+v49; finiteIntermediates &= isfinite(v50);
+const float v51 = v4*v35; finiteIntermediates &= isfinite(v51);
+const float v52 = v7*v37; finiteIntermediates &= isfinite(v52);
+const float v53 = v51+v52; finiteIntermediates &= isfinite(v53);
+const float v54 = v50-v53; finiteIntermediates &= isfinite(v54);
+const float v55 = v47*v54; finiteIntermediates &= isfinite(v55);
+const float v56 = v46+v55; finiteIntermediates &= isfinite(v56);
+const float v57 = v43+v56; finiteIntermediates &= isfinite(v57);
+const float v58 = v21*v57; finiteIntermediates &= isfinite(v58);
+const float v59 = v20-v58; finiteIntermediates &= isfinite(v59);
+float pow60=1.0f; {float factor=v19; uint power=2u; while(power!=0u){if((power&1u)!=0u)pow60*=factor;factor*=factor;power>>=1u;}}
+const float v61 = pow60; finiteIntermediates &= isfinite(v61);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[0]=0.0f;return;}
+if(abs(v61)<=kGeometryFloor){valid=false;out[0]=0.0f;return;}
+const float v62 = v59/v61; finiteIntermediates &= isfinite(v62);
+const float v63 = v3*v62; finiteIntermediates &= isfinite(v63);
+const float v64 = v2-v63; finiteIntermediates &= isfinite(v64);
+const float v65 = v0*v64; finiteIntermediates &= isfinite(v65);
+const float v66 = c[30]; finiteIntermediates &= isfinite(v66);
+const float v67 = c[2]; finiteIntermediates &= isfinite(v67);
+const float v68 = v1*v67; finiteIntermediates &= isfinite(v68);
+const float v69 = v68+v24; finiteIntermediates &= isfinite(v69);
+const float v70 = c[6]; finiteIntermediates &= isfinite(v70);
+const float v71 = v26*v70; finiteIntermediates &= isfinite(v71);
+const float v72 = v71+v41; finiteIntermediates &= isfinite(v72);
+const float v73 = v69-v72; finiteIntermediates &= isfinite(v73);
+const float v74 = c[11]; finiteIntermediates &= isfinite(v74);
+const float v75 = v44*v74; finiteIntermediates &= isfinite(v75);
+const float v76 = v75+v55; finiteIntermediates &= isfinite(v76);
+const float v77 = v73+v76; finiteIntermediates &= isfinite(v77);
+const float v78 = c[13]; finiteIntermediates &= isfinite(v78);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[0]=0.0f;return;}
+if(abs(v78)<=kGeometryFloor){valid=false;out[0]=0.0f;return;}
+const float v79 = v77/v78; finiteIntermediates &= isfinite(v79);
+const float v80 = v3*v79; finiteIntermediates &= isfinite(v80);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[0]=0.0f;return;}
+if(abs(v78)<=kGeometryFloor){valid=false;out[0]=0.0f;return;}
+const float v81 = v67/v78; finiteIntermediates &= isfinite(v81);
+const float v82 = v80*v81; finiteIntermediates &= isfinite(v82);
+const float v83 = c[14]; finiteIntermediates &= isfinite(v83);
+const float v84 = v3*v83; finiteIntermediates &= isfinite(v84);
+const float v85 = v18*v78; finiteIntermediates &= isfinite(v85);
+const float v86 = v67*v77; finiteIntermediates &= isfinite(v86);
+const float v87 = v85-v86; finiteIntermediates &= isfinite(v87);
+float pow88=1.0f; {float factor=v78; uint power=2u; while(power!=0u){if((power&1u)!=0u)pow88*=factor;factor*=factor;power>>=1u;}}
+const float v89 = pow88; finiteIntermediates &= isfinite(v89);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[0]=0.0f;return;}
+if(abs(v89)<=kGeometryFloor){valid=false;out[0]=0.0f;return;}
+const float v90 = v87/v89; finiteIntermediates &= isfinite(v90);
+const float v91 = v84*v90; finiteIntermediates &= isfinite(v91);
+const float v92 = v82+v91; finiteIntermediates &= isfinite(v92);
+const float v93 = v66*v92; finiteIntermediates &= isfinite(v93);
+const float v94 = v65+v93; finiteIntermediates &= isfinite(v94);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[0]=0.0f;return;}
+out[0]=v94;if(!valid)return;
+const float v95 = v26+v26; finiteIntermediates &= isfinite(v95);
+const float v96 = as_type<float>(0u); finiteIntermediates &= isfinite(v96);
+const float v97 = v96-v40; finiteIntermediates &= isfinite(v97);
+const float v98 = v97*v19; finiteIntermediates &= isfinite(v98);
+const float v99 = v96-v27; finiteIntermediates &= isfinite(v99);
+const float v100 = v99*v57; finiteIntermediates &= isfinite(v100);
+const float v101 = v98-v100; finiteIntermediates &= isfinite(v101);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[1]=0.0f;return;}
+if(abs(v61)<=kGeometryFloor){valid=false;out[1]=0.0f;return;}
+const float v103 = v101/v61; finiteIntermediates &= isfinite(v103);
+const float v104 = v3*v103; finiteIntermediates &= isfinite(v104);
+const float v105 = v95-v104; finiteIntermediates &= isfinite(v105);
+const float v106 = v0*v105; finiteIntermediates &= isfinite(v106);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[1]=0.0f;return;}
+if(abs(v78)<=kGeometryFloor){valid=false;out[1]=0.0f;return;}
+const float v107 = v96-v70; finiteIntermediates &= isfinite(v107);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[1]=0.0f;return;}
+if(abs(v78)<=kGeometryFloor){valid=false;out[1]=0.0f;return;}
+const float v108 = v107/v78; finiteIntermediates &= isfinite(v108);
+const float v109 = v80*v108; finiteIntermediates &= isfinite(v109);
+const float v110 = v97*v78; finiteIntermediates &= isfinite(v110);
+const float v111 = v107*v77; finiteIntermediates &= isfinite(v111);
+const float v112 = v110-v111; finiteIntermediates &= isfinite(v112);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[1]=0.0f;return;}
+if(abs(v89)<=kGeometryFloor){valid=false;out[1]=0.0f;return;}
+const float v114 = v112/v89; finiteIntermediates &= isfinite(v114);
+const float v115 = v84*v114; finiteIntermediates &= isfinite(v115);
+const float v116 = v109+v115; finiteIntermediates &= isfinite(v116);
+const float v117 = v66*v116; finiteIntermediates &= isfinite(v117);
+const float v118 = v106+v117; finiteIntermediates &= isfinite(v118);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[1]=0.0f;return;}
+out[1]=v118;if(!valid)return;
+const float v119 = v44+v44; finiteIntermediates &= isfinite(v119);
+const float v120 = v54*v19; finiteIntermediates &= isfinite(v120);
+const float v121 = v45*v57; finiteIntermediates &= isfinite(v121);
+const float v122 = v120-v121; finiteIntermediates &= isfinite(v122);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[2]=0.0f;return;}
+if(abs(v61)<=kGeometryFloor){valid=false;out[2]=0.0f;return;}
+const float v124 = v122/v61; finiteIntermediates &= isfinite(v124);
+const float v125 = v3*v124; finiteIntermediates &= isfinite(v125);
+const float v126 = v119-v125; finiteIntermediates &= isfinite(v126);
+const float v127 = v0*v126; finiteIntermediates &= isfinite(v127);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[2]=0.0f;return;}
+if(abs(v78)<=kGeometryFloor){valid=false;out[2]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[2]=0.0f;return;}
+if(abs(v78)<=kGeometryFloor){valid=false;out[2]=0.0f;return;}
+const float v128 = v74/v78; finiteIntermediates &= isfinite(v128);
+const float v129 = v80*v128; finiteIntermediates &= isfinite(v129);
+const float v130 = v54*v78; finiteIntermediates &= isfinite(v130);
+const float v131 = v74*v77; finiteIntermediates &= isfinite(v131);
+const float v132 = v130-v131; finiteIntermediates &= isfinite(v132);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[2]=0.0f;return;}
+if(abs(v89)<=kGeometryFloor){valid=false;out[2]=0.0f;return;}
+const float v134 = v132/v89; finiteIntermediates &= isfinite(v134);
+const float v135 = v84*v134; finiteIntermediates &= isfinite(v135);
+const float v136 = v129+v135; finiteIntermediates &= isfinite(v136);
+const float v137 = v66*v136; finiteIntermediates &= isfinite(v137);
+const float v138 = v127+v137; finiteIntermediates &= isfinite(v138);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[2]=0.0f;return;}
+out[2]=v138;if(!valid)return;
+const float v139 = v30+v30; finiteIntermediates &= isfinite(v139);
+const float v140 = v26*v5; finiteIntermediates &= isfinite(v140);
+const float v141 = v29*v8; finiteIntermediates &= isfinite(v141);
+const float v142 = v140+v141; finiteIntermediates &= isfinite(v142);
+const float v143 = v96-v142; finiteIntermediates &= isfinite(v143);
+const float v144 = v44*v12; finiteIntermediates &= isfinite(v144);
+const float v145 = v47*v15; finiteIntermediates &= isfinite(v145);
+const float v146 = v144+v145; finiteIntermediates &= isfinite(v146);
+const float v147 = v143+v146; finiteIntermediates &= isfinite(v147);
+const float v148 = v147*v19; finiteIntermediates &= isfinite(v148);
+const float v149 = v29*v5; finiteIntermediates &= isfinite(v149);
+const float v150 = v96-v149; finiteIntermediates &= isfinite(v150);
+const float v151 = v47*v12; finiteIntermediates &= isfinite(v151);
+const float v152 = v150+v151; finiteIntermediates &= isfinite(v152);
+const float v153 = v152*v57; finiteIntermediates &= isfinite(v153);
+const float v154 = v148-v153; finiteIntermediates &= isfinite(v154);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[3]=0.0f;return;}
+if(abs(v61)<=kGeometryFloor){valid=false;out[3]=0.0f;return;}
+const float v156 = v154/v61; finiteIntermediates &= isfinite(v156);
+const float v157 = v3*v156; finiteIntermediates &= isfinite(v157);
+const float v158 = v139-v157; finiteIntermediates &= isfinite(v158);
+const float v159 = v0*v158; finiteIntermediates &= isfinite(v159);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[3]=0.0f;return;}
+if(abs(v78)<=kGeometryFloor){valid=false;out[3]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[3]=0.0f;return;}
+if(abs(v78)<=kGeometryFloor){valid=false;out[3]=0.0f;return;}
+const float v160 = v152/v78; finiteIntermediates &= isfinite(v160);
+const float v161 = v80*v160; finiteIntermediates &= isfinite(v161);
+const float v162 = v147*v78; finiteIntermediates &= isfinite(v162);
+const float v163 = v152*v77; finiteIntermediates &= isfinite(v163);
+const float v164 = v162-v163; finiteIntermediates &= isfinite(v164);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[3]=0.0f;return;}
+if(abs(v89)<=kGeometryFloor){valid=false;out[3]=0.0f;return;}
+const float v166 = v164/v89; finiteIntermediates &= isfinite(v166);
+const float v167 = v84*v166; finiteIntermediates &= isfinite(v167);
+const float v168 = v161+v167; finiteIntermediates &= isfinite(v168);
+const float v169 = v66*v168; finiteIntermediates &= isfinite(v169);
+const float v170 = v159+v169; finiteIntermediates &= isfinite(v170);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[3]=0.0f;return;}
+out[3]=v170;if(!valid)return;
+const float v171 = v4+v4; finiteIntermediates &= isfinite(v171);
+const float v172 = v1*v5; finiteIntermediates &= isfinite(v172);
+const float v173 = v23*v8; finiteIntermediates &= isfinite(v173);
+const float v174 = v172+v173; finiteIntermediates &= isfinite(v174);
+const float v175 = v96-v35; finiteIntermediates &= isfinite(v175);
+const float v176 = v44*v175; finiteIntermediates &= isfinite(v176);
+const float v177 = v96-v37; finiteIntermediates &= isfinite(v177);
+const float v178 = v47*v177; finiteIntermediates &= isfinite(v178);
+const float v179 = v176+v178; finiteIntermediates &= isfinite(v179);
+const float v180 = v174+v179; finiteIntermediates &= isfinite(v180);
+const float v181 = v180*v19; finiteIntermediates &= isfinite(v181);
+const float v182 = v23*v5; finiteIntermediates &= isfinite(v182);
+const float v183 = v47*v175; finiteIntermediates &= isfinite(v183);
+const float v184 = v182+v183; finiteIntermediates &= isfinite(v184);
+const float v185 = v184*v57; finiteIntermediates &= isfinite(v185);
+const float v186 = v181-v185; finiteIntermediates &= isfinite(v186);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[4]=0.0f;return;}
+if(abs(v61)<=kGeometryFloor){valid=false;out[4]=0.0f;return;}
+const float v188 = v186/v61; finiteIntermediates &= isfinite(v188);
+const float v189 = v3*v188; finiteIntermediates &= isfinite(v189);
+const float v190 = v171-v189; finiteIntermediates &= isfinite(v190);
+const float v191 = v0*v190; finiteIntermediates &= isfinite(v191);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[4]=0.0f;return;}
+if(abs(v78)<=kGeometryFloor){valid=false;out[4]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[4]=0.0f;return;}
+if(abs(v78)<=kGeometryFloor){valid=false;out[4]=0.0f;return;}
+const float v192 = v184/v78; finiteIntermediates &= isfinite(v192);
+const float v193 = v80*v192; finiteIntermediates &= isfinite(v193);
+const float v194 = v180*v78; finiteIntermediates &= isfinite(v194);
+const float v195 = v184*v77; finiteIntermediates &= isfinite(v195);
+const float v196 = v194-v195; finiteIntermediates &= isfinite(v196);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[4]=0.0f;return;}
+if(abs(v89)<=kGeometryFloor){valid=false;out[4]=0.0f;return;}
+const float v198 = v196/v89; finiteIntermediates &= isfinite(v198);
+const float v199 = v84*v198; finiteIntermediates &= isfinite(v199);
+const float v200 = v193+v199; finiteIntermediates &= isfinite(v200);
+const float v201 = v66*v200; finiteIntermediates &= isfinite(v201);
+const float v202 = v191+v201; finiteIntermediates &= isfinite(v202);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[4]=0.0f;return;}
+out[4]=v202;if(!valid)return;
+const float v203 = v11+v11; finiteIntermediates &= isfinite(v203);
+const float v204 = v96-v12; finiteIntermediates &= isfinite(v204);
+const float v205 = v1*v204; finiteIntermediates &= isfinite(v205);
+const float v206 = v96-v15; finiteIntermediates &= isfinite(v206);
+const float v207 = v23*v206; finiteIntermediates &= isfinite(v207);
+const float v208 = v205+v207; finiteIntermediates &= isfinite(v208);
+const float v209 = v26*v175; finiteIntermediates &= isfinite(v209);
+const float v210 = v29*v177; finiteIntermediates &= isfinite(v210);
+const float v211 = v209+v210; finiteIntermediates &= isfinite(v211);
+const float v212 = v208-v211; finiteIntermediates &= isfinite(v212);
+const float v213 = v212*v19; finiteIntermediates &= isfinite(v213);
+const float v214 = v23*v204; finiteIntermediates &= isfinite(v214);
+const float v215 = v29*v175; finiteIntermediates &= isfinite(v215);
+const float v216 = v214-v215; finiteIntermediates &= isfinite(v216);
+const float v217 = v216*v57; finiteIntermediates &= isfinite(v217);
+const float v218 = v213-v217; finiteIntermediates &= isfinite(v218);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[5]=0.0f;return;}
+if(abs(v61)<=kGeometryFloor){valid=false;out[5]=0.0f;return;}
+const float v220 = v218/v61; finiteIntermediates &= isfinite(v220);
+const float v221 = v3*v220; finiteIntermediates &= isfinite(v221);
+const float v222 = v203-v221; finiteIntermediates &= isfinite(v222);
+const float v223 = v0*v222; finiteIntermediates &= isfinite(v223);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[5]=0.0f;return;}
+if(abs(v78)<=kGeometryFloor){valid=false;out[5]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[5]=0.0f;return;}
+if(abs(v78)<=kGeometryFloor){valid=false;out[5]=0.0f;return;}
+const float v224 = v216/v78; finiteIntermediates &= isfinite(v224);
+const float v225 = v80*v224; finiteIntermediates &= isfinite(v225);
+const float v226 = v212*v78; finiteIntermediates &= isfinite(v226);
+const float v227 = v216*v77; finiteIntermediates &= isfinite(v227);
+const float v228 = v226-v227; finiteIntermediates &= isfinite(v228);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[5]=0.0f;return;}
+if(abs(v89)<=kGeometryFloor){valid=false;out[5]=0.0f;return;}
+const float v230 = v228/v89; finiteIntermediates &= isfinite(v230);
+const float v231 = v84*v230; finiteIntermediates &= isfinite(v231);
+const float v232 = v225+v231; finiteIntermediates &= isfinite(v232);
+const float v233 = v66*v232; finiteIntermediates &= isfinite(v233);
+const float v234 = v223+v233; finiteIntermediates &= isfinite(v234);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[5]=0.0f;return;}
+out[5]=v234;if(!valid)return;
+const float v235 = v37+v37; finiteIntermediates &= isfinite(v235);
+const float v236 = v96-v14; finiteIntermediates &= isfinite(v236);
+const float v237 = v26*v236; finiteIntermediates &= isfinite(v237);
+const float v238 = v96-v11; finiteIntermediates &= isfinite(v238);
+const float v239 = v29*v238; finiteIntermediates &= isfinite(v239);
+const float v240 = v237+v239; finiteIntermediates &= isfinite(v240);
+const float v241 = v96-v240; finiteIntermediates &= isfinite(v241);
+const float v242 = v96-v7; finiteIntermediates &= isfinite(v242);
+const float v243 = v44*v242; finiteIntermediates &= isfinite(v243);
+const float v244 = v96-v4; finiteIntermediates &= isfinite(v244);
+const float v245 = v47*v244; finiteIntermediates &= isfinite(v245);
+const float v246 = v243+v245; finiteIntermediates &= isfinite(v246);
+const float v247 = v241+v246; finiteIntermediates &= isfinite(v247);
+const float v248 = v247*v19; finiteIntermediates &= isfinite(v248);
+const float v249 = v29*v236; finiteIntermediates &= isfinite(v249);
+const float v250 = v96-v249; finiteIntermediates &= isfinite(v250);
+const float v251 = v47*v242; finiteIntermediates &= isfinite(v251);
+const float v252 = v250+v251; finiteIntermediates &= isfinite(v252);
+const float v253 = v252*v57; finiteIntermediates &= isfinite(v253);
+const float v254 = v248-v253; finiteIntermediates &= isfinite(v254);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[6]=0.0f;return;}
+if(abs(v61)<=kGeometryFloor){valid=false;out[6]=0.0f;return;}
+const float v256 = v254/v61; finiteIntermediates &= isfinite(v256);
+const float v257 = v3*v256; finiteIntermediates &= isfinite(v257);
+const float v258 = v235-v257; finiteIntermediates &= isfinite(v258);
+const float v259 = v0*v258; finiteIntermediates &= isfinite(v259);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[6]=0.0f;return;}
+if(abs(v78)<=kGeometryFloor){valid=false;out[6]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[6]=0.0f;return;}
+if(abs(v78)<=kGeometryFloor){valid=false;out[6]=0.0f;return;}
+const float v260 = v252/v78; finiteIntermediates &= isfinite(v260);
+const float v261 = v80*v260; finiteIntermediates &= isfinite(v261);
+const float v262 = v247*v78; finiteIntermediates &= isfinite(v262);
+const float v263 = v252*v77; finiteIntermediates &= isfinite(v263);
+const float v264 = v262-v263; finiteIntermediates &= isfinite(v264);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[6]=0.0f;return;}
+if(abs(v89)<=kGeometryFloor){valid=false;out[6]=0.0f;return;}
+const float v266 = v264/v89; finiteIntermediates &= isfinite(v266);
+const float v267 = v84*v266; finiteIntermediates &= isfinite(v267);
+const float v268 = v261+v267; finiteIntermediates &= isfinite(v268);
+const float v269 = v66*v268; finiteIntermediates &= isfinite(v269);
+const float v270 = v259+v269; finiteIntermediates &= isfinite(v270);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[6]=0.0f;return;}
+out[6]=v270;if(!valid)return;
+const float v271 = v15+v15; finiteIntermediates &= isfinite(v271);
+const float v272 = v1*v236; finiteIntermediates &= isfinite(v272);
+const float v273 = v23*v238; finiteIntermediates &= isfinite(v273);
+const float v274 = v272+v273; finiteIntermediates &= isfinite(v274);
+const float v275 = v44*v32; finiteIntermediates &= isfinite(v275);
+const float v276 = v47*v30; finiteIntermediates &= isfinite(v276);
+const float v277 = v275+v276; finiteIntermediates &= isfinite(v277);
+const float v278 = v274+v277; finiteIntermediates &= isfinite(v278);
+const float v279 = v278*v19; finiteIntermediates &= isfinite(v279);
+const float v280 = v23*v236; finiteIntermediates &= isfinite(v280);
+const float v281 = v47*v32; finiteIntermediates &= isfinite(v281);
+const float v282 = v280+v281; finiteIntermediates &= isfinite(v282);
+const float v283 = v282*v57; finiteIntermediates &= isfinite(v283);
+const float v284 = v279-v283; finiteIntermediates &= isfinite(v284);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[7]=0.0f;return;}
+if(abs(v61)<=kGeometryFloor){valid=false;out[7]=0.0f;return;}
+const float v286 = v284/v61; finiteIntermediates &= isfinite(v286);
+const float v287 = v3*v286; finiteIntermediates &= isfinite(v287);
+const float v288 = v271-v287; finiteIntermediates &= isfinite(v288);
+const float v289 = v0*v288; finiteIntermediates &= isfinite(v289);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[7]=0.0f;return;}
+if(abs(v78)<=kGeometryFloor){valid=false;out[7]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[7]=0.0f;return;}
+if(abs(v78)<=kGeometryFloor){valid=false;out[7]=0.0f;return;}
+const float v290 = v282/v78; finiteIntermediates &= isfinite(v290);
+const float v291 = v80*v290; finiteIntermediates &= isfinite(v291);
+const float v292 = v278*v78; finiteIntermediates &= isfinite(v292);
+const float v293 = v282*v77; finiteIntermediates &= isfinite(v293);
+const float v294 = v292-v293; finiteIntermediates &= isfinite(v294);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[7]=0.0f;return;}
+if(abs(v89)<=kGeometryFloor){valid=false;out[7]=0.0f;return;}
+const float v296 = v294/v89; finiteIntermediates &= isfinite(v296);
+const float v297 = v84*v296; finiteIntermediates &= isfinite(v297);
+const float v298 = v291+v297; finiteIntermediates &= isfinite(v298);
+const float v299 = v66*v298; finiteIntermediates &= isfinite(v299);
+const float v300 = v289+v299; finiteIntermediates &= isfinite(v300);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[7]=0.0f;return;}
+out[7]=v300;if(!valid)return;
+const float v301 = v8+v8; finiteIntermediates &= isfinite(v301);
+const float v302 = v1*v7; finiteIntermediates &= isfinite(v302);
+const float v303 = v23*v4; finiteIntermediates &= isfinite(v303);
+const float v304 = v302+v303; finiteIntermediates &= isfinite(v304);
+const float v305 = v26*v32; finiteIntermediates &= isfinite(v305);
+const float v306 = v29*v30; finiteIntermediates &= isfinite(v306);
+const float v307 = v305+v306; finiteIntermediates &= isfinite(v307);
+const float v308 = v304-v307; finiteIntermediates &= isfinite(v308);
+const float v309 = v308*v19; finiteIntermediates &= isfinite(v309);
+const float v310 = v23*v7; finiteIntermediates &= isfinite(v310);
+const float v311 = v29*v32; finiteIntermediates &= isfinite(v311);
+const float v312 = v310-v311; finiteIntermediates &= isfinite(v312);
+const float v313 = v312*v57; finiteIntermediates &= isfinite(v313);
+const float v314 = v309-v313; finiteIntermediates &= isfinite(v314);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[8]=0.0f;return;}
+if(abs(v61)<=kGeometryFloor){valid=false;out[8]=0.0f;return;}
+const float v316 = v314/v61; finiteIntermediates &= isfinite(v316);
+const float v317 = v3*v316; finiteIntermediates &= isfinite(v317);
+const float v318 = v301-v317; finiteIntermediates &= isfinite(v318);
+const float v319 = v0*v318; finiteIntermediates &= isfinite(v319);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[8]=0.0f;return;}
+if(abs(v78)<=kGeometryFloor){valid=false;out[8]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[8]=0.0f;return;}
+if(abs(v78)<=kGeometryFloor){valid=false;out[8]=0.0f;return;}
+const float v320 = v312/v78; finiteIntermediates &= isfinite(v320);
+const float v321 = v80*v320; finiteIntermediates &= isfinite(v321);
+const float v322 = v308*v78; finiteIntermediates &= isfinite(v322);
+const float v323 = v312*v77; finiteIntermediates &= isfinite(v323);
+const float v324 = v322-v323; finiteIntermediates &= isfinite(v324);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[8]=0.0f;return;}
+if(abs(v89)<=kGeometryFloor){valid=false;out[8]=0.0f;return;}
+const float v326 = v324/v89; finiteIntermediates &= isfinite(v326);
+const float v327 = v84*v326; finiteIntermediates &= isfinite(v327);
+const float v328 = v321+v327; finiteIntermediates &= isfinite(v328);
+const float v329 = v66*v328; finiteIntermediates &= isfinite(v329);
+const float v330 = v319+v329; finiteIntermediates &= isfinite(v330);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[8]=0.0f;return;}
+out[8]=v330;if(!valid)return;
+}
 template <typename CachePointer>
 inline float nmNativeP669(device const float* p, thread const float* f, thread const float* d, thread const float* rate, float dt, float temp, CachePointer c, thread bool& valid, thread bool& nonfinite) {
 #pragma clang fp contract(off)
@@ -10866,6 +11278,685 @@ const float v473 = v97*v472; finiteIntermediates &= isfinite(v473);
 const float v474 = v96+v473; finiteIntermediates &= isfinite(v474);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 return v474; }
+// Exact read-only output bundle: nmNativeP741 nmNativeP742 nmNativeP743 nmNativeP744 nmNativeP745 nmNativeP746 nmNativeP747 nmNativeP748 nmNativeP749
+template <typename CachePointer>
+inline void nmNativeFusedColumn741_1(device const float* p, thread const float* f, thread const float* d, thread const float* rate, float dt, float temp, CachePointer c, thread float* out, thread bool& valid, thread bool& nonfinite) {
+#pragma clang fp contract(off)
+if(!(dt>=0.0f)||!isfinite(dt)||!isfinite(temp)){valid=false;out[0]=0.0f;return;}
+bool finiteIntermediates = true;
+const float v0 = c[52]; finiteIntermediates &= isfinite(v0);
+const float v1 = as_type<float>(1073741824u); finiteIntermediates &= isfinite(v1);
+const float v2 = d[0]; finiteIntermediates &= isfinite(v2);
+const float v3 = c[39]; finiteIntermediates &= isfinite(v3);
+const float v4 = v2*v3; finiteIntermediates &= isfinite(v4);
+const float v5 = f[0]; finiteIntermediates &= isfinite(v5);
+const float v6 = d[4]; finiteIntermediates &= isfinite(v6);
+const float v7 = f[8]; finiteIntermediates &= isfinite(v7);
+const float v8 = v6*v7; finiteIntermediates &= isfinite(v8);
+const float v9 = f[4]; finiteIntermediates &= isfinite(v9);
+const float v10 = d[8]; finiteIntermediates &= isfinite(v10);
+const float v11 = v9*v10; finiteIntermediates &= isfinite(v11);
+const float v12 = v8+v11; finiteIntermediates &= isfinite(v12);
+const float v13 = d[5]; finiteIntermediates &= isfinite(v13);
+const float v14 = f[7]; finiteIntermediates &= isfinite(v14);
+const float v15 = v13*v14; finiteIntermediates &= isfinite(v15);
+const float v16 = f[5]; finiteIntermediates &= isfinite(v16);
+const float v17 = d[7]; finiteIntermediates &= isfinite(v17);
+const float v18 = v16*v17; finiteIntermediates &= isfinite(v18);
+const float v19 = v15+v18; finiteIntermediates &= isfinite(v19);
+const float v20 = v12-v19; finiteIntermediates &= isfinite(v20);
+const float v21 = v5*v20; finiteIntermediates &= isfinite(v21);
+const float v22 = v4+v21; finiteIntermediates &= isfinite(v22);
+const float v23 = d[1]; finiteIntermediates &= isfinite(v23);
+const float v24 = c[43]; finiteIntermediates &= isfinite(v24);
+const float v25 = v23*v24; finiteIntermediates &= isfinite(v25);
+const float v26 = f[1]; finiteIntermediates &= isfinite(v26);
+const float v27 = d[3]; finiteIntermediates &= isfinite(v27);
+const float v28 = v27*v7; finiteIntermediates &= isfinite(v28);
+const float v29 = f[3]; finiteIntermediates &= isfinite(v29);
+const float v30 = v29*v10; finiteIntermediates &= isfinite(v30);
+const float v31 = v28+v30; finiteIntermediates &= isfinite(v31);
+const float v32 = f[6]; finiteIntermediates &= isfinite(v32);
+const float v33 = v13*v32; finiteIntermediates &= isfinite(v33);
+const float v34 = d[6]; finiteIntermediates &= isfinite(v34);
+const float v35 = v16*v34; finiteIntermediates &= isfinite(v35);
+const float v36 = v33+v35; finiteIntermediates &= isfinite(v36);
+const float v37 = v31-v36; finiteIntermediates &= isfinite(v37);
+const float v38 = v26*v37; finiteIntermediates &= isfinite(v38);
+const float v39 = v25+v38; finiteIntermediates &= isfinite(v39);
+const float v40 = v22-v39; finiteIntermediates &= isfinite(v40);
+const float v41 = d[2]; finiteIntermediates &= isfinite(v41);
+const float v42 = c[48]; finiteIntermediates &= isfinite(v42);
+const float v43 = v41*v42; finiteIntermediates &= isfinite(v43);
+const float v44 = f[2]; finiteIntermediates &= isfinite(v44);
+const float v45 = v27*v14; finiteIntermediates &= isfinite(v45);
+const float v46 = v29*v17; finiteIntermediates &= isfinite(v46);
+const float v47 = v45+v46; finiteIntermediates &= isfinite(v47);
+const float v48 = v6*v32; finiteIntermediates &= isfinite(v48);
+const float v49 = v9*v34; finiteIntermediates &= isfinite(v49);
+const float v50 = v48+v49; finiteIntermediates &= isfinite(v50);
+const float v51 = v47-v50; finiteIntermediates &= isfinite(v51);
+const float v52 = v44*v51; finiteIntermediates &= isfinite(v52);
+const float v53 = v43+v52; finiteIntermediates &= isfinite(v53);
+const float v54 = v40+v53; finiteIntermediates &= isfinite(v54);
+const float v55 = v1*v54; finiteIntermediates &= isfinite(v55);
+const float v56 = v55*v3; finiteIntermediates &= isfinite(v56);
+const float v57 = c[51]; finiteIntermediates &= isfinite(v57);
+const float v58 = v1*v57; finiteIntermediates &= isfinite(v58);
+const float v59 = v58*v20; finiteIntermediates &= isfinite(v59);
+const float v60 = v56+v59; finiteIntermediates &= isfinite(v60);
+const float v61 = v0*v60; finiteIntermediates &= isfinite(v61);
+const float v62 = c[53]; finiteIntermediates &= isfinite(v62);
+const float v63 = c[36]; finiteIntermediates &= isfinite(v63);
+const float v64 = c[18]; finiteIntermediates &= isfinite(v64);
+const float v65 = c[21]; finiteIntermediates &= isfinite(v65);
+const float v66 = v2*v65; finiteIntermediates &= isfinite(v66);
+const float v67 = v66+v21; finiteIntermediates &= isfinite(v67);
+const float v68 = c[25]; finiteIntermediates &= isfinite(v68);
+const float v69 = v23*v68; finiteIntermediates &= isfinite(v69);
+const float v70 = v69+v38; finiteIntermediates &= isfinite(v70);
+const float v71 = v67-v70; finiteIntermediates &= isfinite(v71);
+const float v72 = c[30]; finiteIntermediates &= isfinite(v72);
+const float v73 = v41*v72; finiteIntermediates &= isfinite(v73);
+const float v74 = v73+v52; finiteIntermediates &= isfinite(v74);
+const float v75 = v71+v74; finiteIntermediates &= isfinite(v75);
+const float v76 = c[32]; finiteIntermediates &= isfinite(v76);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[0]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[0]=0.0f;return;}
+const float v77 = v75/v76; finiteIntermediates &= isfinite(v77);
+const float v78 = v64*v77; finiteIntermediates &= isfinite(v78);
+const float v79 = as_type<float>(1077936128u); finiteIntermediates &= isfinite(v79);
+const float v80 = v78*v79; finiteIntermediates &= isfinite(v80);
+const float v81 = as_type<float>(1091567616u); finiteIntermediates &= isfinite(v81);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[0]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[0]=0.0f;return;}
+const float v82 = v80/v81; finiteIntermediates &= isfinite(v82);
+const float v83 = v63*v82; finiteIntermediates &= isfinite(v83);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[0]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[0]=0.0f;return;}
+const float v84 = v65/v76; finiteIntermediates &= isfinite(v84);
+const float v85 = v64*v84; finiteIntermediates &= isfinite(v85);
+const float v86 = v85*v79; finiteIntermediates &= isfinite(v86);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[0]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[0]=0.0f;return;}
+const float v87 = v86/v81; finiteIntermediates &= isfinite(v87);
+const float v88 = v83*v87; finiteIntermediates &= isfinite(v88);
+const float v89 = v20*v76; finiteIntermediates &= isfinite(v89);
+const float v90 = v65*v75; finiteIntermediates &= isfinite(v90);
+const float v91 = v89-v90; finiteIntermediates &= isfinite(v91);
+float pow92=1.0f; {float factor=v76; uint power=2u; while(power!=0u){if((power&1u)!=0u)pow92*=factor;factor*=factor;power>>=1u;}}
+const float v93 = pow92; finiteIntermediates &= isfinite(v93);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[0]=0.0f;return;}
+if(abs(v93)<=kGeometryFloor){valid=false;out[0]=0.0f;return;}
+const float v94 = v91/v93; finiteIntermediates &= isfinite(v94);
+const float v95 = v64*v94; finiteIntermediates &= isfinite(v95);
+const float v96 = v95*v79; finiteIntermediates &= isfinite(v96);
+const float v97 = v96*v81; finiteIntermediates &= isfinite(v97);
+const float v98 = as_type<float>(1117913088u); finiteIntermediates &= isfinite(v98);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[0]=0.0f;return;}
+if(abs(v98)<=kGeometryFloor){valid=false;out[0]=0.0f;return;}
+const float v99 = v97/v98; finiteIntermediates &= isfinite(v99);
+const float v100 = v63*v99; finiteIntermediates &= isfinite(v100);
+const float v101 = v88+v100; finiteIntermediates &= isfinite(v101);
+const float v102 = c[17]; finiteIntermediates &= isfinite(v102);
+const float v103 = v101*v102; finiteIntermediates &= isfinite(v103);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[0]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[0]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[0]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[0]=0.0f;return;}
+const float v104 = v63*v87; finiteIntermediates &= isfinite(v104);
+const float v105 = v2*v5; finiteIntermediates &= isfinite(v105);
+const float v106 = v5*v2; finiteIntermediates &= isfinite(v106);
+const float v107 = v105+v106; finiteIntermediates &= isfinite(v107);
+const float v108 = v23*v26; finiteIntermediates &= isfinite(v108);
+const float v109 = v26*v23; finiteIntermediates &= isfinite(v109);
+const float v110 = v108+v109; finiteIntermediates &= isfinite(v110);
+const float v111 = v107+v110; finiteIntermediates &= isfinite(v111);
+const float v112 = v41*v44; finiteIntermediates &= isfinite(v112);
+const float v113 = v44*v41; finiteIntermediates &= isfinite(v113);
+const float v114 = v112+v113; finiteIntermediates &= isfinite(v114);
+const float v115 = v111+v114; finiteIntermediates &= isfinite(v115);
+const float v116 = v27*v29; finiteIntermediates &= isfinite(v116);
+const float v117 = v29*v27; finiteIntermediates &= isfinite(v117);
+const float v118 = v116+v117; finiteIntermediates &= isfinite(v118);
+const float v119 = v115+v118; finiteIntermediates &= isfinite(v119);
+const float v120 = v6*v9; finiteIntermediates &= isfinite(v120);
+const float v121 = v9*v6; finiteIntermediates &= isfinite(v121);
+const float v122 = v120+v121; finiteIntermediates &= isfinite(v122);
+const float v123 = v119+v122; finiteIntermediates &= isfinite(v123);
+const float v124 = v13*v16; finiteIntermediates &= isfinite(v124);
+const float v125 = v16*v13; finiteIntermediates &= isfinite(v125);
+const float v126 = v124+v125; finiteIntermediates &= isfinite(v126);
+const float v127 = v123+v126; finiteIntermediates &= isfinite(v127);
+const float v128 = v34*v32; finiteIntermediates &= isfinite(v128);
+const float v129 = v32*v34; finiteIntermediates &= isfinite(v129);
+const float v130 = v128+v129; finiteIntermediates &= isfinite(v130);
+const float v131 = v127+v130; finiteIntermediates &= isfinite(v131);
+const float v132 = v17*v14; finiteIntermediates &= isfinite(v132);
+const float v133 = v14*v17; finiteIntermediates &= isfinite(v133);
+const float v134 = v132+v133; finiteIntermediates &= isfinite(v134);
+const float v135 = v131+v134; finiteIntermediates &= isfinite(v135);
+const float v136 = v10*v7; finiteIntermediates &= isfinite(v136);
+const float v137 = v7*v10; finiteIntermediates &= isfinite(v137);
+const float v138 = v136+v137; finiteIntermediates &= isfinite(v138);
+const float v139 = v135+v138; finiteIntermediates &= isfinite(v139);
+const float v140 = v104*v139; finiteIntermediates &= isfinite(v140);
+const float v141 = v103+v140; finiteIntermediates &= isfinite(v141);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[0]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[0]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[0]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[0]=0.0f;return;}
+const float v142 = v5+v5; finiteIntermediates &= isfinite(v142);
+const float v143 = v83*v142; finiteIntermediates &= isfinite(v143);
+const float v144 = v2+v2; finiteIntermediates &= isfinite(v144);
+const float v145 = v63*v144; finiteIntermediates &= isfinite(v145);
+const float v146 = v143+v145; finiteIntermediates &= isfinite(v146);
+const float v147 = v141+v146; finiteIntermediates &= isfinite(v147);
+const float v148 = v62*v147; finiteIntermediates &= isfinite(v148);
+const float v149 = v61+v148; finiteIntermediates &= isfinite(v149);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[0]=0.0f;return;}
+out[0]=v149;if(!valid)return;
+const float v150 = as_type<float>(0u); finiteIntermediates &= isfinite(v150);
+const float v151 = v150-v24; finiteIntermediates &= isfinite(v151);
+const float v152 = v55*v151; finiteIntermediates &= isfinite(v152);
+const float v153 = v150-v37; finiteIntermediates &= isfinite(v153);
+const float v154 = v58*v153; finiteIntermediates &= isfinite(v154);
+const float v155 = v152+v154; finiteIntermediates &= isfinite(v155);
+const float v156 = v0*v155; finiteIntermediates &= isfinite(v156);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[1]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[1]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[1]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[1]=0.0f;return;}
+const float v157 = v150-v68; finiteIntermediates &= isfinite(v157);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[1]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[1]=0.0f;return;}
+const float v158 = v157/v76; finiteIntermediates &= isfinite(v158);
+const float v159 = v64*v158; finiteIntermediates &= isfinite(v159);
+const float v160 = v159*v79; finiteIntermediates &= isfinite(v160);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[1]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[1]=0.0f;return;}
+const float v161 = v160/v81; finiteIntermediates &= isfinite(v161);
+const float v162 = v83*v161; finiteIntermediates &= isfinite(v162);
+const float v163 = v153*v76; finiteIntermediates &= isfinite(v163);
+const float v164 = v157*v75; finiteIntermediates &= isfinite(v164);
+const float v165 = v163-v164; finiteIntermediates &= isfinite(v165);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[1]=0.0f;return;}
+if(abs(v93)<=kGeometryFloor){valid=false;out[1]=0.0f;return;}
+const float v167 = v165/v93; finiteIntermediates &= isfinite(v167);
+const float v168 = v64*v167; finiteIntermediates &= isfinite(v168);
+const float v169 = v168*v79; finiteIntermediates &= isfinite(v169);
+const float v170 = v169*v81; finiteIntermediates &= isfinite(v170);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[1]=0.0f;return;}
+if(abs(v98)<=kGeometryFloor){valid=false;out[1]=0.0f;return;}
+const float v171 = v170/v98; finiteIntermediates &= isfinite(v171);
+const float v172 = v63*v171; finiteIntermediates &= isfinite(v172);
+const float v173 = v162+v172; finiteIntermediates &= isfinite(v173);
+const float v174 = v173*v102; finiteIntermediates &= isfinite(v174);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[1]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[1]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[1]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[1]=0.0f;return;}
+const float v175 = v63*v161; finiteIntermediates &= isfinite(v175);
+const float v176 = v175*v139; finiteIntermediates &= isfinite(v176);
+const float v177 = v174+v176; finiteIntermediates &= isfinite(v177);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[1]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[1]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[1]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[1]=0.0f;return;}
+const float v178 = v26+v26; finiteIntermediates &= isfinite(v178);
+const float v179 = v83*v178; finiteIntermediates &= isfinite(v179);
+const float v180 = v23+v23; finiteIntermediates &= isfinite(v180);
+const float v181 = v63*v180; finiteIntermediates &= isfinite(v181);
+const float v182 = v179+v181; finiteIntermediates &= isfinite(v182);
+const float v183 = v177+v182; finiteIntermediates &= isfinite(v183);
+const float v184 = v62*v183; finiteIntermediates &= isfinite(v184);
+const float v185 = v156+v184; finiteIntermediates &= isfinite(v185);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[1]=0.0f;return;}
+out[1]=v185;if(!valid)return;
+const float v186 = v55*v42; finiteIntermediates &= isfinite(v186);
+const float v187 = v58*v51; finiteIntermediates &= isfinite(v187);
+const float v188 = v186+v187; finiteIntermediates &= isfinite(v188);
+const float v189 = v0*v188; finiteIntermediates &= isfinite(v189);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[2]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[2]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[2]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[2]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[2]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[2]=0.0f;return;}
+const float v190 = v72/v76; finiteIntermediates &= isfinite(v190);
+const float v191 = v64*v190; finiteIntermediates &= isfinite(v191);
+const float v192 = v191*v79; finiteIntermediates &= isfinite(v192);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[2]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[2]=0.0f;return;}
+const float v193 = v192/v81; finiteIntermediates &= isfinite(v193);
+const float v194 = v83*v193; finiteIntermediates &= isfinite(v194);
+const float v195 = v51*v76; finiteIntermediates &= isfinite(v195);
+const float v196 = v72*v75; finiteIntermediates &= isfinite(v196);
+const float v197 = v195-v196; finiteIntermediates &= isfinite(v197);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[2]=0.0f;return;}
+if(abs(v93)<=kGeometryFloor){valid=false;out[2]=0.0f;return;}
+const float v199 = v197/v93; finiteIntermediates &= isfinite(v199);
+const float v200 = v64*v199; finiteIntermediates &= isfinite(v200);
+const float v201 = v200*v79; finiteIntermediates &= isfinite(v201);
+const float v202 = v201*v81; finiteIntermediates &= isfinite(v202);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[2]=0.0f;return;}
+if(abs(v98)<=kGeometryFloor){valid=false;out[2]=0.0f;return;}
+const float v203 = v202/v98; finiteIntermediates &= isfinite(v203);
+const float v204 = v63*v203; finiteIntermediates &= isfinite(v204);
+const float v205 = v194+v204; finiteIntermediates &= isfinite(v205);
+const float v206 = v205*v102; finiteIntermediates &= isfinite(v206);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[2]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[2]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[2]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[2]=0.0f;return;}
+const float v207 = v63*v193; finiteIntermediates &= isfinite(v207);
+const float v208 = v207*v139; finiteIntermediates &= isfinite(v208);
+const float v209 = v206+v208; finiteIntermediates &= isfinite(v209);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[2]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[2]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[2]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[2]=0.0f;return;}
+const float v210 = v44+v44; finiteIntermediates &= isfinite(v210);
+const float v211 = v83*v210; finiteIntermediates &= isfinite(v211);
+const float v212 = v41+v41; finiteIntermediates &= isfinite(v212);
+const float v213 = v63*v212; finiteIntermediates &= isfinite(v213);
+const float v214 = v211+v213; finiteIntermediates &= isfinite(v214);
+const float v215 = v209+v214; finiteIntermediates &= isfinite(v215);
+const float v216 = v62*v215; finiteIntermediates &= isfinite(v216);
+const float v217 = v189+v216; finiteIntermediates &= isfinite(v217);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[2]=0.0f;return;}
+out[2]=v217;if(!valid)return;
+const float v218 = v26*v7; finiteIntermediates &= isfinite(v218);
+const float v219 = v150-v218; finiteIntermediates &= isfinite(v219);
+const float v220 = v44*v14; finiteIntermediates &= isfinite(v220);
+const float v221 = v219+v220; finiteIntermediates &= isfinite(v221);
+const float v222 = v55*v221; finiteIntermediates &= isfinite(v222);
+const float v223 = v23*v7; finiteIntermediates &= isfinite(v223);
+const float v224 = v26*v10; finiteIntermediates &= isfinite(v224);
+const float v225 = v223+v224; finiteIntermediates &= isfinite(v225);
+const float v226 = v150-v225; finiteIntermediates &= isfinite(v226);
+const float v227 = v41*v14; finiteIntermediates &= isfinite(v227);
+const float v228 = v44*v17; finiteIntermediates &= isfinite(v228);
+const float v229 = v227+v228; finiteIntermediates &= isfinite(v229);
+const float v230 = v226+v229; finiteIntermediates &= isfinite(v230);
+const float v231 = v58*v230; finiteIntermediates &= isfinite(v231);
+const float v232 = v222+v231; finiteIntermediates &= isfinite(v232);
+const float v233 = v0*v232; finiteIntermediates &= isfinite(v233);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[3]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[3]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[3]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[3]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[3]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[3]=0.0f;return;}
+const float v234 = v221/v76; finiteIntermediates &= isfinite(v234);
+const float v235 = v64*v234; finiteIntermediates &= isfinite(v235);
+const float v236 = v235*v79; finiteIntermediates &= isfinite(v236);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[3]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[3]=0.0f;return;}
+const float v237 = v236/v81; finiteIntermediates &= isfinite(v237);
+const float v238 = v83*v237; finiteIntermediates &= isfinite(v238);
+const float v239 = v230*v76; finiteIntermediates &= isfinite(v239);
+const float v240 = v221*v75; finiteIntermediates &= isfinite(v240);
+const float v241 = v239-v240; finiteIntermediates &= isfinite(v241);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[3]=0.0f;return;}
+if(abs(v93)<=kGeometryFloor){valid=false;out[3]=0.0f;return;}
+const float v243 = v241/v93; finiteIntermediates &= isfinite(v243);
+const float v244 = v64*v243; finiteIntermediates &= isfinite(v244);
+const float v245 = v244*v79; finiteIntermediates &= isfinite(v245);
+const float v246 = v245*v81; finiteIntermediates &= isfinite(v246);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[3]=0.0f;return;}
+if(abs(v98)<=kGeometryFloor){valid=false;out[3]=0.0f;return;}
+const float v247 = v246/v98; finiteIntermediates &= isfinite(v247);
+const float v248 = v63*v247; finiteIntermediates &= isfinite(v248);
+const float v249 = v238+v248; finiteIntermediates &= isfinite(v249);
+const float v250 = v249*v102; finiteIntermediates &= isfinite(v250);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[3]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[3]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[3]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[3]=0.0f;return;}
+const float v251 = v63*v237; finiteIntermediates &= isfinite(v251);
+const float v252 = v251*v139; finiteIntermediates &= isfinite(v252);
+const float v253 = v250+v252; finiteIntermediates &= isfinite(v253);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[3]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[3]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[3]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[3]=0.0f;return;}
+const float v254 = v29+v29; finiteIntermediates &= isfinite(v254);
+const float v255 = v83*v254; finiteIntermediates &= isfinite(v255);
+const float v256 = v27+v27; finiteIntermediates &= isfinite(v256);
+const float v257 = v63*v256; finiteIntermediates &= isfinite(v257);
+const float v258 = v255+v257; finiteIntermediates &= isfinite(v258);
+const float v259 = v253+v258; finiteIntermediates &= isfinite(v259);
+const float v260 = v62*v259; finiteIntermediates &= isfinite(v260);
+const float v261 = v233+v260; finiteIntermediates &= isfinite(v261);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[3]=0.0f;return;}
+out[3]=v261;if(!valid)return;
+const float v262 = v5*v7; finiteIntermediates &= isfinite(v262);
+const float v263 = v150-v32; finiteIntermediates &= isfinite(v263);
+const float v264 = v44*v263; finiteIntermediates &= isfinite(v264);
+const float v265 = v262+v264; finiteIntermediates &= isfinite(v265);
+const float v266 = v55*v265; finiteIntermediates &= isfinite(v266);
+const float v267 = v2*v7; finiteIntermediates &= isfinite(v267);
+const float v268 = v5*v10; finiteIntermediates &= isfinite(v268);
+const float v269 = v267+v268; finiteIntermediates &= isfinite(v269);
+const float v270 = v41*v263; finiteIntermediates &= isfinite(v270);
+const float v271 = v150-v34; finiteIntermediates &= isfinite(v271);
+const float v272 = v44*v271; finiteIntermediates &= isfinite(v272);
+const float v273 = v270+v272; finiteIntermediates &= isfinite(v273);
+const float v274 = v269+v273; finiteIntermediates &= isfinite(v274);
+const float v275 = v58*v274; finiteIntermediates &= isfinite(v275);
+const float v276 = v266+v275; finiteIntermediates &= isfinite(v276);
+const float v277 = v0*v276; finiteIntermediates &= isfinite(v277);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[4]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[4]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[4]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[4]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[4]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[4]=0.0f;return;}
+const float v278 = v265/v76; finiteIntermediates &= isfinite(v278);
+const float v279 = v64*v278; finiteIntermediates &= isfinite(v279);
+const float v280 = v279*v79; finiteIntermediates &= isfinite(v280);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[4]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[4]=0.0f;return;}
+const float v281 = v280/v81; finiteIntermediates &= isfinite(v281);
+const float v282 = v83*v281; finiteIntermediates &= isfinite(v282);
+const float v283 = v274*v76; finiteIntermediates &= isfinite(v283);
+const float v284 = v265*v75; finiteIntermediates &= isfinite(v284);
+const float v285 = v283-v284; finiteIntermediates &= isfinite(v285);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[4]=0.0f;return;}
+if(abs(v93)<=kGeometryFloor){valid=false;out[4]=0.0f;return;}
+const float v287 = v285/v93; finiteIntermediates &= isfinite(v287);
+const float v288 = v64*v287; finiteIntermediates &= isfinite(v288);
+const float v289 = v288*v79; finiteIntermediates &= isfinite(v289);
+const float v290 = v289*v81; finiteIntermediates &= isfinite(v290);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[4]=0.0f;return;}
+if(abs(v98)<=kGeometryFloor){valid=false;out[4]=0.0f;return;}
+const float v291 = v290/v98; finiteIntermediates &= isfinite(v291);
+const float v292 = v63*v291; finiteIntermediates &= isfinite(v292);
+const float v293 = v282+v292; finiteIntermediates &= isfinite(v293);
+const float v294 = v293*v102; finiteIntermediates &= isfinite(v294);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[4]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[4]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[4]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[4]=0.0f;return;}
+const float v295 = v63*v281; finiteIntermediates &= isfinite(v295);
+const float v296 = v295*v139; finiteIntermediates &= isfinite(v296);
+const float v297 = v294+v296; finiteIntermediates &= isfinite(v297);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[4]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[4]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[4]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[4]=0.0f;return;}
+const float v298 = v9+v9; finiteIntermediates &= isfinite(v298);
+const float v299 = v83*v298; finiteIntermediates &= isfinite(v299);
+const float v300 = v6+v6; finiteIntermediates &= isfinite(v300);
+const float v301 = v63*v300; finiteIntermediates &= isfinite(v301);
+const float v302 = v299+v301; finiteIntermediates &= isfinite(v302);
+const float v303 = v297+v302; finiteIntermediates &= isfinite(v303);
+const float v304 = v62*v303; finiteIntermediates &= isfinite(v304);
+const float v305 = v277+v304; finiteIntermediates &= isfinite(v305);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[4]=0.0f;return;}
+out[4]=v305;if(!valid)return;
+const float v306 = v150-v14; finiteIntermediates &= isfinite(v306);
+const float v307 = v5*v306; finiteIntermediates &= isfinite(v307);
+const float v308 = v26*v263; finiteIntermediates &= isfinite(v308);
+const float v309 = v307-v308; finiteIntermediates &= isfinite(v309);
+const float v310 = v55*v309; finiteIntermediates &= isfinite(v310);
+const float v311 = v2*v306; finiteIntermediates &= isfinite(v311);
+const float v312 = v150-v17; finiteIntermediates &= isfinite(v312);
+const float v313 = v5*v312; finiteIntermediates &= isfinite(v313);
+const float v314 = v311+v313; finiteIntermediates &= isfinite(v314);
+const float v315 = v23*v263; finiteIntermediates &= isfinite(v315);
+const float v316 = v26*v271; finiteIntermediates &= isfinite(v316);
+const float v317 = v315+v316; finiteIntermediates &= isfinite(v317);
+const float v318 = v314-v317; finiteIntermediates &= isfinite(v318);
+const float v319 = v58*v318; finiteIntermediates &= isfinite(v319);
+const float v320 = v310+v319; finiteIntermediates &= isfinite(v320);
+const float v321 = v0*v320; finiteIntermediates &= isfinite(v321);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[5]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[5]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[5]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[5]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[5]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[5]=0.0f;return;}
+const float v322 = v309/v76; finiteIntermediates &= isfinite(v322);
+const float v323 = v64*v322; finiteIntermediates &= isfinite(v323);
+const float v324 = v323*v79; finiteIntermediates &= isfinite(v324);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[5]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[5]=0.0f;return;}
+const float v325 = v324/v81; finiteIntermediates &= isfinite(v325);
+const float v326 = v83*v325; finiteIntermediates &= isfinite(v326);
+const float v327 = v318*v76; finiteIntermediates &= isfinite(v327);
+const float v328 = v309*v75; finiteIntermediates &= isfinite(v328);
+const float v329 = v327-v328; finiteIntermediates &= isfinite(v329);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[5]=0.0f;return;}
+if(abs(v93)<=kGeometryFloor){valid=false;out[5]=0.0f;return;}
+const float v331 = v329/v93; finiteIntermediates &= isfinite(v331);
+const float v332 = v64*v331; finiteIntermediates &= isfinite(v332);
+const float v333 = v332*v79; finiteIntermediates &= isfinite(v333);
+const float v334 = v333*v81; finiteIntermediates &= isfinite(v334);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[5]=0.0f;return;}
+if(abs(v98)<=kGeometryFloor){valid=false;out[5]=0.0f;return;}
+const float v335 = v334/v98; finiteIntermediates &= isfinite(v335);
+const float v336 = v63*v335; finiteIntermediates &= isfinite(v336);
+const float v337 = v326+v336; finiteIntermediates &= isfinite(v337);
+const float v338 = v337*v102; finiteIntermediates &= isfinite(v338);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[5]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[5]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[5]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[5]=0.0f;return;}
+const float v339 = v63*v325; finiteIntermediates &= isfinite(v339);
+const float v340 = v339*v139; finiteIntermediates &= isfinite(v340);
+const float v341 = v338+v340; finiteIntermediates &= isfinite(v341);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[5]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[5]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[5]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[5]=0.0f;return;}
+const float v342 = v16+v16; finiteIntermediates &= isfinite(v342);
+const float v343 = v83*v342; finiteIntermediates &= isfinite(v343);
+const float v344 = v13+v13; finiteIntermediates &= isfinite(v344);
+const float v345 = v63*v344; finiteIntermediates &= isfinite(v345);
+const float v346 = v343+v345; finiteIntermediates &= isfinite(v346);
+const float v347 = v341+v346; finiteIntermediates &= isfinite(v347);
+const float v348 = v62*v347; finiteIntermediates &= isfinite(v348);
+const float v349 = v321+v348; finiteIntermediates &= isfinite(v349);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[5]=0.0f;return;}
+out[5]=v349;if(!valid)return;
+const float v350 = v150-v16; finiteIntermediates &= isfinite(v350);
+const float v351 = v26*v350; finiteIntermediates &= isfinite(v351);
+const float v352 = v150-v351; finiteIntermediates &= isfinite(v352);
+const float v353 = v150-v9; finiteIntermediates &= isfinite(v353);
+const float v354 = v44*v353; finiteIntermediates &= isfinite(v354);
+const float v355 = v352+v354; finiteIntermediates &= isfinite(v355);
+const float v356 = v55*v355; finiteIntermediates &= isfinite(v356);
+const float v357 = v23*v350; finiteIntermediates &= isfinite(v357);
+const float v358 = v150-v13; finiteIntermediates &= isfinite(v358);
+const float v359 = v26*v358; finiteIntermediates &= isfinite(v359);
+const float v360 = v357+v359; finiteIntermediates &= isfinite(v360);
+const float v361 = v150-v360; finiteIntermediates &= isfinite(v361);
+const float v362 = v41*v353; finiteIntermediates &= isfinite(v362);
+const float v363 = v150-v6; finiteIntermediates &= isfinite(v363);
+const float v364 = v44*v363; finiteIntermediates &= isfinite(v364);
+const float v365 = v362+v364; finiteIntermediates &= isfinite(v365);
+const float v366 = v361+v365; finiteIntermediates &= isfinite(v366);
+const float v367 = v58*v366; finiteIntermediates &= isfinite(v367);
+const float v368 = v356+v367; finiteIntermediates &= isfinite(v368);
+const float v369 = v0*v368; finiteIntermediates &= isfinite(v369);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[6]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[6]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[6]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[6]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[6]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[6]=0.0f;return;}
+const float v370 = v355/v76; finiteIntermediates &= isfinite(v370);
+const float v371 = v64*v370; finiteIntermediates &= isfinite(v371);
+const float v372 = v371*v79; finiteIntermediates &= isfinite(v372);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[6]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[6]=0.0f;return;}
+const float v373 = v372/v81; finiteIntermediates &= isfinite(v373);
+const float v374 = v83*v373; finiteIntermediates &= isfinite(v374);
+const float v375 = v366*v76; finiteIntermediates &= isfinite(v375);
+const float v376 = v355*v75; finiteIntermediates &= isfinite(v376);
+const float v377 = v375-v376; finiteIntermediates &= isfinite(v377);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[6]=0.0f;return;}
+if(abs(v93)<=kGeometryFloor){valid=false;out[6]=0.0f;return;}
+const float v379 = v377/v93; finiteIntermediates &= isfinite(v379);
+const float v380 = v64*v379; finiteIntermediates &= isfinite(v380);
+const float v381 = v380*v79; finiteIntermediates &= isfinite(v381);
+const float v382 = v381*v81; finiteIntermediates &= isfinite(v382);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[6]=0.0f;return;}
+if(abs(v98)<=kGeometryFloor){valid=false;out[6]=0.0f;return;}
+const float v383 = v382/v98; finiteIntermediates &= isfinite(v383);
+const float v384 = v63*v383; finiteIntermediates &= isfinite(v384);
+const float v385 = v374+v384; finiteIntermediates &= isfinite(v385);
+const float v386 = v385*v102; finiteIntermediates &= isfinite(v386);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[6]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[6]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[6]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[6]=0.0f;return;}
+const float v387 = v63*v373; finiteIntermediates &= isfinite(v387);
+const float v388 = v387*v139; finiteIntermediates &= isfinite(v388);
+const float v389 = v386+v388; finiteIntermediates &= isfinite(v389);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[6]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[6]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[6]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[6]=0.0f;return;}
+const float v390 = v32+v32; finiteIntermediates &= isfinite(v390);
+const float v391 = v83*v390; finiteIntermediates &= isfinite(v391);
+const float v392 = v34+v34; finiteIntermediates &= isfinite(v392);
+const float v393 = v63*v392; finiteIntermediates &= isfinite(v393);
+const float v394 = v391+v393; finiteIntermediates &= isfinite(v394);
+const float v395 = v389+v394; finiteIntermediates &= isfinite(v395);
+const float v396 = v62*v395; finiteIntermediates &= isfinite(v396);
+const float v397 = v369+v396; finiteIntermediates &= isfinite(v397);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[6]=0.0f;return;}
+out[6]=v397;if(!valid)return;
+const float v398 = v5*v350; finiteIntermediates &= isfinite(v398);
+const float v399 = v44*v29; finiteIntermediates &= isfinite(v399);
+const float v400 = v398+v399; finiteIntermediates &= isfinite(v400);
+const float v401 = v55*v400; finiteIntermediates &= isfinite(v401);
+const float v402 = v2*v350; finiteIntermediates &= isfinite(v402);
+const float v403 = v5*v358; finiteIntermediates &= isfinite(v403);
+const float v404 = v402+v403; finiteIntermediates &= isfinite(v404);
+const float v405 = v41*v29; finiteIntermediates &= isfinite(v405);
+const float v406 = v44*v27; finiteIntermediates &= isfinite(v406);
+const float v407 = v405+v406; finiteIntermediates &= isfinite(v407);
+const float v408 = v404+v407; finiteIntermediates &= isfinite(v408);
+const float v409 = v58*v408; finiteIntermediates &= isfinite(v409);
+const float v410 = v401+v409; finiteIntermediates &= isfinite(v410);
+const float v411 = v0*v410; finiteIntermediates &= isfinite(v411);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[7]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[7]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[7]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[7]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[7]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[7]=0.0f;return;}
+const float v412 = v400/v76; finiteIntermediates &= isfinite(v412);
+const float v413 = v64*v412; finiteIntermediates &= isfinite(v413);
+const float v414 = v413*v79; finiteIntermediates &= isfinite(v414);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[7]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[7]=0.0f;return;}
+const float v415 = v414/v81; finiteIntermediates &= isfinite(v415);
+const float v416 = v83*v415; finiteIntermediates &= isfinite(v416);
+const float v417 = v408*v76; finiteIntermediates &= isfinite(v417);
+const float v418 = v400*v75; finiteIntermediates &= isfinite(v418);
+const float v419 = v417-v418; finiteIntermediates &= isfinite(v419);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[7]=0.0f;return;}
+if(abs(v93)<=kGeometryFloor){valid=false;out[7]=0.0f;return;}
+const float v421 = v419/v93; finiteIntermediates &= isfinite(v421);
+const float v422 = v64*v421; finiteIntermediates &= isfinite(v422);
+const float v423 = v422*v79; finiteIntermediates &= isfinite(v423);
+const float v424 = v423*v81; finiteIntermediates &= isfinite(v424);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[7]=0.0f;return;}
+if(abs(v98)<=kGeometryFloor){valid=false;out[7]=0.0f;return;}
+const float v425 = v424/v98; finiteIntermediates &= isfinite(v425);
+const float v426 = v63*v425; finiteIntermediates &= isfinite(v426);
+const float v427 = v416+v426; finiteIntermediates &= isfinite(v427);
+const float v428 = v427*v102; finiteIntermediates &= isfinite(v428);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[7]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[7]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[7]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[7]=0.0f;return;}
+const float v429 = v63*v415; finiteIntermediates &= isfinite(v429);
+const float v430 = v429*v139; finiteIntermediates &= isfinite(v430);
+const float v431 = v428+v430; finiteIntermediates &= isfinite(v431);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[7]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[7]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[7]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[7]=0.0f;return;}
+const float v432 = v14+v14; finiteIntermediates &= isfinite(v432);
+const float v433 = v83*v432; finiteIntermediates &= isfinite(v433);
+const float v434 = v17+v17; finiteIntermediates &= isfinite(v434);
+const float v435 = v63*v434; finiteIntermediates &= isfinite(v435);
+const float v436 = v433+v435; finiteIntermediates &= isfinite(v436);
+const float v437 = v431+v436; finiteIntermediates &= isfinite(v437);
+const float v438 = v62*v437; finiteIntermediates &= isfinite(v438);
+const float v439 = v411+v438; finiteIntermediates &= isfinite(v439);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[7]=0.0f;return;}
+out[7]=v439;if(!valid)return;
+const float v440 = v5*v9; finiteIntermediates &= isfinite(v440);
+const float v441 = v26*v29; finiteIntermediates &= isfinite(v441);
+const float v442 = v440-v441; finiteIntermediates &= isfinite(v442);
+const float v443 = v55*v442; finiteIntermediates &= isfinite(v443);
+const float v444 = v2*v9; finiteIntermediates &= isfinite(v444);
+const float v445 = v5*v6; finiteIntermediates &= isfinite(v445);
+const float v446 = v444+v445; finiteIntermediates &= isfinite(v446);
+const float v447 = v23*v29; finiteIntermediates &= isfinite(v447);
+const float v448 = v26*v27; finiteIntermediates &= isfinite(v448);
+const float v449 = v447+v448; finiteIntermediates &= isfinite(v449);
+const float v450 = v446-v449; finiteIntermediates &= isfinite(v450);
+const float v451 = v58*v450; finiteIntermediates &= isfinite(v451);
+const float v452 = v443+v451; finiteIntermediates &= isfinite(v452);
+const float v453 = v0*v452; finiteIntermediates &= isfinite(v453);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[8]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[8]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[8]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[8]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[8]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[8]=0.0f;return;}
+const float v454 = v442/v76; finiteIntermediates &= isfinite(v454);
+const float v455 = v64*v454; finiteIntermediates &= isfinite(v455);
+const float v456 = v455*v79; finiteIntermediates &= isfinite(v456);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[8]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[8]=0.0f;return;}
+const float v457 = v456/v81; finiteIntermediates &= isfinite(v457);
+const float v458 = v83*v457; finiteIntermediates &= isfinite(v458);
+const float v459 = v450*v76; finiteIntermediates &= isfinite(v459);
+const float v460 = v442*v75; finiteIntermediates &= isfinite(v460);
+const float v461 = v459-v460; finiteIntermediates &= isfinite(v461);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[8]=0.0f;return;}
+if(abs(v93)<=kGeometryFloor){valid=false;out[8]=0.0f;return;}
+const float v463 = v461/v93; finiteIntermediates &= isfinite(v463);
+const float v464 = v64*v463; finiteIntermediates &= isfinite(v464);
+const float v465 = v464*v79; finiteIntermediates &= isfinite(v465);
+const float v466 = v465*v81; finiteIntermediates &= isfinite(v466);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[8]=0.0f;return;}
+if(abs(v98)<=kGeometryFloor){valid=false;out[8]=0.0f;return;}
+const float v467 = v466/v98; finiteIntermediates &= isfinite(v467);
+const float v468 = v63*v467; finiteIntermediates &= isfinite(v468);
+const float v469 = v458+v468; finiteIntermediates &= isfinite(v469);
+const float v470 = v469*v102; finiteIntermediates &= isfinite(v470);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[8]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[8]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[8]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[8]=0.0f;return;}
+const float v471 = v63*v457; finiteIntermediates &= isfinite(v471);
+const float v472 = v471*v139; finiteIntermediates &= isfinite(v472);
+const float v473 = v470+v472; finiteIntermediates &= isfinite(v473);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[8]=0.0f;return;}
+if(abs(v76)<=kGeometryFloor){valid=false;out[8]=0.0f;return;}
+if(!finiteIntermediates){nonfinite=true;valid=false;out[8]=0.0f;return;}
+if(abs(v81)<=kGeometryFloor){valid=false;out[8]=0.0f;return;}
+const float v474 = v7+v7; finiteIntermediates &= isfinite(v474);
+const float v475 = v83*v474; finiteIntermediates &= isfinite(v475);
+const float v476 = v10+v10; finiteIntermediates &= isfinite(v476);
+const float v477 = v63*v476; finiteIntermediates &= isfinite(v477);
+const float v478 = v475+v477; finiteIntermediates &= isfinite(v478);
+const float v479 = v473+v478; finiteIntermediates &= isfinite(v479);
+const float v480 = v62*v479; finiteIntermediates &= isfinite(v480);
+const float v481 = v453+v480; finiteIntermediates &= isfinite(v481);
+if(!finiteIntermediates){nonfinite=true;valid=false;out[8]=0.0f;return;}
+out[8]=v481;if(!valid)return;
+}
 template <typename CachePointer>
 inline float nmNativeDirectP0(device const float* p, thread const float* f, thread const float* d, thread const float* rate, float dt, float temp, CachePointer c, thread bool& valid, thread bool& nonfinite) {
 #pragma clang fp contract(off)
@@ -19711,7 +20802,6 @@ const float v280 = p[5]; finiteIntermediates &= isfinite(v280);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v281 = numi_matter_fiber::evaluate<float>(v276,v277,v278,v279,v280,1u,valid); finiteIntermediates &= isfinite(v281);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v282 = p[8]; finiteIntermediates &= isfinite(v282);
 const float v283 = c[0]; finiteIntermediates &= isfinite(v283);
@@ -20472,7 +21562,6 @@ const float v602 = p[5]; finiteIntermediates &= isfinite(v602);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v603 = numi_matter_fiber::evaluate<float>(v598,v599,v600,v601,v602,2u,valid); finiteIntermediates &= isfinite(v603);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v604 = p[8]; finiteIntermediates &= isfinite(v604);
 const float v605 = c[6]; finiteIntermediates &= isfinite(v605);
@@ -20665,7 +21754,6 @@ const float v761 = p[4]; finiteIntermediates &= isfinite(v761);
 const float v762 = p[5]; finiteIntermediates &= isfinite(v762);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v763 = numi_matter_fiber::evaluate<float>(v758,v759,v760,v761,v762,1u,valid); finiteIntermediates &= isfinite(v763);
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v764 = p[8]; finiteIntermediates &= isfinite(v764);
@@ -21087,7 +22175,6 @@ const float v283 = p[4]; finiteIntermediates &= isfinite(v283);
 const float v284 = p[5]; finiteIntermediates &= isfinite(v284);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v285 = numi_matter_fiber::evaluate<float>(v280,v281,v282,v283,v284,1u,valid); finiteIntermediates &= isfinite(v285);
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v286 = p[8]; finiteIntermediates &= isfinite(v286);
@@ -21867,7 +22954,6 @@ const float v610 = p[5]; finiteIntermediates &= isfinite(v610);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v611 = numi_matter_fiber::evaluate<float>(v606,v607,v608,v609,v610,2u,valid); finiteIntermediates &= isfinite(v611);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v612 = p[8]; finiteIntermediates &= isfinite(v612);
 const float v613 = c[1]; finiteIntermediates &= isfinite(v613);
@@ -22064,7 +23150,6 @@ const float v771 = p[4]; finiteIntermediates &= isfinite(v771);
 const float v772 = p[5]; finiteIntermediates &= isfinite(v772);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v773 = numi_matter_fiber::evaluate<float>(v768,v769,v770,v771,v772,1u,valid); finiteIntermediates &= isfinite(v773);
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v774 = p[8]; finiteIntermediates &= isfinite(v774);
@@ -22488,7 +23573,6 @@ const float v279 = p[4]; finiteIntermediates &= isfinite(v279);
 const float v280 = p[5]; finiteIntermediates &= isfinite(v280);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v281 = numi_matter_fiber::evaluate<float>(v276,v277,v278,v279,v280,1u,valid); finiteIntermediates &= isfinite(v281);
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v282 = p[8]; finiteIntermediates &= isfinite(v282);
@@ -23254,7 +24338,6 @@ const float v602 = p[5]; finiteIntermediates &= isfinite(v602);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v603 = numi_matter_fiber::evaluate<float>(v598,v599,v600,v601,v602,2u,valid); finiteIntermediates &= isfinite(v603);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v604 = p[8]; finiteIntermediates &= isfinite(v604);
 const float v605 = c[2]; finiteIntermediates &= isfinite(v605);
@@ -23447,7 +24530,6 @@ const float v761 = p[4]; finiteIntermediates &= isfinite(v761);
 const float v762 = p[5]; finiteIntermediates &= isfinite(v762);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v763 = numi_matter_fiber::evaluate<float>(v758,v759,v760,v761,v762,1u,valid); finiteIntermediates &= isfinite(v763);
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v764 = p[8]; finiteIntermediates &= isfinite(v764);
@@ -23879,7 +24961,6 @@ const float v295 = p[4]; finiteIntermediates &= isfinite(v295);
 const float v296 = p[5]; finiteIntermediates &= isfinite(v296);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v297 = numi_matter_fiber::evaluate<float>(v292,v293,v294,v295,v296,1u,valid); finiteIntermediates &= isfinite(v297);
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v298 = p[8]; finiteIntermediates &= isfinite(v298);
@@ -24683,7 +25764,6 @@ const float v650 = p[5]; finiteIntermediates &= isfinite(v650);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v651 = numi_matter_fiber::evaluate<float>(v646,v647,v648,v649,v650,2u,valid); finiteIntermediates &= isfinite(v651);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v652 = p[8]; finiteIntermediates &= isfinite(v652);
 const float v653 = c[0]; finiteIntermediates &= isfinite(v653);
@@ -24884,7 +25964,6 @@ const float v817 = p[4]; finiteIntermediates &= isfinite(v817);
 const float v818 = p[5]; finiteIntermediates &= isfinite(v818);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v819 = numi_matter_fiber::evaluate<float>(v814,v815,v816,v817,v818,1u,valid); finiteIntermediates &= isfinite(v819);
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v820 = p[8]; finiteIntermediates &= isfinite(v820);
@@ -25314,7 +26393,6 @@ const float v295 = p[4]; finiteIntermediates &= isfinite(v295);
 const float v296 = p[5]; finiteIntermediates &= isfinite(v296);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v297 = numi_matter_fiber::evaluate<float>(v292,v293,v294,v295,v296,1u,valid); finiteIntermediates &= isfinite(v297);
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v298 = p[8]; finiteIntermediates &= isfinite(v298);
@@ -26136,7 +27214,6 @@ const float v650 = p[5]; finiteIntermediates &= isfinite(v650);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v651 = numi_matter_fiber::evaluate<float>(v646,v647,v648,v649,v650,2u,valid); finiteIntermediates &= isfinite(v651);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v652 = p[8]; finiteIntermediates &= isfinite(v652);
 const float v653 = c[1]; finiteIntermediates &= isfinite(v653);
@@ -26339,7 +27416,6 @@ const float v817 = p[4]; finiteIntermediates &= isfinite(v817);
 const float v818 = p[5]; finiteIntermediates &= isfinite(v818);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v819 = numi_matter_fiber::evaluate<float>(v814,v815,v816,v817,v818,1u,valid); finiteIntermediates &= isfinite(v819);
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v820 = p[8]; finiteIntermediates &= isfinite(v820);
@@ -26787,7 +27863,6 @@ const float v299 = p[4]; finiteIntermediates &= isfinite(v299);
 const float v300 = p[5]; finiteIntermediates &= isfinite(v300);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v301 = numi_matter_fiber::evaluate<float>(v296,v297,v298,v299,v300,1u,valid); finiteIntermediates &= isfinite(v301);
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v302 = p[8]; finiteIntermediates &= isfinite(v302);
@@ -27627,7 +28702,6 @@ const float v658 = p[5]; finiteIntermediates &= isfinite(v658);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v659 = numi_matter_fiber::evaluate<float>(v654,v655,v656,v657,v658,2u,valid); finiteIntermediates &= isfinite(v659);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v660 = p[8]; finiteIntermediates &= isfinite(v660);
 const float v661 = c[6]; finiteIntermediates &= isfinite(v661);
@@ -27834,7 +28908,6 @@ const float v827 = p[4]; finiteIntermediates &= isfinite(v827);
 const float v828 = p[5]; finiteIntermediates &= isfinite(v828);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v829 = numi_matter_fiber::evaluate<float>(v824,v825,v826,v827,v828,1u,valid); finiteIntermediates &= isfinite(v829);
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v830 = p[8]; finiteIntermediates &= isfinite(v830);
@@ -28292,7 +29365,6 @@ const float v303 = p[4]; finiteIntermediates &= isfinite(v303);
 const float v304 = p[5]; finiteIntermediates &= isfinite(v304);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v305 = numi_matter_fiber::evaluate<float>(v300,v301,v302,v303,v304,1u,valid); finiteIntermediates &= isfinite(v305);
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v306 = p[8]; finiteIntermediates &= isfinite(v306);
@@ -29124,7 +30196,6 @@ const float v666 = p[5]; finiteIntermediates &= isfinite(v666);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v667 = numi_matter_fiber::evaluate<float>(v662,v663,v664,v665,v666,2u,valid); finiteIntermediates &= isfinite(v667);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v668 = p[8]; finiteIntermediates &= isfinite(v668);
 const float v669 = c[3]; finiteIntermediates &= isfinite(v669);
@@ -29333,7 +30404,6 @@ const float v837 = p[4]; finiteIntermediates &= isfinite(v837);
 const float v838 = p[5]; finiteIntermediates &= isfinite(v838);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v839 = numi_matter_fiber::evaluate<float>(v834,v835,v836,v837,v838,1u,valid); finiteIntermediates &= isfinite(v839);
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v840 = p[8]; finiteIntermediates &= isfinite(v840);
@@ -29767,7 +30837,6 @@ const float v295 = p[4]; finiteIntermediates &= isfinite(v295);
 const float v296 = p[5]; finiteIntermediates &= isfinite(v296);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v297 = numi_matter_fiber::evaluate<float>(v292,v293,v294,v295,v296,1u,valid); finiteIntermediates &= isfinite(v297);
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v298 = p[8]; finiteIntermediates &= isfinite(v298);
@@ -30575,7 +31644,6 @@ const float v650 = p[5]; finiteIntermediates &= isfinite(v650);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v651 = numi_matter_fiber::evaluate<float>(v646,v647,v648,v649,v650,2u,valid); finiteIntermediates &= isfinite(v651);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v652 = p[8]; finiteIntermediates &= isfinite(v652);
 const float v653 = c[3]; finiteIntermediates &= isfinite(v653);
@@ -30778,7 +31846,6 @@ const float v817 = p[4]; finiteIntermediates &= isfinite(v817);
 const float v818 = p[5]; finiteIntermediates &= isfinite(v818);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v819 = numi_matter_fiber::evaluate<float>(v814,v815,v816,v817,v818,1u,valid); finiteIntermediates &= isfinite(v819);
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v820 = p[8]; finiteIntermediates &= isfinite(v820);
@@ -31204,7 +32271,6 @@ const float v291 = p[4]; finiteIntermediates &= isfinite(v291);
 const float v292 = p[5]; finiteIntermediates &= isfinite(v292);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v293 = numi_matter_fiber::evaluate<float>(v288,v289,v290,v291,v292,1u,valid); finiteIntermediates &= isfinite(v293);
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v294 = p[8]; finiteIntermediates &= isfinite(v294);
@@ -32012,7 +33078,6 @@ const float v642 = p[5]; finiteIntermediates &= isfinite(v642);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v643 = numi_matter_fiber::evaluate<float>(v638,v639,v640,v641,v642,2u,valid); finiteIntermediates &= isfinite(v643);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v644 = p[8]; finiteIntermediates &= isfinite(v644);
 const float v645 = c[3]; finiteIntermediates &= isfinite(v645);
@@ -32211,7 +33276,6 @@ const float v807 = p[4]; finiteIntermediates &= isfinite(v807);
 const float v808 = p[5]; finiteIntermediates &= isfinite(v808);
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 const float v809 = numi_matter_fiber::evaluate<float>(v804,v805,v806,v807,v808,1u,valid); finiteIntermediates &= isfinite(v809);
-if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!finiteIntermediates){nonfinite=true;valid=false;return 0.0f;}
 if(!valid)return 0.0f;
 const float v810 = p[8]; finiteIntermediates &= isfinite(v810);
@@ -34829,27 +35893,11 @@ if(!nmNativeMaterialActive || (material.flags&(1u<<12u))==0u)return false;if(col
 device const float* p=parameters;float d[9]={0};const uint selectedOffset=nmNativeTangentProgramOffsetSelector;if(selectedOffset!=NM_INVALID_INDEX && material.tangentProgramOffset!=selectedOffset)return false;switch(selectedOffset!=NM_INVALID_INDEX?selectedOffset:material.tangentProgramOffset){
 case 560u: case 619u: {
 for(uint k=0u;k<9u;++k)d[k]=(k==column)?1.0f:0.0f;
-out[0u]=nmNativeP600(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[1u]=nmNativeP601(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[2u]=nmNativeP602(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[3u]=nmNativeP603(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[4u]=nmNativeP604(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[5u]=nmNativeP605(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[6u]=nmNativeP606(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[7u]=nmNativeP607(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[8u]=nmNativeP608(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
+nmNativeFusedColumn600_0(p,f,d,rate,dt,temp,c,out,valid,nonfinite);
 return true;}
 case 678u: case 760u: case 842u: {
 for(uint k=0u;k<9u;++k)d[k]=(k==column)?1.0f:0.0f;
-out[0u]=nmNativeP741(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[1u]=nmNativeP742(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[2u]=nmNativeP743(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[3u]=nmNativeP744(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[4u]=nmNativeP745(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[5u]=nmNativeP746(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[6u]=nmNativeP747(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[7u]=nmNativeP748(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[8u]=nmNativeP749(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
+nmNativeFusedColumn741_1(p,f,d,rate,dt,temp,c,out,valid,nonfinite);
 return true;}
 default:return false;} }
 inline bool evaluateNativeStatelessTangentBundle(const NMMaterialGPU material, device const float* parameters, thread const float* f, thread const float* rate, float dt, float temp, thread float* out, thread bool& valid, thread bool& nonfinite) {
@@ -34867,27 +35915,11 @@ inline bool evaluateNativeStatelessTangentBundleVector(const NMMaterialGPU mater
 if(!nmNativeMaterialActive || (material.flags&(1u<<12u))==0u)return false;if(out==nullptr){valid=false;return true;}device const float* p=parameters;float c[NM_EXPRESSION_CACHE_CAPACITY]={0};const uint selectedOffset=nmNativeTangentProgramOffsetSelector;if(selectedOffset!=NM_INVALID_INDEX && material.tangentProgramOffset!=selectedOffset)return false;switch(selectedOffset!=NM_INVALID_INDEX?selectedOffset:material.tangentProgramOffset){
 case 560u: case 619u: {
 if(!evaluateNativeStatelessTangentBundlePrelude(material,parameters,f,rate,dt,temp,c,valid,nonfinite))return false;if(!valid)return true;
-out[0u]=nmNativeP600(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[1u]=nmNativeP601(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[2u]=nmNativeP602(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[3u]=nmNativeP603(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[4u]=nmNativeP604(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[5u]=nmNativeP605(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[6u]=nmNativeP606(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[7u]=nmNativeP607(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[8u]=nmNativeP608(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
+nmNativeFusedColumn600_0(p,f,d,rate,dt,temp,c,out,valid,nonfinite);
 return true;}
 case 678u: case 760u: case 842u: {
 if(!evaluateNativeStatelessTangentBundlePrelude(material,parameters,f,rate,dt,temp,c,valid,nonfinite))return false;if(!valid)return true;
-out[0u]=nmNativeP741(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[1u]=nmNativeP742(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[2u]=nmNativeP743(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[3u]=nmNativeP744(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[4u]=nmNativeP745(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[5u]=nmNativeP746(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[6u]=nmNativeP747(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[7u]=nmNativeP748(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
-out[8u]=nmNativeP749(p,f,d,rate,dt,temp,c,valid,nonfinite);if(!valid)return true;
+nmNativeFusedColumn741_1(p,f,d,rate,dt,temp,c,out,valid,nonfinite);
 return true;}
 default:return false;} }
 #define NM_NATIVE_STATELESS_TANGENT_BUNDLE_VECTOR_AVAILABLE 1

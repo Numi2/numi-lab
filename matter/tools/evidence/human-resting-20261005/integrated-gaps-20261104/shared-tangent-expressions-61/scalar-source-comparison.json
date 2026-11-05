@@ -1,0 +1,27 @@
+{
+  "programs": 198,
+  "exact_unchanged": 180,
+  "different": [
+    "nmNativeDirectP456",
+    "nmNativeDirectP465",
+    "nmNativeDirectP457",
+    "nmNativeDirectP466",
+    "nmNativeDirectP458",
+    "nmNativeDirectP467",
+    "nmNativeDirectP459",
+    "nmNativeDirectP468",
+    "nmNativeDirectP460",
+    "nmNativeDirectP469",
+    "nmNativeDirectP461",
+    "nmNativeDirectP470",
+    "nmNativeDirectP462",
+    "nmNativeDirectP471",
+    "nmNativeDirectP463",
+    "nmNativeDirectP472",
+    "nmNativeDirectP464",
+    "nmNativeDirectP473"
+  ],
+  "differences": "only immediately consecutive identical finite checks; no arithmetic between checks",
+  "normalized_source_exact": true,
+  "original_source_comparison": "failed strict text equality and retained; actual Metal scalar parity still required"
+}
