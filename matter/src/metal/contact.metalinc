@@ -6773,6 +6773,10 @@ inline bool edgeEdgeCCDWithSeparatingPlane(
         toi, normal, parameters, point, separation, certified);
 }
 
+inline bool nmReferenceUnresolvedSweepSeparated(
+    uint kind,thread const MRCompensatedPositionGPU* start,
+    thread const MRCompensatedPositionGPU* finish,float thickness);
+
 // Replays an exact captured edge-edge VTCCD failure. diagnostics.z/w are
 // the production edge indices. The final four stages vary only the bounded
 // interval-search work cap; production remains explicitly bounded at 384.
@@ -6780,7 +6784,7 @@ kernel void nm_contact_human_failure_eeccd_replay(
     device const NMDeformableContactFailureGPU* captured [[buffer(0)]],
     device float4* summaries [[buffer(1)]],
     uint stage [[thread_position_in_grid]]) {
-    constexpr uint stageCount = 9u;
+    constexpr uint stageCount = 10u;
     if (stage >= stageCount) return;
     const NMDeformableContactFailureGPU input = captured[0];
     const uint edgeA = uint(input.diagnostics.z);
@@ -6858,6 +6862,17 @@ kernel void nm_contact_human_failure_eeccd_replay(
             thickness + ccdDistanceRoundoff(thickness, coordinateScale));
         toi = 1.0f;
         separation = INFINITY;
+    } else if (stage == 9u) {
+        MRCompensatedPositionGPU a[4], b[4];
+        const float3 first[4]={p00,p10,q00,q10};
+        const float3 last[4]={p01,p11,q01,q11};
+        for(uint j=0u;j<4u;++j) {
+            a[j]=mrCompensatedVector(float4(first[j],0.0f));
+            b[j]=mrCompensatedVector(float4(last[j],0.0f));
+        }
+        certified=nmReferenceUnresolvedSweepSeparated(
+            NM_DEFORMABLE_CONTACT_EDGE_EDGE,a,b,thickness);
+        toi=1.0f;separation=INFINITY;hit=false;
     } else {
         // A nearby positive control: increasing the threshold by 0.2 nm makes
         // this same represented sweep a real contact. The production wrapper
@@ -14029,6 +14044,21 @@ inline bool nmReferenceUnresolvedSweepSeparated(
         else return false;
         if(nmReferenceContactSweepFraction(kind,start,finish,direction,thickness)==1.0f)
             return true;
+        if(kind==NM_DEFORMABLE_CONTACT_EDGE_EDGE) {
+            // Endpoint/edge Voronoi regions need a point/segment axis rather
+            // than the two edge cross product. Axis selection may be rounded;
+            // the unchanged outward-interval proof uses ORIGINAL expansions.
+            const MRCompensatedPositionGPU axes[4] = {
+                mrCompensatedVectorNegate(ccdPointSegmentAxis(p[2],p[0],p[1])),
+                mrCompensatedVectorNegate(ccdPointSegmentAxis(p[3],p[0],p[1])),
+                ccdPointSegmentAxis(p[0],p[2],p[3]),
+                ccdPointSegmentAxis(p[1],p[2],p[3])
+            };
+            for(uint a=0u;a<4u;++a)
+                if(nmReferenceContactCompensatedPlaneFraction(kind,start,finish,
+                    axes[a],axes[a].high.xyz+axes[a].low.xyz,thickness)==1.0f)
+                    return true;
+        }
     }
     return nmReferenceContactSubdividedSweepSeparated(kind,start,finish,thickness);
 }

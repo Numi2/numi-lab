@@ -349,7 +349,7 @@ void runHumanEdgeFailure(id<MTLDevice> device, id<MTLCommandQueue> queue,
         "--human-ee-failure requires edge indices in diagnostics.z/w");
     id<MTLBuffer> inputBuffer = [device newBufferWithBytes:&input.record
         length:sizeof(input.record) options:MTLResourceStorageModeShared];
-    std::array<Float4, 18> summaries{};
+    std::array<Float4, 20> summaries{};
     id<MTLBuffer> summaryBuffer = [device newBufferWithBytes:summaries.data()
         length:sizeof(summaries) options:MTLResourceStorageModeShared];
     require(inputBuffer != nil && summaryBuffer != nil,
@@ -361,8 +361,8 @@ void runHumanEdgeFailure(id<MTLDevice> device, id<MTLCommandQueue> queue,
     [encoder setComputePipelineState:pipeline];
     [encoder setBuffer:inputBuffer offset:0u atIndex:0u];
     [encoder setBuffer:summaryBuffer offset:0u atIndex:1u];
-    [encoder dispatchThreads:MTLSizeMake(9u, 1u, 1u)
-        threadsPerThreadgroup:MTLSizeMake(9u, 1u, 1u)];
+    [encoder dispatchThreads:MTLSizeMake(10u, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(10u, 1u, 1u)];
     [encoder endEncoding];
     [command commit];
     [command waitUntilCompleted];
@@ -373,10 +373,10 @@ void runHumanEdgeFailure(id<MTLDevice> device, id<MTLCommandQueue> queue,
             : "Metal EECCD failure replay did not complete");
     const auto* output = static_cast<const Float4*>([summaryBuffer contents]);
     require(output != nullptr, "human EECCD replay output is not CPU-readable");
-    const char* names[9] = {
+    const char* names[10] = {
         "production_separating_plane", "legacy", "separating_plane",
         "interval_64", "interval_256", "interval_1024", "interval_96",
-        "compensated_swept_projection", "thickness_plus_0.2nm_hit_control"
+        "compensated_swept_projection", "thickness_plus_0.2nm_hit_control", "reference_full_thickness_sweep"
     };
     if (requireSeparated) {
         require(output[0][0] == 1.0f && output[0][1] == 0.0f,
@@ -400,7 +400,7 @@ void runHumanEdgeFailure(id<MTLDevice> device, id<MTLCommandQueue> queue,
     for (std::size_t i = 0u; i < input.sourceLines.size(); ++i)
         std::cout << (i == 0u ? "" : ",") << jsonQuote(input.sourceLines[i]);
     std::cout << "],\"stages\":[";
-    for (std::uint32_t i = 0u; i < 9u; ++i) {
+    for (std::uint32_t i = 0u; i < 10u; ++i) {
         const Float4 row = output[2u * i];
         const Float4 detail = output[2u * i + 1u];
         require(std::isfinite(row[0]) && (row[0] == 0.0f || row[0] == 1.0f) &&
