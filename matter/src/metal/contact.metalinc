@@ -7354,6 +7354,31 @@ inline bool nmReferenceNarrowphaseSeparated(
     return nmReferenceUnresolvedSweepSeparated(kind,start,finish,thickness);
 }
 
+
+// Activation-band ambiguity must not discard a force-bearing feature. When a
+// reference edge sweep is uncertified at activation thickness, retain an
+// endpoint potential ONLY after proving the entire original compensated sweep
+// above the unchanged numerical collision margin. The ordinary IPC evaluator
+// still computes its actual endpoint energy/force with the original width.
+inline bool nmReferenceNarrowphaseEndpointEdgePotential(
+    uint4 sources,thread const MRCompensatedPositionGPU* finishExpansion,
+    thread const float3* velocity,float leftDt,float rightDt,float clearance,
+    thread float3& normal,thread float2& parameters,
+    thread float3& point,thread float& separation) {
+    if(!(clearance>0.0f)||!isfinite(clearance)||
+       !nmReferenceNarrowphaseSeparated(NM_DEFORMABLE_CONTACT_EDGE_EDGE,sources,
+           finishExpansion,velocity,leftDt,rightDt,clearance))return false;
+    float u,v;float3 first,second;MRCompensatedPositionGPU relative;
+    if(!contactCompensatedSegmentWitness(finishExpansion[sources.x],
+            finishExpansion[sources.y],finishExpansion[sources.z],
+            finishExpansion[sources.w],u,v,first,second,relative,separation)||
+       !(separation>clearance)||!isfinite(separation)||
+       u<0.0f||u>1.0f||v<0.0f||v>1.0f)return false;
+    normal=(relative.high.xyz+relative.low.xyz)/separation;
+    parameters=float2(u,v);point=0.5f*(first+second);
+    return finite3(normal)&&finite3(point);
+}
+
 inline void recordDeformableNarrowphaseFailure(
     const uint deterministicSelection,
     device NMMatterStatusGPU* environmentStatuses,
@@ -7640,6 +7665,7 @@ kernel void nm_contact_narrowphase_deformable_impl(
         dispatch, environment, left, right, femNodes, schedulers,
         referenceModePair, referenceOriginValid, referenceOrigin,
         nodeValid, velocity, start, finish, finishExpansion);
+    bool bestUsesEndpointPotential = false;
     float bestTOI = INFINITY;
     float3 bestNormal = float3(0.0f);
     float3 bestPoint = float3(0.0f);
@@ -7899,7 +7925,7 @@ kernel void nm_contact_narrowphase_deformable_impl(
                             float(vertexIndex), float(3u + direction)));
                     return;
                 }
-                if (hit && toi < bestTOI) {
+                if (hit && (toi < bestTOI || (toi==bestTOI&&bestUsesEndpointPotential))) {
                     float3 leftBarycentric = float3(0.0f);
                     float3 rightBarycentric = float3(0.0f);
                     if (direction == 0u) {
@@ -7927,6 +7953,7 @@ kernel void nm_contact_narrowphase_deformable_impl(
                         (triangleBase == 0u ? left : right).nodesAndObject.z,
                     };
                     bestWeights = float4(1.0f, -barycentric);
+                    bestUsesEndpointPotential=false;
                     bestKind = NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE;
                     bestPositiveObject = direction == 0u
                         ? left.nodesAndObject.w : right.nodesAndObject.w;
@@ -7960,6 +7987,16 @@ kernel void nm_contact_narrowphase_deformable_impl(
                        thickness)) {
                     certified=true;hit=false;toi=1.0f;separation=INFINITY;
                 }
+                bool endpointPotential=false;
+                if(!certified&&referenceModePair&&
+                   nmReferenceNarrowphaseEndpointEdgePotential(
+                       uint4(a.x,a.y,3u+b.x,3u+b.y),finishExpansion,velocity,
+                       objectTimestep(dispatch,schedulers[environment*dispatch.objectCount+left.nodesAndObject.w]),
+                       objectTimestep(dispatch,schedulers[environment*dispatch.objectCount+right.nodesAndObject.w]),
+                       solver.contactAcceptance.x*thickness,
+                       normal,parameters,point,separation)) {
+                    certified=true;hit=true;toi=1.0f;endpointPotential=true;
+                }
                 if (!certified) {
                     recordDeformableNarrowphaseFailure(
                         deterministicStatusSelection, statuses, candidateStatuses,
@@ -7970,7 +8007,9 @@ kernel void nm_contact_narrowphase_deformable_impl(
                             float(edgeA), float(edgeB)));
                     return;
                 }
-                if (hit && toi < bestTOI) {
+                if (hit && (toi < bestTOI ||
+                    (toi==bestTOI && bestUsesEndpointPotential &&
+                     (!endpointPotential || separation<bestSeparation)))) {
                     float3 leftBarycentric = float3(0.0f);
                     float3 rightBarycentric = float3(0.0f);
                     leftBarycentric[a.x] = 1.0f - parameters.x;
@@ -7994,6 +8033,7 @@ kernel void nm_contact_narrowphase_deformable_impl(
                     bestWeights = float4(
                         1.0f - parameters.x, parameters.x,
                         -(1.0f - parameters.y), -parameters.y);
+                    bestUsesEndpointPotential=endpointPotential;
                     bestKind = NM_DEFORMABLE_CONTACT_EDGE_EDGE;
                     bestPositiveObject = left.nodesAndObject.w;
                     bestNegativeObject = right.nodesAndObject.w;
@@ -14175,6 +14215,26 @@ inline bool nmReferenceInitialContactNonclosing(
     if(!isfinite(initialUpper)||!(initialUpper>0.0f)||initialUpper>clearance)return false;
     return unchanged||nmReferenceContactStaticClearance(
         kind,candidate,normal,initialUpper);
+}
+
+kernel void nm_contact_reference_endpoint_potential_check(
+    device const MRCompensatedPositionGPU* positions [[buffer(0)]],
+    device const float4* parameters [[buffer(1)]],
+    device float4* results [[buffer(2)]],
+    constant uint& count [[buffer(3)]],uint index [[thread_position_in_grid]]) {
+    if(index>=count)return;
+    MRCompensatedPositionGPU finish[6];float3 velocity[6];
+    for(uint i=0u;i<6u;++i){finish[i]=mrCompensatedVector(float4(0.0f));velocity[i]=float3(0.0f);}
+    const uint4 sources=uint4(0u,1u,3u,4u);
+    for(uint i=0u;i<4u;++i){
+        finish[sources[i]]=positions[8u*index+4u+i];
+        const auto delta=mrCompensatedVectorAdd(finish[sources[i]],mrCompensatedVectorNegate(positions[8u*index+i]));
+        velocity[sources[i]]=delta.high.xyz+delta.low.xyz;
+    }
+    float3 normal,point;float2 uv;float separation;
+    const bool valid=nmReferenceNarrowphaseEndpointEdgePotential(sources,finish,
+        velocity,1.0f,1.0f,parameters[index].x,normal,uv,point,separation);
+    results[index]=valid?float4(separation,uv,length(normal)):float4(-1.0f);
 }
 
 kernel void nm_contact_reference_unresolved_sweep_check(

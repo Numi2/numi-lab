@@ -18252,6 +18252,63 @@ void checkCapturedRestMarginSweep(
         " swept_intersection_rejected=true nonfinite_rejected=true cases=9 canaries=4 PASS\n";
 }
 
+void checkReferenceEndpointPotential(
+    id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
+    using P=MRCompensatedPositionGPU;
+    auto point=[](double x,double y,double z) {
+        nm_float4 h{float(x),float(y),float(z),0.0f};
+        return P{{h.x,h.y,h.z,0.0f},{float(x-double(h.x)),float(y-double(h.y)),float(z-double(h.z)),0.0f}};
+    };
+    std::vector<P> positions;std::vector<nm_float4> parameters;
+    std::vector<double> expected;std::vector<bool> conservativeRefusalAllowed;
+    for(double origin:{0.0,1.0})for(double scale:{0.25,1.0,4.0})
+      for(unsigned mode=0;mode<7;++mode) {
+        const double width=1e-5*scale,margin=1e-9*scale;
+        const double gap=mode==0?width+1e-11*scale:
+            mode==1?width-1e-11*scale:mode==2?2*margin:mode==3?0.5*margin:2*width;
+        std::array<P,8> p{};
+        for(unsigned endpoint=0;endpoint<2;++endpoint) {
+            const double z=(mode==4&&endpoint==0)?-gap:gap;
+            p[4*endpoint]=point(origin-1e-3*scale,origin,origin+z);
+            p[4*endpoint+1]=point(origin+1e-3*scale,origin,origin+z);
+            p[4*endpoint+2]=point(origin,origin-1e-3*scale,origin);
+            p[4*endpoint+3]=point(origin,origin+1e-3*scale,origin);
+        }
+        if(mode==5)p[4].low.z=std::numeric_limits<float>::quiet_NaN();
+        positions.insert(positions.end(),p.begin(),p.end());
+        parameters.push_back({float(mode==6?-margin:margin),0,0,0});
+        expected.push_back(mode<=2?gap:-1.0);
+        // Outward interval proof may conservatively refuse near-margin gaps
+        // after a metre translation. It must never certify an unsafe sweep.
+        conservativeRefusalAllowed.push_back(mode==2&&origin==1.0);
+      }
+    const unsigned count=unsigned(expected.size());
+    const nm_float4 guard{123,124,125,126};
+    auto output=makeBuffer(device,std::vector<nm_float4>(count+4,guard));
+    dispatch(device,queue,pipeline(device,library,
+        "numi_matter_metal::nm_contact_reference_endpoint_potential_check"),{
+        {0u,makeBuffer(device,positions)},{1u,makeBuffer(device,parameters)},
+        {2u,output},{3u,makeBuffer(device,std::vector<unsigned>{count})}},1u,64u);
+    const auto got=readBuffer<nm_float4>(output,count+4);
+    for(unsigned i=0;i<count;++i) {
+        if(expected[i]<0)require(got[i].x==-1.0f,"unsafe endpoint potential admitted");
+        else {
+            if(got[i].x==-1.0f&&conservativeRefusalAllowed[i])continue;
+            if(!(std::abs(double(got[i].x)-expected[i])<=expected[i]*2e-5))std::cerr<<"endpoint_case="<<i<<" got="<<got[i].x<<" expected="<<expected[i]<<" uv="<<got[i].y<<","<<got[i].z<<" normal="<<got[i].w<<"\n";
+            require(std::abs(double(got[i].x)-expected[i])<=expected[i]*2e-5,
+                "endpoint distance differs from independent double reference");
+            require(std::abs(got[i].y-0.5f)<2e-5f&&std::abs(got[i].z-0.5f)<2e-5f,
+                "endpoint barycentric witness mismatch");
+            require(std::abs(got[i].w-1.0f)<2e-5f,"endpoint normal not finite unit length");
+        }
+    }
+    for(unsigned i=count;i<count+4;++i)require(got[i].x==guard.x&&
+        got[i].y==guard.y&&got[i].z==guard.z&&got[i].w==guard.w,"endpoint potential canary");
+    std::cout<<"reference_endpoint_potential=true collision_clearance_unchanged=true"
+        " activation_band_retained=true crossing_rejected=true invalid_rejected=true"
+        " double_distance=true compensated_translation=true cases="<<count<<" canaries=4 PASS\n";
+}
+
 void checkUnresolvedReferenceSweepProof(
     id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLLibrary> library) {
     using P=MRCompensatedPositionGPU;
@@ -18324,6 +18381,29 @@ void checkUnresolvedReferenceSweepProof(
         parameters.push_back({float(double(float(1e-5))*scale),0,0,0});
         expected.push_back(mode<2u?1u:0u);
       }
+    // Native470's rounded edge-edge failure capture. These do not claim its
+    // uncaptured compensated low words; use them as forward/reverse and
+    // crossing/nonfinite controls for the SAME full-thickness proof.
+    constexpr float edgeCapture[8][3]={
+      {-0.000516544562f,-0.00130090548f,0.000371464645f},
+      {3.01928194e-05f,8.33248341e-05f,2.19168214e-05f},
+      {0.00028652398f,0.000645407825f,-0.000561383145f},
+      {7.41795748e-06f,-7.06190178e-07f,4.87884899e-05f},
+      {-0.000516543689f,-0.0013009056f,0.000371352653f},
+      {3.0199426e-05f,8.33213635e-05f,2.18302011e-05f},
+      {0.000286524009f,0.000645406777f,-0.000561386289f},
+      {7.4245545e-06f,-7.0981298e-07f,4.86987119e-05f}};
+    for(unsigned mode=0;mode<4;++mode) {
+      std::array<P,8> p{};
+      for(unsigned e=0;e<2;++e)for(unsigned i=0;i<4;++i) {
+        const auto& a=edgeCapture[4u*(mode==1u?1u-e:e)+i];
+        p[4u*e+i]=point(a[0],a[1],a[2]);
+      }
+      if(mode==2u){p[6]=p[4];p[7]=p[5];}
+      if(mode==3u)p[4].low.x=std::numeric_limits<float>::quiet_NaN();
+      positions.insert(positions.end(),p.begin(),p.end());
+      parameters.push_back({1e-5f,1,0,0});expected.push_back(mode<2u?1u:0u);
+    }
     const unsigned count=unsigned(expected.size());
     auto output=makeBuffer(device,std::vector<unsigned>(count+4u,0xdeadbeefu));
     dispatch(device,queue,pipeline(device,library,
@@ -19410,6 +19490,7 @@ int main(int argc, const char* argv[]) {
                 return 0;
             }
             if(argc==2&&std::string(argv[1])=="--unresolved-reference-sweep-only") {
+                checkReferenceEndpointPotential(device,queue,library);
                 checkUnresolvedReferenceSweepProof(device,queue,library);return 0;
             }
             if(argc==2&&std::string(argv[1])=="--tiled-mixed-certificate-only") {
