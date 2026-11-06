@@ -14119,6 +14119,18 @@ inline float nmReferenceContactRestClearance(
     return 0.0f;
 }
 
+// The narrowphase already certifies this positive dyadic margin against
+// immutable rest geometry and binds the aligned barrier to it. Select that
+// same boundary before sweeping, even when the ordinary-margin sweep would
+// return a tiny positive fraction. Falling back only at exactly zero stacks
+// an artificial boundary above the barrier and final certificate.
+inline float nmReferenceContactLineSearchClearance(
+    float ordinaryMargin, float immutableRestMargin, bool ownsRestMargin) {
+    if (!ownsRestMargin) return ordinaryMargin;
+    return isfinite(immutableRestMargin) && immutableRestMargin > 0.0f &&
+           immutableRestMargin <= ordinaryMargin ? immutableRestMargin : 0.0f;
+}
+
 // Preserve the existing initial-touch rule without relaxing ordinary clearance.
 // An initial convex-feature witness gives an upper bound on the initial distance;
 // a strict separating-plane lower bound at the candidate must exceed that upper
@@ -14191,8 +14203,9 @@ kernel void nm_contact_reference_rest_sweep_check(
         finish[i]=positions[12u*index+8u+i];
     }
     const auto axis=parameters[2u*index];
-    const float margin=nmReferenceContactRestClearance(
-        uint(axis.w),rest,axis.xyz,parameters[2u*index+1u].x);
+    const float ordinaryMargin=parameters[2u*index+1u].x;
+    const float margin=nmReferenceContactLineSearchClearance(ordinaryMargin,
+        nmReferenceContactRestClearance(uint(axis.w),rest,axis.xyz,ordinaryMargin),true);
     results[index]=float2(margin,margin>0.0f?
         nmReferenceContactSweepFraction(uint(axis.w),start,finish,axis.xyz,margin):0.0f);
 }
@@ -14638,7 +14651,20 @@ inline void nmContactLimitDeformableLineSearch(
         bool certified = false;
         float ccdTestedFraction = 1.0f;
         uint ccdShortenedRetries = 0u;
-        float referenceClearance=solver.contactAcceptance.x*dispatch.numericalLimits.x;
+        const float ordinaryReferenceClearance =
+            solver.contactAcceptance.x * dispatch.numericalLimits.x;
+        const bool ownsRestMargin = nmFEMClearanceAlignedBarrierActive &&
+            referenceModeContact && contact.identity.x == contact.identity.y;
+        float referenceClearance = nmReferenceContactLineSearchClearance(
+            ordinaryReferenceClearance, contact.barrierHessianRow2.w,
+            ownsRestMargin);
+        if (!(referenceClearance > 0.0f) || !isfinite(referenceClearance)) {
+            recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
+                contact.identity.x, slot,
+                float4(referenceClearance, ordinaryReferenceClearance, 0.0f, 44.0f));
+            bound = 0.0f;
+            continue;
+        }
         float planeFraction = referenceModeContact &&
                 (collisionGapEnabled & 2u) != 0u
             ? nmReferenceContactSweepFraction(contact.identity.z,

@@ -18155,7 +18155,7 @@ void checkCapturedRestMarginSweep(
         {{-1.22191125e-06f,-3.21850712e-06f,4.00704175e-06f,0.0f},{-5.94286627e-16f,-5.84530864e-14f,4.09616358e-14f,0.0f}},
         {{0.000213115592f,0.0035815239f,0.00151063676f,0.0f},{4.1306303e-12f,-1.0951625e-10f,-1.47117023e-11f,0.0f}},
     }};
-    constexpr unsigned count=8u;
+    constexpr unsigned count=9u;
     std::vector<P> positions;std::vector<nm_float4> parameters;
     for(unsigned mode=0u;mode<count;++mode) {
         auto p=captured;
@@ -18171,6 +18171,20 @@ void checkCapturedRestMarginSweep(
             p[0].high.y+=normal.y*1.0e-6f;
             p[0].high.z+=normal.z*1.0e-6f;
             for(unsigned i=0u;i<4u;++i)p[4u+i]=p[8u+i]=p[i];
+        }
+        if(mode==8u) {
+            // The ordinary sweep returns a small POSITIVE fraction. The old
+            // zero-only fallback therefore missed the certified source margin.
+            normal={0.0f,0.0f,1.0f,0.0f};
+            for(auto& v:p)v={};
+            for(unsigned frame=0u;frame<3u;++frame) {
+                p[4u*frame+2u].high={0.001f,0,0,0};
+                p[4u*frame+3u].high={0,0.001f,0,0};
+                const double z=frame==0u?0.75e-9:frame==1u?1.00001e-9:0.99e-9;
+                const float high=float(z);
+                p[4u*frame].high={0.0002f,0.0003f,high,0};
+                p[4u*frame].low={0,0,float(z-double(high)),0};
+            }
         }
         positions.insert(positions.end(),p.begin(),p.end());
         parameters.push_back(normal);parameters.push_back({1.0e-9f,0,0,0});
@@ -18188,7 +18202,7 @@ void checkCapturedRestMarginSweep(
             "invalid immutable source cannot acquire a contact margin");
         else require(value.margin==(mode==7u?1.0e-9f:5.0e-10f),
             "source-bound margin changed with current configuration");
-        if(mode==0u||mode==1u||mode==7u)require(value.fraction==1.0f,
+        if(mode==0u||mode==1u||mode==7u||mode==8u)require(value.fraction==1.0f,
             "captured positive sweep blocked by rounded collision floor");
         if(mode==2u)require(value.fraction>0.0f&&value.fraction<1.0f,
             "crossing sweep must stop at a certified prefix");
@@ -18219,10 +18233,23 @@ void checkCapturedRestMarginSweep(
             }
         }
     }
+    std::vector<P> ordinaryPair(positions.begin()+12u*8u+4u,
+                                positions.begin()+12u*8u+12u);
+    auto ordinaryOutput=makeBuffer(device,std::vector<float>{-1.0f});
+    dispatch(device,queue,pipeline(device,library,
+        "numi_matter_metal::nm_contact_reference_plane_check"),{
+        {0u,makeBuffer(device,ordinaryPair)},
+        {1u,makeBuffer(device,std::vector<nm_float4>{{0,0,1,0},{1.0e-9f,0,0,0}})},
+        {2u,ordinaryOutput},{3u,makeBuffer(device,std::vector<unsigned>{1u})}},1u,32u);
+    const float ordinaryFraction=readBuffer<float>(ordinaryOutput,1u)[0];
+    require(ordinaryFraction>0.0f&&ordinaryFraction<0.01f&&got[8].fraction==1.0f,
+        "positive ordinary-margin stall control did not exercise owned clearance");
+    std::cout<<"positive_ordinary_fraction="<<ordinaryFraction
+        <<" owned_margin_fraction="<<got[8].fraction<<" ";
     for(unsigned i=count;i<count+4u;++i)require(got[i].margin==-7.0f&&got[i].fraction==-7.0f,
         "rest-margin sweep output canary");
     std::cout<<"reference_source_margin=true immutable=true captured_closing_picometres=true"
-        " swept_intersection_rejected=true nonfinite_rejected=true cases=8 canaries=4 PASS\n";
+        " swept_intersection_rejected=true nonfinite_rejected=true cases=9 canaries=4 PASS\n";
 }
 
 void checkUnresolvedReferenceSweepProof(
@@ -19374,6 +19401,13 @@ int main(int argc, const char* argv[]) {
                 checkPolynomialReferenceSweep(device,queue,library);
                 checkPolynomialPrefixSweep(device,queue,library);
                 checkPolynomialSweepControls(device,queue,library);return 0;
+            }
+            if(argc==2&&std::string(argv[1])=="--reference-rest-margin-only") {
+                checkCapturedInitialNonclosing(device,queue,library);
+                checkCapturedRestMarginSweep(device,queue,library);
+                checkFinalReferenceContactClearance(device,queue,library);
+                std::cout<<"PASS reference rest margin "<<checks<<" checks\n";
+                return 0;
             }
             if(argc==2&&std::string(argv[1])=="--unresolved-reference-sweep-only") {
                 checkUnresolvedReferenceSweepProof(device,queue,library);return 0;
