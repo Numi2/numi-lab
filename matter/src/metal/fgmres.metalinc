@@ -140,6 +140,23 @@ inline float fgmresResidualTarget(
         : min(relativeTarget, vascularResidualTolerance);
 }
 
+// The separated nonlinear latch owns whether a physical domain is held.
+// Below the legacy aggregate tolerance it can still request a correction;
+// such a solve must meet its chosen forcing target rather than completing
+// solely at that obsolete bound. Keep non-domain legacy policy unchanged.
+inline bool fgmresActiveRHSRequiresForcingTarget(
+    const uint layoutFlags,
+    const uint replaceResidual,
+    const float nonlinearConverged,
+    const float initialNorm,
+    const float legacyNonlinearThreshold
+) {
+    return (layoutFlags & 2u) != 0u
+        ? !(nonlinearConverged > 0.5f)
+        : ((replaceResidual & 2u) != 0u &&
+           initialNorm > legacyNonlinearThreshold);
+}
+
 inline float fgmresInnerArnoldiTarget(
     const uint vascularUnknownCount,
     const float vascularResidualTolerance,
@@ -10270,8 +10287,9 @@ kernel void nm_fgmres_measure_true_residual(
             // still-active RHS on its forcing target rather than stopping
             // solely at the outer tolerance. Already acceptable outer RHS
             // rows retain the legacy no-op completion behavior.
-            const bool strictActiveRHS = (replaceResidual & 2u) != 0u &&
-                initialNorm > nonlinearThreshold;
+            const bool strictActiveRHS = fgmresActiveRHSRequiresForcingTarget(
+                layout.reserved, replaceResidual, state.nonlinear.w,
+                initialNorm, nonlinearThreshold);
             state.diagnostics.z = trueNorm == 0.0f || trueNorm <= target ||
                 (!strictActiveRHS && trueNorm <= nonlinearThreshold)
                     ? 1.0f : 0.0f;
@@ -12459,8 +12477,9 @@ kernel void nm_fgmres_true_residual_distributed_finish(
                 ? mechanicalNonlinearThreshold
                 : min(mechanicalNonlinearThreshold,
                       layout.vascularResidualTolerance);
-            const bool strictActiveRHS = (replaceResidual & 2u) != 0u &&
-                initialNorm > nonlinearThreshold;
+            const bool strictActiveRHS = fgmresActiveRHSRequiresForcingTarget(
+                layout.reserved, replaceResidual, state.nonlinear.w,
+                initialNorm, nonlinearThreshold);
             // The opt-in inexact certificate relaxes only mechanical inner
             // accuracy. Reserve 1/4 of the unchanged vascular outer tolerance
             // for the freshly evaluated linear defect, leaving nonlinear

@@ -2984,6 +2984,60 @@ void checkInexactCoupledLinearCertificate(
             "linear certification modified nonlinear physical acceptance state");
         return result;
     };
+    // Domain tightening can leave a nonlinear block active below the legacy
+    // aggregate outer bound. A linear defect below that old bound must not
+    // replace the selected inexact-Newton forcing target in either reducer.
+    const auto legacyMeasure = pipelineWithRelativeInnerForcingDisabled(
+        device, library, "numi_matter_metal::nm_fgmres_measure_true_residual");
+    for (const bool distributed : {false, true}) {
+        const auto domainCase = [&](bool domain, bool held, float defect,
+                                    std::uint32_t replacement, bool expected) {
+            NMFGMRESLayoutGPU layout = l;
+            layout.reserved = 1u | (domain ? 2u | (4u << 16u) : 0u);
+            std::memcpy([lb contents], &layout, sizeof(layout));
+            NMMixedSolverGPU localSolver = solver;
+            localSolver.residualTolerances.x = 1.0e-4f;
+            std::memcpy([sb contents], &localSolver, sizeof(localSolver));
+            NMFGMRESStateGPU initial{};
+            initial.diagnostics = {0.0f, 7.0e-6f, 0.0f, 0.0f};
+            initial.nonlinear = {7.0e-6f, 7.0e-6f, 0.0f, held ? 1.0f : 0.0f};
+            std::memcpy([state contents], &initial, sizeof(initial));
+            std::vector<nm_float4> rows(3u);
+            rows[0].x = defect;
+            std::memcpy([rhs contents], rows.data(), rows.size()*sizeof(nm_float4));
+            const float eta = 1.0e-4f;
+            std::memcpy([forcing contents], &eta, sizeof(eta));
+            std::memcpy([replace contents], &replacement, sizeof(replacement));
+            NMMatterStatusGPU healthy{};
+            std::memcpy([status contents], &healthy, sizeof(healthy));
+            std::memcpy([production contents], &healthy, sizeof(healthy));
+            if (distributed) {
+                dispatch(device, queue, partial, bindings, 1u, 256u);
+                dispatch(device, queue, strict, bindings, 1u, 32u);
+            } else {
+                dispatch(device, queue, legacyMeasure, bindings, 1u, 32u);
+            }
+            const auto result = readBuffer<NMFGMRESStateGPU>(state,1u)[0];
+            require((result.diagnostics.z > 0.5f) == expected,
+                "domain-active linear solve used obsolete outer shortcut");
+            require(std::memcmp(&result.nonlinear, &initial.nonlinear,
+                sizeof(initial.nonlinear)) == 0,
+                "linear domain policy modified nonlinear ownership");
+            require(readBuffer<NMMatterStatusGPU>(production,1u)[0].code ==
+                NM_STATUS_SUCCESS, "linear domain policy poisoned status");
+        };
+        domainCase(false, false, 3.0e-8f, 1u, true); // Legacy unchanged.
+        domainCase(true, false, 3.0e-8f, 1u, false);
+        domainCase(true, false, 3.0e-8f, 3u, false);
+        domainCase(true, false, 2.0e-10f, 1u, true);
+        domainCase(true, false, 0.0f, 1u, true);
+        domainCase(true, true, 3.0e-8f, 1u, true); // Held tail unchanged.
+    }
+    std::memcpy([sb contents], &solver, sizeof(solver));
+    const float restoredForcing = 0.1f;
+    const std::uint32_t restoredReplacement = 3u;
+    std::memcpy([forcing contents], &restoredForcing, sizeof(restoredForcing));
+    std::memcpy([replace contents], &restoredReplacement, sizeof(restoredReplacement));
     require(run(false, 5.0e-4f).diagnostics.z < 0.5f,
         "default strict linear certificate changed");
     const auto accepted = run(true, 5.0e-4f);
