@@ -1087,12 +1087,13 @@ inline bool validateNativeStatelessMaterialSample(
     thread float* referenceTangent = nullptr
 );
 
-inline bool usesCanonicalCompressibleNeoHookeanTangent(
+inline bool usesCanonicalCompressibleNeoHookeanPrecision(
     const NMMaterialGPU material,
     thread const float* deformationLow
 ) {
     if ((material.flags &
-         NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT) == 0u ||
+         (NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT |
+          nmCanonicalNeoHookeanPrecisionFlag)) == 0u ||
         material.constitutiveKind != NM_CONSTITUTIVE_BYTECODE ||
         material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC ||
         material.parameterCount != 3u || material.stateCount != 0u ||
@@ -1118,6 +1119,12 @@ inline bool usesCanonicalCompressibleNeoHookeanTangent(
     return true;
 }
 
+inline bool usesCanonicalCompressibleNeoHookeanTangent(
+    const NMMaterialGPU material, thread const float* deformationLow) {
+    return (material.flags & NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT) != 0u &&
+        usesCanonicalCompressibleNeoHookeanPrecision(material, deformationLow);
+}
+
 template <typename StatePointer, typename CandidatePointer>
 inline float3x3 evaluateStressWithCandidate(
     const NMMaterialGPU material,
@@ -1135,7 +1142,7 @@ inline float3x3 evaluateStressWithCandidate(
 ,
     thread const float* deformationLow = nullptr
 ) {
-    if (usesCanonicalCompressibleNeoHookeanTangent(material, deformationLow)) {
+    if (usesCanonicalCompressibleNeoHookeanPrecision(material, deformationLow)) {
         float f[9], values[9];
         matrixComponents(deformation, f);
         const bool ok = parameters != nullptr && material.parameterOffset <= 0xfffffffdu &&

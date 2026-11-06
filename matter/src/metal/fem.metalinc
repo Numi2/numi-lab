@@ -355,7 +355,8 @@ inline float3x3 femMaterialDeformationWords(
     for (uint i=0u;i<9u;++i) low[i]=0.0f;
     if ((material.flags & (NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC |
                            NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
-                           NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT)) == 0u ||
+                           NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT |
+                           nmCanonicalNeoHookeanPrecisionFlag)) == 0u ||
         (tetrahedron.identity.w & NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT)==0u)
         return femMaterialInput(object,tetrahedron,deformation);
     float displacementHigh[12],displacementLow[12],inverse[9],frame[9],high[9];

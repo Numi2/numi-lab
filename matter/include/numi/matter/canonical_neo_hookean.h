@@ -6,6 +6,15 @@
 #define NM_NEO_THREAD
 #endif
 
+// Private execution-material metadata, derived only from the compiler's
+// exact canonical-energy proof before optional tangent policy bits are cleared.
+// No serialized layout or source material changes.
+#ifdef __METAL_VERSION__
+constant unsigned nmCanonicalNeoHookeanPrecisionFlag = 1u << 13u;
+#else
+inline constexpr unsigned nmCanonicalNeoHookeanPrecisionFlag = 1u << 13u;
+#endif
+
 // Canonical log-J energy: mu/2*(I1-3-2*log(J))+K/2*log(J)^2.
 // Preserve reference-deformation low words until after the stress cancellation.
 // The output remains FP32; there is no strain floor, stiffness change or history.

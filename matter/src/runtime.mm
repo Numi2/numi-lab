@@ -37,6 +37,7 @@
 #include "accepted_state_proof_gpu.hpp"
 #include "metal_encoder_timing.hpp"
 #include "native_tangent_source.hpp"
+#include "numi/matter/canonical_neo_hookean.h"
 #include "metalrobo/engine_types.h"
 #include "metalrobo/compensated_translation_gpu.h"
 #include "metalrobo/mujoco_muscle_gpu.h"
@@ -11388,6 +11389,20 @@ RuntimeDiagnostics Runtime::initialize(
                 "matter_shared_local_factorization_eligible_materials=%zu total_materials=%zu\n",
                 static_cast<std::size_t>(eligibleCount), executionMaterials.size());
         }
+        // Keep the compiler's exact energy identity for stress precision
+        // independently of the optional tangent shortcut. Native bundle mode
+        // still retains its original admission and tangent selection.
+        std::uint32_t canonicalPrecisionCount = 0u;
+        for (auto& material : executionMaterials) {
+            if ((material.flags &
+                 NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT) != 0u) {
+                material.flags |= nmCanonicalNeoHookeanPrecisionFlag;
+                ++canonicalPrecisionCount;
+            }
+        }
+        std::fprintf(stderr,
+            "matter_canonical_precision_materials=%u source=compiler_exact_energy_proof tangent_policy=unchanged\n",
+            canonicalPrecisionCount);
         if (canonicalTangentSetting == nullptr ||
             std::strcmp(canonicalTangentSetting, "1") != 0) {
             for (auto& material : executionMaterials)
