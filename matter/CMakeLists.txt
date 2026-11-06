@@ -27,6 +27,18 @@ set(
     src/surgical_tissue.cpp
 )
 
+add_executable(numi-matter-canonical-neo-hookean-check
+    tools/canonical_neo_hookean_check.cpp)
+target_include_directories(numi-matter-canonical-neo-hookean-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+target_compile_options(numi-matter-canonical-neo-hookean-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.numerics.canonical_neo_hookean
+        COMMAND numi-matter-canonical-neo-hookean-check)
+endif()
+
 # One canonical object set feeds both the standalone compiler library and the
 # parent MetalRobo dylib. This prevents the integrated runtime from depending
 # on archive extraction heuristics that can otherwise drop unreferenced public
@@ -907,6 +919,7 @@ if(APPLE)
             src/metal/accepted_state_proof.metalinc
             include/numi/matter/accepted_state_proof_gpu.h
             include/numi/matter/shared.h
+            include/numi/matter/canonical_neo_hookean.h
             include/numi/matter/fiber_exp_linear.h
             include/numi/matter/mortar_shared_edge_guard.h
             include/numi/matter/human_equality_gpu.h
@@ -1529,7 +1542,8 @@ if(APPLE)
             include/numi/matter/hill_scalar_initializer.h
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/compensated_geometry_gpu.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/compensated_translation_gpu.h"
-            include/numi/matter/shared.h include/numi/matter/fiber_exp_linear.h
+            include/numi/matter/shared.h include/numi/matter/canonical_neo_hookean.h
+            include/numi/matter/fiber_exp_linear.h
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/rod_gpu_shared.h"
         DEPFILE "${NUMI_CARDBOARD_PAPER_DEPFILE}"
@@ -1553,7 +1567,8 @@ if(APPLE)
             include/numi/matter/hill_scalar_initializer.h
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/compensated_geometry_gpu.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/compensated_translation_gpu.h"
-            include/numi/matter/shared.h include/numi/matter/fiber_exp_linear.h
+            include/numi/matter/shared.h include/numi/matter/canonical_neo_hookean.h
+            include/numi/matter/fiber_exp_linear.h
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/rod_gpu_shared.h"
         DEPFILE "${NUMI_CARDBOARD_GEOMETRY_DEPFILE}"
@@ -1705,7 +1720,8 @@ if(APPLE)
             include/numi/matter/paper_compensated_bytecode.h
             include/numi/matter/fem_compensated_deformation.h
             include/numi/matter/hill_scalar_initializer.h
-            include/numi/matter/shared.h include/numi/matter/fiber_exp_linear.h
+            include/numi/matter/shared.h include/numi/matter/canonical_neo_hookean.h
+            include/numi/matter/fiber_exp_linear.h
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/compensated_geometry_gpu.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/compensated_translation_gpu.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
@@ -1955,7 +1971,8 @@ if(APPLE)
         DEPENDS tools/fiber_exp_linear_check.metal src/metal/common.metalinc
             include/numi/matter/paper_compensated_bytecode.h
             include/numi/matter/fem_compensated_deformation.h
-            include/numi/matter/shared.h include/numi/matter/fiber_exp_linear.h
+            include/numi/matter/shared.h include/numi/matter/canonical_neo_hookean.h
+            include/numi/matter/fiber_exp_linear.h
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/engine_types.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/compensated_translation_gpu.h"
             "${CMAKE_CURRENT_SOURCE_DIR}/../include/metalrobo/compensated_geometry_gpu.h"

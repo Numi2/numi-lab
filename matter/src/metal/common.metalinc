@@ -5,6 +5,7 @@
 #include "numi/matter/hill_scalar_initializer.h"
 #include "numi/matter/paper_compensated_bytecode.h"
 #include "numi/matter/fem_compensated_deformation.h"
+#include "numi/matter/canonical_neo_hookean.h"
 #include "metalrobo/engine_types.h"
 #include "metalrobo/rod_gpu_shared.h"
 
@@ -1086,6 +1087,37 @@ inline bool validateNativeStatelessMaterialSample(
     thread float* referenceTangent = nullptr
 );
 
+inline bool usesCanonicalCompressibleNeoHookeanTangent(
+    const NMMaterialGPU material,
+    thread const float* deformationLow
+) {
+    if ((material.flags &
+         NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT) == 0u ||
+        material.constitutiveKind != NM_CONSTITUTIVE_BYTECODE ||
+        material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC ||
+        material.parameterCount != 3u || material.stateCount != 0u ||
+        material.dissipationProgram != NM_INVALID_INDEX ||
+        material.viscousStressProgramOffset != NM_INVALID_INDEX ||
+        material.viscousTangentProgramOffset != NM_INVALID_INDEX ||
+        material.implicitResidualProgramOffset != NM_INVALID_INDEX ||
+        material.implicitJacobianProgramOffset != NM_INVALID_INDEX ||
+        material.implicitDeformationProgramOffset != NM_INVALID_INDEX ||
+        material.stressStateDerivativeProgramOffset != NM_INVALID_INDEX ||
+        (material.flags & (NM_MATERIAL_HAS_STATE |
+                           NM_MATERIAL_HAS_DISSIPATION |
+                           NM_MATERIAL_HAS_IMPLICIT_STATE |
+                           NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER |
+                           NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC |
+                           NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION |
+                           NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
+                           NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION |
+                           NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION)) != 0u) {
+        return false;
+    }
+    (void)deformationLow;
+    return true;
+}
+
 template <typename StatePointer, typename CandidatePointer>
 inline float3x3 evaluateStressWithCandidate(
     const NMMaterialGPU material,
@@ -1103,6 +1135,20 @@ inline float3x3 evaluateStressWithCandidate(
 ,
     thread const float* deformationLow = nullptr
 ) {
+    if (usesCanonicalCompressibleNeoHookeanTangent(material, deformationLow)) {
+        float f[9], values[9];
+        matrixComponents(deformation, f);
+        const bool ok = parameters != nullptr && material.parameterOffset <= 0xfffffffdu &&
+            nmCanonicalNeoHookeanResponse(f, deformationLow,
+                parameters[material.parameterOffset+1u],
+                parameters[material.parameterOffset+2u], nullptr, values, nullptr);
+        if (!ok) {
+            valid = false;
+            if (nonfiniteOutput != nullptr) *nonfiniteOutput = true;
+            return float3x3(0.0f);
+        }
+        return componentsMatrix(values);
+    }
     float f[9];
     float direction[9] = {
         0.0f, 0.0f, 0.0f,
@@ -1252,90 +1298,27 @@ inline float3x3 evaluateStress(
 }
 
 
-inline bool usesCanonicalCompressibleNeoHookeanTangent(
-    const NMMaterialGPU material,
-    thread const float* deformationLow
-) {
-    if ((material.flags &
-         NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT) == 0u ||
-        material.constitutiveKind != NM_CONSTITUTIVE_BYTECODE ||
-        material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC ||
-        material.parameterCount != 3u || material.stateCount != 0u ||
-        material.dissipationProgram != NM_INVALID_INDEX ||
-        material.viscousStressProgramOffset != NM_INVALID_INDEX ||
-        material.viscousTangentProgramOffset != NM_INVALID_INDEX ||
-        material.implicitResidualProgramOffset != NM_INVALID_INDEX ||
-        material.implicitJacobianProgramOffset != NM_INVALID_INDEX ||
-        material.implicitDeformationProgramOffset != NM_INVALID_INDEX ||
-        material.stressStateDerivativeProgramOffset != NM_INVALID_INDEX ||
-        (material.flags & (NM_MATERIAL_HAS_STATE |
-                           NM_MATERIAL_HAS_DISSIPATION |
-                           NM_MATERIAL_HAS_IMPLICIT_STATE |
-                           NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER |
-                           NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC |
-                           NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION |
-                           NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
-                           NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION |
-                           NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION)) != 0u) {
-        return false;
-    }
-    // The closed form consumes the existing FP32 local F directly. Never
-    // bypass bytecode's compensated input path if a caller supplies low words.
-    if (deformationLow != nullptr) {
-        for (uint component = 0u; component < 9u; ++component) {
-            if (deformationLow[component] != 0.0f) return false;
-        }
-    }
-    return true;
-}
+
 
 inline bool evaluateCanonicalCompressibleNeoHookeanTangent(
-    const NMMaterialGPU material,
-    device const float* parameters,
-    const float3x3 deformation,
-    const float3x3 deformationDirection,
-    thread float3x3& tangent,
-    thread bool& valid,
-    thread bool* nonfiniteOutput = nullptr
-) {
-    if (parameters == nullptr || material.parameterOffset > 0xfffffffdu)
-        return false;
-    const float shear = parameters[material.parameterOffset + 1u];
-    const float bulk = parameters[material.parameterOffset + 2u];
-    const float j = determinant(deformation);
-    if (!isfinite(shear) || !isfinite(bulk) || !isfinite(j) || !(j > 0.0f)) {
+    const NMMaterialGPU material, device const float* parameters,
+    const float3x3 deformation, const float3x3 deformationDirection,
+    thread float3x3& tangent, thread bool& valid,
+    thread bool* nonfiniteOutput = nullptr,
+    thread const float* deformationLow = nullptr) {
+    if (parameters == nullptr || material.parameterOffset > 0xfffffffdu) return false;
+    float f[9], direction[9], result[9];
+    matrixComponents(deformation, f);
+    matrixComponents(deformationDirection, direction);
+    if (!nmCanonicalNeoHookeanResponse(f, deformationLow,
+            parameters[material.parameterOffset+1u],
+            parameters[material.parameterOffset+2u], direction, nullptr, result)) {
         if (nonfiniteOutput != nullptr) *nonfiniteOutput = true;
         valid = false;
         tangent = float3x3(0.0f);
         return true;
     }
-    // Repository invert3x3 returns F^-T (the cofactor matrix divided by J).
-    // Keep that exact orientation for P and form F^-1 only for tr(F^-1 H).
-    float3x3 inverseTransposeF;
-    if (!invert3x3(deformation, inverseTransposeF)) return false;
-    const float logJ = log(j);
-    const float3x3 inverseDirection =
-        transpose(inverseTransposeF) * deformationDirection;
-    const float volumeDirection = inverseDirection[0][0] +
-        inverseDirection[1][1] + inverseDirection[2][2];
-    const float3x3 inverseTransposeDirectionProduct =
-        inverseTransposeF * transpose(deformationDirection) * inverseTransposeF;
-    const float3x3 result =
-        shear * deformationDirection +
-        bulk * volumeDirection * inverseTransposeF -
-        (bulk * logJ - shear) * inverseTransposeDirectionProduct;
-    if (!isfinite(logJ) || !isfinite(volumeDirection) ||
-        !all(isfinite(inverseTransposeF[0])) ||
-        !all(isfinite(inverseTransposeF[1])) ||
-        !all(isfinite(inverseTransposeF[2])) ||
-        !all(isfinite(result[0])) || !all(isfinite(result[1])) ||
-        !all(isfinite(result[2]))) {
-        if (nonfiniteOutput != nullptr) *nonfiniteOutput = true;
-        valid = false;
-        tangent = float3x3(0.0f);
-        return true;
-    }
-    tangent = result;
+    tangent = componentsMatrix(result);
     return true;
 }
 
@@ -1363,6 +1346,15 @@ inline float3x3 evaluateTangentVectorWithCandidate(
 ) {
     if (nativeMismatchOutput != nullptr)
         *nativeMismatchOutput = false;
+    if (tangentWordsOutput == nullptr &&
+        usesCanonicalCompressibleNeoHookeanTangent(material, deformationLow)) {
+        float3x3 canonicalTangent;
+        if (evaluateCanonicalCompressibleNeoHookeanTangent(
+                material, parameters, deformation, deformationDirection,
+                canonicalTangent, valid, nonfiniteOutput, deformationLow)) {
+            return canonicalTangent;
+        }
+    }
     if (nmAllNativeFloatMaterialsActive &&
         !nmValidateNativeStatelessTangentBundleActive) {
         if (tangentWordsOutput != nullptr) {
@@ -1411,15 +1403,6 @@ inline float3x3 evaluateTangentVectorWithCandidate(
             return float3x3(0.0f);
         }
         return nativeTangent;
-    }
-    if (tangentWordsOutput == nullptr &&
-        usesCanonicalCompressibleNeoHookeanTangent(material, deformationLow)) {
-        float3x3 canonicalTangent;
-        if (evaluateCanonicalCompressibleNeoHookeanTangent(
-                material, parameters, deformation, deformationDirection,
-                canonicalTangent, valid, nonfiniteOutput)) {
-            return canonicalTangent;
-        }
     }
     float f[9];
     float direction[9];

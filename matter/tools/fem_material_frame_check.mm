@@ -939,7 +939,12 @@ void canonicalTangentChecks(Device& d,const std::filesystem::path& materialsDire
             const Inputs input=manufactured(world,deformations[sample],directions[sample]);
             const auto force=dispatch(d,world,input,false);
             const auto fallbackForce=dispatch(d,fallback,input,false);
-            need(same(force,fallbackForce),"canonical tangent flag changed force output");
+            // Canonical evaluation preserves low-word deformation and stress
+            // cancellation; the untagged interpreter intentionally retains its
+            // original rounding. Require the same law, not the old force bits.
+            need(difference(force,fallbackForce)<5e-5 &&
+                 compare(world,input,force,false,oracle)<5e-5,
+                 "canonical stress differs from independent law or legacy arithmetic");
             const auto tangent=dispatch(d,world,input,true);
             const auto fallbackTangent=dispatch(d,fallback,input,true);
             const auto cached=dispatch(d,world,input,true,true);
@@ -1698,7 +1703,7 @@ void integratedChecks(Device& d,const MaterialProgram& material){
 } // namespace
 
 int main(int argc,char** argv){@autoreleasepool{try{
-    need(argc==2,"usage: fem-material-frame-check GUCCIONE.nmatter");
+    need(argc==2||(argc==3&&std::string(argv[2])=="--canonical-only"),"usage: fem-material-frame-check GUCCIONE.nmatter [--canonical-only]");
     const char* bundleCheckOnly=std::getenv("NM_FEM_MATERIAL_BUNDLE_CHECK_ONLY");
     need(bundleCheckOnly==nullptr || std::strcmp(bundleCheckOnly,"0")==0 ||
          std::strcmp(bundleCheckOnly,"1")==0,
@@ -1774,6 +1779,7 @@ int main(int argc,char** argv){@autoreleasepool{try{
          diagnostic(paper.diagnostics));
     checkSharedFactorCompilerProof(paper.material);
     Device device;std::cout<<std::setprecision(17)<<"frame_device="<<[device.device name].UTF8String<<" abi="<<NM_MATTER_ABI_VERSION<<'\n';
+    if(argc==3){canonicalTangentChecks(device,std::filesystem::path(argv[1]).parent_path());return 0;}
     checkColumnValidityPublication(device);
     checkCompensatedLocalFactor(device);
     canonicalTangentChecks(device,std::filesystem::path(argv[1]).parent_path());
