@@ -1,0 +1,913 @@
+{
+  "clone_stderr": "Cloning into bare repository '/Users/n/Developer/numi-crow-rl-20261107/.numi/crow-github-recovery-71qb9u5n/repo.git'...\n",
+  "clone_stdout": "",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 306651052 150698088    68% 3523054 1506980880    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 306650924 150698216    68% 3523053 1506982160    0%   /System/Volumes/Data\n",
+  "github_commit": "ce5bdb7cd437cfd9677682bf77111decdd5ad2ef",
+  "manifest_sha256": "7a33bade209ea4ebad691f85fd73f050544acc893f87470578bc2aa7316858c0",
+  "recovered": [
+    {
+      "bytes": 163832,
+      "mode": 493,
+      "path": ".numi/retained-runtime/recurrent-rollout-admission-04/bin/metalrobo_crow_recurrent_actor_check",
+      "sha256": "a6034e5894cb4e06f3ed6df553259319830fd093788d52b5cb5480f76ce091ea"
+    },
+    {
+      "bytes": 653176,
+      "mode": 493,
+      "path": ".numi/retained-runtime/recurrent-rollout-admission-04/bin/metalrobo_crow_recurrent_rollout_check",
+      "sha256": "3d8e429b61b0189394affca69bb55c37f50cd95fbfef4f73a9b83bfff1dfa0d7"
+    },
+    {
+      "bytes": 998888,
+      "mode": 493,
+      "path": ".numi/retained-runtime/recurrent-rollout-admission-04/bin/metalrobo_task_rollout",
+      "sha256": "68a2995f31b4248699db6c12c577ca799d1770efabbb566e402c5320ae12cbe8"
+    },
+    {
+      "bytes": 0,
+      "mode": 420,
+      "path": ".numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 3184,
+      "mode": 420,
+      "path": ".numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/gru_memory.py",
+      "sha256": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710"
+    },
+    {
+      "bytes": 146696,
+      "mode": 420,
+      "path": ".numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/mlx_policy_learning.py",
+      "sha256": "6158df87187f5a8f3e410cba7263562cf531f467815bc57cd90193a60e1ac02b"
+    },
+    {
+      "bytes": 31988,
+      "mode": 420,
+      "path": ".numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/native.py",
+      "sha256": "a1960b567d62ba21339af4ecbb853f7f8c35465432fc32bdfc33c2f84a10ef1b"
+    },
+    {
+      "bytes": 10329,
+      "mode": 420,
+      "path": ".numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/recurrent_policy_admission.py",
+      "sha256": "df26d935f7d7105168d272740377e4755e35863eb03b18b84c382d7370d9318b"
+    },
+    {
+      "bytes": 12848,
+      "mode": 420,
+      "path": ".numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/recurrent_rollout_admission.py",
+      "sha256": "18c9cdf339421a451462282fa6729186edd5ad284edbd727453ca32555b783ed"
+    },
+    {
+      "bytes": 220,
+      "mode": 420,
+      "path": ".numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/__pycache__/__init__.cpython-313.pyc",
+      "sha256": "def893c6e22cfcefe55171211ec826ea9a9d08effd21044135aa7df761d9087e"
+    },
+    {
+      "bytes": 5322,
+      "mode": 420,
+      "path": ".numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/__pycache__/gru_memory.cpython-313.pyc",
+      "sha256": "edd97f3c3c4d6f8bba61cb04f2e0a881f8484aba53cb42fe5a7afb43fd5f1341"
+    },
+    {
+      "bytes": 156626,
+      "mode": 420,
+      "path": ".numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/__pycache__/mlx_policy_learning.cpython-313.pyc",
+      "sha256": "aa6224afa59892b32fd369ae1c2a694d2206b1b7edd94c5aabbd108b6fb8e212"
+    },
+    {
+      "bytes": 46848,
+      "mode": 420,
+      "path": ".numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/__pycache__/native.cpython-313.pyc",
+      "sha256": "3b8e1b2ea07e5d10dd0b6e7fabea4e8d0a61f2f1edbad5e6ac01c5fce9fa7435"
+    },
+    {
+      "bytes": 19968,
+      "mode": 420,
+      "path": ".numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/__pycache__/recurrent_policy_admission.cpython-313.pyc",
+      "sha256": "21be026deed59e8cccc6a88ade0648f77b02e76fcf4d1642e2cb51287637a907"
+    },
+    {
+      "bytes": 20921,
+      "mode": 420,
+      "path": ".numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/__pycache__/recurrent_rollout_admission.cpython-313.pyc",
+      "sha256": "880a9b57977d1acfa59064c71da6ceb7402ebbed97b8e90c8353b0508cd52bb1"
+    },
+    {
+      "bytes": 19391,
+      "mode": 420,
+      "path": ".numi/retained-runtime/recurrent-rollout-admission-04/shaders/GRUMemory.metallib",
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    },
+    {
+      "bytes": 4176630,
+      "mode": 420,
+      "path": ".numi/retained-runtime/recurrent-rollout-admission-04/shaders/MetalRobo.metallib",
+      "sha256": "0aa9d42ab605cf79ecb74fc8251dea561f7fb8c9930878fb35dd9c3929074944"
+    },
+    {
+      "bytes": 16151,
+      "mode": 420,
+      "path": ".numi/retained-runtime/recurrent-rollout-admission-04/shaders/RetinalStream.metallib",
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    },
+    {
+      "bytes": 5600928,
+      "mode": 493,
+      "path": ".numi/retained-runtime/recurrent-rollout-admission-04/lib/libmetalrobo.dylib",
+      "sha256": "519280a66f7df324c59b73508b048c5c67ddf1f19b1e30c534e431a17ea4982a"
+    },
+    {
+      "bytes": 213912341,
+      "mode": 384,
+      "path": ".numi/runs/american-crow/20261107-learner-probe-01/initial.rolloutpack",
+      "sha256": "4d415784059aa5bd847466e8d4ab8b46011bdbb6808581cbf3e908adb3165cb1"
+    }
+  ],
+  "scope": "Fresh independent GitHub blob recovery and disk readback; no scientific rerun or new capability qualification.",
+  "temporary_files_removed": [
+    {
+      "bytes": 213912341,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-1/.numi/runs/american-crow/20261107-learner-probe-01/initial.rolloutpack",
+      "sha256": "4d415784059aa5bd847466e8d4ab8b46011bdbb6808581cbf3e908adb3165cb1"
+    },
+    {
+      "bytes": 998888,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-0/.numi/retained-runtime/recurrent-rollout-admission-04/bin/metalrobo_task_rollout",
+      "sha256": "68a2995f31b4248699db6c12c577ca799d1770efabbb566e402c5320ae12cbe8"
+    },
+    {
+      "bytes": 653176,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-0/.numi/retained-runtime/recurrent-rollout-admission-04/bin/metalrobo_crow_recurrent_rollout_check",
+      "sha256": "3d8e429b61b0189394affca69bb55c37f50cd95fbfef4f73a9b83bfff1dfa0d7"
+    },
+    {
+      "bytes": 163832,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-0/.numi/retained-runtime/recurrent-rollout-admission-04/bin/metalrobo_crow_recurrent_actor_check",
+      "sha256": "a6034e5894cb4e06f3ed6df553259319830fd093788d52b5cb5480f76ce091ea"
+    },
+    {
+      "bytes": 3184,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-0/.numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/gru_memory.py",
+      "sha256": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710"
+    },
+    {
+      "bytes": 146696,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-0/.numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/mlx_policy_learning.py",
+      "sha256": "6158df87187f5a8f3e410cba7263562cf531f467815bc57cd90193a60e1ac02b"
+    },
+    {
+      "bytes": 10329,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-0/.numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/recurrent_policy_admission.py",
+      "sha256": "df26d935f7d7105168d272740377e4755e35863eb03b18b84c382d7370d9318b"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-0/.numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 31988,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-0/.numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/native.py",
+      "sha256": "a1960b567d62ba21339af4ecbb853f7f8c35465432fc32bdfc33c2f84a10ef1b"
+    },
+    {
+      "bytes": 12848,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-0/.numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/recurrent_rollout_admission.py",
+      "sha256": "18c9cdf339421a451462282fa6729186edd5ad284edbd727453ca32555b783ed"
+    },
+    {
+      "bytes": 20921,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-0/.numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/__pycache__/recurrent_rollout_admission.cpython-313.pyc",
+      "sha256": "880a9b57977d1acfa59064c71da6ceb7402ebbed97b8e90c8353b0508cd52bb1"
+    },
+    {
+      "bytes": 19968,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-0/.numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/__pycache__/recurrent_policy_admission.cpython-313.pyc",
+      "sha256": "21be026deed59e8cccc6a88ade0648f77b02e76fcf4d1642e2cb51287637a907"
+    },
+    {
+      "bytes": 46848,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-0/.numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/__pycache__/native.cpython-313.pyc",
+      "sha256": "3b8e1b2ea07e5d10dd0b6e7fabea4e8d0a61f2f1edbad5e6ac01c5fce9fa7435"
+    },
+    {
+      "bytes": 220,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-0/.numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/__pycache__/__init__.cpython-313.pyc",
+      "sha256": "def893c6e22cfcefe55171211ec826ea9a9d08effd21044135aa7df761d9087e"
+    },
+    {
+      "bytes": 5322,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-0/.numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/__pycache__/gru_memory.cpython-313.pyc",
+      "sha256": "edd97f3c3c4d6f8bba61cb04f2e0a881f8484aba53cb42fe5a7afb43fd5f1341"
+    },
+    {
+      "bytes": 156626,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-0/.numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/__pycache__/mlx_policy_learning.cpython-313.pyc",
+      "sha256": "aa6224afa59892b32fd369ae1c2a694d2206b1b7edd94c5aabbd108b6fb8e212"
+    },
+    {
+      "bytes": 19391,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-0/.numi/retained-runtime/recurrent-rollout-admission-04/shaders/GRUMemory.metallib",
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    },
+    {
+      "bytes": 16151,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-0/.numi/retained-runtime/recurrent-rollout-admission-04/shaders/RetinalStream.metallib",
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    },
+    {
+      "bytes": 4176630,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-0/.numi/retained-runtime/recurrent-rollout-admission-04/shaders/MetalRobo.metallib",
+      "sha256": "0aa9d42ab605cf79ecb74fc8251dea561f7fb8c9930878fb35dd9c3929074944"
+    },
+    {
+      "bytes": 5600928,
+      "path": ".numi/crow-github-recovery-71qb9u5n/restore-0/.numi/retained-runtime/recurrent-rollout-admission-04/lib/libmetalrobo.dylib",
+      "sha256": "519280a66f7df324c59b73508b048c5c67ddf1f19b1e30c534e431a17ea4982a"
+    },
+    {
+      "bytes": 223,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/config",
+      "sha256": "31d59cd73545f17d0664a908c49092657e455fd64a1a79de7406974890481d47"
+    },
+    {
+      "bytes": 41,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/shallow",
+      "sha256": "85362f8092dff03dfe9a951b523de0998786be7a3ae691aa24ea36ba5e58bde0"
+    },
+    {
+      "bytes": 48,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/HEAD",
+      "sha256": "512351d7b5c806a63296f93bdae1ec88c8b93150c6964dd77e1cd5ecce48d698"
+    },
+    {
+      "bytes": 73,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/description",
+      "sha256": "85ab6c163d43a17ea9cf7788308bca1466f1b0a8d1cc92e26e9bf63da4062aee"
+    },
+    {
+      "bytes": 130,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/packed-refs",
+      "sha256": "b3c4f11e45b0574942f1e57840fb8f50160158cfc47cefed90157aacbc315915"
+    },
+    {
+      "bytes": 5831789,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/artifacts/crow-rl-git-recovery-20261107/manifest.json",
+      "sha256": "7a33bade209ea4ebad691f85fd73f050544acc893f87470578bc2aa7316858c0"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-bb1d55e2a972489dc3e3c0b02ec1c69fb2b1f823.rev",
+      "sha256": "495bbc9202cf3c563e9889074bdcbb064b37696ab0987ce93ca0dfd250410e50"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-8e4b7957f611f4492cf8c8ca7cea4cb7d7de4645.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-5a3a33ac82ec96fcdd38fe3748c72631d4c0a55f.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 22253513,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-a585d8c681669213fa858035d2eb03576a5f040a.pack",
+      "sha256": "c2d8094c160c130f9a98e29465f8936d4928a40f6929e5e43bc75a41007fcf19"
+    },
+    {
+      "bytes": 4008,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-844415424818289c9bd8ca1bf1848a1a735d5e6f.rev",
+      "sha256": "75007d11005d07f1911900c44c7b3422a019e8cb05ef6fe80be29901c59a96f3"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-5791d139cb1072c8572662cf651f4fcaeb966ec0.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-215931ea75ae88235d30d39396ed07973ab9c2d8.idx",
+      "sha256": "e6c9697c786350e02e516cbc655b51fee4ae5f0628e88e1ff5edd9d7fbdb63da"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-cf91599c0a29196d7100b0dac04e07ffbc7cbe94.idx",
+      "sha256": "c8b13080db54030780de09759d95d5c46395e0858d6a80a97c282e2246c584be"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-eabde0fc19a6ac5fe562b2b4943b03d4a371c0b3.rev",
+      "sha256": "323af8b5a0380695f6123411fdbc8e65da9d43676312cfa3f6e5c2b20c72c7b4"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-2529ecc47c4108d08f0122e02ec450c6db56f5fd.rev",
+      "sha256": "40889e448d4ee85756702730bf042331f8eabcfa3885d1fcec09b46a900a62c3"
+    },
+    {
+      "bytes": 4234,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-ece5358f32dbee259fe59fdb8c21a8222c527f94.pack",
+      "sha256": "98c7fba03c71d9b3af0fe891da2215e38c095e829780745ad1a65de49ce64b53"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-1163065f24157cc2f4576f363464a2e70031eabc.rev",
+      "sha256": "fdc3aa2185854bccb6a94d40c03ed03a1261100c8869f225851528c42ea09929"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-1e2ca02317b735280bc1a8849687a0e3822e81d3.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-e044fdcd438e4bc17d70b25fd9a43ed113783589.idx",
+      "sha256": "a02bd7dd5acafc121b247c255bf42cfde0beea9adb156dfb6ca2e79d1d5f3da1"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-215931ea75ae88235d30d39396ed07973ab9c2d8.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-cc8cf687984bc37c36d4cbb2d071a208823955c0.rev",
+      "sha256": "d910d079c654982fedec907268baf6b4d7b1f60da87afcea62b75f7d310ec1bb"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-521cc213edb45a3a17a106db0fa8681aa9679b74.idx",
+      "sha256": "0ed746e202aff9644277304116e627fbf0921da103b1306076ec82603918a51f"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-2529ecc47c4108d08f0122e02ec450c6db56f5fd.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-cc8cf687984bc37c36d4cbb2d071a208823955c0.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-a439acb856fd06f4c463584ce6873eb8560e5a23.rev",
+      "sha256": "58025dcd9c7553f4fcee4c0a305b98a9cb705a42cef6928c0dda8136f7f1ffd9"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-038a0a3bda8f354b6313877284390edf230e9f0f.rev",
+      "sha256": "30c6e5118c2883d31004d03f80d530a05de71971357695c0b489f6eae545d0a7"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-bb1d55e2a972489dc3e3c0b02ec1c69fb2b1f823.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-1e2ca02317b735280bc1a8849687a0e3822e81d3.rev",
+      "sha256": "0c2886ef55ea9486caeb18b8f2e3fcfa6ebeb7729a6b5416acc5bb22471f9774"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-9b88ffde4abbdaf9a6f61394879898c7cabad9e1.idx",
+      "sha256": "ac979106e71bcc906e9ffb54827c10ea29652dc31ffa5b45f486ab01799d88c8"
+    },
+    {
+      "bytes": 595135,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-5a3a33ac82ec96fcdd38fe3748c72631d4c0a55f.pack",
+      "sha256": "0a90b18eaffeed5e4e008151851340183e26f992eec7575d1768143585a1c5be"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-a585d8c681669213fa858035d2eb03576a5f040a.rev",
+      "sha256": "aad45eb356986ba31a4f597fa1eee1d93c10b9a8fb0785b643c6eedb740c7502"
+    },
+    {
+      "bytes": 41,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-1163065f24157cc2f4576f363464a2e70031eabc.pack",
+      "sha256": "f8433c25de2364b5ee1d1162e94b205d254e1947768be65b4bdcd00b67864d6b"
+    },
+    {
+      "bytes": 21791595,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-5791d139cb1072c8572662cf651f4fcaeb966ec0.pack",
+      "sha256": "33a1f101764e9358412d97813d4c6ef8d589581ccc6a1ca76be71cb839dbb38c"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-a439acb856fd06f4c463584ce6873eb8560e5a23.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 6093144,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-e044fdcd438e4bc17d70b25fd9a43ed113783589.pack",
+      "sha256": "845254c2775e4ad53eef5ac5dafb0775311e38b33ed67de2f2afdc8aa5e8759f"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-670805bf1fe97ee7e6bf52ed70e1ee79703b15cb.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-26681e274228bcf12b8b9a9fde280a689e461f24.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-670805bf1fe97ee7e6bf52ed70e1ee79703b15cb.idx",
+      "sha256": "5f9cbcd5e92e019cad76bc82a995c4faf47af196270d31cbfed7a5db6d049f46"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-5791d139cb1072c8572662cf651f4fcaeb966ec0.rev",
+      "sha256": "a431e05331099403a00d35b4249a504059098e45017d29a73f8801bdd1048d31"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-797940211110f64d44ce0eb3e1fbfb652ebcb10b.idx",
+      "sha256": "ff97d4cced9a4fbc5d0742e9fd880951f9418ef958d631c4783532a3a1ee0381"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-da9ce4490265eb21cd74b2906172203dd7926cce.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 20087093,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-2529ecc47c4108d08f0122e02ec450c6db56f5fd.pack",
+      "sha256": "8c0c0d4e0e8b72587fa1e620f58271b9a0b88469ebafe33645542e1c2d7d24fe"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-797940211110f64d44ce0eb3e1fbfb652ebcb10b.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-faf1fd31e27772880ae23784b407b804382c8f06.rev",
+      "sha256": "ac7265c4316c2d36553554afcae6453f37d031456979efc0c89100765a407246"
+    },
+    {
+      "bytes": 2306092,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-8e4b7957f611f4492cf8c8ca7cea4cb7d7de4645.pack",
+      "sha256": "6dddaf0fadac24c59484076305773500b78adc9c3834316d53a7cc3c8f076a7d"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-989bbbf1b7cb831b5434b12653e425ac4118c574.rev",
+      "sha256": "cb0dbe73c0811f8a19ed5feec2f7a808f1c5d4f7837efcef1306291aaf29ef50"
+    },
+    {
+      "bytes": 1277,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-670805bf1fe97ee7e6bf52ed70e1ee79703b15cb.pack",
+      "sha256": "9a1e8aefafeee25eb460b687219899e5724a82cf3987cc1057a4a9dc109eb6f6"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-8e4b7957f611f4492cf8c8ca7cea4cb7d7de4645.idx",
+      "sha256": "71260be2c841808c0ee9216f790a6f397368911137f1a5430f618d907f179e69"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-da9ce4490265eb21cd74b2906172203dd7926cce.idx",
+      "sha256": "b39475c1867393ec7586b167039eced31e5c9e232c0f2c94b01ed00194b96fb5"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-9c5620b0b700dc37cf075215211e6ab71adf371f.idx",
+      "sha256": "8558ddf674ab5d2452ffc08c9e4a91b808b79a42189c60ff334bad92fc5cd65a"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-5a3a33ac82ec96fcdd38fe3748c72631d4c0a55f.rev",
+      "sha256": "83f09565228a84c0150214012c65cd98456200eee1f7d345520e916c35f70570"
+    },
+    {
+      "bytes": 5974,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-9c5620b0b700dc37cf075215211e6ab71adf371f.pack",
+      "sha256": "724f8d51c33cf8cae6d52e2cff4f6a6442d2bba829d9198d486145c5b2499456"
+    },
+    {
+      "bytes": 2995,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-da9ce4490265eb21cd74b2906172203dd7926cce.pack",
+      "sha256": "78f54fc4569031d221b14e8ee69c87a3b41f28c70ff60b319ce4e4b433b99558"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-9522e81b3030275fc7f4d7f487a203dfc9ae8e1c.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 10369,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-cf91599c0a29196d7100b0dac04e07ffbc7cbe94.pack",
+      "sha256": "7a1b2ce764ca1e0f4d0839ffad4af524c183c22f3747ca78ecf4ddb1adfddc56"
+    },
+    {
+      "bytes": 246,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-521cc213edb45a3a17a106db0fa8681aa9679b74.pack",
+      "sha256": "e73966a6d35ac90a3703d7a8bbb538fa23eae62a7e873b32892a58f03a3652fc"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-9522e81b3030275fc7f4d7f487a203dfc9ae8e1c.idx",
+      "sha256": "e8021509210682cd04f687d09cedfb636b92e3b07cf0b67e075adfb32c65aab6"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-26681e274228bcf12b8b9a9fde280a689e461f24.idx",
+      "sha256": "d6b9f30a2d8b536b58f83c50187120da1124067f1698e9a567dc9210ea28b149"
+    },
+    {
+      "bytes": 150127,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-bb1d55e2a972489dc3e3c0b02ec1c69fb2b1f823.pack",
+      "sha256": "8b8066a63a0f544ca5e234ab2b773b55f2173df4526bfc47da08e273404a7d32"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-49b9be36c909d12723806f9dacbb0abd2c009c21.idx",
+      "sha256": "8abdaa56f0fd22c5294a3661289dfff4323eb2f9ad4882f1eca47e84e7b6b0fe"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-faf1fd31e27772880ae23784b407b804382c8f06.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-ece5358f32dbee259fe59fdb8c21a8222c527f94.rev",
+      "sha256": "243763146189feb196d20b3035e13a628c599000c1267ed13da7a57eacd4d61d"
+    },
+    {
+      "bytes": 8376,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-9522e81b3030275fc7f4d7f487a203dfc9ae8e1c.pack",
+      "sha256": "9755aa440f7f6c9ca54e02947601c438c748e837f6eeabd5f85f36bd8f4ba6af"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-2529ecc47c4108d08f0122e02ec450c6db56f5fd.idx",
+      "sha256": "a18985c03575f77fb3beaed01e465c2d5f1e2b21a27cf5de97f30b28b7baf43f"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-9b88ffde4abbdaf9a6f61394879898c7cabad9e1.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2417012,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-9b88ffde4abbdaf9a6f61394879898c7cabad9e1.pack",
+      "sha256": "df931d52c51ae172bc93ed18232a207929258291a3c39eccb084fca30dde5e27"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-1163065f24157cc2f4576f363464a2e70031eabc.idx",
+      "sha256": "ff4bf7d79a74c85f4c33aa10fdaeb4059bd9439376e29fca1c56b35d35f6d472"
+    },
+    {
+      "bytes": 21289187,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-038a0a3bda8f354b6313877284390edf230e9f0f.pack",
+      "sha256": "eccd5971744ff4312c539d3afbaf54be91054b4650c907633f1a3c1fa4946254"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-038a0a3bda8f354b6313877284390edf230e9f0f.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-bb1d55e2a972489dc3e3c0b02ec1c69fb2b1f823.idx",
+      "sha256": "f988f1169059d7146e95a93fbb4d4840b0881e44d044514b18b068780de640b9"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-989bbbf1b7cb831b5434b12653e425ac4118c574.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 9975,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-cc8cf687984bc37c36d4cbb2d071a208823955c0.pack",
+      "sha256": "a8974a81218247e96c1bf4f6a1021e0f91c24878ad5d9d999c5007b54349bfc0"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-ece5358f32dbee259fe59fdb8c21a8222c527f94.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 84,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-844415424818289c9bd8ca1bf1848a1a735d5e6f.promisor",
+      "sha256": "38bc2e07302f9d6b1e8c86d4daef691d2fd532a6a2591da766fd9548e603ae9e"
+    },
+    {
+      "bytes": 28764,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-844415424818289c9bd8ca1bf1848a1a735d5e6f.idx",
+      "sha256": "693b5481fdea195eb0e3a6d243d1da8ec0f19211fac78fc3b6fce274ff0050da"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-eabde0fc19a6ac5fe562b2b4943b03d4a371c0b3.idx",
+      "sha256": "e52e278e0050ad798e9ac0dc297ab4b973f468773b7c54c57b061152b8795305"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-cf91599c0a29196d7100b0dac04e07ffbc7cbe94.rev",
+      "sha256": "05cea1b287ab2452388bb0b809df31138ea7af9dc894e1b910fee7e27e7bc090"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-215931ea75ae88235d30d39396ed07973ab9c2d8.rev",
+      "sha256": "0e2ea9d68a3aedee92783f67550186b44ef4b5184f699e1c7f0ceb62daab18f3"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-038a0a3bda8f354b6313877284390edf230e9f0f.idx",
+      "sha256": "d7eab0da230eab54b05dfedf7e4e0a5eac7889dece6155efe2085ada190dd776"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-a439acb856fd06f4c463584ce6873eb8560e5a23.idx",
+      "sha256": "ced60574e21371bf391df5288363fcfa820f994ab5439a9643159826cad3cd32"
+    },
+    {
+      "bytes": 3679,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-215931ea75ae88235d30d39396ed07973ab9c2d8.pack",
+      "sha256": "165701813c5b034b1abef3a84786bb3ab351513681a1df563afe0224b73995b4"
+    },
+    {
+      "bytes": 287916,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-a439acb856fd06f4c463584ce6873eb8560e5a23.pack",
+      "sha256": "aaf6c60156e2449c42be4fc6bd00419226fc7bf3f3581eb756e5b73ced8cd224"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-e044fdcd438e4bc17d70b25fd9a43ed113783589.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-e044fdcd438e4bc17d70b25fd9a43ed113783589.rev",
+      "sha256": "d70661019ec8a81e588bdb1e6dce7d7f1e23721738c0021f6eb5ccb3e2701008"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-cc8cf687984bc37c36d4cbb2d071a208823955c0.idx",
+      "sha256": "e5fe0f10b2250cbec0a3fe0f3083dfa098ef8de4b3c122bb247e5d0f3bc14429"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-521cc213edb45a3a17a106db0fa8681aa9679b74.rev",
+      "sha256": "e10796bac006c65e066c83d46f9aa5b5a1a46b210e7f1befba68cbed89cea316"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-eabde0fc19a6ac5fe562b2b4943b03d4a371c0b3.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-670805bf1fe97ee7e6bf52ed70e1ee79703b15cb.rev",
+      "sha256": "45627abfe4bd8622de874ab17c6609e6b5ad4d791ca007211dadb0734bac0179"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-49b9be36c909d12723806f9dacbb0abd2c009c21.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-5791d139cb1072c8572662cf651f4fcaeb966ec0.idx",
+      "sha256": "144ac875d42ceb9c84e2b8fd56be8d5fe146fd1edefa9428ecf56d752d9bda4e"
+    },
+    {
+      "bytes": 15283,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-eabde0fc19a6ac5fe562b2b4943b03d4a371c0b3.pack",
+      "sha256": "0d3c9de8ba5be77c71d679cbd81479f229ec297b62303012aa7ac1374bce405a"
+    },
+    {
+      "bytes": 20896656,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-989bbbf1b7cb831b5434b12653e425ac4118c574.pack",
+      "sha256": "f04c31743e73523871be7355a9f236d61ea665e47824ac7f2c329728806e6ed3"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-797940211110f64d44ce0eb3e1fbfb652ebcb10b.rev",
+      "sha256": "d26e6e92a623c2bf0f457d25b55c2a84eed9ec7dfb16ee5ec762cd166c5f6831"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-1163065f24157cc2f4576f363464a2e70031eabc.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-1e2ca02317b735280bc1a8849687a0e3822e81d3.idx",
+      "sha256": "c32ed3e8930c082f04f905191ffe482e91da5984a7a63b919a84cb682425cc69"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-9b88ffde4abbdaf9a6f61394879898c7cabad9e1.rev",
+      "sha256": "b35f3c6f8b5a8d40b698504dd80aa4950ecadaf2189824328e6a606776c599e9"
+    },
+    {
+      "bytes": 61517,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-49b9be36c909d12723806f9dacbb0abd2c009c21.pack",
+      "sha256": "f3537d8fed1ed156866dbd3e3880bc6d906a8b3cc01a9de0d162e756e2c55e36"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-a585d8c681669213fa858035d2eb03576a5f040a.idx",
+      "sha256": "c57ede6eef898d9effc351d6a0cb8c2c0fb1be4cc4544c173028ffbe005a6533"
+    },
+    {
+      "bytes": 24971,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-797940211110f64d44ce0eb3e1fbfb652ebcb10b.pack",
+      "sha256": "e83df8e411f2be66a2148b86eb54ef91cddff7f24d1687ba6c45b41d0b883606"
+    },
+    {
+      "bytes": 9963,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-faf1fd31e27772880ae23784b407b804382c8f06.pack",
+      "sha256": "d877e33b0207b261431aed2add632cd5ce3f9aa1c5f86dba0c86173e76205b2f"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-a585d8c681669213fa858035d2eb03576a5f040a.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 224893,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-844415424818289c9bd8ca1bf1848a1a735d5e6f.pack",
+      "sha256": "85ed7900b567622c8ab26efd1919450b643a72c28ca1bcfeffafa4d8610b3f47"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-5a3a33ac82ec96fcdd38fe3748c72631d4c0a55f.idx",
+      "sha256": "2dacd1b0c2e56df3839c615bbffa41fb4d7f38a61f0ae297656c35a85b3a47c2"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-26681e274228bcf12b8b9a9fde280a689e461f24.rev",
+      "sha256": "0c2375f9742e727c085707487f6636a8b11e6ea681c39090642d216ed5f773a7"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-9522e81b3030275fc7f4d7f487a203dfc9ae8e1c.rev",
+      "sha256": "716ae78f80f4913a35689ac62da85da82d3360fa84104e1df754a37243f28729"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-49b9be36c909d12723806f9dacbb0abd2c009c21.rev",
+      "sha256": "6ef76cf43b566d5e405c192be310913e050894767ae9456c47159b1b39aa2b1b"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-9c5620b0b700dc37cf075215211e6ab71adf371f.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 60443,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-26681e274228bcf12b8b9a9fde280a689e461f24.pack",
+      "sha256": "882dadc2c7e56068b264bd8c4f299ef0eeeb30e46e94e8187d908586934eea8f"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-ece5358f32dbee259fe59fdb8c21a8222c527f94.idx",
+      "sha256": "df81d94c37eaab37a4fe67daa1d50d863398a545674550e363a25173bd470a3c"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-faf1fd31e27772880ae23784b407b804382c8f06.idx",
+      "sha256": "3712e2f7e55c86f588854203407cf0b786fdaa6441fb2c4647e224f559d44473"
+    },
+    {
+      "bytes": 1100,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-989bbbf1b7cb831b5434b12653e425ac4118c574.idx",
+      "sha256": "ae8cfb5a2fd04a0e797f1f2503d2161bdd30760661a77c8e643e718508d958bb"
+    },
+    {
+      "bytes": 20634892,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-1e2ca02317b735280bc1a8849687a0e3822e81d3.pack",
+      "sha256": "b1f422e4fdabc2b04ab9447a45cce75fb97434755f17a0cfbdaf8f475d625b24"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-cf91599c0a29196d7100b0dac04e07ffbc7cbe94.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-8e4b7957f611f4492cf8c8ca7cea4cb7d7de4645.rev",
+      "sha256": "8270866d62292ee1e006460886ee78bd51e5db8507418b285ddc6f7df2796c64"
+    },
+    {
+      "bytes": 0,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-521cc213edb45a3a17a106db0fa8681aa9679b74.promisor",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-da9ce4490265eb21cd74b2906172203dd7926cce.rev",
+      "sha256": "86dc41c08b419b7fc833f6a9125274660300e5aebf952c33ce990e33be7372c9"
+    },
+    {
+      "bytes": 56,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/objects/pack/pack-9c5620b0b700dc37cf075215211e6ab71adf371f.rev",
+      "sha256": "fb2095f7ecbf6257bf9fcc4411eaddcc8b75e4c049c2e4b4311d8b8245acb542"
+    },
+    {
+      "bytes": 240,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/info/exclude",
+      "sha256": "6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1"
+    },
+    {
+      "bytes": 1972,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/hooks/commit-msg.sample",
+      "sha256": "efc1401b0e99d1ff51494d154d98b46c1e99059bcd8bf9f73cecde19fd3eb23b"
+    },
+    {
+      "bytes": 4898,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/hooks/pre-rebase.sample",
+      "sha256": "4febce867790052338076f4e66cc47efb14879d18097d1d61c8261859eaaa7b3"
+    },
+    {
+      "bytes": 2308,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/hooks/sendemail-validate.sample",
+      "sha256": "44ebfc923dc5466bc009602f0ecf067b9c65459abfe8868ddc49b78e6ced7a92"
+    },
+    {
+      "bytes": 1649,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/hooks/pre-commit.sample",
+      "sha256": "57185b7b9f05239d7ab52db045f5b89eb31348d7b2177eab214f5eb872e1971b"
+    },
+    {
+      "bytes": 478,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/hooks/applypatch-msg.sample",
+      "sha256": "0223497a0b8b033aa58a3a521b8629869386cf7ab0e2f101963d328aa62193f7"
+    },
+    {
+      "bytes": 4611,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/hooks/fsmonitor-watchman.sample",
+      "sha256": "9159720099ad5595b8e66645cbfd47763c1e920f46e0b50ae75e642bbec57ef0"
+    },
+    {
+      "bytes": 544,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/hooks/pre-receive.sample",
+      "sha256": "a4c3d2b9c7bb3fd8d1441c31bd4ee71a595d66b44fcf49ddb310252320169989"
+    },
+    {
+      "bytes": 1492,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/hooks/prepare-commit-msg.sample",
+      "sha256": "e9ddcaa4189fddd25ed97fc8c789eca7b6ca16390b2392ae3276f0c8e1aa4619"
+    },
+    {
+      "bytes": 189,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/hooks/post-update.sample",
+      "sha256": "81765af2daef323061dcbc5e61fc16481cb74b3bac9ad8a174b186523586f6c5"
+    },
+    {
+      "bytes": 416,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/hooks/pre-merge-commit.sample",
+      "sha256": "d3825a70337940ebbd0a5c072984e13245920cdf8898bd225c8d27a6dfc9cb53"
+    },
+    {
+      "bytes": 424,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/hooks/pre-applypatch.sample",
+      "sha256": "e15c5b469ea3e0a695bea6f2c82bcf8e62821074939ddd85b77e0007ff165475"
+    },
+    {
+      "bytes": 1374,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/hooks/pre-push.sample",
+      "sha256": "ecce9c7e04d3f5dd9d8ada81753dd1d549a9634b26770042b58dda00217d086a"
+    },
+    {
+      "bytes": 3650,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/hooks/update.sample",
+      "sha256": "8d5f2fa83e103cf08b57eaa67521df9194f45cbdbcb37da52ad586097a14d106"
+    },
+    {
+      "bytes": 2783,
+      "path": ".numi/crow-github-recovery-71qb9u5n/repo.git/hooks/push-to-checkout.sample",
+      "sha256": "a53d0741798b287c6dd7afa64aee473f305e65d3f49463bb9d7408ec3b12bf5f"
+    }
+  ],
+  "temporary_open_handles": 0,
+  "verification": [
+    {
+      "commit": "ce5bdb7cd437cfd9677682bf77111decdd5ad2ef",
+      "manifest_sha256": "7a33bade209ea4ebad691f85fd73f050544acc893f87470578bc2aa7316858c0",
+      "verified_files": 19,
+      "verified_unique_contents": 19
+    },
+    {
+      "commit": "ce5bdb7cd437cfd9677682bf77111decdd5ad2ef",
+      "manifest_sha256": "7a33bade209ea4ebad691f85fd73f050544acc893f87470578bc2aa7316858c0",
+      "verified_files": 1,
+      "verified_unique_contents": 1
+    }
+  ]
+}

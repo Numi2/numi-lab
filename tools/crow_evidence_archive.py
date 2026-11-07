@@ -162,6 +162,10 @@ def load_manifest(path):
     if value["schema"] != "crow-git-evidence-archive-v1":
         raise ValueError("Unsupported manifest")
     roots = [safe_path(r) for r in value["roots"]]
+    for r in roots:
+        if str(r) not in (".numi/runs/american-crow", ".numi/retained-runtime") and not (
+                r.parent == Path("build") and r.name.startswith(("crow-", "gru-memory-"))):
+            raise ValueError("Manifest root is outside the owned crow evidence scope")
     seen = set()
     for f in value["files"]:
         p = safe_path(f["path"])
@@ -251,6 +255,8 @@ def prune(manifest, receipt):
     # Validate the entire deletion set before removing its first file.
     for f in value["files"]:
         path = safe_path(f["path"])
+        if any(parent.is_symlink() for parent in path.parents):
+            raise ValueError(f"Symlink parent prevents cleanup: {path}")
         s = path.lstat()
         if not stat.S_ISREG(s.st_mode) or s.st_size != f["bytes"] or s.st_mtime_ns != f["mtime_ns"] or stat.S_IMODE(s.st_mode) != f["mode"] or file_hash(path) != f["sha256"]:
             raise ValueError(f"Changed evidence prevents cleanup: {path}")
@@ -270,10 +276,59 @@ def prune(manifest, receipt):
     print(receipt.read_text(), flush=True)
 
 
+def omit_archives(receipt):
+    current = git("rev-parse", "HEAD").decode().strip()
+    remote = git("ls-remote", "origin", "refs/heads/" + BRANCH).decode().split()[0]
+    if current != remote:
+        raise ValueError("Push the archive before omitting checkout copies")
+    keep = ("artifacts/crow-rl-feeding-behavior-20261107/policies/",
+            "artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib",
+            "artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib")
+    before = subprocess.check_output(["df", "-k", "."]).decode()
+    handles = subprocess.run(["/usr/sbin/lsof", "-Fpn", "+D", "artifacts"],
+                             capture_output=True, text=True, timeout=60)
+    if handles.returncode not in (0, 1) or handles.stdout or handles.stderr:
+        raise ValueError("Open archive handles or incomplete lsof inspection")
+    files = []
+    for name, (mode, oid) in tree().items():
+        if not name.startswith("artifacts/crow-") or name.startswith(keep):
+            continue
+        if name.startswith("artifacts/crow-rl-git-recovery-") and "/blobs/" not in name:
+            continue  # Keep compact recovery controls and receipts visible.
+        path = safe_path(name)
+        if not path.exists():
+            continue
+        s = path.lstat()
+        if not stat.S_ISREG(s.st_mode) or mode not in ("100644", "100755"):
+            raise ValueError(f"Unexpected archive file type: {name}")
+        h = hashlib.sha1(b"blob " + str(s.st_size).encode() + b"\0")
+        with path.open("rb") as stream:
+            for data in iter(lambda: stream.read(CHUNK), b""):
+                h.update(data)
+        if h.hexdigest() != oid:
+            raise ValueError(f"Uncommitted archive content: {name}")
+        files.append({"path": name, "git_blob": oid, "bytes": s.st_size})
+    git("update-index", "--skip-worktree", "-z", "--stdin",
+        input=b"".join(f["path"].encode() + b"\0" for f in files))
+    for f in files:
+        safe_path(f["path"]).unlink()
+    for directory, _, _ in os.walk("artifacts", topdown=False):
+        try:
+            Path(directory).rmdir()
+        except OSError:
+            pass
+    write_json(receipt, {"commit": current, "remote_commit": remote,
+                        "omitted_files": files, "omitted_logical_bytes": sum(f["bytes"] for f in files),
+                        "preserved_input_prefixes": list(keep), "open_handles": 0,
+                        "df_before": before, "df_after": subprocess.check_output(["df", "-k", "."]).decode()})
+    print(json.dumps({"omitted_files": len(files), "omitted_logical_bytes": sum(f["bytes"] for f in files),
+                      "receipt": str(receipt)}), flush=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=["capture", "verify", "restore", "prune"])
-    parser.add_argument("path", type=Path, help="New artifact directory for capture; manifest otherwise")
+    parser.add_argument("action", choices=["capture", "verify", "restore", "prune", "omit"])
+    parser.add_argument("path", type=Path, help="New artifact directory for capture, new receipt for omit, manifest otherwise")
     parser.add_argument("--output", type=Path, help="New restore directory or cleanup receipt")
     parser.add_argument("--prefix", help="Exact evidence path or subtree to restore")
     args = parser.parse_args()
@@ -286,10 +341,14 @@ def main():
             parser.error("restore requires --output")
         args.output.mkdir(parents=True, exist_ok=False)
         verify(args.path, args.output, args.prefix)
-    else:
+    elif args.action == "prune":
         if not args.output or args.output.exists():
             parser.error("prune requires a new --output receipt")
         prune(args.path, args.output)
+    else:
+        if args.path.exists():
+            parser.error("omit requires a new receipt path")
+        omit_archives(args.path)
 
 
 if __name__ == "__main__":
