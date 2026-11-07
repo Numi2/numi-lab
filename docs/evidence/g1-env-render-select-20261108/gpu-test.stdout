@@ -1,0 +1,13 @@
+env=0 common_visible_target_pixels=5 sequence_sensitive_depth_pixels=5
+env=1 common_visible_target_pixels=5 sequence_sensitive_depth_pixels=5
+separate_reference_renders=bitwise_equal
+scenario=0 field=depth mismatches=0
+scenario=1 field=depth mismatches=0
+scenario=0 field=identity mismatches=0
+scenario=1 field=identity mismatches=0
+scenario=0 field=validity mismatches=0
+scenario=1 field=validity mismatches=0
+scenario=0 field=camera mismatches=0
+scenario=1 field=camera mismatches=0
+scenario=0 field=metadata mismatches=0
+scenario=1 field=metadata mismatches=0
