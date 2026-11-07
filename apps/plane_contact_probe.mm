@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 #include <CommonCrypto/CommonDigest.h>
 #include "numi/matter/matter.hpp"
+#include "../matter/src/fem_plane_quadrature.hpp"
 #include "metalrobo/engine_types.h"
 #include <algorithm>
 #include <array>
@@ -163,6 +164,8 @@ int main(int argc,char** argv){
     require(policy=="physical"||policy=="legacy","invalid residual policy");
     const bool freefall=argc>8&&std::string(argv[8])=="freefall";
     const bool reference=argc>9&&std::string(argv[9])=="reference";
+    const bool captureNodes=argc>11&&std::string(argv[11])=="capture_nodes";
+    require(!captureNodes||(arm=="ipc_area"&&reference&&!freefall),"nodal capture requires area IPC with reference coordinates");
     const auto world=model(divisions,h,startGap,policy=="physical",freefall,reference);
     numi::matter::Runtime runtime;numi::matter::RuntimeConfiguration config;
     config.metallib=argv[1];config.environmentCount=1;config.captureDiagnostics=true;config.adaptiveTransfer=false;
@@ -196,9 +199,27 @@ int main(int argc,char** argv){
     };
     auto initial=runtime.snapshot();require(initial.available,"initial snapshot unavailable");
     double gpu=0;int accepted=0,rejected=0;double minimumGap=1.e100;bool first=true;
-    std::cout<<std::setprecision(12)<<"{\"schema\":\"numi.matter.plane-contact.v1\",\"device\":\""<<device.name.UTF8String
+    std::cout<<std::setprecision(captureNodes?17:12)<<"{\"schema\":\"numi.matter.plane-contact.v1\",\"device\":\""<<device.name.UTF8String
         <<"\",\"arm\":\""<<arm<<"\",\"h\":"<<h<<",\"divisions\":"<<divisions<<",\"initial_gap\":"<<startGap<<",\"nodes\":"<<world.dispatch.femNodeCount
-        <<",\"area_ipc_k_N_per_m5\":"<<(arm=="ipc_area"?config.experimentalFEMPlaneAreaIPCK:0.f)<<",\"residual_policy\":\""<<policy<<"\",\"coordinate_mode\":\""<<(reference?"reference_displacement":"world_position")<<"\",\"freefall_control\":"<<(freefall?"true":"false")<<",\"mechanical_absolute_tolerance_Ns\":"<<world.mixedSolver.contactAcceptance.y<<",\"mechanical_relative_tolerance\":"<<world.mixedSolver.contactAcceptance.z<<",\"mechanical_impulse_scale_Ns\":"<<world.mixedSolver.contactAcceptance.w<<",\"source_fingerprint\":"<<world.physicsFingerprint<<",\"device_fingerprint\":"<<runtime.deviceProgramFingerprint()<<",\"traces\":[";
+        <<",\"area_ipc_k_N_per_m5\":"<<(arm=="ipc_area"?config.experimentalFEMPlaneAreaIPCK:0.f)<<",\"residual_policy\":\""<<policy<<"\",\"coordinate_mode\":\""<<(reference?"reference_displacement":"world_position")<<"\",\"freefall_control\":"<<(freefall?"true":"false")<<",\"mechanical_absolute_tolerance_Ns\":"<<world.mixedSolver.contactAcceptance.y<<",\"mechanical_relative_tolerance\":"<<world.mixedSolver.contactAcceptance.z<<",\"mechanical_impulse_scale_Ns\":"<<world.mixedSolver.contactAcceptance.w<<",\"source_fingerprint\":"<<world.physicsFingerprint<<",\"device_fingerprint\":"<<runtime.deviceProgramFingerprint();
+    if(captureNodes){
+        std::vector<float> areas;std::string error;
+        require(numi::matter::detail::femFixedPlaneReferenceAreas(world,areas,error),"area capture: "+error);
+        std::cout<<",\"compiled_nodes\":[";
+        for(size_t i=0;i<world.fem.nodes.size();++i){
+            const auto& n=world.fem.nodes[i];
+            std::cout<<(i?",":"")<<"["<<n.restAndFixed.x<<","<<n.restAndFixed.y<<","<<n.restAndFixed.z<<","<<n.positionAndMass.w<<","<<areas[i]<<"]";
+        }
+        std::cout<<"],\"compiled_tetrahedra\":[";
+        for(size_t i=0;i<world.fem.tetrahedra.size();++i){
+            const auto& t=world.fem.tetrahedra[i];const nm_float4 r[3]={t.inverseRestRow0,t.inverseRestRow1,t.inverseRestRow2};
+            std::cout<<(i?",":"")<<"["<<t.nodes.x<<","<<t.nodes.y<<","<<t.nodes.z<<","<<t.nodes.w<<","<<r[0].w;
+            for(const auto& row:r)std::cout<<","<<row.x<<","<<row.y<<","<<row.z;
+            std::cout<<"]";
+        }
+        std::cout<<"]";
+    }
+    std::cout<<",\"traces\":[";
     auto previous=initial;double totalWork=0,totalKineticWork=0,maxLawError=0,maxMomentumError=0,maxAcceptedDual=0,maxLocalResidual=0,maxKinematicDefect=0,maxFreefallVelocityDefect=0;
     const auto start=std::chrono::steady_clock::now();
     for(int i=0;i<steps;++i){
@@ -249,7 +270,19 @@ int main(int argc,char** argv){
         std::cout<<"{\"step\":"<<i<<",\"accepted\":"<<(ok?"true":"false")<<",\"status\":"<<snap.statuses[0].code<<",\"gap\":"<<low<<",\"height\":"<<high-low<<",\"force\":"<<force<<",\"contact_work_J\":"<<contactWork<<",\"contact_impulse_midvelocity_work_J\":"<<kineticWork<<",\"accepted_normal_impulse\":"<<(ok?force*h:0.)<<",\"normal_impulse\":"<<force*h<<",\"mass\":"<<mass<<",\"com_z\":"<<com/mass<<",\"momentum_z\":"<<momentum<<",\"contacts\":"<<contacts<<",\"fgmres_iterations\":"<<snap.statuses[0].fgmresIterations<<",\"outer_status\":"<<outer->code
             <<",\"certificate_residual\":"<<snap.solverCertificates[0].nonlinear.x<<",\"certificate_min_J\":"<<snap.solverCertificates[0].validity.x
             <<",\"certificate_accepted\":"<<snap.solverCertificates[0].validity.w<<",\"status_values\":["<<snap.statuses[0].diagnostics.x<<","<<snap.statuses[0].diagnostics.y<<","<<snap.statuses[0].diagnostics.z<<","<<snap.statuses[0].diagnostics.w<<"]"
-            <<",\"independent_residual_l2_Ns\":"<<independent.l2<<",\"independent_max_local_scaled_residual\":"<<independent.local<<",\"position_velocity_defect_m\":"<<independent.kinematic<<",\"gpu_seconds\":"<<timing<<"}";
+            <<",\"independent_residual_l2_Ns\":"<<independent.l2<<",\"independent_max_local_scaled_residual\":"<<independent.local<<",\"position_velocity_defect_m\":"<<independent.kinematic<<",\"gpu_seconds\":"<<timing;
+        if(captureNodes){
+            std::cout<<",\"node_state\":[";
+            for(size_t j=0;j<snap.femNodes.size();++j){
+                const auto& n=snap.femNodes[j];
+                const auto& r=n.restAndFixed;const auto& d=n.referenceDisplacementAndMode;const auto& low=n.referenceDisplacementLow;
+                const auto& v=n.velocityAndInverseMass;
+                std::cout<<(j?",":"")<<"["<<double(r.x)+d.x+low.x<<","<<double(r.y)+d.y+low.y<<","<<double(r.z)+d.z+low.z
+                    <<","<<v.x<<","<<v.y<<","<<v.z<<"]";
+            }
+            std::cout<<"]";
+        }
+        std::cout<<"}";
         if(!ok)break;
     }
     const double wall=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
