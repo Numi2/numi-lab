@@ -1,0 +1,5 @@
+# Result: renderer setup succeeded; visibility and failure gates did not
+
+The instrumented process ran 2026-11-07 23:00:39.917031–23:00:40.222402 UTC; the no-snapshot process ran 23:00:40.222627–23:00:40.321124 UTC. The test-only retained-plane configuration resolved the previous observation-encoding rejection. Six actor object-track bindings were present and all three steps in both arms and both environments reported success. No capacity overflow occurred. Every tracked-object confidence was zero in every snapshot, so the target-visibility gate also failed. Both actor/status output streams match exactly at printed nine-significant-digit precision.
+
+The results support the source diagnosis that the previous object-track setup needed retained planes, but do not establish why the target was invisible or why the sphere configuration did not overflow. There was no rejected step and no valid test of accepted-history restoration. All status rows, private snapshots, source patch, binary identities, times and the analysis are retained. The test-only renderer configuration must not be presented as a production publication fix.

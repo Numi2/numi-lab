@@ -1,0 +1,9 @@
+world=17838161165188455652 task=14943081882084678183 observation=15496715402187980013 action=14625959607710386204 policy=14308024481998978469 sensor_offset=140 actor_count=140
+snapshot arm=control phase=0 sequence=0 sensor=18446744073709551615 envs=2 tracks=6 track_history=1 depth_width=0 depth_height=0 depth_slots=0
+snapshot arm=control phase=1 sequence=1 sensor=0 envs=2 tracks=6 track_history=1 depth_width=0 depth_height=0 depth_slots=0
+snapshot arm=control phase=2 sequence=2 sensor=0 envs=2 tracks=6 track_history=1 depth_width=0 depth_height=0 depth_slots=0
+snapshot arm=control phase=3 sequence=3 sensor=0 envs=2 tracks=6 track_history=1 depth_width=0 depth_height=0 depth_slots=0
+snapshot arm=failure phase=0 sequence=0 sensor=18446744073709551615 envs=2 tracks=6 track_history=1 depth_width=0 depth_height=0 depth_slots=0
+snapshot arm=failure phase=1 sequence=1 sensor=0 envs=2 tracks=6 track_history=1 depth_width=0 depth_height=0 depth_slots=0
+snapshot arm=failure phase=2 sequence=2 sensor=0 envs=2 tracks=6 track_history=1 depth_width=0 depth_height=0 depth_slots=0
+snapshot arm=failure phase=3 sequence=3 sensor=0 envs=2 tracks=6 track_history=1 depth_width=0 depth_height=0 depth_slots=0
