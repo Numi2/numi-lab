@@ -32,3 +32,27 @@ Capture host load and memory before and after each run, exact identities,
 stdout, stderr and timeout. On the assessment snapshot the host had 16 GiB
 RAM, reported 85% free system memory, 31 GiB free disk and load averages
 2.52/2.85/2.81. Native simulation timing is not measured. Preserve failures.
+
+## Result
+
+Both runs completed: coarse 370.6 s and fine 738.3 s. Their maximum force-bin
+and total-impulse differences were 1.724e-6 and 7.318e-7. The fine external
+trajectory versus retained n=16 RK4 differences were 1.563e-6 and 5.144e-7.
+Both comparisons pass the registered 0.25% gates. Minimum sampled gap was
+93.310 µm; the ODE evaluator also rejects nonpositive stage gaps. Maximum
+global momentum imbalance was 1.112e-14 of fine total impulse. Fine contact
+work was -3.09266e-7 J; this is a diagnostic, not an energy verdict.
+
+The external n=8→16 comparison **fails**: 27.238% for maximum binned force
+and 6.659% for integrated impulse, normalized respectively by the fine n=16
+peak bin and total impulse. These are unchanged 0.25% gates. Agreement with
+an independently assembled and integrated n=16 implementation does not
+establish same-family spatial convergence or material realism; it does not
+resolve the earlier n=16→32 failure.
+
+Host memory-free snapshots ranged from 83% to 86%, and peak reported RSS was
+264.3 MB. Load averages at the beginning were 2.15/2.73/2.76, and at the
+end 3.53/3.62/3.16. These are resource observations, not a performance
+measurement. The [evidence](evidence/contact-external-n16-20261108/) retains
+host snapshots, exact inputs and code hashes, analytic controls, raw
+trajectories, timeout and comparison. No GPU was used.

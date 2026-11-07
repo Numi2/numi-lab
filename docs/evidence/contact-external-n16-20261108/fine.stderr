@@ -1,0 +1,20 @@
+Transforming over 1000 vertices to C_CONTIGUOUS.
+Transforming over 1000 elements to C_CONTIGUOUS.
+      738.25 real       735.02 user         1.67 sys
+           264175616  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               27745  page reclaims
+                  41  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   1  voluntary context switches
+               87006  involuntary context switches
+      20885311103038  instructions retired
+       3298493828017  cycles elapsed
+           210961056  peak memory footprint

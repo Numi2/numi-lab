@@ -1,0 +1,43 @@
+{
+  "prediction_commit": "47611d67df262ecd91bceea75d767d8f176f818e",
+  "dynamic_sha256": "4051507f35545ab88c7b2dde831a330b87eece634f06c073833794cc2b24f4c2",
+  "assembly_sha256": "20cfacde11194571c53dfb485f3d46e436a381f642b0d869efccc36c52f8de88",
+  "native_sha256": "361a612d19ccf3b45899e3d080a44eb8c9b6479ee2b8f03475fd44259d3123f2",
+  "reference_sha256": "1088ee3c1ebbb60acaf3d7983a150d25aaae94829cd9330ade9d530856b74a1e",
+  "n8_external_sha256": "31e1aca9a648dd4a6468d92dac1738460628f736cca673e24e722970f878c9f1",
+  "python": "/private/tmp/numi-fem-py313b-20261107/bin/python",
+  "runs": [
+    {
+      "variant": "coarse",
+      "argv": [
+        "/usr/bin/time",
+        "-l",
+        "/private/tmp/numi-fem-py313b-20261107/bin/python",
+        "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_external_dynamic_n16.py",
+        "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_external_scikit_n16_residual_only.py",
+        "/Users/numi/numi-lab-contact-reference-20261107/docs/evidence/contact-nodal-parity-20261107/native-h31.25us.json",
+        "coarse"
+      ],
+      "timeout_seconds": 900,
+      "exit": 0,
+      "elapsed_seconds": 370.60459745896515,
+      "output_sha256": "9ff947fdffef7fddd518e318c5247225fe30493701c9b034b081a6182b116c7a"
+    },
+    {
+      "variant": "fine",
+      "argv": [
+        "/usr/bin/time",
+        "-l",
+        "/private/tmp/numi-fem-py313b-20261107/bin/python",
+        "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_external_dynamic_n16.py",
+        "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_external_scikit_n16_residual_only.py",
+        "/Users/numi/numi-lab-contact-reference-20261107/docs/evidence/contact-nodal-parity-20261107/native-h31.25us.json",
+        "fine"
+      ],
+      "timeout_seconds": 1800,
+      "exit": 0,
+      "elapsed_seconds": 738.3315251250169,
+      "output_sha256": "c844e2253d7844183b602362bc9a1e55f4c4b4d93c58d10c6cef22a5e8bd5006"
+    }
+  ]
+}
