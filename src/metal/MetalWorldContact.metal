@@ -8458,7 +8458,11 @@ inline void mrWorldWave32SolvePacket(
             blockN[i][j]=response.x;blockT[i][j]=response.yz;
         }
     }
-    bool blockFound=false;
+    // The empty active set is a valid contact solution when every normal
+    // row already separates. It must be considered before one/two rows.
+    bool blockFound=blockEligible;
+    if(blockFound) for(uint i=0u;i<blockCount;++i)
+        blockFound=blockFound && isfinite(blockB[i]) && blockB[i]>=0.0f;
     if (blockEligible) for(uint i=0u;i<blockCount && !blockFound;++i) {
         for(uint j=i;j<blockCount && !blockFound;++j) {
             float xi=0.0f,xj=0.0f;
@@ -8678,11 +8682,33 @@ inline void mrWorldWave32SolvePacket(
     }
     threadgroup_barrier(mem_flags::mem_device);
 
-    const uint solverIterations =
+    // A checked small sliding block can already be a solution. Recompute
+    // residuals from actual post-warm velocities before deciding to stop;
+    // all unsupported or uncertified islands keep the configured sweeps.
+    bool blockCertified=blockFound;
+    if(blockCertified) for(uint i=0u;i<blockCount;++i) {
+        const uint ci=blockIds[i];device const MRContactConstraintGPU& ct=contacts[constraintBase+ci];
+        device const MREvaluatedConstraintIRRowGPU* rows=evaluatedRows+rowBase+3u*ci;
+        const float3 rel=typedRelativePointVelocity(ci,ct,bodies,dispatch.articulationIndex,
+            pointJacobians,pointJacobianBase,dispatch.nv,articulationVelocity,rodNodes,rodEdges,
+            rodColliders,rodWitnesses,constraintWitnessIndices,constraintBase);
+        const float pn=ct.impulses.x;
+        const float nr=dot(rows[0].direction.xyz,rel)-rows[0].targetVelocity+rows[0].regularization*pn;
+        const float2 vt=float2(dot(rows[1].direction.xyz,rel)-rows[1].targetVelocity,
+                               dot(rows[2].direction.xyz,rel)-rows[2].targetVelocity);
+        const float speed=length(vt); const float2 pt=ct.impulses.yz;
+        const float mu=evaluatedCones[constraintBase+ci].effectiveFrictionU;
+        bool valid=isfinite(pn)&&finite3(rel)&&isfinite(nr)&&pn>=0.0f;
+        if(pn>kConeEpsilon) {
+            const float2 error=pt+mu*pn*vt/max(speed,1.0e-4f);
+            valid=valid && abs(nr)<=1.0e-6f && speed>1.0e-4f &&
+                isfinite(error.x)&&isfinite(error.y)&&length(error)<=1.0e-7f+1.0e-3f*mu*pn;
+        } else valid=valid && nr>=-1.0e-6f && length(pt)<=1.0e-7f;
+        blockCertified=blockCertified&&valid;
+    }
+    const uint solverIterations = blockCertified ? 0u :
         dispatch.velocityIterations +
-        (pass.reserved0 != 0u
-             ? dispatch.finalVelocityIterations
-             : 0u);
+        (pass.reserved0 != 0u ? dispatch.finalVelocityIterations : 0u);
     for (uint iteration = 0u;
          iteration < solverIterations;
          ++iteration) {
