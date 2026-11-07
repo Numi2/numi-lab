@@ -9,7 +9,7 @@ docs/evidence/g1-fixed-evaluation-20261107; no policy contract was bypassed.
 
 The matched zero-action control completed 8,000 environment steps (8
 environments by 1,000 control steps): zero physical-step failures, 93
-height/tilt terminations, and zero clean-horizon environments. Mean root
+height/tilt terminations, and zero environments without a termination. Mean root
 height was 0.7308 m and maximum tilt was 1.2644 rad. This result characterizes
 only the zero-action control, not the retained policy's ability.
 
@@ -55,7 +55,7 @@ The normal policy compiler remained enabled.
 The amended plan repeated the two fixed seeds and zero-action control on
 Apple M6 with 8 environments and 1,000 control steps each:
 
-| Arm | Physics-failed steps | Height/tilt terminations | Clean horizons |
+| Arm | Physics-failed steps | Height/tilt terminations | Environments with no termination |
 | --- | ---: | ---: | ---: |
 | Policy, seed 4081007 | 0 | 13 | 1/8 |
 | Policy, seed 4081008 | 0 | 11 | 1/8 |
@@ -64,7 +64,7 @@ Apple M6 with 8 environments and 1,000 control steps each:
 The policy's mean tilt was 0.2145 and 0.1844 rad across the two seeds; maximum
 tilt was 1.3092 and 1.3441 rad. The zero-action mean and maximum were 0.3097
 and 1.2623 rad. The policy had lower mean tilt and fewer terminations in the
-matched first seed; neither policy run completed a clean horizon in more
+matched first seed; neither policy run avoided termination in more
 than one of eight environments. Multiple terminations can occur per
 environment because the task resets.
 
@@ -85,3 +85,26 @@ or reported their error without retry. Retained identities:
 - Native library: 80663b5c54b80798c7cfcfeb67dfb344de6992e2ecc9a48db531ecdaedd2209a.
 - Metal library: 32d9ed14031ab83f87dfcf8281b1d3c65c6315a02e04ce15ab2728772ef35fab.
 - Amended plan: 74a8b0be23a00bb177328d8eae84cab82733f5faf0a4976029c38efb9f1d8225.
+
+## Source audit of the outcome metrics
+
+All 24 policy terminations had reason 2: the authored maximum-tilt gate at
+1.22173048 rad (70 degrees). Per-environment termination counts were
+[1, 0, 3, 3, 1, 1, 3, 1] for seed 4081007 and
+[3, 1, 1, 1, 2, 2, 1, 0] for seed 4081008. The available aggregate does not
+establish why the tilt threshold was crossed.
+
+The historical evaluator generated 30 scheduled reset requests per arm. Its
+reset scheduler forces resets every 257 control steps, staggered across
+environments. Its field named clean_horizon_environment_rate counts
+environments with no task termination, but those environments did not run an
+uninterrupted 1,000-step horizon. This distinction applies to both the
+matched runs and the earlier cross-revision zero-action control.
+
+Forward progress was unavailable because the historical evaluator enables
+its position readback and progress calculations only when --state-trace is
+specified; the fixed plan did not specify it. Its progress calculation is
+relative to the first sampled position and does not rebase after scheduled
+resets, so it cannot by itself establish continuous-episode displacement
+through reset boundaries. A new declared, reset-aware diagnostic is required;
+no missing result has been inferred.
