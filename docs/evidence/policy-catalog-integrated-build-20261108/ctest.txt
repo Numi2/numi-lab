@@ -1,0 +1,9 @@
+Test project /Users/numi/numi-lab-policy-integrated-build-20261108
+    Start 4: metalrobo_numi_policy_status
+1/2 Test #4: metalrobo_numi_policy_status .....   Passed    0.01 sec
+    Start 5: metalrobo_numi_window_metadata
+2/2 Test #5: metalrobo_numi_window_metadata ...   Passed    0.03 sec
+
+100% tests passed out of 2
+
+Total Test time (real) =   0.04 sec

@@ -1,0 +1,6 @@
+5802fba77aad09c4e944995ae6a4f6b6cb5e1c687ee17ffa262f93e99a38a8a5  /Users/numi/numi-lab-policy-integrated-build-20261108/bin/metalrobo_task_rollout
+74ca37d6f3c5981659791ffcdb4f50ebe41c2d20df62a5c5d504ed76ee564eca  /Users/numi/numi-lab-policy-integrated-build-20261108/bin/metalrobo_task_train
+f1d1d081a17e4e483b5330c99152f87e73b391f549441569bac4bf2aede45866  /Users/numi/numi-lab-policy-integrated-build-20261108/bin/metalrobo_numi_window_check
+d48192b032d91eb1ba4045a639b0ced31ef18a78fb58338047f53a3db665783e  /Users/numi/numi-lab-policy-integrated-build-20261108/bin/metalrobo_numi_policy_status_check
+5d30bbfd0d2f6cc71639d0ecaf3bf03ab26e4363c9cd72d5d69750b45cd51ff9  /Users/numi/numi-lab-policy-integrated-build-20261108/lib/libmetalrobo.dylib
+55b021d249bc1bf3e40f94158556c93910d85d3611d4d7fc7ab4bda800d6b2f3  /Users/numi/numi-lab-policy-integrated-build-20261108/shaders/MetalRobo.metallib
