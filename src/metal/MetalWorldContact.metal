@@ -8228,7 +8228,7 @@ inline void mrWorldWave32SolvePacket(
     device MRBodyStateGPU* candidateBodies,
     device MRContactConstraintGPU* contacts,
     device const MRContactPointMetaGPU* contactMetadata,
-    device const MREvaluatedConstraintIRRowGPU* evaluatedRows,
+    device MREvaluatedConstraintIRRowGPU* evaluatedRows,
     device const MREvaluatedConstraintIRConeGPU* evaluatedCones,
     device float* responseColumns,
     device MRManifoldPointGPU* candidateManifoldPoints,
@@ -8927,6 +8927,59 @@ inline void mrWorldWave32SolvePacket(
             localFailureConstraint
         )) {
         localFailure = MR_STEP_FACTORIZATION_FAILED;
+    }
+    threadgroup_barrier(mem_flags::mem_device);
+
+
+    // TEST-ONLY: read back the exact frozen 3-contact operator, one target
+    // axis per compiled shader. Values occupy evaluated-row reserved fields.
+    if ((work.flags & MR_ISLAND_WORK_HAS_ROD) != 0u && localLane == 0u) {
+        uint ids[3] = {0u, 0u, 0u};
+        uint n = 0u;
+        for (uint ti=0u; ti<work.tileCount; ++ti) {
+            MRContactTileGPU tile = tiles[tileBase+work.firstTile+ti];
+            for (uint j=0u; j<tile.constraintCount; ++j) {
+                if (n<3u) ids[n]=tileConstraintIndices[constraintBase+tile.partialOffset+j];
+                ++n;
+            }
+        }
+        if (n==3u) {
+            constexpr uint targetAxis = 0u; // TEST_AXIS
+            for (uint i=0u; i<3u; ++i) {
+                uint targetId=ids[i];
+                device const MRContactConstraintGPU& target=contacts[constraintBase+targetId];
+                float3 targetDir=evaluatedRows[rowBase+3u*targetId+targetAxis].direction.xyz;
+                for (uint a=0u; a<3u; ++a) {
+                    float entries[3];
+                    for (uint j=0u; j<3u; ++j) {
+                        uint sourceId=ids[j];
+                        device const MRContactConstraintGPU& source=contacts[constraintBase+sourceId];
+                        float3 sourceDir=evaluatedRows[rowBase+3u*sourceId+a].direction.xyz;
+                        float value=typedNormalCrossContactResponse(targetId,sourceId,a,target,source,targetDir,sourceDir,
+                            bodies,pointJacobians,pointJacobianBase,responseColumns,responseBase,dispatch.nv,
+                            dispatch.articulationIndex,rodNodes,inverseRodMasses,inverseRodTwistInertias,rodColliders,
+                            rodWitnesses,constraintWitnessIndices,constraintBase);
+                        if (typedRodConstraint(target) && typedRodConstraint(source)) {
+                            MRRodToolWitnessGPU tw=rodWitnesses[constraintWitnessIndices[constraintBase+targetId]];
+                            MRRodToolWitnessGPU sw=rodWitnesses[constraintWitnessIndices[constraintBase+sourceId]];
+                            MRRodColliderGPU tc=rodColliders[tw.identity.z], sc=rodColliders[sw.identity.z];
+                            if (tc.rodIndex==sc.rodIndex) {
+                                float3 exact;
+                                if (!factorizedRodCrossResponse(dispatch,pass,environment,tc,tw,sc,sw,sourceDir,
+                                    rodNodes,rodFactorCaches,rodOperatorArena,exact)) {
+                                    localFailure=MR_STEP_FACTORIZATION_FAILED;
+                                    localFailureConstraint=min(localFailureConstraint,targetId);
+                                } else value += dot(targetDir,exact)-rodCrossContactResponse(tc,tw,sc,sw,rodNodes,
+                                    inverseRodMasses,inverseRodTwistInertias,targetDir,sourceDir);
+                            }
+                        }
+                        entries[j]=value;
+                    }
+                    device MREvaluatedConstraintIRRowGPU& out=evaluatedRows[rowBase+3u*targetId+a];
+                    out.reserved0=entries[0];out.reserved1=entries[1];out.reserved2=entries[2];
+                }
+            }
+        }
     }
     threadgroup_barrier(mem_flags::mem_device);
 
@@ -9687,7 +9740,7 @@ kernel void mr_world_wave32_solve(
     device MRBodyStateGPU* candidateBodies [[buffer(4)]],
     device MRContactConstraintGPU* contacts [[buffer(5)]],
     device const MRContactPointMetaGPU* contactMetadata [[buffer(6)]],
-    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(7)]],
+    device MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(7)]],
     device const MREvaluatedConstraintIRConeGPU* evaluatedCones [[buffer(8)]],
     device float* responseColumns [[buffer(9)]],
     device MRManifoldPointGPU* candidateManifoldPoints [[buffer(10)]],
@@ -9771,7 +9824,7 @@ kernel void mr_world_wave32_solve_persistent(
     device MRBodyStateGPU* candidateBodies [[buffer(4)]],
     device MRContactConstraintGPU* contacts [[buffer(5)]],
     device const MRContactPointMetaGPU* contactMetadata [[buffer(6)]],
-    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(7)]],
+    device MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(7)]],
     device const MREvaluatedConstraintIRConeGPU* evaluatedCones [[buffer(8)]],
     device float* responseColumns [[buffer(9)]],
     device MRManifoldPointGPU* candidateManifoldPoints [[buffer(10)]],
