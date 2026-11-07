@@ -28,3 +28,23 @@ uncertain. Set sequential timeouts of 300 and 600 s, retaining any failure
 and stopping; no retry without another plan. Both runs use one BLAS thread and
 no GPU. A pass would compare only n=4 to n=8 and cannot qualify n=8 as a
 converged reference or the production contact fixture.
+
+## Result
+
+The coarse and fine runs completed in 148.3 s and 281.5 s. Coarse versus
+fine force-bin and total-impulse differences were 2.46e-7 and 5.62e-8;
+fine external versus retained n=8 RK4 differences were 4.46e-8 and
+1.42e-8. All pass the unchanged 0.25% thresholds. Minimum sampled gap was
+91.859 µm, evaluated stages reject nonpositive gaps, and maximum momentum
+imbalance was 3.11e-15 of total impulse.
+
+External n=4→8 force and impulse differences were **70.43% and 3.374%**
+of the fine n=8 peak force bin and total impulse. Both spatial gates fail,
+as predicted. This verifies agreement of two independently assembled and
+integrated P1 implementations at n=8; it does not establish spatial
+convergence, physical accuracy or production qualification. Fine
+contact work was -1.43434e-7 J and is a diagnostic, not an energy verdict.
+
+The [evidence](evidence/contact-external-n8-20261107/) includes inputs and
+code hashes, analytic controls, raw traces, timeouts and exact analysis.
+No GPU was used.
