@@ -1,0 +1,1328 @@
+[
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/native-evidence/chunk1.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-01/native-evidence/chunk1.output.f32",
+    "bytes": 180540,
+    "sha256": "5610dff21de8a6a5962400ec1f44c07af85fa6d7946f1f5eaaeebb6e655eafda"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/native-evidence/chunk8.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-01/native-evidence/chunk8.output.f32",
+    "bytes": 180540,
+    "sha256": "5610dff21de8a6a5962400ec1f44c07af85fa6d7946f1f5eaaeebb6e655eafda"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/native-evidence/clock-gap.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-01/native-evidence/clock-gap.output.f32",
+    "bytes": 7080,
+    "sha256": "5505c67e8161aba150e47c6935f9ede5af4845a331e1b83b500eed2fc76bad8f"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/native-evidence/final-states.bin",
+    "archive": "trials/20261107-retinal-timing-admission-01/native-evidence/final-states.bin",
+    "bytes": 144,
+    "sha256": "9119b7f928965f1f9acf107a42d68c054140f8da1e9a65521f8632714f9680bd"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/native-evidence/layout.json",
+    "archive": "trials/20261107-retinal-timing-admission-01/native-evidence/layout.json",
+    "bytes": 265,
+    "sha256": "9cab795e7c5487f6f6a230e2cf89dab9d1cec673e457a7d0ab790dc4c5bc7c15"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/native-evidence/nonfinite.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-01/native-evidence/nonfinite.output.f32",
+    "bytes": 35400,
+    "sha256": "6121645cf61ad375598c7fb3e439e2033dcff3ec3a21f5af98c8432145b2f6b7"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/native-evidence/plan.json",
+    "archive": "trials/20261107-retinal-timing-admission-01/native-evidence/plan.json",
+    "bytes": 1162,
+    "sha256": "41eb1e23c094c751cee68e4621a1c01107545f7e9f9e7a714bab0e5b3164a9bc"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/native-evidence/summary.json",
+    "archive": "trials/20261107-retinal-timing-admission-01/native-evidence/summary.json",
+    "bytes": 324,
+    "sha256": "ad5da8bc706747076c1abd5c2338c6db776a0f8a8c9b503fcd14ccb9f208057e"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/plan.json",
+    "archive": "trials/20261107-retinal-timing-admission-01/plan.json",
+    "bytes": 10033,
+    "sha256": "d209857a0752eb7b2e479a8139361c36e6d28a16889f06f53fe4f28f885e5d88"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/retinal-timing.json",
+    "archive": "trials/20261107-retinal-timing-admission-01/retinal-timing.json",
+    "bytes": 324,
+    "sha256": "ad5da8bc706747076c1abd5c2338c6db776a0f8a8c9b503fcd14ccb9f208057e"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/retinal-timing.receipt.json",
+    "archive": "trials/20261107-retinal-timing-admission-01/retinal-timing.receipt.json",
+    "bytes": 513,
+    "sha256": "663fc52087a167a62f9588792970db4347c69066605914da5dc0aefbf1124583"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/retinal-timing.stderr",
+    "archive": "trials/20261107-retinal-timing-admission-01/retinal-timing.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/source-inputs/manifest.json",
+    "archive": "trials/20261107-retinal-timing-admission-01/source-inputs/manifest.json",
+    "bytes": 760,
+    "sha256": "31c64734503e22b814746fa8cd5534f4f1f3ccc734565ad35bbf772575919331"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/source-inputs/tracked.patch",
+    "archive": "trials/20261107-retinal-timing-admission-01/source-inputs/tracked.patch",
+    "bytes": 6377,
+    "sha256": "1737234a721ff669057f29a5e01ad744e03848f4002ca1f54c1d310df3a5f6f6"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/source-inputs/untracked/apps/retinal_stream_check.mm",
+    "archive": "trials/20261107-retinal-timing-admission-01/source-inputs/untracked/apps/retinal_stream_check.mm",
+    "bytes": 12511,
+    "sha256": "dd9dd1e467bfa7e2ebf26a741008cda2085c94543681fbc5c99c6ecd122c6469"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/source-inputs/untracked/include/metalrobo/RetinalStream.hpp",
+    "archive": "trials/20261107-retinal-timing-admission-01/source-inputs/untracked/include/metalrobo/RetinalStream.hpp",
+    "bytes": 1875,
+    "sha256": "52752c76a9d7f8a8df03cc1ce3fa42d40aa53ccabd2a174519cc56f950c42be7"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/source-inputs/untracked/include/metalrobo/retinal_stream_types.h",
+    "archive": "trials/20261107-retinal-timing-admission-01/source-inputs/untracked/include/metalrobo/retinal_stream_types.h",
+    "bytes": 1211,
+    "sha256": "86715583b6f134fc6e867ccde8022dfd417c5fbcdb0530fd12ddc13ab16ff337"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/source-inputs/untracked/src/metal/RetinalStream.metal",
+    "archive": "trials/20261107-retinal-timing-admission-01/source-inputs/untracked/src/metal/RetinalStream.metal",
+    "bytes": 4947,
+    "sha256": "2b0db13493790f7bd6d888d8d15ffda54c7d2b5e79f5b6bfccbd7bee0baa3f03"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/source-inputs/untracked/src/metal/RetinalStream.mm",
+    "archive": "trials/20261107-retinal-timing-admission-01/source-inputs/untracked/src/metal/RetinalStream.mm",
+    "bytes": 10558,
+    "sha256": "8d40755b28bd0330ca995fd1e61ec15294358d88d3577b47a9e411dce57830a4"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-01/summary.json",
+    "archive": "trials/20261107-retinal-timing-admission-01/summary.json",
+    "bytes": 361,
+    "sha256": "82e4b537dea0dd0a486ab2477fdb28b83c948c790622489fcb9bdde86a20053a"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/native-evidence/boundary-1-0.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-02/native-evidence/boundary-1-0.output.f32",
+    "bytes": 180540,
+    "sha256": "f9c25f279cedaa60c7c499d1bd4304054dff8d392cd2c1f443d1f0498e0b7b7d"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/native-evidence/boundary-1-1.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-02/native-evidence/boundary-1-1.output.f32",
+    "bytes": 180540,
+    "sha256": "0ad21e937326c782c4d867d3dcfc7b4c8a84af64886b9ce0c35ddbe3109c2776"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/native-evidence/boundary-1-16.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-02/native-evidence/boundary-1-16.output.f32",
+    "bytes": 180540,
+    "sha256": "d6c3b786a508dc3de4dc456b9d1a74d6a07bab373424a4d3b6c5c6cecc45483a"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/native-evidence/boundary-50-2.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-02/native-evidence/boundary-50-2.output.f32",
+    "bytes": 180540,
+    "sha256": "b015d5c03e90f7699f2b5980d0fb56d01915058a417f68e7fea788512b3edff8"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/native-evidence/boundary-measurements.jsonl",
+    "archive": "trials/20261107-retinal-timing-admission-02/native-evidence/boundary-measurements.jsonl",
+    "bytes": 390,
+    "sha256": "8d1fc743a58efdc9d3560412e19c72a326b791a8502ee065e750d09c3046af99"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/native-evidence/chunk1.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-02/native-evidence/chunk1.output.f32",
+    "bytes": 180540,
+    "sha256": "5610dff21de8a6a5962400ec1f44c07af85fa6d7946f1f5eaaeebb6e655eafda"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/native-evidence/chunk8.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-02/native-evidence/chunk8.output.f32",
+    "bytes": 180540,
+    "sha256": "5610dff21de8a6a5962400ec1f44c07af85fa6d7946f1f5eaaeebb6e655eafda"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/native-evidence/clock-gap.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-02/native-evidence/clock-gap.output.f32",
+    "bytes": 7080,
+    "sha256": "5505c67e8161aba150e47c6935f9ede5af4845a331e1b83b500eed2fc76bad8f"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/native-evidence/final-states.bin",
+    "archive": "trials/20261107-retinal-timing-admission-02/native-evidence/final-states.bin",
+    "bytes": 144,
+    "sha256": "9119b7f928965f1f9acf107a42d68c054140f8da1e9a65521f8632714f9680bd"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/native-evidence/finite-overflow.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-02/native-evidence/finite-overflow.output.f32",
+    "bytes": 35400,
+    "sha256": "6121645cf61ad375598c7fb3e439e2033dcff3ec3a21f5af98c8432145b2f6b7"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/native-evidence/layout.json",
+    "archive": "trials/20261107-retinal-timing-admission-02/native-evidence/layout.json",
+    "bytes": 265,
+    "sha256": "9cab795e7c5487f6f6a230e2cf89dab9d1cec673e457a7d0ab790dc4c5bc7c15"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/native-evidence/nonfinite.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-02/native-evidence/nonfinite.output.f32",
+    "bytes": 35400,
+    "sha256": "6121645cf61ad375598c7fb3e439e2033dcff3ec3a21f5af98c8432145b2f6b7"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/native-evidence/plan.json",
+    "archive": "trials/20261107-retinal-timing-admission-02/native-evidence/plan.json",
+    "bytes": 1492,
+    "sha256": "34135fc50870306db6b51d1da6782d0917c1ee650e54ad930d459f73474bef84"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/native-evidence/summary.json",
+    "archive": "trials/20261107-retinal-timing-admission-02/native-evidence/summary.json",
+    "bytes": 324,
+    "sha256": "ef8ec0d89512395d2cd03d68dbabfc17e7838b99891ec07e59b6e177f691a483"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/plan.json",
+    "archive": "trials/20261107-retinal-timing-admission-02/plan.json",
+    "bytes": 10176,
+    "sha256": "10d1cfb5899149da435dc9ecf663e128eb876fb41324cb9582705eadb2d471a8"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/retinal-timing.json",
+    "archive": "trials/20261107-retinal-timing-admission-02/retinal-timing.json",
+    "bytes": 324,
+    "sha256": "ef8ec0d89512395d2cd03d68dbabfc17e7838b99891ec07e59b6e177f691a483"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/retinal-timing.receipt.json",
+    "archive": "trials/20261107-retinal-timing-admission-02/retinal-timing.receipt.json",
+    "bytes": 513,
+    "sha256": "a24b9eb30bc9f2423de02ac72ed010f3d5efd74853c765162286b031afb60e65"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/retinal-timing.stderr",
+    "archive": "trials/20261107-retinal-timing-admission-02/retinal-timing.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/source-inputs/manifest.json",
+    "archive": "trials/20261107-retinal-timing-admission-02/source-inputs/manifest.json",
+    "bytes": 866,
+    "sha256": "620138a9c7ba28a6837a1193efb66221ea02132a48d3b78f86ad53ac4b553fad"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/source-inputs/tracked.patch",
+    "archive": "trials/20261107-retinal-timing-admission-02/source-inputs/tracked.patch",
+    "bytes": 7575,
+    "sha256": "3eaaaff6c94c9d9ece9c669a58ae6650efad6aea8f8da09094cbcc7b03059cfa"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/source-inputs/untracked/apps/retinal_stream_check.mm",
+    "archive": "trials/20261107-retinal-timing-admission-02/source-inputs/untracked/apps/retinal_stream_check.mm",
+    "bytes": 15345,
+    "sha256": "e1c3de8fc38c6e57ddb54374b5758d862b2e025c277d671d75a64f646ceef465"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/source-inputs/untracked/cmake/CheckRetinalStream.cmake",
+    "archive": "trials/20261107-retinal-timing-admission-02/source-inputs/untracked/cmake/CheckRetinalStream.cmake",
+    "bytes": 578,
+    "sha256": "b9af46368f98f3e90858463a7fb80e5ed7f133115cb8a720fd8803c746ebc65e"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/source-inputs/untracked/include/metalrobo/RetinalStream.hpp",
+    "archive": "trials/20261107-retinal-timing-admission-02/source-inputs/untracked/include/metalrobo/RetinalStream.hpp",
+    "bytes": 1875,
+    "sha256": "52752c76a9d7f8a8df03cc1ce3fa42d40aa53ccabd2a174519cc56f950c42be7"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/source-inputs/untracked/include/metalrobo/retinal_stream_types.h",
+    "archive": "trials/20261107-retinal-timing-admission-02/source-inputs/untracked/include/metalrobo/retinal_stream_types.h",
+    "bytes": 1211,
+    "sha256": "86715583b6f134fc6e867ccde8022dfd417c5fbcdb0530fd12ddc13ab16ff337"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/source-inputs/untracked/src/metal/RetinalStream.metal",
+    "archive": "trials/20261107-retinal-timing-admission-02/source-inputs/untracked/src/metal/RetinalStream.metal",
+    "bytes": 4947,
+    "sha256": "2b0db13493790f7bd6d888d8d15ffda54c7d2b5e79f5b6bfccbd7bee0baa3f03"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/source-inputs/untracked/src/metal/RetinalStream.mm",
+    "archive": "trials/20261107-retinal-timing-admission-02/source-inputs/untracked/src/metal/RetinalStream.mm",
+    "bytes": 10558,
+    "sha256": "8d40755b28bd0330ca995fd1e61ec15294358d88d3577b47a9e411dce57830a4"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-02/summary.json",
+    "archive": "trials/20261107-retinal-timing-admission-02/summary.json",
+    "bytes": 360,
+    "sha256": "b2205698504eb54f77ad47e9c4f702035428753ceb789cc1a67c2cb07e1ebaa8"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/native-evidence/boundary-1-0.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-03/native-evidence/boundary-1-0.output.f32",
+    "bytes": 180540,
+    "sha256": "f9c25f279cedaa60c7c499d1bd4304054dff8d392cd2c1f443d1f0498e0b7b7d"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/native-evidence/boundary-1-1.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-03/native-evidence/boundary-1-1.output.f32",
+    "bytes": 180540,
+    "sha256": "0ad21e937326c782c4d867d3dcfc7b4c8a84af64886b9ce0c35ddbe3109c2776"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/native-evidence/boundary-1-16.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-03/native-evidence/boundary-1-16.output.f32",
+    "bytes": 180540,
+    "sha256": "d6c3b786a508dc3de4dc456b9d1a74d6a07bab373424a4d3b6c5c6cecc45483a"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/native-evidence/boundary-50-2.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-03/native-evidence/boundary-50-2.output.f32",
+    "bytes": 180540,
+    "sha256": "b015d5c03e90f7699f2b5980d0fb56d01915058a417f68e7fea788512b3edff8"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/native-evidence/boundary-measurements.jsonl",
+    "archive": "trials/20261107-retinal-timing-admission-03/native-evidence/boundary-measurements.jsonl",
+    "bytes": 390,
+    "sha256": "8d1fc743a58efdc9d3560412e19c72a326b791a8502ee065e750d09c3046af99"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/native-evidence/chunk1.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-03/native-evidence/chunk1.output.f32",
+    "bytes": 180540,
+    "sha256": "5610dff21de8a6a5962400ec1f44c07af85fa6d7946f1f5eaaeebb6e655eafda"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/native-evidence/chunk8.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-03/native-evidence/chunk8.output.f32",
+    "bytes": 180540,
+    "sha256": "5610dff21de8a6a5962400ec1f44c07af85fa6d7946f1f5eaaeebb6e655eafda"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/native-evidence/clock-gap.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-03/native-evidence/clock-gap.output.f32",
+    "bytes": 7080,
+    "sha256": "5505c67e8161aba150e47c6935f9ede5af4845a331e1b83b500eed2fc76bad8f"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/native-evidence/final-states.bin",
+    "archive": "trials/20261107-retinal-timing-admission-03/native-evidence/final-states.bin",
+    "bytes": 144,
+    "sha256": "9119b7f928965f1f9acf107a42d68c054140f8da1e9a65521f8632714f9680bd"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/native-evidence/finite-overflow.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-03/native-evidence/finite-overflow.output.f32",
+    "bytes": 35400,
+    "sha256": "6121645cf61ad375598c7fb3e439e2033dcff3ec3a21f5af98c8432145b2f6b7"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/native-evidence/layout.json",
+    "archive": "trials/20261107-retinal-timing-admission-03/native-evidence/layout.json",
+    "bytes": 362,
+    "sha256": "f1234567c8f79be38ac1f6148b35976623377912d34bee18c4f174bd3ac6c467"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/native-evidence/negative-errors.json",
+    "archive": "trials/20261107-retinal-timing-admission-03/native-evidence/negative-errors.json",
+    "bytes": 68,
+    "sha256": "8c7c96dfd62ecd9e26e1077974d15b0b12ab6b8dc40cc009a617bf382a24ca87"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/native-evidence/nonfinite.output.f32",
+    "archive": "trials/20261107-retinal-timing-admission-03/native-evidence/nonfinite.output.f32",
+    "bytes": 35400,
+    "sha256": "6121645cf61ad375598c7fb3e439e2033dcff3ec3a21f5af98c8432145b2f6b7"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/native-evidence/plan.json",
+    "archive": "trials/20261107-retinal-timing-admission-03/native-evidence/plan.json",
+    "bytes": 1571,
+    "sha256": "87259a7ec24c1695c41ea36dbca0b1c12f09f86ed511aff6bc719d4d793ce446"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/native-evidence/summary.json",
+    "archive": "trials/20261107-retinal-timing-admission-03/native-evidence/summary.json",
+    "bytes": 324,
+    "sha256": "ef8ec0d89512395d2cd03d68dbabfc17e7838b99891ec07e59b6e177f691a483"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/plan.json",
+    "archive": "trials/20261107-retinal-timing-admission-03/plan.json",
+    "bytes": 10806,
+    "sha256": "2f8bdd443392e09154732503622469c4c60e1d841b3d99135b4f5853e9b53194"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/retinal-timing.json",
+    "archive": "trials/20261107-retinal-timing-admission-03/retinal-timing.json",
+    "bytes": 324,
+    "sha256": "ef8ec0d89512395d2cd03d68dbabfc17e7838b99891ec07e59b6e177f691a483"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/retinal-timing.receipt.json",
+    "archive": "trials/20261107-retinal-timing-admission-03/retinal-timing.receipt.json",
+    "bytes": 513,
+    "sha256": "a7a41dcee29dc138ad8d080a8e137ba4a4ced5cb5ee388dda55f62b22f0cf774"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/retinal-timing.stderr",
+    "archive": "trials/20261107-retinal-timing-admission-03/retinal-timing.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/source-inputs/manifest.json",
+    "archive": "trials/20261107-retinal-timing-admission-03/source-inputs/manifest.json",
+    "bytes": 866,
+    "sha256": "9cc8764371892a528d2632a377a56519ddd15c2308eac08c00fa5e71379af4e2"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/source-inputs/tracked.patch",
+    "archive": "trials/20261107-retinal-timing-admission-03/source-inputs/tracked.patch",
+    "bytes": 13068,
+    "sha256": "cc9a1f6b68acd808cd5ee3c688eb3dff9912eabf341250767a551974eea03f55"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/source-inputs/untracked/apps/retinal_stream_check.mm",
+    "archive": "trials/20261107-retinal-timing-admission-03/source-inputs/untracked/apps/retinal_stream_check.mm",
+    "bytes": 16071,
+    "sha256": "834a9c5e3ce09f99c0fb39f6c62791096bf5433c752acc36bf56a058aa708cca"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/source-inputs/untracked/cmake/CheckRetinalStream.cmake",
+    "archive": "trials/20261107-retinal-timing-admission-03/source-inputs/untracked/cmake/CheckRetinalStream.cmake",
+    "bytes": 578,
+    "sha256": "b9af46368f98f3e90858463a7fb80e5ed7f133115cb8a720fd8803c746ebc65e"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/source-inputs/untracked/include/metalrobo/RetinalStream.hpp",
+    "archive": "trials/20261107-retinal-timing-admission-03/source-inputs/untracked/include/metalrobo/RetinalStream.hpp",
+    "bytes": 1875,
+    "sha256": "52752c76a9d7f8a8df03cc1ce3fa42d40aa53ccabd2a174519cc56f950c42be7"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/source-inputs/untracked/include/metalrobo/retinal_stream_types.h",
+    "archive": "trials/20261107-retinal-timing-admission-03/source-inputs/untracked/include/metalrobo/retinal_stream_types.h",
+    "bytes": 1211,
+    "sha256": "86715583b6f134fc6e867ccde8022dfd417c5fbcdb0530fd12ddc13ab16ff337"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/source-inputs/untracked/src/metal/RetinalStream.metal",
+    "archive": "trials/20261107-retinal-timing-admission-03/source-inputs/untracked/src/metal/RetinalStream.metal",
+    "bytes": 4947,
+    "sha256": "2b0db13493790f7bd6d888d8d15ffda54c7d2b5e79f5b6bfccbd7bee0baa3f03"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/source-inputs/untracked/src/metal/RetinalStream.mm",
+    "archive": "trials/20261107-retinal-timing-admission-03/source-inputs/untracked/src/metal/RetinalStream.mm",
+    "bytes": 10665,
+    "sha256": "f748b7ae31a7cd2c69a2021dd6877418a8ed01feea592f75b3c8fb18b117d200"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-timing-admission-03/summary.json",
+    "archive": "trials/20261107-retinal-timing-admission-03/summary.json",
+    "bytes": 360,
+    "sha256": "b2205698504eb54f77ad47e9c4f702035428753ceb789cc1a67c2cb07e1ebaa8"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/ordinary-chunk1.json",
+    "archive": "trials/20261107-retinal-feeding-replay-01/ordinary-chunk1.json",
+    "bytes": 24619,
+    "sha256": "ff19bb627aeed6545bc9c7c91c03181d4443af40b1bba29044bc82d48be0626c"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/ordinary-chunk1.receipt.json",
+    "archive": "trials/20261107-retinal-feeding-replay-01/ordinary-chunk1.receipt.json",
+    "bytes": 976,
+    "sha256": "fdf79ce4e11566a86d9845949e17a2dc7d1f8728dbb1246ee7b83aacd8ca6dd2"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/ordinary-chunk1.stderr",
+    "archive": "trials/20261107-retinal-feeding-replay-01/ordinary-chunk1.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/ordinary-chunk8.json",
+    "archive": "trials/20261107-retinal-feeding-replay-01/ordinary-chunk8.json",
+    "bytes": 24619,
+    "sha256": "eebe2d68b22715f5a5a896b8103082732c0adf2e8ddc64313c2e1f8d2f69a76f"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/ordinary-chunk8.receipt.json",
+    "archive": "trials/20261107-retinal-feeding-replay-01/ordinary-chunk8.receipt.json",
+    "bytes": 975,
+    "sha256": "e0b2874cb4dc58b3bb893fd3fb6f2576660b3a1cfdfd76a6142ee709e8d4db02"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/ordinary-chunk8.stderr",
+    "archive": "trials/20261107-retinal-feeding-replay-01/ordinary-chunk8.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/plan.json",
+    "archive": "trials/20261107-retinal-feeding-replay-01/plan.json",
+    "bytes": 10931,
+    "sha256": "e3f52f5489d04d4525ee0f280ff6561113b96fd88b8691d3fdf3c37f5b0a7d9e"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/residual-chunk1.json",
+    "archive": "trials/20261107-retinal-feeding-replay-01/residual-chunk1.json",
+    "bytes": 24415,
+    "sha256": "19f746d5de78971a1216271f1ad712f4b491d9d9c8d37fd020c7d88279d62a02"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/residual-chunk1.receipt.json",
+    "archive": "trials/20261107-retinal-feeding-replay-01/residual-chunk1.receipt.json",
+    "bytes": 1136,
+    "sha256": "ca8ff1d06e01540c483865a40dd7f53f198e0875d5ab70f7f8e7d8d6dc23291d"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/residual-chunk1.stderr",
+    "archive": "trials/20261107-retinal-feeding-replay-01/residual-chunk1.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/residual-chunk8.json",
+    "archive": "trials/20261107-retinal-feeding-replay-01/residual-chunk8.json",
+    "bytes": 24414,
+    "sha256": "b029bad99b598f0b0df4e270d607572ad9ab5d5221ff2915787a5160217d84c4"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/residual-chunk8.receipt.json",
+    "archive": "trials/20261107-retinal-feeding-replay-01/residual-chunk8.receipt.json",
+    "bytes": 1136,
+    "sha256": "0b937a98550e3b89bcabc157c9eeca7a4ddf14ca39e3b15694807fab52b14243"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/residual-chunk8.stderr",
+    "archive": "trials/20261107-retinal-feeding-replay-01/residual-chunk8.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/source-inputs/manifest.json",
+    "archive": "trials/20261107-retinal-feeding-replay-01/source-inputs/manifest.json",
+    "bytes": 866,
+    "sha256": "9cc8764371892a528d2632a377a56519ddd15c2308eac08c00fa5e71379af4e2"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/source-inputs/tracked.patch",
+    "archive": "trials/20261107-retinal-feeding-replay-01/source-inputs/tracked.patch",
+    "bytes": 13068,
+    "sha256": "cc9a1f6b68acd808cd5ee3c688eb3dff9912eabf341250767a551974eea03f55"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/source-inputs/untracked/apps/retinal_stream_check.mm",
+    "archive": "trials/20261107-retinal-feeding-replay-01/source-inputs/untracked/apps/retinal_stream_check.mm",
+    "bytes": 16071,
+    "sha256": "834a9c5e3ce09f99c0fb39f6c62791096bf5433c752acc36bf56a058aa708cca"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/source-inputs/untracked/cmake/CheckRetinalStream.cmake",
+    "archive": "trials/20261107-retinal-feeding-replay-01/source-inputs/untracked/cmake/CheckRetinalStream.cmake",
+    "bytes": 578,
+    "sha256": "b9af46368f98f3e90858463a7fb80e5ed7f133115cb8a720fd8803c746ebc65e"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/source-inputs/untracked/include/metalrobo/RetinalStream.hpp",
+    "archive": "trials/20261107-retinal-feeding-replay-01/source-inputs/untracked/include/metalrobo/RetinalStream.hpp",
+    "bytes": 1875,
+    "sha256": "52752c76a9d7f8a8df03cc1ce3fa42d40aa53ccabd2a174519cc56f950c42be7"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/source-inputs/untracked/include/metalrobo/retinal_stream_types.h",
+    "archive": "trials/20261107-retinal-feeding-replay-01/source-inputs/untracked/include/metalrobo/retinal_stream_types.h",
+    "bytes": 1211,
+    "sha256": "86715583b6f134fc6e867ccde8022dfd417c5fbcdb0530fd12ddc13ab16ff337"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/source-inputs/untracked/src/metal/RetinalStream.metal",
+    "archive": "trials/20261107-retinal-feeding-replay-01/source-inputs/untracked/src/metal/RetinalStream.metal",
+    "bytes": 4947,
+    "sha256": "2b0db13493790f7bd6d888d8d15ffda54c7d2b5e79f5b6bfccbd7bee0baa3f03"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/source-inputs/untracked/src/metal/RetinalStream.mm",
+    "archive": "trials/20261107-retinal-feeding-replay-01/source-inputs/untracked/src/metal/RetinalStream.mm",
+    "bytes": 10665,
+    "sha256": "f748b7ae31a7cd2c69a2021dd6877418a8ed01feea592f75b3c8fb18b117d200"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-feeding-replay-01/summary.json",
+    "archive": "trials/20261107-retinal-feeding-replay-01/summary.json",
+    "bytes": 420,
+    "sha256": "04379252c4d4672a338bad2af95b01bdf0d2a5474ebb8bb77bc208c9aba6eaa5"
+  },
+  {
+    "source": ".numi/runs/american-crow/20261107-retinal-validation-01/all-native-ctest.log",
+    "archive": "trials/20261107-retinal-validation-01/all-native-ctest.log",
+    "bytes": 9604,
+    "sha256": "38f54c05655176536b5b8366a2f014955fda75fce964c4864bc11fb7ba2bd687"
+  },
+  {
+    "source": "build/crow-foraging-17608d2f94fbba2b/authored-intake.json",
+    "archive": "native-ctest-evidence/crow-foraging-17608d2f94fbba2b/authored-intake.json",
+    "bytes": 60,
+    "sha256": "d5b87c13ccfacd67e96caa321769e1c4ef98baeb3ca27765f0b23d33e5a7cbff"
+  },
+  {
+    "source": "build/crow-foraging-17608d2f94fbba2b/c-api-accounting-controls.json",
+    "archive": "native-ctest-evidence/crow-foraging-17608d2f94fbba2b/c-api-accounting-controls.json",
+    "bytes": 212,
+    "sha256": "a74d725494b143d21191fd2585e9c4a0a0cacc9d16bc386c8ddcb39d85107b24"
+  },
+  {
+    "source": "build/crow-foraging-17608d2f94fbba2b/feeding.taskpack",
+    "archive": "native-ctest-evidence/crow-foraging-17608d2f94fbba2b/feeding.taskpack",
+    "bytes": 1874,
+    "sha256": "c0b227097db169c01dd6fb481f8f193120bae9f41c47193717fcfeb4d3dcc740"
+  },
+  {
+    "source": "build/crow-foraging-17608d2f94fbba2b/missed.json",
+    "archive": "native-ctest-evidence/crow-foraging-17608d2f94fbba2b/missed.json",
+    "bytes": 1062,
+    "sha256": "329accf625e127a6ac07c4b77a8775d3e914705dc3bda6ffe607133b88f7509f"
+  },
+  {
+    "source": "build/crow-foraging-17608d2f94fbba2b/ordinary.json",
+    "archive": "native-ctest-evidence/crow-foraging-17608d2f94fbba2b/ordinary.json",
+    "bytes": 1102,
+    "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7"
+  },
+  {
+    "source": "build/crow-foraging-17608d2f94fbba2b/partition.json",
+    "archive": "native-ctest-evidence/crow-foraging-17608d2f94fbba2b/partition.json",
+    "bytes": 1102,
+    "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7"
+  },
+  {
+    "source": "build/crow-foraging-17608d2f94fbba2b/plan.json",
+    "archive": "native-ctest-evidence/crow-foraging-17608d2f94fbba2b/plan.json",
+    "bytes": 806,
+    "sha256": "ccd652c24a30a6a1c90b262f1692f8e151dd0be22ec6b5ef4f16d5fe7b03599f"
+  },
+  {
+    "source": "build/crow-foraging-17608d2f94fbba2b/reset-closing.json",
+    "archive": "native-ctest-evidence/crow-foraging-17608d2f94fbba2b/reset-closing.json",
+    "bytes": 1102,
+    "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7"
+  },
+  {
+    "source": "build/crow-foraging-17608d2f94fbba2b/reset.json",
+    "archive": "native-ctest-evidence/crow-foraging-17608d2f94fbba2b/reset.json",
+    "bytes": 1102,
+    "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7"
+  },
+  {
+    "source": "build/crow-foraging-17608d2f94fbba2b/resources.checkpoint",
+    "archive": "native-ctest-evidence/crow-foraging-17608d2f94fbba2b/resources.checkpoint",
+    "bytes": 704,
+    "sha256": "79f8c4ca6d5b019a78c14a281ec0c672fbc7a4eb8b068799e3414f5152e98028"
+  },
+  {
+    "source": "build/crow-foraging-17608d2f94fbba2b/resources.checkpoint.negative-0",
+    "archive": "native-ctest-evidence/crow-foraging-17608d2f94fbba2b/resources.checkpoint.negative-0",
+    "bytes": 703,
+    "sha256": "ffa929f6e7cecbac61c10aa1f769250ac39018be69a9d72dedd3d16257b3c96f"
+  },
+  {
+    "source": "build/crow-foraging-17608d2f94fbba2b/resources.checkpoint.negative-1",
+    "archive": "native-ctest-evidence/crow-foraging-17608d2f94fbba2b/resources.checkpoint.negative-1",
+    "bytes": 704,
+    "sha256": "ed557a7342e7e1fd69682f8d30a9c7f837a206025f69e02d08683d91d5de332b"
+  },
+  {
+    "source": "build/crow-foraging-17608d2f94fbba2b/resources.checkpoint.negative-2",
+    "archive": "native-ctest-evidence/crow-foraging-17608d2f94fbba2b/resources.checkpoint.negative-2",
+    "bytes": 705,
+    "sha256": "1cb67745d069057f3167a7185b1aec6bd2573d9f36596731718a5aeba8211ab2"
+  },
+  {
+    "source": "build/crow-foraging-17608d2f94fbba2b/resources.checkpoint.negative-3",
+    "archive": "native-ctest-evidence/crow-foraging-17608d2f94fbba2b/resources.checkpoint.negative-3",
+    "bytes": 704,
+    "sha256": "8c7341dd147e660c180993155ab11e3812b3a03946066e0b342761e927a514f0"
+  },
+  {
+    "source": "build/crow-foraging-17608d2f94fbba2b/summary.json",
+    "archive": "native-ctest-evidence/crow-foraging-17608d2f94fbba2b/summary.json",
+    "bytes": 609,
+    "sha256": "714b2d61d53cdd8e41bf6b6500beab76a67f2d302b3a6c5b68df00fb94b68eb9"
+  },
+  {
+    "source": "build/crow-foraging-17608d2f94fbba2b/synthetic-resources.checkpoint",
+    "archive": "native-ctest-evidence/crow-foraging-17608d2f94fbba2b/synthetic-resources.checkpoint",
+    "bytes": 704,
+    "sha256": "d355aa883864739b920dbf539d6ff6a59c087d869189b7c2869c7e70050262f9"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/authoring-controls.json",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/authoring-controls.json",
+    "bytes": 185,
+    "sha256": "2bcd9541d636f07b6bb1098f29f13b21366c0d5985cb1f5d52c07c111a44c4f9"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/measurements.jsonl",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/measurements.jsonl",
+    "bytes": 1945,
+    "sha256": "11f199ca6c2d9e10e01acbc50d7189a87794a9ee009ad323d170919badd945c4"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/accepted-body-states.bin",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/accepted-body-states.bin",
+    "bytes": 5120,
+    "sha256": "91e7e8d2f21171cafbf614dc332b982a159a630ee7253e704d0a89f4419234d0"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/camera-0-lane-0.png",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/camera-0-lane-0.png",
+    "bytes": 3942,
+    "sha256": "881acc05abaced5b1dba82484074727bce8199666862ec7b55230d81c800f855"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/camera-0-lane-1.png",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/camera-0-lane-1.png",
+    "bytes": 3942,
+    "sha256": "881acc05abaced5b1dba82484074727bce8199666862ec7b55230d81c800f855"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/camera-0.depth.f32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/camera-0.depth.f32",
+    "bytes": 153600,
+    "sha256": "3f0cf94bc643af18a01e9e93baca1a7675daa46f0292c1cdd86d1abed7679d5f"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/camera-0.identities.u32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/camera-0.identities.u32",
+    "bytes": 614400,
+    "sha256": "037fb4c46a8dfc10c1fb323219a3f54d7ada5ba2e56846dd3e8a98781013851c"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/camera-0.layout.json",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/camera-0.layout.json",
+    "bytes": 454,
+    "sha256": "d89af695539f2ad6b7a6313e0b088c57f6342708e3a49a74231ebfe390b03979"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/camera-0.poses.bin",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/camera-0.poses.bin",
+    "bytes": 128,
+    "sha256": "ddfb0927f65970ff446ca444037429e423978a33c0c5e72cf06b1d9f6a4ba7bd"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/camera-0.rgba.f32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/camera-0.rgba.f32",
+    "bytes": 614400,
+    "sha256": "1f4df2d5745d75aad740c10caeb4b478cd6fc50133221e0293982701908f3dde"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/camera-0.validity.u32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/camera-0.validity.u32",
+    "bytes": 153600,
+    "sha256": "09590c35c95b58284b4b5e95b314309b7649b76631cf7ee0d06b865e85251e5c"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/camera-1-lane-0.png",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/camera-1-lane-0.png",
+    "bytes": 3599,
+    "sha256": "48f741ae1d8ade2af22e5be88132711370dabd71b68ef968ebbd2cfd3b093ff0"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/camera-1-lane-1.png",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/camera-1-lane-1.png",
+    "bytes": 3599,
+    "sha256": "48f741ae1d8ade2af22e5be88132711370dabd71b68ef968ebbd2cfd3b093ff0"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/camera-1.depth.f32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/camera-1.depth.f32",
+    "bytes": 153600,
+    "sha256": "aac23fb4c9df6408fc6ced75bcfd6b7a7185fde60ee3a98d80a5c0324e56c73b"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/camera-1.identities.u32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/camera-1.identities.u32",
+    "bytes": 614400,
+    "sha256": "075659e5b05957efca4ced2e74d8e44477a3cf43ab04ccf876f9c2dbec7da987"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/camera-1.layout.json",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/camera-1.layout.json",
+    "bytes": 454,
+    "sha256": "d89af695539f2ad6b7a6313e0b088c57f6342708e3a49a74231ebfe390b03979"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/camera-1.poses.bin",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/camera-1.poses.bin",
+    "bytes": 128,
+    "sha256": "c7eced2aa6a2f68f850b2aa9efd879194c9d88740270b88596525c97fae4626c"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/camera-1.rgba.f32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/camera-1.rgba.f32",
+    "bytes": 614400,
+    "sha256": "1354ca0c75fe21cca46679ea13197d20104792473331a443191c0b4e5fd07390"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/camera-1.validity.u32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/camera-1.validity.u32",
+    "bytes": 153600,
+    "sha256": "d312a879d77b3909b0c66d3097f886e551ec14a3031876ccc76ec07671c68a42"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/camera_occluder.mrvpack",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/camera_occluder.mrvpack",
+    "bytes": 32768,
+    "sha256": "1de8f58fb80f631043eacaf7a34cd1bd0ba39d7f4507fc2c076071a7c3d3005c"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/camera_target.mrvpack",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/camera_target.mrvpack",
+    "bytes": 32768,
+    "sha256": "a20954093b9cc6413a4c311ca0f35f4879c13e2c25ed59fb9619798a564fe5b5"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/locomotion_ground.mrvpack",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/locomotion_ground.mrvpack",
+    "bytes": 32768,
+    "sha256": "18c90c155f01e12e3a3a5e49264407ca37ea369214f4d90d1ee5ae1c5e050cc0"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/robot.mrvpack",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/robot.mrvpack",
+    "bytes": 57344,
+    "sha256": "86f2d7ffb486395d10ac9c1e76f8a1cbc6bd3b6d8a60e9d38baf3a930874e56e"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/neutral/visual-scene.json",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/neutral/visual-scene.json",
+    "bytes": 1066,
+    "sha256": "6e7d5b1088e81f16dd88245dc47dba92d31f2f3d99d67876ec1e424691523b5f"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/accepted-body-states.bin",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/accepted-body-states.bin",
+    "bytes": 5120,
+    "sha256": "310c5886546b84ed7cf1fe58bc682b4f865ce0f7f89fd8599644df9dfb65a592"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/camera-0-lane-0.png",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/camera-0-lane-0.png",
+    "bytes": 3300,
+    "sha256": "03be454b164049d5ec6fb8707517dc25e43bf93128ef7e732ec1fd7a09502671"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/camera-0-lane-1.png",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/camera-0-lane-1.png",
+    "bytes": 3300,
+    "sha256": "03be454b164049d5ec6fb8707517dc25e43bf93128ef7e732ec1fd7a09502671"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/camera-0.depth.f32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/camera-0.depth.f32",
+    "bytes": 153600,
+    "sha256": "317c4598fed283179d74417ca47bc872d4884550fb5fa4cc2193617a9fbf7dbd"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/camera-0.identities.u32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/camera-0.identities.u32",
+    "bytes": 614400,
+    "sha256": "8b83349b77d7782ed241ee3ebef8e2a40ab204c95c465f29d1b6219d889df329"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/camera-0.layout.json",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/camera-0.layout.json",
+    "bytes": 454,
+    "sha256": "d89af695539f2ad6b7a6313e0b088c57f6342708e3a49a74231ebfe390b03979"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/camera-0.poses.bin",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/camera-0.poses.bin",
+    "bytes": 128,
+    "sha256": "ddfb0927f65970ff446ca444037429e423978a33c0c5e72cf06b1d9f6a4ba7bd"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/camera-0.rgba.f32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/camera-0.rgba.f32",
+    "bytes": 614400,
+    "sha256": "3e669e2bf10c84dde703134e07ca01c579a3695179a9110e4e695e0ad64239e3"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/camera-0.validity.u32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/camera-0.validity.u32",
+    "bytes": 153600,
+    "sha256": "a09b0128ac61c8456a9cda218814756cb567fc7ed0c36f82f12348fa0e1f640f"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/camera-1-lane-0.png",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/camera-1-lane-0.png",
+    "bytes": 3133,
+    "sha256": "4b2b140829cb97d2494e412b8d98f599f95954b147a1d250d78fdf0641e65704"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/camera-1-lane-1.png",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/camera-1-lane-1.png",
+    "bytes": 3133,
+    "sha256": "4b2b140829cb97d2494e412b8d98f599f95954b147a1d250d78fdf0641e65704"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/camera-1.depth.f32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/camera-1.depth.f32",
+    "bytes": 153600,
+    "sha256": "19d4a56a24e84bc092f4c58f8757bc8a5173bcf8efb3581387e83d4f4a1fbf7a"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/camera-1.identities.u32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/camera-1.identities.u32",
+    "bytes": 614400,
+    "sha256": "0e7bd8c08dc94d2fe872307c86b04388dfcb697ec44d9f850794f904e372358a"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/camera-1.layout.json",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/camera-1.layout.json",
+    "bytes": 454,
+    "sha256": "d89af695539f2ad6b7a6313e0b088c57f6342708e3a49a74231ebfe390b03979"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/camera-1.poses.bin",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/camera-1.poses.bin",
+    "bytes": 128,
+    "sha256": "c7eced2aa6a2f68f850b2aa9efd879194c9d88740270b88596525c97fae4626c"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/camera-1.rgba.f32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/camera-1.rgba.f32",
+    "bytes": 614400,
+    "sha256": "30e682b16f535c215ec7e9e83a25a894928e92bf0f0331994fd2ce3f6c486277"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/camera-1.validity.u32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/camera-1.validity.u32",
+    "bytes": 153600,
+    "sha256": "c3e53778956c0ef89ac9a51f4d6ac922bce0737cbd960fa141ab99fb59997551"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/camera_occluder.mrvpack",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/camera_occluder.mrvpack",
+    "bytes": 32768,
+    "sha256": "1de8f58fb80f631043eacaf7a34cd1bd0ba39d7f4507fc2c076071a7c3d3005c"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/camera_target.mrvpack",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/camera_target.mrvpack",
+    "bytes": 32768,
+    "sha256": "a20954093b9cc6413a4c311ca0f35f4879c13e2c25ed59fb9619798a564fe5b5"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/locomotion_ground.mrvpack",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/locomotion_ground.mrvpack",
+    "bytes": 32768,
+    "sha256": "18c90c155f01e12e3a3a5e49264407ca37ea369214f4d90d1ee5ae1c5e050cc0"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/robot.mrvpack",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/robot.mrvpack",
+    "bytes": 57344,
+    "sha256": "86f2d7ffb486395d10ac9c1e76f8a1cbc6bd3b6d8a60e9d38baf3a930874e56e"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/occluded/visual-scene.json",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/occluded/visual-scene.json",
+    "bytes": 1068,
+    "sha256": "d2125404913c8c3aa3300efe6a7c3a678f82c21ac3a4ab106c6bc9814ba3c846"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/accepted-body-states.bin",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/accepted-body-states.bin",
+    "bytes": 5120,
+    "sha256": "e2b08af487036cda01cf294282069c98bd31edf9b2f369d1ddf546d1e3c610bc"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/camera-0-lane-0.png",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/camera-0-lane-0.png",
+    "bytes": 3638,
+    "sha256": "8c03c9c580c144427b3bb62f1001877c5f8c5c492220ee6fc5f0c98eba13e8a5"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/camera-0-lane-1.png",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/camera-0-lane-1.png",
+    "bytes": 3638,
+    "sha256": "8c03c9c580c144427b3bb62f1001877c5f8c5c492220ee6fc5f0c98eba13e8a5"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/camera-0.depth.f32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/camera-0.depth.f32",
+    "bytes": 153600,
+    "sha256": "9c9c9a6459f40f78ba2c777580fbf72ea95bd96c588d040db1dd49867f9e1d8b"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/camera-0.identities.u32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/camera-0.identities.u32",
+    "bytes": 614400,
+    "sha256": "0aa81b26173f48f92783e2d5efa58d25c01b4a88a4d3c18e3bf7ae24ebb0e238"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/camera-0.layout.json",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/camera-0.layout.json",
+    "bytes": 454,
+    "sha256": "d89af695539f2ad6b7a6313e0b088c57f6342708e3a49a74231ebfe390b03979"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/camera-0.poses.bin",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/camera-0.poses.bin",
+    "bytes": 128,
+    "sha256": "5959804f54e0cf9a538dac359b4f1af8d8204063506f8773b514d224ada892fd"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/camera-0.rgba.f32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/camera-0.rgba.f32",
+    "bytes": 614400,
+    "sha256": "e93aedea11c978af1b3f5c7ca38bcd61c32d27c7011f0116a4a8edeadca40505"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/camera-0.validity.u32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/camera-0.validity.u32",
+    "bytes": 153600,
+    "sha256": "ad7688c8e29df213beab86c58c41ff2da3976d9406d6d5c6005941a6d238994b"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/camera-1-lane-0.png",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/camera-1-lane-0.png",
+    "bytes": 4916,
+    "sha256": "1beb0083039c04828af62dcf0cf34a60733fa356d87eefe8327ea1d5e5adab7b"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/camera-1-lane-1.png",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/camera-1-lane-1.png",
+    "bytes": 4916,
+    "sha256": "1beb0083039c04828af62dcf0cf34a60733fa356d87eefe8327ea1d5e5adab7b"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/camera-1.depth.f32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/camera-1.depth.f32",
+    "bytes": 153600,
+    "sha256": "40f3b0b395f79c7bcf3812bc54f2e821a77445906ef3b8d41028a5de8ef805f1"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/camera-1.identities.u32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/camera-1.identities.u32",
+    "bytes": 614400,
+    "sha256": "6b31fb5404de04f9afaccb0fdd1098e734eceaa37bf963b25498f00ca24b0346"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/camera-1.layout.json",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/camera-1.layout.json",
+    "bytes": 454,
+    "sha256": "d89af695539f2ad6b7a6313e0b088c57f6342708e3a49a74231ebfe390b03979"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/camera-1.poses.bin",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/camera-1.poses.bin",
+    "bytes": 128,
+    "sha256": "4d5f017fa6ae2feaf56ad162ce97e345735314913cad360f48941af4d7731e8e"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/camera-1.rgba.f32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/camera-1.rgba.f32",
+    "bytes": 614400,
+    "sha256": "dfc82bc66b3aeab7198a6fa5bfd5667cd3812cf75558ed19f325f58efd7a475e"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/camera-1.validity.u32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/camera-1.validity.u32",
+    "bytes": 153600,
+    "sha256": "a57a46eb5c36625c302ea11b972cc5150a5a8eb6f1c7bb3b81a57cf5043bdddd"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/camera_occluder.mrvpack",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/camera_occluder.mrvpack",
+    "bytes": 32768,
+    "sha256": "1de8f58fb80f631043eacaf7a34cd1bd0ba39d7f4507fc2c076071a7c3d3005c"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/camera_target.mrvpack",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/camera_target.mrvpack",
+    "bytes": 32768,
+    "sha256": "a20954093b9cc6413a4c311ca0f35f4879c13e2c25ed59fb9619798a564fe5b5"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/locomotion_ground.mrvpack",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/locomotion_ground.mrvpack",
+    "bytes": 32768,
+    "sha256": "18c90c155f01e12e3a3a5e49264407ca37ea369214f4d90d1ee5ae1c5e050cc0"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/robot.mrvpack",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/robot.mrvpack",
+    "bytes": 57344,
+    "sha256": "86f2d7ffb486395d10ac9c1e76f8a1cbc6bd3b6d8a60e9d38baf3a930874e56e"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/pitch/visual-scene.json",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/pitch/visual-scene.json",
+    "bytes": 1065,
+    "sha256": "e44298dcde9324063825cf10a1e3bbb96ece21f9b0d9f527e14e711b277e5ddb"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/plan.json",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/plan.json",
+    "bytes": 1400,
+    "sha256": "3c410e5f537786655809dba87afbac2cf925f7baee59c2be006c21ee39943a3c"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/summary.json",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/summary.json",
+    "bytes": 270,
+    "sha256": "ddc961d261bf843767e41975c49a1c7c92d563488534fcec9ff8cf68251539fd"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/accepted-body-states.bin",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/accepted-body-states.bin",
+    "bytes": 5120,
+    "sha256": "9a3305fc1b0f7998c2a16a7389c487a885e45d48509c99fd340e5e9ef26dda31"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/camera-0-lane-0.png",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/camera-0-lane-0.png",
+    "bytes": 2933,
+    "sha256": "77c91236ace7e9e4b17d792d3789fff5673a0ce41d413f7ec39734a30ba75deb"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/camera-0-lane-1.png",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/camera-0-lane-1.png",
+    "bytes": 2620,
+    "sha256": "c8c170508c59e66b832a8255d53e1d76fd7308011106acedd27e06f8d3a49929"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/camera-0.depth.f32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/camera-0.depth.f32",
+    "bytes": 153600,
+    "sha256": "097e2bc94dff7e703cfde2bc818b41ec126d3355533dda126e6d5df088269880"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/camera-0.identities.u32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/camera-0.identities.u32",
+    "bytes": 614400,
+    "sha256": "8a1e6aeb6ff82c6f81d1b65374f2d1a2dc9d41394a98b7ac74bba004a26b01d6"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/camera-0.layout.json",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/camera-0.layout.json",
+    "bytes": 454,
+    "sha256": "d89af695539f2ad6b7a6313e0b088c57f6342708e3a49a74231ebfe390b03979"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/camera-0.poses.bin",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/camera-0.poses.bin",
+    "bytes": 128,
+    "sha256": "c0902b627e7f3f95346cd6573b9c16c083a2c3c9a9952a5a1152e6fdf98fbb8e"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/camera-0.rgba.f32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/camera-0.rgba.f32",
+    "bytes": 614400,
+    "sha256": "24e342e79e560961e871aeebaa97cc8c8c3a12af1dd4bd907a37838ee22c7a34"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/camera-0.validity.u32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/camera-0.validity.u32",
+    "bytes": 153600,
+    "sha256": "730c8239d439748ffd4eb4c3cbba63f6c3de44816dd827d6c05ebaf6707200cf"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/camera-1-lane-0.png",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/camera-1-lane-0.png",
+    "bytes": 3984,
+    "sha256": "dc3088ad0fa363444531bb0e23b23fce9fe1e52214e89a56690f71c9db7f7d86"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/camera-1-lane-1.png",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/camera-1-lane-1.png",
+    "bytes": 3644,
+    "sha256": "75cde6e9b91e1e09ae75712539327f8c01fd33d95fbeec137f2e3b325a9f57ac"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/camera-1.depth.f32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/camera-1.depth.f32",
+    "bytes": 153600,
+    "sha256": "853b7c2831328cf6a8d38a311abbfdde1eefbf6333d074e018ec81dc4c776dbd"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/camera-1.identities.u32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/camera-1.identities.u32",
+    "bytes": 614400,
+    "sha256": "84d2384dbb77d9f374021c63a24c6e691c0967e2586c4b160ef7d9ebfaa9a460"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/camera-1.layout.json",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/camera-1.layout.json",
+    "bytes": 454,
+    "sha256": "d89af695539f2ad6b7a6313e0b088c57f6342708e3a49a74231ebfe390b03979"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/camera-1.poses.bin",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/camera-1.poses.bin",
+    "bytes": 128,
+    "sha256": "5722c7fa10e383f3fb7de7bbd755a672d7dad2aae1b0497fa55b57cffbca6e14"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/camera-1.rgba.f32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/camera-1.rgba.f32",
+    "bytes": 614400,
+    "sha256": "2adccd377f7855ad5b62f3fae75308f2ec2d1b7cd281d3934481336a5a827d96"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/camera-1.validity.u32",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/camera-1.validity.u32",
+    "bytes": 153600,
+    "sha256": "ec0585cb379e17a585cfbe91c69c32685eaa40daade018b97b89bd775c901c3d"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/camera_occluder.mrvpack",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/camera_occluder.mrvpack",
+    "bytes": 32768,
+    "sha256": "1de8f58fb80f631043eacaf7a34cd1bd0ba39d7f4507fc2c076071a7c3d3005c"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/camera_target.mrvpack",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/camera_target.mrvpack",
+    "bytes": 32768,
+    "sha256": "a20954093b9cc6413a4c311ca0f35f4879c13e2c25ed59fb9619798a564fe5b5"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/locomotion_ground.mrvpack",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/locomotion_ground.mrvpack",
+    "bytes": 32768,
+    "sha256": "18c90c155f01e12e3a3a5e49264407ca37ea369214f4d90d1ee5ae1c5e050cc0"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/robot.mrvpack",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/robot.mrvpack",
+    "bytes": 57344,
+    "sha256": "86f2d7ffb486395d10ac9c1e76f8a1cbc6bd3b6d8a60e9d38baf3a930874e56e"
+  },
+  {
+    "source": "build/crow-eye-92e62bc26a246125/yaw/visual-scene.json",
+    "archive": "native-ctest-evidence/crow-eye-92e62bc26a246125/yaw/visual-scene.json",
+    "bytes": 1067,
+    "sha256": "c1d5980c40f98399016fd6276b97461365c9cfd4ef9cf38247740fe0a6f77abe"
+  },
+  {
+    "source": "build/retinal-stream-6dc8e91e69425765/boundary-1-0.output.f32",
+    "archive": "native-ctest-evidence/retinal-stream-6dc8e91e69425765/boundary-1-0.output.f32",
+    "bytes": 180540,
+    "sha256": "f9c25f279cedaa60c7c499d1bd4304054dff8d392cd2c1f443d1f0498e0b7b7d"
+  },
+  {
+    "source": "build/retinal-stream-6dc8e91e69425765/boundary-1-1.output.f32",
+    "archive": "native-ctest-evidence/retinal-stream-6dc8e91e69425765/boundary-1-1.output.f32",
+    "bytes": 180540,
+    "sha256": "0ad21e937326c782c4d867d3dcfc7b4c8a84af64886b9ce0c35ddbe3109c2776"
+  },
+  {
+    "source": "build/retinal-stream-6dc8e91e69425765/boundary-1-16.output.f32",
+    "archive": "native-ctest-evidence/retinal-stream-6dc8e91e69425765/boundary-1-16.output.f32",
+    "bytes": 180540,
+    "sha256": "d6c3b786a508dc3de4dc456b9d1a74d6a07bab373424a4d3b6c5c6cecc45483a"
+  },
+  {
+    "source": "build/retinal-stream-6dc8e91e69425765/boundary-50-2.output.f32",
+    "archive": "native-ctest-evidence/retinal-stream-6dc8e91e69425765/boundary-50-2.output.f32",
+    "bytes": 180540,
+    "sha256": "b015d5c03e90f7699f2b5980d0fb56d01915058a417f68e7fea788512b3edff8"
+  },
+  {
+    "source": "build/retinal-stream-6dc8e91e69425765/boundary-measurements.jsonl",
+    "archive": "native-ctest-evidence/retinal-stream-6dc8e91e69425765/boundary-measurements.jsonl",
+    "bytes": 390,
+    "sha256": "8d1fc743a58efdc9d3560412e19c72a326b791a8502ee065e750d09c3046af99"
+  },
+  {
+    "source": "build/retinal-stream-6dc8e91e69425765/chunk1.output.f32",
+    "archive": "native-ctest-evidence/retinal-stream-6dc8e91e69425765/chunk1.output.f32",
+    "bytes": 180540,
+    "sha256": "5610dff21de8a6a5962400ec1f44c07af85fa6d7946f1f5eaaeebb6e655eafda"
+  },
+  {
+    "source": "build/retinal-stream-6dc8e91e69425765/chunk8.output.f32",
+    "archive": "native-ctest-evidence/retinal-stream-6dc8e91e69425765/chunk8.output.f32",
+    "bytes": 180540,
+    "sha256": "5610dff21de8a6a5962400ec1f44c07af85fa6d7946f1f5eaaeebb6e655eafda"
+  },
+  {
+    "source": "build/retinal-stream-6dc8e91e69425765/clock-gap.output.f32",
+    "archive": "native-ctest-evidence/retinal-stream-6dc8e91e69425765/clock-gap.output.f32",
+    "bytes": 7080,
+    "sha256": "5505c67e8161aba150e47c6935f9ede5af4845a331e1b83b500eed2fc76bad8f"
+  },
+  {
+    "source": "build/retinal-stream-6dc8e91e69425765/final-states.bin",
+    "archive": "native-ctest-evidence/retinal-stream-6dc8e91e69425765/final-states.bin",
+    "bytes": 144,
+    "sha256": "9119b7f928965f1f9acf107a42d68c054140f8da1e9a65521f8632714f9680bd"
+  },
+  {
+    "source": "build/retinal-stream-6dc8e91e69425765/finite-overflow.output.f32",
+    "archive": "native-ctest-evidence/retinal-stream-6dc8e91e69425765/finite-overflow.output.f32",
+    "bytes": 35400,
+    "sha256": "6121645cf61ad375598c7fb3e439e2033dcff3ec3a21f5af98c8432145b2f6b7"
+  },
+  {
+    "source": "build/retinal-stream-6dc8e91e69425765/layout.json",
+    "archive": "native-ctest-evidence/retinal-stream-6dc8e91e69425765/layout.json",
+    "bytes": 362,
+    "sha256": "f1234567c8f79be38ac1f6148b35976623377912d34bee18c4f174bd3ac6c467"
+  },
+  {
+    "source": "build/retinal-stream-6dc8e91e69425765/negative-errors.json",
+    "archive": "native-ctest-evidence/retinal-stream-6dc8e91e69425765/negative-errors.json",
+    "bytes": 68,
+    "sha256": "8c7c96dfd62ecd9e26e1077974d15b0b12ab6b8dc40cc009a617bf382a24ca87"
+  },
+  {
+    "source": "build/retinal-stream-6dc8e91e69425765/nonfinite.output.f32",
+    "archive": "native-ctest-evidence/retinal-stream-6dc8e91e69425765/nonfinite.output.f32",
+    "bytes": 35400,
+    "sha256": "6121645cf61ad375598c7fb3e439e2033dcff3ec3a21f5af98c8432145b2f6b7"
+  },
+  {
+    "source": "build/retinal-stream-6dc8e91e69425765/plan.json",
+    "archive": "native-ctest-evidence/retinal-stream-6dc8e91e69425765/plan.json",
+    "bytes": 1571,
+    "sha256": "87259a7ec24c1695c41ea36dbca0b1c12f09f86ed511aff6bc719d4d793ce446"
+  },
+  {
+    "source": "build/retinal-stream-6dc8e91e69425765/summary.json",
+    "archive": "native-ctest-evidence/retinal-stream-6dc8e91e69425765/summary.json",
+    "bytes": 324,
+    "sha256": "ef8ec0d89512395d2cd03d68dbabfc17e7838b99891ec07e59b6e177f691a483"
+  }
+]

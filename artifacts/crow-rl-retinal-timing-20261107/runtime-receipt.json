@@ -1,0 +1,26 @@
+[
+  {
+    "kind": "retinal_check",
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/crow-retinal-timing-admission-03/metalrobo_retinal_stream_check",
+    "bytes": 95312,
+    "sha256": "71e9ec7cba04f141dbf6d2f3340b30ac44d6b74cb0da195e8543aea31e1dbf28"
+  },
+  {
+    "kind": "library",
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/crow-retinal-timing-admission-03/libmetalrobo.dylib",
+    "bytes": 5475280,
+    "sha256": "465ea2dd6e22ac741e0a45b56b43accd8d057716d964e16c497c6ad223a7ab66"
+  },
+  {
+    "kind": "retinal_metallib",
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/crow-retinal-timing-admission-03/RetinalStream.metallib",
+    "bytes": 16151,
+    "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+  },
+  {
+    "kind": "metallib",
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/crow-retinal-timing-admission-03/MetalRobo.metallib",
+    "bytes": 4169757,
+    "sha256": "61fc4a19866101c72bc2369794084741050e05adba1b41e2eea6fcfd1a7d0fea"
+  }
+]

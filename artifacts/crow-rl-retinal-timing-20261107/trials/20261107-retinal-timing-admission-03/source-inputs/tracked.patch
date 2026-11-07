@@ -1,0 +1,210 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e291673d..64d1cf1c 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -706,6 +706,22 @@ add_custom_command(
+ 
+ add_custom_target(metalrobo_shaders ALL DEPENDS "${METALROBO_METALLIB}")
+ 
++# Independent additive sensory kernels preserve the existing physics/policy
++# metallib. No per-step compiler or host sampler is introduced.
++set(METALROBO_RETINAL_METALLIB "${CMAKE_CURRENT_BINARY_DIR}/shaders/RetinalStream.metallib")
++add_custom_command(OUTPUT "${METALROBO_RETINAL_METALLIB}"
++    COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/shaders"
++    COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
++        -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
++        -c "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/RetinalStream.metal"
++        -o "${CMAKE_CURRENT_BINARY_DIR}/shaders/RetinalStream.air"
++    COMMAND xcrun -sdk macosx metallib
++        "${CMAKE_CURRENT_BINARY_DIR}/shaders/RetinalStream.air" -o "${METALROBO_RETINAL_METALLIB}"
++    DEPENDS src/metal/RetinalStream.metal include/metalrobo/retinal_stream_types.h
++        include/metalrobo/task_program_types.h include/metalrobo/gpu_types.h VERBATIM)
++add_custom_target(metalrobo_retinal_shaders ALL DEPENDS "${METALROBO_RETINAL_METALLIB}")
++
++
+ set(
+     METALROBO_VISUAL_KERNEL_HASH_HEADER
+     "${CMAKE_CURRENT_BINARY_DIR}/generated/VisualKernelHashes.h"
+@@ -813,6 +829,7 @@ add_library(
+     src/metal/NumiHumanTendonMetal.mm
+     src/metal/MetalArticulatedABA.mm
+     src/metal/FiniteResource.mm
++    src/metal/RetinalStream.mm
+     src/metal/MetalMultiArticulatedABA.mm
+     src/metal/MetalDiscreteElasticRod.mm
+     src/metal/MetalArticulatedInverseMass.mm
+@@ -1062,6 +1079,12 @@ add_executable(
+ )
+ add_executable(metalrobo_crow_embodiment_check apps/crow_embodiment_check.cpp)
+ add_executable(metalrobo_crow_foraging_check apps/crow_foraging_check.mm)
++add_executable(metalrobo_retinal_stream_check apps/retinal_stream_check.mm)
++target_compile_options(metalrobo_retinal_stream_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
++target_link_libraries(metalrobo_retinal_stream_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
++add_dependencies(metalrobo_retinal_stream_check metalrobo_retinal_shaders)
++set_target_properties(metalrobo_retinal_stream_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
++
+ add_executable(metalrobo_crow_eye_check apps/crow_eye_check.mm)
+ target_compile_options(metalrobo_crow_eye_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+ target_link_libraries(metalrobo_crow_eye_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}" "${COREGRAPHICS_FRAMEWORK}" "${IMAGEIO_FRAMEWORK}")
+@@ -2329,6 +2352,13 @@ if(BUILD_TESTING)
+             "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_eye_check>"
+             "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
+             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowEye.cmake")
++    add_test(NAME metalrobo.crow.retinal_timing
++        COMMAND "${CMAKE_COMMAND}"
++            "-DPROGRAM=$<TARGET_FILE:metalrobo_retinal_stream_check>"
++            "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
++            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckRetinalStream.cmake")
++    set_tests_properties(metalrobo.crow.retinal_timing PROPERTIES
++        LABELS "metalrobo;crow;native;visual" TIMEOUT 200)
+     set_tests_properties(metalrobo.crow.head_camera PROPERTIES
+         LABELS "metalrobo;crow;native;visual" TIMEOUT 200)
+     set_tests_properties(metalrobo.crow.finite_resource PROPERTIES
+@@ -3740,7 +3770,7 @@ install(
+     DESTINATION share/numi/assets
+ )
+ install(DIRECTORY include/ DESTINATION include)
+-install(FILES "${METALROBO_METALLIB}" DESTINATION lib/metalrobo)
++install(FILES "${METALROBO_METALLIB}" "${METALROBO_RETINAL_METALLIB}" DESTINATION lib/metalrobo)
+ install(
+     FILES
+         schemas/capture_manifest.schema.json
+diff --git a/docs/CROW_RL_ENVIRONMENT.md b/docs/CROW_RL_ENVIRONMENT.md
+index c0ce4628..f0871a3f 100644
+--- a/docs/CROW_RL_ENVIRONMENT.md
++++ b/docs/CROW_RL_ENVIRONMENT.md
+@@ -43,7 +43,7 @@ legacy PolicyPacks to new sensor, action, world, or task semantics.
+ From this source checkout, build `metalrobo_task_rollout`,
+ `metalrobo_task_train`, `metalrobo_robot_catalog`, and
+ `metalrobo_crow_embodiment_check`, `metalrobo_crow_foraging_check`, and
+-`metalrobo_crow_eye_check` with
++`metalrobo_crow_eye_check` and `metalrobo_retinal_stream_check` with
+ CMake/Ninja Release.
+ Create the learner with CPython 3.13.14 using `uv venv python/.venv`, then
+ `uv pip install --python python/.venv/bin/python -c
+@@ -396,3 +396,48 @@ sensor latency. The next admission is a device-resident causal retinal stream,
+ then a distinct task contract and learned search. Existing v12 policies retain
+ their own 97-input contract. New trials now retain the exact tracked source
+ patch plus untracked runtime source, rather than hashes alone.
++
++
++## Device-resident retinal timing layer
++
++`retina-admission --output NEW_DIRECTORY` calibrates a native RGB stream
++independently of the renderer and learner. `RetinalStreamContext` borrows a
++caller-owned Metal command buffer, native task episode clock, one linear RGB
++buffer per eye, and actor output storage. It encodes area reduction, rational
++sample cadence, delayed delivery and publication; no host readback or per-step
++host sensor decision occurs. It reads only episode/initialization fields from
++the task state, and accepts no depth, segmentation, identity or world transforms.
++It never writes physics, the task state or another actor feature.
++
++The development timing is 3/10 samples per 50 Hz accepted control tick (15 Hz)
++with a two-tick delay (40 ms). A fixed channel response c/(1+c) follows exact
++area averaging. Held pixels carry explicit valid and age-in-seconds features.
++A repeated accepted tick is idempotent even if the input image changes.
++Per-lane episode changes clear visible and pending frames; the delayed stream
++stays invalid until the new frame is ready. Clock gaps/backward clocks and
++nonfinite, negative or overflowed captured radiance fail closed per lane.
++Errors remain latched; callers must inspect native error publication before
++accepting an experiment. Concurrent command buffers cannot mutate one stream.
++A failed Metal command poisons the context. Snapshot is an inspection boundary,
++not a sensory/world checkpoint or a restore API.
++
++The controlled native GPU instrument passed in retinal-timing-admission-02:
++three lanes, fifty accepted ticks with a duplicated seventh tick, and a reset
++in one lane. Chunk 1/8 streams and final states are bit-identical. All features
++and guards agree with an independent FP64 analytic area/timing oracle within
++4.77e-8 (registered limit 3e-6), including sample ratios 1/1 and 1/50 and delay
++boundaries 0, 1 and 16 ticks. Eight invalid configurations and null/short/missing
++input controls reject. Clock gaps, nonfinite RGB and finite radiance reduction
++overflow invalidate the affected stream without crossing lanes. Attempt 01
++passed the original controls; attempt 02 prospectively added the boundaries
++and overflow negative with unchanged numerical thresholds. Attempt 03 also
++rejects source-image index overflow and retains raw output before assertions.
++
++These are synthetic native timing fixtures. No v12 actor consumes these RGB
++features yet, and the native renderer has not been composed with this stream
++inside the accepted rollout/inference command buffer. The next gate must bind
++the full sensor semantics/content to a distinct actor contract, compose both
++physical head cameras without CPU image round trips, test visibility and
++cadence causally, and measure complete rollout/learning performance. The
++separate additive RetinalStream.metallib leaves the established physics/policy
++metallib unchanged. No biological eye timing or acuity is claimed.
+diff --git a/profiles/american-crow-rl-v1.json b/profiles/american-crow-rl-v1.json
+index ef6376ba..038d2920 100644
+--- a/profiles/american-crow-rl-v1.json
++++ b/profiles/american-crow-rl-v1.json
+@@ -77,7 +77,8 @@
+     "feeding_station_curriculum": "native-v12; frozen-stochastic-policy-complete-intake-1536-of-1536-versus-untrained-20-of-1536; deterministic-intake-zero; canonical-supported-tracer-only; ecology-unqualified",
+     "persistent_memory_and_life_checkpoint": "resource-only-and-learner-only-checkpoints-tested; whole-world-RNG-sensory-memory-restore-pending",
+     "social_individuals_and_communication": "pending",
+-    "weather_and_seasonal_ecology": "pending"
++    "weather_and_seasonal_ecology": "pending",
++    "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-and-partition-controls-passed; renderer-to-actor-composition-and-learner-contract-pending"
+   },
+   "release_requirements": [
+     "deterministic accepted-state execution across submission chunks",
+@@ -98,5 +99,17 @@
+     "native_cases": 5,
+     "camera_count": 2,
+     "ecological_environment_qualified": false
++  },
++  "retinal_timing_development_instrument": {
++    "command": "retina-admission",
++    "evidence": "artifacts/crow-rl-retinal-timing-20261107",
++    "sample_ratio": [
++      3,
++      10
++    ],
++    "control_hz": 50,
++    "latency_ticks": 2,
++    "scope": "synthetic native timing instrument; no live renderer-to-actor integration",
++    "ecological_environment_qualified": false
+   }
+ }
+diff --git a/python/metalrobo/crow_environment.py b/python/metalrobo/crow_environment.py
+index a47e014c..c2530a70 100644
+--- a/python/metalrobo/crow_environment.py
++++ b/python/metalrobo/crow_environment.py
+@@ -57,6 +57,8 @@ def runtime(root: Path) -> dict:
+         "head_check": build / "bin/metalrobo_crow_embodiment_check",
+         "foraging_check": build / "bin/metalrobo_crow_foraging_check",
+         "eye_check": build / "bin/metalrobo_crow_eye_check",
++        "retinal_check": build / "bin/metalrobo_retinal_stream_check",
++        "retinal_metallib": build / "shaders/RetinalStream.metallib",
+     }
+ 
+ 
+@@ -762,6 +764,7 @@ def main() -> int:
+     commands.add_parser("probe").add_argument("--output", type=Path, required=True)
+     commands.add_parser("head-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("eye-admission").add_argument("--output", type=Path, required=True)
++    commands.add_parser("retina-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("body-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("foraging-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("feeding-probe").add_argument("--output", type=Path, required=True)
+@@ -867,6 +870,11 @@ def main() -> int:
+           "stopping": "exactly twelve native runs; 180s timeout per run; abort invalidity; no retry, extra learning, or promotion",
+           "limitations": "policy revision changes random key; same seed identifies matched world conditions but does not create identical stochastic noise across policy revisions; learned variance is part of the tested policy",
+           "unused": "original qualification seeds/layouts remain unspent"})
++    if args.command == "retina-admission":
++        plan.update({"purpose": "native RGB timing instrument calibration",
++          "prediction": "integer 3/10 sample cadence, two accepted-tick delay; zero premature/reset-stale frames; feature error <=3e-6 against FP64 oracle; chunk1/8 bit-identical",
++          "control": "three native fixture lanes, one per-lane episode reset, duplicate accepted tick with altered RGB, clock-gap and nonfinite negatives",
++          "boundary": "synthetic device-input instrument only; no renderer-to-actor or learner integration; existing task semantics unchanged"})
+     if args.command == "eye-admission":
+         plan.update({"purpose": "native geometric instrument calibration",
+           "prediction": "Accepted physical head transforms determine both camera poses within 2e-6 components; stable interior depth matches FP64 physical-shape rays within 0.0002m; zero identity errors",
+@@ -881,6 +889,11 @@ def main() -> int:
+             result = execute(output, "head-mechanics", [str(runtime(root)["head_check"])], root, 180)
+             if result.get("status") != "passed" or result.get("exact_replay") is not True:
+                 raise RuntimeError("Native head mechanics admission failed")
++        elif args.command == "retina-admission":
++            result = execute(output, "retinal-timing", [str(runtime(root)["retinal_check"]),
++                             str(output / "native-evidence")], root, 180)
++            if result.get("status") != "passed" or result.get("exact_partition_invariance") is not True:
++                raise RuntimeError("Native retinal timing admission failed")
+         elif args.command == "eye-admission":
+             result = execute(output, "head-camera-geometry", [str(runtime(root)["eye_check"]),
+                              str(output / "native-evidence")], root, 180)

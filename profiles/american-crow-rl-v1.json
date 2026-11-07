@@ -77,7 +77,8 @@
     "feeding_station_curriculum": "native-v12; frozen-stochastic-policy-complete-intake-1536-of-1536-versus-untrained-20-of-1536; deterministic-intake-zero; canonical-supported-tracer-only; ecology-unqualified",
     "persistent_memory_and_life_checkpoint": "resource-only-and-learner-only-checkpoints-tested; whole-world-RNG-sensory-memory-restore-pending",
     "social_individuals_and_communication": "pending",
-    "weather_and_seasonal_ecology": "pending"
+    "weather_and_seasonal_ecology": "pending",
+    "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-and-partition-controls-passed; renderer-to-actor-composition-and-learner-contract-pending"
   },
   "release_requirements": [
     "deterministic accepted-state execution across submission chunks",
@@ -97,6 +98,18 @@
     "scope": "publication-time geometry calibration; estimated parallel pinhole fixtures; no actor image inputs",
     "native_cases": 5,
     "camera_count": 2,
+    "ecological_environment_qualified": false
+  },
+  "retinal_timing_development_instrument": {
+    "command": "retina-admission",
+    "evidence": "artifacts/crow-rl-retinal-timing-20261107",
+    "sample_ratio": [
+      3,
+      10
+    ],
+    "control_hz": 50,
+    "latency_ticks": 2,
+    "scope": "synthetic native timing instrument; no live renderer-to-actor integration",
     "ecological_environment_qualified": false
   }
 }

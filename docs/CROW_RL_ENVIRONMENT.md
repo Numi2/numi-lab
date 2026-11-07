@@ -43,7 +43,7 @@ legacy PolicyPacks to new sensor, action, world, or task semantics.
 From this source checkout, build `metalrobo_task_rollout`,
 `metalrobo_task_train`, `metalrobo_robot_catalog`, and
 `metalrobo_crow_embodiment_check`, `metalrobo_crow_foraging_check`, and
-`metalrobo_crow_eye_check` with
+`metalrobo_crow_eye_check` and `metalrobo_retinal_stream_check` with
 CMake/Ninja Release.
 Create the learner with CPython 3.13.14 using `uv venv python/.venv`, then
 `uv pip install --python python/.venv/bin/python -c
@@ -396,3 +396,48 @@ sensor latency. The next admission is a device-resident causal retinal stream,
 then a distinct task contract and learned search. Existing v12 policies retain
 their own 97-input contract. New trials now retain the exact tracked source
 patch plus untracked runtime source, rather than hashes alone.
+
+
+## Device-resident retinal timing layer
+
+`retina-admission --output NEW_DIRECTORY` calibrates a native RGB stream
+independently of the renderer and learner. `RetinalStreamContext` borrows a
+caller-owned Metal command buffer, native task episode clock, one linear RGB
+buffer per eye, and actor output storage. It encodes area reduction, rational
+sample cadence, delayed delivery and publication; no host readback or per-step
+host sensor decision occurs. It reads only episode/initialization fields from
+the task state, and accepts no depth, segmentation, identity or world transforms.
+It never writes physics, the task state or another actor feature.
+
+The development timing is 3/10 samples per 50 Hz accepted control tick (15 Hz)
+with a two-tick delay (40 ms). A fixed channel response c/(1+c) follows exact
+area averaging. Held pixels carry explicit valid and age-in-seconds features.
+A repeated accepted tick is idempotent even if the input image changes.
+Per-lane episode changes clear visible and pending frames; the delayed stream
+stays invalid until the new frame is ready. Clock gaps/backward clocks and
+nonfinite, negative or overflowed captured radiance fail closed per lane.
+Errors remain latched; callers must inspect native error publication before
+accepting an experiment. Concurrent command buffers cannot mutate one stream.
+A failed Metal command poisons the context. Snapshot is an inspection boundary,
+not a sensory/world checkpoint or a restore API.
+
+The controlled native GPU instrument passed in retinal-timing-admission-02:
+three lanes, fifty accepted ticks with a duplicated seventh tick, and a reset
+in one lane. Chunk 1/8 streams and final states are bit-identical. All features
+and guards agree with an independent FP64 analytic area/timing oracle within
+4.77e-8 (registered limit 3e-6), including sample ratios 1/1 and 1/50 and delay
+boundaries 0, 1 and 16 ticks. Eight invalid configurations and null/short/missing
+input controls reject. Clock gaps, nonfinite RGB and finite radiance reduction
+overflow invalidate the affected stream without crossing lanes. Attempt 01
+passed the original controls; attempt 02 prospectively added the boundaries
+and overflow negative with unchanged numerical thresholds. Attempt 03 also
+rejects source-image index overflow and retains raw output before assertions.
+
+These are synthetic native timing fixtures. No v12 actor consumes these RGB
+features yet, and the native renderer has not been composed with this stream
+inside the accepted rollout/inference command buffer. The next gate must bind
+the full sensor semantics/content to a distinct actor contract, compose both
+physical head cameras without CPU image round trips, test visibility and
+cadence causally, and measure complete rollout/learning performance. The
+separate additive RetinalStream.metallib leaves the established physics/policy
+metallib unchanged. No biological eye timing or acuity is claimed.

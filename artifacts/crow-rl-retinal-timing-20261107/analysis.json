@@ -1,0 +1,68 @@
+{
+  "schema": "numi.retinal-timing-archive.v1",
+  "status": "controlled-GPU-timing-instrument-admitted",
+  "current_admission": {
+    "schema": "numi.retinal-stream-evidence.v1",
+    "status": "passed",
+    "FP64_max_absolute_error": 4.768371586472142e-08,
+    "exact_partition_invariance": true,
+    "duplicates_idempotent": true,
+    "per_lane_resets_clear_frames": true,
+    "gap_and_nonfinite_fail_closed": true,
+    "renderer_actor_integration": false,
+    "ecological_environment_qualified": false
+  },
+  "source_index_and_configuration_rejection_cases": 8,
+  "positive_submission_chunks": [
+    1,
+    8
+  ],
+  "cadence_delay_boundary_conditions": [
+    [
+      1,
+      1,
+      0
+    ],
+    [
+      1,
+      1,
+      1
+    ],
+    [
+      1,
+      1,
+      16
+    ],
+    [
+      1,
+      50,
+      2
+    ]
+  ],
+  "main_input_lanes": 3,
+  "main_calls_per_partition": 51,
+  "total_fixture_lane_observations_per_current_trial": 984,
+  "native_ctests_passed": 8,
+  "python_checks_passed": 19,
+  "feeding_replay": [
+    {
+      "mode": "ordinary",
+      "fingerprint": "2255877855914022940",
+      "chunks": [
+        1,
+        8
+      ]
+    },
+    {
+      "mode": "residual",
+      "fingerprint": "3082487550463979285",
+      "chunks": [
+        1,
+        8
+      ]
+    }
+  ],
+  "renderer_actor_integration": false,
+  "full_life_restore": false,
+  "ecological_environment_qualified": false
+}

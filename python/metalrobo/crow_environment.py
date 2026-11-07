@@ -57,6 +57,8 @@ def runtime(root: Path) -> dict:
         "head_check": build / "bin/metalrobo_crow_embodiment_check",
         "foraging_check": build / "bin/metalrobo_crow_foraging_check",
         "eye_check": build / "bin/metalrobo_crow_eye_check",
+        "retinal_check": build / "bin/metalrobo_retinal_stream_check",
+        "retinal_metallib": build / "shaders/RetinalStream.metallib",
     }
 
 
@@ -762,6 +764,7 @@ def main() -> int:
     commands.add_parser("probe").add_argument("--output", type=Path, required=True)
     commands.add_parser("head-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("eye-admission").add_argument("--output", type=Path, required=True)
+    commands.add_parser("retina-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("body-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("foraging-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("feeding-probe").add_argument("--output", type=Path, required=True)
@@ -867,6 +870,11 @@ def main() -> int:
           "stopping": "exactly twelve native runs; 180s timeout per run; abort invalidity; no retry, extra learning, or promotion",
           "limitations": "policy revision changes random key; same seed identifies matched world conditions but does not create identical stochastic noise across policy revisions; learned variance is part of the tested policy",
           "unused": "original qualification seeds/layouts remain unspent"})
+    if args.command == "retina-admission":
+        plan.update({"purpose": "native RGB timing instrument calibration",
+          "prediction": "integer 3/10 sample cadence, two accepted-tick delay; zero premature/reset-stale frames; feature error <=3e-6 against FP64 oracle; chunk1/8 bit-identical",
+          "control": "three native fixture lanes, one per-lane episode reset, duplicate accepted tick with altered RGB, clock-gap and nonfinite negatives",
+          "boundary": "synthetic device-input instrument only; no renderer-to-actor or learner integration; existing task semantics unchanged"})
     if args.command == "eye-admission":
         plan.update({"purpose": "native geometric instrument calibration",
           "prediction": "Accepted physical head transforms determine both camera poses within 2e-6 components; stable interior depth matches FP64 physical-shape rays within 0.0002m; zero identity errors",
@@ -881,6 +889,11 @@ def main() -> int:
             result = execute(output, "head-mechanics", [str(runtime(root)["head_check"])], root, 180)
             if result.get("status") != "passed" or result.get("exact_replay") is not True:
                 raise RuntimeError("Native head mechanics admission failed")
+        elif args.command == "retina-admission":
+            result = execute(output, "retinal-timing", [str(runtime(root)["retinal_check"]),
+                             str(output / "native-evidence")], root, 180)
+            if result.get("status") != "passed" or result.get("exact_partition_invariance") is not True:
+                raise RuntimeError("Native retinal timing admission failed")
         elif args.command == "eye-admission":
             result = execute(output, "head-camera-geometry", [str(runtime(root)["eye_check"]),
                              str(output / "native-evidence")], root, 180)

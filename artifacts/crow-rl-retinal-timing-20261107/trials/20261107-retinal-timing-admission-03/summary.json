@@ -1,0 +1,11 @@
+{
+  "schema": "numi.retinal-stream-evidence.v1",
+  "status": "passed",
+  "FP64_max_absolute_error": 4.768371586472142e-08,
+  "exact_partition_invariance": true,
+  "duplicates_idempotent": true,
+  "per_lane_resets_clear_frames": true,
+  "gap_and_nonfinite_fail_closed": true,
+  "renderer_actor_integration": false,
+  "ecological_environment_qualified": false
+}

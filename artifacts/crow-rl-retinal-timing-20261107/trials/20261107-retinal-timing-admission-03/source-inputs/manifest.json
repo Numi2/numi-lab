@@ -1,0 +1,13 @@
+{
+  "base_commit": "2032780554b1c696a515730ff1a6901a9dd152f5",
+  "tracked_patch_sha256": "cc9a1f6b68acd808cd5ee3c688eb3dff9912eabf341250767a551974eea03f55",
+  "retained_untracked": {
+    "apps/retinal_stream_check.mm": "834a9c5e3ce09f99c0fb39f6c62791096bf5433c752acc36bf56a058aa708cca",
+    "cmake/CheckRetinalStream.cmake": "b9af46368f98f3e90858463a7fb80e5ed7f133115cb8a720fd8803c746ebc65e",
+    "include/metalrobo/RetinalStream.hpp": "52752c76a9d7f8a8df03cc1ce3fa42d40aa53ccabd2a174519cc56f950c42be7",
+    "include/metalrobo/retinal_stream_types.h": "86715583b6f134fc6e867ccde8022dfd417c5fbcdb0530fd12ddc13ab16ff337",
+    "src/metal/RetinalStream.metal": "2b0db13493790f7bd6d888d8d15ffda54c7d2b5e79f5b6bfccbd7bee0baa3f03",
+    "src/metal/RetinalStream.mm": "f748b7ae31a7cd2c69a2021dd6877418a8ed01feea592f75b3c8fb18b117d200"
+  },
+  "external_artifact_inputs": {}
+}

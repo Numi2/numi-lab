@@ -1,0 +1,93 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e291673d..a1cd5c61 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -706,6 +706,22 @@ add_custom_command(
+ 
+ add_custom_target(metalrobo_shaders ALL DEPENDS "${METALROBO_METALLIB}")
+ 
++# Independent additive sensory kernels preserve the existing physics/policy
++# metallib. No per-step compiler or host sampler is introduced.
++set(METALROBO_RETINAL_METALLIB "${CMAKE_CURRENT_BINARY_DIR}/shaders/RetinalStream.metallib")
++add_custom_command(OUTPUT "${METALROBO_RETINAL_METALLIB}"
++    COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/shaders"
++    COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
++        -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
++        -c "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/RetinalStream.metal"
++        -o "${CMAKE_CURRENT_BINARY_DIR}/shaders/RetinalStream.air"
++    COMMAND xcrun -sdk macosx metallib
++        "${CMAKE_CURRENT_BINARY_DIR}/shaders/RetinalStream.air" -o "${METALROBO_RETINAL_METALLIB}"
++    DEPENDS src/metal/RetinalStream.metal include/metalrobo/retinal_stream_types.h
++        include/metalrobo/task_program_types.h include/metalrobo/gpu_types.h VERBATIM)
++add_custom_target(metalrobo_retinal_shaders ALL DEPENDS "${METALROBO_RETINAL_METALLIB}")
++
++
+ set(
+     METALROBO_VISUAL_KERNEL_HASH_HEADER
+     "${CMAKE_CURRENT_BINARY_DIR}/generated/VisualKernelHashes.h"
+@@ -813,6 +829,7 @@ add_library(
+     src/metal/NumiHumanTendonMetal.mm
+     src/metal/MetalArticulatedABA.mm
+     src/metal/FiniteResource.mm
++    src/metal/RetinalStream.mm
+     src/metal/MetalMultiArticulatedABA.mm
+     src/metal/MetalDiscreteElasticRod.mm
+     src/metal/MetalArticulatedInverseMass.mm
+@@ -1062,6 +1079,12 @@ add_executable(
+ )
+ add_executable(metalrobo_crow_embodiment_check apps/crow_embodiment_check.cpp)
+ add_executable(metalrobo_crow_foraging_check apps/crow_foraging_check.mm)
++add_executable(metalrobo_retinal_stream_check apps/retinal_stream_check.mm)
++target_compile_options(metalrobo_retinal_stream_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
++target_link_libraries(metalrobo_retinal_stream_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
++add_dependencies(metalrobo_retinal_stream_check metalrobo_retinal_shaders)
++set_target_properties(metalrobo_retinal_stream_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
++
+ add_executable(metalrobo_crow_eye_check apps/crow_eye_check.mm)
+ target_compile_options(metalrobo_crow_eye_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+ target_link_libraries(metalrobo_crow_eye_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}" "${COREGRAPHICS_FRAMEWORK}" "${IMAGEIO_FRAMEWORK}")
+diff --git a/python/metalrobo/crow_environment.py b/python/metalrobo/crow_environment.py
+index a47e014c..c2530a70 100644
+--- a/python/metalrobo/crow_environment.py
++++ b/python/metalrobo/crow_environment.py
+@@ -57,6 +57,8 @@ def runtime(root: Path) -> dict:
+         "head_check": build / "bin/metalrobo_crow_embodiment_check",
+         "foraging_check": build / "bin/metalrobo_crow_foraging_check",
+         "eye_check": build / "bin/metalrobo_crow_eye_check",
++        "retinal_check": build / "bin/metalrobo_retinal_stream_check",
++        "retinal_metallib": build / "shaders/RetinalStream.metallib",
+     }
+ 
+ 
+@@ -762,6 +764,7 @@ def main() -> int:
+     commands.add_parser("probe").add_argument("--output", type=Path, required=True)
+     commands.add_parser("head-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("eye-admission").add_argument("--output", type=Path, required=True)
++    commands.add_parser("retina-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("body-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("foraging-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("feeding-probe").add_argument("--output", type=Path, required=True)
+@@ -867,6 +870,11 @@ def main() -> int:
+           "stopping": "exactly twelve native runs; 180s timeout per run; abort invalidity; no retry, extra learning, or promotion",
+           "limitations": "policy revision changes random key; same seed identifies matched world conditions but does not create identical stochastic noise across policy revisions; learned variance is part of the tested policy",
+           "unused": "original qualification seeds/layouts remain unspent"})
++    if args.command == "retina-admission":
++        plan.update({"purpose": "native RGB timing instrument calibration",
++          "prediction": "integer 3/10 sample cadence, two accepted-tick delay; zero premature/reset-stale frames; feature error <=3e-6 against FP64 oracle; chunk1/8 bit-identical",
++          "control": "three native fixture lanes, one per-lane episode reset, duplicate accepted tick with altered RGB, clock-gap and nonfinite negatives",
++          "boundary": "synthetic device-input instrument only; no renderer-to-actor or learner integration; existing task semantics unchanged"})
+     if args.command == "eye-admission":
+         plan.update({"purpose": "native geometric instrument calibration",
+           "prediction": "Accepted physical head transforms determine both camera poses within 2e-6 components; stable interior depth matches FP64 physical-shape rays within 0.0002m; zero identity errors",
+@@ -881,6 +889,11 @@ def main() -> int:
+             result = execute(output, "head-mechanics", [str(runtime(root)["head_check"])], root, 180)
+             if result.get("status") != "passed" or result.get("exact_replay") is not True:
+                 raise RuntimeError("Native head mechanics admission failed")
++        elif args.command == "retina-admission":
++            result = execute(output, "retinal-timing", [str(runtime(root)["retinal_check"]),
++                             str(output / "native-evidence")], root, 180)
++            if result.get("status") != "passed" or result.get("exact_partition_invariance") is not True:
++                raise RuntimeError("Native retinal timing admission failed")
+         elif args.command == "eye-admission":
+             result = execute(output, "head-camera-geometry", [str(runtime(root)["eye_check"]),
+                              str(output / "native-evidence")], root, 180)
