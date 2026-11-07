@@ -158,3 +158,11 @@ No such cross-owner snapshot/restore exists in this checkpoint. Combined Matter
 and measured surface remains explicitly unsupported; no exact replay claim is
 made. Fault-injected partial failures, identity mismatches, and post-restore
 continuation comparisons are required before exposing this as supported.
+
+## Guided command cancellation
+
+The training command now forwards interruption to its active trainer or
+selector process tree and removes its run lock. CPU-only stub-process checks
+cover both phases, descendant termination and lock cleanup. The actual native
+guided UI cancellation path and a complete guided session have not been
+qualified.
