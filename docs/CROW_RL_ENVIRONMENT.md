@@ -1335,3 +1335,74 @@ and hash/replay verification. This is compatibility and recovery admission,
 not learned memory, reachable foraging, biological or performance qualification.
 The next behavioral requirement remains two demonstrated reachable sites and
 a causal visible/occluded cue through the native renderer.
+
+
+## Reachable two-port foraging and a disappearing rendered cue
+
+`numi crow-env cue-foraging-admission --output NEW_DIRECTORY` executes a new
+native integrated instrument. Its first phase calibrates two mouth positions
+from128 accepted physics ticks under fixed yaw commands +0.6 and -0.6. The
+ground-local centers are approximately `[0.207134,0.059662,0.271357]` and
+`[0.207133,-0.059664,0.271358]` metres, separated by0.119327m. Each intake
+volume has a fixed15mm radius. These are engineering ports within head reach,
+not calibrated crow anatomy, free navigation or solid food objects.
+
+Exactly one45,000ug port is stocked per native lifetime. Intake is forbidden
+through the first192 accepted transitions. A visual-only indicator for the
+selected port appears on a distant static fixture while the initialized
+resource lifetime clock is below32. The indicator is an authored mesh with
+normal projection, PBR material, depth and occlusion. It is not an RGB label
+painted onto the actor input. A real static occluder blocks it. The indicator
+does not represent a simulated solid food item or add physical forces.
+
+The generic device renderer accepts optional current/previous mesh-instance
+visibility tables. Zero invalidates the corresponding rendered pose without
+enabling an authored invisible instance. Native resource state produces those
+tables on the caller's command stream. No host step loop, GPU readback, extra
+physics authority or resource-label actor feature is introduced. Retinal cue
+bindings/windows enter the sensor fingerprint; lifetime allocation seeds remain
+outside that policy contract and inside exact resource identity. Empty cue
+programs preserve the previous sensor fingerprint bytes and rendering path.
+The observer retains the actual resource owner and rejects missing, wrong-world
+or unconcealed owners. Malformed and duplicate cue programs reject compilation.
+
+The admitted run covers eight native arms across eight supported estimated crow
+lanes, plus calibration. Five lanes have the left port stocked and three the
+right. The same authored native constant-bias policy controls every lane in a
+left-side arm; a separate right-side arm supplies the matched opposite-side
+control. No allocation label is consulted to choose actions. Policy revisions
+change only at fixed yaw/jaw phase boundaries. Each stocked matching side admits
+two20,000ug bites, while its opposite-side arm admits zero. All food is conserved.
+No physics step is rejected and no physical termination occurs.
+
+The visible indicator occupies110 pixels across both eyes per lane at tick16,
+and zero at ticks48/64/80. The wall-occluded arm has zero indicator pixels.
+At a paired resource seed, four layouts change and120 early image lane-frames
+differ. Every one of the97 non-image actor features remains byte exact across
+those seeds. All1251 actor features are byte exact from zero-based tick40,
+after the cue has flushed through the15Hz/40ms retinal delay. A reset at48
+does not reveal the cue, refill food, reroll location or reset lifetime time.
+Neutral chunk1/16 and feeding chunk8/32 give exact actor streams, q/v, scene,
+resource and retinal state. Independent NumPy/integer analysis verifies the
+raw arrays, allocation masks, mass ledger and14 partition comparisons.
+
+Nine malformed-program/resource-owner controls reject. Full Release compilation,
+29 focused Python tests, the previous nine-trial native food admission and the
+six-arm legacy retinal live admission pass. The first new trial reached both
+calibration sites, then correctly rejected an unsupported open-loop retinal
+execution. Its original source/runtime/failure remain archived. The revised
+instrument binds native policies; it does not relax the retinal guard, geometry,
+contact capacities or numerical bounds. Evidence and exact Git recovery live
+under `artifacts/crow-rl-cued-foraging-20261107`; bulk local duplicates are pruned.
+
+This qualifies an integrated sensing/intake mechanism, not learned memory.
+The new cue recipe is currently authored through the native instrument, rather
+than an ordinary C API/Swift training variant. A coupled cue-life checkpoint
+has not been admitted; component snapshots here establish partition equivalence.
+Next integrate this exact recipe into common rollout/training/life ownership.
+For a memory claim, prevent physical posture and previous-action channels from
+serving as an uncontrolled external memory during the delay, train through a
+sequence that spans cue to choice, and compare held-out intact, memory-reset,
+cue-absent and cue-swapped conditions. Repeatable scripted port intake does not
+substitute for those behavioral tests. Manipulation, social agents, ecology,
+biological calibration and production throughput remain open requirements.

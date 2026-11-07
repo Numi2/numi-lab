@@ -149,6 +149,13 @@ struct HybridDeviceStateBatch {
     MRVisualFrameSource source = MR_VISUAL_SOURCE_SIMULATION;
     double captureTimestampSeconds = 0.0;
     double frameAgeSeconds = 0.0;
+    // Optional environment-major uint32 mesh-instance visibility, in compiled
+    // scene instance order. Zero hides geometry through the normal mesh path;
+    // nonzero cannot enable an authored sensor-invisible instance. Borrowed
+    // buffers must cover environmentCount*layout.meshInstanceCount records.
+    // A null previous table means current visibility also applies to history.
+    void* currentMeshVisibility = nullptr;
+    void* previousMeshVisibility = nullptr;
 };
 
 struct HybridDeviceObservationBuffers {

@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 #include "metalrobo/RetinalObserver.hpp"
+#include "metalrobo/FiniteResource.hpp"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -17,6 +18,10 @@ struct RetinalObserverRuntime : std::enable_shared_from_this<RetinalObserverRunt
     MetalWorldFamilyContext worlds;
     std::array<std::unique_ptr<MetalHybridRenderer>,2> renderers;
     std::unique_ptr<RetinalStreamContext> stream;
+    FiniteResourceDeviceView cueResources;
+    __strong id<MTLBuffer> cueBindings=nil,cueVisibility=nil;
+    __strong id<MTLComputePipelineState> cuePipeline=nil;
+    mr_uint4 cueCounts{};
     RetinalStreamConfig timing;
     unsigned environments=0,bodies=0,features=0,offset=0;
     std::uint64_t fingerprint=0;
@@ -50,6 +55,17 @@ struct RetinalObserverRuntime : std::enable_shared_from_this<RetinalObserverRunt
             .environmentCount=s->environments,.bodyCount=s->bodies,.frameIndex=0,
             .sensorSequence=0,.source=MR_VISUAL_SOURCE_SIMULATION,.captureTimestampSeconds=0};
         id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];if (encoder==nil) {s->poisoned=true;return false;}
+        if (s->cuePipeline) {
+            [encoder setComputePipelineState:s->cuePipeline];
+            [encoder setBuffer:(__bridge id<MTLBuffer>)s->cueResources.states offset:0 atIndex:0];
+            [encoder setBuffer:s->cueBindings offset:0 atIndex:1];
+            [encoder setBuffer:s->cueVisibility offset:0 atIndex:2];
+            [encoder setBytes:&s->cueCounts length:sizeof(s->cueCounts) atIndex:3];
+            [encoder dispatchThreads:MTLSizeMake(std::size_t(s->cueCounts.x)*s->cueCounts.y,1,1)
+                threadsPerThreadgroup:MTLSizeMake(64,1,1)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            live.currentMeshVisibility=(__bridge void*)s->cueVisibility;
+        }
         for (unsigned eye=0;eye<2;++eye) {
             const auto status=s->renderers[eye]->encode(s->worlds,live,eye,(__bridge void*)encoder);
             if (!status.succeeded()) {[encoder endEncoding];s->poisoned=true;return false;}
@@ -65,11 +81,27 @@ struct RetinalObserverRuntime : std::enable_shared_from_this<RetinalObserverRunt
 };
 }
 RetinalObserverContext::RetinalObserverContext(const CompiledRun& run,const WorldFamily& family,
-    const VisualSceneManifestV3& scene,unsigned environments,std::uint64_t seed) {
+    const VisualSceneManifestV3& scene,unsigned environments,std::uint64_t seed)
+    :RetinalObserverContext(run,family,scene,environments,seed,nullptr) {}
+RetinalObserverContext::RetinalObserverContext(const CompiledRun& run,const WorldFamily& family,
+    const VisualSceneManifestV3& scene,unsigned environments,std::uint64_t seed,
+    const FiniteResourceContext* cueResources) {
     const auto* p=run.visualSensorProgram();
     require(run.valid() && p && p->retinal && environments>0 && run.task().header().articulation.z==48,
         "Retinal observer requires a compiled native retinal task");
     const auto& r=*p->retinal;const auto& sensors=family.worldTemplate.sensors;
+    FiniteResourceDeviceView cueView;
+    if (!r.resourceCues.empty()) {
+        require(cueResources,"Rendered resource cues require their actual native resource owner");
+        cueView=cueResources->deviceView();const auto& c=cueView.config;
+        require(c.worldFingerprint==run.world().fingerprint() && c.environmentCount==environments &&
+            c.bodyCount==run.model().bodies.size() && c.nq==run.model().defaultQ.size() && c.publishTaskState &&
+            c.allocation.version==1 && c.allocation.concealProximity==1 &&
+            cueView.programFingerprint==run.task().header().deviceStateProgramFingerprint,
+            "Rendered cue resources differ from the compiled native world/task or expose proximity labels");
+        for (const auto& cue:r.resourceCues) require(cue.binding.y<c.patches.size() &&
+            cue.binding.z<=c.allocation.availableAfterTicks,"Rendered cue target or lifetime window is invalid");
+    } else require(!cueResources,"Native resource owner supplied without a bound visual cue program");
     require(family.program.variations.empty() && family.program.categoricalValues.empty() &&
         family.worldTemplate.artifacts.empty(),"Retinal development observer requires a fixed physical fixture");
     // Recompile authoring against the actual owning physics model. Never
@@ -128,16 +160,19 @@ RetinalObserverContext::RetinalObserverContext(const CompiledRun& run,const Worl
     require(scene.environmentMapHash==neutral.contentHash && scene.lightRigHash==lighting.contentHash,
         "Retinal lighting/environment differs from fixed sensor semantics");
     std::vector<VisualAssetReferenceV3> references;
+    std::uint64_t meshInstances=0;
     for (unsigned i=0;i<p->assets.size();++i) {
         const auto& asset=p->assets[i];const auto& pack=scene.renderScene.visualPacks[i];
         VisualAssetPackV2 actual;
         require(readVisualAssetPack(asset.path,actual,&reason) && actual.contentHash==asset.contentHash &&
             actual.sourceContentHash=="world:"+std::to_string(run.world().fingerprint()),"Retinal content or source-world hash mismatch");
+        meshInstances+=actual.instances.size();
         references.push_back({asset.path,asset.contentHash,canonical.assetIndex(asset.assetId),asset.semanticId,asset.instanceId});
         require(pack.contentHash==asset.contentHash && pack.semanticId==asset.semanticId && pack.instanceId==asset.instanceId &&
             pack.assetIndex==family.worldTemplate.assetIndex(asset.assetId),"Retinal rendered asset differs from bound sensor program");
     }
     VisualSceneManifestV3 canonicalScene;
+    for (const auto& cue:r.resourceCues) require(cue.binding.x<meshInstances,"Rendered cue mesh instance is absent");
     require(compileVisualSceneManifestV3(canonical,references,neutral,lighting,canonicalScene,&reason) &&
         canonicalScene.fingerprint==scene.fingerprint,"Retinal visual scene does not reproduce bound content and fixed lighting");
     auto s=std::make_shared<detail::RetinalObserverRuntime>();
@@ -152,6 +187,22 @@ RetinalObserverContext::RetinalObserverContext(const CompiledRun& run,const Worl
     for (auto& renderer:s->renderers) {
         renderer=std::make_unique<MetalHybridRenderer>(c);auto copy=canonicalScene.renderScene;
         require(renderer->compile(std::move(copy),VisualRendererProfileV1::sensorFast(),environments).succeeded(),"Retinal renderer compilation failed");
+    }
+    if (!r.resourceCues.empty()) {
+        s->cueResources=std::move(cueView);
+        const auto instances=s->renderers[0]->layout().meshInstanceCount;
+        require(instances && instances==s->renderers[1]->layout().meshInstanceCount &&
+            std::uint64_t(instances)*environments<=UINT32_MAX,"Rendered cue instance layout overflows");
+        id<MTLBuffer> state=(__bridge id<MTLBuffer>)s->cueResources.states;auto device=state.device;
+        id<MTLLibrary> library=(__bridge id<MTLLibrary>)s->cueResources.library;
+        id<MTLFunction> function=[library newFunctionWithName:@"mr_finite_resource_visual_cues_v1"];
+        require(function!=nil,"Resource visual cue kernel v1 unavailable");NSError* error=nil;
+        s->cuePipeline=[device newComputePipelineStateWithFunction:function error:&error];
+        require(s->cuePipeline!=nil,"Resource visual cue pipeline creation failed");
+        s->cueBindings=[device newBufferWithBytes:r.resourceCues.data() length:r.resourceCues.size()*sizeof(MRFiniteResourceCueGPU) options:MTLResourceStorageModeShared];
+        s->cueVisibility=[device newBufferWithLength:std::size_t(environments)*instances*sizeof(std::uint32_t) options:MTLResourceStorageModePrivate];
+        require(s->cueBindings!=nil && s->cueVisibility!=nil,"Resource visual cue buffer allocation failed");
+        s->cueCounts={environments,instances,std::uint32_t(r.resourceCues.size()),1};
     }
     RetinalStreamConfig timing;timing.environments=environments;timing.sourceWidth=p->width;timing.sourceHeight=p->height;
     timing.width=r.width;timing.height=r.height;timing.sampleNumerator=r.sampleNumerator;timing.sampleDenominator=r.sampleDenominator;

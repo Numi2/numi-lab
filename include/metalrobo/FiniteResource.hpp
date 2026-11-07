@@ -27,6 +27,17 @@ struct FiniteResourceConfig {
     const CompiledRun& run,unsigned environments);
 namespace detail { struct FiniteResourceRuntime; }
 
+// Borrowed GPU inputs for native sensor composition. The token retains the
+// resource owner; consumers must encode on the same accepted command stream.
+// This is privileged renderer input, never an actor observation plane.
+struct FiniteResourceDeviceView {
+    void* states=nullptr;
+    void* library=nullptr;
+    std::shared_ptr<const void> lifetime;
+    FiniteResourceConfig config;
+    std::uint64_t programFingerprint=0;
+};
+
 // Nutritional tracer ledger. Uses MetalWorld's accepted postCommit stream;
 // ordinary task/scene resets do not own or reinitialize this state. Keep the
 // context alive until its borrowed world submissions have completed.
@@ -39,6 +50,7 @@ public:
     [[nodiscard]] MetalWorldDevicePhysicsProgram deviceProgram();
     [[nodiscard]] std::vector<MRFiniteResourceStateGPU> snapshot() const;
     [[nodiscard]] std::uint64_t fingerprint() const noexcept;
+    [[nodiscard]] FiniteResourceDeviceView deviceView() const;
     // A resource-only checkpoint. It cannot restore the surrounding world,
     // contact caches, policies, sensory history or agent memory.
     void saveCheckpoint(const std::filesystem::path& path) const;

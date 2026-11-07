@@ -633,6 +633,11 @@ std::uint64_t visualSensorProgramFingerprint(
         hash.scalar(r.sampleNumerator);hash.scalar(r.sampleDenominator);hash.scalar(r.latencyTicks);
         hash.scalar(r.minimumDepthMeters);hash.scalar(r.maximumDepthMeters);
         hash.string("exact-area-mean;fixed-c/(1+c);eye-y-x-RGB-valid-age-seconds;episode-reset-clears-pending;error-latched");
+        if (!r.resourceCues.empty()) {
+            hash.string("native-resource-mesh-cues-v1;accepted-lifetime-clock;no-actor-label");
+            hash.scalar(std::uint32_t(r.resourceCues.size()));
+            for (const auto& cue:r.resourceCues) hash.scalar(cue.binding);
+        }
     }
     return hash.finish();
 }
@@ -750,6 +755,13 @@ RunCompileDiagnostics compileRun(
                 const double qnorm=double(q.x)*q.x+double(q.y)*q.y+double(q.z)*q.z+double(q.w)*q.w;
                 const std::uint64_t features=std::uint64_t(r.width)*r.height*6u+2u;
                 const double expectedRate=double(r.sampleNumerator)/double(r.sampleDenominator)/manifest.profile.controlTimestepSeconds;
+                if (r.resourceCues.size()>MR_FINITE_RESOURCE_MAX_PATCHES)
+                    return reject(RunCompileStatus::invalidManifest,manifest.sensors.id,"too many native resource cues");
+                std::unordered_set<std::uint32_t> cueInstances;
+                for (const auto& cue:r.resourceCues) if (cue.binding.x==MR_INVALID_INDEX ||
+                    cue.binding.y>=MR_FINITE_RESOURCE_MAX_PATCHES || !cue.binding.z || cue.binding.w ||
+                    !cueInstances.insert(cue.binding.x).second)
+                    return reject(RunCompileStatus::invalidManifest,manifest.sensors.id,"invalid or duplicate native resource cue");
                 if (!r.width || !r.height || r.width>4096 || r.height>4096 ||
                     visual.width<r.width || visual.height<r.height || visual.width%r.width || visual.height%r.height ||
                     !r.sampleNumerator || !r.sampleDenominator || r.sampleNumerator>r.sampleDenominator || r.latencyTicks>16 ||

@@ -6,6 +6,7 @@
 #include "metalrobo/LocomotionWorld.hpp"
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/WorldCompiler.hpp"
+#include "metalrobo/finite_resource_types.h"
 
 #include <cstdint>
 #include <optional>
@@ -121,6 +122,8 @@ struct RetinalSensorProgram {
     std::uint32_t width=16u,height=12u;
     std::uint32_t sampleNumerator=3u,sampleDenominator=10u,latencyTicks=2u;
     float minimumDepthMeters=.01f,maximumDepthMeters=5.0f;
+    // Optional native rendered cues. Empty preserves previous sensor hashes.
+    std::vector<MRFiniteResourceCueGPU> resourceCues;
 };
 struct VisualSensorProgram {
     std::vector<VisualSensorAssetProgram> assets;

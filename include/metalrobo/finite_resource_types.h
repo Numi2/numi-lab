@@ -8,6 +8,13 @@
 #define MR_FINITE_RESOURCE_KERNEL_ABI 4u
 #define MR_FINITE_RESOURCE_MAX_PATCHES 8u
 
+// A rendered mesh instance cues one stocked patch during the first specified
+// accepted lifetime ticks. No selection/clock value is an actor feature.
+typedef struct MR_ALIGN16 MRFiniteResourceCueGPU {
+    // Global rendered mesh instance, resource patch, exclusive end tick, zero.
+    mr_uint4 binding;
+} MRFiniteResourceCueGPU;
+
 // Optional allocation v1. Zero means the original all-sites, immediate,
 // observable-proximity program. Nonzero selects exactly activePatchCount sites
 // once per native lifetime; ordinary episode resets never reroll/refill it.
@@ -84,6 +91,7 @@ typedef struct MR_ALIGN16 MRFiniteResourceDispatchGPU {
 } MRFiniteResourceDispatchGPU;
 
 #ifndef __METAL_VERSION__
+static_assert(sizeof(MRFiniteResourceCueGPU)==16u);
 static_assert(sizeof(MRFiniteResourceAllocationGPU)==16u);
 static_assert(sizeof(MRFiniteResourcePatchGPU)==32u);
 static_assert(sizeof(MRFiniteResourceProgramGPU)==48u);

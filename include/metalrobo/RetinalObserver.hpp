@@ -7,6 +7,7 @@
 #include <array>
 namespace metalrobo {
 namespace detail {struct RetinalObserverRuntime;}
+class FiniteResourceContext;
 // Two instantaneous head-camera renders in the caller's native command buffer,
 // then GPU area reduction/cadence/delay before actor inference. Truth planes
 // remain private to the renderer and are never accepted by RetinalStream.
@@ -16,6 +17,9 @@ class RetinalObserverContext {
 public:
     RetinalObserverContext(const CompiledRun&,const WorldFamily&,
         const VisualSceneManifestV3&,std::uint32_t environments,std::uint64_t seed);
+    RetinalObserverContext(const CompiledRun&,const WorldFamily&,
+        const VisualSceneManifestV3&,std::uint32_t environments,std::uint64_t seed,
+        const FiniteResourceContext* cueResources);
     ~RetinalObserverContext();
     RetinalObserverContext(const RetinalObserverContext&)=delete;
     RetinalObserverContext& operator=(const RetinalObserverContext&)=delete;

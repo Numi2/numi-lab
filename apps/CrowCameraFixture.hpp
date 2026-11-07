@@ -7,6 +7,7 @@
 #include <array>
 #include <cmath>
 #include <stdexcept>
+#include <functional>
 namespace crowCameraFixture {
 using namespace metalrobo;
 constexpr unsigned N=2,W=160,H=120,T=128;
@@ -39,7 +40,8 @@ struct Visual {
     VisualSceneManifestV3 manifest;
     unsigned head=MR_INVALID_INDEX,target=MR_INVALID_INDEX;
 };
-Visual makeVisual(const CompiledRun& run,const std::filesystem::path& output) {
+Visual makeVisual(const CompiledRun& run,const std::filesystem::path& output,
+    const std::function<void(const WorldAsset&,VisualAssetPackV2&)>& authorVisual={}) {
     const auto& model=run.model();Visual result;
     const auto find=[&](const std::string& name) {
         const auto at=std::find(model.bodyNames.begin(),model.bodyNames.end(),name);
@@ -99,8 +101,9 @@ Visual makeVisual(const CompiledRun& run,const std::filesystem::path& output) {
         const mr_float4 color=index==0 ? mr_float4{.035f,.035f,.04f,1} : asset.id=="camera_target"
             ? mr_float4{.85f,.08f,.025f,1} : asset.id=="camera_occluder"
             ? mr_float4{.03f,.12f,.8f,1} : mr_float4{.25f,.29f,.25f,1};
-        const auto pack=makeCollisionProxyVisualAssetPack(model,asset.bodyIndices,run.world().fingerprint(),
+        auto pack=makeCollisionProxyVisualAssetPack(model,asset.bodyIndices,run.world().fingerprint(),
                                                         asset.id+"_collision_proxy",color,16.0f);
+        if (authorVisual) {authorVisual(asset,pack);pack.contentHash=computeVisualAssetPackContentHash(pack);}
         const auto path=output/(asset.id+".mrvpack");std::string reason;
         require(writeVisualAssetPack(pack,path,&reason),"Write collision proxy: "+reason);
         references.push_back({path,pack.contentHash,worldTemplate.assetIndex(asset.id),index+1,index+1});

@@ -56,6 +56,7 @@ def runtime(root: Path) -> dict:
         "metallib": build / "shaders/MetalRobo.metallib",
         "head_check": build / "bin/metalrobo_crow_embodiment_check",
         "foraging_check": build / "bin/metalrobo_crow_foraging_check",
+        "cue_foraging_check": build / "bin/metalrobo_crow_cue_foraging_check",
         "eye_check": build / "bin/metalrobo_crow_eye_check",
         "retinal_check": build / "bin/metalrobo_retinal_stream_check",
         "retinal_api_check": build / "bin/metalrobo_crow_retinal_api_check",
@@ -1201,6 +1202,7 @@ def main() -> int:
     retinal_contract.add_argument("--legacy-metallib",type=Path)
     commands.add_parser("body-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("foraging-admission").add_argument("--output", type=Path, required=True)
+    commands.add_parser("cue-foraging-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("feeding-probe").add_argument("--output", type=Path, required=True)
     commands.add_parser("feeding-learning-campaign").add_argument("--output", type=Path, required=True)
     feeding_policy=commands.add_parser("feeding-policy-probe")
@@ -1508,6 +1510,11 @@ def main() -> int:
                              str(output / "native-evidence")], root, 180)
             if result.get("status") != "passed" or result.get("exact_partition_replay") is not True:
                 raise RuntimeError("Native finite-resource admission failed")
+        elif args.command == "cue-foraging-admission":
+            result = execute(output, "cue-foraging", [str(runtime(root)["cue_foraging_check"]),
+                             str(output / "native-evidence")], root, 1200)
+            if result.get("status") != "passed" or result.get("native_partition_byte_exact") is not True:
+                raise RuntimeError("Native rendered-cue and physical food-port admission failed")
         elif args.command == "bootstrap":
             result = bootstrap(root, output, args, profile)
         elif args.command == "learn-probe":

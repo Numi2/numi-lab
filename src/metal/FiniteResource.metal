@@ -6,6 +6,26 @@ inline float3 resourceRotate(float4 q, float3 p) {
     return p + 2.0f*cross(q.xyz,cross(q.xyz,p)+q.w*p);
 }
 
+// Author only mesh visibility, not pixels, geometry, physics or actor labels.
+// The normal renderer retains projection, shading and depth/occlusion authority.
+kernel void mr_finite_resource_visual_cues_v1(
+    device const MRFiniteResourceStateGPU* states [[buffer(0)]],
+    device const MRFiniteResourceCueGPU* cues [[buffer(1)]],
+    device uint* visibility [[buffer(2)]],
+    constant uint4& counts [[buffer(3)]], // environments, mesh instances, cues, ABI1
+    uint index [[thread_position_in_grid]]) {
+    if (counts.w!=1u || index>=counts.x*counts.y) return;
+    const uint environment=index/counts.y, instance=index%counts.y;
+    uint enabled=1u;
+    for (uint cue=0;cue<counts.z;++cue) if (cues[cue].binding.x==instance) {
+        const auto state=states[environment];const auto binding=cues[cue].binding;
+        enabled=state.accounting.w==1u && state.clock.y==0u &&
+            state.clock.x<binding.z && (state.clock.w&(1u<<binding.y))!=0u;
+        break;
+    }
+    visibility[index]=enabled;
+}
+
 kernel void mr_finite_resource_commit_v4(
     device const MRFiniteResourceProgramGPU& program [[buffer(0)]],
     device const MRFiniteResourcePatchGPU* patches [[buffer(1)]],

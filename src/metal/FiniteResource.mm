@@ -78,6 +78,7 @@ std::uint64_t finiteResourceProgramFingerprint(const MRFiniteResourceProgramGPU&
 }
 namespace detail {
 struct FiniteResourceRuntime : std::enable_shared_from_this<FiniteResourceRuntime> {
+    __strong id<MTLLibrary> library=nil;
     FiniteResourceConfig config;
     std::uint64_t fingerprint=0;
     std::uint64_t programFingerprint=0;
@@ -202,6 +203,7 @@ FiniteResourceContext::FiniteResourceContext(FiniteResourceConfig config)
     id<MTLLibrary> library=[runtime_->device newLibraryWithURL:
         [NSURL fileURLWithPath:[NSString stringWithUTF8String:libraryPath.c_str()]] error:&error];
     if (library==nil) throw std::runtime_error("Resource metallib load failed: "+std::string(error.localizedDescription.UTF8String));
+    runtime_->library=library;
     // Fail before allocation/encoding when the dylib and shader argument layouts
     // disagree; an older unversioned kernel would silently ignore bindings9/10.
     id<MTLFunction> function=[library newFunctionWithName:@"mr_finite_resource_commit_v4"];
@@ -226,6 +228,10 @@ FiniteResourceContext::FiniteResourceContext(FiniteResourceConfig config)
 }
 FiniteResourceContext::~FiniteResourceContext()=default;
 std::uint64_t FiniteResourceContext::fingerprint() const noexcept { return runtime_->fingerprint; }
+FiniteResourceDeviceView FiniteResourceContext::deviceView() const {
+    return {(__bridge void*)runtime_->state,(__bridge void*)runtime_->library,
+        runtime_,runtime_->config,runtime_->programFingerprint};
+}
 MetalWorldDevicePhysicsProgram FiniteResourceContext::deviceProgram() {
     return {.context=runtime_.get(),.encode=&detail::FiniteResourceRuntime::encode,
         .abort=&detail::FiniteResourceRuntime::abort,.fingerprint=runtime_->fingerprint};

@@ -2176,6 +2176,19 @@ kernel void mr_visual_build_mesh_clusters(
     clusters[clusterIndex] = cluster;
 }
 
+// Post-prepare visibility only invalidates authored mesh poses. Every camera,
+// projection, depth winner and material still comes from the owning renderer.
+kernel void mr_hybrid_mesh_visibility_v1(
+    device MRHybridVisualInstanceStateGPU* states [[buffer(0)]],
+    device const uint* current [[buffer(1)]],
+    device const uint* previous [[buffer(2)]],
+    constant uint4& counts [[buffer(3)]],
+    uint index [[thread_position_in_grid]]) {
+    if (counts.z!=1u || index>=counts.x*counts.y) return;
+    if (!current[index]) states[index].currentPositionAndScale.w=-1.0f;
+    if (!previous[index]) states[index].previousPositionAndScale.w=-1.0f;
+}
+
 kernel void mr_hybrid_prepare_cameras(
     const device MRWorldInstanceHeaderGPU* instances [[buffer(0)]],
     const device MRWorldAssetInstanceGPU* assets [[buffer(1)]],

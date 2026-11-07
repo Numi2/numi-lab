@@ -891,6 +891,7 @@ struct MetalHybridRendererState {
     __strong id<MTLComputePipelineState> expandTrianglesPipeline = nil;
     __strong id<MTLComputePipelineState> buildMeshClustersPipeline = nil;
     __strong id<MTLComputePipelineState> prepareCameraPipeline = nil;
+    __strong id<MTLComputePipelineState> meshVisibilityPipeline = nil;
     __strong id<MTLComputePipelineState> resolveNearClippedPipeline = nil;
     __strong id<MTLComputePipelineState> clearObservationPipeline = nil;
     __strong id<MTLComputePipelineState> clearGeometricWinnersPipeline = nil;
@@ -1017,6 +1018,9 @@ MetalHybridRendererDiagnostics initialize(
         pipeline(@"mr_visual_build_mesh_clusters");
     state.prepareCameraPipeline =
         pipeline(@"mr_hybrid_prepare_cameras");
+    // Optional feature: older libraries may still render ungated scenes.
+    state.meshVisibilityPipeline =
+        pipeline(@"mr_hybrid_mesh_visibility_v1");
     state.resolveNearClippedPipeline =
         pipeline(@"mr_hybrid_resolve_near_clipped_mesh");
     state.clearObservationPipeline =
@@ -3114,6 +3118,22 @@ MetalHybridRendererDiagnostics encodeLocked(
         );
     }
 
+    id<MTLBuffer> meshVisibility=(__bridge id<MTLBuffer>)liveState.currentMeshVisibility;
+    id<MTLBuffer> previousMeshVisibility=liveState.previousMeshVisibility
+        ? (__bridge id<MTLBuffer>)liveState.previousMeshVisibility : meshVisibility;
+    std::size_t meshVisibilityCount=0,meshVisibilityBytes=0;
+    if (meshVisibility!=nil || liveState.previousMeshVisibility) {
+        if (meshVisibility==nil || previousMeshVisibility==nil || !state.meshVisibilityPipeline ||
+            !state.layout.meshInstanceCount ||
+            !checkedMultiply(environmentCount,state.layout.meshInstanceCount,meshVisibilityCount) ||
+            meshVisibilityCount>std::numeric_limits<std::uint32_t>::max() ||
+            !checkedBytes<std::uint32_t>(meshVisibilityCount,meshVisibilityBytes) ||
+            meshVisibility.device!=state.device || previousMeshVisibility.device!=state.device ||
+            meshVisibility.length<meshVisibilityBytes || previousMeshVisibility.length<meshVisibilityBytes)
+            return reject(std::move(diagnostics),MetalHybridRendererStatus::missingLiveState,
+                "mesh visibility requires a compatible v1 kernel and complete current/previous device tables");
+    }
+
     MRHybridRenderUniformsGPU uniforms{};
     uniforms.counts = {
         environmentCount,
@@ -3386,6 +3406,16 @@ MetalHybridRendererDiagnostics encodeLocked(
     encoder.setBytes(&uniforms, sizeof(uniforms), 10u);
     constexpr NSUInteger cameraThreads = kCameraThreads;
     encoder.dispatchThreads(environmentCount, cameraThreads);
+
+    if (meshVisibility!=nil) {
+        encoder.setPipeline(state.meshVisibilityPipeline);
+        id<MTLBuffer> __unsafe_unretained buffers[] = {
+            state.buffers.visualInstanceStates,meshVisibility,previousMeshVisibility};
+        const NSUInteger offsets[3]={};encoder.setBuffers(buffers,offsets,0u);
+        const mr_uint4 counts{environmentCount,state.layout.meshInstanceCount,1u,0u};
+        encoder.setBytes(&counts,sizeof(counts),3u);
+        encoder.dispatchThreads(meshVisibilityCount,64u);
+    }
 
     if (projectedCount != 0u) {
         encoder.setPipeline(state.clearPipeline);
