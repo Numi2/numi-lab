@@ -1,0 +1,8 @@
+{
+  "base_commit": "0227a055a8a72b183bdcc78e684349cea6dc7517",
+  "tracked_patch_sha256": "ffe96e6b10cdac88c7a02e3ec60a94f5fd96f815283c8ff08547faa2a44fcae3",
+  "retained_untracked": {
+    "apps/TrainingLifeCheckpoint.swift": "ffedea3d370f0520c9533ac09a46710a3982ff68406c524f91e5902dcb892d45"
+  },
+  "external_artifact_inputs": {}
+}

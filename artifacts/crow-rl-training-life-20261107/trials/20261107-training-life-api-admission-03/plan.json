@@ -1,0 +1,289 @@
+{
+  "schema": "numi.crow-trial-plan.v1",
+  "created_utc": "2026-11-07T16:39:03.326016+00:00",
+  "command": "retinal-api-admission",
+  "arguments": {
+    "root": "/Users/n/Developer/numi-crow-rl-20261107",
+    "command": "retinal-api-admission",
+    "output": ".numi/runs/american-crow/20261107-training-life-api-admission-03"
+  },
+  "preflight": {
+    "schema": "numi.crow-preflight.v1",
+    "host": "Mac.domain_not_set.invalid",
+    "machine": "arm64",
+    "macos": "26.6",
+    "python": "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+    "numpy": "2.5.4",
+    "mlx": "0.32.4",
+    "metal_device": {
+      "device_name": "Apple M4 Pro",
+      "max_recommended_working_set_size": 19069665280,
+      "memory_size": 25769803776,
+      "architecture": "applegpu_g16s",
+      "max_buffer_length": 14302248960,
+      "resource_limit": 499000
+    },
+    "free_disk_bytes": 160932966400,
+    "inputs": {
+      "rollout": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_rollout",
+        "sha256": "50612758ea835b0999c7e8f2fb400e68be34a574a5b93a65e8ccd6784df90a29"
+      },
+      "train": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_train",
+        "sha256": "cd9708ccd47e82441f0d23638d65b23263ccb20d04dd70a6e167122feeb414a6"
+      },
+      "library": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/lib/libmetalrobo.dylib",
+        "sha256": "bab0fdf882d3f62f71a4aabf2d1db3ffea9c306059304a7eacd6d55187ffd267"
+      },
+      "metallib": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+        "sha256": "bee9e69522b26d6b5d99660e665cf8ed856acd9038ea9f2bdcb87b96dd99385a"
+      },
+      "head_check": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_embodiment_check",
+        "sha256": "4a2b64fe68ee2a7ab20d35514670c3c9db7d482774e2e15ba8b769c6e7eb9a6a"
+      },
+      "foraging_check": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_foraging_check",
+        "sha256": "c4028fbccef59f53aa5380380884288ff9ff198387bdc65c8f9e8a798ba8e526"
+      },
+      "eye_check": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_eye_check",
+        "sha256": "e03149972d138acfcdfccf220d114e0eca350673e4820af167e2ecb899258199"
+      },
+      "retinal_check": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_retinal_stream_check",
+        "sha256": "71e9ec7cba04f141dbf6d2f3340b30ac44d6b74cb0da195e8543aea31e1dbf28"
+      },
+      "retinal_api_check": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_retinal_api_check",
+        "sha256": "4fe9673d750cc0ee566e2fceb032e569cad868d0781cab2fc112fbb861de1e92"
+      },
+      "life_check": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_life_checkpoint_check",
+        "sha256": "d9920bee6321abdee8830e9cc3ee68254e9c3f4b0f05fa4c486f991256adc519"
+      },
+      "retinal_live_check": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_retinal_live_check",
+        "sha256": "9e252e7ba2eb2d92f7605ae13a85ce81d1108503a5a3ea7fead4f3a3f573efef"
+      },
+      "retinal_contract_check": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_retinal_contract_check",
+        "sha256": "56a263394f27d81ca45ad713519c1e6b106e9bd5863dfb3975057ea98a0dc44e"
+      },
+      "retinal_metallib": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/RetinalStream.metallib",
+        "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+      },
+      "v9-visual-neural": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/assets/crow_journey_window/crow-journey.sensor-fast.visual-observation.json",
+        "sha256": "ac047fb5607c57efda1b741a2f1c622b3ea4bf79def1aec7053182c09c3b329e"
+      },
+      "v10-world-model": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/assets/crow_navigation_course/crow-navigation.sensor-fast.visual-observation.json",
+        "sha256": "0625a028e7f6760bd7b29027b529e012a6b2ef9ffb6797cb69eff602b5c7a137"
+      },
+      "profile": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/profiles/american-crow-rl-v1.json",
+        "sha256": "346e30a4e728f004407c11b4bf459c64630a127e6aace9315d2ad90dcbb9e7d8"
+      }
+    },
+    "source_commit": "0227a055a8a72b183bdcc78e684349cea6dc7517",
+    "status": "M CMakeLists.txt\n M apps/task_train.swift\n M python/metalrobo/crow_environment.py\n M python/metalrobo/mlx_policy_worker.py\n?? apps/TrainingLifeCheckpoint.swift",
+    "tracked_diff_sha256": "baa7fa3a3bc9a063b6644d9ec5f1efab2fa6e46ae2e54bb4a55ed6f536013faf",
+    "untracked_inputs": {
+      "apps/TrainingLifeCheckpoint.swift": "80c354dfd7b699483c499f2c4a07b2b76ba47e9a0d5ec2245a3e27a3862c0a93"
+    },
+    "readiness": "native engineering trials only; ecological qualification pending"
+  },
+  "profile": {
+    "schema": "numi.crow-environment-profile.v1",
+    "id": "american-crow-development-20261107",
+    "taxon": "Corvus brachyrhynchos",
+    "evidence_class": "estimated-hybrid-simulation",
+    "owner": "Numi2/numi-lab",
+    "baseline_revision": "577c54ff90756f99b936a1d136c1768332022af5",
+    "robot": "birdflow_american_crow_estimated_hybrid",
+    "development_robot": "american_crow_active_head_estimated_v1",
+    "primary_research_outcome": "lifelong embodied intelligence",
+    "primary_behaviors": [
+      "foraging",
+      "memory",
+      "manipulation",
+      "social learning"
+    ],
+    "development_seeds": [
+      2651107001,
+      2651107002,
+      2651107003
+    ],
+    "qualification_seeds": [
+      2651107901,
+      2651107902,
+      2651107903
+    ],
+    "feeding_comparison_development_seeds": [
+      2651108401,
+      2651108402,
+      2651108403
+    ],
+    "feeding_development_candidate": {
+      "policy": "artifacts/crow-rl-feeding-behavior-20261107/policies/trained-stochastic.policypack",
+      "mode": "stochastic-required",
+      "task": "american_crow_feeding_station_v12",
+      "revision": 33,
+      "fully_consumed_lanes": 1536,
+      "tested_lanes": 1536,
+      "scope": "one frozen learner; canonical supported intake-volume station; development evidence only",
+      "ecological_environment_qualified": false
+    },
+    "minimum_free_disk_gib": 100,
+    "probe": {
+      "seed": 2651107301,
+      "environments": 32,
+      "steps": 128,
+      "submission_chunks": [
+        1,
+        8
+      ],
+      "scale_environments": [
+        128,
+        512,
+        1024
+      ],
+      "timeout_seconds": 180
+    },
+    "navigation_gate": {
+      "environments": 32,
+      "steps": 1600,
+      "minimum_successful_lanes_per_seed": 28,
+      "minimum_aggregate_success_fraction": 0.9,
+      "maximum_failed_environment_steps": 0,
+      "scheduled_resets": false,
+      "curriculum_resets": false,
+      "attempts": "first episode per environment",
+      "supported_landing_is_separate": true
+    },
+    "modules": {
+      "articulated_motor_control": "native-implementation; current-checkout-requalification-required",
+      "visual_obstacle_course": "native-implementation; unreliable-historical-full-route-controller",
+      "first_attempt_evidence": "native-transition-observer",
+      "crow_eye_perception": "estimated-two-camera-native-live-retinal-actor-controls-passed; physical-occlusion-delay-reset-and-FP64-RGB-oracle; biological-optics-learning-and-production-scaling-pending",
+      "active_head_and_beak": "estimated-native-v11; reference-inertia-and-Metal-admission; contact-actuation-and-learner-resume-controls-passed; head-vision-and-behavior-qualification-pending",
+      "finite_food_water_and_energy": "experimental-native-finite-food-tracer-and-capacity-limited-crop-with-bound-reward; water-energy-physiology-pending",
+      "accepted_state_consumption": "native-accepted-mouth-intake-volume-and-open-close-edge-controls-passed; solid-food-pickup-carrying-and-swallowing-pending",
+      "feeding_station_curriculum": "native-v12; frozen-stochastic-policy-complete-intake-1536-of-1536-versus-untrained-20-of-1536; deterministic-intake-zero; canonical-supported-tracer-only; ecology-unqualified",
+      "persistent_memory_and_life_checkpoint": "native-v13-world-contact-task-RNG-retinal-food-fresh-process-restore-passed; exact-runtime-next-policy-boundary-and-rejection-purity; combined-learner-life-resume-and-trainable-memory-pending",
+      "social_individuals_and_communication": "pending",
+      "weather_and_seasonal_ecology": "pending",
+      "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-partition-and-pending-frame-fresh-process-restore-controls-passed-including-live-head-renderer",
+      "retinal_actor_contract": "native-v13-1251-actor-97-critic-18-actions; live-pixel-controls-and-C-API-Swift-MLX-update-learner-restore-passed-at16-64-128; visual-learning-and-production-performance-qualification-pending"
+    },
+    "release_requirements": [
+      "deterministic accepted-state execution across submission chunks",
+      "zero failed physics steps and no hidden teacher authority",
+      "causal actor observations with audited sensor origins and visibility",
+      "measured end-to-end learning throughput and bounded peak memory",
+      "full-route first-attempt reliability on held-out seeds and layouts",
+      "supported landing measured independently of waypoint proximity",
+      "finite resource conservation and no repeated-consumption reward exploit",
+      "persistent checkpoint restore with no reset-induced resource replenishment",
+      "controlled memory and social-information ablations",
+      "all requested ecology modules executable and independently exercised"
+    ],
+    "head_camera_development_instrument": {
+      "command": "eye-admission",
+      "evidence": "artifacts/crow-rl-head-camera-20261107",
+      "scope": "publication-time geometry calibration; estimated parallel pinhole fixtures; no actor image inputs",
+      "native_cases": 5,
+      "camera_count": 2,
+      "ecological_environment_qualified": false
+    },
+    "retinal_timing_development_instrument": {
+      "command": "retina-admission",
+      "evidence": "artifacts/crow-rl-retinal-timing-20261107",
+      "sample_ratio": [
+        3,
+        10
+      ],
+      "control_hz": 50,
+      "latency_ticks": 2,
+      "scope": "synthetic native timing instrument; no live renderer-to-actor integration",
+      "ecological_environment_qualified": false
+    },
+    "retinal_live_development_instrument": {
+      "command": "retinal-live-admission",
+      "evidence": "artifacts/crow-rl-retinal-live-20261107",
+      "native_runs": 6,
+      "environments": 2,
+      "ticks_per_run": 32,
+      "accepted_transitions": 384,
+      "camera_source_shape": [
+        2,
+        120,
+        160,
+        4
+      ],
+      "actor_features": 1251,
+      "maximum_delayed_rgb_error": 9.72599e-08,
+      "registered_rgb_error_limit": 3e-06,
+      "submission_partition": "bit-identical at chunks1 and8, including one per-lane reset",
+      "scope": "authored pixel actor, fixed physical collision-proxy fixture; no visual learning or production throughput qualification",
+      "ecological_environment_qualified": false
+    },
+    "retinal_learner_development_instrument": {
+      "commands": [
+        "retinal-api-admission",
+        "learn-probe --variant v13-retinal-feeding --retinal-calibration PASSED_API_TRIAL --environments 16"
+      ],
+      "evidence": "artifacts/crow-rl-retinal-learner-20261107",
+      "native_api_attempts": 5,
+      "terminal_next_and_chunk1_8": "bit-identical",
+      "world_reset_refills_resources": false,
+      "environments_measured": [
+        16,
+        64,
+        128
+      ],
+      "updates_per_probe": 3,
+      "steps_per_update": 128,
+      "throughput_128_whole_process_steps_per_second": [
+        5032.055976431484,
+        4932.680185890882
+      ],
+      "memory_scope": "MLX peak only, not complete process/renderer peak",
+      "scope": "fixed supported development proxy scene; actual native/Swift/MLX pipeline and learner-only restore; no visual learning or production-scale qualification",
+      "ecological_environment_qualified": false
+    },
+    "life_checkpoint_development_instrument": {
+      "commands": [
+        "life-admission",
+        "life-swift-probe --calibration PASSED_NATIVE_LIFE_TRIAL"
+      ],
+      "evidence": "artifacts/crow-rl-life-checkpoint-20261107",
+      "native_attempts": 6,
+      "swift_attempts": 2,
+      "seed": 2651109001,
+      "environments": 2,
+      "snapshot_accepted_tick": 135,
+      "future_ticks": 32,
+      "fresh_process_continuations": 2,
+      "negative_restore_controls": 10,
+      "all_future_and_hidden_state_bit_identical": true,
+      "restore_advances_physics": false,
+      "policy_publication_advances_physics": false,
+      "identity_scope": "exact native library/core-retinal shaders/device/OS/world/task/next-policy/resource/sensor configuration",
+      "state_scope": "native physical/contact/reset/task/RNG and delayed retinal queue plus finite food; no trainable persistent memory",
+      "combined_learner_life_resume_tested": false,
+      "ecological_environment_qualified": false
+    }
+  },
+  "prediction": "six malformed configs reject; final/next retinal inputs and chunk1/8 bit identical; fresh world reset clears retina while preserving consumed food",
+  "control": "repeat same seed with submission chunk 1 versus 8; first episode only",
+  "validity": "native accepted state, exact identity, finite first-episode evidence, no device failures or hidden teacher",
+  "stopping": "bounded complete runs, timeout retained as failure; no overwrite or automatic retry",
+  "purpose": "native v13 C API, terminal learning slot and reset admission",
+  "boundary": "explicit fixed development collision proxies and authored actors; no visual learning or biological claim"
+}

@@ -1,0 +1,37 @@
+Test project /Users/n/Developer/numi-crow-rl-20261107/build
+      Start  1: metalrobo.crow.first_episode_evidence
+ 1/12 Test  #1: metalrobo.crow.first_episode_evidence ...   Passed    0.01 sec
+      Start 33: metalrobo.runtime.task_program
+ 2/12 Test #33: metalrobo.runtime.task_program ..........   Passed    2.95 sec
+      Start 34: metalrobo.runtime.run_program
+ 3/12 Test #34: metalrobo.runtime.run_program ...........   Passed    0.01 sec
+      Start 35: metalrobo.runtime.robot_catalog
+ 4/12 Test #35: metalrobo.runtime.robot_catalog .........   Passed    0.01 sec
+      Start 36: metalrobo.crow.embodiment
+ 5/12 Test #36: metalrobo.crow.embodiment ...............   Passed    0.02 sec
+      Start 37: metalrobo.crow.finite_resource
+ 6/12 Test #37: metalrobo.crow.finite_resource ..........   Passed   13.00 sec
+      Start 38: metalrobo.crow.head_camera
+ 7/12 Test #38: metalrobo.crow.head_camera ..............   Passed    4.17 sec
+      Start 39: metalrobo.crow.retinal_timing
+ 8/12 Test #39: metalrobo.crow.retinal_timing ...........   Passed    0.08 sec
+      Start 40: metalrobo.crow.life_checkpoint
+ 9/12 Test #40: metalrobo.crow.life_checkpoint ..........   Passed    2.81 sec
+      Start 41: metalrobo.crow.retinal_api
+10/12 Test #41: metalrobo.crow.retinal_api ..............   Passed    1.52 sec
+      Start 42: metalrobo.crow.retinal_live
+11/12 Test #42: metalrobo.crow.retinal_live .............   Passed    1.83 sec
+      Start 43: metalrobo.crow.retinal_contract
+12/12 Test #43: metalrobo.crow.retinal_contract .........   Passed    0.03 sec
+
+100% tests passed out of 12
+
+Label Time Summary:
+crow           =  23.44 sec*proc (7 tests)
+metalrobo      =  26.41 sec*proc (10 tests)
+native         =  23.44 sec*proc (7 tests)
+persistence    =   2.81 sec*proc (1 test)
+runtime        =   2.97 sec*proc (3 tests)
+visual         =   7.63 sec*proc (5 tests)
+
+Total Test time (real) =  26.44 sec

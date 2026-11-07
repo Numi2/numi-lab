@@ -1,0 +1,345 @@
+{
+  "schema": "numi.crow-training-life-archive.v1",
+  "status": "native-v13-coupled-Swift-MLX-life-optimizer-resume-admitted",
+  "final_probe": {
+    "status": "passed",
+    "claim": "coupled native life and MLX model/Adam exact-runtime training resume",
+    "records": [
+      {
+        "stage": "reference",
+        "training_samples": 2368,
+        "initial_revision": 1,
+        "final_revision": 5,
+        "lifetime_updates_completed": 4,
+        "loop_steps_per_second": 1225.6287881983542,
+        "life_state_restored": false,
+        "checkpoint_count": 4,
+        "checkpoint_seconds": 0.06509987499999999,
+        "learner_execution_identity": "d77e512a4505726f99e31af72a23920ffdd3e148c0e028983a55810d9df1c9d7"
+      },
+      {
+        "stage": "split",
+        "training_samples": 1184,
+        "initial_revision": 1,
+        "final_revision": 3,
+        "lifetime_updates_completed": 2,
+        "loop_steps_per_second": 1164.6626689587765,
+        "life_state_restored": false,
+        "checkpoint_count": 2,
+        "checkpoint_seconds": 0.032237167,
+        "learner_execution_identity": "d77e512a4505726f99e31af72a23920ffdd3e148c0e028983a55810d9df1c9d7"
+      },
+      {
+        "stage": "resume-chunk1",
+        "training_samples": 1184,
+        "initial_revision": 3,
+        "final_revision": 5,
+        "lifetime_updates_completed": 4,
+        "loop_steps_per_second": 1122.4879861267464,
+        "life_state_restored": true,
+        "checkpoint_count": 2,
+        "checkpoint_seconds": 0.032795959,
+        "learner_execution_identity": "d77e512a4505726f99e31af72a23920ffdd3e148c0e028983a55810d9df1c9d7"
+      },
+      {
+        "stage": "resume-chunk8",
+        "training_samples": 1184,
+        "initial_revision": 3,
+        "final_revision": 5,
+        "lifetime_updates_completed": 4,
+        "loop_steps_per_second": 1166.3139671827678,
+        "life_state_restored": true,
+        "checkpoint_count": 2,
+        "checkpoint_seconds": 0.033059167,
+        "learner_execution_identity": "d77e512a4505726f99e31af72a23920ffdd3e148c0e028983a55810d9df1c9d7"
+      }
+    ],
+    "boundary_comparisons": [
+      {
+        "stage": "split",
+        "revision": 2,
+        "all_payloads_and_optimizer_tensors_bit_identical": true,
+        "accepted_ticks": [
+          37,
+          37,
+          37,
+          37,
+          37,
+          37,
+          37,
+          37,
+          37,
+          37,
+          37,
+          37,
+          37,
+          37,
+          37,
+          37
+        ]
+      },
+      {
+        "stage": "split",
+        "revision": 3,
+        "all_payloads_and_optimizer_tensors_bit_identical": true,
+        "accepted_ticks": [
+          74,
+          74,
+          74,
+          74,
+          74,
+          74,
+          74,
+          74,
+          74,
+          74,
+          74,
+          74,
+          74,
+          74,
+          74,
+          74
+        ]
+      },
+      {
+        "stage": "resume-chunk1",
+        "revision": 4,
+        "all_payloads_and_optimizer_tensors_bit_identical": true,
+        "accepted_ticks": [
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111
+        ]
+      },
+      {
+        "stage": "resume-chunk1",
+        "revision": 5,
+        "all_payloads_and_optimizer_tensors_bit_identical": true,
+        "accepted_ticks": [
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148
+        ]
+      },
+      {
+        "stage": "resume-chunk8",
+        "revision": 4,
+        "all_payloads_and_optimizer_tensors_bit_identical": true,
+        "accepted_ticks": [
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111,
+          111
+        ]
+      },
+      {
+        "stage": "resume-chunk8",
+        "revision": 5,
+        "all_payloads_and_optimizer_tensors_bit_identical": true,
+        "accepted_ticks": [
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148,
+          148
+        ]
+      }
+    ],
+    "rejected_controls": [
+      "uncommitted",
+      "bad-marker",
+      "missing-optimizer",
+      "corrupt-optimizer",
+      "wrong-configuration",
+      "mixed-policy",
+      "wrong-worker",
+      "wrong-scheduler",
+      "output-overwrite"
+    ],
+    "finite_resource_checks": {
+      "split": {
+        "consumed_micrograms_by_environment": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          20000,
+          0,
+          0,
+          0
+        ],
+        "accepted_ticks": 74
+      },
+      "final": {
+        "consumed_micrograms_by_environment": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          20000,
+          0,
+          0,
+          0
+        ],
+        "accepted_ticks": 148
+      }
+    },
+    "restore_advances_physics": false,
+    "trainable_memory_qualified": false,
+    "ecological_environment_qualified": false
+  },
+  "attempts_retained": 5,
+  "failed_attempts": [
+    1,
+    2,
+    3
+  ],
+  "first_attempt_scope": "planning failure before plan publication; exact source retained by API-admission01; failure receipt preserves provenance",
+  "native_api_attempts_retained": 3,
+  "native_checks_passed": 12,
+  "python_checks_passed": 26,
+  "ordinary_learner_checkpoint_hashes_unchanged": true,
+  "ordinary_learner": {
+    "status": "passed",
+    "claim": "native/MLX updates, publication, and learner-only restore",
+    "variant": "v13-retinal-feeding",
+    "environments": 16,
+    "actor_initialization": "new zero-output actor",
+    "records": [
+      {
+        "stage": "initial",
+        "updates": 2,
+        "samples": 4096,
+        "training_loop_steps_per_second": 1446.5671604595832,
+        "whole_process_steps_per_second": 1277.0899143795314,
+        "initial_revision": 1,
+        "final_revision": 3,
+        "learner_state_restored": false,
+        "checkpoint_sha256": "29f79d3c670b7476757945a62104d78ba76012220be388c07b6f24e93f75d8d1",
+        "last_update_mean_reward": 0,
+        "last_update_maximum_reward": 0,
+        "last_update_intake_utility_mean": 0,
+        "last_update_learning_rate": 9.999999747378752e-05,
+        "last_update_action_standard_deviation": 2.7183361053466797,
+        "mlx_peak_memory_bytes": 165057528
+      },
+      {
+        "stage": "resume",
+        "updates": 1,
+        "samples": 2048,
+        "training_loop_steps_per_second": 1405.9886267657732,
+        "whole_process_steps_per_second": 1194.977215740803,
+        "initial_revision": 3,
+        "final_revision": 4,
+        "learner_state_restored": true,
+        "checkpoint_sha256": "6c2d517062ccc6c28ea127ffea9f59fc12c00d33179140c6565503a758c882fe",
+        "last_update_mean_reward": 0.0029296870343387127,
+        "last_update_maximum_reward": 1.999999761581421,
+        "last_update_intake_utility_mean": 0.0029296870343387127,
+        "last_update_learning_rate": 9.999999747378752e-05,
+        "last_update_action_standard_deviation": 2.7183756828308105,
+        "mlx_peak_memory_bytes": 143412208
+      }
+    ],
+    "candidate_promoted": false,
+    "persistent_world_restore_tested": false,
+    "ecological_environment_qualified": false
+  },
+  "legacy_feeding": {
+    "status": "passed",
+    "claim": "ordinary and residual native policy partition invariance",
+    "records": [
+      {
+        "mode": "ordinary",
+        "fingerprint": "2255877855914022940",
+        "chunks": [
+          1,
+          8
+        ]
+      },
+      {
+        "mode": "residual",
+        "fingerprint": "3082487550463979285",
+        "chunks": [
+          1,
+          8
+        ]
+      }
+    ],
+    "ecological_environment_qualified": false
+  },
+  "matching_runtime_and_Python_versions_retained": [
+    "04",
+    "05"
+  ],
+  "retained_runtime_replays_passed": true,
+  "same_installed_interpreter_MLX_NumPy_required": true,
+  "forced_crash_or_power_loss_qualified": false,
+  "trainable_memory_qualified": false,
+  "ecological_environment_qualified": false
+}

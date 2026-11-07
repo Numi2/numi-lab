@@ -75,7 +75,7 @@
     "finite_food_water_and_energy": "experimental-native-finite-food-tracer-and-capacity-limited-crop-with-bound-reward; water-energy-physiology-pending",
     "accepted_state_consumption": "native-accepted-mouth-intake-volume-and-open-close-edge-controls-passed; solid-food-pickup-carrying-and-swallowing-pending",
     "feeding_station_curriculum": "native-v12; frozen-stochastic-policy-complete-intake-1536-of-1536-versus-untrained-20-of-1536; deterministic-intake-zero; canonical-supported-tracer-only; ecology-unqualified",
-    "persistent_memory_and_life_checkpoint": "native-v13-world-contact-task-RNG-retinal-food-fresh-process-restore-passed; exact-runtime-next-policy-boundary-and-rejection-purity; combined-learner-life-resume-and-trainable-memory-pending",
+    "persistent_memory_and_life_checkpoint": "native-v13-world-contact-task-RNG-retinal-food-and-Swift-MLX-model-Adam-coupled-fresh-process-resume-passed; exact-every-boundary-replay-and-nine-rejection-controls; trainable-persistent-memory-pending",
     "social_individuals_and_communication": "pending",
     "weather_and_seasonal_ecology": "pending",
     "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-partition-and-pending-frame-fresh-process-restore-controls-passed-including-live-head-renderer",
@@ -177,6 +177,40 @@
     "identity_scope": "exact native library/core-retinal shaders/device/OS/world/task/next-policy/resource/sensor configuration",
     "state_scope": "native physical/contact/reset/task/RNG and delayed retinal queue plus finite food; no trainable persistent memory",
     "combined_learner_life_resume_tested": false,
+    "ecological_environment_qualified": false
+  },
+  "training_life_development_instrument": {
+    "command": "life-training-probe --retinal-calibration PASSED_API_TRIAL",
+    "evidence": "artifacts/crow-rl-training-life-20261107",
+    "attempts": 5,
+    "development_seeds": [
+      2651109101,
+      2651109102
+    ],
+    "environments": 16,
+    "steps_per_update": 37,
+    "epochs": 2,
+    "minibatch": 97,
+    "reference_updates": 4,
+    "split_updates": [
+      2,
+      2
+    ],
+    "resume_submission_chunks": [
+      1,
+      8
+    ],
+    "all_shared_boundary_rollouts_policies_optimizer_tensors_and_native_components_bit_identical": true,
+    "rejection_controls": 9,
+    "accepted_life_ticks": [
+      37,
+      74,
+      111,
+      148
+    ],
+    "restore_advances_physics": false,
+    "publication_scope": "exclusive manifest-bound durable bundle, exact scheduler and learner imported code/runtime; native identity guards; no forced-crash/power-loss qualification",
+    "trainable_memory_qualified": false,
     "ecological_environment_qualified": false
   }
 }

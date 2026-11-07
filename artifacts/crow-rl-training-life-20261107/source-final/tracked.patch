@@ -1,0 +1,788 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 70d562d5..8baddd4b 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1269,6 +1269,7 @@ if(METALROBO_HAS_SWIFT)
+     add_executable(
+         metalrobo_task_train
+         apps/task_train.swift
++        apps/TrainingLifeCheckpoint.swift
+         apps/RunInspector.swift
+         bindings/swift/MetalRoboTaskRollout.swift
+     )
+diff --git a/apps/task_train.swift b/apps/task_train.swift
+index e00ac55a..a12a9063 100644
+--- a/apps/task_train.swift
++++ b/apps/task_train.swift
+@@ -51,6 +51,9 @@ private struct Options {
+     var outputLearnerState: String?
+     var checkpointDirectory: String?
+     var checkpointInterval = 0
++    var checkpointLife = false
++    var resumeTrainingCheckpoint: String?
++    var trainingResume: MetalRoboTrainingLifeCheckpoint?
+     var motionPack: String?
+     var motionActivation = "impact"
+     var interactionPack: String?
+@@ -312,6 +315,11 @@ private struct Options {
+             case "--output-learner-state":
+                 outputLearnerState = try value()
+                 index += 1
++            case "--checkpoint-life":
++                checkpointLife = true
++            case "--resume-training-checkpoint":
++                resumeTrainingCheckpoint = try value()
++                index += 1
+             case "--checkpoint-directory":
+                 checkpointDirectory = try value()
+                 index += 1
+@@ -648,6 +656,16 @@ private struct Options {
+                 "difficulty-band overrides require an ordered non-negative minimum and maximum."
+             )
+         }
++        if let path = resumeTrainingCheckpoint {
++            guard policyPack == nil, learnerState == nil, initializePolicyID == nil else {
++                throw MetalRoboTaskRolloutError.invalidShape(
++                    "--resume-training-checkpoint supplies its exact policy and learner inputs; initialization overrides are incompatible.")
++            }
++            let directory = URL(fileURLWithPath: path, isDirectory: true)
++            trainingResume = try MetalRoboTrainingLifeCheckpoint.read(from: directory)
++            policyPack = directory.appendingPathComponent("policy.policypack").path
++            learnerState = directory.appendingPathComponent("learner.safetensors").path
++        }
+         guard environments > 0,
+               steps > 0,
+               updates > 0,
+@@ -680,6 +698,18 @@ private struct Options {
+                 "Checkpoint snapshots require both --checkpoint-directory and a positive --checkpoint-interval."
+             )
+         }
++        if checkpointLife || trainingResume != nil {
++            guard birdFlowAmericanCrowJourney, birdFlowJourneyVariant == .v13RetinalFeeding,
++                  !birdFlowJourneyTeacher, basePolicyPack == nil, motionPack == nil,
++                  retentionPolicyPack == nil, inspectionScene == nil,
++                  !overrideResumedLearningRate, !overrideResumedExploration,
++                  (!checkpointLife || checkpointDirectory != nil),
++                  outputLearnerState != nil
++            else {
++                throw MetalRoboTaskRolloutError.invalidShape(
++                    "Life training requires native v13 without teacher, base/retention/motion/inspection or resume overrides, an explicit --output-learner-state, and checkpoint directory/interval when saving.")
++            }
++        }
+         if let offset = actorObservationExtensionOffset,
+            offset < 0
+         {
+@@ -866,6 +896,15 @@ private struct Options {
+                 "--visual-observation-config cannot be combined with legacy visual preset options."
+             )
+         }
++        if let path = resumeTrainingCheckpoint {
++            let saved = URL(fileURLWithPath: path, isDirectory: true).resolvingSymlinksInPath().path + "/"
++            for output in [updatedPolicyPack, deploymentPolicyPack!, incumbentPolicyPack!, rolloutPack, outputLearnerState!, checkpointDirectory].compactMap({ $0 }) {
++                let target = URL(fileURLWithPath: output).resolvingSymlinksInPath().path
++                guard !target.hasPrefix(saved) && target != String(saved.dropLast()) else {
++                    throw MetalRoboTaskRolloutError.invalidShape("Training outputs cannot overwrite the input life checkpoint.")
++                }
++            }
++        }
+         if g1VisualPackDirectory != nil &&
+             ((unitreeG1Task != .ballDisturbanceRecovery &&
+               unitreeG1Task != .ballDodge) ||
+@@ -1005,6 +1044,20 @@ private struct Options {
+         }
+     }
+ 
++    func lifeTrainingContract() -> [String: String] {
++        let executionOnly: Set<String> = [
++            "updates", "chunk", "verbose", "metallib", "nativeLibrary", "mlxPython", "pythonRoot",
++            "policyPack", "updatedPolicyPack", "deploymentPolicyPack", "incumbentPolicyPack", "rolloutPack",
++            "learnerState", "outputLearnerState", "checkpointDirectory", "checkpointInterval", "checkpointLife",
++            "resumeTrainingCheckpoint", "trainingResume", "learnerTimeoutSeconds", "visualObservationConfig",
++            "initializePolicyID", "zeroActorOutput", "initializeActorPolicyPack", "initializeActorFreshCritic",
++        ]
++        return Dictionary(uniqueKeysWithValues: Mirror(reflecting: self).children.compactMap { child in
++            guard let name = child.label, !executionOnly.contains(name) else { return nil }
++            return (name, String(reflecting: child.value))
++        })
++    }
++
+     private static func integer(
+         _ value: String,
+         _ option: String
+@@ -1224,6 +1277,7 @@ private final class MLXLearnerWorker {
+     private(set) var policyPackPath: String
+     private(set) var deploymentPolicyPackPath: String
+     private(set) var stateRestored: Bool
++    private(set) var executionIdentity: String
+     private var closed = false
+ 
+     init(
+@@ -1308,6 +1362,9 @@ private final class MLXLearnerWorker {
+             "--action-fingerprint",
+             String(layout.actionFingerprint),
+         ]
++        if options.checkpointLife || options.trainingResume != nil {
++            arguments.append("--exact-life-checkpoints")
++        }
+         if options.fixedLearningRate {
+             arguments.append("--fixed-learning-rate")
+         }
+@@ -1437,6 +1494,7 @@ private final class MLXLearnerWorker {
+         policyPackPath = ""
+         deploymentPolicyPackPath = ""
+         stateRestored = false
++        executionIdentity = ""
+         let ready = try response()
+         guard ready["status"] as? String == "ready",
+               let revisionValue =
+@@ -1469,6 +1527,7 @@ private final class MLXLearnerWorker {
+         deploymentPolicyPackPath =
+             readyDeploymentPolicyPack
+         stateRestored = restored
++        executionIdentity = ready["execution_identity"] as? String ?? ""
+     }
+ 
+     deinit {
+@@ -1879,6 +1938,13 @@ private enum TaskTrainMain {
+     ) throws {
+             let (context, worldSource) =
+                 try makeContext(options: options)
++            let lifeContract = options.lifeTrainingContract()
++            if let saved = options.trainingResume {
++                try MetalRoboTrainingLifeCheckpoint.require(saved.trainingContract == lifeContract,
++                    "Training checkpoint scheduler/learner configuration mismatch.")
++                let (_, overflow) = saved.completedUpdates.addingReportingOverflow(UInt64(options.updates))
++                try MetalRoboTrainingLifeCheckpoint.require(!overflow, "Training lifetime update count overflow.")
++            }
+             try initializePolicyIfRequested(
+                 options: options,
+                 layout: context.layout,
+@@ -1910,6 +1976,14 @@ private enum TaskTrainMain {
+                 options: options,
+                 layout: context.layout
+             )
++            if let saved = options.trainingResume {
++                try MetalRoboTrainingLifeCheckpoint.require(learner.stateRestored && learner.revision == saved.policyRevision &&
++                    learner.executionIdentity == saved.learnerExecutionIdentity,
++                    "Training checkpoint learner revision, optimizer or execution identity mismatch.")
++                let regenerated = try MetalRoboTrainingLifeCheckpoint.hash(URL(fileURLWithPath: learner.policyPackPath))
++                try MetalRoboTrainingLifeCheckpoint.require(regenerated.sha256 == saved.files["policy.policypack"]!.sha256,
++                    "Restored learner did not reproduce the exact saved next policy.")
++            }
+             try context.loadPolicy(
+                 at: URL(fileURLWithPath: learner.policyPackPath)
+             )
+@@ -1944,43 +2018,49 @@ private enum TaskTrainMain {
+             }
+             let initialRevision = learner.revision
+             var installedRevision = learner.revision
+-            let warmup = try context.advanceWithPolicy(
+-                controlStepCount: 1,
+-                policyRevision: installedRevision
+-            )
+-            try publishInspectionFrame(
+-                from: context,
+-                to: inspector,
+-                loadPolicy: { url in
+-                    try context.loadPolicy(
+-                        at: url
+-                    )
+-                    installedRevision = context.installedPolicyRevision
+-                    return installedRevision
+-                }
+-            )
+-            let warmupTransitions = try context.transitions(
+-                controlStepCount: 1
+-            )
+-            guard warmup.failedEnvironmentSteps == 0,
+-                  warmupTransitions.allSatisfy({
+-                      $0.policyRevision == installedRevision
+-                  })
+-            else {
+-                throw MetalRoboTaskRolloutError.native(
+-                    "Initial PolicyPack failed native warmup: failed "
+-                    + "environments=\(warmup.failedEnvironmentSteps), "
+-                    + "installed revision=\(installedRevision), observed "
+-                    + "revisions=\(warmupTransitions.map(\.policyRevision))."
++            if !options.checkpointLife && options.trainingResume == nil {
++                let warmup = try context.advanceWithPolicy(
++                    controlStepCount: 1,
++                    policyRevision: installedRevision
+                 )
++                try publishInspectionFrame(
++                    from: context,
++                    to: inspector,
++                    loadPolicy: { url in
++                        try context.loadPolicy(
++                            at: url
++                        )
++                        installedRevision = context.installedPolicyRevision
++                        return installedRevision
++                    }
++                )
++                let warmupTransitions = try context.transitions(
++                    controlStepCount: 1
++                )
++                guard warmup.failedEnvironmentSteps == 0,
++                      warmupTransitions.allSatisfy({
++                          $0.policyRevision == installedRevision
++                      })
++                else {
++                    throw MetalRoboTaskRolloutError.native(
++                        "Initial PolicyPack failed native warmup: failed "
++                        + "environments=\(warmup.failedEnvironmentSteps), "
++                        + "installed revision=\(installedRevision), observed "
++                        + "revisions=\(warmupTransitions.map(\.policyRevision))."
++                    )
++                }
++            }
++            if let path = options.resumeTrainingCheckpoint {
++                try context.restoreLifeCheckpoint(from: URL(fileURLWithPath: path).appendingPathComponent("life.native"))
++            } else {
++                try context.reset(seed: options.seed)
+             }
+-            let warmupEvidenceTelemetry =
+-                try context.evidenceTelemetry()
+-            try context.reset(seed: options.seed)
+ 
+             let baseline = context.layout
+             let clock = ContinuousClock()
+             let start = clock.now
++            var lifeCheckpointSeconds = 0.0
++            var lifeCheckpointCount = 0
+             var totalResets = 0
+             var maximumContacts = 0
+             var maximumManifolds = 0
+@@ -1991,8 +2071,7 @@ private enum TaskTrainMain {
+             // Preserve all update outcomes so finite-lifetime budgets can be
+             // checked across a run instead of inspecting only its last batch.
+             var learningUpdateHistory: [[String: Any]] = []
+-            var lastEvidenceTelemetry =
+-                warmupEvidenceTelemetry
++            var lastEvidenceTelemetry: MetalRoboTaskEvidenceTelemetry?
+             let samplesPerUpdate =
+                 options.environments * options.steps
+             let (trainingSamples, trainingSamplesOverflow) =
+@@ -2152,8 +2231,8 @@ private enum TaskTrainMain {
+                     id: "swift_native_training_rollout",
+                     to: URL(fileURLWithPath: rolloutPack)
+                 )
+-                lastEvidenceTelemetry =
+-                    try context.evidenceTelemetry()
++                let evidenceTelemetry = try context.evidenceTelemetry()
++                lastEvidenceTelemetry = evidenceTelemetry
+                 lastLearning = try learner.update(
+                     rolloutPack: rolloutPack
+                 )
+@@ -2186,6 +2265,19 @@ private enum TaskTrainMain {
+                         format: "%08llu",
+                         learner.revision
+                     )
++                    if options.checkpointLife {
++                        let checkpointClock = ContinuousClock()
++                        let checkpointStart = checkpointClock.now
++                        _ = try MetalRoboTrainingLifeCheckpoint.save(
++                            to: directory.appendingPathComponent("revision-\(revision).trainingcheckpoint", isDirectory: true),
++                            context: context, policyRevision: learner.revision,
++                            completedUpdates: (options.trainingResume?.completedUpdates ?? 0) + UInt64(updateIndex + 1),
++                            trainingContract: lifeContract, learnerExecutionIdentity: learner.executionIdentity,
++                            policy: updatedPolicyPack, learner: learnerState, rollout: rolloutPack, candidate: deploymentPolicyPack)
++                        let elapsed = checkpointStart.duration(to: checkpointClock.now)
++                        lifeCheckpointSeconds += Double(elapsed.components.seconds) + Double(elapsed.components.attoseconds) / 1e18
++                        lifeCheckpointCount += 1
++                    } else {
+                     let artifacts = [
+                         (
+                             updatedPolicyPack,
+@@ -2212,6 +2304,7 @@ private enum TaskTrainMain {
+                             to: destination
+                         )
+                     }
++                    }
+                 }
+                     if options.verbose {
+                     let reward =
+@@ -2255,9 +2348,9 @@ private enum TaskTrainMain {
+                             (
+                                 "update=\(updateIndex + 1) " +
+                                 "revision=\(installedRevision) " +
+-                                "contact_rate=\(lastEvidenceTelemetry.lastContactRate) " +
+-                                "miss_rate=\(lastEvidenceTelemetry.lastCleanMissRate) " +
+-                                "balance_rate=\(lastEvidenceTelemetry.lastBalanceFailureRate) " +
++                                "contact_rate=\(evidenceTelemetry.lastContactRate) " +
++                                "miss_rate=\(evidenceTelemetry.lastCleanMissRate) " +
++                                "balance_rate=\(evidenceTelemetry.lastBalanceFailureRate) " +
+                                 "reward=\(reward) " +
+                                 "tracking=\(tracking) " +
+                                 "height=\(height) " +
+@@ -2278,6 +2371,9 @@ private enum TaskTrainMain {
+             let seconds =
+                 Double(elapsed.components.seconds) +
+                 Double(elapsed.components.attoseconds) / 1e18
++            guard let lastEvidenceTelemetry else {
++                throw MetalRoboTaskRolloutError.native("Training published no accepted physical evidence.")
++            }
+             let finalLayout = context.layout
+             let output: [String: Any] = [
+                 "operation": "swift_native_policy_training",
+@@ -2383,6 +2479,12 @@ private enum TaskTrainMain {
+                 ],
+                 "learner_state_restored":
+                     learner.stateRestored,
++                "life_state_restored": options.trainingResume != nil,
++                "life_checkpoint_enabled": options.checkpointLife,
++                "life_checkpoint_count": lifeCheckpointCount,
++                "life_checkpoint_seconds": lifeCheckpointSeconds,
++                "lifetime_updates_completed": (options.trainingResume?.completedUpdates ?? 0) + UInt64(options.updates),
++                "learner_execution_identity": learner.executionIdentity,
+                 "resumed_learning_rate_overridden":
+                     options.overrideResumedLearningRate &&
+                     learner.stateRestored,
+diff --git a/docs/CROW_RL_ENVIRONMENT.md b/docs/CROW_RL_ENVIRONMENT.md
+index 6cc3a30f..180afcfb 100644
+--- a/docs/CROW_RL_ENVIRONMENT.md
++++ b/docs/CROW_RL_ENVIRONMENT.md
+@@ -566,7 +566,7 @@ measuring full batch performance are pending. The current fixed supported
+ feeding body is not ecological foraging, object manipulation or visual
+ learning. The full lifelong environment still requires robust locomotion,
+ solid-food pickup/carry/cache/swallow, water/energy physiology, trainable
+-persistent memory, combined learner/life resume, trainable memory restore, social agents
++persistent memory, trainable memory restore, social agents
+ and information ablations, and untouched held-out qualification.
+ 
+ 
+@@ -692,7 +692,8 @@ step. Save uses exclusive creation, file fsync and directory fsync; existing or
+ partial files are retained and cannot be silently overwritten. Checksums detect
+ corruption; they do not authenticate a deliberately rewritten checkpoint.
+ Optimizer and trainable weights remain separately retained dependencies.
+-There is no combined optimizer/life training-resume transaction yet.
++At this native-only checkpoint, combined optimizer/life training resume was still
++absent. The next section admits that separate Swift/MLX integration.
+ 
+ Reproduce with new output directories:
+ 
+@@ -738,8 +739,101 @@ original/archive hashes. Receipts identify retained matching binaries for the
+ two successful native versions; earlier failed versions retain source deltas
+ and runtime hashes, not every historical executable.
+ 
+-Trainable persistent memory, combined learner/life resume, robust locomotion,
++Trainable persistent memory, robust locomotion,
+ physical pickup/carry/cache/swallow, water/energy physiology, social individuals
+ and controlled information ablations remain open. This closes native state
+ persistence for the present development fixture; the lifelong ecological
+ research environment remains unqualified.
++
++
++## Coupled life and optimizer training checkpoints
++
++`metalrobo_task_train --checkpoint-life` now publishes a
++`revision-XXXXXXXX.trainingcheckpoint` directory at each configured checkpoint
++interval. It requires `--checkpoint-directory`, `--checkpoint-interval` and an
++explicit `--output-learner-state`. Each immutable directory contains the next
++stochastic policy, MLX model/Adam state, native life, generating rollout and an
++unselected deterministic candidate. Existing legacy snapshot copies are skipped
++in this mode. The normal non-life training path retains its original warmup and
++learner-only resume behavior.
++
++`--resume-training-checkpoint DIRECTORY` supplies the exact saved policy and
++learner inputs; omit `--policy-pack`, `--learner-state` and initialization flags.
++Use new output paths, the same v13/task/learner configuration, seeds and rollout
++horizon. Update count, submission chunk, checkpoint cadence and output locations
++may change. Changed training options reject before learner startup. Native world,
++sensors and shaders retain their own exact identity admission. Current life
++training excludes teacher/base-policy authority, retention or motion priors,
++interactive inspector mutation and resumed learning-rate/exploration overrides.
++This is a coherent supported path for the present v13 model, not arbitrary task
++migration.
++
++The manifest binds all payload lengths/SHA-256, policy revision, cumulative
++optimizer updates, accepted per-lane ticks, scheduler configuration, the exact
++Swift executable, imported learner Python dependency closure, interpreter and
++MLX/NumPy source/native distribution files. It uses the learner's existing
++revision-derived minibatch shuffle; no random-stream reset or optimizer
++approximation is introduced. The restored learner must report restored Adam
++state, the saved revision and execution identity, and regenerate the exact saved
++next PolicyPack before native life restoration. Input-bundle output overwrite
++is rejected. Irrelevant experiment-driver edits are excluded from the learner
++source closure.
++
++Publication creates a new exclusive directory, copies and fsyncs immutable
++payloads, saves the native life, hashes every payload, then writes and fsyncs the
++manifest. A SHA-bound `COMMITTED` marker is atomically hard-linked only after
++payloads and directory entries are synced. Restore rejects missing/invalid
++markers and payloads before starting the learner. Partial directories are
++retained. Save/restore still require exclusive scheduler ownership. This checks
++an interrupted-directory model and the fsync publication protocol; forced
++process-crash and physical power-loss fault injection have not been qualified.
++The worker and optimizer remain outside the per-control-step simulation path.
++
++Reproduce with a passed current-runtime retinal API trial and fresh directories:
++
++```
++tools/numi crow-env retinal-api-admission --output NEW_API_TRIAL
++tools/numi crow-env life-training-probe \
++  --retinal-calibration NEW_API_TRIAL --output NEW_TRAINING_LIFE_TRIAL
++```
++
++Trial05 uses16 lanes,37 ticks/update, two epochs and minibatches of97, so the
++592-sample batch has an uneven final minibatch. One four-update reference is
++compared with one fresh two-update run and two independent two-update continuations
++at chunks1/8. At every shared optimizer boundary, complete rollout and policy/
++candidate bytes, every model and Adam tensor/metadata, and all three hidden
++native components are bit-identical. Lifetime ticks are exactly37,74,111,148;
++policy revisions progress1→3→5 across interruption. Lane12 has consumed20,000
++micrograms before interruption and retains it afterward, with conserved stock,
++crop and accepted clock. This is one learner trajectory plus replay controls,
++not independent learned animals or evidence of trainable memory/visual skill.
++
++Nine declared-cause negative controls reject uncommitted bundles, invalid marker,
++missing/corrupt optimizer, changed configuration, mixed policy/optimizer,
++wrong learner runtime, wrong scheduler executable and input-overwrite attempts.
++Attempts01/02 rejected planning and boolean-parser errors before context creation;
++03 exposed a legacy telemetry read before completed resident submission. The
++fix publishes telemetry only after accepted updates rather than adding a hidden
++warmup. Trial04 passes the original seven controls. Trial05 adds explicit clock/
++food validation, the extra rejection controls, and imported learner-closure
++identity instead of binding unrelated orchestration code. All failures and both
++successful runtime/source versions are retained.
++
++The final bounded probe measures16.1–16.5 ms average checkpoint publication per
++stage, including native readback, file copies, hashing and fsync. This is a small
++warm-cache engineering measurement, not a sustained I/O or throughput distribution.
++The12-check native regression and26 Python checks pass. Ordinary learner-only
++training reproduces the previous initial/resumed optimizer checkpoint hashes
++exactly; frozen legacy feeding ordinary/residual fingerprints remain
++2255877855914022940 and3082487550463979285. Both retained successful training
++runtimes independently resume their original saved life and reproduce both future
++optimizer boundaries. Exact-runtime recovery still requires matching installed
++interpreter/MLX/NumPy dependencies; native and Python-source receipts are retained.
++
++Evidence is versioned in `artifacts/crow-rl-training-life-20261107`, including
++failed attempts, all update-boundary bundles, generating rollouts, raw regression
++outputs, source deltas, lossless payload hashes and retained-runtime replay
++receipts. No qualification seeds are used or candidate promoted. Persistent
++trainable memory, solid-food manipulation, physiology, social agents, robust
++locomotion, production scaling and untouched ecological qualification remain
++required for the full lifelong environment.
+diff --git a/profiles/american-crow-rl-v1.json b/profiles/american-crow-rl-v1.json
+index 8296306f..4f4af5c6 100644
+--- a/profiles/american-crow-rl-v1.json
++++ b/profiles/american-crow-rl-v1.json
+@@ -75,7 +75,7 @@
+     "finite_food_water_and_energy": "experimental-native-finite-food-tracer-and-capacity-limited-crop-with-bound-reward; water-energy-physiology-pending",
+     "accepted_state_consumption": "native-accepted-mouth-intake-volume-and-open-close-edge-controls-passed; solid-food-pickup-carrying-and-swallowing-pending",
+     "feeding_station_curriculum": "native-v12; frozen-stochastic-policy-complete-intake-1536-of-1536-versus-untrained-20-of-1536; deterministic-intake-zero; canonical-supported-tracer-only; ecology-unqualified",
+-    "persistent_memory_and_life_checkpoint": "native-v13-world-contact-task-RNG-retinal-food-fresh-process-restore-passed; exact-runtime-next-policy-boundary-and-rejection-purity; combined-learner-life-resume-and-trainable-memory-pending",
++    "persistent_memory_and_life_checkpoint": "native-v13-world-contact-task-RNG-retinal-food-and-Swift-MLX-model-Adam-coupled-fresh-process-resume-passed; exact-every-boundary-replay-and-nine-rejection-controls; trainable-persistent-memory-pending",
+     "social_individuals_and_communication": "pending",
+     "weather_and_seasonal_ecology": "pending",
+     "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-partition-and-pending-frame-fresh-process-restore-controls-passed-including-live-head-renderer",
+@@ -178,5 +178,39 @@
+     "state_scope": "native physical/contact/reset/task/RNG and delayed retinal queue plus finite food; no trainable persistent memory",
+     "combined_learner_life_resume_tested": false,
+     "ecological_environment_qualified": false
++  },
++  "training_life_development_instrument": {
++    "command": "life-training-probe --retinal-calibration PASSED_API_TRIAL",
++    "evidence": "artifacts/crow-rl-training-life-20261107",
++    "attempts": 5,
++    "development_seeds": [
++      2651109101,
++      2651109102
++    ],
++    "environments": 16,
++    "steps_per_update": 37,
++    "epochs": 2,
++    "minibatch": 97,
++    "reference_updates": 4,
++    "split_updates": [
++      2,
++      2
++    ],
++    "resume_submission_chunks": [
++      1,
++      8
++    ],
++    "all_shared_boundary_rollouts_policies_optimizer_tensors_and_native_components_bit_identical": true,
++    "rejection_controls": 9,
++    "accepted_life_ticks": [
++      37,
++      74,
++      111,
++      148
++    ],
++    "restore_advances_physics": false,
++    "publication_scope": "exclusive manifest-bound durable bundle, exact scheduler and learner imported code/runtime; native identity guards; no forced-crash/power-loss qualification",
++    "trainable_memory_qualified": false,
++    "ecological_environment_qualified": false
+   }
+ }
+diff --git a/python/metalrobo/crow_environment.py b/python/metalrobo/crow_environment.py
+index 46d440fd..4b91bd01 100644
+--- a/python/metalrobo/crow_environment.py
++++ b/python/metalrobo/crow_environment.py
+@@ -442,6 +442,155 @@ def life_swift_probe(root: Path, output: Path, args: argparse.Namespace) -> dict
+             "records":records,"ecological_environment_qualified":False}
+ 
+ 
++
++def life_training_probe(root: Path, output: Path, args: argparse.Namespace) -> dict:
++    """Own complete native/Swift/MLX runs; never a per-step simulator."""
++    import struct
++    import mlx.core as mx
++    import numpy as np
++
++    paths = runtime(root)
++    base = [str(paths["train"]), "--metallib", str(paths["metallib"]),
++            "--native-library", str(paths["library"]), "--mlx-python", sys.executable,
++            "--python-root", str(root/"python"), "--birdflow-american-crow-journey",
++            "--birdflow-journey-variant", "v13-retinal-feeding", "--envs", "16", "--steps", "37",
++            "--minimum-difficulty-band", "0", "--maximum-difficulty-band", "0",
++            "--seed", "2651109101", "--learner-seed", "2651109102", "--update-epochs", "2",
++            "--minibatch-size", "97", "--learning-rate", "0.0001", "--initial-log-standard-deviation", "1",
++            "--visual-observation-config", str(args.retinal_visual),
++            "--checkpoint-life", "--checkpoint-interval", "1"]
++
++    def command(name: str, updates: int, chunk: int, resume: Path | None = None) -> list[str]:
++        target = output/name
++        target.mkdir()
++        result = base + ["--updates", str(updates), "--chunk", str(chunk),
++                 "--updated-policy-pack", str(target/"updated.policypack"),
++                 "--deployment-policy-pack", str(target/"candidate.policypack"),
++                 "--incumbent-policy-pack", str(target/"incumbent.policypack"),
++                 "--rollout-pack", str(target/"rollout.rolloutpack"),
++                 "--output-learner-state", str(target/"learner.safetensors"),
++                 "--checkpoint-directory", str(target/"checkpoints")]
++        if resume:
++            result += ["--resume-training-checkpoint", str(resume)]
++        else:
++            result += ["--policy-pack", str(target/"initial.policypack"),
++                       "--initialize-policy", "crow-life-training-boundary", "--zero-actor-output"]
++        return result
++
++    def snapshot(name: str, revision: int) -> Path:
++        return output/name/"checkpoints"/f"revision-{revision:08}.trainingcheckpoint"
++
++    records = []
++    source = snapshot("split", 3)
++    for name, updates, chunk, resume in [("reference",4,8,None), ("split",2,8,None),
++                                        ("resume-chunk1",2,1,source), ("resume-chunk8",2,8,source)]:
++        value = execute(output, name, command(name,updates,chunk,resume), root, 180)
++        if value.get("failed_environment_steps") != 0 or value.get("training_samples") != 16*37*updates:
++            raise RuntimeError("Life-training probe failed native/sample admission")
++        if value.get("life_state_restored") is not bool(resume) or (resume and not value.get("learner_state_restored")):
++            raise RuntimeError("Life-training probe did not restore both owners")
++        if value.get("final_policy_revision") != (5 if name != "split" else 3):
++            raise RuntimeError("Life-training probe lost optimizer updates")
++        records.append({"stage": name, "training_samples": value["training_samples"],
++                        "initial_revision": value["initial_policy_revision"], "final_revision": value["final_policy_revision"],
++                        "lifetime_updates_completed": value["lifetime_updates_completed"],
++                        "loop_steps_per_second": value["end_to_end_environment_steps_per_second"],
++                        "life_state_restored": value["life_state_restored"],
++                        "checkpoint_count":value["life_checkpoint_count"], "checkpoint_seconds":value["life_checkpoint_seconds"],
++                        "learner_execution_identity": value["learner_execution_identity"]})
++
++    def native_components(path: Path) -> list[bytes]:
++        data = path.read_bytes()
++        if data[:8] != b"NUMILF01": raise RuntimeError("Missing native life envelope")
++        offset = 64 + 5*8  # accepted host counters + telemetry; not simulation state
++        result = []
++        for _ in range(3):
++            count, = struct.unpack_from("<Q", data, offset); offset += 8
++            result.append(data[offset:offset+count]); offset += count
++        if offset != len(data): raise RuntimeError("Native life envelope length mismatch")
++        return result
++
++    comparisons = []
++    for name, revisions in [("split", (2,3)), ("resume-chunk1", (4,5)), ("resume-chunk8", (4,5))]:
++        for revision in revisions:
++            a, b = snapshot("reference",revision), snapshot(name,revision)
++            am, bm = [json.loads((p/"manifest.json").read_text()) for p in (a,b)]
++            expected_ticks = [37*(revision-1)]*16
++            if am["acceptedControlTicks"] != expected_ticks or bm["acceptedControlTicks"] != expected_ticks or am["completedUpdates"] != revision-1 or bm["completedUpdates"] != revision-1:
++                raise RuntimeError("Life-training clock/update continuity differs")
++            for filename in ("policy.policypack", "candidate.policypack", "rollout.rolloutpack"):
++                if sha(a/filename) != sha(b/filename):
++                    raise RuntimeError("Life-training future differs: "+name+"/"+str(revision)+"/"+filename)
++            aa, ma = mx.load(a/"learner.safetensors", return_metadata=True)
++            ab, mb = mx.load(b/"learner.safetensors", return_metadata=True)
++            if ma != mb or set(aa) != set(ab): raise RuntimeError("Learner checkpoint metadata/topology differs")
++            for key in aa:
++                x, y = np.asarray(aa[key]), np.asarray(ab[key])
++                if x.dtype != y.dtype or x.shape != y.shape or x.tobytes() != y.tobytes():
++                    raise RuntimeError("Learner model/Adam state differs: "+key)
++            if native_components(a/"life.native") != native_components(b/"life.native"):
++                raise RuntimeError("Life-training hidden native/sensory/resource future differs")
++            comparisons.append({"stage":name,"revision":revision,"all_payloads_and_optimizer_tensors_bit_identical":True,
++                                "accepted_ticks":am["acceptedControlTicks"]})
++
++    # Every rejection uses new output paths. Payload hashes are validated before
++    # learner startup; scheduler/worker identities before native life admission.
++    negatives = []
++    rejection_causes = {
++        "uncommitted":"COMMITTED", "bad-marker":"commit marker does not bind its manifest",
++        "missing-optimizer":"learner.safetensors", "corrupt-optimizer":"payload mismatch: learner.safetensors",
++        "wrong-configuration":"scheduler/learner configuration mismatch",
++        "mixed-policy":"Restored learner did not reproduce the exact saved next policy",
++        "wrong-worker":"learner revision, optimizer or execution identity mismatch",
++        "wrong-scheduler":"scheduler executable identity mismatch",
++        "output-overwrite":"Training outputs cannot overwrite the input life checkpoint",
++    }
++    for name in ("uncommitted", "bad-marker", "missing-optimizer", "corrupt-optimizer", "wrong-configuration", "mixed-policy", "wrong-worker", "wrong-scheduler", "output-overwrite"):
++        bad = output/("negative-input-"+name)
++        shutil.copytree(source, bad)
++        if name == "uncommitted": (bad/"COMMITTED").unlink()
++        elif name == "bad-marker": (bad/"COMMITTED").write_text("0"*64)
++        elif name == "missing-optimizer": (bad/"learner.safetensors").unlink()
++        elif name == "corrupt-optimizer":
++            path=bad/"learner.safetensors"; data=bytearray(path.read_bytes());data[-1]^=1;path.write_bytes(data)
++        elif name in ("mixed-policy","wrong-worker","wrong-scheduler"):
++            manifest=json.loads((bad/"manifest.json").read_text())
++            if name=="mixed-policy":
++                path=bad/"policy.policypack";shutil.copyfile(snapshot("split",2)/"policy.policypack",path)
++                manifest["files"]["policy.policypack"]={"bytes":path.stat().st_size,"sha256":sha(path)}
++            elif name=="wrong-worker": manifest["learnerExecutionIdentity"]="0"*64
++            else: manifest["schedulerExecutionIdentity"]="0"*64
++            write_path=bad/"manifest.json";write_path.write_text(json.dumps(manifest,sort_keys=True))
++            (bad/"COMMITTED").write_text(sha(write_path))
++        args_negative=command("negative-"+name,1,8,bad)
++        if name=="wrong-configuration":
++            args_negative[args_negative.index("--learning-rate")+1]="0.0002"
++        elif name=="output-overwrite":
++            args_negative[args_negative.index("--output-learner-state")+1]=str(bad/"learner.safetensors")
++        try: execute(output,"negative-"+name,args_negative,root,60)
++        except RuntimeError:
++            receipt=json.loads((output/("negative-"+name+".receipt.json")).read_text())
++            if receipt.get("timed_out") or receipt.get("exit_code") in (None,0): raise
++            failure = (output/("negative-"+name+".stderr")).read_text()
++            if rejection_causes[name] not in failure:
++                raise RuntimeError("Negative rejected for unexpected cause: "+name+": "+failure)
++            if list((output/("negative-"+name)).rglob("life.native")):
++                raise RuntimeError("Rejected training restore published native state")
++            negatives.append(name)
++        else: raise RuntimeError("Invalid training checkpoint was accepted: "+name)
++
++    food = {}
++    for label, checkpoint, ticks in [("split",source,74), ("final",snapshot("reference",5),148)]:
++        component = native_components(checkpoint/"life.native")[2]
++        states = [struct.unpack_from("<20I",component,64+80*i) for i in range(16)]
++        if not all(s[0]+s[9]==45000 and s[8]==s[9] and s[12]+(s[13]<<32)==ticks for s in states):
++            raise RuntimeError("Training lifetime resource conservation/clock failed")
++        food[label] = {"consumed_micrograms_by_environment":[s[9] for s in states], "accepted_ticks":ticks}
++    return {"status":"passed", "claim":"coupled native life and MLX model/Adam exact-runtime training resume",
++            "records":records, "boundary_comparisons":comparisons,"rejected_controls":negatives,"finite_resource_checks":food,
++            "restore_advances_physics":False,"trainable_memory_qualified":False,"ecological_environment_qualified":False}
++
++
+ def motor_probe(root: Path, output: Path, args: argparse.Namespace, profile: dict) -> dict:
+     policy = args.policy.resolve(strict=True)
+     seed = profile["development_seeds"][0]
+@@ -809,6 +958,9 @@ def main() -> int:
+     commands.add_parser("head-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("eye-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("retina-admission").add_argument("--output", type=Path, required=True)
++    life_training=commands.add_parser("life-training-probe")
++    life_training.add_argument("--output",type=Path,required=True)
++    life_training.add_argument("--retinal-calibration",type=Path,required=True)
+     life_swift=commands.add_parser("life-swift-probe")
+     life_swift.add_argument("--output",type=Path,required=True)
+     life_swift.add_argument("--calibration",type=Path,required=True)
+@@ -871,7 +1023,7 @@ def main() -> int:
+     if args.command=="retinal-contract-admission":
+         args.legacy_metallib=(args.legacy_metallib or root/"artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib").resolve(strict=True)
+         checked["inputs"]["retinal_legacy_shader"]={"path":str(args.legacy_metallib),"sha256":sha(args.legacy_metallib)}
+-    if args.command == "learn-probe" and args.variant == "v13-retinal-feeding":
++    if args.command == "life-training-probe" or (args.command == "learn-probe" and args.variant == "v13-retinal-feeding"):
+         if not args.retinal_calibration:
+             raise ValueError("Retinal learning requires passed current-runtime API admission")
+         calibration = args.retinal_calibration.resolve(strict=True)
+@@ -973,6 +1125,15 @@ def main() -> int:
+           "control":"two new processes resume the same admitted native state and exact policy/configuration",
+           "unit":"two lanes, one authored stochastic controller; exact replay engineering test, no learning claim",
+           "stopping":"two32-step continuations,120s timeout each; abort invalidity, no automatic retry"})
++    if args.command == "life-training-probe":
++        plan.update({"purpose":"coupled v13 lifelong training checkpoint admission", "model_revision":"v5:01 planning and02 CLI errors rejected before creation;03 rejected premature telemetry before a completed resident submission;04 passed all original comparisons/seven negatives; v5 additionally validates exact expected lifetime clocks/food and wrong-scheduler/output-overwrite rejection; bind actual imported learner closure rather than unrelated orchestration files",
++          "question":"Does uninterrupted4-update training equal2+2 across independent processes and chunk8→1?",
++          "prediction":"all generating rollouts, policy/candidate bytes, every model/Adam tensor and three native hidden components match at every shared optimizer boundary",
++          "conditions":{"environments":16,"steps_per_update":37,"epochs":2,"minibatch":97,"reference_updates":4,"split_updates":[2,2],"resume_chunks":[1,8],"development_seeds":[2651109101,2651109102]},
++          "unit":"one development learner trajectory with deterministic replay controls; not independent animals",
++          "validity":"exact runtime/configuration/source inputs; both owners restored; accepted clock has no warmup; zero device failures; all expected updates; uncommitted/corrupt/mixed checkpoints reject",
++          "stopping":"four complete bounded180s runs; nine bounded60s rejection controls; stop on first positive invalidity; preserve all failures",
++          "estimated_raw_output_limit_bytes":750*1024*1024, "ecological_environment_qualified":False})
+     if args.command == "life-admission":
+         plan.update({"purpose":"v13 native life-state persistence admission across fresh processes",
+           "prediction":"future streams and complete native/retinal/resource state match uninterrupted execution bit for bit at chunk1/8; ten invalid restores reject without publishing mutation",
+@@ -1012,6 +1173,8 @@ def main() -> int:
+                            str(output/"native-evidence"),str(args.legacy_metallib)],root,180)
+             if result.get("status")!="passed" or result.get("stale_shader_rejected") is not True:
+                 raise RuntimeError("Native retinal contract admission failed")
++        elif args.command == "life-training-probe":
++            result=life_training_probe(root,output,args)
+         elif args.command == "life-swift-probe":
+             result=life_swift_probe(root,output,args)
+         elif args.command == "life-admission":
+diff --git a/python/metalrobo/mlx_policy_worker.py b/python/metalrobo/mlx_policy_worker.py
+index cd9f1ea1..77a71529 100644
+--- a/python/metalrobo/mlx_policy_worker.py
++++ b/python/metalrobo/mlx_policy_worker.py
+@@ -10,6 +10,8 @@ from __future__ import annotations
+ 
+ import argparse
+ import gc
++import hashlib
++import importlib.metadata
+ import json
+ import math
+ import os
+@@ -52,6 +54,35 @@ _MOTION_RESUMABLE_SCHEDULE_FIELDS = frozenset(
+ )
+ 
+ 
++def _execution_identity() -> str:
++    """Bind learner code/runtime once for exact life-training publication."""
++    def digest(path: Path) -> str:
++        with path.open("rb") as source:
++            return hashlib.file_digest(source, "sha256").hexdigest()
++
++    modules = Path(__file__).resolve().parent
++    # Bind the actual imported learner dependency closure. Unrelated NumiLab
++    # orchestration edits must not invalidate an otherwise exact saved learner.
++    sources = {Path(__file__).resolve()}
++    for module in tuple(sys.modules.values()):
++        filename = getattr(module, "__file__", None)
++        if filename:
++            path = Path(filename).resolve()
++            if path.is_relative_to(modules) and path.suffix == ".py":
++                sources.add(path)
++    records = {"python": sys.version, "executable": digest(Path(sys.executable)),
++               "byteorder": sys.byteorder, "sources": {
++                   str(p.relative_to(modules)): digest(p)
++                   for p in sorted(sources)}, "packages": {}}
++    for name in ("mlx", "mlx-metal", "numpy"):
++        distribution = importlib.metadata.distribution(name)
++        records["packages"][name] = {"version": distribution.version, "files": {
++            str(p): digest(Path(distribution.locate_file(p)))
++            for p in sorted(distribution.files or (), key=str)
++            if str(p).endswith((".so", ".dylib", ".metallib", ".py"))}}
++    return hashlib.sha256(json.dumps(records, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
++
++
+ def _emit(stream: TextIO, value: dict[str, Any]) -> None:
+     stream.write(
+         json.dumps(
+@@ -1114,6 +1145,7 @@ def _serve(arguments: argparse.Namespace) -> int:
+         sys.stdout,
+         {
+             "status": "ready",
++            "execution_identity": _execution_identity() if arguments.exact_life_checkpoints else "",
+             "policy_id": learner.policy_id,
+             "policy_revision": learner.revision,
+             "actor_observation_count":
+@@ -1637,6 +1669,7 @@ def main() -> int:
+         help="retain optimizer state while Swift schedules rollout updates",
+     )
+     serve.add_argument("--policy-pack", type=Path, required=True)
++    serve.add_argument("--exact-life-checkpoints", action="store_true")
+     serve.add_argument(
+         "--output-policy-pack",
+         type=Path,

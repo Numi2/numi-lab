@@ -1,0 +1,7 @@
+{
+  "status": "passed",
+  "version": "04",
+  "both_future_boundaries_bit_identical": true,
+  "original_checkpoint_unchanged": true,
+  "dependency_scope": "matching retained binaries and package sources; installed interpreter and MLX/NumPy distributions identity-checked by worker"
+}

@@ -51,6 +51,9 @@ private struct Options {
     var outputLearnerState: String?
     var checkpointDirectory: String?
     var checkpointInterval = 0
+    var checkpointLife = false
+    var resumeTrainingCheckpoint: String?
+    var trainingResume: MetalRoboTrainingLifeCheckpoint?
     var motionPack: String?
     var motionActivation = "impact"
     var interactionPack: String?
@@ -311,6 +314,11 @@ private struct Options {
                 index += 1
             case "--output-learner-state":
                 outputLearnerState = try value()
+                index += 1
+            case "--checkpoint-life":
+                checkpointLife = true
+            case "--resume-training-checkpoint":
+                resumeTrainingCheckpoint = try value()
                 index += 1
             case "--checkpoint-directory":
                 checkpointDirectory = try value()
@@ -648,6 +656,16 @@ private struct Options {
                 "difficulty-band overrides require an ordered non-negative minimum and maximum."
             )
         }
+        if let path = resumeTrainingCheckpoint {
+            guard policyPack == nil, learnerState == nil, initializePolicyID == nil else {
+                throw MetalRoboTaskRolloutError.invalidShape(
+                    "--resume-training-checkpoint supplies its exact policy and learner inputs; initialization overrides are incompatible.")
+            }
+            let directory = URL(fileURLWithPath: path, isDirectory: true)
+            trainingResume = try MetalRoboTrainingLifeCheckpoint.read(from: directory)
+            policyPack = directory.appendingPathComponent("policy.policypack").path
+            learnerState = directory.appendingPathComponent("learner.safetensors").path
+        }
         guard environments > 0,
               steps > 0,
               updates > 0,
@@ -679,6 +697,18 @@ private struct Options {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "Checkpoint snapshots require both --checkpoint-directory and a positive --checkpoint-interval."
             )
+        }
+        if checkpointLife || trainingResume != nil {
+            guard birdFlowAmericanCrowJourney, birdFlowJourneyVariant == .v13RetinalFeeding,
+                  !birdFlowJourneyTeacher, basePolicyPack == nil, motionPack == nil,
+                  retentionPolicyPack == nil, inspectionScene == nil,
+                  !overrideResumedLearningRate, !overrideResumedExploration,
+                  (!checkpointLife || checkpointDirectory != nil),
+                  outputLearnerState != nil
+            else {
+                throw MetalRoboTaskRolloutError.invalidShape(
+                    "Life training requires native v13 without teacher, base/retention/motion/inspection or resume overrides, an explicit --output-learner-state, and checkpoint directory/interval when saving.")
+            }
         }
         if let offset = actorObservationExtensionOffset,
            offset < 0
@@ -866,6 +896,15 @@ private struct Options {
                 "--visual-observation-config cannot be combined with legacy visual preset options."
             )
         }
+        if let path = resumeTrainingCheckpoint {
+            let saved = URL(fileURLWithPath: path, isDirectory: true).resolvingSymlinksInPath().path + "/"
+            for output in [updatedPolicyPack, deploymentPolicyPack!, incumbentPolicyPack!, rolloutPack, outputLearnerState!, checkpointDirectory].compactMap({ $0 }) {
+                let target = URL(fileURLWithPath: output).resolvingSymlinksInPath().path
+                guard !target.hasPrefix(saved) && target != String(saved.dropLast()) else {
+                    throw MetalRoboTaskRolloutError.invalidShape("Training outputs cannot overwrite the input life checkpoint.")
+                }
+            }
+        }
         if g1VisualPackDirectory != nil &&
             ((unitreeG1Task != .ballDisturbanceRecovery &&
               unitreeG1Task != .ballDodge) ||
@@ -1003,6 +1042,20 @@ private struct Options {
                 "--srdf requires --urdf."
             )
         }
+    }
+
+    func lifeTrainingContract() -> [String: String] {
+        let executionOnly: Set<String> = [
+            "updates", "chunk", "verbose", "metallib", "nativeLibrary", "mlxPython", "pythonRoot",
+            "policyPack", "updatedPolicyPack", "deploymentPolicyPack", "incumbentPolicyPack", "rolloutPack",
+            "learnerState", "outputLearnerState", "checkpointDirectory", "checkpointInterval", "checkpointLife",
+            "resumeTrainingCheckpoint", "trainingResume", "learnerTimeoutSeconds", "visualObservationConfig",
+            "initializePolicyID", "zeroActorOutput", "initializeActorPolicyPack", "initializeActorFreshCritic",
+        ]
+        return Dictionary(uniqueKeysWithValues: Mirror(reflecting: self).children.compactMap { child in
+            guard let name = child.label, !executionOnly.contains(name) else { return nil }
+            return (name, String(reflecting: child.value))
+        })
     }
 
     private static func integer(
@@ -1224,6 +1277,7 @@ private final class MLXLearnerWorker {
     private(set) var policyPackPath: String
     private(set) var deploymentPolicyPackPath: String
     private(set) var stateRestored: Bool
+    private(set) var executionIdentity: String
     private var closed = false
 
     init(
@@ -1308,6 +1362,9 @@ private final class MLXLearnerWorker {
             "--action-fingerprint",
             String(layout.actionFingerprint),
         ]
+        if options.checkpointLife || options.trainingResume != nil {
+            arguments.append("--exact-life-checkpoints")
+        }
         if options.fixedLearningRate {
             arguments.append("--fixed-learning-rate")
         }
@@ -1437,6 +1494,7 @@ private final class MLXLearnerWorker {
         policyPackPath = ""
         deploymentPolicyPackPath = ""
         stateRestored = false
+        executionIdentity = ""
         let ready = try response()
         guard ready["status"] as? String == "ready",
               let revisionValue =
@@ -1469,6 +1527,7 @@ private final class MLXLearnerWorker {
         deploymentPolicyPackPath =
             readyDeploymentPolicyPack
         stateRestored = restored
+        executionIdentity = ready["execution_identity"] as? String ?? ""
     }
 
     deinit {
@@ -1879,6 +1938,13 @@ private enum TaskTrainMain {
     ) throws {
             let (context, worldSource) =
                 try makeContext(options: options)
+            let lifeContract = options.lifeTrainingContract()
+            if let saved = options.trainingResume {
+                try MetalRoboTrainingLifeCheckpoint.require(saved.trainingContract == lifeContract,
+                    "Training checkpoint scheduler/learner configuration mismatch.")
+                let (_, overflow) = saved.completedUpdates.addingReportingOverflow(UInt64(options.updates))
+                try MetalRoboTrainingLifeCheckpoint.require(!overflow, "Training lifetime update count overflow.")
+            }
             try initializePolicyIfRequested(
                 options: options,
                 layout: context.layout,
@@ -1910,6 +1976,14 @@ private enum TaskTrainMain {
                 options: options,
                 layout: context.layout
             )
+            if let saved = options.trainingResume {
+                try MetalRoboTrainingLifeCheckpoint.require(learner.stateRestored && learner.revision == saved.policyRevision &&
+                    learner.executionIdentity == saved.learnerExecutionIdentity,
+                    "Training checkpoint learner revision, optimizer or execution identity mismatch.")
+                let regenerated = try MetalRoboTrainingLifeCheckpoint.hash(URL(fileURLWithPath: learner.policyPackPath))
+                try MetalRoboTrainingLifeCheckpoint.require(regenerated.sha256 == saved.files["policy.policypack"]!.sha256,
+                    "Restored learner did not reproduce the exact saved next policy.")
+            }
             try context.loadPolicy(
                 at: URL(fileURLWithPath: learner.policyPackPath)
             )
@@ -1944,43 +2018,49 @@ private enum TaskTrainMain {
             }
             let initialRevision = learner.revision
             var installedRevision = learner.revision
-            let warmup = try context.advanceWithPolicy(
-                controlStepCount: 1,
-                policyRevision: installedRevision
-            )
-            try publishInspectionFrame(
-                from: context,
-                to: inspector,
-                loadPolicy: { url in
-                    try context.loadPolicy(
-                        at: url
-                    )
-                    installedRevision = context.installedPolicyRevision
-                    return installedRevision
-                }
-            )
-            let warmupTransitions = try context.transitions(
-                controlStepCount: 1
-            )
-            guard warmup.failedEnvironmentSteps == 0,
-                  warmupTransitions.allSatisfy({
-                      $0.policyRevision == installedRevision
-                  })
-            else {
-                throw MetalRoboTaskRolloutError.native(
-                    "Initial PolicyPack failed native warmup: failed "
-                    + "environments=\(warmup.failedEnvironmentSteps), "
-                    + "installed revision=\(installedRevision), observed "
-                    + "revisions=\(warmupTransitions.map(\.policyRevision))."
+            if !options.checkpointLife && options.trainingResume == nil {
+                let warmup = try context.advanceWithPolicy(
+                    controlStepCount: 1,
+                    policyRevision: installedRevision
                 )
+                try publishInspectionFrame(
+                    from: context,
+                    to: inspector,
+                    loadPolicy: { url in
+                        try context.loadPolicy(
+                            at: url
+                        )
+                        installedRevision = context.installedPolicyRevision
+                        return installedRevision
+                    }
+                )
+                let warmupTransitions = try context.transitions(
+                    controlStepCount: 1
+                )
+                guard warmup.failedEnvironmentSteps == 0,
+                      warmupTransitions.allSatisfy({
+                          $0.policyRevision == installedRevision
+                      })
+                else {
+                    throw MetalRoboTaskRolloutError.native(
+                        "Initial PolicyPack failed native warmup: failed "
+                        + "environments=\(warmup.failedEnvironmentSteps), "
+                        + "installed revision=\(installedRevision), observed "
+                        + "revisions=\(warmupTransitions.map(\.policyRevision))."
+                    )
+                }
             }
-            let warmupEvidenceTelemetry =
-                try context.evidenceTelemetry()
-            try context.reset(seed: options.seed)
+            if let path = options.resumeTrainingCheckpoint {
+                try context.restoreLifeCheckpoint(from: URL(fileURLWithPath: path).appendingPathComponent("life.native"))
+            } else {
+                try context.reset(seed: options.seed)
+            }
 
             let baseline = context.layout
             let clock = ContinuousClock()
             let start = clock.now
+            var lifeCheckpointSeconds = 0.0
+            var lifeCheckpointCount = 0
             var totalResets = 0
             var maximumContacts = 0
             var maximumManifolds = 0
@@ -1991,8 +2071,7 @@ private enum TaskTrainMain {
             // Preserve all update outcomes so finite-lifetime budgets can be
             // checked across a run instead of inspecting only its last batch.
             var learningUpdateHistory: [[String: Any]] = []
-            var lastEvidenceTelemetry =
-                warmupEvidenceTelemetry
+            var lastEvidenceTelemetry: MetalRoboTaskEvidenceTelemetry?
             let samplesPerUpdate =
                 options.environments * options.steps
             let (trainingSamples, trainingSamplesOverflow) =
@@ -2152,8 +2231,8 @@ private enum TaskTrainMain {
                     id: "swift_native_training_rollout",
                     to: URL(fileURLWithPath: rolloutPack)
                 )
-                lastEvidenceTelemetry =
-                    try context.evidenceTelemetry()
+                let evidenceTelemetry = try context.evidenceTelemetry()
+                lastEvidenceTelemetry = evidenceTelemetry
                 lastLearning = try learner.update(
                     rolloutPack: rolloutPack
                 )
@@ -2186,6 +2265,19 @@ private enum TaskTrainMain {
                         format: "%08llu",
                         learner.revision
                     )
+                    if options.checkpointLife {
+                        let checkpointClock = ContinuousClock()
+                        let checkpointStart = checkpointClock.now
+                        _ = try MetalRoboTrainingLifeCheckpoint.save(
+                            to: directory.appendingPathComponent("revision-\(revision).trainingcheckpoint", isDirectory: true),
+                            context: context, policyRevision: learner.revision,
+                            completedUpdates: (options.trainingResume?.completedUpdates ?? 0) + UInt64(updateIndex + 1),
+                            trainingContract: lifeContract, learnerExecutionIdentity: learner.executionIdentity,
+                            policy: updatedPolicyPack, learner: learnerState, rollout: rolloutPack, candidate: deploymentPolicyPack)
+                        let elapsed = checkpointStart.duration(to: checkpointClock.now)
+                        lifeCheckpointSeconds += Double(elapsed.components.seconds) + Double(elapsed.components.attoseconds) / 1e18
+                        lifeCheckpointCount += 1
+                    } else {
                     let artifacts = [
                         (
                             updatedPolicyPack,
@@ -2211,6 +2303,7 @@ private enum TaskTrainMain {
                             at: URL(fileURLWithPath: source),
                             to: destination
                         )
+                    }
                     }
                 }
                     if options.verbose {
@@ -2255,9 +2348,9 @@ private enum TaskTrainMain {
                             (
                                 "update=\(updateIndex + 1) " +
                                 "revision=\(installedRevision) " +
-                                "contact_rate=\(lastEvidenceTelemetry.lastContactRate) " +
-                                "miss_rate=\(lastEvidenceTelemetry.lastCleanMissRate) " +
-                                "balance_rate=\(lastEvidenceTelemetry.lastBalanceFailureRate) " +
+                                "contact_rate=\(evidenceTelemetry.lastContactRate) " +
+                                "miss_rate=\(evidenceTelemetry.lastCleanMissRate) " +
+                                "balance_rate=\(evidenceTelemetry.lastBalanceFailureRate) " +
                                 "reward=\(reward) " +
                                 "tracking=\(tracking) " +
                                 "height=\(height) " +
@@ -2278,6 +2371,9 @@ private enum TaskTrainMain {
             let seconds =
                 Double(elapsed.components.seconds) +
                 Double(elapsed.components.attoseconds) / 1e18
+            guard let lastEvidenceTelemetry else {
+                throw MetalRoboTaskRolloutError.native("Training published no accepted physical evidence.")
+            }
             let finalLayout = context.layout
             let output: [String: Any] = [
                 "operation": "swift_native_policy_training",
@@ -2383,6 +2479,12 @@ private enum TaskTrainMain {
                 ],
                 "learner_state_restored":
                     learner.stateRestored,
+                "life_state_restored": options.trainingResume != nil,
+                "life_checkpoint_enabled": options.checkpointLife,
+                "life_checkpoint_count": lifeCheckpointCount,
+                "life_checkpoint_seconds": lifeCheckpointSeconds,
+                "lifetime_updates_completed": (options.trainingResume?.completedUpdates ?? 0) + UInt64(options.updates),
+                "learner_execution_identity": learner.executionIdentity,
                 "resumed_learning_rate_overridden":
                     options.overrideResumedLearningRate &&
                     learner.stateRestored,

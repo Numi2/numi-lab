@@ -1269,6 +1269,7 @@ if(METALROBO_HAS_SWIFT)
     add_executable(
         metalrobo_task_train
         apps/task_train.swift
+        apps/TrainingLifeCheckpoint.swift
         apps/RunInspector.swift
         bindings/swift/MetalRoboTaskRollout.swift
     )

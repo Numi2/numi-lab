@@ -1,0 +1,474 @@
+{
+  "04": [
+    {
+      "kind": "train",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/bin/metalrobo_task_train",
+      "bytes": 959352,
+      "sha256": "cd9708ccd47e82441f0d23638d65b23263ccb20d04dd70a6e167122feeb414a6"
+    },
+    {
+      "kind": "rollout",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/bin/metalrobo_task_rollout",
+      "bytes": 976776,
+      "sha256": "50612758ea835b0999c7e8f2fb400e68be34a574a5b93a65e8ccd6784df90a29"
+    },
+    {
+      "kind": "library",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/lib/libmetalrobo.dylib",
+      "bytes": 5541632,
+      "sha256": "bab0fdf882d3f62f71a4aabf2d1db3ffea9c306059304a7eacd6d55187ffd267"
+    },
+    {
+      "kind": "metallib",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/shaders/MetalRobo.metallib",
+      "bytes": 4173395,
+      "sha256": "bee9e69522b26d6b5d99660e665cf8ed856acd9038ea9f2bdcb87b96dd99385a"
+    },
+    {
+      "kind": "retinal_metallib",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/shaders/RetinalStream.metallib",
+      "bytes": 16151,
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/__init__.py",
+      "bytes": 4075,
+      "sha256": "8907413cf15904beec23959cf30b949c235531e54f275b9acac90f3096038202"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/__main__.py",
+      "bytes": 48,
+      "sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/ardy_g1.py",
+      "bytes": 15389,
+      "sha256": "fe9ee45d3c7efac4827599d5ec7257c3f68b10da83f964624058d2f0e6df8dc0"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/ardy_interaction_convert.py",
+      "bytes": 28154,
+      "sha256": "ed5b97c6fcd5b3c30bb485187e3f6c2ab94b584cdd97d519f0cb1ac7382e3e55"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/ardy_onnx.py",
+      "bytes": 48916,
+      "sha256": "840953a7e43e4008304007ea2b9d0c9b77000c64cdb73e4b65a5a10c98f90226"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/ardy_text_encoder.py",
+      "bytes": 6919,
+      "sha256": "00ce0e692b9f4e35104d1a684515dfbc51b320b308ce43a6dc1b93f501c784b7"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/cli.py",
+      "bytes": 6607,
+      "sha256": "3348476d8deff8c2712f0afb9892b0f031f5c288eb7724ebd6e6b779e108a14e"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/crow_environment.py",
+      "bytes": 85870,
+      "sha256": "96b78d0ef6c343fef737818f59479c06429cf8eee5fb2bb428e34c657a37f4ab"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/crow_world_model.py",
+      "bytes": 54327,
+      "sha256": "76e0234af3ee680efbc96eedd4385ccf94f19857ffd6dd19cfc8a7b235a836ad"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/episode.py",
+      "bytes": 1638,
+      "sha256": "3444a7efd0d2158fcbd74ff49a6e20de0ceb87af6d89a95599447cc0fc2a9fec"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/foundation_policy.py",
+      "bytes": 69056,
+      "sha256": "2d04dad03bed9cf06a9a53a78423410f1aa4d91387fe8d76d762a6a72816170a"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/g1_legs_policy.py",
+      "bytes": 3152,
+      "sha256": "ed7085a8634435de00adfff323cfd200085d3829ce24b3119de7e48a6d1c54ef"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/g1_motion_retarget.py",
+      "bytes": 29666,
+      "sha256": "0452e4db4e0e2fb0e54210321f8a1c6ae0dc45b7533b39a319f02891cd9af93f"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/g1_policy.py",
+      "bytes": 39733,
+      "sha256": "dc7dc761d05cabe1ae5709b0a35564d07a50dae6418225143d5be9a6f82637c3"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/hybrid_renderer.py",
+      "bytes": 22666,
+      "sha256": "1a9911d36c70d786558cae59030d521d72510a7656c8b64e48de68781750113e"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/lerobot_dataset.py",
+      "bytes": 59342,
+      "sha256": "71d01825993401d5ab83f25c4e3f52aa77295a3d92e3b192395ada7e13cb8973"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/mlx_policy_learning.py",
+      "bytes": 142884,
+      "sha256": "276decb67615b54d06497c4a5729f82142fb515fc4d7574ac6d1a67f8db9ed28"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/mlx_policy_worker.py",
+      "bytes": 67991,
+      "sha256": "1957567dafa944b221a315274446942c3bb0d08d0ab34872a7135af15e75beb8"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/mlx_r2s2r.py",
+      "bytes": 29364,
+      "sha256": "bfda444fd276c3663f827c3df677569acfdfa58a0101c9393267cb6d26409781"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/mlx_tactile_policy.py",
+      "bytes": 45904,
+      "sha256": "562c99c52a830443c4376e69f6c651a6c5d8404e24d02290bc85a6db39fbd87d"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/motion_pack_convert.py",
+      "bytes": 6295,
+      "sha256": "7d57f7c1c044de671195c853e01d48bd22099364c731e486f373bc2eabecae88"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/native.py",
+      "bytes": 29108,
+      "sha256": "37f3d64bfb521493e3e2eb6382a6a3059068d58fce51fa5bb110e83535615e2e"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/policy_selection.py",
+      "bytes": 65898,
+      "sha256": "556711783591e661873383f31d5038c4090b40c024d7ad9d5cbf49be042e0a8c"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/r2s2r.py",
+      "bytes": 73305,
+      "sha256": "097607e386845deac162f53c500a3b606e63d363a70e3218dac3aa9ed50b2b65"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/solver_catalog.py",
+      "bytes": 34012,
+      "sha256": "a47e79b3328fc3e4969eb203ee71c2d31a1fcf639a23823c6e7298bde9252e97"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/solver_residual_teacher.py",
+      "bytes": 21065,
+      "sha256": "04a892aedb4bd72a533e2e63701342b98e3984f11dc07930536799aa4d5e3d9f"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/tactile.py",
+      "bytes": 29228,
+      "sha256": "171f65315f854549082f152180c94c011780c50692029caeeb2b7773c8d805a1"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/tactile_cli.py",
+      "bytes": 19417,
+      "sha256": "e970f22bd57458c4afae50a67b5a45df5f8fa0c707222d683a374ee5558f2fd5"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/tactile_latent.py",
+      "bytes": 50809,
+      "sha256": "19f74532b8cec002d5c4be813e7d06c95c56f405367f7850e379ff425965b14e"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/tactile_stream.py",
+      "bytes": 21675,
+      "sha256": "059de4cb94adf32d20576108e91bef7aae4071efcf9f4985d4040a2833b59030"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/tactile_translator.py",
+      "bytes": 16721,
+      "sha256": "1d563d3946afdd4bc8540a015c97fdcd175542cb8fc88178d0164800cf5452c6"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/unitree_mjlab_policy.py",
+      "bytes": 6530,
+      "sha256": "4d7eeb6f37d54bdb8d37265d63587cde90f8772aa32a6a2dd8738a7a1518de66"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/visual.py",
+      "bytes": 97276,
+      "sha256": "6eafa56c6fd8ea87f694ae0da69e2ae53ae3f7199b7f6f8c084caffad10c326f"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-04/python/metalrobo/worlds.py",
+      "bytes": 20672,
+      "sha256": "3d3c85a14387b5bf261497d93a068b39fa36f0b28a8b3c230a383db435166343"
+    }
+  ],
+  "05": [
+    {
+      "kind": "train",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/bin/metalrobo_task_train",
+      "bytes": 959352,
+      "sha256": "cd9708ccd47e82441f0d23638d65b23263ccb20d04dd70a6e167122feeb414a6"
+    },
+    {
+      "kind": "rollout",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/bin/metalrobo_task_rollout",
+      "bytes": 976776,
+      "sha256": "50612758ea835b0999c7e8f2fb400e68be34a574a5b93a65e8ccd6784df90a29"
+    },
+    {
+      "kind": "library",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/lib/libmetalrobo.dylib",
+      "bytes": 5541632,
+      "sha256": "bab0fdf882d3f62f71a4aabf2d1db3ffea9c306059304a7eacd6d55187ffd267"
+    },
+    {
+      "kind": "metallib",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/shaders/MetalRobo.metallib",
+      "bytes": 4173395,
+      "sha256": "bee9e69522b26d6b5d99660e665cf8ed856acd9038ea9f2bdcb87b96dd99385a"
+    },
+    {
+      "kind": "retinal_metallib",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/shaders/RetinalStream.metallib",
+      "bytes": 16151,
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/__init__.py",
+      "bytes": 4075,
+      "sha256": "8907413cf15904beec23959cf30b949c235531e54f275b9acac90f3096038202"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/__main__.py",
+      "bytes": 48,
+      "sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/ardy_g1.py",
+      "bytes": 15389,
+      "sha256": "fe9ee45d3c7efac4827599d5ec7257c3f68b10da83f964624058d2f0e6df8dc0"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/ardy_interaction_convert.py",
+      "bytes": 28154,
+      "sha256": "ed5b97c6fcd5b3c30bb485187e3f6c2ab94b584cdd97d519f0cb1ac7382e3e55"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/ardy_onnx.py",
+      "bytes": 48916,
+      "sha256": "840953a7e43e4008304007ea2b9d0c9b77000c64cdb73e4b65a5a10c98f90226"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/ardy_text_encoder.py",
+      "bytes": 6919,
+      "sha256": "00ce0e692b9f4e35104d1a684515dfbc51b320b308ce43a6dc1b93f501c784b7"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/cli.py",
+      "bytes": 6607,
+      "sha256": "3348476d8deff8c2712f0afb9892b0f031f5c288eb7724ebd6e6b779e108a14e"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/crow_environment.py",
+      "bytes": 87078,
+      "sha256": "dfe04c48c0eeda8bb83fd1add6543918e131ea6c43f0d9073d32e49e570d210a"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/crow_world_model.py",
+      "bytes": 54327,
+      "sha256": "76e0234af3ee680efbc96eedd4385ccf94f19857ffd6dd19cfc8a7b235a836ad"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/episode.py",
+      "bytes": 1638,
+      "sha256": "3444a7efd0d2158fcbd74ff49a6e20de0ceb87af6d89a95599447cc0fc2a9fec"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/foundation_policy.py",
+      "bytes": 69056,
+      "sha256": "2d04dad03bed9cf06a9a53a78423410f1aa4d91387fe8d76d762a6a72816170a"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/g1_legs_policy.py",
+      "bytes": 3152,
+      "sha256": "ed7085a8634435de00adfff323cfd200085d3829ce24b3119de7e48a6d1c54ef"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/g1_motion_retarget.py",
+      "bytes": 29666,
+      "sha256": "0452e4db4e0e2fb0e54210321f8a1c6ae0dc45b7533b39a319f02891cd9af93f"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/g1_policy.py",
+      "bytes": 39733,
+      "sha256": "dc7dc761d05cabe1ae5709b0a35564d07a50dae6418225143d5be9a6f82637c3"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/hybrid_renderer.py",
+      "bytes": 22666,
+      "sha256": "1a9911d36c70d786558cae59030d521d72510a7656c8b64e48de68781750113e"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/lerobot_dataset.py",
+      "bytes": 59342,
+      "sha256": "71d01825993401d5ab83f25c4e3f52aa77295a3d92e3b192395ada7e13cb8973"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/mlx_policy_learning.py",
+      "bytes": 142884,
+      "sha256": "276decb67615b54d06497c4a5729f82142fb515fc4d7574ac6d1a67f8db9ed28"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/mlx_policy_worker.py",
+      "bytes": 68444,
+      "sha256": "677b2810c5373bf41946954056a97bbddb0683778e9949e2c003550befcc4ce4"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/mlx_r2s2r.py",
+      "bytes": 29364,
+      "sha256": "bfda444fd276c3663f827c3df677569acfdfa58a0101c9393267cb6d26409781"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/mlx_tactile_policy.py",
+      "bytes": 45904,
+      "sha256": "562c99c52a830443c4376e69f6c651a6c5d8404e24d02290bc85a6db39fbd87d"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/motion_pack_convert.py",
+      "bytes": 6295,
+      "sha256": "7d57f7c1c044de671195c853e01d48bd22099364c731e486f373bc2eabecae88"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/native.py",
+      "bytes": 29108,
+      "sha256": "37f3d64bfb521493e3e2eb6382a6a3059068d58fce51fa5bb110e83535615e2e"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/policy_selection.py",
+      "bytes": 65898,
+      "sha256": "556711783591e661873383f31d5038c4090b40c024d7ad9d5cbf49be042e0a8c"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/r2s2r.py",
+      "bytes": 73305,
+      "sha256": "097607e386845deac162f53c500a3b606e63d363a70e3218dac3aa9ed50b2b65"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/solver_catalog.py",
+      "bytes": 34012,
+      "sha256": "a47e79b3328fc3e4969eb203ee71c2d31a1fcf639a23823c6e7298bde9252e97"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/solver_residual_teacher.py",
+      "bytes": 21065,
+      "sha256": "04a892aedb4bd72a533e2e63701342b98e3984f11dc07930536799aa4d5e3d9f"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/tactile.py",
+      "bytes": 29228,
+      "sha256": "171f65315f854549082f152180c94c011780c50692029caeeb2b7773c8d805a1"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/tactile_cli.py",
+      "bytes": 19417,
+      "sha256": "e970f22bd57458c4afae50a67b5a45df5f8fa0c707222d683a374ee5558f2fd5"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/tactile_latent.py",
+      "bytes": 50809,
+      "sha256": "19f74532b8cec002d5c4be813e7d06c95c56f405367f7850e379ff425965b14e"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/tactile_stream.py",
+      "bytes": 21675,
+      "sha256": "059de4cb94adf32d20576108e91bef7aae4071efcf9f4985d4040a2833b59030"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/tactile_translator.py",
+      "bytes": 16721,
+      "sha256": "1d563d3946afdd4bc8540a015c97fdcd175542cb8fc88178d0164800cf5452c6"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/unitree_mjlab_policy.py",
+      "bytes": 6530,
+      "sha256": "4d7eeb6f37d54bdb8d37265d63587cde90f8772aa32a6a2dd8738a7a1518de66"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/visual.py",
+      "bytes": 97276,
+      "sha256": "6eafa56c6fd8ea87f694ae0da69e2ae53ae3f7199b7f6f8c084caffad10c326f"
+    },
+    {
+      "kind": "python-source",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-training-probe-05/python/metalrobo/worlds.py",
+      "bytes": 20672,
+      "sha256": "3d3c85a14387b5bf261497d93a068b39fa36f0b28a8b3c230a383db435166343"
+    }
+  ]
+}

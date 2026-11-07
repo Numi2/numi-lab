@@ -566,7 +566,7 @@ measuring full batch performance are pending. The current fixed supported
 feeding body is not ecological foraging, object manipulation or visual
 learning. The full lifelong environment still requires robust locomotion,
 solid-food pickup/carry/cache/swallow, water/energy physiology, trainable
-persistent memory, combined learner/life resume, trainable memory restore, social agents
+persistent memory, trainable memory restore, social agents
 and information ablations, and untouched held-out qualification.
 
 
@@ -692,7 +692,8 @@ step. Save uses exclusive creation, file fsync and directory fsync; existing or
 partial files are retained and cannot be silently overwritten. Checksums detect
 corruption; they do not authenticate a deliberately rewritten checkpoint.
 Optimizer and trainable weights remain separately retained dependencies.
-There is no combined optimizer/life training-resume transaction yet.
+At this native-only checkpoint, combined optimizer/life training resume was still
+absent. The next section admits that separate Swift/MLX integration.
 
 Reproduce with new output directories:
 
@@ -738,8 +739,101 @@ original/archive hashes. Receipts identify retained matching binaries for the
 two successful native versions; earlier failed versions retain source deltas
 and runtime hashes, not every historical executable.
 
-Trainable persistent memory, combined learner/life resume, robust locomotion,
+Trainable persistent memory, robust locomotion,
 physical pickup/carry/cache/swallow, water/energy physiology, social individuals
 and controlled information ablations remain open. This closes native state
 persistence for the present development fixture; the lifelong ecological
 research environment remains unqualified.
+
+
+## Coupled life and optimizer training checkpoints
+
+`metalrobo_task_train --checkpoint-life` now publishes a
+`revision-XXXXXXXX.trainingcheckpoint` directory at each configured checkpoint
+interval. It requires `--checkpoint-directory`, `--checkpoint-interval` and an
+explicit `--output-learner-state`. Each immutable directory contains the next
+stochastic policy, MLX model/Adam state, native life, generating rollout and an
+unselected deterministic candidate. Existing legacy snapshot copies are skipped
+in this mode. The normal non-life training path retains its original warmup and
+learner-only resume behavior.
+
+`--resume-training-checkpoint DIRECTORY` supplies the exact saved policy and
+learner inputs; omit `--policy-pack`, `--learner-state` and initialization flags.
+Use new output paths, the same v13/task/learner configuration, seeds and rollout
+horizon. Update count, submission chunk, checkpoint cadence and output locations
+may change. Changed training options reject before learner startup. Native world,
+sensors and shaders retain their own exact identity admission. Current life
+training excludes teacher/base-policy authority, retention or motion priors,
+interactive inspector mutation and resumed learning-rate/exploration overrides.
+This is a coherent supported path for the present v13 model, not arbitrary task
+migration.
+
+The manifest binds all payload lengths/SHA-256, policy revision, cumulative
+optimizer updates, accepted per-lane ticks, scheduler configuration, the exact
+Swift executable, imported learner Python dependency closure, interpreter and
+MLX/NumPy source/native distribution files. It uses the learner's existing
+revision-derived minibatch shuffle; no random-stream reset or optimizer
+approximation is introduced. The restored learner must report restored Adam
+state, the saved revision and execution identity, and regenerate the exact saved
+next PolicyPack before native life restoration. Input-bundle output overwrite
+is rejected. Irrelevant experiment-driver edits are excluded from the learner
+source closure.
+
+Publication creates a new exclusive directory, copies and fsyncs immutable
+payloads, saves the native life, hashes every payload, then writes and fsyncs the
+manifest. A SHA-bound `COMMITTED` marker is atomically hard-linked only after
+payloads and directory entries are synced. Restore rejects missing/invalid
+markers and payloads before starting the learner. Partial directories are
+retained. Save/restore still require exclusive scheduler ownership. This checks
+an interrupted-directory model and the fsync publication protocol; forced
+process-crash and physical power-loss fault injection have not been qualified.
+The worker and optimizer remain outside the per-control-step simulation path.
+
+Reproduce with a passed current-runtime retinal API trial and fresh directories:
+
+```
+tools/numi crow-env retinal-api-admission --output NEW_API_TRIAL
+tools/numi crow-env life-training-probe \
+  --retinal-calibration NEW_API_TRIAL --output NEW_TRAINING_LIFE_TRIAL
+```
+
+Trial05 uses16 lanes,37 ticks/update, two epochs and minibatches of97, so the
+592-sample batch has an uneven final minibatch. One four-update reference is
+compared with one fresh two-update run and two independent two-update continuations
+at chunks1/8. At every shared optimizer boundary, complete rollout and policy/
+candidate bytes, every model and Adam tensor/metadata, and all three hidden
+native components are bit-identical. Lifetime ticks are exactly37,74,111,148;
+policy revisions progress1→3→5 across interruption. Lane12 has consumed20,000
+micrograms before interruption and retains it afterward, with conserved stock,
+crop and accepted clock. This is one learner trajectory plus replay controls,
+not independent learned animals or evidence of trainable memory/visual skill.
+
+Nine declared-cause negative controls reject uncommitted bundles, invalid marker,
+missing/corrupt optimizer, changed configuration, mixed policy/optimizer,
+wrong learner runtime, wrong scheduler executable and input-overwrite attempts.
+Attempts01/02 rejected planning and boolean-parser errors before context creation;
+03 exposed a legacy telemetry read before completed resident submission. The
+fix publishes telemetry only after accepted updates rather than adding a hidden
+warmup. Trial04 passes the original seven controls. Trial05 adds explicit clock/
+food validation, the extra rejection controls, and imported learner-closure
+identity instead of binding unrelated orchestration code. All failures and both
+successful runtime/source versions are retained.
+
+The final bounded probe measures16.1–16.5 ms average checkpoint publication per
+stage, including native readback, file copies, hashing and fsync. This is a small
+warm-cache engineering measurement, not a sustained I/O or throughput distribution.
+The12-check native regression and26 Python checks pass. Ordinary learner-only
+training reproduces the previous initial/resumed optimizer checkpoint hashes
+exactly; frozen legacy feeding ordinary/residual fingerprints remain
+2255877855914022940 and3082487550463979285. Both retained successful training
+runtimes independently resume their original saved life and reproduce both future
+optimizer boundaries. Exact-runtime recovery still requires matching installed
+interpreter/MLX/NumPy dependencies; native and Python-source receipts are retained.
+
+Evidence is versioned in `artifacts/crow-rl-training-life-20261107`, including
+failed attempts, all update-boundary bundles, generating rollouts, raw regression
+outputs, source deltas, lossless payload hashes and retained-runtime replay
+receipts. No qualification seeds are used or candidate promoted. Persistent
+trainable memory, solid-food manipulation, physiology, social agents, robust
+locomotion, production scaling and untouched ecological qualification remain
+required for the full lifelong environment.

@@ -442,6 +442,155 @@ def life_swift_probe(root: Path, output: Path, args: argparse.Namespace) -> dict
             "records":records,"ecological_environment_qualified":False}
 
 
+
+def life_training_probe(root: Path, output: Path, args: argparse.Namespace) -> dict:
+    """Own complete native/Swift/MLX runs; never a per-step simulator."""
+    import struct
+    import mlx.core as mx
+    import numpy as np
+
+    paths = runtime(root)
+    base = [str(paths["train"]), "--metallib", str(paths["metallib"]),
+            "--native-library", str(paths["library"]), "--mlx-python", sys.executable,
+            "--python-root", str(root/"python"), "--birdflow-american-crow-journey",
+            "--birdflow-journey-variant", "v13-retinal-feeding", "--envs", "16", "--steps", "37",
+            "--minimum-difficulty-band", "0", "--maximum-difficulty-band", "0",
+            "--seed", "2651109101", "--learner-seed", "2651109102", "--update-epochs", "2",
+            "--minibatch-size", "97", "--learning-rate", "0.0001", "--initial-log-standard-deviation", "1",
+            "--visual-observation-config", str(args.retinal_visual),
+            "--checkpoint-life", "--checkpoint-interval", "1"]
+
+    def command(name: str, updates: int, chunk: int, resume: Path | None = None) -> list[str]:
+        target = output/name
+        target.mkdir()
+        result = base + ["--updates", str(updates), "--chunk", str(chunk),
+                 "--updated-policy-pack", str(target/"updated.policypack"),
+                 "--deployment-policy-pack", str(target/"candidate.policypack"),
+                 "--incumbent-policy-pack", str(target/"incumbent.policypack"),
+                 "--rollout-pack", str(target/"rollout.rolloutpack"),
+                 "--output-learner-state", str(target/"learner.safetensors"),
+                 "--checkpoint-directory", str(target/"checkpoints")]
+        if resume:
+            result += ["--resume-training-checkpoint", str(resume)]
+        else:
+            result += ["--policy-pack", str(target/"initial.policypack"),
+                       "--initialize-policy", "crow-life-training-boundary", "--zero-actor-output"]
+        return result
+
+    def snapshot(name: str, revision: int) -> Path:
+        return output/name/"checkpoints"/f"revision-{revision:08}.trainingcheckpoint"
+
+    records = []
+    source = snapshot("split", 3)
+    for name, updates, chunk, resume in [("reference",4,8,None), ("split",2,8,None),
+                                        ("resume-chunk1",2,1,source), ("resume-chunk8",2,8,source)]:
+        value = execute(output, name, command(name,updates,chunk,resume), root, 180)
+        if value.get("failed_environment_steps") != 0 or value.get("training_samples") != 16*37*updates:
+            raise RuntimeError("Life-training probe failed native/sample admission")
+        if value.get("life_state_restored") is not bool(resume) or (resume and not value.get("learner_state_restored")):
+            raise RuntimeError("Life-training probe did not restore both owners")
+        if value.get("final_policy_revision") != (5 if name != "split" else 3):
+            raise RuntimeError("Life-training probe lost optimizer updates")
+        records.append({"stage": name, "training_samples": value["training_samples"],
+                        "initial_revision": value["initial_policy_revision"], "final_revision": value["final_policy_revision"],
+                        "lifetime_updates_completed": value["lifetime_updates_completed"],
+                        "loop_steps_per_second": value["end_to_end_environment_steps_per_second"],
+                        "life_state_restored": value["life_state_restored"],
+                        "checkpoint_count":value["life_checkpoint_count"], "checkpoint_seconds":value["life_checkpoint_seconds"],
+                        "learner_execution_identity": value["learner_execution_identity"]})
+
+    def native_components(path: Path) -> list[bytes]:
+        data = path.read_bytes()
+        if data[:8] != b"NUMILF01": raise RuntimeError("Missing native life envelope")
+        offset = 64 + 5*8  # accepted host counters + telemetry; not simulation state
+        result = []
+        for _ in range(3):
+            count, = struct.unpack_from("<Q", data, offset); offset += 8
+            result.append(data[offset:offset+count]); offset += count
+        if offset != len(data): raise RuntimeError("Native life envelope length mismatch")
+        return result
+
+    comparisons = []
+    for name, revisions in [("split", (2,3)), ("resume-chunk1", (4,5)), ("resume-chunk8", (4,5))]:
+        for revision in revisions:
+            a, b = snapshot("reference",revision), snapshot(name,revision)
+            am, bm = [json.loads((p/"manifest.json").read_text()) for p in (a,b)]
+            expected_ticks = [37*(revision-1)]*16
+            if am["acceptedControlTicks"] != expected_ticks or bm["acceptedControlTicks"] != expected_ticks or am["completedUpdates"] != revision-1 or bm["completedUpdates"] != revision-1:
+                raise RuntimeError("Life-training clock/update continuity differs")
+            for filename in ("policy.policypack", "candidate.policypack", "rollout.rolloutpack"):
+                if sha(a/filename) != sha(b/filename):
+                    raise RuntimeError("Life-training future differs: "+name+"/"+str(revision)+"/"+filename)
+            aa, ma = mx.load(a/"learner.safetensors", return_metadata=True)
+            ab, mb = mx.load(b/"learner.safetensors", return_metadata=True)
+            if ma != mb or set(aa) != set(ab): raise RuntimeError("Learner checkpoint metadata/topology differs")
+            for key in aa:
+                x, y = np.asarray(aa[key]), np.asarray(ab[key])
+                if x.dtype != y.dtype or x.shape != y.shape or x.tobytes() != y.tobytes():
+                    raise RuntimeError("Learner model/Adam state differs: "+key)
+            if native_components(a/"life.native") != native_components(b/"life.native"):
+                raise RuntimeError("Life-training hidden native/sensory/resource future differs")
+            comparisons.append({"stage":name,"revision":revision,"all_payloads_and_optimizer_tensors_bit_identical":True,
+                                "accepted_ticks":am["acceptedControlTicks"]})
+
+    # Every rejection uses new output paths. Payload hashes are validated before
+    # learner startup; scheduler/worker identities before native life admission.
+    negatives = []
+    rejection_causes = {
+        "uncommitted":"COMMITTED", "bad-marker":"commit marker does not bind its manifest",
+        "missing-optimizer":"learner.safetensors", "corrupt-optimizer":"payload mismatch: learner.safetensors",
+        "wrong-configuration":"scheduler/learner configuration mismatch",
+        "mixed-policy":"Restored learner did not reproduce the exact saved next policy",
+        "wrong-worker":"learner revision, optimizer or execution identity mismatch",
+        "wrong-scheduler":"scheduler executable identity mismatch",
+        "output-overwrite":"Training outputs cannot overwrite the input life checkpoint",
+    }
+    for name in ("uncommitted", "bad-marker", "missing-optimizer", "corrupt-optimizer", "wrong-configuration", "mixed-policy", "wrong-worker", "wrong-scheduler", "output-overwrite"):
+        bad = output/("negative-input-"+name)
+        shutil.copytree(source, bad)
+        if name == "uncommitted": (bad/"COMMITTED").unlink()
+        elif name == "bad-marker": (bad/"COMMITTED").write_text("0"*64)
+        elif name == "missing-optimizer": (bad/"learner.safetensors").unlink()
+        elif name == "corrupt-optimizer":
+            path=bad/"learner.safetensors"; data=bytearray(path.read_bytes());data[-1]^=1;path.write_bytes(data)
+        elif name in ("mixed-policy","wrong-worker","wrong-scheduler"):
+            manifest=json.loads((bad/"manifest.json").read_text())
+            if name=="mixed-policy":
+                path=bad/"policy.policypack";shutil.copyfile(snapshot("split",2)/"policy.policypack",path)
+                manifest["files"]["policy.policypack"]={"bytes":path.stat().st_size,"sha256":sha(path)}
+            elif name=="wrong-worker": manifest["learnerExecutionIdentity"]="0"*64
+            else: manifest["schedulerExecutionIdentity"]="0"*64
+            write_path=bad/"manifest.json";write_path.write_text(json.dumps(manifest,sort_keys=True))
+            (bad/"COMMITTED").write_text(sha(write_path))
+        args_negative=command("negative-"+name,1,8,bad)
+        if name=="wrong-configuration":
+            args_negative[args_negative.index("--learning-rate")+1]="0.0002"
+        elif name=="output-overwrite":
+            args_negative[args_negative.index("--output-learner-state")+1]=str(bad/"learner.safetensors")
+        try: execute(output,"negative-"+name,args_negative,root,60)
+        except RuntimeError:
+            receipt=json.loads((output/("negative-"+name+".receipt.json")).read_text())
+            if receipt.get("timed_out") or receipt.get("exit_code") in (None,0): raise
+            failure = (output/("negative-"+name+".stderr")).read_text()
+            if rejection_causes[name] not in failure:
+                raise RuntimeError("Negative rejected for unexpected cause: "+name+": "+failure)
+            if list((output/("negative-"+name)).rglob("life.native")):
+                raise RuntimeError("Rejected training restore published native state")
+            negatives.append(name)
+        else: raise RuntimeError("Invalid training checkpoint was accepted: "+name)
+
+    food = {}
+    for label, checkpoint, ticks in [("split",source,74), ("final",snapshot("reference",5),148)]:
+        component = native_components(checkpoint/"life.native")[2]
+        states = [struct.unpack_from("<20I",component,64+80*i) for i in range(16)]
+        if not all(s[0]+s[9]==45000 and s[8]==s[9] and s[12]+(s[13]<<32)==ticks for s in states):
+            raise RuntimeError("Training lifetime resource conservation/clock failed")
+        food[label] = {"consumed_micrograms_by_environment":[s[9] for s in states], "accepted_ticks":ticks}
+    return {"status":"passed", "claim":"coupled native life and MLX model/Adam exact-runtime training resume",
+            "records":records, "boundary_comparisons":comparisons,"rejected_controls":negatives,"finite_resource_checks":food,
+            "restore_advances_physics":False,"trainable_memory_qualified":False,"ecological_environment_qualified":False}
+
+
 def motor_probe(root: Path, output: Path, args: argparse.Namespace, profile: dict) -> dict:
     policy = args.policy.resolve(strict=True)
     seed = profile["development_seeds"][0]
@@ -809,6 +958,9 @@ def main() -> int:
     commands.add_parser("head-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("eye-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("retina-admission").add_argument("--output", type=Path, required=True)
+    life_training=commands.add_parser("life-training-probe")
+    life_training.add_argument("--output",type=Path,required=True)
+    life_training.add_argument("--retinal-calibration",type=Path,required=True)
     life_swift=commands.add_parser("life-swift-probe")
     life_swift.add_argument("--output",type=Path,required=True)
     life_swift.add_argument("--calibration",type=Path,required=True)
@@ -871,7 +1023,7 @@ def main() -> int:
     if args.command=="retinal-contract-admission":
         args.legacy_metallib=(args.legacy_metallib or root/"artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib").resolve(strict=True)
         checked["inputs"]["retinal_legacy_shader"]={"path":str(args.legacy_metallib),"sha256":sha(args.legacy_metallib)}
-    if args.command == "learn-probe" and args.variant == "v13-retinal-feeding":
+    if args.command == "life-training-probe" or (args.command == "learn-probe" and args.variant == "v13-retinal-feeding"):
         if not args.retinal_calibration:
             raise ValueError("Retinal learning requires passed current-runtime API admission")
         calibration = args.retinal_calibration.resolve(strict=True)
@@ -973,6 +1125,15 @@ def main() -> int:
           "control":"two new processes resume the same admitted native state and exact policy/configuration",
           "unit":"two lanes, one authored stochastic controller; exact replay engineering test, no learning claim",
           "stopping":"two32-step continuations,120s timeout each; abort invalidity, no automatic retry"})
+    if args.command == "life-training-probe":
+        plan.update({"purpose":"coupled v13 lifelong training checkpoint admission", "model_revision":"v5:01 planning and02 CLI errors rejected before creation;03 rejected premature telemetry before a completed resident submission;04 passed all original comparisons/seven negatives; v5 additionally validates exact expected lifetime clocks/food and wrong-scheduler/output-overwrite rejection; bind actual imported learner closure rather than unrelated orchestration files",
+          "question":"Does uninterrupted4-update training equal2+2 across independent processes and chunk8→1?",
+          "prediction":"all generating rollouts, policy/candidate bytes, every model/Adam tensor and three native hidden components match at every shared optimizer boundary",
+          "conditions":{"environments":16,"steps_per_update":37,"epochs":2,"minibatch":97,"reference_updates":4,"split_updates":[2,2],"resume_chunks":[1,8],"development_seeds":[2651109101,2651109102]},
+          "unit":"one development learner trajectory with deterministic replay controls; not independent animals",
+          "validity":"exact runtime/configuration/source inputs; both owners restored; accepted clock has no warmup; zero device failures; all expected updates; uncommitted/corrupt/mixed checkpoints reject",
+          "stopping":"four complete bounded180s runs; nine bounded60s rejection controls; stop on first positive invalidity; preserve all failures",
+          "estimated_raw_output_limit_bytes":750*1024*1024, "ecological_environment_qualified":False})
     if args.command == "life-admission":
         plan.update({"purpose":"v13 native life-state persistence admission across fresh processes",
           "prediction":"future streams and complete native/retinal/resource state match uninterrupted execution bit for bit at chunk1/8; ten invalid restores reject without publishing mutation",
@@ -1012,6 +1173,8 @@ def main() -> int:
                            str(output/"native-evidence"),str(args.legacy_metallib)],root,180)
             if result.get("status")!="passed" or result.get("stale_shader_rejected") is not True:
                 raise RuntimeError("Native retinal contract admission failed")
+        elif args.command == "life-training-probe":
+            result=life_training_probe(root,output,args)
         elif args.command == "life-swift-probe":
             result=life_swift_probe(root,output,args)
         elif args.command == "life-admission":

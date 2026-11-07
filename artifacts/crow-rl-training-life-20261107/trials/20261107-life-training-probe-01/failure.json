@@ -1,0 +1,5 @@
+{
+  "status": "rejected-before-training",
+  "error": "AttributeError: Namespace has no environments field in shared learner-only prospective budget; plan not published; no native training launched",
+  "exact_source_retained_in": "../20261107-training-life-api-admission-01/source-inputs"
+}

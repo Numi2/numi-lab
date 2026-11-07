@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/n/Developer/numi-crow-rl-20261107/python/metalrobo/crow_environment.py", line 1214, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/n/Developer/numi-crow-rl-20261107/python/metalrobo/crow_environment.py", line 1153, in main
+    result=life_training_probe(root,output,args)
+  File "/Users/n/Developer/numi-crow-rl-20261107/python/metalrobo/crow_environment.py", line 487, in life_training_probe
+    value = execute(output, name, command(name,updates,chunk,resume), root, 180)
+  File "/Users/n/Developer/numi-crow-rl-20261107/python/metalrobo/crow_environment.py", line 156, in execute
+    raise RuntimeError(f"{name} failed; retained receipt and stderr in {output}")
+RuntimeError: reference failed; retained receipt and stderr in /Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-life-training-probe-02

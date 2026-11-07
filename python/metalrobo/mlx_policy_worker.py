@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import argparse
 import gc
+import hashlib
+import importlib.metadata
 import json
 import math
 import os
@@ -50,6 +52,35 @@ _PPO_EXPLICIT_EXPLORATION_OVERRIDE_FIELDS = frozenset(
 _MOTION_RESUMABLE_SCHEDULE_FIELDS = frozenset(
     {"minibatch_size", "seed"}
 )
+
+
+def _execution_identity() -> str:
+    """Bind learner code/runtime once for exact life-training publication."""
+    def digest(path: Path) -> str:
+        with path.open("rb") as source:
+            return hashlib.file_digest(source, "sha256").hexdigest()
+
+    modules = Path(__file__).resolve().parent
+    # Bind the actual imported learner dependency closure. Unrelated NumiLab
+    # orchestration edits must not invalidate an otherwise exact saved learner.
+    sources = {Path(__file__).resolve()}
+    for module in tuple(sys.modules.values()):
+        filename = getattr(module, "__file__", None)
+        if filename:
+            path = Path(filename).resolve()
+            if path.is_relative_to(modules) and path.suffix == ".py":
+                sources.add(path)
+    records = {"python": sys.version, "executable": digest(Path(sys.executable)),
+               "byteorder": sys.byteorder, "sources": {
+                   str(p.relative_to(modules)): digest(p)
+                   for p in sorted(sources)}, "packages": {}}
+    for name in ("mlx", "mlx-metal", "numpy"):
+        distribution = importlib.metadata.distribution(name)
+        records["packages"][name] = {"version": distribution.version, "files": {
+            str(p): digest(Path(distribution.locate_file(p)))
+            for p in sorted(distribution.files or (), key=str)
+            if str(p).endswith((".so", ".dylib", ".metallib", ".py"))}}
+    return hashlib.sha256(json.dumps(records, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
 def _emit(stream: TextIO, value: dict[str, Any]) -> None:
@@ -1114,6 +1145,7 @@ def _serve(arguments: argparse.Namespace) -> int:
         sys.stdout,
         {
             "status": "ready",
+            "execution_identity": _execution_identity() if arguments.exact_life_checkpoints else "",
             "policy_id": learner.policy_id,
             "policy_revision": learner.revision,
             "actor_observation_count":
@@ -1637,6 +1669,7 @@ def main() -> int:
         help="retain optimizer state while Swift schedules rollout updates",
     )
     serve.add_argument("--policy-pack", type=Path, required=True)
+    serve.add_argument("--exact-life-checkpoints", action="store_true")
     serve.add_argument(
         "--output-policy-pack",
         type=Path,

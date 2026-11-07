@@ -1,0 +1,206 @@
+{
+  "status": "passed",
+  "claim": "coupled native life and MLX model/Adam exact-runtime training resume",
+  "records": [
+    {
+      "stage": "reference",
+      "training_samples": 2368,
+      "initial_revision": 1,
+      "final_revision": 5,
+      "lifetime_updates_completed": 4,
+      "loop_steps_per_second": 1009.2284054227123,
+      "life_state_restored": false,
+      "checkpoint_count": 4,
+      "checkpoint_seconds": 0.081666583,
+      "learner_execution_identity": "021aaec7882db7727fbd054dc126885d34a102214ee6e364ab0b854c42d9b34c"
+    },
+    {
+      "stage": "split",
+      "training_samples": 1184,
+      "initial_revision": 1,
+      "final_revision": 3,
+      "lifetime_updates_completed": 2,
+      "loop_steps_per_second": 1147.1429197402097,
+      "life_state_restored": false,
+      "checkpoint_count": 2,
+      "checkpoint_seconds": 0.032773166,
+      "learner_execution_identity": "021aaec7882db7727fbd054dc126885d34a102214ee6e364ab0b854c42d9b34c"
+    },
+    {
+      "stage": "resume-chunk1",
+      "training_samples": 1184,
+      "initial_revision": 3,
+      "final_revision": 5,
+      "lifetime_updates_completed": 4,
+      "loop_steps_per_second": 1129.1326682420217,
+      "life_state_restored": true,
+      "checkpoint_count": 2,
+      "checkpoint_seconds": 0.032380584000000004,
+      "learner_execution_identity": "021aaec7882db7727fbd054dc126885d34a102214ee6e364ab0b854c42d9b34c"
+    },
+    {
+      "stage": "resume-chunk8",
+      "training_samples": 1184,
+      "initial_revision": 3,
+      "final_revision": 5,
+      "lifetime_updates_completed": 4,
+      "loop_steps_per_second": 1168.1502938379458,
+      "life_state_restored": true,
+      "checkpoint_count": 2,
+      "checkpoint_seconds": 0.032081792,
+      "learner_execution_identity": "021aaec7882db7727fbd054dc126885d34a102214ee6e364ab0b854c42d9b34c"
+    }
+  ],
+  "boundary_comparisons": [
+    {
+      "stage": "split",
+      "revision": 2,
+      "all_payloads_and_optimizer_tensors_bit_identical": true,
+      "accepted_ticks": [
+        37,
+        37,
+        37,
+        37,
+        37,
+        37,
+        37,
+        37,
+        37,
+        37,
+        37,
+        37,
+        37,
+        37,
+        37,
+        37
+      ]
+    },
+    {
+      "stage": "split",
+      "revision": 3,
+      "all_payloads_and_optimizer_tensors_bit_identical": true,
+      "accepted_ticks": [
+        74,
+        74,
+        74,
+        74,
+        74,
+        74,
+        74,
+        74,
+        74,
+        74,
+        74,
+        74,
+        74,
+        74,
+        74,
+        74
+      ]
+    },
+    {
+      "stage": "resume-chunk1",
+      "revision": 4,
+      "all_payloads_and_optimizer_tensors_bit_identical": true,
+      "accepted_ticks": [
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111
+      ]
+    },
+    {
+      "stage": "resume-chunk1",
+      "revision": 5,
+      "all_payloads_and_optimizer_tensors_bit_identical": true,
+      "accepted_ticks": [
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148
+      ]
+    },
+    {
+      "stage": "resume-chunk8",
+      "revision": 4,
+      "all_payloads_and_optimizer_tensors_bit_identical": true,
+      "accepted_ticks": [
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111,
+        111
+      ]
+    },
+    {
+      "stage": "resume-chunk8",
+      "revision": 5,
+      "all_payloads_and_optimizer_tensors_bit_identical": true,
+      "accepted_ticks": [
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148,
+        148
+      ]
+    }
+  ],
+  "rejected_controls": [
+    "uncommitted",
+    "bad-marker",
+    "missing-optimizer",
+    "corrupt-optimizer",
+    "wrong-configuration",
+    "mixed-policy",
+    "wrong-worker"
+  ],
+  "restore_advances_physics": false,
+  "trainable_memory_qualified": false,
+  "ecological_environment_qualified": false
+}

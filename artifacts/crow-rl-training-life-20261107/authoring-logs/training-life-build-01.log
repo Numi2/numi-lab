@@ -1,0 +1,9 @@
+[0/1] Re-running CMake...
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/n/Developer/numi-crow-rl-20261107/build
+[1/5] Building CXX object CMakeFiles/metalrobo.dir/src/c_api.cpp.o
+[2/5] Linking CXX shared library lib/libmetalrobo.dylib
+[3/5] Building Swift Module 'metalrobo_task_train' with 4 sources
+[4/5] Linking Swift executable bin/metalrobo_task_train
