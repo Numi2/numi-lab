@@ -1,0 +1,46 @@
+--- /Users/numi/numi-g1-policy-origin-20261107/src/metal/LocomotionTask.metal	2026-11-07 14:18:00
++++ /Users/numi/numi-g1-delay-fix-owner-20261107/src/metal/LocomotionTask.metal	2026-11-07 14:45:56
+@@ -598,0 +599 @@
++    device const float* actionHistoryBase,
+@@ -656,5 +657,8 @@
+-    case MR_TASK_OBSERVE_DELAYED_ACTION:
+-        value = previousAction[
+-            operation.source.y -
+-            operation.source.z * program.counts0.x
+-        ];
++    case MR_TASK_OBSERVE_DELAYED_ACTION: {
++        const uint rawLastSlot = program.layout.w - 2u;
++        value = operation.source.z <= rawLastSlot
++            ? actionHistoryBase[
++                (rawLastSlot - operation.source.z) * program.counts0.x +
++                operation.source.y
++            ]
++            : 0.0f;
+@@ -661,0 +666 @@
++    }
+@@ -1083,0 +1089 @@
++    device const float* actionHistoryBase,
+@@ -1123,0 +1130 @@
++            actionHistoryBase,
+@@ -1172,0 +1180 @@
++            actionHistoryBase,
+@@ -1223,0 +1232 @@
++    device const float* actionHistoryBase,
+@@ -1250,0 +1260 @@
++            actionHistoryBase,
+@@ -1288,0 +1299 @@
++    device const float* actionHistoryBase,
+@@ -1316,0 +1328 @@
++            actionHistoryBase,
+@@ -2942,0 +2955 @@
++            actionHistory + delayBase,
+@@ -2988,0 +3002 @@
++            actionHistory + delayBase,
+@@ -3239,0 +3254 @@
++        actionHistory + delayBase,
+@@ -6371,0 +6387 @@
++            actionHistory + delayBase,
+@@ -6437,0 +6454 @@
++            actionHistory + delayBase,
+@@ -6497,0 +6515 @@
++            actionHistory + delayBase,
