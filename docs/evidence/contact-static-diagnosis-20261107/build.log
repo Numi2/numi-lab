@@ -1,0 +1,6 @@
+[ 50%] Building CXX object CMakeFiles/numi_contact_static_affine.dir/fem_plane_static_affine.cpp.o
+[100%] Linking CXX executable numi_contact_static_affine
+[100%] Built target numi_contact_static_affine
+[ 50%] Building CXX object CMakeFiles/numi_contact_static_nonuniform.dir/fem_plane_static_nonuniform.cpp.o
+[100%] Linking CXX executable numi_contact_static_nonuniform
+[100%] Built target numi_contact_static_nonuniform

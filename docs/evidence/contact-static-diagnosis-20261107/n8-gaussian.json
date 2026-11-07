@@ -1,0 +1,1 @@
+{"n":8,"quadrature":"gaussian","gap_m":9.9036790869957758e-05,"stretch":0.99754816045650208,"pressure_Pa":22.123830342864501,"expected_force_N":0.0088495321371458002,"top_reaction_N":0.0088495321371451011,"force_error":7.8997798977893621e-14,"contact_force_error":1.1173385959652447e-14,"scaled_local_residual":4.4336999132394132e-13,"moment_error":1.0013177946528799e-14}

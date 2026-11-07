@@ -1,0 +1,4 @@
+237148e7185166fc81d68e8b2a3b72fbbca3a25fe02a04055cabc3b39c111822  tests/contact/fem_plane_static_affine.cpp
+5b849e79f93272f2bbc5043b62607d967c698d6bbf9c21da8f66edd61134297a  tests/contact/fem_plane_surface_diagnostic.cpp
+436d658c6a9bb8d0fc4cf480ed015f1ac187df698051ab39e3658a2bd5f1b2a7  /Users/numi/numi-lab-contact-area-evidence-20261107/fem-plane-static-affine
+70d323f7661f35cc827372581632f74d1fbdd8b938650d8ea56a4821e87fd491  /Users/numi/numi-lab-contact-static-evidence-20261107/plan.txt

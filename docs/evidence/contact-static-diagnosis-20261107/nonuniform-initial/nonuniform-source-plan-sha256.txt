@@ -1,0 +1,4 @@
+439c9412c611ae49454a652619ed9a9a30923e92fa7d54b475bdd70cd577c3c0  tests/contact/fem_plane_static_nonuniform.cpp
+5b849e79f93272f2bbc5043b62607d967c698d6bbf9c21da8f66edd61134297a  tests/contact/fem_plane_surface_diagnostic.cpp
+449dceb85118d2640d9384168f2a940fabe15397b1b814af05336d9dc1b8ecde  /Users/numi/numi-lab-contact-area-evidence-20261107/fem-plane-static-nonuniform
+f83cea854c0214e12df069ae5f027794010cfbf7ebdfdc8fcdaf865bbc1b59f1  /Users/numi/numi-lab-contact-static-evidence-20261107/nonuniform-plan.txt

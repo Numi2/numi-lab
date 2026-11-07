@@ -1,0 +1,4 @@
+The unmodified captured memory-pressure output is retained in
+memory-pressure-before.raw.gz; its uncompressed SHA-256 is in
+memory-pressure-raw-sha256.txt. The adjacent text copy has trailing spaces
+removed for clean source diffs and contains the same displayed measurements.

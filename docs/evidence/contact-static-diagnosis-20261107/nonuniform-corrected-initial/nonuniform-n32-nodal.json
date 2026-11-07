@@ -1,0 +1,1 @@
+{"n":32,"quadrature":"nodal","gap_min_m":9.2999999999999997e-05,"gap_max_m":9.9000000000000008e-05,"stretch":0.99769999999999992,"reference_contact_force_N":0.17607746371026675,"max_local_residual_relative":0.022079551534955114,"integrated_force_relative":0.00029443940722180447,"contact_moment_relative":0.00025572779612922285,"external_4_vs_8_relative":3.7831861087640874e-15}

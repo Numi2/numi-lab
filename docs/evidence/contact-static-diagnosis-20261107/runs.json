@@ -1,0 +1,62 @@
+[
+  {
+    "n": 2,
+    "rule": "nodal",
+    "exit": 0,
+    "wall_seconds": 0.0018175829900428653
+  },
+  {
+    "n": 2,
+    "rule": "gaussian",
+    "exit": 0,
+    "wall_seconds": 0.0015552080003544688
+  },
+  {
+    "n": 4,
+    "rule": "nodal",
+    "exit": 0,
+    "wall_seconds": 0.0014572080108337104
+  },
+  {
+    "n": 4,
+    "rule": "gaussian",
+    "exit": 0,
+    "wall_seconds": 0.0014195410185493529
+  },
+  {
+    "n": 8,
+    "rule": "nodal",
+    "exit": 0,
+    "wall_seconds": 0.0015124579658731818
+  },
+  {
+    "n": 8,
+    "rule": "gaussian",
+    "exit": 0,
+    "wall_seconds": 0.00148958305362612
+  },
+  {
+    "n": 16,
+    "rule": "nodal",
+    "exit": 0,
+    "wall_seconds": 0.002051917021162808
+  },
+  {
+    "n": 16,
+    "rule": "gaussian",
+    "exit": 0,
+    "wall_seconds": 0.002096916956361383
+  },
+  {
+    "n": 32,
+    "rule": "nodal",
+    "exit": 0,
+    "wall_seconds": 0.007540083024650812
+  },
+  {
+    "n": 32,
+    "rule": "gaussian",
+    "exit": 0,
+    "wall_seconds": 0.00721266696928069
+  }
+]

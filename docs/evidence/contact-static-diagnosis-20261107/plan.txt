@@ -1,0 +1,12 @@
+Independent affine static control after exploratory n=2 pilots: the same 20mm
+cube, Neo-Hookean mu=2000, lambda=5000 and fixed plane pressure law k=1e16,
+d=1e-4, nodal or positive triangle quadrature; zero gravity, x/y constrained,
+top z prescribed at 0.02005m. Bottom face is frictionless and contacts the
+plane. These intentionally different boundary conditions admit an exact
+homogeneous uniaxial solution. Solve the scalar FP64 stress-pressure balance
+independently, then reconstruct every FEM nodal residual and top/contact force
+and moment. Test n=2,4,8,16,32 and both rules; unchanged 0.25% force gate plus
+a strict 1e-7 normalized local residual and moment check. Equal uniform-gap
+pressure must be independent of mesh and quadrature up to roundoff.
+Pass only supports this affine static control, not general spatial convergence
+or the original gravity-driven transient. Retain every failure and cost.

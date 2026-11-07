@@ -1,0 +1,1 @@
+{"n":2,"quadrature":"nodal","gap_m":9.9036790869957758e-05,"stretch":0.99754816045650208,"pressure_Pa":22.123830342864501,"expected_force_N":0.0088495321371458002,"top_reaction_N":0.0088495321371455937,"force_error":2.3326893494713005e-14,"contact_force_error":0,"scaled_local_residual":1.024520298676836e-13,"moment_error":5.8818196290187204e-17}

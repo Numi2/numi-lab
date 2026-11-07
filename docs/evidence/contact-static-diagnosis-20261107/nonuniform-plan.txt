@@ -1,0 +1,17 @@
+Manufactured nonuniform affine static control, no pilot after writing source.
+Same 20mm cube, Neo-Hookean elasticity and fixed plane pressure law, no
+gravity, x/y constrained and top z prescribed with affine surface slope.
+The gap varies linearly from 93um to 99um, entirely within the activation
+band. An independent, prescribed external normal traction balances the
+analytic constant uniaxial Pzz minus nonlinear contact pressure. It is a
+manufactured load, not a passive physical tissue experiment.
+Reference nodal traction and contact total/first moment use independent
+Duffy/Gauss-Legendre integration, tested at 4x4 and 8x8 points per triangle.
+Hold physical law and geometry fixed for n=2,4,8,16,32; compare vertex-lumped
+and positive three-point triangular contact quadrature against the same
+8x8 reference. Predicted: contact transfer force and local residual errors
+decrease with mesh refinement; three-point errors are smaller at each mesh.
+Reference 4x4 vs 8x8 max nodal traction difference <=1e-7 of mean nodal
+contact load before interpretation. Retain unchanged 0.25% relative
+integrated contact-force gate; report local residual and moment separately.
+This cannot by itself qualify dynamic or general static force evolution.

@@ -1,0 +1,11 @@
+Test project /Users/numi/numi-lab-contact-reference-build-20261107
+    Start 4: numi.contact.static_affine_nodal
+1/3 Test #4: numi.contact.static_affine_nodal ..........   Passed    0.25 sec
+    Start 5: numi.contact.static_affine_gaussian
+2/3 Test #5: numi.contact.static_affine_gaussian .......   Passed    0.06 sec
+    Start 6: numi.contact.static_nonuniform_transfer
+3/3 Test #6: numi.contact.static_nonuniform_transfer ...   Passed    0.36 sec
+
+100% tests passed out of 3
+
+Total Test time (real) =   0.67 sec

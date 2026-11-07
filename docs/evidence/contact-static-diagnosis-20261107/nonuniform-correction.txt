@@ -1,0 +1,7 @@
+Initial nonuniform manufactured runs incorrectly omitted the signed lateral
+side traction P_zx n_x from the affine shear field. The Gaussian rule's
+normalized local residual stayed approximately 0.001363 across all meshes.
+Those initial results and source hashes remain in nonuniform-initial/.
+The corrected code independently assembles the known constant side traction
+on reference boundary triangles. It must be rerun and independently checked;
+no result from the initial incomplete boundary-value problem is promoted.
