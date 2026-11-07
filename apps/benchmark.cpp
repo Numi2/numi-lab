@@ -24,10 +24,15 @@ struct Options {
 };
 
 std::uint64_t parseUnsigned(const char* value, const char* option) {
+    const std::string_view digits(value);
+    if (digits.empty() || !std::all_of(digits.begin(), digits.end(),
+            [](const char c) { return c >= '0' && c <= '9'; })) {
+        throw std::runtime_error(std::string("Invalid value for ") + option);
+    }
     char* end = nullptr;
     errno = 0;
     const unsigned long long parsed = std::strtoull(value, &end, 10);
-    if (value == end || *value == '-' || errno == ERANGE || (end != nullptr && *end != '\0')) {
+    if (value == end || errno == ERANGE || (end != nullptr && *end != '\0')) {
         throw std::runtime_error(std::string("Invalid value for ") + option);
     }
     return parsed;
@@ -227,10 +232,11 @@ int main(int argc, char** argv) {
                   << "accepted_physics_steps=" << accepted * profile.physics_substeps << ' '
                   << "completed=" << (complete && transitionPhysicsErrors == 0 && nonfiniteRewards == 0 ? 1 : 0);
         if (complete) {
-            std::cout << " mean_reward=" << rewardAccumulator / double(requested)
-                      << " terminal_events=" << terminalCount
+            std::cout << " terminal_events=" << terminalCount
                       << " transition_physics_errors=" << transitionPhysicsErrors
                       << " nonfinite_rewards=" << nonfiniteRewards;
+            if (transitionPhysicsErrors == 0u && nonfiniteRewards == 0u)
+                std::cout << " mean_reward=" << rewardAccumulator / double(requested);
         }
         std::cout << '\n';
         if (!complete || transitionPhysicsErrors != 0u || nonfiniteRewards != 0u) {

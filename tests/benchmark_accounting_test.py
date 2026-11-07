@@ -72,10 +72,12 @@ with tempfile.TemporaryDirectory() as temp:
         if mode in ("incomplete","error"):
             assert f["accepted_env_steps"]=="2" and f["failed_env_steps"]=="1"
             assert f["first_gpu_status"]=="11" and "mean_reward" not in f
+        if mode in ("physics_error","nan"):
+            assert "mean_reward" not in f
         if mode=="error":
             assert "injected runtime failure" in trial.stderr and "clobbered" not in trial.stderr
     assert run("warmup").returncode!=0
     assert run("warmup_error").returncode!=0
-    for opt in [("--envs","-1"),("--steps","4294967296"),("--seed","18446744073709551616")]:
+    for opt in [("--envs","-1"),("--steps","4294967296"),("--seed","18446744073709551616"),("--seed"," -1")]:
         assert run("",*opt).returncode!=0,opt
 print("benchmark accounting rejects incomplete, failed, invalid and oversized workloads")
