@@ -438,3 +438,14 @@ The run exited 139 before any witness or physical step. The retained crash
 again records `objc_retain` in the qualification wrapper; the marker by itself
 does not determine whether shader compilation failed or later initialization
 threw. Logs, manifest, crash and isolated instrumentation diff are retained.
+
+An independent Objective-C Metal compiler diagnostic used the pinned
+`NeuralTissue.metal` SHA-256
+`4c41a09d661a3a5edb5827b3751d614b4f0bdfd9bbb12c2740bfdec6c991e061`,
+Metal 4, fast math and `NB_PROTECTIVE_HASH_UNROLL=0`, matching the diagnostic
+configuration. Its executable SHA-256 was
+`de99fc5539bc52e81435aa7038aab5b4842d426c15f7e5f07cc406e9ac82ec93`.
+At 23:08:54 UTC it returned exit 0, compiled 24 functions and reported no error.
+This independent compile does not prove that the Swift initializer passed its
+library call, nor does it identify its underlying failure. Source, build, output
+and post-run hashes are retained. This is not physical-step evidence.

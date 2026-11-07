@@ -1,0 +1,3 @@
+de99fc5539bc52e81435aa7038aab5b4842d426c15f7e5f07cc406e9ac82ec93  /Users/numi/numi-v5-admission-artifacts-20261107/brain-shader-compile-diagnostic
+5665ddb02a2c703ba8e2072876294e3f4c22b44aae46c21d10229d899743caf0  /Users/numi/numi-v5-admission-artifacts-20261107/brain-shader-compile-diagnostic.m
+4c41a09d661a3a5edb5827b3751d614b4f0bdfd9bbb12c2740bfdec6c991e061  /Users/numi/numi-v5-admission-artifacts-20261107/tissue-stage-diagnostic/NumiBrain_NumiBrainMetal.bundle/Contents/Resources/Shaders/NeuralTissue.metal
