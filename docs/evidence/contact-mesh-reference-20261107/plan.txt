@@ -1,0 +1,12 @@
+CPU independent FP64 semidiscrete FEM reference: same 20mm geometry, density
+1100, mu 2000, lambda 5000, gravity 9.81, initial gap 0.2mm, fixed k=1e16,
+activation width 0.1mm, contact floor 0.1um, frictionless static plane.
+n=2,4,8; same six-tet cell pattern and one-third triangle area per node.
+10ms duration. For n=4 and n=8, run 1us and 0.5us RK4 to test temporal
+convergence of the force bins and impulse at 0.25% before interpreting spatial
+comparisons. Reuse previously retained n=2 runs. Compare the 0.5us 1ms binned
+force, impulse, clearance and contact episodes across meshes, without
+time-shifting or altered physical regularization. Mesh refinement necessarily
+changes the discrete surface quadrature and FEM space; a mesh discrepancy
+therefore does not uniquely measure material error or quadrature error.
+Record elapsed CPU wall cost and any failed temporal/clearance gate.

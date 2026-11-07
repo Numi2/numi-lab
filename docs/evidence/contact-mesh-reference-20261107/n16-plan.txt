@@ -1,0 +1,5 @@
+Extension after n=2,4,8 spatial failures: same law, geometry, material,
+initial conditions and 10ms duration, n=16 and 1us/0.5us RK4.
+Require 0.25% temporal force/impulse agreement, clearance and momentum gates
+before comparing n=8 and n=16; no physical parameters are adjusted.
+Retain runtime, output, diagnostics and all failed outcomes.

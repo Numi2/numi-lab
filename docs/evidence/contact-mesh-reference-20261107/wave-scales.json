@@ -1,0 +1,49 @@
+{
+  "schema": "numi.contact.fem-wave-scales.v1",
+  "longitudinal_speed_mps": 2.860387767736777,
+  "shear_speed_mps": 1.348399724926484,
+  "longitudinal_block_crossing_s": 0.00699205898780101,
+  "meshes": [
+    {
+      "divisions": 2,
+      "nodes": 27,
+      "bottom_mass_kg": 0.0022000000000000006,
+      "bottom_mass_fraction": 0.25,
+      "cell_m": 0.01,
+      "longitudinal_cell_crossing_s": 0.003496029493900505,
+      "longitudinal_wave_cfl_at_1us": 0.0002860387767736777
+    },
+    {
+      "divisions": 4,
+      "nodes": 125,
+      "bottom_mass_kg": 0.0011000000000000003,
+      "bottom_mass_fraction": 0.125,
+      "cell_m": 0.005,
+      "longitudinal_cell_crossing_s": 0.0017480147469502525,
+      "longitudinal_wave_cfl_at_1us": 0.0005720775535473554
+    },
+    {
+      "divisions": 8,
+      "nodes": 729,
+      "bottom_mass_kg": 0.0005500000000000001,
+      "bottom_mass_fraction": 0.062499999999999986,
+      "cell_m": 0.0025,
+      "longitudinal_cell_crossing_s": 0.0008740073734751263,
+      "longitudinal_wave_cfl_at_1us": 0.0011441551070947107
+    },
+    {
+      "divisions": 16,
+      "nodes": 4913,
+      "bottom_mass_kg": 0.00027500000000000007,
+      "bottom_mass_fraction": 0.031249999999999993,
+      "cell_m": 0.00125,
+      "longitudinal_cell_crossing_s": 0.00043700368673756313,
+      "longitudinal_wave_cfl_at_1us": 0.0022883102141894214
+    }
+  ],
+  "limits": [
+    "small-strain continuum estimates, not the discrete FEM eigenfrequencies",
+    "contact stiffness produces additional modes; a wave-speed CFL alone does not prove stability",
+    "bottom nodal masses are spatial lumping, not a separately simulated layer"
+  ]
+}

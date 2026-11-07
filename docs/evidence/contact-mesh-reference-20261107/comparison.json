@@ -1,0 +1,127 @@
+{
+  "schema": "numi.contact.fp64-fem-mesh.v1",
+  "temporal": [
+    {
+      "mesh": 2,
+      "binned_force_relative_change": 1.976960272626436e-09,
+      "integrated_impulse_relative_change": 4.326986552438099e-10,
+      "temporal_gate": true,
+      "clearance_gate": true,
+      "momentum_gate": true,
+      "min_gap_m": 8.710090197305025e-05,
+      "contact_episodes_s": [
+        [
+          0.0045154999999999995,
+          0.005173
+        ],
+        [
+          0.007396499999999999,
+          0.0082395
+        ],
+        [
+          0.00827,
+          0.009515
+        ],
+        [
+          0.0095995,
+          0.01
+        ]
+      ],
+      "impulse_Ns": 0.0005065753073128765
+    },
+    {
+      "mesh": 4,
+      "binned_force_relative_change": 7.10184507177563e-09,
+      "integrated_impulse_relative_change": 1.9532561990332405e-09,
+      "temporal_gate": true,
+      "clearance_gate": true,
+      "momentum_gate": true,
+      "min_gap_m": 8.979754917343307e-05,
+      "contact_episodes_s": [
+        [
+          0.0045154999999999995,
+          0.0050355
+        ],
+        [
+          0.006137,
+          0.007825
+        ],
+        [
+          0.007887,
+          0.01
+        ]
+      ],
+      "impulse_Ns": 0.00042211446562261264
+    },
+    {
+      "mesh": 8,
+      "binned_force_relative_change": 4.723534344707337e-09,
+      "integrated_impulse_relative_change": 6.806133568966264e-10,
+      "temporal_gate": true,
+      "clearance_gate": true,
+      "momentum_gate": true,
+      "min_gap_m": 9.179651010950967e-05,
+      "contact_episodes_s": [
+        [
+          0.0045154999999999995,
+          0.0049295
+        ],
+        [
+          0.005386,
+          0.01
+        ]
+      ],
+      "impulse_Ns": 0.00043685369466130484
+    },
+    {
+      "mesh": 16,
+      "binned_force_relative_change": 9.416081350652995e-09,
+      "integrated_impulse_relative_change": 3.1401189268632493e-09,
+      "temporal_gate": true,
+      "clearance_gate": true,
+      "momentum_gate": true,
+      "min_gap_m": 9.327253499412459e-05,
+      "contact_episodes_s": [
+        [
+          0.0045154999999999995,
+          0.00485
+        ],
+        [
+          0.004967,
+          0.01
+        ]
+      ],
+      "impulse_Ns": 0.00040958018478204285
+    }
+  ],
+  "spatial": [
+    {
+      "coarse_mesh": 2,
+      "fine_mesh": 4,
+      "binned_force_relative_change": 0.9290390820309633,
+      "integrated_impulse_relative_change": 0.20008990112595498,
+      "spatial_gate": false
+    },
+    {
+      "coarse_mesh": 4,
+      "fine_mesh": 8,
+      "binned_force_relative_change": 0.7042608291295002,
+      "integrated_impulse_relative_change": 0.03373950871611514,
+      "spatial_gate": false
+    },
+    {
+      "coarse_mesh": 8,
+      "fine_mesh": 16,
+      "binned_force_relative_change": 0.2723758452332482,
+      "integrated_impulse_relative_change": 0.06658893885155974,
+      "spatial_gate": false
+    }
+  ],
+  "temporal_gates_all": true,
+  "spatial_gate": false,
+  "limits": [
+    "same finite activation width and fixed area energy density; this is not a hard-contact limit",
+    "each spatial refinement changes both FEM approximation and surface quadrature",
+    "not a physical material validation or native Metal performance measurement"
+  ]
+}
