@@ -21654,6 +21654,10 @@ MetalWorldDiagnostics MetalWorldContext::residentStateFingerprint(
         return reject({}, MetalWorldHostStatus::invalidModel,
             "resident fingerprint cannot include external device-mechanics state");
     }
+    if (resident->devicePhysicsFingerprint != 0u) {
+        return reject({}, MetalWorldHostStatus::invalidModel,
+            "resident fingerprint cannot include external device-physics state");
+    }
     const auto context = resident->context;
     if (!resident->initialized || resident->pending || context == nullptr) {
         return reject({}, MetalWorldHostStatus::contextBusy,

@@ -246,6 +246,19 @@ This is a fail-closed continuation test; it does not create or restore a
 snapshot. Native execution of the expanded probe is pending.
 
 An additional pre-fix diagnostic uses a synthetic device-physics owner with
-external host state. It asks for a resident digest before and after changing
-only that external state. The observed result is not yet retained. This is an
-ownership-completeness probe, not a Matter simulation or physical test.
+external host state. At revision `840a0898`, changing only that state from 11
+to 29 returned success and the same resident digest both times, demonstrating
+an incomplete digest. The retained baseline includes binary, source and model
+hashes and both wrapper errors: the first shell failed to record its exit code
+because `status` is read-only in zsh; a second attempt used a wrong binary path
+and exited 127 without starting the probe. This is a synthetic ownership test,
+not a Matter simulation or physical test.
+
+Every valid device-physics program has a nonzero fingerprint but exposes no
+callback to capture its private state. The resident digest now rejects every
+such program, as it already rejected external device-mechanics owners; it does
+not infer completeness from an owner fingerprint. Device observation and action
+callbacks also have external contexts and no state-digest callback; their
+continuation ownership is not qualified by this change. Atomic cross-owner
+snapshot and restoration remain unsupported. The post-fix native probe and the
+expanded deterministic-continuation check are pending GPU qualification.

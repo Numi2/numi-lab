@@ -1,0 +1,2 @@
+First probe completed and its stdout/stderr are retained in output-first.txt. The wrapping zsh assignment to the read-only variable status failed afterward, so its exit code was not recorded. The wrapper reported: zsh:1: read-only variable: status.
+A second wrapper attempted an incorrect binary path and exited 127; output.txt retains its message. No simulation ran in the second attempt. The correct binary path and its hash are recorded in sha256.txt.

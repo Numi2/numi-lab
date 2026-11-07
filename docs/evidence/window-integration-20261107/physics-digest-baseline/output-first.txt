@@ -1,0 +1,2 @@
+external physics digest: first_status=success first=15699409550377873841 second_status=success second=15699409550377873841 owner_state=11->29
+FAIL: external physics owner state is not included in the resident digest

@@ -1,0 +1,2 @@
+zsh:1: no such file or directory: /Users/numi/numi-lab-release-integration-build-20261107/metalrobo_measured_surface_robot_probe
+exit_code=127
