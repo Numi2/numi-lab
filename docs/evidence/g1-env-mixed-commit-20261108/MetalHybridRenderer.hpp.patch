@@ -1,0 +1,17 @@
+--- a/include/metalrobo/MetalHybridRenderer.hpp
++++ b/include/metalrobo/MetalHybridRenderer.hpp
+@@ -417,10 +417,14 @@
+         std::uint32_t bodyCount, const void* acceptedClocks,
+         const MRVisualFrameMetadataGPU* acceptedMetadata,
+         MRVisualFrameMetadataGPU* candidateMetadata);
++    [[nodiscard]] bool researchSetMixedCandidateBuffers(void* accepted, void* candidate);
+ 
+ 
+ private:
+     struct State;
++    static bool researchEncodeMixedFramesState(
++        State*, void*, void*, std::uint32_t, std::uint32_t, const void*,
++        const MRVisualFrameMetadataGPU*, MRVisualFrameMetadataGPU*);
+     static bool encodeObservation(
+         void* context,
+         const MetalWorldDeviceObservationPass& pass

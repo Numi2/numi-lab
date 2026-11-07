@@ -1,0 +1,114 @@
+--- a/src/metal/MetalHybridRenderer.mm
++++ b/src/metal/MetalHybridRenderer.mm
+@@ -7050,6 +7050,8 @@
+     __strong id<MTLBuffer> maskedDepthInstances = nil;
+     __strong id<MTLBuffer> maskedDepthHistory = nil;
+     __strong id<MTLBuffer> researchCadence = nil;
++    __strong id<MTLBuffer> researchAcceptedMetadata = nil;
++    __strong id<MTLBuffer> researchCandidateMetadata = nil;
+     __strong id<MTLBuffer> researchBodies = nil;
+     __strong id<MTLBuffer> researchBodySnapshot = nil;
+     bool researchCaptureBodies = false;
+@@ -7498,15 +7500,25 @@
+     const MRVisualFrameMetadataGPU* acceptedMetadata,
+     MRVisualFrameMetadataGPU* candidateMetadata
+ ) {
+-    if (!state_ || !state_->compiled || !state_->renderer || !state_->worlds ||
++    return researchEncodeMixedFramesState(state_.get(),rawCommand,rawBodies,environments,
++        bodyCount,rawClocks,acceptedMetadata,candidateMetadata);
++}
++
++bool MetalHybridObjectTracker::researchEncodeMixedFramesState(
++    State* state, void* rawCommand, void* rawBodies, std::uint32_t environments,
++    std::uint32_t bodyCount, const void* rawClocks,
++    const MRVisualFrameMetadataGPU* acceptedMetadata,
++    MRVisualFrameMetadataGPU* candidateMetadata
++) {
++    if (!state || !state->compiled || !state->renderer || !state->worlds ||
+         !rawCommand || !rawBodies || !rawClocks || !acceptedMetadata || !candidateMetadata ||
+-        !environments || environments > state_->config.capacity ||
+-        !state_->config.maskedDepthInstanceIds.empty() ||
+-        !state_->renderer->state_->config.geometricObservationsOnly ||
+-        bodyCount != state_->rendererLayout.bodyCount) return false;
++        !environments || environments > state->config.capacity ||
++        !state->config.maskedDepthInstanceIds.empty() ||
++        !state->renderer->state_->config.geometricObservationsOnly ||
++        bodyCount != state->rendererLayout.bodyCount) return false;
+     id<MTLCommandBuffer> command = (__bridge id<MTLCommandBuffer>)rawCommand;
+     const auto* clocks = static_cast<const research_cadence::Record*>(rawClocks);
+-    const std::size_t pixels = std::size_t(state_->rendererLayout.width) * state_->rendererLayout.height;
++    const std::size_t pixels = std::size_t(state->rendererLayout.width) * state->rendererLayout.height;
+     const std::array<MetalHybridRendererBuffer,4> fields{{
+         MetalHybridRendererBuffer::depth, MetalHybridRendererBuffer::identities,
+         MetalHybridRendererBuffer::validity, MetalHybridRendererBuffer::cameraStates}};
+@@ -7515,14 +7527,14 @@
+     std::array<id<MTLBuffer>,4> target{},scratch{};
+     std::vector<research_cadence::Candidate> proposals(environments);
+     for (std::uint32_t e=0;e<environments;++e) {
+-        if (!research_cadence::propose(clocks[e],state_->config.timestepSeconds,
+-              state_->config.nominalSensorRateHz,clocks[e].captureTimeBits,false,proposals[e])) return false;
++        if (!research_cadence::propose(clocks[e],state->config.timestepSeconds,
++              state->config.nominalSensorRateHz,clocks[e].captureTimeBits,false,proposals[e])) return false;
+         candidateMetadata[e]=acceptedMetadata[e];
+     }
+     for (std::size_t i=0;i<fields.size();++i) {
+-        target[i]=(__bridge id<MTLBuffer>)state_->renderer->nativeBuffer(fields[i]);
++        target[i]=(__bridge id<MTLBuffer>)state->renderer->nativeBuffer(fields[i]);
+         if (!stride[i] || target[i]==nil || target[i].length < stride[i]*environments) return false;
+-        scratch[i]=[state_->device newBufferWithLength:stride[i]*environments options:MTLResourceStorageModePrivate];
++        scratch[i]=[state->device newBufferWithLength:stride[i]*environments options:MTLResourceStorageModePrivate];
+         if (scratch[i]==nil) return false;
+     }
+     id<MTLBlitCommandEncoder> save=[command blitCommandEncoder];if (save==nil) return false;
+@@ -7534,11 +7546,11 @@
+         HybridDeviceStateBatch live{}; live.currentBodyStates=rawBodies; live.previousBodyStates=rawBodies;
+         live.environmentCount=environments;live.bodyCount=bodyCount;live.frameIndex=clocks[e].acceptedSteps;
+         live.sensorSequence=proposals[e].sensor;live.source=MR_VISUAL_SOURCE_SIMULATION;
+-        live.captureTimestampSeconds=double(clocks[e].acceptedSteps)*state_->config.timestepSeconds;
++        live.captureTimestampSeconds=double(clocks[e].acceptedSteps)*state->config.timestepSeconds;
+         id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];if (encoder==nil) return false;
+-        auto rendered=state_->renderer->encode(*state_->worlds,live,state_->config.cameraIndex,(__bridge void*)encoder);
++        auto rendered=state->renderer->encode(*state->worlds,live,state->config.cameraIndex,(__bridge void*)encoder);
+         [encoder endEncoding];if (!rendered.succeeded()) return false;
+-        candidateMetadata[e]=state_->renderer->state_->activeMetadata;
++        candidateMetadata[e]=state->renderer->state_->activeMetadata;
+         id<MTLBlitCommandEncoder> select=[command blitCommandEncoder];if (select==nil) return false;
+         for (std::size_t i=0;i<fields.size();++i)
+             [select copyFromBuffer:target[i] sourceOffset:stride[i]*e toBuffer:scratch[i] destinationOffset:stride[i]*e size:stride[i]];
+@@ -7548,6 +7560,18 @@
+     for (std::size_t i=0;i<fields.size();++i)
+         [assemble copyFromBuffer:scratch[i] sourceOffset:0 toBuffer:target[i] destinationOffset:0 size:stride[i]*environments];
+     [assemble endEncoding];
++    return true;
++}
++
++bool MetalHybridObjectTracker::researchSetMixedCandidateBuffers(void* accepted, void* candidate) {
++    if (!state_ || !state_->compiled) return false;
++    id<MTLBuffer> a=(__bridge id<MTLBuffer>)accepted;
++    id<MTLBuffer> c=(__bridge id<MTLBuffer>)candidate;
++    if ((a==nil)!=(c==nil)) return false;
++    const auto bytes=state_->config.capacity*sizeof(MRVisualFrameMetadataGPU);
++    if (a!=nil && (a.storageMode!=MTLStorageModeShared || c.storageMode!=MTLStorageModeShared ||
++                   a.length<bytes || c.length<bytes || a==c)) return false;
++    state_->researchAcceptedMetadata=a;state_->researchCandidateMetadata=c;
+     return true;
+ }
+ 
+@@ -7659,6 +7683,17 @@
+             double(state->researchCadence != nil ? observationSequence : pass.controlStep) * state->config.timestepSeconds,
+         .frameAgeSeconds = 0.0,
+     };
++    if (state->researchAcceptedMetadata != nil || state->researchCandidateMetadata != nil) {
++        // This research path is reachable only for the synchronized, guarded
++        // single-step fixture. Candidate metadata is committed by its owner hook.
++        if (!state->researchCadence || !state->researchAcceptedMetadata || !state->researchCandidateMetadata || maskedDepth || pass.controlStep!=0u) return false;
++        if (!researchEncodeMixedFramesState(state, (__bridge void*)command, pass.currentBodies,
++                pass.environmentCount,pass.bodyCount,state->researchCadence.contents,
++                static_cast<const MRVisualFrameMetadataGPU*>(state->researchAcceptedMetadata.contents),
++                static_cast<MRVisualFrameMetadataGPU*>(state->researchCandidateMetadata.contents))) return false;
++        if (sampleSensor) state->lastSensorSequence=sensorSequence;
++        sampleSensor=false;
++    }
+     id<MTLComputeCommandEncoder> observationEncoder =
+         [command computeCommandEncoder];
+     if (observationEncoder == nil) {

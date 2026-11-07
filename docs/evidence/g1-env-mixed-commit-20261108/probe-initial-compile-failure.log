@@ -1,0 +1,7 @@
+/Users/numi/numi-lab-deployable-depth-20261107/docs/evidence/g1-env-mixed-commit-20261108/probe.mm:40:12: error: redefinition of 'guardRefusals'
+   40 | static int guardRefusals=0;
+      |            ^
+/Users/numi/numi-lab-deployable-depth-20261107/docs/evidence/g1-env-mixed-commit-20261108/probe.mm:38:12: note: previous definition is here
+   38 | static int guardRefusals=0;
+      |            ^
+1 error generated.
