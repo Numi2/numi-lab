@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import hashlib
 import json
 import sys
 import tempfile
@@ -788,6 +789,14 @@ class PolicySelectionTest(unittest.TestCase):
             self.assertEqual(
                 metadata["schema"], "numi.policy-evidence-cache.v2"
             )
+            self.assertEqual(metadata["policy_sha256"], hashlib.sha256(policy.read_bytes()).hexdigest())
+            metadata.pop("policy_sha256")
+            metadata_path = evidence.with_name(f"{evidence.name}.meta.json")
+            metadata_path.write_text(json.dumps(metadata), encoding="utf-8")
+            self.assertEqual(_evaluate(evaluator, arguments, evidence), first)
+            self.assertEqual(counter.read_text(encoding="utf-8"), "1")
+            metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+            self.assertEqual(metadata["policy_sha256"], hashlib.sha256(policy.read_bytes()).hexdigest())
             self.assertEqual(metadata["state_trace"]["row_count"], 1)
             self.assertEqual(metadata["state_trace"]["terminal_step"], 1)
 
@@ -813,6 +822,23 @@ class PolicySelectionTest(unittest.TestCase):
             regenerated = _evaluate(evaluator, arguments, evidence)
             self.assertEqual(regenerated, first)
             self.assertEqual(counter.read_text(encoding="utf-8"), "4")
+
+    def test_evaluation_rejects_policy_mutated_during_rollout(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            policy = root / "policy.pack"
+            policy.write_bytes(b"before")
+            shader = root / "shader.metallib"
+            shader.write_bytes(b"shader")
+            evaluator = root / "evaluator.sh"
+            evaluator.write_text(
+                "#!/bin/sh\n" + f"printf changed > '{policy}'\n" +
+                "printf '%s\\n' '{}'\n", encoding="utf-8")
+            evaluator.chmod(0o755)
+            with self.assertRaisesRegex(ValueError, "inputs changed"):
+                _evaluate(evaluator, ["--policy-pack", str(policy), "--metallib", str(shader),
+                                      "--state-trace", str(root / "trace")], root / "evidence.json")
+            self.assertFalse((root / "evidence.json").exists())
 
     def test_single_band_adult_training_still_protects_previous_rung(self) -> None:
         current, previous = _adult_evaluation_bands(

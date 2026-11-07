@@ -83,19 +83,22 @@ public struct NumiWindowPolicyChoice: Sendable {
     public let policyURL: URL
     public let metadata: NumiWindowPolicyMetadata
     public let modificationDate: Date
+    public let evidenceStatus: NumiPolicyEvidenceStatus
 
     public init(
         robotID: String,
         displayName: String,
         policyURL: URL,
         metadata: NumiWindowPolicyMetadata,
-        modificationDate: Date
+        modificationDate: Date,
+        evidenceStatus: NumiPolicyEvidenceStatus = NumiPolicyEvidenceStatus(role: "research policy", balance: .unknown)
     ) {
         self.robotID = robotID
         self.displayName = displayName
         self.policyURL = policyURL
         self.metadata = metadata
         self.modificationDate = modificationDate
+        self.evidenceStatus = evidenceStatus
     }
 }
 
@@ -571,7 +574,7 @@ public func numiWindowPolicyCatalog(
             modificationDate: modificationDate
         ))
     }
-    // Training publishes qualified deployment candidates under .numi/runs;
+    // Training publishes research policy artifacts under .numi/runs;
     // requiring a second manual copy into .numi/policies made the newest
     // learned behavior disappear from the Window. Keep this bounded to each
     // run's final deployment artifact so checkpoints do not flood the menu.
@@ -619,9 +622,9 @@ public func numiWindowPolicyCatalog(
                     displayName: runURL.lastPathComponent,
                     policyURL: url,
                     metadata: metadata,
-                    modificationDate: modificationDate
+                    modificationDate: modificationDate,
+                    evidenceStatus: numiPolicyEvidenceStatus(policy: url, run: runURL)
                 ))
-                break
             }
         }
     }
@@ -1972,9 +1975,9 @@ private final class NumiWindowController: NSObject, MTKViewDelegate,
                 "No learned controller is active in this simulation"
         }
         for choice in robotPolicies {
-            selector.addItem(withTitle: choice.displayName)
+            selector.addItem(withTitle: "\(choice.displayName) · \(choice.evidenceStatus.role) · \(choice.evidenceStatus.balance.rawValue)")
             selector.lastItem?.representedObject = choice.policyURL
-            selector.lastItem?.toolTip = choice.policyURL.path
+            selector.lastItem?.toolTip = "\(choice.policyURL.path) — Held-out balance checks only; compatibility is separate. Research policies remain selectable."
         }
         guard selector.itemArray.contains(where: {
             $0.representedObject is URL

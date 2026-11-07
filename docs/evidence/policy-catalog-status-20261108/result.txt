@@ -1,0 +1,2 @@
+Original legacy metadata: selected candidate; guided held-out balance status unknown
+Copied evidence with SYNTHETIC policy binding: selected candidate; guided held-out balance screen failed
