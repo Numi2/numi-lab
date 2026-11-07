@@ -272,3 +272,23 @@ prepared capability, no HumanIO publication, and the expected tendon adapter
 encode and borrow counts. This does not compare the live articulated owner's
 q/v/MyoSim state after rejection. It is four short synthetic steps, not sustained
 loading, a force-accuracy result, a v5 admission test, or anatomical validation.
+
+## Resident physical-state rejection observer
+
+A separately built `--owner-rollback` probe retained the four-step fixture and
+used the actual owner physical-state observer immediately before and after the
+forced fifth rejection. Its source SHA-256 is
+`bd995dc5f871982b30cc2660b062bb2fa470b04df842620dec597cddf1cc1832`; executable
+SHA-256 is `04c8e6156168ea09d391e6301225c4979d84f8dde8301e2835e1645d972d544c`.
+The exact output, including start/end UTC and exit code 0, is retained at
+`docs/evidence/human-costal-20261107/owner-physical-rejection.log` with SHA-256
+`cecbc4ef2b4df0e330e14b5d431c6457a540da298f30f9741198e2fd87c8ff12`.
+
+The prior accepted root retained transaction 18181, generation 4 and accepted
+token 11323465167329197731. Its four physical arenas compared bitwise before
+and after the rejected transaction 18182: root translations 48 bytes, q 644
+bytes, v 640 bytes, and MyoSim state 16 bytes. The existing enumerated Matter
+authority and exactly-once HumanIO rejection checks passed in the same run.
+This tests these named authorities for one synthetic forced rejection; it does
+not establish a restorable full cross-owner checkpoint, all derived state,
+physical force accuracy, native v5 admission, or anatomical validity.

@@ -4,6 +4,42 @@
 #include "numanx_human_matter_adapter_probe.mm"
 #undef main
 namespace adapter_fixture {
+struct OwnerPhysicalObservation {
+    __strong id<MTLBuffer> buffers[4] = {nil, nil, nil, nil};
+    std::array<std::size_t,4> sizes{};
+    std::uint64_t transaction=0, generation=0, token=0;
+    bool encoded=false;
+};
+bool encodeOwnerObservation(void* opaque,
+    const metalrobo::MetalArticulatedOperatorPhysicalStateObserverPass& pass) noexcept {
+    auto* o=static_cast<OwnerPhysicalObservation*>(opaque);
+    if(!o || pass.abiVersion!=metalrobo::kMetalArticulatedOperatorPhysicalStateObserverABIVersion ||
+       pass.environmentCount!=1u || pass.transactionFingerprint!=o->transaction ||
+       pass.physicsGeneration!=o->generation || pass.acceptedTokenFingerprint==0u ||
+       pass.rootTranslationElementCount!=1u || pass.qElementCount!=161u ||
+       pass.vElementCount!=160u || pass.mujocoStateElementCount!=1u || !pass.commandBuffer ||
+       !pass.rootTranslations || !pass.q || !pass.v || !pass.mujocoStates) return false;
+    id<MTLCommandBuffer> command=(__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+    const std::array<void*,4> sources{pass.rootTranslations,pass.q,pass.v,pass.mujocoStates};
+    o->sizes={sizeof(MRCompensatedRootTranslationGPU),161u*sizeof(float),160u*sizeof(float),sizeof(MRMujocoMuscleStateGPU)};
+    for(unsigned i=0;i<4;++i) {
+        o->buffers[i]=[command.device newBufferWithLength:o->sizes[i] options:MTLResourceStorageModeShared];
+        if(o->buffers[i]==nil) return false;
+    }
+    id<MTLBlitCommandEncoder> blit=[command blitCommandEncoder];
+    if(blit==nil) return false;
+    for(unsigned i=0;i<4;++i)
+        [blit copyFromBuffer:(__bridge id<MTLBuffer>)sources[i] sourceOffset:0 toBuffer:o->buffers[i] destinationOffset:0 size:o->sizes[i]];
+    [blit endEncoding];o->token=pass.acceptedTokenFingerprint;o->encoded=true;return true;
+}
+OwnerPhysicalObservation observeOwner(metalrobo::MetalArticulatedOperatorContext& owner,
+    std::uint64_t transaction, std::uint64_t generation) {
+    OwnerPhysicalObservation o{};o.transaction=transaction;o.generation=generation;
+    std::string error;
+    require(owner.flushPhysicalStateObserver(&o,&encodeOwnerObservation,error) && o.encoded,
+            "physical owner observation failed: "+error);
+    return o;
+}
 struct CostalReplayEvidence {
     numi::matter::RuntimeStateSnapshot initial, accepted;
     std::array<nm_float4,2> reactions{};
@@ -11,7 +47,7 @@ struct CostalReplayEvidence {
 };
 void verifyCostalOwnerIntegration(id<MTLDevice> device, bool accept,
     const numi::matter::RuntimeStateSnapshot* initialRestore=nullptr,
-    CostalReplayEvidence* evidence=nullptr, bool continueStep=false, bool bounded=false) {
+    CostalReplayEvidence* evidence=nullptr, bool continueStep=false, bool bounded=false, bool ownerRollback=false) {
     auto model = owner_fixture::makeHumanModel();
     std::fill(model.defaultV.begin(), model.defaultV.end(), 0.0f);
     const auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
@@ -210,6 +246,8 @@ void verifyCostalOwnerIntegration(id<MTLDevice> device, bool accept,
         require(matter.restore(*initialRestore).encoded, "initial Matter restore failed");
         require(equalAcceptedAuthority(*initialRestore,matter.snapshot()), "restored initial authority differs");
     }
+    OwnerPhysicalObservation ownerBefore{};
+    if(ownerRollback && iteration==4u) ownerBefore=observeOwner(owner,transaction.transactionFingerprint-1u,transaction.physicsGeneration-1u);
     const auto before = matter.snapshot();
     require(before.available,
         "integrated owner Matter baseline is unavailable");
@@ -539,6 +577,17 @@ void verifyCostalOwnerIntegration(id<MTLDevice> device, bool accept,
             humanIO->publishCalls == 0u &&
             humanIO->rejectCalls == 1u,
         "owner+adapter+Matter reject did not resolve and byte-restore");
+    if(ownerRollback) {
+        const auto ownerAfter=observeOwner(owner,transaction.transactionFingerprint-1u,transaction.physicsGeneration-1u);
+        require(ownerBefore.token==ownerAfter.token && ownerBefore.sizes==ownerAfter.sizes,
+                "rejected owner changed accepted token or arena layout");
+        for(unsigned i=0;i<4;++i)
+            require(std::memcmp(ownerBefore.buffers[i].contents,ownerAfter.buffers[i].contents,ownerBefore.sizes[i])==0,
+                    "rejected owner changed accepted physical arena "+std::to_string(i));
+        std::cout<<"PASS owner physical rejection bytes root/q/v/mujoco="
+                 <<ownerBefore.sizes[0]<<","<<ownerBefore.sizes[1]<<","<<ownerBefore.sizes[2]<<","<<ownerBefore.sizes[3]
+                 <<" transaction="<<ownerBefore.transaction<<" generation="<<ownerBefore.generation<<" token="<<ownerBefore.token<<"\n";
+    }
     const auto tendonDiagnostics = tendonAdapter.diagnostics();
     require(tendonDiagnostics.initialized &&
             tendonDiagnostics.executionMode == numi::matter::
@@ -564,8 +613,9 @@ int main(int argc, const char** argv) {
       const bool accept=argc==2 && std::string(argv[1])=="--accept";
       const bool replay=argc==2 && std::string(argv[1])=="--replay";
       const bool continuation=argc==2 && std::string(argv[1])=="--continue";
-      const bool bounded=argc==2 && std::string(argv[1])=="--bounded";
-      adapter_fixture::require(argc==1 || accept || replay || continuation || bounded,"usage: owner_probe [--accept|--replay|--continue|--bounded]");
+      const bool ownerRollback=argc==2 && std::string(argv[1])=="--owner-rollback";
+      const bool bounded=(argc==2 && std::string(argv[1])=="--bounded") || ownerRollback;
+      adapter_fixture::require(argc==1 || accept || replay || continuation || bounded,"usage: owner_probe [--accept|--replay|--continue|--bounded|--owner-rollback]");
       if(replay) {
         adapter_fixture::CostalReplayEvidence first, second;
         adapter_fixture::verifyCostalOwnerIntegration(device,true,nullptr,&first);
@@ -574,7 +624,7 @@ int main(int argc, const char** argv) {
         adapter_fixture::require(!std::memcmp(first.reactions.data(),second.reactions.data(),sizeof(first.reactions)),"reaction replay differs");
         adapter_fixture::require(!std::memcmp(first.generalized.data(),second.generalized.data(),sizeof(first.generalized)),"generalized reaction replay differs");
         std::cout<<"PASS committed Matter and adapter restore; initial-state replay Matter authority and forces bitwise\n";
-      } else adapter_fixture::verifyCostalOwnerIntegration(device,accept || continuation || bounded,nullptr,nullptr,continuation,bounded);
+      } else adapter_fixture::verifyCostalOwnerIntegration(device,accept || continuation || bounded,nullptr,nullptr,continuation,bounded,ownerRollback);
       if(!accept && !replay && !continuation && !bounded) std::cout << "PASS costal two-owner real NumanX force-reject synthetic chain\n";
       return 0;
     } catch(const std::exception& e) {
