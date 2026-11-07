@@ -45,3 +45,16 @@ archive, not the compact repository copy, contains all bound artifacts.
 Registration is f4435b6c5fdb1e7cd62aab772e4aa31abbbb5492f3c195eea34473d6b6b70619.
 A meaningful next measurement requires a physically qualified closed-loop task,
 with rendering and policy inference visible separately, and fixed error gates.
+
+The retained command-buffer timing fields also allow a descriptive breakdown.
+Across the five 100-call series, median series-average GPU interval was
+2.950 ms per call, submission interval 3.133 ms per call, and API-call
+interval 3.279 ms per call; the corresponding 200-call values were 2.950,
+3.133 and 3.279 ms. The median ratio of summed GPU intervals to series wall
+time was 89.96% in both groups. These are overlapping intervals, not additive
+cost categories. Metal command-buffer GPU timestamps measure elapsed execution
+intervals, not occupancy or active utilization; they do not identify which
+kernel or resource limits performance. The retrospective calculation is
+reproducible with `python3 tools/summarize_latency_gpu_timing.py` using the
+retained series. Profiling individual workloads on a host with the appropriate
+Metal profiling tools remains necessary before choosing an optimization.
