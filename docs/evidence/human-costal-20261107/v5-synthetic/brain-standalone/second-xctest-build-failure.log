@@ -1,0 +1,152 @@
+Building for production...
+[Computing dependencies]
+[Pre-planning 1 / 1263]
+[Planning deferred tasks]
+[9 / 404]
+[10 / 404]
+[15 / 408] NumiBrainValidation
+[17 / 415] NumiBrainConnectomeTestSupport
+[17 / 415] NumiBrainValidation
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainConnectomeABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[29 / 469]
+[35 / 469]
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[39 / 469]
+[43 / 469] Cmlx
+[46 / 469] Cmlx
+[48 / 469] Cmlx
+[50 / 469] Cmlx
+[54 / 469]
+[56 / 469]
+[60 / 469]
+[61 / 469] Cmlx
+[64 / 469]
+[66 / 469]
+[69 / 469]
+[70 / 469] Cmlx
+[71 / 469]
+[72 / 469] Cmlx
+[73 / 469]
+[75 / 469] Cmlx
+[78 / 469] Cmlx
+[80 / 469] Cmlx
+[82 / 469] Cmlx
+[93 / 469] Cmlx
+[96 / 469] Cmlx
+[97 / 469] Cmlx
+[99 / 469] Cmlx
+[99 / 469]
+[103 / 469]
+[106 / 469]
+[108 / 469]
+[110 / 469]
+[113 / 469]
+[117 / 469]
+[123 / 469]
+[124 / 469]
+[126 / 469]
+[131 / 469] Cmlx
+[136 / 469] Cmlx
+[137 / 469] Cmlx
+[138 / 469] Cmlx
+[138 / 469]
+[142 / 469] NumiBrainConnectomeTestSupport
+[145 / 469] Cmlx
+[151 / 469] Cmlx
+[152 / 469] Cmlx
+[153 / 469] Cmlx
+[153 / 469] NumiBrainValidation
+[162 / 469] NumiBrainQualification
+[163 / 469] Cmlx
+[166 / 469] NumiBrainQualification
+[171 / 469] Cmlx
+[172 / 469] Cmlx
+[173 / 469] Cmlx
+[174 / 469] Cmlx
+[175 / 469] Cmlx
+[177 / 469] Cmlx
+[178 / 469] Cmlx
+[179 / 469] Cmlx
+[180 / 469] Cmlx
+[181 / 469] Cmlx
+[182 / 469] Cmlx
+[185 / 469] Cmlx
+[186 / 469] Cmlx
+[188 / 469] Cmlx
+[191 / 469] Cmlx
+[193 / 469] Cmlx
+[194 / 469] Cmlx
+[195 / 469] Cmlx
+[198 / 469] Cmlx
+[199 / 469] Cmlx
+[202 / 469] Cmlx
+[204 / 469] Cmlx
+[206 / 469] Cmlx
+[207 / 469] Cmlx
+[209 / 469] Cmlx
+[212 / 469] Cmlx
+[221 / 469] Cmlx
+[224 / 469] Cmlx
+[226 / 469] Cmlx
+[228 / 469] Cmlx
+[229 / 469] Cmlx
+[230 / 469] Cmlx
+[231 / 469] Cmlx
+[232 / 469] Cmlx
+[233 / 469] Cmlx
+[234 / 469] Cmlx
+[235 / 469] Cmlx
+[237 / 469] Cmlx
+[238 / 469] Cmlx
+[239 / 469] Cmlx
+[240 / 469] Cmlx
+[241 / 469] Cmlx
+[242 / 469] Cmlx
+[244 / 469] Cmlx
+[245 / 469] Cmlx
+[246 / 469] Cmlx
+[247 / 469] Cmlx
+[249 / 469] Cmlx
+[250 / 469] Cmlx
+[251 / 469] Cmlx
+[253 / 469] Cmlx
+[254 / 469] Cmlx
+[257 / 469] Cmlx
+[258 / 469] Cmlx
+[260 / 469] Cmlx
+[261 / 469] Cmlx
+[262 / 469] Cmlx
+[263 / 469] Cmlx
+[264 / 469] Cmlx
+[266 / 469] Cmlx
+[267 / 469] Cmlx
+[268 / 469] Cmlx
+[269 / 469] Cmlx
+[274 / 469] Cmlx
+[276 / 469] Cmlx
+[277 / 469] Cmlx
+[278 / 469] Cmlx
+[280 / 469] mlx-swift_Cmlx
+[281 / 469] _NumericsShims
+[287 / 469] NumiBrainNumiLabBridgeABI
+[298 / 482]
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainValidation: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainQualification: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainConnectomeTestSupport: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[309 / 513]
+[317 / 515]
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainNumiLabBridgeABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[322 / 515]
+[329 / 517]
+[337 / 518] numi-brain-gate-f-product
+[339 / 518] numi-brain-qualify-product
+[343 / 518]
+[348 / 519]
+[351 / 520] mlx-swift_Cmlx
+[360 / 521]
+error: /Users/numi/numi-brain-v5-synthetic-20261107/Tests/NumiBrainValidationTests/ConvergenceAndReferenceTests.swift:2:18 unable to resolve Swift module dependency to a compatible module: 'NumiBrainValidation'
+error: /Users/numi/numi-brain-v5-synthetic-20261107/Tests/NumiBrainValidationTests/ConvergenceAndReferenceTests.swift:1:8 unable to resolve module dependency: 'XCTest'
+error: SwiftDriver NumiBrainValidationTests normal arm64 com.apple.xcode.tools.swift.compiler failed with a nonzero exit code. Command line:     cd /Users/numi
+    builtin-SwiftDriver -- /Library/Developer/CommandLineTools/usr/bin/swiftc -parse-as-library -module-name NumiBrainValidationTests -O -whole-module-optimization @/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainValidationTests-p.build/Objects-normal/arm64/NumiBrainValidationTests.SwiftFileList -DSWIFT_PACKAGE -DXcode -plugin-path /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk -target arm64-apple-macos26.0 -g -module-cache-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/ModuleCache.noindex -Xfrontend -serialize-debugging-options -swift-version 6 -I /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Release -Isystem /Library/Developer/CommandLineTools/Developer/usr/lib -F /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Release/PackageFrameworks -F /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Release -F /Library/Developer/CommandLineTools/Library/Developer/Frameworks -F /Library/Developer/CommandLineTools/Developer/Library/Frameworks -c -num-threads 12 -Xcc -ivfsstatcache -Xcc /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/SDKStatCaches.noindex/macosx27.0-26A425-07337119be642f2adea090ae6c88741fffd68ff603bdaacc80b00cb8898de72d.sdkstatcache -output-file-map /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainValidationTests-p.build/Objects-normal/arm64/NumiBrainValidationTests-OutputFileMap.json -save-temps -color-diagnostics -explicit-module-build -module-cache-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/ModuleCache.noindex -sdk-module-cache-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainValidationTests-p.build/Objects-normal/arm64/NumiBrainValidationTests.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainValidationTests-p.build/Objects-normal/arm64/NumiBrainValidationTests-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -package-name numi_brain_v5_synthetic_20261107 -emit-const-values -const-gather-protocols-list /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainValidationTests-p.build/Objects-normal/arm64/NumiBrainValidationTests_const_extract_protocols.json -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Release/include -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainValidationTests-p.build/DerivedSources-normal/arm64 -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainValidationTests-p.build/DerivedSources/arm64 -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainValidationTests-p.build/DerivedSources -Xcc -DSWIFT_PACKAGE -working-directory /Users/numi -no-emit-module-separately-wmo
+error: Build failed
+EXIT_CODE=1

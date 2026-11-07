@@ -1,0 +1,11 @@
+--- /Users/numi/numi-v5-admission-artifacts-20261107/brain-test-original.swift	2026-11-07 14:53:00
++++ /Users/numi/numi-brain-v5-synthetic-20261107/Tests/NumiBrainMetalTests/MetalNumanXBridgeV1EndToEndTests.swift	2026-11-07 14:53:00
+@@ -1880,7 +1880,7 @@
+         XCTAssertEqual(native.info.modelSourceFingerprint, authoredWorld.humanSourceFingerprint)
+       }
+       XCTAssertEqual(world.objectCount, authoredWorld.costalTissueOwnership == nil ? 3 : 1)
+-      XCTAssertEqual(world.femAttachmentCount, authoredWorld.costalTissueOwnership == nil ? 12 : 2871)
++      XCTAssertEqual(world.femAttachmentCount, authoredWorld.costalTissueOwnership == nil ? 12 : 448)
+     }
+     XCTAssertNil(try native.aggregateSnapshotIfAvailable())
+ 

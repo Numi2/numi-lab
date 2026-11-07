@@ -350,3 +350,36 @@ The Matter and MetalRobo metallib identities remain those recorded above.
 This is native constructor admission and identity qualification only: it has
 not executed or restored a v5 step and does not establish realistic anatomy,
 connected cartilage mechanics, force accuracy, or a surgical task.
+
+## Brain publication probe preparation and build failures
+
+The bridge exposes public aggregate readers, but no full accepted physical
+runtime snapshot-and-restore operation. A public aggregate is not a substitute
+for q/v/MyoSim, Matter and Brain authority restoration.
+
+A separate attempt to run the historical real-Brain joint-publication test
+copied the retained `numi-brain-2to1-source-20260928` snapshot to an isolated
+`ssh numi` directory. The unmodified test source SHA-256 was
+`612dd01a28155b9c6af99e4a678a465f2839392cc2db28ab3ce0ffd19cc551f0`;
+its package SHA-256 was
+`72ec253e1adf9802cb2495b81a812a43988078c607a040339b084f6168e9317c`.
+The first build failed when Swift 6.4 attempted to compile
+`BorrowedHumanMotor.metal` alone despite its stated dependency on concatenated
+`NumanXMotorReady.metal` source. The second isolated build changed the shader
+resource from `process` to `copy` and the historical test's expected 2871
+anchors to the synthetic fixture's 448; it failed because this machine's
+Command Line Tools lack XCTest and the Xcode developer frameworks. Both exact
+build logs and the test-only difference are retained in the `brain-standalone`
+evidence directory. No native publication was executed in either build.
+
+An isolated research dylib was linked from 141 retained integration build
+objects with only the previously identified current v5 runtime and NHTBIND2
+objects substituted. Its SHA-256 is
+`5bcb3160a155e20713197f5a5360706833c9677e758350d7f3a396383cc40a37`;
+its exact link command and input hashes are retained alongside the logs. It is
+not the library used by the earlier native admission. A standalone extraction
+of the actual Brain motor, witness, preflight, ACK and joint-publication
+sequence is being built without XCTest. Its first build failed on the internal
+factory visibility and two throwing check expressions; that build is retained.
+A test-only factory wrapper calls the existing factory unchanged. This is
+preparation, not evidence of an accepted v5 step or complete restoration.

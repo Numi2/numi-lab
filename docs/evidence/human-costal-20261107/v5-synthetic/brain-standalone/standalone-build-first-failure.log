@@ -1,0 +1,72 @@
+Building for production...
+[Planning deferred tasks]
+[11 / 47] NumiBrainValidation
+[12 / 47] NumiBrainQualification
+[15 / 100]
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainConnectomeABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[36 / 113]
+[47 / 113]
+[51 / 113] NumiBrainNumiLabBridgeABI
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainNumiLabBridgeABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[55 / 113]
+[58 / 113]
+[61 / 113]
+[64 / 113]
+[66 / 113]
+[67 / 113]
+[73 / 113]
+[74 / 113]
+[78 / 113]
+[79 / 113]
+[81 / 113]
+[83 / 113]
+[85 / 113] NumiBrainValidation
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainValidation: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainQualification: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[94 / 113] NumiBrainCore
+[101 / 122]
+[103 / 122]
+[104 / 122] NumiBrainCore
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainCore: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[111 / 123] NumiBrainMetal
+[116 / 129]
+[117 / 129]
+[118 / 129] NumiBrainMetal
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainMetal: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[125 / 130] NumiBrainSyntheticV5CLI-product
+error: SwiftCompile normal arm64 failed with a nonzero exit code. Command line:     cd /Users/numi
+    
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainSyntheticV5CLI/main.swift:71:39: [1;31merror: [1;39m'makeRuntime' is inaccessible due to 'internal' protection level[0;0m
+ [0;36m69 |[0;0m   let initial=try CPUTissueDynamics.makeRestingGrid(width:8,height:8,parameters:parameters)
+ [0;36m70 |[0;0m   let configuration=MetalNumiBrainConfiguration(initialTissueState:initial,tissueParameters:parameters,tissueStimulus:.none,compiledSpeciesTemplate:compiled,randomContext:TissueRandomContext(seed:0x4e55_4d49,environmentIdentifier:0,episodeIdentifier:1),schedulerEnvironmentIdentifier:0,maximumEncodedSubsteps:1)
+ [0;36m71 |[0;0m   let brain=try MetalNumiBrainRuntime.[4;39mmakeRuntime[0;0m(configuration:configuration,publication:publication,device:device)
+    [0;36m|[0;0m                                       `- [1;31merror: [1;39m'makeRuntime' is inaccessible due to 'internal' protection level[0;0m
+ [0;36m72 |[0;0m   let tx=try brain.beginControl(controlStepIdentifier:1,basePhysicsGeneration:0,committedTimestamp:BrainTimestamp(microseconds:1000),targetTimestamp:BrainTimestamp(microseconds:1010),cachedDecisionFingerprint:0x4e58_4445_4349_5349)
+ [0;36m73 |[0;0m   let sensors=try bootstrap(device,compiled,tx.token)
+
+NumiBrainMetal.MetalNumiBrainRuntime.makeRuntime:2:22: [1;39mnote: [1;39m'makeRuntime(configuration:publication:foundationPolicyArchitecture:numanXUncertaintyGate:device:)' declared here[0;0m
+[0;36m1 |[0;0m class MetalNumiBrainRuntime {
+[0;36m2 |[0;0m internal static func makeRuntime(configuration: NumiBrainMetal.MetalNumiBrainConfiguration, publication: NumiBrainCore.BrainParameterPublication, foundationPolicyArchitecture: NumiBrainCore.BrainFoundationPolicyArchitecture? = nil, numanXUncertaintyGate: NumiBrainMetal.MetalNumanXUncertaintyGateConfiguration? = nil, device: any MTLDevice) throws -> NumiBrainMetal.MetalNumiBrainRuntime}
+  [0;36m|[0;0m                      `- [1;39mnote: [1;39m'makeRuntime(configuration:publication:foundationPolicyArchitecture:numanXUncertaintyGate:device:)' declared here[0;0m
+[0;36m3 |[0;0m 
+
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainSyntheticV5CLI/main.swift:64:51: [1;31merror: [1;39mcall can throw, but it is executed in a non-throwing autoclosure[0;0m
+ [0;36m62 |[0;0m   let native=try MetalNumanXBridgeV1Runtime(libraryPath:value("NUMANX_METALROBO_LIBRARY"),device:device,configuration:.init(
+ [0;36m63 |[0;0m     rigidPayloadPath:value("NUMANX_FULLBODY_RIGID"),musclePayloadPath:value("NUMANX_FULLBODY_MUSCLE"),supportContactPayloadPath:value("NUMANX_FULLBODY_CONTACT"),visualPackPath:value("NUMANX_FULLBODY_VISUAL_PACK"),visionProfilePath:value("NUMANX_FULLBODY_VISION_PROFILE"),metalRoboMetallibPath:value("NUMANX_METALROBO_METALLIB"),matterMetallibPath:value("NUMANX_MATTER_METALLIB"),matterMaterialPath:"",timestepMicroseconds:10,maximumRetainedBytes:2<<30,transactionSlotCount:2,authoredMatterWorld:world))
+ [0;36m64 |[0;0m   try check(native.info.modelSourceFingerprint == identity("NUMANX_CONSTRAINED_HUMAN_SOURCE_FP"),"model identity")
+    [0;36m|[0;0m                                                   `- [1;31merror: [1;39mcall can throw, but it is executed in a non-throwing autoclosure[0;0m
+ [0;36m65 |[0;0m   try check(try native.currentWorldInfo().femAttachmentCount == 448,"attachment count")
+ [0;36m66 |[0;0m   let parameters=TissueParameters.corticalSheetV0
+
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainSyntheticV5CLI/main.swift:65:17: [1;31merror: [1;39mcall can throw, but it is executed in a non-throwing autoclosure[0;0m
+ [0;36m63 |[0;0m     rigidPayloadPath:value("NUMANX_FULLBODY_RIGID"),musclePayloadPath:value("NUMANX_FULLBODY_MUSCLE"),supportContactPayloadPath:value("NUMANX_FULLBODY_CONTACT"),visualPackPath:value("NUMANX_FULLBODY_VISUAL_PACK"),visionProfilePath:value("NUMANX_FULLBODY_VISION_PROFILE"),metalRoboMetallibPath:value("NUMANX_METALROBO_METALLIB"),matterMetallibPath:value("NUMANX_MATTER_METALLIB"),matterMaterialPath:"",timestepMicroseconds:10,maximumRetainedBytes:2<<30,transactionSlotCount:2,authoredMatterWorld:world))
+ [0;36m64 |[0;0m   try check(native.info.modelSourceFingerprint == identity("NUMANX_CONSTRAINED_HUMAN_SOURCE_FP"),"model identity")
+ [0;36m65 |[0;0m   try check(try native.currentWorldInfo().femAttachmentCount == 448,"attachment count")
+    [0;36m|[0;0m                 `- [1;31merror: [1;39mcall can throw, but it is executed in a non-throwing autoclosure[0;0m
+ [0;36m66 |[0;0m   let parameters=TissueParameters.corticalSheetV0
+ [0;36m67 |[0;0m   let compiled=try NumanXFullBodyTransportTemplate.compile(latencyMicroseconds:10)
+Failed frontend command:
+/Library/Developer/CommandLineTools/usr/bin/swift-frontend -frontend -c /Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainSyntheticV5CLI/main.swift -emit-module-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/NumiBrainSyntheticV5CLI.swiftmodule -emit-module-doc-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/NumiBrainSyntheticV5CLI.swiftdoc -emit-module-source-info-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/NumiBrainSyntheticV5CLI.swiftsourceinfo -emit-dependencies-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/NumiBrainSyntheticV5CLI-primary.d -emit-const-values-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/NumiBrainSyntheticV5CLI-primary.swiftconstvalues -serialize-diagnostics-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/NumiBrainSyntheticV5CLI-primary.dia -emit-abi-descriptor-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/NumiBrainSyntheticV5CLI.abi.json -target arm64-apple-macos26.0 -disable-cross-import-overlay-search -load-resolved-plugin /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/libObservationMacros.dylib\#\#ObservationMacros -load-resolved-plugin /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/libSwiftMacros.dylib\#\#SwiftMacros -disable-implicit-swift-modules -Xcc -fno-implicit-modules -Xcc -fno-implicit-module-maps -explicit-swift-module-map-file /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/NumiBrainSyntheticV5CLI-dependencies-1.json -Xllvm -aarch64-use-tbi -enable-objc-interop -stack-check -sdk /Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk -I /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Release -Isystem /Library/Developer/CommandLineTools/Developer/usr/lib -F /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Release/PackageFrameworks -F /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Release -F /Library/Developer/CommandLineTools/Library/Developer/Frameworks -F /Library/Developer/CommandLineTools/Developer/Library/Frameworks -module-cache-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/SwiftExplicitPrecompiledModules -color-diagnostics -Xcc -fcolor-diagnostics -g -debug-info-format\=dwarf -dwarf-version\=5 -swift-version 6 -O -D SWIFT_PACKAGE -D Xcode -serialize-debugging-options -enable-experimental-feature DebugDescriptionMacro -empty-abi-descriptor -validate-clang-modules-once -clang-build-session-file /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/ModuleCache.noindex/Session.modulevalidation -Xcc -working-directory -Xcc /Users/numi -file-compilation-dir /Users/numi -Xcc -fmodule-map-file\=/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/GeneratedModuleMaps/NumiBrainNumiLabBridgeABI.modulemap -Xcc -fmodule-map-file\=/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/GeneratedModuleMaps/NumiBrainMetalBridgeABI.modulemap -Xcc -fmodule-map-file\=/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/GeneratedModuleMaps/NumiBrainConnectomeABI.modulemap -Xcc -fmodule-map-file\=/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/GeneratedModuleMaps/NumiBrainABI.modulemap -Xcc -ivfsstatcache -Xcc /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/SDKStatCaches.noindex/macosx27.0-26A425-333f8520f9263b97ee3ee54a1fbb19cdffd68ff603bdaacc80b00cb8898de72d.sdkstatcache -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainNumiLabBridgeABI/include -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetalBridgeABI/include -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainConnectomeABI/include -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainABI/include -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Release/include -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainSyntheticV5CLI-p.build/DerivedSources-normal/arm64 -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainSyntheticV5CLI-p.build/DerivedSources/arm64 -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainSyntheticV5CLI-p.build/DerivedSources -Xcc -DSWIFT_PACKAGE -no-auto-bridging-header-chaining -module-name NumiBrainSyntheticV5CLI -package-name numi_brain_v5_synthetic_20261107 -const-gather-protocols-file /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/NumiBrainSyntheticV5CLI_const_extract_protocols.json -disable-clang-spi -clang-target arm64-apple-macos27.0 -target-sdk-version 27.0 -target-sdk-name macosx27.0 -in-process-plugin-server-path /Library/Developer/CommandLineTools/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -enable-default-cmo -num-threads 12 -o /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/main.o -debug-module-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/NumiBrainSyntheticV5CLI.swiftmodule -index-unit-output-path /NumiBrain.build/Release/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/main.o
+error: Build failed
+EXIT_CODE=1

@@ -1,0 +1,149 @@
+Fetching https://github.com/ml-explore/mlx-swift.git
+Fetching https://github.com/apple/swift-numerics
+[1/6849] Fetching swift-numerics
+[4248/24580] Fetching swift-numerics, mlx-swift
+Fetched https://github.com/apple/swift-numerics (2.49s)
+Fetched https://github.com/ml-explore/mlx-swift.git (2.49s)
+Computing version for https://github.com/ml-explore/mlx-swift.git
+Computed https://github.com/ml-explore/mlx-swift.git at 0.31.3 (2.93s)
+Computing version for https://github.com/apple/swift-numerics
+Computed https://github.com/apple/swift-numerics at 1.1.1 (0.39s)
+Creating working copy for https://github.com/ml-explore/mlx-swift.git
+Working copy of https://github.com/ml-explore/mlx-swift.git resolved at 0.31.3
+Creating working copy for https://github.com/apple/swift-numerics
+Working copy of https://github.com/apple/swift-numerics resolved at 1.1.1
+Building for production...
+[Computing dependencies]
+[Pre-planning 1 / 1264]
+[Planning deferred tasks]
+[154 / 628] NumiBrainCoreTests-product
+[204 / 628] mlx-swift_Cmlx
+[207 / 628] mlx-swift_Cmlx
+[209 / 628] mlx-swift_Cmlx
+[214 / 628]
+In file included from /Users/numi/numi-brain-v5-synthetic-20261107/.build/checkouts/mlx-swift/Source/Cmlx/mlx-generated/metal/steel/attn/kernels/steel_attention.metal:6:
+In file included from /Users/numi/numi-brain-v5-synthetic-20261107/.build/checkouts/mlx-swift/Source/Cmlx/mlx-generated/metal/steel/attn/kernels/../../../steel/attn/kernels/steel_attention.h:3:
+In file included from /Users/numi/numi-brain-v5-synthetic-20261107/.build/checkouts/mlx-swift/Source/Cmlx/mlx-generated/metal/steel/attn/kernels/../../../steel/attn/attn.h:6:
+In file included from /Users/numi/numi-brain-v5-synthetic-20261107/.build/checkouts/mlx-swift/Source/Cmlx/mlx-generated/metal/steel/attn/kernels/../../../steel/attn/../../steel/attn/mma.h:11:
+/Users/numi/numi-brain-v5-synthetic-20261107/.build/checkouts/mlx-swift/Source/Cmlx/mlx-generated/metal/steel/attn/kernels/../../../steel/attn/../../steel/utils/integral_constant.h:108:6: warning: constexpr if is a C++17 extension [-Wc++17-extensions]
+  if constexpr (start < stop) {
+     ^
+In file included from /Users/numi/numi-brain-v5-synthetic-20261107/.build/checkouts/mlx-swift/Source/Cmlx/mlx-generated/metal/steel/attn/kernels/steel_attention.metal:6:
+/Users/numi/numi-brain-v5-synthetic-20261107/.build/checkouts/mlx-swift/Source/Cmlx/mlx-generated/metal/steel/attn/kernels/../../../steel/attn/kernels/steel_attention.h:356:16: warning: constexpr if is a C++17 extension [-Wc++17-extensions]
+            if constexpr (is_bool) {
+               ^
+/Users/numi/numi-brain-v5-synthetic-20261107/.build/checkouts/mlx-swift/Source/Cmlx/mlx-generated/metal/steel/attn/kernels/../../../steel/attn/kernels/steel_attention.h:426:14: warning: constexpr if is a C++17 extension [-Wc++17-extensions]
+          if constexpr (BD == 128) {
+             ^
+/Users/numi/numi-brain-v5-synthetic-20261107/.build/checkouts/mlx-swift/Source/Cmlx/mlx-generated/metal/steel/attn/kernels/../../../steel/attn/kernels/steel_attention.h:436:14: warning: constexpr if is a C++17 extension [-Wc++17-extensions]
+          if constexpr (BD == 128) {
+             ^
+4 warnings generated.
+[217 / 629] _NumericsShims
+[223 / 636] _NumericsShims
+[228 / 636] NumiBrain_NumiBrainMetal
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/NeuralTissue.metal:4070:9: warning: variable 'sharedOscillatorCount' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/NeuralTissue.metal:4324:34: note: uninitialized use occurs here
+    const uint oscillatorCount = sharedOscillatorCount;
+                                 ^~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/NeuralTissue.metal:4070:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/NeuralTissue.metal:4066:43: note: initialize the variable 'sharedOscillatorCount' to silence this warning
+    threadgroup uint sharedOscillatorCount;
+                                          ^
+                                           = 0
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/NeuralTissue.metal:4070:9: warning: variable 'sharedReflexRuleCount' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/NeuralTissue.metal:4325:34: note: uninitialized use occurs here
+    const uint reflexRuleCount = sharedReflexRuleCount;
+                                 ^~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/NeuralTissue.metal:4070:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/NeuralTissue.metal:4067:43: note: initialize the variable 'sharedReflexRuleCount' to silence this warning
+    threadgroup uint sharedReflexRuleCount;
+                                          ^
+                                           = 0
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/NeuralTissue.metal:4070:9: warning: variable 'sharedHasLocalizedWithdrawalSource' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/NeuralTissue.metal:4327:9: note: uninitialized use occurs here
+        sharedHasLocalizedWithdrawalSource != 0u;
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/NeuralTissue.metal:4070:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/NeuralTissue.metal:4068:56: note: initialize the variable 'sharedHasLocalizedWithdrawalSource' to silence this warning
+    threadgroup uint sharedHasLocalizedWithdrawalSource;
+                                                       ^
+                                                        = 0
+3 warnings generated.
+[231 / 636] NumiBrain_NumiBrainMetal
+[234 / 636] NumiBrain_NumiBrainMetal
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal:5:18: error: unknown type name 'NBMotorOutputHeaderGPU'
+    device const NBMotorOutputHeaderGPU *headerBuffer [[buffer(1)]],
+                 ^
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal:6:18: error: unknown type name 'NBNumanXMotorReadyGateGPU'
+    device const NBNumanXMotorReadyGateGPU *gateBuffer [[buffer(2)]],
+                 ^
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal:7:14: error: unknown type name 'NBNumanXMotorReadyGateGPU'
+    constant NBNumanXMotorReadyGateGPU &expected [[buffer(3)]],
+             ^
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal:8:14: error: unknown type name 'NBNumanXMotorCandidateGPU'
+    constant NBNumanXMotorCandidateGPU &candidate [[buffer(4)]],
+             ^
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal:20:11: error: unknown type name 'NBNumanXMotorReadyGateGPU'
+    const NBNumanXMotorReadyGateGPU expectedValue = expected;
+          ^
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal:21:11: error: unknown type name 'NBNumanXMotorReadyGateGPU'
+    const NBNumanXMotorReadyGateGPU gate = gateBuffer[0];
+          ^
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal:22:11: error: unknown type name 'NBMotorOutputHeaderGPU'
+    const NBMotorOutputHeaderGPU header = headerBuffer[0];
+          ^
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal:23:11: error: unknown type name 'NBNumanXMotorCandidateGPU'
+    const NBNumanXMotorCandidateGPU candidateValue = candidate;
+          ^
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal:24:5: error: unknown type name 'NBNumanXMotorReadyGateGPU'
+    NBNumanXMotorReadyGateGPU normalized = gate;
+    ^
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal:25:25: error: use of undeclared identifier 'NB_NUMANX_READY_PENDING'
+    normalized.status = NB_NUMANX_READY_PENDING;
+                        ^
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal:42:30: error: use of undeclared identifier 'NB_NUMANX_MOTOR_CANDIDATE_VALID'
+      && candidate.flags == (NB_NUMANX_MOTOR_CANDIDATE_VALID | NB_NUMANX_MOTOR_CANDIDATE_DECISION_SHADOW)
+                             ^
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal:42:64: error: use of undeclared identifier 'NB_NUMANX_MOTOR_CANDIDATE_DECISION_SHADOW'
+      && candidate.flags == (NB_NUMANX_MOTOR_CANDIDATE_VALID | NB_NUMANX_MOTOR_CANDIDATE_DECISION_SHADOW)
+                                                               ^
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal:29:33: error: use of undeclared identifier 'NB_NUMANX_READY_ABI_VERSION'
+      && expected.abiVersion == NB_NUMANX_READY_ABI_VERSION
+                                ^
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal:30:34: error: use of undeclared identifier 'NB_NUMANX_MOTOR_GATE_BYTES'
+      && expected.structBytes == NB_NUMANX_MOTOR_GATE_BYTES
+                                 ^
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal:31:29: error: use of undeclared identifier 'NB_NUMANX_READY_PENDING'
+      && expected.status == NB_NUMANX_READY_PENDING
+                            ^
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal:37:25: error: use of undeclared identifier 'NB_NUMANX_READY_SUCCESS'
+      && gate.status == NB_NUMANX_READY_SUCCESS
+                        ^
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal:41:37: error: use of undeclared identifier 'NB_NUMANX_MOTOR_CANDIDATE_VERSION'
+      && candidate.formatVersion == NB_NUMANX_MOTOR_CANDIDATE_VERSION
+                                    ^
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal:44:57: error: use of undeclared identifier 'NBMotorOutputHeaderGPU'
+      && candidate.motorOutputHeaderByteCount == sizeof(NBMotorOutputHeaderGPU)
+                                                        ^
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal:50:34: error: use of undeclared identifier 'NB_MOTOR_OUTPUT_VERSION'
+      && header.formatVersion == NB_MOTOR_OUTPUT_VERSION
+                                 ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+error: CompileMetalFile /Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal failed with a nonzero exit code. Command line:     cd /Users/numi/numi-brain-v5-synthetic-20261107
+    /Users/numi/Library/Developer/Toolchains/Metal.xctoolchain/usr/bin/metal -c -target air64-apple-macos26.0 -I/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Release/include -F/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Release -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk -fmetal-math-mode\=fast -fmetal-math-fp32-functions\=fast -serialize-diagnostics /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrain_NumiBrainMetal-b.build/Metal/BorrowedHumanMotor.dia -o /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrain_NumiBrainMetal-b.build/Metal/BorrowedHumanMotor.air -MMD -MT dependencies -MF /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrain_NumiBrainMetal-b.build/Metal/BorrowedHumanMotor.dat /Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/Shaders/BorrowedHumanMotor.metal
+error: Build failed
+EXIT_CODE=1
