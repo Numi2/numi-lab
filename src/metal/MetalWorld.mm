@@ -657,6 +657,10 @@ struct MetalWorldResidentStateData {
     std::size_t rodNodeBuffer = kRodNodesA;
     std::size_t rodEdgeBuffer = kRodEdgesA;
     std::size_t rodWitnessBuffer = kRodWitnessesA;
+    // These record opaque owners that have influenced accepted submissions,
+    // without retaining their borrowed context pointers or implying ownership.
+    bool hasExternalObservationHistory = false;
+    bool hasExternalActionHistory = false;
     bool supportsReset = false;
     bool initialized = false;
     bool pending = false;
@@ -715,6 +719,8 @@ struct MetalWorldSubmissionState {
             resident->rodEdgeBuffer = finalRodEdgeBuffer;
             resident->rodWitnessBuffer =
                 finalRodWitnessBuffer;
+            resident->hasExternalObservationHistory |= hasExternalObservation;
+            resident->hasExternalActionHistory |= hasExternalAction;
             resident->initialized = true;
         } catch (...) {
         }
@@ -770,6 +776,8 @@ struct MetalWorldSubmissionState {
     bool hasRods = false;
     bool contactMode = false;
     bool hasMillardProgram = false;
+    bool hasExternalObservation = false;
+    bool hasExternalAction = false;
     bool nativeTask = false;
     bool captureContactEvidence = false;
     bool publishFinalState = true;
@@ -21517,6 +21525,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             pending->hasRods = world.rodCount() != 0u;
             pending->contactMode = contactMode;
             pending->hasMillardProgram = hasMillardProgram;
+            pending->hasExternalObservation = config.deviceObservationProgram.valid();
+            pending->hasExternalAction = config.deviceActionProgram.valid();
             pending->nativeTask = nativeTask;
             pending->captureContactEvidence =
                 config.captureContactEvidence;
@@ -21657,6 +21667,14 @@ MetalWorldDiagnostics MetalWorldContext::residentStateFingerprint(
     if (resident->devicePhysicsFingerprint != 0u) {
         return reject({}, MetalWorldHostStatus::invalidModel,
             "resident fingerprint cannot include external device-physics state");
+    }
+    if (resident->hasExternalObservationHistory) {
+        return reject({}, MetalWorldHostStatus::invalidModel,
+            "resident fingerprint cannot include external observation state");
+    }
+    if (resident->hasExternalActionHistory) {
+        return reject({}, MetalWorldHostStatus::invalidModel,
+            "resident fingerprint cannot include external action state");
     }
     const auto context = resident->context;
     if (!resident->initialized || resident->pending || context == nullptr) {

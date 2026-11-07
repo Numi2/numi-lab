@@ -1240,8 +1240,8 @@ public:
     // Canonical digest of the complete device-resident continuation state.
     // The call is inspection-only, requires an initialized idle resident
     // slot, and includes every persistent buffer's validated logical bytes plus resident metadata.
-    // External device-physics and device-mechanics owners are rejected because
-    // their private continuation state cannot be included in this digest.
+    // External device-physics, device-mechanics, observation and action owners
+    // are rejected because their private state cannot be included in this digest.
     [[nodiscard]] MetalWorldDiagnostics residentStateFingerprint(
         const MetalWorldResidentState& state,
         std::uint64_t& fingerprint
