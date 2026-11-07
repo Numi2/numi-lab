@@ -1,0 +1,5 @@
+start_utc=2026-11-07T23:02:06Z
+external action digest: invalid_model value=0 rejected_candidate_preserved=1
+external observation+action digest: invalid_model value=0 rejected_candidate_preserved=1
+end_utc=2026-11-07T23:02:06Z
+exit_code=0

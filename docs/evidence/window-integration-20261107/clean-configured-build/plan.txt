@@ -1,0 +1,1 @@
+GPU tests are bounded correctness checks against the clean-configured native library and metallib. The delay and kinematic fixtures were linked separately against that library. These runs are not physical-accuracy, performance, perception, snapshot-restoration or release qualification.

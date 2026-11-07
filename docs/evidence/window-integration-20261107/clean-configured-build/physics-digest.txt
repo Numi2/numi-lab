@@ -1,0 +1,4 @@
+start_utc=2026-11-07T23:02:06Z
+external physics digest: first_status=invalid_model first=0 second_status=invalid_model second=0 owner_state=11->29
+end_utc=2026-11-07T23:02:06Z
+exit_code=0

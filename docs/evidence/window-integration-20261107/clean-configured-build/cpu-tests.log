@@ -1,0 +1,13 @@
+Test project /Users/numi/numi-lab-release-clean-build-20261107
+    Start 3: metalrobo_actuator_pack_migration
+1/4 Test #3: metalrobo_actuator_pack_migration ...   Passed    0.55 sec
+    Start 4: metalrobo_numi_window_metadata
+2/4 Test #4: metalrobo_numi_window_metadata ......   Passed    0.21 sec
+    Start 5: metalrobo_numi_window_bootstrap
+3/4 Test #5: metalrobo_numi_window_bootstrap .....   Passed    0.38 sec
+    Start 6: metalrobo_numi_training_cancel
+4/4 Test #6: metalrobo_numi_training_cancel ......   Passed    0.95 sec
+
+100% tests passed out of 4
+
+Total Test time (real) =   2.10 sec

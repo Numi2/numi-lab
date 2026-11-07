@@ -1,0 +1,5 @@
+start_utc=2026-11-07T23:02:06Z
+initial action-only digest: invalid_model value=0 pending_rejected=1
+initial observation-only digest: invalid_model value=0 pending_rejected=1
+end_utc=2026-11-07T23:02:06Z
+exit_code=0

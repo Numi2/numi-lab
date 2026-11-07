@@ -1,0 +1,4 @@
+start_utc=2026-11-07T23:02:06Z
+independent replay and measured-surface owner guards passed; saved external-state restoration is not supported
+end_utc=2026-11-07T23:02:06Z
+exit_code=0
