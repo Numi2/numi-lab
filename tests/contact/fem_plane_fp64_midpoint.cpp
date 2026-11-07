@@ -64,8 +64,55 @@ static double kinetic(const Model& m,const State& s){
   v+=m.mass[i]*(s.v[i].x*s.v[i].x+s.v[i].y*s.v[i].y+s.v[i].z*s.v[i].z)/2;
  return v;
 }
+static double midFunctional(const Model& m,const State& old,const State& end,double h){
+ State mid=old;double value=0;
+ for(size_t i=0;i<mid.x.size();++i){
+  mid.x[i]=(old.x[i]+end.x[i])*.5;
+  V q=end.x[i]-old.x[i]-old.v[i]*h;
+  value+=m.mass[i]*(q.x*q.x+q.y*q.y+q.z*q.z)/2;
+ }
+ return value+h*h*m.energy(mid);
+}
+static void discreteCheck(){
+ Model m(2);State old=m.initial,end=old;double h=.000125;
+ for(size_t i=0;i<end.x.size();++i){
+  old.x[i].z-=.000105;
+  end.x[i]=old.x[i];end.x[i].z-=2e-6*(1+(i%3)*.2);
+  end.x[i].x+=1e-6*std::sin(double(i));old.v[i].z=-.03;
+ }
+ auto r=midResidual(m,old,end,h);size_t n=r.size();
+ std::vector<double> a(n),b(n);
+ for(size_t i=0;i<n;++i){a[i]=std::sin(i+1.);b[i]=std::cos(2.*i+1.);}
+ auto shifted=[&](const std::vector<double>&d,double scale){
+  State t=end;for(size_t j=0;j<n;++j)coord(t.x[j/3],j%3)+=scale*d[j];return t;
+ };
+ const double eps=1e-8;
+ double direct=0;for(size_t i=0;i<n;++i)direct+=m.mass[i/3]*r[i]*a[i];
+ double finite=(midFunctional(m,old,shifted(a,eps),h)-midFunctional(m,old,shifted(a,-eps),h))/(2*eps);
+ auto ra=midResidual(m,old,shifted(a,eps),h),rb=midResidual(m,old,shifted(a,-eps),h);
+ auto rc=midResidual(m,old,shifted(b,eps),h),rd=midResidual(m,old,shifted(b,-eps),h);
+ double aHb=0,bHa=0;
+ for(size_t i=0;i<n;++i){
+  aHb+=a[i]*m.mass[i/3]*(rc[i]-rd[i])/(2*eps);
+  bHa+=b[i]*m.mass[i/3]*(ra[i]-rb[i])/(2*eps);
+ }
+ const double de=2e-8;
+ auto mix=[&](double sa,double sb){
+  State t=end;for(size_t j=0;j<n;++j)coord(t.x[j/3],j%3)+=de*(sa*a[j]+sb*b[j]);
+  return midFunctional(m,old,t,h);
+ };
+ const double energyMixed=(mix(1,1)-mix(1,-1)-mix(-1,1)+mix(-1,-1))/(4*de*de);
+ double tangenterr=std::abs(energyMixed-aHb)/std::max({std::abs(energyMixed),std::abs(aHb),1e-30});
+ double graderr=std::abs(direct-finite)/std::max(std::abs(direct),1e-30);
+ double symerr=std::abs(aHb-bHa)/std::max({std::abs(aHb),std::abs(bHa),1e-30});
+ std::cout<<std::setprecision(17)<<"{\"midpoint_gradient_relative_error\":"<<graderr
+  <<",\"mass_weighted_tangent_symmetry_relative_error\":"<<symerr
+  <<",\"tangent_energy_mixed_derivative_relative_error\":"<<tangenterr<<"}\n";
+ if(graderr>1e-5||symerr>1e-5||tangenterr>1e-5)throw std::runtime_error("midpoint discrete functional check failed");
+}
 int main(int argc,char**argv){
  try{
+  if(argc==2&&std::string(argv[1])=="--discrete-check"){discreteCheck();return 0;}
   if(argc!=3)throw std::runtime_error("usage: midpoint timestep duration");
   double h=std::atof(argv[1]),duration=std::atof(argv[2]);
   if(h<=0||duration!=.01||std::abs(std::round(duration/h)*h-duration)>1e-12)
@@ -78,7 +125,7 @@ int main(int argc,char**argv){
   bool restored=true;
   for(size_t i=0;i<s.x.size();++i)restored&=s.x[i].x==old.x[i].x&&s.x[i].y==old.x[i].y&&s.x[i].z==old.x[i].z
    &&s.v[i].x==old.v[i].x&&s.v[i].y==old.v[i].y&&s.v[i].z==old.v[i].z;
-  std::array<double,10> bins{};double impulse=0,worst=0,minGap=1,work=0;
+  std::array<double,10> bins{};double impulse=0,worst=0,minGap=1,work=0,maxStepWorkDefect=0;
   double initialEnergy=m.energy(s)+kinetic(m,s),initialContact=contactEnergy(m,s),energyDefect=0;int maxIterations=0;
   long steps=std::lround(duration/h);
   for(long i=0;i<steps;++i){
@@ -86,10 +133,13 @@ int main(int argc,char**argv){
    State mid=old;
    for(size_t j=0;j<mid.x.size();++j)mid.x[j]=(old.x[j]+s.x[j])*.5;
    double force=m.rhs(mid).impulse;impulse+=h*force;bins[std::min(9,int((i+.5)*h/.001))]+=force*h/.001;
+   double stepWork=0;
    for(size_t j=0;j<m.mass.size();++j){
     minGap=std::min(minGap,s.x[j].z);
-    if(m.area[j])work+=m.area[j]*m.pressure(mid.x[j].z)*(s.x[j].z-old.x[j].z);
+    if(m.area[j])stepWork+=m.area[j]*m.pressure(mid.x[j].z)*(s.x[j].z-old.x[j].z);
    }
+   work+=stepWork;
+   maxStepWorkDefect=std::max(maxStepWorkDefect,std::abs(stepWork+contactEnergy(m,s)-contactEnergy(m,old)));
    energyDefect=std::max(energyDefect,std::abs(m.energy(s)+kinetic(m,s)-initialEnergy));
   }
   std::cout<<std::setprecision(17)<<"{\"schema\":\"numi.independent-fem-midpoint.v1\",\"h\":"<<h
@@ -98,6 +148,7 @@ int main(int argc,char**argv){
    <<",\"initial_energy_J\":"<<initialEnergy<<",\"max_total_energy_defect_J\":"<<energyDefect
    <<",\"initial_contact_potential_J\":"<<initialContact<<",\"final_contact_potential_J\":"<<contactEnergy(m,s)
    <<",\"contact_work_plus_potential_change_J\":"<<work+contactEnergy(m,s)-initialContact
+   <<",\"max_step_contact_work_plus_potential_change_J\":"<<maxStepWorkDefect
    <<",\"max_nonlinear_residual_m\":"<<worst<<",\"max_newton_iterations\":"<<maxIterations
    <<",\"forced_rejection_left_state_unchanged\":"<<(rejected&&restored?"true":"false")<<",\"force_bins_N\":[";
   for(int i=0;i<10;++i)std::cout<<(i?",":"")<<bins[i];

@@ -167,3 +167,40 @@ qualification, moving-contact and friction checks, and full transactional
 restore and failure handling. Spatial refinement and independent physical
 material calibration remain open. The midpoint result is a research lead,
 not a force-qualified production control.
+
+## Midpoint discrete consistency and runtime boundary
+
+For this stateless fixture let q be the end position, q₀ and v₀ the accepted
+state, M the lumped mass matrix, and U the elastic, gravity and contact
+potential. The midpoint equations give
+
+    r(q) = q - q₀ - h v₀ + (h²/2) M⁻¹ ∇U((q+q₀)/2)
+    Φ(q) = ½ (q-q₀-hv₀)ᵀ M (q-q₀-hv₀) + h² U((q+q₀)/2)
+    ∇Φ = M r;  ∇²Φ = M + (h²/4) ∇²U((q+q₀)/2).
+
+At a deformed, active-contact state an independent finite-difference check
+finds relative differences of 9.80e-10 between ∇Φ and the mass-weighted
+residual, 7.01e-9 for tangent bilinear symmetry, and 4.94e-7 for the tangent
+against a mixed finite difference of Φ. At 15.625 µs the maximum individual
+step midpoint contact work plus potential change is 2.65e-10 J. These
+checks establish consistency of the standalone equations and numerical
+prototype, not the as-yet-unimplemented Metal tangent.
+
+The current Matter path is built around a backward-Euler endpoint candidate:
+the mechanical residual, trial candidate and line search use its velocity and
+endpoint; nm_fem_integrate publishes x₀+h v₁; contact samples and histories
+carry the associated step impulse. A half-step backward-Euler solve can
+represent the midpoint equations for this restricted stateless problem, but
+reflecting that candidate into the full endpoint after the existing
+certificate changes the geometry and the physical impulse that was certified.
+Current validation of the midpoint alone cannot certify the reflected
+endpoint or all geometry on the committed path.
+
+A safe integration must therefore add, at minimum, endpoint/path clearance
+and final material-validity checks before transaction commit; correctly
+convert contact impulse and history to the physical interval; recompute or
+appropriately define the final convergence certificate; and preserve
+checkpoint, rollback and snapshot semantics after any late failure. It must
+also distinguish actual timestep and midpoint in the runtime fingerprint.
+The existing contracts cannot simply be reused unchanged to provide those
+properties. No partial midpoint option has been added to Matter.

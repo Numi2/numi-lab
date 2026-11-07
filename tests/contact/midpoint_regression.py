@@ -9,4 +9,5 @@ impulse=abs(x['impulse_Ns']-reference['impulse_Ns'])/abs(reference['impulse_Ns']
 assert force<=.0025 and impulse<=.0025,(force,impulse)
 assert x['minimum_gap_m']>1e-7 and x['forced_rejection_left_state_unchanged']
 assert x['max_total_energy_defect_J']<1e-8 and abs(x['contact_work_plus_potential_change_J'])<1e-8
+assert x['max_step_contact_work_plus_potential_change_J']<1e-8
 print('CPU midpoint fixed-mesh force/impulse:',force,impulse,'clearance:',x['minimum_gap_m'])
