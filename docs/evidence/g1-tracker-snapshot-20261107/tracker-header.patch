@@ -1,0 +1,25 @@
+--- /Users/numi/numi-g1-delay-fix-owner-20261107/include/metalrobo/MetalHybridRenderer.hpp	2026-11-07 14:18:00
++++ /Users/numi/numi-g1-tracker-probe-owner-20261107/include/metalrobo/MetalHybridRenderer.hpp	2026-11-07 14:57:39
+@@ -361,6 +361,14 @@
+     float maskedDepthCurriculumCorruptionGain = 0.0f;
+ };
+ 
++// Research-only snapshot in the isolated diagnostic owner.
++struct TrackerProbeSnapshot {
++    std::vector<float> trackHistory, depthHistory;
++    std::uint64_t observationSequence = 0u, lastSensorSequence = 0u;
++    std::uint32_t environments = 0u, tracks = 0u, trackHistoryLength = 0u;
++    std::uint32_t depthWidth = 0u, depthHeight = 0u, depthSlots = 0u;
++};
++
+ // Reduces rendered metric depth and instance identity directly into the
+ // compact object-track slots consumed by a TaskPack. The returned device
+ // observation program executes renderer, reduction, and policy inference in
+@@ -392,6 +400,7 @@
+     // Clears device-resident temporal tracks at an explicit simulator reset
+     // boundary. No observation plane is read back or reallocated.
+     [[nodiscard]] MetalHybridRendererDiagnostics reset();
++    [[nodiscard]] bool researchSnapshot(TrackerProbeSnapshot& snapshot) const;
+ 
+ private:
+     struct State;

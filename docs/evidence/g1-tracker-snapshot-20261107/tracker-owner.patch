@@ -1,0 +1,46 @@
+--- /Users/numi/numi-g1-delay-fix-owner-20261107/src/metal/MetalHybridRenderer.mm	2026-11-07 14:18:00
++++ /Users/numi/numi-g1-tracker-probe-owner-20261107/src/metal/MetalHybridRenderer.mm	2026-11-07 14:57:39
+@@ -7400,6 +7400,43 @@
+     }
+ }
+ 
++// Research-only: copy private buffers after the preceding command completed.
++// No tracker, renderer, or physics state is changed by this method.
++bool MetalHybridObjectTracker::researchSnapshot(TrackerProbeSnapshot& out) const {
++    if (!state_ || !state_->compiled || !state_->renderer ||
++        !state_->history || !state_->maskedDepthHistory) return false;
++    id<MTLCommandQueue> queue = state_->renderer->state_->queue;
++    id<MTLBuffer> track = [state_->device newBufferWithLength:state_->history.length
++                                      options:MTLResourceStorageModeShared];
++    id<MTLBuffer> depth = [state_->device newBufferWithLength:state_->maskedDepthHistory.length
++                                      options:MTLResourceStorageModeShared];
++    id<MTLCommandBuffer> cmd = [queue commandBuffer];
++    id<MTLBlitCommandEncoder> blit = [cmd blitCommandEncoder];
++    if (!queue || !track || !depth || !cmd || !blit) return false;
++    [blit copyFromBuffer:state_->history sourceOffset:0 toBuffer:track
++       destinationOffset:0 size:state_->history.length];
++    [blit copyFromBuffer:state_->maskedDepthHistory sourceOffset:0 toBuffer:depth
++       destinationOffset:0 size:state_->maskedDepthHistory.length];
++    [blit endEncoding];
++    [cmd commit];
++    [cmd waitUntilCompleted];
++    if (cmd.status != MTLCommandBufferStatusCompleted) return false;
++    out.trackHistory.resize(track.length / sizeof(float));
++    out.depthHistory.resize(depth.length / sizeof(float));
++    std::memcpy(out.trackHistory.data(), track.contents, track.length);
++    std::memcpy(out.depthHistory.data(), depth.contents, depth.length);
++    out.observationSequence = state_->observationSequence;
++    out.lastSensorSequence = state_->lastSensorSequence;
++    out.environments = state_->config.capacity;
++    out.tracks = static_cast<std::uint32_t>(state_->config.bindings.size());
++    out.trackHistoryLength = state_->config.maximumActorHistoryLength;
++    out.depthWidth = state_->config.maskedDepthWidth;
++    out.depthHeight = state_->config.maskedDepthHeight;
++    out.depthSlots = state_->config.maskedDepthFrameOffsets.empty() ? 0u :
++       state_->config.maskedDepthFrameOffsets.back() + 1u;
++    return true;
++}
++
+ bool MetalHybridObjectTracker::encodeObservation(
+     void* context,
+     const MetalWorldDeviceObservationPass& pass
