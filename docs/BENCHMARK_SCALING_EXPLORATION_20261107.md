@@ -34,3 +34,10 @@ The compact copy is not itself the complete portable notebook. The archived
 registration identifies source revision f4dd2312 and all bound hashes; later
 documentation does not alter the measured identity. A follow-up using unused
 seeds was registered but has not yet been run.
+
+The selected developer directory on this host was
+/Library/Developer/CommandLineTools. Metal compilation was available, but
+xcrun could not find xctrace and /Applications did not contain Xcode.
+Consequently these observations do not identify occupancy, bandwidth, kernel
+bottlenecks or execution limiters. Those require an appropriate Metal profiling
+setup before making a targeted GPU optimization claim.
