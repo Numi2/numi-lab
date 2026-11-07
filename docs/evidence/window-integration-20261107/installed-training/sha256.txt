@@ -1,0 +1,8 @@
+2e971e7c3680ec809c7e9ac71355b89502f710f835bc3c69725a91dbbdb01074  /Users/numi/numi-lab-release-relocated-20261108/bin/numi
+4a738811ba555e6b051cb56dae7f16e0f913b430588deb4c1efcb226512b1f38  /Users/numi/numi-lab-release-relocated-20261108/libexec/numi/train
+31b5db1788ee0b7099a0f96b9ef73f17fee81742c524a210afc2f9c767e4d85e  /Users/numi/numi-lab-release-relocated-20261108/bin/metalrobo_task_train
+a8098dc3126be98fd108679f1755a2022f59b46be93ba7e1c404d5bfd74aae9f  /Users/numi/numi-lab-release-relocated-20261108/bin/metalrobo_task_rollout
+7831d91e1e6af0e73a6ec64e829465ca4ba788a0be3ce8ea9757f4ee5db5cfbc  /Users/numi/numi-lab-release-relocated-20261108/lib/libmetalrobo.dylib
+55b021d249bc1bf3e40f94158556c93910d85d3611d4d7fc7ab4bda800d6b2f3  /Users/numi/numi-lab-release-relocated-20261108/lib/metalrobo/MetalRobo.metallib
+c546051f494b2a5c9111951a40d6ff9735f4f72b8cc3410ed5524f3c6d3078d8  /Users/numi/numi-lab-release-relocated-20261108/share/numi/python/metalrobo/mlx_policy_worker.py
+8c51a7905711b8b61d2eed008505a4b99442b2e91d7a22edc8fef241682fcd8f  /Users/numi/numi-lab-release-relocated-20261108/share/numi/python/metalrobo/policy_selection.py

@@ -1,0 +1,22 @@
+usage: biological_viewers.py [-h]
+                             {catalog,status,context,selected,prepare,verify,return} ...
+
+Source-bound handoffs from Numi owners to OpenAI's native biological viewers.
+This module prepares tool arguments, never runs a second renderer or
+scientific engine. A prepared handoff is not a mounted viewer or an
+observation reveal.
+
+positional arguments:
+  {catalog,status,context,selected,prepare,verify,return}
+    catalog             Discover viewers and source/identity contracts
+    status              Check actual companion plugin installations
+    context             Inspect the current Wet Lab selection without reading
+                        observations
+    selected            Prepare an owner-authorized bounded cell page for
+                        Slide Viewer
+    prepare             Prepare an exact native-viewer opening; does not open
+                        or reveal
+
+options:
+  -h, --help            show this help message and exit
+exit_code=0
