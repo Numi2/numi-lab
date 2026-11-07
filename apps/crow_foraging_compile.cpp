@@ -7,12 +7,20 @@ using namespace metalrobo;
 int main(int argc,char** argv) {
     bool owns=false;std::filesystem::path output;
     try {
-        if(argc!=5 && argc!=6)throw std::invalid_argument("Usage: metalrobo_crow_foraging_compile CALIBRATED_PORTS_BIN NEW_OUTPUT ALLOCATION_SEED OCCLUDED_0_OR_1 [MEMORY_CHOICE_DECISION_TICK]");
-        unsigned decision=0;
-        if(argc==6) {
+        if(argc!=5 && argc!=6 && argc!=8)throw std::invalid_argument("Usage: metalrobo_crow_foraging_compile CALIBRATED_PORTS_BIN NEW_OUTPUT ALLOCATION_SEED OCCLUDED_0_OR_1 [MEMORY_CHOICE_DECISION_TICK [HEAD_HOLD_TICKS BEAK_HOLD_TICKS]]");
+        unsigned decision=0,headHold=0,beakHold=0;
+        if(argc>=6) {
             std::size_t used=0;const std::string text=argv[5];const auto value=std::stoul(text,&used);
             if(used!=text.size() || value<48 || value>192)throw std::invalid_argument("Memory-choice decision tick must be48..192");
             decision=unsigned(value);
+        }
+        if(argc==8) {
+            unsigned* holds[]={&headHold,&beakHold};
+            for(unsigned i=0;i<2;++i) {
+                std::size_t used=0;const std::string text=argv[6+i];const auto value=std::stoul(text,&used);
+                if(used!=text.size() || value<1 || value>512)throw std::invalid_argument("Native action holds must be 1..512 ticks");
+                *holds[i]=unsigned(value);
+            }
         }
         std::array<mr_float4,2> ports{};
         std::ifstream calibration(argv[1],std::ios::binary);
@@ -45,6 +53,7 @@ int main(int argc,char** argv) {
         for(unsigned i=0;i<2;++i){if(i)artifact<<',';const auto p=ports[i];artifact<<'['<<p.x<<','<<p.y<<','<<p.z<<','<<p.w<<']';}
         artifact<<"],\"cue_mesh_instances\":["<<visual.resourceCues[0].binding.x<<','<<visual.resourceCues[1].binding.x<<"],\"allocation_seed\":"<<seed<<",\"occluded\":"<<(blocked?"true":"false");
         if(decision)artifact<<",\"memory_choice_decision_tick\":"<<decision;
+        if(headHold)artifact<<",\"head_yaw_hold_ticks\":"<<headHold<<",\"beak_hold_ticks\":"<<beakHold;
         artifact<<"}}\n";
         artifact.close();if(!artifact)throw std::runtime_error("Write cue environment configuration failed");
         std::cout<<"{\"status\":\"passed\",\"world_fingerprint\":"<<physical.world().fingerprint()<<",\"sensor_fingerprint\":"<<program.sensor.fingerprint

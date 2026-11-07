@@ -3296,7 +3296,8 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
     const bool journey,
     const MRRetinalSensorConfigC* retinalConfig=nullptr,
     const MRCrowCuedForagingConfigC* cueConfig=nullptr,
-    const std::uint32_t memoryChoiceDecisionStep=0u
+    const std::uint32_t memoryChoiceDecisionStep=0u,
+    const std::uint32_t headHold=0u,const std::uint32_t beakHold=0u
 ) {
     if (config == nullptr) {
         gLastError = "BirdFlow American-crow rollout configuration is required.";
@@ -3433,7 +3434,7 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             const std::array<mr_float4,2> ports{{{a[0],a[1],a[2],a[3]},{b[0],b[1],b[2],b[3]}}};
             resources=metalrobo::authorAmericanCrowCuedForagingResources(physical,ports,config->environment_count,cueConfig->allocation_seed);
             manifest.task.deviceStateProgramFingerprint=metalrobo::finiteResourceProgramFingerprint(resources->program,resources->patches,true,resources->allocation);
-            if(memoryChoiceDecisionStep)metalrobo::applyAmericanCrowMemoryChoiceCurriculum(manifest.task,memoryChoiceDecisionStep);
+            if(memoryChoiceDecisionStep)metalrobo::applyAmericanCrowMemoryChoiceCurriculum(manifest.task,memoryChoiceDecisionStep,headHold,beakHold);
         }
         auto handle = createCompiledRunTaskRollout(
             std::move(manifest), metallib_path,
@@ -4037,6 +4038,17 @@ MRTaskRolloutHandle* mr_create_task_rollout_cued_memory_foraging(const MRRunMani
         gLastError="Memory-choice requires cued v13, decision tick48..192 and exclusive policy authority";return nullptr;
     }
     return createBirdFlowAmericanCrowRun(&manifest->profile,manifest->visual_sensor_program,manifest->metallib_path,true,retinal,foraging,decision_step);
+}
+
+MRTaskRolloutHandle* mr_create_task_rollout_cued_memory_foraging_holds(const MRRunManifestC* manifest,
+    const MRRetinalSensorConfigC* retinal,const MRCrowCuedForagingConfigC* foraging,uint32_t decision,uint32_t head_hold,uint32_t beak_hold) {
+    if(!manifest || !retinal || !foraging || decision<48u || decision>192u || !head_hold || !beak_hold || head_hold>512u || beak_hold>512u ||
+        manifest->source!=MR_RUN_SOURCE_BIRDFLOW_AMERICAN_CROW_JOURNEY ||
+        manifest->profile.birdflow_journey_variant!=MR_BIRDFLOW_JOURNEY_V13_RETINAL_FEEDING ||
+        manifest->inspection_visual_program || manifest->profile.birdflow_journey_teacher) {
+        gLastError="Native holds require cued v13, decision48..192, periods1..512 and exclusive policy authority";return nullptr;
+    }
+    return createBirdFlowAmericanCrowRun(&manifest->profile,manifest->visual_sensor_program,manifest->metallib_path,true,retinal,foraging,decision,head_hold,beak_hold);
 }
 
 namespace {

@@ -32,7 +32,8 @@ def same(a,b):
 
 
 def fp64_loss(parameters, p, args, config):
-    actor,critic,latents,old_logp,old_means,old_logstd,old_values,adv,returns,initial,resets,valid=args
+    actor,critic,latents,old_logp,old_means,old_logstd,old_values,adv,returns,initial,resets,valid=args[:12]
+    selections=args[12] if len(args)==13 else None
     def dense(x,prefix,layers):
         for i,layer in enumerate(layers):
             x=x@parameters[f"{prefix}.{i}.weight"].T+parameters[f"{prefix}.{i}.bias"]
@@ -54,12 +55,21 @@ def fp64_loss(parameters, p, args, config):
     v=np.clip((critic-p.effective_critic_observation_mean)*p.effective_critic_observation_inverse_standard_deviation,-p.observation_clip,p.observation_clip)
     values=dense(v,"critic",p.critic_layers)[...,0]
     logstd=np.clip(parameters["log_standard_deviation"],-5,2)
-    logp=np.sum(-.5*((latents-means)*np.exp(-logstd))**2-logstd-.5*math.log(2*math.pi),axis=-1)
-    ratio=np.exp(logp-old_logp);average=lambda a:np.sum(a*valid)/np.sum(valid)
-    policy=-average(np.minimum(ratio*adv,np.clip(ratio,1-config.clip_ratio,1+config.clip_ratio)*adv))
+    components=lambda m,s: -.5*((latents-m)*np.exp(-s))**2-s-.5*math.log(2*math.pi)
+    average=lambda a:np.sum(a*valid)/max(np.sum(valid),1)
+    if selections is None:
+        logp=np.sum(components(means,logstd),axis=-1);actor_average=average
+        entropy=np.sum(logstd+.5*(1+math.log(2*math.pi)))
+    else:
+        logp=np.sum(components(means,logstd)*selections,axis=-1)
+        old_logp=np.sum(components(old_means,old_logstd)*selections,axis=-1)
+        av=valid*np.any(selections,axis=-1)
+        actor_average=lambda a:np.sum(a*av)/max(np.sum(av),1)
+        entropy=actor_average(np.sum((logstd+.5*(1+math.log(2*math.pi)))*selections,axis=-1))
+    ratio=np.exp(logp-old_logp)
+    policy=-actor_average(np.minimum(ratio*adv,np.clip(ratio,1-config.clip_ratio,1+config.clip_ratio)*adv))
     clipped=old_values+np.clip(values-old_values,-config.clip_ratio,config.clip_ratio)
     value=average(np.maximum((values-returns)**2,(clipped-returns)**2))
-    entropy=np.sum(logstd+.5*(1+math.log(2*math.pi)))
     return float(policy+config.value_coefficient*value-config.entropy_coefficient*entropy)
 
 

@@ -22,7 +22,7 @@ inline constexpr std::uint32_t kRealityProgramPackFormatVersion = 2u;
 // Recurrent artifacts use v5; writers keep dense-only artifacts byte-identical v4.
 inline constexpr std::uint32_t kPolicyPackFormatVersion = 5u;
 inline constexpr std::uint32_t
-    kPolicyRolloutPackFormatVersion = 8u;
+    kPolicyRolloutPackFormatVersion = 9u;
 inline constexpr std::uint32_t kMotionPackFormatVersion = 1u;
 inline constexpr std::uint32_t kInteractionPackFormatVersion = 1u;
 

@@ -4791,6 +4791,19 @@ inline float birdFlowJourneyTeacherAction(
     return 0.0f;
 }
 
+inline uint taskActionHoldPeriod(device const MRTaskProgramHeaderGPU& program,device const uchar* arena,uint action) {
+    if(program.articulation.z==MR_TASK_PROGRAM_ACTION_HOLD_ABI_VERSION)
+        return taskTable<uint>(arena,uint(program.actionAvailabilityProgram>>32u))[action];
+    if(program.articulation.z==MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION)
+        return action<32u && ((uint(program.actionAvailabilityProgram>>32u)>>action)&1u) ? 1u : 0u;
+    return 1u;
+}
+inline bool taskActionSelected(device const MRTaskProgramHeaderGPU& program,device const uchar* arena,uint tick,uint action) {
+    if(!MR_TASK_PROGRAM_HAS_MEMORY_CHOICE(program.articulation.z))return true;
+    const uint period=taskActionHoldPeriod(program,arena,action),decision=uint(program.actionAvailabilityProgram);
+    return period!=0u && tick>=decision && (tick-decision)%period==0u;
+}
+
 kernel void mr_locomotion_task_apply_actions(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
@@ -4984,9 +4997,9 @@ kernel void mr_locomotion_task_apply_actions(
                   navigationTeacherBlend
               )
             : teacherRequested;
-        const bool actionAvailable = program.articulation.z != MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION ||
-            (state.episode.x >= uint(program.actionAvailabilityProgram) &&
-             action < 32u && ((uint(program.actionAvailabilityProgram >> 32u) >> action) & 1u) != 0u);
+        const bool actionAvailable = !MR_TASK_PROGRAM_HAS_MEMORY_CHOICE(program.articulation.z) ||
+            (state.episode.x>=uint(program.actionAvailabilityProgram) && taskActionHoldPeriod(program,arena,action)!=0u);
+        const bool actionSelected=taskActionSelected(program,arena,state.episode.x,action);
         const float requestedBeforeAvailability = avianJourneyTeacher
             ? mix(
                   effectiveTeacherRequested,
@@ -5001,7 +5014,8 @@ kernel void mr_locomotion_task_apply_actions(
         // Physical action and every previous-action plane share this gate.
         // Proposed latents stay only in the learner transaction; they cannot
         // serve as actor-visible external memory during the delay.
-        const float requested = actionAvailable ? requestedBeforeAvailability : 0.0f;
+        const float requested = !actionAvailable ? 0.0f : actionSelected ? requestedBeforeAvailability :
+            actionHistory[delayBase + rawLastSlot*program.counts0.x + action];
         if (avianJourneyTeacher) {
             // Student authority selects the physically executed blend, while
             // the label remains the full accepted-state expert action. This
@@ -5012,9 +5026,8 @@ kernel void mr_locomotion_task_apply_actions(
             teacherActions[actionBase + action] =
                 effectiveTeacherRequested;
         }
-        rawPolicyActions[
-            environment * program.counts0.x + action
-        ] = actionAvailable ? rawPolicyLatents[actionBase + action] : 0.0f;
+        if(!actionAvailable)rawPolicyActions[environment*program.counts0.x+action]=0.0f;
+        else if(actionSelected)rawPolicyActions[environment*program.counts0.x+action]=rawPolicyLatents[actionBase+action];
         const float previous = actionHistory[
             delayBase +
             filterSlot * program.counts0.x +
@@ -8330,6 +8343,16 @@ kernel void mr_locomotion_task_complete(
     outcomeChannels0 *= dispatch.timing.x;
     outcomeChannels1 *= dispatch.timing.x;
 
+    if(program.articulation.z==MR_TASK_PROGRAM_ACTION_HOLD_ABI_VERSION) {
+        uint selected=0u;
+        for(uint action=0;action<program.counts0.x;++action)
+            if(taskActionSelected(program,arena,state.episode.x,action))selected|=1u<<action;
+        for(uint channel=0;channel<program.interactionOffsets1.w;++channel)
+            if(outcomeRewardOperations[channel]==MR_TASK_OUTCOME_POLICY_SELECTION_MASK) {
+                if(channel<4u)outcomeChannels0[channel]=float(selected);
+                else outcomeChannels1[channel-4u]=float(selected);
+            }
+    }
     // V8 omits the actuating approach-envelope flag but retains these two
     // direct shadow diagnostics. They are per-transition indicators, not
     // reward terms, and occupy the two channels unused by the inherited Crow
@@ -9181,6 +9204,9 @@ kernel void mr_locomotion_task_update_evidence(
     evidenceState[0] = state;
 }
 
+kernel void mr_task_action_hold_abi50_capability(device uint* output [[buffer(0)]],uint at [[thread_position_in_grid]]) {
+    if(at==0u)output[0]=MR_TASK_PROGRAM_ACTION_HOLD_ABI_VERSION;
+}
 kernel void mr_task_memory_choice_abi49_capability(device uint* output [[buffer(0)]],uint at [[thread_position_in_grid]]) {
     if (at==0u) output[0]=MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION;
 }

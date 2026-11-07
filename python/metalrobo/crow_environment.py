@@ -1205,10 +1205,13 @@ def main() -> int:
     commands.add_parser("foraging-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("cue-foraging-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("memory-choice-admission").add_argument("--output", type=Path, required=True)
+    commands.add_parser("action-holds-admission").add_argument("--output", type=Path, required=True)
     prepare_cued = commands.add_parser("prepare-cued-foraging")
     prepare_cued.add_argument("--output", type=Path, required=True)
     prepare_cued.add_argument("--allocation-seed", type=int, required=True)
     prepare_cued.add_argument("--occluded", action="store_true")
+    prepare_cued.add_argument("--head-yaw-hold-ticks", type=int, choices=range(1,513), metavar="1..512")
+    prepare_cued.add_argument("--beak-hold-ticks", type=int, choices=range(1,513), metavar="1..512")
     prepare_cued.add_argument("--memory-choice-decision-tick", type=int, choices=range(48,193), metavar="48..192")
     commands.add_parser("feeding-probe").add_argument("--output", type=Path, required=True)
     commands.add_parser("feeding-learning-campaign").add_argument("--output", type=Path, required=True)
@@ -1527,13 +1530,22 @@ def main() -> int:
         elif args.command == "prepare-cued-foraging":
             if not 0 <= args.allocation_seed < 2**64:
                 raise ValueError("Allocation seed must be an unsigned64 integer")
+            holds = (args.head_yaw_hold_ticks, args.beak_hold_ticks)
+            if any(x is not None for x in holds) and (any(x is None for x in holds) or args.memory_choice_decision_tick is None):
+                raise ValueError("Native holds require both periods and a memory-choice decision tick")
             calibration = root / "environments/american-crow/cued-foraging-v1/calibrated-ports.bin"
             result = execute(output, "compile-cued-foraging", [str(runtime(root)["foraging_compile"]),
                              str(calibration), str(output / "environment"), str(args.allocation_seed),
                              "1" if args.occluded else "0"] +
-                             ([str(args.memory_choice_decision_tick)] if args.memory_choice_decision_tick is not None else []), root, 60)
+                             ([str(args.memory_choice_decision_tick)] if args.memory_choice_decision_tick is not None else []) +
+                             ([str(x) for x in holds] if holds[0] is not None else []), root, 60)
             if result.get("status") != "passed" or result.get("simulation_steps") != 0:
                 raise RuntimeError("Native cue environment authoring failed")
+        elif args.command == "action-holds-admission":
+            result = execute(output, "action-holds", [str(runtime(root)["cue_foraging_check"]),
+                             str(output / "native-evidence"), "--action-holds"], root, 1200)
+            if result.get("status") != "passed" or result.get("head_yaw_hold_ticks") != 256 or result.get("beak_hold_ticks") != 16:
+                raise RuntimeError("Native held-action program/reward-path admission failed")
         elif args.command == "memory-choice-admission":
             result = execute(output, "memory-choice", [str(runtime(root)["cue_foraging_check"]),
                              str(output / "native-evidence"), "--memory-choice"], root, 1200)

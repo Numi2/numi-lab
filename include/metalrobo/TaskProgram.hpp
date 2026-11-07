@@ -254,6 +254,8 @@ enum class TaskOutcomeSource : std::uint32_t {
     navigationProgress = 17u,
     navigationWaypointsReached = 18u,
     navigationCompletion = 19u,
+    // Privileged learner metadata, never actor/critic input or reward.
+    policyActionSelectionMask = 20u,
 };
 
 enum class TaskOutcomeDirection : std::uint32_t {
@@ -481,6 +483,9 @@ struct TaskPack {
     // bytes. All actions/history neutral before the accepted episode tick;
     // afterwards only allowedActionMask actions have authority. No teacher.
     std::uint32_t actionAvailableAfterSteps=0u, allowedActionMask=0u;
+    // Optional ABI50 per-action accepted-tick holds. Zero disables an action;
+    // nonzero permits selection at decision + k*period. Empty preserves49.
+    std::vector<std::uint32_t> actionHoldSteps;
     // Operational contact-graph budget for this task. Zero fields retain the
     // world's topology-derived envelope.
     MetalWorldCapacityProfile capacities;

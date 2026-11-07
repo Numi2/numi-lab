@@ -664,6 +664,16 @@ TaskCompileDiagnostics compileTaskProgram(
         interactionClip != nullptr))
         return reject(TaskCompileStatus::invalidPack,"actionAvailabilityProgram",
             "Memory-choice requires retinal/resource ownership, a valid nonzero tick/mask and no reference authority");
+    const bool actionHolds = !pack.actionHoldSteps.empty();
+    if(actionHolds) {
+        if(!memoryChoice || pack.actions.size()>24u || pack.actionHoldSteps.size()!=pack.actions.size())
+            return reject(TaskCompileStatus::invalidPack,"actionHoldSteps","Holds require a complete memory-choice action table of at most24 actions");
+        for(unsigned i=0;i<pack.actions.size();++i)
+            if(pack.actionHoldSteps[i]>512u || (pack.actionHoldSteps[i]!=0u)!=((pack.allowedActionMask&(1u<<i))!=0u))
+                return reject(TaskCompileStatus::invalidPack,"actionHoldSteps","Hold periods must match allowed actions and fit1..512");
+        if(std::ranges::count_if(pack.outcomes,[](const auto& x){return x.source==TaskOutcomeSource::policyActionSelectionMask;})!=1)
+            return reject(TaskCompileStatus::invalidPack,"actionHoldSteps","Holds require one native policy selection outcome");
+    }
     const EngineModel& model = world.model();
     if (model.bodyNames.size() != model.bodies.size() ||
         model.jointNames.size() != model.joints.size() ||
@@ -1063,7 +1073,7 @@ TaskCompileDiagnostics compileTaskProgram(
         const bool taskAuthoredSource =
             (source >= 2u && source <= 4u) ||
             source == 8u || source == 9u ||
-            (source >= 15u && source <= 19u);
+            (source >= 15u && source <= 20u);
         if (outcome.id.empty() || outcome.unit.empty() ||
             !taskAuthoredSource ||
             direction > 2u ||
@@ -1074,6 +1084,10 @@ TaskCompileDiagnostics compileTaskProgram(
                 "outcomes require unique nonempty identities and units with a supported source and direction"
             );
         }
+        if((outcome.id=="policy_action_selection_mask")!=(outcome.source==TaskOutcomeSource::policyActionSelectionMask) ||
+           (outcome.source==TaskOutcomeSource::policyActionSelectionMask &&
+            (!actionHolds || outcome.unit!="action-mask" || direction!=0u)))
+            return reject(TaskCompileStatus::invalidPack,outcome.id,"Policy selection metadata requires native holds, its reserved identity/unit and neutral direction");
         outcomeIds.push_back(outcome.id);
         std::uint32_t compiledSource = source;
         if (outcome.source == TaskOutcomeSource::rewardContribution) {
@@ -1101,6 +1115,12 @@ TaskCompileDiagnostics compileTaskProgram(
                 staged->outcomeRewardOperations.size()
             );
             staged->outcomeRewardOperations.push_back(rewardOperation);
+        }
+        if(outcome.source==TaskOutcomeSource::policyActionSelectionMask) {
+            if(staged->outcomeRewardOperations.size()>=6u)
+                return reject(TaskCompileStatus::invalidPack,outcome.id,"No unreserved native outcome channel for policy selections");
+            compiledSource=9u+static_cast<std::uint32_t>(staged->outcomeRewardOperations.size());
+            staged->outcomeRewardOperations.push_back(MR_TASK_OUTCOME_POLICY_SELECTION_MASK);
         }
         staged->outcomes.push_back({
             outcome.id,
@@ -4454,7 +4474,7 @@ TaskCompileDiagnostics compileTaskProgram(
     staged->header.articulation = {
         articulation.firstBody,
         articulation.bodyCount,
-        memoryChoice ? MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION :
+        actionHolds ? MR_TASK_PROGRAM_ACTION_HOLD_ABI_VERSION : memoryChoice ? MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION :
             observations.retinalFeatureCount!=0u ? MR_TASK_PROGRAM_RETINAL_ABI_VERSION : MR_TASK_PROGRAM_ABI_VERSION,
         observations.criticHistoryLength,
     };
@@ -4779,6 +4799,11 @@ TaskCompileDiagnostics compileTaskProgram(
         );
     }
 
+    if(actionHolds) {
+        const auto offset=appendArena(std::span<const std::uint32_t>{pack.actionHoldSteps});
+        if(offset==MR_INVALID_INDEX)return reject(TaskCompileStatus::arithmeticOverflow,"actionHoldSteps","Hold table exceeds arena ABI");
+        staged->header.actionAvailabilityProgram=std::uint64_t(pack.actionAvailableAfterSteps)|(std::uint64_t(offset)<<32u);
+    }
     Hash actionHash;
     actionHash.scalar(world.fingerprint());
     actionHash.span<MRTaskActionBindingGPU>(
@@ -4790,8 +4815,9 @@ TaskCompileDiagnostics compileTaskProgram(
         actionHash.string(actionTargets[action]);
     }
     if(memoryChoice) {
-        actionHash.string("neutral-memory-choice-v1");
+        actionHash.string(actionHolds ? "native-action-holds-v1" : "neutral-memory-choice-v1");
         actionHash.scalar(staged->header.actionAvailabilityProgram);
+        if(actionHolds)actionHash.span<std::uint32_t>(pack.actionHoldSteps);
     }
     staged->actionFingerprint = actionHash.finish();
 
@@ -4835,8 +4861,9 @@ TaskCompileDiagnostics compileTaskProgram(
         observationHash.scalar(observations.deviceSensorProgramFingerprint);
     }
     if(memoryChoice) {
-        observationHash.string("neutral-memory-choice-applied-action-history-v1");
+        observationHash.string(actionHolds ? "native-held-action-history-v1" : "neutral-memory-choice-applied-action-history-v1");
         observationHash.scalar(staged->header.actionAvailabilityProgram);
+        if(actionHolds)observationHash.span<std::uint32_t>(pack.actionHoldSteps);
     }
     staged->observationFingerprint = observationHash.finish();
 

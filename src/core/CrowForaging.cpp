@@ -158,11 +158,20 @@ FiniteResourceConfig authorAmericanCrowCuedForagingResources(
     resources.allocation={1,1,crowForagingIntakeStartTick,1};resources.allocationSeed=allocationSeed;
     return resources;
 }
-void applyAmericanCrowMemoryChoiceCurriculum(TaskPack& task,unsigned decisionStep) {
+void applyAmericanCrowMemoryChoiceCurriculum(TaskPack& task,unsigned decisionStep,unsigned headHold,unsigned beakHold) {
     if(decisionStep<48u || decisionStep>crowForagingIntakeStartTick ||
        task.actions.size()!=18u || task.actions[15].actuator!="head.yaw" || task.actions[17].actuator!="beak.open")
         throw std::invalid_argument("Memory-choice requires exact crow actions and decision tick48..192");
+    if((headHold==0)!=(beakHold==0) || headHold>512u || beakHold>512u)
+        throw std::invalid_argument("Memory-choice holds require both periods in1..512 or both zero");
     task.actionAvailableAfterSteps=decisionStep;task.allowedActionMask=(1u<<15u)|(1u<<17u);
+    task.actionHoldSteps.clear();
+    std::erase_if(task.outcomes,[](const auto& x){return x.id=="policy_action_selection_mask";});
+    if(headHold) {
+        task.actionHoldSteps.assign(18u,0u);task.actionHoldSteps[15]=headHold;task.actionHoldSteps[17]=beakHold;
+        task.outcomes.push_back({.id="policy_action_selection_mask",.unit="action-mask",
+            .source=TaskOutcomeSource::policyActionSelectionMask,.direction=TaskOutcomeDirection::neutral});
+    }
 }
 
 void applyAmericanCrowForagingFixtureLimits(RunManifest& m) {

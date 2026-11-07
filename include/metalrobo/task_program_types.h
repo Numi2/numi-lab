@@ -9,7 +9,11 @@
 // ABI49 gives the existing final uint64 an explicit, versioned meaning.
 // Header layout/size and all ABI47/48 bytes remain unchanged. Old GPU rejects49.
 #define MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION 49u
-#define MR_TASK_PROGRAM_HAS_RETINAL(v) ((v)==MR_TASK_PROGRAM_RETINAL_ABI_VERSION || (v)==MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION)
+#define MR_TASK_PROGRAM_ACTION_HOLD_ABI_VERSION 50u
+#define MR_TASK_PROGRAM_HAS_MEMORY_CHOICE(v) ((v)==MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION || (v)==MR_TASK_PROGRAM_ACTION_HOLD_ABI_VERSION)
+#define MR_TASK_PROGRAM_HAS_RETINAL(v) ((v)==MR_TASK_PROGRAM_RETINAL_ABI_VERSION || MR_TASK_PROGRAM_HAS_MEMORY_CHOICE(v))
+// Sentinel in the native outcome table, never a reward operator.
+#define MR_TASK_OUTCOME_POLICY_SELECTION_MASK 0xffffffffu
 #define MR_TASK_PROGRAM_ABI_SUPPORTED(v) ((v)==MR_TASK_PROGRAM_ABI_VERSION || MR_TASK_PROGRAM_HAS_RETINAL(v))
 
 #define MR_TASK_ACTUATOR_JOINT_POSITION 0u
@@ -529,7 +533,9 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     // means no external nutrition/task-state authority; reserved must be zero.
     mr_u64 deviceStateProgramFingerprint;
     // ABI47/48 zero. ABI49: low32 accepted episode decision tick,
-    // high32 allowed action bits. Actions/history neutral until decision.
+    // high32 allowed action bits. ABI50 high32 is the byte offset of one
+    // uint32 hold period per action (zero disables). No header size change.
+    // Actions/history neutral until decision.
     mr_u64 actionAvailabilityProgram;
 } MRTaskProgramHeaderGPU;
 

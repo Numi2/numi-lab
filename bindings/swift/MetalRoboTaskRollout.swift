@@ -262,18 +262,25 @@ public struct MetalRoboCrowCuedForagingConfiguration: Sendable, Decodable {
     public var cueMeshInstances: [UInt32]
     public var allocationSeed: UInt64
     public var memoryChoiceDecisionTick: UInt32?
+    public var headYawHoldTicks: UInt32?
+    public var beakHoldTicks: UInt32?
     public var occluded: Bool
     private enum CodingKeys: String, CodingKey {
         case ports, occluded
         case memoryChoiceDecisionTick = "memory_choice_decision_tick"
+        case headYawHoldTicks = "head_yaw_hold_ticks", beakHoldTicks = "beak_hold_ticks"
         case cueMeshInstances = "cue_mesh_instances", allocationSeed = "allocation_seed"
     }
-    public init(ports: [[Float]], cueMeshInstances: [UInt32], allocationSeed: UInt64, occluded: Bool = false, memoryChoiceDecisionTick: UInt32? = nil) {
+    public init(ports: [[Float]], cueMeshInstances: [UInt32], allocationSeed: UInt64, occluded: Bool = false, memoryChoiceDecisionTick: UInt32? = nil, headYawHoldTicks: UInt32? = nil, beakHoldTicks: UInt32? = nil) {
         self.ports = ports; self.cueMeshInstances = cueMeshInstances
         self.allocationSeed = allocationSeed; self.occluded = occluded
         self.memoryChoiceDecisionTick = memoryChoiceDecisionTick
+        self.headYawHoldTicks = headYawHoldTicks; self.beakHoldTicks = beakHoldTicks
     }
     fileprivate func native() throws -> MRCrowCuedForagingConfigC {
+        guard (headYawHoldTicks == nil && beakHoldTicks == nil) ||
+              (memoryChoiceDecisionTick != nil && (1...512).contains(headYawHoldTicks ?? 0) && (1...512).contains(beakHoldTicks ?? 0))
+        else { throw MetalRoboTaskRolloutError.invalidShape("Native holds require a decision tick and both periods in 1...512.") }
         guard ports.count == 2, ports.allSatisfy({ $0.count == 4 && $0.allSatisfy(\.isFinite) && $0[3] > 0 }),
               cueMeshInstances.count == 2, cueMeshInstances[0] != cueMeshInstances[1]
         else { throw MetalRoboTaskRolloutError.invalidShape("Cued foraging requires two finite ports and distinct mesh indices.") }
@@ -1352,6 +1359,10 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                                                     if foraging != nil {
                                                         return withUnsafePointer(to: &foraging!) { resources in
                                                             if let decision = authored.visualSensor?.cuedForaging?.memoryChoiceDecisionTick {
+                                                                if let head = authored.visualSensor?.cuedForaging?.headYawHoldTicks,
+                                                                   let beak = authored.visualSensor?.cuedForaging?.beakHoldTicks {
+                                                                    return mr_create_task_rollout_cued_memory_foraging_holds(&manifest, sensor, resources, decision, head, beak)
+                                                                }
                                                                 return mr_create_task_rollout_cued_memory_foraging(&manifest, sensor, resources, decision)
                                                             }
                                                             return mr_create_task_rollout_cued_foraging(&manifest, sensor, resources)

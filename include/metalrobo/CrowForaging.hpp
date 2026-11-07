@@ -34,7 +34,7 @@ struct CrowCuedForagingProgram {
 void applyAmericanCrowForagingFixtureLimits(RunManifest& manifest);
 // Staged experiment: neutral motor/history before decision; afterwards only
 // head.yaw and beak.open act. This is not a free-locomotion task.
-void applyAmericanCrowMemoryChoiceCurriculum(TaskPack& task,unsigned decisionStep);
+void applyAmericanCrowMemoryChoiceCurriculum(TaskPack& task,unsigned decisionStep,unsigned headHold=0,unsigned beakHold=0);
 // Bind once, before compiling the retinal run. Port centers must come from an
 // independently admitted physical calibration in the actual ground frame.
 // The returned resource program fingerprint must be bound into TaskPack;

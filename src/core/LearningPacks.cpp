@@ -733,6 +733,11 @@ LearningPackResult validateInteractionArtifact(
 }
 
 template <typename Pack>
+bool hasPolicyActionSelections(const Pack& pack) {
+    return std::ranges::any_of(pack.outcomes,[](const auto& x){return x.id=="policy_action_selection_mask";});
+}
+
+template <typename Pack>
 LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
     if (pack.id.empty() || !stringFits(pack.id) ||
         pack.taskFingerprint == 0u ||
@@ -834,6 +839,20 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
             LearningPackStatus::invalidPack,
             "PolicyRolloutPack tensors do not match its declared dimensions"
         );
+    }
+    if(hasPolicyActionSelections(pack)) {
+        if(!pack.memoryHiddenCount || pack.actionCount>24u || !pack.teacherActions.empty())
+            return fail(LearningPackStatus::invalidPack,"Native action selections require recurrent, teacher-free actions of width <=24");
+        for(std::size_t channel=0;channel<pack.outcomes.size();++channel) {
+            const auto& outcome=pack.outcomes[channel];if(outcome.id!="policy_action_selection_mask")continue;
+            if(outcome.unit!="action-mask" || outcome.direction!=0u)
+                return fail(LearningPackStatus::invalidPack,"Policy selection outcome schema is invalid");
+            for(std::size_t i=0;i<samples;++i) {
+                const float x=pack.outcomeValues[i*pack.outcomes.size()+channel];
+                if(!std::isfinite(x) || x<0 || x>=float(1u<<pack.actionCount) || std::floor(x)!=x)
+                    return fail(LearningPackStatus::invalidPack,"Policy selection outcome bits are invalid");
+            }
+        }
     }
     std::uint64_t memoryElements=0;
     if (pack.memoryHiddenCount>4096 || !multiply(samples,pack.memoryHiddenCount,memoryElements) ||
@@ -1285,8 +1304,9 @@ std::vector<std::byte> serializeTask(
         writer.pod(pack.deviceStateProgramFingerprint);
     }
     if (pack.actionAvailableAfterSteps!=0u || pack.allowedActionMask!=0u) {
-        writer.pod(std::uint64_t(0x3130303045544147ull)); // GATE0001 extension
+        writer.pod(std::uint64_t(pack.actionHoldSteps.empty() ? 0x3130303045544147ull : 0x3230303045544147ull)); // GATE0001/2
         writer.pod(pack.actionAvailableAfterSteps);writer.pod(pack.allowedActionMask);
+        if(!pack.actionHoldSteps.empty())writer.vector(pack.actionHoldSteps);
     }
     return writer.data();
 }
@@ -1440,9 +1460,11 @@ bool deserializeTask(
     }
     if (!reader.finished()) {
         std::uint64_t marker=0u;
-        if (!reader.pod(marker) || marker!=0x3130303045544147ull ||
+        if (!reader.pod(marker) || (marker!=0x3130303045544147ull && marker!=0x3230303045544147ull) ||
             !reader.pod(pack.actionAvailableAfterSteps) || !reader.pod(pack.allowedActionMask) ||
-            pack.actionAvailableAfterSteps==0u || pack.allowedActionMask==0u || !reader.finished()) return false;
+            pack.actionAvailableAfterSteps==0u || pack.allowedActionMask==0u) return false;
+        if(marker==0x3230303045544147ull && (!reader.vector(pack.actionHoldSteps) || pack.actionHoldSteps.empty()))return false;
+        if(!reader.finished())return false;
     }
     pack.interactionControlReference =
         interactionControlReference != 0u;
@@ -1961,12 +1983,12 @@ bool deserializePolicyRollout(
         ) &&
         reader.vector(pack.outcomeValues) &&
         reader.vector(pack.transitions))) return false;
-    if (formatVersion==8u) {
+    if (formatVersion>=8u) {
         std::uint32_t abi=0;
         if (!reader.pod(abi) || abi!=1 || !reader.pod(pack.memoryHiddenCount) || !pack.memoryHiddenCount ||
             !reader.vector(pack.memoryBefore) || !reader.vector(pack.memoryResets)) return false;
     }
-    return reader.finished();
+    return (formatVersion==9u)==hasPolicyActionSelections(pack) && reader.finished();
 }
 
 std::vector<std::byte> serializeMotion(
@@ -2585,7 +2607,7 @@ LearningPackResult writePolicyRolloutPack(
         return writePack(
             serializePolicyRollout(pack),
             kPolicyRolloutKind,
-            pack.memoryHiddenCount ? kPolicyRolloutPackFormatVersion : 7u,
+            hasPolicyActionSelections(pack) ? 9u : pack.memoryHiddenCount ? 8u : 7u,
             path
         );
     } catch (const std::bad_alloc&) {

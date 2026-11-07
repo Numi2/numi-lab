@@ -47,6 +47,7 @@ class MLXRecurrentPolicyBatch:
         T, N, H = rollout.control_step_count, rollout.environment_count, rollout.memory_hidden_count
         if min(T, N, H) <= 0:
             raise ValueError("Contiguous sequence PPO requires a recurrent rollout")
+        rollout.action_selections()  # Validate even directly constructed batches.
         hidden = rollout.memory_before.reshape(T, N, H)
         resets = rollout.memory_resets.reshape(T, N)
         transitions = rollout.transitions.reshape(T, N)
@@ -287,28 +288,39 @@ class MLXRecurrentPolicyLearner(MLXPolicyLearner):
             sort_keys=True, separators=(",", ":"), allow_nan=False)
 
     def _loss(self, actor, critic, latents, old_logp, old_means, old_logstd,
-              old_values, advantages, returns, initial, resets, valid):
+              old_values, advantages, returns, initial, resets, valid, selections=None):
         means, _ = self.model.actor_mean(actor, initial, resets)
         values = self.model.value(critic)
         logstd = mx.clip(self.model.log_standard_deviation, -5, 2)
-        logp = self.model.log_probability(means, logstd, latents)
-        entropy = self.model.entropy(means, logstd)
         count = mx.maximum(mx.sum(valid), 1)
         average = lambda x: mx.sum(x * valid) / count
+        if selections is None:
+            logp = self.model.log_probability(means, logstd, latents)
+            entropy = self.model.entropy(means, logstd)
+            actor_average = average
+        else:
+            components = lambda m, s: -.5*(mx.square((latents-m)*mx.exp(-s))+2*s+math.log(2*math.pi))
+            logp = mx.sum(components(means, logstd)*selections, axis=-1)
+            old_logp = mx.sum(components(old_means, old_logstd)*selections, axis=-1)
+            entropy = mx.sum((.5*(1+math.log(2*math.pi))+logstd)*selections, axis=-1)
+            actor_valid = valid*(mx.sum(selections, axis=-1)>0)
+            actor_count = mx.maximum(mx.sum(actor_valid), 1)
+            actor_average = lambda x: mx.sum(x*actor_valid)/actor_count
         log_ratio = logp-old_logp
         ratio = mx.exp(log_ratio)
-        policy = -average(mx.minimum(ratio*advantages,
+        policy = -actor_average(mx.minimum(ratio*advantages,
             mx.clip(ratio, 1-self.configuration.clip_ratio, 1+self.configuration.clip_ratio)*advantages))
         clipped_values = old_values + mx.clip(values-old_values,
             -self.configuration.clip_ratio, self.configuration.clip_ratio)
         value = average(mx.maximum(mx.square(values-returns), mx.square(clipped_values-returns)))
-        kl = average(mx.sum(logstd-old_logstd + .5*(mx.exp(2*(old_logstd-logstd))
-            + mx.square(old_means-means)*mx.exp(-2*logstd)-1), axis=-1))
-        entropy_mean = average(entropy)
+        kl_components = logstd-old_logstd + .5*(mx.exp(2*(old_logstd-logstd))
+            + mx.square(old_means-means)*mx.exp(-2*logstd)-1)
+        kl = actor_average(mx.sum(kl_components if selections is None else kl_components*selections, axis=-1))
+        entropy_mean = actor_average(entropy)
         loss = policy+self.configuration.value_coefficient*value-self.configuration.entropy_coefficient*entropy_mean
         return loss, {"loss": loss, "policy_loss": policy, "value_loss": value, "entropy": entropy_mean,
-            "kl_divergence": kl, "approximate_kl": average(ratio-1-log_ratio),
-            "clip_fraction": average((mx.abs(ratio-1)>self.configuration.clip_ratio).astype(mx.float32))}
+            "kl_divergence": kl, "approximate_kl": actor_average(ratio-1-log_ratio),
+            "clip_fraction": actor_average((mx.abs(ratio-1)>self.configuration.clip_ratio).astype(mx.float32))}
 
     def _training_step(self, *args):
         (loss, metrics), gradients = self._loss_and_gradient(*args)
@@ -356,7 +368,15 @@ class MLXRecurrentPolicyLearner(MLXPolicyLearner):
             old_means[indices[valid]] = np.array(means)[valid]
         if max_state_error > 5e-5 or max_value_error > 5e-5 or max_logp_error > 5e-4:
             raise ValueError("Recurrent generating policy/hidden/value/log-probability parity failed")
-        normalized = (batch.advantages-np.mean(batch.advantages))/(np.std(batch.advantages)+1e-8)
+        selections = r.action_selections()
+        if selections is None:
+            normalized = (batch.advantages-np.mean(batch.advantages))/(np.std(batch.advantages)+1e-8)
+        else:
+            decision = np.any(selections != 0, axis=-1).reshape(batch.advantages.shape)
+            chosen = batch.advantages[decision]
+            normalized = np.zeros_like(batch.advantages)
+            if chosen.size:
+                normalized[decision] = (chosen-np.mean(chosen))/(np.std(chosen)+1e-8)
         totals = {}; updates = 0; weight = 0
         start_time = time.perf_counter()
         for epoch in range(self.configuration.update_epochs):
@@ -368,6 +388,8 @@ class MLXRecurrentPolicyLearner(MLXPolicyLearner):
                 args = [tables["actor_observations"], tables["critic_observations"], tables["latents"],
                     tables["old_log_probabilities"], means, old_logstd, tables["old_values"], adv,
                     tables["returns"], tables["initial"], tables["resets"], tables["valid"]]
+                if selections is not None:
+                    args.append(np.where(valid[...,None], selections[indices], 0))
                 loss, metrics = self._compiled_training_step(*[mx.array(x) for x in args])
                 mx.eval(loss, metrics, self.model.state, self.optimizer.state)
                 numeric = {key: float(value.item()) for key, value in metrics.items()}
@@ -385,7 +407,9 @@ class MLXRecurrentPolicyLearner(MLXPolicyLearner):
         return {**{key: value/weight for key,value in totals.items()}, "update_seconds": time.perf_counter()-start_time,
             "minibatch_updates": float(updates), "policy_revision": float(self.revision),
             "sequence_windows": float(len(windows)), "sequence_length": float(length),
-            "real_samples_per_epoch": float(r.sample_count), "generating_state_max_abs": max_state_error,
+            "real_samples_per_epoch": float(r.sample_count),
+            "selected_decision_samples": float(r.sample_count if selections is None else np.count_nonzero(np.any(selections,axis=-1))),
+            "selected_action_factors": float(r.sample_count*r.action_count if selections is None else selections.sum()), "generating_state_max_abs": max_state_error,
             "generating_logp_max_abs": max_logp_error, "generating_value_max_abs": max_value_error,
             "mean_action_standard_deviation": float(np.mean(np.exp(np.array(mx.clip(self.model.log_standard_deviation,-5,2)))))}
 

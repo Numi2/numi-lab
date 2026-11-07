@@ -709,6 +709,12 @@ MR_API MRTaskRolloutHandle* mr_create_task_rollout_cued_memory_foraging(
     const MRRunManifestC* manifest,const MRRetinalSensorConfigC* retinal,
     const MRCrowCuedForagingConfigC* foraging,uint32_t decision_step
 );
+// ABI50 per-action holds with native selection metadata for recurrent PPO.
+MR_API MRTaskRolloutHandle* mr_create_task_rollout_cued_memory_foraging_holds(
+    const MRRunManifestC* manifest,const MRRetinalSensorConfigC* retinal,
+    const MRCrowCuedForagingConfigC* foraging,uint32_t decision_step,
+    uint32_t head_hold_steps,uint32_t beak_hold_steps
+);
 MR_API MRTaskRolloutHandle* mr_create_task_rollout(
     const MRRunManifestC* manifest
 );

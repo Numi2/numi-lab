@@ -32,7 +32,7 @@ _LEARNING_PACK_HEADER = struct.Struct("<8sIIQQ")
 _POLICY_KIND = 2
 _POLICY_FORMAT_VERSION = 5
 _POLICY_ROLLOUT_KIND = 3
-_POLICY_ROLLOUT_FORMAT_VERSION = 8
+_POLICY_ROLLOUT_FORMAT_VERSION = 9
 _MOTION_KIND = 4
 _MOTION_FORMAT_VERSION = 1
 _TRANSITION_DTYPE = np.dtype(
@@ -89,6 +89,26 @@ class NativePolicyRollout:
     memory_before: np.ndarray = field(default_factory=lambda: np.empty(0,dtype=np.float32))
     memory_resets: np.ndarray = field(default_factory=lambda: np.empty(0,dtype=np.uint32))
 
+    format_version: int = 7
+
+    def action_selections(self) -> np.ndarray | None:
+        """Native decision factors; typed v9 metadata has no sensor/reward authority."""
+        key = "policy_action_selection_mask"
+        present = key in self.outcomes
+        if (self.format_version == 9) != present:
+            raise ValueError("PolicyRolloutPack v9 requires native action selection metadata exclusively")
+        if not present:
+            return None
+        values = np.asarray(self.outcomes[key])
+        if (not self.memory_hidden_count or not 0 < self.action_count <= 24 or self.teacher_actions.size
+                or self.outcome_units.get(key) != "action-mask" or self.outcome_directions.get(key) != 0
+                or values.shape != (self.sample_count,) or not np.isfinite(values).all()
+                or np.any(values < 0) or np.any(values >= 2**self.action_count)
+                or np.any(values != np.floor(values))):
+            raise ValueError("Native action selection schema, shape or bits are invalid")
+        bits = values.astype(np.uint32)
+        return ((bits[:, None] >> np.arange(self.action_count, dtype=np.uint32)) & 1).astype(np.float32)
+
     @property
     def sample_count(self) -> int:
         return self.environment_count * self.control_step_count
@@ -115,6 +135,7 @@ class NativePolicyRollout:
     ) -> "MLXPolicyBatch":
         """Compute terminal-safe GAE and publish only learner tensors to MLX."""
 
+        self.action_selections()
         if self.memory_hidden_count or self.memory_before.size or self.memory_resets.size:
             raise ValueError("Recurrent rollout requires contiguous sequence PPO; flat policy_batch would discard hidden/reset state")
 
@@ -963,7 +984,7 @@ def read_policy_rollout_pack(
     ) = _LEARNING_PACK_HEADER.unpack_from(data)
     if magic != b"MRLEARN\0":
         raise ValueError("PolicyRolloutPack magic is invalid")
-    if format_version not in (7, _POLICY_ROLLOUT_FORMAT_VERSION):
+    if format_version not in (7, 8, _POLICY_ROLLOUT_FORMAT_VERSION):
         raise ValueError(
             "PolicyRolloutPack format version is unsupported"
         )
@@ -1069,7 +1090,7 @@ def read_policy_rollout_pack(
     memory_hidden_count=0
     memory_before=np.empty(0,dtype=np.float32)
     memory_resets=np.empty(0,dtype=np.uint32)
-    if format_version==8:
+    if format_version>=8:
         memory_abi=reader.unsigned32()
         memory_hidden_count=reader.unsigned32()
         if memory_abi!=1 or not 0<memory_hidden_count<=4096:
@@ -1108,7 +1129,8 @@ def read_policy_rollout_pack(
         raise ValueError(
             "PolicyRolloutPack transition metadata is inconsistent"
         )
-    return NativePolicyRollout(
+    result = NativePolicyRollout(
+        format_version=format_version,
         id=identifier,
         task_fingerprint=task_fingerprint,
         policy_fingerprint=policy_fingerprint,
@@ -1143,6 +1165,8 @@ def read_policy_rollout_pack(
             for identifier, _, direction in outcome_schema
         },
     )
+    result.action_selections()
+    return result
 
 
 def read_motion_pack(
