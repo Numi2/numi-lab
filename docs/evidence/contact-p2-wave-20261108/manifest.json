@@ -1,0 +1,12 @@
+{
+  "commit": "b2560db4588a5ad75de2269cd5cb066059c16b98",
+  "source_sha256": "d2fc3b81dece0cc6f0d0dd6a0fd756f6750b8852da044e02f3fb4d51b05e2ae3",
+  "cmd": [
+    "/private/tmp/numi-fem-py313b-20261107/bin/python",
+    "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_p2_linear_wave.py"
+  ],
+  "timeout_s": 180,
+  "exit": 0,
+  "elapsed_s": 0.20757374999811873,
+  "output_sha256": "eac71adc8da478654152cc233789db3c5bd7886bd437f99af0a3be50707f4bcb"
+}

@@ -1,0 +1,7 @@
+{
+  "p2_acceleration_error": 0.45634484043008416,
+  "p1_consistent_acceleration_error": 0.21709312031965936,
+  "p1_lumped_acceleration_error": 0.5952469734355947,
+  "prediction_pass": false,
+  "all_mass_solve_residuals_pass": true
+}

@@ -26,3 +26,21 @@ when the interpolated shape excites other modes.
 
 Run four assemblies (P1/P2 n=4/8) in one sequential process, with a 180-second
 timeout, one BLAS thread, no GPU, and preserve output and solver failures.
+
+## Result
+
+The study completed and all mass solves met the declared residual limit.
+The prediction failed. For n=8, P2's initial-acceleration mass error was
+45.63%, versus 21.71% for consistent-mass P1 and 59.52% for lumped P1.
+P2 and consistent P1 both gave a 10.27% Rayleigh-frequency error.
+
+For mode 8 on n=8, samples at P2 edge midpoints coincide with the P1
+linear interpolant (alternating endpoint values and zero midpoint values).
+Consequently the interpolated fields coincide and their consistent-mass
+Rayleigh quotients are equal, even though the acceleration residual norms
+differ because the P2 space admits additional modes. At n=4, P1 nodal
+samples alias this mode to a constant. These results concern this specially
+sampled mode and must not be generalized to P2 dynamics.
+
+The [raw results](evidence/contact-p2-wave-20261108/) and failed prediction
+are retained. The original impact-force and impulse gates remain open.
