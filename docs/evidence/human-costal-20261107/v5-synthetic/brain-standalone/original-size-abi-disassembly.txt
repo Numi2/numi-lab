@@ -1,0 +1,33 @@
+5bcb3160a155e20713197f5a5360706833c9677e758350d7f3a396383cc40a37  /Users/numi/numi-v5-admission-artifacts-20261107/root-typed-diagnostic/libmetalrobo-v5-research.dylib
+7fa15fb70b9bd1cd227e2a06db141f32b649a8ac780cbf08047e7ca1c3807723  /Users/numi/numi-lab-release-integration-build-20261107/CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o
+4e1aa225d9dc9a27a73263ad3fc1a994233f14fd09a5db228b0862868b50297e  /Users/numi/numi-lab-release-integration-build-20261107/CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanIO.mm.o
+(lldb) target create /Users/numi/numi-v5-admission-artifacts-20261107/root-typed-diagnostic/libmetalrobo-v5-research.dylib
+Current executable set to '/Users/numi/numi-v5-admission-artifacts-20261107/root-typed-diagnostic/libmetalrobo-v5-research.dylib' (arm64).
+(lldb) disassemble --start-address 0x5c5b60 --count 9
+libmetalrobo-v5-research.dylib`metalrobo::MetalArticulatedOperatorContext::submit(metalrobo::EngineModel const&, metalrobo::MetalArticulatedOperatorInput const&, metalrobo::MetalArticulatedOperatorSubmission&)::$_2::operator()(metalrobo::MetalNumanXTransactionPhase, unsigned int) const:
+libmetalrobo-v5-research.dylib[0x5c5b60] <+940>: ldr    w8, [x23, #0x1e8]
+libmetalrobo-v5-research.dylib[0x5c5b64] <+944>: sub    w9, w8, #0x6
+libmetalrobo-v5-research.dylib[0x5c5b68] <+948>: str    w8, [sp, #0x100]
+libmetalrobo-v5-research.dylib[0x5c5b6c] <+952>: cmp    w9, #0x4
+libmetalrobo-v5-research.dylib[0x5c5b70] <+956>: b.hs   0x5c5be0                  ; <+1068>
+libmetalrobo-v5-research.dylib[0x5c5b74] <+960>: adrp   x10, 713
+libmetalrobo-v5-research.dylib[0x5c5b78] <+964>: add    x10, x10, #0x8b0          ; typeinfo name for std::__1::__empty_non_own_state<char> + 512
+libmetalrobo-v5-research.dylib[0x5c5b7c] <+968>: ldr    w9, [x10, w9, uxtw #2]
+libmetalrobo-v5-research.dylib[0x5c5b80] <+972>: b      0x5c5bf0                  ; <+1084>
+(lldb) memory read --format decimal --size 4 --count 4 0x88e8b0
+0x0088e8b0: 720
+0x0088e8b4: 776
+0x0088e8b8: 856
+0x0088e8bc: 896
+(lldb) disassemble --start-address 0x5fd8c8 --count 10
+libmetalrobo-v5-research.dylib`metalrobo::(anonymous namespace)::validatePassLocked:
+libmetalrobo-v5-research.dylib[0x5fd8c8] <+268>: ldr    q0, [x21]
+libmetalrobo-v5-research.dylib[0x5fd8cc] <+272>: mov    w12, #0x6                 ; =6 
+libmetalrobo-v5-research.dylib[0x5fd8d0] <+276>: fmov   s1, w12
+libmetalrobo-v5-research.dylib[0x5fd8d4] <+280>: mov    w12, #0x380               ; =896 
+libmetalrobo-v5-research.dylib[0x5fd8d8] <+284>: mov.s  v1[1], w12
+libmetalrobo-v5-research.dylib[0x5fd8dc] <+288>: mov.s  v1[2], w11
+libmetalrobo-v5-research.dylib[0x5fd8e0] <+292>: mov.s  v1[3], wzr
+libmetalrobo-v5-research.dylib[0x5fd8e4] <+296>: cmeq.4s v0, v0, v1
+libmetalrobo-v5-research.dylib[0x5fd8e8] <+300>: xtn.4h v0, v0
+libmetalrobo-v5-research.dylib[0x5fd8ec] <+304>: uminv.4h h0, v0

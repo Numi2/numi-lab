@@ -612,3 +612,14 @@ HumanIO validator compares it to the full struct size after newer appended
 fields. This identifies the rejected predicate in this separate diagnostic build;
 the previously recorded changed TaskProgram object remains a provenance limit.
 No validation was relaxed, and no physical step or publication was accepted.
+
+Read-only disassembly of the original pinned dylib
+`5bcb3160a155e20713197f5a5360706833c9677e758350d7f3a396383cc40a37`
+confirms that this discrepancy is present in that binary as well. Its owner
+transaction lambda indexes a constant table by ABI minus 6; the ABI-6 entry
+is 720. Its HumanIO `validatePassLocked` constructs the expected header with
+ABI 6 and size 896. The owner and HumanIO object hashes still match their
+original link-manifest entries. This supports the same mismatch in the original
+binary without relying on the changed TaskProgram object; the original run did
+not itself print the fields. The disassembly and hashes are retained. This is
+source/binary diagnosis, not a repaired or accepted transaction.
