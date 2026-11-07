@@ -1,0 +1,55 @@
+{
+  "rows": {
+    "control_1_0": 1210,
+    "control_1_1": 1210,
+    "control_2_0": 1210,
+    "control_2_1": 1210,
+    "control_3_0": 1210,
+    "control_3_1": 1210,
+    "failure_1_0": 1210,
+    "failure_1_1": 1210
+  },
+  "statuses": {
+    "control_1_0": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "control_1_1": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "control_2_0": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "control_2_1": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "control_3_0": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "control_3_1": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "failure_1_0": {
+      "status": "5",
+      "physics_error": "1",
+      "done": "1"
+    },
+    "failure_1_1": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    }
+  },
+  "unaffected_environment_mismatches": []
+}
