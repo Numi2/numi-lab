@@ -194,3 +194,26 @@ node 0/body 1 = (-0.00414287, -0.00369722, -0.00176924) N, magnitude
 magnitude 0.00409445 N. The same generalized load values above were observed.
 This establishes a nonzero synthetic load, not a force accuracy test, native v5
 asset admission, committed replay, physiological behavior or anatomical ownership.
+
+## Committed Matter restore and loaded replay
+
+The replay probe, source SHA-256
+`3859c3d61422433eec43159c9280afdf8e0f9287eb9603f0caeecdf4d76e8447`
+and executable SHA-256
+`ecf7f0f14bec5b234568b4458e554da3a86fc49d47bb1c5b764ccd6dcf214789`,
+passed on Apple M6 with the same library, metallibs, material and fixture.
+Each of two fresh real-owner contexts completed an accepted step with the
+synthetic Brain witness, ACK and exactly one HumanIO publication. Both had the
+same nonzero motion and attachment reactions recorded above. Each restored its
+committed Matter snapshot and compared the explicitly enumerated accepted
+Matter authority fields; each also restored the tendon adapter snapshot and
+compared its authority digest. The second owner restored the first run's
+initial Matter snapshot before executing its step, then compared accepted
+Matter authority, both raw attachment-force records and all 160 generalized
+reaction floats bitwise to the first run.
+
+The reconstructed owner started from the same authored Human input; no live
+articulated-owner q/v/MyoSim snapshot was restored and no next step was
+continued from the committed state. This is not complete owner restoration,
+force calibration, native v5 construction, an anatomical thorax or a
+physiological breathing result.
