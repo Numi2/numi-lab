@@ -777,6 +777,7 @@ add_library(
     src/core/EngineModelComposer.cpp
     src/core/RunProgram.cpp
     src/core/CrowEmbodiment.cpp
+    src/core/CrowForaging.cpp
     src/core/CollisionVisualProxy.cpp
     src/core/ParallelABASchedule.cpp
     src/core/CompiledMetalMultiArticulatedProgram.cpp

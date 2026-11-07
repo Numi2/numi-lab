@@ -1396,8 +1396,17 @@ contact capacities or numerical bounds. Evidence and exact Git recovery live
 under `artifacts/crow-rl-cued-foraging-20261107`; bulk local duplicates are pruned.
 
 This qualifies an integrated sensing/intake mechanism, not learned memory.
-The new cue recipe is currently authored through the native instrument, rather
-than an ordinary C API/Swift training variant. A coupled cue-life checkpoint
+The cue world, visual indicators, resource/sensor program and task binding now
+have one reusable native authoring owner in `CrowForaging.hpp`/`CrowForaging.cpp`.
+Camera and cue admission consumers delegate to it. The refactor preserves all133
+non-scene native files byte exactly; eight full scene manifests match native
+reconstruction at each original/current path, including path-sensitive hashes.
+Eleven malformed authoring/overwrite controls reject. Full Release compilation,
+29 focused Python checks, ten-negative fresh-process v13 life recovery and the
+six-arm uncued retinal admission pass. Life restore now clones the actual
+configured resource program and binds a cue observer to its candidate owner,
+preserving transactional publication. This is prerequisite ownership work; an
+ordinary C API/Swift cue training variant is still unfinished. A coupled cue-life checkpoint
 has not been admitted; component snapshots here establish partition equivalence.
 Next integrate this exact recipe into common rollout/training/life ownership.
 For a memory claim, prevent physical posture and previous-action channels from
@@ -1406,3 +1415,7 @@ sequence that spans cue to choice, and compare held-out intact, memory-reset,
 cue-absent and cue-swapped conditions. Repeatable scripted port intake does not
 substitute for those behavioral tests. Manipulation, social agents, ecology,
 biological calibration and production throughput remain open requirements.
+
+The shared-authoring milestone and exact runtime recovery are archived under
+`artifacts/crow-rl-foraging-core-20261107`; raw and bulk checkout duplicates are
+removed only after pushed Git recovery verification.

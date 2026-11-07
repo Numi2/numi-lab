@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <sstream>
 using namespace crowCameraFixture;
 namespace {
@@ -74,26 +75,6 @@ std::array<mr_float4,2> calibrate(const std::filesystem::path& output) {
     require(separation>.060f,"Calibrated food ports are not disjoint at fixed15mm intake radius");
     for (const auto& s:food.snapshot()) require(!s.accounting.y,"Calibration consumed food");return ports;
 }
-void face(VisualAssetPackV2& pack,mr_float4 center,mr_float4 u,mr_float4 v,mr_float4 normal) {
-    const auto first=unsigned(pack.vertices.size());const float length=std::sqrt(u.x*u.x+u.y*u.y+u.z*u.z);normal.w=1;
-    const mr_float4 tangent{u.x/length,u.y/length,u.z/length,0};
-    for (auto c:std::array<std::array<float,2>,4>{{{-1,-1},{1,-1},{1,1},{-1,1}}})
-        pack.vertices.push_back({{center.x+u.x*c[0]+v.x*c[1],center.y+u.y*c[0]+v.y*c[1],center.z+u.z*c[0]+v.z*c[1],1},normal,tangent,{0,0,0,0},{1,1,1,1}});
-    for (unsigned i:{0u,1u,2u,0u,2u,3u})pack.indices.push_back(first+i);
-}
-void beacon(VisualAssetPackV2& pack,unsigned body,unsigned side) {
-    const unsigned instance=pack.instances.size(),primitive=pack.primitives.size(),first=pack.indices.size(),material=pack.materials.size();
-    const float h=.035f;
-    face(pack,{h,0,0,0},{0,h,0,0},{0,0,h,0},{1,0,0,0});face(pack,{-h,0,0,0},{0,-h,0,0},{0,0,h,0},{-1,0,0,0});
-    face(pack,{0,h,0,0},{-h,0,0,0},{0,0,h,0},{0,1,0,0});face(pack,{0,-h,0,0},{h,0,0,0},{0,0,h,0},{0,-1,0,0});
-    face(pack,{0,0,h,0},{h,0,0,0},{0,h,0,0},{0,0,1,0});face(pack,{0,0,-h,0},{h,0,0,0},{0,-h,0,0},{0,0,-1,0});
-    auto mat=pack.materials.front();mat.baseColorAndOpacity={.03f,.9f,.05f,1};mat.emissionAndStrength={.02f,.6f,.02f,1};pack.materials.push_back(mat);
-    MRVisualPrimitiveGPUV2 p{};p.geometry={first,36,material,instance};p.identity={1,1,body,1000u+side};p.boundsMinimum={-h,-h,-h,0};p.boundsMaximum={h,h,h,0};pack.primitives.push_back(p);
-    MRVisualInstanceGPUV2 i{};i.translationAndScale={0,side ? -.16f : .16f,0,1};i.orientation={0,0,0,1};
-    i.binding={0,body,MR_VISUAL_BINDING_RIGID_BODY,MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR|MR_VISUAL_INSTANCE_RECEIVES_SHADOW};i.identity=p.identity;i.geometry={primitive,1,0,0};pack.instances.push_back(i);
-    pack.symbolicBindings.push_back({side ? "right_food_port_indicator" : "left_food_port_indicator","camera_target",instance,body,MR_VISUAL_BINDING_RIGID_BODY});
-    pack.preprocessingProvenance+="; authored noncolliding food-port indicator, not a collision proxy for solid food";
-}
 struct Evidence {
     std::vector<float> actor,q,v;std::vector<MRBodyStateGPU> scene;std::vector<MRTaskTransitionGPU> transitions;
     std::vector<MRFiniteResourceStateGPU> food;std::vector<std::byte> retinal;
@@ -111,23 +92,34 @@ CompiledPolicyProgram fixedPolicy(const CompiledRun& run,float yaw,float jaw,uns
 Evidence execute(const std::array<mr_float4,2>& ports,const std::filesystem::path& output,unsigned ticks,unsigned chunk,
     std::uint64_t seed,bool blocked=false,int motor=0,bool reset=false,bool rawImages=false) {@autoreleasepool {
     require(std::filesystem::create_directory(output),"Trial output exists");auto m=manifest(blocked);CompiledRun base;check(compileRun(m,base),"compile cue fixture");
-    auto resources=makeAmericanCrowFeedingResourceConfig(base,lanes);resources.program.binding.z=2;
-    resources.patches.front().centerRadius=ports[0];auto second=resources.patches.front();second.centerRadius=ports[1];resources.patches.push_back(second);
-    resources.allocation={1,1,192,1};resources.allocationSeed=seed;
-    std::vector<MRFiniteResourceCueGPU> cues;unsigned offset=0;
-    const auto visual=makeVisual(base,output,[&](const WorldAsset& asset,VisualAssetPackV2& pack) {
-        if(asset.id=="camera_target")for(unsigned side=0;side<2;++side){cues.push_back({{offset+unsigned(pack.instances.size()),side,32,0}});beacon(pack,asset.bodyIndices.front(),side);}
-        offset+=pack.instances.size();
-    });require(cues.size()==2,"Missing cue mesh binding");
-    VisualSensorProgram p;p.cameraParentBody="crow_head";p.cameraPosition={.018f,.026f,.012f,0};p.cameraOrientation={-.5f,.5f,-.5f,.5f};
-    p.width=W;p.height=H;p.verticalFieldOfViewDegrees=45;p.nominalRateHz=15;p.minimumVisiblePixels=1;p.retinal=RetinalSensorProgram{};p.retinal->resourceCues=cues;
-    for(const auto& pack:visual.manifest.renderScene.visualPacks)p.assets.push_back({pack.packPath.string(),visual.family.worldTemplate.assets[pack.assetIndex].id,pack.contentHash,pack.semanticId,pack.instanceId});
-    p.fingerprint=visualSensorProgramFingerprint(p);m.sensors.observation={};m.reality.reset={};
-    m.task=makeAmericanCrowRetinalFeedingTaskPack(m.sensors.observation,m.reality.reset,*p.retinal);m.task.capacities=m.profile.capacities;m.task.maximumEpisodeSteps=100000;m.reality.reset={};
-    m.task.deviceStateProgramFingerprint=finiteResourceProgramFingerprint(resources.program,resources.patches,true,resources.allocation);
+    const auto visual=makeVisual(base,output,true);
+    const auto authored=authorAmericanCrowCuedForagingProgram(base,visual,ports,lanes,seed);
+    const auto& resources=authored.resources;const auto& p=authored.sensor;m.sensors.observation={};m.reality.reset={};
+    m.task=makeAmericanCrowCuedForagingTaskPack(m.sensors.observation,m.reality.reset,authored);m.task.capacities=m.profile.capacities;m.task.maximumEpisodeSteps=100000;m.reality.reset={};
     m.sensors.deviceVisual=p;CompiledRun run;check(compileRun(m,run),"compile cue retinal task");require(base.world().fingerprint()==run.world().fingerprint(),"Cue authoring changed physical world");
     FiniteResourceContext food(resources);
     if(rawImages) {
+        std::ofstream authoringControls(output/"authoring-negative-controls.jsonl");
+        for(unsigned test=0;test<11;++test) {
+            auto badPorts=ports;auto badVisual=visual;unsigned badEnvironments=lanes;
+            if(test==0)badEnvironments=0;
+            if(test==1)badPorts[0].x=std::numeric_limits<float>::quiet_NaN();
+            if(test==2)badPorts[0].w=0;
+            if(test==3)badPorts[1]=badPorts[0];
+            if(test==4)badVisual.resourceCues.clear();
+            if(test==5)badVisual.resourceCues[1].binding.x=badVisual.resourceCues[0].binding.x;
+            if(test==6)badVisual.resourceCues[0].binding.w=1;
+            if(test==7)++badVisual.manifest.fingerprint;
+            if(test==8)badVisual.head=MR_INVALID_INDEX;
+            bool rejected=false;std::string reason;
+            try {
+                if(test==9) {CompiledRun invalid;const auto unused=authorAmericanCrowCuedForagingProgram(invalid,badVisual,badPorts,badEnvironments,seed);(void)unused;}
+                else if(test==10) {const auto unused=makeVisual(base,output,true);(void)unused;}
+                else {const auto unused=authorAmericanCrowCuedForagingProgram(base,badVisual,badPorts,badEnvironments,seed);(void)unused;}
+            }catch(const std::invalid_argument& error){rejected=true;reason=error.what();}
+            require(rejected,"Malformed shared authoring program admitted");
+            authoringControls<<"{\"case\":"<<test<<",\"rejected\":true,\"reason\":"<<std::quoted(reason)<<"}\n";
+        }
         std::ofstream controls(output/"negative-controls.jsonl");
         for(unsigned test=0;test<6;++test){auto bad=m;auto& cue=bad.sensors.deviceVisual->retinal->resourceCues;
             if(test==0)cue.resize(9,cue.front());if(test==1)cue[1].binding.x=cue[0].binding.x;

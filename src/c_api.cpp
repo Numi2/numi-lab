@@ -2134,7 +2134,8 @@ metalrobo::WorldAsset makeRolloutVisualAsset(
 std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     MRTaskRolloutHandle& handle,
     const metalrobo::VisualSensorProgram& program,
-    const bool deviceObservation
+    const bool deviceObservation,
+    const metalrobo::FiniteResourceContext* cueResources=nullptr
 ) {
     if (program.assets.empty() || program.cameraParentBody.empty() ||
         program.width == 0u || program.height == 0u ||
@@ -2674,7 +2675,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     }
     if (retinal) {
         runtime->retinal=std::make_unique<metalrobo::RetinalObserverContext>(handle.run,runtime->family,manifest,
-            handle.environmentCount,handle.run.profile().seed);
+            handle.environmentCount,handle.run.profile().seed,cueResources);
         runtime->deviceObservationEnabled=true;runtime->sceneFingerprint=manifest.fingerprint;
         return runtime;
     }
@@ -2926,7 +2927,8 @@ void installTaskVisualRuntime(
         );
     }
     std::unique_ptr<MRTaskVisualRuntime> candidate =
-        compileTaskVisualRuntime(handle, program, true);
+        compileTaskVisualRuntime(handle, program, true,
+            program.retinal && !program.retinal->resourceCues.empty() ? handle.resourceRuntime.get() : nullptr);
     if (candidate->deviceObservationEnabled) {
         const metalrobo::MetalWorldDeviceObservationProgram observationProgram =
             candidate->retinal ? candidate->retinal->deviceProgram() : candidate->tracker.observationProgram();
@@ -4032,8 +4034,13 @@ int mr_task_rollout_restore_life_checkpoint(MRTaskRolloutHandle* handle,const ch
         handle->context.validateResidentCheckpoint(handle->world,validation,handle->stepConfig,world);
         // Build and restore candidates. An invalid later component cannot mutate
         // the published handle or allow a partially restored life to advance.
-        auto visual=compileTaskVisualRuntime(*handle,*handle->run.visualSensorProgram(),true);
-        auto food=std::make_unique<FiniteResourceContext>(makeAmericanCrowFeedingResourceConfig(handle->run,handle->environmentCount));
+        // Preserve the exact authored resource layout/allocation/life seed.
+        // A candidate cue observer must retain the candidate food owner,
+        // rather than the live handle's soon-to-be-replaced resource state.
+        auto food=std::make_unique<FiniteResourceContext>(handle->resourceRuntime->deviceView().config);
+        const auto& sensor=*handle->run.visualSensorProgram();
+        auto visual=compileTaskVisualRuntime(*handle,sensor,true,
+            sensor.retinal && !sensor.retinal->resourceCues.empty() ? food.get() : nullptr);
         visual->retinal->restoreState(retina);food->restoreState(resource);
         std::vector<std::byte> pending(world.begin(),world.end());
         handle->visualRuntime=std::move(visual);handle->resourceRuntime=std::move(food);handle->pendingLifeWorld=std::move(pending);
