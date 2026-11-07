@@ -1,0 +1,8 @@
+next env=0 count=4 sensor=2 sample=1
+next env=1 count=5 sensor=2 sample=0
+divergence_guard=refused
+reset_proposal env=0 count=0 sensor=0 sample=1
+reset_proposal env=1 count=5 sensor=2 sample=0
+continuation rc=0 hook=2 reset=1,0 world=0,0 contact=0,0
+challenge reset_depth_changed=9 reset_metadata_changed=3
+tracker_reference_mismatch=0 actor_slot_mismatch=41 actor_slots=42
