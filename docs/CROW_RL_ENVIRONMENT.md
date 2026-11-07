@@ -42,7 +42,8 @@ legacy PolicyPacks to new sensor, action, world, or task semantics.
 
 From this source checkout, build `metalrobo_task_rollout`,
 `metalrobo_task_train`, `metalrobo_robot_catalog`, and
-`metalrobo_crow_embodiment_check` with CMake/Ninja Release.
+`metalrobo_crow_embodiment_check` and `metalrobo_crow_foraging_check` with
+CMake/Ninja Release.
 Create the learner with CPython 3.13.14 using `uv venv python/.venv`, then
 `uv pip install --python python/.venv/bin/python -c
 profiles/crow-rl-requirements.txt -e ./python`. On macmini this checkout uses
@@ -142,6 +143,41 @@ only with identical sensing, batch and rollout semantics. No full world state
 restore or policy qualification is implied. `partition-probe --variant
 v11-embodied --policy PACK --base-policy PACK --output NEW_DIRECTORY` checks
 ordinary and residual stochastic replay across submission chunks 1 and 8.
+
+## Finite nutritional intake ledger
+
+`FiniteResourceContext` is a native MetalWorld post-commit extension. It
+reads accepted physical mouth and source-body poses and the physical jaw
+coordinate; it never writes mechanics, contacts, or actions. A bite requires
+an open–close gesture whose closing edge occurs inside an authored intake
+volume. Holding closed cannot repeat a bite. A missed close consumes the
+gesture. Overlapping volumes have stable authored priority and only one debit.
+Integer micrograms transfer from a finite patch into a capacity-limited crop.
+No nutritional payload is created, including on the final partial bite.
+
+These payloads are nutritional tracers in intake volumes, not resolved solid
+food grains. Crop payload does not yet alter body mass or undergo swallowing
+or digestion. Water, physiology, pickup/carry/cache mechanics and feeding
+reward integration remain pending. The module has no alternate per-step host
+simulation; its encoding callback schedules the compiled Metal kernel on the
+existing world command buffer. It rejects a different world identity, checks
+accepted physics status, and freezes the ledger on a rejected physical step.
+
+`foraging-admission --output NEW_DIRECTORY` runs the native control with eight
+canonical starts, 448 steps / 8.96 seconds per trial, and four physical trials.
+The retained control consumes exactly 45,000 micrograms in three bites in
+every lane. Turning away misses the volume and consumes zero. Chunks 8 and 64
+give identical complete resource state. An ordinary task reset cannot refill
+or erase resources. Synthetic GPU controls independently exercise rejection,
+overlap, held closure, finite exhaustion, crop capacity and restored continuation.
+These canonical starts admit the transaction; randomized search is a separate
+behavioral experiment. The earlier randomized fixture's misses are retained.
+
+Resource-only checkpoints bind the compiled program and world, use SHA-256,
+preserve the integer lifetime clock and jaw latch, and reject truncated,
+corrupted, mismatched, trailing or conservation-invalid data transactionally.
+They do not restore the surrounding world, contacts, policy, sensory history
+or memory. A complete life checkpoint is still pending.
 
 ## Implementation order and acceptance
 

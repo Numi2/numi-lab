@@ -397,6 +397,7 @@ struct MetalWorldDevicePhysicsPass {
     void* rodInverseMasses = nullptr;
     void* coupledCandidateContext = nullptr;
     MetalWorldEncodeCoupledCandidate encodeCoupledCandidate = nullptr;
+    std::uint64_t worldFingerprint = 0u;
     std::uint64_t seed = 0u;
     MetalWorldDevicePhysicsPhase phase =
         MetalWorldDevicePhysicsPhase::preDynamics;

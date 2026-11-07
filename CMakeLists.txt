@@ -670,6 +670,8 @@ add_custom_command(
         "${METALROBO_WORLD_CONTACT_SOURCE}"
         "${METALROBO_WORLD_COMPILER_SOURCE}"
         "${METALROBO_LOCOMOTION_TASK_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/FiniteResource.metal"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/finite_resource_types.h"
         "${METALROBO_CROW_NAVIGATION_ARRIVALS_SOURCE}"
         "${METALROBO_POLICY_INFERENCE_SOURCE}"
         "${METALROBO_HYBRID_RENDERER_SOURCE}"
@@ -809,6 +811,7 @@ add_library(
     src/metal/MetalArticulatedOperator.mm
     src/metal/NumiHumanTendonMetal.mm
     src/metal/MetalArticulatedABA.mm
+    src/metal/FiniteResource.mm
     src/metal/MetalMultiArticulatedABA.mm
     src/metal/MetalDiscreteElasticRod.mm
     src/metal/MetalArticulatedInverseMass.mm
@@ -1057,6 +1060,12 @@ add_executable(
     apps/robot_catalog.cpp
 )
 add_executable(metalrobo_crow_embodiment_check apps/crow_embodiment_check.cpp)
+add_executable(metalrobo_crow_foraging_check apps/crow_foraging_check.mm)
+target_compile_options(metalrobo_crow_foraging_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+target_link_libraries(metalrobo_crow_foraging_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
+set_target_properties(metalrobo_crow_foraging_check PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
 target_link_libraries(metalrobo_crow_embodiment_check PRIVATE metalrobo)
 set_target_properties(metalrobo_crow_embodiment_check PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
@@ -2303,6 +2312,13 @@ if(BUILD_TESTING)
     )
     add_test(NAME metalrobo.crow.embodiment
         COMMAND $<TARGET_FILE:metalrobo_crow_embodiment_check>)
+    add_test(NAME metalrobo.crow.finite_resource
+        COMMAND "${CMAKE_COMMAND}"
+            "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_foraging_check>"
+            "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowForaging.cmake")
+    set_tests_properties(metalrobo.crow.finite_resource PROPERTIES
+        LABELS "metalrobo;crow;native" TIMEOUT 200)
     set_tests_properties(
         metalrobo.runtime.task_program
         metalrobo.runtime.run_program

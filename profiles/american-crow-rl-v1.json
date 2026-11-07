@@ -37,8 +37,8 @@
     "first_attempt_evidence": "native-transition-observer",
     "crow_eye_perception": "pending; legacy-camera-is-offset-from-body",
     "active_head_and_beak": "estimated-native-v11; reference-inertia-and-Metal-admission; contact-actuation-and-learner-resume-controls-passed; head-vision-and-behavior-qualification-pending",
-    "finite_food_water_and_energy": "pending",
-    "accepted_state_consumption": "pending",
+    "finite_food_water_and_energy": "experimental-native-finite-food-tracer-and-capacity-limited-crop; water-energy-physiology-and-feeding-reward-integration-pending",
+    "accepted_state_consumption": "native-accepted-mouth-intake-volume-and-open-close-edge-controls-passed; solid-food-pickup-carrying-and-swallowing-pending",
     "persistent_memory_and_life_checkpoint": "pending",
     "social_individuals_and_communication": "pending",
     "weather_and_seasonal_ecology": "pending"

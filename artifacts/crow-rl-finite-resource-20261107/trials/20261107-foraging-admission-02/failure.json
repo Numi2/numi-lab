@@ -1,0 +1,4 @@
+{
+  "error": "foraging-ledger failed; retained receipt and stderr in /Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-foraging-admission-02",
+  "type": "RuntimeError"
+}

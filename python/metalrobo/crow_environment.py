@@ -55,6 +55,7 @@ def runtime(root: Path) -> dict:
         "library": build / "lib/libmetalrobo.dylib",
         "metallib": build / "shaders/MetalRobo.metallib",
         "head_check": build / "bin/metalrobo_crow_embodiment_check",
+        "foraging_check": build / "bin/metalrobo_crow_foraging_check",
     }
 
 
@@ -438,6 +439,7 @@ def main() -> int:
     commands.add_parser("probe").add_argument("--output", type=Path, required=True)
     commands.add_parser("head-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("body-admission").add_argument("--output", type=Path, required=True)
+    commands.add_parser("foraging-admission").add_argument("--output", type=Path, required=True)
     init = commands.add_parser("bootstrap")
     init.add_argument("--output", type=Path, required=True)
     init.add_argument("--source-policy", type=Path, required=True)
@@ -493,6 +495,11 @@ def main() -> int:
                 raise RuntimeError("Native head mechanics admission failed")
         elif args.command == "body-admission":
             result = body_admission(root, output, profile)
+        elif args.command == "foraging-admission":
+            result = execute(output, "foraging-ledger", [str(runtime(root)["foraging_check"]),
+                             str(output / "native-evidence")], root, 180)
+            if result.get("status") != "passed" or result.get("exact_partition_replay") is not True:
+                raise RuntimeError("Native finite-resource admission failed")
         elif args.command == "bootstrap":
             result = bootstrap(root, output, args, profile)
         elif args.command == "learn-probe":

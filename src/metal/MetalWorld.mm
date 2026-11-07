@@ -11742,6 +11742,7 @@ bool encodeDevicePhysicsProgram(
             : (__bridge void*)context.buffers[kRodInverseMasses],
         .coupledCandidateContext = &context,
         .encodeCoupledCandidate = &encodeBorrowedCoupledCandidate,
+        .worldFingerprint = world.fingerprint(),
         .seed = config.taskSeed,
         .phase = phase,
         .controlStep = pass.controlStep,

@@ -5,6 +5,8 @@
 
 using namespace metal;
 
+#include "FiniteResource.metal"
+
 namespace {
 
 constant float kPi = 3.14159265358979323846f;
