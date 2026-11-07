@@ -5574,6 +5574,12 @@ add_dependencies(
     metalrobo_dual_psm_suture_handoff_probe
     numi_matter_shaders
 )
+# CPU-only checkpoint parsing regression; it never constructs a Metal runtime.
+add_executable(metalrobo_surgical_checkpoint_twist_test tests/surgery/checkpoint_twist.cpp)
+target_link_libraries(metalrobo_surgical_checkpoint_twist_test PRIVATE metalrobo)
+target_compile_options(metalrobo_surgical_checkpoint_twist_test PRIVATE -Wall -Wextra -Wpedantic -Werror)
+target_link_options(metalrobo_surgical_checkpoint_twist_test PRIVATE -Wl,-dead_strip)
+add_test(NAME metalrobo.surgical.checkpoint_twist_admission COMMAND metalrobo_surgical_checkpoint_twist_test)
 target_compile_definitions(
     metalrobo_dual_psm_suture_handoff_probe
     PRIVATE

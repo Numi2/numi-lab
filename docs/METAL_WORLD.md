@@ -702,6 +702,11 @@ is the executable pre-advance gate for v3 tissue checkpoints. It rebuilds the
 phase's original Matter contact program, restores the manifest's exact
 articulated/needle/DER reset and binary FEM/contact authority, recompiles that
 MetalWorld reset, and rejects any byte or physical-certificate mismatch. The
+v3 admission also requires every recorded DER edge twist and rate exactly
+once; missing edges fail rather than receiving the legacy zero-twist fallback.
+A CPU parser regression exercises missing and duplicate edge records, the
+legacy fallback, and failure before world-state mutation. It does not claim a
+valid v3 Matter restore or advance. The
 runtime deterministically rebuilds FEM node incidence from an archived accepted
 topology generation and mirrors it into the rollback state; incidence is derived
 rather than a second checkpoint authority. The reported `physics_advanced=no`

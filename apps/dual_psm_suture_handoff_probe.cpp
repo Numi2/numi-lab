@@ -8345,6 +8345,7 @@ std::uint64_t loadHandoffState(
             require(fields.size() == 4u, "invalid resume thread twist");
             const std::uint32_t index = parseIndex(fields[1], "thread edge");
             require(index < edges.size(), "resume thread edge is out of range");
+            require(!haveEdge[index], "duplicate resume thread edge");
             edges[index].twistAndRate = {
                 static_cast<float>(parseNumber(fields[2], "thread twist")),
                 static_cast<float>(parseNumber(fields[3], "thread twist rate")),
@@ -8481,6 +8482,15 @@ std::uint64_t loadHandoffState(
             }),
         "handoff resume state is incomplete or has the wrong phase"
     );
+    // A v3 tissue checkpoint is an exact physical continuation boundary.
+    // Legacy twist omission may be reconstructed only for older artifacts;
+    // zero-filling a v3 edge would silently change the earned strand state.
+    require(
+        !matterRequired || std::ranges::all_of(haveEdge, [](const bool value) {
+            return value;
+        }),
+        "v3 tissue checkpoint is missing archived thread twist state"
+    );
     const std::uint32_t knotFieldCount =
         static_cast<std::uint32_t>(knotProtocol) +
         static_cast<std::uint32_t>(knotTarget) +
@@ -8532,7 +8542,7 @@ std::uint64_t loadHandoffState(
     if (!std::ranges::all_of(haveEdge, [](const bool value) {
             return value;
         })) {
-        // v1 artifacts written before twist publication retain the authored
+        // Legacy artifacts written before twist publication retain the authored
         // zero material frame. The accepted close state is nearly untwisted;
         // all newly written artifacts carry the exact edge state.
         std::ranges::fill(edges, MRRodEdgeStateGPU{});
