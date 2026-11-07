@@ -9098,6 +9098,35 @@ inline void mrWorldWave32SolvePacket(
                 }
             }
         } else if (!priorityNormalOnly) {
+        // Research-only prediction stage for non-rod frictional islands.
+        // Each configured sweep retains one normal and tangent update. The
+        // separately bounded normal prediction is stored in unused padding.
+        if ((work.flags & MR_ISLAND_WORK_HAS_ROD) == 0u) {
+            for (uint ti=0u;ti<work.tileCount;++ti) {
+                const MRContactTileGPU tile=tiles[tileBase+work.firstTile+ti];
+                if (localLane>=tile.constraintCount) continue;
+                const uint c=tileConstraintIndices[constraintBase+tile.partialOffset+localLane];
+                device const MRContactConstraintGPU& contact=contacts[constraintBase+c];
+                device const MREvaluatedConstraintIRRowGPU* rows=evaluatedRows+rowBase+3u*c;
+                const float3 rel=typedRelativePointVelocity(c,contact,bodies,dispatch.articulationIndex,
+                    pointJacobians,pointJacobianBase,dispatch.nv,articulationVelocity,rodNodes,rodEdges,
+                    rodColliders,rodWitnesses,constraintWitnessIndices,constraintBase);
+                MRWave32PreconditionerGPU pre=preconditioners[constraintBase+c];
+                const float old=contact.impulses.x;
+                const float rhs=rows[0].targetVelocity-dot(rows[0].direction.xyz,rel)-rows[0].regularization*old;
+                const float upper=evaluatedCones[constraintBase+c].maximumNormalImpulse;
+                float normal=max(old+rhs/pre.row0.w,0.f);
+                if(upper>0.f)normal=min(normal,upper);
+                const float dn=pre.row2.w*(normal-old);
+                if(!(pre.row0.w>0.f)||!isfinite(dn)) {
+                    localFailure=MR_STEP_NONFINITE_RESULT;
+                    localFailureConstraint=min(localFailureConstraint,c);
+                    pre.row1.w=INFINITY;
+                } else pre.row1.w=dn;
+                preconditioners[constraintBase+c]=pre;
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_device);
         for (uint localTile = 0u;
              localTile < work.tileCount;
              ++localTile) {
@@ -9148,19 +9177,47 @@ inline void mrWorldWave32SolvePacket(
                 preconditioners[
                     constraintBase + localConstraint
                 ];
-            // Research-only non-rod variant. Rods retain their prior path.
-            float3 proposed;
-            if (!typedRodConstraint(contact)) {
-                proposed = normalFirstContactCandidate(
-                    previous, rhs, preconditioner, preconditioner.row0.w,
-                    evaluatedCones[constraintBase + localConstraint]);
+            // Account for the simultaneous normal updates of every other
+            // contact before proposing the bounded tangential update.
+            float3 delta;
+            const float relaxation = preconditioner.row2.w;
+            if ((work.flags & MR_ISLAND_WORK_HAS_ROD) == 0u) {
+                float2 tangentRhs=rhs.yz;
+                for(uint ti=0u;ti<work.tileCount;++ti) {
+                    const MRContactTileGPU tile2=tiles[tileBase+work.firstTile+ti];
+                    for(uint j=0u;j<tile2.constraintCount;++j) {
+                        const uint source=tileConstraintIndices[constraintBase+tile2.partialOffset+j];
+                        const float dn=preconditioners[constraintBase+source].row1.w;
+                        if(dn==0.f) continue;
+                        device const MRContactConstraintGPU& other=contacts[constraintBase+source];
+                        const float3 n=evaluatedRows[rowBase+3u*source].direction.xyz;
+                        for(uint axis=1u;axis<3u;++axis) {
+                            const float response=typedNormalCrossContactResponse(
+                                localConstraint,source,0u,contact,other,localRows[axis].direction.xyz,n,
+                                bodies,pointJacobians,pointJacobianBase,responseColumns,responseBase,
+                                dispatch.nv,dispatch.articulationIndex,rodNodes,inverseRodMasses,
+                                inverseRodTwistInertias,rodColliders,rodWitnesses,constraintWitnessIndices,constraintBase);
+                            tangentRhs[axis-1u]-=dn*response;
+                        }
+                    }
+                }
+                const float invN=preconditioner.row0.x;
+                const float2 crossInv=float2(preconditioner.row1.x,preconditioner.row2.x);
+                const float2x2 tangentInverse=float2x2(
+                    float2(preconditioner.row1.y,preconditioner.row2.y),
+                    float2(preconditioner.row1.z,preconditioner.row2.z)) -
+                    float2x2(crossInv*preconditioner.row0.y,crossInv*preconditioner.row0.z)/invN;
+                const float normal=previous.x+preconditioner.row1.w;
+                const float2 tangent=certifiedTangentMetricProjection(
+                    previous.yz+relaxation*(tangentInverse*tangentRhs),tangentInverse,normal,
+                    float2(evaluatedCones[constraintBase+localConstraint].effectiveFrictionU,
+                           evaluatedCones[constraintBase+localConstraint].effectiveFrictionV));
+                delta=float3(preconditioner.row1.w,tangent-previous.yz);
             } else {
-                proposed = previous + float3(
-                    dot(preconditioner.row0.xyz, rhs),
-                    dot(preconditioner.row1.xyz, rhs),
-                    dot(preconditioner.row2.xyz, rhs));
-                proposed = projectFrictionCone(
-                    proposed, evaluatedCones[constraintBase + localConstraint]);
+                float3 proposed=previous+float3(
+                    dot(preconditioner.row0.xyz,rhs),dot(preconditioner.row1.xyz,rhs),dot(preconditioner.row2.xyz,rhs));
+                proposed=projectFrictionCone(proposed,evaluatedCones[constraintBase+localConstraint]);
+                delta=relaxation*(proposed-previous);
             }
             if (localFailure != MR_STEP_SUCCESS) {
                 impulseDeltas[
@@ -9170,9 +9227,6 @@ inline void mrWorldWave32SolvePacket(
             }
             // The exact rod inverse is dense, so its retained relaxation uses
             // the full active contact count rather than a SIMD-width cap.
-            const float relaxation = preconditioner.row2.w;
-            const float3 delta =
-                relaxation * (proposed - previous);
             const float3 candidate = previous + delta;
             if (!finite3(candidate) || !finite3(delta)) {
                 laneFailureRhs = max(
