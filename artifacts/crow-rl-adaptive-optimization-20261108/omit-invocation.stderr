@@ -1,0 +1,3 @@
+usage: crow_evidence_archive.py [-h] [--output OUTPUT] [--prefix PREFIX]
+                                {capture,verify,restore,prune,omit} path
+crow_evidence_archive.py: error: omit requires a new receipt path
