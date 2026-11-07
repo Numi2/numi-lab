@@ -1,0 +1,811 @@
+--- /Users/numi/numi-v5-admission-artifacts-20261107/brain-tissue-original.swift	2026-11-07 15:06:24
++++ /Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/MetalTissueRuntime.swift	2026-11-07 15:11:58
+@@ -1289,8 +1289,11 @@
+     maxEncodedSubsteps: Int = 4_096,
+     device requestedDevice: (any MTLDevice)? = nil
+   ) throws {
++    fputs("fast-tissue=validate-parameters\n", stderr)
+     try parameters.validate()
++    fputs("fast-tissue=validate-stimulus\n", stderr)
+     try stimulus.validate()
++    fputs("fast-tissue=structure\n", stderr)
+     let structure: TissueStructure
+     if let requestedStructure {
+       structure = requestedStructure
+@@ -1304,6 +1307,7 @@
+     guard structure.width == initialState.width, structure.height == initialState.height else {
+       throw TissueError.invalidStructure("structure dimensions must match the initial state")
+     }
++    fputs("fast-tissue=delay\n", stderr)
+     let delayField: TissueDelayField
+     if let requestedDelayField {
+       delayField = requestedDelayField
+@@ -1317,6 +1321,7 @@
+     guard delayField.width == initialState.width, delayField.height == initialState.height else {
+       throw TissueError.invalidConduction("delay dimensions must match the initial state")
+     }
++    fputs("fast-tissue=connectome\n", stderr)
+     let connectome: TissueConnectome
+     if let requestedConnectome {
+       connectome = requestedConnectome
+@@ -1329,6 +1334,7 @@
+     guard connectome.width == initialState.width, connectome.height == initialState.height else {
+       throw TissueError.invalidConnectome("connectome dimensions must match the initial state")
+     }
++    fputs("fast-tissue=schedules\n", stderr)
+     let eventSchedule =
+       try requestedEventSchedule
+       ?? TissueEventSchedule.singleStimulus(stimulus)
+@@ -1341,6 +1347,7 @@
+     guard regionalTokenProgram.scheduleFingerprint == brainSchedule.fingerprint else {
+       throw TissueError.metal("regional token program does not match the brain schedule")
+     }
++    fputs("fast-tissue=parameter-version\n", stderr)
+     let parameterVersion =
+       try requestedParameterVersion
+       ?? BrainParameterVersion.runtimeFoundationV0(
+@@ -1360,6 +1367,7 @@
+         "parameter version does not match tissue, schedule, or regional program"
+       )
+     }
++    fputs("fast-tissue=parameter-abi\n", stderr)
+     var parameterBindingValidationRecord = parameterVersion.abiBinding
+     let parameterComponentValidationRecords = parameterVersion.components.map(\.abiRecord)
+     let parameterValidation = parameterComponentValidationRecords.withUnsafeBufferPointer {
+@@ -1373,6 +1381,7 @@
+         "compiled parameter manifest validation failed with code \(parameterValidation)"
+       )
+     }
++    fputs("fast-tissue=regional-values\n", stderr)
+     let initialRegionalTokenValues =
+       requestedInitialRegionalTokenValues
+       ?? [Float](repeating: 0, count: regionalTokenProgram.scalarCount)
+@@ -1381,6 +1390,7 @@
+     else {
+       throw TissueError.metal("initial regional token values do not match the program")
+     }
++    fputs("fast-tissue=regional-routing\n", stderr)
+     let initialRegionalRoutingState =
+       requestedInitialRegionalRoutingState
+       ?? RegionalRoutingState(program: regionalTokenProgram)
+@@ -1389,6 +1399,7 @@
+     } catch {
+       throw TissueError.metal("initial regional routing state is invalid: \(error)")
+     }
++    fputs("fast-tissue=motor-profile\n", stderr)
+     let protectiveMotorProfile =
+       try requestedProtectiveMotorProfile
+       ?? ProtectiveMotorProfile.runtimeFoundationFixture()
+@@ -1409,6 +1420,7 @@
+         "somatic synergy catalog does not cover the protective motor profile"
+       )
+     }
++    fputs("fast-tissue=synergy-decoder\n", stderr)
+     let somaticSynergyDecoder = try somaticSynergyCatalog.denseDecoder()
+     let bodyLoadFieldDynamics =
+       try requestedBodyLoadFieldDynamics
+@@ -1416,6 +1428,7 @@
+     let bodySchemaDynamics =
+       try requestedBodySchemaDynamics
+       ?? BodySchemaPosteriorDynamics.runtimeFoundationV0
++    fputs("fast-tissue=attachment-validation\n", stderr)
+     if let requestedNumanXMuscleAttachmentCatalog {
+       do {
+         try requestedNumanXMuscleAttachmentCatalog.validate(
+@@ -1427,6 +1440,7 @@
+         )
+       }
+     }
++    fputs("fast-tissue=scheduler-validation\n", stderr)
+     guard maxEncodedSubsteps > 0 else {
+       throw TissueError.metal("maxEncodedSubsteps must be positive")
+     }
+@@ -1436,6 +1450,7 @@
+     guard maxSchedulerInvocations > 0, maxSchedulerInvocations <= Int(UInt32.max) else {
+       throw TissueError.metal("maxSchedulerInvocations must be in 1...UInt32.max")
+     }
++    fputs("fast-tissue=timestep-validation\n", stderr)
+     let timestepMicrosecondsDouble = Double(parameters.timestepMilliseconds) * 1_000
+     let roundedTimestepMicroseconds = timestepMicrosecondsDouble.rounded()
+     guard roundedTimestepMicroseconds >= 1,
+@@ -1457,6 +1472,7 @@
+     guard !tissueDelayOverflow else {
+       throw TissueError.metal("physical tissue delay overflows UInt64")
+     }
++    fputs("fast-tissue=route-capacity\n", stderr)
+     let maximumRouteDelay = UInt64(
+       regionalTokenProgram.routes.map(\.delayMicroseconds).max() ?? 0
+     )
+@@ -1475,9 +1491,11 @@
+         "scheduler/event bounds require \(requiredRouteHistoryCapacity) regional route-history slots; capacity is \(regionalTokenProgram.compiledRouteHistoryCapacity)"
+       )
+     }
++    fputs("fast-tissue=device\n", stderr)
+     guard let device = requestedDevice ?? MTLCreateSystemDefaultDevice() else {
+       throw TissueError.metal("no Metal device is available")
+     }
++    fputs("fast-tissue=parameter-bank\n", stderr)
+     let sharedParameterBank = try MetalSharedParameterBank(
+       device: device,
+       parameterVersion: parameterVersion,
+@@ -1490,6 +1508,7 @@
+         "regional dense parameter shape does not match the compiled program"
+       )
+     }
++    fputs("fast-tissue=command-queue\n", stderr)
+     guard let commandQueue = device.makeMTL4CommandQueue() else {
+       throw TissueError.metal("device does not provide a Metal 4 command queue")
+     }
+@@ -1500,6 +1519,7 @@
+       throw TissueError.metal("failed to create a reusable Metal 4 command buffer")
+     }
+ 
++    fputs("fast-tissue=source-url\n", stderr)
+     let sourceURL =
+       MetalBrainResourceBundle.bundle.url(
+         forResource: "NeuralTissue",
+@@ -1509,7 +1529,9 @@
+     guard let sourceURL else {
+       throw TissueError.metal("NeuralTissue.metal is missing from package resources")
+     }
++    fputs("fast-tissue=source-read\n", stderr)
+     let source = try String(contentsOf: sourceURL, encoding: .utf8)
++    fputs("fast-tissue=environment\n", stderr)
+     let regionalGridSetting = ProcessInfo.processInfo.environment["NUMI_BRAIN_REGIONAL_GRID"] ?? "0"
+     guard regionalGridSetting == "0" || regionalGridSetting == "1" else {
+       throw TissueError.metal("NUMI_BRAIN_REGIONAL_GRID must be 0 or 1")
+@@ -1549,6 +1571,7 @@
+     else {
+       throw TissueError.metal("NUMI_BRAIN_PROTECTIVE_HASH_UNROLL must be 0, 4, 8, or 16")
+     }
++    fputs("fast-tissue=compile-options\n", stderr)
+     let compileOptions = MTLCompileOptions()
+     compileOptions.languageVersion = .version4_0
+     compileOptions.mathMode = .fast
+@@ -1560,6 +1583,7 @@
+     let delayFieldHash = delayField.stableHash()
+     let connectomeHash = connectome.stableHash()
+     let eventScheduleHash = eventSchedule.stableHash()
++    fputs("fast-tissue=fingerprint\n", stderr)
+     let numanXFastProgramFingerprint = Self.makeNumanXFastProgramFingerprint(
+       metalSource: source,
+       structureHash: structureHash,
+@@ -1588,15 +1612,19 @@
+       mathMode: UInt32(compileOptions.mathMode.rawValue),
+       mathFunctions: UInt32(compileOptions.mathFloatingPointFunctions.rawValue)
+     )
++    fputs("fast-tissue=fingerprint-check\n", stderr)
+     guard numanXFastProgramFingerprint != 0 else {
+       throw TissueError.metal("NumanX fast program fingerprint is zero")
+     }
++    fputs("fast-tissue=make-library\n", stderr)
+     let library: any MTLLibrary
+     do {
+       library = try device.makeLibrary(source: source, options: compileOptions)
+     } catch {
++      fputs("fast-tissue=library-threw\n", stderr)
+       throw TissueError.metal("Metal 4 library compilation failed: \(error)")
+     }
++    fputs("fast-tissue=library-success\n", stderr)
+     guard let tissueFunction = library.makeFunction(name: "neural_tissue_step") else {
+       throw TissueError.metal("neural_tissue_step is missing from the Metal library")
+     }
+@@ -1653,6 +1681,7 @@
+         "advance_fast_autonomic_output is missing from the Metal library"
+       )
+     }
++    fputs("fast-tissue=functions-success\n", stderr)
+     let tissuePipeline: any MTLComputePipelineState
+     let eventCompactionPipeline: any MTLComputePipelineState
+     let receptorInterruptTransductionPipeline: any MTLComputePipelineState
+@@ -1667,17 +1696,24 @@
+     let fastCerebellarPipeline: any MTLComputePipelineState
+     let fastAutonomicPipeline: any MTLComputePipelineState
+     do {
++      fputs("fast-tissue=pipeline-tissuePipeline\n", stderr)
+       tissuePipeline = try device.makeComputePipelineState(function: tissueFunction)
++      fputs("fast-tissue=pipeline-eventCompactionPipeline\n", stderr)
+       eventCompactionPipeline = try device.makeComputePipelineState(
+         function: eventCompactionFunction
+       )
++      fputs("fast-tissue=pipeline-receptorInterruptTransductionPipeline\n", stderr)
+       receptorInterruptTransductionPipeline = try device.makeComputePipelineState(
+         function: receptorInterruptTransductionFunction
+       )
++      fputs("fast-tissue=pipeline-schedulerPipeline\n", stderr)
+       schedulerPipeline = try device.makeComputePipelineState(function: schedulerFunction)
++      fputs("fast-tissue=pipeline-regionalHistoryCopyPipeline\n", stderr)
+       regionalHistoryCopyPipeline = try device.makeComputePipelineState(
+         function: regionalHistoryCopyFunction)
++      fputs("fast-tissue=pipeline-regionalPipeline\n", stderr)
+       regionalPipeline = try device.makeComputePipelineState(function: regionalFunction)
++      fputs("fast-tissue=pipeline-regionalGridPipelines\n", stderr)
+       regionalGridPipelines = try regionalGridEnabled ? [
+         "prepare_single_timestamp_regional_grid",
+         "compute_single_timestamp_regional_grid",
+@@ -1690,19 +1726,25 @@
+         }
+         return try device.makeComputePipelineState(function: function)
+       } : []
++      fputs("fast-tissue=pipeline-protectivePipeline\n", stderr)
+       protectivePipeline = try device.makeComputePipelineState(function: protectiveFunction)
++      fputs("fast-tissue=pipeline-protectiveMotorPipeline\n", stderr)
+       protectiveMotorPipeline = try device.makeComputePipelineState(
+         function: protectiveMotorFunction
+       )
++      fputs("fast-tissue=pipeline-bodyLoadFieldPipeline\n", stderr)
+       bodyLoadFieldPipeline = try device.makeComputePipelineState(
+         function: bodyLoadFieldFunction
+       )
++      fputs("fast-tissue=pipeline-bodySchemaPipeline\n", stderr)
+       bodySchemaPipeline = try device.makeComputePipelineState(
+         function: bodySchemaFunction
+       )
++      fputs("fast-tissue=pipeline-fastCerebellarPipeline\n", stderr)
+       fastCerebellarPipeline = try device.makeComputePipelineState(
+         function: fastCerebellarFunction
+       )
++      fputs("fast-tissue=pipeline-fastAutonomicPipeline\n", stderr)
+       fastAutonomicPipeline = try device.makeComputePipelineState(
+         function: fastAutonomicFunction
+       )
+@@ -1712,6 +1754,7 @@
+       )
+     }
+ 
++    fputs("fast-tissue=pipelines-success\n", stderr)
+     let argumentDescriptor = MTL4ArgumentTableDescriptor()
+     argumentDescriptor.label = "NumiBrain tissue arguments"
+     argumentDescriptor.maxBufferBindCount = 12
+@@ -1719,6 +1762,7 @@
+     guard let argumentTable = try? device.makeArgumentTable(descriptor: argumentDescriptor) else {
+       throw TissueError.metal("failed to create the Metal 4 argument table")
+     }
++    fputs("fast-tissue=table-eventArgumentDescriptor\n", stderr)
+     let eventArgumentDescriptor = MTL4ArgumentTableDescriptor()
+     eventArgumentDescriptor.label = "NumiBrain event-compaction arguments"
+     eventArgumentDescriptor.maxBufferBindCount = 3
+@@ -1730,6 +1774,7 @@
+     else {
+       throw TissueError.metal("failed to create the event-compaction argument table")
+     }
++    fputs("fast-tissue=table-receptorInterruptArgumentDescriptor\n", stderr)
+     let receptorInterruptArgumentDescriptor = MTL4ArgumentTableDescriptor()
+     receptorInterruptArgumentDescriptor.label = "NumiBrain receptor-interrupt arguments"
+     receptorInterruptArgumentDescriptor.maxBufferBindCount = 6
+@@ -1741,6 +1786,7 @@
+     else {
+       throw TissueError.metal("failed to create the receptor-interrupt argument table")
+     }
++    fputs("fast-tissue=table-schedulerArgumentDescriptor\n", stderr)
+     let schedulerArgumentDescriptor = MTL4ArgumentTableDescriptor()
+     schedulerArgumentDescriptor.label = "NumiBrain scheduler arguments"
+     schedulerArgumentDescriptor.maxBufferBindCount = 11
+@@ -1752,6 +1798,7 @@
+     else {
+       throw TissueError.metal("failed to create the scheduler argument table")
+     }
++    fputs("fast-tissue=table-regionalHistoryCopyArgumentDescriptor\n", stderr)
+     let regionalHistoryCopyArgumentDescriptor = MTL4ArgumentTableDescriptor()
+     regionalHistoryCopyArgumentDescriptor.label = "NumiBrain regional history copy arguments"
+     regionalHistoryCopyArgumentDescriptor.maxBufferBindCount = 19
+@@ -1760,6 +1807,7 @@
+       descriptor: regionalHistoryCopyArgumentDescriptor) else {
+       throw TissueError.metal("failed to create the regional history copy argument table")
+     }
++    fputs("fast-tissue=table-regionalArgumentDescriptor\n", stderr)
+     let regionalArgumentDescriptor = MTL4ArgumentTableDescriptor()
+     regionalArgumentDescriptor.label = "NumiBrain regional-token arguments"
+     regionalArgumentDescriptor.maxBufferBindCount = 31
+@@ -1789,6 +1837,7 @@
+       ),
+       index: 30
+     )
++    fputs("fast-tissue=table-protectiveArgumentDescriptor\n", stderr)
+     let protectiveArgumentDescriptor = MTL4ArgumentTableDescriptor()
+     protectiveArgumentDescriptor.label = "NumiBrain protective-command arguments"
+     protectiveArgumentDescriptor.maxBufferBindCount = 6
+@@ -1800,6 +1849,7 @@
+     else {
+       throw TissueError.metal("failed to create the protective-command argument table")
+     }
++    fputs("fast-tissue=table-protectiveMotorArgumentDescriptor\n", stderr)
+     let protectiveMotorArgumentDescriptor = MTL4ArgumentTableDescriptor()
+     protectiveMotorArgumentDescriptor.label = "NumiBrain protective-motor arguments"
+     protectiveMotorArgumentDescriptor.maxBufferBindCount = 20
+@@ -1811,6 +1861,7 @@
+     else {
+       throw TissueError.metal("failed to create the protective-motor argument table")
+     }
++    fputs("fast-tissue=table-bodyLoadFieldArgumentDescriptor\n", stderr)
+     let bodyLoadFieldArgumentDescriptor = MTL4ArgumentTableDescriptor()
+     bodyLoadFieldArgumentDescriptor.label = "NumiBrain body-load field arguments"
+     bodyLoadFieldArgumentDescriptor.maxBufferBindCount = 4
+@@ -1822,6 +1873,7 @@
+     else {
+       throw TissueError.metal("failed to create the body-load field argument table")
+     }
++    fputs("fast-tissue=table-bodySchemaArgumentDescriptor\n", stderr)
+     let bodySchemaArgumentDescriptor = MTL4ArgumentTableDescriptor()
+     bodySchemaArgumentDescriptor.label = "NumiBrain body-schema arguments"
+     bodySchemaArgumentDescriptor.maxBufferBindCount = 4
+@@ -1833,6 +1885,7 @@
+     else {
+       throw TissueError.metal("failed to create the body-schema argument table")
+     }
++    fputs("fast-tissue=table-fastCerebellarArgumentDescriptor\n", stderr)
+     let fastCerebellarArgumentDescriptor = MTL4ArgumentTableDescriptor()
+     fastCerebellarArgumentDescriptor.label = "NumiBrain fast-cerebellar arguments"
+     fastCerebellarArgumentDescriptor.maxBufferBindCount = 8
+@@ -1848,6 +1901,7 @@
+       try sharedParameterBank.gpuAddress(.cerebellar, minimumScalarCount: 8),
+       index: 7
+     )
++    fputs("fast-tissue=table-fastAutonomicArgumentDescriptor\n", stderr)
+     let fastAutonomicArgumentDescriptor = MTL4ArgumentTableDescriptor()
+     fastAutonomicArgumentDescriptor.label = "NumiBrain fast-autonomic arguments"
+     fastAutonomicArgumentDescriptor.maxBufferBindCount = 9
+@@ -1859,8 +1913,10 @@
+     else {
+       throw TissueError.metal("failed to create the fast-autonomic argument table")
+     }
++    fputs("fast-tissue=motor-ready\n", stderr)
+     let numanXMotorReadyRuntime = try MetalNumanXMotorReadyRuntime(device: device)
+ 
++    fputs("fast-tissue=state-buffers\n", stderr)
+     let stateByteCount = initialState.count * MemoryLayout<TissueCell>.stride
+     let stateBuffers: [any MTLBuffer] = try (0..<3).map { index in
+       guard
+@@ -2667,6 +2723,7 @@
+     firstBodySchemaStateBuffer.label = "NumiBrain body-schema generation 0"
+     secondBodySchemaStateBuffer.label = "NumiBrain body-schema generation 1"
+     muscleAttachmentBuffer.label = "NumiBrain immutable muscle endpoint map"
++    fputs("fast-tissue=uniform-buffers\n", stderr)
+     let uniformByteCount = maxEncodedSubsteps * TissueUniforms.byteCount
+     guard
+       let uniformBuffer = device.makeBuffer(
+@@ -2893,6 +2950,7 @@
+     residencySet.commit()
+     residencySet.requestResidency()
+ 
++    fputs("fast-tissue=self-initialization\n", stderr)
+     self.device = device
+     self.deviceName = device.name
+     self.deviceRegistryID = device.registryID
+@@ -3087,10 +3145,12 @@
+     self.bodySchemaStateByteCount = bodySchemaStateByteCount
+     self.muscleAttachmentByteCount = muscleAttachmentByteCount
+ 
++    fputs("fast-tissue=assignments-complete\n", stderr)
+     initialState.cells.withUnsafeBytes { sourceBytes in
+       guard let source = sourceBytes.baseAddress else { return }
+       stagingBuffer.contents().copyMemory(from: source, byteCount: stateByteCount)
+     }
++    fputs("fast-tissue=initial-op-001\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: stateBuffers[committedIndex],
+@@ -3100,6 +3160,7 @@
+       guard let source = sourceBytes.baseAddress else { return }
+       stagingBuffer.contents().copyMemory(from: source, byteCount: stateByteCount)
+     }
++    fputs("fast-tissue=initial-op-002\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: structureBuffer,
+@@ -3109,6 +3170,7 @@
+       guard let source = sourceBytes.baseAddress else { return }
+       stagingBuffer.contents().copyMemory(from: source, byteCount: delayField.count)
+     }
++    fputs("fast-tissue=initial-op-003\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: delayBuffer,
+@@ -3120,6 +3182,7 @@
+       guard let source = sourceBytes.baseAddress else { return }
+       stagingBuffer.contents().copyMemory(from: source, byteCount: relayByteCount)
+     }
++    fputs("fast-tissue=initial-op-004\n", stderr)
+     try seedRelayHistory()
+     let initialRelayTimestamps = [UInt64](
+       repeating: 0,
+@@ -3132,6 +3195,7 @@
+         byteCount: relayHistoryTimestampByteCount
+       )
+     }
++    fputs("fast-tissue=initial-op-005\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: relayHistoryTimestampBuffer,
+@@ -3142,6 +3206,7 @@
+       guard let source = sourceBytes.baseAddress else { return }
+       stagingBuffer.contents().copyMemory(from: source, byteCount: projectionOffsetByteCount)
+     }
++    fputs("fast-tissue=initial-op-006\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: projectionOffsetBuffer,
+@@ -3153,6 +3218,7 @@
+         guard let source = sourceBytes.baseAddress else { return }
+         stagingBuffer.contents().copyMemory(from: source, byteCount: projectionEdgeByteCount)
+       }
++      fputs("fast-tissue=initial-op-007\n", stderr)
+       try copy(
+         source: stagingBuffer,
+         destination: projectionEdgeBuffer,
+@@ -3165,6 +3231,7 @@
+         guard let source = sourceBytes.baseAddress else { return }
+         stagingBuffer.contents().copyMemory(from: source, byteCount: eventByteCount)
+       }
++      fputs("fast-tissue=initial-op-008\n", stderr)
+       try copy(
+         source: stagingBuffer,
+         destination: eventBuffer,
+@@ -3180,6 +3247,7 @@
+         byteCount: schedulerDescriptorByteCount
+       )
+     }
++    fputs("fast-tissue=initial-op-009\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: schedulerDescriptorBuffer,
+@@ -3194,6 +3262,7 @@
+         byteCount: MemoryLayout<NBParameterVersionBinding>.stride
+       )
+     }
++    fputs("fast-tissue=initial-op-010\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: parameterVersionBindingBuffer,
+@@ -3208,6 +3277,7 @@
+       stagingBuffer.contents().copyMemory(from: source, byteCount: schedulerClockByteCount)
+     }
+     for (index, buffer) in schedulerClockBuffers.enumerated() {
++      fputs("fast-tissue=initial-op-011\n", stderr)
+       try copy(
+         source: stagingBuffer,
+         destination: buffer,
+@@ -3223,6 +3293,7 @@
+       stagingBuffer.contents().copyMemory(from: source, byteCount: regionalStateByteCount)
+     }
+     for (index, buffer) in regionalStateBuffers.enumerated() {
++      fputs("fast-tissue=initial-op-012\n", stderr)
+       try copy(
+         source: stagingBuffer,
+         destination: buffer,
+@@ -3238,6 +3309,7 @@
+         byteCount: MemoryLayout<NBRegionalProgramHeader>.stride
+       )
+     }
++    fputs("fast-tissue=initial-op-013\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: regionalProgramHeaderBuffer,
+@@ -3249,6 +3321,7 @@
+       guard let source = sourceBytes.baseAddress else { return }
+       stagingBuffer.contents().copyMemory(from: source, byteCount: regionalLayoutByteCount)
+     }
++    fputs("fast-tissue=initial-op-014\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: regionalLayoutBuffer,
+@@ -3261,6 +3334,7 @@
+         guard let source = sourceBytes.baseAddress else { return }
+         stagingBuffer.contents().copyMemory(from: source, byteCount: regionalRouteByteCount)
+       }
++      fputs("fast-tissue=initial-op-015\n", stderr)
+       try copy(
+         source: stagingBuffer,
+         destination: regionalRouteBuffer,
+@@ -3278,6 +3352,7 @@
+         byteCount: regionalOutgoingRouteCSRByteCount
+       )
+     }
++    fputs("fast-tissue=initial-op-016\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: regionalOutgoingRouteIndexBuffer,
+@@ -3289,6 +3364,7 @@
+       guard let source = sourceBytes.baseAddress else { return }
+       stagingBuffer.contents().copyMemory(from: source, byteCount: regionalParameterByteCount)
+     }
++    fputs("fast-tissue=initial-op-017\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: regionalParameterBuffer,
+@@ -3300,6 +3376,7 @@
+       stagingBuffer.contents().copyMemory(from: source, byteCount: regionalTokenStateByteCount)
+     }
+     for (index, buffer) in regionalTokenStateBuffers.enumerated() {
++      fputs("fast-tissue=initial-op-018\n", stderr)
+       try copy(
+         source: stagingBuffer,
+         destination: buffer,
+@@ -3318,6 +3395,7 @@
+         )
+       }
+       for (index, buffer) in regionalRouteHistoryStateBuffers.enumerated() {
++        fputs("fast-tissue=initial-op-019\n", stderr)
+         try copy(
+           source: stagingBuffer,
+           destination: buffer,
+@@ -3335,6 +3413,7 @@
+         )
+       }
+       for (index, buffer) in regionalRouteHistoryTimestampBuffers.enumerated() {
++        fputs("fast-tissue=initial-op-020\n", stderr)
+         try copy(
+           source: stagingBuffer,
+           destination: buffer,
+@@ -3352,6 +3431,7 @@
+         )
+       }
+       for (index, buffer) in regionalRouteHistoryValueBuffers.enumerated() {
++        fputs("fast-tissue=initial-op-021\n", stderr)
+         try copy(
+           source: stagingBuffer,
+           destination: buffer,
+@@ -3370,6 +3450,7 @@
+         )
+       }
+       for (index, buffer) in regionalRouteRuntimeStateBuffers.enumerated() {
++        fputs("fast-tissue=initial-op-022\n", stderr)
+         try copy(
+           source: stagingBuffer,
+           destination: buffer,
+@@ -3378,6 +3459,7 @@
+         )
+       }
+     }
++    fputs("fast-tissue=initial-op-023\n", stderr)
+     let initialProtectiveCommand = try ProtectiveMotorCommand.reference(
+       timestamp: BrainTimestamp(microseconds: 0),
+       brainGeneration: 0,
+@@ -3395,6 +3477,7 @@
+       )
+     }
+     for (index, buffer) in protectiveCommandBuffers.enumerated() {
++      fputs("fast-tissue=initial-op-024\n", stderr)
+       try copy(
+         source: stagingBuffer,
+         destination: buffer,
+@@ -3410,6 +3493,7 @@
+         byteCount: protectiveMotorProfileByteCount
+       )
+     }
++    fputs("fast-tissue=initial-op-025\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: protectiveMotorProfileBuffer,
+@@ -3435,6 +3519,7 @@
+         byteCount: protectiveMotorProfileByteCount
+       )
+     }
++    fputs("fast-tissue=initial-op-026\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: somaticActuatorDescriptorBuffer,
+@@ -3448,6 +3533,7 @@
+         byteCount: somaticSynergyDecoderByteCount
+       )
+     }
++    fputs("fast-tissue=initial-op-027\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: somaticSynergyDecoderBuffer,
+@@ -3464,12 +3550,14 @@
+       repeating: 0,
+       count: protectiveMuscleExcitationByteCount
+     )
++    fputs("fast-tissue=initial-op-028\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: zeroDescendingSomaticBuffer,
+       size: protectiveMuscleExcitationByteCount,
+       label: "NumiBrain zero descending somatic command upload"
+     )
++    fputs("fast-tissue=initial-op-029\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: descendingSomaticBuffer,
+@@ -3481,6 +3569,7 @@
+       repeating: 0,
+       count: fastCPGStateCapacityByteCount
+     )
++    fputs("fast-tissue=initial-op-030\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: stagedFastCPGStateBuffer,
+@@ -3516,72 +3605,84 @@
+         )
+       )
+     )
++    fputs("fast-tissue=initial-op-031\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: fastReflexRuleBuffer,
+       size: fastReflexRuleCapacityByteCount,
+       label: "NumiBrain initial species reflex program upload"
+     )
++    fputs("fast-tissue=initial-op-032\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: stagedFastReflexStateBuffer,
+       size: fastReflexStateCapacityByteCount,
+       label: "NumiBrain initial fast reflex state upload"
+     )
++    fputs("fast-tissue=initial-op-033\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: baselineFastCerebellarStateBuffer,
+       size: fastCerebellarStateByteCount,
+       label: "NumiBrain initial fast cerebellar baseline upload"
+     )
++    fputs("fast-tissue=initial-op-034\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: stagedFastCerebellarStateBuffer,
+       size: fastCerebellarStateByteCount,
+       label: "NumiBrain initial fast cerebellar state upload"
+     )
++    fputs("fast-tissue=initial-op-035\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: stagedMotorCommandBuffer,
+       size: stagedMotorCommandByteCount,
+       label: "NumiBrain initial staged motor-command upload"
+     )
++    fputs("fast-tissue=initial-op-036\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: baselineFastAutonomicStateBuffer,
+       size: fastAutonomicStateByteCount,
+       label: "NumiBrain initial fast autonomic baseline upload"
+     )
++    fputs("fast-tissue=initial-op-037\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: stagedFastAutonomicStateBuffer,
+       size: fastAutonomicStateByteCount,
+       label: "NumiBrain initial fast autonomic state upload"
+     )
++    fputs("fast-tissue=initial-op-038\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: baselineFastAutonomicCommandBuffer,
+       size: fastAutonomicCommandByteCount,
+       label: "NumiBrain initial autonomic baseline upload"
+     )
++    fputs("fast-tissue=initial-op-039\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: stagedFastAutonomicOutputBuffer,
+       size: fastAutonomicCommandByteCount,
+       label: "NumiBrain initial fast autonomic output upload"
+     )
++    fputs("fast-tissue=initial-op-040\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: stagedActiveSensingCommandBuffer,
+       size: activeSensingCommandByteCount,
+       label: "NumiBrain initial active sensing command upload"
+     )
++    fputs("fast-tissue=initial-op-041\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: fastAutonomicChannelDescriptorBuffer,
+       size: fastAutonomicChannelDescriptorByteCount,
+       label: "NumiBrain initial autonomic channel descriptor upload"
+     )
++    fputs("fast-tissue=initial-op-042\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: stagedCognitiveEventQueueBuffer,
+@@ -3598,12 +3699,14 @@
+         byteCount: developmentalMaturationByteCount
+       )
+     }
++    fputs("fast-tissue=initial-op-043\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: defaultRegionalMaturationBuffer,
+       size: developmentalMaturationByteCount,
+       label: "NumiBrain default regional maturation upload"
+     )
++    fputs("fast-tissue=initial-op-044\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: stagedRegionalMaturationBuffer,
+@@ -3622,12 +3725,14 @@
+         byteCount: regionalPlasticModulationByteCount
+       )
+     }
++    fputs("fast-tissue=initial-op-045\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: defaultRegionalPlasticModulationBuffer,
+       size: regionalPlasticModulationByteCount,
+       label: "NumiBrain default regional fast-plasticity upload"
+     )
++    fputs("fast-tissue=initial-op-046\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: stagedRegionalPlasticModulationBuffer,
+@@ -3657,18 +3762,21 @@
+       guard let source = sourceBytes.baseAddress else { return }
+       stagingBuffer.contents().copyMemory(from: source, byteCount: sourceBytes.count)
+     }
++    fputs("fast-tissue=initial-op-047\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: defaultFastPlasticityBuffer,
+       size: fastPlasticityStateByteCount,
+       label: "NumiBrain default fast-plastic coefficient upload"
+     )
++    fputs("fast-tissue=initial-op-048\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: stagedFastPlasticityBuffer,
+       size: fastPlasticityStateByteCount,
+       label: "NumiBrain initial fast-plastic coefficient upload"
+     )
++    fputs("fast-tissue=initial-op-049\n", stderr)
+     let initialProtectiveMotorOutput = try ProtectiveMotorOutput.reference(
+       command: initialProtectiveCommand,
+       profile: protectiveMotorProfile
+@@ -3682,6 +3790,7 @@
+       )
+     }
+     for (index, buffer) in protectiveMotorOutputHeaderBuffers.enumerated() {
++      fputs("fast-tissue=initial-op-050\n", stderr)
+       try copy(
+         source: stagingBuffer,
+         destination: buffer,
+@@ -3697,6 +3806,7 @@
+       )
+     }
+     for (index, buffer) in protectiveMuscleExcitationBuffers.enumerated() {
++      fputs("fast-tissue=initial-op-051\n", stderr)
+       try copy(
+         source: stagingBuffer,
+         destination: buffer,
+@@ -3719,6 +3829,7 @@
+       )
+     }
+     for (index, buffer) in bodyLoadFieldStateBuffers.enumerated() {
++      fputs("fast-tissue=initial-op-052\n", stderr)
+       try copy(
+         source: stagingBuffer,
+         destination: buffer,
+@@ -3748,6 +3859,7 @@
+     )
+     let initialBodySchemaRecords: [BodySchemaRecord]
+     if bodyLoadFieldBodyCount > 0 {
++      fputs("fast-tissue=initial-op-053\n", stderr)
+       initialBodySchemaRecords = try bodySchemaDynamics.initialState(
+         bodyCount: UInt32(bodyLoadFieldBodyCount)
+       ).map(BodySchemaRecord.init(cell:))
+@@ -3764,6 +3876,7 @@
+       )
+     }
+     for (index, buffer) in bodySchemaStateBuffers.enumerated() {
++      fputs("fast-tissue=initial-op-054\n", stderr)
+       try copy(
+         source: stagingBuffer,
+         destination: buffer,
+@@ -3793,6 +3906,7 @@
+         byteCount: sourceBytes.count
+       )
+     }
++    fputs("fast-tissue=attachment-records\n", stderr)
+     let attachmentRecords: [MuscleAttachmentRecord]
+     if let requestedNumanXMuscleAttachmentCatalog {
+       attachmentRecords = requestedNumanXMuscleAttachmentCatalog.attachments.map {
+@@ -3815,6 +3929,7 @@
+         byteCount: muscleAttachmentByteCount
+       )
+     }
++    fputs("fast-tissue=initial-op-055\n", stderr)
+     try copy(
+       source: stagingBuffer,
+       destination: muscleAttachmentBuffer,

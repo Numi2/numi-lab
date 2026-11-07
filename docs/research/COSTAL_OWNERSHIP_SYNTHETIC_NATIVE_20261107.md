@@ -461,3 +461,15 @@ and execution reached assignment of runtime properties. It exited 139 after
 that marker. The remaining failing operation was not isolated. This run did not
 reach a Brain witness, a physical step, or publication; its source instrumentation,
 full stage output, crash, build and input checks are retained.
+
+The pinned initial-upload diagnostic ran at 23:13:59 UTC using executable
+SHA-256 `791dcc1bd5f66c76cee6c6d694748356fbc586654828e80c98b667a0c61ad16a`.
+Its 32-input manifest SHA-256 was
+`627f2f0227fed9f288e2d993ece75254bfa7b84ec825c4106ab8a77a081336a0`,
+with all pre- and post-run checks passing. All initializer property assignments
+completed and the run reached the first `try copy`, labeled `NumiBrain tissue
+initial upload`, then exited 139 before the next operation marker. The first
+copy submits a Metal 4 command and waits for feedback; this observation does not
+identify whether that copy, its error handling, or the intervening code failed.
+The source instrumentation and complete logs, hashes and crash are retained.
+No Brain witness or accepted physical step was produced.
