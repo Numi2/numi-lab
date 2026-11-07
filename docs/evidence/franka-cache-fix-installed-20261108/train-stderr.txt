@@ -1,0 +1,2 @@
+numi train: artifacts /Users/numi/numi-franka-cache-fix-smoke-20261108/workspace/.numi/runs/window-train-smoke
+numi train: matched incumbent/candidate selection
