@@ -657,3 +657,16 @@ Input checks passed. HumanIO reported status 15: its supplemental encoder
 rejected the post-dynamics transaction pass. The callback-specific predicate
 was not printed. This build uses the recorded changed TaskProgram object;
 no physical step or publication was accepted.
+
+A separately linked supplemental-predicate diagnostic ran at
+23:33:34–23:33:35 UTC, exit 1. Dylib SHA-256 was
+`8a965087bc3a166746bcebb9dae35f83a70d65b18035a6a0eb2acf39f27b6665`
+and 32-input manifest SHA-256 was
+`2fe50588c9af2fbc666006987447a01e1429e509d855c6ae029576b9d240d4e8`.
+Pre/post input checks passed. At post-dynamics the supplemental validator saw
+ABI 6 matching expected 6, size 720 versus expected full size 896, reserved 0,
+and phase 2. That mismatch alone makes the conjunction fail; the other
+predicates have not been individually qualified. This diagnostic replaces the
+runtime object with logging instrumentation and carries the already recorded
+TaskProgram-object provenance difference. No physical step or publication was
+accepted.

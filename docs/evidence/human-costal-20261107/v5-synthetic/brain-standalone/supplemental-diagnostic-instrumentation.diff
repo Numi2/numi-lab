@@ -1,0 +1,17 @@
+--- src/metal/NumanXRuntimeV1.mm	2026-11-07 14:36:02
++++ /Users/numi/numi-v5-admission-artifacts-20261107/NumanXRuntimeV1-supplemental-diagnostic.mm	2026-11-07 15:32:26
+@@ -5661,7 +5661,13 @@
+             active->activeSensing.buffer.device == runtime.device &&
+             runtime.visualBodyBounds.device == runtime.device &&
+             runtime.supplementalPipeline != nil;
+-        if (!passValid) return false;
++        if (!passValid) {
++            if (std::getenv("MRNX_PHYSICAL_DIAGNOSTICS") != nullptr)
++                std::fprintf(stderr, "supplemental_pass abi=%u expected_abi=%u size=%u expected_size=%zu reserved=%u phase=%u\n",
++                    pass.abiVersion, metalrobo::kMetalNumanXTransactionABIVersion,
++                    pass.structSize, sizeof(pass), pass.reserved0, static_cast<unsigned>(pass.phase));
++            return false;
++        }
+ 
+         struct Region {
+             __unsafe_unretained id<MTLBuffer> buffer;
