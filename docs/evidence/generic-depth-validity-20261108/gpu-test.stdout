@@ -1,0 +1,10 @@
+baseline synthetic depth gates passed
+pixel=0 raw=1 oracle=1 direct=1
+pixel=1 raw=0.994383 oracle=0.994383 direct=0.994383
+pixel=2 raw=1 oracle=1 direct=1
+pixel=3 raw=0.927907 oracle=0.927907 direct=0.927907
+pixel=4 raw=1 oracle=1 direct=1
+pixel=5 raw=1 oracle=1 direct=1
+pixel=6 raw=1 oracle=1 direct=1
+pixel=7 raw=0.985171 oracle=0.985171 direct=0.985171
+invalid_depth_near_count raw=3 oracle=3 direct=3
