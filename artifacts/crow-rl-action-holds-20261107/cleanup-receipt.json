@@ -1,0 +1,27 @@
+{
+  "archive_commit": "0330b8086bcffb9feea8806142258401c01fce71",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 297889560 159459580    66% 3495721 1594595800    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 298216360 159132780    66% 3496112 1591327800    0%   /System/Volumes/Data\n",
+  "manifest": "artifacts/crow-rl-action-holds-20261107/manifest.json",
+  "manifest_sha256": "e571120b6f25b3356acca8f50151b3e88ea7e9b74a9d020a45438bc6ce6890f8",
+  "open_handle_checks": [
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/runs/american-crow"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/retained-runtime"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": "build"
+    }
+  ],
+  "remote_commit": "0330b8086bcffb9feea8806142258401c01fce71",
+  "removed_files": 347,
+  "removed_logical_bytes": 469249385
+}
