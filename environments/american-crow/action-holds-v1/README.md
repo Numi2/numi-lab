@@ -141,3 +141,11 @@ separation26.8x on identical inputs; a memory cut at40 removes the separation.
 Three64-lane320tick PPO collections admit native/MLX parity and exact fresh chunk1/8
 continuation across all53 learner/Adam tensors, policies/rollouts and native state.
 These are numerical/mechanism controls, not learned memory or ecological success.
+
+The fixed-rate normalized64-update campaign accepts1,310,720 transitions without
+reported physics failures, but does not demonstrate intake improvement. The
+last KL is~1.25e-5 versus configured0.01, with only two full-batch Adam steps
+per independent life. The stronger visual gradient alone is insufficient under
+this update schedule. Preserve these outcomes; next assess bounded KL-adaptive
+optimization through the existing explicit learning-rate override. No learned
+memory claim follows from the normalization mechanism or this flat campaign.

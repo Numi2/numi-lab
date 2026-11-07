@@ -617,6 +617,16 @@
     "head_cue_separation_gain_same_native_inputs": 26.771099407504938,
     "native_learning_resume_tensors_exact": 53,
     "learned_memory_qualified": false,
-    "scope": "optional fresh initialization from native RGB/validity only; full learning campaign and causal behavior assessment remain separate"
+    "scope": "optional fresh initialization from native RGB/validity only; full learning campaign and causal behavior assessment remain separate",
+    "campaign": {
+      "accepted_transitions": 1310720,
+      "first512_intake_lifetimes": 57,
+      "last512_intake_lifetimes": 59,
+      "learning_improvement_demonstrated": false,
+      "fixed_learning_rate": 0.0003,
+      "optimizer_steps_per_life": 2,
+      "last_KL": 1.2474105460569263e-05,
+      "evidence": "artifacts/crow-rl-retinal-normalization-20261108"
+    }
   }
 }
