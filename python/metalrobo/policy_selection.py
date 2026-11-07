@@ -30,6 +30,8 @@ _VALUE_OPTIONS = frozenset(
         "--interaction-student-authority",
         "--interaction-pack",
         "--interaction-clip",
+        "--dove-manifest",
+        "--numifly-wing-manifest",
         "--world-pack",
         "--task-pack",
         "--robot-actuator-pack",
@@ -51,6 +53,34 @@ _FLAG_OPTIONS = frozenset(
 )
 
 _GENERIC_WORLD_SOURCES = frozenset({"world_pack", "urdf"})
+# Binary packs below are self-contained runtime inputs. Other authored
+# inputs can resolve external files; their complete dependency set is not yet
+# represented here, so persistent evidence reuse is disabled for those paths.
+_DIRECT_INPUT_FILES = frozenset({
+    "--metallib", "--policy-pack", "--interaction-pack", "--world-pack",
+    "--task-pack", "--robot-actuator-pack", "--sensor-program-pack",
+    "--reality-program-pack", "--srdf", "--visual-environment-pack",
+})
+_UNRESOLVED_INPUT_FILES = frozenset({
+    "--urdf", "--visual-observation-config", "--dove-manifest",
+    "--numifly-wing-manifest",
+})
+_UNRESOLVED_INPUT_DIRECTORIES = frozenset({
+    "--g1-visual-pack-dir", "--ball-visual-pack-dir",
+})
+
+
+def _cache_reusable(arguments: Sequence[str]) -> bool:
+    # Numifly can use an implicit default manifest even when no path is given.
+    task = _option_value(arguments, "--task") or ""
+    if task.startswith("numifly-"):
+        return False
+    return not any(
+        _option_value(arguments, option) is not None
+        for option in _UNRESOLVED_INPUT_FILES | _UNRESOLVED_INPUT_DIRECTORIES
+    )
+
+
 _EVALUATION_OVERRIDE_OPTIONS = frozenset(
     {
         "--envs",
@@ -181,19 +211,32 @@ def _atomic_write_text(destination: Path, contents: str) -> None:
 def _evaluation_contract(evaluator: Path, arguments: Sequence[str]) -> str:
     """Fingerprint the exact native rollout contract for resumable evidence."""
 
+    input_options = _DIRECT_INPUT_FILES | _UNRESOLVED_INPUT_FILES | _UNRESOLVED_INPUT_DIRECTORIES
+    for index, value in enumerate(arguments):
+        if value in input_options and (
+            index + 1 >= len(arguments) or arguments[index + 1].startswith("--")
+        ):
+            raise ValueError(f"{value} is missing its input path")
     file_fingerprints: dict[str, str] = {}
-    for option in ("--metallib", "--policy-pack"):
+    for option in sorted(_DIRECT_INPUT_FILES | _UNRESOLVED_INPUT_FILES):
         value = _option_value(arguments, option)
         if value is None:
             continue
         path = Path(value)
-        if path.is_file():
-            file_fingerprints[option] = _sha256_file(path)
+        if not path.is_file():
+            raise ValueError(f"{option} input is missing or not a file: {path}")
+        file_fingerprints[option] = _sha256_file(path)
+    for option in sorted(_UNRESOLVED_INPUT_DIRECTORIES):
+        value = _option_value(arguments, option)
+        if value is not None and not Path(value).is_dir():
+            raise ValueError(f"{option} input is missing or not a directory: {value}")
     contract = {
+        "identity_schema": "numi.policy-evaluation-contract.v3",
         "evaluator": str(evaluator),
         "evaluator_sha256": _sha256_file(evaluator),
         "arguments": list(arguments),
         "file_fingerprints": file_fingerprints,
+        "cache_reusable": _cache_reusable(arguments),
     }
     encoded = json.dumps(contract, sort_keys=True).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()
@@ -952,7 +995,7 @@ def _evaluate(
     state_trace = Path(state_trace_value) if state_trace_value else None
     if state_trace is None:
         raise ValueError("evaluation requires a state trace")
-    if evidence_path.is_file() and metadata_path.is_file():
+    if _cache_reusable(arguments) and evidence_path.is_file() and metadata_path.is_file():
         try:
             metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
             evidence_payload = evidence_path.read_bytes()

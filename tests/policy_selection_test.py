@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -12,6 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "python"))
 
 from metalrobo.policy_selection import (  # noqa: E402
     _adult_evaluation_bands,
+    _cache_reusable,
+    _evaluation_contract,
     _evaluate,
     compare_adult_bands,
     compare_evidence,
@@ -657,6 +660,15 @@ class PolicySelectionTest(unittest.TestCase):
             index = arguments.index(option)
             self.assertEqual(arguments[index + 1], value)
 
+    def test_measured_surface_manifests_survive_projection(self) -> None:
+        for option in ("--dove-manifest", "--numifly-wing-manifest"):
+            with self.subTest(option=option):
+                arguments = evaluation_arguments(
+                    [option, "authored.json"], policy_pack=Path("policy"),
+                    metallib=Path("shader"), state_trace=Path("trace"),
+                    maximum_environments=1, held_out_seed=4)
+                self.assertEqual(arguments[arguments.index(option) + 1], "authored.json")
+
     def test_adult_selection_isolated_to_highest_training_band(self) -> None:
         arguments = evaluation_arguments(
             [
@@ -822,6 +834,91 @@ class PolicySelectionTest(unittest.TestCase):
             regenerated = _evaluate(evaluator, arguments, evidence)
             self.assertEqual(regenerated, first)
             self.assertEqual(counter.read_text(encoding="utf-8"), "4")
+
+    def test_authored_input_bytes_invalidate_contract_and_missing_fails(self) -> None:
+        # These are the direct self-contained runtime files accepted by the selector.
+        options = ("--metallib", "--policy-pack", "--interaction-pack", "--world-pack",
+                   "--task-pack", "--robot-actuator-pack", "--sensor-program-pack",
+                   "--reality-program-pack", "--srdf", "--visual-environment-pack")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            evaluator = root / "evaluator"
+            evaluator.write_bytes(b"evaluator")
+            for option in options:
+                with self.subTest(option=option):
+                    path = root / (option[2:] + ".pack")
+                    path.write_bytes(b"before")
+                    before = _evaluation_contract(evaluator, [option, str(path)])
+                    path.write_bytes(b"after")
+                    self.assertNotEqual(before, _evaluation_contract(evaluator, [option, str(path)]))
+                    path.unlink()
+                    with self.assertRaisesRegex(ValueError, "missing or not a file"):
+                        _evaluation_contract(evaluator, [option, str(path)])
+                    with self.assertRaisesRegex(ValueError, "missing its input path"):
+                        _evaluation_contract(evaluator, [option])
+
+    def test_world_pack_replacement_and_missing_force_revalidation(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            evaluator, world, policy, shader = (root / name for name in ("evaluator", "world", "policy", "shader"))
+            trace, evidence, counter = root / "trace", root / "evidence", root / "counter"
+            world.write_bytes(b"world-a")
+            policy.write_bytes(b"policy")
+            shader.write_bytes(b"shader")
+            evaluator.write_text(
+                "#!/bin/sh\n" +
+                f"count=0; test -f '{counter}' && count=$(cat '{counter}'); count=$((count+1)); printf '%s' \"$count\" > '{counter}'\n" +
+                f"printf '# step nq=1 scene_bodies=0 scene_stride=13 timestep=0.02 environment=0\\n1\\t0\\n' > '{trace}'\n" +
+                "printf '%s\\n' '{}'\n", encoding="utf-8")
+            evaluator.chmod(0o755)
+            args = ["--world-pack", str(world), "--policy-pack", str(policy),
+                    "--metallib", str(shader), "--state-trace", str(trace), "--steps", "1"]
+            _evaluate(evaluator, args, evidence)
+            _evaluate(evaluator, args, evidence)
+            self.assertEqual(counter.read_text(), "1")
+            world.write_bytes(b"world-b")
+            _evaluate(evaluator, args, evidence)
+            self.assertEqual(counter.read_text(), "2")
+            world.unlink()
+            with self.assertRaisesRegex(ValueError, "missing or not a file"):
+                _evaluate(evaluator, args, evidence)
+            self.assertEqual(counter.read_text(), "2")
+
+    def test_old_contract_is_invalidated(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            evaluator = root / "evaluator"
+            evaluator.write_bytes(b"evaluator")
+            arguments = ["--task", "velocity"]
+            old = {"evaluator": str(evaluator), "evaluator_sha256": hashlib.sha256(evaluator.read_bytes()).hexdigest(), "arguments": arguments, "file_fingerprints": {}}
+            legacy = hashlib.sha256(json.dumps(old, sort_keys=True).encode("utf-8")).hexdigest()
+            self.assertNotEqual(legacy, _evaluation_contract(evaluator, arguments))
+
+    def test_multifile_inputs_bypass_cache_and_missing_dependency_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            evaluator, policy, shader = root / "evaluator", root / "policy", root / "shader"
+            urdf, mesh, trace, evidence, counter = root / "robot.urdf", root / "mesh.stl", root / "trace", root / "evidence", root / "counter"
+            for path in (policy, shader, urdf, mesh): path.write_text("fixture", encoding="utf-8")
+            evaluator.write_text(
+                "#!/bin/sh\n" + f"test -f '{mesh}' || exit 3\n" +
+                f"count=0; test -f '{counter}' && count=$(cat '{counter}'); count=$((count+1)); printf '%s' \"$count\" > '{counter}'\n" +
+                f"printf '# step nq=1 scene_bodies=0 scene_stride=13 timestep=0.02 environment=0\\n1\\t0\\n' > '{trace}'\n" +
+                "printf '%s\\n' '{}'\n", encoding="utf-8")
+            evaluator.chmod(0o755)
+            args = ["--urdf", str(urdf), "--policy-pack", str(policy), "--metallib", str(shader), "--state-trace", str(trace), "--steps", "1"]
+            self.assertFalse(_cache_reusable(args))
+            _evaluate(evaluator, args, evidence)
+            _evaluate(evaluator, args, evidence)
+            self.assertEqual(counter.read_text(), "2")
+            mesh.unlink()
+            with self.assertRaises(subprocess.CalledProcessError): _evaluate(evaluator, args, evidence)
+            self.assertEqual(counter.read_text(), "2")
+            for option in ("--visual-observation-config", "--dove-manifest", "--numifly-wing-manifest", "--g1-visual-pack-dir", "--ball-visual-pack-dir"):
+                self.assertFalse(_cache_reusable([option, "path"]))
+            self.assertFalse(_cache_reusable(["--task", "numifly-flight"]))
+            with self.assertRaisesRegex(ValueError, "missing or not a directory"):
+                _evaluation_contract(evaluator, ["--g1-visual-pack-dir", str(root / "missing")])
 
     def test_evaluation_rejects_policy_mutated_during_rollout(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

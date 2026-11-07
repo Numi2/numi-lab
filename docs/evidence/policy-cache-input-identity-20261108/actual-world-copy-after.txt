@@ -1,0 +1,3 @@
+actual_world_copy_changed_same_path=True
+contract_changed= True
+missing_rejected= --world-pack input is missing or not a file: /Users/numi/numi-policy-cache-world-input-probe-20261108/world-copy.mrworld

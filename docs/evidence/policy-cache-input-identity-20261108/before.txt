@@ -1,0 +1,4 @@
+world_changed_same_path=True
+contract_unchanged= True
+contract_before= 8259e53d89d0cf57d95388b7e124fa3807242e720c2dbf0d48bccdf6ee8b0f63
+contract_after= 8259e53d89d0cf57d95388b7e124fa3807242e720c2dbf0d48bccdf6ee8b0f63
