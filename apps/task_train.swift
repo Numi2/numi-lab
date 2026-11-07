@@ -752,12 +752,14 @@ private struct Options {
             guard birdFlowAmericanCrowJourney, birdFlowJourneyVariant == .v13RetinalFeeding,
                   !birdFlowJourneyTeacher, basePolicyPack == nil, motionPack == nil,
                   retentionPolicyPack == nil, inspectionScene == nil,
-                  !overrideResumedLearningRate, !overrideResumedExploration,
+                  (!overrideResumedLearningRate ||
+                    (independentCuedLifetimes && trainingResume == nil)),
+                  !overrideResumedExploration,
                   (!checkpointLife || checkpointDirectory != nil),
                   outputLearnerState != nil
             else {
                 throw MetalRoboTaskRolloutError.invalidShape(
-                    "Life training requires native v13 without teacher, base/retention/motion/inspection or resume overrides, an explicit --output-learner-state, and checkpoint directory/interval when saving.")
+                    "Life training requires native v13 without teacher, base/retention/motion/inspection or exploration overrides, an explicit --output-learner-state, and checkpoint directory/interval when saving. A learning-rate override is allowed only when starting new independent cued lifetimes, never when restoring a life checkpoint.")
             }
         }
         if let offset = actorObservationExtensionOffset,
@@ -1106,6 +1108,11 @@ private struct Options {
         return Dictionary(uniqueKeysWithValues: Mirror(reflecting: self).children.compactMap { child in
             guard let name = child.label, !executionOnly.contains(name),
                   name != "independentCuedLifetimes" || independentCuedLifetimes else { return nil }
+            // This override initializes a new population from model/Adam state.
+            // It must not be reapplied on exact life restore: the saved optimizer
+            // already contains its adaptive rate. Keep the legacy false entry;
+            // the actual learning configuration remains bound below.
+            if name == "overrideResumedLearningRate" { return (name, "false") }
             return (name, String(reflecting: child.value))
         })
     }
