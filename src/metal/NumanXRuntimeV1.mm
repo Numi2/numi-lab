@@ -8,6 +8,7 @@
 
 #include "NumanXBridgeV1Internal.hpp"
 #include "NumanXTransactionPassContract.hpp"
+#include "NumanXResidentContinuationInput.hpp"
 
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/MetalNeuronCulture.hpp"
@@ -3691,6 +3692,7 @@ void fillRuntimeInfoFailure(
                 active->previousPhysicsGeneration,
         },
     };
+    metalrobo::selectNumanXResidentContinuationInput(ownerInput);
     active->rootAssistanceDisabledByOwner =
         !ownerInput.stand.enableRootAssistance &&
         ownerInput.stand.assistanceGains.x == 0.0f &&
@@ -4424,6 +4426,7 @@ void fillRuntimeInfoFailure(
                 active->previousHumanIOProgramFingerprint,
         },
     };
+    metalrobo::selectNumanXResidentContinuationInput(ownerInput);
     active->rootAssistanceDisabledByOwner =
         !ownerInput.stand.enableRootAssistance &&
         ownerInput.stand.assistanceGains.x == 0.0f &&

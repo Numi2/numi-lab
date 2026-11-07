@@ -4676,6 +4676,21 @@ target_include_directories(
 )
 
 add_executable(
+    metalrobo_numanx_resident_continuation_input_test
+    tests/numanx_resident_continuation_input_test.cpp
+)
+target_compile_features(
+    metalrobo_numanx_resident_continuation_input_test PRIVATE cxx_std_20
+)
+target_include_directories(
+    metalrobo_numanx_resident_continuation_input_test
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
+target_compile_options(
+    metalrobo_numanx_resident_continuation_input_test PRIVATE -UNDEBUG
+)
+
+add_executable(
     metalrobo_numanx_human_io_exact_v2_contract_test
     tests/numanx_human_io_exact_v2_contract_test.cpp
 )
@@ -4870,6 +4885,14 @@ if(BUILD_TESTING)
     )
     set_tests_properties(
         numanx.contract.exact_outbound_v2_cpu
+        PROPERTIES LABELS "numanx;human;contract;cpu"
+    )
+    add_test(
+        NAME numanx.contract.resident_continuation_input_cpu
+        COMMAND $<TARGET_FILE:metalrobo_numanx_resident_continuation_input_test>
+    )
+    set_tests_properties(
+        numanx.contract.resident_continuation_input_cpu
         PROPERTIES LABELS "numanx;human;contract;cpu"
     )
     add_test(
