@@ -31,6 +31,7 @@
 #include "regional_graph_schwarz.hpp"
 #include "regional_schur_condensation.hpp"
 #include "fem_reference_geometry.hpp"
+#include "fem_plane_quadrature.hpp"
 #include "tangent_owner_worklist.hpp"
 #include "coupled_capture_manifest_context.hpp"
 #include "numi/matter/accepted_state_apply_gpu.h"
@@ -819,6 +820,11 @@ constexpr std::size_t kFEMOperatorFDParameterCaptureValuesPerSlot = 4u;
     hash = mixFingerprint(hash, configuration.adaptiveTransfer ? 1u : 0u);
     hash = mixFingerprint(hash, configuration.coupledCandidateCompensatedTranslation ? 1u : 0u);
     hash = mixFingerprint(hash, configuration.externalCoupledCandidatePointCapacity);
+    if (configuration.experimentalFEMPlaneAreaIPC) {
+        hash = mixFingerprint(hash, 0x46454d4152454131ull); // FEMAREA1
+        hash = mixFingerprint(hash, detail::hashBytes(
+            &configuration.experimentalFEMPlaneAreaIPCK, sizeof(float)));
+    }
     if (configuration.experimentalFEMPlaneAugmentedLagrangian) {
         hash = mixFingerprint(hash, 0x46454d50414c3031ull); // FEMPAL01
         hash = mixFingerprint(hash, detail::hashBytes(
@@ -3716,6 +3722,7 @@ struct Runtime::State {
     id<MTLBuffer> femTetrahedraCandidate = nil;
     id<MTLBuffer> femTetrahedraCheckpoint = nil;
     id<MTLBuffer> femSurfaceFaces = nil;
+    id<MTLBuffer> femPlaneReferenceAreas = nil;
     id<MTLBuffer> continuumSurfacePrimitives = nil;
     id<MTLBuffer> deformableContactFailures = nil;
     id<MTLBuffer> disabledContactDiagnosticBinding = nil;
@@ -4998,7 +5005,9 @@ RuntimeDiagnostics Runtime::initialize(
                 layoutError;
             return diagnostics;
         }
-        if (configuration.experimentalFEMPlaneAugmentedLagrangian) {
+        std::vector<float> femPlaneReferenceAreas;
+        if (configuration.experimentalFEMPlaneAugmentedLagrangian ||
+            configuration.experimentalFEMPlaneAreaIPC) {
             constexpr auto disabled = NM_OBJECT_DISABLE_DEFORMABLE_CONTACT |
                 NM_OBJECT_DISABLE_SELF_CONTACT;
             constexpr auto unsupported = NM_OBJECT_ADAPTIVE | NM_OBJECT_MIXED_FEM |
@@ -5027,13 +5036,27 @@ RuntimeDiagnostics Runtime::initialize(
                         p.bodyIndex == NM_INVALID_INDEX && p.adaptiveObjectIndex == NM_INVALID_INDEX &&
                         p.generalizedFreeBodyIndex == NM_INVALID_INDEX && p.reserved2 == 0u;
                 });
-            if (!eligible || !std::isfinite(configuration.experimentalFEMPlanePenalty) ||
+            const bool badAL=configuration.experimentalFEMPlaneAugmentedLagrangian &&
+                (!std::isfinite(configuration.experimentalFEMPlanePenalty) ||
                 !(configuration.experimentalFEMPlanePenalty > 0.0f) ||
                 !std::isfinite(configuration.experimentalFEMPlaneClearance) ||
                 !(configuration.experimentalFEMPlaneClearance >
                     world.mixedSolver.contactAcceptance.x * world.dispatch.numericalLimits.x) ||
-                !(configuration.experimentalFEMPlaneClearance < world.dispatch.numericalLimits.x)) {
-                diagnostics.message = "experimental FEM plane AL requires immutable frictionless FEM, fixed planes, fixed positive penalty and a positive target above the final clearance floor";
+                !(configuration.experimentalFEMPlaneClearance < world.dispatch.numericalLimits.x));
+            const bool badArea=configuration.experimentalFEMPlaneAreaIPC &&
+                (configuration.experimentalFEMPlaneAugmentedLagrangian ||
+                 !std::isfinite(configuration.experimentalFEMPlaneAreaIPCK) ||
+                 !(configuration.experimentalFEMPlaneAreaIPCK>0.0f) ||
+                 std::any_of(world.fem.nodes.begin(),world.fem.nodes.end(),
+                    [](const auto& n){return n.referenceDisplacementAndMode.w!=1.f;}) ||
+                 !detail::femFixedPlaneReferenceAreas(world,femPlaneReferenceAreas,layoutError));
+            bool unrepresentableArea=false;
+            if(configuration.experimentalFEMPlaneAreaIPC)
+                for(float area:femPlaneReferenceAreas)
+                    if(area>0.0f && (!std::isfinite(area*configuration.experimentalFEMPlaneAreaIPCK) ||
+                        !(area*configuration.experimentalFEMPlaneAreaIPCK>0.0f))) unrepresentableArea=true;
+            if (!eligible || badAL || badArea || unrepresentableArea) {
+                diagnostics.message = "experimental FEM plane law requires immutable frictionless reference FEM, a fixed plane, valid physical parameters and planar reference quadrature: "+layoutError;
                 return diagnostics;
             }
         }
@@ -9640,6 +9663,16 @@ RuntimeDiagnostics Runtime::initialize(
                     specialize=true;
                     continue;
                 }
+                if (constant.index == 47u) {
+                    const bool enabled=configuration.experimentalFEMPlaneAreaIPC;
+                    [values setConstantValue:&enabled type:MTLDataTypeBool atIndex:47u];
+                    specialize=true; continue;
+                }
+                if (constant.index == 48u) {
+                    const float value=configuration.experimentalFEMPlaneAreaIPCK;
+                    [values setConstantValue:&value type:MTLDataTypeFloat atIndex:48u];
+                    specialize=true; continue;
+                }
                 if (constant.index == 43u) {
                     const bool enabled = configuration.experimentalFEMPlaneAugmentedLagrangian;
                     [values setConstantValue:&enabled type:MTLDataTypeBool atIndex:43u];
@@ -11813,6 +11846,11 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femTetrahedra = uploads.one(
             std::span<const NMTetrahedronGPU>(world.fem.tetrahedra),
             valid, candidate->residentBytes);
+        if (configuration.experimentalFEMPlaneAreaIPC) {
+            candidate->femPlaneReferenceAreas = uploads.one(
+                std::span<const float>(femPlaneReferenceAreas),
+                valid, candidate->residentBytes);
+        }
         if (staticFEMSurfaceMapEnabled(world.dispatch)) {
             candidate->femSurfaceFaces = uploads.one(
                 std::span<const NMFEMSurfaceFaceGPU>(world.fem.surfaceFaces),
@@ -31378,6 +31416,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.contactActiveCounts
                                  offset:0u atIndex:23u];
                     bindPrimalContactArguments(24u);
+                    [encoder setBuffer:(state.femPlaneReferenceAreas != nil
+                        ? state.femPlaneReferenceAreas : state.dummy) offset:0u atIndex:25u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 if (state.compactMainContactSamples) {
@@ -50824,6 +50864,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     : state.contactActiveCounts)
                                          offset:0u atIndex:23u];
                             bindPrimalContactArguments(24u);
+                            [encoder setBuffer:(state.femPlaneReferenceAreas != nil
+                                ? state.femPlaneReferenceAreas : state.dummy) offset:0u atIndex:25u];
                         });
                     };
                     if (femSparsePrivateContactEnabled) {

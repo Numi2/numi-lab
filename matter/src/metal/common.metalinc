@@ -52,6 +52,14 @@ constant bool nmValidateNativeStatelessTangentBundleActive =
 // status and clears it before any consumer can interpret it as a cache mask.
 constant uint kTangentBundleVerificationFailureMarker = 0x80000000u;
 
+// Fixed energy density, scaled by reference surface quadrature area.
+constant bool nmFEMPlaneAreaIPC [[function_constant(47)]];
+constant bool nmFEMPlaneAreaIPCActive = is_function_constant_defined(nmFEMPlaneAreaIPC)
+    ? nmFEMPlaneAreaIPC : false;
+constant float nmFEMPlaneAreaIPCKSource [[function_constant(48)]];
+constant float nmFEMPlaneAreaIPCK = is_function_constant_defined(nmFEMPlaneAreaIPCKSource)
+    ? nmFEMPlaneAreaIPCKSource : 0.0f;
+
 // Explicit host-admitted first-stage normal-contact experiment. An undefined
 // selector retains the production IPC law byte-for-byte.
 constant bool nmFEMPlaneAL [[function_constant(43)]];
