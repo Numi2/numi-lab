@@ -8228,7 +8228,7 @@ inline void mrWorldWave32SolvePacket(
     device MRBodyStateGPU* candidateBodies,
     device MRContactConstraintGPU* contacts,
     device const MRContactPointMetaGPU* contactMetadata,
-    device const MREvaluatedConstraintIRRowGPU* evaluatedRows,
+    device MREvaluatedConstraintIRRowGPU* evaluatedRows,
     device const MREvaluatedConstraintIRConeGPU* evaluatedCones,
     device float* responseColumns,
     device MRManifoldPointGPU* candidateManifoldPoints,
@@ -8938,6 +8938,42 @@ inline void mrWorldWave32SolvePacket(
     for (uint iteration = 0u;
          iteration < solverIterations;
          ++iteration) {
+      // Research-only bound: rod islands use eight sequential coordinate
+      // updates per sweep; each uses freshly applied factorized velocities.
+      // Rod work forces a full 32-lane packet in cohort selection.
+      const bool priorityRod = (work.flags & MR_ISLAND_WORK_HAS_ROD) != 0u;
+      const uint boundedPivots = priorityRod ? 8u : 1u;
+      for (uint pivot=0u; pivot<boundedPivots; ++pivot) {
+        if (priorityRod && localLane==0u) {
+            uint best=MR_INVALID_INDEX;
+            float bestScore=0.f;
+            for (uint ti=0u;ti<work.tileCount;++ti) {
+                MRContactTileGPU tile=tiles[tileBase+work.firstTile+ti];
+                for (uint j=0u;j<tile.constraintCount;++j) {
+                    uint c=tileConstraintIndices[constraintBase+tile.partialOffset+j];
+                    device const MRContactConstraintGPU& contact=contacts[constraintBase+c];
+                    device const MREvaluatedConstraintIRRowGPU* rows=evaluatedRows+rowBase+3u*c;
+                    float3 rel=typedRelativePointVelocity(c,contact,bodies,dispatch.articulationIndex,
+                        pointJacobians,pointJacobianBase,dispatch.nv,articulationVelocity,rodNodes,rodEdges,
+                        rodColliders,rodWitnesses,constraintWitnessIndices,constraintBase);
+                    float3 old=contact.impulses.xyz;
+                    float3 rhs=float3(rows[0].targetVelocity-dot(rows[0].direction.xyz,rel)-rows[0].regularization*old.x,
+                        rows[1].targetVelocity-dot(rows[1].direction.xyz,rel)-rows[1].regularization*old.y,
+                        rows[2].targetVelocity-dot(rows[2].direction.xyz,rel)-rows[2].regularization*old.z);
+                    MRWave32PreconditionerGPU pre=preconditioners[constraintBase+c];
+                    float3 proposed=normalFirstContactCandidate(old,rhs,pre,pre.row0.w,evaluatedCones[constraintBase+c]);
+                    float score=length(proposed-old)*sqrt(pre.row0.w);
+                    if(!finite3(proposed)||!isfinite(score)) {
+                        localFailure=MR_STEP_NONFINITE_RESULT;
+                        localFailureConstraint=min(localFailureConstraint,c);
+                        continue;
+                    }
+                    if(score>bestScore) {bestScore=score;best=c;}
+                }
+            }
+            sharedFailure[cohortIndex]=best;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
         // Trial scope: frictionless non-rod islands. The cohort leader
         // owns these updates; the existing barrier remains unconditional.
         bool priorityNormalOnly = (work.flags & MR_ISLAND_WORK_HAS_ROD) == 0u;
@@ -9141,6 +9177,10 @@ inline void mrWorldWave32SolvePacket(
                 ];
             device MRContactConstraintGPU& contact =
                 contacts[constraintBase + localConstraint];
+            if (priorityRod && localConstraint != sharedFailure[cohortIndex]) {
+                impulseDeltas[constraintBase + localConstraint] = float4(0.f);
+                continue;
+            }
             device const MREvaluatedConstraintIRRowGPU*
                 localRows =
                     evaluatedRows +
@@ -9214,19 +9254,11 @@ inline void mrWorldWave32SolvePacket(
                            evaluatedCones[constraintBase+localConstraint].effectiveFrictionV));
                 delta=float3(preconditioner.row1.w,tangent-previous.yz);
             } else {
-                // Preserve the pre-experiment update for each endpoint type
-                // in rod-containing islands; the prediction path above does
-                // not yet qualify dense rod coupling.
-                float3 proposed;
-                if (!typedRodConstraint(contact)) {
-                    proposed=normalFirstContactCandidate(previous,rhs,preconditioner,preconditioner.row0.w,
-                        evaluatedCones[constraintBase+localConstraint]);
-                } else {
-                    proposed=previous+float3(
-                        dot(preconditioner.row0.xyz,rhs),dot(preconditioner.row1.xyz,rhs),dot(preconditioner.row2.xyz,rhs));
-                    proposed=projectFrictionCone(proposed,evaluatedCones[constraintBase+localConstraint]);
-                }
-                delta=relaxation*(proposed-previous);
+                // Selected coordinate; exact self-block includes the rod's
+                // factorized translation and twist response.
+                float3 proposed=normalFirstContactCandidate(previous,rhs,preconditioner,preconditioner.row0.w,
+                    evaluatedCones[constraintBase+localConstraint]);
+                delta=proposed-previous;
             }
             if (localFailure != MR_STEP_SUCCESS) {
                 impulseDeltas[
@@ -9485,6 +9517,7 @@ inline void mrWorldWave32SolvePacket(
             localFailure = MR_STEP_FACTORIZATION_FAILED;
         }
         threadgroup_barrier(mem_flags::mem_device);
+      }
     }
 
     float laneNormalResidual = 0.0f;
@@ -9523,6 +9556,11 @@ inline void mrWorldWave32SolvePacket(
             constraintWitnessIndices,
             constraintBase
         );
+        // TEST-ONLY: retain final selected-configuration row velocities.
+        for (uint axis=0u;axis<3u;++axis) {
+            evaluatedRows[rowBase+3u*localConstraint+axis].reserved0 =
+                dot(localRows[axis].direction.xyz,relative);
+        }
         const float normalEquation =
             dot(localRows[0].direction.xyz, relative) -
             localRows[0].targetVelocity +
@@ -9687,7 +9725,7 @@ kernel void mr_world_wave32_solve(
     device MRBodyStateGPU* candidateBodies [[buffer(4)]],
     device MRContactConstraintGPU* contacts [[buffer(5)]],
     device const MRContactPointMetaGPU* contactMetadata [[buffer(6)]],
-    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(7)]],
+    device MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(7)]],
     device const MREvaluatedConstraintIRConeGPU* evaluatedCones [[buffer(8)]],
     device float* responseColumns [[buffer(9)]],
     device MRManifoldPointGPU* candidateManifoldPoints [[buffer(10)]],
@@ -9771,7 +9809,7 @@ kernel void mr_world_wave32_solve_persistent(
     device MRBodyStateGPU* candidateBodies [[buffer(4)]],
     device MRContactConstraintGPU* contacts [[buffer(5)]],
     device const MRContactPointMetaGPU* contactMetadata [[buffer(6)]],
-    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(7)]],
+    device MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(7)]],
     device const MREvaluatedConstraintIRConeGPU* evaluatedCones [[buffer(8)]],
     device float* responseColumns [[buffer(9)]],
     device MRManifoldPointGPU* candidateManifoldPoints [[buffer(10)]],
