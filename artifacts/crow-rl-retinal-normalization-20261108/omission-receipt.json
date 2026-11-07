@@ -1,0 +1,870 @@
+{
+  "commit": "3daeb258b30eba7dbe99ba1f8a175375dcbd3542",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 298286312 159062828    66% 3495657 1590628280    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 298601308 158747832    66% 3495829 1587478320    0%   /System/Volumes/Data\n",
+  "omitted_files": [
+    {
+      "bytes": 55511,
+      "git_blob": "7f7e48d3962aabe35e740430aa5eea113576e983",
+      "path": "artifacts/crow-rl-native-history-20261108/omission-receipt.json"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-native-history-20261108/omit-v2.stderr"
+    },
+    {
+      "bytes": 137,
+      "git_blob": "0005f4855ba24ffc420c85cf2ad748c8dafe27b1",
+      "path": "artifacts/crow-rl-native-history-20261108/omit-v2.stdout"
+    },
+    {
+      "bytes": 566,
+      "git_blob": "2e66450546c3ce477d6b963fb867f78e904dde21",
+      "path": "artifacts/crow-rl-native-history-20261108/omit.stderr"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-native-history-20261108/omit.stdout"
+    },
+    {
+      "bytes": 12,
+      "git_blob": "57cdc50305d07f35133f80962644debd6b846bf3",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/.gitattributes"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/all-files-verification.stderr"
+    },
+    {
+      "bytes": 198,
+      "git_blob": "d707522656da15896bb782d84309bd06689e6875",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/all-files-verification.stdout"
+    },
+    {
+      "bytes": 324,
+      "git_blob": "3d5340073719d92efa82381a99d6a400e5cfb865",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/00ebcc7f0745b41ff6914e6ac37e0352a6421d61dd7ac0f4fe9a30505687fe1d.gz"
+    },
+    {
+      "bytes": 2078,
+      "git_blob": "fe77ad75f95511b13faa70346f3ebf467322cf38",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/05ba47fc6e14b324c563d2b5e7e9d943626f9e4b224242e4d1376069fad8dd4e.gz"
+    },
+    {
+      "bytes": 21671439,
+      "git_blob": "e51e297094ce2cd01c9b2420c64c1eeb2d3c7819",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/0a3b3fda33b146b7a025f7c9fffddd5851d71cebdcefe332daa41bf872cf1f77.gz"
+    },
+    {
+      "bytes": 1654,
+      "git_blob": "86ca66b774ccc64c0b97ed83e2f9a76e5bc89d8b",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/0b6fcc1448fffb9db316529eb7ee3418379313546e273b4b38a66f077f637a57.gz"
+    },
+    {
+      "bytes": 21205012,
+      "git_blob": "926a1aa9e341114c785146f232149997fe87d171",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/10756761d62cfdb8912514043fc5898dbfaa7bdacf19fcf8ab5ff9e24f47ae66.gz"
+    },
+    {
+      "bytes": 667,
+      "git_blob": "488b5bc3a8d72241a60c1436fde3f9697a1c7895",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/108d1c1997a1a8e2d322373448573fb637d8819df706dbdadcaf4c15804873e6.gz"
+    },
+    {
+      "bytes": 1000,
+      "git_blob": "ec4de1b0df4d5dbb9fe50503c7becbd2eddc3f43",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/14278e2b0c283bc8b9e85b3e2698f24664add0cfb1075efe6bd9b4df9f3159ce.gz"
+    },
+    {
+      "bytes": 68,
+      "git_blob": "b8e8c17ef17e6bff8fdcfc0f5c26afa9c66fd390",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/152937049a3c450da4e79ef00db6f265f1d3d2d7baa1f03073875dffbc12cafd.gz"
+    },
+    {
+      "bytes": 668,
+      "git_blob": "55722b2f7867d3300d6622d6514f780ff3287d56",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/180b5d9aa2f8a89e7590fb487139697910037b1488fb40b4c425874151ce0f91.gz"
+    },
+    {
+      "bytes": 952165,
+      "git_blob": "0f0b3c074ff558213e3c402541992df7b3f02d4a",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/19a09b9b6329f98ddbdcd3545163a94b6f909fac7305a612394c277b223d0574.gz"
+    },
+    {
+      "bytes": 546959,
+      "git_blob": "37c7a97308417ea08e99450a46a94a0606aae129",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/1a154cb522bcf28d6f4baa69385966630fe610ea3946bb7dc03942f3c4a05e4c.gz"
+    },
+    {
+      "bytes": 49733,
+      "git_blob": "5e601a9c32fd099261db2b3227c3e50d4f93e902",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/1c42120c9ca6049713ce736832b9f000853d32c5a6633bc73da4620b7480d3e1.gz"
+    },
+    {
+      "bytes": 7021809,
+      "git_blob": "b629a82bc0208e47a464df0adec8f01f80fea02a",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/1c54036cd3b5039079f88bbb43bc85ba8cabe63dd186bc69a75fb05e92a779fd.gz"
+    },
+    {
+      "bytes": 717,
+      "git_blob": "9fd5724245fcc1767eff86b20424c5db1d65e3b6",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/208fa33305dfda95e60ff3521fe5ab48b0ac107891b5809a1175c9041247e0f1.gz"
+    },
+    {
+      "bytes": 897,
+      "git_blob": "961a99bc89c6fe72e64f96607ea39e7eee34f367",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/22e7eafeabc22b5bed220bf60dd938f2529ed35086839d013360d43a0efea32f.gz"
+    },
+    {
+      "bytes": 10341,
+      "git_blob": "e09a821d64c2b9a49b05bdf5d1478680e9be813c",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/289d03afdb72960d8ca39a6656f3741662782cf601db12869faecb984de04d60.gz"
+    },
+    {
+      "bytes": 202,
+      "git_blob": "6714ad008fecfa25c0cf0a5b39bcc235eb9ce048",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/2a14b8ee6de05324fc8b40bb74382c446dff27a6f71a4fdcbc6f949b00937711.gz"
+    },
+    {
+      "bytes": 75,
+      "git_blob": "c26a7693ce716768c04abd3c76e56f83f256033c",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/2a947ee369118a176c947d1ee2b96ce90b196eb3734ce1c1ce906144196478ea.gz"
+    },
+    {
+      "bytes": 636,
+      "git_blob": "89fc003dc064bac71689e8fa495bcaaa57e626c2",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/2a9d3f02251331d5c8effa32fd5abddbfedc1fc6df857ab4d98bf8c750337a7b.gz"
+    },
+    {
+      "bytes": 474,
+      "git_blob": "59052f7c60514fcd802a6527424510e4e0dda794",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/2b36d4de6fa377873ad4a122ff17f9e839c3e2e7aed43bd03a721f96dae4ea09.gz"
+    },
+    {
+      "bytes": 376,
+      "git_blob": "9bd5d3fd7a45945cfc425d9d754fcfd4e7549140",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/2cee2853cd79233e850ada4cdbc6849e713015b136c72effa991f90c4dc01cf3.gz"
+    },
+    {
+      "bytes": 9700,
+      "git_blob": "6b12600bba5f59945c33aa912db591e6d7e4761b",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/2f83156a418d91e75bf1247e2ca9ca92f2b90aae824f591d0fc2df8907ca0d80.gz"
+    },
+    {
+      "bytes": 21514953,
+      "git_blob": "28ed9952f994bc97e7539d7a7a03f4ab54535c46",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/308cf96c4b0535bb124a5769e99864fc9ae6b0774a08a7b39c39c227ea056819.gz"
+    },
+    {
+      "bytes": 1653,
+      "git_blob": "5654e17c6d8df9d6c7be07dd8a6814776120c89b",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/3646f9ba72b0733ea53c6c73c61c8795354004c694246d19424b21019b95783a.gz"
+    },
+    {
+      "bytes": 668,
+      "git_blob": "216543b573a0ffb0186a941b6c7263f0a59bc829",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/365904e93ee4253a947a36b07c88dd921c6eaad408385bdd66aeefda658e64ee.gz"
+    },
+    {
+      "bytes": 54,
+      "git_blob": "381eb57939f57af008f8c0e54a625df19bedc0b9",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/372ee57a30b8a8b17bb056a0814266786a922da7dcf4139f4f9a2457745d6424.gz"
+    },
+    {
+      "bytes": 421,
+      "git_blob": "33e8a7d637010a46b74a474a9679675794f53ee4",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/374ec8f5a7c8e30213484c8fe674a112dd84e9d43afc015a08ad929fe6904c99.gz"
+    },
+    {
+      "bytes": 665,
+      "git_blob": "8d2076d2e93d57c25b7728d917f591a257dd1bd4",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/37553d0e97f9e4b92a20bd661f703a3dbf673b156c86b8260f9f593e48825401.gz"
+    },
+    {
+      "bytes": 9820,
+      "git_blob": "a169e166372b626cd1b677f5a19670857a57d7c1",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/39c96c489bfe1900a6490d7ab58eb4df2932a06f725dcfdf4a516ba9e73af050.gz"
+    },
+    {
+      "bytes": 685,
+      "git_blob": "5a9de330461de02de53e39d42469e7f1cd2d24c9",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/3aecab8009ddd2ba0c593255e2763b08d0b00e0e5b9383f2b188bee40bd90167.gz"
+    },
+    {
+      "bytes": 599,
+      "git_blob": "896bc56bfc86a006bec73604861d7c09713e6a3e",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/3bba750c3862300bb33edc4616dddea35b39844a0fe441bcd47f40a7c8783f61.gz"
+    },
+    {
+      "bytes": 596997,
+      "git_blob": "577e17dc01a165a516de84157be5a7a1c26f6e07",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/403a3a80341f96f5ea3bd3dd16402b4167b6534ce97770026fe6975e1604a3e8.gz"
+    },
+    {
+      "bytes": 383,
+      "git_blob": "f03c5aef564106d7383272549b703a6f8f251228",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/4311ad1f9fb03252d41f54725554a155ac93dea7e80854a964fe0fc429379253.gz"
+    },
+    {
+      "bytes": 213,
+      "git_blob": "34acdb6b83c1ac0d1711a39154c607c62bf17fb6",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/4468c432e292a65d3ebb08f573c691b4968c1203bc2c11cf34b90c46e8e3ac30.gz"
+    },
+    {
+      "bytes": 2808,
+      "git_blob": "2fea7d251d13b17a3f7dbecdfc42872f626dcc32",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/4473d00975a08abcb25d352798e39bd1699fbad1d8fb18da18a41d4bdc1ea227.gz"
+    },
+    {
+      "bytes": 275,
+      "git_blob": "4f79118c8520f8657fb944ce6d56f67709036c85",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/486a6279531008aa2c07f9da1f033f3cfb800c2c512b9a7155a1edb25d634355.gz"
+    },
+    {
+      "bytes": 544991,
+      "git_blob": "493b02395520ac2b8d17380d47cc4a7bb651de0f",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/499b07bf857c1e171efe78b65e339044f47c16d899304c5aa1e6dc686abbfaca.gz"
+    },
+    {
+      "bytes": 9714,
+      "git_blob": "cb6e7fa50d62e360e37200a154438ab76c5050b4",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/4bd61d2f7c858e029c25f9ac06d8ffbae7bc9b631ce3fd10566690c54e3af0c4.gz"
+    },
+    {
+      "bytes": 208,
+      "git_blob": "d9df46815c0b24c0b83f1b6bb0f1d09c46138c33",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/4cdabeba362e6ae7aa16f35da33c54419df00dc713f898c1a1d66183276d31f6.gz"
+    },
+    {
+      "bytes": 598791,
+      "git_blob": "51e65855f5f57659d0b64b38447ae3f7b59af378",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/4dd8fe29b72ccb540170788945dd238c0c11e3b9db3fb0e014393710ceb505a1.gz"
+    },
+    {
+      "bytes": 49732,
+      "git_blob": "b96033430fb3e250e07ab4e65bc1ec918322a7cf",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/4f007e4aaf1314896c20d333fd24f420bd6b813f92f7f6430f4710789cedacb6.gz"
+    },
+    {
+      "bytes": 10211641,
+      "git_blob": "6ff61ec449019d7de65fc41046b5607e95cf5ab5",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/50e8d83980fc9fcd54bb042957b02d522cd1c27944ed0b66a7d57031885e184e.gz"
+    },
+    {
+      "bytes": 70,
+      "git_blob": "ac5fdbade7159d04b759932d0d75490bf0d63cb6",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/53cd5e5369cdcc8de07cbafcf6335e85288fd5c4b024b5b41274be0914bad09d.gz"
+    },
+    {
+      "bytes": 607,
+      "git_blob": "df18c4576d8adca7c2cf1f593d43df7f84f9b99e",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/54f4260bfbc99fb00f3da6c5bb03b0b25bb4148078eafa9f371f2c6d189b2009.gz"
+    },
+    {
+      "bytes": 546886,
+      "git_blob": "d769c43e355e402d1da743e3d4020fd4b557b4dc",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/572b0fe801d1539304cd63701c9640c5e62fc4a52c39b00bb6f5f05b8710f81c.gz"
+    },
+    {
+      "bytes": 669,
+      "git_blob": "81478eaec70ce6ebc468209024db14652d065808",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/5844c74a1c082e9daa9bae6a8cb03898de86141ac72aa4e6110606ce9f898b0a.gz"
+    },
+    {
+      "bytes": 543345,
+      "git_blob": "94e164826c65f2236e56a2d19d3efd25f242f367",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/5956775bb7d7d15824a1ae467e5211d3426028cd23c213d32cfcd92191d793c7.gz"
+    },
+    {
+      "bytes": 2794,
+      "git_blob": "55e79e563944445a7f95017ed4bf65af01af7bbf",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/5a09abd8c30510a84d1e668ffc4a682143e97579542be777c3ec7b6f45f0d7b2.gz"
+    },
+    {
+      "bytes": 136,
+      "git_blob": "487fd160f43477f3180d66c7d050e6911a3a4ed3",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/5c31a83836900704f7a0292010b9b7cd5d76034eb5684ff4b9525a51b7899cbd.gz"
+    },
+    {
+      "bytes": 2899,
+      "git_blob": "4aa7f687667ba380be120788df3e1a8456a65a7f",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/5cb13e4977583f2f06f03d90caf976b123328c1b19bcfd18c7f98138fde53cc8.gz"
+    },
+    {
+      "bytes": 1304,
+      "git_blob": "a00095fbc0989d1578ab2096ba3d76fdbe9ccb20",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/5d0e2c25929f636275c2a06069ab3076a886c22db4ded59cefd8a41679f2a416.gz"
+    },
+    {
+      "bytes": 10200653,
+      "git_blob": "0aca140c80222ff7bb4fb11408b362bf7107d75c",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/5ddb7c17dab2cdd861c8afa7abd624acc92b2cb6a948f80806db7018205712a9.gz"
+    },
+    {
+      "bytes": 598894,
+      "git_blob": "0a09b965539024c8770e53716cb6c383d1cbaab4",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/609ae75513da3f9a60b16e50ad5c258d5b7bd5a0e27dffc1c79979d56f9cc161.gz"
+    },
+    {
+      "bytes": 7093412,
+      "git_blob": "9067d7bdde4140ff5be8cec25854cefe9b368853",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/61e2c884c9cc8fe5a872c6c9ca61563ddf0d3681fc06b208fb5a5d5e1c064086.gz"
+    },
+    {
+      "bytes": 1610,
+      "git_blob": "616aa5cb5d86df385fc1e83315864f6e6bbf8f5e",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/62d3bd4c11a0bfabc1d8259f2a0b50c1c7e399e00c28a3cd2440b64d1117044d.gz"
+    },
+    {
+      "bytes": 397,
+      "git_blob": "cd618a0d1d4901afdd0b8f25dd02f177c3137250",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/630a0a79e83a79a21fbdc0636bd6be04f0d7eb25601127d35cd264e8fb0b2809.gz"
+    },
+    {
+      "bytes": 191,
+      "git_blob": "669220760365c0a14afd326733dd738de830e901",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/6414cb5d4796ba23a3b93698b9ad8d89020a0d096c808a6a17b168686984fa51.gz"
+    },
+    {
+      "bytes": 439,
+      "git_blob": "14efd49e60c75dfab66aad4957170016472e7fac",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/64cd6c1d5a37aa7dbae305d9281c356a8fb185598aeb480f36514921d4f0a6ac.gz"
+    },
+    {
+      "bytes": 49734,
+      "git_blob": "4e320bb88c8ccb5eb6396a03d5067b83a3751706",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/66d755b5324be45d4405cd62970b22232a6a3b24acc4782295de2b3b76ae540c.gz"
+    },
+    {
+      "bytes": 10169291,
+      "git_blob": "b5f424eada63e239b4d79e7a7f83dad6444c5488",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/6bb860e0a02ceb5457786b40c8c3156bca218b3e2fc198fa54c9f5d5f53e8650.gz"
+    },
+    {
+      "bytes": 594615,
+      "git_blob": "b7149b00c410964ee4da266891e2b99867d0be86",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/6c169f5faa74086d4b59b8c129d185e6d997f1d14fba45ba763eab1791ffcf66.gz"
+    },
+    {
+      "bytes": 1773276,
+      "git_blob": "c37bf4d85c4f5ad91c755bd6a46039ef5aa1eb00",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/6c65e23f3d4d29eb697f85a7958e152a3dd1cc1fabdac4d853d3270b557ef42c.gz"
+    },
+    {
+      "bytes": 103,
+      "git_blob": "1a294fe32c77c54b91211bfc882ba0501afdf578",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/6ee26948c6ce8a46607c1b542a9fc38da24061ead0e5c662b7df9e6ad05f0875.gz"
+    },
+    {
+      "bytes": 49734,
+      "git_blob": "b20251be87825d55c3fc80fa96edb79de751567b",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7266c950c28b7f7ddc064cf9cac4d2eed367fa35fd1cd5c81878a2079a6db90d.gz"
+    },
+    {
+      "bytes": 394,
+      "git_blob": "27411a5cdc1a9e4a2d9e5da9a765b4b028995a50",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7613e062e04aa446850f416e4dfcf7422e6ee8bcf20dbb5300ff3500b14520b7.gz"
+    },
+    {
+      "bytes": 421,
+      "git_blob": "8fdc5fad2ba681751b1b6fa8030efdfd051b43e8",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/77d64bdd8dc64f3c090fa7d75fae998098084a2676ba4a06524ec0373d65ef0a.gz"
+    },
+    {
+      "bytes": 7305667,
+      "git_blob": "4d4740b3022dcce02a67961171348da5df3be4bf",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7865844fe97151186a6e8b41508a0e3351d845229039fd5f2430a4d2662b60b2.gz"
+    },
+    {
+      "bytes": 318,
+      "git_blob": "09ddf1c21cd7813cbe410164c18fb3b3d3dec1f7",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/79787c8c6991ea5db775cb6df24175fcde1bd076ff09d62619a87959e01dbde8.gz"
+    },
+    {
+      "bytes": 105,
+      "git_blob": "9bdd7b0ae4b1e6aeb55f0cabd89cce5a2d9b9aee",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/79a892d968ff82cae23cd5a60df2bb6fc2d49a7ab83a2aa23b23e393d6090389.gz"
+    },
+    {
+      "bytes": 71,
+      "git_blob": "4c6e9660134fda2dda44eb027357167c40184012",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7d74fa62be9e445c904f4c87f15754b5dd2cef27ff7c6340668833530e7428fa.gz"
+    },
+    {
+      "bytes": 21691982,
+      "git_blob": "210f3ce28c00a8f68d11aac40ce41d379d2c97ae",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7e5f946be27eb58488308c8f2570a9a928a326e5058bffbbe4ff844b94736ff6.gz"
+    },
+    {
+      "bytes": 947342,
+      "git_blob": "9720ea45cd9229bf8f1394c8ea0fbce74264860a",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7e81fd7f9be959f12208219f42281c879ef546bee9d7b371048324c64dabedd0.gz"
+    },
+    {
+      "bytes": 543,
+      "git_blob": "97b0e294ad9f350865d73d772d42b88aa8154e83",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7f6583633256f6662faee521ad49b610186be676ccb3a2abe5a8293bc357acc4.gz"
+    },
+    {
+      "bytes": 75,
+      "git_blob": "4af314bd2e36ce14e90d0dc799b02b6c4dd81ea5",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7fb0a615a4b733fb5daa6fe827cda0561c3fa36b1f52e365b0a8f1342724c02f.gz"
+    },
+    {
+      "bytes": 2833,
+      "git_blob": "2ee2ae027781869b67a4379fa43e908a2650a790",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/80ed61016310b167ff8a85fd95fce0192a46f8eceeb534282686fc4338d25686.gz"
+    },
+    {
+      "bytes": 70,
+      "git_blob": "13dd85fa3e6bba45225525070c67686e8357c0d1",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/81570d6b493b4bd0f627325ebf8e36b71db318052dff3ee03ec935dd145c0d8a.gz"
+    },
+    {
+      "bytes": 70,
+      "git_blob": "228949bc4e5f4ba46db44bccb4d82de9562b8e63",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/818e4aa42e5af8bc063f277e1faca358269beee63a1db8bd43125aa6718bb2a0.gz"
+    },
+    {
+      "bytes": 88,
+      "git_blob": "7c7d408c865dccfd200e7c618022b5188e0a3a74",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/85fad947f0ac0f4524073e5027f9e10e2a16fb1cdfbee425dc95f790fa13144c.gz"
+    },
+    {
+      "bytes": 362,
+      "git_blob": "17a351e0bdaf400b264b0c5c14cb939c2d1e920d",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/86d895cdb4155396e12d866667a41f84c99c4eec03af1773869bbaf02180f25a.gz"
+    },
+    {
+      "bytes": 363,
+      "git_blob": "e79edb4fd71661810faaa1a3140a4a580534be5a",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/8822ac56efc07774bc61c9ab7dc6f3de4a47c1850100a7d0f83a5963554875f8.gz"
+    },
+    {
+      "bytes": 2800,
+      "git_blob": "104f526bf320bb233d47b72c2be82c0b16525fb3",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/8839e029ecc622a4809c59389c9922c82d5c1b897a23bb01bfdea41ea740000f.gz"
+    },
+    {
+      "bytes": 1661,
+      "git_blob": "229199292c4032193e874b951ea26ee7c91bbeef",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/8862ee35b2922f6f9ae97ba769f1e8149561cf7814e8bab03e33479063dba84b.gz"
+    },
+    {
+      "bytes": 286,
+      "git_blob": "58bd118649d9cf2f863dd5832262d01e7305818b",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/8e52e848903ff2c6433df2615ce97973aba4912c21d4f95ebaa1ad39bbee0b89.gz"
+    },
+    {
+      "bytes": 7448511,
+      "git_blob": "4a7361b1775b854aa557a985bbafd3d018e3271a",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/90b954e2b065080a5e9a452cc71b02d90cb119a771fa53d47f9976fc3842f389.gz"
+    },
+    {
+      "bytes": 1709,
+      "git_blob": "05295d71286fc7a0608c9a780835f93e5426afbe",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/92fb441e4fa4cc1b3006ecbadf863be818605b1ca66ffbf6a513e995245ec84d.gz"
+    },
+    {
+      "bytes": 955,
+      "git_blob": "4ee56ee8285c8f879d0bf2d11edfd9082400f850",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/93739e95b3f97fe32a51b84a346913ba9c95a6b86ab1f4da377249eff5abe0f5.gz"
+    },
+    {
+      "bytes": 545184,
+      "git_blob": "da6071f86785ba6578de3265201413b6197d5a9a",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/974b88be13718248c7c56a8f0fbe1ffe67758f305a589ec8d3b8428c87b72d5c.gz"
+    },
+    {
+      "bytes": 370,
+      "git_blob": "fc293a5e1aeb2715da30c887db83372db8311aca",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/994bb860ec7778fa9622e1833802b18e53570336e980c86e967648407beff0a8.gz"
+    },
+    {
+      "bytes": 951547,
+      "git_blob": "1efcbbd71914fc76fa5442cd4cafe5a890800894",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/9b0b954214a6700163489098c4fbe08e54d9bec051e8dc701c9fa2ee41fb606d.gz"
+    },
+    {
+      "bytes": 1780435,
+      "git_blob": "69b4e7d2019c31f50f628480858d7b5ef288bbde",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/a0222be598003e875a1e2c5f2c7c8d977526f31fdd07ff76617b14a4196722b2.gz"
+    },
+    {
+      "bytes": 21637829,
+      "git_blob": "1e95f853237f9d0144b785bd4231dcea425603bd",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/a2c12cdbbe526fc61ef73206c458ce7be274ae453ab081d04ddcbeb8d378ec28.gz"
+    },
+    {
+      "bytes": 922640,
+      "git_blob": "4c2a227fcdd49a4cb0412ee67e1f4a549a20b44a",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/a3f38f8932c9b1a5c2ae0c5f8ce4d289820cd32c7667dcbb71813179f6b0edff.gz"
+    },
+    {
+      "bytes": 1655,
+      "git_blob": "71313c80834ae522a1d72bd536906c2326a2e9bb",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/a43e1357b3b1c6630d7873a9ebcc2c0747dcd832257c47b4866227096554eedc.gz"
+    },
+    {
+      "bytes": 592188,
+      "git_blob": "c1d74cbbf74621cc1270ef2b40fb9327c5a5f18f",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/a4b3b80d3919bfd618a6af3cf594f99d741b77d104647b41f92f83b0ecdd0143.gz"
+    },
+    {
+      "bytes": 4072,
+      "git_blob": "17972ad92605672f3dfc4e8ce9846a77edb441a7",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/a78988a603da5924a432b985ccc59d88efff8017d63c2143a0d150ce3e1228d6.gz"
+    },
+    {
+      "bytes": 71,
+      "git_blob": "1005e00a0db118ddb9b21b617e7fdb5cfbd112f4",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/a8ca4f09deb0c6db226e4b5792f81e95118e68f6fb15de5a276f30802abcd7b1.gz"
+    },
+    {
+      "bytes": 413,
+      "git_blob": "22e3d59517c050cb6ae19d10fb2df7adbf4b7e8b",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/a9d24cb7641c86bb166617dc3ef85213b6730f25c1e4136fe262e47fbfd37a93.gz"
+    },
+    {
+      "bytes": 9711,
+      "git_blob": "b6f26a4b06cdb36057603f9ce42c8c98fc145831",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/ae3565e42c1918d2352f2e6f115408d238b04f5cb15bc001ea6ea400989b4924.gz"
+    },
+    {
+      "bytes": 75,
+      "git_blob": "153bf241beb27039d3d049e623fb4e122620b184",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/afa7801ed0d9f095f8bba115baa6c50b9b72a87f3a801cf99e21ace6bec3f8f1.gz"
+    },
+    {
+      "bytes": 226,
+      "git_blob": "2ac849cb57f308b8173032b5cfc644e0d58bec00",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/b094f86143954baa2bb6c197d3d246b73c63119ebd7860c4ce7edf4fb6f2ff50.gz"
+    },
+    {
+      "bytes": 49733,
+      "git_blob": "39afe8215cf6dc7ed7b9b6579f5408eb77eb7ed7",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/b4e87ee6294e5e16f1b169c230ea8041e061b185cbae2140af44ad7a222b5f34.gz"
+    },
+    {
+      "bytes": 458,
+      "git_blob": "2080ea779cc2de2e74472f5f4077079e2300e25a",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/b82bad866be050284349ddc8cf681128f9e936a96ed8abb6e929f8bcc49bacee.gz"
+    },
+    {
+      "bytes": 1814,
+      "git_blob": "8da0ae78054cefe280dd515a06efd83bfac74f0e",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/b89d968d1d76661fd8f1ed4e3a016c64519528e547fe991039ef07ac752bf3b2.gz"
+    },
+    {
+      "bytes": 437,
+      "git_blob": "ebb7d0e06465adfbd239827a98bf290cf61fad96",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/b9149d3145e34ccf4a315c84298f88499674294e37573f681c2643b33e176931.gz"
+    },
+    {
+      "bytes": 1780526,
+      "git_blob": "d0497f6ebc1820bc938f724274ebac83582ef342",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/b9176946d383ca858274d5cc4afb78b6d34f357e190e9e649436b1ead6aaaeef.gz"
+    },
+    {
+      "bytes": 646,
+      "git_blob": "5c208019cf7c2224d2cc710e423b6bbf553d14c4",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/bac945408ba91a56860cfd226c401b5d77d4902bc5da24c54efa14976253f5b9.gz"
+    },
+    {
+      "bytes": 21727761,
+      "git_blob": "5cd6193962817e66676f35b04bdc04f13d7e69b9",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/bb77c465a3265d728168decf472d14ef80cc42cb8523b643cc0cf350a54ed18a.gz"
+    },
+    {
+      "bytes": 946,
+      "git_blob": "25d46c0b6b81981f9a7153b72e8b0f4faebc3fec",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/bd66c83739f402f219721d8bff8df157f74cadd59c41d94213375b3b779c6b29.gz"
+    },
+    {
+      "bytes": 402,
+      "git_blob": "fbc05a7815b3d5719d8a0df19848d28a362d73f8",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/bd7c4a2c9220ca25f1f0b7a9b08ca8664b1f98cc38163f9fd12f5dda238fb733.gz"
+    },
+    {
+      "bytes": 10258989,
+      "git_blob": "c907f353166a93e96e5001028c0fe4442ccfc865",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/be8806442a6c9e12506f1022799b6586ba7b42087386a11d81a440e34b01d2aa.gz"
+    },
+    {
+      "bytes": 6924269,
+      "git_blob": "ea1d75b99d746e056f619b3a91de4900b03962e2",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/bef1828046e80f8108a73d53359556915cb10cace20170063ec0f79595f55b50.gz"
+    },
+    {
+      "bytes": 1658,
+      "git_blob": "536c2eab82876598a2d14543dfd0c2860dad2c62",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/c26616e7e0aefceb22cfcef1dfbcba1857204c6e8413c2d95d79c912fd0086c7.gz"
+    },
+    {
+      "bytes": 596,
+      "git_blob": "7b70fa22a40202ca0a06082f4e0f9fa3ab245542",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/c556c6d54ea3d38e2bcaf69c66cfa66bdbf2ddd8ba9d9bb1312e26c62b30fba5.gz"
+    },
+    {
+      "bytes": 217,
+      "git_blob": "0248db4b6b7bdf249522e868c06cb8ef0b58b600",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/cbcb337ebb4b7e20b22115484ade48cdea235a650c4d74998eeb778bb04a900e.gz"
+    },
+    {
+      "bytes": 10212217,
+      "git_blob": "0d875db955e3e816e29323cd7a064af71e234892",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/cecb073b812a1c2cbb1238ef582b21a437791ef7db99657ca8b5b1a86c6a79a9.gz"
+    },
+    {
+      "bytes": 210,
+      "git_blob": "64a1963764c99f8a46b07b7352effe0551f6b034",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/cfdae7cef2307063de190eba9d756b825ab2a0deb484f1b35a1cda23eca06094.gz"
+    },
+    {
+      "bytes": 220,
+      "git_blob": "516e7eb62b0a1e129b67cf7b743fbfa9ac43f2ce",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d0f7fe9658074f635b9ed1fe71fc9c3236b6306c9cfd4a0ebfef36fd69602274.gz"
+    },
+    {
+      "bytes": 180,
+      "git_blob": "0ba5a209f17d53da45ff89ebd2ed9a14c5f21778",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d1907b400e3a251234f8cf9bdfd0df58230429bca7dd589a1c2d3a73f5cc9625.gz"
+    },
+    {
+      "bytes": 658,
+      "git_blob": "b8abd91f31cae87a7f93eea657ee11e95bb64509",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d2ba00d79b2830fd883959d25f420a579d5722a46f589231f2d4ed746a88a029.gz"
+    },
+    {
+      "bytes": 596793,
+      "git_blob": "0ad6af9fa71fecbeff6094f8589f79f08ba78f7d",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d2d1ab5590c0f164c2ccdb2f27d98dc4bf495319fe8318c3e35c3b6ca84c5a0d.gz"
+    },
+    {
+      "bytes": 963,
+      "git_blob": "794473a6e752897a5a1fa0dec75755a066d67f6a",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d2ec82d6e1fd2da035d47de00efa08dd31aca5417dd6f70e246d0e4f7a7ab157.gz"
+    },
+    {
+      "bytes": 1619,
+      "git_blob": "c5c93e4fb136699e892f1abdf5e1bbace5cae987",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d4310fca15e6d37a7858c4b0fa5810b6731c62cd045096e6bd316e4935acf28a.gz"
+    },
+    {
+      "bytes": 49734,
+      "git_blob": "f182c2062a2b941b249cb61c63e8c955eaa1344f",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d44a46911bebf4718334cc806dd11a19a3ee58d76b2c0649578ae28944dd0bb8.gz"
+    },
+    {
+      "bytes": 3288,
+      "git_blob": "56f7ffb3a47d901868d459535847f5b555a74b55",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d4e751e068c5f7c2e082261687b0500344f9dc68a9bec6a62a17eac8705b6ad1.gz"
+    },
+    {
+      "bytes": 2791,
+      "git_blob": "4a576fab746a030c40ec40dc3b3bb6b07f3d0dd6",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d69a952f251c056f8c8371ffb01435c9eb7d5463dcecb667fa64657d8c2ac010.gz"
+    },
+    {
+      "bytes": 951546,
+      "git_blob": "421fbfe2f68238716aee797acbd15c322fdc6c1d",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d7f17e5a8751178e0a16d6fda4fdf7984e938a4f5547d47458ea0b9107743868.gz"
+    },
+    {
+      "bytes": 662,
+      "git_blob": "211b4962dc709b88cf54adbb7d830ca7f5536b9b",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d94752b11f2e9693ce98e8619fab2df8fd3aed472249aa355b7064aba3720b40.gz"
+    },
+    {
+      "bytes": 922641,
+      "git_blob": "b5bf4c53b7d7e8980a1d0b97c511e204033a1d6a",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/db3947e81ee5f40a949885ca45cf5aad4c1e27369cd28dd94a2b06bd80b5eb8f.gz"
+    },
+    {
+      "bytes": 76,
+      "git_blob": "578be0ebd48ceb658ba89a289bb1eb4240cbdd40",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/dec770eb807f7bdc1b239a852b206d6966f00fcfc41fd5391a7f31356d6d4f24.gz"
+    },
+    {
+      "bytes": 21548120,
+      "git_blob": "71755e8e85d31ad339c75c2cc9bac36f60c38b99",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/dfb4f054f48b43c63506b3558d07635e799f69eeb767066616e26ddfb35e850f.gz"
+    },
+    {
+      "bytes": 1916,
+      "git_blob": "25ed654ca0456117585136b5568e1ea54d95b58e",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/e2991ea532b9fe98d6c13527fcf57110f1ba61e9e911bac23987cbf9c2e381de.gz"
+    },
+    {
+      "bytes": 3429,
+      "git_blob": "bb746ca626ab0ec90ffc68185b20227d92f26d55",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/e32047491a99f2807d0facf14c66d03cb113784ce474b8e7bd59e1990daedc2b.gz"
+    },
+    {
+      "bytes": 2807,
+      "git_blob": "28d0223a1639a00881e112e7d68acadb7302d0a4",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/e346351bede99760f058e55b62330424358d5d0c02c43a21756fd2fd2e324c13.gz"
+    },
+    {
+      "bytes": 9690,
+      "git_blob": "9f290e2e8a1e85926fc5cb3e6ab9cafdb43837f1",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/e544936d9b2dce99cb17e7725e01f833024a4c0d885eebfce8c50543e162519b.gz"
+    },
+    {
+      "bytes": 21694454,
+      "git_blob": "55fcaa6d004ae83f71d61b6e61bd87b47b59b4d3",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/e72f570df0d755e67d07a43950bbb3b0f9fe090a7b9282f51fc25b292f5ecfc2.gz"
+    },
+    {
+      "bytes": 655,
+      "git_blob": "911564fc6dbd94e5d18756b27a415655c7766521",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/e87388e6e2759bd405ffa00cc2d3bc93ba5924a214717fcbb9b9d5c7532ba185.gz"
+    },
+    {
+      "bytes": 183,
+      "git_blob": "f746d81db255ce951da5cecbac2fcc9c4a1d5061",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/ea0e9a9d261dd49b2cfac59958163a805476cb4d676e90c3f1be6fd8fc4aabc3.gz"
+    },
+    {
+      "bytes": 1525,
+      "git_blob": "7d93f591c2a4dc812b00643f8ace5a45b6031fa2",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/ea5ed416a1f504600a71c3bbffe50d24e40d539ae5d467ceab0839d0e590980c.gz"
+    },
+    {
+      "bytes": 1764294,
+      "git_blob": "b6267c0763da50a94c741584b2f812e1b6af303e",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/eebc360a60d49436544301e868592ac33c34fd24767136274d2cbbb4d3d98726.gz"
+    },
+    {
+      "bytes": 1658,
+      "git_blob": "6c221cd05045e143423453e1e45cdf192c8eb359",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/f1ce3e313e96a14001123cc180b4b4b2e32e5236c415dd2aa25579e8be37666d.gz"
+    },
+    {
+      "bytes": 21663827,
+      "git_blob": "9dde4658b4ba22b3392387228526638826c86735",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/f4e9ab8a010e8a71c43f62dc8ba3439eb2f4266d3ef2815699e1886f25d5ec22.gz"
+    },
+    {
+      "bytes": 20990297,
+      "git_blob": "6005ac6e3d1b82e66774a5ce927c3b05f74e4d3c",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/f6d763a3e481728146f9add99ffe6da0b13392ad04fd3f07df44a8eb8c6703ef.gz"
+    },
+    {
+      "bytes": 75,
+      "git_blob": "692b8193f245cfd6263357817f25dad0dd9e3d50",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/ff1f250702376e74bb2623143a0e29adf7dfc8af0b0da4cffce2f60130cce517.gz"
+    },
+    {
+      "bytes": 75,
+      "git_blob": "4d84893b47a461ddb6eab365c451d0193d00d9fb",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/ffb497fe102356f4c2c4b65c7db1a9fd6846e32e59d708d643eed8ca55fddb04.gz"
+    },
+    {
+      "bytes": 257,
+      "git_blob": "8afa4d63b7c5daa36c34bfc5c785d9f520486ed3",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/calibration-recovery.command.json"
+    },
+    {
+      "bytes": 22,
+      "git_blob": "a642c235917f2215e320ca11ecb0bc83aba1814a",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/calibration-recovery.receipt.json"
+    },
+    {
+      "bytes": 99941,
+      "git_blob": "f9659951fc110188776adfa432b1729263efe944",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/calibration-recovery.stderr"
+    },
+    {
+      "bytes": 1067,
+      "git_blob": "28e50574229f85f865f387f962f50a7d78363f95",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/calibration-recovery.stdout"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/capture.stderr"
+    },
+    {
+      "bytes": 372,
+      "git_blob": "ca3e3856c981a30133892cbaa352dfe4ec40a845",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/capture.stdout"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/prune.stderr"
+    },
+    {
+      "bytes": 1294,
+      "git_blob": "511963718ae52dbe352cbed64c0616f366000db7",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/prune.stdout"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/restore.stderr"
+    },
+    {
+      "bytes": 72,
+      "git_blob": "1cf1dcfe8dc676396c579edf72b40d39ab90978e",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/restore.stdout"
+    },
+    {
+      "bytes": 2188,
+      "git_blob": "452aaece29f0e1f46a3670efaa7ac4bc82b8c8a5",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/training-recovery.command.json"
+    },
+    {
+      "bytes": 22,
+      "git_blob": "a642c235917f2215e320ca11ecb0bc83aba1814a",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/training-recovery.receipt.json"
+    },
+    {
+      "bytes": 186182,
+      "git_blob": "34edc38de9e47035a5cbd83f73335ae50651310e",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/training-recovery.stderr"
+    },
+    {
+      "bytes": 11351,
+      "git_blob": "8b1b6abcabc5a1d691abb434d6049899817878c3",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/training-recovery.stdout"
+    },
+    {
+      "bytes": 502,
+      "git_blob": "fc621ea51c3a22b6e53cf5d52f21ac45868d5462",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/verification-plan.json"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/verify.stderr"
+    },
+    {
+      "bytes": 198,
+      "git_blob": "bf134a90890efd2efba62c104e34a0f9f1482c0b",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/verify.stdout"
+    },
+    {
+      "bytes": 434,
+      "git_blob": "8844fb27adb04dc28daf02b8702cd9faa15c7679",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/verify_calibration.py"
+    },
+    {
+      "bytes": 7203,
+      "git_blob": "a16d0e91f51c0663b499731ee5e9c61a61bf1750",
+      "path": "artifacts/crow-rl-retinal-normalization-20261108/verify_recovery.py"
+    }
+  ],
+  "omitted_logical_bytes": 322048950,
+  "open_handles": 0,
+  "preserved_input_prefixes": [
+    "artifacts/crow-rl-feeding-behavior-20261107/policies/",
+    "artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib",
+    "artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib"
+  ],
+  "remote_commit": "3daeb258b30eba7dbe99ba1f8a175375dcbd3542"
+}
