@@ -1,0 +1,147 @@
+{
+  "status": "passed",
+  "source_commit": "0f7933e078b1f56f6ba9201a020fe86130cb47f8",
+  "training_continuation": [
+    {
+      "stage": "split-first",
+      "revision": 2,
+      "accepted_ticks": [
+        320,
+        320,
+        320,
+        320,
+        320,
+        320,
+        320,
+        320
+      ],
+      "byte_exact_artifacts": {
+        "policy.policypack": "b0aa3245fe98788f4965bc9cba2a92b4334420d8e3e21b7973acee81bbc4ad99",
+        "candidate.policypack": "6c4957d9f3ed1da64f87ef0b6207b62e5201166bfc6e5421caf37069cf29ca73",
+        "rollout.rolloutpack": "82a7aa15a76bbb72298491c283d5c73872bc917e7350965a829db7eea3ca9025"
+      },
+      "learner_tensors_byte_exact": 53,
+      "all_three_native_components_byte_exact": [
+        "7d903e0b067ad665cc4f8b64574adff311005deb4aad1f9609e389c1897c82dc",
+        "ae3d37a965682ceffca4c668e487f1a0131143e526ea0487303ae75cb991db9a",
+        "b622541083f8539046b98604be1726bbf7830af4a807720e40de4847b2648387"
+      ]
+    },
+    {
+      "stage": "resume-chunk1",
+      "revision": 3,
+      "accepted_ticks": [
+        640,
+        640,
+        640,
+        640,
+        640,
+        640,
+        640,
+        640
+      ],
+      "byte_exact_artifacts": {
+        "policy.policypack": "b4fa01b67a208bd8e6462ae1e41b58af512b3104e42d502a437bfbcc8203c7ae",
+        "candidate.policypack": "cb9b386a53676df012b4d8d4ae6f2d36c7d7d025bc7244fe80dedcf68a98f212",
+        "rollout.rolloutpack": "132ea43cf9470b225f3a22328ac241f8d906629d363566a5a80252af2e5ab8f3"
+      },
+      "learner_tensors_byte_exact": 53,
+      "all_three_native_components_byte_exact": [
+        "0c49edcaca4e316d1baa7a2e3952e6bf84796721ff69cc85029256a31edc9e81",
+        "156b4e20f6389497934966999249aeaadd9db32b891d583ebc37d678639d5e02",
+        "3b598493aa44d84c8d402959fa76a79f8f09432b3453ecc49adc0ad864ece4cd"
+      ]
+    },
+    {
+      "stage": "resume-chunk8",
+      "revision": 3,
+      "accepted_ticks": [
+        640,
+        640,
+        640,
+        640,
+        640,
+        640,
+        640,
+        640
+      ],
+      "byte_exact_artifacts": {
+        "policy.policypack": "b4fa01b67a208bd8e6462ae1e41b58af512b3104e42d502a437bfbcc8203c7ae",
+        "candidate.policypack": "cb9b386a53676df012b4d8d4ae6f2d36c7d7d025bc7244fe80dedcf68a98f212",
+        "rollout.rolloutpack": "132ea43cf9470b225f3a22328ac241f8d906629d363566a5a80252af2e5ab8f3"
+      },
+      "learner_tensors_byte_exact": 53,
+      "all_three_native_components_byte_exact": [
+        "0c49edcaca4e316d1baa7a2e3952e6bf84796721ff69cc85029256a31edc9e81",
+        "156b4e20f6389497934966999249aeaadd9db32b891d583ebc37d678639d5e02",
+        "3b598493aa44d84c8d402959fa76a79f8f09432b3453ecc49adc0ad864ece4cd"
+      ]
+    }
+  ],
+  "early_cue_continuation": [
+    {
+      "stage": "tail-chunk1",
+      "all_sample_fields_byte_exact": [
+        "actor_observations",
+        "critic_observations",
+        "motion_features",
+        "teacher_actions",
+        "latents",
+        "old_log_probabilities",
+        "old_values",
+        "transitions",
+        "memory_before",
+        "memory_resets"
+      ],
+      "all_outcomes_byte_exact": [
+        "reward",
+        "task_reward",
+        "done",
+        "timeout",
+        "physics_error",
+        "accepted_intake_utility"
+      ],
+      "final_bootstrap_byte_exact": true,
+      "all_native_sections_byte_exact": [
+        "78dcf0e511e20da4b3893b3e8818494c127114f4c8006ac82c86b95af6232271",
+        "26610a49966344c9978d0708f2f0d528b7b28689da17bfa9712c765418923105",
+        "e56661ac1526928241d5f8fdad50e19d7cc64e38189e492141c8a55f40442f40"
+      ]
+    },
+    {
+      "stage": "tail-chunk8",
+      "all_sample_fields_byte_exact": [
+        "actor_observations",
+        "critic_observations",
+        "motion_features",
+        "teacher_actions",
+        "latents",
+        "old_log_probabilities",
+        "old_values",
+        "transitions",
+        "memory_before",
+        "memory_resets"
+      ],
+      "all_outcomes_byte_exact": [
+        "reward",
+        "task_reward",
+        "done",
+        "timeout",
+        "physics_error",
+        "accepted_intake_utility"
+      ],
+      "final_bootstrap_byte_exact": true,
+      "all_native_sections_byte_exact": [
+        "78dcf0e511e20da4b3893b3e8818494c127114f4c8006ac82c86b95af6232271",
+        "26610a49966344c9978d0708f2f0d528b7b28689da17bfa9712c765418923105",
+        "e56661ac1526928241d5f8fdad50e19d7cc64e38189e492141c8a55f40442f40"
+      ]
+    }
+  ],
+  "C_configuration_negative_controls": 12,
+  "Python_tests": 29,
+  "full_native_build": true,
+  "native_cue_and_legacy_life_regressions": true,
+  "initial_intake_reward": 0,
+  "learned_memory_qualified": false
+}
