@@ -1,0 +1,465 @@
+[0/2] Re-checking globbed directories...
+[1/149] Generating generated/VisualKernelHashes.h
+[2/149] Generating shaders/MetalRoboHyperPolicy.metallib
+[3/149] Generating shaders/NumiNeuron.metallib
+[4/149] Generating shaders/NumiMatterPhysicalStateDigest.metallib
+[5/149] Building CXX object CMakeFiles/metalrobo_numanx_human_io_pass_header_contract_test.dir/tests/numanx_human_io_pass_header_contract_test.cpp.o
+[6/149] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[7/149] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[8/149] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/constitutive_impl.cpp:1220:16: warning: unused variable 'isBinary' [-Wunused-variable]
+ 1220 |     const auto isBinary = [&](const std::uint32_t node, const ExprKind kind,
+      |                ^~~~~~~~
+1 warning generated.
+[9/149] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[10/149] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[11/149] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[12/149] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[13/149] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[14/149] Linking CXX executable metalrobo_numanx_human_io_pass_header_contract_test
+[15/149] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[16/149] Generating shaders/MetalRobo.metallib
+/Users/numi/numi-lab-humanio-buildonly-20261107/src/metal/NumiHumanStand.metal:2696:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns = (equalityColumnsEnd + nv) * nv;
+               ^
+/Users/numi/numi-lab-humanio-buildonly-20261107/src/metal/NumiHumanStand.metal:2811:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns =
+               ^
+2 warnings generated.
+/Users/numi/numi-lab-humanio-buildonly-20261107/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/numi/numi-lab-humanio-buildonly-20261107/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+In file included from /Users/numi/numi-lab-humanio-buildonly-20261107/src/metal/MujocoMuscleReferenceCompensated.metal:4:
+/Users/numi/numi-lab-humanio-buildonly-20261107/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/numi/numi-lab-humanio-buildonly-20261107/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+[17/149] Generating shaders/NumiMatter.metallib
+In file included from /Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/matter_kernels.metal:2:
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/partitioned_reduction_projection.metalinc:478:16: warning: unused variable 'region' [-Wunused-variable]
+    const uint region = gid % dispatch.regionCount;
+               ^
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/partitioned_reduction_projection.metalinc:479:16: warning: unused variable 'environment' [-Wunused-variable]
+    const uint environment = gid / dispatch.regionCount;
+               ^
+In file included from /Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/matter_kernels.metal:4:
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fem.metalinc:6835:13: warning: variable 'firstFailureLane' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+        if (lane == 0u) firstFailureLane = firstFailure;
+            ^~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fem.metalinc:6840:9: note: uninitialized use occurs here
+        firstFailureLane == NM_INVALID_INDEX || lane <= firstFailureLane
+        ^~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fem.metalinc:6835:9: note: remove the 'if' if its condition is always true
+        if (lane == 0u) firstFailureLane = firstFailure;
+        ^~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fem.metalinc:6831:9: warning: variable 'firstFailureLane' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (simdgroup == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fem.metalinc:6840:9: note: uninitialized use occurs here
+        firstFailureLane == NM_INVALID_INDEX || lane <= firstFailureLane
+        ^~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fem.metalinc:6831:5: note: remove the 'if' if its condition is always true
+    if (simdgroup == 0u) {
+    ^~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fem.metalinc:6826:38: note: initialize the variable 'firstFailureLane' to silence this warning
+    threadgroup uint firstFailureLane;
+                                     ^
+                                      = 0
+In file included from /Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/matter_kernels.metal:6:
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:5181:9: warning: variable 'sourceValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:5226:9: note: uninitialized use occurs here
+    if (sourceValid == 0u) {
+        ^~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:5181:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:5175:33: note: initialize the variable 'sourceValid' to silence this warning
+    threadgroup uint sourceValid;
+                                ^
+                                 = 0
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6058:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6067:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6058:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6048:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6935:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:7243:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<48U, 256U>' requested here
+kernel void nm_fgmres_graph_solve_patches<48, 256u>(
+            ^
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6952:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6935:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6533:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6935:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:7276:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<48U, 32U>' requested here
+kernel void nm_fgmres_graph_solve_patches<48, 32u>(
+            ^
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6952:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6935:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6533:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6935:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:7309:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<96U, 32U>' requested here
+kernel void nm_fgmres_graph_solve_patches<96, 32u>(
+            ^
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6952:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6935:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6533:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6935:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:7342:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<96U, 256U>' requested here
+kernel void nm_fgmres_graph_solve_patches<96, 256u>(
+            ^
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6952:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6935:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6533:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6935:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:7375:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<192U, 256U>' requested here
+kernel void nm_fgmres_graph_solve_patches<192, 256u>(
+            ^
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6952:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6935:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6533:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6935:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:7408:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<384U, 256U>' requested here
+kernel void nm_fgmres_graph_solve_patches<384, 256u>(
+            ^
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6952:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6935:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6533:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6935:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:7441:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<768U, 256U>' requested here
+kernel void nm_fgmres_graph_solve_patches<768, 256u>(
+            ^
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6952:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6935:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/fgmres.metalinc:6533:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+In file included from /Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/matter_kernels.metal:9:
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/vascular.metalinc:2394:9: warning: variable 'solveValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/vascular.metalinc:2424:9: note: uninitialized use occurs here
+    if (solveValid != 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/vascular.metalinc:2394:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/vascular.metalinc:2383:32: note: initialize the variable 'solveValid' to silence this warning
+    threadgroup uint solveValid;
+                               ^
+                                = 0
+In file included from /Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/matter_kernels.metal:13:
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/mixed_fem.metalinc:1479:17: warning: unused variable 'relativeResidual' [-Wunused-variable]
+    const float relativeResidual = sqrt(max(residualNorm2, 0.0f)) /
+                ^
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/mixed_fem.metalinc:1481:17: warning: unused variable 'relativeCorrection' [-Wunused-variable]
+    const float relativeCorrection = correction;
+                ^
+In file included from /Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/matter_kernels.metal:14:
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/metal/contact.metalinc:1996:16: warning: unused variable 'local' [-Wunused-variable]
+    const uint local = global - environment * primitiveCount;
+               ^
+17 warnings generated.
+[18/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/Model.cpp.o
+[19/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/Franka.cpp.o
+[20/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/FrankaEngine.cpp.o
+[21/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/FrankaHand.cpp.o
+[22/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/CpuDynamics.cpp.o
+[23/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/EngineModel.cpp.o
+[24/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/EngineModelComposer.cpp.o
+[25/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/ParallelABASchedule.cpp.o
+[26/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/FrankaWorld.cpp.o
+[27/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedProgram.cpp.o
+[28/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/CompiledMetalMultiArticulatedContactProgram.cpp.o
+[29/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/RunProgram.cpp.o
+[30/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/MatterSnapshotArchive.cpp.o
+[31/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/WorldCompiler.cpp.o
+[32/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/WorldPack.cpp.o
+[33/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/EpisodeTwinCompiler.cpp.o
+[34/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/VisualPresentation.cpp.o
+[35/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/VisualPlatform.cpp.o
+[36/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/R2S2R.cpp.o
+[37/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NeuronCulture.cpp.o
+[38/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NeuronCultureEmbodiment.cpp.o
+[39/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NeuronCultureProtocol.cpp.o
+[40/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NeuronCultureArtifacts.cpp.o
+[41/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/TactileDebug.cpp.o
+[42/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/Tactile.cpp.o
+[43/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/OpenSimFunction.cpp.o
+[44/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/OpenSimSpatialTransform.cpp.o
+[45/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/GeometryCooker.cpp.o
+[46/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/OpenSimMobileRoot.cpp.o
+[47/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/G1.cpp.o
+[48/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/RobotDescriptionCooker.cpp.o
+[49/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/PolicyProgram.cpp.o
+[50/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/HyperPolicyProgram.cpp.o
+[51/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/HyperPolicyPacks.cpp.o
+[52/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o
+[53/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/LocomotionWorld.cpp.o
+[54/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/MotionCompiler.cpp.o
+[55/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/SurgicalPSM.cpp.o
+[56/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/EmbodiedTactile.cpp.o
+[57/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/SurgicalAssets.cpp.o
+[58/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/LearningPacks.cpp.o
+[59/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/SurgicalVisual.cpp.o
+[60/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/SurgicalKnot.cpp.o
+[61/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/SurgicalWorld.cpp.o
+[62/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/Wave.cpp.o
+[63/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/SurgicalThreadTargeting.cpp.o
+[64/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/DiscreteElasticRod.cpp.o
+[65/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/FreeBodyDynamics.cpp.o
+[66/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/Multicopter.cpp.o
+[67/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/PX4X500.cpp.o
+[68/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/HeterogeneousWorld.cpp.o
+[69/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanSupport.cpp.o
+[70/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedActuation.cpp.o
+[71/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedDynamics.cpp.o
+[72/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/MillardMuscleReference.cpp.o
+[73/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/Collision.cpp.o
+[74/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanJointEquality.cpp.o
+[75/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/MujocoMuscleReference.cpp.o
+[76/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanRuntimeIdentity.cpp.o
+[77/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumanXExactTransaction.cpp.o
+[78/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanInitialState.cpp.o
+[79/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerEvidenceWriter.cpp.o
+[80/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerSnapshot.cpp.o
+[81/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanSourceConstraints.cpp.o
+[82/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorAcceptedStateRoot.cpp.o
+[83/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorProgram.cpp.o
+[84/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorStateComponents.cpp.o
+[85/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorTrial.cpp.o
+[86/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorNativeAudit.cpp.o
+[87/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanTensionNetwork.cpp.o
+[88/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanCartilage.cpp.o
+[89/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanTendon.cpp.o
+[90/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanMuscleEquilibrium.cpp.o
+[91/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanKnee.cpp.o
+[92/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueMass.cpp.o
+[93/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKneeNumanX.cpp.o
+[94/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanKneeContact.cpp.o
+[95/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueBinding.cpp.o
+[96/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedJointLimits.cpp.o
+[97/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanContinuumMap.cpp.o
+[98/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedContact.cpp.o
+[99/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/CoupledArticulatedRigidContact.cpp.o
+[100/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o
+[101/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedMixedConstraints.cpp.o
+[102/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumiHumanLoadedKneeBinding.mm.o
+[103/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidCollision.cpp.o
+[104/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedCollision.cpp.o
+[105/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedRigidWorld.cpp.o
+[106/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/ArticulatedWorld.cpp.o
+[107/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/MultiArticulatedWorld.cpp.o
+[108/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/ReferenceConicSolver.cpp.o
+[109/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/ConstraintIR.cpp.o
+[110/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/MultiArticulatedContact.cpp.o
+[111/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/ConstraintSolver.cpp.o
+[112/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/QualityContactSolver.cpp.o
+[113/149] Building CXX object CMakeFiles/metalrobo.dir/src/core/RigidBodyWorld.cpp.o
+[114/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/apple/HardwareOutcomeJSON.mm.o
+[115/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/apple/CaptureManifestJSON.mm.o
+[116/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/apple/EnvironmentCooker.mm.o
+[117/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHumanBehaviorTelemetry.mm.o
+[118/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanIO.mm.o
+[119/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumanXBridgeV1.mm.o
+[120/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalNumanXCoupledHuman.mm.o
+/Users/numi/numi-lab-humanio-buildonly-20261107/src/metal/MetalNumanXCoupledHuman.mm:1938:19: warning: unused variable 'sourceText' [-Wunused-variable]
+ 1938 |         NSString* sourceText = nil;
+      |                   ^~~~~~~~~~
+1 warning generated.
+[121/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/apple/VisualAssetCooker.mm.o
+[122/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumiHumanTendonMetal.mm.o
+[123/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanMatter.mm.o
+/Users/numi/numi-lab-humanio-buildonly-20261107/src/metal/MetalNumanXHumanMatter.mm:4654:14: warning: unused variable 'compileTestSource' [-Wunused-variable]
+ 4654 |         bool compileTestSource = false;
+      |              ^~~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/src/metal/MetalNumanXHumanMatter.mm:4656:19: warning: unused variable 'sourceText' [-Wunused-variable]
+ 4656 |         NSString* sourceText = nil;
+      |                   ^~~~~~~~~~
+2 warnings generated.
+[124/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumiHumanExtensorHoodMetal.mm.o
+[125/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o
+/Users/numi/numi-lab-humanio-buildonly-20261107/src/metal/MetalArticulatedOperator.mm:4944:29: warning: 'fastMathEnabled' is deprecated: first deprecated in macOS 15.0 - Use mathMode instead [-Wdeprecated-declarations]
+ 4944 |         standCompileOptions.fastMathEnabled = NO;
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework/Headers/MTLLibrary.h:326:39: note: 'fastMathEnabled' has been explicitly marked deprecated here
+  326 | @property (readwrite, nonatomic) BOOL fastMathEnabled API_DEPRECATED("Use mathMode instead", macos(10.11, 15.0), ios(8.0, 18.0));
+      |                                       ^
+1 warning generated.
+[126/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedABA.mm.o
+[127/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumanXRuntimeV1.mm.o
+[128/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedABA.mm.o
+[129/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedInverseMass.mm.o
+[130/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedInverseMass.mm.o
+[131/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalDiscreteElasticRod.mm.o
+[132/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalQualityContactSolver.mm.o
+[133/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedConstraints.mm.o
+[134/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalUnifiedQualitySolver.mm.o
+[135/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalMultiArticulatedContact.mm.o
+[136/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHyperPolicy.mm.o
+[137/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalRunInspector.mm.o
+[138/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalWorldFamily.mm.o
+[139/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalNeuronCulture.mm.o
+[140/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalTactile.mm.o
+[141/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o
+[142/149] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[143/149] Building CXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[144/149] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o
+[145/149] Building CXX object CMakeFiles/metalrobo.dir/src/c_api.cpp.o
+[146/149] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[147/149] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/runtime.mm:10757:21: warning: format specifies type 'size_t' (aka 'unsigned long') but the argument has type 'nm_u32' (aka 'unsigned int') [-Wformat]
+ 10753 |                     "matter_graph_due_row_identity={\"schema\":1,\"enabled\":true,\"patches\":%zu,\"active_tets\":%zu,\"objects\":%zu}\n",
+       |                                                                                                                                   ~~~
+       |                                                                                                                                   %u
+ 10754 |                     graphSchwarz.layout.patches.size(),
+ 10755 |                     static_cast<std::size_t>(std::count(
+ 10756 |                         activeTets.begin(), activeTets.end(), 1u)),
+ 10757 |                     world.dispatch.objectCount);
+       |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/runtime.mm:20666:72: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20666 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20667 |                     workDomain == WorkDomain::newtonAssemblyFemNodes ||
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/runtime.mm:20666:72: note: place parentheses around the '&&' expression to silence this warning
+ 20666 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                                                                        ^
+       |                             (
+ 20667 |                     workDomain == WorkDomain::newtonAssemblyFemNodes ||
+       |                                                                     )
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/runtime.mm:20668:67: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20667 |                     workDomain == WorkDomain::newtonAssemblyFemNodes ||
+       |                                                                      ~~
+ 20668 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20669 |                     workDomain == WorkDomain::femNodes) &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/runtime.mm:20668:67: note: place parentheses around the '&&' expression to silence this warning
+ 20668 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                                                                   ^
+       |                     (
+ 20669 |                     workDomain == WorkDomain::femNodes) &&
+       |                                                       
+       |                                                       )
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/runtime.mm:20673:72: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20673 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20674 |                     workDomain == WorkDomain::newtonAssemblyTetrahedra ||
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/runtime.mm:20673:72: note: place parentheses around the '&&' expression to silence this warning
+ 20673 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                                                                        ^
+       |                             (
+ 20674 |                     workDomain == WorkDomain::newtonAssemblyTetrahedra ||
+       |                                                                       )
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/runtime.mm:20675:67: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 20674 |                     workDomain == WorkDomain::newtonAssemblyTetrahedra ||
+       |                                                                        ~~
+ 20675 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 20676 |                     workDomain == WorkDomain::tetrahedra) &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/runtime.mm:20675:67: note: place parentheses around the '&&' expression to silence this warning
+ 20675 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                                                                   ^
+       |                     (
+ 20676 |                     workDomain == WorkDomain::tetrahedra) &&
+       |                                                         
+       |                                                         )
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/runtime.mm:24259:33: warning: variable 'reason' set but not used [-Wunused-but-set-variable]
+ 24259 |                 if (const char* reason = femNewtonTraceScope(false, 4096u))
+       |                                 ^
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/runtime.mm:29110:28: warning: unused variable 'capturedEnvironmentCount' [-Wunused-variable]
+ 29110 |                 const auto capturedEnvironmentCount = environments;
+       |                            ^~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/runtime.mm:39769:60: warning: values of type 'NSUInteger' should not be used as format arguments; add an explicit cast to 'unsigned long' instead [-Wformat]
+ 39767 |                     "fgmres_terminal_cache_capture_not_due={\"schema\":1,\"physics_substep\":%u,\"physics_substeps\":%u,\"microtick\":%u,\"microtick_count\":%u,\"environment_count\":%u,\"preflight_enabled\":%s,\"preconditioner_enabled\":%s,\"preconditioner_apply_enabled\":%s,\"fresh_rhs_may_skip\":%s,\"selector\":%u}\n",
+       |                                                                                                                                                                                       ~~
+       |                                                                                                                                                                                       %lu
+ 39768 |                     request.physicsSubstep, request.physicsSubsteps,
+ 39769 |                     micro.microtick, micro.microtickCount, environments,
+       |                                                            ^~~~~~~~~~~~
+       |                                                            static_cast<unsigned long>( )
+/Users/numi/numi-lab-humanio-buildonly-20261107/matter/src/runtime.mm:45346:35: warning: unused variable 'oldTailConstants' [-Wunused-variable]
+ 45346 |                     id<MTLBuffer> oldTailConstants =
+       |                                   ^~~~~~~~~~~~~~~~
+9 warnings generated.
+[148/149] Linking CXX shared library lib/libmetalrobo.dylib
