@@ -1,0 +1,93 @@
+{
+  "adult_current_band": null,
+  "adult_previous_band": null,
+  "candidate_advanced_deployment": false,
+  "candidate_policy_pack": "/Users/numi/numi-window-command-training-20261107/candidate.deployment.policypack",
+  "candidate_retained": true,
+  "checkpoint_comparisons": {
+    "candidate": {
+      "candidate_advanced_deployment": false,
+      "candidate_retained": true,
+      "improvements": [
+        "tracking score increased",
+        "mean tilt decreased"
+      ],
+      "metrics": {
+        "adult_authored_outcomes": {},
+        "candidate_clean_horizon_environment_rate": 0.0,
+        "candidate_mean_final_forward_progress_m": 0.15289768158618244,
+        "candidate_mean_peak_forward_progress_m": 0.7367604035061959,
+        "candidate_mean_reward": -0.016635533053980908,
+        "candidate_mean_root_height": 0.6963633254766465,
+        "candidate_mean_task_reward": 0.04115658979862928,
+        "candidate_mean_tilt": 0.238153455497697,
+        "candidate_mean_tracking_score": 0.6917581833600998,
+        "candidate_physical_failure_rate": 12.0,
+        "candidate_termination_rate": 12.0,
+        "incumbent_clean_horizon_environment_rate": 0.0,
+        "incumbent_mean_final_forward_progress_m": 0.15358920929975284,
+        "incumbent_mean_peak_forward_progress_m": 0.7426910006815888,
+        "incumbent_mean_reward": -0.017953087957634124,
+        "incumbent_mean_root_height": 0.6952913340032101,
+        "incumbent_mean_task_reward": 0.04107564777508378,
+        "incumbent_mean_tilt": 0.2440629321280867,
+        "incumbent_mean_tracking_score": 0.689348650932312,
+        "incumbent_physical_failure_rate": 12.0,
+        "incumbent_termination_rate": 12.0,
+        "world_source": "bundled_g1"
+      },
+      "regressions": [
+        "mean peak forward progress decreased"
+      ],
+      "schema": "numi.policy-selection.v1",
+      "selected": "incumbent",
+      "selection_method": "continuous_locomotion_progress",
+      "selection_score": -0.003196495013853014,
+      "task": "velocity"
+    }
+  },
+  "deployment_policy_pack": "/Users/numi/numi-window-command-training-20261107/deployment.policypack",
+  "evaluated_candidate_policy_packs": [
+    "/Users/numi/numi-window-command-training-20261107/candidate.deployment.policypack"
+  ],
+  "held_out_seed": 2650443581,
+  "improvements": [
+    "tracking score increased",
+    "mean tilt decreased"
+  ],
+  "incumbent_policy_pack": "/Users/numi/numi-window-command-training-20261107/incumbent.deployment.policypack",
+  "maximum_evaluation_environments": 1,
+  "metrics": {
+    "adult_authored_outcomes": {},
+    "candidate_clean_horizon_environment_rate": 0.0,
+    "candidate_mean_final_forward_progress_m": 0.15289768158618244,
+    "candidate_mean_peak_forward_progress_m": 0.7367604035061959,
+    "candidate_mean_reward": -0.016635533053980908,
+    "candidate_mean_root_height": 0.6963633254766465,
+    "candidate_mean_task_reward": 0.04115658979862928,
+    "candidate_mean_tilt": 0.238153455497697,
+    "candidate_mean_tracking_score": 0.6917581833600998,
+    "candidate_physical_failure_rate": 12.0,
+    "candidate_termination_rate": 12.0,
+    "incumbent_clean_horizon_environment_rate": 0.0,
+    "incumbent_mean_final_forward_progress_m": 0.15358920929975284,
+    "incumbent_mean_peak_forward_progress_m": 0.7426910006815888,
+    "incumbent_mean_reward": -0.017953087957634124,
+    "incumbent_mean_root_height": 0.6952913340032101,
+    "incumbent_mean_task_reward": 0.04107564777508378,
+    "incumbent_mean_tilt": 0.2440629321280867,
+    "incumbent_mean_tracking_score": 0.689348650932312,
+    "incumbent_physical_failure_rate": 12.0,
+    "incumbent_termination_rate": 12.0,
+    "world_source": "bundled_g1"
+  },
+  "regressions": [
+    "mean peak forward progress decreased"
+  ],
+  "schema": "numi.policy-selection.v1",
+  "selected": "incumbent",
+  "selected_candidate_label": null,
+  "selection_method": "continuous_locomotion_progress",
+  "selection_score": -0.003196495013853014,
+  "task": "velocity"
+}

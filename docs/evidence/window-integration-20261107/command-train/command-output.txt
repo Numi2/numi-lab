@@ -1,0 +1,302 @@
+Actual numi train: one environment, eight steps, one update; matched selection on 1000-step task horizon.
+numi train: artifacts /Users/numi/numi-window-command-training-20261107
+{
+  "candidate_deployment_policy_pack" : "\/Users\/numi\/numi-window-command-training-20261107\/candidate.deployment.policypack",
+  "checkpoint_directory" : "",
+  "checkpoint_interval" : 0,
+  "control_steps_per_submission" : 1,
+  "deployment_policy_pack" : "\/Users\/numi\/numi-window-command-training-20261107\/candidate.deployment.policypack",
+  "deployment_selection_performed" : false,
+  "device" : "Apple M6",
+  "elapsed_seconds" : 0.17139966700000001,
+  "end_to_end_environment_steps_per_second" : 46.674536421357224,
+  "environments" : 1,
+  "failed_environment_steps" : 0,
+  "final_physical_evidence" : {
+    "control_steps" : 8,
+    "evidence_windows" : 0,
+    "last_balance_failure_rate" : 0,
+    "last_clean_miss_rate" : 0,
+    "last_completed_episode_count" : 0,
+    "last_contact_rate" : 0,
+    "last_mean_tracking_per_million" : 0,
+    "pending_completed_episode_count" : 0,
+    "pending_timeout_episode_count" : 0
+  },
+  "final_policy_revision" : 2,
+  "gpu_milliseconds" : 45.413958316203207,
+  "host_requested_resets" : 0,
+  "incumbent_policy_pack" : "\/Users\/numi\/numi-window-command-training-20261107\/incumbent.deployment.policypack",
+  "initial_policy_revision" : 1,
+  "last_learning_update" : {
+    "actor_gradient_norm" : 23.059059143066406,
+    "approximate_kl" : 2.8237700462341309e-06,
+    "behavior_policy_fingerprint" : 7941355594278494958,
+    "clip_fraction" : 0,
+    "critic_gradient_norm" : 0.42510399222373962,
+    "deployment_policy_pack" : "\/Users\/numi\/numi-window-command-training-20261107\/candidate.deployment.policypack",
+    "done_count" : 0,
+    "entropy" : -5.5244832038879395,
+    "gradient_norm" : 23.062976837158203,
+    "imagination_fraction" : 0,
+    "imagination_loss" : 0,
+    "impact_sequence_metrics" : [
+
+    ],
+    "kl_divergence" : 0,
+    "learner_state" : "\/Users\/numi\/numi-window-command-training-20261107\/learner.safetensors",
+    "learning_rate" : 0.0010000000474974513,
+    "loss" : 0.0284234918653965,
+    "maximum_reward" : 0.04025837779045105,
+    "mean_action_standard_deviation" : 0.20004835724830627,
+    "mean_contact_reward" : 0,
+    "mean_dodge_cbf_buffer_reward" : 0,
+    "mean_dodge_cbf_correction_reward" : 0,
+    "mean_dodge_evasion_reward" : 0,
+    "mean_dodge_link_clearance_reward" : 0,
+    "mean_dodge_miss_reward" : 0,
+    "mean_dodge_predicted_clearance_reward" : 0,
+    "mean_dodge_safe_action_rate_reward" : 0,
+    "mean_dodge_safe_stillness_reward" : 0,
+    "mean_reward" : 0.036608852446079254,
+    "mean_root_height" : 0.78471910953521729,
+    "mean_task_reward" : 0.046092703938484192,
+    "mean_tilt" : 0.032321490347385406,
+    "mean_tracking_score" : 0.70351517200469971,
+    "minibatch_updates" : 1,
+    "minimum_reward" : 0.032586522400379181,
+    "mlx_active_memory_bytes" : 5282132,
+    "mlx_cache_memory_bytes" : 0,
+    "mlx_cache_released_bytes" : 9515164,
+    "mlx_peak_memory_bytes" : 12830529,
+    "outcomes" : {
+      "contact_reward" : {
+        "direction" : 1,
+        "mean" : 0,
+        "unit" : "reward"
+      },
+      "done" : {
+        "direction" : 2,
+        "mean" : 0,
+        "unit" : "bool"
+      },
+      "physics_error" : {
+        "direction" : 2,
+        "mean" : 0,
+        "unit" : "bool"
+      },
+      "reward" : {
+        "direction" : 1,
+        "mean" : 0.036608852446079254,
+        "unit" : "reward"
+      },
+      "root_height" : {
+        "direction" : 0,
+        "mean" : 0.78471910953521729,
+        "unit" : "m"
+      },
+      "task_reward" : {
+        "direction" : 1,
+        "mean" : 0.046092703938484192,
+        "unit" : "reward"
+      },
+      "tilt" : {
+        "direction" : 2,
+        "mean" : 0.032321490347385406,
+        "unit" : "rad"
+      },
+      "timeout" : {
+        "direction" : 0,
+        "mean" : 0,
+        "unit" : "bool"
+      },
+      "tracking" : {
+        "direction" : 1,
+        "mean" : 0.70351517200469971,
+        "unit" : "ratio"
+      }
+    },
+    "policy_loss" : 0.0008523911237716675,
+    "policy_pack" : "\/Users\/numi\/numi-window-command-training-20261107\/candidate.policypack",
+    "policy_revision" : 2,
+    "policy_revision_after" : 2,
+    "policy_revision_before" : 1,
+    "recovery_phase_rates_by_difficulty_band" : {
+      "9" : {
+        "brace" : 0,
+        "foot_support" : 0,
+        "mean_root_height" : 0.78471910953521729,
+        "mean_tilt" : 0.032321490347385406,
+        "quiet_stand" : 0,
+        "restored" : 0,
+        "rise" : 0,
+        "standing" : 0,
+        "support_transfer" : 0,
+        "transition_count" : 8,
+        "trunk_clear" : 0
+      }
+    },
+    "reward_standard_deviation" : 0.0025699734687805176,
+    "samples" : 8,
+    "status" : "updated",
+    "task_fingerprint" : 10264978168764181602,
+    "termination_reason_counts" : {
+
+    },
+    "timeout_count" : 0,
+    "update_seconds" : 0.022029124957043678,
+    "value_loss" : 0.022046618163585663
+  },
+  "learner" : "mlx",
+  "learner_state" : "\/Users\/numi\/numi-window-command-training-20261107\/learner.safetensors",
+  "learner_state_restored" : false,
+  "maximum_active_contacts" : 8,
+  "maximum_episode_steps" : 1000,
+  "maximum_manifolds" : 2,
+  "minibatch_size" : 8,
+  "minibatches_per_epoch" : 1,
+  "motion_minibatch_size" : 0,
+  "native_submission_count" : 8,
+  "operation" : "swift_native_policy_training",
+  "physics" : "metal",
+  "policy_pack" : "\/Users\/numi\/numi-window-command-training-20261107\/candidate.policypack",
+  "resumed_exploration_overridden" : false,
+  "resumed_learning_rate_overridden" : false,
+  "retained_buffer_bytes" : 5559248,
+  "rollout_pack" : "\/Users\/numi\/numi-window-command-training-20261107\/rollout.rolloutpack",
+  "samples_per_update" : 8,
+  "scheduler" : "swift",
+  "stage_high_water" : {
+    "articulation_point_queries" : 0,
+    "candidate_pairs" : 5,
+    "ccd_candidates" : 0,
+    "ccd_events" : 0,
+    "constraint_blocks" : 8,
+    "constraint_rows" : 24,
+    "dynamic_nodes" : 0,
+    "endpoint_runtime_records" : 0,
+    "hard_convex_pairs" : 0,
+    "island_constraint_references" : 0,
+    "island_node_references" : 0,
+    "islands" : 1,
+    "manifolds" : 2,
+    "mesh_triangle_candidates" : 0,
+    "operator_velocity_elements" : 0,
+    "quality_direct_tiles" : 0,
+    "quality_generalized_velocities" : 0,
+    "quality_krylov_vectors" : 0,
+    "quality_rows" : 0,
+    "raw_contacts" : 8,
+    "rod_candidate_pairs" : 0,
+    "rod_ccd_events" : 0,
+    "rod_factor_blocks" : 0,
+    "rod_manifolds" : 0,
+    "rod_raw_contacts" : 0,
+    "solver_tiles" : 1,
+    "spill_rows" : 0
+  },
+  "steps_per_update" : 8,
+  "submission_milliseconds" : 47.156085000000004,
+  "training_samples" : 8,
+  "transient_private_bytes" : 778492,
+  "updates" : 1,
+  "visual_observation" : false,
+  "visual_observation_config" : "",
+  "visual_scene_fingerprint" : 0,
+  "world_source" : "bundled_g1"
+}
+numi train: matched incumbent/candidate selection
+{
+  "adult_current_band": null,
+  "adult_previous_band": null,
+  "candidate_advanced_deployment": false,
+  "candidate_policy_pack": "/Users/numi/numi-window-command-training-20261107/candidate.deployment.policypack",
+  "candidate_retained": true,
+  "checkpoint_comparisons": {
+    "candidate": {
+      "candidate_advanced_deployment": false,
+      "candidate_retained": true,
+      "improvements": [
+        "tracking score increased",
+        "mean tilt decreased"
+      ],
+      "metrics": {
+        "adult_authored_outcomes": {},
+        "candidate_clean_horizon_environment_rate": 0.0,
+        "candidate_mean_final_forward_progress_m": 0.15289768158618244,
+        "candidate_mean_peak_forward_progress_m": 0.7367604035061959,
+        "candidate_mean_reward": -0.016635533053980908,
+        "candidate_mean_root_height": 0.6963633254766465,
+        "candidate_mean_task_reward": 0.04115658979862928,
+        "candidate_mean_tilt": 0.238153455497697,
+        "candidate_mean_tracking_score": 0.6917581833600998,
+        "candidate_physical_failure_rate": 12.0,
+        "candidate_termination_rate": 12.0,
+        "incumbent_clean_horizon_environment_rate": 0.0,
+        "incumbent_mean_final_forward_progress_m": 0.15358920929975284,
+        "incumbent_mean_peak_forward_progress_m": 0.7426910006815888,
+        "incumbent_mean_reward": -0.017953087957634124,
+        "incumbent_mean_root_height": 0.6952913340032101,
+        "incumbent_mean_task_reward": 0.04107564777508378,
+        "incumbent_mean_tilt": 0.2440629321280867,
+        "incumbent_mean_tracking_score": 0.689348650932312,
+        "incumbent_physical_failure_rate": 12.0,
+        "incumbent_termination_rate": 12.0,
+        "world_source": "bundled_g1"
+      },
+      "regressions": [
+        "mean peak forward progress decreased"
+      ],
+      "schema": "numi.policy-selection.v1",
+      "selected": "incumbent",
+      "selection_method": "continuous_locomotion_progress",
+      "selection_score": -0.003196495013853014,
+      "task": "velocity"
+    }
+  },
+  "deployment_policy_pack": "/Users/numi/numi-window-command-training-20261107/deployment.policypack",
+  "evaluated_candidate_policy_packs": [
+    "/Users/numi/numi-window-command-training-20261107/candidate.deployment.policypack"
+  ],
+  "held_out_seed": 2650443581,
+  "improvements": [
+    "tracking score increased",
+    "mean tilt decreased"
+  ],
+  "incumbent_policy_pack": "/Users/numi/numi-window-command-training-20261107/incumbent.deployment.policypack",
+  "maximum_evaluation_environments": 1,
+  "metrics": {
+    "adult_authored_outcomes": {},
+    "candidate_clean_horizon_environment_rate": 0.0,
+    "candidate_mean_final_forward_progress_m": 0.15289768158618244,
+    "candidate_mean_peak_forward_progress_m": 0.7367604035061959,
+    "candidate_mean_reward": -0.016635533053980908,
+    "candidate_mean_root_height": 0.6963633254766465,
+    "candidate_mean_task_reward": 0.04115658979862928,
+    "candidate_mean_tilt": 0.238153455497697,
+    "candidate_mean_tracking_score": 0.6917581833600998,
+    "candidate_physical_failure_rate": 12.0,
+    "candidate_termination_rate": 12.0,
+    "incumbent_clean_horizon_environment_rate": 0.0,
+    "incumbent_mean_final_forward_progress_m": 0.15358920929975284,
+    "incumbent_mean_peak_forward_progress_m": 0.7426910006815888,
+    "incumbent_mean_reward": -0.017953087957634124,
+    "incumbent_mean_root_height": 0.6952913340032101,
+    "incumbent_mean_task_reward": 0.04107564777508378,
+    "incumbent_mean_tilt": 0.2440629321280867,
+    "incumbent_mean_tracking_score": 0.689348650932312,
+    "incumbent_physical_failure_rate": 12.0,
+    "incumbent_termination_rate": 12.0,
+    "world_source": "bundled_g1"
+  },
+  "regressions": [
+    "mean peak forward progress decreased"
+  ],
+  "schema": "numi.policy-selection.v1",
+  "selected": "incumbent",
+  "selected_candidate_label": null,
+  "selection_method": "continuous_locomotion_progress",
+  "selection_score": -0.003196495013853014,
+  "task": "velocity"
+}
+exit_code=0

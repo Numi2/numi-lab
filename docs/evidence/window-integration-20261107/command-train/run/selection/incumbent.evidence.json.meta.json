@@ -1,0 +1,15 @@
+{
+  "contract_sha256": "36ad867f13d903b304ef5dbf190d44ed5d54574ccc93dcae046b158d3af0276f",
+  "evidence": {
+    "sha256": "378725801fe664f5bda2f5a9a507919203f8ea6a822827a6af62023eaccaff94",
+    "size_bytes": 10692
+  },
+  "schema": "numi.policy-evidence-cache.v2",
+  "state_trace": {
+    "path": "/Users/numi/numi-window-command-training-20261107/selection/incumbent.state.tsv",
+    "row_count": 1000,
+    "sha256": "b7651df08e7fae7eb8d3417919766c80537f812953b298897986442a7b9a0c35",
+    "size_bytes": 499873,
+    "terminal_step": 1000
+  }
+}

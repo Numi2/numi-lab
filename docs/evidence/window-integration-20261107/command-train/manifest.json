@@ -1,0 +1,39 @@
+{
+  "revision": "3f9188d4474663c28e805949a8db45f72cdf5f73",
+  "tracked_worktree_status": "",
+  "sha256_before": {
+    "/Users/numi/numi-lab-release-integration-build-20261107/bin/metalrobo_task_train": "4f749ef50e00ade499ba04bbd92d181a93babf23b76327af60d2fcac6ed66ea9",
+    "/Users/numi/numi-lab-release-integration-build-20261107/bin/metalrobo_task_rollout": "b10a4c1bf4a569fca14c76f1bf72e70a0eacb705ff87b5fb400c46d555b516e0",
+    "/Users/numi/numi-lab-release-integration-build-20261107/lib/libmetalrobo.dylib": "552ef872612e8f38f2f6e190dde8487aad137e47b9e4ca3aecef8d8303473a31",
+    "/Users/numi/numi-lab-release-integration-build-20261107/shaders/MetalRobo.metallib": "66c6947d3db340c98526b9ac03a9c27cddee6b5b6f0ae53be3a5939af10fe0bf",
+    "/Users/numi/numi-lab-release-integration-20261107/numi/commands/train": "4a738811ba555e6b051cb56dae7f16e0f913b430588deb4c1efcb226512b1f38",
+    "/Users/numi/numi-lab-release-integration-20261107/tools/numi": "2e971e7c3680ec809c7e9ac71355b89502f710f835bc3c69725a91dbbdb01074",
+    "/Users/numi/numi-lab-release-integration-20261107/python/metalrobo/native.py": "c4f173582265b5e91d9303cd598d0b77c42ad64874107aa438d5f514122659ba",
+    "/Users/numi/numi-lab-release-integration-20261107/python/metalrobo/mlx_policy_learning.py": "d916aa60e21152721836b4965a2d7b69d685b6731d7e24ea410d29084db6ee41",
+    "/Users/numi/numi-lab-release-integration-20261107/python/metalrobo/mlx_policy_worker.py": "c546051f494b2a5c9111951a40d6ff9735f4f72b8cc3410ed5524f3c6d3078d8",
+    "/Users/numi/numi-lab-release-integration-20261107/python/metalrobo/policy_selection.py": "8c51a7905711b8b61d2eed008505a4b99442b2e91d7a22edc8fef241682fcd8f"
+  },
+  "workload": {
+    "environments": 1,
+    "steps": 8,
+    "updates": 1,
+    "ppo_epochs": 1,
+    "selection_environments": 1,
+    "selection_horizon": 1000,
+    "seed": 20261107
+  },
+  "sha256_after": {
+    "/Users/numi/numi-lab-release-integration-build-20261107/bin/metalrobo_task_train": "4f749ef50e00ade499ba04bbd92d181a93babf23b76327af60d2fcac6ed66ea9",
+    "/Users/numi/numi-lab-release-integration-build-20261107/bin/metalrobo_task_rollout": "b10a4c1bf4a569fca14c76f1bf72e70a0eacb705ff87b5fb400c46d555b516e0",
+    "/Users/numi/numi-lab-release-integration-build-20261107/lib/libmetalrobo.dylib": "552ef872612e8f38f2f6e190dde8487aad137e47b9e4ca3aecef8d8303473a31",
+    "/Users/numi/numi-lab-release-integration-build-20261107/shaders/MetalRobo.metallib": "66c6947d3db340c98526b9ac03a9c27cddee6b5b6f0ae53be3a5939af10fe0bf",
+    "/Users/numi/numi-lab-release-integration-20261107/numi/commands/train": "4a738811ba555e6b051cb56dae7f16e0f913b430588deb4c1efcb226512b1f38",
+    "/Users/numi/numi-lab-release-integration-20261107/tools/numi": "2e971e7c3680ec809c7e9ac71355b89502f710f835bc3c69725a91dbbdb01074",
+    "/Users/numi/numi-lab-release-integration-20261107/python/metalrobo/native.py": "c4f173582265b5e91d9303cd598d0b77c42ad64874107aa438d5f514122659ba",
+    "/Users/numi/numi-lab-release-integration-20261107/python/metalrobo/mlx_policy_learning.py": "d916aa60e21152721836b4965a2d7b69d685b6731d7e24ea410d29084db6ee41",
+    "/Users/numi/numi-lab-release-integration-20261107/python/metalrobo/mlx_policy_worker.py": "c546051f494b2a5c9111951a40d6ff9735f4f72b8cc3410ed5524f3c6d3078d8",
+    "/Users/numi/numi-lab-release-integration-20261107/python/metalrobo/policy_selection.py": "8c51a7905711b8b61d2eed008505a4b99442b2e91d7a22edc8fef241682fcd8f"
+  },
+  "identities_unchanged": true,
+  "exit_code": 0
+}

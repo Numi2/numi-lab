@@ -166,3 +166,19 @@ selector process tree and removes its run lock. CPU-only stub-process checks
 cover both phases, descendant termination and lock cleanup. The actual native
 guided UI cancellation path and a complete guided session have not been
 qualified.
+
+## Pinned command training and selection
+
+At clean commit 3f9188d4474663c28e805949a8db45f72cdf5f73, the actual
+numi train dispatcher completed a one-environment, eight-step, one-update G1
+ground/velocity workflow, then evaluated incumbent and candidate with one
+environment and the configured 1,000-step horizon. The selector retained the
+incumbent and did not advance the candidate. Both evaluations reported zero
+clean-horizon rate and 12 physical terminations; this is an operational
+pipeline check, not successful locomotion or a qualified controller.
+
+The complete run directory, selection traces, policy and learner artifacts,
+logs, source/runtime hashes and pre/post identity check are preserved in
+command-train. The binary and source hashes matched before and after the run.
+This command-line exercise does not establish that the window's guided
+training panel, live cancellation, or saved-state restore works end to end.
