@@ -11,6 +11,17 @@
   "primary_behaviors": ["foraging", "memory", "manipulation", "social learning"],
   "development_seeds": [2651107001, 2651107002, 2651107003],
   "qualification_seeds": [2651107901, 2651107902, 2651107903],
+  "feeding_comparison_development_seeds": [2651108401, 2651108402, 2651108403],
+  "feeding_development_candidate": {
+    "policy": "artifacts/crow-rl-feeding-behavior-20261107/policies/trained-stochastic.policypack",
+    "mode": "stochastic-required",
+    "task": "american_crow_feeding_station_v12",
+    "revision": 33,
+    "fully_consumed_lanes": 1536,
+    "tested_lanes": 1536,
+    "scope": "one frozen learner; canonical supported intake-volume station; development evidence only",
+    "ecological_environment_qualified": false
+  },
   "minimum_free_disk_gib": 100,
   "probe": {
     "seed": 2651107301,
@@ -37,9 +48,9 @@
     "first_attempt_evidence": "native-transition-observer",
     "crow_eye_perception": "pending; legacy-camera-is-offset-from-body",
     "active_head_and_beak": "estimated-native-v11; reference-inertia-and-Metal-admission; contact-actuation-and-learner-resume-controls-passed; head-vision-and-behavior-qualification-pending",
-    "finite_food_water_and_energy": "experimental-native-finite-food-tracer-and-capacity-limited-crop; water-energy-physiology-and-feeding-reward-integration-pending",
+    "finite_food_water_and_energy": "experimental-native-finite-food-tracer-and-capacity-limited-crop-with-bound-reward; water-energy-physiology-pending",
     "accepted_state_consumption": "native-accepted-mouth-intake-volume-and-open-close-edge-controls-passed; solid-food-pickup-carrying-and-swallowing-pending",
-    "feeding_station_curriculum": "native-v12-proprioception-and-local-nutrition; finite-debit-reward-and-reset-controls-passed; PPO-positive-food-reward-and-learner-resume-passed; behavior-unqualified",
+    "feeding_station_curriculum": "native-v12; frozen-stochastic-policy-complete-intake-1536-of-1536-versus-untrained-20-of-1536; deterministic-intake-zero; canonical-supported-tracer-only; ecology-unqualified",
     "persistent_memory_and_life_checkpoint": "resource-only-and-learner-only-checkpoints-tested; whole-world-RNG-sensory-memory-restore-pending",
     "social_individuals_and_communication": "pending",
     "weather_and_seasonal_ecology": "pending"

@@ -1,0 +1,110 @@
+{
+  "schema": "numi.crow-interruption.v1",
+  "created_utc": "2026-11-07T13:18:48.223740+00:00",
+  "status": "interrupted_invalid_control",
+  "completed_lifetime_analyses": [
+    {
+      "lifetime": 1,
+      "mean_intake_utility_per_lane": 1.7080074399709702,
+      "fraction_of_available_food_utility": 0.3795572088824378,
+      "initial_revision": 1,
+      "final_revision": 5,
+      "samples": 262144,
+      "whole_process_steps_per_second": 18740.69930624136,
+      "mlx_peak_memory_bytes": 457890872,
+      "learner_sha256": "7e032aed96d66e8f592f31dec70e8d884b8158798b7f086c3983a6280d8da0a5",
+      "deployment_sha256": "b7a8036d0d4d3ed9204741b3dac2a67554c1866a499f87c3b7c163795fcad95a"
+    },
+    {
+      "lifetime": 2,
+      "mean_intake_utility_per_lane": 4.489256843924522,
+      "fraction_of_available_food_utility": 0.9976126319832272,
+      "initial_revision": 5,
+      "final_revision": 9,
+      "samples": 262144,
+      "whole_process_steps_per_second": 18857.618154383887,
+      "mlx_peak_memory_bytes": 457892856,
+      "learner_sha256": "163c639a0548e11d93c6aa1d398a4bff09bfefea803fc29b87f944853c18f020",
+      "deployment_sha256": "ac94b4ad5ef486fd050e074840bd762d3a17902951ee4b910ef5054971e3b7b8"
+    },
+    {
+      "lifetime": 3,
+      "mean_intake_utility_per_lane": 4.49804612621665,
+      "fraction_of_available_food_utility": 0.9995658058259222,
+      "initial_revision": 9,
+      "final_revision": 13,
+      "samples": 262144,
+      "whole_process_steps_per_second": 18885.000689708602,
+      "mlx_peak_memory_bytes": 457892918,
+      "learner_sha256": "86c5141d4ec8338b9c419af0b3eabd59334d05227dfe7a3dc92a5c4b329fef56",
+      "deployment_sha256": "0ba019452022448b8ce857a7744228d6ecc9d1cacd203d74aef1a0edccc6288c"
+    },
+    {
+      "lifetime": 4,
+      "mean_intake_utility_per_lane": 4.498046143911779,
+      "fraction_of_available_food_utility": 0.9995658097581731,
+      "initial_revision": 13,
+      "final_revision": 17,
+      "samples": 262144,
+      "whole_process_steps_per_second": 18850.460751439303,
+      "mlx_peak_memory_bytes": 457892949,
+      "learner_sha256": "8a082fd05b67d25aa97d65c19902a25080c74a36da8d13733041790d6ccbebfc",
+      "deployment_sha256": "605890f613da37c6a455b8050aacd3e4496f986a4b5c697cb689be31b627a59b"
+    },
+    {
+      "lifetime": 5,
+      "mean_intake_utility_per_lane": 4.499999267980456,
+      "fraction_of_available_food_utility": 0.9999998373289903,
+      "initial_revision": 17,
+      "final_revision": 21,
+      "samples": 262144,
+      "whole_process_steps_per_second": 18875.62875897251,
+      "mlx_peak_memory_bytes": 457892662,
+      "learner_sha256": "63e99343b3322533a28f26582273fdd764be97dedbc51fcd05334f5294e9daf6",
+      "deployment_sha256": "d6d7a30e8ac2fbf44343a970e4d047495dab0ef7fe88d2e6095ea81c99527286"
+    },
+    {
+      "lifetime": 6,
+      "mean_intake_utility_per_lane": 4.49999926937744,
+      "fraction_of_available_food_utility": 0.9999998376394311,
+      "initial_revision": 21,
+      "final_revision": 25,
+      "samples": 262144,
+      "whole_process_steps_per_second": 18858.330648868927,
+      "mlx_peak_memory_bytes": 457892856,
+      "learner_sha256": "61167a1c78e2311e2deb1268b002878567a7df960bed6f8a939885048fd70005",
+      "deployment_sha256": "12d06160848c29429fda1c27a0c90997e7813125e21fbbb8ceb1f9c5d7c4405f"
+    },
+    {
+      "lifetime": 7,
+      "mean_intake_utility_per_lane": 4.4999991352669895,
+      "fraction_of_available_food_utility": 0.9999998078371087,
+      "initial_revision": 25,
+      "final_revision": 29,
+      "samples": 262144,
+      "whole_process_steps_per_second": 18874.700685933265,
+      "mlx_peak_memory_bytes": 457892825,
+      "learner_sha256": "d92ab09a628f56ad022596e943f74726ccd833586ece12280c704d842eebac0e",
+      "deployment_sha256": "3efdb7b80da1d00f460d5f4d68e3e3eb9a6872b9e13ffbcb2711aa6b2a76f5a1"
+    },
+    {
+      "lifetime": 8,
+      "mean_intake_utility_per_lane": 4.499022691510618,
+      "fraction_of_available_food_utility": 0.9997828203356929,
+      "initial_revision": 29,
+      "final_revision": 33,
+      "samples": 262144,
+      "whole_process_steps_per_second": 18826.482992005553,
+      "mlx_peak_memory_bytes": 457892825,
+      "learner_sha256": "e628b30e02be7a811e119722ca0b763741f178d324b2ce32f320e58ee18cc0c0",
+      "deployment_sha256": "0359812d6eaaf54b63ddf4864370de074054340f896af67f52be2f84a33e714d"
+    }
+  ],
+  "reason": "The initial.policypack baseline contains unit stochastic exploration. The registered control required a deterministic zero-output actor. This was detected after eight completed lifetimes; SIGINT stopped the owning Python process during lifetime 09. No native workers remained at audit.",
+  "original_plan_sha256": "ad8cf19b25904b68d54a28ec753ce35ee2ad0483e64b235b913348a396600ad5",
+  "baseline_invalid_for_registered_control": true,
+  "deterministic_screen_after_eight_lifetimes": "zero intake on all three development seeds",
+  "prediction_status": "inconclusive: original 32-lifetime budget not completed; invalid baseline",
+  "retention": "All artifacts, including incomplete lifetime-09 outputs, remain untouched.",
+  "next_test": "Frozen initial and lifetime-08 policies, explicit stochastic/deterministic modes, direct per-lane native resource accounting, prospectively selected unused development seeds; no extra learning."
+}

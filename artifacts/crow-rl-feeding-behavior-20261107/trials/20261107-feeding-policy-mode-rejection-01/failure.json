@@ -1,0 +1,4 @@
+{
+  "error": "Feeding screen requires the explicitly selected deterministic/stochastic PolicyPack mode",
+  "type": "ValueError"
+}

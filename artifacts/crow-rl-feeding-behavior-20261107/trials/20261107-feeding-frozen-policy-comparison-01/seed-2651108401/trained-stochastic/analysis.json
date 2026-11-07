@@ -1,0 +1,15 @@
+{
+  "arm": "trained-stochastic",
+  "seed": 2651108401,
+  "mean_accepted_intake_utility_per_lane": 4.499999463558197,
+  "fraction_of_available_food_utility": 0.9999998807907104,
+  "physical_terminations": 0,
+  "failed_physics_steps": 0,
+  "inventory": {
+    "completed_lanes": 512,
+    "environment_count": 512,
+    "complete_fraction": 1.0,
+    "mean_consumed_micrograms": 45000.0,
+    "mean_accepted_intake_utility_per_lane": 4.5
+  }
+}

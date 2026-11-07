@@ -3941,6 +3941,37 @@ int mr_task_rollout_evidence_telemetry(
     });
 }
 
+int mr_task_rollout_copy_resource_accounting(
+    const MRTaskRolloutHandle* handle,
+    MRTaskResourceAccountingC* output,
+    const size_t output_count
+) {
+    if (!requireTaskRolloutHandle(handle)) return -1;
+    if (output == nullptr || output_count != handle->environmentCount) {
+        gLastError = "resource accounting output has the wrong size";
+        return -1;
+    }
+    return translateErrors([&] {
+        if (!handle->resourceRuntime || !handle->residentState.valid()) {
+            throw std::logic_error("resource accounting requires a completed finite-resource submission");
+        }
+        const auto states = handle->resourceRuntime->snapshot();
+        if (states.size() != output_count) {
+            throw std::logic_error("resource accounting environment count mismatch");
+        }
+        for (std::size_t lane=0u; lane<states.size(); ++lane) {
+            const auto& state=states[lane];
+            std::uint64_t remaining=0u;
+            for (const auto& patch : state.remaining) {
+                remaining += static_cast<std::uint64_t>(patch.x)+patch.y+patch.z+patch.w;
+            }
+            output[lane] = {remaining, state.accounting.x, state.accounting.y,
+                state.accounting.z, state.accounting.w,
+                (static_cast<std::uint64_t>(state.clock.y)<<32u)|state.clock.x};
+        }
+    });
+}
+
 int mr_task_rollout_set_policy(
     MRTaskRolloutHandle* handle,
     const MRPolicyPackC* policy

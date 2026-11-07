@@ -4,6 +4,7 @@
 #include "metalrobo/FiniteResource.hpp"
 #include "metalrobo/RunProgram.hpp"
 #include "metalrobo/LearningPacks.hpp"
+#include "metalrobo/c_api.h"
 #include <cmath>
 #include <algorithm>
 #include <array>
@@ -19,6 +20,55 @@ using namespace metalrobo;
 void require(bool valid,const char* message) { if (!valid) throw std::runtime_error(message); }
 bool equal(const std::vector<MRFiniteResourceStateGPU>& a,const std::vector<MRFiniteResourceStateGPU>& b) {
     return a.size()==b.size() && std::memcmp(a.data(),b.data(),a.size()*sizeof(a[0]))==0;
+}
+void cAPIAccountingControls(const std::filesystem::path& output) {
+    for (const bool feeding : {false,true}) {
+        MRRunManifestC manifest{};
+        manifest.source=MR_RUN_SOURCE_BIRDFLOW_AMERICAN_CROW_JOURNEY;
+        manifest.profile.environment_count=2u;manifest.profile.physics_substeps=4u;
+        manifest.profile.velocity_iterations=4u;manifest.profile.final_velocity_iterations=2u;
+        manifest.profile.control_timestep_seconds=0.02f;manifest.profile.seed=2651107402u;
+        manifest.profile.override_difficulty_band_range=1u;
+        manifest.profile.birdflow_journey_variant=feeding ? MR_BIRDFLOW_JOURNEY_V12_FEEDING_STATION
+                                                       : MR_BIRDFLOW_JOURNEY_V11_EMBODIED;
+        std::unique_ptr<MRTaskRolloutHandle,decltype(&mr_task_rollout_destroy)> handle(
+            mr_create_task_rollout(&manifest),&mr_task_rollout_destroy);
+        if (!handle) throw std::runtime_error(mr_last_error());
+        std::array<MRTaskResourceAccountingC,2> before;
+        std::memset(before.data(),0x5a,sizeof(before));
+        auto actual=before;
+        require(mr_task_rollout_copy_resource_accounting(handle.get(),actual.data(),2u)!=0 &&
+                std::memcmp(actual.data(),before.data(),sizeof(before))==0,
+                "Uninitialized or absent resources returned fabricated accounting");
+        require(mr_task_rollout_copy_resource_accounting(handle.get(),nullptr,2u)!=0 &&
+                mr_task_rollout_copy_resource_accounting(handle.get(),actual.data(),1u)!=0 &&
+                std::memcmp(actual.data(),before.data(),sizeof(before))==0,
+                "Invalid accounting output mutated caller memory");
+        std::array<float,36> actions{};std::array<std::uint32_t,2> resets{};
+        MRTaskRolloutAdvanceC advance{};
+        require(mr_task_rollout_advance(handle.get(),actions.data(),actions.size(),
+                resets.data(),resets.size(),1u,0u,0u,&advance)==0 && advance.failed_environment_steps==0u,
+                "C API accounting control failed its native physical step");
+        const int status=mr_task_rollout_copy_resource_accounting(handle.get(),actual.data(),2u);
+        if (!feeding) {
+            require(status!=0 && std::memcmp(actual.data(),before.data(),sizeof(before))==0,
+                    "A completed task without resources fabricated a zero ledger");
+        } else {
+            require(status==0,"Completed feeding task could not publish resource accounting");
+            for (const auto& row : actual) require(row.remaining_micrograms==45000u &&
+                    row.crop_micrograms==0u && row.consumed_micrograms==0u && row.bite_count==0u &&
+                    row.initialized==1u && row.accepted_control_ticks==1u,
+                    "C API initial finite ledger has the wrong inventory or time");
+            auto again=before;
+            require(mr_task_rollout_copy_resource_accounting(handle.get(),again.data(),2u)==0 &&
+                    std::memcmp(actual.data(),again.data(),sizeof(actual))==0,
+                    "Repeated publication changed accepted resource accounting");
+        }
+    }
+    std::ofstream(output/"c-api-accounting-controls.json")
+        <<"{\"status\":\"passed\",\"environments_per_variant\":2,\"native_steps_per_variant\":1,"
+        "\"absent_and_uninitialized_rejected\":true,\"invalid_outputs_untouched\":true,"
+        "\"exact_initial_ledger\":true,\"repeated_readback_stable\":true}\n";
 }
 CompiledRun crowRun() {
     RunManifest m;
@@ -235,8 +285,9 @@ int main(int argc,char** argv) {
             require(std::filesystem::create_directory(output),"Foraging evidence directory already exists");
             ownsOutput=true;
             const auto start=std::chrono::steady_clock::now();
-            std::ofstream(output/"plan.json")<<R"({"schema":"numi.finite-resource-admission-plan.v3","seed":2651107401,"environments":8,"steps":448,"dt_seconds":0.02,"starting_distribution":"canonical identical transaction fixture; randomized search is separate","patch_micrograms":45000,"bite_micrograms":20000,"expected_bites":3,"expected_utility_per_lane":4.5,"expected_consumption_micrograms":45000,"controls":["native-miss","chunk-8-vs-64","ordinary-task-reset-no-refill","resource-only-restore","corrupt-restore-rejection","synthetic-physics-rejection","synthetic-overlap","hold-closed","exhaustion","crop-capacity","resource-only-restored-continuation"],"boundary":"nutritional intake-volume tracer; no solid food mechanics, swallowing, physiology or complete world restore"})";
+            std::ofstream(output/"plan.json")<<R"({"schema":"numi.finite-resource-admission-plan.v4","seed":2651107401,"environments":8,"steps":448,"dt_seconds":0.02,"starting_distribution":"canonical identical transaction fixture; randomized search is separate","patch_micrograms":45000,"bite_micrograms":20000,"expected_bites":3,"expected_utility_per_lane":4.5,"expected_consumption_micrograms":45000,"controls":["native-miss","chunk-8-vs-64","ordinary-task-reset-no-refill","resource-only-restore","corrupt-restore-rejection","c-api-null-size-absent-uninitialized-rejections","c-api-readback-purity","synthetic-physics-rejection","synthetic-overlap","hold-closed","exhaustion","crop-capacity","resource-only-restored-continuation"],"boundary":"nutritional intake-volume tracer; no solid food mechanics, swallowing, physiology or complete world restore"})";
             fixtureControls(output);
+            cAPIAccountingControls(output);
             const auto run=crowRun();const auto authored=makeAmericanCrowFeedingResourceConfig(run,8);
             TaskObservationProgram authoredObservations;TaskResetProgram authoredReset;
             const auto authoredTask=makeAmericanCrowFeedingStationTaskPack(authoredObservations,authoredReset);
@@ -296,7 +347,7 @@ int main(int argc,char** argv) {
                 "\"native_environments\":8,\"native_steps_per_trial\":448,\"native_trials\":5,"
                 "\"consumed_micrograms_per_lane\":45000,\"bites_per_lane\":3,\"physical_terminations\":0,"
                 "\"failed_physics_steps\":0,\"exact_partition_replay\":true,\"resource_only_restore\":true,"
-                "\"accepted_intake_utility_per_lane\":4.5,\"nutrition_actor_contract\":true,"
+                "\"accepted_intake_utility_per_lane\":4.5,\"nutrition_actor_contract\":true,\"c_api_accounting_controls\":true,"
                 "\"ordinary_reset_refills_resources\":false,\"synthetic_negative_controls\":true,"
                 "\"wall_seconds\":"+std::to_string(seconds)+",\"boundary\":\"estimated nutritional intake-volume tracer; no solid food mechanics or whole-world restore\"}";
             std::ofstream(output/"summary.json")<<result<<'\n';std::cout<<result<<'\n';return 0;

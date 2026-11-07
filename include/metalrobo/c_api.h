@@ -647,6 +647,22 @@ MR_API int mr_task_rollout_evidence_telemetry(
     const MRTaskRolloutHandle* handle,
     MRTaskEvidenceTelemetryC* telemetry
 );
+// Quiescent accepted resource ledger, one record per environment. This is
+// evidence readback only; no resource or physics state is changed. Calls on
+// tasks without a finite-resource program fail rather than return zeros.
+typedef struct MRTaskResourceAccountingC {
+    uint64_t remaining_micrograms;
+    uint32_t crop_micrograms;
+    uint32_t consumed_micrograms;
+    uint32_t bite_count;
+    uint32_t initialized;
+    uint64_t accepted_control_ticks;
+} MRTaskResourceAccountingC;
+MR_API int mr_task_rollout_copy_resource_accounting(
+    const MRTaskRolloutHandle* handle,
+    MRTaskResourceAccountingC* output,
+    size_t output_count
+);
 // Installs one immutable compiled policy artifact. The call copies all
 // caller-owned spans; subsequent advances take no action stream and run
 // inference between native observation construction and action application.

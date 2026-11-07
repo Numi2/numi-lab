@@ -1,0 +1,4 @@
+{
+  "error": "feeding-chunk8 failed; retained receipt and stderr in /Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-feeding-inventory-control-01",
+  "type": "RuntimeError"
+}

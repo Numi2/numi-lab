@@ -1,0 +1,92 @@
+{
+  "initial-deterministic": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-feeding-learning-campaign-01/lifetime-01/incumbent.policypack",
+    "sha256": "c0a1b8329f5dff72cfd21174b885484d58660e641af9d3acae06bb721bcbcff2",
+    "revision": 1,
+    "stochastic": false,
+    "standard_deviation": [],
+    "contract": {
+      "world_fingerprint": 2520026799778609558,
+      "task_fingerprint": 7677727314139395220,
+      "observation_fingerprint": 8743306092591622906,
+      "action_fingerprint": 14988323153250123501
+    }
+  },
+  "initial-stochastic": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-feeding-learning-campaign-01/lifetime-01/initial.policypack",
+    "sha256": "711e35ed5bcda9d88cc0164c080493a93e0854f7c895a9468c773eef311c7d11",
+    "revision": 1,
+    "stochastic": true,
+    "standard_deviation": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "contract": {
+      "world_fingerprint": 2520026799778609558,
+      "task_fingerprint": 7677727314139395220,
+      "observation_fingerprint": 8743306092591622906,
+      "action_fingerprint": 14988323153250123501
+    }
+  },
+  "trained-deterministic": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-feeding-learning-campaign-01/lifetime-08/deployment.policypack",
+    "sha256": "0359812d6eaaf54b63ddf4864370de074054340f896af67f52be2f84a33e714d",
+    "revision": 33,
+    "stochastic": false,
+    "standard_deviation": [],
+    "contract": {
+      "world_fingerprint": 2520026799778609558,
+      "task_fingerprint": 7677727314139395220,
+      "observation_fingerprint": 8743306092591622906,
+      "action_fingerprint": 14988323153250123501
+    }
+  },
+  "trained-stochastic": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-feeding-learning-campaign-01/lifetime-08/updated.policypack",
+    "sha256": "45d067cefb3a189e150fd09cc5eae46b5c297f557e9993eed9079cfb79fb5caa",
+    "revision": 33,
+    "stochastic": true,
+    "standard_deviation": [
+      1.0056263208389282,
+      1.0025702714920044,
+      0.9969468116760254,
+      1.0054923295974731,
+      1.0095477104187012,
+      0.992379903793335,
+      1.0125845670700073,
+      1.0025465488433838,
+      1.0062806606292725,
+      1.013758897781372,
+      0.9981713891029358,
+      1.006443738937378,
+      1.0129244327545166,
+      1.001705527305603,
+      0.9961024522781372,
+      0.9876558184623718,
+      0.9457913637161255,
+      0.961308479309082
+    ],
+    "contract": {
+      "world_fingerprint": 2520026799778609558,
+      "task_fingerprint": 7677727314139395220,
+      "observation_fingerprint": 8743306092591622906,
+      "action_fingerprint": 14988323153250123501
+    }
+  }
+}

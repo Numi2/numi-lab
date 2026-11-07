@@ -1,7 +1,7 @@
 import copy
 import unittest
 
-from metalrobo.crow_environment import validate_first_episode
+from metalrobo.crow_environment import validate_first_episode, validate_feeding_accounting
 
 
 class FirstEpisodeAdmissionTest(unittest.TestCase):
@@ -47,6 +47,46 @@ class FirstEpisodeAdmissionTest(unittest.TestCase):
                 value[field] = replacement
                 with self.assertRaises(RuntimeError):
                     validate_first_episode(value, 2, 100)
+
+
+class FeedingAccountingAdmissionTest(unittest.TestCase):
+    def setUp(self):
+        self.value = {"mean_reward": 4.25 / 1600,
+            "outcomes": {"accepted_intake_utility": {"mean": 4.25 / 1600}}, "finite_resource_accounting": {
+            "remaining_micrograms_by_environment": [0, 5000],
+            "crop_micrograms_by_environment": [45000, 40000],
+            "consumed_micrograms_by_environment": [45000, 40000],
+            "bite_count_by_environment": [3, 2], "initialized_by_environment": [1, 1],
+            "accepted_control_ticks_by_environment": [1601, 1601]}}
+
+    def test_partial_bite_and_per_lane_completion(self):
+        result = validate_feeding_accounting(self.value, 2, 1600)
+        self.assertEqual(result["completed_lanes"], 1)
+        self.assertEqual(result["mean_consumed_micrograms"], 42500)
+
+    def test_rejects_refill_reward_and_clock_forgery(self):
+        for field, replacement in (("remaining_micrograms", [45000, 5000]),
+                                   ("crop_micrograms", [45000, 45000]),
+                                   ("consumed_micrograms", [45001, 40000]),
+                                   ("bite_count", [4, 2]),
+                                   ("accepted_control_ticks", [1601, 1]),
+                                   ("initialized", [True, 1])):
+            with self.subTest(field=field):
+                value = copy.deepcopy(self.value)
+                value["finite_resource_accounting"][field + "_by_environment"] = replacement
+                with self.assertRaises(RuntimeError):
+                    validate_feeding_accounting(value, 2, 1600)
+        self.value["mean_reward"] = 4.5 / 1600
+        with self.assertRaises(RuntimeError):
+            validate_feeding_accounting(self.value, 2, 1600)
+        self.value["mean_reward"] = float("nan")
+        with self.assertRaises(RuntimeError):
+            validate_feeding_accounting(self.value, 2, 1600)
+
+    def test_missing_lane_is_not_zero_food(self):
+        self.value["finite_resource_accounting"]["remaining_micrograms_by_environment"] = [0]
+        with self.assertRaises(RuntimeError):
+            validate_feeding_accounting(self.value, 2, 1600)
 
 
 if __name__ == "__main__":

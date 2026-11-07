@@ -1511,6 +1511,20 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         }
     }
 
+    // One publication readback for conservation/behavior evidence. Never part
+    // of policy inference or per-control-step observation construction.
+    public func finiteResourceAccounting() throws -> [MRTaskResourceAccountingC] {
+        var records = [MRTaskResourceAccountingC](repeating: MRTaskResourceAccountingC(),
+                                                count: layout.environmentCount)
+        let status = records.withUnsafeMutableBufferPointer {
+            mr_task_rollout_copy_resource_accounting(handle, $0.baseAddress, $0.count)
+        }
+        guard status == 0 else {
+            throw MetalRoboTaskRolloutError.native(Self.lastError())
+        }
+        return records
+    }
+
     public func setPolicy(
         _ policy: MetalRoboPolicyPack
     ) throws {

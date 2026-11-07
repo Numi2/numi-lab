@@ -1,0 +1,72 @@
+{
+  "status": "passed",
+  "claim": "native feeding sensor/reward and finite-debit controls",
+  "records": [
+    {
+      "control": "feeding-chunk8",
+      "action_stream_sha256": "f56482eb428c5b91371d77c1d875e87e4ce12b017addc7f835c00b3d3c1fe0bb",
+      "accepted_intake_utility_per_lane": 4.499999463558197,
+      "native_outcome_utility_per_lane": 4.499999463558197,
+      "physical_terminations": 0,
+      "failed_physics_steps": 0,
+      "inventory": {
+        "completed_lanes": 8,
+        "environment_count": 8,
+        "complete_fraction": 1.0,
+        "mean_consumed_micrograms": 45000.0,
+        "mean_accepted_intake_utility_per_lane": 4.5
+      }
+    },
+    {
+      "control": "feeding-chunk64",
+      "action_stream_sha256": "f56482eb428c5b91371d77c1d875e87e4ce12b017addc7f835c00b3d3c1fe0bb",
+      "accepted_intake_utility_per_lane": 4.499999463558197,
+      "native_outcome_utility_per_lane": 4.499999463558197,
+      "physical_terminations": 0,
+      "failed_physics_steps": 0,
+      "inventory": {
+        "completed_lanes": 8,
+        "environment_count": 8,
+        "complete_fraction": 1.0,
+        "mean_consumed_micrograms": 45000.0,
+        "mean_accepted_intake_utility_per_lane": 4.5
+      }
+    },
+    {
+      "control": "head-yaw-miss",
+      "action_stream_sha256": "415914ece59d2a7e2775aa0c5731cf0f349ce5f89117ef7ebe858eddd0c0f977",
+      "accepted_intake_utility_per_lane": 0,
+      "native_outcome_utility_per_lane": 0,
+      "physical_terminations": 0,
+      "failed_physics_steps": 0,
+      "inventory": {
+        "completed_lanes": 0,
+        "environment_count": 8,
+        "complete_fraction": 0.0,
+        "mean_consumed_micrograms": 0.0,
+        "mean_accepted_intake_utility_per_lane": 0.0
+      }
+    },
+    {
+      "control": "held-closed",
+      "action_stream_sha256": "4612fb902faddb62ea7221766297f713d2b1e4690eef543853db2de9139ca94c",
+      "accepted_intake_utility_per_lane": 0,
+      "native_outcome_utility_per_lane": 0,
+      "physical_terminations": 0,
+      "failed_physics_steps": 0,
+      "inventory": {
+        "completed_lanes": 0,
+        "environment_count": 8,
+        "complete_fraction": 0.0,
+        "mean_consumed_micrograms": 0.0,
+        "mean_accepted_intake_utility_per_lane": 0.0
+      }
+    }
+  ],
+  "nutrition_inputs": 4,
+  "actor_inputs": 97,
+  "actions": 18,
+  "behavioral_policy_qualified": false,
+  "persistent_world_restore_tested": false,
+  "ecological_environment_qualified": false
+}

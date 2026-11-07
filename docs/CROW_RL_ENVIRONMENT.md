@@ -235,12 +235,72 @@ Run this probe explicitly with `learn-probe --variant v12-feeding-station
 --initial-log-standard-deviation 0 --fixed-learning-rate --require-intake-reward
 --output NEW_DIRECTORY`. `feeding-policy-probe --policy PACK --output
 NEW_DIRECTORY` screens a deployed policy on three development seeds without
-spending qualification seeds. Aggregate food utility does not establish
-per-lane completion, learned memory, or a qualified feeding policy.
+spending qualification seeds. The default requires a deterministic PolicyPack;
+`--stochastic` explicitly selects a stochastic pack. A mode mismatch is rejected
+before native execution. The final native resource ledger now publishes exact
+per-lane remaining and consumed micrograms, crop payload, bite counts and
+accepted control ticks. These must conserve 45,000 micrograms and agree with
+reward and the typed intake outcome. Missing lanes and invalid clocks are errors.
 The three-update deployment screen consumed zero food on all three development
 seeds, with zero physical terminations and device failures. This candidate is
 not a learned feeding skill. Longer primitive training and temporal exploration
 remain open; positive stochastic training reward alone cannot qualify deployment.
+
+## Frozen learned feeding comparison
+
+The bounded development campaign uses independent finite lifetimes, with policy
+and Adam state carried between processes. Food remains depleted across four
+PPO updates inside each lifetime. It is not a complete life-state restore.
+Each update has 512 environments and 128 steps, four PPO epochs, minibatches
+of 8,192, fixed learning rate 0.0001 and initially unit exploration deviation.
+Swift retains compact metrics for every update, allowing whole-lifetime food
+budgets and revisions to be checked instead of inspecting only the last batch.
+
+The first campaign was interrupted after eight completed lifetimes because its
+registered deterministic baseline accidentally used a stochastic training pack.
+The incomplete ninth lifetime and all earlier evidence remain retained. The
+original 32-lifetime prediction is inconclusive; it was not silently completed,
+extended or repaired after observing results. The eight complete lifetimes
+contain 2,097,152 accepted training transitions and revisions 1 through 33.
+They ran at approximately 18,700–18,900 whole-process transitions/s, with about
+458 MB MLX peak allocation. These are proprioceptive fixed-station measurements.
+
+The follow-up froze the initial and eighth-lifetime policies without further
+learning. A prospective comparison tested each actor in deterministic and
+stochastic modes on three unused development seeds, 512 lanes each, for
+1,600 steps / 32 s. Each mode pair was checked for identical actor coefficients,
+normalization, action transforms and task identities. Policy mode and learned
+standard deviations are retained in the evidence. Policy revision participates
+in the RNG key, so equal seeds do not imply identical noise between revisions.
+
+| Frozen policy mode | Fully depleted 45 mg, by seed | Total |
+| --- | --- | --- |
+| Initial deterministic | 0, 0, 0 / 512 | 0 / 1,536 |
+| Initial stochastic | 7, 7, 6 / 512 | 20 / 1,536 |
+| Trained deterministic | 0, 0, 0 / 512 | 0 / 1,536 |
+| Trained stochastic | 512, 512, 512 / 512 | 1,536 / 1,536 |
+
+All twelve runs had zero physical terminations and device failures. Direct
+integer inventory, crop, bites and lifetime clock agreed with reward in every
+lane. The registered prediction required at least 95% complete lanes for the
+trained stochastic policy and at most 30% for the initial stochastic policy on
+each seed; it was supported. This is one independently trained policy and 6,144
+test trajectories, not thousands of independently trained animals.
+
+The retained candidate therefore provides a learned stochastic feeding primitive
+at a canonical supported intake station. Deterministic execution does not feed.
+The patch is a nutritional intake-volume tracer, not solid food; the body and
+head are estimated, other motor controls are held by the standing curriculum,
+and there are no head-eye images, search, carrying, swallowing or learned memory.
+The complete ecological environment remains unqualified. Original navigation
+qualification seeds and layouts remain unspent.
+
+`feeding-policy-comparison` records all four frozen policy inputs, calibration
+bindings, rotated arm order, raw per-lane evidence and analysis. Native C API
+controls additionally reject absent/uninitialized resources and wrong output
+sizes without mutating caller memory, and require repeated readback to be pure.
+The first readback export had a Swift JSON type-inference error; that failed
+instrument trial is retained separately from the corrected calibration.
 
 ## Implementation order and acceptance
 

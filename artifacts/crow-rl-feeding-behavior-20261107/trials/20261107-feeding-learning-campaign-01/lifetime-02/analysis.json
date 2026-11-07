@@ -1,0 +1,12 @@
+{
+  "lifetime": 2,
+  "mean_intake_utility_per_lane": 4.489256843924522,
+  "fraction_of_available_food_utility": 0.9976126319832272,
+  "initial_revision": 5,
+  "final_revision": 9,
+  "samples": 262144,
+  "whole_process_steps_per_second": 18857.618154383887,
+  "mlx_peak_memory_bytes": 457892856,
+  "learner_sha256": "163c639a0548e11d93c6aa1d398a4bff09bfefea803fc29b87f944853c18f020",
+  "deployment_sha256": "ac94b4ad5ef486fd050e074840bd762d3a17902951ee4b910ef5054971e3b7b8"
+}

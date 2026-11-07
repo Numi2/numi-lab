@@ -4016,6 +4016,27 @@ private enum TaskRolloutMain {
                 output["mean_dodge_predicted_clearance_reward"] =
                     dodgePredictedClearanceRewardSum / sampleCount
             }
+            if options.birdFlowAmericanCrowJourney &&
+               options.birdFlowJourneyVariant == .v12FeedingStation {
+                let resource = try context.finiteResourceAccounting()
+                let remaining: [UInt64] = resource.map { $0.remaining_micrograms }
+                let crop: [UInt32] = resource.map { $0.crop_micrograms }
+                let consumed: [UInt32] = resource.map { $0.consumed_micrograms }
+                let bites: [UInt32] = resource.map { $0.bite_count }
+                let initialized: [UInt32] = resource.map { $0.initialized }
+                let ticks: [UInt64] = resource.map { $0.accepted_control_ticks }
+                output["finite_resource_accounting"] = [
+                    "remaining_micrograms_by_environment": remaining,
+                    "crop_micrograms_by_environment": crop,
+                    "consumed_micrograms_by_environment": consumed,
+                    "bite_count_by_environment": bites,
+                    "initialized_by_environment": initialized,
+                    "accepted_control_ticks_by_environment": ticks,
+                ]
+            }
+            guard JSONSerialization.isValidJSONObject(output) else {
+                throw MetalRoboTaskRolloutError.native("Rollout evidence contains a value that cannot be published as JSON.")
+            }
             let data = try JSONSerialization.data(
                 withJSONObject: output,
                 options: [.prettyPrinted, .sortedKeys]

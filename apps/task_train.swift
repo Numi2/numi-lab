@@ -1983,6 +1983,10 @@ private enum TaskTrainMain {
             var stageHighWater: [String: Int] = [:]
             var failedSteps = 0
             var lastLearning: [String: Any] = [:]
+            // One compact record per optimizer boundary, not per transition.
+            // Preserve all update outcomes so finite-lifetime budgets can be
+            // checked across a run instead of inspecting only its last batch.
+            var learningUpdateHistory: [[String: Any]] = []
             var lastEvidenceTelemetry =
                 warmupEvidenceTelemetry
             let samplesPerUpdate =
@@ -2149,6 +2153,15 @@ private enum TaskTrainMain {
                 lastLearning = try learner.update(
                     rolloutPack: rolloutPack
                 )
+                let historyKeys = [
+                    "policy_revision_before", "policy_revision_after",
+                    "samples", "mean_reward", "minimum_reward", "maximum_reward",
+                    "done_count", "timeout_count", "outcomes", "learning_rate",
+                    "mean_action_standard_deviation", "mlx_peak_memory_bytes",
+                ]
+                learningUpdateHistory.append(lastLearning.filter {
+                    historyKeys.contains($0.key)
+                })
                 try context.loadPolicy(
                     at: URL(fileURLWithPath: updatedPolicyPack)
                 )
@@ -2403,6 +2416,7 @@ private enum TaskTrainMain {
                     options.incumbentPolicyPack!,
                 "learner_state": learnerState,
                 "last_learning_update": lastLearning,
+                "learning_update_history": learningUpdateHistory,
             ]
             let data = try JSONSerialization.data(
                 withJSONObject: output,

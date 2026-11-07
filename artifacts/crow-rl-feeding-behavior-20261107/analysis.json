@@ -1,0 +1,209 @@
+{
+  "schema": "numi.crow-feeding-behavior-evidence.v1",
+  "status": "development-mechanism-supported",
+  "comparison": {
+    "status": "measured_unqualified",
+    "claim": "frozen-policy canonical feeding comparison",
+    "prediction_supported": true,
+    "records": [
+      {
+        "arm": "initial-deterministic",
+        "seed": 2651108401,
+        "mean_accepted_intake_utility_per_lane": 0,
+        "fraction_of_available_food_utility": 0.0,
+        "physical_terminations": 0,
+        "failed_physics_steps": 0,
+        "inventory": {
+          "completed_lanes": 0,
+          "environment_count": 512,
+          "complete_fraction": 0.0,
+          "mean_consumed_micrograms": 0.0,
+          "mean_accepted_intake_utility_per_lane": 0.0
+        }
+      },
+      {
+        "arm": "trained-stochastic",
+        "seed": 2651108401,
+        "mean_accepted_intake_utility_per_lane": 4.499999463558197,
+        "fraction_of_available_food_utility": 0.9999998807907104,
+        "physical_terminations": 0,
+        "failed_physics_steps": 0,
+        "inventory": {
+          "completed_lanes": 512,
+          "environment_count": 512,
+          "complete_fraction": 1.0,
+          "mean_consumed_micrograms": 45000.0,
+          "mean_accepted_intake_utility_per_lane": 4.5
+        }
+      },
+      {
+        "arm": "initial-stochastic",
+        "seed": 2651108401,
+        "mean_accepted_intake_utility_per_lane": 0.6904296051943675,
+        "fraction_of_available_food_utility": 0.15342880115430388,
+        "physical_terminations": 0,
+        "failed_physics_steps": 0,
+        "inventory": {
+          "completed_lanes": 7,
+          "environment_count": 512,
+          "complete_fraction": 0.013671875,
+          "mean_consumed_micrograms": 6904.296875,
+          "mean_accepted_intake_utility_per_lane": 0.6904296875
+        }
+      },
+      {
+        "arm": "trained-deterministic",
+        "seed": 2651108401,
+        "mean_accepted_intake_utility_per_lane": 0,
+        "fraction_of_available_food_utility": 0.0,
+        "physical_terminations": 0,
+        "failed_physics_steps": 0,
+        "inventory": {
+          "completed_lanes": 0,
+          "environment_count": 512,
+          "complete_fraction": 0.0,
+          "mean_consumed_micrograms": 0.0,
+          "mean_accepted_intake_utility_per_lane": 0.0
+        }
+      },
+      {
+        "arm": "trained-stochastic",
+        "seed": 2651108402,
+        "mean_accepted_intake_utility_per_lane": 4.499999463558197,
+        "fraction_of_available_food_utility": 0.9999998807907104,
+        "physical_terminations": 0,
+        "failed_physics_steps": 0,
+        "inventory": {
+          "completed_lanes": 512,
+          "environment_count": 512,
+          "complete_fraction": 1.0,
+          "mean_consumed_micrograms": 45000.0,
+          "mean_accepted_intake_utility_per_lane": 4.5
+        }
+      },
+      {
+        "arm": "initial-stochastic",
+        "seed": 2651108402,
+        "mean_accepted_intake_utility_per_lane": 0.8662108342396095,
+        "fraction_of_available_food_utility": 0.192491296497691,
+        "physical_terminations": 0,
+        "failed_physics_steps": 0,
+        "inventory": {
+          "completed_lanes": 7,
+          "environment_count": 512,
+          "complete_fraction": 0.013671875,
+          "mean_consumed_micrograms": 8662.109375,
+          "mean_accepted_intake_utility_per_lane": 0.8662109375
+        }
+      },
+      {
+        "arm": "trained-deterministic",
+        "seed": 2651108402,
+        "mean_accepted_intake_utility_per_lane": 0,
+        "fraction_of_available_food_utility": 0.0,
+        "physical_terminations": 0,
+        "failed_physics_steps": 0,
+        "inventory": {
+          "completed_lanes": 0,
+          "environment_count": 512,
+          "complete_fraction": 0.0,
+          "mean_consumed_micrograms": 0.0,
+          "mean_accepted_intake_utility_per_lane": 0.0
+        }
+      },
+      {
+        "arm": "initial-deterministic",
+        "seed": 2651108402,
+        "mean_accepted_intake_utility_per_lane": 0,
+        "fraction_of_available_food_utility": 0.0,
+        "physical_terminations": 0,
+        "failed_physics_steps": 0,
+        "inventory": {
+          "completed_lanes": 0,
+          "environment_count": 512,
+          "complete_fraction": 0.0,
+          "mean_consumed_micrograms": 0.0,
+          "mean_accepted_intake_utility_per_lane": 0.0
+        }
+      },
+      {
+        "arm": "initial-stochastic",
+        "seed": 2651108403,
+        "mean_accepted_intake_utility_per_lane": 0.7636717839632183,
+        "fraction_of_available_food_utility": 0.1697048408807152,
+        "physical_terminations": 0,
+        "failed_physics_steps": 0,
+        "inventory": {
+          "completed_lanes": 6,
+          "environment_count": 512,
+          "complete_fraction": 0.01171875,
+          "mean_consumed_micrograms": 7636.71875,
+          "mean_accepted_intake_utility_per_lane": 0.763671875
+        }
+      },
+      {
+        "arm": "trained-deterministic",
+        "seed": 2651108403,
+        "mean_accepted_intake_utility_per_lane": 0,
+        "fraction_of_available_food_utility": 0.0,
+        "physical_terminations": 0,
+        "failed_physics_steps": 0,
+        "inventory": {
+          "completed_lanes": 0,
+          "environment_count": 512,
+          "complete_fraction": 0.0,
+          "mean_consumed_micrograms": 0.0,
+          "mean_accepted_intake_utility_per_lane": 0.0
+        }
+      },
+      {
+        "arm": "initial-deterministic",
+        "seed": 2651108403,
+        "mean_accepted_intake_utility_per_lane": 0,
+        "fraction_of_available_food_utility": 0.0,
+        "physical_terminations": 0,
+        "failed_physics_steps": 0,
+        "inventory": {
+          "completed_lanes": 0,
+          "environment_count": 512,
+          "complete_fraction": 0.0,
+          "mean_consumed_micrograms": 0.0,
+          "mean_accepted_intake_utility_per_lane": 0.0
+        }
+      },
+      {
+        "arm": "trained-stochastic",
+        "seed": 2651108403,
+        "mean_accepted_intake_utility_per_lane": 4.499999463558197,
+        "fraction_of_available_food_utility": 0.9999998807907104,
+        "physical_terminations": 0,
+        "failed_physics_steps": 0,
+        "inventory": {
+          "completed_lanes": 512,
+          "environment_count": 512,
+          "complete_fraction": 1.0,
+          "mean_consumed_micrograms": 45000.0,
+          "mean_accepted_intake_utility_per_lane": 4.5
+        }
+      }
+    ],
+    "native_trajectories": 6144,
+    "accepted_test_transitions": 9830400,
+    "independently_trained_candidates": 1,
+    "behavioral_policy_qualified": false,
+    "boundary": "simulation feeding primitive; estimated supported body, fixed intake tracer, no search or solid food manipulation",
+    "ecological_environment_qualified": false
+  },
+  "completed_training_lifetimes": 8,
+  "accepted_training_samples_in_complete_lifetimes": 2097152,
+  "whole_process_training_steps_per_second_range": [
+    18740.69930624136,
+    18885.000689708602
+  ],
+  "maximum_reported_mlx_peak_bytes": 457892949,
+  "incomplete_lifetime09_excluded_from_complete_training_totals": true,
+  "original_32_lifetime_prediction": "inconclusive; interrupted invalid deterministic baseline",
+  "additional_learning_for_comparison": 0,
+  "full_life_checkpoint_tested": false,
+  "ecological_environment_qualified": false
+}

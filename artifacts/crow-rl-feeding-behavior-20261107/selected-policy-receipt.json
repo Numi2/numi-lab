@@ -1,0 +1,32 @@
+[
+  {
+    "source": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-feeding-learning-campaign-01/lifetime-01/initial.policypack",
+    "archive": "artifacts/crow-rl-feeding-behavior-20261107/policies/initial-stochastic.policypack",
+    "bytes": 1727197,
+    "sha256": "711e35ed5bcda9d88cc0164c080493a93e0854f7c895a9468c773eef311c7d11"
+  },
+  {
+    "source": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-feeding-learning-campaign-01/lifetime-01/incumbent.policypack",
+    "archive": "artifacts/crow-rl-feeding-behavior-20261107/policies/initial-deterministic.policypack",
+    "bytes": 868121,
+    "sha256": "c0a1b8329f5dff72cfd21174b885484d58660e641af9d3acae06bb721bcbcff2"
+  },
+  {
+    "source": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-feeding-learning-campaign-01/lifetime-08/updated.policypack",
+    "archive": "artifacts/crow-rl-feeding-behavior-20261107/policies/trained-stochastic.policypack",
+    "bytes": 1727197,
+    "sha256": "45d067cefb3a189e150fd09cc5eae46b5c297f557e9993eed9079cfb79fb5caa"
+  },
+  {
+    "source": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-feeding-learning-campaign-01/lifetime-08/deployment.policypack",
+    "archive": "artifacts/crow-rl-feeding-behavior-20261107/policies/trained-deterministic.policypack",
+    "bytes": 868121,
+    "sha256": "0359812d6eaaf54b63ddf4864370de074054340f896af67f52be2f84a33e714d"
+  },
+  {
+    "source": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-feeding-learning-campaign-01/lifetime-08/learner.safetensors",
+    "archive": "artifacts/crow-rl-feeding-behavior-20261107/policies/trained-learner.safetensors",
+    "bytes": 5181101,
+    "sha256": "e628b30e02be7a811e119722ca0b763741f178d324b2ce32f320e58ee18cc0c0"
+  }
+]

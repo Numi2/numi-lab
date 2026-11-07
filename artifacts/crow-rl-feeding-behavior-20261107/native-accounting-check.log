@@ -1,0 +1,27 @@
+Start testing: Nov 07 14:29 CET
+----------------------------------------------------------
+37/76 Testing: metalrobo.crow.finite_resource
+37/76 Test: metalrobo.crow.finite_resource
+Command: "/opt/homebrew/bin/cmake" "-DPROGRAM=/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_foraging_check" "-DOUTPUT_PARENT=/Users/n/Developer/numi-crow-rl-20261107/build" "-P" "/Users/n/Developer/numi-crow-rl-20261107/cmake/CheckCrowForaging.cmake"
+Directory: /Users/n/Developer/numi-crow-rl-20261107/build
+"metalrobo.crow.finite_resource" start time: Nov 07 14:29 CET
+Output:
+----------------------------------------------------------
+-- {"schema":"numi.crow-foraging-admission.v1","status":"passed","native_environments":8,"native_steps_per_trial":448,"native_trials":5,"consumed_micrograms_per_lane":45000,"bites_per_lane":3,"physical_terminations":0,"failed_physics_steps":0,"exact_partition_replay":true,"resource_only_restore":true,"accepted_intake_utility_per_lane":4.5,"nutrition_actor_contract":true,"c_api_accounting_controls":true,"ordinary_reset_refills_resources":false,"synthetic_negative_controls":true,"wall_seconds":13.014420,"boundary":"estimated nutritional intake-volume tracer; no solid food mechanics or whole-world restore"}
+ Evidence retained at /Users/n/Developer/numi-crow-rl-20261107/build/crow-foraging-c87d0e4fa4618942
+<end of output>
+Test time =  13.02 sec
+----------------------------------------------------------
+Test Passed.
+"metalrobo.crow.finite_resource" end time: Nov 07 14:29 CET
+"metalrobo.crow.finite_resource" time elapsed: 00:00:13
+----------------------------------------------------------
+
+End testing: Nov 07 14:29 CET
+
+crow =  13.02 sec*proc
+
+metalrobo =  13.02 sec*proc
+
+native =  13.02 sec*proc
+

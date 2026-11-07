@@ -1,0 +1,30 @@
+{
+  "status": "measured_unqualified",
+  "claim": "development-only feeding policy screen",
+  "records": [
+    {
+      "seed": 2651107001,
+      "mean_accepted_intake_utility_per_lane": 0.8749998956918716,
+      "fraction_of_available_food_utility": 0.19444442126486036,
+      "physical_terminations": 0,
+      "failed_physics_steps": 0
+    },
+    {
+      "seed": 2651107002,
+      "mean_accepted_intake_utility_per_lane": 0.8749998956918716,
+      "fraction_of_available_food_utility": 0.19444442126486036,
+      "physical_terminations": 0,
+      "failed_physics_steps": 0
+    },
+    {
+      "seed": 2651107003,
+      "mean_accepted_intake_utility_per_lane": 0.6874999180436134,
+      "fraction_of_available_food_utility": 0.15277775956524742,
+      "physical_terminations": 0,
+      "failed_physics_steps": 0
+    }
+  ],
+  "behavioral_policy_qualified": false,
+  "boundary": "canonical station; aggregate utility does not establish per-lane completion or learned memory",
+  "ecological_environment_qualified": false
+}

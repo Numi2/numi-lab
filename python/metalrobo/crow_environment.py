@@ -99,19 +99,24 @@ def execute(output: Path, name: str, command: list[str], root: Path, timeout: in
     started = time.monotonic()
     exit_code = None
     timed_out = False
+    interrupted = False
     with (output / f"{name}.json").open("x") as stdout, (output / f"{name}.stderr").open("x") as stderr:
         try:
             result = subprocess.run(command, cwd=root, stdout=stdout, stderr=stderr, timeout=timeout)
             exit_code = result.returncode
         except subprocess.TimeoutExpired:
             timed_out = True
+        except KeyboardInterrupt:
+            interrupted = True
     receipt = {
-        "command": command, "exit_code": exit_code, "timed_out": timed_out,
+        "command": command, "exit_code": exit_code, "timed_out": timed_out, "interrupted": interrupted,
         "wall_seconds": time.monotonic() - started,
         "stdout_sha256": sha(output / f"{name}.json"),
         "stderr_sha256": sha(output / f"{name}.stderr"),
     }
     write(output / f"{name}.receipt.json", receipt)
+    if interrupted:
+        raise KeyboardInterrupt("Native trial interrupted; retained receipt")
     if timed_out or exit_code != 0:
         raise RuntimeError(f"{name} failed; retained receipt and stderr in {output}")
     with (output / f"{name}.json").open() as handle:
@@ -446,6 +451,33 @@ def body_admission(root: Path, output: Path, profile: dict) -> dict:
             "ecological_environment_qualified": False}
 
 
+def validate_feeding_accounting(value: dict, envs: int, steps: int) -> dict:
+    accounting = value.get("finite_resource_accounting", {})
+    fields = ("remaining_micrograms", "crop_micrograms", "consumed_micrograms", "bite_count",
+              "initialized", "accepted_control_ticks")
+    arrays = {field: accounting.get(field + "_by_environment") for field in fields}
+    if any(not isinstance(array, list) or len(array) != envs for array in arrays.values()):
+        raise RuntimeError("Complete per-lane native finite-resource evidence is required")
+    for lane in range(envs):
+        row = {field: arrays[field][lane] for field in fields}
+        if any(type(item) is not int for item in row.values()):
+            raise RuntimeError("Resource evidence must retain integer micrograms and ticks")
+        consumed = row["consumed_micrograms"]
+        if (consumed not in (0, 20000, 40000, 45000) or row["remaining_micrograms"] + consumed != 45000
+            or row["crop_micrograms"] != consumed or row["bite_count"] != {0: 0, 20000: 1, 40000: 2, 45000: 3}[consumed]
+            or row["initialized"] != 1 or row["accepted_control_ticks"] != steps + 1):
+            raise RuntimeError("Native feeding inventory, crop, bites or accepted lifetime clock are inconsistent")
+    utility = sum(arrays["consumed_micrograms"]) * .0001 / envs
+    reported = (value.get("mean_reward"), value.get("outcomes", {}).get("accepted_intake_utility", {}).get("mean"))
+    if any(not isinstance(mean, (int, float)) or not math.isfinite(mean)
+           or abs(mean * steps - utility) > 3e-6 for mean in reported):
+        raise RuntimeError("Published food reward/outcome disagrees with accepted physical resource accounting")
+    return {"completed_lanes": arrays["consumed_micrograms"].count(45000),
+            "environment_count": envs, "complete_fraction": arrays["consumed_micrograms"].count(45000) / envs,
+            "mean_consumed_micrograms": sum(arrays["consumed_micrograms"]) / envs,
+            "mean_accepted_intake_utility_per_lane": utility}
+
+
 def feeding_probe(root: Path, output: Path, profile: dict) -> dict:
     import numpy as np
     records = []
@@ -479,13 +511,16 @@ def feeding_probe(root: Path, output: Path, profile: dict) -> dict:
         expected = 4.5 if bites and not miss else 0.0
         if abs(utility-expected)>2e-6 or abs(accepted-expected)>2e-6:
             raise RuntimeError(f"Feeding reward violates finite debit identity: {utility}, {accepted}, {expected}")
+        inventory = validate_feeding_accounting(value, 8, 448)
+        if inventory["mean_consumed_micrograms"] != (45000 if expected else 0):
+            raise RuntimeError("Authored feeding control has the wrong accepted inventory")
         if not miss and bites:
             fingerprints.append(value["policy_rollout_fingerprint"])
         records.append({"control": name, "action_stream_sha256": sha(stream),
                         "accepted_intake_utility_per_lane": utility,
                         "native_outcome_utility_per_lane": accepted,
                         "physical_terminations": value["termination_count"],
-                        "failed_physics_steps": value["failed_environment_steps"]})
+                        "failed_physics_steps": value["failed_environment_steps"], "inventory": inventory})
     if len(set(fingerprints)) != 1:
         raise RuntimeError("Feeding observations/rewards depend on submission partition")
     return {"status": "passed", "claim": "native feeding sensor/reward and finite-debit controls",
@@ -495,10 +530,16 @@ def feeding_probe(root: Path, output: Path, profile: dict) -> dict:
 
 
 def feeding_policy_probe(root: Path, output: Path, args: argparse.Namespace, profile: dict) -> dict:
+    from .mlx_policy_learning import read_policy_pack
+    policy = read_policy_pack(args.policy)
+    stochastic = bool(getattr(args, "stochastic", False))
+    if bool(policy.action_log_standard_deviation.size) != stochastic:
+        raise ValueError("Feeding screen requires the explicitly selected deterministic/stochastic PolicyPack mode")
+    envs = getattr(args, "environments", 32)
     rows=[]
     for seed in profile["development_seeds"]:
-        value=execute(output,f"seed-{seed}",rollout(root,"v12-feeding-station",32,1600,8,seed,0,args.policy),root,180)
-        validate_native(value,envs=32,steps=1600,seed=seed,policy=True,variant="v12-feeding-station")
+        value=execute(output,f"seed-{seed}",rollout(root,"v12-feeding-station",envs,1600,8,seed,0,args.policy),root,180)
+        validate_native(value,envs=envs,steps=1600,seed=seed,policy=True,variant="v12-feeding-station")
         if value.get("termination_count")!=0:
             raise RuntimeError("Feeding behavior screen requires a complete physically valid first horizon")
         utility=value["mean_reward"]*1600
@@ -506,11 +547,181 @@ def feeding_policy_probe(root: Path, output: Path, args: argparse.Namespace, pro
             raise RuntimeError("Deployed feeding reward exceeds the finite lifetime food budget")
         rows.append({"seed":seed,"mean_accepted_intake_utility_per_lane":utility,
                      "fraction_of_available_food_utility":utility/4.5,
-                     "physical_terminations":0,"failed_physics_steps":0})
+                     "physical_terminations":0,"failed_physics_steps":0,
+                     "inventory": validate_feeding_accounting(value, envs, 1600)})
     return {"status":"measured_unqualified","claim":"development-only feeding policy screen",
-            "records":rows,"behavioral_policy_qualified":False,
-            "boundary":"canonical station; aggregate utility does not establish per-lane completion or learned memory",
+            "records":rows,"behavioral_policy_qualified":False, "stochastic_policy": stochastic,
+            "boundary":"canonical station with per-lane finite inventory; no search, physical food handling or learned memory",
             "ecological_environment_qualified":False}
+
+
+def feeding_learning_campaign(root: Path, output: Path, profile: dict) -> dict:
+    """Bounded development experiment; each process is an independent lifetime.
+
+    Only policy/optimizer state crosses lifetimes. Native resource state is
+    never replenished at PPO update boundaries. This is not life-state resume.
+    """
+    paths = runtime(root)
+    if shutil.disk_usage(root).free < 150 * 1024**3:
+        raise RuntimeError("Feeding campaign requires 150 GiB free at admission")
+    active = capture(["ps", "-axo", "pid,comm"], root)
+    if any(line.rsplit("/", 1)[-1] in ("metalrobo_task_train", "metalrobo_task_rollout")
+           for line in active.splitlines()):
+        raise RuntimeError("Another native training/rollout worker is active")
+    write(output / "worker-admission.json", {"processes": active,
+          "free_disk_bytes": shutil.disk_usage(root).free})
+    started = time.monotonic()
+    records, screens = [], []
+    previous = None
+    for lifetime in range(1, 33):
+        if time.monotonic() - started > 1500:
+            raise RuntimeError("Campaign reached its prospective 1500-second admission bound")
+        if shutil.disk_usage(root).free < 110 * 1024**3:
+            raise RuntimeError("Campaign reached its 110 GiB free-space stopping floor")
+        directory = output / f"lifetime-{lifetime:02d}"
+        directory.mkdir()
+        command = [str(paths["train"]), "--metallib", str(paths["metallib"]),
+                   "--native-library", str(paths["library"]), "--mlx-python", sys.executable,
+                   "--python-root", str(root / "python"), "--birdflow-american-crow-journey",
+                   "--birdflow-journey-variant", "v12-feeding-station",
+                   "--envs", "512", "--steps", "128", "--updates", "4", "--chunk", "8",
+                   "--minimum-difficulty-band", "0", "--maximum-difficulty-band", "0",
+                   "--seed", str(2651108100 + lifetime), "--learner-seed", str(2651108200 + lifetime),
+                   "--update-epochs", "4", "--minibatch-size", "8192", "--learning-rate", "0.0001",
+                   "--fixed-learning-rate", "--initial-log-standard-deviation", "0",
+                   "--policy-pack", str(directory / "initial.policypack" if previous is None else previous / "updated.policypack"),
+                   "--updated-policy-pack", str(directory / "updated.policypack"),
+                   "--deployment-policy-pack", str(directory / "deployment.policypack"),
+                   "--incumbent-policy-pack", str(directory / "incumbent.policypack"),
+                   "--rollout-pack", str(directory / "final.rolloutpack"),
+                   "--output-learner-state", str(directory / "learner.safetensors")]
+        if previous is None:
+            command += ["--initialize-policy", "crow-feeding-development-campaign", "--zero-actor-output"]
+        else:
+            command += ["--learner-state", str(previous / "learner.safetensors")]
+        write(directory / "input-plan.json", {"command": command, "world_seed": 2651108100 + lifetime,
+              "learner_seed": 2651108200 + lifetime, "independent_new_finite_lifetime": True,
+              "restored_world": False, "source_learner_sha256": sha(previous / "learner.safetensors") if previous else None,
+              "source_policy_sha256": sha(previous / "updated.policypack") if previous else None})
+        value = execute(directory, "training", command, root, 90)
+        expected_initial_revision = records[-1]["final_revision"] if records else 1
+        expected = {"training_samples": 512 * 128 * 4, "failed_environment_steps": 0,
+                    "host_requested_resets": 0, "learner_state_restored": previous is not None,
+                    "birdflow_journey_variant": "v12-feeding-station", "visual_observation": False,
+                    "birdflow_journey_teacher": False, "initial_policy_revision": expected_initial_revision,
+                    "final_policy_revision": expected_initial_revision + 4}
+        if any(value.get(key) != target for key, target in expected.items()):
+            raise RuntimeError("Feeding campaign violated its native learner/lifetime contract")
+        history = value.get("learning_update_history", [])
+        if len(history) != 4:
+            raise RuntimeError("Complete per-update feeding metrics are required")
+        for index, update in enumerate(history):
+            if (update.get("samples") != 65536 or update.get("done_count") != 0 or update.get("timeout_count") != 0
+                or update.get("policy_revision_before") != expected_initial_revision + index
+                or update.get("policy_revision_after") != expected_initial_revision + index + 1):
+                raise RuntimeError("Feeding update omitted samples, ended a life, or changed revision unexpectedly")
+            reward = update.get("mean_reward")
+            intake = update.get("outcomes", {}).get("accepted_intake_utility", {}).get("mean")
+            if (not isinstance(reward, (int, float)) or not math.isfinite(reward) or reward < 0
+                or intake != reward or not 0 <= update.get("maximum_reward", math.inf) <= 2.000002):
+                raise RuntimeError("Feeding update has invalid accepted intake reward")
+        utility = sum(update["mean_reward"] * 128 for update in history)
+        if not 0 <= utility <= 4.500004:
+            raise RuntimeError("Training exceeded its finite 45 mg per-lane lifetime budget")
+        receipt = json.loads((directory / "training.receipt.json").read_text())
+        record = {"lifetime": lifetime, "mean_intake_utility_per_lane": utility,
+                  "fraction_of_available_food_utility": utility / 4.5,
+                  "initial_revision": expected_initial_revision, "final_revision": value["final_policy_revision"],
+                  "samples": value["training_samples"], "whole_process_steps_per_second": value["training_samples"] / receipt["wall_seconds"],
+                  "mlx_peak_memory_bytes": max(update["mlx_peak_memory_bytes"] for update in history),
+                  "learner_sha256": sha(directory / "learner.safetensors"),
+                  "deployment_sha256": sha(directory / "deployment.policypack")}
+        write(directory / "analysis.json", record)
+        records.append(record)
+        print(json.dumps({"feeding_lifetime": lifetime, **record}), file=sys.stderr, flush=True)
+        if lifetime == 1:
+            baseline = output / "baseline-screen"
+            baseline.mkdir()
+            result = feeding_policy_probe(root, baseline,
+                        argparse.Namespace(policy=directory / "incumbent.policypack"), profile)
+            write(baseline / "summary.json", result)
+            screens.append({"after_lifetimes": 0, **result})
+        if lifetime in (8, 16, 32):
+            screen = output / f"development-screen-{lifetime:02d}"
+            screen.mkdir()
+            result = feeding_policy_probe(root, screen,
+                        argparse.Namespace(policy=directory / "deployment.policypack"), profile)
+            write(screen / "summary.json", result)
+            screens.append({"after_lifetimes": lifetime, **result})
+            print(json.dumps({"development_screen": lifetime, "records": result["records"]}), file=sys.stderr, flush=True)
+        previous = directory
+    final_minimum = min(row["fraction_of_available_food_utility"] for row in screens[-1]["records"])
+    return {"status": "measured_unqualified", "claim": "bounded canonical-station PPO development experiment",
+            "prediction_supported": final_minimum >= .8, "predicted_minimum_final_food_fraction": .8,
+            "final_minimum_development_food_fraction": final_minimum,
+            "records": records, "development_screens": screens, "training_samples": 32 * 512 * 128 * 4,
+            "world_restore_tested": False, "qualification_conditions_used": False,
+            "behavioral_policy_qualified": False, "ecological_environment_qualified": False}
+
+
+def feeding_policy_comparison(root: Path, output: Path, args: argparse.Namespace, profile: dict) -> dict:
+    import numpy as np
+    from .mlx_policy_learning import read_policy_pack
+    sources = {"initial-deterministic": args.untrained_deployment_policy,
+               "initial-stochastic": args.untrained_policy,
+               "trained-deterministic": args.trained_deployment_policy,
+               "trained-stochastic": args.trained_policy}
+    packs = {name: read_policy_pack(path) for name, path in sources.items()}
+    for prefix in ("initial", "trained"):
+        deterministic, stochastic = (packs[prefix + "-" + mode] for mode in ("deterministic", "stochastic"))
+        if deterministic.action_log_standard_deviation.size or stochastic.action_log_standard_deviation.size != 18:
+            raise ValueError("Comparison requires explicitly deterministic and stochastic artifacts")
+        for key in CONTRACT + ("observation_clip", "action_clip"):
+            if getattr(deterministic, key) != getattr(stochastic, key):
+                raise ValueError("Policy modes do not share the same exact actor contract")
+        for key in ("observation_mean", "observation_inverse_standard_deviation", "action_bias", "action_scale"):
+            if not np.array_equal(getattr(deterministic, key), getattr(stochastic, key)):
+                raise ValueError("Policy modes changed actor normalization or action transforms")
+        if len(deterministic.layers) != len(stochastic.layers):
+            raise ValueError("Policy modes changed actor architecture")
+        for left, right in zip(deterministic.layers, stochastic.layers):
+            if (left.input_count != right.input_count or left.output_count != right.output_count
+                or left.activation != right.activation or not np.array_equal(left.weights, right.weights)
+                or not np.array_equal(left.bias, right.bias)):
+                raise ValueError("Policy modes changed actor coefficients")
+    initial = packs["initial-deterministic"]
+    if np.any(initial.layers[-1].weights) or np.any(initial.layers[-1].bias):
+        raise ValueError("The untrained control must retain the original zero-output actor")
+    if any(getattr(initial, key) != getattr(packs["trained-stochastic"], key) for key in CONTRACT):
+        raise ValueError("Initial and trained policies do not belong to the same task")
+    write(output / "actor-mode-admission.json", {name: {
+        "path": str(sources[name].resolve()), "sha256": sha(sources[name]), "revision": pack.revision,
+        "stochastic": bool(pack.action_log_standard_deviation.size),
+        "standard_deviation": np.exp(pack.action_log_standard_deviation).tolist(),
+        "contract": {key: getattr(pack, key) for key in CONTRACT}} for name, pack in packs.items()})
+    order = ("initial-deterministic", "trained-stochastic", "initial-stochastic", "trained-deterministic")
+    rows = []
+    for index, seed in enumerate((2651108401, 2651108402, 2651108403)):
+        for name in order[index:] + order[:index]:
+            directory = output / f"seed-{seed}" / name
+            directory.mkdir(parents=True)
+            result = feeding_policy_probe(root, directory,
+                argparse.Namespace(policy=sources[name], stochastic=name.endswith("-stochastic"), environments=512),
+                profile | {"development_seeds": [seed]})
+            row = {"arm": name, **result["records"][0]}
+            rows.append(row)
+            write(directory / "analysis.json", row)
+            print(json.dumps(row), file=sys.stderr, flush=True)
+    candidate = [row for row in rows if row["arm"] == "trained-stochastic"]
+    null = [row for row in rows if row["arm"] == "initial-stochastic"]
+    prediction_supported = (all(row["inventory"]["complete_fraction"] >= .95 for row in candidate)
+                            and all(row["inventory"]["complete_fraction"] <= .30 for row in null))
+    return {"status": "measured_unqualified", "claim": "frozen-policy canonical feeding comparison",
+            "prediction_supported": prediction_supported, "records": rows,
+            "native_trajectories": 12 * 512, "accepted_test_transitions": 12 * 512 * 1600,
+            "independently_trained_candidates": 1, "behavioral_policy_qualified": False,
+            "boundary": "simulation feeding primitive; estimated supported body, fixed intake tracer, no search or solid food manipulation",
+            "ecological_environment_qualified": False}
 
 
 def main() -> int:
@@ -524,9 +735,17 @@ def main() -> int:
     commands.add_parser("body-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("foraging-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("feeding-probe").add_argument("--output", type=Path, required=True)
+    commands.add_parser("feeding-learning-campaign").add_argument("--output", type=Path, required=True)
     feeding_policy=commands.add_parser("feeding-policy-probe")
     feeding_policy.add_argument("--output",type=Path,required=True)
     feeding_policy.add_argument("--policy",type=Path,required=True)
+    feeding_policy.add_argument("--stochastic", action="store_true")
+    feeding_policy.add_argument("--environments", type=int, choices=(32, 512), default=32)
+    comparison = commands.add_parser("feeding-policy-comparison")
+    comparison.add_argument("--output", type=Path, required=True)
+    comparison.add_argument("--calibration", type=Path, required=True)
+    for name in ("untrained-policy", "untrained-deployment-policy", "trained-policy", "trained-deployment-policy"):
+        comparison.add_argument("--" + name, type=Path, required=True)
     init = commands.add_parser("bootstrap")
     init.add_argument("--output", type=Path, required=True)
     init.add_argument("--source-policy", type=Path, required=True)
@@ -575,6 +794,49 @@ def main() -> int:
         plan["source_policy_sha256"] = sha(source.resolve(strict=True)) if source else None
     if args.command == "partition-probe":
         plan["base_policy_sha256"] = sha(args.base_policy.resolve(strict=True))
+    if args.command == "feeding-learning-campaign":
+        plan.update({"purpose": "development exploration; no qualification claim",
+          "question": "Does longer PPO learning produce deterministic feeding instead of reward from random jaw closures?",
+          "model_revision": "fresh zero-output MLP, unit exploration, four PPO epochs per update",
+          "previous_evidence": "crow-rl-feeding-task-20261107: three updates deploy with zero food despite stochastic reward",
+          "prediction": "Final deterministic policy consumes at least 80% of finite food utility on each of three development seeds",
+          "refutation": "Any final development seed below 80% contradicts this bounded training prediction",
+          "control": "initial zero-output policy, identical canonical station and development seeds, 32 lanes and 1600 steps",
+          "unit": "one independent learner trajectory; 32 finite-world training lifetimes are correlated learning exposures, not independent trained agents",
+          "budget": {"lifetimes": 32, "envs": 512, "steps_per_update": 128, "updates_per_lifetime": 4,
+                     "total_transitions": 8388608, "world_seeds": [2651108101, 2651108132],
+                     "learner_seeds": [2651108201, 2651108232], "food_mg_per_lane_lifetime": 45},
+          "analysis": "all lifetime reward sums constrained to [0,4.5] utility/lane; report all screens, no inferential population interval",
+          "validity": "zero device failures, physical terminations and resets; complete update history/revisions; native finite ledger; no teacher",
+          "stopping": "exactly 32 lifetimes; no success-driven extension; stop on invalidity, per-process 90s timeout, 1500s admission bound or free space below 110GiB",
+          "unused": "qualification seeds/layouts remain untouched; future independent learner replicates required"})
+    if args.command == "feeding-policy-comparison":
+        calibration = json.loads((args.calibration / "summary.json").read_text())
+        calibration_plan = json.loads((args.calibration / "plan.json").read_text())
+        if calibration.get("status") != "passed" or len(calibration.get("records", [])) != 4:
+            raise ValueError("Feeding comparison requires passed native inventory controls")
+        for name in ("rollout", "library", "metallib"):
+            if calibration_plan["preflight"]["inputs"][name]["sha256"] != checked["inputs"][name]["sha256"]:
+                raise ValueError("Feeding calibration does not bind the current native runtime")
+        plan.update({"purpose": "development mechanism comparison on unused seed identities; one frozen trained candidate",
+          "parent_attempt": "20261107-feeding-learning-campaign-01: interrupted invalid deterministic baseline; eight completed learning lifetimes",
+          "source_policies": {name: {"path": str(getattr(args, name).resolve(strict=True)), "sha256": sha(getattr(args, name))}
+                              for name in ("untrained_policy", "untrained_deployment_policy", "trained_policy", "trained_deployment_policy")},
+          "calibration": {"path": str(args.calibration.resolve()), "summary_sha256": sha(args.calibration / "summary.json"),
+                          "plan_sha256": sha(args.calibration / "plan.json")},
+          "question": "Has learning improved stochastic feeding reliability, or is positive intake explained by untrained exploration alone?",
+          "prediction": "Trained stochastic actor depletes all 45 mg in at least 95% of lanes on EACH seed; initial stochastic actor completes at most 30%",
+          "refutation": "Any seed outside either interval contradicts the prediction; deterministic modes are separately reported diagnostic controls",
+          "control": "initial and trained actors each tested with explicit deterministic and stochastic artifacts; each mode pair has bit-identical actor coefficients",
+          "unit": "6,144 trajectories, 512 lanes per arm/seed; one trained agent, not 6,144 independent learned animals",
+          "conditions": {"seeds": [2651108401,2651108402,2651108403], "steps":1600, "dt_seconds":.02,
+                         "food_micrograms_per_lane":45000, "arms":4, "additional_learning_updates":0},
+          "order": "per-seed cyclic rotation of initial deterministic, trained stochastic, initial stochastic, trained deterministic",
+          "analysis": "per-lane integer inventory/crop/bites/clock conservation and reward agreement; all per-seed completion fractions and mass, no population generalization",
+          "validity": "passed native positive/null/partition inventory calibration, exact actor-mode identities, zero device errors/physical ends/resets",
+          "stopping": "exactly twelve native runs; 180s timeout per run; abort invalidity; no retry, extra learning, or promotion",
+          "limitations": "policy revision changes random key; same seed identifies matched world conditions but does not create identical stochastic noise across policy revisions; learned variance is part of the tested policy",
+          "unused": "original qualification seeds/layouts remain unspent"})
     write(output / "plan.json", plan)
     try:
         if args.command == "probe":
@@ -589,6 +851,10 @@ def main() -> int:
             result = feeding_probe(root, output, profile)
         elif args.command == "feeding-policy-probe":
             result = feeding_policy_probe(root,output,args,profile)
+        elif args.command == "feeding-learning-campaign":
+            result = feeding_learning_campaign(root,output,profile)
+        elif args.command == "feeding-policy-comparison":
+            result = feeding_policy_comparison(root,output,args,profile)
         elif args.command == "foraging-admission":
             result = execute(output, "foraging-ledger", [str(runtime(root)["foraging_check"]),
                              str(output / "native-evidence")], root, 180)
@@ -607,7 +873,7 @@ def main() -> int:
         write(output / "summary.json", result)
         print(json.dumps({"output": str(output), **result}, indent=2))
         return 0 if result["status"] != "rejected" else 2
-    except Exception as error:
+    except (Exception, KeyboardInterrupt) as error:
         write(output / "failure.json", {"error": str(error), "type": type(error).__name__})
         raise
 
