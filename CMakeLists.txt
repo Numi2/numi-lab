@@ -1221,6 +1221,13 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
         INSTALL_RPATH "@loader_path/../lib"
 )
+if(BUILD_TESTING)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME metalrobo.benchmark.accounting
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/benchmark_accounting_test.py")
+    set_tests_properties(metalrobo.benchmark.accounting PROPERTIES
+        LABELS "benchmark;accounting;cpu" TIMEOUT 30)
+endif()
 
 add_executable(metalrobo_tactile_check apps/tactile_check.cpp)
 target_link_libraries(metalrobo_tactile_check PRIVATE metalrobo)
