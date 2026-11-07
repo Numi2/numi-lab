@@ -1,0 +1,13 @@
+{
+  "commit": "c79f949fcc0f5ebfda5f021274ae323a8a5cc5a9",
+  "source_sha256": "726dbf72ff85ceec348df396b6a26c4db90583bc7843d8c8303035d6580f96bb",
+  "cmd": [
+    "/private/tmp/numi-fem-py313b-20261107/bin/python",
+    "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_p2_dynamics.py",
+    "check"
+  ],
+  "exit": 0,
+  "seconds": 0.1536650000489317,
+  "output_sha256": "17ccc6e5a682258c39dd470759b76103ce4012b063ab467ddab08a0b92358b8f",
+  "pass": true
+}

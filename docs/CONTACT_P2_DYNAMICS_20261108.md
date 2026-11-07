@@ -27,3 +27,17 @@ impulse, contact work, quadrature-point clearance, global momentum and
 spatial refinement gates before execution. Use the unchanged 0.25% dynamic
 force-bin and integrated-impulse thresholds. Do not infer hard-contact,
 replay, production or physical-material qualification.
+
+## Fixed-state prerequisite result
+
+All checks passed. Consistent mass was 0.0088 kg (relative error 1.97e-16),
+its smallest eigenvalue 4.07e-6 kg, and uniform gravity acceleration error
+4.17e-15 relative. The maximum total-energy directional-derivative error was
+1.81e-8; active contact-power error was 1.83e-9. Order-8 versus order-12
+contact force differed by 7.24e-13 in total and 3.45e-10 in the nodal L2
+norm. Sampled quadrature gaps and element Jacobians stayed positive in both
+test states.
+
+[Evidence](evidence/contact-p2-dynamics-checks-20261108/) retains the
+exact source, inputs, raw checks and result. This is not a dynamic or
+geometric-clearance certificate between quadrature points.
