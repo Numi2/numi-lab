@@ -598,3 +598,17 @@ therefore is a distinct build and cannot establish the exact predicate in the
 original dylib. The original outcome remains retained. Source diff, link and
 compile commands, object-recheck output, stage logs, and hashes are preserved;
 no step or publication was accepted.
+
+A separately linked field-level diagnostic ran at 23:28:52 UTC, exit 1,
+with dylib SHA-256
+`e303f8c865c8283228984ba4393c5e59eeeaaf383af4a58b030dee7cd830e308`
+and 32-input manifest SHA-256
+`cf7cfa8f73971bc04f6114b945fcb168cd51616c605f1c5ac861caef822a32ee`.
+Both input checks passed. The callback received ABI 6 (expected 6), reserved 0,
+and phase-0 flags 3 (expected 3), but a 720-byte pass while the validator
+expected `sizeof` the current 896-byte struct. The owner uses
+`metalNumanXTransactionPassStructSizeForABI` to derive the ABI 6 prefix; the
+HumanIO validator compares it to the full struct size after newer appended
+fields. This identifies the rejected predicate in this separate diagnostic build;
+the previously recorded changed TaskProgram object remains a provenance limit.
+No validation was relaxed, and no physical step or publication was accepted.

@@ -1,0 +1,32 @@
+--- /Users/numi/numi-lab-release-integration-20261107/src/metal/MetalNumanXHumanIO.mm	2026-11-07 14:08:34
++++ /Users/numi/numi-v5-admission-artifacts-20261107/MetalNumanXHumanIO-contract-diagnostic.mm	2026-11-07 15:28:37
+@@ -1,3 +1,5 @@
++#include <cstdio>
++#include <cstdlib>
+ #include "HumanHostPhaseTrace.hpp"
+ #import <Foundation/Foundation.h>
+ #import <Metal/Metal.h>
+@@ -285,6 +287,10 @@
+     const MetalNumanXHumanIOStatus status,
+     std::string message
+ ) {
++    if (std::getenv("MRNX_PHYSICAL_DIAGNOSTICS") != nullptr) {
++        std::fprintf(stderr, "human_io_failure status=%u reason=%s\n",
++            static_cast<unsigned>(status), message.c_str());
++    }
+     state.lastStatus = status;
+     state.lastMessage = std::move(message);
+ }
+@@ -2619,6 +2625,12 @@
+     if (pass.abiVersion != kMetalNumanXTransactionABIVersion ||
+         pass.structSize != sizeof(MetalNumanXTransactionPass) ||
+         pass.reserved0 != 0u || pass.accessFlags != expectedAccessFlags) {
++        if (std::getenv("MRNX_PHYSICAL_DIAGNOSTICS") != nullptr) {
++            std::fprintf(stderr, "human_io_contract abi=%u expected_abi=%u size=%u expected_size=%zu reserved=%u phase=%u flags=%u expected_flags=%u\n",
++                pass.abiVersion, kMetalNumanXTransactionABIVersion, pass.structSize,
++                sizeof(MetalNumanXTransactionPass), pass.reserved0,
++                static_cast<unsigned>(pass.phase), pass.accessFlags, expectedAccessFlags);
++        }
+         reason = "transaction pass ABI, size, reserved field, or phase access contract is incompatible";
+         return false;
+     }
