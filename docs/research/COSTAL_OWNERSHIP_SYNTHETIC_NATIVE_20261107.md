@@ -217,3 +217,25 @@ articulated-owner q/v/MyoSim snapshot was restored and no next step was
 continued from the committed state. This is not complete owner restoration,
 force calibration, native v5 construction, an anatomical thorax or a
 physiological breathing result.
+
+## Two-step device-resident continuation
+
+The `--continue` probe, source SHA-256
+`7f8ac65a15eb9653fb2fe1623b3a1e9d12315c4fd80fb02f614213b2a462d1a4`
+and executable SHA-256
+`59759648d9ecf1b5d7cbfbc637d5d993822ae005e2ca9f0b414974981419ea64`,
+passed on Apple M6 using the same 155-body synthetic owner and binaries above.
+After its first accepted, published step, it named the preceding transaction
+and generation and submitted a second step in the same owner and Matter
+contexts without host q/v/MyoSim reset. Both synthetic Brain witness/ACK
+transactions published exactly once. The second step had maximum FEM
+movement 0.000359071 m relative to its own starting snapshot. Its raw Human
+attachment forces were (-0.000504344, -0.000446525, -0.000505431) N at node
+0/body 1 and (0.000479609, 0.0000150794, 0.00000956645) N at node 1/body 2;
+magnitudes were 0.000842145 N and 0.000479941 N. Generalized reaction L1 was
+0.000221391 and its joint-6 component was -0.00000258352.
+
+The earlier independent force-reject test restored its Matter authority, but
+it was not a rejection following this two-step run. This result establishes
+only two consecutive synthetic native owner steps, not sustained loading,
+force calibration, native v5 admission or anatomical fidelity.

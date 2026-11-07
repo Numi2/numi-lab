@@ -11,7 +11,7 @@ struct CostalReplayEvidence {
 };
 void verifyCostalOwnerIntegration(id<MTLDevice> device, bool accept,
     const numi::matter::RuntimeStateSnapshot* initialRestore=nullptr,
-    CostalReplayEvidence* evidence=nullptr) {
+    CostalReplayEvidence* evidence=nullptr, bool continueStep=false) {
     auto model = owner_fixture::makeHumanModel();
     std::fill(model.defaultV.begin(), model.defaultV.end(), 0.0f);
     const auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
@@ -156,6 +156,13 @@ void verifyCostalOwnerIntegration(id<MTLDevice> device, bool accept,
     transaction.physicsGeneration = 1u;
     transaction.linearizationEpoch = 0x4705u;
     transaction.slotGeneration = 1u;
+    const metalrobo::MetalArticulatedOperatorConfig ownerConfig{
+        .pointJacobiansOnly = true,
+        .mujocoActivationTimestepSeconds = matter.timestepSeconds(),
+        .metallibPath = NUMANX_ADAPTER_METALLIB,
+    };
+    metalrobo::MetalArticulatedOperatorContext owner(ownerConfig);
+    for (unsigned iteration=0; iteration<(continueStep?2u:1u); ++iteration) {
     const auto program = adapter.program(transaction);
     require(program.valid(), "integrated owner adapter program is invalid");
 
@@ -191,13 +198,12 @@ void verifyCostalOwnerIntegration(id<MTLDevice> device, bool accept,
     input.stand.tendonBindings = tendonBindings;
     input.stand.tendonLoadProgram = tendonAdapter.program();
     input.stand.numanXHumanMatterProgram = program;
-    const metalrobo::MetalArticulatedOperatorConfig ownerConfig{
-        .pointJacobiansOnly = true,
-        .mujocoActivationTimestepSeconds = matter.timestepSeconds(),
-        .metallibPath = NUMANX_ADAPTER_METALLIB,
-    };
-    metalrobo::MetalArticulatedOperatorContext owner(ownerConfig);
-    if(initialRestore != nullptr) {
+    if(iteration!=0) {
+        input.residentContinuation.previousTransactionFingerprint=0x4702u;
+        input.residentContinuation.previousPhysicsGeneration=1u;
+        input.q={};input.v={};input.rootTranslations={};input.stand.v={};input.mujoco.states={};
+    }
+    if(initialRestore != nullptr && iteration==0) {
         require(matter.restore(*initialRestore).encoded, "initial Matter restore failed");
         require(equalAcceptedAuthority(*initialRestore,matter.snapshot()), "restored initial authority differs");
     }
@@ -368,8 +374,9 @@ void verifyCostalOwnerIntegration(id<MTLDevice> device, bool accept,
                 "accepted HumanIO was not published exactly once");
         const auto adapterSnapshot=tendonAdapter.snapshot();
         require(adapterSnapshot.available, "accepted tendon adapter snapshot missing");
-        require(matter.restore(after).encoded && equalAcceptedAuthority(after,matter.snapshot()),
-                "committed Matter restoration differed");
+        if(!continueStep || iteration!=0)
+            require(matter.restore(after).encoded && equalAcceptedAuthority(after,matter.snapshot()),
+                    "committed Matter restoration differed");
         require(tendonAdapter.restore(adapterSnapshot).succeeded(), "committed tendon adapter restore failed");
         const auto adapterReplay=tendonAdapter.snapshot();
         require(adapterReplay.available && adapterReplay.authoritySHA256==adapterSnapshot.authoritySHA256,
@@ -378,7 +385,13 @@ void verifyCostalOwnerIntegration(id<MTLDevice> device, bool accept,
             evidence->initial=before;evidence->accepted=after;
             std::copy_n(r,2,evidence->reactions.begin());std::copy_n(gf,160,evidence->generalized.begin());
         }
-        std::cout<<"PASS accepted costal owner displacement_m="<<move<<" reactions_n="<<r0<<","<<r1<<" synthetic_brain_witness=1\n";
+        std::cout<<"PASS accepted costal owner step="<<iteration<<" displacement_m="<<move<<" reactions_n="<<r0<<","<<r1<<" synthetic_brain_witness=1\n";
+        if(continueStep && iteration==0) {
+            ++transaction.controlStep;++transaction.physicsGeneration;++transaction.slotGeneration;
+            ++transaction.transactionFingerprint;++transaction.substepFingerprint;++transaction.linearizationEpoch;
+            transaction.acceptedTimestampMicroseconds += 4167;
+            continue;
+        }
         return;
     }
 
@@ -532,6 +545,7 @@ void verifyCostalOwnerIntegration(id<MTLDevice> device, bool accept,
             tendonDiagnostics.encodedPassCount == 1u,
         "deferred tendon/FEM path opened a duplicate Runtime lifecycle or "
         "lost its exact force-view borrows");
+    }
 }
 
 } // namespace adapter_fixture
@@ -542,7 +556,8 @@ int main(int argc, const char** argv) {
       adapter_fixture::require(device != nil, "Metal device unavailable");
       const bool accept=argc==2 && std::string(argv[1])=="--accept";
       const bool replay=argc==2 && std::string(argv[1])=="--replay";
-      adapter_fixture::require(argc==1 || accept || replay,"usage: owner_probe [--accept|--replay]");
+      const bool continuation=argc==2 && std::string(argv[1])=="--continue";
+      adapter_fixture::require(argc==1 || accept || replay || continuation,"usage: owner_probe [--accept|--replay|--continue]");
       if(replay) {
         adapter_fixture::CostalReplayEvidence first, second;
         adapter_fixture::verifyCostalOwnerIntegration(device,true,nullptr,&first);
@@ -551,8 +566,8 @@ int main(int argc, const char** argv) {
         adapter_fixture::require(!std::memcmp(first.reactions.data(),second.reactions.data(),sizeof(first.reactions)),"reaction replay differs");
         adapter_fixture::require(!std::memcmp(first.generalized.data(),second.generalized.data(),sizeof(first.generalized)),"generalized reaction replay differs");
         std::cout<<"PASS committed Matter and adapter restore; initial-state replay Matter authority and forces bitwise\n";
-      } else adapter_fixture::verifyCostalOwnerIntegration(device,accept);
-      if(!accept && !replay) std::cout << "PASS costal two-owner real NumanX force-reject synthetic chain\n";
+      } else adapter_fixture::verifyCostalOwnerIntegration(device,accept || continuation,nullptr,nullptr,continuation);
+      if(!accept && !replay && !continuation) std::cout << "PASS costal two-owner real NumanX force-reject synthetic chain\n";
       return 0;
     } catch(const std::exception& e) {
       std::cerr << "costal real-owner probe FAILED: " << e.what() << "\n";
