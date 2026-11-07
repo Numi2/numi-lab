@@ -1,0 +1,3533 @@
+{
+  "base_commit": "b91c92f29d36934c619a8073212bcfa46c64c477",
+  "files": [
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094358214802982,
+      "path": ".numi/runs/american-crow/calibration.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1214,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/365904e93ee4253a947a36b07c88dd921c6eaad408385bdd66aeefda658e64ee.gz",
+            "sha256": "365904e93ee4253a947a36b07c88dd921c6eaad408385bdd66aeefda658e64ee"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1214,
+      "mode": 420,
+      "mtime_ns": 1794094359956911987,
+      "path": ".numi/runs/american-crow/calibration.stdout",
+      "sha256": "365904e93ee4253a947a36b07c88dd921c6eaad408385bdd66aeefda658e64ee"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2928,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/5d0e2c25929f636275c2a06069ab3076a886c22db4ded59cefd8a41679f2a416.gz",
+            "sha256": "5d0e2c25929f636275c2a06069ab3076a886c22db4ded59cefd8a41679f2a416"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2928,
+      "mode": 420,
+      "mtime_ns": 1794094357953136720,
+      "path": ".numi/runs/american-crow/calibration_run_01.py",
+      "sha256": "5d0e2c25929f636275c2a06069ab3076a886c22db4ded59cefd8a41679f2a416"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094108457524220,
+      "path": ".numi/runs/american-crow/learning-diagnostic.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2177,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/22e7eafeabc22b5bed220bf60dd938f2529ed35086839d013360d43a0efea32f.gz",
+            "sha256": "22e7eafeabc22b5bed220bf60dd938f2529ed35086839d013360d43a0efea32f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2177,
+      "mode": 420,
+      "mtime_ns": 1794094109206035955,
+      "path": ".numi/runs/american-crow/learning-diagnostic.stdout",
+      "sha256": "22e7eafeabc22b5bed220bf60dd938f2529ed35086839d013360d43a0efea32f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 7131,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/5cb13e4977583f2f06f03d90caf976b123328c1b19bcfd18c7f98138fde53cc8.gz",
+            "sha256": "5cb13e4977583f2f06f03d90caf976b123328c1b19bcfd18c7f98138fde53cc8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 7131,
+      "mode": 420,
+      "mtime_ns": 1794094108245049444,
+      "path": ".numi/runs/american-crow/learning_diagnostic_01.py",
+      "sha256": "5cb13e4977583f2f06f03d90caf976b123328c1b19bcfd18c7f98138fde53cc8"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094611654163999,
+      "path": ".numi/runs/american-crow/normalization-campaign.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4078,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/ea5ed416a1f504600a71c3bbffe50d24e40d539ae5d467ceab0839d0e590980c.gz",
+            "sha256": "ea5ed416a1f504600a71c3bbffe50d24e40d539ae5d467ceab0839d0e590980c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4078,
+      "mode": 420,
+      "mtime_ns": 1794094940737865758,
+      "path": ".numi/runs/american-crow/normalization-campaign.stdout",
+      "sha256": "ea5ed416a1f504600a71c3bbffe50d24e40d539ae5d467ceab0839d0e590980c"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094484415361566,
+      "path": ".numi/runs/american-crow/normalization-diagnostic.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 868,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/a9d24cb7641c86bb166617dc3ef85213b6730f25c1e4136fe262e47fbfd37a93.gz",
+            "sha256": "a9d24cb7641c86bb166617dc3ef85213b6730f25c1e4136fe262e47fbfd37a93"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 868,
+      "mode": 420,
+      "mtime_ns": 1794094484717288421,
+      "path": ".numi/runs/american-crow/normalization-diagnostic.stdout",
+      "sha256": "a9d24cb7641c86bb166617dc3ef85213b6730f25c1e4136fe262e47fbfd37a93"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094979584279482,
+      "path": ".numi/runs/american-crow/normalization-final-resume.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 520,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/994bb860ec7778fa9622e1833802b18e53570336e980c86e967648407beff0a8.gz",
+            "sha256": "994bb860ec7778fa9622e1833802b18e53570336e980c86e967648407beff0a8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 520,
+      "mode": 420,
+      "mtime_ns": 1794094991694636971,
+      "path": ".numi/runs/american-crow/normalization-final-resume.stdout",
+      "sha256": "994bb860ec7778fa9622e1833802b18e53570336e980c86e967648407beff0a8"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094802591528052,
+      "path": ".numi/runs/american-crow/normalization-negative-v2.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 74,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/85fad947f0ac0f4524073e5027f9e10e2a16fb1cdfbee425dc95f790fa13144c.gz",
+            "sha256": "85fad947f0ac0f4524073e5027f9e10e2a16fb1cdfbee425dc95f790fa13144c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 74,
+      "mode": 420,
+      "mtime_ns": 1794094802956141442,
+      "path": ".numi/runs/american-crow/normalization-negative-v2.stdout",
+      "sha256": "85fad947f0ac0f4524073e5027f9e10e2a16fb1cdfbee425dc95f790fa13144c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 505,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/486a6279531008aa2c07f9da1f033f3cfb800c2c512b9a7155a1edb25d634355.gz",
+            "sha256": "486a6279531008aa2c07f9da1f033f3cfb800c2c512b9a7155a1edb25d634355"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 505,
+      "mode": 420,
+      "mtime_ns": 1794094739799576345,
+      "path": ".numi/runs/american-crow/normalization-negative.stderr",
+      "sha256": "486a6279531008aa2c07f9da1f033f3cfb800c2c512b9a7155a1edb25d634355"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094739102386657,
+      "path": ".numi/runs/american-crow/normalization-negative.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 101,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/372ee57a30b8a8b17bb056a0814266786a922da7dcf4139f4f9a2457745d6424.gz",
+            "sha256": "372ee57a30b8a8b17bb056a0814266786a922da7dcf4139f4f9a2457745d6424"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 101,
+      "mode": 420,
+      "mtime_ns": 1794094549017530668,
+      "path": ".numi/runs/american-crow/normalization-tests-final.stderr",
+      "sha256": "372ee57a30b8a8b17bb056a0814266786a922da7dcf4139f4f9a2457745d6424"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094548971269332,
+      "path": ".numi/runs/american-crow/normalization-tests-final.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 101,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/372ee57a30b8a8b17bb056a0814266786a922da7dcf4139f4f9a2457745d6424.gz",
+            "sha256": "372ee57a30b8a8b17bb056a0814266786a922da7dcf4139f4f9a2457745d6424"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 101,
+      "mode": 420,
+      "mtime_ns": 1794094358207733193,
+      "path": ".numi/runs/american-crow/normalization-tests.stderr",
+      "sha256": "372ee57a30b8a8b17bb056a0814266786a922da7dcf4139f4f9a2457745d6424"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094358151220751,
+      "path": ".numi/runs/american-crow/normalization-tests.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094419743974823,
+      "path": ".numi/runs/american-crow/normalization-training.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 455,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/00ebcc7f0745b41ff6914e6ac37e0352a6421d61dd7ac0f4fe9a30505687fe1d.gz",
+            "sha256": "00ebcc7f0745b41ff6914e6ac37e0352a6421d61dd7ac0f4fe9a30505687fe1d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 455,
+      "mode": 420,
+      "mtime_ns": 1794094438057595658,
+      "path": ".numi/runs/american-crow/normalization-training.stdout",
+      "sha256": "00ebcc7f0745b41ff6914e6ac37e0352a6421d61dd7ac0f4fe9a30505687fe1d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 6758,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/80ed61016310b167ff8a85fd95fce0192a46f8eceeb534282686fc4338d25686.gz",
+            "sha256": "80ed61016310b167ff8a85fd95fce0192a46f8eceeb534282686fc4338d25686"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 6758,
+      "mode": 420,
+      "mtime_ns": 1794095090196532033,
+      "path": ".numi/runs/american-crow/normalization_archive_01.py",
+      "sha256": "80ed61016310b167ff8a85fd95fce0192a46f8eceeb534282686fc4338d25686"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 3410,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d4310fca15e6d37a7858c4b0fa5810b6731c62cd045096e6bd316e4935acf28a.gz",
+            "sha256": "d4310fca15e6d37a7858c4b0fa5810b6731c62cd045096e6bd316e4935acf28a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 3410,
+      "mode": 420,
+      "mtime_ns": 1794094611447229695,
+      "path": ".numi/runs/american-crow/normalization_campaign_01.py",
+      "sha256": "d4310fca15e6d37a7858c4b0fa5810b6731c62cd045096e6bd316e4935acf28a"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 3804,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/92fb441e4fa4cc1b3006ecbadf863be818605b1ca66ffbf6a513e995245ec84d.gz",
+            "sha256": "92fb441e4fa4cc1b3006ecbadf863be818605b1ca66ffbf6a513e995245ec84d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 3804,
+      "mode": 420,
+      "mtime_ns": 1794094484153110769,
+      "path": ".numi/runs/american-crow/normalization_diagnostic_01.py",
+      "sha256": "92fb441e4fa4cc1b3006ecbadf863be818605b1ca66ffbf6a513e995245ec84d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4080,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/b89d968d1d76661fd8f1ed4e3a016c64519528e547fe991039ef07ac752bf3b2.gz",
+            "sha256": "b89d968d1d76661fd8f1ed4e3a016c64519528e547fe991039ef07ac752bf3b2"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4080,
+      "mode": 420,
+      "mtime_ns": 1794094927243436239,
+      "path": ".numi/runs/american-crow/normalization_final_resume_01.py",
+      "sha256": "b89d968d1d76661fd8f1ed4e3a016c64519528e547fe991039ef07ac752bf3b2"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2139,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d2ec82d6e1fd2da035d47de00efa08dd31aca5417dd6f70e246d0e4f7a7ab157.gz",
+            "sha256": "d2ec82d6e1fd2da035d47de00efa08dd31aca5417dd6f70e246d0e4f7a7ab157"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2139,
+      "mode": 420,
+      "mtime_ns": 1794094738928558920,
+      "path": ".numi/runs/american-crow/normalization_negative_01.py",
+      "sha256": "d2ec82d6e1fd2da035d47de00efa08dd31aca5417dd6f70e246d0e4f7a7ab157"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2147,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/14278e2b0c283bc8b9e85b3e2698f24664add0cfb1075efe6bd9b4df9f3159ce.gz",
+            "sha256": "14278e2b0c283bc8b9e85b3e2698f24664add0cfb1075efe6bd9b4df9f3159ce"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2147,
+      "mode": 420,
+      "mtime_ns": 1794094802414368842,
+      "path": ".numi/runs/american-crow/normalization_negative_v2.py",
+      "sha256": "14278e2b0c283bc8b9e85b3e2698f24664add0cfb1075efe6bd9b4df9f3159ce"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4309,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/e2991ea532b9fe98d6c13527fcf57110f1ba61e9e911bac23987cbf9c2e381de.gz",
+            "sha256": "e2991ea532b9fe98d6c13527fcf57110f1ba61e9e911bac23987cbf9c2e381de"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4309,
+      "mode": 420,
+      "mtime_ns": 1794094419537486983,
+      "path": ".numi/runs/american-crow/normalization_training_01.py",
+      "sha256": "e2991ea532b9fe98d6c13527fcf57110f1ba61e9e911bac23987cbf9c2e381de"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 614,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/630a0a79e83a79a21fbdc0636bd6be04f0d7eb25601127d35cd264e8fb0b2809.gz",
+            "sha256": "630a0a79e83a79a21fbdc0636bd6be04f0d7eb25601127d35cd264e8fb0b2809"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 614,
+      "mode": 420,
+      "mtime_ns": 1794094979657793246,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/plan.json",
+      "sha256": "630a0a79e83a79a21fbdc0636bd6be04f0d7eb25601127d35cd264e8fb0b2809"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 26613,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/e32047491a99f2807d0facf14c66d03cb113784ce474b8e7bd59e1990daedc2b.gz",
+            "sha256": "e32047491a99f2807d0facf14c66d03cb113784ce474b8e7bd59e1990daedc2b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 26613,
+      "mode": 420,
+      "mtime_ns": 1794094991694522011,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/summary.json",
+      "sha256": "e32047491a99f2807d0facf14c66d03cb113784ce474b8e7bd59e1990daedc2b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2409,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/37553d0e97f9e4b92a20bd661f703a3dbf673b156c86b8260f9f593e48825401.gz",
+            "sha256": "37553d0e97f9e4b92a20bd661f703a3dbf673b156c86b8260f9f593e48825401"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2409,
+      "mode": 420,
+      "mtime_ns": 1794094985548859546,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail1.command.json",
+      "sha256": "37553d0e97f9e4b92a20bd661f703a3dbf673b156c86b8260f9f593e48825401"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 59,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/afa7801ed0d9f095f8bba115baa6c50b9b72a87f3a801cf99e21ace6bec3f8f1.gz",
+            "sha256": "afa7801ed0d9f095f8bba115baa6c50b9b72a87f3a801cf99e21ace6bec3f8f1"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 59,
+      "mode": 420,
+      "mtime_ns": 1794094991598408151,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail1.receipt.json",
+      "sha256": "afa7801ed0d9f095f8bba115baa6c50b9b72a87f3a801cf99e21ace6bec3f8f1"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 186137,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/4f007e4aaf1314896c20d333fd24f420bd6b813f92f7f6430f4710789cedacb6.gz",
+            "sha256": "4f007e4aaf1314896c20d333fd24f420bd6b813f92f7f6430f4710789cedacb6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 186137,
+      "mode": 420,
+      "mtime_ns": 1794094991598297608,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail1.stderr",
+      "sha256": "4f007e4aaf1314896c20d333fd24f420bd6b813f92f7f6430f4710789cedacb6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 11775,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/e346351bede99760f058e55b62330424358d5d0c02c43a21756fd2fd2e324c13.gz",
+            "sha256": "e346351bede99760f058e55b62330424358d5d0c02c43a21756fd2fd2e324c13"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 11775,
+      "mode": 420,
+      "mtime_ns": 1794094991598211190,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail1.stdout",
+      "sha256": "e346351bede99760f058e55b62330424358d5d0c02c43a21756fd2fd2e324c13"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2409,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/180b5d9aa2f8a89e7590fb487139697910037b1488fb40b4c425874151ce0f91.gz",
+            "sha256": "180b5d9aa2f8a89e7590fb487139697910037b1488fb40b4c425874151ce0f91"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2409,
+      "mode": 420,
+      "mtime_ns": 1794094979658014041,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail8.command.json",
+      "sha256": "180b5d9aa2f8a89e7590fb487139697910037b1488fb40b4c425874151ce0f91"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 59,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/ff1f250702376e74bb2623143a0e29adf7dfc8af0b0da4cffce2f60130cce517.gz",
+            "sha256": "ff1f250702376e74bb2623143a0e29adf7dfc8af0b0da4cffce2f60130cce517"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 59,
+      "mode": 420,
+      "mtime_ns": 1794094985548635959,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail8.receipt.json",
+      "sha256": "ff1f250702376e74bb2623143a0e29adf7dfc8af0b0da4cffce2f60130cce517"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 186137,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/66d755b5324be45d4405cd62970b22232a6a3b24acc4782295de2b3b76ae540c.gz",
+            "sha256": "66d755b5324be45d4405cd62970b22232a6a3b24acc4782295de2b3b76ae540c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 186137,
+      "mode": 420,
+      "mtime_ns": 1794094985548522790,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail8.stderr",
+      "sha256": "66d755b5324be45d4405cd62970b22232a6a3b24acc4782295de2b3b76ae540c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 11773,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/4473d00975a08abcb25d352798e39bd1699fbad1d8fb18da18a41d4bdc1ea227.gz",
+            "sha256": "4473d00975a08abcb25d352798e39bd1699fbad1d8fb18da18a41d4bdc1ea227"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 11773,
+      "mode": 420,
+      "mtime_ns": 1794094985548436705,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail8.stdout",
+      "sha256": "4473d00975a08abcb25d352798e39bd1699fbad1d8fb18da18a41d4bdc1ea227"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/1a154cb522bcf28d6f4baa69385966630fe610ea3946bb7dc03942f3c4a05e4c.gz",
+            "sha256": "1a154cb522bcf28d6f4baa69385966630fe610ea3946bb7dc03942f3c4a05e4c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794094985382340268,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail8/deployment.policypack",
+      "sha256": "1a154cb522bcf28d6f4baa69385966630fe610ea3946bb7dc03942f3c4a05e4c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/572b0fe801d1539304cd63701c9640c5e62fc4a52c39b00bb6f5f05b8710f81c.gz",
+            "sha256": "572b0fe801d1539304cd63701c9640c5e62fc4a52c39b00bb6f5f05b8710f81c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794094979824080353,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail8/incumbent.policypack",
+      "sha256": "572b0fe801d1539304cd63701c9640c5e62fc4a52c39b00bb6f5f05b8710f81c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1977367,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/b9176946d383ca858274d5cc4afb78b6d34f357e190e9e649436b1ead6aaaeef.gz",
+            "sha256": "b9176946d383ca858274d5cc4afb78b6d34f357e190e9e649436b1ead6aaaeef"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1977367,
+      "mode": 420,
+      "mtime_ns": 1794094985384574182,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail8/learner.safetensors",
+      "sha256": "b9176946d383ca858274d5cc4afb78b6d34f357e190e9e649436b1ead6aaaeef"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/1c54036cd3b5039079f88bbb43bc85ba8cabe63dd186bc69a75fb05e92a779fd.gz",
+            "sha256": "1c54036cd3b5039079f88bbb43bc85ba8cabe63dd186bc69a75fb05e92a779fd"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/e72f570df0d755e67d07a43950bbb3b0f9fe090a7b9282f51fc25b292f5ecfc2.gz",
+            "sha256": "e72f570df0d755e67d07a43950bbb3b0f9fe090a7b9282f51fc25b292f5ecfc2"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/f4e9ab8a010e8a71c43f62dc8ba3439eb2f4266d3ef2815699e1886f25d5ec22.gz",
+            "sha256": "f4e9ab8a010e8a71c43f62dc8ba3439eb2f4266d3ef2815699e1886f25d5ec22"
+          },
+          {
+            "bytes": 18612983,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/cecb073b812a1c2cbb1238ef582b21a437791ef7db99657ca8b5b1a86c6a79a9.gz",
+            "sha256": "cecb073b812a1c2cbb1238ef582b21a437791ef7db99657ca8b5b1a86c6a79a9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 119276279,
+      "mode": 384,
+      "mtime_ns": 1794094984920644085,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail8/training.rolloutpack",
+      "sha256": "e19013f4ae7526d16daa91a6f5d6bb917819aae4a00ab2cb4a18e154aeae1833"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/609ae75513da3f9a60b16e50ad5c258d5b7bd5a0e27dffc1c79979d56f9cc161.gz",
+            "sha256": "609ae75513da3f9a60b16e50ad5c258d5b7bd5a0e27dffc1c79979d56f9cc161"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794094985380997120,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail8/updated.policypack",
+      "sha256": "609ae75513da3f9a60b16e50ad5c258d5b7bd5a0e27dffc1c79979d56f9cc161"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 64,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/53cd5e5369cdcc8de07cbafcf6335e85288fd5c4b024b5b41274be0914bad09d.gz",
+            "sha256": "53cd5e5369cdcc8de07cbafcf6335e85288fd5c4b024b5b41274be0914bad09d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 64,
+      "mode": 384,
+      "mtime_ns": 1794094985469728895,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail8/checkpoints/revision-00000066.trainingcheckpoint/COMMITTED",
+      "sha256": "53cd5e5369cdcc8de07cbafcf6335e85288fd5c4b024b5b41274be0914bad09d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/1a154cb522bcf28d6f4baa69385966630fe610ea3946bb7dc03942f3c4a05e4c.gz",
+            "sha256": "1a154cb522bcf28d6f4baa69385966630fe610ea3946bb7dc03942f3c4a05e4c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794094985382340268,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail8/checkpoints/revision-00000066.trainingcheckpoint/candidate.policypack",
+      "sha256": "1a154cb522bcf28d6f4baa69385966630fe610ea3946bb7dc03942f3c4a05e4c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1977367,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/b9176946d383ca858274d5cc4afb78b6d34f357e190e9e649436b1ead6aaaeef.gz",
+            "sha256": "b9176946d383ca858274d5cc4afb78b6d34f357e190e9e649436b1ead6aaaeef"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1977367,
+      "mode": 420,
+      "mtime_ns": 1794094985384574182,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail8/checkpoints/revision-00000066.trainingcheckpoint/learner.safetensors",
+      "sha256": "b9176946d383ca858274d5cc4afb78b6d34f357e190e9e649436b1ead6aaaeef"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 6848908,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/9b0b954214a6700163489098c4fbe08e54d9bec051e8dc701c9fa2ee41fb606d.gz",
+            "sha256": "9b0b954214a6700163489098c4fbe08e54d9bec051e8dc701c9fa2ee41fb606d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 6848908,
+      "mode": 384,
+      "mtime_ns": 1794094985414901953,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail8/checkpoints/revision-00000066.trainingcheckpoint/life.native",
+      "sha256": "9b0b954214a6700163489098c4fbe08e54d9bec051e8dc701c9fa2ee41fb606d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5393,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/0b6fcc1448fffb9db316529eb7ee3418379313546e273b4b38a66f077f637a57.gz",
+            "sha256": "0b6fcc1448fffb9db316529eb7ee3418379313546e273b4b38a66f077f637a57"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5393,
+      "mode": 384,
+      "mtime_ns": 1794094985469598643,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail8/checkpoints/revision-00000066.trainingcheckpoint/manifest.json",
+      "sha256": "0b6fcc1448fffb9db316529eb7ee3418379313546e273b4b38a66f077f637a57"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/609ae75513da3f9a60b16e50ad5c258d5b7bd5a0e27dffc1c79979d56f9cc161.gz",
+            "sha256": "609ae75513da3f9a60b16e50ad5c258d5b7bd5a0e27dffc1c79979d56f9cc161"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794094985380997120,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail8/checkpoints/revision-00000066.trainingcheckpoint/policy.policypack",
+      "sha256": "609ae75513da3f9a60b16e50ad5c258d5b7bd5a0e27dffc1c79979d56f9cc161"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/1c54036cd3b5039079f88bbb43bc85ba8cabe63dd186bc69a75fb05e92a779fd.gz",
+            "sha256": "1c54036cd3b5039079f88bbb43bc85ba8cabe63dd186bc69a75fb05e92a779fd"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/e72f570df0d755e67d07a43950bbb3b0f9fe090a7b9282f51fc25b292f5ecfc2.gz",
+            "sha256": "e72f570df0d755e67d07a43950bbb3b0f9fe090a7b9282f51fc25b292f5ecfc2"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/f4e9ab8a010e8a71c43f62dc8ba3439eb2f4266d3ef2815699e1886f25d5ec22.gz",
+            "sha256": "f4e9ab8a010e8a71c43f62dc8ba3439eb2f4266d3ef2815699e1886f25d5ec22"
+          },
+          {
+            "bytes": 18612983,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/cecb073b812a1c2cbb1238ef582b21a437791ef7db99657ca8b5b1a86c6a79a9.gz",
+            "sha256": "cecb073b812a1c2cbb1238ef582b21a437791ef7db99657ca8b5b1a86c6a79a9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 119276279,
+      "mode": 384,
+      "mtime_ns": 1794094984920644085,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail8/checkpoints/revision-00000066.trainingcheckpoint/rollout.rolloutpack",
+      "sha256": "e19013f4ae7526d16daa91a6f5d6bb917819aae4a00ab2cb4a18e154aeae1833"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/1a154cb522bcf28d6f4baa69385966630fe610ea3946bb7dc03942f3c4a05e4c.gz",
+            "sha256": "1a154cb522bcf28d6f4baa69385966630fe610ea3946bb7dc03942f3c4a05e4c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794094991431920500,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail1/deployment.policypack",
+      "sha256": "1a154cb522bcf28d6f4baa69385966630fe610ea3946bb7dc03942f3c4a05e4c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/572b0fe801d1539304cd63701c9640c5e62fc4a52c39b00bb6f5f05b8710f81c.gz",
+            "sha256": "572b0fe801d1539304cd63701c9640c5e62fc4a52c39b00bb6f5f05b8710f81c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794094985721912810,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail1/incumbent.policypack",
+      "sha256": "572b0fe801d1539304cd63701c9640c5e62fc4a52c39b00bb6f5f05b8710f81c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1977367,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/b9176946d383ca858274d5cc4afb78b6d34f357e190e9e649436b1ead6aaaeef.gz",
+            "sha256": "b9176946d383ca858274d5cc4afb78b6d34f357e190e9e649436b1ead6aaaeef"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1977367,
+      "mode": 420,
+      "mtime_ns": 1794094991434302874,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail1/learner.safetensors",
+      "sha256": "b9176946d383ca858274d5cc4afb78b6d34f357e190e9e649436b1ead6aaaeef"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/1c54036cd3b5039079f88bbb43bc85ba8cabe63dd186bc69a75fb05e92a779fd.gz",
+            "sha256": "1c54036cd3b5039079f88bbb43bc85ba8cabe63dd186bc69a75fb05e92a779fd"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/e72f570df0d755e67d07a43950bbb3b0f9fe090a7b9282f51fc25b292f5ecfc2.gz",
+            "sha256": "e72f570df0d755e67d07a43950bbb3b0f9fe090a7b9282f51fc25b292f5ecfc2"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/f4e9ab8a010e8a71c43f62dc8ba3439eb2f4266d3ef2815699e1886f25d5ec22.gz",
+            "sha256": "f4e9ab8a010e8a71c43f62dc8ba3439eb2f4266d3ef2815699e1886f25d5ec22"
+          },
+          {
+            "bytes": 18612983,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/cecb073b812a1c2cbb1238ef582b21a437791ef7db99657ca8b5b1a86c6a79a9.gz",
+            "sha256": "cecb073b812a1c2cbb1238ef582b21a437791ef7db99657ca8b5b1a86c6a79a9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 119276279,
+      "mode": 384,
+      "mtime_ns": 1794094990978257330,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail1/training.rolloutpack",
+      "sha256": "e19013f4ae7526d16daa91a6f5d6bb917819aae4a00ab2cb4a18e154aeae1833"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/609ae75513da3f9a60b16e50ad5c258d5b7bd5a0e27dffc1c79979d56f9cc161.gz",
+            "sha256": "609ae75513da3f9a60b16e50ad5c258d5b7bd5a0e27dffc1c79979d56f9cc161"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794094991430568852,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail1/updated.policypack",
+      "sha256": "609ae75513da3f9a60b16e50ad5c258d5b7bd5a0e27dffc1c79979d56f9cc161"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 64,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/152937049a3c450da4e79ef00db6f265f1d3d2d7baa1f03073875dffbc12cafd.gz",
+            "sha256": "152937049a3c450da4e79ef00db6f265f1d3d2d7baa1f03073875dffbc12cafd"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 64,
+      "mode": 384,
+      "mtime_ns": 1794094991519180458,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail1/checkpoints/revision-00000066.trainingcheckpoint/COMMITTED",
+      "sha256": "152937049a3c450da4e79ef00db6f265f1d3d2d7baa1f03073875dffbc12cafd"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/1a154cb522bcf28d6f4baa69385966630fe610ea3946bb7dc03942f3c4a05e4c.gz",
+            "sha256": "1a154cb522bcf28d6f4baa69385966630fe610ea3946bb7dc03942f3c4a05e4c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794094991431920500,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail1/checkpoints/revision-00000066.trainingcheckpoint/candidate.policypack",
+      "sha256": "1a154cb522bcf28d6f4baa69385966630fe610ea3946bb7dc03942f3c4a05e4c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1977367,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/b9176946d383ca858274d5cc4afb78b6d34f357e190e9e649436b1ead6aaaeef.gz",
+            "sha256": "b9176946d383ca858274d5cc4afb78b6d34f357e190e9e649436b1ead6aaaeef"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1977367,
+      "mode": 420,
+      "mtime_ns": 1794094991434302874,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail1/checkpoints/revision-00000066.trainingcheckpoint/learner.safetensors",
+      "sha256": "b9176946d383ca858274d5cc4afb78b6d34f357e190e9e649436b1ead6aaaeef"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 6848908,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d7f17e5a8751178e0a16d6fda4fdf7984e938a4f5547d47458ea0b9107743868.gz",
+            "sha256": "d7f17e5a8751178e0a16d6fda4fdf7984e938a4f5547d47458ea0b9107743868"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 6848908,
+      "mode": 384,
+      "mtime_ns": 1794094991464483143,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail1/checkpoints/revision-00000066.trainingcheckpoint/life.native",
+      "sha256": "d7f17e5a8751178e0a16d6fda4fdf7984e938a4f5547d47458ea0b9107743868"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5393,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/a43e1357b3b1c6630d7873a9ebcc2c0747dcd832257c47b4866227096554eedc.gz",
+            "sha256": "a43e1357b3b1c6630d7873a9ebcc2c0747dcd832257c47b4866227096554eedc"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5393,
+      "mode": 384,
+      "mtime_ns": 1794094991519056122,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail1/checkpoints/revision-00000066.trainingcheckpoint/manifest.json",
+      "sha256": "a43e1357b3b1c6630d7873a9ebcc2c0747dcd832257c47b4866227096554eedc"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/609ae75513da3f9a60b16e50ad5c258d5b7bd5a0e27dffc1c79979d56f9cc161.gz",
+            "sha256": "609ae75513da3f9a60b16e50ad5c258d5b7bd5a0e27dffc1c79979d56f9cc161"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794094991430568852,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail1/checkpoints/revision-00000066.trainingcheckpoint/policy.policypack",
+      "sha256": "609ae75513da3f9a60b16e50ad5c258d5b7bd5a0e27dffc1c79979d56f9cc161"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/1c54036cd3b5039079f88bbb43bc85ba8cabe63dd186bc69a75fb05e92a779fd.gz",
+            "sha256": "1c54036cd3b5039079f88bbb43bc85ba8cabe63dd186bc69a75fb05e92a779fd"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/e72f570df0d755e67d07a43950bbb3b0f9fe090a7b9282f51fc25b292f5ecfc2.gz",
+            "sha256": "e72f570df0d755e67d07a43950bbb3b0f9fe090a7b9282f51fc25b292f5ecfc2"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/f4e9ab8a010e8a71c43f62dc8ba3439eb2f4266d3ef2815699e1886f25d5ec22.gz",
+            "sha256": "f4e9ab8a010e8a71c43f62dc8ba3439eb2f4266d3ef2815699e1886f25d5ec22"
+          },
+          {
+            "bytes": 18612983,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/cecb073b812a1c2cbb1238ef582b21a437791ef7db99657ca8b5b1a86c6a79a9.gz",
+            "sha256": "cecb073b812a1c2cbb1238ef582b21a437791ef7db99657ca8b5b1a86c6a79a9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 119276279,
+      "mode": 384,
+      "mtime_ns": 1794094990978257330,
+      "path": ".numi/runs/american-crow/retinal-normalization-final-resume-01/tail1/checkpoints/revision-00000066.trainingcheckpoint/rollout.rolloutpack",
+      "sha256": "e19013f4ae7526d16daa91a6f5d6bb917819aae4a00ab2cb4a18e154aeae1833"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-memory-retention-20261108/blobs/99a6d5897cc8780b8f237b7d011cceb54b7366a5da2a1bccf21c7bc2bad091e8.gz"
+      },
+      "bytes": 659500,
+      "mode": 420,
+      "mtime_ns": 1794094108819321103,
+      "path": ".numi/runs/american-crow/learning-diagnosis-01/initial.policypack",
+      "sha256": "99a6d5897cc8780b8f237b7d011cceb54b7366a5da2a1bccf21c7bc2bad091e8"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-memory-retention-20261108/blobs/b1b8803392d51a0eccdfd6c19bf85693163d065cc03fa9b63f87ab78cf91ba45.gz"
+      },
+      "bytes": 6848908,
+      "mode": 420,
+      "mtime_ns": 1794094108566472550,
+      "path": ".numi/runs/american-crow/learning-diagnosis-01/input.native",
+      "sha256": "b1b8803392d51a0eccdfd6c19bf85693163d065cc03fa9b63f87ab78cf91ba45"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/bef1828046e80f8108a73d53359556915cb10cace20170063ec0f79595f55b50.gz",
+            "sha256": "bef1828046e80f8108a73d53359556915cb10cace20170063ec0f79595f55b50"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/dfb4f054f48b43c63506b3558d07635e799f69eeb767066616e26ddfb35e850f.gz",
+            "sha256": "dfb4f054f48b43c63506b3558d07635e799f69eeb767066616e26ddfb35e850f"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/308cf96c4b0535bb124a5769e99864fc9ae6b0774a08a7b39c39c227ea056819.gz",
+            "sha256": "308cf96c4b0535bb124a5769e99864fc9ae6b0774a08a7b39c39c227ea056819"
+          },
+          {
+            "bytes": 18612983,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/6bb860e0a02ceb5457786b40c8c3156bca218b3e2fc198fa54c9f5d5f53e8650.gz",
+            "sha256": "6bb860e0a02ceb5457786b40c8c3156bca218b3e2fc198fa54c9f5d5f53e8650"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 119276279,
+      "mode": 420,
+      "mtime_ns": 1794094108777189588,
+      "path": ".numi/runs/american-crow/learning-diagnosis-01/input.rolloutpack",
+      "sha256": "ac02ecdf86db50f2d845e970715c7d08dbaf1d61847a1deffbe7effebd6556f1"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 101,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/79a892d968ff82cae23cd5a60df2bb6fc2d49a7ab83a2aa23b23e393d6090389.gz",
+            "sha256": "79a892d968ff82cae23cd5a60df2bb6fc2d49a7ab83a2aa23b23e393d6090389"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 101,
+      "mode": 420,
+      "mtime_ns": 1794094109084769622,
+      "path": ".numi/runs/american-crow/learning-diagnosis-01/parity.json",
+      "sha256": "79a892d968ff82cae23cd5a60df2bb6fc2d49a7ab83a2aa23b23e393d6090389"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 977,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/3bba750c3862300bb33edc4616dddea35b39844a0fe441bcd47f40a7c8783f61.gz",
+            "sha256": "3bba750c3862300bb33edc4616dddea35b39844a0fe441bcd47f40a7c8783f61"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 977,
+      "mode": 420,
+      "mtime_ns": 1794094108534258955,
+      "path": ".numi/runs/american-crow/learning-diagnosis-01/plan.json",
+      "sha256": "3bba750c3862300bb33edc4616dddea35b39844a0fe441bcd47f40a7c8783f61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1276,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/64cd6c1d5a37aa7dbae305d9281c356a8fb185598aeb480f36514921d4f0a6ac.gz",
+            "sha256": "64cd6c1d5a37aa7dbae305d9281c356a8fb185598aeb480f36514921d4f0a6ac"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1276,
+      "mode": 420,
+      "mtime_ns": 1794094108822264779,
+      "path": ".numi/runs/american-crow/learning-diagnosis-01/restoration.json",
+      "sha256": "64cd6c1d5a37aa7dbae305d9281c356a8fb185598aeb480f36514921d4f0a6ac"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2606,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/93739e95b3f97fe32a51b84a346913ba9c95a6b86ab1f4da377249eff5abe0f5.gz",
+            "sha256": "93739e95b3f97fe32a51b84a346913ba9c95a6b86ab1f4da377249eff5abe0f5"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2606,
+      "mode": 420,
+      "mtime_ns": 1794094445635416409,
+      "path": ".numi/runs/american-crow/learning-diagnosis-01/summary-with-feature-label.json",
+      "sha256": "93739e95b3f97fe32a51b84a346913ba9c95a6b86ab1f4da377249eff5abe0f5"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2595,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/bd66c83739f402f219721d8bff8df157f74cadd59c41d94213375b3b779c6b29.gz",
+            "sha256": "bd66c83739f402f219721d8bff8df157f74cadd59c41d94213375b3b779c6b29"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2595,
+      "mode": 420,
+      "mtime_ns": 1794094109205904661,
+      "path": ".numi/runs/american-crow/learning-diagnosis-01/summary.json",
+      "sha256": "bd66c83739f402f219721d8bff8df157f74cadd59c41d94213375b3b779c6b29"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-memory-retention-20261108/blobs/7eeee2f2dca9c1425b42a8478d852d3d8043cb821873297c225f4635e0d3320f.gz"
+      },
+      "bytes": 659500,
+      "mode": 420,
+      "mtime_ns": 1794094108821445765,
+      "path": ".numi/runs/american-crow/learning-diagnosis-01/trained.policypack",
+      "sha256": "7eeee2f2dca9c1425b42a8478d852d3d8043cb821873297c225f4635e0d3320f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 577,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/4311ad1f9fb03252d41f54725554a155ac93dea7e80854a964fe0fc429379253.gz",
+            "sha256": "4311ad1f9fb03252d41f54725554a155ac93dea7e80854a964fe0fc429379253"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 577,
+      "mode": 420,
+      "mtime_ns": 1794094419814432075,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/plan.json",
+      "sha256": "4311ad1f9fb03252d41f54725554a155ac93dea7e80854a964fe0fc429379253"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2348,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/bac945408ba91a56860cfd226c401b5d77d4902bc5da24c54efa14976253f5b9.gz",
+            "sha256": "bac945408ba91a56860cfd226c401b5d77d4902bc5da24c54efa14976253f5b9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2348,
+      "mode": 420,
+      "mtime_ns": 1794094419814752664,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/prefix.command.json",
+      "sha256": "bac945408ba91a56860cfd226c401b5d77d4902bc5da24c54efa14976253f5b9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 59,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7fb0a615a4b733fb5daa6fe827cda0561c3fa36b1f52e365b0a8f1342724c02f.gz",
+            "sha256": "7fb0a615a4b733fb5daa6fe827cda0561c3fa36b1f52e365b0a8f1342724c02f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 59,
+      "mode": 420,
+      "mtime_ns": 1794094426021239367,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/prefix.receipt.json",
+      "sha256": "7fb0a615a4b733fb5daa6fe827cda0561c3fa36b1f52e365b0a8f1342724c02f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 186137,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/1c42120c9ca6049713ce736832b9f000853d32c5a6633bc73da4620b7480d3e1.gz",
+            "sha256": "1c42120c9ca6049713ce736832b9f000853d32c5a6633bc73da4620b7480d3e1"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 186137,
+      "mode": 420,
+      "mtime_ns": 1794094426021106906,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/prefix.stderr",
+      "sha256": "1c42120c9ca6049713ce736832b9f000853d32c5a6633bc73da4620b7480d3e1"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 11745,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/8839e029ecc622a4809c59389c9922c82d5c1b897a23bb01bfdea41ea740000f.gz",
+            "sha256": "8839e029ecc622a4809c59389c9922c82d5c1b897a23bb01bfdea41ea740000f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 11745,
+      "mode": 420,
+      "mtime_ns": 1794094426020980571,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/prefix.stdout",
+      "sha256": "8839e029ecc622a4809c59389c9922c82d5c1b897a23bb01bfdea41ea740000f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 39423,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/a78988a603da5924a432b985ccc59d88efff8017d63c2143a0d150ce3e1228d6.gz",
+            "sha256": "a78988a603da5924a432b985ccc59d88efff8017d63c2143a0d150ce3e1228d6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 39423,
+      "mode": 420,
+      "mtime_ns": 1794094438057500615,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/summary.json",
+      "sha256": "a78988a603da5924a432b985ccc59d88efff8017d63c2143a0d150ce3e1228d6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2392,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/e87388e6e2759bd405ffa00cc2d3bc93ba5924a214717fcbb9b9d5c7532ba185.gz",
+            "sha256": "e87388e6e2759bd405ffa00cc2d3bc93ba5924a214717fcbb9b9d5c7532ba185"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2392,
+      "mode": 420,
+      "mtime_ns": 1794094431898114274,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail1.command.json",
+      "sha256": "e87388e6e2759bd405ffa00cc2d3bc93ba5924a214717fcbb9b9d5c7532ba185"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 59,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/ffb497fe102356f4c2c4b65c7db1a9fd6846e32e59d708d643eed8ca55fddb04.gz",
+            "sha256": "ffb497fe102356f4c2c4b65c7db1a9fd6846e32e59d708d643eed8ca55fddb04"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 59,
+      "mode": 420,
+      "mtime_ns": 1794094437949367632,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail1.receipt.json",
+      "sha256": "ffb497fe102356f4c2c4b65c7db1a9fd6846e32e59d708d643eed8ca55fddb04"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 186137,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d44a46911bebf4718334cc806dd11a19a3ee58d76b2c0649578ae28944dd0bb8.gz",
+            "sha256": "d44a46911bebf4718334cc806dd11a19a3ee58d76b2c0649578ae28944dd0bb8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 186137,
+      "mode": 420,
+      "mtime_ns": 1794094437949264088,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail1.stderr",
+      "sha256": "d44a46911bebf4718334cc806dd11a19a3ee58d76b2c0649578ae28944dd0bb8"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 11737,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d69a952f251c056f8c8371ffb01435c9eb7d5463dcecb667fa64657d8c2ac010.gz",
+            "sha256": "d69a952f251c056f8c8371ffb01435c9eb7d5463dcecb667fa64657d8c2ac010"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 11737,
+      "mode": 420,
+      "mtime_ns": 1794094437949176587,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail1.stdout",
+      "sha256": "d69a952f251c056f8c8371ffb01435c9eb7d5463dcecb667fa64657d8c2ac010"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2392,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d2ba00d79b2830fd883959d25f420a579d5722a46f589231f2d4ed746a88a029.gz",
+            "sha256": "d2ba00d79b2830fd883959d25f420a579d5722a46f589231f2d4ed746a88a029"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2392,
+      "mode": 420,
+      "mtime_ns": 1794094426021565248,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail8.command.json",
+      "sha256": "d2ba00d79b2830fd883959d25f420a579d5722a46f589231f2d4ed746a88a029"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 59,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/2a947ee369118a176c947d1ee2b96ce90b196eb3734ce1c1ce906144196478ea.gz",
+            "sha256": "2a947ee369118a176c947d1ee2b96ce90b196eb3734ce1c1ce906144196478ea"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 59,
+      "mode": 420,
+      "mtime_ns": 1794094431897864728,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail8.receipt.json",
+      "sha256": "2a947ee369118a176c947d1ee2b96ce90b196eb3734ce1c1ce906144196478ea"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 186137,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7266c950c28b7f7ddc064cf9cac4d2eed367fa35fd1cd5c81878a2079a6db90d.gz",
+            "sha256": "7266c950c28b7f7ddc064cf9cac4d2eed367fa35fd1cd5c81878a2079a6db90d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 186137,
+      "mode": 420,
+      "mtime_ns": 1794094431897755810,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail8.stderr",
+      "sha256": "7266c950c28b7f7ddc064cf9cac4d2eed367fa35fd1cd5c81878a2079a6db90d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 11735,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/5a09abd8c30510a84d1e668ffc4a682143e97579542be777c3ec7b6f45f0d7b2.gz",
+            "sha256": "5a09abd8c30510a84d1e668ffc4a682143e97579542be777c3ec7b6f45f0d7b2"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 11735,
+      "mode": 420,
+      "mtime_ns": 1794094431897660558,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail8.stdout",
+      "sha256": "5a09abd8c30510a84d1e668ffc4a682143e97579542be777c3ec7b6f45f0d7b2"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/499b07bf857c1e171efe78b65e339044f47c16d899304c5aa1e6dc686abbfaca.gz",
+            "sha256": "499b07bf857c1e171efe78b65e339044f47c16d899304c5aa1e6dc686abbfaca"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794094425856649663,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/prefix/deployment.policypack",
+      "sha256": "499b07bf857c1e171efe78b65e339044f47c16d899304c5aa1e6dc686abbfaca"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/5956775bb7d7d15824a1ae467e5211d3426028cd23c213d32cfcd92191d793c7.gz",
+            "sha256": "5956775bb7d7d15824a1ae467e5211d3426028cd23c213d32cfcd92191d793c7"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794094420332843234,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/prefix/incumbent.policypack",
+      "sha256": "5956775bb7d7d15824a1ae467e5211d3426028cd23c213d32cfcd92191d793c7"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1977366,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/eebc360a60d49436544301e868592ac33c34fd24767136274d2cbbb4d3d98726.gz",
+            "sha256": "eebc360a60d49436544301e868592ac33c34fd24767136274d2cbbb4d3d98726"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1977366,
+      "mode": 420,
+      "mtime_ns": 1794094425858889619,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/prefix/learner.safetensors",
+      "sha256": "eebc360a60d49436544301e868592ac33c34fd24767136274d2cbbb4d3d98726"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/90b954e2b065080a5e9a452cc71b02d90cb119a771fa53d47f9976fc3842f389.gz",
+            "sha256": "90b954e2b065080a5e9a452cc71b02d90cb119a771fa53d47f9976fc3842f389"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/0a3b3fda33b146b7a025f7c9fffddd5851d71cebdcefe332daa41bf872cf1f77.gz",
+            "sha256": "0a3b3fda33b146b7a025f7c9fffddd5851d71cebdcefe332daa41bf872cf1f77"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/bb77c465a3265d728168decf472d14ef80cc42cb8523b643cc0cf350a54ed18a.gz",
+            "sha256": "bb77c465a3265d728168decf472d14ef80cc42cb8523b643cc0cf350a54ed18a"
+          },
+          {
+            "bytes": 18612983,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/be8806442a6c9e12506f1022799b6586ba7b42087386a11d81a440e34b01d2aa.gz",
+            "sha256": "be8806442a6c9e12506f1022799b6586ba7b42087386a11d81a440e34b01d2aa"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 119276279,
+      "mode": 384,
+      "mtime_ns": 1794094425395537948,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/prefix/training.rolloutpack",
+      "sha256": "a028d9c5013f2ca1250298e5338f6263fb18e8700075e1ad52c1e5742940a084"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d2d1ab5590c0f164c2ccdb2f27d98dc4bf495319fe8318c3e35c3b6ca84c5a0d.gz",
+            "sha256": "d2d1ab5590c0f164c2ccdb2f27d98dc4bf495319fe8318c3e35c3b6ca84c5a0d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794094425855303807,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/prefix/updated.policypack",
+      "sha256": "d2d1ab5590c0f164c2ccdb2f27d98dc4bf495319fe8318c3e35c3b6ca84c5a0d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 64,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/a8ca4f09deb0c6db226e4b5792f81e95118e68f6fb15de5a276f30802abcd7b1.gz",
+            "sha256": "a8ca4f09deb0c6db226e4b5792f81e95118e68f6fb15de5a276f30802abcd7b1"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 64,
+      "mode": 384,
+      "mtime_ns": 1794094425944141667,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/prefix/checkpoints/revision-00000002.trainingcheckpoint/COMMITTED",
+      "sha256": "a8ca4f09deb0c6db226e4b5792f81e95118e68f6fb15de5a276f30802abcd7b1"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/499b07bf857c1e171efe78b65e339044f47c16d899304c5aa1e6dc686abbfaca.gz",
+            "sha256": "499b07bf857c1e171efe78b65e339044f47c16d899304c5aa1e6dc686abbfaca"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794094425856649663,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/prefix/checkpoints/revision-00000002.trainingcheckpoint/candidate.policypack",
+      "sha256": "499b07bf857c1e171efe78b65e339044f47c16d899304c5aa1e6dc686abbfaca"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1977366,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/eebc360a60d49436544301e868592ac33c34fd24767136274d2cbbb4d3d98726.gz",
+            "sha256": "eebc360a60d49436544301e868592ac33c34fd24767136274d2cbbb4d3d98726"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1977366,
+      "mode": 420,
+      "mtime_ns": 1794094425858889619,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/prefix/checkpoints/revision-00000002.trainingcheckpoint/learner.safetensors",
+      "sha256": "eebc360a60d49436544301e868592ac33c34fd24767136274d2cbbb4d3d98726"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 6848908,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7e81fd7f9be959f12208219f42281c879ef546bee9d7b371048324c64dabedd0.gz",
+            "sha256": "7e81fd7f9be959f12208219f42281c879ef546bee9d7b371048324c64dabedd0"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 6848908,
+      "mode": 384,
+      "mtime_ns": 1794094425889250515,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/prefix/checkpoints/revision-00000002.trainingcheckpoint/life.native",
+      "sha256": "7e81fd7f9be959f12208219f42281c879ef546bee9d7b371048324c64dabedd0"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5391,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/8862ee35b2922f6f9ae97ba769f1e8149561cf7814e8bab03e33479063dba84b.gz",
+            "sha256": "8862ee35b2922f6f9ae97ba769f1e8149561cf7814e8bab03e33479063dba84b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5391,
+      "mode": 384,
+      "mtime_ns": 1794094425944010373,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/prefix/checkpoints/revision-00000002.trainingcheckpoint/manifest.json",
+      "sha256": "8862ee35b2922f6f9ae97ba769f1e8149561cf7814e8bab03e33479063dba84b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d2d1ab5590c0f164c2ccdb2f27d98dc4bf495319fe8318c3e35c3b6ca84c5a0d.gz",
+            "sha256": "d2d1ab5590c0f164c2ccdb2f27d98dc4bf495319fe8318c3e35c3b6ca84c5a0d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794094425855303807,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/prefix/checkpoints/revision-00000002.trainingcheckpoint/policy.policypack",
+      "sha256": "d2d1ab5590c0f164c2ccdb2f27d98dc4bf495319fe8318c3e35c3b6ca84c5a0d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/90b954e2b065080a5e9a452cc71b02d90cb119a771fa53d47f9976fc3842f389.gz",
+            "sha256": "90b954e2b065080a5e9a452cc71b02d90cb119a771fa53d47f9976fc3842f389"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/0a3b3fda33b146b7a025f7c9fffddd5851d71cebdcefe332daa41bf872cf1f77.gz",
+            "sha256": "0a3b3fda33b146b7a025f7c9fffddd5851d71cebdcefe332daa41bf872cf1f77"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/bb77c465a3265d728168decf472d14ef80cc42cb8523b643cc0cf350a54ed18a.gz",
+            "sha256": "bb77c465a3265d728168decf472d14ef80cc42cb8523b643cc0cf350a54ed18a"
+          },
+          {
+            "bytes": 18612983,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/be8806442a6c9e12506f1022799b6586ba7b42087386a11d81a440e34b01d2aa.gz",
+            "sha256": "be8806442a6c9e12506f1022799b6586ba7b42087386a11d81a440e34b01d2aa"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 119276279,
+      "mode": 384,
+      "mtime_ns": 1794094425395537948,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/prefix/checkpoints/revision-00000002.trainingcheckpoint/rollout.rolloutpack",
+      "sha256": "a028d9c5013f2ca1250298e5338f6263fb18e8700075e1ad52c1e5742940a084"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/974b88be13718248c7c56a8f0fbe1ffe67758f305a589ec8d3b8428c87b72d5c.gz",
+            "sha256": "974b88be13718248c7c56a8f0fbe1ffe67758f305a589ec8d3b8428c87b72d5c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794094431728162145,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail8/deployment.policypack",
+      "sha256": "974b88be13718248c7c56a8f0fbe1ffe67758f305a589ec8d3b8428c87b72d5c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/499b07bf857c1e171efe78b65e339044f47c16d899304c5aa1e6dc686abbfaca.gz",
+            "sha256": "499b07bf857c1e171efe78b65e339044f47c16d899304c5aa1e6dc686abbfaca"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794094426192333016,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail8/incumbent.policypack",
+      "sha256": "499b07bf857c1e171efe78b65e339044f47c16d899304c5aa1e6dc686abbfaca"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1977366,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/6c65e23f3d4d29eb697f85a7958e152a3dd1cc1fabdac4d853d3270b557ef42c.gz",
+            "sha256": "6c65e23f3d4d29eb697f85a7958e152a3dd1cc1fabdac4d853d3270b557ef42c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1977366,
+      "mode": 420,
+      "mtime_ns": 1794094431730464768,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail8/learner.safetensors",
+      "sha256": "6c65e23f3d4d29eb697f85a7958e152a3dd1cc1fabdac4d853d3270b557ef42c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7865844fe97151186a6e8b41508a0e3351d845229039fd5f2430a4d2662b60b2.gz",
+            "sha256": "7865844fe97151186a6e8b41508a0e3351d845229039fd5f2430a4d2662b60b2"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/10756761d62cfdb8912514043fc5898dbfaa7bdacf19fcf8ab5ff9e24f47ae66.gz",
+            "sha256": "10756761d62cfdb8912514043fc5898dbfaa7bdacf19fcf8ab5ff9e24f47ae66"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/f6d763a3e481728146f9add99ffe6da0b13392ad04fd3f07df44a8eb8c6703ef.gz",
+            "sha256": "f6d763a3e481728146f9add99ffe6da0b13392ad04fd3f07df44a8eb8c6703ef"
+          },
+          {
+            "bytes": 18612983,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/50e8d83980fc9fcd54bb042957b02d522cd1c27944ed0b66a7d57031885e184e.gz",
+            "sha256": "50e8d83980fc9fcd54bb042957b02d522cd1c27944ed0b66a7d57031885e184e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 119276279,
+      "mode": 384,
+      "mtime_ns": 1794094431281266382,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail8/training.rolloutpack",
+      "sha256": "e779072797bf458b79e8f4f6d94e5214cc8624203a2979dbd19e0e87364725de"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/403a3a80341f96f5ea3bd3dd16402b4167b6534ce97770026fe6975e1604a3e8.gz",
+            "sha256": "403a3a80341f96f5ea3bd3dd16402b4167b6534ce97770026fe6975e1604a3e8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794094431726774830,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail8/updated.policypack",
+      "sha256": "403a3a80341f96f5ea3bd3dd16402b4167b6534ce97770026fe6975e1604a3e8"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 64,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/818e4aa42e5af8bc063f277e1faca358269beee63a1db8bd43125aa6718bb2a0.gz",
+            "sha256": "818e4aa42e5af8bc063f277e1faca358269beee63a1db8bd43125aa6718bb2a0"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 64,
+      "mode": 384,
+      "mtime_ns": 1794094431815938029,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail8/checkpoints/revision-00000003.trainingcheckpoint/COMMITTED",
+      "sha256": "818e4aa42e5af8bc063f277e1faca358269beee63a1db8bd43125aa6718bb2a0"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/974b88be13718248c7c56a8f0fbe1ffe67758f305a589ec8d3b8428c87b72d5c.gz",
+            "sha256": "974b88be13718248c7c56a8f0fbe1ffe67758f305a589ec8d3b8428c87b72d5c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794094431728162145,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail8/checkpoints/revision-00000003.trainingcheckpoint/candidate.policypack",
+      "sha256": "974b88be13718248c7c56a8f0fbe1ffe67758f305a589ec8d3b8428c87b72d5c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1977366,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/6c65e23f3d4d29eb697f85a7958e152a3dd1cc1fabdac4d853d3270b557ef42c.gz",
+            "sha256": "6c65e23f3d4d29eb697f85a7958e152a3dd1cc1fabdac4d853d3270b557ef42c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1977366,
+      "mode": 420,
+      "mtime_ns": 1794094431730464768,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail8/checkpoints/revision-00000003.trainingcheckpoint/learner.safetensors",
+      "sha256": "6c65e23f3d4d29eb697f85a7958e152a3dd1cc1fabdac4d853d3270b557ef42c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 6848908,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/db3947e81ee5f40a949885ca45cf5aad4c1e27369cd28dd94a2b06bd80b5eb8f.gz",
+            "sha256": "db3947e81ee5f40a949885ca45cf5aad4c1e27369cd28dd94a2b06bd80b5eb8f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 6848908,
+      "mode": 384,
+      "mtime_ns": 1794094431761487385,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail8/checkpoints/revision-00000003.trainingcheckpoint/life.native",
+      "sha256": "db3947e81ee5f40a949885ca45cf5aad4c1e27369cd28dd94a2b06bd80b5eb8f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5391,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/f1ce3e313e96a14001123cc180b4b4b2e32e5236c415dd2aa25579e8be37666d.gz",
+            "sha256": "f1ce3e313e96a14001123cc180b4b4b2e32e5236c415dd2aa25579e8be37666d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5391,
+      "mode": 384,
+      "mtime_ns": 1794094431815794943,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail8/checkpoints/revision-00000003.trainingcheckpoint/manifest.json",
+      "sha256": "f1ce3e313e96a14001123cc180b4b4b2e32e5236c415dd2aa25579e8be37666d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/403a3a80341f96f5ea3bd3dd16402b4167b6534ce97770026fe6975e1604a3e8.gz",
+            "sha256": "403a3a80341f96f5ea3bd3dd16402b4167b6534ce97770026fe6975e1604a3e8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794094431726774830,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail8/checkpoints/revision-00000003.trainingcheckpoint/policy.policypack",
+      "sha256": "403a3a80341f96f5ea3bd3dd16402b4167b6534ce97770026fe6975e1604a3e8"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7865844fe97151186a6e8b41508a0e3351d845229039fd5f2430a4d2662b60b2.gz",
+            "sha256": "7865844fe97151186a6e8b41508a0e3351d845229039fd5f2430a4d2662b60b2"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/10756761d62cfdb8912514043fc5898dbfaa7bdacf19fcf8ab5ff9e24f47ae66.gz",
+            "sha256": "10756761d62cfdb8912514043fc5898dbfaa7bdacf19fcf8ab5ff9e24f47ae66"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/f6d763a3e481728146f9add99ffe6da0b13392ad04fd3f07df44a8eb8c6703ef.gz",
+            "sha256": "f6d763a3e481728146f9add99ffe6da0b13392ad04fd3f07df44a8eb8c6703ef"
+          },
+          {
+            "bytes": 18612983,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/50e8d83980fc9fcd54bb042957b02d522cd1c27944ed0b66a7d57031885e184e.gz",
+            "sha256": "50e8d83980fc9fcd54bb042957b02d522cd1c27944ed0b66a7d57031885e184e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 119276279,
+      "mode": 384,
+      "mtime_ns": 1794094431281266382,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail8/checkpoints/revision-00000003.trainingcheckpoint/rollout.rolloutpack",
+      "sha256": "e779072797bf458b79e8f4f6d94e5214cc8624203a2979dbd19e0e87364725de"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/974b88be13718248c7c56a8f0fbe1ffe67758f305a589ec8d3b8428c87b72d5c.gz",
+            "sha256": "974b88be13718248c7c56a8f0fbe1ffe67758f305a589ec8d3b8428c87b72d5c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794094437787211679,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail1/deployment.policypack",
+      "sha256": "974b88be13718248c7c56a8f0fbe1ffe67758f305a589ec8d3b8428c87b72d5c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/499b07bf857c1e171efe78b65e339044f47c16d899304c5aa1e6dc686abbfaca.gz",
+            "sha256": "499b07bf857c1e171efe78b65e339044f47c16d899304c5aa1e6dc686abbfaca"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794094432065122227,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail1/incumbent.policypack",
+      "sha256": "499b07bf857c1e171efe78b65e339044f47c16d899304c5aa1e6dc686abbfaca"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1977366,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/6c65e23f3d4d29eb697f85a7958e152a3dd1cc1fabdac4d853d3270b557ef42c.gz",
+            "sha256": "6c65e23f3d4d29eb697f85a7958e152a3dd1cc1fabdac4d853d3270b557ef42c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1977366,
+      "mode": 420,
+      "mtime_ns": 1794094437789453217,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail1/learner.safetensors",
+      "sha256": "6c65e23f3d4d29eb697f85a7958e152a3dd1cc1fabdac4d853d3270b557ef42c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7865844fe97151186a6e8b41508a0e3351d845229039fd5f2430a4d2662b60b2.gz",
+            "sha256": "7865844fe97151186a6e8b41508a0e3351d845229039fd5f2430a4d2662b60b2"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/10756761d62cfdb8912514043fc5898dbfaa7bdacf19fcf8ab5ff9e24f47ae66.gz",
+            "sha256": "10756761d62cfdb8912514043fc5898dbfaa7bdacf19fcf8ab5ff9e24f47ae66"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/f6d763a3e481728146f9add99ffe6da0b13392ad04fd3f07df44a8eb8c6703ef.gz",
+            "sha256": "f6d763a3e481728146f9add99ffe6da0b13392ad04fd3f07df44a8eb8c6703ef"
+          },
+          {
+            "bytes": 18612983,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/50e8d83980fc9fcd54bb042957b02d522cd1c27944ed0b66a7d57031885e184e.gz",
+            "sha256": "50e8d83980fc9fcd54bb042957b02d522cd1c27944ed0b66a7d57031885e184e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 119276279,
+      "mode": 384,
+      "mtime_ns": 1794094437330216201,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail1/training.rolloutpack",
+      "sha256": "e779072797bf458b79e8f4f6d94e5214cc8624203a2979dbd19e0e87364725de"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/403a3a80341f96f5ea3bd3dd16402b4167b6534ce97770026fe6975e1604a3e8.gz",
+            "sha256": "403a3a80341f96f5ea3bd3dd16402b4167b6534ce97770026fe6975e1604a3e8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794094437785852072,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail1/updated.policypack",
+      "sha256": "403a3a80341f96f5ea3bd3dd16402b4167b6534ce97770026fe6975e1604a3e8"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 64,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/81570d6b493b4bd0f627325ebf8e36b71db318052dff3ee03ec935dd145c0d8a.gz",
+            "sha256": "81570d6b493b4bd0f627325ebf8e36b71db318052dff3ee03ec935dd145c0d8a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 64,
+      "mode": 384,
+      "mtime_ns": 1794094437874791142,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail1/checkpoints/revision-00000003.trainingcheckpoint/COMMITTED",
+      "sha256": "81570d6b493b4bd0f627325ebf8e36b71db318052dff3ee03ec935dd145c0d8a"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/974b88be13718248c7c56a8f0fbe1ffe67758f305a589ec8d3b8428c87b72d5c.gz",
+            "sha256": "974b88be13718248c7c56a8f0fbe1ffe67758f305a589ec8d3b8428c87b72d5c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794094437787211679,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail1/checkpoints/revision-00000003.trainingcheckpoint/candidate.policypack",
+      "sha256": "974b88be13718248c7c56a8f0fbe1ffe67758f305a589ec8d3b8428c87b72d5c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1977366,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/6c65e23f3d4d29eb697f85a7958e152a3dd1cc1fabdac4d853d3270b557ef42c.gz",
+            "sha256": "6c65e23f3d4d29eb697f85a7958e152a3dd1cc1fabdac4d853d3270b557ef42c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1977366,
+      "mode": 420,
+      "mtime_ns": 1794094437789453217,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail1/checkpoints/revision-00000003.trainingcheckpoint/learner.safetensors",
+      "sha256": "6c65e23f3d4d29eb697f85a7958e152a3dd1cc1fabdac4d853d3270b557ef42c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 6848908,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/a3f38f8932c9b1a5c2ae0c5f8ce4d289820cd32c7667dcbb71813179f6b0edff.gz",
+            "sha256": "a3f38f8932c9b1a5c2ae0c5f8ce4d289820cd32c7667dcbb71813179f6b0edff"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 6848908,
+      "mode": 384,
+      "mtime_ns": 1794094437820244788,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail1/checkpoints/revision-00000003.trainingcheckpoint/life.native",
+      "sha256": "a3f38f8932c9b1a5c2ae0c5f8ce4d289820cd32c7667dcbb71813179f6b0edff"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5391,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/3646f9ba72b0733ea53c6c73c61c8795354004c694246d19424b21019b95783a.gz",
+            "sha256": "3646f9ba72b0733ea53c6c73c61c8795354004c694246d19424b21019b95783a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5391,
+      "mode": 384,
+      "mtime_ns": 1794094437874654598,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail1/checkpoints/revision-00000003.trainingcheckpoint/manifest.json",
+      "sha256": "3646f9ba72b0733ea53c6c73c61c8795354004c694246d19424b21019b95783a"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/403a3a80341f96f5ea3bd3dd16402b4167b6534ce97770026fe6975e1604a3e8.gz",
+            "sha256": "403a3a80341f96f5ea3bd3dd16402b4167b6534ce97770026fe6975e1604a3e8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794094437785852072,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail1/checkpoints/revision-00000003.trainingcheckpoint/policy.policypack",
+      "sha256": "403a3a80341f96f5ea3bd3dd16402b4167b6534ce97770026fe6975e1604a3e8"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7865844fe97151186a6e8b41508a0e3351d845229039fd5f2430a4d2662b60b2.gz",
+            "sha256": "7865844fe97151186a6e8b41508a0e3351d845229039fd5f2430a4d2662b60b2"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/10756761d62cfdb8912514043fc5898dbfaa7bdacf19fcf8ab5ff9e24f47ae66.gz",
+            "sha256": "10756761d62cfdb8912514043fc5898dbfaa7bdacf19fcf8ab5ff9e24f47ae66"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/f6d763a3e481728146f9add99ffe6da0b13392ad04fd3f07df44a8eb8c6703ef.gz",
+            "sha256": "f6d763a3e481728146f9add99ffe6da0b13392ad04fd3f07df44a8eb8c6703ef"
+          },
+          {
+            "bytes": 18612983,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/50e8d83980fc9fcd54bb042957b02d522cd1c27944ed0b66a7d57031885e184e.gz",
+            "sha256": "50e8d83980fc9fcd54bb042957b02d522cd1c27944ed0b66a7d57031885e184e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 119276279,
+      "mode": 384,
+      "mtime_ns": 1794094437330216201,
+      "path": ".numi/runs/american-crow/retinal-normalization-training-01/tail1/checkpoints/revision-00000003.trainingcheckpoint/rollout.rolloutpack",
+      "sha256": "e779072797bf458b79e8f4f6d94e5214cc8624203a2979dbd19e0e87364725de"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1783,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/c556c6d54ea3d38e2bcaf69c66cfa66bdbf2ddd8ba9d9bb1312e26c62b30fba5.gz",
+            "sha256": "c556c6d54ea3d38e2bcaf69c66cfa66bdbf2ddd8ba9d9bb1312e26c62b30fba5"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1783,
+      "mode": 420,
+      "mtime_ns": 1794095033424808369,
+      "path": ".numi/runs/american-crow/retinal-normalization-campaign-01/combined-summary.json",
+      "sha256": "c556c6d54ea3d38e2bcaf69c66cfa66bdbf2ddd8ba9d9bb1312e26c62b30fba5"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2357,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d94752b11f2e9693ce98e8619fab2df8fd3aed472249aa355b7064aba3720b40.gz",
+            "sha256": "d94752b11f2e9693ce98e8619fab2df8fd3aed472249aa355b7064aba3720b40"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2357,
+      "mode": 420,
+      "mtime_ns": 1794094611674888355,
+      "path": ".numi/runs/american-crow/retinal-normalization-campaign-01/command.json",
+      "sha256": "d94752b11f2e9693ce98e8619fab2df8fd3aed472249aa355b7064aba3720b40"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/572b0fe801d1539304cd63701c9640c5e62fc4a52c39b00bb6f5f05b8710f81c.gz",
+            "sha256": "572b0fe801d1539304cd63701c9640c5e62fc4a52c39b00bb6f5f05b8710f81c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794094940539907566,
+      "path": ".numi/runs/american-crow/retinal-normalization-campaign-01/deployment.policypack",
+      "sha256": "572b0fe801d1539304cd63701c9640c5e62fc4a52c39b00bb6f5f05b8710f81c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/974b88be13718248c7c56a8f0fbe1ffe67758f305a589ec8d3b8428c87b72d5c.gz",
+            "sha256": "974b88be13718248c7c56a8f0fbe1ffe67758f305a589ec8d3b8428c87b72d5c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794094611844453102,
+      "path": ".numi/runs/american-crow/retinal-normalization-campaign-01/incumbent.policypack",
+      "sha256": "974b88be13718248c7c56a8f0fbe1ffe67758f305a589ec8d3b8428c87b72d5c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1977367,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/a0222be598003e875a1e2c5f2c7c8d977526f31fdd07ff76617b14a4196722b2.gz",
+            "sha256": "a0222be598003e875a1e2c5f2c7c8d977526f31fdd07ff76617b14a4196722b2"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1977367,
+      "mode": 420,
+      "mtime_ns": 1794094940542011310,
+      "path": ".numi/runs/american-crow/retinal-normalization-campaign-01/learner.safetensors",
+      "sha256": "a0222be598003e875a1e2c5f2c7c8d977526f31fdd07ff76617b14a4196722b2"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1133,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/5844c74a1c082e9daa9bae6a8cb03898de86141ac72aa4e6110606ce9f898b0a.gz",
+            "sha256": "5844c74a1c082e9daa9bae6a8cb03898de86141ac72aa4e6110606ce9f898b0a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1133,
+      "mode": 420,
+      "mtime_ns": 1794094611674679852,
+      "path": ".numi/runs/american-crow/retinal-normalization-campaign-01/plan.json",
+      "sha256": "5844c74a1c082e9daa9bae6a8cb03898de86141ac72aa4e6110606ce9f898b0a"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 60,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/dec770eb807f7bdc1b239a852b206d6966f00fcfc41fd5391a7f31356d6d4f24.gz",
+            "sha256": "dec770eb807f7bdc1b239a852b206d6966f00fcfc41fd5391a7f31356d6d4f24"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 60,
+      "mode": 420,
+      "mtime_ns": 1794094940736616028,
+      "path": ".numi/runs/american-crow/retinal-normalization-campaign-01/receipt.json",
+      "sha256": "dec770eb807f7bdc1b239a852b206d6966f00fcfc41fd5391a7f31356d6d4f24"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 186137,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/b4e87ee6294e5e16f1b169c230ea8041e061b185cbae2140af44ad7a222b5f34.gz",
+            "sha256": "b4e87ee6294e5e16f1b169c230ea8041e061b185cbae2140af44ad7a222b5f34"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 186137,
+      "mode": 420,
+      "mtime_ns": 1794094617149808341,
+      "path": ".numi/runs/american-crow/retinal-normalization-campaign-01/stderr",
+      "sha256": "b4e87ee6294e5e16f1b169c230ea8041e061b185cbae2140af44ad7a222b5f34"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 200808,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/289d03afdb72960d8ca39a6656f3741662782cf601db12869faecb984de04d60.gz",
+            "sha256": "289d03afdb72960d8ca39a6656f3741662782cf601db12869faecb984de04d60"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 200808,
+      "mode": 420,
+      "mtime_ns": 1794094940693739333,
+      "path": ".numi/runs/american-crow/retinal-normalization-campaign-01/stdout",
+      "sha256": "289d03afdb72960d8ca39a6656f3741662782cf601db12869faecb984de04d60"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5224,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/62d3bd4c11a0bfabc1d8259f2a0b50c1c7e399e00c28a3cd2440b64d1117044d.gz",
+            "sha256": "62d3bd4c11a0bfabc1d8259f2a0b50c1c7e399e00c28a3cd2440b64d1117044d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5224,
+      "mode": 420,
+      "mtime_ns": 1794094940737753672,
+      "path": ".numi/runs/american-crow/retinal-normalization-campaign-01/summary.json",
+      "sha256": "62d3bd4c11a0bfabc1d8259f2a0b50c1c7e399e00c28a3cd2440b64d1117044d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/61e2c884c9cc8fe5a872c6c9ca61563ddf0d3681fc06b208fb5a5d5e1c064086.gz",
+            "sha256": "61e2c884c9cc8fe5a872c6c9ca61563ddf0d3681fc06b208fb5a5d5e1c064086"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7e5f946be27eb58488308c8f2570a9a928a326e5058bffbbe4ff844b94736ff6.gz",
+            "sha256": "7e5f946be27eb58488308c8f2570a9a928a326e5058bffbbe4ff844b94736ff6"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/a2c12cdbbe526fc61ef73206c458ce7be274ae453ab081d04ddcbeb8d378ec28.gz",
+            "sha256": "a2c12cdbbe526fc61ef73206c458ce7be274ae453ab081d04ddcbeb8d378ec28"
+          },
+          {
+            "bytes": 18612983,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/5ddb7c17dab2cdd861c8afa7abd624acc92b2cb6a948f80806db7018205712a9.gz",
+            "sha256": "5ddb7c17dab2cdd861c8afa7abd624acc92b2cb6a948f80806db7018205712a9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 119276279,
+      "mode": 384,
+      "mtime_ns": 1794094940207839152,
+      "path": ".numi/runs/american-crow/retinal-normalization-campaign-01/training.rolloutpack",
+      "sha256": "22a75241d81b7fb7dd6e87167c0e83dd831792f5a6119a91356e2adf8095232d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/4dd8fe29b72ccb540170788945dd238c0c11e3b9db3fb0e014393710ceb505a1.gz",
+            "sha256": "4dd8fe29b72ccb540170788945dd238c0c11e3b9db3fb0e014393710ceb505a1"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794094940538565876,
+      "path": ".numi/runs/american-crow/retinal-normalization-campaign-01/updated.policypack",
+      "sha256": "4dd8fe29b72ccb540170788945dd238c0c11e3b9db3fb0e014393710ceb505a1"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 64,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7d74fa62be9e445c904f4c87f15754b5dd2cef27ff7c6340668833530e7428fa.gz",
+            "sha256": "7d74fa62be9e445c904f4c87f15754b5dd2cef27ff7c6340668833530e7428fa"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 64,
+      "mode": 384,
+      "mtime_ns": 1794094940622513609,
+      "path": ".numi/runs/american-crow/retinal-normalization-campaign-01/checkpoints/revision-00000065.trainingcheckpoint/COMMITTED",
+      "sha256": "7d74fa62be9e445c904f4c87f15754b5dd2cef27ff7c6340668833530e7428fa"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/572b0fe801d1539304cd63701c9640c5e62fc4a52c39b00bb6f5f05b8710f81c.gz",
+            "sha256": "572b0fe801d1539304cd63701c9640c5e62fc4a52c39b00bb6f5f05b8710f81c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794094940539907566,
+      "path": ".numi/runs/american-crow/retinal-normalization-campaign-01/checkpoints/revision-00000065.trainingcheckpoint/candidate.policypack",
+      "sha256": "572b0fe801d1539304cd63701c9640c5e62fc4a52c39b00bb6f5f05b8710f81c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1977367,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/a0222be598003e875a1e2c5f2c7c8d977526f31fdd07ff76617b14a4196722b2.gz",
+            "sha256": "a0222be598003e875a1e2c5f2c7c8d977526f31fdd07ff76617b14a4196722b2"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1977367,
+      "mode": 420,
+      "mtime_ns": 1794094940542011310,
+      "path": ".numi/runs/american-crow/retinal-normalization-campaign-01/checkpoints/revision-00000065.trainingcheckpoint/learner.safetensors",
+      "sha256": "a0222be598003e875a1e2c5f2c7c8d977526f31fdd07ff76617b14a4196722b2"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 6848908,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/19a09b9b6329f98ddbdcd3545163a94b6f909fac7305a612394c277b223d0574.gz",
+            "sha256": "19a09b9b6329f98ddbdcd3545163a94b6f909fac7305a612394c277b223d0574"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 6848908,
+      "mode": 384,
+      "mtime_ns": 1794094940568098757,
+      "path": ".numi/runs/american-crow/retinal-normalization-campaign-01/checkpoints/revision-00000065.trainingcheckpoint/life.native",
+      "sha256": "19a09b9b6329f98ddbdcd3545163a94b6f909fac7305a612394c277b223d0574"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5393,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/c26616e7e0aefceb22cfcef1dfbcba1857204c6e8413c2d95d79c912fd0086c7.gz",
+            "sha256": "c26616e7e0aefceb22cfcef1dfbcba1857204c6e8413c2d95d79c912fd0086c7"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5393,
+      "mode": 384,
+      "mtime_ns": 1794094940622382065,
+      "path": ".numi/runs/american-crow/retinal-normalization-campaign-01/checkpoints/revision-00000065.trainingcheckpoint/manifest.json",
+      "sha256": "c26616e7e0aefceb22cfcef1dfbcba1857204c6e8413c2d95d79c912fd0086c7"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/4dd8fe29b72ccb540170788945dd238c0c11e3b9db3fb0e014393710ceb505a1.gz",
+            "sha256": "4dd8fe29b72ccb540170788945dd238c0c11e3b9db3fb0e014393710ceb505a1"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794094940538565876,
+      "path": ".numi/runs/american-crow/retinal-normalization-campaign-01/checkpoints/revision-00000065.trainingcheckpoint/policy.policypack",
+      "sha256": "4dd8fe29b72ccb540170788945dd238c0c11e3b9db3fb0e014393710ceb505a1"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/61e2c884c9cc8fe5a872c6c9ca61563ddf0d3681fc06b208fb5a5d5e1c064086.gz",
+            "sha256": "61e2c884c9cc8fe5a872c6c9ca61563ddf0d3681fc06b208fb5a5d5e1c064086"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7e5f946be27eb58488308c8f2570a9a928a326e5058bffbbe4ff844b94736ff6.gz",
+            "sha256": "7e5f946be27eb58488308c8f2570a9a928a326e5058bffbbe4ff844b94736ff6"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/a2c12cdbbe526fc61ef73206c458ce7be274ae453ab081d04ddcbeb8d378ec28.gz",
+            "sha256": "a2c12cdbbe526fc61ef73206c458ce7be274ae453ab081d04ddcbeb8d378ec28"
+          },
+          {
+            "bytes": 18612983,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/5ddb7c17dab2cdd861c8afa7abd624acc92b2cb6a948f80806db7018205712a9.gz",
+            "sha256": "5ddb7c17dab2cdd861c8afa7abd624acc92b2cb6a948f80806db7018205712a9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 119276279,
+      "mode": 384,
+      "mtime_ns": 1794094940207839152,
+      "path": ".numi/runs/american-crow/retinal-normalization-campaign-01/checkpoints/revision-00000065.trainingcheckpoint/rollout.rolloutpack",
+      "sha256": "22a75241d81b7fb7dd6e87167c0e83dd831792f5a6119a91356e2adf8095232d"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094359956843736,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/calibrate.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1213,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/108d1c1997a1a8e2d322373448573fb637d8819df706dbdadcaf4c15804873e6.gz",
+            "sha256": "108d1c1997a1a8e2d322373448573fb637d8819df706dbdadcaf4c15804873e6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1213,
+      "mode": 420,
+      "mtime_ns": 1794094359956794235,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/calibrate.stdout",
+      "sha256": "108d1c1997a1a8e2d322373448573fb637d8819df706dbdadcaf4c15804873e6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 23855859,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/a4b3b80d3919bfd618a6af3cf594f99d741b77d104647b41f92f83b0ecdd0143.gz",
+            "sha256": "a4b3b80d3919bfd618a6af3cf594f99d741b77d104647b41f92f83b0ecdd0143"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 23855859,
+      "mode": 384,
+      "mtime_ns": 1794094359746128907,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/calibration.rolloutpack",
+      "sha256": "a4b3b80d3919bfd618a6af3cf594f99d741b77d104647b41f92f83b0ecdd0143"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 906,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/8822ac56efc07774bc61c9ab7dc6f3de4a47c1850100a7d0f83a5963554875f8.gz",
+            "sha256": "8822ac56efc07774bc61c9ab7dc6f3de4a47c1850100a7d0f83a5963554875f8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 906,
+      "mode": 420,
+      "mtime_ns": 1794094358255349938,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/command.json",
+      "sha256": "8822ac56efc07774bc61c9ab7dc6f3de4a47c1850100a7d0f83a5963554875f8"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 630,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/bd7c4a2c9220ca25f1f0b7a9b08ca8664b1f98cc38163f9fd12f5dda238fb733.gz",
+            "sha256": "bd7c4a2c9220ca25f1f0b7a9b08ca8664b1f98cc38163f9fd12f5dda238fb733"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 630,
+      "mode": 420,
+      "mtime_ns": 1794094358229100190,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/plan.json",
+      "sha256": "bd7c4a2c9220ca25f1f0b7a9b08ca8664b1f98cc38163f9fd12f5dda238fb733"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 248,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/2a14b8ee6de05324fc8b40bb74382c446dff27a6f71a4fdcbc6f949b00937711.gz",
+            "sha256": "2a14b8ee6de05324fc8b40bb74382c446dff27a6f71a4fdcbc6f949b00937711"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 248,
+      "mode": 420,
+      "mtime_ns": 1794094358255256728,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/source.json",
+      "sha256": "2a14b8ee6de05324fc8b40bb74382c446dff27a6f71a4fdcbc6f949b00937711"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-history-20261108/blobs/c4d02d37ad2e80504a0e2f359a38dc469ddbb8038b4c642ab5f400ca8c791112.gz"
+      },
+      "bytes": 659499,
+      "mode": 420,
+      "mtime_ns": 1794094358254467048,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/source.policypack",
+      "sha256": "c4d02d37ad2e80504a0e2f359a38dc469ddbb8038b4c642ab5f400ca8c791112"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094359754235548,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 40565,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d4e751e068c5f7c2e082261687b0500344f9dc68a9bec6a62a17eac8705b6ad1.gz",
+            "sha256": "d4e751e068c5f7c2e082261687b0500344f9dc68a9bec6a62a17eac8705b6ad1"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 40565,
+      "mode": 420,
+      "mtime_ns": 1794094359754189214,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/stdout",
+      "sha256": "d4e751e068c5f7c2e082261687b0500344f9dc68a9bec6a62a17eac8705b6ad1"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 568,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/2cee2853cd79233e850ada4cdbc6849e713015b136c72effa991f90c4dc01cf3.gz",
+            "sha256": "2cee2853cd79233e850ada4cdbc6849e713015b136c72effa991f90c4dc01cf3"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 568,
+      "mode": 420,
+      "mtime_ns": 1794094484495071603,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/diagnostic/plan.json",
+      "sha256": "2cee2853cd79233e850ada4cdbc6849e713015b136c72effa991f90c4dc01cf3"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1014,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/b9149d3145e34ccf4a315c84298f88499674294e37573f681c2643b33e176931.gz",
+            "sha256": "b9149d3145e34ccf4a315c84298f88499674294e37573f681c2643b33e176931"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1014,
+      "mode": 420,
+      "mtime_ns": 1794094484717202919,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/diagnostic/summary.json",
+      "sha256": "b9149d3145e34ccf4a315c84298f88499674294e37573f681c2643b33e176931"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1153,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/2a9d3f02251331d5c8effa32fd5abddbfedc1fc6df857ab4d98bf8c750337a7b.gz",
+            "sha256": "2a9d3f02251331d5c8effa32fd5abddbfedc1fc6df857ab4d98bf8c750337a7b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1153,
+      "mode": 420,
+      "mtime_ns": 1794094484551566740,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/diagnostic/calibration-readback/calibration.json",
+      "sha256": "2a9d3f02251331d5c8effa32fd5abddbfedc1fc6df857ab4d98bf8c750337a7b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/6c169f5faa74086d4b59b8c129d185e6d997f1d14fba45ba763eab1791ffcf66.gz",
+            "sha256": "6c169f5faa74086d4b59b8c129d185e6d997f1d14fba45ba763eab1791ffcf66"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794094484540491258,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/diagnostic/calibration-readback/initial.policypack",
+      "sha256": "6c169f5faa74086d4b59b8c129d185e6d997f1d14fba45ba763eab1791ffcf66"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-history-20261108/blobs/c4d02d37ad2e80504a0e2f359a38dc469ddbb8038b4c642ab5f400ca8c791112.gz"
+      },
+      "bytes": 659499,
+      "mode": 384,
+      "mtime_ns": 1794094484542568210,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/diagnostic/calibration-readback/source-roundtrip.policypack",
+      "sha256": "c4d02d37ad2e80504a0e2f359a38dc469ddbb8038b4c642ab5f400ca8c791112"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 513,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/6414cb5d4796ba23a3b93698b9ad8d89020a0d096c808a6a17b168686984fa51.gz",
+            "sha256": "6414cb5d4796ba23a3b93698b9ad8d89020a0d096c808a6a17b168686984fa51"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 513,
+      "mode": 420,
+      "mtime_ns": 1794094739118942816,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/double.command.json",
+      "sha256": "6414cb5d4796ba23a3b93698b9ad8d89020a0d096c808a6a17b168686984fa51"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 881,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7613e062e04aa446850f416e4dfcf7422e6ee8bcf20dbb5300ff3500b14520b7.gz",
+            "sha256": "7613e062e04aa446850f416e4dfcf7422e6ee8bcf20dbb5300ff3500b14520b7"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 881,
+      "mode": 420,
+      "mtime_ns": 1794094739314124837,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/double.stderr",
+      "sha256": "7613e062e04aa446850f416e4dfcf7422e6ee8bcf20dbb5300ff3500b14520b7"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094739313989043,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/double.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 549,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d0f7fe9658074f635b9ed1fe71fc9c3236b6306c9cfd4a0ebfef36fd69602274.gz",
+            "sha256": "d0f7fe9658074f635b9ed1fe71fc9c3236b6306c9cfd4a0ebfef36fd69602274"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 549,
+      "mode": 420,
+      "mtime_ns": 1794094802606238096,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/gain-v2.command.json",
+      "sha256": "d0f7fe9658074f635b9ed1fe71fc9c3236b6306c9cfd4a0ebfef36fd69602274"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 806,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/86d895cdb4155396e12d866667a41f84c99c4eec03af1773869bbaf02180f25a.gz",
+            "sha256": "86d895cdb4155396e12d866667a41f84c99c4eec03af1773869bbaf02180f25a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 806,
+      "mode": 420,
+      "mtime_ns": 1794094802661379502,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/gain-v2.stderr",
+      "sha256": "86d895cdb4155396e12d866667a41f84c99c4eec03af1773869bbaf02180f25a"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094802661230291,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/gain-v2.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 546,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/cbcb337ebb4b7e20b22115484ade48cdea235a650c4d74998eeb778bb04a900e.gz",
+            "sha256": "cbcb337ebb4b7e20b22115484ade48cdea235a650c4d74998eeb778bb04a900e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 546,
+      "mode": 420,
+      "mtime_ns": 1794094739662535532,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/gain.command.json",
+      "sha256": "cbcb337ebb4b7e20b22115484ade48cdea235a650c4d74998eeb778bb04a900e"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1730,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/7f6583633256f6662faee521ad49b610186be676ccb3a2abe5a8293bc357acc4.gz",
+            "sha256": "7f6583633256f6662faee521ad49b610186be676ccb3a2abe5a8293bc357acc4"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1730,
+      "mode": 420,
+      "mtime_ns": 1794094739796962091,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/gain.stderr",
+      "sha256": "7f6583633256f6662faee521ad49b610186be676ccb3a2abe5a8293bc357acc4"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094739796811589,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/gain.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 501,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/4cdabeba362e6ae7aa16f35da33c54419df00dc713f898c1a1d66183276d31f6.gz",
+            "sha256": "4cdabeba362e6ae7aa16f35da33c54419df00dc713f898c1a1d66183276d31f6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 501,
+      "mode": 420,
+      "mtime_ns": 1794094739488129035,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/old-task.command.json",
+      "sha256": "4cdabeba362e6ae7aa16f35da33c54419df00dc713f898c1a1d66183276d31f6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 969,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/374ec8f5a7c8e30213484c8fe674a112dd84e9d43afc015a08ad929fe6904c99.gz",
+            "sha256": "374ec8f5a7c8e30213484c8fe674a112dd84e9d43afc015a08ad929fe6904c99"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 969,
+      "mode": 420,
+      "mtime_ns": 1794094739662386529,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/old-task.stderr",
+      "sha256": "374ec8f5a7c8e30213484c8fe674a112dd84e9d43afc015a08ad929fe6904c99"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094739662245027,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/old-task.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 286,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/4468c432e292a65d3ebb08f573c691b4968c1203bc2c11cf34b90c46e8e3ac30.gz",
+            "sha256": "4468c432e292a65d3ebb08f573c691b4968c1203bc2c11cf34b90c46e8e3ac30"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 286,
+      "mode": 420,
+      "mtime_ns": 1794094739118804689,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/plan.json",
+      "sha256": "4468c432e292a65d3ebb08f573c691b4968c1203bc2c11cf34b90c46e8e3ac30"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 519,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/cfdae7cef2307063de190eba9d756b825ab2a0deb484f1b35a1cda23eca06094.gz",
+            "sha256": "cfdae7cef2307063de190eba9d756b825ab2a0deb484f1b35a1cda23eca06094"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 519,
+      "mode": 420,
+      "mtime_ns": 1794094802661529963,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/post-choice.command.json",
+      "sha256": "cfdae7cef2307063de190eba9d756b825ab2a0deb484f1b35a1cda23eca06094"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 969,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/77d64bdd8dc64f3c090fa7d75fae998098084a2676ba4a06524ec0373d65ef0a.gz",
+            "sha256": "77d64bdd8dc64f3c090fa7d75fae998098084a2676ba4a06524ec0373d65ef0a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 969,
+      "mode": 420,
+      "mtime_ns": 1794094802955961605,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/post-choice.stderr",
+      "sha256": "77d64bdd8dc64f3c090fa7d75fae998098084a2676ba4a06524ec0373d65ef0a"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094802955820353,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/post-choice.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1263,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/2b36d4de6fa377873ad4a122ff17f9e839c3e2e7aed43bd03a721f96dae4ea09.gz",
+            "sha256": "2b36d4de6fa377873ad4a122ff17f9e839c3e2e7aed43bd03a721f96dae4ea09"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1263,
+      "mode": 420,
+      "mtime_ns": 1794094802956092608,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/summary.json",
+      "sha256": "2b36d4de6fa377873ad4a122ff17f9e839c3e2e7aed43bd03a721f96dae4ea09"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 567,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/b094f86143954baa2bb6c197d3d246b73c63119ebd7860c4ce7edf4fb6f2ff50.gz",
+            "sha256": "b094f86143954baa2bb6c197d3d246b73c63119ebd7860c4ce7edf4fb6f2ff50"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 567,
+      "mode": 420,
+      "mtime_ns": 1794094739314273256,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/trained.command.json",
+      "sha256": "b094f86143954baa2bb6c197d3d246b73c63119ebd7860c4ce7edf4fb6f2ff50"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 969,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/374ec8f5a7c8e30213484c8fe674a112dd84e9d43afc015a08ad929fe6904c99.gz",
+            "sha256": "374ec8f5a7c8e30213484c8fe674a112dd84e9d43afc015a08ad929fe6904c99"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 969,
+      "mode": 420,
+      "mtime_ns": 1794094739487998366,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/trained.stderr",
+      "sha256": "374ec8f5a7c8e30213484c8fe674a112dd84e9d43afc015a08ad929fe6904c99"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094739487869031,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/trained.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 139,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/5c31a83836900704f7a0292010b9b7cd5d76034eb5684ff4b9525a51b7899cbd.gz",
+            "sha256": "5c31a83836900704f7a0292010b9b7cd5d76034eb5684ff4b9525a51b7899cbd"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 139,
+      "mode": 420,
+      "mtime_ns": 1794094802943315096,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/post-choice/failure.json",
+      "sha256": "5c31a83836900704f7a0292010b9b7cd5d76034eb5684ff4b9525a51b7899cbd"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 32957,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/4bd61d2f7c858e029c25f9ac06d8ffbae7bc9b631ce3fd10566690c54e3af0c4.gz",
+            "sha256": "4bd61d2f7c858e029c25f9ac06d8ffbae7bc9b631ce3fd10566690c54e3af0c4"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 32957,
+      "mode": 420,
+      "mtime_ns": 1794094802807481929,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/post-choice/plan.json",
+      "sha256": "4bd61d2f7c858e029c25f9ac06d8ffbae7bc9b631ce3fd10566690c54e3af0c4"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 220,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/ea0e9a9d261dd49b2cfac59958163a805476cb4d676e90c3f1be6fd8fc4aabc3.gz",
+            "sha256": "ea0e9a9d261dd49b2cfac59958163a805476cb4d676e90c3f1be6fd8fc4aabc3"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 220,
+      "mode": 420,
+      "mtime_ns": 1794094802816863924,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/post-choice/source-inputs/manifest.json",
+      "sha256": "ea0e9a9d261dd49b2cfac59958163a805476cb4d676e90c3f1be6fd8fc4aabc3"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 902,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/b82bad866be050284349ddc8cf681128f9e936a96ed8abb6e929f8bcc49bacee.gz",
+            "sha256": "b82bad866be050284349ddc8cf681128f9e936a96ed8abb6e929f8bcc49bacee"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 902,
+      "mode": 420,
+      "mtime_ns": 1794094802816713504,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/post-choice/source-inputs/tracked.patch",
+      "sha256": "b82bad866be050284349ddc8cf681128f9e936a96ed8abb6e929f8bcc49bacee"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 139,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/5c31a83836900704f7a0292010b9b7cd5d76034eb5684ff4b9525a51b7899cbd.gz",
+            "sha256": "5c31a83836900704f7a0292010b9b7cd5d76034eb5684ff4b9525a51b7899cbd"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 139,
+      "mode": 420,
+      "mtime_ns": 1794094739650205528,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/old-task/failure.json",
+      "sha256": "5c31a83836900704f7a0292010b9b7cd5d76034eb5684ff4b9525a51b7899cbd"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 32901,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/2f83156a418d91e75bf1247e2ca9ca92f2b90aae824f591d0fc2df8907ca0d80.gz",
+            "sha256": "2f83156a418d91e75bf1247e2ca9ca92f2b90aae824f591d0fc2df8907ca0d80"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 32901,
+      "mode": 420,
+      "mtime_ns": 1794094739610422011,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/old-task/plan.json",
+      "sha256": "2f83156a418d91e75bf1247e2ca9ca92f2b90aae824f591d0fc2df8907ca0d80"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 220,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d1907b400e3a251234f8cf9bdfd0df58230429bca7dd589a1c2d3a73f5cc9625.gz",
+            "sha256": "d1907b400e3a251234f8cf9bdfd0df58230429bca7dd589a1c2d3a73f5cc9625"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 220,
+      "mode": 420,
+      "mtime_ns": 1794094739617993350,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/old-task/source-inputs/manifest.json",
+      "sha256": "d1907b400e3a251234f8cf9bdfd0df58230429bca7dd589a1c2d3a73f5cc9625"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094739617834097,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/old-task/source-inputs/tracked.patch",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 139,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/5c31a83836900704f7a0292010b9b7cd5d76034eb5684ff4b9525a51b7899cbd.gz",
+            "sha256": "5c31a83836900704f7a0292010b9b7cd5d76034eb5684ff4b9525a51b7899cbd"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 139,
+      "mode": 420,
+      "mtime_ns": 1794094739476105829,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/trained/failure.json",
+      "sha256": "5c31a83836900704f7a0292010b9b7cd5d76034eb5684ff4b9525a51b7899cbd"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 32967,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/ae3565e42c1918d2352f2e6f115408d238b04f5cb15bc001ea6ea400989b4924.gz",
+            "sha256": "ae3565e42c1918d2352f2e6f115408d238b04f5cb15bc001ea6ea400989b4924"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 32967,
+      "mode": 420,
+      "mtime_ns": 1794094739436451105,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/trained/plan.json",
+      "sha256": "ae3565e42c1918d2352f2e6f115408d238b04f5cb15bc001ea6ea400989b4924"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 220,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d1907b400e3a251234f8cf9bdfd0df58230429bca7dd589a1c2d3a73f5cc9625.gz",
+            "sha256": "d1907b400e3a251234f8cf9bdfd0df58230429bca7dd589a1c2d3a73f5cc9625"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 220,
+      "mode": 420,
+      "mtime_ns": 1794094739443622604,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/trained/source-inputs/manifest.json",
+      "sha256": "d1907b400e3a251234f8cf9bdfd0df58230429bca7dd589a1c2d3a73f5cc9625"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094739443492810,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/trained/source-inputs/tracked.patch",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 686,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/8e52e848903ff2c6433df2615ce97973aba4912c21d4f95ebaa1ad39bbee0b89.gz",
+            "sha256": "8e52e848903ff2c6433df2615ce97973aba4912c21d4f95ebaa1ad39bbee0b89"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 686,
+      "mode": 420,
+      "mtime_ns": 1794094739784550795,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/gain/plan.json",
+      "sha256": "8e52e848903ff2c6433df2615ce97973aba4912c21d4f95ebaa1ad39bbee0b89"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 95,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/6ee26948c6ce8a46607c1b542a9fc38da24061ead0e5c662b7df9e6ad05f0875.gz",
+            "sha256": "6ee26948c6ce8a46607c1b542a9fc38da24061ead0e5c662b7df9e6ad05f0875"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 95,
+      "mode": 420,
+      "mtime_ns": 1794094739302041296,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/double/failure.json",
+      "sha256": "6ee26948c6ce8a46607c1b542a9fc38da24061ead0e5c662b7df9e6ad05f0875"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 32913,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/e544936d9b2dce99cb17e7725e01f833024a4c0d885eebfce8c50543e162519b.gz",
+            "sha256": "e544936d9b2dce99cb17e7725e01f833024a4c0d885eebfce8c50543e162519b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 32913,
+      "mode": 420,
+      "mtime_ns": 1794094739262680328,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/double/plan.json",
+      "sha256": "e544936d9b2dce99cb17e7725e01f833024a4c0d885eebfce8c50543e162519b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 220,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/d1907b400e3a251234f8cf9bdfd0df58230429bca7dd589a1c2d3a73f5cc9625.gz",
+            "sha256": "d1907b400e3a251234f8cf9bdfd0df58230429bca7dd589a1c2d3a73f5cc9625"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 220,
+      "mode": 420,
+      "mtime_ns": 1794094739270169040,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/double/source-inputs/manifest.json",
+      "sha256": "d1907b400e3a251234f8cf9bdfd0df58230429bca7dd589a1c2d3a73f5cc9625"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794094739270025746,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/negative/double/source-inputs/tracked.patch",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1096,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/54f4260bfbc99fb00f3da6c5bb03b0b25bb4148078eafa9f371f2c6d189b2009.gz",
+            "sha256": "54f4260bfbc99fb00f3da6c5bb03b0b25bb4148078eafa9f371f2c6d189b2009"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1096,
+      "mode": 420,
+      "mtime_ns": 1794094359946000631,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/calibrated/calibration.json",
+      "sha256": "54f4260bfbc99fb00f3da6c5bb03b0b25bb4148078eafa9f371f2c6d189b2009"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/6c169f5faa74086d4b59b8c129d185e6d997f1d14fba45ba763eab1791ffcf66.gz",
+            "sha256": "6c169f5faa74086d4b59b8c129d185e6d997f1d14fba45ba763eab1791ffcf66"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794094359934907188,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/calibrated/initial.policypack",
+      "sha256": "6c169f5faa74086d4b59b8c129d185e6d997f1d14fba45ba763eab1791ffcf66"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33266,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/39c96c489bfe1900a6490d7ab58eb4df2932a06f725dcfdf4a516ba9e73af050.gz",
+            "sha256": "39c96c489bfe1900a6490d7ab58eb4df2932a06f725dcfdf4a516ba9e73af050"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 33266,
+      "mode": 420,
+      "mtime_ns": 1794094359880753705,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/calibrated/plan.json",
+      "sha256": "39c96c489bfe1900a6490d7ab58eb4df2932a06f725dcfdf4a516ba9e73af050"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-history-20261108/blobs/c4d02d37ad2e80504a0e2f359a38dc469ddbb8038b4c642ab5f400ca8c791112.gz"
+      },
+      "bytes": 659499,
+      "mode": 384,
+      "mtime_ns": 1794094359936970307,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/calibrated/source-roundtrip.policypack",
+      "sha256": "c4d02d37ad2e80504a0e2f359a38dc469ddbb8038b4c642ab5f400ca8c791112"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1096,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/54f4260bfbc99fb00f3da6c5bb03b0b25bb4148078eafa9f371f2c6d189b2009.gz",
+            "sha256": "54f4260bfbc99fb00f3da6c5bb03b0b25bb4148078eafa9f371f2c6d189b2009"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1096,
+      "mode": 420,
+      "mtime_ns": 1794094359946167883,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/calibrated/summary.json",
+      "sha256": "54f4260bfbc99fb00f3da6c5bb03b0b25bb4148078eafa9f371f2c6d189b2009"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 455,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/79787c8c6991ea5db775cb6df24175fcde1bd076ff09d62619a87959e01dbde8.gz",
+            "sha256": "79787c8c6991ea5db775cb6df24175fcde1bd076ff09d62619a87959e01dbde8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 455,
+      "mode": 420,
+      "mtime_ns": 1794094359889083225,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/calibrated/source-inputs/manifest.json",
+      "sha256": "79787c8c6991ea5db775cb6df24175fcde1bd076ff09d62619a87959e01dbde8"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1982,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/3aecab8009ddd2ba0c593255e2763b08d0b00e0e5b9383f2b188bee40bd90167.gz",
+            "sha256": "3aecab8009ddd2ba0c593255e2763b08d0b00e0e5b9383f2b188bee40bd90167"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1982,
+      "mode": 420,
+      "mtime_ns": 1794094359888529965,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/calibrated/source-inputs/tracked.patch",
+      "sha256": "3aecab8009ddd2ba0c593255e2763b08d0b00e0e5b9383f2b188bee40bd90167"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5864,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/05ba47fc6e14b324c563d2b5e7e9d943626f9e4b224242e4d1376069fad8dd4e.gz",
+            "sha256": "05ba47fc6e14b324c563d2b5e7e9d943626f9e4b224242e4d1376069fad8dd4e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5864,
+      "mode": 420,
+      "mtime_ns": 1794094359888807095,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/calibrated/source-inputs/untracked/python/metalrobo/crow_retinal_normalization.py",
+      "sha256": "05ba47fc6e14b324c563d2b5e7e9d943626f9e4b224242e4d1376069fad8dd4e"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1514,
+            "path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/208fa33305dfda95e60ff3521fe5ab48b0ac107891b5809a1175c9041247e0f1.gz",
+            "sha256": "208fa33305dfda95e60ff3521fe5ab48b0ac107891b5809a1175c9041247e0f1"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1514,
+      "mode": 420,
+      "mtime_ns": 1794094359888961056,
+      "path": ".numi/runs/american-crow/retinal-normalization-01/calibrated/source-inputs/untracked/tests/retinal_normalization_test.py",
+      "sha256": "208fa33305dfda95e60ff3521fe5ab48b0ac107891b5809a1175c9041247e0f1"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-action-holds-20261107/blobs/8a38dfbec7473c62e08ae7598b44e0c9e111df6f40ba7626c1d1143ef115685a.gz"
+      },
+      "bytes": 1025304,
+      "mode": 493,
+      "mtime_ns": 1794093490746299255,
+      "path": ".numi/retained-runtime/retinal-normalization-01/bin/metalrobo_task_rollout",
+      "sha256": "8a38dfbec7473c62e08ae7598b44e0c9e111df6f40ba7626c1d1143ef115685a"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-memory-retention-20261108/blobs/d31b4b4504da0d8d1a066142c9f75a98e1ba5222ee698f6f3a1565e23ff9bb50.gz"
+      },
+      "bytes": 1012248,
+      "mode": 493,
+      "mtime_ns": 1794093490781453151,
+      "path": ".numi/retained-runtime/retinal-normalization-01/bin/metalrobo_task_train",
+      "sha256": "d31b4b4504da0d8d1a066142c9f75a98e1ba5222ee698f6f3a1565e23ff9bb50"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-git-recovery-20261107/blobs/9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe.gz"
+      },
+      "bytes": 19391,
+      "mode": 420,
+      "mtime_ns": 1794092869104936745,
+      "path": ".numi/retained-runtime/retinal-normalization-01/shaders/GRUMemory.metallib",
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-history-20261108/blobs/d036ae69e16081d352766352614483af0dcc451b0794324edabea4ef4d7d2013.gz"
+      },
+      "bytes": 4199993,
+      "mode": 420,
+      "mtime_ns": 1794092873167695233,
+      "path": ".numi/retained-runtime/retinal-normalization-01/shaders/MetalRobo.metallib",
+      "sha256": "d036ae69e16081d352766352614483af0dcc451b0794324edabea4ef4d7d2013"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-git-recovery-20261107/blobs/9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12.gz"
+      },
+      "bytes": 16151,
+      "mode": 420,
+      "mtime_ns": 1794092869103742195,
+      "path": ".numi/retained-runtime/retinal-normalization-01/shaders/RetinalStream.metallib",
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-history-20261108/blobs/5d1059576988470ae99c30d99f3c70397f7eb2cfc618ceb9a758c77dd7f20f3b.gz"
+      },
+      "bytes": 5656128,
+      "mode": 493,
+      "mtime_ns": 1794093489968422765,
+      "path": ".numi/retained-runtime/retinal-normalization-01/lib/libmetalrobo.dylib",
+      "sha256": "5d1059576988470ae99c30d99f3c70397f7eb2cfc618ceb9a758c77dd7f20f3b"
+    }
+  ],
+  "roots": [
+    ".numi/runs/american-crow",
+    ".numi/retained-runtime"
+  ],
+  "schema": "crow-git-evidence-archive-v1",
+  "summary": {
+    "existing_archive_blobs_indexed": 13934,
+    "files": 207,
+    "new_compressed_bytes": 321681421,
+    "source_bytes": 1683207806,
+    "unique_file_contents": 140
+  }
+}
