@@ -1,0 +1,685 @@
+{
+  "commit": "b5ce8c2660b7dc19918442e2add881e10ff44234",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 297566524 159782616    66% 3496604 1597826160    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 297580156 159768984    66% 3496739 1597689840    0%   /System/Volumes/Data\n",
+  "omitted_files": [
+    {
+      "bytes": 12,
+      "git_blob": "57cdc50305d07f35133f80962644debd6b846bf3",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/.gitattributes"
+    },
+    {
+      "bytes": 121,
+      "git_blob": "d449087dfe73fa27978fdd9b676e765b465d722c",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/02eb2c030ba98e9ef12ed3d4c7d1bbb12ed399d1c55b358c5330361278d56475.gz"
+    },
+    {
+      "bytes": 46,
+      "git_blob": "55d2d2d33fc19293e3cb190c54f7a25172c4398a",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/04ec3a373ede60a779c2e5579d2601cd5e00bb4d8dc563cb7ba8d60de6bfad64.gz"
+    },
+    {
+      "bytes": 8263,
+      "git_blob": "ef131f71959a13cf5acb9ca74db0451eba854cc0",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/07525d100c3e69efc114aab1e8acde87ce37e28b332d720bcb9a680dd043e672.gz"
+    },
+    {
+      "bytes": 7293,
+      "git_blob": "1e883a5fcee47522c9293d12afa2d325cc47a59f",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/0937796fea014bb95b9054fad2f647d75652e8f49ed8096beb8aadec9e7f9270.gz"
+    },
+    {
+      "bytes": 2059,
+      "git_blob": "3f1ac12e95cfa89fcdb81e1b33e6855269866cfc",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/0a1a699cb293737cf001053bd8ace8f5f6b4bbb2361554e12a32d1c10fd4801c.gz"
+    },
+    {
+      "bytes": 601,
+      "git_blob": "dfeeee4d40d7493beadac4cfcc7621ddbbb39297",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/0bb64a686c80f7a33791df145b178a4a999c79108f71f80463119ae961ed3108.gz"
+    },
+    {
+      "bytes": 341,
+      "git_blob": "d0aa4d9f249811aa706dc2b22af5af40b38aecb3",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/12010fe1952a90ce888053c846de44c8c0c3dd7a1b00e6a71fed38f6afebb70c.gz"
+    },
+    {
+      "bytes": 8161,
+      "git_blob": "481589e1509dd4b6383377ba94cd5d1870b76a93",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/150cd453209df402e980eb5ade5668ae43a779c741b5145a43c30c671f698106.gz"
+    },
+    {
+      "bytes": 1042844,
+      "git_blob": "b51790617d304033b4c94b92518df9f82f609022",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/160a08b032b974f3858df75ffda943dcd592ede555fcfc5b4696699bd14dd4aa.gz"
+    },
+    {
+      "bytes": 600,
+      "git_blob": "21743d2744be11a108630e3aee0099c500da5926",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/18b7de5873b905add6f6f07dad1bdf86f8476c97e53405a0adf31d5dabdebe3b.gz"
+    },
+    {
+      "bytes": 64,
+      "git_blob": "b66f8b4e62619fe3066f5d2fd67b25bc5002ad2c",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/19aacfdb71090b7bcab613ec6c029dcf9a096fb57de1007ceb1a92df2e0e3b43.gz"
+    },
+    {
+      "bytes": 122,
+      "git_blob": "91dbf685a35e10bfbdc7a11366884fdf0b01daff",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/2191a01aac008582fa04cc662aa7a4d0f0a153cbf11a22a4fd7d98031f7c254c.gz"
+    },
+    {
+      "bytes": 4553,
+      "git_blob": "ebcf326828288483cdd772243a080c94535479c2",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/238b07e4bf5b7c86d613ab352fb1ffcaa0859ac4366f27e9543cde37b94b5d6d.gz"
+    },
+    {
+      "bytes": 8448,
+      "git_blob": "fb6d4f040810c7d05c1d72b7237cad8912b5f768",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/24a3f45ef54a4b586b8c2cb720ee082c51a1f20414702ce76b31eda156d5f865.gz"
+    },
+    {
+      "bytes": 254,
+      "git_blob": "76a4e292d96fe88b728003d2a805ab48cba28fb5",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/29017bd39300c16f9058d1746ff107e5a9c4378f975ce55f2c6eb207d5b1f1ee.gz"
+    },
+    {
+      "bytes": 1748,
+      "git_blob": "f5063e3b67b8b3cebc99146ce5956d15ad6ad6fa",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/2a4fd779a02f297bd65b9da4908478fa40f3f5a677d8944aa8d7481fe020d96c.gz"
+    },
+    {
+      "bytes": 601,
+      "git_blob": "214d82f25f1fc06b142fc6b7321e6b872707b234",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/2adfaba5b44abf4e69f4387c7defdbce84ab94d5b23fbdd45eaff1572e05a74a.gz"
+    },
+    {
+      "bytes": 335,
+      "git_blob": "f11c47ad01ac8af32440bf55f8b026207c6f8fb7",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/2b8fdcb66f166e87ff3067287ada83b4f56c13e0c25a38f7cc1eb7c63843e074.gz"
+    },
+    {
+      "bytes": 68,
+      "git_blob": "7aeb93db81e2ca5e37ff9fb08b33f42b193e1e37",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/2c901fb94eae57f70f86b7bb3dd4b67d207fb9e3d3f0a6150b97325f80c736da.gz"
+    },
+    {
+      "bytes": 602,
+      "git_blob": "a290ba059e08ba71a3c53454bdfb3523520ce838",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/2f55b41bfdec28ae04519fad75ecfb0f432f125aa7ce94aef9a75defc24f75a2.gz"
+    },
+    {
+      "bytes": 63511,
+      "git_blob": "de05bc4182d83f35c514cb3199ffedacc0210417",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3047a09f1279922cabebdc8f575360701ef9df0edf6a293bfb716f3cd01d0d67.gz"
+    },
+    {
+      "bytes": 603,
+      "git_blob": "b59eb0e188c7017f67c5911618811d7a9a510555",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/307169f98a60c0fd9ffe5a93451b7f0ba52739ad513f85a88eee6faaac03bf59.gz"
+    },
+    {
+      "bytes": 1072264,
+      "git_blob": "73f571b8df7a10e14dcf24c01c9a9f85e3bca136",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/30821f96b12e40cdf18d61fc02294bdf9b18175089b18bd23c6a2039e2150489.gz"
+    },
+    {
+      "bytes": 120,
+      "git_blob": "885a1db31dead48e6fcf6a631ddc6c4e01061785",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/315bc12c15dfb06520e9a72672c8ec0f7ea92add0ede13d0579ff27c36e1d198.gz"
+    },
+    {
+      "bytes": 254,
+      "git_blob": "639c49c929c862ad58df9ca09c81df7c34c38fc5",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/32fdf8395d68ad0cbe7b257528fe590ae5389620a6b9cb62eeb7ba3598bfccd4.gz"
+    },
+    {
+      "bytes": 277,
+      "git_blob": "7420ee6582878707285bd2ea1914b607c3a2af8e",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/34670dd55469f6a581ab471e69f4c9737671b348d03048e67eeff8583a3d0c24.gz"
+    },
+    {
+      "bytes": 159,
+      "git_blob": "a762f9f8cdd79f7e49a6e6153e0bfd0180aa84ec",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3542ab7641971141772a245eed48225d78f9cc42b42dc22f994761774700c086.gz"
+    },
+    {
+      "bytes": 1927,
+      "git_blob": "f2185054707923aca95d11234837163f2b510994",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3552388a752644f30a9711f61536f21a8d22a6ca413761fb565088e439de4012.gz"
+    },
+    {
+      "bytes": 3446,
+      "git_blob": "e0cdf2e02db304cc30341a8c5adb84b6524a5ace",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+    },
+    {
+      "bytes": 1766,
+      "git_blob": "251bb0a15ac34328249c2bde10cf8a82100c1d7a",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3d10f097e863c03cdd32f4ee524664a16f1bb5b1e97b155aa87aabf9c78844f3.gz"
+    },
+    {
+      "bytes": 7011,
+      "git_blob": "ef7fa37920738cfb85ac4248be2173b1c6686999",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3e8680cfa548e2b0c0d80e5973718e96138a33d9280fb440eb40346a31d8fb2b.gz"
+    },
+    {
+      "bytes": 1202,
+      "git_blob": "75a2e341f9daba16f1179d07c4bcfb8f5b356278",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3f2100c032b4b6c929850556c7952f315cffad08652e0f04dfa5550f5d951d3f.gz"
+    },
+    {
+      "bytes": 11662,
+      "git_blob": "b33cf728360b6b46ecb2be1b29af46574fb18d5e",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/429d736d294ad0d180c0d95c7e3d971f31c02f22123285edad1ad674f72a8913.gz"
+    },
+    {
+      "bytes": 121,
+      "git_blob": "7b84bc27097b6dd24912916281d8a3be5093274c",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/44510edd056bccedbb995e996c29f683f6dc81a98578f86b9930d7a6fa56fec4.gz"
+    },
+    {
+      "bytes": 340,
+      "git_blob": "bfdb118974b9a585dd29b56693415742b0661d28",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/4822853cafdce0a60a75d7e70d47b932dabe533c056f689e15dc589df1e2c18a.gz"
+    },
+    {
+      "bytes": 340,
+      "git_blob": "c2f5a8d70c69e8224b50d6321ebfc8ffca4ab4b0",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/503309469f0533e47630289812ce6ea70d79014dcd30ea263e084ca0ff14a86c.gz"
+    },
+    {
+      "bytes": 166,
+      "git_blob": "3a71bf74509dccd602b7259845694be8a972c823",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57c7fee72ff3bff6c9ec8dcafbd6cd43e62537d5aa25d860257fb844c2ae1814.gz"
+    },
+    {
+      "bytes": 1200,
+      "git_blob": "515387292a4839d30d9de77c4819248434ae4403",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+    },
+    {
+      "bytes": 334,
+      "git_blob": "fac7ccbc0d8753c76fa1701ced8f50aef973ed03",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/58b47acd2731cad8f8540ba4d03068574d7d3739c69751b89931dec6a3afd021.gz"
+    },
+    {
+      "bytes": 122,
+      "git_blob": "1621778f34552dbfa9bb97343206c80f08fe864f",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/5925bdfb1be71f093306e46f3b9cfaabe47164a8e26a579eb83d9c26c8596e25.gz"
+    },
+    {
+      "bytes": 220,
+      "git_blob": "59fee333ac473118ea60a5cac1de6dee0f689930",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/5d455fc39788693bd4e88939f52455370705ebecbc6cf3b44d20906e40de4257.gz"
+    },
+    {
+      "bytes": 79,
+      "git_blob": "fdfe069f2ab4f6cd7def34f5220cc1b8f068a060",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/5e5049e0f00e7bb05f64641957ebe7a4322fa2ea9ec1ce5171b98fc35b656b26.gz"
+    },
+    {
+      "bytes": 332,
+      "git_blob": "47c1df5dd14aa53613fc739903431c96006a6702",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/639c82d365deaf3aaf976ee14cdb6ba4b19cd9688d83f9239c0b0ad64ef14eac.gz"
+    },
+    {
+      "bytes": 8756,
+      "git_blob": "1e8ffa8d6d2f0fa7552d73b07ca4874180b71970",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/63c77b0c85a1120afe5b251ca0841769115516af887792a0061494955045be29.gz"
+    },
+    {
+      "bytes": 289,
+      "git_blob": "eabc79c05c5b1152122cae3e93f8ca352749b7a2",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/63db98a253fbb89582818ead189dcc626e2758d3a6a717ebb8c172c9f5fa3b05.gz"
+    },
+    {
+      "bytes": 1038761,
+      "git_blob": "6e5832b360e8f1b979a57c0dbb3940dbb0ae2641",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/64fce72e9891f8eed0133022b08fb17d14773a822e5316e8b4e0a680adf5f1a7.gz"
+    },
+    {
+      "bytes": 136,
+      "git_blob": "cb3d29d94f3a5c56a80b20e054cb3ddccc7f4f3e",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/6644c6f1efe64e8d71126e28ddd6b2642f04f56ad018f9f516bf62dbc1613f2a.gz"
+    },
+    {
+      "bytes": 15331,
+      "git_blob": "ac0fe27374fa06c1e88f79fb829d2797316d2776",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/6850a87edf4aad0fe8a0bcc58364a881682bd79b6b8a5166e1c81ec58ab68da0.gz"
+    },
+    {
+      "bytes": 203,
+      "git_blob": "dd8f18b2b4d29fc08ba402b35292e09b511fcbb4",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/6b9ec7a7f008466ecf8df7fe6bbf381d35cf778b0eea0c0e5877c155670e519e.gz"
+    },
+    {
+      "bytes": 1131,
+      "git_blob": "8a522c5a6587c04d751321276eca7aff04fa91ad",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/6d21f12c95b8f65a31d7db56980bae8769955ab8ba748bd6e72d1443e8884499.gz"
+    },
+    {
+      "bytes": 65227,
+      "git_blob": "89a54fd1cb25a545259ac84aa0c2d2ad01f87a1e",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/6d7753073185f12f3ea65a070851a3fde1eb021257be9843fffbe03f2fda16e7.gz"
+    },
+    {
+      "bytes": 333,
+      "git_blob": "5954caf92b945e29f0669a571ef97848290ec8e0",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/6de8b0f1a8b004520cd82e72985b984c28680a261f44e898a8fe3f1017e27923.gz"
+    },
+    {
+      "bytes": 3165,
+      "git_blob": "1d855ae271e77a883046351ea7f893464f14dfb9",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/712ae2182cb4eae6ff3ba50835f32097ccf9595021844cbd650b100bb1ce738e.gz"
+    },
+    {
+      "bytes": 57,
+      "git_blob": "2ec805587da84e90afad0db842fe1c2a74059af2",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/73dea34efafd7c4da19968fc8ca0e7cb6adf29c34f73e493d88aa87dda3fdb9c.gz"
+    },
+    {
+      "bytes": 120,
+      "git_blob": "6e61ab27fb497c38e10380ead8ff23b29b65b4dd",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/7af5592a207e392766ae2567055f9e494d84e89f15c44fdf7925f7e82fe7db5b.gz"
+    },
+    {
+      "bytes": 296,
+      "git_blob": "f265dafeee88c1aab60bb205ea94aaec73e74e19",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/7cef79cc3fea0bd2e82e2342bc752eb8ccb96023c048260fe90a27287787d442.gz"
+    },
+    {
+      "bytes": 12243,
+      "git_blob": "9e616923bae69eac454ab830cec9293bdf7b7a6e",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/7dd85b94e027301b16b7867a1055c26282a1ba5da674c8248894ce58950729ee.gz"
+    },
+    {
+      "bytes": 8745,
+      "git_blob": "3104aa92cc0954478bb63c04dde08d2e05e560ad",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/7e447eab96afdbcdfff1f8f3dbc1ac6a621e85cc5738630f582574e627201302.gz"
+    },
+    {
+      "bytes": 122,
+      "git_blob": "8e49f65a3c3098b9ec6e8fa9ef8b03a4012b6b8e",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/7ff2fac7c0938e3235b2cefb03b63e8a1a27a588d4639496ee3d6840fd090810.gz"
+    },
+    {
+      "bytes": 600,
+      "git_blob": "eed2d49a6064769e02022894ae8d3c19561f72f6",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/805a479464715df2ba92977fadebf1cac4db0a74db6d945a83543960920fc02f.gz"
+    },
+    {
+      "bytes": 126305,
+      "git_blob": "83fe8d656e4b17540f5bac65dec85fb2b21826b1",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/81c6e2268f7e828de459f196c675d3798fd576727685f5d7eb72b2197c7d9622.gz"
+    },
+    {
+      "bytes": 603,
+      "git_blob": "28c8ff1be4c875b62db525975d9ab2479550819a",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/81e44a49fc8a490b7d7471fce9e70c5e566a4712428609c64e491a1ee76df9ec.gz"
+    },
+    {
+      "bytes": 333,
+      "git_blob": "05d94bf5a78d7bd1356c33077054a8d317d63713",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/89bc8737fd9c7bf51805ea298e2990db74abe6fc3ea294f40309081a63f630c8.gz"
+    },
+    {
+      "bytes": 379,
+      "git_blob": "e8ec38212279528eb82ca713576651b00ede6075",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/8b53c0e399f50ef0dd6088fb1ca7fc59d9637785defd0944362c10f1a241f731.gz"
+    },
+    {
+      "bytes": 1342,
+      "git_blob": "418fea7933ad573e5276f68363fb74032fa9c4b6",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/8f24d7bcfb9d04e545fac0a906818bd2872ac15d2414f049a577340dc5ac8b02.gz"
+    },
+    {
+      "bytes": 122908,
+      "git_blob": "c7f1ada446d3926cb9852be9178c342a0e1ca365",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/8fedc69aee68cff8d51aa70609bbe828d32fc75da9d36f006612561843d43384.gz"
+    },
+    {
+      "bytes": 602,
+      "git_blob": "cbec01974110329e15f8fc934cb9be2a5f642ea1",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/91f2b7f003abfd63339a27173a001124df7a77e41251b8330ed5d9353683b427.gz"
+    },
+    {
+      "bytes": 2428167,
+      "git_blob": "6b78b389d82ddcadb060d4881cb3d1a31e1c14c3",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/94745f60bc6bfe7e62cc6c6b85cd43fd9967d078ec4326b1d043d4f8ddd4f819.gz"
+    },
+    {
+      "bytes": 603,
+      "git_blob": "f75a55d0c89d1dccaf504d03c8cb893fd168036f",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/9533b0195b918b36900b441695fb04fdbe156cee3330ab12b23468c0d4b4637f.gz"
+    },
+    {
+      "bytes": 1031,
+      "git_blob": "0b0aa9afd6dd604b2d3c78a81304eee25145e61f",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+    },
+    {
+      "bytes": 100,
+      "git_blob": "aec5ef6cca4b52c344202243c9ebd24616dc2207",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/98475773e22f64ba73383fe43b7a37d6a6b7796879b5663d16bd963d020344d3.gz"
+    },
+    {
+      "bytes": 3284,
+      "git_blob": "5bcfe9ce7a7df8e54bc63b6513b47c8e91a50fe8",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/98fbfe652c55af098b483cba403a141162efa0467471822dfb49a17f8870f05b.gz"
+    },
+    {
+      "bytes": 407,
+      "git_blob": "b21a75c8d2c71db607e3f320d0b5d4922b43a171",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/9bac2a2ed3b7c2c53769d4f29778ce62b2772cf5fba38a35c754915f08a2e0bc.gz"
+    },
+    {
+      "bytes": 457,
+      "git_blob": "1b476bfc89c82e863084ea8cace4598943eee5c0",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/9c096da4ce98ffda59220b93bd6aa90b5f1305660c19a2f78145eeef1f913513.gz"
+    },
+    {
+      "bytes": 122855,
+      "git_blob": "cd5cd072fb23195ade5a052befdac07f27f6e607",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/9cd705f0528c9d35d634734ce12c187adee0e75f888cc2376d196cc556e2358a.gz"
+    },
+    {
+      "bytes": 1669,
+      "git_blob": "7e8fe836c6336554fc4b2b8b92659a69908c9d3e",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+    },
+    {
+      "bytes": 602,
+      "git_blob": "9f69e73db5ef87aef487a544d58a99c89472b424",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a10be73a137002c1bfdaf75d47e07fa5ded87809e4c62e560cf2ab9a7f504291.gz"
+    },
+    {
+      "bytes": 85,
+      "git_blob": "e45a67a8131cc67ee754908b7e6a095e39b8ff8e",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a7060414769c48b1c9bdf9ac47733333ed79a19f66b2b34a61757dd91dd71318.gz"
+    },
+    {
+      "bytes": 8929,
+      "git_blob": "8769fab198fe53b86ab0bab73236242b16c6b3a2",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a94fe8b650889a0addc20a7aee635ad639fd4b1ff92b4673bab3e4084a7e4c16.gz"
+    },
+    {
+      "bytes": 120211,
+      "git_blob": "66ef87140269cddd4c2f5d5d351f152a5410de50",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/aa7b989f93a4c6c013be7a4b4738ae273471eea1a48f3ace0bea299f8349f1b0.gz"
+    },
+    {
+      "bytes": 61961,
+      "git_blob": "b61d057ef4e7e6f728f89ba9c770fa51ccf8f5fa",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/adb2462a953d3fc362ebb3aad4e665a13db103af5f83afa2ab9b7a7c1b9e42fe.gz"
+    },
+    {
+      "bytes": 85674,
+      "git_blob": "dc43d71e807a17deb66138f93771b0faf2e27b34",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/af4b0f61e4662f455fb7c124834b17cc2c8b01db8657e21ea7ff89d434086dc9.gz"
+    },
+    {
+      "bytes": 354,
+      "git_blob": "69c90d2ab8ad0510b0ceee3d4af336181d1c7bad",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/b07a80e5bf6c72a6973ae4a83bc4ce5e6ba45b8f59fe14a87c34d9f2c81fbd2b.gz"
+    },
+    {
+      "bytes": 338,
+      "git_blob": "78b7d9381a833772e02ba16eac559266ae67ba64",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/b4d34002c8c9e0291b1e7735a3e3666a0866248c4e5a44f3ca7a178b63820802.gz"
+    },
+    {
+      "bytes": 325,
+      "git_blob": "fb7c8d73833ab4ec01baec5185ffa817b1c55831",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/b666cc3c199f13a8a474be443ba9262ffd47aeb1d8e03ea560d1398cf31c3cb5.gz"
+    },
+    {
+      "bytes": 389,
+      "git_blob": "32cb4c2fe0ff4a5d04dcf0fd208473121a08d946",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/bb6db835abedc4ab0354d82622ddc0f5f9ec58e88692cfbe4e7590086fc8f3aa.gz"
+    },
+    {
+      "bytes": 126,
+      "git_blob": "b4ba5dddf42498c572ed2429b9c10d8b2305b3c3",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/be27fc6bfa69ec6292b8b47c50e6c07dda743a2e33f615355f3aba2ceec9e966.gz"
+    },
+    {
+      "bytes": 8738,
+      "git_blob": "cb3e0d2e764588ca54b9d134dbd5181cb326ae76",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/bf41f322de70a06ad0d91e90c78e8b72e011d6c11be8dfcf7326df6565e201a1.gz"
+    },
+    {
+      "bytes": 886,
+      "git_blob": "1c4f11522cce5cab3d3f40f33a6c92149b4a977a",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/c37f4ded83c1c89a096217e0aea44530d51303742e8be340316be6bae4ef335d.gz"
+    },
+    {
+      "bytes": 8861,
+      "git_blob": "290fa8ef1fddcf5d173e841f4cc9b9bcdc6b362c",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/ccd67eb553e8f28f487ad47de01cf5bb7d9553563f5a2c56d8ceba52018ae94a.gz"
+    },
+    {
+      "bytes": 476730,
+      "git_blob": "01af467ccc3b9f2d8926c4d1e79f24af10947345",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/cd4d1290a733a664dc635bd40d21fc6396fa52def5ea71ce0f4313dc5c91ad71.gz"
+    },
+    {
+      "bytes": 12130,
+      "git_blob": "c896fd3157d5d3a6d33e9b0b4d8bde240927c475",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/cda9b7de0a5fa8289679b8f1fcf5f715b1547d8df645910be0bbd5a3598ef873.gz"
+    },
+    {
+      "bytes": 286,
+      "git_blob": "94903272fec88779acf261d211b7ca0ce4fe0b93",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/ce0bc0c3c42e78d644c7de4f526021b8443b139a76f439cb3afb881dd2fa6f4f.gz"
+    },
+    {
+      "bytes": 1637,
+      "git_blob": "0ebcce0039a2502ff20949046a2011ea5331f843",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/ce91d4cefa8ec457b2f86c92a1a0740baf3411854d6b4e60d0b12cd51fb76cbf.gz"
+    },
+    {
+      "bytes": 105,
+      "git_blob": "e85e29ef3aea4b7e5d95c2f37eadb099dc35068c",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/ced89e267424454274fdd4b99c28b1e06646a79a971efe71ee7e4f633d7c520f.gz"
+    },
+    {
+      "bytes": 2428315,
+      "git_blob": "eca1dca72515acced635a620281168500856cd45",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/d0d1565c225dd3a63d2c162eed8a1df8eb49e57fcdca4c9c076669c8ba7b5c30.gz"
+    },
+    {
+      "bytes": 332,
+      "git_blob": "10a3d546af2992f794ab74b73d1d6ff813c5fabb",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/d536c9024f08a94db95d033676de94ef5b4f295b6dc2c856e99abcb302d42014.gz"
+    },
+    {
+      "bytes": 54979,
+      "git_blob": "41b1861ddbd0c388fd9a749c823ef08048c8743a",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/d85d8b7287a9a8a648eaf4d904e326e9d398ba585803b1c3d20bdc2ea300604c.gz"
+    },
+    {
+      "bytes": 2309867,
+      "git_blob": "8fe7528ba5cf2f01184b23f213fe525d6897a3b3",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/dbbba58678529e0591cec42be1d4644840127bddfa0ff501cc05380ad0d716ec.gz"
+    },
+    {
+      "bytes": 1522,
+      "git_blob": "dedb0b425204ddf48e09b1c8b5b542abe6c60f70",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/dcfdf73da7084320fdf3beb48f862aa0351a3a434b489b90c4b2e037ac688405.gz"
+    },
+    {
+      "bytes": 338,
+      "git_blob": "d6ceeefe4aa9c8341c7b8b61e84aa6e24b70f8fe",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/def672cb709ad07e790c4df64a4f9d68b3d887f9327d14ade47639b9fae3d49a.gz"
+    },
+    {
+      "bytes": 438699,
+      "git_blob": "f4ba13de4970cef6b3b92a80d463fcfc89f32ac1",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/e0acf1da2940e63d643382f543673f5c9ed73a30b846561b2f258baedd490d94.gz"
+    },
+    {
+      "bytes": 603,
+      "git_blob": "0863c096aee37706350d448b61cad8f3d38b5bfd",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/e24f30085f313030b10a21768596728eb9412c72b968b7345d0184b1e9ab5c79.gz"
+    },
+    {
+      "bytes": 1091,
+      "git_blob": "0d02aea05239138f02628eed1c1ff5cc14853c5d",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/e3bb2860acc041bf455e5371e8a89d234e9606d701852b3ea57a1f89ae91ccbc.gz"
+    },
+    {
+      "bytes": 1070046,
+      "git_blob": "8ad9cad29354cc0e4e9b6e12c4e3a077e44e1391",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/e43d5abf7dc84cc478bb1d4791ff21cefb33f5adfea0151022a58ac5892eb0c0.gz"
+    },
+    {
+      "bytes": 601,
+      "git_blob": "3e84c4f135b5ebd037bf6f856bc819b208a8ae62",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/e63f12617c47a4f2a584fc67b7e791937b8e773f8dc14aa1f1009a7beee11c2f.gz"
+    },
+    {
+      "bytes": 55,
+      "git_blob": "a77cdf11b4d6d386d34bb9d75acdc03e9ca93ddd",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/e6ea4486bfebb4809982c02034b7055ec5f7dbfdda4648a5b4095d9b355ec771.gz"
+    },
+    {
+      "bytes": 121,
+      "git_blob": "9dc46555cd2c1b2282f1a4a30a8ae568167ab7b0",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/e7e49d726ec97b0c58839387778a96076490de1e05ed08bcd2c553877735b5ca.gz"
+    },
+    {
+      "bytes": 601,
+      "git_blob": "402272465c52dd2c0ef4ea08a5399d527c8664e8",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/e8353b7e85109e6691f03cf029ef25b44aedec84659b5ace1ed9d04cbf340ae1.gz"
+    },
+    {
+      "bytes": 54,
+      "git_blob": "69e50c4ea50780047e64450f3d6dc318517a3a57",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/ea1aa4f0111d0b2043e68e23563ce27b3f68e9bc69c7ce5749b57bf1f9f94b8e.gz"
+    },
+    {
+      "bytes": 218,
+      "git_blob": "a994c1074e17bc24e12cdeb1cb657e8b33f012c5",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/ea47e3b1ac5b4b3d12c89cbd0486e5c8298befd0d26c5cf76b0fa37e98e609f6.gz"
+    },
+    {
+      "bytes": 603,
+      "git_blob": "fe2fa84b08c01ee8fe78918bf97eada12dee8799",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/eb2448eda4f9ce912f7248fb0db68b1c195a577bc8b5dfaab194e7faf46d6eb2.gz"
+    },
+    {
+      "bytes": 601,
+      "git_blob": "9f9cadfce3c1e77300791889d5677c41e2c6f902",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/ecf93fb0220909778722a378afffcb78dba285871bc09901d1d76a3476ea9312.gz"
+    },
+    {
+      "bytes": 325,
+      "git_blob": "7587eb96852fca5cc9eb8dddec0335b71f49e326",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/f0296e11aad95a33de2112611d601041f1e970dd4ec9355a21b83c149beab2d4.gz"
+    },
+    {
+      "bytes": 333,
+      "git_blob": "e07e4924e7b22dedd00e99e69095af7f2c9f9510",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/f061ac6362199f973c9e3186c5facd4fc10e43051034639bcc913c8464262426.gz"
+    },
+    {
+      "bytes": 213,
+      "git_blob": "d3dd30ecf58ccb44b33ad7acc42d7e7588249d38",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/f5bc3b5685ce42f912e2c6849438fccbec632facb14d27b3486093d66efe5b96.gz"
+    },
+    {
+      "bytes": 4543,
+      "git_blob": "76138bb4d74d82d3278fd773636e9b50f4caf8d6",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/f5e1585df0d7078a42426f170c557070486e6853d8dc624300eed4fb1197d943.gz"
+    },
+    {
+      "bytes": 367,
+      "git_blob": "982747b296df0df533e1412feb9c389a72ebc85f",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/fa918c4e9971800714eb655d47bcff8acfb3c7092975bd2d869087fdac79294a.gz"
+    },
+    {
+      "bytes": 328,
+      "git_blob": "9af32ebc3274eb84f59be9c254f64c8d9d260d0d",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/fb1b0554f648b7f60ba32359685ea8e27620ff8e10aafb7e5b8946eb393a4391.gz"
+    },
+    {
+      "bytes": 55,
+      "git_blob": "785b34397b2abfcce945d89e0dc35b1a324aeae6",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/fd6521e25650550d9361327250a9e654c59e48e5ee7b9fd937e99e17e04c999b.gz"
+    },
+    {
+      "bytes": 84539,
+      "git_blob": "12468ba5131440192883c5070800a0ba842ef012",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/recovery.stderr"
+    },
+    {
+      "bytes": 468,
+      "git_blob": "a53065d1e2526aa9b9cd21be6dc179f35b892ee6",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/recovery.stdout"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/scene-authoring-build.stderr"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/scene-authoring-build.stdout"
+    },
+    {
+      "bytes": 84282,
+      "git_blob": "324239c8ce864b3d980e9eeab7e9c483785d4d31",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/scene-authoring.stderr"
+    },
+    {
+      "bytes": 77,
+      "git_blob": "e929b7b8ab3205535c091d48c38d1a7e744fba53",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/scene-authoring.stdout"
+    },
+    {
+      "bytes": 2024,
+      "git_blob": "391fab1d0e0b808f293667e7ddb51f7eb49b0a17",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/scene_relocation_check.mm"
+    },
+    {
+      "bytes": 1005,
+      "git_blob": "dc8711dcf06b552d68f366be344a1a12f5d219d5",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/verification-amendment.json"
+    },
+    {
+      "bytes": 1094,
+      "git_blob": "404978605728b33e2cba45ece57191862e7fc8ab",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/verification-failure.json"
+    },
+    {
+      "bytes": 772,
+      "git_blob": "e971e21d8575b3a8db6b4ead2b436003f486187f",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/verification-plan.json"
+    },
+    {
+      "bytes": 9726,
+      "git_blob": "5d44ea28107d979de58209b5a07b2f019328e992",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/verify_recovery.py"
+    },
+    {
+      "bytes": 6151,
+      "git_blob": "24d36047fc30933541577f243809713a24632ef3",
+      "path": "artifacts/crow-rl-cued-foraging-20261107/verify_recovery_v1.py"
+    },
+    {
+      "bytes": 14519,
+      "git_blob": "1ed4173a8b89816de11d97ac299ac61947fe6347",
+      "path": "artifacts/crow-rl-resource-kernel-20261107/omission-receipt.json"
+    }
+  ],
+  "omitted_logical_bytes": 13528986,
+  "open_handles": 0,
+  "preserved_input_prefixes": [
+    "artifacts/crow-rl-feeding-behavior-20261107/policies/",
+    "artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib",
+    "artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib"
+  ],
+  "remote_commit": "b5ce8c2660b7dc19918442e2add881e10ff44234"
+}
