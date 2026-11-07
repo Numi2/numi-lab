@@ -449,3 +449,15 @@ At 23:08:54 UTC it returned exit 0, compiled 24 functions and reported no error.
 This independent compile does not prove that the Swift initializer passed its
 library call, nor does it identify its underlying failure. Source, build, output
 and post-run hashes are retained. This is not physical-step evidence.
+
+The pinned per-pipeline diagnostic ran at 23:11:32–23:11:33 UTC using executable
+SHA-256 `e6f50f066cdb6b40ebeb921a77d1ca12b30d73eda16107cf5236689af887025f`.
+The 32-input manifest SHA-256 was
+`129bc1f69c7d6601053cbda49491ac8c307afeb704abdc224b8751f1a5cfbb94`;
+all inputs passed pre- and post-run checks. In the initializer itself, the
+shader compilation succeeded, all required functions resolved, every marked
+pipeline and argument table was created, the motor-ready runtime initialized,
+and execution reached assignment of runtime properties. It exited 139 after
+that marker. The remaining failing operation was not isolated. This run did not
+reach a Brain witness, a physical step, or publication; its source instrumentation,
+full stage output, crash, build and input checks are retained.
