@@ -623,3 +623,16 @@ original link-manifest entries. This supports the same mismatch in the original
 binary without relying on the changed TaskProgram object; the original run did
 not itself print the fields. The disassembly and hashes are retained. This is
 source/binary diagnosis, not a repaired or accepted transaction.
+
+An isolated HumanIO repair now requires the declared ABI-6 prefix size from
+`metalNumanXTransactionPassStructSizeForABI`, instead of the size of the newest
+extended structure. It checks the fixed header before reading other pass fields,
+and keeps the existing phase, access, identity and resource checks. Source audit
+found no HumanIO references to ABI-7-and-later fields. Its CPU contract checks
+cover the correct prefix and reject short, oversized, unsupported-version and
+nonzero-reserved headers; compilation and the test completed with exit 0.
+The modified Objective-C++ implementation compiled separately, object SHA-256
+`3d19feb69f9aa45418b30348b92298c4fec975b0d3f4aa35aec484ad4b2c3d96`.
+This is an isolated research change and CPU contract evidence only. It has not
+yet passed an actual native HumanIO transaction, v5 publication, loaded force or
+anatomical qualification; the Release-only crash also remains unresolved.

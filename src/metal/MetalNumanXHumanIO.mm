@@ -4,6 +4,7 @@
 
 #include "metalrobo/MetalNumanXHumanIO.hpp"
 #include "NumanXProgramIdentity.hpp"
+#include "NumanXHumanIOPassContract.hpp"
 
 #include <algorithm>
 #include <bit>
@@ -2616,9 +2617,9 @@ template <typename Input>
         (pass.phase == MetalNumanXTransactionPhase::postDynamics
              ? MetalNumanXTransactionWriteStandFailure
              : 0u);
-    if (pass.abiVersion != kMetalNumanXTransactionABIVersion ||
-        pass.structSize != sizeof(MetalNumanXTransactionPass) ||
-        pass.reserved0 != 0u || pass.accessFlags != expectedAccessFlags) {
+    if (!detail::validHumanIOTransactionPassHeader(
+            pass.abiVersion, pass.structSize, pass.reserved0) ||
+        pass.accessFlags != expectedAccessFlags) {
         reason = "transaction pass ABI, size, reserved field, or phase access contract is incompatible";
         return false;
     }
@@ -3366,6 +3367,21 @@ void installCompletionHandlerLocked(
     const MetalNumanXTransactionPass& pass
 ) noexcept {
     if (context == nullptr) {
+        return false;
+    }
+    // Check the fixed header before reading any other field in the pass. The
+    // producer may provide only the prefix belonging to its declared ABI.
+    if (!detail::validHumanIOTransactionPassHeader(
+            pass.abiVersion, pass.structSize, pass.reserved0)) {
+        try {
+            State& state = *static_cast<State*>(context);
+            const std::lock_guard lock(state.mutex);
+            rememberFailureLocked(
+                state, MetalNumanXHumanIOStatus::incompatibleTransaction,
+                "transaction pass ABI, size, or reserved field is incompatible");
+        } catch (...) {
+            // This noexcept callback must fail closed even if reporting fails.
+        }
         return false;
     }
     HumanHostPhaseTrace phaseTrace(
