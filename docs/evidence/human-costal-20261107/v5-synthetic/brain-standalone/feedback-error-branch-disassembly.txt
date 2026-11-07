@@ -1,0 +1,29 @@
+static MetalNumiBrainRuntime.qualificationMakeRuntime(configuration:publication:device:) (in NumiBrainSyntheticV5CLI) (SyntheticV5QualificationFactory.swift:10)
+(lldb) target create /Users/numi/numi-v5-admission-artifacts-20261107/feedback-stage-diagnostic/NumiBrainSyntheticV5CLI
+Current executable set to '/Users/numi/numi-v5-admission-artifacts-20261107/feedback-stage-diagnostic/NumiBrainSyntheticV5CLI' (arm64).
+(lldb) disassemble --start-address 0x10050f410 --count 24
+NumiBrainSyntheticV5CLI`static MetalNumiBrainRuntime.makeRuntime(configuration:publication:foundationPolicyArchitecture:numanXUncertaintyGate:device:):
+NumiBrainSyntheticV5CLI[0x10050f410] <+100>: mov    x3, #0x0                  ; =0 
+NumiBrainSyntheticV5CLI[0x10050f414] <+104>: mov    w4, #0x1                  ; =1 
+NumiBrainSyntheticV5CLI[0x10050f418] <+108>: mov    x5, x20
+NumiBrainSyntheticV5CLI[0x10050f41c] <+112>: mov    x21, x19
+NumiBrainSyntheticV5CLI[0x10050f420] <+116>: bl     0x100475d14               ; function signature specialization <Arg[5] = Dead> of static NumiBrainMetal.MetalNumiBrainRuntime.makeRuntime(configuration: NumiBrainMetal.MetalNumiBrainConfiguration, publication: NumiBrainCore.BrainParameterPublication, foundationPolicyArchitecture: Swift.Optional<NumiBrainCore.BrainFoundationPolicyArchitecture>, numanXUncertaintyGate: Swift.Optional<NumiBrainMetal.MetalNumanXUncertaintyGateConfiguration>, device: __C.MTLDevice) throws -> NumiBrainMetal.MetalNumiBrainRuntime at MetalNumiBrainFactory.swift:72
+NumiBrainSyntheticV5CLI[0x10050f424] <+120>: mov    x23, x21
+NumiBrainSyntheticV5CLI[0x10050f428] <+124>: cbz    x21, 0x10050f55c          ; <+432> at <compiler-generated>
+NumiBrainSyntheticV5CLI[0x10050f42c] <+128>: stur   x23, [x29, #-0x28]
+NumiBrainSyntheticV5CLI[0x10050f430] <+132>: mov    x0, x23
+NumiBrainSyntheticV5CLI[0x10050f434] <+136>: bl     0x100510834               ; symbol stub for: swift_errorRetain
+NumiBrainSyntheticV5CLI[0x10050f438] <+140>: adrp   x0, 393
+NumiBrainSyntheticV5CLI[0x10050f43c] <+144>: add    x0, x0, #0x3a0            ; demangling cache variable for type metadata for Swift.Error
+NumiBrainSyntheticV5CLI[0x10050f440] <+148>: adrp   x1, 58
+NumiBrainSyntheticV5CLI[0x10050f444] <+152>: add    x1, x1, #0xe98            ; mangled name ref for type metadata for Swift.Error
+NumiBrainSyntheticV5CLI[0x10050f448] <+156>: bl     0x100367ffc               ; __swift_instantiateConcreteTypeFromMangledNameV2 at <compiler-generated>
+NumiBrainSyntheticV5CLI[0x10050f44c] <+160>: mov    x2, x0
+NumiBrainSyntheticV5CLI[0x10050f450] <+164>: adrp   x3, 345
+NumiBrainSyntheticV5CLI[0x10050f454] <+168>: add    x3, x3, #0x590            ; type metadata for NumiBrainCore.TissueError
+NumiBrainSyntheticV5CLI[0x10050f458] <+172>: add    x0, sp, #0x18
+NumiBrainSyntheticV5CLI[0x10050f45c] <+176>: sub    x1, x29, #0x28
+NumiBrainSyntheticV5CLI[0x10050f460] <+180>: mov    x4, #0x0                  ; =0 
+NumiBrainSyntheticV5CLI[0x10050f464] <+184>: bl     0x1005107ec               ; symbol stub for: swift_dynamicCast
+NumiBrainSyntheticV5CLI[0x10050f468] <+188>: cbz    w0, 0x10050f4c0           ; <+276> at SyntheticV5QualificationFactory.swift:10:15
+NumiBrainSyntheticV5CLI[0x10050f46c] <+192>: mov    x0, x23

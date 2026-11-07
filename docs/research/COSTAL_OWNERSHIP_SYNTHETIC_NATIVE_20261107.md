@@ -520,3 +520,22 @@ The isolated success does not qualify the larger Brain initializer or disprove
 an interaction with its other object lifetimes or ABI; it only shows that the
 small feedback pattern alone does not reproduce that failure. Source, build,
 output and pre/post identities are retained.
+
+In the retained feedback-stage executable, `atos` and LLDB disassembly map the
+crash return address to the test-only `qualificationMakeRuntime` wrapper. The
+wrapper takes the nonzero error-return branch from the optimized `makeRuntime`
+call and invokes `swift_errorRetain`; the recorded fault is in `objc_retain`
+inside that call. This refines the prior marker-based observation: a Swift error
+value is being retained at the wrapper boundary, but neither the underlying
+error nor whether the value has valid ownership is established. The disassembly
+is retained with its exact executable identity; no error was suppressed.
+
+The minimal control differs substantially from the failing initializer: it uses
+only two small allocations and one residency set, creates no Brain pipelines or
+parameter bank, runs no NumanX v5 world, and crosses none of that bridge ABI.
+The failing path retains many Metal resources and other owner objects and calls
+through a large optimized Swift initializer. A minimal pass therefore rules out
+only a simple standalone reproduction of the feedback pattern; it does not
+isolate the cause or qualify that initializer. Further diagnostics should test
+these differences without changing transaction semantics or fabricating a
+successful error return.
