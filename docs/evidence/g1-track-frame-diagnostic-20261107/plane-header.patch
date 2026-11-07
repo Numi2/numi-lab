@@ -1,0 +1,10 @@
+--- /Users/numi/numi-g1-tracker-camera-owner-20261107/include/metalrobo/MetalHybridRenderer.hpp	2026-11-07 15:01:14
++++ /Users/numi/numi-g1-tracker-plane-owner-20261107/include/metalrobo/MetalHybridRenderer.hpp	2026-11-07 15:05:05
+@@ -364,6 +364,7 @@
+ // Research-only snapshot in the isolated diagnostic owner.
+ struct TrackerProbeSnapshot {
+     std::vector<float> trackHistory, depthHistory, cameraState;
++    std::vector<std::uint32_t> frameDepthBits, frameIdentityBits, frameValidityBits, bindingIds;
+     std::uint64_t observationSequence = 0u, lastSensorSequence = 0u;
+     std::uint32_t environments = 0u, tracks = 0u, trackHistoryLength = 0u;
+     std::uint32_t depthWidth = 0u, depthHeight = 0u, depthSlots = 0u;

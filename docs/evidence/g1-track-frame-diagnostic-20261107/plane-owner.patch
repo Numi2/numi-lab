@@ -1,0 +1,40 @@
+--- /Users/numi/numi-g1-tracker-camera-owner-20261107/src/metal/MetalHybridRenderer.mm	2026-11-07 15:01:14
++++ /Users/numi/numi-g1-tracker-plane-owner-20261107/src/metal/MetalHybridRenderer.mm	2026-11-07 15:05:05
+@@ -7411,7 +7411,14 @@
+     id<MTLBuffer> depth = [state_->device newBufferWithLength:state_->maskedDepthHistory.length
+                                       options:MTLResourceStorageModeShared];
+     id<MTLBuffer> cameraSource = (__bridge id<MTLBuffer>)state_->renderer->nativeBuffer(MetalHybridRendererBuffer::cameraStates);
+-    if (!cameraSource) return false;
++    id<MTLBuffer> depthSource = (__bridge id<MTLBuffer>)state_->renderer->nativeBuffer(MetalHybridRendererBuffer::depth);
++    id<MTLBuffer> identitySource = (__bridge id<MTLBuffer>)state_->renderer->nativeBuffer(MetalHybridRendererBuffer::identities);
++    id<MTLBuffer> validitySource = (__bridge id<MTLBuffer>)state_->renderer->nativeBuffer(MetalHybridRendererBuffer::validity);
++    if (!cameraSource || !depthSource || !identitySource || !validitySource) return false;
++    id<MTLBuffer> depthFrame = [state_->device newBufferWithLength:depthSource.length options:MTLResourceStorageModeShared];
++    id<MTLBuffer> identityFrame = [state_->device newBufferWithLength:identitySource.length options:MTLResourceStorageModeShared];
++    id<MTLBuffer> validityFrame = [state_->device newBufferWithLength:validitySource.length options:MTLResourceStorageModeShared];
++    if (!depthFrame || !identityFrame || !validityFrame) return false;
+     id<MTLBuffer> camera = [state_->device newBufferWithLength:cameraSource.length options:MTLResourceStorageModeShared];
+     id<MTLCommandBuffer> cmd = [queue commandBuffer];
+     id<MTLBlitCommandEncoder> blit = [cmd blitCommandEncoder];
+@@ -7421,10 +7428,21 @@
+     [blit copyFromBuffer:state_->maskedDepthHistory sourceOffset:0 toBuffer:depth
+        destinationOffset:0 size:state_->maskedDepthHistory.length];
+     [blit copyFromBuffer:cameraSource sourceOffset:0 toBuffer:camera destinationOffset:0 size:cameraSource.length];
++    [blit copyFromBuffer:depthSource sourceOffset:0 toBuffer:depthFrame destinationOffset:0 size:depthSource.length];
++    [blit copyFromBuffer:identitySource sourceOffset:0 toBuffer:identityFrame destinationOffset:0 size:identitySource.length];
++    [blit copyFromBuffer:validitySource sourceOffset:0 toBuffer:validityFrame destinationOffset:0 size:validitySource.length];
+     [blit endEncoding];
+     [cmd commit];
+     [cmd waitUntilCompleted];
+     if (cmd.status != MTLCommandBufferStatusCompleted) return false;
++    out.frameDepthBits.resize(depthFrame.length / sizeof(std::uint32_t));
++    out.frameIdentityBits.resize(identityFrame.length / sizeof(std::uint32_t));
++    out.frameValidityBits.resize(validityFrame.length / sizeof(std::uint32_t));
++    std::memcpy(out.frameDepthBits.data(), depthFrame.contents, depthFrame.length);
++    std::memcpy(out.frameIdentityBits.data(), identityFrame.contents, identityFrame.length);
++    std::memcpy(out.frameValidityBits.data(), validityFrame.contents, validityFrame.length);
++    out.bindingIds.clear();
++    for (const auto& binding : state_->config.bindings) out.bindingIds.push_back(binding.instanceId);
+     out.cameraState.resize(camera.length / sizeof(float));
+     std::memcpy(out.cameraState.data(), camera.contents, camera.length);
+     out.trackHistory.resize(track.length / sizeof(float));
