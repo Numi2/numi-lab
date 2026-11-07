@@ -8410,6 +8410,87 @@ inline void mrWorldWave32SolvePacket(
     }
     threadgroup_barrier(mem_flags::mem_device);
 
+    // Small sliding active-set initialization, checked against every row.
+    // This is only a candidate iterate; the final certificate is unchanged.
+    uint blockIds[4]; float3 blockDirections[4]; float blockB[4];
+    float2 blockTangent[4]; float blockN[4][4]; float2 blockT[4][4];
+    float blockImpulse[4] = {0.0f,0.0f,0.0f,0.0f}; uint blockCount=0u;
+    bool blockEligible=scaleEligible; bool hadWarm=false;
+    if (blockEligible) {
+        for(uint ti=0u;ti<work.tileCount;++ti) {
+            const MRContactTileGPU tile=tiles[tileBase+work.firstTile+ti];
+            for(uint j=0u;j<tile.constraintCount;++j)
+                blockIds[blockCount++]=tileConstraintIndices[constraintBase+tile.partialOffset+j];
+        }
+        blockEligible = blockCount>0u && blockCount<=4u;
+    }
+    if (blockEligible) for(uint i=0u;i<blockCount;++i) {
+        const uint ci=blockIds[i];device const MRContactConstraintGPU& ct=contacts[constraintBase+ci];
+        device const MREvaluatedConstraintIRRowGPU* rows=evaluatedRows+rowBase+3u*ci;
+        const float3 rel=typedRelativePointVelocity(ci,ct,bodies,dispatch.articulationIndex,
+            pointJacobians,pointJacobianBase,dispatch.nv,articulationVelocity,rodNodes,rodEdges,
+            rodColliders,rodWitnesses,constraintWitnessIndices,constraintBase);
+        const float2 vt=float2(dot(rows[1].direction.xyz,rel)-rows[1].targetVelocity,
+                               dot(rows[2].direction.xyz,rel)-rows[2].targetVelocity);
+        const float speed=length(vt); const float mu=evaluatedCones[constraintBase+ci].effectiveFrictionU;
+        blockEligible = blockEligible && isfinite(speed) && speed>1.0e-4f;
+        blockDirections[i]=float3(1.0f,-mu*vt/max(speed,1.0e-4f));
+        blockB[i]=dot(rows[0].direction.xyz,rel)-rows[0].targetVelocity;
+        blockTangent[i]=vt;
+        hadWarm = hadWarm || preconditioners[constraintBase+ci].row0.w>0.0f;
+    }
+    blockEligible = blockEligible && hadWarm;
+    if (blockEligible) for(uint i=0u;i<blockCount;++i) {
+        const uint ci=blockIds[i];device const MRContactConstraintGPU& target=contacts[constraintBase+ci];
+        device const MREvaluatedConstraintIRRowGPU* tr=evaluatedRows+rowBase+3u*ci;
+        for(uint j=0u;j<blockCount;++j) {
+            const uint cj=blockIds[j];device const MRContactConstraintGPU& source=contacts[constraintBase+cj];
+            device const MREvaluatedConstraintIRRowGPU* sr=evaluatedRows+rowBase+3u*cj;
+            float3 response=float3(0.0f);
+            for(uint t=0u;t<3u;++t) for(uint u=0u;u<3u;++u) {
+                response[t] += blockDirections[j][u]*typedNormalCrossContactResponse(ci,cj,u,target,source,
+                    tr[t].direction.xyz,sr[u].direction.xyz,bodies,pointJacobians,pointJacobianBase,
+                    responseColumns,responseBase,dispatch.nv,dispatch.articulationIndex,rodNodes,
+                    inverseRodMasses,inverseRodTwistInertias,rodColliders,rodWitnesses,
+                    constraintWitnessIndices,constraintBase);
+                if(i==j && t==u) response[t]+=blockDirections[j][u]*tr[t].regularization;
+            }
+            blockN[i][j]=response.x;blockT[i][j]=response.yz;
+        }
+    }
+    bool blockFound=false;
+    if (blockEligible) for(uint i=0u;i<blockCount && !blockFound;++i) {
+        for(uint j=i;j<blockCount && !blockFound;++j) {
+            float xi=0.0f,xj=0.0f;
+            if(i==j) { if(abs(blockN[i][i])<1.0e-8f) continue; xi=-blockB[i]/blockN[i][i]; }
+            else {
+                const float det=blockN[i][i]*blockN[j][j]-blockN[i][j]*blockN[j][i];
+                if(abs(det)<1.0e-8f)continue;
+                xi=(-blockB[i]*blockN[j][j]+blockN[i][j]*blockB[j])/det;
+                xj=(-blockN[i][i]*blockB[j]+blockN[j][i]*blockB[i])/det;
+            }
+            bool valid=isfinite(xi)&&isfinite(xj)&&xi>=0.0f&&xj>=0.0f;
+            for(uint k=0u;k<blockCount && valid;++k) {
+                const float nr=blockB[k]+blockN[k][i]*xi+(i==j?0.0f:blockN[k][j]*xj);
+                const bool active=k==i || (i!=j && k==j);
+                valid = isfinite(nr) && (active?abs(nr)<=1.0e-6f:nr>=-1.0e-6f);
+                if(active) {
+                    const float2 vt=blockTangent[k]+blockT[k][i]*xi+(i==j?float2(0.0f):blockT[k][j]*xj);
+                    const float2 impulse=blockDirections[k].yz;
+                    valid = valid && dot(vt,impulse)<0.0f &&
+                        abs(vt.x*impulse.y-vt.y*impulse.x)<=1.0e-4f*length(vt)*length(impulse);
+                }
+            }
+            if(valid) {blockImpulse[i]=xi;if(i!=j)blockImpulse[j]=xj;blockFound=true;}
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_device);
+    if(blockFound) for(uint i=0u;i<blockCount;++i) if(localLane==i) {
+        const uint ci=blockIds[i]; const float3 value=blockDirections[i]*blockImpulse[i];
+        contacts[constraintBase+ci].impulses.xyz=value;impulseDeltas[constraintBase+ci].xyz=value;
+    }
+    threadgroup_barrier(mem_flags::mem_device);
+
     // Apply every warm-start impulse exactly once. Articulation DoFs and free
     // bodies have unique lane owners, eliminating conflicting atomic writes.
     if ((work.flags & MR_ISLAND_WORK_HAS_ARTICULATION) != 0u) {
