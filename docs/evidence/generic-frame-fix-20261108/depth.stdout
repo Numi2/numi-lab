@@ -1,0 +1,11 @@
+baseline synthetic depth gates passed
+pixel=0 raw=1 oracle=1 direct=1
+pixel=1 raw=1 oracle=1 direct=1
+pixel=2 raw=1 oracle=1 direct=1
+pixel=3 raw=1 oracle=1 direct=1
+pixel=4 raw=1 oracle=1 direct=1
+pixel=5 raw=1 oracle=1 direct=1
+pixel=6 raw=1 oracle=1 direct=1
+pixel=7 raw=1 oracle=1 direct=1
+invalid_depth_near_count raw=0 oracle=0 direct=0
+PASS raw identity invariance, oracle sensitivity, validity, reset, dropout, direct winners
