@@ -1,0 +1,4 @@
+{
+  "error": "swift-resume-chunk1 failed; retained receipt and stderr in /Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-life-swift-probe-01",
+  "type": "RuntimeError"
+}

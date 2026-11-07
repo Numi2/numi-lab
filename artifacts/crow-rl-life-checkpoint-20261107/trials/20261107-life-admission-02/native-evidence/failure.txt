@@ -1,0 +1,1 @@
+advance life: task-rollout publication failed [invalid_dimensions]: resident state arena or compiled world changed

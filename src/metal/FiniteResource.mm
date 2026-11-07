@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 #include <CommonCrypto/CommonDigest.h>
 #include "metalrobo/FiniteResource.hpp"
+#include "metalrobo/detail/Checkpoint.hpp"
 #include "metalrobo/task_program_types.h"
 
 #include <array>
@@ -254,6 +255,17 @@ void FiniteResourceContext::restoreCheckpoint(const std::filesystem::path& path)
     require(bool(input.read(reinterpret_cast<char*>(states.data()),header.payloadBytes)),"Truncated resource checkpoint state");
     require(input.peek()==std::char_traits<char>::eof() && header.sha==digest(std::as_bytes(std::span(states))),
             "Resource checkpoint checksum or length mismatch");
+    restoreValidatedStates(states);
+}
+std::vector<std::byte> FiniteResourceContext::checkpointState() const {
+    const auto states=snapshot();return checkpoint::seal({'N','U','M','I','F','B','0','1'},runtime_->fingerprint,std::as_bytes(std::span(states)));
+}
+void FiniteResourceContext::restoreState(std::span<const std::byte> bytes) {
+    const auto payload=checkpoint::open(bytes,{'N','U','M','I','F','B','0','1'},runtime_->fingerprint);
+    require(payload.size()==std::size_t(runtime_->config.environmentCount)*sizeof(MRFiniteResourceStateGPU),"Resource checkpoint lane/layout mismatch");
+    std::vector<MRFiniteResourceStateGPU> states(runtime_->config.environmentCount);std::memcpy(states.data(),payload.data(),payload.size());restoreValidatedStates(states);
+}
+void FiniteResourceContext::restoreValidatedStates(std::span<const MRFiniteResourceStateGPU> states) {
     std::uint64_t initial=0;
     for (const auto& patch:runtime_->config.patches) initial+=patch.binding.y;
     for (const auto& state:states) {

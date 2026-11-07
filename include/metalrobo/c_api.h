@@ -655,6 +655,15 @@ MR_API MRTaskRolloutHandle* mr_create_task_rollout_retinal(
 MR_API MRTaskRolloutHandle* mr_create_task_rollout(
     const MRRunManifestC* manifest
 );
+// V13 native life state: world/contact/task/RNG history, retinal queue, food.
+// Caller must exclusively own the handle throughout save/restore.
+// Save requires a successful quiescent resident world and exact native policy.
+// Restore requires a fresh unadvanced handle with that same policy installed.
+// Restoring validates all components before publishing them; no physics advances.
+// Learner optimizer/weights remain a separately fingerprinted input dependency.
+MR_API int mr_task_rollout_save_life_checkpoint(const MRTaskRolloutHandle* handle,const char* path);
+MR_API int mr_task_rollout_restore_life_checkpoint(MRTaskRolloutHandle* handle,const char* path);
+
 MR_API void mr_task_rollout_destroy(MRTaskRolloutHandle* handle);
 MR_API int mr_task_rollout_reset(
     MRTaskRolloutHandle* handle,

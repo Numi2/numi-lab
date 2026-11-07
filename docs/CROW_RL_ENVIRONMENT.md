@@ -44,7 +44,8 @@ From this source checkout, build `metalrobo_task_rollout`,
 `metalrobo_task_train`, `metalrobo_robot_catalog`, and
 `metalrobo_crow_embodiment_check`, `metalrobo_crow_foraging_check`, and
 `metalrobo_crow_eye_check`, `metalrobo_retinal_stream_check`, and
-`metalrobo_crow_retinal_contract_check` with
+`metalrobo_crow_retinal_contract_check`, `metalrobo_crow_retinal_live_check`,
+`metalrobo_crow_retinal_api_check`, and `metalrobo_crow_life_checkpoint_check` with
 CMake/Ninja Release.
 Create the learner with CPython 3.13.14 using `uv venv python/.venv`, then
 `uv pip install --python python/.venv/bin/python -c
@@ -565,7 +566,7 @@ measuring full batch performance are pending. The current fixed supported
 feeding body is not ecological foraging, object manipulation or visual
 learning. The full lifelong environment still requires robust locomotion,
 solid-food pickup/carry/cache/swallow, water/energy physiology, trainable
-persistent memory, complete world/RNG/sensory/memory restore, social agents
+persistent memory, combined learner/life resume, trainable memory restore, social agents
 and information ablations, and untouched held-out qualification.
 
 
@@ -637,7 +638,108 @@ remain performance work. No qualification seeds were used.
 
 Evidence, all failed API attempts, learner checkpoints, policies, rollout packs,
 source deltas and runtime hashes are retained under
-`artifacts/crow-rl-retinal-learner-20261107`. Whole-world/RNG/sensory/memory
-restore, persistent trainable memory, physical object manipulation, physiology,
+`artifacts/crow-rl-retinal-learner-20261107`. At that checkpoint, whole-world restoration was still absent. Native v13 life
+restoration is admitted below; persistent trainable memory, physical object manipulation, physiology,
 social agents and ecological held-out qualification remain open. The full
 lifelong environment is not qualified.
+
+
+## Native v13 life checkpoint and fresh-process resume
+
+`mr_task_rollout_save_life_checkpoint` and
+`mr_task_rollout_restore_life_checkpoint` now bundle the current development
+crow's native world, task/random history, delayed retinal queue and finite food.
+Save requires successful, quiescent resident execution. Restore requires a fresh,
+unadvanced handle with the exact next policy already installed. These methods,
+like the rollout scheduler, require exclusive caller ownership; they do not add
+concurrent handle mutation support. Swift exposes `saveLifeCheckpoint(to:)` and
+`restoreLifeCheckpoint(from:)`. The rollout CLI accepts
+`--resume-life-checkpoint FILE` and `--save-life-checkpoint NEW_FILE` with v13,
+an explicit policy, `--no-scheduled-resets` and `--repeats 1`. Life execution
+skips benchmark warmup: restoring or publishing a policy must not advance the
+accepted life clock.
+
+The physical component retains both sides and active selectors of q/v, scene
+bodies and contact manifolds; convex caches; reset templates; task state,
+evidence, actor/critic and action histories; encoder bias, previous joint
+velocity, controller/body parameters and persistent compact contact data.
+Task state retains the episode/step keys used by native stochastic sampling.
+The sensory component retains pending capture metadata/pixels, visible pixels,
+per-lane cadence/clock state and errors. The food component retains inventory,
+crop, consumed mass, jaw-gesture state and accepted lifetime ticks. Stateless
+render geometry and fixed noiseless optics reconstruct from exact authored
+inputs. The checkpoint is taken only at publication boundaries; device
+transitions and inference remain native Metal.
+
+The outer `NUMILF01` envelope binds world, task, actor/critic observation,
+action, next policy, base policy, resource, seed and lane identities. Nested
+world, retinal and food components have exact length and SHA-256 guards.
+The physical state excludes stateless policy weights from its execution identity
+so a learner may publish its next revision between accepted transitions; the
+outer envelope requires that exact next revision. The physical component binds
+the loaded native library, core shader, Metal device and OS; the retinal
+component binds its shader and sensor configuration. This version supports the
+native v13 temporal-cone fixture without rods, muscles, rotors or teacher.
+It is an exact-runtime development format, not a cross-version, cross-device
+or arbitrary-world migration format. C struct sizes and legacy ABI47 remain
+unchanged; the appended C++ context option requires native clients to rebuild.
+
+Restore parses bounded input, validates the complete world/reset/layout/runtime
+contract, and restores retinal and food candidates before publishing them to
+the fresh owner. The first requested native submission restores persistent
+private buffers before its first transition. It performs no synthetic settling
+step. Save uses exclusive creation, file fsync and directory fsync; existing or
+partial files are retained and cannot be silently overwritten. Checksums detect
+corruption; they do not authenticate a deliberately rewritten checkpoint.
+Optimizer and trainable weights remain separately retained dependencies.
+There is no combined optimizer/life training-resume transaction yet.
+
+Reproduce with new output directories:
+
+```
+tools/numi crow-env life-admission --output NEW_NATIVE_LIFE_TRIAL
+tools/numi crow-env life-swift-probe \
+  --calibration NEW_NATIVE_LIFE_TRIAL --output NEW_SWIFT_LIFE_TRIAL
+```
+
+Trial06 uses two lanes and development seed2651109001 in the supported fixed
+collision-proxy scene. After64 neutral settle ticks,32 open and32 close ticks,
+both lanes have consumed20,000 micrograms. Seven stochastic image-dependent
+policy ticks put the life at135 with capture134 still pending for delivery136.
+Revision20 is then published without a physical transition. A saved checkpoint
+must reproduce the uninterrupted next32 ticks in two independent processes
+using chunks1/8, including one lane reset at local tick9. Actor features,
+actions, latents, transitions, final q/v, food and all three final hidden native
+components are byte-identical. Ten malformed or incompatible restore controls
+reject without changing published life state; overwrite rejection also passes.
+The actor is authored to depend on pixels, not a learned memory policy.
+
+Attempts01–04 are retained. They exposed an incorrect fixture revision,
+immutable policy-heap growth clearing the model-upload marker despite valid
+resident state, and raw flapping-program hashing including eight nonsemantic
+alignment bytes. The fixes use the installed revision, permit an already-bound
+world to reupload after immutable storage growth, and hash authored flapping
+fields explicitly. Trial05 passes the original controls. Trial06 additionally
+covers the next-policy publication boundary. Swift attempt01 exposed a skipped
+policy warmup falling into the host-action branch; the corrected branch in02
+resumes135→167 with the same chunk1/8 rollout fingerprint and conserved food.
+
+The final regression passes12 native and19 Python checks. Frozen legacy v12
+ordinary/residual fingerprints remain2255877855914022940 and
+3082487550463979285. A16-lane ordinary Swift/MLX probe also publishes revisions
+1→3→4 with zero failed steps and a separately restored learner. That probe still
+starts a fresh physical world at the resumed learner stage; it does not establish
+combined learner/life restore. No qualification seeds are used.
+
+All six native attempts, both Swift attempts, runtime/source identities,
+regression outputs, legacy replay and the small learner probe are retained in
+`artifacts/crow-rl-life-checkpoint-20261107`. Lossless compressed payloads have
+original/archive hashes. Receipts identify retained matching binaries for the
+two successful native versions; earlier failed versions retain source deltas
+and runtime hashes, not every historical executable.
+
+Trainable persistent memory, combined learner/life resume, robust locomotion,
+physical pickup/carry/cache/swallow, water/energy physiology, social individuals
+and controlled information ablations remain open. This closes native state
+persistence for the present development fixture; the lifelong ecological
+research environment remains unqualified.

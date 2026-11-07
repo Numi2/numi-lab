@@ -1,0 +1,94 @@
+{
+  "schema": "numi.crow-preflight.v1",
+  "host": "Mac.domain_not_set.invalid",
+  "machine": "arm64",
+  "macos": "26.6",
+  "python": "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+  "numpy": "2.5.4",
+  "mlx": "0.32.4",
+  "metal_device": {
+    "device_name": "Apple M4 Pro",
+    "max_recommended_working_set_size": 19069665280,
+    "memory_size": 25769803776,
+    "architecture": "applegpu_g16s",
+    "max_buffer_length": 14302248960,
+    "resource_limit": 499000
+  },
+  "free_disk_bytes": 161146249216,
+  "inputs": {
+    "rollout": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_rollout",
+      "sha256": "50612758ea835b0999c7e8f2fb400e68be34a574a5b93a65e8ccd6784df90a29"
+    },
+    "train": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_train",
+      "sha256": "1f1b7c9db50e45cbb356aa933612d7fd3793c71dc98d2d259a2c04869056b01b"
+    },
+    "library": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/lib/libmetalrobo.dylib",
+      "sha256": "bab0fdf882d3f62f71a4aabf2d1db3ffea9c306059304a7eacd6d55187ffd267"
+    },
+    "metallib": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "sha256": "bee9e69522b26d6b5d99660e665cf8ed856acd9038ea9f2bdcb87b96dd99385a"
+    },
+    "head_check": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_embodiment_check",
+      "sha256": "4a2b64fe68ee2a7ab20d35514670c3c9db7d482774e2e15ba8b769c6e7eb9a6a"
+    },
+    "foraging_check": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_foraging_check",
+      "sha256": "c4028fbccef59f53aa5380380884288ff9ff198387bdc65c8f9e8a798ba8e526"
+    },
+    "eye_check": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_eye_check",
+      "sha256": "e03149972d138acfcdfccf220d114e0eca350673e4820af167e2ecb899258199"
+    },
+    "retinal_check": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_retinal_stream_check",
+      "sha256": "71e9ec7cba04f141dbf6d2f3340b30ac44d6b74cb0da195e8543aea31e1dbf28"
+    },
+    "retinal_api_check": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_retinal_api_check",
+      "sha256": "4fe9673d750cc0ee566e2fceb032e569cad868d0781cab2fc112fbb861de1e92"
+    },
+    "life_check": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_life_checkpoint_check",
+      "sha256": "d9920bee6321abdee8830e9cc3ee68254e9c3f4b0f05fa4c486f991256adc519"
+    },
+    "retinal_live_check": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_retinal_live_check",
+      "sha256": "9e252e7ba2eb2d92f7605ae13a85ce81d1108503a5a3ea7fead4f3a3f573efef"
+    },
+    "retinal_contract_check": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_retinal_contract_check",
+      "sha256": "56a263394f27d81ca45ad713519c1e6b106e9bd5863dfb3975057ea98a0dc44e"
+    },
+    "retinal_metallib": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/RetinalStream.metallib",
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    },
+    "v9-visual-neural": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/assets/crow_journey_window/crow-journey.sensor-fast.visual-observation.json",
+      "sha256": "ac047fb5607c57efda1b741a2f1c622b3ea4bf79def1aec7053182c09c3b329e"
+    },
+    "v10-world-model": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/assets/crow_navigation_course/crow-navigation.sensor-fast.visual-observation.json",
+      "sha256": "0625a028e7f6760bd7b29027b529e012a6b2ef9ffb6797cb69eff602b5c7a137"
+    },
+    "profile": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/profiles/american-crow-rl-v1.json",
+      "sha256": "6d0b75d39bce3c3ec281c47895b5b958e8f891c746f660fbf4fb195ef34de7a9"
+    }
+  },
+  "source_commit": "b60e726e621f1584b35ac3dd911336b34f333fdd",
+  "status": "M CMakeLists.txt\n M apps/crow_retinal_api_check.mm\n M apps/task_rollout.swift\n M bindings/swift/MetalRoboTaskRollout.swift\n M include/metalrobo/FiniteResource.hpp\n M include/metalrobo/MetalWorld.hpp\n M include/metalrobo/RetinalObserver.hpp\n M include/metalrobo/RetinalStream.hpp\n M include/metalrobo/c_api.h\n M python/metalrobo/crow_environment.py\n M src/c_api.cpp\n M src/metal/FiniteResource.mm\n M src/metal/MetalWorld.mm\n M src/metal/RetinalObserver.mm\n M src/metal/RetinalStream.mm\n?? apps/CrowRetinalFixture.hpp\n?? apps/crow_life_checkpoint_check.mm\n?? cmake/CheckCrowLifeCheckpoint.cmake\n?? include/metalrobo/detail/",
+  "tracked_diff_sha256": "4a45c9850d8a91b07cb1818ab3a73b2f8e883d807c61f9e917ce6718881bd407",
+  "untracked_inputs": {
+    "apps/CrowRetinalFixture.hpp": "b7f286a65b29eeefc7a8b95e42bc79e5be69ecab919b6e3d7189f3c8d28b8f77",
+    "apps/crow_life_checkpoint_check.mm": "e23b5fb50d2b005c515bf400df3e96157d4ff0d007d76d773c5bc36efc0aa1b9",
+    "cmake/CheckCrowLifeCheckpoint.cmake": "a70a11b22a4e6900d8b7fcf9c0482ee94ede3f16f4ec4cafcd310d991cc9d079",
+    "include/metalrobo/detail/Checkpoint.hpp": "a6a81d4169fe88a9cb472ccc275ddd6d5c7ecae10ccb0b4223240263599822b4"
+  },
+  "readiness": "native engineering trials only; ecological qualification pending"
+}

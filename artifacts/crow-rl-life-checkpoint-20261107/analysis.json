@@ -1,0 +1,183 @@
+{
+  "schema": "numi.crow-life-checkpoint-archive.v1",
+  "status": "native-v13-development-life-restoration-admitted",
+  "native_life": {
+    "schema": "numi.crow-life-checkpoint-evidence.v1",
+    "status": "passed",
+    "fresh_process_continuations": 2,
+    "chunk1_8_future_stream_bit_identical": true,
+    "all_hidden_native_retinal_resource_state_bit_identical": true,
+    "negative_controls_rejected": 10,
+    "rejected_restore_pure": true,
+    "restore_advances_physics": false,
+    "policy_publication_advances_physics": false,
+    "whole_v13_development_life_restore": true,
+    "trainable_memory_qualified": false,
+    "ecological_environment_qualified": false
+  },
+  "swift": {
+    "status": "passed",
+    "claim": "ordinary Swift fresh-process life resume and save; no unreported warmup transition",
+    "records": [
+      {
+        "chunk": 1,
+        "fingerprint": "9220432553593489939",
+        "ledger": {
+          "accepted_control_ticks_by_environment": [
+            167,
+            167
+          ],
+          "bite_count_by_environment": [
+            1,
+            1
+          ],
+          "consumed_micrograms_by_environment": [
+            20000,
+            20000
+          ],
+          "crop_micrograms_by_environment": [
+            20000,
+            20000
+          ],
+          "initialized_by_environment": [
+            1,
+            1
+          ],
+          "remaining_micrograms_by_environment": [
+            25000,
+            25000
+          ]
+        }
+      },
+      {
+        "chunk": 8,
+        "fingerprint": "9220432553593489939",
+        "ledger": {
+          "accepted_control_ticks_by_environment": [
+            167,
+            167
+          ],
+          "bite_count_by_environment": [
+            1,
+            1
+          ],
+          "consumed_micrograms_by_environment": [
+            20000,
+            20000
+          ],
+          "crop_micrograms_by_environment": [
+            20000,
+            20000
+          ],
+          "initialized_by_environment": [
+            1,
+            1
+          ],
+          "remaining_micrograms_by_environment": [
+            25000,
+            25000
+          ]
+        }
+      }
+    ],
+    "ecological_environment_qualified": false
+  },
+  "api_regression": {
+    "schema": "numi.crow-retinal-api-evidence.v1",
+    "status": "passed",
+    "malformed_configs_rejected": 6,
+    "terminal_retinal_slots_valid": true,
+    "terminal_next_retina_bit_identical": true,
+    "chunk1_8_bit_identical": true,
+    "world_reset_preserves_food": true,
+    "visual_learning_qualified": false,
+    "ecological_environment_qualified": false
+  },
+  "learner_only_regression": {
+    "status": "passed",
+    "claim": "native/MLX updates, publication, and learner-only restore",
+    "variant": "v13-retinal-feeding",
+    "environments": 16,
+    "actor_initialization": "new zero-output actor",
+    "records": [
+      {
+        "stage": "initial",
+        "updates": 2,
+        "samples": 4096,
+        "training_loop_steps_per_second": 1451.1494551113951,
+        "whole_process_steps_per_second": 1172.0867370846079,
+        "initial_revision": 1,
+        "final_revision": 3,
+        "learner_state_restored": false,
+        "checkpoint_sha256": "29f79d3c670b7476757945a62104d78ba76012220be388c07b6f24e93f75d8d1",
+        "last_update_mean_reward": 0,
+        "last_update_maximum_reward": 0,
+        "last_update_intake_utility_mean": 0,
+        "last_update_learning_rate": 9.999999747378752e-05,
+        "last_update_action_standard_deviation": 2.7183361053466797,
+        "mlx_peak_memory_bytes": 165057528
+      },
+      {
+        "stage": "resume",
+        "updates": 1,
+        "samples": 2048,
+        "training_loop_steps_per_second": 1406.515803822755,
+        "whole_process_steps_per_second": 1195.5542074377945,
+        "initial_revision": 3,
+        "final_revision": 4,
+        "learner_state_restored": true,
+        "checkpoint_sha256": "6c2d517062ccc6c28ea127ffea9f59fc12c00d33179140c6565503a758c882fe",
+        "last_update_mean_reward": 0.0029296870343387127,
+        "last_update_maximum_reward": 1.999999761581421,
+        "last_update_intake_utility_mean": 0.0029296870343387127,
+        "last_update_learning_rate": 9.999999747378752e-05,
+        "last_update_action_standard_deviation": 2.7183756828308105,
+        "mlx_peak_memory_bytes": 143412208
+      }
+    ],
+    "candidate_promoted": false,
+    "persistent_world_restore_tested": false,
+    "ecological_environment_qualified": false
+  },
+  "legacy_fingerprints": [
+    {
+      "mode": "ordinary",
+      "fingerprint": "2255877855914022940",
+      "chunks": [
+        1,
+        8
+      ]
+    },
+    {
+      "mode": "residual",
+      "fingerprint": "3082487550463979285",
+      "chunks": [
+        1,
+        8
+      ]
+    }
+  ],
+  "native_checks_passed": 12,
+  "python_checks_passed": 19,
+  "native_attempts_retained": 6,
+  "failed_native_attempts": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "swift_attempts_retained": 2,
+  "failed_swift_attempts": [
+    1
+  ],
+  "retained_runtime_versions": [
+    "05",
+    "06"
+  ],
+  "retained_runtime_replays_passed": true,
+  "source_base": "b60e726e621f1584b35ac3dd911336b34f333fdd",
+  "scope": "exact-runtime native-v13 supported fixed development collision proxies; complete present native state, no trainable persistent memory",
+  "combined_learner_life_resume": false,
+  "trainable_memory_qualified": false,
+  "ecological_environment_qualified": false
+}

@@ -1,0 +1,11 @@
+{
+  "base_commit": "b60e726e621f1584b35ac3dd911336b34f333fdd",
+  "tracked_patch_sha256": "dc27305fba9f908009a30452b9b93e8577ef8d9f73184339f40ef19ca091db97",
+  "retained_untracked": {
+    "apps/CrowRetinalFixture.hpp": "6338336cc48796c5812bd325b415ca44e0909d525568c71fefef713ee674f375",
+    "apps/crow_life_checkpoint_check.mm": "383cf10fa8dbbfd07f9179c25c6af2bfc403298ee901017ff6c736ddd75fd0af",
+    "cmake/CheckCrowLifeCheckpoint.cmake": "a70a11b22a4e6900d8b7fcf9c0482ee94ede3f16f4ec4cafcd310d991cc9d079",
+    "include/metalrobo/detail/Checkpoint.hpp": "22e6953295d45cc8ebe26026a0a838ac85242d296a2fc4fc0be35b2adf8acc35"
+  },
+  "external_artifact_inputs": {}
+}

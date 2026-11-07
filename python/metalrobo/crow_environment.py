@@ -59,6 +59,7 @@ def runtime(root: Path) -> dict:
         "eye_check": build / "bin/metalrobo_crow_eye_check",
         "retinal_check": build / "bin/metalrobo_retinal_stream_check",
         "retinal_api_check": build / "bin/metalrobo_crow_retinal_api_check",
+        "life_check": build / "bin/metalrobo_crow_life_checkpoint_check",
         "retinal_live_check": build / "bin/metalrobo_crow_retinal_live_check",
         "retinal_contract_check": build / "bin/metalrobo_crow_retinal_contract_check",
         "retinal_metallib": build / "shaders/RetinalStream.metallib",
@@ -404,6 +405,41 @@ def learn_probe(root: Path, output: Path, args: argparse.Namespace, profile: dic
             "variant": variant, "environments": environments, "actor_initialization": "explicit source" if source else "new zero-output actor",
             "records": records, "candidate_promoted": False, "persistent_world_restore_tested": False,
             "ecological_environment_qualified": False}
+
+
+def life_swift_probe(root: Path, output: Path, args: argparse.Namespace) -> dict:
+    calibration=args.calibration.resolve(strict=True)
+    native=calibration/"native-evidence"
+    # Bind the native default retention budget (0) and relocate only asset paths.
+    # An explicit 512MiB budget has an equivalent bound but a distinct identity.
+    visual=json.loads((native/"retinal-observation.json").read_text())
+    visual["camera"]["maximum_retained_bytes"]=0
+    for pack in visual["packs"]:
+        pack["path"]=str((native/pack["path"]).resolve(strict=True))
+    write(output/"exact-native-retinal-observation.json",visual)
+    paths=runtime(root)
+    base=[str(paths["rollout"]),"--metallib",str(paths["metallib"]),"--birdflow-american-crow-journey",
+          "--birdflow-journey-variant","v13-retinal-feeding","--envs","2","--steps","32","--repeats","1",
+          "--no-scheduled-resets","--minimum-difficulty-band","0","--maximum-difficulty-band","0",
+          "--seed","2651109001","--policy-pack",str(native/"published-vision.policypack"),
+          "--visual-observation-config",str(output/"exact-native-retinal-observation.json")]
+    records=[]
+    # Both continuations start at native tick135; reset scheduling is disabled
+    # here so this tests ordinary Swift CLI continuation without warmup.
+    for chunk in (1,8):
+        value=execute(output,f"swift-resume-chunk{chunk}",base+["--chunk",str(chunk),
+            "--resume-life-checkpoint",str(native/"saved.lifecheckpoint"),
+            "--save-life-checkpoint",str(output/f"continued-chunk{chunk}.lifecheckpoint")],root,120)
+        if value.get("failed_environment_steps")!=0 or value.get("life_checkpoint_restored") is not True:
+            raise RuntimeError("Swift life continuation failed native admission")
+        ledger=value["finite_resource_accounting"]
+        if ledger["accepted_control_ticks_by_environment"] != [167,167]:
+            raise RuntimeError("Swift introduced a warmup/reset or lost the lifetime clock")
+        records.append({"chunk":chunk,"fingerprint":value["policy_rollout_fingerprint"],"ledger":ledger})
+    if records[0]["fingerprint"]!=records[1]["fingerprint"] or records[0]["ledger"]!=records[1]["ledger"]:
+        raise RuntimeError("Swift life continuation depends on chunk partition")
+    return {"status":"passed","claim":"ordinary Swift fresh-process life resume and save; no unreported warmup transition",
+            "records":records,"ecological_environment_qualified":False}
 
 
 def motor_probe(root: Path, output: Path, args: argparse.Namespace, profile: dict) -> dict:
@@ -773,6 +809,10 @@ def main() -> int:
     commands.add_parser("head-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("eye-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("retina-admission").add_argument("--output", type=Path, required=True)
+    life_swift=commands.add_parser("life-swift-probe")
+    life_swift.add_argument("--output",type=Path,required=True)
+    life_swift.add_argument("--calibration",type=Path,required=True)
+    commands.add_parser("life-admission").add_argument("--output",type=Path,required=True)
     commands.add_parser("retinal-api-admission").add_argument("--output",type=Path,required=True)
     commands.add_parser("retinal-live-admission").add_argument("--output",type=Path,required=True)
     retinal_contract=commands.add_parser("retinal-contract-admission")
@@ -846,6 +886,18 @@ def main() -> int:
         visual = json.loads(args.retinal_visual.read_text())
         for name,path in [("retinal_visual",args.retinal_visual)]+[("retinal_asset_"+str(i),args.retinal_visual.parent/p["path"]) for i,p in enumerate(visual["packs"])]:
             checked["inputs"][name]={"path":str(path),"sha256":sha(path)}
+    if args.command == "life-swift-probe":
+        calibration=args.calibration.resolve(strict=True)
+        admission=json.loads((calibration/"summary.json").read_text())
+        calibration_plan=json.loads((calibration/"plan.json").read_text())
+        if admission.get("whole_v13_development_life_restore") is not True:
+            raise ValueError("Swift life probe requires passed native life admission")
+        for name in ("rollout","library","metallib","retinal_metallib"):
+            if calibration_plan["preflight"]["inputs"][name]["sha256"] != checked["inputs"][name]["sha256"]:
+                raise ValueError("Life calibration does not bind current runtime: "+name)
+        for name in ("saved.lifecheckpoint","published-vision.policypack","retinal-observation.json","robot.mrvpack","locomotion_ground.mrvpack"):
+            path=calibration/"native-evidence"/name
+            checked["inputs"]["life_"+name]={"path":str(path),"sha256":sha(path)}
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
     plan = {"schema": "numi.crow-trial-plan.v1", "created_utc": datetime.now(timezone.utc).isoformat(),
@@ -915,6 +967,19 @@ def main() -> int:
           "budget":{"environments":args.environments or 16,"steps_per_update":128,"updates":3},
           "stopping":"exactly two processes, 300s each; abort invalidity, preserve all failures, no promotion",
           "limitations":"not visual learning, memory, ecological intelligence or production-scale performance qualification"})
+    if args.command == "life-swift-probe":
+        plan.update({"purpose":"regular Swift CLI life continuation admission",
+          "prediction":"chunk1/8 future rollout fingerprints and resource ledgers equal; lifetime ticks135→167 with exactly32 additional transitions, no warmup",
+          "control":"two new processes resume the same admitted native state and exact policy/configuration",
+          "unit":"two lanes, one authored stochastic controller; exact replay engineering test, no learning claim",
+          "stopping":"two32-step continuations,120s timeout each; abort invalidity, no automatic retry"})
+    if args.command == "life-admission":
+        plan.update({"purpose":"v13 native life-state persistence admission across fresh processes",
+          "prediction":"future streams and complete native/retinal/resource state match uninterrupted execution bit for bit at chunk1/8; ten invalid restores reject without publishing mutation",
+          "unit":"two supported development lanes and one authored stochastic image-dependent actor; not a learned memory experiment",
+          "control":"pending retinal capture, already consumed food, native contact/task/RNG history and lane1 reset after restore",
+          "stopping":"one native test; 180s timeout; two child continuations each bounded40s; preserve every failure, no automatic retry",
+          "limitations":"v13 supported development fixture; brain optimizer is a separate exact input, trainable memory/social/ecology remain open"})
     if args.command == "retinal-api-admission":
         plan.update({"purpose":"native v13 C API, terminal learning slot and reset admission",
           "prediction":"six malformed configs reject; final/next retinal inputs and chunk1/8 bit identical; fresh world reset clears retina while preserving consumed food",
@@ -947,6 +1012,12 @@ def main() -> int:
                            str(output/"native-evidence"),str(args.legacy_metallib)],root,180)
             if result.get("status")!="passed" or result.get("stale_shader_rejected") is not True:
                 raise RuntimeError("Native retinal contract admission failed")
+        elif args.command == "life-swift-probe":
+            result=life_swift_probe(root,output,args)
+        elif args.command == "life-admission":
+            result=execute(output,"life-checkpoint",[str(runtime(root)["life_check"]),str(output/"native-evidence")],root,180)
+            if result.get("status")!="passed" or result.get("whole_v13_development_life_restore") is not True:
+                raise RuntimeError("Native crow life checkpoint admission failed")
         elif args.command == "retinal-api-admission":
             result=execute(output,"retinal-api",[str(runtime(root)["retinal_api_check"]),
                            str(output/"native-evidence")],root,180)

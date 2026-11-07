@@ -22,6 +22,8 @@ public:
     [[nodiscard]] MetalWorldDeviceObservationProgram deviceProgram() noexcept;
     void reset(std::uint64_t seed);
     [[nodiscard]] RetinalStreamSnapshot snapshot() const;
+    [[nodiscard]] std::vector<std::byte> checkpointState() const;
+    void restoreState(std::span<const std::byte> state);
     // Explicit quiescent instrument boundary; never called by encode().
     [[nodiscard]] std::array<HybridObservationBatch,2> inspectImages() const;
 private:

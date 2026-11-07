@@ -780,6 +780,8 @@ struct MetalWorldConfig {
     // forces the serial oracle for paired numerical/performance replay.
     bool preferParallelABA = true;
     std::uint32_t maximumInFlightSubmissions = 3u;
+    // Opt-in publication checkpoints; binds loaded binary/shader identities once.
+    bool enableResidentCheckpoints = false;
 };
 
 struct MetalWorldMemoryPlan {
@@ -1142,6 +1144,22 @@ public:
         MetalWorldSubmission& submission
     );
 
+    // Exact native resident-state component at a successful quiescent boundary.
+    // External device physics/sensor state must be bundled by the owning run.
+    [[nodiscard]] std::vector<std::byte> checkpointResident(
+        const MetalWorldResidentState& state, const MetalWorldStepConfig& config
+    ) const;
+    void validateResidentCheckpoint(const CompiledWorld& world,
+        const MetalWorldBatch& batch,const MetalWorldStepConfig& config,
+        std::span<const std::byte> checkpoint) const;
+    // Restores before the first requested transition; no synthetic warmup step.
+    // batch carries the ordinary initial/reset contract for arena admission.
+    [[nodiscard]] MetalWorldDiagnostics resumeResident(
+        const CompiledWorld& world, const MetalWorldBatch& batch,
+        const MetalWorldStepConfig& config, std::span<const std::byte> checkpoint,
+        MetalWorldResidentState& state, MetalWorldSubmission& submission
+    );
+
     [[nodiscard]] MetalWorldDiagnostics run(
         const CompiledWorld& world,
         const MetalWorldBatch& batch,
@@ -1158,7 +1176,8 @@ private:
         const MetalWorldStepConfig& config,
         MetalWorldResidentState* residentState,
         bool initializeResidentState,
-        MetalWorldSubmission& submission
+        MetalWorldSubmission& submission,
+        std::span<const std::byte> checkpoint = {}
     );
 
     std::shared_ptr<detail::MetalWorldContextPool> pool_;

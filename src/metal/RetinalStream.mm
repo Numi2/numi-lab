@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 #include "metalrobo/RetinalStream.hpp"
+#include "metalrobo/detail/Checkpoint.hpp"
 #include "metalrobo/task_program_types.h"
 #include <algorithm>
 #include <array>
@@ -27,6 +28,7 @@ std::filesystem::path defaultLibrary() {
 namespace detail {
 struct RetinalStreamRuntime : std::enable_shared_from_this<RetinalStreamRuntime> {
     RetinalStreamConfig config;
+    checkpoint::Digest checkpointIdentity{};
     __strong id<MTLDevice> device=nil;
     __strong id<MTLComputePipelineState> prepare=nil,sample=nil,publish=nil;
     __strong id<MTLBuffer> states=nil,pending=nil,pixels=nil,visible=nil,errors=nil;
@@ -54,6 +56,12 @@ RetinalStreamContext::RetinalStreamContext(RetinalStreamConfig config) {
     auto s=std::make_shared<detail::RetinalStreamRuntime>();s->config=std::move(config);
     s->device=MTLCreateSystemDefaultDevice();require(s->device!=nil,"Retinal stream requires Metal");
     const auto path=s->config.metallibPath.empty() ? defaultLibrary() : s->config.metallibPath;
+    checkpoint::Bytes identity;
+    for (const auto value : {c.environments,c.sourceWidth,c.sourceHeight,c.width,c.height,c.eyes,
+                            c.sampleNumerator,c.sampleDenominator,c.latencyTicks}) checkpoint::append(identity,value);
+    checkpoint::append(identity,c.tickSeconds);checkpoint::append(identity,std::uint32_t(MR_RETINAL_STREAM_ABI));
+    checkpoint::append(identity,checkpoint::fileDigest(path));
+    s->checkpointIdentity=checkpoint::digest(identity);
     NSError* error=nil;
     id<MTLLibrary> library=[s->device newLibraryWithURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:path.c_str()]] error:&error];
     require(library!=nil,"Retinal metallib could not be loaded");
@@ -153,5 +161,42 @@ RetinalStreamSnapshot RetinalStreamContext::snapshot() const {
     RetinalStreamSnapshot result;result.states.resize(s->config.environments);result.errors.resize(s->config.environments);
     std::memcpy(result.states.data(),staging.contents,s->states.length);
     std::memcpy(result.errors.data(),static_cast<const char*>(staging.contents)+s->states.length,s->errors.length);return result;
+}
+
+std::vector<std::byte> RetinalStreamContext::checkpointState() const {
+    const auto s=runtime_;const std::lock_guard lock(s->mutex);
+    require(!s->poisoned && !s->activeToken,"Retinal checkpoint requires quiescent successful work");
+    const std::array<id<MTLBuffer>,5> buffers{s->states,s->pending,s->pixels,s->visible,s->errors};
+    std::size_t total=0;for (auto b:buffers) total+=b.length;
+    id<MTLBuffer> staging=[s->device newBufferWithLength:total options:MTLResourceStorageModeShared];
+    id<MTLCommandQueue> queue=[s->device newCommandQueue];id<MTLCommandBuffer> command=[queue commandBuffer];
+    id<MTLBlitCommandEncoder> blit=[command blitCommandEncoder];require(staging && queue && command && blit,"Retinal checkpoint allocation failed");
+    std::size_t offset=0;for (auto b:buffers) {[blit copyFromBuffer:b sourceOffset:0 toBuffer:staging destinationOffset:offset size:b.length];offset+=b.length;}
+    [blit endEncoding];[command commit];[command waitUntilCompleted];require(command.status==MTLCommandBufferStatusCompleted,"Retinal checkpoint GPU readback failed");
+    const auto* data=static_cast<const std::byte*>(staging.contents);
+    const auto* errors=reinterpret_cast<const unsigned*>(data+total-s->errors.length);
+    for (unsigned env=0;env<s->config.environments;++env) require(errors[env]==0,"Cannot checkpoint a rejected retinal stream");
+    checkpoint::Bytes bytes;checkpoint::append(bytes,s->checkpointIdentity);offset=0;
+    for (auto b:buffers) {checkpoint::appendBlob(bytes,{data+offset,b.length});offset+=b.length;}
+    return checkpoint::seal({'N','U','M','I','R','S','0','1'},MR_RETINAL_STREAM_ABI,bytes);
+}
+void RetinalStreamContext::restoreState(std::span<const std::byte> bytes) {
+    const auto s=runtime_;const std::lock_guard lock(s->mutex);
+    require(!s->poisoned && !s->activeToken,"Retinal restore requires quiescent successful work");
+    checkpoint::Reader reader{checkpoint::open(bytes,{'N','U','M','I','R','S','0','1'},MR_RETINAL_STREAM_ABI)};
+    require(reader.get<checkpoint::Digest>()==s->checkpointIdentity,"Retinal checkpoint configuration/shader mismatch");
+    const std::array<id<MTLBuffer>,5> buffers{s->states,s->pending,s->pixels,s->visible,s->errors};
+    std::array<std::span<const std::byte>,5> sections;
+    for (unsigned i=0;i<buffers.size();++i) {sections[i]=reader.blob();require(sections[i].size()==buffers[i].length,"Retinal checkpoint layout mismatch");}reader.end();
+    for (unsigned env=0;env<s->config.environments;++env) {unsigned error=0;std::memcpy(&error,sections[4].data()+env*sizeof(unsigned),sizeof(error));require(!error,"Retinal checkpoint contains rejected state");}
+    // Validate everything before the first mutation; no per-step capture/readback.
+    id<MTLCommandQueue> queue=[s->device newCommandQueue];id<MTLCommandBuffer> command=[queue commandBuffer];
+    id<MTLBlitCommandEncoder> blit=[command blitCommandEncoder];require(queue && command && blit,"Retinal restore encoder failed");
+    for (unsigned i=0;i<buffers.size();++i) {
+        id<MTLBuffer> upload=[s->device newBufferWithBytes:sections[i].data() length:sections[i].size() options:MTLResourceStorageModeShared];
+        require(upload!=nil,"Retinal restore staging failed");[blit copyFromBuffer:upload sourceOffset:0 toBuffer:buffers[i] destinationOffset:0 size:sections[i].size()];
+    }
+    [blit endEncoding];[command commit];[command waitUntilCompleted];
+    if (command.status!=MTLCommandBufferStatusCompleted) {s->poisoned=true;throw std::runtime_error("Retinal restore GPU failure");}
 }
 }

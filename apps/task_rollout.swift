@@ -208,6 +208,8 @@ private struct Options {
     var birdFlowGroundGaitProbe = false
     var scheduledResets = true
     var policyPack: String?
+    var resumeLifeCheckpoint: String?
+    var saveLifeCheckpoint: String?
     var basePolicyPack: String?
     var rolloutPack: String?
     var interactionPack: String?
@@ -421,6 +423,12 @@ private struct Options {
                     )
                 }
                 interactionResetMaximumPhase = parsed
+                index += 1
+            case "--resume-life-checkpoint":
+                resumeLifeCheckpoint = try value()
+                index += 1
+            case "--save-life-checkpoint":
+                saveLifeCheckpoint = try value()
                 index += 1
             case "--policy-pack":
                 policyPack = try value()
@@ -754,6 +762,16 @@ private struct Options {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "difficulty-band overrides require an ordered non-negative minimum and maximum."
             )
+        }
+        if resumeLifeCheckpoint != nil || saveLifeCheckpoint != nil {
+            guard birdFlowAmericanCrowJourney,
+                  birdFlowJourneyVariant == .v13RetinalFeeding,
+                  policyPack != nil, !scheduledResets, repeats == 1
+            else {
+                throw MetalRoboTaskRolloutError.invalidShape(
+                    "Life checkpoints require v13, an explicit --policy-pack, --no-scheduled-resets and --repeats 1."
+                )
+            }
         }
         if nativePolicy && policyPack != nil {
             throw MetalRoboTaskRolloutError.invalidShape(
@@ -1929,7 +1947,8 @@ private enum TaskRolloutMain {
                 )
             }
             var installedPolicyRevision: UInt64 = 0
-            if usesCompiledPolicy {
+            // Life execution cannot perform an unreported warmup transition.
+            if usesCompiledPolicy && options.resumeLifeCheckpoint == nil && options.saveLifeCheckpoint == nil {
                 _ = try context.advanceWithPolicy(
                     resetMasks: [UInt32](
                         repeating: 0,
@@ -2027,7 +2046,7 @@ private enum TaskRolloutMain {
                         }
                     }
                 }
-            } else {
+            } else if !usesCompiledPolicy {
                 _ = try context.advance(
                     normalizedActions: [Float](
                         repeating: 0,
@@ -2054,7 +2073,14 @@ private enum TaskRolloutMain {
                     }
                 )
             }
-            try context.reset(seed: options.seed)
+            if usesCompiledPolicy && installedPolicyRevision == 0 {
+                installedPolicyRevision = context.installedPolicyRevision
+            }
+            if let path = options.resumeLifeCheckpoint {
+                try context.restoreLifeCheckpoint(from: URL(fileURLWithPath: path))
+            } else {
+                try context.reset(seed: options.seed)
+            }
             let baseline = context.layout
             var generator = SplitMix64(seed: options.seed)
             var pending = [Bool](
@@ -4039,6 +4065,11 @@ private enum TaskRolloutMain {
                     "accepted_control_ticks_by_environment": ticks,
                 ]
             }
+            if let path = options.saveLifeCheckpoint {
+                try context.saveLifeCheckpoint(to: URL(fileURLWithPath: path))
+            }
+            output["life_checkpoint_restored"] = options.resumeLifeCheckpoint != nil
+            output["life_checkpoint_saved"] = options.saveLifeCheckpoint ?? ""
             guard JSONSerialization.isValidJSONObject(output) else {
                 throw MetalRoboTaskRolloutError.native("Rollout evidence contains a value that cannot be published as JSON.")
             }

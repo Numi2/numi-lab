@@ -180,4 +180,13 @@ std::array<HybridObservationBatch,2> RetinalObserverContext::inspectImages() con
     return images;
 }
 
+
+std::vector<std::byte> RetinalObserverContext::checkpointState() const {
+    const auto s=runtime_;const std::lock_guard lock(s->mutex);
+    require(!s->poisoned && !s->activeToken,"Retinal observer checkpoint requires quiescent successful work");return s->stream->checkpointState();
+}
+void RetinalObserverContext::restoreState(std::span<const std::byte> state) {
+    const auto s=runtime_;const std::lock_guard lock(s->mutex);
+    require(!s->poisoned && !s->activeToken,"Retinal observer restore requires quiescent successful work");s->stream->restoreState(state);
+}
 }

@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 
 #include "metalrobo/MetalWorld.hpp"
+#include "metalrobo/detail/Checkpoint.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/OpenSimSpatialTransform.hpp"
 #include "metalrobo/ParallelABASchedule.hpp"
@@ -22,6 +23,7 @@
 #include <memory>
 #include <mutex>
 #include <new>
+#include <optional>
 #include <set>
 #include <span>
 #include <string>
@@ -402,7 +404,13 @@ std::uint64_t flappingWingFingerprint(
             hash *= kFNVPrime;
         }
     };
-    append(&program, sizeof(program));
+    // Native struct alignment leaves eight padding bytes before wind. Those
+    // bytes are not authored physics and must never enter an identity.
+    append(program.wings.data(),sizeof(program.wings));
+    append(&program.tail,sizeof(program.tail));append(&program.fuselage,sizeof(program.fuselage));
+    append(&program.articulationIndex,sizeof(program.articulationIndex));
+    append(&program.rootBodyIndex,sizeof(program.rootBodyIndex));
+    append(&program.windVelocityAndDensity,sizeof(program.windVelocityAndDensity));
     return hash == 0u ? 1u : hash;
 }
 
@@ -605,6 +613,10 @@ struct MetalWorldContextState {
     std::uint64_t boundMillardFingerprint = 0u;
     std::uint64_t boundFlappingWingFingerprint = 0u;
     std::uint64_t stateArenaGeneration = 0u;
+    std::array<std::size_t,kRawBufferCount> checkpointLogicalBytes{};
+    checkpoint::Digest checkpointRuntimeIdentity{};
+    std::uint64_t checkpointExecutionIdentity=0;
+    bool checkpointSupported=false;
     std::weak_ptr<MetalWorldResidentStateData> residentOwner;
     MetalWorldContextStats stats{};
 };
@@ -6016,6 +6028,20 @@ MetalWorldDiagnostics initializeContext(
         );
     }
 
+    if (context.config.enableResidentCheckpoints) {
+    checkpoint::Bytes runtimeIdentity;
+    checkpoint::append(runtimeIdentity,checkpoint::fileDigest(metallibPath));
+    Dl_info nativeImage{};
+    checkpoint::require(dladdr(&kMetalRoboWorldImageAnchor,&nativeImage)!=0 && nativeImage.dli_fname,
+        "Native checkpoint runtime identity unavailable");
+    checkpoint::append(runtimeIdentity,checkpoint::fileDigest(nativeImage.dli_fname));
+    checkpoint::append(runtimeIdentity,std::uint64_t(device.registryID));
+    const auto system=std::string([NSProcessInfo processInfo].operatingSystemVersionString.UTF8String);
+    checkpoint::appendBlob(runtimeIdentity,std::as_bytes(std::span(system.data(),system.size())));
+    checkpoint::append(runtimeIdentity,std::uint32_t(context.config.preferParallelABA));
+    context.checkpointRuntimeIdentity=checkpoint::digest(runtimeIdentity);
+    }
+
     error = nil;
     id<MTLComputePipelineState> aba = makePipeline(
         device,
@@ -7306,6 +7332,63 @@ bool privatePersistentBuffer(const std::size_t index) {
     default:
         return false;
     }
+}
+
+constexpr std::array<char,8> residentCheckpointKind{'N','U','M','I','W','R','0','1'};
+std::uint64_t checkpointExecutionIdentity(const MetalWorldStepConfig& c) {
+    checkpoint::Bytes bytes;
+    const auto add=[&](const auto& value){checkpoint::append(bytes,value);};
+    // A stateless policy may be published between accepted transitions.
+    // The owning life envelope binds the NEXT exact policy; physical history
+    // must not require an artificial step merely to install new weights.
+    add(c.taskProgram.fingerprint());
+    add(c.devicePhysicsProgram.valid() ? c.devicePhysicsProgram.fingerprint : 0ull);
+    add(c.deviceObservationProgram.observationFingerprint);add(c.taskSeed);
+    add(c.timestepSeconds);add(c.physicsSubsteps);add(c.solverMode);add(c.actuationMode);
+    add(c.birdFlowJourneyTeacher);add(c.birdFlowJourneyStudentAuthority);
+    add(c.birdFlowNavigationCurriculumMode);add(c.birdFlowNavigationDevelopmentReference);
+    add(c.minimumDifficultyBand);add(c.maximumDifficultyBand);add(c.difficultySamplingExponentOverride);
+    add(c.velocityIterations);add(c.finalVelocityIterations);add(c.ccdMode);add(c.maxCCDEvents);
+    add(c.maxCCDAdvanceSolvePasses);add(c.maxCCDZeroTimeReplays);add(c.maxConservativeAdvancementIterations);
+    add(c.applyBodyDamping);add(c.deterministic);add(c.warmStart);
+    add(c.matrixFreeArticulatedContact);add(c.streamedArticulatedContactResponses);
+    add(c.manifoldBreakingSeparation);add(c.manifoldBreakingTangential);add(c.manifoldMergeDistance);add(c.manifoldNormalCosine);
+    add(c.ccdMinimumAdvance);add(c.ccdTimeTolerance);add(c.ccdSimultaneousTolerance);add(c.speculativeMarginScale);add(c.ccdSpeedEnvelope);
+    add(c.rodContactOuterIterations);
+    add(c.quality.maximumNewtonIterations);add(c.quality.maximumPCGIterations);add(c.quality.maximumLineSearchIterations);
+    add(c.quality.directMaximumGeneralizedVelocities);add(c.quality.directMaximumRows);
+    add(c.quality.optimalityTolerance);add(c.quality.feasibilityTolerance);add(c.quality.armijoConstant);
+    add(c.quality.lineSearchContraction);add(c.quality.complianceFloorMultiplier);
+    add(flappingWingFingerprint(c.flappingWingProgram));
+    const auto hash=checkpoint::digest(bytes);std::uint64_t result=0;std::memcpy(&result,hash.data(),sizeof(result));return result;
+}
+void requireResidentCheckpointScope(const CompiledWorld& world,const MetalWorldStepConfig& c) {
+    checkpoint::require(c.taskProgram.valid() && c.taskProgram.header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION &&
+        !world.rodCount() && !c.millardProgram.valid() && !c.multicopterProgram.valid() &&
+        c.solverMode==MetalWorldSolverMode::temporalCone && !c.birdFlowJourneyTeacher &&
+        c.deviceObservationProgram.valid() && c.policyProgram.valid(),
+        "Resident checkpoint v1 requires native retinal temporal-cone task without rods, muscles, rotors or teacher");
+}
+struct ResidentCheckpointView {
+    std::uint64_t world=0,environments=0;
+    checkpoint::Digest runtime{};
+    std::array<std::uint64_t,9> selected{};
+    std::uint32_t supportsReset=0;
+    std::array<std::span<const std::byte>,kRawBufferCount> sections{};
+};
+ResidentCheckpointView readResidentCheckpoint(std::span<const std::byte> bytes,std::uint64_t identity) {
+    checkpoint::Reader r{checkpoint::open(bytes,residentCheckpointKind,identity)};ResidentCheckpointView view;
+    view.world=r.get<std::uint64_t>();view.environments=r.get<std::uint64_t>();view.runtime=r.get<checkpoint::Digest>();
+    view.selected=r.get<std::array<std::uint64_t,9>>();view.supportsReset=r.get<std::uint32_t>();
+    checkpoint::require(view.supportsReset<=1,"Invalid checkpoint reset contract");
+    const std::array<std::array<std::uint64_t,2>,9> allowed{{{kStateQA,kStateQB},{kStateVA,kStateVB},
+        {kSceneBodiesA,kSceneBodiesB},{kManifoldHeadersA,kManifoldHeadersB},{kManifoldPointsA,kManifoldPointsB},
+        {kManifoldCountsA,kManifoldCountsB},{kRodNodesA,kRodNodesB},{kRodEdgesA,kRodEdgesB},{kRodWitnessesA,kRodWitnessesB}}};
+    for (unsigned i=0;i<allowed.size();++i) checkpoint::require(view.selected[i]==allowed[i][0] || view.selected[i]==allowed[i][1],"Invalid resident checkpoint buffer selector");
+    for (std::size_t i=0;i<kRawBufferCount;++i) if (privatePersistentBuffer(i)) {
+        checkpoint::require(r.get<std::uint32_t>()==i,"Missing or reordered resident checkpoint section");view.sections[i]=r.blob();
+    }
+    r.end();return view;
 }
 
 bool privatePersistentInputBuffer(const std::size_t index) {
@@ -20197,6 +20280,60 @@ MetalWorldContext& MetalWorldContext::operator=(
     MetalWorldContext&& other
 ) noexcept = default;
 
+std::vector<std::byte> MetalWorldContext::checkpointResident(
+    const MetalWorldResidentState& state,const MetalWorldStepConfig& config) const {
+    const auto resident=state.state_;checkpoint::require(bool(resident),"Cannot checkpoint an empty resident world");
+    const std::lock_guard residentLock(resident->mutex);
+    const auto context=resident->context;checkpoint::require(bool(context),"Resident checkpoint context missing");
+    const std::lock_guard slotLock(context->mutex);
+    checkpoint::require(resident->ownerPool.lock()==pool_ && resident->initialized && !resident->pending && !context->inFlight &&
+        resident->stateArenaGeneration==context->stateArenaGeneration &&
+        context->checkpointSupported && context->checkpointExecutionIdentity==checkpointExecutionIdentity(config),"Resident checkpoint requires matching quiescent successful execution");
+    checkpoint::Bytes bytes;checkpoint::append(bytes,resident->worldFingerprint);checkpoint::append(bytes,std::uint64_t(resident->environmentCount));
+    checkpoint::append(bytes,context->checkpointRuntimeIdentity);
+    const std::array<std::uint64_t,9> selectors{resident->qBuffer,resident->vBuffer,resident->sceneBuffer,
+        resident->manifoldHeaderBuffer,resident->manifoldPointBuffer,resident->manifoldCountBuffer,
+        resident->rodNodeBuffer,resident->rodEdgeBuffer,resident->rodWitnessBuffer};
+    checkpoint::append(bytes,selectors);checkpoint::append(bytes,std::uint32_t(resident->supportsReset));
+    std::size_t total=0;for (std::size_t i=0;i<kRawBufferCount;++i) if (privatePersistentBuffer(i)) total+=context->checkpointLogicalBytes[i];
+    id<MTLBuffer> staging=[context->device newBufferWithLength:std::max<std::size_t>(total,1) options:MTLResourceStorageModeShared];
+    id<MTLCommandBuffer> command=[context->queue commandBuffer];id<MTLBlitCommandEncoder> blit=[command blitCommandEncoder];
+    checkpoint::require(staging && command && blit,"Resident checkpoint allocation failed");
+    std::size_t offset=0;
+    for (std::size_t i=0;i<kRawBufferCount;++i) if (privatePersistentBuffer(i)) {
+        const auto size=context->checkpointLogicalBytes[i];
+        if (size) [blit copyFromBuffer:context->buffers[i] sourceOffset:0 toBuffer:staging destinationOffset:offset size:size];offset+=size;
+    }
+    [blit endEncoding];[command commit];[command waitUntilCompleted];
+    checkpoint::require(command.status==MTLCommandBufferStatusCompleted,"Resident checkpoint GPU readback failed");offset=0;
+    for (std::size_t i=0;i<kRawBufferCount;++i) if (privatePersistentBuffer(i)) {
+        const auto size=context->checkpointLogicalBytes[i];checkpoint::append(bytes,std::uint32_t(i));
+        checkpoint::appendBlob(bytes,{static_cast<const std::byte*>(staging.contents)+offset,size});offset+=size;
+    }
+    return checkpoint::seal(residentCheckpointKind,context->checkpointExecutionIdentity,bytes);
+}
+void MetalWorldContext::validateResidentCheckpoint(const CompiledWorld& world,const MetalWorldBatch& batch,
+    const MetalWorldStepConfig& config,std::span<const std::byte> bytes) const {
+    requireResidentCheckpointScope(world,config);
+    const auto view=readResidentCheckpoint(bytes,checkpointExecutionIdentity(config));
+    checkpoint::require(view.world==world.fingerprint() && view.environments==batch.environmentCount &&
+        view.supportsReset==!batch.resetMasks.empty(),"Resident checkpoint world, lanes or reset contract mismatch");
+    checkpoint::require(pool_ && !pool_->slots.empty(),"Resident checkpoint context missing");
+    auto context=pool_->slots.front();const std::lock_guard lock(context->mutex);
+    checkpoint::require(!context->inFlight && context->config.enableResidentCheckpoints,"Resident checkpoint validation requires idle opted-in context");
+    auto initialized=initializeContext(*context,{});checkpoint::require(initialized.succeeded(),"Resident checkpoint runtime admission failed");
+    checkpoint::require(view.runtime==context->checkpointRuntimeIdentity,"Resident checkpoint runtime/device/OS identity mismatch");
+    RequiredBuffers requirements;const auto layout=validateAndBuildLayout(world,batch,config,false,context->config.preferParallelABA,requirements);
+    checkpoint::require(layout.succeeded(),"Resident checkpoint initial/reset layout invalid");
+    for (std::size_t i=0;i<kRawBufferCount;++i) if (privatePersistentBuffer(i))
+        checkpoint::require(view.sections[i].size()==requirements.entries[i].logicalBytes,"Resident checkpoint persistent layout mismatch");
+}
+MetalWorldDiagnostics MetalWorldContext::resumeResident(const CompiledWorld& world,const MetalWorldBatch& batch,
+    const MetalWorldStepConfig& config,std::span<const std::byte> checkpoint,
+    MetalWorldResidentState& state,MetalWorldSubmission& submission) {
+    return submitImpl(world,batch,config,&state,true,submission,checkpoint);
+}
+
 MetalWorldDiagnostics MetalWorldContext::submit(
     const CompiledWorld& world,
     const MetalWorldBatch& batch,
@@ -20253,7 +20390,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
     const MetalWorldStepConfig& config,
     MetalWorldResidentState* residentState,
     const bool initializeResidentState,
-    MetalWorldSubmission& submission
+    MetalWorldSubmission& submission,
+    const std::span<const std::byte> checkpoint
 ) {
     MetalWorldDiagnostics diagnostics{};
     if (pool_ == nullptr) {
@@ -20281,6 +20419,14 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
 
     RequiredBuffers requirements{};
     try {
+        std::optional<ResidentCheckpointView> restored;
+        if (!checkpoint.empty()) {
+            requireResidentCheckpointScope(world,config);
+            restored=readResidentCheckpoint(checkpoint,checkpointExecutionIdentity(config));
+            checkpoint::require(initializeResidentState && restored->world==world.fingerprint() &&
+                restored->environments==batch.environmentCount && restored->supportsReset==!batch.resetMasks.empty(),
+                "Resident checkpoint world, lane or reset contract mismatch");
+        }
         const bool residentContinuation =
             residentState != nullptr &&
             !initializeResidentState;
@@ -20519,14 +20665,29 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 (
                     residentData->stateArenaGeneration !=
                         selectedState->stateArenaGeneration ||
-                    selectedState->boundModelFingerprint !=
-                        world.fingerprint()
+                    // Immutable heap growth invalidates upload markers, not
+                    // the pinned persistent state. uploadBatch repopulates
+                    // that same world before any physics executes.
+                    (selectedState->boundModelFingerprint != 0u &&
+                     selectedState->boundModelFingerprint != world.fingerprint())
                 )) {
                 return reject(
                     std::move(diagnostics),
                     MetalWorldHostStatus::invalidDimensions,
                     "resident state arena or compiled world changed"
                 );
+            }
+            if (selectedState->config.enableResidentCheckpoints && config.taskProgram.valid() && config.taskProgram.header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION) {
+                selectedState->checkpointSupported=!world.rodCount() && !config.millardProgram.valid() &&
+                    !config.multicopterProgram.valid() && config.solverMode==MetalWorldSolverMode::temporalCone &&
+                    !config.birdFlowJourneyTeacher && config.deviceObservationProgram.valid() && config.policyProgram.valid();
+                selectedState->checkpointExecutionIdentity=checkpointExecutionIdentity(config);
+                for (std::size_t i=0;i<kRawBufferCount;++i) selectedState->checkpointLogicalBytes[i]=requirements.entries[i].logicalBytes;
+            }
+            if (restored) {
+                checkpoint::require(restored->runtime==selectedState->checkpointRuntimeIdentity,"Resident checkpoint runtime/device/OS identity mismatch");
+                for (std::size_t i=0;i<kRawBufferCount;++i) if (privatePersistentBuffer(i))
+                    checkpoint::require(restored->sections[i].size()==requirements.entries[i].logicalBytes,"Resident checkpoint persistent layout mismatch");
             }
             const bool contactMode =
                 config.solverMode !=
@@ -20596,6 +20757,20 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 );
             }
 
+            if (restored) {
+                id<MTLBlitCommandEncoder> blit=[commandBuffer blitCommandEncoder];
+                checkpoint::require(blit!=nil,"Resident checkpoint restore encoder failed");
+                for (std::size_t i=0;i<kRawBufferCount;++i) if (privatePersistentBuffer(i) && !restored->sections[i].empty()) {
+                    const auto data=restored->sections[i];
+                    id<MTLBuffer> upload=[selectedState->device newBufferWithBytes:data.data() length:data.size() options:MTLResourceStorageModeShared];
+                    checkpoint::require(upload!=nil,"Resident checkpoint restore staging failed");
+                    [blit copyFromBuffer:upload sourceOffset:0 toBuffer:selectedState->buffers[i] destinationOffset:0 size:data.size()];
+                }
+                [blit endEncoding];
+                residentQ=restored->selected[0];residentV=restored->selected[1];residentScene=restored->selected[2];
+                residentManifoldHeaders=restored->selected[3];residentManifoldPoints=restored->selected[4];residentManifoldCounts=restored->selected[5];
+                residentRodNodes=restored->selected[6];residentRodEdges=restored->selected[7];residentRodWitnesses=restored->selected[8];
+            }
             const bool useParallelABA =
                 diagnostics.layout.usesParallelABA;
             const bool useFunctionBasedDenseDynamics =
@@ -20634,9 +20809,9 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                        ? selectedState->parallelABAPipeline
                        : selectedState->abaPipeline);
             std::size_t sourceQ =
-                residentContinuation ? residentQ : kStateQA;
+                (residentContinuation || restored.has_value()) ? residentQ : kStateQA;
             std::size_t sourceV =
-                residentContinuation ? residentV : kStateVA;
+                (residentContinuation || restored.has_value()) ? residentV : kStateVA;
             std::size_t destinationQ =
                 sourceQ == kStateQA ? kStateQB : kStateQA;
             std::size_t destinationV =
@@ -20675,7 +20850,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 activePairClassMask |= 1u << workClass;
             }
             std::size_t sourceScene =
-                residentContinuation
+                (residentContinuation || restored.has_value())
                 ? residentScene
                 : kSceneBodiesA;
             std::size_t destinationScene =
@@ -20683,15 +20858,15 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 ? kSceneBodiesB
                 : kSceneBodiesA;
             std::size_t sourceManifoldHeaders =
-                residentContinuation
+                (residentContinuation || restored.has_value())
                 ? residentManifoldHeaders
                 : kManifoldHeadersA;
             std::size_t sourceManifoldPoints =
-                residentContinuation
+                (residentContinuation || restored.has_value())
                 ? residentManifoldPoints
                 : kManifoldPointsA;
             std::size_t sourceManifoldCounts =
-                residentContinuation
+                (residentContinuation || restored.has_value())
                 ? residentManifoldCounts
                 : kManifoldCountsA;
             std::size_t destinationManifoldHeaders =
@@ -20707,11 +20882,11 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 ? kManifoldCountsB
                 : kManifoldCountsA;
             std::size_t sourceRodNodes =
-                residentContinuation
+                (residentContinuation || restored.has_value())
                 ? residentRodNodes
                 : kRodNodesA;
             std::size_t sourceRodEdges =
-                residentContinuation
+                (residentContinuation || restored.has_value())
                 ? residentRodEdges
                 : kRodEdgesA;
             std::size_t destinationRodNodes =
@@ -20723,7 +20898,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 ? kRodEdgesB
                 : kRodEdgesA;
             std::size_t sourceRodWitnesses =
-                residentContinuation
+                (residentContinuation || restored.has_value())
                 ? residentRodWitnesses
                 : kRodWitnessesA;
             std::size_t destinationRodWitnesses =

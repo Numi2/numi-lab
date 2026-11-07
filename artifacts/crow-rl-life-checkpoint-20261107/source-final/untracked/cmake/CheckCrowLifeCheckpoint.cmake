@@ -1,0 +1,11 @@
+if(NOT DEFINED PROGRAM OR NOT DEFINED OUTPUT_PARENT)
+    message(FATAL_ERROR "Life checkpoint check needs PROGRAM and OUTPUT_PARENT")
+endif()
+string(RANDOM LENGTH 16 ALPHABET 0123456789abcdef trial_id)
+set(trial "${OUTPUT_PARENT}/crow-life-checkpoint-${trial_id}")
+execute_process(COMMAND "${PROGRAM}" "${trial}"
+    RESULT_VARIABLE result OUTPUT_VARIABLE evidence ERROR_VARIABLE failure TIMEOUT 180)
+if(NOT result EQUAL 0)
+    message(FATAL_ERROR "Native life checkpoint check failed; evidence ${trial}: ${failure}")
+endif()
+message(STATUS "${evidence} Evidence retained at ${trial}")

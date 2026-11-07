@@ -75,10 +75,10 @@
     "finite_food_water_and_energy": "experimental-native-finite-food-tracer-and-capacity-limited-crop-with-bound-reward; water-energy-physiology-pending",
     "accepted_state_consumption": "native-accepted-mouth-intake-volume-and-open-close-edge-controls-passed; solid-food-pickup-carrying-and-swallowing-pending",
     "feeding_station_curriculum": "native-v12; frozen-stochastic-policy-complete-intake-1536-of-1536-versus-untrained-20-of-1536; deterministic-intake-zero; canonical-supported-tracer-only; ecology-unqualified",
-    "persistent_memory_and_life_checkpoint": "resource-only-and-learner-only-checkpoints-tested; whole-world-RNG-sensory-memory-restore-pending",
+    "persistent_memory_and_life_checkpoint": "native-v13-world-contact-task-RNG-retinal-food-fresh-process-restore-passed; exact-runtime-next-policy-boundary-and-rejection-purity; combined-learner-life-resume-and-trainable-memory-pending",
     "social_individuals_and_communication": "pending",
     "weather_and_seasonal_ecology": "pending",
-    "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-and-partition-controls-passed-including-live-head-renderer; sensory-checkpoint-restore-pending",
+    "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-partition-and-pending-frame-fresh-process-restore-controls-passed-including-live-head-renderer",
     "retinal_actor_contract": "native-v13-1251-actor-97-critic-18-actions; live-pixel-controls-and-C-API-Swift-MLX-update-learner-restore-passed-at16-64-128; visual-learning-and-production-performance-qualification-pending"
   },
   "release_requirements": [
@@ -155,6 +155,28 @@
     ],
     "memory_scope": "MLX peak only, not complete process/renderer peak",
     "scope": "fixed supported development proxy scene; actual native/Swift/MLX pipeline and learner-only restore; no visual learning or production-scale qualification",
+    "ecological_environment_qualified": false
+  },
+  "life_checkpoint_development_instrument": {
+    "commands": [
+      "life-admission",
+      "life-swift-probe --calibration PASSED_NATIVE_LIFE_TRIAL"
+    ],
+    "evidence": "artifacts/crow-rl-life-checkpoint-20261107",
+    "native_attempts": 6,
+    "swift_attempts": 2,
+    "seed": 2651109001,
+    "environments": 2,
+    "snapshot_accepted_tick": 135,
+    "future_ticks": 32,
+    "fresh_process_continuations": 2,
+    "negative_restore_controls": 10,
+    "all_future_and_hidden_state_bit_identical": true,
+    "restore_advances_physics": false,
+    "policy_publication_advances_physics": false,
+    "identity_scope": "exact native library/core-retinal shaders/device/OS/world/task/next-policy/resource/sensor configuration",
+    "state_scope": "native physical/contact/reset/task/RNG and delayed retinal queue plus finite food; no trainable persistent memory",
+    "combined_learner_life_resume_tested": false,
     "ecological_environment_qualified": false
   }
 }

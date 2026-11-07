@@ -1,0 +1,67 @@
+{
+  "status": "passed",
+  "claim": "ordinary Swift fresh-process life resume and save; no unreported warmup transition",
+  "records": [
+    {
+      "chunk": 1,
+      "fingerprint": "9220432553593489939",
+      "ledger": {
+        "accepted_control_ticks_by_environment": [
+          167,
+          167
+        ],
+        "bite_count_by_environment": [
+          1,
+          1
+        ],
+        "consumed_micrograms_by_environment": [
+          20000,
+          20000
+        ],
+        "crop_micrograms_by_environment": [
+          20000,
+          20000
+        ],
+        "initialized_by_environment": [
+          1,
+          1
+        ],
+        "remaining_micrograms_by_environment": [
+          25000,
+          25000
+        ]
+      }
+    },
+    {
+      "chunk": 8,
+      "fingerprint": "9220432553593489939",
+      "ledger": {
+        "accepted_control_ticks_by_environment": [
+          167,
+          167
+        ],
+        "bite_count_by_environment": [
+          1,
+          1
+        ],
+        "consumed_micrograms_by_environment": [
+          20000,
+          20000
+        ],
+        "crop_micrograms_by_environment": [
+          20000,
+          20000
+        ],
+        "initialized_by_environment": [
+          1,
+          1
+        ],
+        "remaining_micrograms_by_environment": [
+          25000,
+          25000
+        ]
+      }
+    }
+  ],
+  "ecological_environment_qualified": false
+}

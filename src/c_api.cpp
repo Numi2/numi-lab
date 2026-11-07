@@ -1,4 +1,5 @@
 #include "metalrobo/RetinalObserver.hpp"
+#include "metalrobo/detail/Checkpoint.hpp"
 #include "metalrobo/c_api.h"
 
 #include "metalrobo/EpisodeTwinCompiler.hpp"
@@ -136,6 +137,7 @@ struct MRTaskRolloutHandle {
     std::string taskId;
     std::uint32_t environmentCount = 0u;
     bool rejectedRetinalBatch=false;
+    std::vector<std::byte> pendingLifeWorld;
     std::uint64_t submittedControlSteps = 0u;
     std::uint64_t completedEnvironmentSteps = 0u;
     std::uint64_t submissionCount = 0u;
@@ -540,6 +542,7 @@ void resetTaskRolloutState(
         }
     }
         }
+    handle.pendingLifeWorld.clear();
     handle.resetMasks.clear();
     handle.result = {};
     handle.statusCodes.clear();
@@ -1151,6 +1154,7 @@ createTaskRolloutHandle(
         worldConfig.metallibPath = metallibPath;
     }
     worldConfig.maximumInFlightSubmissions = 1u;
+    worldConfig.enableResidentCheckpoints = run.task().header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION;
     auto handle = std::make_unique<MRTaskRolloutHandle>(
         std::move(worldConfig),
         std::move(run)
@@ -3950,6 +3954,64 @@ MRTaskRolloutHandle* mr_create_task_rollout_retinal(const MRRunManifestC* manife
     return result;
 }
 
+namespace {
+std::uint64_t lifeCheckpointIdentity(const MRTaskRolloutHandle& h) {
+    using namespace metalrobo;
+    checkpoint::require(h.visualRuntime && h.visualRuntime->retinal && h.resourceRuntime &&
+        h.taskProgram.header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION && h.stepConfig.policyProgram.valid(),
+        "Life checkpoint requires the native v13 retinal feeding runtime and an exact policy");
+    checkpoint::Bytes identity;
+    for (const auto value : {h.world.fingerprint(),h.taskProgram.fingerprint(),h.taskProgram.observationFingerprint(),
+        h.taskProgram.actionFingerprint(),h.stepConfig.policyProgram.fingerprint(),h.stepConfig.basePolicyProgram.fingerprint(),h.resourceRuntime->fingerprint(),h.stepConfig.taskSeed,
+        std::uint64_t(h.environmentCount)}) checkpoint::append(identity,value);
+    const auto digest=checkpoint::digest(identity);std::uint64_t result=0;std::memcpy(&result,digest.data(),sizeof(result));return result;
+}
+}
+int mr_task_rollout_save_life_checkpoint(const MRTaskRolloutHandle* handle,const char* path) {
+    return translateErrors([&] {
+        using namespace metalrobo;checkpoint::require(handle && path && path[0],"Life checkpoint requires handle and path");
+        const auto identity=lifeCheckpointIdentity(*handle);
+        checkpoint::require(!handle->rejectedRetinalBatch && handle->pendingLifeWorld.empty() && handle->residentState.valid(),"Life checkpoint requires admitted successful resident state");
+        const auto world=handle->context.checkpointResident(handle->residentState,handle->stepConfig);
+        const auto retina=handle->visualRuntime->retinal->checkpointState();const auto resource=handle->resourceRuntime->checkpointState();
+        checkpoint::Bytes bytes;checkpoint::append(bytes,handle->submittedControlSteps);checkpoint::append(bytes,handle->completedEnvironmentSteps);
+        checkpoint::append(bytes,handle->submissionCount);checkpoint::append(bytes,handle->totalGPUMilliseconds);checkpoint::append(bytes,handle->totalSubmissionMilliseconds);
+        checkpoint::appendBlob(bytes,world);checkpoint::appendBlob(bytes,retina);checkpoint::appendBlob(bytes,resource);
+        checkpoint::writeExclusive(path,checkpoint::seal({'N','U','M','I','L','F','0','1'},identity,bytes));
+    });
+}
+int mr_task_rollout_restore_life_checkpoint(MRTaskRolloutHandle* handle,const char* path) {
+    return translateErrors([&] {
+        using namespace metalrobo;checkpoint::require(handle && path && path[0],"Life restore requires handle and path");
+        const auto identity=lifeCheckpointIdentity(*handle);
+        checkpoint::require(!handle->residentState.valid() && !handle->submittedControlSteps && !handle->submissionCount &&
+            handle->pendingLifeWorld.empty() && !handle->rejectedRetinalBatch,"Life restore requires a fresh unadvanced handle");
+        const auto bytes=checkpoint::readBounded(path,1024ull*1024*1024);
+        checkpoint::Reader reader{checkpoint::open(bytes,{'N','U','M','I','L','F','0','1'},identity)};
+        const auto steps=reader.get<std::uint64_t>(),completed=reader.get<std::uint64_t>(),submissions=reader.get<std::uint64_t>();
+        const auto gpu=reader.get<double>(),submission=reader.get<double>();
+        checkpoint::require(steps && submissions && steps<=std::numeric_limits<std::uint64_t>::max()/handle->environmentCount &&
+            completed==steps*handle->environmentCount && std::isfinite(gpu) && gpu>=0 &&
+            std::isfinite(submission) && submission>=0,"Invalid life checkpoint host accounting");
+        const auto world=reader.blob(),retina=reader.blob(),resource=reader.blob();reader.end();
+        const std::vector<unsigned> masks(handle->environmentCount,0);
+        const MetalWorldBatch validation{.environmentCount=handle->environmentCount,.controlStepCount=1,
+            .initialQ=handle->resetQ,.initialV=handle->resetV,.resetMasks=masks,.initialSceneBodies=handle->resetSceneBodies};
+        handle->context.validateResidentCheckpoint(handle->world,validation,handle->stepConfig,world);
+        // Build and restore candidates. An invalid later component cannot mutate
+        // the published handle or allow a partially restored life to advance.
+        auto visual=compileTaskVisualRuntime(*handle,*handle->run.visualSensorProgram(),true);
+        auto food=std::make_unique<FiniteResourceContext>(makeAmericanCrowFeedingResourceConfig(handle->run,handle->environmentCount));
+        visual->retinal->restoreState(retina);food->restoreState(resource);
+        std::vector<std::byte> pending(world.begin(),world.end());
+        handle->visualRuntime=std::move(visual);handle->resourceRuntime=std::move(food);handle->pendingLifeWorld=std::move(pending);
+        handle->stepConfig.deviceObservationProgram=handle->visualRuntime->retinal->deviceProgram();
+        handle->stepConfig.devicePhysicsProgram=handle->resourceRuntime->deviceProgram();
+        handle->submittedControlSteps=steps;handle->completedEnvironmentSteps=completed;handle->submissionCount=submissions;
+        handle->totalGPUMilliseconds=gpu;handle->totalSubmissionMilliseconds=submission;
+    });
+}
+
 void mr_task_rollout_destroy(MRTaskRolloutHandle* handle) {
     delete handle;
 }
@@ -4423,7 +4485,9 @@ int mr_task_rollout_advance(
         metalrobo::MetalWorldResult published;
         metalrobo::MetalWorldDiagnostics diagnostics =
             initializeResidentState
-            ? handle->context.initializeResidentState(
+            ? !handle->pendingLifeWorld.empty()
+                ? handle->context.resumeResident(handle->world,batch,handle->stepConfig,handle->pendingLifeWorld,handle->residentState,submission)
+                : handle->context.initializeResidentState(
                 handle->world,
                 batch,
                 handle->stepConfig,
@@ -4516,6 +4580,7 @@ int mr_task_rollout_advance(
                 throw std::runtime_error("Retinal GPU rejected learner batch: lane="+std::to_string(lane)+" error="+std::to_string(sensor.errors[lane]));
             handle->rejectedRetinalBatch=false;
         }
+        handle->pendingLifeWorld.clear();
         handle->result = std::move(published);
         handle->outcomeValues.clear();
         handle->outcomeValues.reserve(

@@ -1,0 +1,10 @@
+{"case":0,"rejected":true,"reason":"Truncated checkpoint section"}
+{"case":1,"rejected":true,"reason":"Checkpoint schema or length mismatch"}
+{"case":2,"rejected":true,"reason":"Checkpoint checksum mismatch"}
+{"case":3,"rejected":true,"reason":"Checkpoint contract mismatch for NUMILF01: expected 12279067951479733537, got 6200657399766790516"}
+{"case":4,"rejected":true,"reason":"Checkpoint contract mismatch for NUMILF01: expected 5965927141110212022, got 6200657399766790516"}
+{"case":5,"rejected":true,"reason":"Checkpoint contract mismatch for NUMILF01: expected 7764260969708182177, got 6200657399766790516"}
+{"case":6,"rejected":true,"reason":"Retinal checkpoint configuration/shader mismatch"}
+{"case":7,"rejected":true,"reason":"Resource checkpoint violates conservation"}
+{"case":8,"rejected":true,"reason":"Checkpoint schema or length mismatch"}
+{"case":9,"rejected":true,"reason":"Life restore requires a fresh unadvanced handle"}

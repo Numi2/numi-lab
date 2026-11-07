@@ -1729,6 +1729,17 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         }
     }
 
+    public func saveLifeCheckpoint(to url: URL) throws {
+        let status = url.path.withCString { mr_task_rollout_save_life_checkpoint(handle, $0) }
+        guard status == 0 else { throw MetalRoboTaskRolloutError.native(Self.lastError()) }
+    }
+
+    // Requires a fresh context with the exact saved native policy installed.
+    public func restoreLifeCheckpoint(from url: URL) throws {
+        let status = url.path.withCString { mr_task_rollout_restore_life_checkpoint(handle, $0) }
+        guard status == 0 else { throw MetalRoboTaskRolloutError.native(Self.lastError()) }
+    }
+
     public func loadPolicy(at url: URL) throws {
         let status = url.path.withCString {
             mr_task_rollout_load_policy_pack(handle, $0)

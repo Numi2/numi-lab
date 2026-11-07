@@ -1,0 +1,78 @@
+{
+  "05": [
+    {
+      "kind": "life_check",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-admission-05/bin/metalrobo_crow_life_checkpoint_check",
+      "sha256": "fb923fd76acb942cbb0135ff5d139abd0f7abedcd16c308b83484f5df91117dc"
+    },
+    {
+      "kind": "rollout",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-admission-05/bin/metalrobo_task_rollout",
+      "sha256": "678992261b9f7826d24e4f86ff75f84b6e0889963e09011429f794a3cce5331a"
+    },
+    {
+      "kind": "train",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-admission-05/bin/metalrobo_task_train",
+      "sha256": "1f1b7c9db50e45cbb356aa933612d7fd3793c71dc98d2d259a2c04869056b01b"
+    },
+    {
+      "kind": "library",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-admission-05/lib/libmetalrobo.dylib",
+      "sha256": "3fd8e25cfce7af0fa9e627053a9a7d7821f7f26a0a318cecf0c9c35626195239"
+    },
+    {
+      "kind": "metallib",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-admission-05/shaders/MetalRobo.metallib",
+      "sha256": "bee9e69522b26d6b5d99660e665cf8ed856acd9038ea9f2bdcb87b96dd99385a"
+    },
+    {
+      "kind": "retinal_metallib",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-admission-05/shaders/RetinalStream.metallib",
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    }
+  ],
+  "06": [
+    {
+      "kind": "life_check",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-admission-06-final/bin/metalrobo_crow_life_checkpoint_check",
+      "bytes": 144040,
+      "sha256": "d9920bee6321abdee8830e9cc3ee68254e9c3f4b0f05fa4c486f991256adc519"
+    },
+    {
+      "kind": "retinal_api_check",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-admission-06-final/bin/metalrobo_crow_retinal_api_check",
+      "bytes": 120320,
+      "sha256": "4fe9673d750cc0ee566e2fceb032e569cad868d0781cab2fc112fbb861de1e92"
+    },
+    {
+      "kind": "train",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-admission-06-final/bin/metalrobo_task_train",
+      "bytes": 863272,
+      "sha256": "1f1b7c9db50e45cbb356aa933612d7fd3793c71dc98d2d259a2c04869056b01b"
+    },
+    {
+      "kind": "rollout",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-admission-06-final/bin/metalrobo_task_rollout",
+      "bytes": 976776,
+      "sha256": "50612758ea835b0999c7e8f2fb400e68be34a574a5b93a65e8ccd6784df90a29"
+    },
+    {
+      "kind": "library",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-admission-06-final/lib/libmetalrobo.dylib",
+      "bytes": 5541632,
+      "sha256": "bab0fdf882d3f62f71a4aabf2d1db3ffea9c306059304a7eacd6d55187ffd267"
+    },
+    {
+      "kind": "metallib",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-admission-06-final/shaders/MetalRobo.metallib",
+      "bytes": 4173395,
+      "sha256": "bee9e69522b26d6b5d99660e665cf8ed856acd9038ea9f2bdcb87b96dd99385a"
+    },
+    {
+      "kind": "retinal_metallib",
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/life-admission-06-final/shaders/RetinalStream.metallib",
+      "bytes": 16151,
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    }
+  ]
+}

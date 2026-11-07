@@ -36,7 +36,10 @@ public:
     // contact caches, policies, sensory history or agent memory.
     void saveCheckpoint(const std::filesystem::path& path) const;
     void restoreCheckpoint(const std::filesystem::path& path);
+    [[nodiscard]] std::vector<std::byte> checkpointState() const;
+    void restoreState(std::span<const std::byte> state);
 private:
+    void restoreValidatedStates(std::span<const MRFiniteResourceStateGPU> states);
     std::shared_ptr<detail::FiniteResourceRuntime> runtime_;
 };
 } // namespace metalrobo

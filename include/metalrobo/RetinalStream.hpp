@@ -37,6 +37,10 @@ public:
         std::size_t outputBaseElements=0);
     [[nodiscard]] std::uint32_t featureCount() const noexcept;
     [[nodiscard]] RetinalStreamSnapshot snapshot() const;
+    // Complete causal sensor state, including pending and visible pixels.
+    // Explicit quiescent boundary; configuration/runtime identities must match.
+    [[nodiscard]] std::vector<std::byte> checkpointState() const;
+    void restoreState(std::span<const std::byte> state);
 private:
     std::shared_ptr<detail::RetinalStreamRuntime> runtime_;
 };

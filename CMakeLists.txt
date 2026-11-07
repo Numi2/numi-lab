@@ -1080,6 +1080,12 @@ add_executable(
 )
 add_executable(metalrobo_crow_embodiment_check apps/crow_embodiment_check.cpp)
 add_executable(metalrobo_crow_foraging_check apps/crow_foraging_check.mm)
+add_executable(metalrobo_crow_life_checkpoint_check apps/crow_life_checkpoint_check.mm)
+target_compile_options(metalrobo_crow_life_checkpoint_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+target_link_libraries(metalrobo_crow_life_checkpoint_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
+add_dependencies(metalrobo_crow_life_checkpoint_check metalrobo_retinal_shaders)
+set_target_properties(metalrobo_crow_life_checkpoint_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+
 add_executable(metalrobo_crow_retinal_api_check apps/crow_retinal_api_check.mm)
 target_compile_options(metalrobo_crow_retinal_api_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
 target_link_libraries(metalrobo_crow_retinal_api_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
@@ -2375,6 +2381,13 @@ if(BUILD_TESTING)
             "-DPROGRAM=$<TARGET_FILE:metalrobo_retinal_stream_check>"
             "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckRetinalStream.cmake")
+    add_test(NAME metalrobo.crow.life_checkpoint
+        COMMAND "${CMAKE_COMMAND}"
+            "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_life_checkpoint_check>"
+            "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowLifeCheckpoint.cmake")
+    set_tests_properties(metalrobo.crow.life_checkpoint PROPERTIES
+        LABELS "metalrobo;crow;native;persistence" TIMEOUT 200)
     add_test(NAME metalrobo.crow.retinal_api
         COMMAND "${CMAKE_COMMAND}"
             "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_retinal_api_check>"
