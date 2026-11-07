@@ -1,0 +1,4 @@
+env=0 world=0 contact=0 expected=candidate equal=1 words=6,40,50,60
+env=1 world=5 contact=0 expected=prior equal=1 words=6,11,21,31
+env=2 world=0 contact=5 expected=prior equal=1 words=7,12,22,32
+env=3 world=5 contact=5 expected=prior equal=1 words=8,13,23,33
