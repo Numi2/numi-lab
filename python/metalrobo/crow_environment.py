@@ -58,6 +58,7 @@ def runtime(root: Path) -> dict:
         "foraging_check": build / "bin/metalrobo_crow_foraging_check",
         "eye_check": build / "bin/metalrobo_crow_eye_check",
         "retinal_check": build / "bin/metalrobo_retinal_stream_check",
+        "retinal_api_check": build / "bin/metalrobo_crow_retinal_api_check",
         "retinal_live_check": build / "bin/metalrobo_crow_retinal_live_check",
         "retinal_contract_check": build / "bin/metalrobo_crow_retinal_contract_check",
         "retinal_metallib": build / "shaders/RetinalStream.metallib",
@@ -334,18 +335,21 @@ def learn_probe(root: Path, output: Path, args: argparse.Namespace, profile: dic
     if variant == "v9-visual-neural" and source is None:
         raise ValueError("The v9 learning probe requires an explicitly selected source actor")
     paths = runtime(root)
+    retinal = variant == "v13-retinal-feeding"
+    environments = args.environments or (16 if retinal else 512)
+    visual = args.retinal_visual if retinal else None
     records = []
     for stage, updates in (("initial", 2), ("resume", 1)):
         command = [str(paths["train"]), "--metallib", str(paths["metallib"]),
                    "--native-library", str(paths["library"]), "--mlx-python", sys.executable,
                    "--python-root", str(root / "python"), "--birdflow-american-crow-journey",
                    "--birdflow-journey-variant", variant,
-                   "--envs", "512", "--steps", "128", "--updates", str(updates), "--chunk", "8",
-                   "--minimum-difficulty-band", "0" if variant=="v12-feeding-station" else "4",
-                   "--maximum-difficulty-band", "0" if variant=="v12-feeding-station" else "4",
+                   "--envs", str(environments), "--steps", "128", "--updates", str(updates), "--chunk", "8",
+                   "--minimum-difficulty-band", "0" if variant in ("v12-feeding-station", "v13-retinal-feeding") else "4",
+                   "--maximum-difficulty-band", "0" if variant in ("v12-feeding-station", "v13-retinal-feeding") else "4",
                    "--seed", str(profile["probe"]["seed"]),
                    "--learner-seed", str(profile["development_seeds"][0]),
-                   "--update-epochs", "1", "--minibatch-size", "8192", "--learning-rate", "0.0001",
+                   "--update-epochs", "1", "--minibatch-size", str(min(8192,environments*128)), "--learning-rate", "0.0001",
                    "--policy-pack", str(output / ("initial.policypack" if stage == "initial" else "initial-updated.policypack")),
                    "--updated-policy-pack", str(output / f"{stage}-updated.policypack"),
                    "--deployment-policy-pack", str(output / f"{stage}-deployment.policypack"),
@@ -354,6 +358,8 @@ def learn_probe(root: Path, output: Path, args: argparse.Namespace, profile: dic
                    "--output-learner-state", str(output / f"{stage}.learner.safetensors")]
         if variant in VARIANTS:
             command += ["--visual-observation-config", str(root / "assets" / VARIANTS[variant])]
+        if visual:
+            command += ["--visual-observation-config", str(visual)]
         if args.fixed_learning_rate:
             command += ["--fixed-learning-rate"]
         if args.initial_log_standard_deviation is not None:
@@ -367,7 +373,7 @@ def learn_probe(root: Path, output: Path, args: argparse.Namespace, profile: dic
         else:
             command += ["--learner-state", str(output / "initial.learner.safetensors")]
         value = execute(output, f"learner-{stage}", command, root, 300)
-        if value.get("failed_environment_steps") != 0 or value.get("training_samples") != 512 * 128 * updates:
+        if value.get("failed_environment_steps") != 0 or value.get("training_samples") != environments * 128 * updates:
             raise RuntimeError("Learner probe invalid sample or device status")
         if value.get("final_policy_revision") != value.get("initial_policy_revision", -1) + updates:
             raise RuntimeError("Learner did not publish every expected policy revision")
@@ -395,7 +401,7 @@ def learn_probe(root: Path, output: Path, args: argparse.Namespace, profile: dic
         write(output / "learning-no-intake-reward.json", {"records": records})
         raise RuntimeError("No accepted intake reward in reported learning updates")
     return {"status": "passed", "claim": "native/MLX updates, publication, and learner-only restore",
-            "variant": variant, "actor_initialization": "explicit source" if source else "new zero-output actor",
+            "variant": variant, "environments": environments, "actor_initialization": "explicit source" if source else "new zero-output actor",
             "records": records, "candidate_promoted": False, "persistent_world_restore_tested": False,
             "ecological_environment_qualified": False}
 
@@ -767,6 +773,7 @@ def main() -> int:
     commands.add_parser("head-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("eye-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("retina-admission").add_argument("--output", type=Path, required=True)
+    commands.add_parser("retinal-api-admission").add_argument("--output",type=Path,required=True)
     commands.add_parser("retinal-live-admission").add_argument("--output",type=Path,required=True)
     retinal_contract=commands.add_parser("retinal-contract-admission")
     retinal_contract.add_argument("--output",type=Path,required=True)
@@ -792,10 +799,12 @@ def main() -> int:
     learning = commands.add_parser("learn-probe")
     learning.add_argument("--output", type=Path, required=True)
     learning.add_argument("--source-policy", type=Path)
-    learning.add_argument("--variant", choices=("v9-visual-neural", "v11-embodied", "v12-feeding-station"), default="v9-visual-neural")
+    learning.add_argument("--variant", choices=("v9-visual-neural", "v11-embodied", "v12-feeding-station", "v13-retinal-feeding"), default="v9-visual-neural")
     learning.add_argument("--initial-log-standard-deviation", type=float)
     learning.add_argument("--fixed-learning-rate", action="store_true")
     learning.add_argument("--require-intake-reward", action="store_true")
+    learning.add_argument("--environments", type=int, choices=(16,32,64,128,512))
+    learning.add_argument("--retinal-calibration", type=Path)
     motor = commands.add_parser("motor-probe")
     motor.add_argument("--output", type=Path, required=True)
     motor.add_argument("--policy", type=Path, required=True)
@@ -822,6 +831,21 @@ def main() -> int:
     if args.command=="retinal-contract-admission":
         args.legacy_metallib=(args.legacy_metallib or root/"artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib").resolve(strict=True)
         checked["inputs"]["retinal_legacy_shader"]={"path":str(args.legacy_metallib),"sha256":sha(args.legacy_metallib)}
+    if args.command == "learn-probe" and args.variant == "v13-retinal-feeding":
+        if not args.retinal_calibration:
+            raise ValueError("Retinal learning requires passed current-runtime API admission")
+        calibration = args.retinal_calibration.resolve(strict=True)
+        result = json.loads((calibration/"summary.json").read_text())
+        calibration_plan = json.loads((calibration/"plan.json").read_text())
+        if result.get("status") != "passed" or not result.get("world_reset_preserves_food"):
+            raise ValueError("Retinal API admission did not pass")
+        for name in ("train","library","metallib","retinal_metallib"):
+            if calibration_plan["preflight"]["inputs"][name]["sha256"] != checked["inputs"][name]["sha256"]:
+                raise ValueError("Retinal admission does not bind current runtime: "+name)
+        args.retinal_visual = calibration/"native-evidence/retinal-observation.json"
+        visual = json.loads(args.retinal_visual.read_text())
+        for name,path in [("retinal_visual",args.retinal_visual)]+[("retinal_asset_"+str(i),args.retinal_visual.parent/p["path"]) for i,p in enumerate(visual["packs"])]:
+            checked["inputs"][name]={"path":str(path),"sha256":sha(path)}
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
     plan = {"schema": "numi.crow-trial-plan.v1", "created_utc": datetime.now(timezone.utc).isoformat(),
@@ -883,6 +907,18 @@ def main() -> int:
         plan.update({"purpose":"native retinal actor contract and pre-submission rejection instrument",
           "prediction":"1251 actor/97 critic/18 action channels; 12 malformed manifests and 9 same-dimension sensor changes reject; missing observer and old shader cannot execute; legacy task ABI and mechanics unchanged",
           "boundary":"compiler metadata and native rejection probes only; no rendered actor images or learner integration"})
+    if args.command == "learn-probe" and args.variant == "v13-retinal-feeding":
+        plan.update({"purpose":"native RGB to Swift/MLX learner and learner-only restore engineering admission",
+          "prediction":"two initial updates and one restored update publish all expected revisions and samples with zero native/sensor errors",
+          "control":"current-runtime terminal/partition/reset API admission; two fresh-world learner stages, not whole-world restore",
+          "unit":"one learner, explicit supported-station proxy scene; images need not be behaviorally useful for this engineering test",
+          "budget":{"environments":args.environments or 16,"steps_per_update":128,"updates":3},
+          "stopping":"exactly two processes, 300s each; abort invalidity, preserve all failures, no promotion",
+          "limitations":"not visual learning, memory, ecological intelligence or production-scale performance qualification"})
+    if args.command == "retinal-api-admission":
+        plan.update({"purpose":"native v13 C API, terminal learning slot and reset admission",
+          "prediction":"six malformed configs reject; final/next retinal inputs and chunk1/8 bit identical; fresh world reset clears retina while preserving consumed food",
+          "boundary":"explicit fixed development collision proxies and authored actors; no visual learning or biological claim"})
     if args.command == "retinal-live-admission":
         plan.update({"purpose":"live native physical cameras to GPU retina to pixel-dependent actor",
           "prediction":"two ticks cold-start blindness; actual occlusion reverses pixel-driven yaw; disconnected actor stays zero; chunk1/8 bit identical",
@@ -911,6 +947,11 @@ def main() -> int:
                            str(output/"native-evidence"),str(args.legacy_metallib)],root,180)
             if result.get("status")!="passed" or result.get("stale_shader_rejected") is not True:
                 raise RuntimeError("Native retinal contract admission failed")
+        elif args.command == "retinal-api-admission":
+            result=execute(output,"retinal-api",[str(runtime(root)["retinal_api_check"]),
+                           str(output/"native-evidence")],root,180)
+            if result.get("status")!="passed" or result.get("world_reset_preserves_food") is not True:
+                raise RuntimeError("Native retinal learner API admission failed")
         elif args.command == "retinal-live-admission":
             result=execute(output,"retinal-live",[str(runtime(root)["retinal_live_check"]),
                            str(output/"native-evidence")],root,180)

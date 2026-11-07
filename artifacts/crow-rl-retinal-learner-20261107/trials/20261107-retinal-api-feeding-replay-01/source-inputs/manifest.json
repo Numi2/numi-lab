@@ -1,0 +1,13 @@
+{
+  "base_commit": "acb6ba214f9c9c6caae0a08c14ad52eb8f1628ec",
+  "tracked_patch_sha256": "ddf847b1bbd6580c841cdd00a8090dac912bdb6f17631f5d9ce8601c036efc67",
+  "retained_untracked": {
+    ".numi/retinal-api-final-build.log": "e6c0fe78cb61af445b1e686d2d5faa4d2a6dbb7e4289229caa3acccc1d872586",
+    ".numi/retinal-api-native-regression.log": "382d9854562b228b2e1bb6347963ab79d45a9ee898927431073dcf5364a84983",
+    ".numi/retinal-api-python.stderr": "461ac4637e0c2fcc945faf43c2985322758c2e88eb533ce29cb6514304d611b5",
+    ".numi/retinal-api-python.stdout": "be267c310c570f751c1252ef95c760497ab568af4a17361f0de0329a9ca989db",
+    "apps/crow_retinal_api_check.mm": "a6b49b8bf592443f1051d8233ee0deaf44fba0b52be0db2f2451766ecb0a5be2",
+    "cmake/CheckCrowRetinalAPI.cmake": "32dd2f53dda0b92c5031cb6367bf25d92f536fdf7e389fe263a2903830088ebf"
+  },
+  "external_artifact_inputs": {}
+}

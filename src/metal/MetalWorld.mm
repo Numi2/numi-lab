@@ -21449,6 +21449,30 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             if (nativeTask &&
                 config.policyProgram.valid() &&
                 config.evaluateFinalPolicy) {
+                if (config.taskProgram.header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION) {
+                    MRMetalWorldPassGPU terminal{};terminal.controlStep=diagnostics.layout.dispatch.controlStepCount;
+                    terminal.physicsSubstep=MR_INVALID_INDEX;
+                    if (!encodeDevicePhysicsBodies(*selectedState,commandBuffer,sourceQ,
+                            sourceScene,batch.environmentCount,true))
+                        return reject(std::move(diagnostics),MetalWorldHostStatus::metalCommandFailure,"failed terminal retinal body projection");
+                    const auto& layout=config.taskProgram.layout();
+                    const MetalWorldDeviceObservationPass observation{
+                        .commandBuffer=(__bridge void*)commandBuffer,
+                        .q=(__bridge void*)selectedState->buffers[sourceQ],.v=(__bridge void*)selectedState->buffers[sourceV],
+                        .sceneBodies=(__bridge void*)selectedState->buffers[sourceScene],
+                        .currentBodies=(__bridge void*)selectedState->buffers[kCurrentBodies],
+                        .resetMasks=(__bridge void*)selectedState->buffers[kResetMasks],
+                        .taskStates=(__bridge void*)selectedState->buffers[kTaskState],
+                        .actorHistory=(__bridge void*)selectedState->buffers[kTaskActorHistory],
+                        .actorObservations=(__bridge void*)selectedState->buffers[kTaskActorObservations],
+                        .actorObservationOffsetElements=std::size_t(terminal.controlStep)*batch.environmentCount*layout.actorObservationSize,
+                        .seed=config.taskSeed,.controlStep=terminal.controlStep,
+                        .environmentCount=std::uint32_t(batch.environmentCount),.bodyCount=std::uint32_t(world.model().bodies.size()),
+                        .sceneBodyCount=std::uint32_t(world.sceneBodyCount()),.nq=diagnostics.layout.dispatch.nq,.nv=diagnostics.layout.dispatch.nv,
+                        .actorFrameSize=layout.actorFrameSize,.actorHistoryLength=layout.actorHistoryLength,.actorObservationSize=layout.actorObservationSize};
+                    if (!config.deviceObservationProgram.encode(config.deviceObservationProgram.context,observation))
+                        return reject(std::move(diagnostics),MetalWorldHostStatus::metalCommandFailure,"observer rejected terminal retinal actor slot");
+                }
                 MRMetalWorldPassGPU bootstrapPass{};
                 bootstrapPass.controlStep =
                     diagnostics.layout.dispatch.controlStepCount;

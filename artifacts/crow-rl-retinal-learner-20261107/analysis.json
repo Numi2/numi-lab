@@ -1,0 +1,191 @@
+{
+  "schema": "numi.crow-retinal-learner-archive.v1",
+  "status": "native-swift-mlx-engineering-integration-admitted",
+  "api": {
+    "schema": "numi.crow-retinal-api-evidence.v1",
+    "status": "passed",
+    "malformed_configs_rejected": 6,
+    "terminal_retinal_slots_valid": true,
+    "terminal_next_retina_bit_identical": true,
+    "chunk1_8_bit_identical": true,
+    "world_reset_preserves_food": true,
+    "visual_learning_qualified": false,
+    "ecological_environment_qualified": false
+  },
+  "learning": [
+    {
+      "status": "passed",
+      "claim": "native/MLX updates, publication, and learner-only restore",
+      "variant": "v13-retinal-feeding",
+      "environments": 16,
+      "actor_initialization": "new zero-output actor",
+      "records": [
+        {
+          "stage": "initial",
+          "updates": 2,
+          "samples": 4096,
+          "training_loop_steps_per_second": 1405.1067732283864,
+          "whole_process_steps_per_second": 1116.2195727691383,
+          "initial_revision": 1,
+          "final_revision": 3,
+          "learner_state_restored": false,
+          "checkpoint_sha256": "29f79d3c670b7476757945a62104d78ba76012220be388c07b6f24e93f75d8d1",
+          "last_update_mean_reward": 0,
+          "last_update_maximum_reward": 0,
+          "last_update_intake_utility_mean": 0,
+          "last_update_learning_rate": 9.999999747378752e-05,
+          "last_update_action_standard_deviation": 2.7183361053466797,
+          "mlx_peak_memory_bytes": 165057528
+        },
+        {
+          "stage": "resume",
+          "updates": 1,
+          "samples": 2048,
+          "training_loop_steps_per_second": 1406.371045421961,
+          "whole_process_steps_per_second": 1194.7933440423606,
+          "initial_revision": 3,
+          "final_revision": 4,
+          "learner_state_restored": true,
+          "checkpoint_sha256": "6c2d517062ccc6c28ea127ffea9f59fc12c00d33179140c6565503a758c882fe",
+          "last_update_mean_reward": 0.0029296870343387127,
+          "last_update_maximum_reward": 1.999999761581421,
+          "last_update_intake_utility_mean": 0.0029296870343387127,
+          "last_update_learning_rate": 9.999999747378752e-05,
+          "last_update_action_standard_deviation": 2.7183756828308105,
+          "mlx_peak_memory_bytes": 143412196
+        }
+      ],
+      "candidate_promoted": false,
+      "persistent_world_restore_tested": false,
+      "ecological_environment_qualified": false
+    },
+    {
+      "status": "passed",
+      "claim": "native/MLX updates, publication, and learner-only restore",
+      "variant": "v13-retinal-feeding",
+      "environments": 64,
+      "actor_initialization": "new zero-output actor",
+      "records": [
+        {
+          "stage": "initial",
+          "updates": 2,
+          "samples": 16384,
+          "training_loop_steps_per_second": 3908.201785399727,
+          "whole_process_steps_per_second": 3617.631604807744,
+          "initial_revision": 1,
+          "final_revision": 3,
+          "learner_state_restored": false,
+          "checkpoint_sha256": "9df9f17ad6ede28177e01feb3eb723bcba6369872743c60aec04a0456e1c443f",
+          "last_update_mean_reward": 0,
+          "last_update_maximum_reward": 0,
+          "last_update_intake_utility_mean": 0,
+          "last_update_learning_rate": 9.999999747378752e-05,
+          "last_update_action_standard_deviation": 2.718351125717163,
+          "mlx_peak_memory_bytes": 542205432
+        },
+        {
+          "stage": "resume",
+          "updates": 1,
+          "samples": 8192,
+          "training_loop_steps_per_second": 3806.212945881596,
+          "whole_process_steps_per_second": 3477.5844223765203,
+          "initial_revision": 3,
+          "final_revision": 4,
+          "learner_state_restored": true,
+          "checkpoint_sha256": "a3d555827926556002d777b3c3d559139dbf3a6e1ac8b67885fef4d9dd2b5538",
+          "last_update_mean_reward": 0.0026855464093387127,
+          "last_update_maximum_reward": 1.999999761581421,
+          "last_update_intake_utility_mean": 0.0026855464093387127,
+          "last_update_learning_rate": 9.999999747378752e-05,
+          "last_update_action_standard_deviation": 2.7183377742767334,
+          "mlx_peak_memory_bytes": 529003264
+        }
+      ],
+      "candidate_promoted": false,
+      "persistent_world_restore_tested": false,
+      "ecological_environment_qualified": false
+    },
+    {
+      "status": "passed",
+      "claim": "native/MLX updates, publication, and learner-only restore",
+      "variant": "v13-retinal-feeding",
+      "environments": 128,
+      "actor_initialization": "new zero-output actor",
+      "records": [
+        {
+          "stage": "initial",
+          "updates": 2,
+          "samples": 32768,
+          "training_loop_steps_per_second": 5345.889371791742,
+          "whole_process_steps_per_second": 5032.055976431484,
+          "initial_revision": 1,
+          "final_revision": 3,
+          "learner_state_restored": false,
+          "checkpoint_sha256": "06e887910d7bbc12963f77c1df7096eeb9914fac2f977a81675484b4aafbfded",
+          "last_update_mean_reward": 0,
+          "last_update_maximum_reward": 0,
+          "last_update_intake_utility_mean": 0,
+          "last_update_learning_rate": 9.999999747378752e-05,
+          "last_update_action_standard_deviation": 2.7186384201049805,
+          "mlx_peak_memory_bytes": 555126972
+        },
+        {
+          "stage": "resume",
+          "updates": 1,
+          "samples": 16384,
+          "training_loop_steps_per_second": 5305.1717701758,
+          "whole_process_steps_per_second": 4932.680185890882,
+          "initial_revision": 3,
+          "final_revision": 4,
+          "learner_state_restored": true,
+          "checkpoint_sha256": "977c51d42778ff37ddc3c9fe85df1399526eaf19d11ae1a31931b6d461ef8484",
+          "last_update_mean_reward": 0.0026855464093387127,
+          "last_update_maximum_reward": 1.999999761581421,
+          "last_update_intake_utility_mean": 0.0026855464093387127,
+          "last_update_learning_rate": 9.999999747378752e-05,
+          "last_update_action_standard_deviation": 2.7187066078186035,
+          "mlx_peak_memory_bytes": 555137610
+        }
+      ],
+      "candidate_promoted": false,
+      "persistent_world_restore_tested": false,
+      "ecological_environment_qualified": false
+    }
+  ],
+  "legacy_fingerprints": [
+    {
+      "mode": "ordinary",
+      "fingerprint": "2255877855914022940",
+      "chunks": [
+        1,
+        8
+      ]
+    },
+    {
+      "mode": "residual",
+      "fingerprint": "3082487550463979285",
+      "chunks": [
+        1,
+        8
+      ]
+    }
+  ],
+  "native_checks_passed": 11,
+  "python_checks_passed": 19,
+  "api_attempts_retained": 5,
+  "failed_api_attempts": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "source_base": "acb6ba214f9c9c6caae0a08c14ad52eb8f1628ec",
+  "source_delta": "a61c826ad4c0022e0ab3c632b505d1c32bfffc9fb8399dd35cdf23979dc45594",
+  "scope": "supported fixed development collision proxies, native/Swift/MLX learner updates and learner-only restore",
+  "render_every_control_tick": true,
+  "full_process_peak_memory_measured": false,
+  "whole_world_restore": false,
+  "visual_learning_qualified": false,
+  "production_performance_qualified": false,
+  "ecological_environment_qualified": false
+}

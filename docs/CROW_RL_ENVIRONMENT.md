@@ -567,3 +567,77 @@ learning. The full lifelong environment still requires robust locomotion,
 solid-food pickup/carry/cache/swallow, water/energy physiology, trainable
 persistent memory, complete world/RNG/sensory/memory restore, social agents
 and information ablations, and untouched held-out qualification.
+
+
+## Retinal C API, Swift scheduler and MLX learner admission
+
+The additive `mr_create_task_rollout_retinal` entry now admits v13 through the
+regular native rollout and learning tools. Existing C struct sizes and legacy
+ABI47 remain unchanged. The new 64-byte retinal configuration has explicit
+size/version fields, and the v13 entry requires both visual and retinal
+programs. Swift loads `numi.retinal-observation.v1` with explicit relative
+visual assets. Missing raw images cannot silently become zero observations.
+The critic remains 97 physical/nutritional features; the actor receives 1,251
+features including 1,152 RGB values and validity/age. GPU sensor errors reject
+the learner publication and require an explicit world reset before reuse.
+
+Terminal policy evaluation now projects the accepted terminal physical state
+and fills its retinal actor suffix in the same command buffer before inference.
+The ordinary pre-step selector rejects `controlStep == controlStepCount`;
+using it for the terminal camera left stale projection input. Trials01–02
+exposed chunk-dependent image differences despite exact actions and physics.
+A fixed noiseless rendering phase alone did not resolve this. Trial03 switched
+to direct accepted-state projection and passed terminal/partition checks.
+The explicit fixed-phase optics have a versioned retinal fingerprint, so old
+v13 policies cannot be reused silently; legacy v12 fingerprints are unaffected.
+
+Trials03–04 then failed the consumed-food precondition of the reset control.
+The first gesture lacked settling; the established 64-tick settle, 32-tick
+open and 32-tick neutral-close gesture also failed in04. Inspection found v13
+missing the compiler's avian ground-curriculum flag inherited by v12. Trial05
+adds that flag to the compiled task identity and passes all controls with the
+same gesture: six malformed C configurations reject; terminal features equal
+the next chunk's first actor features; complete actor/action/latent/transition
+and final q/v streams are bit-identical for chunks1/8. Explicit world reset
+clears the retinal queue (two cold-start blind ticks) without replenishing
+food or changing crop/consumption, and the resource clock continues.
+
+Reproduce with a fresh output directory:
+
+```
+tools/numi crow-env retinal-api-admission --output NEW_API_TRIAL
+tools/numi crow-env learn-probe --variant v13-retinal-feeding \
+  --retinal-calibration NEW_API_TRIAL --environments 16 \
+  --initial-log-standard-deviation 1 --fixed-learning-rate \
+  --output NEW_LEARNER_TRIAL
+```
+
+The learning driver requires successful current-runtime API admission and
+records exact visual artifact/asset hashes. Probes01–03 used 16, 64 and128
+lanes, respectively, each with two initial 128-step updates and one restored
+update. All expected samples/revisions publish (1→3→4), with zero failed
+native steps. This tests learner-only restoration: each process starts a fresh
+physical world. Small intake rewards during exploration do not establish that
+the actor learned from images or acquired reliable feeding.
+
+| Lanes | Initial / resumed loop steps/s | Initial / resumed whole-process steps/s |
+| --- | --- | --- |
+|16|1,405 /1,406|1,116 /1,195|
+|64|3,908 /3,806|3,618 /3,478|
+|128|5,346 /5,305|5,032 /4,933|
+
+These single bounded engineering probes include native physics, both rendered
+eyes, retinal timing, Swift scheduling, PPO and checkpoint publication; process
+rates additionally include initialization. They are not a throughput distribution
+or a production scaling qualification. Reported MLX peaks range from143 MB to
+555 MB; they exclude complete process and renderer memory. Rendering still runs
+every control tick even though the GPU admits images at15 Hz. Stage-level
+profiling, complete peak-memory accounting and cadence-aware GPU rendering
+remain performance work. No qualification seeds were used.
+
+Evidence, all failed API attempts, learner checkpoints, policies, rollout packs,
+source deltas and runtime hashes are retained under
+`artifacts/crow-rl-retinal-learner-20261107`. Whole-world/RNG/sensory/memory
+restore, persistent trainable memory, physical object manipulation, physiology,
+social agents and ecological held-out qualification remain open. The full
+lifelong environment is not qualified.

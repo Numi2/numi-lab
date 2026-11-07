@@ -468,9 +468,11 @@ private struct Options {
                     birdFlowJourneyVariant = .v11Embodied
                 case "v12", "v12-feeding-station":
                     birdFlowJourneyVariant = .v12FeedingStation
+                case "v13", "v13-retinal-feeding":
+                    birdFlowJourneyVariant = .v13RetinalFeeding
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, v10-world-model, or v11-embodied."
+                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, v10-world-model, v11-embodied, v12-feeding-station, or v13-retinal-feeding."
                     )
                 }
                 index += 1
@@ -883,11 +885,12 @@ private struct Options {
         }
         if birdFlowAmericanCrowJourney &&
             (birdFlowJourneyVariant == .v9VisualNeural ||
-             birdFlowJourneyVariant == .v10WorldModelNavigation) &&
+             birdFlowJourneyVariant == .v10WorldModelNavigation ||
+             birdFlowJourneyVariant == .v13RetinalFeeding) &&
             visualObservationConfig == nil
         {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "BirdFlow journey V9/V10 training requires --visual-observation-config; masked-depth inputs cannot be silently zero-filled."
+                "BirdFlow journey V9/V10/V13 training requires --visual-observation-config; device observations require explicit authored inputs."
             )
         }
         if inspectionScene != nil &&
@@ -1887,7 +1890,8 @@ private enum TaskTrainMain {
                 // the correct normalization origin for route learning.
                 actorObservationExtensionMean:
                     options.birdFlowJourneyVariant ==
-                        .v10WorldModelNavigation
+                        .v10WorldModelNavigation ||
+                    options.birdFlowJourneyVariant == .v13RetinalFeeding
                     ? 0.0
                     : context.visualSceneFingerprint == 0 ? 0.0 : 1.0
             )
@@ -2284,7 +2288,9 @@ private enum TaskTrainMain {
                 "action_carrier": options.birdFlowJourneyTeacher
                     ? "birdflow_assisted_journey_teacher"
                     : options.birdFlowAmericanCrowJourney
-                    ? options.birdFlowJourneyVariant == .v12FeedingStation
+                    ? options.birdFlowJourneyVariant == .v13RetinalFeeding
+                        ? "v13_retinal_feeding_native_rgb"
+                        : options.birdFlowJourneyVariant == .v12FeedingStation
                         ? "v12_feeding_station_neural_nutrition"
                         : options.birdFlowJourneyVariant == .v11Embodied
                         ? "v11_embodied_neural_proprioception"

@@ -1,0 +1,831 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 5f427082..1770086b 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1080,6 +1080,12 @@ add_executable(
+ )
+ add_executable(metalrobo_crow_embodiment_check apps/crow_embodiment_check.cpp)
+ add_executable(metalrobo_crow_foraging_check apps/crow_foraging_check.mm)
++add_executable(metalrobo_crow_retinal_api_check apps/crow_retinal_api_check.mm)
++target_compile_options(metalrobo_crow_retinal_api_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
++target_link_libraries(metalrobo_crow_retinal_api_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
++add_dependencies(metalrobo_crow_retinal_api_check metalrobo_retinal_shaders)
++set_target_properties(metalrobo_crow_retinal_api_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
++
+ add_executable(metalrobo_crow_retinal_live_check apps/crow_retinal_live_check.mm)
+ target_compile_options(metalrobo_crow_retinal_live_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+ target_link_libraries(metalrobo_crow_retinal_live_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
+diff --git a/apps/task_rollout.swift b/apps/task_rollout.swift
+index ce5c2d0a..60d9bf14 100644
+--- a/apps/task_rollout.swift
++++ b/apps/task_rollout.swift
+@@ -578,9 +578,11 @@ private struct Options {
+                     birdFlowJourneyVariant = .v11Embodied
+                 case "v12", "v12-feeding-station":
+                     birdFlowJourneyVariant = .v12FeedingStation
++                case "v13", "v13-retinal-feeding":
++                    birdFlowJourneyVariant = .v13RetinalFeeding
+                 default:
+                     throw MetalRoboTaskRolloutError.invalidShape(
+-                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, v10-world-model, or v11-embodied."
++                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, v10-world-model, v11-embodied, v12-feeding-station, or v13-retinal-feeding."
+                     )
+                 }
+                 index += 1
+@@ -1089,7 +1091,8 @@ private struct Options {
+         }
+         if birdFlowAmericanCrowJourney &&
+             (birdFlowJourneyVariant == .v9VisualNeural ||
+-             birdFlowJourneyVariant == .v10WorldModelNavigation) &&
++             birdFlowJourneyVariant == .v10WorldModelNavigation ||
++             birdFlowJourneyVariant == .v13RetinalFeeding) &&
+             visualObservationConfig == nil
+         {
+             throw MetalRoboTaskRolloutError.invalidShape(
+@@ -3713,7 +3716,9 @@ private enum TaskRolloutMain {
+                 "birdflow_wing_pulse_duration_steps":
+                     options.birdFlowWingPulseDurationSteps ?? 0,
+                 "action_carrier": options.birdFlowAmericanCrowJourney
+-                    ? options.birdFlowJourneyVariant == .v12FeedingStation
++                    ? options.birdFlowJourneyVariant == .v13RetinalFeeding
++                        ? "v13_retinal_feeding_native_rgb"
++                        : options.birdFlowJourneyVariant == .v12FeedingStation
+                         ? "v12_feeding_station_neural_nutrition"
+                         : options.birdFlowJourneyVariant == .v11Embodied
+                         ? "v11_embodied_neural_proprioception"
+@@ -4017,7 +4022,7 @@ private enum TaskRolloutMain {
+                     dodgePredictedClearanceRewardSum / sampleCount
+             }
+             if options.birdFlowAmericanCrowJourney &&
+-               options.birdFlowJourneyVariant == .v12FeedingStation {
++               (options.birdFlowJourneyVariant == .v12FeedingStation || options.birdFlowJourneyVariant == .v13RetinalFeeding) {
+                 let resource = try context.finiteResourceAccounting()
+                 let remaining: [UInt64] = resource.map { $0.remaining_micrograms }
+                 let crop: [UInt32] = resource.map { $0.crop_micrograms }
+diff --git a/apps/task_train.swift b/apps/task_train.swift
+index 1a58723b..e00ac55a 100644
+--- a/apps/task_train.swift
++++ b/apps/task_train.swift
+@@ -468,9 +468,11 @@ private struct Options {
+                     birdFlowJourneyVariant = .v11Embodied
+                 case "v12", "v12-feeding-station":
+                     birdFlowJourneyVariant = .v12FeedingStation
++                case "v13", "v13-retinal-feeding":
++                    birdFlowJourneyVariant = .v13RetinalFeeding
+                 default:
+                     throw MetalRoboTaskRolloutError.invalidShape(
+-                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, v10-world-model, or v11-embodied."
++                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, v10-world-model, v11-embodied, v12-feeding-station, or v13-retinal-feeding."
+                     )
+                 }
+                 index += 1
+@@ -883,11 +885,12 @@ private struct Options {
+         }
+         if birdFlowAmericanCrowJourney &&
+             (birdFlowJourneyVariant == .v9VisualNeural ||
+-             birdFlowJourneyVariant == .v10WorldModelNavigation) &&
++             birdFlowJourneyVariant == .v10WorldModelNavigation ||
++             birdFlowJourneyVariant == .v13RetinalFeeding) &&
+             visualObservationConfig == nil
+         {
+             throw MetalRoboTaskRolloutError.invalidShape(
+-                "BirdFlow journey V9/V10 training requires --visual-observation-config; masked-depth inputs cannot be silently zero-filled."
++                "BirdFlow journey V9/V10/V13 training requires --visual-observation-config; device observations require explicit authored inputs."
+             )
+         }
+         if inspectionScene != nil &&
+@@ -1887,7 +1890,8 @@ private enum TaskTrainMain {
+                 // the correct normalization origin for route learning.
+                 actorObservationExtensionMean:
+                     options.birdFlowJourneyVariant ==
+-                        .v10WorldModelNavigation
++                        .v10WorldModelNavigation ||
++                    options.birdFlowJourneyVariant == .v13RetinalFeeding
+                     ? 0.0
+                     : context.visualSceneFingerprint == 0 ? 0.0 : 1.0
+             )
+@@ -2284,7 +2288,9 @@ private enum TaskTrainMain {
+                 "action_carrier": options.birdFlowJourneyTeacher
+                     ? "birdflow_assisted_journey_teacher"
+                     : options.birdFlowAmericanCrowJourney
+-                    ? options.birdFlowJourneyVariant == .v12FeedingStation
++                    ? options.birdFlowJourneyVariant == .v13RetinalFeeding
++                        ? "v13_retinal_feeding_native_rgb"
++                        : options.birdFlowJourneyVariant == .v12FeedingStation
+                         ? "v12_feeding_station_neural_nutrition"
+                         : options.birdFlowJourneyVariant == .v11Embodied
+                         ? "v11_embodied_neural_proprioception"
+diff --git a/bindings/swift/MetalRoboTaskRollout.swift b/bindings/swift/MetalRoboTaskRollout.swift
+index b396cc75..5a740e36 100644
+--- a/bindings/swift/MetalRoboTaskRollout.swift
++++ b/bindings/swift/MetalRoboTaskRollout.swift
+@@ -223,6 +223,40 @@ public struct MetalRoboTaskVisualPack: Sendable {
+     }
+ }
+ 
++public struct MetalRoboRetinalObservationConfiguration: Sendable, Decodable {
++    public var rightPosition: [Float]
++    public var rightOrientation: [Float]
++    public var width: UInt32
++    public var height: UInt32
++    public var sampleNumerator: UInt32
++    public var sampleDenominator: UInt32
++    public var latencyTicks: UInt32
++    public var minimumDepthMeters: Float
++    public var maximumDepthMeters: Float
++    private enum CodingKeys: String, CodingKey {
++        case rightPosition = "right_position", rightOrientation = "right_orientation"
++        case width, height
++        case sampleNumerator = "sample_numerator", sampleDenominator = "sample_denominator"
++        case latencyTicks = "latency_ticks", minimumDepthMeters = "minimum_depth_meters"
++        case maximumDepthMeters = "maximum_depth_meters"
++    }
++    fileprivate func native() throws -> MRRetinalSensorConfigC {
++        guard rightPosition.count == 3, rightOrientation.count == 4,
++              rightPosition.allSatisfy(\.isFinite), rightOrientation.allSatisfy(\.isFinite)
++        else { throw MetalRoboTaskRolloutError.invalidShape("Retinal camera mount requires finite position3 and orientation4.") }
++        var value = MRRetinalSensorConfigC()
++        value.struct_size = UInt32(MemoryLayout<MRRetinalSensorConfigC>.size)
++        value.abi_version = 1
++        value.right_camera_position = (rightPosition[0], rightPosition[1], rightPosition[2])
++        value.right_camera_orientation = (rightOrientation[0], rightOrientation[1], rightOrientation[2], rightOrientation[3])
++        value.width = width; value.height = height
++        value.sample_numerator = sampleNumerator; value.sample_denominator = sampleDenominator
++        value.latency_ticks = latencyTicks; value.minimum_depth_meters = minimumDepthMeters
++        value.maximum_depth_meters = maximumDepthMeters
++        return value
++    }
++}
++
+ public struct MetalRoboTaskVisualObservationConfiguration:
+     Sendable
+ {
+@@ -268,9 +302,10 @@ public struct MetalRoboTaskVisualObservationConfiguration:
+         let packs: [Pack]
+         let environmentPack: String?
+         let camera: Camera
++        let retinal: MetalRoboRetinalObservationConfiguration?
+ 
+         private enum CodingKeys: String, CodingKey {
+-            case format, id, packs, camera
++            case format, id, packs, camera, retinal
+             case environmentPack = "environment_pack"
+         }
+     }
+@@ -289,6 +324,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
+     public var captureWidth: UInt32
+     public var captureHeight: UInt32
+     public var capturePolicyCamera: Bool
++    public var retinal: MetalRoboRetinalObservationConfiguration?
+ 
+     public init(
+         packs: [MetalRoboTaskVisualPack],
+@@ -304,7 +340,8 @@ public struct MetalRoboTaskVisualObservationConfiguration:
+         maximumRetainedBytes: UInt64 = 0,
+         captureWidth: UInt32 = 0,
+         captureHeight: UInt32 = 0,
+-        capturePolicyCamera: Bool = false
++        capturePolicyCamera: Bool = false,
++        retinal: MetalRoboRetinalObservationConfiguration? = nil
+     ) {
+         self.packs = packs
+         self.environmentPackURL = environmentPackURL
+@@ -320,6 +357,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
+         self.captureWidth = captureWidth
+         self.captureHeight = captureHeight
+         self.capturePolicyCamera = capturePolicyCamera
++        self.retinal = retinal
+     }
+ 
+     public static func loadArtifact(at url: URL) throws -> Self {
+@@ -333,7 +371,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
+                 "Visual observation artifact is invalid: \(error)"
+             )
+         }
+-        guard artifact.format == "numi.visual-observation.v1",
++        guard artifact.format == (artifact.retinal == nil ? "numi.visual-observation.v1" : "numi.retinal-observation.v1"),
+               !artifact.id.isEmpty,
+               !artifact.packs.isEmpty,
+               !artifact.camera.parentBody.isEmpty,
+@@ -383,7 +421,8 @@ public struct MetalRoboTaskVisualObservationConfiguration:
+                 artifact.camera.verticalFieldOfViewDegrees,
+             nominalRateHz: artifact.camera.nominalRateHz,
+             maximumRetainedBytes:
+-                artifact.camera.maximumRetainedBytes
++                artifact.camera.maximumRetainedBytes,
++            retinal: artifact.retinal
+         )
+     }
+ 
+@@ -610,6 +649,7 @@ public enum MetalRoboBirdFlowJourneyVariant: UInt32, Sendable {
+     case v10WorldModelNavigation = 3
+     case v11Embodied = 4
+     case v12FeedingStation = 5
++    case v13RetinalFeeding = 6
+ 
+     public var commandName: String {
+         switch self {
+@@ -619,6 +659,7 @@ public enum MetalRoboBirdFlowJourneyVariant: UInt32, Sendable {
+         case .v10WorldModelNavigation: "v10-world-model"
+         case .v11Embodied: "v11-embodied"
+         case .v12FeedingStation: "v12-feeding-station"
++        case .v13RetinalFeeding: "v13-retinal-feeding"
+         }
+     }
+ 
+@@ -630,6 +671,7 @@ public enum MetalRoboBirdFlowJourneyVariant: UInt32, Sendable {
+         case .v10WorldModelNavigation: "birdflow_american_crow_navigation_v10_world_model"
+         case .v11Embodied: "american_crow_embodied_development_v11"
+         case .v12FeedingStation: "american_crow_feeding_station_v12"
++        case .v13RetinalFeeding: "american_crow_retinal_feeding_v13"
+         }
+     }
+ }
+@@ -1161,6 +1203,7 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
+                 "InteractionPack clip identity cannot be empty."
+             )
+         }
++        var retinal = try authored.visualSensor?.retinal?.native()
+         let configuration = authored.sensorsAndPhysics
+         var source = MR_RUN_SOURCE_UNITREE_G1.rawValue
+         var urdfPath: String?
+@@ -1254,9 +1297,12 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
+                                             manifest.inspection_visual_program =
+                                                 inspectionVisual
+                                             manifest.metallib_path = metallib
+-                                            return mr_create_task_rollout(
+-                                                &manifest
+-                                            )
++                                            if retinal != nil {
++                                                return withUnsafePointer(to: &retinal!) { sensor in
++                                                    mr_create_task_rollout_retinal(&manifest, sensor)
++                                                }
++                                            }
++                                            return mr_create_task_rollout(&manifest)
+                                         }
+                                     }
+                                 }
+diff --git a/include/metalrobo/RetinalObserver.hpp b/include/metalrobo/RetinalObserver.hpp
+index 0f18ab1f..f65b2927 100644
+--- a/include/metalrobo/RetinalObserver.hpp
++++ b/include/metalrobo/RetinalObserver.hpp
+@@ -20,6 +20,7 @@ public:
+     RetinalObserverContext(const RetinalObserverContext&)=delete;
+     RetinalObserverContext& operator=(const RetinalObserverContext&)=delete;
+     [[nodiscard]] MetalWorldDeviceObservationProgram deviceProgram() noexcept;
++    void reset(std::uint64_t seed);
+     [[nodiscard]] RetinalStreamSnapshot snapshot() const;
+     // Explicit quiescent instrument boundary; never called by encode().
+     [[nodiscard]] std::array<HybridObservationBatch,2> inspectImages() const;
+diff --git a/include/metalrobo/c_api.h b/include/metalrobo/c_api.h
+index 2d2fce01..d6002a56 100644
+--- a/include/metalrobo/c_api.h
++++ b/include/metalrobo/c_api.h
+@@ -58,6 +58,7 @@ typedef enum MRBirdFlowJourneyVariantC {
+     MR_BIRDFLOW_JOURNEY_V10_WORLD_MODEL_NAVIGATION = 3,
+     MR_BIRDFLOW_JOURNEY_V11_EMBODIED = 4,
+     MR_BIRDFLOW_JOURNEY_V12_FEEDING_STATION = 5,
++    MR_BIRDFLOW_JOURNEY_V13_RETINAL_FEEDING = 6,
+ } MRBirdFlowJourneyVariantC;
+ 
+ typedef enum MRBirdFlowNavigationCourseC {
+@@ -167,6 +168,18 @@ typedef struct MRTaskVisualObservationConfigC {
+     uint32_t capture_policy_camera;
+ } MRTaskVisualObservationConfigC;
+ 
++// Additive explicit retinal API. Existing C struct sizes remain unchanged.
++// Version1 is64 bytes; callers must set both fields before using the new entry.
++typedef struct MRRetinalSensorConfigC {
++    uint32_t struct_size;
++    uint32_t abi_version;
++    float right_camera_position[3];
++    float right_camera_orientation[4];
++    uint32_t width, height;
++    uint32_t sample_numerator, sample_denominator, latency_ticks;
++    float minimum_depth_meters, maximum_depth_meters;
++} MRRetinalSensorConfigC;
++
+ typedef struct MRTaskRolloutLayoutC {
+     uint32_t environment_count;
+     uint32_t nq;
+@@ -633,6 +646,12 @@ MR_API int mr_compile_episode_manifest(
+     const char* artifact_store_path
+ );
+ 
++// Requires source AMERICAN_CROW_JOURNEY, variant V13 and explicit visual and
++// retinal programs. No missing-image fallback or legacy struct reinterpretation.
++MR_API MRTaskRolloutHandle* mr_create_task_rollout_retinal(
++    const MRRunManifestC* manifest, const MRRetinalSensorConfigC* retinal
++);
++
+ MR_API MRTaskRolloutHandle* mr_create_task_rollout(
+     const MRRunManifestC* manifest
+ );
+diff --git a/python/metalrobo/crow_environment.py b/python/metalrobo/crow_environment.py
+index ee06b025..f60fc6ad 100644
+--- a/python/metalrobo/crow_environment.py
++++ b/python/metalrobo/crow_environment.py
+@@ -58,6 +58,7 @@ def runtime(root: Path) -> dict:
+         "foraging_check": build / "bin/metalrobo_crow_foraging_check",
+         "eye_check": build / "bin/metalrobo_crow_eye_check",
+         "retinal_check": build / "bin/metalrobo_retinal_stream_check",
++        "retinal_api_check": build / "bin/metalrobo_crow_retinal_api_check",
+         "retinal_live_check": build / "bin/metalrobo_crow_retinal_live_check",
+         "retinal_contract_check": build / "bin/metalrobo_crow_retinal_contract_check",
+         "retinal_metallib": build / "shaders/RetinalStream.metallib",
+@@ -334,18 +335,21 @@ def learn_probe(root: Path, output: Path, args: argparse.Namespace, profile: dic
+     if variant == "v9-visual-neural" and source is None:
+         raise ValueError("The v9 learning probe requires an explicitly selected source actor")
+     paths = runtime(root)
++    retinal = variant == "v13-retinal-feeding"
++    environments = args.environments or (16 if retinal else 512)
++    visual = args.retinal_visual if retinal else None
+     records = []
+     for stage, updates in (("initial", 2), ("resume", 1)):
+         command = [str(paths["train"]), "--metallib", str(paths["metallib"]),
+                    "--native-library", str(paths["library"]), "--mlx-python", sys.executable,
+                    "--python-root", str(root / "python"), "--birdflow-american-crow-journey",
+                    "--birdflow-journey-variant", variant,
+-                   "--envs", "512", "--steps", "128", "--updates", str(updates), "--chunk", "8",
+-                   "--minimum-difficulty-band", "0" if variant=="v12-feeding-station" else "4",
+-                   "--maximum-difficulty-band", "0" if variant=="v12-feeding-station" else "4",
++                   "--envs", str(environments), "--steps", "128", "--updates", str(updates), "--chunk", "8",
++                   "--minimum-difficulty-band", "0" if variant in ("v12-feeding-station", "v13-retinal-feeding") else "4",
++                   "--maximum-difficulty-band", "0" if variant in ("v12-feeding-station", "v13-retinal-feeding") else "4",
+                    "--seed", str(profile["probe"]["seed"]),
+                    "--learner-seed", str(profile["development_seeds"][0]),
+-                   "--update-epochs", "1", "--minibatch-size", "8192", "--learning-rate", "0.0001",
++                   "--update-epochs", "1", "--minibatch-size", str(min(8192,environments*128)), "--learning-rate", "0.0001",
+                    "--policy-pack", str(output / ("initial.policypack" if stage == "initial" else "initial-updated.policypack")),
+                    "--updated-policy-pack", str(output / f"{stage}-updated.policypack"),
+                    "--deployment-policy-pack", str(output / f"{stage}-deployment.policypack"),
+@@ -354,6 +358,8 @@ def learn_probe(root: Path, output: Path, args: argparse.Namespace, profile: dic
+                    "--output-learner-state", str(output / f"{stage}.learner.safetensors")]
+         if variant in VARIANTS:
+             command += ["--visual-observation-config", str(root / "assets" / VARIANTS[variant])]
++        if visual:
++            command += ["--visual-observation-config", str(visual)]
+         if args.fixed_learning_rate:
+             command += ["--fixed-learning-rate"]
+         if args.initial_log_standard_deviation is not None:
+@@ -367,7 +373,7 @@ def learn_probe(root: Path, output: Path, args: argparse.Namespace, profile: dic
+         else:
+             command += ["--learner-state", str(output / "initial.learner.safetensors")]
+         value = execute(output, f"learner-{stage}", command, root, 300)
+-        if value.get("failed_environment_steps") != 0 or value.get("training_samples") != 512 * 128 * updates:
++        if value.get("failed_environment_steps") != 0 or value.get("training_samples") != environments * 128 * updates:
+             raise RuntimeError("Learner probe invalid sample or device status")
+         if value.get("final_policy_revision") != value.get("initial_policy_revision", -1) + updates:
+             raise RuntimeError("Learner did not publish every expected policy revision")
+@@ -395,7 +401,7 @@ def learn_probe(root: Path, output: Path, args: argparse.Namespace, profile: dic
+         write(output / "learning-no-intake-reward.json", {"records": records})
+         raise RuntimeError("No accepted intake reward in reported learning updates")
+     return {"status": "passed", "claim": "native/MLX updates, publication, and learner-only restore",
+-            "variant": variant, "actor_initialization": "explicit source" if source else "new zero-output actor",
++            "variant": variant, "environments": environments, "actor_initialization": "explicit source" if source else "new zero-output actor",
+             "records": records, "candidate_promoted": False, "persistent_world_restore_tested": False,
+             "ecological_environment_qualified": False}
+ 
+@@ -767,6 +773,7 @@ def main() -> int:
+     commands.add_parser("head-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("eye-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("retina-admission").add_argument("--output", type=Path, required=True)
++    commands.add_parser("retinal-api-admission").add_argument("--output",type=Path,required=True)
+     commands.add_parser("retinal-live-admission").add_argument("--output",type=Path,required=True)
+     retinal_contract=commands.add_parser("retinal-contract-admission")
+     retinal_contract.add_argument("--output",type=Path,required=True)
+@@ -792,10 +799,12 @@ def main() -> int:
+     learning = commands.add_parser("learn-probe")
+     learning.add_argument("--output", type=Path, required=True)
+     learning.add_argument("--source-policy", type=Path)
+-    learning.add_argument("--variant", choices=("v9-visual-neural", "v11-embodied", "v12-feeding-station"), default="v9-visual-neural")
++    learning.add_argument("--variant", choices=("v9-visual-neural", "v11-embodied", "v12-feeding-station", "v13-retinal-feeding"), default="v9-visual-neural")
+     learning.add_argument("--initial-log-standard-deviation", type=float)
+     learning.add_argument("--fixed-learning-rate", action="store_true")
+     learning.add_argument("--require-intake-reward", action="store_true")
++    learning.add_argument("--environments", type=int, choices=(16,32,64,128,512))
++    learning.add_argument("--retinal-calibration", type=Path)
+     motor = commands.add_parser("motor-probe")
+     motor.add_argument("--output", type=Path, required=True)
+     motor.add_argument("--policy", type=Path, required=True)
+@@ -822,6 +831,21 @@ def main() -> int:
+     if args.command=="retinal-contract-admission":
+         args.legacy_metallib=(args.legacy_metallib or root/"artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib").resolve(strict=True)
+         checked["inputs"]["retinal_legacy_shader"]={"path":str(args.legacy_metallib),"sha256":sha(args.legacy_metallib)}
++    if args.command == "learn-probe" and args.variant == "v13-retinal-feeding":
++        if not args.retinal_calibration:
++            raise ValueError("Retinal learning requires passed current-runtime API admission")
++        calibration = args.retinal_calibration.resolve(strict=True)
++        result = json.loads((calibration/"summary.json").read_text())
++        calibration_plan = json.loads((calibration/"plan.json").read_text())
++        if result.get("status") != "passed" or not result.get("world_reset_preserves_food"):
++            raise ValueError("Retinal API admission did not pass")
++        for name in ("train","library","metallib","retinal_metallib"):
++            if calibration_plan["preflight"]["inputs"][name]["sha256"] != checked["inputs"][name]["sha256"]:
++                raise ValueError("Retinal admission does not bind current runtime: "+name)
++        args.retinal_visual = calibration/"native-evidence/retinal-observation.json"
++        visual = json.loads(args.retinal_visual.read_text())
++        for name,path in [("retinal_visual",args.retinal_visual)]+[("retinal_asset_"+str(i),args.retinal_visual.parent/p["path"]) for i,p in enumerate(visual["packs"])]:
++            checked["inputs"][name]={"path":str(path),"sha256":sha(path)}
+     output = args.output.resolve()
+     output.mkdir(parents=True, exist_ok=False)
+     plan = {"schema": "numi.crow-trial-plan.v1", "created_utc": datetime.now(timezone.utc).isoformat(),
+@@ -883,6 +907,18 @@ def main() -> int:
+         plan.update({"purpose":"native retinal actor contract and pre-submission rejection instrument",
+           "prediction":"1251 actor/97 critic/18 action channels; 12 malformed manifests and 9 same-dimension sensor changes reject; missing observer and old shader cannot execute; legacy task ABI and mechanics unchanged",
+           "boundary":"compiler metadata and native rejection probes only; no rendered actor images or learner integration"})
++    if args.command == "learn-probe" and args.variant == "v13-retinal-feeding":
++        plan.update({"purpose":"native RGB to Swift/MLX learner and learner-only restore engineering admission",
++          "prediction":"two initial updates and one restored update publish all expected revisions and samples with zero native/sensor errors",
++          "control":"current-runtime terminal/partition/reset API admission; two fresh-world learner stages, not whole-world restore",
++          "unit":"one learner, explicit supported-station proxy scene; images need not be behaviorally useful for this engineering test",
++          "budget":{"environments":args.environments or 16,"steps_per_update":128,"updates":3},
++          "stopping":"exactly two processes, 300s each; abort invalidity, preserve all failures, no promotion",
++          "limitations":"not visual learning, memory, ecological intelligence or production-scale performance qualification"})
++    if args.command == "retinal-api-admission":
++        plan.update({"purpose":"native v13 C API, terminal learning slot and reset admission",
++          "prediction":"six malformed configs reject; final/next retinal inputs and chunk1/8 bit identical; fresh world reset clears retina while preserving consumed food",
++          "boundary":"explicit fixed development collision proxies and authored actors; no visual learning or biological claim"})
+     if args.command == "retinal-live-admission":
+         plan.update({"purpose":"live native physical cameras to GPU retina to pixel-dependent actor",
+           "prediction":"two ticks cold-start blindness; actual occlusion reverses pixel-driven yaw; disconnected actor stays zero; chunk1/8 bit identical",
+@@ -911,6 +947,11 @@ def main() -> int:
+                            str(output/"native-evidence"),str(args.legacy_metallib)],root,180)
+             if result.get("status")!="passed" or result.get("stale_shader_rejected") is not True:
+                 raise RuntimeError("Native retinal contract admission failed")
++        elif args.command == "retinal-api-admission":
++            result=execute(output,"retinal-api",[str(runtime(root)["retinal_api_check"]),
++                           str(output/"native-evidence")],root,180)
++            if result.get("status")!="passed" or result.get("world_reset_preserves_food") is not True:
++                raise RuntimeError("Native retinal learner API admission failed")
+         elif args.command == "retinal-live-admission":
+             result=execute(output,"retinal-live",[str(runtime(root)["retinal_live_check"]),
+                            str(output/"native-evidence")],root,180)
+diff --git a/src/c_api.cpp b/src/c_api.cpp
+index 7c4bbfc0..24f7f666 100644
+--- a/src/c_api.cpp
++++ b/src/c_api.cpp
+@@ -1,3 +1,4 @@
++#include "metalrobo/RetinalObserver.hpp"
+ #include "metalrobo/c_api.h"
+ 
+ #include "metalrobo/EpisodeTwinCompiler.hpp"
+@@ -80,6 +81,7 @@ struct MRTaskVisualRuntime {
+     metalrobo::MetalHybridRenderer renderer;
+     metalrobo::MetalHybridRenderer captureRenderer;
+     metalrobo::MetalHybridObjectTracker tracker;
++    std::unique_ptr<metalrobo::RetinalObserverContext> retinal;
+     std::unique_ptr<metalrobo::MetalRunInspector> inspector;
+     std::vector<MRBodyStateGPU> previousCaptureBodies;
+     std::uint64_t captureFrameIndex = 0u;
+@@ -133,6 +135,7 @@ struct MRTaskRolloutHandle {
+     std::string metallibPath;
+     std::string taskId;
+     std::uint32_t environmentCount = 0u;
++    bool rejectedRetinalBatch=false;
+     std::uint64_t submittedControlSteps = 0u;
+     std::uint64_t completedEnvironmentSteps = 0u;
+     std::uint64_t submissionCount = 0u;
+@@ -510,6 +513,10 @@ void resetTaskRolloutState(
+     handle.residentState =
+         metalrobo::MetalWorldResidentState{};
+     if (handle.visualRuntime != nullptr) {
++        if (handle.visualRuntime->retinal) {
++            handle.visualRuntime->retinal->reset(seed);
++            handle.rejectedRetinalBatch=false;
++        } else {
+         const auto sampled = handle.visualRuntime->worlds.sample(
+             handle.environmentCount,
+             seed
+@@ -532,6 +539,7 @@ void resetTaskRolloutState(
+             }
+         }
+     }
++        }
+     handle.resetMasks.clear();
+     handle.result = {};
+     handle.statusCodes.clear();
+@@ -659,7 +667,7 @@ void validateTaskRolloutConfiguration(
+         );
+     }
+     if (config.birdflow_journey_variant >
+-        MR_BIRDFLOW_JOURNEY_V12_FEEDING_STATION) {
++        MR_BIRDFLOW_JOURNEY_V13_RETINAL_FEEDING) {
+         throw std::invalid_argument(
+             "task-rollout BirdFlow journey variant is invalid"
+         );
+@@ -2239,9 +2247,12 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
+             "SensorPack masked-depth actor layout is incomplete"
+         );
+     }
++    const bool retinal = deviceObservation && program.retinal.has_value();
++    if (program.retinal && (!deviceObservation || program.captureWidth || program.captureHeight))
++        throw std::invalid_argument("Retinal streams require native device observations; presentation uses a separate inspection program");
+     const bool deviceObservationEnabled =
+         deviceObservation &&
+-        (!trackedOffsets.empty() || maskedDepthCount != 0u);
++        (retinal || !trackedOffsets.empty() || maskedDepthCount != 0u);
+     if (deviceObservation && !deviceObservationEnabled &&
+         (program.captureWidth == 0u || program.captureHeight == 0u)) {
+         throw std::invalid_argument(
+@@ -2309,7 +2320,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
+             id,
+             {body},
+             role,
+-            (tracked || maskedDepthVisible || !deviceObservation)
++            (retinal || tracked || maskedDepthVisible || !deviceObservation)
+                 ? MR_WORLD_RENDER_MESH_PBR
+                 : MR_WORLD_RENDER_NONE,
+             dynamics
+@@ -2405,7 +2416,13 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
+     camera.exposureSeconds = 1.0f / 240.0f;
+     camera.minimumDepthMeters = 0.05f;
+     camera.maximumDepthMeters = deviceObservation ? 8.0f : 100.0f;
+-    episode.sensors.push_back(std::move(camera));
++    if (retinal) {
++        camera.minimumDepthMeters=program.retinal->minimumDepthMeters;
++        camera.maximumDepthMeters=program.retinal->maximumDepthMeters;camera.depthQuantumMeters=.0001f;
++        auto right=camera;right.id="right_head_rgbd";right.localPose.position=program.retinal->rightCameraPosition;
++        right.localPose.orientation=program.retinal->rightCameraOrientation;
++        episode.sensors.push_back(camera);episode.sensors.push_back(std::move(right));
++    } else episode.sensors.push_back(std::move(camera));
+     if (program.capturePolicyCamera &&
+         !(program.verticalFieldOfViewDegrees > 0.0f)) {
+         throw std::invalid_argument(
+@@ -2642,6 +2659,12 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
+             "visual scene compile failed: " + reason
+         );
+     }
++    if (retinal) {
++        runtime->retinal=std::make_unique<metalrobo::RetinalObserverContext>(handle.run,runtime->family,manifest,
++            handle.environmentCount,handle.run.profile().seed);
++        runtime->deviceObservationEnabled=true;runtime->sceneFingerprint=manifest.fingerprint;
++        return runtime;
++    }
+     auto captureScene = manifest.renderScene;
+ 
+     metalrobo::MetalWorldFamilyConfig familyConfig;
+@@ -2893,7 +2916,7 @@ void installTaskVisualRuntime(
+         compileTaskVisualRuntime(handle, program, true);
+     if (candidate->deviceObservationEnabled) {
+         const metalrobo::MetalWorldDeviceObservationProgram observationProgram =
+-            candidate->tracker.observationProgram();
++            candidate->retinal ? candidate->retinal->deviceProgram() : candidate->tracker.observationProgram();
+         if (!observationProgram.valid()) {
+             throw std::runtime_error(
+                 "compiled SensorPack visual program is invalid"
+@@ -3220,7 +3243,8 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
+     const MRTaskRolloutConfigC* config,
+     const MRTaskVisualObservationConfigC* visual_sensor,
+     const char* metallib_path,
+-    const bool journey
++    const bool journey,
++    const MRRetinalSensorConfigC* retinalConfig=nullptr
+ ) {
+     if (config == nullptr) {
+         gLastError = "BirdFlow American-crow rollout configuration is required.";
+@@ -3229,13 +3253,28 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
+     MRTaskRolloutHandle* result = nullptr;
+     const int status = translateErrors([&] {
+         validateTaskRolloutConfiguration(*config);
+-        const bool feeding=journey && config->birdflow_journey_variant==MR_BIRDFLOW_JOURNEY_V12_FEEDING_STATION;
++        const bool retinal=journey && config->birdflow_journey_variant==MR_BIRDFLOW_JOURNEY_V13_RETINAL_FEEDING;
++        if (retinal != (retinalConfig!=nullptr) || (retinal && visual_sensor==nullptr))
++            throw std::invalid_argument("V13 requires the additive retinal entry and both explicit visual and retinal programs");
++        metalrobo::RetinalSensorProgram retina;
++        if (retinal) {
++            static_assert(sizeof(MRRetinalSensorConfigC)==64);
++            if (retinalConfig->struct_size!=sizeof(MRRetinalSensorConfigC) || retinalConfig->abi_version!=1)
++                throw std::invalid_argument("Unsupported retinal C configuration size/version");
++            const auto& c=*retinalConfig;
++            retina.rightCameraPosition={c.right_camera_position[0],c.right_camera_position[1],c.right_camera_position[2],0};
++            retina.rightCameraOrientation={c.right_camera_orientation[0],c.right_camera_orientation[1],c.right_camera_orientation[2],c.right_camera_orientation[3]};
++            retina.width=c.width;retina.height=c.height;retina.sampleNumerator=c.sample_numerator;
++            retina.sampleDenominator=c.sample_denominator;retina.latencyTicks=c.latency_ticks;
++            retina.minimumDepthMeters=c.minimum_depth_meters;retina.maximumDepthMeters=c.maximum_depth_meters;
++        }
++        const bool feeding=retinal || (journey && config->birdflow_journey_variant==MR_BIRDFLOW_JOURNEY_V12_FEEDING_STATION);
+         const bool embodied = journey && (config->birdflow_journey_variant ==
+             MR_BIRDFLOW_JOURNEY_V11_EMBODIED || feeding);
+         if (embodied && config->birdflow_journey_teacher != 0u) {
+             throw std::invalid_argument("Active-head variants have no admitted teacher action contract");
+         }
+-        if (embodied && visual_sensor!=nullptr)
++        if (embodied && !retinal && visual_sensor!=nullptr)
+             throw std::invalid_argument("Active-head variants have no admitted eye-image or presentation contract");
+         auto robot = metalrobo::builtinRobotPack(embodied
+             ? "american_crow_active_head_estimated_v1"
+@@ -3264,7 +3303,8 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
+             );
+         }
+         manifest.id = journey
+-            ? feeding ? "american_crow_feeding_station_v12_run"
++            ? retinal ? "american_crow_retinal_feeding_v13_run"
++            : feeding ? "american_crow_feeding_station_v12_run"
+             : embodied ? "american_crow_embodied_development_v11_run"
+             : worldModelNavigation
+                 ? "birdflow_american_crow_navigation_v10_world_model_run"
+@@ -3279,7 +3319,8 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
+             ? metalrobo::makeBirdFlowAmericanCrowNavigationScenePack()
+             : metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
+         manifest.sensors.id = journey
+-            ? feeding ? "american_crow_feeding_v12_proprioception_and_nutrition"
++            ? retinal ? "american_crow_retinal_v13_rgb_proprioception_nutrition"
++            : feeding ? "american_crow_feeding_v12_proprioception_and_nutrition"
+             : embodied ? "american_crow_embodied_v11_proprioception"
+             : worldModelNavigation
+                 ? "birdflow_american_crow_navigation_v10_rgbd_sensors"
+@@ -3290,7 +3331,8 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
+                 : "birdflow_american_crow_journey_v7_state_sensors"
+             : "birdflow_american_crow_estimated_hybrid_state_sensors";
+         manifest.task = journey
+-            ? feeding ? metalrobo::makeAmericanCrowFeedingStationTaskPack(
++            ? retinal ? metalrobo::makeAmericanCrowRetinalFeedingTaskPack(manifest.sensors.observation,manifest.reality.reset,retina)
++            : feeding ? metalrobo::makeAmericanCrowFeedingStationTaskPack(
+                 manifest.sensors.observation,manifest.reality.reset)
+             : embodied ? metalrobo::makeAmericanCrowEmbodiedTaskPack(
+                 manifest.sensors.observation, manifest.reality.reset)
+@@ -3312,6 +3354,10 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
+             : metalrobo::makeBirdFlowAmericanCrowFlightTaskPack(
+                   manifest.sensors.observation, manifest.reality.reset
+               );
++        if (retinal) {
++            auto p=visualSensorProgram(*visual_sensor);p.retinal=retina;
++            p.fingerprint=metalrobo::visualSensorProgramFingerprint(p);manifest.sensors.deviceVisual=std::move(p);
++        }
+         manifest.reality.id =
+             "birdflow_american_crow_estimated_hybrid_nominal_reality";
+         manifest.teacher.id = "no_teacher";
+@@ -3322,7 +3368,7 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
+         manifest.profile.capacities = manifest.task.capacities;
+         auto handle = createCompiledRunTaskRollout(
+             std::move(manifest), metallib_path,
+-            "BirdFlow American-crow estimated hybrid", visual_sensor
++            "BirdFlow American-crow estimated hybrid", retinal ? nullptr : visual_sensor
+         );
+         if (feeding) {
+             handle->resourceRuntime=std::make_unique<metalrobo::FiniteResourceContext>(
+@@ -3890,6 +3936,20 @@ MRTaskRolloutHandle* mr_create_task_rollout(
+     return result;
+ }
+ 
++MRTaskRolloutHandle* mr_create_task_rollout_retinal(const MRRunManifestC* manifest,const MRRetinalSensorConfigC* retinal) {
++    if (!manifest || !retinal || manifest->source!=MR_RUN_SOURCE_BIRDFLOW_AMERICAN_CROW_JOURNEY ||
++        manifest->profile.birdflow_journey_variant!=MR_BIRDFLOW_JOURNEY_V13_RETINAL_FEEDING) {
++        gLastError="Retinal entry requires an explicit v13 American-crow journey manifest and retinal configuration";return nullptr;
++    }
++    auto* result=createBirdFlowAmericanCrowRun(&manifest->profile,manifest->visual_sensor_program,manifest->metallib_path,true,retinal);
++    if (result && manifest->inspection_visual_program) {
++        if (translateErrors([&] {installTaskInspectionRuntime(*result,visualSensorProgram(*manifest->inspection_visual_program));})!=0) {
++            delete result;return nullptr;
++        }
++    }
++    return result;
++}
++
+ void mr_task_rollout_destroy(MRTaskRolloutHandle* handle) {
+     delete handle;
+ }
+@@ -4267,6 +4327,7 @@ int mr_task_rollout_advance(
+     }
+ 
+     return translateErrors([&] {
++        if (handle->rejectedRetinalBatch) throw std::runtime_error("Retinal batch invalidated; an explicit world reset is required before reuse");
+         handle->stepConfig.evaluateFinalPolicy =
+             evaluate_final_policy != 0u;
+         const std::size_t actionCount =
+@@ -4379,6 +4440,8 @@ int mr_task_rollout_advance(
+         if (diagnostics.succeeded()) {
+             diagnostics = submission.wait(published);
+         }
++        if (handle->visualRuntime && handle->visualRuntime->retinal)
++            handle->rejectedRetinalBatch=true; // Clear only after complete native and sensor admission.
+         advance->control_step_count = control_step_count;
+         advance->successful_environment_steps =
+             diagnostics.successfulStepCount;
+@@ -4445,6 +4508,14 @@ int mr_task_rollout_advance(
+                 ) + "]: " + diagnostics.message
+             );
+         }
++        if (handle->visualRuntime && handle->visualRuntime->retinal) {
++            handle->rejectedRetinalBatch=true;
++            if (!diagnostics.succeeded()) throw std::runtime_error("Retinal native rollout failed: "+diagnostics.message);
++            const auto sensor=handle->visualRuntime->retinal->snapshot();
++            for (unsigned lane=0;lane<sensor.errors.size();++lane) if (sensor.errors[lane])
++                throw std::runtime_error("Retinal GPU rejected learner batch: lane="+std::to_string(lane)+" error="+std::to_string(sensor.errors[lane]));
++            handle->rejectedRetinalBatch=false;
++        }
+         handle->result = std::move(published);
+         handle->outcomeValues.clear();
+         handle->outcomeValues.reserve(
+diff --git a/src/core/RunProgram.cpp b/src/core/RunProgram.cpp
+index 79ed525e..2998da3a 100644
+--- a/src/core/RunProgram.cpp
++++ b/src/core/RunProgram.cpp
+@@ -627,7 +627,7 @@ std::uint64_t visualSensorProgramFingerprint(
+     hash.scalar(program.capturePolicyCamera);
+     if (program.retinal) {
+         const auto& r=*program.retinal;
+-        hash.string("raw-retinal-rgb-v1");hash.scalar(std::uint32_t(MR_RETINAL_STREAM_ABI));
++        hash.string("raw-retinal-rgb-v2-fixed-noiseless-render-phase");hash.scalar(std::uint32_t(MR_RETINAL_STREAM_ABI));
+         hash.scalar(r.rightCameraPosition);hash.scalar(r.rightCameraOrientation);
+         hash.scalar(r.width);hash.scalar(r.height);
+         hash.scalar(r.sampleNumerator);hash.scalar(r.sampleDenominator);hash.scalar(r.latencyTicks);
+diff --git a/src/metal/MetalWorld.mm b/src/metal/MetalWorld.mm
+index 68f381bb..1cea774f 100644
+--- a/src/metal/MetalWorld.mm
++++ b/src/metal/MetalWorld.mm
+@@ -21449,6 +21449,30 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
+             if (nativeTask &&
+                 config.policyProgram.valid() &&
+                 config.evaluateFinalPolicy) {
++                if (config.taskProgram.header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION) {
++                    MRMetalWorldPassGPU terminal{};terminal.controlStep=diagnostics.layout.dispatch.controlStepCount;
++                    terminal.physicsSubstep=MR_INVALID_INDEX;
++                    if (!encodeDevicePhysicsBodies(*selectedState,commandBuffer,sourceQ,
++                            sourceScene,batch.environmentCount,true))
++                        return reject(std::move(diagnostics),MetalWorldHostStatus::metalCommandFailure,"failed terminal retinal body projection");
++                    const auto& layout=config.taskProgram.layout();
++                    const MetalWorldDeviceObservationPass observation{
++                        .commandBuffer=(__bridge void*)commandBuffer,
++                        .q=(__bridge void*)selectedState->buffers[sourceQ],.v=(__bridge void*)selectedState->buffers[sourceV],
++                        .sceneBodies=(__bridge void*)selectedState->buffers[sourceScene],
++                        .currentBodies=(__bridge void*)selectedState->buffers[kCurrentBodies],
++                        .resetMasks=(__bridge void*)selectedState->buffers[kResetMasks],
++                        .taskStates=(__bridge void*)selectedState->buffers[kTaskState],
++                        .actorHistory=(__bridge void*)selectedState->buffers[kTaskActorHistory],
++                        .actorObservations=(__bridge void*)selectedState->buffers[kTaskActorObservations],
++                        .actorObservationOffsetElements=std::size_t(terminal.controlStep)*batch.environmentCount*layout.actorObservationSize,
++                        .seed=config.taskSeed,.controlStep=terminal.controlStep,
++                        .environmentCount=std::uint32_t(batch.environmentCount),.bodyCount=std::uint32_t(world.model().bodies.size()),
++                        .sceneBodyCount=std::uint32_t(world.sceneBodyCount()),.nq=diagnostics.layout.dispatch.nq,.nv=diagnostics.layout.dispatch.nv,
++                        .actorFrameSize=layout.actorFrameSize,.actorHistoryLength=layout.actorHistoryLength,.actorObservationSize=layout.actorObservationSize};
++                    if (!config.deviceObservationProgram.encode(config.deviceObservationProgram.context,observation))
++                        return reject(std::move(diagnostics),MetalWorldHostStatus::metalCommandFailure,"observer rejected terminal retinal actor slot");
++                }
+                 MRMetalWorldPassGPU bootstrapPass{};
+                 bootstrapPass.controlStep =
+                     diagnostics.layout.dispatch.controlStepCount;
+diff --git a/src/metal/RetinalObserver.mm b/src/metal/RetinalObserver.mm
+index 2dc4cb70..ea3a746f 100644
+--- a/src/metal/RetinalObserver.mm
++++ b/src/metal/RetinalObserver.mm
+@@ -17,8 +17,9 @@ struct RetinalObserverRuntime : std::enable_shared_from_this<RetinalObserverRunt
+     MetalWorldFamilyContext worlds;
+     std::array<std::unique_ptr<MetalHybridRenderer>,2> renderers;
+     std::unique_ptr<RetinalStreamContext> stream;
++    RetinalStreamConfig timing;
+     unsigned environments=0,bodies=0,features=0,offset=0;
+-    std::uint64_t fingerprint=0,sequence=0;
++    std::uint64_t fingerprint=0;
+     float dt=0;
+     mutable std::mutex mutex;
+     std::uintptr_t activeToken=0;
+@@ -42,12 +43,12 @@ struct RetinalObserverRuntime : std::enable_shared_from_this<RetinalObserverRunt
+                 if (s->activeToken==token) s->activeToken=0;
+             }];
+         }
+-        // This ordinal only labels renderer work; the GPU TaskState clock
+-        // exclusively determines sample readiness, latency and reset epochs.
+-        const auto sequence=s->sequence++;
++        // Noiseless instantaneous optics use one fixed lighting/sample phase.
++        // Encoding counts change with bootstrap calls and are not sensor time.
++        // The GPU TaskState clock alone owns retinal cadence, age and delay.
+         HybridDeviceStateBatch live{.currentBodyStates=pass.currentBodies,.previousBodyStates=pass.currentBodies,
+-            .environmentCount=s->environments,.bodyCount=s->bodies,.frameIndex=sequence,
+-            .sensorSequence=0,.source=MR_VISUAL_SOURCE_SIMULATION,.captureTimestampSeconds=sequence*double(s->dt)};
++            .environmentCount=s->environments,.bodyCount=s->bodies,.frameIndex=0,
++            .sensorSequence=0,.source=MR_VISUAL_SOURCE_SIMULATION,.captureTimestampSeconds=0};
+         id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];if (encoder==nil) {s->poisoned=true;return false;}
+         for (unsigned eye=0;eye<2;++eye) {
+             const auto status=s->renderers[eye]->encode(s->worlds,live,eye,(__bridge void*)encoder);
+@@ -93,7 +94,7 @@ RetinalObserverContext::RetinalObserverContext(const CompiledRun& run,const Worl
+             const auto scenes=run.world().sceneBodyIndices();const auto it=std::find(scenes.begin(),scenes.end(),body);
+             if (it!=scenes.end()) {
+                 const auto& state=run.defaultSceneBodies()[it-scenes.begin()];
+-                require(equal(asset.initialPose.position,state.position) && equal(asset.initialPose.orientation,state.orientation),
++                require((asset.initialPose.position.x==state.position.x && asset.initialPose.position.y==state.position.y && asset.initialPose.position.z==state.position.z) && equal(asset.initialPose.orientation,state.orientation),
+                     "Retinal static asset pose differs from physical default state");
+             }
+         }
+@@ -154,12 +155,19 @@ RetinalObserverContext::RetinalObserverContext(const CompiledRun& run,const Worl
+     }
+     RetinalStreamConfig timing;timing.environments=environments;timing.sourceWidth=p->width;timing.sourceHeight=p->height;
+     timing.width=r.width;timing.height=r.height;timing.sampleNumerator=r.sampleNumerator;timing.sampleDenominator=r.sampleDenominator;
+-    timing.latencyTicks=r.latencyTicks;timing.tickSeconds=s->dt;s->stream=std::make_unique<RetinalStreamContext>(timing);runtime_=std::move(s);
++    timing.latencyTicks=r.latencyTicks;timing.tickSeconds=s->dt;s->timing=timing;s->stream=std::make_unique<RetinalStreamContext>(timing);runtime_=std::move(s);
+ }
+ RetinalObserverContext::~RetinalObserverContext()=default;
+ MetalWorldDeviceObservationProgram RetinalObserverContext::deviceProgram() noexcept {
+     return {runtime_.get(),detail::RetinalObserverRuntime::encode,runtime_->fingerprint};
+ }
++void RetinalObserverContext::reset(std::uint64_t seed) {
++    const auto s=runtime_;const std::lock_guard lock(s->mutex);
++    require(!s->activeToken,"Retinal reset requires a quiescent command boundary");
++    auto fresh=std::make_unique<RetinalStreamContext>(s->timing);
++    require(s->worlds.sample(s->environments,seed).succeeded(),"Retinal fixed-world reset failed");
++    s->stream=std::move(fresh);s->poisoned=false;
++}
+ RetinalStreamSnapshot RetinalObserverContext::snapshot() const {
+     const auto s=runtime_;const std::lock_guard lock(s->mutex);
+     require(!s->poisoned && !s->activeToken,"Retinal observer publication requires quiescent successful work");return s->stream->snapshot();

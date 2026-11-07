@@ -1,0 +1,6 @@
+[0/1] Re-running CMake...
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/n/Developer/numi-crow-rl-20261107/build
+ninja: no work to do.

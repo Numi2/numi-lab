@@ -79,7 +79,7 @@
     "social_individuals_and_communication": "pending",
     "weather_and_seasonal_ecology": "pending",
     "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-and-partition-controls-passed-including-live-head-renderer; sensory-checkpoint-restore-pending",
-    "retinal_actor_contract": "native-v13-1251-actor-97-critic-18-actions; live-pixel-dependent-native-actor-controls-passed; v13-C-API-Swift-MLX-training-entry-and-batch-performance-pending"
+    "retinal_actor_contract": "native-v13-1251-actor-97-critic-18-actions; live-pixel-controls-and-C-API-Swift-MLX-update-learner-restore-passed-at16-64-128; visual-learning-and-production-performance-qualification-pending"
   },
   "release_requirements": [
     "deterministic accepted-state execution across submission chunks",
@@ -131,6 +131,30 @@
     "registered_rgb_error_limit": 3e-06,
     "submission_partition": "bit-identical at chunks1 and8, including one per-lane reset",
     "scope": "authored pixel actor, fixed physical collision-proxy fixture; no visual learning or production throughput qualification",
+    "ecological_environment_qualified": false
+  },
+  "retinal_learner_development_instrument": {
+    "commands": [
+      "retinal-api-admission",
+      "learn-probe --variant v13-retinal-feeding --retinal-calibration PASSED_API_TRIAL --environments 16"
+    ],
+    "evidence": "artifacts/crow-rl-retinal-learner-20261107",
+    "native_api_attempts": 5,
+    "terminal_next_and_chunk1_8": "bit-identical",
+    "world_reset_refills_resources": false,
+    "environments_measured": [
+      16,
+      64,
+      128
+    ],
+    "updates_per_probe": 3,
+    "steps_per_update": 128,
+    "throughput_128_whole_process_steps_per_second": [
+      5032.055976431484,
+      4932.680185890882
+    ],
+    "memory_scope": "MLX peak only, not complete process/renderer peak",
+    "scope": "fixed supported development proxy scene; actual native/Swift/MLX pipeline and learner-only restore; no visual learning or production-scale qualification",
     "ecological_environment_qualified": false
   }
 }

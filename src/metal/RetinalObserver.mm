@@ -17,8 +17,9 @@ struct RetinalObserverRuntime : std::enable_shared_from_this<RetinalObserverRunt
     MetalWorldFamilyContext worlds;
     std::array<std::unique_ptr<MetalHybridRenderer>,2> renderers;
     std::unique_ptr<RetinalStreamContext> stream;
+    RetinalStreamConfig timing;
     unsigned environments=0,bodies=0,features=0,offset=0;
-    std::uint64_t fingerprint=0,sequence=0;
+    std::uint64_t fingerprint=0;
     float dt=0;
     mutable std::mutex mutex;
     std::uintptr_t activeToken=0;
@@ -42,12 +43,12 @@ struct RetinalObserverRuntime : std::enable_shared_from_this<RetinalObserverRunt
                 if (s->activeToken==token) s->activeToken=0;
             }];
         }
-        // This ordinal only labels renderer work; the GPU TaskState clock
-        // exclusively determines sample readiness, latency and reset epochs.
-        const auto sequence=s->sequence++;
+        // Noiseless instantaneous optics use one fixed lighting/sample phase.
+        // Encoding counts change with bootstrap calls and are not sensor time.
+        // The GPU TaskState clock alone owns retinal cadence, age and delay.
         HybridDeviceStateBatch live{.currentBodyStates=pass.currentBodies,.previousBodyStates=pass.currentBodies,
-            .environmentCount=s->environments,.bodyCount=s->bodies,.frameIndex=sequence,
-            .sensorSequence=0,.source=MR_VISUAL_SOURCE_SIMULATION,.captureTimestampSeconds=sequence*double(s->dt)};
+            .environmentCount=s->environments,.bodyCount=s->bodies,.frameIndex=0,
+            .sensorSequence=0,.source=MR_VISUAL_SOURCE_SIMULATION,.captureTimestampSeconds=0};
         id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];if (encoder==nil) {s->poisoned=true;return false;}
         for (unsigned eye=0;eye<2;++eye) {
             const auto status=s->renderers[eye]->encode(s->worlds,live,eye,(__bridge void*)encoder);
@@ -93,7 +94,7 @@ RetinalObserverContext::RetinalObserverContext(const CompiledRun& run,const Worl
             const auto scenes=run.world().sceneBodyIndices();const auto it=std::find(scenes.begin(),scenes.end(),body);
             if (it!=scenes.end()) {
                 const auto& state=run.defaultSceneBodies()[it-scenes.begin()];
-                require(equal(asset.initialPose.position,state.position) && equal(asset.initialPose.orientation,state.orientation),
+                require((asset.initialPose.position.x==state.position.x && asset.initialPose.position.y==state.position.y && asset.initialPose.position.z==state.position.z) && equal(asset.initialPose.orientation,state.orientation),
                     "Retinal static asset pose differs from physical default state");
             }
         }
@@ -154,11 +155,18 @@ RetinalObserverContext::RetinalObserverContext(const CompiledRun& run,const Worl
     }
     RetinalStreamConfig timing;timing.environments=environments;timing.sourceWidth=p->width;timing.sourceHeight=p->height;
     timing.width=r.width;timing.height=r.height;timing.sampleNumerator=r.sampleNumerator;timing.sampleDenominator=r.sampleDenominator;
-    timing.latencyTicks=r.latencyTicks;timing.tickSeconds=s->dt;s->stream=std::make_unique<RetinalStreamContext>(timing);runtime_=std::move(s);
+    timing.latencyTicks=r.latencyTicks;timing.tickSeconds=s->dt;s->timing=timing;s->stream=std::make_unique<RetinalStreamContext>(timing);runtime_=std::move(s);
 }
 RetinalObserverContext::~RetinalObserverContext()=default;
 MetalWorldDeviceObservationProgram RetinalObserverContext::deviceProgram() noexcept {
     return {runtime_.get(),detail::RetinalObserverRuntime::encode,runtime_->fingerprint};
+}
+void RetinalObserverContext::reset(std::uint64_t seed) {
+    const auto s=runtime_;const std::lock_guard lock(s->mutex);
+    require(!s->activeToken,"Retinal reset requires a quiescent command boundary");
+    auto fresh=std::make_unique<RetinalStreamContext>(s->timing);
+    require(s->worlds.sample(s->environments,seed).succeeded(),"Retinal fixed-world reset failed");
+    s->stream=std::move(fresh);s->poisoned=false;
 }
 RetinalStreamSnapshot RetinalObserverContext::snapshot() const {
     const auto s=runtime_;const std::lock_guard lock(s->mutex);

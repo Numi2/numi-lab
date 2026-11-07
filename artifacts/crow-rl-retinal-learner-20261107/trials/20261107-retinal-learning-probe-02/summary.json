@@ -1,0 +1,46 @@
+{
+  "status": "passed",
+  "claim": "native/MLX updates, publication, and learner-only restore",
+  "variant": "v13-retinal-feeding",
+  "environments": 64,
+  "actor_initialization": "new zero-output actor",
+  "records": [
+    {
+      "stage": "initial",
+      "updates": 2,
+      "samples": 16384,
+      "training_loop_steps_per_second": 3908.201785399727,
+      "whole_process_steps_per_second": 3617.631604807744,
+      "initial_revision": 1,
+      "final_revision": 3,
+      "learner_state_restored": false,
+      "checkpoint_sha256": "9df9f17ad6ede28177e01feb3eb723bcba6369872743c60aec04a0456e1c443f",
+      "last_update_mean_reward": 0,
+      "last_update_maximum_reward": 0,
+      "last_update_intake_utility_mean": 0,
+      "last_update_learning_rate": 9.999999747378752e-05,
+      "last_update_action_standard_deviation": 2.718351125717163,
+      "mlx_peak_memory_bytes": 542205432
+    },
+    {
+      "stage": "resume",
+      "updates": 1,
+      "samples": 8192,
+      "training_loop_steps_per_second": 3806.212945881596,
+      "whole_process_steps_per_second": 3477.5844223765203,
+      "initial_revision": 3,
+      "final_revision": 4,
+      "learner_state_restored": true,
+      "checkpoint_sha256": "a3d555827926556002d777b3c3d559139dbf3a6e1ac8b67885fef4d9dd2b5538",
+      "last_update_mean_reward": 0.0026855464093387127,
+      "last_update_maximum_reward": 1.999999761581421,
+      "last_update_intake_utility_mean": 0.0026855464093387127,
+      "last_update_learning_rate": 9.999999747378752e-05,
+      "last_update_action_standard_deviation": 2.7183377742767334,
+      "mlx_peak_memory_bytes": 529003264
+    }
+  ],
+  "candidate_promoted": false,
+  "persistent_world_restore_tested": false,
+  "ecological_environment_qualified": false
+}

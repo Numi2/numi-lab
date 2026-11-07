@@ -578,9 +578,11 @@ private struct Options {
                     birdFlowJourneyVariant = .v11Embodied
                 case "v12", "v12-feeding-station":
                     birdFlowJourneyVariant = .v12FeedingStation
+                case "v13", "v13-retinal-feeding":
+                    birdFlowJourneyVariant = .v13RetinalFeeding
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, v10-world-model, or v11-embodied."
+                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, v10-world-model, v11-embodied, v12-feeding-station, or v13-retinal-feeding."
                     )
                 }
                 index += 1
@@ -1089,7 +1091,8 @@ private struct Options {
         }
         if birdFlowAmericanCrowJourney &&
             (birdFlowJourneyVariant == .v9VisualNeural ||
-             birdFlowJourneyVariant == .v10WorldModelNavigation) &&
+             birdFlowJourneyVariant == .v10WorldModelNavigation ||
+             birdFlowJourneyVariant == .v13RetinalFeeding) &&
             visualObservationConfig == nil
         {
             throw MetalRoboTaskRolloutError.invalidShape(
@@ -3713,7 +3716,9 @@ private enum TaskRolloutMain {
                 "birdflow_wing_pulse_duration_steps":
                     options.birdFlowWingPulseDurationSteps ?? 0,
                 "action_carrier": options.birdFlowAmericanCrowJourney
-                    ? options.birdFlowJourneyVariant == .v12FeedingStation
+                    ? options.birdFlowJourneyVariant == .v13RetinalFeeding
+                        ? "v13_retinal_feeding_native_rgb"
+                        : options.birdFlowJourneyVariant == .v12FeedingStation
                         ? "v12_feeding_station_neural_nutrition"
                         : options.birdFlowJourneyVariant == .v11Embodied
                         ? "v11_embodied_neural_proprioception"
@@ -4017,7 +4022,7 @@ private enum TaskRolloutMain {
                     dodgePredictedClearanceRewardSum / sampleCount
             }
             if options.birdFlowAmericanCrowJourney &&
-               options.birdFlowJourneyVariant == .v12FeedingStation {
+               (options.birdFlowJourneyVariant == .v12FeedingStation || options.birdFlowJourneyVariant == .v13RetinalFeeding) {
                 let resource = try context.finiteResourceAccounting()
                 let remaining: [UInt64] = resource.map { $0.remaining_micrograms }
                 let crop: [UInt32] = resource.map { $0.crop_micrograms }

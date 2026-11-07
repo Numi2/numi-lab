@@ -58,6 +58,7 @@ typedef enum MRBirdFlowJourneyVariantC {
     MR_BIRDFLOW_JOURNEY_V10_WORLD_MODEL_NAVIGATION = 3,
     MR_BIRDFLOW_JOURNEY_V11_EMBODIED = 4,
     MR_BIRDFLOW_JOURNEY_V12_FEEDING_STATION = 5,
+    MR_BIRDFLOW_JOURNEY_V13_RETINAL_FEEDING = 6,
 } MRBirdFlowJourneyVariantC;
 
 typedef enum MRBirdFlowNavigationCourseC {
@@ -166,6 +167,18 @@ typedef struct MRTaskVisualObservationConfigC {
     // parent and pose instead of the external presentation camera.
     uint32_t capture_policy_camera;
 } MRTaskVisualObservationConfigC;
+
+// Additive explicit retinal API. Existing C struct sizes remain unchanged.
+// Version1 is64 bytes; callers must set both fields before using the new entry.
+typedef struct MRRetinalSensorConfigC {
+    uint32_t struct_size;
+    uint32_t abi_version;
+    float right_camera_position[3];
+    float right_camera_orientation[4];
+    uint32_t width, height;
+    uint32_t sample_numerator, sample_denominator, latency_ticks;
+    float minimum_depth_meters, maximum_depth_meters;
+} MRRetinalSensorConfigC;
 
 typedef struct MRTaskRolloutLayoutC {
     uint32_t environment_count;
@@ -631,6 +644,12 @@ MR_API int mr_compile_episode_manifest(
     const char* manifest_path,
     const char* output_pack_path,
     const char* artifact_store_path
+);
+
+// Requires source AMERICAN_CROW_JOURNEY, variant V13 and explicit visual and
+// retinal programs. No missing-image fallback or legacy struct reinterpretation.
+MR_API MRTaskRolloutHandle* mr_create_task_rollout_retinal(
+    const MRRunManifestC* manifest, const MRRetinalSensorConfigC* retinal
 );
 
 MR_API MRTaskRolloutHandle* mr_create_task_rollout(

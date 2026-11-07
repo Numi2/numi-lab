@@ -627,7 +627,7 @@ std::uint64_t visualSensorProgramFingerprint(
     hash.scalar(program.capturePolicyCamera);
     if (program.retinal) {
         const auto& r=*program.retinal;
-        hash.string("raw-retinal-rgb-v1");hash.scalar(std::uint32_t(MR_RETINAL_STREAM_ABI));
+        hash.string("raw-retinal-rgb-v2-fixed-noiseless-render-phase");hash.scalar(std::uint32_t(MR_RETINAL_STREAM_ABI));
         hash.scalar(r.rightCameraPosition);hash.scalar(r.rightCameraOrientation);
         hash.scalar(r.width);hash.scalar(r.height);
         hash.scalar(r.sampleNumerator);hash.scalar(r.sampleDenominator);hash.scalar(r.latencyTicks);

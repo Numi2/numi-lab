@@ -1,0 +1,8 @@
+{
+  "base_commit": "acb6ba214f9c9c6caae0a08c14ad52eb8f1628ec",
+  "tracked_patch_sha256": "72488781c589d00fa6b511f325167660b5256f01a438fa09004a13a9b438be25",
+  "retained_untracked": {
+    "apps/crow_retinal_api_check.mm": "f45fa250dd0a3c1015bc0e8e79a3ef88b56b4fae9da6e188b0e38ff4bf8a3de9"
+  },
+  "external_artifact_inputs": {}
+}

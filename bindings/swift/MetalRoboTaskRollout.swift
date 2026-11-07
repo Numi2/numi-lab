@@ -223,6 +223,40 @@ public struct MetalRoboTaskVisualPack: Sendable {
     }
 }
 
+public struct MetalRoboRetinalObservationConfiguration: Sendable, Decodable {
+    public var rightPosition: [Float]
+    public var rightOrientation: [Float]
+    public var width: UInt32
+    public var height: UInt32
+    public var sampleNumerator: UInt32
+    public var sampleDenominator: UInt32
+    public var latencyTicks: UInt32
+    public var minimumDepthMeters: Float
+    public var maximumDepthMeters: Float
+    private enum CodingKeys: String, CodingKey {
+        case rightPosition = "right_position", rightOrientation = "right_orientation"
+        case width, height
+        case sampleNumerator = "sample_numerator", sampleDenominator = "sample_denominator"
+        case latencyTicks = "latency_ticks", minimumDepthMeters = "minimum_depth_meters"
+        case maximumDepthMeters = "maximum_depth_meters"
+    }
+    fileprivate func native() throws -> MRRetinalSensorConfigC {
+        guard rightPosition.count == 3, rightOrientation.count == 4,
+              rightPosition.allSatisfy(\.isFinite), rightOrientation.allSatisfy(\.isFinite)
+        else { throw MetalRoboTaskRolloutError.invalidShape("Retinal camera mount requires finite position3 and orientation4.") }
+        var value = MRRetinalSensorConfigC()
+        value.struct_size = UInt32(MemoryLayout<MRRetinalSensorConfigC>.size)
+        value.abi_version = 1
+        value.right_camera_position = (rightPosition[0], rightPosition[1], rightPosition[2])
+        value.right_camera_orientation = (rightOrientation[0], rightOrientation[1], rightOrientation[2], rightOrientation[3])
+        value.width = width; value.height = height
+        value.sample_numerator = sampleNumerator; value.sample_denominator = sampleDenominator
+        value.latency_ticks = latencyTicks; value.minimum_depth_meters = minimumDepthMeters
+        value.maximum_depth_meters = maximumDepthMeters
+        return value
+    }
+}
+
 public struct MetalRoboTaskVisualObservationConfiguration:
     Sendable
 {
@@ -268,9 +302,10 @@ public struct MetalRoboTaskVisualObservationConfiguration:
         let packs: [Pack]
         let environmentPack: String?
         let camera: Camera
+        let retinal: MetalRoboRetinalObservationConfiguration?
 
         private enum CodingKeys: String, CodingKey {
-            case format, id, packs, camera
+            case format, id, packs, camera, retinal
             case environmentPack = "environment_pack"
         }
     }
@@ -289,6 +324,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
     public var captureWidth: UInt32
     public var captureHeight: UInt32
     public var capturePolicyCamera: Bool
+    public var retinal: MetalRoboRetinalObservationConfiguration?
 
     public init(
         packs: [MetalRoboTaskVisualPack],
@@ -304,7 +340,8 @@ public struct MetalRoboTaskVisualObservationConfiguration:
         maximumRetainedBytes: UInt64 = 0,
         captureWidth: UInt32 = 0,
         captureHeight: UInt32 = 0,
-        capturePolicyCamera: Bool = false
+        capturePolicyCamera: Bool = false,
+        retinal: MetalRoboRetinalObservationConfiguration? = nil
     ) {
         self.packs = packs
         self.environmentPackURL = environmentPackURL
@@ -320,6 +357,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
         self.captureWidth = captureWidth
         self.captureHeight = captureHeight
         self.capturePolicyCamera = capturePolicyCamera
+        self.retinal = retinal
     }
 
     public static func loadArtifact(at url: URL) throws -> Self {
@@ -333,7 +371,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
                 "Visual observation artifact is invalid: \(error)"
             )
         }
-        guard artifact.format == "numi.visual-observation.v1",
+        guard artifact.format == (artifact.retinal == nil ? "numi.visual-observation.v1" : "numi.retinal-observation.v1"),
               !artifact.id.isEmpty,
               !artifact.packs.isEmpty,
               !artifact.camera.parentBody.isEmpty,
@@ -383,7 +421,8 @@ public struct MetalRoboTaskVisualObservationConfiguration:
                 artifact.camera.verticalFieldOfViewDegrees,
             nominalRateHz: artifact.camera.nominalRateHz,
             maximumRetainedBytes:
-                artifact.camera.maximumRetainedBytes
+                artifact.camera.maximumRetainedBytes,
+            retinal: artifact.retinal
         )
     }
 
@@ -610,6 +649,7 @@ public enum MetalRoboBirdFlowJourneyVariant: UInt32, Sendable {
     case v10WorldModelNavigation = 3
     case v11Embodied = 4
     case v12FeedingStation = 5
+    case v13RetinalFeeding = 6
 
     public var commandName: String {
         switch self {
@@ -619,6 +659,7 @@ public enum MetalRoboBirdFlowJourneyVariant: UInt32, Sendable {
         case .v10WorldModelNavigation: "v10-world-model"
         case .v11Embodied: "v11-embodied"
         case .v12FeedingStation: "v12-feeding-station"
+        case .v13RetinalFeeding: "v13-retinal-feeding"
         }
     }
 
@@ -630,6 +671,7 @@ public enum MetalRoboBirdFlowJourneyVariant: UInt32, Sendable {
         case .v10WorldModelNavigation: "birdflow_american_crow_navigation_v10_world_model"
         case .v11Embodied: "american_crow_embodied_development_v11"
         case .v12FeedingStation: "american_crow_feeding_station_v12"
+        case .v13RetinalFeeding: "american_crow_retinal_feeding_v13"
         }
     }
 }
@@ -1161,6 +1203,7 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                 "InteractionPack clip identity cannot be empty."
             )
         }
+        var retinal = try authored.visualSensor?.retinal?.native()
         let configuration = authored.sensorsAndPhysics
         var source = MR_RUN_SOURCE_UNITREE_G1.rawValue
         var urdfPath: String?
@@ -1254,9 +1297,12 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                                             manifest.inspection_visual_program =
                                                 inspectionVisual
                                             manifest.metallib_path = metallib
-                                            return mr_create_task_rollout(
-                                                &manifest
-                                            )
+                                            if retinal != nil {
+                                                return withUnsafePointer(to: &retinal!) { sensor in
+                                                    mr_create_task_rollout_retinal(&manifest, sensor)
+                                                }
+                                            }
+                                            return mr_create_task_rollout(&manifest)
                                         }
                                     }
                                 }

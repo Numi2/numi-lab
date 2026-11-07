@@ -1,3 +1,4 @@
+#include "metalrobo/RetinalObserver.hpp"
 #include "metalrobo/c_api.h"
 
 #include "metalrobo/EpisodeTwinCompiler.hpp"
@@ -80,6 +81,7 @@ struct MRTaskVisualRuntime {
     metalrobo::MetalHybridRenderer renderer;
     metalrobo::MetalHybridRenderer captureRenderer;
     metalrobo::MetalHybridObjectTracker tracker;
+    std::unique_ptr<metalrobo::RetinalObserverContext> retinal;
     std::unique_ptr<metalrobo::MetalRunInspector> inspector;
     std::vector<MRBodyStateGPU> previousCaptureBodies;
     std::uint64_t captureFrameIndex = 0u;
@@ -133,6 +135,7 @@ struct MRTaskRolloutHandle {
     std::string metallibPath;
     std::string taskId;
     std::uint32_t environmentCount = 0u;
+    bool rejectedRetinalBatch=false;
     std::uint64_t submittedControlSteps = 0u;
     std::uint64_t completedEnvironmentSteps = 0u;
     std::uint64_t submissionCount = 0u;
@@ -510,6 +513,10 @@ void resetTaskRolloutState(
     handle.residentState =
         metalrobo::MetalWorldResidentState{};
     if (handle.visualRuntime != nullptr) {
+        if (handle.visualRuntime->retinal) {
+            handle.visualRuntime->retinal->reset(seed);
+            handle.rejectedRetinalBatch=false;
+        } else {
         const auto sampled = handle.visualRuntime->worlds.sample(
             handle.environmentCount,
             seed
@@ -532,6 +539,7 @@ void resetTaskRolloutState(
             }
         }
     }
+        }
     handle.resetMasks.clear();
     handle.result = {};
     handle.statusCodes.clear();
@@ -659,7 +667,7 @@ void validateTaskRolloutConfiguration(
         );
     }
     if (config.birdflow_journey_variant >
-        MR_BIRDFLOW_JOURNEY_V12_FEEDING_STATION) {
+        MR_BIRDFLOW_JOURNEY_V13_RETINAL_FEEDING) {
         throw std::invalid_argument(
             "task-rollout BirdFlow journey variant is invalid"
         );
@@ -2239,9 +2247,12 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             "SensorPack masked-depth actor layout is incomplete"
         );
     }
+    const bool retinal = deviceObservation && program.retinal.has_value();
+    if (program.retinal && (!deviceObservation || program.captureWidth || program.captureHeight))
+        throw std::invalid_argument("Retinal streams require native device observations; presentation uses a separate inspection program");
     const bool deviceObservationEnabled =
         deviceObservation &&
-        (!trackedOffsets.empty() || maskedDepthCount != 0u);
+        (retinal || !trackedOffsets.empty() || maskedDepthCount != 0u);
     if (deviceObservation && !deviceObservationEnabled &&
         (program.captureWidth == 0u || program.captureHeight == 0u)) {
         throw std::invalid_argument(
@@ -2309,7 +2320,7 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             id,
             {body},
             role,
-            (tracked || maskedDepthVisible || !deviceObservation)
+            (retinal || tracked || maskedDepthVisible || !deviceObservation)
                 ? MR_WORLD_RENDER_MESH_PBR
                 : MR_WORLD_RENDER_NONE,
             dynamics
@@ -2405,7 +2416,13 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     camera.exposureSeconds = 1.0f / 240.0f;
     camera.minimumDepthMeters = 0.05f;
     camera.maximumDepthMeters = deviceObservation ? 8.0f : 100.0f;
-    episode.sensors.push_back(std::move(camera));
+    if (retinal) {
+        camera.minimumDepthMeters=program.retinal->minimumDepthMeters;
+        camera.maximumDepthMeters=program.retinal->maximumDepthMeters;camera.depthQuantumMeters=.0001f;
+        auto right=camera;right.id="right_head_rgbd";right.localPose.position=program.retinal->rightCameraPosition;
+        right.localPose.orientation=program.retinal->rightCameraOrientation;
+        episode.sensors.push_back(camera);episode.sensors.push_back(std::move(right));
+    } else episode.sensors.push_back(std::move(camera));
     if (program.capturePolicyCamera &&
         !(program.verticalFieldOfViewDegrees > 0.0f)) {
         throw std::invalid_argument(
@@ -2641,6 +2658,12 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         throw std::runtime_error(
             "visual scene compile failed: " + reason
         );
+    }
+    if (retinal) {
+        runtime->retinal=std::make_unique<metalrobo::RetinalObserverContext>(handle.run,runtime->family,manifest,
+            handle.environmentCount,handle.run.profile().seed);
+        runtime->deviceObservationEnabled=true;runtime->sceneFingerprint=manifest.fingerprint;
+        return runtime;
     }
     auto captureScene = manifest.renderScene;
 
@@ -2893,7 +2916,7 @@ void installTaskVisualRuntime(
         compileTaskVisualRuntime(handle, program, true);
     if (candidate->deviceObservationEnabled) {
         const metalrobo::MetalWorldDeviceObservationProgram observationProgram =
-            candidate->tracker.observationProgram();
+            candidate->retinal ? candidate->retinal->deviceProgram() : candidate->tracker.observationProgram();
         if (!observationProgram.valid()) {
             throw std::runtime_error(
                 "compiled SensorPack visual program is invalid"
@@ -3220,7 +3243,8 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
     const MRTaskRolloutConfigC* config,
     const MRTaskVisualObservationConfigC* visual_sensor,
     const char* metallib_path,
-    const bool journey
+    const bool journey,
+    const MRRetinalSensorConfigC* retinalConfig=nullptr
 ) {
     if (config == nullptr) {
         gLastError = "BirdFlow American-crow rollout configuration is required.";
@@ -3229,13 +3253,28 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
     MRTaskRolloutHandle* result = nullptr;
     const int status = translateErrors([&] {
         validateTaskRolloutConfiguration(*config);
-        const bool feeding=journey && config->birdflow_journey_variant==MR_BIRDFLOW_JOURNEY_V12_FEEDING_STATION;
+        const bool retinal=journey && config->birdflow_journey_variant==MR_BIRDFLOW_JOURNEY_V13_RETINAL_FEEDING;
+        if (retinal != (retinalConfig!=nullptr) || (retinal && visual_sensor==nullptr))
+            throw std::invalid_argument("V13 requires the additive retinal entry and both explicit visual and retinal programs");
+        metalrobo::RetinalSensorProgram retina;
+        if (retinal) {
+            static_assert(sizeof(MRRetinalSensorConfigC)==64);
+            if (retinalConfig->struct_size!=sizeof(MRRetinalSensorConfigC) || retinalConfig->abi_version!=1)
+                throw std::invalid_argument("Unsupported retinal C configuration size/version");
+            const auto& c=*retinalConfig;
+            retina.rightCameraPosition={c.right_camera_position[0],c.right_camera_position[1],c.right_camera_position[2],0};
+            retina.rightCameraOrientation={c.right_camera_orientation[0],c.right_camera_orientation[1],c.right_camera_orientation[2],c.right_camera_orientation[3]};
+            retina.width=c.width;retina.height=c.height;retina.sampleNumerator=c.sample_numerator;
+            retina.sampleDenominator=c.sample_denominator;retina.latencyTicks=c.latency_ticks;
+            retina.minimumDepthMeters=c.minimum_depth_meters;retina.maximumDepthMeters=c.maximum_depth_meters;
+        }
+        const bool feeding=retinal || (journey && config->birdflow_journey_variant==MR_BIRDFLOW_JOURNEY_V12_FEEDING_STATION);
         const bool embodied = journey && (config->birdflow_journey_variant ==
             MR_BIRDFLOW_JOURNEY_V11_EMBODIED || feeding);
         if (embodied && config->birdflow_journey_teacher != 0u) {
             throw std::invalid_argument("Active-head variants have no admitted teacher action contract");
         }
-        if (embodied && visual_sensor!=nullptr)
+        if (embodied && !retinal && visual_sensor!=nullptr)
             throw std::invalid_argument("Active-head variants have no admitted eye-image or presentation contract");
         auto robot = metalrobo::builtinRobotPack(embodied
             ? "american_crow_active_head_estimated_v1"
@@ -3264,7 +3303,8 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             );
         }
         manifest.id = journey
-            ? feeding ? "american_crow_feeding_station_v12_run"
+            ? retinal ? "american_crow_retinal_feeding_v13_run"
+            : feeding ? "american_crow_feeding_station_v12_run"
             : embodied ? "american_crow_embodied_development_v11_run"
             : worldModelNavigation
                 ? "birdflow_american_crow_navigation_v10_world_model_run"
@@ -3279,7 +3319,8 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             ? metalrobo::makeBirdFlowAmericanCrowNavigationScenePack()
             : metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
         manifest.sensors.id = journey
-            ? feeding ? "american_crow_feeding_v12_proprioception_and_nutrition"
+            ? retinal ? "american_crow_retinal_v13_rgb_proprioception_nutrition"
+            : feeding ? "american_crow_feeding_v12_proprioception_and_nutrition"
             : embodied ? "american_crow_embodied_v11_proprioception"
             : worldModelNavigation
                 ? "birdflow_american_crow_navigation_v10_rgbd_sensors"
@@ -3290,7 +3331,8 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
                 : "birdflow_american_crow_journey_v7_state_sensors"
             : "birdflow_american_crow_estimated_hybrid_state_sensors";
         manifest.task = journey
-            ? feeding ? metalrobo::makeAmericanCrowFeedingStationTaskPack(
+            ? retinal ? metalrobo::makeAmericanCrowRetinalFeedingTaskPack(manifest.sensors.observation,manifest.reality.reset,retina)
+            : feeding ? metalrobo::makeAmericanCrowFeedingStationTaskPack(
                 manifest.sensors.observation,manifest.reality.reset)
             : embodied ? metalrobo::makeAmericanCrowEmbodiedTaskPack(
                 manifest.sensors.observation, manifest.reality.reset)
@@ -3312,6 +3354,10 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             : metalrobo::makeBirdFlowAmericanCrowFlightTaskPack(
                   manifest.sensors.observation, manifest.reality.reset
               );
+        if (retinal) {
+            auto p=visualSensorProgram(*visual_sensor);p.retinal=retina;
+            p.fingerprint=metalrobo::visualSensorProgramFingerprint(p);manifest.sensors.deviceVisual=std::move(p);
+        }
         manifest.reality.id =
             "birdflow_american_crow_estimated_hybrid_nominal_reality";
         manifest.teacher.id = "no_teacher";
@@ -3322,7 +3368,7 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
         manifest.profile.capacities = manifest.task.capacities;
         auto handle = createCompiledRunTaskRollout(
             std::move(manifest), metallib_path,
-            "BirdFlow American-crow estimated hybrid", visual_sensor
+            "BirdFlow American-crow estimated hybrid", retinal ? nullptr : visual_sensor
         );
         if (feeding) {
             handle->resourceRuntime=std::make_unique<metalrobo::FiniteResourceContext>(
@@ -3890,6 +3936,20 @@ MRTaskRolloutHandle* mr_create_task_rollout(
     return result;
 }
 
+MRTaskRolloutHandle* mr_create_task_rollout_retinal(const MRRunManifestC* manifest,const MRRetinalSensorConfigC* retinal) {
+    if (!manifest || !retinal || manifest->source!=MR_RUN_SOURCE_BIRDFLOW_AMERICAN_CROW_JOURNEY ||
+        manifest->profile.birdflow_journey_variant!=MR_BIRDFLOW_JOURNEY_V13_RETINAL_FEEDING) {
+        gLastError="Retinal entry requires an explicit v13 American-crow journey manifest and retinal configuration";return nullptr;
+    }
+    auto* result=createBirdFlowAmericanCrowRun(&manifest->profile,manifest->visual_sensor_program,manifest->metallib_path,true,retinal);
+    if (result && manifest->inspection_visual_program) {
+        if (translateErrors([&] {installTaskInspectionRuntime(*result,visualSensorProgram(*manifest->inspection_visual_program));})!=0) {
+            delete result;return nullptr;
+        }
+    }
+    return result;
+}
+
 void mr_task_rollout_destroy(MRTaskRolloutHandle* handle) {
     delete handle;
 }
@@ -4267,6 +4327,7 @@ int mr_task_rollout_advance(
     }
 
     return translateErrors([&] {
+        if (handle->rejectedRetinalBatch) throw std::runtime_error("Retinal batch invalidated; an explicit world reset is required before reuse");
         handle->stepConfig.evaluateFinalPolicy =
             evaluate_final_policy != 0u;
         const std::size_t actionCount =
@@ -4379,6 +4440,8 @@ int mr_task_rollout_advance(
         if (diagnostics.succeeded()) {
             diagnostics = submission.wait(published);
         }
+        if (handle->visualRuntime && handle->visualRuntime->retinal)
+            handle->rejectedRetinalBatch=true; // Clear only after complete native and sensor admission.
         advance->control_step_count = control_step_count;
         advance->successful_environment_steps =
             diagnostics.successfulStepCount;
@@ -4444,6 +4507,14 @@ int mr_task_rollout_advance(
                     diagnostics.status
                 ) + "]: " + diagnostics.message
             );
+        }
+        if (handle->visualRuntime && handle->visualRuntime->retinal) {
+            handle->rejectedRetinalBatch=true;
+            if (!diagnostics.succeeded()) throw std::runtime_error("Retinal native rollout failed: "+diagnostics.message);
+            const auto sensor=handle->visualRuntime->retinal->snapshot();
+            for (unsigned lane=0;lane<sensor.errors.size();++lane) if (sensor.errors[lane])
+                throw std::runtime_error("Retinal GPU rejected learner batch: lane="+std::to_string(lane)+" error="+std::to_string(sensor.errors[lane]));
+            handle->rejectedRetinalBatch=false;
         }
         handle->result = std::move(published);
         handle->outcomeValues.clear();

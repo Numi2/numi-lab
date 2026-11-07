@@ -1,0 +1,38 @@
+[
+  {
+    "kind": "retinal_api_check",
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/crow-retinal-learner-admission-05/bin/metalrobo_crow_retinal_api_check",
+    "bytes": 119344,
+    "sha256": "761c01462245079abf3e8193df9f067973e910e08edb9720d95ebe2118786d14"
+  },
+  {
+    "kind": "train",
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/crow-retinal-learner-admission-05/bin/metalrobo_task_train",
+    "bytes": 862376,
+    "sha256": "d55ec752b14d6e2684e79a909441157a5a6b6800bd53cda254d30d32cb91bd49"
+  },
+  {
+    "kind": "rollout",
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/crow-retinal-learner-admission-05/bin/metalrobo_task_rollout",
+    "bytes": 975896,
+    "sha256": "ad2a5e9e178c675ba2ed314102f0154531ca853e8961780443cc40d5ed986b55"
+  },
+  {
+    "kind": "library",
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/crow-retinal-learner-admission-05/lib/libmetalrobo.dylib",
+    "bytes": 5514400,
+    "sha256": "039cd892c172abaf03e4320269948ec66e5818c362293abc0fce9482a0833b83"
+  },
+  {
+    "kind": "metallib",
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/crow-retinal-learner-admission-05/shaders/MetalRobo.metallib",
+    "bytes": 4173395,
+    "sha256": "bee9e69522b26d6b5d99660e665cf8ed856acd9038ea9f2bdcb87b96dd99385a"
+  },
+  {
+    "kind": "retinal_metallib",
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/crow-retinal-learner-admission-05/shaders/RetinalStream.metallib",
+    "bytes": 16151,
+    "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+  }
+]
