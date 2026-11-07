@@ -22,3 +22,11 @@ Initial intake reward is zero. This is real training/persistence admission, not
 learned memory, ecological behavior or production-scale performance. Independent
 training lifetimes, controlled memory learning, manipulation, social agents and
 ecology remain required. Ordinary resets do not refill finite food.
+
+The initial recovery verifier incorrectly required one dyld library line; the
+standard trainer and its Python learner each correctly loaded the same restored
+library. The failure and original verifier remain preserved. Version2 audits
+every loaded native-library line and consumes the already completed training
+outputs without replaying the simulation. All53 learner tensors and six native
+state comparisons pass;83 exact closed temporary files (76,602,792 bytes) removed.
+Use verify_recovery-v2.py for future recovery.
