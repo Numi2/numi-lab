@@ -34,3 +34,15 @@ if(BUILD_TESTING)
   "${METALROBO_METALLIB}" "${CMAKE_CURRENT_BINARY_DIR}/acceptance-evidence")
  set_tests_properties(metalrobo.ccd.acceptance PROPERTIES TIMEOUT 180)
 endif()
+
+add_executable(metalrobo_ccd_kinematic_rollback_probe "${NUMI_WORLD_ROOT}/apps/ccd_kinematic_rollback_probe.cpp")
+target_link_libraries(metalrobo_ccd_kinematic_rollback_probe PRIVATE numi_ccd_world_owner)
+target_link_options(metalrobo_ccd_kinematic_rollback_probe PRIVATE -Wl,-dead_strip)
+add_dependencies(metalrobo_ccd_kinematic_rollback_probe metalrobo_shaders)
+
+if(BUILD_TESTING)
+ add_test(NAME metalrobo.ccd.kinematic_rollback COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_CURRENT_SOURCE_DIR}/kinematic_rollback_regression.py"
+  "$<TARGET_FILE:metalrobo_ccd_kinematic_rollback_probe>" "${METALROBO_METALLIB}")
+ set_tests_properties(metalrobo.ccd.kinematic_rollback PROPERTIES TIMEOUT 180)
+endif()
