@@ -5,7 +5,7 @@ variant=sys.argv[1]
 if variant=='coarse':rtol,atol,step=1e-8,1e-12,8e-6
 elif variant=='fine':rtol,atol,step=1e-10,1e-13,4e-6
 else:raise ValueError('bad variant')
-m=Model(2);m12=Model(2,12);n=m.b.N;zero=np.zeros((n,3))
+m=Model(2);m12=Model(2,12);n=int(m.b.N);zero=np.zeros((n,3))
 def rhs(t,y):
  u=y[:3*n].reshape(n,3);v=y[3*n:6*n].reshape(n,3)
  _,r,cf,_,_,_=m.evaluate(u)
