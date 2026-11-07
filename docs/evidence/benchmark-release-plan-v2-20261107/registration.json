@@ -1,0 +1,396 @@
+{
+  "payload": {
+    "artifacts": {
+      "/Users/numi/numi-lab-benchmark-accounting-20261107/apps/benchmark.cpp": "8f991018465c5ce9f119c79569b62f27647b4063a53e0e718af554dabb3da939",
+      "/Users/numi/numi-lab-benchmark-accounting-20261107/docs/evidence/benchmark-accounting-20261107/warmup-smoke/batch.log": "89f57c2289b7e0422ff0affc5b84c18de7ffa3e703deb8c7990582538b0ea8f5",
+      "/Users/numi/numi-lab-benchmark-accounting-20261107/docs/evidence/benchmark-scaling-exploration-20261107/analysis.json": "16f516b0fbad4704d4bb42f0376e9061342aecec2f349243391183c64c508ffb",
+      "/Users/numi/numi-lab-benchmark-accounting-20261107/python/metalrobo/science_notebook.py": "e05d6b7810dbe0ffbd28a449e57f79d6c7f5a480db37483d1c33bca3d5ea6f57",
+      "/Users/numi/numi-lab-benchmark-accounting-20261107/tests/benchmark_accounting_test.py": "6c9c41e932faa13837a384e79c05ea3e74f642f31270c42ae04e0f4230ab12ee",
+      "/Users/numi/numi-lab-benchmark-accounting-20261107/tests/benchmark_science_adapter_test.py": "583670744a6af30b46852a37b8eab4c7970e523b3d091b74bee99f38a0939841",
+      "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/benchmark_science_adapter.py": "825f1545a7445961685b7e30565a60a4e641d54b7a04374eaa5689b8c5065d90",
+      "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_bench": "c09db54d1abf4459b4c5ff51336ae9255d61a92867451b97d7860b2fa360801b",
+      "/Users/numi/numi-lab-benchmark-release-build-20261107/lib/libmetalrobo.dylib": "29d3cabb09afc762ebea5ace49f1a09aa704da44846b93f422b545040bd06ca7",
+      "/Users/numi/numi-lab-benchmark-release-build-20261107/matter/shaders/NumiMatter.metallib": "6f3182e1d78071c20afc1da7efb54927da4c3f724a758e552e5293fe8ea52f99",
+      "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib": "8f9137278d52ff4a083dbc0c84ad541c25db91e8c50d5e7b3f70962cb23b69fa",
+      "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRoboHyperPolicy.metallib": "8d5676406a80a71ea50828fad47e78083892c1bc996299c59253d2a398cdd6d9",
+      "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/NumiNeuron.metallib": "965289118c76f59072d46535b9fe96a5eb8e56a50596705609cbff84d50617f1",
+      "/Users/numi/numi-lab-benchmark-release-science-v2-20261107/calibration.json": "d78dd3c32ab951b564f0656b83f8fc57daa77b239730d9def721c75d81e2fdd8",
+      "/Users/numi/numi-lab-benchmark-release-science-v2-20261107/model.json": "37f8dc081aa3049b449ca4605f8564db21b2f2eb47dd4b5ad5876556d64de1de",
+      "/Users/numi/numi-lab-benchmark-release-science-v2-20261107/predictor.py": "12e81ee80d716e9656ff5f7c13344aab83b76d39a72614b49d79287a3969a560",
+      "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15": "15c72833c1ffc09bc4e05d1e1866784d126721ad548d9c4d8f943641262535cb",
+      "/opt/homebrew/opt/python@3.15/bin/python3.15": "15c72833c1ffc09bc4e05d1e1866784d126721ad548d9c4d8f943641262535cb"
+    },
+    "environment": {
+      "HOME": "/Users/numi",
+      "PATH": "/bin:/usr/bin",
+      "TMPDIR": "/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T"
+    },
+    "host": {
+      "machine": "arm64",
+      "node": "numi.local",
+      "platform": "macOS-27.0-arm64-arm-64bit-Mach-O"
+    },
+    "parent": null,
+    "plan": {
+      "artifacts": [
+        "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/benchmark_science_adapter.py",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_bench",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/lib/libmetalrobo.dylib",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRoboHyperPolicy.metallib",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/NumiNeuron.metallib",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/matter/shaders/NumiMatter.metallib",
+        "/Users/numi/numi-lab-benchmark-accounting-20261107/apps/benchmark.cpp",
+        "/Users/numi/numi-lab-benchmark-accounting-20261107/tests/benchmark_science_adapter_test.py",
+        "/Users/numi/numi-lab-benchmark-accounting-20261107/tests/benchmark_accounting_test.py",
+        "/Users/numi/numi-lab-benchmark-release-science-v2-20261107/calibration.json",
+        "/Users/numi/numi-lab-benchmark-release-science-v2-20261107/model.json",
+        "/Users/numi/numi-lab-benchmark-release-science-v2-20261107/predictor.py",
+        "/Users/numi/numi-lab-benchmark-accounting-20261107/python/metalrobo/science_notebook.py",
+        "/Users/numi/numi-lab-benchmark-accounting-20261107/docs/evidence/benchmark-accounting-20261107/warmup-smoke/batch.log",
+        "/Users/numi/numi-lab-benchmark-accounting-20261107/docs/evidence/benchmark-scaling-exploration-20261107/analysis.json"
+      ],
+      "backend": "Apple Metal M6 Release",
+      "design": {
+        "allocation": "alternating paired arm order",
+        "controls": "seed, 100 control steps, source, GPU, timestep, warmup and host action generator",
+        "experimental_unit": "fixed seed evaluated at both batch sizes",
+        "intervention": "environment batch size 1 versus 32",
+        "unit_paths": {
+          "seed": [
+            "seed"
+          ]
+        }
+      },
+      "evidence_level": "simulation",
+      "hypothesis": "Batching amortizes command submission across environments in this workload.",
+      "instrument": {
+        "artifacts": [
+          "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/benchmark_science_adapter.py",
+          "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_bench",
+          "/Users/numi/numi-lab-benchmark-release-build-20261107/lib/libmetalrobo.dylib",
+          "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+          "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRoboHyperPolicy.metallib",
+          "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/NumiNeuron.metallib",
+          "/Users/numi/numi-lab-benchmark-release-build-20261107/matter/shaders/NumiMatter.metallib",
+          "/Users/numi/numi-lab-benchmark-accounting-20261107/apps/benchmark.cpp",
+          "/Users/numi/numi-lab-benchmark-accounting-20261107/tests/benchmark_science_adapter_test.py",
+          "/Users/numi/numi-lab-benchmark-accounting-20261107/tests/benchmark_accounting_test.py"
+        ],
+        "calibration": "/Users/numi/numi-lab-benchmark-release-science-v2-20261107/calibration.json",
+        "description": "Release native accepted-step benchmark and accounting adapter"
+      },
+      "limitations": "Exploratory operational scaling only: host-sinusoidal actions, no rendering or learning, no continuum, no physical-accuracy comparison, no simulator comparator. Seeds are paired conditions on one host, not independent hardware replications. Thermal state is not controlled. It does not compare build types. Background macOS services may create CPU or GPU contention; record host activity and do not claim clean-host timing without evidence.",
+      "model": {
+        "prediction": {
+          "estimand": "paired_difference_mean",
+          "maximum": 1000000.0,
+          "minimum": 1000.0
+        },
+        "statement": "On this M6 in the Release build, 32 environments increase aggregate accepted environment steps per wall second by 1000 to 1000000 compared with one environment for 100 host-sinusoidal control steps.",
+        "training_units": [
+          {
+            "seed": 7
+          },
+          {
+            "seed": 1101
+          },
+          {
+            "seed": 1102
+          },
+          {
+            "seed": 1103
+          },
+          {
+            "seed": 1104
+          },
+          {
+            "seed": 1105
+          }
+        ],
+        "version": "franka-release-batch-v2"
+      },
+      "model_file": "/Users/numi/numi-lab-benchmark-release-science-v2-20261107/model.json",
+      "observable": {
+        "name": "accepted environment steps per wall second",
+        "path": [
+          "env_steps_per_s"
+        ],
+        "unit": "environment_steps/s"
+      },
+      "owner": "MetalWorld task rollout and metalrobo_bench",
+      "paired_equal": [
+        [
+          "seed"
+        ],
+        [
+          "steps"
+        ]
+      ],
+      "prediction": {
+        "estimand": "paired_difference_mean",
+        "maximum": 1000000.0,
+        "minimum": 1000.0
+      },
+      "predictor": {
+        "argv": [
+          "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+          "/Users/numi/numi-lab-benchmark-release-science-v2-20261107/predictor.py",
+          "/Users/numi/numi-lab-benchmark-release-science-v2-20261107/model.json"
+        ],
+        "env": {},
+        "timeout_seconds": 20
+      },
+      "purpose": "exploration",
+      "question": "Does the current Release build increase accepted-step throughput from one to 32 Franka environments on this M6?",
+      "repository": "/Users/numi/numi-lab-benchmark-accounting-20261107",
+      "schema": "numi.science.plan.v2",
+      "trials": [
+        {
+          "argv": [
+            "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+            "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/benchmark_science_adapter.py",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_bench",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+            "1",
+            "100",
+            "3101"
+          ],
+          "arm": "control",
+          "env": {},
+          "id": "seed-3101-control",
+          "pair": "seed-3101",
+          "timeout_seconds": 120,
+          "unit": {
+            "seed": 3101
+          }
+        },
+        {
+          "argv": [
+            "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+            "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/benchmark_science_adapter.py",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_bench",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+            "32",
+            "100",
+            "3101"
+          ],
+          "arm": "treatment",
+          "env": {},
+          "id": "seed-3101-treatment",
+          "pair": "seed-3101",
+          "timeout_seconds": 120,
+          "unit": {
+            "seed": 3101
+          }
+        },
+        {
+          "argv": [
+            "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+            "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/benchmark_science_adapter.py",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_bench",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+            "32",
+            "100",
+            "3102"
+          ],
+          "arm": "treatment",
+          "env": {},
+          "id": "seed-3102-treatment",
+          "pair": "seed-3102",
+          "timeout_seconds": 120,
+          "unit": {
+            "seed": 3102
+          }
+        },
+        {
+          "argv": [
+            "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+            "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/benchmark_science_adapter.py",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_bench",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+            "1",
+            "100",
+            "3102"
+          ],
+          "arm": "control",
+          "env": {},
+          "id": "seed-3102-control",
+          "pair": "seed-3102",
+          "timeout_seconds": 120,
+          "unit": {
+            "seed": 3102
+          }
+        },
+        {
+          "argv": [
+            "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+            "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/benchmark_science_adapter.py",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_bench",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+            "1",
+            "100",
+            "3103"
+          ],
+          "arm": "control",
+          "env": {},
+          "id": "seed-3103-control",
+          "pair": "seed-3103",
+          "timeout_seconds": 120,
+          "unit": {
+            "seed": 3103
+          }
+        },
+        {
+          "argv": [
+            "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+            "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/benchmark_science_adapter.py",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_bench",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+            "32",
+            "100",
+            "3103"
+          ],
+          "arm": "treatment",
+          "env": {},
+          "id": "seed-3103-treatment",
+          "pair": "seed-3103",
+          "timeout_seconds": 120,
+          "unit": {
+            "seed": 3103
+          }
+        },
+        {
+          "argv": [
+            "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+            "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/benchmark_science_adapter.py",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_bench",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+            "32",
+            "100",
+            "3104"
+          ],
+          "arm": "treatment",
+          "env": {},
+          "id": "seed-3104-treatment",
+          "pair": "seed-3104",
+          "timeout_seconds": 120,
+          "unit": {
+            "seed": 3104
+          }
+        },
+        {
+          "argv": [
+            "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+            "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/benchmark_science_adapter.py",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_bench",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+            "1",
+            "100",
+            "3104"
+          ],
+          "arm": "control",
+          "env": {},
+          "id": "seed-3104-control",
+          "pair": "seed-3104",
+          "timeout_seconds": 120,
+          "unit": {
+            "seed": 3104
+          }
+        },
+        {
+          "argv": [
+            "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+            "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/benchmark_science_adapter.py",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_bench",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+            "1",
+            "100",
+            "3105"
+          ],
+          "arm": "control",
+          "env": {},
+          "id": "seed-3105-control",
+          "pair": "seed-3105",
+          "timeout_seconds": 120,
+          "unit": {
+            "seed": 3105
+          }
+        },
+        {
+          "argv": [
+            "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+            "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/benchmark_science_adapter.py",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_bench",
+            "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+            "32",
+            "100",
+            "3105"
+          ],
+          "arm": "treatment",
+          "env": {},
+          "id": "seed-3105-treatment",
+          "pair": "seed-3105",
+          "timeout_seconds": 120,
+          "unit": {
+            "seed": 3105
+          }
+        }
+      ],
+      "validity": [
+        {
+          "equals": true,
+          "path": [
+            "valid"
+          ]
+        },
+        {
+          "equals": "Apple M6",
+          "path": [
+            "raw_fields",
+            "device"
+          ]
+        },
+        {
+          "equals": "host_sinusoidal",
+          "path": [
+            "raw_fields",
+            "policy"
+          ]
+        }
+      ]
+    },
+    "prediction_run": {
+      "argv": [
+        "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+        "/Users/numi/numi-lab-benchmark-release-science-v2-20261107/predictor.py",
+        "/Users/numi/numi-lab-benchmark-release-science-v2-20261107/model.json"
+      ],
+      "cwd": "/Users/numi/numi-lab-benchmark-release-science-v2-20261107/study/prediction/output",
+      "elapsed_seconds": 0.03685570904053748,
+      "ended_at": "2026-11-07T22:28:58.535826+00:00",
+      "environment": {
+        "HOME": "/Users/numi",
+        "PATH": "/bin:/usr/bin",
+        "TMPDIR": "/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T"
+      },
+      "failure": null,
+      "files": {
+        "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout.json": "2fbf23230f8aebb1ac8d3bfd7ad0c9320b09ddcd9e2d3fb96446065d068ea7f8"
+      },
+      "process_sha256": "73cc78f4b7a3a0bd7d4f1f95b351766bea6e952bd153cceeb5af36e416dbf4d0",
+      "returncode": 0,
+      "started_at": "2026-11-07T22:28:58.498835+00:00"
+    },
+    "registered_at": "2026-11-07T22:28:58.535890+00:00",
+    "schema": "numi.science.registration.v2",
+    "source": {
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "repository": "/Users/numi/numi-lab-benchmark-accounting-20261107",
+      "revision": "22f3b419e288d47bad52f9f4494a910c9c01d19d",
+      "status": ""
+    }
+  },
+  "sha256": "5242835252767fbf0f87bbe55deadb19087f4b2d621dacbfb3988b823e06a9d5"
+}

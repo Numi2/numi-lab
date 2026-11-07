@@ -59,3 +59,11 @@ allocation. Initialization and warmup are separately reported, but action
 preparation and policy learning are not included in the throughput denominator.
 The observation is therefore not end-to-end time to skill or complete
 interactive latency.
+
+A replacement Release study was preregistered after the warmup-accounting
+change, with its plan and registration retained in
+[release study evidence](evidence/benchmark-release-plan-v2-20261107/).
+It has not run. The earlier unstarted registrations were stopped explicitly
+when their source artifact changed. Native timing is deferred until host
+activity can be characterized, and any residual operating-system activity
+must be recorded with the results.

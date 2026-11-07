@@ -1,0 +1,35 @@
+{
+  "schema": "numi.science.calibration.v1",
+  "status": "passed",
+  "checks": [
+    {
+      "id": "release_cpu_accounting_and_adapter_ctests",
+      "passed": true
+    },
+    {
+      "id": "release_native_checked_warmup_smoke",
+      "passed": true
+    }
+  ],
+  "scope": "Native success-path and fault-injected accounting only; no physical or performance calibration.",
+  "bindings": {
+    "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/benchmark_science_adapter.py": "825f1545a7445961685b7e30565a60a4e641d54b7a04374eaa5689b8c5065d90",
+    "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_bench": "c09db54d1abf4459b4c5ff51336ae9255d61a92867451b97d7860b2fa360801b",
+    "/Users/numi/numi-lab-benchmark-release-build-20261107/lib/libmetalrobo.dylib": "29d3cabb09afc762ebea5ace49f1a09aa704da44846b93f422b545040bd06ca7",
+    "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib": "8f9137278d52ff4a083dbc0c84ad541c25db91e8c50d5e7b3f70962cb23b69fa",
+    "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRoboHyperPolicy.metallib": "8d5676406a80a71ea50828fad47e78083892c1bc996299c59253d2a398cdd6d9",
+    "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/NumiNeuron.metallib": "965289118c76f59072d46535b9fe96a5eb8e56a50596705609cbff84d50617f1",
+    "/Users/numi/numi-lab-benchmark-release-build-20261107/matter/shaders/NumiMatter.metallib": "6f3182e1d78071c20afc1da7efb54927da4c3f724a758e552e5293fe8ea52f99",
+    "/Users/numi/numi-lab-benchmark-accounting-20261107/apps/benchmark.cpp": "8f991018465c5ce9f119c79569b62f27647b4063a53e0e718af554dabb3da939",
+    "/Users/numi/numi-lab-benchmark-accounting-20261107/tests/benchmark_science_adapter_test.py": "583670744a6af30b46852a37b8eab4c7970e523b3d091b74bee99f38a0939841",
+    "/Users/numi/numi-lab-benchmark-accounting-20261107/tests/benchmark_accounting_test.py": "6c9c41e932faa13837a384e79c05ea3e74f642f31270c42ae04e0f4230ab12ee"
+  },
+  "evidence": {
+    "/Users/numi/numi-lab-benchmark-accounting-20261107/docs/evidence/benchmark-accounting-20261107/warmup-smoke/batch.log": "89f57c2289b7e0422ff0affc5b84c18de7ffa3e703deb8c7990582538b0ea8f5"
+  },
+  "observed_units": [
+    {
+      "seed": 7
+    }
+  ]
+}
