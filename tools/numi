@@ -191,6 +191,16 @@ numi_doctor() {
         numi_doctor_status=1
     fi
 
+    if numi_find_command window >/dev/null 2>&1; then
+        if [ -e "$NUMI_WORKSPACE_ROOT/build/unitree_ros/robots/g1_description/g1_29dof.urdf" ] &&
+           [ -e "$NUMI_WORKSPACE_ROOT/build/franka_description/meshes/robots/fer/collision" ] &&
+           [ -e "$NUMI_WORKSPACE_ROOT/.numi/runs/px4-x500-source/source/models/x500_base/meshes" ]; then
+            printf '%-25s available\n' "Window source assets:"
+        else
+            printf '%-25s missing (use an authored scene or catalog)\n' "Window source assets:"
+        fi
+    fi
+
     numi_python=$(numi_find_mlx_python || true)
     if [ "$numi_python" != "" ]; then
         printf 'MLX learner:  ok (%s)\n' "$numi_python"

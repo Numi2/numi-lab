@@ -1,0 +1,9 @@
+Test project /Users/numi/numi-lab-release-clean-build-20261107
+    Start 4: metalrobo_numi_window_metadata
+1/2 Test #4: metalrobo_numi_window_metadata ....   Passed    0.03 sec
+    Start 5: metalrobo_numi_window_bootstrap
+2/2 Test #5: metalrobo_numi_window_bootstrap ...   Passed    0.33 sec
+
+100% tests passed out of 2
+
+Total Test time (real) =   0.36 sec

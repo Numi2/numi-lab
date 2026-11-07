@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Opt-in GPU probe: real window training mailbox and cancellation lifecycle."""
 import argparse
+from datetime import datetime, timezone
 import hashlib
 import json
 import os
@@ -16,22 +17,41 @@ for option in ("workspace", "build", "scene-catalog", "python", "output"):
     parser.add_argument("--" + option, type=Path, required=True)
 parser.add_argument("--manual-panel", action="store_true",
                     help="require a real setup-panel action and manual window close")
+parser.add_argument("--installed-prefix", type=Path,
+                    help="run the relocated installed command instead of the source wrapper")
+parser.add_argument("--runtime-workspace", type=Path,
+                    help="external workspace for the installed command")
 args = parser.parse_args()
 root, build, catalog, python, output = (
     args.workspace.resolve(), args.build.resolve(), args.scene_catalog.resolve(),
     Path(os.path.abspath(args.python)), args.output.resolve()
 )
 scene = catalog / "diagnostic.json"
+prefix = args.installed_prefix.resolve() if args.installed_prefix else None
+runtime_workspace = args.runtime_workspace.resolve() if args.runtime_workspace else root
+if prefix and not args.manual_panel:
+    raise RuntimeError("installed mode currently requires a real manual-panel test")
 source_files = [
     root / "apps/task_rollout.swift", root / "apps/NumiWindow.swift",
     root / "apps/NumiTraining.swift", root / "numi/commands/train",
     root / ".numi/commands/window", root / "tools/numi",
     root / "python/metalrobo/native.py", root / "python/metalrobo/mlx_policy_learning.py",
     root / "python/metalrobo/mlx_policy_worker.py",
-    build / "bin/metalrobo_task_rollout", build / "bin/metalrobo_task_train",
-    build / "lib/libmetalrobo.dylib", build / "shaders/MetalRobo.metallib",
-    scene, catalog / "diagnostic.mrvpack", catalog / "synthetic.numi-window.json",
+    Path(__file__).resolve(), scene, catalog / "diagnostic.mrvpack",
+    catalog / "synthetic.numi-window.json",
 ]
+if prefix:
+    source_files += [prefix / "bin/numi", prefix / "libexec/numi/window",
+        prefix / "libexec/numi/train", prefix / "bin/metalrobo_task_rollout",
+        prefix / "bin/metalrobo_task_train", prefix / "lib/libmetalrobo.dylib",
+        prefix / "lib/metalrobo/MetalRobo.metallib", prefix / "share/numi/REVISION",
+        prefix / "share/numi/python/metalrobo/mlx_policy_worker.py",
+        prefix / "share/numi/python/metalrobo/native.py",
+        prefix / "share/numi/python/metalrobo/mlx_policy_learning.py",
+        prefix / "share/numi/python/metalrobo/policy_selection.py"]
+else:
+    source_files += [build / "bin/metalrobo_task_rollout", build / "bin/metalrobo_task_train",
+        build / "lib/libmetalrobo.dylib", build / "shaders/MetalRobo.metallib"]
 
 def fingerprints():
     return {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in source_files}
@@ -49,6 +69,8 @@ revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=
 status = subprocess.check_output(["git", "status", "--short"], cwd=root, text=True).strip()
 if status:
     raise RuntimeError("probe requires a clean tracked source tree: " + status)
+if prefix and (prefix / "share/numi/REVISION").read_text().strip() != revision:
+    raise RuntimeError("installed package revision does not match clean source revision")
 before = fingerprints()
 output.mkdir(parents=True, exist_ok=False)
 trigger = output / "close.trigger"
@@ -58,19 +80,24 @@ for name in ("NUMI_WINDOW_RUNTIME_CHECK", "NUMI_WINDOW_RUNTIME_TRAIN_CANCEL_CHEC
              "NUMI_WINDOW_RUNTIME_CANCEL_TRIGGER"):
     environment.pop(name, None)
 environment.update({
-    "NUMI_LAB_ROOT": str(root),
-    "NUMI_WORKSPACE_ROOT": str(root),
-    "NUMI_WINDOW_BUILD_DIR": str(build),
+    "NUMI_LAB_ROOT": str(prefix or root),
+    "NUMI_WORKSPACE_ROOT": str(runtime_workspace),
     "NUMI_MLX_PYTHON": str(python),
     "NUMI_WINDOW_SCENE_CATALOG": str(catalog),
     "NUMI_WINDOW_POLICY_CATALOG": str(output / "empty-policies"),
 })
+if prefix:
+    environment.pop("NUMI_WINDOW_BUILD_DIR", None)
+    environment.pop("NUMI_BUILD_DIR", None)
+else:
+    environment["NUMI_WINDOW_BUILD_DIR"] = str(build)
 if not args.manual_panel:
     environment.update({
         "NUMI_WINDOW_RUNTIME_TRAIN_CANCEL_CHECK": "1",
         "NUMI_WINDOW_RUNTIME_CANCEL_TRIGGER": str(trigger),
     })
-command = ["sh", str(root / ".numi/commands/window")]
+command = ([str(prefix / "bin/numi"), "window"] if prefix else
+           ["sh", str(root / ".numi/commands/window")])
 if not args.manual_panel:
     command.append("--check")
 command += [
@@ -81,13 +108,15 @@ command += [
 ]
 record = {
     "revision": revision, "source_status_before": status,
+    "started_utc": datetime.now(timezone.utc).isoformat(),
     "sha256_before": before, "command": command,
     "boundary": ("synthetic presentation; manual setup panel" if args.manual_panel
                  else "synthetic presentation; test-injected mailbox request") +
                 "; no saved-state or trained-control claim",
-    "manual_panel": args.manual_panel, "observed_descendants": {}, "triggered": False,
+    "manual_panel": args.manual_panel, "installed_prefix": str(prefix) if prefix else None,
+    "runtime_workspace": str(runtime_workspace), "observed_descendants": {}, "triggered": False,
 }
-runs_root = root / ".numi/runs"
+runs_root = runtime_workspace / ".numi/runs"
 known_runs = set(runs_root.glob("window-train-*")) if runs_root.exists() else set()
 if args.manual_panel:
     print("In the unlocked window: press T, choose Customize, set environments=1, "
@@ -98,7 +127,7 @@ training_pid = None
 run_directory = None
 seen = {}
 with log.open("w") as stream:
-    child = subprocess.Popen(command, cwd=root, env=environment, stdout=stream,
+    child = subprocess.Popen(command, cwd=runtime_workspace, env=environment, stdout=stream,
                              stderr=subprocess.STDOUT, start_new_session=True)
     deadline = time.monotonic() + (180 if args.manual_panel else 75)
     try:
@@ -116,7 +145,8 @@ with log.open("w") as stream:
                             descendants.add(pid)
                             changed = True
                 train_commands = [pid for pid in descendants if pid in table and
-                                  "/numi/commands/train" in table[pid][1]]
+                                  ("/numi/commands/train" in table[pid][1] or
+                                   "/libexec/numi/train" in table[pid][1])]
                 new_runs = set(runs_root.glob("window-train-*")) - known_runs
                 if len(train_commands) != 1 or len(new_runs) != 1:
                     continue
@@ -171,6 +201,7 @@ with log.open("w") as stream:
                 os.killpg(child.pid, signal.SIGKILL)
                 child.wait()
 
+record["ended_utc"] = datetime.now(timezone.utc).isoformat()
 record["process_exit"] = child.returncode
 record["training_pid"] = training_pid
 record["run_directory"] = str(run_directory) if run_directory else None

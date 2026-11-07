@@ -1,0 +1,115 @@
+[
+  {
+    "kind": "structure",
+    "name": "Molecular Structure Viewer",
+    "plugin": "structure-viewer",
+    "skill": "structure-viewer",
+    "tool": "structure.open_from_chat",
+    "extensions": [
+      "pdb",
+      "cif",
+      "mmcif",
+      "mol",
+      "sdf",
+      "mol2",
+      "pqr",
+      "pdbqt",
+      "gro",
+      "xyz",
+      "pdb.gz",
+      "cif.gz",
+      "mmcif.gz",
+      "pdb.bgz",
+      "cif.bgz",
+      "mmcif.bgz"
+    ],
+    "owners": [
+      "NumiVivo",
+      "NumiTissue",
+      "Numi Human",
+      "Numi Automata"
+    ],
+    "scope": "Structures, ligands, density and topology-bound trajectories",
+    "identity": "Object, model, author chain/residue, insertion code, atom and coordinate frame",
+    "pluginID": "structure-viewer@openai-curated-remote"
+  },
+  {
+    "kind": "sequence",
+    "name": "Biological Sequence & Alignment Viewer",
+    "plugin": "sequence-viewer",
+    "skill": "biological-sequence-viewer",
+    "tool": "sequence.open_from_chat",
+    "extensions": [
+      "fasta",
+      "fa",
+      "fas",
+      "fna",
+      "faa",
+      "ffn",
+      "frn",
+      "mfa",
+      "aln-fasta",
+      "afa",
+      "afasta",
+      "gb",
+      "gbk",
+      "genbank",
+      "gbff",
+      "embl",
+      "emb",
+      "fastq",
+      "fq",
+      "ab1",
+      "abi",
+      "scf",
+      "dna",
+      "aln",
+      "clustal",
+      "clw",
+      "sto",
+      "stk",
+      "stockholm",
+      "a2m",
+      "a3m",
+      "msf",
+      "phy",
+      "phylip",
+      "nex",
+      "nexus"
+    ],
+    "owners": [
+      "NumiVivo",
+      "NumiTissue",
+      "NumiBrain",
+      "Numi Automata"
+    ],
+    "scope": "Sequences, alignments, annotations, traces and regional read evidence",
+    "identity": "Record/accession version, strand and 1-based inclusive source coordinates; alignment columns are separate",
+    "pluginID": "sequence-viewer@openai-curated-remote"
+  },
+  {
+    "kind": "slide",
+    "name": "Slide Viewer",
+    "plugin": "slide-viewer",
+    "skill": "slide-viewer",
+    "tool": "slide.open_from_chat",
+    "extensions": [
+      "svs",
+      "tif",
+      "tiff",
+      "h5ad",
+      "dcm",
+      "dicom"
+    ],
+    "owners": [
+      "NumiVivo",
+      "NumiTissue",
+      "NumiBrain",
+      "Numi Human"
+    ],
+    "scope": "Microscopy, tissue slides and AnnData; spatial views require actual coordinates",
+    "identity": "Source, matrix, physical gene column, observation IDs, specimen, scene/plane and calibrated frame",
+    "pluginID": "slide-viewer@openai-curated-remote"
+  }
+]
+exit_code=0

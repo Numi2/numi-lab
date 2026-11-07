@@ -1,0 +1,15 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.6s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/numi/numi-lab-release-clean-build-20261107
+[0/4] Re-checking globbed directories...
+[1/11] Building CXX object CMakeFiles/metalrobo_booster_k1_compile.dir/apps/booster_k1_compile.cpp.o
+[2/11] Building Swift Module 'metalrobo_numi_window_check' with 4 sources
+[3/11] Linking CXX executable bin/metalrobo_booster_k1_compile
+[4/11] Linking Swift executable bin/metalrobo_numi_window_check
+[5/11] Building Swift Module 'metalrobo_task_rollout' with 4 sources
+[6/11] Linking Swift executable bin/metalrobo_task_rollout
+[7/11] Building Swift Module 'metalrobo_task_train' with 4 sources
+[8/11] Linking Swift executable bin/metalrobo_task_train

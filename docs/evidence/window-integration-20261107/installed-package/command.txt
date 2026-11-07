@@ -1,0 +1,17 @@
+/Users/numi/numi-lab-release-relocated-20261108/bin/numi
+window
+--check
+--window-scene
+/Users/numi/numi-lab-release-package-workspace-20261108/.numi/runs/synthetic/diagnostic.json
+--robot-source
+unitree-g1
+--scene
+ground
+--task
+velocity
+--steps
+16
+--envs
+1
+--chunk
+1

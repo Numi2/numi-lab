@@ -13,8 +13,18 @@ func numiWindowTrainingEnvironment(
     let root = inherited["NUMI_LAB_ROOT"] ?? workspace.path
     let tools = URL(fileURLWithPath: root, isDirectory: true)
         .appendingPathComponent("tools", isDirectory: true)
+    let installedBin = URL(fileURLWithPath: root, isDirectory: true)
+        .appendingPathComponent("bin", isDirectory: true)
+    let dispatcherDirectory: URL?
     if FileManager.default.isExecutableFile(atPath: tools.appendingPathComponent("numi").path) {
-        environment["PATH"] = tools.path + ":" + (inherited["PATH"] ?? "/usr/bin:/bin")
+        dispatcherDirectory = tools
+    } else if FileManager.default.isExecutableFile(atPath: installedBin.appendingPathComponent("numi").path) {
+        dispatcherDirectory = installedBin
+    } else {
+        dispatcherDirectory = nil
+    }
+    if let dispatcherDirectory {
+        environment["PATH"] = dispatcherDirectory.path + ":" + (inherited["PATH"] ?? "/usr/bin:/bin")
     }
     return environment
 }
