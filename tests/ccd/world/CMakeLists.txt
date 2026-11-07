@@ -65,3 +65,8 @@ add_executable(metalrobo_ccd_resident_rollback_probe "${NUMI_WORLD_ROOT}/apps/cc
 target_link_libraries(metalrobo_ccd_resident_rollback_probe PRIVATE numi_ccd_world_owner)
 target_link_options(metalrobo_ccd_resident_rollback_probe PRIVATE -Wl,-dead_strip)
 add_dependencies(metalrobo_ccd_resident_rollback_probe metalrobo_shaders)
+
+add_executable(metalrobo_ccd_geometry_probe "${NUMI_WORLD_ROOT}/apps/ccd_geometry_probe.cpp")
+target_link_libraries(metalrobo_ccd_geometry_probe PRIVATE numi_ccd_world_owner)
+target_link_options(metalrobo_ccd_geometry_probe PRIVATE -Wl,-dead_strip)
+add_dependencies(metalrobo_ccd_geometry_probe metalrobo_shaders)

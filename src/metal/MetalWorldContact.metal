@@ -3710,13 +3710,16 @@ kernel void mr_world_prepare_contact_step(
         MRBodyStateGPU value = applyReset
             ? resetSceneBodies[sceneBase + localScene]
             : sceneState[sceneBase + localScene];
+        // Reset is an explicit pre-step state transition. A kinematic
+        // target is an input to this step and must not enter its rollback
+        // checkpoint until the step has actually been accepted.
+        checkpointSceneState[sceneBase + localScene] = value;
         if (hasTargets &&
             bodyProperties[globalBody].motionType ==
                 MR_MOTION_KINEMATIC) {
             value = kinematicTargets[targetBase + localScene];
         }
         sceneState[sceneBase + localScene] = value;
-        checkpointSceneState[sceneBase + localScene] = value;
     }
 
     const uint manifoldBase =
@@ -8476,7 +8479,8 @@ inline void mrWorldWave32SolvePacket(
             }
         }
         float inverse[3][3];
-        if (!invert3x3(effective, inverse)) {
+        float regularizedNormal = 0.0f;
+        if (!invert3x3(effective, inverse, &regularizedNormal)) {
             localFailure = MR_STEP_FACTORIZATION_FAILED;
             localFailureConstraint = min(
                 localFailureConstraint,
@@ -8500,6 +8504,7 @@ inline void mrWorldWave32SolvePacket(
             inverse[2][1],
             inverse[2][2]
         );
+        preconditioner.row0.w = regularizedNormal;
         preconditioners[
             constraintBase + localConstraint
         ] = preconditioner;
@@ -9009,17 +9014,20 @@ inline void mrWorldWave32SolvePacket(
                 preconditioners[
                     constraintBase + localConstraint
                 ];
-            float3 proposed = previous + float3(
-                dot(preconditioner.row0.xyz, rhs),
-                dot(preconditioner.row1.xyz, rhs),
-                dot(preconditioner.row2.xyz, rhs)
-            );
-            proposed = projectFrictionCone(
-                proposed,
-                evaluatedCones[
-                    constraintBase + localConstraint
-                ]
-            );
+            // Research-only non-rod variant. Rods retain their prior path.
+            float3 proposed;
+            if (!typedRodConstraint(contact)) {
+                proposed = normalFirstContactCandidate(
+                    previous, rhs, preconditioner, preconditioner.row0.w,
+                    evaluatedCones[constraintBase + localConstraint]);
+            } else {
+                proposed = previous + float3(
+                    dot(preconditioner.row0.xyz, rhs),
+                    dot(preconditioner.row1.xyz, rhs),
+                    dot(preconditioner.row2.xyz, rhs));
+                proposed = projectFrictionCone(
+                    proposed, evaluatedCones[constraintBase + localConstraint]);
+            }
             if (localFailure != MR_STEP_SUCCESS) {
                 impulseDeltas[
                     constraintBase + localConstraint
