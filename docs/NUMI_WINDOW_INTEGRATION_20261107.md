@@ -244,3 +244,8 @@ unchanged, then compares the challenged resident's next continuation with an
 independent unchallenged resident. It checks the pending-inspection gate too.
 This is a fail-closed continuation test; it does not create or restore a
 snapshot. Native execution of the expanded probe is pending.
+
+An additional pre-fix diagnostic uses a synthetic device-physics owner with
+external host state. It asks for a resident digest before and after changing
+only that external state. The observed result is not yet retained. This is an
+ownership-completeness probe, not a Matter simulation or physical test.

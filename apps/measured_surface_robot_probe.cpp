@@ -1585,6 +1585,76 @@ bool proveStatefulSingleFlight(
 }
 
 
+// A mock device-physics owner deliberately keeps authoritative state outside
+// MetalWorld. Equal digests after changing that state would be a partial
+// fingerprint, even though no real Matter material is exercised here.
+bool proveExternalPhysicsDigestFailsClosed(const metalrobo::CompiledRun& run) {
+    using namespace metalrobo;
+    const std::size_t environments = run.profile().environmentCount;
+    const std::size_t steps = run.profile().controlSteps;
+    const std::size_t nq = run.world().nq();
+    const std::size_t nv = run.world().nv();
+    std::vector<float> q(environments * nq), v(environments * nv, 0.0f);
+    std::vector<float> actions(environments * steps * run.task().layout().actionCount, 0.0f);
+    std::vector<std::uint32_t> masks(environments * steps, 0u);
+    for (std::size_t e = 0; e < environments; ++e)
+        std::copy(run.model().defaultQ.begin(), run.model().defaultQ.end(), q.begin()+e*nq);
+    const MetalWorldBatch initial{
+        .environmentCount = environments, .controlStepCount = steps,
+        .initialQ = q, .initialV = v, .actions = actions, .resetMasks = masks,
+        .initialSceneBodies = run.defaultSceneBodies(),
+    };
+    struct MockPhysics { std::uint64_t state = 11u; } external;
+    const MetalWorldDevicePhysicsProgram physics{
+        .context = &external,
+        .encode = [](void*, const MetalWorldDevicePhysicsPass&) { return true; },
+        .abort = [](void*, void*) {},
+        .fingerprint = 0x6670732d6d6f636bull,
+    };
+    const MetalWorldStepConfig config{
+        .timestepSeconds = run.profile().controlTimestepSeconds,
+        .physicsSubsteps = run.profile().physicsSubsteps,
+        .solverMode = MetalWorldSolverMode::temporalCone,
+        .actuationMode = MetalWorldActuationMode::implicitPositionDrive,
+        .taskProgram = run.task(), .devicePhysicsProgram = physics,
+        .taskSeed = run.profile().seed,
+        .velocityIterations = run.profile().velocityIterations,
+        .finalVelocityIterations = run.profile().finalVelocityIterations,
+        .ccdMode = MetalWorldCCDMode::disabled, .applyBodyDamping = false,
+        .deterministic = true, .warmStart = false,
+    };
+    MetalWorldContext context;
+    MetalWorldResidentState resident;
+    MetalWorldSubmission submitted;
+    auto diagnostic = context.initializeResidentState(
+        run.world(), initial, config, resident, submitted);
+    if (!diagnostic.succeeded() || !submitted.valid()) {
+        std::cerr << "mock physics resident initialization failed: " << diagnostic.message << '\n';
+        return false;
+    }
+    MetalWorldResult result;
+    diagnostic = submitted.wait(result);
+    if (!diagnostic.succeeded() || diagnostic.failedStepCount != 0u) {
+        std::cerr << "mock physics resident submission failed: " << diagnostic.message << '\n';
+        return false;
+    }
+    std::uint64_t before = 999u;
+    const auto first = context.residentStateFingerprint(resident, before);
+    external.state = 29u;
+    std::uint64_t after = 999u;
+    const auto second = context.residentStateFingerprint(resident, after);
+    std::cout << "external physics digest: first_status="
+              << metalWorldHostStatusName(first.status) << " first=" << before
+              << " second_status=" << metalWorldHostStatusName(second.status)
+              << " second=" << after << " owner_state=11->29\n";
+    if (first.succeeded() || second.succeeded()) {
+        std::cerr << "FAIL: external physics owner state is not included in the resident digest\n";
+        return false;
+    }
+    return first.status == MetalWorldHostStatus::invalidModel &&
+        second.status == MetalWorldHostStatus::invalidModel && before == 0u && after == 0u;
+}
+
 bool proveResidentMechanicsOwnership(const metalrobo::CompiledRun& run) {
     using namespace metalrobo;
     const std::size_t environments = run.profile().environmentCount;
@@ -1728,6 +1798,11 @@ bool proveResidentMechanicsOwnership(const metalrobo::CompiledRun& run) {
 int main(int argc, char** argv) {
     try {
         using namespace metalrobo;
+        if (argc == 3 && std::string_view(argv[1]) == "--physics-digest") {
+            auto wings = loadNumiflyMaedaWingPack(argv[2]);
+            const auto run = compileNumiflyFlightRun(std::move(wings), 1u, 2u);
+            return proveExternalPhysicsDigestFailsClosed(run) ? 0 : 1;
+        }
         if (argc == 3 && std::string_view(argv[1]) == "--ownership") {
             auto wings = loadNumiflyMaedaWingPack(argv[2]);
             const auto run = compileNumiflyFlightRun(std::move(wings), 1u, 2u);
