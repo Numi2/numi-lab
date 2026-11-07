@@ -1,0 +1,1166 @@
+{
+  "manifests": [
+    "artifacts/crow-rl-git-recovery-20261107/manifest.json",
+    "artifacts/crow-rl-sequence-ppo-20261107/manifest.json",
+    "artifacts/crow-rl-recurrent-capacity-20261107/manifest.json",
+    "artifacts/crow-rl-spatial-resources-20261107/manifest.json",
+    "artifacts/crow-rl-resource-kernel-20261107/manifest.json",
+    "artifacts/crow-rl-cued-foraging-20261107/manifest.json"
+  ],
+  "native": {
+    "bin/metalrobo_crow_cue_foraging_check": {
+      "archive_source": ".numi/retained-runtime/cue-foraging-02/bin/metalrobo_crow_cue_foraging_check",
+      "sha256": "af4b0f61e4662f455fb7c124834b17cc2c8b01db8657e21ea7ff89d434086dc9",
+      "bytes": 238864,
+      "previously_archived": false
+    },
+    "bin/metalrobo_crow_foraging_check": {
+      "archive_source": ".numi/retained-runtime/cue-foraging-02/bin/metalrobo_crow_foraging_check",
+      "sha256": "d85d8b7287a9a8a648eaf4d904e326e9d398ba585803b1c3d20bdc2ea300604c",
+      "bytes": 171184,
+      "previously_archived": false
+    },
+    "bin/metalrobo_crow_recurrent_actor_check": {
+      "archive_source": ".numi/retained-runtime/cue-foraging-02/bin/metalrobo_crow_recurrent_actor_check",
+      "sha256": "adb2462a953d3fc362ebb3aad4e665a13db103af5f83afa2ab9b7a7c1b9e42fe",
+      "bytes": 164424,
+      "previously_archived": false
+    },
+    "bin/metalrobo_crow_retinal_live_check": {
+      "archive_source": ".numi/retained-runtime/cue-foraging-02/bin/metalrobo_crow_retinal_live_check",
+      "sha256": "3047a09f1279922cabebdc8f575360701ef9df0edf6a293bfb716f3cd01d0d67",
+      "bytes": 165664,
+      "previously_archived": false
+    },
+    "bin/metalrobo_task_rollout": {
+      "archive_source": ".numi/retained-runtime/resource-kernel-current03/bin/metalrobo_task_rollout",
+      "sha256": "bc1778a0fa719154fc5e1af014f7e39a02ef5c0ba830eb65d0f38c32c5bf6968",
+      "bytes": 998888,
+      "previously_archived": false
+    },
+    "bin/metalrobo_task_train": {
+      "archive_source": ".numi/retained-runtime/resource-kernel-current03/bin/metalrobo_task_train",
+      "sha256": "9720b62ba67557234edd12fa2bbd56f73d5c27e525ab9efd3077307d4a69e357",
+      "bytes": 966568,
+      "previously_archived": false
+    },
+    "lib/libmetalrobo.dylib": {
+      "archive_source": ".numi/retained-runtime/cue-foraging-02/lib/libmetalrobo.dylib",
+      "sha256": "d0d1565c225dd3a63d2c162eed8a1df8eb49e57fcdca4c9c076669c8ba7b5c30",
+      "bytes": 5602400,
+      "previously_archived": false
+    },
+    "shaders/GRUMemory.metallib": {
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe",
+      "bytes": 19391,
+      "archive_source": ".numi/retained-runtime/recurrent-rollout-admission-01/shaders/GRUMemory.metallib",
+      "previously_archived": true
+    },
+    "shaders/MetalRobo.metallib": {
+      "archive_source": ".numi/retained-runtime/cue-foraging-02/shaders/MetalRobo.metallib",
+      "sha256": "dbbba58678529e0591cec42be1d4644840127bddfa0ff501cc05380ad0d716ec",
+      "bytes": 4187346,
+      "previously_archived": false
+    },
+    "shaders/RetinalStream.metallib": {
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12",
+      "bytes": 16151,
+      "archive_source": ".numi/retained-runtime/recurrent-rollout-admission-01/shaders/RetinalStream.metallib",
+      "previously_archived": true
+    }
+  },
+  "python_sources": {
+    "python/metalrobo/__init__.py": {
+      "git_blob": "ccf89e7d18cb84ff6fbbb6bf738a42a2b56b9bd8",
+      "sha256": "8907413cf15904beec23959cf30b949c235531e54f275b9acac90f3096038202",
+      "bytes": 4075,
+      "mode": 420
+    },
+    "python/metalrobo/__main__.py": {
+      "git_blob": "eb53e2f31b2f703ad32ef64b8a41faa3e7d18e08",
+      "sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+      "bytes": 48,
+      "mode": 420
+    },
+    "python/metalrobo/ardy_g1.py": {
+      "git_blob": "0b7bbdeada56a99ab5904f49295df71bf54747dc",
+      "sha256": "fe9ee45d3c7efac4827599d5ec7257c3f68b10da83f964624058d2f0e6df8dc0",
+      "bytes": 15389,
+      "mode": 420
+    },
+    "python/metalrobo/ardy_interaction_convert.py": {
+      "git_blob": "498a8d4c8aad1bb54a723d9d7fbcdca105d47f29",
+      "sha256": "ed5b97c6fcd5b3c30bb485187e3f6c2ab94b584cdd97d519f0cb1ac7382e3e55",
+      "bytes": 28154,
+      "mode": 420
+    },
+    "python/metalrobo/ardy_onnx.py": {
+      "git_blob": "2d1e3d779bd4ebd236b7ebc38ab0640408501044",
+      "sha256": "840953a7e43e4008304007ea2b9d0c9b77000c64cdb73e4b65a5a10c98f90226",
+      "bytes": 48916,
+      "mode": 420
+    },
+    "python/metalrobo/ardy_text_encoder.py": {
+      "git_blob": "c1b5a50eda42dc387a9342ad0e7dda1c7edace40",
+      "sha256": "00ce0e692b9f4e35104d1a684515dfbc51b320b308ce43a6dc1b93f501c784b7",
+      "bytes": 6919,
+      "mode": 420
+    },
+    "python/metalrobo/cli.py": {
+      "git_blob": "1f28e50f301399838dea9891dfcf23b6684737f0",
+      "sha256": "3348476d8deff8c2712f0afb9892b0f031f5c288eb7724ebd6e6b779e108a14e",
+      "bytes": 6607,
+      "mode": 420
+    },
+    "python/metalrobo/crow_environment.py": {
+      "git_blob": "4270e3baa6d699452ecd8baca4814d985969c885",
+      "sha256": "e1005f431077fc0a648252f9b8cf16947ad913a34c85362bb93f96c9aeb7cefb",
+      "bytes": 114211,
+      "mode": 420
+    },
+    "python/metalrobo/crow_world_model.py": {
+      "git_blob": "195532dfea67e6a6ac39d6a66074982448e1e172",
+      "sha256": "76e0234af3ee680efbc96eedd4385ccf94f19857ffd6dd19cfc8a7b235a836ad",
+      "bytes": 54327,
+      "mode": 420
+    },
+    "python/metalrobo/episode.py": {
+      "git_blob": "f56374a243cc1c3d7ec663f859b3197d42f98768",
+      "sha256": "3444a7efd0d2158fcbd74ff49a6e20de0ceb87af6d89a95599447cc0fc2a9fec",
+      "bytes": 1638,
+      "mode": 420
+    },
+    "python/metalrobo/foundation_policy.py": {
+      "git_blob": "462a2e8ac82c2e16b409e07708ca962fdf11b541",
+      "sha256": "2d04dad03bed9cf06a9a53a78423410f1aa4d91387fe8d76d762a6a72816170a",
+      "bytes": 69056,
+      "mode": 420
+    },
+    "python/metalrobo/g1_legs_policy.py": {
+      "git_blob": "0af946fe00f6aa245534c1a594469f7545b6b649",
+      "sha256": "ed7085a8634435de00adfff323cfd200085d3829ce24b3119de7e48a6d1c54ef",
+      "bytes": 3152,
+      "mode": 420
+    },
+    "python/metalrobo/g1_motion_retarget.py": {
+      "git_blob": "b9232c5564ac4d65611876ee9e1219dd92b1efa5",
+      "sha256": "0452e4db4e0e2fb0e54210321f8a1c6ae0dc45b7533b39a319f02891cd9af93f",
+      "bytes": 29666,
+      "mode": 420
+    },
+    "python/metalrobo/g1_policy.py": {
+      "git_blob": "4381d032f4773701e84d720dd89f6e2dfdd8fb00",
+      "sha256": "dc7dc761d05cabe1ae5709b0a35564d07a50dae6418225143d5be9a6f82637c3",
+      "bytes": 39733,
+      "mode": 420
+    },
+    "python/metalrobo/gru_memory.py": {
+      "git_blob": "6c8d681815ccd3e07090f47cfdcea54392901b8c",
+      "sha256": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710",
+      "bytes": 3184,
+      "mode": 420
+    },
+    "python/metalrobo/gru_memory_admission.py": {
+      "git_blob": "a0a8adb551bf2edd003db243731ac9568ce2c491",
+      "sha256": "9335d92d667903782a5f01595d4f194a214930fa33913be2131e99809ffbd994",
+      "bytes": 12592,
+      "mode": 420
+    },
+    "python/metalrobo/hybrid_renderer.py": {
+      "git_blob": "293112cee364d446b163befe309b82fee4cfec05",
+      "sha256": "1a9911d36c70d786558cae59030d521d72510a7656c8b64e48de68781750113e",
+      "bytes": 22666,
+      "mode": 420
+    },
+    "python/metalrobo/lerobot_dataset.py": {
+      "git_blob": "3d86d65e5361937346ec6434b9fdcb6e21206022",
+      "sha256": "71d01825993401d5ab83f25c4e3f52aa77295a3d92e3b192395ada7e13cb8973",
+      "bytes": 59342,
+      "mode": 420
+    },
+    "python/metalrobo/mlx_policy_learning.py": {
+      "git_blob": "cb55374133415208abda5a944ba959c974eb48e8",
+      "sha256": "ad3e769daa122e1fdf3925966100df9c7036a6a46e6db1f17816cf29a64752ee",
+      "bytes": 147043,
+      "mode": 420
+    },
+    "python/metalrobo/mlx_policy_worker.py": {
+      "git_blob": "0824c4944d213008013dadf48c6d3bdfd40aeff8",
+      "sha256": "98235337c380acddc3867478edca0d8e28574fbf4c6f40dc4b53e33f46656c4e",
+      "bytes": 71625,
+      "mode": 420
+    },
+    "python/metalrobo/mlx_r2s2r.py": {
+      "git_blob": "1e89f19b338118c7a0e15f5f6403f9f77d0a74f2",
+      "sha256": "bfda444fd276c3663f827c3df677569acfdfa58a0101c9393267cb6d26409781",
+      "bytes": 29364,
+      "mode": 420
+    },
+    "python/metalrobo/mlx_recurrent_policy_learning.py": {
+      "git_blob": "445055d605eee45d3664b35c5c73c48bb153e362",
+      "sha256": "f6718c60ac7d68d74ceeb6300420aedb4097f26386a005609d11a756946f506b",
+      "bytes": 26187,
+      "mode": 420
+    },
+    "python/metalrobo/mlx_tactile_policy.py": {
+      "git_blob": "4fb436964ab57a653f770f03f605c34db13f3407",
+      "sha256": "562c99c52a830443c4376e69f6c651a6c5d8404e24d02290bc85a6db39fbd87d",
+      "bytes": 45904,
+      "mode": 420
+    },
+    "python/metalrobo/motion_pack_convert.py": {
+      "git_blob": "cfca91aa94997b9b2528409cc81fd610687323eb",
+      "sha256": "7d57f7c1c044de671195c853e01d48bd22099364c731e486f373bc2eabecae88",
+      "bytes": 6295,
+      "mode": 420
+    },
+    "python/metalrobo/native.py": {
+      "git_blob": "460fa799011b4846c8d4612e72da0ea67b5dd447",
+      "sha256": "a1960b567d62ba21339af4ecbb853f7f8c35465432fc32bdfc33c2f84a10ef1b",
+      "bytes": 31988,
+      "mode": 420
+    },
+    "python/metalrobo/policy_selection.py": {
+      "git_blob": "8eaaa32c7d9a72bc87e044528c572611421412f3",
+      "sha256": "556711783591e661873383f31d5038c4090b40c024d7ad9d5cbf49be042e0a8c",
+      "bytes": 65898,
+      "mode": 420
+    },
+    "python/metalrobo/r2s2r.py": {
+      "git_blob": "2e172eefae110c54cc4a1fc81d057197b3bd8399",
+      "sha256": "097607e386845deac162f53c500a3b606e63d363a70e3218dac3aa9ed50b2b65",
+      "bytes": 73305,
+      "mode": 420
+    },
+    "python/metalrobo/recurrent_policy_admission.py": {
+      "git_blob": "0d4aa47c5e8e1e5f78e4f3c7da4933a9d653b77a",
+      "sha256": "df26d935f7d7105168d272740377e4755e35863eb03b18b84c382d7370d9318b",
+      "bytes": 10329,
+      "mode": 420
+    },
+    "python/metalrobo/recurrent_ppo_admission.py": {
+      "git_blob": "07401a1fa08de055de51294247caccc2d45e659c",
+      "sha256": "df7fe221b2984a29221b0ccaf64502b704fcef80cec9715ebd9b7cb1e4534e90",
+      "bytes": 14869,
+      "mode": 420
+    },
+    "python/metalrobo/recurrent_rollout_admission.py": {
+      "git_blob": "38a1f3f0458d1c4e7f4c78b97c88c7c3e61f14e8",
+      "sha256": "18c9cdf339421a451462282fa6729186edd5ad284edbd727453ca32555b783ed",
+      "bytes": 12848,
+      "mode": 420
+    },
+    "python/metalrobo/solver_catalog.py": {
+      "git_blob": "875c65e006c046c14fedd7cc19282f6a863fc6b9",
+      "sha256": "a47e79b3328fc3e4969eb203ee71c2d31a1fcf639a23823c6e7298bde9252e97",
+      "bytes": 34012,
+      "mode": 420
+    },
+    "python/metalrobo/solver_residual_teacher.py": {
+      "git_blob": "7edde6ae88c6523085c113ef83c5efe0e149c4be",
+      "sha256": "04a892aedb4bd72a533e2e63701342b98e3984f11dc07930536799aa4d5e3d9f",
+      "bytes": 21065,
+      "mode": 420
+    },
+    "python/metalrobo/tactile.py": {
+      "git_blob": "5965ffe52e514666606a07fd6100b9500a584d40",
+      "sha256": "171f65315f854549082f152180c94c011780c50692029caeeb2b7773c8d805a1",
+      "bytes": 29228,
+      "mode": 420
+    },
+    "python/metalrobo/tactile_cli.py": {
+      "git_blob": "1060ca4fc878edcc2928c4c6abab88226138b9dc",
+      "sha256": "e970f22bd57458c4afae50a67b5a45df5f8fa0c707222d683a374ee5558f2fd5",
+      "bytes": 19417,
+      "mode": 420
+    },
+    "python/metalrobo/tactile_latent.py": {
+      "git_blob": "ec4ba676c3981f4852953bd0c8a6f76f1808f1f6",
+      "sha256": "19f74532b8cec002d5c4be813e7d06c95c56f405367f7850e379ff425965b14e",
+      "bytes": 50809,
+      "mode": 420
+    },
+    "python/metalrobo/tactile_stream.py": {
+      "git_blob": "bfc4c431a9645086021f419f85d0dbcd5fb7f687",
+      "sha256": "059de4cb94adf32d20576108e91bef7aae4071efcf9f4985d4040a2833b59030",
+      "bytes": 21675,
+      "mode": 420
+    },
+    "python/metalrobo/tactile_translator.py": {
+      "git_blob": "66f3a51eda6527b5f4bbbd96a6e975af1e2bfd33",
+      "sha256": "1d563d3946afdd4bc8540a015c97fdcd175542cb8fc88178d0164800cf5452c6",
+      "bytes": 16721,
+      "mode": 420
+    },
+    "python/metalrobo/unitree_mjlab_policy.py": {
+      "git_blob": "de0848d8eb7072ac6c2d2904e43968c77f687b86",
+      "sha256": "4d7eeb6f37d54bdb8d37265d63587cde90f8772aa32a6a2dd8738a7a1518de66",
+      "bytes": 6530,
+      "mode": 420
+    },
+    "python/metalrobo/visual.py": {
+      "git_blob": "7221c3fe9f82156415844608f9967067541b9b03",
+      "sha256": "6eafa56c6fd8ea87f694ae0da69e2ae53ae3f7199b7f6f8c084caffad10c326f",
+      "bytes": 97276,
+      "mode": 420
+    },
+    "python/metalrobo/worlds.py": {
+      "git_blob": "73dd8fd2f01c1173630887611e1610fdc217a442",
+      "sha256": "3d3c85a14387b5bf261497d93a068b39fa36f0b28a8b3c230a383db435166343",
+      "bytes": 20672,
+      "mode": 420
+    }
+  },
+  "checkpoint": {
+    "reference/summary.json": ".numi/runs/american-crow/cue-foraging-02/native-evidence/summary.json"
+  },
+  "native_reference": {
+    "calibration/accepted-bodies.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/calibration/accepted-bodies.bin",
+      "sha256": "3552388a752644f30a9711f61536f21a8d22a6ca413761fb565088e439de4012",
+      "bytes": 20480,
+      "comparison": "byte exact"
+    },
+    "calibration/final-q.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/calibration/final-q.f32",
+      "sha256": "6b9ec7a7f008466ecf8df7fe6bbf381d35cf778b0eea0c0e5877c155670e519e",
+      "bytes": 736,
+      "comparison": "byte exact"
+    },
+    "calibration/final-scene.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/calibration/final-scene.bin",
+      "sha256": "ced89e267424454274fdd4b99c28b1e06646a79a971efe71ee7e4f633d7c520f",
+      "bytes": 3072,
+      "comparison": "byte exact"
+    },
+    "calibration/final-v.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/calibration/final-v.f32",
+      "sha256": "f5bc3b5685ce42f912e2c6849438fccbec632facb14d27b3486093d66efe5b96",
+      "bytes": 704,
+      "comparison": "byte exact"
+    },
+    "calibration/plan.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/calibration/plan.json",
+      "sha256": "fa918c4e9971800714eb655d47bcff8acfb3c7092975bd2d869087fdac79294a",
+      "bytes": 574,
+      "comparison": "byte exact"
+    },
+    "calibration/ports.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/calibration/ports.bin",
+      "sha256": "04ec3a373ede60a779c2e5579d2601cd5e00bb4d8dc563cb7ba8d60de6bfad64",
+      "bytes": 32,
+      "comparison": "byte exact"
+    },
+    "calibration/ports.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/calibration/ports.json",
+      "sha256": "5d455fc39788693bd4e88939f52455370705ebecbc6cf3b44d20906e40de4257",
+      "bytes": 295,
+      "comparison": "byte exact"
+    },
+    "left-partition/actor.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-partition/actor.f32",
+      "sha256": "e0acf1da2940e63d643382f543673f5c9ed73a30b846561b2f258baedd490d94",
+      "bytes": 12810240,
+      "comparison": "byte exact"
+    },
+    "left-partition/camera_occluder.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-partition/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3",
+      "bytes": 32768,
+      "comparison": "byte exact"
+    },
+    "left-partition/camera_target.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-partition/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9",
+      "bytes": 36864,
+      "comparison": "byte exact"
+    },
+    "left-partition/controller-revision1.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-partition/controller-revision1.policypack",
+      "sha256": "b666cc3c199f13a8a474be443ba9262ffd47aeb1d8e03ea560d1398cf31c3cb5",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "left-partition/controller-revision2.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-partition/controller-revision2.policypack",
+      "sha256": "639c82d365deaf3aaf976ee14cdb6ba4b19cd9688d83f9239c0b0ad64ef14eac",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "left-partition/controller-revision3.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-partition/controller-revision3.policypack",
+      "sha256": "def672cb709ad07e790c4df64a4f9d68b3d887f9327d14ade47639b9fae3d49a",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "left-partition/controller-revision4.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-partition/controller-revision4.policypack",
+      "sha256": "d536c9024f08a94db95d033676de94ef5b4f295b6dc2c856e99abcb302d42014",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "left-partition/controller-revision5.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-partition/controller-revision5.policypack",
+      "sha256": "12010fe1952a90ce888053c846de44c8c0c3dd7a1b00e6a71fed38f6afebb70c",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "left-partition/controller-revision6.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-partition/controller-revision6.policypack",
+      "sha256": "58b47acd2731cad8f8540ba4d03068574d7d3739c69751b89931dec6a3afd021",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "left-partition/cue-pixels.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-partition/cue-pixels.json",
+      "sha256": "a7060414769c48b1c9bdf9ac47733333ed79a19f66b2b34a61757dd91dd71318",
+      "bytes": 139,
+      "comparison": "byte exact"
+    },
+    "left-partition/final-q.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-partition/final-q.f32",
+      "sha256": "2191a01aac008582fa04cc662aa7a4d0f0a153cbf11a22a4fd7d98031f7c254c",
+      "bytes": 736,
+      "comparison": "byte exact"
+    },
+    "left-partition/final-scene.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-partition/final-scene.bin",
+      "sha256": "ced89e267424454274fdd4b99c28b1e06646a79a971efe71ee7e4f633d7c520f",
+      "bytes": 3072,
+      "comparison": "byte exact"
+    },
+    "left-partition/final-v.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-partition/final-v.f32",
+      "sha256": "e7e49d726ec97b0c58839387778a96076490de1e05ed08bcd2c553877735b5ca",
+      "bytes": 704,
+      "comparison": "byte exact"
+    },
+    "left-partition/food.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-partition/food.bin",
+      "sha256": "2c901fb94eae57f70f86b7bb3dd4b67d207fb9e3d3f0a6150b97325f80c736da",
+      "bytes": 640,
+      "comparison": "byte exact"
+    },
+    "left-partition/locomotion_ground.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-partition/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b",
+      "bytes": 32768,
+      "comparison": "byte exact"
+    },
+    "left-partition/retina.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-partition/retina.bin",
+      "sha256": "24a3f45ef54a4b586b8c2cb720ee082c51a1f20414702ce76b31eda156d5f865",
+      "bytes": 197544,
+      "comparison": "byte exact"
+    },
+    "left-partition/robot.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-partition/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61",
+      "bytes": 57344,
+      "comparison": "byte exact"
+    },
+    "left-partition/transitions.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-partition/transitions.bin",
+      "sha256": "238b07e4bf5b7c86d613ab352fb1ffcaa0859ac4366f27e9543cde37b94b5d6d",
+      "bytes": 368640,
+      "comparison": "byte exact"
+    },
+    "left-partition/visual-scene.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-partition/visual-scene.json",
+      "sha256": "2f55b41bfdec28ae04519fad75ecfb0f432f125aa7ce94aef9a75defc24f75a2",
+      "bytes": 1068,
+      "comparison": "relocated-path JSON semantics"
+    },
+    "left-port/actor.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-port/actor.f32",
+      "sha256": "e0acf1da2940e63d643382f543673f5c9ed73a30b846561b2f258baedd490d94",
+      "bytes": 12810240,
+      "comparison": "byte exact"
+    },
+    "left-port/camera_occluder.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-port/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3",
+      "bytes": 32768,
+      "comparison": "byte exact"
+    },
+    "left-port/camera_target.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-port/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9",
+      "bytes": 36864,
+      "comparison": "byte exact"
+    },
+    "left-port/controller-revision1.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-port/controller-revision1.policypack",
+      "sha256": "b666cc3c199f13a8a474be443ba9262ffd47aeb1d8e03ea560d1398cf31c3cb5",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "left-port/controller-revision2.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-port/controller-revision2.policypack",
+      "sha256": "639c82d365deaf3aaf976ee14cdb6ba4b19cd9688d83f9239c0b0ad64ef14eac",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "left-port/controller-revision3.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-port/controller-revision3.policypack",
+      "sha256": "def672cb709ad07e790c4df64a4f9d68b3d887f9327d14ade47639b9fae3d49a",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "left-port/controller-revision4.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-port/controller-revision4.policypack",
+      "sha256": "d536c9024f08a94db95d033676de94ef5b4f295b6dc2c856e99abcb302d42014",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "left-port/controller-revision5.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-port/controller-revision5.policypack",
+      "sha256": "12010fe1952a90ce888053c846de44c8c0c3dd7a1b00e6a71fed38f6afebb70c",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "left-port/controller-revision6.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-port/controller-revision6.policypack",
+      "sha256": "58b47acd2731cad8f8540ba4d03068574d7d3739c69751b89931dec6a3afd021",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "left-port/cue-pixels.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-port/cue-pixels.json",
+      "sha256": "5e5049e0f00e7bb05f64641957ebe7a4322fa2ea9ec1ce5171b98fc35b656b26",
+      "bytes": 123,
+      "comparison": "byte exact"
+    },
+    "left-port/final-q.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-port/final-q.f32",
+      "sha256": "2191a01aac008582fa04cc662aa7a4d0f0a153cbf11a22a4fd7d98031f7c254c",
+      "bytes": 736,
+      "comparison": "byte exact"
+    },
+    "left-port/final-scene.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-port/final-scene.bin",
+      "sha256": "ced89e267424454274fdd4b99c28b1e06646a79a971efe71ee7e4f633d7c520f",
+      "bytes": 3072,
+      "comparison": "byte exact"
+    },
+    "left-port/final-v.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-port/final-v.f32",
+      "sha256": "e7e49d726ec97b0c58839387778a96076490de1e05ed08bcd2c553877735b5ca",
+      "bytes": 704,
+      "comparison": "byte exact"
+    },
+    "left-port/food.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-port/food.bin",
+      "sha256": "2c901fb94eae57f70f86b7bb3dd4b67d207fb9e3d3f0a6150b97325f80c736da",
+      "bytes": 640,
+      "comparison": "byte exact"
+    },
+    "left-port/locomotion_ground.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-port/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b",
+      "bytes": 32768,
+      "comparison": "byte exact"
+    },
+    "left-port/retina.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-port/retina.bin",
+      "sha256": "24a3f45ef54a4b586b8c2cb720ee082c51a1f20414702ce76b31eda156d5f865",
+      "bytes": 197544,
+      "comparison": "byte exact"
+    },
+    "left-port/robot.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-port/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61",
+      "bytes": 57344,
+      "comparison": "byte exact"
+    },
+    "left-port/transitions.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-port/transitions.bin",
+      "sha256": "238b07e4bf5b7c86d613ab352fb1ffcaa0859ac4366f27e9543cde37b94b5d6d",
+      "bytes": 368640,
+      "comparison": "byte exact"
+    },
+    "left-port/visual-scene.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/left-port/visual-scene.json",
+      "sha256": "e63f12617c47a4f2a584fc67b7e791937b8e773f8dc14aa1f1009a7beee11c2f",
+      "bytes": 1067,
+      "comparison": "relocated-path JSON semantics"
+    },
+    "occluded/actor.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/occluded/actor.f32",
+      "sha256": "81c6e2268f7e828de459f196c675d3798fd576727685f5d7eb72b2197c7d9622",
+      "bytes": 3202560,
+      "comparison": "byte exact"
+    },
+    "occluded/camera_occluder.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/occluded/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3",
+      "bytes": 32768,
+      "comparison": "byte exact"
+    },
+    "occluded/camera_target.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/occluded/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9",
+      "bytes": 36864,
+      "comparison": "byte exact"
+    },
+    "occluded/controller-revision1.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/occluded/controller-revision1.policypack",
+      "sha256": "b666cc3c199f13a8a474be443ba9262ffd47aeb1d8e03ea560d1398cf31c3cb5",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "occluded/cue-pixels.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/occluded/cue-pixels.json",
+      "sha256": "5e5049e0f00e7bb05f64641957ebe7a4322fa2ea9ec1ce5171b98fc35b656b26",
+      "bytes": 123,
+      "comparison": "byte exact"
+    },
+    "occluded/final-q.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/occluded/final-q.f32",
+      "sha256": "315bc12c15dfb06520e9a72672c8ec0f7ea92add0ede13d0579ff27c36e1d198",
+      "bytes": 736,
+      "comparison": "byte exact"
+    },
+    "occluded/final-scene.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/occluded/final-scene.bin",
+      "sha256": "98475773e22f64ba73383fe43b7a37d6a6b7796879b5663d16bd963d020344d3",
+      "bytes": 3072,
+      "comparison": "byte exact"
+    },
+    "occluded/final-v.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/occluded/final-v.f32",
+      "sha256": "7af5592a207e392766ae2567055f9e494d84e89f15c44fdf7925f7e82fe7db5b",
+      "bytes": 704,
+      "comparison": "byte exact"
+    },
+    "occluded/food.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/occluded/food.bin",
+      "sha256": "fd6521e25650550d9361327250a9e654c59e48e5ee7b9fd937e99e17e04c999b",
+      "bytes": 640,
+      "comparison": "byte exact"
+    },
+    "occluded/locomotion_ground.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/occluded/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b",
+      "bytes": 32768,
+      "comparison": "byte exact"
+    },
+    "occluded/retina.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/occluded/retina.bin",
+      "sha256": "cda9b7de0a5fa8289679b8f1fcf5f715b1547d8df645910be0bbd5a3598ef873",
+      "bytes": 197544,
+      "comparison": "byte exact"
+    },
+    "occluded/robot.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/occluded/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61",
+      "bytes": 57344,
+      "comparison": "byte exact"
+    },
+    "occluded/transitions.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/occluded/transitions.bin",
+      "sha256": "6d21f12c95b8f65a31d7db56980bae8769955ab8ba748bd6e72d1443e8884499",
+      "bytes": 92160,
+      "comparison": "byte exact"
+    },
+    "occluded/visual-scene.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/occluded/visual-scene.json",
+      "sha256": "2adfaba5b44abf4e69f4387c7defdbce84ab94d5b23fbdd45eaff1572e05a74a",
+      "bytes": 1066,
+      "comparison": "relocated-path JSON semantics"
+    },
+    "paired-seed/actor.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/paired-seed/actor.f32",
+      "sha256": "9cd705f0528c9d35d634734ce12c187adee0e75f888cc2376d196cc556e2358a",
+      "bytes": 3202560,
+      "comparison": "byte exact"
+    },
+    "paired-seed/camera_occluder.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/paired-seed/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3",
+      "bytes": 32768,
+      "comparison": "byte exact"
+    },
+    "paired-seed/camera_target.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/paired-seed/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9",
+      "bytes": 36864,
+      "comparison": "byte exact"
+    },
+    "paired-seed/controller-revision1.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/paired-seed/controller-revision1.policypack",
+      "sha256": "b666cc3c199f13a8a474be443ba9262ffd47aeb1d8e03ea560d1398cf31c3cb5",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "paired-seed/cue-pixels.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/paired-seed/cue-pixels.json",
+      "sha256": "a7060414769c48b1c9bdf9ac47733333ed79a19f66b2b34a61757dd91dd71318",
+      "bytes": 139,
+      "comparison": "byte exact"
+    },
+    "paired-seed/final-q.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/paired-seed/final-q.f32",
+      "sha256": "315bc12c15dfb06520e9a72672c8ec0f7ea92add0ede13d0579ff27c36e1d198",
+      "bytes": 736,
+      "comparison": "byte exact"
+    },
+    "paired-seed/final-scene.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/paired-seed/final-scene.bin",
+      "sha256": "ced89e267424454274fdd4b99c28b1e06646a79a971efe71ee7e4f633d7c520f",
+      "bytes": 3072,
+      "comparison": "byte exact"
+    },
+    "paired-seed/final-v.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/paired-seed/final-v.f32",
+      "sha256": "7af5592a207e392766ae2567055f9e494d84e89f15c44fdf7925f7e82fe7db5b",
+      "bytes": 704,
+      "comparison": "byte exact"
+    },
+    "paired-seed/food.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/paired-seed/food.bin",
+      "sha256": "73dea34efafd7c4da19968fc8ca0e7cb6adf29c34f73e493d88aa87dda3fdb9c",
+      "bytes": 640,
+      "comparison": "byte exact"
+    },
+    "paired-seed/locomotion_ground.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/paired-seed/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b",
+      "bytes": 32768,
+      "comparison": "byte exact"
+    },
+    "paired-seed/retina.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/paired-seed/retina.bin",
+      "sha256": "429d736d294ad0d180c0d95c7e3d971f31c02f22123285edad1ad674f72a8913",
+      "bytes": 197544,
+      "comparison": "byte exact"
+    },
+    "paired-seed/robot.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/paired-seed/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61",
+      "bytes": 57344,
+      "comparison": "byte exact"
+    },
+    "paired-seed/transitions.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/paired-seed/transitions.bin",
+      "sha256": "6d21f12c95b8f65a31d7db56980bae8769955ab8ba748bd6e72d1443e8884499",
+      "bytes": 92160,
+      "comparison": "byte exact"
+    },
+    "paired-seed/visual-scene.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/paired-seed/visual-scene.json",
+      "sha256": "805a479464715df2ba92977fadebf1cac4db0a74db6d945a83543960920fc02f",
+      "bytes": 1066,
+      "comparison": "relocated-path JSON semantics"
+    },
+    "plan.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/plan.json",
+      "sha256": "e3bb2860acc041bf455e5371e8a89d234e9606d701852b3ea57a1f89ae91ccbc",
+      "bytes": 2042,
+      "comparison": "byte exact"
+    },
+    "post-cue-reset/actor.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/post-cue-reset/actor.f32",
+      "sha256": "aa7b989f93a4c6c013be7a4b4738ae273471eea1a48f3ace0bea299f8349f1b0",
+      "bytes": 3202560,
+      "comparison": "byte exact"
+    },
+    "post-cue-reset/camera_occluder.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/post-cue-reset/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3",
+      "bytes": 32768,
+      "comparison": "byte exact"
+    },
+    "post-cue-reset/camera_target.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/post-cue-reset/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9",
+      "bytes": 36864,
+      "comparison": "byte exact"
+    },
+    "post-cue-reset/controller-revision1.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/post-cue-reset/controller-revision1.policypack",
+      "sha256": "b666cc3c199f13a8a474be443ba9262ffd47aeb1d8e03ea560d1398cf31c3cb5",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "post-cue-reset/cue-pixels.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/post-cue-reset/cue-pixels.json",
+      "sha256": "a7060414769c48b1c9bdf9ac47733333ed79a19f66b2b34a61757dd91dd71318",
+      "bytes": 139,
+      "comparison": "byte exact"
+    },
+    "post-cue-reset/final-q.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/post-cue-reset/final-q.f32",
+      "sha256": "02eb2c030ba98e9ef12ed3d4c7d1bbb12ed399d1c55b358c5330361278d56475",
+      "bytes": 736,
+      "comparison": "byte exact"
+    },
+    "post-cue-reset/final-scene.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/post-cue-reset/final-scene.bin",
+      "sha256": "ced89e267424454274fdd4b99c28b1e06646a79a971efe71ee7e4f633d7c520f",
+      "bytes": 3072,
+      "comparison": "byte exact"
+    },
+    "post-cue-reset/final-v.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/post-cue-reset/final-v.f32",
+      "sha256": "5925bdfb1be71f093306e46f3b9cfaabe47164a8e26a579eb83d9c26c8596e25",
+      "bytes": 704,
+      "comparison": "byte exact"
+    },
+    "post-cue-reset/food.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/post-cue-reset/food.bin",
+      "sha256": "ea1aa4f0111d0b2043e68e23563ce27b3f68e9bc69c7ce5749b57bf1f9f94b8e",
+      "bytes": 640,
+      "comparison": "byte exact"
+    },
+    "post-cue-reset/locomotion_ground.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/post-cue-reset/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b",
+      "bytes": 32768,
+      "comparison": "byte exact"
+    },
+    "post-cue-reset/retina.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/post-cue-reset/retina.bin",
+      "sha256": "6850a87edf4aad0fe8a0bcc58364a881682bd79b6b8a5166e1c81ec58ab68da0",
+      "bytes": 197544,
+      "comparison": "byte exact"
+    },
+    "post-cue-reset/robot.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/post-cue-reset/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61",
+      "bytes": 57344,
+      "comparison": "byte exact"
+    },
+    "post-cue-reset/transitions.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/post-cue-reset/transitions.bin",
+      "sha256": "3f2100c032b4b6c929850556c7952f315cffad08652e0f04dfa5550f5d951d3f",
+      "bytes": 92160,
+      "comparison": "byte exact"
+    },
+    "post-cue-reset/visual-scene.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/post-cue-reset/visual-scene.json",
+      "sha256": "ecf93fb0220909778722a378afffcb78dba285871bc09901d1d76a3476ea9312",
+      "bytes": 1068,
+      "comparison": "relocated-path JSON semantics"
+    },
+    "right-port/actor.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/right-port/actor.f32",
+      "sha256": "cd4d1290a733a664dc635bd40d21fc6396fa52def5ea71ce0f4313dc5c91ad71",
+      "bytes": 12810240,
+      "comparison": "byte exact"
+    },
+    "right-port/camera_occluder.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/right-port/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3",
+      "bytes": 32768,
+      "comparison": "byte exact"
+    },
+    "right-port/camera_target.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/right-port/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9",
+      "bytes": 36864,
+      "comparison": "byte exact"
+    },
+    "right-port/controller-revision1.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/right-port/controller-revision1.policypack",
+      "sha256": "b666cc3c199f13a8a474be443ba9262ffd47aeb1d8e03ea560d1398cf31c3cb5",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "right-port/controller-revision2.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/right-port/controller-revision2.policypack",
+      "sha256": "6de8b0f1a8b004520cd82e72985b984c28680a261f44e898a8fe3f1017e27923",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "right-port/controller-revision3.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/right-port/controller-revision3.policypack",
+      "sha256": "b4d34002c8c9e0291b1e7735a3e3666a0866248c4e5a44f3ca7a178b63820802",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "right-port/controller-revision4.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/right-port/controller-revision4.policypack",
+      "sha256": "89bc8737fd9c7bf51805ea298e2990db74abe6fc3ea294f40309081a63f630c8",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "right-port/controller-revision5.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/right-port/controller-revision5.policypack",
+      "sha256": "503309469f0533e47630289812ce6ea70d79014dcd30ea263e084ca0ff14a86c",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "right-port/controller-revision6.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/right-port/controller-revision6.policypack",
+      "sha256": "f061ac6362199f973c9e3186c5facd4fc10e43051034639bcc913c8464262426",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "right-port/cue-pixels.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/right-port/cue-pixels.json",
+      "sha256": "5e5049e0f00e7bb05f64641957ebe7a4322fa2ea9ec1ce5171b98fc35b656b26",
+      "bytes": 123,
+      "comparison": "byte exact"
+    },
+    "right-port/final-q.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/right-port/final-q.f32",
+      "sha256": "7ff2fac7c0938e3235b2cefb03b63e8a1a27a588d4639496ee3d6840fd090810",
+      "bytes": 736,
+      "comparison": "byte exact"
+    },
+    "right-port/final-scene.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/right-port/final-scene.bin",
+      "sha256": "ced89e267424454274fdd4b99c28b1e06646a79a971efe71ee7e4f633d7c520f",
+      "bytes": 3072,
+      "comparison": "byte exact"
+    },
+    "right-port/final-v.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/right-port/final-v.f32",
+      "sha256": "44510edd056bccedbb995e996c29f683f6dc81a98578f86b9930d7a6fa56fec4",
+      "bytes": 704,
+      "comparison": "byte exact"
+    },
+    "right-port/food.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/right-port/food.bin",
+      "sha256": "19aacfdb71090b7bcab613ec6c029dcf9a096fb57de1007ceb1a92df2e0e3b43",
+      "bytes": 640,
+      "comparison": "byte exact"
+    },
+    "right-port/locomotion_ground.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/right-port/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b",
+      "bytes": 32768,
+      "comparison": "byte exact"
+    },
+    "right-port/retina.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/right-port/retina.bin",
+      "sha256": "7dd85b94e027301b16b7867a1055c26282a1ba5da674c8248894ce58950729ee",
+      "bytes": 197544,
+      "comparison": "byte exact"
+    },
+    "right-port/robot.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/right-port/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61",
+      "bytes": 57344,
+      "comparison": "byte exact"
+    },
+    "right-port/transitions.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/right-port/transitions.bin",
+      "sha256": "f5e1585df0d7078a42426f170c557070486e6853d8dc624300eed4fb1197d943",
+      "bytes": 368640,
+      "comparison": "byte exact"
+    },
+    "right-port/visual-scene.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/right-port/visual-scene.json",
+      "sha256": "0bb64a686c80f7a33791df145b178a4a999c79108f71f80463119ae961ed3108",
+      "bytes": 1066,
+      "comparison": "relocated-path JSON semantics"
+    },
+    "summary.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/summary.json",
+      "sha256": "34670dd55469f6a581ab471e69f4c9737671b348d03048e67eeff8583a3d0c24",
+      "bytes": 468,
+      "comparison": "byte exact"
+    },
+    "visible-chunk1/actor.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk1/actor.f32",
+      "sha256": "8fedc69aee68cff8d51aa70609bbe828d32fc75da9d36f006612561843d43384",
+      "bytes": 3202560,
+      "comparison": "byte exact"
+    },
+    "visible-chunk1/camera_occluder.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk1/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3",
+      "bytes": 32768,
+      "comparison": "byte exact"
+    },
+    "visible-chunk1/camera_target.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk1/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9",
+      "bytes": 36864,
+      "comparison": "byte exact"
+    },
+    "visible-chunk1/controller-revision1.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk1/controller-revision1.policypack",
+      "sha256": "b666cc3c199f13a8a474be443ba9262ffd47aeb1d8e03ea560d1398cf31c3cb5",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "visible-chunk1/cue-pixels.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk1/cue-pixels.json",
+      "sha256": "a7060414769c48b1c9bdf9ac47733333ed79a19f66b2b34a61757dd91dd71318",
+      "bytes": 139,
+      "comparison": "byte exact"
+    },
+    "visible-chunk1/final-q.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk1/final-q.f32",
+      "sha256": "315bc12c15dfb06520e9a72672c8ec0f7ea92add0ede13d0579ff27c36e1d198",
+      "bytes": 736,
+      "comparison": "byte exact"
+    },
+    "visible-chunk1/final-scene.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk1/final-scene.bin",
+      "sha256": "ced89e267424454274fdd4b99c28b1e06646a79a971efe71ee7e4f633d7c520f",
+      "bytes": 3072,
+      "comparison": "byte exact"
+    },
+    "visible-chunk1/final-v.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk1/final-v.f32",
+      "sha256": "7af5592a207e392766ae2567055f9e494d84e89f15c44fdf7925f7e82fe7db5b",
+      "bytes": 704,
+      "comparison": "byte exact"
+    },
+    "visible-chunk1/food.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk1/food.bin",
+      "sha256": "fd6521e25650550d9361327250a9e654c59e48e5ee7b9fd937e99e17e04c999b",
+      "bytes": 640,
+      "comparison": "byte exact"
+    },
+    "visible-chunk1/image-tick16-eye0.rgba.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk1/image-tick16-eye0.rgba.f32",
+      "sha256": "e43d5abf7dc84cc478bb1d4791ff21cefb33f5adfea0151022a58ac5892eb0c0",
+      "bytes": 2457600,
+      "comparison": "byte exact"
+    },
+    "visible-chunk1/image-tick16-eye1.rgba.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk1/image-tick16-eye1.rgba.f32",
+      "sha256": "64fce72e9891f8eed0133022b08fb17d14773a822e5316e8b4e0a680adf5f1a7",
+      "bytes": 2457600,
+      "comparison": "byte exact"
+    },
+    "visible-chunk1/image-tick48-eye0.rgba.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk1/image-tick48-eye0.rgba.f32",
+      "sha256": "30821f96b12e40cdf18d61fc02294bdf9b18175089b18bd23c6a2039e2150489",
+      "bytes": 2457600,
+      "comparison": "byte exact"
+    },
+    "visible-chunk1/image-tick48-eye1.rgba.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk1/image-tick48-eye1.rgba.f32",
+      "sha256": "160a08b032b974f3858df75ffda943dcd592ede555fcfc5b4696699bd14dd4aa",
+      "bytes": 2457600,
+      "comparison": "byte exact"
+    },
+    "visible-chunk1/locomotion_ground.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk1/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b",
+      "bytes": 32768,
+      "comparison": "byte exact"
+    },
+    "visible-chunk1/negative-controls.jsonl": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk1/negative-controls.jsonl",
+      "sha256": "ea47e3b1ac5b4b3d12c89cbd0486e5c8298befd0d26c5cf76b0fa37e98e609f6",
+      "bytes": 829,
+      "comparison": "byte exact"
+    },
+    "visible-chunk1/retina.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk1/retina.bin",
+      "sha256": "429d736d294ad0d180c0d95c7e3d971f31c02f22123285edad1ad674f72a8913",
+      "bytes": 197544,
+      "comparison": "byte exact"
+    },
+    "visible-chunk1/robot.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk1/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61",
+      "bytes": 57344,
+      "comparison": "byte exact"
+    },
+    "visible-chunk1/transitions.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk1/transitions.bin",
+      "sha256": "6d21f12c95b8f65a31d7db56980bae8769955ab8ba748bd6e72d1443e8884499",
+      "bytes": 92160,
+      "comparison": "byte exact"
+    },
+    "visible-chunk1/visual-scene.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk1/visual-scene.json",
+      "sha256": "18b7de5873b905add6f6f07dad1bdf86f8476c97e53405a0adf31d5dabdebe3b",
+      "bytes": 1067,
+      "comparison": "relocated-path JSON semantics"
+    },
+    "visible-chunk16/actor.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk16/actor.f32",
+      "sha256": "8fedc69aee68cff8d51aa70609bbe828d32fc75da9d36f006612561843d43384",
+      "bytes": 3202560,
+      "comparison": "byte exact"
+    },
+    "visible-chunk16/camera_occluder.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk16/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3",
+      "bytes": 32768,
+      "comparison": "byte exact"
+    },
+    "visible-chunk16/camera_target.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk16/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9",
+      "bytes": 36864,
+      "comparison": "byte exact"
+    },
+    "visible-chunk16/controller-revision1.policypack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk16/controller-revision1.policypack",
+      "sha256": "b666cc3c199f13a8a474be443ba9262ffd47aeb1d8e03ea560d1398cf31c3cb5",
+      "bytes": 100398,
+      "comparison": "byte exact"
+    },
+    "visible-chunk16/cue-pixels.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk16/cue-pixels.json",
+      "sha256": "a7060414769c48b1c9bdf9ac47733333ed79a19f66b2b34a61757dd91dd71318",
+      "bytes": 139,
+      "comparison": "byte exact"
+    },
+    "visible-chunk16/final-q.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk16/final-q.f32",
+      "sha256": "315bc12c15dfb06520e9a72672c8ec0f7ea92add0ede13d0579ff27c36e1d198",
+      "bytes": 736,
+      "comparison": "byte exact"
+    },
+    "visible-chunk16/final-scene.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk16/final-scene.bin",
+      "sha256": "ced89e267424454274fdd4b99c28b1e06646a79a971efe71ee7e4f633d7c520f",
+      "bytes": 3072,
+      "comparison": "byte exact"
+    },
+    "visible-chunk16/final-v.f32": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk16/final-v.f32",
+      "sha256": "7af5592a207e392766ae2567055f9e494d84e89f15c44fdf7925f7e82fe7db5b",
+      "bytes": 704,
+      "comparison": "byte exact"
+    },
+    "visible-chunk16/food.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk16/food.bin",
+      "sha256": "fd6521e25650550d9361327250a9e654c59e48e5ee7b9fd937e99e17e04c999b",
+      "bytes": 640,
+      "comparison": "byte exact"
+    },
+    "visible-chunk16/locomotion_ground.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk16/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b",
+      "bytes": 32768,
+      "comparison": "byte exact"
+    },
+    "visible-chunk16/retina.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk16/retina.bin",
+      "sha256": "429d736d294ad0d180c0d95c7e3d971f31c02f22123285edad1ad674f72a8913",
+      "bytes": 197544,
+      "comparison": "byte exact"
+    },
+    "visible-chunk16/robot.mrvpack": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk16/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61",
+      "bytes": 57344,
+      "comparison": "byte exact"
+    },
+    "visible-chunk16/transitions.bin": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk16/transitions.bin",
+      "sha256": "6d21f12c95b8f65a31d7db56980bae8769955ab8ba748bd6e72d1443e8884499",
+      "bytes": 92160,
+      "comparison": "byte exact"
+    },
+    "visible-chunk16/visual-scene.json": {
+      "archive_source": ".numi/runs/american-crow/cue-foraging-02/native-evidence/visible-chunk16/visual-scene.json",
+      "sha256": "e8353b7e85109e6691f03cf029ef25b44aedec84659b5ace1ed9d04cbf340ae1",
+      "bytes": 1067,
+      "comparison": "relocated-path JSON semantics"
+    }
+  },
+  "original_output_root": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/cue-foraging-02/native-evidence"
+}

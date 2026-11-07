@@ -1,0 +1,238 @@
+{
+  "status": "passed",
+  "native_summary": {
+    "status": "passed",
+    "lanes": 8,
+    "native_arms": 8,
+    "cue_active_until_lifetime_tick": 32,
+    "intake_delayed_ticks": 192,
+    "left_port_lanes": 5,
+    "right_port_lanes": 3,
+    "correct_consumed_ug_per_lane": 40000,
+    "wrong_consumed_ug_per_lane": 0,
+    "paired_changed_lanes": 4,
+    "early_image_differences": 120,
+    "non_image_actor_features_byte_exact": true,
+    "post_cue_actor_byte_exact": true,
+    "native_partition_byte_exact": true,
+    "physical_terminations": 0,
+    "failed_physics_steps": 0,
+    "learned_memory_qualified": false
+  },
+  "food_lanes": [
+    {
+      "lane": 0,
+      "selected_site_mask": 1,
+      "left_policy_intake_ug": 40000,
+      "right_policy_intake_ug": 0
+    },
+    {
+      "lane": 1,
+      "selected_site_mask": 1,
+      "left_policy_intake_ug": 40000,
+      "right_policy_intake_ug": 0
+    },
+    {
+      "lane": 2,
+      "selected_site_mask": 1,
+      "left_policy_intake_ug": 40000,
+      "right_policy_intake_ug": 0
+    },
+    {
+      "lane": 3,
+      "selected_site_mask": 2,
+      "left_policy_intake_ug": 0,
+      "right_policy_intake_ug": 40000
+    },
+    {
+      "lane": 4,
+      "selected_site_mask": 2,
+      "left_policy_intake_ug": 0,
+      "right_policy_intake_ug": 40000
+    },
+    {
+      "lane": 5,
+      "selected_site_mask": 1,
+      "left_policy_intake_ug": 40000,
+      "right_policy_intake_ug": 0
+    },
+    {
+      "lane": 6,
+      "selected_site_mask": 2,
+      "left_policy_intake_ug": 0,
+      "right_policy_intake_ug": 40000
+    },
+    {
+      "lane": 7,
+      "selected_site_mask": 1,
+      "left_policy_intake_ug": 40000,
+      "right_policy_intake_ug": 0
+    }
+  ],
+  "reward_consistency": {
+    "left-port": {
+      "accepted_intake_utility_per_lane": [
+        3.999999523162842,
+        3.999999523162842,
+        3.999999523162842,
+        0.0,
+        0.0,
+        3.999999523162842,
+        0.0,
+        3.999999523162842
+      ],
+      "nonzero_reward_ticks_per_lane": [
+        [
+          246,
+          310
+        ],
+        [
+          246,
+          310
+        ],
+        [
+          246,
+          310
+        ],
+        [],
+        [],
+        [
+          246,
+          310
+        ],
+        [],
+        [
+          246,
+          310
+        ]
+      ],
+      "no_reward_during_delay": true,
+      "factory_reward": "nutritionIntake kilogram payload times100000;40000ug predicts4 utility; existing2e-6 bound"
+    },
+    "right-port": {
+      "accepted_intake_utility_per_lane": [
+        0.0,
+        0.0,
+        0.0,
+        3.999999523162842,
+        3.999999523162842,
+        0.0,
+        3.999999523162842,
+        0.0
+      ],
+      "nonzero_reward_ticks_per_lane": [
+        [],
+        [],
+        [],
+        [
+          246,
+          310
+        ],
+        [
+          246,
+          310
+        ],
+        [],
+        [
+          246,
+          310
+        ],
+        []
+      ],
+      "no_reward_during_delay": true,
+      "factory_reward": "nutritionIntake kilogram payload times100000;40000ug predicts4 utility; existing2e-6 bound"
+    }
+  },
+  "reward_analysis_status": "Supplemental post-hoc consistency analysis against the pre-existing CrowEmbodiment.cpp food reward specification; no new scientific trial or learned-policy claim. All reward timing/outcome and finite-actor checks pass without parameter/tolerance changes.",
+  "independent_primary_masks": [
+    1,
+    1,
+    1,
+    2,
+    2,
+    1,
+    2,
+    1
+  ],
+  "independent_paired_masks": [
+    1,
+    2,
+    2,
+    2,
+    1,
+    2,
+    2,
+    1
+  ],
+  "calibrated_port_separation_m": 0.11932653934353103,
+  "non_image_actor_features_exact": 97,
+  "post_cue_full_actor_exact_from_zero_based_tick": 40,
+  "early_changed_image_lane_frames": 120,
+  "exact_partition_files": {
+    "visible-chunk1/actor.f32": {
+      "bytes": 3202560,
+      "sha256": "8fedc69aee68cff8d51aa70609bbe828d32fc75da9d36f006612561843d43384"
+    },
+    "visible-chunk1/final-q.f32": {
+      "bytes": 736,
+      "sha256": "315bc12c15dfb06520e9a72672c8ec0f7ea92add0ede13d0579ff27c36e1d198"
+    },
+    "visible-chunk1/final-v.f32": {
+      "bytes": 704,
+      "sha256": "7af5592a207e392766ae2567055f9e494d84e89f15c44fdf7925f7e82fe7db5b"
+    },
+    "visible-chunk1/final-scene.bin": {
+      "bytes": 3072,
+      "sha256": "ced89e267424454274fdd4b99c28b1e06646a79a971efe71ee7e4f633d7c520f"
+    },
+    "visible-chunk1/food.bin": {
+      "bytes": 640,
+      "sha256": "fd6521e25650550d9361327250a9e654c59e48e5ee7b9fd937e99e17e04c999b"
+    },
+    "visible-chunk1/retina.bin": {
+      "bytes": 197544,
+      "sha256": "429d736d294ad0d180c0d95c7e3d971f31c02f22123285edad1ad674f72a8913"
+    },
+    "visible-chunk1/transitions.bin": {
+      "bytes": 92160,
+      "sha256": "6d21f12c95b8f65a31d7db56980bae8769955ab8ba748bd6e72d1443e8884499"
+    },
+    "left-port/actor.f32": {
+      "bytes": 12810240,
+      "sha256": "e0acf1da2940e63d643382f543673f5c9ed73a30b846561b2f258baedd490d94"
+    },
+    "left-port/final-q.f32": {
+      "bytes": 736,
+      "sha256": "2191a01aac008582fa04cc662aa7a4d0f0a153cbf11a22a4fd7d98031f7c254c"
+    },
+    "left-port/final-v.f32": {
+      "bytes": 704,
+      "sha256": "e7e49d726ec97b0c58839387778a96076490de1e05ed08bcd2c553877735b5ca"
+    },
+    "left-port/final-scene.bin": {
+      "bytes": 3072,
+      "sha256": "ced89e267424454274fdd4b99c28b1e06646a79a971efe71ee7e4f633d7c520f"
+    },
+    "left-port/food.bin": {
+      "bytes": 640,
+      "sha256": "2c901fb94eae57f70f86b7bb3dd4b67d207fb9e3d3f0a6150b97325f80c736da"
+    },
+    "left-port/retina.bin": {
+      "bytes": 197544,
+      "sha256": "24a3f45ef54a4b586b8c2cb720ee082c51a1f20414702ce76b31eda156d5f865"
+    },
+    "left-port/transitions.bin": {
+      "bytes": 368640,
+      "sha256": "238b07e4bf5b7c86d613ab352fb1ffcaa0859ac4366f27e9543cde37b94b5d6d"
+    }
+  },
+  "all_actor_values_finite": true,
+  "scope": "Independent integer ledger and raw-array analysis of engineering controls; no learned-memory or generalization qualification.",
+  "source_commit": "f18e0217d3e6d0a0c132b80c82d6aa9e2027ca17",
+  "full_native_build_passed": true,
+  "focused_Python_tests_passed": 29,
+  "legacy_native_food_trials_passed": 9,
+  "legacy_native_retinal_arms_passed": 6,
+  "first_failed_attempt": "01 calibrated both sites, then rejected unsupported open-loop retinal execution. Preserved exact runtime/source/failure;02 uses bound native constant-bias policies without hidden-state action selection.",
+  "next": "Common C API/Swift rollout/training/life integration; neutralize physical/previous-action memory confounds during delay; sequence learning spanning cue to choice, then held-out memory interventions."
+}
