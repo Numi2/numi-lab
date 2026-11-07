@@ -1259,6 +1259,8 @@ def main() -> int:
     assessment.add_argument("--variant", choices=("v10-world-model",), default="v10-world-model")
     assessment.add_argument("--mode", choices=("development", "qualification"), default="development")
     args = parser.parse_args()
+    if args.command == "calibrate-retinal-initialization" and (not math.isfinite(args.minimum_rgb_standard_deviation) or not .01 <= args.minimum_rgb_standard_deviation <= 1):
+        parser.error("minimum RGB standard deviation must be finite in[0.01,1]")
     root = args.root.resolve(strict=True)
     profile = json.loads((root / "profiles/american-crow-rl-v1.json").read_text())
     if args.command == "status":

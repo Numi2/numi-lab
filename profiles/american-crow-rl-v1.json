@@ -80,7 +80,7 @@
     "weather_and_seasonal_ecology": "pending",
     "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-partition-and-pending-frame-fresh-process-restore-controls-passed-including-live-head-renderer",
     "retinal_actor_contract": "native-v13-1251-actor-97-critic-18-actions; live-pixel-controls-and-C-API-Swift-MLX-update-learner-restore-passed-at16-64-128; visual-learning-and-production-performance-qualification-pending",
-    "native_working_memory": "native recurrent actor, rollout8 and contiguous sequence PPO integrated; causal full-life/model/Adam fresh-process resume exact in two-lane development controls; learned memory behavior and production performance pending"
+    "native_working_memory": "native recurrent actor and selected-factor rollout9/PPO integrated; corrected ABI51..54 history and64-lane full learner/Adam/life future recovery exact; learned memory behavior and production performance pending"
   },
   "release_requirements": [
     "deterministic accepted-state execution across submission chunks",
@@ -577,5 +577,46 @@
     "learned_memory_qualified": false,
     "ecological_environment_qualified": false,
     "evidence": "artifacts/crow-rl-memory-choice-20261107"
+  },
+  "native_temporal_history_repair": {
+    "source_commit": "ac14e686",
+    "task_ABIs": {
+      "base": 51,
+      "retinal": 52,
+      "memory_choice": 53,
+      "action_holds": 54
+    },
+    "evidence": "artifacts/crow-rl-native-history-20261108",
+    "oracle_lanes": [
+      32,
+      33,
+      64,
+      65
+    ],
+    "history_word_checks": 13968,
+    "actual_faulty_archive_mismatches": 1970,
+    "actual_faulty_archive_words": 2304,
+    "full_state_partition_exact": true,
+    "learner_Adam_tensors_exact": 53,
+    "mixed_host_shader_pairs_reject": true,
+    "old_policy_checkpoint_implicit_migration": false,
+    "Git_restored_future_execution_passed": true,
+    "scope": "native correctness and recovery, no learned behavior or sustained performance qualification"
+  },
+  "frozen_retinal_initialization": {
+    "command": "calibrate-retinal-initialization",
+    "calibration_ticks": 64,
+    "RGB_begin": 97,
+    "RGB_count": 1152,
+    "default_minimum_standard_deviation": 0.05,
+    "maximum_default_gain": 20,
+    "valid_native_calibration_frames": 3968,
+    "uses_food_labels": false,
+    "adapts_during_life": false,
+    "all_other_policy_parameters_contracts_exact": true,
+    "head_cue_separation_gain_same_native_inputs": 26.771099407504938,
+    "native_learning_resume_tensors_exact": 53,
+    "learned_memory_qualified": false,
+    "scope": "optional fresh initialization from native RGB/validity only; full learning campaign and causal behavior assessment remain separate"
   }
 }
