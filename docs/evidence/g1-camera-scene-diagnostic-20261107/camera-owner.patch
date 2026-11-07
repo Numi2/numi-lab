@@ -1,0 +1,27 @@
+--- /Users/numi/numi-g1-tracker-probe-owner-20261107/src/metal/MetalHybridRenderer.mm	2026-11-07 14:57:39
++++ /Users/numi/numi-g1-tracker-camera-owner-20261107/src/metal/MetalHybridRenderer.mm	2026-11-07 15:01:14
+@@ -7410,17 +7410,23 @@
+                                       options:MTLResourceStorageModeShared];
+     id<MTLBuffer> depth = [state_->device newBufferWithLength:state_->maskedDepthHistory.length
+                                       options:MTLResourceStorageModeShared];
++    id<MTLBuffer> cameraSource = (__bridge id<MTLBuffer>)state_->renderer->nativeBuffer(MetalHybridRendererBuffer::cameraStates);
++    if (!cameraSource) return false;
++    id<MTLBuffer> camera = [state_->device newBufferWithLength:cameraSource.length options:MTLResourceStorageModeShared];
+     id<MTLCommandBuffer> cmd = [queue commandBuffer];
+     id<MTLBlitCommandEncoder> blit = [cmd blitCommandEncoder];
+-    if (!queue || !track || !depth || !cmd || !blit) return false;
++    if (!queue || !track || !depth || !camera || !cmd || !blit) return false;
+     [blit copyFromBuffer:state_->history sourceOffset:0 toBuffer:track
+        destinationOffset:0 size:state_->history.length];
+     [blit copyFromBuffer:state_->maskedDepthHistory sourceOffset:0 toBuffer:depth
+        destinationOffset:0 size:state_->maskedDepthHistory.length];
++    [blit copyFromBuffer:cameraSource sourceOffset:0 toBuffer:camera destinationOffset:0 size:cameraSource.length];
+     [blit endEncoding];
+     [cmd commit];
+     [cmd waitUntilCompleted];
+     if (cmd.status != MTLCommandBufferStatusCompleted) return false;
++    out.cameraState.resize(camera.length / sizeof(float));
++    std::memcpy(out.cameraState.data(), camera.contents, camera.length);
+     out.trackHistory.resize(track.length / sizeof(float));
+     out.depthHistory.resize(depth.length / sizeof(float));
+     std::memcpy(out.trackHistory.data(), track.contents, track.length);
