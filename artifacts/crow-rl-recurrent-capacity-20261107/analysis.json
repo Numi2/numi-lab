@@ -1,0 +1,73 @@
+{
+  "status": "passed",
+  "native_crow_lanes": 8,
+  "GRU_hidden": 64,
+  "encoder": [
+    96,
+    48
+  ],
+  "sequence_length": 16,
+  "initial_policy_bytes": 659495,
+  "same_seed_initial_bytes_exact": true,
+  "training_updates": 3,
+  "final_policy_revision": 4,
+  "ticks_per_lane": 111,
+  "model_Adam_tensors_exact": 53,
+  "checkpoint_comparisons": [
+    {
+      "revision": 2,
+      "clocks_per_lane": 37,
+      "byte_exact_files": [
+        "candidate.policypack",
+        "learner.safetensors",
+        "policy.policypack",
+        "rollout.rolloutpack"
+      ],
+      "native_causal_components_exact": 3
+    },
+    {
+      "revision": 3,
+      "clocks_per_lane": 74,
+      "byte_exact_files": [
+        "candidate.policypack",
+        "learner.safetensors",
+        "policy.policypack",
+        "rollout.rolloutpack"
+      ],
+      "native_causal_components_exact": 3
+    },
+    {
+      "revision": 4,
+      "clocks_per_lane": 111,
+      "byte_exact_files": [
+        "candidate.policypack",
+        "learner.safetensors",
+        "policy.policypack",
+        "rollout.rolloutpack"
+      ],
+      "native_causal_components_exact": 3
+    }
+  ],
+  "GRU_parameter_families_changed": [
+    "input_weights",
+    "recurrent_weights",
+    "input_bias",
+    "recurrent_bias"
+  ],
+  "capture_bytes": 51466823,
+  "learned_memory_qualified": false,
+  "production_performance_qualified": false,
+  "all_six_checkpoint_payloads_and_commit_markers_verified": [
+    ".numi/runs/american-crow/recurrent-capacity-01/prefix/checkpoints/revision-00000002.trainingcheckpoint",
+    ".numi/runs/american-crow/recurrent-capacity-01/prefix/checkpoints/revision-00000003.trainingcheckpoint",
+    ".numi/runs/american-crow/recurrent-capacity-01/tail/checkpoints/revision-00000004.trainingcheckpoint",
+    ".numi/runs/american-crow/recurrent-capacity-01/whole/checkpoints/revision-00000002.trainingcheckpoint",
+    ".numi/runs/american-crow/recurrent-capacity-01/whole/checkpoints/revision-00000003.trainingcheckpoint",
+    ".numi/runs/american-crow/recurrent-capacity-01/whole/checkpoints/revision-00000004.trainingcheckpoint"
+  ],
+  "full_build_passed": true,
+  "focused_Python_checks_passed": 29,
+  "initialization_and_resume_rejections": 6,
+  "feedforward_prior_initial_and_resumed_hashes_exact": true,
+  "source_commit": "b45fba430df5a0ad080f28745622cb531795c52b"
+}
