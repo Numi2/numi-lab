@@ -4,7 +4,7 @@
 #include "numanx_human_matter_adapter_probe.mm"
 #undef main
 namespace adapter_fixture {
-void verifyCostalOwnerIntegration(id<MTLDevice> device) {
+void verifyCostalOwnerIntegration(id<MTLDevice> device, bool accept) {
     auto model = owner_fixture::makeHumanModel();
     std::fill(model.defaultV.begin(), model.defaultV.end(), 0.0f);
     const auto parsed = numi::matter::parseMatterFile(NUMI_MATTER_MATERIAL);
@@ -265,6 +265,98 @@ void verifyCostalOwnerIntegration(id<MTLDevice> device) {
                 humanIO->program.identityFingerprint,
         "real owner prepared view lost bound HumanIO identity");
 
+    if (accept) {
+        // Synthetic Brain witness; the physical owner and publication path are real.
+        const auto token=value<MRNumanXAcceptedPhysicsStateTokenGPU>((__bridge id<MTLBuffer>)view.preparedPhysicsStateTokens);
+        require(token.tokenFingerprint!=0, "owner physical token is zero");
+        MRNumanXHumanMatterBrainCommitWitnessGPU w{};
+        w.magic=MR_NUMANX_HUMAN_MATTER_BRAIN_COMMIT_WITNESS_MAGIC;w.abiVersion=MR_NUMANX_HUMAN_MATTER_BRAIN_COMMIT_WITNESS_ABI_VERSION;
+        w.structBytes=MR_NUMANX_HUMAN_MATTER_BRAIN_COMMIT_WITNESS_BYTES;w.status=MR_NUMANX_HUMAN_MATTER_BRAIN_COMMIT_PREPARE_COMPLETE;
+        w.decision=MR_NUMANX_HUMAN_MATTER_ROOT_ACCEPT;w.environment=0;w.stepIndex=view.stepIndex;w.substepIndex=view.substepIndex;
+        w.transactionSlot=view.transactionSlot;w.physicsSubstepCount=view.physicsSubstepCount;w.controlStep=view.controlStep;
+        w.programFingerprint=view.programFingerprint;w.transactionFingerprint=view.transactionFingerprint;w.linearizationEpoch=view.linearizationEpoch;
+        w.slotGeneration=view.slotGeneration;w.physicsTokenFingerprint=token.tokenFingerprint;w.brainProgramFingerprint=0xb1000001u;w.brainShadowStateFingerprint=0xb1000002u;
+        std::uint64_t wh=14695981039346656037ull;
+        for(auto x:{w.magic,w.abiVersion,w.structBytes,w.status,w.decision,w.environment,w.stepIndex,w.substepIndex,w.transactionSlot,w.physicsSubstepCount,w.controlStep,w.reserved0}) mixU32(wh,x);
+        for(auto x:{w.programFingerprint,w.transactionFingerprint,w.linearizationEpoch,w.slotGeneration,w.physicsTokenFingerprint,w.brainProgramFingerprint,w.brainShadowStateFingerprint,w.reserved1[0],w.reserved1[1]}) mixU64(wh,x);
+        w.witnessFingerprint=wh ? wh : 1;
+        id<MTLBuffer> wb=makeBuffer(device,w,@"synthetic Brain witness");id<MTLSharedEvent> we=[device newSharedEvent];we.signaledValue=1;
+        id<MTLCommandBuffer> pc=[applyQueue commandBuffer];metalrobo::MetalNumanXHumanMatterProposalRequest pr{};
+        pr.commandBuffer=(__bridge void*)pc;pr.brainCommitWitnesses=(__bridge void*)wb;pr.brainPrepareCompleteEvent=(__bridge void*)we;
+        pr.brainPrepareCompleteEventValue=1;pr.brainCommitWitnessesGPUAddress=wb.gpuAddress;pr.brainCommitWitnessElementCount=1;pr.brainCommitWitnessStride=1;
+        pr.environmentCount=view.environmentCount;pr.transactionSlot=view.transactionSlot;pr.stepIndex=view.stepIndex;pr.substepIndex=view.substepIndex;
+        pr.physicsSubstepCount=view.physicsSubstepCount;pr.controlStep=view.controlStep;pr.programFingerprint=view.programFingerprint;
+        pr.transactionFingerprint=view.transactionFingerprint;pr.linearizationEpoch=view.linearizationEpoch;pr.slotGeneration=view.slotGeneration;
+        const auto proposed=prepared.proposePrepared(pr);require(proposed.succeeded()&&proposed.encoded,"accepted proposal: "+proposed.message);
+        finish(pc);waitForSharedEventValue(ownerEvent,view.proposalEventValue,"accepted proposal event");
+        const auto proposal=value<MRNumanXHumanMatterProposalGPU>((__bridge id<MTLBuffer>)view.proposals);
+        require(proposal.status==MR_NUMANX_HUMAN_MATTER_PROPOSAL_READY && proposal.decision==MR_NUMANX_HUMAN_MATTER_ROOT_ACCEPT,"proposal was not accepted");
+        PreparedTransaction identity{};identity.program=program;identity.transaction=transaction;
+        const auto preflight=makePreflight(identity,proposal,ApplyMode::accept);
+        id<MTLBuffer> pb=makeBuffer(device,preflight,@"synthetic Brain preflight");id<MTLSharedEvent> pe=[device newSharedEvent];pe.signaledValue=1;
+        metalrobo::MetalNumanXHumanMatterBrainPreflightView pv{};pv.brainCommitPreflights=(__bridge void*)pb;pv.preflightReadyEvent=(__bridge void*)pe;
+        pv.brainCommitPreflightsGPUAddress=pb.gpuAddress;pv.brainCommitPreflightElementCount=1;pv.preflightReadyEventValue=1;pv.brainCommitPreflightStride=1;
+        pv.environmentCount=view.environmentCount;pv.transactionSlot=view.transactionSlot;pv.stepIndex=view.stepIndex;pv.substepIndex=view.substepIndex;
+        pv.physicsSubstepCount=view.physicsSubstepCount;pv.controlStep=view.controlStep;pv.programFingerprint=view.programFingerprint;
+        pv.transactionFingerprint=view.transactionFingerprint;pv.linearizationEpoch=view.linearizationEpoch;pv.slotGeneration=view.slotGeneration;
+        require(prepared.reservePreparedApplication(pv),"accepted application reservation");
+        const auto ack=makeAck(identity,proposal,preflight,ApplyMode::accept);id<MTLBuffer> ab=makeBuffer(device,ack,@"synthetic Brain ACK");
+        id<MTLSharedEvent> ae=[device newSharedEvent];ae.signaledValue=1;OwnerApplyCompletionCapture completion;
+        id<MTLCommandBuffer> ac=[applyQueue commandBuffer];metalrobo::MetalNumanXHumanMatterApplyRequest ar{};
+        ar.commandBuffer=(__bridge void*)ac;ar.brainAcks=(__bridge void*)ab;ar.brainAckEvent=(__bridge void*)ae;ar.brainAckEventValue=1;
+        ar.brainAcksGPUAddress=ab.gpuAddress;ar.brainAckElementCount=1;ar.brainAckStride=1;ar.completionContext=&completion;ar.completion=&captureOwnerApplyCompletion;
+        ar.environmentCount=view.environmentCount;ar.transactionSlot=view.transactionSlot;ar.stepIndex=view.stepIndex;ar.substepIndex=view.substepIndex;
+        ar.physicsSubstepCount=view.physicsSubstepCount;ar.controlStep=view.controlStep;ar.programFingerprint=view.programFingerprint;
+        ar.transactionFingerprint=view.transactionFingerprint;ar.linearizationEpoch=view.linearizationEpoch;ar.slotGeneration=view.slotGeneration;
+        const auto applied=prepared.applyPrepared(ar);require(applied.succeeded()&&applied.encoded,"accepted apply: "+applied.message);
+        finish(ac);waitForOwnerApplyCompletion(completion);
+        require(completion.status.load()==static_cast<std::uint32_t>(metalrobo::MetalNumanXHumanMatterApplyTerminalStatus::acceptedPendingPublication),"accepted apply disposition");
+        metalrobo::MetalNumanXHumanMatterPublicationReservationRequest reservation{};
+        reservation.environmentCount=view.environmentCount;reservation.transactionSlot=view.transactionSlot;reservation.stepIndex=view.stepIndex;
+        reservation.substepIndex=view.substepIndex;reservation.physicsSubstepCount=view.physicsSubstepCount;reservation.controlStep=view.controlStep;
+        reservation.programFingerprint=view.programFingerprint;reservation.transactionFingerprint=view.transactionFingerprint;
+        reservation.linearizationEpoch=view.linearizationEpoch;reservation.slotGeneration=view.slotGeneration;reservation.jointCommitFingerprint=0xd002u;reservation.brainGeneration=19;
+        require(prepared.reservePublishedRoot(reservation),"accepted publication reservation");
+        auto* fence=static_cast<MRNumanXHumanMatterJointPublicationFenceGPU*>(((__bridge id<MTLBuffer>)view.publicationFences).contents);
+        fence->status=MR_NUMANX_HUMAN_MATTER_PUBLICATION_COMMITTED;fence->fenceFingerprint=recordFingerprint(*fence);
+        metalrobo::MetalNumanXHumanMatterPublicationReleaseRequest release{};
+        release.publicationFences=view.publicationFences;release.publicationFencesGPUAddress=view.publicationFencesGPUAddress;
+        release.publicationFenceElementCount=view.publicationFenceElementCount;release.publicationFenceStride=view.publicationFenceStride;
+        release.environmentCount=view.environmentCount;release.transactionSlot=view.transactionSlot;release.stepIndex=view.stepIndex;release.substepIndex=view.substepIndex;
+        release.physicsSubstepCount=view.physicsSubstepCount;release.controlStep=view.controlStep;release.programFingerprint=view.programFingerprint;
+        release.transactionFingerprint=view.transactionFingerprint;release.linearizationEpoch=view.linearizationEpoch;release.slotGeneration=view.slotGeneration;
+        release.jointCommitFingerprint=reservation.jointCommitFingerprint;release.brainGeneration=reservation.brainGeneration;
+        require(prepared.releasePublishedRoot(release)==metalrobo::MetalNumanXHumanMatterPrepareLeaseDisposition::released,"accepted publication release");
+        const auto after=matter.snapshot();require(after.available && after.femNodes.size()==before.femNodes.size(),"accepted Matter snapshot");
+        double move=0;for(std::size_t i=0;i<after.femNodes.size();++i){const auto a=after.femNodes[i].positionAndMass,b=before.femNodes[i].positionAndMass;
+            move=std::max(move,std::sqrt(double(a.x-b.x)*(a.x-b.x)+double(a.y-b.y)*(a.y-b.y)+double(a.z-b.z)*(a.z-b.z)));}
+        require(std::isfinite(move)&&move>0,"accepted tissue did not move");
+        id<MTLBuffer> source=(__bridge id<MTLBuffer>)matter.femHumanAttachmentRawReactionBuffer();id<MTLBuffer> rb=[device newBufferWithLength:2*sizeof(nm_float4) options:MTLResourceStorageModeShared];
+        id<MTLCommandBuffer> rc=[applyQueue commandBuffer];id<MTLBlitCommandEncoder> blit=[rc blitCommandEncoder];
+        [blit copyFromBuffer:source sourceOffset:0 toBuffer:rb destinationOffset:0 size:rb.length];[blit endEncoding];finish(rc);
+        auto* r=static_cast<nm_float4*>(rb.contents);const auto norm=[](nm_float4 x){return std::sqrt(double(x.x)*x.x+double(x.y)*x.y+double(x.z)*x.z);};
+        const double r0=norm(r[0]),r1=norm(r[1]);
+        for(unsigned i=0;i<4;++i) {
+            const auto a=after.femNodes[i].positionAndMass,b=before.femNodes[i].positionAndMass;
+            std::cerr<<"node="<<i<<" delta="<<(a.x-b.x)<<","<<(a.y-b.y)<<","<<(a.z-b.z)<<"\n";
+        }
+        for(unsigned i=0;i<2;++i) {
+            const auto& attachment=world.fem.humanAttachments[i];
+            std::cerr<<"attachment_row="<<i<<" node="<<attachment.identity.x<<" body="<<attachment.identity.y
+                     <<" raw_reaction_n="<<r[i].x<<","<<r[i].y<<","<<r[i].z<<"\n";
+        }
+        id<MTLBuffer> gs=(__bridge id<MTLBuffer>)program.matterGeneralizedReaction;
+        id<MTLBuffer> gb=[device newBufferWithLength:160*sizeof(float) options:MTLResourceStorageModeShared];
+        id<MTLCommandBuffer> gc=[applyQueue commandBuffer];id<MTLBlitCommandEncoder> gblit=[gc blitCommandEncoder];
+        [gblit copyFromBuffer:gs sourceOffset:0 toBuffer:gb destinationOffset:0 size:gb.length];[gblit endEncoding];finish(gc);
+        auto* gf=static_cast<float*>(gb.contents);double gl1=0;for(unsigned i=0;i<160;++i) gl1+=std::abs(gf[i]);
+        std::cerr<<"accepted_displacement_m="<<move<<" reaction_l1="<<r0<<","<<r1
+                 <<" generalized_l1="<<gl1<<" joint6="<<gf[6]<<"\n";
+        require(std::isfinite(r0)&&std::isfinite(r1)&&r0>0&&r1>0,"accepted attachment reactions missing");
+        std::cout<<"PASS accepted costal owner displacement_m="<<move<<" reactions_n="<<r0<<","<<r1<<" synthetic_brain_witness=1\n";
+        return;
+    }
+
     id<MTLCommandBuffer> proposalCommand = [applyQueue commandBuffer];
     metalrobo::MetalNumanXHumanMatterProposalRequest proposalRequest{};
     proposalRequest.mode =
@@ -418,13 +510,15 @@ void verifyCostalOwnerIntegration(id<MTLDevice> device) {
 }
 
 } // namespace adapter_fixture
-int main() {
+int main(int argc, const char** argv) {
   @autoreleasepool {
     try {
       id<MTLDevice> device=MTLCreateSystemDefaultDevice();
       adapter_fixture::require(device != nil, "Metal device unavailable");
-      adapter_fixture::verifyCostalOwnerIntegration(device);
-      std::cout << "PASS costal two-owner real NumanX force-reject synthetic chain\n";
+      const bool accept=argc==2 && std::string(argv[1])=="--accept";
+      adapter_fixture::require(argc==1 || accept,"usage: owner_probe [--accept]");
+      adapter_fixture::verifyCostalOwnerIntegration(device,accept);
+      if(!accept) std::cout << "PASS costal two-owner real NumanX force-reject synthetic chain\n";
       return 0;
     } catch(const std::exception& e) {
       std::cerr << "costal real-owner probe FAILED: " << e.what() << "\n";

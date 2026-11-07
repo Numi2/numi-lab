@@ -154,3 +154,43 @@ force-reject result only: it does not establish an accepted loaded step, full
 NumanX v5 construction, replay of a committed step, a two-body owner or
 anatomical validity. The v5 indexing change compiled in a syntax-only check but
 was not linked into this probe.
+
+## Accepted owner trial and wrong-channel instrumentation
+
+With the same 155-body synthetic model and 0.001 rad/s initial relative joint
+velocity, executable
+`0c165864063faab8028a2f183cb6ced0f7d882ad7e784ab1cbab562d4c8417b3`
+published an accepted step but failed its two-anchor force gate. A diagnostic
+repeat, executable
+`672d97040a11f1f43461993a84d0d16848c2cbf35dc9f720d624b87a259fbd5b`,
+reported four zero vectors from the ordinary fixed-node reaction buffer while
+the staged generalized load had L1 magnitude 0.00532348 and joint-6 component
+-0.000102367. Its node displacement vectors in metres were:
+
+```
+0:  0,          -0.00017029,   1.49012e-08
+1:  7.45058e-09,-0.00017035,   1.49012e-08
+2: -5.21541e-08,-0.000172734, -5.34505e-05
+3: -8.19564e-08,-0.000110447,  1.3113e-06
+```
+
+The rejected instrument used the static fixed-node channel. The public Matter
+API explicitly identifies the tag-2 Human attachment raw-reaction channel as
+the force on Human; its rows correspond to the cooked attachment records.
+The two failed instrument source versions are preserved under
+`docs/evidence/human-costal-20261107/` with SHA-256
+`c4277960e044bda3fd9bd7fc5a1c8611400a5fac2a94d5a96d1f2020598b004a` and
+`80215bf11636a8e869fabe91fe4efeb311abf9a1bed690c9a47cb8a4f5149e83`.
+
+The corrected-channel executable
+`040af78320a191cacef454fb29a0ec5fc5234ccd9722820d5d977ebacf444409`,
+source SHA-256
+`6adf1ea6fe0ab30f58b32bf3ac336ca75b034e3982c91a5b0ac79ff6bff5894a`,
+passed the same accepted publication and nonzero-load gates. The synthetic Brain
+witness and ACK enabled real owner publication; they do not qualify a Brain
+integration. Maximum displacement was 0.000180815 m. Raw attachment reactions:
+node 0/body 1 = (-0.00414287, -0.00369722, -0.00176924) N, magnitude
+0.00582778 N; node 1/body 2 = (0.0040943, 0.0000282371, 0.0000204071) N,
+magnitude 0.00409445 N. The same generalized load values above were observed.
+This establishes a nonzero synthetic load, not a force accuracy test, native v5
+asset admission, committed replay, physiological behavior or anatomical ownership.
