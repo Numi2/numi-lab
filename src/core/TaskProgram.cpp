@@ -1458,6 +1458,12 @@ TaskCompileDiagnostics compileTaskProgram(
             dofFound->limits.w,
             dofFound->limits.z,
         };
+        if (actuator->kind == RobotActuatorKind::jointPosition &&
+            ((actuator->parameters.z != 0.0f && actuator->parameters.z != 1.0f) ||
+             actuator->parameters.w != 0.0f)) {
+            return reject(TaskCompileStatus::invalidPack, actuator->id,
+                "joint-position posture control requires z=0 or 1 and reserved w=0");
+        }
         if (actuator->kind == RobotActuatorKind::flappingPosition) {
             if (!finite(actuator->parameters) ||
                 !(actuator->parameters.x > 0.0f) ||
@@ -1551,7 +1557,9 @@ TaskCompileDiagnostics compileTaskProgram(
                 static_cast<std::uint32_t>(actuator->kind),
                 articulation.rootBody,
                 actuator->component,
-                0u,
+                actuator->kind == RobotActuatorKind::jointPosition &&
+                    actuator->parameters.z == 1.0f
+                    ? MR_TASK_ACTUATOR_INDEPENDENT_POSTURE : 0u,
             },
         });
     }
@@ -4248,7 +4256,8 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.id == "birdflow_american_crow_journey_v7" ||
         pack.id == "birdflow_american_crow_journey_v8_neural" ||
         pack.id == "birdflow_american_crow_journey_v9_visual_neural" ||
-        pack.id == "birdflow_american_crow_navigation_v10_world_model") {
+        pack.id == "birdflow_american_crow_navigation_v10_world_model" ||
+        pack.id == "american_crow_embodied_development_v11") {
         // Stage zero and stage one are grounded support tasks. Wing actuation
         // begins only in the lift-off band, keeping the curriculum physically
         // possible before flight practice.
@@ -4296,7 +4305,8 @@ TaskCompileDiagnostics compileTaskProgram(
     }
     if (pack.id == "birdflow_american_crow_journey_v8_neural" ||
         pack.id == "birdflow_american_crow_journey_v9_visual_neural" ||
-        pack.id == "birdflow_american_crow_navigation_v10_world_model") {
+        pack.id == "birdflow_american_crow_navigation_v10_world_model" ||
+        pack.id == "american_crow_embodied_development_v11") {
         // V8 deliberately omits AVIAN_CROW_APPROACH_ENVELOPE. The policy is
         // the sole deployment action authority; the task only records shadow
         // envelope occupancy through direct outcome channels.

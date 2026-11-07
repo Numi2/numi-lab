@@ -1,0 +1,14 @@
+{
+  "command": [
+    "python/.venv/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "crow_*test.py"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 1.4729747499804944
+}

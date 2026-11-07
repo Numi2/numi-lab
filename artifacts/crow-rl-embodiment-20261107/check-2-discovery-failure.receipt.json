@@ -1,0 +1,14 @@
+{
+  "command": [
+    "python/.venv/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "mlx_worker_test.py"
+  ],
+  "exit_code": 5,
+  "wall_seconds": 0.023868791002314538
+}

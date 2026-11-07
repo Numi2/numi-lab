@@ -1,0 +1,440 @@
+[
+  {
+    "path": ".numi/runs/american-crow/20261107-head-mechanics-admission-01/head-mechanics.json",
+    "bytes": 507,
+    "sha256": "4804c423461ba18195c7a2cbaecdf58f22db17ea3682a67192ea125520fba042",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-mechanics-admission-01/head-mechanics.receipt.json",
+    "bytes": 362,
+    "sha256": "a08aeeb23ac6d6eb9dc299b2f401ec222ac63fdc0f951652436402fcd0a97a6c",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-mechanics-admission-01/head-mechanics.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-mechanics-admission-01/plan.json",
+    "bytes": 6684,
+    "sha256": "d909790063a23d8091a3ebb8cc3ad69666e3d45c42f34753b59aaf486bd33578",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-mechanics-admission-01/summary.json",
+    "bytes": 555,
+    "sha256": "166591a7f558691b85ddbd954cdfc6efedd5099dc4f4ca4c3b9fcc1b20e1d0c1",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-mechanics-admission-02/head-mechanics.json",
+    "bytes": 555,
+    "sha256": "f549729fa02360268dac1b54cb5799467509131257c9140e3a7f6c4877726097",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-mechanics-admission-02/head-mechanics.receipt.json",
+    "bytes": 365,
+    "sha256": "c8d2f2e27948051e7624c33179fd10a8b614ec7542e70d8614736a5f26b05f0b",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-mechanics-admission-02/head-mechanics.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-mechanics-admission-02/plan.json",
+    "bytes": 7413,
+    "sha256": "65ced1f941037982eef946a2bd1b6caa740a003641a7603d354cd2f3c585f163",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-mechanics-admission-02/summary.json",
+    "bytes": 607,
+    "sha256": "061cbd98043964c3ae817f232f8e5642a9a97ecaf6c88bbde53181a73bfd5f7e",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-01/failure.json",
+    "bytes": 193,
+    "sha256": "eba655f75469b4e924cbfb07c22ced45f77e0aea39710d29f9c0a4666da4d2cb",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-01/neutral.actions.f32",
+    "bytes": 73728,
+    "sha256": "484eaa327eae22dd9073858b0599e43fb5e06cabfbc8de88c83763edcb8d2446",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-01/neutral.json",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-01/neutral.receipt.json",
+    "bytes": 1139,
+    "sha256": "6b8a60611314ab3d0d678d895008a215ba1fd50cfa61bf567f82fcd7b1bc3387",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-01/neutral.stderr",
+    "bytes": 67,
+    "sha256": "33d4969fdc2c5ef8739e93ac1729d3dd746ba3a9042b82043002c822e64756dc",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-01/plan.json",
+    "bytes": 6884,
+    "sha256": "a83d99c27b8f653e0fe091b829e151ffce5f7eb5b8882aaf2c27acfa192917da",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-02/failure.json",
+    "bytes": 134,
+    "sha256": "7d282e9165f6259f6fef1b09205ae25d2569eb5e05750eb07e7e5426763e3849",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-02/head-beak-command.actions.f32",
+    "bytes": 73728,
+    "sha256": "00055205d346db33af3b6bf6fcd4dc1965c7c3e7da212720f4ef21396e5bad84",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-02/head-beak-command.json",
+    "bytes": 13636,
+    "sha256": "6831ee420ac7d0cc2e612867fe13e824f831b201b0e26e376fcaa48df3be7fc5",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-02/head-beak-command.receipt.json",
+    "bytes": 1156,
+    "sha256": "a84d56c8f48acd96df083a227b6bf37f2ef8d2caf67d52516084712864aca84b",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-02/head-beak-command.state.tsv",
+    "bytes": 43752,
+    "sha256": "04cbb85f2fefe4b0493af730d29d899d8a67592a539e165bb1612130230b7f97",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-02/head-beak-command.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-02/neutral.actions.f32",
+    "bytes": 73728,
+    "sha256": "484eaa327eae22dd9073858b0599e43fb5e06cabfbc8de88c83763edcb8d2446",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-02/neutral.json",
+    "bytes": 13595,
+    "sha256": "b173197b8e5f9c4482599c7f5ba0ae3d40b1cdd9575bafce094183edc68081eb",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-02/neutral.receipt.json",
+    "bytes": 1136,
+    "sha256": "e833e33acaf65163eb04d40db1aef039630b31b5322dc64d75312c2ec6e15247",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-02/neutral.state.tsv",
+    "bytes": 43752,
+    "sha256": "04cbb85f2fefe4b0493af730d29d899d8a67592a539e165bb1612130230b7f97",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-02/neutral.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-02/plan.json",
+    "bytes": 6884,
+    "sha256": "4b824b650e561729068e05203f64bed29301d16b2f21a29e0877c257dc7da274",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-03/head-beak-command.actions.f32",
+    "bytes": 73728,
+    "sha256": "00055205d346db33af3b6bf6fcd4dc1965c7c3e7da212720f4ef21396e5bad84",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-03/head-beak-command.json",
+    "bytes": 13628,
+    "sha256": "8fe0e9557feb155d79dcaf2fd7464519f95bb112b27b3699e3acc4245c3761e9",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-03/head-beak-command.receipt.json",
+    "bytes": 1156,
+    "sha256": "0c48be9c60eb2055e85b320f39c77dc9a6fc15757e42d9a0b2c7b10619d48042",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-03/head-beak-command.state.tsv",
+    "bytes": 43132,
+    "sha256": "3e1e8182c9cd2d43d6b3671a88a592ca12494c6cba4981331ccab865302f05f0",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-03/head-beak-command.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-03/neutral.actions.f32",
+    "bytes": 73728,
+    "sha256": "484eaa327eae22dd9073858b0599e43fb5e06cabfbc8de88c83763edcb8d2446",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-03/neutral.json",
+    "bytes": 13591,
+    "sha256": "533d5a2a3a0d6e719846ee7939e6976cb77f8c16ec6a76de7b618a107353ea90",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-03/neutral.receipt.json",
+    "bytes": 1136,
+    "sha256": "70b6ff08e0f014aaa7acde6e1ec69c080204b9e1cb0e8f1f65ec94354e3c28eb",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-03/neutral.state.tsv",
+    "bytes": 43752,
+    "sha256": "04cbb85f2fefe4b0493af730d29d899d8a67592a539e165bb1612130230b7f97",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-03/neutral.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-03/plan.json",
+    "bytes": 7000,
+    "sha256": "b9da89e9a7f25e435d273dd65993164141535747c4076386c962851c6edeecec",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-contact-control-03/summary.json",
+    "bytes": 1246,
+    "sha256": "6b1f52768cfceadc83048f97ff0ba12079183f847fc6bb064d804c5aaf46e3d1",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-learning-probe-01/initial-deployment.policypack",
+    "bytes": 859895,
+    "sha256": "5c712a37b4bda3b91e62daa48c3838bb5343c70804f3ded04c3359f6f2f7c468",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-learning-probe-01/initial-incumbent.policypack",
+    "bytes": 859895,
+    "sha256": "4c900a028c3ae763cd004d7c95c8823bee502138252f7b32ddefab748311051f",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-learning-probe-01/initial-updated.policypack",
+    "bytes": 1710747,
+    "sha256": "b2f5b8f5614849d24a6d99963f00e99b2f1329bc76f3ffaf79f2c189142e3f1e",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-learning-probe-01/initial.learner.safetensors",
+    "bytes": 5131975,
+    "sha256": "fc5dbf3b2cacd0069a79e7f0e3c19e1b319f3d0ab4ad6bf3bcf7380daaa32c2e",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-learning-probe-01/initial.policypack",
+    "bytes": 1710747,
+    "sha256": "ceba265a85ffcd9cd8b341c3aa953223d8c862d2f6ad5d5b08cdc0f4c7dd4318",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-learning-probe-01/initial.rolloutpack",
+    "bytes": 62130965,
+    "sha256": "ff5761cc5810aaa4a62472b9d91258bbf59cc1cc384ea3f88d0fbd07192a8c66",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-learning-probe-01/learner-initial.json",
+    "bytes": 8758,
+    "sha256": "b150d940726c67d92560c2894cef7af7d3225ec1d3015ea2e0af25ef66c5b5c4",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-learning-probe-01/learner-initial.receipt.json",
+    "bytes": 2242,
+    "sha256": "0f02617872ade3a738baf96227556234eac6cdb70f17d4435258992b1b436faf",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-learning-probe-01/learner-initial.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-learning-probe-01/learner-resume.json",
+    "bytes": 8721,
+    "sha256": "0303642da66b01973665b73e292b53998a69f5dbb610eedd6cd4d6a1e1793627",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-learning-probe-01/learner-resume.receipt.json",
+    "bytes": 2312,
+    "sha256": "8ae8435e63a15e367f6db2c3d124c073114460d097afde10b7eb1876a3d0368a",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-learning-probe-01/learner-resume.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-learning-probe-01/plan.json",
+    "bytes": 7083,
+    "sha256": "4d16bf4c23dc6c65a0c0b6dc2880acd2549e46ab84a9a3150059fc680f384acd",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-learning-probe-01/resume-deployment.policypack",
+    "bytes": 859895,
+    "sha256": "0a239467835fbf98b62ea6b1b3a152680af944ccc3b135fed96a0d11553fa60c",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-learning-probe-01/resume-incumbent.policypack",
+    "bytes": 859895,
+    "sha256": "5c712a37b4bda3b91e62daa48c3838bb5343c70804f3ded04c3359f6f2f7c468",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-learning-probe-01/resume-updated.policypack",
+    "bytes": 1710747,
+    "sha256": "c30e726871102270a1f39019012eb14a96b12b8ba144fedb775bcb3f3b60face",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-learning-probe-01/resume.learner.safetensors",
+    "bytes": 5131961,
+    "sha256": "2694dd4b88c031519c18fad17a4bdc313c371a18283cb71237caffefddc26409",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-learning-probe-01/resume.rolloutpack",
+    "bytes": 62130965,
+    "sha256": "fb5c08c291652ae1c2203fbfee67c8937d3aaeb5db4bea332bea1c8f70d4516a",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-learning-probe-01/summary.json",
+    "bytes": 1095,
+    "sha256": "7be1e0286794bc71675baf659bd49b1a6862d355213c209f1bba0ed9c7cf7115",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-partition-control-01/ordinary-chunk1.json",
+    "bytes": 23145,
+    "sha256": "568bda3fab7f9206ead556732fe33970f6805c1d24142825a0355990c0cf9e07",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-partition-control-01/ordinary-chunk1.receipt.json",
+    "bytes": 949,
+    "sha256": "62cb3cbc7a33a0b09ac86cd308ca311e4a26f967b9cac11ae5ba4cdc78d5a897",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-partition-control-01/ordinary-chunk1.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-partition-control-01/ordinary-chunk8.json",
+    "bytes": 23144,
+    "sha256": "222b41e9e889008d9c6f1ae115c6b4109df034e5f8d4659cbec4c6adf8905b40",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-partition-control-01/ordinary-chunk8.receipt.json",
+    "bytes": 949,
+    "sha256": "d9a481bdcbe43f7e0a72c6a813182a71029d00eba1192feef9c8addad9fcade2",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-partition-control-01/ordinary-chunk8.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-partition-control-01/plan.json",
+    "bytes": 7565,
+    "sha256": "930cc2e5fbf4be219fd0699d5f4310e07de00d1a7d58886064189a5146d51c66",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-partition-control-01/residual-chunk1.json",
+    "bytes": 23199,
+    "sha256": "073b9ca8150fcda00076e1ae5a42bd40a7811fd46fb85d239554f754287461d1",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-partition-control-01/residual-chunk1.receipt.json",
+    "bytes": 1114,
+    "sha256": "4a892cffdf76e6c1bb74d79cf55b040df67c0ddb787e76889f947c348fef9032",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-partition-control-01/residual-chunk1.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-partition-control-01/residual-chunk8.json",
+    "bytes": 23190,
+    "sha256": "7b52733595a4137f0c0b315f7482d92beefa7b3202d2c2279c4b591d64e9935c",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-partition-control-01/residual-chunk8.receipt.json",
+    "bytes": 1113,
+    "sha256": "2f6798876603f7e84d3c893ea8df9e51fd7d61d6b6f8aff7f8a11569a60c1bb6",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-partition-control-01/residual-chunk8.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-embodied-partition-control-01/summary.json",
+    "bytes": 421,
+    "sha256": "18f24d0f06f094fe44408abd22826fcd41e0c75040fb6477b034e2e514a606a0",
+    "copied_to_source_archive": true
+  }
+]

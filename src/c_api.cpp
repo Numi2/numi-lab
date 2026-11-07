@@ -657,7 +657,7 @@ void validateTaskRolloutConfiguration(
         );
     }
     if (config.birdflow_journey_variant >
-        MR_BIRDFLOW_JOURNEY_V10_WORLD_MODEL_NAVIGATION) {
+        MR_BIRDFLOW_JOURNEY_V11_EMBODIED) {
         throw std::invalid_argument(
             "task-rollout BirdFlow journey variant is invalid"
         );
@@ -3227,9 +3227,14 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
     MRTaskRolloutHandle* result = nullptr;
     const int status = translateErrors([&] {
         validateTaskRolloutConfiguration(*config);
-        auto robot = metalrobo::builtinRobotPack(
-            "birdflow_american_crow_estimated_hybrid"
-        );
+        const bool embodied = journey && config->birdflow_journey_variant ==
+            MR_BIRDFLOW_JOURNEY_V11_EMBODIED;
+        if (embodied && config->birdflow_journey_teacher != 0u) {
+            throw std::invalid_argument("Embodied v11 has no admitted teacher action contract");
+        }
+        auto robot = metalrobo::builtinRobotPack(embodied
+            ? "american_crow_active_head_estimated_v1"
+            : "birdflow_american_crow_estimated_hybrid");
         if (!robot) {
             throw std::logic_error(
                 "bundled BirdFlow American-crow RobotPack is unavailable"
@@ -3254,7 +3259,8 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             );
         }
         manifest.id = journey
-            ? worldModelNavigation
+            ? embodied ? "american_crow_embodied_development_v11_run"
+            : worldModelNavigation
                 ? "birdflow_american_crow_navigation_v10_world_model_run"
                 : visualNeuralJourney
                 ? "birdflow_american_crow_journey_v9_visual_neural_run"
@@ -3267,7 +3273,8 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             ? metalrobo::makeBirdFlowAmericanCrowNavigationScenePack()
             : metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
         manifest.sensors.id = journey
-            ? worldModelNavigation
+            ? embodied ? "american_crow_embodied_v11_proprioception"
+            : worldModelNavigation
                 ? "birdflow_american_crow_navigation_v10_rgbd_sensors"
                 : visualNeuralJourney
                 ? "birdflow_american_crow_journey_v9_visual_neural_sensors"
@@ -3276,7 +3283,9 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
                 : "birdflow_american_crow_journey_v7_state_sensors"
             : "birdflow_american_crow_estimated_hybrid_state_sensors";
         manifest.task = journey
-            ? worldModelNavigation
+            ? embodied ? metalrobo::makeAmericanCrowEmbodiedTaskPack(
+                manifest.sensors.observation, manifest.reality.reset)
+            : worldModelNavigation
                 ? metalrobo::makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
                       manifest.sensors.observation, manifest.reality.reset
                   )

@@ -1,0 +1,9 @@
+{
+  "command": [
+    "tools/numi",
+    "crow-env",
+    "doctor"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 0.1341944170417264
+}

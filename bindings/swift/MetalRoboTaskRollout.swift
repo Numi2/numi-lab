@@ -608,6 +608,27 @@ public enum MetalRoboBirdFlowJourneyVariant: UInt32, Sendable {
     case v8Neural = 1
     case v9VisualNeural = 2
     case v10WorldModelNavigation = 3
+    case v11Embodied = 4
+
+    public var commandName: String {
+        switch self {
+        case .v7Hierarchical: "v7-hierarchical"
+        case .v8Neural: "v8-neural"
+        case .v9VisualNeural: "v9-visual-neural"
+        case .v10WorldModelNavigation: "v10-world-model"
+        case .v11Embodied: "v11-embodied"
+        }
+    }
+
+    public var taskIdentifier: String {
+        switch self {
+        case .v7Hierarchical: "birdflow_american_crow_journey_v7"
+        case .v8Neural: "birdflow_american_crow_journey_v8_neural"
+        case .v9VisualNeural: "birdflow_american_crow_journey_v9_visual_neural"
+        case .v10WorldModelNavigation: "birdflow_american_crow_navigation_v10_world_model"
+        case .v11Embodied: "american_crow_embodied_development_v11"
+        }
+    }
 }
 
 public enum MetalRoboBirdFlowNavigationCourse: UInt32, Sendable {

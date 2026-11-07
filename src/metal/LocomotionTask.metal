@@ -5058,6 +5058,8 @@ kernel void mr_locomotion_task_apply_actions(
         const bool interactionReference =
             (program.schedule.w &
              MR_TASK_PROGRAM_INTERACTION_REFERENCE) != 0u;
+        const bool independentPosture =
+            (binding.actuator.w & MR_TASK_ACTUATOR_INDEPENDENT_POSTURE) != 0u;
         const bool avianActionSet =
             program.counts0.x >= 9u &&
             actions[0].actuator.x == MR_TASK_ACTUATOR_FLAPPING_POSITION &&
@@ -5190,11 +5192,12 @@ kernel void mr_locomotion_task_apply_actions(
         const float avianGroundResidualScale =
             avianCrowGroundGaitCarrier ? 0.25f : 1.0f;
         const float avianGroundPolicyResidual =
+            independentPosture ? filtered :
             avianCrowGroundLegResidual && !avianCrowGroundLegAction
             ? 0.0f
             : filtered * avianGroundResidualScale;
         const float avianLiftoffNonWingResidualScale =
-            avianCrowLiftoffTrimCarrier ? 0.25f : 1.0f;
+            avianCrowLiftoffTrimCarrier && !independentPosture ? 0.25f : 1.0f;
         const float avianLiftoffTailResidualScale =
             avianCrowLiftoffTrimCarrier ? 0.10f : 1.0f;
         const float avianLiftoffPronationCarrier =
@@ -5257,7 +5260,7 @@ kernel void mr_locomotion_task_apply_actions(
             : defaultQ[binding.indices.z] +
                 binding.parameters.x *
                     avianNonWingCommand *
-                    (avianStandingCurriculum ? 0.0f : 1.0f);
+                    (avianStandingCurriculum && !independentPosture ? 0.0f : 1.0f);
         float targetCandidate = studentTarget;
         if (interactionReference) {
             const float frameReference = interactionJointTargets[

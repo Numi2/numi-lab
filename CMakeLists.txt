@@ -744,6 +744,7 @@ add_library(
     src/core/EngineModel.cpp
     src/core/EngineModelComposer.cpp
     src/core/RunProgram.cpp
+    src/core/CrowEmbodiment.cpp
     src/core/ParallelABASchedule.cpp
     src/core/CompiledMetalMultiArticulatedProgram.cpp
     src/core/CompiledMetalMultiArticulatedContactProgram.cpp
@@ -1055,6 +1056,11 @@ add_executable(
     metalrobo_robot_catalog
     apps/robot_catalog.cpp
 )
+add_executable(metalrobo_crow_embodiment_check apps/crow_embodiment_check.cpp)
+target_link_libraries(metalrobo_crow_embodiment_check PRIVATE metalrobo)
+set_target_properties(metalrobo_crow_embodiment_check PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
 add_executable(
     metalrobo_ai_sapiens_compile
     apps/ai_sapiens_compile.cpp
@@ -2295,6 +2301,8 @@ if(BUILD_TESTING)
         NAME metalrobo.runtime.robot_catalog
         COMMAND $<TARGET_FILE:metalrobo_robot_catalog> --self-check
     )
+    add_test(NAME metalrobo.crow.embodiment
+        COMMAND $<TARGET_FILE:metalrobo_crow_embodiment_check>)
     set_tests_properties(
         metalrobo.runtime.task_program
         metalrobo.runtime.run_program

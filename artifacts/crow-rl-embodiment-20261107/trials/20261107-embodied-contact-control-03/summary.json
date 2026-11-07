@@ -1,0 +1,37 @@
+{
+  "status": "passed",
+  "claim": "accepted native contact-world head/beak actuation control",
+  "records": [
+    {
+      "control": "neutral",
+      "action_stream_sha256": "484eaa327eae22dd9073858b0599e43fb5e06cabfbc8de88c83763edcb8d2446",
+      "accepted_state_trace_sha256": "04cbb85f2fefe4b0493af730d29d899d8a67592a539e165bb1612130230b7f97",
+      "final_head_beak_angles_rad": [
+        -3.3481907e-08,
+        0.0578157231,
+        0.00323233288
+      ],
+      "device_failure_steps": 0,
+      "physical_terminations": 0
+    },
+    {
+      "control": "head-beak-command",
+      "action_stream_sha256": "00055205d346db33af3b6bf6fcd4dc1965c7c3e7da212720f4ef21396e5bad84",
+      "accepted_state_trace_sha256": "3e1e8182c9cd2d43d6b3671a88a592ca12494c6cba4981331ccab865302f05f0",
+      "final_head_beak_angles_rad": [
+        0.400013357,
+        -0.187557638,
+        0.328165203
+      ],
+      "device_failure_steps": 0,
+      "physical_terminations": 0
+    }
+  ],
+  "command_minus_control_angles_rad": [
+    0.40001339048190704,
+    -0.2453733611,
+    0.32493287012
+  ],
+  "boundary": "one traced lane, eight environment validity control, 2.56 seconds; no sensing or behavioral qualification",
+  "ecological_environment_qualified": false
+}

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "ctest",
+    "--test-dir",
+    "build",
+    "-R",
+    "metalrobo\\.(crow\\.|runtime\\.(task_program|run_program|robot_catalog))",
+    "--output-on-failure"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 3.068321416969411
+}

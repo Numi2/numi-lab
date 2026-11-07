@@ -65,6 +65,13 @@ struct RobotPack {
     std::optional<FlappingWingActuatorPack> flappingWings;
 };
 
+// Estimated development embodiment. Adds explicit neck yaw/pitch and lower
+// beak articulation while preserving the parent's neutral spatial inertia.
+// This is a mechanics instrument, not measured crow anatomy.
+[[nodiscard]] RobotPack makeAmericanCrowActiveHeadRobotPack();
+[[nodiscard]] TaskPack makeAmericanCrowEmbodiedTaskPack(
+    TaskObservationProgram& observations, TaskResetProgram& reset);
+
 struct SceneObject {
     std::string id;
     std::string semanticClass;

@@ -1,0 +1,248 @@
+{
+  "action_carrier" : "v11_embodied_neural_proprioception",
+  "birdflow_journey_student_authority" : 0,
+  "birdflow_journey_teacher" : false,
+  "birdflow_journey_variant" : "v11-embodied",
+  "birdflow_navigation_curriculum" : false,
+  "birdflow_navigation_curriculum_stage" : -1,
+  "candidate_deployment_policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/.numi\/runs\/american-crow\/20261107-embodied-learning-probe-01\/initial-deployment.policypack",
+  "checkpoint_directory" : "",
+  "checkpoint_interval" : 0,
+  "control_steps_per_submission" : 8,
+  "deployment_policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/.numi\/runs\/american-crow\/20261107-embodied-learning-probe-01\/initial-deployment.policypack",
+  "deployment_selection_performed" : false,
+  "device" : "Apple M4 Pro",
+  "difficulty_sampling_exponent_override" : 0,
+  "elapsed_seconds" : 4.8084660829999999,
+  "end_to_end_environment_steps_per_second" : 27258.588859219784,
+  "environments" : 512,
+  "failed_environment_steps" : 0,
+  "final_physical_evidence" : {
+    "control_steps" : 256,
+    "evidence_windows" : 0,
+    "last_balance_failure_rate" : 0,
+    "last_clean_miss_rate" : 0,
+    "last_completed_episode_count" : 0,
+    "last_contact_rate" : 0,
+    "last_mean_tracking_per_million" : 0,
+    "pending_completed_episode_count" : 512,
+    "pending_timeout_episode_count" : 0
+  },
+  "final_policy_revision" : 3,
+  "gpu_milliseconds" : 3322.6718751247972,
+  "host_requested_resets" : 0,
+  "incumbent_policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/.numi\/runs\/american-crow\/20261107-embodied-learning-probe-01\/initial-incumbent.policypack",
+  "initial_policy_revision" : 1,
+  "last_learning_update" : {
+    "actor_gradient_norm" : 0.31455852091312408,
+    "approximate_kl" : 0.0032127930417118478,
+    "behavior_policy_fingerprint" : 3961630560262793121,
+    "clip_fraction" : 0.0291748046875,
+    "critic_gradient_norm" : 1.4928649291396141,
+    "deployment_policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/.numi\/runs\/american-crow\/20261107-embodied-learning-probe-01\/initial-deployment.policypack",
+    "done_count" : 512,
+    "entropy" : -3.418887734413147,
+    "gradient_norm" : 1.5468217618763447,
+    "imagination_fraction" : 0,
+    "imagination_loss" : 0,
+    "impact_sequence_metrics" : [
+
+    ],
+    "kl_divergence" : 0.0032183372022700496,
+    "learner_state" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/.numi\/runs\/american-crow\/20261107-embodied-learning-probe-01\/initial.learner.safetensors",
+    "learning_rate" : 0.0023730470129521564,
+    "loss" : 1.2765192240476608,
+    "maximum_reward" : 0.17192460596561432,
+    "mean_action_standard_deviation" : 0.20020784437656403,
+    "mean_contact_reward" : 0,
+    "mean_dodge_cbf_buffer_reward" : 0,
+    "mean_dodge_cbf_correction_reward" : 0,
+    "mean_dodge_evasion_reward" : 0,
+    "mean_dodge_link_clearance_reward" : 0,
+    "mean_dodge_miss_reward" : 0,
+    "mean_dodge_predicted_clearance_reward" : 0,
+    "mean_dodge_safe_action_rate_reward" : 0,
+    "mean_dodge_safe_stillness_reward" : 0,
+    "mean_reward" : 0.094493433833122253,
+    "mean_root_height" : 0.85590726137161255,
+    "mean_task_reward" : 0.048819422721862793,
+    "mean_tilt" : 0,
+    "mean_tracking_score" : 0.72643810510635376,
+    "minibatch_updates" : 8,
+    "minimum_reward" : -0.957660973072052,
+    "mlx_active_memory_bytes" : 5164688,
+    "mlx_cache_memory_bytes" : 0,
+    "mlx_cache_released_bytes" : 457091662,
+    "mlx_peak_memory_bytes" : 461495308,
+    "outcomes" : {
+      "approach_pitch_full_envelope_fraction" : {
+        "direction" : 2,
+        "mean" : 0,
+        "unit" : "ratio"
+      },
+      "approach_pitch_warning_fraction" : {
+        "direction" : 2,
+        "mean" : 0,
+        "unit" : "ratio"
+      },
+      "done" : {
+        "direction" : 2,
+        "mean" : 0.0078125,
+        "unit" : "bool"
+      },
+      "figure_eight_tracking" : {
+        "direction" : 1,
+        "mean" : 0,
+        "unit" : "ratio"
+      },
+      "forward_flight_tracking" : {
+        "direction" : 1,
+        "mean" : 0.018678311258554459,
+        "unit" : "ratio"
+      },
+      "ground_support" : {
+        "direction" : 1,
+        "mean" : 0.004634674172848463,
+        "unit" : "ratio"
+      },
+      "liftoff" : {
+        "direction" : 1,
+        "mean" : 0.019695818424224854,
+        "unit" : "ratio"
+      },
+      "physics_error" : {
+        "direction" : 2,
+        "mean" : 0,
+        "unit" : "bool"
+      },
+      "push_off" : {
+        "direction" : 1,
+        "mean" : 0.034682765603065491,
+        "unit" : "m\/s"
+      },
+      "reward" : {
+        "direction" : 1,
+        "mean" : 0.094493433833122253,
+        "unit" : "reward"
+      },
+      "root_height" : {
+        "direction" : 0,
+        "mean" : 0.85590726137161255,
+        "unit" : "m"
+      },
+      "task_reward" : {
+        "direction" : 1,
+        "mean" : 0.048819422721862793,
+        "unit" : "reward"
+      },
+      "timeout" : {
+        "direction" : 0,
+        "mean" : 0,
+        "unit" : "bool"
+      },
+      "tracking" : {
+        "direction" : 1,
+        "mean" : 0.72643810510635376,
+        "unit" : "ratio"
+      },
+      "walking_contact" : {
+        "direction" : 1,
+        "mean" : 0.004377228207886219,
+        "unit" : "ratio"
+      }
+    },
+    "policy_loss" : 0.0006444698083214462,
+    "policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/.numi\/runs\/american-crow\/20261107-embodied-learning-probe-01\/initial-updated.policypack",
+    "policy_revision" : 3,
+    "policy_revision_after" : 3,
+    "policy_revision_before" : 2,
+    "recovery_phase_rates_by_difficulty_band" : {
+      "4" : {
+        "brace" : 0,
+        "foot_support" : 0,
+        "mean_root_height" : 0.85590720176696777,
+        "mean_tilt" : 0,
+        "quiet_stand" : 0,
+        "restored" : 0,
+        "rise" : 0,
+        "standing" : 0,
+        "support_transfer" : 0,
+        "transition_count" : 65536,
+        "trunk_clear" : 0
+      }
+    },
+    "reward_standard_deviation" : 0.08988509327173233,
+    "samples" : 65536,
+    "status" : "updated",
+    "task_fingerprint" : 13784357751904259188,
+    "termination_reason_counts" : {
+      "1" : 512
+    },
+    "timeout_count" : 0,
+    "update_seconds" : 0.10871841700281948,
+    "value_loss" : 1.2724558413028717
+  },
+  "learner" : "mlx",
+  "learner_state" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/.numi\/runs\/american-crow\/20261107-embodied-learning-probe-01\/initial.learner.safetensors",
+  "learner_state_restored" : false,
+  "maximum_active_contacts" : 8,
+  "maximum_episode_steps" : 1600,
+  "maximum_manifolds" : 2,
+  "minibatch_size" : 8192,
+  "minibatches_per_epoch" : 8,
+  "motion_minibatch_size" : 0,
+  "native_submission_count" : 32,
+  "navigation_return_weighted_self_imitation" : false,
+  "navigation_self_imitation_minimum_waypoint" : 5,
+  "operation" : "swift_native_policy_training",
+  "physics" : "metal",
+  "policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/.numi\/runs\/american-crow\/20261107-embodied-learning-probe-01\/initial-updated.policypack",
+  "resumed_exploration_overridden" : false,
+  "resumed_learning_rate_overridden" : false,
+  "retained_buffer_bytes" : 258258270,
+  "retention_maximum_difficulty_band" : -1,
+  "retention_policy_pack" : "",
+  "retention_protected_actor_only" : false,
+  "retention_rollout_teacher_blend" : 0,
+  "rollout_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/.numi\/runs\/american-crow\/20261107-embodied-learning-probe-01\/initial.rolloutpack",
+  "samples_per_update" : 65536,
+  "scheduler" : "swift",
+  "stage_high_water" : {
+    "articulation_point_queries" : 0,
+    "candidate_pairs" : 2,
+    "ccd_candidates" : 0,
+    "ccd_events" : 0,
+    "constraint_blocks" : 8,
+    "constraint_rows" : 24,
+    "dynamic_nodes" : 0,
+    "endpoint_runtime_records" : 0,
+    "hard_convex_pairs" : 0,
+    "island_constraint_references" : 0,
+    "island_node_references" : 0,
+    "islands" : 1,
+    "manifolds" : 2,
+    "mesh_triangle_candidates" : 0,
+    "operator_velocity_elements" : 0,
+    "quality_direct_tiles" : 0,
+    "quality_generalized_velocities" : 0,
+    "quality_krylov_vectors" : 0,
+    "quality_rows" : 0,
+    "raw_contacts" : 8,
+    "rod_candidate_pairs" : 0,
+    "rod_ccd_events" : 0,
+    "rod_factor_blocks" : 0,
+    "rod_manifolds" : 0,
+    "rod_raw_contacts" : 0,
+    "solver_tiles" : 1,
+    "spill_rows" : 0
+  },
+  "steps_per_update" : 128,
+  "submission_milliseconds" : 3341.7391699999998,
+  "training_samples" : 131072,
+  "transient_private_bytes" : 215634204,
+  "updates" : 2,
+  "visual_observation" : false,
+  "visual_observation_config" : "",
+  "visual_scene_fingerprint" : 0,
+  "world_source" : "american_crow_embodied_development_v11"
+}

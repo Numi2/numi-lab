@@ -1616,7 +1616,8 @@ RunCompileDiagnostics compileRun(
 std::vector<std::string> builtinRobotIds() {
     return {"unitree_g1", "franka_panda", "dvrk_psm", "px4_x500",
             "birdflow_deetjen_dove_hybrid",
-            "birdflow_american_crow_estimated_hybrid"};
+            "birdflow_american_crow_estimated_hybrid",
+            "american_crow_active_head_estimated_v1"};
 }
 
 ScenePack makePX4X500HoverScenePack() {
@@ -2607,6 +2608,9 @@ TaskPack makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
 }
 
 std::optional<RobotPack> builtinRobotPack(const std::string_view id) {
+    if (id == "american_crow_active_head_estimated_v1") {
+        return makeAmericanCrowActiveHeadRobotPack();
+    }
     if (id == "birdflow_deetjen_dove_hybrid") {
         // The Deetjen public surface sequence does not include the complete
         // same-specimen inertial record required for measured free flight.

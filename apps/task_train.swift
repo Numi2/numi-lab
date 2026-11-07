@@ -464,9 +464,11 @@ private struct Options {
                     birdFlowJourneyVariant = .v9VisualNeural
                 case "v10", "v10-world-model", "v10-navigation":
                     birdFlowJourneyVariant = .v10WorldModelNavigation
+                case "v11", "v11-embodied":
+                    birdFlowJourneyVariant = .v11Embodied
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, or v10-world-model."
+                        "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, v10-world-model, or v11-embodied."
                     )
                 }
                 index += 1
@@ -1703,13 +1705,7 @@ private func makeContext(
                 ),
                 metallibPath: options.metallib
             ),
-            options.birdFlowJourneyVariant == .v10WorldModelNavigation
-                ? "birdflow_american_crow_navigation_v10_world_model"
-                : options.birdFlowJourneyVariant == .v9VisualNeural
-                ? "birdflow_american_crow_journey_v9_visual_neural"
-                : options.birdFlowJourneyVariant == .v8Neural
-                ? "birdflow_american_crow_journey_v8_neural"
-                : "birdflow_american_crow_journey_v7"
+            options.birdFlowJourneyVariant.taskIdentifier
         )
     }
     if options.birdFlowAmericanCrow {
@@ -2273,7 +2269,9 @@ private enum TaskTrainMain {
                 "action_carrier": options.birdFlowJourneyTeacher
                     ? "birdflow_assisted_journey_teacher"
                     : options.birdFlowAmericanCrowJourney
-                    ? options.birdFlowJourneyVariant == .v10WorldModelNavigation
+                    ? options.birdFlowJourneyVariant == .v11Embodied
+                        ? "v11_embodied_neural_proprioception"
+                        : options.birdFlowJourneyVariant == .v10WorldModelNavigation
                         ? "v10_world_model_navigation_rgbd_history"
                         : options.birdFlowJourneyVariant == .v9VisualNeural
                         ? "v9_visual_neural_only_masked_depth_history"
@@ -2306,12 +2304,7 @@ private enum TaskTrainMain {
                 "difficulty_sampling_exponent_override":
                     options.difficultySamplingExponentOverride,
                 "birdflow_journey_variant":
-                    options.birdFlowJourneyVariant == .v10WorldModelNavigation
-                    ? "v10-world-model"
-                    : options.birdFlowJourneyVariant == .v9VisualNeural
-                    ? "v9-visual-neural"
-                    : options.birdFlowJourneyVariant == .v8Neural
-                    ? "v8-neural" : "v7-hierarchical",
+                    options.birdFlowJourneyVariant.commandName,
                 "device": context.deviceName,
                 "visual_observation":
                     context.visualSceneFingerprint != 0,

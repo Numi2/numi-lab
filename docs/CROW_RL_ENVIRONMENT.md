@@ -2,7 +2,9 @@
 
 ## Objective and ownership
 
-Develop the existing American crow into an embodied, persistent ecology with
+The primary research outcome is lifelong embodied intelligence: foraging,
+memory, manipulation, and social learning. Develop the existing American crow
+into an embodied, persistent ecology with
 active perception, locomotion, manipulation, finite food and water, internal
 needs, memory, and social learning. Metal owns accepted physics, contacts,
 observations, task state, randomness, and policy inference. Swift owns bounded
@@ -39,7 +41,8 @@ legacy PolicyPacks to new sensor, action, world, or task semantics.
 ## Executable engineering boundary
 
 From this source checkout, build `metalrobo_task_rollout`,
-`metalrobo_task_train`, and `metalrobo_robot_catalog` with CMake/Ninja Release.
+`metalrobo_task_train`, `metalrobo_robot_catalog`, and
+`metalrobo_crow_embodiment_check` with CMake/Ninja Release.
 Create the learner with CPython 3.13.14 using `uv venv python/.venv`, then
 `uv pip install --python python/.venv/bin/python -c
 profiles/crow-rl-requirements.txt -e ./python`. On macmini this checkout uses
@@ -84,6 +87,61 @@ index from the random key in both ordinary and residual policy kernels.
 Samples are now keyed by seed, environment, episode, accepted episode step,
 policy revision and action. Historical chunk-one random streams are preserved.
 Old results from larger chunks are not retroactively qualified by this fix.
+
+## Experimental active-head embodiment
+
+`american_crow_active_head_estimated_v1` is a distinct native RobotPack with
+17 bodies, 16 joints and 22 generalized velocities. It adds neck yaw, neck
+pitch, and lower-beak articulation, plus separate head and upper/lower beak
+collision proxies. New joint ranges, effort limits, masses and dimensions are
+prospective engineering parameters; none is a same-specimen measurement.
+
+The neck/head/beak partition takes 40 g from the original lumped torso. It
+shifts the torso COM frame and transforms inherited root anchors, collision
+offsets and aerodynamic application points. The full neutral spatial inertia
+and gravitational first moment are preserved, including the torso's required
+off-diagonal inertia. The new DOFs permit actual physical relative motion.
+Torso collision geometry is revised to avoid a duplicate lumped head. The
+original feathered presentation mesh still needs a matching articulated asset
+binding; the experimental pack is not exposed as a qualified visual creature.
+
+`head-admission --output NEW_DIRECTORY` executes 36 FP64 reference pose/twist
+controls and a 12-environment Metal ABA batch. It compares independent
+accelerations/configurations, exercises each new joint through ordinary
+effort, and requires exact replay. This is single-step mechanical admission.
+It does not test support/contact behavior, perception, sustained control,
+ecological tasks, biological realism, or a complete native life checkpoint.
+
+`v11-embodied` binds that robot to a distinct development task: 93 actor and
+critic inputs and 18 actions. Its nine additional inputs expose previous head
+actions, joint positions, and velocities. These are proprioception; the task
+does not yet have eye images. Fresh training starts with a zero-output actor
+and no teacher. Unmatched feathered capture/window presentation is rejected.
+
+The generic joint-position actuator can explicitly request posture authority
+independent of the old journey's standing/liftoff action masks. Only the three
+new head actions request this flag. Invalid flags fail compilation without
+replacing the accepted run. Task-program ABI 45 makes changed actuator
+semantics explicit; old PolicyPacks require an explicit transfer and remain
+unqualified.
+
+`body-admission --output NEW_DIRECTORY` compares neutral and commanded native
+contact-world executions, with eight environments and one traced lane over
+2.56 seconds. Head yaw, pitch and beak commands must produce physical relative
+motion without physical terminations or device failures. This caught a real
+failure: the inherited standing curriculum suppressed all three head commands.
+The repaired control passes. It is a bounded contact/actuation control, not
+proof of sustained locomotion or manipulation.
+
+`learn-probe --variant v11-embodied --output NEW_DIRECTORY` runs two PPO updates
+and a resumed update under the new contract. The retained development probe
+accepted all 196,608 transitions and published all updates. Resumed training
+restored learner state and measured about 30,102 completed transitions/s over
+the entire resumed process. This is a short proprioceptive probe; compare it
+only with identical sensing, batch and rollout semantics. No full world state
+restore or policy qualification is implied. `partition-probe --variant
+v11-embodied --policy PACK --base-policy PACK --output NEW_DIRECTORY` checks
+ordinary and residual stochastic replay across submission chunks 1 and 8.
 
 ## Implementation order and acceptance
 

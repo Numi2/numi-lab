@@ -14,7 +14,7 @@ crow_usage() {
     cat <<'EOF'
 Usage: numi crow train|evaluate [native Numi arguments...]
        numi crow journey train|evaluate|window|capture|curriculum \
-           [--variant v7-hierarchical|v8-neural|v9-visual-neural|v10-world-model] \
+           [--variant v7-hierarchical|v8-neural|v9-visual-neural|v10-world-model|v11-embodied] \
            [--course training|held-out-a|held-out-b] \
            [--milestone standing|walking|takeoff|cruise|takeoff-cruise|turn-left|turn-right|approach|touchdown|landed-hold|full-journey] [arguments...]
        numi crow navigation collect|train|evaluate|model-train|plan|distill \
@@ -152,6 +152,8 @@ if [ "$crow_variant" = journey ]; then
                         crow_journey_variant=v9-visual-neural ;;
                     v10|v10-navigation|v10-world-model)
                         crow_journey_variant=v10-world-model ;;
+                    v11|v11-embodied)
+                        crow_journey_variant=v11-embodied ;;
                     *) crow_die 'journey variant requires v7-hierarchical, v8-neural, v9-visual-neural, or v10-world-model' ;;
                 esac
                 shift 2
@@ -210,6 +212,21 @@ case "$crow_action" in
         if [ "$crow_variant" = journey ]; then
             if crow_has_option --base-policy-pack "$@"; then
                 crow_die 'journey training does not accept a residual base policy'
+            fi
+            if [ "$crow_journey_variant" = v11-embodied ]; then
+                if crow_has_option --birdflow-journey-teacher "$@"; then
+                    crow_die 'v11 has no admitted teacher action contract'
+                fi
+                if ! crow_has_option --policy-pack "$@"; then
+                    set -- --initialize-policy american_crow_embodied_v11_brain "$@"
+                    if ! crow_has_option --initialize-actor-policy-pack "$@"; then
+                        set -- --zero-actor-output "$@"
+                    fi
+                fi
+                exec "$crow_dispatcher" train \
+                    --birdflow-american-crow-journey \
+                    --minimum-difficulty-band "$crow_milestone_band" \
+                    --maximum-difficulty-band "$crow_milestone_band" "$@"
             fi
             if crow_has_option --policy-pack "$@"; then
                 exec "$crow_dispatcher" train \
@@ -289,6 +306,8 @@ case "$crow_action" in
         exec "$crow_dispatcher" evaluate --birdflow-american-crow "$@"
         ;;
     window)
+        [ "$crow_journey_variant" != v11-embodied ] || \
+            crow_die 'v11 presentation assets are not admitted; use native state evidence'
         [ "$crow_variant" = journey ] || crow_die 'window is a journey command'
         crow_require_policy "$@"
         crow_build_rollout
@@ -305,6 +324,8 @@ case "$crow_action" in
             --no-scheduled-resets "$@"
         ;;
     capture)
+        [ "$crow_journey_variant" != v11-embodied ] || \
+            crow_die 'v11 presentation assets are not admitted; use native state evidence'
         [ "$crow_variant" = journey ] || crow_die 'capture is a journey command'
         crow_capture_mode=autonomous_policy
         if ! crow_has_option --policy-pack "$@"; then

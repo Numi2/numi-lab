@@ -217,6 +217,8 @@ struct RobotActuatorSpec {
     // First-order target-filter time constant in seconds. Zero disables
     // filtering, so the physical response is independent of control rate.
     float responseTimeSeconds = 0.0f;
+    // For jointPosition: xy optionally override stiffness/damping; z is 0 or
+    // 1 for independent control during locomotor posture curricula; w is 0.
     // Kind-specific immutable controller parameters. Zero is the canonical
     // value for kinds whose executable program owns its coefficients.
     mr_float4 parameters{};

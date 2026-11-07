@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 44u
+#define MR_TASK_PROGRAM_ABI_VERSION 45u
 
 #define MR_TASK_ACTUATOR_JOINT_POSITION 0u
 #define MR_TASK_ACTUATOR_JOINT_VELOCITY 1u
@@ -16,6 +16,9 @@
 // by MetalWorld, where the immutable source program is available.
 #define MR_TASK_ACTUATOR_MILLARD_EXCITATION 7u
 #define MR_TASK_ACTUATOR_FLAPPING_POSITION 8u
+// Position actuators that remain under policy control during a locomotor
+// posture curriculum (for example a neck, beak, sensor gimbal, or hand).
+#define MR_TASK_ACTUATOR_INDEPENDENT_POSTURE 1u
 #define MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT 13u
 #define MR_TASK_MASKED_DEPTH_FEATURE_COUNT 24u
 
@@ -518,7 +521,7 @@ typedef struct MR_ALIGN16 MRTaskActionBindingGPU {
     // playback uses these values to preserve the reference joint velocity
     // through the implicit position-drive target without bypassing physics.
     mr_float4 drive;
-    // actuator kind, resolved body/component, component lane, reserved.
+    // actuator kind, resolved body/component, component lane, actuator flags.
     // Joint actuators retain indices.y/z/w as DoF/q/v; non-joint actuators
     // use MR_INVALID_INDEX there and are consumed by their compiled program.
     mr_uint4 actuator;

@@ -1,0 +1,19 @@
+Test project /Users/n/Developer/numi-crow-rl-20261107/build
+    Start  1: metalrobo.crow.first_episode_evidence
+1/5 Test  #1: metalrobo.crow.first_episode_evidence ...   Passed    0.00 sec
+    Start 33: metalrobo.runtime.task_program
+2/5 Test #33: metalrobo.runtime.task_program ..........   Passed    3.02 sec
+    Start 34: metalrobo.runtime.run_program
+3/5 Test #34: metalrobo.runtime.run_program ...........   Passed    0.01 sec
+    Start 35: metalrobo.runtime.robot_catalog
+4/5 Test #35: metalrobo.runtime.robot_catalog .........   Passed    0.00 sec
+    Start 36: metalrobo.crow.embodiment
+5/5 Test #36: metalrobo.crow.embodiment ...............   Passed    0.02 sec
+
+100% tests passed out of 5
+
+Label Time Summary:
+metalrobo    =   3.04 sec*proc (3 tests)
+runtime      =   3.04 sec*proc (3 tests)
+
+Total Test time (real) =   3.06 sec

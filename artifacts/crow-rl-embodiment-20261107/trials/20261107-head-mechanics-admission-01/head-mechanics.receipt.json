@@ -1,0 +1,10 @@
+{
+  "command": [
+    "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_embodiment_check"
+  ],
+  "exit_code": 0,
+  "timed_out": false,
+  "wall_seconds": 0.42449837498134,
+  "stdout_sha256": "4804c423461ba18195c7a2cbaecdf58f22db17ea3682a67192ea125520fba042",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

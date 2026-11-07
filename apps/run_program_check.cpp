@@ -223,7 +223,8 @@ int main() {
             "birdflow_american_crow_estimated_hybrid"
         );
         require(
-            ids.size() == 6u &&
+            ids.size() == 7u &&
+                contains(ids, "american_crow_active_head_estimated_v1") &&
                 metalrobo::builtinRobotPack("franka_panda").has_value() &&
                 psmRobot.has_value() &&
                 px4Robot.has_value() &&

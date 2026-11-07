@@ -1,0 +1,33 @@
+{
+  "status": "passed",
+  "claim": "native/MLX updates, publication, and learner-only restore",
+  "variant": "v11-embodied",
+  "actor_initialization": "new zero-output actor",
+  "records": [
+    {
+      "stage": "initial",
+      "updates": 2,
+      "samples": 131072,
+      "training_loop_steps_per_second": 27258.588859219784,
+      "whole_process_steps_per_second": 9406.664340942898,
+      "initial_revision": 1,
+      "final_revision": 3,
+      "learner_state_restored": false,
+      "checkpoint_sha256": "fc5dbf3b2cacd0069a79e7f0e3c19e1b319f3d0ab4ad6bf3bcf7380daaa32c2e"
+    },
+    {
+      "stage": "resume",
+      "updates": 1,
+      "samples": 65536,
+      "training_loop_steps_per_second": 32417.2120035948,
+      "whole_process_steps_per_second": 30102.28236140082,
+      "initial_revision": 3,
+      "final_revision": 4,
+      "learner_state_restored": true,
+      "checkpoint_sha256": "2694dd4b88c031519c18fad17a4bdc313c371a18283cb71237caffefddc26409"
+    }
+  ],
+  "candidate_promoted": false,
+  "persistent_world_restore_tested": false,
+  "ecological_environment_qualified": false
+}

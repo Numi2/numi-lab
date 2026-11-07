@@ -54,6 +54,7 @@ def runtime(root: Path) -> dict:
         "train": build / "bin/metalrobo_task_train",
         "library": build / "lib/libmetalrobo.dylib",
         "metallib": build / "shaders/MetalRobo.metallib",
+        "head_check": build / "bin/metalrobo_crow_embodiment_check",
     }
 
 
@@ -121,22 +122,26 @@ def rollout(root: Path, variant: str, envs: int, steps: int, chunk: int, seed: i
     paths = runtime(root)
     command = [str(paths["rollout"]), "--metallib", str(paths["metallib"]),
                "--birdflow-american-crow-journey", "--birdflow-journey-variant", variant,
-               "--visual-observation-config", str(root / "assets" / VARIANTS[variant]),
                "--envs", str(envs), "--steps", str(steps), "--repeats", "1",
                "--chunk", str(chunk), "--seed", str(seed), "--no-scheduled-resets",
                "--minimum-difficulty-band", str(band), "--maximum-difficulty-band", str(band)]
+    if variant in VARIANTS:
+        command += ["--visual-observation-config", str(root / "assets" / VARIANTS[variant])]
     command += ["--policy-pack", str(policy)] if policy else ["--native-policy"]
     if variant == "v10-world-model":
         command += ["--birdflow-navigation-course", course]
     return command
 
 
-def validate_native(value: dict, *, envs: int, steps: int, seed: int, policy: bool) -> None:
+def validate_native(value: dict, *, envs: int, steps: int, seed: int, policy: bool,
+                    variant: str | None = None, action_source: str | None = None) -> None:
     expected = {"environments": envs, "steps_per_repeat": steps, "repeats": 1,
                 "benchmark_seed": seed, "scheduled_resets": False,
-                "birdflow_journey_teacher": False, "visual_observation": True,
-                "action_source": "policy_pack" if policy else "compiled_policy",
+                "birdflow_journey_teacher": False, "visual_observation": variant != "v11-embodied",
+                "action_source": action_source or ("policy_pack" if policy else "compiled_policy"),
                 "failed_environment_steps": 0}
+    if variant is not None:
+        expected["birdflow_journey_variant"] = variant
     failures = [key for key, expected_value in expected.items() if value.get(key) != expected_value]
     if failures:
         raise RuntimeError(f"Native evidence violated trial identity/validity: {failures}")
@@ -284,15 +289,17 @@ def evaluate(root: Path, output: Path, args: argparse.Namespace, profile: dict) 
 
 
 def learn_probe(root: Path, output: Path, args: argparse.Namespace, profile: dict) -> dict:
-    source = args.source_policy.resolve(strict=True)
+    source = args.source_policy.resolve(strict=True) if args.source_policy else None
+    variant = args.variant
+    if variant == "v9-visual-neural" and source is None:
+        raise ValueError("The v9 learning probe requires an explicitly selected source actor")
     paths = runtime(root)
     records = []
     for stage, updates in (("initial", 2), ("resume", 1)):
         command = [str(paths["train"]), "--metallib", str(paths["metallib"]),
                    "--native-library", str(paths["library"]), "--mlx-python", sys.executable,
                    "--python-root", str(root / "python"), "--birdflow-american-crow-journey",
-                   "--birdflow-journey-variant", "v9-visual-neural",
-                   "--visual-observation-config", str(root / "assets" / VARIANTS["v9-visual-neural"]),
+                   "--birdflow-journey-variant", variant,
                    "--envs", "512", "--steps", "128", "--updates", str(updates), "--chunk", "8",
                    "--minimum-difficulty-band", "4", "--maximum-difficulty-band", "4",
                    "--seed", str(profile["probe"]["seed"]),
@@ -304,9 +311,14 @@ def learn_probe(root: Path, output: Path, args: argparse.Namespace, profile: dic
                    "--incumbent-policy-pack", str(output / f"{stage}-incumbent.policypack"),
                    "--rollout-pack", str(output / f"{stage}.rolloutpack"),
                    "--output-learner-state", str(output / f"{stage}.learner.safetensors")]
+        if variant in VARIANTS:
+            command += ["--visual-observation-config", str(root / "assets" / VARIANTS[variant])]
         if stage == "initial":
-            command += ["--initialize-policy", "crow-engineering-learning-probe",
-                        "--initialize-actor-policy-pack", str(source), "--initialize-actor-fresh-critic"]
+            command += ["--initialize-policy", "crow-engineering-learning-probe"]
+            if source:
+                command += ["--initialize-actor-policy-pack", str(source), "--initialize-actor-fresh-critic"]
+            else:
+                command += ["--zero-actor-output"]
         else:
             command += ["--learner-state", str(output / "initial.learner.safetensors")]
         value = execute(output, f"learner-{stage}", command, root, 300)
@@ -328,6 +340,7 @@ def learn_probe(root: Path, output: Path, args: argparse.Namespace, profile: dic
                         "learner_state_restored": value["learner_state_restored"],
                         "checkpoint_sha256": sha(output / f"{stage}.learner.safetensors")})
     return {"status": "passed", "claim": "native/MLX updates, publication, and learner-only restore",
+            "variant": variant, "actor_initialization": "explicit source" if source else "new zero-output actor",
             "records": records, "candidate_promoted": False, "persistent_world_restore_tested": False,
             "ecological_environment_qualified": False}
 
@@ -359,18 +372,61 @@ def partition_probe(root: Path, output: Path, args: argparse.Namespace, profile:
     for mode in ("ordinary", "residual"):
         fingerprints = []
         for chunk in (1, 8):
-            command = rollout(root, "v9-visual-neural", 32, 128, chunk,
+            command = rollout(root, args.variant, 32, 128, chunk,
                               profile["probe"]["seed"], 4, policy)
             if mode == "residual":
                 command += ["--base-policy-pack", str(base)]
             value = execute(output, f"{mode}-chunk{chunk}", command, root, 180)
-            validate_native(value, envs=32, steps=128, seed=profile["probe"]["seed"], policy=True)
+            validate_native(value, envs=32, steps=128, seed=profile["probe"]["seed"], policy=True,
+                            variant=args.variant)
             fingerprints.append(value["policy_rollout_fingerprint"])
         if fingerprints[0] != fingerprints[1]:
             raise RuntimeError(f"{mode} policy sampling depends on submission partition")
         rows.append({"mode": mode, "fingerprint": fingerprints[0], "chunks": [1, 8]})
     return {"status": "passed", "claim": "ordinary and residual native policy partition invariance",
             "records": rows, "ecological_environment_qualified": False}
+
+
+def body_admission(root: Path, output: Path, profile: dict) -> dict:
+    import numpy as np
+    seed = profile["probe"]["seed"]
+    rows = []
+    final = {}
+    for control in ("neutral", "head-beak-command"):
+        actions = np.zeros((128, 8, 18), dtype="<f4")
+        if control != "neutral":
+            actions[16:, :, 15:] = [0.4, -0.3, 0.5]
+        stream = output / f"{control}.actions.f32"
+        with stream.open("xb") as handle:
+            handle.write(actions.tobytes())
+        trace = output / f"{control}.state.tsv"
+        command = rollout(root, "v11-embodied", 8, 128, 1, seed, 0)
+        command.remove("--native-policy")
+        command += ["--action-stream", str(stream), "--state-trace", str(trace),
+                    "--state-trace-environment", "0"]
+        value = execute(output, control, command, root, 180)
+        validate_native(value, envs=8, steps=128, seed=seed, policy=False,
+                        variant="v11-embodied", action_source="foundation_action_stream")
+        if value.get("task") != "american_crow_embodied_development_v11" or value.get("action_count") != 18 or value.get("actor_observation_count") != 93:
+            raise RuntimeError("Embodied task/action/proprioception contract mismatch")
+        if value.get("termination_count") != value.get("timeout_count"):
+            raise RuntimeError("Embodied neutral/command control physically terminated")
+        samples = np.loadtxt(trace, comments="#", ndmin=2)
+        if samples.shape[0] != 128 or samples[-1,0] != 128 or not np.isfinite(samples).all():
+            raise RuntimeError("Incomplete accepted-state trace")
+        final[control] = samples[-1,21:24]
+        rows.append({"control": control, "action_stream_sha256": sha(stream),
+                     "accepted_state_trace_sha256": sha(trace),
+                     "final_head_beak_angles_rad": final[control].tolist(),
+                     "device_failure_steps": value["failed_environment_steps"],
+                     "physical_terminations": value["termination_count"]-value["timeout_count"]})
+    delta = final["head-beak-command"] - final["neutral"]
+    if not (delta[0] > 0.05 and delta[1] < -0.03 and delta[2] > 0.1):
+        raise RuntimeError(f"Accepted head/beak response did not satisfy prospective directional thresholds: {delta}")
+    return {"status": "passed", "claim": "accepted native contact-world head/beak actuation control",
+            "records": rows, "command_minus_control_angles_rad": delta.tolist(),
+            "boundary": "one traced lane, eight environment validity control, 2.56 seconds; no sensing or behavioral qualification",
+            "ecological_environment_qualified": False}
 
 
 def main() -> int:
@@ -380,13 +436,16 @@ def main() -> int:
     commands.add_parser("status")
     commands.add_parser("doctor")
     commands.add_parser("probe").add_argument("--output", type=Path, required=True)
+    commands.add_parser("head-admission").add_argument("--output", type=Path, required=True)
+    commands.add_parser("body-admission").add_argument("--output", type=Path, required=True)
     init = commands.add_parser("bootstrap")
     init.add_argument("--output", type=Path, required=True)
     init.add_argument("--source-policy", type=Path, required=True)
     init.add_argument("--variant", choices=VARIANTS, required=True)
     learning = commands.add_parser("learn-probe")
     learning.add_argument("--output", type=Path, required=True)
-    learning.add_argument("--source-policy", type=Path, required=True)
+    learning.add_argument("--source-policy", type=Path)
+    learning.add_argument("--variant", choices=("v9-visual-neural", "v11-embodied"), default="v9-visual-neural")
     motor = commands.add_parser("motor-probe")
     motor.add_argument("--output", type=Path, required=True)
     motor.add_argument("--policy", type=Path, required=True)
@@ -394,6 +453,7 @@ def main() -> int:
     partition.add_argument("--output", type=Path, required=True)
     partition.add_argument("--policy", type=Path, required=True)
     partition.add_argument("--base-policy", type=Path, required=True)
+    partition.add_argument("--variant", choices=("v9-visual-neural", "v11-embodied"), default="v9-visual-neural")
     assessment = commands.add_parser("evaluate")
     assessment.add_argument("--output", type=Path, required=True)
     assessment.add_argument("--policy", type=Path, required=True)
@@ -420,13 +480,19 @@ def main() -> int:
             "stopping": "bounded complete runs, timeout retained as failure; no overwrite or automatic retry"}
     if args.command in ("bootstrap", "learn-probe", "evaluate", "motor-probe", "partition-probe"):
         source = args.source_policy if args.command in ("bootstrap", "learn-probe") else args.policy
-        plan["source_policy_sha256"] = sha(source.resolve(strict=True))
+        plan["source_policy_sha256"] = sha(source.resolve(strict=True)) if source else None
     if args.command == "partition-probe":
         plan["base_policy_sha256"] = sha(args.base_policy.resolve(strict=True))
     write(output / "plan.json", plan)
     try:
         if args.command == "probe":
             result = probe(root, output, profile)
+        elif args.command == "head-admission":
+            result = execute(output, "head-mechanics", [str(runtime(root)["head_check"])], root, 180)
+            if result.get("status") != "passed" or result.get("exact_replay") is not True:
+                raise RuntimeError("Native head mechanics admission failed")
+        elif args.command == "body-admission":
+            result = body_admission(root, output, profile)
         elif args.command == "bootstrap":
             result = bootstrap(root, output, args, profile)
         elif args.command == "learn-probe":

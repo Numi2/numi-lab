@@ -56,6 +56,7 @@ typedef enum MRBirdFlowJourneyVariantC {
     MR_BIRDFLOW_JOURNEY_V8_NEURAL = 1,
     MR_BIRDFLOW_JOURNEY_V9_VISUAL_NEURAL = 2,
     MR_BIRDFLOW_JOURNEY_V10_WORLD_MODEL_NAVIGATION = 3,
+    MR_BIRDFLOW_JOURNEY_V11_EMBODIED = 4,
 } MRBirdFlowJourneyVariantC;
 
 typedef enum MRBirdFlowNavigationCourseC {
