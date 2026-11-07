@@ -1,5 +1,5 @@
 """Independent scikit-fem P1 assembly checks on retained native states."""
-import json, sys
+import json, sys, os
 import numpy as np
 from skfem import MeshTet, Basis, FacetBasis, ElementTetP1, LinearForm, asm
 from skfem.helpers import grad
@@ -63,7 +63,7 @@ def energy_residual_tangent(pos,vec):
  return energy,residual,tangent
 
 e,r,t=energy_residual_tangent(u,direction)
-eps=1e-8
+eps=float(os.environ.get("NUMI_EXTERNAL_FD_EPS", "1e-8"))
 ep,rp,_=energy_residual_tangent(u+eps*direction,direction)
 em,rm,_=energy_residual_tangent(u-eps*direction,direction)
 state=np.column_stack((u,direction))
