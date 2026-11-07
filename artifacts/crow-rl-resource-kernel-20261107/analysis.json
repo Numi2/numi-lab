@@ -1,0 +1,55 @@
+{
+  "status": "passed",
+  "source_commit": "17529d9080944983f204aafc2ea56a84ed25d4db",
+  "kernel_ABI": 4,
+  "persistent_state_program_ABI": 3,
+  "stale_library_shader_rejections": 3,
+  "missing_adjacent_library_rejected_before_main": true,
+  "relative_only_RPATH_native_roles": 4,
+  "matched_native_reference_files_byte_exact": 28,
+  "matched_native_report": {
+    "schema": "numi.crow-foraging-admission.v1",
+    "status": "passed",
+    "native_environments": 8,
+    "native_steps_per_trial": 448,
+    "native_trials": 9,
+    "spatial_allocation_controls": true,
+    "consumed_micrograms_per_lane": 45000,
+    "bites_per_lane": 3,
+    "physical_terminations": 0,
+    "failed_physics_steps": 0,
+    "exact_partition_replay": true,
+    "resource_only_restore": true,
+    "accepted_intake_utility_per_lane": 4.5,
+    "nutrition_actor_contract": true,
+    "c_api_accounting_controls": true,
+    "ordinary_reset_refills_resources": false,
+    "synthetic_negative_controls": true,
+    "wall_seconds": 23.431265,
+    "boundary": "estimated nutritional intake-volume tracer; no solid food mechanics or whole-world restore"
+  },
+  "matched_loaded_library": {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/resource-kernel-current03/bin/metalrobo_crow_foraging_check",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/resource-kernel-abi-03/matched"
+    ],
+    "returncode": 0,
+    "loaded_library_lines": [
+      "dyld[28196]: <31A33E79-4C7A-333E-9FC2-46C7B10397C9> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/resource-kernel-current03/lib/libmetalrobo.dylib"
+    ],
+    "library_override": false,
+    "loaded_library_sha256": "4fa56f45e4659cd718fa35155806eae20f9f72cac0d0bd45c2426fd814cdc952"
+  },
+  "historical_Git_native_roles_restored": 3,
+  "historical_Git_native_reference_files_byte_exact": 28,
+  "historical_Git_loaded_library": [
+    "dyld[28282]: <3722C77C-D836-3E3F-AC35-C4C48D7EAB2F> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/resource-kernel-historical-git/lib/libmetalrobo.dylib"
+  ],
+  "invalid_instrument_attempts_retained": [
+    "01: absolute BUILD_RPATH bypassed intended isolated library; normal current admission passed instead of testing stale shader.",
+    "02: three shader mismatch arms passed; missing-library arm invalid because a hardlinked executable reused an earlier dyld launch closure."
+  ],
+  "revision": "03 uses unique executable inodes, relative-only RPATH, actual dyld library identities, exact historical and matched comparisons; source and numerical bounds unchanged from02.",
+  "historical_qualification_correction": "Earlier Git bytes were verified but native replay loaded-library isolation was unproven. The historical spatial admission is independently rerun with exact Git-restored roles and checked loader identity here. Other older native recovery instruments have not been reauditied.",
+  "boundary": "Engineering compatibility and recovery only. Reachable site geometry, causal cue rendering, learned embodied memory, solid manipulation, social learning and full-loop performance remain unqualified."
+}
