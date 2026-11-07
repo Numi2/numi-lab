@@ -48,9 +48,9 @@ the owner. Simultaneous device mechanics and device physics (including Matter)
 are explicitly rejected pending a verified joint transaction contract.
 MetalWorld's resident-state fingerprint returns an explicit error for external
 mechanics or device physics because it cannot digest their external state.
-Observation and action callbacks have separate unresolved external ownership,
-as described below. There is no external surface save/restore implementation
-in this checkpoint.
+Residents with accepted observation or action callbacks are also rejected;
+external-owner replay is still unresolved, as described below. There is no
+external surface save/restore implementation in this checkpoint.
 
 ## Retained checks and limits
 
@@ -273,9 +273,20 @@ Neither test establishes Matter physics or complete external-owner replay.
 The callback boundary audit covers device physics, device mechanics, device
 observation, device action and inspection. Physics and mechanics are rejected
 by the digest. Observation and action have opaque contexts and can affect the
-next policy or physical action; the resident currently records neither owner,
-so their complete continuation state cannot be claimed by a successful digest.
-Inspection is declared presentation-only. Multicopter and Millard programs are
-source-authored programs, not opaque owner callbacks; their broader replay has
-not been qualified by these checks. A complete-state contract must also resolve
-the observation/action ownership gap before integration.
+next policy or physical action. The resident now latches presence of these
+callbacks when a submitted command completes; it retains no borrowed owner
+pointers and rejects subsequent digest requests. A pre-submit rejection cannot
+latch the flags, and failed commands invalidate the resident. Inspection is
+declared presentation-only. Multicopter and Millard programs are source-authored
+programs, not opaque owner callbacks; their broader replay has not been
+qualified by these checks.
+
+A bounded M6 test at revision `73abb94c` passed with a test-only zero-action
+Metal callback and a passthrough observation callback: two independent 1-env,
+2-step residents rejected an invalid callback submission without changing the
+digest, then rejected digest after a valid action-only or observation-plus-action
+continuation. Output, exact input and binary hashes, and timestamps are retained
+in `policy-digest-retry`. The first probe failed with a malformed transition
+and is retained in `policy-digest`. The observation-only combination and actual
+policy owner restoration were not tested. These fail-closed boundaries are not
+an implementation of atomic cross-owner restoration.
