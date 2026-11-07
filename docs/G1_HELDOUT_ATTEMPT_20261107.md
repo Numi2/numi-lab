@@ -39,3 +39,49 @@ Other identities:
 Repository history places the PolicyPack in a commit dated 6 August 2026.
 Recovering its exact originating build and contract is necessary before this
 artifact can support a fresh compatible evaluation.
+
+## Fingerprint-matched reconstruction
+
+A later CPU diagnostic compiled the artifact-introduction revision
+791fb586934f8222fcf8269c411c17eb2a774087. That revision's authored G1 task
+contained a training-only motion stream that differed from the stored pack's
+task and observation fingerprints. Removing that stream in an isolated source
+checkout restored exact matches for world, task, observation and action.
+This is a narrowly reconstructed configuration, not proof of the full
+historical producing source or binary. The source patch, host contract probe,
+failed diagnostic and successful contract output are retained in the evidence.
+The normal policy compiler remained enabled.
+
+The amended plan repeated the two fixed seeds and zero-action control on
+Apple M6 with 8 environments and 1,000 control steps each:
+
+| Arm | Physics-failed steps | Height/tilt terminations | Clean horizons |
+| --- | ---: | ---: | ---: |
+| Policy, seed 4081007 | 0 | 13 | 1/8 |
+| Policy, seed 4081008 | 0 | 11 | 1/8 |
+| Zero action, seed 4081007 | 0 | 118 | 0/8 |
+
+The policy's mean tilt was 0.2145 and 0.1844 rad across the two seeds; maximum
+tilt was 1.3092 and 1.3441 rad. The zero-action mean and maximum were 0.3097
+and 1.2623 rad. The policy had lower mean tilt and fewer terminations in the
+matched first seed; neither policy run completed a clean horizon in more
+than one of eight environments. Multiple terminations can occur per
+environment because the task resets.
+
+Forward-progress reporting was unavailable in this historical executor:
+its emitted progress arrays are empty and its availability flag is false.
+The accompanying zero placeholders must not be interpreted as measured
+displacement. The authored task still has zero push velocity. An attempted
+rigid projectile changed the compiled world/observation/action contract and
+was rejected before simulation; there is no measured disturbance response.
+These small runs do not qualify policy generalization or deployment.
+
+The first matched run spent approximately 80 seconds initializing historical
+Metal pipelines; no timeout was preregistered. All requested arms completed
+or reported their error without retry. Retained identities:
+
+- Configuration patch: 171c583d9e15cb36bb7a0dd17984c3cb86428cc0bcef9e43a29f52372e042b67.
+- Rollout executable: c4e752d80ce8c52113a44e374ce2072a4b6befbb50a67d57e3fe0bf406c24df2.
+- Native library: 80663b5c54b80798c7cfcfeb67dfb344de6992e2ecc9a48db531ecdaedd2209a.
+- Metal library: 32d9ed14031ab83f87dfcf8281b1d3c65c6315a02e04ce15ab2728772ef35fab.
+- Amended plan: 74a8b0be23a00bb177328d8eae84cab82733f5faf0a4976029c38efb9f1d8225.

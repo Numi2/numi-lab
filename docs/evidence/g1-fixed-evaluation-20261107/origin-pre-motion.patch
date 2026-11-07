@@ -1,0 +1,27 @@
+diff --git a/src/core/LocomotionWorld.cpp b/src/core/LocomotionWorld.cpp
+index e8895807..7e615f78 100644
+--- a/src/core/LocomotionWorld.cpp
++++ b/src/core/LocomotionWorld.cpp
+@@ -1151,21 +1151,7 @@ TaskPack makeUnitreeG1LegsLocomotionTaskPack(
+     task.commands.lower = {0.1f, 0.0f, 0.0f, 0.0f};
+     task.commands.upper = {0.1f, 0.0f, 0.0f, 0.0f};
+     task.commands.standingProbability = 0.0f;
+-    // Publish a training-only, pelvis-relative leg pose stream. This leaves
+-    // the imported 240-observation/12-action actor ABI untouched while
+-    // allowing a visual motion source to shape its gait through MotionPack.
+-    // Physics, contacts, reward, termination, and the critic remain native.
+-    task.motion = {
+-        .anchorBody = "pelvis",
+-        .trackedBodies = {
+-            "left_hip_roll_link",
+-            "left_knee_link",
+-            "left_ankle_roll_link",
+-            "right_hip_roll_link",
+-            "right_knee_link",
+-            "right_ankle_roll_link",
+-        },
+-    };
++    // Reproduce the exact retained pre-motion-stream PolicyPack contract.
+     observations.actorFrame.clear();
+     observations.actorCurrent.clear();
+     observations.actorHistoryLength = 5u;
