@@ -2683,7 +2683,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->message = "Human tendon/FEM force/target buffer is unavailable";
                 return false;
             }
-            if (state_->femBodyContactNeighborhoodBVHNodeBuffer == nil) {
+            if (state_->hasFEMBodyInteraction() &&
+                state_->femBodyContactNeighborhoodBVHNodeBuffer == nil) {
                 state_->message = "Human body-contact BVH node buffer is unavailable";
                 return false;
             }
@@ -3094,12 +3095,19 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                         const NMNumiHumanFEMSurfaceAttachmentGPU empty{};
                         [encoder setBytes:&empty length:sizeof(empty) atIndex:12u];
                     }
-                    [encoder setBuffer:state_->femBodyContactNeighborhoodRangeBuffer
-                                offset:0u atIndex:14u];
-                    [encoder setBuffer:state_->femBodyContactNeighborhoodTriangleBuffer
-                                offset:0u atIndex:15u];
-                    [encoder setBuffer:state_->femBodyContactNeighborhoodBVHNodeBuffer
-                                offset:0u atIndex:16u];
+                    if (state_->femBodyContactNeighborhoodRangeBuffer != nil) {
+                        [encoder setBuffer:state_->femBodyContactNeighborhoodRangeBuffer offset:0u atIndex:14u];
+                        [encoder setBuffer:state_->femBodyContactNeighborhoodTriangleBuffer offset:0u atIndex:15u];
+                        [encoder setBuffer:state_->femBodyContactNeighborhoodBVHNodeBuffer offset:0u atIndex:16u];
+                    } else {
+                        // Zero contact rows still require typed Metal arguments.
+                        const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU emptyRange{};
+                        const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU emptyTriangle{};
+                        const NMNumiHumanFEMBodyContactBVHNodeGPU emptyBVH{};
+                        [encoder setBytes:&emptyRange length:sizeof(emptyRange) atIndex:14u];
+                        [encoder setBytes:&emptyTriangle length:sizeof(emptyTriangle) atIndex:15u];
+                        [encoder setBytes:&emptyBVH length:sizeof(emptyBVH) atIndex:16u];
+                    }
                     if (state_->femBodyContactSampleValidationBlockBuffer != nil) {
                         [encoder setBuffer:state_->femBodyContactSampleValidationBlockBuffer
                                     offset:0u atIndex:17u];

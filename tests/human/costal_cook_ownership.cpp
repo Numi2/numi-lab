@@ -211,4 +211,5 @@ int main() {
  if(difference<0.001) {std::cerr<<"no relative motion\n";return 11;}
  std::cout<<"two donors and distinct attachment bodies passed; relative Jacobian "<<difference
           <<"; malformed ownership rejected; fixed-root rejection retained\n";
+ return 0;
 }

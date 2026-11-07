@@ -7403,3 +7403,9 @@ endif()
 
 # A small standalone-capable project also serves the integrated native test.
 add_subdirectory(tests/ccd)
+
+# Synthetic, explicitly invoked native gate; not a full Human or anatomy test.
+add_executable(numi_human_costal_ownership_native tests/human/costal_ownership_native.mm)
+target_link_libraries(numi_human_costal_ownership_native PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+add_dependencies(numi_human_costal_ownership_native numi_matter_shaders)
+target_compile_options(numi_human_costal_ownership_native PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
