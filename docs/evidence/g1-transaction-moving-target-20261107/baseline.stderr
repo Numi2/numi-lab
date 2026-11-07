@@ -1,0 +1,106 @@
+world=17838161165188455652 task=5950104770821377452 observation=15496715402187980013 action=14625959607710386204 policy=17520988601782839881 sensor_offset=140 actor_count=140
+snapshot arm=control phase=0 sequence=0 sensor=18446744073709551615 envs=2 tracks=6 track_history=1 depth_width=0 depth_height=0 depth_slots=0
+research_prepare
+research_finish
+contact arm=control step=1 env=0 code=0 raw_required=0 active=0
+contact arm=control step=1 env=1 code=0 raw_required=0 active=0
+body arm=control step=1 env=0 index=1 p=4,0,1.99755 v=0,0,-0.196185
+body arm=control step=1 env=0 index=2 p=5,0,1.99755 v=0,0,-0.196185
+body arm=control step=1 env=0 index=3 p=6,0,1.99755 v=0,0,-0.196185
+body arm=control step=1 env=0 index=4 p=7,0,1.99755 v=0,0,-0.196185
+body arm=control step=1 env=0 index=5 p=8,0,1.99755 v=0,0,-0.196185
+body arm=control step=1 env=0 index=6 p=0.08,0,1.97755 v=0,0,-1.19598
+body arm=control step=1 env=1 index=1 p=4,0,1.99755 v=0,0,-0.196185
+body arm=control step=1 env=1 index=2 p=5,0,1.99755 v=0,0,-0.196185
+body arm=control step=1 env=1 index=3 p=6,0,1.99755 v=0,0,-0.196185
+body arm=control step=1 env=1 index=4 p=7,0,1.99755 v=0,0,-0.196185
+body arm=control step=1 env=1 index=5 p=8,0,1.99755 v=0,0,-0.196185
+body arm=control step=1 env=1 index=6 p=0.08,0,1.97755 v=0,0,-1.19598
+snapshot arm=control phase=1 sequence=1 sensor=0 envs=2 tracks=6 track_history=1 depth_width=0 depth_height=0 depth_slots=0
+research_prepare
+research_finish
+contact arm=control step=2 env=0 code=0 raw_required=0 active=0
+contact arm=control step=2 env=1 code=0 raw_required=0 active=0
+body arm=control step=2 env=0 index=1 p=4,0,1.99117 v=0,0,-0.392331
+body arm=control step=2 env=0 index=2 p=5,0,1.99117 v=0,0,-0.392331
+body arm=control step=2 env=0 index=3 p=6,0,1.99117 v=0,0,-0.392331
+body arm=control step=2 env=0 index=4 p=7,0,1.99117 v=0,0,-0.392331
+body arm=control step=2 env=0 index=5 p=8,0,1.99117 v=0,0,-0.392331
+body arm=control step=2 env=0 index=6 p=0.08,0,1.95118 v=0,0,-1.39193
+body arm=control step=2 env=1 index=1 p=4,0,1.99117 v=0,0,-0.392331
+body arm=control step=2 env=1 index=2 p=5,0,1.99117 v=0,0,-0.392331
+body arm=control step=2 env=1 index=3 p=6,0,1.99117 v=0,0,-0.392331
+body arm=control step=2 env=1 index=4 p=7,0,1.99117 v=0,0,-0.392331
+body arm=control step=2 env=1 index=5 p=8,0,1.99117 v=0,0,-0.392331
+body arm=control step=2 env=1 index=6 p=0.08,0,1.95118 v=0,0,-1.39193
+snapshot arm=control phase=2 sequence=2 sensor=1 envs=2 tracks=6 track_history=1 depth_width=0 depth_height=0 depth_slots=0
+research_prepare
+research_finish
+contact arm=control step=3 env=0 code=0 raw_required=8 active=8
+contact arm=control step=3 env=1 code=0 raw_required=8 active=8
+body arm=control step=3 env=0 index=1 p=4,0,1.98087 v=0,0,-0.588438
+body arm=control step=3 env=0 index=2 p=5,0,1.98087 v=0,0,-0.588438
+body arm=control step=3 env=0 index=3 p=6,0,1.98087 v=0,0,-0.588438
+body arm=control step=3 env=0 index=4 p=7,0,1.98087 v=0,0,-0.588438
+body arm=control step=3 env=0 index=5 p=8,0,1.98087 v=0,0,-0.588438
+body arm=control step=3 env=0 index=6 p=0.08,0,1.92089 v=0,0,-1.58784
+body arm=control step=3 env=1 index=1 p=4,0,1.98087 v=0,0,-0.588438
+body arm=control step=3 env=1 index=2 p=5,0,1.98087 v=0,0,-0.588438
+body arm=control step=3 env=1 index=3 p=6,0,1.98087 v=0,0,-0.588438
+body arm=control step=3 env=1 index=4 p=7,0,1.98087 v=0,0,-0.588438
+body arm=control step=3 env=1 index=5 p=8,0,1.98087 v=0,0,-0.588438
+body arm=control step=3 env=1 index=6 p=0.08,0,1.92089 v=0,0,-1.58784
+snapshot arm=control phase=3 sequence=3 sensor=2 envs=2 tracks=6 track_history=1 depth_width=0 depth_height=0 depth_slots=0
+snapshot arm=failure phase=0 sequence=0 sensor=18446744073709551615 envs=2 tracks=6 track_history=1 depth_width=0 depth_height=0 depth_slots=0
+research_prepare
+research_finish
+contact arm=failure step=1 env=0 code=0 raw_required=0 active=0
+contact arm=failure step=1 env=1 code=0 raw_required=0 active=0
+body arm=failure step=1 env=0 index=1 p=4.28001,0,1.99755 v=-4.999,0,-0.196185
+body arm=failure step=1 env=0 index=2 p=4.08653,0.266308,1.99755 v=-1.54478,-4.75433,-0.196185
+body arm=failure step=1 env=0 index=3 p=3.77347,0.164587,1.99755 v=4.04427,-2.93834,-0.196185
+body arm=failure step=1 env=0 index=4 p=3.77347,-0.164587,1.99755 v=4.04427,2.93834,-0.196185
+body arm=failure step=1 env=0 index=5 p=4.08653,-0.266308,1.99755 v=-1.54478,4.75433,-0.196185
+body arm=failure step=1 env=0 index=6 p=0.08,0,1.97755 v=0,0,-1.19598
+body arm=failure step=1 env=1 index=1 p=4,0,1.99755 v=0,0,-0.196185
+body arm=failure step=1 env=1 index=2 p=5,0,1.99755 v=0,0,-0.196185
+body arm=failure step=1 env=1 index=3 p=6,0,1.99755 v=0,0,-0.196185
+body arm=failure step=1 env=1 index=4 p=7,0,1.99755 v=0,0,-0.196185
+body arm=failure step=1 env=1 index=5 p=8,0,1.99755 v=0,0,-0.196185
+body arm=failure step=1 env=1 index=6 p=0.08,0,1.97755 v=0,0,-1.19598
+snapshot arm=failure phase=1 sequence=1 sensor=0 envs=2 tracks=6 track_history=1 depth_width=0 depth_height=0 depth_slots=0
+research_prepare
+research_finish
+contact arm=failure step=2 env=0 code=0 raw_required=0 active=0
+contact arm=failure step=2 env=1 code=0 raw_required=0 active=0
+body arm=failure step=2 env=0 index=1 p=4.18005,0,1.99117 v=-4.998,0,-0.392331
+body arm=failure step=2 env=0 index=2 p=4.05564,0.171233,1.99117 v=-1.54447,-4.75338,-0.392331
+body arm=failure step=2 env=0 index=3 p=3.85434,0.105828,1.99117 v=4.04346,-2.93775,-0.392331
+body arm=failure step=2 env=0 index=4 p=3.85434,-0.105828,1.99117 v=4.04346,2.93775,-0.392331
+body arm=failure step=2 env=0 index=5 p=4.05564,-0.171233,1.99117 v=-1.54447,4.75338,-0.392331
+body arm=failure step=2 env=0 index=6 p=0.08,0,1.95118 v=0,0,-1.39193
+body arm=failure step=2 env=1 index=1 p=4,0,1.99117 v=0,0,-0.392331
+body arm=failure step=2 env=1 index=2 p=5,0,1.99117 v=0,0,-0.392331
+body arm=failure step=2 env=1 index=3 p=6,0,1.99117 v=0,0,-0.392331
+body arm=failure step=2 env=1 index=4 p=7,0,1.99117 v=0,0,-0.392331
+body arm=failure step=2 env=1 index=5 p=8,0,1.99117 v=0,0,-0.392331
+body arm=failure step=2 env=1 index=6 p=0.08,0,1.95118 v=0,0,-1.39193
+snapshot arm=failure phase=2 sequence=2 sensor=1 envs=2 tracks=6 track_history=1 depth_width=0 depth_height=0 depth_slots=0
+research_prepare
+research_finish
+failure step=3 advance error: task-rollout GPU step failed [gpu_environment_failure]: one or more MetalWorld control steps rolled back after a GPU environment failure: status=5 environment=0 control_step=0 aba_status=0 failing_substep=3 failing_index=1669 aba_diagnostic_0=0.094053 aba_diagnostic_1=5.642489 aba_diagnostic_2=9.810000 aba_diagnostic_3=0.000000 contact_status=5 required_pairs=7 pair_capacity=192 required_raw_contacts=13 raw_contact_capacity=8 required_manifolds=7 manifold_capacity=32 required_constraints=13 constraint_capacity=64 failing_constraint=4294967295 diagnostic_0=0.384615 diagnostic_1=0.001450 diagnostic_2=0.000000 diagnostic_3=0.000000
+contact arm=failure step=3 env=0 code=5 raw_required=13 active=13
+contact arm=failure step=3 env=1 code=0 raw_required=8 active=8
+body arm=failure step=3 env=0 index=1 p=4.18005,0,1.99117 v=-4.998,0,-0.392331
+body arm=failure step=3 env=0 index=2 p=4.05564,0.171233,1.99117 v=-1.54447,-4.75338,-0.392331
+body arm=failure step=3 env=0 index=3 p=3.85434,0.105828,1.99117 v=4.04346,-2.93775,-0.392331
+body arm=failure step=3 env=0 index=4 p=3.85434,-0.105828,1.99117 v=4.04346,2.93775,-0.392331
+body arm=failure step=3 env=0 index=5 p=4.05564,-0.171233,1.99117 v=-1.54447,4.75338,-0.392331
+body arm=failure step=3 env=0 index=6 p=0.08,0,1.95118 v=0,0,-1.39193
+body arm=failure step=3 env=1 index=1 p=4,0,1.98087 v=0,0,-0.588438
+body arm=failure step=3 env=1 index=2 p=5,0,1.98087 v=0,0,-0.588438
+body arm=failure step=3 env=1 index=3 p=6,0,1.98087 v=0,0,-0.588438
+body arm=failure step=3 env=1 index=4 p=7,0,1.98087 v=0,0,-0.588438
+body arm=failure step=3 env=1 index=5 p=8,0,1.98087 v=0,0,-0.588438
+body arm=failure step=3 env=1 index=6 p=0.08,0,1.92089 v=0,0,-1.58784
+snapshot arm=failure phase=3 sequence=3 sensor=2 envs=2 tracks=6 track_history=1 depth_width=0 depth_height=0 depth_slots=0
