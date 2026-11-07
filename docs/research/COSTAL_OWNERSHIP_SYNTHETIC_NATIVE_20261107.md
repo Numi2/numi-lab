@@ -679,3 +679,18 @@ CPU header contract test still passes, including malformed lengths and unknown
 ABI versions. These isolated fixes have not yet established a complete native
 transaction, accepted publication or force accuracy. The Release-only Brain
 failure is also unresolved.
+
+A separately linked Debug test of both ABI-6 prefix repairs ran at 23:35:30
+UTC and exited 0. Its CLI SHA-256 was
+`328f879586be925c215af13a1644cfa130d40767357d08f5dc233413a52cd076`,
+its dylib SHA-256 was
+`674d9943bb32be060e0b031dd0215b1e48d894645a62dfccd016b73844b8b5dd`,
+and its 32-input manifest SHA-256 was
+`75aaac144973046dd576f6a49d0e0b636d184e63cf77b91cd611edfb7aac0444`.
+All pre/post input hashes passed. The actual Brain witness and joint publication
+path reported accepted publication epoch 1, physics generation 1, Brain
+generation 1, and transaction fingerprint `13715198794449320712`; Matter and
+Human statuses were 0. This is one synthetic step using a separately linked
+build with the documented changed TaskProgram object. It does not establish
+anatomical realism, force accuracy, multi-step continuation, full-state replay,
+or a fix for the separate Release-only Brain crash.
