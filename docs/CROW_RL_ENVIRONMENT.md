@@ -1101,3 +1101,9 @@ the next implementation work. Current training entry points reject recurrent
 policies explicitly. Embodied memory experiments, physical manipulation, social
 learning, ecology and production performance remain unqualified. These replay
 instruments use development conditions only and promote no learned policy.
+
+## Evidence storage
+
+Crow evidence belongs in the Git repository. Use bounded temporary captures; preserve failures and runtime identities, archive missing content once, commit and push, verify recovery, then remove the covered raw files. Keep only current build products and active policy/shader inputs locally. Do not retain duplicate run trees, runtime trees or bulky checked-out archive payloads. Shared Git objects, history and other projects remain protected.
+
+`artifacts/crow-rl-git-recovery-20261107/README.md` documents the exact-file manifest, content deduplication, Git-object verification, restoration and cleanup receipts. `tools/crow_evidence_archive.py` provides the corresponding commands. Bulk archives can be absent from this worktree with per-index skip-worktree flags; recovery reads committed Git blobs directly. These storage operations establish preservation, not additional scientific qualification.
