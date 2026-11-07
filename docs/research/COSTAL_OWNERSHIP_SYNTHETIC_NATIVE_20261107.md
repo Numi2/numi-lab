@@ -572,3 +572,12 @@ with owner status 18 and the precise message `NumanX begin-step transaction
 rejected encoding`, followed by runtime status 8, stage 918. This does not
 identify which begin-step condition rejected the encoding; no step or publication
 was accepted.
+
+A separately identified run at 23:27:24 UTC used the same pinned Debug binary
+and 32 input manifest, with `MRNX_PHYSICAL_DIAGNOSTICS=1` and the additional
+`NUMI_HUMAN_HOST_INNER_PROFILE=1`. Pre- and post-run checks passed. The HumanIO
+begin-step callback reported `state_and_completion` but did not report
+`validate_pass`, and the owner again returned status 18 / runtime stage 918.
+Source inspection places the rejection in begin-step pass validation, before
+its encoding. The trace does not identify the failed predicate. Its host timing
+fields are diagnostic only and are not used as performance measurements.
