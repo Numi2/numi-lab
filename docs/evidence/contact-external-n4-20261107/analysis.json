@@ -1,0 +1,27 @@
+{
+  "gate": 0.0025,
+  "coarse_vs_fine": {
+    "force_bin_relative": 3.3624460683782065e-07,
+    "impulse_relative": 1.1429590217743347e-07
+  },
+  "rk4_vs_fine": {
+    "force_bin_relative": 4.041931412527896e-08,
+    "impulse_relative": 1.4661637462215807e-08
+  },
+  "n2_vs_n4_external": {
+    "force_bin_relative": 0.9290390231979639,
+    "impulse_relative": 0.20008988308860026
+  },
+  "minimum_sampled_gaps_m": [
+    9.002387759001103e-05,
+    9.002387784013477e-05
+  ],
+  "momentum_imbalance_over_impulse": [
+    1.1558262277166084e-15,
+    2.9537781374979994e-15
+  ],
+  "temporal_gate_pass": true,
+  "independent_integration_gate_pass": true,
+  "validity_gate_pass": true,
+  "spatial_gate_pass": false
+}

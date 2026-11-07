@@ -27,3 +27,20 @@ and retain a timeout or numerical failure without retrying. Stop on execution
 failure. Single-thread BLAS; no GPU. If either prerequisite fails, do not
 interpret the spatial comparison. Even a passing pair would not prove
 convergence of n=4 or a force-qualified production fixture.
+
+## Result
+
+The coarse and fine n=4 runs completed in 23.1 s and 46.6 s. Their maximum
+force-bin and total-impulse differences were 3.36e-7 and 1.14e-7; fine
+external versus retained n=4 RK4 differences were 4.04e-8 and 1.47e-8.
+All meet the unchanged 0.25% gates. Minimum sampled gap was 90.024 µm;
+all evaluated stages also reject nonpositive gaps. The maximum momentum
+imbalance was 2.96e-15 of total impulse.
+
+The fine external n=2 versus n=4 comparison **failed** the spatial gates:
+92.90% for binned force and 20.01% for integrated impulse. The outcome
+matches the declared prediction, but does not establish the n=16→32
+discrepancy's cause or a converged spatial reference. The noncontact and
+uniform-plane analytic n=4 controls, inputs and traces are in the
+[evidence directory](evidence/contact-external-n4-20261107/).
+No GPU or material validation was involved.

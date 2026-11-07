@@ -1,0 +1,38 @@
+{
+  "prediction_commit": "6f6f71de4ad859afe9c3889be4210c18ee227d1e",
+  "dynamic_sha256": "a9fa46dbfc27c63e95a8c968ae21077c637ae9824d9fa2342024a3ea4a114fb3",
+  "assembly_sha256": "03f6dabf38c311e695df1ee05aa39b6de4c0841b15fc5b5eb062c029bac8dbbf",
+  "native_sha256": "361a612d19ccf3b45899e3d080a44eb8c9b6479ee2b8f03475fd44259d3123f2",
+  "reference_sha256": "c210d932a270278e57dc697d3916533bd752cef3e495d4175e287360886333a2",
+  "n2_external_sha256": "e816a41ddf5e8232ee7231e2a74368dea2d10c3d7588aabd9d2cf1de5c20ecef",
+  "python": "/tmp/numi-fem-py313b-20261107/bin/python",
+  "timeout_seconds": 300,
+  "runs": [
+    {
+      "variant": "coarse",
+      "argv": [
+        "/tmp/numi-fem-py313b-20261107/bin/python",
+        "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_external_dynamic_diagnostic.py",
+        "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_external_scikit_n4.py",
+        "/Users/numi/numi-lab-contact-reference-20261107/docs/evidence/contact-nodal-parity-20261107/native-h31.25us.json",
+        "coarse"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 23.115387750032824,
+      "output_sha256": "bbc7d8766b34b3aeea2ff9781629ac1ecc28c7928ec4e03d478b5dbf52feaa8f"
+    },
+    {
+      "variant": "fine",
+      "argv": [
+        "/tmp/numi-fem-py313b-20261107/bin/python",
+        "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_external_dynamic_diagnostic.py",
+        "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_external_scikit_n4.py",
+        "/Users/numi/numi-lab-contact-reference-20261107/docs/evidence/contact-nodal-parity-20261107/native-h31.25us.json",
+        "fine"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 46.595422749989666,
+      "output_sha256": "09153273e9dc12449577e5280aabb8dec88715f0c3c9964b76c7cc2a76cc40fe"
+    }
+  ]
+}
