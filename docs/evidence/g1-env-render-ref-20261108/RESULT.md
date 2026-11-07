@@ -1,0 +1,7 @@
+# Actual-render reference feasibility result
+
+The process ran 2026-11-07 23:26:28.375511–23:26:28.802771 UTC, exit 0, with frozen hashes verified before and after. Both real warmup steps completed successfully and nonterminal. Four calls to the actual renderer used the same retained projected body buffer, world identities, 5 mm authored depth noise, and frame/sensor settings 2/1 and 0/0. For each setting, repeated calls matched exactly in retained depth, identity, validity and metadata words. The harness compared camera floats by `==`, not by their bits, and did not retain camera words; therefore exact camera-byte repeatability was not established.
+
+Renderer metadata matched requested frame/sensor and capture time: 2/1 with capture bits 1025758986 (about 0.04 s) and 0/0 with zero capture time. Both frames contained the target in both environments. All five common visible target pixels in environment 0 and all four in environment 1 changed depth between settings, providing the declared seed-sensitivity prerequisite at fixed geometry. Full planes and metadata are in `reference.tsv`; exact source, binary, shader and asset identities are retained.
+
+These are repeated full-batch render calls, with each environment's original identity and global pixel index preserved. They are not single-environment renderer instances, nor a per-environment sample/hold implementation. No rejected physics, selective publication, automatic reset, independent renderer metadata, command failure or mixed continuation was tested; the guard remains unchanged.
