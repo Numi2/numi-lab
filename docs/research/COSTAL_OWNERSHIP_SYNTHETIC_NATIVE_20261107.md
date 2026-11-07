@@ -562,3 +562,13 @@ stage as 900 plus the articulated submission status; 18 is
 captured because the native diagnostic environment switch was absent. This is
 an explicit failed root submission, not accepted publication. The earlier
 compile failure caused by unavailable Swift variadic `fprintf` is also retained.
+
+A separately identified rerun at 23:26:08 UTC used the same pinned binary and
+input manifest and enabled only the additional environment switch
+`MRNX_PHYSICAL_DIAGNOSTICS=1`. The existing `brain-test-env.sh` identities and
+all model, library, shader and pack paths were redirected to the pinned input
+directory, as in the prior run. Pre- and post-run checks passed. It exited 1
+with owner status 18 and the precise message `NumanX begin-step transaction
+rejected encoding`, followed by runtime status 8, stage 918. This does not
+identify which begin-step condition rejected the encoding; no step or publication
+was accepted.
