@@ -1,0 +1,17 @@
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.5s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/numi/numi-lab-release-integration-build-20261107
+[0/2] Re-checking globbed directories...
+ninja: no work to do.
+numi_window_check passed policies=2 scenes=2
+numi window: scene /Users/numi/numi-window-custom-scene-20261107/catalog/diagnostic.json
+numi window: close the window to end the preview run.
+numi window train check requesting training
+numi window train check pid=41530 run=/Users/numi/numi-lab-release-integration-20261107/.numi/runs/window-train-20261107T224109Z-velocity-41460-4CCC605E
+numi window train check exit=1 lock=false
+numi training failed: training exited with status 1; artifacts: /Users/numi/numi-lab-release-integration-20261107/.numi/runs/window-train-20261107T224109Z-velocity-41460-4CCC605E
+numi window check restored configuration
+numi window check scene __numi_window_missing_scene_check__
+numi window check restored configuration
+numi window runtime check passed

@@ -3598,6 +3598,11 @@ private enum TaskRolloutMain {
                                         )
                                         return
                                     }
+                                    if runtimeTrainCancelCheck {
+                                        writeDiagnostic("numi window train check ended before window-close cancellation")
+                                        window.closeAfterRuntimeCheck()
+                                        return
+                                    }
                                     let compatible =
                                         numiWindowCompatiblePolicyChoices(
                                             policyChoices,

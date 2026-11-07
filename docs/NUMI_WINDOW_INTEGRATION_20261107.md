@@ -190,3 +190,10 @@ worker, and closes the AppKit window only after both are observed. It checks
 the child exit, lock removal, observed descendant cleanup and source/binary
 identity. The request is test-injected rather than a click through the setup
 panel. Until a native run is retained, this probe is unqualified.
+
+The first guided-cancellation probe did not reach a live trainer: its harness
+resolved the virtualenv symlink to a system Python without MLX. The window
+reported the missing interpreter and removed its lock; this does not test
+cancellation. That failure is retained under guided-cancel-001. The harness
+now preserves the virtualenv path and suppresses generic success after a
+training-start failure. The revised native cancellation check remains pending.

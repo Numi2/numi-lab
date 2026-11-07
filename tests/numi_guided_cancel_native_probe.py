@@ -17,7 +17,7 @@ for option in ("workspace", "build", "scene-catalog", "python", "output"):
 args = parser.parse_args()
 root, build, catalog, python, output = (
     args.workspace.resolve(), args.build.resolve(), args.scene_catalog.resolve(),
-    args.python.resolve(), args.output.resolve()
+    Path(os.path.abspath(args.python)), args.output.resolve()
 )
 scene = catalog / "diagnostic.json"
 source_files = [
