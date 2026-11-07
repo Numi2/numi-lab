@@ -1,0 +1,17 @@
+{
+  "meshes": {
+    "8": {
+      "p2": 0.16015275995763728,
+      "p1_consistent": 0.4120018577624035,
+      "p1_lumped": 0.28963828503012956,
+      "prediction_pass": true
+    },
+    "16": {
+      "p2": 0.05844685887109299,
+      "p1_consistent": 0.13406625753016763,
+      "p1_lumped": 0.08774787604750223,
+      "prediction_pass": true
+    }
+  },
+  "mass_residual_pass": true
+}

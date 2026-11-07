@@ -19,3 +19,21 @@ Run sequential n=8/16 assemblies in one process, with a 180-second timeout,
 one BLAS thread and no GPU. This is an exact linearized initial-state
 comparison. It does not establish nonlinear impact force, complete transient
 response, spatial qualification or the unchanged 0.25% force/impulse gates.
+
+## Result
+
+All mass solves passed. The separately registered prediction passed:
+
+| Mesh | P2 initial acceleration error | P1 consistent | P1 lumped | P2 Rayleigh frequency error |
+| ---: | ---: | ---: | ---: | ---: |
+| 8 | 16.02% | 41.20% | 28.96% | 0.8623% |
+| 16 | 5.845% | 13.41% | 8.775% | 0.06148% |
+
+These are mass-normalized initial-acceleration errors relative to the exact
+continuum mode, and the Rayleigh quotient is not necessarily a single
+eigenfrequency. They establish behavior for this second non-aliased mode,
+while the separately preserved mode-8 prediction still failed. They do not
+establish an impact-force reference or attribute its discrepancy.
+
+The [evidence](evidence/contact-p2-wave-mode5-20261108/) retains source,
+environment and results. No GPU was used.
