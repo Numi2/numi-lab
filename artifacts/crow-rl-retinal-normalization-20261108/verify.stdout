@@ -1,0 +1,1 @@
+{"status": "passed", "learner_tensors_exact": 53, "native_training_components_exact": 3, "calibration_reference_files_exact": 3, "temporary_files_removed": 94, "temporary_bytes_removed": 421715193}
