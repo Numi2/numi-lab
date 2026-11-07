@@ -35,8 +35,16 @@ if(BUILD_TESTING)
   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/test_sliding_contact_reference.py")
  add_test(NAME metalrobo.ccd.interval_reference
   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/test_interval_monotonic_reference.py")
+ add_test(NAME metalrobo.ccd.wave32_qualification_reference
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/test_wave32_qualification_reference.py")
  add_test(NAME metalrobo.ccd.acceptance COMMAND "${Python3_EXECUTABLE}"
   "${CMAKE_CURRENT_SOURCE_DIR}/regression.py" "$<TARGET_FILE:metalrobo_ccd_world_step_probe>"
   "${METALROBO_METALLIB}" "${CMAKE_CURRENT_BINARY_DIR}/acceptance-evidence")
  set_tests_properties(metalrobo.ccd.acceptance PROPERTIES TIMEOUT 180)
 endif()
+
+# Full existing contact-owner regression (run manually under an exclusive GPU slot).
+add_executable(metalrobo_ccd_shared_contact_probe "${NUMI_WORLD_ROOT}/apps/metal_world_contact_probe.cpp")
+target_link_libraries(metalrobo_ccd_shared_contact_probe PRIVATE numi_ccd_world_owner)
+target_link_options(metalrobo_ccd_shared_contact_probe PRIVATE -Wl,-dead_strip)
+add_dependencies(metalrobo_ccd_shared_contact_probe metalrobo_shaders)

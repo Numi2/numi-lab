@@ -70,3 +70,29 @@ validation. No performance comparison follows from these runs. Raw traces,
 prior candidates, input identities, patches, SHA-256 hashes and results are
 retained on the host in
 `/Users/numi/numi-lab-ccd-thin-evidence-20261107/`.
+
+## Subsequent analytic qualification: candidate held
+
+The broad wave32 correction is **not qualified for integration**. Additional
+closed-form checks uncovered three limitations:
+
+* The existing radial anisotropic ellipse projection does not in general
+  produce the maximum-dissipation sliding direction, and a zero coefficient
+  on one axis currently suppresses the other axis too. These are
+  pre-existing limitations, not newly demonstrated candidate regressions.
+* Distributed wave32 uses unrelaxed simultaneous row updates. For two
+  identical coupled normal rows with W=[[1,1],[1,1]], the update alternates
+  between impulses (1,1) and (0,0). This is an analytic source-level
+  counterexample and has not yet been reproduced on the device.
+* Candidate 002's normal update floors the raw normal diagonal at 1e-10,
+  whereas its 3-by-3 inverse adds 1% scale-relative regularization. With
+  diagonal response (1e-12,1,1) and unit normal residual, those two choices
+  yield normal increments of 1e10 and approximately 100, respectively.
+  This is a candidate-specific conditioning risk requiring correction and
+  native qualification.
+
+The reference also exercises frictionless and interior sticking cases and a
+finite normal impulse cap. Its successful execution preserves these analytic
+counterexamples; it does not mean that the corresponding physical behaviors
+have all passed. Full shared-solver coverage and the distributed native test
+remain outstanding.
