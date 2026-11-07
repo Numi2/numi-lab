@@ -1,0 +1,14 @@
+proposal step=1 env=0 count=0 sensor=0 sample=1
+proposal step=1 env=1 count=0 sensor=0 sample=1
+accepted step=1 env=0 words=1,0,0,0
+accepted step=1 env=1 words=1,0,0,0
+proposal step=2 env=0 count=1 sensor=0 sample=0
+proposal step=2 env=1 count=1 sensor=0 sample=0
+accepted step=2 env=0 words=2,0,0,0
+accepted step=2 env=1 words=2,0,0,0
+proposal step=3 env=0 count=2 sensor=1 sample=1
+proposal step=3 env=1 count=2 sensor=1 sample=1
+mixed_status world=5,0 contact=5,0 required0=13
+accepted step=3 env=0 words=2,0,0,0
+accepted step=3 env=1 words=3,1,0,0
+fixture failure: frame selection mismatch

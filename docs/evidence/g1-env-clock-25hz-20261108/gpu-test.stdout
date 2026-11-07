@@ -1,0 +1,4 @@
+next env=0 count=2 sensor=1 sample=1
+next env=1 count=3 sensor=1 sample=0
+actor rejected_mismatch=0 accepted_changed=100
+depth rejected_mismatch=0 accepted_reference_mismatch=7 accepted_changed=8
