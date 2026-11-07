@@ -292,3 +292,61 @@ authority and exactly-once HumanIO rejection checks passed in the same run.
 This tests these named authorities for one synthetic forced rejection; it does
 not establish a restorable full cross-owner checkpoint, all derived state,
 physical force accuracy, native v5 admission, or anatomical validity.
+
+## Synthetic native v5 construction
+
+A bounded v5 constructor probe was run on Apple M6 at 22:50:21 UTC and
+returned exit 0. Its synthetic NHTBIND2 package has 14 decoder-coverage
+regions, 448 attached nodes and 112 disconnected tetrahedra, with artificial
+owner bodies 20 and 25. It is deliberately not an anatomical thorax. The
+fixture generator, synthetic registration, binding, cartilage, cooked world,
+CPU cook output and exact native output are retained in the source tree under
+`apps/` and `docs/evidence/human-costal-20261107/v5-synthetic/`. The generator
+was invoked with `--rib-body 25`. The original candidate used body 21 and the
+CPU cook rejected it because its donor was not a positive dynamic mass
+distribution; its failure is retained. No result was attributed to that failed
+candidate.
+
+The CPU cook reports two partitions, eight rebase pose checks and maximum
+attachment rest error 5.7742002290694927e-08 m. The native test rejected a
+wrong binding fingerprint with asset-failure status 3, then constructed the
+v5 runtime with the exact synthetic package and verified the combined source
+fingerprint `8757514333639552933`; world fingerprint is `8141185403901143359`.
+The binding SHA-256 is `0a8c24b4e1ae919188095858763698d9f2cfa5991a64954015030da201c2a59d`,
+the cartilage SHA-256 `4241e17f251f70b279d25dcf97b2484ed81f77bf6597f5ca39c7e9b97d3d8374`,
+and the package SHA-256 `0187d2ce30cac21273b1cdbaee6c00ed373a4c428354d2295719e8fe39975a6a`.
+
+Native admission source SHA-256 was
+`6a77119e8769787f68de3b318eec437f3b0f35de57ee7885dc271d05b83ab71d`;
+fixture generator SHA-256 was
+`0098fbf251e651f4f9e18c2b808bf4a39614a3d4a34efd708f8bbef8dd21fbe8`;
+executable SHA-256 was
+`6f74c8b07fc8dac3962df7552cf919133080340642c7544ed202768adf70806f`.
+The link map (retained alongside the log) records the v5 constructor from
+`NumanXRuntimeV1.mm` object SHA-256
+`04038c4730fc73e859c0e66e84b5853af3d8229f6707c76203ed4f7b80ac347b`
+(source SHA-256 `6eccdf71f40352146c2437a3512c3b73722f85930317e97eeabb9a7a27949e2f`),
+and the NHTBIND2 compiler/decoder object SHA-256
+`7a8768f21a49aea1fb55d579b07ab40ec080847d2ec30679c8fa70b80be4228a`.
+Remaining services came from `libmetalrobo.dylib` SHA-256
+`4400a6ce7f3605fa7c7accc5a4a4fb9814219a5cbe8aaa0b3dc790f8b6872b23`;
+that shared library was rebuilt at 22:48:15 UTC, before this executable was
+linked. This identity is different from the dylib in the earlier owner trials;
+those results are not relabelled. A copy of the executable, dylib, both objects
+and link map is retained on `ssh numi` at
+`/Users/numi/numi-v5-admission-artifacts-20261107/`. The map SHA-256 is
+`5dcef13de013b491af0d07429fac1a3bafb70dcec35ea7766b7e247a03d2bfdc`.
+
+The source rigid, muscle, support and source-compliance equality assets had
+SHA-256 respectively `2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4`,
+`e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b`,
+`4d54f8155cd83baaee7af536099824ac0da61e5d5e77544b42c6e5ce1b48c907`, and
+`c99f69b6c217e0bce518cb4db7b27416be0d36f9a1cef26490cf8773850847df`.
+The visual pack and vision profile were copied from the retained macmini
+v5 workflow, hash-verified at both ends; their SHA-256 values are
+`b8ab7cd8deead1e2af3137a727eaad74cd7e4238d77d9116d774bbf304936e37` and
+`166220533c6c78695f6e55412f2e832eaaa4ec94ddf791b476111dc323c652a6`.
+The Matter and MetalRobo metallib identities remain those recorded above.
+This is native constructor admission and identity qualification only: it has
+not executed or restored a v5 step and does not establish realistic anatomy,
+connected cartilage mechanics, force accuracy, or a surgical task.
