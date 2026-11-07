@@ -1,0 +1,18 @@
+CMake Error: File /Users/numi/numi-lab-humanio-buildonly-20261107/numi/VERSION.in does not exist.
+CMake Error at CMakeLists.txt:27 (configure_file):
+  configure_file Problem configuring file
+
+
+CMake Error: File /Users/numi/numi-lab-humanio-buildonly-20261107/numi/REVISION.in does not exist.
+CMake Error at CMakeLists.txt:32 (configure_file):
+  configure_file Problem configuring file
+
+
+CMake Error at matter/CMakeLists.txt:2447 (include):
+  include could not find requested file:
+
+    /Users/numi/numi-lab-humanio-buildonly-20261107/matter/tools/human_skin_fat_static_query.cmake
+
+
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring incomplete, errors occurred!
