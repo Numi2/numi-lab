@@ -1,0 +1,37 @@
+--- /Users/numi/numi-lab-deployable-depth-20261107/src/metal/HybridRenderer.metal	2026-11-07 14:11:33
++++ /Users/numi/numi-generic-depth-fix-build-20261108/HybridRenderer.metal	2026-11-07 15:45:36
+@@ -398,6 +398,7 @@
+                             )) {
+                             measured =
+                                 renderUniforms.clearColorAndDepth.w;
++                            segmented = false;
+                         }
+                     }
+                 }
+@@ -407,7 +408,7 @@
+             } else {
+                 measuredDepths[pixel] = depth[source];
+                 segmentedPixels[pixel] =
+-                    validity[source] != 0u &&
++                    (validity[source] & MR_VISUAL_VALIDITY_DEPTH) != 0u &&
+                     (unsegmentedDepth || maskedDepthAcceptedInstance(
+                         identities[source].y,
+                         acceptedInstances,
+@@ -423,7 +424,7 @@
+         const uint source = environment * pixelCount + pixel;
+         const bool segmented = cacheSensorPlane
+             ? segmentedPixels[pixel] != 0u
+-            : validity[source] != 0u &&
++            : (validity[source] & MR_VISUAL_VALIDITY_DEPTH) != 0u &&
+                 (unsegmentedDepth || maskedDepthAcceptedInstance(
+                     identities[source].y,
+                     acceptedInstances,
+@@ -494,7 +495,7 @@
+                         : depth[neighborSource];
+                     const bool neighborAccepted = cacheSensorPlane
+                         ? segmentedPixels[neighbor] != 0u
+-                        : validity[neighborSource] != 0u &&
++                        : (validity[neighborSource] & MR_VISUAL_VALIDITY_DEPTH) != 0u &&
+                             (unsegmentedDepth || maskedDepthAcceptedInstance(
+                                 identities[neighborSource].y,
+                                 acceptedInstances,
