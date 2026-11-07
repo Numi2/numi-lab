@@ -211,3 +211,29 @@ At inspection the host's Aqua console session was locked. An accessibility
 query did not complete before it was stopped, so the actual panel interaction
 and live cancellation by a human operator remain unqualified. Full
 MetalWorld/measured-surface snapshot restoration is still unsupported.
+
+### Manual setup-panel qualification procedure
+
+When the console is unlocked and the operator can interact with the desktop,
+run the following from the clean integration worktree. The catalog and its
+synthetic visual pack are retained under the repository evidence directory.
+The environment must contain the MLX-enabled interpreter and built binaries.
+This mode does not inject a training request or a close event.
+
+```sh
+python3 tests/numi_guided_cancel_native_probe.py --manual-panel \
+  --workspace "$PWD" \
+  --build /Users/numi/numi-lab-release-integration-build-20261107 \
+  --scene-catalog "$PWD/docs/evidence/window-integration-20261107/training-catalog" \
+  --python /Users/numi/numi-window-integration-venv-20261107/bin/python \
+  --output /Users/numi/numi-guided-panel-manual-evidence-20261107
+```
+
+Press T in the window to open Configure Training. Enable Customize, set
+parallel environments to 1, steps per update to 8, learning updates to 1000,
+GPU submission chunk to 1, and checkpoint interval to 1000. Start training.
+After the monitor reports both the native trainer and MLX worker, close the
+window. The monitor requires the canceled command status, removed lock, no
+surviving observed descendants and unchanged hashes. It stops the process
+group after 180 seconds. Review its result and retained logs; this procedure
+has not yet been run on the locked host.

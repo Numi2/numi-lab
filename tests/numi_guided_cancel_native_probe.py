@@ -14,6 +14,8 @@ import time
 parser = argparse.ArgumentParser()
 for option in ("workspace", "build", "scene-catalog", "python", "output"):
     parser.add_argument("--" + option, type=Path, required=True)
+parser.add_argument("--manual-panel", action="store_true",
+                    help="require a real setup-panel action and manual window close")
 args = parser.parse_args()
 root, build, catalog, python, output = (
     args.workspace.resolve(), args.build.resolve(), args.scene_catalog.resolve(),
@@ -52,6 +54,9 @@ output.mkdir(parents=True, exist_ok=False)
 trigger = output / "close.trigger"
 log = output / "window.log"
 environment = os.environ.copy()
+for name in ("NUMI_WINDOW_RUNTIME_CHECK", "NUMI_WINDOW_RUNTIME_TRAIN_CANCEL_CHECK",
+             "NUMI_WINDOW_RUNTIME_CANCEL_TRIGGER"):
+    environment.pop(name, None)
 environment.update({
     "NUMI_LAB_ROOT": str(root),
     "NUMI_WORKSPACE_ROOT": str(root),
@@ -59,38 +64,70 @@ environment.update({
     "NUMI_MLX_PYTHON": str(python),
     "NUMI_WINDOW_SCENE_CATALOG": str(catalog),
     "NUMI_WINDOW_POLICY_CATALOG": str(output / "empty-policies"),
-    "NUMI_WINDOW_RUNTIME_TRAIN_CANCEL_CHECK": "1",
-    "NUMI_WINDOW_RUNTIME_CANCEL_TRIGGER": str(trigger),
 })
-command = [
-    "sh", str(root / ".numi/commands/window"), "--check",
-    "--window-scene", str(scene), "--envs", "1", "--steps", "128",
+if not args.manual_panel:
+    environment.update({
+        "NUMI_WINDOW_RUNTIME_TRAIN_CANCEL_CHECK": "1",
+        "NUMI_WINDOW_RUNTIME_CANCEL_TRIGGER": str(trigger),
+    })
+command = ["sh", str(root / ".numi/commands/window")]
+if not args.manual_panel:
+    command.append("--check")
+command += [
+    "--window-scene", str(scene), "--envs", "1", "--steps",
+    "1000000" if args.manual_panel else "128",
     "--chunk", "1", "--robot-source", "unitree-g1",
     "--scene", "ground", "--task", "velocity", "--zero-actions",
 ]
 record = {
     "revision": revision, "source_status_before": status,
     "sha256_before": before, "command": command,
-    "boundary": "synthetic presentation; test-injected mailbox request; no saved-state or trained-control claim",
-    "observed_descendants": {}, "triggered": False,
+    "boundary": ("synthetic presentation; manual setup panel" if args.manual_panel
+                 else "synthetic presentation; test-injected mailbox request") +
+                "; no saved-state or trained-control claim",
+    "manual_panel": args.manual_panel, "observed_descendants": {}, "triggered": False,
 }
+runs_root = root / ".numi/runs"
+known_runs = set(runs_root.glob("window-train-*")) if runs_root.exists() else set()
+if args.manual_panel:
+    print("In the unlocked window: press T, choose Customize, set environments=1, "
+          "steps=8, updates=1000, chunk=1, checkpoint interval=1000; start training. "
+          "Wait for this probe to print that both processes are active, then close "
+          "the window. The whole probe stops after 180 seconds.", flush=True)
 training_pid = None
 run_directory = None
 seen = {}
 with log.open("w") as stream:
     child = subprocess.Popen(command, cwd=root, env=environment, stdout=stream,
                              stderr=subprocess.STDOUT, start_new_session=True)
-    deadline = time.monotonic() + 75
+    deadline = time.monotonic() + (180 if args.manual_panel else 75)
     try:
         while time.monotonic() < deadline and child.poll() is None:
             time.sleep(0.1)
             text = log.read_text(errors="replace")
-            match = re.search(r"numi window train check pid=(\d+) run=(.+)", text)
-            if not match:
-                continue
-            training_pid = int(match.group(1))
-            run_directory = Path(match.group(2).strip())
             table = processes()
+            if args.manual_panel:
+                descendants = {child.pid}
+                changed = True
+                while changed:
+                    changed = False
+                    for pid, (parent, _) in table.items():
+                        if parent in descendants and pid not in descendants:
+                            descendants.add(pid)
+                            changed = True
+                train_commands = [pid for pid in descendants if pid in table and
+                                  "/numi/commands/train" in table[pid][1]]
+                new_runs = set(runs_root.glob("window-train-*")) - known_runs
+                if len(train_commands) != 1 or len(new_runs) != 1:
+                    continue
+                training_pid = train_commands[0]
+                run_directory = next(iter(new_runs))
+            else:
+                match = re.search(r"numi window train check pid=(\d+) run=(.+)", text)
+                if not match:
+                    continue
+                training_pid = int(match.group(1))
+                run_directory = Path(match.group(2).strip())
             descendants = {training_pid}
             changed = True
             while changed:
@@ -105,9 +142,14 @@ with log.open("w") as stream:
             worker = any("metalrobo.mlx_policy_worker" in value for value in names)
             if trainer and worker and (run_directory / ".train.lock").is_dir():
                 record["observed_descendants"] = {str(pid): value for pid, value in seen.items()}
-                trigger.write_text("request AppKit window close\n")
-                record["triggered"] = True
-                break
+                if args.manual_panel:
+                    if not record["triggered"]:
+                        print("Trainer and MLX worker observed. Close the window now.", flush=True)
+                    record["triggered"] = True
+                else:
+                    trigger.write_text("request AppKit window close\n")
+                    record["triggered"] = True
+                    break
         if child.poll() is None:
             remaining = max(1.0, deadline - time.monotonic())
             child.wait(timeout=remaining)
@@ -144,11 +186,16 @@ record["lock_exists_after"] = bool(run_directory and (run_directory / ".train.lo
 record["sha256_after"] = fingerprints()
 record["identities_unchanged"] = before == record["sha256_after"]
 text = log.read_text(errors="replace")
-record["success"] = (
-    record["triggered"] and child.returncode == 0 and not alive and
-    not record["lock_exists_after"] and record["identities_unchanged"] and
+expected_close = (
+    "training exited with status 143" in text if args.manual_panel else
     "numi window train check closing" in text and
     "numi window train check exit=143 lock=false" in text
+)
+record["success"] = (
+    record["triggered"] and child.returncode == 0 and not alive and
+    not record.get("timeout") and "monitor_error" not in record and
+    not record["lock_exists_after"] and record["identities_unchanged"] and
+    expected_close
 )
 if run_directory and run_directory.is_dir():
     shutil.copytree(run_directory, output / "run")
