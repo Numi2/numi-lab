@@ -87,7 +87,7 @@ RetinalObserverContext::RetinalObserverContext(const CompiledRun& run,const Worl
     const VisualSceneManifestV3& scene,unsigned environments,std::uint64_t seed,
     const FiniteResourceContext* cueResources) {
     const auto* p=run.visualSensorProgram();
-    require(run.valid() && p && p->retinal && environments>0 && run.task().header().articulation.z==48,
+    require(run.valid() && p && p->retinal && environments>0 && MR_TASK_PROGRAM_HAS_RETINAL(run.task().header().articulation.z),
         "Retinal observer requires a compiled native retinal task");
     const auto& r=*p->retinal;const auto& sensors=family.worldTemplate.sensors;
     FiniteResourceDeviceView cueView;

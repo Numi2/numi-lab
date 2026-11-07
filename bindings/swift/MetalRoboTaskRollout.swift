@@ -261,14 +261,17 @@ public struct MetalRoboCrowCuedForagingConfiguration: Sendable, Decodable {
     public var ports: [[Float]]
     public var cueMeshInstances: [UInt32]
     public var allocationSeed: UInt64
+    public var memoryChoiceDecisionTick: UInt32?
     public var occluded: Bool
     private enum CodingKeys: String, CodingKey {
         case ports, occluded
+        case memoryChoiceDecisionTick = "memory_choice_decision_tick"
         case cueMeshInstances = "cue_mesh_instances", allocationSeed = "allocation_seed"
     }
-    public init(ports: [[Float]], cueMeshInstances: [UInt32], allocationSeed: UInt64, occluded: Bool = false) {
+    public init(ports: [[Float]], cueMeshInstances: [UInt32], allocationSeed: UInt64, occluded: Bool = false, memoryChoiceDecisionTick: UInt32? = nil) {
         self.ports = ports; self.cueMeshInstances = cueMeshInstances
         self.allocationSeed = allocationSeed; self.occluded = occluded
+        self.memoryChoiceDecisionTick = memoryChoiceDecisionTick
     }
     fileprivate func native() throws -> MRCrowCuedForagingConfigC {
         guard ports.count == 2, ports.allSatisfy({ $0.count == 4 && $0.allSatisfy(\.isFinite) && $0[3] > 0 }),
@@ -1348,7 +1351,10 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                                                 return withUnsafePointer(to: &retinal!) { sensor in
                                                     if foraging != nil {
                                                         return withUnsafePointer(to: &foraging!) { resources in
-                                                            mr_create_task_rollout_cued_foraging(&manifest, sensor, resources)
+                                                            if let decision = authored.visualSensor?.cuedForaging?.memoryChoiceDecisionTick {
+                                                                return mr_create_task_rollout_cued_memory_foraging(&manifest, sensor, resources, decision)
+                                                            }
+                                                            return mr_create_task_rollout_cued_foraging(&manifest, sensor, resources)
                                                         }
                                                     }
                                                     return mr_create_task_rollout_retinal(&manifest, sensor)

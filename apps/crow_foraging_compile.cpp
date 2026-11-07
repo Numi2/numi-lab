@@ -7,7 +7,13 @@ using namespace metalrobo;
 int main(int argc,char** argv) {
     bool owns=false;std::filesystem::path output;
     try {
-        if(argc!=5)throw std::invalid_argument("Usage: metalrobo_crow_foraging_compile CALIBRATED_PORTS_BIN NEW_OUTPUT ALLOCATION_SEED OCCLUDED_0_OR_1");
+        if(argc!=5 && argc!=6)throw std::invalid_argument("Usage: metalrobo_crow_foraging_compile CALIBRATED_PORTS_BIN NEW_OUTPUT ALLOCATION_SEED OCCLUDED_0_OR_1 [MEMORY_CHOICE_DECISION_TICK]");
+        unsigned decision=0;
+        if(argc==6) {
+            std::size_t used=0;const std::string text=argv[5];const auto value=std::stoul(text,&used);
+            if(used!=text.size() || value<48 || value>192)throw std::invalid_argument("Memory-choice decision tick must be48..192");
+            decision=unsigned(value);
+        }
         std::array<mr_float4,2> ports{};
         std::ifstream calibration(argv[1],std::ios::binary);
         calibration.read(reinterpret_cast<char*>(ports.data()),sizeof(ports));
@@ -37,7 +43,9 @@ int main(int argc,char** argv) {
         }
         artifact<<R"(],"camera":{"parent_body":"crow_head","position":[0.018,0.026,0.012],"orientation":[-0.5,0.5,-0.5,0.5],"width":160,"height":120,"minimum_visible_pixels":1,"vertical_field_of_view_degrees":45,"nominal_rate_hz":15,"maximum_retained_bytes":0},"retinal":{"right_position":[0.018,-0.026,0.012],"right_orientation":[-0.5,0.5,-0.5,0.5],"width":16,"height":12,"sample_numerator":3,"sample_denominator":10,"latency_ticks":2,"minimum_depth_meters":0.01,"maximum_depth_meters":5},"cued_foraging":{"ports":[)";
         for(unsigned i=0;i<2;++i){if(i)artifact<<',';const auto p=ports[i];artifact<<'['<<p.x<<','<<p.y<<','<<p.z<<','<<p.w<<']';}
-        artifact<<"],\"cue_mesh_instances\":["<<visual.resourceCues[0].binding.x<<','<<visual.resourceCues[1].binding.x<<"],\"allocation_seed\":"<<seed<<",\"occluded\":"<<(blocked?"true":"false")<<"}}\n";
+        artifact<<"],\"cue_mesh_instances\":["<<visual.resourceCues[0].binding.x<<','<<visual.resourceCues[1].binding.x<<"],\"allocation_seed\":"<<seed<<",\"occluded\":"<<(blocked?"true":"false");
+        if(decision)artifact<<",\"memory_choice_decision_tick\":"<<decision;
+        artifact<<"}}\n";
         artifact.close();if(!artifact)throw std::runtime_error("Write cue environment configuration failed");
         std::cout<<"{\"status\":\"passed\",\"world_fingerprint\":"<<physical.world().fingerprint()<<",\"sensor_fingerprint\":"<<program.sensor.fingerprint
             <<",\"resource_program_fingerprint\":"<<finiteResourceProgramFingerprint(program.resources.program,program.resources.patches,true,program.resources.allocation)

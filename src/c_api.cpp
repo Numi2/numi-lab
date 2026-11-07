@@ -1156,7 +1156,7 @@ createTaskRolloutHandle(
         worldConfig.metallibPath = metallibPath;
     }
     worldConfig.maximumInFlightSubmissions = 1u;
-    worldConfig.enableResidentCheckpoints = run.task().header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION;
+    worldConfig.enableResidentCheckpoints = MR_TASK_PROGRAM_HAS_RETINAL(run.task().header().articulation.z);
     auto handle = std::make_unique<MRTaskRolloutHandle>(
         std::move(worldConfig),
         std::move(run)
@@ -3295,7 +3295,8 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
     const char* metallib_path,
     const bool journey,
     const MRRetinalSensorConfigC* retinalConfig=nullptr,
-    const MRCrowCuedForagingConfigC* cueConfig=nullptr
+    const MRCrowCuedForagingConfigC* cueConfig=nullptr,
+    const std::uint32_t memoryChoiceDecisionStep=0u
 ) {
     if (config == nullptr) {
         gLastError = "BirdFlow American-crow rollout configuration is required.";
@@ -3432,6 +3433,7 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             const std::array<mr_float4,2> ports{{{a[0],a[1],a[2],a[3]},{b[0],b[1],b[2],b[3]}}};
             resources=metalrobo::authorAmericanCrowCuedForagingResources(physical,ports,config->environment_count,cueConfig->allocation_seed);
             manifest.task.deviceStateProgramFingerprint=metalrobo::finiteResourceProgramFingerprint(resources->program,resources->patches,true,resources->allocation);
+            if(memoryChoiceDecisionStep)metalrobo::applyAmericanCrowMemoryChoiceCurriculum(manifest.task,memoryChoiceDecisionStep);
         }
         auto handle = createCompiledRunTaskRollout(
             std::move(manifest), metallib_path,
@@ -4026,11 +4028,22 @@ MRTaskRolloutHandle* mr_create_task_rollout_cued_foraging(const MRRunManifestC* 
     return createBirdFlowAmericanCrowRun(&manifest->profile,manifest->visual_sensor_program,manifest->metallib_path,true,retinal,foraging);
 }
 
+MRTaskRolloutHandle* mr_create_task_rollout_cued_memory_foraging(const MRRunManifestC* manifest,
+    const MRRetinalSensorConfigC* retinal,const MRCrowCuedForagingConfigC* foraging,uint32_t decision_step) {
+    if(!manifest || !retinal || !foraging || decision_step<48u || decision_step>192u ||
+        manifest->source!=MR_RUN_SOURCE_BIRDFLOW_AMERICAN_CROW_JOURNEY ||
+        manifest->profile.birdflow_journey_variant!=MR_BIRDFLOW_JOURNEY_V13_RETINAL_FEEDING ||
+        manifest->inspection_visual_program || manifest->profile.birdflow_journey_teacher) {
+        gLastError="Memory-choice requires cued v13, decision tick48..192 and exclusive policy authority";return nullptr;
+    }
+    return createBirdFlowAmericanCrowRun(&manifest->profile,manifest->visual_sensor_program,manifest->metallib_path,true,retinal,foraging,decision_step);
+}
+
 namespace {
 std::uint64_t lifeCheckpointIdentity(const MRTaskRolloutHandle& h) {
     using namespace metalrobo;
     checkpoint::require(h.visualRuntime && h.visualRuntime->retinal && h.resourceRuntime &&
-        h.taskProgram.header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION && h.stepConfig.policyProgram.valid(),
+        MR_TASK_PROGRAM_HAS_RETINAL(h.taskProgram.header().articulation.z) && h.stepConfig.policyProgram.valid(),
         "Life checkpoint requires the native v13 retinal feeding runtime and an exact policy");
     checkpoint::Bytes identity;
     for (const auto value : {h.world.fingerprint(),h.taskProgram.fingerprint(),h.taskProgram.observationFingerprint(),

@@ -158,6 +158,13 @@ FiniteResourceConfig authorAmericanCrowCuedForagingResources(
     resources.allocation={1,1,crowForagingIntakeStartTick,1};resources.allocationSeed=allocationSeed;
     return resources;
 }
+void applyAmericanCrowMemoryChoiceCurriculum(TaskPack& task,unsigned decisionStep) {
+    if(decisionStep<48u || decisionStep>crowForagingIntakeStartTick ||
+       task.actions.size()!=18u || task.actions[15].actuator!="head.yaw" || task.actions[17].actuator!="beak.open")
+        throw std::invalid_argument("Memory-choice requires exact crow actions and decision tick48..192");
+    task.actionAvailableAfterSteps=decisionStep;task.allowedActionMask=(1u<<15u)|(1u<<17u);
+}
+
 void applyAmericanCrowForagingFixtureLimits(RunManifest& m) {
     // This exact profile is admitted with the fixture. Inheriting unrelated
     // TaskPack capacities changes compiled world identity and source hashes.

@@ -1284,6 +1284,10 @@ std::vector<std::byte> serializeTask(
         writer.pod(std::uint64_t(0x313030495254554eull)); // NUTRI001 extension
         writer.pod(pack.deviceStateProgramFingerprint);
     }
+    if (pack.actionAvailableAfterSteps!=0u || pack.allowedActionMask!=0u) {
+        writer.pod(std::uint64_t(0x3130303045544147ull)); // GATE0001 extension
+        writer.pod(pack.actionAvailableAfterSteps);writer.pod(pack.allowedActionMask);
+    }
     return writer.data();
 }
 
@@ -1432,8 +1436,13 @@ bool deserializeTask(
     if (!reader.finished()) {
         std::uint64_t marker=0u;
         if (!reader.pod(marker) || marker!=0x313030495254554eull ||
-            !reader.pod(pack.deviceStateProgramFingerprint) || pack.deviceStateProgramFingerprint==0u ||
-            !reader.finished()) return false;
+            !reader.pod(pack.deviceStateProgramFingerprint) || pack.deviceStateProgramFingerprint==0u) return false;
+    }
+    if (!reader.finished()) {
+        std::uint64_t marker=0u;
+        if (!reader.pod(marker) || marker!=0x3130303045544147ull ||
+            !reader.pod(pack.actionAvailableAfterSteps) || !reader.pod(pack.allowedActionMask) ||
+            pack.actionAvailableAfterSteps==0u || pack.allowedActionMask==0u || !reader.finished()) return false;
     }
     pack.interactionControlReference =
         interactionControlReference != 0u;

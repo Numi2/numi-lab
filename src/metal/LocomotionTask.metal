@@ -4984,7 +4984,10 @@ kernel void mr_locomotion_task_apply_actions(
                   navigationTeacherBlend
               )
             : teacherRequested;
-        const float requested = avianJourneyTeacher
+        const bool actionAvailable = program.articulation.z != MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION ||
+            (state.episode.x >= uint(program.actionAvailabilityProgram) &&
+             action < 32u && ((uint(program.actionAvailabilityProgram >> 32u) >> action) & 1u) != 0u);
+        const float requestedBeforeAvailability = avianJourneyTeacher
             ? mix(
                   effectiveTeacherRequested,
                   studentRequested,
@@ -4995,6 +4998,10 @@ kernel void mr_locomotion_task_apply_actions(
                   teacherRequested,
                   approachSupervisorBlend
               );
+        // Physical action and every previous-action plane share this gate.
+        // Proposed latents stay only in the learner transaction; they cannot
+        // serve as actor-visible external memory during the delay.
+        const float requested = actionAvailable ? requestedBeforeAvailability : 0.0f;
         if (avianJourneyTeacher) {
             // Student authority selects the physically executed blend, while
             // the label remains the full accepted-state expert action. This
@@ -5007,7 +5014,7 @@ kernel void mr_locomotion_task_apply_actions(
         }
         rawPolicyActions[
             environment * program.counts0.x + action
-        ] = rawPolicyLatents[actionBase + action];
+        ] = actionAvailable ? rawPolicyLatents[actionBase + action] : 0.0f;
         const float previous = actionHistory[
             delayBase +
             filterSlot * program.counts0.x +
@@ -9174,6 +9181,9 @@ kernel void mr_locomotion_task_update_evidence(
     evidenceState[0] = state;
 }
 
+kernel void mr_task_memory_choice_abi49_capability(device uint* output [[buffer(0)]],uint at [[thread_position_in_grid]]) {
+    if (at==0u) output[0]=MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION;
+}
 // Capability belongs to the same translation unit as every ABI guard above.
 // Native admission checks its presence before submitting a retinal task.
 kernel void mr_task_retinal_abi48_capability(device uint* output [[buffer(0)]],uint at [[thread_position_in_grid]]) {

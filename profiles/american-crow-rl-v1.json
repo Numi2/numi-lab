@@ -555,5 +555,27 @@
     "learned_memory_qualified": false,
     "ecological_environment_qualified": false,
     "evidence": "artifacts/crow-rl-cued-training-20261107"
+  },
+  "memory_choice_development": {
+    "configuration": "environments/american-crow/memory-choice-v1/retinal-observation.json",
+    "native_task_ABI": 49,
+    "decision_tick": 64,
+    "allowed_action_indices": [
+      15,
+      17
+    ],
+    "cue_end_tick": 32,
+    "retinal_flush_tick": 40,
+    "intake_start_tick": 192,
+    "paired_physics_and_all97_nonimage_inputs_exact_before_decision": true,
+    "proposed_latent_values_different": 4082,
+    "internal_GRU_values_different": 14580,
+    "stale_shader_rejected": true,
+    "task_pack_roundtrip_exact": true,
+    "independent_training_lifetimes": true,
+    "initial_training_intake_reward": 0,
+    "learned_memory_qualified": false,
+    "ecological_environment_qualified": false,
+    "evidence": "artifacts/crow-rl-memory-choice-20261107"
   }
 }

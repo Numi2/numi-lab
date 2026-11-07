@@ -703,6 +703,12 @@ MR_API MRTaskRolloutHandle* mr_create_task_rollout_cued_foraging(
     const MRCrowCuedForagingConfigC* foraging
 );
 
+// Staged memory experiment: neutral motors/history before decision_step48..192,
+// then only head yaw and jaw. Same v1 input struct; no teacher authority.
+MR_API MRTaskRolloutHandle* mr_create_task_rollout_cued_memory_foraging(
+    const MRRunManifestC* manifest,const MRRetinalSensorConfigC* retinal,
+    const MRCrowCuedForagingConfigC* foraging,uint32_t decision_step
+);
 MR_API MRTaskRolloutHandle* mr_create_task_rollout(
     const MRRunManifestC* manifest
 );
@@ -854,7 +860,7 @@ MR_API const float* mr_task_rollout_motion_features(
 MR_API const float* mr_task_rollout_teacher_actions(
     const MRTaskRolloutHandle* handle
 );
-// Exact accepted normalized task actions, packed
+// Normalized proposed policy actions before task availability/actuator filters, packed
 // [control step][environment][action] for the latest submission.
 MR_API const float* mr_task_rollout_policy_actions(
     const MRTaskRolloutHandle* handle

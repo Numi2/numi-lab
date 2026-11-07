@@ -1468,3 +1468,44 @@ Two updates match1+1 fresh processes at chunks1/8 across policy/rollout bytes,
 all53 learner/Adam tensors/metadata and all native life sections. Each independent
 life accepts exactly320 ticks and conserves45mg. This is development population
 sampling, not learned memory or a reset that replenishes an existing lifetime.
+
+
+## Controlled memory-to-choice development task
+
+The portable memory-choice-v1 configuration and additive
+mr_create_task_rollout_cued_memory_foraging API select a staged ABI49 task.
+The unchanged-size task header gives its final uint64 an explicit ABI49 meaning:
+decision tick plus allowed action bits. ABI47/48 bytes stay unchanged; a distinct
+GPU capability rejects old shaders before encoding a step. Serialized TaskPacks
+carry the optional GATE0001 extension and round-trip exact compiled identity.
+
+Every physical action and previous-action plane is neutral before accepted
+episode tick64, then only head yaw and beak opening act. The native independent
+resource clock still hides food until192; ordinary reset never replenishes it.
+Teacher and base-policy authority reject. This is an explicit supported motor
+curriculum, not free locomotion. Preparation accepts decision ticks48..192;
+each binds new task/action/observation fingerprints. A paired hidden allocation
+changes2688 early image values,4082 proposed latents and14580 internal GRU values,
+but all97 nonimage actor inputs, all critic inputs and final q/v/all body states
+remain byte exact through64. All1251 actor inputs are exact from tick40 onward.
+Chunk1/8 captures match exactly. The cue cannot be stored in posture or previous
+proposed actions before choice in this development control.
+
+`tools/numi crow-env memory-choice-admission --output NEW_DIRECTORY` repeats the
+native eight-arm cue/occlusion/reset/food controls with the gate. Matching ports
+consume40mg per lane; opposite ports consume0. Seven malformed task programs,
+17 bad C configurations and the stale ABI48 shader reject. Full Release build
+and29 focused Python checks pass. An actual8x320 H64 recurrent update and native/
+learner life checkpoint pass; initial intake reward is zero. Tick16+80 fresh
+continuations at chunks1/8 match96 ticks across all samples, outcomes, bootstrap
+and all three native sections, spanning the active cue and motor decision.
+The first constructor failure retained an old literal ABI48 observer guard;
+the corrected observer explicitly accepts48/49 without weakening any provenance
+or sensing guard. A reporting-only KeyError after the successful update is
+retained; the completed native training was inspected without simulation retry.
+
+Independent experiments still collect finite windows and bootstrap their native
+nonterminal final values. New owners are experimental population sampling, not
+biological deaths or artificial terminal reward. Native owner replacement may
+briefly hold two contexts; boundary retained-buffer telemetry is not peak memory.
+Learning and peak end-to-end performance require separate measured trials.

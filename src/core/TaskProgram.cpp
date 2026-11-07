@@ -655,6 +655,15 @@ TaskCompileDiagnostics compileTaskProgram(
             );
         }
     }
+    const bool memoryChoice = pack.actionAvailableAfterSteps != 0u || pack.allowedActionMask != 0u;
+    if (memoryChoice && (pack.actionAvailableAfterSteps == 0u ||
+        pack.actionAvailableAfterSteps >= pack.maximumEpisodeSteps ||
+        pack.allowedActionMask == 0u || pack.actions.empty() || pack.actions.size() > 32u ||
+        (pack.actions.size() < 32u && (pack.allowedActionMask >> pack.actions.size()) != 0u) ||
+        observations.retinalFeatureCount == 0u || pack.deviceStateProgramFingerprint == 0u ||
+        interactionClip != nullptr))
+        return reject(TaskCompileStatus::invalidPack,"actionAvailabilityProgram",
+            "Memory-choice requires retinal/resource ownership, a valid nonzero tick/mask and no reference authority");
     const EngineModel& model = world.model();
     if (model.bodyNames.size() != model.bodies.size() ||
         model.jointNames.size() != model.joints.size() ||
@@ -4395,6 +4404,8 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.successTrackingThreshold,
     };
     staged->header.deviceStateProgramFingerprint=pack.deviceStateProgramFingerprint;
+    staged->header.actionAvailabilityProgram=memoryChoice
+        ? std::uint64_t(pack.actionAvailableAfterSteps) | (std::uint64_t(pack.allowedActionMask)<<32u) : 0u;
     staged->header.commandLower = pack.commands.lower;
     staged->header.commandLower.w =
         pack.commands.standingProbability;
@@ -4443,7 +4454,8 @@ TaskCompileDiagnostics compileTaskProgram(
     staged->header.articulation = {
         articulation.firstBody,
         articulation.bodyCount,
-        observations.retinalFeatureCount!=0u ? MR_TASK_PROGRAM_RETINAL_ABI_VERSION : MR_TASK_PROGRAM_ABI_VERSION,
+        memoryChoice ? MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION :
+            observations.retinalFeatureCount!=0u ? MR_TASK_PROGRAM_RETINAL_ABI_VERSION : MR_TASK_PROGRAM_ABI_VERSION,
         observations.criticHistoryLength,
     };
     const mr_float4 rootCenterOfMass =
@@ -4777,6 +4789,10 @@ TaskCompileDiagnostics compileTaskProgram(
         actionHash.string(pack.actions[action].actuator);
         actionHash.string(actionTargets[action]);
     }
+    if(memoryChoice) {
+        actionHash.string("neutral-memory-choice-v1");
+        actionHash.scalar(staged->header.actionAvailabilityProgram);
+    }
     staged->actionFingerprint = actionHash.finish();
 
     Hash observationHash;
@@ -4817,6 +4833,10 @@ TaskCompileDiagnostics compileTaskProgram(
         observationHash.string("retinal-rgb-current-v1");
         observationHash.scalar(observations.retinalFeatureCount);
         observationHash.scalar(observations.deviceSensorProgramFingerprint);
+    }
+    if(memoryChoice) {
+        observationHash.string("neutral-memory-choice-applied-action-history-v1");
+        observationHash.scalar(staged->header.actionAvailabilityProgram);
     }
     staged->observationFingerprint = observationHash.finish();
 

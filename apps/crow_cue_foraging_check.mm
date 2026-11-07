@@ -3,6 +3,7 @@
 #include "metalrobo/FiniteResource.hpp"
 #include "metalrobo/RetinalObserver.hpp"
 #include "metalrobo/PolicyProgram.hpp"
+#include "metalrobo/LearningPacks.hpp"
 #include <cstring>
 #include <fstream>
 #include <iomanip>
@@ -12,6 +13,7 @@
 using namespace crowCameraFixture;
 namespace {
 constexpr unsigned lanes=8,features=1251;
+bool memoryChoice=false;
 template<class T> void save(const std::filesystem::path& p,const std::vector<T>& a) {
     std::ofstream f(p,std::ios::binary);f.write(reinterpret_cast<const char*>(a.data()),a.size()*sizeof(T));require(bool(f),"Evidence write failed");
 }
@@ -94,8 +96,30 @@ Evidence execute(const std::array<mr_float4,2>& ports,const std::filesystem::pat
     const auto authored=authorAmericanCrowCuedForagingProgram(base,visual,ports,lanes,seed);
     const auto& resources=authored.resources;const auto& p=authored.sensor;m.sensors.observation={};m.reality.reset={};
     m.task=makeAmericanCrowCuedForagingTaskPack(m.sensors.observation,m.reality.reset,authored);m.task.capacities=m.profile.capacities;m.task.maximumEpisodeSteps=100000;m.reality.reset={};
+    if(memoryChoice)applyAmericanCrowMemoryChoiceCurriculum(m.task,64);
     m.sensors.deviceVisual=p;CompiledRun run;check(compileRun(m,run),"compile cue retinal task");require(base.world().fingerprint()==run.world().fingerprint(),"Cue authoring changed physical world");
     FiniteResourceContext food(resources);
+    if(rawImages && memoryChoice) {
+        require(writeTaskPack(m.task,output/"memory-choice.taskpack").succeeded(),"Write gated TaskPack");
+        TaskPack decoded;require(readTaskPack(output/"memory-choice.taskpack",decoded).succeeded(),"Read gated TaskPack");
+        auto roundtrip=m;roundtrip.task=decoded;CompiledRun restored;check(compileRun(roundtrip,restored),"Compile gated TaskPack roundtrip");
+        require(run.task().fingerprint()==restored.task().fingerprint() &&
+            run.task().actionFingerprint()==restored.task().actionFingerprint() &&
+            run.task().observationFingerprint()==restored.task().observationFingerprint(),"Gated TaskPack changed identity on roundtrip");
+        std::ofstream controls(output/"memory-choice-negative-controls.jsonl");
+        for(unsigned test=0;test<7;++test) {
+            auto bad=m;
+            if(test==0)bad.task.actionAvailableAfterSteps=0;
+            if(test==1)bad.task.allowedActionMask=0;
+            if(test==2)bad.task.actionAvailableAfterSteps=bad.task.maximumEpisodeSteps;
+            if(test==3)bad.task.allowedActionMask=1u<<31u;
+            if(test==4)bad.task.deviceStateProgramFingerprint=0;
+            if(test==5)bad.sensors.observation.retinalFeatureCount=0;
+            if(test==6)bad.task.actions.resize(33,bad.task.actions.front());
+            CompiledRun invalid;const auto status=compileRun(bad,invalid);require(!status.succeeded(),"Malformed memory choice admitted");
+            controls<<"{\"case\":"<<test<<",\"rejected\":true,\"reason\":"<<std::quoted(status.message)<<"}\n";
+        }
+    }
     if(rawImages) {
         std::ofstream authoringControls(output/"authoring-negative-controls.jsonl");
         for(unsigned test=0;test<11;++test) {
@@ -178,7 +202,9 @@ Evidence execute(const std::array<mr_float4,2>& ports,const std::filesystem::pat
 }}
 }
 int main(int argc,char** argv){@autoreleasepool{bool owns=false;try{
-    require(argc==2,"Usage: metalrobo_crow_cue_foraging_check NEW_OUTPUT");const std::filesystem::path output=argv[1];require(std::filesystem::create_directory(output),"Output exists");owns=true;
+    require(argc==2 || (argc==3 && std::string(argv[2])=="--memory-choice"),"Usage: metalrobo_crow_cue_foraging_check NEW_OUTPUT [--memory-choice]");
+    memoryChoice=argc==3;const std::filesystem::path output=argv[1];require(std::filesystem::create_directory(output),"Output exists");owns=true;
+    if(memoryChoice)std::ofstream(output/"memory-choice-plan.json")<<R"({"purpose":"native memory-choice motor/history and reward-path admission","decision_tick":64,"neutral_actions_before_decision":true,"allowed_action_indices_after_decision":[15,17],"cue_end_tick":32,"retinal_flush_tick":40,"intake_start_tick":192,"ordinary_reset":"restarts episode motor hold but never refills/rerolls resources or reveals cue","prediction":"same frozen constant-bias phase controllers still get40mg at matching physical ports and0 at opposite ports; TaskPack roundtrip preserves exact identity; seven malformed programs reject; chunk1/16 and8/32 remain exact","budget":"one calibration and eight native arms, no retries","scope":"staged supported head/beak engineering task, no learned memory or free locomotion"})";
     const auto ports=calibrate(output/"calibration");
     std::ofstream(output/"plan.json")<<R"({"purpose":"integrated native two-port foraging and disappearing visual cue admission, no learned memory claim","units":"eight supported estimated crow lanes; physical port centers calibrated once before this admission, fixed15mm radius; no subsequent parameter search","cue":"one of two authored noncolliding indicator meshes at a distant static fixture represents its selected food port; normal native projection, material and occlusion; visible only at initialized accepted resource lifetime ticks below32; food intake forbidden through first192 ticks","actor":"97 ordinary features plus two delayed16x12 RGB streams and validity/age; no hidden food location/seed/clock label","revision":"Attempt01 reached two disjoint mouth positions, then rejected the unsupported open-loop retinal execution. Preserve it. Bind actual native constant-bias policies, with higher revisions only at fixed yaw/jaw phase boundaries. Left/right arms each use the same actions in every lane, never hidden allocation labels. No physics bounds or site radius changed.","prediction":"both ports consume exactly40000ug at its matching side under the same native constant-bias policy for all lanes; the opposite-side native policy consumes0 in those lanes; neutral cue is visible at tick16 and absent at48/64/80; physical wall occludes cue; five neutral80tick arms cover chunk1/16 exactness, paired hidden allocation seed, occlusion and reset at48; all97 non-image features byte-exact under changed hidden allocation, full actors byte-exact after tick40 while some early image values differ; episode reset cannot reveal cue or reroll food; left-side320tick chunk8/32 final states and streams exact","seeds":[2651109801,2651109802],"budget":"one calibration plus eight fixed native arms, no retry or threshold search; retain original failures, abort first invalidity","scope":"scripted intake controls and native sensing mechanism; no autonomous search, trained memory, solid food, biological fidelity, complete life recovery or production throughput qualification"})";
     const auto one=execute(ports,output/"visible-chunk1",80,1,2651109801,false,0,false,true);
@@ -212,5 +238,5 @@ int main(int argc,char** argv){@autoreleasepool{bool owns=false;try{
             a.clock.x==320 && b.clock.w==a.clock.w,"Matched/opposite physical port intake disagrees");
         if(a.clock.w==1)++left;else if(a.clock.w==2)++right;else require(false,"Invalid allocation mask");
     }require(left&&right,"Native reachability did not cover both ports");
-    std::ofstream report(output/"summary.json");report<<"{\"status\":\"passed\",\"lanes\":8,\"native_arms\":8,\"cue_active_until_lifetime_tick\":32,\"intake_delayed_ticks\":192,\"left_port_lanes\":"<<left<<",\"right_port_lanes\":"<<right<<",\"correct_consumed_ug_per_lane\":40000,\"wrong_consumed_ug_per_lane\":0,\"paired_changed_lanes\":"<<changed<<",\"early_image_differences\":"<<earlyDifferences<<",\"non_image_actor_features_byte_exact\":true,\"post_cue_actor_byte_exact\":true,\"native_partition_byte_exact\":true,\"physical_terminations\":0,\"failed_physics_steps\":0,\"learned_memory_qualified\":false}\n";report.close();std::ifstream result(output/"summary.json");std::cout<<result.rdbuf();return 0;
+    std::ofstream report(output/"summary.json");if(memoryChoice)report<<"{\"memory_choice_decision_tick\":64,";else report<<'{';report<<"\"status\":\"passed\",\"lanes\":8,\"native_arms\":8,\"cue_active_until_lifetime_tick\":32,\"intake_delayed_ticks\":192,\"left_port_lanes\":"<<left<<",\"right_port_lanes\":"<<right<<",\"correct_consumed_ug_per_lane\":40000,\"wrong_consumed_ug_per_lane\":0,\"paired_changed_lanes\":"<<changed<<",\"early_image_differences\":"<<earlyDifferences<<",\"non_image_actor_features_byte_exact\":true,\"post_cue_actor_byte_exact\":true,\"native_partition_byte_exact\":true,\"physical_terminations\":0,\"failed_physics_steps\":0,\"learned_memory_qualified\":false}\n";report.close();std::ifstream result(output/"summary.json");std::cout<<result.rdbuf();return 0;
 }catch(const std::exception& error){if(owns)std::ofstream(std::filesystem::path(argv[1])/"failure.json")<<"{\"error\":"<<std::quoted(error.what())<<"}\n";std::cerr<<error.what()<<'\n';return 1;}}}

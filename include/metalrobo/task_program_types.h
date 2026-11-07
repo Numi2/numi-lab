@@ -6,7 +6,11 @@
 // Additive retinal task semantics use a distinct executable tag. Structs and
 // all legacy task fingerprints retain ABI 47; an older GPU must reject 48.
 #define MR_TASK_PROGRAM_RETINAL_ABI_VERSION 48u
-#define MR_TASK_PROGRAM_ABI_SUPPORTED(v) ((v)==MR_TASK_PROGRAM_ABI_VERSION || (v)==MR_TASK_PROGRAM_RETINAL_ABI_VERSION)
+// ABI49 gives the existing final uint64 an explicit, versioned meaning.
+// Header layout/size and all ABI47/48 bytes remain unchanged. Old GPU rejects49.
+#define MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION 49u
+#define MR_TASK_PROGRAM_HAS_RETINAL(v) ((v)==MR_TASK_PROGRAM_RETINAL_ABI_VERSION || (v)==MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION)
+#define MR_TASK_PROGRAM_ABI_SUPPORTED(v) ((v)==MR_TASK_PROGRAM_ABI_VERSION || MR_TASK_PROGRAM_HAS_RETINAL(v))
 
 #define MR_TASK_ACTUATOR_JOINT_POSITION 0u
 #define MR_TASK_ACTUATOR_JOINT_VELOCITY 1u
@@ -524,7 +528,9 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     // Immutable identity of an external accepted-state task program. Zero
     // means no external nutrition/task-state authority; reserved must be zero.
     mr_u64 deviceStateProgramFingerprint;
-    mr_u64 deviceStateReserved;
+    // ABI47/48 zero. ABI49: low32 accepted episode decision tick,
+    // high32 allowed action bits. Actions/history neutral until decision.
+    mr_u64 actionAvailabilityProgram;
 } MRTaskProgramHeaderGPU;
 
 typedef struct MR_ALIGN16 MRTaskActionBindingGPU {

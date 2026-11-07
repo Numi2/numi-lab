@@ -477,6 +477,10 @@ struct TaskMotionProgram {
 struct TaskPack {
     std::string id;
     std::uint64_t deviceStateProgramFingerprint=0u;
+    // Optional retinal memory-choice experiment. Zero/zero preserves legacy
+    // bytes. All actions/history neutral before the accepted episode tick;
+    // afterwards only allowedActionMask actions have authority. No teacher.
+    std::uint32_t actionAvailableAfterSteps=0u, allowedActionMask=0u;
     // Operational contact-graph budget for this task. Zero fields retain the
     // world's topology-derived envelope.
     MetalWorldCapacityProfile capacities;

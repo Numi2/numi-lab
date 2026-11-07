@@ -1204,10 +1204,12 @@ def main() -> int:
     commands.add_parser("body-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("foraging-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("cue-foraging-admission").add_argument("--output", type=Path, required=True)
+    commands.add_parser("memory-choice-admission").add_argument("--output", type=Path, required=True)
     prepare_cued = commands.add_parser("prepare-cued-foraging")
     prepare_cued.add_argument("--output", type=Path, required=True)
     prepare_cued.add_argument("--allocation-seed", type=int, required=True)
     prepare_cued.add_argument("--occluded", action="store_true")
+    prepare_cued.add_argument("--memory-choice-decision-tick", type=int, choices=range(48,193), metavar="48..192")
     commands.add_parser("feeding-probe").add_argument("--output", type=Path, required=True)
     commands.add_parser("feeding-learning-campaign").add_argument("--output", type=Path, required=True)
     feeding_policy=commands.add_parser("feeding-policy-probe")
@@ -1528,9 +1530,15 @@ def main() -> int:
             calibration = root / "environments/american-crow/cued-foraging-v1/calibrated-ports.bin"
             result = execute(output, "compile-cued-foraging", [str(runtime(root)["foraging_compile"]),
                              str(calibration), str(output / "environment"), str(args.allocation_seed),
-                             "1" if args.occluded else "0"], root, 60)
+                             "1" if args.occluded else "0"] +
+                             ([str(args.memory_choice_decision_tick)] if args.memory_choice_decision_tick is not None else []), root, 60)
             if result.get("status") != "passed" or result.get("simulation_steps") != 0:
                 raise RuntimeError("Native cue environment authoring failed")
+        elif args.command == "memory-choice-admission":
+            result = execute(output, "memory-choice", [str(runtime(root)["cue_foraging_check"]),
+                             str(output / "native-evidence"), "--memory-choice"], root, 1200)
+            if result.get("status") != "passed" or result.get("memory_choice_decision_tick") != 64:
+                raise RuntimeError("Native memory-choice program/reward-path admission failed")
         elif args.command == "cue-foraging-admission":
             result = execute(output, "cue-foraging", [str(runtime(root)["cue_foraging_check"]),
                              str(output / "native-evidence")], root, 1200)

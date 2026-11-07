@@ -438,6 +438,7 @@ struct MetalWorldContextState {
     __strong id<MTLCommandQueue> queue = nil;
     __strong id<MTLLibrary> library = nil;
     bool supportsRetinalTaskABI=false;
+    bool supportsMemoryChoiceTaskABI=false;
     bool supportsRecurrentPolicyABI=false;
     std::unique_ptr<GRUMemoryContext> actorMemory;
     std::uint32_t memoryEnvironments=0,memoryInputs=0,memoryHidden=0,memoryAfterLayer=0;
@@ -3921,15 +3922,19 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "device physics program is incomplete, has unknown capabilities, requires rigid contact evidence in a free-motion world, or requests a missing DER arena"
         );
     }
-    if (nativeTask && config.taskProgram.header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION &&
+    if (nativeTask && MR_TASK_PROGRAM_HAS_RETINAL(config.taskProgram.header().articulation.z) &&
         (!config.deviceObservationProgram.valid() || !nativePolicy)) {
         return reject(std::move(diagnostics),MetalWorldHostStatus::invalidDimensions,
             "retinal task semantics require a bound native observation program and policy; zero-filled image fallback is forbidden");
     }
-    if (nativeTask && config.taskProgram.header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION &&
+    if (nativeTask && MR_TASK_PROGRAM_HAS_RETINAL(config.taskProgram.header().articulation.z) &&
         config.deviceObservationProgram.observationFingerprint!=config.taskProgram.observationFingerprint())
         return reject(std::move(diagnostics),MetalWorldHostStatus::invalidDimensions,
             "retinal observation program identity does not match the compiled actor sensor contract");
+    if (nativeTask && config.taskProgram.header().articulation.z==MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION &&
+        (config.birdFlowJourneyTeacher || config.basePolicyProgram.valid()))
+        return reject(std::move(diagnostics),MetalWorldHostStatus::invalidDimensions,
+            "memory-choice task requires exclusive policy authority without teacher or base policy");
     if (config.deviceObservationProgram.configured() &&
         (!config.deviceObservationProgram.valid() ||
          !nativeTask || !nativePolicy)) {
@@ -7009,6 +7014,7 @@ MetalWorldDiagnostics initializeContext(
     context.queue = queue;
     context.library = library;
     context.supportsRetinalTaskABI=[library newFunctionWithName:@"mr_task_retinal_abi48_capability"]!=nil;
+    context.supportsMemoryChoiceTaskABI=[library newFunctionWithName:@"mr_task_memory_choice_abi49_capability"]!=nil;
     context.supportsRecurrentPolicyABI=[library newFunctionWithName:@"mr_policy_gru_abi4_capability"]!=nil;
     context.abaPipeline = aba;
     context.functionBasedDenseDynamicsPipeline =
@@ -7423,7 +7429,7 @@ std::uint64_t checkpointExecutionIdentity(const MetalWorldStepConfig& c) {
     const auto hash=checkpoint::digest(bytes);std::uint64_t result=0;std::memcpy(&result,hash.data(),sizeof(result));return result;
 }
 void requireResidentCheckpointScope(const CompiledWorld& world,const MetalWorldStepConfig& c) {
-    checkpoint::require(c.taskProgram.valid() && c.taskProgram.header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION &&
+    checkpoint::require(c.taskProgram.valid() && MR_TASK_PROGRAM_HAS_RETINAL(c.taskProgram.header().articulation.z) &&
         !world.rodCount() && !c.millardProgram.valid() && !c.multicopterProgram.valid() &&
         c.solverMode==MetalWorldSolverMode::temporalCone && !c.birdFlowJourneyTeacher &&
         c.deviceObservationProgram.valid() && c.policyProgram.valid(),
@@ -20732,10 +20738,15 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 return diagnostics;
             }
             if (config.taskProgram.valid() &&
-                config.taskProgram.header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION &&
+                MR_TASK_PROGRAM_HAS_RETINAL(config.taskProgram.header().articulation.z) &&
                 !selectedState->supportsRetinalTaskABI)
                 return reject(std::move(diagnostics),MetalWorldHostStatus::metalLibraryFailure,
                     "selected shader library has no retinal task ABI 48 capability");
+            if (config.taskProgram.valid() &&
+                config.taskProgram.header().articulation.z==MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION &&
+                !selectedState->supportsMemoryChoiceTaskABI)
+                return reject(std::move(diagnostics),MetalWorldHostStatus::metalLibraryFailure,
+                    "selected shader library has no memory-choice task ABI49 capability");
             if (config.policyProgram.actorMemory() && (!selectedState->supportsRecurrentPolicyABI || config.birdFlowJourneyTeacher))
                 return reject(std::move(diagnostics),MetalWorldHostStatus::metalLibraryFailure,
                     "recurrent actor requires policy ABI4 shaders and exclusive actor authority");
@@ -20771,7 +20782,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     "resident state arena or compiled world changed"
                 );
             }
-            if (selectedState->config.enableResidentCheckpoints && config.taskProgram.valid() && config.taskProgram.header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION) {
+            if (selectedState->config.enableResidentCheckpoints && config.taskProgram.valid() && MR_TASK_PROGRAM_HAS_RETINAL(config.taskProgram.header().articulation.z)) {
                 selectedState->checkpointSupported=!world.rodCount() && !config.millardProgram.valid() &&
                     !config.multicopterProgram.valid() && config.solverMode==MetalWorldSolverMode::temporalCone &&
                     !config.birdFlowJourneyTeacher && config.deviceObservationProgram.valid() && config.policyProgram.valid();
@@ -21720,7 +21731,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             if (nativeTask &&
                 config.policyProgram.valid() &&
                 config.evaluateFinalPolicy) {
-                if (config.taskProgram.header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION) {
+                if (MR_TASK_PROGRAM_HAS_RETINAL(config.taskProgram.header().articulation.z)) {
                     MRMetalWorldPassGPU terminal{};terminal.controlStep=diagnostics.layout.dispatch.controlStepCount;
                     terminal.physicsSubstep=MR_INVALID_INDEX;
                     if (!encodeDevicePhysicsBodies(*selectedState,commandBuffer,sourceQ,
