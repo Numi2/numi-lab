@@ -26,3 +26,8 @@ sampled gap, momentum balance <=0.25% impulse, and contact work difference
 stop on any failure. Retain both implementations, outputs and failure. These
 are implementation parity and resource checks, not an altered 0.25% spatial
 force/impulse qualification gate or a production performance test.
+
+The initial runner stopped on its first state: JSON could not serialize a
+NumPy boolean. No trajectory was run. The failed invocation and traceback
+are retained; a corrected recorder will be separately identified and does
+not alter numerical checks.

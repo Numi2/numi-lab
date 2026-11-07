@@ -1,0 +1,14 @@
+Initial execution of d2950ade stopped before saving its first state result:
+Traceback (most recent call last):
+  File "docs/evidence/contact-external-residual-only-20261108/run.py", line 33, in <module>
+    (p/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+  File "json/__init__.py", line 242, in dumps
+    **kw).encode(obj)
+  File "json/encoder.py", line 202, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "json/encoder.py", line 263, in iterencode
+    return _iterencode(o, 0)
+  File "json/encoder.py", line 182, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type bool is not JSON serializable
+No trajectory was started. The value was numpy.bool_, not a Python bool.
