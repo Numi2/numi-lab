@@ -1,0 +1,5 @@
+{
+  "prediction": "All Git restored checkpoint/input/runtime files match exact captured SHA256. Restored Python actually loads all53 model/Adam tensors, and restored CAPI library admits the final65 checkpoint with zero physical advances. Adjacent restored libraries must actually load.",
+  "budget": "One120second MLX restore process and one180second native loader process; no physical simulation or retry.",
+  "limit": "The captured native layout is faulty and future repeatability is NOT qualified. This is evidence/recovery preservation, not scientific success."
+}
