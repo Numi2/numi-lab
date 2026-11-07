@@ -1,0 +1,302 @@
+{
+  "schema": "numi.science.plan.v2",
+  "purpose": "exploration",
+  "question": "How does single-environment p95 call latency differ between 100 and 200 accepted steps on this M6?",
+  "hypothesis": "For this operational fixture, increasing the measured duration from 100 to 200 steps has a small paired effect on p95 call latency.",
+  "owner": "MetalWorld persistent task rollout and metalrobo_latency",
+  "repository": "/Users/numi/numi-lab-benchmark-accounting-20261107",
+  "backend": "Apple Metal M6 Release",
+  "evidence_level": "simulation",
+  "limitations": "Exploratory single-host operational latency with host-sinusoidal action, no rendering, policy inference, learning, continuum, physical accuracy or comparator. The two durations include different trajectory portions and p95 values are separately estimated, not matched step latencies. Seeds are not independent hardware replication. Thermal and OS activity are uncontrolled; the measured call excludes action fill and transition validation, which are included in series wall time. Terminal counts are recorded, but this study does not assess task success or episode quality.",
+  "model": {
+    "version": "franka-latency-length-v2",
+    "statement": "For this M6 single-environment host-control fixture, the 200-step run p95 call latency differs from the paired 100-step run by between -2 and 2 milliseconds.",
+    "training_units": [
+      {
+        "seed": 7
+      }
+    ],
+    "prediction": {
+      "estimand": "paired_difference_mean",
+      "minimum": -2.0,
+      "maximum": 2.0
+    }
+  },
+  "model_file": "/Users/numi/numi-lab-latency-science-v2-20261107/model.json",
+  "predictor": {
+    "argv": [
+      "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+      "/Users/numi/numi-lab-latency-science-v2-20261107/predictor.py",
+      "/Users/numi/numi-lab-latency-science-v2-20261107/model.json"
+    ],
+    "env": {},
+    "timeout_seconds": 20
+  },
+  "instrument": {
+    "description": "Persistent single-step native latency instrument and accounting adapter",
+    "calibration": "/Users/numi/numi-lab-latency-science-v2-20261107/calibration.json",
+    "artifacts": [
+      "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/latency_science_adapter.py",
+      "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_latency",
+      "/Users/numi/numi-lab-benchmark-release-build-20261107/lib/libmetalrobo.dylib",
+      "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+      "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRoboHyperPolicy.metallib",
+      "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/NumiNeuron.metallib",
+      "/Users/numi/numi-lab-benchmark-release-build-20261107/matter/shaders/NumiMatter.metallib",
+      "/Users/numi/numi-lab-benchmark-accounting-20261107/apps/benchmark_latency.cpp",
+      "/Users/numi/numi-lab-benchmark-accounting-20261107/tests/latency_science_adapter_test.py",
+      "/Users/numi/numi-lab-benchmark-accounting-20261107/tests/benchmark_latency_test.py",
+      "/Users/numi/numi-lab-benchmark-accounting-20261107/tests/benchmark_accounting_test.py"
+    ]
+  },
+  "design": {
+    "intervention": "100 versus 200 consecutive measured persistent single-environment calls",
+    "controls": "seed, source, M6, control timestep, 20 warmup steps and host action generator",
+    "experimental_unit": "fixed seed evaluated at both durations",
+    "allocation": "alternating paired arm order",
+    "unit_paths": {
+      "seed": [
+        "seed"
+      ]
+    }
+  },
+  "artifacts": [
+    "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/latency_science_adapter.py",
+    "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_latency",
+    "/Users/numi/numi-lab-benchmark-release-build-20261107/lib/libmetalrobo.dylib",
+    "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+    "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRoboHyperPolicy.metallib",
+    "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/NumiNeuron.metallib",
+    "/Users/numi/numi-lab-benchmark-release-build-20261107/matter/shaders/NumiMatter.metallib",
+    "/Users/numi/numi-lab-benchmark-accounting-20261107/apps/benchmark_latency.cpp",
+    "/Users/numi/numi-lab-benchmark-accounting-20261107/tests/latency_science_adapter_test.py",
+    "/Users/numi/numi-lab-benchmark-accounting-20261107/tests/benchmark_latency_test.py",
+    "/Users/numi/numi-lab-benchmark-accounting-20261107/tests/benchmark_accounting_test.py",
+    "/Users/numi/numi-lab-latency-science-v2-20261107/calibration.json",
+    "/Users/numi/numi-lab-latency-science-v2-20261107/model.json",
+    "/Users/numi/numi-lab-latency-science-v2-20261107/predictor.py",
+    "/Users/numi/numi-lab-benchmark-accounting-20261107/python/metalrobo/science_notebook.py",
+    "/Users/numi/numi-lab-benchmark-accounting-20261107/docs/evidence/benchmark-latency-smoke-v2-20261107/native.stdout"
+  ],
+  "observable": {
+    "name": "per-call latency p95",
+    "unit": "ms",
+    "path": [
+      "latency_p95_ms"
+    ]
+  },
+  "prediction": {
+    "estimand": "paired_difference_mean",
+    "minimum": -2.0,
+    "maximum": 2.0
+  },
+  "validity": [
+    {
+      "path": [
+        "valid"
+      ],
+      "equals": true
+    },
+    {
+      "path": [
+        "raw_fields",
+        "device"
+      ],
+      "equals": "Apple M6"
+    },
+    {
+      "path": [
+        "raw_fields",
+        "policy"
+      ],
+      "equals": "host_sinusoidal"
+    }
+  ],
+  "paired_equal": [
+    [
+      "seed"
+    ]
+  ],
+  "trials": [
+    {
+      "id": "seed-4101-control",
+      "pair": "seed-4101",
+      "arm": "control",
+      "unit": {
+        "seed": 4101
+      },
+      "argv": [
+        "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+        "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/latency_science_adapter.py",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_latency",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+        "100",
+        "4101"
+      ],
+      "env": {},
+      "timeout_seconds": 120
+    },
+    {
+      "id": "seed-4101-treatment",
+      "pair": "seed-4101",
+      "arm": "treatment",
+      "unit": {
+        "seed": 4101
+      },
+      "argv": [
+        "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+        "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/latency_science_adapter.py",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_latency",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+        "200",
+        "4101"
+      ],
+      "env": {},
+      "timeout_seconds": 120
+    },
+    {
+      "id": "seed-4102-treatment",
+      "pair": "seed-4102",
+      "arm": "treatment",
+      "unit": {
+        "seed": 4102
+      },
+      "argv": [
+        "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+        "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/latency_science_adapter.py",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_latency",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+        "200",
+        "4102"
+      ],
+      "env": {},
+      "timeout_seconds": 120
+    },
+    {
+      "id": "seed-4102-control",
+      "pair": "seed-4102",
+      "arm": "control",
+      "unit": {
+        "seed": 4102
+      },
+      "argv": [
+        "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+        "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/latency_science_adapter.py",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_latency",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+        "100",
+        "4102"
+      ],
+      "env": {},
+      "timeout_seconds": 120
+    },
+    {
+      "id": "seed-4103-control",
+      "pair": "seed-4103",
+      "arm": "control",
+      "unit": {
+        "seed": 4103
+      },
+      "argv": [
+        "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+        "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/latency_science_adapter.py",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_latency",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+        "100",
+        "4103"
+      ],
+      "env": {},
+      "timeout_seconds": 120
+    },
+    {
+      "id": "seed-4103-treatment",
+      "pair": "seed-4103",
+      "arm": "treatment",
+      "unit": {
+        "seed": 4103
+      },
+      "argv": [
+        "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+        "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/latency_science_adapter.py",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_latency",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+        "200",
+        "4103"
+      ],
+      "env": {},
+      "timeout_seconds": 120
+    },
+    {
+      "id": "seed-4104-treatment",
+      "pair": "seed-4104",
+      "arm": "treatment",
+      "unit": {
+        "seed": 4104
+      },
+      "argv": [
+        "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+        "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/latency_science_adapter.py",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_latency",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+        "200",
+        "4104"
+      ],
+      "env": {},
+      "timeout_seconds": 120
+    },
+    {
+      "id": "seed-4104-control",
+      "pair": "seed-4104",
+      "arm": "control",
+      "unit": {
+        "seed": 4104
+      },
+      "argv": [
+        "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+        "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/latency_science_adapter.py",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_latency",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+        "100",
+        "4104"
+      ],
+      "env": {},
+      "timeout_seconds": 120
+    },
+    {
+      "id": "seed-4105-control",
+      "pair": "seed-4105",
+      "arm": "control",
+      "unit": {
+        "seed": 4105
+      },
+      "argv": [
+        "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+        "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/latency_science_adapter.py",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_latency",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+        "100",
+        "4105"
+      ],
+      "env": {},
+      "timeout_seconds": 120
+    },
+    {
+      "id": "seed-4105-treatment",
+      "pair": "seed-4105",
+      "arm": "treatment",
+      "unit": {
+        "seed": 4105
+      },
+      "argv": [
+        "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+        "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/latency_science_adapter.py",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_latency",
+        "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+        "200",
+        "4105"
+      ],
+      "env": {},
+      "timeout_seconds": 120
+    }
+  ]
+}
