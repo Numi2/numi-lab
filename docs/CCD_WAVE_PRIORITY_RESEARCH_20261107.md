@@ -1,0 +1,7 @@
+# Non-distributed priority-row trial (held)
+
+This research candidate adds at most eight scalar normal pivots per configured sweep to frictionless, no-rod non-distributed islands using the actual typed response operator. The all-path normal complementarity certificate remains in force. Other contact types use the preceding solver paths.
+
+In the native 72-case matrix, 71 cases are accepted; the single rejected case is the frictional 33-contact one-sweep case, previously demonstrated to violate the normal certificate. All 257-contact incoming production-sweep cases accepted in the prior pair experiment remain accepted. The 33-contact owner-shaped fixture still rejects at two sweeps: residual 0.00105085 m/s exceeds its 0.0009175 m/s threshold. It accepts at three or more; raising the budget is not a production repair. The 257-contact owner passes at two sweeps with the independent 0.08175 N s impulse and -0.00334153 J kinetic-work reference. Matrix and owner cases replay identically; failed examples restore initial q/v/scene and empty contact cache. This is not a broad rollback qualification.
+
+This is an intermediate failed candidate and is not promoted. The exact shader and executables are copied and retained host-only in /Users/numi/numi-lab-ccd-thin-evidence-20261107/wave-priority-v1. [Raw native output, source patch, and source/binary identities](evidence/ccd-wave-priority-evidence-20261107.tar.gz) have archive SHA-256 29a7bd9b4bb5bda54c229e75402afe1964af190f9355adce049bcb68c1302acc.
