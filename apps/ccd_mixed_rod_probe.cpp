@@ -36,9 +36,15 @@ int main(int argc,char**argv){
   double P[3]={a.finalV[0]-m.defaultV[0],a.finalV[1]-m.defaultV[1],a.finalV[2]-m.defaultV[2]};
   for(size_t i=0;i<std::min(a.finalRodNodes.size(),rod.model.nodeMasses.size());++i){P[0]+=rod.model.nodeMasses[i]*a.finalRodNodes[i].velocity.x;P[1]+=rod.model.nodeMasses[i]*a.finalRodNodes[i].velocity.y;P[2]+=rod.model.nodeMasses[i]*a.finalRodNodes[i].velocity.z;}
   double err=0;for(int i=0;i<3;i++)err=std::max(err,std::abs(P[i]-groundJ[i]));
+  auto sameSpan=[](const auto& v,const auto& span){using T=typename std::decay_t<decltype(v)>::value_type;return v.size()==span.size()&&(v.empty()||std::memcmp(v.data(),span.data(),v.size()*sizeof(T))==0);};
+  bool restored=eq(a.finalQ,hw.model.defaultQ)&&eq(a.finalV,hw.model.defaultV)&&eq(a.finalSceneBodies,hw.defaultSceneBodies)&&sameSpan(a.finalRodNodes,world.defaultRodNodes())&&sameSpan(a.finalRodEdges,world.defaultRodEdges());
   bool replay=eq(a.finalQ,b.finalQ)&&eq(a.finalV,b.finalV)&&eq(a.finalRodNodes,b.finalRodNodes)&&eq(a.finalRodEdges,b.finalRodEdges)&&da.firstGPUStatusCode==db.firstGPUStatusCode;
   if(!first)std::cout<<",";first=false;
-  std::cout<<"{\"initial_vn\":"<<vn<<",\"accepted\":"<<(da.succeeded()?"true":"false")<<",\"status\":"<<da.firstGPUStatusCode<<",\"contacts\":"<<st.activeContacts<<",\"rod_contacts\":"<<countRod<<",\"rigid_contacts\":"<<countRigid<<",\"mixed_island\":"<<(mixed?"true":"false")<<",\"normal_residual\":"<<st.residuals.y<<",\"momentum_error_ns\":"<<err<<",\"ground_impulse\":["<<groundJ[0]<<","<<groundJ[1]<<","<<groundJ[2]<<"],\"replay\":"<<(replay?"true":"false")<<"}";
+  std::cout<<"{\"initial_vn\":"<<vn<<",\"accepted\":"<<(da.succeeded()?"true":"false")<<",\"status\":"<<da.firstGPUStatusCode<<",\"contacts\":"<<st.activeContacts<<",\"rod_contacts\":"<<countRod<<",\"rigid_contacts\":"<<countRigid<<",\"mixed_island\":"<<(mixed?"true":"false")<<",\"normal_residual\":"<<st.residuals.y<<",\"restored\":"<<(restored?"true":"false")<<",\"candidate_momentum_error_uninterpretable_on_rejection\":"<<err<<",\"ground_impulse\":["<<groundJ[0]<<","<<groundJ[1]<<","<<groundJ[2]<<"],\"replay\":"<<(replay?"true":"false")<<",\"first_failing_constraint\":"<<st.firstFailingConstraint<<",\"queue_flags\":"<<st.queueFlags<<",\"rows\":[";
+  for(unsigned i=0;i<std::min<size_t>(st.activeContacts,a.contactEvidence.contacts.size());++i){if(i)std::cout<<",";auto& c=a.contactEvidence.contacts[i];auto& r=a.contactEvidence.evaluatedRows.at(3*i);auto& md=a.contactEvidence.contactMetadata.at(i);
+   std::cout<<"{\"flags\":"<<c.flags<<",\"island\":"<<c.islandIndex<<",\"body_a\":"<<c.bodyA<<",\"body_b\":"<<c.bodyB<<",\"normal\":["<<c.normal.x<<","<<c.normal.y<<","<<c.normal.z<<"],\"anchor_a\":["<<md.localAnchorA.x<<","<<md.localAnchorA.y<<","<<md.localAnchorA.z<<"],\"anchor_b\":["<<md.localAnchorB.x<<","<<md.localAnchorB.y<<","<<md.localAnchorB.z<<"],\"target\":"<<r.targetVelocity<<",\"pre\":"<<r.preSolveVelocity<<",\"impulse\":["<<c.impulses.x<<","<<c.impulses.y<<","<<c.impulses.z<<"]}";
+  }
+  std::cout<<"]}";
  }
  std::cout<<"]}\n";
 }
