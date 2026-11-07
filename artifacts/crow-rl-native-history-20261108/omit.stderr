@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/tools/crow_evidence_archive.py", line 363, in <module>
+    main()
+    ~~~~^^
+  File "/Users/n/Developer/numi-crow-rl-20261107/tools/crow_evidence_archive.py", line 359, in main
+    omit_archives(args.path)
+    ~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Users/n/Developer/numi-crow-rl-20261107/tools/crow_evidence_archive.py", line 295, in omit_archives
+    raise ValueError("Open archive handles or incomplete lsof inspection")
+ValueError: Open archive handles or incomplete lsof inspection
