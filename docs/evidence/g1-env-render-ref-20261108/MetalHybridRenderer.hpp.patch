@@ -1,0 +1,10 @@
+--- a/include/metalrobo/MetalHybridRenderer.hpp
++++ b/include/metalrobo/MetalHybridRenderer.hpp
+@@ -408,6 +408,7 @@
+     [[nodiscard]] std::vector<void*> researchBorrowBuffers() const;
+     // Research only: shared buffer of one accepted cadence record per environment.
+     [[nodiscard]] bool researchSetCadenceBuffer(void* buffer);
++    [[nodiscard]] void* researchCurrentBodies() const;
+ 
+ private:
+     struct State;

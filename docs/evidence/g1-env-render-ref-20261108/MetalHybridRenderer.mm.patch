@@ -1,0 +1,29 @@
+--- a/src/metal/MetalHybridRenderer.mm
++++ b/src/metal/MetalHybridRenderer.mm
+@@ -7050,6 +7050,7 @@
+     __strong id<MTLBuffer> maskedDepthInstances = nil;
+     __strong id<MTLBuffer> maskedDepthHistory = nil;
+     __strong id<MTLBuffer> researchCadence = nil;
++    __strong id<MTLBuffer> researchBodies = nil;
+     MetalHybridRendererLayout rendererLayout{};
+     MRHybridRenderUniformsGPU maskedDepthRenderUniforms{};
+     std::uint64_t observationSequence = 0u;
+@@ -7476,6 +7477,10 @@
+         state_->renderer->nativeBuffer(MetalHybridRendererBuffer::validity),
+         state_->renderer->nativeBuffer(MetalHybridRendererBuffer::cameraStates),
+     };
++}
++
++void* MetalHybridObjectTracker::researchCurrentBodies() const {
++    return state_ ? (__bridge void*)state_->researchBodies : nullptr;
+ }
+ 
+ bool MetalHybridObjectTracker::researchSetCadenceBuffer(void* buffer) {
+@@ -7528,6 +7533,7 @@
+          state->maskedDepthHistory == nil)) {
+         return false;
+     }
++    state->researchBodies = (__bridge id<MTLBuffer>)pass.currentBodies;
+     id<MTLCommandBuffer> command =
+         (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+     const std::uint64_t observationSequence = state->observationSequence;
