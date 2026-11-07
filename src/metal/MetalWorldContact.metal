@@ -8686,6 +8686,9 @@ inline void mrWorldWave32SolvePacket(
                 constraintBase + localConstraint
             ];
             preconditioner.row2.w = relaxation;
+            // TEST-ONLY: unused vector lanes expose damping and normal row sum.
+            contacts[constraintBase + localConstraint].normal.w = relaxation;
+            contacts[constraintBase + localConstraint].tangent.w = absoluteNormalRowSum;
             preconditioners[constraintBase + localConstraint] =
                 preconditioner;
         }
