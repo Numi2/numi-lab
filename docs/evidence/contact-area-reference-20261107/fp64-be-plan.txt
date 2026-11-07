@@ -1,0 +1,9 @@
+After a coarse 0.5ms pilot, solve the same fixed-mesh fixed-law FEM
+backward-Euler equations independently in FP64 at native 0.5, 0.25, 0.125,
+0.0625ms timesteps over 10ms. Newton uses a dense numerical Jacobian and
+residual-based line search, without Numi's solver or tangent. Compare
+stepwise retained aggregate gap, centre of mass, momentum, force, and 1ms
+force bins with existing native trajectories. Native per-node and energy
+history is not present in retained traces and requires a later diagnostic
+capture. CPU and native acceptance tolerances are intentionally different;
+matching aggregate observables does not prove full state equivalence.

@@ -1,0 +1,4 @@
+A concurrent product window-check parsed temporary CPU metadata. Its owner
+confirmed it did not initialize Metal or create a world. CPU scheduling
+contention may affect elapsed timings; these correctness runs do not support
+any performance conclusion.

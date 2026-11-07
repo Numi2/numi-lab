@@ -1,0 +1,8 @@
+Use independent FP64 BE, same semidiscrete fixed FEM model and unchanged
+reference gates. Timestep sequence 31.25, 15.625, 7.8125, 3.90625,
+1.953125, 0.9765625 microseconds, stop at first timestep meeting both the
+0.25% peak-normalized 1 ms force-bin and total impulse comparison against
+the 0.5us explicit RK4 result. No time alignment or gate adjustment.
+Maximum component position residual <=min(1e-13 m, 1e-4*h^2 m) controls
+accuracy as h decreases; record failure rather than widening it.
+This is a CPU estimate only, not native physical-step qualification.

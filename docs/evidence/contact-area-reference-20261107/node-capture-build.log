@@ -1,0 +1,5 @@
+[  6%] Built target numi_plane_contact_shader
+[ 87%] Built target numi_plane_contact_owner
+[ 93%] Building OBJCXX object CMakeFiles/metalrobo_plane_contact_probe.dir/Users/numi/numi-lab-contact-reference-20261107/apps/plane_contact_probe.mm.o
+[100%] Linking CXX executable metalrobo_plane_contact_probe
+[100%] Built target metalrobo_plane_contact_probe

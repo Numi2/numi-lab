@@ -1,0 +1,6 @@
+The first midpoint build failed because nested main-renaming macros clashed.
+The BE source was given an include guard for its main function; compilation
+then passed with an unused BE helper warning. A 125us midpoint pilot preceded
+the sweep plan. After the sweep, the instrument was extended with initial and
+final contact potential, and the same declared series was rerun. Initial outputs
+remain in midpoint-initial; the extension did not change the integration law.

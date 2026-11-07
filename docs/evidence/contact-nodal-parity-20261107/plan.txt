@@ -1,0 +1,8 @@
+Bounded parity diagnostic: ipc_area, k=1e16 N/m^5, activation distance 1e-4m,
+2 divisions, 0.2mm initial gap, physical residual policy, frictionless FEM
+on static plane, reference displacement, 10ms, 16 Newton and 64 FGMRES.
+Native 31.25us/320 steps and 15.625us/640 steps, separately and sequentially.
+Capture all nodal positions and velocities and compiled tetra geometry and
+area/mass; compare node state, normal force and independently recomputed energy
+against CPU FP64 BE at same h. Retain failures and rollback/replay results.
+These steps are not expected to meet 0.25% force-reference accuracy.

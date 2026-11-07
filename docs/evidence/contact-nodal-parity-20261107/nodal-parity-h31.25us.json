@@ -1,0 +1,24 @@
+{
+  "schema": "numi.contact.nodal-parity.v1",
+  "h": 3.125e-05,
+  "steps": 320,
+  "total_compiled_mass_kg": 0.008799999195616692,
+  "total_compiled_reference_area_m2": 0.0003999999607913196,
+  "max_compiled_rest_coordinate_difference_m": 7.867813102413468e-10,
+  "max_compiled_nodal_mass_difference_kg": 1.2237578680442118e-10,
+  "max_compiled_nodal_area_difference_m2": 9.802170116172612e-12,
+  "compiled_connectivity_matches": true,
+  "max_node_coordinate_difference_m": 1.6105621648832003e-08,
+  "max_node_velocity_component_difference_mps": 2.6021405227782957e-05,
+  "max_normal_force_difference_N": 3.613592758777706e-05,
+  "max_potential_difference_J": 1.5974143860973677e-10,
+  "max_kinetic_difference_J": 1.75977344362102e-10,
+  "compiled_nodes": 27,
+  "compiled_tetrahedra": 48,
+  "limits": [
+    "energy from captured nodal coordinates independently re-evaluated using compiled inverse rest rows",
+    "potential includes elasticity, gravity and the fixed contact potential",
+    "independent CPU constitutive parameters are checked against declared fixture values, not read from GPU material program",
+    "matching BE trajectories does not certify force accuracy against continuous dynamics"
+  ]
+}

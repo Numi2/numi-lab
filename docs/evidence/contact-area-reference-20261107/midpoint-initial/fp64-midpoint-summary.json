@@ -1,0 +1,68 @@
+[
+  {
+    "h": 0.0005,
+    "cpu_seconds": 0.011748042015824467,
+    "returncode": 0,
+    "force_error": 0.5311689003944465,
+    "impulse_error": 0.08013993319206462,
+    "minimum_gap_m": 8.379868232602228e-05,
+    "contact_work_J": 1.602220821447423e-06,
+    "energy_defect_J": 2.2995702852235443e-06,
+    "rollback_copy": true
+  },
+  {
+    "h": 0.00025,
+    "cpu_seconds": 0.014969459036365151,
+    "returncode": 0,
+    "force_error": 0.12106977878126658,
+    "impulse_error": 0.007171935252473872,
+    "minimum_gap_m": 8.779173914940935e-05,
+    "contact_work_J": -4.763977588103545e-08,
+    "energy_defect_J": 5.719723267865687e-07,
+    "rollback_copy": true
+  },
+  {
+    "h": 0.000125,
+    "cpu_seconds": 0.02109654201194644,
+    "returncode": 0,
+    "force_error": 0.05662692584168309,
+    "impulse_error": 0.006327026986690719,
+    "minimum_gap_m": 8.69047173372466e-05,
+    "contact_work_J": -7.370823662841606e-08,
+    "energy_defect_J": 1.6426430713160824e-07,
+    "rollback_copy": true
+  },
+  {
+    "h": 6.25e-05,
+    "cpu_seconds": 0.03467895899666473,
+    "returncode": 0,
+    "force_error": 0.015625741984731083,
+    "impulse_error": 0.0023554272193165695,
+    "minimum_gap_m": 8.716909948344262e-05,
+    "contact_work_J": 6.884743567849874e-09,
+    "energy_defect_J": 4.215782667068863e-08,
+    "rollback_copy": true
+  },
+  {
+    "h": 3.125e-05,
+    "cpu_seconds": 0.06619116698857397,
+    "returncode": 0,
+    "force_error": 0.003080183347538559,
+    "impulse_error": 0.00036729284825570436,
+    "minimum_gap_m": 8.711034212579982e-05,
+    "contact_work_J": -1.7201024051201732e-09,
+    "energy_defect_J": 9.924690605803144e-09,
+    "rollback_copy": true
+  },
+  {
+    "h": 1.5625e-05,
+    "cpu_seconds": 0.1251167500158772,
+    "returncode": 0,
+    "force_error": 0.0008549363572691734,
+    "impulse_error": 0.0001099725736334651,
+    "minimum_gap_m": 8.709960882784517e-05,
+    "contact_work_J": -3.0391964497959494e-10,
+    "energy_defect_J": 2.4695804793500864e-09,
+    "rollback_copy": true
+  }
+]

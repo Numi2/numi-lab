@@ -48,6 +48,9 @@ if(BUILD_TESTING)
     add_test(NAME numi.contact.plane_area COMMAND numi_contact_plane_area)
     add_executable(numi_contact_fem_fp64_reference fem_plane_fp64_reference.cpp)
     add_test(NAME numi.contact.fem_fp64_energy_gradient COMMAND numi_contact_fem_fp64_reference --selftest)
+    add_executable(numi_contact_fem_fp64_midpoint fem_plane_fp64_midpoint.cpp)
+    add_test(NAME numi.contact.fem_fp64_midpoint_reference COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/midpoint_regression.py" "$<TARGET_FILE:numi_contact_fem_fp64_midpoint>")
     add_test(NAME numi.contact.physical_policy COMMAND numi_contact_policy)
     add_test(NAME numi.contact.residual_restore COMMAND "${Python3_EXECUTABLE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/control_regression.py"

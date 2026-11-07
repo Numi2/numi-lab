@@ -1,0 +1,4 @@
+The first independent BE build failed because overloaded coord accessors took
+a value and a reference, causing ambiguous resolution. Using a const-reference
+reader fixed compilation. The resulting coarse 500us pilot was captured before
+the four-step comparison plan. This was a CPU prototype, not the runtime.

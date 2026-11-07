@@ -105,3 +105,65 @@ and cannot establish a reliable force control. Backward Euler damping is a
 plausible contributor, but these comparisons cannot isolate the cause or
 establish bitwise equivalence of independently compiled model constants.
 The FP64 implementation is a diagnostic reference, not a runtime fallback.
+
+## Independent backward-Euler parity
+
+A second independent FP64 implementation solves the same semidiscrete model
+using backward Euler with a dense finite-difference Jacobian and a distinct
+Newton/line-search implementation. At the four retained native timesteps,
+it reproduces every retained step's force, minimum gap, centre of mass and
+momentum. At 0.0625 ms, maximum discrepancies were 7.70e-6 N, 1.06e-9 m,
+0.785e-9 m and 1.24e-9 N s respectively. The CPU equations' maximum nonlinear
+position residual was below 8.2e-14 m over the four runs. This comparison
+strongly supports backward-Euler discretization as the cause of the large
+difference to the refined semidiscrete trajectory for this fixture; it does
+not establish parity for other contact or coupling paths.
+
+A subsequent bounded native capture recorded all node positions and velocities,
+compiled reference positions, masses, areas and tetrahedron connectivity.
+At 31.25 and 15.625 µs, all 320 and 640 steps completed, and the instrument's
+replay and forced-rollback checks passed. At 15.625 µs the worst per-component
+native–FP64 differences were 26.9 nm in position and 9.00e-5 m/s in velocity;
+normal force differed by at most 0.138 mN. Re-evaluated potential and kinetic
+energy differed by at most 3.78e-10 J and 4.92e-10 J. Connectivity matched;
+compiled reference coordinates, nodal masses and area weights agreed to
+0.787 nm, 1.22e-10 kg and 9.80e-12 m² per node. The independently implemented
+constitutive parameters are matched to the declared fixture, rather than read
+from the compiled material program.
+
+[Parity evidence](evidence/contact-nodal-parity-20261107/) includes the exact
+source and binary identities, commands, captured nodal histories and comparison
+outputs. A concurrent CPU-only metadata check may have affected timing; neither
+the capture timings nor the calculated timestep costs are performance claims.
+
+An independent CPU backward-Euler timestep sweep reached 0.9765625 µs without
+meeting either 0.25% gate: peak-normalized binned force differed by 5.064% and
+integrated impulse by 1.118%. The two finest samples suggest first-order
+extrapolations of approximately 48 ns for the force gate and 218 ns for
+impulse, but no passing backward-Euler timestep was established. Extrapolation
+is not evidence of native FP32 convergence.
+
+## CPU-only consistent midpoint candidate
+
+A separate CPU FP64 diagnostic applies implicit midpoint consistently to
+positions, velocities, elasticity and the same fixed contact force. Its
+sweep retains all outcomes, including a 31.25 µs force error of 0.308%, which
+fails the unchanged 0.25% gate. At 15.625 µs it produces:
+
+- Maximum 1 ms binned-force error 0.0855% and total impulse error 0.0110%,
+  compared with the separately refined FP64 RK4 result on the same mesh.
+- Minimum endpoint gap 87.10 µm against the 0.1 µm clearance floor.
+- Normal contact work -3.04e-10 J and work plus the change in stored contact
+  potential 2.52e-10 J. Maximum total-energy deviation was 2.47e-9 J.
+- A basic rejected-trial copy check that left the CPU authoritative state
+  unchanged; the diagnostic has no persistent multiplier history.
+
+A CPU CTest repeats the fixed-mesh force, impulse, clearance and energy
+checks. Linear interpolation between the two endpoints stays clear in this
+plane fixture, but this is not swept collision certification for general
+geometry. Midpoint has not been implemented in Matter: changing its
+integration rule would require a consistent coupled contact operator, FP32
+qualification, moving-contact and friction checks, and full transactional
+restore and failure handling. Spatial refinement and independent physical
+material calibration remain open. The midpoint result is a research lead,
+not a force-qualified production control.

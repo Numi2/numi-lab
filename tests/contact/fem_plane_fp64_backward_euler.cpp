@@ -70,6 +70,7 @@ static State advance(const Model& m,const State& old,double h,int& iterations,do
  for(size_t i=0;i<s.x.size();++i)s.v[i]=(s.x[i]-old.x[i])*(1/h);
  return s;
 }
+#ifndef NM_FEM_BE_NO_MAIN
 int main(int argc,char**argv){
  try{
   if(argc!=3&&argc!=4)throw std::runtime_error("usage: backward_euler timestep duration [capture_nodes]");
@@ -107,3 +108,5 @@ int main(int argc,char**argv){
   std::cout<<"]}\n";
  }catch(const std::exception& e){std::cerr<<e.what()<<"\n";return 1;}
 }
+
+#endif

@@ -1,0 +1,9 @@
+After a 125us CPU pilot, independently integrate the same fixed 2-division
+FEM/area-contact model with fully implicit midpoint (position, velocity,
+material and contact force all evaluated consistently). Sweep h=500, 250,
+125, 62.5, 31.25, 15.625, 7.8125, 3.90625 us over 10ms. Stop at the first
+h that satisfies unchanged 0.25% maximum 1ms force-bin and total impulse
+errors against fixed-mesh 0.5us RK4. Report endpoint clearance, contact work,
+total energy defect and a basic rejected-trial copy check. This CPU-only
+prototype has no CCD or Matter runtime transaction contract; these results
+do not authorize a production integrator change.

@@ -1,0 +1,5 @@
+In file included from tests/contact/fem_plane_fp64_midpoint.cpp:6:
+tests/contact/fem_plane_fp64_backward_euler.cpp:44:14: warning: unused function 'advance' [-Wunused-function]
+   44 | static State advance(const Model& m,const State& old,double h,int& iterations,double& worst){
+      |              ^~~~~~~
+1 warning generated.
