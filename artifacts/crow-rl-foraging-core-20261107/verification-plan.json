@@ -1,0 +1,5 @@
+{
+  "prediction": "Fresh Git-restored cue instrument passes once;134 non-scene outputs byte exact and eight complete scene JSON objects, including both fingerprints, match unchanged native authoring at their respective original/restored paths. Both native executables must load the restored adjacent library without overrides.",
+  "budget": "One180second native cue process, one60second authoring-only helper (zero simulation steps), no retries. Read reference arrays directly from Git. Exact-file and open-handle validation before removing temporary files.",
+  "scope": "Native authoring/task preservation and runtime recovery on matching device/OS/dependencies. Legacy v13 life restore regressed separately; cue-life restore and learned memory remain unqualified."
+}
