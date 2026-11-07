@@ -1,0 +1,40 @@
+{
+  "schema": "numi.science.calibration.v1",
+  "status": "passed",
+  "checks": [
+    {
+      "id": "latency_fault_injection_ctest",
+      "passed": true
+    },
+    {
+      "id": "latency_adapter_cpu_ctest",
+      "passed": true
+    },
+    {
+      "id": "release_native_success_path_smoke",
+      "passed": true
+    }
+  ],
+  "scope": "Accounting and native success path only; no physical accuracy or latency calibration.",
+  "bindings": {
+    "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/latency_science_adapter.py": "f21f34dd81eae8434d29ff5e2db2d203fbebccb44cbe67d0c552b698273df433",
+    "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_latency": "229953eb3437011d32b5ab0bd7a6d8c1e6685f1f9379d0964ea85acd1e454a82",
+    "/Users/numi/numi-lab-benchmark-release-build-20261107/lib/libmetalrobo.dylib": "29d3cabb09afc762ebea5ace49f1a09aa704da44846b93f422b545040bd06ca7",
+    "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib": "8f9137278d52ff4a083dbc0c84ad541c25db91e8c50d5e7b3f70962cb23b69fa",
+    "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRoboHyperPolicy.metallib": "8d5676406a80a71ea50828fad47e78083892c1bc996299c59253d2a398cdd6d9",
+    "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/NumiNeuron.metallib": "965289118c76f59072d46535b9fe96a5eb8e56a50596705609cbff84d50617f1",
+    "/Users/numi/numi-lab-benchmark-release-build-20261107/matter/shaders/NumiMatter.metallib": "6f3182e1d78071c20afc1da7efb54927da4c3f724a758e552e5293fe8ea52f99",
+    "/Users/numi/numi-lab-benchmark-accounting-20261107/apps/benchmark_latency.cpp": "196c6392a4804dffe319a7fe34ce667dff3cba87c86a56c4867aff6a237ff6a0",
+    "/Users/numi/numi-lab-benchmark-accounting-20261107/tests/latency_science_adapter_test.py": "b6a563fe8ccb0de4d2e45c0981b92f40f5e9071954080db432ec2c5e00c96c9d",
+    "/Users/numi/numi-lab-benchmark-accounting-20261107/tests/benchmark_latency_test.py": "b4190c3f152fa20beb7d5da5e4e9d4a5707d070215c2f35adaf97e71d4ab860b",
+    "/Users/numi/numi-lab-benchmark-accounting-20261107/tests/benchmark_accounting_test.py": "6c9c41e932faa13837a384e79c05ea3e74f642f31270c42ae04e0f4230ab12ee"
+  },
+  "evidence": {
+    "/Users/numi/numi-lab-benchmark-accounting-20261107/docs/evidence/benchmark-accounting-20261107/warmup-smoke/latency.log": "62a9172abfee4d0d10c0b51d3430f3c4bed298c537b0d06a496313fea80e2672"
+  },
+  "observed_units": [
+    {
+      "seed": 7
+    }
+  ]
+}
