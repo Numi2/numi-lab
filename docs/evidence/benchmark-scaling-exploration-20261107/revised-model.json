@@ -1,0 +1,29 @@
+{
+  "prediction": {
+    "estimand": "paired_difference_mean",
+    "maximum": 1000000.0,
+    "minimum": 1000.0
+  },
+  "statement": "For 100 host-sinusoidal control steps on this M6, 32 environments increase aggregate accepted environment steps per wall second by between 1000 and 1000000 compared with one environment.",
+  "training_units": [
+    {
+      "seed": 7
+    },
+    {
+      "seed": 1101
+    },
+    {
+      "seed": 1102
+    },
+    {
+      "seed": 1103
+    },
+    {
+      "seed": 1104
+    },
+    {
+      "seed": 1105
+    }
+  ],
+  "version": "franka-batch-exploration-v2"
+}

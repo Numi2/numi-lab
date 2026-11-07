@@ -1,0 +1,59 @@
+{
+  "payload": {
+    "analysis_sha256": "2290072c36dde5fef1a7b5932d4fa26ec8114872a64a0628472a3cdc1c70d973",
+    "decision": "retain",
+    "evidence": [
+      "2290072c36dde5fef1a7b5932d4fa26ec8114872a64a0628472a3cdc1c70d973"
+    ],
+    "limitations": "One M6, host-sinusoidal Franka control, unoptimized build guarantee absent, five paired conditions, no physical accuracy or comparator qualification.",
+    "model": {
+      "prediction": {
+        "estimand": "paired_difference_mean",
+        "maximum": 1000000.0,
+        "minimum": 1000.0
+      },
+      "statement": "For 100 host-sinusoidal control steps on this M6, 32 environments increase aggregate accepted environment steps per wall second by between 1000 and 1000000 compared with one environment.",
+      "training_units": [
+        {
+          "seed": 7
+        },
+        {
+          "seed": 1101
+        },
+        {
+          "seed": 1102
+        },
+        {
+          "seed": 1103
+        },
+        {
+          "seed": 1104
+        },
+        {
+          "seed": 1105
+        }
+      ],
+      "version": "franka-batch-exploration-v2"
+    },
+    "model_file": "/Users/numi/numi-lab-benchmark-science-20261107/model-v2.json",
+    "model_sha256": "80deb49f55e27c662acfe7095b6eb113cc96006efee5a86da7eca099f48e9019",
+    "next_test": "Repeat the same registered 1-versus-32 environment workload on unused fixed seeds with the same source and on a quiet device; separately qualify physical behavior and other workloads before broader claims.",
+    "previous_model": {
+      "prediction": {
+        "estimand": "paired_difference_mean",
+        "maximum": 1000000.0,
+        "minimum": 1000.0
+      },
+      "statement": "For 100 host-sinusoidal control steps on this M6, 32 environments increase aggregate accepted environment steps per wall second by between 1000 and 1000000 compared with one environment.",
+      "training_units": [
+        {
+          "seed": 7
+        }
+      ],
+      "version": "franka-batch-exploration-v1"
+    },
+    "reason": "All five pairs met the declared accounting gates; the mean aggregate throughput difference fell within the exploratory predicted interval.",
+    "recorded_at": "2026-11-07T22:17:55.738941+00:00"
+  },
+  "sha256": "57d2fa14fbdf815078202df6a6656b2f90b4463bdb4e03fc3c4e573f738a48b8"
+}

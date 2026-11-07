@@ -1,0 +1,12 @@
+{
+  "payload": {
+    "binding": "63bca4e6ebbc8b2238cbff1dc0e9d2dced0a57a34656e4fdb81d1f3625a99e20",
+    "host": "numi.local",
+    "identity": "Sat Nov  7 22:17:12 2026",
+    "pgid": 5052,
+    "pid": 5052,
+    "runner_identity": "Sat Nov  7 22:17:12 2026",
+    "runner_pid": 5049
+  },
+  "sha256": "4bbf494b6c578e0932cf2a9aaf23d758cd78500b96138923df031260cae7ebb8"
+}
