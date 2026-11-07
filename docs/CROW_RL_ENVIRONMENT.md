@@ -1458,3 +1458,13 @@ training lifetimes and a cue-to-choice curriculum that prevents posture and
 previous-action external memory, then test held-out intact/reset/absent/swapped
 cue interventions. Manipulation, social agents, ecological variation, biological
 calibration and end-to-end production performance remain release requirements.
+
+Explicit independent training experiments are available with
+`--independent-cued-lifetimes --checkpoint-life`. At each optimizer boundary a
+fresh native owner samples disjoint counter-derived physical and allocation
+seed domains; learned policy and Adam remain in the learner. Ordinary resets
+retain their food/cue semantics. Full320-tick sequences cover cue to choice.
+Two updates match1+1 fresh processes at chunks1/8 across policy/rollout bytes,
+all53 learner/Adam tensors/metadata and all native life sections. Each independent
+life accepts exactly320 ticks and conserves45mg. This is development population
+sampling, not learned memory or a reset that replenishes an existing lifetime.

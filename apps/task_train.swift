@@ -55,6 +55,7 @@ private struct Options {
     var checkpointDirectory: String?
     var checkpointInterval = 0
     var checkpointLife = false
+    var independentCuedLifetimes = false
     var resumeTrainingCheckpoint: String?
     var trainingResume: MetalRoboTrainingLifeCheckpoint?
     var motionPack: String?
@@ -328,6 +329,8 @@ private struct Options {
             case "--output-learner-state":
                 outputLearnerState = try value()
                 index += 1
+            case "--independent-cued-lifetimes":
+                independentCuedLifetimes = true
             case "--checkpoint-life":
                 checkpointLife = true
             case "--resume-training-checkpoint":
@@ -728,6 +731,13 @@ private struct Options {
                 "Checkpoint snapshots require both --checkpoint-directory and a positive --checkpoint-interval."
             )
         }
+        if independentCuedLifetimes {
+            guard checkpointLife, visualObservationConfig != nil,
+                  steps >= 256, recurrentSequenceLength == steps else {
+                throw MetalRoboTaskRolloutError.invalidShape(
+                    "Independent cued lifetimes require --checkpoint-life, an explicit cued retinal configuration and a full sequence of at least256 ticks.")
+            }
+        }
         if checkpointLife || trainingResume != nil {
             guard birdFlowAmericanCrowJourney, birdFlowJourneyVariant == .v13RetinalFeeding,
                   !birdFlowJourneyTeacher, basePolicyPack == nil, motionPack == nil,
@@ -1084,7 +1094,8 @@ private struct Options {
             "recurrentHiddenSize", "recurrentEncoderSizes",
         ]
         return Dictionary(uniqueKeysWithValues: Mirror(reflecting: self).children.compactMap { child in
-            guard let name = child.label, !executionOnly.contains(name) else { return nil }
+            guard let name = child.label, !executionOnly.contains(name),
+                  name != "independentCuedLifetimes" || independentCuedLifetimes else { return nil }
             return (name, String(reflecting: child.value))
         })
     }
@@ -1114,12 +1125,35 @@ private struct Options {
     }
 }
 
+// Counter-based schedule for explicit independent experimental lifetimes.
+// Resource allocation and physical/reset randomness use separate domains.
+private func crowLifetimeSeed(_ base: UInt64, _ index: UInt64, _ domain: UInt64) -> UInt64 {
+    var value = (base ^ domain) &+ (index &* 0x9e3779b97f4a7c15)
+    value &+= 0x9e3779b97f4a7c15
+    value = (value ^ (value >> 30)) &* 0xbf58476d1ce4e5b9
+    value = (value ^ (value >> 27)) &* 0x94d049bb133111eb
+    return value ^ (value >> 31)
+}
+
+private func crowPhysicalSeed(_ options: Options, _ index: UInt64) -> UInt64 {
+    options.independentCuedLifetimes
+        ? crowLifetimeSeed(options.seed, index, 0x63726f77776f726c) : options.seed
+}
+
 private func makeVisualObservation(
-    options: Options
+    options: Options, lifetimeIndex: UInt64 = 0
 ) throws -> MetalRoboTaskVisualObservationConfiguration? {
     if let path = options.visualObservationConfig {
-        return try MetalRoboTaskVisualObservationConfiguration
+        var visual = try MetalRoboTaskVisualObservationConfiguration
             .loadArtifact(at: URL(fileURLWithPath: path))
+        if options.independentCuedLifetimes {
+            guard var cue = visual.cuedForaging else {
+                throw MetalRoboTaskRolloutError.invalidShape("Independent lifetimes require a cued_foraging program.")
+            }
+            cue.allocationSeed = crowLifetimeSeed(cue.allocationSeed, lifetimeIndex, 0x63726f77666f6f64)
+            visual.cuedForaging = cue
+        }
+        return visual
     }
     guard let robotDirectory = options.g1VisualPackDirectory,
           let ballDirectory = options.ballVisualPackDirectory
@@ -1705,7 +1739,7 @@ private final class MLXLearnerWorker {
 }
 
 private func makeContext(
-    options: Options
+    options: Options, lifetimeIndex: UInt64 = 0
 ) throws -> (MetalRoboTaskRolloutContext, String) {
     if options.birdFlowJourneyTeacher &&
         !options.birdFlowAmericanCrowJourney
@@ -1736,7 +1770,7 @@ private func makeContext(
             "--birdflow-navigation-curriculum-stage requires an integer in 0...4."
         )
     }
-    let visualSensor = try makeVisualObservation(options: options)
+    let visualSensor = try makeVisualObservation(options: options, lifetimeIndex: lifetimeIndex)
     let inspectionVisual = try makeInspectionVisual(options: options)
     let dynamicSpheres: [MetalRoboDynamicSphere] =
         options.unitreeG1Task == .ballDodge
@@ -1747,7 +1781,7 @@ private func makeContext(
     let configuration = MetalRoboTaskRolloutConfiguration(
         environmentCount: UInt32(options.environments),
         surface: options.surface,
-        seed: options.seed,
+        seed: crowPhysicalSeed(options, lifetimeIndex),
         dynamicSpheres: dynamicSpheres,
         materializeArticulatedContactResponses:
             options.materializeArticulatedContactResponses,
@@ -1975,8 +2009,10 @@ private enum TaskTrainMain {
         options: Options,
         inspector: MetalRoboRunInspectorBridge?
     ) throws {
-            let (context, worldSource) =
-                try makeContext(options: options)
+            let restoredUpdates = options.trainingResume?.completedUpdates ?? 0
+            let initialLifeIndex = options.independentCuedLifetimes && restoredUpdates > 0 ? restoredUpdates - 1 : 0
+            var (context, worldSource) =
+                try makeContext(options: options, lifetimeIndex: initialLifeIndex)
             let lifeContract = options.lifeTrainingContract()
             if let saved = options.trainingResume {
                 try MetalRoboTrainingLifeCheckpoint.require(saved.trainingContract == lifeContract,
@@ -2092,13 +2128,17 @@ private enum TaskTrainMain {
             if let path = options.resumeTrainingCheckpoint {
                 try context.restoreLifeCheckpoint(from: URL(fileURLWithPath: path).appendingPathComponent("life.native"))
             } else {
-                try context.reset(seed: options.seed)
+                try context.reset(seed: crowPhysicalSeed(options, initialLifeIndex))
             }
 
             let baseline = context.layout
             let clock = ContinuousClock()
             let start = clock.now
             var lifeCheckpointSeconds = 0.0
+            var retiredSubmissions: UInt64 = 0
+            var retiredGPUMilliseconds = 0.0
+            var retiredSubmissionMilliseconds = 0.0
+            var lifetimeHistory: [[String: Any]] = []
             var lifeCheckpointCount = 0
             var totalResets = 0
             var maximumContacts = 0
@@ -2160,6 +2200,32 @@ private enum TaskTrainMain {
                     // lifetime to one rollout/learner transaction so a long
                     // 4K-environment run does not trade throughput for an
                     // ever-growing unified-memory footprint.
+                    let lifeIndex = restoredUpdates + UInt64(updateIndex)
+                    if options.independentCuedLifetimes && lifeIndex != initialLifeIndex {
+                        let old = context.layout
+                        retiredSubmissions += old.submissionCount
+                        retiredGPUMilliseconds += old.totalGPUMilliseconds
+                        retiredSubmissionMilliseconds += old.totalSubmissionMilliseconds
+                        // Release the prior completed native life after the new owner
+                        // is constructed and validated. The learned policy/Adam stay
+                        // resident in the learner; no per-step host simulator exists.
+                        let (fresh, _) = try makeContext(options: options, lifetimeIndex: lifeIndex)
+                        let next = fresh.layout
+                        guard next.worldFingerprint == layout.worldFingerprint,
+                              next.taskFingerprint == layout.taskFingerprint,
+                              next.observationFingerprint == layout.observationFingerprint,
+                              next.actionFingerprint == layout.actionFingerprint else {
+                            throw MetalRoboTaskRolloutError.invalidShape("Independent lifetime changed the learned policy contract.")
+                        }
+                        try fresh.loadPolicy(at: URL(fileURLWithPath: learner.policyPackPath))
+                        try fresh.reset(seed: crowPhysicalSeed(options, lifeIndex))
+                        context = fresh
+                    }
+                    if options.independentCuedLifetimes {
+                        lifetimeHistory.append(["index": lifeIndex,
+                            "physical_seed": crowPhysicalSeed(options, lifeIndex),
+                            "allocation_seed": try makeVisualObservation(options: options, lifetimeIndex: lifeIndex)!.cuedForaging!.allocationSeed])
+                    }
                     actorObservations.removeAll(
                         keepingCapacity: true
                     )
@@ -2279,6 +2345,17 @@ private enum TaskTrainMain {
                     policyMemoryBefore: policyMemoryBefore,
                     policyMemoryResets: policyMemoryResets
                 )
+                if options.independentCuedLifetimes {
+                    let food = try context.finiteResourceAccounting()
+                    guard food.allSatisfy({ $0.initialized == 1 &&
+                        $0.accepted_control_ticks == UInt64(options.steps) &&
+                        $0.remaining_micrograms + UInt64($0.consumed_micrograms) == 45_000 &&
+                        $0.crop_micrograms == $0.consumed_micrograms }) else {
+                        throw MetalRoboTaskRolloutError.invalidShape("Independent lifetime clock or finite food conservation failed.")
+                    }
+                    lifetimeHistory[lifetimeHistory.count - 1]["accepted_ticks"] = food.map { $0.accepted_control_ticks }
+                    lifetimeHistory[lifetimeHistory.count - 1]["consumed_micrograms"] = food.map { $0.consumed_micrograms }
+                }
                 let bootstrapValues =
                     try context.bootstrapPolicyValues()
                 try context.writePolicyRolloutPack(
@@ -2539,6 +2616,8 @@ private enum TaskTrainMain {
                 "life_checkpoint_enabled": options.checkpointLife,
                 "life_checkpoint_count": lifeCheckpointCount,
                 "life_checkpoint_seconds": lifeCheckpointSeconds,
+                "independent_cued_lifetimes": options.independentCuedLifetimes,
+                "independent_lifetime_history": lifetimeHistory,
                 "lifetime_updates_completed": (options.trainingResume?.completedUpdates ?? 0) + UInt64(options.updates),
                 "learner_execution_identity": learner.executionIdentity,
                 "resumed_learning_rate_overridden":
@@ -2548,17 +2627,17 @@ private enum TaskTrainMain {
                     options.overrideResumedExploration,
                 "native_submission_count": NSNumber(
                     value:
-                        finalLayout.submissionCount -
+                        retiredSubmissions + finalLayout.submissionCount -
                         baseline.submissionCount
                 ),
                 "end_to_end_environment_steps_per_second":
                     Double(trainingSamples) / seconds,
                 "elapsed_seconds": seconds,
                 "gpu_milliseconds":
-                    finalLayout.totalGPUMilliseconds -
+                    retiredGPUMilliseconds + finalLayout.totalGPUMilliseconds -
                     baseline.totalGPUMilliseconds,
                 "submission_milliseconds":
-                    finalLayout.totalSubmissionMilliseconds -
+                    retiredSubmissionMilliseconds + finalLayout.totalSubmissionMilliseconds -
                     baseline.totalSubmissionMilliseconds,
                 "retained_buffer_bytes":
                     finalLayout.retainedBufferBytes,
