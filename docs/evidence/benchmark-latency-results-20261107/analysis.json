@@ -1,0 +1,153 @@
+{
+  "payload": {
+    "evidence_level": "simulation",
+    "issues": [],
+    "limitations": "Exploratory single-host operational latency with host-sinusoidal action, no rendering, policy inference, learning, continuum, physical accuracy or comparator. The two durations include different trajectory portions and p95 values are separately estimated, not matched step latencies. Seeds are not independent hardware replication. Thermal and OS activity are uncontrolled; the measured call excludes action fill and transition validation, which are included in series wall time. Terminal counts are recorded, but this study does not assess task success or episode quality.",
+    "mean_difference": -0.014506400000000053,
+    "observed_spread": {
+      "maximum": 0.0018460000000000143,
+      "minimum": -0.055137000000000214,
+      "sample_sd": 0.02323437779024873
+    },
+    "paired_differences": [
+      {
+        "pair": "seed-4101",
+        "treatment_minus_control": -0.055137000000000214
+      },
+      {
+        "pair": "seed-4102",
+        "treatment_minus_control": 0.0018460000000000143
+      },
+      {
+        "pair": "seed-4103",
+        "treatment_minus_control": -0.010838999999999821
+      },
+      {
+        "pair": "seed-4104",
+        "treatment_minus_control": -0.006962000000000135
+      },
+      {
+        "pair": "seed-4105",
+        "treatment_minus_control": -0.0014400000000001079
+      }
+    ],
+    "registration_sha256": "f4435b6c5fdb1e7cd62aab772e4aa31abbbb5492f3c195eea34473d6b6b70619",
+    "schema": "numi.science.analysis.v1",
+    "trials": [
+      {
+        "arm": "control",
+        "experimental_unit": {
+          "seed": 4101
+        },
+        "id": "seed-4101-control",
+        "pair": "seed-4101",
+        "receipt_sha256": "92a04e6eb0647e0d7f0582d9f95a57d1e6fa1b9af09c1a1cef3c36e6e2adeb8a",
+        "status": "valid",
+        "value": 3.358369
+      },
+      {
+        "arm": "treatment",
+        "experimental_unit": {
+          "seed": 4101
+        },
+        "id": "seed-4101-treatment",
+        "pair": "seed-4101",
+        "receipt_sha256": "2963dd0a70946cb31bc126cc1be63cb425c292accc98fcbf809d45450b5db929",
+        "status": "valid",
+        "value": 3.303232
+      },
+      {
+        "arm": "treatment",
+        "experimental_unit": {
+          "seed": 4102
+        },
+        "id": "seed-4102-treatment",
+        "pair": "seed-4102",
+        "receipt_sha256": "93eacaceddf9f2ab63d4e79f32628e7a25eab07af7bf86b31533b5303ccf89e5",
+        "status": "valid",
+        "value": 3.305087
+      },
+      {
+        "arm": "control",
+        "experimental_unit": {
+          "seed": 4102
+        },
+        "id": "seed-4102-control",
+        "pair": "seed-4102",
+        "receipt_sha256": "d31a4d667b6ead2effc5e82167bc67503f25544b264db9693debaac470e55bf0",
+        "status": "valid",
+        "value": 3.303241
+      },
+      {
+        "arm": "control",
+        "experimental_unit": {
+          "seed": 4103
+        },
+        "id": "seed-4103-control",
+        "pair": "seed-4103",
+        "receipt_sha256": "57c6fc85170ae50ad9dc89c7f317ae6bbdad8ac104ec05664e0946f7fb286d2c",
+        "status": "valid",
+        "value": 3.30631
+      },
+      {
+        "arm": "treatment",
+        "experimental_unit": {
+          "seed": 4103
+        },
+        "id": "seed-4103-treatment",
+        "pair": "seed-4103",
+        "receipt_sha256": "f17fd54d346bf9653971647483a70b03c5ad6df451b83f974290ada565d149e6",
+        "status": "valid",
+        "value": 3.295471
+      },
+      {
+        "arm": "treatment",
+        "experimental_unit": {
+          "seed": 4104
+        },
+        "id": "seed-4104-treatment",
+        "pair": "seed-4104",
+        "receipt_sha256": "6b1f8b0862c2608c4a680769b34daf8b4a4de8938694897c46154520c30f6364",
+        "status": "valid",
+        "value": 3.286877
+      },
+      {
+        "arm": "control",
+        "experimental_unit": {
+          "seed": 4104
+        },
+        "id": "seed-4104-control",
+        "pair": "seed-4104",
+        "receipt_sha256": "1e24cd29b22ce5c13a10e6aaeecf772d0ea6634e68963879fd1c18679ede22f1",
+        "status": "valid",
+        "value": 3.293839
+      },
+      {
+        "arm": "control",
+        "experimental_unit": {
+          "seed": 4105
+        },
+        "id": "seed-4105-control",
+        "pair": "seed-4105",
+        "receipt_sha256": "8dc93af029ce86ff8c0be236b397452c7452cd330b2acba4fd2ee2b0bede7370",
+        "status": "valid",
+        "value": 3.306967
+      },
+      {
+        "arm": "treatment",
+        "experimental_unit": {
+          "seed": 4105
+        },
+        "id": "seed-4105-treatment",
+        "pair": "seed-4105",
+        "receipt_sha256": "634256c8eda0199a624298c8a8b3c7c2c597c40bca2fb4c51adfd38f31a9f3c9",
+        "status": "valid",
+        "value": 3.305527
+      }
+    ],
+    "uncertainty": "Descriptive variation across declared pairs, not a confidence interval or population inference.",
+    "unit": "ms",
+    "verdict": "supported"
+  },
+  "sha256": "3f06e7545f88ab74c3174209316baca38d0c7b873e8e16f57523bfb53f228169"
+}

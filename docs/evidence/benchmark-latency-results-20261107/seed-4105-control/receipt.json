@@ -1,0 +1,32 @@
+{
+  "payload": {
+    "argv": [
+      "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+      "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/latency_science_adapter.py",
+      "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_latency",
+      "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+      "100",
+      "4105"
+    ],
+    "cwd": "/Users/numi/numi-lab-latency-science-v2-20261107/study/trials/seed-4105-control/output",
+    "elapsed_seconds": 0.4712182919611223,
+    "ended_at": "2026-11-07T22:43:02.579427+00:00",
+    "environment": {
+      "HOME": "/Users/numi",
+      "PATH": "/bin:/usr/bin",
+      "TMPDIR": "/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T"
+    },
+    "failure": null,
+    "files": {
+      "native.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native.stdout": "7b2f7ac7c626b84fc5ea08ff9ed2f6cb5f5d62432cbdebc376e3ea5fcd5b7078",
+      "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout.json": "74f61acd4dd2689d8fac73e864e1071462b9d0739212d18e0707dfbd03445aa1"
+    },
+    "process_sha256": "378999aaf86e5888a2447f3e8279b62a3abb0276a113fddec6db88d7cb5db233",
+    "returncode": 0,
+    "started_at": "2026-11-07T22:43:02.108207+00:00",
+    "started_sha256": "77c2d5d9aaffa0af00a3b45efa4dffcf4e988b83de741e7bf83f751688a0eeae"
+  },
+  "sha256": "8dc93af029ce86ff8c0be236b397452c7452cd330b2acba4fd2ee2b0bede7370"
+}

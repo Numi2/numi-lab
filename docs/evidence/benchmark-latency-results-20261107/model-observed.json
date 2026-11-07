@@ -1,0 +1,29 @@
+{
+  "prediction": {
+    "estimand": "paired_difference_mean",
+    "maximum": 2.0,
+    "minimum": -2.0
+  },
+  "statement": "For this M6 single-environment host-control fixture, the 200-step run p95 call latency differs from the paired 100-step run by between -2 and 2 milliseconds.",
+  "training_units": [
+    {
+      "seed": 7
+    },
+    {
+      "seed": 4101
+    },
+    {
+      "seed": 4102
+    },
+    {
+      "seed": 4103
+    },
+    {
+      "seed": 4104
+    },
+    {
+      "seed": 4105
+    }
+  ],
+  "version": "franka-latency-length-v2-observed"
+}
