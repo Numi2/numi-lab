@@ -1,0 +1,77 @@
+Building for debugging...
+[Pre-planning 1 / 301]
+[Writing build description]
+[62 / 113]
+[68 / 115] NumiBrainABI
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainConnectomeABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[78 / 204]
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainMetalBridgeABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[96 / 204]
+[105 / 204]
+[107 / 204]
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainNumiLabBridgeABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[112 / 204]
+[115 / 204]
+[118 / 204]
+[121 / 204]
+[123 / 204]
+[124 / 204]
+[131 / 204]
+[132 / 204]
+[136 / 204]
+[137 / 204]
+[139 / 204]
+[141 / 204]
+[146 / 204] NumiBrainValidation
+[150 / 204] NumiBrainValidation
+[163 / 204] NumiBrainValidation
+[167 / 204] NumiBrainQualification
+[170 / 204] NumiBrainQualification
+[175 / 204] NumiBrainQualification
+[178 / 204] NumiBrainCore
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainValidation: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[180 / 205] NumiBrainQualification
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainQualification: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[187 / 226]
+[188 / 226]
+[190 / 226]
+[195 / 226] NumiBrainCore
+[203 / 226] NumiBrainCore
+[204 / 226] NumiBrainMetal
+[207 / 226] NumiBrainCore
+[208 / 226] NumiBrainCore
+[209 / 226] NumiBrainCore
+[210 / 227] NumiBrainMetal
+[213 / 245]
+[214 / 245]
+[215 / 245]
+[218 / 245] NumiBrainMetal
+[219 / 245] NumiBrainMetal
+[220 / 245] NumiBrainMetal
+[222 / 245] NumiBrainMetal
+[228 / 245] NumiBrainMetal
+[229 / 245] NumiBrainSyntheticV5CLI-product
+[231 / 245] NumiBrainSyntheticV5CLI-product
+[233 / 245] NumiBrainSyntheticV5CLI-product
+[235 / 245] NumiBrainMetal
+[236 / 245] NumiBrainMetal
+[239 / 246] NumiBrainCore
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainCore: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[241 / 248] NumiBrainMetal
+[242 / 248] NumiBrainSyntheticV5CLI-product
+[243 / 248] NumiBrainMetal
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/SyntheticV5QualificationFactory.swift:18:15: [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+[0;36m16 |[0;0m       }
+[0;36m17 |[0;0m       fputs("brain-factory=TissueError: ",stderr)
+[0;36m18 |[0;0m       message.withCString [4;39m{ fputs($0,stderr) }[0;0m;fputs("\n",stderr)
+   [0;36m|[0;0m               `- [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+[0;36m19 |[0;0m       throw error
+[0;36m20 |[0;0m     } catch {fputs("brain-factory=other-error\n",stderr);throw error}
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainMetal: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[246 / 248] NumiBrainSyntheticV5CLI-product
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainSyntheticV5CLI-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainSyntheticV5CLI-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+Build complete! (25,98 sek)

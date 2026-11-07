@@ -539,3 +539,14 @@ only a simple standalone reproduction of the feedback pattern; it does not
 isolate the cause or qualify that initializer. Further diagnostics should test
 these differences without changing transaction semantics or fabricating a
 successful error return.
+
+The same instrumented source was separately built in Debug, executable SHA-256
+`bad4bca06a13ef0ef40e0cb6f150e09eadf54d54f2a6684b50b87f341cdbee5f`.
+The 32-input manifest SHA-256 was
+`7bec6fcaf1fa5c242a72e6311edb82766d120c1a2e74025fc1172fb525513765`;
+pre/post checks passed. At 23:24:11 UTC, initialization completed and execution
+reached control, bootstrap, decision, motor and physical-root markers; the
+physical-root call threw an unformatted error and the process exited 1. It did
+not reach the physical-wait marker or establish publication. This build differs
+in optimization and binary identity from the Release failure, so it is evidence
+of optimization-sensitive behavior, not proof of its cause or a repair.
