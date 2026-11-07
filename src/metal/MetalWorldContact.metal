@@ -8177,13 +8177,14 @@ inline void mrWorldWave32SolvePacket(
             inverse[2][1],
             inverse[2][2]
         );
-        preconditioners[
-            constraintBase + localConstraint
-        ] = preconditioner;
         const float3 warm = projectFrictionCone(
             contact.impulses.xyz,
             evaluatedCones[constraintBase + localConstraint]
         );
+        // Retain whether this row received a normal warm start. This padding
+        // is local to the wave packet; row2.w contains the relaxation.
+        preconditioner.row0.w = warm.x > kConeEpsilon ? 1.0f : 0.0f;
+        preconditioners[constraintBase + localConstraint] = preconditioner;
         contact.impulses.xyz = warm;
         impulseDeltas[
             constraintBase + localConstraint
@@ -8915,16 +8916,29 @@ inline void mrWorldWave32SolvePacket(
             localRows[0].targetVelocity +
             localRows[0].regularization *
                 contact.impulses.x;
-        laneNormalResidual = max(
-            laneNormalResidual,
-            contact.impulses.x > kConeEpsilon
-            ? abs(normalEquation)
-            : max(-normalEquation, 0.0f)
-        );
         const MREvaluatedConstraintIRConeGPU cone =
             evaluatedCones[
                 constraintBase + localConstraint
             ];
+        const bool atUpperBound = cone.maximumNormalImpulse > 0.0f &&
+            contact.impulses.x >= cone.maximumNormalImpulse - kConeEpsilon;
+        const float normalResidual = atUpperBound ? max(normalEquation, 0.0f) :
+            contact.impulses.x > kConeEpsilon ? abs(normalEquation) : max(-normalEquation, 0.0f);
+        laneNormalResidual = max(laneNormalResidual, normalResidual);
+        // Interim fail-closed check for rows that entered with cached normal
+        // impulse. The tolerance is in m/s, scaled to incoming/target speed;
+        // it is not a force-accuracy or general contact certificate.
+        const float scale = max(abs(localRows[0].preSolveVelocity), abs(localRows[0].targetVelocity));
+        const bool invalid = !isfinite(normalEquation) || !isfinite(normalResidual) ||
+            !isfinite(scale) || !isfinite(contact.impulses.x) ||
+            contact.impulses.x < -kConeEpsilon || !isfinite(cone.maximumNormalImpulse) ||
+            (cone.maximumNormalImpulse > 0.0f && contact.impulses.x > cone.maximumNormalImpulse + kConeEpsilon);
+        const bool warmed = preconditioners[constraintBase + localConstraint].row0.w > 0.0f;
+        if (warmed && (invalid || normalResidual > 1.0e-4f + 1.0e-2f * scale) &&
+            localFailure == MR_STEP_SUCCESS) {
+            localFailure = MR_STEP_DID_NOT_CONVERGE;
+            localFailureConstraint = localConstraint;
+        }
         const float limitU =
             cone.effectiveFrictionU * contact.impulses.x;
         const float limitV =
@@ -9012,7 +9026,10 @@ inline void mrWorldWave32SolvePacket(
         result.environment = environment;
         result.islandIndex = islandIndex;
         result.iterations = solverIterations;
-        if (maximumFailureCode != MR_STEP_SUCCESS) {
+        if (maximumFailureCode == MR_STEP_DID_NOT_CONVERGE) {
+            result.residuals = float4(maximumImpulseDelta, maximumNormalResidual,
+                maximumConeViolation, static_cast<float>(firstFailureConstraint));
+        } else if (maximumFailureCode != MR_STEP_SUCCESS) {
             result.residuals = float4(
                 maximumFailureRhs,
                 maximumFailureInverse,

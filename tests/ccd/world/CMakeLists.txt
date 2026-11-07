@@ -46,3 +46,13 @@ if(BUILD_TESTING)
   "$<TARGET_FILE:metalrobo_ccd_kinematic_rollback_probe>" "${METALROBO_METALLIB}")
  set_tests_properties(metalrobo.ccd.kinematic_rollback PROPERTIES TIMEOUT 180)
 endif()
+add_executable(metalrobo_ccd_box_multistep_probe "${NUMI_WORLD_ROOT}/apps/ccd_box_multistep_probe.cpp")
+target_link_libraries(metalrobo_ccd_box_multistep_probe PRIVATE numi_ccd_world_owner)
+target_link_options(metalrobo_ccd_box_multistep_probe PRIVATE -Wl,-dead_strip)
+add_dependencies(metalrobo_ccd_box_multistep_probe metalrobo_shaders)
+if(BUILD_TESTING)
+ add_test(NAME metalrobo.ccd.warm_contact_containment COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_CURRENT_SOURCE_DIR}/warm_contact_regression.py"
+  "$<TARGET_FILE:metalrobo_ccd_box_multistep_probe>" "${METALROBO_METALLIB}")
+ set_tests_properties(metalrobo.ccd.warm_contact_containment PROPERTIES TIMEOUT 180)
+endif()
