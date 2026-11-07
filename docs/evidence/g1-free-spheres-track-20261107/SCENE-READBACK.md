@@ -1,0 +1,3 @@
+# Scene-state follow-up
+
+The existing published rows for the free-sphere fixture show intervention environment 0, body 1, x=4.28001 m with vx=-4.999 m/s after accepted step 1, then x=4.18005 m with vx=-4.998 m/s after accepted step 2. The failed third step published x=4.18005 m and vx=-4.998 m/s. This is evidence of advancing scene positions and preservation on this failed step for this body. It explains why the earlier impact-scheduled fixture's identical positions could be a consequence of its per-step hold, rather than by itself evidence of stale resident readback. It does not qualify general resident scene readback or exact all-body rollback.
