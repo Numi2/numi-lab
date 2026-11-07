@@ -13841,6 +13841,7 @@ bool encodeParallelManifoldCompile(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
     const MRMetalWorldPassGPU& pass,
+    const std::size_t geometryBodies,
     const std::size_t sourceManifoldHeaders,
     const std::size_t sourceManifoldPoints,
     const std::size_t sourceManifoldCounts,
@@ -14064,7 +14065,7 @@ bool encodeParallelManifoldCompile(
             {
                 {0u, kContactDispatch},
                 {1u, kShapes},
-                {2u, kCurrentBodies},
+                {2u, geometryBodies},
                 {3u, kEligiblePairs},
                 {4u, sourceManifoldCounts},
                 {5u, sourceManifoldHeaders},
@@ -14132,7 +14133,7 @@ bool encodeParallelManifoldCompile(
                 {0u, kContactDispatch},
                 {1u, kShapes},
                 {2u, kMaterials},
-                {3u, kCurrentBodies},
+                {3u, geometryBodies},
                 {4u, kArticulations},
                 {5u, kEligiblePairs},
                 {6u, kPairManifoldHeaders},
@@ -14195,6 +14196,7 @@ bool encodeContactCollisionAndSolve(
             context,
             commandBuffer,
             pass,
+            kCandidateBodies,
             sourceManifoldHeaders,
             sourceManifoldPoints,
             sourceManifoldCounts,
@@ -14683,6 +14685,7 @@ bool encodeHybridContactSubstep(
                     {9u, kFutureProjectedColliders},
                     {10u, kContactStatuses},
                     {11u, eventStateIn},
+                    {12u, kCandidateAcceleration},
                 },
                 nullptr,
                 0u,
@@ -15084,6 +15087,56 @@ bool encodeHybridContactSubstep(
                 3u
             )) {
             return false;
+        }
+
+
+        // Bounded read-only regression observer, never a state/acceptance input.
+        // Copy each literal event boundary before scratch and ping-pong reuse.
+        if(std::getenv("NUMI_CCD_EVENT_TRACE")!=nullptr&&environmentCount==1u&&
+            world.nq()==7u&&world.nv()==6u&&world.rodCount()==0u&&
+            context.buffers[kContacts].length>=sizeof(MRContactConstraintGPU)) {
+            const uint traceContacts=uint(std::min<NSUInteger>(8u,context.buffers[kContacts].length/sizeof(MRContactConstraintGPU)));
+            const NSUInteger qBytes=7u*sizeof(float),vBytes=6u*sizeof(float);
+            const NSUInteger stateOffset=64u,pairOffset=128u,statusOffset=256u,accelerationOffset=768u,contactsOffset=1024u;
+            id<MTLBuffer> trace=[context.device newBufferWithLength:
+                contactsOffset+traceContacts*sizeof(MRContactConstraintGPU) options:MTLResourceStorageModeShared];
+            if(trace==nil)return false;
+            id<MTLBlitCommandEncoder> blit=[commandBuffer blitCommandEncoder];
+            [blit copyFromBuffer:context.buffers[kCandidateQ] sourceOffset:0 toBuffer:trace destinationOffset:0 size:qBytes];
+            [blit copyFromBuffer:context.buffers[kCandidateV] sourceOffset:0 toBuffer:trace destinationOffset:32 size:vBytes];
+            [blit copyFromBuffer:context.buffers[kCandidateAcceleration] sourceOffset:0 toBuffer:trace destinationOffset:accelerationOffset size:vBytes];
+            [blit copyFromBuffer:context.buffers[eventStateOut] sourceOffset:0 toBuffer:trace destinationOffset:stateOffset size:sizeof(MRCCDEventStateGPU)];
+            [blit copyFromBuffer:context.buffers[kCCDPairs] sourceOffset:0 toBuffer:trace destinationOffset:pairOffset size:sizeof(MRCCDPairGPU)];
+            [blit copyFromBuffer:context.buffers[kContactStatuses] sourceOffset:0 toBuffer:trace destinationOffset:statusOffset size:sizeof(MRMetalWorldContactStatusGPU)];
+            [blit copyFromBuffer:context.buffers[kContacts] sourceOffset:0 toBuffer:trace destinationOffset:contactsOffset size:traceContacts*sizeof(MRContactConstraintGPU)];
+            [blit endEncoding];
+            const uint capturedPass=eventPass;
+            [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                if(completed.status!=MTLCommandBufferStatusCompleted)return;
+                const auto* bytes=static_cast<const unsigned char*>(trace.contents);
+                const auto* q=reinterpret_cast<const float*>(bytes);
+                const auto* v=reinterpret_cast<const float*>(bytes+32);
+                const auto* acceleration=reinterpret_cast<const float*>(bytes+accelerationOffset);
+                const auto* e=reinterpret_cast<const MRCCDEventStateGPU*>(bytes+stateOffset);
+                const auto* p=reinterpret_cast<const MRCCDPairGPU*>(bytes+pairOffset);
+                const auto* status=reinterpret_cast<const MRMetalWorldContactStatusGPU*>(bytes+statusOffset);
+                std::ostringstream out;out<<std::setprecision(10)<<"ccd_event_trace={\"pass\":"<<capturedPass<<",\"q\":[";
+                for(uint i=0;i<7;++i){if(i)out<<',';out<<q[i];}
+                out<<"],\"v\":[";for(uint i=0;i<6;++i){if(i)out<<',';out<<v[i];}
+                out<<"],\"a\":[";for(uint i=0;i<6;++i){if(i)out<<',';out<<acceleration[i];}
+                out<<"],\"time\":["<<e->time.x<<','<<e->time.y<<','<<e->time.z<<','<<e->time.w
+                   <<"],\"status\":"<<status->code<<",\"unresolved\":"<<status->unresolvedCCDCount
+                   <<",\"pair_flags\":"<<p->flags<<",\"pair_time\":["<<p->intervalAndDistance.x<<','<<p->intervalAndDistance.y
+                   <<"],\"pair_work\":"<<p->normalAndIteration.w<<",\"contacts\":[";
+                const auto* contacts=reinterpret_cast<const MRContactConstraintGPU*>(bytes+contactsOffset);
+                for(uint i=0;i<std::min(status->activeContacts,traceContacts);++i) {
+                    if(i)out<<',';const auto& c=contacts[i];
+                    out<<"{\"gap\":"<<c.pointAndSeparation.w<<",\"pre_vn\":"<<c.targetVelocityAndPreSolveNormal.w
+                       <<",\"J\":"<<c.impulses.x<<",\"point\":["<<c.pointAndSeparation.x<<','<<c.pointAndSeparation.y<<','<<c.pointAndSeparation.z<<"]}";
+                }
+                out<<"]}\n";
+                const auto text=out.str();std::fwrite(text.data(),1,text.size(),stderr);
+            }];
         }
 
         const bool finalEventPass =
@@ -15673,6 +15726,7 @@ bool encodeContactSubstep(
                 {9u, kFutureProjectedColliders},
                 {10u, kContactStatuses},
                 {11u, kCCDEventStatesA},
+                {12u, kCandidateAcceleration},
             },
             nullptr,
             0u,
@@ -15759,6 +15813,7 @@ bool encodeContactSubstep(
             context,
             commandBuffer,
             pass,
+            kCurrentBodies,
             sourceManifoldHeaders,
             sourceManifoldPoints,
             sourceManifoldCounts,

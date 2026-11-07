@@ -4,23 +4,30 @@
 #include <chrono>
 #include <cmath>
 #include <cstring>
+#include <cstdlib>
+#include <filesystem>
 #include <iostream>
 #include <iomanip>
 #include <vector>
 int main(int argc,char** argv) {
- if(argc<2)return 2;
+ if(argc<2||!std::filesystem::is_regular_file(argv[1]))return 2;
  std::cout<<std::setprecision(12)<<"{\"schema\":\"numi.ccd.complete-steps.v1\",\"runs\":[";bool first=true;
- for(int limit:{16,128})for(int mode=0;mode<3;++mode)for(int fixture=0;fixture<6;++fixture) {
+ for(double scale:{1.,.5})for(int limit:{1,16,128})for(int mode=0;mode<3;++mode)for(int fixture=0;fixture<16;++fixture) {
   auto model=metalrobo::makeFreeSphereEngineModel();
   model.world.gravityAndTimestep={0,0,0,.01f};
   auto& shape=model.shapes[1];shape.shapeType=MR_SHAPE_BOX;shape.flags|=MR_SHAPE_FLAG_ENABLE_CCD;
-  shape.dimensions={.2f,.002f,.03f,0};shape.contactRestAndBoundingRadius={.001f,0,std::sqrt(.2f*.2f+.002f*.002f+.03f*.03f),0};
-  auto& body=model.bodies[1];const float ix=(.002f*.002f+.03f*.03f)/3.f,iy=(.2f*.2f+.03f*.03f)/3.f,iz=(.2f*.2f+.002f*.002f)/3.f;
+  const float hx=.2*scale,hy=(fixture>=12?.0002:.002)*scale,hz=.03*scale;
+  shape.dimensions={hx,hy,hz,0};shape.contactRestAndBoundingRadius={float(.001*scale),0,std::sqrt(hx*hx+hy*hy+hz*hz),0};
+  auto& body=model.bodies[1];const float ix=(hy*hy+hz*hz)/3.f,iy=(hx*hx+hz*hz)/3.f,iz=(hx*hx+hy*hy)/3.f;
   body.inertiaRow0={ix,0,0,0};body.inertiaRow1={0,iy,0,0};body.inertiaRow2={0,0,iz,0};
   body.inverseInertiaRow0={1/ix,0,0,0};body.inverseInertiaRow1={0,1/iy,0,0};body.inverseInertiaRow2={0,0,1/iz,0};
-  model.defaultQ[1]=fixture==0||fixture==5?.12f:(fixture>=3?.23f:.1998f);
-  model.defaultV[1]=fixture==0?-22.f:(fixture==5?-1.f:0.f);
-  model.defaultV[5]=fixture==0||fixture==5?0.f:(fixture%2==1?250.f:177.f);
+  const bool hit=fixture==1||fixture==2||fixture==8||fixture==9||fixture==12||fixture==14;
+  const double center=fixture==0||fixture==5?.12:(fixture==3||fixture==4?.23:(hit?.1998:.2003));
+  model.defaultQ[1]=center*scale;
+  model.defaultV[1]=(fixture==0?-22.f:(fixture==5?-1.f:0.f))*scale;
+  model.defaultV[5]=fixture==0||fixture==5?0.f:
+      (fixture==8||fixture==10?211.f:(fixture==9||fixture==11?293.f:
+      (fixture==2||fixture==4||fixture==7||fixture==14||fixture==15?177.f:250.f)));
   metalrobo::CompiledWorld world;auto compiled=metalrobo::compileMetalWorld(model,0,world);
   if(!compiled.succeeded()){std::cerr<<"world compile failed\n";return 1;}
   std::vector<float> efforts(world.nv(),0.f);
@@ -32,6 +39,7 @@ int main(int argc,char** argv) {
   config.maxConservativeAdvancementIterations=limit;config.directionalCCDAdvancement=mode>0;config.intervalLocalCCDAdvancement=mode==2;
   config.captureContactEvidence=true;config.applyBodyDamping=false;
   metalrobo::MetalWorldConfig owner;owner.metallibPath=argv[1];metalrobo::MetalWorldContext context(owner);
+  if(std::getenv("NUMI_CCD_EVENT_TRACE"))std::cerr<<"ccd_case={\"limit\":"<<limit<<",\"mode\":"<<mode<<",\"fixture\":"<<fixture<<",\"scale\":"<<scale<<"}\n";
   metalrobo::MetalWorldResult result;auto start=std::chrono::steady_clock::now();auto d=context.run(world,batch,config,result);
   const double elapsed=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
   metalrobo::MetalWorldResult repeated;auto d2=context.run(world,batch,config,repeated);
@@ -44,13 +52,13 @@ int main(int argc,char** argv) {
   const unsigned unresolved=result.environmentStatuses.empty()?0:result.environmentStatuses[0].unresolvedCCDCount;
   // Both torque-free rotation fixtures pass pi/2 during the step. The analytic
   // minimum plane gap of their unforced sweep is independent of endpoint pose.
-  const double freeSweepGap=fixture==0?-.102:(fixture==5?.108:(fixture>=3?.23:.1998)-std::hypot(.2,.002));
+  const double freeSweepGap=fixture==0?-.102*scale:(fixture==5?.108*scale:model.defaultQ[1]-std::hypot(hx,hy));
   const bool unresponded=d.succeeded()&&fixture>0&&impulse==0.&&freeSweepGap<0.;
   double gap=0.;if(result.finalQ.size()>=7){const auto& q=result.finalQ;
    const double nx=2*(q[3]*q[4]+q[5]*q[6]),ny=1-2*(q[3]*q[3]+q[5]*q[5]),nz=2*(q[4]*q[5]-q[3]*q[6]);
-   gap=q[1]-(.2*std::abs(nx)+.002*std::abs(ny)+.03*std::abs(nz));}
+   gap=q[1]-(hx*std::abs(nx)+hy*std::abs(ny)+hz*std::abs(nz));}
   if(!first)std::cout<<",";first=false;
-  std::cout<<"{\"limit\":"<<limit<<",\"mode\":"<<mode<<",\"fixture\":"<<fixture<<",\"accepted\":"<<(d.succeeded()?"true":"false")<<",\"status\":"<<d.firstGPUStatusCode<<",\"host_status\":"<<int(d.status)<<",\"accepted_steps\":"<<d.successfulStepCount<<",\"gap\":"<<gap<<",\"normal_impulse_Ns\":"<<impulse<<",\"unresolved_ccd\":"<<unresolved<<",\"free_sweep_min_gap\":"<<freeSweepGap<<",\"accepted_unresponded_swept_hit\":"<<(unresponded?"true":"false")<<",\"active_contacts\":"<<contacts<<",\"rejected_state_restored\":"<<(rollback?"true":"false")<<",\"repeat_identical\":"<<(replay?"true":"false")<<",\"elapsed_with_initialization\":"<<elapsed<<"}";
+  std::cout<<"{\"limit\":"<<limit<<",\"mode\":"<<mode<<",\"fixture\":"<<fixture<<",\"scale\":"<<scale<<",\"half_extents\":["<<hx<<","<<hy<<","<<hz<<"],\"initial_q_y\":"<<model.defaultQ[1]<<",\"accepted\":"<<(d.succeeded()?"true":"false")<<",\"status\":"<<d.firstGPUStatusCode<<",\"host_status\":"<<int(d.status)<<",\"accepted_steps\":"<<d.successfulStepCount<<",\"gap\":"<<gap<<",\"normal_impulse_Ns\":"<<impulse<<",\"rejected_contact_cache_empty\":"<<((d.succeeded()||std::all_of(result.contactEvidence.manifoldCounts.begin(),result.contactEvidence.manifoldCounts.end(),[](auto n){return n==0;}))?"true":"false")<<",\"unresolved_ccd\":"<<unresolved<<",\"free_sweep_min_gap\":"<<freeSweepGap<<",\"accepted_unresponded_swept_hit\":"<<(unresponded?"true":"false")<<",\"active_contacts\":"<<contacts<<",\"rejected_state_restored\":"<<(rollback?"true":"false")<<",\"repeat_identical\":"<<(replay?"true":"false")<<",\"elapsed_with_initialization\":"<<elapsed<<"}";
  }
  std::cout<<"]}\n";
 }

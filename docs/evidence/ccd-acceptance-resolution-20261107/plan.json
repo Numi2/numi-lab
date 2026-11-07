@@ -1,0 +1,30 @@
+{
+  "created_utc": "2026-11-07T21:49:42.295742+00:00",
+  "purpose": "Correctness only; no performance promotion",
+  "selectors": [
+    0,
+    1,
+    2
+  ],
+  "caps": [
+    1,
+    16,
+    128
+  ],
+  "scales": [
+    1,
+    0.5
+  ],
+  "fixtures": 16,
+  "total": 288,
+  "gates": [
+    "all caps16/128 impacts respond and complete",
+    "clear sweeps accept with zero impulse",
+    "no accepted unresolved cast",
+    "cap1 exhausted casts reject with exact q/v and empty initial contact cache",
+    "all accepted literal free-body trajectories checked independently in FP64 with Lipschitz enclosure"
+  ],
+  "limits": "force-free centred box, static fixed-normal plane; explicit hybrid mode, experiment flags default false",
+  "change": "Small-angle time-map limit retains endpoint norms; box acceleration envelope uses actual box radius. No budget or physical gate change.",
+  "regression_scope": "Original/unused-rotation impacts and all clear controls must accept; finer thin-impact all-resolution gate remains a separate explicit failure, not hidden by safety regression."
+}

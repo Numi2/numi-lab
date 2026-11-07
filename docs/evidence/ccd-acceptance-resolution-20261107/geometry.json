@@ -1,0 +1,3227 @@
+{
+  "schema": "numi.ccd.segment-geometry.v1",
+  "accepted_runs": [
+    {
+      "limit": 1,
+      "mode": 0,
+      "fixture": 5,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.10799999930501,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.1079997493050204
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 1,
+      "mode": 1,
+      "fixture": 5,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.10799999930501,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.1079997493050204
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 1,
+      "mode": 2,
+      "fixture": 5,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.10799999930501,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.1079997493050204
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 0,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00026607257300999667,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00026528390338674665
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 2.2673281009999956e-05,
+          "discrete_acceleration_path_envelope_m": 2.6474656184588115e-22,
+          "whole_interval_lower_bound_m": 2.2472064013539953e-05
+        },
+        {
+          "pass": 2,
+          "sample_min_gap_m": 2.2673268949275663e-05,
+          "discrete_acceleration_path_envelope_m": 3.5725644699311046e-18,
+          "whole_interval_lower_bound_m": 2.239077148755209e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 1,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0005340939757146445,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0005324028958220555
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 0.00015380758101486076,
+          "discrete_acceleration_path_envelope_m": 4.896641796154839e-10,
+          "whole_interval_lower_bound_m": 0.0001525927838513653
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 2,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00032041751308149735,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0003187128407446023
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 4.949790628806442e-05,
+          "discrete_acceleration_path_envelope_m": 1.4286610485655147e-11,
+          "whole_interval_lower_bound_m": 4.901778981462795e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 3,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.029990001459770932,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.029987273367599262
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 4,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.029990001470721922,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.029988011581534805
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 5,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.10799999930501,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.1079997493050204
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 6,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999045413572,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002872623619639735
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 7,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999046894909327,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00028800057976190115
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 8,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0003618374001304682,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00036013555117598976
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 7.130713673809535e-05,
+          "discrete_acceleration_path_envelope_m": 7.881015842385263e-11,
+          "whole_interval_lower_bound_m": 7.048711659979059e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 9,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0007071548855459458,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0007054734295281147
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 0.00018607677461274114,
+          "discrete_acceleration_path_envelope_m": 1.7284082156113388e-11,
+          "whole_interval_lower_bound_m": 0.00018442605223106638
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 10,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999046106395465,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00028765675133406984
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 11,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999045000594706,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002868275261254465
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 13,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0002998902053673928,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002971622355735066
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 15,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00029989021529049797,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002979004127468275
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 0,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00026607257300999667,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00026528390338674665
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 2.2673281009999956e-05,
+          "discrete_acceleration_path_envelope_m": 2.6474656184588115e-22,
+          "whole_interval_lower_bound_m": 2.2472064013539953e-05
+        },
+        {
+          "pass": 2,
+          "sample_min_gap_m": 2.2673268949275663e-05,
+          "discrete_acceleration_path_envelope_m": 3.5725644699311046e-18,
+          "whole_interval_lower_bound_m": 2.239077148755209e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 1,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0005340939757146445,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0005324028958220555
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 0.00015380758101486076,
+          "discrete_acceleration_path_envelope_m": 4.896641796154839e-10,
+          "whole_interval_lower_bound_m": 0.0001525927838513653
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 2,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00032041751308149735,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0003187128407446023
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 4.949790628806442e-05,
+          "discrete_acceleration_path_envelope_m": 1.4286610485655147e-11,
+          "whole_interval_lower_bound_m": 4.901778981462795e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 3,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.029990001459770932,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.029987273367599262
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 4,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.029990001470721922,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.029988011581534805
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 5,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.10799999930501,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.1079997493050204
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 6,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999045413572,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002872623619639735
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 7,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999046894909327,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00028800057976190115
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 8,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0003618374001304682,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00036013555117598976
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 7.130713673809535e-05,
+          "discrete_acceleration_path_envelope_m": 7.881015842385263e-11,
+          "whole_interval_lower_bound_m": 7.048711659979059e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 9,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0007071548855459458,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0007054734295281147
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 0.00018607677461274114,
+          "discrete_acceleration_path_envelope_m": 1.7284082156113388e-11,
+          "whole_interval_lower_bound_m": 0.00018442605223106638
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 10,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999046106395465,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00028765675133406984
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 11,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999045000594706,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002868275261254465
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 13,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0002998902053673928,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002971622355735066
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 15,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00029989021529049797,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002979004127468275
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 0,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00026607257300999667,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00026528390338674665
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 2.2673281009999956e-05,
+          "discrete_acceleration_path_envelope_m": 2.6474656184588115e-22,
+          "whole_interval_lower_bound_m": 2.2472064013539953e-05
+        },
+        {
+          "pass": 2,
+          "sample_min_gap_m": 2.2673268949275663e-05,
+          "discrete_acceleration_path_envelope_m": 3.5725644699311046e-18,
+          "whole_interval_lower_bound_m": 2.239077148755209e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 1,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0005340939757146445,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0005324028958220555
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 0.00015380758101486076,
+          "discrete_acceleration_path_envelope_m": 4.896641796154839e-10,
+          "whole_interval_lower_bound_m": 0.0001525927838513653
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 2,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00032041751308149735,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0003187128407446023
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 4.949790628806442e-05,
+          "discrete_acceleration_path_envelope_m": 1.4286610485655147e-11,
+          "whole_interval_lower_bound_m": 4.901778981462795e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 3,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.029990001459770932,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.029987273367599262
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 4,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.029990001470721922,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.029988011581534805
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 5,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.10799999930501,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.1079997493050204
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 6,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999045413572,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002872623619639735
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 7,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999046894909327,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00028800057976190115
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 8,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0003618374001304682,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00036013555117598976
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 7.130713673809535e-05,
+          "discrete_acceleration_path_envelope_m": 7.881015842385263e-11,
+          "whole_interval_lower_bound_m": 7.048711659979059e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 9,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0007071548855459458,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0007054734295281147
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 0.00018607677461274114,
+          "discrete_acceleration_path_envelope_m": 1.7284082156113388e-11,
+          "whole_interval_lower_bound_m": 0.00018442605223106638
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 10,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999046106395465,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00028765675133406984
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 11,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999045000594706,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002868275261254465
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 13,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0002998902053673928,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002971622355735066
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 15,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00029989021529049797,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002979004127468275
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 0,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00026607257300999667,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00026528390338674665
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 2.2673281009999956e-05,
+          "discrete_acceleration_path_envelope_m": 2.6474656184588115e-22,
+          "whole_interval_lower_bound_m": 2.2472064013539953e-05
+        },
+        {
+          "pass": 2,
+          "sample_min_gap_m": 2.2673268949275663e-05,
+          "discrete_acceleration_path_envelope_m": 3.5725644699311046e-18,
+          "whole_interval_lower_bound_m": 2.239077148755209e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 1,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0005340939757146445,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0005324028958220555
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 0.00015380758101486076,
+          "discrete_acceleration_path_envelope_m": 4.896641796154839e-10,
+          "whole_interval_lower_bound_m": 0.0001525927838513653
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 2,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00032041751308149735,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0003187128407446023
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 4.949790628806442e-05,
+          "discrete_acceleration_path_envelope_m": 1.4286610485655147e-11,
+          "whole_interval_lower_bound_m": 4.901778981462795e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 3,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.029990001459770932,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.029987273367599262
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 4,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.029990001470721922,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.029988011581534805
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 5,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.10799999930501,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.1079997493050204
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 6,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999045413572,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002872623619639735
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 7,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999046894909327,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00028800057976190115
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 8,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0003618374001304682,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00036013555117598976
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 7.130713673809535e-05,
+          "discrete_acceleration_path_envelope_m": 7.881015842385263e-11,
+          "whole_interval_lower_bound_m": 7.048711659979059e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 9,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0007071548855459458,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0007054734295281147
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 0.00018607677461274114,
+          "discrete_acceleration_path_envelope_m": 1.7284082156113388e-11,
+          "whole_interval_lower_bound_m": 0.00018442605223106638
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 10,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999046106395465,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00028765675133406984
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 11,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999045000594706,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002868275261254465
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 13,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0002998902053673928,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002971622355735066
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 15,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00029989021529049797,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002979004127468275
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 0,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00026607257300999667,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00026528390338674665
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 2.2673281009999956e-05,
+          "discrete_acceleration_path_envelope_m": 2.6474656184588115e-22,
+          "whole_interval_lower_bound_m": 2.2472064013539953e-05
+        },
+        {
+          "pass": 2,
+          "sample_min_gap_m": 2.2673268949275663e-05,
+          "discrete_acceleration_path_envelope_m": 3.5725644699311046e-18,
+          "whole_interval_lower_bound_m": 2.239077148755209e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 1,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0005340939757146445,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0005324028958220555
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 0.00015380758101486076,
+          "discrete_acceleration_path_envelope_m": 4.896641796154839e-10,
+          "whole_interval_lower_bound_m": 0.0001525927838513653
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 2,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00032041751308149735,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0003187128407446023
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 4.949790628806442e-05,
+          "discrete_acceleration_path_envelope_m": 1.4286610485655147e-11,
+          "whole_interval_lower_bound_m": 4.901778981462795e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 3,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.029990001459770932,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.029987273367599262
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 4,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.029990001470721922,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.029988011581534805
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 5,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.10799999930501,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.1079997493050204
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 6,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999045413572,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002872623619639735
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 7,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999046894909327,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00028800057976190115
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 8,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0003618374001304682,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00036013555117598976
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 7.130713673809535e-05,
+          "discrete_acceleration_path_envelope_m": 7.881015842385263e-11,
+          "whole_interval_lower_bound_m": 7.048711659979059e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 9,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0007071548855459458,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0007054734295281147
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 0.00018607677461274114,
+          "discrete_acceleration_path_envelope_m": 1.7284082156113388e-11,
+          "whole_interval_lower_bound_m": 0.00018442605223106638
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 10,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999046106395465,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00028765675133406984
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 11,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999045000594706,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002868275261254465
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 13,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0002998902053673928,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002971622355735066
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 15,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00029989021529049797,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002979004127468275
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 0,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00026607257300999667,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00026528390338674665
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 2.2673281009999956e-05,
+          "discrete_acceleration_path_envelope_m": 2.6474656184588115e-22,
+          "whole_interval_lower_bound_m": 2.2472064013539953e-05
+        },
+        {
+          "pass": 2,
+          "sample_min_gap_m": 2.2673268949275663e-05,
+          "discrete_acceleration_path_envelope_m": 3.5725644699311046e-18,
+          "whole_interval_lower_bound_m": 2.239077148755209e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 1,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0005340939757146445,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0005324028958220555
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 0.00015380758101486076,
+          "discrete_acceleration_path_envelope_m": 4.896641796154839e-10,
+          "whole_interval_lower_bound_m": 0.0001525927838513653
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 2,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00032041751308149735,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0003187128407446023
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 4.949790628806442e-05,
+          "discrete_acceleration_path_envelope_m": 1.4286610485655147e-11,
+          "whole_interval_lower_bound_m": 4.901778981462795e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 3,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.029990001459770932,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.029987273367599262
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 4,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.029990001470721922,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.029988011581534805
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 5,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.10799999930501,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.1079997493050204
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 6,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999045413572,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002872623619639735
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 7,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999046894909327,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00028800057976190115
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 8,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0003618374001304682,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00036013555117598976
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 7.130713673809535e-05,
+          "discrete_acceleration_path_envelope_m": 7.881015842385263e-11,
+          "whole_interval_lower_bound_m": 7.048711659979059e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 9,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0007071548855459458,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0007054734295281147
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 0.00018607677461274114,
+          "discrete_acceleration_path_envelope_m": 1.7284082156113388e-11,
+          "whole_interval_lower_bound_m": 0.00018442605223106638
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 10,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999046106395465,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00028765675133406984
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 11,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00028999045000594706,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002868275261254465
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 13,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0002998902053673928,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002971622355735066
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 15,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00029989021529049797,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002979004127468275
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 1,
+      "mode": 0,
+      "fixture": 5,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.053999999652500005,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.05399977465250521
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 1,
+      "mode": 1,
+      "fixture": 5,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.053999999652500005,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.05399977465250521
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 1,
+      "mode": 2,
+      "fixture": 5,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.053999999652500005,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.05399977465250521
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 0,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001330362864999982,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00013254195168837371
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 1.1336640499999854e-05,
+          "discrete_acceleration_path_envelope_m": 1.3237328092294064e-22,
+          "whole_interval_lower_bound_m": 1.1136032001769854e-05
+        },
+        {
+          "pass": 2,
+          "sample_min_gap_m": 1.1336634469637708e-05,
+          "discrete_acceleration_path_envelope_m": 1.7862822349655534e-18,
+          "whole_interval_lower_bound_m": 1.1095385738785922e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 1,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0002670469878568416,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00026610144791054603
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 9.872463543459733e-05,
+          "discrete_acceleration_path_envelope_m": 1.830233984105282e-10,
+          "whole_interval_lower_bound_m": 9.801910456539119e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 2,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00016020875654033492,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0001592564203718864
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 4.223504250294757e-05,
+          "discrete_acceleration_path_envelope_m": 1.472329403599176e-11,
+          "whole_interval_lower_bound_m": 4.189543156470248e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 3,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.014995000729885416,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.01499353668379958
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 4,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.014995000735360912,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.014993905790767353
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 5,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.053999999652500005,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.05399977465250521
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 6,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014499522725565974,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.000143531181169789
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 7,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001449952345335883,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014390028993999473
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 8,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00018091870006480644,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0001799677755875662
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 5.424773114842181e-05,
+          "discrete_acceleration_path_envelope_m": 6.526617349007139e-11,
+          "whole_interval_lower_bound_m": 5.3738736644658175e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 9,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00035357744277244484,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0003526367147635283
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 9.30383847202019e-05,
+          "discrete_acceleration_path_envelope_m": 8.642041078056697e-12,
+          "whole_interval_lower_bound_m": 9.211302352957894e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 10,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014499523065732704,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014372837579238712
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 11,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014499522523316993,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014331376329292214
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 13,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014994510286972835,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014848111797278774
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 15,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001499451077018012,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014885020642996846
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 0,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001330362864999982,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00013254195168837371
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 1.1336640499999854e-05,
+          "discrete_acceleration_path_envelope_m": 1.3237328092294064e-22,
+          "whole_interval_lower_bound_m": 1.1136032001769854e-05
+        },
+        {
+          "pass": 2,
+          "sample_min_gap_m": 1.1336634469637708e-05,
+          "discrete_acceleration_path_envelope_m": 1.7862822349655534e-18,
+          "whole_interval_lower_bound_m": 1.1095385738785922e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 1,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0002670469878568416,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00026610144791054603
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 9.872463543459733e-05,
+          "discrete_acceleration_path_envelope_m": 1.830233984105282e-10,
+          "whole_interval_lower_bound_m": 9.801910456539119e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 2,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00016020875654033492,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0001592564203718864
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 4.223504250294757e-05,
+          "discrete_acceleration_path_envelope_m": 1.472329403599176e-11,
+          "whole_interval_lower_bound_m": 4.189543156470248e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 3,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.014995000729885416,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.01499353668379958
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 4,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.014995000735360912,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.014993905790767353
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 5,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.053999999652500005,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.05399977465250521
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 6,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014499522725565974,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.000143531181169789
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 7,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001449952345335883,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014390028993999473
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 8,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00018091870006480644,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0001799677755875662
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 5.424773114842181e-05,
+          "discrete_acceleration_path_envelope_m": 6.526617349007139e-11,
+          "whole_interval_lower_bound_m": 5.3738736644658175e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 9,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00035357744277244484,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0003526367147635283
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 9.30383847202019e-05,
+          "discrete_acceleration_path_envelope_m": 8.642041078056697e-12,
+          "whole_interval_lower_bound_m": 9.211302352957894e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 10,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014499523065732704,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014372837579238712
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 11,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014499522523316993,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014331376329292214
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 13,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014994510286972835,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014848111797278774
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 1,
+      "fixture": 15,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001499451077018012,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014885020642996846
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 0,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001330362864999982,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00013254195168837371
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 1.1336640499999854e-05,
+          "discrete_acceleration_path_envelope_m": 1.3237328092294064e-22,
+          "whole_interval_lower_bound_m": 1.1136032001769854e-05
+        },
+        {
+          "pass": 2,
+          "sample_min_gap_m": 1.1336634469637708e-05,
+          "discrete_acceleration_path_envelope_m": 1.7862822349655534e-18,
+          "whole_interval_lower_bound_m": 1.1095385738785922e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 1,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0002670469878568416,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00026610144791054603
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 9.872463543459733e-05,
+          "discrete_acceleration_path_envelope_m": 1.830233984105282e-10,
+          "whole_interval_lower_bound_m": 9.801910456539119e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 2,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00016020875654033492,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0001592564203718864
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 4.223504250294757e-05,
+          "discrete_acceleration_path_envelope_m": 1.472329403599176e-11,
+          "whole_interval_lower_bound_m": 4.189543156470248e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 3,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.014995000729885416,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.01499353668379958
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 4,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.014995000735360912,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.014993905790767353
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 5,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.053999999652500005,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.05399977465250521
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 6,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014499522725565974,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.000143531181169789
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 7,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001449952345335883,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014390028993999473
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 8,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00018091870006480644,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0001799677755875662
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 5.424773114842181e-05,
+          "discrete_acceleration_path_envelope_m": 6.526617349007139e-11,
+          "whole_interval_lower_bound_m": 5.3738736644658175e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 9,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00035357744277244484,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0003526367147635283
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 9.30383847202019e-05,
+          "discrete_acceleration_path_envelope_m": 8.642041078056697e-12,
+          "whole_interval_lower_bound_m": 9.211302352957894e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 10,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014499523065732704,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014372837579238712
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 11,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014499522523316993,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014331376329292214
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 13,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014994510286972835,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014848111797278774
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 2,
+      "fixture": 15,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001499451077018012,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014885020642996846
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 0,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001330362864999982,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00013254195168837371
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 1.1336640499999854e-05,
+          "discrete_acceleration_path_envelope_m": 1.3237328092294064e-22,
+          "whole_interval_lower_bound_m": 1.1136032001769854e-05
+        },
+        {
+          "pass": 2,
+          "sample_min_gap_m": 1.1336634469637708e-05,
+          "discrete_acceleration_path_envelope_m": 1.7862822349655534e-18,
+          "whole_interval_lower_bound_m": 1.1095385738785922e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 1,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0002670469878568416,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00026610144791054603
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 9.872463543459733e-05,
+          "discrete_acceleration_path_envelope_m": 1.830233984105282e-10,
+          "whole_interval_lower_bound_m": 9.801910456539119e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 2,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00016020875654033492,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0001592564203718864
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 4.223504250294757e-05,
+          "discrete_acceleration_path_envelope_m": 1.472329403599176e-11,
+          "whole_interval_lower_bound_m": 4.189543156470248e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 3,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.014995000729885416,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.01499353668379958
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 4,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.014995000735360912,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.014993905790767353
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 5,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.053999999652500005,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.05399977465250521
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 6,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014499522725565974,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.000143531181169789
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 7,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001449952345335883,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014390028993999473
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 8,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00018091870006480644,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0001799677755875662
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 5.424773114842181e-05,
+          "discrete_acceleration_path_envelope_m": 6.526617349007139e-11,
+          "whole_interval_lower_bound_m": 5.3738736644658175e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 9,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00035357744277244484,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0003526367147635283
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 9.30383847202019e-05,
+          "discrete_acceleration_path_envelope_m": 8.642041078056697e-12,
+          "whole_interval_lower_bound_m": 9.211302352957894e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 10,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014499523065732704,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014372837579238712
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 11,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014499522523316993,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014331376329292214
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 13,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014994510286972835,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014848111797278774
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 0,
+      "fixture": 15,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001499451077018012,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014885020642996846
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 0,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001330362864999982,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00013254195168837371
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 1.1336640499999854e-05,
+          "discrete_acceleration_path_envelope_m": 1.3237328092294064e-22,
+          "whole_interval_lower_bound_m": 1.1136032001769854e-05
+        },
+        {
+          "pass": 2,
+          "sample_min_gap_m": 1.1336634469637708e-05,
+          "discrete_acceleration_path_envelope_m": 1.7862822349655534e-18,
+          "whole_interval_lower_bound_m": 1.1095385738785922e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 1,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0002670469878568416,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00026610144791054603
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 9.872463543459733e-05,
+          "discrete_acceleration_path_envelope_m": 1.830233984105282e-10,
+          "whole_interval_lower_bound_m": 9.801910456539119e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 2,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00016020875654033492,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0001592564203718864
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 4.223504250294757e-05,
+          "discrete_acceleration_path_envelope_m": 1.472329403599176e-11,
+          "whole_interval_lower_bound_m": 4.189543156470248e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 3,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.014995000729885416,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.01499353668379958
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 4,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.014995000735360912,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.014993905790767353
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 5,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.053999999652500005,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.05399977465250521
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 6,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014499522725565974,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.000143531181169789
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 7,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001449952345335883,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014390028993999473
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 8,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00018091870006480644,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0001799677755875662
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 5.424773114842181e-05,
+          "discrete_acceleration_path_envelope_m": 6.526617349007139e-11,
+          "whole_interval_lower_bound_m": 5.3738736644658175e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 9,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00035357744277244484,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0003526367147635283
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 9.30383847202019e-05,
+          "discrete_acceleration_path_envelope_m": 8.642041078056697e-12,
+          "whole_interval_lower_bound_m": 9.211302352957894e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 10,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014499523065732704,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014372837579238712
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 11,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014499522523316993,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014331376329292214
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 13,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014994510286972835,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014848111797278774
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 1,
+      "fixture": 15,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001499451077018012,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014885020642996846
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 0,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001330362864999982,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00013254195168837371
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 1.1336640499999854e-05,
+          "discrete_acceleration_path_envelope_m": 1.3237328092294064e-22,
+          "whole_interval_lower_bound_m": 1.1136032001769854e-05
+        },
+        {
+          "pass": 2,
+          "sample_min_gap_m": 1.1336634469637708e-05,
+          "discrete_acceleration_path_envelope_m": 1.7862822349655534e-18,
+          "whole_interval_lower_bound_m": 1.1095385738785922e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 1,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0002670469878568416,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00026610144791054603
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 9.872463543459733e-05,
+          "discrete_acceleration_path_envelope_m": 1.830233984105282e-10,
+          "whole_interval_lower_bound_m": 9.801910456539119e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 2,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00016020875654033492,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0001592564203718864
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 4.223504250294757e-05,
+          "discrete_acceleration_path_envelope_m": 1.472329403599176e-11,
+          "whole_interval_lower_bound_m": 4.189543156470248e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 3,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.014995000729885416,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.01499353668379958
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 4,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.014995000735360912,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.014993905790767353
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 5,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.053999999652500005,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.05399977465250521
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 6,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014499522725565974,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.000143531181169789
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 7,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001449952345335883,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014390028993999473
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 8,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00018091870006480644,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0001799677755875662
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 5.424773114842181e-05,
+          "discrete_acceleration_path_envelope_m": 6.526617349007139e-11,
+          "whole_interval_lower_bound_m": 5.3738736644658175e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 9,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00035357744277244484,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0003526367147635283
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 9.30383847202019e-05,
+          "discrete_acceleration_path_envelope_m": 8.642041078056697e-12,
+          "whole_interval_lower_bound_m": 9.211302352957894e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 10,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014499523065732704,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014372837579238712
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 11,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014499522523316993,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014331376329292214
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 13,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014994510286972835,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014848111797278774
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 128,
+      "mode": 2,
+      "fixture": 15,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001499451077018012,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014885020642996846
+        }
+      ],
+      "qualified": true
+    }
+  ],
+  "all_accepted_segments_qualified": true,
+  "method": "100001 FP64 endpoint-geodesic/linear samples per literal segment, whole-interval Lipschitz enclosure, H^2/4 discrete acceleration envelope and 0.2 micrometre rounding guard.",
+  "limits": [
+    "This observer is limited to the force-free single floating box fixtures; it does not certify arbitrary articulated link interpolation.",
+    "Rejected-step trial segments are not accepted trajectories."
+  ]
+}

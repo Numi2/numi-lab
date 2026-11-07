@@ -5810,6 +5810,7 @@ kernel void mr_world_project_swept_colliders(
     device MRProjectedColliderGPU* futureProjectedColliders [[buffer(9)]],
     device MRMetalWorldContactStatusGPU* statuses [[buffer(10)]],
     device const MRCCDEventStateGPU* eventStates [[buffer(11)]],
+    device const float* candidateAcceleration [[buffer(12)]],
     const uint threadIndex [[thread_position_in_grid]]
 ) {
     if (dispatch.shapeCount == 0u) {
@@ -5874,7 +5875,11 @@ kernel void mr_world_project_swept_colliders(
         source.shapeType == MR_SHAPE_PLANE ||
         currentBody.flagsAndIndices[0] == MR_MOTION_STATIC) {
         projected.statusAndFlags.z = 0u;
-        futureProjectedColliders[projectedIndex] = projected;
+        MRProjectedColliderGPU fixedProjection=projected;
+        fixedProjection.statusAndFlags.w&=~0xc0000000u;
+        if(currentBody.flagsAndIndices[0]==MR_MOTION_STATIC)
+            fixedProjection.statusAndFlags.w|=0x40000000u;
+        futureProjectedColliders[projectedIndex] = fixedProjection;
         return;
     }
 
@@ -6000,6 +6005,37 @@ kernel void mr_world_project_swept_colliders(
         futureRotation,
         sweepRadius
     );
+
+    // Projection-owned metadata. For one centred floating body, the discrete
+    // partial-step path is x(t)=x0+t(v0+t*a), R(t)=Exp(t*(w0+t*b))*R0.
+    // Relative to its endpoint constant-twist curve, t(H-t)<=H^2/4:
+    // positional deviation <= H^2/4*(|a|+radius*|b|). Exp's rotation-distance
+    // bound follows by integrating the norm of its differential. Store that
+    // whole-interval envelope; no endpoint rate or near-zero cutoff is used.
+    bool boundedTwist=false;
+    float3 sweepOmega=float3(0),linearAcceleration=float3(0),angularAcceleration=float3(0);
+    if(articulated&&hasFutureKinematics&&articulation.rootType==MR_ROOT_FLOATING&&
+        articulation.bodyCount==1u&&articulation.jointCount==0u&&source.bodyIndex==articulation.firstBody) {
+        const uint base=environment*dispatch.vStride+articulation.vOffset;
+        sweepOmega=float3(candidateV[base+3],candidateV[base+4],candidateV[base+5]);
+        linearAcceleration=float3(candidateAcceleration[base],candidateAcceleration[base+1],candidateAcceleration[base+2]);
+        angularAcceleration=float3(candidateAcceleration[base+3],candidateAcceleration[base+4],candidateAcceleration[base+5]);
+        boundedTwist=all(isfinite(linearAcceleration))&&all(isfinite(angularAcceleration));
+    } else if(!articulated) {
+        sweepOmega=candidateBodies[bodyBase+source.bodyIndex].angularVelocity.xyz;
+        const auto candidate=candidateBodies[bodyBase+source.bodyIndex];
+        boundedTwist=all(candidate.angularVelocity.xyz==currentBody.angularVelocity.xyz)&&
+            all(candidate.linearVelocityAndInverseMass.xyz==currentBody.linearVelocityAndInverseMass.xyz);
+    }
+    future.statusAndFlags.w&=~0xc0000000u;
+    const float pathDeviation=segmentDuration*segmentDuration*.25f*
+        (length(linearAcceleration)+(source.shapeType==MR_SHAPE_BOX?length(source.dimensions.xyz):sweepRadius)*length(angularAcceleration));
+    const float maximumOmega=max(length(sweepOmega),length(sweepOmega-segmentDuration*angularAcceleration));
+    if(boundedTwist&&all(source.localPosition.xyz==0.f)&&
+        maximumOmega*segmentDuration<3.1415f&&isfinite(pathDeviation)) {
+        future.statusAndFlags.w|=0x80000000u;
+        future.statusAndFlags.z=as_type<uint>(pathDeviation*(1.f+1e-5f)+1e-12f);
+    }
     futureProjectedColliders[projectedIndex] = future;
 
     const float translation =
@@ -6893,6 +6929,139 @@ bool directionalCCDAdvance(
     return isfinite(advancement);
 }
 
+
+// A fixed-normal plane and a rigid box admit a polynomial certificate for
+// the actual normalized-linear quaternion path. Multiplying each rotated vertex projection by the quaternion normalization
+// denominator gives a quadratic. Outward Bernstein coefficients and the
+// constant-angular-speed time map enclose translation over whole intervals. No endpoint angular
+// rate, speculative envelope, or advancement-selector flag supplies clearance.
+typedef CCDQuaternionInterval CCDI;
+CCDI ccdScalar(float v) { return {v,v}; }
+CCDI ccdScale(CCDI a,float v) { return ccdQuatMul(a,ccdScalar(v)); }
+CCDI ccdNormSquared(thread const CCDI* q) {
+    CCDI r={0,0};for(uint i=0;i<4;++i)r=ccdQuatAdd(r,ccdQuatSquare(q[i]));return r;
+}
+CCDI ccdRotatedProjection(thread const CCDI* q,float3 v,float3 n) {
+    CCDI uv[3],uuv[3];
+    for(uint i=0;i<3;++i)uv[i]=ccdQuatAdd(ccdScale(q[(i+1)%3],v[(i+2)%3]),
+        ccdQuatNeg(ccdScale(q[(i+2)%3],v[(i+1)%3])));
+    for(uint i=0;i<3;++i)uuv[i]=ccdQuatAdd(ccdQuatMul(q[(i+1)%3],uv[(i+2)%3]),
+        ccdQuatNeg(ccdQuatMul(q[(i+2)%3],uv[(i+1)%3])));
+    const CCDI norm=ccdNormSquared(q);CCDI result={0,0};
+    for(uint i=0;i<3;++i)result=ccdQuatAdd(result,ccdScale(ccdQuatAdd(ccdScale(norm,v[i]),
+        ccdScale(ccdQuatAdd(ccdQuatMul(q[3],uv[i]),uuv[i]),2)),n[i]));
+    return result;
+}
+
+struct CCDPolynomialNode { CCDI r[3],d[3];float lower,upper; };
+float ccdNlerpPhysicalTime(float a,float4 q0,float4 q1) {
+    if(dot(q0,q1)<0)q1=-q1;
+    const float norm=length(q0),c=dot(q0,q1)/norm;
+    const float sine=length(q1-q0*(c/norm));
+    const float angle=atan2(sine,c);
+    // Limit as angle tends to zero retains unequal endpoint norms too.
+    return angle>1e-6f?atan2(a*sine,(1-a)*norm+a*c)/angle:
+        a*c/((1-a)*norm+a*c);
+}
+void ccdSplitPolynomial(CCDPolynomialNode p,thread CCDPolynomialNode& l,thread CCDPolynomialNode& r) {
+    l.lower=p.lower;l.upper=(p.lower+p.upper)*.5f;r.lower=l.upper;r.upper=p.upper;
+    for(uint field=0;field<2;++field) {
+        thread CCDI* z=field==0?p.r:p.d;thread CCDI* a=field==0?l.r:l.d;thread CCDI* b=field==0?r.r:r.d;
+        const auto c=ccdScale(ccdQuatAdd(z[0],z[1]),.5f);
+        const auto d=ccdScale(ccdQuatAdd(z[1],z[2]),.5f);
+        const auto e=ccdScale(ccdQuatAdd(c,d),.5f);
+        a[0]=z[0];a[1]=c;a[2]=e;b[0]=e;b[1]=d;b[2]=z[2];
+    }
+}
+// The orientation curve is normalized quaternion interpolation, but the
+// floating-body integrator traverses it at constant angular speed. Use its
+// derived monotone time map for translation and event publication.
+bool certifiedBoxPlaneSweep(device const MRShapeGPU& sourceA,device const MRShapeGPU& sourceB,
+    device const MRProjectedColliderGPU& startA,device const MRProjectedColliderGPU& startB,
+    device const MRProjectedColliderGPU& endA,device const MRProjectedColliderGPU& endB,
+    float tolerance,uint budget,thread bool& clear,thread float& lower,thread float& upper,
+    thread uint& work) {
+    const bool planeA=sourceA.shapeType==MR_SHAPE_PLANE;
+    if(!((planeA&&sourceB.shapeType==MR_SHAPE_BOX)||
+         (sourceB.shapeType==MR_SHAPE_PLANE&&sourceA.shapeType==MR_SHAPE_BOX)))return false;
+    device const auto& plane0=planeA?startA:startB;device const auto& plane1=planeA?endA:endB;
+    device const auto& box0=planeA?startB:startA;device const auto& box1=planeA?endB:endA;
+    device const auto& box=planeA?sourceB:sourceA;
+    if(any(plane0.rotation!=plane1.rotation)||any(plane0.centerAndRadius.xyz!=plane1.centerAndRadius.xyz)||
+        (plane1.statusAndFlags.w&0x40000000u)==0||(box1.statusAndFlags.w&0x80000000u)==0)return false;
+    const float3 n=normalize(quaternionRotate(plane0.rotation,float3(0,1,0)));
+    float4 end=box1.rotation;if(dot(box0.rotation,end)<0)end=-end;
+    const float norm0=dot(box0.rotation,box0.rotation),norm1=dot(end,end);
+    if(!(norm0>.999f&&norm0<1.001f&&norm1>.999f&&norm1<1.001f))return false;
+    CCDI q0[4],q1[4],delta[4];for(uint i=0;i<4;++i) {
+        q0[i]=ccdScalar(box0.rotation[i]);q1[i]=ccdScalar(end[i]);
+        delta[i]=ccdQuatAdd(q1[i],ccdQuatNeg(q0[i]));
+    }
+    const CCDI D0=ccdNormSquared(q0),D2=ccdNormSquared(delta);
+    const CCDI D1=ccdQuatAdd(ccdQuatAdd(ccdNormSquared(q1),ccdQuatNeg(D0)),ccdQuatNeg(D2));
+    const float denominatorLower=ccdQuatDown(.5f*min(norm0,norm1)-2e-6f);
+    const float guard=as_type<float>(box1.statusAndFlags.z)+(all(box0.rotation==end)?0.f:32.f*1.1920928955078125e-7f*
+        (length(box0.centerAndRadius.xyz)+length(box1.centerAndRadius.xyz)+
+         length(plane0.centerAndRadius.xyz)+length(plane1.centerAndRadius.xyz)+length(box.dimensions.xyz)));
+    CCDI center0={0,0},centerDelta={0,0};
+    for(uint i=0;i<3;++i) {
+        const auto c0=ccdQuatAdd(ccdScalar(box0.centerAndRadius[i]),ccdScalar(-plane0.centerAndRadius[i]));
+        const auto c1=ccdQuatAdd(ccdScalar(box1.centerAndRadius[i]),ccdScalar(-plane1.centerAndRadius[i]));
+        center0=ccdQuatAdd(center0,ccdScale(c0,n[i]));
+        centerDelta=ccdQuatAdd(centerDelta,ccdScale(ccdQuatAdd(c1,ccdQuatNeg(c0)),n[i]));
+    }
+    center0=ccdQuatAdd(center0,ccdScalar(-tolerance-guard));
+    // A bracket needs a negative witness and an entirely certified prefix.
+    // Its safe left endpoint must also lie inside the existing contact band,
+    // where the selected-pose manifold can apply an actual response.
+    const float band=max(tolerance*8.f,sourceA.contactRestAndBoundingRadius.x+sourceB.contactRestAndBoundingRadius.x-tolerance-guard);
+    clear=true;lower=1;upper=1;work=0;
+    for(uint corner=0;corner<8;++corner) {
+        const float3 v=box.dimensions.xyz*float3((corner&1)?1:-1,(corner&2)?1:-1,(corner&4)?1:-1);
+        const CCDI R0=ccdRotatedProjection(q0,v,n),R2=ccdRotatedProjection(delta,v,n);
+        const CCDI R1=ccdQuatAdd(ccdQuatAdd(ccdRotatedProjection(q1,v,n),ccdQuatNeg(R0)),ccdQuatNeg(R2));
+        CCDPolynomialNode pending[32];uint count=1;
+        pending[0].lower=0;pending[0].upper=1;
+        pending[0].r[0]=R0;pending[0].r[1]=ccdQuatAdd(R0,ccdScale(R1,.5f));
+        pending[0].r[2]=ccdQuatAdd(ccdQuatAdd(R0,R1),R2);
+        pending[0].d[0]=D0;pending[0].d[1]=ccdQuatAdd(D0,ccdScale(D1,.5f));
+        pending[0].d[2]=ccdQuatAdd(ccdQuatAdd(D0,D1),D2);
+        bool vertexDone=false;
+        for(uint iteration=0;iteration<budget;++iteration) {
+            work=max(work,iteration+1);
+            if(count==0){vertexDone=true;break;}
+            const auto node=pending[--count];
+            const float tl=ccdNlerpPhysicalTime(node.lower,box0.rotation,end);
+            const float tu=ccdNlerpPhysicalTime(node.upper,box0.rotation,end);
+            const CCDI time={max(0.f,ccdQuatDown(tl-2e-6f)),min(1.f,ccdQuatUp(tu+2e-6f))};
+            const auto center=ccdQuatAdd(center0,ccdQuatMul(centerDelta,time));
+            bool positive=true;for(uint k=0;k<3;++k)
+                positive&=ccdQuatAdd(node.r[k],ccdQuatMul(center,node.d[k])).lo>0;
+            if(positive) { if(count==0){vertexDone=true;break;} continue; }
+            CCDPolynomialNode left,right;ccdSplitPolynomial(node,left,right);
+            const float tm=ccdNlerpPhysicalTime(left.upper,box0.rotation,end);
+            const auto upperCenter=ccdQuatAdd(center0,ccdQuatMul(centerDelta,{tu-2e-6f,tu+2e-6f}));
+            const auto midCenter=ccdQuatAdd(center0,ccdQuatMul(centerDelta,{tm-2e-6f,tm+2e-6f}));
+            const bool negativeWitness=ccdQuatAdd(node.r[2],ccdQuatMul(upperCenter,node.d[2])).hi<0||
+                ccdQuatAdd(left.r[2],ccdQuatMul(midCenter,left.d[2])).hi<0;
+            const auto leftCenter=ccdQuatAdd(center0,ccdQuatMul(centerDelta,{tl-2e-6f,tl+2e-6f}));
+            const auto leftValue=ccdQuatAdd(node.r[0],ccdQuatMul(leftCenter,node.d[0]));
+            // Separated surfaces need a positive certified advancement. Publishing
+            // the left endpoint of the entire interval (zero time) repeatedly
+            // applies a speculative solve at an unchanged pose and cannot
+            // resolve the later curved interaction.
+            if(negativeWitness&&tl>0.f&&leftValue.lo>0&&leftValue.hi<band*denominatorLower) {
+                if(tl<lower){lower=max(0.f,tl-2e-6f);upper=min(1.f,tu+2e-6f);}
+                clear=false;vertexDone=true;break;
+            }
+            if(count+2>32||left.upper==node.lower||left.upper==node.upper)break;
+            pending[count++]=right;pending[count++]=left;
+        }
+        if(!vertexDone){clear=false;lower=-1;return true;}
+    }
+    return true;
+}
+
 MRCCDPairGPU resolveCCDPair(
     const uint environment,
     const uint compiledPair,
@@ -6975,6 +7144,22 @@ MRCCDPairGPU resolveCCDPair(
     }
     record.intervalAndDistance.z = query.separation;
     record.normalAndIteration.xyz = query.normal;
+    bool polynomialClear=false;float polynomialLower=0,polynomialUpper=0;uint polynomialWork=0;
+    if(certifiedBoxPlaneSweep(sourceA,sourceB,startA,startB,endA,endB,query.separation<=tolerance?-min(tolerance,1e-6f):tolerance,
+            dispatch.maxConservativeAdvancementIterations,polynomialClear,polynomialLower,polynomialUpper,polynomialWork)) {
+        record.flags|=MR_CCD_PAIR_ANALYTIC;record.normalAndIteration.w=float(polynomialWork);
+        if(polynomialLower<0) {
+            record.flags|=MR_CCD_PAIR_UNRESOLVED;record.status=MR_STEP_DID_NOT_CONVERGE;
+        } else if(polynomialClear&&query.separation<=tolerance) {
+            record.flags|=MR_CCD_PAIR_START_OVERLAP;
+        } else if(!polynomialClear) {
+            record.flags|=MR_CCD_PAIR_HAS_IMPACT;
+            record.intervalAndDistance.x=polynomialLower*timestep;
+            record.intervalAndDistance.y=polynomialUpper*timestep;
+        }
+        return record;
+    }
+
     if (query.separation <= tolerance) {
         // Existing/touching contacts are resolved by the discrete manifold
         // solve at the current event configuration. Treating every resting
@@ -6985,6 +7170,8 @@ MRCCDPairGPU resolveCCDPair(
         record.intervalAndDistance.y = 0.0f;
         return record;
     }
+
+
 
     if (sourceA.shapeType == MR_SHAPE_SPHERE &&
         sourceB.shapeType == MR_SHAPE_SPHERE) {
@@ -7366,8 +7553,8 @@ MRCCDPairGPU resolveRodCCDPair(
 // Exact CCD is intentionally a rare per-environment pass. It consumes the
 // stable compiled-pair stream, writes fixed per-environment segments with
 // impact events first in deterministic TOI/key order, and leaves the broad
-// speculative constraints authoritative if conservative advancement cannot
-// certify an interval.
+// unresolved queries fail the owning step rather than publishing a speculative
+// envelope as a successful clearance certificate.
 kernel void mr_world_resolve_ccd(
     device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
     device const MRShapeGPU* shapes [[buffer(1)]],

@@ -1,0 +1,10 @@
+{
+  "host": "ssh numi",
+  "model": "Mac18,5",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "created_utc": "2026-11-07T21:47:09.358488+00:00",
+  "base": "977eb6139879b29fcb7372cee489b9d084594c2f",
+  "metal": "Apple metal version 32023.883 (metalfe-32023.883)\nTarget: air64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Users/numi/Library/Developer/Toolchains/Metal.xctoolchain/usr/metal/current/bin",
+  "ownership": "all native source/build/measurements on numi; no CPU runtime fallback",
+  "performance_qualified": false
+}

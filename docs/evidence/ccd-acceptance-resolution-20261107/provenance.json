@@ -1,0 +1,8 @@
+{
+  "base": "977eb6139879b29fcb7372cee489b9d084594c2f",
+  "patch_sha256": "2b55a36fa7e09c5f82b3b28ba9740d2db40e323d9edea033059b15a662e9a087",
+  "files": {
+    "/Users/numi/numi-lab-ccd-world-build-20261107/metalrobo_ccd_world_step_probe": "a305020e312031bcdd83201820347b7f25ccc926941890f19f774bd6b4a6e627",
+    "/Users/numi/numi-lab-ccd-world-build-20261107/shaders/MetalRobo.metallib": "8f9137278d52ff4a083dbc0c84ad541c25db91e8c50d5e7b3f70962cb23b69fa"
+  }
+}
