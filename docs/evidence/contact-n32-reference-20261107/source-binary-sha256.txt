@@ -1,0 +1,4 @@
+5b849e79f93272f2bbc5043b62607d967c698d6bbf9c21da8f66edd61134297a  tests/contact/fem_plane_surface_diagnostic.cpp
+66f0ed2dd9186634c398cf89b905b132d8f01475afaa5c9a0f1f1e6262925a21  tests/contact/fem_reference_linear_stability.cpp
+6bb57f58cdbe5e67677a3e17a7be871fd449289078a07facd95d315c848571b3  /Users/numi/numi-lab-contact-area-evidence-20261107/fem-plane-surface-n32
+6e2bbef8c3bc4bc129e69dbf6f93fd735c8922364123699765134b2458a8f414  /Users/numi/numi-lab-contact-area-evidence-20261107/fem-reference-linear-stability

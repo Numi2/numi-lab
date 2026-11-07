@@ -1,0 +1,23 @@
+{
+  "schema": "numi.contact.n32-reference.v1",
+  "n32_temporal_2us_vs_1us": {
+    "binned_force": 2.5186902077356562e-08,
+    "impulse": 6.561765894808919e-09
+  },
+  "n16_temporal_1us_vs_0.5us": {
+    "binned_force": 9.416081350652995e-09,
+    "impulse": 3.1401189268632493e-09
+  },
+  "n32_clearance_and_momentum": true,
+  "temporal_and_validity_gate": true,
+  "n16_vs_n32_at_1us": {
+    "binned_force": 0.12425294953506019,
+    "impulse": 0.006280348028456442
+  },
+  "spatial_gate": false,
+  "limits": [
+    "fixed nodal quadrature; no Gaussian n32 run",
+    "same finite-width law, not a hard-contact limit or physical material validation",
+    "nonlinear trajectory stability inferred from retained validity and temporal tests, not reference-state row bound alone"
+  ]
+}

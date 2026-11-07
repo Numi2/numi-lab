@@ -1,0 +1,15 @@
+Bounded CPU-only n=32 extension of the same fixed-law, nodal-contact FEM model.
+Run 10ms at 2us then 1us sequentially. Each run has a process-group timeout:
+240s for 2us and 360s for 1us; on timeout kill the entire group, retain
+partial output and report failure. Record observed wall time and max RSS.
+Same 20mm geometry, tetra topology rule, density and material, gravity,
+0.2mm initial gap, 0.1mm activation, k=1e16, area quadrature and clearance
+as previous results. No physics-parameter change or bin alignment.
+Require unchanged 0.25% binned-force and impulse temporal checks, positive
+clearance and independent momentum balance before comparing n=32 vs n=16 at
+their common 1us timestep. A failed gate, failed solve or timeout cannot be
+reported as a spatial reference or extrapolated as a pass. Only nodal law
+runs; Gaussian is outside this plan.
+The preflight reference-state row-sum bound indicates RK4 h*omega <=0.071
+at 2us, and the 32-mesh bound process peaked at 48.2 MB RSS on a host with
+85% reported free memory. This is not a bound for the nonlinear trajectory.

@@ -38,3 +38,12 @@ unqualified.
 The equations, pilot, plan, refined outputs and comparison are retained in
 [the evidence](evidence/contact-acoustic-diagnosis-20261107/). No GPU or
 production integrator change was involved.
+
+## n=32 correction
+
+A later, temporally checked n=32 nodal FEM reference gives a first-bin force
+of 0.028501 N, 12.81% above the approximate 1D diagnostic. The apparent
+monotonic approach through n=16 therefore does not persist. This limits the
+earlier wave-resolution interpretation and reinforces that matching the
+half-space is not a qualification of the finite 3D block. The complete
+n=32 result is in the [spatial refinement report](CONTACT_FEM_N32_REFERENCE_20261107.md).
