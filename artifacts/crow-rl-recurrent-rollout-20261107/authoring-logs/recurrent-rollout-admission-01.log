@@ -1,0 +1,78 @@
+{
+  "output": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/recurrent-rollout-admission-01",
+  "schema": "numi.crow-recurrent-rollout-admission.v1",
+  "status": "passed",
+  "policy": {
+    "schema": "numi.crow-recurrent-policy-admission.v1",
+    "status": "passed",
+    "actor": {
+      "schema": "numi.crow-recurrent-actor-admission.v1",
+      "status": "passed",
+      "native": {
+        "schema": "numi.crow-recurrent-actor-evidence.v4",
+        "status": "passed",
+        "native_control_ticks": 40,
+        "lanes": 2,
+        "maximum_FP64_error": 1.4215113849913585e-08,
+        "chunk_preview_trace_exact": true,
+        "fresh_process_full_life_exact": true,
+        "invalid_contract_controls": 7,
+        "publication_rejection_controls": 3,
+        "stale_policy_shader_rejected": true,
+        "recurrent_rollout_format": 8,
+        "recurrent_rollout_rejection_controls": 10,
+        "recurrent_PPO_integrated": false,
+        "embodied_memory_qualified": false
+      },
+      "runtime_retained": true,
+      "retained_runtime_future_exact": true,
+      "actor_memory_integrated": true,
+      "coupled_life_includes_GRU": true,
+      "sequence_PPO_integrated": false,
+      "embodied_memory_qualified": false,
+      "boundary": "authored native v13 controller; recurrent learner and ecological tasks remain open"
+    },
+    "policy_interop": {
+      "schema": "numi.crow-recurrent-policy-evidence.v1",
+      "status": "passed",
+      "canonical_recurrent_policies_byte_exact": 2,
+      "canonical_dense_control_byte_exact": true,
+      "MLX_native_sequence_max_abs": 1.4901161193847656e-08,
+      "contract_rejections": 17,
+      "actual_native_observation_slots": 80,
+      "recurrent_PPO_integrated": false,
+      "embodied_memory_qualified": false
+    },
+    "retained_learner_summary_arrays_and_policy_bytes_exact": true,
+    "installed_matching_Python_MLX_NumPy_required": true,
+    "sequence_PPO_integrated": false,
+    "embodied_memory_qualified": false
+  },
+  "swift": {
+    "concat_and_training_append_exact": true,
+    "embodied_memory_qualified": false,
+    "final_physics_exact": true,
+    "native_swift_all_segment_bytes_exact": true,
+    "recurrent_PPO_integrated": false,
+    "rejection_controls": 10,
+    "schema": "numi.crow-swift-recurrent-rollout-evidence.v1",
+    "status": "passed",
+    "terminal_previews_excluded": true
+  },
+  "learner": {
+    "schema": "numi.crow-recurrent-rollout-learner-evidence.v1",
+    "status": "passed",
+    "real_native_slots": 80,
+    "all_native_learner_hidden_reset_arrays_exact": true,
+    "both_swift_paths_canonical_bytes_exact": true,
+    "MLX_native_artifact_sequence_max_abs": 1.4901161193847656e-08,
+    "parser_and_flat_consumption_rejections": 11,
+    "recurrent_rollout_format_integrated": true,
+    "recurrent_PPO_integrated": false,
+    "embodied_memory_qualified": false
+  },
+  "retained_Swift_and_learner_summary_all_sequence_arrays_exact": true,
+  "recurrent_rollout_format_integrated": true,
+  "sequence_PPO_integrated": false,
+  "embodied_memory_qualified": false
+}

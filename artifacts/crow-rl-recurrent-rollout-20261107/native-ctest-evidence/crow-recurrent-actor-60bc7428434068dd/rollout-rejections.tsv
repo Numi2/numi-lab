@@ -1,0 +1,10 @@
+0	Recurrent rollout memory descriptor ABI, shape, pointers or policy mismatch
+1	Recurrent rollout memory descriptor ABI, shape, pointers or policy mismatch
+2	Recurrent rollout memory descriptor ABI, shape, pointers or policy mismatch
+3	PolicyRolloutPack write failed [invalid_pack]: PolicyRolloutPack recurrent tensor dimensions are invalid
+4	PolicyRolloutPack write failed [invalid_pack]: PolicyRolloutPack recurrent tensor dimensions are invalid
+5	PolicyRolloutPack write failed [invalid_pack]: PolicyRolloutPack recurrent reset mask is invalid
+6	PolicyRolloutPack write failed [invalid_pack]: PolicyRolloutPack recurrent pre-cell state is invalid
+7	PolicyRolloutPack write failed [invalid_pack]: PolicyRolloutPack recurrent pre-cell state is invalid
+8	PolicyRolloutPack write failed [invalid_pack]: PolicyRolloutPack recurrent pre-cell state is invalid
+9	Recurrent rollout memory descriptor ABI, shape, pointers or policy mismatch

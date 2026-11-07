@@ -1,0 +1,46 @@
+[
+  {
+    "name": "segment-first-flat-consumption",
+    "error": "Recurrent rollout requires contiguous sequence PPO; flat policy_batch would discard hidden/reset state"
+  },
+  {
+    "name": "ABI",
+    "error": "PolicyRolloutPack recurrent ABI/hidden width is invalid"
+  },
+  {
+    "name": "hidden-width",
+    "error": "PolicyRolloutPack recurrent ABI/hidden width is invalid"
+  },
+  {
+    "name": "before-count",
+    "error": "Learning-pack vector count disagrees with its dimensions"
+  },
+  {
+    "name": "reset-count",
+    "error": "Learning-pack vector count disagrees with its dimensions"
+  },
+  {
+    "name": "nonfinite-state",
+    "error": "PolicyRolloutPack recurrent pre-cell/reset state is invalid"
+  },
+  {
+    "name": "state-bound",
+    "error": "PolicyRolloutPack recurrent pre-cell/reset state is invalid"
+  },
+  {
+    "name": "reset-mask",
+    "error": "PolicyRolloutPack recurrent pre-cell/reset state is invalid"
+  },
+  {
+    "name": "reset-nonzero-state",
+    "error": "PolicyRolloutPack recurrent pre-cell/reset state is invalid"
+  },
+  {
+    "name": "v7-disguise",
+    "error": "PolicyRolloutPack contains trailing payload bytes"
+  },
+  {
+    "name": "segment-next-flat-consumption",
+    "error": "Recurrent rollout requires contiguous sequence PPO; flat policy_batch would discard hidden/reset state"
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+    "-m",
+    "metalrobo.recurrent_rollout_admission",
+    "--cli",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/recurrent-rollout-admission-02",
+    "--output",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/recurrent-rollout-admission-02/cli-sequence-evidence"
+  ],
+  "exit_code": 0,
+  "timed_out": false,
+  "interrupted": false,
+  "wall_seconds": 0.15126241702819243,
+  "stdout_sha256": "6a44cecd0b760c7fbf5d8a2a87efbbabdc354c1242ff1c139beb56924d3fc587",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

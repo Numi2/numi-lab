@@ -2052,6 +2052,9 @@ void installPolicyPack(
         if (bool(previous)!=bool(next) || (previous && (previous->afterLayer!=next->afterLayer ||
             previous->cell.inputs!=next->cell.inputs || previous->cell.hidden!=next->cell.hidden)))
             throw std::invalid_argument("Policy publication cannot change recurrent architecture inside a resident life");
+        if (previous && compiled.fingerprint()!=handle.stepConfig.policyProgram.fingerprint() &&
+            compiled.revision()<=handle.stepConfig.policyProgram.revision())
+            throw std::invalid_argument("Resident recurrent policy changes require a strictly increasing revision");
     }
     handle.stepConfig.policyProgram = std::move(compiled);
 }
@@ -4978,6 +4981,10 @@ uint32_t mr_task_rollout_policy_memory_width(const MRTaskRolloutHandle* handle) 
     if (!requireTaskRolloutHandle(handle) || handle->result.policyMemoryResets.empty()) return 0;
     return static_cast<uint32_t>(handle->result.policyMemoryBefore.size()/handle->result.policyMemoryResets.size());
 }
+uint32_t mr_task_rollout_policy_memory_control_step_count(const MRTaskRolloutHandle* handle) {
+    if (!requireTaskRolloutHandle(handle) || !handle->environmentCount || handle->result.policyMemoryResets.empty()) return 0;
+    return static_cast<uint32_t>(handle->result.transitions.size()/handle->environmentCount);
+}
 const float* mr_task_rollout_policy_memory_before(const MRTaskRolloutHandle* handle) {
     return requireTaskRolloutHandle(handle) && !handle->result.policyMemoryBefore.empty()
         ? handle->result.policyMemoryBefore.data() : nullptr;
@@ -5118,9 +5125,10 @@ int mr_task_rollout_copy_final_scene_states(
     return 0;
 }
 
-int mr_task_rollout_write_policy_rollout_pack(
+static int writePolicyRolloutBatchC(
     const MRTaskRolloutHandle* handle,
     const MRPolicyRolloutBatchC* batch,
+    const MRPolicyMemoryBatchC* memory,
     const char* batch_id,
     const char* output_path
 ) {
@@ -5140,9 +5148,13 @@ int mr_task_rollout_write_policy_rollout_pack(
                 "a compiled policy must be installed before publishing a rollout pack"
             );
         }
-        if (handle->stepConfig.policyProgram.actorMemory()) {
+        const auto* actorMemory=handle->stepConfig.policyProgram.actorMemory();
+        if (actorMemory && !memory)
             throw std::invalid_argument("Recurrent policy rollout publication requires explicit hidden/reset traces; legacy v7 batch is forbidden");
-        }
+        if (memory && (!actorMemory || memory->abi_version!=1 || memory->struct_size!=sizeof(MRPolicyMemoryBatchC) ||
+            memory->hidden_count!=actorMemory->cell.hidden || !memory->hidden_count ||
+            (memory->before_count && !memory->before) || (memory->reset_count && !memory->resets)))
+            throw std::invalid_argument("Recurrent rollout memory descriptor ABI, shape, pointers or policy mismatch");
         const auto floats = [](
             const float* values,
             const std::size_t count,
@@ -5273,6 +5285,9 @@ int mr_task_rollout_write_policy_rollout_pack(
             .outcomes = outcomes,
             .outcomeValues = outcomeValues,
             .transitions = transitions,
+            .memoryHiddenCount = memory ? memory->hidden_count : 0u,
+            .memoryBefore = memory ? floats(memory->before,memory->before_count,"recurrent pre-cell state") : std::span<const float>{},
+            .memoryResets = memory ? std::span<const std::uint32_t>{memory->resets,memory->reset_count} : std::span<const std::uint32_t>{},
         };
         const metalrobo::LearningPackResult written =
             metalrobo::writePolicyRolloutPack(
@@ -5290,6 +5305,16 @@ int mr_task_rollout_write_policy_rollout_pack(
             );
         }
     });
+}
+
+int mr_task_rollout_write_policy_rollout_pack(const MRTaskRolloutHandle* handle,
+    const MRPolicyRolloutBatchC* batch,const char* batch_id,const char* output_path) {
+    return writePolicyRolloutBatchC(handle,batch,nullptr,batch_id,output_path);
+}
+int mr_task_rollout_write_recurrent_policy_rollout_pack(const MRTaskRolloutHandle* handle,
+    const MRPolicyRolloutBatchC* batch,const MRPolicyMemoryBatchC* memory,const char* batch_id,const char* output_path) {
+    if (!memory) {gLastError="Recurrent rollout memory descriptor is required";return -1;}
+    return writePolicyRolloutBatchC(handle,batch,memory,batch_id,output_path);
 }
 
 MRWorldFamilyHandle* mr_create_franka_pick_place_world_family(

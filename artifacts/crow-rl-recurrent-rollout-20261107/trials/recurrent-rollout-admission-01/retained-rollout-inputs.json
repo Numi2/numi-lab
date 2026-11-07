@@ -1,0 +1,10 @@
+{
+  "recurrent_rollout_check": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/bin/metalrobo_crow_recurrent_rollout_check",
+    "sha256": "3d8e429b61b0189394affca69bb55c37f50cd95fbfef4f73a9b83bfff1dfa0d7"
+  },
+  "recurrent_source_recurrent_rollout_admission.py": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/python/metalrobo/recurrent_rollout_admission.py",
+    "sha256": "a598e6a4f197640110cde466e66080ba6325d3368218397dcbb79cec7b902cb3"
+  }
+}

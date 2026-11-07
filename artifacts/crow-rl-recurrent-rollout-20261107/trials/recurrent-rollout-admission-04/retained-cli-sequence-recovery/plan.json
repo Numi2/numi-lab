@@ -1,0 +1,7 @@
+{
+  "schema": "numi.crow-recurrent-rollout-cli-sequence-plan.v1",
+  "prediction": "regular CLI37+13 native-life continuation at chunks1/8 and retained runtime has exact canonical bytes; MLX evaluation of the complete50-tick sequence matches all saved pre-cell/latent values<=5e-6; continuation initial hidden nonzero and first reset masks0; modeled zero-initial-hidden continuation changes action mean>=1e-4",
+  "unit": "two supported native v13 lanes on unused development seed2651109501; exact replay engineering instrument",
+  "stopping": "one fixed batch instrument; preserve failures; no retries/tolerance changes",
+  "limitations": "modeled hidden-state counterfactual and execution continuity, not native memory intervention, PPO or ecological memory behavior"
+}

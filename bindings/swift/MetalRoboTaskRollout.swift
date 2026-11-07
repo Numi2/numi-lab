@@ -1058,6 +1058,9 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
     public let logProbabilities: [Float]
     public let values: [Float]
     public let transitions: [MetalRoboTaskTransition]
+    public var policyMemoryWidth: Int = 0
+    public var policyMemoryBefore: [Float] = []
+    public var policyMemoryResets: [UInt32] = []
 
     public var sampleCount: Int {
         controlStepCount * environmentCount
@@ -1079,7 +1082,10 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
                     first.criticObservationCount &&
                 $0.motionFeatureCount ==
                     first.motionFeatureCount &&
-                $0.actionCount == first.actionCount
+                $0.actionCount == first.actionCount &&
+                $0.policyMemoryWidth == first.policyMemoryWidth &&
+                $0.policyMemoryBefore.count == $0.sampleCount * $0.policyMemoryWidth &&
+                $0.policyMemoryResets.count == ($0.policyMemoryWidth == 0 ? 0 : $0.sampleCount)
         }) else {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "Policy rollout batches have incompatible dimensions."
@@ -1119,7 +1125,10 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
             logProbabilities:
                 batches.flatMap(\.logProbabilities),
             values: batches.flatMap(\.values),
-            transitions: batches.flatMap(\.transitions)
+            transitions: batches.flatMap(\.transitions),
+            policyMemoryWidth: first.policyMemoryWidth,
+            policyMemoryBefore: batches.flatMap(\.policyMemoryBefore),
+            policyMemoryResets: batches.flatMap(\.policyMemoryResets)
         )
     }
 }
@@ -2307,6 +2316,27 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         return output
     }
 
+    public var policyMemoryWidth: Int { Int(mr_task_rollout_policy_memory_width(handle)) }
+
+    public func policyMemoryBefore(controlStepCount: Int) throws -> [Float] {
+        if policyMemoryWidth == 0 { return [] }
+        guard controlStepCount > 0,
+              controlStepCount == Int(mr_task_rollout_policy_memory_control_step_count(handle)),
+              let values = mr_task_rollout_policy_memory_before(handle) else {
+            throw MetalRoboTaskRolloutError.invalidShape("Recurrent trace must cover exactly the latest real native control steps.")
+        }
+        return Array(UnsafeBufferPointer(start: values, count: controlStepCount * layout.environmentCount * policyMemoryWidth))
+    }
+    public func policyMemoryResets(controlStepCount: Int) throws -> [UInt32] {
+        if policyMemoryWidth == 0 { return [] }
+        guard controlStepCount > 0,
+              controlStepCount == Int(mr_task_rollout_policy_memory_control_step_count(handle)),
+              let values = mr_task_rollout_policy_memory_resets(handle) else {
+            throw MetalRoboTaskRolloutError.invalidShape("Recurrent reset trace must cover exactly the latest real native control steps.")
+        }
+        return Array(UnsafeBufferPointer(start: values, count: controlStepCount * layout.environmentCount))
+    }
+
     public func policyRolloutBatch(
         controlStepCount: Int
     ) throws -> MetalRoboPolicyRolloutBatch {
@@ -2349,7 +2379,10 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
             ),
             transitions: try transitions(
                 controlStepCount: controlStepCount
-            )
+            ),
+            policyMemoryWidth: policyMemoryWidth,
+            policyMemoryBefore: try policyMemoryBefore(controlStepCount: controlStepCount),
+            policyMemoryResets: try policyMemoryResets(controlStepCount: controlStepCount)
         )
     }
 
@@ -2366,6 +2399,30 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         logProbabilities: inout [Float],
         values: inout [Float],
         transitions: inout [MetalRoboTaskTransition]
+    ) throws {
+        guard policyMemoryWidth == 0 else {
+            throw MetalRoboTaskRolloutError.invalidShape("Recurrent rollout append requires explicit hidden/reset destinations.")
+        }
+        var before: [Float] = [], resets: [UInt32] = []
+        try appendCurrentPolicyRollout(controlStepCount: controlStepCount,
+            actorObservations: &actorObservations, criticObservations: &criticObservations,
+            motionFeatures: &motionFeatures, teacherActions: &teacherActions, latents: &latents,
+            logProbabilities: &logProbabilities, values: &values, transitions: &transitions,
+            policyMemoryBefore: &before, policyMemoryResets: &resets)
+    }
+
+    public func appendCurrentPolicyRollout(
+        controlStepCount: Int,
+        actorObservations: inout [Float],
+        criticObservations: inout [Float],
+        motionFeatures: inout [Float],
+        teacherActions: inout [Float],
+        latents: inout [Float],
+        logProbabilities: inout [Float],
+        values: inout [Float],
+        transitions: inout [MetalRoboTaskTransition],
+        policyMemoryBefore: inout [Float],
+        policyMemoryResets: inout [UInt32]
     ) throws {
         let current = layout
         guard controlStepCount > 0 else {
@@ -2397,6 +2454,15 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
             throw MetalRoboTaskRolloutError.native(
                 "Native policy rollout streams are unavailable."
             )
+        }
+        if policyMemoryWidth != 0 {
+            guard controlStepCount == Int(mr_task_rollout_policy_memory_control_step_count(handle)),
+                  let before = mr_task_rollout_policy_memory_before(handle),
+                  let resets = mr_task_rollout_policy_memory_resets(handle) else {
+                throw MetalRoboTaskRolloutError.invalidShape("Recurrent append must exclude previews and include all real native steps.")
+            }
+            policyMemoryBefore.append(contentsOf: UnsafeBufferPointer(start: before, count: samples * policyMemoryWidth))
+            policyMemoryResets.append(contentsOf: UnsafeBufferPointer(start: resets, count: samples))
         }
         actorObservations.append(
             contentsOf: UnsafeBufferPointer(
@@ -2498,7 +2564,10 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
               batch.logProbabilities.count ==
                   batch.sampleCount,
               batch.values.count == batch.sampleCount,
-              batch.transitions.count == batch.sampleCount
+              batch.transitions.count == batch.sampleCount,
+              batch.policyMemoryWidth >= 0, batch.policyMemoryWidth <= 4096,
+              batch.policyMemoryBefore.count == batch.sampleCount * batch.policyMemoryWidth,
+              batch.policyMemoryResets.count == (batch.policyMemoryWidth == 0 ? 0 : batch.sampleCount)
         else {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "Policy rollout pack dimensions do not match the installed task."
@@ -2592,6 +2661,7 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                 batch.logProbabilities,
                 batch.values,
                 bootstrapValues,
+                batch.policyMemoryBefore,
             ]
         ) { buffers in
             native.actor_observations = buffers[0].baseAddress
@@ -2608,12 +2678,20 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                 native.transition_count = transitions.count
                 return id.withCString { identifier in
                     url.path.withCString { path in
-                        mr_task_rollout_write_policy_rollout_pack(
-                            handle,
-                            &native,
-                            identifier,
-                            path
-                        )
+                        if batch.policyMemoryWidth == 0 {
+                            return mr_task_rollout_write_policy_rollout_pack(handle, &native, identifier, path)
+                        }
+                        return batch.policyMemoryResets.withUnsafeBufferPointer { resets in
+                            var memory = MRPolicyMemoryBatchC()
+                            memory.abi_version = 1
+                            memory.struct_size = UInt32(MemoryLayout<MRPolicyMemoryBatchC>.size)
+                            memory.hidden_count = UInt32(batch.policyMemoryWidth)
+                            memory.before = buffers[8].baseAddress
+                            memory.before_count = batch.policyMemoryBefore.count
+                            memory.resets = resets.baseAddress
+                            memory.reset_count = resets.count
+                            return mr_task_rollout_write_recurrent_policy_rollout_pack(handle, &native, &memory, identifier, path)
+                        }
                     }
                 }
             }

@@ -1,0 +1,47 @@
+{
+  "output": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/recurrent-rollout-ordinary-learner-02",
+  "status": "passed",
+  "claim": "native/MLX updates, publication, and learner-only restore",
+  "variant": "v13-retinal-feeding",
+  "environments": 16,
+  "actor_initialization": "new zero-output actor",
+  "records": [
+    {
+      "stage": "initial",
+      "updates": 2,
+      "samples": 4096,
+      "training_loop_steps_per_second": 1455.130335812801,
+      "whole_process_steps_per_second": 1139.077077121622,
+      "initial_revision": 1,
+      "final_revision": 3,
+      "learner_state_restored": false,
+      "checkpoint_sha256": "29f79d3c670b7476757945a62104d78ba76012220be388c07b6f24e93f75d8d1",
+      "last_update_mean_reward": 0,
+      "last_update_maximum_reward": 0,
+      "last_update_intake_utility_mean": 0,
+      "last_update_learning_rate": 9.999999747378752e-05,
+      "last_update_action_standard_deviation": 2.7183361053466797,
+      "mlx_peak_memory_bytes": 165057528
+    },
+    {
+      "stage": "resume",
+      "updates": 1,
+      "samples": 2048,
+      "training_loop_steps_per_second": 1401.6962140795076,
+      "whole_process_steps_per_second": 1194.7609613146262,
+      "initial_revision": 3,
+      "final_revision": 4,
+      "learner_state_restored": true,
+      "checkpoint_sha256": "6c2d517062ccc6c28ea127ffea9f59fc12c00d33179140c6565503a758c882fe",
+      "last_update_mean_reward": 0.0029296870343387127,
+      "last_update_maximum_reward": 1.999999761581421,
+      "last_update_intake_utility_mean": 0.0029296870343387127,
+      "last_update_learning_rate": 9.999999747378752e-05,
+      "last_update_action_standard_deviation": 2.7183756828308105,
+      "mlx_peak_memory_bytes": 143412270
+    }
+  ],
+  "candidate_promoted": false,
+  "persistent_world_restore_tested": false,
+  "ecological_environment_qualified": false
+}

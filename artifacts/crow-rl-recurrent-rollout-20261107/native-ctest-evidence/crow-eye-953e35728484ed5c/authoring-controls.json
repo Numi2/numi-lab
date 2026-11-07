@@ -1,0 +1,1 @@
+{"status":"passed","rejected_cases":7,"cases":["missing-world-identity","zero-plane-extent","duplicate-body","outside-body","disabled-shape","unsupported-sphere","negative-box-extent"]}

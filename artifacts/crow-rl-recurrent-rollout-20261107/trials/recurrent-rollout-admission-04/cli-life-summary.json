@@ -1,0 +1,50 @@
+{
+  "schema": "numi.crow-recurrent-rollout-cli.v1",
+  "status": "passed",
+  "records": [
+    {
+      "name": "cli-start-chunk1",
+      "fingerprint": "264925679823336851",
+      "accepted_ticks": [
+        37,
+        37
+      ],
+      "rollout_sha256": "966540c9ff8b6b5b1a0c933242c14ab864ce491954fb70ee0895b21cdfb245b6"
+    },
+    {
+      "name": "cli-resume-chunk1",
+      "fingerprint": "9827598682111970063",
+      "accepted_ticks": [
+        50,
+        50
+      ],
+      "rollout_sha256": "f8f9da9be9a1dca27eb9145f5c0ee0cab65bbf8a1c80e38b3d4c4060a4a03f5a"
+    },
+    {
+      "name": "cli-start-chunk8",
+      "fingerprint": "264925679823336851",
+      "accepted_ticks": [
+        37,
+        37
+      ],
+      "rollout_sha256": "966540c9ff8b6b5b1a0c933242c14ab864ce491954fb70ee0895b21cdfb245b6"
+    },
+    {
+      "name": "cli-resume-chunk8",
+      "fingerprint": "9827598682111970063",
+      "accepted_ticks": [
+        50,
+        50
+      ],
+      "rollout_sha256": "f8f9da9be9a1dca27eb9145f5c0ee0cab65bbf8a1c80e38b3d4c4060a4a03f5a"
+    }
+  ],
+  "chunk1_8_start_and_resume_canonical_bytes_exact": true,
+  "retained_CLI_continuation_canonical_bytes_exact": true,
+  "accepted_ticks": [
+    37,
+    50
+  ],
+  "unreported_warmup_steps": 0,
+  "development_seed": 2651109501
+}

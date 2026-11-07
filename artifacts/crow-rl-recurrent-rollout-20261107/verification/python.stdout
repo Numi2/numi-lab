@@ -1,0 +1,35 @@
+qualifying neural Crow sensor-fast band 0 (standing), seed 2650443581
+qualifying neural Crow sensor-fast band 1 (walking), seed 2650443581
+qualifying neural Crow sensor-fast band 2 (takeoff), seed 2650443581
+qualifying neural Crow sensor-fast band 3 (cruise), seed 2650443581
+qualifying neural Crow sensor-fast band 4 (takeoff-cruise), seed 2650443581
+qualifying neural Crow sensor-fast band 5 (turn-left), seed 2650443581
+qualifying neural Crow sensor-fast band 6 (turn-right), seed 2650443581
+qualifying neural Crow sensor-fast band 7 (approach), seed 2650443581
+qualifying neural Crow sensor-fast band 8 (touchdown), seed 2650443581
+qualifying neural Crow sensor-fast band 9 (landed-hold), seed 2650443581
+qualifying neural Crow sensor-fast band 10 (full-journey), seed 2650443581
+qualifying neural Crow sensor-fast band 0 (standing), seed 2650443582
+qualifying neural Crow sensor-fast band 1 (walking), seed 2650443582
+qualifying neural Crow sensor-fast band 2 (takeoff), seed 2650443582
+qualifying neural Crow sensor-fast band 3 (cruise), seed 2650443582
+qualifying neural Crow sensor-fast band 4 (takeoff-cruise), seed 2650443582
+qualifying neural Crow sensor-fast band 5 (turn-left), seed 2650443582
+qualifying neural Crow sensor-fast band 6 (turn-right), seed 2650443582
+qualifying neural Crow sensor-fast band 7 (approach), seed 2650443582
+qualifying neural Crow sensor-fast band 8 (touchdown), seed 2650443582
+qualifying neural Crow sensor-fast band 9 (landed-hold), seed 2650443582
+qualifying neural Crow sensor-fast band 10 (full-journey), seed 2650443582
+qualifying neural Crow sensor-fast band 0 (standing), seed 2650443583
+qualifying neural Crow sensor-fast band 1 (walking), seed 2650443583
+qualifying neural Crow sensor-fast band 2 (takeoff), seed 2650443583
+qualifying neural Crow sensor-fast band 3 (cruise), seed 2650443583
+qualifying neural Crow sensor-fast band 4 (takeoff-cruise), seed 2650443583
+qualifying neural Crow sensor-fast band 5 (turn-left), seed 2650443583
+qualifying neural Crow sensor-fast band 6 (turn-right), seed 2650443583
+qualifying neural Crow sensor-fast band 7 (approach), seed 2650443583
+qualifying neural Crow sensor-fast band 8 (touchdown), seed 2650443583
+qualifying neural Crow sensor-fast band 9 (landed-hold), seed 2650443583
+qualifying neural Crow sensor-fast band 10 (full-journey), seed 2650443583
+qualified birdflow_american_crow_journey_v9_visual_neural: 33 runs; replay=/var/folders/ks/sfmz3dh91_7c9_vyd_3lzj100000gn/T/tmpqfubiow4/runs/accepted-full-journey.crowreplay.json
+neural Crow sensor-fast qualification completed: /var/folders/ks/sfmz3dh91_7c9_vyd_3lzj100000gn/T/tmpqfubiow4/runs/qualification.json

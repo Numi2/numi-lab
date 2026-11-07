@@ -1022,7 +1022,82 @@ canonical policy files exactly. Matching installed Python/MLX/NumPy remain
 required. Evidence and recovery receipts are in
 `artifacts/crow-rl-recurrent-policy-20261107`.
 
-Recurrent rollout publication, contiguous sequence minibatches and PPO/BPTT,
-recurrent optimizer checkpoint/resume and causal embodied memory qualification
-remain required. Current native rollout7 publication still rejects recurrent
-actors. This interface does not change that boundary.
+At that policy-interface milestone, recurrent rollout publication and sequence
+training remained pending. The following rollout admission supersedes the
+publication status; contiguous PPO/BPTT, recurrent optimizer checkpoint/resume
+and embodied memory qualification remain required. The legacy rollout7 writer
+still rejects recurrent actors.
+
+
+## Recurrent rollout handoff and ordinary CLI continuation
+
+Format8 adds a mandatory ABI1 memory section to the ordinary step-major rollout
+record: hidden width, pre-cell `float32[T,N,H]` state and `uint32[T,N]` episode
+reset mask. It stores real actor evaluations only. Terminal actor previews stay
+available through native readback, but a separate real-step-count getter bounds
+the Swift extractor and excludes them from training. Each segment retains the
+compiled generating-policy fingerprint and revision. A resident recurrent life
+now requires an increasing revision whenever the policy fingerprint changes;
+reused or reversed revisions cannot silently mix different generating weights.
+
+The additive `MRPolicyMemoryBatchC`/recurrent writer leave the existing C rollout
+batch and dense writer unchanged. Dense records remain byte-identical format7;
+its old writer deliberately rejects recurrent actors. The format8 validator
+checks exact tensor counts, bounded finite hidden state, Boolean masks and zero
+pre-cell state on resets. Python validates the same contract. Flat `policy_batch`
+consumption explicitly rejects recurrent records before it can lose memory.
+
+Swift batch extraction/concatenation and the training append arena both carry
+memory. Concatenation requires consistent hidden width and complete per-chunk
+traces. The legacy append overload rejects recurrent use; the new overload
+appends native streams directly without materializing another complete Swift
+chunk. The training owner reserves the memory arena once at each update's first
+boundary and retains its capacity between updates. Recurrent records also enter
+the ordinary CLI trajectory fingerprint; dense fingerprint bytes stay unchanged.
+
+```
+cmake --build build --target metalrobo_crow_recurrent_rollout_check \
+  metalrobo_crow_recurrent_actor_check metalrobo_task_train metalrobo_task_rollout
+tools/numi crow-env recurrent-rollout-admission --output NEW_ROLLOUT_TRIAL
+ctest --test-dir build --output-on-failure -R '^metalrobo[.]crow[.]recurrent_rollout$'
+```
+
+The native instrument exports18- and22-tick constant-policy segments around the
+next-weight publication. It resets lane1 at9, aligns both endpoint captures, and
+adds extra intermediate previews in its comparison arm. Native read/write
+roundtrip, Swift chunk1 concatenation and Swift chunk8 training append reproduce
+every segment byte and final q/v exactly. Python reproduces all native learner,
+pre-cell and reset arrays. MLX sequence latents/pre-cell states match all80 real
+slots within1.491e-8 against the prospective5e-6 bound. Ten malformed memory
+exports, ten Swift misuse controls and eleven parser/flat-consumption controls
+reject. Seven compiler, five resident publication and stale-shader controls also
+pass. The rejected revision publications leave subsequent life unchanged.
+
+The ordinary CLI uses a second, previously unused development seed2651109501.
+At chunks1/8 it runs37ticks, saves full native life, and starts a fresh process
+for13 additional ticks. Canonical rollout bytes and fingerprints match in both
+phases. Accepted lifetime clocks are exactly37 then50, with no warmup. A retained
+CLI binary/library/shader tree independently restores the original37-tick life
+and reproduces every continuation rollout byte. MLX evaluation of the complete
+50-tick record matches all100 real slots within1.491e-8, including the checkpoint
+boundary. The continuation begins with hidden norm0.2611 and no episode reset.
+A modeled zero-initial-hidden continuation changes its action mean by0.002862
+against the prospective minimum0.0001. This is a neural algebra counterfactual,
+not a native physical memory intervention or learned foraging result.
+
+Retained native/Swift runtime and five Python modules reproduce the fixture and
+ordinary-CLI summaries, every sequence array and policy/rollout bytes exactly.
+Sources bind to preflight hashes; matching installed Python/MLX/NumPy and the
+exact native device/OS/runtime remain required. Both full incremental builds
+pass;15 selected native and26 Python checks pass. Feedforward learner model/Adam
+hashes and frozen ordinary/residual feeding fingerprints remain unchanged.
+Earlier successful variants, source/runtime identities, raw records, controls,
+checkpoints, regression output and lossless payload inventories are in
+`artifacts/crow-rl-recurrent-rollout-20261107`.
+
+The native-to-learner recurrent record is now usable. Contiguous PPO/BPTT,
+sequence minibatch scheduling and coupled recurrent optimizer/life resume remain
+the next implementation work. Current training entry points reject recurrent
+policies explicitly. Embodied memory experiments, physical manipulation, social
+learning, ecology and production performance remain unqualified. These replay
+instruments use development conditions only and promote no learned policy.

@@ -22,7 +22,7 @@ inline constexpr std::uint32_t kRealityProgramPackFormatVersion = 2u;
 // Recurrent artifacts use v5; writers keep dense-only artifacts byte-identical v4.
 inline constexpr std::uint32_t kPolicyPackFormatVersion = 5u;
 inline constexpr std::uint32_t
-    kPolicyRolloutPackFormatVersion = 7u;
+    kPolicyRolloutPackFormatVersion = 8u;
 inline constexpr std::uint32_t kMotionPackFormatVersion = 1u;
 inline constexpr std::uint32_t kInteractionPackFormatVersion = 1u;
 
@@ -77,6 +77,10 @@ struct PolicyRolloutPack {
     // Step-major [sample][outcome].
     std::vector<float> outcomeValues;
     std::vector<MRLearningTransitionGPU> transitions;
+    // Optional v8 records: step-major real actor evaluations, never previews.
+    std::uint32_t memoryHiddenCount = 0u;
+    std::vector<float> memoryBefore;
+    std::vector<std::uint32_t> memoryResets;
 };
 
 // Synchronous zero-copy publication view for large native rollout batches.
@@ -103,6 +107,9 @@ struct PolicyRolloutPackView {
     std::span<const PolicyOutcomeDescriptor> outcomes;
     std::span<const float> outcomeValues;
     std::span<const MRLearningTransitionGPU> transitions;
+    std::uint32_t memoryHiddenCount = 0u;
+    std::span<const float> memoryBefore;
+    std::span<const std::uint32_t> memoryResets;
 };
 
 enum class LearningPackStatus : std::uint32_t {

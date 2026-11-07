@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/usr/bin/env",
+    "DYLD_LIBRARY_PATH=/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/lib",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/bin/metalrobo_crow_recurrent_actor_check",
+    "--restore",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/recurrent-rollout-admission-01/native-evidence",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/recurrent-rollout-admission-01/retained-native-recovery"
+  ],
+  "exit_code": 0,
+  "timed_out": false,
+  "interrupted": false,
+  "wall_seconds": 0.7085412089945748,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

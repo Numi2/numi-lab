@@ -1,0 +1,13 @@
+[0/1] Re-running CMake...
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/n/Developer/numi-crow-rl-20261107/build
+[1/9] Building OBJCXX object CMakeFiles/metalrobo_crow_recurrent_actor_check.dir/apps/crow_recurrent_actor_check.mm.o
+[2/9] Linking OBJCXX executable bin/metalrobo_crow_recurrent_actor_check
+[3/9] Building Swift Module 'metalrobo_crow_recurrent_rollout_check' with 2 sources
+[4/9] Linking Swift executable bin/metalrobo_crow_recurrent_rollout_check
+[5/9] Building Swift Module 'metalrobo_task_train' with 4 sources
+[6/9] Linking Swift executable bin/metalrobo_task_train
+[7/9] Building Swift Module 'metalrobo_task_rollout' with 4 sources
+[8/9] Linking Swift executable bin/metalrobo_task_rollout

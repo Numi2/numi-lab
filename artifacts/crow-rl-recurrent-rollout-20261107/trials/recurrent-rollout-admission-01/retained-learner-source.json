@@ -1,0 +1,18 @@
+{
+  "native.py": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/python/metalrobo/native.py",
+    "sha256": "a1960b567d62ba21339af4ecbb853f7f8c35465432fc32bdfc33c2f84a10ef1b"
+  },
+  "mlx_policy_learning.py": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/python/metalrobo/mlx_policy_learning.py",
+    "sha256": "6158df87187f5a8f3e410cba7263562cf531f467815bc57cd90193a60e1ac02b"
+  },
+  "gru_memory.py": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/python/metalrobo/gru_memory.py",
+    "sha256": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710"
+  },
+  "recurrent_policy_admission.py": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/python/metalrobo/recurrent_policy_admission.py",
+    "sha256": "df26d935f7d7105168d272740377e4755e35863eb03b18b84c382d7370d9318b"
+  }
+}

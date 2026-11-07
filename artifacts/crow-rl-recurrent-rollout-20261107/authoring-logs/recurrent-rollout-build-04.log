@@ -1,0 +1,27 @@
+[0/1] Re-running CMake...
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.1s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/n/Developer/numi-crow-rl-20261107/build
+[1/23] Building CXX object CMakeFiles/metalrobo_robot_catalog.dir/apps/robot_catalog.cpp.o
+[2/23] Building CXX object CMakeFiles/metalrobo_crow_embodiment_check.dir/apps/crow_embodiment_check.cpp.o
+[3/23] Building OBJCXX object CMakeFiles/metalrobo_crow_foraging_check.dir/apps/crow_foraging_check.mm.o
+[4/23] Building OBJCXX object CMakeFiles/metalrobo_crow_life_checkpoint_check.dir/apps/crow_life_checkpoint_check.mm.o
+[5/23] Building CXX object CMakeFiles/metalrobo_run_program_check.dir/apps/run_program_check.cpp.o
+[6/23] Linking CXX executable bin/metalrobo_run_program_check
+[7/23] Linking CXX executable bin/metalrobo_robot_catalog
+[8/23] Linking CXX executable bin/metalrobo_crow_embodiment_check
+[9/23] Linking OBJCXX executable bin/metalrobo_crow_foraging_check
+[10/23] Building OBJCXX object CMakeFiles/metalrobo_crow_retinal_api_check.dir/apps/crow_retinal_api_check.mm.o
+[11/23] Linking OBJCXX executable bin/metalrobo_crow_life_checkpoint_check
+[12/23] Linking OBJCXX executable bin/metalrobo_crow_retinal_api_check
+[13/23] Linking OBJCXX executable bin/metalrobo_gru_memory_check
+[14/23] Linking OBJCXX executable bin/metalrobo_retinal_stream_check
+[15/23] Building CXX object CMakeFiles/metalrobo_task_program_check.dir/apps/task_program_check.cpp.o
+[16/23] Linking CXX executable bin/metalrobo_task_program_check
+[17/23] Building CXX object CMakeFiles/metalrobo_crow_retinal_contract_check.dir/apps/crow_retinal_contract_check.cpp.o
+[18/23] Linking CXX executable bin/metalrobo_crow_retinal_contract_check
+[19/23] Building OBJCXX object CMakeFiles/metalrobo_crow_retinal_live_check.dir/apps/crow_retinal_live_check.mm.o
+[20/23] Linking OBJCXX executable bin/metalrobo_crow_retinal_live_check
+[21/23] Building OBJCXX object CMakeFiles/metalrobo_crow_eye_check.dir/apps/crow_eye_check.mm.o
+[22/23] Linking OBJCXX executable bin/metalrobo_crow_eye_check

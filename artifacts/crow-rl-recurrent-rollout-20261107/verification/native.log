@@ -1,0 +1,45 @@
+Test project /Users/n/Developer/numi-crow-rl-20261107/build
+      Start  1: metalrobo.crow.first_episode_evidence
+ 1/15 Test  #1: metalrobo.crow.first_episode_evidence ...   Passed    0.00 sec
+      Start 33: metalrobo.runtime.task_program
+ 2/15 Test #33: metalrobo.runtime.task_program ..........   Passed    3.35 sec
+      Start 34: metalrobo.runtime.run_program
+ 3/15 Test #34: metalrobo.runtime.run_program ...........   Passed    0.31 sec
+      Start 35: metalrobo.runtime.robot_catalog
+ 4/15 Test #35: metalrobo.runtime.robot_catalog .........   Passed    0.28 sec
+      Start 36: metalrobo.crow.embodiment
+ 5/15 Test #36: metalrobo.crow.embodiment ...............   Passed    0.30 sec
+      Start 37: metalrobo.crow.finite_resource
+ 6/15 Test #37: metalrobo.crow.finite_resource ..........   Passed   13.38 sec
+      Start 38: metalrobo.crow.head_camera
+ 7/15 Test #38: metalrobo.crow.head_camera ..............   Passed    4.50 sec
+      Start 39: metalrobo.crow.retinal_timing
+ 8/15 Test #39: metalrobo.crow.retinal_timing ...........   Passed    0.41 sec
+      Start 40: metalrobo.crow.life_checkpoint
+ 9/15 Test #40: metalrobo.crow.life_checkpoint ..........   Passed    3.15 sec
+      Start 41: metalrobo.crow.recurrent_rollout
+10/15 Test #41: metalrobo.crow.recurrent_rollout ........   Passed    1.77 sec
+      Start 42: metalrobo.crow.recurrent_actor
+11/15 Test #42: metalrobo.crow.recurrent_actor ..........   Passed    1.02 sec
+      Start 43: metalrobo.learning.gru_memory
+12/15 Test #43: metalrobo.learning.gru_memory ...........   Passed    0.48 sec
+      Start 44: metalrobo.crow.retinal_api
+13/15 Test #44: metalrobo.crow.retinal_api ..............   Passed    1.87 sec
+      Start 45: metalrobo.crow.retinal_live
+14/15 Test #45: metalrobo.crow.retinal_live .............   Passed    2.21 sec
+      Start 46: metalrobo.crow.retinal_contract
+15/15 Test #46: metalrobo.crow.retinal_contract .........   Passed    0.34 sec
+
+100% tests passed out of 15
+
+Label Time Summary:
+crow           =  28.65 sec*proc (9 tests)
+learning       =   2.25 sec*proc (2 tests)
+memory         =   3.26 sec*proc (3 tests)
+metalrobo      =  33.07 sec*proc (13 tests)
+native         =  29.13 sec*proc (10 tests)
+persistence    =   4.17 sec*proc (2 tests)
+runtime        =   3.94 sec*proc (3 tests)
+visual         =   9.33 sec*proc (5 tests)
+
+Total Test time (real) =  33.38 sec

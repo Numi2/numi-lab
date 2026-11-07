@@ -835,6 +835,20 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
             "PolicyRolloutPack tensors do not match its declared dimensions"
         );
     }
+    std::uint64_t memoryElements=0;
+    if (pack.memoryHiddenCount>4096 || !multiply(samples,pack.memoryHiddenCount,memoryElements) ||
+        pack.memoryBefore.size()!=memoryElements ||
+        pack.memoryResets.size()!=(pack.memoryHiddenCount ? samples : 0u))
+        return fail(LearningPackStatus::invalidPack,"PolicyRolloutPack recurrent tensor dimensions are invalid");
+    for (std::size_t sample=0;sample<pack.memoryResets.size();++sample) {
+        if (pack.memoryResets[sample]>1u)
+            return fail(LearningPackStatus::invalidPack,"PolicyRolloutPack recurrent reset mask is invalid");
+        for (std::uint32_t h=0;h<pack.memoryHiddenCount;++h) {
+            const auto x=pack.memoryBefore[sample*pack.memoryHiddenCount+h];
+            if (!std::isfinite(x) || std::abs(x)>1.000001f || (pack.memoryResets[sample] && x!=0))
+                return fail(LearningPackStatus::invalidPack,"PolicyRolloutPack recurrent pre-cell state is invalid");
+        }
+    }
     const auto finiteValues = [](
         const std::span<const float> values
     ) {
@@ -1867,6 +1881,8 @@ std::vector<std::byte> serializePolicyRollout(const Pack& pack) {
         payloadBytes +=
             20u + outcome.id.size() + outcome.unit.size();
     }
+    if (pack.memoryHiddenCount) payloadBytes+=8u+2u*sizeof(std::uint64_t)+
+        pack.memoryBefore.size()*sizeof(float)+pack.memoryResets.size()*sizeof(std::uint32_t);
     Writer writer{payloadBytes};
     writer.string(pack.id);
     writer.pod(pack.taskFingerprint);
@@ -1894,15 +1910,20 @@ std::vector<std::byte> serializePolicyRollout(const Pack& pack) {
     }
     writer.vector(pack.outcomeValues);
     writer.vector(pack.transitions);
+    if (pack.memoryHiddenCount) {
+        writer.pod(std::uint32_t(1));writer.pod(pack.memoryHiddenCount);
+        writer.vector(pack.memoryBefore);writer.vector(pack.memoryResets);
+    }
     return writer.data();
 }
 
 bool deserializePolicyRollout(
     const std::span<const std::byte> payload,
-    PolicyRolloutPack& pack
+    PolicyRolloutPack& pack,
+    const std::uint32_t formatVersion
 ) {
     Reader reader{payload};
-    return reader.string(pack.id) &&
+    if (!(reader.string(pack.id) &&
         reader.pod(pack.taskFingerprint) &&
         reader.pod(pack.policyFingerprint) &&
         reader.pod(pack.policyRevision) &&
@@ -1930,8 +1951,13 @@ bool deserializePolicyRollout(
             }
         ) &&
         reader.vector(pack.outcomeValues) &&
-        reader.vector(pack.transitions) &&
-        reader.finished();
+        reader.vector(pack.transitions))) return false;
+    if (formatVersion==8u) {
+        std::uint32_t abi=0;
+        if (!reader.pod(abi) || abi!=1 || !reader.pod(pack.memoryHiddenCount) || !pack.memoryHiddenCount ||
+            !reader.vector(pack.memoryBefore) || !reader.vector(pack.memoryResets)) return false;
+    }
+    return reader.finished();
 }
 
 std::vector<std::byte> serializeMotion(
@@ -2529,6 +2555,9 @@ LearningPackResult writePolicyRolloutPack(
             .outcomes = pack.outcomes,
             .outcomeValues = pack.outcomeValues,
             .transitions = pack.transitions,
+            .memoryHiddenCount = pack.memoryHiddenCount,
+            .memoryBefore = pack.memoryBefore,
+            .memoryResets = pack.memoryResets,
         },
         path
     );
@@ -2547,7 +2576,7 @@ LearningPackResult writePolicyRolloutPack(
         return writePack(
             serializePolicyRollout(pack),
             kPolicyRolloutKind,
-            kPolicyRolloutPackFormatVersion,
+            pack.memoryHiddenCount ? kPolicyRolloutPackFormatVersion : 7u,
             path
         );
     } catch (const std::bad_alloc&) {
@@ -2573,7 +2602,8 @@ LearningPackResult readPolicyRolloutPack(
         kPolicyRolloutKind,
         kPolicyRolloutPackFormatVersion,
         staged,
-        deserializePolicyRollout
+        deserializePolicyRollout,
+        7u
     );
     if (!result.succeeded()) {
         return result;

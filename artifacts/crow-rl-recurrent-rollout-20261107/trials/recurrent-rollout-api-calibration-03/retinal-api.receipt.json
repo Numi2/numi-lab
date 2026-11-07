@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_retinal_api_check",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/recurrent-rollout-api-calibration-03/native-evidence"
+  ],
+  "exit_code": 0,
+  "timed_out": false,
+  "interrupted": false,
+  "wall_seconds": 1.8858054170268588,
+  "stdout_sha256": "47a8d9c19495a5f9693dc1c810abf3efe7ede124ead22f58bb8d833fc745fc37",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

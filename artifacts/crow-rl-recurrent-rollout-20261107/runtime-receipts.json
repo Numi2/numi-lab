@@ -1,0 +1,312 @@
+{
+  "recurrent-rollout-native-01": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-native-01/bin/metalrobo_crow_recurrent_actor_check",
+      "bytes": 163832,
+      "sha256": "53bdd0ad149cb4db8f23e6a0cde4867ce391baf66109af98b4c28ef984cacdd1"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-native-01/bin/metalrobo_crow_recurrent_rollout_check",
+      "bytes": 653176,
+      "sha256": "3d8e429b61b0189394affca69bb55c37f50cd95fbfef4f73a9b83bfff1dfa0d7"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-native-01/bin/metalrobo_task_rollout",
+      "bytes": 998888,
+      "sha256": "68a2995f31b4248699db6c12c577ca799d1770efabbb566e402c5320ae12cbe8"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-native-01/bin/metalrobo_task_train",
+      "bytes": 965096,
+      "sha256": "2399968e0b7ea59e0329b1a192ff486925d1c68879c37dd5c912cca4f0e25696"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-native-01/lib/libmetalrobo.dylib",
+      "bytes": 5600928,
+      "sha256": "73d631608b0a2a286f793d3c04a48fa3e5363dc67e12d7a9bed4f24a3695c4f6"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-native-01/receipt.json",
+      "bytes": 1991,
+      "sha256": "5aa728ad67138cd3a1e9127a0ddb996b5505ad6168de5691ac0c8ee0604ce77a"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-native-01/shaders/GRUMemory.metallib",
+      "bytes": 19391,
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-native-01/shaders/MetalRobo.metallib",
+      "bytes": 4176630,
+      "sha256": "0aa9d42ab605cf79ecb74fc8251dea561f7fb8c9930878fb35dd9c3929074944"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-native-01/shaders/RetinalStream.metallib",
+      "bytes": 16151,
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    }
+  ],
+  "recurrent-rollout-admission-01": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/bin/metalrobo_crow_recurrent_actor_check",
+      "bytes": 163832,
+      "sha256": "53bdd0ad149cb4db8f23e6a0cde4867ce391baf66109af98b4c28ef984cacdd1"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/bin/metalrobo_crow_recurrent_rollout_check",
+      "bytes": 653176,
+      "sha256": "3d8e429b61b0189394affca69bb55c37f50cd95fbfef4f73a9b83bfff1dfa0d7"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/lib/libmetalrobo.dylib",
+      "bytes": 5600928,
+      "sha256": "73d631608b0a2a286f793d3c04a48fa3e5363dc67e12d7a9bed4f24a3695c4f6"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/python/metalrobo/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/python/metalrobo/gru_memory.py",
+      "bytes": 3184,
+      "sha256": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/python/metalrobo/mlx_policy_learning.py",
+      "bytes": 146696,
+      "sha256": "6158df87187f5a8f3e410cba7263562cf531f467815bc57cd90193a60e1ac02b"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/python/metalrobo/native.py",
+      "bytes": 31988,
+      "sha256": "a1960b567d62ba21339af4ecbb853f7f8c35465432fc32bdfc33c2f84a10ef1b"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/python/metalrobo/recurrent_policy_admission.py",
+      "bytes": 10329,
+      "sha256": "df26d935f7d7105168d272740377e4755e35863eb03b18b84c382d7370d9318b"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/python/metalrobo/recurrent_rollout_admission.py",
+      "bytes": 8091,
+      "sha256": "a598e6a4f197640110cde466e66080ba6325d3368218397dcbb79cec7b902cb3"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/shaders/GRUMemory.metallib",
+      "bytes": 19391,
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/shaders/MetalRobo.metallib",
+      "bytes": 4176630,
+      "sha256": "0aa9d42ab605cf79ecb74fc8251dea561f7fb8c9930878fb35dd9c3929074944"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-01/shaders/RetinalStream.metallib",
+      "bytes": 16151,
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    }
+  ],
+  "recurrent-rollout-admission-02": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-02/bin/metalrobo_crow_recurrent_actor_check",
+      "bytes": 163832,
+      "sha256": "53bdd0ad149cb4db8f23e6a0cde4867ce391baf66109af98b4c28ef984cacdd1"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-02/bin/metalrobo_crow_recurrent_rollout_check",
+      "bytes": 653176,
+      "sha256": "3d8e429b61b0189394affca69bb55c37f50cd95fbfef4f73a9b83bfff1dfa0d7"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-02/bin/metalrobo_task_rollout",
+      "bytes": 998888,
+      "sha256": "68a2995f31b4248699db6c12c577ca799d1770efabbb566e402c5320ae12cbe8"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-02/lib/libmetalrobo.dylib",
+      "bytes": 5600928,
+      "sha256": "73d631608b0a2a286f793d3c04a48fa3e5363dc67e12d7a9bed4f24a3695c4f6"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-02/python/metalrobo/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-02/python/metalrobo/gru_memory.py",
+      "bytes": 3184,
+      "sha256": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-02/python/metalrobo/mlx_policy_learning.py",
+      "bytes": 146696,
+      "sha256": "6158df87187f5a8f3e410cba7263562cf531f467815bc57cd90193a60e1ac02b"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-02/python/metalrobo/native.py",
+      "bytes": 31988,
+      "sha256": "a1960b567d62ba21339af4ecbb853f7f8c35465432fc32bdfc33c2f84a10ef1b"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-02/python/metalrobo/recurrent_policy_admission.py",
+      "bytes": 10329,
+      "sha256": "df26d935f7d7105168d272740377e4755e35863eb03b18b84c382d7370d9318b"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-02/python/metalrobo/recurrent_rollout_admission.py",
+      "bytes": 12848,
+      "sha256": "18c9cdf339421a451462282fa6729186edd5ad284edbd727453ca32555b783ed"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-02/shaders/GRUMemory.metallib",
+      "bytes": 19391,
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-02/shaders/MetalRobo.metallib",
+      "bytes": 4176630,
+      "sha256": "0aa9d42ab605cf79ecb74fc8251dea561f7fb8c9930878fb35dd9c3929074944"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-02/shaders/RetinalStream.metallib",
+      "bytes": 16151,
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    }
+  ],
+  "recurrent-rollout-admission-03": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-03/bin/metalrobo_crow_recurrent_actor_check",
+      "bytes": 163832,
+      "sha256": "53bdd0ad149cb4db8f23e6a0cde4867ce391baf66109af98b4c28ef984cacdd1"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-03/bin/metalrobo_crow_recurrent_rollout_check",
+      "bytes": 653176,
+      "sha256": "3d8e429b61b0189394affca69bb55c37f50cd95fbfef4f73a9b83bfff1dfa0d7"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-03/bin/metalrobo_task_rollout",
+      "bytes": 998888,
+      "sha256": "68a2995f31b4248699db6c12c577ca799d1770efabbb566e402c5320ae12cbe8"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-03/lib/libmetalrobo.dylib",
+      "bytes": 5600928,
+      "sha256": "73d631608b0a2a286f793d3c04a48fa3e5363dc67e12d7a9bed4f24a3695c4f6"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-03/python/metalrobo/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-03/python/metalrobo/gru_memory.py",
+      "bytes": 3184,
+      "sha256": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-03/python/metalrobo/mlx_policy_learning.py",
+      "bytes": 146696,
+      "sha256": "6158df87187f5a8f3e410cba7263562cf531f467815bc57cd90193a60e1ac02b"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-03/python/metalrobo/native.py",
+      "bytes": 31988,
+      "sha256": "a1960b567d62ba21339af4ecbb853f7f8c35465432fc32bdfc33c2f84a10ef1b"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-03/python/metalrobo/recurrent_policy_admission.py",
+      "bytes": 10329,
+      "sha256": "df26d935f7d7105168d272740377e4755e35863eb03b18b84c382d7370d9318b"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-03/python/metalrobo/recurrent_rollout_admission.py",
+      "bytes": 12848,
+      "sha256": "18c9cdf339421a451462282fa6729186edd5ad284edbd727453ca32555b783ed"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-03/shaders/GRUMemory.metallib",
+      "bytes": 19391,
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-03/shaders/MetalRobo.metallib",
+      "bytes": 4176630,
+      "sha256": "0aa9d42ab605cf79ecb74fc8251dea561f7fb8c9930878fb35dd9c3929074944"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-03/shaders/RetinalStream.metallib",
+      "bytes": 16151,
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    }
+  ],
+  "recurrent-rollout-admission-04": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-04/bin/metalrobo_crow_recurrent_actor_check",
+      "bytes": 163832,
+      "sha256": "a6034e5894cb4e06f3ed6df553259319830fd093788d52b5cb5480f76ce091ea"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-04/bin/metalrobo_crow_recurrent_rollout_check",
+      "bytes": 653176,
+      "sha256": "3d8e429b61b0189394affca69bb55c37f50cd95fbfef4f73a9b83bfff1dfa0d7"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-04/bin/metalrobo_task_rollout",
+      "bytes": 998888,
+      "sha256": "68a2995f31b4248699db6c12c577ca799d1770efabbb566e402c5320ae12cbe8"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-04/lib/libmetalrobo.dylib",
+      "bytes": 5600928,
+      "sha256": "519280a66f7df324c59b73508b048c5c67ddf1f19b1e30c534e431a17ea4982a"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/gru_memory.py",
+      "bytes": 3184,
+      "sha256": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/mlx_policy_learning.py",
+      "bytes": 146696,
+      "sha256": "6158df87187f5a8f3e410cba7263562cf531f467815bc57cd90193a60e1ac02b"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/native.py",
+      "bytes": 31988,
+      "sha256": "a1960b567d62ba21339af4ecbb853f7f8c35465432fc32bdfc33c2f84a10ef1b"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/recurrent_policy_admission.py",
+      "bytes": 10329,
+      "sha256": "df26d935f7d7105168d272740377e4755e35863eb03b18b84c382d7370d9318b"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-04/python/metalrobo/recurrent_rollout_admission.py",
+      "bytes": 12848,
+      "sha256": "18c9cdf339421a451462282fa6729186edd5ad284edbd727453ca32555b783ed"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-04/shaders/GRUMemory.metallib",
+      "bytes": 19391,
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-04/shaders/MetalRobo.metallib",
+      "bytes": 4176630,
+      "sha256": "0aa9d42ab605cf79ecb74fc8251dea561f7fb8c9930878fb35dd9c3929074944"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-rollout-admission-04/shaders/RetinalStream.metallib",
+      "bytes": 16151,
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    }
+  ]
+}

@@ -477,6 +477,17 @@ typedef struct MRPolicyRolloutBatchC {
     size_t transition_count;
 } MRPolicyRolloutBatchC;
 
+// Additive ABI1 learning-boundary descriptor; legacy batch structure unchanged.
+typedef struct MRPolicyMemoryBatchC {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint32_t hidden_count;
+    const float* before;
+    size_t before_count;
+    const uint32_t* resets;
+    size_t reset_count;
+} MRPolicyMemoryBatchC;
+
 typedef struct MRWorldFamilyLayoutC {
     uint32_t capacity;
     uint32_t active_instance_count;
@@ -867,6 +878,8 @@ MR_API const float* mr_task_rollout_policy_values(
 // Latest native recurrent policy traces. Zero width/null pointers for dense
 // policies. Includes the read-only terminal slot when evaluation is requested.
 MR_API uint32_t mr_task_rollout_policy_memory_width(const MRTaskRolloutHandle* handle);
+// Real evaluation count only; excludes the optional terminal preview.
+MR_API uint32_t mr_task_rollout_policy_memory_control_step_count(const MRTaskRolloutHandle* handle);
 MR_API const float* mr_task_rollout_policy_memory_before(const MRTaskRolloutHandle* handle);
 MR_API const uint32_t* mr_task_rollout_policy_memory_resets(const MRTaskRolloutHandle* handle);
 // Value estimates for the accepted post-rollout state. Native policy
@@ -912,6 +925,15 @@ MR_API int mr_task_rollout_write_policy_rollout_pack(
     const char* batch_id,
     const char* output_path
 );
+// Requires ABI1 hidden/reset traces and an installed recurrent policy; writes v8.
+MR_API int mr_task_rollout_write_recurrent_policy_rollout_pack(
+    const MRTaskRolloutHandle* handle,
+    const MRPolicyRolloutBatchC* batch,
+    const MRPolicyMemoryBatchC* memory,
+    const char* batch_id,
+    const char* output_path
+);
+
 
 // Canonical first world-family frontend. Sampling writes private Metal buffers
 // that may be bound directly by Objective-C++/MLX through

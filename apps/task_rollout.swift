@@ -97,6 +97,13 @@ private func fingerprint(
                 )
             }
         }
+        if batch.policyMemoryWidth != 0 {
+            let start = sample * batch.policyMemoryWidth
+            for value in batch.policyMemoryBefore[start..<(start + batch.policyMemoryWidth)] {
+                fingerprintWord(UInt64(value.bitPattern), byteCount: 4, into: &hash)
+            }
+            fingerprintWord(UInt64(batch.policyMemoryResets[sample]), byteCount: 4, into: &hash)
+        }
         let transition = batch.transitions[sample]
         for value in [
             transition.reward,

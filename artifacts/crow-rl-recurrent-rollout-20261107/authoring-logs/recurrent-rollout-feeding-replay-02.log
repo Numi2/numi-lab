@@ -1,0 +1,24 @@
+{
+  "output": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/recurrent-rollout-feeding-replay-02",
+  "status": "passed",
+  "claim": "ordinary and residual native policy partition invariance",
+  "records": [
+    {
+      "mode": "ordinary",
+      "fingerprint": "2255877855914022940",
+      "chunks": [
+        1,
+        8
+      ]
+    },
+    {
+      "mode": "residual",
+      "fingerprint": "3082487550463979285",
+      "chunks": [
+        1,
+        8
+      ]
+    }
+  ],
+  "ecological_environment_qualified": false
+}

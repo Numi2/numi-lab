@@ -1,0 +1,11 @@
+{
+  "concat_and_training_append_exact" : true,
+  "embodied_memory_qualified" : false,
+  "final_physics_exact" : true,
+  "native_swift_all_segment_bytes_exact" : true,
+  "recurrent_PPO_integrated" : false,
+  "rejection_controls" : 10,
+  "schema" : "numi.crow-swift-recurrent-rollout-evidence.v1",
+  "status" : "passed",
+  "terminal_previews_excluded" : true
+}

@@ -32,7 +32,7 @@ _LEARNING_PACK_HEADER = struct.Struct("<8sIIQQ")
 _POLICY_KIND = 2
 _POLICY_FORMAT_VERSION = 5
 _POLICY_ROLLOUT_KIND = 3
-_POLICY_ROLLOUT_FORMAT_VERSION = 7
+_POLICY_ROLLOUT_FORMAT_VERSION = 8
 _MOTION_KIND = 4
 _MOTION_FORMAT_VERSION = 1
 _TRANSITION_DTYPE = np.dtype(
@@ -85,6 +85,10 @@ class NativePolicyRollout:
         default_factory=lambda: np.empty(0, dtype=np.float32)
     )
 
+    memory_hidden_count: int = 0
+    memory_before: np.ndarray = field(default_factory=lambda: np.empty(0,dtype=np.float32))
+    memory_resets: np.ndarray = field(default_factory=lambda: np.empty(0,dtype=np.uint32))
+
     @property
     def sample_count(self) -> int:
         return self.environment_count * self.control_step_count
@@ -110,6 +114,9 @@ class NativePolicyRollout:
         navigation_return_weighted_self_imitation: bool = False,
     ) -> "MLXPolicyBatch":
         """Compute terminal-safe GAE and publish only learner tensors to MLX."""
+
+        if self.memory_hidden_count or self.memory_before.size or self.memory_resets.size:
+            raise ValueError("Recurrent rollout requires contiguous sequence PPO; flat policy_batch would discard hidden/reset state")
 
         if not 0.0 <= discount <= 1.0:
             raise ValueError("discount must be in [0, 1]")
@@ -956,7 +963,7 @@ def read_policy_rollout_pack(
     ) = _LEARNING_PACK_HEADER.unpack_from(data)
     if magic != b"MRLEARN\0":
         raise ValueError("PolicyRolloutPack magic is invalid")
-    if format_version != _POLICY_ROLLOUT_FORMAT_VERSION:
+    if format_version not in (7, _POLICY_ROLLOUT_FORMAT_VERSION):
         raise ValueError(
             "PolicyRolloutPack format version is unsupported"
         )
@@ -1059,6 +1066,20 @@ def read_policy_rollout_pack(
         _TRANSITION_DTYPE,
         sample_count,
     )
+    memory_hidden_count=0
+    memory_before=np.empty(0,dtype=np.float32)
+    memory_resets=np.empty(0,dtype=np.uint32)
+    if format_version==8:
+        memory_abi=reader.unsigned32()
+        memory_hidden_count=reader.unsigned32()
+        if memory_abi!=1 or not 0<memory_hidden_count<=4096:
+            raise ValueError("PolicyRolloutPack recurrent ABI/hidden width is invalid")
+        memory_before=reader.vector(np.dtype("<f4"),sample_count*memory_hidden_count)
+        memory_resets=reader.vector(np.dtype("<u4"),sample_count)
+        hidden=memory_before.reshape(sample_count,memory_hidden_count)
+        if (not np.isfinite(hidden).all() or np.any(np.abs(hidden)>np.float32(1.000001))
+                or np.any(memory_resets>1) or np.any(hidden[memory_resets==1]!=0)):
+            raise ValueError("PolicyRolloutPack recurrent pre-cell/reset state is invalid")
     if reader.cursor != len(payload):
         raise ValueError("PolicyRolloutPack contains trailing payload bytes")
     float_tables = (
@@ -1107,6 +1128,9 @@ def read_policy_rollout_pack(
         old_values=values,
         bootstrap_values=bootstrap_values,
         transitions=transitions,
+        memory_hidden_count=memory_hidden_count,
+        memory_before=memory_before,
+        memory_resets=memory_resets,
         outcomes={
             identifier: outcome_values[:, index]
             for index, (identifier, _, _) in enumerate(outcome_schema)

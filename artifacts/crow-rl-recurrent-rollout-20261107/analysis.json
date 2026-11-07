@@ -1,0 +1,236 @@
+{
+  "schema": "numi.crow-recurrent-rollout-archive.v1",
+  "status": "native-Swift-MLX-recurrent-record-handoff-admitted",
+  "final_trial": {
+    "schema": "numi.crow-recurrent-rollout-admission.v2",
+    "status": "passed",
+    "policy": {
+      "schema": "numi.crow-recurrent-policy-admission.v1",
+      "status": "passed",
+      "actor": {
+        "schema": "numi.crow-recurrent-actor-admission.v1",
+        "status": "passed",
+        "native": {
+          "schema": "numi.crow-recurrent-actor-evidence.v5",
+          "status": "passed",
+          "native_control_ticks": 40,
+          "lanes": 2,
+          "maximum_FP64_error": 1.4215113849913585e-08,
+          "chunk_preview_trace_exact": true,
+          "fresh_process_full_life_exact": true,
+          "invalid_contract_controls": 7,
+          "publication_rejection_controls": 5,
+          "stale_policy_shader_rejected": true,
+          "recurrent_rollout_format": 8,
+          "recurrent_rollout_rejection_controls": 10,
+          "recurrent_PPO_integrated": false,
+          "embodied_memory_qualified": false
+        },
+        "runtime_retained": true,
+        "retained_runtime_future_exact": true,
+        "actor_memory_integrated": true,
+        "coupled_life_includes_GRU": true,
+        "sequence_PPO_integrated": false,
+        "embodied_memory_qualified": false,
+        "boundary": "authored native v13 controller; recurrent learner and ecological tasks remain open"
+      },
+      "policy_interop": {
+        "schema": "numi.crow-recurrent-policy-evidence.v1",
+        "status": "passed",
+        "canonical_recurrent_policies_byte_exact": 2,
+        "canonical_dense_control_byte_exact": true,
+        "MLX_native_sequence_max_abs": 1.4901161193847656e-08,
+        "contract_rejections": 17,
+        "actual_native_observation_slots": 80,
+        "recurrent_PPO_integrated": false,
+        "embodied_memory_qualified": false
+      },
+      "retained_learner_summary_arrays_and_policy_bytes_exact": true,
+      "installed_matching_Python_MLX_NumPy_required": true,
+      "sequence_PPO_integrated": false,
+      "embodied_memory_qualified": false
+    },
+    "swift": {
+      "concat_and_training_append_exact": true,
+      "embodied_memory_qualified": false,
+      "final_physics_exact": true,
+      "native_swift_all_segment_bytes_exact": true,
+      "recurrent_PPO_integrated": false,
+      "rejection_controls": 10,
+      "schema": "numi.crow-swift-recurrent-rollout-evidence.v1",
+      "status": "passed",
+      "terminal_previews_excluded": true
+    },
+    "learner": {
+      "schema": "numi.crow-recurrent-rollout-learner-evidence.v1",
+      "status": "passed",
+      "real_native_slots": 80,
+      "all_native_learner_hidden_reset_arrays_exact": true,
+      "both_swift_paths_canonical_bytes_exact": true,
+      "MLX_native_artifact_sequence_max_abs": 1.4901161193847656e-08,
+      "parser_and_flat_consumption_rejections": 11,
+      "recurrent_rollout_format_integrated": true,
+      "recurrent_PPO_integrated": false,
+      "embodied_memory_qualified": false
+    },
+    "regular_CLI": {
+      "schema": "numi.crow-recurrent-rollout-cli.v1",
+      "status": "passed",
+      "records": [
+        {
+          "name": "cli-start-chunk1",
+          "fingerprint": "264925679823336851",
+          "accepted_ticks": [
+            37,
+            37
+          ],
+          "rollout_sha256": "966540c9ff8b6b5b1a0c933242c14ab864ce491954fb70ee0895b21cdfb245b6"
+        },
+        {
+          "name": "cli-resume-chunk1",
+          "fingerprint": "9827598682111970063",
+          "accepted_ticks": [
+            50,
+            50
+          ],
+          "rollout_sha256": "f8f9da9be9a1dca27eb9145f5c0ee0cab65bbf8a1c80e38b3d4c4060a4a03f5a"
+        },
+        {
+          "name": "cli-start-chunk8",
+          "fingerprint": "264925679823336851",
+          "accepted_ticks": [
+            37,
+            37
+          ],
+          "rollout_sha256": "966540c9ff8b6b5b1a0c933242c14ab864ce491954fb70ee0895b21cdfb245b6"
+        },
+        {
+          "name": "cli-resume-chunk8",
+          "fingerprint": "9827598682111970063",
+          "accepted_ticks": [
+            50,
+            50
+          ],
+          "rollout_sha256": "f8f9da9be9a1dca27eb9145f5c0ee0cab65bbf8a1c80e38b3d4c4060a4a03f5a"
+        }
+      ],
+      "chunk1_8_start_and_resume_canonical_bytes_exact": true,
+      "retained_CLI_continuation_canonical_bytes_exact": true,
+      "accepted_ticks": [
+        37,
+        50
+      ],
+      "unreported_warmup_steps": 0,
+      "development_seed": 2651109501
+    },
+    "regular_CLI_sequence": {
+      "schema": "numi.crow-recurrent-rollout-cli-sequence-evidence.v1",
+      "status": "passed",
+      "real_native_slots": 100,
+      "MLX_full50tick_native_sequence_max_abs": 1.4901161193847656e-08,
+      "continuation_zero_hidden_action_difference": 0.0028618723154067993,
+      "continuation_initial_hidden_norm": 0.26111912727355957,
+      "modeled_hidden_counterfactual_only": true,
+      "recurrent_PPO_integrated": false,
+      "embodied_memory_qualified": false
+    },
+    "retained_regular_CLI_sequence_summary_and_all_arrays_exact": true,
+    "retained_Swift_and_learner_summary_all_sequence_arrays_exact": true,
+    "recurrent_rollout_format_integrated": true,
+    "sequence_PPO_integrated": false,
+    "embodied_memory_qualified": false
+  },
+  "native_checks_passed": 15,
+  "python_checks_passed": 26,
+  "full_incremental_builds_passed": 2,
+  "ordinary_learner_optimizer_hashes_unchanged": true,
+  "ordinary_learner": {
+    "status": "passed",
+    "claim": "native/MLX updates, publication, and learner-only restore",
+    "variant": "v13-retinal-feeding",
+    "environments": 16,
+    "actor_initialization": "new zero-output actor",
+    "records": [
+      {
+        "stage": "initial",
+        "updates": 2,
+        "samples": 4096,
+        "training_loop_steps_per_second": 1455.130335812801,
+        "whole_process_steps_per_second": 1139.077077121622,
+        "initial_revision": 1,
+        "final_revision": 3,
+        "learner_state_restored": false,
+        "checkpoint_sha256": "29f79d3c670b7476757945a62104d78ba76012220be388c07b6f24e93f75d8d1",
+        "last_update_mean_reward": 0,
+        "last_update_maximum_reward": 0,
+        "last_update_intake_utility_mean": 0,
+        "last_update_learning_rate": 9.999999747378752e-05,
+        "last_update_action_standard_deviation": 2.7183361053466797,
+        "mlx_peak_memory_bytes": 165057528
+      },
+      {
+        "stage": "resume",
+        "updates": 1,
+        "samples": 2048,
+        "training_loop_steps_per_second": 1401.6962140795076,
+        "whole_process_steps_per_second": 1194.7609613146262,
+        "initial_revision": 3,
+        "final_revision": 4,
+        "learner_state_restored": true,
+        "checkpoint_sha256": "6c2d517062ccc6c28ea127ffea9f59fc12c00d33179140c6565503a758c882fe",
+        "last_update_mean_reward": 0.0029296870343387127,
+        "last_update_maximum_reward": 1.999999761581421,
+        "last_update_intake_utility_mean": 0.0029296870343387127,
+        "last_update_learning_rate": 9.999999747378752e-05,
+        "last_update_action_standard_deviation": 2.7183756828308105,
+        "mlx_peak_memory_bytes": 143412270
+      }
+    ],
+    "candidate_promoted": false,
+    "persistent_world_restore_tested": false,
+    "ecological_environment_qualified": false
+  },
+  "feeding_fingerprints_unchanged": true,
+  "feeding": {
+    "status": "passed",
+    "claim": "ordinary and residual native policy partition invariance",
+    "records": [
+      {
+        "mode": "ordinary",
+        "fingerprint": "2255877855914022940",
+        "chunks": [
+          1,
+          8
+        ]
+      },
+      {
+        "mode": "residual",
+        "fingerprint": "3082487550463979285",
+        "chunks": [
+          1,
+          8
+        ]
+      }
+    ],
+    "ecological_environment_qualified": false
+  },
+  "attempts": {
+    "native01": "passed format8 export/native byte roundtrip, ten memory-descriptor controls and prior actor/life controls; both policy-segment endpoints aligned; exact compiled source/runtime retained after execution",
+    "swift01": "passed concat chunk1/training append chunk8 segment bytes/final q/v; ten misuse controls; exact compiled source/runtime retained after execution",
+    "mlx01": "passed all raw learner/hidden/reset arrays, MLX artifact sequence parity and eleven parser/flat-use controls; no separate pre-execution source snapshot for this direct invocation; matching module snapshot retained in admission01",
+    "admission01": "passed native/policy/Swift/MLX handoff plus independent retained-runtime/source recovery on the40-tick fixture",
+    "admission02": "adds ordinary CLI37+13ticks, chunks1/8 and retained CLI continuation; full50tick MLX parity and modeled zero-hidden counterfactual pass",
+    "admission03": "adds independent retained Python source recovery of all regular-CLI sequence summary/arrays; training owner reserves update memory arena",
+    "admission04": "adds resident changed-fingerprint revision uniqueness: reused/reversed revisions reject before publication; full build and all prior controls pass"
+  },
+  "wire_contract": "format8 memory ABI1; step-major real actor slots only; pre-cell float32[T,N,H], reset uint32[T,N]; previews excluded; one compiled generating policy fingerprint/revision per record",
+  "legacy_contract": "unchanged C batch/dense writer; dense records remain byte-identical7; old writer and flat policy_batch explicitly reject recurrent use",
+  "counterfactual_scope": "modeled MLX zero-initial-hidden continuation only; no native physical memory intervention or learned-memory claim",
+  "retained_recovery_scope": "exact native binary/library/shader trees remain on macmini with archived source/size/hash receipts; retained Swift and five Python modules reproduce summaries/all sequence arrays/canonical bytes; exact device/OS and installed Python/MLX/NumPy required",
+  "recurrent_rollout_format_integrated": true,
+  "sequence_PPO_integrated": false,
+  "coupled_recurrent_optimizer_life_resume_qualified": false,
+  "embodied_memory_qualified": false,
+  "full_loop_performance_qualified": false,
+  "ecological_environment_qualified": false
+}

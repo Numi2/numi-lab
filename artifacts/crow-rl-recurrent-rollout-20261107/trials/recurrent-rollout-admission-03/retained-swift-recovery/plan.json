@@ -1,0 +1,7 @@
+{
+  "conditions" : "two supported real native v13 lanes,40 ticks, lane1 reset9, next weights18; previews only at both segment endpoints; source native reference adds extra intermediate previews",
+  "limitations" : "collection\/publication engineering instrument, not sequence PPO or behavioral qualification",
+  "prediction" : "Swift chunk1 batch concatenation and chunk8 training append publish identical native format8 segment bytes, hidden\/reset\/learner tensors and final q\/v; five rejection controls per arm preserve the subsequent life",
+  "schema" : "numi.crow-swift-recurrent-rollout-plan.v1",
+  "stopping" : "exactly two bounded native instrument arms; preserve failures; no retries or tolerance changes"
+}

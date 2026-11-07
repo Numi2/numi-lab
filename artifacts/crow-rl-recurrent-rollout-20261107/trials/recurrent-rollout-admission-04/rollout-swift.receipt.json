@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_recurrent_rollout_check",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/recurrent-rollout-admission-04/native-evidence",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/recurrent-rollout-admission-04/swift-evidence"
+  ],
+  "exit_code": 0,
+  "timed_out": false,
+  "interrupted": false,
+  "wall_seconds": 1.106633041985333,
+  "stdout_sha256": "2728dced58d34249e1c015c1905ba894e61c3066e9d5a1f32bee707637e1772a",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

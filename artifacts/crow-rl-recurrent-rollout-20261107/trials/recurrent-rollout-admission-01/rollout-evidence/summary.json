@@ -1,0 +1,12 @@
+{
+  "schema": "numi.crow-recurrent-rollout-learner-evidence.v1",
+  "status": "passed",
+  "real_native_slots": 80,
+  "all_native_learner_hidden_reset_arrays_exact": true,
+  "both_swift_paths_canonical_bytes_exact": true,
+  "MLX_native_artifact_sequence_max_abs": 1.4901161193847656e-08,
+  "parser_and_flat_consumption_rejections": 11,
+  "recurrent_rollout_format_integrated": true,
+  "recurrent_PPO_integrated": false,
+  "embodied_memory_qualified": false
+}

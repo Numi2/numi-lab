@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+    "-m",
+    "metalrobo.recurrent_rollout_admission",
+    "--native",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/recurrent-rollout-admission-03/native-evidence",
+    "--swift",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/recurrent-rollout-admission-03/swift-evidence",
+    "--output",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/recurrent-rollout-admission-03/rollout-evidence"
+  ],
+  "exit_code": 0,
+  "timed_out": false,
+  "interrupted": false,
+  "wall_seconds": 0.2102205419796519,
+  "stdout_sha256": "2dffe885a9d1209b088378e6e0e1a599a8943feca0d3c2f5e95595d8cfeb1007",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

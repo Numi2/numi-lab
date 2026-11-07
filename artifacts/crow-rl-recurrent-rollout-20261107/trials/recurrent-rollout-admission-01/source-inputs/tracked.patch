@@ -1,0 +1,833 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 3a934ed3..c4e9ddc3 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1279,6 +1279,15 @@ if(METALROBO_HAS_SWIFT)
+             INSTALL_RPATH "@loader_path/../lib"
+     )
+ 
++    add_executable(metalrobo_crow_recurrent_rollout_check
++        apps/crow_recurrent_rollout_check.swift bindings/swift/MetalRoboTaskRollout.swift)
++    target_include_directories(metalrobo_crow_recurrent_rollout_check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo")
++    target_link_libraries(metalrobo_crow_recurrent_rollout_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
++    target_compile_options(metalrobo_crow_recurrent_rollout_check PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:-parse-as-library>")
++    set_target_properties(metalrobo_crow_recurrent_rollout_check PROPERTIES
++        Swift_LANGUAGE_VERSION 6 Swift_COMPILATION_MODE singlefile
++        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin" BUILD_RPATH "@loader_path/../lib")
++
+     if(BUILD_TESTING)
+         add_executable(metalrobo_crow_episode_evidence_test
+             apps/CrowEpisodeEvidence.swift
+@@ -2414,6 +2423,17 @@ if(BUILD_TESTING)
+             "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_life_checkpoint_check>"
+             "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
+             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowLifeCheckpoint.cmake")
++    if(TARGET metalrobo_crow_recurrent_rollout_check)
++        add_test(NAME metalrobo.crow.recurrent_rollout
++            COMMAND "${CMAKE_COMMAND}"
++                "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_recurrent_actor_check>"
++                "-DSWIFT_PROGRAM=$<TARGET_FILE:metalrobo_crow_recurrent_rollout_check>"
++                "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
++                "-DOLD_METALLIB=${CMAKE_CURRENT_SOURCE_DIR}/artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib"
++                -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowRecurrentRollout.cmake")
++        set_tests_properties(metalrobo.crow.recurrent_rollout PROPERTIES
++            LABELS "metalrobo;crow;native;memory;learning" TIMEOUT 400)
++    endif()
+     add_test(NAME metalrobo.crow.recurrent_actor
+         COMMAND "${CMAKE_COMMAND}"
+             "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_recurrent_actor_check>"
+diff --git a/apps/crow_recurrent_actor_check.mm b/apps/crow_recurrent_actor_check.mm
+index 6e9252c6..7fad859a 100644
+--- a/apps/crow_recurrent_actor_check.mm
++++ b/apps/crow_recurrent_actor_check.mm
+@@ -14,7 +14,7 @@ namespace fs=std::filesystem;
+ namespace {
+ constexpr unsigned I=5,H=7,steps=40,split=18;
+ constexpr std::uint64_t seed=2651109401;
+-struct Record {std::vector<float> actor,actions,before,q,v;std::vector<unsigned> reset;std::vector<MRTaskTransitionC> transitions;};
++struct Record {std::vector<float> actor,actions,before,q,v,critic,motion,latents,logp,values,bootstrap;std::vector<unsigned> reset;std::vector<MRTaskTransitionC> transitions;};
+ PolicyPack authored(const Fixture& f) {
+     PolicyPack p;p.id="native-recurrent-crow-control";p.revision=19;
+     PolicyDenseLayer encoder{.inputCount=F,.outputCount=I,.activation=PolicyActivation::tanh,
+@@ -35,7 +35,7 @@ void collect(MRTaskRolloutHandle* h,unsigned begin,unsigned end,unsigned chunk,b
+     for (unsigned start=begin;start<end;start+=chunk) {
+         const auto count=std::min(chunk,end-start);std::vector<unsigned> resets(count*N,0);
+         if (start<=9 && 9<start+count) resets[(9-start)*N+1]=1;
+-        MRTaskRolloutAdvanceC a{};api(mr_task_rollout_advance(h,nullptr,0,resets.data(),resets.size(),count,mr_task_rollout_policy_revision(h),previews || (matchEndpoint && start+count==steps),&a),"advance recurrent actor");
++        MRTaskRolloutAdvanceC a{};api(mr_task_rollout_advance(h,nullptr,0,resets.data(),resets.size(),count,mr_task_rollout_policy_revision(h),previews || (matchEndpoint && start+count==end),&a),"advance recurrent actor");
+         require(!a.failed_environment_steps && a.successful_environment_steps==count*N,"Recurrent actor physics failed");
+         require(mr_task_rollout_policy_memory_width(h)==H,"Native recurrent trace width lost");
+         const auto* actor=mr_task_rollout_actor_observations(h);const auto* action=mr_task_rollout_policy_actions(h);
+@@ -43,16 +43,24 @@ void collect(MRTaskRolloutHandle* h,unsigned begin,unsigned end,unsigned chunk,b
+         require(actor && action && before && reset,"Native recurrent traces missing");
+         r.actor.insert(r.actor.end(),actor,actor+count*N*F);r.actions.insert(r.actions.end(),action,action+count*N*18);
+         r.before.insert(r.before.end(),before,before+count*N*H);r.reset.insert(r.reset.end(),reset,reset+count*N);
++        auto append=[](auto& to,const float* source,std::size_t count) {require(!count || source,"Missing native learner trace");if (count) to.insert(to.end(),source,source+count);};
++        append(r.critic,mr_task_rollout_critic_observations(h),count*N*97);
++        append(r.motion,mr_task_rollout_motion_features(h),count*N*mr_task_rollout_layout(h).motion_feature_count);
++        append(r.latents,mr_task_rollout_policy_latents(h),count*N*18);append(r.logp,mr_task_rollout_policy_log_probabilities(h),count*N);
++        append(r.values,mr_task_rollout_policy_values(h),count*N);
+         auto t=mr_task_rollout_transitions(h);r.transitions.insert(r.transitions.end(),t,t+count*N);
+     }
++    if (const auto* bootstrap=mr_task_rollout_bootstrap_policy_values(h)) r.bootstrap.assign(bootstrap,bootstrap+N);
+     r.q.assign(mr_task_rollout_final_q(h),mr_task_rollout_final_q(h)+N*23);r.v.assign(mr_task_rollout_final_v(h),mr_task_rollout_final_v(h)+N*22);
+ }
+ void saveRecord(const fs::path& out,const Record& r) {
+     fs::create_directory(out);save(out/"actor.f32",r.actor);save(out/"actions.f32",r.actions);save(out/"before.f32",r.before);save(out/"reset.u32",r.reset);
+     save(out/"q.f32",r.q);save(out/"v.f32",r.v);save(out/"transitions.bin",r.transitions);
++    save(out/"critic.f32",r.critic);save(out/"motion.f32",r.motion);save(out/"latents.f32",r.latents);save(out/"logp.f32",r.logp);save(out/"values.f32",r.values);save(out/"bootstrap.f32",r.bootstrap);
+ }
+ void compare(const Record& a,const Record& b) {
+-    require(a.actor==b.actor && a.actions==b.actions && a.before==b.before && a.reset==b.reset && a.q==b.q && a.v==b.v &&
++    require(a.critic==b.critic && a.motion==b.motion && a.latents==b.latents && a.logp==b.logp && a.values==b.values && a.bootstrap==b.bootstrap &&
++        a.actor==b.actor && a.actions==b.actions && a.before==b.before && a.reset==b.reset && a.q==b.q && a.v==b.v &&
+         a.transitions.size()==b.transitions.size() && !std::memcmp(a.transitions.data(),b.transitions.data(),a.transitions.size()*sizeof(MRTaskTransitionC)),
+         "Recurrent actor future depends on chunks, previews or memory restore");
+ }
+@@ -92,6 +100,37 @@ void negatives(const Fixture& f,const PolicyPack& good) {
+         require(!compilePolicyProgram(bad,f.run.task(),compiled).succeeded() && compiled.fingerprint()==fp,"Invalid recurrent contract mutated compiled policy");
+     }
+ }
++void publishRollout(MRTaskRolloutHandle* handle,const Record& r,unsigned count,const fs::path& out,const char* name,bool negative) {
++    MRPolicyRolloutBatchC batch{};batch.control_step_count=count;
++    batch.actor_observations=r.actor.data();batch.actor_observation_count=r.actor.size();
++    batch.critic_observations=r.critic.data();batch.critic_observation_count=r.critic.size();
++    batch.motion_features=r.motion.data();batch.motion_feature_count=r.motion.size();
++    batch.latents=r.latents.data();batch.latent_count=r.latents.size();batch.log_probabilities=r.logp.data();batch.log_probability_count=r.logp.size();
++    batch.values=r.values.data();batch.value_count=r.values.size();batch.bootstrap_values=r.bootstrap.data();batch.bootstrap_value_count=r.bootstrap.size();
++    batch.transitions=r.transitions.data();batch.transition_count=r.transitions.size();
++    MRPolicyMemoryBatchC memory{};memory.abi_version=1;memory.struct_size=sizeof(memory);memory.hidden_count=H;
++    memory.before=r.before.data();memory.before_count=r.before.size();memory.resets=r.reset.data();memory.reset_count=r.reset.size();
++    const auto file=out/(std::string(name)+".rolloutpack");
++    api(mr_task_rollout_write_recurrent_policy_rollout_pack(handle,&batch,&memory,name,file.c_str()),"publish native recurrent rollout8");
++    PolicyRolloutPack read;check(readPolicyRolloutPack(file,read),"read recurrent rollout8");
++    require(read.memoryHiddenCount==H && read.memoryBefore==r.before && read.memoryResets==r.reset &&
++        read.actorObservations==r.actor && read.criticObservations==r.critic && read.latents==r.latents && read.logProbabilities==r.logp &&
++        read.values==r.values && read.bootstrapValues==r.bootstrap,"Native rollout8 lost sequence/learner tensors");
++    const auto roundtrip=out/(std::string(name)+"-roundtrip.rolloutpack");check(writePolicyRolloutPack(read,roundtrip),"rewrite native recurrent rollout8");
++    require(cp::readBounded(file,1ull<<26)==cp::readBounded(roundtrip,1ull<<26),"Native rollout8 roundtrip bytes differ");
++    if (!negative) return;
++    std::ofstream rejectionLog(out/"rollout-rejections.tsv");
++    for (unsigned test=0;test<10;++test) {
++        auto bad=memory;auto before=r.before;auto resets=r.reset;bad.before=before.data();bad.resets=resets.data();
++        if (test==0) bad.abi_version=2;if (test==1) bad.struct_size=0;if (test==2) bad.hidden_count=H+1;
++        if (test==3) --bad.before_count;if (test==4) --bad.reset_count;if (test==5) resets[0]=2;
++        if (test==6) before[H*N]=std::numeric_limits<float>::quiet_NaN();if (test==7) before[0]=.1f;
++        if (test==8) before[H*N]=1.01f;if (test==9) bad.before=nullptr;
++        const auto rejected=out/("invalid-memory-"+std::to_string(test)+".forbidden");
++        require(mr_task_rollout_write_recurrent_policy_rollout_pack(handle,&batch,&bad,name,rejected.c_str())!=0 && !fs::exists(rejected),"Invalid recurrent rollout descriptor published");
++        rejectionLog<<test<<'\t'<<mr_last_error()<<'\n';
++    }
++}
+ void publicationNegatives(MRTaskRolloutHandle* handle,const Fixture& f,const fs::path& out) {
+     auto dense=authored(f);dense.actorMemory.reset();dense.layers[1].inputCount=I;dense.layers[1].weights.assign(18*I,0);
+     const auto file=out/"dense-drop-control.policypack";check(writePolicyPack(dense,file),"write dense-drop control");
+@@ -128,27 +167,29 @@ void spawnChild(const fs::path& executable,const fs::path& out) {
+ int main(int argc,char** argv) { @autoreleasepool {try {
+     if (argc==4 && std::string(argv[1])=="--restore") {child(fs::absolute(argv[2]),fs::absolute(argv[3]));return 0;}
+     require(argc==3,"Usage: crow_recurrent_actor_check NEW_OUTPUT OLD_POLICY_ABI3_METALLIB");const auto out=fs::absolute(argv[1]);require(!fs::exists(out),"Output must be new");fs::create_directories(out);
+-    std::ofstream(out/"plan.json")<<R"({"schema":"numi.crow-recurrent-actor-plan.v4","parent":"01 matched all future streams and physical/GRU/food components but rejected endpoint retinal byte comparison because reference deferred the final camera capture while continuation requested it; v2 aligns only the final endpoint observation in all arms, with no additional physical tick or changed numerical tolerance; v3 adds three live publication rejection controls and explicit native component memory accounting; v4 requires a retained policyABI3 shader to reject for the declared ABI4 cause before execution","seed":2651109401,"unit":"two supported native v13 crow lanes, authored encoder5-GRU7-action18 actor; not learned behavior","prediction":"FP64 actor/pre-cell error<=5e-6; all real actor/action/pre-cell/reset/transition/final-state bytes match chunks1/8 despite extra intermediate terminal previews; publish next weights at18 without a physical step then fresh-process restore matches future and all final hidden life components; stale policyABI3 shader rejects before native execution for the declared ABI4 cause; seven invalid contracts reject without compiled output mutation; resident architecture-drop, clear and legacy-v7 publication reject without changing the policy or future","conditions":"40 native ticks; lane1 reset at9; policy19 then20 after18; actual head RGB/proprioception; final endpoint camera capture aligned; native physical/contact/task/RNG,retinal,food and GRU state checkpoint","stopping":"one chunk1 reference,one chunk8 preview comparison and one bounded40s fresh continuation; preserve every failure,no threshold changes","limitations":"authored controller and supported engineering body; recurrent rollout/sequence PPO and embodied memory tasks still required"})";
++    std::ofstream(out/"plan.json")<<R"({"schema":"numi.crow-recurrent-actor-plan.v5","parent":"01 matched all future streams and physical/GRU/food components but rejected endpoint retinal byte comparison because reference deferred the final camera capture while continuation requested it; v2 aligns only the final endpoint observation in all arms, with no additional physical tick or changed numerical tolerance; v3 adds three live publication rejection controls and explicit native component memory accounting; v4 requires a retained policyABI3 shader to reject for the declared ABI4 cause before execution; v5 aligns both policy-segment endpoints and exports separate format8 records with all real hidden/reset/learner tensors, excludes previews, validates native byte roundtrip and ten malformed memory descriptors","seed":2651109401,"unit":"two supported native v13 crow lanes, authored encoder5-GRU7-action18 actor; not learned behavior","prediction":"FP64 actor/pre-cell error<=5e-6; all real actor/action/pre-cell/reset/transition/final-state bytes match chunks1/8 despite extra intermediate terminal previews; publish next weights at18 without a physical step then fresh-process restore matches future and all final hidden life components; stale policyABI3 shader rejects before native execution for the declared ABI4 cause; seven invalid contracts reject without compiled output mutation; resident architecture-drop, clear and legacy-v7 publication reject without changing the policy or future","conditions":"40 native ticks; lane1 reset at9; policy19 then20 after18; actual head RGB/proprioception; final endpoint camera capture aligned; native physical/contact/task/RNG,retinal,food and GRU state checkpoint","stopping":"one chunk1 reference,one chunk8 preview comparison and one bounded40s fresh continuation; preserve every failure,no threshold changes","limitations":"authored controller and supported engineering body; recurrent rollout/sequence PPO and embodied memory tasks still required"})";
+     Fixture f(out,seed);auto first=authored(f),next=first;next.revision=20;next.actorMemory->cell.inputBias[2*H]+=.02f;
+     check(writePolicyPack(first,out/"first.policypack"),"write recurrent format5");check(writePolicyPack(next,out/"next.policypack"),"write next recurrent format5");
+     PolicyPack loaded;check(readPolicyPack(out/"first.policypack",loaded),"read recurrent format5");CompiledPolicyProgram c;check(compilePolicyProgram(loaded,f.run.task(),c),"compile recurrent format5");
+     require(c.header().abi.x==4 && c.layout().memoryHiddenCount==H && c.memoryParameterFingerprint()==gruCellFingerprint(first.actorMemory->cell),"Compiled memory descriptor lost");negatives(f,first);
+     staleShaderNegative(f,out,fs::absolute(argv[2]));
+     auto a=f.create(),b=f.create();for (auto* h:{a.get(),b.get()}) {install(h,out/"first.policypack");api(mr_task_rollout_set_state_readback(h,1),"enable state");}
+-    Record aa,bb;collect(a.get(),0,split,1,false,aa);collect(b.get(),0,split,8,true,bb);compare(aa,bb);publicationNegatives(a.get(),f,out);
++    Record aa,bb;collect(a.get(),0,split,1,false,aa,true);collect(b.get(),0,split,8,true,bb);compare(aa,bb);publicationNegatives(a.get(),f,out);
++    saveRecord(out/"first-segment",aa);publishRollout(a.get(),aa,split,out,"segment-first",true);
+     install(a.get(),out/"next.policypack");install(b.get(),out/"next.policypack");
+     api(mr_task_rollout_save_life_checkpoint(a.get(),(out/"saved.lifecheckpoint").c_str()),"save next-policy recurrent life");
+     Record tail,other;collect(a.get(),split,steps,1,false,tail,true);collect(b.get(),split,steps,8,true,other);compare(tail,other);
++    publishRollout(a.get(),tail,steps-split,out,"segment-next",false);
+     saveRecord(out/"tail",tail);api(mr_task_rollout_save_life_checkpoint(a.get(),(out/"tail/final.lifecheckpoint").c_str()),"save reference recurrent life");
+     aa.actor.insert(aa.actor.end(),tail.actor.begin(),tail.actor.end());aa.actions.insert(aa.actions.end(),tail.actions.begin(),tail.actions.end());aa.before.insert(aa.before.end(),tail.before.begin(),tail.before.end());aa.reset.insert(aa.reset.end(),tail.reset.begin(),tail.reset.end());
+     save(out/"actor.f32",aa.actor);save(out/"actions.f32",aa.actions);save(out/"before.f32",aa.before);save(out/"reset.u32",aa.reset);const auto error=oracle(aa,first,next,out);
+     spawnChild(fs::absolute(argv[0]),out);
+-    for (const auto* name:{"actor.f32","actions.f32","before.f32","reset.u32","transitions.bin","q.f32","v.f32"})
++    for (const auto* name:{"actor.f32","actions.f32","before.f32","reset.u32","transitions.bin","q.f32","v.f32","critic.f32","motion.f32","latents.f32","logp.f32","values.f32","bootstrap.f32"})
+         require(cp::readBounded(out/"tail"/name,1ull<<26)==cp::readBounded(out/"fresh"/name,1ull<<26),"Fresh recurrent life future differs");
+     // Outer life envelope includes scheduler timing, so compare its three
+     // exact state-component blobs rather than wall-clock counters.
+     auto components=[](const fs::path& file) {auto bytes=cp::readBounded(file,1ull<<26);cp::Reader head{bytes};auto header=head.get<cp::Header>();cp::Reader r{cp::open(bytes,{'N','U','M','I','L','F','0','1'},header.identity)};r.take(3*sizeof(std::uint64_t)+2*sizeof(double));std::vector<cp::Bytes> out;for (unsigned i=0;i<3;++i) {auto b=r.blob();out.emplace_back(b.begin(),b.end());}r.end();return out;};
+     require(components(out/"tail/final.lifecheckpoint")==components(out/"fresh/final.lifecheckpoint"),"Fresh recurrent hidden life components differ");
+-    std::ostringstream result;result<<std::setprecision(17)<<"{\"schema\":\"numi.crow-recurrent-actor-evidence.v3\",\"status\":\"passed\",\"native_control_ticks\":40,\"lanes\":2,\"maximum_FP64_error\":"<<error<<",\"chunk_preview_trace_exact\":true,\"fresh_process_full_life_exact\":true,\"invalid_contract_controls\":7,\"publication_rejection_controls\":3,\"stale_policy_shader_rejected\":true,\"recurrent_PPO_integrated\":false,\"embodied_memory_qualified\":false}";
++    std::ostringstream result;result<<std::setprecision(17)<<"{\"schema\":\"numi.crow-recurrent-actor-evidence.v4\",\"status\":\"passed\",\"native_control_ticks\":40,\"lanes\":2,\"maximum_FP64_error\":"<<error<<",\"chunk_preview_trace_exact\":true,\"fresh_process_full_life_exact\":true,\"invalid_contract_controls\":7,\"publication_rejection_controls\":3,\"stale_policy_shader_rejected\":true,\"recurrent_rollout_format\":8,\"recurrent_rollout_rejection_controls\":10,\"recurrent_PPO_integrated\":false,\"embodied_memory_qualified\":false}";
+     std::ofstream(out/"summary.json")<<result.str()<<'\n';std::cout<<result.str()<<'\n';return 0;
+ } catch (const std::exception& error) {std::cerr<<error.what()<<'\n';return 1;} } }
+diff --git a/apps/task_rollout.swift b/apps/task_rollout.swift
+index 854eca45..a5ca4df3 100644
+--- a/apps/task_rollout.swift
++++ b/apps/task_rollout.swift
+@@ -97,6 +97,13 @@ private func fingerprint(
+                 )
+             }
+         }
++        if batch.policyMemoryWidth != 0 {
++            let start = sample * batch.policyMemoryWidth
++            for value in batch.policyMemoryBefore[start..<(start + batch.policyMemoryWidth)] {
++                fingerprintWord(UInt64(value.bitPattern), byteCount: 4, into: &hash)
++            }
++            fingerprintWord(UInt64(batch.policyMemoryResets[sample]), byteCount: 4, into: &hash)
++        }
+         let transition = batch.transitions[sample]
+         for value in [
+             transition.reward,
+diff --git a/apps/task_train.swift b/apps/task_train.swift
+index a12a9063..824e6afb 100644
+--- a/apps/task_train.swift
++++ b/apps/task_train.swift
+@@ -2091,6 +2091,8 @@ private enum TaskTrainMain {
+             var logProbabilities: [Float] = []
+             var values: [Float] = []
+             var transitions: [MetalRoboTaskTransition] = []
++            var policyMemoryBefore: [Float] = []
++            var policyMemoryResets: [UInt32] = []
+             actorObservations.reserveCapacity(
+                 samplesPerUpdate *
+                     layout.actorObservationCount
+@@ -2131,6 +2133,8 @@ private enum TaskTrainMain {
+                 logProbabilities.removeAll(keepingCapacity: true)
+                 values.removeAll(keepingCapacity: true)
+                 transitions.removeAll(keepingCapacity: true)
++                policyMemoryBefore.removeAll(keepingCapacity: true)
++                policyMemoryResets.removeAll(keepingCapacity: true)
+                 var completed = 0
+                 while completed < options.steps {
+                     let stepCount = min(
+@@ -2173,7 +2177,9 @@ private enum TaskTrainMain {
+                         logProbabilities:
+                             &logProbabilities,
+                         values: &values,
+-                        transitions: &transitions
++                        transitions: &transitions,
++                        policyMemoryBefore: &policyMemoryBefore,
++                        policyMemoryResets: &policyMemoryResets
+                     )
+                     guard transitions[
+                         transitionOffset...
+@@ -2221,7 +2227,10 @@ private enum TaskTrainMain {
+                     latents: latents,
+                     logProbabilities: logProbabilities,
+                     values: values,
+-                    transitions: transitions
++                    transitions: transitions,
++                    policyMemoryWidth: context.policyMemoryWidth,
++                    policyMemoryBefore: policyMemoryBefore,
++                    policyMemoryResets: policyMemoryResets
+                 )
+                 let bootstrapValues =
+                     try context.bootstrapPolicyValues()
+diff --git a/bindings/swift/MetalRoboTaskRollout.swift b/bindings/swift/MetalRoboTaskRollout.swift
+index f92d5b20..d6d3803e 100644
+--- a/bindings/swift/MetalRoboTaskRollout.swift
++++ b/bindings/swift/MetalRoboTaskRollout.swift
+@@ -1058,6 +1058,9 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
+     public let logProbabilities: [Float]
+     public let values: [Float]
+     public let transitions: [MetalRoboTaskTransition]
++    public var policyMemoryWidth: Int = 0
++    public var policyMemoryBefore: [Float] = []
++    public var policyMemoryResets: [UInt32] = []
+ 
+     public var sampleCount: Int {
+         controlStepCount * environmentCount
+@@ -1079,7 +1082,10 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
+                     first.criticObservationCount &&
+                 $0.motionFeatureCount ==
+                     first.motionFeatureCount &&
+-                $0.actionCount == first.actionCount
++                $0.actionCount == first.actionCount &&
++                $0.policyMemoryWidth == first.policyMemoryWidth &&
++                $0.policyMemoryBefore.count == $0.sampleCount * $0.policyMemoryWidth &&
++                $0.policyMemoryResets.count == ($0.policyMemoryWidth == 0 ? 0 : $0.sampleCount)
+         }) else {
+             throw MetalRoboTaskRolloutError.invalidShape(
+                 "Policy rollout batches have incompatible dimensions."
+@@ -1119,7 +1125,10 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
+             logProbabilities:
+                 batches.flatMap(\.logProbabilities),
+             values: batches.flatMap(\.values),
+-            transitions: batches.flatMap(\.transitions)
++            transitions: batches.flatMap(\.transitions),
++            policyMemoryWidth: first.policyMemoryWidth,
++            policyMemoryBefore: batches.flatMap(\.policyMemoryBefore),
++            policyMemoryResets: batches.flatMap(\.policyMemoryResets)
+         )
+     }
+ }
+@@ -2307,6 +2316,27 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
+         return output
+     }
+ 
++    public var policyMemoryWidth: Int { Int(mr_task_rollout_policy_memory_width(handle)) }
++
++    public func policyMemoryBefore(controlStepCount: Int) throws -> [Float] {
++        if policyMemoryWidth == 0 { return [] }
++        guard controlStepCount > 0,
++              controlStepCount == Int(mr_task_rollout_policy_memory_control_step_count(handle)),
++              let values = mr_task_rollout_policy_memory_before(handle) else {
++            throw MetalRoboTaskRolloutError.invalidShape("Recurrent trace must cover exactly the latest real native control steps.")
++        }
++        return Array(UnsafeBufferPointer(start: values, count: controlStepCount * layout.environmentCount * policyMemoryWidth))
++    }
++    public func policyMemoryResets(controlStepCount: Int) throws -> [UInt32] {
++        if policyMemoryWidth == 0 { return [] }
++        guard controlStepCount > 0,
++              controlStepCount == Int(mr_task_rollout_policy_memory_control_step_count(handle)),
++              let values = mr_task_rollout_policy_memory_resets(handle) else {
++            throw MetalRoboTaskRolloutError.invalidShape("Recurrent reset trace must cover exactly the latest real native control steps.")
++        }
++        return Array(UnsafeBufferPointer(start: values, count: controlStepCount * layout.environmentCount))
++    }
++
+     public func policyRolloutBatch(
+         controlStepCount: Int
+     ) throws -> MetalRoboPolicyRolloutBatch {
+@@ -2349,7 +2379,10 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
+             ),
+             transitions: try transitions(
+                 controlStepCount: controlStepCount
+-            )
++            ),
++            policyMemoryWidth: policyMemoryWidth,
++            policyMemoryBefore: try policyMemoryBefore(controlStepCount: controlStepCount),
++            policyMemoryResets: try policyMemoryResets(controlStepCount: controlStepCount)
+         )
+     }
+ 
+@@ -2366,6 +2399,30 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
+         logProbabilities: inout [Float],
+         values: inout [Float],
+         transitions: inout [MetalRoboTaskTransition]
++    ) throws {
++        guard policyMemoryWidth == 0 else {
++            throw MetalRoboTaskRolloutError.invalidShape("Recurrent rollout append requires explicit hidden/reset destinations.")
++        }
++        var before: [Float] = [], resets: [UInt32] = []
++        try appendCurrentPolicyRollout(controlStepCount: controlStepCount,
++            actorObservations: &actorObservations, criticObservations: &criticObservations,
++            motionFeatures: &motionFeatures, teacherActions: &teacherActions, latents: &latents,
++            logProbabilities: &logProbabilities, values: &values, transitions: &transitions,
++            policyMemoryBefore: &before, policyMemoryResets: &resets)
++    }
++
++    public func appendCurrentPolicyRollout(
++        controlStepCount: Int,
++        actorObservations: inout [Float],
++        criticObservations: inout [Float],
++        motionFeatures: inout [Float],
++        teacherActions: inout [Float],
++        latents: inout [Float],
++        logProbabilities: inout [Float],
++        values: inout [Float],
++        transitions: inout [MetalRoboTaskTransition],
++        policyMemoryBefore: inout [Float],
++        policyMemoryResets: inout [UInt32]
+     ) throws {
+         let current = layout
+         guard controlStepCount > 0 else {
+@@ -2398,6 +2455,15 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
+                 "Native policy rollout streams are unavailable."
+             )
+         }
++        if policyMemoryWidth != 0 {
++            guard controlStepCount == Int(mr_task_rollout_policy_memory_control_step_count(handle)),
++                  let before = mr_task_rollout_policy_memory_before(handle),
++                  let resets = mr_task_rollout_policy_memory_resets(handle) else {
++                throw MetalRoboTaskRolloutError.invalidShape("Recurrent append must exclude previews and include all real native steps.")
++            }
++            policyMemoryBefore.append(contentsOf: UnsafeBufferPointer(start: before, count: samples * policyMemoryWidth))
++            policyMemoryResets.append(contentsOf: UnsafeBufferPointer(start: resets, count: samples))
++        }
+         actorObservations.append(
+             contentsOf: UnsafeBufferPointer(
+                 start: actor,
+@@ -2498,7 +2564,10 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
+               batch.logProbabilities.count ==
+                   batch.sampleCount,
+               batch.values.count == batch.sampleCount,
+-              batch.transitions.count == batch.sampleCount
++              batch.transitions.count == batch.sampleCount,
++              batch.policyMemoryWidth >= 0, batch.policyMemoryWidth <= 4096,
++              batch.policyMemoryBefore.count == batch.sampleCount * batch.policyMemoryWidth,
++              batch.policyMemoryResets.count == (batch.policyMemoryWidth == 0 ? 0 : batch.sampleCount)
+         else {
+             throw MetalRoboTaskRolloutError.invalidShape(
+                 "Policy rollout pack dimensions do not match the installed task."
+@@ -2592,6 +2661,7 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
+                 batch.logProbabilities,
+                 batch.values,
+                 bootstrapValues,
++                batch.policyMemoryBefore,
+             ]
+         ) { buffers in
+             native.actor_observations = buffers[0].baseAddress
+@@ -2608,12 +2678,20 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
+                 native.transition_count = transitions.count
+                 return id.withCString { identifier in
+                     url.path.withCString { path in
+-                        mr_task_rollout_write_policy_rollout_pack(
+-                            handle,
+-                            &native,
+-                            identifier,
+-                            path
+-                        )
++                        if batch.policyMemoryWidth == 0 {
++                            return mr_task_rollout_write_policy_rollout_pack(handle, &native, identifier, path)
++                        }
++                        return batch.policyMemoryResets.withUnsafeBufferPointer { resets in
++                            var memory = MRPolicyMemoryBatchC()
++                            memory.abi_version = 1
++                            memory.struct_size = UInt32(MemoryLayout<MRPolicyMemoryBatchC>.size)
++                            memory.hidden_count = UInt32(batch.policyMemoryWidth)
++                            memory.before = buffers[8].baseAddress
++                            memory.before_count = batch.policyMemoryBefore.count
++                            memory.resets = resets.baseAddress
++                            memory.reset_count = resets.count
++                            return mr_task_rollout_write_recurrent_policy_rollout_pack(handle, &native, &memory, identifier, path)
++                        }
+                     }
+                 }
+             }
+diff --git a/include/metalrobo/LearningPacks.hpp b/include/metalrobo/LearningPacks.hpp
+index 0125992f..10b3eb3b 100644
+--- a/include/metalrobo/LearningPacks.hpp
++++ b/include/metalrobo/LearningPacks.hpp
+@@ -22,7 +22,7 @@ inline constexpr std::uint32_t kRealityProgramPackFormatVersion = 2u;
+ // Recurrent artifacts use v5; writers keep dense-only artifacts byte-identical v4.
+ inline constexpr std::uint32_t kPolicyPackFormatVersion = 5u;
+ inline constexpr std::uint32_t
+-    kPolicyRolloutPackFormatVersion = 7u;
++    kPolicyRolloutPackFormatVersion = 8u;
+ inline constexpr std::uint32_t kMotionPackFormatVersion = 1u;
+ inline constexpr std::uint32_t kInteractionPackFormatVersion = 1u;
+ 
+@@ -77,6 +77,10 @@ struct PolicyRolloutPack {
+     // Step-major [sample][outcome].
+     std::vector<float> outcomeValues;
+     std::vector<MRLearningTransitionGPU> transitions;
++    // Optional v8 records: step-major real actor evaluations, never previews.
++    std::uint32_t memoryHiddenCount = 0u;
++    std::vector<float> memoryBefore;
++    std::vector<std::uint32_t> memoryResets;
+ };
+ 
+ // Synchronous zero-copy publication view for large native rollout batches.
+@@ -103,6 +107,9 @@ struct PolicyRolloutPackView {
+     std::span<const PolicyOutcomeDescriptor> outcomes;
+     std::span<const float> outcomeValues;
+     std::span<const MRLearningTransitionGPU> transitions;
++    std::uint32_t memoryHiddenCount = 0u;
++    std::span<const float> memoryBefore;
++    std::span<const std::uint32_t> memoryResets;
+ };
+ 
+ enum class LearningPackStatus : std::uint32_t {
+diff --git a/include/metalrobo/c_api.h b/include/metalrobo/c_api.h
+index 375064bd..4a1bffa4 100644
+--- a/include/metalrobo/c_api.h
++++ b/include/metalrobo/c_api.h
+@@ -477,6 +477,17 @@ typedef struct MRPolicyRolloutBatchC {
+     size_t transition_count;
+ } MRPolicyRolloutBatchC;
+ 
++// Additive ABI1 learning-boundary descriptor; legacy batch structure unchanged.
++typedef struct MRPolicyMemoryBatchC {
++    uint32_t abi_version;
++    uint32_t struct_size;
++    uint32_t hidden_count;
++    const float* before;
++    size_t before_count;
++    const uint32_t* resets;
++    size_t reset_count;
++} MRPolicyMemoryBatchC;
++
+ typedef struct MRWorldFamilyLayoutC {
+     uint32_t capacity;
+     uint32_t active_instance_count;
+@@ -867,6 +878,8 @@ MR_API const float* mr_task_rollout_policy_values(
+ // Latest native recurrent policy traces. Zero width/null pointers for dense
+ // policies. Includes the read-only terminal slot when evaluation is requested.
+ MR_API uint32_t mr_task_rollout_policy_memory_width(const MRTaskRolloutHandle* handle);
++// Real evaluation count only; excludes the optional terminal preview.
++MR_API uint32_t mr_task_rollout_policy_memory_control_step_count(const MRTaskRolloutHandle* handle);
+ MR_API const float* mr_task_rollout_policy_memory_before(const MRTaskRolloutHandle* handle);
+ MR_API const uint32_t* mr_task_rollout_policy_memory_resets(const MRTaskRolloutHandle* handle);
+ // Value estimates for the accepted post-rollout state. Native policy
+@@ -912,6 +925,15 @@ MR_API int mr_task_rollout_write_policy_rollout_pack(
+     const char* batch_id,
+     const char* output_path
+ );
++// Requires ABI1 hidden/reset traces and an installed recurrent policy; writes v8.
++MR_API int mr_task_rollout_write_recurrent_policy_rollout_pack(
++    const MRTaskRolloutHandle* handle,
++    const MRPolicyRolloutBatchC* batch,
++    const MRPolicyMemoryBatchC* memory,
++    const char* batch_id,
++    const char* output_path
++);
++
+ 
+ // Canonical first world-family frontend. Sampling writes private Metal buffers
+ // that may be bound directly by Objective-C++/MLX through
+diff --git a/python/metalrobo/crow_environment.py b/python/metalrobo/crow_environment.py
+index 562810a1..f879c16a 100644
+--- a/python/metalrobo/crow_environment.py
++++ b/python/metalrobo/crow_environment.py
+@@ -102,6 +102,42 @@ def preflight(root: Path, profile: dict) -> dict:
+     }
+ 
+ 
++def recurrent_rollout_admission(root: Path, output: Path, checked: dict) -> dict:
++    policy = recurrent_policy_admission(root, output, checked)
++    swift = execute(output, "rollout-swift", [checked["inputs"]["recurrent_rollout_check"]["path"],
++        str(output/"native-evidence"), str(output/"swift-evidence")], root, 180)
++    learner = execute(output, "rollout-mlx", [sys.executable, "-m", "metalrobo.recurrent_rollout_admission",
++        "--native", str(output/"native-evidence"), "--swift", str(output/"swift-evidence"),
++        "--output", str(output/"rollout-evidence")], root, 180)
++    if swift.get("status") != "passed" or swift.get("rejection_controls") != 10 or learner.get("status") != "passed" or learner.get("parser_and_flat_consumption_rejections") != 11:
++        raise RuntimeError("Recurrent Swift/learner rollout admission failed")
++    retained=root/".numi/retained-runtime"/output.name
++    extra={}
++    for key,relative in (("recurrent_rollout_check", "bin/metalrobo_crow_recurrent_rollout_check"),
++                         ("recurrent_source_recurrent_rollout_admission.py", "python/metalrobo/recurrent_rollout_admission.py")):
++        target=retained/relative;shutil.copy2(checked["inputs"][key]["path"],target)
++        if sha(target)!=checked["inputs"][key]["sha256"]:
++            raise RuntimeError("Recurrent rollout runtime/source changed during admission: "+key)
++        extra[key]={"path":str(target),"sha256":sha(target)}
++    write(output/"retained-rollout-inputs.json",extra)
++    recovered_swift=execute(output,"retained-rollout-swift",["/usr/bin/env","DYLD_LIBRARY_PATH="+str(retained/"lib"),
++        str(retained/"bin/metalrobo_crow_recurrent_rollout_check"),str(output/"native-evidence"),
++        str(output/"retained-swift-recovery")],root,180)
++    if recovered_swift!=swift:raise RuntimeError("Retained Swift rollout summary differs")
++    recovered=execute(output,"retained-rollout-mlx",["/usr/bin/env","PYTHONPATH="+str(retained/"python"),
++        "METALROBO_LIBRARY="+str(retained/"lib/libmetalrobo.dylib"),sys.executable,"-m","metalrobo.recurrent_rollout_admission",
++        "--native",str(output/"native-evidence"),"--swift",str(output/"retained-swift-recovery"),
++        "--output",str(output/"retained-rollout-recovery")],root,180)
++    if recovered!=learner:raise RuntimeError("Retained rollout learner summary differs")
++    import numpy as np
++    with np.load(output/"rollout-evidence/artifact-sequence-parity.npz") as expected,np.load(output/"retained-rollout-recovery/artifact-sequence-parity.npz") as actual:
++        if expected.files!=actual.files or any(not np.array_equal(expected[k],actual[k]) for k in expected.files):
++            raise RuntimeError("Retained recurrent rollout sequence arrays differ")
++    return {"schema":"numi.crow-recurrent-rollout-admission.v1","status":"passed","policy":policy,"swift":swift,"learner":learner,
++        "retained_Swift_and_learner_summary_all_sequence_arrays_exact":True,
++        "recurrent_rollout_format_integrated":True,"sequence_PPO_integrated":False,"embodied_memory_qualified":False}
++
++
+ def recurrent_policy_admission(root: Path, output: Path, checked: dict) -> dict:
+     actor = recurrent_actor_admission(root, output, checked)
+     learner = execute(output, "policy-mlx", [sys.executable, "-m", "metalrobo.recurrent_policy_admission",
+@@ -1096,6 +1132,7 @@ def main() -> int:
+     commands.add_parser("memory-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("recurrent-actor-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("recurrent-policy-admission").add_argument("--output", type=Path, required=True)
++    commands.add_parser("recurrent-rollout-admission").add_argument("--output", type=Path, required=True)
+     life_training=commands.add_parser("life-training-probe")
+     life_training.add_argument("--output",type=Path,required=True)
+     life_training.add_argument("--retinal-calibration",type=Path,required=True)
+@@ -1155,7 +1192,7 @@ def main() -> int:
+         print(json.dumps(profile, indent=2))
+         return 0
+     checked = preflight(root, profile)
+-    if args.command in ("recurrent-actor-admission", "recurrent-policy-admission"):
++    if args.command in ("recurrent-actor-admission", "recurrent-policy-admission", "recurrent-rollout-admission"):
+         build = Path(checked["inputs"]["library"]["path"]).parent.parent
+         for name, path in (("recurrent_check", build/"bin/metalrobo_crow_recurrent_actor_check"),
+                            ("gru_metallib", build/"shaders/GRUMemory.metallib"),
+@@ -1170,10 +1207,16 @@ def main() -> int:
+             if not path.is_file() or not path.stat().st_size:
+                 raise RuntimeError("Missing native GRU component: "+str(path))
+             checked["inputs"][name] = {"path": str(path), "sha256": sha(path)}
+-    if args.command == "recurrent-policy-admission":
++    if args.command in ("recurrent-policy-admission", "recurrent-rollout-admission"):
+         for name in ("native.py", "mlx_policy_learning.py", "gru_memory.py", "recurrent_policy_admission.py"):
+             path=root/"python/metalrobo"/name
+             checked["inputs"]["recurrent_source_"+name]={"path": str(path), "sha256": sha(path)}
++    if args.command == "recurrent-rollout-admission":
++        build=Path(checked["inputs"]["library"]["path"]).parent.parent
++        for key,path in (("recurrent_rollout_check",build/"bin/metalrobo_crow_recurrent_rollout_check"),
++                         ("recurrent_source_recurrent_rollout_admission.py",root/"python/metalrobo/recurrent_rollout_admission.py")):
++            if not path.is_file() or not path.stat().st_size:raise RuntimeError("Missing recurrent rollout admission input: "+str(path))
++            checked["inputs"][key]={"path":str(path),"sha256":sha(path)}
+     if args.command == "doctor":
+         print(json.dumps(checked, indent=2))
+         return 0
+@@ -1291,7 +1334,7 @@ def main() -> int:
+           "validity":"exact runtime/configuration/source inputs; both owners restored; accepted clock has no warmup; zero device failures; all expected updates; uncommitted/corrupt/mixed checkpoints reject",
+           "stopping":"four complete bounded180s runs; nine bounded60s rejection controls; stop on first positive invalidity; preserve all failures",
+           "estimated_raw_output_limit_bytes":750*1024*1024, "ecological_environment_qualified":False})
+-    if args.command in ("recurrent-actor-admission", "recurrent-policy-admission"):
++    if args.command in ("recurrent-actor-admission", "recurrent-policy-admission", "recurrent-rollout-admission"):
+         plan.update({"purpose": "native embodied recurrent actor and full-life checkpoint engineering admission",
+           "prediction": "FP64 actor/pre-cell max error<=5e-6; chunks1/8 and extra intermediate terminal previews have exact real traces/actions/physics; fresh process has exact future and all three final life-state component blobs; seven compiler and three resident publication controls reject; stale policyABI3 shader rejects for declared ABI4 cause; independently retained runtime reproduces all future stream bytes",
+           "control": "two supported real native v13 lanes, authored encoder5-GRU7-action18 actor,40 ticks; lane1 reset9; next weights published18 without physical step; aligned final camera capture in all arms; no qualification seeds",
+@@ -1303,6 +1346,12 @@ def main() -> int:
+           "prediction": "native actor admission passes; two recurrent and one dense policy roundtrip byte exactly; MLX sequence actor/pre-cell error<=5e-6 on all80 native slots;17 semantic/API/flat-learner misuse controls reject; retained source/runtime reproduce learner summary, all sequence arrays and canonical policy bytes exactly",
+           "stopping": "native180s and retained native40s; two independent MLX policy instruments180s each; stop on invalidity, no automatic retries",
+           "limitations": "policy parameter/sequence algebra interface only; recurrent rollout and contiguous PPO remain pending"})
++    if args.command == "recurrent-rollout-admission":
++        plan.update({"purpose":"native/Swift/MLX recurrent rollout8 handoff with retained runtime/source recovery",
++          "prediction":"native actor/policy interface admissions pass; two constant-policy segments18/22 exclude previews; native format8 byte roundtrip and10 malformed memory descriptors; Swift concat chunk1 and training append chunk8 match every canonical byte/final q/v with10 rejections; Python parses all learner/hidden/reset arrays exactly and MLX sequence parity<=5e-6 on80 real slots;11 parser/flat-use controls reject; independent retained Swift/learner summaries and all sequence arrays exact",
++          "conditions":"two supported real native v13 lanes,40ticks, lane1 reset9, next weights18 with no physical step; both segment endpoint captures aligned; native extra intermediate previews; no qualification seeds",
++          "stopping":"native180s,retained native40s; six bounded180s batch instruments (two policy, two Swift, two rollout learner); abort first invalidity, preserve failures, no automatic retry",
++          "limitations":"native collection/publication and forward-sequence algebra only; contiguous PPO/BPTT and recurrent optimizer/life resume remain pending"})
+     if args.command == "memory-admission":
+         plan.update({"purpose": "native working-memory and differentiable sequence algebra component admission",
+           "prediction": "native FP64 max error<=3e-6; chunks/previews/duplicates/fresh process exact including reset traces;31 native controls reject including seven re-signed semantic restore corruptions; MLX sequence/pre-cell parity<=3e-6; full parameter/input BPTT<=3e-6 and relative norm<=2e-5; twelve FP64 central differences<=1e-8; reset gradients cut exactly; eight SGD steps reduce fixed objective; retained native/Python-source recovery reproduces future state and learner summary",
+@@ -1353,6 +1402,8 @@ def main() -> int:
+             result=life_training_probe(root,output,args)
+         elif args.command == "life-swift-probe":
+             result=life_swift_probe(root,output,args)
++        elif args.command == "recurrent-rollout-admission":
++            result=recurrent_rollout_admission(root,output,checked)
+         elif args.command == "recurrent-policy-admission":
+             result=recurrent_policy_admission(root,output,checked)
+         elif args.command == "recurrent-actor-admission":
+diff --git a/python/metalrobo/mlx_policy_learning.py b/python/metalrobo/mlx_policy_learning.py
+index 0421a46b..8a91222f 100644
+--- a/python/metalrobo/mlx_policy_learning.py
++++ b/python/metalrobo/mlx_policy_learning.py
+@@ -32,7 +32,7 @@ _LEARNING_PACK_HEADER = struct.Struct("<8sIIQQ")
+ _POLICY_KIND = 2
+ _POLICY_FORMAT_VERSION = 5
+ _POLICY_ROLLOUT_KIND = 3
+-_POLICY_ROLLOUT_FORMAT_VERSION = 7
++_POLICY_ROLLOUT_FORMAT_VERSION = 8
+ _MOTION_KIND = 4
+ _MOTION_FORMAT_VERSION = 1
+ _TRANSITION_DTYPE = np.dtype(
+@@ -85,6 +85,10 @@ class NativePolicyRollout:
+         default_factory=lambda: np.empty(0, dtype=np.float32)
+     )
+ 
++    memory_hidden_count: int = 0
++    memory_before: np.ndarray = field(default_factory=lambda: np.empty(0,dtype=np.float32))
++    memory_resets: np.ndarray = field(default_factory=lambda: np.empty(0,dtype=np.uint32))
++
+     @property
+     def sample_count(self) -> int:
+         return self.environment_count * self.control_step_count
+@@ -111,6 +115,9 @@ class NativePolicyRollout:
+     ) -> "MLXPolicyBatch":
+         """Compute terminal-safe GAE and publish only learner tensors to MLX."""
+ 
++        if self.memory_hidden_count or self.memory_before.size or self.memory_resets.size:
++            raise ValueError("Recurrent rollout requires contiguous sequence PPO; flat policy_batch would discard hidden/reset state")
++
+         if not 0.0 <= discount <= 1.0:
+             raise ValueError("discount must be in [0, 1]")
+         if not 0.0 <= gae_lambda <= 1.0:
+@@ -956,7 +963,7 @@ def read_policy_rollout_pack(
+     ) = _LEARNING_PACK_HEADER.unpack_from(data)
+     if magic != b"MRLEARN\0":
+         raise ValueError("PolicyRolloutPack magic is invalid")
+-    if format_version != _POLICY_ROLLOUT_FORMAT_VERSION:
++    if format_version not in (7, _POLICY_ROLLOUT_FORMAT_VERSION):
+         raise ValueError(
+             "PolicyRolloutPack format version is unsupported"
+         )
+@@ -1059,6 +1066,20 @@ def read_policy_rollout_pack(
+         _TRANSITION_DTYPE,
+         sample_count,
+     )
++    memory_hidden_count=0
++    memory_before=np.empty(0,dtype=np.float32)
++    memory_resets=np.empty(0,dtype=np.uint32)
++    if format_version==8:
++        memory_abi=reader.unsigned32()
++        memory_hidden_count=reader.unsigned32()
++        if memory_abi!=1 or not 0<memory_hidden_count<=4096:
++            raise ValueError("PolicyRolloutPack recurrent ABI/hidden width is invalid")
++        memory_before=reader.vector(np.dtype("<f4"),sample_count*memory_hidden_count)
++        memory_resets=reader.vector(np.dtype("<u4"),sample_count)
++        hidden=memory_before.reshape(sample_count,memory_hidden_count)
++        if (not np.isfinite(hidden).all() or np.any(np.abs(hidden)>np.float32(1.000001))
++                or np.any(memory_resets>1) or np.any(hidden[memory_resets==1]!=0)):
++            raise ValueError("PolicyRolloutPack recurrent pre-cell/reset state is invalid")
+     if reader.cursor != len(payload):
+         raise ValueError("PolicyRolloutPack contains trailing payload bytes")
+     float_tables = (
+@@ -1107,6 +1128,9 @@ def read_policy_rollout_pack(
+         old_values=values,
+         bootstrap_values=bootstrap_values,
+         transitions=transitions,
++        memory_hidden_count=memory_hidden_count,
++        memory_before=memory_before,
++        memory_resets=memory_resets,
+         outcomes={
+             identifier: outcome_values[:, index]
+             for index, (identifier, _, _) in enumerate(outcome_schema)
+diff --git a/src/c_api.cpp b/src/c_api.cpp
+index 3d562eaf..fa533e7c 100644
+--- a/src/c_api.cpp
++++ b/src/c_api.cpp
+@@ -4978,6 +4978,10 @@ uint32_t mr_task_rollout_policy_memory_width(const MRTaskRolloutHandle* handle)
+     if (!requireTaskRolloutHandle(handle) || handle->result.policyMemoryResets.empty()) return 0;
+     return static_cast<uint32_t>(handle->result.policyMemoryBefore.size()/handle->result.policyMemoryResets.size());
+ }
++uint32_t mr_task_rollout_policy_memory_control_step_count(const MRTaskRolloutHandle* handle) {
++    if (!requireTaskRolloutHandle(handle) || !handle->environmentCount || handle->result.policyMemoryResets.empty()) return 0;
++    return static_cast<uint32_t>(handle->result.transitions.size()/handle->environmentCount);
++}
+ const float* mr_task_rollout_policy_memory_before(const MRTaskRolloutHandle* handle) {
+     return requireTaskRolloutHandle(handle) && !handle->result.policyMemoryBefore.empty()
+         ? handle->result.policyMemoryBefore.data() : nullptr;
+@@ -5118,9 +5122,10 @@ int mr_task_rollout_copy_final_scene_states(
+     return 0;
+ }
+ 
+-int mr_task_rollout_write_policy_rollout_pack(
++static int writePolicyRolloutBatchC(
+     const MRTaskRolloutHandle* handle,
+     const MRPolicyRolloutBatchC* batch,
++    const MRPolicyMemoryBatchC* memory,
+     const char* batch_id,
+     const char* output_path
+ ) {
+@@ -5140,9 +5145,13 @@ int mr_task_rollout_write_policy_rollout_pack(
+                 "a compiled policy must be installed before publishing a rollout pack"
+             );
+         }
+-        if (handle->stepConfig.policyProgram.actorMemory()) {
++        const auto* actorMemory=handle->stepConfig.policyProgram.actorMemory();
++        if (actorMemory && !memory)
+             throw std::invalid_argument("Recurrent policy rollout publication requires explicit hidden/reset traces; legacy v7 batch is forbidden");
+-        }
++        if (memory && (!actorMemory || memory->abi_version!=1 || memory->struct_size!=sizeof(MRPolicyMemoryBatchC) ||
++            memory->hidden_count!=actorMemory->cell.hidden || !memory->hidden_count ||
++            (memory->before_count && !memory->before) || (memory->reset_count && !memory->resets)))
++            throw std::invalid_argument("Recurrent rollout memory descriptor ABI, shape, pointers or policy mismatch");
+         const auto floats = [](
+             const float* values,
+             const std::size_t count,
+@@ -5273,6 +5282,9 @@ int mr_task_rollout_write_policy_rollout_pack(
+             .outcomes = outcomes,
+             .outcomeValues = outcomeValues,
+             .transitions = transitions,
++            .memoryHiddenCount = memory ? memory->hidden_count : 0u,
++            .memoryBefore = memory ? floats(memory->before,memory->before_count,"recurrent pre-cell state") : std::span<const float>{},
++            .memoryResets = memory ? std::span<const std::uint32_t>{memory->resets,memory->reset_count} : std::span<const std::uint32_t>{},
+         };
+         const metalrobo::LearningPackResult written =
+             metalrobo::writePolicyRolloutPack(
+@@ -5292,6 +5304,16 @@ int mr_task_rollout_write_policy_rollout_pack(
+     });
+ }
+ 
++int mr_task_rollout_write_policy_rollout_pack(const MRTaskRolloutHandle* handle,
++    const MRPolicyRolloutBatchC* batch,const char* batch_id,const char* output_path) {
++    return writePolicyRolloutBatchC(handle,batch,nullptr,batch_id,output_path);
++}
++int mr_task_rollout_write_recurrent_policy_rollout_pack(const MRTaskRolloutHandle* handle,
++    const MRPolicyRolloutBatchC* batch,const MRPolicyMemoryBatchC* memory,const char* batch_id,const char* output_path) {
++    if (!memory) {gLastError="Recurrent rollout memory descriptor is required";return -1;}
++    return writePolicyRolloutBatchC(handle,batch,memory,batch_id,output_path);
++}
++
+ MRWorldFamilyHandle* mr_create_franka_pick_place_world_family(
+     const uint32_t capacity,
+     const char* metallib_path
+diff --git a/src/core/LearningPacks.cpp b/src/core/LearningPacks.cpp
+index 7bce61ac..5cb26ee7 100644
+--- a/src/core/LearningPacks.cpp
++++ b/src/core/LearningPacks.cpp
+@@ -835,6 +835,20 @@ LearningPackResult validatePolicyRolloutArtifact(const Pack& pack) {
+             "PolicyRolloutPack tensors do not match its declared dimensions"
+         );
+     }
++    std::uint64_t memoryElements=0;
++    if (pack.memoryHiddenCount>4096 || !multiply(samples,pack.memoryHiddenCount,memoryElements) ||
++        pack.memoryBefore.size()!=memoryElements ||
++        pack.memoryResets.size()!=(pack.memoryHiddenCount ? samples : 0u))
++        return fail(LearningPackStatus::invalidPack,"PolicyRolloutPack recurrent tensor dimensions are invalid");
++    for (std::size_t sample=0;sample<pack.memoryResets.size();++sample) {
++        if (pack.memoryResets[sample]>1u)
++            return fail(LearningPackStatus::invalidPack,"PolicyRolloutPack recurrent reset mask is invalid");
++        for (std::uint32_t h=0;h<pack.memoryHiddenCount;++h) {
++            const auto x=pack.memoryBefore[sample*pack.memoryHiddenCount+h];
++            if (!std::isfinite(x) || std::abs(x)>1.000001f || (pack.memoryResets[sample] && x!=0))
++                return fail(LearningPackStatus::invalidPack,"PolicyRolloutPack recurrent pre-cell state is invalid");
++        }
++    }
+     const auto finiteValues = [](
+         const std::span<const float> values
+     ) {
+@@ -1867,6 +1881,8 @@ std::vector<std::byte> serializePolicyRollout(const Pack& pack) {
+         payloadBytes +=
+             20u + outcome.id.size() + outcome.unit.size();
+     }
++    if (pack.memoryHiddenCount) payloadBytes+=8u+2u*sizeof(std::uint64_t)+
++        pack.memoryBefore.size()*sizeof(float)+pack.memoryResets.size()*sizeof(std::uint32_t);
+     Writer writer{payloadBytes};
+     writer.string(pack.id);
+     writer.pod(pack.taskFingerprint);
+@@ -1894,15 +1910,20 @@ std::vector<std::byte> serializePolicyRollout(const Pack& pack) {
+     }
+     writer.vector(pack.outcomeValues);
+     writer.vector(pack.transitions);
++    if (pack.memoryHiddenCount) {
++        writer.pod(std::uint32_t(1));writer.pod(pack.memoryHiddenCount);
++        writer.vector(pack.memoryBefore);writer.vector(pack.memoryResets);
++    }
+     return writer.data();
+ }
+ 
+ bool deserializePolicyRollout(
+     const std::span<const std::byte> payload,
+-    PolicyRolloutPack& pack
++    PolicyRolloutPack& pack,
++    const std::uint32_t formatVersion
+ ) {
+     Reader reader{payload};
+-    return reader.string(pack.id) &&
++    if (!(reader.string(pack.id) &&
+         reader.pod(pack.taskFingerprint) &&
+         reader.pod(pack.policyFingerprint) &&
+         reader.pod(pack.policyRevision) &&
+@@ -1930,8 +1951,13 @@ bool deserializePolicyRollout(
+             }
+         ) &&
+         reader.vector(pack.outcomeValues) &&
+-        reader.vector(pack.transitions) &&
+-        reader.finished();
++        reader.vector(pack.transitions))) return false;
++    if (formatVersion==8u) {
++        std::uint32_t abi=0;
++        if (!reader.pod(abi) || abi!=1 || !reader.pod(pack.memoryHiddenCount) || !pack.memoryHiddenCount ||
++            !reader.vector(pack.memoryBefore) || !reader.vector(pack.memoryResets)) return false;
++    }
++    return reader.finished();
+ }
+ 
+ std::vector<std::byte> serializeMotion(
+@@ -2529,6 +2555,9 @@ LearningPackResult writePolicyRolloutPack(
+             .outcomes = pack.outcomes,
+             .outcomeValues = pack.outcomeValues,
+             .transitions = pack.transitions,
++            .memoryHiddenCount = pack.memoryHiddenCount,
++            .memoryBefore = pack.memoryBefore,
++            .memoryResets = pack.memoryResets,
+         },
+         path
+     );
+@@ -2547,7 +2576,7 @@ LearningPackResult writePolicyRolloutPack(
+         return writePack(
+             serializePolicyRollout(pack),
+             kPolicyRolloutKind,
+-            kPolicyRolloutPackFormatVersion,
++            pack.memoryHiddenCount ? kPolicyRolloutPackFormatVersion : 7u,
+             path
+         );
+     } catch (const std::bad_alloc&) {
+@@ -2573,7 +2602,8 @@ LearningPackResult readPolicyRolloutPack(
+         kPolicyRolloutKind,
+         kPolicyRolloutPackFormatVersion,
+         staged,
+-        deserializePolicyRollout
++        deserializePolicyRollout,
++        7u
+     );
+     if (!result.succeeded()) {
+         return result;

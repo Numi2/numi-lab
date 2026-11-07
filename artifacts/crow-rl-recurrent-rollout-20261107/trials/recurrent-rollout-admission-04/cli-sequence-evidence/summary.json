@@ -1,0 +1,11 @@
+{
+  "schema": "numi.crow-recurrent-rollout-cli-sequence-evidence.v1",
+  "status": "passed",
+  "real_native_slots": 100,
+  "MLX_full50tick_native_sequence_max_abs": 1.4901161193847656e-08,
+  "continuation_zero_hidden_action_difference": 0.0028618723154067993,
+  "continuation_initial_hidden_norm": 0.26111912727355957,
+  "modeled_hidden_counterfactual_only": true,
+  "recurrent_PPO_integrated": false,
+  "embodied_memory_qualified": false
+}

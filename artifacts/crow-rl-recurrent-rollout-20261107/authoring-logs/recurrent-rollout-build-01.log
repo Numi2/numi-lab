@@ -1,0 +1,14 @@
+[1/14] Building CXX object CMakeFiles/metalrobo.dir/src/core/MotionCompiler.cpp.o
+[2/14] Building CXX object CMakeFiles/metalrobo.dir/src/core/CrowEmbodiment.cpp.o
+[3/14] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/RetinalObserver.mm.o
+[4/14] Building CXX object CMakeFiles/metalrobo.dir/src/core/LearningPacks.cpp.o
+[5/14] Building CXX object CMakeFiles/metalrobo.dir/src/core/FrankaWorld.cpp.o
+[6/14] Building CXX object CMakeFiles/metalrobo.dir/src/core/RunProgram.cpp.o
+[7/14] Building OBJCXX object CMakeFiles/metalrobo_crow_recurrent_actor_check.dir/apps/crow_recurrent_actor_check.mm.o
+[8/14] Building CXX object CMakeFiles/metalrobo.dir/src/c_api.cpp.o
+[9/14] Linking CXX shared library lib/libmetalrobo.dylib
+[10/14] Linking OBJCXX executable bin/metalrobo_crow_recurrent_actor_check
+[11/14] Building Swift Module 'metalrobo_task_train' with 4 sources
+[12/14] Linking Swift executable bin/metalrobo_task_train
+[13/14] Building Swift Module 'metalrobo_task_rollout' with 4 sources
+[14/14] Linking Swift executable bin/metalrobo_task_rollout

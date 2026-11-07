@@ -2091,6 +2091,8 @@ private enum TaskTrainMain {
             var logProbabilities: [Float] = []
             var values: [Float] = []
             var transitions: [MetalRoboTaskTransition] = []
+            var policyMemoryBefore: [Float] = []
+            var policyMemoryResets: [UInt32] = []
             actorObservations.reserveCapacity(
                 samplesPerUpdate *
                     layout.actorObservationCount
@@ -2131,6 +2133,8 @@ private enum TaskTrainMain {
                 logProbabilities.removeAll(keepingCapacity: true)
                 values.removeAll(keepingCapacity: true)
                 transitions.removeAll(keepingCapacity: true)
+                policyMemoryBefore.removeAll(keepingCapacity: true)
+                policyMemoryResets.removeAll(keepingCapacity: true)
                 var completed = 0
                 while completed < options.steps {
                     let stepCount = min(
@@ -2159,6 +2163,14 @@ private enum TaskTrainMain {
                             "Native rollout returned a GPU failure."
                         )
                     }
+                    if completed == 0 && context.policyMemoryWidth != 0 {
+                        let (memoryElements, overflow) = samplesPerUpdate.multipliedReportingOverflow(by: context.policyMemoryWidth)
+                        guard !overflow else {
+                            throw MetalRoboTaskRolloutError.invalidShape("Recurrent update arena exceeds Int capacity.")
+                        }
+                        policyMemoryBefore.reserveCapacity(memoryElements)
+                        policyMemoryResets.reserveCapacity(samplesPerUpdate)
+                    }
                     let transitionOffset =
                         transitions.count
                     try context.appendCurrentPolicyRollout(
@@ -2173,7 +2185,9 @@ private enum TaskTrainMain {
                         logProbabilities:
                             &logProbabilities,
                         values: &values,
-                        transitions: &transitions
+                        transitions: &transitions,
+                        policyMemoryBefore: &policyMemoryBefore,
+                        policyMemoryResets: &policyMemoryResets
                     )
                     guard transitions[
                         transitionOffset...
@@ -2221,7 +2235,10 @@ private enum TaskTrainMain {
                     latents: latents,
                     logProbabilities: logProbabilities,
                     values: values,
-                    transitions: transitions
+                    transitions: transitions,
+                    policyMemoryWidth: context.policyMemoryWidth,
+                    policyMemoryBefore: policyMemoryBefore,
+                    policyMemoryResets: policyMemoryResets
                 )
                 let bootstrapValues =
                     try context.bootstrapPolicyValues()

@@ -1279,6 +1279,15 @@ if(METALROBO_HAS_SWIFT)
             INSTALL_RPATH "@loader_path/../lib"
     )
 
+    add_executable(metalrobo_crow_recurrent_rollout_check
+        apps/crow_recurrent_rollout_check.swift bindings/swift/MetalRoboTaskRollout.swift)
+    target_include_directories(metalrobo_crow_recurrent_rollout_check PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo")
+    target_link_libraries(metalrobo_crow_recurrent_rollout_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
+    target_compile_options(metalrobo_crow_recurrent_rollout_check PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:-parse-as-library>")
+    set_target_properties(metalrobo_crow_recurrent_rollout_check PROPERTIES
+        Swift_LANGUAGE_VERSION 6 Swift_COMPILATION_MODE singlefile
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin" BUILD_RPATH "@loader_path/../lib")
+
     if(BUILD_TESTING)
         add_executable(metalrobo_crow_episode_evidence_test
             apps/CrowEpisodeEvidence.swift
@@ -2414,6 +2423,17 @@ if(BUILD_TESTING)
             "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_life_checkpoint_check>"
             "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowLifeCheckpoint.cmake")
+    if(TARGET metalrobo_crow_recurrent_rollout_check)
+        add_test(NAME metalrobo.crow.recurrent_rollout
+            COMMAND "${CMAKE_COMMAND}"
+                "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_recurrent_actor_check>"
+                "-DSWIFT_PROGRAM=$<TARGET_FILE:metalrobo_crow_recurrent_rollout_check>"
+                "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
+                "-DOLD_METALLIB=${CMAKE_CURRENT_SOURCE_DIR}/artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib"
+                -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowRecurrentRollout.cmake")
+        set_tests_properties(metalrobo.crow.recurrent_rollout PROPERTIES
+            LABELS "metalrobo;crow;native;memory;learning" TIMEOUT 400)
+    endif()
     add_test(NAME metalrobo.crow.recurrent_actor
         COMMAND "${CMAKE_COMMAND}"
             "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_recurrent_actor_check>"

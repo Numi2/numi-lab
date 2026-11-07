@@ -1,0 +1,344 @@
+{
+  "action_carrier" : "v13_retinal_feeding_native_rgb",
+  "action_count" : 18,
+  "action_fingerprint" : "10372874313074787933",
+  "action_source" : "policy_pack",
+  "action_stream" : "",
+  "actor_observation_count" : 1251,
+  "any_link_dodge_rate" : 0,
+  "any_link_projectile_hit_count" : 0,
+  "any_link_projectile_hit_rate" : 0,
+  "articulated_contact_responses" : "streamed_inverse_aba",
+  "benchmark" : "swift_native_task_rollout",
+  "benchmark_seed" : 2651109501,
+  "birdflow_journey_student_authority" : 0,
+  "birdflow_journey_teacher" : false,
+  "birdflow_journey_variant" : "v13-retinal-feeding",
+  "birdflow_navigation_course" : "training",
+  "birdflow_navigation_course_role" : "training-or-held-out-qualification",
+  "birdflow_navigation_curriculum" : false,
+  "birdflow_navigation_curriculum_stage" : -1,
+  "birdflow_pronation" : 0,
+  "birdflow_pronation_wave_phase" : 0,
+  "birdflow_stroke_amplitude" : 0,
+  "birdflow_sweep_wave_amplitude" : 0,
+  "birdflow_sweep_wave_phase" : 0,
+  "birdflow_tail_pitch" : 0,
+  "birdflow_wing_pulse_amplitude" : 0,
+  "birdflow_wing_pulse_duration_steps" : 0,
+  "birdflow_wing_pulse_secondary_amplitude" : 0,
+  "birdflow_wing_pulse_secondary_target" : "",
+  "birdflow_wing_pulse_start_step" : 0,
+  "birdflow_wing_pulse_target" : "wings",
+  "clean_horizon_environment_count" : 2,
+  "clean_horizon_environment_rate" : 1,
+  "clean_projectile_miss_count" : 0,
+  "compiled_impact_event_count" : 0,
+  "completed_projectile_trial_count" : 0,
+  "control_steps_per_submission" : 8,
+  "critic_observation_count" : 97,
+  "crow_navigation_arrival_pack" : "",
+  "crow_navigation_arrival_payload_sha256" : "",
+  "crow_navigation_arrival_waypoint" : 3,
+  "crow_replay_pack" : "",
+  "crow_replay_payload_sha256" : "",
+  "device" : "Apple M4 Pro",
+  "difficulty_sampling_exponent_override" : 0,
+  "dynamic_sphere_count" : 0,
+  "elapsed_seconds" : 0.11323354200000001,
+  "environment_control_steps_per_second" : 229.61394248357962,
+  "environments" : 2,
+  "failed_environment_steps" : 0,
+  "final_forward_progress_by_environment_m" : [
+
+  ],
+  "final_velocity_iterations" : 2,
+  "finite_resource_accounting" : {
+    "accepted_control_ticks_by_environment" : [
+      50,
+      50
+    ],
+    "bite_count_by_environment" : [
+      0,
+      0
+    ],
+    "consumed_micrograms_by_environment" : [
+      0,
+      0
+    ],
+    "crop_micrograms_by_environment" : [
+      0,
+      0
+    ],
+    "initialized_by_environment" : [
+      1,
+      1
+    ],
+    "remaining_micrograms_by_environment" : [
+      45000,
+      45000
+    ]
+  },
+  "first_episode_navigation" : null,
+  "foot_support_step_count" : 0,
+  "forward_progress_available" : false,
+  "gpu_milliseconds" : 104.97400001622736,
+  "height_or_tilt_termination_count" : 0,
+  "host_requested_resets" : 0,
+  "immutable_private_bytes" : 160761,
+  "impact_sequence_enabled_steps" : 0,
+  "impact_sequence_metrics" : [
+
+  ],
+  "life_checkpoint_restored" : true,
+  "life_checkpoint_saved" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/.numi\/runs\/american-crow\/recurrent-rollout-admission-04\/cli-resume-chunk8.lifecheckpoint",
+  "maximum_active_contacts" : 8,
+  "maximum_episode_steps" : 1000000,
+  "maximum_forward_progress_m" : 0,
+  "maximum_manifolds" : 2,
+  "maximum_navigation_completion_by_environment" : [
+    0,
+    0
+  ],
+  "maximum_navigation_progress_by_environment_m" : [
+    0,
+    0
+  ],
+  "maximum_navigation_waypoints_by_environment" : [
+    0,
+    0
+  ],
+  "maximum_root_height" : 0.17721861600875854,
+  "maximum_sampled_difficulty_band" : 0,
+  "maximum_tilt" : 0.00058152619749307632,
+  "maximum_tilt_by_environment" : [
+    0.00058152619749307632,
+    0.00058152619749307632
+  ],
+  "mean_base_reward" : 0,
+  "mean_contact_reward" : 0,
+  "mean_control_reward" : 0,
+  "mean_energy_reward" : 0,
+  "mean_final_forward_progress_m" : 0,
+  "mean_joint_acceleration_reward" : 0,
+  "mean_joint_velocity_reward" : 0,
+  "mean_peak_forward_progress_m" : 0,
+  "mean_posture_reward" : 0,
+  "mean_reward" : 0,
+  "mean_root_height" : 0.17721861600875854,
+  "mean_root_height_by_environment" : [
+    0.17721861600875854,
+    0.17721861600875854
+  ],
+  "mean_task_reward" : 0,
+  "mean_tilt" : 0.00058075357586718525,
+  "mean_tilt_by_environment" : [
+    0.00058075357586718525,
+    0.00058075357586718525
+  ],
+  "mean_tracking_score" : 1,
+  "mean_tracking_score_by_environment" : [
+    1,
+    1
+  ],
+  "minimum_root_height_by_environment" : [
+    0.17721861600875854,
+    0.17721861600875854
+  ],
+  "minimum_sampled_difficulty_band" : 0,
+  "observation_fingerprint" : "18327117842552663629",
+  "outcomes" : {
+    "accepted_intake_utility" : {
+      "direction" : 1,
+      "mean" : 0,
+      "unit" : "utility"
+    },
+    "done" : {
+      "direction" : 2,
+      "mean" : 0,
+      "unit" : "bool"
+    },
+    "physics_error" : {
+      "direction" : 2,
+      "mean" : 0,
+      "unit" : "bool"
+    },
+    "reward" : {
+      "direction" : 1,
+      "mean" : 0,
+      "unit" : "reward"
+    },
+    "task_reward" : {
+      "direction" : 1,
+      "mean" : 0,
+      "unit" : "reward"
+    },
+    "timeout" : {
+      "direction" : 0,
+      "mean" : 0,
+      "unit" : "bool"
+    }
+  },
+  "peak_aliased_bytes" : 836620,
+  "peak_forward_progress_by_environment_m" : [
+
+  ],
+  "persistent_state_private_bytes" : 87084,
+  "physical_evidence" : {
+    "control_steps" : 50,
+    "evidence_windows" : 0,
+    "last_balance_failure_rate" : 0,
+    "last_clean_miss_rate" : 0,
+    "last_completed_episode_count" : 0,
+    "last_contact_rate" : 0,
+    "last_mean_tracking_per_million" : 0,
+    "pending_completed_episode_count" : 0,
+    "pending_timeout_episode_count" : 0
+  },
+  "physics_error_count_by_environment" : [
+    0,
+    0
+  ],
+  "physics_substeps" : 4,
+  "policy_action_trace" : "",
+  "policy_rollout_fingerprint" : "9827598682111970063",
+  "policy_sample_count" : 26,
+  "quiet_stand_step_count" : 0,
+  "reality_fingerprint" : "16621702836042659768",
+  "recovery_brace_step_count" : 0,
+  "recovery_phase_rates" : {
+    "brace" : 0,
+    "foot_support" : 0,
+    "quiet_stand" : 0,
+    "rise" : 0,
+    "support_transfer" : 0,
+    "trunk_clear" : 0
+  },
+  "recovery_phase_rates_by_difficulty_band" : {
+    "0" : {
+      "brace" : 0,
+      "foot_support" : 0,
+      "mean_root_height" : 0.17721861600875854,
+      "mean_tilt" : 0.00058075357586718525,
+      "quiet_stand" : 0,
+      "restored" : 0,
+      "rise" : 0,
+      "standing" : 0,
+      "support_transfer" : 0,
+      "transition_count" : 26,
+      "trunk_clear" : 0
+    }
+  },
+  "recovery_rise_step_count" : 0,
+  "repeats" : 1,
+  "restored_step_count" : 0,
+  "retained_buffer_bytes" : 1401522,
+  "robot_fingerprint" : "25360054979564016",
+  "rollout_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/.numi\/runs\/american-crow\/recurrent-rollout-admission-04\/cli-resume-chunk8.rolloutpack",
+  "rollout_pack_bytes" : 145840,
+  "run_fingerprint" : "10760975525616614901",
+  "scene" : "terrain",
+  "scheduled_resets" : false,
+  "sensor_fingerprint" : "12699962253047324824",
+  "shared_boundary_bytes" : 268737,
+  "solver_mode" : "temporal_cone",
+  "squat_cycle_completed_environment_count" : 0,
+  "squat_cycle_completed_environment_rate" : 0,
+  "squat_cycle_completed_environments" : [
+
+  ],
+  "squat_cycle_evidence" : {
+    "available" : false,
+    "bilateral_knee_excursion" : 0,
+    "bilateral_support_rate" : 0,
+    "completed" : false,
+    "environment" : 0,
+    "final_mean_knee_flexion" : 0,
+    "final_pelvis_height" : 0,
+    "initial_mean_knee_flexion" : 0,
+    "initial_pelvis_height" : 0,
+    "maximum_left_knee_flexion" : 0,
+    "maximum_right_knee_flexion" : 0,
+    "minimum_pelvis_height" : 0,
+    "pelvis_descent" : 0,
+    "returned_to_initial_pose" : false,
+    "termination_count" : 0
+  },
+  "squat_cycle_evidence_by_environment" : [
+    {
+      "available" : false,
+      "bilateral_knee_excursion" : 0,
+      "bilateral_support_rate" : 0,
+      "completed" : false,
+      "environment" : 0,
+      "pelvis_descent" : 0,
+      "returned_to_initial_pose" : false,
+      "termination_count" : 0
+    },
+    {
+      "available" : false,
+      "bilateral_knee_excursion" : 0,
+      "bilateral_support_rate" : 0,
+      "completed" : false,
+      "environment" : 1,
+      "pelvis_descent" : 0,
+      "returned_to_initial_pose" : false,
+      "termination_count" : 0
+    }
+  ],
+  "stage_high_water" : {
+    "articulation_point_queries" : 0,
+    "candidate_pairs" : 2,
+    "ccd_candidates" : 0,
+    "ccd_events" : 0,
+    "constraint_blocks" : 8,
+    "constraint_rows" : 24,
+    "dynamic_nodes" : 0,
+    "endpoint_runtime_records" : 0,
+    "hard_convex_pairs" : 0,
+    "island_constraint_references" : 0,
+    "island_node_references" : 0,
+    "islands" : 1,
+    "manifolds" : 2,
+    "mesh_triangle_candidates" : 0,
+    "operator_velocity_elements" : 0,
+    "quality_direct_tiles" : 0,
+    "quality_generalized_velocities" : 0,
+    "quality_krylov_vectors" : 0,
+    "quality_rows" : 0,
+    "raw_contacts" : 8,
+    "rod_candidate_pairs" : 0,
+    "rod_ccd_events" : 0,
+    "rod_factor_blocks" : 0,
+    "rod_manifolds" : 0,
+    "rod_raw_contacts" : 0,
+    "solver_tiles" : 1,
+    "spill_rows" : 0
+  },
+  "standing_step_count" : 0,
+  "state_trace" : "",
+  "steps_per_repeat" : 13,
+  "submission_count" : 2,
+  "submission_milliseconds" : 105.76466599999998,
+  "support_transfer_step_count" : 0,
+  "task" : "american_crow_retinal_feeding_v13",
+  "task_fingerprint" : "10665415285619439269",
+  "teacher_fingerprint" : "1511410706312779353",
+  "termination_count" : 0,
+  "termination_count_by_environment" : [
+    0,
+    0
+  ],
+  "termination_reason_counts" : {
+
+  },
+  "timeout_count" : 0,
+  "transient_private_bytes" : 836620,
+  "trunk_clear_step_count" : 0,
+  "velocity_iterations" : 4,
+  "visual_observation" : true,
+  "visual_observation_config" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/.numi\/runs\/american-crow\/recurrent-rollout-admission-04\/native-evidence\/retinal-observation.json",
+  "visual_scene_fingerprint" : 11022774437933164112,
+  "world_fingerprint" : "18258507920896739356",
+  "world_source" : "american_crow_retinal_feeding_v13"
+}

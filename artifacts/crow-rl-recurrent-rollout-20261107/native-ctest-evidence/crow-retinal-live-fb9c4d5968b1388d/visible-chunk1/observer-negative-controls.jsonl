@@ -1,0 +1,8 @@
+{"case":0,"rejected":true,"reason":"Retinal physical camera differs from bound sensor program"}
+{"case":1,"rejected":true,"reason":"Retinal physical camera differs from bound sensor program"}
+{"case":2,"rejected":true,"reason":"Retinal physical camera differs from bound sensor program"}
+{"case":3,"rejected":true,"reason":"Retinal physical camera differs from bound sensor program"}
+{"case":4,"rejected":true,"reason":"Retinal physical camera differs from bound sensor program"}
+{"case":5,"rejected":true,"reason":"Retinal physical camera differs from bound sensor program"}
+{"case":6,"rejected":true,"reason":"Retinal static asset pose differs from physical default state"}
+{"case":7,"rejected":true,"reason":"Retinal template does not reproduce the actual physics model"}

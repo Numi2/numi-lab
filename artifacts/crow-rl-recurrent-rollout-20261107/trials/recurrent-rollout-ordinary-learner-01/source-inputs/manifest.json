@@ -1,0 +1,10 @@
+{
+  "base_commit": "6655a62213545119060a8b7d2995ef130f8772ad",
+  "tracked_patch_sha256": "97dd2bad222b2cd49083784107b8ef09f4253526289590702a969a276086338b",
+  "retained_untracked": {
+    "apps/crow_recurrent_rollout_check.swift": "05c0679c40fb2487e041924c83aa7cc0c8a42ff8ac4dba22519404bcecf76e04",
+    "cmake/CheckCrowRecurrentRollout.cmake": "cce05fdc80f95756171250d029eecb962749540fc5407b0fd36eb847d3312f60",
+    "python/metalrobo/recurrent_rollout_admission.py": "18c9cdf339421a451462282fa6729186edd5ad284edbd727453ca32555b783ed"
+  },
+  "external_artifact_inputs": {}
+}

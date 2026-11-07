@@ -1,0 +1,70 @@
+[
+  {
+    "name": "flat-actor",
+    "error": "Recurrent actor requires explicit initial hidden state and contiguous sequence/reset masks"
+  },
+  {
+    "name": "flat-learner-restore",
+    "error": "Recurrent PolicyPack requires the contiguous sequence PPO learner"
+  },
+  {
+    "name": "flat-actor-initialization",
+    "error": "Recurrent PolicyPack requires the contiguous sequence PPO learner"
+  },
+  {
+    "name": "flat-actor-projection",
+    "error": "Recurrent PolicyPack requires the contiguous sequence PPO learner"
+  },
+  {
+    "name": "writer-invalid-boundary",
+    "error": "GRU boundary, tensor shapes or values are invalid"
+  },
+  {
+    "name": "writer-dense-boundary-mismatch",
+    "error": "PolicyPack write failed: Recurrent PolicyPack write failed: PolicyPack GRU encoder/head boundary is invalid"
+  },
+  {
+    "name": "writer-nonfinite",
+    "error": "GRU input bias must contain only finite values"
+  },
+  {
+    "name": "C-version",
+    "error": "Unsupported recurrent policy memory descriptor ABI/size"
+  },
+  {
+    "name": "C-size",
+    "error": "Unsupported recurrent policy memory descriptor ABI/size"
+  },
+  {
+    "name": "C-dimensions",
+    "error": "Recurrent policy memory dimensions/tensor counts are invalid"
+  },
+  {
+    "name": "reader-after-zero",
+    "error": "PolicyPack GRU boundary or dimensions are invalid"
+  },
+  {
+    "name": "reader-after-end",
+    "error": "PolicyPack GRU boundary or dimensions are invalid"
+  },
+  {
+    "name": "reader-input-width",
+    "error": "PolicyPack GRU boundary or dimensions are invalid"
+  },
+  {
+    "name": "reader-hidden-zero",
+    "error": "PolicyPack GRU boundary or dimensions are invalid"
+  },
+  {
+    "name": "reader-nonfinite-bound",
+    "error": "PolicyPack GRU boundary or dimensions are invalid"
+  },
+  {
+    "name": "reader-wrong-weight-count",
+    "error": "Learning-pack vector count disagrees with its dimensions"
+  },
+  {
+    "name": "reader-nonfinite-weight",
+    "error": "PolicyPack GRU values or dense topology are invalid"
+  }
+]

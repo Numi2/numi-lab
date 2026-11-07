@@ -1,0 +1,7 @@
+{
+  "base_commit": "6655a62213545119060a8b7d2995ef130f8772ad",
+  "tracked_patch_sha256": "74903c10c89c45e157ed37776338151ae35ce045dc41a1db29e74bd97597324a",
+  "retained_untracked": {
+    "apps/crow_recurrent_rollout_check.swift": "05c0679c40fb2487e041924c83aa7cc0c8a42ff8ac4dba22519404bcecf76e04"
+  }
+}

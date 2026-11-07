@@ -102,6 +102,95 @@ def preflight(root: Path, profile: dict) -> dict:
     }
 
 
+def recurrent_rollout_cli(root: Path, output: Path, checked: dict, retained: Path) -> dict:
+    base=["--birdflow-american-crow-journey","--birdflow-journey-variant","v13-retinal-feeding",
+        "--envs","2","--repeats","1","--no-scheduled-resets","--minimum-difficulty-band","0",
+        "--maximum-difficulty-band","0","--seed","2651109501","--policy-pack",str(output/"native-evidence/first.policypack"),
+        "--visual-observation-config",str(output/"native-evidence/retinal-observation.json")]
+    records=[]
+    for chunk in (1,8):
+        for resume,steps,tick in ((False,37,37),(True,13,50)):
+            name=("cli-resume" if resume else "cli-start")+"-chunk"+str(chunk)
+            command=[checked["inputs"]["rollout"]["path"],"--metallib",checked["inputs"]["metallib"]["path"]]+base+[
+                "--steps",str(steps),"--chunk",str(chunk),"--rollout-pack",str(output/(name+".rolloutpack")),
+                "--save-life-checkpoint",str(output/(name+".lifecheckpoint"))]
+            if resume:command += ["--resume-life-checkpoint",str(output/("cli-start-chunk"+str(chunk)+".lifecheckpoint"))]
+            value=execute(output,name,command,root,120)
+            if value.get("failed_environment_steps")!=0 or value.get("finite_resource_accounting",{}).get("accepted_control_ticks_by_environment")!=[tick,tick]:
+                raise RuntimeError("Recurrent regular CLI introduced warmup/failure or lost accepted life clock: "+name)
+            if resume and value.get("life_checkpoint_restored") is not True:
+                raise RuntimeError("Recurrent regular CLI did not restore full native life")
+            records.append({"name":name,"fingerprint":value["policy_rollout_fingerprint"],"accepted_ticks":[tick,tick],
+                "rollout_sha256":sha(output/(name+".rolloutpack"))})
+    for prefix in ("cli-start","cli-resume"):
+        pair=[r for r in records if r["name"].startswith(prefix)]
+        if pair[0]["fingerprint"]!=pair[1]["fingerprint"] or pair[0]["rollout_sha256"]!=pair[1]["rollout_sha256"]:
+            raise RuntimeError("Recurrent regular CLI depends on chunk partition: "+prefix)
+    name="cli-retained-resume"
+    command=["/usr/bin/env","DYLD_LIBRARY_PATH="+str(retained/"lib"),str(retained/"bin/metalrobo_task_rollout"),
+        "--metallib",str(retained/"shaders/MetalRobo.metallib")]+base+["--steps","13","--chunk","8",
+        "--resume-life-checkpoint",str(output/"cli-start-chunk8.lifecheckpoint"),
+        "--save-life-checkpoint",str(output/(name+".lifecheckpoint")),"--rollout-pack",str(output/(name+".rolloutpack"))]
+    recovered=execute(output,name,command,root,120)
+    if (recovered.get("policy_rollout_fingerprint")!=records[3]["fingerprint"] or sha(output/(name+".rolloutpack"))!=records[3]["rollout_sha256"]
+            or recovered.get("finite_resource_accounting",{}).get("accepted_control_ticks_by_environment")!=[50,50]):
+        raise RuntimeError("Retained regular CLI recurrent continuation differs")
+    result={"schema":"numi.crow-recurrent-rollout-cli.v1","status":"passed","records":records,
+        "chunk1_8_start_and_resume_canonical_bytes_exact":True,"retained_CLI_continuation_canonical_bytes_exact":True,
+        "accepted_ticks":[37,50],"unreported_warmup_steps":0,"development_seed":2651109501}
+    write(output/"cli-life-summary.json",result);return result
+
+
+def recurrent_rollout_admission(root: Path, output: Path, checked: dict) -> dict:
+    policy = recurrent_policy_admission(root, output, checked)
+    swift = execute(output, "rollout-swift", [checked["inputs"]["recurrent_rollout_check"]["path"],
+        str(output/"native-evidence"), str(output/"swift-evidence")], root, 180)
+    learner = execute(output, "rollout-mlx", [sys.executable, "-m", "metalrobo.recurrent_rollout_admission",
+        "--native", str(output/"native-evidence"), "--swift", str(output/"swift-evidence"),
+        "--output", str(output/"rollout-evidence")], root, 180)
+    if swift.get("status") != "passed" or swift.get("rejection_controls") != 10 or learner.get("status") != "passed" or learner.get("parser_and_flat_consumption_rejections") != 11:
+        raise RuntimeError("Recurrent Swift/learner rollout admission failed")
+    retained=root/".numi/retained-runtime"/output.name
+    extra={}
+    for key,relative in (("rollout", "bin/metalrobo_task_rollout"),
+                         ("recurrent_rollout_check", "bin/metalrobo_crow_recurrent_rollout_check"),
+                         ("recurrent_source_recurrent_rollout_admission.py", "python/metalrobo/recurrent_rollout_admission.py")):
+        target=retained/relative;shutil.copy2(checked["inputs"][key]["path"],target)
+        if sha(target)!=checked["inputs"][key]["sha256"]:
+            raise RuntimeError("Recurrent rollout runtime/source changed during admission: "+key)
+        extra[key]={"path":str(target),"sha256":sha(target)}
+    write(output/"retained-rollout-inputs.json",extra)
+    recovered_swift=execute(output,"retained-rollout-swift",["/usr/bin/env","DYLD_LIBRARY_PATH="+str(retained/"lib"),
+        str(retained/"bin/metalrobo_crow_recurrent_rollout_check"),str(output/"native-evidence"),
+        str(output/"retained-swift-recovery")],root,180)
+    if recovered_swift!=swift:raise RuntimeError("Retained Swift rollout summary differs")
+    recovered=execute(output,"retained-rollout-mlx",["/usr/bin/env","PYTHONPATH="+str(retained/"python"),
+        "METALROBO_LIBRARY="+str(retained/"lib/libmetalrobo.dylib"),sys.executable,"-m","metalrobo.recurrent_rollout_admission",
+        "--native",str(output/"native-evidence"),"--swift",str(output/"retained-swift-recovery"),
+        "--output",str(output/"retained-rollout-recovery")],root,180)
+    if recovered!=learner:raise RuntimeError("Retained rollout learner summary differs")
+    import numpy as np
+    with np.load(output/"rollout-evidence/artifact-sequence-parity.npz") as expected,np.load(output/"retained-rollout-recovery/artifact-sequence-parity.npz") as actual:
+        if expected.files!=actual.files or any(not np.array_equal(expected[k],actual[k]) for k in expected.files):
+            raise RuntimeError("Retained recurrent rollout sequence arrays differ")
+    cli=recurrent_rollout_cli(root,output,checked,retained)
+    cli_learner=execute(output,"cli-sequence-mlx",[sys.executable,"-m","metalrobo.recurrent_rollout_admission",
+        "--cli",str(output),"--output",str(output/"cli-sequence-evidence")],root,180)
+    if cli_learner.get("status")!="passed" or cli_learner.get("continuation_zero_hidden_action_difference",0)<1e-4:
+        raise RuntimeError("Regular CLI recurrent sequence continuity/causal state check failed")
+    recovered_cli=execute(output,"retained-cli-sequence-mlx",["/usr/bin/env","PYTHONPATH="+str(retained/"python"),
+        "METALROBO_LIBRARY="+str(retained/"lib/libmetalrobo.dylib"),sys.executable,"-m","metalrobo.recurrent_rollout_admission",
+        "--cli",str(output),"--output",str(output/"retained-cli-sequence-recovery")],root,180)
+    if recovered_cli!=cli_learner:raise RuntimeError("Retained regular CLI sequence learner summary differs")
+    with np.load(output/"cli-sequence-evidence/cli-sequence-parity.npz") as expected,np.load(output/"retained-cli-sequence-recovery/cli-sequence-parity.npz") as actual:
+        if expected.files!=actual.files or any(not np.array_equal(expected[k],actual[k]) for k in expected.files):
+            raise RuntimeError("Retained regular CLI sequence learner arrays differ")
+    return {"schema":"numi.crow-recurrent-rollout-admission.v2","status":"passed","policy":policy,"swift":swift,"learner":learner,
+        "regular_CLI":cli,"regular_CLI_sequence":cli_learner,"retained_regular_CLI_sequence_summary_and_all_arrays_exact":True,
+        "retained_Swift_and_learner_summary_all_sequence_arrays_exact":True,
+        "recurrent_rollout_format_integrated":True,"sequence_PPO_integrated":False,"embodied_memory_qualified":False}
+
+
 def recurrent_policy_admission(root: Path, output: Path, checked: dict) -> dict:
     actor = recurrent_actor_admission(root, output, checked)
     learner = execute(output, "policy-mlx", [sys.executable, "-m", "metalrobo.recurrent_policy_admission",
@@ -142,7 +231,7 @@ def recurrent_actor_admission(root: Path, output: Path, checked: dict) -> dict:
     native = execute(output, "recurrent-native", [checked["inputs"]["recurrent_check"]["path"],
         str(output/"native-evidence"), checked["inputs"]["policy_abi3_shader"]["path"]], root, 180)
     if (native.get("status") != "passed" or native.get("invalid_contract_controls") != 7
-            or native.get("publication_rejection_controls") != 3
+            or native.get("publication_rejection_controls") != 5
             or not all(native.get(key) is True for key in ("chunk_preview_trace_exact",
                 "fresh_process_full_life_exact", "stale_policy_shader_rejected"))):
         raise RuntimeError("Native recurrent actor admission failed")
@@ -1096,6 +1185,7 @@ def main() -> int:
     commands.add_parser("memory-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("recurrent-actor-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("recurrent-policy-admission").add_argument("--output", type=Path, required=True)
+    commands.add_parser("recurrent-rollout-admission").add_argument("--output", type=Path, required=True)
     life_training=commands.add_parser("life-training-probe")
     life_training.add_argument("--output",type=Path,required=True)
     life_training.add_argument("--retinal-calibration",type=Path,required=True)
@@ -1155,7 +1245,7 @@ def main() -> int:
         print(json.dumps(profile, indent=2))
         return 0
     checked = preflight(root, profile)
-    if args.command in ("recurrent-actor-admission", "recurrent-policy-admission"):
+    if args.command in ("recurrent-actor-admission", "recurrent-policy-admission", "recurrent-rollout-admission"):
         build = Path(checked["inputs"]["library"]["path"]).parent.parent
         for name, path in (("recurrent_check", build/"bin/metalrobo_crow_recurrent_actor_check"),
                            ("gru_metallib", build/"shaders/GRUMemory.metallib"),
@@ -1170,10 +1260,16 @@ def main() -> int:
             if not path.is_file() or not path.stat().st_size:
                 raise RuntimeError("Missing native GRU component: "+str(path))
             checked["inputs"][name] = {"path": str(path), "sha256": sha(path)}
-    if args.command == "recurrent-policy-admission":
+    if args.command in ("recurrent-policy-admission", "recurrent-rollout-admission"):
         for name in ("native.py", "mlx_policy_learning.py", "gru_memory.py", "recurrent_policy_admission.py"):
             path=root/"python/metalrobo"/name
             checked["inputs"]["recurrent_source_"+name]={"path": str(path), "sha256": sha(path)}
+    if args.command == "recurrent-rollout-admission":
+        build=Path(checked["inputs"]["library"]["path"]).parent.parent
+        for key,path in (("recurrent_rollout_check",build/"bin/metalrobo_crow_recurrent_rollout_check"),
+                         ("recurrent_source_recurrent_rollout_admission.py",root/"python/metalrobo/recurrent_rollout_admission.py")):
+            if not path.is_file() or not path.stat().st_size:raise RuntimeError("Missing recurrent rollout admission input: "+str(path))
+            checked["inputs"][key]={"path":str(path),"sha256":sha(path)}
     if args.command == "doctor":
         print(json.dumps(checked, indent=2))
         return 0
@@ -1291,9 +1387,9 @@ def main() -> int:
           "validity":"exact runtime/configuration/source inputs; both owners restored; accepted clock has no warmup; zero device failures; all expected updates; uncommitted/corrupt/mixed checkpoints reject",
           "stopping":"four complete bounded180s runs; nine bounded60s rejection controls; stop on first positive invalidity; preserve all failures",
           "estimated_raw_output_limit_bytes":750*1024*1024, "ecological_environment_qualified":False})
-    if args.command in ("recurrent-actor-admission", "recurrent-policy-admission"):
+    if args.command in ("recurrent-actor-admission", "recurrent-policy-admission", "recurrent-rollout-admission"):
         plan.update({"purpose": "native embodied recurrent actor and full-life checkpoint engineering admission",
-          "prediction": "FP64 actor/pre-cell max error<=5e-6; chunks1/8 and extra intermediate terminal previews have exact real traces/actions/physics; fresh process has exact future and all three final life-state component blobs; seven compiler and three resident publication controls reject; stale policyABI3 shader rejects for declared ABI4 cause; independently retained runtime reproduces all future stream bytes",
+          "prediction": "FP64 actor/pre-cell max error<=5e-6; chunks1/8 and extra intermediate terminal previews have exact real traces/actions/physics; fresh process has exact future and all three final life-state component blobs; seven compiler and five resident publication controls reject including reused/reversed generating revisions; stale policyABI3 shader rejects for declared ABI4 cause; independently retained runtime reproduces all future stream bytes",
           "control": "two supported real native v13 lanes, authored encoder5-GRU7-action18 actor,40 ticks; lane1 reset9; next weights published18 without physical step; aligned final camera capture in all arms; no qualification seeds",
           "unit": "one authored neural/controller engineering instrument, not a learned-memory experiment",
           "stopping": "one native admission180s including bounded40s child; one retained-runtime continuation40s; preserve failures, no automatic retries",
@@ -1303,6 +1399,12 @@ def main() -> int:
           "prediction": "native actor admission passes; two recurrent and one dense policy roundtrip byte exactly; MLX sequence actor/pre-cell error<=5e-6 on all80 native slots;17 semantic/API/flat-learner misuse controls reject; retained source/runtime reproduce learner summary, all sequence arrays and canonical policy bytes exactly",
           "stopping": "native180s and retained native40s; two independent MLX policy instruments180s each; stop on invalidity, no automatic retries",
           "limitations": "policy parameter/sequence algebra interface only; recurrent rollout and contiguous PPO remain pending"})
+    if args.command == "recurrent-rollout-admission":
+        plan.update({"purpose":"native/Swift/MLX recurrent rollout8 handoff with retained runtime/source recovery",
+          "prediction":"native actor/policy interface admissions pass; two constant-policy segments18/22 exclude previews; native format8 byte roundtrip and10 malformed memory descriptors plus strict resident generating-revision publication guards; Swift concat chunk1 and training append chunk8 match every canonical byte/final q/v with10 rejections; Python parses all learner/hidden/reset arrays exactly and MLX sequence parity<=5e-6 on80 real slots;11 parser/flat-use controls reject; independent retained Swift/learner summaries and all sequence arrays exact",
+          "conditions":"two supported real native v13 lanes,40ticks, lane1 reset9, next weights18 with no physical step; both segment endpoint captures aligned; native extra intermediate previews; additional unused development seed2651109501 via regular CLI:37ticks then13 fresh-process continuation at chunk1/8 with exact canonical bytes and accepted clocks37/50, no warmup; zeroing continuation hidden state changes native-control action mean by>=1e-4; no qualification seeds",
+          "stopping":"native180s,retained native40s; eight bounded180s batch instruments (two policy, two Swift, two rollout learner, two CLI-sequence), five ordinary CLI120s processes; abort first invalidity, preserve failures, no automatic retry",
+          "limitations":"native collection/publication and forward-sequence algebra only; ordinary native life resume included, but contiguous PPO/BPTT and coupled recurrent optimizer/life resume remain pending"})
     if args.command == "memory-admission":
         plan.update({"purpose": "native working-memory and differentiable sequence algebra component admission",
           "prediction": "native FP64 max error<=3e-6; chunks/previews/duplicates/fresh process exact including reset traces;31 native controls reject including seven re-signed semantic restore corruptions; MLX sequence/pre-cell parity<=3e-6; full parameter/input BPTT<=3e-6 and relative norm<=2e-5; twelve FP64 central differences<=1e-8; reset gradients cut exactly; eight SGD steps reduce fixed objective; retained native/Python-source recovery reproduces future state and learner summary",
@@ -1353,6 +1455,8 @@ def main() -> int:
             result=life_training_probe(root,output,args)
         elif args.command == "life-swift-probe":
             result=life_swift_probe(root,output,args)
+        elif args.command == "recurrent-rollout-admission":
+            result=recurrent_rollout_admission(root,output,checked)
         elif args.command == "recurrent-policy-admission":
             result=recurrent_policy_admission(root,output,checked)
         elif args.command == "recurrent-actor-admission":
