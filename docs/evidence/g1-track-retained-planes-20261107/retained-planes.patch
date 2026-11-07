@@ -1,0 +1,11 @@
+--- /Users/numi/numi-g1-tracker-probe-owner-20261107/src/c_api.cpp	2026-11-07 14:18:00
++++ /Users/numi/numi-g1-tracker-probe-owner-20261107/src/c_api_retained_research.cpp	2026-11-07 15:00:18
+@@ -2390,7 +2390,7 @@
+     rendererConfig.height = program.height;
+     // Closed-loop masked depth consumes exact geometric winners directly.
+     // Media capture has its own retained renderer below.
+-    rendererConfig.retainObservationBuffers = false;
++    rendererConfig.retainObservationBuffers = true; // Isolated research fixture only.
+     rendererConfig.geometricObservationsOnly = true;
+     if (program.maximumRetainedBytes != 0u) {
+         if (program.maximumRetainedBytes >
