@@ -1,0 +1,29 @@
+{
+  "prediction_commit": "fb2bfc5b3520d36f1eb653a64c4b802e15485a51",
+  "source_sha256": "e816cf25d8d057dc94e226a16836c55b51967038d1adae75554850d69861344c",
+  "model_sha256": "5b849e79f93272f2bbc5043b62607d967c698d6bbf9c21da8f66edd61134297a",
+  "binary_sha256": "4f17e9d376af75c34ea6035c794784b250a753d7507dcdb65beb05d4db69b272",
+  "timeout_seconds": 180,
+  "runs": [
+    {
+      "name": "n16-h1us",
+      "argv": [
+        "/tmp/numi_momentum_bins_20261107",
+        "16"
+      ],
+      "status": 0,
+      "elapsed_seconds": 13.300131790980231,
+      "output_sha256": "3d235deb1b4514e35f7dbeadc20bbd6113be9f20dd6cb3ee15b4d1913b36b0ac"
+    },
+    {
+      "name": "n32-h1us",
+      "argv": [
+        "/tmp/numi_momentum_bins_20261107",
+        "32"
+      ],
+      "status": 0,
+      "elapsed_seconds": 105.40658870898187,
+      "output_sha256": "f655d25438564ea0009338d618c578d7b49be4f96b306fd2b81ccdc1d5935447"
+    }
+  ]
+}

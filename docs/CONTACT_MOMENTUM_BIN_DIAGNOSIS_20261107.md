@@ -29,3 +29,25 @@ observable will also show a failure. This is an independent observable from
 the same discrete trajectories, not an independent FEM reference and not
 evidence that either mesh is accurate. Run sequentially, with a 180-second
 timeout per process, preserving output and stopping on failure.
+
+## Result
+
+Both reruns completed (n=16 13.3 s; n=32 105.4 s), stayed positive in
+clearance, and reproduced the original pressure bins to 1.35e-15 or less of
+the respective retained peak bin. The momentum-derived bins independently
+matched the retained pressure bins to 6.09e-14 at n=16 and 1.44e-12 at n=32
+of their respective peak bin, satisfying the declared accounting check.
+
+The momentum-derived n=16→32 maximum bin difference is **12.4253%** of
+the n=32 peak, agreeing with the retained pressure-based comparison. The
+0.25% spatial force gate therefore still fails. This outcome does not support
+the hypothesis that the discrepancy is a pressure-bin reporting error. It
+shows that total body momentum follows different trajectories at the two
+mesh resolutions; it does not say which trajectory is accurate, and it
+cannot distinguish physical wave dispersion from contact-discretization or
+other shared modeling effects. Original total-impulse spatial error remains
+0.628%, also above 0.25%. No production qualification follows.
+
+[Evidence](evidence/contact-momentum-bins-20261107/) contains source and
+binary hashes, exact arguments and runtime, ten full momentum-bin records
+per mesh, and the reproducible comparison. No GPU was used.

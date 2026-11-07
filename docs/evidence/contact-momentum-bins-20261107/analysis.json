@@ -1,0 +1,21 @@
+{
+  "gate": 0.0025,
+  "meshes": {
+    "16": {
+      "reference_peak_force_N": 0.09316361945077155,
+      "pressure_difference_fraction": 1.3406530468293837e-15,
+      "momentum_difference_fraction": 6.088400663303149e-14,
+      "min_gap_m": 9.327253500790557e-05,
+      "accounting_gate_pass": true
+    },
+    "32": {
+      "reference_peak_force_N": 0.09355037924669314,
+      "pressure_difference_fraction": 1.0384192500014382e-15,
+      "momentum_difference_fraction": 1.4310900721091249e-12,
+      "min_gap_m": 9.417197637557616e-05,
+      "accounting_gate_pass": true
+    }
+  },
+  "n16_n32_momentum_bin_difference_fraction": 0.1242529495352284,
+  "spatial_force_gate_pass": false
+}
