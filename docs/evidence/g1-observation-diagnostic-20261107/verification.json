@@ -1,0 +1,19 @@
+{
+  "actions_sha256": "a29f9f5ebb98274bc741d8d593284b8f5a2bc2220b315e7d6cbafa383d1b53e9",
+  "delay_comparisons": 371,
+  "delay_mismatches_gt_1e_6": 371,
+  "environment": 0,
+  "first_terminal_step": 373,
+  "max_gravity_error": 8.647859539578917e-08,
+  "max_joint_position_error": 0.0,
+  "nonzero_expected_delayed_actions": 371,
+  "nonzero_observed_delayed_actions": 0,
+  "prior_state_gravity_samples": 372,
+  "velocity_difference_outliers_gt_1e_5": [
+    {
+      "actor_rad_s": 4.06873274,
+      "pose_difference_rad_s": 0.433714315,
+      "step": 65
+    }
+  ]
+}
