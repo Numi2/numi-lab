@@ -1,0 +1,74 @@
+{
+  "runs": {
+    "n8_mode2": {
+      "peak_normalized_l2": 0.23127009909322194,
+      "final_normalized_l2": 0.16916751899641375,
+      "first_projection_zero_seconds": 0.0017949915539413816,
+      "exact_continuum_zero_seconds": 0.0017480147469502525,
+      "sampled_analytic_zero_seconds": 0.00174801608095693,
+      "first_zero_delay_fraction": 0.026874376816951484,
+      "min_sampled_gap_m": 0.00019998890077916652,
+      "max_sampled_strain": 3.116437952366269e-06,
+      "max_sampled_stress_nonlinearity": 3.2632372605236425e-06
+    },
+    "n8_mode8": {
+      "peak_normalized_l2": 1.9436737189886648,
+      "final_normalized_l2": 0.47702205294950734,
+      "first_projection_zero_seconds": 0.0006867117574757051,
+      "exact_continuum_zero_seconds": 0.00043700368673756313,
+      "sampled_analytic_zero_seconds": 0.0004371345582124997,
+      "first_zero_delay_fraction": 0.5714095288356249,
+      "min_sampled_gap_m": 0.00019998235850852362,
+      "max_sampled_strain": 1.2891276779392058e-05,
+      "max_sampled_stress_nonlinearity": 1.3959129970420764e-05
+    },
+    "n16_mode2": {
+      "peak_normalized_l2": 0.05610044459351237,
+      "final_normalized_l2": 0.03728652854049687,
+      "first_projection_zero_seconds": 0.0017594381062870292,
+      "exact_continuum_zero_seconds": 0.0017480147469502525,
+      "sampled_analytic_zero_seconds": 0.00174801608095693,
+      "first_zero_delay_fraction": 0.006535047462675525,
+      "min_sampled_gap_m": 0.0001999892648000408,
+      "max_sampled_strain": 3.2014777753275325e-06,
+      "max_sampled_stress_nonlinearity": 3.443748549872325e-06
+    },
+    "n16_mode8": {
+      "peak_normalized_l2": 1.9673820504735653,
+      "final_normalized_l2": 0.7649539342443543,
+      "first_projection_zero_seconds": 0.00048534956458024696,
+      "exact_continuum_zero_seconds": 0.00043700368673756313,
+      "sampled_analytic_zero_seconds": 0.0004371345582124997,
+      "first_zero_delay_fraction": 0.11063036608136745,
+      "min_sampled_gap_m": 0.00019998828248839467,
+      "max_sampled_strain": 1.2928710425796908e-05,
+      "max_sampled_stress_nonlinearity": 1.4040384582520792e-05
+    }
+  },
+  "temporal": {
+    "n8_mode2": {
+      "max_projection_difference": 6.967592613982276e-10,
+      "pass": true
+    },
+    "n8_mode8": {
+      "max_projection_difference": 6.744336200625867e-10,
+      "pass": true
+    },
+    "n16_mode2": {
+      "max_projection_difference": 4.12738621058395e-10,
+      "pass": true
+    },
+    "n16_mode8": {
+      "max_projection_difference": 3.872783205238761e-10,
+      "pass": true
+    }
+  },
+  "impact_force_gate": 0.0025,
+  "impact_impulse_gate": 0.0025,
+  "amplitude_halving": {
+    "max_projection_difference": 6.680026531924455e-10,
+    "pass": true
+  },
+  "high_mode_errors_larger_than_low": true,
+  "high_mode_peak_error_decreases_with_resolution": false
+}

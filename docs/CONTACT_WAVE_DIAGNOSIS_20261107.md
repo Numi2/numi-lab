@@ -37,3 +37,46 @@ for this experiment, but the halving check is empirical, not a rigorous bound
 on the continuum solution error. Contact-free status is checked at every RK4
 stage, and material and mass assembly use the independent FEM source. This is
 a constrained wave diagnostic, not the original free-sided impact geometry.
+
+## Retained result
+
+All nine runs completed on the CPU, with no timeout or GPU work. See
+[evidence](evidence/contact-wave-20261107/manifest.json) for the exact
+prediction commit, arguments, elapsed time, and source and binary hashes;
+CSV traces and the analysis script are in the same directory.
+
+| Mesh | Half-wave mode | Peak normalized displacement L2 error | First modal zero delay |
+|---|---:|---:|---:|
+| 8 | 2 | 0.23127 | 2.69% |
+| 16 | 2 | 0.05610 | 0.65% |
+| 8 | 8 | 1.94367 | 57.14% |
+| 16 | 8 | 1.96738 | 11.06% |
+
+Peak L2 is divided by the initial mass-weighted modal RMS amplitude, and
+is the maximum across all 0.1 ms samples over 10 ms. The registered high-mode
+versus low-mode prediction passed, but **the registered peak-error reduction
+from n=8 to n=16 failed**. Its near-two maximum can saturate when numerical
+and reference waves become nearly opposite in phase; this is an interpretation,
+not proof of a specific impact error. First-zero delays are additional,
+post hoc phase measurements. Their linear interpolation on the 0.1 ms sample
+grid was also applied to the analytic trace: mode 8's interpolated analytic
+zero is 0.437135 ms versus its exact 0.437004 ms, a 0.030% timing bias.
+
+The four maximum 2 µs versus 1 µs modal-projection differences range from
+3.87e-10 to 6.97e-10 of initial amplitude; the n=16 mode-8 amplitude-halving
+difference is 6.68e-10. All meet the registered 0.25% diagnostic thresholds.
+These tests concern the sampled **modal projection**, not a certified bound on
+every node or on the nonlinear continuum solution. The largest sampled
+tetrahedral strain is 1.293e-5; the largest sampled local nonlinear stress
+departure from the linear stress, normalized by the initial continuum stress
+scale, is 1.404e-5. Plane activation was checked at every RK4 stage; the
+smallest sampled bottom gap was 199.982 µm, well above the 100 µm activation
+distance. The 5 nm run provides an independent amplitude-scaling check but
+does not constitute a mathematical error bound for the nonlinear continuum.
+
+The constrained block demonstrates that high-frequency bulk wave dispersion
+can be substantial even when contact quadrature is absent. Its boundaries,
+loading and tracked displacement differ from the impact fixture, so this
+cannot quantify the contribution of bulk waves to the retained 12.43% impact
+force-bin discrepancy or establish a force-qualified control. The original
+0.25% force-bin and impulse gates remain unmet.

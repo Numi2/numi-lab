@@ -1,0 +1,135 @@
+{
+  "prediction_commit": "0275beebf88b3e7cf0e5dcce75aa615828258bda",
+  "source_sha256": "ca84c53ef80c2442b44b9a66bd2d30c06f6e1541033f946e53361c8769a7dd8f",
+  "model_sha256": "5b849e79f93272f2bbc5043b62607d967c698d6bbf9c21da8f66edd61134297a",
+  "binary_sha256": "da3f6e9bc67eb0cb1942673ff1f9139584867121a118ff84cd35be71e5f46d0e",
+  "timeout_seconds_per_run": 180,
+  "runs": [
+    {
+      "name": "n8_m2_h2us_a10nm",
+      "argv": [
+        "/tmp/numi_contact_wave_20261107",
+        "8",
+        "2",
+        "0.000002",
+        "0.01",
+        "0.00000001"
+      ],
+      "status": 0,
+      "elapsed_seconds": 1.0355579170281999,
+      "output_sha256": "d270c781ca616eec03efa58b5c923a3bd21aa24b6285aa19a2d8ed12ac7921c8"
+    },
+    {
+      "name": "n8_m2_h1us_a10nm",
+      "argv": [
+        "/tmp/numi_contact_wave_20261107",
+        "8",
+        "2",
+        "0.000001",
+        "0.01",
+        "0.00000001"
+      ],
+      "status": 0,
+      "elapsed_seconds": 1.6736374169704504,
+      "output_sha256": "4d537a48f1297714cad553f655f2b0d4079fa264821656b19743ba4b34593c4b"
+    },
+    {
+      "name": "n8_m8_h2us_a10nm",
+      "argv": [
+        "/tmp/numi_contact_wave_20261107",
+        "8",
+        "8",
+        "0.000002",
+        "0.01",
+        "0.00000001"
+      ],
+      "status": 0,
+      "elapsed_seconds": 0.8369157090201043,
+      "output_sha256": "fe532e727bafdc5725e3d1fd284692826aeaa3060ea7612332f485652aafb376"
+    },
+    {
+      "name": "n8_m8_h1us_a10nm",
+      "argv": [
+        "/tmp/numi_contact_wave_20261107",
+        "8",
+        "8",
+        "0.000001",
+        "0.01",
+        "0.00000001"
+      ],
+      "status": 0,
+      "elapsed_seconds": 1.6764582500327379,
+      "output_sha256": "310c84c375969417f30a73911d46c00205bf35df222643809105962637b0193a"
+    },
+    {
+      "name": "n16_m2_h2us_a10nm",
+      "argv": [
+        "/tmp/numi_contact_wave_20261107",
+        "16",
+        "2",
+        "0.000002",
+        "0.01",
+        "0.00000001"
+      ],
+      "status": 0,
+      "elapsed_seconds": 6.566428208025172,
+      "output_sha256": "d37eb9cf9ad7b0ffbe38510a8f197ce1a69cfc42bda628b22d75d2654a039ee4"
+    },
+    {
+      "name": "n16_m2_h1us_a10nm",
+      "argv": [
+        "/tmp/numi_contact_wave_20261107",
+        "16",
+        "2",
+        "0.000001",
+        "0.01",
+        "0.00000001"
+      ],
+      "status": 0,
+      "elapsed_seconds": 13.119851374998689,
+      "output_sha256": "628760aab2bcb17a1b6491667c68c1a116f7001d9cd26b5bbbeb02cdf5716dc7"
+    },
+    {
+      "name": "n16_m8_h2us_a10nm",
+      "argv": [
+        "/tmp/numi_contact_wave_20261107",
+        "16",
+        "8",
+        "0.000002",
+        "0.01",
+        "0.00000001"
+      ],
+      "status": 0,
+      "elapsed_seconds": 6.668994584004395,
+      "output_sha256": "b67164f50e3aa42790d94b57bbf5d2a80d67ae477f66a694c3ad2c59b95ea53d"
+    },
+    {
+      "name": "n16_m8_h1us_a10nm",
+      "argv": [
+        "/tmp/numi_contact_wave_20261107",
+        "16",
+        "8",
+        "0.000001",
+        "0.01",
+        "0.00000001"
+      ],
+      "status": 0,
+      "elapsed_seconds": 13.16863408399513,
+      "output_sha256": "84da2f96924a5730e85cf7948a7cbccff51ac4531b47ca66289803c9e6a2bee7"
+    },
+    {
+      "name": "n16_m8_h1us_a5nm",
+      "argv": [
+        "/tmp/numi_contact_wave_20261107",
+        "16",
+        "8",
+        "0.000001",
+        "0.01",
+        "0.000000005"
+      ],
+      "status": 0,
+      "elapsed_seconds": 13.198712582990993,
+      "output_sha256": "8a2d346afe781f05c6a16d2524f8fcdfef975178bc2d3c21c95a2dc10df2eda8"
+    }
+  ]
+}
