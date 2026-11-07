@@ -1,0 +1,673 @@
+{
+  "status": "passed",
+  "reference_commit": "c1aba439747c394f3626dc1b7edc94a8db86716a",
+  "byte_exact_native_files": {
+    "calibration/accepted-bodies.bin": {
+      "sha256": "3552388a752644f30a9711f61536f21a8d22a6ca413761fb565088e439de4012",
+      "bytes": 20480
+    },
+    "calibration/final-q.f32": {
+      "sha256": "6b9ec7a7f008466ecf8df7fe6bbf381d35cf778b0eea0c0e5877c155670e519e",
+      "bytes": 736
+    },
+    "calibration/final-scene.bin": {
+      "sha256": "ced89e267424454274fdd4b99c28b1e06646a79a971efe71ee7e4f633d7c520f",
+      "bytes": 3072
+    },
+    "calibration/final-v.f32": {
+      "sha256": "f5bc3b5685ce42f912e2c6849438fccbec632facb14d27b3486093d66efe5b96",
+      "bytes": 704
+    },
+    "calibration/plan.json": {
+      "sha256": "fa918c4e9971800714eb655d47bcff8acfb3c7092975bd2d869087fdac79294a",
+      "bytes": 574
+    },
+    "calibration/ports.bin": {
+      "sha256": "04ec3a373ede60a779c2e5579d2601cd5e00bb4d8dc563cb7ba8d60de6bfad64",
+      "bytes": 32
+    },
+    "calibration/ports.json": {
+      "sha256": "5d455fc39788693bd4e88939f52455370705ebecbc6cf3b44d20906e40de4257",
+      "bytes": 295
+    },
+    "left-partition/actor.f32": {
+      "sha256": "e0acf1da2940e63d643382f543673f5c9ed73a30b846561b2f258baedd490d94",
+      "bytes": 12810240
+    },
+    "left-partition/camera_occluder.mrvpack": {
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3",
+      "bytes": 32768
+    },
+    "left-partition/camera_target.mrvpack": {
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9",
+      "bytes": 36864
+    },
+    "left-partition/controller-revision1.policypack": {
+      "sha256": "b666cc3c199f13a8a474be443ba9262ffd47aeb1d8e03ea560d1398cf31c3cb5",
+      "bytes": 100398
+    },
+    "left-partition/controller-revision2.policypack": {
+      "sha256": "639c82d365deaf3aaf976ee14cdb6ba4b19cd9688d83f9239c0b0ad64ef14eac",
+      "bytes": 100398
+    },
+    "left-partition/controller-revision3.policypack": {
+      "sha256": "def672cb709ad07e790c4df64a4f9d68b3d887f9327d14ade47639b9fae3d49a",
+      "bytes": 100398
+    },
+    "left-partition/controller-revision4.policypack": {
+      "sha256": "d536c9024f08a94db95d033676de94ef5b4f295b6dc2c856e99abcb302d42014",
+      "bytes": 100398
+    },
+    "left-partition/controller-revision5.policypack": {
+      "sha256": "12010fe1952a90ce888053c846de44c8c0c3dd7a1b00e6a71fed38f6afebb70c",
+      "bytes": 100398
+    },
+    "left-partition/controller-revision6.policypack": {
+      "sha256": "58b47acd2731cad8f8540ba4d03068574d7d3739c69751b89931dec6a3afd021",
+      "bytes": 100398
+    },
+    "left-partition/cue-pixels.json": {
+      "sha256": "a7060414769c48b1c9bdf9ac47733333ed79a19f66b2b34a61757dd91dd71318",
+      "bytes": 139
+    },
+    "left-partition/final-q.f32": {
+      "sha256": "2191a01aac008582fa04cc662aa7a4d0f0a153cbf11a22a4fd7d98031f7c254c",
+      "bytes": 736
+    },
+    "left-partition/final-scene.bin": {
+      "sha256": "ced89e267424454274fdd4b99c28b1e06646a79a971efe71ee7e4f633d7c520f",
+      "bytes": 3072
+    },
+    "left-partition/final-v.f32": {
+      "sha256": "e7e49d726ec97b0c58839387778a96076490de1e05ed08bcd2c553877735b5ca",
+      "bytes": 704
+    },
+    "left-partition/food.bin": {
+      "sha256": "2c901fb94eae57f70f86b7bb3dd4b67d207fb9e3d3f0a6150b97325f80c736da",
+      "bytes": 640
+    },
+    "left-partition/locomotion_ground.mrvpack": {
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b",
+      "bytes": 32768
+    },
+    "left-partition/retina.bin": {
+      "sha256": "24a3f45ef54a4b586b8c2cb720ee082c51a1f20414702ce76b31eda156d5f865",
+      "bytes": 197544
+    },
+    "left-partition/robot.mrvpack": {
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61",
+      "bytes": 57344
+    },
+    "left-partition/transitions.bin": {
+      "sha256": "238b07e4bf5b7c86d613ab352fb1ffcaa0859ac4366f27e9543cde37b94b5d6d",
+      "bytes": 368640
+    },
+    "left-port/actor.f32": {
+      "sha256": "e0acf1da2940e63d643382f543673f5c9ed73a30b846561b2f258baedd490d94",
+      "bytes": 12810240
+    },
+    "left-port/camera_occluder.mrvpack": {
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3",
+      "bytes": 32768
+    },
+    "left-port/camera_target.mrvpack": {
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9",
+      "bytes": 36864
+    },
+    "left-port/controller-revision1.policypack": {
+      "sha256": "b666cc3c199f13a8a474be443ba9262ffd47aeb1d8e03ea560d1398cf31c3cb5",
+      "bytes": 100398
+    },
+    "left-port/controller-revision2.policypack": {
+      "sha256": "639c82d365deaf3aaf976ee14cdb6ba4b19cd9688d83f9239c0b0ad64ef14eac",
+      "bytes": 100398
+    },
+    "left-port/controller-revision3.policypack": {
+      "sha256": "def672cb709ad07e790c4df64a4f9d68b3d887f9327d14ade47639b9fae3d49a",
+      "bytes": 100398
+    },
+    "left-port/controller-revision4.policypack": {
+      "sha256": "d536c9024f08a94db95d033676de94ef5b4f295b6dc2c856e99abcb302d42014",
+      "bytes": 100398
+    },
+    "left-port/controller-revision5.policypack": {
+      "sha256": "12010fe1952a90ce888053c846de44c8c0c3dd7a1b00e6a71fed38f6afebb70c",
+      "bytes": 100398
+    },
+    "left-port/controller-revision6.policypack": {
+      "sha256": "58b47acd2731cad8f8540ba4d03068574d7d3739c69751b89931dec6a3afd021",
+      "bytes": 100398
+    },
+    "left-port/cue-pixels.json": {
+      "sha256": "5e5049e0f00e7bb05f64641957ebe7a4322fa2ea9ec1ce5171b98fc35b656b26",
+      "bytes": 123
+    },
+    "left-port/final-q.f32": {
+      "sha256": "2191a01aac008582fa04cc662aa7a4d0f0a153cbf11a22a4fd7d98031f7c254c",
+      "bytes": 736
+    },
+    "left-port/final-scene.bin": {
+      "sha256": "ced89e267424454274fdd4b99c28b1e06646a79a971efe71ee7e4f633d7c520f",
+      "bytes": 3072
+    },
+    "left-port/final-v.f32": {
+      "sha256": "e7e49d726ec97b0c58839387778a96076490de1e05ed08bcd2c553877735b5ca",
+      "bytes": 704
+    },
+    "left-port/food.bin": {
+      "sha256": "2c901fb94eae57f70f86b7bb3dd4b67d207fb9e3d3f0a6150b97325f80c736da",
+      "bytes": 640
+    },
+    "left-port/locomotion_ground.mrvpack": {
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b",
+      "bytes": 32768
+    },
+    "left-port/retina.bin": {
+      "sha256": "24a3f45ef54a4b586b8c2cb720ee082c51a1f20414702ce76b31eda156d5f865",
+      "bytes": 197544
+    },
+    "left-port/robot.mrvpack": {
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61",
+      "bytes": 57344
+    },
+    "left-port/transitions.bin": {
+      "sha256": "238b07e4bf5b7c86d613ab352fb1ffcaa0859ac4366f27e9543cde37b94b5d6d",
+      "bytes": 368640
+    },
+    "occluded/actor.f32": {
+      "sha256": "81c6e2268f7e828de459f196c675d3798fd576727685f5d7eb72b2197c7d9622",
+      "bytes": 3202560
+    },
+    "occluded/camera_occluder.mrvpack": {
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3",
+      "bytes": 32768
+    },
+    "occluded/camera_target.mrvpack": {
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9",
+      "bytes": 36864
+    },
+    "occluded/controller-revision1.policypack": {
+      "sha256": "b666cc3c199f13a8a474be443ba9262ffd47aeb1d8e03ea560d1398cf31c3cb5",
+      "bytes": 100398
+    },
+    "occluded/cue-pixels.json": {
+      "sha256": "5e5049e0f00e7bb05f64641957ebe7a4322fa2ea9ec1ce5171b98fc35b656b26",
+      "bytes": 123
+    },
+    "occluded/final-q.f32": {
+      "sha256": "315bc12c15dfb06520e9a72672c8ec0f7ea92add0ede13d0579ff27c36e1d198",
+      "bytes": 736
+    },
+    "occluded/final-scene.bin": {
+      "sha256": "98475773e22f64ba73383fe43b7a37d6a6b7796879b5663d16bd963d020344d3",
+      "bytes": 3072
+    },
+    "occluded/final-v.f32": {
+      "sha256": "7af5592a207e392766ae2567055f9e494d84e89f15c44fdf7925f7e82fe7db5b",
+      "bytes": 704
+    },
+    "occluded/food.bin": {
+      "sha256": "fd6521e25650550d9361327250a9e654c59e48e5ee7b9fd937e99e17e04c999b",
+      "bytes": 640
+    },
+    "occluded/locomotion_ground.mrvpack": {
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b",
+      "bytes": 32768
+    },
+    "occluded/retina.bin": {
+      "sha256": "cda9b7de0a5fa8289679b8f1fcf5f715b1547d8df645910be0bbd5a3598ef873",
+      "bytes": 197544
+    },
+    "occluded/robot.mrvpack": {
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61",
+      "bytes": 57344
+    },
+    "occluded/transitions.bin": {
+      "sha256": "6d21f12c95b8f65a31d7db56980bae8769955ab8ba748bd6e72d1443e8884499",
+      "bytes": 92160
+    },
+    "paired-seed/actor.f32": {
+      "sha256": "9cd705f0528c9d35d634734ce12c187adee0e75f888cc2376d196cc556e2358a",
+      "bytes": 3202560
+    },
+    "paired-seed/camera_occluder.mrvpack": {
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3",
+      "bytes": 32768
+    },
+    "paired-seed/camera_target.mrvpack": {
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9",
+      "bytes": 36864
+    },
+    "paired-seed/controller-revision1.policypack": {
+      "sha256": "b666cc3c199f13a8a474be443ba9262ffd47aeb1d8e03ea560d1398cf31c3cb5",
+      "bytes": 100398
+    },
+    "paired-seed/cue-pixels.json": {
+      "sha256": "a7060414769c48b1c9bdf9ac47733333ed79a19f66b2b34a61757dd91dd71318",
+      "bytes": 139
+    },
+    "paired-seed/final-q.f32": {
+      "sha256": "315bc12c15dfb06520e9a72672c8ec0f7ea92add0ede13d0579ff27c36e1d198",
+      "bytes": 736
+    },
+    "paired-seed/final-scene.bin": {
+      "sha256": "ced89e267424454274fdd4b99c28b1e06646a79a971efe71ee7e4f633d7c520f",
+      "bytes": 3072
+    },
+    "paired-seed/final-v.f32": {
+      "sha256": "7af5592a207e392766ae2567055f9e494d84e89f15c44fdf7925f7e82fe7db5b",
+      "bytes": 704
+    },
+    "paired-seed/food.bin": {
+      "sha256": "73dea34efafd7c4da19968fc8ca0e7cb6adf29c34f73e493d88aa87dda3fdb9c",
+      "bytes": 640
+    },
+    "paired-seed/locomotion_ground.mrvpack": {
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b",
+      "bytes": 32768
+    },
+    "paired-seed/retina.bin": {
+      "sha256": "429d736d294ad0d180c0d95c7e3d971f31c02f22123285edad1ad674f72a8913",
+      "bytes": 197544
+    },
+    "paired-seed/robot.mrvpack": {
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61",
+      "bytes": 57344
+    },
+    "paired-seed/transitions.bin": {
+      "sha256": "6d21f12c95b8f65a31d7db56980bae8769955ab8ba748bd6e72d1443e8884499",
+      "bytes": 92160
+    },
+    "plan.json": {
+      "sha256": "e3bb2860acc041bf455e5371e8a89d234e9606d701852b3ea57a1f89ae91ccbc",
+      "bytes": 2042
+    },
+    "post-cue-reset/actor.f32": {
+      "sha256": "aa7b989f93a4c6c013be7a4b4738ae273471eea1a48f3ace0bea299f8349f1b0",
+      "bytes": 3202560
+    },
+    "post-cue-reset/camera_occluder.mrvpack": {
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3",
+      "bytes": 32768
+    },
+    "post-cue-reset/camera_target.mrvpack": {
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9",
+      "bytes": 36864
+    },
+    "post-cue-reset/controller-revision1.policypack": {
+      "sha256": "b666cc3c199f13a8a474be443ba9262ffd47aeb1d8e03ea560d1398cf31c3cb5",
+      "bytes": 100398
+    },
+    "post-cue-reset/cue-pixels.json": {
+      "sha256": "a7060414769c48b1c9bdf9ac47733333ed79a19f66b2b34a61757dd91dd71318",
+      "bytes": 139
+    },
+    "post-cue-reset/final-q.f32": {
+      "sha256": "02eb2c030ba98e9ef12ed3d4c7d1bbb12ed399d1c55b358c5330361278d56475",
+      "bytes": 736
+    },
+    "post-cue-reset/final-scene.bin": {
+      "sha256": "ced89e267424454274fdd4b99c28b1e06646a79a971efe71ee7e4f633d7c520f",
+      "bytes": 3072
+    },
+    "post-cue-reset/final-v.f32": {
+      "sha256": "5925bdfb1be71f093306e46f3b9cfaabe47164a8e26a579eb83d9c26c8596e25",
+      "bytes": 704
+    },
+    "post-cue-reset/food.bin": {
+      "sha256": "ea1aa4f0111d0b2043e68e23563ce27b3f68e9bc69c7ce5749b57bf1f9f94b8e",
+      "bytes": 640
+    },
+    "post-cue-reset/locomotion_ground.mrvpack": {
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b",
+      "bytes": 32768
+    },
+    "post-cue-reset/retina.bin": {
+      "sha256": "6850a87edf4aad0fe8a0bcc58364a881682bd79b6b8a5166e1c81ec58ab68da0",
+      "bytes": 197544
+    },
+    "post-cue-reset/robot.mrvpack": {
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61",
+      "bytes": 57344
+    },
+    "post-cue-reset/transitions.bin": {
+      "sha256": "3f2100c032b4b6c929850556c7952f315cffad08652e0f04dfa5550f5d951d3f",
+      "bytes": 92160
+    },
+    "right-port/actor.f32": {
+      "sha256": "cd4d1290a733a664dc635bd40d21fc6396fa52def5ea71ce0f4313dc5c91ad71",
+      "bytes": 12810240
+    },
+    "right-port/camera_occluder.mrvpack": {
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3",
+      "bytes": 32768
+    },
+    "right-port/camera_target.mrvpack": {
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9",
+      "bytes": 36864
+    },
+    "right-port/controller-revision1.policypack": {
+      "sha256": "b666cc3c199f13a8a474be443ba9262ffd47aeb1d8e03ea560d1398cf31c3cb5",
+      "bytes": 100398
+    },
+    "right-port/controller-revision2.policypack": {
+      "sha256": "6de8b0f1a8b004520cd82e72985b984c28680a261f44e898a8fe3f1017e27923",
+      "bytes": 100398
+    },
+    "right-port/controller-revision3.policypack": {
+      "sha256": "b4d34002c8c9e0291b1e7735a3e3666a0866248c4e5a44f3ca7a178b63820802",
+      "bytes": 100398
+    },
+    "right-port/controller-revision4.policypack": {
+      "sha256": "89bc8737fd9c7bf51805ea298e2990db74abe6fc3ea294f40309081a63f630c8",
+      "bytes": 100398
+    },
+    "right-port/controller-revision5.policypack": {
+      "sha256": "503309469f0533e47630289812ce6ea70d79014dcd30ea263e084ca0ff14a86c",
+      "bytes": 100398
+    },
+    "right-port/controller-revision6.policypack": {
+      "sha256": "f061ac6362199f973c9e3186c5facd4fc10e43051034639bcc913c8464262426",
+      "bytes": 100398
+    },
+    "right-port/cue-pixels.json": {
+      "sha256": "5e5049e0f00e7bb05f64641957ebe7a4322fa2ea9ec1ce5171b98fc35b656b26",
+      "bytes": 123
+    },
+    "right-port/final-q.f32": {
+      "sha256": "7ff2fac7c0938e3235b2cefb03b63e8a1a27a588d4639496ee3d6840fd090810",
+      "bytes": 736
+    },
+    "right-port/final-scene.bin": {
+      "sha256": "ced89e267424454274fdd4b99c28b1e06646a79a971efe71ee7e4f633d7c520f",
+      "bytes": 3072
+    },
+    "right-port/final-v.f32": {
+      "sha256": "44510edd056bccedbb995e996c29f683f6dc81a98578f86b9930d7a6fa56fec4",
+      "bytes": 704
+    },
+    "right-port/food.bin": {
+      "sha256": "19aacfdb71090b7bcab613ec6c029dcf9a096fb57de1007ceb1a92df2e0e3b43",
+      "bytes": 640
+    },
+    "right-port/locomotion_ground.mrvpack": {
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b",
+      "bytes": 32768
+    },
+    "right-port/retina.bin": {
+      "sha256": "7dd85b94e027301b16b7867a1055c26282a1ba5da674c8248894ce58950729ee",
+      "bytes": 197544
+    },
+    "right-port/robot.mrvpack": {
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61",
+      "bytes": 57344
+    },
+    "right-port/transitions.bin": {
+      "sha256": "f5e1585df0d7078a42426f170c557070486e6853d8dc624300eed4fb1197d943",
+      "bytes": 368640
+    },
+    "summary.json": {
+      "sha256": "34670dd55469f6a581ab471e69f4c9737671b348d03048e67eeff8583a3d0c24",
+      "bytes": 468
+    },
+    "visible-chunk1/actor.f32": {
+      "sha256": "8fedc69aee68cff8d51aa70609bbe828d32fc75da9d36f006612561843d43384",
+      "bytes": 3202560
+    },
+    "visible-chunk1/camera_occluder.mrvpack": {
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3",
+      "bytes": 32768
+    },
+    "visible-chunk1/camera_target.mrvpack": {
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9",
+      "bytes": 36864
+    },
+    "visible-chunk1/controller-revision1.policypack": {
+      "sha256": "b666cc3c199f13a8a474be443ba9262ffd47aeb1d8e03ea560d1398cf31c3cb5",
+      "bytes": 100398
+    },
+    "visible-chunk1/cue-pixels.json": {
+      "sha256": "a7060414769c48b1c9bdf9ac47733333ed79a19f66b2b34a61757dd91dd71318",
+      "bytes": 139
+    },
+    "visible-chunk1/final-q.f32": {
+      "sha256": "315bc12c15dfb06520e9a72672c8ec0f7ea92add0ede13d0579ff27c36e1d198",
+      "bytes": 736
+    },
+    "visible-chunk1/final-scene.bin": {
+      "sha256": "ced89e267424454274fdd4b99c28b1e06646a79a971efe71ee7e4f633d7c520f",
+      "bytes": 3072
+    },
+    "visible-chunk1/final-v.f32": {
+      "sha256": "7af5592a207e392766ae2567055f9e494d84e89f15c44fdf7925f7e82fe7db5b",
+      "bytes": 704
+    },
+    "visible-chunk1/food.bin": {
+      "sha256": "fd6521e25650550d9361327250a9e654c59e48e5ee7b9fd937e99e17e04c999b",
+      "bytes": 640
+    },
+    "visible-chunk1/image-tick16-eye0.rgba.f32": {
+      "sha256": "e43d5abf7dc84cc478bb1d4791ff21cefb33f5adfea0151022a58ac5892eb0c0",
+      "bytes": 2457600
+    },
+    "visible-chunk1/image-tick16-eye1.rgba.f32": {
+      "sha256": "64fce72e9891f8eed0133022b08fb17d14773a822e5316e8b4e0a680adf5f1a7",
+      "bytes": 2457600
+    },
+    "visible-chunk1/image-tick48-eye0.rgba.f32": {
+      "sha256": "30821f96b12e40cdf18d61fc02294bdf9b18175089b18bd23c6a2039e2150489",
+      "bytes": 2457600
+    },
+    "visible-chunk1/image-tick48-eye1.rgba.f32": {
+      "sha256": "160a08b032b974f3858df75ffda943dcd592ede555fcfc5b4696699bd14dd4aa",
+      "bytes": 2457600
+    },
+    "visible-chunk1/locomotion_ground.mrvpack": {
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b",
+      "bytes": 32768
+    },
+    "visible-chunk1/negative-controls.jsonl": {
+      "sha256": "ea47e3b1ac5b4b3d12c89cbd0486e5c8298befd0d26c5cf76b0fa37e98e609f6",
+      "bytes": 829
+    },
+    "visible-chunk1/retina.bin": {
+      "sha256": "429d736d294ad0d180c0d95c7e3d971f31c02f22123285edad1ad674f72a8913",
+      "bytes": 197544
+    },
+    "visible-chunk1/robot.mrvpack": {
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61",
+      "bytes": 57344
+    },
+    "visible-chunk1/transitions.bin": {
+      "sha256": "6d21f12c95b8f65a31d7db56980bae8769955ab8ba748bd6e72d1443e8884499",
+      "bytes": 92160
+    },
+    "visible-chunk16/actor.f32": {
+      "sha256": "8fedc69aee68cff8d51aa70609bbe828d32fc75da9d36f006612561843d43384",
+      "bytes": 3202560
+    },
+    "visible-chunk16/camera_occluder.mrvpack": {
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3",
+      "bytes": 32768
+    },
+    "visible-chunk16/camera_target.mrvpack": {
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9",
+      "bytes": 36864
+    },
+    "visible-chunk16/controller-revision1.policypack": {
+      "sha256": "b666cc3c199f13a8a474be443ba9262ffd47aeb1d8e03ea560d1398cf31c3cb5",
+      "bytes": 100398
+    },
+    "visible-chunk16/cue-pixels.json": {
+      "sha256": "a7060414769c48b1c9bdf9ac47733333ed79a19f66b2b34a61757dd91dd71318",
+      "bytes": 139
+    },
+    "visible-chunk16/final-q.f32": {
+      "sha256": "315bc12c15dfb06520e9a72672c8ec0f7ea92add0ede13d0579ff27c36e1d198",
+      "bytes": 736
+    },
+    "visible-chunk16/final-scene.bin": {
+      "sha256": "ced89e267424454274fdd4b99c28b1e06646a79a971efe71ee7e4f633d7c520f",
+      "bytes": 3072
+    },
+    "visible-chunk16/final-v.f32": {
+      "sha256": "7af5592a207e392766ae2567055f9e494d84e89f15c44fdf7925f7e82fe7db5b",
+      "bytes": 704
+    },
+    "visible-chunk16/food.bin": {
+      "sha256": "fd6521e25650550d9361327250a9e654c59e48e5ee7b9fd937e99e17e04c999b",
+      "bytes": 640
+    },
+    "visible-chunk16/locomotion_ground.mrvpack": {
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b",
+      "bytes": 32768
+    },
+    "visible-chunk16/retina.bin": {
+      "sha256": "429d736d294ad0d180c0d95c7e3d971f31c02f22123285edad1ad674f72a8913",
+      "bytes": 197544
+    },
+    "visible-chunk16/robot.mrvpack": {
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61",
+      "bytes": 57344
+    },
+    "visible-chunk16/transitions.bin": {
+      "sha256": "6d21f12c95b8f65a31d7db56980bae8769955ab8ba748bd6e72d1443e8884499",
+      "bytes": 92160
+    }
+  },
+  "native_scene_reconstructions": {
+    "left-partition/visual-scene.json": {
+      "status": "passed",
+      "full_json_including_fingerprints": "matches native reconstruction at each original/current path"
+    },
+    "left-port/visual-scene.json": {
+      "status": "passed",
+      "full_json_including_fingerprints": "matches native reconstruction at each original/current path"
+    },
+    "occluded/visual-scene.json": {
+      "status": "passed",
+      "full_json_including_fingerprints": "matches native reconstruction at each original/current path"
+    },
+    "paired-seed/visual-scene.json": {
+      "status": "passed",
+      "full_json_including_fingerprints": "matches native reconstruction at each original/current path"
+    },
+    "post-cue-reset/visual-scene.json": {
+      "status": "passed",
+      "full_json_including_fingerprints": "matches native reconstruction at each original/current path"
+    },
+    "right-port/visual-scene.json": {
+      "status": "passed",
+      "full_json_including_fingerprints": "matches native reconstruction at each original/current path"
+    },
+    "visible-chunk1/visual-scene.json": {
+      "status": "passed",
+      "full_json_including_fingerprints": "matches native reconstruction at each original/current path"
+    },
+    "visible-chunk16/visual-scene.json": {
+      "status": "passed",
+      "full_json_including_fingerprints": "matches native reconstruction at each original/current path"
+    }
+  },
+  "authoring_negative_controls": [
+    {
+      "case": 0,
+      "rejected": true,
+      "reason": "Cued foraging requires nonzero environments"
+    },
+    {
+      "case": 1,
+      "rejected": true,
+      "reason": "Cued foraging ports require finite centers and positive radii"
+    },
+    {
+      "case": 2,
+      "rejected": true,
+      "reason": "Cued foraging ports require finite centers and positive radii"
+    },
+    {
+      "case": 3,
+      "rejected": true,
+      "reason": "Cued foraging intake volumes overlap"
+    },
+    {
+      "case": 4,
+      "rejected": true,
+      "reason": "Cued foraging requires two authored port indicator bindings"
+    },
+    {
+      "case": 5,
+      "rejected": true,
+      "reason": "Cued foraging indicator identities are invalid"
+    },
+    {
+      "case": 6,
+      "rejected": true,
+      "reason": "Cued foraging indicator identities are invalid"
+    },
+    {
+      "case": 7,
+      "rejected": true,
+      "reason": "Invalid cued-foraging visual manifest: V3 visual scene manifest provenance does not match its render scene"
+    },
+    {
+      "case": 8,
+      "rejected": true,
+      "reason": "Cued foraging visual/world provenance mismatch"
+    },
+    {
+      "case": 9,
+      "rejected": true,
+      "reason": "Cued foraging requires a compiled physical run"
+    },
+    {
+      "case": 10,
+      "rejected": true,
+      "reason": "Visual pack output exists"
+    }
+  ],
+  "native_loaded_libraries": {
+    "cue": [
+      "dyld[35394]: <70088EC5-D3C9-3807-88F9-D4580F342E5F> /Users/n/Developer/numi-crow-rl-20261107/build/lib/libmetalrobo.dylib"
+    ],
+    "life": [
+      "dyld[35408]: <70088EC5-D3C9-3807-88F9-D4580F342E5F> /Users/n/Developer/numi-crow-rl-20261107/build/lib/libmetalrobo.dylib"
+    ],
+    "retina": [
+      "dyld[35412]: <70088EC5-D3C9-3807-88F9-D4580F342E5F> /Users/n/Developer/numi-crow-rl-20261107/build/lib/libmetalrobo.dylib"
+    ]
+  },
+  "authoring_loaded_library": [
+    "dyld[35498]: <70088EC5-D3C9-3807-88F9-D4580F342E5F> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/foraging-core-01/lib/libmetalrobo.dylib"
+  ],
+  "life": {
+    "schema": "numi.crow-life-checkpoint-evidence.v1",
+    "status": "passed",
+    "fresh_process_continuations": 2,
+    "chunk1_8_future_stream_bit_identical": true,
+    "all_hidden_native_retinal_resource_state_bit_identical": true,
+    "negative_controls_rejected": 10,
+    "rejected_restore_pure": true,
+    "restore_advances_physics": false,
+    "policy_publication_advances_physics": false,
+    "whole_v13_development_life_restore": true,
+    "trainable_memory_qualified": false,
+    "ecological_environment_qualified": false
+  },
+  "retina": {
+    "schema": "numi.crow-retinal-live-evidence.v1",
+    "status": "passed",
+    "accepted_native_transitions": 384,
+    "cold_start_ticks": 2,
+    "chunk_bit_identical": true,
+    "per_lane_reset_bit_identical": true,
+    "visible_tick2_yaw": 0.426903,
+    "occluded_tick2_yaw": -0.356149,
+    "visual_learning_qualified": false,
+    "environment_qualified": false
+  },
+  "scope": "Native authoring refactor and existing v13 life-restore regression; common Swift cue environment and cue-life restore remain unqualified.",
+  "source_commit": "f293876aae7c6b544d6af64f2636e4a6770a27f2",
+  "full_native_build_passed": true,
+  "focused_Python_tests_passed": 29
+}
