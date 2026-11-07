@@ -1,0 +1,63 @@
+{
+  "track_env0": {
+    "failure_step2_to3": 0,
+    "failure_vs_control_step3": 6,
+    "refusal_step3_to4": 0
+  },
+  "track_env1": {
+    "failure_step2_to3": 6,
+    "failure_vs_control_step3": 0,
+    "refusal_step3_to4": 0
+  },
+  "frameDepth_env0": {
+    "failure_step2_to3": 0,
+    "failure_vs_control_step3": 7,
+    "refusal_step3_to4": 0
+  },
+  "frameDepth_env1": {
+    "failure_step2_to3": 7,
+    "failure_vs_control_step3": 0,
+    "refusal_step3_to4": 0
+  },
+  "frameIdentity_env0": {
+    "failure_step2_to3": 0,
+    "failure_vs_control_step3": 16,
+    "refusal_step3_to4": 0
+  },
+  "frameIdentity_env1": {
+    "failure_step2_to3": 20,
+    "failure_vs_control_step3": 0,
+    "refusal_step3_to4": 0
+  },
+  "frameValidity_env0": {
+    "failure_step2_to3": 0,
+    "failure_vs_control_step3": 4,
+    "refusal_step3_to4": 0
+  },
+  "frameValidity_env1": {
+    "failure_step2_to3": 5,
+    "failure_vs_control_step3": 0,
+    "refusal_step3_to4": 0
+  },
+  "camera_env0": {
+    "failure_step2_to3": 0,
+    "failure_vs_control_step3": 10,
+    "refusal_step3_to4": 0
+  },
+  "camera_env1": {
+    "failure_step2_to3": 8,
+    "failure_vs_control_step3": 0,
+    "refusal_step3_to4": 0
+  },
+  "actor_env0": {
+    "step2_to3": 0,
+    "failure_vs_control_step3": 100
+  },
+  "visible_env0": 1.0,
+  "actor_env1": {
+    "step2_to3": 100,
+    "failure_vs_control_step3": 0
+  },
+  "visible_env1": 1.0,
+  "observed_vs_unobserved_text_equal": true
+}
