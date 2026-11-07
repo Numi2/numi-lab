@@ -11,3 +11,15 @@ On clean 304fd4be, the same resident executable was run against the original and
 A separate candidate-solver test with 33 cached manifolds and a status-11 frictional rejection also showed byte-identical q/v/scene/cache restoration, identical subsequent continuation without resubmitting a target, and accepted target application. That test is supporting evidence, not a qualification or promotion of its experimental solver.
 
 [Retained raw native results, source patch, timestamps and SHA-256 identities](evidence/ccd-kinematic-rollback-evidence-20261107.tar.gz) have archive hash f943101684f88387c28e5a75fbe8db544a0f34bc3c5c7d29c2f2d5a1195ab437. Exact executables and metallibs remain host-only in the evidence directories. The regression gate was evaluated against the retained fixed output; the GPU executions were the underlying native comparison.
+
+## Integrated research worktree
+
+The standalone change was cherry-picked as `5ada6932` onto the isolated
+window/owner research worktree. On that exact revision, a freshly built
+`metalrobo.ccd.kinematic_rollback` CTest passed the same bounded capacity
+failure, populated-cache restoration, clean continuation and accepted-target
+control. The complete output, timestamps, and executable, metallib and source
+hashes are retained in
+[the integration evidence](evidence/window-integration-20261107/kinematic-rollback-integrated/).
+The original clean-base comparison remains separately source-bound. This is
+not broad rollback or unified-release qualification.
