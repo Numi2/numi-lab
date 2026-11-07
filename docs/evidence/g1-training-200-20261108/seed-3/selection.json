@@ -1,0 +1,99 @@
+{
+  "adult_current_band": null,
+  "adult_previous_band": null,
+  "candidate_advanced_deployment": true,
+  "candidate_policy_pack": "/Users/numi/numi-g1-training-200-20261108/seed-3/run/candidate.deployment.policypack",
+  "candidate_retained": true,
+  "checkpoint_comparisons": {
+    "candidate": {
+      "candidate_advanced_deployment": true,
+      "candidate_retained": true,
+      "improvements": [
+        "termination rate decreased",
+        "mean peak forward progress increased",
+        "mean final forward progress increased",
+        "mean tilt decreased",
+        "mean root height increased"
+      ],
+      "metrics": {
+        "adult_authored_outcomes": {},
+        "candidate_clean_horizon_environment_rate": 0.0,
+        "candidate_mean_final_forward_progress_m": 0.10464747898367932,
+        "candidate_mean_peak_forward_progress_m": 0.7633919659056119,
+        "candidate_mean_reward": 0.006590829155951269,
+        "candidate_mean_root_height": 0.7533972310014069,
+        "candidate_mean_task_reward": 0.048223559484584254,
+        "candidate_mean_tilt": 0.19482407493313075,
+        "candidate_mean_tracking_score": 0.4878676711251968,
+        "candidate_physical_failure_rate": 7.375,
+        "candidate_termination_rate": 7.375,
+        "incumbent_clean_horizon_environment_rate": 0.0,
+        "incumbent_mean_final_forward_progress_m": 0.09615053045126842,
+        "incumbent_mean_peak_forward_progress_m": 0.733085470921651,
+        "incumbent_mean_reward": -0.0013166109043325491,
+        "incumbent_mean_root_height": 0.7354357811287046,
+        "incumbent_mean_task_reward": 0.05007299950788729,
+        "incumbent_mean_tilt": 0.27357527639543694,
+        "incumbent_mean_tracking_score": 0.6071440468064975,
+        "incumbent_physical_failure_rate": 11.625,
+        "incumbent_termination_rate": 11.625,
+        "world_source": "bundled_g1"
+      },
+      "regressions": [
+        "tracking score decreased"
+      ],
+      "schema": "numi.policy-selection.v1",
+      "selected": "candidate",
+      "selection_method": "continuous_locomotion_progress",
+      "selection_score": 4.269246923031149,
+      "task": "velocity"
+    }
+  },
+  "deployment_policy_pack": "/Users/numi/numi-g1-training-200-20261108/seed-3/run/deployment.policypack",
+  "evaluated_candidate_policy_packs": [
+    "/Users/numi/numi-g1-training-200-20261108/seed-3/run/candidate.deployment.policypack"
+  ],
+  "held_out_seed": 4081021,
+  "improvements": [
+    "termination rate decreased",
+    "mean peak forward progress increased",
+    "mean final forward progress increased",
+    "mean tilt decreased",
+    "mean root height increased"
+  ],
+  "incumbent_policy_pack": "/Users/numi/numi-g1-training-200-20261108/seed-3/run/incumbent.deployment.policypack",
+  "maximum_evaluation_environments": 8,
+  "metrics": {
+    "adult_authored_outcomes": {},
+    "candidate_clean_horizon_environment_rate": 0.0,
+    "candidate_mean_final_forward_progress_m": 0.10464747898367932,
+    "candidate_mean_peak_forward_progress_m": 0.7633919659056119,
+    "candidate_mean_reward": 0.006590829155951269,
+    "candidate_mean_root_height": 0.7533972310014069,
+    "candidate_mean_task_reward": 0.048223559484584254,
+    "candidate_mean_tilt": 0.19482407493313075,
+    "candidate_mean_tracking_score": 0.4878676711251968,
+    "candidate_physical_failure_rate": 7.375,
+    "candidate_termination_rate": 7.375,
+    "incumbent_clean_horizon_environment_rate": 0.0,
+    "incumbent_mean_final_forward_progress_m": 0.09615053045126842,
+    "incumbent_mean_peak_forward_progress_m": 0.733085470921651,
+    "incumbent_mean_reward": -0.0013166109043325491,
+    "incumbent_mean_root_height": 0.7354357811287046,
+    "incumbent_mean_task_reward": 0.05007299950788729,
+    "incumbent_mean_tilt": 0.27357527639543694,
+    "incumbent_mean_tracking_score": 0.6071440468064975,
+    "incumbent_physical_failure_rate": 11.625,
+    "incumbent_termination_rate": 11.625,
+    "world_source": "bundled_g1"
+  },
+  "regressions": [
+    "tracking score decreased"
+  ],
+  "schema": "numi.policy-selection.v1",
+  "selected": "candidate",
+  "selected_candidate_label": "candidate",
+  "selection_method": "continuous_locomotion_progress",
+  "selection_score": 4.269246923031149,
+  "task": "velocity"
+}
