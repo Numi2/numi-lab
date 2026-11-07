@@ -1209,8 +1209,19 @@ void shiftTissuePoint(Point& point, const std::uint32_t body,
                  binding.bodyCount==assets.model.bodies.size() && binding.nodeCount==cartilage.nodes.size() &&
                  binding.tetrahedronCount==cartilage.tetrahedra.size(),MRNX_RUNTIME_ASSET_FAILURE_V1,"costal mass package coverage mismatch");
     const std::vector<double> q(assets.model.defaultQ.begin(),assets.model.defaultQ.end()),v(assets.model.defaultV.begin(),assets.model.defaultV.end());
+    requireBuild(assets.model.articulations.size()==1,MRNX_RUNTIME_ASSET_FAILURE_V1,
+                 "costal donor requires one Human articulation");
+    const auto& articulation=assets.model.articulations[0];
+    const std::size_t first=articulation.firstBody, count=articulation.bodyCount;
+    requireBuild(first<=assets.model.bodies.size() && count!=0 &&
+                 count<=assets.model.bodies.size()-first, MRNX_RUNTIME_ASSET_FAILURE_V1,
+                 "costal donor articulation body range is invalid");
+    const auto ownsBody=[&](std::uint32_t body) {
+        return body>=first && static_cast<std::size_t>(body)-first<count;
+    };
     std::vector<metalrobo::ArticulatedBodyKinematics> bodies(assets.model.bodies.size());
-    requireBuild(metalrobo::computeArticulatedBodyKinematics(assets.model,0,q,v,bodies).succeeded(),
+    requireBuild(metalrobo::computeArticulatedBodyKinematics(assets.model,0,q,v,
+                 std::span<metalrobo::ArticulatedBodyKinematics>(bodies).subspan(first,count)).succeeded(),
                  MRNX_RUNTIME_ASSET_FAILURE_V1,"costal donor kinematics failed");
     std::vector<metalrobo::NumiHumanTissueMassNode> nodes;
     const auto& a=binding.atlasToWorld;
@@ -1224,6 +1235,9 @@ void shiftTissuePoint(Point& point, const std::uint32_t body,
         requireBuild(cooked.restAndFixed.w==(original.flags?2.0f:0.0f),MRNX_RUNTIME_ASSET_FAILURE_V1,"costal attachment mask drifted");
         const auto donor=binding.nodeDonorBodies.empty()
             ?binding.regions[original.regionIndex].donorBody:binding.nodeDonorBodies[i];
+        const auto& region=binding.regions[original.regionIndex];
+        requireBuild(ownsBody(donor) && ownsBody(region.sternalBody) && ownsBody(region.ribBody),
+                     MRNX_RUNTIME_ASSET_FAILURE_V1,"costal ownership outside Human articulation");
         const auto& b=bodies[donor];const auto& rotation=b.orientation;
         const std::array<double,3> p{actual[0]-b.centerOfMassPosition[0],actual[1]-b.centerOfMassPosition[1],actual[2]-b.centerOfMassPosition[2]};
         const std::array<double,3> t{2*(-rotation[1]*p[2]+rotation[2]*p[1]),2*(-rotation[2]*p[0]+rotation[0]*p[2]),2*(-rotation[0]*p[1]+rotation[1]*p[0])};

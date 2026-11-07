@@ -133,8 +133,16 @@ NumiHumanCostalCompilation compileNumiHumanCostalTissue(
     if(std::any_of(human.defaultV.begin(),human.defaultV.end(),[](float v){return v!=0;}))
         return fail("costal reference compiler requires a stationary authored reset");
     const std::vector<double> q(human.defaultQ.begin(),human.defaultQ.end()),v(human.defaultV.begin(),human.defaultV.end());
+    const auto& articulation=human.articulations[0];
+    const std::size_t first=articulation.firstBody, count=articulation.bodyCount;
+    if(first>human.bodies.size() || count>human.bodies.size()-first || count==0)
+        return fail("costal articulation body range is invalid");
+    const auto ownsBody=[&](std::uint32_t body){
+        return body>=first && static_cast<std::size_t>(body)-first<count;
+    };
     std::vector<ArticulatedBodyKinematics> poses(human.bodies.size());
-    if(!computeArticulatedBodyKinematics(human,0,q,v,poses).succeeded())
+    if(!computeArticulatedBodyKinematics(human,0,q,v,
+            std::span<ArticulatedBodyKinematics>(poses).subspan(first,count)).succeeded())
         return fail("costal source kinematics failed");
     numi::matter::WorldSource source;
     source.frameTimestep=timestepSeconds;
@@ -156,8 +164,8 @@ NumiHumanCostalCompilation compileNumiHumanCostalTissue(
         object.femNodes.push_back(point);
         const auto& b=binding.regions[n.regionIndex];
         const auto donor=binding.nodeDonorBodies.empty()?b.donorBody:binding.nodeDonorBodies[index];
-        if(donor>=poses.size() || b.sternalBody>=poses.size() || b.ribBody>=poses.size())
-            return fail("costal donor or attachment outside Human body table");
+        if(!ownsBody(donor) || !ownsBody(b.sternalBody) || !ownsBody(b.ribBody))
+            return fail("costal donor or attachment outside Human articulation");
         if(n.flags!=0) {
             const auto body=(n.flags&NUMI_HUMAN_COSTAL_CARTILAGE_STERNAL_ATTACHMENT)?b.sternalBody:b.ribBody;
             object.femHumanAttachments.push_back({index,body,0x43410000u+index,local(poses[body],point)});

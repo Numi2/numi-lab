@@ -209,6 +209,26 @@ int main() {
  for(unsigned axis=0;axis<3;++axis)
      difference=std::max(difference,std::abs(jacobians[(3+axis)*v.size()+6]-jacobians[axis*v.size()+6]));
  if(difference<0.001) {std::cerr<<"no relative motion\n";return 11;}
+ // The world may contain non-articulated bodies before the Human tree.
+ auto offsetModel=makePendulumModel(.1);
+ MRBodyPropertiesGPU worldBody{};worldBody.articulationIndex=MR_INVALID_INDEX;
+ worldBody.parentBody=MR_INVALID_INDEX;worldBody.inboundJoint=MR_INVALID_INDEX;worldBody.motionType=MR_MOTION_STATIC;
+ offsetModel.bodies.insert(offsetModel.bodies.begin(),worldBody);offsetModel.world.bodyCount=3;
+ offsetModel.articulations[0].firstBody=1;offsetModel.articulations[0].rootBody=1;
+ offsetModel.bodies[2].parentBody=1;offsetModel.joints[0].parentBody=1;offsetModel.joints[0].childBody=2;
+ auto offsetBinding=binding;offsetBinding.bodyCount=3;offsetBinding.regions.assign(14,{MR_INVALID_INDEX,1,2});
+ offsetBinding.nodeDonorBodies={1,1,2,2};
+ if(!offsetModel.valid(&error)){std::cerr<<"offset model invalid: "<<error<<"\n";return 12;}
+ const auto offsetResult=compileNumiHumanCostalTissue(cart,offsetBinding,offsetModel,material.material,1e-4);
+ if(!offsetResult.succeeded()){std::cerr<<"offset cook: "<<offsetResult.error<<"\n";return 13;}
+ if(offsetResult.mass.partitions.size()!=2 || offsetResult.matter.world.fem.humanAttachments[0].identity.y!=1 ||
+    offsetResult.matter.world.fem.humanAttachments[1].identity.y!=2) return 14;
+ auto outOfTree=offsetBinding;outOfTree.nodeDonorBodies[0]=0;
+ if(compileNumiHumanCostalTissue(cart,outOfTree,offsetModel,material.material,1e-4).succeeded()) return 15;
+ outOfTree=offsetBinding;outOfTree.regions[0].ribBody=3;
+ if(compileNumiHumanCostalTissue(cart,outOfTree,offsetModel,material.material,1e-4).succeeded()) return 16;
+ auto invalidRange=offsetModel;invalidRange.articulations[0].firstBody=3;
+ if(compileNumiHumanCostalTissue(cart,offsetBinding,invalidRange,material.material,1e-4).succeeded()) return 17;
  std::cout<<"two donors and distinct attachment bodies passed; relative Jacobian "<<difference
           <<"; malformed ownership rejected; fixed-root rejection retained\n";
  return 0;
