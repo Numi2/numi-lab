@@ -1,0 +1,1 @@
+Full CMake regeneration failed because the sparse checkout omitted tracked sources. A bulk tracked-source restoration was stopped after repeated lazy origin fetches. Diagnostic rebuild below reuses the previously configured Ninja recipe and is not a clean release build.
