@@ -496,3 +496,15 @@ successful feedback, but the marker immediately after `submit` returned to
 of the feedback timing properties and return cleanup, so the exact failing
 operation remains unknown. The second staging operation was not reached. Full
 instrumentation, crash and inputs are retained; no publication was established.
+
+The pinned feedback-property diagnostic ran at 23:21:30 UTC with executable
+SHA-256 `72ea9198253c3b82c73f19cf019f150e582896f30374f2787d1aebacc3546819`
+and 32-input manifest SHA-256
+`8368818537e88b264e4c2f4d796f7faad0b73a6c2b97bf5c6ac6307ee6e7a9f1`;
+pre- and post-run checks passed. The feedback callback stored its result,
+signaled, and reached its returning marker. The submit path observed no feedback
+error and read both GPU timing properties, then exited 139 without reaching the
+caller return marker. This narrows the failure to return/cleanup or related
+lifetimes but does not identify a root cause. A returning callback marker does
+not itself prove the callback has fully unwound. No physical step or publication
+was reached. All input, source-diff, crash and output evidence is retained.
