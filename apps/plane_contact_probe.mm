@@ -154,10 +154,10 @@ material test_pad {
 }
 int main(int argc,char** argv){
  @autoreleasepool {try{
-    require(argc>=5,"usage: plane_contact_probe METALLIB timestep steps divisions [ipc|al] [initial-gap] [legacy|physical] [contact|freefall] [world|reference]");
+    require(argc>=5,"usage: plane_contact_probe METALLIB timestep steps divisions [ipc|al|ipc_area] [initial-gap] [legacy|physical] [contact|freefall] [world|reference]");
     const double h=std::stod(argv[2]);const int steps=std::stoi(argv[3]),divisions=std::stoi(argv[4]);
     require(h>0&&steps>0&&steps<=10000&&divisions>0&&divisions<=8,"invalid workload");
-    const std::string arm=argc>5?argv[5]:"ipc";require(arm=="ipc"||arm=="al","invalid arm");
+    const std::string arm=argc>5?argv[5]:"ipc";require(arm=="ipc"||arm=="al"||arm=="ipc_area","invalid arm");
     const double startGap=argc>6?std::stod(argv[6]):2.e-4;
     const std::string policy=argc>7?argv[7]:"legacy";
     require(policy=="physical"||policy=="legacy","invalid residual policy");
@@ -167,6 +167,8 @@ int main(int argc,char** argv){
     numi::matter::Runtime runtime;numi::matter::RuntimeConfiguration config;
     config.metallib=argv[1];config.environmentCount=1;config.captureDiagnostics=true;config.adaptiveTransfer=false;
     config.experimentalFEMPlaneAugmentedLagrangian=arm=="al";
+    config.experimentalFEMPlaneAreaIPC=arm=="ipc_area";
+    if(argc>10)config.experimentalFEMPlaneAreaIPCK=std::stof(argv[10]);
     std::cerr<<"instrument_world contact_pairs="<<world.dispatch.contactPairCount<<" deformable_capacity="<<world.dispatch.deformableContactCapacity
         <<" rigid_generalized="<<world.dispatch.rigidGeneralizedCapacity<<" mutation="<<world.dispatch.mutationCommandCount
         <<" object_flags="<<world.objects[0].flags<<" plane_flags="<<(world.contact.rigidProxies.empty()?0:world.contact.rigidProxies[0].flags)
@@ -196,7 +198,7 @@ int main(int argc,char** argv){
     double gpu=0;int accepted=0,rejected=0;double minimumGap=1.e100;bool first=true;
     std::cout<<std::setprecision(12)<<"{\"schema\":\"numi.matter.plane-contact.v1\",\"device\":\""<<device.name.UTF8String
         <<"\",\"arm\":\""<<arm<<"\",\"h\":"<<h<<",\"divisions\":"<<divisions<<",\"initial_gap\":"<<startGap<<",\"nodes\":"<<world.dispatch.femNodeCount
-        <<",\"residual_policy\":\""<<policy<<"\",\"coordinate_mode\":\""<<(reference?"reference_displacement":"world_position")<<"\",\"freefall_control\":"<<(freefall?"true":"false")<<",\"mechanical_absolute_tolerance_Ns\":"<<world.mixedSolver.contactAcceptance.y<<",\"mechanical_relative_tolerance\":"<<world.mixedSolver.contactAcceptance.z<<",\"mechanical_impulse_scale_Ns\":"<<world.mixedSolver.contactAcceptance.w<<",\"source_fingerprint\":"<<world.physicsFingerprint<<",\"device_fingerprint\":"<<runtime.deviceProgramFingerprint()<<",\"traces\":[";
+        <<",\"area_ipc_k_N_per_m5\":"<<(arm=="ipc_area"?config.experimentalFEMPlaneAreaIPCK:0.f)<<",\"residual_policy\":\""<<policy<<"\",\"coordinate_mode\":\""<<(reference?"reference_displacement":"world_position")<<"\",\"freefall_control\":"<<(freefall?"true":"false")<<",\"mechanical_absolute_tolerance_Ns\":"<<world.mixedSolver.contactAcceptance.y<<",\"mechanical_relative_tolerance\":"<<world.mixedSolver.contactAcceptance.z<<",\"mechanical_impulse_scale_Ns\":"<<world.mixedSolver.contactAcceptance.w<<",\"source_fingerprint\":"<<world.physicsFingerprint<<",\"device_fingerprint\":"<<runtime.deviceProgramFingerprint()<<",\"traces\":[";
     auto previous=initial;double totalWork=0,totalKineticWork=0,maxLawError=0,maxMomentumError=0,maxAcceptedDual=0,maxLocalResidual=0,maxKinematicDefect=0,maxFreefallVelocityDefect=0;
     const auto start=std::chrono::steady_clock::now();
     for(int i=0;i<steps;++i){

@@ -43,6 +43,9 @@ if(BUILD_TESTING)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
     add_executable(numi_contact_policy policy.cpp)
     target_link_libraries(numi_contact_policy PRIVATE numi_plane_contact_owner)
+    add_executable(numi_contact_plane_area plane_area.cpp)
+    target_link_libraries(numi_contact_plane_area PRIVATE numi_plane_contact_owner)
+    add_test(NAME numi.contact.plane_area COMMAND numi_contact_plane_area)
     add_test(NAME numi.contact.physical_policy COMMAND numi_contact_policy)
     add_test(NAME numi.contact.residual_restore COMMAND "${Python3_EXECUTABLE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/control_regression.py"

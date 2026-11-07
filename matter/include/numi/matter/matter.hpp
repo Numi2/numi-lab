@@ -1143,6 +1143,11 @@ struct RuntimeConfiguration {
     bool experimentalFEMPlaneAugmentedLagrangian = false;
     float experimentalFEMPlanePenalty = 1000.0f; // N/m per contact node, fixed
     float experimentalFEMPlaneClearance = 5.0e-7f; // m, constraint target
+    // Separately controlled FEM-plane reference problem, not an AL switch.
+    // psi(g)=-k*(g^2-d^2)^2*log(g^2/d^2) per reference area;
+    // k is in N/m^5, d is the authored contactSlop in metres.
+    bool experimentalFEMPlaneAreaIPC = false;
+    float experimentalFEMPlaneAreaIPCK = 1.0e16f;
 };
 
 struct HumanSupportConsequencesView {

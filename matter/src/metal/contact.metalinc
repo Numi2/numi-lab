@@ -11954,6 +11954,7 @@ kernel void nm_contact_evaluate(
     device uint* compactSampleSlotsByPair [[buffer(22)]],
     device atomic_uint* compactActiveCounts [[buffer(23)]],
     constant NMPrimalContactArguments& contact [[buffer(24)]],
+    device const float* planeReferenceAreas [[buffer(25)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint pairStride = compactCandidates == 1u || compactCandidates == 2u
@@ -12003,6 +12004,9 @@ kernel void nm_contact_evaluate(
         );
         return;
     }
+    if(nmFEMPlaneAreaIPCActive &&
+        (pair.continuumNode < dispatch.gridNodeCount ||
+         planeReferenceAreas[pair.continuumNode-dispatch.gridNodeCount] <= 0.0f)) return;
     const NMContinuumObjectGPU object = objects[pair.objectIndex];
     const NMSchedulerStateGPU scheduler =
         schedulers[environment * dispatch.objectCount + pair.objectIndex];
@@ -12299,8 +12303,13 @@ kernel void nm_contact_evaluate(
             max(-normalVelocity, 0.0f),
             mpmContact,
             mpmClearanceOffset,
-            frozenStiffness);
-    if(referencePlane)barrier=ipcReferencePlaneResponse(referenceGap,slop,barrier.w,dt);
+            nmFEMPlaneAreaIPCActive
+                ? nmFEMPlaneAreaIPCK*planeReferenceAreas[pair.continuumNode-dispatch.gridNodeCount]
+                : frozenStiffness);
+    if(referencePlane)barrier=ipcReferencePlaneResponse(referenceGap,slop,
+        nmFEMPlaneAreaIPCActive
+            ? nmFEMPlaneAreaIPCK*planeReferenceAreas[pair.continuumNode-dispatch.gridNodeCount]
+            : barrier.w,dt);
     if (nmFEMPlaneALActive) {
         const float previousForce = histories[historyIndex].w / dt;
         const float force = nmFEMPlaneALForce(separation,previousForce);
