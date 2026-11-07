@@ -7143,6 +7143,7 @@ kernel void mr_world_wave32_distributed_reduce(
         }
         float laneNormalResidual = 0.0f;
         float laneConeViolation = 0.0f;
+        uint laneUncertifiedConstraint = MR_INVALID_INDEX;
         for (uint localTile = 0u;
              localTile < work.tileCount;
              ++localTile) {
@@ -7182,16 +7183,29 @@ kernel void mr_world_wave32_distributed_reduce(
                 localRows[0].targetVelocity +
                 localRows[0].regularization *
                     contact.impulses.x;
-            laneNormalResidual = max(
-                laneNormalResidual,
-                contact.impulses.x > kConeEpsilon
-                ? abs(normalEquation)
-                : max(-normalEquation, 0.0f)
-            );
             const MREvaluatedConstraintIRConeGPU cone =
                 evaluatedCones[
                     constraintBase + localConstraint
                 ];
+            // Normal complementarity has a different sign at an explicit
+            // upper impulse bound. The residual is local, in velocity units.
+            const bool atUpperBound = cone.maximumNormalImpulse > 0.0f &&
+                contact.impulses.x >= cone.maximumNormalImpulse - kConeEpsilon;
+            const float residual = atUpperBound ? max(normalEquation, 0.0f) :
+                contact.impulses.x > kConeEpsilon ? abs(normalEquation) :
+                max(-normalEquation, 0.0f);
+            const float velocityScale = max(
+                abs(localRows[0].preSolveVelocity),
+                abs(localRows[0].targetVelocity));
+            // Interim containment threshold, not a force-accuracy claim.
+            // The absolute term is in m/s; the relative term scales with
+            // the larger incoming or prescribed normal velocity.
+            const float tolerance = 1.0e-4f + 1.0e-2f * velocityScale;
+            if (!isfinite(residual) || !isfinite(velocityScale) ||
+                residual > tolerance) {
+                laneUncertifiedConstraint = min(laneUncertifiedConstraint, localConstraint);
+            }
+            laneNormalResidual = max(laneNormalResidual, residual);
             const float limitU =
                 cone.effectiveFrictionU *
                 contact.impulses.x;
@@ -7243,9 +7257,11 @@ kernel void mr_world_wave32_distributed_reduce(
             simd_max(laneNormalResidual);
         const float maximumConeViolation =
             simd_max(laneConeViolation);
+        const uint firstUncertifiedConstraint = simd_min(laneUncertifiedConstraint);
         if (lane == 0u) {
             MRWave32IslandStatusGPU result = {};
-            result.code = MR_STEP_SUCCESS;
+            result.code = firstUncertifiedConstraint == MR_INVALID_INDEX
+                ? MR_STEP_SUCCESS : MR_STEP_DID_NOT_CONVERGE;
             result.environment = environment;
             result.islandIndex = islandIndex;
             result.iterations = pass.reserved0;
@@ -7253,7 +7269,8 @@ kernel void mr_world_wave32_distributed_reduce(
                 maximumImpulseDelta,
                 maximumNormalResidual,
                 maximumConeViolation,
-                0.0f
+                firstUncertifiedConstraint == MR_INVALID_INDEX
+                    ? 0.0f : static_cast<float>(firstUncertifiedConstraint)
             );
             waveStatuses[
                 environment * dispatch.islandStride +
