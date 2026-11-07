@@ -30,3 +30,27 @@ impact must subsequently complete with correct forces and replay. It does
 not qualify friction, coupled articulations, moving shapes, rods, meshes,
 hybrid CCD, or every transaction field. Raw comparison evidence is retained
 in the research evidence archive.
+
+## Uniform damping candidate: failed useful-motion gate
+
+A subsequent candidate used the complete island contact count to damp the
+simultaneous distributed updates. In the aligned 257-contact fixture it
+resolved the impact at two sweeps: normal impulse 0.99982 N s, with
+2.4e-7 N s linear momentum mismatch. At friction coefficient 0.5 the
+tangential impulse was 0.49991 N s and the kinetic-energy change was
+-0.87495 J. The fixture has zero gravity, zero applied effort and disabled
+body damping, so its kinetic-energy change is attributable to contact for
+this step. One-sweep trials rejected and restored.
+
+The same update rejects a distinct 257-contact island whose normals form
+three approximately orthogonal groups at 1, 2 and 3 sweeps. At 16 sweeps it
+accepts, with 0.029953 N s summed normal impulse, 7.6e-10 N s linear
+momentum mismatch and -0.000150 J kinetic-energy change. The default-budget
+useful-motion gate is therefore not met. All trial outcomes replayed, and
+rejected trials restored q/v/scene and the accepted contact cache.
+
+The old owner probe uses initially coincident spheres and fails after the
+certificate. An opt-in noncoincident variant with two sweeps also fails
+with a 0.342 m/s normal residual, despite aligned witnesses; this must not
+be silently reclassified as a successful owner test. Uniform damping is
+retained as a failed research candidate, not a production repair.

@@ -1068,7 +1068,8 @@ typedef struct MR_ALIGN16 MRContactTileGPU {
     mr_u32 nextTile;
     mr_u32 partialOffset;
     mr_u32 flags;
-    mr_u32 reserved;
+    // Contact rows in the complete island, shared by every tile.
+    mr_u32 islandConstraintCount;
 } MRContactTileGPU;
 
 typedef struct MR_ALIGN16 MRWave32PreconditionerGPU {

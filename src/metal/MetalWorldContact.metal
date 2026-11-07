@@ -6156,6 +6156,7 @@ kernel void mr_world_build_contact_tiles(
                     : MR_INVALID_INDEX;
                 tile.partialOffset = tileConstraintOffset;
                 tile.flags = MR_ISLAND_WORK_VALID;
+                tile.islandConstraintCount = packedCount;
                 tiles[tileBase + tileCursor] = tile;
             }
             ++tileCursor;
@@ -6847,18 +6848,32 @@ kernel void mr_world_wave32_distributed_delta(
                 dot(localRows[2].direction.xyz, relative) -
                 localRows[2].regularization * previous.z
         );
-        float3 candidate = previous + float3(
+        float3 proposed = previous + float3(
             dot(preconditioner.row0.xyz, rhs),
             dot(preconditioner.row1.xyz, rhs),
             dot(preconditioner.row2.xyz, rhs)
         );
-        candidate = projectFrictionCone(
-            candidate,
+        proposed = projectFrictionCone(
+            proposed,
             evaluatedCones[
                 constraintBase + localConstraint
             ]
         );
-        const float3 delta = candidate - previous;
+        if (tile.islandConstraintCount == 0u) {
+            impulseDeltas[constraintBase + localConstraint] =
+                float4(0.0f, 0.0f, 0.0f,
+                       static_cast<float>(MR_STEP_NONFINITE_RESULT));
+            continue;
+        }
+        // A block-Jacobi update is coupled to every row in its island. A
+        // full simultaneous step can overshoot by the island contact count.
+        // Damping keeps the new impulse inside the convex cone; the final
+        // local complementarity certificate still decides acceptance.
+        const float relaxation =
+            (1.0f + kContactMatrixRegularization) /
+            float(tile.islandConstraintCount);
+        const float3 delta = relaxation * (proposed - previous);
+        const float3 candidate = previous + delta;
         if (!finite3(candidate) || !finite3(delta)) {
             impulseDeltas[
                 constraintBase + localConstraint
