@@ -1509,3 +1509,16 @@ nonterminal final values. New owners are experimental population sampling, not
 biological deaths or artificial terminal reward. Native owner replacement may
 briefly hold two contexts; boundary retained-buffer telemetry is not peak memory.
 Learning and peak end-to-end performance require separate measured trials.
+
+The wider-exploration scout completed81,920 valid transitions (8 independent
+32-lane320-tick updates), two PPO epochs per update and one final checkpoint.
+Every update consumed0 food. Final learned yaw ranged[-0.383,0.107]rad during
+the intake window, short of the calibrated approximately+/-0.6rad port postures.
+Measured loop throughput was2467.8 environment-steps/s; MLX peak758,896,180bytes,
+not full process/renderer peak. This failed reward-path prediction remains
+preserved. The next experiment needs native action holds with exact learner
+attribution, retaining sensor cadence, geometry and conserved food reward.
+All134 legacy non-scene native outputs remain byte exact under ABI49-capable
+shaders. ABI49 independent2-vs1+1 training also matches all53 tensors and native
+state at chunks1/8. These controls do not turn the zero-reward scout into a
+learned memory result.
