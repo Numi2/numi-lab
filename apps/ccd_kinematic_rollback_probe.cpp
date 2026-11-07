@@ -37,16 +37,25 @@ int main(int argc,char** argv) {
  MRBodyStateGPU ground{};ground.position.w=1;ground.orientation.w=1;
  ground.position.x=1.f;ground.flagsAndIndices[0]=MR_MOTION_KINEMATIC;ground.flagsAndIndices[1]=MR_INVALID_INDEX;
  const std::vector<MRBodyStateGPU> scene{ground};
+ MRBodyStateGPU resetBody=ground;resetBody.position.x=2.f;
+ const std::vector<MRBodyStateGPU> resetScene{resetBody};
+ const std::vector<std::uint32_t> resetMask{1u}, noResetMask{0u};
  const std::vector<float> zero(world.nv(),0.f);
  MRBodyStateGPU driven=ground;driven.position.x=0.f;
  const std::vector<MRBodyStateGPU> targets{driven};
  const metalrobo::MetalWorldBatch initial{.environmentCount=1,.controlStepCount=1,.initialQ=model.defaultQ,
-  .initialV=model.defaultV,.efforts=zero,.initialSceneBodies=scene};
+  .initialV=model.defaultV,.efforts=zero,.resetMasks=noResetMask,.resetQ=model.defaultQ,.resetV=model.defaultV,
+  .initialSceneBodies=scene,.resetSceneBodies=resetScene};
  MRBodyStateGPU gentle=ground;gentle.linearVelocityAndInverseMass.y=-.1f;
  const std::vector<MRBodyStateGPU> gentleTargets{gentle};
  const metalrobo::MetalWorldBatch acceptedBatch{.environmentCount=1,.controlStepCount=1,.efforts=zero,.kinematicTargets=gentleTargets};
  const metalrobo::MetalWorldBatch rejected{.environmentCount=1,.controlStepCount=1,.efforts=zero,.kinematicTargets=targets};
+ const metalrobo::MetalWorldBatch resetRejected{.environmentCount=1,.controlStepCount=1,
+  .efforts=zero,.resetMasks=resetMask,.kinematicTargets=targets};
+ const metalrobo::MetalWorldBatch resetOnly{.environmentCount=1,.controlStepCount=1,
+  .efforts=zero,.resetMasks=resetMask};
  const metalrobo::MetalWorldBatch neutral{.environmentCount=1,.controlStepCount=1,.efforts=zero};
+ const metalrobo::MetalWorldBatch recontact{.environmentCount=1,.controlStepCount=1,.efforts=zero,.kinematicTargets=scene};
  metalrobo::MetalWorldStepConfig config;config.timestepSeconds=.01f;config.physicsSubsteps=1;
  config.velocityIterations=2;config.finalVelocityIterations=0;config.ccdMode=metalrobo::MetalWorldCCDMode::disabled;
  config.applyBodyDamping=false;config.captureContactEvidence=true;
@@ -91,7 +100,52 @@ int main(int argc,char** argv) {
  const bool acceptedTargetApplied=ai.succeeded()&&at.succeeded()&&!acceptedTarget.finalSceneBodies.empty()&&
   acceptedTarget.finalSceneBodies[0].linearVelocityAndInverseMass.x==0.f &&
   acceptedTarget.finalSceneBodies[0].linearVelocityAndInverseMass.y==-.1f;
- std::cout<<"{\"accepted_target_status\":"<<at.firstGPUStatusCode
+ metalrobo::MetalWorldContext resetCtx(owner),resetControl(owner);
+ metalrobo::MetalWorldResidentState resetResident,resetReference;
+ metalrobo::MetalWorldSubmission resetTicket,resetRefTicket;
+ metalrobo::MetalWorldResult resetInitial,resetRefInitial,resetFailed,resetExpected,resetAfter,resetRefAfter;
+ auto rs=resetCtx.initializeResidentState(world,initial,config,resetResident,resetTicket);
+ auto rr=resetControl.initializeResidentState(world,initial,config,resetReference,resetRefTicket);
+ if(!rs.succeeded()||!rr.succeeded()){std::cerr<<"reset initialize submit failed\n";return 9;}
+ auto ri=resetTicket.wait(resetInitial),rri=resetRefTicket.wait(resetRefInitial);
+ auto rfsub=resetCtx.submitResident(world,resetRejected,failing,resetResident,resetTicket);
+ auto rcs=resetControl.submitResident(world,resetOnly,config,resetReference,resetRefTicket);
+ if(!rfsub.succeeded()||!rcs.succeeded()){std::cerr<<"reset control submit failed\n";return 10;}
+ auto rfd=resetTicket.wait(resetFailed),rcd=resetRefTicket.wait(resetExpected);
+ const bool resetRestored=equal(resetFailed.finalQ,resetExpected.finalQ)&&equal(resetFailed.finalV,resetExpected.finalV)&&
+  equal(resetFailed.finalSceneBodies,resetExpected.finalSceneBodies)&&
+  equal(resetFailed.contactEvidence.manifoldCounts,resetExpected.contactEvidence.manifoldCounts)&&
+  equal(resetFailed.contactEvidence.manifoldHeaders,resetExpected.contactEvidence.manifoldHeaders)&&
+  equal(resetFailed.contactEvidence.manifoldPoints,resetExpected.contactEvidence.manifoldPoints);
+ auto ras=resetCtx.submitResident(world,recontact,config,resetResident,resetTicket);
+ auto rbs=resetControl.submitResident(world,recontact,config,resetReference,resetRefTicket);
+ if(!ras.succeeded()||!rbs.succeeded()){std::cerr<<"reset continuation submit failed\n";return 11;}
+ auto rad=resetTicket.wait(resetAfter),rbd=resetRefTicket.wait(resetRefAfter);
+ const bool resetContinuation=equal(resetAfter.finalQ,resetRefAfter.finalQ)&&equal(resetAfter.finalV,resetRefAfter.finalV)&&
+  equal(resetAfter.finalSceneBodies,resetRefAfter.finalSceneBodies)&&
+  equal(resetAfter.contactEvidence.manifoldCounts,resetRefAfter.contactEvidence.manifoldCounts)&&
+  equal(resetAfter.contactEvidence.manifoldHeaders,resetRefAfter.contactEvidence.manifoldHeaders)&&
+  equal(resetAfter.contactEvidence.manifoldPoints,resetRefAfter.contactEvidence.manifoldPoints);
+ std::cout<<"{\"reset_initial_ok\":"<<(ri.succeeded()&&rri.succeeded()?"true":"false")
+  <<",\"reset_failure_status\":"<<rfd.firstGPUStatusCode
+  <<",\"reset_control_status\":"<<rcd.firstGPUStatusCode
+  <<",\"reset_scene_x\":"<<(resetFailed.finalSceneBodies.empty()?0.f:resetFailed.finalSceneBodies[0].position.x)
+  <<",\"reset_cache_count\":"<<countCache(resetFailed)
+  <<",\"reset_restored\":"<<(resetRestored?"true":"false")
+  <<",\"reset_q_equal\":"<<(equal(resetFailed.finalQ,resetExpected.finalQ)?"true":"false")
+  <<",\"reset_v_equal\":"<<(equal(resetFailed.finalV,resetExpected.finalV)?"true":"false")
+  <<",\"reset_scene_equal\":"<<(equal(resetFailed.finalSceneBodies,resetExpected.finalSceneBodies)?"true":"false")
+  <<",\"reset_counts_equal\":"<<(equal(resetFailed.contactEvidence.manifoldCounts,resetExpected.contactEvidence.manifoldCounts)?"true":"false")
+  <<",\"reset_headers_equal\":"<<(equal(resetFailed.contactEvidence.manifoldHeaders,resetExpected.contactEvidence.manifoldHeaders)?"true":"false")
+  <<",\"reset_points_equal\":"<<(equal(resetFailed.contactEvidence.manifoldPoints,resetExpected.contactEvidence.manifoldPoints)?"true":"false")
+
+  <<",\"reset_continuation_status\":"<<rad.firstGPUStatusCode
+  <<",\"reset_reference_status\":"<<rbd.firstGPUStatusCode
+  <<",\"reset_continuation_identical\":"<<(resetContinuation?"true":"false")
+  <<",\"reset_recontact_cache_count\":"<<countCache(resetAfter)
+  <<",\"reset_reference_recontact_cache_count\":"<<countCache(resetRefAfter)
+
+  <<",\"accepted_target_status\":"<<at.firstGPUStatusCode
   <<",\"accepted_target_applied\":"<<(acceptedTargetApplied?"true":"false")
   <<",\"initial_ok\":"<<(ad.succeeded()&&bd.succeeded()?"true":"false")
   <<",\"initial_cache_count\":"<<countCache(before)
