@@ -1,0 +1,42 @@
+{
+  "prediction_commit": "c44ff561ac7424415f15aa510004d952833cbca9",
+  "source_sha256": "6f656ede82afdca446c773edd78941f61af1f9c8ec29959825f728a9e5ef0eaa",
+  "input_sha256": "361a612d19ccf3b45899e3d080a44eb8c9b6479ee2b8f03475fd44259d3123f2",
+  "samples": [
+    {
+      "epsilon_m": 4e-08,
+      "energy_fd_relative": 0.0002500587475795114,
+      "tangent_fd_relative": 4.5898359094880866e-07
+    },
+    {
+      "epsilon_m": 2e-08,
+      "energy_fd_relative": 6.250729561262512e-05,
+      "tangent_fd_relative": 1.1474571015792934e-07
+    },
+    {
+      "epsilon_m": 1e-08,
+      "energy_fd_relative": 1.564099053826309e-05,
+      "tangent_fd_relative": 2.8686541709862503e-08
+    },
+    {
+      "epsilon_m": 5e-09,
+      "energy_fd_relative": 3.9037672502296435e-06,
+      "tangent_fd_relative": 7.171552680624526e-09
+    },
+    {
+      "epsilon_m": 2.5e-09,
+      "energy_fd_relative": 8.72298983783919e-07,
+      "tangent_fd_relative": 1.7930530054724704e-09
+    },
+    {
+      "epsilon_m": 1.25e-09,
+      "energy_fd_relative": 1.9216187272237827e-07,
+      "tangent_fd_relative": 4.557624238620095e-10
+    },
+    {
+      "epsilon_m": 6.25e-10,
+      "energy_fd_relative": 3.9081279390179957e-07,
+      "tangent_fd_relative": 1.4415751480535982e-10
+    }
+  ]
+}

@@ -47,3 +47,12 @@ finite-difference check: 1.5641e-5 relative, above 2e-6. States 0, 150 and
 assembly qualification is not complete. Investigating whether this is
 finite-difference cancellation or an actual inconsistency requires a separate
 step-size study, not silently changing the declared threshold.
+
+A separately preregistered
+[finite-difference step-size study](CONTACT_EXTERNAL_FD_SWEEP_20261107.md)
+supports truncation as the cause of that energy-derivative failure. Two
+adjacent smaller perturbations satisfy the original 2e-6 accuracy threshold,
+while the first failed run remains unchanged. These checks provide evidence
+of assembly parity at the four retained n=2 states; they do not establish
+external integration, mesh convergence, force qualification or physical
+material validity.
