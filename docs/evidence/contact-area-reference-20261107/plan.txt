@@ -1,0 +1,10 @@
+Immutable source/binary/shader identities: source-commit.txt and binary-sha256.txt.
+Fixed model: ipc_area, k=1e16 N/m^5, activation distance=1e-4 m,
+reference patch area=0.0004 m^2, initial gap=0.0002 m, physical residual
+policy, reference displacement, frictionless plane; 16 Newton, 64 FGMRES.
+Temporal sweep at mesh divisions=2, fixed duration 0.01s: h=0.0005,
+0.00025, 0.000125, 0.0000625 seconds; evaluate only completed runs.
+0.25% maximum 1ms-bin force and impulse change gate; no time shifting.
+Independent residual, clearance, rollback, replay and source identity required.
+Mesh refinement follows only if temporal reference qualifies. This is scoped
+reference-surface quadrature, not general surface contact or hard contact.
