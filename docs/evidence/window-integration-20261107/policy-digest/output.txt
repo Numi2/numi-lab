@@ -1,0 +1,4 @@
+start_utc=2026-11-07T22:48:26Z
+policy completion: GPU published a malformed native task transition
+end_utc=2026-11-07T22:48:26Z
+exit_code=1

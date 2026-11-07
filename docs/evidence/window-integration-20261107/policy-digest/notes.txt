@@ -1,0 +1,1 @@
+The first synthetic callback returned success without writing taskActions and the batch policy revision was zero while the configured action owner declared revision 1. Completion was rejected as a malformed native task transition. This failed attempt does not qualify the guard or isolate which transition field failed. Transition validation was not relaxed.
