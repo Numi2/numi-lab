@@ -1,0 +1,68 @@
+--- a/src/metal/MetalHybridRenderer.mm
++++ b/src/metal/MetalHybridRenderer.mm
+@@ -7492,6 +7492,65 @@
+     return state_ ? (__bridge void*)state_->researchBodySnapshot : nullptr;
+ }
+ 
++bool MetalHybridObjectTracker::researchEncodeMixedFrames(
++    void* rawCommand, void* rawBodies, std::uint32_t environments,
++    std::uint32_t bodyCount, const void* rawClocks,
++    const MRVisualFrameMetadataGPU* acceptedMetadata,
++    MRVisualFrameMetadataGPU* candidateMetadata
++) {
++    if (!state_ || !state_->compiled || !state_->renderer || !state_->worlds ||
++        !rawCommand || !rawBodies || !rawClocks || !acceptedMetadata || !candidateMetadata ||
++        !environments || environments > state_->config.capacity ||
++        !state_->config.maskedDepthInstanceIds.empty() ||
++        !state_->renderer->state_->config.geometricObservationsOnly ||
++        bodyCount != state_->rendererLayout.bodyCount) return false;
++    id<MTLCommandBuffer> command = (__bridge id<MTLCommandBuffer>)rawCommand;
++    const auto* clocks = static_cast<const research_cadence::Record*>(rawClocks);
++    const std::size_t pixels = std::size_t(state_->rendererLayout.width) * state_->rendererLayout.height;
++    const std::array<MetalHybridRendererBuffer,4> fields{{
++        MetalHybridRendererBuffer::depth, MetalHybridRendererBuffer::identities,
++        MetalHybridRendererBuffer::validity, MetalHybridRendererBuffer::cameraStates}};
++    const std::array<std::size_t,4> stride{{pixels*sizeof(float),pixels*sizeof(mr_uint4),
++        pixels*sizeof(std::uint32_t),sizeof(MRHybridCameraStateGPU)}};
++    std::array<id<MTLBuffer>,4> target{},scratch{};
++    std::vector<research_cadence::Candidate> proposals(environments);
++    for (std::uint32_t e=0;e<environments;++e) {
++        if (!research_cadence::propose(clocks[e],state_->config.timestepSeconds,
++              state_->config.nominalSensorRateHz,clocks[e].captureTimeBits,false,proposals[e])) return false;
++        candidateMetadata[e]=acceptedMetadata[e];
++    }
++    for (std::size_t i=0;i<fields.size();++i) {
++        target[i]=(__bridge id<MTLBuffer>)state_->renderer->nativeBuffer(fields[i]);
++        if (!stride[i] || target[i]==nil || target[i].length < stride[i]*environments) return false;
++        scratch[i]=[state_->device newBufferWithLength:stride[i]*environments options:MTLResourceStorageModePrivate];
++        if (scratch[i]==nil) return false;
++    }
++    id<MTLBlitCommandEncoder> save=[command blitCommandEncoder];if (save==nil) return false;
++    for (std::size_t i=0;i<fields.size();++i)
++        [save copyFromBuffer:target[i] sourceOffset:0 toBuffer:scratch[i] destinationOffset:0 size:stride[i]*environments];
++    [save endEncoding];
++    for (std::uint32_t e=0;e<environments;++e) {
++        if (!proposals[e].sample) continue;
++        HybridDeviceStateBatch live{}; live.currentBodyStates=rawBodies; live.previousBodyStates=rawBodies;
++        live.environmentCount=environments;live.bodyCount=bodyCount;live.frameIndex=clocks[e].acceptedSteps;
++        live.sensorSequence=proposals[e].sensor;live.source=MR_VISUAL_SOURCE_SIMULATION;
++        live.captureTimestampSeconds=double(clocks[e].acceptedSteps)*state_->config.timestepSeconds;
++        id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];if (encoder==nil) return false;
++        auto rendered=state_->renderer->encode(*state_->worlds,live,state_->config.cameraIndex,(__bridge void*)encoder);
++        [encoder endEncoding];if (!rendered.succeeded()) return false;
++        candidateMetadata[e]=state_->renderer->state_->activeMetadata;
++        id<MTLBlitCommandEncoder> select=[command blitCommandEncoder];if (select==nil) return false;
++        for (std::size_t i=0;i<fields.size();++i)
++            [select copyFromBuffer:target[i] sourceOffset:stride[i]*e toBuffer:scratch[i] destinationOffset:stride[i]*e size:stride[i]];
++        [select endEncoding];
++    }
++    id<MTLBlitCommandEncoder> assemble=[command blitCommandEncoder];if (assemble==nil) return false;
++    for (std::size_t i=0;i<fields.size();++i)
++        [assemble copyFromBuffer:scratch[i] sourceOffset:0 toBuffer:target[i] destinationOffset:0 size:stride[i]*environments];
++    [assemble endEncoding];
++    return true;
++}
++
+ bool MetalHybridObjectTracker::researchSetCadenceBuffer(void* buffer) {
+     if (!state_ || !state_->compiled) return false;
+     id<MTLBuffer> candidate = (__bridge id<MTLBuffer>)buffer;

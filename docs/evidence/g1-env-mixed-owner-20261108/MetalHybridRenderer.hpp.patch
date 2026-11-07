@@ -1,0 +1,17 @@
+--- a/include/metalrobo/MetalHybridRenderer.hpp
++++ b/include/metalrobo/MetalHybridRenderer.hpp
+@@ -411,7 +411,14 @@
+     [[nodiscard]] void* researchCurrentBodies() const;
+     void researchEnableBodyCapture(bool enabled);
+     [[nodiscard]] void* researchCapturedBodies() const;
++    // Research-only candidate construction; caller owns acceptance/rollback.
++    [[nodiscard]] bool researchEncodeMixedFrames(
++        void* commandBuffer, void* currentBodies, std::uint32_t environments,
++        std::uint32_t bodyCount, const void* acceptedClocks,
++        const MRVisualFrameMetadataGPU* acceptedMetadata,
++        MRVisualFrameMetadataGPU* candidateMetadata);
+ 
++
+ private:
+     struct State;
+     static bool encodeObservation(
