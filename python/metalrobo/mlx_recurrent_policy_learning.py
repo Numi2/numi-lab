@@ -215,7 +215,8 @@ class MLXRecurrentPolicyLearner(MLXPolicyLearner):
     @classmethod
     def initialize(cls, actor_observation_count: int, critic_observation_count: int,
                    action_count: int, hidden_count: int,
-                   configuration: MLXRecurrentPPOConfiguration = MLXRecurrentPPOConfiguration()):
+                   configuration: MLXRecurrentPPOConfiguration = MLXRecurrentPPOConfiguration(),
+                   *, maximum_memory_timescale_ticks: int = 0):
         """Seed a bounded tanh encoder, native GRU and Gaussian actor/critic.
 
         Dense and GRU rows use a seeded fan-in uniform initializer; biases are
@@ -229,6 +230,9 @@ class MLXRecurrentPolicyLearner(MLXPolicyLearner):
             raise ValueError("Recurrent policy dimensions must be positive")
         if not configuration.hidden_sizes:
             raise ValueError("Recurrent initialization requires a nonempty tanh encoder")
+        if (not isinstance(maximum_memory_timescale_ticks, int) or isinstance(maximum_memory_timescale_ticks, bool)
+                or maximum_memory_timescale_ticks not in (0,) and not 2 <= maximum_memory_timescale_ticks <= 4096):
+            raise ValueError("Maximum initial memory timescale must be 0 (legacy) or an integer in 2..4096 accepted ticks")
         generator = np.random.default_rng(configuration.seed)
         def weights(rows, columns):
             bound = 1 / math.sqrt(columns)
@@ -244,6 +248,13 @@ class MLXRecurrentPolicyLearner(MLXPolicyLearner):
         memory = PolicyGRUMemoryArtifact(len(encoder), weights(3*hidden_count, width),
             weights(3*hidden_count, hidden_count), np.zeros(3*hidden_count, np.float32),
             np.zeros(3*hidden_count, np.float32), 1.)
+        if maximum_memory_timescale_ticks:
+            # For an isolated unforced cell, z=exp(-1/tau) preserves h with
+            # exact nominal exponential timescale tau. A log-spaced population
+            # retains short and long responses. Ordinary learned gates remain
+            # fully trainable; this changes initialization only, not execution.
+            tau = np.geomspace(2., float(maximum_memory_timescale_ticks), hidden_count)
+            memory.input_bias[hidden_count:2*hidden_count] = -np.log(np.expm1(1./tau)).astype(np.float32)
         layers = tuple(encoder + [dense(hidden_count, action_count, 0)])
         critic = []
         width = critic_observation_count

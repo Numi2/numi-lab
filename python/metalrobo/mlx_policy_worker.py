@@ -1379,6 +1379,9 @@ def _initialize(arguments: argparse.Namespace) -> int:
         raise ValueError(
             "actor route residual initialization requires an actor PolicyPack"
         )
+    if arguments.recurrent_memory_timescale_ticks is not None and (
+            arguments.recurrent_hidden_size is None or not 2 <= arguments.recurrent_memory_timescale_ticks <= 4096):
+        raise ValueError("Initial memory timescales require fresh recurrent initialization and an integer in 2..4096")
     if arguments.recurrent_hidden_size is not None:
         if (arguments.actor_policy_pack is not None or arguments.actor_fresh_critic
                 or arguments.zero_actor_observation_offset is not None
@@ -1389,7 +1392,8 @@ def _initialize(arguments: argparse.Namespace) -> int:
         configuration = MLXRecurrentPPOConfiguration(**asdict(_configuration(arguments)),
             sequence_length=arguments.recurrent_sequence_length)
         learner = MLXRecurrentPolicyLearner.initialize(arguments.actor_observations,
-            arguments.critic_observations, arguments.actions, arguments.recurrent_hidden_size, configuration)
+            arguments.critic_observations, arguments.actions, arguments.recurrent_hidden_size, configuration,
+            maximum_memory_timescale_ticks=arguments.recurrent_memory_timescale_ticks or 0)
     elif arguments.actor_policy_pack is None:
         learner = MLXPolicyLearner(
             arguments.actor_observations,
@@ -1596,6 +1600,8 @@ def main() -> int:
     )
     initialize.add_argument("--recurrent-hidden-size", type=_positive,
         help="initialize a fresh tanh encoder / GRU / Gaussian actor; --hidden-sizes sets encoder widths")
+    initialize.add_argument("--recurrent-memory-timescale-ticks", type=int,
+        help="fresh GRU nominal gate retention timescales log-spaced from2 to this maximum (2..4096); saved parameters remain fully trainable")
     initialize.add_argument("--recurrent-sequence-length", type=_positive, default=32)
     initialize.add_argument(
         "--actor-observations",

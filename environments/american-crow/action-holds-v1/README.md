@@ -53,3 +53,32 @@ Evidence, failures, exact runtimes and restoration receipts live in the Git
 artifact archive. Raw and duplicate checkout payloads are removed only after
 pushed Git recovery is verified. This remains an estimated supported-head
 engineering task, not biologically calibrated free crow ecology.
+
+## Explicit initial memory timescales
+
+Fresh recurrent trainer initialization accepts
+`--recurrent-memory-timescale-ticks 256` together with
+`--initialize-policy ... --recurrent-hidden-size 64 --recurrent-encoder-sizes 96,48`.
+The optional maximum must be an integer in2..4096 accepted control ticks. The
+learner initializer also accepts0 to preserve legacy initialization exactly.
+This is an initialization-only option: saved PolicyPack GRU parameters fully
+determine resumed execution, and the flag is excluded from life-training option
+identity just like encoder sizes. It cannot modify an imported/resumed actor.
+No configuration/wire ABI or native gate implementation changes.
+
+For H units, log-space tau from2 to the declared maximum, and set only the
+update-gate input bias to `-log(expm1(1/tau))`. An isolated unforced cell then
+has `z=exp(-1/tau)` and hidden decay `h[t]=exp(-t/tau)*h[0]`. Actual gate activity
+and effective retention depend on inputs, recurrent couplings and learned
+parameters; no fixed memory guarantee is imposed. All gates remain trainable.
+Other weights, critic, RNG draws and legacy default parameter bytes are exact.
+
+38 Python checks pass, including the isolated analytic decay/gradient test,
+legacy byte exactness and selected-factor FP64 PPO controls. Eight malformed
+Swift/worker options reject before simulation or artifact publication. A paired
+replay of the same Git-restored native inputs and seeded actor changes only
+update-gate input biases. Early-image head64 gradient L2 increases from
+3.214976e-8 to0.007818736 (243197x); early-cue permutation changes the head64
+mean by0.000688658, versus2.793968e-9 with legacy initialization. This admits a
+usable optimization path, not learned cue memory. Native training, held-out
+causal evaluation and broader lifelong tasks remain separate requirements.
