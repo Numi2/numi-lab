@@ -91,6 +91,7 @@ int main(int argc,char** argv) {
    <<",\"final_vt\":"<<result.finalV[0]
    <<",\"initial_vn\":"<<incoming<<",\"final_vn\":"<<result.finalV[1]
    <<",\"final_vz\":"<<result.finalV[2]
+   <<",\"gpu_ms\":"<<d.gpuElapsedMilliseconds<<",\"submission_ms\":"<<d.submissionElapsedMilliseconds
    <<",\"normal_residual\":"<<status.residuals.y
    <<",\"candidate_normal_impulse_ns\":"<<totalNormalImpulse
    <<",\"candidate_normal_impulse_min_ns\":"<<(impulseMin==1.e100?0:impulseMin)
