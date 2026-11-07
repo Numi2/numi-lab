@@ -1,0 +1,9 @@
+Test project /Users/numi/numi-lab-contact-build-20261107
+    Start 1: numi.contact.physical_policy
+1/2 Test #1: numi.contact.physical_policy .....   Passed    0.01 sec
+    Start 2: numi.contact.residual_restore
+2/2 Test #2: numi.contact.residual_restore ....   Passed   18.62 sec
+
+100% tests passed out of 2
+
+Total Test time (real) =  18.63 sec

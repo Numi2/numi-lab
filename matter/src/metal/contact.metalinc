@@ -468,6 +468,33 @@ inline float4 ipcBarrierResponse(
     );
 }
 
+
+// Same unshifted IPC law, retaining the reference-position gap and cancellation
+// residuals in the radial derivatives. The final impulse/tangent remain FP32.
+inline float4 ipcReferencePlaneResponse(MRCompensatedScalar separation,float thickness,
+    float stiffness,float dt) {
+    if(mrCompensatedCompare(separation,{thickness,0})>=0||!(stiffness>0))
+        return float4(0,0,thickness,stiffness);
+    const float cutoff=1e-4f*thickness;
+    const bool below=mrCompensatedCompare(separation,{cutoff,0})<0;
+    const auto d=below?MRCompensatedScalar{cutoff,0}:separation;
+    const auto D=mrCompensatedMultiply(d,d),T=mrCompensatedProduct(thickness,thickness);
+    const auto off=mrCompensatedAdd(D,mrCompensatedNegate(T));
+    const auto log=nmCompensatedLog(mrCompensatedDivide(D,T));
+    const auto off2=mrCompensatedMultiply(off,off);
+    const auto first=mrCompensatedMultiply({-stiffness,0},mrCompensatedAdd(
+        mrCompensatedMultiply({2,0},mrCompensatedMultiply(off,log)),mrCompensatedDivide(off2,D)));
+    const auto second=mrCompensatedMultiply({-stiffness,0},mrCompensatedAdd(
+        mrCompensatedAdd(mrCompensatedMultiply({2,0},log),
+            mrCompensatedMultiply({4,0},mrCompensatedDivide(off,D))),
+        mrCompensatedNegate(mrCompensatedDivide(off2,mrCompensatedMultiply(D,D)))));
+    const auto force=mrCompensatedMultiply({-2,0},mrCompensatedMultiply(d,first));
+    const auto tangent=mrCompensatedAdd(mrCompensatedMultiply({4,0},mrCompensatedMultiply(D,second)),
+        mrCompensatedMultiply({2,0},first));
+    return float4(max(0.f,force.high+force.low)*dt,
+        below?0.f:max(0.f,tangent.high+tangent.low)*dt*dt,thickness,stiffness);
+}
+
 // Safeguarded quadratic interpolation proposes a smaller step; the existing
 // exact endpoint energy, CCD and final certificates still decide acceptance.
 // Normalize by alpha*slope rather than squaring a possibly tiny step.
@@ -11989,6 +12016,7 @@ kernel void nm_contact_evaluate(
     float3 velocity;
     float3 admissionVelocity;
     float3 mpmPredictorPoint = float3(0.0f);
+    MRCompensatedPositionGPU referencePoint={};bool referencePlane=false;
     bool mpmFixedPlaneKKT = false;
     uint mpmNodeGeneration = NM_INVALID_INDEX;
     float mpmNodeMass = 0.0f;
@@ -12070,6 +12098,10 @@ kernel void nm_contact_evaluate(
             environment * dispatch.femNodeCount + femNode
         ];
         point = node.positionAndMass.xyz;
+        referencePlane=node.referenceDisplacementAndMode.w==1.f&&proxy.shapeKind==NM_RIGID_PLANE&&
+            proxy.bodyIndex==NM_INVALID_INDEX&&rigid.linearVelocityAndInverseMass.w==0.f&&
+            all(rigid.linearVelocityAndInverseMass.xyz==0.f)&&all(rigid.angularVelocity.xyz==0.f)&&!nmFEMPlaneALActive;
+        if(referencePlane)referencePoint=femContactPositionRelativeExpansion(node,float3(0));
         velocity = node.velocityAndInverseMass.xyz;
         // deltaVelocity is defined against femAccepted on every candidate
         // projection, so this reconstruction is invariant across Newton
@@ -12118,6 +12150,12 @@ kernel void nm_contact_evaluate(
             float4(point, 0.0f)
         );
         return;
+    }
+    MRCompensatedScalar referenceGap={separation,0};
+    if(referencePlane) {
+        referenceGap=mrCompensatedAdd(mrCompensatedVectorDot(referencePoint,
+            mrCompensatedVector(float4(normal,0))),{-rigid.centerAndRadius.w,0});
+        separation=referenceGap.high;
     }
     const float slop = dispatch.numericalLimits.x;
     const float3 lever = witness - rigid.bodyCenter.xyz;
@@ -12262,6 +12300,7 @@ kernel void nm_contact_evaluate(
             mpmContact,
             mpmClearanceOffset,
             frozenStiffness);
+    if(referencePlane)barrier=ipcReferencePlaneResponse(referenceGap,slop,barrier.w,dt);
     if (nmFEMPlaneALActive) {
         const float previousForce = histories[historyIndex].w / dt;
         const float force = nmFEMPlaneALForce(separation,previousForce);
@@ -12435,6 +12474,7 @@ kernel void nm_contact_evaluate(
     const float3 impulseOnRigid =
         -seededNormal * normal + seededTangent;
     NMContactSampleGPU sample{};
+    if(referencePlane)contactFlags|=NM_CONTACT_REFERENCE_PLANE;
     sample.identity = {
         pair.continuumNode,
         pair.rigidProxy,
@@ -12514,7 +12554,7 @@ kernel void nm_contact_evaluate(
     // tangent, so preserve node generation in this otherwise-unused lane.
     sample.barrierHessianRow0.w = mpmContact
         ? as_type<float>(mpmNodeGeneration)
-        : (angularFreeBoxTangent ? dt : 0.0f);
+        : (angularFreeBoxTangent ? dt : (referencePlane ? referenceGap.low : 0.f));
     sample.barrierHessianRow1.w = angularFreeBoxTangent ? normalResponse : 0.0f;
     // row2.w is unused by spatial Hessian multiplication; retain the
     // microstep's immutable MPM clearance offset for response/Armijo energy.

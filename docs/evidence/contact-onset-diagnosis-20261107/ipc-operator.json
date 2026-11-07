@@ -1,0 +1,27 @@
+{
+  "schema": "numi.fem-plane.fp64-diagnostic.v1",
+  "capture": "/Users/numi/numi-lab-contact-onset-evidence-20261107/onset-captures/ipc-iter2.coupled.json",
+  "numpy": "2.5.4",
+  "nodes": 27,
+  "h_float32": 6.25000029685907e-05,
+  "arm": "ipc",
+  "native_rhs_l2_Ns": 1.0552849495092164e-05,
+  "fp64_rhs_l2_Ns": 1.0552850804571796e-05,
+  "rhs_difference_l2_Ns": 1.0911679626294908e-11,
+  "rhs_difference_max_node_Ns": 4.490983513307431e-12,
+  "native_max_local_gravity_scaled_residual": 25.79222469773447,
+  "fp64_max_local_gravity_scaled_residual": 25.79222117662847,
+  "native_linear_residual_l2_Ns": 9.175974426058887e-08,
+  "fp64_linear_residual_l2_Ns": 9.176131880892573e-08,
+  "jv_relative_difference": 3.009554875664462e-08,
+  "contact_impulse_max_difference_Ns": 7.288633536777986e-13,
+  "contact_tangent_max_difference_kg": 4.2171367092835865e-11,
+  "impact_stiffness_dominant_contacts": 0,
+  "position_velocity_defect_max_m": 1.036553914544323e-09,
+  "min_J": 0.9997673438389928,
+  "limits": [
+    "Same compiled rest matrices and captured working state; no time integration is performed.",
+    "FP64 evaluates log-J neo-Hookean stress and analytic Jv independently; the runtime remains Metal FP32.",
+    "IPC tangent comparison freezes its captured center stiffness, as the production linearization does."
+  ]
+}

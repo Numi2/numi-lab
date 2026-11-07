@@ -432,6 +432,12 @@ struct MixedSolverSource {
     // Dimensionless floor relative to WorldSource::contactSlop. A separate
     // coordinate-scale FP32 floor is always retained by the Metal kernel.
     double minimumContactSeparationRatio = 1.0e-4;
+    // Optional pure-FEM physical impulse norm policy. All zero retains legacy
+    // residual normalization. Otherwise ||R||_2 <= absolute + relative*scale;
+    // scale is an explicitly authored reference impulse in N*s.
+    double mechanicalAbsoluteImpulseTolerance = 0.0;
+    double mechanicalRelativeImpulseTolerance = 0.0;
+    double mechanicalImpulseScale = 0.0;
     double diagonalFloor = 1.0e-8;
     double initialLMShift = 1.0e-6;
     double maximumLMShift = 1.0e4;

@@ -28844,7 +28844,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     id<MTLBuffer> source;
                     NSUInteger bytes;
                 };
-                const std::array<TraceArena, 4u> arenas{{
+                std::vector<TraceArena> arenas{
                     {"alpha", state.environmentLineSearch,
                         environments * sizeof(float)},
                     {"object_line_search", state.femLineSearch,
@@ -28853,11 +28853,28 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         environments * sizeof(NMFGMRESStateGPU)},
                     {"status", state.statuses,
                         environments * sizeof(NMMatterStatusGPU)},
-                }};
+                };
+                const char* richSetting=std::getenv("NM_FEM_NEWTON_TRACE_STATE");
+                const bool rich=richSetting && std::strcmp(richSetting,"1")==0 &&
+                    environments==1u && state.dispatch.objectCount==1u &&
+                    state.dispatch.femNodeCount<=125u && state.dispatch.tetrahedronCount<=384u &&
+                    state.dispatch.particleCount==0u && state.dispatch.rigidGeneralizedCapacity==0u;
+                if(rich) {
+                    const NSUInteger nodes=state.dispatch.femNodeCount;
+                    const NSUInteger vectors=state.fgmresLayout.unknownCount;
+                    arenas.push_back({"accepted_nodes",state.femAccepted,nodes*sizeof(NMFEMNodeStateGPU)});
+                    arenas.push_back({"working_nodes",state.femCandidate,nodes*sizeof(NMFEMNodeStateGPU)});
+                    arenas.push_back({"tetrahedra",state.femTetrahedraAccepted,state.dispatch.tetrahedronCount*sizeof(NMTetrahedronGPU)});
+                    arenas.push_back({"rhs_workspace",state.femResidual,vectors*sizeof(nm_float4)});
+                    arenas.push_back({"correction",state.femSolution,vectors*sizeof(nm_float4)});
+                    arenas.push_back({"contact_samples",state.contactSamples,state.dispatch.contactPairCount*sizeof(NMContactSampleGPU)});
+                    arenas.push_back({"accepted_dual",state.contactHistoriesAccepted,state.dispatch.contactPairCount*sizeof(nm_float4)});
+                    arenas.push_back({"candidate_dual",state.contactHistoriesCandidate,state.dispatch.contactPairCount*sizeof(nm_float4)});
+                }
                 NSUInteger bytes = 0u;
                 for (const auto& arena : arenas)
                     bytes += (arena.bytes + 15u) & ~15u;
-                constexpr NSUInteger maximumSnapshotBytes = 16u * 1024u;
+                const NSUInteger maximumSnapshotBytes = rich ? 1024u*1024u : 16u*1024u;
                 if (bytes > maximumSnapshotBytes) {
                     if (std::strcmp(stage, "before_contact_limits") == 0)
                         emitFEMNewtonTraceSkip(root,
@@ -28904,6 +28921,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const auto traceIsMPM = state.dispatch.particleCount != 0u;
                 const auto traceRigidProxyCount = state.dispatch.rigidProxyCount;
                 const auto traceContactPairCount = state.dispatch.contactPairCount;
+                const auto traceNodeCount=state.dispatch.femNodeCount;
+                const auto traceTetCount=state.dispatch.tetrahedronCount;
                 // The completion outlives this encoding lambda. Snapshot
                 // values locally so the Objective-C block never keeps its
                 // reference captures through the destroyed C++ closure.
@@ -28979,7 +28998,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         capturedAppendTraceFloat(line, status[environment].diagnostics.z); line << ',';
                         capturedAppendTraceFloat(line, status[environment].diagnostics.w); line << "]}";
                     }
-                    line << "]}\n";
+                    line << "],\"fem_node_count\":"<<traceNodeCount<<",\"tetrahedron_count\":"<<traceTetCount<<",\"state_arenas\":{";
+                    NSUInteger richOffset=0u;for(std::size_t i=0;i<4u;++i)richOffset+=(arenas[i].bytes+15u)&~15u;
+                    constexpr char hex[]="0123456789abcdef";
+                    for(std::size_t i=4u;i<arenas.size();++i) {
+                        if(i!=4u)line<<',';line<<'"'<<arenas[i].name<<"\":\"";
+                        for(NSUInteger j=0;j<arenas[i].bytes;++j)line<<hex[data[richOffset+j]>>4u]<<hex[data[richOffset+j]&15u];
+                        line<<'"';richOffset+=(arenas[i].bytes+15u)&~15u;
+                    }
+                    line << "}}\n";
                     const auto text = line.str();
                     std::fwrite(text.data(), 1u, text.size(), stderr);
                 }];
@@ -32708,6 +32735,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         else omittedOptional.emplace_back(name);
                         return;
                     }
+                    // Empty optional typed arenas use the allocator's 16-byte sentinel.
+                    // They are not one truncated record and carry no capture data.
+                    if (!required && source.length == 16u && elementBytes > 16u) {
+                        omittedOptional.emplace_back(name);
+                        return;
+                    }
                     accountRequestedBytes(static_cast<std::uint64_t>(source.length));
                     if (elementBytes == 0u || source.length == 0u ||
                         source.length % elementBytes != 0u ||
@@ -32715,6 +32748,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         source.length > captureCap ||
                         payloadBytes > captureCap - source.length ||
                         arrays.size() >= captureArrayCap) {
+                        std::fprintf(stderr,"fem_coupled_capture_array_error name=%s bytes=%lu element_bytes=%llu required=%d\n",name,(unsigned long)source.length,(unsigned long long)elementBytes,int(required));
                         layoutValid = false;
                         return;
                     }
@@ -33191,8 +33225,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 appendBuffer("contact_history_used_by_newton_center", "float32x4",
                     sizeof(nm_float4), centerContactHistoryInput,
                     state.dispatch.contactPairCount != 0u);
-                appendBuffer("contact_active_pairs", "record:NMContactPairGPU",
-                    sizeof(NMContactPairGPU), state.contactActivePairs, false);
+                appendBuffer("contact_active_pairs", "uint32",
+                    sizeof(std::uint32_t), state.contactActivePairs, false);
                 appendBuffer("contact_active_slots_by_pair", "uint32",
                     sizeof(std::uint32_t), state.contactActiveSlotsByPair, false);
                 appendBuffer("contact_active_counts", "uint32x4",
@@ -36281,7 +36315,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }, WorkDomain::femNodes);
             encodeVascularEquation("nm_vascular_residual",
                 state.femSolution, 0u, state.femResidual);
-            if (!encodeMPMNewtonRHSRowsTrace()) {
+            if (!encodeFEMNewtonTrace("fully_assembled_rhs") || !encodeMPMNewtonRHSRowsTrace()) {
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
@@ -51451,6 +51485,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
+            if (!encodeFEMNewtonTrace("before_multiplier_update")) return diagnostics;
             if (state.experimentalFEMPlaneAL) {
                 // Update the dual from the corrected, unpublished working FEM
                 // configuration. The preceding residual/tangent evaluation used
@@ -51479,6 +51514,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.contactSampleSlotsByPair,
                     state.contactActiveCounts, 3u);
             });
+            if (!encodeFEMNewtonTrace("after_multiplier_update")) return diagnostics;
             (void)dispatchIndirect(
                 "nm_contact_publish_deformable_history",
                 state.deformableContactActiveDispatch,

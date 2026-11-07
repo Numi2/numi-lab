@@ -842,7 +842,9 @@ inline void nmMixedPublishCertificate(
             certificate;
         const bool residualValid =
             isfinite(relativeResidual) &&
-            relativeResidual <= solver.residualTolerances.x &&
+            relativeResidual <= (solver.contactAcceptance.w>0.0f
+                ? solver.contactAcceptance.z+solver.contactAcceptance.y/solver.contactAcceptance.w
+                : solver.residualTolerances.x) &&
             isfinite(volumeResidual) &&
             volumeResidual <= solver.residualTolerances.y &&
             isfinite(pressureResidual) &&
@@ -1024,11 +1026,8 @@ kernel void nm_mixed_certify(
     transportScaleNorm2 = float4(
         simd_sum(transportScaleNorm2.x), simd_sum(transportScaleNorm2.y),
         simd_sum(transportScaleNorm2.z), simd_sum(transportScaleNorm2.w));
-    const float initialNorm = max(
-        fgmresStates[environment]
-            .diagnostics.y,
-        1.0f
-    );
+    const float initialNorm = nmMechanicalResidualReference(solver,max(
+        fgmresStates[environment].diagnostics.y,1.0f));
     const float relativeResidual = sqrt(max(residualNorm2, 0.0f)) /
         initialNorm;
     const float relativeCorrection = correction;
@@ -1100,6 +1099,8 @@ kernel void nm_mixed_certify(
         if (!fixedPlaneKKT)
             contactEnergy += nmFEMPlaneALActive
                 ? nmFEMPlaneALEnergy(sample.pointAndSeparation.w,sample.barrier.w)
+                : (sample.identity.w&NM_CONTACT_REFERENCE_PLANE)
+                ? ([&](){const auto e=ipcFEMBarrierEnergyCompensated({sample.pointAndSeparation.w,sample.barrierHessianRow0.w},sample.barrier.z,sample.barrier.w);return e.high+e.low;})()
                 : ipcBarrierEnergy(
                 sample.pointAndSeparation.w,
                 sample.barrier.z,
@@ -1473,11 +1474,8 @@ kernel void nm_mixed_certify_partials(
     transportScaleNorm2 = float4(
         simd_sum(transportScaleNorm2.x), simd_sum(transportScaleNorm2.y),
         simd_sum(transportScaleNorm2.z), simd_sum(transportScaleNorm2.w));
-    const float initialNorm = max(
-        fgmresStates[environment]
-            .diagnostics.y,
-        1.0f
-    );
+    const float initialNorm = nmMechanicalResidualReference(solver,max(
+        fgmresStates[environment].diagnostics.y,1.0f));
     const float relativeResidual = sqrt(max(residualNorm2, 0.0f)) /
         initialNorm;
     const float relativeCorrection = correction;
@@ -1549,6 +1547,8 @@ kernel void nm_mixed_certify_partials(
         if (!fixedPlaneKKT)
             contactEnergy += nmFEMPlaneALActive
                 ? nmFEMPlaneALEnergy(sample.pointAndSeparation.w,sample.barrier.w)
+                : (sample.identity.w&NM_CONTACT_REFERENCE_PLANE)
+                ? ([&](){const auto e=ipcFEMBarrierEnergyCompensated({sample.pointAndSeparation.w,sample.barrierHessianRow0.w},sample.barrier.z,sample.barrier.w);return e.high+e.low;})()
                 : ipcBarrierEnergy(
                 sample.pointAndSeparation.w,
                 sample.barrier.z,
@@ -1782,7 +1782,7 @@ kernel void nm_mixed_certify_finish(
     const uint invalidLane = simd_min(firstInvalidContact == invalidContact ?
         lane : NM_INVALID_INDEX);
     const float4 invalidContactValues = simd_broadcast(firstInvalidContactValues, invalidLane);
-    const float initialNorm = max(fgmresStates[environment].diagnostics.y, 1.0f);
+    const float initialNorm = nmMechanicalResidualReference(solver,max(fgmresStates[environment].diagnostics.y, 1.0f));
     const float relativeResidual = sqrt(max(residualNorm2, 0.0f)) / initialNorm;
     const float relativeCorrection = correction;
     if (geometricContactCount == 0u) minimumSeparation = 0.0f;

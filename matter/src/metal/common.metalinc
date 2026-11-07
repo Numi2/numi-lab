@@ -71,6 +71,15 @@ inline float nmFEMPlaneALEnergy(float gap, float previousForce) {
     return force*force/(2.0f*nmFEMPlaneALRho);
 }
 
+// The matrix diagonal floor has units of mass and cannot be a residual floor.
+inline float nmMechanicalResidualLimit(constant NMMixedSolverGPU& solver,float legacyLimit) {
+    return solver.contactAcceptance.w>0.0f
+        ? solver.contactAcceptance.y+solver.contactAcceptance.z*solver.contactAcceptance.w
+        : legacyLimit;
+}
+inline float nmMechanicalResidualReference(constant NMMixedSolverGPU& solver,float legacyReference) {
+    return solver.contactAcceptance.w>0.0f ? solver.contactAcceptance.w : legacyReference;
+}
 constant float kEpsilon = 1.1920928955078125e-7f;
 constant float kGeometryFloor = 1.0e-12f;
 // Rest-volume predicates must carry cubic units. This matches the host cooker

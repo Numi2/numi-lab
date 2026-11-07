@@ -1,0 +1,766 @@
+{
+  "schema": "numi.fem-plane.newton-diagnostic.v1",
+  "trace": "/Users/numi/numi-lab-contact-onset-evidence-20261107/onset-captures/al.stderr",
+  "arm": "al",
+  "h": 0.0005,
+  "iterations": [
+    {
+      "iteration": 0,
+      "native_reassembled_rhs_l2_Ns": 0.00013122268594088603,
+      "fp64_reassembled_rhs_l2_Ns": 0.00013122268002688329,
+      "rhs_difference_l2_Ns": 8.671364747970976e-11,
+      "fp64_linear_residual_b_minus_Jdelta_Ns": 2.371112710374146e-10,
+      "native_inner_residual_telemetry": 2.23902535e-10,
+      "native_nonlinear_state": [
+        0.000131222681,
+        0.000131222681,
+        0.0637653247,
+        0
+      ],
+      "correction_l2_mps": 0.331332802772522,
+      "alpha_before_contact": [
+        1
+      ],
+      "alpha_after_rigid_clearance": [
+        1
+      ],
+      "accepted_alpha": [
+        1
+      ],
+      "object_line_search": [
+        [
+          1,
+          0.999999821,
+          8,
+          0
+        ]
+      ],
+      "min_captured_contact_gap_m": 8.705331310920883e-06,
+      "dual_stages": [
+        {
+          "stage": "before_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 0.0,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 3.5515186055845e-05
+        },
+        {
+          "stage": "after_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 1.1838608770631254e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 7.103046849431001e-05
+        }
+      ]
+    },
+    {
+      "iteration": 1,
+      "native_reassembled_rhs_l2_Ns": 7.103048362209772e-05,
+      "fp64_reassembled_rhs_l2_Ns": 7.103046849431001e-05,
+      "rhs_difference_l2_Ns": 6.373093518745257e-11,
+      "fp64_linear_residual_b_minus_Jdelta_Ns": 1.4339832815099388e-06,
+      "native_inner_residual_telemetry": 1.43396676e-06,
+      "native_nonlinear_state": [
+        0.000131222681,
+        7.10304812e-05,
+        0.0683511421,
+        0
+      ],
+      "correction_l2_mps": 0.1592225730419159,
+      "alpha_before_contact": [
+        1
+      ],
+      "alpha_after_rigid_clearance": [
+        1
+      ],
+      "accepted_alpha": [
+        1
+      ],
+      "object_line_search": [
+        [
+          1,
+          0.996793211,
+          8,
+          1
+        ]
+      ],
+      "min_captured_contact_gap_m": -2.317721737199463e-05,
+      "dual_stages": [
+        {
+          "stage": "before_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 1.1838608770631254e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 1.4339401755191028e-06
+        },
+        {
+          "stage": "after_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 1.6326330296578817e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 1.115580078374305e-05
+        }
+      ]
+    },
+    {
+      "iteration": 2,
+      "native_reassembled_rhs_l2_Ns": 1.1155822888647824e-05,
+      "fp64_reassembled_rhs_l2_Ns": 1.115580078374305e-05,
+      "rhs_difference_l2_Ns": 1.0448640250424178e-10,
+      "fp64_linear_residual_b_minus_Jdelta_Ns": 3.886061664032759e-07,
+      "native_inner_residual_telemetry": 3.88568481e-07,
+      "native_nonlinear_state": [
+        0.000131222681,
+        1.11558229e-05,
+        0.0154958796,
+        0
+      ],
+      "correction_l2_mps": 0.028323132544755936,
+      "alpha_before_contact": [
+        1
+      ],
+      "alpha_after_rigid_clearance": [
+        1
+      ],
+      "accepted_alpha": [
+        1
+      ],
+      "object_line_search": [
+        [
+          1,
+          0.997598171,
+          8,
+          2
+        ]
+      ],
+      "min_captured_contact_gap_m": -8.47601313580526e-06,
+      "dual_stages": [
+        {
+          "stage": "before_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 1.6326330296578817e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 3.8851437356630776e-07
+        },
+        {
+          "stage": "after_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 1.9585888367146254e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 4.7822511343431965e-06
+        }
+      ]
+    },
+    {
+      "iteration": 3,
+      "native_reassembled_rhs_l2_Ns": 4.78224242846122e-06,
+      "fp64_reassembled_rhs_l2_Ns": 4.7822511343431965e-06,
+      "rhs_difference_l2_Ns": 7.896792724705575e-11,
+      "fp64_linear_residual_b_minus_Jdelta_Ns": 1.0020846582867476e-07,
+      "native_inner_residual_telemetry": 1.00218827e-07,
+      "native_nonlinear_state": [
+        0.000131222681,
+        4.78224229e-06,
+        0.00423410954,
+        0
+      ],
+      "correction_l2_mps": 0.009169111959636211,
+      "alpha_before_contact": [
+        1
+      ],
+      "alpha_after_rigid_clearance": [
+        1
+      ],
+      "accepted_alpha": [
+        1
+      ],
+      "object_line_search": [
+        [
+          1,
+          0.997731507,
+          8,
+          3
+        ]
+      ],
+      "min_captured_contact_gap_m": -6.019115517119644e-06,
+      "dual_stages": [
+        {
+          "stage": "before_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 1.9585888367146254e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 1.0017161732375293e-07
+        },
+        {
+          "stage": "after_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.1839217879460193e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 2.691155290814265e-06
+        }
+      ]
+    },
+    {
+      "iteration": 4,
+      "native_reassembled_rhs_l2_Ns": 2.6911430169837772e-06,
+      "fp64_reassembled_rhs_l2_Ns": 2.691155290814265e-06,
+      "rhs_difference_l2_Ns": 8.720602414284367e-11,
+      "fp64_linear_residual_b_minus_Jdelta_Ns": 8.80853469860695e-09,
+      "native_inner_residual_telemetry": 8.80267859e-09,
+      "native_nonlinear_state": [
+        0.000131222681,
+        2.69114298e-06,
+        0.00270108297,
+        0
+      ],
+      "correction_l2_mps": 0.004058850929141045,
+      "alpha_before_contact": [
+        1
+      ],
+      "alpha_after_rigid_clearance": [
+        1
+      ],
+      "accepted_alpha": [
+        1
+      ],
+      "object_line_search": [
+        [
+          1,
+          0.997734666,
+          8,
+          4
+        ]
+      ],
+      "min_captured_contact_gap_m": -4.0066584006126504e-06,
+      "dual_stages": [
+        {
+          "stage": "before_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.1839217879460193e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 8.772667059142568e-09
+        },
+        {
+          "stage": "after_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.3417416741722263e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 1.7564323584818128e-06
+        }
+      ]
+    },
+    {
+      "iteration": 5,
+      "native_reassembled_rhs_l2_Ns": 1.7564068791340897e-06,
+      "fp64_reassembled_rhs_l2_Ns": 1.7564323584818128e-06,
+      "rhs_difference_l2_Ns": 8.490975679388888e-11,
+      "fp64_linear_residual_b_minus_Jdelta_Ns": 5.919263069088204e-09,
+      "native_inner_residual_telemetry": 5.90808025e-09,
+      "native_nonlinear_state": [
+        0.000131222681,
+        1.75640696e-06,
+        0.00190242671,
+        0
+      ],
+      "correction_l2_mps": 0.0023334382567554712,
+      "alpha_before_contact": [
+        1
+      ],
+      "alpha_after_rigid_clearance": [
+        1
+      ],
+      "accepted_alpha": [
+        1
+      ],
+      "object_line_search": [
+        [
+          1,
+          0.997726619,
+          8,
+          5
+        ]
+      ],
+      "min_captured_contact_gap_m": -2.6563961910142098e-06,
+      "dual_stages": [
+        {
+          "stage": "before_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.3417416741722263e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 5.936978964534249e-09
+        },
+        {
+          "stage": "after_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.452005173836369e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 1.188839970231738e-06
+        }
+      ]
+    },
+    {
+      "iteration": 6,
+      "native_reassembled_rhs_l2_Ns": 1.1888210794528976e-06,
+      "fp64_reassembled_rhs_l2_Ns": 1.188839970231738e-06,
+      "rhs_difference_l2_Ns": 6.99779202371298e-11,
+      "fp64_linear_residual_b_minus_Jdelta_Ns": 4.031020121312285e-09,
+      "native_inner_residual_telemetry": 4.02750944e-09,
+      "native_nonlinear_state": [
+        0.000131222681,
+        1.1888211e-06,
+        0.00132862909,
+        0
+      ],
+      "correction_l2_mps": 0.0015178800094872713,
+      "alpha_before_contact": [
+        1
+      ],
+      "alpha_after_rigid_clearance": [
+        1
+      ],
+      "accepted_alpha": [
+        1
+      ],
+      "object_line_search": [
+        [
+          1,
+          0.997722387,
+          8,
+          6
+        ]
+      ],
+      "min_captured_contact_gap_m": -1.7052727798727574e-06,
+      "dual_stages": [
+        {
+          "stage": "before_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.452005173836369e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 4.0297057312506925e-09
+        },
+        {
+          "stage": "after_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.5290561097790487e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 8.141904081178918e-07
+        }
+      ]
+    },
+    {
+      "iteration": 7,
+      "native_reassembled_rhs_l2_Ns": 8.141803968566388e-07,
+      "fp64_reassembled_rhs_l2_Ns": 8.141904081178918e-07,
+      "rhs_difference_l2_Ns": 9.782254050472236e-11,
+      "fp64_linear_residual_b_minus_Jdelta_Ns": 2.8235563360125597e-09,
+      "native_inner_residual_telemetry": 2.78658274e-09,
+      "native_nonlinear_state": [
+        0.000131222681,
+        8.14180396e-07,
+        0.000928142224,
+        0
+      ],
+      "correction_l2_mps": 0.0010218656389042735,
+      "alpha_before_contact": [
+        1
+      ],
+      "alpha_after_rigid_clearance": [
+        1
+      ],
+      "accepted_alpha": [
+        1
+      ],
+      "object_line_search": [
+        [
+          1,
+          0.99772042,
+          8,
+          7
+        ]
+      ],
+      "min_captured_contact_gap_m": -1.0410170716568246e-06,
+      "dual_stages": [
+        {
+          "stage": "before_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.5290561097790487e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 2.8347291921238645e-09
+        },
+        {
+          "stage": "after_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.58290529018268e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 5.60916446631537e-07
+        }
+      ]
+    },
+    {
+      "iteration": 8,
+      "native_reassembled_rhs_l2_Ns": 5.609410821966356e-07,
+      "fp64_reassembled_rhs_l2_Ns": 5.60916446631537e-07,
+      "rhs_difference_l2_Ns": 9.18080340094967e-11,
+      "fp64_linear_residual_b_minus_Jdelta_Ns": 1.9463430376769948e-09,
+      "native_inner_residual_telemetry": 1.94369942e-09,
+      "native_nonlinear_state": [
+        0.000131222681,
+        5.60941089e-07,
+        0.000648576242,
+        0
+      ],
+      "correction_l2_mps": 0.0006966353394091129,
+      "alpha_before_contact": [
+        1
+      ],
+      "alpha_after_rigid_clearance": [
+        1
+      ],
+      "accepted_alpha": [
+        1
+      ],
+      "object_line_search": [
+        [
+          1,
+          0.99771893,
+          8,
+          8
+        ]
+      ],
+      "min_captured_contact_gap_m": -5.769856556980812e-07,
+      "dual_stages": [
+        {
+          "stage": "before_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.58290529018268e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 1.9369996791706435e-09
+        },
+        {
+          "stage": "after_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.6205416361335665e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 3.878278848493147e-07
+        }
+      ]
+    },
+    {
+      "iteration": 9,
+      "native_reassembled_rhs_l2_Ns": 3.8779314901154114e-07,
+      "fp64_reassembled_rhs_l2_Ns": 3.878278848493147e-07,
+      "rhs_difference_l2_Ns": 1.031696317566923e-10,
+      "fp64_linear_residual_b_minus_Jdelta_Ns": 1.3867631479962348e-09,
+      "native_inner_residual_telemetry": 1.36073308e-09,
+      "native_nonlinear_state": [
+        0.000131222681,
+        3.87793165e-07,
+        0.000453099434,
+        0
+      ],
+      "correction_l2_mps": 0.0004779558803420514,
+      "alpha_before_contact": [
+        1
+      ],
+      "alpha_after_rigid_clearance": [
+        1
+      ],
+      "accepted_alpha": [
+        1
+      ],
+      "object_line_search": [
+        [
+          1,
+          0.997718394,
+          8,
+          9
+        ]
+      ],
+      "min_captured_contact_gap_m": -2.5272518655583553e-07,
+      "dual_stages": [
+        {
+          "stage": "before_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.6205416361335665e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 1.3802263201468023e-09
+        },
+        {
+          "stage": "after_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.6468513169675134e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 2.6903604090134207e-07
+        }
+      ]
+    },
+    {
+      "iteration": 10,
+      "native_reassembled_rhs_l2_Ns": 2.690512140009646e-07,
+      "fp64_reassembled_rhs_l2_Ns": 2.6903604090134207e-07,
+      "rhs_difference_l2_Ns": 8.717392986103323e-11,
+      "fp64_linear_residual_b_minus_Jdelta_Ns": 9.570970959460226e-10,
+      "native_inner_residual_telemetry": 9.54938795e-10,
+      "native_nonlinear_state": [
+        0.000131222681,
+        2.69051213e-07,
+        0.000316804973,
+        0
+      ],
+      "correction_l2_mps": 0.00032968688174150884,
+      "alpha_before_contact": [
+        1
+      ],
+      "alpha_after_rigid_clearance": [
+        1
+      ],
+      "accepted_alpha": [
+        1
+      ],
+      "object_line_search": [
+        [
+          1,
+          0.997717917,
+          8,
+          10
+        ]
+      ],
+      "min_captured_contact_gap_m": -2.6194916458166517e-08,
+      "dual_stages": [
+        {
+          "stage": "before_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.6468513169675134e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 9.850329402122594e-10
+        },
+        {
+          "stage": "after_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.6652414817363024e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 1.8690923427412988e-07
+        }
+      ]
+    },
+    {
+      "iteration": 11,
+      "native_reassembled_rhs_l2_Ns": 1.869093830139947e-07,
+      "fp64_reassembled_rhs_l2_Ns": 1.8690923427412988e-07,
+      "rhs_difference_l2_Ns": 8.329332282806572e-11,
+      "fp64_linear_residual_b_minus_Jdelta_Ns": 6.82662073430542e-10,
+      "native_inner_residual_telemetry": 6.69911848e-10,
+      "native_nonlinear_state": [
+        0.000131222681,
+        1.86909389e-07,
+        0.000221363414,
+        0
+      ],
+      "correction_l2_mps": 0.00022802977764513344,
+      "alpha_before_contact": [
+        1
+      ],
+      "alpha_after_rigid_clearance": [
+        1
+      ],
+      "accepted_alpha": [
+        1
+      ],
+      "object_line_search": [
+        [
+          1,
+          0.997717559,
+          8,
+          11
+        ]
+      ],
+      "min_captured_contact_gap_m": 1.321941880405575e-07,
+      "dual_stages": [
+        {
+          "stage": "before_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.6652414817363024e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 7.05822634724609e-10
+        },
+        {
+          "stage": "after_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.678098280739505e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 1.301239463396275e-07
+        }
+      ]
+    },
+    {
+      "iteration": 12,
+      "native_reassembled_rhs_l2_Ns": 1.3009670921652429e-07,
+      "fp64_reassembled_rhs_l2_Ns": 1.301239463396275e-07,
+      "rhs_difference_l2_Ns": 1.0010565052349122e-10,
+      "fp64_linear_residual_b_minus_Jdelta_Ns": 4.8588841559811e-10,
+      "native_inner_residual_telemetry": 4.70116002e-10,
+      "native_nonlinear_state": [
+        0.000131222681,
+        1.30096709e-07,
+        0.000154738824,
+        0
+      ],
+      "correction_l2_mps": 0.00015818109386600554,
+      "alpha_before_contact": [
+        1
+      ],
+      "alpha_after_rigid_clearance": [
+        1
+      ],
+      "accepted_alpha": [
+        1
+      ],
+      "object_line_search": [
+        [
+          1,
+          0.997717619,
+          8,
+          12
+        ]
+      ],
+      "min_captured_contact_gap_m": 2.4286603661494155e-07,
+      "dual_stages": [
+        {
+          "stage": "before_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.678098280739505e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 5.28700046501311e-10
+        },
+        {
+          "stage": "after_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.6870868168771267e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 9.065802804831602e-08
+        }
+      ]
+    },
+    {
+      "iteration": 13,
+      "native_reassembled_rhs_l2_Ns": 9.066365823570465e-08,
+      "fp64_reassembled_rhs_l2_Ns": 9.065802804831602e-08,
+      "rhs_difference_l2_Ns": 7.98784210113256e-11,
+      "fp64_linear_residual_b_minus_Jdelta_Ns": 3.4664512072125503e-10,
+      "native_inner_residual_telemetry": 3.29931554e-10,
+      "native_nonlinear_state": [
+        0.000131222681,
+        9.06636544e-08,
+        0.000108169435,
+        0
+      ],
+      "correction_l2_mps": 0.00010996209311997518,
+      "alpha_before_contact": [
+        1
+      ],
+      "alpha_after_rigid_clearance": [
+        1
+      ],
+      "accepted_alpha": [
+        1
+      ],
+      "object_line_search": [
+        [
+          1,
+          0.9977175,
+          8,
+          13
+        ]
+      ],
+      "min_captured_contact_gap_m": 3.2022822438193543e-07,
+      "dual_stages": [
+        {
+          "stage": "before_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.6870868168771267e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 3.658387696312461e-10
+        },
+        {
+          "stage": "after_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.6933714252663776e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 6.322140233548149e-08
+        }
+      ]
+    },
+    {
+      "iteration": 14,
+      "native_reassembled_rhs_l2_Ns": 6.324917281204199e-08,
+      "fp64_reassembled_rhs_l2_Ns": 6.322140233548149e-08,
+      "rhs_difference_l2_Ns": 8.662633610472278e-11,
+      "fp64_linear_residual_b_minus_Jdelta_Ns": 2.501227538148638e-10,
+      "native_inner_residual_telemetry": 2.31484998e-10,
+      "native_nonlinear_state": [
+        0.000131222681,
+        6.32491748e-08,
+        7.56309455e-05,
+        0
+      ],
+      "correction_l2_mps": 7.655727677047253e-05,
+      "alpha_before_contact": [
+        1
+      ],
+      "alpha_after_rigid_clearance": [
+        1
+      ],
+      "accepted_alpha": [
+        1
+      ],
+      "object_line_search": [
+        [
+          1,
+          0.9977175,
+          8,
+          14
+        ]
+      ],
+      "min_captured_contact_gap_m": 3.7430825727824413e-07,
+      "dual_stages": [
+        {
+          "stage": "before_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.6933714252663776e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 2.907741098160324e-10
+        },
+        {
+          "stage": "after_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.697765376069583e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 4.413373615210762e-08
+        }
+      ]
+    },
+    {
+      "iteration": 15,
+      "native_reassembled_rhs_l2_Ns": 4.414041882168329e-08,
+      "fp64_reassembled_rhs_l2_Ns": 4.413373615210762e-08,
+      "rhs_difference_l2_Ns": 8.368707043611809e-11,
+      "fp64_linear_residual_b_minus_Jdelta_Ns": 2.0505202239270707e-10,
+      "native_inner_residual_telemetry": 1.62428682e-10,
+      "native_nonlinear_state": [
+        0.000131222681,
+        4.41404211e-08,
+        5.28748606e-05,
+        0
+      ],
+      "correction_l2_mps": 5.3349140216596425e-05,
+      "alpha_before_contact": [
+        1
+      ],
+      "alpha_after_rigid_clearance": [
+        1
+      ],
+      "accepted_alpha": [
+        1
+      ],
+      "object_line_search": [
+        [
+          1,
+          0.9977175,
+          8,
+          15
+        ]
+      ],
+      "min_captured_contact_gap_m": 4.1212089740838564e-07,
+      "dual_stages": [
+        {
+          "stage": "before_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.697765376069583e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 2.4157712210077933e-10
+        },
+        {
+          "stage": "after_multiplier_update",
+          "accepted_max_impulse_Ns": 0.0,
+          "candidate_max_impulse_Ns": 2.700837649172172e-05,
+          "fp64_recomputed_with_current_trial_multiplier_l2_Ns": 3.0790506410835526e-08
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "FP64 evaluates retained discrete equations and Jv only; no rollout or fallback.",
+    "fully_assembled_rhs precedes Krylov scratch reuse; correction is from the same Newton iteration.",
+    "Multiplier-boundary samples are stale by design; AL residuals there are explicitly recomputed from working nodes and trial duals.",
+    "Only the first record per iteration/stage is used; deterministic replay duplicates are excluded."
+  ]
+}

@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
+#include <CommonCrypto/CommonDigest.h>
 #include "numi/matter/matter.hpp"
 #include "metalrobo/engine_types.h"
 #include <algorithm>
@@ -24,7 +25,73 @@ bool physicalEqual(const numi::matter::RuntimeStateSnapshot& a,const numi::matte
         bytesEqual(a.adaptive,b.adaptive)&&bytesEqual(a.femFields,b.femFields)&&
         bytesEqual(a.topologyStates,b.topologyStates)&&bytesEqual(a.deformableContactHistories,b.deformableContactHistories);
 }
-numi::matter::CompiledWorld model(int divisions,double h,double startGap){
+
+// Independent FP64 evaluation of the fixture equations, without integration.
+struct FixtureResidual { double l2=0,local=0,kinematic=0,velocity=0; };
+FixtureResidual fixtureResidual(const numi::matter::CompiledWorld& world,
+    const numi::matter::RuntimeStateSnapshot& old,
+    const numi::matter::RuntimeStateSnapshot& cur,double timestep) {
+    using V=std::array<double,3>;using M=std::array<V,3>;
+    const double h=float(timestep),g=float(-9.81);
+    std::vector<V> force(cur.femNodes.size());
+    for(const auto& t:world.fem.tetrahedra) {
+        const unsigned ids[4]={t.nodes.x,t.nodes.y,t.nodes.z,t.nodes.w};
+        const auto a=t.inverseRestRow0,b=t.inverseRestRow1,c=t.inverseRestRow2;
+        const M B={V{a.x,a.y,a.z},V{b.x,b.y,b.z},V{c.x,c.y,c.z}};
+        V x[4];bool reference=true;
+        for(int j=0;j<4;++j)reference&=cur.femNodes[ids[j]].referenceDisplacementAndMode.w==1;
+        for(int j=0;j<4;++j) {
+            const auto& n=cur.femNodes[ids[j]];
+            if(reference) x[j]={double(n.referenceDisplacementAndMode.x)+n.referenceDisplacementLow.x,
+                double(n.referenceDisplacementAndMode.y)+n.referenceDisplacementLow.y,
+                double(n.referenceDisplacementAndMode.z)+n.referenceDisplacementLow.z};
+            else x[j]={n.positionAndMass.x,n.positionAndMass.y,n.positionAndMass.z};
+        }
+        M F{};for(int i=0;i<3;++i)for(int j=0;j<3;++j) {
+            F[i][j]=reference&&i==j?1:0;
+            for(int k=0;k<3;++k)F[i][j]+=(x[k+1][i]-x[0][i])*B[k][j];
+        }
+        const double J=F[0][0]*(F[1][1]*F[2][2]-F[1][2]*F[2][1])
+            -F[0][1]*(F[1][0]*F[2][2]-F[1][2]*F[2][0])
+            +F[0][2]*(F[1][0]*F[2][1]-F[1][1]*F[2][0]);
+        require(J>0,"FP64 diagnostic found inverted tet");
+        M invT{};for(int i=0;i<3;++i)for(int j=0;j<3;++j)
+            invT[i][j]=(F[(i+1)%3][(j+1)%3]*F[(i+2)%3][(j+2)%3]
+                -F[(i+1)%3][(j+2)%3]*F[(i+2)%3][(j+1)%3])/J;
+        M P{};for(int i=0;i<3;++i)for(int j=0;j<3;++j)
+            P[i][j]=2000.*F[i][j]+(5000.*std::log(J)-2000.)*invT[i][j];
+        for(int j=0;j<3;++j)for(int i=0;i<3;++i) {
+            double f=0;for(int k=0;k<3;++k)f-=a.w*P[i][k]*B[j][k];
+            force[ids[j+1]][i]+=f;force[ids[0]][i]-=f;
+        }
+    }
+    std::vector<V> impulse(cur.femNodes.size());
+    for(const auto& s:cur.contactSamples)if(s.identity.w&NM_CONTACT_VALID) {
+        require(s.identity.x>=world.dispatch.gridNodeCount,"diagnostic requires FEM contact");
+        const auto i=s.identity.x-world.dispatch.gridNodeCount;
+        require(i<impulse.size(),"diagnostic contact outside FEM nodes");
+        impulse[i][0]-=s.impulseAndNormal.x;impulse[i][1]-=s.impulseAndNormal.y;
+        impulse[i][2]-=s.impulseAndNormal.z;
+    }
+    FixtureResidual r;
+    for(unsigned i=0;i<cur.femNodes.size();++i) {
+        const auto& a=old.femNodes[i];const auto& b=cur.femNodes[i];
+        const double mass=b.positionAndMass.w;
+        const V x={b.positionAndMass.x,b.positionAndMass.y,b.positionAndMass.z};
+        const V y={a.positionAndMass.x,a.positionAndMass.y,a.positionAndMass.z};
+        const V v={b.velocityAndInverseMass.x,b.velocityAndInverseMass.y,b.velocityAndInverseMass.z};
+        const V u={a.velocityAndInverseMass.x,a.velocityAndInverseMass.y,a.velocityAndInverseMass.z};
+        double sum=0;for(int j=0;j<3;++j) {
+            const double e=h*(force[i][j]+(j==2?mass*g:0))-mass*(v[j]-u[j])+impulse[i][j];
+            sum+=e*e;
+            r.kinematic=std::max(r.kinematic,std::abs(x[j]-y[j]-h*v[j]));
+            r.velocity=std::max(r.velocity,std::abs(v[j]-u[j]-(j==2?h*g:0)));
+        }
+        r.l2+=sum;r.local=std::max(r.local,std::sqrt(sum)/(mass*std::abs(g)*h+1e-10));
+    }
+    r.l2=std::sqrt(r.l2);return r;
+}
+numi::matter::CompiledWorld model(int divisions,double h,double startGap,bool physical,bool freefall,bool reference){
     auto parsed=numi::matter::parseMatter(R"MAT(
 material test_pad {
  parameter density : kg/m^3 = 1100 in [1000,1200];
@@ -41,12 +108,13 @@ material test_pad {
     require(parsed.succeeded(),"material parse failed");
     numi::matter::WorldSource source;source.environmentCount=1;source.frameTimestep=h;
     source.gravity={0,0,-9.81};source.contactSlop=1.e-4;source.materials.push_back(parsed.material);
+    if(reference)for(auto& p:source.materials.back().parameters)p.identifiable=false;
     source.mixedSolver.newtonIterations=16;
     source.mixedSolver.fgmresRestart=16;source.mixedSolver.fgmresIterations=64;
     source.mixedSolver.relativeResidual=1.e-9;
     source.mixedSolver.minimumContactSeparationRatio=1.e-3;
     numi::matter::RigidProxySource plane;plane.shape=NM_RIGID_PLANE;plane.localCenter={0,0,1};
-    source.rigidProxies.push_back(plane);
+    if(!freefall)source.rigidProxies.push_back(plane);
     numi::matter::ObjectSource object;object.name="frictionless_fem_pad";
     object.materialIndex=0;object.mixedFEM=false;object.representation=numi::matter::Representation::fem;
     object.characteristicLength=.02/divisions;object.deformableContact=false;object.deformableSelfContact=false;
@@ -59,6 +127,25 @@ material test_pad {
             index(x,y,z+1),index(x+1,y,z+1),index(x,y+1,z+1),index(x+1,y+1,z+1)};
         for(auto& t:tetra)object.tetrahedra.push_back({{v[t[0]],v[t[1]],v[t[2]],v[t[3]]}});
     }
+    if(reference) {
+        object.femReferenceNodes=object.femNodes;
+        object.femMaterialIndices.assign(object.tetrahedra.size(),0);
+        object.femReferenceDisplacementGradient=true;
+        std::array<unsigned char,CC_SHA256_DIGEST_LENGTH> hash;
+        CC_SHA256(object.femNodes.data(),CC_LONG(object.femNodes.size()*sizeof(object.femNodes[0])),hash.data());
+        std::memcpy(object.femReferenceSourceIdentity.data(),hash.data(),hash.size());
+        CC_SHA256(object.femMaterialIndices.data(),CC_LONG(object.femMaterialIndices.size()*sizeof(std::uint32_t)),hash.data());
+        std::memcpy(object.femMaterialSourceIdentity.data(),hash.data(),hash.size());
+    }
+    if(physical) {
+        std::vector<double> nodalMass(object.femNodes.size(),0.0);
+        const double portion=1100.*.02*.02*.02/(24.*divisions*divisions*divisions);
+        for(const auto& tet:object.tetrahedra)for(auto id:tet.nodes)nodalMass[id]+=portion;
+        double sum=0.;for(double m:nodalMass)sum+=m*m;
+        source.mixedSolver.mechanicalAbsoluteImpulseTolerance=.00025*9.81*h*(*std::min_element(nodalMass.begin(),nodalMass.end()));
+        source.mixedSolver.mechanicalRelativeImpulseTolerance=.00225*(*std::min_element(nodalMass.begin(),nodalMass.end()))/std::sqrt(sum);
+        source.mixedSolver.mechanicalImpulseScale=9.81*h*std::sqrt(sum);
+    }
     source.objects.push_back(object);numi::matter::CompileOptions options;options.maximumRateExponent=0;
     auto compiled=numi::matter::compileWorld(source,options);
     if(!compiled.succeeded())for(const auto& d:compiled.diagnostics)std::cerr<<d.message<<"\n";
@@ -67,18 +154,22 @@ material test_pad {
 }
 int main(int argc,char** argv){
  @autoreleasepool {try{
-    require(argc>=5,"usage: plane_contact_probe METALLIB timestep steps divisions [arm] [initial-gap]");
+    require(argc>=5,"usage: plane_contact_probe METALLIB timestep steps divisions [ipc|al] [initial-gap] [legacy|physical] [contact|freefall] [world|reference]");
     const double h=std::stod(argv[2]);const int steps=std::stoi(argv[3]),divisions=std::stoi(argv[4]);
     require(h>0&&steps>0&&steps<=10000&&divisions>0&&divisions<=8,"invalid workload");
     const std::string arm=argc>5?argv[5]:"ipc";require(arm=="ipc"||arm=="al","invalid arm");
     const double startGap=argc>6?std::stod(argv[6]):2.e-4;
-    const auto world=model(divisions,h,startGap);
+    const std::string policy=argc>7?argv[7]:"legacy";
+    require(policy=="physical"||policy=="legacy","invalid residual policy");
+    const bool freefall=argc>8&&std::string(argv[8])=="freefall";
+    const bool reference=argc>9&&std::string(argv[9])=="reference";
+    const auto world=model(divisions,h,startGap,policy=="physical",freefall,reference);
     numi::matter::Runtime runtime;numi::matter::RuntimeConfiguration config;
     config.metallib=argv[1];config.environmentCount=1;config.captureDiagnostics=true;config.adaptiveTransfer=false;
     config.experimentalFEMPlaneAugmentedLagrangian=arm=="al";
     std::cerr<<"instrument_world contact_pairs="<<world.dispatch.contactPairCount<<" deformable_capacity="<<world.dispatch.deformableContactCapacity
         <<" rigid_generalized="<<world.dispatch.rigidGeneralizedCapacity<<" mutation="<<world.dispatch.mutationCommandCount
-        <<" object_flags="<<world.objects[0].flags<<" plane_flags="<<world.contact.rigidProxies[0].flags
+        <<" object_flags="<<world.objects[0].flags<<" plane_flags="<<(world.contact.rigidProxies.empty()?0:world.contact.rigidProxies[0].flags)
         <<" floor="<<world.mixedSolver.contactAcceptance.x*world.dispatch.numericalLimits.x<<" slop="<<world.dispatch.numericalLimits.x<<"\n";
     auto initialized=runtime.initialize(world,config);require(initialized.encoded,"initialize: "+initialized.message);
     id<MTLDevice> device=MTLCreateSystemDefaultDevice();id<MTLCommandQueue> queue=[device newCommandQueue];
@@ -105,8 +196,8 @@ int main(int argc,char** argv){
     double gpu=0;int accepted=0,rejected=0;double minimumGap=1.e100;bool first=true;
     std::cout<<std::setprecision(12)<<"{\"schema\":\"numi.matter.plane-contact.v1\",\"device\":\""<<device.name.UTF8String
         <<"\",\"arm\":\""<<arm<<"\",\"h\":"<<h<<",\"divisions\":"<<divisions<<",\"initial_gap\":"<<startGap<<",\"nodes\":"<<world.dispatch.femNodeCount
-        <<",\"source_fingerprint\":"<<world.physicsFingerprint<<",\"device_fingerprint\":"<<runtime.deviceProgramFingerprint()<<",\"traces\":[";
-    auto previous=initial;double totalWork=0,totalKineticWork=0,maxLawError=0,maxMomentumError=0,maxAcceptedDual=0;
+        <<",\"residual_policy\":\""<<policy<<"\",\"coordinate_mode\":\""<<(reference?"reference_displacement":"world_position")<<"\",\"freefall_control\":"<<(freefall?"true":"false")<<",\"mechanical_absolute_tolerance_Ns\":"<<world.mixedSolver.contactAcceptance.y<<",\"mechanical_relative_tolerance\":"<<world.mixedSolver.contactAcceptance.z<<",\"mechanical_impulse_scale_Ns\":"<<world.mixedSolver.contactAcceptance.w<<",\"source_fingerprint\":"<<world.physicsFingerprint<<",\"device_fingerprint\":"<<runtime.deviceProgramFingerprint()<<",\"traces\":[";
+    auto previous=initial;double totalWork=0,totalKineticWork=0,maxLawError=0,maxMomentumError=0,maxAcceptedDual=0,maxLocalResidual=0,maxKinematicDefect=0,maxFreefallVelocityDefect=0;
     const auto start=std::chrono::steady_clock::now();
     for(int i=0;i<steps;++i){
         const double timing=step(i);gpu+=timing;auto snap=runtime.snapshot();require(snap.available,"snapshot unavailable");
@@ -137,6 +228,8 @@ int main(int argc,char** argv){
             maxMomentumError=std::max(maxMomentumError,std::abs(momentum-previousMomentum+mass*9.81*h-force*h));
             for(const auto& dual:snap.contactHistories)maxAcceptedDual=std::max(maxAcceptedDual,double(dual.w));
         }
+        FixtureResidual independent;
+        if(ok) { independent=fixtureResidual(world,previous,snap,h);maxLocalResidual=std::max(maxLocalResidual,independent.local);maxKinematicDefect=std::max(maxKinematicDefect,independent.kinematic);if(freefall)maxFreefallVelocityDefect=std::max(maxFreefallVelocityDefect,independent.velocity); }
         double contactWork=0,kineticWork=0;
         if(ok)for(const auto& sample:snap.contactSamples) {
             if(!(sample.identity.w&NM_CONTACT_VALID)||sample.identity.x<world.dispatch.gridNodeCount)continue;
@@ -154,7 +247,7 @@ int main(int argc,char** argv){
         std::cout<<"{\"step\":"<<i<<",\"accepted\":"<<(ok?"true":"false")<<",\"status\":"<<snap.statuses[0].code<<",\"gap\":"<<low<<",\"height\":"<<high-low<<",\"force\":"<<force<<",\"contact_work_J\":"<<contactWork<<",\"contact_impulse_midvelocity_work_J\":"<<kineticWork<<",\"accepted_normal_impulse\":"<<(ok?force*h:0.)<<",\"normal_impulse\":"<<force*h<<",\"mass\":"<<mass<<",\"com_z\":"<<com/mass<<",\"momentum_z\":"<<momentum<<",\"contacts\":"<<contacts<<",\"fgmres_iterations\":"<<snap.statuses[0].fgmresIterations<<",\"outer_status\":"<<outer->code
             <<",\"certificate_residual\":"<<snap.solverCertificates[0].nonlinear.x<<",\"certificate_min_J\":"<<snap.solverCertificates[0].validity.x
             <<",\"certificate_accepted\":"<<snap.solverCertificates[0].validity.w<<",\"status_values\":["<<snap.statuses[0].diagnostics.x<<","<<snap.statuses[0].diagnostics.y<<","<<snap.statuses[0].diagnostics.z<<","<<snap.statuses[0].diagnostics.w<<"]"
-            <<",\"gpu_seconds\":"<<timing<<"}";
+            <<",\"independent_residual_l2_Ns\":"<<independent.l2<<",\"independent_max_local_scaled_residual\":"<<independent.local<<",\"position_velocity_defect_m\":"<<independent.kinematic<<",\"gpu_seconds\":"<<timing<<"}";
         if(!ok)break;
     }
     const double wall=std::chrono::duration<double>(std::chrono::steady_clock::now()-start).count();
@@ -174,7 +267,7 @@ int main(int argc,char** argv){
     std::cout<<"],\"accepted_steps\":"<<accepted<<",\"rejected_steps\":"<<rejected<<",\"wall_seconds\":"<<wall
         <<",\"contact_work_J\":"<<totalWork<<",\"contact_impulse_midvelocity_work_J\":"<<totalKineticWork<<",\"gpu_seconds\":"<<gpu<<",\"accepted_simulated_seconds\":"<<accepted*h
         <<",\"accepted_simulated_seconds_per_wall_second\":"<<accepted*h/wall<<",\"minimum_gap\":"<<minimumGap
-        <<",\"law_max_relative_error\":"<<maxLawError<<",\"momentum_max_absolute_error_Ns\":"<<maxMomentumError<<",\"maximum_accepted_multiplier_impulse_Ns\":"<<maxAcceptedDual<<",\"identity_mismatch_rejected\":"<<(identityRejected?"true":"false")<<",\"forced_rollback_exact\":"<<(rollback?"true":"false")<<",\"restore_replay\":"<<(replay?"true":"false")<<"}\n";
-    return rejected||!replay||!rollback||!identityRejected||maxLawError>1e-4||maxMomentumError>1e-7?1:0;
+        <<",\"law_max_relative_error\":"<<maxLawError<<",\"momentum_max_absolute_error_Ns\":"<<maxMomentumError<<",\"independent_max_local_scaled_residual\":"<<maxLocalResidual<<",\"position_velocity_max_defect_m\":"<<maxKinematicDefect<<",\"freefall_velocity_max_defect_mps\":"<<maxFreefallVelocityDefect<<",\"maximum_accepted_multiplier_impulse_Ns\":"<<maxAcceptedDual<<",\"identity_mismatch_rejected\":"<<(identityRejected?"true":"false")<<",\"forced_rollback_exact\":"<<(rollback?"true":"false")<<",\"restore_replay\":"<<(replay?"true":"false")<<"}\n";
+    return rejected||!replay||!rollback||!identityRejected||maxLawError>1e-4||maxMomentumError>1e-7||(policy=="physical"&&maxLocalResidual>.005)?1:0;
  }catch(const std::exception& e){std::cerr<<"plane_contact_probe: "<<e.what()<<"\n";return 1;}}
 }

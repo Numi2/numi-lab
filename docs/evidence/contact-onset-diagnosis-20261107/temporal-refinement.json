@@ -1,0 +1,182 @@
+{
+  "schema": "numi.contact.temporal-refinement.v1",
+  "mesh_divisions": 2,
+  "force_bin_width_s": 0.001,
+  "reference_gate": 0.0025,
+  "control_force_gate": 0.01,
+  "runs": [
+    {
+      "input": "/Users/numi/numi-lab-contact-onset-evidence-20261107/reference002/n2-h62.json",
+      "h": 6.25e-05,
+      "complete": true,
+      "local_gate": true,
+      "clearance_gate": true,
+      "balance_gate": true,
+      "transaction_gate": true,
+      "force_bins_N": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.1148266059374,
+        0.0347194920138377,
+        0.05801201709230999,
+        0.07354593387277,
+        0.08632869764823,
+        0.09551224171389001
+      ],
+      "total_impulse_Ns": 0.0004629449882784377
+    },
+    {
+      "input": "/Users/numi/numi-lab-contact-onset-evidence-20261107/reference002/n2-h31.json",
+      "h": 3.125e-05,
+      "complete": true,
+      "local_gate": true,
+      "clearance_gate": true,
+      "balance_gate": true,
+      "transaction_gate": true,
+      "force_bins_N": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.11651188996240859,
+        0.033035441195208994,
+        0.05722024265820299,
+        0.07329931813160001,
+        0.08627557532038001,
+        0.09557430427524001
+      ],
+      "total_impulse_Ns": 0.0004619167715430406
+    },
+    {
+      "input": "/Users/numi/numi-lab-contact-onset-evidence-20261107/reference002/n2-h15.json",
+      "h": 1.5625e-05,
+      "complete": true,
+      "local_gate": true,
+      "clearance_gate": true,
+      "balance_gate": true,
+      "transaction_gate": true,
+      "force_bins_N": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.119896090221367,
+        0.021202235197080817,
+        0.065653617737381,
+        0.07301519495682,
+        0.08611887243503,
+        0.09549702278733
+      ],
+      "total_impulse_Ns": 0.00046138303333500885
+    },
+    {
+      "input": "/Users/numi/numi-lab-contact-onset-evidence-20261107/reference002/n2-h7.json",
+      "h": 7.8125e-06,
+      "complete": true,
+      "local_gate": true,
+      "clearance_gate": true,
+      "balance_gate": true,
+      "transaction_gate": true,
+      "force_bins_N": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.12483862259674,
+        0.0030184466304187,
+        0.07849991379045415,
+        0.07371282819912299,
+        0.08581268794571598,
+        0.09525108700714208
+      ],
+      "total_impulse_Ns": 0.00046113358616959384
+    },
+    {
+      "input": "/Users/numi/numi-lab-contact-onset-evidence-20261107/reference003/n2-h3.json",
+      "h": 3.90625e-06,
+      "complete": true,
+      "local_gate": true,
+      "clearance_gate": true,
+      "balance_gate": true,
+      "transaction_gate": true,
+      "force_bins_N": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.130280149257222,
+        0.0,
+        0.07118173548110499,
+        0.07927381702552787,
+        0.08550855505973795,
+        0.09484490404698899
+      ],
+      "total_impulse_Ns": 0.0004610891608705819
+    },
+    {
+      "input": "/Users/numi/numi-lab-contact-onset-evidence-20261107/reference003/n2-h1.json",
+      "h": 1.953125e-06,
+      "complete": true,
+      "local_gate": true,
+      "clearance_gate": true,
+      "balance_gate": true,
+      "transaction_gate": true,
+      "force_bins_N": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.136383916160469,
+        0.0,
+        0.07784963098197253,
+        0.0654925440532358,
+        0.08735315011539628,
+        0.094205127151527
+      ],
+      "total_impulse_Ns": 0.0004612843684626005
+    }
+  ],
+  "pairs": [
+    {
+      "coarse_h": 6.25e-05,
+      "fine_h": 3.125e-05,
+      "binned_force_relative_change": 0.014464481054700322,
+      "integrated_impulse_relative_change": 0.002225978355283142
+    },
+    {
+      "coarse_h": 3.125e-05,
+      "fine_h": 1.5625e-05,
+      "binned_force_relative_change": 0.09869551189100702,
+      "integrated_impulse_relative_change": 0.0011568223568468373
+    },
+    {
+      "coarse_h": 1.5625e-05,
+      "fine_h": 7.8125e-06,
+      "binned_force_relative_change": 0.1456583562716829,
+      "integrated_impulse_relative_change": 0.0005409433901508755
+    },
+    {
+      "coarse_h": 7.8125e-06,
+      "fine_h": 3.90625e-06,
+      "binned_force_relative_change": 0.05617262761113614,
+      "integrated_impulse_relative_change": 9.634860842975689e-05
+    },
+    {
+      "coarse_h": 3.90625e-06,
+      "fine_h": 1.953125e-06,
+      "binned_force_relative_change": 0.10104764080888431,
+      "integrated_impulse_relative_change": 0.00042318275962653786
+    }
+  ],
+  "completed_residual_and_transaction_gates": true,
+  "temporal_reference_qualified": false,
+  "force_qualified_control": false,
+  "spatial_reference_qualified": false,
+  "limits": [
+    "A qualified temporal reference is necessary but not sufficient: separate mesh refinement and the 1% control force gate are still required.",
+    "The frozen IPC implementation itself chooses stiffness using h and nodal inverse response. This series tests its discrete limit, not fixed contact regularization.",
+    "Native timings are retained as observations only. These correctness runs include readback/replay and possible diagnostic GPU overlap; no speed comparison is qualified."
+  ]
+}

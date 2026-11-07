@@ -360,6 +360,8 @@ enum NMContactFlags : nm_u32 {
     NM_CONTACT_MAPPED_FEATURE = 1u << 3u,
     // Single immutable-plane MPM velocity complementarity row; KKT reaction is in impulseAndNormal.
     NM_CONTACT_MPM_FIXED_PLANE_KKT = 1u << 8u,
+    // Fixed-plane reference FEM: row0.w retains the low separation limb.
+    NM_CONTACT_REFERENCE_PLANE = 1u << 9u,
 };
 
 enum NMEventClass : nm_u32 {
@@ -452,7 +454,8 @@ typedef struct NM_ALIGN16 NMMixedSolverGPU {
     nm_uint4 executionBudgets;
     // Equilibrium, volume, pressure, and transport relative residuals.
     nm_float4 residualTolerances;
-    // Minimum separation/contact-slop ratio, reserved, reserved, reserved.
+    // Separation/slop ratio; optional mechanical absolute impulse tolerance N*s,
+    // relative tolerance, reference impulse N*s. yzw all zero retains legacy.
     nm_float4 contactAcceptance;
     // diagonal floor, initial LM shift, maximum LM shift, curvature tolerance.
     nm_float4 regularization;

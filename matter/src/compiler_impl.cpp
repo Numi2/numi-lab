@@ -298,9 +298,9 @@ constexpr std::uint32_t kMaximumRegionalGalerkinModes = 32u;
     );
     result.contactAcceptance = f4(
         source.minimumContactSeparationRatio,
-        0.0,
-        0.0,
-        0.0
+        source.mechanicalAbsoluteImpulseTolerance,
+        source.mechanicalRelativeImpulseTolerance,
+        source.mechanicalImpulseScale
     );
     result.regularization = f4(
         source.diagonalFloor,
@@ -683,12 +683,15 @@ void validateWorld(
         solver.fieldSmootherPasses,
         solver.mutationRestarts,
     };
-    const std::array<double, 13> tolerances{
+    const std::array<double, 16> tolerances{
         solver.relativeResidual,
         solver.volumeTolerance,
         solver.pressureTolerance,
         solver.transportTolerance,
         solver.minimumContactSeparationRatio,
+        solver.mechanicalAbsoluteImpulseTolerance,
+        solver.mechanicalRelativeImpulseTolerance,
+        solver.mechanicalImpulseScale,
         solver.diagonalFloor,
         solver.initialLMShift,
         solver.maximumLMShift,
@@ -832,6 +835,14 @@ void validateWorld(
             diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
                 "coupled FEM tangent block preconditioner requires at least one explicit, ordinary FEM object with a non-learned material"});
         }
+    }
+    const bool physicalImpulsePolicy=solver.mechanicalImpulseScale>0.0;
+    if ((physicalImpulsePolicy && (!(solver.mechanicalRelativeImpulseTolerance>0.0) ||
+        source.objects.empty() || std::ranges::any_of(source.objects,[](const auto& object) {
+            return object.representation!=Representation::fem || object.mixedFEM || object.multiphysics.enabled;
+        }))) || (!physicalImpulsePolicy && (solver.mechanicalAbsoluteImpulseTolerance!=0.0 || solver.mechanicalRelativeImpulseTolerance!=0.0))) {
+        diagnostics.push_back({Diagnostic::Severity::error,0u,0u,
+            "physical impulse residual policy requires explicit pure FEM and positive relative tolerance and impulse scale"});
     }
     if (std::ranges::any_of(budgets, [](const std::uint32_t value) {
             return value == 0u;

@@ -465,6 +465,12 @@ private:
 
     [[nodiscard]] bool validateMixedAuthorities() {
         const NMMixedSolverGPU& solver = world_.mixedSolver;
+        if (solver.contactAcceptance.w>0.0f &&
+            (world_.dispatch.rigidGeneralizedCapacity!=0u || world_.dispatch.particleCount!=0u ||
+             std::any_of(world_.objects.begin(),world_.objects.end(),[](const auto& object) {
+                 return object.representation!=NM_REPRESENTATION_FEM ||
+                     (object.flags&(NM_OBJECT_MIXED_FEM|NM_OBJECT_MULTIPHYSICS))!=0u;
+             }))) return fail("physical impulse residual policy requires pure FEM mechanical rows");
         if (solver.nonlinearIterations.x == 0u ||
             solver.nonlinearIterations.y == 0u ||
             solver.nonlinearIterations.y > NM_MIXED_FGMRES_RESTART ||
@@ -490,9 +496,12 @@ private:
             !finite4(solver.contactAcceptance) ||
             solver.contactAcceptance.x < 0.0f ||
             solver.contactAcceptance.x >= 1.0f ||
-            solver.contactAcceptance.y != 0.0f ||
-            solver.contactAcceptance.z != 0.0f ||
-            solver.contactAcceptance.w != 0.0f ||
+            solver.contactAcceptance.y < 0.0f ||
+            solver.contactAcceptance.z < 0.0f ||
+            solver.contactAcceptance.w < 0.0f ||
+            (solver.contactAcceptance.w == 0.0f &&
+                (solver.contactAcceptance.y != 0.0f || solver.contactAcceptance.z != 0.0f)) ||
+            (solver.contactAcceptance.w > 0.0f && !(solver.contactAcceptance.z > 0.0f)) ||
             !finite4(solver.regularization) ||
             !finite4(solver.globalization) ||
             !(solver.regularization.x > 0.0f) ||

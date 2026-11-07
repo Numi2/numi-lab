@@ -1852,9 +1852,7 @@ kernel void nm_fgmres_begin(
     // correction before the same residual gate may accept the candidate.
     const bool correctionFinite = nonlinearIteration > 1u &&
         isfinite(previousNonlinear.z);
-    const float mechanicalNonlinearThreshold = max(
-        solver.regularization.x,
-        // The final certificate normalizes by the final Newton assembly.
+    const float mechanicalNonlinearThreshold = nmMechanicalResidualLimit(solver, // The final certificate normalizes by the final Newton assembly.
         // Satisfy that gate as well as the initial-residual target before
         // latching a no-op tail. Never relax the publication tolerance.
         solver.residualTolerances.x *
@@ -10275,9 +10273,7 @@ kernel void nm_fgmres_measure_true_residual(
             initialNorm, layout.reserved);
         if (replaceResidual != 0u) {
             state.diagnostics.x = trueNorm;
-            const float mechanicalNonlinearThreshold = max(
-                solver.regularization.x,
-                solver.residualTolerances.x * max(state.nonlinear.x, 1.0f));
+            const float mechanicalNonlinearThreshold = nmMechanicalResidualLimit(solver, solver.residualTolerances.x * max(state.nonlinear.x, 1.0f));
             const float nonlinearThreshold = layout.vascularUnknownCount == 0u
                 ? mechanicalNonlinearThreshold
                 : min(mechanicalNonlinearThreshold,
@@ -12017,9 +12013,7 @@ kernel void nm_fgmres_begin_distributed_finish(
     const float nonlinearReferenceNorm = (layout.reserved & 4u) != 0u
         ? sqrt(max(mechanicalNorm2 + vascularNorm2, 0.0f))
         : (hasOriginalOuterNorm ? originalOuterNorm : norm);
-    const float mechanicalNonlinearThreshold = max(
-        solver.regularization.x,
-        solver.residualTolerances.x * max(
+    const float mechanicalNonlinearThreshold = nmMechanicalResidualLimit(solver, solver.residualTolerances.x * max(
             min(firstNewtonNorm, nonlinearReferenceNorm), 1.0f));
     const float nonlinearThreshold = layout.vascularUnknownCount == 0u
         ? mechanicalNonlinearThreshold
@@ -12470,9 +12464,7 @@ kernel void nm_fgmres_true_residual_distributed_finish(
             forcing, solver.residualTolerances.x, initialNorm, layout.reserved);
         if (replaceResidual != 0u) {
             state.diagnostics.x = trueNorm;
-            const float mechanicalNonlinearThreshold = max(
-                solver.regularization.x,
-                solver.residualTolerances.x * max(state.nonlinear.x, 1.0f));
+            const float mechanicalNonlinearThreshold = nmMechanicalResidualLimit(solver, solver.residualTolerances.x * max(state.nonlinear.x, 1.0f));
             const float nonlinearThreshold = layout.vascularUnknownCount == 0u
                 ? mechanicalNonlinearThreshold
                 : min(mechanicalNonlinearThreshold,
@@ -12798,8 +12790,7 @@ kernel void nm_fgmres_telemetry_domains_finish(
     const float currentReferenceNorm = (layout.reserved & 4u) != 0u
         ? sqrt(max(norm.x * norm.x + norm.y * norm.y, 0.0f))
         : state.nonlinear.y;
-    float mechanicalThreshold = max(solver.regularization.x,
-        solver.residualTolerances.x * max(
+    float mechanicalThreshold = nmMechanicalResidualLimit(solver, solver.residualTolerances.x * max(
             min(state.nonlinear.x, currentReferenceNorm), 1.0f));
     if ((layout.reserved & 2u) != 0u) {
         const uint tightening = (layout.reserved >> 16u) & 7u;
@@ -12835,9 +12826,7 @@ kernel void nm_fgmres_telemetry_begin(
     const NMFGMRESStateGPU state = states[environment];
     if (restartCycle == 0u) {
         const float currentNorm = state.nonlinear.y;
-        const float mechanicalThreshold = max(
-            solver.regularization.x,
-            solver.residualTolerances.x *
+        const float mechanicalThreshold = nmMechanicalResidualLimit(solver, solver.residualTolerances.x *
                 max(min(state.nonlinear.x, currentNorm), 1.0f));
         const float threshold = layout.vascularUnknownCount == 0u
             ? mechanicalThreshold
@@ -13154,9 +13143,7 @@ kernel void nm_fgmres_finalize_cycle(
     // before satisfying the next Eisenstat-Walker forcing term. Let the next
     // Newton assembly certify that full KKT residual instead of latching a
     // linear failure at an already acceptable absolute residual.
-    const float mechanicalNonlinearThreshold = max(
-        solver.regularization.x,
-        solver.residualTolerances.x * max(state.nonlinear.x, 1.0f));
+    const float mechanicalNonlinearThreshold = nmMechanicalResidualLimit(solver, solver.residualTolerances.x * max(state.nonlinear.x, 1.0f));
     const float nonlinearThreshold = layout.vascularUnknownCount == 0u
         ? mechanicalNonlinearThreshold
         : min(mechanicalNonlinearThreshold,
@@ -15958,8 +15945,7 @@ kernel void nm_human_support_certify(
     const float norm = sqrt(norm2);
     const float supportNorm = sqrt(simd_sum(supportNorm2));
     const float rigidNorm = sqrt(simd_sum(rigidNorm2));
-    const float threshold = max(solver.regularization.x,
-        solver.residualTolerances.x * max(min(states[environment].nonlinear.x,
+    const float threshold = nmMechanicalResidualLimit(solver, solver.residualTolerances.x * max(min(states[environment].nonlinear.x,
             states[environment].nonlinear.y), 1.0f));
     bool invalidSupportImpulse = false;
     float4 invalidSupportDiagnostics = float4(0.0f);

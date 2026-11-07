@@ -38,3 +38,15 @@ add_executable(metalrobo_plane_contact_probe "${NUMI_CONTACT_ROOT}/apps/plane_co
 target_compile_options(metalrobo_plane_contact_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
 target_link_libraries(metalrobo_plane_contact_probe PRIVATE numi_plane_contact_owner)
 add_dependencies(metalrobo_plane_contact_probe numi_plane_contact_shader)
+
+if(BUILD_TESTING)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_executable(numi_contact_policy policy.cpp)
+    target_link_libraries(numi_contact_policy PRIVATE numi_plane_contact_owner)
+    add_test(NAME numi.contact.physical_policy COMMAND numi_contact_policy)
+    add_test(NAME numi.contact.residual_restore COMMAND "${Python3_EXECUTABLE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/control_regression.py"
+        "$<TARGET_FILE:metalrobo_plane_contact_probe>" "${_shader}"
+        "${CMAKE_CURRENT_BINARY_DIR}/residual-regression-evidence")
+    set_tests_properties(numi.contact.residual_restore PROPERTIES TIMEOUT 180)
+endif()
