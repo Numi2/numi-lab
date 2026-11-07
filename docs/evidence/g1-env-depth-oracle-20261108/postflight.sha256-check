@@ -1,0 +1,6 @@
+/Users/numi/numi-g1-env-depth-oracle-build-20261108/depth_test: OK
+/Users/numi/numi-g1-env-depth-oracle-build-20261108/depth_probe.metallib: OK
+/Users/numi/numi-g1-env-clock-time-owner-20261108/src/metal/HybridRenderer.metal: OK
+/Users/numi/numi-g1-env-clock-time-owner-20261108/src/metal/VisualPBR.metal: OK
+/Users/numi/numi-lab-deployable-depth-20261107/docs/evidence/g1-env-depth-oracle-20261108/depth_probe.metal: OK
+/Users/numi/numi-lab-deployable-depth-20261107/docs/evidence/g1-env-depth-oracle-20261108/depth_test.mm: OK
