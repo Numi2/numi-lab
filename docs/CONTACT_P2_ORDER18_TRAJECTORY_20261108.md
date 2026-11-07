@@ -32,3 +32,20 @@ failure.
 
 Even if this pair passes, n=2 is not spatially qualified. No production
 contact, replay, hard-contact or physical-material claim follows.
+
+## Result
+
+Both runs completed (18.3 s coarse, 36.4 s fine). Their force-bin and
+impulse differences were 4.36e-7 and 3.73e-8; the contact-work difference
+was 8.96e-7 of the declared work scale. These pass the 0.25% checks.
+Maximum order-18 versus Duffy-64 force difference was 0.0854% of the fine
+peak bin; Duffy-48 versus Duffy-64 differed by 0.000605%. Both pass their
+declared checks on the fresh trajectory.
+
+Minimum sampled gap was 81.79 µm, and all sampled volume Jacobians were
+positive. Momentum, total-energy and contact-work checks pass; full values,
+states and exact source identities are [retained](evidence/contact-p2-order18-trajectory-20261108/).
+These observations apply at the evaluated quadrature points and times; they
+do not certify continuum clearance between them. This n=2 result is not a
+spatially qualified force reference, production result or material validation.
+The failed order-8 trajectory remains preserved.
