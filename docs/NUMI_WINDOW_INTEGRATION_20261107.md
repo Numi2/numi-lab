@@ -287,6 +287,9 @@ Metal callback and a passthrough observation callback: two independent 1-env,
 digest, then rejected digest after a valid action-only or observation-plus-action
 continuation. Output, exact input and binary hashes, and timestamps are retained
 in `policy-digest-retry`. The first probe failed with a malformed transition
-and is retained in `policy-digest`. The observation-only combination and actual
-policy owner restoration were not tested. These fail-closed boundaries are not
-an implementation of atomic cross-owner restoration.
+and is retained in `policy-digest`. A second bounded M6 test at revision `b368ce0a` passed initial action-only
+and initial observation-only owners, including pending rejection; the latter
+used an actual bound, synthetic zero-weight native policy. These checks do not
+test actual policy owner restoration. Retained timestamps and hashes are in
+`policy-digest-initial`. These fail-closed boundaries are not an implementation
+of atomic cross-owner restoration.
