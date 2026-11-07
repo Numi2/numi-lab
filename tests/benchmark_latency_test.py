@@ -39,6 +39,8 @@ with tempfile.TemporaryDirectory() as temp:
         f = dict(part.split("=", 1) for part in shlex.split(result.stdout))
         assert f["completed"] == "0" and f["attempted_steps"] == "1", (mode, f)
     assert run("warmup").returncode != 0
+    assert run("warmup_physics_error").returncode != 0
+    assert run("warmup_nan").returncode != 0
     for args in (("--steps", "0"), ("--steps", "4294967296"), ("--seed", " -1")):
         assert run("", *args).returncode != 0, args
 print("persistent latency accounting rejects incomplete and invalid steps")

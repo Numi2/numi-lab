@@ -39,6 +39,8 @@ int mr_task_rollout_advance(MRTaskRolloutHandle*, const float*, size_t, const ui
         a->first_failing_environment=1; a->first_failing_control_step=1; a->first_gpu_status_code=11;
     }
     transitions.assign(steps*envs,{}); for (auto& t:transitions) t.reward=1;
+    if (calls==1 && !std::strcmp(mode(),"warmup_physics_error")) transitions[0].physics_error=1;
+    if (calls==1 && !std::strcmp(mode(),"warmup_nan")) transitions[0].reward=std::numeric_limits<float>::quiet_NaN();
     if (calls==2 && !std::strcmp(mode(),"physics_error")) transitions[0].physics_error=1;
     if (calls==2 && !std::strcmp(mode(),"nan")) transitions[0].reward=std::numeric_limits<float>::quiet_NaN();
     return (calls==2 && !std::strcmp(mode(),"error")) ||
@@ -78,6 +80,8 @@ with tempfile.TemporaryDirectory() as temp:
             assert "injected runtime failure" in trial.stderr and "clobbered" not in trial.stderr
     assert run("warmup").returncode!=0
     assert run("warmup_error").returncode!=0
+    assert run("warmup_physics_error").returncode!=0
+    assert run("warmup_nan").returncode!=0
     for opt in [("--envs","-1"),("--steps","4294967296"),("--seed","18446744073709551616"),("--seed"," -1")]:
         assert run("",*opt).returncode!=0,opt
 print("benchmark accounting rejects incomplete, failed, invalid and oversized workloads")

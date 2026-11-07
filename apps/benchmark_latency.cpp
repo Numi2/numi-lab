@@ -103,11 +103,14 @@ int main(int argc, char** argv) {
                 const std::string error = rc != 0 ? mr_last_error() : "warmup failed";
                 throw std::runtime_error(error);
             }
+            const MRTaskTransitionC* transition = mr_task_rollout_transitions(runtime);
+            if (!transition || transition->physics_error != 0u || !std::isfinite(transition->reward))
+                throw std::runtime_error("warmup contains an invalid transition");
         }
         const auto warmupEnd = std::chrono::steady_clock::now();
         std::vector<double> latencies;
         latencies.reserve(config.steps);
-        std::uint64_t accepted = 0;
+        std::uint64_t accepted = 0, failed = 0;
         double gpuMs = 0.0, submissionMs = 0.0, measuredMs = 0.0;
         std::uint32_t status = 0;
         std::string failure;
@@ -124,6 +127,7 @@ int main(int argc, char** argv) {
             latencies.push_back(elapsed);
             measuredMs += elapsed;
             accepted += advance.successful_environment_steps;
+            failed += advance.failed_environment_steps;
             gpuMs += advance.gpu_milliseconds;
             submissionMs += advance.submission_milliseconds;
             status = advance.first_gpu_status_code;
@@ -150,7 +154,7 @@ int main(int argc, char** argv) {
                   << " robot_fingerprint=" << layout.robot_fingerprint
                   << " policy=host_sinusoidal requested_steps=" << config.steps
                   << " attempted_steps=" << latencies.size() << " accepted_env_steps=" << accepted
-                  << " first_gpu_status=" << status << " completed=" << (complete ? 1 : 0)
+                  << " failed_env_steps=" << failed << " first_gpu_status=" << status << " completed=" << (complete ? 1 : 0)
                   << " initialization_ms=" << milliseconds(initEnd - initStart)
                   << " warmup_ms=" << milliseconds(warmupEnd - warmupStart)
                   << " wall_ms=" << wallMs << " call_sum_ms=" << measuredMs << " gpu_ms=" << gpuMs

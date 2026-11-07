@@ -167,6 +167,19 @@ int main(int argc, char** argv) {
             throw std::runtime_error(warmupResult != 0 ? warmupError :
                                      "warmup did not complete every environment step");
         }
+        const MRTaskTransitionC* warmupTransitions = mr_task_rollout_transitions(runtime);
+        if (warmupTransitions == nullptr) {
+            mr_task_rollout_destroy(runtime);
+            throw std::runtime_error("completed warmup has no transitions");
+        }
+        const std::uint64_t warmupCount = std::uint64_t(warmupSteps) * options.environments;
+        for (std::uint64_t index = 0; index < warmupCount; ++index) {
+            if (warmupTransitions[index].physics_error != 0u ||
+                !std::isfinite(warmupTransitions[index].reward)) {
+                mr_task_rollout_destroy(runtime);
+                throw std::runtime_error("warmup contains an invalid transition");
+            }
+        }
         std::swap(actions, warmup);
         for (std::uint32_t step = 0; step < options.steps; ++step) {
             fillActions(step, step + warmupSteps);
