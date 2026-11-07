@@ -24,7 +24,7 @@ n=int(sys.argv[1])
 if n not in (2,4,8,16):raise ValueError('invalid n')
 grid=np.linspace(0,L,n+1)
 mesh=MeshTet.init_tensor(grid,grid,grid+z0)
-result={'n':n,'tetrahedra':mesh.nelements,'reference_volume_energy_J':exact_volume,
+result={'n':n,'tetrahedra':int(mesh.nelements),'reference_volume_energy_J':exact_volume,
  'reference_surface_energy_J':ref96[0],'reference_force_N':ref96[1],
  'reference_quadrature_relative':max(abs(a-b)/abs(b) for a,b in zip(ref48,ref96)),'orders':{}}
 for degree,elem in ((1,ElementTetP1()),(2,ElementTetP2())):
@@ -44,7 +44,7 @@ for degree,elem in ((1,ElementTetP1()),(2,ElementTetP2())):
  gap=face.global_coordinates()[2]+face.interpolate(u).value
  if np.min(gap)<=0:raise RuntimeError('nonpositive contact gap')
  se=np.sum(density(gap)*face.dx);sf=np.sum(pressure(gap)*face.dx)
- result['orders'][str(degree)]={'dofs':basis.N,'min_J':float(J.min()),'min_gap_m':float(gap.min()),
+ result['orders'][str(degree)]={'dofs':int(basis.N),'min_J':float(J.min()),'min_gap_m':float(gap.min()),
   'volume_energy_J':float(energy),'volume_energy_relative_error':float(abs(energy-exact_volume)/abs(exact_volume)),
   'surface_energy_J':float(se),'surface_energy_relative_error':float(abs(se-ref96[0])/abs(ref96[0])),
   'force_N':float(sf),'force_relative_error':float(abs(sf-ref96[1])/abs(ref96[1]))}
