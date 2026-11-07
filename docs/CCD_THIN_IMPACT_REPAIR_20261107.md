@@ -76,10 +76,13 @@ retained on the host in
 The broad wave32 correction is **not qualified for integration**. Additional
 closed-form checks uncovered three limitations:
 
-* The existing radial anisotropic ellipse projection does not in general
-  produce the maximum-dissipation sliding direction, and a zero coefficient
-  on one axis currently suppresses the other axis too. These are
-  pre-existing limitations, not newly demonstrated candidate regressions.
+* A direct Metal helper test of the existing radial anisotropic ellipse
+  projection does not produce the maximum-dissipation sliding direction for
+  one admissible positive-coefficient ellipse. Standard collision compilation
+  currently emits equal U/V coefficients; reachability from a production
+  MetalWorld scene is not established. A helper test with only one zero
+  coefficient lies outside the validated ConstraintIR contract and is not a
+  production defect.
 * Distributed wave32 uses unrelaxed simultaneous row updates. For two
   identical coupled normal rows with W=[[1,1],[1,1]], the update alternates
   between impulses (1,1) and (0,0). This is an analytic source-level
@@ -96,3 +99,19 @@ finite normal impulse cap. Its successful execution preserves these analytic
 counterexamples; it does not mean that the corresponding physical behaviors
 have all passed. Full shared-solver coverage and the distributed native test
 remain outstanding.
+
+Candidate 003 replaces the normal denominator with the same scale-relative,
+symmetrized and regularized normal diagonal used by the actual inverse.
+Independent FP64 checks against direct conditional solves cover a singular
+block and 100 seeded positive-definite blocks. A test-only Metal wrapper
+including the actual helper returns a normal increment of 100 for the
+previous 1e-12 diagonal counterexample; frictionless, sticking and bounded
+normal cases agree with their analytic results. Its anisotropic case
+reproduces the helper-level maximum-dissipation discrepancy. A two-row
+unrelaxed *model* retains a large normal residual; it is not a full
+distributed-world result. The existing contact-owner probe passes its
+257/513-contact queue and accounting checks, and the 288-case hybrid
+box-plane regression still passes. Those checks do not qualify the broad
+solver update.
+
+Later noncoincident physical-velocity owner-shaped probes exposed unresolved responses in both 33-contact non-distributed and 257-contact distributed paths. The earlier contact-owner pass is only a queue/accounting result and does not supersede that finding. The thin-impact candidate remains unpromoted. The preserved cross-candidate evidence archive [ccd-research-evidence-20261107.tar.gz](evidence/ccd-research-evidence-20261107.tar.gz) has SHA-256 66071749f28860da9b8b2e6005eb17ea6c495420068b3f899120f4361affc594; binaries and Metal libraries remain host-only with identities recorded in the archive.

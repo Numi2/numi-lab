@@ -1256,7 +1256,7 @@ int main() {
                 "Wave32 tile world compilation failed"
             );
             std::vector<float> tileQ = tileModel.defaultQ;
-            tileQ[1] = 0.0f;
+            tileQ[1] = std::getenv("NUMI_TILE_PHYSICAL") ? .0199f : 0.0f;
             const std::vector<float> tileEffort(
                 tileWorld.nv(),
                 0.0f
@@ -1274,9 +1274,9 @@ int main() {
             };
             metalrobo::MetalWorldStepConfig tileConfig = config;
             tileConfig.physicsSubsteps = 1u;
-            tileConfig.velocityIterations = 1u;
+            tileConfig.velocityIterations = std::getenv("NUMI_TILE_PHYSICAL") ? 2u : 1u;
             tileConfig.finalVelocityIterations = 0u;
-            tileConfig.captureContactEvidence = false;
+            tileConfig.captureContactEvidence = true;
             tileConfig.ccdMode =
                 metalrobo::MetalWorldCCDMode::disabled;
             metalrobo::MetalWorldContext tileContext;
@@ -1287,6 +1287,27 @@ int main() {
                 tileConfig,
                 tileResult
             );
+            if (!tileRun.succeeded() && tileResult.contactStatuses.size() == 1u) {
+                const auto& failed=tileResult.contactStatuses.front();
+                std::cerr<<"tile_failure_contacts="<<activeContacts
+                         <<" code="<<tileRun.firstGPUStatusCode
+                         <<" residual_n="<<failed.residuals.y
+                         <<" active="<<failed.activeContacts
+                         <<" first_constraint="<<failed.firstFailingConstraint
+                         <<" queue_flags="<<failed.queueFlags<<'\n';
+                if(!tileResult.contactEvidence.evaluatedRows.empty()) {
+                    const auto& row=tileResult.contactEvidence.evaluatedRows.front();
+                    std::cerr<<"tile_failure_row0 target="<<row.targetVelocity
+                             <<" pre_vn="<<row.preSolveVelocity
+                             <<" regularization="<<row.regularization<<'\n';
+                    for(std::size_t i=0;i<std::min<std::size_t>(8,tileResult.contactEvidence.contacts.size());++i) {
+                        const auto& c=tileResult.contactEvidence.contacts[i];
+                        std::cerr<<"tile_failure_contact="<<i<<" n="<<c.normal.x<<","<<c.normal.y<<","<<c.normal.z
+                                 <<" point="<<c.pointAndSeparation.x<<","<<c.pointAndSeparation.y<<","<<c.pointAndSeparation.z
+                                 <<" gap="<<c.pointAndSeparation.w<<"\n";
+                    }
+                }
+            }
             require(
                 tileRun.succeeded() &&
                     tileResult.contactStatuses.size() == 1u,

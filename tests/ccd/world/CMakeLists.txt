@@ -48,3 +48,8 @@ add_executable(metalrobo_ccd_shared_contact_probe "${NUMI_WORLD_ROOT}/apps/metal
 target_link_libraries(metalrobo_ccd_shared_contact_probe PRIVATE numi_ccd_world_owner)
 target_link_options(metalrobo_ccd_shared_contact_probe PRIVATE -Wl,-dead_strip)
 add_dependencies(metalrobo_ccd_shared_contact_probe metalrobo_shaders)
+
+add_executable(metalrobo_ccd_distributed_probe "${NUMI_WORLD_ROOT}/apps/ccd_wave32_distributed_probe.cpp")
+target_link_libraries(metalrobo_ccd_distributed_probe PRIVATE numi_ccd_world_owner)
+target_link_options(metalrobo_ccd_distributed_probe PRIVATE -Wl,-dead_strip)
+add_dependencies(metalrobo_ccd_distributed_probe metalrobo_shaders)

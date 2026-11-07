@@ -1114,8 +1114,12 @@ inline float3 normalFirstContactCandidate(
     const float normalResponse,
     device const MREvaluatedConstraintIRConeGPU& cone
 ) {
-    const float denominator = max(normalResponse, kMatrixFloor);
-    const float inverseNormal = max(inverse.row0.x, kMatrixFloor);
+    if (!(normalResponse > 0.0f) || !(inverse.row0.x > 0.0f) ||
+        !isfinite(normalResponse) || !isfinite(inverse.row0.x)) {
+        return float3(INFINITY); // Caller reports the nonfinite failure.
+    }
+    const float denominator = normalResponse;
+    const float inverseNormal = inverse.row0.x;
     float normal = max(previous.x + rhs.x / denominator, 0.0f);
     if (cone.maximumNormalImpulse > 0.0f) {
         normal = min(normal, cone.maximumNormalImpulse);
@@ -1135,7 +1139,8 @@ inline float3 normalFirstContactCandidate(
 
 inline bool invert3x3(
     thread const float matrix[3][3],
-    thread float inverse[3][3]
+    thread float inverse[3][3],
+    thread float* regularizedNormal = nullptr
 ) {
     float scale = 0.0f;
     for (uint row = 0u; row < 3u; ++row) {
@@ -1168,6 +1173,11 @@ inline bool invert3x3(
                     kContactMatrixRegularization;
             }
         }
+    }
+    if (regularizedNormal != nullptr) {
+        // Match the same normalized, symmetrized and regularized operator
+        // whose inverse is used by the conditional tangent update.
+        *regularizedNormal = regularized[0][0] * scale;
     }
     const float c00 =
         regularized[1][1] * regularized[2][2] -
@@ -6745,7 +6755,8 @@ kernel void mr_world_wave32_distributed_prepare(
                 }
             }
             float inverse[3][3];
-            if (!invert3x3(effective, inverse)) {
+            float regularizedNormal = 0.0f;
+            if (!invert3x3(effective, inverse, &regularizedNormal)) {
                 failure = MR_STEP_FACTORIZATION_FAILED;
             } else {
                 preconditioner.row0.xyz = float3(
@@ -6763,7 +6774,7 @@ kernel void mr_world_wave32_distributed_prepare(
                     inverse[2][1],
                     inverse[2][2]
                 );
-                preconditioner.row2.w = effective[0][0];
+                preconditioner.row2.w = regularizedNormal;
             }
         }
         preconditioner.row0.w =
@@ -8176,7 +8187,8 @@ inline void mrWorldWave32SolvePacket(
             }
         }
         float inverse[3][3];
-        if (!invert3x3(effective, inverse)) {
+        float regularizedNormal = 0.0f;
+        if (!invert3x3(effective, inverse, &regularizedNormal)) {
             localFailure = MR_STEP_FACTORIZATION_FAILED;
             localFailureConstraint = min(
                 localFailureConstraint,
@@ -8200,7 +8212,7 @@ inline void mrWorldWave32SolvePacket(
             inverse[2][1],
             inverse[2][2]
         );
-        preconditioner.row1.w = effective[0][0];
+        preconditioner.row1.w = regularizedNormal;
         preconditioners[
             constraintBase + localConstraint
         ] = preconditioner;
