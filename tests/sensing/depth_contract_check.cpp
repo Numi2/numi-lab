@@ -42,6 +42,23 @@ int main(int argc, char** argv) {
   SensorProgramPack packed{.id="test", .observation=obs}, read;
   if (!writeSensorProgramPack(packed,path).succeeded() || !readSensorProgramPack(path,read).succeeded() ||
       !read.observation.visual.useUnsegmentedDepth || !read.observation.visual.includeDerivedFeatures) return 6;
-  std::printf("PASS actor=%u oracle_obs=%llu raw_obs=%llu persisted=1\n",raw.task.layout().actorObservationSize,
+  for (unsigned flags=0; flags<4; ++flags) {
+    packed.observation.visual.includeDerivedFeatures = (flags & 1u) != 0u;
+    packed.observation.visual.useUnsegmentedDepth = (flags & 2u) != 0u;
+    SensorProgramPack roundTrip;
+    if (!writeSensorProgramPack(packed,path).succeeded() ||
+        !readSensorProgramPack(path,roundTrip).succeeded() ||
+        roundTrip.observation.visual.includeDerivedFeatures != bool(flags & 1u) ||
+        roundTrip.observation.visual.useUnsegmentedDepth != bool(flags & 2u)) return 7;
+  }
+  TaskObservationProgram invalid = obs;
+  invalid.visual = {};
+  invalid.visual.useUnsegmentedDepth = true;
+  CompiledLocomotionWorld invalidResult;
+  const auto invalidStatus = compileLocomotionWorld(
+      world, world.articulationIndex, task, robot->actuators,
+      invalid, reset, invalidResult);
+  if (invalidStatus.succeeded() || invalidResult.task.valid()) return 8;
+  std::printf("PASS actor=%u oracle_obs=%llu raw_obs=%llu persisted=1 flag_combinations=4 invalid_rejected=1\n",raw.task.layout().actorObservationSize,
     (unsigned long long)oracle.task.observationFingerprint(), (unsigned long long)raw.task.observationFingerprint());
 }

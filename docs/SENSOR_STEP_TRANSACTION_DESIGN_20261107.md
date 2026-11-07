@@ -97,3 +97,17 @@ multiple queued contexts, rather than relying only on a synchronous caller.
 The earliest bounded implementation should be gated until these tests pass.
 Neither the existing host counter nor the isolated raw-depth kernel test
 proves the candidate transaction.
+
+## Bounded implementation blocker
+
+This owner cannot safely commit only a depth-ring candidate. The object-track
+kernel mutates a different private history before physics, and the next frame
+may reuse renderer-owned image and camera buffers. Sensor sampling and the
+renderer noise key are controlled by a single host sequence encoded ahead of
+all statuses. Further, task completion increments episode time even for a
+physics error and sets an automatic terminal reset. Therefore a per-environment
+accepted record requires coordinated changes to the renderer input ABI,
+tracker kernels, MetalWorld callback placement, and task reset/publication
+semantics. A standalone depth-only snapshot would leave mixed batches
+inconsistent and would not meet the requested transaction. No such partial
+repair or successful mixed-batch claim is made here.

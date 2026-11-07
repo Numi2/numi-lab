@@ -59,3 +59,12 @@ also treats a physics failure as a terminal episode. A full repair needs
 per-environment staged image, object-track and depth histories, held-frame
 cadence, and a defined task/reset transaction; it cannot be inferred from the
 host-only cadence check.
+
+The CPU contract probe was subsequently extended. It passed all four
+combinations of the derived-feature and unsegmented-depth SensorPack bits,
+and rejected unsegmented depth with no authored visual program. The extended
+source hash is
+9db3f67b013daece14079c5de506a584591c2a3ec689d0eddbff9647da3e0c12
+and the separate executable hash is
+b124dfcf13bdbbe2f7ff9aa69e9564e0ec99f4ac668e3a92c2d266f6f4ad961f.
+The original source and result remain identifiable at commit 3686ca8c.
