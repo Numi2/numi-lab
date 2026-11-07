@@ -33,3 +33,9 @@ Reset sets the live manifold count to zero and checkpoints only entries below th
 The first reset setup failed host validation because reset-state spans had no reset mask; it is retained. The corrected cases and field-by-field mismatch are in [ccd-kinematic-reset-evidence-20261107.tar.gz](evidence/ccd-kinematic-reset-evidence-20261107.tar.gz), SHA-256 88f389a8ad2b9f7c39c5f5c02574bd2d4ea01809db70420b3ba0c1c63e9c32bf. Exact executables and metallibs remain host-only.
 
 After the scheduled test, an inadvertent extra native gate run occurred between 22:54:07 and 22:54:15 UTC; exact process timestamps and its full output were not separately retained. The copied probe SHA-256 was 9467ad2b7f046c6daeef586bfedc9706e93dc5a631a0eee561dfcb9adba924a4 and the fixed metallib SHA-256 was d7d37bce197e77e3056ba00abbba303d4c96cbf7fc6eeb95a7f765d101380866. Other active owners reported no overlapping GPU runs in that window. No performance claim relies on it.
+
+The integrated worktree also ran the updated reset/recontact regression at
+`6649a026` on M6. It passed the live-count and continuation checks while again
+reporting unequal inactive headers and points immediately after reset. The
+exact output and hashes are in
+[evidence](evidence/window-integration-20261107/kinematic-reset-integrated/).
