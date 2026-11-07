@@ -64,3 +64,7 @@ add_executable(metalrobo_ccd_moving_contact_probe "${NUMI_WORLD_ROOT}/apps/ccd_m
 target_link_libraries(metalrobo_ccd_moving_contact_probe PRIVATE numi_ccd_world_owner)
 target_link_options(metalrobo_ccd_moving_contact_probe PRIVATE -Wl,-dead_strip)
 add_dependencies(metalrobo_ccd_moving_contact_probe metalrobo_shaders)
+add_executable(metalrobo_ccd_box_multistep_probe "${NUMI_WORLD_ROOT}/apps/ccd_box_multistep_probe.cpp")
+target_link_libraries(metalrobo_ccd_box_multistep_probe PRIVATE numi_ccd_world_owner)
+target_link_options(metalrobo_ccd_box_multistep_probe PRIVATE -Wl,-dead_strip)
+add_dependencies(metalrobo_ccd_box_multistep_probe metalrobo_shaders)
