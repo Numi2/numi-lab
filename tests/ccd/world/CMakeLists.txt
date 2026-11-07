@@ -50,3 +50,8 @@ if(BUILD_TESTING)
  add_test(NAME metalrobo.ccd.coupling_reference
   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/test_coupling_reference.py")
 endif()
+
+add_executable(metalrobo_ccd_owner_rows_probe "${NUMI_WORLD_ROOT}/apps/ccd_wave32_owner_rows_probe.cpp")
+target_link_libraries(metalrobo_ccd_owner_rows_probe PRIVATE numi_ccd_world_owner)
+target_link_options(metalrobo_ccd_owner_rows_probe PRIVATE -Wl,-dead_strip)
+add_dependencies(metalrobo_ccd_owner_rows_probe metalrobo_shaders)
