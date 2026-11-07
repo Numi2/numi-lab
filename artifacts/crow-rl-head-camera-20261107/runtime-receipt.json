@@ -1,0 +1,20 @@
+[
+  {
+    "kind": "eye_check",
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/crow-head-camera-admission-04/metalrobo_crow_eye_check",
+    "bytes": 202136,
+    "sha256": "d454db06ccd26b79f9953032a326cd19adea21939416b0e0e9c4b094e935d070"
+  },
+  {
+    "kind": "library",
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/crow-head-camera-admission-04/libmetalrobo.dylib",
+    "bytes": 5455504,
+    "sha256": "09611db0f82a19816834e2d0c6df1a23241abbb796c2c86448fdfee217dfc65e"
+  },
+  {
+    "kind": "metallib",
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/crow-head-camera-admission-04/MetalRobo.metallib",
+    "bytes": 4169757,
+    "sha256": "61fc4a19866101c72bc2369794084741050e05adba1b41e2eea6fcfd1a7d0fea"
+  }
+]

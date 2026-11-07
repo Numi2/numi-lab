@@ -1,0 +1,11 @@
+{
+  "base_commit": "543e59ab32b575b3450b5d946eed17ad54106e7b",
+  "tracked_patch_sha256": "4fffeac874b77682ccac66583d8e69b6460e228871f42cc440962671e1f67786",
+  "retained_untracked": {
+    "apps/crow_eye_check.mm": "d4a088886f922c556f244debe01a6be6149e303ce555a8199f0ee1948a45e0db",
+    "cmake/CheckCrowEye.cmake": "0c0136ce9e79f73f7c1f96b4541b86978f4ec7d3f7da10e6ecd9b9e968d647f9",
+    "include/metalrobo/CollisionVisualProxy.hpp": "1aeaf6bdda5c36a3a7542de5748fe0e410e1506aa924fb665ca1e3f6bee3793d",
+    "src/core/CollisionVisualProxy.cpp": "fbdd613ea16d559125ee03292a18ca777a18b615639ef36a116764ae0ded212f"
+  },
+  "external_artifact_inputs": {}
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "attempt": 1,
+    "source": "src/core/CollisionVisualProxy.cpp",
+    "expected_sha256": "7ccb4d852b2b281f32c7d00e09004a56f8e64f0e3d92a57996495d53e90e2935",
+    "recovered_exact": true
+  },
+  {
+    "attempt": 2,
+    "source": "src/core/CollisionVisualProxy.cpp",
+    "expected_sha256": "c6408920f62bef9ce8d11e2107562e6762fa2791f8b56976c60c1288fc927ac6",
+    "recovered_exact": true
+  },
+  {
+    "attempt": 2,
+    "source": "apps/crow_eye_check.mm",
+    "expected_sha256": "c87200d9d6fbe36f486e5d1cce7b52cd813b6b2c4de1d9959bfbea594f153adb",
+    "recovered_exact": true
+  },
+  {
+    "attempt": 3,
+    "source": "src/core/CollisionVisualProxy.cpp",
+    "expected_sha256": "fbdd613ea16d559125ee03292a18ca777a18b615639ef36a116764ae0ded212f",
+    "recovered_exact": true
+  },
+  {
+    "attempt": 3,
+    "source": "apps/crow_eye_check.mm",
+    "expected_sha256": "7aff6faf4c3b67e848d616e4f8ef638ad86d77303356e6e562c96664f047ac14",
+    "recovered_exact": true
+  },
+  {
+    "attempt": 4,
+    "source": "apps/crow_eye_check.mm",
+    "expected_sha256": "d4a088886f922c556f244debe01a6be6149e303ce555a8199f0ee1948a45e0db",
+    "recovered_exact": true
+  }
+]

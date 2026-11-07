@@ -1,0 +1,1454 @@
+[
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-01/failure.json",
+    "archive": "trials/20261107-head-camera-admission-01/failure.json",
+    "bytes": 203,
+    "sha256": "2a15b1dd3df9907364931471492c79409d878835b52b00d034d3299eb8fb943c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-01/head-camera-geometry.json",
+    "archive": "trials/20261107-head-camera-admission-01/head-camera-geometry.json",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-01/head-camera-geometry.receipt.json",
+    "archive": "trials/20261107-head-camera-admission-01/head-camera-geometry.receipt.json",
+    "bytes": 504,
+    "sha256": "26a904793dc1644337329846fdb1a4a8f3fdaffd0028e10141eeb8d95f65d76e"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-01/head-camera-geometry.stderr",
+    "archive": "trials/20261107-head-camera-admission-01/head-camera-geometry.stderr",
+    "bytes": 101,
+    "sha256": "8a24ff61adf22058d9029e8528b70e501aedc72416bbdb4323c77f50289b29a2"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-01/native-evidence/failure.json",
+    "archive": "trials/20261107-head-camera-admission-01/native-evidence/failure.json",
+    "bytes": 113,
+    "sha256": "63a72c418527fd77c598433b5d5cce863868ad2e8862b9ac97ae475f0ba32521"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-01/native-evidence/measurements.jsonl",
+    "archive": "trials/20261107-head-camera-admission-01/native-evidence/measurements.jsonl",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-01/native-evidence/plan.json",
+    "archive": "trials/20261107-head-camera-admission-01/native-evidence/plan.json",
+    "bytes": 1075,
+    "sha256": "a5118de979704645f6631a76e850a9e987c214eef2c8d323403c4133e0aa1ecf"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-01/plan.json",
+    "archive": "trials/20261107-head-camera-admission-01/plan.json",
+    "bytes": 8859,
+    "sha256": "e6108fbbbd0336045f369b4a9ec0abef4ab288ececf6b8eddd4b64dac0a6463c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-02/failure.json",
+    "archive": "trials/20261107-head-camera-admission-02/failure.json",
+    "bytes": 203,
+    "sha256": "76a8053aa005c3598e67552af174de53fff55a7d5e5390426bfa18202965b4e5"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-02/head-camera-geometry.json",
+    "archive": "trials/20261107-head-camera-admission-02/head-camera-geometry.json",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-02/head-camera-geometry.receipt.json",
+    "archive": "trials/20261107-head-camera-admission-02/head-camera-geometry.receipt.json",
+    "bytes": 504,
+    "sha256": "fb8aa5e6cbb9dc5f8e823498b6f05b9d09fd1a09ac4a8fbbb75cfe47deddc7df"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-02/head-camera-geometry.stderr",
+    "archive": "trials/20261107-head-camera-admission-02/head-camera-geometry.stderr",
+    "bytes": 88,
+    "sha256": "72fa31415b215f229dd46355333f23f172ec1f7bf1fc06a25c5dae44efc360b3"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-02/native-evidence/failure.json",
+    "archive": "trials/20261107-head-camera-admission-02/native-evidence/failure.json",
+    "bytes": 100,
+    "sha256": "4b7811b9169dce0dee0c128623a2d7684e30d6aac8e486a2a3395e7c23d487fb"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-02/native-evidence/measurements.jsonl",
+    "archive": "trials/20261107-head-camera-admission-02/native-evidence/measurements.jsonl",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-02/native-evidence/neutral/accepted-body-states.bin",
+    "archive": "trials/20261107-head-camera-admission-02/native-evidence/neutral/accepted-body-states.bin",
+    "bytes": 5120,
+    "sha256": "91e7e8d2f21171cafbf614dc332b982a159a630ee7253e704d0a89f4419234d0"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-02/native-evidence/plan.json",
+    "archive": "trials/20261107-head-camera-admission-02/native-evidence/plan.json",
+    "bytes": 1242,
+    "sha256": "932aa6542ee9f8342ac8b3af53495a0d0071ac0a7b89397cf4ba8f943e8bd71d"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-02/plan.json",
+    "archive": "trials/20261107-head-camera-admission-02/plan.json",
+    "bytes": 8859,
+    "sha256": "16c9b3626d642d76762961aedc5522db1e439f3c6f66f0c406ce7e0049d8e403"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/head-camera-geometry.json",
+    "archive": "trials/20261107-head-camera-admission-03/head-camera-geometry.json",
+    "bytes": 270,
+    "sha256": "ddc961d261bf843767e41975c49a1c7c92d563488534fcec9ff8cf68251539fd"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/head-camera-geometry.receipt.json",
+    "archive": "trials/20261107-head-camera-admission-03/head-camera-geometry.receipt.json",
+    "bytes": 503,
+    "sha256": "b0b7c264cf54fd5bec4537655b93e4869a2db35d2586574078690397ed6f226c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/head-camera-geometry.stderr",
+    "archive": "trials/20261107-head-camera-admission-03/head-camera-geometry.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/measurements.jsonl",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/measurements.jsonl",
+    "bytes": 1710,
+    "sha256": "fc14c878006548d4f95e9003a663cddd9e5cd42af9f385c5d6787e5b7c82e748"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/accepted-body-states.bin",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/accepted-body-states.bin",
+    "bytes": 5120,
+    "sha256": "91e7e8d2f21171cafbf614dc332b982a159a630ee7253e704d0a89f4419234d0"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/camera-0-lane-0.png",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/camera-0-lane-0.png",
+    "bytes": 3942,
+    "sha256": "881acc05abaced5b1dba82484074727bce8199666862ec7b55230d81c800f855"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/camera-0-lane-1.png",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/camera-0-lane-1.png",
+    "bytes": 3942,
+    "sha256": "881acc05abaced5b1dba82484074727bce8199666862ec7b55230d81c800f855"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/camera-0.depth.f32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/camera-0.depth.f32",
+    "bytes": 153600,
+    "sha256": "3f0cf94bc643af18a01e9e93baca1a7675daa46f0292c1cdd86d1abed7679d5f"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/camera-0.identities.u32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/camera-0.identities.u32",
+    "bytes": 614400,
+    "sha256": "037fb4c46a8dfc10c1fb323219a3f54d7ada5ba2e56846dd3e8a98781013851c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/camera-0.poses.bin",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/camera-0.poses.bin",
+    "bytes": 128,
+    "sha256": "ddfb0927f65970ff446ca444037429e423978a33c0c5e72cf06b1d9f6a4ba7bd"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/camera-0.rgba.f32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/camera-0.rgba.f32",
+    "bytes": 614400,
+    "sha256": "1f4df2d5745d75aad740c10caeb4b478cd6fc50133221e0293982701908f3dde"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/camera-0.validity.u32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/camera-0.validity.u32",
+    "bytes": 153600,
+    "sha256": "09590c35c95b58284b4b5e95b314309b7649b76631cf7ee0d06b865e85251e5c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/camera-1-lane-0.png",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/camera-1-lane-0.png",
+    "bytes": 3599,
+    "sha256": "48f741ae1d8ade2af22e5be88132711370dabd71b68ef968ebbd2cfd3b093ff0"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/camera-1-lane-1.png",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/camera-1-lane-1.png",
+    "bytes": 3599,
+    "sha256": "48f741ae1d8ade2af22e5be88132711370dabd71b68ef968ebbd2cfd3b093ff0"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/camera-1.depth.f32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/camera-1.depth.f32",
+    "bytes": 153600,
+    "sha256": "aac23fb4c9df6408fc6ced75bcfd6b7a7185fde60ee3a98d80a5c0324e56c73b"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/camera-1.identities.u32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/camera-1.identities.u32",
+    "bytes": 614400,
+    "sha256": "075659e5b05957efca4ced2e74d8e44477a3cf43ab04ccf876f9c2dbec7da987"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/camera-1.poses.bin",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/camera-1.poses.bin",
+    "bytes": 128,
+    "sha256": "c7eced2aa6a2f68f850b2aa9efd879194c9d88740270b88596525c97fae4626c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/camera-1.rgba.f32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/camera-1.rgba.f32",
+    "bytes": 614400,
+    "sha256": "1354ca0c75fe21cca46679ea13197d20104792473331a443191c0b4e5fd07390"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/camera-1.validity.u32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/camera-1.validity.u32",
+    "bytes": 153600,
+    "sha256": "d312a879d77b3909b0c66d3097f886e551ec14a3031876ccc76ec07671c68a42"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/camera_occluder.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/camera_occluder.mrvpack",
+    "bytes": 32768,
+    "sha256": "1de8f58fb80f631043eacaf7a34cd1bd0ba39d7f4507fc2c076071a7c3d3005c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/camera_target.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/camera_target.mrvpack",
+    "bytes": 32768,
+    "sha256": "a20954093b9cc6413a4c311ca0f35f4879c13e2c25ed59fb9619798a564fe5b5"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/locomotion_ground.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/locomotion_ground.mrvpack",
+    "bytes": 32768,
+    "sha256": "18c90c155f01e12e3a3a5e49264407ca37ea369214f4d90d1ee5ae1c5e050cc0"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/robot.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/robot.mrvpack",
+    "bytes": 57344,
+    "sha256": "86f2d7ffb486395d10ac9c1e76f8a1cbc6bd3b6d8a60e9d38baf3a930874e56e"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/neutral/visual-scene.json",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/neutral/visual-scene.json",
+    "bytes": 1066,
+    "sha256": "b41eb22757368b1ed72ee8ccc5df0cf6ebb8ca0f646f9468fbe631fea0ae6cd9"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/accepted-body-states.bin",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/accepted-body-states.bin",
+    "bytes": 5120,
+    "sha256": "310c5886546b84ed7cf1fe58bc682b4f865ce0f7f89fd8599644df9dfb65a592"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/camera-0-lane-0.png",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/camera-0-lane-0.png",
+    "bytes": 3300,
+    "sha256": "03be454b164049d5ec6fb8707517dc25e43bf93128ef7e732ec1fd7a09502671"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/camera-0-lane-1.png",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/camera-0-lane-1.png",
+    "bytes": 3300,
+    "sha256": "03be454b164049d5ec6fb8707517dc25e43bf93128ef7e732ec1fd7a09502671"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/camera-0.depth.f32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/camera-0.depth.f32",
+    "bytes": 153600,
+    "sha256": "317c4598fed283179d74417ca47bc872d4884550fb5fa4cc2193617a9fbf7dbd"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/camera-0.identities.u32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/camera-0.identities.u32",
+    "bytes": 614400,
+    "sha256": "8b83349b77d7782ed241ee3ebef8e2a40ab204c95c465f29d1b6219d889df329"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/camera-0.poses.bin",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/camera-0.poses.bin",
+    "bytes": 128,
+    "sha256": "ddfb0927f65970ff446ca444037429e423978a33c0c5e72cf06b1d9f6a4ba7bd"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/camera-0.rgba.f32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/camera-0.rgba.f32",
+    "bytes": 614400,
+    "sha256": "3e669e2bf10c84dde703134e07ca01c579a3695179a9110e4e695e0ad64239e3"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/camera-0.validity.u32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/camera-0.validity.u32",
+    "bytes": 153600,
+    "sha256": "a09b0128ac61c8456a9cda218814756cb567fc7ed0c36f82f12348fa0e1f640f"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/camera-1-lane-0.png",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/camera-1-lane-0.png",
+    "bytes": 3133,
+    "sha256": "4b2b140829cb97d2494e412b8d98f599f95954b147a1d250d78fdf0641e65704"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/camera-1-lane-1.png",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/camera-1-lane-1.png",
+    "bytes": 3133,
+    "sha256": "4b2b140829cb97d2494e412b8d98f599f95954b147a1d250d78fdf0641e65704"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/camera-1.depth.f32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/camera-1.depth.f32",
+    "bytes": 153600,
+    "sha256": "19d4a56a24e84bc092f4c58f8757bc8a5173bcf8efb3581387e83d4f4a1fbf7a"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/camera-1.identities.u32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/camera-1.identities.u32",
+    "bytes": 614400,
+    "sha256": "0e7bd8c08dc94d2fe872307c86b04388dfcb697ec44d9f850794f904e372358a"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/camera-1.poses.bin",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/camera-1.poses.bin",
+    "bytes": 128,
+    "sha256": "c7eced2aa6a2f68f850b2aa9efd879194c9d88740270b88596525c97fae4626c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/camera-1.rgba.f32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/camera-1.rgba.f32",
+    "bytes": 614400,
+    "sha256": "30e682b16f535c215ec7e9e83a25a894928e92bf0f0331994fd2ce3f6c486277"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/camera-1.validity.u32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/camera-1.validity.u32",
+    "bytes": 153600,
+    "sha256": "c3e53778956c0ef89ac9a51f4d6ac922bce0737cbd960fa141ab99fb59997551"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/camera_occluder.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/camera_occluder.mrvpack",
+    "bytes": 32768,
+    "sha256": "1de8f58fb80f631043eacaf7a34cd1bd0ba39d7f4507fc2c076071a7c3d3005c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/camera_target.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/camera_target.mrvpack",
+    "bytes": 32768,
+    "sha256": "a20954093b9cc6413a4c311ca0f35f4879c13e2c25ed59fb9619798a564fe5b5"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/locomotion_ground.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/locomotion_ground.mrvpack",
+    "bytes": 32768,
+    "sha256": "18c90c155f01e12e3a3a5e49264407ca37ea369214f4d90d1ee5ae1c5e050cc0"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/robot.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/robot.mrvpack",
+    "bytes": 57344,
+    "sha256": "86f2d7ffb486395d10ac9c1e76f8a1cbc6bd3b6d8a60e9d38baf3a930874e56e"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/occluded/visual-scene.json",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/occluded/visual-scene.json",
+    "bytes": 1067,
+    "sha256": "d4b10a962e5d78b526993480049c744782f24aa4806375efaad0a5adef38f624"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/accepted-body-states.bin",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/accepted-body-states.bin",
+    "bytes": 5120,
+    "sha256": "e2b08af487036cda01cf294282069c98bd31edf9b2f369d1ddf546d1e3c610bc"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/camera-0-lane-0.png",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/camera-0-lane-0.png",
+    "bytes": 3638,
+    "sha256": "8c03c9c580c144427b3bb62f1001877c5f8c5c492220ee6fc5f0c98eba13e8a5"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/camera-0-lane-1.png",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/camera-0-lane-1.png",
+    "bytes": 3638,
+    "sha256": "8c03c9c580c144427b3bb62f1001877c5f8c5c492220ee6fc5f0c98eba13e8a5"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/camera-0.depth.f32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/camera-0.depth.f32",
+    "bytes": 153600,
+    "sha256": "9c9c9a6459f40f78ba2c777580fbf72ea95bd96c588d040db1dd49867f9e1d8b"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/camera-0.identities.u32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/camera-0.identities.u32",
+    "bytes": 614400,
+    "sha256": "0aa81b26173f48f92783e2d5efa58d25c01b4a88a4d3c18e3bf7ae24ebb0e238"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/camera-0.poses.bin",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/camera-0.poses.bin",
+    "bytes": 128,
+    "sha256": "5959804f54e0cf9a538dac359b4f1af8d8204063506f8773b514d224ada892fd"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/camera-0.rgba.f32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/camera-0.rgba.f32",
+    "bytes": 614400,
+    "sha256": "e93aedea11c978af1b3f5c7ca38bcd61c32d27c7011f0116a4a8edeadca40505"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/camera-0.validity.u32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/camera-0.validity.u32",
+    "bytes": 153600,
+    "sha256": "ad7688c8e29df213beab86c58c41ff2da3976d9406d6d5c6005941a6d238994b"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/camera-1-lane-0.png",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/camera-1-lane-0.png",
+    "bytes": 4916,
+    "sha256": "1beb0083039c04828af62dcf0cf34a60733fa356d87eefe8327ea1d5e5adab7b"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/camera-1-lane-1.png",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/camera-1-lane-1.png",
+    "bytes": 4916,
+    "sha256": "1beb0083039c04828af62dcf0cf34a60733fa356d87eefe8327ea1d5e5adab7b"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/camera-1.depth.f32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/camera-1.depth.f32",
+    "bytes": 153600,
+    "sha256": "40f3b0b395f79c7bcf3812bc54f2e821a77445906ef3b8d41028a5de8ef805f1"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/camera-1.identities.u32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/camera-1.identities.u32",
+    "bytes": 614400,
+    "sha256": "6b31fb5404de04f9afaccb0fdd1098e734eceaa37bf963b25498f00ca24b0346"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/camera-1.poses.bin",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/camera-1.poses.bin",
+    "bytes": 128,
+    "sha256": "4d5f017fa6ae2feaf56ad162ce97e345735314913cad360f48941af4d7731e8e"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/camera-1.rgba.f32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/camera-1.rgba.f32",
+    "bytes": 614400,
+    "sha256": "dfc82bc66b3aeab7198a6fa5bfd5667cd3812cf75558ed19f325f58efd7a475e"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/camera-1.validity.u32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/camera-1.validity.u32",
+    "bytes": 153600,
+    "sha256": "a57a46eb5c36625c302ea11b972cc5150a5a8eb6f1c7bb3b81a57cf5043bdddd"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/camera_occluder.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/camera_occluder.mrvpack",
+    "bytes": 32768,
+    "sha256": "1de8f58fb80f631043eacaf7a34cd1bd0ba39d7f4507fc2c076071a7c3d3005c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/camera_target.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/camera_target.mrvpack",
+    "bytes": 32768,
+    "sha256": "a20954093b9cc6413a4c311ca0f35f4879c13e2c25ed59fb9619798a564fe5b5"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/locomotion_ground.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/locomotion_ground.mrvpack",
+    "bytes": 32768,
+    "sha256": "18c90c155f01e12e3a3a5e49264407ca37ea369214f4d90d1ee5ae1c5e050cc0"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/robot.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/robot.mrvpack",
+    "bytes": 57344,
+    "sha256": "86f2d7ffb486395d10ac9c1e76f8a1cbc6bd3b6d8a60e9d38baf3a930874e56e"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/pitch/visual-scene.json",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/pitch/visual-scene.json",
+    "bytes": 1067,
+    "sha256": "cd87bbb5d5225e74a0f7b1f7389363acfd716e2427b7afa0de3cc6b9ef49d38e"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/plan.json",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/plan.json",
+    "bytes": 1278,
+    "sha256": "aad5e3373e2536c9995688eb763ffedcb4666ff6fc342457cd6d1abcc9b3f577"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/summary.json",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/summary.json",
+    "bytes": 270,
+    "sha256": "ddc961d261bf843767e41975c49a1c7c92d563488534fcec9ff8cf68251539fd"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/accepted-body-states.bin",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/accepted-body-states.bin",
+    "bytes": 5120,
+    "sha256": "9a3305fc1b0f7998c2a16a7389c487a885e45d48509c99fd340e5e9ef26dda31"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/camera-0-lane-0.png",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/camera-0-lane-0.png",
+    "bytes": 2933,
+    "sha256": "77c91236ace7e9e4b17d792d3789fff5673a0ce41d413f7ec39734a30ba75deb"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/camera-0-lane-1.png",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/camera-0-lane-1.png",
+    "bytes": 2620,
+    "sha256": "c8c170508c59e66b832a8255d53e1d76fd7308011106acedd27e06f8d3a49929"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/camera-0.depth.f32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/camera-0.depth.f32",
+    "bytes": 153600,
+    "sha256": "097e2bc94dff7e703cfde2bc818b41ec126d3355533dda126e6d5df088269880"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/camera-0.identities.u32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/camera-0.identities.u32",
+    "bytes": 614400,
+    "sha256": "8a1e6aeb6ff82c6f81d1b65374f2d1a2dc9d41394a98b7ac74bba004a26b01d6"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/camera-0.poses.bin",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/camera-0.poses.bin",
+    "bytes": 128,
+    "sha256": "c0902b627e7f3f95346cd6573b9c16c083a2c3c9a9952a5a1152e6fdf98fbb8e"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/camera-0.rgba.f32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/camera-0.rgba.f32",
+    "bytes": 614400,
+    "sha256": "24e342e79e560961e871aeebaa97cc8c8c3a12af1dd4bd907a37838ee22c7a34"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/camera-0.validity.u32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/camera-0.validity.u32",
+    "bytes": 153600,
+    "sha256": "730c8239d439748ffd4eb4c3cbba63f6c3de44816dd827d6c05ebaf6707200cf"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/camera-1-lane-0.png",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/camera-1-lane-0.png",
+    "bytes": 3984,
+    "sha256": "dc3088ad0fa363444531bb0e23b23fce9fe1e52214e89a56690f71c9db7f7d86"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/camera-1-lane-1.png",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/camera-1-lane-1.png",
+    "bytes": 3644,
+    "sha256": "75cde6e9b91e1e09ae75712539327f8c01fd33d95fbeec137f2e3b325a9f57ac"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/camera-1.depth.f32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/camera-1.depth.f32",
+    "bytes": 153600,
+    "sha256": "853b7c2831328cf6a8d38a311abbfdde1eefbf6333d074e018ec81dc4c776dbd"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/camera-1.identities.u32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/camera-1.identities.u32",
+    "bytes": 614400,
+    "sha256": "84d2384dbb77d9f374021c63a24c6e691c0967e2586c4b160ef7d9ebfaa9a460"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/camera-1.poses.bin",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/camera-1.poses.bin",
+    "bytes": 128,
+    "sha256": "5722c7fa10e383f3fb7de7bbd755a672d7dad2aae1b0497fa55b57cffbca6e14"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/camera-1.rgba.f32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/camera-1.rgba.f32",
+    "bytes": 614400,
+    "sha256": "2adccd377f7855ad5b62f3fae75308f2ec2d1b7cd281d3934481336a5a827d96"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/camera-1.validity.u32",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/camera-1.validity.u32",
+    "bytes": 153600,
+    "sha256": "ec0585cb379e17a585cfbe91c69c32685eaa40daade018b97b89bd775c901c3d"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/camera_occluder.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/camera_occluder.mrvpack",
+    "bytes": 32768,
+    "sha256": "1de8f58fb80f631043eacaf7a34cd1bd0ba39d7f4507fc2c076071a7c3d3005c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/camera_target.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/camera_target.mrvpack",
+    "bytes": 32768,
+    "sha256": "a20954093b9cc6413a4c311ca0f35f4879c13e2c25ed59fb9619798a564fe5b5"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/locomotion_ground.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/locomotion_ground.mrvpack",
+    "bytes": 32768,
+    "sha256": "18c90c155f01e12e3a3a5e49264407ca37ea369214f4d90d1ee5ae1c5e050cc0"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/robot.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/robot.mrvpack",
+    "bytes": 57344,
+    "sha256": "86f2d7ffb486395d10ac9c1e76f8a1cbc6bd3b6d8a60e9d38baf3a930874e56e"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/native-evidence/yaw/visual-scene.json",
+    "archive": "trials/20261107-head-camera-admission-03/native-evidence/yaw/visual-scene.json",
+    "bytes": 1068,
+    "sha256": "82428f58e1b27e3088ca6922d38245b02de54b9c4edbb2ea951e58d7b7bc2d11"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/plan.json",
+    "archive": "trials/20261107-head-camera-admission-03/plan.json",
+    "bytes": 8859,
+    "sha256": "eceab7ce64a85135b0882d889a2c5317692314699ce20ba3d4bf0527aac14026"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-03/summary.json",
+    "archive": "trials/20261107-head-camera-admission-03/summary.json",
+    "bytes": 307,
+    "sha256": "ec7c48c70d344af5a4b01a62ee7e349961cddfae510d27da626fc6d4fbb58d6b"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/head-camera-geometry.json",
+    "archive": "trials/20261107-head-camera-admission-04/head-camera-geometry.json",
+    "bytes": 270,
+    "sha256": "ddc961d261bf843767e41975c49a1c7c92d563488534fcec9ff8cf68251539fd"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/head-camera-geometry.receipt.json",
+    "archive": "trials/20261107-head-camera-admission-04/head-camera-geometry.receipt.json",
+    "bytes": 503,
+    "sha256": "d9b7369639d720b4b6cfdf7d69224808e5ae7a623a9fcdf5c533cf254cce08de"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/head-camera-geometry.stderr",
+    "archive": "trials/20261107-head-camera-admission-04/head-camera-geometry.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/authoring-controls.json",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/authoring-controls.json",
+    "bytes": 185,
+    "sha256": "2bcd9541d636f07b6bb1098f29f13b21366c0d5985cb1f5d52c07c111a44c4f9"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/measurements.jsonl",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/measurements.jsonl",
+    "bytes": 1945,
+    "sha256": "11f199ca6c2d9e10e01acbc50d7189a87794a9ee009ad323d170919badd945c4"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/accepted-body-states.bin",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/accepted-body-states.bin",
+    "bytes": 5120,
+    "sha256": "91e7e8d2f21171cafbf614dc332b982a159a630ee7253e704d0a89f4419234d0"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/camera-0-lane-0.png",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/camera-0-lane-0.png",
+    "bytes": 3942,
+    "sha256": "881acc05abaced5b1dba82484074727bce8199666862ec7b55230d81c800f855"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/camera-0-lane-1.png",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/camera-0-lane-1.png",
+    "bytes": 3942,
+    "sha256": "881acc05abaced5b1dba82484074727bce8199666862ec7b55230d81c800f855"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/camera-0.depth.f32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/camera-0.depth.f32",
+    "bytes": 153600,
+    "sha256": "3f0cf94bc643af18a01e9e93baca1a7675daa46f0292c1cdd86d1abed7679d5f"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/camera-0.identities.u32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/camera-0.identities.u32",
+    "bytes": 614400,
+    "sha256": "037fb4c46a8dfc10c1fb323219a3f54d7ada5ba2e56846dd3e8a98781013851c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/camera-0.layout.json",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/camera-0.layout.json",
+    "bytes": 454,
+    "sha256": "d89af695539f2ad6b7a6313e0b088c57f6342708e3a49a74231ebfe390b03979"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/camera-0.poses.bin",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/camera-0.poses.bin",
+    "bytes": 128,
+    "sha256": "ddfb0927f65970ff446ca444037429e423978a33c0c5e72cf06b1d9f6a4ba7bd"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/camera-0.rgba.f32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/camera-0.rgba.f32",
+    "bytes": 614400,
+    "sha256": "1f4df2d5745d75aad740c10caeb4b478cd6fc50133221e0293982701908f3dde"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/camera-0.validity.u32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/camera-0.validity.u32",
+    "bytes": 153600,
+    "sha256": "09590c35c95b58284b4b5e95b314309b7649b76631cf7ee0d06b865e85251e5c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/camera-1-lane-0.png",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/camera-1-lane-0.png",
+    "bytes": 3599,
+    "sha256": "48f741ae1d8ade2af22e5be88132711370dabd71b68ef968ebbd2cfd3b093ff0"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/camera-1-lane-1.png",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/camera-1-lane-1.png",
+    "bytes": 3599,
+    "sha256": "48f741ae1d8ade2af22e5be88132711370dabd71b68ef968ebbd2cfd3b093ff0"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/camera-1.depth.f32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/camera-1.depth.f32",
+    "bytes": 153600,
+    "sha256": "aac23fb4c9df6408fc6ced75bcfd6b7a7185fde60ee3a98d80a5c0324e56c73b"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/camera-1.identities.u32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/camera-1.identities.u32",
+    "bytes": 614400,
+    "sha256": "075659e5b05957efca4ced2e74d8e44477a3cf43ab04ccf876f9c2dbec7da987"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/camera-1.layout.json",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/camera-1.layout.json",
+    "bytes": 454,
+    "sha256": "d89af695539f2ad6b7a6313e0b088c57f6342708e3a49a74231ebfe390b03979"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/camera-1.poses.bin",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/camera-1.poses.bin",
+    "bytes": 128,
+    "sha256": "c7eced2aa6a2f68f850b2aa9efd879194c9d88740270b88596525c97fae4626c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/camera-1.rgba.f32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/camera-1.rgba.f32",
+    "bytes": 614400,
+    "sha256": "1354ca0c75fe21cca46679ea13197d20104792473331a443191c0b4e5fd07390"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/camera-1.validity.u32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/camera-1.validity.u32",
+    "bytes": 153600,
+    "sha256": "d312a879d77b3909b0c66d3097f886e551ec14a3031876ccc76ec07671c68a42"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/camera_occluder.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/camera_occluder.mrvpack",
+    "bytes": 32768,
+    "sha256": "1de8f58fb80f631043eacaf7a34cd1bd0ba39d7f4507fc2c076071a7c3d3005c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/camera_target.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/camera_target.mrvpack",
+    "bytes": 32768,
+    "sha256": "a20954093b9cc6413a4c311ca0f35f4879c13e2c25ed59fb9619798a564fe5b5"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/locomotion_ground.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/locomotion_ground.mrvpack",
+    "bytes": 32768,
+    "sha256": "18c90c155f01e12e3a3a5e49264407ca37ea369214f4d90d1ee5ae1c5e050cc0"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/robot.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/robot.mrvpack",
+    "bytes": 57344,
+    "sha256": "86f2d7ffb486395d10ac9c1e76f8a1cbc6bd3b6d8a60e9d38baf3a930874e56e"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/neutral/visual-scene.json",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/neutral/visual-scene.json",
+    "bytes": 1066,
+    "sha256": "c7b3565f97a6eb7f3325c86915e7526ee63be9fb47f398cb805b55cfe5d23d8c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/accepted-body-states.bin",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/accepted-body-states.bin",
+    "bytes": 5120,
+    "sha256": "310c5886546b84ed7cf1fe58bc682b4f865ce0f7f89fd8599644df9dfb65a592"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/camera-0-lane-0.png",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/camera-0-lane-0.png",
+    "bytes": 3300,
+    "sha256": "03be454b164049d5ec6fb8707517dc25e43bf93128ef7e732ec1fd7a09502671"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/camera-0-lane-1.png",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/camera-0-lane-1.png",
+    "bytes": 3300,
+    "sha256": "03be454b164049d5ec6fb8707517dc25e43bf93128ef7e732ec1fd7a09502671"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/camera-0.depth.f32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/camera-0.depth.f32",
+    "bytes": 153600,
+    "sha256": "317c4598fed283179d74417ca47bc872d4884550fb5fa4cc2193617a9fbf7dbd"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/camera-0.identities.u32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/camera-0.identities.u32",
+    "bytes": 614400,
+    "sha256": "8b83349b77d7782ed241ee3ebef8e2a40ab204c95c465f29d1b6219d889df329"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/camera-0.layout.json",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/camera-0.layout.json",
+    "bytes": 454,
+    "sha256": "d89af695539f2ad6b7a6313e0b088c57f6342708e3a49a74231ebfe390b03979"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/camera-0.poses.bin",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/camera-0.poses.bin",
+    "bytes": 128,
+    "sha256": "ddfb0927f65970ff446ca444037429e423978a33c0c5e72cf06b1d9f6a4ba7bd"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/camera-0.rgba.f32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/camera-0.rgba.f32",
+    "bytes": 614400,
+    "sha256": "3e669e2bf10c84dde703134e07ca01c579a3695179a9110e4e695e0ad64239e3"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/camera-0.validity.u32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/camera-0.validity.u32",
+    "bytes": 153600,
+    "sha256": "a09b0128ac61c8456a9cda218814756cb567fc7ed0c36f82f12348fa0e1f640f"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/camera-1-lane-0.png",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/camera-1-lane-0.png",
+    "bytes": 3133,
+    "sha256": "4b2b140829cb97d2494e412b8d98f599f95954b147a1d250d78fdf0641e65704"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/camera-1-lane-1.png",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/camera-1-lane-1.png",
+    "bytes": 3133,
+    "sha256": "4b2b140829cb97d2494e412b8d98f599f95954b147a1d250d78fdf0641e65704"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/camera-1.depth.f32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/camera-1.depth.f32",
+    "bytes": 153600,
+    "sha256": "19d4a56a24e84bc092f4c58f8757bc8a5173bcf8efb3581387e83d4f4a1fbf7a"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/camera-1.identities.u32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/camera-1.identities.u32",
+    "bytes": 614400,
+    "sha256": "0e7bd8c08dc94d2fe872307c86b04388dfcb697ec44d9f850794f904e372358a"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/camera-1.layout.json",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/camera-1.layout.json",
+    "bytes": 454,
+    "sha256": "d89af695539f2ad6b7a6313e0b088c57f6342708e3a49a74231ebfe390b03979"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/camera-1.poses.bin",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/camera-1.poses.bin",
+    "bytes": 128,
+    "sha256": "c7eced2aa6a2f68f850b2aa9efd879194c9d88740270b88596525c97fae4626c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/camera-1.rgba.f32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/camera-1.rgba.f32",
+    "bytes": 614400,
+    "sha256": "30e682b16f535c215ec7e9e83a25a894928e92bf0f0331994fd2ce3f6c486277"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/camera-1.validity.u32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/camera-1.validity.u32",
+    "bytes": 153600,
+    "sha256": "c3e53778956c0ef89ac9a51f4d6ac922bce0737cbd960fa141ab99fb59997551"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/camera_occluder.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/camera_occluder.mrvpack",
+    "bytes": 32768,
+    "sha256": "1de8f58fb80f631043eacaf7a34cd1bd0ba39d7f4507fc2c076071a7c3d3005c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/camera_target.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/camera_target.mrvpack",
+    "bytes": 32768,
+    "sha256": "a20954093b9cc6413a4c311ca0f35f4879c13e2c25ed59fb9619798a564fe5b5"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/locomotion_ground.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/locomotion_ground.mrvpack",
+    "bytes": 32768,
+    "sha256": "18c90c155f01e12e3a3a5e49264407ca37ea369214f4d90d1ee5ae1c5e050cc0"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/robot.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/robot.mrvpack",
+    "bytes": 57344,
+    "sha256": "86f2d7ffb486395d10ac9c1e76f8a1cbc6bd3b6d8a60e9d38baf3a930874e56e"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/occluded/visual-scene.json",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/occluded/visual-scene.json",
+    "bytes": 1066,
+    "sha256": "4684485a9627885b2f7373ca964e5d038ed0c377fbb46662e7d241ecaca26b81"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/accepted-body-states.bin",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/accepted-body-states.bin",
+    "bytes": 5120,
+    "sha256": "e2b08af487036cda01cf294282069c98bd31edf9b2f369d1ddf546d1e3c610bc"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/camera-0-lane-0.png",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/camera-0-lane-0.png",
+    "bytes": 3638,
+    "sha256": "8c03c9c580c144427b3bb62f1001877c5f8c5c492220ee6fc5f0c98eba13e8a5"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/camera-0-lane-1.png",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/camera-0-lane-1.png",
+    "bytes": 3638,
+    "sha256": "8c03c9c580c144427b3bb62f1001877c5f8c5c492220ee6fc5f0c98eba13e8a5"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/camera-0.depth.f32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/camera-0.depth.f32",
+    "bytes": 153600,
+    "sha256": "9c9c9a6459f40f78ba2c777580fbf72ea95bd96c588d040db1dd49867f9e1d8b"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/camera-0.identities.u32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/camera-0.identities.u32",
+    "bytes": 614400,
+    "sha256": "0aa81b26173f48f92783e2d5efa58d25c01b4a88a4d3c18e3bf7ae24ebb0e238"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/camera-0.layout.json",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/camera-0.layout.json",
+    "bytes": 454,
+    "sha256": "d89af695539f2ad6b7a6313e0b088c57f6342708e3a49a74231ebfe390b03979"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/camera-0.poses.bin",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/camera-0.poses.bin",
+    "bytes": 128,
+    "sha256": "5959804f54e0cf9a538dac359b4f1af8d8204063506f8773b514d224ada892fd"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/camera-0.rgba.f32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/camera-0.rgba.f32",
+    "bytes": 614400,
+    "sha256": "e93aedea11c978af1b3f5c7ca38bcd61c32d27c7011f0116a4a8edeadca40505"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/camera-0.validity.u32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/camera-0.validity.u32",
+    "bytes": 153600,
+    "sha256": "ad7688c8e29df213beab86c58c41ff2da3976d9406d6d5c6005941a6d238994b"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/camera-1-lane-0.png",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/camera-1-lane-0.png",
+    "bytes": 4916,
+    "sha256": "1beb0083039c04828af62dcf0cf34a60733fa356d87eefe8327ea1d5e5adab7b"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/camera-1-lane-1.png",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/camera-1-lane-1.png",
+    "bytes": 4916,
+    "sha256": "1beb0083039c04828af62dcf0cf34a60733fa356d87eefe8327ea1d5e5adab7b"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/camera-1.depth.f32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/camera-1.depth.f32",
+    "bytes": 153600,
+    "sha256": "40f3b0b395f79c7bcf3812bc54f2e821a77445906ef3b8d41028a5de8ef805f1"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/camera-1.identities.u32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/camera-1.identities.u32",
+    "bytes": 614400,
+    "sha256": "6b31fb5404de04f9afaccb0fdd1098e734eceaa37bf963b25498f00ca24b0346"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/camera-1.layout.json",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/camera-1.layout.json",
+    "bytes": 454,
+    "sha256": "d89af695539f2ad6b7a6313e0b088c57f6342708e3a49a74231ebfe390b03979"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/camera-1.poses.bin",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/camera-1.poses.bin",
+    "bytes": 128,
+    "sha256": "4d5f017fa6ae2feaf56ad162ce97e345735314913cad360f48941af4d7731e8e"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/camera-1.rgba.f32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/camera-1.rgba.f32",
+    "bytes": 614400,
+    "sha256": "dfc82bc66b3aeab7198a6fa5bfd5667cd3812cf75558ed19f325f58efd7a475e"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/camera-1.validity.u32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/camera-1.validity.u32",
+    "bytes": 153600,
+    "sha256": "a57a46eb5c36625c302ea11b972cc5150a5a8eb6f1c7bb3b81a57cf5043bdddd"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/camera_occluder.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/camera_occluder.mrvpack",
+    "bytes": 32768,
+    "sha256": "1de8f58fb80f631043eacaf7a34cd1bd0ba39d7f4507fc2c076071a7c3d3005c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/camera_target.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/camera_target.mrvpack",
+    "bytes": 32768,
+    "sha256": "a20954093b9cc6413a4c311ca0f35f4879c13e2c25ed59fb9619798a564fe5b5"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/locomotion_ground.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/locomotion_ground.mrvpack",
+    "bytes": 32768,
+    "sha256": "18c90c155f01e12e3a3a5e49264407ca37ea369214f4d90d1ee5ae1c5e050cc0"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/robot.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/robot.mrvpack",
+    "bytes": 57344,
+    "sha256": "86f2d7ffb486395d10ac9c1e76f8a1cbc6bd3b6d8a60e9d38baf3a930874e56e"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/pitch/visual-scene.json",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/pitch/visual-scene.json",
+    "bytes": 1066,
+    "sha256": "af681386835cfd268314a2959dcc1b579df3f52cba3f7665d448359a39a8f5d3"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/plan.json",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/plan.json",
+    "bytes": 1400,
+    "sha256": "3c410e5f537786655809dba87afbac2cf925f7baee59c2be006c21ee39943a3c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/summary.json",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/summary.json",
+    "bytes": 270,
+    "sha256": "ddc961d261bf843767e41975c49a1c7c92d563488534fcec9ff8cf68251539fd"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/accepted-body-states.bin",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/accepted-body-states.bin",
+    "bytes": 5120,
+    "sha256": "9a3305fc1b0f7998c2a16a7389c487a885e45d48509c99fd340e5e9ef26dda31"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/camera-0-lane-0.png",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/camera-0-lane-0.png",
+    "bytes": 2933,
+    "sha256": "77c91236ace7e9e4b17d792d3789fff5673a0ce41d413f7ec39734a30ba75deb"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/camera-0-lane-1.png",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/camera-0-lane-1.png",
+    "bytes": 2620,
+    "sha256": "c8c170508c59e66b832a8255d53e1d76fd7308011106acedd27e06f8d3a49929"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/camera-0.depth.f32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/camera-0.depth.f32",
+    "bytes": 153600,
+    "sha256": "097e2bc94dff7e703cfde2bc818b41ec126d3355533dda126e6d5df088269880"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/camera-0.identities.u32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/camera-0.identities.u32",
+    "bytes": 614400,
+    "sha256": "8a1e6aeb6ff82c6f81d1b65374f2d1a2dc9d41394a98b7ac74bba004a26b01d6"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/camera-0.layout.json",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/camera-0.layout.json",
+    "bytes": 454,
+    "sha256": "d89af695539f2ad6b7a6313e0b088c57f6342708e3a49a74231ebfe390b03979"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/camera-0.poses.bin",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/camera-0.poses.bin",
+    "bytes": 128,
+    "sha256": "c0902b627e7f3f95346cd6573b9c16c083a2c3c9a9952a5a1152e6fdf98fbb8e"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/camera-0.rgba.f32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/camera-0.rgba.f32",
+    "bytes": 614400,
+    "sha256": "24e342e79e560961e871aeebaa97cc8c8c3a12af1dd4bd907a37838ee22c7a34"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/camera-0.validity.u32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/camera-0.validity.u32",
+    "bytes": 153600,
+    "sha256": "730c8239d439748ffd4eb4c3cbba63f6c3de44816dd827d6c05ebaf6707200cf"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/camera-1-lane-0.png",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/camera-1-lane-0.png",
+    "bytes": 3984,
+    "sha256": "dc3088ad0fa363444531bb0e23b23fce9fe1e52214e89a56690f71c9db7f7d86"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/camera-1-lane-1.png",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/camera-1-lane-1.png",
+    "bytes": 3644,
+    "sha256": "75cde6e9b91e1e09ae75712539327f8c01fd33d95fbeec137f2e3b325a9f57ac"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/camera-1.depth.f32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/camera-1.depth.f32",
+    "bytes": 153600,
+    "sha256": "853b7c2831328cf6a8d38a311abbfdde1eefbf6333d074e018ec81dc4c776dbd"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/camera-1.identities.u32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/camera-1.identities.u32",
+    "bytes": 614400,
+    "sha256": "84d2384dbb77d9f374021c63a24c6e691c0967e2586c4b160ef7d9ebfaa9a460"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/camera-1.layout.json",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/camera-1.layout.json",
+    "bytes": 454,
+    "sha256": "d89af695539f2ad6b7a6313e0b088c57f6342708e3a49a74231ebfe390b03979"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/camera-1.poses.bin",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/camera-1.poses.bin",
+    "bytes": 128,
+    "sha256": "5722c7fa10e383f3fb7de7bbd755a672d7dad2aae1b0497fa55b57cffbca6e14"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/camera-1.rgba.f32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/camera-1.rgba.f32",
+    "bytes": 614400,
+    "sha256": "2adccd377f7855ad5b62f3fae75308f2ec2d1b7cd281d3934481336a5a827d96"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/camera-1.validity.u32",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/camera-1.validity.u32",
+    "bytes": 153600,
+    "sha256": "ec0585cb379e17a585cfbe91c69c32685eaa40daade018b97b89bd775c901c3d"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/camera_occluder.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/camera_occluder.mrvpack",
+    "bytes": 32768,
+    "sha256": "1de8f58fb80f631043eacaf7a34cd1bd0ba39d7f4507fc2c076071a7c3d3005c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/camera_target.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/camera_target.mrvpack",
+    "bytes": 32768,
+    "sha256": "a20954093b9cc6413a4c311ca0f35f4879c13e2c25ed59fb9619798a564fe5b5"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/locomotion_ground.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/locomotion_ground.mrvpack",
+    "bytes": 32768,
+    "sha256": "18c90c155f01e12e3a3a5e49264407ca37ea369214f4d90d1ee5ae1c5e050cc0"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/robot.mrvpack",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/robot.mrvpack",
+    "bytes": 57344,
+    "sha256": "86f2d7ffb486395d10ac9c1e76f8a1cbc6bd3b6d8a60e9d38baf3a930874e56e"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/native-evidence/yaw/visual-scene.json",
+    "archive": "trials/20261107-head-camera-admission-04/native-evidence/yaw/visual-scene.json",
+    "bytes": 1066,
+    "sha256": "f2b68be6739f344ac4706a41492e96685576ed5a3588c75c99356d7ad7335dd0"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/plan.json",
+    "archive": "trials/20261107-head-camera-admission-04/plan.json",
+    "bytes": 8859,
+    "sha256": "afabd9236dae1898ac14be61ed4aac3fca0a72a0db7fd437abd0ac022fc0f5ff"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-admission-04/summary.json",
+    "archive": "trials/20261107-head-camera-admission-04/summary.json",
+    "bytes": 307,
+    "sha256": "ec7c48c70d344af5a4b01a62ee7e349961cddfae510d27da626fc6d4fbb58d6b"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/ordinary-chunk1.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/ordinary-chunk1.json",
+    "bytes": 24612,
+    "sha256": "619678340ee05bcf9bd94e7912b0ed51d8831a45c9dd335542136e82ca9e6bdc"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/ordinary-chunk1.receipt.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/ordinary-chunk1.receipt.json",
+    "bytes": 976,
+    "sha256": "08885c45f446ff1b000727f49cdb1a6021707259915f2788a37642efd42bd803"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/ordinary-chunk1.stderr",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/ordinary-chunk1.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/ordinary-chunk8.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/ordinary-chunk8.json",
+    "bytes": 24611,
+    "sha256": "3c19249e88e46f3f258c3f8c90e618fad97ab9dc2678ebf244772f4e10a689de"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/ordinary-chunk8.receipt.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/ordinary-chunk8.receipt.json",
+    "bytes": 976,
+    "sha256": "944615598a8d62e3700f95e90f052d83e2ffa40cd3181411122ffacaf282c98f"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/ordinary-chunk8.stderr",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/ordinary-chunk8.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/plan.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/plan.json",
+    "bytes": 9636,
+    "sha256": "c7b08f84ec38ee04402531d91008ac133bcadf491e3b25f1e1b474354bc2c8f9"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/residual-chunk1.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/residual-chunk1.json",
+    "bytes": 24382,
+    "sha256": "46d2b1a4112e4521aac1201ee5d985636d86faba8aae152c9a655ade1bf5cd69"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/residual-chunk1.receipt.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/residual-chunk1.receipt.json",
+    "bytes": 1136,
+    "sha256": "49c311c4f1f6d4b1f5b6dc673cbad71ca4a8a9275dfbb056d2fd0faca21a81ea"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/residual-chunk1.stderr",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/residual-chunk1.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/residual-chunk8.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/residual-chunk8.json",
+    "bytes": 24381,
+    "sha256": "90530c9e6b1f240c92ff6bb108bb3a210a13b214e56c5fda7f650fc6def48741"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/residual-chunk8.receipt.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/residual-chunk8.receipt.json",
+    "bytes": 1136,
+    "sha256": "c40654f644944d54f506a512bb2f6be73b6938300360c132b053c149588c9084"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/residual-chunk8.stderr",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/residual-chunk8.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/source-inputs/manifest.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/source-inputs/manifest.json",
+    "bytes": 647,
+    "sha256": "1c0eddfc7af937bf8d457b466c95a7169769b40ed158b33acb8bda651f921842"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/source-inputs/tracked.patch",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/source-inputs/tracked.patch",
+    "bytes": 14034,
+    "sha256": "4fffeac874b77682ccac66583d8e69b6460e228871f42cc440962671e1f67786"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/source-inputs/untracked/apps/crow_eye_check.mm",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/source-inputs/untracked/apps/crow_eye_check.mm",
+    "bytes": 29689,
+    "sha256": "d4a088886f922c556f244debe01a6be6149e303ce555a8199f0ee1948a45e0db"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/source-inputs/untracked/cmake/CheckCrowEye.cmake",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/source-inputs/untracked/cmake/CheckCrowEye.cmake",
+    "bytes": 566,
+    "sha256": "0c0136ce9e79f73f7c1f96b4541b86978f4ec7d3f7da10e6ecd9b9e968d647f9"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/source-inputs/untracked/include/metalrobo/CollisionVisualProxy.hpp",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/source-inputs/untracked/include/metalrobo/CollisionVisualProxy.hpp",
+    "bytes": 781,
+    "sha256": "1aeaf6bdda5c36a3a7542de5748fe0e410e1506aa924fb665ca1e3f6bee3793d"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/source-inputs/untracked/src/core/CollisionVisualProxy.cpp",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/source-inputs/untracked/src/core/CollisionVisualProxy.cpp",
+    "bytes": 6288,
+    "sha256": "fbdd613ea16d559125ee03292a18ca777a18b615639ef36a116764ae0ded212f"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-01/summary.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-01/summary.json",
+    "bytes": 420,
+    "sha256": "637ee7ba217ef4f4f5ed0a544b789b6e217f8238b7a1b4fdce828ffccdc903b6"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/ordinary-chunk1.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/ordinary-chunk1.json",
+    "bytes": 24619,
+    "sha256": "857b295c92506258dd52e7ff7164ef39f3c5513a743ddfe2a115b8e90129d375"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/ordinary-chunk1.receipt.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/ordinary-chunk1.receipt.json",
+    "bytes": 976,
+    "sha256": "49d3d63121ca8cfe39ba54b4d98fbf7f06b49f762ec261ffd1809c0efdb1e070"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/ordinary-chunk1.stderr",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/ordinary-chunk1.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/ordinary-chunk8.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/ordinary-chunk8.json",
+    "bytes": 24619,
+    "sha256": "393ddb22fa2521710164ea098bf42917a6d278bf2db9b3308b1c834e4cd15ebb"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/ordinary-chunk8.receipt.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/ordinary-chunk8.receipt.json",
+    "bytes": 976,
+    "sha256": "5126b229ce252f6839da3bc85d0204606da6b10d9d65d83c58f1aaef0be1c35b"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/ordinary-chunk8.stderr",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/ordinary-chunk8.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/plan.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/plan.json",
+    "bytes": 9636,
+    "sha256": "406816cbbe7eb51470e314c11639bd67e4299315987ef2af5e9663f9dd3c3f31"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/residual-chunk1.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/residual-chunk1.json",
+    "bytes": 24414,
+    "sha256": "c97125de906e5c618e2ace38793f76c33929f2500b11c1c20387ee3a54eb4e52"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/residual-chunk1.receipt.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/residual-chunk1.receipt.json",
+    "bytes": 1136,
+    "sha256": "0716d90f670ec10409a966bf05acf43e38344821ad7dcc63a3fa5a8ebf70df3c"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/residual-chunk1.stderr",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/residual-chunk1.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/residual-chunk8.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/residual-chunk8.json",
+    "bytes": 24405,
+    "sha256": "62bfef2f09d2f524ae7a1edd5615ac279e313675e0cddcdaf72612d0187636d7"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/residual-chunk8.receipt.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/residual-chunk8.receipt.json",
+    "bytes": 1136,
+    "sha256": "0b6a41bfc4ed147edb1203d3d729f908687fdf5f41f1d808067b56a8e05e6c72"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/residual-chunk8.stderr",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/residual-chunk8.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/source-inputs/manifest.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/source-inputs/manifest.json",
+    "bytes": 647,
+    "sha256": "1c0eddfc7af937bf8d457b466c95a7169769b40ed158b33acb8bda651f921842"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/source-inputs/tracked.patch",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/source-inputs/tracked.patch",
+    "bytes": 14034,
+    "sha256": "4fffeac874b77682ccac66583d8e69b6460e228871f42cc440962671e1f67786"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/source-inputs/untracked/apps/crow_eye_check.mm",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/source-inputs/untracked/apps/crow_eye_check.mm",
+    "bytes": 29689,
+    "sha256": "d4a088886f922c556f244debe01a6be6149e303ce555a8199f0ee1948a45e0db"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/source-inputs/untracked/cmake/CheckCrowEye.cmake",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/source-inputs/untracked/cmake/CheckCrowEye.cmake",
+    "bytes": 566,
+    "sha256": "0c0136ce9e79f73f7c1f96b4541b86978f4ec7d3f7da10e6ecd9b9e968d647f9"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/source-inputs/untracked/include/metalrobo/CollisionVisualProxy.hpp",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/source-inputs/untracked/include/metalrobo/CollisionVisualProxy.hpp",
+    "bytes": 781,
+    "sha256": "1aeaf6bdda5c36a3a7542de5748fe0e410e1506aa924fb665ca1e3f6bee3793d"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/source-inputs/untracked/src/core/CollisionVisualProxy.cpp",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/source-inputs/untracked/src/core/CollisionVisualProxy.cpp",
+    "bytes": 6288,
+    "sha256": "fbdd613ea16d559125ee03292a18ca777a18b615639ef36a116764ae0ded212f"
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-head-camera-feeding-replay-02/summary.json",
+    "archive": "trials/20261107-head-camera-feeding-replay-02/summary.json",
+    "bytes": 420,
+    "sha256": "04379252c4d4672a338bad2af95b01bdf0d2a5474ebb8bb77bc208c9aba6eaa5"
+  }
+]

@@ -1,0 +1,255 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index efe38b49..e291673d 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -747,6 +747,7 @@ add_library(
+     src/core/EngineModelComposer.cpp
+     src/core/RunProgram.cpp
+     src/core/CrowEmbodiment.cpp
++    src/core/CollisionVisualProxy.cpp
+     src/core/ParallelABASchedule.cpp
+     src/core/CompiledMetalMultiArticulatedProgram.cpp
+     src/core/CompiledMetalMultiArticulatedContactProgram.cpp
+@@ -1061,6 +1062,12 @@ add_executable(
+ )
+ add_executable(metalrobo_crow_embodiment_check apps/crow_embodiment_check.cpp)
+ add_executable(metalrobo_crow_foraging_check apps/crow_foraging_check.mm)
++add_executable(metalrobo_crow_eye_check apps/crow_eye_check.mm)
++target_compile_options(metalrobo_crow_eye_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
++target_link_libraries(metalrobo_crow_eye_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}" "${COREGRAPHICS_FRAMEWORK}" "${IMAGEIO_FRAMEWORK}")
++set_target_properties(metalrobo_crow_eye_check PROPERTIES
++    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
++    BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+ target_compile_options(metalrobo_crow_foraging_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+ target_link_libraries(metalrobo_crow_foraging_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
+ set_target_properties(metalrobo_crow_foraging_check PROPERTIES
+@@ -2317,6 +2324,13 @@ if(BUILD_TESTING)
+             "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_foraging_check>"
+             "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
+             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowForaging.cmake")
++    add_test(NAME metalrobo.crow.head_camera
++        COMMAND "${CMAKE_COMMAND}"
++            "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_eye_check>"
++            "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
++            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowEye.cmake")
++    set_tests_properties(metalrobo.crow.head_camera PROPERTIES
++        LABELS "metalrobo;crow;native;visual" TIMEOUT 200)
+     set_tests_properties(metalrobo.crow.finite_resource PROPERTIES
+         LABELS "metalrobo;crow;native" TIMEOUT 200)
+     set_tests_properties(
+diff --git a/docs/CROW_RL_ENVIRONMENT.md b/docs/CROW_RL_ENVIRONMENT.md
+index 62e4dff6..c0ce4628 100644
+--- a/docs/CROW_RL_ENVIRONMENT.md
++++ b/docs/CROW_RL_ENVIRONMENT.md
+@@ -42,7 +42,8 @@ legacy PolicyPacks to new sensor, action, world, or task semantics.
+ 
+ From this source checkout, build `metalrobo_task_rollout`,
+ `metalrobo_task_train`, `metalrobo_robot_catalog`, and
+-`metalrobo_crow_embodiment_check` and `metalrobo_crow_foraging_check` with
++`metalrobo_crow_embodiment_check`, `metalrobo_crow_foraging_check`, and
++`metalrobo_crow_eye_check` with
+ CMake/Ninja Release.
+ Create the learner with CPython 3.13.14 using `uv venv python/.venv`, then
+ `uv pip install --python python/.venv/bin/python -c
+@@ -356,3 +357,42 @@ The complete objective remains open until every requested ecological module
+ is executable, exercised, and qualified at its stated scope. The crow remains
+ an estimated simulation model unless independent measurements establish a
+ stronger biological claim.
++
++
++## Head-mounted geometric camera instrument
++
++`eye-admission --output NEW_DIRECTORY` runs two native cameras on the accepted
++physical head, using exact collision-box meshes and an explicitly bounded
++16 m plane proxy. It changes no physics geometry or control semantics. Both
++parallel pinhole cameras have estimated engineering mounts, 160 x 120 pixels,
++45 degree vertical field of view, and 0.1 mm depth quantization. These fixtures
++are not measured American-crow eyes; the original feathered asset remains
++unadmitted for the split-head embodiment.
++
++The five native controls cover neutral, physical occlusion, opposite head yaw,
++head pitch, and chunk 1 versus 8. Every camera also repeats its render exactly.
++An independent FP64 ray/box and ray/plane oracle uses accepted body states and
++camera mounts, excluding one-pixel silhouettes. The extended admission passed
++in 20261107-head-camera-admission-04: zero identity/depth-validity errors across
++198,286 stable geometry pixels and 92,374 stable empty pixels; maximum metric
++depth error 55.83 micrometres versus the prospective 200 micrometre threshold;
++maximum camera pose component error 8.51e-8 versus 2e-6. The neutral target has
++360 pixels per camera/lane and disappears under occlusion and averted yaw.
++Seven malformed-authoring cases are rejected. This is geometric instrument
++calibration on two lanes, not a policy or ecological result.
++
++Two earlier attempts failed asset validation before any rendering: a missing
++vertex tangent sign, then incorrect primitive-to-instance ownership. Attempt
++03 passed the original geometric prediction; attempt 04 prospectively added
++empty-ray and malformed-input controls without relaxing thresholds. All attempts,
++raw float images, depth, identity/validity planes, accepted poses, binary layout
++metadata, and native PNG previews are retained. Raw RGB is linear; exported PNGs
++apply the sRGB display transform. CTest `metalrobo.crow.head_camera` exercises
++the same bounded native controls and retains its own output directory.
++
++The head-camera probe currently publishes frames for inspection. It does not
++feed either image to the v12 actor, enforce the authored 15 Hz cadence, or model
++sensor latency. The next admission is a device-resident causal retinal stream,
++then a distinct task contract and learned search. Existing v12 policies retain
++their own 97-input contract. New trials now retain the exact tracked source
++patch plus untracked runtime source, rather than hashes alone.
+diff --git a/profiles/american-crow-rl-v1.json b/profiles/american-crow-rl-v1.json
+index 4bdb8aa6..ef6376ba 100644
+--- a/profiles/american-crow-rl-v1.json
++++ b/profiles/american-crow-rl-v1.json
+@@ -8,10 +8,27 @@
+   "robot": "birdflow_american_crow_estimated_hybrid",
+   "development_robot": "american_crow_active_head_estimated_v1",
+   "primary_research_outcome": "lifelong embodied intelligence",
+-  "primary_behaviors": ["foraging", "memory", "manipulation", "social learning"],
+-  "development_seeds": [2651107001, 2651107002, 2651107003],
+-  "qualification_seeds": [2651107901, 2651107902, 2651107903],
+-  "feeding_comparison_development_seeds": [2651108401, 2651108402, 2651108403],
++  "primary_behaviors": [
++    "foraging",
++    "memory",
++    "manipulation",
++    "social learning"
++  ],
++  "development_seeds": [
++    2651107001,
++    2651107002,
++    2651107003
++  ],
++  "qualification_seeds": [
++    2651107901,
++    2651107902,
++    2651107903
++  ],
++  "feeding_comparison_development_seeds": [
++    2651108401,
++    2651108402,
++    2651108403
++  ],
+   "feeding_development_candidate": {
+     "policy": "artifacts/crow-rl-feeding-behavior-20261107/policies/trained-stochastic.policypack",
+     "mode": "stochastic-required",
+@@ -27,8 +44,15 @@
+     "seed": 2651107301,
+     "environments": 32,
+     "steps": 128,
+-    "submission_chunks": [1, 8],
+-    "scale_environments": [128, 512, 1024],
++    "submission_chunks": [
++      1,
++      8
++    ],
++    "scale_environments": [
++      128,
++      512,
++      1024
++    ],
+     "timeout_seconds": 180
+   },
+   "navigation_gate": {
+@@ -46,7 +70,7 @@
+     "articulated_motor_control": "native-implementation; current-checkout-requalification-required",
+     "visual_obstacle_course": "native-implementation; unreliable-historical-full-route-controller",
+     "first_attempt_evidence": "native-transition-observer",
+-    "crow_eye_perception": "pending; legacy-camera-is-offset-from-body",
++    "crow_eye_perception": "estimated-native-head-camera-geometry-admitted; exact-collision-proxies-and-FP64-ray-controls; causal-actor-image-inputs-cadence-latency-and-biological-eye-calibration-pending",
+     "active_head_and_beak": "estimated-native-v11; reference-inertia-and-Metal-admission; contact-actuation-and-learner-resume-controls-passed; head-vision-and-behavior-qualification-pending",
+     "finite_food_water_and_energy": "experimental-native-finite-food-tracer-and-capacity-limited-crop-with-bound-reward; water-energy-physiology-pending",
+     "accepted_state_consumption": "native-accepted-mouth-intake-volume-and-open-close-edge-controls-passed; solid-food-pickup-carrying-and-swallowing-pending",
+@@ -66,5 +90,13 @@
+     "persistent checkpoint restore with no reset-induced resource replenishment",
+     "controlled memory and social-information ablations",
+     "all requested ecology modules executable and independently exercised"
+-  ]
++  ],
++  "head_camera_development_instrument": {
++    "command": "eye-admission",
++    "evidence": "artifacts/crow-rl-head-camera-20261107",
++    "scope": "publication-time geometry calibration; estimated parallel pinhole fixtures; no actor image inputs",
++    "native_cases": 5,
++    "camera_count": 2,
++    "ecological_environment_qualified": false
++  }
+ }
+diff --git a/python/metalrobo/crow_environment.py b/python/metalrobo/crow_environment.py
+index 87d2dc08..a47e014c 100644
+--- a/python/metalrobo/crow_environment.py
++++ b/python/metalrobo/crow_environment.py
+@@ -56,6 +56,7 @@ def runtime(root: Path) -> dict:
+         "metallib": build / "shaders/MetalRobo.metallib",
+         "head_check": build / "bin/metalrobo_crow_embodiment_check",
+         "foraging_check": build / "bin/metalrobo_crow_foraging_check",
++        "eye_check": build / "bin/metalrobo_crow_eye_check",
+     }
+ 
+ 
+@@ -95,6 +96,34 @@ def preflight(root: Path, profile: dict) -> dict:
+     }
+ 
+ 
++
++def retain_source_delta(root: Path, output: Path, checked: dict) -> None:
++    """Retain the exact executable source delta, including new native files."""
++    directory = output / "source-inputs"
++    directory.mkdir()
++    patch = subprocess.check_output(["git", "diff", "HEAD", "--binary"], cwd=root)
++    if hashlib.sha256(patch).hexdigest() != checked["tracked_diff_sha256"]:
++        raise RuntimeError("Source changed between preflight and retention")
++    (directory / "tracked.patch").write_bytes(patch)
++    retained, external = {}, {}
++    for name, expected in checked["untracked_inputs"].items():
++        # Scientific payload archives have their own receipt/inventory. New
++        # runtime code must be portable even when the trial precedes a commit.
++        if Path(name).parts[0] == "artifacts":
++            external[name] = expected
++            continue
++        source = root / name
++        target = directory / "untracked" / name
++        target.parent.mkdir(parents=True, exist_ok=True)
++        shutil.copyfile(source, target)
++        if sha(target) != expected:
++            raise RuntimeError(f"Source changed during retention: {name}")
++        retained[name] = expected
++    write(directory / "manifest.json", {"base_commit": checked["source_commit"],
++        "tracked_patch_sha256": checked["tracked_diff_sha256"],
++        "retained_untracked": retained, "external_artifact_inputs": external})
++
++
+ def execute(output: Path, name: str, command: list[str], root: Path, timeout: int) -> dict:
+     started = time.monotonic()
+     exit_code = None
+@@ -732,6 +761,7 @@ def main() -> int:
+     commands.add_parser("doctor")
+     commands.add_parser("probe").add_argument("--output", type=Path, required=True)
+     commands.add_parser("head-admission").add_argument("--output", type=Path, required=True)
++    commands.add_parser("eye-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("body-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("foraging-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("feeding-probe").add_argument("--output", type=Path, required=True)
+@@ -837,14 +867,25 @@ def main() -> int:
+           "stopping": "exactly twelve native runs; 180s timeout per run; abort invalidity; no retry, extra learning, or promotion",
+           "limitations": "policy revision changes random key; same seed identifies matched world conditions but does not create identical stochastic noise across policy revisions; learned variance is part of the tested policy",
+           "unused": "original qualification seeds/layouts remain unspent"})
++    if args.command == "eye-admission":
++        plan.update({"purpose": "native geometric instrument calibration",
++          "prediction": "Accepted physical head transforms determine both camera poses within 2e-6 components; stable interior depth matches FP64 physical-shape rays within 0.0002m; zero identity errors",
++          "control": "visible/physically occluded target, opposite head yaw, head pitch, exact renderer repeats, native chunks 1/8",
++          "boundary": "estimated parallel head cameras with collision-proxy assets; publication-time inspection; no biological eye calibration, actor image integration or sensor-cadence admission"})
+     write(output / "plan.json", plan)
+     try:
++        retain_source_delta(root, output, checked)
+         if args.command == "probe":
+             result = probe(root, output, profile)
+         elif args.command == "head-admission":
+             result = execute(output, "head-mechanics", [str(runtime(root)["head_check"])], root, 180)
+             if result.get("status") != "passed" or result.get("exact_replay") is not True:
+                 raise RuntimeError("Native head mechanics admission failed")
++        elif args.command == "eye-admission":
++            result = execute(output, "head-camera-geometry", [str(runtime(root)["eye_check"]),
++                             str(output / "native-evidence")], root, 180)
++            if result.get("status") != "passed" or result.get("geometry_and_camera_pose_admitted") is not True:
++                raise RuntimeError("Native head camera geometry admission failed")
+         elif args.command == "body-admission":
+             result = body_admission(root, output, profile)
+         elif args.command == "feeding-probe":

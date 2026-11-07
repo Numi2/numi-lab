@@ -747,6 +747,7 @@ add_library(
     src/core/EngineModelComposer.cpp
     src/core/RunProgram.cpp
     src/core/CrowEmbodiment.cpp
+    src/core/CollisionVisualProxy.cpp
     src/core/ParallelABASchedule.cpp
     src/core/CompiledMetalMultiArticulatedProgram.cpp
     src/core/CompiledMetalMultiArticulatedContactProgram.cpp
@@ -1061,6 +1062,12 @@ add_executable(
 )
 add_executable(metalrobo_crow_embodiment_check apps/crow_embodiment_check.cpp)
 add_executable(metalrobo_crow_foraging_check apps/crow_foraging_check.mm)
+add_executable(metalrobo_crow_eye_check apps/crow_eye_check.mm)
+target_compile_options(metalrobo_crow_eye_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+target_link_libraries(metalrobo_crow_eye_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}" "${COREGRAPHICS_FRAMEWORK}" "${IMAGEIO_FRAMEWORK}")
+set_target_properties(metalrobo_crow_eye_check PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
 target_compile_options(metalrobo_crow_foraging_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
 target_link_libraries(metalrobo_crow_foraging_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
 set_target_properties(metalrobo_crow_foraging_check PROPERTIES
@@ -2317,6 +2324,13 @@ if(BUILD_TESTING)
             "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_foraging_check>"
             "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowForaging.cmake")
+    add_test(NAME metalrobo.crow.head_camera
+        COMMAND "${CMAKE_COMMAND}"
+            "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_eye_check>"
+            "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowEye.cmake")
+    set_tests_properties(metalrobo.crow.head_camera PROPERTIES
+        LABELS "metalrobo;crow;native;visual" TIMEOUT 200)
     set_tests_properties(metalrobo.crow.finite_resource PROPERTIES
         LABELS "metalrobo;crow;native" TIMEOUT 200)
     set_tests_properties(

@@ -1,0 +1,11 @@
+{
+  "schema": "numi.crow-head-camera-evidence.v1",
+  "status": "passed",
+  "native_cases": 5,
+  "cameras": 2,
+  "geometry_and_camera_pose_admitted": true,
+  "exact_render_repeat": true,
+  "actor_vision_integrated": false,
+  "biological_eye_calibration": false,
+  "ecological_environment_qualified": false
+}

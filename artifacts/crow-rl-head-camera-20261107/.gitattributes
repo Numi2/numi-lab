@@ -1,0 +1,6 @@
+*.bin binary
+*.f32 binary
+*.u32 binary
+*.mrvpack binary
+*.log whitespace=-blank-at-eof
+*.patch -whitespace

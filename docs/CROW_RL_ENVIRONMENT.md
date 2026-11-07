@@ -42,7 +42,8 @@ legacy PolicyPacks to new sensor, action, world, or task semantics.
 
 From this source checkout, build `metalrobo_task_rollout`,
 `metalrobo_task_train`, `metalrobo_robot_catalog`, and
-`metalrobo_crow_embodiment_check` and `metalrobo_crow_foraging_check` with
+`metalrobo_crow_embodiment_check`, `metalrobo_crow_foraging_check`, and
+`metalrobo_crow_eye_check` with
 CMake/Ninja Release.
 Create the learner with CPython 3.13.14 using `uv venv python/.venv`, then
 `uv pip install --python python/.venv/bin/python -c
@@ -356,3 +357,42 @@ The complete objective remains open until every requested ecological module
 is executable, exercised, and qualified at its stated scope. The crow remains
 an estimated simulation model unless independent measurements establish a
 stronger biological claim.
+
+
+## Head-mounted geometric camera instrument
+
+`eye-admission --output NEW_DIRECTORY` runs two native cameras on the accepted
+physical head, using exact collision-box meshes and an explicitly bounded
+16 m plane proxy. It changes no physics geometry or control semantics. Both
+parallel pinhole cameras have estimated engineering mounts, 160 x 120 pixels,
+45 degree vertical field of view, and 0.1 mm depth quantization. These fixtures
+are not measured American-crow eyes; the original feathered asset remains
+unadmitted for the split-head embodiment.
+
+The five native controls cover neutral, physical occlusion, opposite head yaw,
+head pitch, and chunk 1 versus 8. Every camera also repeats its render exactly.
+An independent FP64 ray/box and ray/plane oracle uses accepted body states and
+camera mounts, excluding one-pixel silhouettes. The extended admission passed
+in 20261107-head-camera-admission-04: zero identity/depth-validity errors across
+198,286 stable geometry pixels and 92,374 stable empty pixels; maximum metric
+depth error 55.83 micrometres versus the prospective 200 micrometre threshold;
+maximum camera pose component error 8.51e-8 versus 2e-6. The neutral target has
+360 pixels per camera/lane and disappears under occlusion and averted yaw.
+Seven malformed-authoring cases are rejected. This is geometric instrument
+calibration on two lanes, not a policy or ecological result.
+
+Two earlier attempts failed asset validation before any rendering: a missing
+vertex tangent sign, then incorrect primitive-to-instance ownership. Attempt
+03 passed the original geometric prediction; attempt 04 prospectively added
+empty-ray and malformed-input controls without relaxing thresholds. All attempts,
+raw float images, depth, identity/validity planes, accepted poses, binary layout
+metadata, and native PNG previews are retained. Raw RGB is linear; exported PNGs
+apply the sRGB display transform. CTest `metalrobo.crow.head_camera` exercises
+the same bounded native controls and retains its own output directory.
+
+The head-camera probe currently publishes frames for inspection. It does not
+feed either image to the v12 actor, enforce the authored 15 Hz cadence, or model
+sensor latency. The next admission is a device-resident causal retinal stream,
+then a distinct task contract and learned search. Existing v12 policies retain
+their own 97-input contract. New trials now retain the exact tracked source
+patch plus untracked runtime source, rather than hashes alone.

@@ -56,6 +56,7 @@ def runtime(root: Path) -> dict:
         "metallib": build / "shaders/MetalRobo.metallib",
         "head_check": build / "bin/metalrobo_crow_embodiment_check",
         "foraging_check": build / "bin/metalrobo_crow_foraging_check",
+        "eye_check": build / "bin/metalrobo_crow_eye_check",
     }
 
 
@@ -93,6 +94,34 @@ def preflight(root: Path, profile: dict) -> dict:
         },
         "readiness": "native engineering trials only; ecological qualification pending",
     }
+
+
+
+def retain_source_delta(root: Path, output: Path, checked: dict) -> None:
+    """Retain the exact executable source delta, including new native files."""
+    directory = output / "source-inputs"
+    directory.mkdir()
+    patch = subprocess.check_output(["git", "diff", "HEAD", "--binary"], cwd=root)
+    if hashlib.sha256(patch).hexdigest() != checked["tracked_diff_sha256"]:
+        raise RuntimeError("Source changed between preflight and retention")
+    (directory / "tracked.patch").write_bytes(patch)
+    retained, external = {}, {}
+    for name, expected in checked["untracked_inputs"].items():
+        # Scientific payload archives have their own receipt/inventory. New
+        # runtime code must be portable even when the trial precedes a commit.
+        if Path(name).parts[0] == "artifacts":
+            external[name] = expected
+            continue
+        source = root / name
+        target = directory / "untracked" / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
+        if sha(target) != expected:
+            raise RuntimeError(f"Source changed during retention: {name}")
+        retained[name] = expected
+    write(directory / "manifest.json", {"base_commit": checked["source_commit"],
+        "tracked_patch_sha256": checked["tracked_diff_sha256"],
+        "retained_untracked": retained, "external_artifact_inputs": external})
 
 
 def execute(output: Path, name: str, command: list[str], root: Path, timeout: int) -> dict:
@@ -732,6 +761,7 @@ def main() -> int:
     commands.add_parser("doctor")
     commands.add_parser("probe").add_argument("--output", type=Path, required=True)
     commands.add_parser("head-admission").add_argument("--output", type=Path, required=True)
+    commands.add_parser("eye-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("body-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("foraging-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("feeding-probe").add_argument("--output", type=Path, required=True)
@@ -837,14 +867,25 @@ def main() -> int:
           "stopping": "exactly twelve native runs; 180s timeout per run; abort invalidity; no retry, extra learning, or promotion",
           "limitations": "policy revision changes random key; same seed identifies matched world conditions but does not create identical stochastic noise across policy revisions; learned variance is part of the tested policy",
           "unused": "original qualification seeds/layouts remain unspent"})
+    if args.command == "eye-admission":
+        plan.update({"purpose": "native geometric instrument calibration",
+          "prediction": "Accepted physical head transforms determine both camera poses within 2e-6 components; stable interior depth matches FP64 physical-shape rays within 0.0002m; zero identity errors",
+          "control": "visible/physically occluded target, opposite head yaw, head pitch, exact renderer repeats, native chunks 1/8",
+          "boundary": "estimated parallel head cameras with collision-proxy assets; publication-time inspection; no biological eye calibration, actor image integration or sensor-cadence admission"})
     write(output / "plan.json", plan)
     try:
+        retain_source_delta(root, output, checked)
         if args.command == "probe":
             result = probe(root, output, profile)
         elif args.command == "head-admission":
             result = execute(output, "head-mechanics", [str(runtime(root)["head_check"])], root, 180)
             if result.get("status") != "passed" or result.get("exact_replay") is not True:
                 raise RuntimeError("Native head mechanics admission failed")
+        elif args.command == "eye-admission":
+            result = execute(output, "head-camera-geometry", [str(runtime(root)["eye_check"]),
+                             str(output / "native-evidence")], root, 180)
+            if result.get("status") != "passed" or result.get("geometry_and_camera_pose_admitted") is not True:
+                raise RuntimeError("Native head camera geometry admission failed")
         elif args.command == "body-admission":
             result = body_admission(root, output, profile)
         elif args.command == "feeding-probe":

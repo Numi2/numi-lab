@@ -16,3 +16,4 @@ python/.venv
 *.so
 *.dSYM/
 compile_commands.json
+.numi/retained-runtime/

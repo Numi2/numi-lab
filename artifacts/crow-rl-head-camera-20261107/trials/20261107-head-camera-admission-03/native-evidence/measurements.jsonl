@@ -1,0 +1,8 @@
+{"control":"neutral","camera":0,"run_fingerprint":14427359423532458356,"compared_pixels":26486,"identity_errors":0,"maximum_depth_error_m":5.50389e-05,"maximum_camera_pose_error":8.50787e-08,"target_pixels":[360,360]}
+{"control":"neutral","camera":1,"run_fingerprint":14427359423532458356,"compared_pixels":26486,"identity_errors":0,"maximum_depth_error_m":5.30719e-05,"maximum_camera_pose_error":8.50787e-08,"target_pixels":[360,360]}
+{"control":"occluded","camera":0,"run_fingerprint":13314230266285813501,"compared_pixels":30308,"identity_errors":0,"maximum_depth_error_m":4.99774e-05,"maximum_camera_pose_error":8.50787e-08,"target_pixels":[0,0]}
+{"control":"occluded","camera":1,"run_fingerprint":13314230266285813501,"compared_pixels":30308,"identity_errors":0,"maximum_depth_error_m":5.18583e-05,"maximum_camera_pose_error":8.50787e-08,"target_pixels":[0,0]}
+{"control":"yaw","camera":0,"run_fingerprint":14427359423532458356,"compared_pixels":26016,"identity_errors":0,"maximum_depth_error_m":5.58289e-05,"maximum_camera_pose_error":6.47269e-08,"target_pixels":[0,0]}
+{"control":"yaw","camera":1,"run_fingerprint":14427359423532458356,"compared_pixels":27530,"identity_errors":0,"maximum_depth_error_m":5.35427e-05,"maximum_camera_pose_error":6.47269e-08,"target_pixels":[0,0]}
+{"control":"pitch","camera":0,"run_fingerprint":14427359423532458356,"compared_pixels":15576,"identity_errors":0,"maximum_depth_error_m":2.98477e-05,"maximum_camera_pose_error":2.42261e-08,"target_pixels":[0,0]}
+{"control":"pitch","camera":1,"run_fingerprint":14427359423532458356,"compared_pixels":15576,"identity_errors":0,"maximum_depth_error_m":2.98477e-05,"maximum_camera_pose_error":2.42261e-08,"target_pixels":[0,0]}

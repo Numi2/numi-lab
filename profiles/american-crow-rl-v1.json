@@ -8,10 +8,27 @@
   "robot": "birdflow_american_crow_estimated_hybrid",
   "development_robot": "american_crow_active_head_estimated_v1",
   "primary_research_outcome": "lifelong embodied intelligence",
-  "primary_behaviors": ["foraging", "memory", "manipulation", "social learning"],
-  "development_seeds": [2651107001, 2651107002, 2651107003],
-  "qualification_seeds": [2651107901, 2651107902, 2651107903],
-  "feeding_comparison_development_seeds": [2651108401, 2651108402, 2651108403],
+  "primary_behaviors": [
+    "foraging",
+    "memory",
+    "manipulation",
+    "social learning"
+  ],
+  "development_seeds": [
+    2651107001,
+    2651107002,
+    2651107003
+  ],
+  "qualification_seeds": [
+    2651107901,
+    2651107902,
+    2651107903
+  ],
+  "feeding_comparison_development_seeds": [
+    2651108401,
+    2651108402,
+    2651108403
+  ],
   "feeding_development_candidate": {
     "policy": "artifacts/crow-rl-feeding-behavior-20261107/policies/trained-stochastic.policypack",
     "mode": "stochastic-required",
@@ -27,8 +44,15 @@
     "seed": 2651107301,
     "environments": 32,
     "steps": 128,
-    "submission_chunks": [1, 8],
-    "scale_environments": [128, 512, 1024],
+    "submission_chunks": [
+      1,
+      8
+    ],
+    "scale_environments": [
+      128,
+      512,
+      1024
+    ],
     "timeout_seconds": 180
   },
   "navigation_gate": {
@@ -46,7 +70,7 @@
     "articulated_motor_control": "native-implementation; current-checkout-requalification-required",
     "visual_obstacle_course": "native-implementation; unreliable-historical-full-route-controller",
     "first_attempt_evidence": "native-transition-observer",
-    "crow_eye_perception": "pending; legacy-camera-is-offset-from-body",
+    "crow_eye_perception": "estimated-native-head-camera-geometry-admitted; exact-collision-proxies-and-FP64-ray-controls; causal-actor-image-inputs-cadence-latency-and-biological-eye-calibration-pending",
     "active_head_and_beak": "estimated-native-v11; reference-inertia-and-Metal-admission; contact-actuation-and-learner-resume-controls-passed; head-vision-and-behavior-qualification-pending",
     "finite_food_water_and_energy": "experimental-native-finite-food-tracer-and-capacity-limited-crop-with-bound-reward; water-energy-physiology-pending",
     "accepted_state_consumption": "native-accepted-mouth-intake-volume-and-open-close-edge-controls-passed; solid-food-pickup-carrying-and-swallowing-pending",
@@ -66,5 +90,13 @@
     "persistent checkpoint restore with no reset-induced resource replenishment",
     "controlled memory and social-information ablations",
     "all requested ecology modules executable and independently exercised"
-  ]
+  ],
+  "head_camera_development_instrument": {
+    "command": "eye-admission",
+    "evidence": "artifacts/crow-rl-head-camera-20261107",
+    "scope": "publication-time geometry calibration; estimated parallel pinhole fixtures; no actor image inputs",
+    "native_cases": 5,
+    "camera_count": 2,
+    "ecological_environment_qualified": false
+  }
 }
