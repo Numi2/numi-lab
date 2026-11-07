@@ -125,7 +125,42 @@ prove relative mobility. No such new anatomical mapping is supplied here.
 
 The CPU binding regression uses synthetic identities and checks version 1
 compatibility, separated version 2 identities and atomic rejection of malformed
-bindings. It does not qualify compiler/Metal rollout dynamics, loaded thorax
-response, biological accuracy, or a surgical task. The existing synthetic
+bindings. A second synthetic fixture cooks a tetrahedron against a floating
+two-body, one-revolute-joint model. Both donors are partitioned; sternal and
+rib attachments reach the same ownership validator used during runtime
+admission; their relative joint Jacobian differs by 0.01; and a corrupted
+attachment is rejected. The equivalent fixed-root fixture is explicitly rejected
+because rebasing a fixed-root donor requires an authored root-frame recompile.
+Runtime asset shifts now use a candidate copy before publication, but this CPU
+test does not construct a runtime or demonstrate rollback during a rollout.
+Neither test qualifies Metal dynamics, loaded thorax response, biological
+accuracy, or a surgical task. The existing synthetic
 mass-partition invariants and earlier qualified Human evidence retain their
 original scope.
+
+
+#### Anatomical evidence still required
+
+The fourteen cartilage regions come from the BodyParts3D costal-cartilage
+payload; the existing source model maps its imported ribs and sternum to Human
+torso body 20. A hash-bound atlas registration and this payload do not by
+themselves identify separate anatomical rigid bodies. Before attempting an
+anatomical NHTBIND2 authoring pass, retain:
+
+* the exact atlas source, laterality, rib levels and mesh hashes for cartilage,
+  sternum and each proposed rib, plus the source Human rigid/model revision;
+* the registration transform and independently checked anatomical landmarks
+  and endpoint-to-bone correspondence, including uncertainty;
+* the construction and joint definitions for actual live sternum and rib
+  bodies, and a test of relative point Jacobians rather than merely distinct
+  body IDs;
+* a volumetric, mass-conserving attribution from the original Human rigid mass
+  to the cooked FEM nodes and residual bodies, with moments and positive
+  residual inertia checked. Version 2 can assign only one donor per node;
+  mixed donor contributions require an explicit extended schema;
+* material provenance and loaded, held-out force/displacement measurements,
+  including costal joint behavior. Synthetic attachment and kinematics tests
+  do not provide those measurements.
+
+A surgical continuation still requires the actual earned checkpoint and its
+recorded identity; this binding fixture cannot substitute for that state.

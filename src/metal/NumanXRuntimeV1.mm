@@ -1237,18 +1237,8 @@ void shiftTissuePoint(Point& point, const std::uint32_t body,
         requireBuild(cartilage.tetrahedra[i].node==std::array<std::uint32_t,4>{t.x,t.y,t.z,t.w},
                      MRNX_RUNTIME_ASSET_FAILURE_V1,"costal mass package topology drifted");
     }
-    std::vector<bool> attached(nodes.size());std::size_t expectedAttachments=0;
-    for(const auto& n:cartilage.nodes) expectedAttachments+=n.flags!=0;
-    requireBuild(world.fem.humanAttachments.size()==expectedAttachments,MRNX_RUNTIME_ASSET_FAILURE_V1,"costal attachment coverage drifted");
-    for(const auto& attachment:world.fem.humanAttachments) {
-        const auto n=attachment.identity.x;
-        requireBuild(n<nodes.size()&&!attached[n]&&cartilage.nodes[n].flags!=0&&
-                     attachment.identity.y==((cartilage.nodes[n].flags&metalrobo::NUMI_HUMAN_COSTAL_CARTILAGE_STERNAL_ATTACHMENT)
-                         ?binding.regions[cartilage.nodes[n].regionIndex].sternalBody
-                         :binding.regions[cartilage.nodes[n].regionIndex].ribBody),
-                     MRNX_RUNTIME_ASSET_FAILURE_V1,"costal source attachment ownership drifted");
-        attached[n]=true;
-    }
+    requireBuild(metalrobo::validateNumiHumanCostalAttachmentOwnership(cartilage,binding,world,error),
+                 MRNX_RUNTIME_ASSET_FAILURE_V1,"costal attachment admission failed: "+error);
     const auto mass=metalrobo::compileNumiHumanTissueMassPartition(assets.model.bodies,nodes);
     requireBuild(mass.succeeded(),MRNX_RUNTIME_ASSET_FAILURE_V1,"costal mass partition failed: "+mass.error);
     metalrobo::EngineModel rebased;
@@ -1256,15 +1246,17 @@ void shiftTissuePoint(Point& point, const std::uint32_t body,
                  MRNX_RUNTIME_ASSET_FAILURE_V1,"costal COM rebase failed: "+error);
     std::vector<std::array<double,3>> offsets(bodies.size());
     for(const auto& p:mass.partitions) offsets[p.donorBody]=p.remainingCOMOffsetM;
-    for(auto& site:assets.sites) shiftTissuePoint(site.localPoint,site.bodyIndex,offsets);
-    for(auto& wrap:assets.wraps) shiftTissuePoint(wrap.localCenter,wrap.bodyIndex,offsets);
+    auto candidate=assets;
+    for(auto& site:candidate.sites) shiftTissuePoint(site.localPoint,site.bodyIndex,offsets);
+    for(auto& wrap:candidate.wraps) shiftTissuePoint(wrap.localCenter,wrap.bodyIndex,offsets);
     // The final four-per-body points are basis probes at the NEW COM. Every
     // preceding query represents a physical source point and must be rebased.
-    for(unsigned i=0;i<assets.bodyJacobianPointOffset;++i)
-        shiftTissuePoint(assets.points[i].localPoint,assets.points[i].bodyIndex,offsets);
-    for(auto& point:assets.matterSupportPointQueries) shiftTissuePoint(point.localPoint,point.bodyIndex,offsets);
-    for(auto& contact:assets.matterSupportContacts) shiftTissuePoint(contact.localPoint,contact.identity.x,offsets);
-    assets.model=std::move(rebased);
+    for(unsigned i=0;i<candidate.bodyJacobianPointOffset;++i)
+        shiftTissuePoint(candidate.points[i].localPoint,candidate.points[i].bodyIndex,offsets);
+    for(auto& point:candidate.matterSupportPointQueries) shiftTissuePoint(point.localPoint,point.bodyIndex,offsets);
+    for(auto& contact:candidate.matterSupportContacts) shiftTissuePoint(contact.localPoint,contact.identity.x,offsets);
+    candidate.model=std::move(rebased);
+    assets=std::move(candidate);
     return offsets;
 }
 

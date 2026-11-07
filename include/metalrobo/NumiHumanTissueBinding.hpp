@@ -28,6 +28,14 @@ struct NumiHumanCostalBinding {
     std::span<const std::uint8_t,32> rigidSHA256,
     NumiHumanCostalBinding& result, std::string& error);
 
+// Shared by runtime asset admission and CPU qualification. Checks the cooked
+// attachment table against the source flags and region endpoint identities;
+// neither source nor cooked world is mutated on success or failure.
+[[nodiscard]] bool validateNumiHumanCostalAttachmentOwnership(
+    const NumiHumanCostalCartilagePayload& cartilage,
+    const NumiHumanCostalBinding& binding,
+    const numi::matter::CompiledWorld& world, std::string& error);
+
 struct NumiHumanCostalCompilation {
     numi::matter::CompileResult matter;
     NumiHumanTissueMassResult mass;

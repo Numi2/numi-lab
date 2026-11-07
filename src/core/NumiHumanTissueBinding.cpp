@@ -84,6 +84,40 @@ bool decodeNumiHumanCostalBinding(
     result=std::move(candidate);return true;
 }
 
+bool validateNumiHumanCostalAttachmentOwnership(
+    const NumiHumanCostalCartilagePayload& cartilage,
+    const NumiHumanCostalBinding& binding,
+    const numi::matter::CompiledWorld& world, std::string& error) {
+    error.clear();
+    const auto reject=[&](const char* message){error=message;return false;};
+    if(binding.nodeCount!=cartilage.nodes.size() ||
+       binding.regions.size()!=cartilage.regions.size() ||
+       world.fem.nodes.size()!=cartilage.nodes.size())
+        return reject("costal attachment source coverage drifted");
+    std::vector<bool> attached(cartilage.nodes.size());
+    std::size_t expected=0;
+    for(const auto& node:cartilage.nodes) {
+        if(node.regionIndex>=binding.regions.size() || (node.flags&~3u)!=0 || node.flags==3u)
+            return reject("costal source attachment flags or region invalid");
+        expected+=node.flags!=0;
+    }
+    if(world.fem.humanAttachments.size()!=expected)
+        return reject("costal attachment coverage drifted");
+    for(const auto& attachment:world.fem.humanAttachments) {
+        const auto n=attachment.identity.x;
+        if(n>=cartilage.nodes.size() || attached[n] || cartilage.nodes[n].flags==0)
+            return reject("costal source attachment ownership drifted");
+        const auto& node=cartilage.nodes[n];
+        const auto& region=binding.regions[node.regionIndex];
+        const auto body=(node.flags&NUMI_HUMAN_COSTAL_CARTILAGE_STERNAL_ATTACHMENT)
+            ?region.sternalBody:region.ribBody;
+        if(body>=binding.bodyCount || attachment.identity.y!=body)
+            return reject("costal source attachment ownership drifted");
+        attached[n]=true;
+    }
+    return true;
+}
+
 NumiHumanCostalCompilation compileNumiHumanCostalTissue(
     const NumiHumanCostalCartilagePayload& cartilage,
     const NumiHumanCostalBinding& binding, const EngineModel& human,
