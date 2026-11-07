@@ -1244,6 +1244,10 @@ if(BUILD_TESTING)
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/benchmark_latency_test.py")
     set_tests_properties(metalrobo.benchmark.latency_accounting PROPERTIES
         LABELS "benchmark;accounting;cpu" TIMEOUT 30)
+    add_test(NAME metalrobo.benchmark.latency_science_adapter
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/latency_science_adapter_test.py")
+    set_tests_properties(metalrobo.benchmark.latency_science_adapter PROPERTIES
+        LABELS "benchmark;science;cpu" TIMEOUT 30)
 endif()
 
 add_executable(metalrobo_tactile_check apps/tactile_check.cpp)
