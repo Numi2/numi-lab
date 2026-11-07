@@ -85,3 +85,8 @@ add_executable(metalrobo_ccd_revolute_contact_probe "${NUMI_WORLD_ROOT}/apps/ccd
 target_link_libraries(metalrobo_ccd_revolute_contact_probe PRIVATE numi_ccd_world_owner)
 target_link_options(metalrobo_ccd_revolute_contact_probe PRIVATE -Wl,-dead_strip)
 add_dependencies(metalrobo_ccd_revolute_contact_probe metalrobo_shaders)
+
+add_executable(metalrobo_ccd_metric_resident_failure_probe "${NUMI_WORLD_ROOT}/apps/ccd_metric_resident_failure_probe.cpp")
+target_link_libraries(metalrobo_ccd_metric_resident_failure_probe PRIVATE numi_ccd_world_owner)
+target_link_options(metalrobo_ccd_metric_resident_failure_probe PRIVATE -Wl,-dead_strip)
+add_dependencies(metalrobo_ccd_metric_resident_failure_probe metalrobo_shaders)
