@@ -1101,6 +1101,61 @@ inline float3 projectFrictionCone(
     return projected;
 }
 
+// Research-only tangent metric projection. A strictly positive two-axis
+// cone uses a bounded bisection and rejects inputs or outputs for which its
+// local KKT and feasibility checks cannot be certified. Unsupported one-axis
+// cones fail closed. This is not a global solver convergence certificate.
+inline float2 certifiedTangentMetricProjection(
+    const float2 proposed, const float2x2 tangentInverse,
+    const float normal, const float2 friction
+) {
+    if (!isfinite(normal) || !all(isfinite(proposed)) ||
+        !all(isfinite(friction)) || normal < 0.f || any(friction < 0.f))
+        return float2(INFINITY);
+    if (all(friction == float2(0.f))) return float2(0.f);
+    if (any(friction <= 0.f)) return float2(INFINITY);
+    if (normal == 0.f) return float2(0.f);
+    const float2 limit=normal*friction;
+    const float L=max(limit.x,limit.y);
+    if (!(L>0.f) || !isfinite(L) || any(limit<=0.f) || !all(isfinite(limit)))
+        return float2(INFINITY);
+    const float2 ratio=limit/L;
+    const float2 p=proposed/L;
+    if (any(ratio<=0.f) || !all(isfinite(ratio)) || !all(isfinite(p)))
+        return float2(INFINITY);
+    const float2 normalized=p/ratio;
+    const float normalizedLength=length(normalized);
+    if (isfinite(normalizedLength) && normalizedLength<=1.f) return proposed;
+    const float k00=tangentInverse[0][0], k11=tangentInverse[1][1];
+    const float k01=.5f*(tangentInverse[0][1]+tangentInverse[1][0]);
+    const float ks=max(max(abs(k00),abs(k11)),abs(k01));
+    if (!(ks>0.f) || !isfinite(ks)) return float2(INFINITY);
+    const float a=k11/ks,b=-k01/ks,c=k00/ks;
+    if (!(a>0.f) || !(c>0.f) || !(a*c-b*b>0.f)) return float2(INFINITY);
+    const float A=a*ratio.x*ratio.x,B=b*ratio.x*ratio.y,C=c*ratio.y*ratio.y;
+    const float2 g=ratio*float2(a*p.x+b*p.y,b*p.x+c*p.y);
+    float lo=0.f,hi=length(g);
+    if (!(hi>0.f) || !isfinite(hi) || !all(isfinite(g))) return float2(INFINITY);
+    for (uint i=0u;i<32u;++i) {
+        const float m=.5f*(lo+hi),det=(A+m)*(C+m)-B*B;
+        if (!(det>0.f) || !isfinite(det)) return float2(INFINITY);
+        const float2 u=float2((C+m)*g.x-B*g.y,(A+m)*g.y-B*g.x)/det;
+        const float n=length(u);
+        if (!isfinite(n)) return float2(INFINITY);
+        if (n>1.f) lo=m; else hi=m;
+    }
+    const float det=(A+hi)*(C+hi)-B*B;
+    if (!(det>0.f) || !isfinite(det)) return float2(INFINITY);
+    const float2 u=float2((C+hi)*g.x-B*g.y,(A+hi)*g.y-B*g.x)/det;
+    const float n=length(u);
+    const float2 residual=float2(A*u.x+B*u.y,B*u.x+C*u.y)+hi*u-g;
+    if (!all(isfinite(u)) || !isfinite(n) || abs(n-1.f)>2.e-5f ||
+        !all(isfinite(residual)) || length(residual)>4.e-5f*max(length(g),1.e-20f))
+        return float2(INFINITY);
+    const float2 answer=L*ratio*u;
+    return all(isfinite(answer)) ? answer : float2(INFINITY);
+}
+
 // A sliding contact cannot satisfy its tangential sticking equation.
 // Updating the normal with the full inverse and then clipping friction mixes
 // that unsatisfied equation into the normal fixed point. Solve the normal
@@ -1134,7 +1189,10 @@ inline float3 normalFirstContactCandidate(
                   inverseCross * inverse.row0.z) / inverseNormal;
     const float2 tangent = previous.yz + tangentInverse * rhsT +
         inverseCross * (normalDelta / inverseNormal);
-    return projectFrictionCone(float3(normal, tangent), cone);
+    const float2 projected=certifiedTangentMetricProjection(
+        tangent, tangentInverse, normal,
+        float2(cone.effectiveFrictionU,cone.effectiveFrictionV));
+    return float3(normal, projected);
 }
 
 inline bool invert3x3(
