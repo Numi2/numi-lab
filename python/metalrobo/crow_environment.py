@@ -57,6 +57,7 @@ def runtime(root: Path) -> dict:
         "head_check": build / "bin/metalrobo_crow_embodiment_check",
         "foraging_check": build / "bin/metalrobo_crow_foraging_check",
         "cue_foraging_check": build / "bin/metalrobo_crow_cue_foraging_check",
+        "foraging_compile": build / "bin/metalrobo_crow_foraging_compile",
         "eye_check": build / "bin/metalrobo_crow_eye_check",
         "retinal_check": build / "bin/metalrobo_retinal_stream_check",
         "retinal_api_check": build / "bin/metalrobo_crow_retinal_api_check",
@@ -1203,6 +1204,10 @@ def main() -> int:
     commands.add_parser("body-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("foraging-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("cue-foraging-admission").add_argument("--output", type=Path, required=True)
+    prepare_cued = commands.add_parser("prepare-cued-foraging")
+    prepare_cued.add_argument("--output", type=Path, required=True)
+    prepare_cued.add_argument("--allocation-seed", type=int, required=True)
+    prepare_cued.add_argument("--occluded", action="store_true")
     commands.add_parser("feeding-probe").add_argument("--output", type=Path, required=True)
     commands.add_parser("feeding-learning-campaign").add_argument("--output", type=Path, required=True)
     feeding_policy=commands.add_parser("feeding-policy-probe")
@@ -1273,6 +1278,13 @@ def main() -> int:
                          ("recurrent_source_recurrent_rollout_admission.py",root/"python/metalrobo/recurrent_rollout_admission.py")):
             if not path.is_file() or not path.stat().st_size:raise RuntimeError("Missing recurrent rollout admission input: "+str(path))
             checked["inputs"][key]={"path":str(path),"sha256":sha(path)}
+    if args.command == "prepare-cued-foraging":
+        calibration = root / "environments/american-crow/cued-foraging-v1/calibrated-ports.bin"
+        if not calibration.is_file() or calibration.stat().st_size != 32:
+            raise ValueError("Missing exact native two-port calibration")
+        if not 0 <= args.allocation_seed < 2**64:
+            raise ValueError("Allocation seed must be an unsigned64 integer")
+        checked["inputs"]["cued_foraging_calibration"] = {"path": str(calibration), "sha256": sha(calibration)}
     if args.command == "doctor":
         print(json.dumps(checked, indent=2))
         return 0
@@ -1510,6 +1522,15 @@ def main() -> int:
                              str(output / "native-evidence")], root, 180)
             if result.get("status") != "passed" or result.get("exact_partition_replay") is not True:
                 raise RuntimeError("Native finite-resource admission failed")
+        elif args.command == "prepare-cued-foraging":
+            if not 0 <= args.allocation_seed < 2**64:
+                raise ValueError("Allocation seed must be an unsigned64 integer")
+            calibration = root / "environments/american-crow/cued-foraging-v1/calibrated-ports.bin"
+            result = execute(output, "compile-cued-foraging", [str(runtime(root)["foraging_compile"]),
+                             str(calibration), str(output / "environment"), str(args.allocation_seed),
+                             "1" if args.occluded else "0"], root, 60)
+            if result.get("status") != "passed" or result.get("simulation_steps") != 0:
+                raise RuntimeError("Native cue environment authoring failed")
         elif args.command == "cue-foraging-admission":
             result = execute(output, "cue-foraging", [str(runtime(root)["cue_foraging_check"]),
                              str(output / "native-evidence")], root, 1200)

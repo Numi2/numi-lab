@@ -28,6 +28,10 @@ struct CrowCuedForagingProgram {
     FiniteResourceConfig resources;
     VisualSensorProgram sensor;
 };
+[[nodiscard]] FiniteResourceConfig authorAmericanCrowCuedForagingResources(
+    const CompiledRun& physicalRun,const std::array<mr_float4,2>& calibratedPorts,
+    unsigned environments,std::uint64_t allocationSeed);
+void applyAmericanCrowForagingFixtureLimits(RunManifest& manifest);
 // Bind once, before compiling the retinal run. Port centers must come from an
 // independently admitted physical calibration in the actual ground frame.
 // The returned resource program fingerprint must be bound into TaskPack;

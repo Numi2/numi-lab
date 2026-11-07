@@ -1405,10 +1405,8 @@ Eleven malformed authoring/overwrite controls reject. Full Release compilation,
 29 focused Python checks, ten-negative fresh-process v13 life recovery and the
 six-arm uncued retinal admission pass. Life restore now clones the actual
 configured resource program and binds a cue observer to its candidate owner,
-preserving transactional publication. This is prerequisite ownership work; an
-ordinary C API/Swift cue training variant is still unfinished. A coupled cue-life checkpoint
-has not been admitted; component snapshots here establish partition equivalence.
-Next integrate this exact recipe into common rollout/training/life ownership.
+preserving transactional publication. This is prerequisite ownership work; the subsequent integration below admits ordinary C API/Swift cue training and
+coupled cue-life recovery.
 For a memory claim, prevent physical posture and previous-action channels from
 serving as an uncontrolled external memory during the delay, train through a
 sequence that spans cue to choice, and compare held-out intact, memory-reset,
@@ -1419,3 +1417,44 @@ biological calibration and production throughput remain open requirements.
 The shared-authoring milestone and exact runtime recovery are archived under
 `artifacts/crow-rl-foraging-core-20261107`; raw and bulk checkout duplicates are
 removed only after pushed Git recovery verification.
+
+
+## Ordinary cued recurrent training and exact lifetime continuation
+
+The additive 64-byte version1 C configuration now creates the exact native
+two-port world, cue sensor and finite-resource owner through ordinary rollout
+and training. Existing public struct sizes remain unchanged. Swift reads the
+portable `cued_foraging` retinal configuration in
+`environments/american-crow/cued-foraging-v1/prepared/retinal-observation.json`.
+`tools/numi crow-env prepare-cued-foraging --output NEW_DIRECTORY` invokes a
+native authoring-only compiler and performs zero simulation steps. Calibration
+provenance, source input hash and exclusive output ownership are recorded.
+
+The first real training construction rejected an exact source-world mismatch:
+the C API inherited additional TaskPack capacities absent from the admitted
+fixture. That failure and runtime are retained. Shared authoring now replaces
+the complete capacity profile before applying the existing admitted limits;
+world identity is restored without weakening any geometry or content guard.
+
+A real eight-lane,320-tick native/Swift/MLX run accepts2560 transitions, updates
+an H64 recurrent actor with96/48 encoder and320-tick sequences, and durably
+checkpoints native life, policy, model and Adam. Two uninterrupted updates match
+one-plus-one fresh-process continuations at chunks1 and8: policy/candidate and
+rollout bytes, all53 learner/Adam tensors and metadata, and all three complete
+world/contact/GRU, retinal and resource sections. Lifetime clocks remain320/640.
+A second control restores at tick16 while the cue and retinal pending queue
+are active; its80-tick tails match the96-tick reference across every sample,
+outcome, bootstrap and all native state sections. A changed allocation seed
+rejects restore. Twelve malformed C configurations reject. Full Release build,
+29 focused Python checks, the original ten-negative life admission and native
+eight-arm cue/intake regression pass.
+
+Evidence and retained runtime recovery are under
+`artifacts/crow-rl-cued-training-20261107`. Active portable environment inputs
+remain in Git outside prunable evidence. Initial training intake reward is zero;
+this admits integrated training and persistence, not learned memory. Ordinary
+resets still never refill food. Next implement explicit independently sampled
+training lifetimes and a cue-to-choice curriculum that prevents posture and
+previous-action external memory, then test held-out intact/reset/absent/swapped
+cue interventions. Manipulation, social agents, ecological variation, biological
+calibration and end-to-end production performance remain release requirements.

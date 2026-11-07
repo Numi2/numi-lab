@@ -180,6 +180,17 @@ typedef struct MRRetinalSensorConfigC {
     float minimum_depth_meters, maximum_depth_meters;
 } MRRetinalSensorConfigC;
 
+// Explicit engineering two-port fixture, used only by the additive cue entry.
+// Version1 is64 bytes. Ports are ground-local x/y/z/radius in meters, from
+// native calibration. Mesh indices bind authored indicator instances to port0/1.
+typedef struct MRCrowCuedForagingConfigC {
+    uint32_t struct_size, abi_version;
+    float left_port[4], right_port[4];
+    uint32_t cue_mesh_instances[2];
+    uint64_t allocation_seed;
+    uint32_t occluded, reserved;
+} MRCrowCuedForagingConfigC;
+
 typedef struct MRTaskRolloutLayoutC {
     uint32_t environment_count;
     uint32_t nq;
@@ -686,6 +697,10 @@ MR_API int mr_compile_episode_manifest(
 // retinal programs. No missing-image fallback or legacy struct reinterpretation.
 MR_API MRTaskRolloutHandle* mr_create_task_rollout_retinal(
     const MRRunManifestC* manifest, const MRRetinalSensorConfigC* retinal
+);
+MR_API MRTaskRolloutHandle* mr_create_task_rollout_cued_foraging(
+    const MRRunManifestC* manifest,const MRRetinalSensorConfigC* retinal,
+    const MRCrowCuedForagingConfigC* foraging
 );
 
 MR_API MRTaskRolloutHandle* mr_create_task_rollout(

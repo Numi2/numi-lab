@@ -1,4 +1,5 @@
 #include "metalrobo/RetinalObserver.hpp"
+#include "metalrobo/CrowForaging.hpp"
 #include "metalrobo/detail/Checkpoint.hpp"
 #include "metalrobo/c_api.h"
 
@@ -1147,7 +1148,8 @@ createTaskRolloutHandle(
     metalrobo::CompiledRun run,
     const char* metallibPath,
     std::string taskId,
-    const std::string_view source
+    const std::string_view source,
+    std::optional<metalrobo::FiniteResourceConfig> resources=std::nullopt
 ) {
     metalrobo::MetalWorldConfig worldConfig;
     if (metallibPath != nullptr && metallibPath[0] != '\0') {
@@ -1247,6 +1249,15 @@ createTaskRolloutHandle(
     if (const metalrobo::MetalWorldFlappingWingProgram* flappingWings =
             handle->run.flappingWingProgram()) {
         handle->stepConfig.flappingWingProgram = *flappingWings;
+    }
+    if(resources) {
+        const auto& r=*resources;
+        if(r.worldFingerprint!=handle->world.fingerprint() || r.environmentCount!=handle->environmentCount ||
+            r.bodyCount!=handle->model.bodies.size() || r.nq!=handle->model.defaultQ.size() ||
+            metalrobo::finiteResourceProgramFingerprint(r.program,r.patches,r.publishTaskState,r.allocation)!=taskProgram.header().deviceStateProgramFingerprint)
+            throw std::invalid_argument("Authored native resources differ from the compiled world/task");
+        handle->resourceRuntime=std::make_unique<metalrobo::FiniteResourceContext>(std::move(*resources));
+        handle->stepConfig.devicePhysicsProgram=handle->resourceRuntime->deviceProgram();
     }
     if (const metalrobo::VisualSensorProgram* visual =
             handle->run.visualSensorProgram()) {
@@ -1822,7 +1833,8 @@ std::unique_ptr<MRTaskRolloutHandle> createCompiledRunTaskRollout(
     const char* metallibPath,
     const std::string_view source,
     const MRTaskVisualObservationConfigC* visualSensor,
-    const metalrobo::RunManifest* compatiblePolicySource = nullptr
+    const metalrobo::RunManifest* compatiblePolicySource = nullptr,
+    std::optional<metalrobo::FiniteResourceConfig> resources=std::nullopt
 ) {
     const auto prepareManifest = [visualSensor](
         metalrobo::RunManifest& value
@@ -1853,7 +1865,7 @@ std::unique_ptr<MRTaskRolloutHandle> createCompiledRunTaskRollout(
         std::move(compiled),
         metallibPath,
         manifest.task.id,
-        source
+        source,std::move(resources)
     );
     if (compatiblePolicySource != nullptr) {
         metalrobo::RunManifest sourceManifest =
@@ -3282,7 +3294,8 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
     const MRTaskVisualObservationConfigC* visual_sensor,
     const char* metallib_path,
     const bool journey,
-    const MRRetinalSensorConfigC* retinalConfig=nullptr
+    const MRRetinalSensorConfigC* retinalConfig=nullptr,
+    const MRCrowCuedForagingConfigC* cueConfig=nullptr
 ) {
     if (config == nullptr) {
         gLastError = "BirdFlow American-crow rollout configuration is required.";
@@ -3292,6 +3305,9 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
     const int status = translateErrors([&] {
         validateTaskRolloutConfiguration(*config);
         const bool retinal=journey && config->birdflow_journey_variant==MR_BIRDFLOW_JOURNEY_V13_RETINAL_FEEDING;
+        static_assert(sizeof(MRCrowCuedForagingConfigC)==64);
+        if(cueConfig && (!retinal || cueConfig->struct_size!=sizeof(*cueConfig) || cueConfig->abi_version!=1 || cueConfig->reserved || cueConfig->occluded>1))
+            throw std::invalid_argument("Unsupported native cue-foraging configuration");
         if (retinal != (retinalConfig!=nullptr) || (retinal && visual_sensor==nullptr))
             throw std::invalid_argument("V13 requires the additive retinal entry and both explicit visual and retinal programs");
         metalrobo::RetinalSensorProgram retina;
@@ -3305,6 +3321,8 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             retina.width=c.width;retina.height=c.height;retina.sampleNumerator=c.sample_numerator;
             retina.sampleDenominator=c.sample_denominator;retina.latencyTicks=c.latency_ticks;
             retina.minimumDepthMeters=c.minimum_depth_meters;retina.maximumDepthMeters=c.maximum_depth_meters;
+            if(cueConfig)for(unsigned side=0;side<2;++side)
+                retina.resourceCues.push_back({{cueConfig->cue_mesh_instances[side],side,metalrobo::crowForagingCueEndTick,0}});
         }
         const bool feeding=retinal || (journey && config->birdflow_journey_variant==MR_BIRDFLOW_JOURNEY_V12_FEEDING_STATION);
         const bool embodied = journey && (config->birdflow_journey_variant ==
@@ -3340,7 +3358,7 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
                 "fall back to zero-filled observations"
             );
         }
-        manifest.id = journey
+        manifest.id = cueConfig ? "crow_head_camera_geometry_admission" : journey
             ? retinal ? "american_crow_retinal_feeding_v13_run"
             : feeding ? "american_crow_feeding_station_v12_run"
             : embodied ? "american_crow_embodied_development_v11_run"
@@ -3353,10 +3371,10 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
                 : "birdflow_american_crow_journey_v7_run"
             : "birdflow_american_crow_estimated_hybrid_run";
         manifest.robot = std::move(*robot);
-        manifest.scene = worldModelNavigation
+        manifest.scene = cueConfig ? metalrobo::makeAmericanCrowForagingFixtureManifest(cueConfig->occluded!=0).scene : worldModelNavigation
             ? metalrobo::makeBirdFlowAmericanCrowNavigationScenePack()
             : metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
-        manifest.sensors.id = journey
+        manifest.sensors.id = cueConfig ? "camera_admission_proprioception" : journey
             ? retinal ? "american_crow_retinal_v13_rgb_proprioception_nutrition"
             : feeding ? "american_crow_feeding_v12_proprioception_and_nutrition"
             : embodied ? "american_crow_embodied_v11_proprioception"
@@ -3396,7 +3414,7 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             auto p=visualSensorProgram(*visual_sensor);p.retinal=retina;
             p.fingerprint=metalrobo::visualSensorProgramFingerprint(p);manifest.sensors.deviceVisual=std::move(p);
         }
-        manifest.reality.id =
+        manifest.reality.id = cueConfig ? "canonical_camera_reality" :
             "birdflow_american_crow_estimated_hybrid_nominal_reality";
         manifest.teacher.id = "no_teacher";
         if (config->disable_task_terminations != 0u) {
@@ -3404,11 +3422,22 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
         }
         applyRunProfile(manifest, *config);
         manifest.profile.capacities = manifest.task.capacities;
+        std::optional<metalrobo::FiniteResourceConfig> resources;
+        if(cueConfig) {
+            metalrobo::applyAmericanCrowForagingFixtureLimits(manifest);
+            metalrobo::CompiledRun physical;
+            const auto compiled=metalrobo::compileRun(manifest,physical);
+            if(!compiled.succeeded())throw std::invalid_argument("Cue fixture physical compilation failed: "+compiled.message);
+            const auto* a=cueConfig->left_port;const auto* b=cueConfig->right_port;
+            const std::array<mr_float4,2> ports{{{a[0],a[1],a[2],a[3]},{b[0],b[1],b[2],b[3]}}};
+            resources=metalrobo::authorAmericanCrowCuedForagingResources(physical,ports,config->environment_count,cueConfig->allocation_seed);
+            manifest.task.deviceStateProgramFingerprint=metalrobo::finiteResourceProgramFingerprint(resources->program,resources->patches,true,resources->allocation);
+        }
         auto handle = createCompiledRunTaskRollout(
             std::move(manifest), metallib_path,
-            "BirdFlow American-crow estimated hybrid", retinal ? nullptr : visual_sensor
+            "BirdFlow American-crow estimated hybrid", retinal ? nullptr : visual_sensor,nullptr,std::move(resources)
         );
-        if (feeding) {
+        if (feeding && !cueConfig) {
             handle->resourceRuntime=std::make_unique<metalrobo::FiniteResourceContext>(
                 metalrobo::makeAmericanCrowFeedingResourceConfig(handle->run,config->environment_count));
             handle->stepConfig.devicePhysicsProgram=handle->resourceRuntime->deviceProgram();
@@ -3986,6 +4015,15 @@ MRTaskRolloutHandle* mr_create_task_rollout_retinal(const MRRunManifestC* manife
         }
     }
     return result;
+}
+
+MRTaskRolloutHandle* mr_create_task_rollout_cued_foraging(const MRRunManifestC* manifest,
+    const MRRetinalSensorConfigC* retinal,const MRCrowCuedForagingConfigC* foraging) {
+    if(!manifest || !retinal || !foraging || manifest->source!=MR_RUN_SOURCE_BIRDFLOW_AMERICAN_CROW_JOURNEY ||
+        manifest->profile.birdflow_journey_variant!=MR_BIRDFLOW_JOURNEY_V13_RETINAL_FEEDING || manifest->inspection_visual_program) {
+        gLastError="Cued foraging requires explicit v13 crow, retinal/resource programs, and no separate inspection program";return nullptr;
+    }
+    return createBirdFlowAmericanCrowRun(&manifest->profile,manifest->visual_sensor_program,manifest->metallib_path,true,retinal,foraging);
 }
 
 namespace {

@@ -24,9 +24,7 @@ mr_float4 rotate(mr_float4 q,mr_float4 v) {
 }
 RunManifest manifest(bool blocked) {
     auto m=makeManifest(blocked);m.profile.environmentCount=lanes;m.profile.controlSteps=320;
-    m.profile.capacities.rawContacts=256;m.profile.capacities.constraintBlocks=160;m.profile.capacities.constraintRows=480;
-    m.profile.capacities.endpointRuntimeRecords=320;m.profile.capacities.qualityRows=480;m.profile.capacities.islandConstraintReferences=160;
-    m.task.capacities=m.profile.capacities;m.task.maximumEpisodeSteps=100000;m.reality.reset={};return m;
+    applyAmericanCrowForagingFixtureLimits(m);m.reality.reset={};return m;
 }
 MetalWorldStepConfig stepConfig(const CompiledRun& run) {
     MetalWorldStepConfig s;s.timestepSeconds=.02f;s.physicsSubsteps=4;s.velocityIterations=4;s.finalVelocityIterations=2;

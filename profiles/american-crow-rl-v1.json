@@ -532,5 +532,28 @@
     "solid_food_mechanics_qualified": false,
     "production_throughput_qualified": false,
     "next": "common native rollout/training/life integration; prevent body/previous-action memory confounds; sequence learning spanning cue to choice and held-out causal memory interventions"
+  },
+  "cued_training_development": {
+    "configuration": "environments/american-crow/cued-foraging-v1/prepared/retinal-observation.json",
+    "preparation_command": "tools/numi crow-env prepare-cued-foraging --output NEW_DIRECTORY",
+    "C_configuration_ABI": 1,
+    "environments": 8,
+    "steps_per_sequence": 320,
+    "recurrent_hidden": 64,
+    "encoder": [
+      96,
+      48
+    ],
+    "exact_continuation_chunks": [
+      1,
+      8
+    ],
+    "learner_and_Adam_tensors_exact": 53,
+    "early_cue_restore_exact": true,
+    "initial_intake_reward": 0,
+    "ordinary_reset_refills_food": false,
+    "learned_memory_qualified": false,
+    "ecological_environment_qualified": false,
+    "evidence": "artifacts/crow-rl-cued-training-20261107"
   }
 }

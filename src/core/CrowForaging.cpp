@@ -141,9 +141,9 @@ CrowForagingVisual authorAmericanCrowForagingVisual(const CompiledRun& run,const
 }
 
 
-CrowCuedForagingProgram authorAmericanCrowCuedForagingProgram(
-    const CompiledRun& physicalRun,const CrowForagingVisual& visual,
-    const std::array<mr_float4,2>& calibratedPorts,unsigned environments,std::uint64_t allocationSeed) {
+FiniteResourceConfig authorAmericanCrowCuedForagingResources(
+    const CompiledRun& physicalRun,const std::array<mr_float4,2>& calibratedPorts,
+    unsigned environments,std::uint64_t allocationSeed) {
     require(physicalRun.valid(),"Cued foraging requires a compiled physical run");
     require(environments>0,"Cued foraging requires nonzero environments");
     for(const auto p:calibratedPorts)require(std::isfinite(p.x)&&std::isfinite(p.y)&&std::isfinite(p.z)&&std::isfinite(p.w)&&p.w>0,
@@ -152,6 +152,25 @@ CrowCuedForagingProgram authorAmericanCrowCuedForagingProgram(
     const double dx=double(a.x)-b.x,dy=double(a.y)-b.y,dz=double(a.z)-b.z;
     const double radii=double(a.w)+b.w;
     require(dx*dx+dy*dy+dz*dz>radii*radii,"Cued foraging intake volumes overlap");
+    auto resources=makeAmericanCrowFeedingResourceConfig(physicalRun,environments);
+    resources.program.binding.z=2;resources.patches.front().centerRadius=calibratedPorts[0];
+    auto second=resources.patches.front();second.centerRadius=calibratedPorts[1];resources.patches.push_back(second);
+    resources.allocation={1,1,crowForagingIntakeStartTick,1};resources.allocationSeed=allocationSeed;
+    return resources;
+}
+void applyAmericanCrowForagingFixtureLimits(RunManifest& m) {
+    // This exact profile is admitted with the fixture. Inheriting unrelated
+    // TaskPack capacities changes compiled world identity and source hashes.
+    m.profile.capacities={};
+    m.profile.capacities.rawContacts=256;m.profile.capacities.constraintBlocks=160;m.profile.capacities.constraintRows=480;
+    m.profile.capacities.endpointRuntimeRecords=320;m.profile.capacities.qualityRows=480;m.profile.capacities.islandConstraintReferences=160;
+    m.task.capacities=m.profile.capacities;m.task.maximumEpisodeSteps=100000;
+}
+CrowCuedForagingProgram authorAmericanCrowCuedForagingProgram(
+    const CompiledRun& physicalRun,const CrowForagingVisual& visual,
+    const std::array<mr_float4,2>& calibratedPorts,unsigned environments,std::uint64_t allocationSeed) {
+    CrowCuedForagingProgram authored;
+    authored.resources=authorAmericanCrowCuedForagingResources(physicalRun,calibratedPorts,environments,allocationSeed);
     require(visual.resourceCues.size()==2 && visual.resourceCues[0].binding.y==0 && visual.resourceCues[1].binding.y==1 &&
         visual.resourceCues[0].binding.z==crowForagingCueEndTick && visual.resourceCues[1].binding.z==crowForagingCueEndTick,
         "Cued foraging requires two authored port indicator bindings");
@@ -163,12 +182,6 @@ CrowCuedForagingProgram authorAmericanCrowCuedForagingProgram(
     require(visual.head<physicalRun.model().bodies.size() && physicalRun.model().bodyNames[visual.head]=="crow_head" &&
         visual.manifest.worldFingerprint==visual.family.worldTemplate.fingerprint,
         "Cued foraging visual/world provenance mismatch");
-    CrowCuedForagingProgram authored;
-    auto& resources=authored.resources;
-    resources=makeAmericanCrowFeedingResourceConfig(physicalRun,environments);
-    resources.program.binding.z=2;resources.patches.front().centerRadius=calibratedPorts[0];
-    auto second=resources.patches.front();second.centerRadius=calibratedPorts[1];resources.patches.push_back(second);
-    resources.allocation={1,1,crowForagingIntakeStartTick,1};resources.allocationSeed=allocationSeed;
     auto& p=authored.sensor;
     p.cameraParentBody="crow_head";p.cameraPosition={.018f,.026f,.012f,0};p.cameraOrientation={-.5f,.5f,-.5f,.5f};
     p.width=crowForagingCameraWidth;p.height=crowForagingCameraHeight;p.verticalFieldOfViewDegrees=45;

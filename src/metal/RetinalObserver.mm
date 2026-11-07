@@ -164,8 +164,11 @@ RetinalObserverContext::RetinalObserverContext(const CompiledRun& run,const Worl
     for (unsigned i=0;i<p->assets.size();++i) {
         const auto& asset=p->assets[i];const auto& pack=scene.renderScene.visualPacks[i];
         VisualAssetPackV2 actual;
-        require(readVisualAssetPack(asset.path,actual,&reason) && actual.contentHash==asset.contentHash &&
-            actual.sourceContentHash=="world:"+std::to_string(run.world().fingerprint()),"Retinal content or source-world hash mismatch");
+        if(!readVisualAssetPack(asset.path,actual,&reason) || actual.contentHash!=asset.contentHash ||
+            actual.sourceContentHash!="world:"+std::to_string(run.world().fingerprint()))
+            throw std::invalid_argument("Retinal content or source-world hash mismatch: asset="+asset.assetId+
+                " source="+actual.sourceContentHash+" expected=world:"+std::to_string(run.world().fingerprint())+
+                " content="+actual.contentHash+" expected_content="+asset.contentHash+" reason="+reason);
         meshInstances+=actual.instances.size();
         references.push_back({asset.path,asset.contentHash,canonical.assetIndex(asset.assetId),asset.semanticId,asset.instanceId});
         require(pack.contentHash==asset.contentHash && pack.semanticId==asset.semanticId && pack.instanceId==asset.instanceId &&

@@ -1,0 +1,9 @@
+{
+  "source_manifest": "artifacts/crow-rl-cued-foraging-20261107/manifest.json",
+  "source_file": ".numi/runs/american-crow/cue-foraging-02/native-evidence/calibration/ports.bin",
+  "sha256": "04ec3a373ede60a779c2e5579d2601cd5e00bb4d8dc563cb7ba8d60de6bfad64",
+  "bytes": 32,
+  "source_runtime_commit": "f18e0217d3e6d0a0c132b80c82d6aa9e2027ca17",
+  "engineering_calibration": "Accepted canonical yaw plus/minus0.6 at128 ticks, fixed15mm port radius; fixture only",
+  "biological_measurement": false
+}

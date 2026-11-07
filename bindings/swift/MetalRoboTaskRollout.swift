@@ -257,6 +257,33 @@ public struct MetalRoboRetinalObservationConfiguration: Sendable, Decodable {
     }
 }
 
+public struct MetalRoboCrowCuedForagingConfiguration: Sendable, Decodable {
+    public var ports: [[Float]]
+    public var cueMeshInstances: [UInt32]
+    public var allocationSeed: UInt64
+    public var occluded: Bool
+    private enum CodingKeys: String, CodingKey {
+        case ports, occluded
+        case cueMeshInstances = "cue_mesh_instances", allocationSeed = "allocation_seed"
+    }
+    public init(ports: [[Float]], cueMeshInstances: [UInt32], allocationSeed: UInt64, occluded: Bool = false) {
+        self.ports = ports; self.cueMeshInstances = cueMeshInstances
+        self.allocationSeed = allocationSeed; self.occluded = occluded
+    }
+    fileprivate func native() throws -> MRCrowCuedForagingConfigC {
+        guard ports.count == 2, ports.allSatisfy({ $0.count == 4 && $0.allSatisfy(\.isFinite) && $0[3] > 0 }),
+              cueMeshInstances.count == 2, cueMeshInstances[0] != cueMeshInstances[1]
+        else { throw MetalRoboTaskRolloutError.invalidShape("Cued foraging requires two finite ports and distinct mesh indices.") }
+        var value = MRCrowCuedForagingConfigC()
+        value.struct_size = UInt32(MemoryLayout<MRCrowCuedForagingConfigC>.size); value.abi_version = 1
+        value.left_port = (ports[0][0], ports[0][1], ports[0][2], ports[0][3])
+        value.right_port = (ports[1][0], ports[1][1], ports[1][2], ports[1][3])
+        value.cue_mesh_instances = (cueMeshInstances[0], cueMeshInstances[1])
+        value.allocation_seed = allocationSeed; value.occluded = occluded ? 1 : 0
+        return value
+    }
+}
+
 public struct MetalRoboTaskVisualObservationConfiguration:
     Sendable
 {
@@ -303,10 +330,12 @@ public struct MetalRoboTaskVisualObservationConfiguration:
         let environmentPack: String?
         let camera: Camera
         let retinal: MetalRoboRetinalObservationConfiguration?
+        let cuedForaging: MetalRoboCrowCuedForagingConfiguration?
 
         private enum CodingKeys: String, CodingKey {
             case format, id, packs, camera, retinal
             case environmentPack = "environment_pack"
+            case cuedForaging = "cued_foraging"
         }
     }
 
@@ -325,6 +354,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
     public var captureHeight: UInt32
     public var capturePolicyCamera: Bool
     public var retinal: MetalRoboRetinalObservationConfiguration?
+    public var cuedForaging: MetalRoboCrowCuedForagingConfiguration?
 
     public init(
         packs: [MetalRoboTaskVisualPack],
@@ -341,7 +371,8 @@ public struct MetalRoboTaskVisualObservationConfiguration:
         captureWidth: UInt32 = 0,
         captureHeight: UInt32 = 0,
         capturePolicyCamera: Bool = false,
-        retinal: MetalRoboRetinalObservationConfiguration? = nil
+        retinal: MetalRoboRetinalObservationConfiguration? = nil,
+        cuedForaging: MetalRoboCrowCuedForagingConfiguration? = nil
     ) {
         self.packs = packs
         self.environmentPackURL = environmentPackURL
@@ -358,6 +389,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
         self.captureHeight = captureHeight
         self.capturePolicyCamera = capturePolicyCamera
         self.retinal = retinal
+        self.cuedForaging = cuedForaging
     }
 
     public static func loadArtifact(at url: URL) throws -> Self {
@@ -372,6 +404,7 @@ public struct MetalRoboTaskVisualObservationConfiguration:
             )
         }
         guard artifact.format == (artifact.retinal == nil ? "numi.visual-observation.v1" : "numi.retinal-observation.v1"),
+              artifact.cuedForaging == nil || artifact.retinal != nil,
               !artifact.id.isEmpty,
               !artifact.packs.isEmpty,
               !artifact.camera.parentBody.isEmpty,
@@ -422,7 +455,8 @@ public struct MetalRoboTaskVisualObservationConfiguration:
             nominalRateHz: artifact.camera.nominalRateHz,
             maximumRetainedBytes:
                 artifact.camera.maximumRetainedBytes,
-            retinal: artifact.retinal
+            retinal: artifact.retinal,
+            cuedForaging: artifact.cuedForaging
         )
     }
 
@@ -1213,6 +1247,10 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
             )
         }
         var retinal = try authored.visualSensor?.retinal?.native()
+        var foraging = try authored.visualSensor?.cuedForaging?.native()
+        guard foraging == nil || retinal != nil else {
+            throw MetalRoboTaskRolloutError.invalidShape("Cued foraging requires an explicit retinal program.")
+        }
         let configuration = authored.sensorsAndPhysics
         var source = MR_RUN_SOURCE_UNITREE_G1.rawValue
         var urdfPath: String?
@@ -1308,7 +1346,12 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                                             manifest.metallib_path = metallib
                                             if retinal != nil {
                                                 return withUnsafePointer(to: &retinal!) { sensor in
-                                                    mr_create_task_rollout_retinal(&manifest, sensor)
+                                                    if foraging != nil {
+                                                        return withUnsafePointer(to: &foraging!) { resources in
+                                                            mr_create_task_rollout_cued_foraging(&manifest, sensor, resources)
+                                                        }
+                                                    }
+                                                    return mr_create_task_rollout_retinal(&manifest, sensor)
                                                 }
                                             }
                                             return mr_create_task_rollout(&manifest)

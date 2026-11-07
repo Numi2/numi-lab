@@ -1148,6 +1148,12 @@ set_target_properties(metalrobo_crow_eye_check PROPERTIES
     BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
 target_compile_options(metalrobo_crow_foraging_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
 add_executable(metalrobo_crow_cue_foraging_check apps/crow_cue_foraging_check.mm)
+add_executable(metalrobo_crow_foraging_compile apps/crow_foraging_compile.cpp)
+target_compile_options(metalrobo_crow_foraging_compile PRIVATE -Wall -Wextra -Wpedantic)
+target_link_libraries(metalrobo_crow_foraging_compile PRIVATE metalrobo)
+set_target_properties(metalrobo_crow_foraging_compile PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "@loader_path/../lib")
 target_compile_options(metalrobo_crow_cue_foraging_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
 target_link_libraries(metalrobo_crow_cue_foraging_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
 add_dependencies(metalrobo_crow_cue_foraging_check metalrobo_shaders metalrobo_retinal_shaders)
