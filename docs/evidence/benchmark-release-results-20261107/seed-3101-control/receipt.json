@@ -1,0 +1,33 @@
+{
+  "payload": {
+    "argv": [
+      "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/bin/python3.15",
+      "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/benchmark_science_adapter.py",
+      "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_bench",
+      "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib",
+      "1",
+      "100",
+      "3101"
+    ],
+    "cwd": "/Users/numi/numi-lab-benchmark-release-science-v2-20261107/study/trials/seed-3101-control/output",
+    "elapsed_seconds": 0.463467416993808,
+    "ended_at": "2026-11-07T22:37:58.266314+00:00",
+    "environment": {
+      "HOME": "/Users/numi",
+      "PATH": "/bin:/usr/bin",
+      "TMPDIR": "/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T"
+    },
+    "failure": null,
+    "files": {
+      "native.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native.stdout": "3e2b995194162ba26c66327617f5a41869c747c354d54498f317cf0adeb55bf5",
+      "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout.json": "1ad8fb5714c473b4a70fc6ca43bda5b50f9c2acb92e96299a7e90e3b71e3ec2d"
+    },
+    "process_sha256": "10cb796ceef27743700bbafb4d4ee5e7c8de2b62e91fa67c5f67562f76bda59e",
+    "returncode": 0,
+    "started_at": "2026-11-07T22:37:57.802848+00:00",
+    "started_sha256": "d558b654f0d7245250c1e7cb9226a9aaf4a3d71e19412dcdb760559aaa4ebf93"
+  },
+  "sha256": "f409c7bb81e791213a0080b9699ef5102fbf98cb60384e848b9461e80197f370"
+}

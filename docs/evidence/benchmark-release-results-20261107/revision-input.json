@@ -1,0 +1,54 @@
+{
+  "model": {
+    "prediction": {
+      "estimand": "paired_difference_mean",
+      "maximum": 1000000.0,
+      "minimum": 1000.0
+    },
+    "statement": "On this M6 in the Release build, 32 environments increase aggregate accepted environment steps per wall second by 1000 to 1000000 compared with one environment for 100 host-sinusoidal control steps.",
+    "training_units": [
+      {
+        "seed": 7
+      },
+      {
+        "seed": 1101
+      },
+      {
+        "seed": 1102
+      },
+      {
+        "seed": 1103
+      },
+      {
+        "seed": 1104
+      },
+      {
+        "seed": 1105
+      },
+      {
+        "seed": 3101
+      },
+      {
+        "seed": 3102
+      },
+      {
+        "seed": 3103
+      },
+      {
+        "seed": 3104
+      },
+      {
+        "seed": 3105
+      }
+    ],
+    "version": "franka-release-batch-v2-observed"
+  },
+  "model_file": "/Users/numi/numi-lab-benchmark-release-science-v2-20261107/model-observed.json",
+  "decision": "retain",
+  "reason": "All ten paired trials passed declared accounting checks; observed mean difference lies in the broad registered interval.",
+  "next_test": "Qualify force and motion for a fixed physical workload, then compare accepted simulated time at matched error using an independently specified reference and new fixed seeds.",
+  "limitations": "Single M6, host-sinusoidal actions with no rendering, learning, continuum, physical accuracy or comparator; thermal and background macOS activity uncontrolled. Host action generation excluded from timed interval.",
+  "evidence": [
+    "533eabe2147116e9a136fd91fa7230cf933929c5eef7478015453ec4f9e0425f"
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "payload": {
+    "analysis_sha256": "533eabe2147116e9a136fd91fa7230cf933929c5eef7478015453ec4f9e0425f",
+    "decision": "retain",
+    "evidence": [
+      "533eabe2147116e9a136fd91fa7230cf933929c5eef7478015453ec4f9e0425f"
+    ],
+    "limitations": "Single M6, host-sinusoidal actions with no rendering, learning, continuum, physical accuracy or comparator; thermal and background macOS activity uncontrolled. Host action generation excluded from timed interval.",
+    "model": {
+      "prediction": {
+        "estimand": "paired_difference_mean",
+        "maximum": 1000000.0,
+        "minimum": 1000.0
+      },
+      "statement": "On this M6 in the Release build, 32 environments increase aggregate accepted environment steps per wall second by 1000 to 1000000 compared with one environment for 100 host-sinusoidal control steps.",
+      "training_units": [
+        {
+          "seed": 7
+        },
+        {
+          "seed": 1101
+        },
+        {
+          "seed": 1102
+        },
+        {
+          "seed": 1103
+        },
+        {
+          "seed": 1104
+        },
+        {
+          "seed": 1105
+        },
+        {
+          "seed": 3101
+        },
+        {
+          "seed": 3102
+        },
+        {
+          "seed": 3103
+        },
+        {
+          "seed": 3104
+        },
+        {
+          "seed": 3105
+        }
+      ],
+      "version": "franka-release-batch-v2-observed"
+    },
+    "model_file": "/Users/numi/numi-lab-benchmark-release-science-v2-20261107/model-observed.json",
+    "model_sha256": "995e82041214b5c7087844723c39b60af928e3abee40611ead9a3ea97da411a3",
+    "next_test": "Qualify force and motion for a fixed physical workload, then compare accepted simulated time at matched error using an independently specified reference and new fixed seeds.",
+    "previous_model": {
+      "prediction": {
+        "estimand": "paired_difference_mean",
+        "maximum": 1000000.0,
+        "minimum": 1000.0
+      },
+      "statement": "On this M6 in the Release build, 32 environments increase aggregate accepted environment steps per wall second by 1000 to 1000000 compared with one environment for 100 host-sinusoidal control steps.",
+      "training_units": [
+        {
+          "seed": 7
+        },
+        {
+          "seed": 1101
+        },
+        {
+          "seed": 1102
+        },
+        {
+          "seed": 1103
+        },
+        {
+          "seed": 1104
+        },
+        {
+          "seed": 1105
+        }
+      ],
+      "version": "franka-release-batch-v2"
+    },
+    "reason": "All ten paired trials passed declared accounting checks; observed mean difference lies in the broad registered interval.",
+    "recorded_at": "2026-11-07T22:38:30.333397+00:00"
+  },
+  "sha256": "ed7dc3c4b9a6fc0efc6f015020345f662f222688382ee931251203cd9360be69"
+}

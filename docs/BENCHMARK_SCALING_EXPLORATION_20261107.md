@@ -63,7 +63,6 @@ interactive latency.
 A replacement Release study was preregistered after the warmup-accounting
 change, with its plan and registration retained in
 [release study evidence](evidence/benchmark-release-plan-v2-20261107/).
-It has not run. The earlier unstarted registrations were stopped explicitly
-when their source artifact changed. Native timing is deferred until host
-activity can be characterized, and any residual operating-system activity
-must be recorded with the results.
+The earlier unstarted registrations were stopped explicitly when their source
+artifact changed. The replacement subsequently ran; its observations and host
+activity are recorded separately in [the Release study](BENCHMARK_RELEASE_STUDY_20261107.md).
