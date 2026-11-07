@@ -1,0 +1,13 @@
+next env=0 count=2 sensor=1 sample=1
+next env=1 count=3 sensor=1 sample=0
+divergence_guard=refused
+metadata rejected_mismatch=0 accepted_reference_mismatch=0
+body env=0 changed_words=123
+body env=1 changed_words=219
+actor rejected_mismatch=0 accepted_changed=100
+depth rejected_mismatch=0 accepted_reference_mismatch=0 accepted_changed=8
+identity rejected_mismatch=0 accepted_reference_mismatch=0 accepted_changed=28
+validity rejected_mismatch=0 accepted_reference_mismatch=0 accepted_changed=7
+camera rejected_mismatch=0 accepted_reference_mismatch=0 accepted_changed=8
+visible env=0 pixels=4
+visible env=1 pixels=5
