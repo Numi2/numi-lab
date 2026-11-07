@@ -1,0 +1,7 @@
+test_mixed_failure_retry_and_cadence (__main__.TransactionOracle.test_mixed_failure_retry_and_cadence) ... ok
+test_rejected_reset_and_command_failure_are_atomic (__main__.TransactionOracle.test_rejected_reset_and_command_failure_are_atomic) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK
