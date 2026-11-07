@@ -1,0 +1,31 @@
+diff --git a/Users/numi/numi-lab-suture-earned/numi/measurements/native_rod_axial.cpp b/Users/numi/suture-measurements-20261108/ophthalmic/native-rod-diagnostic-002/probe-diagnostic.cpp
+index 6f0bb7d..2d5749b 100644
+--- a/Users/numi/numi-lab-suture-earned/numi/measurements/native_rod_axial.cpp
++++ b/Users/numi/suture-measurements-20261108/ophthalmic/native-rod-diagnostic-002/probe-diagnostic.cpp
+@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
+     config.gravity = {0, 0, 0};
+     config.linearDamping = 0;
+     config.twistDamping = 0;
+-    config.solverIterations = 128;
++    config.solverIterations = 8000;
+     config.constraintTolerance = 1e-10;
+     std::ofstream out(argv[1]);
+     if (!out) return 2;
+@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
+     double maxForceRelative = 0;
+     bool forcePassed = true;
+     int accepted = 0;
+-    for (int i = 0; i <= 4000; ++i) {
++    for (int i = 0; i <= 1; ++i) {
+         const double x_mm = 2.0 + i * dt * speed * 1000.0;
+         const double target = 0.120 + x_mm / 1000.0;
+         attachments[1].targetPosition = {target, 0, 0};
+@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
+         oldTarget = target;
+         ++accepted;
+         out << i << ',' << x_mm << ',' << force << ',' << e.total() << ',' << kinetic << ',' << work << ",ok\n";
+-        if (i == 4000) {
++        if (i == 1) {
+             const double delta = e.total() + kinetic - initialEnergy;
+             const double energyError = std::abs(work-delta)/std::abs(delta);
+             std::cout << std::setprecision(17)

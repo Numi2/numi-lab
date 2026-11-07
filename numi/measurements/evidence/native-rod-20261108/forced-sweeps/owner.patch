@@ -1,0 +1,13 @@
+diff --git a/Users/numi/numi-lab-skin-suture-restoration/src/core/DiscreteElasticRod.cpp b/Users/numi/suture-measurements-20261108/ophthalmic/native-rod-diagnostic-002/rod-force-diagnostic.cpp
+index 41f4ab2..5095662 100644
+--- a/Users/numi/numi-lab-skin-suture-restoration/src/core/DiscreteElasticRod.cpp
++++ b/Users/numi/suture-measurements-20261108/ophthalmic/native-rod-diagnostic-002/rod-force-diagnostic.cpp
+@@ -1827,7 +1827,7 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
+             diagnostics.maximumPositionCorrection,
+             model.radius * iterationTwistCorrection
+         );
+-        if (std::max(
++        if (iteration + 1u == config.solverIterations && std::max(
+                 iterationPositionCorrection,
+                 model.radius * iterationTwistCorrection
+             ) <= config.constraintTolerance) {
