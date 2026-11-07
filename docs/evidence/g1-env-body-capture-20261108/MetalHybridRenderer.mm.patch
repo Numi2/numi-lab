@@ -1,0 +1,42 @@
+--- a/src/metal/MetalHybridRenderer.mm
++++ b/src/metal/MetalHybridRenderer.mm
+@@ -7051,6 +7051,8 @@
+     __strong id<MTLBuffer> maskedDepthHistory = nil;
+     __strong id<MTLBuffer> researchCadence = nil;
+     __strong id<MTLBuffer> researchBodies = nil;
++    __strong id<MTLBuffer> researchBodySnapshot = nil;
++    bool researchCaptureBodies = false;
+     MetalHybridRendererLayout rendererLayout{};
+     MRHybridRenderUniformsGPU maskedDepthRenderUniforms{};
+     std::uint64_t observationSequence = 0u;
+@@ -7483,6 +7485,13 @@
+     return state_ ? (__bridge void*)state_->researchBodies : nullptr;
+ }
+ 
++void MetalHybridObjectTracker::researchEnableBodyCapture(bool enabled) {
++    if (state_) state_->researchCaptureBodies = enabled;
++}
++void* MetalHybridObjectTracker::researchCapturedBodies() const {
++    return state_ ? (__bridge void*)state_->researchBodySnapshot : nullptr;
++}
++
+ bool MetalHybridObjectTracker::researchSetCadenceBuffer(void* buffer) {
+     if (!state_ || !state_->compiled) return false;
+     id<MTLBuffer> candidate = (__bridge id<MTLBuffer>)buffer;
+@@ -7536,6 +7545,16 @@
+     state->researchBodies = (__bridge id<MTLBuffer>)pass.currentBodies;
+     id<MTLCommandBuffer> command =
+         (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
++    if (state->researchCaptureBodies) {
++        const std::size_t bytes = std::size_t(pass.environmentCount) * pass.bodyCount * sizeof(MRBodyStateGPU);
++        if (!bytes || state->researchBodies.length < bytes) return false;
++        if (state->researchBodySnapshot == nil || state->researchBodySnapshot.length != bytes)
++            state->researchBodySnapshot = [state->device newBufferWithLength:bytes options:MTLResourceStorageModePrivate];
++        id<MTLBlitCommandEncoder> blit = [command blitCommandEncoder];
++        if (state->researchBodySnapshot == nil || blit == nil) return false;
++        [blit copyFromBuffer:state->researchBodies sourceOffset:0 toBuffer:state->researchBodySnapshot destinationOffset:0 size:bytes];
++        [blit endEncoding];
++    }
+     const std::uint64_t observationSequence = state->observationSequence;
+     const double sensorTime =
+         static_cast<double>(observationSequence) *

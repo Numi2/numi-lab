@@ -1,0 +1,11 @@
+--- a/include/metalrobo/MetalHybridRenderer.hpp
++++ b/include/metalrobo/MetalHybridRenderer.hpp
+@@ -409,6 +409,8 @@
+     // Research only: shared buffer of one accepted cadence record per environment.
+     [[nodiscard]] bool researchSetCadenceBuffer(void* buffer);
+     [[nodiscard]] void* researchCurrentBodies() const;
++    void researchEnableBodyCapture(bool enabled);
++    [[nodiscard]] void* researchCapturedBodies() const;
+ 
+ private:
+     struct State;
