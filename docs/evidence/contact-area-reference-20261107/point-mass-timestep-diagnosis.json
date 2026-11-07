@@ -1,0 +1,159 @@
+{
+  "schema": "numi.contact.area-timestep-diagnosis.v1",
+  "scope": "independent FP64 point-mass analogy; not the 3D FEM fixture",
+  "equilibrium_gap_m": 9.697070413317377e-05,
+  "linearized_contact_tangent_N_per_m": 56415.74169953856,
+  "linearized_frequency_rad_per_s": 2531.971512198336,
+  "linearized_period_s": 0.0024815387048823193,
+  "exact_freefall_onset_s": 0.004515236409857309,
+  "simulations": [
+    {
+      "h": 0.0005,
+      "peak_normal_force_N": 0.5518484610958818,
+      "impulse_Ns": 0.0008640064956393094,
+      "contact_episodes_s": [
+        [
+          0.004,
+          0.01
+        ]
+      ],
+      "force_bins_N": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.37648255063966646,
+        0.18361832383066345,
+        0.04179931435676022,
+        0.08175450385914676,
+        0.09483230005365668,
+        0.08551950289941579
+      ],
+      "linear_oscillator_amplitude_retained_per_period": 0.09313238664554854
+    },
+    {
+      "h": 0.00025,
+      "peak_normal_force_N": 0.7963825314981258,
+      "impulse_Ns": 0.0008576868697258372,
+      "contact_episodes_s": [
+        [
+          0.00425,
+          0.00575
+        ],
+        [
+          0.00725,
+          0.01
+        ]
+      ],
+      "force_bins_N": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.4228084490011821,
+        0.16044031969680397,
+        0.0,
+        0.06856460749257545,
+        0.14636611900834065,
+        0.059507374526934824
+      ],
+      "linear_oscillator_amplitude_retained_per_period": 0.18780562679109095
+    },
+    {
+      "h": 0.000125,
+      "peak_normal_force_N": 1.189125060466515,
+      "impulse_Ns": 0.0008743303929864458,
+      "contact_episodes_s": [
+        [
+          0.004375,
+          0.0055
+        ],
+        [
+          0.00925,
+          0.01
+        ]
+      ],
+      "force_bins_N": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.4619089012284216,
+        0.18658160441038563,
+        0.0,
+        0.0,
+        0.0,
+        0.22583988734763838
+      ],
+      "linear_oscillator_amplitude_retained_per_period": 0.38767129070031986
+    },
+    {
+      "h": 6.25e-05,
+      "peak_normal_force_N": 1.4919316925199364,
+      "impulse_Ns": 0.0007234343705462685,
+      "contact_episodes_s": [
+        [
+          0.0044375000000000005,
+          0.0055
+        ]
+      ],
+      "force_bins_N": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.4806586169428099,
+        0.2427757536034585,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "linear_oscillator_amplitude_retained_per_period": 0.6119966326776751
+    }
+  ],
+  "point_mass_rk4": [
+    {
+      "h": 1e-06,
+      "final_gap_m": 0.00019998877151304804,
+      "final_velocity_m_per_s": -0.0004693651747712014,
+      "impulse_Ns": 0.0008591495864619706,
+      "force_bins_N": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.47587372723593996,
+        0.38327585922603075,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "h": 5e-07,
+      "final_gap_m": 0.00019998877147307548,
+      "final_velocity_m_per_s": -0.00046936518289255263,
+      "impulse_Ns": 0.0008591495863904837,
+      "force_bins_N": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.47587372716318904,
+        0.38327585922729424,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "point_mass_rk4_force_bin_change": 1.5287861516526645e-10,
+  "point_mass_rk4_impulse_change": 8.320654677047233e-11,
+  "limitations": [
+    "uniform gap and lumped mass omit FEM deformation and internal modes",
+    "does not establish a defect or force accuracy in Matter"
+  ]
+}

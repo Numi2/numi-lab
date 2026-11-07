@@ -51,3 +51,30 @@ comparison was performed. The necessary next investigation is a separately
 verified physical dynamic reference and refinement that resolves force and
 release behavior without changing this law or relaxing its gates. The retained
 failed temporal series must remain part of that assessment.
+
+## CPU diagnosis of the changing episodes
+
+The retained traces show the first nonzero contact moving from the 4.00 ms
+step at h = 0.5 ms to the 4.4375 ms step at h = 0.0625 ms. A continuous
+point-mass free-fall onset for the same starting gap is 4.515 ms. The fixture's
+discrete kinematic equation is backward Euler, so its onset is step-quantized.
+
+A separate FP64 point-mass calculation uses the same gravity, total mass,
+reference area and pressure law. Its linearized contact stiffness at static
+equilibrium is 56,416 N/m, giving a 2.482 ms point-mass period. The exact
+backward-Euler amplification of an undamped linear oscillator predicts
+amplitude retained per period of 9.3%, 18.8%, 38.8% and 61.2% at the four
+timesteps, respectively. The independent nonlinear backward-Euler point-mass
+solutions also change contact episodes as h decreases. A separate explicit
+RK4 integration of that *point-mass analogy* changes its 1 ms binned force by
+1.53e-10 and its total impulse by 8.32e-11 under the selected 1 µs to 0.5 µs
+refinement. Scripts and output are retained in the evidence directory.
+
+This demonstrates a plausible resolution and numerical-damping mechanism, not
+a measured modal analysis of the FEM pad or proof of a solver defect. The
+point-mass model has no internal deformation modes and does not reproduce the
+pad's force curve; it cannot qualify that curve. No correction to the contact
+law, acceptance tolerance or integrator follows from this analogy alone. The
+testable next step is an independent evaluation of the actual FEM dynamics,
+then temporal refinement at fixed mesh and law with the same force, impulse,
+release and state gates.
