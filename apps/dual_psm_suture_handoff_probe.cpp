@@ -32,6 +32,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <cstdlib>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -17068,6 +17069,14 @@ int main(const int argc, const char* const argv[]) {
                 if (!tissueRobotFirstBiteLive) {
                     return 0;
                 }
+            }
+            if (std::getenv("NUMI_SUTURE_COOK_FINGERPRINT_ONLY") != nullptr) {
+                std::cout << "fingerprint_diagnostic=cpu_only"
+                    << " world=" << tissueWorld.fingerprint
+                    << " physics=" << tissueWorld.physicsFingerprint
+                    << " material_state_stride="
+                    << tissueWorld.dispatch.materialStateStride << '\n';
+                return 0;
             }
             const auto initialized = tissueRuntime.initialize(
                 tissueWorld,
