@@ -40,6 +40,19 @@ class TransactionOracle(unittest.TestCase):
         self.assertEqual(states[0],reference)
         self.assertEqual(states[1],State(4,22,(20,22,22)))
 
+    def test_different_environment_sample_phases(self):
+        # One environment was rejected twice while another advanced.
+        # Identical wall submissions must not force identical sample phases.
+        accepted=[State(2, 10, (10,10)), State(4, 20, (20,20,20))]
+        trial=[candidate(accepted[0],12), candidate(accepted[1],24)]
+        accepted=publish(accepted,trial,[False,True])
+        self.assertEqual(accepted,[State(2,10,(10,10)), State(5,24,(20,20,24))])
+        next_trial=[candidate(accepted[0],12), candidate(accepted[1],25)]
+        self.assertEqual(next_trial[0].held,12)
+        self.assertEqual(next_trial[1].held,24)
+        self.assertEqual(publish(accepted,next_trial,[True,True]),
+                         [State(3,12,(10,10,12)), State(6,24,(20,24,24))])
+
     def test_rejected_reset_and_command_failure_are_atomic(self):
         old=[State(5,30,(20,20,30),2),State(2,50,(50,50),7)]
         trial=[candidate(old[0],40,reset=True),candidate(old[1],60)]
