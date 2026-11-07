@@ -100,3 +100,8 @@ add_executable(metalrobo_ccd_revolute_friction_probe "${NUMI_WORLD_ROOT}/apps/cc
 target_link_libraries(metalrobo_ccd_revolute_friction_probe PRIVATE numi_ccd_world_owner)
 target_link_options(metalrobo_ccd_revolute_friction_probe PRIVATE -Wl,-dead_strip)
 add_dependencies(metalrobo_ccd_revolute_friction_probe metalrobo_shaders)
+
+add_executable(metalrobo_ccd_mixed_rod_probe "${NUMI_WORLD_ROOT}/apps/ccd_mixed_rod_probe.cpp")
+target_link_libraries(metalrobo_ccd_mixed_rod_probe PRIVATE numi_ccd_world_owner)
+target_link_options(metalrobo_ccd_mixed_rod_probe PRIVATE -Wl,-dead_strip)
+add_dependencies(metalrobo_ccd_mixed_rod_probe metalrobo_shaders)

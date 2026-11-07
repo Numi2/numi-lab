@@ -9214,9 +9214,18 @@ inline void mrWorldWave32SolvePacket(
                            evaluatedCones[constraintBase+localConstraint].effectiveFrictionV));
                 delta=float3(preconditioner.row1.w,tangent-previous.yz);
             } else {
-                float3 proposed=previous+float3(
-                    dot(preconditioner.row0.xyz,rhs),dot(preconditioner.row1.xyz,rhs),dot(preconditioner.row2.xyz,rhs));
-                proposed=projectFrictionCone(proposed,evaluatedCones[constraintBase+localConstraint]);
+                // Preserve the pre-experiment update for each endpoint type
+                // in rod-containing islands; the prediction path above does
+                // not yet qualify dense rod coupling.
+                float3 proposed;
+                if (!typedRodConstraint(contact)) {
+                    proposed=normalFirstContactCandidate(previous,rhs,preconditioner,preconditioner.row0.w,
+                        evaluatedCones[constraintBase+localConstraint]);
+                } else {
+                    proposed=previous+float3(
+                        dot(preconditioner.row0.xyz,rhs),dot(preconditioner.row1.xyz,rhs),dot(preconditioner.row2.xyz,rhs));
+                    proposed=projectFrictionCone(proposed,evaluatedCones[constraintBase+localConstraint]);
+                }
                 delta=relaxation*(proposed-previous);
             }
             if (localFailure != MR_STEP_SUCCESS) {
