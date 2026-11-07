@@ -1,0 +1,3 @@
+world=17838161165188455652 task=14943081882084678183 observation=15496715402187980013 action=14625959607710386204 policy=14308024481998978469 sensor_offset=140 actor_count=140
+control step=1 advance error: task-rollout publication failed [metal_command_failure]: device observation program rejected the rollout pass
+fixture failure: missing outputs
