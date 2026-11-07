@@ -11732,6 +11732,8 @@ bool encodeDevicePhysicsProgram(
         .resetMasks = (__bridge void*)context.buffers[kResetMasks],
         .environmentStatuses =
             (__bridge void*)context.buffers[kEnvironmentStatuses],
+        .taskStates = config.taskProgram.valid()
+            ? (__bridge void*)context.buffers[kTaskState] : nullptr,
         .contactConstraints = (__bridge void*)context.buffers[kContacts],
         .contactStatuses = (__bridge void*)context.buffers[kContactStatuses],
         .rodNodes = world.rodNodeCount() == 0u
@@ -11743,6 +11745,8 @@ bool encodeDevicePhysicsProgram(
         .coupledCandidateContext = &context,
         .encodeCoupledCandidate = &encodeBorrowedCoupledCandidate,
         .worldFingerprint = world.fingerprint(),
+        .taskStateProgramFingerprint = config.taskProgram.valid()
+            ? config.taskProgram.header().deviceStateProgramFingerprint : 0u,
         .seed = config.taskSeed,
         .phase = phase,
         .controlStep = pass.controlStep,

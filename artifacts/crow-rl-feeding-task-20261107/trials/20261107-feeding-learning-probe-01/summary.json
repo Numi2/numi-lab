@@ -1,0 +1,33 @@
+{
+  "status": "passed",
+  "claim": "native/MLX updates, publication, and learner-only restore",
+  "variant": "v12-feeding-station",
+  "actor_initialization": "new zero-output actor",
+  "records": [
+    {
+      "stage": "initial",
+      "updates": 2,
+      "samples": 131072,
+      "training_loop_steps_per_second": 20848.702379154638,
+      "whole_process_steps_per_second": 18946.75859965603,
+      "initial_revision": 1,
+      "final_revision": 3,
+      "learner_state_restored": false,
+      "checkpoint_sha256": "3cbe477f9f94c5be1f8ae42a0224622c8881195efbe23093cd101e6d59252f21"
+    },
+    {
+      "stage": "resume",
+      "updates": 1,
+      "samples": 65536,
+      "training_loop_steps_per_second": 20726.891280203225,
+      "whole_process_steps_per_second": 19672.03740750335,
+      "initial_revision": 3,
+      "final_revision": 4,
+      "learner_state_restored": true,
+      "checkpoint_sha256": "05450fc46e37e62665aaaa5658b7bb2d74eba19e704c50e269413816f307f37b"
+    }
+  ],
+  "candidate_promoted": false,
+  "persistent_world_restore_tested": false,
+  "ecological_environment_qualified": false
+}

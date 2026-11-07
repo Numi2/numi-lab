@@ -138,6 +138,8 @@ struct VisualSensorProgram {
 [[nodiscard]] std::uint64_t visualSensorProgramFingerprint(
     const VisualSensorProgram& program
 );
+[[nodiscard]] TaskPack makeAmericanCrowFeedingStationTaskPack(
+    TaskObservationProgram& observations, TaskResetProgram& reset);
 
 // Physical mounts, timing, calibration, noise and dropout have one owner.
 // TaskPack may consume the resulting observation, but does not own the sensor.

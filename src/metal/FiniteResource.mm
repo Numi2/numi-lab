@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 #include <CommonCrypto/CommonDigest.h>
 #include "metalrobo/FiniteResource.hpp"
+#include "metalrobo/task_program_types.h"
 
 #include <array>
 #include <bit>
@@ -58,22 +59,35 @@ static_assert(sizeof(CheckpointHeader)==64);
 static_assert(std::endian::native==std::endian::little);
 }
 
+std::uint64_t finiteResourceProgramFingerprint(const MRFiniteResourceProgramGPU& program,
+    std::span<const MRFiniteResourcePatchGPU> patches,bool publishTaskState) {
+    std::vector<std::byte> bytes;
+    append(bytes,std::uint32_t(MR_FINITE_RESOURCE_ABI));append(bytes,program);
+    append(bytes,std::uint32_t(publishTaskState));
+    for (const auto& patch:patches) append(bytes,patch);
+    const auto hash=digest(bytes);std::uint64_t result=0;
+    std::memcpy(&result,hash.data(),sizeof(result));return result;
+}
 namespace detail {
 struct FiniteResourceRuntime : std::enable_shared_from_this<FiniteResourceRuntime> {
     FiniteResourceConfig config;
     std::uint64_t fingerprint=0;
+    std::uint64_t programFingerprint=0;
     mutable std::mutex mutex;
     std::uintptr_t activeToken=0;
     bool poisoned=false;
     __strong id<MTLDevice> device=nil;
     __strong id<MTLComputePipelineState> pipeline=nil;
     __strong id<MTLBuffer> program=nil, patches=nil, state=nil;
+    __strong id<MTLBuffer> unusedTask=nil;
+    __strong id<MTLBuffer> noResets=nil;
 
     static bool encode(void* opaque,const MetalWorldDevicePhysicsPass& pass) {
         auto& runtime=*static_cast<FiniteResourceRuntime*>(opaque);
         if (pass.worldFingerprint!=runtime.config.worldFingerprint ||
             pass.environmentCount!=runtime.config.environmentCount ||
-            pass.bodyCount!=runtime.config.bodyCount || pass.nq!=runtime.config.nq) return false;
+            pass.bodyCount!=runtime.config.bodyCount || pass.nq!=runtime.config.nq ||
+            (runtime.config.publishTaskState && pass.taskStateProgramFingerprint!=runtime.programFingerprint)) return false;
         if (pass.phase!=MetalWorldDevicePhysicsPhase::postCommit ||
             pass.physicsSubstep+1u!=pass.physicsSubsteps) return true;
         if (!pass.commandBuffer || !pass.currentBodies || !pass.q || !pass.environmentStatuses ||
@@ -82,7 +96,13 @@ struct FiniteResourceRuntime : std::enable_shared_from_this<FiniteResourceRuntim
         id<MTLBuffer> bodies=(__bridge id<MTLBuffer>)pass.currentBodies;
         id<MTLBuffer> q=(__bridge id<MTLBuffer>)pass.q;
         id<MTLBuffer> statuses=(__bridge id<MTLBuffer>)pass.environmentStatuses;
+        id<MTLBuffer> task=runtime.config.publishTaskState
+            ? (__bridge id<MTLBuffer>)pass.taskStates : runtime.unusedTask;
+        id<MTLBuffer> resets=pass.resetMasks ? (__bridge id<MTLBuffer>)pass.resetMasks : runtime.noResets;
+        const unsigned resetStride=pass.resetMasks ? pass.resetMaskStepStride : 0u;
         if (command.device.registryID!=runtime.device.registryID ||
+            task==nil || task.length<std::size_t(pass.environmentCount)*sizeof(MRTaskStateGPU) ||
+            resets==nil || resets.length<(std::size_t(pass.controlStep)*resetStride+pass.environmentCount)*sizeof(unsigned) ||
             bodies.length<std::size_t(pass.environmentCount)*pass.bodyStateStride*sizeof(MRBodyStateGPU) ||
             q.length<std::size_t(pass.environmentCount)*pass.qStride*sizeof(float) ||
             statuses.length<std::size_t(pass.environmentCount)*sizeof(MRMetalWorldStatusGPU)) return false;
@@ -102,7 +122,8 @@ struct FiniteResourceRuntime : std::enable_shared_from_this<FiniteResourceRuntim
         }
         const MRFiniteResourceDispatchGPU dispatch{
             {pass.environmentCount,pass.bodyStateStride,pass.qStride,pass.bodyCount},
-            {pass.nq,MR_FINITE_RESOURCE_ABI,0u,0u}};
+            {pass.nq,MR_FINITE_RESOURCE_ABI,runtime.config.publishTaskState ? 1u : 0u,0u},
+            {resetStride,pass.controlStep,0u,0u}};
         id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
         if (encoder==nil) return false;
         [encoder setComputePipelineState:runtime.pipeline];
@@ -113,6 +134,8 @@ struct FiniteResourceRuntime : std::enable_shared_from_this<FiniteResourceRuntim
         [encoder setBuffer:q offset:0 atIndex:4];
         [encoder setBuffer:statuses offset:0 atIndex:5];
         [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:6];
+        [encoder setBuffer:task offset:0 atIndex:7];
+        [encoder setBuffer:resets offset:0 atIndex:8];
         const NSUInteger width=std::min<NSUInteger>(32,runtime.pipeline.maxTotalThreadsPerThreadgroup);
         [encoder dispatchThreads:MTLSizeMake(pass.environmentCount,1,1)
              threadsPerThreadgroup:MTLSizeMake(width,1,1)];
@@ -146,9 +169,11 @@ FiniteResourceContext::FiniteResourceContext(FiniteResourceConfig config)
     }
     require(total<=std::numeric_limits<std::uint32_t>::max(),"Resource accounting would overflow");
     std::vector<std::byte> identity;
+    runtime_->programFingerprint=finiteResourceProgramFingerprint(p,config.patches,config.publishTaskState);
     append(identity,std::uint32_t(MR_FINITE_RESOURCE_ABI));
     append(identity,config.worldFingerprint); append(identity,config.environmentCount);
     append(identity,config.bodyCount); append(identity,config.nq); append(identity,p);
+    append(identity,std::uint32_t(config.publishTaskState));
     for (const auto& patch:config.patches) append(identity,patch);
     const auto hashed=digest(identity);
     std::memcpy(&runtime_->fingerprint,hashed.data(),sizeof(runtime_->fingerprint));
@@ -172,6 +197,13 @@ FiniteResourceContext::FiniteResourceContext(FiniteResourceConfig config)
     runtime_->state=[runtime_->device newBufferWithLength:
         std::size_t(runtime_->config.environmentCount)*sizeof(MRFiniteResourceStateGPU) options:MTLResourceStorageModeShared];
     require(runtime_->program!=nil && runtime_->patches!=nil && runtime_->state!=nil,"Resource buffer allocation failed");
+    runtime_->noResets=[runtime_->device newBufferWithLength:
+        std::size_t(runtime_->config.environmentCount)*sizeof(unsigned) options:MTLResourceStorageModeShared];
+    require(runtime_->noResets!=nil,"Resource reset buffer allocation failed");
+    std::memset(runtime_->noResets.contents,0,runtime_->noResets.length);
+    if (!runtime_->config.publishTaskState)
+        runtime_->unusedTask=[runtime_->device newBufferWithLength:
+            std::size_t(runtime_->config.environmentCount)*sizeof(MRTaskStateGPU) options:MTLResourceStorageModeShared];
     std::memset(runtime_->state.contents,0,runtime_->state.length);
 }
 FiniteResourceContext::~FiniteResourceContext()=default;

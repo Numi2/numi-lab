@@ -68,9 +68,11 @@ enum class TaskObservationSource : std::uint32_t {
     avianJourneyPhase = MR_TASK_OBSERVE_AVIAN_JOURNEY_PHASE,
     avianJourneyStage = MR_TASK_OBSERVE_AVIAN_JOURNEY_STAGE,
     navigationTarget = MR_TASK_OBSERVE_NAVIGATION_TARGET,
+    nutrition = MR_TASK_OBSERVE_NUTRITION,
 };
 
 enum class TaskRewardOperator : std::uint32_t {
+    nutritionIntake = MR_TASK_REWARD_NUTRITION_INTAKE,
     linearVelocityTracking =
         MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING,
     yawVelocityTracking = MR_TASK_REWARD_YAW_VELOCITY_TRACKING,
@@ -469,6 +471,7 @@ struct TaskMotionProgram {
 // compileTaskProgram; the runtime consumes no strings.
 struct TaskPack {
     std::string id;
+    std::uint64_t deviceStateProgramFingerprint=0u;
     // Operational contact-graph budget for this task. Zero fields retain the
     // world's topology-derived envelope.
     MetalWorldCapacityProfile capacities;

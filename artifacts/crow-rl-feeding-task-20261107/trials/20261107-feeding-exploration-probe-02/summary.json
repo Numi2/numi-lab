@@ -1,0 +1,45 @@
+{
+  "status": "passed",
+  "claim": "native/MLX updates, publication, and learner-only restore",
+  "variant": "v12-feeding-station",
+  "actor_initialization": "new zero-output actor",
+  "records": [
+    {
+      "stage": "initial",
+      "updates": 2,
+      "samples": 131072,
+      "training_loop_steps_per_second": 20988.66438061266,
+      "whole_process_steps_per_second": 18260.093876080726,
+      "initial_revision": 1,
+      "final_revision": 3,
+      "learner_state_restored": false,
+      "checkpoint_sha256": "8fd67bac9d43e6f6105e505a77d205c221ce486f4137156df9fcbcc2033fa8ea",
+      "last_update_mean_reward": 0.0003051757230423391,
+      "last_update_maximum_reward": 1.999999761581421,
+      "last_update_intake_utility_mean": 0.0003051757230423391,
+      "last_update_learning_rate": 9.999999747378752e-05,
+      "last_update_action_standard_deviation": 0.99994957447052,
+      "mlx_peak_memory_bytes": 457890872
+    },
+    {
+      "stage": "resume",
+      "updates": 1,
+      "samples": 65536,
+      "training_loop_steps_per_second": 20733.46361878344,
+      "whole_process_steps_per_second": 19390.85768702601,
+      "initial_revision": 3,
+      "final_revision": 4,
+      "learner_state_restored": true,
+      "checkpoint_sha256": "2ba6d580d8b79651fd84bcbbf0a2817aed0ba5d0cf30def2fd559502fd32b4c1",
+      "last_update_mean_reward": 0.004066466819494963,
+      "last_update_maximum_reward": 1.999999761581421,
+      "last_update_intake_utility_mean": 0.004066466819494963,
+      "last_update_learning_rate": 9.999999747378752e-05,
+      "last_update_action_standard_deviation": 0.9999715089797974,
+      "mlx_peak_memory_bytes": 457892538
+    }
+  ],
+  "candidate_promoted": false,
+  "persistent_world_restore_tested": false,
+  "ecological_environment_qualified": false
+}

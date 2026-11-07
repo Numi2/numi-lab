@@ -1,0 +1,32 @@
+{
+  "command": [
+    "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_rollout",
+    "--metallib",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+    "--birdflow-american-crow-journey",
+    "--birdflow-journey-variant",
+    "v12-feeding-station",
+    "--envs",
+    "8",
+    "--steps",
+    "448",
+    "--repeats",
+    "1",
+    "--chunk",
+    "8",
+    "--seed",
+    "2651107301",
+    "--no-scheduled-resets",
+    "--minimum-difficulty-band",
+    "0",
+    "--maximum-difficulty-band",
+    "0",
+    "--action-stream",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-feeding-capi-control-02/feeding-chunk8.actions.f32"
+  ],
+  "exit_code": 0,
+  "timed_out": false,
+  "wall_seconds": 2.9449498750036582,
+  "stdout_sha256": "54ecfc7843c5ab9567d114098099a4d9b784609f30b79b04ca07236f419ea7d7",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

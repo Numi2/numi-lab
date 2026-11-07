@@ -53,6 +53,22 @@ class EmbodiedCommandContractTest(unittest.TestCase):
                 self.assertNotEqual(result.returncode, 0)
                 self.assertIn("does not accept a residual base policy", result.stderr)
 
+    def test_feeding_station_uses_canonical_ground_and_no_teacher(self):
+        result = self.invoke(["journey", "train", "--variant", "v12-feeding-station"])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        arguments = json.loads(result.stdout)
+        self.assertEqual(arguments[arguments.index("--minimum-difficulty-band")+1], "0")
+        self.assertNotIn("--birdflow-journey-teacher", arguments)
+        self.assertNotIn("--visual-observation-config", arguments)
+        self.assertIn("--zero-actor-output", arguments)
+
+    def test_feeding_station_rejects_flight_and_unadmitted_capture(self):
+        for arguments in (["train", "--milestone", "takeoff"], ["capture"], ["window"],
+                          ["train", "--birdflow-journey-teacher"]):
+            result = self.invoke(["journey", arguments[0], "--variant", "v12-feeding-station", *arguments[1:]])
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("v12", result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()

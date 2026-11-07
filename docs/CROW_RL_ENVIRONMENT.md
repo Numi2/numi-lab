@@ -179,6 +179,69 @@ corrupted, mismatched, trailing or conservation-invalid data transactionally.
 They do not restore the surrounding world, contacts, policy, sensory history
 or memory. A complete life checkpoint is still pending.
 
+## Native feeding-station learning task
+
+`v12-feeding-station` connects the ledger to accepted native sensing, reward,
+PPO and publication. It has 97 actor/critic inputs and 18 action channels.
+The four nutritional inputs are crop fullness, newly consumed payload,
+mouth contact with an available intake volume, and local tracer availability.
+Availability is zero outside that volume. No remote patch coordinates or
+eye images enter this contract. These are estimated intake/taste proxies.
+
+The station is a canonical grounded mouth-skill curriculum. The inherited
+standing mask holds the other controls while three independent head/jaw
+actions remain active. It is not a free-locomotion or food-search task.
+There is no teacher, flight-stage schedule, reward for holding closed, or
+infinite food. Forty-five milligrams in the initial patch can yield at most
+4.5 utility units over the entire lifetime. Reward is accepted kg/s times
+100,000 integrated over the actual control interval. Ordinary task resets
+preserve food and crop. A reset clears the jaw edge without crediting a bite;
+both synthetic and native reset-during-closure controls exercise this case.
+
+Task ABI 47 adds nutrition state and the immutable state-program identity.
+Resource ABI 3 binds gesture/reset semantics. Geometry, quantity, bite size,
+crop capacity, mouth thresholds and projection semantics participate in the
+policy's task fingerprint. A different runtime resource program is rejected.
+TaskPack persists this identity in the optional tagged `NUTRI001` extension;
+legacy packs without an extension retain their old bytes and a zero identity.
+Old readers reject the new extension. This does not silently transfer old
+PolicyPacks or make resource-only checkpoints into complete world checkpoints.
+
+`feeding-probe --output NEW_DIRECTORY` uses authored native action streams
+to verify all connected C/Swift/Metal observations, rewards and outcomes.
+The two chunk sizes each produce 4.5 utility per lane. Turning away and holding
+closed produce zero; every control has zero physical terminations and failed
+physics steps. `foraging-admission` now additionally checks five native trials,
+including reset during a closing gesture, TaskPack identity preservation and
+runtime rejection of a changed food program.
+
+The default 0.2 exploration standard deviation produced no intake reward in
+the reported PPO updates, so that run is only a pipeline control. Wider
+unit-standard-deviation exploration with fixed learning rate 0.0001 produced
+positive accepted food reward. The first wider-exploration resume rejected a
+configuration mismatch; the corrected probe preserves the same exploration
+configuration when restoring learner state. Both negatives are retained.
+
+The corrected probe accepted 196,608 transitions and published revisions
+1 to 3 to 4. Its final initial-process update had mean food utility 0.0003052
+per transition; the resumed update had mean 0.0040665 and maximum about 2.
+These numbers are evidence of real food debits, not evidence of behavioral
+improvement: the resumed process starts a new independent world with fresh
+finite resources. It restores the learner only. Whole-process throughput was
+about 18,260 and 19,391 transitions/s, with MLX peak memory about 458 MB.
+These are short proprioceptive probes, not sustained ecological performance.
+
+Run this probe explicitly with `learn-probe --variant v12-feeding-station
+--initial-log-standard-deviation 0 --fixed-learning-rate --require-intake-reward
+--output NEW_DIRECTORY`. `feeding-policy-probe --policy PACK --output
+NEW_DIRECTORY` screens a deployed policy on three development seeds without
+spending qualification seeds. Aggregate food utility does not establish
+per-lane completion, learned memory, or a qualified feeding policy.
+The three-update deployment screen consumed zero food on all three development
+seeds, with zero physical terminations and device failures. This candidate is
+not a learned feeding skill. Longer primitive training and temporal exploration
+remain open; positive stochastic training reward alone cannot qualify deployment.
+
 ## Implementation order and acceptance
 
 1. Restore and measure the native motor instrument. Check exact replay,

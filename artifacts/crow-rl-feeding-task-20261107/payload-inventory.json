@@ -1,0 +1,956 @@
+[
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-01/failure.json",
+    "bytes": 199,
+    "sha256": "a4a33a54314f4b8880f9f4e28bfe585c5749b3eb06da09a95374cca3470102b2",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-01/foraging-ledger.json",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-01/foraging-ledger.receipt.json",
+    "bytes": 486,
+    "sha256": "759da1e113132be1c85364118e61aa7e3a82303f63090a4201af02644f828175",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-01/foraging-ledger.stderr",
+    "bytes": 54,
+    "sha256": "06d4a5036c4b095c26af965175b8550cd9e189f15904ae976aeb4fff0b8c22ac",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-01/native-evidence/failure.json",
+    "bytes": 66,
+    "sha256": "24ff94a8fce5b9e4dec6eebc2aa78dbade9a034b4ed39a59efa68addb3879181",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-01/native-evidence/plan.json",
+    "bytes": 700,
+    "sha256": "651cc5465236ee99654e7cddfb89f8ed5e5f054788c0e8f7ca6caee4d34120d3",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-01/native-evidence/synthetic-resources.checkpoint",
+    "bytes": 704,
+    "sha256": "48fe80571a91390246fde9d3711c199036fe1bb779d65faaa7b8577bc27cae77",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-01/plan.json",
+    "bytes": 7599,
+    "sha256": "0489db6a34dc9cd0b609e8b67a60fad8357c82b83d033479fa86608b74bff907",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-02/foraging-ledger.json",
+    "bytes": 576,
+    "sha256": "01d41385ca77ad1eb56a9acffa87b008e461d1e8a602d44bbad505247353fd86",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-02/foraging-ledger.receipt.json",
+    "bytes": 486,
+    "sha256": "3fc3a63f28ac774035ac90592c2aaf7301381e15d8790709e122a8dc8acd65f0",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-02/foraging-ledger.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-02/native-evidence/authored-intake.json",
+    "bytes": 60,
+    "sha256": "d5b87c13ccfacd67e96caa321769e1c4ef98baeb3ca27765f0b23d33e5a7cbff",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-02/native-evidence/missed.json",
+    "bytes": 1062,
+    "sha256": "329accf625e127a6ac07c4b77a8775d3e914705dc3bda6ffe607133b88f7509f",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-02/native-evidence/ordinary.json",
+    "bytes": 1102,
+    "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-02/native-evidence/partition.json",
+    "bytes": 1102,
+    "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-02/native-evidence/plan.json",
+    "bytes": 700,
+    "sha256": "651cc5465236ee99654e7cddfb89f8ed5e5f054788c0e8f7ca6caee4d34120d3",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-02/native-evidence/reset.json",
+    "bytes": 1102,
+    "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-02/native-evidence/resources.checkpoint",
+    "bytes": 704,
+    "sha256": "5295fb06b96311843976dd7a31f378598565ef03c9aa2e769c330a32da7c01c7",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-02/native-evidence/resources.checkpoint.negative-0",
+    "bytes": 703,
+    "sha256": "49f78a58096a3fae5c6b7246fdb7a7ea762b09326131070efdf33b8d12fd3dba",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-02/native-evidence/resources.checkpoint.negative-1",
+    "bytes": 704,
+    "sha256": "41e0cbd99317cd1fd12987f675d7911b3212e46ea9852630fc44c16d6eab7b9c",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-02/native-evidence/resources.checkpoint.negative-2",
+    "bytes": 705,
+    "sha256": "e798f8036d135563c2db4c72019784651ce8d2bb95a3e8426ecc281b9b7ffe52",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-02/native-evidence/resources.checkpoint.negative-3",
+    "bytes": 704,
+    "sha256": "64559fafec0ef1f4dfdccb567186b04efa2580b073c5129809794714b5f812aa",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-02/native-evidence/summary.json",
+    "bytes": 576,
+    "sha256": "01d41385ca77ad1eb56a9acffa87b008e461d1e8a602d44bbad505247353fd86",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-02/native-evidence/synthetic-resources.checkpoint",
+    "bytes": 704,
+    "sha256": "48fe80571a91390246fde9d3711c199036fe1bb779d65faaa7b8577bc27cae77",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-02/plan.json",
+    "bytes": 7626,
+    "sha256": "6893f5ffecbca45cc1a656b76a66c5a870504ac6cab7d2a2996308aaef9ab770",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-02/summary.json",
+    "bytes": 645,
+    "sha256": "b2c335ebaf8a6ea7e1af23589840cb8c164d2696d819aa69e70d028ea59560d7",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/foraging-ledger.json",
+    "bytes": 576,
+    "sha256": "caa01ec85515abac3514a998530702bec7edc92dde4fb1068e4a13507ced7635",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/foraging-ledger.receipt.json",
+    "bytes": 486,
+    "sha256": "c62d4513ad23f9d9f453cc342e0e436e334927bf2853e89412a98c4b63783e85",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/foraging-ledger.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/native-evidence/authored-intake.json",
+    "bytes": 60,
+    "sha256": "d5b87c13ccfacd67e96caa321769e1c4ef98baeb3ca27765f0b23d33e5a7cbff",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/native-evidence/feeding.taskpack",
+    "bytes": 1874,
+    "sha256": "c0b227097db169c01dd6fb481f8f193120bae9f41c47193717fcfeb4d3dcc740",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/native-evidence/missed.json",
+    "bytes": 1062,
+    "sha256": "329accf625e127a6ac07c4b77a8775d3e914705dc3bda6ffe607133b88f7509f",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/native-evidence/ordinary.json",
+    "bytes": 1102,
+    "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/native-evidence/partition.json",
+    "bytes": 1102,
+    "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/native-evidence/plan.json",
+    "bytes": 732,
+    "sha256": "bacf222218788a057e21d4d526a4cf8e6d4af96c78d47bb0dafd4b585aa2696b",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/native-evidence/reset-closing.json",
+    "bytes": 1102,
+    "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/native-evidence/reset.json",
+    "bytes": 1102,
+    "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/native-evidence/resources.checkpoint",
+    "bytes": 704,
+    "sha256": "79f8c4ca6d5b019a78c14a281ec0c672fbc7a4eb8b068799e3414f5152e98028",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/native-evidence/resources.checkpoint.negative-0",
+    "bytes": 703,
+    "sha256": "ffa929f6e7cecbac61c10aa1f769250ac39018be69a9d72dedd3d16257b3c96f",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/native-evidence/resources.checkpoint.negative-1",
+    "bytes": 704,
+    "sha256": "ed557a7342e7e1fd69682f8d30a9c7f837a206025f69e02d08683d91d5de332b",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/native-evidence/resources.checkpoint.negative-2",
+    "bytes": 705,
+    "sha256": "1cb67745d069057f3167a7185b1aec6bd2573d9f36596731718a5aeba8211ab2",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/native-evidence/resources.checkpoint.negative-3",
+    "bytes": 704,
+    "sha256": "8c7341dd147e660c180993155ab11e3812b3a03946066e0b342761e927a514f0",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/native-evidence/summary.json",
+    "bytes": 576,
+    "sha256": "caa01ec85515abac3514a998530702bec7edc92dde4fb1068e4a13507ced7635",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/native-evidence/synthetic-resources.checkpoint",
+    "bytes": 704,
+    "sha256": "d355aa883864739b920dbf539d6ff6a59c087d869189b7c2869c7e70050262f9",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/plan.json",
+    "bytes": 7657,
+    "sha256": "07d1f6dee009967159289131220d9a418ba600e5cfa95be2c904ed007da53087",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-task-admission-03/summary.json",
+    "bytes": 645,
+    "sha256": "b220a7146a255e25f025a4c6485310d1e70725b16ec2fb092af7840a882a58f3",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-01/feeding-chunk64.actions.f32",
+    "bytes": 258048,
+    "sha256": "f56482eb428c5b91371d77c1d875e87e4ce12b017addc7f835c00b3d3c1fe0bb",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-01/feeding-chunk64.json",
+    "bytes": 11978,
+    "sha256": "5b1d210a72a5f42ba602ee1beafc8fd6c1306123ecf76f75f3ac8b9e1024ba2c",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-01/feeding-chunk64.receipt.json",
+    "bytes": 956,
+    "sha256": "f18388b234b748557a7b7283763b7f789a35beff6d350b41769000bd79447706",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-01/feeding-chunk64.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-01/feeding-chunk8.actions.f32",
+    "bytes": 258048,
+    "sha256": "f56482eb428c5b91371d77c1d875e87e4ce12b017addc7f835c00b3d3c1fe0bb",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-01/feeding-chunk8.json",
+    "bytes": 11976,
+    "sha256": "2e0553e20b28b9b12c42a5b5ed72253161cc9ae2e0a358e32eac5d4215ff3c2b",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-01/feeding-chunk8.receipt.json",
+    "bytes": 955,
+    "sha256": "7cb58bcfa6bd5fed0f7021a0ba3c50d968877f0f1d3a4bc8a3107b704aa52f18",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-01/feeding-chunk8.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-01/head-yaw-miss.actions.f32",
+    "bytes": 258048,
+    "sha256": "415914ece59d2a7e2775aa0c5731cf0f349ce5f89117ef7ebe858eddd0c0f977",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-01/head-yaw-miss.json",
+    "bytes": 11890,
+    "sha256": "e4bbe4a7517dea8e3e3ac496b224f2d76e27464b2a093b71a9f77c20b0f73f87",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-01/head-yaw-miss.receipt.json",
+    "bytes": 954,
+    "sha256": "adf981311ab5ab2ac7209b233069a6fd68f0921720b1f75c5a7423df20329100",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-01/head-yaw-miss.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-01/held-closed.actions.f32",
+    "bytes": 258048,
+    "sha256": "4612fb902faddb62ea7221766297f713d2b1e4690eef543853db2de9139ca94c",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-01/held-closed.json",
+    "bytes": 11889,
+    "sha256": "6ebb645a4f23447b93540336b37c8b03be440da42f56702b868d8d99a9664923",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-01/held-closed.receipt.json",
+    "bytes": 952,
+    "sha256": "140703a8d3da8748a75347450ee60a0de3e1e5cf67c1c32e01d490c504480ab0",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-01/held-closed.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-01/plan.json",
+    "bytes": 7614,
+    "sha256": "eb3f16f51f3b031b303eb1b9b7861327d012ca06a02eeda1b405b01403ae3589",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-01/summary.json",
+    "bytes": 1571,
+    "sha256": "e87122b66f602b583475732a75a4d2cbd4d96335e30cfc27f59aec7c7fe7efdc",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-02/feeding-chunk64.actions.f32",
+    "bytes": 258048,
+    "sha256": "f56482eb428c5b91371d77c1d875e87e4ce12b017addc7f835c00b3d3c1fe0bb",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-02/feeding-chunk64.json",
+    "bytes": 11978,
+    "sha256": "f436e3d2e2b04cc5769a059e1244791d950ac7f8c4f3320025506eeaba9152b9",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-02/feeding-chunk64.receipt.json",
+    "bytes": 956,
+    "sha256": "4bb8249ade660443bc33e86033284f762864e5a9d851c926a3fc5b1d371ef2f3",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-02/feeding-chunk64.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-02/feeding-chunk8.actions.f32",
+    "bytes": 258048,
+    "sha256": "f56482eb428c5b91371d77c1d875e87e4ce12b017addc7f835c00b3d3c1fe0bb",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-02/feeding-chunk8.json",
+    "bytes": 11969,
+    "sha256": "54ecfc7843c5ab9567d114098099a4d9b784609f30b79b04ca07236f419ea7d7",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-02/feeding-chunk8.receipt.json",
+    "bytes": 955,
+    "sha256": "6afd6e69745aa4502b6dfd7c88019c9590097ad85f2b29acdfdf65f9d44dc68a",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-02/feeding-chunk8.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-02/head-yaw-miss.actions.f32",
+    "bytes": 258048,
+    "sha256": "415914ece59d2a7e2775aa0c5731cf0f349ce5f89117ef7ebe858eddd0c0f977",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-02/head-yaw-miss.json",
+    "bytes": 11891,
+    "sha256": "8e5dd6da451ed686861536f55fb24f4be4b35d5f2fb0dba41ce0d28576b5bb25",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-02/head-yaw-miss.receipt.json",
+    "bytes": 954,
+    "sha256": "c1de3d2e2231351c14b4566bce630a0b68686932e2ed0fd5603628542ed6e3d8",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-02/head-yaw-miss.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-02/held-closed.actions.f32",
+    "bytes": 258048,
+    "sha256": "4612fb902faddb62ea7221766297f713d2b1e4690eef543853db2de9139ca94c",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-02/held-closed.json",
+    "bytes": 11889,
+    "sha256": "4b1737699fa9863e683caed1317de3b8a65db022db2a2343dcd43949d34c3a82",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-02/held-closed.receipt.json",
+    "bytes": 951,
+    "sha256": "134ca2c9b9eb1c78ea8d6dc23bdff71b6f88de503763af31222c0fb75996f3e3",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-02/held-closed.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-02/plan.json",
+    "bytes": 7645,
+    "sha256": "d858fe8600d212365607c39f43033eac8f8426d97898417e2df0a7b0fe308014",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-capi-control-02/summary.json",
+    "bytes": 1571,
+    "sha256": "e87122b66f602b583475732a75a4d2cbd4d96335e30cfc27f59aec7c7fe7efdc",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-learning-probe-01/initial-deployment.policypack",
+    "bytes": 868119,
+    "sha256": "dbda781a186bcf94f940b9cd92cfdb22afcc1640d480372fdd222316e973f089",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-learning-probe-01/initial-incumbent.policypack",
+    "bytes": 868119,
+    "sha256": "8c43346110180078828a0ac7daab38040da162b4c821f3a083a8912e6abf43d4",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-learning-probe-01/initial-updated.policypack",
+    "bytes": 1727195,
+    "sha256": "2ca62a5a64cb655ec041fe91d219cc3ed73c1befcc3d038e1096be9539c0b157",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-learning-probe-01/initial.learner.safetensors",
+    "bytes": 5181127,
+    "sha256": "3cbe477f9f94c5be1f8ae42a0224622c8881195efbe23093cd101e6d59252f21",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-learning-probe-01/initial.policypack",
+    "bytes": 1727195,
+    "sha256": "3e6af0980ba77ad9664422b23aefcc849ac82a524d5e0714e853b90885911d87",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-learning-probe-01/initial.rolloutpack",
+    "bytes": 61868452,
+    "sha256": "1a275422966cf894ac3ceeff370c65908d81cc6ee35d6eaa0f9bdf3405f941f4",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-learning-probe-01/learner-initial.json",
+    "bytes": 7444,
+    "sha256": "a5dd827f9cdf399ef1bb48708e5ee1ac754b157434ca682237b740e5626978ab",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-learning-probe-01/learner-initial.receipt.json",
+    "bytes": 2242,
+    "sha256": "99daa626caacd2e783c239605e7d36c733c448a56e291559af6dd056ca700928",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-learning-probe-01/learner-initial.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-learning-probe-01/learner-resume.json",
+    "bytes": 7441,
+    "sha256": "ca66e77d2d6b59a3f2551eb56236ca3c153b7ae88aca2927e6eb0976bc531590",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-learning-probe-01/learner-resume.receipt.json",
+    "bytes": 2311,
+    "sha256": "22dd1b94cacb2385f2c9139cfc5bf9cd5d993c75619e8803413c35efb6883e7d",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-learning-probe-01/learner-resume.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-learning-probe-01/plan.json",
+    "bytes": 7709,
+    "sha256": "5f47eb3566e8059c7c43783e2df1d4341ce0b1383eedb44af716aa07712dd227",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-learning-probe-01/resume-deployment.policypack",
+    "bytes": 868119,
+    "sha256": "be2b718da9ddb5440d5ffed2fc59b65f97acbe6b2223537011db7ffd24721a7f",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-learning-probe-01/resume-incumbent.policypack",
+    "bytes": 868119,
+    "sha256": "dbda781a186bcf94f940b9cd92cfdb22afcc1640d480372fdd222316e973f089",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-learning-probe-01/resume-updated.policypack",
+    "bytes": 1727195,
+    "sha256": "408435861b5fa52f0bd533f7e255be285ae9255a7b6cff530305578e58746452",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-learning-probe-01/resume.learner.safetensors",
+    "bytes": 5181113,
+    "sha256": "05450fc46e37e62665aaaa5658b7bb2d74eba19e704c50e269413816f307f37b",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-learning-probe-01/resume.rolloutpack",
+    "bytes": 61868452,
+    "sha256": "b28e1d53b638a74ca72862466019079665bb0de6cce1272660d07ffb051a6eb1",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-learning-probe-01/summary.json",
+    "bytes": 1104,
+    "sha256": "93369accc22edebbb81b7baaf3816e772fb4889bf97ea0fdaf8ccc53ea0e6640",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-01/failure.json",
+    "bytes": 201,
+    "sha256": "19b057377c3475ed2ae34cdeda7fca86806b879af9d72283ed2033a5f8cbbe72",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-01/initial-deployment.policypack",
+    "bytes": 868119,
+    "sha256": "90d7a922600ad7be5001fed76fcc759c47a2fa1228eb615ead58dce3eff68020",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-01/initial-incumbent.policypack",
+    "bytes": 868119,
+    "sha256": "8c43346110180078828a0ac7daab38040da162b4c821f3a083a8912e6abf43d4",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-01/initial-updated.policypack",
+    "bytes": 1727195,
+    "sha256": "0312e3ec119094d3f66cc680dd0cd5b20c994c9eab01a09aed76fb48854e8323",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-01/initial.learner.safetensors",
+    "bytes": 5181112,
+    "sha256": "8fd67bac9d43e6f6105e505a77d205c221ce486f4137156df9fcbcc2033fa8ea",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-01/initial.policypack",
+    "bytes": 1727195,
+    "sha256": "6860c0767c85d42282c10c28b47f9d3312a96c6db0b1b14a971e594288a258d8",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-01/initial.rolloutpack",
+    "bytes": 61868452,
+    "sha256": "8de78a55962a4e8072f48dc97b12c755f1fc7c4dff214c84eea0e33bf8da54b8",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-01/learner-initial.json",
+    "bytes": 7604,
+    "sha256": "3be887351f34d41525f6bc8173b4651a5d4f06401b78d39246e9d0a29300c770",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-01/learner-initial.receipt.json",
+    "bytes": 2340,
+    "sha256": "0ad78a0a391a13d0cd485ad4e1e361254e9cff6dc7601ce028a645236765bb21",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-01/learner-initial.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-01/learner-resume.json",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-01/learner-resume.receipt.json",
+    "bytes": 2363,
+    "sha256": "b8e3bacdd508cd642aefae9bec38acb22b17eced5030c405c1904ca1a5061e92",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-01/learner-resume.stderr",
+    "bytes": 1082,
+    "sha256": "2bc1848ba3e73ae1d79c99386677935a2afbd92b419d1048c4562b113f20c29f",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-01/plan.json",
+    "bytes": 7823,
+    "sha256": "03d72c833cc21522da3fd19bedd8772f808cac0fb93b4b80516b7c3eaf900d15",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-02/initial-deployment.policypack",
+    "bytes": 868119,
+    "sha256": "8bcfde0e407084b21e299bb83a671a3f91da11aef27b0665c88d0b34b790a92f",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-02/initial-incumbent.policypack",
+    "bytes": 868119,
+    "sha256": "f5bb37706ba6ce71f5895690e16707539c9f4c5ac157ee5a93826aa3c49a410f",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-02/initial-updated.policypack",
+    "bytes": 1727195,
+    "sha256": "0dcf2f156c5553bad4eaf00fdb38197ec4e21e99bb277c77784273e0833775c1",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-02/initial.learner.safetensors",
+    "bytes": 5181112,
+    "sha256": "8fd67bac9d43e6f6105e505a77d205c221ce486f4137156df9fcbcc2033fa8ea",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-02/initial.policypack",
+    "bytes": 1727195,
+    "sha256": "30d167d4520b11589374055b3dc4ecdc2b9ed46db21f52bf45bc7271b95d1f28",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-02/initial.rolloutpack",
+    "bytes": 61868452,
+    "sha256": "54474a9fb2649f6e47e134ed25b92b8d6775b005d3abdb24c73d6e74322ff4be",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-02/learner-initial.json",
+    "bytes": 7603,
+    "sha256": "c49a62e93e333619e16aacd4359f2fd9fab4d5839a29d69759d1fe6f7ba9dee4",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-02/learner-initial.receipt.json",
+    "bytes": 2340,
+    "sha256": "f0eb305b2d490195af772979637976d7f64040af60cada77909665a3a1998620",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-02/learner-initial.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-02/learner-resume.json",
+    "bytes": 7583,
+    "sha256": "fe4e9da035377fe1b432fbd19b7ceff81feb1737475001330ff6eaeec85ad9c2",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-02/learner-resume.receipt.json",
+    "bytes": 2412,
+    "sha256": "df7f8ed7720627de0aea84c40d89a13f40f5c375d36e14da034a88a11ea02e73",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-02/learner-resume.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-02/plan.json",
+    "bytes": 7854,
+    "sha256": "dc005a2faeee15ce2fbbc59b1458d837382149ba0b7be845e3cefb945784951a",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-02/resume-deployment.policypack",
+    "bytes": 868119,
+    "sha256": "2bca4a361b5853b9639c23e6a04581bc7f01e7ccbb0134ee23797322a17631cf",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-02/resume-incumbent.policypack",
+    "bytes": 868119,
+    "sha256": "8bcfde0e407084b21e299bb83a671a3f91da11aef27b0665c88d0b34b790a92f",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-02/resume-updated.policypack",
+    "bytes": 1727195,
+    "sha256": "85e0f95c2fde66f7e61b2986555aaa3f396c1533a1279ad3edc51dc3e65541e1",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-02/resume.learner.safetensors",
+    "bytes": 5181098,
+    "sha256": "2ba6d580d8b79651fd84bcbbf0a2817aed0ba5d0cf30def2fd559502fd32b4c1",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-02/resume.rolloutpack",
+    "bytes": 61868452,
+    "sha256": "ba028f426597080f738f9d60800d85677a21e34f64032c05c34b4af480410384",
+    "copied_to_source_archive": false
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-exploration-probe-02/summary.json",
+    "bytes": 1783,
+    "sha256": "9f5169818affbf50aa5f7b12f90cf742e4427068910727936705f6537f791411",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-policy-screen-01/plan.json",
+    "bytes": 7863,
+    "sha256": "2d59eaf1ee8ea4c7bcf5b80fb446196806d862bb0e344907e2ce8a8e6f453797",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-policy-screen-01/seed-2651107001.json",
+    "bytes": 22170,
+    "sha256": "bf01e23c143067c728ce70317e8af6d443f8e316c06b6f2dc4b9537786e0e375",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-policy-screen-01/seed-2651107001.receipt.json",
+    "bytes": 920,
+    "sha256": "131497b923189360ad924eb0c3c46b642561320978ad0750ddd638c740b67f10",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-policy-screen-01/seed-2651107001.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-policy-screen-01/seed-2651107002.json",
+    "bytes": 22170,
+    "sha256": "39f110db05faef116a6fb249f2b56cb1496aee8c62b17c0c9631c735bd9ce0f9",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-policy-screen-01/seed-2651107002.receipt.json",
+    "bytes": 920,
+    "sha256": "83177e7ffdc7d8c11bfe7c0f2fcd43d9a48eb5b97566745adbe34c8bec94d377",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-policy-screen-01/seed-2651107002.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-policy-screen-01/seed-2651107003.json",
+    "bytes": 22170,
+    "sha256": "bf2f1490d124c5426044c7dab33b2ce385385ab4abd0351a9644474820a52725",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-policy-screen-01/seed-2651107003.receipt.json",
+    "bytes": 920,
+    "sha256": "7b3d39884e1d54ef1e52e59e70aa7e7d2bbbf22623e6bece843a0dd5fef2224d",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-policy-screen-01/seed-2651107003.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-policy-screen-01/summary.json",
+    "bytes": 919,
+    "sha256": "3cb4920c9da0c2be825672ed2c28278c6765c3a55b4a7a08a900de7d5c13e68f",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-partition-control-01/ordinary-chunk1.json",
+    "bytes": 22214,
+    "sha256": "6e2180ff3919efe4a0293949a97d86620e0972e587e96ff4e4514018e2e2db34",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-partition-control-01/ordinary-chunk1.receipt.json",
+    "bytes": 958,
+    "sha256": "9bdc31c70b2f2ae20d0302c266fc19b9aa242a610a47b4be0dca8bfa30284a24",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-partition-control-01/ordinary-chunk1.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-partition-control-01/ordinary-chunk8.json",
+    "bytes": 22214,
+    "sha256": "1f5ed6c6073be5cbd92c54e83f34b24c1d70ddce7f03f48ec2841c99e27085e3",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-partition-control-01/ordinary-chunk8.receipt.json",
+    "bytes": 958,
+    "sha256": "189671559adec61d8a1422a9e604c7411e7ab35a6d5537cc7d376f15732a14df",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-partition-control-01/ordinary-chunk8.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-partition-control-01/plan.json",
+    "bytes": 8099,
+    "sha256": "b26cac11af987d52f8a5c1738c1d3be8ebee1631795c6e28d7a572c09f692519",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-partition-control-01/residual-chunk1.json",
+    "bytes": 22168,
+    "sha256": "3e2564d3ca80b4dca3d3d8bfeae2731720c722cfb362ebdfdc6bf3feab99442d",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-partition-control-01/residual-chunk1.receipt.json",
+    "bytes": 1125,
+    "sha256": "6a6fd1e32eeec5358cd772115a09281e9789261af6d5ae2792ff3e80ae030094",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-partition-control-01/residual-chunk1.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-partition-control-01/residual-chunk8.json",
+    "bytes": 22167,
+    "sha256": "8018b7ae8a8317920f1809a9d2e4b8bd11d2bd87d30260d70feb7dcd25f7ef17",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-partition-control-01/residual-chunk8.receipt.json",
+    "bytes": 1125,
+    "sha256": "61784bddbe3c9003075041250bd1545f6b2dedd87b8d8a49af73438402946fa0",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-partition-control-01/residual-chunk8.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "copied_to_source_archive": true
+  },
+  {
+    "path": ".numi/runs/american-crow/20261107-feeding-partition-control-01/summary.json",
+    "bytes": 421,
+    "sha256": "dc4b279a5a73fd786cbfee61ecaf9eef77a963f9109f4c561b527782e1853891",
+    "copied_to_source_archive": true
+  }
+]

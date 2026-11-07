@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 45u
+#define MR_TASK_PROGRAM_ABI_VERSION 47u
 
 #define MR_TASK_ACTUATOR_JOINT_POSITION 0u
 #define MR_TASK_ACTUATOR_JOINT_VELOCITY 1u
@@ -204,6 +204,9 @@ enum MRTaskObservationOpcode : mr_u32 {
     // active waypoint fraction, and completion. source.y resolves the first
     // body of the contiguous five-body Crow navigation course.
     MR_TASK_OBSERVE_NAVIGATION_TARGET = 36u,
+    // Accepted-state nutritional projection: crop fullness, newly consumed
+    // payload kg, mouth-in-intake-volume, local available fraction.
+    MR_TASK_OBSERVE_NUTRITION = 37u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {
@@ -316,6 +319,8 @@ enum MRTaskRewardOpcode : mr_u32 {
     MR_TASK_REWARD_NAVIGATION_WAYPOINT_PROGRESS = 50u,
     // Sparse one-shot evidence when the root enters a waypoint radius.
     MR_TASK_REWARD_NAVIGATION_WAYPOINT_REACH = 51u,
+    // Accepted nutritional kg/s; integration yields one reward per debit.
+    MR_TASK_REWARD_NUTRITION_INTAKE = 52u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {
@@ -510,6 +515,10 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     mr_uint4 interactionOffsets1;
     // Sparse tendon actuator terms: byte offset, count, reserved, reserved.
     mr_uint4 actuatorTerms;
+    // Immutable identity of an external accepted-state task program. Zero
+    // means no external nutrition/task-state authority; reserved must be zero.
+    mr_u64 deviceStateProgramFingerprint;
+    mr_u64 deviceStateReserved;
 } MRTaskProgramHeaderGPU;
 
 typedef struct MR_ALIGN16 MRTaskActionBindingGPU {
@@ -651,6 +660,7 @@ typedef struct MR_ALIGN16 MRTaskStateGPU {
     // Previous waypoint distance, cumulative signed course progress, active
     // waypoint index, and completion latch.
     mr_float4 navigation;
+    mr_float4 nutrition;
 } MRTaskStateGPU;
 
 // Compact task-wide physical evidence accumulated on device. It does not own
@@ -715,7 +725,7 @@ typedef struct MR_ALIGN16 MRLearningTransitionGPU {
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
 static_assert(sizeof(MRTaskDispatchGPU) == 128u);
-static_assert(sizeof(MRTaskProgramHeaderGPU) == 592u);
+static_assert(sizeof(MRTaskProgramHeaderGPU) == 608u);
 static_assert(sizeof(MRTaskActionBindingGPU) == 64u);
 static_assert(sizeof(MRTaskActuatorTermGPU) == 32u);
 static_assert(sizeof(MRTaskObservationOperatorGPU) == 48u);
@@ -728,7 +738,7 @@ static_assert(sizeof(MRTaskImpactEventGPU) == 48u);
 static_assert(sizeof(MRTaskInteractionContactGPU) == 16u);
 static_assert(sizeof(MRTaskInteractionSampleGPU) == 32u);
 static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);
-static_assert(sizeof(MRTaskStateGPU) == 192u);
+static_assert(sizeof(MRTaskStateGPU) == 208u);
 static_assert(sizeof(MRTaskEvidenceStateGPU) == 64u);
 static_assert(sizeof(MRTaskTransitionGPU) == 144u);
 static_assert(sizeof(MRLearningTransitionGPU) == 64u);

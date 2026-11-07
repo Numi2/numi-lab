@@ -14,6 +14,8 @@ kernel void mr_finite_resource_commit(
     device const float* q [[buffer(4)]],
     device const MRMetalWorldStatusGPU* statuses [[buffer(5)]],
     constant MRFiniteResourceDispatchGPU& dispatch [[buffer(6)]],
+    device MRTaskStateGPU* taskStates [[buffer(7)]],
+    device const uint* resetMasks [[buffer(8)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment>=dispatch.counts.x || dispatch.limits.y!=MR_FINITE_RESOURCE_ABI ||
@@ -38,8 +40,11 @@ kernel void mr_finite_resource_commit(
         state.accounting.w=1u;
         state.jaw.x=angle;
     }
-    const bool closingEdge=state.clock.z!=0u && angle<=program.mouthClosed.w && angle<state.jaw.x;
-    if (angle>=program.opening.x) state.clock.z=1u;
+    const bool resetting=resetMasks[dispatch.reset.y*dispatch.reset.x+environment]!=0u;
+    const bool closingEdge=!resetting && state.clock.z!=0u && angle<=program.mouthClosed.w && angle<state.jaw.x;
+    uint consumed=0u;
+    if (resetting) state.clock.z=0u;
+    else if (angle>=program.opening.x) state.clock.z=1u;
     if (closingEdge) {
         // One accepted close consumes the edge even if the mouth misses food.
         // Overlapping volumes have a stable authored priority and one debit.
@@ -56,6 +61,7 @@ kernel void mr_finite_resource_commit(
             state.accounting.x+=amount;
             state.accounting.y+=amount;
             state.accounting.z+=1u;
+            consumed=amount;
             break;
         }
     }
@@ -63,4 +69,18 @@ kernel void mr_finite_resource_commit(
     state.clock.x+=1u;
     if (state.clock.x==0u) state.clock.y+=1u;
     states[environment]=state;
+    if (dispatch.limits.z!=0u) {
+        float presence=0.0f, available=0.0f;
+        for (uint patch=0;patch<program.binding.z;++patch) {
+            const MRFiniteResourcePatchGPU source=patches[patch];
+            const MRBodyStateGPU body=bodies[bodyBase+source.binding.x];
+            const float3 center=body.position.xyz+resourceRotate(body.orientation,source.centerRadius.xyz);
+            const uint remaining=state.remaining[patch/4u][patch%4u];
+            if (remaining>0u && distance(point,center)<=source.centerRadius.w) {
+                presence=1.0f; available=float(remaining)/float(source.binding.y); break;
+            }
+        }
+        taskStates[environment].nutrition=float4(
+            float(state.accounting.x)/float(program.binding.w),float(consumed)*1.0e-9f,presence,available);
+    }
 }

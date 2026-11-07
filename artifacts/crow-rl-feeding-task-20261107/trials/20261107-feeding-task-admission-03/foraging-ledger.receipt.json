@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_foraging_check",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-feeding-task-admission-03/native-evidence"
+  ],
+  "exit_code": 0,
+  "timed_out": false,
+  "wall_seconds": 14.316794165992178,
+  "stdout_sha256": "caa01ec85515abac3514a998530702bec7edc92dde4fb1068e4a13507ced7635",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

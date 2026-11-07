@@ -466,6 +466,8 @@ private struct Options {
                     birdFlowJourneyVariant = .v10WorldModelNavigation
                 case "v11", "v11-embodied":
                     birdFlowJourneyVariant = .v11Embodied
+                case "v12", "v12-feeding-station":
+                    birdFlowJourneyVariant = .v12FeedingStation
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
                         "--birdflow-journey-variant requires v7-hierarchical, v8-neural, v9-visual-neural, v10-world-model, or v11-embodied."
@@ -2269,7 +2271,9 @@ private enum TaskTrainMain {
                 "action_carrier": options.birdFlowJourneyTeacher
                     ? "birdflow_assisted_journey_teacher"
                     : options.birdFlowAmericanCrowJourney
-                    ? options.birdFlowJourneyVariant == .v11Embodied
+                    ? options.birdFlowJourneyVariant == .v12FeedingStation
+                        ? "v12_feeding_station_neural_nutrition"
+                        : options.birdFlowJourneyVariant == .v11Embodied
                         ? "v11_embodied_neural_proprioception"
                         : options.birdFlowJourneyVariant == .v10WorldModelNavigation
                         ? "v10_world_model_navigation_rgbd_history"

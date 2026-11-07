@@ -5,12 +5,19 @@
 #include <memory>
 
 namespace metalrobo {
+class CompiledRun;
 struct FiniteResourceConfig {
     std::uint64_t worldFingerprint=0u;
     std::uint32_t environmentCount=0u, bodyCount=0u, nq=0u;
+    bool publishTaskState=false;
     MRFiniteResourceProgramGPU program{};
     std::vector<MRFiniteResourcePatchGPU> patches;
 };
+[[nodiscard]] std::uint64_t finiteResourceProgramFingerprint(
+    const MRFiniteResourceProgramGPU& program,std::span<const MRFiniteResourcePatchGPU> patches,
+    bool publishTaskState);
+[[nodiscard]] FiniteResourceConfig makeAmericanCrowFeedingResourceConfig(
+    const CompiledRun& run,unsigned environments);
 namespace detail { struct FiniteResourceRuntime; }
 
 // Nutritional tracer ledger. Uses MetalWorld's accepted postCommit stream;

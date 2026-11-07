@@ -1,7 +1,7 @@
 #pragma once
 #include "metalrobo/gpu_types.h"
 
-#define MR_FINITE_RESOURCE_ABI 1u
+#define MR_FINITE_RESOURCE_ABI 3u
 #define MR_FINITE_RESOURCE_MAX_PATCHES 8u
 
 // Integer micrograms of nutritional payload, not a bulk-food mechanics model.
@@ -34,13 +34,15 @@ typedef struct MR_ALIGN16 MRFiniteResourceStateGPU {
 typedef struct MR_ALIGN16 MRFiniteResourceDispatchGPU {
     // Environments, body stride, q stride, body count.
     mr_uint4 counts;
-    // q count, ABI, reserved, reserved.
+    // q count, ABI, publish native task nutrition, reserved.
     mr_uint4 limits;
+    // Reset-mask control-step stride, control-step index, reserved, reserved.
+    mr_uint4 reset;
 } MRFiniteResourceDispatchGPU;
 
 #ifndef __METAL_VERSION__
 static_assert(sizeof(MRFiniteResourcePatchGPU)==32u);
 static_assert(sizeof(MRFiniteResourceProgramGPU)==48u);
 static_assert(sizeof(MRFiniteResourceStateGPU)==80u);
-static_assert(sizeof(MRFiniteResourceDispatchGPU)==32u);
+static_assert(sizeof(MRFiniteResourceDispatchGPU)==48u);
 #endif

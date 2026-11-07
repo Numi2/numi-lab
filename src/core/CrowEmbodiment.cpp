@@ -1,6 +1,8 @@
 #include "metalrobo/RunProgram.hpp"
+#include "metalrobo/FiniteResource.hpp"
 
 #include <cmath>
+#include <algorithm>
 #include <stdexcept>
 
 namespace metalrobo {
@@ -244,5 +246,60 @@ TaskPack makeAmericanCrowEmbodiedTaskPack(
         observations.critic.push_back(velocity);
     }
     return task;
+}
+
+TaskPack makeAmericanCrowFeedingStationTaskPack(
+    TaskObservationProgram& observations, TaskResetProgram& reset
+) {
+    auto task=makeAmericanCrowEmbodiedTaskPack(observations,reset);
+    const MRFiniteResourceProgramGPU resourceProgram{{15,22,1,100000},
+        {0.065f,0,0,0.08f},{0.20f,0,0,0}};
+    const std::array<MRFiniteResourcePatchGPU,1> resourcePatches{{
+        {{17,45000,20000,0},{0.225585f,0,0.271365f,0.030f}}}};
+    task.deviceStateProgramFingerprint=finiteResourceProgramFingerprint(resourceProgram,resourcePatches,true);
+    task.id="american_crow_feeding_station_v12";
+    // A canonical feeding-station curriculum admits mouth skills separately
+    // from navigation. No episode clock orders takeoff or flight stages.
+    reset={};
+    task.difficultyBandCount=1u;
+    task.maximumEpisodeSteps=1000000u;
+    task.commands={};
+    task.commands.standingProbability=1.0f;
+    task.pushes={};
+    task.rewards={{.operation=TaskRewardOperator::nutritionIntake,.weight=100000.0f}};
+    task.outcomes={{.id="accepted_intake_utility",.unit="utility",
+        .source=TaskOutcomeSource::rewardContribution,
+        .direction=TaskOutcomeDirection::higherIsBetter,
+        .rewardOperation=TaskRewardOperator::nutritionIntake}};
+    for (unsigned component=0;component<4;++component) {
+        const TaskObservationOperatorSpec input{.source=TaskObservationSource::nutrition,.component=component,
+                                               .scale=component==1u ? 50000.0f : 1.0f};
+        observations.actorCurrent.push_back(input);observations.critic.push_back(input);
+    }
+    return task;
+}
+
+FiniteResourceConfig makeAmericanCrowFeedingResourceConfig(const CompiledRun& run,unsigned environments) {
+    if (run.task().layout().actorObservationSize!=97u ||
+        run.task().actorOperators().empty() ||
+        run.task().actorOperators().back().source.x!=MR_TASK_OBSERVE_NUTRITION)
+        throw std::invalid_argument("Crow feeding resources require the feeding-station task");
+    FiniteResourceConfig config;
+    config.worldFingerprint=run.world().fingerprint();config.environmentCount=environments;
+    config.bodyCount=run.model().bodies.size();config.nq=run.model().defaultQ.size();
+    config.publishTaskState=true;
+    const auto head=std::find(run.model().bodyNames.begin(),run.model().bodyNames.end(),"crow_head");
+    const auto jaw=std::find(run.model().jointNames.begin(),run.model().jointNames.end(),"crow_beak_open");
+    if (head==run.model().bodyNames.end() || jaw==run.model().jointNames.end() || run.world().sceneBodyIndices().empty())
+        throw std::invalid_argument("Crow feeding station lacks its physical head or ground anchor");
+    config.program.binding={static_cast<unsigned>(head-run.model().bodyNames.begin()),
+        run.model().joints[jaw-run.model().jointNames.begin()].qOffset,1,100000};
+    config.program.mouthClosed={0.065f,0,0,0.08f};config.program.opening={0.20f,0,0,0};
+    config.patches.push_back({{run.world().sceneBodyIndices().front(),45000,20000,0},
+                             {0.225585f,0.0f,0.271365f,0.030f}});
+    if (finiteResourceProgramFingerprint(config.program,config.patches,true)!=
+        run.task().header().deviceStateProgramFingerprint)
+        throw std::invalid_argument("Feeding resource semantics differ from the compiled policy task contract");
+    return config;
 }
 } // namespace metalrobo

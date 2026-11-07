@@ -1660,6 +1660,9 @@ inline float cleanObservation(
         );
         break;
     }
+    case MR_TASK_OBSERVE_NUTRITION:
+        value=state.nutrition[operation.source.z];
+        break;
     case MR_TASK_OBSERVE_SUPPORT_SENSE: {
         float totalLoad = 0.0f;
         float signedLoad = 0.0f;
@@ -6923,6 +6926,9 @@ kernel void mr_locomotion_task_complete(
                 max(operation.parameters.y, 1.0e-8f)
             );
             break;
+        case MR_TASK_REWARD_NUTRITION_INTAKE:
+            value=physicsError ? 0.0f : state.nutrition.y/dispatch.timing.x;
+            break;
         case MR_TASK_REWARD_CONSTANT:
             value = 1.0f;
             break;
@@ -8237,6 +8243,7 @@ kernel void mr_locomotion_task_complete(
         case MR_TASK_REWARD_NAVIGATION_WAYPOINT_PROGRESS:
         case MR_TASK_REWARD_NAVIGATION_WAYPOINT_REACH:
         case MR_TASK_REWARD_LINEAR_VELOCITY_TRACKING:
+        case MR_TASK_REWARD_NUTRITION_INTAKE:
         case MR_TASK_REWARD_FIGURE_EIGHT_PATH_TRACKING:
         case MR_TASK_REWARD_YAW_VELOCITY_TRACKING:
         case MR_TASK_REWARD_CONSTANT:

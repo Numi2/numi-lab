@@ -1,0 +1,153 @@
+{
+  "schema": "numi.crow-trial-plan.v1",
+  "created_utc": "2026-11-07T12:58:45.040068+00:00",
+  "command": "feeding-probe",
+  "arguments": {
+    "root": "/Users/n/Developer/numi-crow-rl-20261107",
+    "command": "feeding-probe",
+    "output": ".numi/runs/american-crow/20261107-feeding-capi-control-02"
+  },
+  "preflight": {
+    "schema": "numi.crow-preflight.v1",
+    "host": "Mac.domain_not_set.invalid",
+    "machine": "arm64",
+    "macos": "26.6",
+    "python": "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+    "numpy": "2.5.4",
+    "mlx": "0.32.4",
+    "metal_device": {
+      "device_name": "Apple M4 Pro",
+      "max_recommended_working_set_size": 19069665280,
+      "memory_size": 25769803776,
+      "architecture": "applegpu_g16s",
+      "max_buffer_length": 14302248960,
+      "resource_limit": 499000
+    },
+    "free_disk_bytes": 164500242432,
+    "inputs": {
+      "rollout": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_rollout",
+        "sha256": "66c68a19a8c53959f0f32d10cec8c268f6853fb7fca9714ef6f647e28baee87b"
+      },
+      "train": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_train",
+        "sha256": "e94503f7b1de4e7706408f66652bed6c7387be226d834e858bc5fba13732947d"
+      },
+      "library": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/lib/libmetalrobo.dylib",
+        "sha256": "75018d7d2d78b6c0e3d4f4016270b1a2b83bc042777b1c66d52431e383761bae"
+      },
+      "metallib": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+        "sha256": "61fc4a19866101c72bc2369794084741050e05adba1b41e2eea6fcfd1a7d0fea"
+      },
+      "head_check": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_embodiment_check",
+        "sha256": "009ac8a7edd6f5a97b2610a7c9760219bbcb47ebdc2384338b71d122f2f87caa"
+      },
+      "foraging_check": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_foraging_check",
+        "sha256": "0cd4c691d1879fce36bb50b70179317eb5d60955389d55af1b9f8ca7e8fc1f62"
+      },
+      "v9-visual-neural": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/assets/crow_journey_window/crow-journey.sensor-fast.visual-observation.json",
+        "sha256": "ac047fb5607c57efda1b741a2f1c622b3ea4bf79def1aec7053182c09c3b329e"
+      },
+      "v10-world-model": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/assets/crow_navigation_course/crow-navigation.sensor-fast.visual-observation.json",
+        "sha256": "0625a028e7f6760bd7b29027b529e012a6b2ef9ffb6797cb69eff602b5c7a137"
+      },
+      "profile": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/profiles/american-crow-rl-v1.json",
+        "sha256": "2a6730861ab753ab2de0615e61eeab6f14d47f0daf47765a1ecc7a3382cbf8af"
+      }
+    },
+    "source_commit": "e7b7e90c57c58088ba356c45db9617c4a0fe0604",
+    "status": "M apps/crow_foraging_check.mm\n M apps/task_rollout.swift\n M apps/task_train.swift\n M bindings/swift/MetalRoboTaskRollout.swift\n M include/metalrobo/FiniteResource.hpp\n M include/metalrobo/MetalWorld.hpp\n M include/metalrobo/RunProgram.hpp\n M include/metalrobo/TaskProgram.hpp\n M include/metalrobo/c_api.h\n M include/metalrobo/finite_resource_types.h\n M include/metalrobo/task_program_types.h\n M numi/commands/crow\n M python/metalrobo/crow_environment.py\n M src/c_api.cpp\n M src/core/CrowEmbodiment.cpp\n M src/core/LearningPacks.cpp\n M src/core/TaskProgram.cpp\n M src/metal/FiniteResource.metal\n M src/metal/FiniteResource.mm\n M src/metal/LocomotionTask.metal\n M src/metal/MetalWorld.mm\n M tests/crow_cli_test.py",
+    "tracked_diff_sha256": "f20038be8fa7e41916f32e1072492a0704ea517a03037a155928aa01f68b9129",
+    "untracked_inputs": {},
+    "readiness": "native engineering trials only; ecological qualification pending"
+  },
+  "profile": {
+    "schema": "numi.crow-environment-profile.v1",
+    "id": "american-crow-development-20261107",
+    "taxon": "Corvus brachyrhynchos",
+    "evidence_class": "estimated-hybrid-simulation",
+    "owner": "Numi2/numi-lab",
+    "baseline_revision": "577c54ff90756f99b936a1d136c1768332022af5",
+    "robot": "birdflow_american_crow_estimated_hybrid",
+    "development_robot": "american_crow_active_head_estimated_v1",
+    "primary_research_outcome": "lifelong embodied intelligence",
+    "primary_behaviors": [
+      "foraging",
+      "memory",
+      "manipulation",
+      "social learning"
+    ],
+    "development_seeds": [
+      2651107001,
+      2651107002,
+      2651107003
+    ],
+    "qualification_seeds": [
+      2651107901,
+      2651107902,
+      2651107903
+    ],
+    "minimum_free_disk_gib": 100,
+    "probe": {
+      "seed": 2651107301,
+      "environments": 32,
+      "steps": 128,
+      "submission_chunks": [
+        1,
+        8
+      ],
+      "scale_environments": [
+        128,
+        512,
+        1024
+      ],
+      "timeout_seconds": 180
+    },
+    "navigation_gate": {
+      "environments": 32,
+      "steps": 1600,
+      "minimum_successful_lanes_per_seed": 28,
+      "minimum_aggregate_success_fraction": 0.9,
+      "maximum_failed_environment_steps": 0,
+      "scheduled_resets": false,
+      "curriculum_resets": false,
+      "attempts": "first episode per environment",
+      "supported_landing_is_separate": true
+    },
+    "modules": {
+      "articulated_motor_control": "native-implementation; current-checkout-requalification-required",
+      "visual_obstacle_course": "native-implementation; unreliable-historical-full-route-controller",
+      "first_attempt_evidence": "native-transition-observer",
+      "crow_eye_perception": "pending; legacy-camera-is-offset-from-body",
+      "active_head_and_beak": "estimated-native-v11; reference-inertia-and-Metal-admission; contact-actuation-and-learner-resume-controls-passed; head-vision-and-behavior-qualification-pending",
+      "finite_food_water_and_energy": "experimental-native-finite-food-tracer-and-capacity-limited-crop; water-energy-physiology-and-feeding-reward-integration-pending",
+      "accepted_state_consumption": "native-accepted-mouth-intake-volume-and-open-close-edge-controls-passed; solid-food-pickup-carrying-and-swallowing-pending",
+      "persistent_memory_and_life_checkpoint": "pending",
+      "social_individuals_and_communication": "pending",
+      "weather_and_seasonal_ecology": "pending"
+    },
+    "release_requirements": [
+      "deterministic accepted-state execution across submission chunks",
+      "zero failed physics steps and no hidden teacher authority",
+      "causal actor observations with audited sensor origins and visibility",
+      "measured end-to-end learning throughput and bounded peak memory",
+      "full-route first-attempt reliability on held-out seeds and layouts",
+      "supported landing measured independently of waypoint proximity",
+      "finite resource conservation and no repeated-consumption reward exploit",
+      "persistent checkpoint restore with no reset-induced resource replenishment",
+      "controlled memory and social-information ablations",
+      "all requested ecology modules executable and independently exercised"
+    ]
+  },
+  "prediction": "Exact same-seed replay and partition invariance; imported historical actor may fail full-route completion",
+  "control": "repeat same seed with submission chunk 1 versus 8; first episode only",
+  "validity": "native accepted state, exact identity, finite first-episode evidence, no device failures or hidden teacher",
+  "stopping": "bounded complete runs, timeout retained as failure; no overwrite or automatic retry"
+}

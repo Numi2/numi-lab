@@ -2379,6 +2379,12 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::recoveryEvent:
                 componentLimit = 4u;
                 break;
+            case TaskObservationSource::nutrition:
+                if (pack.deviceStateProgramFingerprint==0u)
+                    return reject(TaskCompileStatus::invalidPack,"nutrition",
+                        "nutrition sensing requires an immutable native state program identity");
+                componentLimit=4u;
+                break;
             case TaskObservationSource::objectTrack: {
                 bool ambiguous = false;
                 const std::uint32_t body = uniqueIndex(
@@ -3046,6 +3052,11 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskRewardOperator::bodyUpExponential:
         case TaskRewardOperator::standingCompletion:
         case TaskRewardOperator::restoration:
+            break;
+        case TaskRewardOperator::nutritionIntake:
+            if (pack.deviceStateProgramFingerprint==0u)
+                return reject(TaskCompileStatus::invalidPack,"nutrition",
+                    "nutrition reward requires an immutable native state program identity");
             break;
         default:
             return reject(
@@ -4257,7 +4268,8 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.id == "birdflow_american_crow_journey_v8_neural" ||
         pack.id == "birdflow_american_crow_journey_v9_visual_neural" ||
         pack.id == "birdflow_american_crow_navigation_v10_world_model" ||
-        pack.id == "american_crow_embodied_development_v11") {
+        pack.id == "american_crow_embodied_development_v11" ||
+        pack.id == "american_crow_feeding_station_v12") {
         // Stage zero and stage one are grounded support tasks. Wing actuation
         // begins only in the lift-off band, keeping the curriculum physically
         // possible before flight practice.
@@ -4350,6 +4362,7 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.clearanceTarget,
         pack.successTrackingThreshold,
     };
+    staged->header.deviceStateProgramFingerprint=pack.deviceStateProgramFingerprint;
     staged->header.commandLower = pack.commands.lower;
     staged->header.commandLower.w =
         pack.commands.standingProbability;

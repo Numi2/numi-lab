@@ -138,7 +138,8 @@ def validate_native(value: dict, *, envs: int, steps: int, seed: int, policy: bo
                     variant: str | None = None, action_source: str | None = None) -> None:
     expected = {"environments": envs, "steps_per_repeat": steps, "repeats": 1,
                 "benchmark_seed": seed, "scheduled_resets": False,
-                "birdflow_journey_teacher": False, "visual_observation": variant != "v11-embodied",
+                "birdflow_journey_teacher": False,
+                "visual_observation": variant not in ("v11-embodied", "v12-feeding-station"),
                 "action_source": action_source or ("policy_pack" if policy else "compiled_policy"),
                 "failed_environment_steps": 0}
     if variant is not None:
@@ -302,7 +303,8 @@ def learn_probe(root: Path, output: Path, args: argparse.Namespace, profile: dic
                    "--python-root", str(root / "python"), "--birdflow-american-crow-journey",
                    "--birdflow-journey-variant", variant,
                    "--envs", "512", "--steps", "128", "--updates", str(updates), "--chunk", "8",
-                   "--minimum-difficulty-band", "4", "--maximum-difficulty-band", "4",
+                   "--minimum-difficulty-band", "0" if variant=="v12-feeding-station" else "4",
+                   "--maximum-difficulty-band", "0" if variant=="v12-feeding-station" else "4",
                    "--seed", str(profile["probe"]["seed"]),
                    "--learner-seed", str(profile["development_seeds"][0]),
                    "--update-epochs", "1", "--minibatch-size", "8192", "--learning-rate", "0.0001",
@@ -314,6 +316,10 @@ def learn_probe(root: Path, output: Path, args: argparse.Namespace, profile: dic
                    "--output-learner-state", str(output / f"{stage}.learner.safetensors")]
         if variant in VARIANTS:
             command += ["--visual-observation-config", str(root / "assets" / VARIANTS[variant])]
+        if args.fixed_learning_rate:
+            command += ["--fixed-learning-rate"]
+        if args.initial_log_standard_deviation is not None:
+            command += ["--initial-log-standard-deviation", str(args.initial_log_standard_deviation)]
         if stage == "initial":
             command += ["--initialize-policy", "crow-engineering-learning-probe"]
             if source:
@@ -332,6 +338,7 @@ def learn_probe(root: Path, output: Path, args: argparse.Namespace, profile: dic
         if not (output / f"{stage}.learner.safetensors").is_file():
             raise RuntimeError("Learner checkpoint missing")
         receipt = json.loads((output / f"learner-{stage}.receipt.json").read_text())
+        update = value["last_learning_update"]
         records.append({"stage": stage, "updates": updates,
                         "samples": value["training_samples"],
                         "training_loop_steps_per_second": value["end_to_end_environment_steps_per_second"],
@@ -339,7 +346,16 @@ def learn_probe(root: Path, output: Path, args: argparse.Namespace, profile: dic
                         "initial_revision": value["initial_policy_revision"],
                         "final_revision": value["final_policy_revision"],
                         "learner_state_restored": value["learner_state_restored"],
-                        "checkpoint_sha256": sha(output / f"{stage}.learner.safetensors")})
+                        "checkpoint_sha256": sha(output / f"{stage}.learner.safetensors"),
+                        "last_update_mean_reward": update["mean_reward"],
+                        "last_update_maximum_reward": update["maximum_reward"],
+                        "last_update_intake_utility_mean": update.get("outcomes", {}).get("accepted_intake_utility", {}).get("mean"),
+                        "last_update_learning_rate": update["learning_rate"],
+                        "last_update_action_standard_deviation": update["mean_action_standard_deviation"],
+                        "mlx_peak_memory_bytes": update["mlx_peak_memory_bytes"]})
+    if args.require_intake_reward and not any((row["last_update_intake_utility_mean"] or 0)>0 for row in records):
+        write(output / "learning-no-intake-reward.json", {"records": records})
+        raise RuntimeError("No accepted intake reward in reported learning updates")
     return {"status": "passed", "claim": "native/MLX updates, publication, and learner-only restore",
             "variant": variant, "actor_initialization": "explicit source" if source else "new zero-output actor",
             "records": records, "candidate_promoted": False, "persistent_world_restore_tested": False,
@@ -374,7 +390,7 @@ def partition_probe(root: Path, output: Path, args: argparse.Namespace, profile:
         fingerprints = []
         for chunk in (1, 8):
             command = rollout(root, args.variant, 32, 128, chunk,
-                              profile["probe"]["seed"], 4, policy)
+                              profile["probe"]["seed"], 0 if args.variant=="v12-feeding-station" else 4, policy)
             if mode == "residual":
                 command += ["--base-policy-pack", str(base)]
             value = execute(output, f"{mode}-chunk{chunk}", command, root, 180)
@@ -430,6 +446,73 @@ def body_admission(root: Path, output: Path, profile: dict) -> dict:
             "ecological_environment_qualified": False}
 
 
+def feeding_probe(root: Path, output: Path, profile: dict) -> dict:
+    import numpy as np
+    records = []
+    fingerprints = []
+    for name, chunk, miss, bites in (("feeding-chunk8", 8, False, True),
+                                     ("feeding-chunk64", 64, False, True),
+                                     ("head-yaw-miss", 8, True, True),
+                                     ("held-closed", 8, False, False)):
+        actions = np.zeros((448, 8, 18), dtype="<f4")
+        if miss:
+            actions[:, :, 15] = 1.0
+        if bites:
+            for step in range(64, 320):
+                if ((step-64)//32) % 2 == 0:
+                    actions[step, :, 17] = 0.9
+        stream = output / f"{name}.actions.f32"
+        with stream.open("xb") as handle:
+            handle.write(actions.tobytes())
+        command = rollout(root, "v12-feeding-station", 8, 448, chunk, profile["probe"]["seed"], 0)
+        command.remove("--native-policy")
+        command += ["--action-stream", str(stream)]
+        value = execute(output, name, command, root, 180)
+        validate_native(value, envs=8, steps=448, seed=profile["probe"]["seed"], policy=False,
+                        variant="v12-feeding-station", action_source="foundation_action_stream")
+        if (value.get("task") != "american_crow_feeding_station_v12" or
+            value.get("actor_observation_count") != 97 or value.get("critic_observation_count") != 97 or
+            value.get("action_count") != 18 or value.get("termination_count") != 0):
+            raise RuntimeError("Native feeding contract or physical validity failed")
+        utility = value["mean_reward"] * 448
+        accepted = value["outcomes"]["accepted_intake_utility"]["mean"] * 448
+        expected = 4.5 if bites and not miss else 0.0
+        if abs(utility-expected)>2e-6 or abs(accepted-expected)>2e-6:
+            raise RuntimeError(f"Feeding reward violates finite debit identity: {utility}, {accepted}, {expected}")
+        if not miss and bites:
+            fingerprints.append(value["policy_rollout_fingerprint"])
+        records.append({"control": name, "action_stream_sha256": sha(stream),
+                        "accepted_intake_utility_per_lane": utility,
+                        "native_outcome_utility_per_lane": accepted,
+                        "physical_terminations": value["termination_count"],
+                        "failed_physics_steps": value["failed_environment_steps"]})
+    if len(set(fingerprints)) != 1:
+        raise RuntimeError("Feeding observations/rewards depend on submission partition")
+    return {"status": "passed", "claim": "native feeding sensor/reward and finite-debit controls",
+            "records": records, "nutrition_inputs": 4, "actor_inputs": 97, "actions": 18,
+            "behavioral_policy_qualified": False, "persistent_world_restore_tested": False,
+            "ecological_environment_qualified": False}
+
+
+def feeding_policy_probe(root: Path, output: Path, args: argparse.Namespace, profile: dict) -> dict:
+    rows=[]
+    for seed in profile["development_seeds"]:
+        value=execute(output,f"seed-{seed}",rollout(root,"v12-feeding-station",32,1600,8,seed,0,args.policy),root,180)
+        validate_native(value,envs=32,steps=1600,seed=seed,policy=True,variant="v12-feeding-station")
+        if value.get("termination_count")!=0:
+            raise RuntimeError("Feeding behavior screen requires a complete physically valid first horizon")
+        utility=value["mean_reward"]*1600
+        if not math.isfinite(utility) or not -1e-6<=utility<=4.5+2e-6:
+            raise RuntimeError("Deployed feeding reward exceeds the finite lifetime food budget")
+        rows.append({"seed":seed,"mean_accepted_intake_utility_per_lane":utility,
+                     "fraction_of_available_food_utility":utility/4.5,
+                     "physical_terminations":0,"failed_physics_steps":0})
+    return {"status":"measured_unqualified","claim":"development-only feeding policy screen",
+            "records":rows,"behavioral_policy_qualified":False,
+            "boundary":"canonical station; aggregate utility does not establish per-lane completion or learned memory",
+            "ecological_environment_qualified":False}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, required=True)
@@ -440,6 +523,10 @@ def main() -> int:
     commands.add_parser("head-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("body-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("foraging-admission").add_argument("--output", type=Path, required=True)
+    commands.add_parser("feeding-probe").add_argument("--output", type=Path, required=True)
+    feeding_policy=commands.add_parser("feeding-policy-probe")
+    feeding_policy.add_argument("--output",type=Path,required=True)
+    feeding_policy.add_argument("--policy",type=Path,required=True)
     init = commands.add_parser("bootstrap")
     init.add_argument("--output", type=Path, required=True)
     init.add_argument("--source-policy", type=Path, required=True)
@@ -447,7 +534,10 @@ def main() -> int:
     learning = commands.add_parser("learn-probe")
     learning.add_argument("--output", type=Path, required=True)
     learning.add_argument("--source-policy", type=Path)
-    learning.add_argument("--variant", choices=("v9-visual-neural", "v11-embodied"), default="v9-visual-neural")
+    learning.add_argument("--variant", choices=("v9-visual-neural", "v11-embodied", "v12-feeding-station"), default="v9-visual-neural")
+    learning.add_argument("--initial-log-standard-deviation", type=float)
+    learning.add_argument("--fixed-learning-rate", action="store_true")
+    learning.add_argument("--require-intake-reward", action="store_true")
     motor = commands.add_parser("motor-probe")
     motor.add_argument("--output", type=Path, required=True)
     motor.add_argument("--policy", type=Path, required=True)
@@ -455,7 +545,7 @@ def main() -> int:
     partition.add_argument("--output", type=Path, required=True)
     partition.add_argument("--policy", type=Path, required=True)
     partition.add_argument("--base-policy", type=Path, required=True)
-    partition.add_argument("--variant", choices=("v9-visual-neural", "v11-embodied"), default="v9-visual-neural")
+    partition.add_argument("--variant", choices=("v9-visual-neural", "v11-embodied", "v12-feeding-station"), default="v9-visual-neural")
     assessment = commands.add_parser("evaluate")
     assessment.add_argument("--output", type=Path, required=True)
     assessment.add_argument("--policy", type=Path, required=True)
@@ -480,7 +570,7 @@ def main() -> int:
             "control": "repeat same seed with submission chunk 1 versus 8; first episode only",
             "validity": "native accepted state, exact identity, finite first-episode evidence, no device failures or hidden teacher",
             "stopping": "bounded complete runs, timeout retained as failure; no overwrite or automatic retry"}
-    if args.command in ("bootstrap", "learn-probe", "evaluate", "motor-probe", "partition-probe"):
+    if args.command in ("bootstrap", "learn-probe", "evaluate", "motor-probe", "partition-probe", "feeding-policy-probe"):
         source = args.source_policy if args.command in ("bootstrap", "learn-probe") else args.policy
         plan["source_policy_sha256"] = sha(source.resolve(strict=True)) if source else None
     if args.command == "partition-probe":
@@ -495,6 +585,10 @@ def main() -> int:
                 raise RuntimeError("Native head mechanics admission failed")
         elif args.command == "body-admission":
             result = body_admission(root, output, profile)
+        elif args.command == "feeding-probe":
+            result = feeding_probe(root, output, profile)
+        elif args.command == "feeding-policy-probe":
+            result = feeding_policy_probe(root,output,args,profile)
         elif args.command == "foraging-admission":
             result = execute(output, "foraging-ledger", [str(runtime(root)["foraging_check"]),
                              str(output / "native-evidence")], root, 180)

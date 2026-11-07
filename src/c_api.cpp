@@ -2,6 +2,7 @@
 
 #include "metalrobo/EpisodeTwinCompiler.hpp"
 #include "metalrobo/Franka.hpp"
+#include "metalrobo/FiniteResource.hpp"
 #include "metalrobo/FrankaWorld.hpp"
 #include "metalrobo/G1.hpp"
 #include "metalrobo/LearningPacks.hpp"
@@ -113,6 +114,7 @@ struct MRTaskRolloutHandle {
     // compiled autonomous/reset-only policy variant.
     metalrobo::CompiledTaskProgram compatiblePolicySourceTask;
     metalrobo::MetalWorldContext context;
+    std::unique_ptr<metalrobo::FiniteResourceContext> resourceRuntime;
     metalrobo::MetalWorldResidentState residentState;
     metalrobo::MetalWorldStepConfig stepConfig;
     std::vector<MRBodyStateGPU> defaultSceneBodies;
@@ -657,7 +659,7 @@ void validateTaskRolloutConfiguration(
         );
     }
     if (config.birdflow_journey_variant >
-        MR_BIRDFLOW_JOURNEY_V11_EMBODIED) {
+        MR_BIRDFLOW_JOURNEY_V12_FEEDING_STATION) {
         throw std::invalid_argument(
             "task-rollout BirdFlow journey variant is invalid"
         );
@@ -3227,11 +3229,14 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
     MRTaskRolloutHandle* result = nullptr;
     const int status = translateErrors([&] {
         validateTaskRolloutConfiguration(*config);
-        const bool embodied = journey && config->birdflow_journey_variant ==
-            MR_BIRDFLOW_JOURNEY_V11_EMBODIED;
+        const bool feeding=journey && config->birdflow_journey_variant==MR_BIRDFLOW_JOURNEY_V12_FEEDING_STATION;
+        const bool embodied = journey && (config->birdflow_journey_variant ==
+            MR_BIRDFLOW_JOURNEY_V11_EMBODIED || feeding);
         if (embodied && config->birdflow_journey_teacher != 0u) {
-            throw std::invalid_argument("Embodied v11 has no admitted teacher action contract");
+            throw std::invalid_argument("Active-head variants have no admitted teacher action contract");
         }
+        if (embodied && visual_sensor!=nullptr)
+            throw std::invalid_argument("Active-head variants have no admitted eye-image or presentation contract");
         auto robot = metalrobo::builtinRobotPack(embodied
             ? "american_crow_active_head_estimated_v1"
             : "birdflow_american_crow_estimated_hybrid");
@@ -3259,7 +3264,8 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             );
         }
         manifest.id = journey
-            ? embodied ? "american_crow_embodied_development_v11_run"
+            ? feeding ? "american_crow_feeding_station_v12_run"
+            : embodied ? "american_crow_embodied_development_v11_run"
             : worldModelNavigation
                 ? "birdflow_american_crow_navigation_v10_world_model_run"
                 : visualNeuralJourney
@@ -3273,7 +3279,8 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             ? metalrobo::makeBirdFlowAmericanCrowNavigationScenePack()
             : metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
         manifest.sensors.id = journey
-            ? embodied ? "american_crow_embodied_v11_proprioception"
+            ? feeding ? "american_crow_feeding_v12_proprioception_and_nutrition"
+            : embodied ? "american_crow_embodied_v11_proprioception"
             : worldModelNavigation
                 ? "birdflow_american_crow_navigation_v10_rgbd_sensors"
                 : visualNeuralJourney
@@ -3283,7 +3290,9 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
                 : "birdflow_american_crow_journey_v7_state_sensors"
             : "birdflow_american_crow_estimated_hybrid_state_sensors";
         manifest.task = journey
-            ? embodied ? metalrobo::makeAmericanCrowEmbodiedTaskPack(
+            ? feeding ? metalrobo::makeAmericanCrowFeedingStationTaskPack(
+                manifest.sensors.observation,manifest.reality.reset)
+            : embodied ? metalrobo::makeAmericanCrowEmbodiedTaskPack(
                 manifest.sensors.observation, manifest.reality.reset)
             : worldModelNavigation
                 ? metalrobo::makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
@@ -3315,6 +3324,12 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             std::move(manifest), metallib_path,
             "BirdFlow American-crow estimated hybrid", visual_sensor
         );
+        if (feeding) {
+            handle->resourceRuntime=std::make_unique<metalrobo::FiniteResourceContext>(
+                metalrobo::makeAmericanCrowFeedingResourceConfig(handle->run,config->environment_count));
+            handle->stepConfig.devicePhysicsProgram=handle->resourceRuntime->deviceProgram();
+            resetTaskRolloutState(*handle,config->seed);
+        }
         if (worldModelNavigation) {
             applyCrowNavigationCourseSplit(
                 *handle,

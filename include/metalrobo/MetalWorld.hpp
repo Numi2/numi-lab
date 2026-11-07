@@ -383,6 +383,9 @@ struct MetalWorldDevicePhysicsPass {
     void* bodyWrenches = nullptr;
     void* resetMasks = nullptr;
     void* environmentStatuses = nullptr;
+    // Optional native task state for accepted-state task extensions. Null
+    // for physics-only worlds; the immutable task ABI owns its layout.
+    void* taskStates = nullptr;
     // Final per-environment contact state for this rigid substep.  Device
     // physics may read this only during postCommit, after MetalWorld has
     // accepted the contact solve; it remains borrowed with the command
@@ -398,6 +401,7 @@ struct MetalWorldDevicePhysicsPass {
     void* coupledCandidateContext = nullptr;
     MetalWorldEncodeCoupledCandidate encodeCoupledCandidate = nullptr;
     std::uint64_t worldFingerprint = 0u;
+    std::uint64_t taskStateProgramFingerprint = 0u;
     std::uint64_t seed = 0u;
     MetalWorldDevicePhysicsPhase phase =
         MetalWorldDevicePhysicsPhase::preDynamics;
