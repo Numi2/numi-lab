@@ -239,3 +239,36 @@ The earlier independent force-reject test restored its Matter authority, but
 it was not a rejection following this two-step run. This result establishes
 only two consecutive synthetic native owner steps, not sustained loading,
 force calibration, native v5 admission or anatomical fidelity.
+
+## Four-step resident continuation and forced rejection
+
+A separately compiled `--bounded` probe used source SHA-256
+`c1082b74175fef5faba56f8a96b89a071d19e7f32c31cacc56b1e0dddab746e4`
+and executable SHA-256
+`a81e3268b4568d171de565d4cb0024e7ae548760e8a95cde31351c42cda45413`,
+with the same linked owner, metallibs, material and 155-body synthetic fixture
+identified above. Its exact native output is retained as
+`docs/evidence/human-costal-20261107/bounded-continuation.log`, SHA-256
+`aa2f993b9c1781fe8d63893204fc98d9a5bfb7f4c6d62c596593d7a639c75462`.
+The shell wrapper attempted to assign zsh's read-only `status` variable after
+the executable finished and failed with `zsh:1: read-only variable: status`.
+The executable exit code was therefore not retained and is not inferred.
+
+The log records four accepted device-resident owner steps. Transaction IDs
+18178–18181, generations/slots 1–4, and control steps 47–50 each passed the
+nonzero two-attachment-reaction and exactly-once synthetic HumanIO publication
+gates. The last two steps had maximum per-step FEM displacement 0.000541304 m
+and 0.000723634 m, with raw attachment forces respectively
+(-0.000201561, -0.000111627, -0.000121111) and
+(0.000166537, 0.0000209524, 0.0000138376) N, then
+(-0.000448025, -0.000175646, 0.000102172) and
+(0.000376944, 0.0000459895, 0.0000239346) N. Per-node displacement and
+all transaction identities are in the log.
+
+The fifth attempt used transaction 18182, generation/slot 5, control step 51,
+and intentionally forced rejection. Its final log line reports the enumerated
+Matter authority restored and HumanIO rejected, after the checks for a resolved
+prepared capability, no HumanIO publication, and the expected tendon adapter
+encode and borrow counts. This does not compare the live articulated owner's
+q/v/MyoSim state after rejection. It is four short synthetic steps, not sustained
+loading, a force-accuracy result, a v5 admission test, or anatomical validation.
