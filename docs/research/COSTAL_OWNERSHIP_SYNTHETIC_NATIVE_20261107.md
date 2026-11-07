@@ -581,3 +581,20 @@ begin-step callback reported `state_and_completion` but did not report
 Source inspection places the rejection in begin-step pass validation, before
 its encoding. The trace does not identify the failed predicate. Its host timing
 fields are diagnostic only and are not used as performance measurements.
+
+A separately linked HumanIO diagnostic ran at 23:28:17 UTC, with a gated log
+of the validator existing failure reason. Dylib SHA-256 was
+`911e5df64ede6ed1c3e34b4ee36b41cbea154e0d86afb1f07922843cdabf0db0`,
+instrumented HumanIO object SHA-256
+`1aa56c9bf97eb02a5565e5b4bcb2efbd200c3bf5deed7dd07b60f844ab77979f`,
+and 32-input manifest SHA-256
+`6cbb70742775058f59208e57b4345d61f2c78628cefb329d5c83208168c88a2f`.
+Pre- and post-run checks passed. The HumanIO validator reported status 10,
+`transaction pass ABI, size, reserved field, or phase access contract is
+incompatible`; root submission returned status 8/stage 918 and process exit 1.
+The original link inputs were rechecked: one unrelated object,
+`TaskProgram.cpp.o`, had changed since the earlier dylib link. This diagnostic
+therefore is a distinct build and cannot establish the exact predicate in the
+original dylib. The original outcome remains retained. Source diff, link and
+compile commands, object-recheck output, stage logs, and hashes are preserved;
+no step or publication was accepted.
