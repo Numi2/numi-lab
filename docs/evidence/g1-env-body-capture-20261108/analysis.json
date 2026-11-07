@@ -1,0 +1,108 @@
+{
+  "depth_env0": {
+    "after_vs_before": 0,
+    "after_vs_reference": 9
+  },
+  "depth_env1": {
+    "after_vs_before": 8,
+    "after_vs_reference": 0
+  },
+  "identity_env0": {
+    "after_vs_before": 0,
+    "after_vs_reference": 32
+  },
+  "identity_env1": {
+    "after_vs_before": 28,
+    "after_vs_reference": 0
+  },
+  "validity_env0": {
+    "after_vs_before": 0,
+    "after_vs_reference": 8
+  },
+  "validity_env1": {
+    "after_vs_before": 7,
+    "after_vs_reference": 0
+  },
+  "camera_env0": {
+    "after_vs_before": 0,
+    "after_vs_reference": 10
+  },
+  "camera_env1": {
+    "after_vs_before": 8,
+    "after_vs_reference": 0
+  },
+  "track_env0": {
+    "after_vs_before": 0,
+    "after_vs_reference": 0
+  },
+  "track_env1": {
+    "after_vs_before": 6,
+    "after_vs_reference": 0
+  },
+  "actor_env0": {
+    "after_vs_before": 0,
+    "after_vs_reference": null
+  },
+  "actor_env1": {
+    "after_vs_before": 100,
+    "after_vs_reference": null
+  },
+  "body_env0_changed_words": 123,
+  "body_env1_changed_words": 219,
+  "metadata": {
+    "before": [
+      2,
+      1,
+      16,
+      9,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      998803593,
+      0,
+      230,
+      1,
+      1,
+      0
+    ],
+    "after": [
+      2,
+      1,
+      16,
+      9,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      998803593,
+      0,
+      230,
+      1,
+      1,
+      0
+    ],
+    "reference": [
+      2,
+      1,
+      16,
+      9,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      998803593,
+      0,
+      230,
+      1,
+      1,
+      0
+    ]
+  }
+}
