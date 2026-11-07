@@ -3670,13 +3670,16 @@ kernel void mr_world_prepare_contact_step(
         MRBodyStateGPU value = applyReset
             ? resetSceneBodies[sceneBase + localScene]
             : sceneState[sceneBase + localScene];
+        // Reset is an explicit pre-step state transition. A kinematic
+        // target is an input to this step and must not enter its rollback
+        // checkpoint until the step has actually been accepted.
+        checkpointSceneState[sceneBase + localScene] = value;
         if (hasTargets &&
             bodyProperties[globalBody].motionType ==
                 MR_MOTION_KINEMATIC) {
             value = kinematicTargets[targetBase + localScene];
         }
         sceneState[sceneBase + localScene] = value;
-        checkpointSceneState[sceneBase + localScene] = value;
     }
 
     const uint manifoldBase =
