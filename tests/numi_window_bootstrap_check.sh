@@ -65,4 +65,17 @@ for name in g1_29dof.urdf franka_description px4-x500-source; do
     grep -F "$name" "$root/installed-default.out" > /dev/null
 done
 [ ! -s "$root/cmake.log" ]
+# A supplied authored catalog must not depend on absent built-in assets.
+mkdir -p "$workspace/custom-catalog"
+touch "$workspace/custom-catalog/test.numi-window.json"
+NUMI_WINDOW_SCENE_CATALOG="$workspace/custom-catalog" sh "$script" > "$root/installed-catalog.out" 2>&1
+grep -F -- --window-default "$root/rollout.log" > /dev/null
+[ ! -s "$root/cmake.log" ]
+mkdir -p "$workspace/.numi/runs/numi-window-builtins"
+touch "$workspace/.numi/runs/numi-window-builtins/stale.numi-window.json"
+if NUMI_WINDOW_SCENE_CATALOG="$workspace/.numi/runs" sh "$script" > "$root/stale-catalog.out" 2>&1; then
+    echo "stale built-in catalog unexpectedly bypassed asset checks" >&2; exit 1
+fi
+grep -F g1_29dof.urdf "$root/stale-catalog.out" > /dev/null
+[ ! -s "$root/cmake.log" ]
 echo "window bootstrap contract passed (stubbed cmake and rollout)"

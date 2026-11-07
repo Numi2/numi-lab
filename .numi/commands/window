@@ -132,6 +132,21 @@ if [ "${1:-}" = "add" ] || [ -n "$window_scene" ] ||
     window_needs_builtins=0
 fi
 window_builtin_catalog="$window_workspace/.numi/runs/numi-window-builtins"
+# An authored catalog is independently usable even when optional built-in
+# geometry is absent. Do not let a stale built-in catalog bypass its version
+# and input checks.
+if [ "$window_needs_builtins" -eq 1 ]; then
+    for window_candidate in \
+        "$NUMI_WINDOW_SCENE_CATALOG"/*.numi-window.json \
+        "$NUMI_WINDOW_SCENE_CATALOG"/*/*.numi-window.json; do
+        case "$window_candidate" in "$window_builtin_catalog"/*) continue ;; esac
+        if [ -f "$window_candidate" ]; then
+            window_needs_builtins=0
+            window_catalog_default=1
+            break
+        fi
+    done
+fi
 window_builtin_catalog_version=$(cat "$window_builtin_catalog/catalog.version" 2>/dev/null || true)
 if [ "$window_needs_builtins" -eq 1 ] &&
    { [ "$window_builtin_catalog_version" != "9" ] ||
