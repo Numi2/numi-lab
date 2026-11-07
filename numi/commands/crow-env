@@ -1,0 +1,14 @@
+#!/bin/sh
+set -eu
+if [ "${1:-}" = --numi-describe ]; then
+    printf '%s\n' 'Inspect and qualify the American-crow native RL environment.'
+    exit 0
+fi
+root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
+python=${NUMI_CROW_MLX_PYTHON:-${NUMI_MLX_PYTHON:-$root/python/.venv/bin/python}}
+if [ ! -x "$python" ]; then
+    printf '%s\n' 'numi crow-env: select the dedicated learner with NUMI_CROW_MLX_PYTHON.' >&2
+    exit 2
+fi
+export PYTHONPATH="$root/python${PYTHONPATH:+:$PYTHONPATH}"
+exec "$python" -m metalrobo.crow_environment --root "$root" "$@"

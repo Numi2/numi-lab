@@ -1,0 +1,62 @@
+{
+  "schema": "numi.crow-preflight.v1",
+  "host": "Mac.domain_not_set.invalid",
+  "machine": "arm64",
+  "macos": "26.6",
+  "python": "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+  "numpy": "2.5.4",
+  "mlx": "0.32.4",
+  "metal_device": {
+    "device_name": "Apple M4 Pro",
+    "max_recommended_working_set_size": 19069665280,
+    "memory_size": 25769803776,
+    "architecture": "applegpu_g16s",
+    "max_buffer_length": 14302248960,
+    "resource_limit": 499000
+  },
+  "free_disk_bytes": 164862382080,
+  "inputs": {
+    "rollout": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_rollout",
+      "sha256": "1dff7b28f4bb37a868cc541de24f324e925ea47f65c1a465cd72af04ee091c32"
+    },
+    "train": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_train",
+      "sha256": "3de14b7711f877df87784e9fe12452cb16d8cc36ffdef4caf4375f520eaba610"
+    },
+    "library": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/lib/libmetalrobo.dylib",
+      "sha256": "96b49df8a3774941ca31859ee7c852c997a26da480bb28c8879935e6918e71e8"
+    },
+    "metallib": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "sha256": "28a9c2929e210402dd93c09300ac8e6a1981373cdec6dee7397e84dae897f9d7"
+    },
+    "v9-visual-neural": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/assets/crow_journey_window/crow-journey.sensor-fast.visual-observation.json",
+      "sha256": "ac047fb5607c57efda1b741a2f1c622b3ea4bf79def1aec7053182c09c3b329e"
+    },
+    "v10-world-model": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/assets/crow_navigation_course/crow-navigation.sensor-fast.visual-observation.json",
+      "sha256": "0625a028e7f6760bd7b29027b529e012a6b2ef9ffb6797cb69eff602b5c7a137"
+    },
+    "profile": {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/profiles/american-crow-rl-v1.json",
+      "sha256": "fa02bc968e396afe433427bf569567c981ec0b6cef5c08f00740ed88cb124a38"
+    }
+  },
+  "source_commit": "577c54ff90756f99b936a1d136c1768332022af5",
+  "status": "M .gitignore\n M CMakeLists.txt\n M apps/task_rollout.swift\n M bindings/swift/MetalRoboTaskRollout.swift\n M src/metal/PolicyInference.metal\n?? apps/CrowEpisodeEvidence.swift\n?? docs/CROW_RL_ENVIRONMENT.md\n?? numi/commands/crow-env\n?? profiles/\n?? python/metalrobo/crow_environment.py\n?? tests/crow_environment_test.py\n?? tests/crow_episode_evidence_tests.swift",
+  "tracked_diff_sha256": "6b5b6032054733d4e1ee60eecab5b60fc020da04899664b273872c9d3a9842cf",
+  "untracked_inputs": {
+    "apps/CrowEpisodeEvidence.swift": "29b26a0da810e5e8df40c106673381077fc0695356fc1adc2b2ba9dcfd8a4e92",
+    "docs/CROW_RL_ENVIRONMENT.md": "97bf880abea8c7d404988c8e76392af04f8dd6dddd0dfee1ec2fca1775522111",
+    "numi/commands/crow-env": "35d85627086d4ad8b0f0c06cf6eb16b5dc4c245c3fd2f6db05c0a2cf2b403d73",
+    "profiles/american-crow-rl-v1.json": "fa02bc968e396afe433427bf569567c981ec0b6cef5c08f00740ed88cb124a38",
+    "profiles/crow-rl-requirements.txt": "05658442603d681c6d91821623553d9c0d612891fd7e59b7350116b2c986bfb6",
+    "python/metalrobo/crow_environment.py": "60988f602171b31426b2b4e1133fb95175e9b8b08c1a1d5a9363bf027b6d0c26",
+    "tests/crow_environment_test.py": "27b118e613939b5d3f1ef02247a9cadfc7126d328394903cb8b3a9eedc298490",
+    "tests/crow_episode_evidence_tests.swift": "c95fe86c443bfbeaf3773a6ad631ea5a22a2ef76a891aa02412039bc8254551b"
+  },
+  "readiness": "native engineering trials only; ecological qualification pending"
+}

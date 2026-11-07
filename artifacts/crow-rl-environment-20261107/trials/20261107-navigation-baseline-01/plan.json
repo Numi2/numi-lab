@@ -1,0 +1,148 @@
+{
+  "schema": "numi.crow-trial-plan.v1",
+  "created_utc": "2026-11-07T11:38:11.330675+00:00",
+  "command": "evaluate",
+  "arguments": {
+    "root": "/Users/n/Developer/numi-crow-rl-20261107",
+    "command": "evaluate",
+    "output": ".numi/runs/american-crow/20261107-navigation-baseline-01",
+    "policy": ".numi/runs/american-crow/20261107-v10-actor-transfer-01/deployment.policypack",
+    "variant": "v10-world-model",
+    "mode": "development"
+  },
+  "preflight": {
+    "schema": "numi.crow-preflight.v1",
+    "host": "Mac.domain_not_set.invalid",
+    "machine": "arm64",
+    "macos": "26.6",
+    "python": "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+    "numpy": "2.5.4",
+    "mlx": "0.32.4",
+    "metal_device": {
+      "device_name": "Apple M4 Pro",
+      "max_recommended_working_set_size": 19069665280,
+      "memory_size": 25769803776,
+      "architecture": "applegpu_g16s",
+      "max_buffer_length": 14302248960,
+      "resource_limit": 499000
+    },
+    "free_disk_bytes": 167513948160,
+    "inputs": {
+      "rollout": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_rollout",
+        "sha256": "1dff7b28f4bb37a868cc541de24f324e925ea47f65c1a465cd72af04ee091c32"
+      },
+      "train": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_train",
+        "sha256": "3de14b7711f877df87784e9fe12452cb16d8cc36ffdef4caf4375f520eaba610"
+      },
+      "library": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/lib/libmetalrobo.dylib",
+        "sha256": "96b49df8a3774941ca31859ee7c852c997a26da480bb28c8879935e6918e71e8"
+      },
+      "metallib": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+        "sha256": "28a9c2929e210402dd93c09300ac8e6a1981373cdec6dee7397e84dae897f9d7"
+      },
+      "v9-visual-neural": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/assets/crow_journey_window/crow-journey.sensor-fast.visual-observation.json",
+        "sha256": "ac047fb5607c57efda1b741a2f1c622b3ea4bf79def1aec7053182c09c3b329e"
+      },
+      "v10-world-model": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/assets/crow_navigation_course/crow-navigation.sensor-fast.visual-observation.json",
+        "sha256": "0625a028e7f6760bd7b29027b529e012a6b2ef9ffb6797cb69eff602b5c7a137"
+      },
+      "profile": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/profiles/american-crow-rl-v1.json",
+        "sha256": "fa02bc968e396afe433427bf569567c981ec0b6cef5c08f00740ed88cb124a38"
+      }
+    },
+    "source_commit": "577c54ff90756f99b936a1d136c1768332022af5",
+    "status": "M CMakeLists.txt\n M apps/task_rollout.swift\n M bindings/swift/MetalRoboTaskRollout.swift\n M src/metal/PolicyInference.metal\n?? .numi/commands/crow-env\n?? apps/CrowEpisodeEvidence.swift\n?? docs/CROW_RL_ENVIRONMENT.md\n?? profiles/\n?? python/.venv\n?? python/metalrobo/crow_environment.py\n?? tests/crow_episode_evidence_tests.swift",
+    "tracked_diff_sha256": "972d425da9cb1e960891695f768602ff5d599ae6cb77062e125111e5bc8d3b13",
+    "untracked_inputs": {
+      ".numi/commands/crow-env": "35d85627086d4ad8b0f0c06cf6eb16b5dc4c245c3fd2f6db05c0a2cf2b403d73",
+      "apps/CrowEpisodeEvidence.swift": "29b26a0da810e5e8df40c106673381077fc0695356fc1adc2b2ba9dcfd8a4e92",
+      "docs/CROW_RL_ENVIRONMENT.md": "f761b26ed6888c5f142f34b85d40675cd58b29a8192c68acbc793fba3529e2e8",
+      "profiles/american-crow-rl-v1.json": "fa02bc968e396afe433427bf569567c981ec0b6cef5c08f00740ed88cb124a38",
+      "python/metalrobo/crow_environment.py": "7696234f127aca760d2c4d7738a5791ce39efa7198b5305111a4b282072b8856",
+      "tests/crow_episode_evidence_tests.swift": "c95fe86c443bfbeaf3773a6ad631ea5a22a2ef76a891aa02412039bc8254551b"
+    },
+    "readiness": "native engineering trials only; ecological qualification pending"
+  },
+  "profile": {
+    "schema": "numi.crow-environment-profile.v1",
+    "id": "american-crow-development-20261107",
+    "taxon": "Corvus brachyrhynchos",
+    "evidence_class": "estimated-hybrid-simulation",
+    "owner": "Numi2/numi-lab",
+    "baseline_revision": "577c54ff90756f99b936a1d136c1768332022af5",
+    "robot": "birdflow_american_crow_estimated_hybrid",
+    "development_seeds": [
+      2651107001,
+      2651107002,
+      2651107003
+    ],
+    "qualification_seeds": [
+      2651107901,
+      2651107902,
+      2651107903
+    ],
+    "minimum_free_disk_gib": 100,
+    "probe": {
+      "seed": 2651107301,
+      "environments": 32,
+      "steps": 128,
+      "submission_chunks": [
+        1,
+        8
+      ],
+      "scale_environments": [
+        128,
+        512,
+        1024
+      ],
+      "timeout_seconds": 180
+    },
+    "navigation_gate": {
+      "environments": 32,
+      "steps": 1600,
+      "minimum_successful_lanes_per_seed": 28,
+      "minimum_aggregate_success_fraction": 0.9,
+      "maximum_failed_environment_steps": 0,
+      "scheduled_resets": false,
+      "curriculum_resets": false,
+      "attempts": "first episode per environment",
+      "supported_landing_is_separate": true
+    },
+    "modules": {
+      "articulated_motor_control": "native-implementation; current-checkout-requalification-required",
+      "visual_obstacle_course": "native-implementation; unreliable-historical-full-route-controller",
+      "first_attempt_evidence": "native-transition-observer",
+      "crow_eye_perception": "pending; legacy-camera-is-offset-from-body",
+      "active_head_and_beak": "pending",
+      "finite_food_water_and_energy": "pending",
+      "accepted_state_consumption": "pending",
+      "persistent_memory_and_life_checkpoint": "pending",
+      "social_individuals_and_communication": "pending",
+      "weather_and_seasonal_ecology": "pending"
+    },
+    "release_requirements": [
+      "deterministic accepted-state execution across submission chunks",
+      "zero failed physics steps and no hidden teacher authority",
+      "causal actor observations with audited sensor origins and visibility",
+      "measured end-to-end learning throughput and bounded peak memory",
+      "full-route first-attempt reliability on held-out seeds and layouts",
+      "supported landing measured independently of waypoint proximity",
+      "finite resource conservation and no repeated-consumption reward exploit",
+      "persistent checkpoint restore with no reset-induced resource replenishment",
+      "controlled memory and social-information ablations",
+      "all requested ecology modules executable and independently exercised"
+    ]
+  },
+  "prediction": "Exact same-seed replay and partition invariance; imported historical actor may fail full-route completion",
+  "control": "repeat same seed with submission chunk 1 versus 8; first episode only",
+  "validity": "native accepted state, exact identity, finite first-episode evidence, no device failures or hidden teacher",
+  "stopping": "bounded complete runs, timeout retained as failure; no overwrite or automatic retry",
+  "source_policy_sha256": "cc79a6d0a9c10f4964944323ea9b0f8311340d334eb297032c8a9529f68fc570"
+}

@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "claim": "native/MLX updates, publication, and learner-only restore",
+  "records": [
+    {
+      "stage": "initial",
+      "updates": 2,
+      "samples": 131072,
+      "training_loop_steps_per_second": 11254.911658835492,
+      "whole_process_steps_per_second": 10449.735199178152,
+      "initial_revision": 1,
+      "final_revision": 3,
+      "learner_state_restored": false,
+      "checkpoint_sha256": "41f01b2e9c5945effb996f9db1f1378b3ba03e7ee8f0a3e84605415719d1b923"
+    },
+    {
+      "stage": "resume",
+      "updates": 1,
+      "samples": 65536,
+      "training_loop_steps_per_second": 24132.58264150931,
+      "whole_process_steps_per_second": 22509.732148128227,
+      "initial_revision": 3,
+      "final_revision": 4,
+      "learner_state_restored": true,
+      "checkpoint_sha256": "fb0c96eea3aaaf30e14b16bb62f2aeb0177da1924360fcc9ce2e9a36bb909919"
+    }
+  ],
+  "candidate_promoted": false,
+  "persistent_world_restore_tested": false,
+  "ecological_environment_qualified": false
+}

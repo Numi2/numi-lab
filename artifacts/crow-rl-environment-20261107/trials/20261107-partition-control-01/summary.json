@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "claim": "ordinary and residual native policy partition invariance",
+  "records": [
+    {
+      "mode": "ordinary",
+      "fingerprint": "7498477061556937038",
+      "chunks": [
+        1,
+        8
+      ]
+    },
+    {
+      "mode": "residual",
+      "fingerprint": "12803347943156445248",
+      "chunks": [
+        1,
+        8
+      ]
+    }
+  ],
+  "ecological_environment_qualified": false
+}

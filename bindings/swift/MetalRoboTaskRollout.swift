@@ -10,6 +10,7 @@ public enum MetalRoboTaskTerminationReason: UInt32, Sendable {
     case timeout = 4
     case physicsError = 5
     case projectileContact = 6
+    case navigationCompletion = 7
 }
 
 private func withOptionalCString<Result>(

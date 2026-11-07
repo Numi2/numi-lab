@@ -1,0 +1,4 @@
+{
+  "error": "'NoneType' object has no attribute 'get'",
+  "type": "AttributeError"
+}

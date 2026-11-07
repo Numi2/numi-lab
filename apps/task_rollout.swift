@@ -2248,6 +2248,9 @@ private enum TaskRolloutMain {
             let navigationCompletionOutcome = outcomeSchema.firstIndex {
                 $0.id == "navigation_completion"
             }
+            var firstNavigationEpisodes = CrowEpisodeEvidence(
+                environmentCount: options.environments
+            )
             var maximumNavigationProgressByEnvironment = [Double](
                 repeating: -.infinity,
                 count: options.environments
@@ -2488,6 +2491,22 @@ private enum TaskRolloutMain {
                     for transitionIndex in observedTransitions.indices {
                         let base = transitionIndex * outcomeSchema.count
                         let environment = transitionIndex % options.environments
+                        if let waypoint = navigationWaypointOutcome,
+                           let completion = navigationCompletionOutcome {
+                            let transition = observedTransitions[transitionIndex]
+                            try firstNavigationEpisodes.record(
+                                environment: environment,
+                                waypoints: Double(typedOutcomes[base + waypoint]),
+                                completion: Double(typedOutcomes[base + completion]),
+                                done: transition.done,
+                                physicalFailure: transition.done &&
+                                    !transition.timeout &&
+                                    transition.terminationReason !=
+                                        MetalRoboTaskTerminationReason
+                                            .navigationCompletion.rawValue,
+                                terminationReason: transition.terminationReason
+                            )
+                        }
                         for outcomeIndex in outcomeSchema.indices {
                             outcomeSums[outcomeIndex] += Double(
                                 typedOutcomes[base + outcomeIndex]
@@ -3596,6 +3615,7 @@ private enum TaskRolloutMain {
                     String(layout.observationFingerprint),
                 "action_fingerprint": String(layout.actionFingerprint),
                 "actor_observation_count": layout.actorObservationCount,
+                "critic_observation_count": layout.criticObservationCount,
                 "action_count": layout.actionCount,
                 "outcomes": Dictionary(uniqueKeysWithValues:
                     outcomeSchema.enumerated().map { index, descriptor in
@@ -3620,6 +3640,9 @@ private enum TaskRolloutMain {
                     maximumNavigationWaypointsByEnvironment,
                 "maximum_navigation_completion_by_environment":
                     maximumNavigationCompletionByEnvironment,
+                "first_episode_navigation": navigationCompletionOutcome == nil
+                    ? NSNull()
+                    : firstNavigationEpisodes.json,
                 "world_source": worldSource,
                 "action_source":
                     options.birdFlowJourneyTeacher

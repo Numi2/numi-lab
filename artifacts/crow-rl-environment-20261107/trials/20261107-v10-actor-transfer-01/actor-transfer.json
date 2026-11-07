@@ -1,0 +1,1 @@
+{"action_count": 15, "actor_observation_count": 807, "critic_observation_count": 97, "policy_id": "crow-explicit-actor-transfer-v10-world-model", "policy_pack": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v10-actor-transfer-01/deployment.policypack", "policy_pack_bytes": 2326320, "policy_revision": 1, "status": "initialized"}

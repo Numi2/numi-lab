@@ -1,0 +1,55 @@
+{
+  "schema": "numi.crow-environment-profile.v1",
+  "id": "american-crow-development-20261107",
+  "taxon": "Corvus brachyrhynchos",
+  "evidence_class": "estimated-hybrid-simulation",
+  "owner": "Numi2/numi-lab",
+  "baseline_revision": "577c54ff90756f99b936a1d136c1768332022af5",
+  "robot": "birdflow_american_crow_estimated_hybrid",
+  "development_seeds": [2651107001, 2651107002, 2651107003],
+  "qualification_seeds": [2651107901, 2651107902, 2651107903],
+  "minimum_free_disk_gib": 100,
+  "probe": {
+    "seed": 2651107301,
+    "environments": 32,
+    "steps": 128,
+    "submission_chunks": [1, 8],
+    "scale_environments": [128, 512, 1024],
+    "timeout_seconds": 180
+  },
+  "navigation_gate": {
+    "environments": 32,
+    "steps": 1600,
+    "minimum_successful_lanes_per_seed": 28,
+    "minimum_aggregate_success_fraction": 0.9,
+    "maximum_failed_environment_steps": 0,
+    "scheduled_resets": false,
+    "curriculum_resets": false,
+    "attempts": "first episode per environment",
+    "supported_landing_is_separate": true
+  },
+  "modules": {
+    "articulated_motor_control": "native-implementation; current-checkout-requalification-required",
+    "visual_obstacle_course": "native-implementation; unreliable-historical-full-route-controller",
+    "first_attempt_evidence": "native-transition-observer",
+    "crow_eye_perception": "pending; legacy-camera-is-offset-from-body",
+    "active_head_and_beak": "pending",
+    "finite_food_water_and_energy": "pending",
+    "accepted_state_consumption": "pending",
+    "persistent_memory_and_life_checkpoint": "pending",
+    "social_individuals_and_communication": "pending",
+    "weather_and_seasonal_ecology": "pending"
+  },
+  "release_requirements": [
+    "deterministic accepted-state execution across submission chunks",
+    "zero failed physics steps and no hidden teacher authority",
+    "causal actor observations with audited sensor origins and visibility",
+    "measured end-to-end learning throughput and bounded peak memory",
+    "full-route first-attempt reliability on held-out seeds and layouts",
+    "supported landing measured independently of waypoint proximity",
+    "finite resource conservation and no repeated-consumption reward exploit",
+    "persistent checkpoint restore with no reset-induced resource replenishment",
+    "controlled memory and social-information ablations",
+    "all requested ecology modules executable and independently exercised"
+  ]
+}

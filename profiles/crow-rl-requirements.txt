@@ -1,0 +1,5 @@
+# Qualified instrument environment on macmini, CPython 3.13.14, arm64.
+# Runtime/learner qualification does not qualify an ecological task or policy.
+mlx==0.32.4
+mlx-metal==0.32.4
+numpy==2.5.4

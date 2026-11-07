@@ -1,0 +1,33 @@
+{
+  "command": [
+    "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_rollout",
+    "--metallib",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+    "--birdflow-american-crow-journey",
+    "--birdflow-journey-variant",
+    "v9-visual-neural",
+    "--visual-observation-config",
+    "/Users/n/Developer/numi-crow-rl-20261107/assets/crow_journey_window/crow-journey.sensor-fast.visual-observation.json",
+    "--envs",
+    "1",
+    "--steps",
+    "1",
+    "--repeats",
+    "1",
+    "--chunk",
+    "1",
+    "--seed",
+    "2651107301",
+    "--no-scheduled-resets",
+    "--minimum-difficulty-band",
+    "0",
+    "--maximum-difficulty-band",
+    "0",
+    "--native-policy"
+  ],
+  "exit_code": 0,
+  "timed_out": false,
+  "wall_seconds": 0.08974508399842307,
+  "stdout_sha256": "9d5c24aff7bf7e5f34a7829eddaec4c882e5f4c67a7d1e5b77e02682cff2fb15",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

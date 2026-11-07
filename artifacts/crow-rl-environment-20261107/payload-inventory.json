@@ -1,0 +1,894 @@
+{
+  "schema": "numi.crow-instrument-payload-inventory.v1",
+  "files": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-01/failure.json",
+      "relative_path": "20261107-instrument-probe-01/failure.json",
+      "bytes": 86,
+      "sha256": "9b89e67b8ffce63badb3cd5585408db2175345eadfe3c96ae8833a5651e59f52",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-01/plan.json",
+      "relative_path": "20261107-instrument-probe-01/plan.json",
+      "bytes": 6779,
+      "sha256": "b4f17a38a3d7e31c6e8aa06b5a0ffed4dc2c19b3a1b0b1d44773704e2ff811ea",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-01/replay-a.json",
+      "relative_path": "20261107-instrument-probe-01/replay-a.json",
+      "bytes": 23332,
+      "sha256": "9738c0f9913f9d68a2e33e9568407ef6b04f9bf20c92c8377e38d136dcb25a3f",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-01/replay-a.receipt.json",
+      "relative_path": "20261107-instrument-probe-01/replay-a.receipt.json",
+      "bytes": 979,
+      "sha256": "9a3f34f422c572c6ba5d645e7b61330bd81c1d0f76014ac3cc2215029ceff0e7",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-01/replay-a.stderr",
+      "relative_path": "20261107-instrument-probe-01/replay-a.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-02/failure.json",
+      "relative_path": "20261107-instrument-probe-02/failure.json",
+      "bytes": 88,
+      "sha256": "89cbcfa272258757545feeca5a0d2b3f07ab82f15889ef0b24e85cd8aad1db26",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-02/plan.json",
+      "relative_path": "20261107-instrument-probe-02/plan.json",
+      "bytes": 6779,
+      "sha256": "3e9fc4f68fc097f62af9c39c31b15b26f4cad072eaaa1f8b50eede7f0d0f8779",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-02/replay-a.json",
+      "relative_path": "20261107-instrument-probe-02/replay-a.json",
+      "bytes": 23331,
+      "sha256": "4c4f5d8bca630e6c46d6766b49dadbd46655d722cb0cccd8cd6ee5bf51a7accd",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-02/replay-a.receipt.json",
+      "relative_path": "20261107-instrument-probe-02/replay-a.receipt.json",
+      "bytes": 979,
+      "sha256": "3652944a6522679ce552eea6e73a529af2c45200e2aa06d567af8f7476978f29",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-02/replay-a.stderr",
+      "relative_path": "20261107-instrument-probe-02/replay-a.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-02/replay-b.json",
+      "relative_path": "20261107-instrument-probe-02/replay-b.json",
+      "bytes": 23331,
+      "sha256": "b6194fbfc79671690ad22cb8633b68a22a10fa6e48a305f5dc90dcd93713cbd8",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-02/replay-b.receipt.json",
+      "relative_path": "20261107-instrument-probe-02/replay-b.receipt.json",
+      "bytes": 979,
+      "sha256": "48e955e224097543ccb573147f6b6cfa2ff026893fd05a3bf13929c136a160e6",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-02/replay-b.stderr",
+      "relative_path": "20261107-instrument-probe-02/replay-b.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-02/replay-chunk8.json",
+      "relative_path": "20261107-instrument-probe-02/replay-chunk8.json",
+      "bytes": 23343,
+      "sha256": "f69aaf12095e1a820115970f3f742b1b60a04528cea442a1ea7a03468b56b501",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-02/replay-chunk8.receipt.json",
+      "relative_path": "20261107-instrument-probe-02/replay-chunk8.receipt.json",
+      "bytes": 979,
+      "sha256": "57e9331cc30daa559501fb6635e34480bf6923f88f4fc95aa04dab2ae593982e",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-02/replay-chunk8.stderr",
+      "relative_path": "20261107-instrument-probe-02/replay-chunk8.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/plan.json",
+      "relative_path": "20261107-instrument-probe-03/plan.json",
+      "bytes": 6815,
+      "sha256": "f7a69015694af48702fd660e2cb528c247873b6f7327b5d8c2b31add3b08fc68",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/replay-a.json",
+      "relative_path": "20261107-instrument-probe-03/replay-a.json",
+      "bytes": 23332,
+      "sha256": "7ca5dc366323d9a44a40036e20fa1fd1cb8c9e8b83e4ea96572c28f70a706f4d",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/replay-a.receipt.json",
+      "relative_path": "20261107-instrument-probe-03/replay-a.receipt.json",
+      "bytes": 979,
+      "sha256": "f205a70e3b37a884cc0b72fe889831f06c0fe003e7175e76a2f446f11d29be5b",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/replay-a.stderr",
+      "relative_path": "20261107-instrument-probe-03/replay-a.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/replay-b.json",
+      "relative_path": "20261107-instrument-probe-03/replay-b.json",
+      "bytes": 23332,
+      "sha256": "2e3ba4754133737a976a7dfdc511b29e3b9dc17e215ff17d8c830aae01616a4c",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/replay-b.receipt.json",
+      "relative_path": "20261107-instrument-probe-03/replay-b.receipt.json",
+      "bytes": 979,
+      "sha256": "2d477d64dbebb41a85f79856fd90f401053a793c456336ea8ce922b69822d7c7",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/replay-b.stderr",
+      "relative_path": "20261107-instrument-probe-03/replay-b.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/replay-chunk8.json",
+      "relative_path": "20261107-instrument-probe-03/replay-chunk8.json",
+      "bytes": 23324,
+      "sha256": "00e3ce8050773d3c551bc5c12490b0cc0080ff2e181c858b2a247ab2bffb8e36",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/replay-chunk8.receipt.json",
+      "relative_path": "20261107-instrument-probe-03/replay-chunk8.receipt.json",
+      "bytes": 979,
+      "sha256": "fe5138b5d6436330191a7c5d04d08fa152ed94a00203eef3d83b158d4498339d",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/replay-chunk8.stderr",
+      "relative_path": "20261107-instrument-probe-03/replay-chunk8.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/scale-1024.json",
+      "relative_path": "20261107-instrument-probe-03/scale-1024.json",
+      "bytes": 449240,
+      "sha256": "0d2f4de8b7fa3d8f346d7e36b70161ac1c88e7abf63bfc450f8910b137a422d2",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/scale-1024.receipt.json",
+      "relative_path": "20261107-instrument-probe-03/scale-1024.receipt.json",
+      "bytes": 980,
+      "sha256": "1857562963d599c3654d3fe5f802d3f1ff132bfff6c27df7b56141a1b39d88ed",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/scale-1024.stderr",
+      "relative_path": "20261107-instrument-probe-03/scale-1024.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/scale-128.json",
+      "relative_path": "20261107-instrument-probe-03/scale-128.json",
+      "bytes": 64466,
+      "sha256": "e79b366e37f4fdcd86ee08e9d8de4cd3c31f76490ab5797962ab1b71625221e1",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/scale-128.receipt.json",
+      "relative_path": "20261107-instrument-probe-03/scale-128.receipt.json",
+      "bytes": 980,
+      "sha256": "962d81b79e03801478e8449ed73b7463b1821e4bda1717a5339c081619a607e2",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/scale-128.stderr",
+      "relative_path": "20261107-instrument-probe-03/scale-128.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/scale-512.json",
+      "relative_path": "20261107-instrument-probe-03/scale-512.json",
+      "bytes": 229368,
+      "sha256": "3ac00131b35e0797aa05b34c6c0d8bf069941dae3e65059f5a95dd3c3bd8c438",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/scale-512.receipt.json",
+      "relative_path": "20261107-instrument-probe-03/scale-512.receipt.json",
+      "bytes": 980,
+      "sha256": "144e736fbc1160ace9025b1719f215c382b4192fe2811b8bca1e63698c19bd6a",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/scale-512.stderr",
+      "relative_path": "20261107-instrument-probe-03/scale-512.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-instrument-probe-03/summary.json",
+      "relative_path": "20261107-instrument-probe-03/summary.json",
+      "bytes": 2095,
+      "sha256": "d71fd2ef47fd85583239c9414d91149fa3a27ccaa56feb73c46abc456fc4a60d",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-learner-probe-01/initial-deployment.policypack",
+      "relative_path": "20261107-learner-probe-01/initial-deployment.policypack",
+      "bytes": 2073419,
+      "sha256": "16d43b3e44c221621b47465de3f85005f2f632d19acee863fea91d8843ef9fd8",
+      "copied_to_source_checkpoint": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-learner-probe-01/initial-incumbent.policypack",
+      "relative_path": "20261107-learner-probe-01/initial-incumbent.policypack",
+      "bytes": 2073419,
+      "sha256": "048023d77ed5eaef8860602284315faac55584a6309bff4e5360f17671f106db",
+      "copied_to_source_checkpoint": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-learner-probe-01/initial-updated.policypack",
+      "relative_path": "20261107-learner-probe-01/initial-updated.policypack",
+      "bytes": 2905755,
+      "sha256": "a9219cab08f34de615c4e15dfd6af91ba2da68c21d0275be189d1d0ba382f3d4",
+      "copied_to_source_checkpoint": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-learner-probe-01/initial.learner.safetensors",
+      "relative_path": "20261107-learner-probe-01/initial.learner.safetensors",
+      "bytes": 8703107,
+      "sha256": "41f01b2e9c5945effb996f9db1f1378b3ba03e7ee8f0a3e84605415719d1b923",
+      "copied_to_source_checkpoint": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-learner-probe-01/initial.policypack",
+      "relative_path": "20261107-learner-probe-01/initial.policypack",
+      "bytes": 2905755,
+      "sha256": "1ec5ce7cafeadeee4d0dde8a8dd47b1e34d62774b7b6d2e9567d9caefe0c8021",
+      "copied_to_source_checkpoint": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-learner-probe-01/initial.rolloutpack",
+      "relative_path": "20261107-learner-probe-01/initial.rolloutpack",
+      "bytes": 213912341,
+      "sha256": "4d415784059aa5bd847466e8d4ab8b46011bdbb6808581cbf3e908adb3165cb1",
+      "copied_to_source_checkpoint": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-learner-probe-01/learner-initial.json",
+      "relative_path": "20261107-learner-probe-01/learner-initial.json",
+      "bytes": 8847,
+      "sha256": "eafdd9d24cf7eebd52db4788ebf1ecdb3a2c2a8da652313744b8621786ed460b",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-learner-probe-01/learner-initial.receipt.json",
+      "relative_path": "20261107-learner-probe-01/learner-initial.receipt.json",
+      "bytes": 2520,
+      "sha256": "a7cb1847718fc92a7f1a28ea19712ff39ea8a5a124d4eb35f418c14b6a967c18",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-learner-probe-01/learner-initial.stderr",
+      "relative_path": "20261107-learner-probe-01/learner-initial.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-learner-probe-01/learner-resume.json",
+      "relative_path": "20261107-learner-probe-01/learner-resume.json",
+      "bytes": 8794,
+      "sha256": "21045894e79e1a068e575950d68cbe8c044de220f21956a24250fefbf9c65177",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-learner-probe-01/learner-resume.receipt.json",
+      "relative_path": "20261107-learner-probe-01/learner-resume.receipt.json",
+      "bytes": 2404,
+      "sha256": "be53fe9a0f8722da02b78ee3cf7787b72ccaace929c6fcb7d8ddf7bcdf4e7607",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-learner-probe-01/learner-resume.stderr",
+      "relative_path": "20261107-learner-probe-01/learner-resume.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-learner-probe-01/plan.json",
+      "relative_path": "20261107-learner-probe-01/plan.json",
+      "bytes": 7158,
+      "sha256": "e13a5a28f4ed042b9d5f8c455ff9a87f4b0bca38c34214331ef93b42c5a8328d",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-learner-probe-01/resume-deployment.policypack",
+      "relative_path": "20261107-learner-probe-01/resume-deployment.policypack",
+      "bytes": 2073419,
+      "sha256": "c19f15497d171218b22f78d9e8feb9a5cd900c699d5c2f7631cdb9a2e71d03d0",
+      "copied_to_source_checkpoint": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-learner-probe-01/resume-incumbent.policypack",
+      "relative_path": "20261107-learner-probe-01/resume-incumbent.policypack",
+      "bytes": 2073419,
+      "sha256": "16d43b3e44c221621b47465de3f85005f2f632d19acee863fea91d8843ef9fd8",
+      "copied_to_source_checkpoint": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-learner-probe-01/resume-updated.policypack",
+      "relative_path": "20261107-learner-probe-01/resume-updated.policypack",
+      "bytes": 2905755,
+      "sha256": "eb4cc0a96623d204fe56dcac52baa4779db8d464ae7b295fb40828b31796ffa6",
+      "copied_to_source_checkpoint": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-learner-probe-01/resume.learner.safetensors",
+      "relative_path": "20261107-learner-probe-01/resume.learner.safetensors",
+      "bytes": 8703093,
+      "sha256": "fb0c96eea3aaaf30e14b16bb62f2aeb0177da1924360fcc9ce2e9a36bb909919",
+      "copied_to_source_checkpoint": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-learner-probe-01/resume.rolloutpack",
+      "relative_path": "20261107-learner-probe-01/resume.rolloutpack",
+      "bytes": 213912341,
+      "sha256": "d6798c92326a9c30b7cc88d5ae64850cafa978e001c6632c6d5565891e72a506",
+      "copied_to_source_checkpoint": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-learner-probe-01/summary.json",
+      "relative_path": "20261107-learner-probe-01/summary.json",
+      "bytes": 1018,
+      "sha256": "2549de648953fde53c2cd8b2e7bd90433729cb223588d64cba940d26b07b51df",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band0.json",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band0.json",
+      "bytes": 23497,
+      "sha256": "a22b12c4cb29e479206bd5f07d7151078898b91bfad0f46b00cbbb8a5aadb673",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band0.receipt.json",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band0.receipt.json",
+      "bytes": 1102,
+      "sha256": "b90fcf8562624bf983ee3b4cf9659903b6aef658ca46b9be1d69d2398a376faf",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band0.stderr",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band0.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band1.json",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band1.json",
+      "bytes": 23450,
+      "sha256": "c692466b1720ee3ff48e8424f3e33782dd8059679b61c626b325de9c2f6f5551",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band1.receipt.json",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band1.receipt.json",
+      "bytes": 1102,
+      "sha256": "e2ac671abc6fa4f4d410e627045c51b6b9d8ce96bcd0333af4b4a92d25a2e7ee",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band1.stderr",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band10.json",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band10.json",
+      "bytes": 23436,
+      "sha256": "7a18cc078699c8ce0359ef61ba2b80ca70f80c4f090ef207b5fbbdab8c817c0d",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band10.receipt.json",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band10.receipt.json",
+      "bytes": 1104,
+      "sha256": "14203bc4c4c91b90aca9f1a20b1f286b2b5c519151ad0321107acd1e6a9a0dd9",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band10.stderr",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band10.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band2.json",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band2.json",
+      "bytes": 23373,
+      "sha256": "9d0300575906bb2b65c8009f6e319423fa3a84088a5c81464a65aa316b61187a",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band2.receipt.json",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band2.receipt.json",
+      "bytes": 1101,
+      "sha256": "e893ac85ed6f32796fb30b6f5db3394488a06f58bcab9fb4bb5e6eacd2993cc2",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band2.stderr",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band2.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band4.json",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band4.json",
+      "bytes": 23339,
+      "sha256": "6d1c94c02bb1d04f3fb5ae95104aeb88d515e2591ddd1405a6e872fb44c19356",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band4.receipt.json",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band4.receipt.json",
+      "bytes": 1102,
+      "sha256": "32ba8f9ce4c2ba281b94c836a3b8b56f5f172b458dcd8c8356ba69b765f1d7d2",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band4.stderr",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band4.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band7.json",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band7.json",
+      "bytes": 23385,
+      "sha256": "5d7c21cd70b341aa4f6a81adc4f9b172e2d47f808a0b21b12e7244ec979c281a",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band7.receipt.json",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band7.receipt.json",
+      "bytes": 1102,
+      "sha256": "0c7c7a47e830b9de14cc4eb16edb04b1f430f1ca8d2f46b80dfb012448b095f5",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band7.stderr",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band7.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band9.json",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band9.json",
+      "bytes": 23431,
+      "sha256": "fda5aeb4badb905af9864b8a27423d62a9ff3d8e40dad00da792270bff9bd04b",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band9.receipt.json",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band9.receipt.json",
+      "bytes": 1102,
+      "sha256": "4afc3749c3a1d13c9a1999fa6cbb19bad230331d266d8dcb2fee3ddff6c8b48f",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/motor-band9.stderr",
+      "relative_path": "20261107-motor-diagnosis-01/motor-band9.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/plan.json",
+      "relative_path": "20261107-motor-diagnosis-01/plan.json",
+      "bytes": 7153,
+      "sha256": "22e8f49282bbd9765c1c0d5457f89eb4471c25a3802c04bd2fc48677a48310a6",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-motor-diagnosis-01/summary.json",
+      "relative_path": "20261107-motor-diagnosis-01/summary.json",
+      "bytes": 14847,
+      "sha256": "e90bf6b078f9f219a2ffcfa7f71fc366b83d2e4b70a823134becb049b789af50",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-navigation-baseline-01/plan.json",
+      "relative_path": "20261107-navigation-baseline-01/plan.json",
+      "bytes": 7074,
+      "sha256": "ce221706e4c2fa3565ec7e29b627c803eeb47fcce03b207168952d18e4e82a11",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-navigation-baseline-01/summary.json",
+      "relative_path": "20261107-navigation-baseline-01/summary.json",
+      "bytes": 15663,
+      "sha256": "9926564b78861933d7379a17f89be1fe2c314ad4074d7f756386cc27e9f868d3",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-navigation-baseline-01/training-2651107001.json",
+      "relative_path": "20261107-navigation-baseline-01/training-2651107001.json",
+      "bytes": 28093,
+      "sha256": "a057533584a00013e52ed66b837820ff46de729ca9fc08700148cca87a6116a2",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-navigation-baseline-01/training-2651107001.receipt.json",
+      "relative_path": "20261107-navigation-baseline-01/training-2651107001.receipt.json",
+      "bytes": 1162,
+      "sha256": "727424cf25b4ffe76bfcfbb456b7fbc16d352d98ef3a5b708390d33890e72ae0",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-navigation-baseline-01/training-2651107001.stderr",
+      "relative_path": "20261107-navigation-baseline-01/training-2651107001.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-navigation-baseline-01/training-2651107002.json",
+      "relative_path": "20261107-navigation-baseline-01/training-2651107002.json",
+      "bytes": 28105,
+      "sha256": "d536fbfed560721b504f3c664dfede96e99eca0bfe5ac1c4968128a3f1a59848",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-navigation-baseline-01/training-2651107002.receipt.json",
+      "relative_path": "20261107-navigation-baseline-01/training-2651107002.receipt.json",
+      "bytes": 1162,
+      "sha256": "e489d3db9a49bd8af4e944899ec35c02f0ab0bcd05fc02b84a06f89305a7b7a5",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-navigation-baseline-01/training-2651107002.stderr",
+      "relative_path": "20261107-navigation-baseline-01/training-2651107002.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-navigation-baseline-01/training-2651107003.json",
+      "relative_path": "20261107-navigation-baseline-01/training-2651107003.json",
+      "bytes": 28039,
+      "sha256": "7db79a63307874ed03dc15b85fe248f1574667218632228bfc7b6283c354d193",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-navigation-baseline-01/training-2651107003.receipt.json",
+      "relative_path": "20261107-navigation-baseline-01/training-2651107003.receipt.json",
+      "bytes": 1162,
+      "sha256": "b6a7cfde12831e43ea4ba181d01c0a039a562db055ee78e869eaae6041be4f96",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-navigation-baseline-01/training-2651107003.stderr",
+      "relative_path": "20261107-navigation-baseline-01/training-2651107003.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-partition-control-01/ordinary-chunk1.json",
+      "relative_path": "20261107-partition-control-01/ordinary-chunk1.json",
+      "bytes": 23327,
+      "sha256": "0090ca0ec9852fbeecc5b195d658ab4d9298b1931815024c02640d611867e233",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-partition-control-01/ordinary-chunk1.receipt.json",
+      "relative_path": "20261107-partition-control-01/ordinary-chunk1.receipt.json",
+      "bytes": 1095,
+      "sha256": "c2a18322e6691f86c8896f74719ba2595803cad286e735c15b2cdb002719d03b",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-partition-control-01/ordinary-chunk1.stderr",
+      "relative_path": "20261107-partition-control-01/ordinary-chunk1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-partition-control-01/ordinary-chunk8.json",
+      "relative_path": "20261107-partition-control-01/ordinary-chunk8.json",
+      "bytes": 23326,
+      "sha256": "29df38a89ebee31e90bda85c5b87fafe958bed78c9ff087472a9b4a7f580060f",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-partition-control-01/ordinary-chunk8.receipt.json",
+      "relative_path": "20261107-partition-control-01/ordinary-chunk8.receipt.json",
+      "bytes": 1095,
+      "sha256": "7c1ff1297667aa9f516ad76b2f19bfd25ff832109b7ed16675fb6eb04e0c60cf",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-partition-control-01/ordinary-chunk8.stderr",
+      "relative_path": "20261107-partition-control-01/ordinary-chunk8.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-partition-control-01/plan.json",
+      "relative_path": "20261107-partition-control-01/plan.json",
+      "bytes": 7458,
+      "sha256": "817a39d10abca4d64c6ec3dd1369aa54caa7f303d6af61f62746a1c6515d2f40",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-partition-control-01/residual-chunk1.json",
+      "relative_path": "20261107-partition-control-01/residual-chunk1.json",
+      "bytes": 23336,
+      "sha256": "dee5b5867d6259eca142d05873546bdd5135e761e73034d27f03f8a35ea4ca8f",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-partition-control-01/residual-chunk1.receipt.json",
+      "relative_path": "20261107-partition-control-01/residual-chunk1.receipt.json",
+      "bytes": 1246,
+      "sha256": "4aa178a3561a358b56ff22c5e4308439f2da775f89f04ef39e466020b12b54f0",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-partition-control-01/residual-chunk1.stderr",
+      "relative_path": "20261107-partition-control-01/residual-chunk1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-partition-control-01/residual-chunk8.json",
+      "relative_path": "20261107-partition-control-01/residual-chunk8.json",
+      "bytes": 23335,
+      "sha256": "96a7bc47eef56c146497606969fb65e02c83d08e1170d750ed6e2b07340ebe18",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-partition-control-01/residual-chunk8.receipt.json",
+      "relative_path": "20261107-partition-control-01/residual-chunk8.receipt.json",
+      "bytes": 1246,
+      "sha256": "dcb4a42ede9c8c6efd6cdb7f7c78723164cc41cff062d8b3e7c8574bb567a47e",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-partition-control-01/residual-chunk8.stderr",
+      "relative_path": "20261107-partition-control-01/residual-chunk8.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-partition-control-01/summary.json",
+      "relative_path": "20261107-partition-control-01/summary.json",
+      "bytes": 421,
+      "sha256": "64108c4135fdba78cebb707b37d77d6880aab18206367274c1f7ca6250049a54",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v10-actor-transfer-01/actor-transfer.json",
+      "relative_path": "20261107-v10-actor-transfer-01/actor-transfer.json",
+      "bytes": 360,
+      "sha256": "9dd4d3ec8b405b844de3cbf96e4f0244007a043afa1b84e67dd6a46310f8440e",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v10-actor-transfer-01/actor-transfer.receipt.json",
+      "relative_path": "20261107-v10-actor-transfer-01/actor-transfer.receipt.json",
+      "bytes": 1342,
+      "sha256": "a81d5190745207a6dc455d8c0d4fcd488f5b8deb8d26910b7600ede8e1e4472d",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v10-actor-transfer-01/actor-transfer.stderr",
+      "relative_path": "20261107-v10-actor-transfer-01/actor-transfer.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v10-actor-transfer-01/deployment.policypack",
+      "relative_path": "20261107-v10-actor-transfer-01/deployment.policypack",
+      "bytes": 2326320,
+      "sha256": "cc79a6d0a9c10f4964944323ea9b0f8311340d334eb297032c8a9529f68fc570",
+      "copied_to_source_checkpoint": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v10-actor-transfer-01/loaded-policy-check.json",
+      "relative_path": "20261107-v10-actor-transfer-01/loaded-policy-check.json",
+      "bytes": 15034,
+      "sha256": "5312425eb597a0252cee208f30079249635efd12eb1de3c427a7464e8ec9f297",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v10-actor-transfer-01/loaded-policy-check.receipt.json",
+      "relative_path": "20261107-v10-actor-transfer-01/loaded-policy-check.receipt.json",
+      "bytes": 1159,
+      "sha256": "20ded85c85399ce3d0c23252124322e44189f9ff639363f4b8665fd4da3474e6",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v10-actor-transfer-01/loaded-policy-check.stderr",
+      "relative_path": "20261107-v10-actor-transfer-01/loaded-policy-check.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v10-actor-transfer-01/native-contract.json",
+      "relative_path": "20261107-v10-actor-transfer-01/native-contract.json",
+      "bytes": 11213,
+      "sha256": "a76b0ed838ef311dd9d21fc06c75c709e0643983441d1d7187781efc286c4de4",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v10-actor-transfer-01/native-contract.receipt.json",
+      "relative_path": "20261107-v10-actor-transfer-01/native-contract.receipt.json",
+      "bytes": 1034,
+      "sha256": "53505af5696c0a512ee321dc74405776ddffdc7be2c77be329e2fa44a13e6af6",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v10-actor-transfer-01/native-contract.stderr",
+      "relative_path": "20261107-v10-actor-transfer-01/native-contract.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v10-actor-transfer-01/plan.json",
+      "relative_path": "20261107-v10-actor-transfer-01/plan.json",
+      "bytes": 7055,
+      "sha256": "93fea6f760df67d8cc4814b913d57fa785e5ccbc444c602c3d221f67ca36b260",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v10-actor-transfer-01/summary.json",
+      "relative_path": "20261107-v10-actor-transfer-01/summary.json",
+      "bytes": 976,
+      "sha256": "959f7454715ddae3cf325362221e3c648f7a9874f60e075f52a1e6854dc0a777",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v9-actor-transfer-01/actor-transfer.json",
+      "relative_path": "20261107-v9-actor-transfer-01/actor-transfer.json",
+      "bytes": 360,
+      "sha256": "7061347afbf9f3a1f59d654c8d18186a48e9fee93bac1861f8475875dd9cad8a",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v9-actor-transfer-01/actor-transfer.receipt.json",
+      "relative_path": "20261107-v9-actor-transfer-01/actor-transfer.receipt.json",
+      "bytes": 1289,
+      "sha256": "4b17588ef55c0f0e8a8f59e860c5e8a41f4f968fc434a00edc281cdc7e312827",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v9-actor-transfer-01/actor-transfer.stderr",
+      "relative_path": "20261107-v9-actor-transfer-01/actor-transfer.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v9-actor-transfer-01/deployment.policypack",
+      "relative_path": "20261107-v9-actor-transfer-01/deployment.policypack",
+      "bytes": 2073433,
+      "sha256": "0d5ee7a0386d2148321dbf6e411ed02991e47b44ac22e21224ae7e69df6329a7",
+      "copied_to_source_checkpoint": false
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v9-actor-transfer-01/loaded-policy-check.json",
+      "relative_path": "20261107-v9-actor-transfer-01/loaded-policy-check.json",
+      "bytes": 13040,
+      "sha256": "19c049a835e88f4b7bd49f313e13f8fcdd5bf62c35635597ab90debfabd77aab",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v9-actor-transfer-01/loaded-policy-check.receipt.json",
+      "relative_path": "20261107-v9-actor-transfer-01/loaded-policy-check.receipt.json",
+      "bytes": 1101,
+      "sha256": "427e8844a7c824a49b4d1f3d280504a70db3191c7799685c99e45ccc0866b621",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v9-actor-transfer-01/loaded-policy-check.stderr",
+      "relative_path": "20261107-v9-actor-transfer-01/loaded-policy-check.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v9-actor-transfer-01/native-contract.json",
+      "relative_path": "20261107-v9-actor-transfer-01/native-contract.json",
+      "bytes": 10002,
+      "sha256": "9d5c24aff7bf7e5f34a7829eddaec4c882e5f4c67a7d1e5b77e02682cff2fb15",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v9-actor-transfer-01/native-contract.receipt.json",
+      "relative_path": "20261107-v9-actor-transfer-01/native-contract.receipt.json",
+      "bytes": 977,
+      "sha256": "0da2cb11481af78d5b11a43eace27697b7de220c53b5d0a1bba8a29995152912",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v9-actor-transfer-01/native-contract.stderr",
+      "relative_path": "20261107-v9-actor-transfer-01/native-contract.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v9-actor-transfer-01/plan.json",
+      "relative_path": "20261107-v9-actor-transfer-01/plan.json",
+      "bytes": 7055,
+      "sha256": "a6d48cbee485572dae38a594f9f0e230c39912e14fd41b14e7f2e32591b076d2",
+      "copied_to_source_checkpoint": true
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v9-actor-transfer-01/summary.json",
+      "relative_path": "20261107-v9-actor-transfer-01/summary.json",
+      "bytes": 979,
+      "sha256": "5c222e581bac1ec5c9af12701e4bbac14939ac165479010bd75081a4880a4a3b",
+      "copied_to_source_checkpoint": true
+    }
+  ]
+}

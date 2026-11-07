@@ -1,0 +1,24 @@
+{
+  "status": "created_unqualified_actor_transfer",
+  "source_sha256": "d4eef1080a77203fa0b4e86394dcd46a99a374df119690a6413ea00792b0f50f",
+  "policy_sha256": "cc79a6d0a9c10f4964944323ea9b0f8311340d334eb297032c8a9529f68fc570",
+  "critic": "fresh initialization",
+  "training_updates": 0,
+  "native_contract": {
+    "world_fingerprint": "4531105942729501771",
+    "task_fingerprint": "743395527655814155",
+    "observation_fingerprint": "11415241881121672674",
+    "action_fingerprint": "18214448862083761046"
+  },
+  "initialization": {
+    "action_count": 15,
+    "actor_observation_count": 807,
+    "critic_observation_count": 97,
+    "policy_id": "crow-explicit-actor-transfer-v10-world-model",
+    "policy_pack": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-v10-actor-transfer-01/deployment.policypack",
+    "policy_pack_bytes": 2326320,
+    "policy_revision": 1,
+    "status": "initialized"
+  },
+  "ecological_environment_qualified": false
+}

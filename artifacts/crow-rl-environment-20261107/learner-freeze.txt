@@ -1,0 +1,4 @@
+-e file:///Users/n/Developer/numi-crow-rl-20261107/python
+mlx==0.32.4
+mlx-metal==0.32.4
+numpy==2.5.4

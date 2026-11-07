@@ -1,0 +1,65 @@
+{
+  "status": "passed",
+  "claim": "native replay and bounded rollout scaling only",
+  "policy": "untrained compiled engineering policy",
+  "records": [
+    {
+      "name": "replay-a",
+      "chunk": 1,
+      "fingerprints": {
+        "world_fingerprint": "16078891549652276271",
+        "task_fingerprint": "12672102325220679139",
+        "observation_fingerprint": "14901087402848079922",
+        "action_fingerprint": "10691960181166054111",
+        "sensor_fingerprint": "6499250769738519326",
+        "policy_rollout_fingerprint": "59686661409080592"
+      }
+    },
+    {
+      "name": "replay-b",
+      "chunk": 1,
+      "fingerprints": {
+        "world_fingerprint": "16078891549652276271",
+        "task_fingerprint": "12672102325220679139",
+        "observation_fingerprint": "14901087402848079922",
+        "action_fingerprint": "10691960181166054111",
+        "sensor_fingerprint": "6499250769738519326",
+        "policy_rollout_fingerprint": "59686661409080592"
+      }
+    },
+    {
+      "name": "replay-chunk8",
+      "chunk": 8,
+      "fingerprints": {
+        "world_fingerprint": "16078891549652276271",
+        "task_fingerprint": "12672102325220679139",
+        "observation_fingerprint": "14901087402848079922",
+        "action_fingerprint": "10691960181166054111",
+        "sensor_fingerprint": "6499250769738519326",
+        "policy_rollout_fingerprint": "59686661409080592"
+      }
+    },
+    {
+      "name": "scale-128",
+      "environments": 128,
+      "native_environment_steps_per_second": 26719.01532339769,
+      "retained_buffer_bytes": 63105094,
+      "peak_aliased_bytes": 50147612
+    },
+    {
+      "name": "scale-512",
+      "environments": 512,
+      "native_environment_steps_per_second": 42506.96920102597,
+      "retained_buffer_bytes": 250653766,
+      "peak_aliased_bytes": 200583452
+    },
+    {
+      "name": "scale-1024",
+      "environments": 1024,
+      "native_environment_steps_per_second": 49041.76331752305,
+      "retained_buffer_bytes": 500718662,
+      "peak_aliased_bytes": 401164572
+    }
+  ],
+  "ecological_environment_qualified": false
+}

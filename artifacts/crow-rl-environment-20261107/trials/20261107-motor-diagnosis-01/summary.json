@@ -1,0 +1,598 @@
+{
+  "status": "measured",
+  "claim": "single-development-seed motor diagnosis only",
+  "seed": 2651107001,
+  "policy_sha256": "0d5ee7a0386d2148321dbf6e411ed02991e47b44ac22e21224ae7e69df6329a7",
+  "records": [
+    {
+      "band": 0,
+      "mean_tracking_score": 0.9999996876262593,
+      "physical_terminations": 0,
+      "maximum_root_height_m": 0.1873287856578827,
+      "maximum_tilt_rad": 0.0010099781211465597,
+      "outcomes": {
+        "approach_pitch_full_envelope_fraction": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "approach_pitch_warning_fraction": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "done": {
+          "direction": 2,
+          "mean": 0.00375,
+          "unit": "bool"
+        },
+        "figure_eight_tracking": {
+          "direction": 1,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "forward_flight_tracking": {
+          "direction": 1,
+          "mean": 0.03999997815095412,
+          "unit": "ratio"
+        },
+        "ground_support": {
+          "direction": 1,
+          "mean": 0.012000000104308128,
+          "unit": "ratio"
+        },
+        "liftoff": {
+          "direction": 1,
+          "mean": 0.019999990310716385,
+          "unit": "ratio"
+        },
+        "physics_error": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "bool"
+        },
+        "push_off": {
+          "direction": 1,
+          "mean": 0,
+          "unit": "m/s"
+        },
+        "reward": {
+          "direction": 1,
+          "mean": 0.10099958041115314,
+          "unit": "reward"
+        },
+        "root_height": {
+          "direction": 0,
+          "mean": 0.18732282895594835,
+          "unit": "m"
+        },
+        "task_reward": {
+          "direction": 1,
+          "mean": 0.06599997696466745,
+          "unit": "reward"
+        },
+        "timeout": {
+          "direction": 0,
+          "mean": 0.00375,
+          "unit": "bool"
+        },
+        "tracking": {
+          "direction": 1,
+          "mean": 0.9999996876262593,
+          "unit": "ratio"
+        },
+        "walking_contact": {
+          "direction": 1,
+          "mean": 0,
+          "unit": "ratio"
+        }
+      }
+    },
+    {
+      "band": 1,
+      "mean_tracking_score": 0.911641517567914,
+      "physical_terminations": 0,
+      "maximum_root_height_m": 0.18713901937007904,
+      "maximum_tilt_rad": 0.012107626534998417,
+      "outcomes": {
+        "approach_pitch_full_envelope_fraction": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "approach_pitch_warning_fraction": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "done": {
+          "direction": 2,
+          "mean": 0.0025,
+          "unit": "bool"
+        },
+        "figure_eight_tracking": {
+          "direction": 1,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "forward_flight_tracking": {
+          "direction": 1,
+          "mean": 0.03294085675439419,
+          "unit": "ratio"
+        },
+        "ground_support": {
+          "direction": 1,
+          "mean": 0.012000000104308128,
+          "unit": "ratio"
+        },
+        "liftoff": {
+          "direction": 1,
+          "mean": 0.01997578365433583,
+          "unit": "ratio"
+        },
+        "physics_error": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "bool"
+        },
+        "push_off": {
+          "direction": 1,
+          "mean": 0,
+          "unit": "m/s"
+        },
+        "reward": {
+          "direction": 1,
+          "mean": 0.10490446209994843,
+          "unit": "reward"
+        },
+        "root_height": {
+          "direction": 0,
+          "mean": 0.18556348733924097,
+          "unit": "m"
+        },
+        "task_reward": {
+          "direction": 1,
+          "mean": 0.0701193822309142,
+          "unit": "reward"
+        },
+        "timeout": {
+          "direction": 0,
+          "mean": 0.0025,
+          "unit": "bool"
+        },
+        "tracking": {
+          "direction": 1,
+          "mean": 0.911641517567914,
+          "unit": "ratio"
+        },
+        "walking_contact": {
+          "direction": 1,
+          "mean": 0.011182499518617987,
+          "unit": "ratio"
+        }
+      }
+    },
+    {
+      "band": 2,
+      "mean_tracking_score": 0.7463830455543939,
+      "physical_terminations": 0,
+      "maximum_root_height_m": 0.9950913786888123,
+      "maximum_tilt_rad": 0.10811957716941833,
+      "outcomes": {
+        "approach_pitch_full_envelope_fraction": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "approach_pitch_warning_fraction": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "done": {
+          "direction": 2,
+          "mean": 0.00375,
+          "unit": "bool"
+        },
+        "figure_eight_tracking": {
+          "direction": 1,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "forward_flight_tracking": {
+          "direction": 1,
+          "mean": 0.01984245403415116,
+          "unit": "ratio"
+        },
+        "ground_support": {
+          "direction": 1,
+          "mean": 0.00017472656401878339,
+          "unit": "ratio"
+        },
+        "liftoff": {
+          "direction": 1,
+          "mean": 0.013916726468214619,
+          "unit": "ratio"
+        },
+        "physics_error": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "bool"
+        },
+        "push_off": {
+          "direction": 1,
+          "mean": 0.0095086636963606,
+          "unit": "m/s"
+        },
+        "reward": {
+          "direction": 1,
+          "mean": 0.07839782289403957,
+          "unit": "reward"
+        },
+        "root_height": {
+          "direction": 0,
+          "mean": 0.6031581639501382,
+          "unit": "m"
+        },
+        "task_reward": {
+          "direction": 1,
+          "mean": 0.052778829385861176,
+          "unit": "reward"
+        },
+        "timeout": {
+          "direction": 0,
+          "mean": 0.00375,
+          "unit": "bool"
+        },
+        "tracking": {
+          "direction": 1,
+          "mean": 0.7463830455543939,
+          "unit": "ratio"
+        },
+        "walking_contact": {
+          "direction": 1,
+          "mean": 0.006991347355287871,
+          "unit": "ratio"
+        }
+      }
+    },
+    {
+      "band": 4,
+      "mean_tracking_score": 0.732843351510819,
+      "physical_terminations": 0,
+      "maximum_root_height_m": 1.3523683547973633,
+      "maximum_tilt_rad": 0.17480941116809845,
+      "outcomes": {
+        "approach_pitch_full_envelope_fraction": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "approach_pitch_warning_fraction": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "done": {
+          "direction": 2,
+          "mean": 0.00125,
+          "unit": "bool"
+        },
+        "figure_eight_tracking": {
+          "direction": 1,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "forward_flight_tracking": {
+          "direction": 1,
+          "mean": 0.018768924456459075,
+          "unit": "ratio"
+        },
+        "ground_support": {
+          "direction": 1,
+          "mean": 0.0011475000099744647,
+          "unit": "ratio"
+        },
+        "liftoff": {
+          "direction": 1,
+          "mean": 0.01768074272468766,
+          "unit": "ratio"
+        },
+        "physics_error": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "bool"
+        },
+        "push_off": {
+          "direction": 1,
+          "mean": 0.005650672299252619,
+          "unit": "m/s"
+        },
+        "reward": {
+          "direction": 1,
+          "mean": 0.07746861744713897,
+          "unit": "reward"
+        },
+        "root_height": {
+          "direction": 0,
+          "mean": 0.8736599857354304,
+          "unit": "m"
+        },
+        "task_reward": {
+          "direction": 1,
+          "mean": 0.05094240601178171,
+          "unit": "reward"
+        },
+        "timeout": {
+          "direction": 0,
+          "mean": 0.00125,
+          "unit": "bool"
+        },
+        "tracking": {
+          "direction": 1,
+          "mean": 0.732843351510819,
+          "unit": "ratio"
+        },
+        "walking_contact": {
+          "direction": 1,
+          "mean": 0.006232499731704593,
+          "unit": "ratio"
+        }
+      }
+    },
+    {
+      "band": 7,
+      "mean_tracking_score": 0.7661688015784602,
+      "physical_terminations": 0,
+      "maximum_root_height_m": 0.9552460312843323,
+      "maximum_tilt_rad": 0.05416140705347061,
+      "outcomes": {
+        "approach_pitch_full_envelope_fraction": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "approach_pitch_warning_fraction": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "done": {
+          "direction": 2,
+          "mean": 0.005,
+          "unit": "bool"
+        },
+        "figure_eight_tracking": {
+          "direction": 1,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "forward_flight_tracking": {
+          "direction": 1,
+          "mean": 0.02139167351049764,
+          "unit": "ratio"
+        },
+        "ground_support": {
+          "direction": 1,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "liftoff": {
+          "direction": 1,
+          "mean": 0.019772132117723232,
+          "unit": "ratio"
+        },
+        "physics_error": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "bool"
+        },
+        "push_off": {
+          "direction": 1,
+          "mean": 0.0006063853832893074,
+          "unit": "m/s"
+        },
+        "reward": {
+          "direction": 1,
+          "mean": 0.07739014545288228,
+          "unit": "reward"
+        },
+        "root_height": {
+          "direction": 0,
+          "mean": 0.865700152880745,
+          "unit": "m"
+        },
+        "task_reward": {
+          "direction": 1,
+          "mean": 0.054190740280319005,
+          "unit": "reward"
+        },
+        "timeout": {
+          "direction": 0,
+          "mean": 0.005,
+          "unit": "bool"
+        },
+        "tracking": {
+          "direction": 1,
+          "mean": 0.7661688015784602,
+          "unit": "ratio"
+        },
+        "walking_contact": {
+          "direction": 1,
+          "mean": 0.006839999705553055,
+          "unit": "ratio"
+        }
+      }
+    },
+    {
+      "band": 9,
+      "mean_tracking_score": 0.9999662785569672,
+      "physical_terminations": 0,
+      "maximum_root_height_m": 0.1875777691602707,
+      "maximum_tilt_rad": 0.004296680446714163,
+      "outcomes": {
+        "approach_pitch_full_envelope_fraction": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "approach_pitch_warning_fraction": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "done": {
+          "direction": 2,
+          "mean": 0.00375,
+          "unit": "bool"
+        },
+        "figure_eight_tracking": {
+          "direction": 1,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "forward_flight_tracking": {
+          "direction": 1,
+          "mean": 0.03999826150102308,
+          "unit": "ratio"
+        },
+        "ground_support": {
+          "direction": 1,
+          "mean": 0.012000000104308128,
+          "unit": "ratio"
+        },
+        "liftoff": {
+          "direction": 1,
+          "mean": 0.01999975415517838,
+          "unit": "ratio"
+        },
+        "physics_error": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "bool"
+        },
+        "push_off": {
+          "direction": 1,
+          "mean": 0,
+          "unit": "m/s"
+        },
+        "reward": {
+          "direction": 1,
+          "mean": 0.1009801129141124,
+          "unit": "reward"
+        },
+        "root_height": {
+          "direction": 0,
+          "mean": 0.18744731098617196,
+          "unit": "m"
+        },
+        "task_reward": {
+          "direction": 1,
+          "mean": 0.06599786128208507,
+          "unit": "reward"
+        },
+        "timeout": {
+          "direction": 0,
+          "mean": 0.00375,
+          "unit": "bool"
+        },
+        "tracking": {
+          "direction": 1,
+          "mean": 0.9999662785569672,
+          "unit": "ratio"
+        },
+        "walking_contact": {
+          "direction": 1,
+          "mean": 0,
+          "unit": "ratio"
+        }
+      }
+    },
+    {
+      "band": 10,
+      "mean_tracking_score": 0.716942812485213,
+      "physical_terminations": 4,
+      "maximum_root_height_m": 1.7197682857513428,
+      "maximum_tilt_rad": 0.7908458709716797,
+      "outcomes": {
+        "approach_pitch_full_envelope_fraction": {
+          "direction": 2,
+          "mean": 0.0062890625,
+          "unit": "ratio"
+        },
+        "approach_pitch_warning_fraction": {
+          "direction": 2,
+          "mean": 0.012109375,
+          "unit": "ratio"
+        },
+        "done": {
+          "direction": 2,
+          "mean": 0.000625,
+          "unit": "bool"
+        },
+        "figure_eight_tracking": {
+          "direction": 1,
+          "mean": 0,
+          "unit": "ratio"
+        },
+        "forward_flight_tracking": {
+          "direction": 1,
+          "mean": 0.018252788857808767,
+          "unit": "ratio"
+        },
+        "ground_support": {
+          "direction": 1,
+          "mean": 0.0034856250302982518,
+          "unit": "ratio"
+        },
+        "liftoff": {
+          "direction": 1,
+          "mean": 0.01849827728131939,
+          "unit": "ratio"
+        },
+        "physics_error": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "bool"
+        },
+        "push_off": {
+          "direction": 1,
+          "mean": 0.0002648914845667605,
+          "unit": "m/s"
+        },
+        "reward": {
+          "direction": 1,
+          "mean": 0.0739387263800294,
+          "unit": "reward"
+        },
+        "root_height": {
+          "direction": 0,
+          "mean": 0.7153885295902728,
+          "unit": "m"
+        },
+        "task_reward": {
+          "direction": 1,
+          "mean": 0.04963955249684659,
+          "unit": "reward"
+        },
+        "timeout": {
+          "direction": 0,
+          "mean": 0.000546875,
+          "unit": "bool"
+        },
+        "tracking": {
+          "direction": 1,
+          "mean": 0.716942812485213,
+          "unit": "ratio"
+        },
+        "walking_contact": {
+          "direction": 1,
+          "mean": 0.005762812251923606,
+          "unit": "ratio"
+        }
+      }
+    }
+  ],
+  "policy_qualified": false,
+  "ecological_environment_qualified": false
+}

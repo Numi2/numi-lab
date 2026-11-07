@@ -224,10 +224,10 @@ kernel void mr_policy_sample_and_score(
         (ulong(environment) << 32u) |
         ulong(state.episode.y)
     );
-    randomKey ^= policyMix64(
-        (ulong(state.episode.x) << 32u) |
-        ulong(dispatch.counts.z)
-    );
+    // Accepted episode time owns the sample identity. counts.z addresses the
+    // temporary rollout buffer and changes when submissions are partitioned.
+    // Keeping its contribution zero preserves historical one-step streams.
+    randomKey ^= policyMix64(ulong(state.episode.x) << 32u);
     randomKey ^= policyMix64(program.revision);
 
     constexpr float kHalfLogTwoPi =
@@ -338,10 +338,8 @@ kernel void mr_policy_residual_sample_and_score(
         (ulong(environment) << 32u) |
         ulong(state.episode.y)
     );
-    randomKey ^= policyMix64(
-        (ulong(state.episode.x) << 32u) |
-        ulong(dispatch.counts.z)
-    );
+    // Residual policies must share the same partition-independent RNG rule.
+    randomKey ^= policyMix64(ulong(state.episode.x) << 32u);
     randomKey ^= policyMix64(program.revision);
 
     constexpr float kHalfLogTwoPi =

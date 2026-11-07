@@ -1155,6 +1155,7 @@ if(METALROBO_HAS_SWIFT)
     add_executable(
         metalrobo_task_rollout
         apps/task_rollout.swift
+        apps/CrowEpisodeEvidence.swift
         apps/RunInspector.swift
         bindings/swift/MetalRoboTaskRollout.swift
     )
@@ -1181,6 +1182,20 @@ if(METALROBO_HAS_SWIFT)
             BUILD_RPATH "@loader_path/../lib"
             INSTALL_RPATH "@loader_path/../lib"
     )
+
+    if(BUILD_TESTING)
+        add_executable(metalrobo_crow_episode_evidence_test
+            apps/CrowEpisodeEvidence.swift
+            tests/crow_episode_evidence_tests.swift)
+        target_compile_options(metalrobo_crow_episode_evidence_test PRIVATE
+            "$<$<COMPILE_LANGUAGE:Swift>:-parse-as-library>")
+        set_target_properties(metalrobo_crow_episode_evidence_test PROPERTIES
+            Swift_LANGUAGE_VERSION 6
+            Swift_COMPILATION_MODE singlefile
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+        add_test(NAME metalrobo.crow.first_episode_evidence
+            COMMAND $<TARGET_FILE:metalrobo_crow_episode_evidence_test>)
+    endif()
 
     add_executable(
         metalrobo_task_train
@@ -3642,6 +3657,7 @@ install(
     PROGRAMS
         numi/commands/codex
         numi/commands/crow
+        numi/commands/crow-env
         numi/commands/train
         numi/commands/evaluate
         numi/commands/foundation
