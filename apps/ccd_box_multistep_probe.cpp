@@ -9,7 +9,7 @@
 #include <vector>
 template<class T> bool eq(const std::vector<T>&a,const std::vector<T>&b){return a.size()==b.size()&&(a.empty()||std::memcmp(a.data(),b.data(),a.size()*sizeof(T))==0);}
 int main(int argc,char**argv){
- if((argc!=2&&argc!=3)||!std::filesystem::is_regular_file(argv[1]))return 2; bool warm=argc==2||std::string(argv[2])!="cold";
+ if(argc<2||argc>4||!std::filesystem::is_regular_file(argv[1]))return 2; bool warm=argc==2||std::string(argv[2])!="cold"; unsigned subsequentSweeps=argc==4?std::stoul(argv[3]):2; if(!subsequentSweeps)return 2;
  std::cout<<std::setprecision(10)<<"{\"cases\":[";
  for(int k=0;k<3;++k){
   auto m=metalrobo::makeFreeSphereEngineModel();m.world.gravityAndTimestep={0,0,0,.01f};
@@ -25,7 +25,7 @@ int main(int argc,char**argv){
   metalrobo::MetalWorldConfig o;o.metallibPath=argv[1];metalrobo::MetalWorldContext a(o),b(o);metalrobo::MetalWorldResidentState sa,sb;metalrobo::MetalWorldSubmission ta,tb;metalrobo::MetalWorldResult ra,rb;
   std::vector<float> prevQ=m.defaultQ,prevV=m.defaultV;
   if(k)std::cout<<",";std::cout<<"{\"near_miss\":"<<(k==2?"true":"false")<<",\"initial_gap\":"<<(k==0?-.0001:k==1?0:.0015)<<",\"steps\":[";
-  for(int i=0;i<10;++i){auto da=i?a.submitResident(w,next,cfg,sa,ta):a.initializeResidentState(w,initial,cfg,sa,ta);auto db=i?b.submitResident(w,next,cfg,sb,tb):b.initializeResidentState(w,initial,cfg,sb,tb);if(!da.succeeded()||!db.succeeded())return 4;
+  for(int i=0;i<10;++i){cfg.velocityIterations=i?subsequentSweeps:2;auto da=i?a.submitResident(w,next,cfg,sa,ta):a.initializeResidentState(w,initial,cfg,sa,ta);auto db=i?b.submitResident(w,next,cfg,sb,tb):b.initializeResidentState(w,initial,cfg,sb,tb);if(!da.succeeded()||!db.succeeded())return 4;
    auto xa=ta.wait(ra),xb=tb.wait(rb);if(ra.finalV.size()<6||ra.finalQ.size()<7||ra.contactStatuses.empty())return 5;
    bool replay=eq(ra.finalQ,rb.finalQ)&&eq(ra.finalV,rb.finalV)&&eq(ra.finalSceneBodies,rb.finalSceneBodies)&&eq(ra.contactEvidence.manifoldCounts,rb.contactEvidence.manifoldCounts)&&eq(ra.contactEvidence.manifoldHeaders,rb.contactEvidence.manifoldHeaders)&&eq(ra.contactEvidence.manifoldPoints,rb.contactEvidence.manifoldPoints)&&xa.firstGPUStatusCode==xb.firstGPUStatusCode;
    auto st=ra.contactStatuses[0];double j=0;for(std::size_t z=0;z<std::min<std::size_t>(st.activeContacts,ra.contactEvidence.contacts.size());++z)j+=ra.contactEvidence.contacts[z].impulses.x;
