@@ -8358,6 +8358,58 @@ inline void mrWorldWave32SolvePacket(
         return;
     }
 
+    // Bounded research prototype: scale a small isotropic island's cached
+    // impulse along its existing ray using the normal-only quadratic. This is
+    // an initial guess; the final complementarity certificate remains active.
+    bool scaleEligible = work.constraintCount <= 4u &&
+        (work.flags & MR_ISLAND_WORK_HAS_ROD) == 0u;
+    float warmLinear = 0.0f, warmQuadratic = 0.0f;
+    if (scaleEligible) for (uint ti=0u; ti<work.tileCount; ++ti) {
+        const MRContactTileGPU tile=tiles[tileBase+work.firstTile+ti];
+        for (uint i=0u; i<tile.constraintCount; ++i) {
+            const uint ci=tileConstraintIndices[constraintBase+tile.partialOffset+i];
+            const auto cone=evaluatedCones[constraintBase+ci];
+            scaleEligible = scaleEligible && isfinite(cone.effectiveFrictionU) &&
+                cone.effectiveFrictionU>0.0f && cone.effectiveFrictionU==cone.effectiveFrictionV &&
+                cone.maximumNormalImpulse==0.0f;
+            device const MRContactConstraintGPU& target=contacts[constraintBase+ci];
+            device const MREvaluatedConstraintIRRowGPU* rows=evaluatedRows+rowBase+3u*ci;
+            const float wi=target.impulses.x;
+            const float3 rel=typedRelativePointVelocity(ci,target,bodies,dispatch.articulationIndex,
+                pointJacobians,pointJacobianBase,dispatch.nv,articulationVelocity,rodNodes,rodEdges,
+                rodColliders,rodWitnesses,constraintWitnessIndices,constraintBase);
+            warmLinear += wi*(rows[0].targetVelocity-dot(rows[0].direction.xyz,rel));
+            warmQuadratic += wi*wi*rows[0].regularization;
+            for (uint tj=0u; tj<work.tileCount; ++tj) {
+                const MRContactTileGPU tile2=tiles[tileBase+work.firstTile+tj];
+                for (uint j=0u; j<tile2.constraintCount; ++j) {
+                    const uint cj=tileConstraintIndices[constraintBase+tile2.partialOffset+j];
+                    device const MRContactConstraintGPU& source=contacts[constraintBase+cj];
+                    const float3 sourceNormal=evaluatedRows[rowBase+3u*cj].direction.xyz;
+                    const float response=typedNormalCrossContactResponse(ci,cj,0u,target,source,
+                        rows[0].direction.xyz,sourceNormal,bodies,pointJacobians,pointJacobianBase,
+                        responseColumns,responseBase,dispatch.nv,dispatch.articulationIndex,rodNodes,
+                        inverseRodMasses,inverseRodTwistInertias,rodColliders,rodWitnesses,
+                        constraintWitnessIndices,constraintBase);
+                    warmQuadratic += wi*source.impulses.x*response;
+                }
+            }
+        }
+    }
+    const float warmScale = scaleEligible && isfinite(warmLinear) && isfinite(warmQuadratic) &&
+        warmQuadratic > 1.0e-20f ? clamp(warmLinear/warmQuadratic,0.0f,1.0f) : 1.0f;
+    // All lanes must finish reading the original warm state before writing.
+    threadgroup_barrier(mem_flags::mem_device);
+    for (uint ti=0u; ti<work.tileCount; ++ti) {
+        const MRContactTileGPU tile=tiles[tileBase+work.firstTile+ti];
+        if (localLane<tile.constraintCount) {
+            const uint ci=tileConstraintIndices[constraintBase+tile.partialOffset+localLane];
+            contacts[constraintBase+ci].impulses.xyz *= warmScale;
+            impulseDeltas[constraintBase+ci].xyz *= warmScale;
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_device);
+
     // Apply every warm-start impulse exactly once. Articulation DoFs and free
     // bodies have unique lane owners, eliminating conflicting atomic writes.
     if ((work.flags & MR_ISLAND_WORK_HAS_ARTICULATION) != 0u) {
