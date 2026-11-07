@@ -6292,6 +6292,7 @@ set_target_properties(
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
 )
 
 add_executable(
@@ -6316,6 +6317,7 @@ set_target_properties(
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib"
 )
 
 add_executable(
