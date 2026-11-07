@@ -111,3 +111,11 @@ All plans, raw JSON, failed observations and prior source snapshots are in
 [evidence](evidence/ccd-directional-20261107/). The complete remote evidence
 directory is /Users/numi/numi-lab-ccd-evidence-20261107; old binary/shader
 payloads remain there and are identified by hashes in the manifest.
+
+## Bounded follow-up
+
+The [interval-local experiment](CCD_INTERVAL_LOCAL_EXPERIMENT_20261107.md)
+adds whole-interval quaternion bounds, decisive cap16 tests and complete
+MetalWorld steps. It remains disabled, and retains a legacy rotating-sweep
+fallback failure. Those are separate new observations, not revised evidence
+for the original candidate.

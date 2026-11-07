@@ -1,0 +1,69 @@
+{
+  "schema": "numi.normal-contact.plan.v1",
+  "created_utc": "2026-11-07T19:34:20.059051+00:00",
+  "base": "9c5e8fb5316dc5c24c7c39ce40055be7cae09b3d",
+  "stage": "first frictionless FEM fixed plane only",
+  "law": "projected AL fixed rho; inexact dual updates in owning Newton loop; target positive clearance; strict final certificate unchanged",
+  "rho_N_per_m_per_node": 1000,
+  "clearance_target_m": 5e-07,
+  "timesteps_s": [
+    0.00025,
+    0.0005,
+    0.001,
+    0.002
+  ],
+  "duration_s": 0.01,
+  "mesh_divisions": [
+    1,
+    2,
+    4
+  ],
+  "reference_refinement": [
+    0.000125,
+    6.25e-05
+  ],
+  "reference_change_limit": 0.0025,
+  "force_impulse_relative_limit": 0.01,
+  "near_zero_force_absolute_N": 1e-06,
+  "near_zero_impulse_absolute_Ns": 1e-09,
+  "displacement_absolute_limit_m": 0.0001,
+  "minimum_gap_m": -1e-06,
+  "exact_restore_required": true,
+  "total_time_ratio_target": 0.9,
+  "paired_order": [
+    "ipc",
+    "al",
+    "al",
+    "ipc"
+  ],
+  "repeats": 4,
+  "stopping_rule": "stop a rollout at first rejected complete step and retain; invalidate accuracy comparison if reference refinement fails; no promotion when any required gate fails",
+  "instrument_qualification": "baseline build and force/history checks precede comparative data; all calibration failures retained",
+  "timing": "exclude initialize; include all attempted complete steps and mandatory observation readback; report total wall and GPU; fixed physical duration",
+  "instrument_revision": "004 nonmixed FEM initial gap 0.2mm above IPC 0.1mm activation band; prior calibration retained",
+  "force_comparison": "normal impulse accumulated in common 1ms bins; per-bin force peak-normalized maximum error and total impulse relative error; COM and height compared at common times",
+  "calibration_observation": "AL contact onset at 0.5ms rejected step12; not comparative timing; fixed law and tolerances retained",
+  "reference_order": [
+    [
+      2,
+      0.000125
+    ],
+    [
+      4,
+      6.25e-05
+    ]
+  ],
+  "timing_repeats_order": "for each declared h, n=1 then2, IPC AL AL IPC; no GPU overlap",
+  "revision": "force-qualified tolerance instrument",
+  "additional_initial_gaps_m": [
+    5e-05,
+    5e-07
+  ],
+  "contact_work": "sum J_continuum dot (x_end-x_start)/h, accepted steps only; also impulse dot midpoint velocity; final force used by backward Euler, not potential difference",
+  "prediction": "tightened control must satisfy independent impulse-momentum error <=1e-7 Ns per accepted step; otherwise force/work evidence is unqualified",
+  "new_test": "same fixed inputs plus unused near-contact gaps; no penalty tuning",
+  "residual_tolerance": 1e-09,
+  "rationale": "production certificate divides impulse L2 residual by max(initialNorm,1). Prior 1e-5 setting allowed a large fraction of this small pad contact impulse. Same source tolerance tightened in both arms; no production default change.",
+  "prior_evidence": "candidate001, candidate002 and final directories retain looser-tolerance traces and failures",
+  "primary_target_unchanged": true
+}

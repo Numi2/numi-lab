@@ -1,0 +1,54 @@
+[
+  {
+    "name": "scale0.3-limit16",
+    "command": [
+      "/Users/numi/numi-lab-ccd-focused-build-20261107/bin/metalrobo_ccd_advancement_probe",
+      "/Users/numi/numi-lab-ccd-focused-build-20261107/shaders/NumiCCDProbe.metallib",
+      "0.3",
+      "1024",
+      "9",
+      "16"
+    ],
+    "exit": 0,
+    "seconds": 0.2786386249936186
+  },
+  {
+    "name": "scale0.3-limit128",
+    "command": [
+      "/Users/numi/numi-lab-ccd-focused-build-20261107/bin/metalrobo_ccd_advancement_probe",
+      "/Users/numi/numi-lab-ccd-focused-build-20261107/shaders/NumiCCDProbe.metallib",
+      "0.3",
+      "1024",
+      "9",
+      "128"
+    ],
+    "exit": 0,
+    "seconds": 0.3925658750231378
+  },
+  {
+    "name": "scale2.5-limit16",
+    "command": [
+      "/Users/numi/numi-lab-ccd-focused-build-20261107/bin/metalrobo_ccd_advancement_probe",
+      "/Users/numi/numi-lab-ccd-focused-build-20261107/shaders/NumiCCDProbe.metallib",
+      "2.5",
+      "1024",
+      "9",
+      "16"
+    ],
+    "exit": 0,
+    "seconds": 0.26501062500756234
+  },
+  {
+    "name": "scale2.5-limit128",
+    "command": [
+      "/Users/numi/numi-lab-ccd-focused-build-20261107/bin/metalrobo_ccd_advancement_probe",
+      "/Users/numi/numi-lab-ccd-focused-build-20261107/shaders/NumiCCDProbe.metallib",
+      "2.5",
+      "1024",
+      "9",
+      "128"
+    ],
+    "exit": 0,
+    "seconds": 0.38351487496402115
+  }
+]

@@ -1,0 +1,56 @@
+{
+  "schema": "numi.native-source-identity.v1",
+  "created_utc": "2026-11-07T19:53:25.725025+00:00",
+  "base_commit": "9c5e8fb5316dc5c24c7c39ce40055be7cae09b3d",
+  "host": "ssh numi",
+  "device": "Apple M6 Mac mini 16 GB",
+  "macOS": "27.0 26A425",
+  "metal": "32023.883",
+  "clang": "21.0.0 clang-2100.3.34.2",
+  "cmake": "4.4.4",
+  "developer_directory": "/Library/Developer/CommandLineTools",
+  "metal_toolchain": "downloaded Metal.xctoolchain; full Xcode unavailable",
+  "source_sha256": {
+    "CMakeLists.txt": "d81bb5e70a4ad6261db350767408b3700ac22f752040085bdbd54c01f7798af4",
+    "apps/ccd_advancement_probe.mm": "fb9696f738ca4b3717840dc7782f1e676f1febc05f02b69f132f8a3bc2ae1d05",
+    "apps/ccd_world_step_probe.cpp": "de50f18065d269b17b667ba7cef9f32608fae5047b96f171d9aca87696208081",
+    "apps/plane_contact_probe.mm": "79b703a4362a1abbfa9781987f415d6fd9def8b260debd0f414a8e18ab127d59",
+    "include/metalrobo/MetalWorld.hpp": "970328b78002c71fac96f89f757bc5a4c8f5d6b9a8294c41f04d40df990f678a",
+    "include/metalrobo/engine_types.h": "49fb3af25f7c9568b4678f6df3bb14da757ac114685c3df7eecd0db9e523b4ee",
+    "matter/include/numi/matter/matter.hpp": "3abe9cbc3729176bb97e7a1a6f765980fcf5ff2db11454da0fbddfdf7cbfd0f3",
+    "matter/src/matter_kernels.metal": "5ded9e541d0303112905ea6187ad1d9e01fee37a6a8e9d2474a60ecbccf9333f",
+    "matter/src/metal/common.metalinc": "624f6fce7b23b9b7ab5c3f745cacebe94108db788bdc1c3a37dcccc66ca34a8f",
+    "matter/src/metal/contact.metalinc": "71a4fdbfde528c9de0fef91f9f1d8bf25193cbaac206d045ad6ae74cd8af1fa0",
+    "matter/src/metal/mixed_fem.metalinc": "97f784b542125f54ac779a3485f8be7991a1cc0e19ad5a51d4c3f87f2d16158b",
+    "matter/src/runtime.mm": "6528b8f036618e88e8bcb1cedef5b870a6eb94d8718f24cd0ca157666902f140",
+    "src/metal/Collision.metal": "36fab9fd15e73915bbbafcf1e959b2bd72113f573d2aa485bf6efc65fc3de92f",
+    "src/metal/MetalWorld.mm": "373ee1c7f6c6ea124fc9d02668a844f3b99adfad7481e29da647ba44dd885bc7",
+    "tests/ccd/CMakeLists.txt": "efc4ec0a71ca066c732e4e7a209b6bc2d5ed398bc61386d4252dd60c79a090f4",
+    "tests/ccd/analyze.py": "018db8a7b41087e153caea5ac2cb3da7ff7ccc5b7966b69080323c731610171d",
+    "tests/ccd/world/CMakeLists.txt": "a0002462133fc3ced91a94bfc7023867618bd1e2a59ea51b0dc4b02aedff266f",
+    "tests/ccd/world/analyze.py": "aefcaeb6bb0adc6d6bb5994b1751e3639496cca6fc8b8fde03d3d8934d8333bb",
+    "tests/ccd/world/owner_shader_recipe.py": "c59407066062a7329458d884da323a7a2f5f5e84900d5a9d82e69cba25cd70b4",
+    "tests/contact/CMakeLists.txt": "4d20a50286e3c61543ce134cbfa0194fd2a61995e1016d4ddd6261b2eb6bc131",
+    "tests/contact/analyze.py": "959beec7137c0ad9d65b3c756b47395e3429bc80ec8249c964bbbfe34f5fea51",
+    "tests/contact/run.py": "7e27c1054782b9123645e0dc5a57d39313c2080ec2740f7508a2937ceda20f2a"
+  },
+  "native_artifacts_sha256": {
+    "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe": "e8f6d6c2726850686ddc5bb241af19986fbe560aa5517bb4e0d26719cb754cd8",
+    "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib": "9e91849a5357dc916cb97d04e65ef007b9b9c9439b88c9517347711977105b9c",
+    "/Users/numi/numi-lab-ccd-focused-build-20261107/bin/metalrobo_ccd_advancement_probe": "54ebe65293d6bd3014b653cdcbb23812cee5a19907288f532f34c11055802236",
+    "/Users/numi/numi-lab-ccd-focused-build-20261107/shaders/NumiCCDProbe.metallib": "89af550606ad562bc128dd971593f89ef4ede621fa2a358719898e48fd72d7cc",
+    "/Users/numi/numi-lab-ccd-world-build-20261107/metalrobo_ccd_world_step_probe": "623a9710706e45c6e0bb9d72700897d94b5aa891a032348a9c3706132384e7f3",
+    "/Users/numi/numi-lab-ccd-world-build-20261107/shaders/MetalRobo.metallib": "b5a4e0c3bdfc342452bbb82e8f7dcb0e86ca336e9c6eac21b8b54fc778e2e5d8"
+  },
+  "default_flags": {
+    "experimentalFEMPlaneAugmentedLagrangian": false,
+    "directionalCCDAdvancement": false,
+    "intervalLocalCCDAdvancement": false
+  },
+  "notes": [
+    "Unchanged production dependencies are pinned by base commit.",
+    "Final contact source is the tight series; final/ retains its own earlier instrument/source snapshots.",
+    "Initial calibration did not capture exact source/binary hashes.",
+    "Runtime physics/program fingerprints are in each run; no independent pretrial compiled-package byte archive was retained."
+  ]
+}

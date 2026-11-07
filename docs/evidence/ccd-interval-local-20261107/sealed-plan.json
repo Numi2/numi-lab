@@ -1,0 +1,23 @@
+{
+  "schema": "numi.ccd.interval.plan.v1",
+  "created_utc": "2026-11-07T19:23:11.226690+00:00",
+  "prediction": "interval-local nlerp normalization-denominator bound lowers work without missed contacts; a kernel timing gain alone cannot promote",
+  "bounds": "outward interval arithmetic for general float quaternion endpoints; minimum of norm quadratic clipped to proposed interval; whole interval support-plane certificate; fail closed",
+  "arms": [
+    "existing",
+    "global-directional",
+    "interval-local-directional"
+  ],
+  "limits": [
+    16,
+    128
+  ],
+  "scales": [
+    0.3,
+    2.5
+  ],
+  "environments": 1024,
+  "timing_repeats": 9,
+  "holdouts": "add thin rods at 73,137,169 degrees and plane near misses outside bounding sphere",
+  "gate": "16 production cap decisive; retain unresolved and errors; complete MetalWorld physical steps required before any promotion"
+}

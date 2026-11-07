@@ -110,6 +110,11 @@ std::vector<Case> cases(double scale){
     pair("moving-catch",{-.4,.02,0},{.4,.02,0},{.4,0,0},{-.4,0,0},{.1,.005,.02},{.04,.05,.05},0,0,true,0);
     pair("rotating-edge-hit",{0,0,0},{0,0,0},{.18,.08,0},{.18,.08,0},{.2,.002,.01},{.005,.005,.01},0,pi/2,true,0);
     pair("rotating-edge-miss",{0,0,0},{0,0,0},{.205,.08,0},{.205,.08,0},{.2,.002,.01},{.005,.005,.01},0,pi/2,false,std::hypot(.205,.08)-std::hypot(.2,.002)-std::hypot(.005,.005));
+    for(const double degrees:{73.,137.,169.}) {
+        const auto name=std::to_string(int(degrees));
+        plane("holdout-thin-"+name+"-hit",{0,.18,0},{0,.18,0},{.2,.0007,.006},0,degrees*pi/180,true,0);
+        plane("holdout-thin-"+name+"-miss",{0,.2003,0},{0,.2003,0},{.2,.0007,.006},0,degrees*pi/180,false,.2003-std::hypot(.2,.0007));
+    }
     for(auto& c:out){
         for(auto& s:c.shapes){for(int j=0;j<3;++j)component(s.dimensions,j)*=scale;for(int j=0;j<3;++j)component(s.contactRestAndBoundingRadius,j)*=scale;}
         for(int i=0;i<2;++i){for(int j=0;j<3;++j){component(c.start[i].centerAndRadius,j)*=scale;component(c.end[i].centerAndRadius,j)*=scale;}
@@ -135,11 +140,12 @@ struct Result{
     double gpuSeconds=0;bool replay=false;std::vector<double> gpuSamples;
 };
 Result run(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLComputePipelineState> pipeline,
-           const Case& c,bool directional,int environments,int repeats,float scale){
+           const Case& c,int mode,int environments,int repeats,float scale,int maxIterations){
     MRMetalWorldContactDispatchGPU d{};
     d.environmentCount=environments;d.shapeCount=2;d.eligiblePairCount=1;d.ccdCandidateCapacity=1;
     d.ccdEventCapacity=1;d.maxCCDEvents=1;d.ccdMode=MR_WORLD_CCD_HYBRID;
-    d.maxConservativeAdvancementIterations=128;d.flags=directional?MR_METAL_WORLD_CONTACT_DIRECTIONAL_CCD:0;
+    d.maxConservativeAdvancementIterations=maxIterations;d.flags=mode?MR_METAL_WORLD_CONTACT_DIRECTIONAL_CCD:0;
+    if(mode==2)d.flags|=MR_METAL_WORLD_CONTACT_INTERVAL_LOCAL_CCD;
     d.ccdParameters=f4(1.e-7f,1.e-5f*scale,1,1.e6f);
     const MRCompiledCollisionPairGPU pair{0,1,MR_COLLISION_PAIR_BOX_BOX,MR_INVALID_INDEX};
     std::vector<MRProjectedColliderGPU> start,end;
@@ -188,9 +194,10 @@ Result run(id<MTLDevice> device,id<MTLCommandQueue> queue,id<MTLComputePipelineS
 int main(int argc,char** argv){
  @autoreleasepool{
   try{
-    require(argc>=2,"usage: ccd_advancement_probe METALLIB [scale] [environments] [repeats]");
+    require(argc>=2,"usage: ccd_advancement_probe METALLIB [scale] [environments] [repeats] [max-iterations]");
     const double scale=argc>2?std::stod(argv[2]):1;
     const int environments=argc>3?std::stoi(argv[3]):256,repeats=argc>4?std::stoi(argv[4]):7;
+    const int maxIterations=argc>5?std::stoi(argv[5]):16;require(maxIterations==16||maxIterations==128,"limit must be 16 or 128");
     require(scale>0 && environments>0 && environments<=8192 && repeats>0,"invalid experiment size");
     id<MTLDevice> device=MTLCreateSystemDefaultDevice();require(device!=nil,"Metal unavailable");
     NSError* error=nil;
@@ -201,27 +208,26 @@ int main(int argc,char** argv){
     id<MTLComputePipelineState> pipeline=[device newComputePipelineStateWithFunction:function error:&error];
     require(pipeline!=nil,error?error.localizedDescription.UTF8String:"pipeline unavailable");
     id<MTLCommandQueue> queue=[device newCommandQueue];
-    int failures=0;std::cout<<std::setprecision(12)<<"{\"device\":\""<<device.name.UTF8String<<"\",\"scale\":"<<scale<<",\"environments\":"<<environments<<",\"repeats\":"<<repeats<<",\"cases\":[";
+    int failures=0;std::cout<<std::setprecision(12)<<"{\"device\":\""<<device.name.UTF8String<<"\",\"scale\":"<<scale<<",\"environments\":"<<environments<<",\"repeats\":"<<repeats<<",\"max_iterations\":"<<maxIterations<<",\"cases\":[";
     bool first=true;int unit=0;
     for(const auto& c:cases(scale)){
         const double reference=firstImpact(c);
         const bool referenceValid=c.hit?reference>=0:c.missCertificate>2.e-5*scale && reference<0;
         require(referenceValid,c.name+": reference calibration failed");
-        std::array<Result,2> r;
+        std::array<Result,3> r;
         // Alternate arm order deterministically between experimental units.
-        const int order=(unit++)%2;
-        r[order]=run(device,queue,pipeline,c,order!=0,environments,repeats,scale);
-        r[1-order]=run(device,queue,pipeline,c,order==0,environments,repeats,scale);
+        const int order=(unit++)%3;
+        for(int k=0;k<3;++k){const int arm=(order+k)%3;r[arm]=run(device,queue,pipeline,c,arm,environments,repeats,scale,maxIterations);}
         if(!first)std::cout<<",";first=false;
         std::cout<<"{\"name\":\""<<c.name<<"\",\"reference_toi\":"<<reference<<",\"miss_certificate\":"<<c.missCertificate<<",\"arms\":[";
-        for(int arm=0;arm<2;++arm){
+        for(int arm=0;arm<3;++arm){
             const auto& v=r[arm];const bool hit=(v.record.flags&MR_CCD_PAIR_HAS_IMPACT)!=0;
             const bool unresolved=(v.record.flags&MR_CCD_PAIR_UNRESOLVED)!=0;
             const bool valid=c.hit?(hit || unresolved):!hit;
             const bool early= !hit || reference<0 || component(v.record.intervalAndDistance,0)<=reference+2.e-5;
-            if(arm==1 && (!valid || !early || !v.replay))++failures;
+            if(arm!=0 && (!valid || !early || !v.replay))++failures;
             if(arm)std::cout<<",";
-            std::cout<<"{\"directional\":"<<(arm?"true":"false")<<",\"flags\":"<<v.record.flags<<",\"status\":"<<v.status.code<<",\"iterations\":"<<component(v.record.normalAndIteration,3)<<",\"toi_lower\":"<<component(v.record.intervalAndDistance,0)<<",\"toi_upper\":"<<component(v.record.intervalAndDistance,1)<<",\"gpu_seconds_median\":"<<v.gpuSeconds<<",\"unresolved\":"<<(unresolved?"true":"false")<<",\"valid\":"<<(valid&&early?"true":"false")<<",\"replay\":"<<(v.replay?"true":"false")<<",\"gpu_seconds_samples\":[";
+            std::cout<<"{\"mode\":"<<arm<<",\"interval_local\":"<<(arm==2?"true":"false")<<",\"directional\":"<<(arm?"true":"false")<<",\"flags\":"<<v.record.flags<<",\"status\":"<<v.status.code<<",\"iterations\":"<<component(v.record.normalAndIteration,3)<<",\"toi_lower\":"<<component(v.record.intervalAndDistance,0)<<",\"toi_upper\":"<<component(v.record.intervalAndDistance,1)<<",\"gpu_seconds_median\":"<<v.gpuSeconds<<",\"unresolved\":"<<(unresolved?"true":"false")<<",\"valid\":"<<(valid&&early?"true":"false")<<",\"replay\":"<<(v.replay?"true":"false")<<",\"gpu_seconds_samples\":[";
             for(std::size_t k=0;k<v.gpuSamples.size();++k){if(k)std::cout<<",";std::cout<<v.gpuSamples[k];}
             std::cout<<"]}";
         }

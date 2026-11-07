@@ -12177,7 +12177,8 @@ kernel void nm_contact_evaluate(
     // test constrained bodies arbitrarily far above a plane.
     const float predictedSeparation = separation +
         min(admissionNormalVelocity, 0.0f) * dt;
-    if (separation > slop && predictedSeparation > slop) {
+    if (separation > slop && predictedSeparation > slop &&
+        !(nmFEMPlaneALActive && histories[historyIndex].w > 0.0f)) {
         return;
     }
     const float normalResponse = inverseMass +
@@ -12261,6 +12262,17 @@ kernel void nm_contact_evaluate(
             mpmContact,
             mpmClearanceOffset,
             frozenStiffness);
+    if (nmFEMPlaneALActive) {
+        const float previousForce = histories[historyIndex].w / dt;
+        const float force = nmFEMPlaneALForce(separation,previousForce);
+        barrier = float4(force*dt, force>0.0f ? nmFEMPlaneALRho*dt*dt : 0.0f,
+            slop,previousForce);
+        if (!all(isfinite(barrier)) || previousForce < 0.0f) {
+            recordFailure(statuses[environment],NM_STATUS_CONTACT_FAILURE,
+                pair.objectIndex,pairIndex,float4(separation,previousForce,force,dt));
+            return;
+        }
+    }
     if (mpmContact && !all(isfinite(barrier))) {
         recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
             pair.objectIndex, pairIndex,
@@ -12710,6 +12722,18 @@ kernel void nm_contact_certify_post_commit_rigid(
             recordFailure(statuses[environment], NM_STATUS_CONTACT_FAILURE,
                 pair.objectIndex, pairIndex, float4(sweptGap, collisionThickness, float(pair.rigidProxy), -1.0f));
             return;
+        }
+    }
+    if(nmFEMPlaneALActive) {
+        // A fixed plane's affine nodal path is collision free exactly when
+        // both accepted endpoints have a strict positive gap. Check the
+        // checkpoint independently of any unpublished Newton configuration.
+        const uint node=pair.continuumNode-dispatch.gridNodeCount;
+        float startGap;float3 startNormal,startWitness;
+        const float3 start=femCheckpoint[environment*dispatch.femNodeCount+node].positionAndMass.xyz;
+        if(!rigidWitness(proxy,rigid,start,startGap,startNormal,startWitness)||!(startGap>collisionThickness)) {
+            recordFailure(statuses[environment],NM_STATUS_CONTACT_FAILURE,pair.objectIndex,pairIndex,
+                float4(startGap,collisionThickness,-3.0f,0.0f));return;
         }
     }
     if (!isfinite(separation) || !(separation > collisionThickness)) {
@@ -13640,6 +13664,43 @@ kernel void nm_contact_publish_fem_constraint_contact_force(
         }
     }
     if (all(isfinite(force))) contactForces[global] = float4(force, 0.0f);
+}
+
+// One inexact AL outer iteration follows one corrected primal Newton iterate.
+// Stable pair index owns the impulse dual in this immutable-topology domain;
+// package/runtime fingerprints prevent cross-topology or cross-law restoration.
+kernel void nm_contact_update_fem_plane_al_multiplier(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(2)]],
+    device const NMFEMNodeStateGPU* working [[buffer(3)]],
+    device const NMRigidProxyGPU* proxies [[buffer(4)]],
+    device const NMRigidStateGPU* rigids [[buffer(5)]],
+    device const NMContactPairGPU* pairs [[buffer(6)]],
+    device const float4* previous [[buffer(7)]],
+    device float4* candidate [[buffer(8)]],
+    device NMMatterStatusGPU* statuses [[buffer(9)]],
+    uint global [[thread_position_in_grid]]) {
+    if(!nmFEMPlaneALActive || dispatch.contactPairCount==0u ||
+       global>=dispatch.environmentCount*dispatch.contactPairCount)return;
+    const uint environment=global/dispatch.contactPairCount;
+    if(!environmentHealthy(statuses,environment))return;
+    const uint index=global-environment*dispatch.contactPairCount;
+    const NMContactPairGPU pair=pairs[index];
+    const uint node=pair.continuumNode-dispatch.gridNodeCount;
+    const float dt=objectTimestep(dispatch,schedulers[environment*dispatch.objectCount+pair.objectIndex]);
+    float gap;float3 normal,witness;
+    if(node>=dispatch.femNodeCount || pair.rigidProxy>=dispatch.rigidProxyCount ||
+       !rigidWitness(proxies[pair.rigidProxy],rigids[environment*dispatch.rigidProxyCount+pair.rigidProxy],
+            working[environment*dispatch.femNodeCount+node].positionAndMass.xyz,gap,normal,witness)) {
+        recordFailure(statuses[environment],NM_STATUS_CONTACT_FAILURE,pair.objectIndex,index,float4(-1.0f));return;
+    }
+    const float old=previous[global].w/dt;
+    const float impulse=dt*nmFEMPlaneALForce(gap,old);
+    if(!isfinite(old)||old<0.0f||!isfinite(impulse)) {
+        recordFailure(statuses[environment],NM_STATUS_CONTACT_FAILURE,pair.objectIndex,index,float4(gap,old,impulse,dt));return;
+    }
+    candidate[global]=float4(-impulse*normal,impulse);
 }
 
 kernel void nm_contact_publish_primal_history(
@@ -15385,6 +15446,10 @@ kernel void nm_contact_limit_rigid_line_search(
             dispatch, contact, environment, pairIndex);
         if ((sample.identity.w & NM_CONTACT_VALID) == 0u ||
             pair.objectIndex >= dispatch.objectCount) continue;
+        // AL working configurations may cross the constraint target. Only
+        // immutable planes are host admitted. The independent strict final
+        // equilibrium/clearance and post-commit geometry gates still run.
+        if (nmFEMPlaneALActive) continue;
         if ((sample.identity.w & NM_CONTACT_MPM_FIXED_PLANE_KKT) != 0u) {
             // The semismooth normal-velocity complementarity row has a free
             // active-set transition. Do not impose a fraction-to-boundary on

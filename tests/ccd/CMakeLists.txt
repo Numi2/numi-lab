@@ -16,7 +16,7 @@ set(NUMI_CCD_PROBE_METALLIB "${NUMI_CCD_SHADER_DIR}/NumiCCDProbe.metallib")
 add_custom_command(
     OUTPUT "${NUMI_CCD_PROBE_AIR}" "${NUMI_CCD_PROBE_METALLIB}"
     COMMAND "${CMAKE_COMMAND}" -E make_directory "${NUMI_CCD_SHADER_DIR}"
-    COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3
+    COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
         -I "${NUMI_CCD_ROOT}/include"
         -c "${NUMI_CCD_ROOT}/src/metal/Collision.metal" -o "${NUMI_CCD_PROBE_AIR}"
     COMMAND xcrun -sdk macosx metallib "${NUMI_CCD_PROBE_AIR}"

@@ -1,0 +1,43 @@
+{
+  "schema": "numi.normal-contact.plan.v1",
+  "created_utc": "2026-11-07T19:13:59.494570+00:00",
+  "base": "9c5e8fb5316dc5c24c7c39ce40055be7cae09b3d",
+  "stage": "first frictionless FEM fixed plane only",
+  "law": "projected AL fixed rho; inexact dual updates in owning Newton loop; target positive clearance; strict final certificate unchanged",
+  "rho_N_per_m_per_node": 1000,
+  "clearance_target_m": 5e-07,
+  "timesteps_s": [
+    0.00025,
+    0.0005,
+    0.001,
+    0.002
+  ],
+  "duration_s": 0.01,
+  "mesh_divisions": [
+    1,
+    2,
+    4
+  ],
+  "reference_refinement": [
+    0.000125,
+    6.25e-05
+  ],
+  "reference_change_limit": 0.0025,
+  "force_impulse_relative_limit": 0.01,
+  "near_zero_force_absolute_N": 1e-06,
+  "near_zero_impulse_absolute_Ns": 1e-09,
+  "displacement_absolute_limit_m": 0.0001,
+  "minimum_gap_m": -1e-06,
+  "exact_restore_required": true,
+  "total_time_ratio_target": 0.9,
+  "paired_order": [
+    "ipc",
+    "al",
+    "al",
+    "ipc"
+  ],
+  "repeats": 4,
+  "stopping_rule": "stop a rollout at first rejected complete step and retain; invalidate accuracy comparison if reference refinement fails; no promotion when any required gate fails",
+  "instrument_qualification": "baseline build and force/history checks precede comparative data; all calibration failures retained",
+  "timing": "exclude initialize; include all attempted complete steps and mandatory observation readback; report total wall and GPU; fixed physical duration"
+}

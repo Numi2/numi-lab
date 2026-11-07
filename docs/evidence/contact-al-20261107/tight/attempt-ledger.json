@@ -1,0 +1,590 @@
+[
+  {
+    "name": "ref-n2-h125000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.000125",
+      "80",
+      "2",
+      "ipc",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 2.9690921250148676
+  },
+  {
+    "name": "ref-n4-h62500-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "6.25e-05",
+      "160",
+      "4",
+      "ipc",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 5.131059709005058
+  },
+  {
+    "name": "pair0-n1-h250000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.00025",
+      "40",
+      "1",
+      "ipc",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 1.394571500015445
+  },
+  {
+    "name": "pair1-n1-h250000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.00025",
+      "40",
+      "1",
+      "al",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 1.990856625023298
+  },
+  {
+    "name": "pair2-n1-h250000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.00025",
+      "40",
+      "1",
+      "al",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 1.988021665951237
+  },
+  {
+    "name": "pair3-n1-h250000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.00025",
+      "40",
+      "1",
+      "ipc",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 1.393975250015501
+  },
+  {
+    "name": "pair0-n2-h250000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.00025",
+      "40",
+      "2",
+      "ipc",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 1.345725000021048
+  },
+  {
+    "name": "pair1-n2-h250000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.00025",
+      "40",
+      "2",
+      "al",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 2.062366458005272
+  },
+  {
+    "name": "pair2-n2-h250000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.00025",
+      "40",
+      "2",
+      "al",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 2.060013375012204
+  },
+  {
+    "name": "pair3-n2-h250000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.00025",
+      "40",
+      "2",
+      "ipc",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 1.351935709011741
+  },
+  {
+    "name": "pair0-n1-h500000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.0005",
+      "20",
+      "1",
+      "ipc",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.9151009579654783
+  },
+  {
+    "name": "pair1-n1-h500000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.0005",
+      "20",
+      "1",
+      "al",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 1.1383163750288077
+  },
+  {
+    "name": "pair2-n1-h500000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.0005",
+      "20",
+      "1",
+      "al",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 1.141414874990005
+  },
+  {
+    "name": "pair3-n1-h500000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.0005",
+      "20",
+      "1",
+      "ipc",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.9124130840064026
+  },
+  {
+    "name": "pair0-n2-h500000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.0005",
+      "20",
+      "2",
+      "ipc",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.8349595420295373
+  },
+  {
+    "name": "pair1-n2-h500000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.0005",
+      "20",
+      "2",
+      "al",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 1.203432917012833
+  },
+  {
+    "name": "pair2-n2-h500000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.0005",
+      "20",
+      "2",
+      "al",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 1.2031517080031335
+  },
+  {
+    "name": "pair3-n2-h500000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.0005",
+      "20",
+      "2",
+      "ipc",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.83485516597284
+  },
+  {
+    "name": "pair0-n1-h1000000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.001",
+      "10",
+      "1",
+      "ipc",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.5723731250036508
+  },
+  {
+    "name": "pair1-n1-h1000000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.001",
+      "10",
+      "1",
+      "al",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.6823837080155499
+  },
+  {
+    "name": "pair2-n1-h1000000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.001",
+      "10",
+      "1",
+      "al",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.6829623339581303
+  },
+  {
+    "name": "pair3-n1-h1000000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.001",
+      "10",
+      "1",
+      "ipc",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.5739167499705218
+  },
+  {
+    "name": "pair0-n2-h1000000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.001",
+      "10",
+      "2",
+      "ipc",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.5873957500443794
+  },
+  {
+    "name": "pair1-n2-h1000000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.001",
+      "10",
+      "2",
+      "al",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.7229183750459924
+  },
+  {
+    "name": "pair2-n2-h1000000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.001",
+      "10",
+      "2",
+      "al",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.7238320409669541
+  },
+  {
+    "name": "pair3-n2-h1000000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.001",
+      "10",
+      "2",
+      "ipc",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.5853501250385307
+  },
+  {
+    "name": "pair0-n1-h2000000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.002",
+      "5",
+      "1",
+      "ipc",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.4030786670045927
+  },
+  {
+    "name": "pair1-n1-h2000000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.002",
+      "5",
+      "1",
+      "al",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.5187004590407014
+  },
+  {
+    "name": "pair2-n1-h2000000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.002",
+      "5",
+      "1",
+      "al",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.5191031669965014
+  },
+  {
+    "name": "pair3-n1-h2000000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.002",
+      "5",
+      "1",
+      "ipc",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.40395479201106355
+  },
+  {
+    "name": "pair0-n2-h2000000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.002",
+      "5",
+      "2",
+      "ipc",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.3953538329806179
+  },
+  {
+    "name": "pair1-n2-h2000000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.002",
+      "5",
+      "2",
+      "al",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.567048666998744
+  },
+  {
+    "name": "pair2-n2-h2000000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.002",
+      "5",
+      "2",
+      "al",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.5617401249473915
+  },
+  {
+    "name": "pair3-n2-h2000000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.002",
+      "5",
+      "2",
+      "ipc",
+      "0.0002"
+    ],
+    "exit": 1,
+    "process_seconds": 0.39805779099697247
+  },
+  {
+    "name": "near50000-n1-h500000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.0005",
+      "20",
+      "1",
+      "ipc",
+      "5e-05"
+    ],
+    "exit": 1,
+    "process_seconds": 0.39200587500818074
+  },
+  {
+    "name": "near50000-n1-h500000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.0005",
+      "20",
+      "1",
+      "al",
+      "5e-05"
+    ],
+    "exit": 1,
+    "process_seconds": 0.6768006249913014
+  },
+  {
+    "name": "near50000-n1-h2000000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.002",
+      "5",
+      "1",
+      "ipc",
+      "5e-05"
+    ],
+    "exit": 1,
+    "process_seconds": 0.25087945896666497
+  },
+  {
+    "name": "near50000-n1-h2000000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.002",
+      "5",
+      "1",
+      "al",
+      "5e-05"
+    ],
+    "exit": 1,
+    "process_seconds": 0.4515813330071978
+  },
+  {
+    "name": "near500-n1-h500000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.0005",
+      "20",
+      "1",
+      "ipc",
+      "5e-07"
+    ],
+    "exit": 1,
+    "process_seconds": 0.2722594160004519
+  },
+  {
+    "name": "near500-n1-h500000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.0005",
+      "20",
+      "1",
+      "al",
+      "5e-07"
+    ],
+    "exit": 1,
+    "process_seconds": 0.3588971249992028
+  },
+  {
+    "name": "near500-n1-h2000000-ipc",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.002",
+      "5",
+      "1",
+      "ipc",
+      "5e-07"
+    ],
+    "exit": 1,
+    "process_seconds": 0.36827916599577293
+  },
+  {
+    "name": "near500-n1-h2000000-al",
+    "command": [
+      "/Users/numi/numi-lab-contact-build-20261107/metalrobo_plane_contact_probe",
+      "/Users/numi/numi-lab-contact-build-20261107/NumiMatter.metallib",
+      "0.002",
+      "5",
+      "1",
+      "al",
+      "5e-07"
+    ],
+    "exit": 1,
+    "process_seconds": 0.3872255409951322
+  }
+]

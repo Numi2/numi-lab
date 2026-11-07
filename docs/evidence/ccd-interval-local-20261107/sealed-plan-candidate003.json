@@ -1,0 +1,9 @@
+{
+  "schema": "numi.ccd.interval.revision.v1",
+  "created_utc": "2026-11-07T19:47:43.874870+00:00",
+  "candidate": "003",
+  "finding": "Candidate 002 reached legacy speculative fallback at cap 16 and accepted a rotating swept hit with zero impulse.",
+  "revision": "Interval-local primitive casts reject all unresolved results; controls unchanged.",
+  "prediction": "No accepted zero-impulse rotating swept hit in interval-local arm, including unused 177 rad/s rotation.",
+  "comparison": "16 distinct sweeps at scales 0.3 and 2.5, caps 16 and 128; complete MetalWorld steps for impact, 250 rad/s and 177 rad/s rotation. Both options remain disabled."
+}

@@ -5591,7 +5591,8 @@ inline bool finiteContactDispatch(
         MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES |
         MR_METAL_WORLD_CONTACT_BODY_WRENCHES |
         MR_METAL_WORLD_CONTACT_OWNED_FREE_BODY_CANDIDATE |
-        MR_METAL_WORLD_CONTACT_DIRECTIONAL_CCD;
+        MR_METAL_WORLD_CONTACT_DIRECTIONAL_CCD |
+        MR_METAL_WORLD_CONTACT_INTERVAL_LOCAL_CCD;
     return
         dispatch.abiVersion ==
             MR_METAL_WORLD_CONTACT_ABI_VERSION &&
@@ -6720,6 +6721,57 @@ float shortestNlerpAngularSpeedBound(const float4 start, float4 end) {
     return 4.0f * length(end - start) / length(end + start);
 }
 
+// Bounds for the actual normalize(mix(q0,q1,a)) path, including endpoints
+// whose Float32 norms differ slightly. Outward scalar intervals enclose each
+// operation. The normalization denominator is minimized over the ENTIRE
+// proposed interval, including its interior quadratic minimum.
+struct CCDQuaternionInterval { float lo,hi; };
+float ccdQuatDown(float x) { return abs(x)<1.1754943508222875e-38f ? -1.1754943508222875e-38f : nextafter(x,-INFINITY); }
+float ccdQuatUp(float x) { return abs(x)<1.1754943508222875e-38f ? 1.1754943508222875e-38f : nextafter(x,INFINITY); }
+CCDQuaternionInterval ccdQuatAdd(CCDQuaternionInterval a,CCDQuaternionInterval b) {
+    return {ccdQuatDown(a.lo+b.lo),ccdQuatUp(a.hi+b.hi)};
+}
+CCDQuaternionInterval ccdQuatNeg(CCDQuaternionInterval a) { return {-a.hi,-a.lo}; }
+CCDQuaternionInterval ccdQuatMul(CCDQuaternionInterval a,CCDQuaternionInterval b) {
+    const float4 v=float4(a.lo*b.lo,a.lo*b.hi,a.hi*b.lo,a.hi*b.hi);
+    return {ccdQuatDown(min(min(v.x,v.y),min(v.z,v.w))),
+        ccdQuatUp(max(max(v.x,v.y),max(v.z,v.w)))};
+}
+CCDQuaternionInterval ccdQuatSquare(CCDQuaternionInterval a) {
+    const float lower=a.lo<=0.0f && a.hi>=0.0f ? 0.0f : min(a.lo*a.lo,a.hi*a.hi);
+    return {max(0.0f,ccdQuatDown(lower)),ccdQuatUp(max(a.lo*a.lo,a.hi*a.hi))};
+}
+float shortestNlerpIntervalAngularSpeedBound(float4 start,float4 end,float lower,float upper) {
+    if(dot(start,end)<0.0f)end=-end;
+    if(all(start==end))return 0.0f;
+    CCDQuaternionInterval delta[4];
+    CCDQuaternionInterval b={0.0f,0.0f},c={0.0f,0.0f},wedge={0.0f,0.0f};
+    for(uint i=0;i<4u;++i) {
+        delta[i]=ccdQuatAdd({end[i],end[i]},{-start[i],-start[i]});
+        b=ccdQuatAdd(b,ccdQuatMul({start[i],start[i]},delta[i]));
+        c=ccdQuatAdd(c,ccdQuatSquare(delta[i]));
+        for(uint j=i+1u;j<4u;++j) {
+            const auto x=ccdQuatAdd(ccdQuatMul({start[i],start[i]},{end[j],end[j]}),
+                ccdQuatNeg(ccdQuatMul({start[j],start[j]},{end[i],end[i]})));
+            wedge=ccdQuatAdd(wedge,ccdQuatSquare(x));
+        }
+    }
+    CCDQuaternionInterval minimumParameter={lower,upper};
+    if(c.lo>0.0f) {
+        const auto inverse=CCDQuaternionInterval{ccdQuatDown(1.0f/c.hi),ccdQuatUp(1.0f/c.lo)};
+        const auto minimumPoint=ccdQuatMul(ccdQuatNeg(b),inverse);
+        minimumParameter={clamp(minimumPoint.lo,lower,upper),clamp(minimumPoint.hi,lower,upper)};
+    }
+    CCDQuaternionInterval denominator={0.0f,0.0f};
+    for(uint i=0;i<4u;++i) {
+        const auto value=ccdQuatAdd({start[i],start[i]},ccdQuatMul(minimumParameter,delta[i]));
+        denominator=ccdQuatAdd(denominator,ccdQuatSquare(value));
+    }
+    if(!(denominator.lo>0.0f)||!isfinite(wedge.hi))return INFINITY;
+    // |omega(a)| = 2*|q0 wedge q1| / |(1-a)q0+a*q1|^2.
+    return ccdQuatUp(ccdQuatUp(2.0f*ccdQuatUp(sqrt(max(wedge.hi,0.0f))))/denominator.lo);
+}
+
 bool directionalCCDShapeEligible(
     device const MRShapeGPU& source,
     device const MRProjectedColliderGPU& start,
@@ -6758,6 +6810,7 @@ bool directionalCCDAdvance(
     const float alpha,
     const float3 queryNormal,
     const float tolerance,
+    const bool intervalLocal,
     thread float& advancement
 ) {
     if (!directionalCCDShapeEligible(sourceA, startA, endA) ||
@@ -6800,24 +6853,43 @@ bool directionalCCDAdvance(
         shapeSweepRadius(sourceA, startA);
     const float radiusB = b.type == MR_SHAPE_PLANE ? 0.0f :
         shapeSweepRadius(sourceB, startB);
-    const float rotation =
-        radiusA * shortestNlerpAngularSpeedBound(startA.rotation, endA.rotation) +
-        radiusB * shortestNlerpAngularSpeedBound(startB.rotation, endB.rotation);
     const float3 relativeTranslation =
         (endB.centerAndRadius.xyz - startB.centerAndRadius.xyz) -
         (endA.centerAndRadius.xyz - startA.centerAndRadius.xyz);
-    const float closing = max(0.0f, -dot(relativeTranslation, normal) + rotation);
-    if (!isfinite(closing)) {
-        return false;
+    const float translationClosing=-dot(relativeTranslation,normal);
+    const float guardedGap=gap-tolerance;
+    if(intervalLocal) {
+        const float remaining=1.0f-alpha;
+        // Point rate only proposes a horizon. It never certifies an advance.
+        const float pointRotation=
+            radiusA*shortestNlerpIntervalAngularSpeedBound(startA.rotation,endA.rotation,alpha,alpha)+
+            radiusB*shortestNlerpIntervalAngularSpeedBound(startB.rotation,endB.rotation,alpha,alpha);
+        const float pointClosing=max(0.0f,translationClosing+pointRotation)*(1.0f+2.0e-6f);
+        const float proposal=pointClosing>0.0f ? min(remaining,guardedGap/pointClosing) : remaining;
+        if(!(proposal>0.0f)||!isfinite(proposal))return false;
+        const float endpoint=min(1.0f,ccdQuatUp(alpha+proposal));
+        const float intervalRotation=
+            radiusA*shortestNlerpIntervalAngularSpeedBound(startA.rotation,endA.rotation,alpha,endpoint)+
+            radiusB*shortestNlerpIntervalAngularSpeedBound(startB.rotation,endB.rotation,alpha,endpoint);
+        const float closing=max(0.0f,translationClosing+intervalRotation)*(1.0f+2.0e-6f);
+        if(!isfinite(closing))return false;
+        // A strict whole-remainder support-plane certificate can use the
+        // resolver's existing beyond-end sentinel. Returning exactly the
+        // remaining length would enter alpha=1 and spuriously reject a zero
+        // next horizon, despite having already certified the whole sweep.
+        if(proposal==remaining && guardedGap>closing*remaining) {
+            advancement=2.0f;return true;
+        }
+        // Shortening the certified interval retains its same rate bound.
+        advancement=closing>0.0f ? min(proposal,guardedGap/closing) : proposal;
+        return isfinite(advancement);
     }
-    // If this fixed separating plane stays open through alpha=1, the pair
-    // cannot intersect anywhere in the remaining sweep. Include a small FP32
-    // guard before issuing that certificate.
-    const float guardedGap = gap - tolerance;
-    const float guardedClosing = closing * (1.0f + 2.0e-6f);
-    advancement = guardedClosing > 0.0f
-        ? guardedGap / guardedClosing
-        : 2.0f;
+    const float rotation =
+        radiusA * shortestNlerpAngularSpeedBound(startA.rotation, endA.rotation) +
+        radiusB * shortestNlerpAngularSpeedBound(startB.rotation, endB.rotation);
+    const float closing=max(0.0f,translationClosing+rotation);
+    if(!isfinite(closing))return false;
+    advancement=closing>0.0f ? guardedGap/(closing*(1.0f+2.0e-6f)) : 2.0f;
     return isfinite(advancement);
 }
 
@@ -7001,6 +7073,7 @@ MRCCDPairGPU resolveCCDPair(
                         pair.colliderA, pair.colliderB, sourceA, sourceB,
                         startA, startB, endA, endB, geometryHeaders,
                         geometryVertices, alpha, query.normal, tolerance,
+                        (dispatch.flags & MR_METAL_WORLD_CONTACT_INTERVAL_LOCAL_CCD)!=0u,
                         directionalAdvance)) {
                     // A positive GJK distance without a positive support-plane
                     // gap is not a certified advance. Fail closed rather than
@@ -7046,7 +7119,10 @@ MRCCDPairGPU resolveCCDPair(
     }
     if (!resolved) {
         record.flags |= MR_CCD_PAIR_UNRESOLVED;
+        // The experimental interval bound never certifies an unresolved cast
+        // through the legacy rotational speculative envelope. Reject the step.
         if (!queryFailed &&
+            (dispatch.flags & MR_METAL_WORLD_CONTACT_INTERVAL_LOCAL_CCD) == 0u &&
             speculativeEnvelopeCoversCCDPair(
                 sourceA,
                 sourceB,

@@ -1,0 +1,8 @@
+{
+  "schema": "numi.retained-attempt-note.v1",
+  "observation": "calibration002-al.json",
+  "stdout_empty": true,
+  "result": "initialization rejected unsupported mixed FEM; no physical comparison",
+  "diagnostic": "calibration002-al.stderr.gz",
+  "source_binary_identity": "not captured; do not bind to final code"
+}

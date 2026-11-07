@@ -1,0 +1,1918 @@
+{
+  "schema": "numi.ccd.bound-analysis.v1",
+  "reports": [
+    {
+      "observation": "scale0.3-limit128.json",
+      "scale": 0.3,
+      "max_iterations": 128,
+      "device": "Apple M6",
+      "distinct_sweeps": 16,
+      "replicated_environments_per_sweep": 1024,
+      "directional_geometry_gate_failures": 0,
+      "unresolved_sweeps": [
+        2,
+        8,
+        8
+      ],
+      "typed_failure_sweeps": [
+        0,
+        5,
+        5
+      ],
+      "sum_of_case_gpu_medians_seconds": [
+        0.0028483749483716,
+        0.0042834167252311,
+        0.0067011250648677
+      ],
+      "directional_to_control_gpu_cost_ratio": 1.5038107000905572,
+      "interval_local_to_control_gpu_cost_ratio": 2.352613397579099,
+      "units": [
+        {
+          "unit": "thin-plate-impact",
+          "iterations": [
+            25,
+            3,
+            3
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            true,
+            true
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000266291666776,
+            4.22916491516e-05,
+            4.19999705628e-05
+          ]
+        },
+        {
+          "unit": "tangential-plane-miss",
+          "iterations": [
+            128,
+            1,
+            1
+          ],
+          "unresolved": [
+            true,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000350833346602,
+            2.48749856837e-05,
+            2.4291628506e-05
+          ]
+        },
+        {
+          "unit": "rotating-plane-hit",
+          "iterations": [
+            2,
+            128,
+            128
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.16666376218e-05,
+            0.000693166686688,
+            0.00114737497643
+          ]
+        },
+        {
+          "unit": "rotating-plane-near-miss",
+          "iterations": [
+            58,
+            128,
+            128
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000166958372574,
+            0.000690374989063,
+            0.0011316666496
+          ]
+        },
+        {
+          "unit": "tangential-box-miss",
+          "iterations": [
+            20,
+            2,
+            2
+          ],
+          "unresolved": [
+            false,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000155500019901,
+            4.11250512116e-05,
+            4.08750493079e-05
+          ]
+        },
+        {
+          "unit": "common-motion-hit",
+          "iterations": [
+            128,
+            2,
+            2
+          ],
+          "unresolved": [
+            true,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000984374957625,
+            7.51666957512e-05,
+            7.48750171624e-05
+          ]
+        },
+        {
+          "unit": "moving-catch",
+          "iterations": [
+            19,
+            2,
+            2
+          ],
+          "unresolved": [
+            false,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000198166701011,
+            7.5125019066e-05,
+            7.49583705328e-05
+          ]
+        },
+        {
+          "unit": "rotating-edge-hit",
+          "iterations": [
+            4,
+            4,
+            3
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            true,
+            true
+          ],
+          "geometric_or_rejected_gate": [
+            false,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            8.00833222456e-05,
+            5.55000151508e-05,
+            5.52916899323e-05
+          ]
+        },
+        {
+          "unit": "rotating-edge-miss",
+          "iterations": [
+            6,
+            7,
+            7
+          ],
+          "unresolved": [
+            false,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            5.08750090376e-05,
+            7.92916980572e-05,
+            0.00011008331785
+          ]
+        },
+        {
+          "unit": "holdout-thin-73-hit",
+          "iterations": [
+            25,
+            27,
+            25
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            true,
+            true
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            8.02499707788e-05,
+            0.000160708324984,
+            0.000239208340645
+          ]
+        },
+        {
+          "unit": "holdout-thin-73-miss",
+          "iterations": [
+            4,
+            4,
+            4
+          ],
+          "unresolved": [
+            false,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.65416456386e-05,
+            3.9458333049e-05,
+            5.55833103135e-05
+          ]
+        },
+        {
+          "unit": "holdout-thin-137-hit",
+          "iterations": [
+            2,
+            25,
+            24
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            true,
+            true
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.17499909922e-05,
+            0.000147625047248,
+            0.000230624980759
+          ]
+        },
+        {
+          "unit": "holdout-thin-137-miss",
+          "iterations": [
+            83,
+            123,
+            118
+          ],
+          "unresolved": [
+            false,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000228333286941,
+            0.00065674999496,
+            0.00103558332194
+          ]
+        },
+        {
+          "unit": "holdout-thin-169-hit",
+          "iterations": [
+            2,
+            26,
+            24
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            true,
+            true
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.3250002414e-05,
+            0.000154458277393,
+            0.000233958358876
+          ]
+        },
+        {
+          "unit": "holdout-thin-169-miss",
+          "iterations": [
+            59,
+            122,
+            120
+          ],
+          "unresolved": [
+            false,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000170250015799,
+            0.000650166650303,
+            0.00106287503149
+          ]
+        },
+        {
+          "unit": "rotating-antipodal-hit",
+          "iterations": [
+            2,
+            128,
+            128
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.3250002414e-05,
+            0.000697333307471,
+            0.00114187505096
+          ]
+        }
+      ]
+    },
+    {
+      "observation": "scale0.3-limit16.json",
+      "scale": 0.3,
+      "max_iterations": 16,
+      "device": "Apple M6",
+      "distinct_sweeps": 16,
+      "replicated_environments_per_sweep": 1024,
+      "directional_geometry_gate_failures": 0,
+      "unresolved_sweeps": [
+        9,
+        10,
+        10
+      ],
+      "typed_failure_sweeps": [
+        0,
+        2,
+        2
+      ],
+      "sum_of_case_gpu_medians_seconds": [
+        0.0012120833271183,
+        0.0012827501050195,
+        0.0018414583173589
+      ],
+      "directional_to_control_gpu_cost_ratio": 1.05830191400224,
+      "interval_local_to_control_gpu_cost_ratio": 1.5192505961920328,
+      "units": [
+        {
+          "unit": "thin-plate-impact",
+          "iterations": [
+            16,
+            3,
+            3
+          ],
+          "unresolved": [
+            true,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            true,
+            true
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000202541705221,
+            5.18333399668e-05,
+            4.2041647248e-05
+          ]
+        },
+        {
+          "unit": "tangential-plane-miss",
+          "iterations": [
+            16,
+            1,
+            1
+          ],
+          "unresolved": [
+            true,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            7.9499965068e-05,
+            2.56249913946e-05,
+            2.42499518208e-05
+          ]
+        },
+        {
+          "unit": "rotating-plane-hit",
+          "iterations": [
+            2,
+            16,
+            16
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.16250191443e-05,
+            0.000104875012767,
+            0.000206666649319
+          ]
+        },
+        {
+          "unit": "rotating-plane-near-miss",
+          "iterations": [
+            16,
+            16,
+            16
+          ],
+          "unresolved": [
+            true,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            6.20000064373e-05,
+            0.000103583326563,
+            0.000164166674949
+          ]
+        },
+        {
+          "unit": "tangential-box-miss",
+          "iterations": [
+            16,
+            2,
+            2
+          ],
+          "unresolved": [
+            true,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000140416668728,
+            4.09583444707e-05,
+            4.0958286263e-05
+          ]
+        },
+        {
+          "unit": "common-motion-hit",
+          "iterations": [
+            16,
+            2,
+            2
+          ],
+          "unresolved": [
+            true,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000148833321873,
+            7.51666957512e-05,
+            7.48750171624e-05
+          ]
+        },
+        {
+          "unit": "moving-catch",
+          "iterations": [
+            16,
+            2,
+            2
+          ],
+          "unresolved": [
+            true,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.00015037500998,
+            7.5249990914e-05,
+            7.49999890104e-05
+          ]
+        },
+        {
+          "unit": "rotating-edge-hit",
+          "iterations": [
+            4,
+            4,
+            3
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            true,
+            true
+          ],
+          "geometric_or_rejected_gate": [
+            false,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            7.98749970272e-05,
+            5.5541691836e-05,
+            5.53749850951e-05
+          ]
+        },
+        {
+          "unit": "rotating-edge-miss",
+          "iterations": [
+            6,
+            7,
+            7
+          ],
+          "unresolved": [
+            false,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            5.1083334256e-05,
+            7.94583465904e-05,
+            0.000110708351713
+          ]
+        },
+        {
+          "unit": "holdout-thin-73-hit",
+          "iterations": [
+            16,
+            16,
+            16
+          ],
+          "unresolved": [
+            true,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            6.15416793153e-05,
+            0.000105833343696,
+            0.000166250043549
+          ]
+        },
+        {
+          "unit": "holdout-thin-73-miss",
+          "iterations": [
+            4,
+            4,
+            4
+          ],
+          "unresolved": [
+            false,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.66666756943e-05,
+            3.96250397898e-05,
+            5.55833685212e-05
+          ]
+        },
+        {
+          "unit": "holdout-thin-137-hit",
+          "iterations": [
+            2,
+            16,
+            16
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.18749628402e-05,
+            0.000106124964077,
+            0.000166958314367
+          ]
+        },
+        {
+          "unit": "holdout-thin-137-miss",
+          "iterations": [
+            16,
+            16,
+            16
+          ],
+          "unresolved": [
+            true,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            6.09583221376e-05,
+            0.000103291647974,
+            0.000164625002071
+          ]
+        },
+        {
+          "unit": "holdout-thin-169-hit",
+          "iterations": [
+            2,
+            16,
+            16
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.1708314307e-05,
+            0.000106499996036,
+            0.000165125005879
+          ]
+        },
+        {
+          "unit": "holdout-thin-169-miss",
+          "iterations": [
+            16,
+            16,
+            16
+          ],
+          "unresolved": [
+            true,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            6.12916774116e-05,
+            0.000104541657493,
+            0.000164124998264
+          ]
+        },
+        {
+          "unit": "rotating-antipodal-hit",
+          "iterations": [
+            2,
+            16,
+            16
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.17916676775e-05,
+            0.0001045417157,
+            0.000164750032127
+          ]
+        }
+      ]
+    },
+    {
+      "observation": "scale2.5-limit128.json",
+      "scale": 2.5,
+      "max_iterations": 128,
+      "device": "Apple M6",
+      "distinct_sweeps": 16,
+      "replicated_environments_per_sweep": 1024,
+      "directional_geometry_gate_failures": 0,
+      "unresolved_sweeps": [
+        2,
+        8,
+        8
+      ],
+      "typed_failure_sweeps": [
+        0,
+        5,
+        5
+      ],
+      "sum_of_case_gpu_medians_seconds": [
+        0.0027960833394884,
+        0.0043161666253596,
+        0.0067921249428759
+      ],
+      "directional_to_control_gpu_cost_ratio": 1.5436473457008366,
+      "interval_local_to_control_gpu_cost_ratio": 2.4291568305394846,
+      "units": [
+        {
+          "unit": "thin-plate-impact",
+          "iterations": [
+            25,
+            3,
+            3
+          ],
+          "unresolved": [
+            false,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000199750007596,
+            6.99583324604e-05,
+            6.97499490343e-05
+          ]
+        },
+        {
+          "unit": "tangential-plane-miss",
+          "iterations": [
+            128,
+            1,
+            1
+          ],
+          "unresolved": [
+            true,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000349000038113,
+            2.08750134334e-05,
+            2.07083066925e-05
+          ]
+        },
+        {
+          "unit": "rotating-plane-hit",
+          "iterations": [
+            2,
+            128,
+            128
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.16250191443e-05,
+            0.000694416637998,
+            0.00114504166413
+          ]
+        },
+        {
+          "unit": "rotating-plane-near-miss",
+          "iterations": [
+            58,
+            128,
+            128
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000167541671544,
+            0.000691041641403,
+            0.00114474998554
+          ]
+        },
+        {
+          "unit": "tangential-box-miss",
+          "iterations": [
+            20,
+            2,
+            2
+          ],
+          "unresolved": [
+            false,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.00015475001419,
+            4.12499648519e-05,
+            4.07916959375e-05
+          ]
+        },
+        {
+          "unit": "common-motion-hit",
+          "iterations": [
+            128,
+            2,
+            2
+          ],
+          "unresolved": [
+            true,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.00099400000181,
+            7.5249990914e-05,
+            7.5125019066e-05
+          ]
+        },
+        {
+          "unit": "moving-catch",
+          "iterations": [
+            24,
+            2,
+            2
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            true,
+            true
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000203749979846,
+            4.28750063293e-05,
+            4.27083577961e-05
+          ]
+        },
+        {
+          "unit": "rotating-edge-hit",
+          "iterations": [
+            2,
+            5,
+            4
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            true,
+            true
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            7.21249962226e-05,
+            7.77916284278e-05,
+            7.95833184384e-05
+          ]
+        },
+        {
+          "unit": "rotating-edge-miss",
+          "iterations": [
+            6,
+            7,
+            7
+          ],
+          "unresolved": [
+            false,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            5.07500371896e-05,
+            8.15416569822e-05,
+            0.000113666697871
+          ]
+        },
+        {
+          "unit": "holdout-thin-73-hit",
+          "iterations": [
+            26,
+            27,
+            27
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            true,
+            true
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            8.33749654703e-05,
+            0.000161666655913,
+            0.000259458378423
+          ]
+        },
+        {
+          "unit": "holdout-thin-73-miss",
+          "iterations": [
+            4,
+            4,
+            4
+          ],
+          "unresolved": [
+            false,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.75416532531e-05,
+            3.97083349526e-05,
+            5.54999569431e-05
+          ]
+        },
+        {
+          "unit": "holdout-thin-137-hit",
+          "iterations": [
+            2,
+            24,
+            24
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            true,
+            true
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.28749704547e-05,
+            0.00014525000006,
+            0.000232958293054
+          ]
+        },
+        {
+          "unit": "holdout-thin-137-miss",
+          "iterations": [
+            83,
+            123,
+            118
+          ],
+          "unresolved": [
+            false,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000231166661251,
+            0.000663958315272,
+            0.00105349998921
+          ]
+        },
+        {
+          "unit": "holdout-thin-169-hit",
+          "iterations": [
+            2,
+            26,
+            25
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            true,
+            true
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.33332975768e-05,
+            0.000155833375175,
+            0.00024600001052
+          ]
+        },
+        {
+          "unit": "holdout-thin-169-miss",
+          "iterations": [
+            59,
+            122,
+            120
+          ],
+          "unresolved": [
+            false,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000171250023413,
+            0.000652375048958,
+            0.00106637499994
+          ]
+        },
+        {
+          "unit": "rotating-antipodal-hit",
+          "iterations": [
+            2,
+            128,
+            128
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.3250002414e-05,
+            0.000702375022229,
+            0.00114620832028
+          ]
+        }
+      ]
+    },
+    {
+      "observation": "scale2.5-limit16.json",
+      "scale": 2.5,
+      "max_iterations": 16,
+      "device": "Apple M6",
+      "distinct_sweeps": 16,
+      "replicated_environments_per_sweep": 1024,
+      "directional_geometry_gate_failures": 0,
+      "unresolved_sweeps": [
+        9,
+        10,
+        10
+      ],
+      "typed_failure_sweeps": [
+        0,
+        2,
+        2
+      ],
+      "sum_of_case_gpu_medians_seconds": [
+        0.0011346251121723,
+        0.0013560416409748,
+        0.0018397500389256
+      ],
+      "directional_to_control_gpu_cost_ratio": 1.1951450980831777,
+      "interval_local_to_control_gpu_cost_ratio": 1.621460709082404,
+      "units": [
+        {
+          "unit": "thin-plate-impact",
+          "iterations": [
+            16,
+            3,
+            3
+          ],
+          "unresolved": [
+            true,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000148041697685,
+            9.60833276622e-05,
+            9.25000058487e-05
+          ]
+        },
+        {
+          "unit": "tangential-plane-miss",
+          "iterations": [
+            16,
+            1,
+            1
+          ],
+          "unresolved": [
+            true,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            6.04999950156e-05,
+            5.98750193603e-05,
+            2.09999852814e-05
+          ]
+        },
+        {
+          "unit": "rotating-plane-hit",
+          "iterations": [
+            2,
+            16,
+            16
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.20416695811e-05,
+            0.000104791659396,
+            0.000164125056472
+          ]
+        },
+        {
+          "unit": "rotating-plane-near-miss",
+          "iterations": [
+            16,
+            16,
+            16
+          ],
+          "unresolved": [
+            true,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            6.22916850261e-05,
+            0.000103958358523,
+            0.000164791650604
+          ]
+        },
+        {
+          "unit": "tangential-box-miss",
+          "iterations": [
+            16,
+            2,
+            2
+          ],
+          "unresolved": [
+            true,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000140374992043,
+            4.12916415371e-05,
+            4.10833163187e-05
+          ]
+        },
+        {
+          "unit": "common-motion-hit",
+          "iterations": [
+            16,
+            2,
+            2
+          ],
+          "unresolved": [
+            true,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000150000036228,
+            7.56249646656e-05,
+            7.51249608584e-05
+          ]
+        },
+        {
+          "unit": "moving-catch",
+          "iterations": [
+            16,
+            2,
+            2
+          ],
+          "unresolved": [
+            true,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            true,
+            true
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000150833337102,
+            4.32499800809e-05,
+            4.30000363849e-05
+          ]
+        },
+        {
+          "unit": "rotating-edge-hit",
+          "iterations": [
+            2,
+            5,
+            4
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            true,
+            true
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            7.23749981262e-05,
+            7.80416885391e-05,
+            7.96666718088e-05
+          ]
+        },
+        {
+          "unit": "rotating-edge-miss",
+          "iterations": [
+            6,
+            7,
+            7
+          ],
+          "unresolved": [
+            false,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            5.12083061039e-05,
+            8.17916588858e-05,
+            0.000113375019282
+          ]
+        },
+        {
+          "unit": "holdout-thin-73-hit",
+          "iterations": [
+            16,
+            16,
+            16
+          ],
+          "unresolved": [
+            true,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            6.18749763817e-05,
+            0.000105916697066,
+            0.000166375015397
+          ]
+        },
+        {
+          "unit": "holdout-thin-73-miss",
+          "iterations": [
+            4,
+            4,
+            4
+          ],
+          "unresolved": [
+            false,
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.67500290647e-05,
+            3.97500116378e-05,
+            5.57499588467e-05
+          ]
+        },
+        {
+          "unit": "holdout-thin-137-hit",
+          "iterations": [
+            2,
+            16,
+            16
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.19166395254e-05,
+            0.000106166640762,
+            0.000165916688275
+          ]
+        },
+        {
+          "unit": "holdout-thin-137-miss",
+          "iterations": [
+            16,
+            16,
+            16
+          ],
+          "unresolved": [
+            true,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            6.11250288785e-05,
+            0.000103458354715,
+            0.000164124998264
+          ]
+        },
+        {
+          "unit": "holdout-thin-169-hit",
+          "iterations": [
+            2,
+            16,
+            16
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.18750210479e-05,
+            0.000106416642666,
+            0.000164541648701
+          ]
+        },
+        {
+          "unit": "holdout-thin-169-miss",
+          "iterations": [
+            16,
+            16,
+            16
+          ],
+          "unresolved": [
+            true,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            6.15000026301e-05,
+            0.000104999984615,
+            0.000164500030223
+          ]
+        },
+        {
+          "unit": "rotating-antipodal-hit",
+          "iterations": [
+            2,
+            16,
+            16
+          ],
+          "unresolved": [
+            false,
+            true,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.19166977331e-05,
+            0.000104625010863,
+            0.00016387499636
+          ]
+        }
+      ]
+    }
+  ],
+  "decision": "retain opt-in experiment; do not promote to default",
+  "accepted_simulated_time_per_wall_second": null,
+  "limitations": [
+    "A geometric gate can pass because a sweep is rejected as unresolved.",
+    "Neither an unresolved result nor a speculative fallback proves a resolved physical interaction.",
+    "A sum of kernel medians is descriptive; it is not accepted simulation throughput.",
+    "Replicated environments and timing repeats are not independent geometric units.",
+    "No force, friction, torque, control, full-transaction or physical validation."
+  ]
+}

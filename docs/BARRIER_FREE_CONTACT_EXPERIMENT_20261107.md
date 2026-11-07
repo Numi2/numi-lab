@@ -1,7 +1,10 @@
 # Barrier-free normal-contact comparison: prepared experiment
 
-Status: prepared, not implemented or run. No barrier-free speed, friction,
-replay or physical-calibration result is claimed.
+Status: the first frictionless FEM–plane stage is implemented and measured.
+The [experiment report](FEM_PLANE_AL_EXPERIMENT_20261107.md) retains failed
+calibrations, force/work traces and restoration checks. The physical/reference
+gates failed; keep the option disabled. No speed, friction or physical
+calibration result is claimed. The original prepared design follows below.
 
 ## Question and owning code
 

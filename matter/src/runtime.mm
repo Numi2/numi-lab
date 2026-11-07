@@ -819,6 +819,13 @@ constexpr std::size_t kFEMOperatorFDParameterCaptureValuesPerSlot = 4u;
     hash = mixFingerprint(hash, configuration.adaptiveTransfer ? 1u : 0u);
     hash = mixFingerprint(hash, configuration.coupledCandidateCompensatedTranslation ? 1u : 0u);
     hash = mixFingerprint(hash, configuration.externalCoupledCandidatePointCapacity);
+    if (configuration.experimentalFEMPlaneAugmentedLagrangian) {
+        hash = mixFingerprint(hash, 0x46454d50414c3031ull); // FEMPAL01
+        hash = mixFingerprint(hash, detail::hashBytes(
+            &configuration.experimentalFEMPlanePenalty, sizeof(float)));
+        hash = mixFingerprint(hash, detail::hashBytes(
+            &configuration.experimentalFEMPlaneClearance, sizeof(float)));
+    }
     hash = mixFingerprint(hash,
         regionalAcceptedCorrectionRecycle ? 1u : 0u);
     hash = mixFingerprint(hash, detail::hashBytes(
@@ -3292,6 +3299,7 @@ struct Runtime::State {
     bool femFreshDirectionAlphaResetEnabled = false;
     bool femDeformableCollisionGapEnabled = false;
     bool femReferenceContactPlaneCCDEnabled = false;
+    bool experimentalFEMPlaneAL = false;
     bool femTiledDeformableLimitEnabled = false;
     std::uint32_t femDeformableLimitTileCount = 128u;
     bool femParallelBacktrackingRequested = false;
@@ -4989,6 +4997,45 @@ RuntimeDiagnostics Runtime::initialize(
                 "compiled Matter world has an invalid fixed-capacity layout: " +
                 layoutError;
             return diagnostics;
+        }
+        if (configuration.experimentalFEMPlaneAugmentedLagrangian) {
+            constexpr auto disabled = NM_OBJECT_DISABLE_DEFORMABLE_CONTACT |
+                NM_OBJECT_DISABLE_SELF_CONTACT;
+            constexpr auto unsupported = NM_OBJECT_ADAPTIVE | NM_OBJECT_MIXED_FEM |
+                NM_OBJECT_MULTIPHYSICS | NM_OBJECT_MUTABLE_TOPOLOGY;
+            const bool eligible = world.dispatch.femNodeCount != 0u &&
+                world.dispatch.contactPairCount != 0u &&
+                world.dispatch.particleCount == 0u &&
+                world.dispatch.maximumRateExponent == 0u &&
+                world.dispatch.rigidGeneralizedCapacity == 0u &&
+                world.dispatch.mutationCommandCount == 0u &&
+                world.dispatch.deformableContactCapacity == 0u &&
+                world.fem.humanAttachments.empty() &&
+                configuration.humanSupportContacts.empty() &&
+                !configuration.automaticIdentification && !configuration.adaptiveTransfer &&
+                configuration.externalCoupledCandidatePointCapacity == 0u &&
+                std::all_of(world.objects.begin(),world.objects.end(),[&](const auto& o) {
+                    return o.representation == NM_REPRESENTATION_FEM &&
+                        (o.flags & disabled) == disabled && (o.flags & unsupported) == 0u;
+                }) &&
+                std::all_of(world.materials.begin(),world.materials.end(),[](const auto& m) {
+                    return m.interfaceResponse.x == 0.0f && m.interfaceResponse.y == 0.0f &&
+                        m.interfaceResponse.z == 0.0f && m.interfaceResponse.w == 0.0f;
+                }) &&
+                std::all_of(world.contact.rigidProxies.begin(),world.contact.rigidProxies.end(),[](const auto& p) {
+                    return p.shapeKind == NM_RIGID_PLANE && p.flags == 0u &&
+                        p.bodyIndex == NM_INVALID_INDEX && p.adaptiveObjectIndex == NM_INVALID_INDEX &&
+                        p.generalizedFreeBodyIndex == NM_INVALID_INDEX && p.reserved2 == 0u;
+                });
+            if (!eligible || !std::isfinite(configuration.experimentalFEMPlanePenalty) ||
+                !(configuration.experimentalFEMPlanePenalty > 0.0f) ||
+                !std::isfinite(configuration.experimentalFEMPlaneClearance) ||
+                !(configuration.experimentalFEMPlaneClearance >
+                    world.mixedSolver.contactAcceptance.x * world.dispatch.numericalLimits.x) ||
+                !(configuration.experimentalFEMPlaneClearance < world.dispatch.numericalLimits.x)) {
+                diagnostics.message = "experimental FEM plane AL requires immutable frictionless FEM, fixed planes, fixed positive penalty and a positive target above the final clearance floor";
+                return diagnostics;
+            }
         }
         std::string humanPartitionedSourceError;
         if (!validateHumanPartitionedPreconditionerSource(
@@ -7805,6 +7852,7 @@ RuntimeDiagnostics Runtime::initialize(
             std::fprintf(stderr,
                 "matter_private_contact_failure_capture=1 failure_only=1\n");
 
+        candidate->experimentalFEMPlaneAL = configuration.experimentalFEMPlaneAugmentedLagrangian;
         candidate->automaticIdentification =
             configuration.automaticIdentification;
         candidate->adaptiveTransfer = configuration.adaptiveTransfer;
@@ -9181,6 +9229,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_accumulate_deformable_fem_residual",
             "nm_contact_publish_fem_constraint_contact_force",
             "nm_contact_publish_primal_history",
+            "nm_contact_update_fem_plane_al_multiplier",
             "nm_contact_limit_deformable_line_search",
             "nm_contact_limit_deformable_line_search_tiled",
             "nm_contact_finish_deformable_line_search_tiled",
@@ -9590,6 +9639,18 @@ RuntimeDiagnostics Runtime::initialize(
                     }
                     specialize=true;
                     continue;
+                }
+                if (constant.index == 43u) {
+                    const bool enabled = configuration.experimentalFEMPlaneAugmentedLagrangian;
+                    [values setConstantValue:&enabled type:MTLDataTypeBool atIndex:43u];
+                    specialize=true; continue;
+                }
+                if (constant.index == 44u || constant.index == 45u) {
+                    const float value = constant.index == 44u
+                        ? configuration.experimentalFEMPlanePenalty
+                        : configuration.experimentalFEMPlaneClearance;
+                    [values setConstantValue:&value type:MTLDataTypeFloat atIndex:constant.index];
+                    specialize=true; continue;
                 }
                 if (constant.index == 42u) {
                     const bool enabled = candidate->femGraphCoupledContactBlocksEnabled;
@@ -17544,6 +17605,7 @@ RuntimeDiagnostics Runtime::encodeAcceptedControlCursorPublication(
         return diagnostics;
     }
     State& state = *state_;
+
     id<MTLCommandBuffer> commandBuffer =
         (__bridge id<MTLCommandBuffer>)commandBufferRaw;
     id<MTLBuffer> externalStatuses = gate.statusCodes == nullptr
@@ -18393,6 +18455,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
             return diagnostics;
         }
         State& state = *state_;
+        if (state.experimentalFEMPlaneAL &&
+            (request.physicsSubsteps != 1u || request.physicsSubstep != 0u ||
+             !(request.timestepSeconds > 0.0) ||
+             static_cast<float>(request.timestepSeconds) != state.dispatch.gravityAndTimestep.w ||
+             request.mutationCommands != nullptr || request.cohesiveActivationCommandCount != 0u ||
+             request.femKinematicTargets != nullptr || request.humanImplicitSpringCount != 0u ||
+             request.encodeCoupledCandidate != nullptr)) {
+            diagnostics.message = "experimental FEM plane AL requires its initialized cadence and immutable, uncoupled plane domain";
+            return diagnostics;
+        }
         bool femCompletedZeroOperatorActionEnabled = false;
         bool femCompletedCycleWorkEnabled = false;
         const auto indirectMassActionDispatchReady = [&]() -> bool {
@@ -51379,7 +51451,25 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
-            dispatchThreads("nm_contact_publish_primal_history", pairTotal, [&] {
+            if (state.experimentalFEMPlaneAL) {
+                // Update the dual from the corrected, unpublished working FEM
+                // configuration. The preceding residual/tangent evaluation used
+                // the same old dual; no accepted history is writable here.
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_contact_update_fem_plane_al_multiplier",pairTotal,[&] {
+                    setDispatch();
+                    [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.rigidProxies offset:0u atIndex:4u];
+                    [encoder setBuffer:state.rigidStates offset:0u atIndex:5u];
+                    [encoder setBuffer:state.contactPairs offset:0u atIndex:6u];
+                    [encoder setBuffer:nonlinearHistories offset:0u atIndex:7u];
+                    [encoder setBuffer:state.contactHistoriesCandidate offset:0u atIndex:8u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:9u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            } else dispatchThreads("nm_contact_publish_primal_history", pairTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.contactSamples offset:0u atIndex:1u];
                 [encoder setBuffer:state.contactHistoriesCandidate

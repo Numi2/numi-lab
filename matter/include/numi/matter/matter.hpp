@@ -1131,6 +1131,12 @@ struct RuntimeConfiguration {
     // Zero preserves the source-derived candidate capability policy. A nonzero
     // value compiles q/v candidate support without inserting dummy attachments.
     std::uint32_t externalCoupledCandidatePointCapacity = 0u;
+    // Bounded research path: immutable, frictionless FEM against fixed planes.
+    // The impulse multiplier uses existing accepted/candidate/checkpoint contact
+    // history. No new execution owner or persistence arena is introduced.
+    bool experimentalFEMPlaneAugmentedLagrangian = false;
+    float experimentalFEMPlanePenalty = 1000.0f; // N/m per contact node, fixed
+    float experimentalFEMPlaneClearance = 5.0e-7f; // m, constraint target
 };
 
 struct HumanSupportConsequencesView {

@@ -861,6 +861,7 @@ enum MRMetalWorldContactFlags : mr_u32 {
     MR_METAL_WORLD_CONTACT_OWNED_FREE_BODY_CANDIDATE = 1u << 11u,
     // Experimental separating-plane advancement for finite convex sweeps.
     MR_METAL_WORLD_CONTACT_DIRECTIONAL_CCD = 1u << 12u,
+    MR_METAL_WORLD_CONTACT_INTERVAL_LOCAL_CCD = 1u << 13u,
 };
 
 // One stable, cooker-produced pair. The pair stream is canonical collider

@@ -52,6 +52,25 @@ constant bool nmValidateNativeStatelessTangentBundleActive =
 // status and clears it before any consumer can interpret it as a cache mask.
 constant uint kTangentBundleVerificationFailureMarker = 0x80000000u;
 
+// Explicit host-admitted first-stage normal-contact experiment. An undefined
+// selector retains the production IPC law byte-for-byte.
+constant bool nmFEMPlaneAL [[function_constant(43)]];
+constant bool nmFEMPlaneALActive = is_function_constant_defined(nmFEMPlaneAL)
+    ? nmFEMPlaneAL : false;
+constant float nmFEMPlaneALPenalty [[function_constant(44)]];
+constant float nmFEMPlaneALRho = is_function_constant_defined(nmFEMPlaneALPenalty)
+    ? nmFEMPlaneALPenalty : 1000.0f;
+constant float nmFEMPlaneALTarget [[function_constant(45)]];
+constant float nmFEMPlaneALClearance = is_function_constant_defined(nmFEMPlaneALTarget)
+    ? nmFEMPlaneALTarget : 5.0e-7f;
+inline float nmFEMPlaneALForce(float gap, float previousForce) {
+    return max(0.0f, previousForce - nmFEMPlaneALRho * (gap-nmFEMPlaneALClearance));
+}
+inline float nmFEMPlaneALEnergy(float gap, float previousForce) {
+    const float force=nmFEMPlaneALForce(gap,previousForce);
+    return force*force/(2.0f*nmFEMPlaneALRho);
+}
+
 constant float kEpsilon = 1.1920928955078125e-7f;
 constant float kGeometryFloor = 1.0e-12f;
 // Rest-volume predicates must carry cubic units. This matches the host cooker

@@ -767,6 +767,8 @@ struct MetalWorldStepConfig {
     // Experimental: tighter bound for the actual shortest-nlerp CCD path.
     // Meshes and changing-length capsules retain the established bound.
     bool directionalCCDAdvancement = false;
+    // Requires directional advancement; both research selectors default off.
+    bool intervalLocalCCDAdvancement = false;
     bool applyBodyDamping = true;
     bool deterministic = true;
     bool warmStart = true;
