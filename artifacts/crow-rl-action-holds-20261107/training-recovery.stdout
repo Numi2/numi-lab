@@ -1,0 +1,300 @@
+{
+  "action_carrier" : "v13_retinal_feeding_native_rgb",
+  "birdflow_journey_student_authority" : 0,
+  "birdflow_journey_teacher" : false,
+  "birdflow_journey_variant" : "v13-retinal-feeding",
+  "birdflow_navigation_curriculum" : false,
+  "birdflow_navigation_curriculum_stage" : -1,
+  "candidate_deployment_policy_pack" : "\/private\/tmp\/crow-action-holds-git-recovery-20261107\/replay\/deployment.policypack",
+  "checkpoint_directory" : "\/private\/tmp\/crow-action-holds-git-recovery-20261107\/replay\/checkpoints",
+  "checkpoint_interval" : 1,
+  "control_steps_per_submission" : 8,
+  "deployment_policy_pack" : "\/private\/tmp\/crow-action-holds-git-recovery-20261107\/replay\/deployment.policypack",
+  "deployment_selection_performed" : false,
+  "device" : "Apple M4 Pro",
+  "difficulty_sampling_exponent_override" : 0,
+  "elapsed_seconds" : 3.464155833,
+  "end_to_end_environment_steps_per_second" : 738.99677826647007,
+  "environments" : 8,
+  "failed_environment_steps" : 0,
+  "final_physical_evidence" : {
+    "control_steps" : 320,
+    "evidence_windows" : 0,
+    "last_balance_failure_rate" : 0,
+    "last_clean_miss_rate" : 0,
+    "last_completed_episode_count" : 0,
+    "last_contact_rate" : 0,
+    "last_mean_tracking_per_million" : 0,
+    "pending_completed_episode_count" : 0,
+    "pending_timeout_episode_count" : 0
+  },
+  "final_policy_revision" : 3,
+  "gpu_milliseconds" : 3018.8713332172483,
+  "host_requested_resets" : 0,
+  "incumbent_policy_pack" : "\/private\/tmp\/crow-action-holds-git-recovery-20261107\/replay\/incumbent.policypack",
+  "independent_cued_lifetimes" : true,
+  "independent_lifetime_history" : [
+    {
+      "accepted_ticks" : [
+        320,
+        320,
+        320,
+        320,
+        320,
+        320,
+        320,
+        320
+      ],
+      "allocation_seed" : 15593531915636391484,
+      "consumed_micrograms" : [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "index" : 1,
+      "physical_seed" : 7072833791274903447
+    }
+  ],
+  "initial_policy_revision" : 2,
+  "last_learning_update" : {
+    "actor_gradient_norm" : 0.1271413192152977,
+    "approximate_kl" : 8.8172499090433121e-05,
+    "behavior_policy_fingerprint" : 16319261107557116251,
+    "clip_fraction" : 0,
+    "critic_gradient_norm" : 0.019958250224590302,
+    "deployment_policy_pack" : "\/private\/tmp\/crow-action-holds-git-recovery-20261107\/replay\/deployment.policypack",
+    "done_count" : 0,
+    "entropy" : 1.0828804969787598,
+    "generating_logp_max_abs" : 9.5367431640625e-06,
+    "generating_state_max_abs" : 6.7055225372314453e-08,
+    "generating_value_max_abs" : 1.1175870895385742e-07,
+    "gradient_norm" : 0.12870244681835175,
+    "impact_sequence_metrics" : [
+
+    ],
+    "kl_divergence" : 9.255274198949337e-05,
+    "learner_state" : "\/private\/tmp\/crow-action-holds-git-recovery-20261107\/replay\/learner.safetensors",
+    "learning_rate" : 9.9999997473787516e-05,
+    "loss" : -0.0009497324645053595,
+    "maximum_reward" : 0,
+    "mean_action_standard_deviation" : 0.67034554481506348,
+    "mean_contact_reward" : 0,
+    "mean_dodge_cbf_buffer_reward" : 0,
+    "mean_dodge_cbf_correction_reward" : 0,
+    "mean_dodge_evasion_reward" : 0,
+    "mean_dodge_link_clearance_reward" : 0,
+    "mean_dodge_miss_reward" : 0,
+    "mean_dodge_predicted_clearance_reward" : 0,
+    "mean_dodge_safe_action_rate_reward" : 0,
+    "mean_dodge_safe_stillness_reward" : 0,
+    "mean_reward" : 0,
+    "mean_root_height" : 0,
+    "mean_task_reward" : 0,
+    "mean_tilt" : 0,
+    "mean_tracking_score" : 0,
+    "minibatch_updates" : 2,
+    "minimum_reward" : 0,
+    "mlx_active_memory_bytes" : 2247073,
+    "mlx_cache_memory_bytes" : 0,
+    "mlx_cache_released_bytes" : 217019483,
+    "mlx_peak_memory_bytes" : 200574588,
+    "outcomes" : {
+      "accepted_intake_utility" : {
+        "direction" : 1,
+        "mean" : 0,
+        "unit" : "utility"
+      },
+      "done" : {
+        "direction" : 2,
+        "mean" : 0,
+        "unit" : "bool"
+      },
+      "physics_error" : {
+        "direction" : 2,
+        "mean" : 0,
+        "unit" : "bool"
+      },
+      "policy_action_selection_mask" : {
+        "direction" : 0,
+        "mean" : 6656,
+        "unit" : "action-mask"
+      },
+      "reward" : {
+        "direction" : 1,
+        "mean" : 0,
+        "unit" : "reward"
+      },
+      "task_reward" : {
+        "direction" : 1,
+        "mean" : 0,
+        "unit" : "reward"
+      },
+      "timeout" : {
+        "direction" : 0,
+        "mean" : 0,
+        "unit" : "bool"
+      }
+    },
+    "policy_loss" : -0.0005794493481516838,
+    "policy_pack" : "\/private\/tmp\/crow-action-holds-git-recovery-20261107\/replay\/updated.policypack",
+    "policy_revision" : 3,
+    "policy_revision_after" : 3,
+    "policy_revision_before" : 2,
+    "real_samples_per_epoch" : 2560,
+    "recovery_phase_rates_by_difficulty_band" : {
+      "0" : {
+        "brace" : 0,
+        "foot_support" : 0,
+        "mean_root_height" : 0,
+        "mean_tilt" : 0,
+        "quiet_stand" : 0,
+        "restored" : 0,
+        "rise" : 0,
+        "standing" : 0,
+        "support_transfer" : 0,
+        "transition_count" : 2560,
+        "trunk_clear" : 0
+      }
+    },
+    "reward_standard_deviation" : 0,
+    "samples" : 2560,
+    "selected_action_factors" : 136,
+    "selected_decision_samples" : 128,
+    "sequence_length" : 320,
+    "sequence_windows" : 8,
+    "status" : "updated",
+    "task_fingerprint" : 5956812310130690314,
+    "termination_reason_counts" : {
+
+    },
+    "timeout_count" : 0,
+    "update_seconds" : 0.18277687497902662,
+    "value_loss" : 0.0007125974225345999
+  },
+  "learner" : "mlx",
+  "learner_execution_identity" : "eb407d01d3257eb8afe64d870b523168e6e6ac7d07a87d60f2b973272db86229",
+  "learner_state" : "\/private\/tmp\/crow-action-holds-git-recovery-20261107\/replay\/learner.safetensors",
+  "learner_state_restored" : true,
+  "learning_update_history" : [
+    {
+      "done_count" : 0,
+      "learning_rate" : 9.9999997473787516e-05,
+      "maximum_reward" : 0,
+      "mean_action_standard_deviation" : 0.67034554481506348,
+      "mean_reward" : 0,
+      "minimum_reward" : 0,
+      "mlx_peak_memory_bytes" : 200574588,
+      "outcomes" : {
+        "accepted_intake_utility" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "utility"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "policy_action_selection_mask" : {
+          "direction" : 0,
+          "mean" : 6656,
+          "unit" : "action-mask"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "reward"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        }
+      },
+      "policy_revision_after" : 3,
+      "policy_revision_before" : 2,
+      "samples" : 2560,
+      "timeout_count" : 0
+    }
+  ],
+  "life_checkpoint_count" : 1,
+  "life_checkpoint_enabled" : true,
+  "life_checkpoint_seconds" : 0.0139705,
+  "life_state_restored" : true,
+  "lifetime_updates_completed" : 2,
+  "maximum_active_contacts" : 9,
+  "maximum_episode_steps" : 100000,
+  "maximum_manifolds" : 3,
+  "minibatch_size" : 2560,
+  "minibatches_per_epoch" : 1,
+  "motion_minibatch_size" : 0,
+  "native_submission_count" : 40,
+  "navigation_return_weighted_self_imitation" : false,
+  "navigation_self_imitation_minimum_waypoint" : 5,
+  "operation" : "swift_native_policy_training",
+  "physics" : "metal",
+  "policy_pack" : "\/private\/tmp\/crow-action-holds-git-recovery-20261107\/replay\/updated.policypack",
+  "resumed_exploration_overridden" : false,
+  "resumed_learning_rate_overridden" : false,
+  "retained_buffer_bytes" : 8100258,
+  "retention_maximum_difficulty_band" : -1,
+  "retention_policy_pack" : "",
+  "retention_protected_actor_only" : false,
+  "retention_rollout_teacher_blend" : 0,
+  "rollout_pack" : "\/private\/tmp\/crow-action-holds-git-recovery-20261107\/replay\/training.rolloutpack",
+  "samples_per_update" : 2560,
+  "scheduler" : "swift",
+  "stage_high_water" : {
+    "articulation_point_queries" : 0,
+    "candidate_pairs" : 3,
+    "ccd_candidates" : 0,
+    "ccd_events" : 0,
+    "constraint_blocks" : 9,
+    "constraint_rows" : 27,
+    "dynamic_nodes" : 0,
+    "endpoint_runtime_records" : 0,
+    "hard_convex_pairs" : 0,
+    "island_constraint_references" : 0,
+    "island_node_references" : 0,
+    "islands" : 1,
+    "manifolds" : 3,
+    "mesh_triangle_candidates" : 0,
+    "operator_velocity_elements" : 0,
+    "quality_direct_tiles" : 0,
+    "quality_generalized_velocities" : 0,
+    "quality_krylov_vectors" : 0,
+    "quality_rows" : 0,
+    "raw_contacts" : 9,
+    "rod_candidate_pairs" : 0,
+    "rod_ccd_events" : 0,
+    "rod_factor_blocks" : 0,
+    "rod_manifolds" : 0,
+    "rod_raw_contacts" : 0,
+    "solver_tiles" : 1,
+    "spill_rows" : 0
+  },
+  "steps_per_update" : 320,
+  "submission_milliseconds" : 3028.2069129999991,
+  "training_samples" : 2560,
+  "transient_private_bytes" : 4763516,
+  "updates" : 1,
+  "visual_observation" : true,
+  "visual_observation_config" : "\/private\/tmp\/crow-action-holds-git-recovery-20261107\/project\/environments\/american-crow\/action-holds-v1\/retinal-observation.json",
+  "visual_scene_fingerprint" : 11005751766704883833,
+  "world_source" : "american_crow_retinal_feeding_v13"
+}
