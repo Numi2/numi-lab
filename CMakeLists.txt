@@ -6557,6 +6557,8 @@ install(
         metalrobo_environment_cook
         metalrobo_robot_catalog
         metalrobo_neuron_culture_probe
+        metalrobo_numi_window_catalog_compile
+        metalrobo_booster_k1_compile
         NumiNeuronLab
 )
 if(METALROBO_HAS_SWIFT)
@@ -6564,6 +6566,7 @@ if(METALROBO_HAS_SWIFT)
         TARGETS
             metalrobo_task_rollout
             metalrobo_task_train
+            metalrobo_numi_window_check
     )
 endif()
 install(PROGRAMS tools/numi DESTINATION bin)
@@ -6583,6 +6586,7 @@ install(
         numi/commands/science
         numi/commands/wet-lab
         numi/commands/view
+        .numi/commands/window
     DESTINATION libexec/numi
 )
 install(

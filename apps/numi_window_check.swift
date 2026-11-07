@@ -222,6 +222,16 @@ private enum NumiWindowCheck {
                     "window build override was not passed to training")
         try require(trainingEnvironment["PATH"] == tools.path + ":/usr/bin",
                     "workspace dispatcher was not added to training PATH")
+        let installedRoot = root.appendingPathComponent("installed", isDirectory: true)
+        let installedBin = installedRoot.appendingPathComponent("bin", isDirectory: true)
+        try manager.createDirectory(at: installedBin, withIntermediateDirectories: true)
+        let installedDispatcher = installedBin.appendingPathComponent("numi")
+        try Data("#!/bin/sh\n".utf8).write(to: installedDispatcher)
+        try manager.setAttributes([.posixPermissions: 0o755], ofItemAtPath: installedDispatcher.path)
+        let installedEnvironment = numiWindowTrainingEnvironment(
+            ["NUMI_LAB_ROOT": installedRoot.path, "PATH": "/usr/bin"], workspace: root)
+        try require(installedEnvironment["PATH"] == installedBin.path + ":/usr/bin",
+                    "installed dispatcher was not added to training PATH")
         let defaultEnvironment = numiWindowTrainingEnvironment([:], workspace: root)
         try require(defaultEnvironment["NUMI_BUILD_DIR"] ==
                     root.appendingPathComponent(".numi/window-build").path,

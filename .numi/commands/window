@@ -106,6 +106,10 @@ window_option_value() {
 
 window_workspace=${NUMI_WORKSPACE_ROOT:?Run this capability through numi.}
 window_build=${NUMI_WINDOW_BUILD_DIR:-"$window_workspace/.numi/window-build"}
+window_installed=0
+if [ -n "${NUMI_LAB_ROOT:-}" ] && [ ! -f "$NUMI_LAB_ROOT/CMakeLists.txt" ]; then
+    window_installed=1
+fi
 window_scene=${NUMI_WINDOW_SCENE:-}
 window_policy=${NUMI_WINDOW_POLICY:-}
 export NUMI_WINDOW_POLICY_CATALOG=${NUMI_WINDOW_POLICY_CATALOG:-"$window_workspace/.numi/policies"}
@@ -121,7 +125,7 @@ fi
 # An explicit visual scene is independently authored and does not need the
 # optional external meshes used by the built-in robot catalog.
 window_needs_builtins=1
-if [ -n "$window_scene" ] ||
+if [ "${1:-}" = "add" ] || [ -n "$window_scene" ] ||
    window_has_option --window-scene "$@" ||
    window_has_option --inspect-scene "$@" ||
    window_has_option --visual-observation-config "$@"; then
@@ -151,12 +155,20 @@ if [ "$window_needs_builtins" -eq 1 ] &&
         printf '%s\n' "numi window: supply these source assets or use --window-scene PATH for an authored scene." >&2
         exit 1
     fi
-    cmake -S "$window_workspace" -B "$window_build" \
-        -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
-    cmake --build "$window_build" \
-        --target metalrobo_numi_window_catalog_compile -j 4
-    "$window_build/bin/metalrobo_numi_window_catalog_compile" \
-        --workspace "$window_workspace" --output "$window_builtin_catalog"
+    if [ "$window_installed" -eq 1 ]; then
+        window_catalog_compiler="$NUMI_LAB_ROOT/bin/metalrobo_numi_window_catalog_compile"
+    else
+        cmake -S "$window_workspace" -B "$window_build" \
+            -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
+        cmake --build "$window_build" \
+            --target metalrobo_numi_window_catalog_compile -j 4
+        window_catalog_compiler="$window_build/bin/metalrobo_numi_window_catalog_compile"
+    fi
+    [ -x "$window_catalog_compiler" ] || {
+        printf '%s\n' "numi window: catalog compiler is missing: $window_catalog_compiler" >&2
+        exit 1
+    }
+    "$window_catalog_compiler" --workspace "$window_workspace" --output "$window_builtin_catalog"
 fi
 
 if [ "${1:-}" = "add" ]; then
@@ -179,11 +191,19 @@ if [ "${1:-}" = "add" ]; then
         printf '%s\n' "numi window: add booster-k1 requires --source" >&2
         exit 2
     }
-    cmake -S "$window_workspace" -B "$window_build" \
-        -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
-    cmake --build "$window_build" --target metalrobo_booster_k1_compile -j 4
-    exec "$window_build/bin/metalrobo_booster_k1_compile" \
-        --source "$window_add_source" --output "$window_add_output"
+    if [ "$window_installed" -eq 1 ]; then
+        window_booster_compiler="$NUMI_LAB_ROOT/bin/metalrobo_booster_k1_compile"
+    else
+        cmake -S "$window_workspace" -B "$window_build" \
+            -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
+        cmake --build "$window_build" --target metalrobo_booster_k1_compile -j 4
+        window_booster_compiler="$window_build/bin/metalrobo_booster_k1_compile"
+    fi
+    [ -x "$window_booster_compiler" ] || {
+        printf '%s\n' "numi window: Booster compiler is missing: $window_booster_compiler" >&2
+        exit 1
+    }
+    exec "$window_booster_compiler" --source "$window_add_source" --output "$window_add_output"
 fi
 
 if [ -z "$window_scene" ] && [ "$window_catalog_default" -eq 0 ]; then
@@ -243,21 +263,33 @@ if [ -n "$window_policy" ] && [ ! -f "$window_policy" ]; then
     exit 2
 fi
 
-cmake -S "$window_workspace" -B "$window_build" \
-    -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
-if [ "$window_runtime_check" -eq 1 ]; then
-    cmake --build "$window_build" --target \
-        metalrobo_task_rollout metalrobo_task_train \
-        metalrobo_numi_window_check -j 4
-    "$window_build/bin/metalrobo_numi_window_check"
-    export NUMI_WINDOW_RUNTIME_CHECK=1
+if [ "$window_installed" -eq 1 ]; then
+    window_rollout="$NUMI_LAB_ROOT/bin/metalrobo_task_rollout"
+    window_metallib="$NUMI_LAB_ROOT/lib/metalrobo/MetalRobo.metallib"
+    window_contract_check="$NUMI_LAB_ROOT/bin/metalrobo_numi_window_check"
 else
-    cmake --build "$window_build" \
-        --target metalrobo_task_rollout metalrobo_task_train -j 4
+    cmake -S "$window_workspace" -B "$window_build" \
+        -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
+    if [ "$window_runtime_check" -eq 1 ]; then
+        cmake --build "$window_build" --target \
+            metalrobo_task_rollout metalrobo_task_train \
+            metalrobo_numi_window_check -j 4
+    else
+        cmake --build "$window_build" \
+            --target metalrobo_task_rollout metalrobo_task_train -j 4
+    fi
+    window_rollout="$window_build/bin/metalrobo_task_rollout"
+    window_metallib="$window_build/shaders/MetalRobo.metallib"
+    window_contract_check="$window_build/bin/metalrobo_numi_window_check"
 fi
-
-window_rollout=$window_build/bin/metalrobo_task_rollout
-window_metallib=$window_build/shaders/MetalRobo.metallib
+if [ "$window_runtime_check" -eq 1 ]; then
+    [ -x "$window_contract_check" ] || {
+        printf '%s\n' "numi window: contract check is missing: $window_contract_check" >&2
+        exit 1
+    }
+    "$window_contract_check"
+    export NUMI_WINDOW_RUNTIME_CHECK=1
+fi
 [ -x "$window_rollout" ] && [ -f "$window_metallib" ] || {
     printf '%s\n' "numi window: native window build is incomplete." >&2
     exit 1
