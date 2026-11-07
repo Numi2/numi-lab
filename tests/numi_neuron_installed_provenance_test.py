@@ -47,6 +47,17 @@ printf 'revision=%s\\nshader=%s\\n' "${NUMI_NEURON_METALROBO_REVISION-unset}" "$
         expected = self.shader(self.runtime / 'lib/metalrobo/NumiNeuron.metallib', b'installed')
         self.assertEqual(self.call(), {'revision': 'revision-from-package', 'shader': expected})
 
+    def test_installed_revision_wins_inside_git_tree(self):
+        subprocess.run(['git', 'init', '-q', str(self.base)], check=True)
+        subprocess.run(['git', '-C', str(self.base), '-c', 'user.name=Test',
+                        '-c', 'user.email=test@example.invalid', 'commit', '--allow-empty',
+                        '-qm', 'unrelated ancestor'], check=True)
+        meta = self.runtime / 'share/numi/REVISION'
+        meta.parent.mkdir(parents=True)
+        meta.write_text('installed-revision\n')
+        result = self.call()
+        self.assertEqual(result['revision'], 'installed-revision')
+
     def test_source_tree_fallback(self):
         subprocess.run(['git', 'init', '-q', str(self.runtime)], check=True)
         subprocess.run(['git', '-C', str(self.runtime), '-c', 'user.name=Test',

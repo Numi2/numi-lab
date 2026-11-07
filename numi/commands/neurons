@@ -130,11 +130,13 @@ if [ "$neurons_command" = "protocol" ] || [ "$neurons_command" = "qualify" ]; th
         done
         return 1
     }
-    neurons_revision=$(neurons_git_revision "$neurons_runtime_root" || true)
-    if [ -z "$neurons_revision" ] &&
-       [ "$neurons_probe" = "$neurons_runtime_root/bin/metalrobo_neuron_culture_probe" ] &&
-       [ -r "$neurons_runtime_root/share/numi/REVISION" ]; then
-        neurons_revision=$(sed -n '1p' "$neurons_runtime_root/share/numi/REVISION")
+    neurons_revision=
+    if [ -r "$neurons_runtime_root/share/numi/REVISION" ]; then
+        if [ "$neurons_probe" = "$neurons_runtime_root/bin/metalrobo_neuron_culture_probe" ]; then
+            neurons_revision=$(sed -n '1p' "$neurons_runtime_root/share/numi/REVISION")
+        fi
+    else
+        neurons_revision=$(neurons_git_revision "$neurons_runtime_root" || true)
     fi
     : "${NUMI_NEURON_METALROBO_REVISION:=$neurons_revision}"
     neurons_brain_root=${NUMI_BRAIN_ROOT:-$(neurons_find_repo "$HOME/numi-brain" "$HOME/numi-brain-neuron-v1" || true)}
