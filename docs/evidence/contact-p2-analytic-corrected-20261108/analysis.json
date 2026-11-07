@@ -1,0 +1,60 @@
+{
+  "meshes": [
+    {
+      "n": 2,
+      "p1_volume_error": 0.18960171403730205,
+      "p2_volume_error": 0.003962692471865574,
+      "p1_force_error": 0.08112277146675982,
+      "p2_force_error": 0.0017705696867648785,
+      "p1_surface_energy_error": 0.14242738175126854,
+      "p2_surface_energy_error": 0.004490338577979367,
+      "p2_better_volume": true,
+      "p2_better_force": true,
+      "p1_fixed_state_force_pass": false,
+      "p2_fixed_state_force_pass": true
+    },
+    {
+      "n": 4,
+      "p1_volume_error": 0.050380775328932544,
+      "p2_volume_error": 0.0002598231328096496,
+      "p1_force_error": 0.022293758984562408,
+      "p2_force_error": 0.00013432310181167077,
+      "p1_surface_energy_error": 0.041469559555508365,
+      "p2_surface_energy_error": 0.00036346775322483593,
+      "p2_better_volume": true,
+      "p2_better_force": true,
+      "p1_fixed_state_force_pass": false,
+      "p2_fixed_state_force_pass": true
+    },
+    {
+      "n": 8,
+      "p1_volume_error": 0.012790970188258512,
+      "p2_volume_error": 1.6405772740615995e-05,
+      "p1_force_error": 0.0057366478871467,
+      "p2_force_error": 8.820369160337546e-06,
+      "p1_surface_energy_error": 0.010845668429067385,
+      "p2_surface_energy_error": 2.403742748132529e-05,
+      "p2_better_volume": true,
+      "p2_better_force": true,
+      "p1_fixed_state_force_pass": false,
+      "p2_fixed_state_force_pass": true
+    },
+    {
+      "n": 16,
+      "p1_volume_error": 0.003210105926119447,
+      "p2_volume_error": 1.0279844772355491e-06,
+      "p1_force_error": 0.0014450504658083015,
+      "p2_force_error": 5.581387948759799e-07,
+      "p1_surface_energy_error": 0.0027433918846499843,
+      "p2_surface_energy_error": 1.5234582588927455e-06,
+      "p2_better_volume": true,
+      "p2_better_force": true,
+      "p1_fixed_state_force_pass": true,
+      "p2_fixed_state_force_pass": true
+    }
+  ],
+  "diagnostic_force_threshold": 0.0025,
+  "impact_force_gate": 0.0025,
+  "impact_impulse_gate": 0.0025,
+  "prediction_pass": true
+}

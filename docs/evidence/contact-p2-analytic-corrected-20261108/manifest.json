@@ -1,0 +1,65 @@
+{
+  "prediction_commit": "c0faa109de3d3e4a6f677610f270dde73ac2705d",
+  "source_sha256": "418665671eee78891cea8004866a3d245d3c68f7b8a08cbacb1f5e59b38b3a27",
+  "python": "/private/tmp/numi-fem-py313b-20261107/bin/python",
+  "timeout_seconds": 180,
+  "packages": [
+    "numpy==2.3.4",
+    "scikit-fem==11.0.0",
+    "scipy==1.16.3"
+  ],
+  "runs": [
+    {
+      "n": 2,
+      "argv": [
+        "/usr/bin/time",
+        "-l",
+        "/private/tmp/numi-fem-py313b-20261107/bin/python",
+        "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_p2_analytic_diagnostic.py",
+        "2"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.20725274999858811,
+      "output_sha256": "3fd7990f47e3b4be95c5325e67bdb60fbc9a11bfe52426cef8a5d3ee5c14ff8b"
+    },
+    {
+      "n": 4,
+      "argv": [
+        "/usr/bin/time",
+        "-l",
+        "/private/tmp/numi-fem-py313b-20261107/bin/python",
+        "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_p2_analytic_diagnostic.py",
+        "4"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.20986016700044274,
+      "output_sha256": "67c2441b9e68d59a88e6c1eb89b3fe71d9cdd0daa074ef59761cc7e3f1a07895"
+    },
+    {
+      "n": 8,
+      "argv": [
+        "/usr/bin/time",
+        "-l",
+        "/private/tmp/numi-fem-py313b-20261107/bin/python",
+        "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_p2_analytic_diagnostic.py",
+        "8"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.2698077500099316,
+      "output_sha256": "13de640b929c4d5e19140947c6c169009958317988a69f32a8c72a73c60daf23"
+    },
+    {
+      "n": 16,
+      "argv": [
+        "/usr/bin/time",
+        "-l",
+        "/private/tmp/numi-fem-py313b-20261107/bin/python",
+        "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_p2_analytic_diagnostic.py",
+        "16"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.5100624170154333,
+      "output_sha256": "abde5a758d4ac595d5c44be4a097ff17eb6321b521ee40e3bd32bdfec87f735b"
+    }
+  ]
+}

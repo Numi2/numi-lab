@@ -38,3 +38,33 @@ The first n=2 attempt stopped at output serialization because the element
 count was a NumPy int32. No numerical result was emitted. Its traceback is
 retained in the first-run evidence. The separately recorded corrected
 attempt changes only JSON type conversion.
+
+## Result
+
+All four corrected runs completed. The independent reference Gauss-Legendre
+orders agreed to 1.22e-15 relative, all sampled determinants and contact gaps
+were positive, and P2 had lower bulk-energy and surface-force error than P1
+at n>=4, as predicted.
+
+| Mesh | P1 volume-energy error | P2 volume-energy error | P1 plane-force error | P2 plane-force error |
+| ---: | ---: | ---: | ---: | ---: |
+| 2 | 18.960% | 0.3963% | 8.112% | 0.1771% |
+| 4 | 5.038% | 0.02598% | 2.229% | 0.01343% |
+| 8 | 1.279% | 0.001641% | 0.5737% | 0.0008820% |
+| 16 | 0.3210% | 0.0001028% | 0.1445% | 0.00005581% |
+
+Each error is absolute difference divided by the independently integrated
+continuum reference for the **separate** manufactured field. P2 fixed-state
+force error meets 0.25% at these mesh sizes and P1 meets it at n=16. This is
+not a dynamic 1 ms bin or impulse qualification. The surface law here is
+integrated with order-8 face quadrature, not the existing nodal P1 discrete
+rule; both represent the same continuum energy but their finite-mesh
+responses need not agree.
+
+This study shows that a P2 spatial discretization can substantially reduce
+bulk and surface approximation errors for these smooth fields. It does not
+identify the actual n=16→32 impact discrepancy or prove that P2 dynamics,
+nonpenetration, contact work, replay or force are qualified. The
+[first failure](evidence/contact-p2-analytic-20261108/) and
+[corrected full results](evidence/contact-p2-analytic-corrected-20261108/)
+are both retained.
