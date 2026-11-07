@@ -109,3 +109,48 @@ No full-state or NumanX transaction restoration is established by these controls
 The probe output text was subsequently corrected to label the standalone mode
 as an adapter control. Source and binary identities above identify the exact
 versions actually run, not the subsequently edited source.
+
+## Real NumanX owner preparation
+
+The separate real-owner probe extends the retained 160-DoF owner fixture (155
+articulated bodies, plus a preceding world body) with a synthetic two-donor
+binding. It uses the existing owner force-reject proof/apply path. Its initial
+binary `cd71724b16011ec12620f3817edc58e9850a55b1b69aed0319e0eec1e068eddc`
+stopped before device work because the inherited material path did not exist.
+The corrected material path had SHA-256
+`d3094476cefa1a28ca8b5f35b28e2586d5a44ce63f268e57e96812de32de4a5f`,
+and the corrected binary
+`5b74fa2e4a199f779a0c57a3917f693d58a2ea11aa139952e0d4017e8779eb3e`
+stopped before device work with `costal cook failed: costal source kinematics
+failed`. Both were linked against `libmetalrobo.dylib` SHA-256
+`552ef872612e8f38f2f6e190dde8487aad137e47b9e4ca3aecef8d8303473a31`,
+MetalRobo metallib SHA-256
+`66c6947d3db340c98526b9ac03a9c27cddee6b5b6f0ae53be3a5939af10fe0bf`,
+and the Matter metallib above. The two failures did not exercise the owner.
+
+The kinematics failure exposed a real world-index issue: the costal compiler
+and v5 admission previously passed the entire world body array as output to a
+query requiring exactly the articulation body count. The corrected paths pass
+a slice beginning at `firstBody`, retain global indices in the backing array,
+and reject donor or attachment bodies outside the articulation. The CPU
+regression passes with an actual leading world body, retains attachment indices
+1 and 2, and rejects an outside-world donor, an out-of-range attachment and
+an invalid articulation range. It does not execute v5 runtime admission.
+
+The corrected real-owner probe passed the existing force-reject lifecycle on
+Apple M6, with two cooked donor partitions and two Human attachment records,
+inside the 155-body, 160-DoF synthetic articulated chain. It retained the real
+MetalArticulatedOperator, NumanX owner, Matter proof and force-reject apply;
+the existing equality check reports restoration of accepted Matter authority
+and rejection of HumanIO publication. The probe source SHA-256 was
+`09b5b161d44dd0b1ed972f3f734beadeb1881813150d0f84db329574c388a68f`,
+the compiler source was
+`57a750186bd10b6a68bb8c50581e6cf266ad339e131808d8d4773d52ac1bdbfc`,
+and the executable was
+`e88de5ea7cc39e8d32a9afb02e053462e5241b8286006a0aa9600133aaa4b4d0`.
+It used the retained dynamic library and both metallibs identified above, plus
+the directly linked guarded adapter and current ownership compiler. This is a
+force-reject result only: it does not establish an accepted loaded step, full
+NumanX v5 construction, replay of a committed step, a two-body owner or
+anatomical validity. The v5 indexing change compiled in a syntax-only check but
+was not linked into this probe.

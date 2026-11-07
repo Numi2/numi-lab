@@ -7409,3 +7409,13 @@ add_executable(numi_human_costal_ownership_native tests/human/costal_ownership_n
 target_link_libraries(numi_human_costal_ownership_native PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
 add_dependencies(numi_human_costal_ownership_native numi_matter_shaders)
 target_compile_options(numi_human_costal_ownership_native PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+
+# Real 160-DoF synthetic owner path; explicit native research probe.
+add_executable(numi_human_costal_real_owner_probe apps/numanx_human_costal_owner_probe.mm)
+target_link_libraries(numi_human_costal_real_owner_probe PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+add_dependencies(numi_human_costal_real_owner_probe metalrobo_shaders numi_matter_shaders)
+target_compile_definitions(numi_human_costal_real_owner_probe PRIVATE
+    NUMI_MATTER_MATERIAL="${CMAKE_CURRENT_SOURCE_DIR}/docs/evidence/contact-al-20261107/silicone.nmatter"
+    NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib"
+    NUMANX_ADAPTER_METALLIB="${METALROBO_METALLIB}")
+target_compile_options(numi_human_costal_real_owner_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
