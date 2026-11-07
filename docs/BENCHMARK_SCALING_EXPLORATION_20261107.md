@@ -41,3 +41,15 @@ xcrun could not find xctrace and /Applications did not contain Xcode.
 Consequently these observations do not identify occupancy, bandwidth, kernel
 bottlenecks or execution limiters. Those require an appropriate Metal profiling
 setup before making a targeted GPU optimization claim.
+
+## Post-run host-contention finding
+
+After the study, process start times showed two background Git index-pack
+processes had been running throughout the ten trials. The GPU trials did not
+overlap another scheduled GPU experiment, but CPU and disk activity were not
+isolated. Their potential effect on command submission and wall time was not
+measured. The sealed exploratory analysis and revision are retained unchanged;
+their supported prediction is therefore limited to the observed, potentially
+contended conditions and is not a clean-host latency or throughput result.
+A separate Release study was preregistered before its trials; it must record
+the actual host load and cannot silently relabel this study.
