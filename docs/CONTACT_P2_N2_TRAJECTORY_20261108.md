@@ -33,3 +33,8 @@ they pass. The n=2 trajectory is not spatially qualified; a separate
 preregistered n=4 and finer comparison is required before any spatial
 reference or impact-force conclusion. Run coarse then fine with 240/480-second
 process-group timeouts, single-thread BLAS, and no GPU. Retain failures.
+
+The first coarse invocation completed integration but failed at JSON
+serialization because the DOF count was a NumPy int32; it emitted no trace.
+Its exception and process information are retained, and the fine run did
+not start. A separately recorded attempt corrects the output type only.
