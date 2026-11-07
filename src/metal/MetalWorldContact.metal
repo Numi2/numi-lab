@@ -8228,7 +8228,7 @@ inline void mrWorldWave32SolvePacket(
     device MRBodyStateGPU* candidateBodies,
     device MRContactConstraintGPU* contacts,
     device const MRContactPointMetaGPU* contactMetadata,
-    device const MREvaluatedConstraintIRRowGPU* evaluatedRows,
+    device MREvaluatedConstraintIRRowGPU* evaluatedRows,
     device const MREvaluatedConstraintIRConeGPU* evaluatedCones,
     device float* responseColumns,
     device MRManifoldPointGPU* candidateManifoldPoints,
@@ -8743,6 +8743,33 @@ inline void mrWorldWave32SolvePacket(
         return;
     }
 
+
+    // TEST-ONLY: signed impulse injection, not a valid contact solve.
+    if ((work.flags & MR_ISLAND_WORK_HAS_ROD) != 0u && localLane == 0u) {
+        constexpr uint sourceOrdinal=1u; // TEST_SOURCE
+        constexpr uint sourceAxis=2u; // TEST_AXIS
+        constexpr float epsilon=1.0e-5f; // TEST_EPSILON
+        uint ordinal=0u;
+        for (uint ti=0u;ti<work.tileCount;++ti) {
+            MRContactTileGPU tile=tiles[tileBase+work.firstTile+ti];
+            for (uint j=0u;j<tile.constraintCount;++j,++ordinal) {
+                uint c=tileConstraintIndices[constraintBase+tile.partialOffset+j];
+                device MRContactConstraintGPU& contact=contacts[constraintBase+c];
+                float3 rel=typedRelativePointVelocity(c,contact,bodies,dispatch.articulationIndex,
+                    pointJacobians,pointJacobianBase,dispatch.nv,articulationVelocity,rodNodes,rodEdges,
+                    rodColliders,rodWitnesses,constraintWitnessIndices,constraintBase);
+                for(uint a=0u;a<3u;++a) {
+                    device MREvaluatedConstraintIRRowGPU& row=evaluatedRows[rowBase+3u*c+a];
+                    row.reserved0=dot(row.direction.xyz,rel);
+                }
+                float3 perturb=float3(0.f);
+                if(ordinal==sourceOrdinal) perturb[sourceAxis]=epsilon;
+                contact.impulses.xyz=perturb;
+                impulseDeltas[constraintBase+c]=float4(perturb,0.f);
+            }
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_device);
     // Apply every warm-start impulse exactly once. Articulation DoFs and free
     // bodies have unique lane owners, eliminating conflicting atomic writes.
     if ((work.flags & MR_ISLAND_WORK_HAS_ARTICULATION) != 0u) {
@@ -8930,11 +8957,27 @@ inline void mrWorldWave32SolvePacket(
     }
     threadgroup_barrier(mem_flags::mem_device);
 
-    const uint solverIterations =
-        dispatch.velocityIterations +
-        (pass.reserved0 != 0u
-             ? dispatch.finalVelocityIterations
-             : 0u);
+
+    if ((work.flags & MR_ISLAND_WORK_HAS_ROD) != 0u && localLane == 0u) {
+        for (uint ti=0u;ti<work.tileCount;++ti) {
+            MRContactTileGPU tile=tiles[tileBase+work.firstTile+ti];
+            for (uint j=0u;j<tile.constraintCount;++j) {
+                uint c=tileConstraintIndices[constraintBase+tile.partialOffset+j];
+                device MRContactConstraintGPU& contact=contacts[constraintBase+c];
+                float3 rel=typedRelativePointVelocity(c,contact,bodies,dispatch.articulationIndex,
+                    pointJacobians,pointJacobianBase,dispatch.nv,articulationVelocity,rodNodes,rodEdges,
+                    rodColliders,rodWitnesses,constraintWitnessIndices,constraintBase);
+                for(uint a=0u;a<3u;++a) {
+                    device MREvaluatedConstraintIRRowGPU& row=evaluatedRows[rowBase+3u*c+a];
+                    row.reserved1=dot(row.direction.xyz,rel);
+                    row.reserved2=dispatch.rodEdgeCount > a ?
+                        rodEdges[a].twistAndRate.y : 0.f;
+                }
+            }
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_device);
+    const uint solverIterations = 0u; // TEST-ONLY: isolate injected action
     for (uint iteration = 0u;
          iteration < solverIterations;
          ++iteration) {
@@ -9687,7 +9730,7 @@ kernel void mr_world_wave32_solve(
     device MRBodyStateGPU* candidateBodies [[buffer(4)]],
     device MRContactConstraintGPU* contacts [[buffer(5)]],
     device const MRContactPointMetaGPU* contactMetadata [[buffer(6)]],
-    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(7)]],
+    device MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(7)]],
     device const MREvaluatedConstraintIRConeGPU* evaluatedCones [[buffer(8)]],
     device float* responseColumns [[buffer(9)]],
     device MRManifoldPointGPU* candidateManifoldPoints [[buffer(10)]],
@@ -9771,7 +9814,7 @@ kernel void mr_world_wave32_solve_persistent(
     device MRBodyStateGPU* candidateBodies [[buffer(4)]],
     device MRContactConstraintGPU* contacts [[buffer(5)]],
     device const MRContactPointMetaGPU* contactMetadata [[buffer(6)]],
-    device const MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(7)]],
+    device MREvaluatedConstraintIRRowGPU* evaluatedRows [[buffer(7)]],
     device const MREvaluatedConstraintIRConeGPU* evaluatedCones [[buffer(8)]],
     device float* responseColumns [[buffer(9)]],
     device MRManifoldPointGPU* candidateManifoldPoints [[buffer(10)]],
