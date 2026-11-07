@@ -45,3 +45,8 @@ if(BUILD_TESTING)
   "$<TARGET_FILE:metalrobo_ccd_distributed_probe>" "${METALROBO_METALLIB}")
  set_tests_properties(metalrobo.ccd.distributed_response PROPERTIES TIMEOUT 180)
 endif()
+
+if(BUILD_TESTING)
+ add_test(NAME metalrobo.ccd.coupling_reference
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/test_coupling_reference.py")
+endif()

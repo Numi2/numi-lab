@@ -54,3 +54,22 @@ certificate. An opt-in noncoincident variant with two sweeps also fails
 with a 0.342 m/s normal residual, despite aligned witnesses; this must not
 be silently reclassified as a successful owner test. Uniform damping is
 retained as a failed research candidate, not a production repair.
+
+## Coupling-aware normal-row candidate: incomplete
+
+A further candidate calculated each normal row's absolute cross-response sum
+from the actual island, using articulated response columns and scene-body
+point responses, and adjusted the simultaneous update by that local bound.
+In the seeded 257-contact one-step fixtures, the aligned and three-normal
+incoming cases completed at the default two sweeps. They produced approximately
+1.000000 and 0.030003 N s of normal impulse, respectively, with linear
+momentum errors below 1.1e-7 N s. The sliding impact gave approximately
+0.5 N s of tangential impulse and -0.875 J of kinetic-energy change.
+
+It failed a separate force-free gate: with zero incoming normal velocity and
+tangential sliding, it produced 1.6e-5 to 5.0e-5 N s of normal impulse
+over the tested sweep counts. Both owner diagnostics continued to reject;
+the noncoincident two-sweep control had a 0.358 m/s normal residual.
+Accordingly this candidate is retained as incomplete. The residual threshold,
+replay and rollback gates remain in effect; neither the 72-case suite nor the
+owner diagnostics qualify this candidate for production.

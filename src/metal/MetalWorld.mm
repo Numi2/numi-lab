@@ -13589,7 +13589,7 @@ bool encodeWave32ContactSolve(
         [encoder
             setComputePipelineState:
                 context.wave32DistributedDeltaPipeline];
-        const std::array<std::size_t, 13u> buffers{{
+        const std::array<std::size_t, 15u> buffers{{
             kContactDispatch,
             kPointJacobians,
             kCandidateV,
@@ -13603,6 +13603,8 @@ bool encodeWave32ContactSolve(
             kContactTiles,
             kTileConstraintIndices,
             kWorkQueueHeaders,
+            kIslandWorkQueue,
+            kResponseColumns,
         }};
         for (NSUInteger argument = 0u;
              argument < buffers.size();

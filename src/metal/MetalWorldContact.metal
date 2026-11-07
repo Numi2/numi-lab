@@ -6768,6 +6768,43 @@ kernel void mr_world_wave32_distributed_prepare(
 // All contacts in a distributed island evaluate their block-Jacobi cone
 // update against the same accepted island velocity. Each compact tile is
 // independent until the canonical segmented reducer applies these deltas.
+// Rigid-only cross response for a distributed island. This follows the
+// same articulated columns and scene-body point impulse operator as the
+// distributed reducer; rod islands never enter this path.
+inline float distributedRigidNormalCrossResponse(
+    uint targetConstraint, uint sourceConstraint,
+    device const MRContactConstraintGPU& target,
+    device const MRContactConstraintGPU& source,
+    float3 targetNormal, float3 sourceNormal,
+    device const MRBodyStateGPU* bodies,
+    device const float* pointJacobians, uint pointJacobianBase,
+    device const float* responseColumns, uint responseBase,
+    uint nv, uint articulationIndex
+) {
+    const bool articulatedA = bodies[target.bodyA].flagsAndIndices[1] != MR_INVALID_INDEX;
+    const bool articulatedB = bodies[target.bodyB].flagsAndIndices[1] != MR_INVALID_INDEX;
+    float result=0.0f;
+    for(uint dof=0;dof<nv;++dof) {
+        result+=dot(targetNormal,combinedJacobianColumn(
+            pointJacobians,pointJacobianBase,targetConstraint,dof,nv,articulatedA,articulatedB)) *
+            responseColumns[responseBase+(sourceConstraint*3u)*nv+dof];
+    }
+    for(uint targetSide=0;targetSide<2;++targetSide) {
+        const uint targetBody=targetSide==0?target.bodyA:target.bodyB;
+        const float targetSign=targetSide==0?-1.f:1.f;
+        device const MRBodyStateGPU& body=bodies[targetBody];
+        if(!dynamicSceneEndpoint(body,articulationIndex))continue;
+        for(uint sourceSide=0;sourceSide<2;++sourceSide) {
+            const uint sourceBody=sourceSide==0?source.bodyA:source.bodyB;
+            if(sourceBody!=targetBody)continue;
+            const float sourceSign=sourceSide==0?-1.f:1.f;
+            result+=targetSign*dot(targetNormal,sceneCrossPointResponse(
+                body,target.pointAndSeparation.xyz,source.pointAndSeparation.xyz,sourceSign*sourceNormal));
+        }
+    }
+    return result;
+}
+
 kernel void mr_world_wave32_distributed_delta(
     device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
     device const float* pointJacobians [[buffer(1)]],
@@ -6782,6 +6819,8 @@ kernel void mr_world_wave32_distributed_delta(
     device const MRContactTileGPU* compactTiles [[buffer(10)]],
     device const uint* tileConstraintIndices [[buffer(11)]],
     device const MRWorkQueueHeaderGPU* workHeaders [[buffer(12)]],
+    device const MRIslandWorkGPU* denseIslandWork [[buffer(13)]],
+    device const float* responseColumns [[buffer(14)]],
     const uint3 workGroup [[threadgroup_position_in_grid]],
     const uint3 groupCount [[threadgroups_per_grid]],
     const uint lane [[thread_index_in_simdgroup]]
@@ -6865,13 +6904,42 @@ kernel void mr_world_wave32_distributed_delta(
                        static_cast<float>(MR_STEP_NONFINITE_RESULT));
             continue;
         }
-        // A block-Jacobi update is coupled to every row in its island. A
-        // full simultaneous step can overshoot by the island contact count.
-        // Damping keeps the new impulse inside the convex cone; the final
-        // local complementarity certificate still decides acceptance.
-        const float relaxation =
-            (1.0f + kContactMatrixRegularization) /
-            float(tile.islandConstraintCount);
+        const MRIslandWorkGPU work = denseIslandWork[
+            environment * dispatch.islandCapacity + tile.islandIndex];
+        if(work.constraintCount != tile.islandConstraintCount ||
+           work.firstTile >= dispatch.solverTileCapacity) {
+            impulseDeltas[constraintBase + localConstraint] =
+                float4(0.0f,0.0f,0.0f,static_cast<float>(MR_STEP_NONFINITE_RESULT));
+            continue;
+        }
+        const MRContactTileGPU firstTile = compactTiles[
+            environment * dispatch.solverTileCapacity + work.firstTile];
+        const uint responseBase=environment*(dispatch.constraintStride*3u*dispatch.nv);
+        const float3 targetNormal=localRows[0].direction.xyz;
+        float rowSum=0.f,diagonal=0.f;
+        for(uint i=0;i<work.constraintCount;++i) {
+            const uint other=tileConstraintIndices[
+                constraintBase+firstTile.partialOffset+i];
+            device const MRContactConstraintGPU& source=contacts[constraintBase+other];
+            const float3 sourceNormal=evaluatedRows[rowBase+3u*other].direction.xyz;
+            const float cross=distributedRigidNormalCrossResponse(
+                localConstraint,other,contact,source,targetNormal,sourceNormal,
+                candidateBodies+bodyBase,pointJacobians,pointJacobianBase,responseColumns,
+                responseBase,dispatch.nv,dispatch.articulationIndex);
+            rowSum+=abs(cross);
+            if(other==localConstraint)diagonal=abs(cross)+localRows[0].regularization;
+        }
+        if(!(diagonal>0.f)||!isfinite(diagonal)||!isfinite(rowSum)) {
+            impulseDeltas[constraintBase + localConstraint] =
+                float4(0.0f,0.0f,0.0f,static_cast<float>(MR_STEP_FACTORIZATION_FAILED));
+            continue;
+        }
+        // Bound each normal row by the sum of its actual couplings. This
+        // avoids treating mutually orthogonal rows as fully coupled.
+        const float relaxation=clamp(
+            (1.f+kContactMatrixRegularization)*diagonal /
+                max(rowSum+localRows[0].regularization,kMatrixFloor),
+            1.f/float(tile.islandConstraintCount),1.f);
         const float3 delta = relaxation * (proposed - previous);
         const float3 candidate = previous + delta;
         if (!finite3(candidate) || !finite3(delta)) {
