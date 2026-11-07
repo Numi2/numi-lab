@@ -1,0 +1,175 @@
+{
+  "active_shader": {
+    "also_archived_source": ".numi/retained-runtime/life-admission-05/shaders/MetalRobo.metallib",
+    "disposition": "Retained as essential input and explicitly tracked despite the general metallib ignore rule.",
+    "path": "artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib",
+    "sha256": "bee9e69522b26d6b5d99660e665cf8ed856acd9038ea9f2bdcb87b96dd99385a"
+  },
+  "archive_commit": "d4e0cbca0660eadadbdee2281a115b08dcea288b",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 297486936 159862204    66% 3495696 1598622040    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 297486960 159862180    66% 3495708 1598621800    0%   /System/Volumes/Data\n",
+  "open_handles": 0,
+  "remote_commit": "d4e0cbca0660eadadbdee2281a115b08dcea288b",
+  "removed": [
+    {
+      "archived_source": ".numi/runs/american-crow/world-checkpoint-build-01.log",
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1325,
+            "path": "artifacts/crow-rl-git-recovery-20261107/blobs/ea89a91b1977aa6f4b55cb7317f993968a8e22f56c1ff39673e25581325cf3e8.gz",
+            "sha256": "ea89a91b1977aa6f4b55cb7317f993968a8e22f56c1ff39673e25581325cf3e8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1325,
+      "path": "artifacts/crow-rl-life-checkpoint-20261107/build-logs/world-checkpoint-build-01.log",
+      "sha256": "ea89a91b1977aa6f4b55cb7317f993968a8e22f56c1ff39673e25581325cf3e8"
+    },
+    {
+      "archived_source": ".numi/runs/american-crow/world-checkpoint-build-02.log",
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1410,
+            "path": "artifacts/crow-rl-git-recovery-20261107/blobs/b6c8c8f150da738bb448b2b3be70b52047c37b81adeae59f56e0e17f6f4efcd7.gz",
+            "sha256": "b6c8c8f150da738bb448b2b3be70b52047c37b81adeae59f56e0e17f6f4efcd7"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1410,
+      "path": "artifacts/crow-rl-life-checkpoint-20261107/build-logs/world-checkpoint-build-02.log",
+      "sha256": "b6c8c8f150da738bb448b2b3be70b52047c37b81adeae59f56e0e17f6f4efcd7"
+    },
+    {
+      "archived_source": ".numi/runs/american-crow/world-checkpoint-build-03.log",
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2007,
+            "path": "artifacts/crow-rl-git-recovery-20261107/blobs/fd80a904d3384f8fcac7fb5cb5f6e240e30cb24681e4e82bef45eb7aace4da48.gz",
+            "sha256": "fd80a904d3384f8fcac7fb5cb5f6e240e30cb24681e4e82bef45eb7aace4da48"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2007,
+      "path": "artifacts/crow-rl-life-checkpoint-20261107/build-logs/world-checkpoint-build-03.log",
+      "sha256": "fd80a904d3384f8fcac7fb5cb5f6e240e30cb24681e4e82bef45eb7aace4da48"
+    },
+    {
+      "archived_source": ".numi/runs/american-crow/world-checkpoint-build-04.log",
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1776,
+            "path": "artifacts/crow-rl-git-recovery-20261107/blobs/6c42cd685fc950c7ef4743ae7435ec36255964470404a0eea03ceeffc03fd11e.gz",
+            "sha256": "6c42cd685fc950c7ef4743ae7435ec36255964470404a0eea03ceeffc03fd11e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1776,
+      "path": "artifacts/crow-rl-life-checkpoint-20261107/build-logs/world-checkpoint-build-04.log",
+      "sha256": "6c42cd685fc950c7ef4743ae7435ec36255964470404a0eea03ceeffc03fd11e"
+    },
+    {
+      "archived_source": ".numi/runs/american-crow/world-checkpoint-build-05.log",
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 191,
+            "path": "artifacts/crow-rl-git-recovery-20261107/blobs/a91384b416bbf9330434135bffd07be5a43467eea9e646db0c03cedbf6c15a60.gz",
+            "sha256": "a91384b416bbf9330434135bffd07be5a43467eea9e646db0c03cedbf6c15a60"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 191,
+      "path": "artifacts/crow-rl-life-checkpoint-20261107/build-logs/world-checkpoint-build-05.log",
+      "sha256": "a91384b416bbf9330434135bffd07be5a43467eea9e646db0c03cedbf6c15a60"
+    },
+    {
+      "archived_source": ".numi/runs/american-crow/world-checkpoint-build-06.log",
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 441,
+            "path": "artifacts/crow-rl-git-recovery-20261107/blobs/c511138fd732ab9df756c8207ae4e2364d53ef3bfb287e616ba7369abb16dbdb.gz",
+            "sha256": "c511138fd732ab9df756c8207ae4e2364d53ef3bfb287e616ba7369abb16dbdb"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 441,
+      "path": "artifacts/crow-rl-life-checkpoint-20261107/build-logs/world-checkpoint-build-06.log",
+      "sha256": "c511138fd732ab9df756c8207ae4e2364d53ef3bfb287e616ba7369abb16dbdb"
+    },
+    {
+      "archived_source": ".numi/runs/american-crow/world-checkpoint-build-07.log",
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 126,
+            "path": "artifacts/crow-rl-git-recovery-20261107/blobs/487c9744fcff906c038e953adaceca2beb153004e65f0380e7ca1604cead82a2.gz",
+            "sha256": "487c9744fcff906c038e953adaceca2beb153004e65f0380e7ca1604cead82a2"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 126,
+      "path": "artifacts/crow-rl-life-checkpoint-20261107/build-logs/world-checkpoint-build-07.log",
+      "sha256": "487c9744fcff906c038e953adaceca2beb153004e65f0380e7ca1604cead82a2"
+    },
+    {
+      "archived_source": ".numi/runs/american-crow/world-checkpoint-build-08.log",
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 675,
+            "path": "artifacts/crow-rl-git-recovery-20261107/blobs/da09872e522d1d358152b2ca94df72baedfc97f2871c9e5e96845eded24c1fe2.gz",
+            "sha256": "da09872e522d1d358152b2ca94df72baedfc97f2871c9e5e96845eded24c1fe2"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 675,
+      "path": "artifacts/crow-rl-life-checkpoint-20261107/build-logs/world-checkpoint-build-08.log",
+      "sha256": "da09872e522d1d358152b2ca94df72baedfc97f2871c9e5e96845eded24c1fe2"
+    },
+    {
+      "archived_source": ".numi/runs/american-crow/world-checkpoint-build-09.log",
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 441,
+            "path": "artifacts/crow-rl-git-recovery-20261107/blobs/4b7d9484b1789572e1b90ee65d1c2e6df9ca6f240cfce6124a8dd0da35bd88dc.gz",
+            "sha256": "4b7d9484b1789572e1b90ee65d1c2e6df9ca6f240cfce6124a8dd0da35bd88dc"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 441,
+      "path": "artifacts/crow-rl-life-checkpoint-20261107/build-logs/world-checkpoint-build-09.log",
+      "sha256": "4b7d9484b1789572e1b90ee65d1c2e6df9ca6f240cfce6124a8dd0da35bd88dc"
+    },
+    {
+      "archived_source": ".numi/runs/american-crow/world-checkpoint-build-10.log",
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2310,
+            "path": "artifacts/crow-rl-git-recovery-20261107/blobs/dd39c42e0db88b5a6e423a949e21539e9c25e6e1099e607aac5de133eda7f2fb.gz",
+            "sha256": "dd39c42e0db88b5a6e423a949e21539e9c25e6e1099e607aac5de133eda7f2fb"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2310,
+      "path": "artifacts/crow-rl-life-checkpoint-20261107/build-logs/world-checkpoint-build-10.log",
+      "sha256": "dd39c42e0db88b5a6e423a949e21539e9c25e6e1099e607aac5de133eda7f2fb"
+    }
+  ]
+}

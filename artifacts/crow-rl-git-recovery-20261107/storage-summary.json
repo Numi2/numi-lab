@@ -1,0 +1,18 @@
+{
+  "raw_files_removed": 12284,
+  "raw_logical_bytes_removed": 5881893915,
+  "checked_out_archive_files_omitted": 12328,
+  "archive_logical_bytes_omitted": 3654198357,
+  "additional_ignored_duplicate_logs_removed": 10,
+  "free_gib": 152.45423889160156,
+  "cleanup_df_delta_gib": 8.737728118896484,
+  "df_final": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 297489284 159859856    66% 3495698 1598598560    0%   /System/Volumes/Data\n",
+  "crow_evidence_worktree_usage": "8608\tartifacts/crow-rl-git-recovery-20261107\n4076\tartifacts/crow-rl-retinal-contract-20261107\n10132\tartifacts/crow-rl-feeding-behavior-20261107\n4076\tartifacts/crow-rl-recurrent-actor-20261107\n",
+  "build_usage": "73620\tbuild\n",
+  "other_worktrees": "worktree /Users/n/MetalRobo-main\nHEAD 87861373b10f20dc1a845a6c3e03a79c7d4ee490\nbranch refs/heads/main\n\nworktree /Users/n/Developer/numi-crow-rl-20261107\nHEAD d4e0cbca0660eadadbdee2281a115b08dcea288b\nbranch refs/heads/agent/american-crow-rl-20261107\n\nworktree /Users/n/MetalRobo-franka-bag-path-20261004\nHEAD 87861373b10f20dc1a845a6c3e03a79c7d4ee490\ndetached\n\n",
+  "git_common_dir": "/Users/n/MetalRobo-main/.git",
+  "other_projects_changed": false,
+  "shared_git_objects_pruned": false,
+  "scientific_qualification_changed": false,
+  "policy": "Bounded temporary capture; archive missing content once in Git; push and verify recovery; prune covered raw files; omit bulk archive checkout copies; retain active inputs and current build."
+}
