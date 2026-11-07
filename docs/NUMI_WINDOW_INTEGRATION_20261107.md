@@ -183,3 +183,10 @@ logs, source/runtime hashes and pre/post identity check are preserved in
 command-train. The binary and source hashes matched before and after the run.
 This command-line exercise does not establish that the window's guided
 training panel, live cancellation, or saved-state restore works end to end.
+
+The opt-in native guided-cancellation probe injects a training request through
+the same scheduler mailbox as the window, waits for the real trainer and MLX
+worker, and closes the AppKit window only after both are observed. It checks
+the child exit, lock removal, observed descendant cleanup and source/binary
+identity. The request is test-injected rather than a click through the setup
+panel. Until a native run is retained, this probe is unqualified.

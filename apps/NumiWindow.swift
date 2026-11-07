@@ -2335,6 +2335,10 @@ public final class NumiWindowBridge: @unchecked Sendable {
         requestPolicySelection(selection)
     }
 
+    func requestTrainingForRuntimeCheck(_ request: NumiWindowTrainingRequest) {
+        requestTraining(request)
+    }
+
     func closeAfterRuntimeCheck() {
         DispatchQueue.main.async { [window] in
             window.closeWindow()

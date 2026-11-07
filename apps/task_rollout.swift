@@ -1524,8 +1524,22 @@ private enum TaskRolloutMain {
             artifactsURL: runDirectory
         )
         try process.run()
+        let checkEnvironment = ProcessInfo.processInfo.environment
+        let cancelCheck = checkEnvironment["NUMI_WINDOW_RUNTIME_CHECK"] == "1" &&
+            checkEnvironment["NUMI_WINDOW_RUNTIME_TRAIN_CANCEL_CHECK"] == "1"
+        let cancelTrigger = checkEnvironment["NUMI_WINDOW_RUNTIME_CANCEL_TRIGGER"]
+        if cancelCheck {
+            writeDiagnostic("numi window train check pid=\(process.processIdentifier) run=\(runDirectory.path)")
+        }
+        var cancelCheckTriggered = false
         var lastSummary: String?
         while process.isRunning {
+            if cancelCheck, !cancelCheckTriggered, let cancelTrigger,
+               fileManager.fileExists(atPath: cancelTrigger) {
+                cancelCheckTriggered = true
+                writeDiagnostic("numi window train check closing")
+                window.closeAfterRuntimeCheck()
+            }
             if window.isClosed {
                 process.terminate()
                 break
@@ -1540,6 +1554,11 @@ private enum TaskRolloutMain {
             Thread.sleep(forTimeInterval: 0.5)
         }
         process.waitUntilExit()
+        if cancelCheck {
+            let lockExists = fileManager.fileExists(
+                atPath: runDirectory.appendingPathComponent(".train.lock").path)
+            writeDiagnostic("numi window train check exit=\(process.terminationStatus) lock=\(lockExists)")
+        }
         guard process.terminationStatus == 0 else {
             throw MetalRoboTaskRolloutError.native(
                 "training exited with status \(process.terminationStatus); artifacts: \(runDirectory.path)"
@@ -3467,6 +3486,19 @@ private enum TaskRolloutMain {
                 ProcessInfo.processInfo.environment[
                     "NUMI_WINDOW_RUNTIME_CHECK"
                 ] == "1"
+            let runtimeTrainCancelCheck =
+                ProcessInfo.processInfo.environment[
+                    "NUMI_WINDOW_RUNTIME_TRAIN_CANCEL_CHECK"
+                ] == "1"
+            if runtimeTrainCancelCheck &&
+                (!runtimeCheckEnabled ||
+                 ProcessInfo.processInfo.environment[
+                    "NUMI_WINDOW_RUNTIME_CANCEL_TRIGGER"
+                 ]?.isEmpty != false) {
+                throw MetalRoboTaskRolloutError.invalidShape(
+                    "training cancellation runtime check requires runtime check and a trigger path"
+                )
+            }
             var runtimeCheckRobots: Set<String> = []
             let runtimeCheckCatalogSceneIDs = sceneChoices.filter { choice in
                 runtimeCheckRobots.insert(choice.robotID).inserted
@@ -3501,6 +3533,7 @@ private enum TaskRolloutMain {
                 var restorationSummary = "restored last working setup"
                 var runtimeCheckSceneIndex = 0
                 var runtimeCheckAttemptedPolicies: Set<URL> = []
+                var runtimeTrainingRequested = false
                 while !window.isClosed {
                     do {
                         try run(
@@ -3533,6 +3566,38 @@ private enum TaskRolloutMain {
                                 }
                                 restoringConfirmedConfiguration = false
                                 if runtimeCheckEnabled {
+                                    if runtimeTrainCancelCheck && !runtimeTrainingRequested {
+                                        guard let choice = sceneChoices.first(where: {
+                                            $0.id == requestedSelection.choiceID && $0.isTrainable
+                                        }) else {
+                                            writeDiagnostic("numi window train check requires a trainable catalog scene")
+                                            window.closeAfterRuntimeCheck()
+                                            return
+                                        }
+                                        runtimeTrainingRequested = true
+                                        writeDiagnostic("numi window train check requesting training")
+                                        window.requestTrainingForRuntimeCheck(
+                                            NumiWindowTrainingRequest(
+                                                choiceID: choice.id,
+                                                robotID: choice.robotID,
+                                                robotName: choice.robotName,
+                                                environmentName: choice.sceneName,
+                                                taskID: choice.taskID,
+                                                taskName: choice.taskName,
+                                                trainingArguments: choice.trainingArguments,
+                                                startingPolicyURL: nil,
+                                                environments: 1,
+                                                stepsPerUpdate: 8,
+                                                updates: 1000,
+                                                chunk: 1,
+                                                seed: 20261107,
+                                                checkpointInterval: 1000,
+                                                minimumDifficultyBand: 0,
+                                                maximumDifficultyBand: 0
+                                            )
+                                        )
+                                        return
+                                    }
                                     let compatible =
                                         numiWindowCompatiblePolicyChoices(
                                             policyChoices,
