@@ -29,3 +29,10 @@ repetitions and variability, and matched physical accuracy. Rendering,
 learning and large coupled scenes need separate measurements.
 
 Artifacts: [native smoke evidence](evidence/benchmark-accounting-20261107/).
+
+A subsequent input/reporting correction at source commit 402bbcfa rejects
+non-decimal numeric strings and suppresses mean reward for invalid transitions.
+Its CPU fault-injection suite passed, and a rebuilt 1-environment native smoke
+accepted 2/2 steps with no reported errors. The new binary's source and hash
+are retained in the final-reporting subdirectory; the earlier results remain
+bound to their original source and binary.
