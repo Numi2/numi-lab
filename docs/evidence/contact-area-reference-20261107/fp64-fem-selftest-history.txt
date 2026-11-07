@@ -1,0 +1,6 @@
+The first central-difference check used a 1e-8 m perturbation and failed the
+1e-6 relative gate: absolute error 7.21855e-8 N and 2.10841e-6 relative
+to peak nodal force 0.0342369 N. At 1e-9 m, the same analytic force and
+energy evaluated to absolute error 6.11859e-10 N and relative 1.78714e-8.
+This is consistent with central-difference truncation; it is not a proof of
+full source-level parity with the production implementation.

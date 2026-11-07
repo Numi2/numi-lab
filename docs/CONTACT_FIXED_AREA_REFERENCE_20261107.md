@@ -45,9 +45,9 @@ release and renewed contact at different times. Completion and residual checks
 do not establish accurate force evolution. The scalar law check is not enough
 to decide whether the apparent oscillatory behavior is physically correct.
 
-No mesh qualification, hard-contact limit, independent dynamic reference,
-near-contact initial-state qualification, or accepted-time performance
-comparison was performed. The necessary next investigation is a separately
+At the time of the native tests, no mesh qualification, hard-contact limit,
+independent dynamic reference, near-contact initial-state qualification, or
+accepted-time performance comparison had been performed. The necessary next investigation is a separately
 verified physical dynamic reference and refinement that resolves force and
 release behavior without changing this law or relaxing its gates. The retained
 failed temporal series must remain part of that assessment.
@@ -78,3 +78,30 @@ law, acceptance tolerance or integrator follows from this analogy alone. The
 testable next step is an independent evaluation of the actual FEM dynamics,
 then temporal refinement at fixed mesh and law with the same force, impulse,
 release and state gates.
+
+
+## Independent FP64 FEM dynamics
+
+A later CPU-only implementation independently constructs the same 2-division
+27-node, 48-tetrahedron mesh and integrates its Neo-Hookean semidiscrete
+equations with explicit FP64 RK4. The model uses the same density, gravity,
+initial gap, area-lumped plane force and fixed regularized law. At a perturbed
+state, its force agrees with an independent energy finite difference to
+1.79e-8 relative to the peak nodal force. The first finite-difference check
+used a larger perturbation and failed its threshold; its result is retained.
+
+Over the fixed 10 ms duration, RK4 h = 1 µs versus 0.5 µs changes the maximum
+1 ms binned force by 1.98e-9 and integrated impulse by 4.33e-10, below the
+0.25% temporal-reference gate. Momentum-balance errors are below 1.2e-17 N s.
+This supports temporal convergence of this *independent semidiscrete model
+on this fixed mesh*, not mesh convergence or physical material validation.
+
+Compared with the finest CPU result, native h = 0.0625 ms differs by 50.90%
+in the maximum peak-normalized 1 ms force bin and 8.19% in total impulse.
+The discrepancies are not monotonic over the tested native timesteps. The
+fine CPU trajectory has several distinct contact episodes, so release is not
+in itself evidence of error. The tested native trajectories remain unqualified
+and cannot establish a reliable force control. Backward Euler damping is a
+plausible contributor, but these comparisons cannot isolate the cause or
+establish bitwise equivalence of independently compiled model constants.
+The FP64 implementation is a diagnostic reference, not a runtime fallback.

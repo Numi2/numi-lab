@@ -1,0 +1,14 @@
+Independent scalar C++ FP64 nonlinear tetrahedral neo-Hookean explicit RK4.
+2 divisions, same 20mm cube, tetra connectivity, density, mu, lambda,
+gravity, initial gap, reference surface quadrature and pressure law.
+10ms duration; h=2us, 1us, 0.5us, without time shifting.
+Pass independent temporal gate only if the last 1ms-bin maximum force and
+integrated impulse changes are <=0.25%. Compare against retained Numi 1ms
+bins, impulse, onset, momentum and mass. This is a separate explicit
+integration of the same semidiscrete dynamics, not the same implicit discrete
+equations, a hard-contact reference, a mesh convergence check or physical
+material validation. Check energy-gradient and momentum before interpreting.
+A preliminary 2us CPU pilot was executed before this plan was written; the
+three reported convergence runs were rerun after the plan. The initial
+CMake target build and CTest lookup failed because reconfiguration had not
+been run; those logs are retained and the reconfigured test passed.

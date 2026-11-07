@@ -1,0 +1,52 @@
+{
+  "schema": "numi.contact.fp64-fem-comparison.v1",
+  "reference_integration": "independent CPU FP64 explicit RK4, fixed mesh and regularized law",
+  "reference_refinement": [
+    {
+      "coarse_h": 2e-06,
+      "fine_h": 1e-06,
+      "binned_force_relative_change": 4.533085547596028e-08,
+      "integrated_impulse_relative_change": 8.39270830604408e-09
+    },
+    {
+      "coarse_h": 1e-06,
+      "fine_h": 5e-07,
+      "binned_force_relative_change": 1.976960272626436e-09,
+      "integrated_impulse_relative_change": 4.326986552438099e-10
+    }
+  ],
+  "reference_fixed_mesh_temporal_gate": true,
+  "native_vs_fine_reference": [
+    {
+      "h": 0.0005,
+      "binned_force_relative_change": 0.45481834773525903,
+      "integrated_impulse_relative_change": 0.06041564233326103
+    },
+    {
+      "h": 0.00025,
+      "binned_force_relative_change": 0.4009668826834462,
+      "integrated_impulse_relative_change": 0.07810048284623702
+    },
+    {
+      "h": 0.000125,
+      "binned_force_relative_change": 0.3924446789383412,
+      "integrated_impulse_relative_change": 0.0872086930295802
+    },
+    {
+      "h": 6.25e-05,
+      "binned_force_relative_change": 0.5090013903637061,
+      "integrated_impulse_relative_change": 0.08189344577043173
+    }
+  ],
+  "reference_momentum_error_Ns": [
+    6.342582709040201e-18,
+    1.1221492485224971e-17,
+    8.294146619514109e-18
+  ],
+  "limits": [
+    "FEM semidiscrete model parity is based on independently coded fixture parameters, not bitwise matching compiled GPU constants",
+    "temporal convergence is only established for the 2-division mesh and chosen regularized law",
+    "mesh convergence, hard-contact limit and physical material validation remain open",
+    "the native-vs-reference differences do not identify numerical damping as the only cause"
+  ]
+}
