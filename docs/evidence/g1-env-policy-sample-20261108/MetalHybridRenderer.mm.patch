@@ -1,0 +1,46 @@
+--- /Users/numi/numi-g1-env-reset-ref-owner-20261108/src/metal/MetalHybridRenderer.mm	2026-11-07 15:40:38
++++ /Users/numi/numi-g1-env-policy-sample-owner-20261108/src/metal/MetalHybridRenderer.mm	2026-11-07 15:42:54
+@@ -7056,6 +7056,7 @@
+     __strong id<MTLBuffer> researchBodySnapshot = nil;
+     bool researchCaptureBodies = false;
+     bool researchAllowMixedOnce = false;
++    __strong id<MTLBuffer> researchPrePolicyReadback = nil;
+     MetalHybridRendererLayout rendererLayout{};
+     MRHybridRenderUniformsGPU maskedDepthRenderUniforms{};
+     std::uint64_t observationSequence = 0u;
+@@ -7576,6 +7577,14 @@
+     return true;
+ }
+ 
++bool MetalHybridObjectTracker::researchSetPrePolicyReadback(void* buffer) {
++    if (!state_ || !state_->compiled) return false;
++    id<MTLBuffer> candidate = (__bridge id<MTLBuffer>)buffer;
++    if (candidate && candidate.storageMode != MTLStorageModeShared) return false;
++    state_->researchPrePolicyReadback = candidate;
++    return true;
++}
++
+ MetalHybridObjectTrackerConfig MetalHybridObjectTracker::researchCopyConfig() const {
+     return state_ ? state_->config : MetalHybridObjectTrackerConfig{};
+ }
+@@ -7980,6 +7989,20 @@
+             threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+     }
+     [observationEncoder endEncoding];
++    if (state->researchPrePolicyReadback != nil) {
++        const std::size_t historyBytes = std::size_t(pass.environmentCount) * pass.actorFrameSize * pass.actorHistoryLength * sizeof(float);
++        const std::size_t outputBytes = std::size_t(pass.environmentCount) * pass.actorObservationSize * sizeof(float);
++        const std::size_t outputOffsetBytes = pass.actorObservationOffsetElements * sizeof(float);
++        id<MTLBuffer> history = (__bridge id<MTLBuffer>)pass.actorHistory;
++        id<MTLBuffer> output = (__bridge id<MTLBuffer>)pass.actorObservations;
++        if (!historyBytes || !outputBytes || state->researchPrePolicyReadback.length < historyBytes + outputBytes ||
++            history.length < historyBytes || output.length < outputOffsetBytes + outputBytes) return false;
++        id<MTLBlitCommandEncoder> copy = [command blitCommandEncoder];
++        if (!copy) return false;
++        [copy copyFromBuffer:history sourceOffset:0 toBuffer:state->researchPrePolicyReadback destinationOffset:0 size:historyBytes];
++        [copy copyFromBuffer:output sourceOffset:outputOffsetBytes toBuffer:state->researchPrePolicyReadback destinationOffset:historyBytes size:outputBytes];
++        [copy endEncoding];
++    }
+     return true;
+ }
+ 
