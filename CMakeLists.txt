@@ -1642,6 +1642,16 @@ if(METALROBO_HAS_SWIFT)
         add_test(NAME metalrobo_numi_window_bootstrap
             COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_window_bootstrap_check.sh"
                 "${CMAKE_CURRENT_SOURCE_DIR}/.numi/commands/window")
+        set(METALROBO_MLX_TEST_EXECUTABLE "" CACHE FILEPATH
+            "Python interpreter with MLX and NumPy for policy wire compatibility")
+        if(METALROBO_MLX_TEST_EXECUTABLE)
+            add_test(NAME metalrobo_policy_wire_compatibility
+                COMMAND "${CMAKE_COMMAND}" -E env
+                    "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/python"
+                    "${METALROBO_MLX_TEST_EXECUTABLE}"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/tests/policy_wire_compatibility_check.py"
+                    "${CMAKE_CURRENT_SOURCE_DIR}" "$<TARGET_FILE:metalrobo>")
+        endif()
     endif()
 
     add_executable(

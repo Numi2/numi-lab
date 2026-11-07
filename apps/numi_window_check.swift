@@ -210,6 +210,23 @@ private enum NumiWindowCheck {
                         "native version-5 writer output was not decoded")
         }
 
+        let tools = root.appendingPathComponent("tools", isDirectory: true)
+        try manager.createDirectory(at: tools, withIntermediateDirectories: true)
+        let dispatcher = tools.appendingPathComponent("numi")
+        try Data("#!/bin/sh\n".utf8).write(to: dispatcher)
+        try manager.setAttributes([.posixPermissions: 0o755], ofItemAtPath: dispatcher.path)
+        let trainingEnvironment = numiWindowTrainingEnvironment(
+            ["NUMI_WINDOW_BUILD_DIR": "/tmp/window-build", "PATH": "/usr/bin"],
+            workspace: root)
+        try require(trainingEnvironment["NUMI_BUILD_DIR"] == "/tmp/window-build",
+                    "window build override was not passed to training")
+        try require(trainingEnvironment["PATH"] == tools.path + ":/usr/bin",
+                    "workspace dispatcher was not added to training PATH")
+        let defaultEnvironment = numiWindowTrainingEnvironment([:], workspace: root)
+        try require(defaultEnvironment["NUMI_BUILD_DIR"] ==
+                    root.appendingPathComponent(".numi/window-build").path,
+                    "default window build path was not passed to training")
+
         let visual = root.appendingPathComponent("visual.bin")
         try Data([0]).write(to: visual)
         try writeScene(

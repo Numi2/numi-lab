@@ -1483,11 +1483,10 @@ private enum TaskRolloutMain {
             arguments += ["--initialize-policy", identifier]
         }
 
-        var environment = ProcessInfo.processInfo.environment
+        var environment = numiWindowTrainingEnvironment(
+            ProcessInfo.processInfo.environment, workspace: workspace
+        )
         environment["NUMI_RUN_DIR"] = runDirectory.path
-        environment["NUMI_BUILD_DIR"] = workspace
-            .appendingPathComponent(".numi/window-build", isDirectory: true)
-            .path
         environment["NUMI_SELECTION_ENVS"] = String(
             min(32, request.environments)
         )
@@ -1496,8 +1495,8 @@ private enum TaskRolloutMain {
         process.arguments = arguments
         process.environment = environment
         process.currentDirectoryURL = workspace
-        let stdoutURL = runDirectory.appendingPathComponent("stdout.log")
-        let stderrURL = runDirectory.appendingPathComponent("stderr.log")
+        let stdoutURL = runDirectory.appendingPathComponent("window-command.stdout.log")
+        let stderrURL = runDirectory.appendingPathComponent("window-command.stderr.log")
         guard fileManager.createFile(
                   atPath: stdoutURL.path,
                   contents: nil

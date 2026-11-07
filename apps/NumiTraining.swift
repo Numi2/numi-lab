@@ -1,6 +1,24 @@
 import AppKit
 import Foundation
 
+// The dispatcher and the trainer must resolve against the same workspace and
+// build used by the window, including an explicitly selected build directory.
+func numiWindowTrainingEnvironment(
+    _ inherited: [String: String],
+    workspace: URL
+) -> [String: String] {
+    var environment = inherited
+    environment["NUMI_BUILD_DIR"] = inherited["NUMI_WINDOW_BUILD_DIR"]
+        ?? workspace.appendingPathComponent(".numi/window-build", isDirectory: true).path
+    let root = inherited["NUMI_LAB_ROOT"] ?? workspace.path
+    let tools = URL(fileURLWithPath: root, isDirectory: true)
+        .appendingPathComponent("tools", isDirectory: true)
+    if FileManager.default.isExecutableFile(atPath: tools.appendingPathComponent("numi").path) {
+        environment["PATH"] = tools.path + ":" + (inherited["PATH"] ?? "/usr/bin:/bin")
+    }
+    return environment
+}
+
 public struct NumiWindowTrainingRequest: Sendable {
     public let choiceID: String
     public let robotID: String

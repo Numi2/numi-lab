@@ -1049,10 +1049,19 @@ def _add_ppo_arguments(parser: argparse.ArgumentParser) -> None:
 def _add_contract_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--world-fingerprint", type=_positive, required=True)
     parser.add_argument("--task-fingerprint", type=_positive, required=True)
-    parser.add_argument(
-        "--observation-fingerprint", type=_positive, required=True
-    )
+    parser.add_argument("--observation-fingerprint", type=_positive, required=True)
     parser.add_argument("--action-fingerprint", type=_positive, required=True)
+    parser.add_argument(
+        "--compatible-task-binding",
+        type=_task_binding,
+        action="append",
+        default=[],
+        metavar="WORLD:TASK",
+        help=(
+            "explicit version-2 world/task authorization; repeat for every "
+            "task bound to the same robot actor contract"
+        ),
+    )
 
 
 def _bind_contract(
@@ -1078,28 +1087,68 @@ def _bind_contract(
     explicit_actor_initialization = (
         getattr(arguments, "actor_policy_pack", None) is not None
     )
+    requested_binding = requested[:2]
+    explicit_bindings = tuple(getattr(arguments, "compatible_task_binding", ()))
+    if explicit_bindings:
+        preserved_bindings: tuple[tuple[int, int], ...] = ()
+        if learner.contract_version == 2:
+            preserved_bindings = learner.compatible_task_bindings
+        elif learner.contract_version == 1 and existing[2:] == requested[2:]:
+            preserved_bindings = (existing[:2],)
+        compatible_bindings = tuple(
+            sorted(set(preserved_bindings + explicit_bindings + (requested_binding,)))
+        )
+    elif learner.contract_version == 2:
+        compatible_bindings = learner.compatible_task_bindings
+        if requested_binding not in compatible_bindings:
+            raise ValueError(
+                "PolicyPack does not authorize the requested world/task binding"
+            )
+    else:
+        compatible_bindings = ()
     if (
         learner.contract_version != 0
-        and existing != requested
+        and (
+            existing[2:] != requested[2:]
+            or (not compatible_bindings and existing[:2] != requested_binding)
+        )
         and not explicit_observation_migration
         and not explicit_actor_initialization
     ):
         raise ValueError(
             "PolicyPack is bound to different world, task, observation, or action semantics"
         )
+    primary_binding = (
+        compatible_bindings[0] if compatible_bindings else requested_binding
+    )
     learner.bind_contract(
-        world_fingerprint=requested[0],
-        task_fingerprint=requested[1],
+        world_fingerprint=primary_binding[0],
+        task_fingerprint=primary_binding[1],
         observation_fingerprint=requested[2],
         action_fingerprint=requested[3],
+        compatible_task_bindings=compatible_bindings,
     )
 
 
 def _positive(value: str) -> int:
     result = int(value)
-    if result <= 0:
-        raise argparse.ArgumentTypeError("value must be positive")
+    if result <= 0 or result > np.iinfo(np.uint64).max:
+        raise argparse.ArgumentTypeError("value must be a nonzero uint64")
     return result
+
+
+def _task_binding(value: str) -> tuple[int, int]:
+    pieces = value.split(":", maxsplit=1)
+    if len(pieces) != 2:
+        raise argparse.ArgumentTypeError("task binding must be WORLD:TASK")
+    try:
+        world = _positive(pieces[0])
+        task = _positive(pieces[1])
+    except (ValueError, argparse.ArgumentTypeError) as error:
+        raise argparse.ArgumentTypeError(
+            "task binding fingerprints must be positive integers"
+        ) from error
+    return (world, task)
 
 
 def main() -> int:

@@ -104,3 +104,57 @@ actual G1 visual qualification, training, or physical validation.
 
 An earlier attempt timed out after 45 seconds during the CPU-only Release
 rebuild, before native simulation. That full build log is retained separately.
+
+## Training and policy wire compatibility
+
+The first bounded trainer attempt failed: its native initial PolicyPack was
+version 5, while the Python MLX reader accepted only through version 4.
+The previous Python ctypes policy structure also omitted the native C ABI's
+task-binding fields. The exact failure is retained. The matching numisolver
+v5 reader, worker and C ABI bridge have been integrated; CPU tests exercise
+actual native version-4 and version-5 producer files, Python-to-C round trips
+for single and multiple tasks, and malformed/truncated bindings. The test is
+available as metalrobo_policy_wire_compatibility when
+METALROBO_MLX_TEST_EXECUTABLE selects a Python with MLX and NumPy.
+
+A second M6 attempt completed eight samples from one G1 ground/velocity
+environment and one PPO update without failed environment steps. It produced
+a rollout, candidate, and deployment-format candidate; no deployment
+selection was performed. The exact trainer binary hash was not captured before
+a later rebuild, so this result does not establish an exact-binary identity.
+The captured initial and candidate hashes and full output remain evidence.
+
+The native window discovered and loaded that unselected candidate from the
+policy catalog on the synthetic scene, rejected an invalid scene and restored
+the previous configuration. The output and scene/policy hashes are retained.
+This is not a successful guided UI training session, evidence of learned
+control, saved-state replay, or a performance comparison.
+
+Guided training now forwards the window build override, locates a workspace
+dispatcher where available, and separates the window command's logs from the
+trainer's own stdout/stderr files. The CPU environment checks pass; actual
+guided training remains an end-to-end release gate.
+
+## Snapshot/restore boundary
+
+MetalWorld exposes resident initialization, continuation and inspection-only
+digest, but no general resident-state export/import transaction. Measured
+surface owns additional accepted state and evidence outside that resident.
+Restoring only either half would not reproduce the coupled continuation.
+
+A narrow implementation should reserve the idle resident and external owner
+together; validate pool, world/task and extension fingerprints, environment
+count, arena generation, reset semantics and all persistent logical buffer
+lengths; capture the world buffers and extension accepted state in the same
+reserved transaction; and publish the snapshot only after all readbacks
+succeed. Restore should validate the entire immutable identity and content
+before staging all replacement buffers, then atomically swap/publish both
+owners after successful GPU completion. Failure must leave the prior accepted
+continuation intact. The existing resident digest must retain its present
+identity semantics; a portable archive, if later required, needs a separate
+explicit versioned fingerprint rather than weakening that digest.
+
+No such cross-owner snapshot/restore exists in this checkpoint. Combined Matter
+and measured surface remains explicitly unsupported; no exact replay claim is
+made. Fault-injected partial failures, identity mismatches, and post-restore
+continuation comparisons are required before exposing this as supported.

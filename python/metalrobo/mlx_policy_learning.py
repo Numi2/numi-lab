@@ -29,7 +29,8 @@ from .native import (
 
 _LEARNING_PACK_HEADER = struct.Struct("<8sIIQQ")
 _POLICY_KIND = 2
-_POLICY_FORMAT_VERSION = 4
+_POLICY_FORMAT_VERSION = 5
+_MAXIMUM_POLICY_TASK_BINDINGS = 4096
 _POLICY_ROLLOUT_KIND = 3
 _POLICY_ROLLOUT_FORMAT_VERSION = 7
 _MOTION_KIND = 4
@@ -402,6 +403,7 @@ class NativePolicyPack:
     task_fingerprint: int
     observation_fingerprint: int
     action_fingerprint: int
+    compatible_task_bindings: tuple[tuple[int, int], ...]
     observation_mean: np.ndarray
     observation_inverse_standard_deviation: np.ndarray
     layers: tuple[NativePolicyDenseLayer, ...]
@@ -674,7 +676,7 @@ def read_policy_pack(
     ) = _LEARNING_PACK_HEADER.unpack_from(data)
     if magic != b"MRLEARN\0":
         raise ValueError("PolicyPack magic is invalid")
-    if format_version not in (2, 3, _POLICY_FORMAT_VERSION):
+    if format_version not in (2, 3, 4, _POLICY_FORMAT_VERSION):
         raise ValueError("PolicyPack format version is unsupported")
     if kind != _POLICY_KIND:
         raise ValueError("Learning artifact is not a PolicyPack")
@@ -719,15 +721,32 @@ def read_policy_pack(
         task_fingerprint = reader.unsigned64()
         observation_fingerprint = reader.unsigned64()
         action_fingerprint = reader.unsigned64()
-        if (
-            contract_version != 1
-            or min(
+        compatible_task_bindings: tuple[tuple[int, int], ...] = ()
+        if format_version >= 5:
+            binding_count = reader.unsigned64()
+            if binding_count > _MAXIMUM_POLICY_TASK_BINDINGS:
+                raise ValueError("PolicyPack compatible task capacity is invalid")
+            compatible_task_bindings = tuple(
+                (reader.unsigned64(), reader.unsigned64()) for _ in range(binding_count)
+            )
+        common_contract_valid = (
+            min(
                 world_fingerprint,
                 task_fingerprint,
                 observation_fingerprint,
                 action_fingerprint,
-            ) <= 0
-        ):
+            )
+            > 0
+        )
+        single_task_valid = contract_version == 1 and not compatible_task_bindings
+        multitask_valid = (
+            contract_version == 2
+            and len(compatible_task_bindings) >= 2
+            and compatible_task_bindings == tuple(sorted(set(compatible_task_bindings)))
+            and compatible_task_bindings[0] == (world_fingerprint, task_fingerprint)
+            and all(min(binding) > 0 for binding in compatible_task_bindings)
+        )
+        if not common_contract_valid or not (single_task_valid or multitask_valid):
             raise ValueError("PolicyPack semantic contract is incomplete")
     else:
         contract_version = 0
@@ -735,6 +754,7 @@ def read_policy_pack(
         task_fingerprint = 0
         observation_fingerprint = 0
         action_fingerprint = 0
+        compatible_task_bindings = ()
     if reader.cursor != len(payload):
         raise ValueError("PolicyPack contains trailing payload bytes")
     actor_count = layers[0].input_count
@@ -796,19 +816,16 @@ def read_policy_pack(
         task_fingerprint=task_fingerprint,
         observation_fingerprint=observation_fingerprint,
         action_fingerprint=action_fingerprint,
+        compatible_task_bindings=compatible_task_bindings,
         observation_mean=observation_mean,
-        observation_inverse_standard_deviation=(
-            observation_inverse_standard_deviation
-        ),
+        observation_inverse_standard_deviation=(observation_inverse_standard_deviation),
         layers=layers,
         critic_observation_mean=critic_observation_mean,
         critic_observation_inverse_standard_deviation=(
             critic_observation_inverse_standard_deviation
         ),
         critic_layers=critic_layers,
-        action_log_standard_deviation=(
-            action_log_standard_deviation
-        ),
+        action_log_standard_deviation=(action_log_standard_deviation),
         action_bias=action_bias,
         action_scale=action_scale,
         observation_clip=observation_clip,
@@ -1924,6 +1941,7 @@ class MLXPolicyLearner:
         self.task_fingerprint = 0
         self.observation_fingerprint = 0
         self.action_fingerprint = 0
+        self.compatible_task_bindings: tuple[tuple[int, int], ...] = ()
         self.action_bias = np.zeros(
             (action_count,),
             dtype=np.float32,
@@ -1943,6 +1961,7 @@ class MLXPolicyLearner:
         task_fingerprint: int,
         observation_fingerprint: int,
         action_fingerprint: int,
+        compatible_task_bindings: tuple[tuple[int, int], ...] = (),
     ) -> None:
         values = (
             int(world_fingerprint),
@@ -1951,14 +1970,35 @@ class MLXPolicyLearner:
             int(action_fingerprint),
         )
         if min(values) <= 0 or max(values) > np.iinfo(np.uint64).max:
-            raise ValueError("policy semantic fingerprints must be nonzero uint64 values")
-        self.contract_version = 1
+            raise ValueError(
+                "policy semantic fingerprints must be nonzero uint64 values"
+            )
+        raw_bindings = tuple(tuple(binding) for binding in compatible_task_bindings)
+        if any(len(binding) != 2 for binding in raw_bindings):
+            raise ValueError("multitask policy bindings must be world/task pairs")
+        normalized_bindings = tuple(
+            sorted((int(binding[0]), int(binding[1])) for binding in set(raw_bindings))
+        )
+        if normalized_bindings and (
+            len(normalized_bindings) < 2
+            or len(normalized_bindings) > _MAXIMUM_POLICY_TASK_BINDINGS
+            or normalized_bindings[0] != values[:2]
+            or any(
+                min(binding) <= 0 or max(binding) > np.iinfo(np.uint64).max
+                for binding in normalized_bindings
+            )
+        ):
+            raise ValueError(
+                "multitask policy bindings must be sorted unique nonzero pairs including the primary binding"
+            )
+        self.contract_version = 2 if normalized_bindings else 1
         (
             self.world_fingerprint,
             self.task_fingerprint,
             self.observation_fingerprint,
             self.action_fingerprint,
         ) = values
+        self.compatible_task_bindings = normalized_bindings
 
     def refresh_compiled_training_state(self) -> None:
         """Rebind the compiled update after replacing model/optimizer state."""
@@ -2247,6 +2287,7 @@ class MLXPolicyLearner:
         learner.task_fingerprint = pack.task_fingerprint
         learner.observation_fingerprint = pack.observation_fingerprint
         learner.action_fingerprint = pack.action_fingerprint
+        learner.compatible_task_bindings = pack.compatible_task_bindings
         learner.revision = pack.revision
         learner.optimizer = optim.Adam(
             learning_rate=restored_configuration.learning_rate,
@@ -2432,6 +2473,13 @@ class MLXPolicyLearner:
             action_clip=pack.action_clip,
         )
         learner.policy_id = pack.id
+        if extension_count == 0:
+            learner.contract_version = pack.contract_version
+            learner.world_fingerprint = pack.world_fingerprint
+            learner.task_fingerprint = pack.task_fingerprint
+            learner.observation_fingerprint = pack.observation_fingerprint
+            learner.action_fingerprint = pack.action_fingerprint
+            learner.compatible_task_bindings = pack.compatible_task_bindings
         learner.revision = 1
         learner.optimizer = optim.Adam(
             learning_rate=restored_configuration.learning_rate,
@@ -3262,6 +3310,7 @@ class MLXPolicyLearner:
             task_fingerprint=self.task_fingerprint,
             observation_fingerprint=self.observation_fingerprint,
             action_fingerprint=self.action_fingerprint,
+            compatible_task_bindings=(self.compatible_task_bindings),
             layers=actor_layers,
             critic_layers=critic_layers,
             observation_mean=np.asarray(

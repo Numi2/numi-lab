@@ -117,6 +117,15 @@ class _PolicyPackC(ct.Structure):
         ("action_scale_count", ct.c_size_t),
         ("observation_clip", ct.c_float),
         ("action_clip", ct.c_float),
+        (
+            "compatible_world_fingerprints",
+            ct.POINTER(ct.c_uint64),
+        ),
+        (
+            "compatible_task_fingerprints",
+            ct.POINTER(ct.c_uint64),
+        ),
+        ("compatible_task_count", ct.c_size_t),
     ]
 
 
@@ -674,6 +683,7 @@ def write_policy_pack(
     task_fingerprint: int,
     observation_fingerprint: int,
     action_fingerprint: int,
+    compatible_task_bindings: Sequence[tuple[int, int]] = (),
     layers: Sequence[PolicyDenseLayerArtifact],
     critic_layers: Sequence[PolicyDenseLayerArtifact] = (),
     observation_mean: npt.ArrayLike = (),
@@ -696,6 +706,40 @@ def write_policy_pack(
         raise ValueError("at least one policy dense layer is required")
 
     retained: list[np.ndarray] = []
+
+    raw_bindings = tuple(tuple(binding) for binding in compatible_task_bindings)
+    if any(len(binding) != 2 for binding in raw_bindings):
+        raise ValueError("compatible_task_bindings must contain world/task pairs")
+    normalized_bindings = tuple(
+        (int(binding[0]), int(binding[1])) for binding in raw_bindings
+    )
+    maximum_uint64 = int(np.iinfo(np.uint64).max)
+    if any(
+        not 0 < value <= maximum_uint64
+        for binding in normalized_bindings
+        for value in binding
+    ):
+        raise ValueError("compatible task fingerprints must be nonzero uint64 values")
+    if (int(contract_version) == 1 and normalized_bindings) or (
+        int(contract_version) == 2
+        and (
+            len(normalized_bindings) < 2
+            or len(normalized_bindings) > 4096
+            or normalized_bindings != tuple(sorted(set(normalized_bindings)))
+            or normalized_bindings[0] != (int(world_fingerprint), int(task_fingerprint))
+        )
+    ):
+        raise ValueError(
+            "PolicyPack task bindings disagree with its contract version or primary binding"
+        )
+    compatible_worlds = np.ascontiguousarray(
+        [binding[0] for binding in normalized_bindings],
+        dtype=np.uint64,
+    )
+    compatible_tasks = np.ascontiguousarray(
+        [binding[1] for binding in normalized_bindings],
+        dtype=np.uint64,
+    )
 
     def values(source: npt.ArrayLike, label: str) -> np.ndarray:
         array = np.ascontiguousarray(source, dtype=np.float32).reshape(-1)
@@ -819,6 +863,17 @@ def write_policy_pack(
         action_scale_count=scale.size,
         observation_clip=float(observation_clip),
         action_clip=float(action_clip),
+        compatible_world_fingerprints=(
+            compatible_worlds.ctypes.data_as(ct.POINTER(ct.c_uint64))
+            if compatible_worlds.size
+            else None
+        ),
+        compatible_task_fingerprints=(
+            compatible_tasks.ctypes.data_as(ct.POINTER(ct.c_uint64))
+            if compatible_tasks.size
+            else None
+        ),
+        compatible_task_count=compatible_worlds.size,
     )
     target = Path(output).expanduser().resolve()
     target.parent.mkdir(parents=True, exist_ok=True)

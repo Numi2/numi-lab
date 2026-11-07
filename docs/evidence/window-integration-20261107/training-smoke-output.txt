@@ -1,0 +1,25 @@
+Native trainer smoke: one environment, 8 steps, one update, one PPO epoch. No deployment selection.
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/Users/numi/numi-lab-release-integration-20261107/python/metalrobo/mlx_policy_worker.py", line 1300, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/Users/numi/numi-lab-release-integration-20261107/python/metalrobo/mlx_policy_worker.py", line 1295, in main
+    return _serve(arguments)
+  File "/Users/numi/numi-lab-release-integration-20261107/python/metalrobo/mlx_policy_worker.py", line 711, in _serve
+    learner = MLXPolicyLearner.from_policy_pack(
+        arguments.policy_pack,
+        _configuration(arguments),
+        library_path=arguments.native_library,
+    )
+  File "/Users/numi/numi-lab-release-integration-20261107/python/metalrobo/mlx_policy_learning.py", line 2061, in from_policy_pack
+    pack = read_policy_pack(
+        path,
+        library_path=library_path,
+    )
+  File "/Users/numi/numi-lab-release-integration-20261107/python/metalrobo/mlx_policy_learning.py", line 678, in read_policy_pack
+    raise ValueError("PolicyPack format version is unsupported")
+ValueError: PolicyPack format version is unsupported
+task_train failed: MLX learner closed its output unexpectedly.
+exit_code=1

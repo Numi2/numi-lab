@@ -1,0 +1,16 @@
+Synthetic G1 presentation; unselected training-smoke candidate catalog and load check.
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.5s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/numi/numi-lab-release-integration-build-20261107
+[0/2] Re-checking globbed directories...
+[1/3] Building Swift Module 'metalrobo_task_train' with 4 sources
+[2/3] Linking Swift executable bin/metalrobo_task_train
+numi_window_check passed policies=2 scenes=2
+numi window: scene /Users/numi/numi-window-custom-scene-20261107/catalog/diagnostic.json
+numi window: close the window to end the preview run.
+numi window check policy training-smoke
+numi window check scene __numi_window_missing_scene_check__
+numi window check restored configuration
+numi window runtime check passed
+exit_code=0

@@ -1,0 +1,26 @@
+{
+  "format": "numi.window.scene.v1",
+  "id": "synthetic-g1-ground-velocity",
+  "robot_id": "unitree-g1",
+  "robot_name": "G1 synthetic diagnostic",
+  "scene_id": "ground",
+  "scene_name": "Flat Ground",
+  "task_id": "velocity",
+  "task_name": "Velocity diagnostic",
+  "visual_observation": "diagnostic.json",
+  "arguments": [
+    "--robot-source",
+    "unitree-g1",
+    "--scene",
+    "ground",
+    "--task",
+    "velocity",
+    "--zero-actions"
+  ],
+  "training_arguments": [
+    "--scene",
+    "ground",
+    "--task",
+    "velocity"
+  ]
+}
