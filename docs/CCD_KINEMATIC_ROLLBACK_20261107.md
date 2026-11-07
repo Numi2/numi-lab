@@ -23,3 +23,13 @@ hashes are retained in
 [the integration evidence](evidence/window-integration-20261107/kinematic-rollback-integrated/).
 The original clean-base comparison remains separately source-bound. This is
 not broad rollback or unified-release qualification.
+
+## Simultaneous reset and rejected target
+
+A separate resident fixture first seeds 13 manifolds, then requests a reset to scene x=2 m and a target at x=0 that triggers capacity status 4. Compared with an independently accepted reset-only control, the failed path has byte-identical q, v, scene and manifold count (zero). Immediately after rejection the full allocated header and point buffers differ, so the complete-buffer equality test fails. This is not described as byte-exact cache restoration.
+
+Reset sets the live manifold count to zero and checkpoints only entries below the count; publication copies the full allocated buffers. The collision manifold lookup bounds old entries by that count and dereferences them only for a matching active entry. In this fixture direct recontact after the reset/rejection creates 13 manifolds, and the entire resulting q/v/scene and manifold buffers match the clean reset-only control byte-for-byte. This supports the live-count boundary for the tested path, but does not prove every consumer ignores inactive storage.
+
+The first reset setup failed host validation because reset-state spans had no reset mask; it is retained. The corrected cases and field-by-field mismatch are in [ccd-kinematic-reset-evidence-20261107.tar.gz](evidence/ccd-kinematic-reset-evidence-20261107.tar.gz), SHA-256 88f389a8ad2b9f7c39c5f5c02574bd2d4ea01809db70420b3ba0c1c63e9c32bf. Exact executables and metallibs remain host-only.
+
+After the scheduled test, an inadvertent extra native gate run occurred between 22:54:07 and 22:54:15 UTC; exact process timestamps and its full output were not separately retained. The copied probe SHA-256 was 9467ad2b7f046c6daeef586bfedc9706e93dc5a631a0eee561dfcb9adba924a4 and the fixed metallib SHA-256 was d7d37bce197e77e3056ba00abbba303d4c96cbf7fc6eeb95a7f765d101380866. Other active owners reported no overlapping GPU runs in that window. No performance claim relies on it.
