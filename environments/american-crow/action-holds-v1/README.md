@@ -82,3 +82,20 @@ update-gate input biases. Early-image head64 gradient L2 increases from
 mean by0.000688658, versus2.793968e-9 with legacy initialization. This admits a
 usable optimization path, not learned cue memory. Native training, held-out
 causal evaluation and broader lifelong tasks remain separate requirements.
+
+## Native temporal-history failure found at64 lanes
+
+The subsequent64-update64-lane campaign accepted1310720 transitions but showed
+no intake improvement (52/512 first lifetimes versus47/512 last). Fresh trainer
+continuations at chunks8/1 produced exact policies, rollouts and53 model/Adam
+tensors, plus exact retinal/resource components, but world checkpoints differed
+in12 data bytes and their checksum. Diagnosis found overlapping native temporal
+history: both observe/complete kernels allocate two action arrays per lane but
+compute lane base as `environment*actions`. One lane's position history overlaps
+the next lane's velocity history, with nondeterministic writes exposed at the
+32-lane SIMD boundary. Other world buffers and GRU state matched exactly.
+
+This runtime does not qualify native future continuity or a complete learning
+environment. Preserve its exact failures/runtime/checkpoints in Git. Correct and
+version the shared native layout, add cross-lane controls, then repeat relevant
+learning/recovery admissions. No learned memory success is demonstrated.
