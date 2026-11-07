@@ -1,0 +1,9 @@
+2e971e7c3680ec809c7e9ac71355b89502f710f835bc3c69725a91dbbdb01074  /Users/numi/numi-lab-release-relocated-20261108/bin/numi
+b0c5b303e290d69badfd61fb590093797321c2d809cc3ec86515dc820fe5d427  /Users/numi/numi-lab-release-relocated-20261108/libexec/numi/window
+a8098dc3126be98fd108679f1755a2022f59b46be93ba7e1c404d5bfd74aae9f  /Users/numi/numi-lab-release-relocated-20261108/bin/metalrobo_task_rollout
+95f96e7c4b77d9559dcdfa9856d8b9870b5a74c4926fd9425069f34e46bc3f7c  /Users/numi/numi-lab-release-relocated-20261108/bin/metalrobo_numi_window_check
+7831d91e1e6af0e73a6ec64e829465ca4ba788a0be3ce8ea9757f4ee5db5cfbc  /Users/numi/numi-lab-release-relocated-20261108/lib/libmetalrobo.dylib
+55b021d249bc1bf3e40f94158556c93910d85d3611d4d7fc7ab4bda800d6b2f3  /Users/numi/numi-lab-release-relocated-20261108/lib/metalrobo/MetalRobo.metallib
+deaa34004f55bedd9650a828e1897087b29b512e4ff1305344a64710316ec8c3  /Users/numi/numi-lab-release-package-workspace-20261108/.numi/runs/synthetic/diagnostic.json
+0b7184fffd12cbca351d5d5a8eebfdf832610c5c56918408ff696ee7f0e1340d  /Users/numi/numi-lab-release-package-workspace-20261108/.numi/runs/synthetic/diagnostic.mrvpack
+71e94ad4dadb6814d46b39343245f2224bf91a1dd029ce6205a7c5a82cf1159f  /Users/numi/numi-lab-release-package-workspace-20261108/.numi/runs/synthetic/synthetic.numi-window.json

@@ -1,0 +1,68 @@
+Usage: numi window [rollout options...]
+       numi window --check
+       numi window add booster-k1 --source BOOSTER_ASSETS [--output DIR]
+
+Open the single native Numi UX for learning robotics. Robot chooses the
+machine, Environment chooses the visible physical world, Task chooses what
+the robot practices, and Policy chooses learned behavior. Environment or Task
+changes never choose a policy. The live run is rebuilt at a rollout boundary.
+Closing the window stops the preview run.
+
+Train opens a guided setup for the selected Robot, Environment, and Task.
+Choose a staged curriculum and whether to start fresh or continue the selected policy;
+Customize exposes environments, horizon, updates, chunk, seed, and checkpoint
+cadence with inline explanations. The window pauses its preview while training
+owns Metal, shows live progress, and evaluates balance before offering a result
+as learned behavior. Falling experiments remain inspectable but are not loaded.
+Every run keeps its logs, evidence, and policy artifacts.
+
+`--check` runs the bounded catalog/contract check, then cycles several real
+robot worlds, one compatible policy, rejection recovery, presentation, and
+close through the native window transaction path.
+
+Most users only need:
+
+  numi window
+
+Robot and scene discovery, in order:
+
+  1. NUMI_WINDOW_SCENE_CATALOG (default .numi/runs)
+  2. NUMI_WINDOW_SCENE
+  3. --window-scene PATH or --visual-observation-config PATH
+  4. legacy .numi/window.visual-observation.json
+
+Each imported robot publishes `*.numi-window.json` entries containing its
+mechanics, owner packs, authored camera, environment, and task contract.
+Native rollout options remain available for composed and diagnostic runs.
+
+Policy discovery, in order:
+
+  1. NUMI_WINDOW_POLICY
+  2. --policy-pack PATH
+  3. .numi/window.policypack
+  4. .numi/latest.policypack
+
+The Latest Policy button reloads that selected path at a normal
+rollout boundary. It preserves the active policy if the replacement fails its
+contract check.
+
+Policy selector catalog:
+
+  .numi/policies/<robot-id>/*.policypack
+  .numi/runs/<recent-run>/{deployment,candidate.deployment}.policypack
+
+The Policy selector uses the robot folder only before the first live frame.
+After that it filters on the exact world/task/observation/action contract. Run
+history discovery is bounded to recent direct run folders and never walks
+checkpoints or captures.
+
+Optional environment overrides:
+
+  NUMI_WINDOW_SCENE       authored visual-observation file
+  NUMI_WINDOW_SCENE_CATALOG robot/scene catalog root, default .numi/runs
+  NUMI_WINDOW_POLICY      PolicyPack to load and refresh with Latest Policy
+  NUMI_WINDOW_POLICY_CATALOG  default .numi/policies, grouped by robot folder
+  NUMI_WINDOW_BUILD_DIR   isolated CMake build directory
+  NUMI_WINDOW_BUILD_TYPE  default Release
+  NUMI_WINDOW_WIDTH       default 960
+  NUMI_WINDOW_HEIGHT      default 540
