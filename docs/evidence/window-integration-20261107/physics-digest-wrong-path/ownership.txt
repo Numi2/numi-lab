@@ -1,0 +1,2 @@
+MeasuredSurface probe failed: Numifly Maeda wing artifact failed SHA-256 qualification
+exit_code=1

@@ -47,8 +47,10 @@ initialization is invalidated on abort; a failed submitted command poisons
 the owner. Simultaneous device mechanics and device physics (including Matter)
 are explicitly rejected pending a verified joint transaction contract.
 MetalWorld's resident-state fingerprint returns an explicit error for external
-mechanics because it cannot digest those external buffers. There is no
-external surface save/restore implementation in this checkpoint.
+mechanics or device physics because it cannot digest their external state.
+Observation and action callbacks have separate unresolved external ownership,
+as described below. There is no external surface save/restore implementation
+in this checkpoint.
 
 ## Retained checks and limits
 
@@ -242,8 +244,10 @@ The ownership probe now also checks that unsupported digest, changed owner,
 changed fingerprint and mixed-owner requests leave accepted surface bytes
 unchanged, then compares the challenged resident's next continuation with an
 independent unchallenged resident. It checks the pending-inspection gate too.
-This is a fail-closed continuation test; it does not create or restore a
-snapshot. Native execution of the expanded probe is pending.
+On Apple M6, the expanded probe passed at revision `0d1064c0` with one
+environment and two steps; timestamped output and binary, source and input
+hashes are retained in `physics-digest-fixed`. This is a fail-closed
+continuation test; it does not create or restore a snapshot.
 
 An additional pre-fix diagnostic uses a synthetic device-physics owner with
 external host state. At revision `840a0898`, changing only that state from 11
@@ -260,5 +264,18 @@ such program, as it already rejected external device-mechanics owners; it does
 not infer completeness from an owner fingerprint. Device observation and action
 callbacks also have external contexts and no state-digest callback; their
 continuation ownership is not qualified by this change. Atomic cross-owner
-snapshot and restoration remain unsupported. The post-fix native probe and the
-expanded deterministic-continuation check are pending GPU qualification.
+snapshot and restoration remain unsupported. The post-fix synthetic-owner
+probe passed at revision `0d1064c0`: both requests returned `invalid_model` and
+zero. The first post-fix attempt passed a directory instead of its manifest and
+failed before simulation; its outputs remain in `physics-digest-wrong-path`.
+Neither test establishes Matter physics or complete external-owner replay.
+
+The callback boundary audit covers device physics, device mechanics, device
+observation, device action and inspection. Physics and mechanics are rejected
+by the digest. Observation and action have opaque contexts and can affect the
+next policy or physical action; the resident currently records neither owner,
+so their complete continuation state cannot be claimed by a successful digest.
+Inspection is declared presentation-only. Multicopter and Millard programs are
+source-authored programs, not opaque owner callbacks; their broader replay has
+not been qualified by these checks. A complete-state contract must also resolve
+the observation/action ownership gap before integration.

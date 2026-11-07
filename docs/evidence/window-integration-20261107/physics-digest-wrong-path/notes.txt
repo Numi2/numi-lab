@@ -1,0 +1,1 @@
+Both invocations were given the wing directory, not the required manifest.json path. Both exited 1 at artifact qualification before simulation. No start/end timestamps were recorded for this attempt. Neither result tests the fix or physical behavior.

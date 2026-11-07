@@ -1,0 +1,2 @@
+file=docs/evidence/window-integration-20261107/physics-digest-wrong-path/physics-digest.txt modified=2026-11-07 14:46:50 PST
+file=docs/evidence/window-integration-20261107/physics-digest-wrong-path/ownership.txt modified=2026-11-07 14:46:50 PST
