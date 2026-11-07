@@ -1,0 +1,27 @@
+{
+  "control_env_0": {
+    "depth_values_changed": 2736,
+    "after_value_counts": {
+      "1.0": 2736
+    }
+  },
+  "control_env_1": {
+    "depth_values_changed": 2736,
+    "after_value_counts": {
+      "1.0": 2736
+    }
+  },
+  "failure_env_0": {
+    "depth_values_changed": 2736,
+    "after_value_counts": {
+      "1.0": 2736
+    }
+  },
+  "failure_env_1": {
+    "depth_values_changed": 2736,
+    "after_value_counts": {
+      "1.0": 2736
+    }
+  },
+  "actor_status_streams_exact_text_equal": true
+}
