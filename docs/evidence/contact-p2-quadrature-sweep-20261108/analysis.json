@@ -1,0 +1,37 @@
+{
+  "peak_bin_N": 0.09056174908397033,
+  "differences": {
+    "triangle8": {
+      "max_relative_to_peak": 0.014449732157329856,
+      "time_s": 0.007500000000000001
+    },
+    "triangle12": {
+      "max_relative_to_peak": 0.004167554348163791,
+      "time_s": 0.0097
+    },
+    "triangle14": {
+      "max_relative_to_peak": 0.0029385282983874286,
+      "time_s": 0.0078000000000000005
+    },
+    "triangle16": {
+      "max_relative_to_peak": 0.0012328157425302425,
+      "time_s": 0.0077
+    },
+    "triangle18": {
+      "max_relative_to_peak": 0.0009190554802390697,
+      "time_s": 0.0074
+    },
+    "duffy48": {
+      "max_relative_to_peak": 5.4096985730009045e-06,
+      "time_s": 0.0064
+    }
+  },
+  "reproduction": {
+    "triangle8": 3.064823272118286e-16,
+    "triangle12": 6.129646544236572e-16
+  },
+  "min_sampled_gap_m": 8.204325003141303e-05,
+  "reference_pass": true,
+  "reproduction_pass": true,
+  "prediction_pass": true
+}
