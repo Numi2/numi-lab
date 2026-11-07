@@ -116,3 +116,28 @@ pass: all53 learner/Adam tensors/metadata, policy/rollout bytes and all three na
 components match. Run `tools/numi crow-env temporal-history-admission --output NEW`.
 This repairs native correctness; the flat learning campaign remains a failure,
 and learned memory/causal generalization and wider lifelong behavior remain open.
+
+## Frozen retinal initialization
+
+`tools/numi crow-env calibrate-retinal-initialization --policy INITIAL_POLICY
+--rollout NATIVE_PRECHOICE_ROLLOUT --output NEW_DIRECTORY` authors a fresh
+revision1 PolicyPack. The calibration is64 ticks with at least8 native lanes,
+no selected actions, reward, termination, physics failure or intervening reset.
+At least1024 valid image frames are required. It uses only native RGB and validity;
+food allocations, labels, outcomes and rewards never fit statistics. FP64 population
+moments center only1152 RGB features at indices97..1248; a default0.05 standard
+deviation floor caps gain at20. Proprioception, validity/age, every network/gate,
+critic, action distribution and semantic contract remain byte exact. Reverting
+only id and normalization on the published pack reproduces original source bytes.
+
+Normalization is frozen in the PolicyPack before fresh execution, never changed
+inside an existing native lifetime or optimizer checkpoint. Cameras, physical
+observations, food, rewards and native semantics stay unchanged. The default trainer
+initialization is unchanged; use the resulting `initial.policypack` as an explicit
+fresh `--policy-pack` without `--initialize-policy`.
+
+On3968 valid native frames, the bounded initializer improves early-image head-choice
+separation26.8x on identical inputs; a memory cut at40 removes the separation.
+Three64-lane320tick PPO collections admit native/MLX parity and exact fresh chunk1/8
+continuation across all53 learner/Adam tensors, policies/rollouts and native state.
+These are numerical/mechanism controls, not learned memory or ecological success.

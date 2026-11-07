@@ -1208,6 +1208,11 @@ def main() -> int:
     commands.add_parser("memory-choice-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("action-holds-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("temporal-history-admission").add_argument("--output", type=Path, required=True)
+    calibration = commands.add_parser("calibrate-retinal-initialization")
+    calibration.add_argument("--output", type=Path, required=True)
+    calibration.add_argument("--policy", type=Path, required=True)
+    calibration.add_argument("--rollout", type=Path, required=True)
+    calibration.add_argument("--minimum-rgb-standard-deviation", type=float, default=.05)
     prepare_cued = commands.add_parser("prepare-cued-foraging")
     prepare_cued.add_argument("--output", type=Path, required=True)
     prepare_cued.add_argument("--allocation-seed", type=int, required=True)
@@ -1529,6 +1534,10 @@ def main() -> int:
                              str(output / "native-evidence")], root, 180)
             if result.get("status") != "passed" or result.get("exact_partition_replay") is not True:
                 raise RuntimeError("Native finite-resource admission failed")
+        elif args.command == "calibrate-retinal-initialization":
+            from .crow_retinal_normalization import calibrate_initial_policy
+            result = calibrate_initial_policy(args.policy.resolve(strict=True), args.rollout.resolve(strict=True), output,
+                minimum_standard_deviation=args.minimum_rgb_standard_deviation)
         elif args.command == "prepare-cued-foraging":
             if not 0 <= args.allocation_seed < 2**64:
                 raise ValueError("Allocation seed must be an unsigned64 integer")

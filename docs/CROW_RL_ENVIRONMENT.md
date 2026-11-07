@@ -44,6 +44,13 @@ sustained end-to-end performance remain unqualified. The preceding1.31M-transiti
 campaign did not improve intake. Evidence and exact runtime are preserved in
 `artifacts/crow-rl-native-history-20261108`; raw cleanup requires pushed recovery.
 
+Optional `calibrate-retinal-initialization` authors frozen RGB centering/scales
+from an unlabeled64-tick pre-choice native rollout. It caps gain at20 by default,
+uses only valid RGB frames, and preserves all other parameters/contracts exactly.
+Statistics become ordinary PolicyPack constants before a fresh lifetime. No runtime
+normalization adaptation, actor food labels or new sensor/task ABI is introduced.
+See the active action-holds-v1 README for input guards and measured controls.
+
 The following dated sections preserve earlier investigation and ABI history.
 
 ## Live inspection on 7 November 2026
