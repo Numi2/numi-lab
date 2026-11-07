@@ -1,0 +1,84 @@
+{
+  "source_commit": "0e230f77b2b69c961f3fd777055637cc1f8da633",
+  "python_version": "Python 3.13.16",
+  "dependencies": [
+    "numpy==2.3.4",
+    "scikit-fem==11.0.0",
+    "scipy==1.16.3"
+  ],
+  "source_sha256": "0bf2206891f3f057704a4f60e4f9f2be8c4cc8979c3be3995efc98ade8ab88e7",
+  "cpp_sha256": "8d5c4789ea2f6bff2583d0b1e0f6a755eb8ef0675667546b54aea61eb01aa5d5",
+  "exe_sha256": "5f2e066cd161b3ce8041e29fed614ee90ec5aba25af7c63ad7843008f0e13970",
+  "model_sha256": "5b849e79f93272f2bbc5043b62607d967c698d6bbf9c21da8f66edd61134297a",
+  "native_sha256": "361a612d19ccf3b45899e3d080a44eb8c9b6479ee2b8f03475fd44259d3123f2",
+  "checks": [
+    {
+      "step": 0,
+      "active_nodes": 0,
+      "energy_relative": 2.8319570755128966e-15,
+      "residual_l2_relative": 3.7260145769405446e-14,
+      "tangent_l2_relative": 2.2651081601354607e-10,
+      "external_energy_fd_relative": 1.0181521439347936e-09,
+      "external_tangent_fd_l2_relative": 1.9559760647570488e-10,
+      "analytic_controls": {
+        "affine_energy_absolute_error_J": 5.421010862427522e-19,
+        "affine_element_density_max_absolute_error_Pa": 4.867217739956686e-13,
+        "uniform_contact_energy_absolute_error_J": 0.0,
+        "uniform_contact_total_residual_error_N": 5.551115123125783e-17,
+        "uniform_contact_total_force_N": 0.23208595614364663
+      },
+      "pass": true
+    },
+    {
+      "step": 150,
+      "active_nodes": 9,
+      "energy_relative": 3.7279944129907604e-16,
+      "residual_l2_relative": 3.1796907296112703e-15,
+      "tangent_l2_relative": 1.4572155496126328e-08,
+      "external_energy_fd_relative": 2.82643168586043e-07,
+      "external_tangent_fd_l2_relative": 1.4571965770494293e-08,
+      "analytic_controls": {
+        "affine_energy_absolute_error_J": 5.421010862427522e-19,
+        "affine_element_density_max_absolute_error_Pa": 4.867217739956686e-13,
+        "uniform_contact_energy_absolute_error_J": 0.0,
+        "uniform_contact_total_residual_error_N": 5.551115123125783e-17,
+        "uniform_contact_total_force_N": 0.23208595614364663
+      },
+      "pass": true
+    },
+    {
+      "step": 200,
+      "active_nodes": 0,
+      "energy_relative": 8.738285161325726e-16,
+      "residual_l2_relative": 2.736740057930402e-14,
+      "tangent_l2_relative": 2.0743346296717674e-10,
+      "external_energy_fd_relative": 9.391423759711407e-10,
+      "external_tangent_fd_l2_relative": 2.438894281091135e-10,
+      "analytic_controls": {
+        "affine_energy_absolute_error_J": 5.421010862427522e-19,
+        "affine_element_density_max_absolute_error_Pa": 4.867217739956686e-13,
+        "uniform_contact_energy_absolute_error_J": 0.0,
+        "uniform_contact_total_residual_error_N": 5.551115123125783e-17,
+        "uniform_contact_total_force_N": 0.23208595614364663
+      },
+      "pass": true
+    },
+    {
+      "step": 319,
+      "active_nodes": 6,
+      "energy_relative": 8.801313536042958e-16,
+      "residual_l2_relative": 1.278868557755738e-14,
+      "tangent_l2_relative": 2.8686680248111013e-08,
+      "external_energy_fd_relative": 1.564099053826309e-05,
+      "external_tangent_fd_l2_relative": 2.8686541709862503e-08,
+      "analytic_controls": {
+        "affine_energy_absolute_error_J": 5.421010862427522e-19,
+        "affine_element_density_max_absolute_error_Pa": 4.867217739956686e-13,
+        "uniform_contact_energy_absolute_error_J": 0.0,
+        "uniform_contact_total_residual_error_N": 5.551115123125783e-17,
+        "uniform_contact_total_force_N": 0.23208595614364663
+      },
+      "pass": false
+    }
+  ]
+}

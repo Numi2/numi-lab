@@ -36,3 +36,14 @@ n=64 spatial behavior.
 The initially pinned SciPy 1.15.3 package installed but its bundled PROPACK
 failed to load on this host due to a Mach-O zero-fill section error. That
 failure is retained; the separate pinned SciPy 1.16.3 stack imports.
+
+## Initial result and retained failure
+
+The initial four-state run passes the analytical affine-energy and uniform
+contact controls and the external-to-C++ energy, residual and tangent checks.
+However, state 319 fails the registered external directional energy
+finite-difference check: 1.5641e-5 relative, above 2e-6. States 0, 150 and
+200 pass all checks. The complete first-run data and failure are retained;
+assembly qualification is not complete. Investigating whether this is
+finite-difference cancellation or an actual inconsistency requires a separate
+step-size study, not silently changing the declared threshold.
