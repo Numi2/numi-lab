@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/Users/numi/numi-lab-release-panel-relocated-20261108/bin/numi",
+    "train",
+    "--envs",
+    "16",
+    "--steps",
+    "24",
+    "--updates",
+    "20",
+    "--chunk",
+    "8",
+    "--update-epochs",
+    "2",
+    "--scene",
+    "ground",
+    "--task",
+    "g1-legs-locomotion",
+    "--seed",
+    "20261108",
+    "--learner-seed",
+    "20261109"
+  ],
+  "env": {
+    "NUMI_MLX_PYTHON": "/Users/numi/numi-window-integration-venv-20261107/bin/python",
+    "NUMI_RUN_DIR": "/Users/numi/numi-g1-fresh-pilot-20261108/run",
+    "NUMI_SELECTION_ENVS": "8",
+    "NUMI_SELECTION_SEED": "4081019",
+    "NUMI_WORKSPACE_ROOT": "/Users/numi/numi-g1-fresh-pilot-20261108"
+  }
+}

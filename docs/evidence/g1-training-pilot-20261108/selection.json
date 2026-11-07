@@ -1,0 +1,95 @@
+{
+  "adult_current_band": null,
+  "adult_previous_band": null,
+  "candidate_advanced_deployment": false,
+  "candidate_policy_pack": "/Users/numi/numi-g1-fresh-pilot-20261108/run/candidate.deployment.policypack",
+  "candidate_retained": true,
+  "checkpoint_comparisons": {
+    "candidate": {
+      "candidate_advanced_deployment": false,
+      "candidate_retained": true,
+      "improvements": [
+        "mean final forward progress increased",
+        "mean tilt decreased"
+      ],
+      "metrics": {
+        "adult_authored_outcomes": {},
+        "candidate_clean_horizon_environment_rate": 0.0,
+        "candidate_mean_final_forward_progress_m": 0.2112600922337151,
+        "candidate_mean_peak_forward_progress_m": 0.7400436403913773,
+        "candidate_mean_reward": -0.01755059521084712,
+        "candidate_mean_root_height": 0.7187471713460982,
+        "candidate_mean_task_reward": 0.04650477414741181,
+        "candidate_mean_tilt": 0.3030679749823175,
+        "candidate_mean_tracking_score": 0.46664052198240435,
+        "candidate_physical_failure_rate": 14.75,
+        "candidate_termination_rate": 14.75,
+        "incumbent_clean_horizon_environment_rate": 0.0,
+        "incumbent_mean_final_forward_progress_m": 0.14605524008766224,
+        "incumbent_mean_peak_forward_progress_m": 0.7445254051617667,
+        "incumbent_mean_reward": -0.013972096161649915,
+        "incumbent_mean_root_height": 0.7209483119398356,
+        "incumbent_mean_task_reward": 0.048233833485282956,
+        "incumbent_mean_tilt": 0.30585874026222154,
+        "incumbent_mean_tracking_score": 0.5413911655018674,
+        "incumbent_physical_failure_rate": 14.5,
+        "incumbent_termination_rate": 14.5,
+        "world_source": "bundled_g1"
+      },
+      "regressions": [
+        "termination rate increased",
+        "tracking score decreased"
+      ],
+      "schema": "numi.policy-selection.v1",
+      "selected": "incumbent",
+      "selection_method": "continuous_locomotion_progress",
+      "selection_score": -0.1684885052750506,
+      "task": "velocity"
+    }
+  },
+  "deployment_policy_pack": "/Users/numi/numi-g1-fresh-pilot-20261108/run/deployment.policypack",
+  "evaluated_candidate_policy_packs": [
+    "/Users/numi/numi-g1-fresh-pilot-20261108/run/candidate.deployment.policypack"
+  ],
+  "held_out_seed": 4081019,
+  "improvements": [
+    "mean final forward progress increased",
+    "mean tilt decreased"
+  ],
+  "incumbent_policy_pack": "/Users/numi/numi-g1-fresh-pilot-20261108/run/incumbent.deployment.policypack",
+  "maximum_evaluation_environments": 8,
+  "metrics": {
+    "adult_authored_outcomes": {},
+    "candidate_clean_horizon_environment_rate": 0.0,
+    "candidate_mean_final_forward_progress_m": 0.2112600922337151,
+    "candidate_mean_peak_forward_progress_m": 0.7400436403913773,
+    "candidate_mean_reward": -0.01755059521084712,
+    "candidate_mean_root_height": 0.7187471713460982,
+    "candidate_mean_task_reward": 0.04650477414741181,
+    "candidate_mean_tilt": 0.3030679749823175,
+    "candidate_mean_tracking_score": 0.46664052198240435,
+    "candidate_physical_failure_rate": 14.75,
+    "candidate_termination_rate": 14.75,
+    "incumbent_clean_horizon_environment_rate": 0.0,
+    "incumbent_mean_final_forward_progress_m": 0.14605524008766224,
+    "incumbent_mean_peak_forward_progress_m": 0.7445254051617667,
+    "incumbent_mean_reward": -0.013972096161649915,
+    "incumbent_mean_root_height": 0.7209483119398356,
+    "incumbent_mean_task_reward": 0.048233833485282956,
+    "incumbent_mean_tilt": 0.30585874026222154,
+    "incumbent_mean_tracking_score": 0.5413911655018674,
+    "incumbent_physical_failure_rate": 14.5,
+    "incumbent_termination_rate": 14.5,
+    "world_source": "bundled_g1"
+  },
+  "regressions": [
+    "termination rate increased",
+    "tracking score decreased"
+  ],
+  "schema": "numi.policy-selection.v1",
+  "selected": "incumbent",
+  "selected_candidate_label": null,
+  "selection_method": "continuous_locomotion_progress",
+  "selection_score": -0.1684885052750506,
+  "task": "velocity"
+}
