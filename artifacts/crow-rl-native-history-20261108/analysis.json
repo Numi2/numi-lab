@@ -1,0 +1,157 @@
+{
+  "status": "passed",
+  "source_commit": "ac14e6863d6a7e46aa632380f6c1581d90d7cdd3",
+  "native_history": {
+    "status": "passed",
+    "arms": 8,
+    "accepted_ticks_per_arm": 65,
+    "history_float_checks": 13968,
+    "full_checkpoint_and_stream_partition_exact": true,
+    "physics_rejections": 0,
+    "terminations": 0
+  },
+  "compatibility_and_archived_fault_oracle": {
+    "status": "passed",
+    "compatibility": [
+      {
+        "case": "old-policy",
+        "returncode": 1,
+        "reason": "task_rollout failed: PolicyPack compile failed [incompatible_contract]: contract: policy=(world=6618065933330223767,task=5956812310130690314,observation=14106726830685229865,action=4478855422321192109) task=(world=6618065933330223767,task=15700382763478064326,observation=15073528279370871559,action=4478855422321192109)"
+      },
+      {
+        "case": "old-checkpoint",
+        "returncode": 1,
+        "reason": "task_rollout failed: Checkpoint contract mismatch for NUMILF01: expected 13969394616325726041, got 4426602812858853778"
+      },
+      {
+        "case": "new-host-old-shader",
+        "returncode": 1,
+        "reason": "task_rollout failed: task-rollout publication failed [metal_pipeline_failure]: failed to create device-resident contact pipeline 'mr_locomotion_task_observe_history2': metallib does not contain mr_locomotion_task_observe_history2"
+      },
+      {
+        "case": "old-host-new-shader",
+        "returncode": 1,
+        "reason": "task_rollout failed: task-rollout publication failed [metal_pipeline_failure]: failed to create device-resident contact pipeline 'mr_locomotion_task_observe': metallib does not contain mr_locomotion_task_observe"
+      }
+    ],
+    "faulty_archived_history_word_mismatches": 1970,
+    "history_words": 2304,
+    "first_mismatches": [
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        1,
+        1,
+        0
+      ],
+      [
+        1,
+        0,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        0,
+        2
+      ],
+      [
+        1,
+        1,
+        2
+      ],
+      [
+        1,
+        0,
+        3
+      ],
+      [
+        1,
+        1,
+        3
+      ],
+      [
+        1,
+        0,
+        4
+      ],
+      [
+        1,
+        1,
+        4
+      ],
+      [
+        1,
+        0,
+        5
+      ],
+      [
+        1,
+        1,
+        5
+      ]
+    ],
+    "restored_files": 8,
+    "review": "Exact expected compatibility rejection causes, adjacent old/current dylib identities audited; no accepted output was published; actual archived failing checkpoint rejected by independent state oracle."
+  },
+  "cue_intake": {
+    "head_yaw_hold_ticks": 256,
+    "beak_hold_ticks": 16,
+    "memory_choice_decision_tick": 64,
+    "status": "passed",
+    "lanes": 8,
+    "native_arms": 8,
+    "cue_active_until_lifetime_tick": 32,
+    "intake_delayed_ticks": 192,
+    "left_port_lanes": 5,
+    "right_port_lanes": 3,
+    "correct_consumed_ug_per_lane": 40000,
+    "wrong_consumed_ug_per_lane": 0,
+    "paired_changed_lanes": 4,
+    "early_image_differences": 120,
+    "non_image_actor_features_byte_exact": true,
+    "post_cue_actor_byte_exact": true,
+    "native_partition_byte_exact": true,
+    "physical_terminations": 0,
+    "failed_physics_steps": 0,
+    "learned_memory_qualified": false
+  },
+  "training_continuation": [
+    {
+      "case": "tail8",
+      "learner_tensors_and_metadata_exact": 53,
+      "policy_candidate_rollout_byte_exact": true,
+      "native_sections_sha256": [
+        "b46a1e5a6b98ec571664b04f718cdd6945a72edb5b0a36947103e8868dc90e0c",
+        "b5ae38a66c76d01383eecae0d00457cbd4e258902867c5aa039e1e4135da6384",
+        "923e44b5989980d3e813a58f7c9735113a9e6ac9ceba3da5915d15a20fe8b3cd"
+      ]
+    },
+    {
+      "case": "tail1",
+      "learner_tensors_and_metadata_exact": 53,
+      "policy_candidate_rollout_byte_exact": true,
+      "native_sections_sha256": [
+        "b46a1e5a6b98ec571664b04f718cdd6945a72edb5b0a36947103e8868dc90e0c",
+        "b5ae38a66c76d01383eecae0d00457cbd4e258902867c5aa039e1e4135da6384",
+        "923e44b5989980d3e813a58f7c9735113a9e6ac9ceba3da5915d15a20fe8b3cd"
+      ]
+    }
+  ],
+  "accepted_training_transitions": 102400,
+  "all_v9_selection_schedules_exact": true,
+  "full_native_build": true,
+  "focused_CTests_passed": 8,
+  "current_runtime_binary_identity_unchanged_through_checks": {
+    "library": true,
+    "metallib": true
+  },
+  "learned_memory_qualified": false
+}

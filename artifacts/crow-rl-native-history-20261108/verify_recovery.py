@@ -1,0 +1,72 @@
+from pathlib import Path
+import hashlib,importlib.util,json,os,stat,struct,subprocess
+import mlx.core as mx
+import numpy as np
+root=Path.cwd();base=root/'artifacts/crow-rl-native-history-20261108';tmp=Path('/private/tmp/crow-native-history-git-recovery-20261108')
+spec=importlib.util.spec_from_file_location('archive',root/'tools/crow_evidence_archive.py');a=importlib.util.module_from_spec(spec);spec.loader.exec_module(a)
+m=json.loads((base/'runtime-recovery.json').read_text());plan={'budget':'One600second standard64-lane training update and one180second eight-arm cross-lane native control, no retries','prediction':'Git-restored native/Python/product inputs reproduce policy/candidate/rollout bytes,53 learner/Adam tensors and metadata, three full native components, and every32/33/64/65-lane history control snapshot/stream hash. Adjacent Git-restored library must actually load.','scope':'Matching device/OS/dependencies; native and integrated training recovery; no learned memory qualification.'}
+if (base/'verification-plan.json').exists():
+ if json.loads((base/'verification-plan.json').read_text())!=plan:raise RuntimeError('Verification plan differs')
+else:(base/'verification-plan.json').write_text(json.dumps(plan,indent=2)+'\n')
+def sha(p):return a.file_hash(p)
+def native(p):
+ data=p.read_bytes();offset=104;parts=[]
+ if data[:8]!=b'NUMILF01' or hashlib.sha256(data[64:]).digest()!=data[32:64]:raise RuntimeError('Invalid native life envelope')
+ for _ in range(3):
+  size,=struct.unpack_from('<Q',data,offset);offset+=8;b=data[offset:offset+size]
+  if len(b)!=size or hashlib.sha256(b[64:]).digest()!=b[32:64]:raise RuntimeError('Invalid native component checksum')
+  parts.append(hashlib.sha256(b).hexdigest());offset+=size
+ if offset!=len(data):raise RuntimeError('Wrong native section lengths')
+ return parts
+env={k:v for k,v in os.environ.items() if not k.startswith('DYLD_')};env['DYLD_PRINT_LIBRARIES']='1'
+def run(name,c,timeout,json_output=True):
+ with (base/(name+'.command.json')).open('x') as f:f.write(json.dumps(c,indent=2)+'\n')
+ p=subprocess.run(c,capture_output=True,text=True,env=env,timeout=timeout)
+ for suffix,content in [('stdout',p.stdout),('stderr',p.stderr)]:
+  with (base/(name+'.'+suffix)).open('x') as f:f.write(content)
+ with (base/(name+'.receipt.json')).open('x') as f:f.write(json.dumps({'returncode':p.returncode},indent=2)+'\n')
+ if p.returncode:raise RuntimeError(name+' failed')
+ loaded=[line for line in p.stderr.splitlines() if line.startswith('dyld[') and 'libmetalrobo.dylib' in line]
+ if not loaded or any(not line.endswith(str(tmp/'lib/libmetalrobo.dylib')) for line in loaded):raise RuntimeError(name+' wrong library loaded')
+ return {'summary':json.loads(p.stdout) if json_output else p.stdout,'loaded_library':loaded,'library_override':False}
+try:
+ c=m['training_command'][:];c[0]=str(tmp/'bin/metalrobo_task_train');dest=tmp/'replay';dest.mkdir()
+ paths={'--metallib':tmp/'shaders/MetalRobo.metallib','--native-library':tmp/'lib/libmetalrobo.dylib','--python-root':tmp/'python','--visual-observation-config':tmp/'project/environments/american-crow/action-holds-v1/retinal-observation.json','--resume-training-checkpoint':tmp/'input/checkpoint','--checkpoint-directory':dest/'checkpoints','--updated-policy-pack':dest/'updated.policypack','--deployment-policy-pack':dest/'deployment.policypack','--incumbent-policy-pack':dest/'incumbent.policypack','--rollout-pack':dest/'training.rolloutpack','--output-learner-state':dest/'learner.safetensors'}
+ for flag,path in paths.items():c[c.index(flag)+1]=str(path)
+ training=run('training-recovery',c,600);ref=dest/'checkpoints/revision-00000003.trainingcheckpoint'
+ if training['summary']['failed_environment_steps'] or training['summary']['training_samples']!=20480 or training['summary']['final_policy_revision']!=3:raise RuntimeError('Wrong recovered training collection')
+ for name,record in m['training_reference'].items():
+  if sha(ref/name)!=record['sha256']:raise RuntimeError('Recovered training artifact differs: '+name)
+ tensors,meta=mx.load(ref/'learner.safetensors',return_metadata=True)
+ if meta!=m['learner_reference']['metadata'] or set(tensors)!=set(m['learner_reference']['tensors']):raise RuntimeError('Learner metadata/topology differs')
+ for key,value in tensors.items():
+  x=np.asarray(value);rec=m['learner_reference']['tensors'][key]
+  if str(x.dtype)!=rec['dtype'] or list(x.shape)!=rec['shape'] or hashlib.sha256(x.tobytes()).hexdigest()!=rec['sha256']:raise RuntimeError('Learner tensor differs: '+key)
+ if native(ref/'life.native')!=m['training_native_sections']:raise RuntimeError('Native training future differs')
+ history=run('history-recovery',[str(tmp/'bin/metalrobo_crow_temporal_history_check'),str(tmp/'history'),str(tmp/'project/environments/american-crow/cued-foraging-v1/calibrated-ports.bin')],180,False)
+ for name,rec in m['history_reference'].items():
+  if sha(tmp/'history'/name)!=rec['sha256']:raise RuntimeError('Restored native history evidence differs: '+name)
+ history['summary']=json.loads((tmp/'history/summary.json').read_text())
+ files=[];dirs=[]
+ for directory,subdirs,names in os.walk(tmp,followlinks=False):
+  for name in subdirs:
+   p=Path(directory)/name
+   if p.is_symlink():raise RuntimeError('Unexpected recovery symlink')
+   dirs.append(p)
+  for name in names:
+   p=Path(directory)/name;s=p.lstat()
+   if not stat.S_ISREG(s.st_mode):raise RuntimeError('Unexpected recovery file type')
+   files.append({'path':str(p),'bytes':s.st_size,'mode':stat.S_IMODE(s.st_mode),'mtime_ns':s.st_mtime_ns,'sha256':sha(p)})
+ handles=subprocess.run(['/usr/sbin/lsof','-Fpn','+D',str(tmp)],capture_output=True,text=True,timeout=60)
+ if handles.returncode not in (0,1) or handles.stdout or handles.stderr:raise RuntimeError('Open recovery handles')
+ for r in files:
+  p=Path(r['path']);s=p.lstat()
+  if s.st_size!=r['bytes'] or stat.S_IMODE(s.st_mode)!=r['mode'] or s.st_mtime_ns!=r['mtime_ns'] or sha(p)!=r['sha256']:raise RuntimeError('Recovery changed during cleanup')
+ report={'status':'passed','archive_commit':a.git('rev-parse','HEAD').decode().strip(),'plan':plan,'training':training,'history':history,'learner_tensors_exact':len(tensors),'native_training_sections':m['training_native_sections'],'history_reference_files_exact':len(m['history_reference']),'restoration':json.loads((tmp/'runtime-restoration.json').read_text()),'temporary_cleanup':{'status':'validated','files':files,'open_handles':0,'df_before':subprocess.check_output(['df','-k','.'],text=True)}}
+ (base/'verification.json').write_text(json.dumps(report,indent=2)+'\n')
+ for r in files:Path(r['path']).unlink()
+ for p in sorted(dirs,key=lambda p:len(p.parts),reverse=True):p.rmdir()
+ tmp.rmdir();report['temporary_cleanup'].update(status='removed',df_after=subprocess.check_output(['df','-k','.'],text=True));(base/'verification.json').write_text(json.dumps(report,indent=2)+'\n')
+ print(json.dumps({'status':'passed','learner_tensors_exact':len(tensors),'native_training_components_exact':3,'history_reference_files_exact':len(m['history_reference']),'temporary_files_removed':len(files),'temporary_bytes_removed':sum(r['bytes'] for r in files)}))
+except Exception as error:
+ (base/'verification-failure.json').write_text(json.dumps({'error':str(error),'type':type(error).__name__,'plan':plan},indent=2)+'\n');raise
