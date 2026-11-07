@@ -1,0 +1,105 @@
+--- /Users/numi/numi-g1-tracker-plane-owner-20261107/src/metal/MetalWorld.mm	2026-11-07 14:18:00
++++ /Users/numi/numi-g1-transaction-hook-owner-20261107/src/metal/MetalWorld.mm	2026-11-07 15:09:35
+@@ -34,6 +34,22 @@
+ 
+ namespace metalrobo {
+ namespace {
++
++// Isolated research hook: no installation means no production-path change.
++// A callback may only encode commands into the borrowed command buffer.
++using ResearchObservationHook = bool (*)(
++    void* context, void* commandBuffer, void* actorHistory,
++    void* actorOutput, void* resetMasks, void* taskStates,
++    void* environmentStatuses, void* contactStatuses,
++    std::uint32_t environmentCount, std::uint32_t actorFrameSize,
++    std::uint32_t actorHistoryLength, std::uint32_t actorObservationSize
++);
++struct ResearchObservationHooks {
++    void* context = nullptr;
++    ResearchObservationHook prepare = nullptr;
++    ResearchObservationHook finish = nullptr;
++};
++thread_local ResearchObservationHooks researchObservationHooks{};
+ 
+ constexpr std::size_t kRawBufferCount = 239u;
+ constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
+@@ -16864,6 +16880,36 @@
+                 pass.controlStep = controlStep;
+                 pass.physicsSubstep = MR_INVALID_INDEX;
+                 if (nativeTask) {
++                    const bool researchEnabled =
++                        researchObservationHooks.context != nullptr &&
++                        researchObservationHooks.context ==
++                            config.deviceObservationProgram.context;
++                    if (researchEnabled &&
++                        (batch.controlStepCount != 1u ||
++                         researchObservationHooks.prepare == nullptr ||
++                         researchObservationHooks.finish == nullptr)) {
++                        return reject(std::move(diagnostics),
++                            MetalWorldHostStatus::invalidDimensions,
++                            "research observation transaction requires one control step and both hooks");
++                    }
++                    if (researchEnabled &&
++                        !researchObservationHooks.prepare(
++                            researchObservationHooks.context,
++                            (__bridge void*)commandBuffer,
++                            (__bridge void*)selectedState->buffers[kTaskActorHistory],
++                            (__bridge void*)selectedState->buffers[kTaskActorObservations],
++                            (__bridge void*)selectedState->buffers[kResetMasks],
++                            (__bridge void*)selectedState->buffers[kTaskState],
++                            (__bridge void*)selectedState->buffers[kEnvironmentStatuses],
++                            (__bridge void*)selectedState->buffers[kContactStatuses],
++                            static_cast<std::uint32_t>(batch.environmentCount),
++                            config.taskProgram.layout().actorFrameSize,
++                            config.taskProgram.layout().actorHistoryLength,
++                            config.taskProgram.layout().actorObservationSize)) {
++                        return reject(std::move(diagnostics),
++                            MetalWorldHostStatus::metalCommandFailure,
++                            "research observation prepare rejected");
++                    }
+                     if (!encodeTaskObserve(
+                             *selectedState,
+                             commandBuffer,
+@@ -17408,6 +17454,27 @@
+                     );
+                 }
+                 if (nativeTask &&
++                    researchObservationHooks.context != nullptr &&
++                    researchObservationHooks.context ==
++                        config.deviceObservationProgram.context &&
++                    !researchObservationHooks.finish(
++                        researchObservationHooks.context,
++                        (__bridge void*)commandBuffer,
++                        (__bridge void*)selectedState->buffers[kTaskActorHistory],
++                        (__bridge void*)selectedState->buffers[kTaskActorObservations],
++                        (__bridge void*)selectedState->buffers[kResetMasks],
++                        (__bridge void*)selectedState->buffers[kTaskState],
++                        (__bridge void*)selectedState->buffers[kEnvironmentStatuses],
++                        (__bridge void*)selectedState->buffers[kContactStatuses],
++                        static_cast<std::uint32_t>(batch.environmentCount),
++                        config.taskProgram.layout().actorFrameSize,
++                        config.taskProgram.layout().actorHistoryLength,
++                        config.taskProgram.layout().actorObservationSize)) {
++                    return reject(std::move(diagnostics),
++                        MetalWorldHostStatus::metalCommandFailure,
++                        "research observation finish rejected");
++                }
++                if (nativeTask &&
+                     config.policyProgram.valid() &&
+                     !config.policyProgram.criticLayers().empty() &&
+                     !encodePolicyInference(
+@@ -17692,6 +17759,14 @@
+         return "context_busy";
+     }
+     return "unknown";
++}
++
++// Deliberately only exported from this research owner copy.
++extern "C" void mr_research_set_observation_hooks(
++    void* context, ResearchObservationHook prepare,
++    ResearchObservationHook finish
++) noexcept {
++    researchObservationHooks = {context, prepare, finish};
+ }
+ 
+ } // namespace metalrobo
