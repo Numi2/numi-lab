@@ -11,3 +11,7 @@ The prior physical 72-case matrix regressed from 72 accepted to 61. At two sweep
 In one exploratory matched run the completed owner candidate used 65.5 ms GPU time, while the previous candidate's rejected owner step used 6.4 ms. These have different acceptance outcomes and are not a performance comparison. Timing samples for all cases are retained as diagnostic evidence; no speed claim follows. The prior candidate's passing matrix is unchanged and independently retained on its branch.
 
 [Raw results, source patch, FP64 reference and source/binary identities](evidence/ccd-priority-row-evidence-20261107.tar.gz) have archive SHA-256 1b83e6deb01df8d63e573c876016e52adb9dbc7853382aaf93165de2e8c36902. Metallibs and executables remain host-only; their SHA-256 identities are inside the archive.
+
+## Follow-up two-row normal reference
+
+A separate FP64 2x2 nonnegative quadratic subproblem reference tests centered opposing contacts, a rank-deficient duplicate pair, and a unilateral boundary. At the centered 257-contact geometry W has diagonal 1.04096 and off-diagonal 0.95904; two endpoint impulses of 0.5 N s solve all normal rows and cancel torque. This reference is normal-only and is not a GPU algorithm or a friction test. A production implementation would need stable active-pair selection, general upper bounds, local friction coupling, and treatment of the non-distributed 33-contact path.
