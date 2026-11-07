@@ -1,0 +1,5 @@
+4e12055208f149ee33593e0660c0e83fc0e0e5cde5b6f2c05bcd65b708e4bf4d  apps/benchmark.cpp
+7750f0159ce39ad7a9cf8acc4054fd876e2b3cc3b9ebbaed3475a5ae35276768  /Users/numi/numi-lab-benchmark-accounting-build-20261107/bin/metalrobo_bench
+19a80b96d60e0e7a3c8bca9ef57e7031f259ceba08ffed2f39dbce7c5584bd44  /Users/numi/numi-lab-benchmark-accounting-build-20261107/lib/libmetalrobo.dylib
+8f9137278d52ff4a083dbc0c84ad541c25db91e8c50d5e7b3f70962cb23b69fa  /Users/numi/numi-lab-benchmark-accounting-build-20261107/shaders/MetalRobo.metallib
+6f3182e1d78071c20afc1da7efb54927da4c3f724a758e552e5293fe8ea52f99  /Users/numi/numi-lab-benchmark-accounting-build-20261107/matter/shaders/NumiMatter.metallib
