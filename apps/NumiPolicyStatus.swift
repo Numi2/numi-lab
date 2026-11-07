@@ -59,6 +59,8 @@ public func numiPolicyEvidenceStatus(policy: URL, run: URL) -> NumiPolicyEvidenc
           evidenceManifest["sha256"] as? String == numiSHA256(evidenceData),
           (evidenceManifest["size_bytes"] as? NSNumber)?.intValue == evidenceData.count,
           metadata["policy_sha256"] as? String == numiSHA256(policyData),
+          let worldSource = evidence["world_source"] as? String,
+          ["bundled_g1", "bundled_g1_interaction"].contains(worldSource),
           let failed = (evidence["failed_environment_steps"] as? NSNumber)?.intValue,
           let falls = (evidence["height_or_tilt_termination_count"] as? NSNumber)?.intValue,
           let tilt = (evidence["mean_tilt"] as? NSNumber)?.doubleValue,
