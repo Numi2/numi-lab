@@ -1,0 +1,5 @@
+{
+  "budget": "One600second standard64-lane training update and one180second eight-arm cross-lane native control, no retries",
+  "prediction": "Git-restored native/Python/product inputs reproduce policy/candidate/rollout bytes,53 learner/Adam tensors and metadata, three full native components, and every32/33/64/65-lane history control snapshot/stream hash. Adjacent Git-restored library must actually load.",
+  "scope": "Matching device/OS/dependencies; native and integrated training recovery; no learned memory qualification."
+}
