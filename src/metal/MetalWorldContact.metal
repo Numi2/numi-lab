@@ -8903,7 +8903,7 @@ inline void mrWorldWave32SolvePacket(
             // Eight bounded pivots per configured sweep. Publication still
             // requires the independent final-state complementarity certificate.
             for(uint pivot=0u;pivot<8u;++pivot) {
-                float bestScore=0.f,bestImpulse=0.f;
+                float bestScore=0.f,bestImpulse=0.f,bestGradient=0.f,bestDiagonal=0.f;
                 uint best=MR_INVALID_INDEX;
                 for(uint ti=0u;ti<work.tileCount;++ti) {
                     const MRContactTileGPU tile=tiles[tileBase+work.firstTile+ti];
@@ -8952,16 +8952,92 @@ inline void mrWorldWave32SolvePacket(
                             localFailureConstraint=min(localFailureConstraint,c);
                             break;
                         }
-                        if(score>bestScore) {bestScore=score;best=c;bestImpulse=next;}
+                        if(score>bestScore) {bestScore=score;best=c;bestImpulse=next;bestGradient=eq;bestDiagonal=diagonal;}
                     }
                     if(localFailure!=MR_STEP_SUCCESS) break;
                 }
                 if(localFailure!=MR_STEP_SUCCESS||best==MR_INVALID_INDEX||bestScore<=0.f) break;
                 device MRContactConstraintGPU& contact=contacts[constraintBase+best];
-                const float delta=bestImpulse-contact.impulses.x;
-                contact.impulses.x=bestImpulse;
-                impulseDeltas[constraintBase+best].x+=delta;
-                laneMaximumDelta=max(laneMaximumDelta,abs(delta));
+                device const MREvaluatedConstraintIRRowGPU* bestRows=evaluatedRows+rowBase+3u*best;
+                const float old=contact.impulses.x;
+                float bestDelta=bestImpulse-old;
+                float objective=bestGradient*bestDelta+.5f*bestDiagonal*bestDelta*bestDelta;
+                uint partner=MR_INVALID_INDEX;
+                float partnerDelta=0.f;
+                // Bounded two-coordinate minimization improves nearly parallel
+                // contacts. Capped normals retain the existing single-row step.
+                if(evaluatedCones[constraintBase+best].maximumNormalImpulse<=0.f) {
+                    for(uint ti=0u;ti<work.tileCount;++ti) {
+                        const MRContactTileGPU tile=tiles[tileBase+work.firstTile+ti];
+                        for(uint i=0u;i<tile.constraintCount;++i) {
+                            const uint c=tileConstraintIndices[constraintBase+tile.partialOffset+i];
+                            if(c==best||evaluatedCones[constraintBase+c].maximumNormalImpulse>0.f) continue;
+                            device MRContactConstraintGPU& target=contacts[constraintBase+c];
+                            device const MREvaluatedConstraintIRRowGPU* rows=evaluatedRows+rowBase+3u*c;
+                            const float3 rel=typedRelativePointVelocity(c,target,bodies,dispatch.articulationIndex,
+                                pointJacobians,pointJacobianBase,dispatch.nv,articulationVelocity,rodNodes,rodEdges,
+                                rodColliders,rodWitnesses,constraintWitnessIndices,constraintBase);
+                            float g=dot(rows[0].direction.xyz,rel)-rows[0].targetVelocity+
+                                rows[0].regularization*target.impulses.x;
+                            float diag=0.f,cross=0.f;
+                            for(uint sj=0u;sj<work.tileCount;++sj) {
+                                const MRContactTileGPU source=tiles[tileBase+work.firstTile+sj];
+                                for(uint j=0u;j<source.constraintCount;++j) {
+                                    const uint k=tileConstraintIndices[constraintBase+source.partialOffset+j];
+                                    const float pending=impulseDeltas[constraintBase+k].x;
+                                    if(pending==0.f && k!=c && k!=best) continue;
+                                    device const MRContactConstraintGPU& other=contacts[constraintBase+k];
+                                    const float3 normal=evaluatedRows[rowBase+3u*k].direction.xyz;
+                                    const float value=typedNormalCrossContactResponse(c,k,0u,target,other,
+                                        rows[0].direction.xyz,normal,bodies,pointJacobians,pointJacobianBase,
+                                        responseColumns,responseBase,dispatch.nv,dispatch.articulationIndex,
+                                        rodNodes,inverseRodMasses,inverseRodTwistInertias,rodColliders,
+                                        rodWitnesses,constraintWitnessIndices,constraintBase);
+                                    if(k==c) diag=value+rows[0].regularization;
+                                    if(k==best) cross=value;
+                                    g+=pending*value;
+                                }
+                            }
+                            if(!(diag>kMatrixFloor)||!isfinite(diag)||!isfinite(g)||!isfinite(cross)) {
+                                localFailure=MR_STEP_NONFINITE_RESULT;
+                                localFailureConstraint=min(localFailureConstraint,c);break;
+                            }
+                            // Average the independently evaluated cross terms when
+                            // constructing the symmetric quadratic.
+                            const float reverse=typedNormalCrossContactResponse(best,c,0u,contact,target,
+                                bestRows[0].direction.xyz,rows[0].direction.xyz,bodies,pointJacobians,
+                                pointJacobianBase,responseColumns,responseBase,dispatch.nv,dispatch.articulationIndex,
+                                rodNodes,inverseRodMasses,inverseRodTwistInertias,rodColliders,rodWitnesses,
+                                constraintWitnessIndices,constraintBase);
+                            if(!isfinite(reverse)) {localFailure=MR_STEP_NONFINITE_RESULT;localFailureConstraint=min(localFailureConstraint,c);break;}
+                            const float coupling=.5f*(cross+reverse), det=bestDiagonal*diag-coupling*coupling;
+                            if(det < -1.e-5f*bestDiagonal*diag) continue;
+                            float di[3],dj[3];
+                            di[0]=-old;dj[0]=max(-target.impulses.x,-(g+coupling*di[0])/diag);
+                            dj[1]=-target.impulses.x;di[1]=max(-old,-(bestGradient+coupling*dj[1])/bestDiagonal);
+                            di[2]=0.f;dj[2]=0.f;
+                            if(det>1.e-5f*bestDiagonal*diag) {
+                                di[2]=(coupling*g-diag*bestGradient)/det;
+                                dj[2]=(coupling*bestGradient-bestDiagonal*g)/det;
+                                if(di[2]<-old||dj[2]<-target.impulses.x) {di[2]=0.f;dj[2]=0.f;}
+                            }
+                            for(uint k=0u;k<3u;++k) {
+                                const float trial=.5f*(bestDiagonal*di[k]*di[k]+2.f*coupling*di[k]*dj[k]+diag*dj[k]*dj[k])+bestGradient*di[k]+g*dj[k];
+                                if(isfinite(trial)&&trial<objective) {objective=trial;bestDelta=di[k];partner=c;partnerDelta=dj[k];}
+                            }
+                        }
+                        if(localFailure!=MR_STEP_SUCCESS) break;
+                    }
+                }
+                if(localFailure!=MR_STEP_SUCCESS) break;
+                contact.impulses.x+=bestDelta;
+                impulseDeltas[constraintBase+best].x+=bestDelta;
+                laneMaximumDelta=max(laneMaximumDelta,abs(bestDelta));
+                if(partner!=MR_INVALID_INDEX) {
+                    contacts[constraintBase+partner].impulses.x+=partnerDelta;
+                    impulseDeltas[constraintBase+partner].x+=partnerDelta;
+                    laneMaximumDelta=max(laneMaximumDelta,abs(partnerDelta));
+                }
             }
         } else if (!priorityNormalOnly) {
         for (uint localTile = 0u;
