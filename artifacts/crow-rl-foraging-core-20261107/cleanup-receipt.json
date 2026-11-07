@@ -1,0 +1,27 @@
+{
+  "archive_commit": "53b730a757b1c409cd2ef7323561878de8959b7f",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 297566152 159782988    66% 3495470 1597829880    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 297732444 159616696    66% 3496035 1596166960    0%   /System/Volumes/Data\n",
+  "manifest": "artifacts/crow-rl-foraging-core-20261107/manifest.json",
+  "manifest_sha256": "d4dac4e7bfbb93540967271eb72e1cc41cd4a939908332b20f8723a66f9660f1",
+  "open_handle_checks": [
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/runs/american-crow"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/retained-runtime"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": "build"
+    }
+  ],
+  "remote_commit": "53b730a757b1c409cd2ef7323561878de8959b7f",
+  "removed_files": 507,
+  "removed_logical_bytes": 169213918
+}
