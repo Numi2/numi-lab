@@ -1,0 +1,11 @@
+--- /Users/numi/numi-g1-transaction-hook-owner-20261107/include/metalrobo/MetalHybridRenderer.hpp	2026-11-07 15:05:05
++++ /Users/numi/numi-g1-transaction-candidate-owner-20261107/include/metalrobo/MetalHybridRenderer.hpp	2026-11-07 15:10:51
+@@ -402,6 +402,8 @@
+     // boundary. No observation plane is read back or reallocated.
+     [[nodiscard]] MetalHybridRendererDiagnostics reset();
+     [[nodiscard]] bool researchSnapshot(TrackerProbeSnapshot& snapshot) const;
++    // Borrowed research buffers only. Not a public runtime contract.
++    [[nodiscard]] std::vector<void*> researchBorrowBuffers() const;
+ 
+ private:
+     struct State;

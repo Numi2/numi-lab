@@ -1,0 +1,21 @@
+--- /Users/numi/numi-g1-transaction-hook-owner-20261107/src/metal/MetalHybridRenderer.mm	2026-11-07 15:05:05
++++ /Users/numi/numi-g1-transaction-candidate-owner-20261107/src/metal/MetalHybridRenderer.mm	2026-11-07 15:10:51
+@@ -7459,6 +7459,18 @@
+     out.depthSlots = state_->config.maskedDepthFrameOffsets.empty() ? 0u :
+        state_->config.maskedDepthFrameOffsets.back() + 1u;
+     return true;
++}
++
++std::vector<void*> MetalHybridObjectTracker::researchBorrowBuffers() const {
++    if (!state_ || !state_->compiled || !state_->renderer) return {};
++    return {
++        (__bridge void*)state_->history,
++        (__bridge void*)state_->maskedDepthHistory,
++        state_->renderer->nativeBuffer(MetalHybridRendererBuffer::depth),
++        state_->renderer->nativeBuffer(MetalHybridRendererBuffer::identities),
++        state_->renderer->nativeBuffer(MetalHybridRendererBuffer::validity),
++        state_->renderer->nativeBuffer(MetalHybridRendererBuffer::cameraStates),
++    };
+ }
+ 
+ bool MetalHybridObjectTracker::encodeObservation(
