@@ -1598,6 +1598,65 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
         );
     }
 
+    // An exactly solvable, single-edge system with both endpoints prescribed.
+    // The support impulses include both endpoint momentum change and the
+    // equal/opposite end-of-step elastic impulse. Keep all publication staged.
+    if (model.restPositions.size() == 2u && attachments.size() == 2u &&
+        attachments[0].nodeIndex != attachments[1].nodeIndex &&
+        attachments[0].compliance == 0.0 && attachments[1].compliance == 0.0 &&
+        config.linearDamping == 0.0 && !config.enableSelfCollision) {
+        DiscreteElasticRodState exact = state;
+        std::array<DiscreteRodAttachmentReaction, 2> staged{};
+        const double h = config.timestep;
+        for (std::size_t i = 0; i < 2; ++i) {
+            const auto& anchor = attachments[i];
+            exact.positions[anchor.nodeIndex] = anchor.targetPosition;
+            exact.velocities[anchor.nodeIndex] = anchor.targetVelocity;
+            staged[i].nodeIndex = anchor.nodeIndex;
+        }
+        Vec3 direction;
+        const Vec3 delta = subtract(exact.positions[1], exact.positions[0]);
+        if (!normalize(delta, direction)) {
+            return fail(std::move(diagnostics),
+                DiscreteElasticRodStatus::degenerateGeometry,
+                "pinned rod target edge is degenerate");
+        }
+        const double extension = norm(delta) - model.restLengths[0];
+        const double force = model.stretchStiffness[0] /
+            model.restLengths[0] * extension;
+        for (std::size_t i = 0; i < 2; ++i) {
+            const std::size_t n = attachments[i].nodeIndex;
+            const Vec3 rodImpulse = multiply(direction, (n == 0 ? 1.0 : -1.0) * force * h);
+            const Vec3 momentumChange = multiply(
+                subtract(subtract(attachments[i].targetVelocity, state.velocities[n]),
+                         multiply(config.gravity, h)),
+                model.nodeMasses[n]);
+            staged[i].impulseOnTarget = subtract(rodImpulse, momentumChange);
+            staged[i].averageForceOnTarget = multiply(staged[i].impulseOnTarget, 1.0 / h);
+            if (!finite(staged[i].impulseOnTarget) || !finite(staged[i].averageForceOnTarget)) {
+                return fail(std::move(diagnostics),
+                    DiscreteElasticRodStatus::nonfiniteResult,
+                    "pinned rod reaction became non-finite");
+            }
+        }
+        exact.twists[0] += h * exact.twistRates[0];
+        exact.twistRates[0] *= std::exp(-config.twistDamping * h);
+        if (!validState(model, exact) || !energy(model, exact, diagnostics.after)) {
+            return fail(std::move(diagnostics),
+                DiscreteElasticRodStatus::nonfiniteResult,
+                "pinned rod candidate is invalid");
+        }
+        diagnostics.iterations = 1u;
+        diagnostics.projectedStretchConstraints = 1u;
+        diagnostics.projectedAttachments = 2u;
+        diagnostics.maximumConstraintError = std::abs(extension);
+        state = std::move(exact);
+        if (!reactions.empty()) {
+            std::ranges::copy(staged, reactions.begin());
+        }
+        return diagnostics;
+    }
+
     DiscreteElasticRodState candidate = state;
     std::vector<DiscreteRodAttachmentReaction>
         candidateReactions(attachments.size());
