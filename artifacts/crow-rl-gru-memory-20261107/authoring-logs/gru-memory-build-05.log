@@ -1,0 +1,12 @@
+[1/4] Building OBJCXX object CMakeFiles/metalrobo_gru_memory_check.dir/apps/gru_memory_check.mm.o
+FAILED: [code=1] CMakeFiles/metalrobo_gru_memory_check.dir/apps/gru_memory_check.mm.o 
+/usr/bin/clang++  -I/Users/n/Developer/numi-crow-rl-20261107/include -I/Users/n/Developer/numi-crow-rl-20261107/matter/include -F/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/metalrobo_gru_memory_check.dir/apps/gru_memory_check.mm.o -MF CMakeFiles/metalrobo_gru_memory_check.dir/apps/gru_memory_check.mm.o.d -o CMakeFiles/metalrobo_gru_memory_check.dir/apps/gru_memory_check.mm.o -c /Users/n/Developer/numi-crow-rl-20261107/apps/gru_memory_check.mm
+/Users/n/Developer/numi-crow-rl-20261107/apps/gru_memory_check.mm:173:40: error: invalid operands to binary expression ('value_type' (aka 'unsigned char') and 'std::byte')
+  173 |         if (test==5) changedIdentity[0]^=std::byte{1};
+      |                      ~~~~~~~~~~~~~~~~~~^ ~~~~~~~~~~~~
+/Applications/Xcode-26.6.0.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__cstddef/byte.h:49:46: note: candidate function not viable: no known conversion from 'value_type' (aka 'unsigned char') to 'byte &' for 1st argument
+   49 | _LIBCPP_HIDE_FROM_ABI inline constexpr byte& operator^=(byte& __lhs, byte __rhs) noexcept {
+      |                                              ^          ~~~~~~~~~~~
+1 error generated.
+[2/4] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/GRUMemory.mm.o
+ninja: build stopped: subcommand failed.

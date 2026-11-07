@@ -1,0 +1,22 @@
+{
+  "library": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-03/libmetalrobo.dylib",
+    "sha256": "68dbac9c41d40e776a33770282fc07bd60f68ccb3f2148f98f3165e0134ab40b"
+  },
+  "gru_check": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-03/metalrobo_gru_memory_check",
+    "sha256": "d6078a5436cbaa908e27928b5f90a5637bee8c1f6f1843510be4a85021084421"
+  },
+  "gru_metallib": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-03/GRUMemory.metallib",
+    "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+  },
+  "gru_memory.py": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-03/gru_memory.py",
+    "sha256": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710"
+  },
+  "gru_memory_admission.py": {
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-03/gru_memory_admission.py",
+    "sha256": "9335d92d667903782a5f01595d4f194a214930fa33913be2131e99809ffbd994"
+  }
+}

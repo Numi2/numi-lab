@@ -1,0 +1,193 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 8baddd4b..bf5d085d 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -721,6 +721,20 @@ add_custom_command(OUTPUT "${METALROBO_RETINAL_METALLIB}"
+         include/metalrobo/task_program_types.h include/metalrobo/gpu_types.h VERBATIM)
+ add_custom_target(metalrobo_retinal_shaders ALL DEPENDS "${METALROBO_RETINAL_METALLIB}")
+ 
++set(METALROBO_GRU_METALLIB "${CMAKE_CURRENT_BINARY_DIR}/shaders/GRUMemory.metallib")
++add_custom_command(OUTPUT "${METALROBO_GRU_METALLIB}"
++    COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/shaders"
++    COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
++        -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
++        -c "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/GRUMemory.metal"
++        -o "${CMAKE_CURRENT_BINARY_DIR}/shaders/GRUMemory.air"
++    COMMAND xcrun -sdk macosx metallib
++        "${CMAKE_CURRENT_BINARY_DIR}/shaders/GRUMemory.air" -o "${METALROBO_GRU_METALLIB}"
++    DEPENDS src/metal/GRUMemory.metal include/metalrobo/gru_memory_types.h
++        include/metalrobo/task_program_types.h include/metalrobo/gpu_types.h VERBATIM)
++add_custom_target(metalrobo_gru_shaders ALL DEPENDS "${METALROBO_GRU_METALLIB}")
++
++
+ 
+ set(
+     METALROBO_VISUAL_KERNEL_HASH_HEADER
+@@ -831,6 +845,7 @@ add_library(
+     src/metal/FiniteResource.mm
+     src/metal/RetinalObserver.mm
+     src/metal/RetinalStream.mm
++    src/metal/GRUMemory.mm
+     src/metal/MetalMultiArticulatedABA.mm
+     src/metal/MetalDiscreteElasticRod.mm
+     src/metal/MetalArticulatedInverseMass.mm
+@@ -1103,6 +1118,12 @@ target_compile_options(metalrobo_crow_retinal_contract_check PRIVATE -Wall -Wext
+ target_link_libraries(metalrobo_crow_retinal_contract_check PRIVATE metalrobo)
+ set_target_properties(metalrobo_crow_retinal_contract_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+ 
++add_executable(metalrobo_gru_memory_check apps/gru_memory_check.mm)
++target_compile_options(metalrobo_gru_memory_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
++target_link_libraries(metalrobo_gru_memory_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
++add_dependencies(metalrobo_gru_memory_check metalrobo_gru_shaders)
++set_target_properties(metalrobo_gru_memory_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
++
+ add_executable(metalrobo_retinal_stream_check apps/retinal_stream_check.mm)
+ target_compile_options(metalrobo_retinal_stream_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+ target_link_libraries(metalrobo_retinal_stream_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
+@@ -2387,6 +2408,13 @@ if(BUILD_TESTING)
+             "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_life_checkpoint_check>"
+             "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
+             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowLifeCheckpoint.cmake")
++    add_test(NAME metalrobo.learning.gru_memory
++        COMMAND "${CMAKE_COMMAND}"
++            "-DPROGRAM=$<TARGET_FILE:metalrobo_gru_memory_check>"
++            "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
++            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckGRUMemory.cmake")
++    set_tests_properties(metalrobo.learning.gru_memory PROPERTIES
++        LABELS "metalrobo;learning;native;memory" TIMEOUT 200)
+     set_tests_properties(metalrobo.crow.life_checkpoint PROPERTIES
+         LABELS "metalrobo;crow;native;persistence" TIMEOUT 200)
+     add_test(NAME metalrobo.crow.retinal_api
+@@ -3824,7 +3852,7 @@ install(
+     DESTINATION share/numi/assets
+ )
+ install(DIRECTORY include/ DESTINATION include)
+-install(FILES "${METALROBO_METALLIB}" "${METALROBO_RETINAL_METALLIB}" DESTINATION lib/metalrobo)
++install(FILES "${METALROBO_METALLIB}" "${METALROBO_RETINAL_METALLIB}" "${METALROBO_GRU_METALLIB}" DESTINATION lib/metalrobo)
+ install(
+     FILES
+         schemas/capture_manifest.schema.json
+diff --git a/python/metalrobo/crow_environment.py b/python/metalrobo/crow_environment.py
+index 4b91bd01..e0eeec45 100644
+--- a/python/metalrobo/crow_environment.py
++++ b/python/metalrobo/crow_environment.py
+@@ -102,6 +102,56 @@ def preflight(root: Path, profile: dict) -> dict:
+     }
+ 
+ 
++def memory_admission(root: Path, output: Path, checked: dict) -> dict:
++    native = execute(output, "gru-native", [checked["inputs"]["gru_check"]["path"], str(output/"native-evidence")], root, 180)
++    if native.get("status") != "passed" or native.get("negative_controls") != 24:
++        raise RuntimeError("Native GRU component admission failed")
++    learner = execute(output, "gru-mlx", [sys.executable, "-m", "metalrobo.gru_memory_admission",
++                      "--native", str(output/"native-evidence"), "--output", str(output/"mlx-evidence")], root, 180)
++    if learner.get("status") != "passed" or learner.get("reset_cuts_gradient_exact") is not True:
++        raise RuntimeError("Differentiable GRU component admission failed")
++    retained = root/".numi/retained-runtime"/output.name
++    retained.mkdir(parents=True, exist_ok=False)
++    retained_inputs = {}
++    for name, relative in (("library", "lib/libmetalrobo.dylib"),
++                           ("gru_check", "bin/metalrobo_gru_memory_check"),
++                           ("gru_metallib", "shaders/GRUMemory.metallib")):
++        source = Path(checked["inputs"][name]["path"])
++        target = retained/relative
++        target.parent.mkdir(parents=True, exist_ok=True)
++        shutil.copy2(source, target)
++        if sha(target) != checked["inputs"][name]["sha256"]:
++            raise RuntimeError("GRU runtime changed during admission: "+name)
++        retained_inputs[name] = {"path": str(target), "sha256": sha(target)}
++    for name in ("gru_memory.py", "gru_memory_admission.py"):
++        target = retained/"python/metalrobo"/name
++        target.parent.mkdir(parents=True, exist_ok=True)
++        shutil.copy2(root/"python/metalrobo"/name, target)
++        retained_inputs[name] = {"path": str(target), "sha256": sha(target)}
++    (retained/"python/metalrobo/__init__.py").touch(exist_ok=False)
++    write(output/"retained-runtime.json", retained_inputs)
++    recovery = output/"retained-native-recovery"
++    recovery.mkdir()
++    shutil.copyfile(output/"native-evidence/large/saved.memorycheckpoint", recovery/"saved.memorycheckpoint")
++    execute(output, "retained-native", ["/usr/bin/env", "DYLD_LIBRARY_PATH="+str(retained/"lib"),
++            str(retained/"bin/metalrobo_gru_memory_check"), "--child", str(recovery)], root, 40, json_output=False)
++    for expected, actual in (("tail-hidden.f32", "fresh-tail-hidden.f32"), ("tail-before.f32", "fresh-tail-before.f32"),
++                             ("tail-reset.u32", "fresh-tail-reset.u32"), ("final.memorycheckpoint", "fresh-final.memorycheckpoint")):
++        if sha(output/"native-evidence/large"/expected) != sha(recovery/actual):
++            raise RuntimeError("Retained GRU runtime recovery differs: "+actual)
++    recovered_learner = execute(output, "retained-mlx", ["/usr/bin/env", "PYTHONPATH="+str(retained/"python"),
++        sys.executable, "-m", "metalrobo.gru_memory_admission", "--native", str(output/"native-evidence"),
++        "--output", str(output/"retained-mlx-recovery")], root, 180)
++    if recovered_learner != learner:
++        raise RuntimeError("Retained GRU learner source recovery differs")
++    write(output/"retained-recovery.json", {"native_future_and_checkpoint_exact": True,
++        "independent_learner_summary_exact": True, "installed_interpreter_MLX_NumPy_still_required": True})
++    return {"schema": "numi.crow-gru-component-admission.v1", "status": "passed", "native": native,
++            "learner": learner, "runtime_retained": True, "retained_runtime_recovery_exact": True, "recurrent_policy_integrated": False,
++            "sequence_PPO_integrated": False, "trainable_crow_memory_qualified": False,
++            "boundary": "native/MLX neural component only; no embodied memory or whole-environment qualification"}
++
++
+ 
+ def retain_source_delta(root: Path, output: Path, checked: dict) -> None:
+     """Retain the exact executable source delta, including new native files."""
+@@ -130,7 +180,7 @@ def retain_source_delta(root: Path, output: Path, checked: dict) -> None:
+         "retained_untracked": retained, "external_artifact_inputs": external})
+ 
+ 
+-def execute(output: Path, name: str, command: list[str], root: Path, timeout: int) -> dict:
++def execute(output: Path, name: str, command: list[str], root: Path, timeout: int, *, json_output: bool = True) -> dict:
+     started = time.monotonic()
+     exit_code = None
+     timed_out = False
+@@ -154,6 +204,8 @@ def execute(output: Path, name: str, command: list[str], root: Path, timeout: in
+         raise KeyboardInterrupt("Native trial interrupted; retained receipt")
+     if timed_out or exit_code != 0:
+         raise RuntimeError(f"{name} failed; retained receipt and stderr in {output}")
++    if not json_output:
++        return receipt
+     with (output / f"{name}.json").open() as handle:
+         return json.load(handle)
+ 
+@@ -958,6 +1010,7 @@ def main() -> int:
+     commands.add_parser("head-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("eye-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("retina-admission").add_argument("--output", type=Path, required=True)
++    commands.add_parser("memory-admission").add_argument("--output", type=Path, required=True)
+     life_training=commands.add_parser("life-training-probe")
+     life_training.add_argument("--output",type=Path,required=True)
+     life_training.add_argument("--retinal-calibration",type=Path,required=True)
+@@ -1017,6 +1070,13 @@ def main() -> int:
+         print(json.dumps(profile, indent=2))
+         return 0
+     checked = preflight(root, profile)
++    if args.command == "memory-admission":
++        build = Path(checked["inputs"]["library"]["path"]).parent.parent
++        for name, path in (("gru_check", build/"bin/metalrobo_gru_memory_check"),
++                           ("gru_metallib", build/"shaders/GRUMemory.metallib")):
++            if not path.is_file() or not path.stat().st_size:
++                raise RuntimeError("Missing native GRU component: "+str(path))
++            checked["inputs"][name] = {"path": str(path), "sha256": sha(path)}
+     if args.command == "doctor":
+         print(json.dumps(checked, indent=2))
+         return 0
+@@ -1134,6 +1194,13 @@ def main() -> int:
+           "validity":"exact runtime/configuration/source inputs; both owners restored; accepted clock has no warmup; zero device failures; all expected updates; uncommitted/corrupt/mixed checkpoints reject",
+           "stopping":"four complete bounded180s runs; nine bounded60s rejection controls; stop on first positive invalidity; preserve all failures",
+           "estimated_raw_output_limit_bytes":750*1024*1024, "ecological_environment_qualified":False})
++    if args.command == "memory-admission":
++        plan.update({"purpose": "native working-memory and differentiable sequence algebra component admission",
++          "prediction": "native FP64 max error<=3e-6; chunks/previews/duplicates/fresh process exact including reset traces;24 native controls reject; MLX sequence/pre-cell parity<=3e-6; full parameter/input BPTT<=3e-6 and relative norm<=2e-5; twelve FP64 central differences<=1e-8; reset gradients cut exactly; eight SGD steps reduce fixed objective",
++          "control": "two native shapes including nonaligned257/65,40 authored neural ticks; lane resets11/23; weight publication18; two chunks1/8; independent process; six-tick MLX/FP64 gradient fixture and four learner contract rejections",
++          "unit": "declared neural algebra/timing instrument; host-authored clock is not a crow simulator",
++          "stopping": "one native and one learner instrument,180s timeout each, no automatic retry or threshold changes",
++          "limitations": "PolicyPack, native actor integration, recurrent rollout/sequence PPO, coupled memory checkpoint and behavioral ablations still required"})
+     if args.command == "life-admission":
+         plan.update({"purpose":"v13 native life-state persistence admission across fresh processes",
+           "prediction":"future streams and complete native/retinal/resource state match uninterrupted execution bit for bit at chunk1/8; ten invalid restores reject without publishing mutation",
+@@ -1177,6 +1244,8 @@ def main() -> int:
+             result=life_training_probe(root,output,args)
+         elif args.command == "life-swift-probe":
+             result=life_swift_probe(root,output,args)
++        elif args.command == "memory-admission":
++            result=memory_admission(root,output,checked)
+         elif args.command == "life-admission":
+             result=execute(output,"life-checkpoint",[str(runtime(root)["life_check"]),str(output/"native-evidence")],root,180)
+             if result.get("status")!="passed" or result.get("whole_v13_development_life_restore") is not True:

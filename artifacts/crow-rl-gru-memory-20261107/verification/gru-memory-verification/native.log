@@ -1,0 +1,41 @@
+Test project /Users/n/Developer/numi-crow-rl-20261107/build
+      Start  1: metalrobo.crow.first_episode_evidence
+ 1/13 Test  #1: metalrobo.crow.first_episode_evidence ...   Passed    0.01 sec
+      Start 33: metalrobo.runtime.task_program
+ 2/13 Test #33: metalrobo.runtime.task_program ..........   Passed    3.01 sec
+      Start 34: metalrobo.runtime.run_program
+ 3/13 Test #34: metalrobo.runtime.run_program ...........   Passed    0.01 sec
+      Start 35: metalrobo.runtime.robot_catalog
+ 4/13 Test #35: metalrobo.runtime.robot_catalog .........   Passed    0.00 sec
+      Start 36: metalrobo.crow.embodiment
+ 5/13 Test #36: metalrobo.crow.embodiment ...............   Passed    0.02 sec
+      Start 37: metalrobo.crow.finite_resource
+ 6/13 Test #37: metalrobo.crow.finite_resource ..........   Passed   13.01 sec
+      Start 38: metalrobo.crow.head_camera
+ 7/13 Test #38: metalrobo.crow.head_camera ..............   Passed    4.17 sec
+      Start 39: metalrobo.crow.retinal_timing
+ 8/13 Test #39: metalrobo.crow.retinal_timing ...........   Passed    0.08 sec
+      Start 40: metalrobo.crow.life_checkpoint
+ 9/13 Test #40: metalrobo.crow.life_checkpoint ..........   Passed    2.81 sec
+      Start 41: metalrobo.learning.gru_memory
+10/13 Test #41: metalrobo.learning.gru_memory ...........   Passed    0.14 sec
+      Start 42: metalrobo.crow.retinal_api
+11/13 Test #42: metalrobo.crow.retinal_api ..............   Passed    1.52 sec
+      Start 43: metalrobo.crow.retinal_live
+12/13 Test #43: metalrobo.crow.retinal_live .............   Passed    1.83 sec
+      Start 44: metalrobo.crow.retinal_contract
+13/13 Test #44: metalrobo.crow.retinal_contract .........   Passed    0.03 sec
+
+100% tests passed out of 13
+
+Label Time Summary:
+crow           =  23.45 sec*proc (7 tests)
+learning       =   0.14 sec*proc (1 test)
+memory         =   0.14 sec*proc (1 test)
+metalrobo      =  26.63 sec*proc (11 tests)
+native         =  23.59 sec*proc (8 tests)
+persistence    =   2.81 sec*proc (1 test)
+runtime        =   3.03 sec*proc (3 tests)
+visual         =   7.63 sec*proc (5 tests)
+
+Total Test time (real) =  26.65 sec

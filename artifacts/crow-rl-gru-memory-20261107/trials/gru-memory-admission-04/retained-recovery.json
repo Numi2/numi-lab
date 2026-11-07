@@ -1,0 +1,5 @@
+{
+  "native_future_and_checkpoint_exact": true,
+  "independent_learner_summary_exact": true,
+  "installed_interpreter_MLX_NumPy_still_required": true
+}

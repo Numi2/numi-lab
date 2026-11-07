@@ -1,0 +1,4 @@
+*.gz binary
+*.npz binary
+*.patch -whitespace
+*.log -whitespace

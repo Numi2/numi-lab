@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+    "-m",
+    "metalrobo.gru_memory_admission",
+    "--native",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/gru-memory-admission-03/native-evidence",
+    "--output",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/gru-memory-admission-03/mlx-evidence"
+  ],
+  "exit_code": 0,
+  "timed_out": false,
+  "interrupted": false,
+  "wall_seconds": 0.14995420799823478,
+  "stdout_sha256": "34f289ab87cd5b5b4ec1abfe9f0ba2c2f15748ac71d86bf4505a652eb730441f",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

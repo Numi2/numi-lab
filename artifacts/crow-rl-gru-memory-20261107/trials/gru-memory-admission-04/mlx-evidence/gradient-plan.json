@@ -1,0 +1,20 @@
+{
+  "seed": 2651109301,
+  "shape": [
+    6,
+    2,
+    3,
+    4
+  ],
+  "reset": [
+    3,
+    0
+  ],
+  "FP64_full_gradient_max_abs": 3e-06,
+  "FP64_full_gradient_relative_norm": 2e-05,
+  "central_difference_epsilon": 1e-05,
+  "central_difference_max_abs": 1e-08,
+  "compiled_eager_max_abs": 3e-06,
+  "optimizer": "8 full-sequence SGD updates at learning rate0.2",
+  "scope": "all four GRU parameter tables and input gradients; detached initial state; no PPO or embodied claim"
+}

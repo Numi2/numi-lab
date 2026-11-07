@@ -1,0 +1,339 @@
+{
+  "schema": "numi.crow-trial-plan.v1",
+  "created_utc": "2026-11-07T17:19:57.463488+00:00",
+  "command": "memory-admission",
+  "arguments": {
+    "root": "/Users/n/Developer/numi-crow-rl-20261107",
+    "command": "memory-admission",
+    "output": ".numi/runs/american-crow/gru-memory-admission-03"
+  },
+  "preflight": {
+    "schema": "numi.crow-preflight.v1",
+    "host": "Mac.domain_not_set.invalid",
+    "machine": "arm64",
+    "macos": "26.6",
+    "python": "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+    "numpy": "2.5.4",
+    "mlx": "0.32.4",
+    "metal_device": {
+      "device_name": "Apple M4 Pro",
+      "max_recommended_working_set_size": 19069665280,
+      "memory_size": 25769803776,
+      "architecture": "applegpu_g16s",
+      "max_buffer_length": 14302248960,
+      "resource_limit": 499000
+    },
+    "free_disk_bytes": 158330576896,
+    "inputs": {
+      "rollout": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_rollout",
+        "sha256": "50612758ea835b0999c7e8f2fb400e68be34a574a5b93a65e8ccd6784df90a29"
+      },
+      "train": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_train",
+        "sha256": "cd9708ccd47e82441f0d23638d65b23263ccb20d04dd70a6e167122feeb414a6"
+      },
+      "library": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/lib/libmetalrobo.dylib",
+        "sha256": "68dbac9c41d40e776a33770282fc07bd60f68ccb3f2148f98f3165e0134ab40b"
+      },
+      "metallib": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+        "sha256": "bee9e69522b26d6b5d99660e665cf8ed856acd9038ea9f2bdcb87b96dd99385a"
+      },
+      "head_check": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_embodiment_check",
+        "sha256": "4a2b64fe68ee2a7ab20d35514670c3c9db7d482774e2e15ba8b769c6e7eb9a6a"
+      },
+      "foraging_check": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_foraging_check",
+        "sha256": "c4028fbccef59f53aa5380380884288ff9ff198387bdc65c8f9e8a798ba8e526"
+      },
+      "eye_check": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_eye_check",
+        "sha256": "e03149972d138acfcdfccf220d114e0eca350673e4820af167e2ecb899258199"
+      },
+      "retinal_check": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_retinal_stream_check",
+        "sha256": "71e9ec7cba04f141dbf6d2f3340b30ac44d6b74cb0da195e8543aea31e1dbf28"
+      },
+      "retinal_api_check": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_retinal_api_check",
+        "sha256": "4fe9673d750cc0ee566e2fceb032e569cad868d0781cab2fc112fbb861de1e92"
+      },
+      "life_check": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_life_checkpoint_check",
+        "sha256": "d9920bee6321abdee8830e9cc3ee68254e9c3f4b0f05fa4c486f991256adc519"
+      },
+      "retinal_live_check": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_retinal_live_check",
+        "sha256": "9e252e7ba2eb2d92f7605ae13a85ce81d1108503a5a3ea7fead4f3a3f573efef"
+      },
+      "retinal_contract_check": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_retinal_contract_check",
+        "sha256": "56a263394f27d81ca45ad713519c1e6b106e9bd5863dfb3975057ea98a0dc44e"
+      },
+      "retinal_metallib": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/RetinalStream.metallib",
+        "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+      },
+      "v9-visual-neural": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/assets/crow_journey_window/crow-journey.sensor-fast.visual-observation.json",
+        "sha256": "ac047fb5607c57efda1b741a2f1c622b3ea4bf79def1aec7053182c09c3b329e"
+      },
+      "v10-world-model": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/assets/crow_navigation_course/crow-navigation.sensor-fast.visual-observation.json",
+        "sha256": "0625a028e7f6760bd7b29027b529e012a6b2ef9ffb6797cb69eff602b5c7a137"
+      },
+      "profile": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/profiles/american-crow-rl-v1.json",
+        "sha256": "af50c5e1c34926ec3089e96a7215e1854013fd43b1fcbe27c5eb7af246f759f8"
+      },
+      "gru_check": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_gru_memory_check",
+        "sha256": "d6078a5436cbaa908e27928b5f90a5637bee8c1f6f1843510be4a85021084421"
+      },
+      "gru_metallib": {
+        "path": "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/GRUMemory.metallib",
+        "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+      }
+    },
+    "source_commit": "9a986439bec194971bd9490b8dfe5c15c9f7130f",
+    "status": "M CMakeLists.txt\n M python/metalrobo/crow_environment.py\n?? apps/gru_memory_check.mm\n?? cmake/CheckGRUMemory.cmake\n?? include/metalrobo/GRUMemory.hpp\n?? include/metalrobo/gru_memory_types.h\n?? python/metalrobo/gru_memory.py\n?? python/metalrobo/gru_memory_admission.py\n?? src/metal/GRUMemory.metal\n?? src/metal/GRUMemory.mm",
+    "tracked_diff_sha256": "219593e048d92e77a2f9f28d33cf4a68d1cbab77c0ad9b5d0c2a41d46cc7617b",
+    "untracked_inputs": {
+      "apps/gru_memory_check.mm": "0d8888baed2f372b2c8af9590dea226a47236591415fc5462cf3462a13bb488f",
+      "cmake/CheckGRUMemory.cmake": "a2db6af90a4cc07c30184059d21b4860e18272fc9ba7fa2a24990689b80ad767",
+      "include/metalrobo/GRUMemory.hpp": "c100b827f2ccd617da0b4bf85a9cf2e2b6dcf77fd7c21993889aa189da791041",
+      "include/metalrobo/gru_memory_types.h": "0f06a409282d39f79c72570c87dab487ebc0ffdb73a63489293b72dcaf8b3f70",
+      "python/metalrobo/gru_memory.py": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710",
+      "python/metalrobo/gru_memory_admission.py": "9335d92d667903782a5f01595d4f194a214930fa33913be2131e99809ffbd994",
+      "src/metal/GRUMemory.metal": "0458217f5d056cc5b98d1de389e84bd493d555f89001c9c872d69db07d7e7de2",
+      "src/metal/GRUMemory.mm": "9fe41b4d3e1fdd5bbe37a53eb902eed5644bba824ccfb90e92cce69d4f57ff0f"
+    },
+    "readiness": "native engineering trials only; ecological qualification pending"
+  },
+  "profile": {
+    "schema": "numi.crow-environment-profile.v1",
+    "id": "american-crow-development-20261107",
+    "taxon": "Corvus brachyrhynchos",
+    "evidence_class": "estimated-hybrid-simulation",
+    "owner": "Numi2/numi-lab",
+    "baseline_revision": "577c54ff90756f99b936a1d136c1768332022af5",
+    "robot": "birdflow_american_crow_estimated_hybrid",
+    "development_robot": "american_crow_active_head_estimated_v1",
+    "primary_research_outcome": "lifelong embodied intelligence",
+    "primary_behaviors": [
+      "foraging",
+      "memory",
+      "manipulation",
+      "social learning"
+    ],
+    "development_seeds": [
+      2651107001,
+      2651107002,
+      2651107003
+    ],
+    "qualification_seeds": [
+      2651107901,
+      2651107902,
+      2651107903
+    ],
+    "feeding_comparison_development_seeds": [
+      2651108401,
+      2651108402,
+      2651108403
+    ],
+    "feeding_development_candidate": {
+      "policy": "artifacts/crow-rl-feeding-behavior-20261107/policies/trained-stochastic.policypack",
+      "mode": "stochastic-required",
+      "task": "american_crow_feeding_station_v12",
+      "revision": 33,
+      "fully_consumed_lanes": 1536,
+      "tested_lanes": 1536,
+      "scope": "one frozen learner; canonical supported intake-volume station; development evidence only",
+      "ecological_environment_qualified": false
+    },
+    "minimum_free_disk_gib": 100,
+    "probe": {
+      "seed": 2651107301,
+      "environments": 32,
+      "steps": 128,
+      "submission_chunks": [
+        1,
+        8
+      ],
+      "scale_environments": [
+        128,
+        512,
+        1024
+      ],
+      "timeout_seconds": 180
+    },
+    "navigation_gate": {
+      "environments": 32,
+      "steps": 1600,
+      "minimum_successful_lanes_per_seed": 28,
+      "minimum_aggregate_success_fraction": 0.9,
+      "maximum_failed_environment_steps": 0,
+      "scheduled_resets": false,
+      "curriculum_resets": false,
+      "attempts": "first episode per environment",
+      "supported_landing_is_separate": true
+    },
+    "modules": {
+      "articulated_motor_control": "native-implementation; current-checkout-requalification-required",
+      "visual_obstacle_course": "native-implementation; unreliable-historical-full-route-controller",
+      "first_attempt_evidence": "native-transition-observer",
+      "crow_eye_perception": "estimated-two-camera-native-live-retinal-actor-controls-passed; physical-occlusion-delay-reset-and-FP64-RGB-oracle; biological-optics-learning-and-production-scaling-pending",
+      "active_head_and_beak": "estimated-native-v11; reference-inertia-and-Metal-admission; contact-actuation-and-learner-resume-controls-passed; head-vision-and-behavior-qualification-pending",
+      "finite_food_water_and_energy": "experimental-native-finite-food-tracer-and-capacity-limited-crop-with-bound-reward; water-energy-physiology-pending",
+      "accepted_state_consumption": "native-accepted-mouth-intake-volume-and-open-close-edge-controls-passed; solid-food-pickup-carrying-and-swallowing-pending",
+      "feeding_station_curriculum": "native-v12; frozen-stochastic-policy-complete-intake-1536-of-1536-versus-untrained-20-of-1536; deterministic-intake-zero; canonical-supported-tracer-only; ecology-unqualified",
+      "persistent_memory_and_life_checkpoint": "native-v13-world-contact-task-RNG-retinal-food-and-Swift-MLX-model-Adam-coupled-fresh-process-resume-passed; exact-every-boundary-replay-and-nine-rejection-controls; trainable-persistent-memory-pending",
+      "social_individuals_and_communication": "pending",
+      "weather_and_seasonal_ecology": "pending",
+      "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-partition-and-pending-frame-fresh-process-restore-controls-passed-including-live-head-renderer",
+      "retinal_actor_contract": "native-v13-1251-actor-97-critic-18-actions; live-pixel-controls-and-C-API-Swift-MLX-update-learner-restore-passed-at16-64-128; visual-learning-and-production-performance-qualification-pending"
+    },
+    "release_requirements": [
+      "deterministic accepted-state execution across submission chunks",
+      "zero failed physics steps and no hidden teacher authority",
+      "causal actor observations with audited sensor origins and visibility",
+      "measured end-to-end learning throughput and bounded peak memory",
+      "full-route first-attempt reliability on held-out seeds and layouts",
+      "supported landing measured independently of waypoint proximity",
+      "finite resource conservation and no repeated-consumption reward exploit",
+      "persistent checkpoint restore with no reset-induced resource replenishment",
+      "controlled memory and social-information ablations",
+      "all requested ecology modules executable and independently exercised"
+    ],
+    "head_camera_development_instrument": {
+      "command": "eye-admission",
+      "evidence": "artifacts/crow-rl-head-camera-20261107",
+      "scope": "publication-time geometry calibration; estimated parallel pinhole fixtures; no actor image inputs",
+      "native_cases": 5,
+      "camera_count": 2,
+      "ecological_environment_qualified": false
+    },
+    "retinal_timing_development_instrument": {
+      "command": "retina-admission",
+      "evidence": "artifacts/crow-rl-retinal-timing-20261107",
+      "sample_ratio": [
+        3,
+        10
+      ],
+      "control_hz": 50,
+      "latency_ticks": 2,
+      "scope": "synthetic native timing instrument; no live renderer-to-actor integration",
+      "ecological_environment_qualified": false
+    },
+    "retinal_live_development_instrument": {
+      "command": "retinal-live-admission",
+      "evidence": "artifacts/crow-rl-retinal-live-20261107",
+      "native_runs": 6,
+      "environments": 2,
+      "ticks_per_run": 32,
+      "accepted_transitions": 384,
+      "camera_source_shape": [
+        2,
+        120,
+        160,
+        4
+      ],
+      "actor_features": 1251,
+      "maximum_delayed_rgb_error": 9.72599e-08,
+      "registered_rgb_error_limit": 3e-06,
+      "submission_partition": "bit-identical at chunks1 and8, including one per-lane reset",
+      "scope": "authored pixel actor, fixed physical collision-proxy fixture; no visual learning or production throughput qualification",
+      "ecological_environment_qualified": false
+    },
+    "retinal_learner_development_instrument": {
+      "commands": [
+        "retinal-api-admission",
+        "learn-probe --variant v13-retinal-feeding --retinal-calibration PASSED_API_TRIAL --environments 16"
+      ],
+      "evidence": "artifacts/crow-rl-retinal-learner-20261107",
+      "native_api_attempts": 5,
+      "terminal_next_and_chunk1_8": "bit-identical",
+      "world_reset_refills_resources": false,
+      "environments_measured": [
+        16,
+        64,
+        128
+      ],
+      "updates_per_probe": 3,
+      "steps_per_update": 128,
+      "throughput_128_whole_process_steps_per_second": [
+        5032.055976431484,
+        4932.680185890882
+      ],
+      "memory_scope": "MLX peak only, not complete process/renderer peak",
+      "scope": "fixed supported development proxy scene; actual native/Swift/MLX pipeline and learner-only restore; no visual learning or production-scale qualification",
+      "ecological_environment_qualified": false
+    },
+    "life_checkpoint_development_instrument": {
+      "commands": [
+        "life-admission",
+        "life-swift-probe --calibration PASSED_NATIVE_LIFE_TRIAL"
+      ],
+      "evidence": "artifacts/crow-rl-life-checkpoint-20261107",
+      "native_attempts": 6,
+      "swift_attempts": 2,
+      "seed": 2651109001,
+      "environments": 2,
+      "snapshot_accepted_tick": 135,
+      "future_ticks": 32,
+      "fresh_process_continuations": 2,
+      "negative_restore_controls": 10,
+      "all_future_and_hidden_state_bit_identical": true,
+      "restore_advances_physics": false,
+      "policy_publication_advances_physics": false,
+      "identity_scope": "exact native library/core-retinal shaders/device/OS/world/task/next-policy/resource/sensor configuration",
+      "state_scope": "native physical/contact/reset/task/RNG and delayed retinal queue plus finite food; no trainable persistent memory",
+      "combined_learner_life_resume_tested": false,
+      "ecological_environment_qualified": false
+    },
+    "training_life_development_instrument": {
+      "command": "life-training-probe --retinal-calibration PASSED_API_TRIAL",
+      "evidence": "artifacts/crow-rl-training-life-20261107",
+      "attempts": 5,
+      "development_seeds": [
+        2651109101,
+        2651109102
+      ],
+      "environments": 16,
+      "steps_per_update": 37,
+      "epochs": 2,
+      "minibatch": 97,
+      "reference_updates": 4,
+      "split_updates": [
+        2,
+        2
+      ],
+      "resume_submission_chunks": [
+        1,
+        8
+      ],
+      "all_shared_boundary_rollouts_policies_optimizer_tensors_and_native_components_bit_identical": true,
+      "rejection_controls": 9,
+      "accepted_life_ticks": [
+        37,
+        74,
+        111,
+        148
+      ],
+      "restore_advances_physics": false,
+      "publication_scope": "exclusive manifest-bound durable bundle, exact scheduler and learner imported code/runtime; native identity guards; no forced-crash/power-loss qualification",
+      "trainable_memory_qualified": false,
+      "ecological_environment_qualified": false
+    }
+  },
+  "prediction": "native FP64 max error<=3e-6; chunks/previews/duplicates/fresh process exact including reset traces;24 native controls reject; MLX sequence/pre-cell parity<=3e-6; full parameter/input BPTT<=3e-6 and relative norm<=2e-5; twelve FP64 central differences<=1e-8; reset gradients cut exactly; eight SGD steps reduce fixed objective",
+  "control": "two native shapes including nonaligned257/65,40 authored neural ticks; lane resets11/23; weight publication18; two chunks1/8; independent process; six-tick MLX/FP64 gradient fixture and four learner contract rejections",
+  "validity": "native accepted state, exact identity, finite first-episode evidence, no device failures or hidden teacher",
+  "stopping": "one native and one learner instrument,180s timeout each, no automatic retry or threshold changes",
+  "purpose": "native working-memory and differentiable sequence algebra component admission",
+  "unit": "declared neural algebra/timing instrument; host-authored clock is not a crow simulator",
+  "limitations": "PolicyPack, native actor integration, recurrent rollout/sequence PPO, coupled memory checkpoint and behavioral ablations still required"
+}

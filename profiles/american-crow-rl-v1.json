@@ -79,7 +79,8 @@
     "social_individuals_and_communication": "pending",
     "weather_and_seasonal_ecology": "pending",
     "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-partition-and-pending-frame-fresh-process-restore-controls-passed-including-live-head-renderer",
-    "retinal_actor_contract": "native-v13-1251-actor-97-critic-18-actions; live-pixel-controls-and-C-API-Swift-MLX-update-learner-restore-passed-at16-64-128; visual-learning-and-production-performance-qualification-pending"
+    "retinal_actor_contract": "native-v13-1251-actor-97-critic-18-actions; live-pixel-controls-and-C-API-Swift-MLX-update-learner-restore-passed-at16-64-128; visual-learning-and-production-performance-qualification-pending",
+    "native_working_memory": "optional-native-reset-after-GRU-and-differentiable-MLX-sequence-component-admitted; PolicyPack-native-actor-recurrent-rollout-and-sequence-PPO-integration-pending"
   },
   "release_requirements": [
     "deterministic accepted-state execution across submission chunks",
@@ -211,6 +212,44 @@
     "restore_advances_physics": false,
     "publication_scope": "exclusive manifest-bound durable bundle, exact scheduler and learner imported code/runtime; native identity guards; no forced-crash/power-loss qualification",
     "trainable_memory_qualified": false,
+    "ecological_environment_qualified": false
+  },
+  "working_memory_component_development_instrument": {
+    "command": "memory-admission",
+    "evidence": "artifacts/crow-rl-gru-memory-20261107",
+    "native_shapes": [
+      {
+        "environments": 3,
+        "inputs": 5,
+        "hidden": 7
+      },
+      {
+        "environments": 4,
+        "inputs": 257,
+        "hidden": 65
+      }
+    ],
+    "ticks": 40,
+    "weight_publication_tick": 18,
+    "lane_episode_reset_ticks": [
+      11,
+      23
+    ],
+    "native_FP64_max_abs": 2.0666054584284055e-07,
+    "native_negative_controls": 31,
+    "duplicate_preview_partition_and_fresh_process_exact_including_reset_traces": true,
+    "MLX_native_max_abs": 2.086162567138672e-07,
+    "MLX_FP64_full_gradient_max_abs": 8.252819289067403e-09,
+    "MLX_compiled_eager_gradient_max_abs": 0.0,
+    "MLX_contract_controls": 4,
+    "independent_FP64_gradient_central_difference_max_abs": 2.507887994496194e-12,
+    "retained_native_runtime_and_Python_source_recovery_exact": true,
+    "input_clock": "authored neural instrument, not crow simulation",
+    "scope": "optional native working-memory operator and detached-initial-state sequence BPTT only; no whole-loop performance or embodied memory claim",
+    "PolicyPack_and_actor_integrated": false,
+    "sequence_PPO_integrated": false,
+    "coupled_native_life_contains_GRU": false,
+    "trainable_crow_memory_qualified": false,
     "ecological_environment_qualified": false
   }
 }

@@ -599,7 +599,7 @@ missing the compiler's avian ground-curriculum flag inherited by v12. Trial05
 adds that flag to the compiled task identity and passes all controls with the
 same gesture: six malformed C configurations reject; terminal features equal
 the next chunk's first actor features; complete actor/action/latent/transition
-and final q/v streams are bit-identical for chunks1/8. Explicit world reset
+and final q/v streams are bit-identical for chunks 1/8. Explicit world reset
 clears the retinal queue (two cold-start blind ticks) without replenishing
 food or changing crop/consumption, and the resource clock continues.
 
@@ -709,7 +709,7 @@ both lanes have consumed20,000 micrograms. Seven stochastic image-dependent
 policy ticks put the life at135 with capture134 still pending for delivery136.
 Revision20 is then published without a physical transition. A saved checkpoint
 must reproduce the uninterrupted next32 ticks in two independent processes
-using chunks1/8, including one lane reset at local tick9. Actor features,
+using chunks 1/8, including one lane reset at local tick9. Actor features,
 actions, latents, transitions, final q/v, food and all three final hidden native
 components are byte-identical. Ten malformed or incompatible restore controls
 reject without changing published life state; overwrite rejection also passes.
@@ -800,7 +800,7 @@ tools/numi crow-env life-training-probe \
 Trial05 uses16 lanes,37 ticks/update, two epochs and minibatches of97, so the
 592-sample batch has an uneven final minibatch. One four-update reference is
 compared with one fresh two-update run and two independent two-update continuations
-at chunks1/8. At every shared optimizer boundary, complete rollout and policy/
+at chunks 1/8. At every shared optimizer boundary, complete rollout and policy/
 candidate bytes, every model and Adam tensor/metadata, and all three hidden
 native components are bit-identical. Lifetime ticks are exactly37,74,111,148;
 policy revisions progress1→3→5 across interruption. Lane12 has consumed20,000
@@ -837,3 +837,76 @@ receipts. No qualification seeds are used or candidate promoted. Persistent
 trainable memory, solid-food manipulation, physiology, social agents, robust
 locomotion, production scaling and untouched ecological qualification remain
 required for the full lifelong environment.
+
+
+## Native working-memory component
+
+`GRUMemoryContext` now provides an optional GPU-resident reset-after GRU with
+row-major r/z/n input/recurrent weights and separate biases. `gru_memory.py`
+provides matching differentiable MLX cell and time-major sequence algebra. This
+is a prerequisite component: current crow PolicyPacks, native actor execution,
+rollout records, PPO and coupled life checkpoints do **not** yet contain it.
+The current trained feeding actor remains feedforward.
+
+The native operator borrows the real task clock read-only and encodes into its
+owner's uncommitted command buffer. It retains two private hidden vectors: the
+pre-cell state and the proposed next state. Accepted task-clock advancement
+promotes the proposal; repeating inference on the same tick recomputes from the
+same pre-cell state. Read-only previews select the appropriate state without
+advancing it. Episode changes clear volatile working memory. Duplicate inference
+and same-clock previews preserve the proposal's reset trace, including the
+first tick of an episode. Installing same-shaped new weights retains history
+and performs no physical or neural step. No per-tick host wait, readback or
+state allocation is introduced.
+
+Whole-grid input/clock validation precedes state writes. Invalid input, clock
+gaps or reversal set sticky errors and reject publication without partially
+changing other lanes' hidden state. Command ownership excludes competing
+commands and host boundary operations until completion. Explicit reset recovers
+a poisoned context. Quiescent component checkpoints bind parameters, library,
+shader, device and OS; restore validates semantics and uploads candidate state
+before swapping ownership. A component checkpoint is separate from the existing
+crow life checkpoint and cannot yet resume a recurrent crow learner.
+
+Build `metalrobo_gru_memory_check` and `metalrobo_gru_shaders`, then run:
+
+```
+tools/numi crow-env memory-admission --output NEW_MEMORY_TRIAL
+ctest --test-dir build --output-on-failure -R '^metalrobo[.]learning[.]gru_memory$'
+```
+
+The bounded native instrument uses N/I/H=3/5/7 and 4/257/65, 40 authored neural
+ticks, lane resets at 11/23, publication of new weights at 18, chunks 1/8, duplicate
+inference, previews and a fresh-process restore. Maximum FP64 error is
+2.067e-7 against the declared 3e-6 threshold. All future hidden/pre-cell/reset
+traces and final component checkpoints match exactly. 31 controls reject invalid
+parameters, checksums, seven correctly re-signed but semantically invalid
+checkpoints, buffers/offsets, ownership, budget, nonfinite input and clock gaps.
+The fixture clock is an explicitly synthetic neural instrument, never a Python
+or host substitute for accepted crow transitions.
+
+MLX/native sequence and pre-cell error is at most 2.087e-7. Independent FP64
+reverse-mode derivatives check every element of all four parameter tables and
+inputs: maximum error 8.253e-9, relative norm at most 1.459e-7. Twelve central
+differences check the FP64 derivative implementation within 2.508e-12. Compiled
+and eager MLX gradients match exactly on this fixture. Gradients cross ordinary
+ticks, stop exactly at episode resets, and detach the captured initial state.
+A causal input counterfactual verifies reset isolation and retained memory.
+Eight full-sequence SGD updates reduce the fixed mathematical objective from
+0.07463 to 0.05092; this is an algebra check, not PPO or learned crow behavior.
+Four learner shape/dtype controls reject.
+
+The admission retains a matching native library/executable/shader tree and
+Python source. A second native process restores from that saved runtime and
+reproduces the future traces/checkpoint byte for byte; a separate process using
+the retained learner source reproduces its summary and all arrays exactly. Matching installed
+Python/MLX/NumPy dependencies are still required.
+
+Evidence, weaker initial checks, failed build/launcher attempts, exact source
+deltas and recovery receipts are retained in
+`artifacts/crow-rl-gru-memory-20261107`. The final source and trials explicitly
+leave recurrent policy/sequence-PPO integration and embodied-memory qualification
+false. Next work must carry hidden/reset traces through the real native actor,
+sequence learner and coupled life bundle, then test causal memory during physical
+foraging and cache tasks with untouched evaluation seeds. Production performance,
+solid-object manipulation, physiology and social learning remain open.

@@ -1,0 +1,8 @@
+{
+  "schema": "numi.gru-mlx-admission-plan.v1",
+  "native": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/gru-memory-admission-04/native-evidence",
+  "native_summary_sha256": "2917127f4cf32c70ad2d13eb0d37a222e519412e25212962b172e09cb0cc4a80",
+  "prediction": "two native fixture sequences/pre-cell states match<=3e-6; full parameter/input BPTT match independent FP64<=3e-6 and relative norm<=2e-5; finite differences<=1e-8; exact reset gradient cut; sequence SGD objective decreases",
+  "stopping": "two40-tick native fixtures; one6-tick gradient fixture;12 parameter central differences;8 SGD updates; four contract controls; no retries or threshold changes",
+  "scope": "neural algebra instrument only; not recurrent PPO or crow behavioral qualification"
+}

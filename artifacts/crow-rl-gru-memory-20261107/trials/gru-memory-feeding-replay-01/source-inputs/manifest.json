@@ -1,0 +1,15 @@
+{
+  "base_commit": "9a986439bec194971bd9490b8dfe5c15c9f7130f",
+  "tracked_patch_sha256": "3b1c08929cc0e7df05b726208a7f500e6669fc2cb585a64d7246bf39ceeda283",
+  "retained_untracked": {
+    "apps/gru_memory_check.mm": "58b82c062f7df27df67a9786897c43a4d2c85ec61e4b8c483cd7d5bc7b1dde3c",
+    "cmake/CheckGRUMemory.cmake": "a2db6af90a4cc07c30184059d21b4860e18272fc9ba7fa2a24990689b80ad767",
+    "include/metalrobo/GRUMemory.hpp": "c100b827f2ccd617da0b4bf85a9cf2e2b6dcf77fd7c21993889aa189da791041",
+    "include/metalrobo/gru_memory_types.h": "0f06a409282d39f79c72570c87dab487ebc0ffdb73a63489293b72dcaf8b3f70",
+    "python/metalrobo/gru_memory.py": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710",
+    "python/metalrobo/gru_memory_admission.py": "9335d92d667903782a5f01595d4f194a214930fa33913be2131e99809ffbd994",
+    "src/metal/GRUMemory.metal": "0458217f5d056cc5b98d1de389e84bd493d555f89001c9c872d69db07d7e7de2",
+    "src/metal/GRUMemory.mm": "08b9af1ae6195f8a08ffac56dbefe425aba7f13064a59cc69974a80063383171"
+  },
+  "external_artifact_inputs": {}
+}

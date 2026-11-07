@@ -721,6 +721,20 @@ add_custom_command(OUTPUT "${METALROBO_RETINAL_METALLIB}"
         include/metalrobo/task_program_types.h include/metalrobo/gpu_types.h VERBATIM)
 add_custom_target(metalrobo_retinal_shaders ALL DEPENDS "${METALROBO_RETINAL_METALLIB}")
 
+set(METALROBO_GRU_METALLIB "${CMAKE_CURRENT_BINARY_DIR}/shaders/GRUMemory.metallib")
+add_custom_command(OUTPUT "${METALROBO_GRU_METALLIB}"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/shaders"
+    COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
+        -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        -c "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/GRUMemory.metal"
+        -o "${CMAKE_CURRENT_BINARY_DIR}/shaders/GRUMemory.air"
+    COMMAND xcrun -sdk macosx metallib
+        "${CMAKE_CURRENT_BINARY_DIR}/shaders/GRUMemory.air" -o "${METALROBO_GRU_METALLIB}"
+    DEPENDS src/metal/GRUMemory.metal include/metalrobo/gru_memory_types.h
+        include/metalrobo/task_program_types.h include/metalrobo/gpu_types.h VERBATIM)
+add_custom_target(metalrobo_gru_shaders ALL DEPENDS "${METALROBO_GRU_METALLIB}")
+
+
 
 set(
     METALROBO_VISUAL_KERNEL_HASH_HEADER
@@ -831,6 +845,7 @@ add_library(
     src/metal/FiniteResource.mm
     src/metal/RetinalObserver.mm
     src/metal/RetinalStream.mm
+    src/metal/GRUMemory.mm
     src/metal/MetalMultiArticulatedABA.mm
     src/metal/MetalDiscreteElasticRod.mm
     src/metal/MetalArticulatedInverseMass.mm
@@ -1102,6 +1117,12 @@ add_executable(metalrobo_crow_retinal_contract_check apps/crow_retinal_contract_
 target_compile_options(metalrobo_crow_retinal_contract_check PRIVATE -Wall -Wextra -Wpedantic)
 target_link_libraries(metalrobo_crow_retinal_contract_check PRIVATE metalrobo)
 set_target_properties(metalrobo_crow_retinal_contract_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+
+add_executable(metalrobo_gru_memory_check apps/gru_memory_check.mm)
+target_compile_options(metalrobo_gru_memory_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+target_link_libraries(metalrobo_gru_memory_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
+add_dependencies(metalrobo_gru_memory_check metalrobo_gru_shaders)
+set_target_properties(metalrobo_gru_memory_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
 
 add_executable(metalrobo_retinal_stream_check apps/retinal_stream_check.mm)
 target_compile_options(metalrobo_retinal_stream_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
@@ -2387,6 +2408,13 @@ if(BUILD_TESTING)
             "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_life_checkpoint_check>"
             "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowLifeCheckpoint.cmake")
+    add_test(NAME metalrobo.learning.gru_memory
+        COMMAND "${CMAKE_COMMAND}"
+            "-DPROGRAM=$<TARGET_FILE:metalrobo_gru_memory_check>"
+            "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckGRUMemory.cmake")
+    set_tests_properties(metalrobo.learning.gru_memory PROPERTIES
+        LABELS "metalrobo;learning;native;memory" TIMEOUT 200)
     set_tests_properties(metalrobo.crow.life_checkpoint PROPERTIES
         LABELS "metalrobo;crow;native;persistence" TIMEOUT 200)
     add_test(NAME metalrobo.crow.retinal_api
@@ -3824,7 +3852,7 @@ install(
     DESTINATION share/numi/assets
 )
 install(DIRECTORY include/ DESTINATION include)
-install(FILES "${METALROBO_METALLIB}" "${METALROBO_RETINAL_METALLIB}" DESTINATION lib/metalrobo)
+install(FILES "${METALROBO_METALLIB}" "${METALROBO_RETINAL_METALLIB}" "${METALROBO_GRU_METALLIB}" DESTINATION lib/metalrobo)
 install(
     FILES
         schemas/capture_manifest.schema.json

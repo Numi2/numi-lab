@@ -1,0 +1,1 @@
+{"schema":"numi.gru-memory-evidence.v2","status":"passed","cases":2,"maximum_FP64_error":2.0666054584284055e-07,"partition_preview_duplicate_exact":true,"fresh_process_future_exact":true,"negative_controls":24,"recurrent_policy_integrated":false,"trainable_crow_memory_qualified":false}

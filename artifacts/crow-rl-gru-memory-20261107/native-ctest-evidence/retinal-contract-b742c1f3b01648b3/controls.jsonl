@@ -1,0 +1,21 @@
+{"malformed_case":0,"element":"compiler_only_retinal_sensor_metadata","reason":"retinal actor channels require a bound raw RGB SensorPack; zero image fallback is forbidden"}
+{"malformed_case":1,"element":"compiler_only_retinal_sensor_metadata","reason":"retinal actor channels require a bound raw RGB SensorPack; zero image fallback is forbidden"}
+{"malformed_case":2,"element":"compiler_only_retinal_sensor_metadata","reason":"raw retinal geometry, RGB layout, integer cadence, latency or actor reservation is invalid"}
+{"malformed_case":3,"element":"retinal_rgb","reason":"retinal channels require one complete current actor suffix, separate from masked depth and critic/history"}
+{"malformed_case":4,"element":"retinal_rgb","reason":"retinal suffix components must be ordered, contiguous and untransformed"}
+{"malformed_case":5,"element":"retinal_rgb","reason":"retinal suffix components must be ordered, contiguous and untransformed"}
+{"malformed_case":6,"element":"retinal_rgb","reason":"retinal channels require one complete current actor suffix, separate from masked depth and critic/history"}
+{"malformed_case":7,"element":"compiler_only_retinal_sensor_metadata","reason":"raw retinal geometry, RGB layout, integer cadence, latency or actor reservation is invalid"}
+{"malformed_case":8,"element":"compiler_only_retinal_sensor_metadata","reason":"raw retinal geometry, RGB layout, integer cadence, latency or actor reservation is invalid"}
+{"malformed_case":9,"element":"compiler_only_retinal_sensor_metadata","reason":"raw retinal geometry, RGB layout, integer cadence, latency or actor reservation is invalid"}
+{"malformed_case":10,"element":"compiler_only_retinal_sensor_metadata","reason":"raw retinal geometry, RGB layout, integer cadence, latency or actor reservation is invalid"}
+{"malformed_case":11,"element":"compiler_only_retinal_sensor_metadata","reason":"retinal observation metadata disagrees with its SensorPack identity"}
+{"semantic_change":0,"old_policy_rejected":true}
+{"semantic_change":1,"old_policy_rejected":true}
+{"semantic_change":2,"old_policy_rejected":true}
+{"semantic_change":3,"old_policy_rejected":true}
+{"semantic_change":4,"old_policy_rejected":true}
+{"semantic_change":5,"old_policy_rejected":true}
+{"semantic_change":6,"old_policy_rejected":true}
+{"semantic_change":7,"old_policy_rejected":true}
+{"semantic_change":8,"old_policy_rejected":true}

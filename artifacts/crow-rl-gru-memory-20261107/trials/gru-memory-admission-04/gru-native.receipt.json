@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_gru_memory_check",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/gru-memory-admission-04/native-evidence"
+  ],
+  "exit_code": 0,
+  "timed_out": false,
+  "interrupted": false,
+  "wall_seconds": 0.20989475003443658,
+  "stdout_sha256": "2917127f4cf32c70ad2d13eb0d37a222e519412e25212962b172e09cb0cc4a80",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

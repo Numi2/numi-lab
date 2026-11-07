@@ -1,0 +1,222 @@
+{
+  "gru-memory-native-01": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-native-01/GRUMemory.metallib",
+      "bytes": 19343,
+      "sha256": "5e0ae4468923a013cd42f7f7ac2f3ab262b112716305832f45c8e73fcf49d0f1"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-native-01/libmetalrobo.dylib",
+      "bytes": 5580672,
+      "sha256": "7f9b0b2af5518955aacf56d5e2624f35b0e5aea1929b989c73c63da2b826eb11"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-native-01/metalrobo_gru_memory_check",
+      "bytes": 115128,
+      "sha256": "87b2b20ab8a98f39f3a69e3d91033c81e76395877e4fe278b0edca860d197a95"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-native-01/source/GRUMemory.hpp",
+      "bytes": 2692,
+      "sha256": "502a3bf780b5bfc9a5ab6f3312a72d7ed3ff5f3d7028ea4b442d434a4572120b"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-native-01/source/GRUMemory.metal",
+      "bytes": 5512,
+      "sha256": "ad3b828a472692a7237e5fd4c2a15a97b8086b76dd47ae6be997d803e0465467"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-native-01/source/GRUMemory.mm",
+      "bytes": 17261,
+      "sha256": "28ba00d47b73705941ec3adc7f9c93dad0045876573b92e99f57f34770cf72f0"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-native-01/source/gru_memory.py",
+      "bytes": 3184,
+      "sha256": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-native-01/source/gru_memory_admission.py",
+      "bytes": 12592,
+      "sha256": "9335d92d667903782a5f01595d4f194a214930fa33913be2131e99809ffbd994"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-native-01/source/gru_memory_check.mm",
+      "bytes": 21036,
+      "sha256": "c7148d94c16e7da3009ee527a4043e4f5412f9491168f74527c6c26689234cce"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-native-01/source/gru_memory_types.h",
+      "bytes": 1017,
+      "sha256": "0f06a409282d39f79c72570c87dab487ebc0ffdb73a63489293b72dcaf8b3f70"
+    }
+  ],
+  "gru-memory-admission-03": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-03/GRUMemory.metallib",
+      "bytes": 19391,
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-03/gru_memory.py",
+      "bytes": 3184,
+      "sha256": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-03/gru_memory_admission.py",
+      "bytes": 12592,
+      "sha256": "9335d92d667903782a5f01595d4f194a214930fa33913be2131e99809ffbd994"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-03/libmetalrobo.dylib",
+      "bytes": 5580672,
+      "sha256": "68dbac9c41d40e776a33770282fc07bd60f68ccb3f2148f98f3165e0134ab40b"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-03/metalrobo_gru_memory_check",
+      "bytes": 115128,
+      "sha256": "d6078a5436cbaa908e27928b5f90a5637bee8c1f6f1843510be4a85021084421"
+    }
+  ],
+  "gru-memory-admission-04": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-04/bin/metalrobo_gru_memory_check",
+      "bytes": 115128,
+      "sha256": "d6078a5436cbaa908e27928b5f90a5637bee8c1f6f1843510be4a85021084421"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-04/lib/libmetalrobo.dylib",
+      "bytes": 5580672,
+      "sha256": "68dbac9c41d40e776a33770282fc07bd60f68ccb3f2148f98f3165e0134ab40b"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-04/python/metalrobo/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-04/python/metalrobo/__pycache__/__init__.cpython-313.pyc",
+      "bytes": 213,
+      "sha256": "affa36228cc03da1765acdca9453306e1d976eae86a1d44ecd597d701c2920b7"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-04/python/metalrobo/__pycache__/gru_memory.cpython-313.pyc",
+      "bytes": 5315,
+      "sha256": "8e78736c03eb5f237294c37f733af3f4940da70443b4cac07ea9f9ab86b62366"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-04/python/metalrobo/__pycache__/gru_memory_admission.cpython-313.pyc",
+      "bytes": 23636,
+      "sha256": "9fc3af6a338c7c1628c47b435e053d1c27869d9c795e03bd0fc314a4ef8fca77"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-04/python/metalrobo/gru_memory.py",
+      "bytes": 3184,
+      "sha256": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-04/python/metalrobo/gru_memory_admission.py",
+      "bytes": 12592,
+      "sha256": "9335d92d667903782a5f01595d4f194a214930fa33913be2131e99809ffbd994"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-04/shaders/GRUMemory.metallib",
+      "bytes": 19391,
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    }
+  ],
+  "gru-memory-admission-05": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-05/bin/metalrobo_gru_memory_check",
+      "bytes": 133544,
+      "sha256": "7f606419d3e6d365793f4283a732ac1915246c124c38952de88d7b6c2d115aac"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-05/lib/libmetalrobo.dylib",
+      "bytes": 5580672,
+      "sha256": "02c639308a2d21919cf8fdbb329a8be2f16a3e2de57c59fe38445f57c606576a"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-05/python/metalrobo/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-05/python/metalrobo/__pycache__/__init__.cpython-313.pyc",
+      "bytes": 213,
+      "sha256": "ec7059d267a28c9041a500caee0047d444286f478ed3f066718fa4863260a78f"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-05/python/metalrobo/__pycache__/gru_memory.cpython-313.pyc",
+      "bytes": 5315,
+      "sha256": "cc5c5e06fc11f05eee0dc46382434c9313944ff9bd47652d049f3b35f67f7741"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-05/python/metalrobo/__pycache__/gru_memory_admission.cpython-313.pyc",
+      "bytes": 23636,
+      "sha256": "52933b1bc8f41ee9d533dc11a233f99b028fdf960ea77b68dda66ad30082a788"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-05/python/metalrobo/gru_memory.py",
+      "bytes": 3184,
+      "sha256": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-05/python/metalrobo/gru_memory_admission.py",
+      "bytes": 12592,
+      "sha256": "9335d92d667903782a5f01595d4f194a214930fa33913be2131e99809ffbd994"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-05/shaders/GRUMemory.metallib",
+      "bytes": 19391,
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    }
+  ],
+  "gru-memory-admission-06": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-06/bin/metalrobo_gru_memory_check",
+      "bytes": 133544,
+      "sha256": "7f606419d3e6d365793f4283a732ac1915246c124c38952de88d7b6c2d115aac"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-06/lib/libmetalrobo.dylib",
+      "bytes": 5580672,
+      "sha256": "02c639308a2d21919cf8fdbb329a8be2f16a3e2de57c59fe38445f57c606576a"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-06/python/metalrobo/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-06/python/metalrobo/__pycache__/__init__.cpython-313.pyc",
+      "bytes": 213,
+      "sha256": "cdd0550b4d44bfede783588e2da5446c90ab263ea5b0a23ce78e21dc3fefbd88"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-06/python/metalrobo/__pycache__/gru_memory.cpython-313.pyc",
+      "bytes": 5315,
+      "sha256": "50d8614eb9441ef02cd23a549d0e6843b1a932af71c4a88ee76e402a324db545"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-06/python/metalrobo/__pycache__/gru_memory_admission.cpython-313.pyc",
+      "bytes": 23636,
+      "sha256": "7c3d346bfa5cc6fdbba053b506bf396e630b4ee50f55388b3fadd10500695a43"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-06/python/metalrobo/gru_memory.py",
+      "bytes": 3184,
+      "sha256": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-06/python/metalrobo/gru_memory_admission.py",
+      "bytes": 12592,
+      "sha256": "9335d92d667903782a5f01595d4f194a214930fa33913be2131e99809ffbd994"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/gru-memory-admission-06/shaders/GRUMemory.metallib",
+      "bytes": 19391,
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    }
+  ]
+}

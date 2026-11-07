@@ -1,0 +1,185 @@
+{
+  "schema": "numi.crow-gru-component-archive.v1",
+  "status": "native-and-differentiable-MLX-component-admitted",
+  "final_trial": {
+    "schema": "numi.crow-gru-component-admission.v1",
+    "status": "passed",
+    "native": {
+      "schema": "numi.gru-memory-evidence.v3",
+      "status": "passed",
+      "cases": 2,
+      "maximum_FP64_error": 2.0666054584284055e-07,
+      "partition_preview_duplicate_exact": true,
+      "fresh_process_future_exact": true,
+      "negative_controls": 31,
+      "recurrent_policy_integrated": false,
+      "trainable_crow_memory_qualified": false
+    },
+    "learner": {
+      "schema": "numi.gru-mlx-evidence.v1",
+      "status": "passed",
+      "cases": [
+        {
+          "case": "small",
+          "native_hidden_max_abs": 2.9802322387695312e-08,
+          "native_pre_cell_max_abs": 2.9802322387695312e-08,
+          "FP64_max_abs": 2.5763316507942946e-08
+        },
+        {
+          "case": "large",
+          "native_hidden_max_abs": 2.086162567138672e-07,
+          "native_pre_cell_max_abs": 2.086162567138672e-07,
+          "FP64_max_abs": 1.8403132934219357e-07
+        }
+      ],
+      "FP64_loss": 0.07462926860487425,
+      "mlx_loss": 0.0746292695403099,
+      "gradients": {
+        "input_weights": {
+          "max_abs": 3.0183775270864466e-09,
+          "relative_norm": 1.1514360731462051e-07
+        },
+        "recurrent_weights": {
+          "max_abs": 8.756390473818598e-10,
+          "relative_norm": 8.597442391207944e-08
+        },
+        "input_bias": {
+          "max_abs": 8.252819289067403e-09,
+          "relative_norm": 7.163375989342193e-08
+        },
+        "recurrent_bias": {
+          "max_abs": 2.0758007812649026e-09,
+          "relative_norm": 5.373473123786028e-08
+        },
+        "inputs": {
+          "max_abs": 7.454505337664563e-10,
+          "relative_norm": 1.4586840337815206e-07
+        }
+      },
+      "maximum_gradient_error": 8.252819289067403e-09,
+      "finite_difference_max_abs": 2.507887994496194e-12,
+      "compiled_eager_max_abs": 0.0,
+      "reset_cuts_gradient_exact": true,
+      "captured_initial_state_detached": true,
+      "ordinary_tick_memory_causal": true,
+      "fixed_sequence_SGD_loss": [
+        0.0746292695403099,
+        0.06974346935749054,
+        0.0655626505613327,
+        0.062002476304769516,
+        0.058982718735933304,
+        0.05642877146601677,
+        0.05427275225520134,
+        0.05245400592684746,
+        0.05091921612620354
+      ],
+      "learner_contract_rejections": 4,
+      "recurrent_PPO_integrated": false,
+      "trainable_crow_memory_qualified": false
+    },
+    "runtime_retained": true,
+    "retained_runtime_recovery_exact": true,
+    "recurrent_policy_integrated": false,
+    "sequence_PPO_integrated": false,
+    "trainable_crow_memory_qualified": false,
+    "boundary": "native/MLX neural component only; no embodied memory or whole-environment qualification"
+  },
+  "retained_recovery": {
+    "native_future_and_checkpoint_exact": true,
+    "independent_learner_summary_and_all_arrays_exact": true,
+    "installed_interpreter_MLX_NumPy_still_required": true
+  },
+  "native_checks_passed": 13,
+  "python_checks_passed": 26,
+  "ordinary_learner_optimizer_hashes_unchanged": true,
+  "ordinary_learner": {
+    "status": "passed",
+    "claim": "native/MLX updates, publication, and learner-only restore",
+    "variant": "v13-retinal-feeding",
+    "environments": 16,
+    "actor_initialization": "new zero-output actor",
+    "records": [
+      {
+        "stage": "initial",
+        "updates": 2,
+        "samples": 4096,
+        "training_loop_steps_per_second": 1451.1269627183458,
+        "whole_process_steps_per_second": 1299.9239411469841,
+        "initial_revision": 1,
+        "final_revision": 3,
+        "learner_state_restored": false,
+        "checkpoint_sha256": "29f79d3c670b7476757945a62104d78ba76012220be388c07b6f24e93f75d8d1",
+        "last_update_mean_reward": 0,
+        "last_update_maximum_reward": 0,
+        "last_update_intake_utility_mean": 0,
+        "last_update_learning_rate": 9.999999747378752e-05,
+        "last_update_action_standard_deviation": 2.7183361053466797,
+        "mlx_peak_memory_bytes": 165057528
+      },
+      {
+        "stage": "resume",
+        "updates": 1,
+        "samples": 2048,
+        "training_loop_steps_per_second": 1401.516638775767,
+        "whole_process_steps_per_second": 1196.657830470836,
+        "initial_revision": 3,
+        "final_revision": 4,
+        "learner_state_restored": true,
+        "checkpoint_sha256": "6c2d517062ccc6c28ea127ffea9f59fc12c00d33179140c6565503a758c882fe",
+        "last_update_mean_reward": 0.0029296870343387127,
+        "last_update_maximum_reward": 1.999999761581421,
+        "last_update_intake_utility_mean": 0.0029296870343387127,
+        "last_update_learning_rate": 9.999999747378752e-05,
+        "last_update_action_standard_deviation": 2.7183756828308105,
+        "mlx_peak_memory_bytes": 143412208
+      }
+    ],
+    "candidate_promoted": false,
+    "persistent_world_restore_tested": false,
+    "ecological_environment_qualified": false
+  },
+  "feeding_fingerprints_unchanged": true,
+  "feeding": {
+    "status": "passed",
+    "claim": "ordinary and residual native policy partition invariance",
+    "records": [
+      {
+        "mode": "ordinary",
+        "fingerprint": "2255877855914022940",
+        "chunks": [
+          1,
+          8
+        ]
+      },
+      {
+        "mode": "residual",
+        "fingerprint": "3082487550463979285",
+        "chunks": [
+          1,
+          8
+        ]
+      }
+    ],
+    "ecological_environment_qualified": false
+  },
+  "attempts": {
+    "native01": "passed weaker fixture; duplicate reset trace written to scratch instead of comparing; source/runtime retained",
+    "mlx01": "passed native-layout/FP64 derivatives instrument",
+    "build02": "rejected fixture span-template deduction before executable publication",
+    "launch01and02": "wrong dispatcher path rejected before any trial was created",
+    "admission03": "passed corrected duplicate/reset trace and24 controls; retained binaries used flat layout, not recovery-qualified",
+    "admission04": "passed retained-layout recovery,24 controls; outer plan predates explicit recovery stopping detail",
+    "build05": "rejected malformed fixture digest xor type before executable publication",
+    "admission05": "passed31 controls and retained-runtime/source recovery; learner recovery summary compared",
+    "admission06": "passed31 controls; retained-runtime future and checkpoint exact; independent retained learner summary and all arrays exact"
+  },
+  "failed_build_evidence_scope": "compiler diagnostics retained; exact source deltas for successful versions, not every failed edit",
+  "runtime_recovery_scope": "retained native binary/library/shader tree and two learner source modules; installed matching Python/MLX/NumPy still required",
+  "component_optional_no_production_actor_execution_changed": true,
+  "full_loop_performance_qualified": false,
+  "PolicyPack_native_actor_and_rollout_integrated": false,
+  "recurrent_PPO_integrated": false,
+  "coupled_life_includes_GRU": false,
+  "trainable_crow_memory_qualified": false,
+  "ecological_environment_qualified": false
+}
