@@ -1233,6 +1233,19 @@ if(BUILD_TESTING)
         LABELS "benchmark;science;cpu" TIMEOUT 30)
 endif()
 
+add_executable(metalrobo_latency apps/benchmark_latency.cpp)
+target_link_libraries(metalrobo_latency PRIVATE metalrobo)
+set_target_properties(metalrobo_latency PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+    INSTALL_RPATH "@loader_path/../lib")
+if(BUILD_TESTING)
+    add_test(NAME metalrobo.benchmark.latency_accounting
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/benchmark_latency_test.py")
+    set_tests_properties(metalrobo.benchmark.latency_accounting PROPERTIES
+        LABELS "benchmark;accounting;cpu" TIMEOUT 30)
+endif()
+
 add_executable(metalrobo_tactile_check apps/tactile_check.cpp)
 target_link_libraries(metalrobo_tactile_check PRIVATE metalrobo)
 set_target_properties(
