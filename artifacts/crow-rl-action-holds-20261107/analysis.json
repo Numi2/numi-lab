@@ -1,0 +1,294 @@
+{
+  "status": "passed",
+  "source_commit": "802ed1e72d70e08effbd64b793c2159c4fa0514e",
+  "training_continuation": [
+    {
+      "stage": "prefix",
+      "policy_candidate_rollout_byte_exact": true,
+      "learner_tensors_and_metadata_exact": 53,
+      "native_sections_sha256": [
+        "f57a2ffaed3b48741e329a6a7209731926e864e2377dbf63cc151e7547574ae8",
+        "4782b97b99c42099c6d1592ac4549035c8262517e44861f5a9dee43f41ef70bc",
+        "b898c67ad6c6ef68613e59341fc2b44f7dc20e33385f35de6fd792fcd5ca793e"
+      ]
+    },
+    {
+      "stage": "tail1",
+      "policy_candidate_rollout_byte_exact": true,
+      "learner_tensors_and_metadata_exact": 53,
+      "native_sections_sha256": [
+        "9dfce53613c7c02e8cd5002ad954d0ba3f863c24c95fd1033eae71d74aac24da",
+        "d95f340907755bd0c0f34fad6eff257e6a21923eeeaa8be9680a5ed65c72343b",
+        "c86bef429e8a5078b4365c6fd10523fddf0f6d701789a57913c297265fec4e7c"
+      ]
+    },
+    {
+      "stage": "tail8",
+      "policy_candidate_rollout_byte_exact": true,
+      "learner_tensors_and_metadata_exact": 53,
+      "native_sections_sha256": [
+        "9dfce53613c7c02e8cd5002ad954d0ba3f863c24c95fd1033eae71d74aac24da",
+        "d95f340907755bd0c0f34fad6eff257e6a21923eeeaa8be9680a5ed65c72343b",
+        "c86bef429e8a5078b4365c6fd10523fddf0f6d701789a57913c297265fec4e7c"
+      ]
+    }
+  ],
+  "mid_hold_life_continuation": [
+    {
+      "stage": "tail-chunk1",
+      "all_sample_fields_byte_exact": [
+        "actor_observations",
+        "critic_observations",
+        "motion_features",
+        "teacher_actions",
+        "latents",
+        "old_log_probabilities",
+        "old_values",
+        "transitions",
+        "memory_before",
+        "memory_resets"
+      ],
+      "all_outcomes_byte_exact": [
+        "reward",
+        "task_reward",
+        "done",
+        "timeout",
+        "physics_error",
+        "accepted_intake_utility",
+        "policy_action_selection_mask"
+      ],
+      "final_bootstrap_byte_exact": true,
+      "all_native_sections_byte_exact": [
+        "d151f001ad895da149ba054809a63522b15f1896993b625091eafc81f7ab5f6a",
+        "14d7b45e05010c7542560dfb357ee9d599e98e08b4c948d0ebcca02996409c81",
+        "f9890ec0383f40e79389a2e0b26bff4011229d72f3f8f2df78b3c0245d00a928"
+      ]
+    },
+    {
+      "stage": "tail-chunk8",
+      "all_sample_fields_byte_exact": [
+        "actor_observations",
+        "critic_observations",
+        "motion_features",
+        "teacher_actions",
+        "latents",
+        "old_log_probabilities",
+        "old_values",
+        "transitions",
+        "memory_before",
+        "memory_resets"
+      ],
+      "all_outcomes_byte_exact": [
+        "reward",
+        "task_reward",
+        "done",
+        "timeout",
+        "physics_error",
+        "accepted_intake_utility",
+        "policy_action_selection_mask"
+      ],
+      "final_bootstrap_byte_exact": true,
+      "all_native_sections_byte_exact": [
+        "d151f001ad895da149ba054809a63522b15f1896993b625091eafc81f7ab5f6a",
+        "14d7b45e05010c7542560dfb357ee9d599e98e08b4c948d0ebcca02996409c81",
+        "f9890ec0383f40e79389a2e0b26bff4011229d72f3f8f2df78b3c0245d00a928"
+      ]
+    }
+  ],
+  "native_controls": {
+    "head_yaw_hold_ticks": 256,
+    "beak_hold_ticks": 16,
+    "memory_choice_decision_tick": 64,
+    "status": "passed",
+    "lanes": 8,
+    "native_arms": 8,
+    "cue_active_until_lifetime_tick": 32,
+    "intake_delayed_ticks": 192,
+    "left_port_lanes": 5,
+    "right_port_lanes": 3,
+    "correct_consumed_ug_per_lane": 40000,
+    "wrong_consumed_ug_per_lane": 0,
+    "paired_changed_lanes": 4,
+    "early_image_differences": 120,
+    "non_image_actor_features_byte_exact": true,
+    "post_cue_actor_byte_exact": true,
+    "native_partition_byte_exact": true,
+    "physical_terminations": 0,
+    "failed_physics_steps": 0,
+    "learned_memory_qualified": false
+  },
+  "rollout_validation": {
+    "status": "passed",
+    "native_v9_roundtrip_byte_exact": true,
+    "native_legacy_v8_roundtrip_byte_exact": true,
+    "Python_v9_downgrade_rejected": "PolicyRolloutPack v9 requires native action selection metadata exclusively",
+    "native_malformed_rollout_controls": 7,
+    "invalid_C_configurations": 21,
+    "malformed_native_task_programs": 15
+  },
+  "scout": {
+    "status": "passed",
+    "samples": 81920,
+    "rollout_format": 9,
+    "native_selection_schedule_exact": true,
+    "food_micrograms_per_update": [
+      120000,
+      180000,
+      80000,
+      0,
+      145000,
+      140000,
+      120000,
+      45000
+    ],
+    "lanes_with_intake_per_update": [
+      3,
+      6,
+      3,
+      0,
+      5,
+      7,
+      4,
+      1
+    ],
+    "reward_path_observed": true,
+    "end_to_end_loop_steps_per_second": 2308.09209672054,
+    "last_learning_update": {
+      "actor_gradient_norm": 0.06697020679712296,
+      "approximate_kl": 0.0002553940284997225,
+      "behavior_policy_fingerprint": 12913181958023776257,
+      "clip_fraction": 0,
+      "critic_gradient_norm": 0.1806969940662384,
+      "deployment_policy_pack": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/action-holds-training-01/deployment.policypack",
+      "done_count": 0,
+      "entropy": 1.0822983980178833,
+      "generating_logp_max_abs": 9.5367431640625e-06,
+      "generating_state_max_abs": 8.940696716308594e-08,
+      "generating_value_max_abs": 1.4901161193847656e-07,
+      "gradient_norm": 0.19277480244636536,
+      "impact_sequence_metrics": [],
+      "kl_divergence": 0.00027672661235556006,
+      "learner_state": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/action-holds-training-01/learner.safetensors",
+      "learning_rate": 0.0003000000142492354,
+      "loss": 0.33487917482852936,
+      "maximum_reward": 1.999999761581421,
+      "mean_action_standard_deviation": 0.6701786518096924,
+      "mean_contact_reward": 0,
+      "mean_dodge_cbf_buffer_reward": 0,
+      "mean_dodge_cbf_correction_reward": 0,
+      "mean_dodge_evasion_reward": 0,
+      "mean_dodge_link_clearance_reward": 0,
+      "mean_dodge_miss_reward": 0,
+      "mean_dodge_predicted_clearance_reward": 0,
+      "mean_dodge_safe_action_rate_reward": 0,
+      "mean_dodge_safe_stillness_reward": 0,
+      "mean_reward": 0.00043945308425463736,
+      "mean_root_height": 0,
+      "mean_task_reward": 0.00043945308425463736,
+      "mean_tilt": 0,
+      "mean_tracking_score": 0,
+      "minibatch_updates": 2,
+      "minimum_reward": 0,
+      "mlx_active_memory_bytes": 2153228,
+      "mlx_cache_memory_bytes": 0,
+      "mlx_cache_released_bytes": 834763036,
+      "mlx_peak_memory_bytes": 758792576,
+      "outcomes": {
+        "accepted_intake_utility": {
+          "direction": 1,
+          "mean": 0.00043945308425463736,
+          "unit": "utility"
+        },
+        "done": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "bool"
+        },
+        "physics_error": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "bool"
+        },
+        "policy_action_selection_mask": {
+          "direction": 0,
+          "mean": 6656,
+          "unit": "action-mask"
+        },
+        "reward": {
+          "direction": 1,
+          "mean": 0.00043945308425463736,
+          "unit": "reward"
+        },
+        "task_reward": {
+          "direction": 1,
+          "mean": 0.00043945308425463736,
+          "unit": "reward"
+        },
+        "timeout": {
+          "direction": 0,
+          "mean": 0,
+          "unit": "bool"
+        }
+      },
+      "policy_loss": -0.00043911393731832504,
+      "policy_pack": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/action-holds-training-01/updated.policypack",
+      "policy_revision": 9,
+      "policy_revision_after": 9,
+      "policy_revision_before": 8,
+      "real_samples_per_epoch": 10240,
+      "recovery_phase_rates_by_difficulty_band": {
+        "0": {
+          "brace": 0,
+          "foot_support": 0,
+          "mean_root_height": 0,
+          "mean_tilt": 0,
+          "quiet_stand": 0,
+          "restored": 0,
+          "rise": 0,
+          "standing": 0,
+          "support_transfer": 0,
+          "transition_count": 10240,
+          "trunk_clear": 0
+        }
+      },
+      "reward_standard_deviation": 0.02838081680238247,
+      "samples": 10240,
+      "selected_action_factors": 544,
+      "selected_decision_samples": 512,
+      "sequence_length": 320,
+      "sequence_windows": 32,
+      "status": "updated",
+      "task_fingerprint": 5956812310130690314,
+      "termination_reason_counts": {},
+      "timeout_count": 0,
+      "update_seconds": 0.10003220802173018,
+      "value_loss": 0.33640056848526
+    },
+    "learned_memory_qualified": false
+  },
+  "selection_and_memory_diagnostic": {
+    "status": "passed",
+    "held_selected_latent_history": {
+      "15": {
+        "feature": 84,
+        "period": 256,
+        "selected_requested_history_exact": true,
+        "existing_history_lag_ticks": 2
+      },
+      "17": {
+        "feature": 86,
+        "period": 16,
+        "selected_requested_history_exact": true,
+        "existing_history_lag_ticks": 2
+      }
+    },
+    "initial_policy_replay_cue_permutation_head_mean_max_abs_at64": 2.7939677238464355e-09,
+    "initial_policy_replay_cue_permutation_hidden_max_abs_at64": 2.514570951461792e-08,
+    "head_mean64_gradient_early_image_L2": 3.214976018739435e-08,
+    "head_mean64_gradient_recent_image_L2": 0.1774069368839264,
+    "scope": "Learner replay diagnostic from native inputs, no native counterfactual or learned memory qualification."
+  },
+  "Python_tests": 34,
+  "full_native_build": true,
+  "learned_memory_qualified": false
+}
