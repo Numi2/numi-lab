@@ -1357,6 +1357,12 @@ private enum TaskRolloutMain {
                 repeating: 0,
                 count: options.environments
             )
+            var firstTerminationStep = [Int?](
+                repeating: nil, count: options.environments
+            )
+            var firstTerminationTilt = [Double?](
+                repeating: nil, count: options.environments
+            )
             var transitionCountByEnvironment = [Int](
                 repeating: 0,
                 count: options.environments
@@ -1385,17 +1391,8 @@ private enum TaskRolloutMain {
                 repeating: 0,
                 count: options.environments
             )
-            var initialForwardPositionByEnvironment = [Double](
-                repeating: .nan,
-                count: options.environments
-            )
-            var maximumForwardProgressByEnvironment = [Double](
-                repeating: 0.0,
-                count: options.environments
-            )
-            var finalForwardProgressByEnvironment = [Double](
-                repeating: 0.0,
-                count: options.environments
+            var firstEpisodeForward = EpisodeForwardEvidence(
+                environmentCount: options.environments
             )
             var footSupportStepCountByEnvironment = [Int](
                 repeating: 0,
@@ -1451,7 +1448,12 @@ private enum TaskRolloutMain {
                  options.unitreeG1Task == .developmentalRecovery) &&
                 options.worldPack == nil && options.urdf == nil
             let supportsG1ForwardEvidence =
-                options.stateTrace != nil &&
+                EpisodeForwardEvidence.supported(
+                    trace: options.stateTrace != nil,
+                    scheduledResets: options.scheduledResets,
+                    chunk: options.chunk,
+                    repeats: options.repeats
+                ) &&
                 (options.unitreeG1Task == .velocity ||
                  options.unitreeG1Task == .adultLocomotion ||
                  options.unitreeG1Task == .g1LegsLocomotion) &&
@@ -1873,6 +1875,12 @@ private enum TaskRolloutMain {
                             impactSequenceEnabledSteps += 1
                         }
                         if transition.done {
+                            if firstTerminationStep[transitionEnvironment] == nil {
+                                firstTerminationStep[transitionEnvironment] =
+                                    globalStep + transitionIndex / options.environments + 1
+                                firstTerminationTilt[transitionEnvironment] =
+                                    Double(transition.tilt)
+                            }
                             terminationCount += 1
                             terminationCountByEnvironment[
                                 transitionEnvironment
@@ -1912,6 +1920,11 @@ private enum TaskRolloutMain {
                         if supportsG1ForwardEvidence &&
                             traceLayout.configurationCount >= 7
                         {
+                            guard observedTransitions.count == options.environments else {
+                                throw MetalRoboTaskRolloutError.native(
+                                    "Episode-local progress requires one transition per environment."
+                                )
+                            }
                             for metricEnvironment in
                                 0..<options.environments
                             {
@@ -1920,28 +1933,15 @@ private enum TaskRolloutMain {
                                 let position = Double(
                                     allConfigurations[metricBase]
                                 )
-                                if !initialForwardPositionByEnvironment[
-                                    metricEnvironment
-                                ].isFinite {
-                                    initialForwardPositionByEnvironment[
-                                        metricEnvironment
-                                    ] = position
-                                }
-                                let origin = initialForwardPositionByEnvironment[
+                                let transition = observedTransitions[
                                     metricEnvironment
                                 ]
-                                let progress = position - origin
-                                maximumForwardProgressByEnvironment[
-                                    metricEnvironment
-                                ] = max(
-                                    maximumForwardProgressByEnvironment[
-                                        metricEnvironment
-                                    ],
-                                    progress
+                                firstEpisodeForward.record(
+                                    environment: metricEnvironment,
+                                    position: position,
+                                    done: transition.done,
+                                    physicsError: transition.physicsError
                                 )
-                                finalForwardProgressByEnvironment[
-                                    metricEnvironment
-                                ] = progress
                             }
                         }
                         if supportsG1SquatEvidence &&
@@ -2200,15 +2200,13 @@ private enum TaskRolloutMain {
                 terminationCountByEnvironment.filter { $0 == 0 }.count
             let forwardEvidenceAvailable =
                 supportsG1ForwardEvidence &&
-                initialForwardPositionByEnvironment.allSatisfy {
-                    $0.isFinite
-                }
+                firstEpisodeForward.available
             let meanPeakForwardProgress = forwardEvidenceAvailable
-                ? maximumForwardProgressByEnvironment.reduce(0.0, +) /
+                ? firstEpisodeForward.peak.reduce(0.0, +) /
                     Double(max(options.environments, 1))
                 : 0.0
             let meanFinalForwardProgress = forwardEvidenceAvailable
-                ? finalForwardProgressByEnvironment.reduce(0.0, +) /
+                ? firstEpisodeForward.final.reduce(0.0, +) /
                     Double(max(options.environments, 1))
                 : 0.0
             let squatCycleEvidenceByEnvironment: [[String: Any]] =
@@ -2495,6 +2493,10 @@ private enum TaskRolloutMain {
                     terminationReasonCounts,
                 "termination_count_by_environment":
                     terminationCountByEnvironment,
+                "first_termination_step_by_environment":
+                    firstTerminationStep.map { $0.map { $0 as Any } ?? NSNull() },
+                "first_termination_tilt_rad_by_environment":
+                    firstTerminationTilt.map { $0.map { $0 as Any } ?? NSNull() },
                 "physics_error_count_by_environment":
                     physicsErrorCountByEnvironment,
                 "mean_tracking_score_by_environment":
@@ -2544,22 +2546,25 @@ private enum TaskRolloutMain {
                 "clean_horizon_environment_rate":
                     Double(cleanHorizonEnvironmentCount) /
                     Double(max(options.environments, 1)),
+                "clean_horizon_uninterrupted": !options.scheduledResets,
                 "forward_progress_available": forwardEvidenceAvailable,
+                "forward_progress_scope": forwardEvidenceAvailable
+                    ? "first_episode_from_first_post_step" : "unavailable",
                 "mean_peak_forward_progress_m":
                     meanPeakForwardProgress,
                 "mean_final_forward_progress_m":
                     meanFinalForwardProgress,
                 "maximum_forward_progress_m":
                     forwardEvidenceAvailable
-                    ? maximumForwardProgressByEnvironment.max() ?? 0.0
+                    ? firstEpisodeForward.peak.max() ?? 0.0
                     : 0.0,
                 "peak_forward_progress_by_environment_m":
                     forwardEvidenceAvailable
-                    ? maximumForwardProgressByEnvironment
+                    ? firstEpisodeForward.peak
                     : [],
                 "final_forward_progress_by_environment_m":
                     forwardEvidenceAvailable
-                    ? finalForwardProgressByEnvironment
+                    ? firstEpisodeForward.final
                     : [],
                 "squat_cycle_evidence": squatCycleEvidence,
                 "squat_cycle_completed_environment_count":

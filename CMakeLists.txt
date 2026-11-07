@@ -1543,6 +1543,7 @@ if(METALROBO_HAS_SWIFT)
     add_executable(
         metalrobo_task_rollout
         apps/task_rollout.swift
+        apps/EpisodeForwardEvidence.swift
         apps/RunInspector.swift
         bindings/swift/MetalRoboTaskRollout.swift
     )
