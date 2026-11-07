@@ -730,8 +730,12 @@ struct MetalWorldSubmissionState {
         const bool commandCompleted =
             commandBuffer.status == MTLCommandBufferStatusCompleted;
         finishResident(commandCompleted);
-        if (!commandCompleted && mechanicsProgram.valid()) {
-            mechanicsProgram.failed(mechanicsProgram.context);
+        if (mechanicsProgram.valid()) {
+            mechanicsProgram.completed(
+                mechanicsProgram.context,
+                (__bridge void*)commandBuffer,
+                commandCompleted
+            );
         }
         try {
             const std::lock_guard lock(context->mutex);

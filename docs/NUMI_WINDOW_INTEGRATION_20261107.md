@@ -26,15 +26,19 @@ rejected with an explicit ambiguity error unless the caller supplies verified
 branch provenance. `metalrobo_actuator_pack_migrate main|numisolver INPUT
 OUTPUT` writes a new version-3 pack; it does not infer the source. Nonambiguous
 version-2 tags remain readable. The migration test checks both mappings,
-round trips, atomic ambiguity rejection, and an unambiguous tag. It uses
-synthetic fixtures; historical producer-built artifacts still need testing.
+round trips, atomic ambiguity rejection, and an unambiguous tag. It also
+reads and round-trips minimal artifacts produced by the original branch
+writers. The numisolver writer itself rejected tag 7, so the numisolver
+tag-7 mapping remains a synthetic compatibility case.
 
 The inspected source branches serialize task-pack versions 17 and 19 using
 the same field sequence. This checkpoint writes version 20 and reads those
-two versions explicitly. The CPU test exercises that decoder using synthetic
-current-format payloads with historical version fields; it does not establish
-compatibility with actual retained historical packs. Policy format 4 decoding
-is retained alongside version 5.
+two versions explicitly. The CPU test round-trips minimal artifacts made by
+both original branch writers; it does not establish compatibility with every
+historical user pack. The window's metadata reader accepts policy formats 4
+and 5, including exact version-2 multi-task bindings. CPU tests exercise a
+native writer-generated version-5 policy and malformed synthetic cases; the
+native runtime remains responsible for full content and semantic validation.
 
 Measured-surface mechanics owns private state outside MetalWorld. A resident
 continuation checks the same owner and mechanics fingerprint; mutable owners
@@ -48,8 +52,10 @@ external surface save/restore implementation in this checkpoint.
 
 ## Retained checks and limits
 
-- The CPU catalog metadata check passed for two policies and two scenes.
-- The CPU migration test passed synthetic version and provenance cases.
+- The CPU catalog metadata check passed version-4, native-written version-5,
+  multi-task matching, malformed inputs, and scene-catalog cases.
+- The CPU migration test passed synthetic and historical producer fixtures
+  for both lineages, including format round trips.
 - On Apple M6, `metalrobo_measured_surface_robot_probe --ownership
   assets/numifly/maeda-wing-pack-v1/manifest.json` passed with one environment
   and two steps. Two fresh executions produced bit-identical generalized
@@ -60,13 +66,15 @@ external surface save/restore implementation in this checkpoint.
 - The short repeat is independent re-execution, not restoration from a saved
   external mechanics state. It does not qualify physical fidelity, force
   accuracy, long-duration stability, training, rendered UI, or throughput.
-- Aborted first-command initialization and submitted GPU failure poisoning
-  are implementation safeguards that have not yet been fault-injected.
+- Inspection now rejects in-flight measured-surface state and completion
+  retires the command fence. The modified code compiles, but the updated GPU
+  ownership probe has not yet been run. Aborted first-command initialization
+  and submitted GPU failure poisoning have not yet been fault-injected.
 - The merged native window and guided training have not yet been exercised
   end to end. Real simulation pause, scene and policy switching, artifact
   restoration, exact experiment replay, and native/CLI/agent consistency
-  remain release gates. Historical task/actuator packs need branch-produced
-  fixtures and ambiguous provenance must never be guessed.
+  remain release gates. Wider historical pack coverage is needed and
+  ambiguous provenance must never be guessed.
 - The benchmark-accounting branch is separate. Its local or published evidence
   is bound to its own revisions; it has not been integrated here.
 

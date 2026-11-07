@@ -742,20 +742,21 @@ struct MetalWorldDeviceMechanicsProgram {
     void* context = nullptr;
     MetalWorldDeviceMechanicsEncode prepare = nullptr;
     MetalWorldDeviceMechanicsEncode commit = nullptr;
-    // Discard an unsubmitted command and poison the owner after a submitted
-    // GPU failure. Both callbacks must be nonblocking and never commit work.
+    // Retire a discarded or completed command. The owner must reject
+    // inspection while a submitted command is pending and poison its state
+    // if execution fails. Callbacks never commit or wait on work.
     void (*abort)(void* context, void* commandBuffer) noexcept = nullptr;
-    void (*failed)(void* context) noexcept = nullptr;
+    void (*completed)(void* context, void* commandBuffer, bool succeeded) noexcept = nullptr;
     std::uint64_t fingerprint = 0u;
 
     [[nodiscard]] bool valid() const noexcept {
         return context != nullptr && prepare != nullptr && commit != nullptr &&
-            abort != nullptr && failed != nullptr && fingerprint != 0u;
+            abort != nullptr && completed != nullptr && fingerprint != 0u;
     }
 
     [[nodiscard]] bool configured() const noexcept {
         return context != nullptr || prepare != nullptr || commit != nullptr ||
-            abort != nullptr || failed != nullptr || fingerprint != 0u;
+            abort != nullptr || completed != nullptr || fingerprint != 0u;
     }
 };
 

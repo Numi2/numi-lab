@@ -1514,7 +1514,8 @@ foreach(_actuator_tool IN ITEMS actuator_pack_migration_check actuator_pack_migr
 endforeach()
 if(BUILD_TESTING)
     add_test(NAME metalrobo_actuator_pack_migration
-        COMMAND metalrobo_actuator_pack_migration_check)
+        COMMAND metalrobo_actuator_pack_migration_check
+            "${CMAKE_CURRENT_SOURCE_DIR}/docs/evidence/window-integration-20261107/historical")
 endif()
 
 # Existing bounded measured-surface mechanics and replay probe.
@@ -1634,6 +1635,11 @@ if(METALROBO_HAS_SWIFT)
         Swift_LANGUAGE_VERSION 6 Swift_COMPILATION_MODE singlefile
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "@loader_path/../lib" INSTALL_RPATH "@loader_path/../lib")
+    if(BUILD_TESTING)
+        add_test(NAME metalrobo_numi_window_metadata
+            COMMAND metalrobo_numi_window_check
+                "${CMAKE_CURRENT_SOURCE_DIR}/docs/evidence/window-integration-20261107/historical/native-policy-v5.pack")
+    endif()
 
     add_executable(
         metalrobo_task_train

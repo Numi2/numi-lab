@@ -1569,14 +1569,19 @@ bool proveStatefulSingleFlight(
     const MetalWorldDiagnostics submitted =
         context.submit(run.world(), batch, config, first);
     if (!submitted.succeeded() || !first.valid()) return false;
+    bool inspectionRejected = false;
+    try { (void)mechanics.inspectAccepted(); }
+    catch (const std::logic_error&) { inspectionRejected = true; }
+    if (!inspectionRejected) return false;
     MetalWorldSubmission conflicting;
     const MetalWorldDiagnostics rejected =
         context.submit(run.world(), batch, config, conflicting);
     MetalWorldResult result;
     const MetalWorldDiagnostics completed = first.wait(result);
-    return rejected.status == MetalWorldHostStatus::contextBusy &&
-        !conflicting.valid() && completed.succeeded() &&
-        completed.failedStepCount == 0u;
+    if (rejected.status != MetalWorldHostStatus::contextBusy ||
+        conflicting.valid() || !completed.succeeded() ||
+        completed.failedStepCount != 0u) return false;
+    return mechanics.inspectAccepted().acceptedStates.size() == environments;
 }
 
 

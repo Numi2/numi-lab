@@ -1,0 +1,4 @@
+bc93c43faafba9ba3ad1c178606ace2815c8a2e6f36891a9baaaa4e6eb67d1a2  docs/evidence/window-integration-20261107/historical/generate-policy.cpp
+4477b19a080c10bc2ba3895a9902ea5dc13dc508806efea3af78882e37a681aa  docs/evidence/window-integration-20261107/historical/native-policy-v5.pack
+6f7b6394a35f288009b68458b55b856764bc0d6be43a78b72fc005c3ee86b024  src/core/LearningPacks.cpp
+369c859a6ed937c0e5068179912e5e63a9bd4b3e679468689a4a0cee499acb91  /tmp/numi-window-policy-fixture

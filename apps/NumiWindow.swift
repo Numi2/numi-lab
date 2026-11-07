@@ -4,16 +4,63 @@ import Metal
 import MetalKit
 import simd
 
+public struct NumiWindowPolicyBinding: Sendable, Equatable {
+    public let worldFingerprint: UInt64
+    public let taskFingerprint: UInt64
+}
+
 public struct NumiWindowPolicyContract: Sendable, Equatable {
     public let version: UInt64
     public let worldFingerprint: UInt64
     public let taskFingerprint: UInt64
     public let observationFingerprint: UInt64
     public let actionFingerprint: UInt64
+    public let compatibleTasks: [NumiWindowPolicyBinding]
+
+    public init(version: UInt64, worldFingerprint: UInt64,
+                taskFingerprint: UInt64, observationFingerprint: UInt64,
+                actionFingerprint: UInt64,
+                compatibleTasks: [NumiWindowPolicyBinding] = []) {
+        self.version = version
+        self.worldFingerprint = worldFingerprint
+        self.taskFingerprint = taskFingerprint
+        self.observationFingerprint = observationFingerprint
+        self.actionFingerprint = actionFingerprint
+        self.compatibleTasks = compatibleTasks
+    }
 
     public var isExact: Bool {
-        version != 0 && worldFingerprint != 0 && taskFingerprint != 0 &&
-            observationFingerprint != 0 && actionFingerprint != 0
+        guard worldFingerprint != 0 && taskFingerprint != 0 &&
+            observationFingerprint != 0 && actionFingerprint != 0 else { return false }
+        if version == 1 { return compatibleTasks.isEmpty }
+        guard version == 2, compatibleTasks.count >= 2,
+              compatibleTasks.count <= 4096,
+              compatibleTasks[0].worldFingerprint == worldFingerprint,
+              compatibleTasks[0].taskFingerprint == taskFingerprint else { return false }
+        for (index, binding) in compatibleTasks.enumerated() {
+            guard binding.worldFingerprint != 0 && binding.taskFingerprint != 0 else { return false }
+            if index > 0 {
+                let previous = compatibleTasks[index - 1]
+                guard previous.worldFingerprint < binding.worldFingerprint ||
+                    (previous.worldFingerprint == binding.worldFingerprint &&
+                     previous.taskFingerprint < binding.taskFingerprint) else { return false }
+            }
+        }
+        return true
+    }
+
+    public func accepts(_ active: NumiWindowPolicyContract) -> Bool {
+        guard isExact, active.isExact,
+              observationFingerprint == active.observationFingerprint,
+              actionFingerprint == active.actionFingerprint else { return false }
+        if version == 1 {
+            return worldFingerprint == active.worldFingerprint &&
+                taskFingerprint == active.taskFingerprint
+        }
+        return compatibleTasks.contains {
+            $0.worldFingerprint == active.worldFingerprint &&
+                $0.taskFingerprint == active.taskFingerprint
+        }
     }
 }
 
@@ -72,11 +119,9 @@ private extension Data {
     }
 }
 
-// Policy contracts are stored at the end of the deterministic v4 wire payload.
-// Catalog discovery reads only the fixed header, identity prefix, and contract
-// tail. It does not map or deserialize megabytes of weights merely to populate
-// a menu; the native loader still performs the full content-hash and semantic
-// validation before a selected policy can become executable.
+// Catalog discovery skips bounded tensor ranges without allocating weights.
+// The native loader still performs full content-hash and semantic validation
+// before a selected policy becomes executable.
 public func numiWindowPolicyMetadata(
     at url: URL
 ) -> NumiWindowPolicyMetadata? {
@@ -109,7 +154,8 @@ public func numiWindowPolicyMetadata(
 
     guard let header = read(headerBytes, at: 0),
               String(decoding: header.prefix(7), as: UTF8.self) == "MRLEARN",
-              header.numiLittleEndianInteger(at: 8, as: UInt32.self) == 4,
+              let format = header.numiLittleEndianInteger(at: 8, as: UInt32.self),
+              (format == 4 || format == 5),
               header.numiLittleEndianInteger(at: 12, as: UInt32.self) == 2,
               let payloadBytes = header.numiLittleEndianInteger(
                   at: 16,
@@ -137,37 +183,72 @@ public func numiWindowPolicyMetadata(
               ),
               revision != 0
     else { return nil }
-    guard let contractData = read(
-              contractBytes,
-              at: fileSize - contractBytes
-          ),
-              let version = contractData.numiLittleEndianInteger(
-                  at: 0,
-                  as: UInt64.self
-              ),
-              let world = contractData.numiLittleEndianInteger(
-                  at: 8,
-                  as: UInt64.self
-              ),
-              let task = contractData.numiLittleEndianInteger(
-                  at: 16,
-                  as: UInt64.self
-              ),
-              let observation = contractData.numiLittleEndianInteger(
-                  at: 24,
-                  as: UInt64.self
-              ),
-              let action = contractData.numiLittleEndianInteger(
-                  at: 32,
-                  as: UInt64.self
-              )
+    var contractOffset = fileSize - contractBytes
+    if format == 5 {
+        var cursor = headerBytes + 8 + Int(idCount) + 8
+        func skip(_ count: Int) -> Bool {
+            guard count >= 0, cursor <= fileSize, count <= fileSize - cursor else { return false }
+            cursor += count
+            return true
+        }
+        func takeCount() -> UInt64? {
+            guard let bytes = read(8, at: cursor),
+                  let count = bytes.numiLittleEndianInteger(at: 0, as: UInt64.self),
+                  skip(8) else { return nil }
+            return count
+        }
+        func skipVector(width: Int) -> Bool {
+            guard let count = takeCount(), width > 0,
+                  count <= UInt64((fileSize - cursor) / width) else { return false }
+            return skip(Int(count) * width)
+        }
+        func skipLayers() -> Bool {
+            guard let count = takeCount(), count <= 4096 else { return false }
+            for _ in 0..<Int(count) {
+                guard skip(12), skipVector(width: 4), skipVector(width: 4) else { return false }
+            }
+            return true
+        }
+        guard skipVector(width: 4), skipVector(width: 4), skipLayers(),
+              skipVector(width: 4), skipVector(width: 4), skipLayers(),
+              skipVector(width: 4), skipVector(width: 4), skipVector(width: 4),
+              skip(8) else { return nil }
+        contractOffset = cursor
+    }
+    guard let contractData = read(contractBytes, at: contractOffset),
+              let version = contractData.numiLittleEndianInteger(at: 0, as: UInt64.self),
+              let world = contractData.numiLittleEndianInteger(at: 8, as: UInt64.self),
+              let task = contractData.numiLittleEndianInteger(at: 16, as: UInt64.self),
+              let observation = contractData.numiLittleEndianInteger(at: 24, as: UInt64.self),
+              let action = contractData.numiLittleEndianInteger(at: 32, as: UInt64.self)
     else { return nil }
+    var bindings: [NumiWindowPolicyBinding] = []
+    if format == 5 {
+        let countOffset = contractOffset + contractBytes
+        guard let countData = read(8, at: countOffset),
+              let count = countData.numiLittleEndianInteger(at: 0, as: UInt64.self),
+              count <= 4096,
+              countOffset + 8 <= fileSize,
+              count <= UInt64((fileSize - countOffset - 8) / 16),
+              countOffset + 8 + Int(count) * 16 == fileSize,
+              let bytes = read(Int(count) * 16, at: countOffset + 8)
+        else { return nil }
+        bindings.reserveCapacity(Int(count))
+        for index in 0..<Int(count) {
+            guard let bindingWorld = bytes.numiLittleEndianInteger(at: index * 16, as: UInt64.self),
+                  let bindingTask = bytes.numiLittleEndianInteger(at: index * 16 + 8, as: UInt64.self)
+            else { return nil }
+            bindings.append(NumiWindowPolicyBinding(
+                worldFingerprint: bindingWorld, taskFingerprint: bindingTask))
+        }
+    }
     let contract = NumiWindowPolicyContract(
         version: version,
         worldFingerprint: world,
         taskFingerprint: task,
         observationFingerprint: observation,
-        actionFingerprint: action
+        actionFingerprint: action,
+        compatibleTasks: bindings
     )
     guard contract.isExact else { return nil }
     return NumiWindowPolicyMetadata(
@@ -564,7 +645,7 @@ public func numiWindowCompatiblePolicyChoices(
 ) -> [NumiWindowPolicyChoice] {
     choices.filter { choice in
         if let contract {
-            return contract.isExact && choice.metadata.contract == contract
+            return choice.metadata.contract.accepts(contract)
         }
         // Robot labels are a presentation fallback only while the first live
         // world contract is not yet known. Executable selection is fingerprint

@@ -1,0 +1,9 @@
+408cdf76f68228d0b31310874ed860f97cf90d642422ad0e63915de0f2d039b4  /Users/numi/numi-lab-historical-packs-20261107/main/generate
+0ee109c0dc0ead70e006903e161372034957bd4a7418daa81bdbf1d382e7ea49  /Users/numi/numi-lab-historical-packs-20261107/numisolver/generate
+0acb2d7f33b07b197d2207f76d3f90c983fef70f870db7dbf6a1dc95a83b3c33  /Users/numi/numi-lab-historical-packs-20261107/main/src/core/LearningPacks.cpp
+46aa71930959ceee10fb3f4bd5ffb4de6209eb77671a1494d384f8583bdfe548  /Users/numi/numi-lab-historical-packs-20261107/numisolver/src/core/LearningPacks.cpp
+4e5b9b477855ecd332e293294e0dee1b695327e3894e145e4a7be05da042f8b4  docs/evidence/window-integration-20261107/historical/generate.cpp
+addefc44b06b60e8948b21ac4f8be2d1ade812992dbfea59b327bf2980d81a99  docs/evidence/window-integration-20261107/historical/main/actuator.pack
+8496d13b775a0864f5fb434dfbc3d4e3c1cac6f41d10f821c27660810022002f  docs/evidence/window-integration-20261107/historical/main/task.pack
+40309774194df5e872882821b0c100780ce1a1e71eed31654dc224d16d43a4f3  docs/evidence/window-integration-20261107/historical/numisolver/actuator.pack
+d57528319ff481249907cf89da2344dd7797c9c102d3b1af3eb4aa12afa0ddbb  docs/evidence/window-integration-20261107/historical/numisolver/task.pack

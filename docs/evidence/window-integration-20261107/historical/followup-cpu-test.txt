@@ -1,0 +1,9 @@
+Test project /Users/numi/numi-lab-release-integration-build-20261107
+    Start 3: metalrobo_actuator_pack_migration
+1/2 Test #3: metalrobo_actuator_pack_migration ...   Passed    0.03 sec
+    Start 4: metalrobo_numi_window_metadata
+2/2 Test #4: metalrobo_numi_window_metadata ......   Passed    0.03 sec
+
+100% tests passed out of 2
+
+Total Test time (real) =   0.06 sec

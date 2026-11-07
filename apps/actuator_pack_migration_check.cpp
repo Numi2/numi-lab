@@ -22,7 +22,8 @@ bool setVersion(const fs::path& path, const char version) {
     return static_cast<bool>(file);
 }
 }
-int main() {
+int main(int argc, char** argv) {
+    if (argc != 2) { std::cerr << "expected historical fixture directory\n"; return 2; }
     const fs::path dir = fs::temp_directory_path() /
         ("numi-actuator-pack-migration-" + std::to_string(getpid()));
     std::error_code error;
@@ -98,5 +99,49 @@ int main() {
     result = readTaskPack(taskPath, sentinel);
     if (!check(!result.succeeded() && sentinel.id == "unchanged",
                "unsupported task version did not fail atomically")) return 1;
-    std::cout << "actuator provenance and task legacy round trips passed\n";
+    const fs::path historical(argv[1]);
+    for (const char* branch : {"main", "numisolver"}) {
+        TaskPack legacyTask;
+        result = readTaskPack(historical/branch/"task.pack", legacyTask);
+        if (!check(result.succeeded() && legacyTask.id == "historical-task" &&
+                   legacyTask.maximumEpisodeSteps == 321 &&
+                   legacyTask.actions.size() == 1 &&
+                   legacyTask.actions[0].actuator == "drive",
+                   "historical producer task failed to decode")) return 1;
+        const auto upgraded = dir/(std::string(branch)+"-historical-task.pack");
+        if (!check(writeTaskPack(legacyTask, upgraded).succeeded(),
+                   "historical task migration failed")) return 1;
+        TaskPack restored;
+        result = readTaskPack(upgraded, restored);
+        if (!check(result.succeeded() && restored.id == legacyTask.id &&
+                   restored.maximumEpisodeSteps == legacyTask.maximumEpisodeSteps &&
+                   restored.actions[0].actuator == "drive",
+                   "historical task migration round trip failed")) return 1;
+    }
+    RobotActuatorPack historicalMain;
+    historicalMain.id = "unchanged";
+    result = readRobotActuatorPack(historical/"main"/"actuator.pack", historicalMain);
+    if (!check(result.status == LearningPackStatus::unsupportedVersion &&
+               historicalMain.id == "unchanged",
+               "historical main tag 7 did not reject ambiguity")) return 1;
+    result = readRobotActuatorPack(historical/"main"/"actuator.pack", historicalMain,
+                                   RobotActuatorLegacyOrigin::mainMillard);
+    if (!check(result.succeeded() && historicalMain.actuators.size() == 1 &&
+               historicalMain.actuators[0].kind == RobotActuatorKind::millardExcitation,
+               "historical main actuator migration failed")) return 1;
+    const auto migratedHistorical = dir/"main-historical-actuator.pack";
+    RobotActuatorPack historicalRoundtrip;
+    if (!check(writeRobotActuatorPack(historicalMain, migratedHistorical).succeeded() &&
+               readRobotActuatorPack(migratedHistorical, historicalRoundtrip).succeeded() &&
+               historicalRoundtrip.id == historicalMain.id &&
+               historicalRoundtrip.actuators.size() == 1 &&
+               historicalRoundtrip.actuators[0].kind == RobotActuatorKind::millardExcitation &&
+               historicalRoundtrip.actuators[0].target == historicalMain.actuators[0].target,
+               "historical main actuator migration round trip failed")) return 1;
+    RobotActuatorPack historicalNumisolver;
+    result = readRobotActuatorPack(historical/"numisolver"/"actuator.pack", historicalNumisolver);
+    if (!check(result.succeeded() && historicalNumisolver.actuators.size() == 1 &&
+               historicalNumisolver.actuators[0].kind == RobotActuatorKind::bodyWrench,
+               "historical numisolver unambiguous actuator failed")) return 1;
+    std::cout << "synthetic and historical producer pack migration passed\n";
 }

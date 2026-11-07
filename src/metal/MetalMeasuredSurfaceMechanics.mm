@@ -43,6 +43,7 @@ struct MetalMeasuredSurfaceMechanics::State {
     bool initialized = false;
     bool poisoned = false;
     __weak id<MTLCommandBuffer> initializationCommand = nil;
+    __weak id<MTLCommandBuffer> inFlightCommand = nil;
 };
 
 namespace {
@@ -263,19 +264,27 @@ void abortMechanics(void* context, void* commandBuffer) noexcept {
     try {
         auto& state = *static_cast<MetalMeasuredSurfaceMechanics::State*>(context);
         std::scoped_lock lock(state.mutex);
-        if (state.initializationCommand ==
-            (__bridge id<MTLCommandBuffer>)commandBuffer) {
+        const id<MTLCommandBuffer> command =
+            (__bridge id<MTLCommandBuffer>)commandBuffer;
+        if (state.initializationCommand == command) {
             state.initialized = false;
             state.initializationCommand = nil;
+        }
+        if (state.inFlightCommand == command) {
+            state.inFlightCommand = nil;
         }
     } catch (...) {}
 }
 
-void failMechanics(void* context) noexcept {
+void completeMechanics(void* context, void* commandBuffer, bool succeeded) noexcept {
     try {
         auto& state = *static_cast<MetalMeasuredSurfaceMechanics::State*>(context);
         std::scoped_lock lock(state.mutex);
-        state.poisoned = true;
+        const id<MTLCommandBuffer> command =
+            (__bridge id<MTLCommandBuffer>)commandBuffer;
+        if (state.inFlightCommand == command) state.inFlightCommand = nil;
+        if (state.initializationCommand == command) state.initializationCommand = nil;
+        if (!succeeded) state.poisoned = true;
     } catch (...) {}
 }
 
@@ -294,6 +303,8 @@ bool encodePrepare(void* context, const MetalWorldDeviceMechanicsPass& pass) {
         !(pass.timestepSeconds > 0.0f)) return false;
     id<MTLCommandBuffer> command =
         (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+    if (state.inFlightCommand != nil && state.inFlightCommand != command) return false;
+    state.inFlightCommand = command;
     id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
     if (encoder == nil) return false;
     encoder.label = @"MeasuredSurface device-resident mechanics";
@@ -569,7 +580,7 @@ MetalMeasuredSurfaceMechanics::program() noexcept {
         .prepare = encodePrepare,
         .commit = encodeCommit,
         .abort = abortMechanics,
-        .failed = failMechanics,
+        .completed = completeMechanics,
         .fingerprint = state_->binding.fingerprint,
     };
 }
@@ -622,9 +633,10 @@ MetalMeasuredSurfaceInspection
 MetalMeasuredSurfaceMechanics::inspectAccepted() const {
     std::scoped_lock lock(state_->mutex);
     if (!state_->initialized || state_->poisoned || state_->device == nil ||
+        state_->inFlightCommand != nil ||
         state_->acceptedStates == nil || state_->acceptedEvidence == nil) {
         throw std::logic_error(
-            "measured-surface state is unavailable before its first completed submission");
+            "measured-surface state is unavailable, in flight, or poisoned");
     }
     id<MTLCommandQueue> queue = [state_->device newCommandQueue];
     id<MTLCommandBuffer> command = [queue commandBuffer];

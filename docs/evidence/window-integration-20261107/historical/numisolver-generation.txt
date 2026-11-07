@@ -1,0 +1,2 @@
+measured-surface v2 writer rejection: RobotActuatorPack identity or actuator contract is invalid
+historical branch task and actuator written

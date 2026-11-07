@@ -51,6 +51,34 @@ private func policyFixture(
     return result
 }
 
+private func policyV5Fixture(id: String, contract: NumiWindowPolicyContract) -> Data {
+    var payload = Data()
+    let identifier = Data(id.utf8)
+    appendLittleEndian(UInt64(identifier.count), to: &payload)
+    payload.append(identifier)
+    appendLittleEndian(UInt64(12), to: &payload)
+    // Empty tensor vectors and layer lists, encoded with their real lengths.
+    for _ in 0..<9 { appendLittleEndian(UInt64(0), to: &payload) }
+    payload.append(Data(repeating: 0, count: 8))
+    appendLittleEndian(contract.version, to: &payload)
+    appendLittleEndian(contract.worldFingerprint, to: &payload)
+    appendLittleEndian(contract.taskFingerprint, to: &payload)
+    appendLittleEndian(contract.observationFingerprint, to: &payload)
+    appendLittleEndian(contract.actionFingerprint, to: &payload)
+    appendLittleEndian(UInt64(contract.compatibleTasks.count), to: &payload)
+    for binding in contract.compatibleTasks {
+        appendLittleEndian(binding.worldFingerprint, to: &payload)
+        appendLittleEndian(binding.taskFingerprint, to: &payload)
+    }
+    var result = Data("MRLEARN\0".utf8)
+    appendLittleEndian(UInt32(5), to: &result)
+    appendLittleEndian(UInt32(2), to: &result)
+    appendLittleEndian(UInt64(payload.count), to: &result)
+    appendLittleEndian(UInt64(0), to: &result)
+    result.append(payload)
+    return result
+}
+
 private func writeScene(
     _ url: URL,
     id: String,
@@ -132,6 +160,55 @@ private enum NumiWindowCheck {
             ).isEmpty,
             "incompatible policy survived the exact contract gate"
         )
+
+        let multiContract = NumiWindowPolicyContract(
+            version: 2, worldFingerprint: 11, taskFingerprint: 22,
+            observationFingerprint: 33, actionFingerprint: 44,
+            compatibleTasks: [
+                NumiWindowPolicyBinding(worldFingerprint: 11, taskFingerprint: 22),
+                NumiWindowPolicyBinding(worldFingerprint: 11, taskFingerprint: 23),
+            ])
+        let multiURL = root.appendingPathComponent("multi.policypack")
+        try policyV5Fixture(id: "multi", contract: multiContract).write(to: multiURL)
+        let singleURL = root.appendingPathComponent("single-v5.policypack")
+        try policyV5Fixture(id: "single", contract: contract).write(to: singleURL)
+        try require(numiWindowPolicyMetadata(at: multiURL)?.contract == multiContract,
+                    "version-5 multi-task contract was not decoded")
+        try require(numiWindowPolicyMetadata(at: singleURL)?.contract == contract,
+                    "version-5 single-task contract was not decoded")
+        let secondary = NumiWindowPolicyContract(
+            version: 1, worldFingerprint: 11, taskFingerprint: 23,
+            observationFingerprint: 33, actionFingerprint: 44)
+        let differentObservation = NumiWindowPolicyContract(
+            version: 1, worldFingerprint: 11, taskFingerprint: 23,
+            observationFingerprint: 34, actionFingerprint: 44)
+        try require(multiContract.accepts(secondary), "secondary task not accepted")
+        try require(!multiContract.accepts(differentObservation), "wrong observation accepted")
+        try require(!multiContract.accepts(incompatible), "unlisted task accepted")
+        let unsorted = NumiWindowPolicyContract(
+            version: 2, worldFingerprint: 11, taskFingerprint: 22,
+            observationFingerprint: 33, actionFingerprint: 44,
+            compatibleTasks: [
+                NumiWindowPolicyBinding(worldFingerprint: 11, taskFingerprint: 22),
+                NumiWindowPolicyBinding(worldFingerprint: 11, taskFingerprint: 22),
+            ])
+        let invalidURL = root.appendingPathComponent("invalid.policypack")
+        try policyV5Fixture(id: "invalid", contract: unsorted).write(to: invalidURL)
+        try require(numiWindowPolicyMetadata(at: invalidURL) == nil,
+                    "duplicate multi-task bindings accepted")
+        var truncated = policyV5Fixture(id: "truncated", contract: multiContract)
+        truncated.removeLast()
+        try truncated.write(to: invalidURL)
+        try require(numiWindowPolicyMetadata(at: invalidURL) == nil,
+                    "truncated policy accepted")
+
+        if CommandLine.arguments.count > 1 {
+            let nativeURL = URL(fileURLWithPath: CommandLine.arguments[1])
+            let native = numiWindowPolicyMetadata(at: nativeURL)
+            try require(native?.id == "native-v5" && native?.revision == 12 &&
+                        native?.contract == multiContract,
+                        "native version-5 writer output was not decoded")
+        }
 
         let visual = root.appendingPathComponent("visual.bin")
         try Data([0]).write(to: visual)
