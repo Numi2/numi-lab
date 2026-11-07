@@ -1,0 +1,12 @@
+-- Install configuration: ""
+-- Installing: /Users/numi/numi-lab-release-package-stage-20261107/lib/numi-matter/NumiMatter.metallib
+-- Installing: /Users/numi/numi-lab-release-package-stage-20261107/lib/numi-matter/NumiMatterPhysicalStateDigest.metallib
+CMake Error at numi-lab-release-clean-build-20261107/matter/cmake_install.cmake:48 (file):
+  file INSTALL cannot find
+  "/Users/numi/numi-lab-release-clean-build-20261107/matter/libnumi_matter_runtime.a":
+  No such file or directory.
+Call Stack (most recent call first):
+  numi-lab-release-clean-build-20261107/cmake_install.cmake:42 (include)
+
+
+exit_code=1
