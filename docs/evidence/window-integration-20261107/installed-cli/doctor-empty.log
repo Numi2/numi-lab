@@ -1,0 +1,31 @@
+Numi Lab doctor
+
+Runtime root: /Users/numi/numi-lab-release-package-catalog-relocated-20261108
+Workspace:    /Users/numi/numi-lab-release-package-empty-20261108
+macOS:        ok (27.0)
+Apple Silicon: ok
+Metal tools:  ok
+metalrobo_task_train: ok
+metalrobo_task_rollout: ok
+robot catalog:     ok
+MLX learner:  ok (/Users/numi/numi-window-integration-venv-20261107/bin/python)
+
+Capabilities:
+  codex
+  evaluate
+  foundation
+  human-resting
+  hyper-policy
+  matter
+  motion
+  neurons
+  robots
+  science
+  solvers
+  train
+  view
+  wet-lab
+  window
+
+Status: ready. Run `numi context` to choose a capability.
+exit_code=0

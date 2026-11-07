@@ -1,0 +1,3 @@
+16cc292c2a1360091b043dd6ec04f191b33e23ba52f164c2862d9001b6e9a1c4  /Users/numi/numi-lab-release-package-doctor-20261108/bin/numi
+672a8a56c59ac133b80b43e7f858ae9dd35995c59eda6b354cf0a2f18f138efa  /Users/numi/numi-lab-release-package-doctor-20261108/libexec/numi/window
+4d921ef8466c0e067d2dbddd0fd1ccc2bbef26e54754089470b164a06ebe7fd9  /Users/numi/numi-lab-release-package-doctor-20261108/bin/metalrobo_robot_catalog
