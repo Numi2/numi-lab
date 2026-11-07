@@ -1,0 +1,33 @@
+Building for production...
+[1 / 22]
+[6 / 24] NumiBrainValidation
+[7 / 24] NumiBrainQualification
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[14 / 26] NumiBrainMetalBridgeABI
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainConnectomeABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainNumiLabBridgeABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainMetalBridgeABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[19 / 29] NumiBrainValidation
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainValidation: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainQualification: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[28 / 34] NumiBrainCore
+[30 / 35] NumiBrainCore
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainCore: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[36 / 38] NumiBrainMetal
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/SyntheticV5QualificationFactory.swift:18:15: [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+[0;36m16 |[0;0m       }
+[0;36m17 |[0;0m       fputs("brain-factory=TissueError: ",stderr)
+[0;36m18 |[0;0m       message.withCString [4;39m{ fputs($0,stderr) }[0;0m;fputs("\n",stderr)
+   [0;36m|[0;0m               `- [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+[0;36m19 |[0;0m       throw error
+[0;36m20 |[0;0m     } catch {fputs("brain-factory=other-error\n",stderr);throw error}
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[37 / 39] NumiBrainMetal
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainMetal: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[44 / 47] NumiBrainSyntheticV5CLI-product
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainSyntheticV5CLI-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainSyntheticV5CLI-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[46 / 47] NumiBrainSyntheticV5CLI-product
+[47 / 47] NumiBrainSyntheticV5CLI-product
+Build complete! (101,59 sek)

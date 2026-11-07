@@ -485,3 +485,14 @@ replaced error interpolation with a fixed message only on the feedback-error
 path; that path was not reached. The crash, source diff and complete evidence
 are retained. This establishes neither completion of the first caller operation
 nor a Brain witness, physical step or publication.
+
+The pinned copy-return diagnostic ran at 23:19:08–23:19:09 UTC with executable
+SHA-256 `ceef6014a8e02be65d4d8828fb975e7c73bc0d9891052f0678d3ba5b57ac581f`
+and 32-input manifest SHA-256
+`f6cdbefade6920e67fe340d09ddfe9182fd6a6a992388d6d28664bf324a5e72a`.
+All inputs passed pre- and post-run checks. The first submission again reached
+successful feedback, but the marker immediately after `submit` returned to
+`copy` was not reached; the process exited 139. The last marker precedes reads
+of the feedback timing properties and return cleanup, so the exact failing
+operation remains unknown. The second staging operation was not reached. Full
+instrumentation, crash and inputs are retained; no publication was established.
