@@ -1,0 +1,13 @@
+--- /Users/numi/numi-g1-env-reset-test-owner-20261108/src/metal/MetalHybridRenderer.mm	2026-11-07 15:37:47
++++ /Users/numi/numi-g1-env-reset-ref-owner-20261108/src/metal/MetalHybridRenderer.mm	2026-11-07 15:40:38
+@@ -7574,6 +7574,10 @@
+                    a.length<bytes || c.length<bytes || a==c)) return false;
+     state_->researchAcceptedMetadata=a;state_->researchCandidateMetadata=c;
+     return true;
++}
++
++MetalHybridObjectTrackerConfig MetalHybridObjectTracker::researchCopyConfig() const {
++    return state_ ? state_->config : MetalHybridObjectTrackerConfig{};
+ }
+ 
+ void MetalHybridObjectTracker::researchAllowMixedForOneStep() {
