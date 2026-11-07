@@ -427,3 +427,14 @@ test-only qualification wrapper; the underlying construction error is not
 identified. The stage log, build, input manifest, wrapper, factory diagnostic
 diff and crash report are retained. No Brain witness, physical step or v5
 publication was reached.
+
+A further pinned initializer-marker diagnostic ran at 23:08:18–23:08:19 UTC,
+executable SHA-256 `d23ad9616ca770a504895ff93e36ac6ea47fa893c99615da8777c925e585707f`.
+Its 32-input manifest SHA-256 was
+`d48ab2eb8b38b992a60fd86be7ef1a026285b0405c4913ffb4fcef04880a831b`;
+pre- and post-run checks passed. The last marker was `fast-tissue=make-library`,
+after validation, device setup, source read and fast-program fingerprint.
+The run exited 139 before any witness or physical step. The retained crash
+again records `objc_retain` in the qualification wrapper; the marker by itself
+does not determine whether shader compilation failed or later initialization
+threw. Logs, manifest, crash and isolated instrumentation diff are retained.

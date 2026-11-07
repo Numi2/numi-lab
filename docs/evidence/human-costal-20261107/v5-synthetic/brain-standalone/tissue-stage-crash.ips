@@ -1,0 +1,129 @@
+{"app_name":"NumiBrainSyntheticV5CLI","timestamp":"2026-11-07 15:08:20.00 -0800","app_version":"","slice_uuid":"2eabee7f-bf17-3e1d-b5ad-54f860f0f261","build_version":"","platform":1,"share_with_app_devs":0,"is_first_party":1,"bug_type":"309","os_version":"macOS 27.0 (26A425)","roots_installed":0,"incident_id":"CD78A3BC-FD92-4C09-B653-C3F32041A681","name":"NumiBrainSyntheticV5CLI"}
+{
+  "uptime" : 430000,
+  "procRole" : "Unspecified",
+  "version" : 2,
+  "userID" : 501,
+  "deployVersion" : 210,
+  "modelCode" : "Mac18,5",
+  "coalitionID" : 84991,
+  "osVersion" : {
+    "train" : "macOS 27.0",
+    "build" : "26A425",
+    "releaseType" : "User"
+  },
+  "captureTime" : "2026-11-07 15:08:19.4879 -0800",
+  "codeSigningMonitor" : 2,
+  "incident" : "CD78A3BC-FD92-4C09-B653-C3F32041A681",
+  "pid" : 61097,
+  "translated" : false,
+  "cpuType" : "ARM-64",
+  "procLaunch" : "2026-11-07 15:08:18.7331 -0800",
+  "procStartAbsTime" : 10332041647493,
+  "procExitAbsTime" : 10332058685484,
+  "procName" : "NumiBrainSyntheticV5CLI",
+  "procPath" : "\/Users\/USER\/*\/NumiBrainSyntheticV5CLI",
+  "parentProc" : "zsh",
+  "parentPid" : 61094,
+  "coalitionName" : "com.openssh.sshd.6EF044B5-744E-42A2-8632-4E6932578707",
+  "crashReporterKey" : "1E3041D6-00C2-DEF7-80F5-5D80B2D1EA2A",
+  "chargingStatus" : {"externalSourceConnected":true},
+  "developerMode" : 1,
+  "responsiblePid" : 61090,
+  "codeSigningID" : "NumiBrainSyntheticV5CLI",
+  "codeSigningTeamID" : "",
+  "codeSigningFlags" : 570556929,
+  "codeSigningValidationCategory" : 10,
+  "codeSigningTrustLevel" : 4294967295,
+  "codeSigningAuxiliaryInfo" : 0,
+  "instructionByteStream" : {"beforePC":"QZc6sCHAApFpRfMVX8EAFE8JABTAA1\/WAAAA6s3\/\/1QQAED5Ea59kg==","atPC":"MRJA+RH+Fzbw\/gc2Ef530\/H+\/7QRIODSEQIRq2L+\/1ThAxCqEXywyA=="},
+  "bootSessionUUID" : "3BA2635E-7506-4552-8A6B-FE2258FDE6C1",
+  "sip" : "enabled",
+  "vmRegionInfo" : "0x16ac3d556588 is not in any region.  \n      REGION TYPE                    START - END         [ VSIZE] PRT\/MAX SHRMOD  REGION DETAIL\n      UNUSED SPACE AT START\n--->  \n      UNUSED SPACE AT END",
+  "exception" : {"codes":"0x0000000000000001, 0x000016ac3d556588","rawCodes":[1,24929019192712],"type":"EXC_BAD_ACCESS","signal":"SIGSEGV","subtype":"KERN_INVALID_ADDRESS at 0x000016ac3d556588"},
+  "termination" : {"flags":0,"code":11,"namespace":"SIGNAL","indicator":"Segmentation fault: 11","byProc":"exc handler","byPid":61097},
+  "vmregioninfo" : "0x16ac3d556588 is not in any region.  \n      REGION TYPE                    START - END         [ VSIZE] PRT\/MAX SHRMOD  REGION DETAIL\n      UNUSED SPACE AT START\n--->  \n      UNUSED SPACE AT END",
+  "extMods" : {"caller":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"system":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"targeted":{"thread_create":0,"thread_set_state":0,"task_for_pid":0},"warnings":0},
+  "faultingThread" : 0,
+  "threads" : [{"triggered":true,"id":3347387,"threadState":{"x":[{"value":4903829504},{"value":1},{"value":4313071896,"symbolLocation":0,"symbol":"type metadata for MetalConnectomeControllerSeed"},{"value":503463608320},{"value":0},{"value":12},{"value":0},{"value":0},{"value":0},{"value":4294967295},{"value":0},{"value":0},{"value":65407747719376920},{"value":65390155533330459},{"value":2043904},{"value":2},{"value":4434803924583933294},{"value":24929019192680},{"value":0},{"value":0},{"value":4332318816},{"value":4903829504},{"value":6160554904},{"value":4903829504},{"value":503468802048},{"value":8},{"value":14987979559889010711},{"value":4332497600},{"value":4332498880}],"flavor":"ARM_THREAD_STATE64","lr":{"value":4311621792},"cpsr":{"value":0},"fp":{"value":6160552288},"sp":{"value":6160551872},"esr":{"value":2449473541,"description":"(Data Abort) byte read Translation fault"},"pc":{"value":6478065692,"matchesCrashFrame":1},"far":{"value":24929019192712}},"queue":"com.apple.main-thread","frames":[{"imageOffset":28700,"symbol":"objc_retain","symbolLocation":16,"imageIndex":2},{"imageOffset":5300384,"sourceFile":"\/<compiler-generated>","symbol":"static MetalNumiBrainRuntime.qualificationMakeRuntime(configuration:publication:device:)","symbolLocation":140,"imageIndex":0},{"imageOffset":8504,"sourceLine":83,"sourceFile":"main.swift","symbol":"run()","imageIndex":0,"symbolLocation":3196},{"imageOffset":5256,"sourceLine":127,"sourceFile":"main.swift","symbol":"main","imageIndex":0,"symbolLocation":24},{"imageOffset":196952,"symbol":"start","symbolLocation":6688,"imageIndex":3}]},{"id":3347388,"frames":[],"threadState":{"x":[{"value":6161117184},{"value":6147},{"value":6160580608},{"value":0},{"value":409604},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":0},"fp":{"value":0},"sp":{"value":6161117184},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6482705456},"far":{"value":0}}},{"id":3347389,"frames":[],"threadState":{"x":[{"value":6161690624},{"value":10243},{"value":6161154048},{"value":0},{"value":409604},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":0},"fp":{"value":0},"sp":{"value":6161690624},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6482705456},"far":{"value":0}}},{"id":3347401,"frames":[],"threadState":{"x":[{"value":6162264064},{"value":14851},{"value":6161727488},{"value":0},{"value":409604},{"value":18446744073709551615},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0},{"value":0}],"flavor":"ARM_THREAD_STATE64","lr":{"value":0},"cpsr":{"value":0},"fp":{"value":0},"sp":{"value":6162264064},"esr":{"value":1442840704,"description":"(Syscall)"},"pc":{"value":6482705456},"far":{"value":0}}}],
+  "usedImages" : [
+  {
+    "source" : "P",
+    "arch" : "arm64",
+    "base" : 4306321408,
+    "size" : 6553600,
+    "uuid" : "2eabee7f-bf17-3e1d-b5ad-54f860f0f261",
+    "path" : "\/Users\/USER\/*\/NumiBrainSyntheticV5CLI",
+    "name" : "NumiBrainSyntheticV5CLI"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64",
+    "base" : 4480417792,
+    "size" : 9076736,
+    "uuid" : "49433f7e-556d-3992-854c-cf57561ece21",
+    "path" : "\/Users\/USER\/*\/libmetalrobo-v5-research.dylib",
+    "name" : "libmetalrobo-v5-research.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e.x1",
+    "base" : 6478036992,
+    "size" : 304992,
+    "uuid" : "469331f5-0c68-350e-8168-a9eb0b825f6a",
+    "path" : "\/usr\/lib\/libobjc.A.dylib",
+    "name" : "libobjc.A.dylib"
+  },
+  {
+    "source" : "P",
+    "arch" : "arm64e.x1",
+    "base" : 6478548992,
+    "size" : 764908,
+    "uuid" : "8831382f-3800-372b-99c1-b23f876c0da9",
+    "path" : "\/usr\/lib\/dyld",
+    "name" : "dyld"
+  },
+  {
+    "size" : 0,
+    "source" : "A",
+    "base" : 0,
+    "uuid" : "00000000-0000-0000-0000-000000000000"
+  }
+],
+  "sharedCache" : {
+  "base" : 6473826304,
+  "size" : 7480328192,
+  "uuid" : "9d873587-cdfa-3b79-84a2-34725a4b4704"
+},
+  "vmSummary" : "ReadOnly portion of Libraries: Total=2.0G resident=0K(0%) swapped_out_or_unallocated=2.0G(100%)\nWritable regions: Total=182.9M written=737K(0%) resident=737K(0%) swapped_out=0K(0%) unallocated=182.2M(100%)\n\n                                VIRTUAL   REGION \nREGION TYPE                        SIZE    COUNT (non-coalesced) \n===========                     =======  ======= \nActivity Tracing                   256K        1 \nDeferred Reclaim                  64.0M        1 \nGuard                            385.0G        1 \nMalloc                           107.8M       26 \nMalloc Guard Page                 3888K        4 \nOS Alloc Once                       32K        1 \nStack                             9808K        4 \nStack Guard                       56.1M        4 \nUntagged                            16K        1 \n__AUTH                            2320K      224 \n__AUTH_CONST                      35.6M      404 \n__CTF                               824        1 \n__DATA                            10.3M      413 \n__DATA_CONST                      24.1M      404 \n__DATA_DIRTY                      2161K      355 \n__FONT_DATA                        2352        1 \n__LINKEDIT                         1.5G        3 \n__OBJC_RO                        118.0M        1 \n__OBJC_RW                         2735K        1 \n__TEXT                           461.0M      478 \n__TPRO_CONST                       132K        4 \nmapped file                      390.0M        7 \npage table in kernel               737K        1 \nshared memory                      720K       12 \n===========                     =======  ======= \nTOTAL                            387.8G     2352 \n",
+  "legacyInfo" : {
+  "threadTriggered" : {
+    "queue" : "com.apple.main-thread"
+  }
+},
+  "logWritingSignature" : "7abc7ab572ae0910fce051e709c1f813061ca2c2",
+  "roots_installed" : 0,
+  "bug_type" : "309",
+  "trmStatus" : 8192,
+  "trialInfo" : {
+  "rollouts" : [
+    {
+      "rolloutId" : "63508950b3714d3622fc77f7",
+      "factorPackIds" : [
+        "6526e111d0c9ce2f459b54a8"
+      ],
+      "deploymentId" : 240000015
+    },
+    {
+      "rolloutId" : "64c025b28b7f0e739e4fbe58",
+      "factorPackIds" : [
+
+      ],
+      "deploymentId" : 240000044
+    }
+  ],
+  "experiments" : [
+
+  ]
+}
+}

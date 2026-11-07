@@ -1,0 +1,184 @@
+--- /Users/numi/numi-v5-admission-artifacts-20261107/brain-tissue-original.swift	2026-11-07 15:06:24
++++ /Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/MetalTissueRuntime.swift	2026-11-07 15:06:24
+@@ -1289,8 +1289,11 @@
+     maxEncodedSubsteps: Int = 4_096,
+     device requestedDevice: (any MTLDevice)? = nil
+   ) throws {
++    fputs("fast-tissue=validate-parameters\n", stderr)
+     try parameters.validate()
++    fputs("fast-tissue=validate-stimulus\n", stderr)
+     try stimulus.validate()
++    fputs("fast-tissue=structure\n", stderr)
+     let structure: TissueStructure
+     if let requestedStructure {
+       structure = requestedStructure
+@@ -1304,6 +1307,7 @@
+     guard structure.width == initialState.width, structure.height == initialState.height else {
+       throw TissueError.invalidStructure("structure dimensions must match the initial state")
+     }
++    fputs("fast-tissue=delay\n", stderr)
+     let delayField: TissueDelayField
+     if let requestedDelayField {
+       delayField = requestedDelayField
+@@ -1317,6 +1321,7 @@
+     guard delayField.width == initialState.width, delayField.height == initialState.height else {
+       throw TissueError.invalidConduction("delay dimensions must match the initial state")
+     }
++    fputs("fast-tissue=connectome\n", stderr)
+     let connectome: TissueConnectome
+     if let requestedConnectome {
+       connectome = requestedConnectome
+@@ -1329,6 +1334,7 @@
+     guard connectome.width == initialState.width, connectome.height == initialState.height else {
+       throw TissueError.invalidConnectome("connectome dimensions must match the initial state")
+     }
++    fputs("fast-tissue=schedules\n", stderr)
+     let eventSchedule =
+       try requestedEventSchedule
+       ?? TissueEventSchedule.singleStimulus(stimulus)
+@@ -1341,6 +1347,7 @@
+     guard regionalTokenProgram.scheduleFingerprint == brainSchedule.fingerprint else {
+       throw TissueError.metal("regional token program does not match the brain schedule")
+     }
++    fputs("fast-tissue=parameter-version\n", stderr)
+     let parameterVersion =
+       try requestedParameterVersion
+       ?? BrainParameterVersion.runtimeFoundationV0(
+@@ -1360,6 +1367,7 @@
+         "parameter version does not match tissue, schedule, or regional program"
+       )
+     }
++    fputs("fast-tissue=parameter-abi\n", stderr)
+     var parameterBindingValidationRecord = parameterVersion.abiBinding
+     let parameterComponentValidationRecords = parameterVersion.components.map(\.abiRecord)
+     let parameterValidation = parameterComponentValidationRecords.withUnsafeBufferPointer {
+@@ -1373,6 +1381,7 @@
+         "compiled parameter manifest validation failed with code \(parameterValidation)"
+       )
+     }
++    fputs("fast-tissue=regional-values\n", stderr)
+     let initialRegionalTokenValues =
+       requestedInitialRegionalTokenValues
+       ?? [Float](repeating: 0, count: regionalTokenProgram.scalarCount)
+@@ -1381,6 +1390,7 @@
+     else {
+       throw TissueError.metal("initial regional token values do not match the program")
+     }
++    fputs("fast-tissue=regional-routing\n", stderr)
+     let initialRegionalRoutingState =
+       requestedInitialRegionalRoutingState
+       ?? RegionalRoutingState(program: regionalTokenProgram)
+@@ -1389,6 +1399,7 @@
+     } catch {
+       throw TissueError.metal("initial regional routing state is invalid: \(error)")
+     }
++    fputs("fast-tissue=motor-profile\n", stderr)
+     let protectiveMotorProfile =
+       try requestedProtectiveMotorProfile
+       ?? ProtectiveMotorProfile.runtimeFoundationFixture()
+@@ -1409,6 +1420,7 @@
+         "somatic synergy catalog does not cover the protective motor profile"
+       )
+     }
++    fputs("fast-tissue=synergy-decoder\n", stderr)
+     let somaticSynergyDecoder = try somaticSynergyCatalog.denseDecoder()
+     let bodyLoadFieldDynamics =
+       try requestedBodyLoadFieldDynamics
+@@ -1416,6 +1428,7 @@
+     let bodySchemaDynamics =
+       try requestedBodySchemaDynamics
+       ?? BodySchemaPosteriorDynamics.runtimeFoundationV0
++    fputs("fast-tissue=attachment-validation\n", stderr)
+     if let requestedNumanXMuscleAttachmentCatalog {
+       do {
+         try requestedNumanXMuscleAttachmentCatalog.validate(
+@@ -1427,6 +1440,7 @@
+         )
+       }
+     }
++    fputs("fast-tissue=scheduler-validation\n", stderr)
+     guard maxEncodedSubsteps > 0 else {
+       throw TissueError.metal("maxEncodedSubsteps must be positive")
+     }
+@@ -1436,6 +1450,7 @@
+     guard maxSchedulerInvocations > 0, maxSchedulerInvocations <= Int(UInt32.max) else {
+       throw TissueError.metal("maxSchedulerInvocations must be in 1...UInt32.max")
+     }
++    fputs("fast-tissue=timestep-validation\n", stderr)
+     let timestepMicrosecondsDouble = Double(parameters.timestepMilliseconds) * 1_000
+     let roundedTimestepMicroseconds = timestepMicrosecondsDouble.rounded()
+     guard roundedTimestepMicroseconds >= 1,
+@@ -1457,6 +1472,7 @@
+     guard !tissueDelayOverflow else {
+       throw TissueError.metal("physical tissue delay overflows UInt64")
+     }
++    fputs("fast-tissue=route-capacity\n", stderr)
+     let maximumRouteDelay = UInt64(
+       regionalTokenProgram.routes.map(\.delayMicroseconds).max() ?? 0
+     )
+@@ -1475,9 +1491,11 @@
+         "scheduler/event bounds require \(requiredRouteHistoryCapacity) regional route-history slots; capacity is \(regionalTokenProgram.compiledRouteHistoryCapacity)"
+       )
+     }
++    fputs("fast-tissue=device\n", stderr)
+     guard let device = requestedDevice ?? MTLCreateSystemDefaultDevice() else {
+       throw TissueError.metal("no Metal device is available")
+     }
++    fputs("fast-tissue=parameter-bank\n", stderr)
+     let sharedParameterBank = try MetalSharedParameterBank(
+       device: device,
+       parameterVersion: parameterVersion,
+@@ -1490,6 +1508,7 @@
+         "regional dense parameter shape does not match the compiled program"
+       )
+     }
++    fputs("fast-tissue=command-queue\n", stderr)
+     guard let commandQueue = device.makeMTL4CommandQueue() else {
+       throw TissueError.metal("device does not provide a Metal 4 command queue")
+     }
+@@ -1500,6 +1519,7 @@
+       throw TissueError.metal("failed to create a reusable Metal 4 command buffer")
+     }
+ 
++    fputs("fast-tissue=source-url\n", stderr)
+     let sourceURL =
+       MetalBrainResourceBundle.bundle.url(
+         forResource: "NeuralTissue",
+@@ -1509,7 +1529,9 @@
+     guard let sourceURL else {
+       throw TissueError.metal("NeuralTissue.metal is missing from package resources")
+     }
++    fputs("fast-tissue=source-read\n", stderr)
+     let source = try String(contentsOf: sourceURL, encoding: .utf8)
++    fputs("fast-tissue=environment\n", stderr)
+     let regionalGridSetting = ProcessInfo.processInfo.environment["NUMI_BRAIN_REGIONAL_GRID"] ?? "0"
+     guard regionalGridSetting == "0" || regionalGridSetting == "1" else {
+       throw TissueError.metal("NUMI_BRAIN_REGIONAL_GRID must be 0 or 1")
+@@ -1549,6 +1571,7 @@
+     else {
+       throw TissueError.metal("NUMI_BRAIN_PROTECTIVE_HASH_UNROLL must be 0, 4, 8, or 16")
+     }
++    fputs("fast-tissue=compile-options\n", stderr)
+     let compileOptions = MTLCompileOptions()
+     compileOptions.languageVersion = .version4_0
+     compileOptions.mathMode = .fast
+@@ -1560,6 +1583,7 @@
+     let delayFieldHash = delayField.stableHash()
+     let connectomeHash = connectome.stableHash()
+     let eventScheduleHash = eventSchedule.stableHash()
++    fputs("fast-tissue=fingerprint\n", stderr)
+     let numanXFastProgramFingerprint = Self.makeNumanXFastProgramFingerprint(
+       metalSource: source,
+       structureHash: structureHash,
+@@ -1588,9 +1612,11 @@
+       mathMode: UInt32(compileOptions.mathMode.rawValue),
+       mathFunctions: UInt32(compileOptions.mathFloatingPointFunctions.rawValue)
+     )
++    fputs("fast-tissue=fingerprint-check\n", stderr)
+     guard numanXFastProgramFingerprint != 0 else {
+       throw TissueError.metal("NumanX fast program fingerprint is zero")
+     }
++    fputs("fast-tissue=make-library\n", stderr)
+     let library: any MTLLibrary
+     do {
+       library = try device.makeLibrary(source: source, options: compileOptions)
