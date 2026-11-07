@@ -1,0 +1,42 @@
+{
+  "development_specimen": "8-0NS1",
+  "development_count": 400,
+  "intercept_N": 0.04886680223398625,
+  "slope_N_per_mm": 0.020256155067237984,
+  "heldout": [
+    {
+      "specimen": "8-0NS2",
+      "count": 400,
+      "relative_absolute_error": 0.030550115055495774,
+      "passed": true
+    },
+    {
+      "specimen": "8-0NS3",
+      "count": 400,
+      "relative_absolute_error": 0.03017192568641652,
+      "passed": true
+    },
+    {
+      "specimen": "8-0NS4",
+      "count": 401,
+      "relative_absolute_error": 0.01758853012578091,
+      "passed": true
+    },
+    {
+      "specimen": "8-0NS5",
+      "count": 400,
+      "relative_absolute_error": 0.029593260548315514,
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "workbook_sha256": "49a0f7f4875bc6354367c3efd832ec26642355965fe0cae31ffc950280045978",
+  "program_sha256": "74d08021c14923c413d19d02ead47353834c094db5bcff7fcbc1808d3c686263",
+  "interval_mm": [
+    2.0,
+    4.0
+  ],
+  "threshold": 0.1,
+  "plan_commit": "40921e133",
+  "evidence_scope": "physical data screen, not Numi simulation"
+}
