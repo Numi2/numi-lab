@@ -1,0 +1,288 @@
+{
+  "action_carrier" : "v13_retinal_feeding_native_rgb",
+  "birdflow_journey_student_authority" : 0,
+  "birdflow_journey_teacher" : false,
+  "birdflow_journey_variant" : "v13-retinal-feeding",
+  "birdflow_navigation_curriculum" : false,
+  "birdflow_navigation_curriculum_stage" : -1,
+  "candidate_deployment_policy_pack" : "\/private\/tmp\/crow-memory-choice-git-recovery-20261107\/replay\/deployment.policypack",
+  "checkpoint_directory" : "\/private\/tmp\/crow-memory-choice-git-recovery-20261107\/replay\/checkpoints",
+  "checkpoint_interval" : 1,
+  "control_steps_per_submission" : 8,
+  "deployment_policy_pack" : "\/private\/tmp\/crow-memory-choice-git-recovery-20261107\/replay\/deployment.policypack",
+  "deployment_selection_performed" : false,
+  "device" : "Apple M4 Pro",
+  "difficulty_sampling_exponent_override" : 0,
+  "elapsed_seconds" : 3.3738903750000002,
+  "end_to_end_environment_steps_per_second" : 758.76798457033442,
+  "environments" : 8,
+  "failed_environment_steps" : 0,
+  "final_physical_evidence" : {
+    "control_steps" : 320,
+    "evidence_windows" : 0,
+    "last_balance_failure_rate" : 0,
+    "last_clean_miss_rate" : 0,
+    "last_completed_episode_count" : 0,
+    "last_contact_rate" : 0,
+    "last_mean_tracking_per_million" : 0,
+    "pending_completed_episode_count" : 0,
+    "pending_timeout_episode_count" : 0
+  },
+  "final_policy_revision" : 3,
+  "gpu_milliseconds" : 2964.020291750785,
+  "host_requested_resets" : 0,
+  "incumbent_policy_pack" : "\/private\/tmp\/crow-memory-choice-git-recovery-20261107\/replay\/incumbent.policypack",
+  "independent_cued_lifetimes" : true,
+  "independent_lifetime_history" : [
+    {
+      "accepted_ticks" : [
+        320,
+        320,
+        320,
+        320,
+        320,
+        320,
+        320,
+        320
+      ],
+      "allocation_seed" : 15593531915636391484,
+      "consumed_micrograms" : [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "index" : 1,
+      "physical_seed" : 7072833791274903447
+    }
+  ],
+  "initial_policy_revision" : 2,
+  "last_learning_update" : {
+    "actor_gradient_norm" : 1.1754951477050781,
+    "approximate_kl" : -5.1921233534812927e-08,
+    "behavior_policy_fingerprint" : 744788927144143474,
+    "clip_fraction" : 0,
+    "critic_gradient_norm" : 0.021973885595798492,
+    "deployment_policy_pack" : "\/private\/tmp\/crow-memory-choice-git-recovery-20261107\/replay\/deployment.policypack",
+    "done_count" : 0,
+    "entropy" : -19.458906173706055,
+    "generating_logp_max_abs" : 1.1444091796875e-05,
+    "generating_state_max_abs" : 7.0780515670776367e-08,
+    "generating_value_max_abs" : 5.9604644775390625e-08,
+    "gradient_norm" : 1.1757005453109741,
+    "impact_sequence_metrics" : [
+
+    ],
+    "kl_divergence" : 0,
+    "learner_state" : "\/private\/tmp\/crow-memory-choice-git-recovery-20261107\/replay\/learner.safetensors",
+    "learning_rate" : 9.9999997473787516e-05,
+    "loss" : 0.020280884578824043,
+    "maximum_reward" : 0,
+    "mean_action_standard_deviation" : 0.082086831331253052,
+    "mean_contact_reward" : 0,
+    "mean_dodge_cbf_buffer_reward" : 0,
+    "mean_dodge_cbf_correction_reward" : 0,
+    "mean_dodge_evasion_reward" : 0,
+    "mean_dodge_link_clearance_reward" : 0,
+    "mean_dodge_miss_reward" : 0,
+    "mean_dodge_predicted_clearance_reward" : 0,
+    "mean_dodge_safe_action_rate_reward" : 0,
+    "mean_dodge_safe_stillness_reward" : 0,
+    "mean_reward" : 0,
+    "mean_root_height" : 0,
+    "mean_task_reward" : 0,
+    "mean_tilt" : 0,
+    "mean_tracking_score" : 0,
+    "minibatch_updates" : 1,
+    "minimum_reward" : 0,
+    "mlx_active_memory_bytes" : 2181460,
+    "mlx_cache_memory_bytes" : 0,
+    "mlx_cache_released_bytes" : 219625282,
+    "mlx_peak_memory_bytes" : 203799302,
+    "outcomes" : {
+      "accepted_intake_utility" : {
+        "direction" : 1,
+        "mean" : 0,
+        "unit" : "utility"
+      },
+      "done" : {
+        "direction" : 2,
+        "mean" : 0,
+        "unit" : "bool"
+      },
+      "physics_error" : {
+        "direction" : 2,
+        "mean" : 0,
+        "unit" : "bool"
+      },
+      "reward" : {
+        "direction" : 1,
+        "mean" : 0,
+        "unit" : "reward"
+      },
+      "task_reward" : {
+        "direction" : 1,
+        "mean" : 0,
+        "unit" : "reward"
+      },
+      "timeout" : {
+        "direction" : 0,
+        "mean" : 0,
+        "unit" : "bool"
+      }
+    },
+    "policy_loss" : -5.9604645663569045e-09,
+    "policy_pack" : "\/private\/tmp\/crow-memory-choice-git-recovery-20261107\/replay\/updated.policypack",
+    "policy_revision" : 3,
+    "policy_revision_after" : 3,
+    "policy_revision_before" : 2,
+    "real_samples_per_epoch" : 2560,
+    "recovery_phase_rates_by_difficulty_band" : {
+      "0" : {
+        "brace" : 0,
+        "foot_support" : 0,
+        "mean_root_height" : 0,
+        "mean_tilt" : 0,
+        "quiet_stand" : 0,
+        "restored" : 0,
+        "rise" : 0,
+        "standing" : 0,
+        "support_transfer" : 0,
+        "transition_count" : 2560,
+        "trunk_clear" : 0
+      }
+    },
+    "reward_standard_deviation" : 0,
+    "samples" : 2560,
+    "sequence_length" : 320,
+    "sequence_windows" : 8,
+    "status" : "updated",
+    "task_fingerprint" : 1215058188383983006,
+    "termination_reason_counts" : {
+
+    },
+    "timeout_count" : 0,
+    "update_seconds" : 0.1548404999775812,
+    "value_loss" : 0.000821984198410064
+  },
+  "learner" : "mlx",
+  "learner_execution_identity" : "eaea3de187c973feed748765536b7ed2cfb1d3204c36a1995be943ca825f2d8f",
+  "learner_state" : "\/private\/tmp\/crow-memory-choice-git-recovery-20261107\/replay\/learner.safetensors",
+  "learner_state_restored" : true,
+  "learning_update_history" : [
+    {
+      "done_count" : 0,
+      "learning_rate" : 9.9999997473787516e-05,
+      "maximum_reward" : 0,
+      "mean_action_standard_deviation" : 0.082086831331253052,
+      "mean_reward" : 0,
+      "minimum_reward" : 0,
+      "mlx_peak_memory_bytes" : 203799302,
+      "outcomes" : {
+        "accepted_intake_utility" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "utility"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "reward"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        }
+      },
+      "policy_revision_after" : 3,
+      "policy_revision_before" : 2,
+      "samples" : 2560,
+      "timeout_count" : 0
+    }
+  ],
+  "life_checkpoint_count" : 1,
+  "life_checkpoint_enabled" : true,
+  "life_checkpoint_seconds" : 0.013442042,
+  "life_state_restored" : true,
+  "lifetime_updates_completed" : 2,
+  "maximum_active_contacts" : 8,
+  "maximum_episode_steps" : 100000,
+  "maximum_manifolds" : 2,
+  "minibatch_size" : 2560,
+  "minibatches_per_epoch" : 1,
+  "motion_minibatch_size" : 0,
+  "native_submission_count" : 40,
+  "navigation_return_weighted_self_imitation" : false,
+  "navigation_self_imitation_minimum_waypoint" : 5,
+  "operation" : "swift_native_policy_training",
+  "physics" : "metal",
+  "policy_pack" : "\/private\/tmp\/crow-memory-choice-git-recovery-20261107\/replay\/updated.policypack",
+  "resumed_exploration_overridden" : false,
+  "resumed_learning_rate_overridden" : false,
+  "retained_buffer_bytes" : 8100114,
+  "retention_maximum_difficulty_band" : -1,
+  "retention_policy_pack" : "",
+  "retention_protected_actor_only" : false,
+  "retention_rollout_teacher_blend" : 0,
+  "rollout_pack" : "\/private\/tmp\/crow-memory-choice-git-recovery-20261107\/replay\/training.rolloutpack",
+  "samples_per_update" : 2560,
+  "scheduler" : "swift",
+  "stage_high_water" : {
+    "articulation_point_queries" : 0,
+    "candidate_pairs" : 2,
+    "ccd_candidates" : 0,
+    "ccd_events" : 0,
+    "constraint_blocks" : 8,
+    "constraint_rows" : 24,
+    "dynamic_nodes" : 0,
+    "endpoint_runtime_records" : 0,
+    "hard_convex_pairs" : 0,
+    "island_constraint_references" : 0,
+    "island_node_references" : 0,
+    "islands" : 1,
+    "manifolds" : 2,
+    "mesh_triangle_candidates" : 0,
+    "operator_velocity_elements" : 0,
+    "quality_direct_tiles" : 0,
+    "quality_generalized_velocities" : 0,
+    "quality_krylov_vectors" : 0,
+    "quality_rows" : 0,
+    "raw_contacts" : 8,
+    "rod_candidate_pairs" : 0,
+    "rod_ccd_events" : 0,
+    "rod_factor_blocks" : 0,
+    "rod_manifolds" : 0,
+    "rod_raw_contacts" : 0,
+    "solver_tiles" : 1,
+    "spill_rows" : 0
+  },
+  "steps_per_update" : 320,
+  "submission_milliseconds" : 2972.9361710000003,
+  "training_samples" : 2560,
+  "transient_private_bytes" : 4763516,
+  "updates" : 1,
+  "visual_observation" : true,
+  "visual_observation_config" : "\/private\/tmp\/crow-memory-choice-git-recovery-20261107\/project\/environments\/american-crow\/memory-choice-v1\/retinal-observation.json",
+  "visual_scene_fingerprint" : 3411164885552909298,
+  "world_source" : "american_crow_retinal_feeding_v13"
+}

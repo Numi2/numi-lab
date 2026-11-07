@@ -29,3 +29,12 @@ libraries and every exact reference, then removes unchanged closed temp files.
 Matching OS/device/dependencies required. Bulk raw and checkout duplicates are
 pruned only after pushed Git recovery. No biological, full ecology, learned
 memory or production scaling claim. Source/product inputs remain available.
+
+Initial recovery verification expected the standard rollout failure-count field
+in the successful native prefix summary, whose typed schema instead reports
+status/ticks/lanes and rejects any failed step by process status. The original
+verifier/failure remain preserved. Version2 validates each command schema and
+uses all three already completed processes without simulation retry. All53
+learner tensors, six native life sections and seven causal files are exact.
+One hundred unchanged closed temporary files (80,104,335 bytes) were removed.
+Use verify_recovery-v2.py for future recovery.

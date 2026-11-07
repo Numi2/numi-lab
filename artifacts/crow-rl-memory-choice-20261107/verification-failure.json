@@ -1,0 +1,9 @@
+{
+  "error": "Physics rejected",
+  "type": "RuntimeError",
+  "plan": {
+    "budget": "One600second standard training update and one180second early-cue rollout, no retries",
+    "prediction": "Git-restored native/Python/product inputs reproduce policy/candidate/rollout bytes,53 learner/Adam tensors and metadata, and all three native state sections; early-cue tail rollout and all native sections exact. Adjacent Git-restored library must actually load.",
+    "scope": "Matching device/OS/dependencies; integrated training and life recovery only, no learned memory claim"
+  }
+}
