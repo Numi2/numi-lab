@@ -60,3 +60,20 @@ programs and source state, and independent checks of the discrete equations,
 forces, clearance, rollback and replay. A direct fingerprint rewrite would
 establish none of those. With no old compatible image to replay as an oracle,
 deterministic equivalence and safe promotion remain unestablished.
+
+## Additional release inventory check
+
+A read-only GitHub release inventory on 2026-11-07 listed eight releases. The
+Numi and Mac mini 2026-11-06 closure manifests contain no `.metallib` or `.air`
+entries. The five 2026-10-21 Human replay manifests list `.mrvpack` replays and
+no shader files; the cardboard release index describes four cardboard evidence
+roots and does not list a shader. These metadata observations do not establish
+the contents of any archive that lacks a complete file manifest.
+
+The three plastic-bag release tarballs (110.8 MB, 154.3 MB and 526.9 MB), and
+one Human solver/contact-memory tarball (373.4 MB), remain uninspected. Their
+release dates and subjects differ from the surgical checkpoint and offer no
+specific evidence that they contain its exact device program. They cannot be
+ruled out by filename. No large archive was downloaded for this inventory.
+The required device-program fingerprint remains `17848984240238310200`;
+exact native restore remains the final compatibility test.
