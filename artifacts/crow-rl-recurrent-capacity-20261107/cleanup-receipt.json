@@ -1,0 +1,27 @@
+{
+  "archive_commit": "de719cd64c55d0f8015a6f458b152e9496705a4d",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 297519884 159829256    66% 3496150 1598292560    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 297627988 159721152    66% 3496321 1597211520    0%   /System/Volumes/Data\n",
+  "manifest": "artifacts/crow-rl-recurrent-capacity-20261107/manifest.json",
+  "manifest_sha256": "f6fefe04287eee716b6ca26d170d2efcb92bf6fa869be8ec1b3fbf55b71b4047",
+  "open_handle_checks": [
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/runs/american-crow"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/retained-runtime"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": "build"
+    }
+  ],
+  "remote_commit": "de719cd64c55d0f8015a6f458b152e9496705a4d",
+  "removed_files": 147,
+  "removed_logical_bytes": 125239474
+}
