@@ -149,3 +149,24 @@ per independent life. The stronger visual gradient alone is insufficient under
 this update schedule. Preserve these outcomes; next assess bounded KL-adaptive
 optimization through the existing explicit learning-rate override. No learned
 memory claim follows from the normalization mechanism or this flat campaign.
+
+## KL-adaptive optimization admission
+
+The next16-update64-lane trial continues normalized policy65 and Adam state on
+new native populations with the existing KL controller. It accepts327680
+transitions with no reported physics rejections at3853 looptransitions/s.
+Intake rises37/256 to56/256 across training blocks; this is not held-out evidence.
+Per-update KL/clipping/gradient/rate diagnostics are now retained. Last averaged
+KL0.033 and22% clipping require continued monitoring rather than a convergence
+claim. On identical last-life inputs, source65 already has a0.5103 cue-dependent
+head mean gap; adaptive81 has1.1406. Exchanging early RGB flips these gaps and a
+memory cut at40 removes them, but these are offline algebraic diagnostics.
+
+A scoped trainer guard permits explicit learning-rate initialization from saved
+model/Adam state only for a new independent cued population. Exact life restore
+still forbids overrides and restores adaptive rate/state unchanged. Final81
+fresh chunk8/1 continuations match all53 model/Adam tensors and metadata,
+policy/candidate/rollout bytes and world/retina/food snapshots. Evidence, startup
+and harness failures, exact runtime and Git-executed recovery are retained in
+`artifacts/crow-rl-adaptive-optimization-20261108`. Native held-out causal memory,
+manipulation, social learning and lifelong ecological qualification remain open.
