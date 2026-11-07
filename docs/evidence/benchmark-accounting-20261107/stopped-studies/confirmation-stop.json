@@ -1,0 +1,9 @@
+{
+  "payload": {
+    "reason": "Source artifact changed to reject invalid warmup transitions before trials; no trials started. Register a new study with the revised binary and inputs.",
+    "receipts": {},
+    "registration_sha256": "5af9b2b6c286da5726fd60033d5df8eddb921cd9a24fe4cfd1d2ed38c75593d0",
+    "stopped_at": "2026-11-07T22:28:13.454513+00:00"
+  },
+  "sha256": "bd4f44d3d0037f2579905cae48fb3b441c9e91a306d8fce9be1299b768f2da8a"
+}

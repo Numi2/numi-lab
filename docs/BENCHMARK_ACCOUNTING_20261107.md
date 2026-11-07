@@ -43,3 +43,24 @@ accepted 2/2 steps. Exact executable, library and shader hashes and the
 native result are retained in the release-smoke subdirectory. This verifies
 the Release target and success accounting, not an optimized performance
 comparison or contact qualification.
+
+A persistent single-environment latency instrument now measures individual
+native advance calls and reports p50, p95 and maximum call latency, together
+with total series wall time, accepted physical time, failures, GPU time and
+retained runtime buffers. It uses a host-generated sinusoid and does not
+measure rendering, learning or end-to-end interactive performance. The 20
+warmup calls and every measured transition are checked for invalid physics
+or non-finite rewards. The batch instrument applies the same warmup transition
+checks.
+
+CPU fault-injection tests cover failed warmup, incomplete or failed measured
+steps, invalid transitions and malformed inputs. The final Release native
+smoke at source revision d13b6334 accepted 2/2 batched steps and 5/5 separate
+single-environment steps. It is a correctness smoke, not a performance sample.
+Exact source, binary, library, shader hashes and output are in the retained
+warmup-smoke directory.
+
+Two previously registered but unstarted follow-up studies were explicitly
+stopped when the benchmark source changed to validate warmup transitions;
+their stop records are retained. New measurements require a new registration
+bound to the revised source and binary.
