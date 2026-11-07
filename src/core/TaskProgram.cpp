@@ -972,6 +972,10 @@ TaskCompileDiagnostics compileTaskProgram(
             "visual depth requires dimensions, one to four unique sorted offsets beginning at zero, and a finite positive range"
         );
     }
+    if (observations.visual.useUnsegmentedDepth && !hasVisualProgram) {
+        return reject(TaskCompileStatus::invalidPack, "visual",
+            "unsegmented depth requires an authored visual program");
+    }
     const std::uint64_t visualPixelComponentCount =
         static_cast<std::uint64_t>(observations.visual.width) *
         observations.visual.height * observations.visual.frameOffsets.size();
@@ -2545,7 +2549,7 @@ TaskCompileDiagnostics compileTaskProgram(
         return reject(
             TaskCompileStatus::invalidPack,
             "visual",
-            "masked depth is a deployable actor source; critics use explicit supervisory operators"
+            "renderer-owned depth is an actor source; critics use explicit supervisory operators"
         );
     }
     observationStatus = compileObservations(
@@ -4047,6 +4051,9 @@ TaskCompileDiagnostics compileTaskProgram(
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_CRITIC_INCLUDES_CLEAN_HISTORY;
     }
+    if (observations.visual.useUnsegmentedDepth) {
+        staged->header.schedule.w |= MR_TASK_PROGRAM_UNSEGMENTED_DEPTH;
+    }
     if (observations.visual.includeDerivedFeatures) {
         staged->header.schedule.w |=
             MR_TASK_PROGRAM_MASKED_DEPTH_FEATURES;
@@ -4507,6 +4514,11 @@ TaskCompileDiagnostics compileTaskProgram(
     observationHash.scalar(observations.visual.edgeFlickerProbability);
     observationHash.scalar(observations.visual.difficultyCorruptionGain);
     observationHash.scalar(observations.visual.includeDerivedFeatures);
+    // Preserve legacy observation fingerprints while giving the new contract
+    // a distinct identity even when its actor layout is shape-compatible.
+    if (observations.visual.useUnsegmentedDepth) {
+        observationHash.scalar(std::uint32_t(MR_TASK_PROGRAM_UNSEGMENTED_DEPTH));
+    }
     staged->observationFingerprint = observationHash.finish();
 
     Hash hash;

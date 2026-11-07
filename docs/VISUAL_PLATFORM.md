@@ -178,7 +178,9 @@ camera and root poses come from device buffers rather than a static camera
 approximation. One cooperative threadgroup reduces each environment/object
 track and temporal track state remains on the GPU.
 The same adapter can publish a SensorPack-authored ball-only masked-depth
-contract. Exact authored instance identities select pixels, invalid and
+contract. This is an oracle observation: exact simulator instance identities
+select the ball pixels, so its results do not establish deployment-valid
+perception. Exact authored instance identities select pixels, invalid and
 non-selected pixels become calibrated far depth, and a device-resident ring
 publishes sparse temporal offsets directly into actor slots. The bundled G1
 dodge task uses a 16x9 plane normalized over 0.1--5.0 m at offsets 0, 3, 8,
@@ -187,9 +189,20 @@ reduced from those same corrupted planes: visibility confidence, image-plane
 bearing and elevation, nearness, and apparent area for each frame, followed by
 their newest-to-oldest temporal changes. Thus approach and expansion are easy
 for a small policy to consume without introducing scene-state position or
-velocity. Object tracks remain critic-only for this task. Reset fills the
-complete depth ring from the first accepted post-reset frame, so no visual
-belief crosses episode boundaries and the four temporal changes begin at zero.
+velocity. Object tracks remain critic-only for this task. On reset, the kernel fills the
+complete depth ring from the first encoded post-reset frame, so the four
+temporal changes begin at zero. End-to-end transaction and reset behavior must
+be qualified separately when a physical step is rejected.
+SensorPack authors may opt into TaskVisualProgram::useUnsegmentedDepth to
+publish the full valid metric depth image instead, without selecting pixels by
+simulator instance identity. It preserves the image and history dimensions and
+the authored corruption model, and changes the observation fingerprint. The
+optional derived features then summarize the whole image, not a detected ball;
+a policy trained on oracle-masked observations cannot be assumed compatible.
+This is an input for a perception experiment, not evidence of a trained
+detector or deployment performance. The existing C rollout configuration does
+not yet expose this authoring switch. In particular, transactional behavior
+under rejected steps and hardware timing/noise remain to be qualified.
 The bundled head sensor authors a 54-degree vertical field of view and a
 50 Hz cadence. Its torso-local mount is 0.08 m forward and 0.45 m upward with
 the optical axis pitched 20 degrees above torso-forward. At the task's 50 Hz

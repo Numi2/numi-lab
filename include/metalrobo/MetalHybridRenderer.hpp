@@ -414,6 +414,8 @@ struct MetalHybridObjectTrackerConfig {
     float maximumTrackSpeedMetersPerSecond = 1.0e30f;
     std::vector<MetalHybridObjectTrackBinding> bindings;
     std::vector<std::uint32_t> maskedDepthInstanceIds;
+    // When true, use all valid measured depth, with no identity-based mask.
+    bool useUnsegmentedDepth = false;
     std::uint32_t maskedDepthWidth = 0u;
     std::uint32_t maskedDepthHeight = 0u;
     std::uint32_t maskedDepthActorFrameOffset = 0u;

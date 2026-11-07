@@ -2674,6 +2674,8 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         });
     }
     if (maskedDepthCount != 0u) {
+        trackerConfig.useUnsegmentedDepth =
+            (taskHeader.schedule.w & MR_TASK_PROGRAM_UNSEGMENTED_DEPTH) != 0u;
         trackerConfig.maskedDepthWidth = taskHeader.visualLayout.x;
         trackerConfig.maskedDepthHeight = taskHeader.visualLayout.y;
         trackerConfig.maskedDepthActorFrameOffset =
@@ -2708,18 +2710,20 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             taskHeader.schedule.z;
         trackerConfig.maskedDepthFeatureCount =
             maskedDepthFeatureCount;
-        for (const std::uint32_t sceneIndex : trackedSceneBodies) {
-            const std::string& assetId =
-                handle.model.bodyNames[sceneIndices[sceneIndex]];
-            const auto instance = trackedInstances.find(assetId);
-            if (instance == trackedInstances.end()) {
-                throw std::invalid_argument(
-                    "every masked-depth object requires an authored visual binding"
+        if (!trackerConfig.useUnsegmentedDepth) {
+            for (const std::uint32_t sceneIndex : trackedSceneBodies) {
+                const std::string& assetId =
+                    handle.model.bodyNames[sceneIndices[sceneIndex]];
+                const auto instance = trackedInstances.find(assetId);
+                if (instance == trackedInstances.end()) {
+                    throw std::invalid_argument(
+                        "every masked-depth object requires an authored visual binding"
+                    );
+                }
+                trackerConfig.maskedDepthInstanceIds.push_back(
+                    instance->second
                 );
             }
-            trackerConfig.maskedDepthInstanceIds.push_back(
-                instance->second
-            );
         }
     }
     if (deviceObservationEnabled) {

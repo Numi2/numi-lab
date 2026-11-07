@@ -2278,6 +2278,39 @@ int main(const int argc, const char* const* argv) {
                 compiledDodge.task.contactMembers().size()) {
             fail("G1 native projectile-dodge task is incomplete");
         }
+        // The historic ball-only image uses authored instance IDs and is
+        // therefore an oracle. Raw depth keeps the layout but must change
+        // the executable contract and its fingerprint.
+        if ((compiledDodge.task.header().schedule.w &
+             MR_TASK_PROGRAM_UNSEGMENTED_DEPTH) != 0u) {
+            fail("G1 default depth contract unexpectedly changed");
+        }
+        TaskWorldFixture rawDepth = dodge;
+        rawDepth.observations.visual.useUnsegmentedDepth = true;
+        metalrobo::CompiledLocomotionWorld compiledRawDepth;
+        const auto rawDepthStatus = compileTaskWorld(rawDepth, compiledRawDepth);
+        if (!rawDepthStatus.succeeded() ||
+            (compiledRawDepth.task.header().schedule.w &
+             MR_TASK_PROGRAM_UNSEGMENTED_DEPTH) == 0u ||
+            compiledRawDepth.task.layout().actorObservationSize !=
+                compiledDodge.task.layout().actorObservationSize ||
+            compiledRawDepth.task.observationFingerprint() ==
+                compiledDodge.task.observationFingerprint() ||
+            compiledRawDepth.task.fingerprint() ==
+                compiledDodge.task.fingerprint()) {
+            fail("unsegmented depth contract is not independently identified");
+        }
+        TemporaryPackFiles depthPackFiles;
+        metalrobo::SensorProgramPack depthSensor{
+            .id = "raw_depth_contract", .observation = rawDepth.observations
+        };
+        metalrobo::SensorProgramPack loadedDepthSensor;
+        if (!metalrobo::writeSensorProgramPack(depthSensor, depthPackFiles.sensors).succeeded() ||
+            !metalrobo::readSensorProgramPack(depthPackFiles.sensors, loadedDepthSensor).succeeded() ||
+            !loadedDepthSensor.observation.visual.useUnsegmentedDepth ||
+            !loadedDepthSensor.observation.visual.includeDerivedFeatures) {
+            fail("raw depth SensorPack did not survive persistence");
+        }
         std::uint32_t collidableMembers = 0u;
         for (const float radius :
              compiledDodge.task.contactMemberRadii()) {

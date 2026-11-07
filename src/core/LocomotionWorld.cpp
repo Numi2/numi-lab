@@ -2473,7 +2473,7 @@ TaskPack makeUnitreeG1BallDodgeTaskPack(
         }
     }
 
-    // Deployment sees only ball-segmentation-masked depth. Preserve exact
+    // The default oracle actor sees instance-selected ball depth. Preserve exact
     // object tracks in the critic for asymmetric PPO, but remove them from
     // the actor so privileged state cannot leak into the deployed policy.
     std::erase_if(

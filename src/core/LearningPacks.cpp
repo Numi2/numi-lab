@@ -1484,7 +1484,8 @@ void writeObservationProgram(
     writer.pod(observations.visual.edgeFlickerProbability);
     writer.pod(observations.visual.difficultyCorruptionGain);
     writer.pod(static_cast<std::uint8_t>(
-        observations.visual.includeDerivedFeatures ? 1u : 0u
+        (observations.visual.includeDerivedFeatures ? 1u : 0u) |
+        (observations.visual.useUnsegmentedDepth ? 2u : 0u)
     ));
 }
 
@@ -1523,11 +1524,12 @@ bool readObservationProgram(
         !reader.pod(observations.visual.depthNoiseSigmaMeters) ||
         !reader.pod(observations.visual.edgeFlickerProbability) ||
         !reader.pod(observations.visual.difficultyCorruptionGain) ||
-        !reader.pod(derivedFeatures) || derivedFeatures > 1u) {
+        !reader.pod(derivedFeatures) || derivedFeatures > 3u) {
         return false;
     }
     observations.criticIncludesCleanHistory = cleanHistory != 0u;
-    observations.visual.includeDerivedFeatures = derivedFeatures != 0u;
+    observations.visual.includeDerivedFeatures = (derivedFeatures & 1u) != 0u;
+    observations.visual.useUnsegmentedDepth = (derivedFeatures & 2u) != 0u;
     return true;
 }
 

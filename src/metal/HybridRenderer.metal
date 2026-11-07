@@ -333,6 +333,7 @@ kernel void mr_hybrid_masked_depth_history(
     // neighbors. Materialize the tiny sensor plane once in threadgroup
     // memory instead of rescanning the accepted-instance table and rereading
     // three global planes for every neighboring pixel.
+    const bool unsegmentedDepth = uniforms.curriculum.w != 0.0f;
     const bool cacheSensorPlane =
         pixelCount <= kCachedPixelCapacity;
     const bool geometricWinnerSource =
@@ -347,27 +348,31 @@ kernel void mr_hybrid_masked_depth_history(
                 bool segmented = false;
                 if (triangleIndex != MR_INVALID_INDEX &&
                     triangleIndex < renderUniforms.live.w) {
-                    const MRVisualTriangleGPUV2 triangle =
-                        triangles[triangleIndex];
-                    const MRVisualPrimitiveGPUV2 primitive =
-                        primitives[triangle.verticesAndPrimitive.w];
-                    const MRVisualInstanceGPUV2 visualInstance =
-                        visualInstances[primitive.geometry.w];
-                    uint4 identity = primitive.identity;
-                    if (visualInstance.identity.x != 0u) {
-                        identity.x = visualInstance.identity.x;
+                    if (unsegmentedDepth) {
+                        segmented = true;
+                    } else {
+                        const MRVisualTriangleGPUV2 triangle =
+                            triangles[triangleIndex];
+                        const MRVisualPrimitiveGPUV2 primitive =
+                            primitives[triangle.verticesAndPrimitive.w];
+                        const MRVisualInstanceGPUV2 visualInstance =
+                            visualInstances[primitive.geometry.w];
+                        uint4 identity = primitive.identity;
+                        if (visualInstance.identity.x != 0u) {
+                            identity.x = visualInstance.identity.x;
+                        }
+                        if (visualInstance.identity.y != 0u) {
+                            identity.y = visualInstance.identity.y;
+                        }
+                        if (visualInstance.identity.z != MR_INVALID_INDEX) {
+                            identity.z = visualInstance.identity.z;
+                        }
+                        segmented = maskedDepthAcceptedInstance(
+                            identity.y,
+                            acceptedInstances,
+                            uniforms.counts.w
+                        );
                     }
-                    if (visualInstance.identity.y != 0u) {
-                        identity.y = visualInstance.identity.y;
-                    }
-                    if (visualInstance.identity.z != MR_INVALID_INDEX) {
-                        identity.z = visualInstance.identity.z;
-                    }
-                    segmented = maskedDepthAcceptedInstance(
-                        identity.y,
-                        acceptedInstances,
-                        uniforms.counts.w
-                    );
                     const float geometricDepth =
                         as_type<float>(uint(winner >> 32u));
                     measured = geometricDepth;
@@ -403,11 +408,11 @@ kernel void mr_hybrid_masked_depth_history(
                 measuredDepths[pixel] = depth[source];
                 segmentedPixels[pixel] =
                     validity[source] != 0u &&
-                    maskedDepthAcceptedInstance(
+                    (unsegmentedDepth || maskedDepthAcceptedInstance(
                         identities[source].y,
                         acceptedInstances,
                         uniforms.counts.w
-                    )
+                    ))
                     ? uchar(1u)
                     : uchar(0u);
             }
@@ -419,11 +424,11 @@ kernel void mr_hybrid_masked_depth_history(
         const bool segmented = cacheSensorPlane
             ? segmentedPixels[pixel] != 0u
             : validity[source] != 0u &&
-                maskedDepthAcceptedInstance(
+                (unsegmentedDepth || maskedDepthAcceptedInstance(
                     identities[source].y,
                     acceptedInstances,
                     uniforms.counts.w
-                );
+                ));
         const bool accepted = segmented && !fullDropout &&
             maskedDepthRandom(
                 randomSeed,
@@ -490,11 +495,11 @@ kernel void mr_hybrid_masked_depth_history(
                     const bool neighborAccepted = cacheSensorPlane
                         ? segmentedPixels[neighbor] != 0u
                         : validity[neighborSource] != 0u &&
-                            maskedDepthAcceptedInstance(
+                            (unsegmentedDepth || maskedDepthAcceptedInstance(
                                 identities[neighborSource].y,
                                 acceptedInstances,
                                 uniforms.counts.w
-                            );
+                            ));
                     if (neighborAccepted &&
                         neighborMeasured > 0.0f &&
                         isfinite(neighborMeasured)) {

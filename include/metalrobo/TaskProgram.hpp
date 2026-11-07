@@ -391,6 +391,9 @@ struct TaskVisualProgram {
     // each sparse frame plus four temporal changes. Every value is reduced
     // from the corrupted masked-depth plane; this never exposes scene truth.
     bool includeDerivedFeatures = false;
+    // Opt in to a complete measured depth plane without simulator identities.
+    // False retains the historical instance-selected oracle observation.
+    bool useUnsegmentedDepth = false;
 };
 
 // Executable sensing owned by SensorPack. Task objectives may reference the

@@ -46,6 +46,8 @@ enum MRTaskProgramFlags : mr_u32 {
     // than unconditionally from episode time.
     MR_TASK_PROGRAM_INTERACTION_PHYSICS_GATED = 1u << 10u,
     MR_TASK_PROGRAM_INTERACTION_ALIGN_REFERENCE_YAW = 1u << 11u,
+    // Sensor plane uses measured depth/validity without instance selection.
+    MR_TASK_PROGRAM_UNSEGMENTED_DEPTH = 1u << 12u,
 };
 
 enum MRTaskInteractionFlags : mr_u32 {

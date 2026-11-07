@@ -7403,7 +7403,7 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
             config.cameraIndex >= layout.sensorBindingCount ||
             config.rootBodyIndex >= layout.bodyCount ||
             (config.bindings.empty() &&
-             config.maskedDepthInstanceIds.empty()) ||
+             config.maskedDepthInstanceIds.empty() && !config.useUnsegmentedDepth) ||
             !std::isfinite(config.timestepSeconds) ||
             !(config.timestepSeconds > 0.0f) ||
             !std::isfinite(config.nominalSensorRateHz) ||
@@ -7419,7 +7419,7 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
             );
         }
         const bool maskedDepth =
-            !config.maskedDepthInstanceIds.empty();
+            config.useUnsegmentedDepth || !config.maskedDepthInstanceIds.empty();
         const auto probability = [](const float value) {
             return std::isfinite(value) &&
                 value >= 0.0f && value <= 1.0f;
@@ -7555,7 +7555,7 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
                 config.maskedDepthInstanceIds.size() * sizeof(std::uint32_t),
                 kMinimumAllocationBytes
             ) options:MTLResourceStorageModeShared];
-        if (maskedDepth && maskedDepthInstances != nil) {
+        if (!config.maskedDepthInstanceIds.empty() && maskedDepthInstances != nil) {
             std::memcpy(
                 maskedDepthInstances.contents,
                 config.maskedDepthInstanceIds.data(),
@@ -7621,7 +7621,7 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
         state_->maskedDepthRenderUniforms = {};
         state_->directWinnerMaskedDepth =
             maskedDepth &&
-            config.bindings.empty() &&
+            state_->config.bindings.empty() &&
             renderer.state_->geometricCompositeEligible &&
             layout.gaussianCount == 0u &&
             static_cast<std::uint64_t>(layout.width) *
@@ -7739,6 +7739,7 @@ bool MetalHybridObjectTracker::encodeObservation(
         }
     }
     const bool maskedDepth =
+        state->config.useUnsegmentedDepth ||
         !state->config.maskedDepthInstanceIds.empty();
     const std::uint64_t maskedDepthValues =
         static_cast<std::uint64_t>(
@@ -7992,7 +7993,7 @@ bool MetalHybridObjectTracker::encodeObservation(
                 static_cast<float>(
                     state->config.maskedDepthFeatureCount
                 ),
-                0.0f,
+                state->config.useUnsegmentedDepth ? 1.0f : 0.0f,
             },
         };
         observationEncoder.label = @"MetalRobo masked depth history";
