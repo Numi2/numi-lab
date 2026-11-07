@@ -61,13 +61,20 @@ static_assert(std::endian::native==std::endian::little);
 }
 
 std::uint64_t finiteResourceProgramFingerprint(const MRFiniteResourceProgramGPU& program,
-    std::span<const MRFiniteResourcePatchGPU> patches,bool publishTaskState) {
+    std::span<const MRFiniteResourcePatchGPU> patches,bool publishTaskState,
+    const MRFiniteResourceAllocationGPU& allocation) {
     std::vector<std::byte> bytes;
     append(bytes,std::uint32_t(MR_FINITE_RESOURCE_ABI));append(bytes,program);
     append(bytes,std::uint32_t(publishTaskState));
     for (const auto& patch:patches) append(bytes,patch);
+    if (allocation.version) append(bytes,allocation);
     const auto hash=digest(bytes);std::uint64_t result=0;
     std::memcpy(&result,hash.data(),sizeof(result));return result;
+}
+// Preserve the existing exported C++ symbol and its exact legacy hash bytes.
+std::uint64_t finiteResourceProgramFingerprint(const MRFiniteResourceProgramGPU& program,
+    std::span<const MRFiniteResourcePatchGPU> patches,bool publishTaskState) {
+    return finiteResourceProgramFingerprint(program,patches,publishTaskState,{});
 }
 namespace detail {
 struct FiniteResourceRuntime : std::enable_shared_from_this<FiniteResourceRuntime> {
@@ -137,6 +144,8 @@ struct FiniteResourceRuntime : std::enable_shared_from_this<FiniteResourceRuntim
         [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:6];
         [encoder setBuffer:task offset:0 atIndex:7];
         [encoder setBuffer:resets offset:0 atIndex:8];
+        [encoder setBytes:&runtime.config.allocation length:sizeof(MRFiniteResourceAllocationGPU) atIndex:9];
+        [encoder setBytes:&runtime.config.allocationSeed length:sizeof(std::uint64_t) atIndex:10];
         const NSUInteger width=std::min<NSUInteger>(32,runtime.pipeline.maxTotalThreadsPerThreadgroup);
         [encoder dispatchThreads:MTLSizeMake(pass.environmentCount,1,1)
              threadsPerThreadgroup:MTLSizeMake(width,1,1)];
@@ -154,6 +163,11 @@ struct FiniteResourceRuntime : std::enable_shared_from_this<FiniteResourceRuntim
 FiniteResourceContext::FiniteResourceContext(FiniteResourceConfig config)
     : runtime_(std::make_shared<detail::FiniteResourceRuntime>()) {
     const auto& p=config.program;
+    const auto& allocation=config.allocation;
+    require((allocation.version==0u && allocation.activePatchCount==0u &&
+             allocation.availableAfterTicks==0u && allocation.concealProximity==0u && config.allocationSeed==0u) ||
+            (allocation.version==1u && allocation.activePatchCount<=p.binding.z && allocation.concealProximity<=1u),
+            "Invalid finite-resource allocation program");
     require(config.worldFingerprint!=0 && config.environmentCount>0 && config.environmentCount<=1048576u &&
             config.bodyCount>0 && config.nq>0 && p.binding.x<config.bodyCount && p.binding.y<config.nq &&
             p.binding.z>0 && p.binding.z<=MR_FINITE_RESOURCE_MAX_PATCHES &&
@@ -170,12 +184,13 @@ FiniteResourceContext::FiniteResourceContext(FiniteResourceConfig config)
     }
     require(total<=std::numeric_limits<std::uint32_t>::max(),"Resource accounting would overflow");
     std::vector<std::byte> identity;
-    runtime_->programFingerprint=finiteResourceProgramFingerprint(p,config.patches,config.publishTaskState);
+    runtime_->programFingerprint=finiteResourceProgramFingerprint(p,config.patches,config.publishTaskState,config.allocation);
     append(identity,std::uint32_t(MR_FINITE_RESOURCE_ABI));
     append(identity,config.worldFingerprint); append(identity,config.environmentCount);
     append(identity,config.bodyCount); append(identity,config.nq); append(identity,p);
     append(identity,std::uint32_t(config.publishTaskState));
     for (const auto& patch:config.patches) append(identity,patch);
+    if (allocation.version) { append(identity,allocation);append(identity,config.allocationSeed); }
     const auto hashed=digest(identity);
     std::memcpy(&runtime_->fingerprint,hashed.data(),sizeof(runtime_->fingerprint));
     require(runtime_->fingerprint!=0,"Invalid resource identity");
@@ -266,24 +281,28 @@ void FiniteResourceContext::restoreState(std::span<const std::byte> bytes) {
     std::vector<MRFiniteResourceStateGPU> states(runtime_->config.environmentCount);std::memcpy(states.data(),payload.data(),payload.size());restoreValidatedStates(states);
 }
 void FiniteResourceContext::restoreValidatedStates(std::span<const MRFiniteResourceStateGPU> states) {
-    std::uint64_t initial=0;
-    for (const auto& patch:runtime_->config.patches) initial+=patch.binding.y;
-    for (const auto& state:states) {
-        std::uint64_t remaining=0;
-        require(state.accounting.w<=1u && state.clock.z<=1u && state.clock.w==0u &&
+    for (unsigned environment=0;environment<states.size();++environment) {
+        const auto& state=states[environment];
+        const auto& c=runtime_->config;
+        const unsigned selected=c.allocation.version ? mrResourceAllocationMask(c.allocationSeed,
+            environment,c.program.binding.z,c.allocation.activePatchCount) : (1u<<c.program.binding.z)-1u;
+        const unsigned expectedMask=c.allocation.version ? selected : 0u;
+        std::uint64_t initial=0,remaining=0;
+        require(state.accounting.w<=1u && state.clock.z<=1u &&
+                (state.accounting.w==0u ? state.clock.w==0u : state.clock.w==expectedMask) &&
                 finite(state.jaw) && state.jaw.y==0 && state.jaw.z==0 && state.jaw.w==0,
-                "Invalid resource checkpoint state");
+                "Invalid resource checkpoint state or allocation mask");
         const auto* amounts=reinterpret_cast<const std::uint32_t*>(state.remaining);
         for (unsigned patch=0;patch<8;++patch) {
-            require(amounts[patch]<=(patch<runtime_->config.patches.size() ? runtime_->config.patches[patch].binding.y : 0u),
-                    "Invalid resource checkpoint inventory");
-            remaining+=amounts[patch];
+            const unsigned limit=patch<c.patches.size() && (selected & (1u<<patch)) ? c.patches[patch].binding.y : 0u;
+            require(amounts[patch]<=limit,"Invalid resource checkpoint inventory");
+            initial+=limit;remaining+=amounts[patch];
         }
         if (state.accounting.w==0u) {
             const MRFiniteResourceStateGPU zero{};
             require(std::memcmp(&state,&zero,sizeof(state))==0,"Uninitialized resource state contains history");
         } else require(remaining+state.accounting.x==initial && state.accounting.x==state.accounting.y &&
-                       state.accounting.x<=runtime_->config.program.binding.w && state.accounting.z<=state.accounting.y,
+                       state.accounting.x<=c.program.binding.w && state.accounting.z<=state.accounting.y,
                        "Resource checkpoint violates conservation");
     }
     std::lock_guard lock(runtime_->mutex);

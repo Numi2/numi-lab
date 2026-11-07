@@ -12,10 +12,17 @@ struct FiniteResourceConfig {
     bool publishTaskState=false;
     MRFiniteResourceProgramGPU program{};
     std::vector<MRFiniteResourcePatchGPU> patches;
+    MRFiniteResourceAllocationGPU allocation{};
+    // Runtime variation: excluded from the policy task-program fingerprint,
+    // included in exact resource/life identity and checkpoint validation.
+    std::uint64_t allocationSeed=0u;
 };
 [[nodiscard]] std::uint64_t finiteResourceProgramFingerprint(
     const MRFiniteResourceProgramGPU& program,std::span<const MRFiniteResourcePatchGPU> patches,
     bool publishTaskState);
+[[nodiscard]] std::uint64_t finiteResourceProgramFingerprint(
+    const MRFiniteResourceProgramGPU& program,std::span<const MRFiniteResourcePatchGPU> patches,
+    bool publishTaskState,const MRFiniteResourceAllocationGPU& allocation);
 [[nodiscard]] FiniteResourceConfig makeAmericanCrowFeedingResourceConfig(
     const CompiledRun& run,unsigned environments);
 namespace detail { struct FiniteResourceRuntime; }

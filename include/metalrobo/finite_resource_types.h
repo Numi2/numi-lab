@@ -4,6 +4,44 @@
 #define MR_FINITE_RESOURCE_ABI 3u
 #define MR_FINITE_RESOURCE_MAX_PATCHES 8u
 
+// Optional allocation v1. Zero means the original all-sites, immediate,
+// observable-proximity program. Nonzero selects exactly activePatchCount sites
+// once per native lifetime; ordinary episode resets never reroll/refill it.
+typedef struct MR_ALIGN16 MRFiniteResourceAllocationGPU {
+    mr_u32 version;
+    mr_u32 activePatchCount;
+    mr_u32 availableAfterTicks;
+    mr_u32 concealProximity;
+} MRFiniteResourceAllocationGPU;
+
+// SplitMix64 counter stream, with a resource-specific lane domain. Rejection
+// sampling avoids modulo bias; at most eight sites are selected once per life.
+inline mr_u64 mrResourceMix64(mr_u64 value) {
+    value += 0x9e3779b97f4a7c15ULL;
+    value = (value ^ (value >> 30u)) * 0xbf58476d1ce4e5b9ULL;
+    value = (value ^ (value >> 27u)) * 0x94d049bb133111ebULL;
+    return value ^ (value >> 31u);
+}
+inline mr_u32 mrResourceAllocationMask(mr_u64 seed, mr_u32 environment,
+                                     mr_u32 patches, mr_u32 active) {
+    mr_u32 selected = 0u, draw = 0u;
+    const mr_u64 key = seed ^ ((mr_u64(environment)+1u)*0xd2b74407b1ce6e93ULL)
+        ^ 0x666f6f6473697465ULL;
+    for (mr_u32 pick=0u; pick<active; ++pick) {
+        const mr_u32 bound = patches-pick;
+        const mr_u32 threshold = (mr_u32(0u)-bound)%bound;
+        mr_u32 bits;
+        do { bits = mr_u32(mrResourceMix64(key+mr_u64(draw++))); } while (bits<threshold);
+        mr_u32 rank=bits%bound;
+        for (mr_u32 patch=0u; patch<patches; ++patch) {
+            if (selected & (1u<<patch)) continue;
+            if (rank==0u) { selected |= 1u<<patch; break; }
+            --rank;
+        }
+    }
+    return selected;
+}
+
 // Integer micrograms of nutritional payload, not a bulk-food mechanics model.
 typedef struct MR_ALIGN16 MRFiniteResourcePatchGPU {
     // Accepted world body index, initial micrograms, bite micrograms, reserved.
@@ -25,7 +63,8 @@ typedef struct MR_ALIGN16 MRFiniteResourceStateGPU {
     mr_uint4 remaining[2];
     // Crop micrograms, total consumed micrograms, bite count, initialized.
     mr_uint4 accounting;
-    // Accepted control ticks low/high, open-jaw latch, reserved.
+    // Accepted control ticks low/high, open-jaw latch, allocation-v1 site mask.
+    // Legacy programs retain zero in the mask lane.
     mr_uint4 clock;
     // Previous accepted jaw angle; other lanes reserved.
     mr_float4 jaw;
@@ -41,6 +80,7 @@ typedef struct MR_ALIGN16 MRFiniteResourceDispatchGPU {
 } MRFiniteResourceDispatchGPU;
 
 #ifndef __METAL_VERSION__
+static_assert(sizeof(MRFiniteResourceAllocationGPU)==16u);
 static_assert(sizeof(MRFiniteResourcePatchGPU)==32u);
 static_assert(sizeof(MRFiniteResourceProgramGPU)==48u);
 static_assert(sizeof(MRFiniteResourceStateGPU)==80u);

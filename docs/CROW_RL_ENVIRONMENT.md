@@ -1219,3 +1219,73 @@ committed Git blobs; duplicate captures and archive checkout payloads are
 removed after push and verification. This is a configurable training-path
 admission. Architecture optimality, memory-dependent behavior, manipulation,
 social learning and production throughput remain unqualified.
+
+
+## Persistent randomized food sites and delayed access
+
+`FiniteResourceConfig` now accepts an optional `MRFiniteResourceAllocationGPU`
+descriptor and runtime `allocationSeed`. The default all-zero descriptor keeps
+the original all-sites, immediately available, observable-proximity behavior,
+legacy program hashes,80-byte state layout and exported three-argument C++
+fingerprint symbol. Version1 selects exactly `activePatchCount` sites from up
+to eight sites on the first accepted native tick. A counter-based integer
+stream with rejection sampling chooses without replacement on Metal; neither
+submission chunking nor episode resets enter that stream.
+
+`availableAfterTicks` forbids intake on the first specified number of accepted
+lifetime transitions. A close during that interval consumes the physical jaw
+edge; time passing while the jaw remains closed cannot manufacture a later
+bite. `concealProximity=1` keeps both nutrition proximity/stock-fraction channels
+exactly zero, leaving legitimate crop/intake feedback. Runtime seeds are
+excluded from the policy task-program fingerprint and included in the exact
+resource identity. Checkpoints validate each lane's expected selection mask,
+inactive-site zero stock and exact selected-stock conservation. Changed seeds,
+forged masks or stock shifted into an inactive site reject before mutation.
+Ordinary episode resets preserve selection, finite stock and the lifetime clock.
+
+The native `foraging-admission` owner now includes this mechanism. Its final
+instrument passed all nine448-tick physical controls on eight supported crow
+lanes plus separately labelled synthetic accepted-state calibration. One of two
+sites is stocked at seed2651109701; the central site is a positive intake control
+and the site0.25m away is a miss control. With a192-tick delay, the first two
+closing gestures consume nothing; the next two debit40,000ug in the five lanes
+with central food and zero in the other three. Food totals and clock survive
+reset; chunk8/64 resource states are byte exact. No native failures or physical
+terminations occurred in admitted trials.
+
+At the paired seed2651109702, five hidden layouts change. All192 pre-intake
+ticks of the97-feature actor stream remain byte exact across seeds:595,968bytes
+per stream, covering eight lanes. The selected-site masks for every active count
+0..8 over eight sites and eight lanes (72cases) match an independently authored
+Python integer reference, as do the eight primary two-site masks. Each case
+checks initial stock and resource-checkpoint restoration. Tests also cover zero
+stock, delay expiration without a new edge, rejected physics, five malformed
+programs, three forged/rebound checkpoints and64-bit lifetime clock carry.
+
+Failures remain evidence. The first crop-fraction assertion was too strict for
+FP32 division (0.1999999881 versus0.2); the existing1e-6 fraction bound now
+applies, while concealed channels must still equal zero exactly. Review found
+and removed a shadowed availability variable that suppressed legacy presence.
+A separate renamed TaskPack lost the compiler's name-derived avian-ground flag
+and failed with100 required contact constraints against capacity96. The revised
+instrument inherits the canonical feeding task support semantics, asserts its
+flags, and binds the resource variant through its state-program fingerprint.
+No contact capacity or physics tolerance was increased. Task-name-dependent
+physical flags remain a compiler limitation for future task authoring.
+
+The full build and29 focused Python tests pass. Existing native recurrent PPO,
+optimizer restore/next-update parity and feedforward initial/resume checkpoint
+hash regressions also pass. Source/runtime variants, failures, inputs and raw
+streams are archived under `artifacts/crow-rl-spatial-resources-20261107`, then
+verified duplicate captures are pruned.
+
+This admits a native resource mechanism, including resource-only restore. The
+second site has not been admitted as a reachable alternative, and no visible
+cue, learned search/recall, solid food handling or coupled spatial-life restore
+is claimed. The next environment change must bind reachable sites and an
+occluded visual cue through the existing native renderer before training or
+memory ablations can qualify. American-crow walnut caching and social threat
+learning motivate the broader research scope; the current tracer parameters
+are engineering estimates rather than measurements from those studies:
+[walnut caching](https://www.sciencedirect.com/science/article/pii/S0003347201917488),
+[social learning](https://faculty.washington.edu/wirsinga/Cornell2011.pdf).

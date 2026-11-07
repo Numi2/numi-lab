@@ -16,6 +16,8 @@ kernel void mr_finite_resource_commit(
     constant MRFiniteResourceDispatchGPU& dispatch [[buffer(6)]],
     device MRTaskStateGPU* taskStates [[buffer(7)]],
     device const uint* resetMasks [[buffer(8)]],
+    constant MRFiniteResourceAllocationGPU& allocation [[buffer(9)]],
+    constant ulong& allocationSeed [[buffer(10)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment>=dispatch.counts.x || dispatch.limits.y!=MR_FINITE_RESOURCE_ABI ||
@@ -35,8 +37,11 @@ kernel void mr_finite_resource_commit(
     MRFiniteResourceStateGPU state=states[environment];
     if (state.accounting.w==0u) {
         state={};
+        const uint selected=allocation.version ? mrResourceAllocationMask(allocationSeed,
+            environment,program.binding.z,allocation.activePatchCount) : (1u<<program.binding.z)-1u;
         for (uint patch=0;patch<program.binding.z;++patch)
-            state.remaining[patch/4u][patch%4u]=patches[patch].binding.y;
+            state.remaining[patch/4u][patch%4u]=(selected & (1u<<patch)) ? patches[patch].binding.y : 0u;
+        state.clock.w=allocation.version ? selected : 0u;
         state.accounting.w=1u;
         state.jaw.x=angle;
     }
@@ -45,11 +50,14 @@ kernel void mr_finite_resource_commit(
     uint consumed=0u;
     if (resetting) state.clock.z=0u;
     else if (angle>=program.opening.x) state.clock.z=1u;
+    // A close during the delay still consumes its physical edge. It cannot
+    // bank an open-jaw gesture and receive food automatically when time elapses.
+    const bool canConsume=!allocation.version || state.clock.y!=0u || state.clock.x>=allocation.availableAfterTicks;
     if (closingEdge) {
         // One accepted close consumes the edge even if the mouth misses food.
         // Overlapping volumes have a stable authored priority and one debit.
         state.clock.z=0u;
-        for (uint patch=0;patch<program.binding.z;++patch) {
+        for (uint patch=0;canConsume && patch<program.binding.z;++patch) {
             const MRFiniteResourcePatchGPU source=patches[patch];
             const MRBodyStateGPU body=bodies[bodyBase+source.binding.x];
             const float3 center=body.position.xyz+resourceRotate(body.orientation,source.centerRadius.xyz);
@@ -71,7 +79,7 @@ kernel void mr_finite_resource_commit(
     states[environment]=state;
     if (dispatch.limits.z!=0u) {
         float presence=0.0f, available=0.0f;
-        for (uint patch=0;patch<program.binding.z;++patch) {
+        for (uint patch=0;(!allocation.version || !allocation.concealProximity) && canConsume && patch<program.binding.z;++patch) {
             const MRFiniteResourcePatchGPU source=patches[patch];
             const MRBodyStateGPU body=bodies[bodyBase+source.binding.x];
             const float3 center=body.position.xyz+resourceRotate(body.orientation,source.centerRadius.xyz);
