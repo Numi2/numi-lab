@@ -604,6 +604,7 @@ inline float cleanObservation(
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
     device const float* previousAction,
+    device const float* actionHistoryBase,
     device const float* previousPolicyAction,
     device const float* previousJointPosition,
     device const float* compactContact,
@@ -665,12 +666,19 @@ inline float cleanObservation(
     case MR_TASK_OBSERVE_PREVIOUS_POLICY_ACTION:
         value = previousPolicyAction[operation.source.y];
         break;
-    case MR_TASK_OBSERVE_DELAYED_ACTION:
-        value = previousAction[
-            operation.source.y -
-            operation.source.z * program.counts0.x
-        ];
+    case MR_TASK_OBSERVE_DELAYED_ACTION: {
+        // The previous-action pointer may address different slots in reset,
+        // current and post-step calls. Index delayed history from the owning
+        // environment's base, avoiding unsigned negative pointer offsets.
+        const uint rawLastSlot = program.layout.w - 2u;
+        value = operation.source.z <= rawLastSlot
+            ? actionHistoryBase[
+                (rawLastSlot - operation.source.z) * program.counts0.x +
+                operation.source.y
+            ]
+            : 0.0f;
         break;
+    }
     case MR_TASK_OBSERVE_INTERACTION_JOINT_POSITION_ERROR: {
         const uint frame = interactionFrame(
             program,
@@ -1203,6 +1211,7 @@ inline void writeFrame(
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
     device const float* previousAction,
+    device const float* actionHistoryBase,
     device const float* previousPolicyAction,
     device const float* previousJointPosition,
     device const float* sensorBias,
@@ -1244,6 +1253,7 @@ inline void writeFrame(
             defaultQ,
             state,
             previousAction,
+            actionHistoryBase,
             previousPolicyAction,
             previousJointPosition,
             compactContact,
@@ -1294,6 +1304,7 @@ inline void writeFrame(
             defaultQ,
             state,
             previousAction,
+            actionHistoryBase,
             previousPolicyAction,
             previousJointPosition,
             compactContact,
@@ -1346,6 +1357,7 @@ inline void writeCurrentActor(
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
     device const float* previousAction,
+    device const float* actionHistoryBase,
     device const float* previousPolicyAction,
     device const float* previousJointPosition,
     device const float* sensorBias,
@@ -1374,6 +1386,7 @@ inline void writeCurrentActor(
             defaultQ,
             state,
             previousAction,
+            actionHistoryBase,
             previousPolicyAction,
             previousJointPosition,
             compactContact,
@@ -1413,6 +1426,7 @@ inline void writeCriticFrame(
     device const float* defaultQ,
     thread const MRTaskStateGPU& state,
     device const float* previousAction,
+    device const float* actionHistoryBase,
     device const float* previousPolicyAction,
     device const float* previousJointPosition,
     device const float* compactContact,
@@ -1442,6 +1456,7 @@ inline void writeCriticFrame(
             defaultQ,
             state,
             previousAction,
+            actionHistoryBase,
             previousPolicyAction,
             previousJointPosition,
             compactContact,
@@ -3086,6 +3101,7 @@ kernel void mr_locomotion_task_observe(
             defaultQ,
             state,
             actionHistory + delayBase,
+            actionHistory + delayBase,
             rawPolicyActions + environment * program.counts0.x,
             previousJointVelocity + previousVelocityBase + program.counts0.x,
             sensorBias + biasBase,
@@ -3131,6 +3147,7 @@ kernel void mr_locomotion_task_observe(
             resetV + vBase,
             defaultQ,
             state,
+            actionHistory + delayBase,
             actionHistory + delayBase,
             rawPolicyActions + environment * program.counts0.x,
             previousJointVelocity + previousVelocityBase + program.counts0.x,
@@ -3383,6 +3400,7 @@ kernel void mr_locomotion_task_observe(
         observationV,
         defaultQ,
         state,
+        actionHistory + delayBase,
         actionHistory + delayBase,
         rawPolicyActions + environment * program.counts0.x,
         previousJointVelocity + previousVelocityBase + program.counts0.x,
@@ -6563,6 +6581,7 @@ kernel void mr_locomotion_task_complete(
             state,
             actionHistory + delayBase +
                 (program.layout.w - 2u) * program.counts0.x,
+            actionHistory + delayBase,
             rawPolicyActions + environment * program.counts0.x,
             previousJointVelocity + previousVelocityBase + program.counts0.x,
             sensorBias + biasBase,
@@ -6630,6 +6649,7 @@ kernel void mr_locomotion_task_complete(
             defaultQ,
             state,
             currentAction,
+            actionHistory + delayBase,
             rawPolicyActions + environment * program.counts0.x,
             previousJointVelocity + previousVelocityBase + program.counts0.x,
             compactContact + compactBase,
@@ -6691,6 +6711,7 @@ kernel void mr_locomotion_task_complete(
             state,
             actionHistory + delayBase +
                 (program.layout.w - 2u) * program.counts0.x,
+            actionHistory + delayBase,
             rawPolicyActions + environment * program.counts0.x,
             previousJointVelocity + previousVelocityBase + program.counts0.x,
             sensorBias + biasBase,

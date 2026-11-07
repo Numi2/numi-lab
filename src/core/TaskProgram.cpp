@@ -4519,6 +4519,17 @@ TaskCompileDiagnostics compileTaskProgram(
     if (observations.visual.useUnsegmentedDepth) {
         observationHash.scalar(std::uint32_t(MR_TASK_PROGRAM_UNSEGMENTED_DEPTH));
     }
+    // Delayed-action observations now use their owning environment's actual
+    // history slot. Existing PolicyPacks may have been trained against the
+    // former unsigned-index behavior and must not silently load under the
+    // corrected observation semantics.
+    const auto readsDelayedAction = [](const MRTaskObservationOperatorGPU& op) {
+        return op.source.x == MR_TASK_OBSERVE_DELAYED_ACTION;
+    };
+    if (std::ranges::any_of(staged->actorOperators, readsDelayedAction) ||
+        std::ranges::any_of(staged->criticOperators, readsDelayedAction)) {
+        observationHash.scalar(std::uint32_t{0x444c4101u});
+    }
     staged->observationFingerprint = observationHash.finish();
 
     Hash hash;
