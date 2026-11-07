@@ -11,7 +11,7 @@ import sys
 def parse(line, expected_steps, expected_seed):
     fields = dict(part.split("=", 1) for part in shlex.split(line) if "=" in part)
     ints = ("seed", "requested_steps", "attempted_steps", "accepted_env_steps",
-            "failed_env_steps", "first_gpu_status", "completed")
+            "failed_env_steps", "terminal_events", "timeout_events", "first_gpu_status", "completed")
     nums = ("wall_ms", "call_sum_ms", "latency_p50_ms", "latency_p95_ms",
             "latency_max_ms", "accepted_simulated_s_per_wall_s")
     if any(k not in fields for k in (*ints, *nums, "device", "policy")):

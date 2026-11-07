@@ -14,6 +14,11 @@ mock = next(ast.literal_eval(node.value) for node in tree.body
             any(isinstance(target, ast.Name) and target.id == "mock" for target in node.targets))
 mock = mock.replace("calls==2", "calls==21")
 mock = mock.replace("a->successful_environment_steps=2;", "a->successful_environment_steps=0;")
+mock = mock.replace('transitions.assign(steps*envs,{}); for (auto& t:transitions) t.reward=1;',
+                    'transitions.assign(steps*envs,{}); for (auto& t:transitions) t.reward=1;'
+                    ' if (calls==21 && !std::strcmp(mode(),"event")) {'
+                    'transitions[0].done=1; transitions[0].timeout=1; a->first_gpu_status_code=42;}')
+
 with tempfile.TemporaryDirectory() as temp:
     temp = Path(temp)
     (temp / "mock.cpp").write_text(mock)
@@ -30,6 +35,11 @@ with tempfile.TemporaryDirectory() as temp:
     fields = dict(part.split("=", 1) for part in shlex.split(ok.stdout))
     assert fields["completed"] == "1" and fields["accepted_env_steps"] == "3"
     assert fields["attempted_steps"] == "3" and float(fields["wall_ms"]) >= float(fields["call_sum_ms"])
+    event = run("event")
+    assert event.returncode == 0
+    event_fields = dict(part.split("=", 1) for part in shlex.split(event.stdout))
+    assert event_fields["terminal_events"] == "1" and event_fields["timeout_events"] == "1"
+    assert event_fields["first_gpu_status"] == "42"
     assert 0 < float(fields["latency_p50_ms"]) <= float(fields["latency_p95_ms"]) <= float(fields["latency_max_ms"])
     expected = 3 * (1.0 / 60.0) * 1000.0 / float(fields["wall_ms"])
     assert abs(float(fields["accepted_simulated_s_per_wall_s"]) / expected - 1) < 0.002

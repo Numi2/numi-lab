@@ -110,7 +110,7 @@ int main(int argc, char** argv) {
         const auto warmupEnd = std::chrono::steady_clock::now();
         std::vector<double> latencies;
         latencies.reserve(config.steps);
-        std::uint64_t accepted = 0, failed = 0;
+        std::uint64_t accepted = 0, failed = 0, terminalCount = 0, timeoutCount = 0;
         double gpuMs = 0.0, submissionMs = 0.0, measuredMs = 0.0;
         std::uint32_t status = 0;
         std::string failure;
@@ -130,7 +130,8 @@ int main(int argc, char** argv) {
             failed += advance.failed_environment_steps;
             gpuMs += advance.gpu_milliseconds;
             submissionMs += advance.submission_milliseconds;
-            status = advance.first_gpu_status_code;
+            if (status == 0u && advance.first_gpu_status_code != 0u)
+                status = advance.first_gpu_status_code;
             if (rc != 0 || advance.successful_environment_steps != 1u ||
                 advance.failed_environment_steps != 0u) {
                 failure = rc != 0 ? error : "incomplete or rejected step";
@@ -141,6 +142,8 @@ int main(int argc, char** argv) {
                 failure = "invalid published transition";
                 break;
             }
+            terminalCount += transition->done != 0u;
+            timeoutCount += transition->timeout != 0u;
         }
         const auto seriesEnd = std::chrono::steady_clock::now();
         const double wallMs = milliseconds(seriesEnd - seriesStart);
@@ -154,7 +157,8 @@ int main(int argc, char** argv) {
                   << " robot_fingerprint=" << layout.robot_fingerprint
                   << " policy=host_sinusoidal requested_steps=" << config.steps
                   << " attempted_steps=" << latencies.size() << " accepted_env_steps=" << accepted
-                  << " failed_env_steps=" << failed << " first_gpu_status=" << status << " completed=" << (complete ? 1 : 0)
+                  << " failed_env_steps=" << failed << " terminal_events=" << terminalCount
+                  << " timeout_events=" << timeoutCount << " first_gpu_status=" << status << " completed=" << (complete ? 1 : 0)
                   << " initialization_ms=" << milliseconds(initEnd - initStart)
                   << " warmup_ms=" << milliseconds(warmupEnd - warmupStart)
                   << " wall_ms=" << wallMs << " call_sum_ms=" << measuredMs << " gpu_ms=" << gpuMs

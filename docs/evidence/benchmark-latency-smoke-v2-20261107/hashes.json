@@ -1,0 +1,7 @@
+{
+  "/Users/numi/numi-lab-benchmark-accounting-20261107/apps/benchmark_latency.cpp": "2aec9df3ea493e8492574c9f6a679662f06134dbe34953df6ccca1d50577a5c5",
+  "/Users/numi/numi-lab-benchmark-accounting-20261107/tools/latency_science_adapter.py": "45168f323d0a7014e67701d4154620f07a1a7de4781f8f3ae9bd511f031767bb",
+  "/Users/numi/numi-lab-benchmark-release-build-20261107/bin/metalrobo_latency": "3343bb88b3934f5e511496aa2128902ac68f8270c08f7edbf140bbdfe1acae99",
+  "/Users/numi/numi-lab-benchmark-release-build-20261107/lib/libmetalrobo.dylib": "29d3cabb09afc762ebea5ace49f1a09aa704da44846b93f422b545040bd06ca7",
+  "/Users/numi/numi-lab-benchmark-release-build-20261107/shaders/MetalRobo.metallib": "8f9137278d52ff4a083dbc0c84ad541c25db91e8c50d5e7b3f70962cb23b69fa"
+}

@@ -1,0 +1,9 @@
+{
+  "payload": {
+    "reason": "Unstarted plan retired before execution: latency instrument did not record task termination or preserve the first nonzero status across calls.",
+    "receipts": {},
+    "registration_sha256": "f1909dac8b9f9facb8a07c9724083c979d4caf9aaf212d8e50188152a5153a9a",
+    "stopped_at": "2026-11-07T22:40:36.056851+00:00"
+  },
+  "sha256": "f23b5fb5b8e5993a7adfe13905a9b4cfc86fbc61f62683ac3c762d1df3aa49f7"
+}

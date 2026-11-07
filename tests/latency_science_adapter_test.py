@@ -6,7 +6,7 @@ root = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location("adapter", root / "tools/latency_science_adapter.py")
 adapter = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(adapter)
-line = (root / "docs/evidence/benchmark-accounting-20261107/warmup-smoke/latency.log").read_text().strip()
+line = (root / "docs/evidence/benchmark-accounting-20261107/warmup-smoke/latency.log").read_text().strip() + " terminal_events=0 timeout_events=0"
 assert adapter.parse(line, 5, 7)["valid"]
 assert not adapter.parse(line.replace("accepted_env_steps=5", "accepted_env_steps=4"), 5, 7)["valid"]
 assert not adapter.parse(line.replace("first_gpu_status=0", "first_gpu_status=10"), 5, 7)["valid"]
