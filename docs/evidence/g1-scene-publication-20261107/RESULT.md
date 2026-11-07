@@ -1,0 +1,7 @@
+# Result: target pose and scheduled-velocity limitation
+
+The process ran 2026-11-07 23:02:36.019391–23:02:36.312954 UTC. Full scene-state publication succeeded. On the first accepted step the target center in each environment was (0.08, 0, 3.49755), while the camera was near (0.078, 0, 1.479) in environment 0 and (0.061, 0, 1.471) in environment 1 with identity orientation. Every tracker confidence remained zero. This establishes actual initial placement but not why the object failed raster visibility; the approximately 2 m distance and low 16 by 9 resolution may be relevant but are hypotheses.
+
+The five intended converging sphere centers were initially at the authored ring coordinates, but their published first-step horizontal velocities were zero, not the injected inward 5 m/s. The authored task has scheduled impact-event logic that sets inactive projectile velocity to zero before launch; this explains why the design did not establish independent convergence. Both arms reported raw contact requirements 0, 0, 8 and no failure. The published scene rows repeated exactly across all three submissions despite nonzero vertical velocity, so do not infer later motion from them without independently verifying resident final-state publication; the initial post-step values and raw rows are retained.
+
+There was no rejected step or visible tracked target. This is a setup diagnosis, not a sensor transaction result. Production automatic-reset and publication behavior were unchanged.
