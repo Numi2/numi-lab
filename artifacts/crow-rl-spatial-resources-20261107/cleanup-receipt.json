@@ -1,0 +1,27 @@
+{
+  "archive_commit": "703d1adc52553c435c0d8a18051d1e9e564ad8f8",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 297539288 159809852    66% 3496317 1598098520    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 297654068 159695072    66% 3496666 1596950720    0%   /System/Volumes/Data\n",
+  "manifest": "artifacts/crow-rl-spatial-resources-20261107/manifest.json",
+  "manifest_sha256": "04d0c5edfd1aa25d6b7c2d8b403a09a982bd2f9ee923bf3b09ddf66ebbe7de70",
+  "open_handle_checks": [
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/runs/american-crow"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/retained-runtime"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": "build"
+    }
+  ],
+  "remote_commit": "703d1adc52553c435c0d8a18051d1e9e564ad8f8",
+  "removed_files": 294,
+  "removed_logical_bytes": 116677909
+}
