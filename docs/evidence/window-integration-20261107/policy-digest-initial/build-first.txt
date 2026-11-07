@@ -1,0 +1,1 @@
+Initial compile rejected MetalWorldBatch designated fields out of declaration order; fixed initializer order. No native probe ran.

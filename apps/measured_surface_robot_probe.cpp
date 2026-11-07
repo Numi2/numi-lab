@@ -1742,6 +1742,90 @@ bool proveExternalPolicyDigestFailsClosed(const metalrobo::CompiledRun& run,
         diagnostic.message.find(expected) != std::string::npos;
 }
 
+// Check owners present on initialization, including observation with a native
+// compiled policy and no device-action callback (an admitted API combination).
+bool proveInitialPolicyDigestFailsClosed(const metalrobo::CompiledRun& run,
+                                         const bool observationOnly) {
+    using namespace metalrobo;
+    const auto& layout = run.task().layout();
+    const std::size_t environments = run.profile().environmentCount;
+    const std::size_t steps = run.profile().controlSteps;
+    const std::size_t nq = run.world().nq(), nv = run.world().nv();
+    std::vector<float> q(environments * nq), v(environments * nv, 0.0f);
+    std::vector<std::uint32_t> masks(environments * steps, 0u);
+    for (std::size_t e = 0; e < environments; ++e)
+        std::copy(run.model().defaultQ.begin(), run.model().defaultQ.end(), q.begin()+e*nq);
+    const MetalWorldBatch initial{
+        .environmentCount = environments, .controlStepCount = steps,
+        .initialQ = q, .initialV = v, .policyRevision = 1u,
+        .resetMasks = masks, .initialSceneBodies = run.defaultSceneBodies(),
+    };
+    struct Owner { std::uint64_t state = 11u; } owner;
+    MetalWorldStepConfig config{
+        .timestepSeconds = run.profile().controlTimestepSeconds,
+        .physicsSubsteps = run.profile().physicsSubsteps,
+        .solverMode = MetalWorldSolverMode::temporalCone,
+        .actuationMode = MetalWorldActuationMode::implicitPositionDrive,
+        .taskProgram = run.task(), .taskSeed = run.profile().seed,
+        .velocityIterations = run.profile().velocityIterations,
+        .finalVelocityIterations = run.profile().finalVelocityIterations,
+        .ccdMode = MetalWorldCCDMode::disabled, .applyBodyDamping = false,
+        .deterministic = true, .warmStart = false,
+    };
+    if (observationOnly) {
+        PolicyPack pack;
+        pack.id = "synthetic-zero-owner-probe";
+        pack.revision = 1u;
+        pack.layers = {{
+            .inputCount = layout.actorObservationSize,
+            .outputCount = layout.actionCount,
+            .activation = PolicyActivation::identity,
+            .weights = std::vector<float>(
+                static_cast<std::size_t>(layout.actorObservationSize) * layout.actionCount, 0.0f),
+            .bias = std::vector<float>(layout.actionCount, 0.0f),
+        }};
+        bindPolicyPack(pack, run.task());
+        auto compiled = compilePolicyProgram(pack, run.task(), config.policyProgram);
+        if (!compiled.succeeded()) {
+            std::cerr << "synthetic policy compile: " << compiled.message << '\n'; return false;
+        }
+        config.deviceObservationProgram = {
+            .context = &owner,
+            .encode = [](void*, const MetalWorldDeviceObservationPass&) { return true; },
+        };
+    } else {
+        config.deviceActionProgram = {
+            .context = &owner, .encode = measuredSurfaceProbeZeroAction,
+            .policyRevision = 1u, .taskFingerprint = run.task().fingerprint(),
+            .actionCount = layout.actionCount,
+        };
+    }
+    MetalWorldContext context;
+    MetalWorldResidentState resident;
+    MetalWorldSubmission submission;
+    auto diagnostic = context.initializeResidentState(run.world(), initial, config, resident, submission);
+    if (!diagnostic.succeeded() || !submission.valid()) {
+        std::cerr << "initial callback submit: " << diagnostic.message << '\n'; return false;
+    }
+    std::uint64_t digest = 999u;
+    diagnostic = context.residentStateFingerprint(resident, digest);
+    if (diagnostic.succeeded() || digest != 0u) return false;
+    MetalWorldResult result;
+    diagnostic = submission.wait(result);
+    if (!diagnostic.succeeded() || diagnostic.failedStepCount != 0u) {
+        std::cerr << "initial callback completion: " << diagnostic.message << '\n'; return false;
+    }
+    owner.state = 29u;
+    digest = 999u;
+    diagnostic = context.residentStateFingerprint(resident, digest);
+    const char* expected = observationOnly ? "external observation state" : "external action state";
+    std::cout << "initial " << (observationOnly ? "observation-only" : "action-only")
+              << " digest: " << metalWorldHostStatusName(diagnostic.status)
+              << " value=" << digest << " pending_rejected=1\n";
+    return diagnostic.status == MetalWorldHostStatus::invalidModel && digest == 0u &&
+        diagnostic.message.find(expected) != std::string::npos;
+}
+
 bool proveResidentMechanicsOwnership(const metalrobo::CompiledRun& run) {
     using namespace metalrobo;
     const std::size_t environments = run.profile().environmentCount;
@@ -1895,6 +1979,12 @@ int main(int argc, char** argv) {
             const auto run = compileNumiflyFlightRun(std::move(wings), 1u, 2u);
             return proveExternalPolicyDigestFailsClosed(run, false) &&
                    proveExternalPolicyDigestFailsClosed(run, true) ? 0 : 1;
+        }
+        if (argc == 3 && std::string_view(argv[1]) == "--policy-digest-initial") {
+            auto wings = loadNumiflyMaedaWingPack(argv[2]);
+            const auto run = compileNumiflyFlightRun(std::move(wings), 1u, 2u);
+            return proveInitialPolicyDigestFailsClosed(run, false) &&
+                   proveInitialPolicyDigestFailsClosed(run, true) ? 0 : 1;
         }
         if (argc == 3 && std::string_view(argv[1]) == "--ownership") {
             auto wings = loadNumiflyMaedaWingPack(argv[2]);
