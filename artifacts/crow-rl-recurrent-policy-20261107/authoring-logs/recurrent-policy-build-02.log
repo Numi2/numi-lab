@@ -1,0 +1,16 @@
+[1/16] Linking CXX executable bin/metalrobo_robot_catalog
+[2/16] Linking CXX executable bin/metalrobo_run_program_check
+[3/16] Linking CXX executable bin/metalrobo_crow_embodiment_check
+[4/16] Linking OBJCXX executable bin/metalrobo_crow_retinal_live_check
+[5/16] Linking CXX executable bin/metalrobo_crow_retinal_contract_check
+[6/16] Linking OBJCXX executable bin/metalrobo_gru_memory_check
+[7/16] Linking OBJCXX executable bin/metalrobo_retinal_stream_check
+[8/16] Linking OBJCXX executable bin/metalrobo_crow_eye_check
+[9/16] Building OBJCXX object CMakeFiles/metalrobo_crow_retinal_api_check.dir/apps/crow_retinal_api_check.mm.o
+[10/16] Building OBJCXX object CMakeFiles/metalrobo_crow_foraging_check.dir/apps/crow_foraging_check.mm.o
+[11/16] Linking OBJCXX executable bin/metalrobo_crow_retinal_api_check
+[12/16] Linking OBJCXX executable bin/metalrobo_crow_foraging_check
+[13/16] Building OBJCXX object CMakeFiles/metalrobo_crow_life_checkpoint_check.dir/apps/crow_life_checkpoint_check.mm.o
+[14/16] Linking OBJCXX executable bin/metalrobo_crow_life_checkpoint_check
+[15/16] Building CXX object CMakeFiles/metalrobo_task_program_check.dir/apps/task_program_check.cpp.o
+[16/16] Linking CXX executable bin/metalrobo_task_program_check

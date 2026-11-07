@@ -1,0 +1,43 @@
+Test project /Users/n/Developer/numi-crow-rl-20261107/build
+      Start  1: metalrobo.crow.first_episode_evidence
+ 1/14 Test  #1: metalrobo.crow.first_episode_evidence ...   Passed    0.00 sec
+      Start 33: metalrobo.runtime.task_program
+ 2/14 Test #33: metalrobo.runtime.task_program ..........   Passed    3.32 sec
+      Start 34: metalrobo.runtime.run_program
+ 3/14 Test #34: metalrobo.runtime.run_program ...........   Passed    0.31 sec
+      Start 35: metalrobo.runtime.robot_catalog
+ 4/14 Test #35: metalrobo.runtime.robot_catalog .........   Passed    0.27 sec
+      Start 36: metalrobo.crow.embodiment
+ 5/14 Test #36: metalrobo.crow.embodiment ...............   Passed    0.30 sec
+      Start 37: metalrobo.crow.finite_resource
+ 6/14 Test #37: metalrobo.crow.finite_resource ..........   Passed   13.38 sec
+      Start 38: metalrobo.crow.head_camera
+ 7/14 Test #38: metalrobo.crow.head_camera ..............   Passed    4.51 sec
+      Start 39: metalrobo.crow.retinal_timing
+ 8/14 Test #39: metalrobo.crow.retinal_timing ...........   Passed    0.40 sec
+      Start 40: metalrobo.crow.life_checkpoint
+ 9/14 Test #40: metalrobo.crow.life_checkpoint ..........   Passed    3.13 sec
+      Start 41: metalrobo.crow.recurrent_actor
+10/14 Test #41: metalrobo.crow.recurrent_actor ..........   Passed    1.01 sec
+      Start 42: metalrobo.learning.gru_memory
+11/14 Test #42: metalrobo.learning.gru_memory ...........   Passed    0.53 sec
+      Start 43: metalrobo.crow.retinal_api
+12/14 Test #43: metalrobo.crow.retinal_api ..............   Passed    1.85 sec
+      Start 44: metalrobo.crow.retinal_live
+13/14 Test #44: metalrobo.crow.retinal_live .............   Passed    2.17 sec
+      Start 45: metalrobo.crow.retinal_contract
+14/14 Test #45: metalrobo.crow.retinal_contract .........   Passed    0.35 sec
+
+100% tests passed out of 14
+
+Label Time Summary:
+crow           =  26.79 sec*proc (8 tests)
+learning       =   0.53 sec*proc (1 test)
+memory         =   1.54 sec*proc (2 tests)
+metalrobo      =  31.22 sec*proc (12 tests)
+native         =  27.32 sec*proc (9 tests)
+persistence    =   4.14 sec*proc (2 tests)
+runtime        =   3.90 sec*proc (3 tests)
+visual         =   9.27 sec*proc (5 tests)
+
+Total Test time (real) =  31.53 sec

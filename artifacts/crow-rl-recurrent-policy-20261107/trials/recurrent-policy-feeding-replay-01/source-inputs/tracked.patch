@@ -1,0 +1,500 @@
+diff --git a/docs/CROW_RL_ENVIRONMENT.md b/docs/CROW_RL_ENVIRONMENT.md
+index 61dffc2a..e95c89ee 100644
+--- a/docs/CROW_RL_ENVIRONMENT.md
++++ b/docs/CROW_RL_ENVIRONMENT.md
+@@ -974,10 +974,55 @@ checkpoint payloads and regressions are in
+ `artifacts/crow-rl-recurrent-actor-20261107`.
+ 
+ This admits native execution and persistence, not learned embodied memory.
+-The existing learner cannot yet consume recurrent PolicyPack5/sequence records;
++Python can now read and publish PolicyPack5 parameters (below), but training
++cannot yet consume recurrent sequence records;
+ legacy rollout7 publication explicitly rejects recurrent actors. Next work must
+ version the hidden/reset rollout contract, implement contiguous sequence PPO
+ with detached captured initial state and episode gradient cuts, and qualify
+ coupled recurrent training resume. Causal memory tasks, solid-food manipulation,
+ social learning, physiology, production throughput and ecological evaluation
+ remain open. No qualification seeds are used or policy promoted here.
++
++
++## Recurrent policy parameter interface
++
++The additive `mr_write_recurrent_policy_pack` C function accepts the existing
++unchanged `MRPolicyPackC` and a separate ABI1 `MRPolicyGRUMemoryC` descriptor.
++It validates descriptor version/size, dimensions, tensor counts/pointers and
++canonical GRU parameters before atomic PolicyPack5 publication. The legacy dense
++writer and its C structure remain unchanged. Python `write_policy_pack` accepts
++an optional `PolicyGRUMemoryArtifact`; dense clients bind only the old symbol,
++preserving compatibility with earlier libraries.
++
++`read_policy_pack` now validates recurrent descriptor dimensions, the exact
++encoder/GRU/head boundary, all other dense adjacency, finite tensors and GRU
++FP32 accumulator bounds. The NumPy flat actor evaluator and all three existing
++feedforward learner/initialization/projection entry points explicitly reject
++recurrent artifacts. They cannot silently omit memory. A future sequence learner
++must accept captured initial state and contiguous time/reset masks explicitly.
++
++```
++tools/numi crow-env recurrent-policy-admission --output NEW_POLICY_INTERFACE_TRIAL
++```
++
++This admission reruns the real native actor/life test and independently retained
++runtime continuation. It then reads the first and next native recurrent policies
++and the dense control through Python and republishes all three through the
++canonical C writers. Every policy byte matches. MLX evaluates both contiguous
++weight segments on all80 real native observation slots, using the captured
++segment-start hidden state and reset masks; actions and pre-cell states match
++within1.491e-8 against the declared5e-6 bound. This is forward sequence algebra,
++not PPO, a synthetic crow simulation or learned behavior.
++
++17 controls reject four flat evaluator/learner uses, three invalid writer
++inputs, three raw C descriptor ABI/size/dimension errors and seven correctly
++re-signed semantic PolicyPack corruptions. A second process using retained
++native/Python source reproduces its summary, every sequence array and all three
++canonical policy files exactly. Matching installed Python/MLX/NumPy remain
++required. Evidence and recovery receipts are in
++`artifacts/crow-rl-recurrent-policy-20261107`.
++
++Recurrent rollout publication, contiguous sequence minibatches and PPO/BPTT,
++recurrent optimizer checkpoint/resume and causal embodied memory qualification
++remain required. Current native rollout7 publication still rejects recurrent
++actors. This interface does not change that boundary.
+diff --git a/include/metalrobo/c_api.h b/include/metalrobo/c_api.h
+index c6c92107..375064bd 100644
+--- a/include/metalrobo/c_api.h
++++ b/include/metalrobo/c_api.h
+@@ -437,6 +437,24 @@ typedef struct MRPolicyPackC {
+     float action_clip;
+ } MRPolicyPackC;
+ 
++// Additive ABI1 descriptor: MRPolicyPackC and legacy writer remain unchanged.
++typedef struct MRPolicyGRUMemoryC {
++    uint32_t abi_version;
++    uint32_t struct_size;
++    uint32_t after_layer;
++    uint32_t input_count;
++    uint32_t hidden_count;
++    float maximum_absolute_input;
++    const float* input_weights;
++    size_t input_weight_count;
++    const float* recurrent_weights;
++    size_t recurrent_weight_count;
++    const float* input_bias;
++    size_t input_bias_count;
++    const float* recurrent_bias;
++    size_t recurrent_bias_count;
++} MRPolicyGRUMemoryC;
++
+ typedef struct MRPolicyRolloutBatchC {
+     uint32_t control_step_count;
+     const float* actor_observations;
+@@ -631,6 +649,13 @@ MR_API int mr_write_policy_pack(
+     const MRPolicyPackC* policy,
+     const char* policy_pack_path
+ );
++// Requires a nonnull ABI1 memory descriptor; writes PolicyPack5.
++MR_API int mr_write_recurrent_policy_pack(
++    const MRPolicyPackC* policy,
++    const MRPolicyGRUMemoryC* memory,
++    const char* policy_pack_path
++);
++
+ // Hashes one already-mapped learning-pack payload with the exact native wire
+ // algorithm. Null is valid only when byte_count is zero.
+ MR_API uint64_t mr_learning_pack_content_hash(
+diff --git a/profiles/american-crow-rl-v1.json b/profiles/american-crow-rl-v1.json
+index af639dcb..854b925b 100644
+--- a/profiles/american-crow-rl-v1.json
++++ b/profiles/american-crow-rl-v1.json
+@@ -80,7 +80,7 @@
+     "weather_and_seasonal_ecology": "pending",
+     "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-partition-and-pending-frame-fresh-process-restore-controls-passed-including-live-head-renderer",
+     "retinal_actor_contract": "native-v13-1251-actor-97-critic-18-actions; live-pixel-controls-and-C-API-Swift-MLX-update-learner-restore-passed-at16-64-128; visual-learning-and-production-performance-qualification-pending",
+-    "native_working_memory": "native-PolicyPack-v5-encoder-GRU-head-actor-and-full-v13-life-state-admitted; exact-chunk-preview-reset-weight-publication-fresh-process-replay; recurrent-rollout-sequence-PPO-and-behavioral-qualification-pending"
++    "native_working_memory": "native-PolicyPack5-encoder-GRU-head-actor-life-state-and-canonical-Python-policy-interface-admitted; exact-native-replay-and-MLX-sequence-parity; recurrent-rollout-contiguous-PPO-and-behavioral-qualification-pending"
+   },
+   "release_requirements": [
+     "deterministic accepted-state execution across submission chunks",
+@@ -275,5 +275,24 @@
+     "legacy_dense_policy_v4_bytes_preserved": true,
+     "legacy_recurrent_rollout_v7_publication": "explicitly rejected until hidden/reset sequence format is implemented",
+     "scope": "native execution/persistence engineering instrument; no learned memory or ecological claim"
++  },
++  "recurrent_policy_interface_development_instrument": {
++    "command": "recurrent-policy-admission",
++    "evidence": "artifacts/crow-rl-recurrent-policy-20261107",
++    "native_policy_format": 5,
++    "C_memory_descriptor_ABI": 1,
++    "legacy_dense_C_ABI_and_policy_v4_bytes_preserved": true,
++    "canonical_recurrent_policies_byte_exact": 2,
++    "canonical_dense_control_byte_exact": true,
++    "actual_native_observation_slots": 80,
++    "MLX_native_sequence_max_abs": 1.4901161193847656e-08,
++    "contract_rejections": 17,
++    "retained_source_summary_all_sequence_arrays_and_policy_bytes_exact": true,
++    "native_actor_life_state_admission_repeated": true,
++    "recurrent_training_entry_points": "explicitly reject until sequence PPO is implemented",
++    "recurrent_rollout_format_integrated": false,
++    "sequence_PPO_integrated": false,
++    "embodied_memory_qualified": false,
++    "scope": "native/Python artifact interchange and MLX forward sequence algebra on native crow observations; no recurrent optimizer or behavioral learning claim"
+   }
+ }
+diff --git a/python/metalrobo/crow_environment.py b/python/metalrobo/crow_environment.py
+index 9234014f..562810a1 100644
+--- a/python/metalrobo/crow_environment.py
++++ b/python/metalrobo/crow_environment.py
+@@ -102,6 +102,42 @@ def preflight(root: Path, profile: dict) -> dict:
+     }
+ 
+ 
++def recurrent_policy_admission(root: Path, output: Path, checked: dict) -> dict:
++    actor = recurrent_actor_admission(root, output, checked)
++    learner = execute(output, "policy-mlx", [sys.executable, "-m", "metalrobo.recurrent_policy_admission",
++        "--native", str(output/"native-evidence"), "--output", str(output/"policy-evidence")], root, 180)
++    if learner.get("status") != "passed" or learner.get("contract_rejections") != 17:
++        raise RuntimeError("Recurrent native/learner policy admission failed")
++    retained = root/".numi/retained-runtime"/output.name
++    sources = {}
++    for name in ("native.py", "mlx_policy_learning.py", "gru_memory.py", "recurrent_policy_admission.py"):
++        target = retained/"python/metalrobo"/name
++        target.parent.mkdir(parents=True, exist_ok=True)
++        shutil.copy2(root/"python/metalrobo"/name, target)
++        if sha(target) != checked["inputs"]["recurrent_source_"+name]["sha256"]:
++            raise RuntimeError("Recurrent learner source changed during admission: "+name)
++        sources[name] = {"path": str(target), "sha256": sha(target)}
++    (retained/"python/metalrobo/__init__.py").touch(exist_ok=False)
++    write(output/"retained-learner-source.json", sources)
++    recovered = execute(output, "retained-policy-mlx", ["/usr/bin/env", "PYTHONPATH="+str(retained/"python"),
++        "METALROBO_LIBRARY="+str(retained/"lib/libmetalrobo.dylib"), sys.executable,
++        "-m", "metalrobo.recurrent_policy_admission", "--native", str(output/"native-evidence"),
++        "--output", str(output/"retained-policy-recovery")], root, 180)
++    if recovered != learner:
++        raise RuntimeError("Retained recurrent policy source recovery summary differs")
++    import numpy as np
++    with np.load(output/"policy-evidence/sequence-parity.npz") as expected, np.load(output/"retained-policy-recovery/sequence-parity.npz") as actual:
++        if expected.files != actual.files or any(not np.array_equal(expected[k],actual[k]) for k in expected.files):
++            raise RuntimeError("Retained recurrent policy sequence arrays differ")
++    for name in ("first.policypack", "next.policypack", "dense-drop-control.policypack"):
++        if sha(output/"policy-evidence"/name) != sha(output/"retained-policy-recovery"/name):
++            raise RuntimeError("Retained recurrent canonical writer bytes differ: "+name)
++    return {"schema": "numi.crow-recurrent-policy-admission.v1", "status": "passed", "actor": actor,
++        "policy_interop": learner, "retained_learner_summary_arrays_and_policy_bytes_exact": True,
++        "installed_matching_Python_MLX_NumPy_required": True,
++        "sequence_PPO_integrated": False, "embodied_memory_qualified": False}
++
++
+ def recurrent_actor_admission(root: Path, output: Path, checked: dict) -> dict:
+     native = execute(output, "recurrent-native", [checked["inputs"]["recurrent_check"]["path"],
+         str(output/"native-evidence"), checked["inputs"]["policy_abi3_shader"]["path"]], root, 180)
+@@ -1059,6 +1095,7 @@ def main() -> int:
+     commands.add_parser("retina-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("memory-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("recurrent-actor-admission").add_argument("--output", type=Path, required=True)
++    commands.add_parser("recurrent-policy-admission").add_argument("--output", type=Path, required=True)
+     life_training=commands.add_parser("life-training-probe")
+     life_training.add_argument("--output",type=Path,required=True)
+     life_training.add_argument("--retinal-calibration",type=Path,required=True)
+@@ -1118,7 +1155,7 @@ def main() -> int:
+         print(json.dumps(profile, indent=2))
+         return 0
+     checked = preflight(root, profile)
+-    if args.command == "recurrent-actor-admission":
++    if args.command in ("recurrent-actor-admission", "recurrent-policy-admission"):
+         build = Path(checked["inputs"]["library"]["path"]).parent.parent
+         for name, path in (("recurrent_check", build/"bin/metalrobo_crow_recurrent_actor_check"),
+                            ("gru_metallib", build/"shaders/GRUMemory.metallib"),
+@@ -1133,6 +1170,10 @@ def main() -> int:
+             if not path.is_file() or not path.stat().st_size:
+                 raise RuntimeError("Missing native GRU component: "+str(path))
+             checked["inputs"][name] = {"path": str(path), "sha256": sha(path)}
++    if args.command == "recurrent-policy-admission":
++        for name in ("native.py", "mlx_policy_learning.py", "gru_memory.py", "recurrent_policy_admission.py"):
++            path=root/"python/metalrobo"/name
++            checked["inputs"]["recurrent_source_"+name]={"path": str(path), "sha256": sha(path)}
+     if args.command == "doctor":
+         print(json.dumps(checked, indent=2))
+         return 0
+@@ -1250,13 +1291,18 @@ def main() -> int:
+           "validity":"exact runtime/configuration/source inputs; both owners restored; accepted clock has no warmup; zero device failures; all expected updates; uncommitted/corrupt/mixed checkpoints reject",
+           "stopping":"four complete bounded180s runs; nine bounded60s rejection controls; stop on first positive invalidity; preserve all failures",
+           "estimated_raw_output_limit_bytes":750*1024*1024, "ecological_environment_qualified":False})
+-    if args.command == "recurrent-actor-admission":
++    if args.command in ("recurrent-actor-admission", "recurrent-policy-admission"):
+         plan.update({"purpose": "native embodied recurrent actor and full-life checkpoint engineering admission",
+           "prediction": "FP64 actor/pre-cell max error<=5e-6; chunks1/8 and extra intermediate terminal previews have exact real traces/actions/physics; fresh process has exact future and all three final life-state component blobs; seven compiler and three resident publication controls reject; stale policyABI3 shader rejects for declared ABI4 cause; independently retained runtime reproduces all future stream bytes",
+           "control": "two supported real native v13 lanes, authored encoder5-GRU7-action18 actor,40 ticks; lane1 reset9; next weights published18 without physical step; aligned final camera capture in all arms; no qualification seeds",
+           "unit": "one authored neural/controller engineering instrument, not a learned-memory experiment",
+           "stopping": "one native admission180s including bounded40s child; one retained-runtime continuation40s; preserve failures, no automatic retries",
+           "limitations": "legacy v7 learner publication explicitly forbidden for recurrent actors; sequence PPO, recurrent training checkpoint and embodied memory/social learning qualification remain open"})
++    if args.command == "recurrent-policy-admission":
++        plan.update({"purpose": "native recurrent actor, canonical learner policy interoperability and retained source recovery",
++          "prediction": "native actor admission passes; two recurrent and one dense policy roundtrip byte exactly; MLX sequence actor/pre-cell error<=5e-6 on all80 native slots;17 semantic/API/flat-learner misuse controls reject; retained source/runtime reproduce learner summary, all sequence arrays and canonical policy bytes exactly",
++          "stopping": "native180s and retained native40s; two independent MLX policy instruments180s each; stop on invalidity, no automatic retries",
++          "limitations": "policy parameter/sequence algebra interface only; recurrent rollout and contiguous PPO remain pending"})
+     if args.command == "memory-admission":
+         plan.update({"purpose": "native working-memory and differentiable sequence algebra component admission",
+           "prediction": "native FP64 max error<=3e-6; chunks/previews/duplicates/fresh process exact including reset traces;31 native controls reject including seven re-signed semantic restore corruptions; MLX sequence/pre-cell parity<=3e-6; full parameter/input BPTT<=3e-6 and relative norm<=2e-5; twelve FP64 central differences<=1e-8; reset gradients cut exactly; eight SGD steps reduce fixed objective; retained native/Python-source recovery reproduces future state and learner summary",
+@@ -1307,6 +1353,8 @@ def main() -> int:
+             result=life_training_probe(root,output,args)
+         elif args.command == "life-swift-probe":
+             result=life_swift_probe(root,output,args)
++        elif args.command == "recurrent-policy-admission":
++            result=recurrent_policy_admission(root,output,checked)
+         elif args.command == "recurrent-actor-admission":
+             result=recurrent_actor_admission(root,output,checked)
+         elif args.command == "memory-admission":
+diff --git a/python/metalrobo/mlx_policy_learning.py b/python/metalrobo/mlx_policy_learning.py
+index 81de1188..0421a46b 100644
+--- a/python/metalrobo/mlx_policy_learning.py
++++ b/python/metalrobo/mlx_policy_learning.py
+@@ -23,13 +23,14 @@ import numpy as np
+ 
+ from .native import (
+     PolicyDenseLayerArtifact,
++    PolicyGRUMemoryArtifact,
+     learning_pack_content_hash,
+     write_policy_pack,
+ )
+ 
+ _LEARNING_PACK_HEADER = struct.Struct("<8sIIQQ")
+ _POLICY_KIND = 2
+-_POLICY_FORMAT_VERSION = 4
++_POLICY_FORMAT_VERSION = 5
+ _POLICY_ROLLOUT_KIND = 3
+ _POLICY_ROLLOUT_FORMAT_VERSION = 7
+ _MOTION_KIND = 4
+@@ -505,6 +506,7 @@ class NativePolicyPack:
+     action_clip: float
+     content_hash: int
+     format_version: int
++    actor_memory: PolicyGRUMemoryArtifact | None = None
+ 
+     @property
+     def actor_observation_count(self) -> int:
+@@ -587,6 +589,8 @@ class NativePolicyPack:
+         )
+ 
+     def actor_mean(self, observations: np.ndarray) -> np.ndarray:
++        if self.actor_memory is not None:
++            raise ValueError("Recurrent actor requires explicit initial hidden state and contiguous sequence/reset masks")
+         value = np.asarray(observations, dtype=np.float32)
+         if value.shape[-1] != self.actor_observation_count:
+             raise ValueError(
+@@ -702,6 +706,7 @@ class _PackReader:
+ def _read_dense_layers(
+     reader: _PackReader,
+     label: str,
++    *, deferred_recurrent_boundary: bool = False,
+ ) -> tuple[NativePolicyDenseLayer, ...]:
+     layer_count = reader.unsigned64()
+     if layer_count == 0 or layer_count > 32:
+@@ -716,7 +721,7 @@ def _read_dense_layers(
+             input_count == 0
+             or output_count == 0
+             or activation > 4
+-            or (index != 0 and input_count != expected_input)
++            or (index != 0 and input_count != expected_input and not deferred_recurrent_boundary)
+         ):
+             raise ValueError(f"{label} topology is invalid")
+         weights = reader.vector(
+@@ -764,7 +769,7 @@ def read_policy_pack(
+     ) = _LEARNING_PACK_HEADER.unpack_from(data)
+     if magic != b"MRLEARN\0":
+         raise ValueError("PolicyPack magic is invalid")
+-    if format_version not in (2, 3, _POLICY_FORMAT_VERSION):
++    if format_version not in (2, 3, 4, _POLICY_FORMAT_VERSION):
+         raise ValueError("PolicyPack format version is unsupported")
+     if kind != _POLICY_KIND:
+         raise ValueError("Learning artifact is not a PolicyPack")
+@@ -786,7 +791,7 @@ def read_policy_pack(
+     observation_inverse_standard_deviation = reader.vector(
+         np.dtype("<f4")
+     )
+-    layers = _read_dense_layers(reader, "actor")
++    layers = _read_dense_layers(reader, "actor", deferred_recurrent_boundary=format_version == 5)
+     critic_observation_mean = reader.vector(np.dtype("<f4"))
+     critic_observation_inverse_standard_deviation = reader.vector(
+         np.dtype("<f4")
+@@ -825,6 +830,28 @@ def read_policy_pack(
+         task_fingerprint = 0
+         observation_fingerprint = 0
+         action_fingerprint = 0
++    actor_memory = None
++    if format_version == 5:
++        after = reader.unsigned32()
++        inputs = reader.unsigned32()
++        hidden = reader.unsigned32()
++        bound = reader.float32()
++        if (not 0 < after < len(layers) or not 0 < inputs <= 65536 or not 0 < hidden <= 4096
++                or not math.isfinite(bound) or bound <= 0
++                or layers[after-1].output_count != inputs or layers[after].input_count != hidden):
++            raise ValueError("PolicyPack GRU boundary or dimensions are invalid")
++        wi = reader.vector(np.dtype("<f4"), 3*hidden*inputs).reshape(3*hidden, inputs)
++        wh = reader.vector(np.dtype("<f4"), 3*hidden*hidden).reshape(3*hidden, hidden)
++        bi = reader.vector(np.dtype("<f4"), 3*hidden)
++        bh = reader.vector(np.dtype("<f4"), 3*hidden)
++        if (not all(np.isfinite(a).all() for a in (wi, wh, bi, bh))
++                or any(layers[i].input_count != layers[i-1].output_count for i in range(1, len(layers)) if i != after)):
++            raise ValueError("PolicyPack GRU values or dense topology are invalid")
++        limit = float(np.finfo(np.float32).max)/8
++        if (np.any(np.abs(bi.astype(np.float64)) + np.sum(np.abs(wi.astype(np.float64)), axis=1)*bound > limit)
++                or np.any(np.abs(bh.astype(np.float64)) + np.sum(np.abs(wh.astype(np.float64)), axis=1)*1.000001 > limit)):
++            raise ValueError("PolicyPack GRU FP32 accumulator bound exceeded")
++        actor_memory = PolicyGRUMemoryArtifact(after, wi, wh, bi, bh, bound)
+     if reader.cursor != len(payload):
+         raise ValueError("PolicyPack contains trailing payload bytes")
+     actor_count = layers[0].input_count
+@@ -905,6 +932,7 @@ def read_policy_pack(
+         action_clip=action_clip,
+         content_hash=expected_hash,
+         format_version=format_version,
++        actor_memory=actor_memory,
+     )
+ 
+ 
+@@ -2547,6 +2575,8 @@ class MLXPolicyLearner:
+             path,
+             library_path=library_path,
+         )
++        if pack.actor_memory is not None:
++            raise ValueError("Recurrent PolicyPack requires the contiguous sequence PPO learner")
+         if pack.format_version == 2:
+             raise ValueError(
+                 "PPO resume requires a v3+ raw-Gaussian "
+@@ -2779,6 +2809,8 @@ class MLXPolicyLearner:
+         """
+ 
+         pack = read_policy_pack(path, library_path=library_path)
++        if pack.actor_memory is not None:
++            raise ValueError("Recurrent PolicyPack requires the contiguous sequence PPO learner")
+         if (
+             preserve_critic and
+             pack.critic_layers and
+@@ -3083,6 +3115,8 @@ class MLXPolicyLearner:
+         """
+ 
+         pack = read_policy_pack(path, library_path=library_path)
++        if pack.actor_memory is not None:
++            raise ValueError("Recurrent PolicyPack requires the contiguous sequence PPO learner")
+         expected_activations = [3] * (len(pack.layers) - 1) + [0]
+         if [layer.activation for layer in pack.layers] != expected_activations:
+             raise ValueError(
+diff --git a/python/metalrobo/native.py b/python/metalrobo/native.py
+index 2b364cd1..460fa799 100644
+--- a/python/metalrobo/native.py
++++ b/python/metalrobo/native.py
+@@ -3,6 +3,7 @@
+ from __future__ import annotations
+ 
+ import ctypes as ct
++import math
+ import ctypes.util
+ import json
+ import os
+@@ -120,6 +121,27 @@ class _PolicyPackC(ct.Structure):
+     ]
+ 
+ 
++class _PolicyGRUMemoryC(ct.Structure):
++    _fields_ = [("abi_version", ct.c_uint32), ("struct_size", ct.c_uint32),
++        ("after_layer", ct.c_uint32), ("input_count", ct.c_uint32), ("hidden_count", ct.c_uint32),
++        ("maximum_absolute_input", ct.c_float),
++        ("input_weights", ct.POINTER(ct.c_float)), ("input_weight_count", ct.c_size_t),
++        ("recurrent_weights", ct.POINTER(ct.c_float)), ("recurrent_weight_count", ct.c_size_t),
++        ("input_bias", ct.POINTER(ct.c_float)), ("input_bias_count", ct.c_size_t),
++        ("recurrent_bias", ct.POINTER(ct.c_float)), ("recurrent_bias_count", ct.c_size_t)]
++
++
++@dataclass(frozen=True, slots=True)
++class PolicyGRUMemoryArtifact:
++    """Native reset-after r/z/n tensors; inserted after this many dense layers."""
++    after_layer: int
++    input_weights: npt.ArrayLike
++    recurrent_weights: npt.ArrayLike
++    input_bias: npt.ArrayLike
++    recurrent_bias: npt.ArrayLike
++    maximum_absolute_input: float
++
++
+ @dataclass(frozen=True, slots=True)
+ class PolicyDenseLayerArtifact:
+     """One output-major dense layer for the generic native PolicyPack."""
+@@ -686,6 +708,7 @@ def write_policy_pack(
+     action_scale: npt.ArrayLike = (),
+     observation_clip: float = 100.0,
+     action_clip: float = float(np.finfo(np.float32).max),
++    actor_memory: PolicyGRUMemoryArtifact | None = None,
+     library_path: str | os.PathLike[str] | None = None,
+ ) -> Path:
+     """Publish actor/critic weights through the canonical native writer."""
+@@ -823,10 +846,31 @@ def write_policy_pack(
+     target = Path(output).expanduser().resolve()
+     target.parent.mkdir(parents=True, exist_ok=True)
+     bindings = _load_bindings(library_path)
+-    status = bindings.lib.mr_write_policy_pack(
+-        ct.byref(native),
+-        os.fsencode(target),
+-    )
++    if actor_memory is None:
++        status = bindings.lib.mr_write_policy_pack(ct.byref(native), os.fsencode(target))
++    else:
++        # Bind the new symbol only on the recurrent path so legacy clients
++        # remain usable with older libraries that implement the dense writer.
++        function = bindings.lib.mr_write_recurrent_policy_pack
++        function.argtypes = [ct.POINTER(_PolicyPackC), ct.POINTER(_PolicyGRUMemoryC), ct.c_char_p]
++        function.restype = ct.c_int
++        wi = np.ascontiguousarray(actor_memory.input_weights, dtype=np.float32)
++        wh = np.ascontiguousarray(actor_memory.recurrent_weights, dtype=np.float32)
++        bi = values(actor_memory.input_bias, "GRU input bias")
++        bh = values(actor_memory.recurrent_bias, "GRU recurrent bias")
++        if (wi.ndim != 2 or wh.ndim != 2 or not wh.shape[1] or wh.shape[0] != 3*wh.shape[1]
++                or wi.shape[0] != wh.shape[0] or not wi.shape[1] or bi.size != wh.shape[0] or bh.size != bi.size
++                or not np.isfinite(wi).all() or not np.isfinite(wh).all()
++                or not math.isfinite(actor_memory.maximum_absolute_input) or actor_memory.maximum_absolute_input <= 0
++                or not 0 < actor_memory.after_layer < len(layers)):
++            raise ValueError("GRU boundary, tensor shapes or values are invalid")
++        retained.extend((wi, wh))
++        memory = _PolicyGRUMemoryC(abi_version=1, struct_size=ct.sizeof(_PolicyGRUMemoryC),
++            after_layer=actor_memory.after_layer, input_count=wi.shape[1], hidden_count=wh.shape[1],
++            maximum_absolute_input=actor_memory.maximum_absolute_input,
++            input_weights=pointer(wi), input_weight_count=wi.size, recurrent_weights=pointer(wh), recurrent_weight_count=wh.size,
++            input_bias=pointer(bi), input_bias_count=bi.size, recurrent_bias=pointer(bh), recurrent_bias_count=bh.size)
++        status = function(ct.byref(native), ct.byref(memory), os.fsencode(target))
+     if status != 0:
+         raise MetalRoboError(
+             f"PolicyPack write failed: {bindings.last_error()}"
+diff --git a/src/c_api.cpp b/src/c_api.cpp
+index 9b4b2a72..3d562eaf 100644
+--- a/src/c_api.cpp
++++ b/src/c_api.cpp
+@@ -3031,6 +3031,29 @@ int mr_write_policy_pack(
+     });
+ }
+ 
++int mr_write_recurrent_policy_pack(const MRPolicyPackC* policy,
++    const MRPolicyGRUMemoryC* memory,const char* policy_pack_path) {
++    if (!policy || !memory || !policy_pack_path || !policy_pack_path[0]) {
++        gLastError="Recurrent PolicyPack, memory descriptor and output path are required";return -1;
++    }
++    return translateErrors([&] {
++        if (memory->abi_version!=1 || memory->struct_size!=sizeof(MRPolicyGRUMemoryC))
++            throw std::invalid_argument("Unsupported recurrent policy memory descriptor ABI/size");
++        const std::uint64_t I=memory->input_count,H=memory->hidden_count,rows=3*H;
++        if (!I || I>65536 || !H || H>4096 || memory->input_weight_count!=rows*I ||
++            memory->recurrent_weight_count!=rows*H || memory->input_bias_count!=rows || memory->recurrent_bias_count!=rows)
++            throw std::invalid_argument("Recurrent policy memory dimensions/tensor counts are invalid");
++        auto authored=policyPackFromC(*policy);metalrobo::PolicyGRUMemory m;
++        m.afterLayer=memory->after_layer;auto& p=m.cell;p.inputs=I;p.hidden=H;p.maximumAbsoluteInput=memory->maximum_absolute_input;
++        p.inputWeights=copyPolicyFloats(memory->input_weights,memory->input_weight_count,"GRU input weights");
++        p.recurrentWeights=copyPolicyFloats(memory->recurrent_weights,memory->recurrent_weight_count,"GRU recurrent weights");
++        p.inputBias=copyPolicyFloats(memory->input_bias,memory->input_bias_count,"GRU input bias");
++        p.recurrentBias=copyPolicyFloats(memory->recurrent_bias,memory->recurrent_bias_count,"GRU recurrent bias");
++        authored.actorMemory=std::move(m);const auto written=metalrobo::writePolicyPack(authored,policy_pack_path);
++        if (!written.succeeded()) throw std::invalid_argument("Recurrent PolicyPack write failed: "+written.message);
++    });
++}
++
+ uint64_t mr_learning_pack_content_hash(
+     const void* payload,
+     const size_t byte_count

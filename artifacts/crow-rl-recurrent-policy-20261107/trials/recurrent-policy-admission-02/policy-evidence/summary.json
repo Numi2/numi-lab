@@ -1,0 +1,11 @@
+{
+  "schema": "numi.crow-recurrent-policy-evidence.v1",
+  "status": "passed",
+  "canonical_recurrent_policies_byte_exact": 2,
+  "canonical_dense_control_byte_exact": true,
+  "MLX_native_sequence_max_abs": 1.4901161193847656e-08,
+  "contract_rejections": 17,
+  "actual_native_observation_slots": 80,
+  "recurrent_PPO_integrated": false,
+  "embodied_memory_qualified": false
+}

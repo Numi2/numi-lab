@@ -974,10 +974,55 @@ checkpoint payloads and regressions are in
 `artifacts/crow-rl-recurrent-actor-20261107`.
 
 This admits native execution and persistence, not learned embodied memory.
-The existing learner cannot yet consume recurrent PolicyPack5/sequence records;
+Python can now read and publish PolicyPack5 parameters (below), but training
+cannot yet consume recurrent sequence records;
 legacy rollout7 publication explicitly rejects recurrent actors. Next work must
 version the hidden/reset rollout contract, implement contiguous sequence PPO
 with detached captured initial state and episode gradient cuts, and qualify
 coupled recurrent training resume. Causal memory tasks, solid-food manipulation,
 social learning, physiology, production throughput and ecological evaluation
 remain open. No qualification seeds are used or policy promoted here.
+
+
+## Recurrent policy parameter interface
+
+The additive `mr_write_recurrent_policy_pack` C function accepts the existing
+unchanged `MRPolicyPackC` and a separate ABI1 `MRPolicyGRUMemoryC` descriptor.
+It validates descriptor version/size, dimensions, tensor counts/pointers and
+canonical GRU parameters before atomic PolicyPack5 publication. The legacy dense
+writer and its C structure remain unchanged. Python `write_policy_pack` accepts
+an optional `PolicyGRUMemoryArtifact`; dense clients bind only the old symbol,
+preserving compatibility with earlier libraries.
+
+`read_policy_pack` now validates recurrent descriptor dimensions, the exact
+encoder/GRU/head boundary, all other dense adjacency, finite tensors and GRU
+FP32 accumulator bounds. The NumPy flat actor evaluator and all three existing
+feedforward learner/initialization/projection entry points explicitly reject
+recurrent artifacts. They cannot silently omit memory. A future sequence learner
+must accept captured initial state and contiguous time/reset masks explicitly.
+
+```
+tools/numi crow-env recurrent-policy-admission --output NEW_POLICY_INTERFACE_TRIAL
+```
+
+This admission reruns the real native actor/life test and independently retained
+runtime continuation. It then reads the first and next native recurrent policies
+and the dense control through Python and republishes all three through the
+canonical C writers. Every policy byte matches. MLX evaluates both contiguous
+weight segments on all80 real native observation slots, using the captured
+segment-start hidden state and reset masks; actions and pre-cell states match
+within1.491e-8 against the declared5e-6 bound. This is forward sequence algebra,
+not PPO, a synthetic crow simulation or learned behavior.
+
+17 controls reject four flat evaluator/learner uses, three invalid writer
+inputs, three raw C descriptor ABI/size/dimension errors and seven correctly
+re-signed semantic PolicyPack corruptions. A second process using retained
+native/Python source reproduces its summary, every sequence array and all three
+canonical policy files exactly. Matching installed Python/MLX/NumPy remain
+required. Evidence and recovery receipts are in
+`artifacts/crow-rl-recurrent-policy-20261107`.
+
+Recurrent rollout publication, contiguous sequence minibatches and PPO/BPTT,
+recurrent optimizer checkpoint/resume and causal embodied memory qualification
+remain required. Current native rollout7 publication still rejects recurrent
+actors. This interface does not change that boundary.

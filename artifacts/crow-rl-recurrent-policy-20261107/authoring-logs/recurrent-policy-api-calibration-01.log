@@ -1,0 +1,12 @@
+{
+  "output": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/recurrent-policy-api-calibration-01",
+  "schema": "numi.crow-retinal-api-evidence.v1",
+  "status": "passed",
+  "malformed_configs_rejected": 6,
+  "terminal_retinal_slots_valid": true,
+  "terminal_next_retina_bit_identical": true,
+  "chunk1_8_bit_identical": true,
+  "world_reset_preserves_food": true,
+  "visual_learning_qualified": false,
+  "ecological_environment_qualified": false
+}

@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_recurrent_actor_check",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/recurrent-policy-admission-02/native-evidence",
+    "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib"
+  ],
+  "exit_code": 0,
+  "timed_out": false,
+  "interrupted": false,
+  "wall_seconds": 1.0399815000128,
+  "stdout_sha256": "03b60c4247471ea886d36bc1d85987233e0c66aef2cd3c5c10828e1e62c2ff1b",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

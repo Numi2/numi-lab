@@ -1,0 +1,6 @@
+[1/6] Building OBJCXX object CMakeFiles/metalrobo_crow_recurrent_actor_check.dir/apps/crow_recurrent_actor_check.mm.o
+[2/6] Building CXX object CMakeFiles/metalrobo.dir/src/c_api.cpp.o
+[3/6] Linking CXX shared library lib/libmetalrobo.dylib
+[4/6] Linking OBJCXX executable bin/metalrobo_crow_recurrent_actor_check
+[5/6] Linking Swift executable bin/metalrobo_task_train
+[6/6] Linking Swift executable bin/metalrobo_task_rollout

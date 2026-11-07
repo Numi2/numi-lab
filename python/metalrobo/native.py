@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ctypes as ct
+import math
 import ctypes.util
 import json
 import os
@@ -118,6 +119,27 @@ class _PolicyPackC(ct.Structure):
         ("observation_clip", ct.c_float),
         ("action_clip", ct.c_float),
     ]
+
+
+class _PolicyGRUMemoryC(ct.Structure):
+    _fields_ = [("abi_version", ct.c_uint32), ("struct_size", ct.c_uint32),
+        ("after_layer", ct.c_uint32), ("input_count", ct.c_uint32), ("hidden_count", ct.c_uint32),
+        ("maximum_absolute_input", ct.c_float),
+        ("input_weights", ct.POINTER(ct.c_float)), ("input_weight_count", ct.c_size_t),
+        ("recurrent_weights", ct.POINTER(ct.c_float)), ("recurrent_weight_count", ct.c_size_t),
+        ("input_bias", ct.POINTER(ct.c_float)), ("input_bias_count", ct.c_size_t),
+        ("recurrent_bias", ct.POINTER(ct.c_float)), ("recurrent_bias_count", ct.c_size_t)]
+
+
+@dataclass(frozen=True, slots=True)
+class PolicyGRUMemoryArtifact:
+    """Native reset-after r/z/n tensors; inserted after this many dense layers."""
+    after_layer: int
+    input_weights: npt.ArrayLike
+    recurrent_weights: npt.ArrayLike
+    input_bias: npt.ArrayLike
+    recurrent_bias: npt.ArrayLike
+    maximum_absolute_input: float
 
 
 @dataclass(frozen=True, slots=True)
@@ -686,6 +708,7 @@ def write_policy_pack(
     action_scale: npt.ArrayLike = (),
     observation_clip: float = 100.0,
     action_clip: float = float(np.finfo(np.float32).max),
+    actor_memory: PolicyGRUMemoryArtifact | None = None,
     library_path: str | os.PathLike[str] | None = None,
 ) -> Path:
     """Publish actor/critic weights through the canonical native writer."""
@@ -823,10 +846,31 @@ def write_policy_pack(
     target = Path(output).expanduser().resolve()
     target.parent.mkdir(parents=True, exist_ok=True)
     bindings = _load_bindings(library_path)
-    status = bindings.lib.mr_write_policy_pack(
-        ct.byref(native),
-        os.fsencode(target),
-    )
+    if actor_memory is None:
+        status = bindings.lib.mr_write_policy_pack(ct.byref(native), os.fsencode(target))
+    else:
+        # Bind the new symbol only on the recurrent path so legacy clients
+        # remain usable with older libraries that implement the dense writer.
+        function = bindings.lib.mr_write_recurrent_policy_pack
+        function.argtypes = [ct.POINTER(_PolicyPackC), ct.POINTER(_PolicyGRUMemoryC), ct.c_char_p]
+        function.restype = ct.c_int
+        wi = np.ascontiguousarray(actor_memory.input_weights, dtype=np.float32)
+        wh = np.ascontiguousarray(actor_memory.recurrent_weights, dtype=np.float32)
+        bi = values(actor_memory.input_bias, "GRU input bias")
+        bh = values(actor_memory.recurrent_bias, "GRU recurrent bias")
+        if (wi.ndim != 2 or wh.ndim != 2 or not wh.shape[1] or wh.shape[0] != 3*wh.shape[1]
+                or wi.shape[0] != wh.shape[0] or not wi.shape[1] or bi.size != wh.shape[0] or bh.size != bi.size
+                or not np.isfinite(wi).all() or not np.isfinite(wh).all()
+                or not math.isfinite(actor_memory.maximum_absolute_input) or actor_memory.maximum_absolute_input <= 0
+                or not 0 < actor_memory.after_layer < len(layers)):
+            raise ValueError("GRU boundary, tensor shapes or values are invalid")
+        retained.extend((wi, wh))
+        memory = _PolicyGRUMemoryC(abi_version=1, struct_size=ct.sizeof(_PolicyGRUMemoryC),
+            after_layer=actor_memory.after_layer, input_count=wi.shape[1], hidden_count=wh.shape[1],
+            maximum_absolute_input=actor_memory.maximum_absolute_input,
+            input_weights=pointer(wi), input_weight_count=wi.size, recurrent_weights=pointer(wh), recurrent_weight_count=wh.size,
+            input_bias=pointer(bi), input_bias_count=bi.size, recurrent_bias=pointer(bh), recurrent_bias_count=bh.size)
+        status = function(ct.byref(native), ct.byref(memory), os.fsencode(target))
     if status != 0:
         raise MetalRoboError(
             f"PolicyPack write failed: {bindings.last_error()}"

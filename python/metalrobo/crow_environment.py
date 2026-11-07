@@ -102,6 +102,42 @@ def preflight(root: Path, profile: dict) -> dict:
     }
 
 
+def recurrent_policy_admission(root: Path, output: Path, checked: dict) -> dict:
+    actor = recurrent_actor_admission(root, output, checked)
+    learner = execute(output, "policy-mlx", [sys.executable, "-m", "metalrobo.recurrent_policy_admission",
+        "--native", str(output/"native-evidence"), "--output", str(output/"policy-evidence")], root, 180)
+    if learner.get("status") != "passed" or learner.get("contract_rejections") != 17:
+        raise RuntimeError("Recurrent native/learner policy admission failed")
+    retained = root/".numi/retained-runtime"/output.name
+    sources = {}
+    for name in ("native.py", "mlx_policy_learning.py", "gru_memory.py", "recurrent_policy_admission.py"):
+        target = retained/"python/metalrobo"/name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(root/"python/metalrobo"/name, target)
+        if sha(target) != checked["inputs"]["recurrent_source_"+name]["sha256"]:
+            raise RuntimeError("Recurrent learner source changed during admission: "+name)
+        sources[name] = {"path": str(target), "sha256": sha(target)}
+    (retained/"python/metalrobo/__init__.py").touch(exist_ok=False)
+    write(output/"retained-learner-source.json", sources)
+    recovered = execute(output, "retained-policy-mlx", ["/usr/bin/env", "PYTHONPATH="+str(retained/"python"),
+        "METALROBO_LIBRARY="+str(retained/"lib/libmetalrobo.dylib"), sys.executable,
+        "-m", "metalrobo.recurrent_policy_admission", "--native", str(output/"native-evidence"),
+        "--output", str(output/"retained-policy-recovery")], root, 180)
+    if recovered != learner:
+        raise RuntimeError("Retained recurrent policy source recovery summary differs")
+    import numpy as np
+    with np.load(output/"policy-evidence/sequence-parity.npz") as expected, np.load(output/"retained-policy-recovery/sequence-parity.npz") as actual:
+        if expected.files != actual.files or any(not np.array_equal(expected[k],actual[k]) for k in expected.files):
+            raise RuntimeError("Retained recurrent policy sequence arrays differ")
+    for name in ("first.policypack", "next.policypack", "dense-drop-control.policypack"):
+        if sha(output/"policy-evidence"/name) != sha(output/"retained-policy-recovery"/name):
+            raise RuntimeError("Retained recurrent canonical writer bytes differ: "+name)
+    return {"schema": "numi.crow-recurrent-policy-admission.v1", "status": "passed", "actor": actor,
+        "policy_interop": learner, "retained_learner_summary_arrays_and_policy_bytes_exact": True,
+        "installed_matching_Python_MLX_NumPy_required": True,
+        "sequence_PPO_integrated": False, "embodied_memory_qualified": False}
+
+
 def recurrent_actor_admission(root: Path, output: Path, checked: dict) -> dict:
     native = execute(output, "recurrent-native", [checked["inputs"]["recurrent_check"]["path"],
         str(output/"native-evidence"), checked["inputs"]["policy_abi3_shader"]["path"]], root, 180)
@@ -1059,6 +1095,7 @@ def main() -> int:
     commands.add_parser("retina-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("memory-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("recurrent-actor-admission").add_argument("--output", type=Path, required=True)
+    commands.add_parser("recurrent-policy-admission").add_argument("--output", type=Path, required=True)
     life_training=commands.add_parser("life-training-probe")
     life_training.add_argument("--output",type=Path,required=True)
     life_training.add_argument("--retinal-calibration",type=Path,required=True)
@@ -1118,7 +1155,7 @@ def main() -> int:
         print(json.dumps(profile, indent=2))
         return 0
     checked = preflight(root, profile)
-    if args.command == "recurrent-actor-admission":
+    if args.command in ("recurrent-actor-admission", "recurrent-policy-admission"):
         build = Path(checked["inputs"]["library"]["path"]).parent.parent
         for name, path in (("recurrent_check", build/"bin/metalrobo_crow_recurrent_actor_check"),
                            ("gru_metallib", build/"shaders/GRUMemory.metallib"),
@@ -1133,6 +1170,10 @@ def main() -> int:
             if not path.is_file() or not path.stat().st_size:
                 raise RuntimeError("Missing native GRU component: "+str(path))
             checked["inputs"][name] = {"path": str(path), "sha256": sha(path)}
+    if args.command == "recurrent-policy-admission":
+        for name in ("native.py", "mlx_policy_learning.py", "gru_memory.py", "recurrent_policy_admission.py"):
+            path=root/"python/metalrobo"/name
+            checked["inputs"]["recurrent_source_"+name]={"path": str(path), "sha256": sha(path)}
     if args.command == "doctor":
         print(json.dumps(checked, indent=2))
         return 0
@@ -1250,13 +1291,18 @@ def main() -> int:
           "validity":"exact runtime/configuration/source inputs; both owners restored; accepted clock has no warmup; zero device failures; all expected updates; uncommitted/corrupt/mixed checkpoints reject",
           "stopping":"four complete bounded180s runs; nine bounded60s rejection controls; stop on first positive invalidity; preserve all failures",
           "estimated_raw_output_limit_bytes":750*1024*1024, "ecological_environment_qualified":False})
-    if args.command == "recurrent-actor-admission":
+    if args.command in ("recurrent-actor-admission", "recurrent-policy-admission"):
         plan.update({"purpose": "native embodied recurrent actor and full-life checkpoint engineering admission",
           "prediction": "FP64 actor/pre-cell max error<=5e-6; chunks1/8 and extra intermediate terminal previews have exact real traces/actions/physics; fresh process has exact future and all three final life-state component blobs; seven compiler and three resident publication controls reject; stale policyABI3 shader rejects for declared ABI4 cause; independently retained runtime reproduces all future stream bytes",
           "control": "two supported real native v13 lanes, authored encoder5-GRU7-action18 actor,40 ticks; lane1 reset9; next weights published18 without physical step; aligned final camera capture in all arms; no qualification seeds",
           "unit": "one authored neural/controller engineering instrument, not a learned-memory experiment",
           "stopping": "one native admission180s including bounded40s child; one retained-runtime continuation40s; preserve failures, no automatic retries",
           "limitations": "legacy v7 learner publication explicitly forbidden for recurrent actors; sequence PPO, recurrent training checkpoint and embodied memory/social learning qualification remain open"})
+    if args.command == "recurrent-policy-admission":
+        plan.update({"purpose": "native recurrent actor, canonical learner policy interoperability and retained source recovery",
+          "prediction": "native actor admission passes; two recurrent and one dense policy roundtrip byte exactly; MLX sequence actor/pre-cell error<=5e-6 on all80 native slots;17 semantic/API/flat-learner misuse controls reject; retained source/runtime reproduce learner summary, all sequence arrays and canonical policy bytes exactly",
+          "stopping": "native180s and retained native40s; two independent MLX policy instruments180s each; stop on invalidity, no automatic retries",
+          "limitations": "policy parameter/sequence algebra interface only; recurrent rollout and contiguous PPO remain pending"})
     if args.command == "memory-admission":
         plan.update({"purpose": "native working-memory and differentiable sequence algebra component admission",
           "prediction": "native FP64 max error<=3e-6; chunks/previews/duplicates/fresh process exact including reset traces;31 native controls reject including seven re-signed semantic restore corruptions; MLX sequence/pre-cell parity<=3e-6; full parameter/input BPTT<=3e-6 and relative norm<=2e-5; twelve FP64 central differences<=1e-8; reset gradients cut exactly; eight SGD steps reduce fixed objective; retained native/Python-source recovery reproduces future state and learner summary",
@@ -1307,6 +1353,8 @@ def main() -> int:
             result=life_training_probe(root,output,args)
         elif args.command == "life-swift-probe":
             result=life_swift_probe(root,output,args)
+        elif args.command == "recurrent-policy-admission":
+            result=recurrent_policy_admission(root,output,checked)
         elif args.command == "recurrent-actor-admission":
             result=recurrent_actor_admission(root,output,checked)
         elif args.command == "memory-admission":

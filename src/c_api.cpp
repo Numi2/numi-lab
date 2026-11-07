@@ -3031,6 +3031,29 @@ int mr_write_policy_pack(
     });
 }
 
+int mr_write_recurrent_policy_pack(const MRPolicyPackC* policy,
+    const MRPolicyGRUMemoryC* memory,const char* policy_pack_path) {
+    if (!policy || !memory || !policy_pack_path || !policy_pack_path[0]) {
+        gLastError="Recurrent PolicyPack, memory descriptor and output path are required";return -1;
+    }
+    return translateErrors([&] {
+        if (memory->abi_version!=1 || memory->struct_size!=sizeof(MRPolicyGRUMemoryC))
+            throw std::invalid_argument("Unsupported recurrent policy memory descriptor ABI/size");
+        const std::uint64_t I=memory->input_count,H=memory->hidden_count,rows=3*H;
+        if (!I || I>65536 || !H || H>4096 || memory->input_weight_count!=rows*I ||
+            memory->recurrent_weight_count!=rows*H || memory->input_bias_count!=rows || memory->recurrent_bias_count!=rows)
+            throw std::invalid_argument("Recurrent policy memory dimensions/tensor counts are invalid");
+        auto authored=policyPackFromC(*policy);metalrobo::PolicyGRUMemory m;
+        m.afterLayer=memory->after_layer;auto& p=m.cell;p.inputs=I;p.hidden=H;p.maximumAbsoluteInput=memory->maximum_absolute_input;
+        p.inputWeights=copyPolicyFloats(memory->input_weights,memory->input_weight_count,"GRU input weights");
+        p.recurrentWeights=copyPolicyFloats(memory->recurrent_weights,memory->recurrent_weight_count,"GRU recurrent weights");
+        p.inputBias=copyPolicyFloats(memory->input_bias,memory->input_bias_count,"GRU input bias");
+        p.recurrentBias=copyPolicyFloats(memory->recurrent_bias,memory->recurrent_bias_count,"GRU recurrent bias");
+        authored.actorMemory=std::move(m);const auto written=metalrobo::writePolicyPack(authored,policy_pack_path);
+        if (!written.succeeded()) throw std::invalid_argument("Recurrent PolicyPack write failed: "+written.message);
+    });
+}
+
 uint64_t mr_learning_pack_content_hash(
     const void* payload,
     const size_t byte_count

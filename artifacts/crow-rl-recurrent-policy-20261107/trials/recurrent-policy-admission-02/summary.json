@@ -1,0 +1,44 @@
+{
+  "schema": "numi.crow-recurrent-policy-admission.v1",
+  "status": "passed",
+  "actor": {
+    "schema": "numi.crow-recurrent-actor-admission.v1",
+    "status": "passed",
+    "native": {
+      "schema": "numi.crow-recurrent-actor-evidence.v3",
+      "status": "passed",
+      "native_control_ticks": 40,
+      "lanes": 2,
+      "maximum_FP64_error": 1.4215113849913585e-08,
+      "chunk_preview_trace_exact": true,
+      "fresh_process_full_life_exact": true,
+      "invalid_contract_controls": 7,
+      "publication_rejection_controls": 3,
+      "stale_policy_shader_rejected": true,
+      "recurrent_PPO_integrated": false,
+      "embodied_memory_qualified": false
+    },
+    "runtime_retained": true,
+    "retained_runtime_future_exact": true,
+    "actor_memory_integrated": true,
+    "coupled_life_includes_GRU": true,
+    "sequence_PPO_integrated": false,
+    "embodied_memory_qualified": false,
+    "boundary": "authored native v13 controller; recurrent learner and ecological tasks remain open"
+  },
+  "policy_interop": {
+    "schema": "numi.crow-recurrent-policy-evidence.v1",
+    "status": "passed",
+    "canonical_recurrent_policies_byte_exact": 2,
+    "canonical_dense_control_byte_exact": true,
+    "MLX_native_sequence_max_abs": 1.4901161193847656e-08,
+    "contract_rejections": 17,
+    "actual_native_observation_slots": 80,
+    "recurrent_PPO_integrated": false,
+    "embodied_memory_qualified": false
+  },
+  "retained_learner_summary_arrays_and_policy_bytes_exact": true,
+  "installed_matching_Python_MLX_NumPy_required": true,
+  "sequence_PPO_integrated": false,
+  "embodied_memory_qualified": false
+}

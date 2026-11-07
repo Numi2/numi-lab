@@ -1,0 +1,8 @@
+{
+  "schema": "numi.crow-recurrent-policy-plan.v1",
+  "purpose": "canonical native/Python PolicyPack5 interoperability and real native observation sequence algebra",
+  "prediction": "first/next recurrent and dense-control policies roundtrip byte exactly; MLX actor/pre-cell max error<=5e-6 on all native observations; malformed re-signed policies and invalid API/learner uses reject",
+  "conditions": "two native v13 lanes,40ticks,reset9,weights18 from passed recurrent actor admission; no simulated transitions here",
+  "stopping": "one fixed bounded instrument; preserve every failure; no retries or tolerance change",
+  "limitations": "no PPO, behavioral learning, sequence rollout format, recurrent optimizer or throughput qualification"
+}

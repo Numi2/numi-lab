@@ -23,13 +23,14 @@ import numpy as np
 
 from .native import (
     PolicyDenseLayerArtifact,
+    PolicyGRUMemoryArtifact,
     learning_pack_content_hash,
     write_policy_pack,
 )
 
 _LEARNING_PACK_HEADER = struct.Struct("<8sIIQQ")
 _POLICY_KIND = 2
-_POLICY_FORMAT_VERSION = 4
+_POLICY_FORMAT_VERSION = 5
 _POLICY_ROLLOUT_KIND = 3
 _POLICY_ROLLOUT_FORMAT_VERSION = 7
 _MOTION_KIND = 4
@@ -505,6 +506,7 @@ class NativePolicyPack:
     action_clip: float
     content_hash: int
     format_version: int
+    actor_memory: PolicyGRUMemoryArtifact | None = None
 
     @property
     def actor_observation_count(self) -> int:
@@ -587,6 +589,8 @@ class NativePolicyPack:
         )
 
     def actor_mean(self, observations: np.ndarray) -> np.ndarray:
+        if self.actor_memory is not None:
+            raise ValueError("Recurrent actor requires explicit initial hidden state and contiguous sequence/reset masks")
         value = np.asarray(observations, dtype=np.float32)
         if value.shape[-1] != self.actor_observation_count:
             raise ValueError(
@@ -702,6 +706,7 @@ class _PackReader:
 def _read_dense_layers(
     reader: _PackReader,
     label: str,
+    *, deferred_recurrent_boundary: bool = False,
 ) -> tuple[NativePolicyDenseLayer, ...]:
     layer_count = reader.unsigned64()
     if layer_count == 0 or layer_count > 32:
@@ -716,7 +721,7 @@ def _read_dense_layers(
             input_count == 0
             or output_count == 0
             or activation > 4
-            or (index != 0 and input_count != expected_input)
+            or (index != 0 and input_count != expected_input and not deferred_recurrent_boundary)
         ):
             raise ValueError(f"{label} topology is invalid")
         weights = reader.vector(
@@ -764,7 +769,7 @@ def read_policy_pack(
     ) = _LEARNING_PACK_HEADER.unpack_from(data)
     if magic != b"MRLEARN\0":
         raise ValueError("PolicyPack magic is invalid")
-    if format_version not in (2, 3, _POLICY_FORMAT_VERSION):
+    if format_version not in (2, 3, 4, _POLICY_FORMAT_VERSION):
         raise ValueError("PolicyPack format version is unsupported")
     if kind != _POLICY_KIND:
         raise ValueError("Learning artifact is not a PolicyPack")
@@ -786,7 +791,7 @@ def read_policy_pack(
     observation_inverse_standard_deviation = reader.vector(
         np.dtype("<f4")
     )
-    layers = _read_dense_layers(reader, "actor")
+    layers = _read_dense_layers(reader, "actor", deferred_recurrent_boundary=format_version == 5)
     critic_observation_mean = reader.vector(np.dtype("<f4"))
     critic_observation_inverse_standard_deviation = reader.vector(
         np.dtype("<f4")
@@ -825,6 +830,28 @@ def read_policy_pack(
         task_fingerprint = 0
         observation_fingerprint = 0
         action_fingerprint = 0
+    actor_memory = None
+    if format_version == 5:
+        after = reader.unsigned32()
+        inputs = reader.unsigned32()
+        hidden = reader.unsigned32()
+        bound = reader.float32()
+        if (not 0 < after < len(layers) or not 0 < inputs <= 65536 or not 0 < hidden <= 4096
+                or not math.isfinite(bound) or bound <= 0
+                or layers[after-1].output_count != inputs or layers[after].input_count != hidden):
+            raise ValueError("PolicyPack GRU boundary or dimensions are invalid")
+        wi = reader.vector(np.dtype("<f4"), 3*hidden*inputs).reshape(3*hidden, inputs)
+        wh = reader.vector(np.dtype("<f4"), 3*hidden*hidden).reshape(3*hidden, hidden)
+        bi = reader.vector(np.dtype("<f4"), 3*hidden)
+        bh = reader.vector(np.dtype("<f4"), 3*hidden)
+        if (not all(np.isfinite(a).all() for a in (wi, wh, bi, bh))
+                or any(layers[i].input_count != layers[i-1].output_count for i in range(1, len(layers)) if i != after)):
+            raise ValueError("PolicyPack GRU values or dense topology are invalid")
+        limit = float(np.finfo(np.float32).max)/8
+        if (np.any(np.abs(bi.astype(np.float64)) + np.sum(np.abs(wi.astype(np.float64)), axis=1)*bound > limit)
+                or np.any(np.abs(bh.astype(np.float64)) + np.sum(np.abs(wh.astype(np.float64)), axis=1)*1.000001 > limit)):
+            raise ValueError("PolicyPack GRU FP32 accumulator bound exceeded")
+        actor_memory = PolicyGRUMemoryArtifact(after, wi, wh, bi, bh, bound)
     if reader.cursor != len(payload):
         raise ValueError("PolicyPack contains trailing payload bytes")
     actor_count = layers[0].input_count
@@ -905,6 +932,7 @@ def read_policy_pack(
         action_clip=action_clip,
         content_hash=expected_hash,
         format_version=format_version,
+        actor_memory=actor_memory,
     )
 
 
@@ -2547,6 +2575,8 @@ class MLXPolicyLearner:
             path,
             library_path=library_path,
         )
+        if pack.actor_memory is not None:
+            raise ValueError("Recurrent PolicyPack requires the contiguous sequence PPO learner")
         if pack.format_version == 2:
             raise ValueError(
                 "PPO resume requires a v3+ raw-Gaussian "
@@ -2779,6 +2809,8 @@ class MLXPolicyLearner:
         """
 
         pack = read_policy_pack(path, library_path=library_path)
+        if pack.actor_memory is not None:
+            raise ValueError("Recurrent PolicyPack requires the contiguous sequence PPO learner")
         if (
             preserve_critic and
             pack.critic_layers and
@@ -3083,6 +3115,8 @@ class MLXPolicyLearner:
         """
 
         pack = read_policy_pack(path, library_path=library_path)
+        if pack.actor_memory is not None:
+            raise ValueError("Recurrent PolicyPack requires the contiguous sequence PPO learner")
         expected_activations = [3] * (len(pack.layers) - 1) + [0]
         if [layer.activation for layer in pack.layers] != expected_activations:
             raise ValueError(

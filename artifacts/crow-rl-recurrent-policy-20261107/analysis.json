@@ -1,0 +1,135 @@
+{
+  "schema": "numi.crow-recurrent-policy-archive.v1",
+  "status": "native-Python-policy-interface-admitted",
+  "final_trial": {
+    "schema": "numi.crow-recurrent-policy-admission.v1",
+    "status": "passed",
+    "actor": {
+      "schema": "numi.crow-recurrent-actor-admission.v1",
+      "status": "passed",
+      "native": {
+        "schema": "numi.crow-recurrent-actor-evidence.v3",
+        "status": "passed",
+        "native_control_ticks": 40,
+        "lanes": 2,
+        "maximum_FP64_error": 1.4215113849913585e-08,
+        "chunk_preview_trace_exact": true,
+        "fresh_process_full_life_exact": true,
+        "invalid_contract_controls": 7,
+        "publication_rejection_controls": 3,
+        "stale_policy_shader_rejected": true,
+        "recurrent_PPO_integrated": false,
+        "embodied_memory_qualified": false
+      },
+      "runtime_retained": true,
+      "retained_runtime_future_exact": true,
+      "actor_memory_integrated": true,
+      "coupled_life_includes_GRU": true,
+      "sequence_PPO_integrated": false,
+      "embodied_memory_qualified": false,
+      "boundary": "authored native v13 controller; recurrent learner and ecological tasks remain open"
+    },
+    "policy_interop": {
+      "schema": "numi.crow-recurrent-policy-evidence.v1",
+      "status": "passed",
+      "canonical_recurrent_policies_byte_exact": 2,
+      "canonical_dense_control_byte_exact": true,
+      "MLX_native_sequence_max_abs": 1.4901161193847656e-08,
+      "contract_rejections": 17,
+      "actual_native_observation_slots": 80,
+      "recurrent_PPO_integrated": false,
+      "embodied_memory_qualified": false
+    },
+    "retained_learner_summary_arrays_and_policy_bytes_exact": true,
+    "installed_matching_Python_MLX_NumPy_required": true,
+    "sequence_PPO_integrated": false,
+    "embodied_memory_qualified": false
+  },
+  "native_checks_passed": 14,
+  "python_checks_passed": 26,
+  "ordinary_learner_optimizer_hashes_unchanged": true,
+  "ordinary_learner": {
+    "status": "passed",
+    "claim": "native/MLX updates, publication, and learner-only restore",
+    "variant": "v13-retinal-feeding",
+    "environments": 16,
+    "actor_initialization": "new zero-output actor",
+    "records": [
+      {
+        "stage": "initial",
+        "updates": 2,
+        "samples": 4096,
+        "training_loop_steps_per_second": 1446.4848713697613,
+        "whole_process_steps_per_second": 1171.6434398118424,
+        "initial_revision": 1,
+        "final_revision": 3,
+        "learner_state_restored": false,
+        "checkpoint_sha256": "29f79d3c670b7476757945a62104d78ba76012220be388c07b6f24e93f75d8d1",
+        "last_update_mean_reward": 0,
+        "last_update_maximum_reward": 0,
+        "last_update_intake_utility_mean": 0,
+        "last_update_learning_rate": 9.999999747378752e-05,
+        "last_update_action_standard_deviation": 2.7183361053466797,
+        "mlx_peak_memory_bytes": 165057528
+      },
+      {
+        "stage": "resume",
+        "updates": 1,
+        "samples": 2048,
+        "training_loop_steps_per_second": 1415.395029893568,
+        "whole_process_steps_per_second": 1195.1500426196192,
+        "initial_revision": 3,
+        "final_revision": 4,
+        "learner_state_restored": true,
+        "checkpoint_sha256": "6c2d517062ccc6c28ea127ffea9f59fc12c00d33179140c6565503a758c882fe",
+        "last_update_mean_reward": 0.0029296870343387127,
+        "last_update_maximum_reward": 1.999999761581421,
+        "last_update_intake_utility_mean": 0.0029296870343387127,
+        "last_update_learning_rate": 9.999999747378752e-05,
+        "last_update_action_standard_deviation": 2.7183756828308105,
+        "mlx_peak_memory_bytes": 143412208
+      }
+    ],
+    "candidate_promoted": false,
+    "persistent_world_restore_tested": false,
+    "ecological_environment_qualified": false
+  },
+  "feeding_fingerprints_unchanged": true,
+  "feeding": {
+    "status": "passed",
+    "claim": "ordinary and residual native policy partition invariance",
+    "records": [
+      {
+        "mode": "ordinary",
+        "fingerprint": "2255877855914022940",
+        "chunks": [
+          1,
+          8
+        ]
+      },
+      {
+        "mode": "residual",
+        "fingerprint": "3082487550463979285",
+        "chunks": [
+          1,
+          8
+        ]
+      }
+    ],
+    "ecological_environment_qualified": false
+  },
+  "attempts": {
+    "native01": "direct policy interface instrument passed using actor-admission01 native arrays from parent milestone; input SHA receipts retained; no separate pre-execution source snapshot for this exploratory invocation",
+    "admission01": "passed full native life/retained runtime and canonical policy/MLX parity/17 controls; retained learner recovery exact",
+    "admission02": "same checks passed; adds explicit preflight-to-retained four-module source-hash binding"
+  },
+  "direct_native01_input_origin": "artifacts/crow-rl-recurrent-actor-20261107/trials/recurrent-actor-admission-01/native-evidence at parent commit7e70166d",
+  "retained_recovery_scope": "native binary/library/shader trees on macmini; archived source/size/hash receipts; final native internal child compares all three life components and retained external child compares future streams; separate retained Python source reproduces summary/all arrays/canonical policies",
+  "recurrent_policy_C_ABI": 1,
+  "legacy_C_struct_and_dense_policy_v4_bytes_unchanged": true,
+  "recurrent_policy_parameter_reader_writer_integrated": true,
+  "recurrent_rollout_and_sequence_PPO_integrated": false,
+  "embodied_memory_qualified": false,
+  "full_loop_performance_qualified": false,
+  "ecological_environment_qualified": false
+}

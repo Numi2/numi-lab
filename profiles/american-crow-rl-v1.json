@@ -80,7 +80,7 @@
     "weather_and_seasonal_ecology": "pending",
     "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-partition-and-pending-frame-fresh-process-restore-controls-passed-including-live-head-renderer",
     "retinal_actor_contract": "native-v13-1251-actor-97-critic-18-actions; live-pixel-controls-and-C-API-Swift-MLX-update-learner-restore-passed-at16-64-128; visual-learning-and-production-performance-qualification-pending",
-    "native_working_memory": "native-PolicyPack-v5-encoder-GRU-head-actor-and-full-v13-life-state-admitted; exact-chunk-preview-reset-weight-publication-fresh-process-replay; recurrent-rollout-sequence-PPO-and-behavioral-qualification-pending"
+    "native_working_memory": "native-PolicyPack5-encoder-GRU-head-actor-life-state-and-canonical-Python-policy-interface-admitted; exact-native-replay-and-MLX-sequence-parity; recurrent-rollout-contiguous-PPO-and-behavioral-qualification-pending"
   },
   "release_requirements": [
     "deterministic accepted-state execution across submission chunks",
@@ -275,5 +275,24 @@
     "legacy_dense_policy_v4_bytes_preserved": true,
     "legacy_recurrent_rollout_v7_publication": "explicitly rejected until hidden/reset sequence format is implemented",
     "scope": "native execution/persistence engineering instrument; no learned memory or ecological claim"
+  },
+  "recurrent_policy_interface_development_instrument": {
+    "command": "recurrent-policy-admission",
+    "evidence": "artifacts/crow-rl-recurrent-policy-20261107",
+    "native_policy_format": 5,
+    "C_memory_descriptor_ABI": 1,
+    "legacy_dense_C_ABI_and_policy_v4_bytes_preserved": true,
+    "canonical_recurrent_policies_byte_exact": 2,
+    "canonical_dense_control_byte_exact": true,
+    "actual_native_observation_slots": 80,
+    "MLX_native_sequence_max_abs": 1.4901161193847656e-08,
+    "contract_rejections": 17,
+    "retained_source_summary_all_sequence_arrays_and_policy_bytes_exact": true,
+    "native_actor_life_state_admission_repeated": true,
+    "recurrent_training_entry_points": "explicitly reject until sequence PPO is implemented",
+    "recurrent_rollout_format_integrated": false,
+    "sequence_PPO_integrated": false,
+    "embodied_memory_qualified": false,
+    "scope": "native/Python artifact interchange and MLX forward sequence algebra on native crow observations; no recurrent optimizer or behavioral learning claim"
   }
 }

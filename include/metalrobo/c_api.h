@@ -437,6 +437,24 @@ typedef struct MRPolicyPackC {
     float action_clip;
 } MRPolicyPackC;
 
+// Additive ABI1 descriptor: MRPolicyPackC and legacy writer remain unchanged.
+typedef struct MRPolicyGRUMemoryC {
+    uint32_t abi_version;
+    uint32_t struct_size;
+    uint32_t after_layer;
+    uint32_t input_count;
+    uint32_t hidden_count;
+    float maximum_absolute_input;
+    const float* input_weights;
+    size_t input_weight_count;
+    const float* recurrent_weights;
+    size_t recurrent_weight_count;
+    const float* input_bias;
+    size_t input_bias_count;
+    const float* recurrent_bias;
+    size_t recurrent_bias_count;
+} MRPolicyGRUMemoryC;
+
 typedef struct MRPolicyRolloutBatchC {
     uint32_t control_step_count;
     const float* actor_observations;
@@ -631,6 +649,13 @@ MR_API int mr_write_policy_pack(
     const MRPolicyPackC* policy,
     const char* policy_pack_path
 );
+// Requires a nonnull ABI1 memory descriptor; writes PolicyPack5.
+MR_API int mr_write_recurrent_policy_pack(
+    const MRPolicyPackC* policy,
+    const MRPolicyGRUMemoryC* memory,
+    const char* policy_pack_path
+);
+
 // Hashes one already-mapped learning-pack payload with the exact native wire
 // algorithm. Null is valid only when byte_count is zero.
 MR_API uint64_t mr_learning_pack_content_hash(
