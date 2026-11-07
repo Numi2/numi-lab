@@ -10,7 +10,7 @@ The prior physical 72-case matrix regressed from 72 accepted to 61. At two sweep
 
 In one exploratory matched run the completed owner candidate used 65.5 ms GPU time, while the previous candidate's rejected owner step used 6.4 ms. These have different acceptance outcomes and are not a performance comparison. Timing samples for all cases are retained as diagnostic evidence; no speed claim follows. The prior candidate's passing matrix is unchanged and independently retained on its branch.
 
-[Raw results, source patch, FP64 reference and source/binary identities](evidence/ccd-priority-row-evidence-20261107.tar.gz) have archive SHA-256 1b83e6deb01df8d63e573c876016e52adb9dbc7853382aaf93165de2e8c36902. Metallibs and executables remain host-only; their SHA-256 identities are inside the archive.
+[Raw results, source patch, FP64 reference and source/binary identities](evidence/ccd-priority-row-evidence-20261107.tar.gz) have archive SHA-256 1b83e6deb01df8d63e573c876016e52adb9dbc7853382aaf93165de2e8c36902. The exact v1 metallib was overwritten by a later build before it was separately copied, so its bytes are not confirmed retained; its SHA-256 remains in the archive. The probe executables remain host-only. Rebuilding from source has not been shown to reproduce the original metallib byte for byte.
 
 ## Follow-up two-row normal reference
 

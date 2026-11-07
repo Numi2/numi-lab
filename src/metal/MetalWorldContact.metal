@@ -6871,6 +6871,149 @@ kernel void mr_world_wave32_distributed_delta(
     // Experimental bounded priority-coordinate solve. Exactly one lane owns
     // the whole island; no lane races its sparse impulse updates. It commits
     // only through the existing reducer and final complementarity certificate.
+    {
+    const MRWorkQueueHeaderGPU header =
+        workHeaders[MR_WORLD_WORK_SOLVER_SPILL];
+    const uint stride = max(groupCount.x, 1u);
+    for (uint queueSlot = workGroup.x;
+         queueSlot < header.count;
+         queueSlot += stride) {
+        const MRContactTileGPU tile =
+            compactTiles[header.reserved0 + queueSlot];
+        const uint environment = tile.environment;
+        if (environment >= dispatch.environmentCount ||
+            lane >= tile.constraintCount ||
+            statuses[environment].code != MR_STEP_SUCCESS) {
+            continue;
+        }
+        const MRIslandWorkGPU gateWork = denseIslandWork[
+            environment * dispatch.islandCapacity + tile.islandIndex];
+        if (gateWork.constraintCount == 0u ||
+            gateWork.firstTile >= dispatch.solverTileCapacity) continue;
+        const MRContactTileGPU gateFirst = compactTiles[
+            environment * dispatch.solverTileCapacity + gateWork.firstTile];
+        bool islandHasFriction = false;
+        for (uint gateIndex = 0u; gateIndex < gateWork.constraintCount; ++gateIndex) {
+            const uint gateConstraint = tileConstraintIndices[
+                environment * dispatch.constraintStride + gateFirst.partialOffset + gateIndex];
+            const auto gateCone = evaluatedCones[environment * dispatch.constraintStride + gateConstraint];
+            islandHasFriction = islandHasFriction ||
+                gateCone.effectiveFrictionU > 0.f || gateCone.effectiveFrictionV > 0.f;
+        }
+        if (!islandHasFriction) continue;
+        const uint constraintBase =
+            environment * dispatch.constraintStride;
+        const uint rowBase =
+            environment * dispatch.rowStride;
+        const uint bodyBase =
+            environment * dispatch.bodyStateStride;
+        const uint pointJacobianBase =
+            environment *
+            (dispatch.pointQueryStride * 3u * dispatch.nv);
+        const uint localConstraint =
+            tileConstraintIndices[
+                constraintBase + tile.partialOffset + lane
+            ];
+        const MRWave32PreconditionerGPU preconditioner =
+            preconditioners[
+                constraintBase + localConstraint
+            ];
+        if (static_cast<uint>(
+                preconditioner.row0.w
+            ) != MR_STEP_SUCCESS) {
+            continue;
+        }
+        device MRContactConstraintGPU& contact =
+            contacts[constraintBase + localConstraint];
+        device const MREvaluatedConstraintIRRowGPU* localRows =
+            evaluatedRows + rowBase + 3u * localConstraint;
+        const float3 relative = relativePointVelocity(
+            localConstraint,
+            contact,
+            candidateBodies + bodyBase,
+            dispatch.articulationIndex,
+            pointJacobians,
+            pointJacobianBase,
+            dispatch.nv,
+            candidateV + environment * dispatch.nv
+        );
+        const float3 previous = contact.impulses.xyz;
+        const float3 rhs = float3(
+            localRows[0].targetVelocity -
+                dot(localRows[0].direction.xyz, relative) -
+                localRows[0].regularization * previous.x,
+            localRows[1].targetVelocity -
+                dot(localRows[1].direction.xyz, relative) -
+                localRows[1].regularization * previous.y,
+            localRows[2].targetVelocity -
+                dot(localRows[2].direction.xyz, relative) -
+                localRows[2].regularization * previous.z
+        );
+        const float3 proposed = normalFirstContactCandidate(
+            previous,rhs,preconditioner,preconditioner.row2.w,
+            evaluatedCones[constraintBase+localConstraint]
+        );
+        if (tile.islandConstraintCount == 0u) {
+            impulseDeltas[constraintBase + localConstraint] =
+                float4(0.0f, 0.0f, 0.0f,
+                       static_cast<float>(MR_STEP_NONFINITE_RESULT));
+            continue;
+        }
+        const MRIslandWorkGPU work = denseIslandWork[
+            environment * dispatch.islandCapacity + tile.islandIndex];
+        if(work.constraintCount != tile.islandConstraintCount ||
+           work.firstTile >= dispatch.solverTileCapacity) {
+            impulseDeltas[constraintBase + localConstraint] =
+                float4(0.0f,0.0f,0.0f,static_cast<float>(MR_STEP_NONFINITE_RESULT));
+            continue;
+        }
+        const MRContactTileGPU firstTile = compactTiles[
+            environment * dispatch.solverTileCapacity + work.firstTile];
+        const uint responseBase=environment*(dispatch.constraintStride*3u*dispatch.nv);
+        const float3 targetNormal=localRows[0].direction.xyz;
+        float rowSum=0.f,diagonal=0.f;
+        for(uint i=0;i<work.constraintCount;++i) {
+            const uint other=tileConstraintIndices[
+                constraintBase+firstTile.partialOffset+i];
+            device const MRContactConstraintGPU& source=contacts[constraintBase+other];
+            const float3 sourceNormal=evaluatedRows[rowBase+3u*other].direction.xyz;
+            const float cross=distributedRigidNormalCrossResponse(
+                localConstraint,other,contact,source,targetNormal,sourceNormal,
+                candidateBodies+bodyBase,pointJacobians,pointJacobianBase,responseColumns,
+                responseBase,dispatch.nv,dispatch.articulationIndex);
+            rowSum+=abs(cross);
+            if(other==localConstraint)diagonal=abs(cross)+localRows[0].regularization;
+        }
+        if(!(diagonal>0.f)||!isfinite(diagonal)||!isfinite(rowSum)) {
+            impulseDeltas[constraintBase + localConstraint] =
+                float4(0.0f,0.0f,0.0f,static_cast<float>(MR_STEP_FACTORIZATION_FAILED));
+            continue;
+        }
+        // Bound each normal row by the sum of its actual couplings. This
+        // avoids treating mutually orthogonal rows as fully coupled.
+        const float relaxation=clamp(
+            (1.f+kContactMatrixRegularization)*diagonal /
+                max(rowSum+localRows[0].regularization,kMatrixFloor),
+            1.f/float(tile.islandConstraintCount),1.f);
+        const float3 delta = relaxation * (proposed - previous);
+        const float3 candidate = previous + delta;
+        if (!finite3(candidate) || !finite3(delta)) {
+            impulseDeltas[
+                constraintBase + localConstraint
+            ] = float4(
+                0.0f,
+                0.0f,
+                0.0f,
+                static_cast<float>(MR_STEP_NONFINITE_RESULT)
+            );
+            continue;
+        }
+        contact.impulses.xyz = candidate;
+        impulseDeltas[
+            constraintBase + localConstraint
+        ] = float4(delta, 0.0f);
+    }
+    }
     const MRWorkQueueHeaderGPU header = workHeaders[MR_WORLD_WORK_SOLVER_SPILL];
     const uint stride = max(groupCount.x, 1u);
     if (lane != 0u) return;
@@ -6892,6 +7035,13 @@ kernel void mr_world_wave32_distributed_delta(
         device const MRBodyStateGPU* bodies = candidateBodies + bodyBase;
         device const float* velocity = candidateV + environment * dispatch.nv;
         const uint firstConstraint = tileConstraintIndices[constraintBase + firstTile.partialOffset];
+        bool islandHasFriction = false;
+        for (uint i = 0u; i < work.constraintCount; ++i) {
+            const uint c = tileConstraintIndices[constraintBase + firstTile.partialOffset + i];
+            const auto cone = evaluatedCones[constraintBase+c];
+            islandHasFriction = islandHasFriction || cone.effectiveFrictionU > 0.f || cone.effectiveFrictionV > 0.f;
+        }
+        if (islandHasFriction) continue;
         bool failed = false;
         for (uint i = 0u; i < work.constraintCount; ++i) {
             const uint c = tileConstraintIndices[constraintBase + firstTile.partialOffset + i];
@@ -6904,6 +7054,7 @@ kernel void mr_world_wave32_distributed_delta(
             float bestScore = 0.f;
             uint best = MR_INVALID_INDEX;
             float3 bestCandidate = float3(0.f);
+            float bestNormalRhs = 0.f;
             for (uint i = 0u; i < work.constraintCount; ++i) {
                 const uint c = tileConstraintIndices[constraintBase + firstTile.partialOffset + i];
                 device MRContactConstraintGPU& target = contacts[constraintBase + c];
@@ -6936,13 +7087,94 @@ kernel void mr_world_wave32_distributed_delta(
                     evaluatedCones[constraintBase+c]);
                 const float score = length(proposed-previous)*pre.row2.w;
                 if (!finite3(proposed) || !isfinite(score)) { failed = true; break; }
-                if (score > bestScore) { bestScore=score; best=c; bestCandidate=proposed; }
+                if (score > bestScore) { bestScore=score; best=c; bestCandidate=proposed; bestNormalRhs=rhs.x; }
             }
             if (best == MR_INVALID_INDEX || bestScore <= 1.e-7f) break;
             device MRContactConstraintGPU& contact = contacts[constraintBase+best];
-            const float3 delta = bestCandidate - contact.impulses.xyz;
-            contact.impulses.xyz = bestCandidate;
-            impulseDeltas[constraintBase+best].xyz += delta;
+            device const MREvaluatedConstraintIRRowGPU* bestRows = evaluatedRows + rowBase + 3u*best;
+            const auto bestCone = evaluatedCones[constraintBase+best];
+            const float oldBest = contact.impulses.x;
+            const float a = distributedRigidNormalCrossResponse(best,best,contact,contact,
+                bestRows[0].direction.xyz,bestRows[0].direction.xyz,bodies,
+                pointJacobians,pointJacobianBase,responseColumns,responseBase,
+                dispatch.nv,dispatch.articulationIndex) + bestRows[0].regularization;
+            const float g = -bestNormalRhs;
+            float bestDelta = bestCandidate.x - oldBest;
+            float bestObjective = .5f*a*bestDelta*bestDelta + g*bestDelta;
+            uint partner = MR_INVALID_INDEX;
+            float partnerDelta = 0.f;
+            // Solve bounded two-row normal subproblems. The pair search is
+            // bounded by island size, and rejects singular unconstrained solves.
+            // Capped or frictional cones retain the previous solver path.
+            if (a > kMatrixFloor && isfinite(a) && bestCone.maximumNormalImpulse <= 0.f) {
+                for (uint j = 0u; j < work.constraintCount; ++j) {
+                    const uint other = tileConstraintIndices[constraintBase+firstTile.partialOffset+j];
+                    if (other == best) continue;
+                    device MRContactConstraintGPU& target = contacts[constraintBase+other];
+                    device const MREvaluatedConstraintIRRowGPU* rows = evaluatedRows+rowBase+3u*other;
+                    const auto cone = evaluatedCones[constraintBase+other];
+                    if (cone.maximumNormalImpulse > 0.f) continue;
+                    const float3 relative = relativePointVelocity(other,target,bodies,dispatch.articulationIndex,
+                        pointJacobians,pointJacobianBase,dispatch.nv,velocity);
+                    float gj = dot(rows[0].direction.xyz,relative) - rows[0].targetVelocity +
+                        rows[0].regularization*target.impulses.x;
+                    for (uint k=0u;k<work.constraintCount;++k) {
+                        const uint sourceIndex=tileConstraintIndices[constraintBase+firstTile.partialOffset+k];
+                        const float change=impulseDeltas[constraintBase+sourceIndex].x;
+                        if (change == 0.f) continue;
+                        device const MRContactConstraintGPU& source=contacts[constraintBase+sourceIndex];
+                        device const MREvaluatedConstraintIRRowGPU* sourceRows=evaluatedRows+rowBase+3u*sourceIndex;
+                        gj += change*distributedRigidNormalCrossResponse(other,sourceIndex,target,source,
+                            rows[0].direction.xyz,sourceRows[0].direction.xyz,bodies,pointJacobians,
+                            pointJacobianBase,responseColumns,responseBase,dispatch.nv,dispatch.articulationIndex);
+                    }
+                    const float c=distributedRigidNormalCrossResponse(other,other,target,target,
+                        rows[0].direction.xyz,rows[0].direction.xyz,bodies,pointJacobians,
+                        pointJacobianBase,responseColumns,responseBase,dispatch.nv,dispatch.articulationIndex)
+                        + rows[0].regularization;
+                    const float bij=distributedRigidNormalCrossResponse(best,other,contact,target,
+                        bestRows[0].direction.xyz,rows[0].direction.xyz,bodies,pointJacobians,
+                        pointJacobianBase,responseColumns,responseBase,dispatch.nv,dispatch.articulationIndex);
+                    const float bji=distributedRigidNormalCrossResponse(other,best,target,contact,
+                        rows[0].direction.xyz,bestRows[0].direction.xyz,bodies,pointJacobians,
+                        pointJacobianBase,responseColumns,responseBase,dispatch.nv,dispatch.articulationIndex);
+                    const float coupling=.5f*(bij+bji);
+                    const float determinant=a*c-coupling*coupling;
+                    if (!(c>kMatrixFloor) || !isfinite(c) || !isfinite(gj) || !isfinite(coupling))
+                        { failed=true; break; }
+                    float di[3],dj[3];
+                    di[0]=-oldBest;
+                    dj[0]=max(-target.impulses.x,-(gj+coupling*di[0])/c);
+                    dj[1]=-target.impulses.x;
+                    di[1]=max(-oldBest,-(g+coupling*dj[1])/a);
+                    di[2]=0.f;dj[2]=0.f;
+                    if (determinant>1.e-5f*a*c) {
+                        di[2]=(coupling*gj-c*g)/determinant;
+                        dj[2]=(coupling*g-a*gj)/determinant;
+                        if (di[2]<-oldBest || dj[2]<-target.impulses.x) {di[2]=0.f;dj[2]=0.f;}
+                    }
+                    for (uint choice=0u;choice<3u;++choice) {
+                        const float objective=.5f*(a*di[choice]*di[choice]+
+                            2.f*coupling*di[choice]*dj[choice]+c*dj[choice]*dj[choice])
+                            +g*di[choice]+gj*dj[choice];
+                        if (isfinite(objective) && objective<bestObjective-1.e-9f) {
+                            bestObjective=objective; bestDelta=di[choice];
+                            partner=other; partnerDelta=dj[choice];
+                        }
+                    }
+                }
+            }
+            if (failed) break;
+            if (partner != MR_INVALID_INDEX) {
+                contact.impulses.x += bestDelta;
+                impulseDeltas[constraintBase+best].x += bestDelta;
+                contacts[constraintBase+partner].impulses.x += partnerDelta;
+                impulseDeltas[constraintBase+partner].x += partnerDelta;
+            } else {
+                const float3 delta = bestCandidate - contact.impulses.xyz;
+                contact.impulses.xyz = bestCandidate;
+                impulseDeltas[constraintBase+best].xyz += delta;
+            }
         }
         if (failed) impulseDeltas[constraintBase+firstConstraint].w = float(MR_STEP_NONFINITE_RESULT);
     }
