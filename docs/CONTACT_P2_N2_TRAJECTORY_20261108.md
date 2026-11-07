@@ -38,3 +38,25 @@ The first coarse invocation completed integration but failed at JSON
 serialization because the DOF count was a NumPy int32; it emitted no trace.
 Its exception and process information are retained, and the fine run did
 not start. A separately recorded attempt corrects the output type only.
+
+## Result
+
+The corrected coarse and fine trajectories completed in 18.0 and 40.3 s.
+The force-bin difference was 3.40e-7, impulse difference 2.13e-8, and work
+difference 9.86e-7 under their declared normalizations, passing the 0.25%
+temporal checks. Both had positive sampled order-8/order-12 gaps and
+Jacobians; the minimum gap was 85.05 µm. Momentum, total-energy drift and
+contact-work consistency checks passed.
+
+**The declared quadrature gate failed.** At sampled trajectory states,
+the maximum order-8 versus order-12 instantaneous force difference was
+1.588% of the fine peak 1 ms force bin, above 0.25%. Thus the prerequisite
+for a reference trajectory is not met. The earlier fixed-state force
+quadrature check passed, but did not establish adequacy during impact.
+Neither temporal convergence of the intended continuum surface integral nor
+spatial qualification is established by this run; clearance between
+quadrature points or evaluations is also not certified.
+
+The [original serialization failure](evidence/contact-p2-n2-trajectory-20261108/)
+and [corrected traces and analysis](evidence/contact-p2-n2-trajectory-corrected-20261108/)
+are retained with exact source identities and limits.

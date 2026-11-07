@@ -1,0 +1,32 @@
+{
+  "threshold": 0.0025,
+  "peak_bin_N": 0.09056174908397033,
+  "fine_impulse_Ns": 0.0004147820212545922,
+  "temporal_force": 3.404357467207217e-07,
+  "temporal_impulse": 2.125461811077636e-08,
+  "runs": {
+    "coarse": {
+      "min_gap_m": 8.505081441007308e-05,
+      "min_J": 0.967085596063567,
+      "quadrature_force_relative": 0.015884558834330046,
+      "momentum_relative": 4.182253297116844e-15,
+      "energy_drift_relative": 1.1464514328243266e-08,
+      "contact_work_balance_relative": 1.0327696765164396e-06,
+      "contact_work_scale_J": 4.699080934555171e-07
+    },
+    "fine": {
+      "min_gap_m": 8.505085545330979e-05,
+      "min_J": 0.967085594239424,
+      "quadrature_force_relative": 0.01588459515112136,
+      "momentum_relative": 7.841724932094083e-15,
+      "energy_drift_relative": 8.705877450187818e-10,
+      "contact_work_balance_relative": 7.847137618868354e-08,
+      "contact_work_scale_J": 4.6990774568732227e-07
+    }
+  },
+  "temporal_contact_work": 9.858532347405134e-07,
+  "temporal_pass": true,
+  "quadrature_pass": false,
+  "other_gates_pass": true,
+  "reference_prerequisite_pass": false
+}

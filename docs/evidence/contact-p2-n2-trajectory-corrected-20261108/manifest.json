@@ -1,0 +1,36 @@
+{
+  "prediction_commit": "9c4077dcc65e06b0151a01b553cafee2da6f46c1",
+  "source_sha256": "f56a50c733b84eeb1bfc82e182b56fd4b5d5bdabfc6fc19188059195b6df9449",
+  "model_sha256": "726dbf72ff85ceec348df396b6a26c4db90583bc7843d8c8303035d6580f96bb",
+  "python": "/private/tmp/numi-fem-py313b-20261107/bin/python",
+  "runs": [
+    {
+      "variant": "coarse",
+      "argv": [
+        "/usr/bin/time",
+        "-l",
+        "/private/tmp/numi-fem-py313b-20261107/bin/python",
+        "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_p2_n2_trajectory.py",
+        "coarse"
+      ],
+      "exit": 0,
+      "timeout_s": 240,
+      "elapsed_s": 17.955259083013516,
+      "output_sha256": "8d323cba66c1c72cd388efe0826788ebaac4a080de11c08e2b484005adc73d72"
+    },
+    {
+      "variant": "fine",
+      "argv": [
+        "/usr/bin/time",
+        "-l",
+        "/private/tmp/numi-fem-py313b-20261107/bin/python",
+        "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_p2_n2_trajectory.py",
+        "fine"
+      ],
+      "exit": 0,
+      "timeout_s": 480,
+      "elapsed_s": 40.33702149998862,
+      "output_sha256": "886a49803a0a5e1d49c2d7ec477b0a85caa44e6a551817dc2c9e6ec595711654"
+    }
+  ]
+}
