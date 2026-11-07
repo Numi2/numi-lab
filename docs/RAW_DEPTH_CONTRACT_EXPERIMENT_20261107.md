@@ -48,3 +48,14 @@ also do not establish observation restoration after a rejected physical step.
 In particular the tracker advances its host-side observation sequence during
 encoding; its relationship to rejected steps and sensor cadence needs a
 full transaction test before this path can be described as replay safe.
+
+A separate CPU cadence check covers a rejected observation encoding: the
+candidate sequence is now committed only when the observation encoder
+successfully returns, and reset restarts the cadence. This does not cover
+later command-buffer failure or a rejected physics step. Physical status is
+per environment and appears only after the observation kernels have already
+modified depth and object-track histories. The current task-completion path
+also treats a physics failure as a terminal episode. A full repair needs
+per-environment staged image, object-track and depth histories, held-frame
+cadence, and a defined task/reset transaction; it cannot be inferred from the
+host-only cadence check.

@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 
 #include "metalrobo/MetalHybridRenderer.hpp"
+#include "ObservationCadence.hpp"
 
 #include <dlfcn.h>
 
@@ -7365,9 +7366,7 @@ struct MetalHybridObjectTracker::State {
     __strong id<MTLBuffer> maskedDepthHistory = nil;
     MetalHybridRendererLayout rendererLayout{};
     MRHybridRenderUniformsGPU maskedDepthRenderUniforms{};
-    std::uint64_t observationSequence = 0u;
-    std::uint64_t lastSensorSequence =
-        std::numeric_limits<std::uint64_t>::max();
+    detail::ObservationCadence cadence;
     bool compiled = false;
     bool directWinnerMaskedDepth = false;
 };
@@ -7627,9 +7626,7 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
             static_cast<std::uint64_t>(layout.width) *
                     layout.height <=
                 256u;
-        state_->observationSequence = 0u;
-        state_->lastSensorSequence =
-            std::numeric_limits<std::uint64_t>::max();
+        state_->cadence.reset();
         state_->compiled = true;
         diagnostics.layout = layout;
         diagnostics.deviceName = renderer.state_->deviceName;
@@ -7694,9 +7691,7 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::reset() {
             );
         }
         diagnostics.layout = state_->rendererLayout;
-        state_->observationSequence = 0u;
-        state_->lastSensorSequence =
-            std::numeric_limits<std::uint64_t>::max();
+        state_->cadence.reset();
         diagnostics.deviceName =
             state_->renderer->state_->deviceName;
         return diagnostics;
@@ -7758,16 +7753,12 @@ bool MetalHybridObjectTracker::encodeObservation(
     }
     id<MTLCommandBuffer> command =
         (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
-    const std::uint64_t observationSequence =
-        state->observationSequence++;
-    const double sensorTime =
-        static_cast<double>(observationSequence) *
-        static_cast<double>(state->config.timestepSeconds) *
-        static_cast<double>(state->config.nominalSensorRateHz);
-    const std::uint64_t sensorSequence =
-        static_cast<std::uint64_t>(std::floor(sensorTime + 1.0e-6));
-    const bool sampleSensor =
-        sensorSequence != state->lastSensorSequence;
+    // Encoding can fail before a command buffer is submitted. Do not
+    // advance the host cadence for a rejected encoding attempt.
+    const auto candidate = state->cadence.candidate(
+        state->config.timestepSeconds, state->config.nominalSensorRateHz);
+    const std::uint64_t sensorSequence = candidate.sensor;
+    const bool sampleSensor = candidate.sample;
     HybridDeviceStateBatch liveState{
         .currentBodyStates = pass.currentBodies,
         .previousBodyStates = pass.currentBodies,
@@ -7819,7 +7810,6 @@ bool MetalHybridObjectTracker::encodeObservation(
             [observationEncoder endEncoding];
             return false;
         }
-        state->lastSensorSequence = sensorSequence;
     }
     id<MTLBuffer> depth =
         (__bridge id<MTLBuffer>)state->renderer->nativeBuffer(
@@ -8053,6 +8043,7 @@ bool MetalHybridObjectTracker::encodeObservation(
             threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
     }
     [observationEncoder endEncoding];
+    state->cadence.commit(candidate);
     return true;
 }
 
