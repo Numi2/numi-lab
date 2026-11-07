@@ -1,0 +1,101 @@
+{
+  "track_env_0": {
+    "baseline_step2_to_3": 6,
+    "candidate_step2_to_3": 0,
+    "pre_step_baseline_vs_candidate": 0,
+    "candidate_vs_baseline_step3": 6
+  },
+  "track_env_1": {
+    "baseline_step2_to_3": 6,
+    "candidate_step2_to_3": 6,
+    "pre_step_baseline_vs_candidate": 0,
+    "candidate_vs_baseline_step3": 0
+  },
+  "frameDepth_env_0": {
+    "baseline_step2_to_3": 7,
+    "candidate_step2_to_3": 0,
+    "pre_step_baseline_vs_candidate": 0,
+    "candidate_vs_baseline_step3": 7
+  },
+  "frameDepth_env_1": {
+    "baseline_step2_to_3": 7,
+    "candidate_step2_to_3": 7,
+    "pre_step_baseline_vs_candidate": 0,
+    "candidate_vs_baseline_step3": 0
+  },
+  "frameIdentity_env_0": {
+    "baseline_step2_to_3": 16,
+    "candidate_step2_to_3": 0,
+    "pre_step_baseline_vs_candidate": 0,
+    "candidate_vs_baseline_step3": 16
+  },
+  "frameIdentity_env_1": {
+    "baseline_step2_to_3": 20,
+    "candidate_step2_to_3": 20,
+    "pre_step_baseline_vs_candidate": 0,
+    "candidate_vs_baseline_step3": 0
+  },
+  "frameValidity_env_0": {
+    "baseline_step2_to_3": 4,
+    "candidate_step2_to_3": 0,
+    "pre_step_baseline_vs_candidate": 0,
+    "candidate_vs_baseline_step3": 4
+  },
+  "frameValidity_env_1": {
+    "baseline_step2_to_3": 5,
+    "candidate_step2_to_3": 5,
+    "pre_step_baseline_vs_candidate": 0,
+    "candidate_vs_baseline_step3": 0
+  },
+  "camera_env_0": {
+    "baseline_step2_to_3": 10,
+    "candidate_step2_to_3": 0,
+    "pre_step_baseline_vs_candidate": 0,
+    "candidate_vs_baseline_step3": 10
+  },
+  "camera_env_1": {
+    "baseline_step2_to_3": 8,
+    "candidate_step2_to_3": 8,
+    "pre_step_baseline_vs_candidate": 0,
+    "candidate_vs_baseline_step3": 0
+  },
+  "actor_history_env_0": {
+    "changed_from_step2": 0,
+    "different_from_control_step3": 100
+  },
+  "actor_history_env_1": {
+    "changed_from_step2": 100,
+    "different_from_control_step3": 0
+  },
+  "target_confidence": {
+    "0": 1.0,
+    "1": 1.0
+  },
+  "baseline_changed_target_depth_pixels_env_0": [
+    56,
+    57,
+    72,
+    73
+  ],
+  "baseline_changed_target_depth_pixels_env_1": [
+    56,
+    57,
+    72,
+    73,
+    89
+  ],
+  "target_id_transition_pixels_env_0": [
+    58,
+    72,
+    74,
+    89
+  ],
+  "target_id_transition_pixels_env_1": [
+    56,
+    58,
+    72,
+    74,
+    89
+  ],
+  "candidate_text_equals_no_snapshot": true
+}
