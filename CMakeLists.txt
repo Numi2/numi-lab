@@ -1079,6 +1079,11 @@ add_executable(
 )
 add_executable(metalrobo_crow_embodiment_check apps/crow_embodiment_check.cpp)
 add_executable(metalrobo_crow_foraging_check apps/crow_foraging_check.mm)
+add_executable(metalrobo_crow_retinal_contract_check apps/crow_retinal_contract_check.cpp)
+target_compile_options(metalrobo_crow_retinal_contract_check PRIVATE -Wall -Wextra -Wpedantic)
+target_link_libraries(metalrobo_crow_retinal_contract_check PRIVATE metalrobo)
+set_target_properties(metalrobo_crow_retinal_contract_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+
 add_executable(metalrobo_retinal_stream_check apps/retinal_stream_check.mm)
 target_compile_options(metalrobo_retinal_stream_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
 target_link_libraries(metalrobo_retinal_stream_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
@@ -2357,6 +2362,14 @@ if(BUILD_TESTING)
             "-DPROGRAM=$<TARGET_FILE:metalrobo_retinal_stream_check>"
             "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckRetinalStream.cmake")
+    add_test(NAME metalrobo.crow.retinal_contract
+        COMMAND "${CMAKE_COMMAND}"
+            "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_retinal_contract_check>"
+            "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
+            "-DLEGACY_METALLIB=${CMAKE_CURRENT_SOURCE_DIR}/artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowRetinalContract.cmake")
+    set_tests_properties(metalrobo.crow.retinal_contract PROPERTIES
+        LABELS "metalrobo;crow;native;visual" TIMEOUT 200)
     set_tests_properties(metalrobo.crow.retinal_timing PROPERTIES
         LABELS "metalrobo;crow;native;visual" TIMEOUT 200)
     set_tests_properties(metalrobo.crow.head_camera PROPERTIES

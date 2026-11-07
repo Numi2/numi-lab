@@ -43,7 +43,8 @@ legacy PolicyPacks to new sensor, action, world, or task semantics.
 From this source checkout, build `metalrobo_task_rollout`,
 `metalrobo_task_train`, `metalrobo_robot_catalog`, and
 `metalrobo_crow_embodiment_check`, `metalrobo_crow_foraging_check`, and
-`metalrobo_crow_eye_check` and `metalrobo_retinal_stream_check` with
+`metalrobo_crow_eye_check`, `metalrobo_retinal_stream_check`, and
+`metalrobo_crow_retinal_contract_check` with
 CMake/Ninja Release.
 Create the learner with CPython 3.13.14 using `uv venv python/.venv`, then
 `uv pip install --python python/.venv/bin/python -c
@@ -441,3 +442,52 @@ physical head cameras without CPU image round trips, test visibility and
 cadence causally, and measure complete rollout/learning performance. The
 separate additive RetinalStream.metallib leaves the established physics/policy
 metallib unchanged. No biological eye timing or acuity is claimed.
+
+
+## Typed retinal actor contract and native rejection boundary
+
+The native C++ `makeAmericanCrowRetinalFeedingTaskPack` defines a distinct v13
+contract: 1,251 actor features (the 97 existing channels plus two 16 x 12 RGB
+planes, valid and age), 97 critic features and 18 actions. It retains the v12
+mechanics, action meanings and finite-resource state-program identity. This
+factory and the `retinal-contract-admission` instrument are implemented; a
+v13 rollout/training CLI and actual rendered actor images are still pending.
+
+SensorPack owns retinal camera mounts, source and output dimensions, optics,
+content hashes, rational cadence, latency, depth range and the fixed response
+semantics. Its content fingerprint is bound into both the observation and
+task fingerprints. Moving files with identical content preserves identity;
+changing a mount, timing or asset content rejects the old policy even with
+identical network dimensions. Retinal channels must be one complete, ordered,
+untransformed actorCurrent suffix, outside temporal proprioceptive history and
+the critic. The native observer must declare the exact observation fingerprint.
+Missing or mismatched observers cannot submit a retinal task; a valid generic
+callback cannot silently stand in for the required retinal identity.
+
+The shared task structs retain their ABI-47 layout. Retinal tasks receive an
+additive executable tag 48; legacy tasks still compile with tag 47 and unchanged
+fingerprints. Task kernels explicitly support both tags. A capability exported
+from the same task-shader translation unit is checked before submitting tag 48,
+so an old metallib is rejected rather than silently returning from its kernels.
+The C API structs are unchanged; C++ consumers must rebuild against the changed
+native observation-program metadata. The original frozen v12 policy remains
+bound to its original task, and must not be dimension-rebound as v13.
+
+`retinal-contract-admission --output NEW_DIRECTORY` checks 12 malformed
+manifests, nine same-dimension sensor mutations, exact path relocation and the
+native missing-observer, mismatched-identity and stale-shader rejections. A
+current-shader probe reaches the declared callback layout, then deliberately
+refuses to supply an image; it produces no accepted world submission. Its
+fixture asset paths/hashes are compiler metadata only. No real visual assets
+are loaded and no actor images are rendered in this instrument. All predictions
+passed in retinal-contract-admission-02. Attempt 01 passed the earlier contract
+controls; 02 additionally requires the observer fingerprint and tests mismatch.
+The actual ABI-47 shader fixture is preserved with its receipt under
+artifacts/crow-rl-retinal-contract-20261107/inputs for portable regression.
+
+The next implementation must compose both real head cameras, RGB buffers and
+the stream in the native accepted rollout callback, publish/inspect stream
+errors, exercise visibility and per-lane reset/delay behavior, and test a
+controlled pixel-dependent actor. Only after those checks should the distinct
+v13 contract be exposed to the MLX learner and measured at production batch size.
+This contract admission does not establish those still-pending behaviors.

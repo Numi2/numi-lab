@@ -507,13 +507,16 @@ using MetalWorldDeviceObservationEncode = bool (*)(
 struct MetalWorldDeviceObservationProgram {
     void* context = nullptr;
     MetalWorldDeviceObservationEncode encode = nullptr;
+    // Required by retinal task ABI 48. Legacy callbacks remain zero/default.
+    // Binds the executable observer to camera/timing/content and actor layout.
+    std::uint64_t observationFingerprint = 0u;
 
     [[nodiscard]] bool valid() const noexcept {
         return context != nullptr && encode != nullptr;
     }
 
     [[nodiscard]] bool configured() const noexcept {
-        return context != nullptr || encode != nullptr;
+        return context != nullptr || encode != nullptr || observationFingerprint != 0u;
     }
 };
 

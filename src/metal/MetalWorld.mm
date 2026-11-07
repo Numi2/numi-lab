@@ -426,6 +426,7 @@ struct MetalWorldContextState {
     __strong id<MTLDevice> device = nil;
     __strong id<MTLCommandQueue> queue = nil;
     __strong id<MTLLibrary> library = nil;
+    bool supportsRetinalTaskABI=false;
     __strong id<MTLComputePipelineState> abaPipeline = nil;
     __strong id<MTLComputePipelineState>
         functionBasedDenseDynamicsPipeline = nil;
@@ -3894,6 +3895,15 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "device physics program is incomplete, has unknown capabilities, requires rigid contact evidence in a free-motion world, or requests a missing DER arena"
         );
     }
+    if (nativeTask && config.taskProgram.header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION &&
+        (!config.deviceObservationProgram.valid() || !nativePolicy)) {
+        return reject(std::move(diagnostics),MetalWorldHostStatus::invalidDimensions,
+            "retinal task semantics require a bound native observation program and policy; zero-filled image fallback is forbidden");
+    }
+    if (nativeTask && config.taskProgram.header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION &&
+        config.deviceObservationProgram.observationFingerprint!=config.taskProgram.observationFingerprint())
+        return reject(std::move(diagnostics),MetalWorldHostStatus::invalidDimensions,
+            "retinal observation program identity does not match the compiled actor sensor contract");
     if (config.deviceObservationProgram.configured() &&
         (!config.deviceObservationProgram.valid() ||
          !nativeTask || !nativePolicy)) {
@@ -6938,6 +6948,7 @@ MetalWorldDiagnostics initializeContext(
     context.device = device;
     context.queue = queue;
     context.library = library;
+    context.supportsRetinalTaskABI=[library newFunctionWithName:@"mr_task_retinal_abi48_capability"]!=nil;
     context.abaPipeline = aba;
     context.functionBasedDenseDynamicsPipeline =
         functionBasedDenseDynamics;
@@ -20483,6 +20494,11 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             if (!diagnostics.succeeded()) {
                 return diagnostics;
             }
+            if (config.taskProgram.valid() &&
+                config.taskProgram.header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION &&
+                !selectedState->supportsRetinalTaskABI)
+                return reject(std::move(diagnostics),MetalWorldHostStatus::metalLibraryFailure,
+                    "selected shader library has no retinal task ABI 48 capability");
             diagnostics = ensureRodPipelines(
                 *selectedState,
                 world.rodCount() != 0u,

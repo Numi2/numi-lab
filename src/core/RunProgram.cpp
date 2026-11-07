@@ -1,4 +1,5 @@
 #include "metalrobo/RunProgram.hpp"
+#include "metalrobo/retinal_stream_types.h"
 #include "metalrobo/PX4X500.hpp"
 
 #include "metalrobo/Franka.hpp"
@@ -624,6 +625,15 @@ std::uint64_t visualSensorProgramFingerprint(
     hash.scalar(program.captureWidth);
     hash.scalar(program.captureHeight);
     hash.scalar(program.capturePolicyCamera);
+    if (program.retinal) {
+        const auto& r=*program.retinal;
+        hash.string("raw-retinal-rgb-v1");hash.scalar(std::uint32_t(MR_RETINAL_STREAM_ABI));
+        hash.scalar(r.rightCameraPosition);hash.scalar(r.rightCameraOrientation);
+        hash.scalar(r.width);hash.scalar(r.height);
+        hash.scalar(r.sampleNumerator);hash.scalar(r.sampleDenominator);hash.scalar(r.latencyTicks);
+        hash.scalar(r.minimumDepthMeters);hash.scalar(r.maximumDepthMeters);
+        hash.string("exact-area-mean;fixed-c/(1+c);eye-y-x-RGB-valid-age-seconds;episode-reset-clears-pending;error-latched");
+    }
     return hash.finish();
 }
 
@@ -712,6 +722,10 @@ RunCompileDiagnostics compileRun(
                 "run identity, package identities, execution counts, or timestep are invalid"
             );
         }
+        if (manifest.sensors.observation.retinalFeatureCount!=0u &&
+            (!manifest.sensors.deviceVisual || !manifest.sensors.deviceVisual->retinal))
+            return reject(RunCompileStatus::invalidManifest,manifest.sensors.id,
+                "retinal actor channels require a bound raw RGB SensorPack; zero image fallback is forbidden");
         if (manifest.sensors.deviceVisual) {
             const VisualSensorProgram& visual =
                 *manifest.sensors.deviceVisual;
@@ -730,6 +744,25 @@ RunCompileDiagnostics compileRun(
                     visual.cameraOrientation.z +
                 static_cast<double>(visual.cameraOrientation.w) *
                     visual.cameraOrientation.w;
+            if (visual.retinal) {
+                const auto& r=*visual.retinal;
+                const auto q=r.rightCameraOrientation;
+                const double qnorm=double(q.x)*q.x+double(q.y)*q.y+double(q.z)*q.z+double(q.w)*q.w;
+                const std::uint64_t features=std::uint64_t(r.width)*r.height*6u+2u;
+                const double expectedRate=double(r.sampleNumerator)/double(r.sampleDenominator)/manifest.profile.controlTimestepSeconds;
+                if (!r.width || !r.height || r.width>4096 || r.height>4096 ||
+                    visual.width<r.width || visual.height<r.height || visual.width%r.width || visual.height%r.height ||
+                    !r.sampleNumerator || !r.sampleDenominator || r.sampleNumerator>r.sampleDenominator || r.latencyTicks>16 ||
+                    !finite4(r.rightCameraPosition) || !finite4(q) || std::abs(qnorm-1)>1e-5 ||
+                    !std::isfinite(r.minimumDepthMeters) || !std::isfinite(r.maximumDepthMeters) ||
+                    !(r.minimumDepthMeters>0) || !(r.maximumDepthMeters>r.minimumDepthMeters) ||
+                    features>std::numeric_limits<std::uint32_t>::max() ||
+                    features!=manifest.sensors.observation.retinalFeatureCount ||
+                    !std::isfinite(expectedRate) || std::abs(expectedRate-visual.nominalRateHz)>1e-4 ||
+                    !(visual.verticalFieldOfViewDegrees>0))
+                    return reject(RunCompileStatus::invalidManifest,manifest.sensors.id,
+                        "raw retinal geometry, RGB layout, integer cadence, latency or actor reservation is invalid");
+            }
             const bool validAssets = !visual.assets.empty() &&
                 std::ranges::all_of(
                     visual.assets,
@@ -1101,12 +1134,21 @@ RunCompileDiagnostics compileRun(
             return reject(RunCompileStatus::worldFailure, "physics",
                 worldStatus.message);
         }
+        auto executableObservations=manifest.sensors.observation;
+        if (executableObservations.retinalFeatureCount!=0u) {
+            const auto fingerprint=manifest.sensors.deviceVisual->fingerprint;
+            if (executableObservations.deviceSensorProgramFingerprint!=0u &&
+                executableObservations.deviceSensorProgramFingerprint!=fingerprint)
+                return reject(RunCompileStatus::invalidManifest,manifest.sensors.id,
+                    "retinal observation metadata disagrees with its SensorPack identity");
+            executableObservations.deviceSensorProgramFingerprint=fingerprint;
+        }
         const TaskCompileDiagnostics taskStatus =
             manifest.teacher.interactions
             ? compileTaskProgram(
                   manifest.task,
                   manifest.robot.actuators,
-                  manifest.sensors.observation,
+                  executableObservations,
                   executableReset,
                   *manifest.teacher.interactions,
                   manifest.teacher.interactionClip,
@@ -1116,7 +1158,7 @@ RunCompileDiagnostics compileRun(
             : compileTaskProgram(
                   manifest.task,
                   manifest.robot.actuators,
-                  manifest.sensors.observation,
+                  executableObservations,
                   executableReset,
                   staged.world_,
                   staged.task_

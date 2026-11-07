@@ -69,6 +69,7 @@ enum class TaskObservationSource : std::uint32_t {
     avianJourneyStage = MR_TASK_OBSERVE_AVIAN_JOURNEY_STAGE,
     navigationTarget = MR_TASK_OBSERVE_NAVIGATION_TARGET,
     nutrition = MR_TASK_OBSERVE_NUTRITION,
+    retinalRGB = MR_TASK_OBSERVE_RETINAL_RGB,
 };
 
 enum class TaskRewardOperator : std::uint32_t {
@@ -429,6 +430,10 @@ struct TaskObservationProgram {
     std::uint32_t criticHistoryLength = 1u;
     bool criticIncludesCleanHistory = true;
     TaskVisualProgram visual;
+    // Reserved current actor channels, filled only by the bound native RGB
+    // observer. Camera/timing semantics remain owned by SensorPack.
+    std::uint32_t retinalFeatureCount = 0u;
+    std::uint64_t deviceSensorProgramFingerprint = 0u;
 };
 
 // Executable task-state variation owned by RealityPack. These operators are

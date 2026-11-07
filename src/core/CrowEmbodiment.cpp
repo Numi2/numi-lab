@@ -4,6 +4,7 @@
 #include <cmath>
 #include <algorithm>
 #include <stdexcept>
+#include <limits>
 
 namespace metalrobo {
 namespace {
@@ -279,10 +280,29 @@ TaskPack makeAmericanCrowFeedingStationTaskPack(
     return task;
 }
 
+TaskPack makeAmericanCrowRetinalFeedingTaskPack(
+    TaskObservationProgram& observations,TaskResetProgram& reset,const RetinalSensorProgram& retinal) {
+    const std::uint64_t features=std::uint64_t(retinal.width)*retinal.height*6u+2u;
+    if (!retinal.width || !retinal.height || retinal.width>4096 || retinal.height>4096 ||
+        features>std::numeric_limits<std::uint32_t>::max())
+        throw std::invalid_argument("Invalid retinal feeding actor dimensions");
+    auto task=makeAmericanCrowFeedingStationTaskPack(observations,reset);
+    task.id="american_crow_retinal_feeding_v13";
+    observations.retinalFeatureCount=static_cast<std::uint32_t>(features);
+    for (unsigned component=0;component<features;++component)
+        observations.actorCurrent.push_back({.source=TaskObservationSource::retinalRGB,.component=component});
+    return task;
+}
+
 FiniteResourceConfig makeAmericanCrowFeedingResourceConfig(const CompiledRun& run,unsigned environments) {
-    if (run.task().layout().actorObservationSize!=97u ||
-        run.task().actorOperators().empty() ||
-        run.task().actorOperators().back().source.x!=MR_TASK_OBSERVE_NUTRITION)
+    const auto ops=run.task().actorOperators();
+    const bool feeding=run.task().layout().actorObservationSize==97u && !ops.empty() &&
+        ops.back().source.x==MR_TASK_OBSERVE_NUTRITION;
+    const bool retinal=run.visualSensorProgram() && run.visualSensorProgram()->retinal &&
+        run.task().header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION &&
+        ops.size()>97u && ops[96].source.x==MR_TASK_OBSERVE_NUTRITION &&
+        ops[97].source.x==MR_TASK_OBSERVE_RETINAL_RGB;
+    if (!feeding && !retinal)
         throw std::invalid_argument("Crow feeding resources require the feeding-station task");
     FiniteResourceConfig config;
     config.worldFingerprint=run.world().fingerprint();config.environmentCount=environments;

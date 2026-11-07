@@ -3,6 +3,10 @@
 #include "metalrobo/engine_types.h"
 
 #define MR_TASK_PROGRAM_ABI_VERSION 47u
+// Additive retinal task semantics use a distinct executable tag. Structs and
+// all legacy task fingerprints retain ABI 47; an older GPU must reject 48.
+#define MR_TASK_PROGRAM_RETINAL_ABI_VERSION 48u
+#define MR_TASK_PROGRAM_ABI_SUPPORTED(v) ((v)==MR_TASK_PROGRAM_ABI_VERSION || (v)==MR_TASK_PROGRAM_RETINAL_ABI_VERSION)
 
 #define MR_TASK_ACTUATOR_JOINT_POSITION 0u
 #define MR_TASK_ACTUATOR_JOINT_VELOCITY 1u
@@ -207,6 +211,8 @@ enum MRTaskObservationOpcode : mr_u32 {
     // Accepted-state nutritional projection: crop fullness, newly consumed
     // payload kg, mouth-in-intake-volume, local available fraction.
     MR_TASK_OBSERVE_NUTRITION = 37u,
+    // Native device observer owns a contiguous current RGB/valid/age suffix.
+    MR_TASK_OBSERVE_RETINAL_RGB = 38u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {

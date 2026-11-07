@@ -58,6 +58,7 @@ def runtime(root: Path) -> dict:
         "foraging_check": build / "bin/metalrobo_crow_foraging_check",
         "eye_check": build / "bin/metalrobo_crow_eye_check",
         "retinal_check": build / "bin/metalrobo_retinal_stream_check",
+        "retinal_contract_check": build / "bin/metalrobo_crow_retinal_contract_check",
         "retinal_metallib": build / "shaders/RetinalStream.metallib",
     }
 
@@ -765,6 +766,9 @@ def main() -> int:
     commands.add_parser("head-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("eye-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("retina-admission").add_argument("--output", type=Path, required=True)
+    retinal_contract=commands.add_parser("retinal-contract-admission")
+    retinal_contract.add_argument("--output",type=Path,required=True)
+    retinal_contract.add_argument("--legacy-metallib",type=Path)
     commands.add_parser("body-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("foraging-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("feeding-probe").add_argument("--output", type=Path, required=True)
@@ -813,6 +817,9 @@ def main() -> int:
     if args.command == "doctor":
         print(json.dumps(checked, indent=2))
         return 0
+    if args.command=="retinal-contract-admission":
+        args.legacy_metallib=(args.legacy_metallib or root/"artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib").resolve(strict=True)
+        checked["inputs"]["retinal_legacy_shader"]={"path":str(args.legacy_metallib),"sha256":sha(args.legacy_metallib)}
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
     plan = {"schema": "numi.crow-trial-plan.v1", "created_utc": datetime.now(timezone.utc).isoformat(),
@@ -870,6 +877,10 @@ def main() -> int:
           "stopping": "exactly twelve native runs; 180s timeout per run; abort invalidity; no retry, extra learning, or promotion",
           "limitations": "policy revision changes random key; same seed identifies matched world conditions but does not create identical stochastic noise across policy revisions; learned variance is part of the tested policy",
           "unused": "original qualification seeds/layouts remain unspent"})
+    if args.command == "retinal-contract-admission":
+        plan.update({"purpose":"native retinal actor contract and pre-submission rejection instrument",
+          "prediction":"1251 actor/97 critic/18 action channels; 12 malformed manifests and 9 same-dimension sensor changes reject; missing observer and old shader cannot execute; legacy task ABI and mechanics unchanged",
+          "boundary":"compiler metadata and native rejection probes only; no rendered actor images or learner integration"})
     if args.command == "retina-admission":
         plan.update({"purpose": "native RGB timing instrument calibration",
           "prediction": "integer 3/10 sample cadence, two accepted-tick delay; zero premature/reset-stale frames; feature error <=3e-6 against FP64 oracle; chunk1/8 bit-identical",
@@ -889,6 +900,11 @@ def main() -> int:
             result = execute(output, "head-mechanics", [str(runtime(root)["head_check"])], root, 180)
             if result.get("status") != "passed" or result.get("exact_replay") is not True:
                 raise RuntimeError("Native head mechanics admission failed")
+        elif args.command == "retinal-contract-admission":
+            result=execute(output,"retinal-contract",[str(runtime(root)["retinal_contract_check"]),
+                           str(output/"native-evidence"),str(args.legacy_metallib)],root,180)
+            if result.get("status")!="passed" or result.get("stale_shader_rejected") is not True:
+                raise RuntimeError("Native retinal contract admission failed")
         elif args.command == "retina-admission":
             result = execute(output, "retinal-timing", [str(runtime(root)["retinal_check"]),
                              str(output / "native-evidence")], root, 180)

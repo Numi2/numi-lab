@@ -1660,6 +1660,12 @@ inline float cleanObservation(
         );
         break;
     }
+    case MR_TASK_OBSERVE_RETINAL_RGB:
+        // The native RGB observer fills this reserved current channel after
+        // proprioception and before inference. Missing observers are rejected
+        // by MetalWorld admission, never treated as zero-filled vision.
+        value=0.0f;
+        break;
     case MR_TASK_OBSERVE_NUTRITION:
         value=state.nutrition[operation.source.z];
         break;
@@ -2367,7 +2373,7 @@ kernel void mr_locomotion_task_latch_impact_contact(
         pass.controlStep >= dispatch.counts.y ||
         dispatch.taskFingerprint != program.taskFingerprint ||
         dispatch.worldFingerprint != program.worldFingerprint ||
-        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION) {
+        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z)) {
         return;
     }
     MRTaskStateGPU state = taskStates[environment];
@@ -2437,7 +2443,7 @@ kernel void mr_locomotion_task_select_threat_query(
         pass.controlStep >= dispatch.counts.y ||
         dispatch.taskFingerprint != program.taskFingerprint ||
         dispatch.worldFingerprint != program.worldFingerprint ||
-        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
+        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z) ||
         program.threat.y == 0u ||
         program.threat.x >= program.counts0.w ||
         contactDispatch.pointQueryStride == 0u) {
@@ -2612,7 +2618,7 @@ kernel void mr_locomotion_task_joint_cbf_teacher(
         pass.controlStep >= dispatch.counts.y ||
         dispatch.taskFingerprint != program.taskFingerprint ||
         dispatch.worldFingerprint != program.worldFingerprint ||
-        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
+        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z) ||
         program.threat.y == 0u) {
         return;
     }
@@ -2853,7 +2859,7 @@ kernel void mr_locomotion_task_motion_features(
         pass.controlStep >= dispatch.counts.y ||
         dispatch.taskFingerprint != program.taskFingerprint ||
         dispatch.worldFingerprint != program.worldFingerprint ||
-        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
+        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z) ||
         program.motion.y == 0u ||
         program.motion.z != 9u * program.motion.y) {
         return;
@@ -2948,8 +2954,7 @@ kernel void mr_locomotion_task_observe(
             program.taskFingerprint ||
         dispatch.worldFingerprint !=
             program.worldFingerprint ||
-        program.articulation.z !=
-            MR_TASK_PROGRAM_ABI_VERSION ||
+        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z) ||
         program.counts0.x == 0u ||
         program.counts0.y == 0u ||
         program.layout.y == 0u ||
@@ -4812,8 +4817,7 @@ kernel void mr_locomotion_task_apply_actions(
             program.taskFingerprint ||
         dispatch.worldFingerprint !=
             program.worldFingerprint ||
-        program.articulation.z !=
-            MR_TASK_PROGRAM_ABI_VERSION ||
+        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z) ||
         program.counts0.x == 0u ||
         program.layout.w < 2u) {
         return;
@@ -5401,7 +5405,7 @@ kernel void mr_locomotion_task_apply_native_actuators(
         dispatch.counts.w != worldDispatch.nv ||
         dispatch.taskFingerprint != program.taskFingerprint ||
         dispatch.worldFingerprint != program.worldFingerprint ||
-        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
+        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z) ||
         program.layout.w < 2u) {
         return;
     }
@@ -5573,8 +5577,7 @@ kernel void mr_locomotion_task_measure_effort(
             program.taskFingerprint ||
         dispatch.worldFingerprint !=
             program.worldFingerprint ||
-        program.articulation.z !=
-            MR_TASK_PROGRAM_ABI_VERSION) {
+        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z)) {
         return;
     }
     device const MRTaskActionBindingGPU* actions =
@@ -5647,8 +5650,7 @@ kernel void mr_locomotion_task_complete(
             program.taskFingerprint ||
         dispatch.worldFingerprint !=
             program.worldFingerprint ||
-        program.articulation.z !=
-            MR_TASK_PROGRAM_ABI_VERSION) {
+        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z)) {
         return;
     }
 
@@ -9107,7 +9109,7 @@ kernel void mr_locomotion_task_update_evidence(
     if (gridIndex != 0u ||
         pass.controlStep >= dispatch.counts.y ||
         dispatch.taskFingerprint != program.taskFingerprint ||
-        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
+        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z) ||
         program.schedule.x == 0u ||
         program.schedule.z == 0u) {
         return;
@@ -9170,4 +9172,10 @@ kernel void mr_locomotion_task_update_evidence(
     }
     state.controlSteps = completedSteps;
     evidenceState[0] = state;
+}
+
+// Capability belongs to the same translation unit as every ABI guard above.
+// Native admission checks its presence before submitting a retinal task.
+kernel void mr_task_retinal_abi48_capability(device uint* output [[buffer(0)]],uint at [[thread_position_in_grid]]) {
+    if (at==0u) output[0]=MR_TASK_PROGRAM_RETINAL_ABI_VERSION;
 }

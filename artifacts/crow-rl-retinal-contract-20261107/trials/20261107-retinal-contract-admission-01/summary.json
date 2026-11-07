@@ -1,0 +1,17 @@
+{
+  "schema": "numi.crow-retinal-contract-evidence.v1",
+  "status": "passed",
+  "actor_features": 1251,
+  "critic_features": 97,
+  "actions": 18,
+  "retinal_abi": 48,
+  "legacy_abi": 47,
+  "malformed_manifests_rejected": 12,
+  "same_dimension_sensor_changes_reject_policy": 9,
+  "asset_path_relocation_exact": true,
+  "missing_observer_rejected": true,
+  "current_shader_reaches_declared_callback": true,
+  "stale_shader_rejected": true,
+  "rendered_actor_images": false,
+  "ecological_environment_qualified": false
+}

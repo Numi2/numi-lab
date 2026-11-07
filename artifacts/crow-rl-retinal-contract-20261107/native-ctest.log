@@ -1,0 +1,163 @@
+Start testing: Nov 07 15:44 CET
+----------------------------------------------------------
+1/79 Testing: metalrobo.crow.first_episode_evidence
+1/79 Test: metalrobo.crow.first_episode_evidence
+Command: "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_episode_evidence_test"
+Directory: /Users/n/Developer/numi-crow-rl-20261107/build
+"metalrobo.crow.first_episode_evidence" start time: Nov 07 15:44 CET
+Output:
+----------------------------------------------------------
+Crow first-episode evidence: retry, post-goal crash, timeout, censoring, invalid input, and partition controls passed
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"metalrobo.crow.first_episode_evidence" end time: Nov 07 15:44 CET
+"metalrobo.crow.first_episode_evidence" time elapsed: 00:00:00
+----------------------------------------------------------
+
+33/79 Testing: metalrobo.runtime.task_program
+33/79 Test: metalrobo.runtime.task_program
+Command: "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_program_check"
+Directory: /Users/n/Developer/numi-crow-rl-20261107/build
+"metalrobo.runtime.task_program" start time: Nov 07 15:44 CET
+Output:
+----------------------------------------------------------
+typed_actuator_pipeline=ok velocity_delta=0.174187 effort_delta=0.492787 tendon_delta=0.0364305 minimum_body_wrench_delta=0.00426987 body_wrench_components=6 steps_per_probe=64 failed=0
+task_program_check passed fingerprint=4958976423454383786 actions=29 actor=98 critic=98 contact_metrics=45 policy=12831241261666805960 task_artifact=12381432142909015748 policy_artifact=18422992343790621869 rollout_artifact=9544678344372496725 interaction_artifact=13196958584684434106 interaction_task=17172265217487572069 external_interaction_artifact=0 external_interaction_task=0 external_native=0 external_native_device="" external_native_gpu_ms=0 external_native_reward=0 fixture_native_reward=0 imported=12288140395210253930 world_pack=1985621743449938656
+<end of output>
+Test time =   3.42 sec
+----------------------------------------------------------
+Test Passed.
+"metalrobo.runtime.task_program" end time: Nov 07 15:44 CET
+"metalrobo.runtime.task_program" time elapsed: 00:00:03
+----------------------------------------------------------
+
+34/79 Testing: metalrobo.runtime.run_program
+34/79 Test: metalrobo.runtime.run_program
+Command: "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_run_program_check"
+Directory: /Users/n/Developer/numi-crow-rl-20261107/build
+"metalrobo.runtime.run_program" start time: Nov 07 15:44 CET
+Output:
+----------------------------------------------------------
+run_program_check=ok run=5071235170677684245 robot=6085534513742695369 sensors=12391215096062496205 reality=17386745577328675849 teacher=6061715366628884410 reality_ops=1 world=4176453437228810698 task=15504084422127768117 robots=7 franka_run=18092372473256139044 franka_task=6129871684512350361 px4_run=11201907344087956729 px4_task=5042910665687263078 crow_journey_v7_task=12417146784475008906 crow_journey_v8_task=1876017260361075146 crow_journey_v9_task=5047146974467442335 crow_navigation_v10_task=5543595647171433904 crow_navigation_v10_world=1570501745588861880 transactional=yes
+<end of output>
+Test time =   0.31 sec
+----------------------------------------------------------
+Test Passed.
+"metalrobo.runtime.run_program" end time: Nov 07 15:44 CET
+"metalrobo.runtime.run_program" time elapsed: 00:00:00
+----------------------------------------------------------
+
+35/79 Testing: metalrobo.runtime.robot_catalog
+35/79 Test: metalrobo.runtime.robot_catalog
+Command: "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_robot_catalog" "--self-check"
+Directory: /Users/n/Developer/numi-crow-rl-20261107/build
+"metalrobo.runtime.robot_catalog" start time: Nov 07 15:44 CET
+Output:
+----------------------------------------------------------
+{"schema":"numi.robot-catalog-check.v1","robots":7,"status":"ok"}
+<end of output>
+Test time =   0.27 sec
+----------------------------------------------------------
+Test Passed.
+"metalrobo.runtime.robot_catalog" end time: Nov 07 15:44 CET
+"metalrobo.runtime.robot_catalog" time elapsed: 00:00:00
+----------------------------------------------------------
+
+36/79 Testing: metalrobo.crow.embodiment
+36/79 Test: metalrobo.crow.embodiment
+Command: "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_embodiment_check"
+Directory: /Users/n/Developer/numi-crow-rl-20261107/build
+"metalrobo.crow.embodiment" start time: Nov 07 15:44 CET
+Output:
+----------------------------------------------------------
+{"schema":"numi.crow-head-mechanics-admission.v1","status":"passed","robot":"american_crow_active_head_estimated_v1","reference_pose_twist_cases":36,"native_environments":12,"neutral_mass_kg":0.45003999110485893,"acceleration_scaled_error":2.5587397722857907e-05,"configuration_absolute_error":2.342961813450728e-08,"device":"Apple M4 Pro","exact_replay":true,"all_head_beak_joints_actuated":true,"compiler_contract_and_rejection_controls":true,"boundary":"estimated single-step mechanics; no head vision, contacts, biology, or behavioral qualification"}
+<end of output>
+Test time =   0.30 sec
+----------------------------------------------------------
+Test Passed.
+"metalrobo.crow.embodiment" end time: Nov 07 15:44 CET
+"metalrobo.crow.embodiment" time elapsed: 00:00:00
+----------------------------------------------------------
+
+37/79 Testing: metalrobo.crow.finite_resource
+37/79 Test: metalrobo.crow.finite_resource
+Command: "/opt/homebrew/bin/cmake" "-DPROGRAM=/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_foraging_check" "-DOUTPUT_PARENT=/Users/n/Developer/numi-crow-rl-20261107/build" "-P" "/Users/n/Developer/numi-crow-rl-20261107/cmake/CheckCrowForaging.cmake"
+Directory: /Users/n/Developer/numi-crow-rl-20261107/build
+"metalrobo.crow.finite_resource" start time: Nov 07 15:44 CET
+Output:
+----------------------------------------------------------
+-- {"schema":"numi.crow-foraging-admission.v1","status":"passed","native_environments":8,"native_steps_per_trial":448,"native_trials":5,"consumed_micrograms_per_lane":45000,"bites_per_lane":3,"physical_terminations":0,"failed_physics_steps":0,"exact_partition_replay":true,"resource_only_restore":true,"accepted_intake_utility_per_lane":4.5,"nutrition_actor_contract":true,"c_api_accounting_controls":true,"ordinary_reset_refills_resources":false,"synthetic_negative_controls":true,"wall_seconds":13.102708,"boundary":"estimated nutritional intake-volume tracer; no solid food mechanics or whole-world restore"}
+ Evidence retained at /Users/n/Developer/numi-crow-rl-20261107/build/crow-foraging-2fdc7c234f59e5ce
+<end of output>
+Test time =  13.39 sec
+----------------------------------------------------------
+Test Passed.
+"metalrobo.crow.finite_resource" end time: Nov 07 15:44 CET
+"metalrobo.crow.finite_resource" time elapsed: 00:00:13
+----------------------------------------------------------
+
+38/79 Testing: metalrobo.crow.head_camera
+38/79 Test: metalrobo.crow.head_camera
+Command: "/opt/homebrew/bin/cmake" "-DPROGRAM=/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_eye_check" "-DOUTPUT_PARENT=/Users/n/Developer/numi-crow-rl-20261107/build" "-P" "/Users/n/Developer/numi-crow-rl-20261107/cmake/CheckCrowEye.cmake"
+Directory: /Users/n/Developer/numi-crow-rl-20261107/build
+"metalrobo.crow.head_camera" start time: Nov 07 15:44 CET
+Output:
+----------------------------------------------------------
+-- {"schema":"numi.crow-head-camera-evidence.v1","status":"passed","native_cases":5,"cameras":2,"geometry_and_camera_pose_admitted":true,"exact_render_repeat":true,"actor_vision_integrated":false,"biological_eye_calibration":false,"ecological_environment_qualified":false}
+ Evidence retained at /Users/n/Developer/numi-crow-rl-20261107/build/crow-eye-52149d134d85bab3
+<end of output>
+Test time =   4.48 sec
+----------------------------------------------------------
+Test Passed.
+"metalrobo.crow.head_camera" end time: Nov 07 15:44 CET
+"metalrobo.crow.head_camera" time elapsed: 00:00:04
+----------------------------------------------------------
+
+39/79 Testing: metalrobo.crow.retinal_timing
+39/79 Test: metalrobo.crow.retinal_timing
+Command: "/opt/homebrew/bin/cmake" "-DPROGRAM=/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_retinal_stream_check" "-DOUTPUT_PARENT=/Users/n/Developer/numi-crow-rl-20261107/build" "-P" "/Users/n/Developer/numi-crow-rl-20261107/cmake/CheckRetinalStream.cmake"
+Directory: /Users/n/Developer/numi-crow-rl-20261107/build
+"metalrobo.crow.retinal_timing" start time: Nov 07 15:44 CET
+Output:
+----------------------------------------------------------
+-- {"schema":"numi.retinal-stream-evidence.v1","status":"passed","FP64_max_absolute_error":4.7683715864721421e-08,"exact_partition_invariance":true,"duplicates_idempotent":true,"per_lane_resets_clear_frames":true,"gap_and_nonfinite_fail_closed":true,"renderer_actor_integration":false,"ecological_environment_qualified":false}
+ Evidence retained at /Users/n/Developer/numi-crow-rl-20261107/build/retinal-stream-6ba7f029137e052a
+<end of output>
+Test time =   0.39 sec
+----------------------------------------------------------
+Test Passed.
+"metalrobo.crow.retinal_timing" end time: Nov 07 15:44 CET
+"metalrobo.crow.retinal_timing" time elapsed: 00:00:00
+----------------------------------------------------------
+
+40/79 Testing: metalrobo.crow.retinal_contract
+40/79 Test: metalrobo.crow.retinal_contract
+Command: "/opt/homebrew/bin/cmake" "-DPROGRAM=/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_retinal_contract_check" "-DOUTPUT_PARENT=/Users/n/Developer/numi-crow-rl-20261107/build" "-DLEGACY_METALLIB=/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib" "-P" "/Users/n/Developer/numi-crow-rl-20261107/cmake/CheckCrowRetinalContract.cmake"
+Directory: /Users/n/Developer/numi-crow-rl-20261107/build
+"metalrobo.crow.retinal_contract" start time: Nov 07 15:44 CET
+Output:
+----------------------------------------------------------
+-- {"schema":"numi.crow-retinal-contract-evidence.v1","status":"passed","actor_features":1251,"critic_features":97,"actions":18,"retinal_abi":48,"legacy_abi":47,"malformed_manifests_rejected":12,"same_dimension_sensor_changes_reject_policy":9,"asset_path_relocation_exact":true,"missing_observer_rejected":true,"mismatched_observer_identity_rejected":true,"current_shader_reaches_declared_callback":true,"stale_shader_rejected":true,"rendered_actor_images":false,"ecological_environment_qualified":false}
+ Evidence retained at /Users/n/Developer/numi-crow-rl-20261107/build/retinal-contract-a4a15136ef72a132
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"metalrobo.crow.retinal_contract" end time: Nov 07 15:44 CET
+"metalrobo.crow.retinal_contract" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Nov 07 15:44 CET
+
+crow =  18.30 sec*proc
+
+metalrobo =  22.31 sec*proc
+
+native =  18.30 sec*proc
+
+runtime =   4.00 sec*proc
+
+visual =   4.91 sec*proc
+

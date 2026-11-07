@@ -351,6 +351,7 @@ bool CompiledTaskProgram::valid() const noexcept {
             storage_->fingerprint &&
         storage_->header.worldFingerprint ==
             storage_->worldFingerprint &&
+        MR_TASK_PROGRAM_ABI_SUPPORTED(storage_->header.articulation.z) &&
         storage_->layout.actionCount != 0u &&
         storage_->layout.actorFrameSize != 0u &&
         storage_->layout.actorHistoryLength != 0u;
@@ -717,6 +718,7 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::contactWrenchLocal:
             case TaskObservationSource::objectTrack:
             case TaskObservationSource::maskedDepth:
+            case TaskObservationSource::retinalRGB:
             case TaskObservationSource::cyclicPhase:
             case TaskObservationSource::crowGroundCarrierPhase:
             case TaskObservationSource::avianJourneyPhase:
@@ -2379,6 +2381,12 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::recoveryEvent:
                 componentLimit = 4u;
                 break;
+            case TaskObservationSource::retinalRGB:
+                if (observations.retinalFeatureCount==0u)
+                    return reject(TaskCompileStatus::invalidPack,"retinal_rgb",
+                        "retinal RGB requires an explicit SensorPack channel reservation");
+                componentLimit=observations.retinalFeatureCount;
+                break;
             case TaskObservationSource::nutrition:
                 if (pack.deviceStateProgramFingerprint==0u)
                     return reject(TaskCompileStatus::invalidPack,"nutrition",
@@ -2570,6 +2578,29 @@ TaskCompileDiagnostics compileTaskProgram(
         return {};
     };
 
+    const auto isRetinal=[](const TaskObservationOperatorSpec& op) {
+        return op.source==TaskObservationSource::retinalRGB;
+    };
+    const auto retinalCount=static_cast<std::size_t>(std::ranges::count_if(observations.actorCurrent,isRetinal));
+    if ((observations.retinalFeatureCount!=0u)!=(observations.deviceSensorProgramFingerprint!=0u) ||
+        std::ranges::any_of(observations.actorFrame,isRetinal) ||
+        std::ranges::any_of(observations.critic,isRetinal) ||
+        retinalCount!=observations.retinalFeatureCount ||
+        (observations.retinalFeatureCount!=0u &&
+         (observations.retinalFeatureCount<5u || hasVisualProgram)))
+        return reject(TaskCompileStatus::invalidPack,"retinal_rgb",
+            "retinal channels require one complete current actor suffix, separate from masked depth and critic/history");
+    if (retinalCount!=0) {
+        const auto first=observations.actorCurrent.size()-static_cast<std::size_t>(retinalCount);
+        for (std::size_t i=0;i<observations.actorCurrent.size();++i) {
+            const auto& op=observations.actorCurrent[i];
+            if ((i<first && isRetinal(op)) || (i>=first && (!isRetinal(op) || op.component!=i-first ||
+                op.scale!=1 || op.offset!=0 || op.noiseAmplitude!=0 || op.biasLower!=0 || op.biasUpper!=0 ||
+                op.normalizeVector3 || !op.target.empty())))
+                return reject(TaskCompileStatus::invalidPack,"retinal_rgb",
+                    "retinal suffix components must be ordered, contiguous and untransformed");
+        }
+    }
     if (std::ranges::any_of(
             observations.actorCurrent,
             [](const TaskObservationOperatorSpec& observation) {
@@ -4411,7 +4442,7 @@ TaskCompileDiagnostics compileTaskProgram(
     staged->header.articulation = {
         articulation.firstBody,
         articulation.bodyCount,
-        MR_TASK_PROGRAM_ABI_VERSION,
+        observations.retinalFeatureCount!=0u ? MR_TASK_PROGRAM_RETINAL_ABI_VERSION : MR_TASK_PROGRAM_ABI_VERSION,
         observations.criticHistoryLength,
     };
     const mr_float4 rootCenterOfMass =
@@ -4781,9 +4812,18 @@ TaskCompileDiagnostics compileTaskProgram(
     observationHash.scalar(observations.visual.edgeFlickerProbability);
     observationHash.scalar(observations.visual.difficultyCorruptionGain);
     observationHash.scalar(observations.visual.includeDerivedFeatures);
+    if (observations.retinalFeatureCount!=0u) {
+        observationHash.string("retinal-rgb-current-v1");
+        observationHash.scalar(observations.retinalFeatureCount);
+        observationHash.scalar(observations.deviceSensorProgramFingerprint);
+    }
     staged->observationFingerprint = observationHash.finish();
 
     Hash hash;
+    if (observations.retinalFeatureCount!=0u) {
+        hash.string("retinal-sensor-program-v1");
+        hash.scalar(observations.deviceSensorProgramFingerprint);
+    }
     hash.string(pack.id);
     hash.scalar(world.fingerprint());
     hash.scalar(staged->header);

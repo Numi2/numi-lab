@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_retinal_contract_check",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-retinal-contract-admission-02/native-evidence",
+    "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib"
+  ],
+  "exit_code": 0,
+  "timed_out": false,
+  "interrupted": false,
+  "wall_seconds": 0.7187233750009909,
+  "stdout_sha256": "bd7ace632428adbe3cf7e71fb95521c398d97973b68191517e56eae67051fa80",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "kind": "retinal_contract_check",
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/crow-retinal-contract-admission-02/metalrobo_crow_retinal_contract_check",
+    "bytes": 154536,
+    "sha256": "cdd8290dfd597dd6b70a3d8331ae8cb4d4c0cc12b9988a33913385186e98fefb"
+  },
+  {
+    "kind": "library",
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/crow-retinal-contract-admission-02/libmetalrobo.dylib",
+    "bytes": 5475840,
+    "sha256": "576597bfd9683922009aa39132e060f3d646a837579a07b063845a92b0d9941f"
+  },
+  {
+    "kind": "metallib",
+    "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/crow-retinal-contract-admission-02/MetalRobo.metallib",
+    "bytes": 4173395,
+    "sha256": "bee9e69522b26d6b5d99660e665cf8ed856acd9038ea9f2bdcb87b96dd99385a"
+  }
+]

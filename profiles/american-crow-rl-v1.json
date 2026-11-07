@@ -78,7 +78,8 @@
     "persistent_memory_and_life_checkpoint": "resource-only-and-learner-only-checkpoints-tested; whole-world-RNG-sensory-memory-restore-pending",
     "social_individuals_and_communication": "pending",
     "weather_and_seasonal_ecology": "pending",
-    "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-and-partition-controls-passed; renderer-to-actor-composition-and-learner-contract-pending"
+    "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-and-partition-controls-passed; renderer-to-actor-composition-and-learner-contract-pending",
+    "retinal_actor_contract": "native-v13-1251-actor-97-critic-18-actions; sensor-content-and-timing-bound; missing-mismatched-observers-and-stale-shaders-reject; real-rendered-actor-stream-and-learning-pending"
   },
   "release_requirements": [
     "deterministic accepted-state execution across submission chunks",

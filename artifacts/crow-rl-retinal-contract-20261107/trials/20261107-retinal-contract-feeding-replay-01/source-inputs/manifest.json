@@ -1,0 +1,11 @@
+{
+  "base_commit": "461d7b73c34a8262bf800e4b3ba342a33ee7e4d2",
+  "tracked_patch_sha256": "23d5fc6faab3ff8986fce0216f7bf84d89fe5c9c3502d2a6a3a8baebcbc303bc",
+  "retained_untracked": {
+    "apps/crow_retinal_contract_check.cpp": "5fa7a22aab7b3e7182838737a95125a13e812b7a77014292ee17540e6119a86b",
+    "cmake/CheckCrowRetinalContract.cmake": "f070eb85fa37d6e0fc1b776190c97907606cedcc7fc26c5afbe409abc29ca48d"
+  },
+  "external_artifact_inputs": {
+    "artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-shader-receipt.json": "7eb51cc88dd935726a499983ac3f940e71e037035afa1ef52389f6e4306b8b68"
+  }
+}

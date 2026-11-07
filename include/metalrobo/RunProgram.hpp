@@ -113,6 +113,15 @@ struct VisualSensorAssetProgram {
 // Immutable resource and camera program for the device-resident visual
 // sensor. File paths locate content-addressed artifacts; their hashes bind
 // the compiled run and are rechecked when device resources are materialized.
+struct RetinalSensorProgram {
+    // Two engineering pinhole fixtures; the first mount/intrinsics are in
+    // VisualSensorProgram. These are not biological eye measurements.
+    mr_float4 rightCameraPosition{.018f,-.026f,.012f,0};
+    mr_float4 rightCameraOrientation{-.5f,.5f,-.5f,.5f};
+    std::uint32_t width=16u,height=12u;
+    std::uint32_t sampleNumerator=3u,sampleDenominator=10u,latencyTicks=2u;
+    float minimumDepthMeters=.01f,maximumDepthMeters=5.0f;
+};
 struct VisualSensorProgram {
     std::vector<VisualSensorAssetProgram> assets;
     std::string environmentPath;
@@ -131,6 +140,7 @@ struct VisualSensorProgram {
     std::uint32_t captureHeight = 0u;
     bool capturePolicyCamera = false;
     std::uint64_t fingerprint = 0u;
+    std::optional<RetinalSensorProgram> retinal;
 };
 
 // Content identity for the complete executable visual sensor program. Paths
@@ -140,6 +150,10 @@ struct VisualSensorProgram {
 );
 [[nodiscard]] TaskPack makeAmericanCrowFeedingStationTaskPack(
     TaskObservationProgram& observations, TaskResetProgram& reset);
+[[nodiscard]] TaskPack makeAmericanCrowRetinalFeedingTaskPack(
+    TaskObservationProgram& observations, TaskResetProgram& reset,
+    const RetinalSensorProgram& retinal);
+
 
 // Physical mounts, timing, calibration, noise and dropout have one owner.
 // TaskPack may consume the resulting observation, but does not own the sensor.

@@ -1,0 +1,675 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 64d1cf1c..3942c01d 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1079,6 +1079,11 @@ add_executable(
+ )
+ add_executable(metalrobo_crow_embodiment_check apps/crow_embodiment_check.cpp)
+ add_executable(metalrobo_crow_foraging_check apps/crow_foraging_check.mm)
++add_executable(metalrobo_crow_retinal_contract_check apps/crow_retinal_contract_check.cpp)
++target_compile_options(metalrobo_crow_retinal_contract_check PRIVATE -Wall -Wextra -Wpedantic)
++target_link_libraries(metalrobo_crow_retinal_contract_check PRIVATE metalrobo)
++set_target_properties(metalrobo_crow_retinal_contract_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
++
+ add_executable(metalrobo_retinal_stream_check apps/retinal_stream_check.mm)
+ target_compile_options(metalrobo_retinal_stream_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+ target_link_libraries(metalrobo_retinal_stream_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
+@@ -2357,6 +2362,14 @@ if(BUILD_TESTING)
+             "-DPROGRAM=$<TARGET_FILE:metalrobo_retinal_stream_check>"
+             "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
+             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckRetinalStream.cmake")
++    add_test(NAME metalrobo.crow.retinal_contract
++        COMMAND "${CMAKE_COMMAND}"
++            "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_retinal_contract_check>"
++            "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
++            "-DLEGACY_METALLIB=${CMAKE_CURRENT_SOURCE_DIR}/artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib"
++            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowRetinalContract.cmake")
++    set_tests_properties(metalrobo.crow.retinal_contract PROPERTIES
++        LABELS "metalrobo;crow;native;visual" TIMEOUT 200)
+     set_tests_properties(metalrobo.crow.retinal_timing PROPERTIES
+         LABELS "metalrobo;crow;native;visual" TIMEOUT 200)
+     set_tests_properties(metalrobo.crow.head_camera PROPERTIES
+diff --git a/docs/CROW_RL_ENVIRONMENT.md b/docs/CROW_RL_ENVIRONMENT.md
+index f0871a3f..431a31c3 100644
+--- a/docs/CROW_RL_ENVIRONMENT.md
++++ b/docs/CROW_RL_ENVIRONMENT.md
+@@ -43,7 +43,8 @@ legacy PolicyPacks to new sensor, action, world, or task semantics.
+ From this source checkout, build `metalrobo_task_rollout`,
+ `metalrobo_task_train`, `metalrobo_robot_catalog`, and
+ `metalrobo_crow_embodiment_check`, `metalrobo_crow_foraging_check`, and
+-`metalrobo_crow_eye_check` and `metalrobo_retinal_stream_check` with
++`metalrobo_crow_eye_check`, `metalrobo_retinal_stream_check`, and
++`metalrobo_crow_retinal_contract_check` with
+ CMake/Ninja Release.
+ Create the learner with CPython 3.13.14 using `uv venv python/.venv`, then
+ `uv pip install --python python/.venv/bin/python -c
+@@ -441,3 +442,52 @@ physical head cameras without CPU image round trips, test visibility and
+ cadence causally, and measure complete rollout/learning performance. The
+ separate additive RetinalStream.metallib leaves the established physics/policy
+ metallib unchanged. No biological eye timing or acuity is claimed.
++
++
++## Typed retinal actor contract and native rejection boundary
++
++The native C++ `makeAmericanCrowRetinalFeedingTaskPack` defines a distinct v13
++contract: 1,251 actor features (the 97 existing channels plus two 16 x 12 RGB
++planes, valid and age), 97 critic features and 18 actions. It retains the v12
++mechanics, action meanings and finite-resource state-program identity. This
++factory and the `retinal-contract-admission` instrument are implemented; a
++v13 rollout/training CLI and actual rendered actor images are still pending.
++
++SensorPack owns retinal camera mounts, source and output dimensions, optics,
++content hashes, rational cadence, latency, depth range and the fixed response
++semantics. Its content fingerprint is bound into both the observation and
++task fingerprints. Moving files with identical content preserves identity;
++changing a mount, timing or asset content rejects the old policy even with
++identical network dimensions. Retinal channels must be one complete, ordered,
++untransformed actorCurrent suffix, outside temporal proprioceptive history and
++the critic. The native observer must declare the exact observation fingerprint.
++Missing or mismatched observers cannot submit a retinal task; a valid generic
++callback cannot silently stand in for the required retinal identity.
++
++The shared task structs retain their ABI-47 layout. Retinal tasks receive an
++additive executable tag 48; legacy tasks still compile with tag 47 and unchanged
++fingerprints. Task kernels explicitly support both tags. A capability exported
++from the same task-shader translation unit is checked before submitting tag 48,
++so an old metallib is rejected rather than silently returning from its kernels.
++The C API structs are unchanged; C++ consumers must rebuild against the changed
++native observation-program metadata. The original frozen v12 policy remains
++bound to its original task, and must not be dimension-rebound as v13.
++
++`retinal-contract-admission --output NEW_DIRECTORY` checks 12 malformed
++manifests, nine same-dimension sensor mutations, exact path relocation and the
++native missing-observer, mismatched-identity and stale-shader rejections. A
++current-shader probe reaches the declared callback layout, then deliberately
++refuses to supply an image; it produces no accepted world submission. Its
++fixture asset paths/hashes are compiler metadata only. No real visual assets
++are loaded and no actor images are rendered in this instrument. All predictions
++passed in retinal-contract-admission-02. Attempt 01 passed the earlier contract
++controls; 02 additionally requires the observer fingerprint and tests mismatch.
++The actual ABI-47 shader fixture is preserved with its receipt under
++artifacts/crow-rl-retinal-contract-20261107/inputs for portable regression.
++
++The next implementation must compose both real head cameras, RGB buffers and
++the stream in the native accepted rollout callback, publish/inspect stream
++errors, exercise visibility and per-lane reset/delay behavior, and test a
++controlled pixel-dependent actor. Only after those checks should the distinct
++v13 contract be exposed to the MLX learner and measured at production batch size.
++This contract admission does not establish those still-pending behaviors.
+diff --git a/include/metalrobo/MetalWorld.hpp b/include/metalrobo/MetalWorld.hpp
+index e6563841..5478e917 100644
+--- a/include/metalrobo/MetalWorld.hpp
++++ b/include/metalrobo/MetalWorld.hpp
+@@ -507,13 +507,16 @@ using MetalWorldDeviceObservationEncode = bool (*)(
+ struct MetalWorldDeviceObservationProgram {
+     void* context = nullptr;
+     MetalWorldDeviceObservationEncode encode = nullptr;
++    // Required by retinal task ABI 48. Legacy callbacks remain zero/default.
++    // Binds the executable observer to camera/timing/content and actor layout.
++    std::uint64_t observationFingerprint = 0u;
+ 
+     [[nodiscard]] bool valid() const noexcept {
+         return context != nullptr && encode != nullptr;
+     }
+ 
+     [[nodiscard]] bool configured() const noexcept {
+-        return context != nullptr || encode != nullptr;
++        return context != nullptr || encode != nullptr || observationFingerprint != 0u;
+     }
+ };
+ 
+diff --git a/include/metalrobo/RunProgram.hpp b/include/metalrobo/RunProgram.hpp
+index 16c6175f..80cf92ee 100644
+--- a/include/metalrobo/RunProgram.hpp
++++ b/include/metalrobo/RunProgram.hpp
+@@ -113,6 +113,15 @@ struct VisualSensorAssetProgram {
+ // Immutable resource and camera program for the device-resident visual
+ // sensor. File paths locate content-addressed artifacts; their hashes bind
+ // the compiled run and are rechecked when device resources are materialized.
++struct RetinalSensorProgram {
++    // Two engineering pinhole fixtures; the first mount/intrinsics are in
++    // VisualSensorProgram. These are not biological eye measurements.
++    mr_float4 rightCameraPosition{.018f,-.026f,.012f,0};
++    mr_float4 rightCameraOrientation{-.5f,.5f,-.5f,.5f};
++    std::uint32_t width=16u,height=12u;
++    std::uint32_t sampleNumerator=3u,sampleDenominator=10u,latencyTicks=2u;
++    float minimumDepthMeters=.01f,maximumDepthMeters=5.0f;
++};
+ struct VisualSensorProgram {
+     std::vector<VisualSensorAssetProgram> assets;
+     std::string environmentPath;
+@@ -131,6 +140,7 @@ struct VisualSensorProgram {
+     std::uint32_t captureHeight = 0u;
+     bool capturePolicyCamera = false;
+     std::uint64_t fingerprint = 0u;
++    std::optional<RetinalSensorProgram> retinal;
+ };
+ 
+ // Content identity for the complete executable visual sensor program. Paths
+@@ -140,6 +150,10 @@ struct VisualSensorProgram {
+ );
+ [[nodiscard]] TaskPack makeAmericanCrowFeedingStationTaskPack(
+     TaskObservationProgram& observations, TaskResetProgram& reset);
++[[nodiscard]] TaskPack makeAmericanCrowRetinalFeedingTaskPack(
++    TaskObservationProgram& observations, TaskResetProgram& reset,
++    const RetinalSensorProgram& retinal);
++
+ 
+ // Physical mounts, timing, calibration, noise and dropout have one owner.
+ // TaskPack may consume the resulting observation, but does not own the sensor.
+diff --git a/include/metalrobo/TaskProgram.hpp b/include/metalrobo/TaskProgram.hpp
+index 684dfab0..ccfec881 100644
+--- a/include/metalrobo/TaskProgram.hpp
++++ b/include/metalrobo/TaskProgram.hpp
+@@ -69,6 +69,7 @@ enum class TaskObservationSource : std::uint32_t {
+     avianJourneyStage = MR_TASK_OBSERVE_AVIAN_JOURNEY_STAGE,
+     navigationTarget = MR_TASK_OBSERVE_NAVIGATION_TARGET,
+     nutrition = MR_TASK_OBSERVE_NUTRITION,
++    retinalRGB = MR_TASK_OBSERVE_RETINAL_RGB,
+ };
+ 
+ enum class TaskRewardOperator : std::uint32_t {
+@@ -429,6 +430,10 @@ struct TaskObservationProgram {
+     std::uint32_t criticHistoryLength = 1u;
+     bool criticIncludesCleanHistory = true;
+     TaskVisualProgram visual;
++    // Reserved current actor channels, filled only by the bound native RGB
++    // observer. Camera/timing semantics remain owned by SensorPack.
++    std::uint32_t retinalFeatureCount = 0u;
++    std::uint64_t deviceSensorProgramFingerprint = 0u;
+ };
+ 
+ // Executable task-state variation owned by RealityPack. These operators are
+diff --git a/include/metalrobo/task_program_types.h b/include/metalrobo/task_program_types.h
+index 3bf052f0..1c2ef509 100644
+--- a/include/metalrobo/task_program_types.h
++++ b/include/metalrobo/task_program_types.h
+@@ -3,6 +3,10 @@
+ #include "metalrobo/engine_types.h"
+ 
+ #define MR_TASK_PROGRAM_ABI_VERSION 47u
++// Additive retinal task semantics use a distinct executable tag. Structs and
++// all legacy task fingerprints retain ABI 47; an older GPU must reject 48.
++#define MR_TASK_PROGRAM_RETINAL_ABI_VERSION 48u
++#define MR_TASK_PROGRAM_ABI_SUPPORTED(v) ((v)==MR_TASK_PROGRAM_ABI_VERSION || (v)==MR_TASK_PROGRAM_RETINAL_ABI_VERSION)
+ 
+ #define MR_TASK_ACTUATOR_JOINT_POSITION 0u
+ #define MR_TASK_ACTUATOR_JOINT_VELOCITY 1u
+@@ -207,6 +211,8 @@ enum MRTaskObservationOpcode : mr_u32 {
+     // Accepted-state nutritional projection: crop fullness, newly consumed
+     // payload kg, mouth-in-intake-volume, local available fraction.
+     MR_TASK_OBSERVE_NUTRITION = 37u,
++    // Native device observer owns a contiguous current RGB/valid/age suffix.
++    MR_TASK_OBSERVE_RETINAL_RGB = 38u,
+ };
+ 
+ enum MRTaskObservationFlags : mr_u32 {
+diff --git a/profiles/american-crow-rl-v1.json b/profiles/american-crow-rl-v1.json
+index 038d2920..07c056f6 100644
+--- a/profiles/american-crow-rl-v1.json
++++ b/profiles/american-crow-rl-v1.json
+@@ -78,7 +78,8 @@
+     "persistent_memory_and_life_checkpoint": "resource-only-and-learner-only-checkpoints-tested; whole-world-RNG-sensory-memory-restore-pending",
+     "social_individuals_and_communication": "pending",
+     "weather_and_seasonal_ecology": "pending",
+-    "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-and-partition-controls-passed; renderer-to-actor-composition-and-learner-contract-pending"
++    "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-and-partition-controls-passed; renderer-to-actor-composition-and-learner-contract-pending",
++    "retinal_actor_contract": "native-v13-1251-actor-97-critic-18-actions; sensor-content-and-timing-bound; missing-mismatched-observers-and-stale-shaders-reject; real-rendered-actor-stream-and-learning-pending"
+   },
+   "release_requirements": [
+     "deterministic accepted-state execution across submission chunks",
+diff --git a/python/metalrobo/crow_environment.py b/python/metalrobo/crow_environment.py
+index c2530a70..a364309a 100644
+--- a/python/metalrobo/crow_environment.py
++++ b/python/metalrobo/crow_environment.py
+@@ -58,6 +58,7 @@ def runtime(root: Path) -> dict:
+         "foraging_check": build / "bin/metalrobo_crow_foraging_check",
+         "eye_check": build / "bin/metalrobo_crow_eye_check",
+         "retinal_check": build / "bin/metalrobo_retinal_stream_check",
++        "retinal_contract_check": build / "bin/metalrobo_crow_retinal_contract_check",
+         "retinal_metallib": build / "shaders/RetinalStream.metallib",
+     }
+ 
+@@ -765,6 +766,9 @@ def main() -> int:
+     commands.add_parser("head-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("eye-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("retina-admission").add_argument("--output", type=Path, required=True)
++    retinal_contract=commands.add_parser("retinal-contract-admission")
++    retinal_contract.add_argument("--output",type=Path,required=True)
++    retinal_contract.add_argument("--legacy-metallib",type=Path)
+     commands.add_parser("body-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("foraging-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("feeding-probe").add_argument("--output", type=Path, required=True)
+@@ -813,6 +817,9 @@ def main() -> int:
+     if args.command == "doctor":
+         print(json.dumps(checked, indent=2))
+         return 0
++    if args.command=="retinal-contract-admission":
++        args.legacy_metallib=(args.legacy_metallib or root/"artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib").resolve(strict=True)
++        checked["inputs"]["retinal_legacy_shader"]={"path":str(args.legacy_metallib),"sha256":sha(args.legacy_metallib)}
+     output = args.output.resolve()
+     output.mkdir(parents=True, exist_ok=False)
+     plan = {"schema": "numi.crow-trial-plan.v1", "created_utc": datetime.now(timezone.utc).isoformat(),
+@@ -870,6 +877,10 @@ def main() -> int:
+           "stopping": "exactly twelve native runs; 180s timeout per run; abort invalidity; no retry, extra learning, or promotion",
+           "limitations": "policy revision changes random key; same seed identifies matched world conditions but does not create identical stochastic noise across policy revisions; learned variance is part of the tested policy",
+           "unused": "original qualification seeds/layouts remain unspent"})
++    if args.command == "retinal-contract-admission":
++        plan.update({"purpose":"native retinal actor contract and pre-submission rejection instrument",
++          "prediction":"1251 actor/97 critic/18 action channels; 12 malformed manifests and 9 same-dimension sensor changes reject; missing observer and old shader cannot execute; legacy task ABI and mechanics unchanged",
++          "boundary":"compiler metadata and native rejection probes only; no rendered actor images or learner integration"})
+     if args.command == "retina-admission":
+         plan.update({"purpose": "native RGB timing instrument calibration",
+           "prediction": "integer 3/10 sample cadence, two accepted-tick delay; zero premature/reset-stale frames; feature error <=3e-6 against FP64 oracle; chunk1/8 bit-identical",
+@@ -889,6 +900,11 @@ def main() -> int:
+             result = execute(output, "head-mechanics", [str(runtime(root)["head_check"])], root, 180)
+             if result.get("status") != "passed" or result.get("exact_replay") is not True:
+                 raise RuntimeError("Native head mechanics admission failed")
++        elif args.command == "retinal-contract-admission":
++            result=execute(output,"retinal-contract",[str(runtime(root)["retinal_contract_check"]),
++                           str(output/"native-evidence"),str(args.legacy_metallib)],root,180)
++            if result.get("status")!="passed" or result.get("stale_shader_rejected") is not True:
++                raise RuntimeError("Native retinal contract admission failed")
+         elif args.command == "retina-admission":
+             result = execute(output, "retinal-timing", [str(runtime(root)["retinal_check"]),
+                              str(output / "native-evidence")], root, 180)
+diff --git a/src/core/CrowEmbodiment.cpp b/src/core/CrowEmbodiment.cpp
+index a7c61b22..e76a5855 100644
+--- a/src/core/CrowEmbodiment.cpp
++++ b/src/core/CrowEmbodiment.cpp
+@@ -4,6 +4,7 @@
+ #include <cmath>
+ #include <algorithm>
+ #include <stdexcept>
++#include <limits>
+ 
+ namespace metalrobo {
+ namespace {
+@@ -279,10 +280,29 @@ TaskPack makeAmericanCrowFeedingStationTaskPack(
+     return task;
+ }
+ 
++TaskPack makeAmericanCrowRetinalFeedingTaskPack(
++    TaskObservationProgram& observations,TaskResetProgram& reset,const RetinalSensorProgram& retinal) {
++    const std::uint64_t features=std::uint64_t(retinal.width)*retinal.height*6u+2u;
++    if (!retinal.width || !retinal.height || retinal.width>4096 || retinal.height>4096 ||
++        features>std::numeric_limits<std::uint32_t>::max())
++        throw std::invalid_argument("Invalid retinal feeding actor dimensions");
++    auto task=makeAmericanCrowFeedingStationTaskPack(observations,reset);
++    task.id="american_crow_retinal_feeding_v13";
++    observations.retinalFeatureCount=static_cast<std::uint32_t>(features);
++    for (unsigned component=0;component<features;++component)
++        observations.actorCurrent.push_back({.source=TaskObservationSource::retinalRGB,.component=component});
++    return task;
++}
++
+ FiniteResourceConfig makeAmericanCrowFeedingResourceConfig(const CompiledRun& run,unsigned environments) {
+-    if (run.task().layout().actorObservationSize!=97u ||
+-        run.task().actorOperators().empty() ||
+-        run.task().actorOperators().back().source.x!=MR_TASK_OBSERVE_NUTRITION)
++    const auto ops=run.task().actorOperators();
++    const bool feeding=run.task().layout().actorObservationSize==97u && !ops.empty() &&
++        ops.back().source.x==MR_TASK_OBSERVE_NUTRITION;
++    const bool retinal=run.visualSensorProgram() && run.visualSensorProgram()->retinal &&
++        run.task().header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION &&
++        ops.size()>97u && ops[96].source.x==MR_TASK_OBSERVE_NUTRITION &&
++        ops[97].source.x==MR_TASK_OBSERVE_RETINAL_RGB;
++    if (!feeding && !retinal)
+         throw std::invalid_argument("Crow feeding resources require the feeding-station task");
+     FiniteResourceConfig config;
+     config.worldFingerprint=run.world().fingerprint();config.environmentCount=environments;
+diff --git a/src/core/RunProgram.cpp b/src/core/RunProgram.cpp
+index 7cc9270c..79ed525e 100644
+--- a/src/core/RunProgram.cpp
++++ b/src/core/RunProgram.cpp
+@@ -1,4 +1,5 @@
+ #include "metalrobo/RunProgram.hpp"
++#include "metalrobo/retinal_stream_types.h"
+ #include "metalrobo/PX4X500.hpp"
+ 
+ #include "metalrobo/Franka.hpp"
+@@ -624,6 +625,15 @@ std::uint64_t visualSensorProgramFingerprint(
+     hash.scalar(program.captureWidth);
+     hash.scalar(program.captureHeight);
+     hash.scalar(program.capturePolicyCamera);
++    if (program.retinal) {
++        const auto& r=*program.retinal;
++        hash.string("raw-retinal-rgb-v1");hash.scalar(std::uint32_t(MR_RETINAL_STREAM_ABI));
++        hash.scalar(r.rightCameraPosition);hash.scalar(r.rightCameraOrientation);
++        hash.scalar(r.width);hash.scalar(r.height);
++        hash.scalar(r.sampleNumerator);hash.scalar(r.sampleDenominator);hash.scalar(r.latencyTicks);
++        hash.scalar(r.minimumDepthMeters);hash.scalar(r.maximumDepthMeters);
++        hash.string("exact-area-mean;fixed-c/(1+c);eye-y-x-RGB-valid-age-seconds;episode-reset-clears-pending;error-latched");
++    }
+     return hash.finish();
+ }
+ 
+@@ -712,6 +722,10 @@ RunCompileDiagnostics compileRun(
+                 "run identity, package identities, execution counts, or timestep are invalid"
+             );
+         }
++        if (manifest.sensors.observation.retinalFeatureCount!=0u &&
++            (!manifest.sensors.deviceVisual || !manifest.sensors.deviceVisual->retinal))
++            return reject(RunCompileStatus::invalidManifest,manifest.sensors.id,
++                "retinal actor channels require a bound raw RGB SensorPack; zero image fallback is forbidden");
+         if (manifest.sensors.deviceVisual) {
+             const VisualSensorProgram& visual =
+                 *manifest.sensors.deviceVisual;
+@@ -730,6 +744,25 @@ RunCompileDiagnostics compileRun(
+                     visual.cameraOrientation.z +
+                 static_cast<double>(visual.cameraOrientation.w) *
+                     visual.cameraOrientation.w;
++            if (visual.retinal) {
++                const auto& r=*visual.retinal;
++                const auto q=r.rightCameraOrientation;
++                const double qnorm=double(q.x)*q.x+double(q.y)*q.y+double(q.z)*q.z+double(q.w)*q.w;
++                const std::uint64_t features=std::uint64_t(r.width)*r.height*6u+2u;
++                const double expectedRate=double(r.sampleNumerator)/double(r.sampleDenominator)/manifest.profile.controlTimestepSeconds;
++                if (!r.width || !r.height || r.width>4096 || r.height>4096 ||
++                    visual.width<r.width || visual.height<r.height || visual.width%r.width || visual.height%r.height ||
++                    !r.sampleNumerator || !r.sampleDenominator || r.sampleNumerator>r.sampleDenominator || r.latencyTicks>16 ||
++                    !finite4(r.rightCameraPosition) || !finite4(q) || std::abs(qnorm-1)>1e-5 ||
++                    !std::isfinite(r.minimumDepthMeters) || !std::isfinite(r.maximumDepthMeters) ||
++                    !(r.minimumDepthMeters>0) || !(r.maximumDepthMeters>r.minimumDepthMeters) ||
++                    features>std::numeric_limits<std::uint32_t>::max() ||
++                    features!=manifest.sensors.observation.retinalFeatureCount ||
++                    !std::isfinite(expectedRate) || std::abs(expectedRate-visual.nominalRateHz)>1e-4 ||
++                    !(visual.verticalFieldOfViewDegrees>0))
++                    return reject(RunCompileStatus::invalidManifest,manifest.sensors.id,
++                        "raw retinal geometry, RGB layout, integer cadence, latency or actor reservation is invalid");
++            }
+             const bool validAssets = !visual.assets.empty() &&
+                 std::ranges::all_of(
+                     visual.assets,
+@@ -1101,12 +1134,21 @@ RunCompileDiagnostics compileRun(
+             return reject(RunCompileStatus::worldFailure, "physics",
+                 worldStatus.message);
+         }
++        auto executableObservations=manifest.sensors.observation;
++        if (executableObservations.retinalFeatureCount!=0u) {
++            const auto fingerprint=manifest.sensors.deviceVisual->fingerprint;
++            if (executableObservations.deviceSensorProgramFingerprint!=0u &&
++                executableObservations.deviceSensorProgramFingerprint!=fingerprint)
++                return reject(RunCompileStatus::invalidManifest,manifest.sensors.id,
++                    "retinal observation metadata disagrees with its SensorPack identity");
++            executableObservations.deviceSensorProgramFingerprint=fingerprint;
++        }
+         const TaskCompileDiagnostics taskStatus =
+             manifest.teacher.interactions
+             ? compileTaskProgram(
+                   manifest.task,
+                   manifest.robot.actuators,
+-                  manifest.sensors.observation,
++                  executableObservations,
+                   executableReset,
+                   *manifest.teacher.interactions,
+                   manifest.teacher.interactionClip,
+@@ -1116,7 +1158,7 @@ RunCompileDiagnostics compileRun(
+             : compileTaskProgram(
+                   manifest.task,
+                   manifest.robot.actuators,
+-                  manifest.sensors.observation,
++                  executableObservations,
+                   executableReset,
+                   staged.world_,
+                   staged.task_
+diff --git a/src/core/TaskProgram.cpp b/src/core/TaskProgram.cpp
+index 903c03de..c7ae7a79 100644
+--- a/src/core/TaskProgram.cpp
++++ b/src/core/TaskProgram.cpp
+@@ -351,6 +351,7 @@ bool CompiledTaskProgram::valid() const noexcept {
+             storage_->fingerprint &&
+         storage_->header.worldFingerprint ==
+             storage_->worldFingerprint &&
++        MR_TASK_PROGRAM_ABI_SUPPORTED(storage_->header.articulation.z) &&
+         storage_->layout.actionCount != 0u &&
+         storage_->layout.actorFrameSize != 0u &&
+         storage_->layout.actorHistoryLength != 0u;
+@@ -717,6 +718,7 @@ TaskCompileDiagnostics compileTaskProgram(
+             case TaskObservationSource::contactWrenchLocal:
+             case TaskObservationSource::objectTrack:
+             case TaskObservationSource::maskedDepth:
++            case TaskObservationSource::retinalRGB:
+             case TaskObservationSource::cyclicPhase:
+             case TaskObservationSource::crowGroundCarrierPhase:
+             case TaskObservationSource::avianJourneyPhase:
+@@ -2379,6 +2381,12 @@ TaskCompileDiagnostics compileTaskProgram(
+             case TaskObservationSource::recoveryEvent:
+                 componentLimit = 4u;
+                 break;
++            case TaskObservationSource::retinalRGB:
++                if (observations.retinalFeatureCount==0u)
++                    return reject(TaskCompileStatus::invalidPack,"retinal_rgb",
++                        "retinal RGB requires an explicit SensorPack channel reservation");
++                componentLimit=observations.retinalFeatureCount;
++                break;
+             case TaskObservationSource::nutrition:
+                 if (pack.deviceStateProgramFingerprint==0u)
+                     return reject(TaskCompileStatus::invalidPack,"nutrition",
+@@ -2570,6 +2578,29 @@ TaskCompileDiagnostics compileTaskProgram(
+         return {};
+     };
+ 
++    const auto isRetinal=[](const TaskObservationOperatorSpec& op) {
++        return op.source==TaskObservationSource::retinalRGB;
++    };
++    const auto retinalCount=static_cast<std::size_t>(std::ranges::count_if(observations.actorCurrent,isRetinal));
++    if ((observations.retinalFeatureCount!=0u)!=(observations.deviceSensorProgramFingerprint!=0u) ||
++        std::ranges::any_of(observations.actorFrame,isRetinal) ||
++        std::ranges::any_of(observations.critic,isRetinal) ||
++        retinalCount!=observations.retinalFeatureCount ||
++        (observations.retinalFeatureCount!=0u &&
++         (observations.retinalFeatureCount<5u || hasVisualProgram)))
++        return reject(TaskCompileStatus::invalidPack,"retinal_rgb",
++            "retinal channels require one complete current actor suffix, separate from masked depth and critic/history");
++    if (retinalCount!=0) {
++        const auto first=observations.actorCurrent.size()-static_cast<std::size_t>(retinalCount);
++        for (std::size_t i=0;i<observations.actorCurrent.size();++i) {
++            const auto& op=observations.actorCurrent[i];
++            if ((i<first && isRetinal(op)) || (i>=first && (!isRetinal(op) || op.component!=i-first ||
++                op.scale!=1 || op.offset!=0 || op.noiseAmplitude!=0 || op.biasLower!=0 || op.biasUpper!=0 ||
++                op.normalizeVector3 || !op.target.empty())))
++                return reject(TaskCompileStatus::invalidPack,"retinal_rgb",
++                    "retinal suffix components must be ordered, contiguous and untransformed");
++        }
++    }
+     if (std::ranges::any_of(
+             observations.actorCurrent,
+             [](const TaskObservationOperatorSpec& observation) {
+@@ -4411,7 +4442,7 @@ TaskCompileDiagnostics compileTaskProgram(
+     staged->header.articulation = {
+         articulation.firstBody,
+         articulation.bodyCount,
+-        MR_TASK_PROGRAM_ABI_VERSION,
++        observations.retinalFeatureCount!=0u ? MR_TASK_PROGRAM_RETINAL_ABI_VERSION : MR_TASK_PROGRAM_ABI_VERSION,
+         observations.criticHistoryLength,
+     };
+     const mr_float4 rootCenterOfMass =
+@@ -4781,9 +4812,18 @@ TaskCompileDiagnostics compileTaskProgram(
+     observationHash.scalar(observations.visual.edgeFlickerProbability);
+     observationHash.scalar(observations.visual.difficultyCorruptionGain);
+     observationHash.scalar(observations.visual.includeDerivedFeatures);
++    if (observations.retinalFeatureCount!=0u) {
++        observationHash.string("retinal-rgb-current-v1");
++        observationHash.scalar(observations.retinalFeatureCount);
++        observationHash.scalar(observations.deviceSensorProgramFingerprint);
++    }
+     staged->observationFingerprint = observationHash.finish();
+ 
+     Hash hash;
++    if (observations.retinalFeatureCount!=0u) {
++        hash.string("retinal-sensor-program-v1");
++        hash.scalar(observations.deviceSensorProgramFingerprint);
++    }
+     hash.string(pack.id);
+     hash.scalar(world.fingerprint());
+     hash.scalar(staged->header);
+diff --git a/src/metal/LocomotionTask.metal b/src/metal/LocomotionTask.metal
+index e9e74edd..a96aa649 100644
+--- a/src/metal/LocomotionTask.metal
++++ b/src/metal/LocomotionTask.metal
+@@ -1660,6 +1660,12 @@ inline float cleanObservation(
+         );
+         break;
+     }
++    case MR_TASK_OBSERVE_RETINAL_RGB:
++        // The native RGB observer fills this reserved current channel after
++        // proprioception and before inference. Missing observers are rejected
++        // by MetalWorld admission, never treated as zero-filled vision.
++        value=0.0f;
++        break;
+     case MR_TASK_OBSERVE_NUTRITION:
+         value=state.nutrition[operation.source.z];
+         break;
+@@ -2367,7 +2373,7 @@ kernel void mr_locomotion_task_latch_impact_contact(
+         pass.controlStep >= dispatch.counts.y ||
+         dispatch.taskFingerprint != program.taskFingerprint ||
+         dispatch.worldFingerprint != program.worldFingerprint ||
+-        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION) {
++        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z)) {
+         return;
+     }
+     MRTaskStateGPU state = taskStates[environment];
+@@ -2437,7 +2443,7 @@ kernel void mr_locomotion_task_select_threat_query(
+         pass.controlStep >= dispatch.counts.y ||
+         dispatch.taskFingerprint != program.taskFingerprint ||
+         dispatch.worldFingerprint != program.worldFingerprint ||
+-        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
++        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z) ||
+         program.threat.y == 0u ||
+         program.threat.x >= program.counts0.w ||
+         contactDispatch.pointQueryStride == 0u) {
+@@ -2612,7 +2618,7 @@ kernel void mr_locomotion_task_joint_cbf_teacher(
+         pass.controlStep >= dispatch.counts.y ||
+         dispatch.taskFingerprint != program.taskFingerprint ||
+         dispatch.worldFingerprint != program.worldFingerprint ||
+-        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
++        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z) ||
+         program.threat.y == 0u) {
+         return;
+     }
+@@ -2853,7 +2859,7 @@ kernel void mr_locomotion_task_motion_features(
+         pass.controlStep >= dispatch.counts.y ||
+         dispatch.taskFingerprint != program.taskFingerprint ||
+         dispatch.worldFingerprint != program.worldFingerprint ||
+-        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
++        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z) ||
+         program.motion.y == 0u ||
+         program.motion.z != 9u * program.motion.y) {
+         return;
+@@ -2948,8 +2954,7 @@ kernel void mr_locomotion_task_observe(
+             program.taskFingerprint ||
+         dispatch.worldFingerprint !=
+             program.worldFingerprint ||
+-        program.articulation.z !=
+-            MR_TASK_PROGRAM_ABI_VERSION ||
++        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z) ||
+         program.counts0.x == 0u ||
+         program.counts0.y == 0u ||
+         program.layout.y == 0u ||
+@@ -4812,8 +4817,7 @@ kernel void mr_locomotion_task_apply_actions(
+             program.taskFingerprint ||
+         dispatch.worldFingerprint !=
+             program.worldFingerprint ||
+-        program.articulation.z !=
+-            MR_TASK_PROGRAM_ABI_VERSION ||
++        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z) ||
+         program.counts0.x == 0u ||
+         program.layout.w < 2u) {
+         return;
+@@ -5401,7 +5405,7 @@ kernel void mr_locomotion_task_apply_native_actuators(
+         dispatch.counts.w != worldDispatch.nv ||
+         dispatch.taskFingerprint != program.taskFingerprint ||
+         dispatch.worldFingerprint != program.worldFingerprint ||
+-        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
++        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z) ||
+         program.layout.w < 2u) {
+         return;
+     }
+@@ -5573,8 +5577,7 @@ kernel void mr_locomotion_task_measure_effort(
+             program.taskFingerprint ||
+         dispatch.worldFingerprint !=
+             program.worldFingerprint ||
+-        program.articulation.z !=
+-            MR_TASK_PROGRAM_ABI_VERSION) {
++        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z)) {
+         return;
+     }
+     device const MRTaskActionBindingGPU* actions =
+@@ -5647,8 +5650,7 @@ kernel void mr_locomotion_task_complete(
+             program.taskFingerprint ||
+         dispatch.worldFingerprint !=
+             program.worldFingerprint ||
+-        program.articulation.z !=
+-            MR_TASK_PROGRAM_ABI_VERSION) {
++        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z)) {
+         return;
+     }
+ 
+@@ -9107,7 +9109,7 @@ kernel void mr_locomotion_task_update_evidence(
+     if (gridIndex != 0u ||
+         pass.controlStep >= dispatch.counts.y ||
+         dispatch.taskFingerprint != program.taskFingerprint ||
+-        program.articulation.z != MR_TASK_PROGRAM_ABI_VERSION ||
++        !MR_TASK_PROGRAM_ABI_SUPPORTED(program.articulation.z) ||
+         program.schedule.x == 0u ||
+         program.schedule.z == 0u) {
+         return;
+@@ -9171,3 +9173,9 @@ kernel void mr_locomotion_task_update_evidence(
+     state.controlSteps = completedSteps;
+     evidenceState[0] = state;
+ }
++
++// Capability belongs to the same translation unit as every ABI guard above.
++// Native admission checks its presence before submitting a retinal task.
++kernel void mr_task_retinal_abi48_capability(device uint* output [[buffer(0)]],uint at [[thread_position_in_grid]]) {
++    if (at==0u) output[0]=MR_TASK_PROGRAM_RETINAL_ABI_VERSION;
++}
+diff --git a/src/metal/MetalWorld.mm b/src/metal/MetalWorld.mm
+index 2f9c6af6..68f381bb 100644
+--- a/src/metal/MetalWorld.mm
++++ b/src/metal/MetalWorld.mm
+@@ -426,6 +426,7 @@ struct MetalWorldContextState {
+     __strong id<MTLDevice> device = nil;
+     __strong id<MTLCommandQueue> queue = nil;
+     __strong id<MTLLibrary> library = nil;
++    bool supportsRetinalTaskABI=false;
+     __strong id<MTLComputePipelineState> abaPipeline = nil;
+     __strong id<MTLComputePipelineState>
+         functionBasedDenseDynamicsPipeline = nil;
+@@ -3894,6 +3895,15 @@ MetalWorldDiagnostics validateAndBuildLayout(
+             "device physics program is incomplete, has unknown capabilities, requires rigid contact evidence in a free-motion world, or requests a missing DER arena"
+         );
+     }
++    if (nativeTask && config.taskProgram.header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION &&
++        (!config.deviceObservationProgram.valid() || !nativePolicy)) {
++        return reject(std::move(diagnostics),MetalWorldHostStatus::invalidDimensions,
++            "retinal task semantics require a bound native observation program and policy; zero-filled image fallback is forbidden");
++    }
++    if (nativeTask && config.taskProgram.header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION &&
++        config.deviceObservationProgram.observationFingerprint!=config.taskProgram.observationFingerprint())
++        return reject(std::move(diagnostics),MetalWorldHostStatus::invalidDimensions,
++            "retinal observation program identity does not match the compiled actor sensor contract");
+     if (config.deviceObservationProgram.configured() &&
+         (!config.deviceObservationProgram.valid() ||
+          !nativeTask || !nativePolicy)) {
+@@ -6938,6 +6948,7 @@ MetalWorldDiagnostics initializeContext(
+     context.device = device;
+     context.queue = queue;
+     context.library = library;
++    context.supportsRetinalTaskABI=[library newFunctionWithName:@"mr_task_retinal_abi48_capability"]!=nil;
+     context.abaPipeline = aba;
+     context.functionBasedDenseDynamicsPipeline =
+         functionBasedDenseDynamics;
+@@ -20483,6 +20494,11 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
+             if (!diagnostics.succeeded()) {
+                 return diagnostics;
+             }
++            if (config.taskProgram.valid() &&
++                config.taskProgram.header().articulation.z==MR_TASK_PROGRAM_RETINAL_ABI_VERSION &&
++                !selectedState->supportsRetinalTaskABI)
++                return reject(std::move(diagnostics),MetalWorldHostStatus::metalLibraryFailure,
++                    "selected shader library has no retinal task ABI 48 capability");
+             diagnostics = ensureRodPipelines(
+                 *selectedState,
+                 world.rodCount() != 0u,
