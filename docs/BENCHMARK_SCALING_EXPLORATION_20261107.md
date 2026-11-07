@@ -53,3 +53,9 @@ their supported prediction is therefore limited to the observed, potentially
 contended conditions and is not a clean-host latency or throughput result.
 A separate Release study was preregistered before its trials; it must record
 the actual host load and cannot silently relabel this study.
+
+The reported measured wall interval begins after host action generation and
+allocation. Initialization and warmup are separately reported, but action
+preparation and policy learning are not included in the throughput denominator.
+The observation is therefore not end-to-end time to skill or complete
+interactive latency.
