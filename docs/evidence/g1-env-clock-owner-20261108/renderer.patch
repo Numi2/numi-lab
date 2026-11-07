@@ -1,0 +1,80 @@
+--- a/src/metal/MetalHybridRenderer.mm
++++ b/src/metal/MetalHybridRenderer.mm
+@@ -2,6 +2,7 @@
+ #import <Metal/Metal.h>
+ 
+ #include "metalrobo/MetalHybridRenderer.hpp"
++#include "ResearchVisualCadence.hpp"
+ 
+ #include <dlfcn.h>
+ 
+@@ -7048,6 +7049,7 @@
+     __strong id<MTLBuffer> history = nil;
+     __strong id<MTLBuffer> maskedDepthInstances = nil;
+     __strong id<MTLBuffer> maskedDepthHistory = nil;
++    __strong id<MTLBuffer> researchCadence = nil;
+     MetalHybridRendererLayout rendererLayout{};
+     MRHybridRenderUniformsGPU maskedDepthRenderUniforms{};
+     std::uint64_t observationSequence = 0u;
+@@ -7471,6 +7473,16 @@
+         state_->renderer->nativeBuffer(MetalHybridRendererBuffer::validity),
+         state_->renderer->nativeBuffer(MetalHybridRendererBuffer::cameraStates),
+     };
++}
++
++bool MetalHybridObjectTracker::researchSetCadenceBuffer(void* buffer) {
++    if (!state_ || !state_->compiled) return false;
++    id<MTLBuffer> candidate = (__bridge id<MTLBuffer>)buffer;
++    if (candidate != nil &&
++        (candidate.storageMode != MTLStorageModeShared ||
++         candidate.length < state_->config.capacity * sizeof(research_cadence::Record))) return false;
++    state_->researchCadence = candidate;
++    return true;
+ }
+ 
+ bool MetalHybridObjectTracker::encodeObservation(
+@@ -7515,16 +7527,39 @@
+     }
+     id<MTLCommandBuffer> command =
+         (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+-    const std::uint64_t observationSequence =
+-        state->observationSequence++;
++    const std::uint64_t observationSequence = state->observationSequence;
+     const double sensorTime =
+         static_cast<double>(observationSequence) *
+         static_cast<double>(state->config.timestepSeconds) *
+         static_cast<double>(state->config.nominalSensorRateHz);
+-    const std::uint64_t sensorSequence =
++    std::uint64_t sensorSequence =
+         static_cast<std::uint64_t>(std::floor(sensorTime + 1.0e-6));
+-    const bool sampleSensor =
+-        sensorSequence != state->lastSensorSequence;
++    bool sampleSensor = sensorSequence != state->lastSensorSequence;
++    if (state->researchCadence != nil) {
++        // Strict, one-step research slice: each GPU-committed accepted clock
++        // must agree with the existing batch renderer before any encoding.
++        // Divergence and masked depth remain unsupported and fail closed.
++        if (maskedDepth || pass.controlStep != 0u) return false;
++        const auto* records = static_cast<const research_cadence::Record*>(
++            state->researchCadence.contents);
++        research_cadence::Candidate first{};
++        for (std::uint32_t env = 0; env < pass.environmentCount; ++env) {
++            research_cadence::Candidate next{};
++            if (!research_cadence::propose(records[env],
++                    state->config.timestepSeconds,
++                    state->config.nominalSensorRateHz,
++                    records[env].captureTimeBits, false, next) ||
++                records[env].acceptedSteps != observationSequence ||
++                (state->lastSensorSequence == std::numeric_limits<std::uint64_t>::max()
++                    ? records[env].lastSensor != research_cadence::none
++                    : records[env].lastSensor != state->lastSensorSequence) ||
++                next.sensor != sensorSequence || next.sample != sampleSensor) return false;
++            if (env == 0u) first = next;
++        }
++        sensorSequence = first.sensor;
++        sampleSensor = first.sample;
++    }
++    ++state->observationSequence;
+     HybridDeviceStateBatch liveState{
+         .currentBodyStates = pass.currentBodies,
+         .previousBodyStates = pass.currentBodies,
