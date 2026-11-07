@@ -1,0 +1,5 @@
+# Installed Neuron quick protocol
+
+A fresh source worktree at unified revision `1b14aa38ad2e6f1bf66b614583b196e1d7e5b922` was configured and built on Apple M6, installed, then copied to a different prefix. The shell-only stub confirms that this installed wrapper passes the package revision and actual installed neuron shader hash. The bounded native run used the relocated dispatcher, one synthetic quick protocol with seed 2056 and mapping 0, and an external workspace. The runner records exact command, start/end times, output, exit, and package hashes before and after. All identities were unchanged and the run returned a simulation-only result with a nonzero accepted-state fingerprint.
+
+This is not the full three-seed seven-hour equilibrium qualification. No NumiBrain or NumanX revision identity was fabricated: no internal run manifest was requested, so provenance is external to the native output. It establishes neither biological validity nor performance. The prior Window package was not modified.
