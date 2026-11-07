@@ -1,0 +1,8 @@
+ M apps/NumiHumanRestingAnatomy.hpp
+ M apps/NumiHumanRestingVisual.hpp
+ M include/metalrobo/numi_human_resting_visual_gpu.h
+ M matter/include/numi/matter/human_respiration.h
+ M matter/src/human_respiration.metal
+ M matter/tools/cardiac_geometry_binding.py
+ M matter/tools/human_resting_runtime.hpp
+?? matter/tools/passive-viscera-stage/

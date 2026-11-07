@@ -1,0 +1,8 @@
+Predeclared 2026-11-07 prior to GPU execution.
+Task: existing unitree_g1_legs_locomotion, ground, retained candidate.policypack.
+Source: historical checkout a4334df01211f4c9c2991da98780ece0743ecf59, dirty unrelated Human paths, not current main.
+Actor: 240 values consisting of proprioceptive/command/gait/action history; no visual renderer. These are idealized simulator observations, not a hardware sensor qualification.
+Rollout: 8 environments; 1000 control steps; one repeat; one control step per submission; 4 physics substeps; 4 velocity iterations and 2 final iterations; normal task resets and terminations; no evaluation disabling of failures.
+Seeds: 4081007 and 4081008. These are distinct from the retained selection seed 2650443581. Full training seed history has not been established, so these are fresh relative to that selected record rather than proven statistically independent of all training.
+Arms: retained policy at both seeds; zero actions as a matched task baseline at seed 4081007. Additionally try an otherwise matched rigid projectile at x=-2,y=0,z=.8, velocity (3,0,0), radius .1m, mass .1kg, launch step 100. The latter changes scene/world and may be rejected by the policy contract; report failure as evidence, do not bypass it.
+Primary metrics: failed physical environment steps, clean horizon rate, height-or-tilt termination count, maximum tilt, mean height, mean tracking, final forward progress, with all emitted per-environment values. Record model, binary, policy, library, shader and inputs hashes. Retain errors and initial output. No test claims visual transfer, real robot performance or physical push-response qualification; the authored task has zero push velocity.
