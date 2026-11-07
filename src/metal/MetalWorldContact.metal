@@ -8937,7 +8937,11 @@ inline void mrWorldWave32SolvePacket(
                         const auto cone=evaluatedCones[constraintBase+c];
                         const float upper=cone.maximumNormalImpulse>0.f?cone.maximumNormalImpulse:MR_CONSTRAINT_IR_UNBOUNDED;
                         const float next=clamp(target.impulses.x-eq/diagonal,0.f,upper);
-                        const float score=abs(next-target.impulses.x)*diagonal;
+                        const float change=next-target.impulses.x;
+                        // Prioritize the exact quadratic decrease for this
+                        // projected coordinate, rather than a rounded
+                        // velocity residual with arbitrary diagonal scale.
+                        const float score=-(eq*change+.5f*diagonal*change*change);
                         if(!isfinite(score)||!isfinite(next)) {
                             localFailure=MR_STEP_NONFINITE_RESULT;
                             localFailureConstraint=min(localFailureConstraint,c);
@@ -8947,7 +8951,7 @@ inline void mrWorldWave32SolvePacket(
                     }
                     if(localFailure!=MR_STEP_SUCCESS) break;
                 }
-                if(localFailure!=MR_STEP_SUCCESS||best==MR_INVALID_INDEX||bestScore<=1.e-7f) break;
+                if(localFailure!=MR_STEP_SUCCESS||best==MR_INVALID_INDEX||bestScore<=0.f) break;
                 device MRContactConstraintGPU& contact=contacts[constraintBase+best];
                 const float delta=bestImpulse-contact.impulses.x;
                 contact.impulses.x=bestImpulse;

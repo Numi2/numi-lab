@@ -29,3 +29,8 @@ assert trace==[.01,.01,.01,0.]
 trace,j=solve([(1,0,0),(.5,math.sqrt(.75),0)],[(0,0,0)]*2,[1.,1.],4)
 assert trace==[1.,.5,.25,.125] # fixed pivot caps are not convergence guarantees
 print("priority-normal-fp64=ok")
+
+# At equal incoming speeds, the exact one-coordinate decrease chooses x=0.
+rhs=.08175
+decreases=[.5*rhs*rhs/(1+10*(.05*i)**2) for i in range(33)]
+assert max(range(33), key=lambda i:decreases[i])==0

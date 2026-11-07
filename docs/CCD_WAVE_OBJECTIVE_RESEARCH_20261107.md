@@ -1,0 +1,9 @@
+# Objective-priority wave contact trial (held)
+
+This research-only candidate changes the non-distributed frictionless, no-rod priority rule to maximize the exact projected one-coordinate decrease in the local quadratic objective. An independent FP64 reference chooses the zero-lever contact in the owner fixture. It retains eight pivots per configured sweep and the all-path normal complementarity certificate. Distributed frictionless islands use the prior paired-row candidate; frictional islands use the prior update.
+
+Both 33- and 257-contact owner-shaped frictionless impacts pass at two production sweeps, matching the FP64 result: normal impulse 0.081749998 N s, zero reported normal residual and momentum error, and contact kinetic work -0.003341531 J. All 14 owner cases pass and replay identically.
+
+The fixed 72-case matrix accepts 71 cases. Its one rejection is the 33-contact, frictional, one-sweep case, which violates the residual gate and restores the initial q, v, scene and empty contact cache. All tested two-sweep 33- and 257-contact incoming families pass their fixture-specific impulse, momentum, and friction checks. Separating controls are force-free. These observations are not general force, friction, rollback, geometric, or mixed-world qualification. No timing gain is claimed: a mixed-normal 257-contact two-sweep step took about 186 ms GPU time in a single diagnostic run.
+
+The exact shader and executables were copied before execution and remain host-only at /Users/numi/numi-lab-ccd-thin-evidence-20261107/wave-objective-v1. [Raw native outputs, source patch and SHA-256 identities](evidence/ccd-wave-objective-evidence-20261107.tar.gz) have archive SHA-256 a87c3db2058e48a73d744b1bc413b3ad30e0bdc7633d7fe7e2d6ef23c73746cc. This candidate remains unpromoted pending meaningful physical, state, mixed-world and CCD qualification.
