@@ -1,0 +1,10 @@
+--- /Users/numi/numi-lab-autoload-package-source-20261108/src/core/TaskProgram.cpp	2026-11-07 15:42:28
++++ /Users/numi/numi-generic-fingerprint-matched-20261108/TaskProgram.cpp	2026-11-07 15:56:39
+@@ -4622,6 +4622,7 @@
+         std::ranges::any_of(staged->criticOperators, readsDelayedAction)) {
+         observationHash.scalar(std::uint32_t{0x444c4101u});
+     }
++    if (hasVisualProgram) observationHash.scalar(std::uint32_t{0x44505601u});
+     staged->observationFingerprint = observationHash.finish();
+ 
+     Hash hash;
