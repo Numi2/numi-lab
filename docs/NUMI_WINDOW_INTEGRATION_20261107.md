@@ -66,10 +66,11 @@ external surface save/restore implementation in this checkpoint.
 - The short repeat is independent re-execution, not restoration from a saved
   external mechanics state. It does not qualify physical fidelity, force
   accuracy, long-duration stability, training, rendered UI, or throughput.
-- Inspection now rejects in-flight measured-surface state and completion
-  retires the command fence. The modified code compiles, but the updated GPU
-  ownership probe has not yet been run. Aborted first-command initialization
-  and submitted GPU failure poisoning have not yet been fault-injected.
+- A second bounded M6 ownership probe passed the in-flight inspection gate:
+  inspection was rejected while the submission was pending and succeeded
+  after completion. Its separate output and exact hashes are retained as
+  ownership-fenced evidence. Aborted first-command initialization and
+  submitted GPU failure poisoning have not yet been fault-injected.
 - The merged native window and guided training have not yet been exercised
   end to end. Real simulation pause, scene and policy switching, artifact
   restoration, exact experiment replay, and native/CLI/agent consistency
