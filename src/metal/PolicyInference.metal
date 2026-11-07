@@ -7,6 +7,11 @@ using namespace metal;
 
 namespace {
 
+inline bool policyABICompatible(device const MRPolicyProgramHeaderGPU& program) {
+    const bool recurrent=(program.counts1.z & MR_POLICY_PROGRAM_HAS_GRU)!=0u;
+    return program.abi.x==(recurrent ? MR_POLICY_PROGRAM_RECURRENT_ABI_VERSION : MR_POLICY_PROGRAM_ABI_VERSION);
+}
+
 template <typename T>
 inline device const T* policyTable(
     device const uchar* arena,
@@ -89,7 +94,7 @@ kernel void mr_policy_dense_layer(
     const uint outputElements =
         dispatch.counts.x * dispatch.counts.z;
     if (flatOutput >= outputElements ||
-        program.abi.x != MR_POLICY_PROGRAM_ABI_VERSION ||
+        !policyABICompatible(program) ||
         dispatch.policyFingerprint !=
             program.policyFingerprint ||
         dispatch.taskFingerprint !=
@@ -178,7 +183,7 @@ kernel void mr_policy_sample_and_score(
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.counts.x ||
-        program.abi.x != MR_POLICY_PROGRAM_ABI_VERSION ||
+        !policyABICompatible(program) ||
         dispatch.policyFingerprint !=
             program.policyFingerprint ||
         dispatch.taskFingerprint !=
@@ -293,7 +298,7 @@ kernel void mr_policy_residual_sample_and_score(
     const uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.counts.x ||
-        program.abi.x != MR_POLICY_PROGRAM_ABI_VERSION ||
+        !policyABICompatible(program) ||
         baseProgram.abi.x != MR_POLICY_PROGRAM_ABI_VERSION ||
         dispatch.policyFingerprint != program.policyFingerprint ||
         dispatch.taskFingerprint != program.taskFingerprint ||
@@ -390,3 +395,6 @@ kernel void mr_policy_residual_sample_and_score(
         values[scalarIndex] = 0.0f;
     }
 }
+
+// Capability marker: stale policy shaders must reject recurrent actor graphs.
+kernel void mr_policy_gru_abi4_capability(uint index [[thread_position_in_grid]]) { (void)index; }

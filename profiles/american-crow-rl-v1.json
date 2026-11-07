@@ -80,7 +80,7 @@
     "weather_and_seasonal_ecology": "pending",
     "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-partition-and-pending-frame-fresh-process-restore-controls-passed-including-live-head-renderer",
     "retinal_actor_contract": "native-v13-1251-actor-97-critic-18-actions; live-pixel-controls-and-C-API-Swift-MLX-update-learner-restore-passed-at16-64-128; visual-learning-and-production-performance-qualification-pending",
-    "native_working_memory": "optional-native-reset-after-GRU-and-differentiable-MLX-sequence-component-admitted; PolicyPack-native-actor-recurrent-rollout-and-sequence-PPO-integration-pending"
+    "native_working_memory": "native-PolicyPack-v5-encoder-GRU-head-actor-and-full-v13-life-state-admitted; exact-chunk-preview-reset-weight-publication-fresh-process-replay; recurrent-rollout-sequence-PPO-and-behavioral-qualification-pending"
   },
   "release_requirements": [
     "deterministic accepted-state execution across submission chunks",
@@ -251,5 +251,29 @@
     "coupled_native_life_contains_GRU": false,
     "trainable_crow_memory_qualified": false,
     "ecological_environment_qualified": false
+  },
+  "recurrent_actor_development_instrument": {
+    "command": "recurrent-actor-admission",
+    "evidence": "artifacts/crow-rl-recurrent-actor-20261107",
+    "actor": "authored native v13 encoder1251x5-GRU7-action18; feedforward critic97x1",
+    "environments": 2,
+    "ticks": 40,
+    "lane_episode_reset_tick": 9,
+    "next_weight_publication_tick": 18,
+    "native_FP64_max_abs": 1.4215113849913585e-08,
+    "native_contract_rejections": 7,
+    "resident_publication_rejections": 3,
+    "stale_policy_ABI3_shader_rejected_for_ABI4_cause": true,
+    "chunk_and_extra_intermediate_preview_future_exact": true,
+    "fresh_process_future_and_three_life_components_exact": true,
+    "retained_runtime_independent_future_exact": true,
+    "PolicyPack_v5_and_native_actor_integrated": true,
+    "coupled_native_life_contains_GRU": true,
+    "sequence_PPO_integrated": false,
+    "embodied_memory_qualified": false,
+    "full_loop_performance_qualified": false,
+    "legacy_dense_policy_v4_bytes_preserved": true,
+    "legacy_recurrent_rollout_v7_publication": "explicitly rejected until hidden/reset sequence format is implemented",
+    "scope": "native execution/persistence engineering instrument; no learned memory or ecological claim"
   }
 }

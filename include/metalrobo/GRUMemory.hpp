@@ -51,6 +51,7 @@ public:
         std::size_t traceBase=0, std::size_t resetBase=0);
     [[nodiscard]] bool healthy() const;
     [[nodiscard]] std::uint64_t parameterFingerprint() const;
+    [[nodiscard]] std::size_t retainedBytes() const;
     [[nodiscard]] GRUMemorySnapshot snapshot() const;
     [[nodiscard]] std::vector<std::byte> checkpointState() const;
     void restoreState(std::span<const std::byte> bytes);

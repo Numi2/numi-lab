@@ -1,0 +1,157 @@
+{
+  "recurrent-actor-native-01": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-01/bin/metalrobo_crow_recurrent_actor_check",
+      "bytes": 145160,
+      "sha256": "28469650cc5c48dc8b7ebb8b41c8496d9558a2961aa43a5183a7b92bfba8d810"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-01/lib/libmetalrobo.dylib",
+      "bytes": 5599760,
+      "sha256": "7c6c1a130845f659939eef4b3981eab9bda361992d4984d7169dc961fd4d994b"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-01/receipt.json",
+      "bytes": 1127,
+      "sha256": "05bd692e37c868e2cb989d3cdde83c87a45bbeb197aa829201074f87dd26b62a"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-01/shaders/GRUMemory.metallib",
+      "bytes": 19391,
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-01/shaders/MetalRobo.metallib",
+      "bytes": 4176630,
+      "sha256": "0aa9d42ab605cf79ecb74fc8251dea561f7fb8c9930878fb35dd9c3929074944"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-01/shaders/RetinalStream.metallib",
+      "bytes": 16151,
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    }
+  ],
+  "recurrent-actor-native-02": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-02/bin/metalrobo_crow_recurrent_actor_check",
+      "bytes": 145160,
+      "sha256": "218cfeba2650bbf2d11e0570a31420ff21d6956b9f4ba64a6a1046bde0da5a96"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-02/lib/libmetalrobo.dylib",
+      "bytes": 5599760,
+      "sha256": "7c6c1a130845f659939eef4b3981eab9bda361992d4984d7169dc961fd4d994b"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-02/receipt.json",
+      "bytes": 1232,
+      "sha256": "a247edc5877343ee167f226c7ae9a6578e72fc07498bbb24cb736994f6b9d06f"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-02/shaders/GRUMemory.metallib",
+      "bytes": 19391,
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-02/shaders/MetalRobo.metallib",
+      "bytes": 4176630,
+      "sha256": "0aa9d42ab605cf79ecb74fc8251dea561f7fb8c9930878fb35dd9c3929074944"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-02/shaders/RetinalStream.metallib",
+      "bytes": 16151,
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    }
+  ],
+  "recurrent-actor-native-03": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-03/bin/metalrobo_crow_recurrent_actor_check",
+      "bytes": 162088,
+      "sha256": "60f97216706857c2d8ac97b381e3fbe2a6b27b9d7da0d2bfacf082ed45fa5691"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-03/lib/libmetalrobo.dylib",
+      "bytes": 5599952,
+      "sha256": "3a7d24d7adbd5120d2e85aa8dd3acffcf771b82b964229e384d6ef0fd1e36046"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-03/receipt.json",
+      "bytes": 1232,
+      "sha256": "397c36a22501a20cec2635a9f9ef701ba3d0e19616ab1a029d7cfc63fdddd510"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-03/shaders/GRUMemory.metallib",
+      "bytes": 19391,
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-03/shaders/MetalRobo.metallib",
+      "bytes": 4176630,
+      "sha256": "0aa9d42ab605cf79ecb74fc8251dea561f7fb8c9930878fb35dd9c3929074944"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-03/shaders/RetinalStream.metallib",
+      "bytes": 16151,
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    }
+  ],
+  "recurrent-actor-native-04": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-04/bin/metalrobo_crow_recurrent_actor_check",
+      "bytes": 162088,
+      "sha256": "58c3e09ffc28300bb7e766d06845fe0e0e58892e44cbfe70bf4387a6646837ed"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-04/lib/libmetalrobo.dylib",
+      "bytes": 5599952,
+      "sha256": "3a7d24d7adbd5120d2e85aa8dd3acffcf771b82b964229e384d6ef0fd1e36046"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-04/receipt.json",
+      "bytes": 1232,
+      "sha256": "aa283ab606d09672b008618cb14f6baf181f5c903d5ee470ec43075d22bcc676"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-04/shaders/GRUMemory.metallib",
+      "bytes": 19391,
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-04/shaders/MetalRobo.metallib",
+      "bytes": 4176630,
+      "sha256": "0aa9d42ab605cf79ecb74fc8251dea561f7fb8c9930878fb35dd9c3929074944"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-native-04/shaders/RetinalStream.metallib",
+      "bytes": 16151,
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    }
+  ],
+  "recurrent-actor-admission-01": [
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-admission-01/bin/metalrobo_crow_recurrent_actor_check",
+      "bytes": 162088,
+      "sha256": "58c3e09ffc28300bb7e766d06845fe0e0e58892e44cbfe70bf4387a6646837ed"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-admission-01/lib/libmetalrobo.dylib",
+      "bytes": 5599952,
+      "sha256": "3a7d24d7adbd5120d2e85aa8dd3acffcf771b82b964229e384d6ef0fd1e36046"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-admission-01/shaders/GRUMemory.metallib",
+      "bytes": 19391,
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-admission-01/shaders/MetalRobo.metallib",
+      "bytes": 4176630,
+      "sha256": "0aa9d42ab605cf79ecb74fc8251dea561f7fb8c9930878fb35dd9c3929074944"
+    },
+    {
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/recurrent-actor-admission-01/shaders/RetinalStream.metallib",
+      "bytes": 16151,
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"byte_order":"little-endian","output_order":"call,environment,actor_feature","calls_by_file":{"chunk1":51,"chunk8":51,"boundary-*":51,"clock-gap":2,"nonfinite":10,"finite-overflow":10},"environments":3,"actor_stride":295,"feature_offset":3,"retinal_feature_count":290,"pixel_order":"eye,y,x,RGB","tail_features":["valid","age_seconds"],"state_record_bytes":48}

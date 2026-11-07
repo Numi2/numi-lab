@@ -839,6 +839,11 @@ MR_API const float* mr_task_rollout_policy_log_probabilities(
 MR_API const float* mr_task_rollout_policy_values(
     const MRTaskRolloutHandle* handle
 );
+// Latest native recurrent policy traces. Zero width/null pointers for dense
+// policies. Includes the read-only terminal slot when evaluation is requested.
+MR_API uint32_t mr_task_rollout_policy_memory_width(const MRTaskRolloutHandle* handle);
+MR_API const float* mr_task_rollout_policy_memory_before(const MRTaskRolloutHandle* handle);
+MR_API const uint32_t* mr_task_rollout_policy_memory_resets(const MRTaskRolloutHandle* handle);
 // Value estimates for the accepted post-rollout state. Native policy
 // evaluation is encoded in the same submission without advancing physics.
 MR_API const float* mr_task_rollout_bootstrap_policy_values(

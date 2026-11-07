@@ -844,9 +844,10 @@ required for the full lifelong environment.
 `GRUMemoryContext` now provides an optional GPU-resident reset-after GRU with
 row-major r/z/n input/recurrent weights and separate biases. `gru_memory.py`
 provides matching differentiable MLX cell and time-major sequence algebra. This
-is a prerequisite component: current crow PolicyPacks, native actor execution,
-rollout records, PPO and coupled life checkpoints do **not** yet contain it.
-The current trained feeding actor remains feedforward.
+was first admitted as a prerequisite component in the experiment below. The
+later native actor integration is documented in the following section. Recurrent
+rollout publication and PPO remain pending; the trained feeding actor remains
+feedforward.
 
 The native operator borrows the real task clock read-only and encodes into its
 owner's uncommitted command buffer. It retains two private hidden vectors: the
@@ -865,8 +866,9 @@ changing other lanes' hidden state. Command ownership excludes competing
 commands and host boundary operations until completion. Explicit reset recovers
 a poisoned context. Quiescent component checkpoints bind parameters, library,
 shader, device and OS; restore validates semantics and uploads candidate state
-before swapping ownership. A component checkpoint is separate from the existing
-crow life checkpoint and cannot yet resume a recurrent crow learner.
+before swapping ownership. A standalone component checkpoint is separate from the crow life envelope.
+The later actor integration embeds it in that envelope; a recurrent crow learner
+is not yet implemented.
 
 Build `metalrobo_gru_memory_check` and `metalrobo_gru_shaders`, then run:
 
@@ -904,9 +906,78 @@ Python/MLX/NumPy dependencies are still required.
 
 Evidence, weaker initial checks, failed build/launcher attempts, exact source
 deltas and recovery receipts are retained in
-`artifacts/crow-rl-gru-memory-20261107`. The final source and trials explicitly
-leave recurrent policy/sequence-PPO integration and embodied-memory qualification
-false. Next work must carry hidden/reset traces through the real native actor,
-sequence learner and coupled life bundle, then test causal memory during physical
+`artifacts/crow-rl-gru-memory-20261107`. Those component trials record actor integration as false at that milestone.
+The following actor admission supersedes that integration status; sequence PPO
+and embodied-memory qualification remain false. Next work must carry captured
+hidden/reset traces through the sequence learner and its coupled training bundle,
+then test causal memory during physical
 foraging and cache tasks with untouched evaluation seeds. Production performance,
 solid-object manipulation, physiology and social learning remain open.
+
+
+## Native recurrent crow actor and life state
+
+The optional recurrent actor now executes inside the real native Metal crow
+rollout. PolicyPack format5 stores a nonempty dense encoder, reset-after GRU,
+and nonempty action head. The critic remains feedforward. Dense-only writers
+retain format4 and unchanged compiled policy ABI3 bytes; recurrent policies
+require policy ABI4 and a declared shader capability. Compilation validates the
+encoder/head widths, all GRU parameters and the encoder's input bound before
+publishing an immutable policy. A resident life rejects architecture changes,
+clearing recurrent policy authority, and legacy rollout publication that would
+discard memory.
+
+The GRU reads the accepted native task clock and episode. Actual hidden A/B
+vectors stay device-private. Native rollout boundary traces expose the pre-cell
+hidden state and reset mask for every actor evaluation, including requested
+terminal previews. Extra previews do not promote hidden state. Next same-shaped
+weights install at an idle boundary and retain history. The recurrent allocation
+and traces are included in world memory planning and retained-buffer statistics.
+No per-step Python transition, host wait, hidden-state readback or allocation is
+added to inference.
+
+The existing full v13 life envelope now embeds the GRU component checkpoint
+inside its physical world component, alongside contact/task/RNG state. Retinal
+queues and finite food remain separate envelope components. Checkpointing binds
+the next published weights without a physical/neural step. Restore validates a
+candidate GRU before publishing resident ownership. Exact native library,
+shaders, device, OS, configuration and next policy remain required.
+
+```
+cmake --build build --target metalrobo_crow_recurrent_actor_check
+tools/numi crow-env recurrent-actor-admission --output NEW_RECURRENT_ACTOR_TRIAL
+ctest --test-dir build --output-on-failure -R '^metalrobo[.]crow[.]recurrent_actor$'
+```
+
+The two-lane supported v13 instrument runs40 real native ticks with an authored
+1251→5 encoder, GRU7 and18-action head; only small beak actions are enabled.
+It resets lane1 at9 and publishes next GRU weights at18 without advancing the
+life. FP64 actor and pre-cell error is1.422e-8 against a prospective5e-6 bound.
+Chunks1/8, extra intermediate previews and an independent process reproduce all
+real observations, actions, pre-cell/reset traces, transitions and final q/v
+exactly. All three final life-state component blobs also match byte for byte.
+Final camera capture is aligned in all arms: the first attempt preserved every
+future stream but correctly failed a comparison with mismatched endpoint camera
+processing. It is retained, with its exact source/runtime and diagnostics.
+
+Seven malformed compiler contracts, three live publication controls and a
+retained policyABI3 shader reject without changing the subsequent life. Numi
+retains the matching native runtime and independently restores the original life
+checkpoint with it; all future stream bytes match. The external retained-child
+check does not compare its final life component blobs; that comparison is made
+by the native admission's own fresh child. Receipts describe both scopes.
+
+14 selected native checks and26 Python checks pass. The ordinary feedforward
+learner's model/Adam hashes and frozen ordinary/residual feeding fingerprints
+remain unchanged. Raw trials, failed builds, runtime/source identities,
+checkpoint payloads and regressions are in
+`artifacts/crow-rl-recurrent-actor-20261107`.
+
+This admits native execution and persistence, not learned embodied memory.
+The existing learner cannot yet consume recurrent PolicyPack5/sequence records;
+legacy rollout7 publication explicitly rejects recurrent actors. Next work must
+version the hidden/reset rollout contract, implement contiguous sequence PPO
+with detached captured initial state and episode gradient cuts, and qualify
+coupled recurrent training resume. Causal memory tasks, solid-food manipulation,
+social learning, physiology, production throughput and ecological evaluation
+remain open. No qualification seeds are used or policy promoted here.

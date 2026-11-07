@@ -1,11 +1,13 @@
 #pragma once
 
 #include "metalrobo/policy_program_types.h"
+#include "metalrobo/GRUMemory.hpp"
 
 #include <cstddef>
 #include <cstdint>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <span>
 #include <string>
 #include <vector>
@@ -29,6 +31,13 @@ struct PolicyDenseLayer {
     // Output-major [output][input].
     std::vector<float> weights;
     std::vector<float> bias;
+};
+
+struct PolicyGRUMemory {
+    // Insert after this many actor dense layers: encoder -> GRU -> head.
+    // Both encoder and head must be nonempty. Critic remains feedforward.
+    std::uint32_t afterLayer = 0u;
+    GRUCellParameters cell;
 };
 
 // Immutable semantic contract for one robot brain. Dimensions alone are not
@@ -61,6 +70,7 @@ struct PolicyPack {
     std::vector<float> observationMean;
     std::vector<float> observationInverseStandardDeviation;
     std::vector<PolicyDenseLayer> layers;
+    std::optional<PolicyGRUMemory> actorMemory;
     // Optional asymmetric critic. A stochastic policy requires this network.
     std::vector<float> criticObservationMean;
     std::vector<float>
@@ -110,6 +120,9 @@ struct PolicyProgramLayout {
     std::uint32_t actionCount = 0u;
     std::uint32_t maximumHiddenCount = 0u;
     bool stochastic = false;
+    std::uint32_t memoryInputCount = 0u;
+    std::uint32_t memoryHiddenCount = 0u;
+    std::uint32_t memoryAfterLayer = 0u;
 };
 
 class CompiledPolicyProgram {
@@ -127,6 +140,8 @@ public:
     [[nodiscard]] std::span<const MRPolicyDenseLayerGPU>
     criticLayers() const noexcept;
     [[nodiscard]] std::span<const std::byte> arena() const noexcept;
+    [[nodiscard]] const PolicyGRUMemory* actorMemory() const noexcept;
+    [[nodiscard]] std::uint64_t memoryParameterFingerprint() const noexcept;
 
 private:
     struct Storage;

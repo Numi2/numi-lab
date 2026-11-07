@@ -2047,6 +2047,12 @@ void installPolicyPack(
             status.message
         );
     }
+    if (handle.residentState.valid()) {
+        const auto* previous=handle.stepConfig.policyProgram.actorMemory();const auto* next=compiled.actorMemory();
+        if (bool(previous)!=bool(next) || (previous && (previous->afterLayer!=next->afterLayer ||
+            previous->cell.inputs!=next->cell.inputs || previous->cell.hidden!=next->cell.hidden)))
+            throw std::invalid_argument("Policy publication cannot change recurrent architecture inside a resident life");
+    }
     handle.stepConfig.policyProgram = std::move(compiled);
 }
 
@@ -4186,6 +4192,10 @@ int mr_task_rollout_clear_policy(
     if (!requireTaskRolloutHandle(handle)) {
         return -1;
     }
+    if (handle->residentState.valid() && handle->stepConfig.policyProgram.actorMemory()) {
+        gLastError="Cannot clear a resident recurrent policy and discard its working-memory contract";
+        return -1;
+    }
     handle->stepConfig.policyProgram = {};
     handle->stepConfig.basePolicyProgram = {};
     gLastError.clear();
@@ -4941,6 +4951,19 @@ const float* mr_task_rollout_policy_values(
         : nullptr;
 }
 
+uint32_t mr_task_rollout_policy_memory_width(const MRTaskRolloutHandle* handle) {
+    if (!requireTaskRolloutHandle(handle) || handle->result.policyMemoryResets.empty()) return 0;
+    return static_cast<uint32_t>(handle->result.policyMemoryBefore.size()/handle->result.policyMemoryResets.size());
+}
+const float* mr_task_rollout_policy_memory_before(const MRTaskRolloutHandle* handle) {
+    return requireTaskRolloutHandle(handle) && !handle->result.policyMemoryBefore.empty()
+        ? handle->result.policyMemoryBefore.data() : nullptr;
+}
+const uint32_t* mr_task_rollout_policy_memory_resets(const MRTaskRolloutHandle* handle) {
+    return requireTaskRolloutHandle(handle) && !handle->result.policyMemoryResets.empty()
+        ? handle->result.policyMemoryResets.data() : nullptr;
+}
+
 const float* mr_task_rollout_bootstrap_policy_values(
     const MRTaskRolloutHandle* handle
 ) {
@@ -5093,6 +5116,9 @@ int mr_task_rollout_write_policy_rollout_pack(
             throw std::invalid_argument(
                 "a compiled policy must be installed before publishing a rollout pack"
             );
+        }
+        if (handle->stepConfig.policyProgram.actorMemory()) {
+            throw std::invalid_argument("Recurrent policy rollout publication requires explicit hidden/reset traces; legacy v7 batch is forbidden");
         }
         const auto floats = [](
             const float* values,

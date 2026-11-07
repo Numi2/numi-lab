@@ -1,0 +1,8 @@
+{
+  "base_commit": "a8e6f954d010d5c736bd24553039d6ed4827c188",
+  "tracked_patch_sha256": "7e8ab32b4c7ea7270a7fd67cac4dc6f163d137cca34d2e605566c19f1ea0d397",
+  "retained_untracked": {
+    "apps/crow_recurrent_actor_check.mm": "55c4175be19d6a1a0cfa790b9abe04791416c2d1329e823a0a321eff9a915b66",
+    "cmake/CheckCrowRecurrentActor.cmake": "f3cc77a54530cf585929ab4a9add8c939b22d19f353cd35b1600df120d683fe4"
+  }
+}

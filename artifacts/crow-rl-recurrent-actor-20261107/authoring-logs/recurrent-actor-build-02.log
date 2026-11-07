@@ -1,0 +1,17 @@
+[1/17] Generating shaders/MetalRobo.metallib
+[2/17] Building CXX object CMakeFiles/metalrobo.dir/src/core/CrowEmbodiment.cpp.o
+[3/17] Building CXX object CMakeFiles/metalrobo.dir/src/core/VisualPlatform.cpp.o
+[4/17] Building CXX object CMakeFiles/metalrobo.dir/src/core/FrankaWorld.cpp.o
+[5/17] Building CXX object CMakeFiles/metalrobo.dir/src/core/PolicyProgram.cpp.o
+[6/17] Building CXX object CMakeFiles/metalrobo.dir/src/core/RunProgram.cpp.o
+[7/17] Building CXX object CMakeFiles/metalrobo.dir/src/core/LocomotionWorld.cpp.o
+[8/17] Building CXX object CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o
+[9/17] Building CXX object CMakeFiles/metalrobo.dir/src/core/MotionCompiler.cpp.o
+[10/17] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/FiniteResource.mm.o
+[11/17] Building CXX object CMakeFiles/metalrobo.dir/src/core/LearningPacks.cpp.o
+[12/17] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/RetinalObserver.mm.o
+[13/17] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalRunInspector.mm.o
+[14/17] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o
+[15/17] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o
+[16/17] Building CXX object CMakeFiles/metalrobo.dir/src/c_api.cpp.o
+[17/17] Linking CXX shared library lib/libmetalrobo.dylib

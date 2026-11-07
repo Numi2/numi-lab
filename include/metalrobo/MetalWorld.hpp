@@ -828,6 +828,8 @@ struct MetalWorldLayout {
     std::size_t policyLatentElements = 0u;
     std::size_t policyLogProbabilityElements = 0u;
     std::size_t policyValueElements = 0u;
+    std::size_t policyMemoryElements = 0u;
+    std::size_t policyMemoryResetElements = 0u;
     std::size_t accelerationElements = 0u;
     std::size_t statusElements = 0u;
     std::size_t articulationStatusElements = 0u;
@@ -983,6 +985,10 @@ struct MetalWorldResult {
     std::vector<float> policyLatents;
     std::vector<float> policyLogProbabilities;
     std::vector<float> policyValues;
+    // [actor evaluation][environment][GRU hidden]; includes terminal preview
+    // when requested. Reset mask is [actor evaluation][environment].
+    std::vector<float> policyMemoryBefore;
+    std::vector<std::uint32_t> policyMemoryResets;
     // Packed [control step][environment][local v]. Failed steps publish zero
     // acceleration and preserve their pre-step accepted state.
     std::vector<float> accelerations;

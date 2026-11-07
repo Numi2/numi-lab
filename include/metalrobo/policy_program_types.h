@@ -3,6 +3,7 @@
 #include "metalrobo/gpu_types.h"
 
 #define MR_POLICY_PROGRAM_ABI_VERSION 3u
+#define MR_POLICY_PROGRAM_RECURRENT_ABI_VERSION 4u
 
 enum MRPolicyActivationOpcode : mr_u32 {
     MR_POLICY_ACTIVATION_IDENTITY = 0u,
@@ -22,19 +23,29 @@ enum MRPolicyDenseFlags : mr_u32 {
 enum MRPolicyProgramFlags : mr_u32 {
     MR_POLICY_PROGRAM_HAS_CRITIC = 1u << 0u,
     MR_POLICY_PROGRAM_STOCHASTIC = 1u << 1u,
+    MR_POLICY_PROGRAM_HAS_GRU = 1u << 2u,
 };
+
+typedef struct MR_ALIGN16 MRPolicyGRUMemoryGPU {
+    // input width, hidden width, dense encoder layer count, GRU cell ABI.
+    mr_uint4 counts;
+    // Input/recurrent weights and separate input/recurrent bias byte offsets.
+    mr_uint4 offsets;
+    // Proven maximum absolute input; remaining values reserved.
+    mr_float4 limits;
+} MRPolicyGRUMemoryGPU;
 
 typedef struct MR_ALIGN16 MRPolicyProgramHeaderGPU {
     // actor layers, critic layers, actor observation width,
     // critic observation width.
     mr_uint4 counts0;
-    // action width, maximum hidden width, program flags, reserved.
+    // action width, maximum hidden width, program flags, GRU encoder layers.
     mr_uint4 counts1;
     // actor layer table, critic layer table, actor mean, actor inverse stddev.
     mr_uint4 offsets0;
     // critic mean, critic inverse stddev, action bias, action scale.
     mr_uint4 offsets1;
-    // action log standard deviation and reserved byte offsets.
+    // action log standard deviation, optional GRU descriptor, reserved offsets.
     mr_uint4 offsets2;
     // observation clip, action clip, reserved, reserved.
     mr_float4 limits;
@@ -86,6 +97,7 @@ typedef struct MR_ALIGN16 MRPolicySampleDispatchGPU {
 #ifndef __METAL_VERSION__
 #ifdef __cplusplus
 static_assert(sizeof(MRPolicyProgramHeaderGPU) == 144u);
+static_assert(sizeof(MRPolicyGRUMemoryGPU) == 48u);
 static_assert(sizeof(MRPolicyDenseLayerGPU) == 32u);
 static_assert(sizeof(MRPolicyDenseDispatchGPU) == 96u);
 static_assert(sizeof(MRPolicySampleDispatchGPU) == 48u);

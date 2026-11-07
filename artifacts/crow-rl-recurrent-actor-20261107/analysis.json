@@ -1,0 +1,124 @@
+{
+  "schema": "numi.crow-recurrent-actor-archive.v1",
+  "status": "native-recurrent-actor-and-life-state-admitted",
+  "final_trial": {
+    "schema": "numi.crow-recurrent-actor-admission.v1",
+    "status": "passed",
+    "native": {
+      "schema": "numi.crow-recurrent-actor-evidence.v3",
+      "status": "passed",
+      "native_control_ticks": 40,
+      "lanes": 2,
+      "maximum_FP64_error": 1.4215113849913585e-08,
+      "chunk_preview_trace_exact": true,
+      "fresh_process_full_life_exact": true,
+      "invalid_contract_controls": 7,
+      "publication_rejection_controls": 3,
+      "stale_policy_shader_rejected": true,
+      "recurrent_PPO_integrated": false,
+      "embodied_memory_qualified": false
+    },
+    "runtime_retained": true,
+    "retained_runtime_future_exact": true,
+    "actor_memory_integrated": true,
+    "coupled_life_includes_GRU": true,
+    "sequence_PPO_integrated": false,
+    "embodied_memory_qualified": false,
+    "boundary": "authored native v13 controller; recurrent learner and ecological tasks remain open"
+  },
+  "native_checks_passed": 14,
+  "python_checks_passed": 26,
+  "ordinary_learner_optimizer_hashes_unchanged": true,
+  "ordinary_learner": {
+    "status": "passed",
+    "claim": "native/MLX updates, publication, and learner-only restore",
+    "variant": "v13-retinal-feeding",
+    "environments": 16,
+    "actor_initialization": "new zero-output actor",
+    "records": [
+      {
+        "stage": "initial",
+        "updates": 2,
+        "samples": 4096,
+        "training_loop_steps_per_second": 1455.248337942345,
+        "whole_process_steps_per_second": 1175.0977675100999,
+        "initial_revision": 1,
+        "final_revision": 3,
+        "learner_state_restored": false,
+        "checkpoint_sha256": "29f79d3c670b7476757945a62104d78ba76012220be388c07b6f24e93f75d8d1",
+        "last_update_mean_reward": 0,
+        "last_update_maximum_reward": 0,
+        "last_update_intake_utility_mean": 0,
+        "last_update_learning_rate": 9.999999747378752e-05,
+        "last_update_action_standard_deviation": 2.7183361053466797,
+        "mlx_peak_memory_bytes": 165057528
+      },
+      {
+        "stage": "resume",
+        "updates": 1,
+        "samples": 2048,
+        "training_loop_steps_per_second": 1409.4354693280613,
+        "whole_process_steps_per_second": 1205.3381822049982,
+        "initial_revision": 3,
+        "final_revision": 4,
+        "learner_state_restored": true,
+        "checkpoint_sha256": "6c2d517062ccc6c28ea127ffea9f59fc12c00d33179140c6565503a758c882fe",
+        "last_update_mean_reward": 0.0029296870343387127,
+        "last_update_maximum_reward": 1.999999761581421,
+        "last_update_intake_utility_mean": 0.0029296870343387127,
+        "last_update_learning_rate": 9.999999747378752e-05,
+        "last_update_action_standard_deviation": 2.7183756828308105,
+        "mlx_peak_memory_bytes": 143412208
+      }
+    ],
+    "candidate_promoted": false,
+    "persistent_world_restore_tested": false,
+    "ecological_environment_qualified": false
+  },
+  "feeding_fingerprints_unchanged": true,
+  "feeding": {
+    "status": "passed",
+    "claim": "ordinary and residual native policy partition invariance",
+    "records": [
+      {
+        "mode": "ordinary",
+        "fingerprint": "2255877855914022940",
+        "chunks": [
+          1,
+          8
+        ]
+      },
+      {
+        "mode": "residual",
+        "fingerprint": "3082487550463979285",
+        "chunks": [
+          1,
+          8
+        ]
+      }
+    ],
+    "ecological_environment_qualified": false
+  },
+  "attempts": {
+    "build01": "rejected Metal helper address-space mismatch before shader publication; compiler diagnostics retained",
+    "native01": "all future streams and physical/food/GRU components exact; rejected retinal byte comparison because final endpoint camera processing differed; source/runtime retained",
+    "native02": "aligned final camera capture in all arms without physical step/tolerance change; seven compiler negatives; passed all original comparisons",
+    "native03": "added resident architecture-drop, clear and legacy-v7 publication controls, explicit component memory accounting; passed",
+    "native04": "added required retained policyABI3 shader control; rejects specifically for ABI4 capability before execution; passed",
+    "admission01": "passed Numi orchestration plus independently retained runtime future replay; source/runtime retained"
+  },
+  "retained_recovery": {
+    "future_streams_hidden_traces_and_physics_exact": true,
+    "internal_native_child_all_three_life_components_exact": true,
+    "retained_child_final_life_component_bytes_compared": false,
+    "same_device_OS_and_matching_native_libraries_required": true
+  },
+  "failed_build_evidence_scope": "compiler diagnostics retained; exact source deltas for successful native versions, not every failed compiler edit",
+  "runtime_scope": "retained native binary/library/core-retina-GRU shader trees on macmini; hashes/source archived; exact device/OS/runtime required",
+  "recurrent_policy_and_native_actor_integrated": true,
+  "coupled_life_includes_GRU": true,
+  "recurrent_rollout_and_sequence_PPO_integrated": false,
+  "embodied_memory_qualified": false,
+  "full_loop_performance_qualified": false,
+  "ecological_environment_qualified": false
+}

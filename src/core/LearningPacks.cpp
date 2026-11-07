@@ -399,6 +399,16 @@ LearningPackResult validateRealityProgramArtifact(
 LearningPackResult validatePolicyArtifact(
     const PolicyPack& pack
 ) {
+    if (pack.actorMemory) {
+        const auto& m=*pack.actorMemory;
+        if (!m.afterLayer || m.afterLayer>=pack.layers.size() ||
+            pack.layers[m.afterLayer-1].outputCount!=m.cell.inputs ||
+            pack.layers[m.afterLayer].inputCount!=m.cell.hidden)
+            return fail(LearningPackStatus::invalidPack,"PolicyPack GRU encoder/head boundary is invalid");
+        try {(void)gruCellFingerprint(m.cell);} catch (const std::exception& error) {
+            return fail(LearningPackStatus::invalidPack,error.what());
+        }
+    }
     if (pack.id.empty() || !stringFits(pack.id) ||
         pack.revision == 0u ||
         pack.layers.empty() || !pack.contract.exact() ||
@@ -1761,6 +1771,11 @@ std::vector<std::byte> serializePolicy(
     writer.pod(pack.contract.taskFingerprint);
     writer.pod(pack.contract.observationFingerprint);
     writer.pod(pack.contract.actionFingerprint);
+    if (pack.actorMemory) {
+        const auto& m=*pack.actorMemory;const auto& p=m.cell;
+        writer.pod(m.afterLayer);writer.pod(p.inputs);writer.pod(p.hidden);writer.pod(p.maximumAbsoluteInput);
+        writer.vector(p.inputWeights);writer.vector(p.recurrentWeights);writer.vector(p.inputBias);writer.vector(p.recurrentBias);
+    }
     return writer.data();
 }
 
@@ -1813,14 +1828,21 @@ bool deserializePolicy(
         pack.contract = {};
         return true;
     }
-    return formatVersion == 4u &&
+    if (!((formatVersion == 4u || formatVersion == 5u) &&
         reader.pod(pack.contract.version) &&
         reader.pod(pack.contract.worldFingerprint) &&
         reader.pod(pack.contract.taskFingerprint) &&
         reader.pod(pack.contract.observationFingerprint) &&
         reader.pod(pack.contract.actionFingerprint) &&
-        pack.contract.exact() &&
-        reader.finished();
+        pack.contract.exact())) return false;
+    if (formatVersion==5u) {
+        PolicyGRUMemory m;auto& p=m.cell;
+        if (!(reader.pod(m.afterLayer) && reader.pod(p.inputs) && reader.pod(p.hidden) && reader.pod(p.maximumAbsoluteInput) &&
+            reader.vector(p.inputWeights) && reader.vector(p.recurrentWeights) && reader.vector(p.inputBias) && reader.vector(p.recurrentBias))) return false;
+        pack.actorMemory=std::move(m);
+        if (!validatePolicyArtifact(pack).succeeded()) return false;
+    }
+    return reader.finished();
 }
 
 template <typename Pack>
@@ -2448,7 +2470,7 @@ LearningPackResult writePolicyPack(
         return writePack(
             serializePolicy(pack),
             kPolicyKind,
-            kPolicyPackFormatVersion,
+            pack.actorMemory ? kPolicyPackFormatVersion : 4u,
             path
         );
     } catch (const std::bad_alloc&) {

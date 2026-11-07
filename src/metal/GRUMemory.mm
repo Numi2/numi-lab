@@ -158,6 +158,10 @@ bool GRUMemoryContext::encode(void* rawCommand,void* rawTasks,void* rawInput,uns
 }
 bool GRUMemoryContext::healthy() const {const auto s=runtime_;const std::lock_guard lock(s->mutex);return !s->activeToken && !s->poisoned;}
 std::uint64_t GRUMemoryContext::parameterFingerprint() const {const auto s=runtime_;const std::lock_guard lock(s->mutex);return s->parameterFingerprint;}
+std::size_t GRUMemoryContext::retainedBytes() const {
+    const auto s=runtime_;const std::lock_guard lock(s->mutex);std::size_t bytes=s->parameters.length;
+    for (auto buffer:stateBuffers(*s)) bytes+=buffer.length;return bytes;
+}
 namespace {
 GRUMemorySnapshot snapshotLocked(const std::shared_ptr<Runtime>& s) {
     require(!s->activeToken,"GRU snapshot requires idle owner");

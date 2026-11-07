@@ -19,7 +19,8 @@ inline constexpr std::uint32_t kTaskPackFormatVersion = 17u;
 inline constexpr std::uint32_t kRobotActuatorPackFormatVersion = 2u;
 inline constexpr std::uint32_t kSensorProgramPackFormatVersion = 1u;
 inline constexpr std::uint32_t kRealityProgramPackFormatVersion = 2u;
-inline constexpr std::uint32_t kPolicyPackFormatVersion = 4u;
+// Recurrent artifacts use v5; writers keep dense-only artifacts byte-identical v4.
+inline constexpr std::uint32_t kPolicyPackFormatVersion = 5u;
 inline constexpr std::uint32_t
     kPolicyRolloutPackFormatVersion = 7u;
 inline constexpr std::uint32_t kMotionPackFormatVersion = 1u;

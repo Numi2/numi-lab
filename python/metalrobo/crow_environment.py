@@ -102,6 +102,48 @@ def preflight(root: Path, profile: dict) -> dict:
     }
 
 
+def recurrent_actor_admission(root: Path, output: Path, checked: dict) -> dict:
+    native = execute(output, "recurrent-native", [checked["inputs"]["recurrent_check"]["path"],
+        str(output/"native-evidence"), checked["inputs"]["policy_abi3_shader"]["path"]], root, 180)
+    if (native.get("status") != "passed" or native.get("invalid_contract_controls") != 7
+            or native.get("publication_rejection_controls") != 3
+            or not all(native.get(key) is True for key in ("chunk_preview_trace_exact",
+                "fresh_process_full_life_exact", "stale_policy_shader_rejected"))):
+        raise RuntimeError("Native recurrent actor admission failed")
+    retained = root/".numi/retained-runtime"/output.name
+    retained.mkdir(parents=True, exist_ok=False)
+    retained_inputs = {}
+    for name, relative in (("library", "lib/libmetalrobo.dylib"),
+                           ("recurrent_check", "bin/metalrobo_crow_recurrent_actor_check"),
+                           ("metallib", "shaders/MetalRobo.metallib"),
+                           ("retinal_metallib", "shaders/RetinalStream.metallib"),
+                           ("gru_metallib", "shaders/GRUMemory.metallib")):
+        source = Path(checked["inputs"][name]["path"])
+        target = retained/relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+        if sha(target) != checked["inputs"][name]["sha256"]:
+            raise RuntimeError("Recurrent runtime changed during admission: "+name)
+        retained_inputs[name] = {"path": str(target), "sha256": sha(target)}
+    write(output/"retained-runtime.json", retained_inputs)
+    recovery = output/"retained-native-recovery"
+    execute(output, "retained-native", ["/usr/bin/env", "DYLD_LIBRARY_PATH="+str(retained/"lib"),
+        str(retained/"bin/metalrobo_crow_recurrent_actor_check"), "--restore",
+        str(output/"native-evidence"), str(recovery)], root, 40, json_output=False)
+    for name in ("actor.f32", "actions.f32", "before.f32", "reset.u32", "transitions.bin", "q.f32", "v.f32"):
+        if sha(output/"native-evidence/tail"/name) != sha(recovery/name):
+            raise RuntimeError("Retained recurrent actor future differs: "+name)
+    write(output/"retained-recovery.json", {"future_streams_hidden_traces_and_physics_exact": True,
+        "internal_native_child_all_three_life_components_exact": True,
+        "retained_child_final_life_component_bytes_compared": False,
+        "same_device_OS_and_matching_native_libraries_required": True})
+    return {"schema": "numi.crow-recurrent-actor-admission.v1", "status": "passed", "native": native,
+        "runtime_retained": True, "retained_runtime_future_exact": True,
+        "actor_memory_integrated": True, "coupled_life_includes_GRU": True,
+        "sequence_PPO_integrated": False, "embodied_memory_qualified": False,
+        "boundary": "authored native v13 controller; recurrent learner and ecological tasks remain open"}
+
+
 def memory_admission(root: Path, output: Path, checked: dict) -> dict:
     native = execute(output, "gru-native", [checked["inputs"]["gru_check"]["path"], str(output/"native-evidence")], root, 180)
     if native.get("status") != "passed" or native.get("negative_controls") != 31:
@@ -1016,6 +1058,7 @@ def main() -> int:
     commands.add_parser("eye-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("retina-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("memory-admission").add_argument("--output", type=Path, required=True)
+    commands.add_parser("recurrent-actor-admission").add_argument("--output", type=Path, required=True)
     life_training=commands.add_parser("life-training-probe")
     life_training.add_argument("--output",type=Path,required=True)
     life_training.add_argument("--retinal-calibration",type=Path,required=True)
@@ -1075,6 +1118,14 @@ def main() -> int:
         print(json.dumps(profile, indent=2))
         return 0
     checked = preflight(root, profile)
+    if args.command == "recurrent-actor-admission":
+        build = Path(checked["inputs"]["library"]["path"]).parent.parent
+        for name, path in (("recurrent_check", build/"bin/metalrobo_crow_recurrent_actor_check"),
+                           ("gru_metallib", build/"shaders/GRUMemory.metallib"),
+                           ("policy_abi3_shader", root/"artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib")):
+            if not path.is_file() or not path.stat().st_size:
+                raise RuntimeError("Missing recurrent admission input: "+str(path))
+            checked["inputs"][name] = {"path": str(path), "sha256": sha(path)}
     if args.command == "memory-admission":
         build = Path(checked["inputs"]["library"]["path"]).parent.parent
         for name, path in (("gru_check", build/"bin/metalrobo_gru_memory_check"),
@@ -1199,6 +1250,13 @@ def main() -> int:
           "validity":"exact runtime/configuration/source inputs; both owners restored; accepted clock has no warmup; zero device failures; all expected updates; uncommitted/corrupt/mixed checkpoints reject",
           "stopping":"four complete bounded180s runs; nine bounded60s rejection controls; stop on first positive invalidity; preserve all failures",
           "estimated_raw_output_limit_bytes":750*1024*1024, "ecological_environment_qualified":False})
+    if args.command == "recurrent-actor-admission":
+        plan.update({"purpose": "native embodied recurrent actor and full-life checkpoint engineering admission",
+          "prediction": "FP64 actor/pre-cell max error<=5e-6; chunks1/8 and extra intermediate terminal previews have exact real traces/actions/physics; fresh process has exact future and all three final life-state component blobs; seven compiler and three resident publication controls reject; stale policyABI3 shader rejects for declared ABI4 cause; independently retained runtime reproduces all future stream bytes",
+          "control": "two supported real native v13 lanes, authored encoder5-GRU7-action18 actor,40 ticks; lane1 reset9; next weights published18 without physical step; aligned final camera capture in all arms; no qualification seeds",
+          "unit": "one authored neural/controller engineering instrument, not a learned-memory experiment",
+          "stopping": "one native admission180s including bounded40s child; one retained-runtime continuation40s; preserve failures, no automatic retries",
+          "limitations": "legacy v7 learner publication explicitly forbidden for recurrent actors; sequence PPO, recurrent training checkpoint and embodied memory/social learning qualification remain open"})
     if args.command == "memory-admission":
         plan.update({"purpose": "native working-memory and differentiable sequence algebra component admission",
           "prediction": "native FP64 max error<=3e-6; chunks/previews/duplicates/fresh process exact including reset traces;31 native controls reject including seven re-signed semantic restore corruptions; MLX sequence/pre-cell parity<=3e-6; full parameter/input BPTT<=3e-6 and relative norm<=2e-5; twelve FP64 central differences<=1e-8; reset gradients cut exactly; eight SGD steps reduce fixed objective; retained native/Python-source recovery reproduces future state and learner summary",
@@ -1249,6 +1307,8 @@ def main() -> int:
             result=life_training_probe(root,output,args)
         elif args.command == "life-swift-probe":
             result=life_swift_probe(root,output,args)
+        elif args.command == "recurrent-actor-admission":
+            result=recurrent_actor_admission(root,output,checked)
         elif args.command == "memory-admission":
             result=memory_admission(root,output,checked)
         elif args.command == "life-admission":

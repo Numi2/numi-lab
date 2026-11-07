@@ -1,0 +1,7 @@
+{
+  "path": "artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib",
+  "source": ".numi/retained-runtime/life-training-probe-05/shaders/MetalRobo.metallib",
+  "sha256": "bee9e69522b26d6b5d99660e665cf8ed856acd9038ea9f2bdcb87b96dd99385a",
+  "bytes": 4173395,
+  "purpose": "retinal taskABI48 but policyABI3; reject recurrent execution for declared policyABI4 cause"
+}

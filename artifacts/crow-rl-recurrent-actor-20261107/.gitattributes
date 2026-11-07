@@ -1,0 +1,4 @@
+*.gz binary
+*.metallib binary
+*.patch -whitespace
+*.log -whitespace

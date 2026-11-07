@@ -38,7 +38,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 261u;
+constexpr std::size_t kRawBufferCount = 264u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -359,6 +359,9 @@ enum BufferIndex : std::size_t {
     kBasePolicyScratchA = 258u,
     kBasePolicyScratchB = 259u,
     kBasePolicyActorMean = 260u,
+    kPolicyMemoryOutput = 261u,
+    kPolicyMemoryBefore = 262u,
+    kPolicyMemoryResets = 263u,
 };
 
 struct BufferRequirement {
@@ -435,6 +438,9 @@ struct MetalWorldContextState {
     __strong id<MTLCommandQueue> queue = nil;
     __strong id<MTLLibrary> library = nil;
     bool supportsRetinalTaskABI=false;
+    bool supportsRecurrentPolicyABI=false;
+    std::unique_ptr<GRUMemoryContext> actorMemory;
+    std::uint32_t memoryEnvironments=0,memoryInputs=0,memoryHidden=0,memoryAfterLayer=0;
     __strong id<MTLComputePipelineState> abaPipeline = nil;
     __strong id<MTLComputePipelineState>
         functionBasedDenseDynamicsPipeline = nil;
@@ -3625,6 +3631,14 @@ bool buildRequirements(
             "native base policy actor mean",
             basePolicyActorMeanElements,
             requirements.entries[kBasePolicyActorMean]
+        ) ||
+        !makeRequirement<float>("native GRU output",nativePolicy && policyProgram.actorMemory()
+            ? layout.dispatch.environmentCount*std::size_t(policyProgram.layout().memoryHiddenCount) : 0u,
+            requirements.entries[kPolicyMemoryOutput]) ||
+        !makeRequirement<float>("native recurrent pre-cell trace",layout.policyMemoryElements,
+            requirements.entries[kPolicyMemoryBefore]) ||
+        !makeRequirement<std::uint32_t>("native recurrent reset trace",layout.policyMemoryResetElements,
+            requirements.entries[kPolicyMemoryResets]
         )) {
         return false;
     }
@@ -4061,6 +4075,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
     }
     if (nativeBasePolicy &&
         (
+            config.basePolicyProgram.actorMemory()!=nullptr || config.policyProgram.actorMemory()!=nullptr ||
             !nativePolicy ||
             !nativeTask ||
             !config.basePolicyProgram.criticLayers().empty() ||
@@ -4793,6 +4808,11 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 taskLayout.actionCount,
                 layout.policyLatentElements
             ) ||
+            !checkedMultiply(actorEvaluationCount,config.policyProgram.layout().memoryHiddenCount,
+                layout.policyMemoryElements) ||
+            !checkedMultiply(actorEvaluationCount,config.policyProgram.actorMemory() ? 1u : 0u,
+                layout.policyMemoryResetElements
+            ) ||
             !checkedMultiply(
                 transitionCount,
                 taskLayout.motionFeatureCount,
@@ -5152,6 +5172,20 @@ MetalWorldDiagnostics validateAndBuildLayout(
         } else {
             layout.memoryPlan.sharedBoundaryBytes += bytes;
         }
+    }
+    if (const auto* memory=config.policyProgram.actorMemory()) {
+        const std::size_t N=batch.environmentCount,I=memory->cell.inputs,H=memory->cell.hidden;
+        const std::size_t parameters=3*H*(I+H+2)*sizeof(float);
+        const std::size_t state=N*(2*H*sizeof(float)+sizeof(mr_uint4));
+        const std::size_t errors=(N+1)*sizeof(std::uint32_t);
+        // Separate optional native component allocations are part of the
+        // compiled plan, not hidden outside the world memory accounting.
+        if (parameters+state+errors>GRUMemoryConfig{}.maximumRetainedBytes ||
+            !checkedAdd(layout.totalRequiredBytes,parameters+state+errors,layout.totalRequiredBytes))
+            return reject(std::move(diagnostics),MetalWorldHostStatus::arithmeticOverflow,"Recurrent state exceeds native component budget");
+        layout.memoryPlan.immutablePrivateBytes+=parameters;
+        layout.memoryPlan.persistentStatePrivateBytes+=state;
+        layout.memoryPlan.sharedBoundaryBytes+=errors;
     }
     diagnostics.layout = layout;
 
@@ -6975,6 +7009,7 @@ MetalWorldDiagnostics initializeContext(
     context.queue = queue;
     context.library = library;
     context.supportsRetinalTaskABI=[library newFunctionWithName:@"mr_task_retinal_abi48_capability"]!=nil;
+    context.supportsRecurrentPolicyABI=[library newFunctionWithName:@"mr_policy_gru_abi4_capability"]!=nil;
     context.abaPipeline = aba;
     context.functionBasedDenseDynamicsPipeline =
         functionBasedDenseDynamics;
@@ -7283,6 +7318,7 @@ bool privateTransientBuffer(const std::size_t index) {
     case kBasePolicyScratchA:
     case kBasePolicyScratchB:
     case kBasePolicyActorMean:
+    case kPolicyMemoryOutput:
         return true;
     default:
         return false;
@@ -7335,6 +7371,27 @@ bool privatePersistentBuffer(const std::size_t index) {
 }
 
 constexpr std::array<char,8> residentCheckpointKind{'N','U','M','I','W','R','0','1'};
+void configureActorMemory(detail::MetalWorldContextState& context,const CompiledPolicyProgram& program,
+    std::uint32_t environments,bool newLife) {
+    const auto* memory=program.actorMemory();
+    if (!memory) {
+        checkpoint::require(newLife || !context.actorMemory,"Cannot drop recurrent architecture from a resident life");
+        if (newLife) context.actorMemory.reset();
+        return;
+    }
+    const auto& p=memory->cell;
+    if (newLife) {
+        GRUMemoryConfig config;config.environments=environments;
+        context.actorMemory=std::make_unique<GRUMemoryContext>(config,p);
+        context.memoryEnvironments=environments;context.memoryInputs=p.inputs;
+        context.memoryHidden=p.hidden;context.memoryAfterLayer=memory->afterLayer;
+    } else {
+        checkpoint::require(context.actorMemory && context.memoryEnvironments==environments &&
+            context.memoryInputs==p.inputs && context.memoryHidden==p.hidden && context.memoryAfterLayer==memory->afterLayer,
+            "Cannot change recurrent architecture inside a resident life");
+        if (context.actorMemory->parameterFingerprint()!=program.memoryParameterFingerprint()) context.actorMemory->install(p);
+    }
+}
 std::uint64_t checkpointExecutionIdentity(const MetalWorldStepConfig& c) {
     checkpoint::Bytes bytes;
     const auto add=[&](const auto& value){checkpoint::append(bytes,value);};
@@ -7360,6 +7417,9 @@ std::uint64_t checkpointExecutionIdentity(const MetalWorldStepConfig& c) {
     add(c.quality.optimalityTolerance);add(c.quality.feasibilityTolerance);add(c.quality.armijoConstant);
     add(c.quality.lineSearchContraction);add(c.quality.complianceFloorMultiplier);
     add(flappingWingFingerprint(c.flappingWingProgram));
+    if (const auto* m=c.policyProgram.actorMemory()) {
+        add(std::uint32_t(MR_POLICY_PROGRAM_RECURRENT_ABI_VERSION));add(m->afterLayer);add(m->cell.inputs);add(m->cell.hidden);
+    }
     const auto hash=checkpoint::digest(bytes);std::uint64_t result=0;std::memcpy(&result,hash.data(),sizeof(result));return result;
 }
 void requireResidentCheckpointScope(const CompiledWorld& world,const MetalWorldStepConfig& c) {
@@ -7375,8 +7435,9 @@ struct ResidentCheckpointView {
     std::array<std::uint64_t,9> selected{};
     std::uint32_t supportsReset=0;
     std::array<std::span<const std::byte>,kRawBufferCount> sections{};
+    std::span<const std::byte> memory;
 };
-ResidentCheckpointView readResidentCheckpoint(std::span<const std::byte> bytes,std::uint64_t identity) {
+ResidentCheckpointView readResidentCheckpoint(std::span<const std::byte> bytes,std::uint64_t identity,bool recurrent) {
     checkpoint::Reader r{checkpoint::open(bytes,residentCheckpointKind,identity)};ResidentCheckpointView view;
     view.world=r.get<std::uint64_t>();view.environments=r.get<std::uint64_t>();view.runtime=r.get<checkpoint::Digest>();
     view.selected=r.get<std::array<std::uint64_t,9>>();view.supportsReset=r.get<std::uint32_t>();
@@ -7388,6 +7449,7 @@ ResidentCheckpointView readResidentCheckpoint(std::span<const std::byte> bytes,s
     for (std::size_t i=0;i<kRawBufferCount;++i) if (privatePersistentBuffer(i)) {
         checkpoint::require(r.get<std::uint32_t>()==i,"Missing or reordered resident checkpoint section");view.sections[i]=r.blob();
     }
+    if (recurrent) {view.memory=r.blob();checkpoint::require(!view.memory.empty(),"Missing resident GRU state");}
     r.end();return view;
 }
 
@@ -12139,7 +12201,8 @@ bool encodePolicyInference(
     const std::size_t environmentCount,
     const bool terminalValueOnly = false,
     const mr_u32 terminalObservationStep = 0u,
-    const CompiledPolicyProgram* baseProgram = nullptr
+    const CompiledPolicyProgram* baseProgram = nullptr,
+    const bool previewMemory = false
 ) {
     if (!terminalValueOnly && baseProgram != nullptr &&
         !encodePolicyActor(
@@ -12168,7 +12231,8 @@ bool encodePolicyInference(
         const mr_u32 meanOffset,
         const mr_u32 inverseStdOffset,
         const mr_u32 observationStep,
-        NSString* label
+        NSString* label,
+        const bool actor = false
     ) {
         for (std::size_t layerIndex = 0u;
              layerIndex < layers.size();
@@ -12178,12 +12242,22 @@ bool encodePolicyInference(
             const bool first = layerIndex == 0u;
             const bool final =
                 layerIndex + 1u == layers.size();
-            const std::size_t source =
+            std::size_t source =
                 first
                 ? observationBuffer
                 : ((layerIndex - 1u) & 1u) == 0u
                 ? kPolicyScratchA
                 : kPolicyScratchB;
+            if (actor && program.actorMemory() && layerIndex==program.actorMemory()->afterLayer) {
+                const auto& m=*program.actorMemory();
+                if (!context.actorMemory || !context.actorMemory->encode((__bridge void*)commandBuffer,
+                    (__bridge void*)context.buffers[kTaskState],(__bridge void*)context.buffers[source],m.cell.inputs,
+                    (__bridge void*)context.buffers[kPolicyMemoryOutput],(__bridge void*)context.buffers[kPolicyMemoryBefore],
+                    (__bridge void*)context.buffers[kPolicyMemoryResets],previewMemory,0,0,
+                    std::size_t(observationStep)*environmentCount*m.cell.hidden,
+                    std::size_t(observationStep)*environmentCount)) return false;
+                source=kPolicyMemoryOutput;
+            }
             const std::size_t destination =
                 final
                 ? finalBuffer
@@ -12270,7 +12344,8 @@ bool encodePolicyInference(
             header.offsets0.z,
             header.offsets0.w,
             pass.controlStep,
-            @"compiled actor inference"
+            @"compiled actor inference",
+            true
         )) {
         return false;
     }
@@ -17347,6 +17422,8 @@ MetalWorldDiagnostics validateAndPublish(
                 staged.policyLogProbabilities
             ) ||
             !finiteFloats(staged.policyValues) ||
+            !finiteFloats(staged.policyMemoryBefore) ||
+            !std::all_of(staged.policyMemoryResets.begin(),staged.policyMemoryResets.end(),[](auto mask){return mask<=1u;}) ||
             !std::all_of(
                 staged.transitions.begin(),
                 staged.transitions.end(),
@@ -19859,6 +19936,8 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                         )
                 );
             }
+            if (pending->context->actorMemory && !pending->context->actorMemory->healthy())
+                return reject(std::move(diagnostics),MetalWorldHostStatus::metalCommandFailure,"Recurrent actor rejected input/clock or GPU publication");
             const CFTimeInterval gpuStart =
                 pending->commandBuffer.GPUStartTime;
             const CFTimeInterval gpuEnd =
@@ -19930,6 +20009,8 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                 staged.policyValues.resize(
                     staged.layout.policyValueElements
                 );
+                staged.policyMemoryBefore.resize(staged.layout.policyMemoryElements);
+                staged.policyMemoryResets.resize(staged.layout.policyMemoryResetElements);
             }
             if (pending->hasRods) {
                 staged.rodStatuses.resize(
@@ -20115,6 +20196,8 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                         buffers[kPolicyValues]
                     );
                 }
+                copyOutput(staged.policyMemoryBefore,buffers[kPolicyMemoryBefore]);
+                copyOutput(staged.policyMemoryResets,buffers[kPolicyMemoryResets]);
             }
             if (pending->hasRods &&
                 pending->publishFinalState) {
@@ -20310,12 +20393,16 @@ std::vector<std::byte> MetalWorldContext::checkpointResident(
         const auto size=context->checkpointLogicalBytes[i];checkpoint::append(bytes,std::uint32_t(i));
         checkpoint::appendBlob(bytes,{static_cast<const std::byte*>(staging.contents)+offset,size});offset+=size;
     }
+    if (config.policyProgram.actorMemory()) {
+        configureActorMemory(*context,config.policyProgram,std::uint32_t(resident->environmentCount),false);
+        checkpoint::appendBlob(bytes,context->actorMemory->checkpointState());
+    } else checkpoint::require(!context->actorMemory,"Cannot save recurrent life with a dense-only policy");
     return checkpoint::seal(residentCheckpointKind,context->checkpointExecutionIdentity,bytes);
 }
 void MetalWorldContext::validateResidentCheckpoint(const CompiledWorld& world,const MetalWorldBatch& batch,
     const MetalWorldStepConfig& config,std::span<const std::byte> bytes) const {
     requireResidentCheckpointScope(world,config);
-    const auto view=readResidentCheckpoint(bytes,checkpointExecutionIdentity(config));
+    const auto view=readResidentCheckpoint(bytes,checkpointExecutionIdentity(config),config.policyProgram.actorMemory()!=nullptr);
     checkpoint::require(view.world==world.fingerprint() && view.environments==batch.environmentCount &&
         view.supportsReset==!batch.resetMasks.empty(),"Resident checkpoint world, lanes or reset contract mismatch");
     checkpoint::require(pool_ && !pool_->slots.empty(),"Resident checkpoint context missing");
@@ -20327,6 +20414,10 @@ void MetalWorldContext::validateResidentCheckpoint(const CompiledWorld& world,co
     checkpoint::require(layout.succeeded(),"Resident checkpoint initial/reset layout invalid");
     for (std::size_t i=0;i<kRawBufferCount;++i) if (privatePersistentBuffer(i))
         checkpoint::require(view.sections[i].size()==requirements.entries[i].logicalBytes,"Resident checkpoint persistent layout mismatch");
+    if (const auto* memory=config.policyProgram.actorMemory()) {
+        GRUMemoryConfig c;c.environments=std::uint32_t(batch.environmentCount);
+        GRUMemoryContext candidate(c,memory->cell);candidate.restoreState(view.memory);
+    }
 }
 MetalWorldDiagnostics MetalWorldContext::resumeResident(const CompiledWorld& world,const MetalWorldBatch& batch,
     const MetalWorldStepConfig& config,std::span<const std::byte> checkpoint,
@@ -20422,7 +20513,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
         std::optional<ResidentCheckpointView> restored;
         if (!checkpoint.empty()) {
             requireResidentCheckpointScope(world,config);
-            restored=readResidentCheckpoint(checkpoint,checkpointExecutionIdentity(config));
+            restored=readResidentCheckpoint(checkpoint,checkpointExecutionIdentity(config),config.policyProgram.actorMemory()!=nullptr);
             checkpoint::require(initializeResidentState && restored->world==world.fingerprint() &&
                 restored->environments==batch.environmentCount && restored->supportsReset==!batch.resetMasks.empty(),
                 "Resident checkpoint world, lane or reset contract mismatch");
@@ -20645,6 +20736,9 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 !selectedState->supportsRetinalTaskABI)
                 return reject(std::move(diagnostics),MetalWorldHostStatus::metalLibraryFailure,
                     "selected shader library has no retinal task ABI 48 capability");
+            if (config.policyProgram.actorMemory() && (!selectedState->supportsRecurrentPolicyABI || config.birdFlowJourneyTeacher))
+                return reject(std::move(diagnostics),MetalWorldHostStatus::metalLibraryFailure,
+                    "recurrent actor requires policy ABI4 shaders and exclusive actor authority");
             diagnostics = ensureRodPipelines(
                 *selectedState,
                 world.rodCount() != 0u,
@@ -20711,6 +20805,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             selectedState->useTaskBodyParameters = nativeTask;
             selectedState->stats.memoryPlan =
                 diagnostics.layout.memoryPlan;
+            configureActorMemory(*selectedState,config.policyProgram,std::uint32_t(batch.environmentCount),!residentContinuation);
+            if (restored && config.policyProgram.actorMemory()) selectedState->actorMemory->restoreState(restored->memory);
             MTLCommandBufferDescriptor* commandDescriptor =
                 [MTLCommandBufferDescriptor new];
             commandDescriptor.errorOptions =
@@ -21657,7 +21753,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                         commandBuffer,
                         config.policyProgram,
                         bootstrapPass,
-                        batch.environmentCount
+                        batch.environmentCount,false,0u,nullptr,true
                     )) {
                     return reject(
                         std::move(diagnostics),
@@ -21901,6 +21997,7 @@ MetalWorldContextStats MetalWorldContext::stats()
                 source.completedSubmissionCount;
             aggregate.retainedBufferBytes +=
                 source.retainedBufferBytes;
+            if (slot->actorMemory) aggregate.retainedBufferBytes+=slot->actorMemory->retainedBytes();
             aggregate.memoryPlan.immutablePrivateBytes +=
                 source.memoryPlan.immutablePrivateBytes;
             aggregate.memoryPlan.persistentStatePrivateBytes +=

@@ -1,0 +1,26 @@
+{
+  "output": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/recurrent-actor-admission-01",
+  "schema": "numi.crow-recurrent-actor-admission.v1",
+  "status": "passed",
+  "native": {
+    "schema": "numi.crow-recurrent-actor-evidence.v3",
+    "status": "passed",
+    "native_control_ticks": 40,
+    "lanes": 2,
+    "maximum_FP64_error": 1.4215113849913585e-08,
+    "chunk_preview_trace_exact": true,
+    "fresh_process_full_life_exact": true,
+    "invalid_contract_controls": 7,
+    "publication_rejection_controls": 3,
+    "stale_policy_shader_rejected": true,
+    "recurrent_PPO_integrated": false,
+    "embodied_memory_qualified": false
+  },
+  "runtime_retained": true,
+  "retained_runtime_future_exact": true,
+  "actor_memory_integrated": true,
+  "coupled_life_includes_GRU": true,
+  "sequence_PPO_integrated": false,
+  "embodied_memory_qualified": false,
+  "boundary": "authored native v13 controller; recurrent learner and ecological tasks remain open"
+}

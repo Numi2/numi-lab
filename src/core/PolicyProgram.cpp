@@ -26,6 +26,8 @@ struct CompiledPolicyProgram::Storage {
     MRPolicyProgramHeaderGPU header{};
     std::vector<MRPolicyDenseLayerGPU> actorLayers;
     std::vector<MRPolicyDenseLayerGPU> criticLayers;
+    std::optional<PolicyGRUMemory> actorMemory;
+    std::uint64_t memoryParameterFingerprint=0;
     std::vector<std::byte> arena;
 };
 
@@ -144,8 +146,9 @@ bool CompiledPolicyProgram::valid() const noexcept {
         storage_->header.taskFingerprint ==
             storage_->taskFingerprint &&
         storage_->header.revision == storage_->revision &&
-        storage_->header.abi.x ==
-            MR_POLICY_PROGRAM_ABI_VERSION &&
+        storage_->header.abi.x == (storage_->actorMemory
+            ? MR_POLICY_PROGRAM_RECURRENT_ABI_VERSION
+            : MR_POLICY_PROGRAM_ABI_VERSION) &&
         storage_->layout.actorLayerCount != 0u &&
         storage_->layout.actorObservationCount != 0u &&
         storage_->layout.actionCount != 0u;
@@ -198,6 +201,13 @@ CompiledPolicyProgram::arena() const noexcept {
     return valid()
         ? std::span<const std::byte>{storage_->arena}
         : std::span<const std::byte>{};
+}
+
+const PolicyGRUMemory* CompiledPolicyProgram::actorMemory() const noexcept {
+    return valid() && storage_->actorMemory ? &*storage_->actorMemory : nullptr;
+}
+std::uint64_t CompiledPolicyProgram::memoryParameterFingerprint() const noexcept {
+    return valid() ? storage_->memoryParameterFingerprint : 0u;
 }
 
 void bindPolicyPack(
@@ -345,6 +355,22 @@ PolicyCompileDiagnostics compilePolicyProgram(
         hasCritic ? taskLayout.criticObservationSize : 0u;
     staged->layout.actionCount = taskLayout.actionCount;
     staged->layout.stochastic = stochastic;
+    if (pack.actorMemory) {
+        const auto& memory=*pack.actorMemory;
+        if (!memory.afterLayer || memory.afterLayer>=pack.layers.size() ||
+            pack.layers[memory.afterLayer-1].outputCount!=memory.cell.inputs ||
+            pack.layers[memory.afterLayer].inputCount!=memory.cell.hidden)
+            return reject(PolicyCompileStatus::incompatibleContract,"actorMemory",
+                "GRU requires nonempty encoder/head with exact input/hidden boundary widths");
+        try {staged->memoryParameterFingerprint=gruCellFingerprint(memory.cell);} catch (const std::exception& error) {
+            return reject(PolicyCompileStatus::invalidPack,"actorMemory",error.what());
+        }
+        staged->actorMemory=memory;
+        staged->layout.memoryInputCount=memory.cell.inputs;
+        staged->layout.memoryHiddenCount=memory.cell.hidden;
+        staged->layout.memoryAfterLayer=memory.afterLayer;
+        staged->layout.maximumHiddenCount=memory.cell.hidden;
+    }
 
     const auto validateNetwork = [&](
         const std::span<const PolicyDenseLayer> layers,
@@ -356,6 +382,8 @@ PolicyCompileDiagnostics compilePolicyProgram(
         for (std::size_t index = 0u;
              index < layers.size();
              ++index) {
+            if (name=="actor" && pack.actorMemory && index==pack.actorMemory->afterLayer)
+                expectedInput=pack.actorMemory->cell.hidden;
             const PolicyDenseLayer& layer = layers[index];
             const std::uint64_t weightCount =
                 static_cast<std::uint64_t>(
@@ -509,6 +537,14 @@ PolicyCompileDiagnostics compilePolicyProgram(
         for (std::size_t layerIndex = 0u;
              layerIndex < layers.size();
              ++layerIndex) {
+            if (name=="actor" && pack.actorMemory && layerIndex==pack.actorMemory->afterLayer) {
+                if (std::any_of(inputBounds.begin(),inputBounds.end(),[&](double bound) {
+                        return bound>pack.actorMemory->cell.maximumAbsoluteInput;
+                    }))
+                    return reject(PolicyCompileStatus::invalidPack,"actorMemory",
+                        "encoder output exceeds the GRU's admitted input bound");
+                inputBounds.assign(pack.actorMemory->cell.hidden,1.000001);
+            }
             const PolicyDenseLayer& layer =
                 layers[layerIndex];
             std::vector<double> outputBounds(
@@ -740,6 +776,24 @@ PolicyCompileDiagnostics compilePolicyProgram(
         );
     }
 
+    std::uint32_t memoryOffset=0u;
+    if (pack.actorMemory) {
+        const auto& m=*pack.actorMemory;const auto& p=m.cell;
+        MRPolicyGRUMemoryGPU descriptor{};
+        descriptor.counts={p.inputs,p.hidden,m.afterLayer,MR_GRU_MEMORY_ABI};
+        descriptor.offsets={appendArena(staged->arena,std::span<const float>(p.inputWeights)),
+            appendArena(staged->arena,std::span<const float>(p.recurrentWeights)),
+            appendArena(staged->arena,std::span<const float>(p.inputBias)),
+            appendArena(staged->arena,std::span<const float>(p.recurrentBias))};
+        descriptor.limits={p.maximumAbsoluteInput,0,0,0};
+        if (descriptor.offsets.x==MR_INVALID_INDEX || descriptor.offsets.y==MR_INVALID_INDEX ||
+            descriptor.offsets.z==MR_INVALID_INDEX || descriptor.offsets.w==MR_INVALID_INDEX)
+            return reject(PolicyCompileStatus::arithmeticOverflow,"actorMemory","GRU tables exceed the arena ABI");
+        memoryOffset=appendArena(staged->arena,&descriptor,sizeof(descriptor));
+        if (memoryOffset==MR_INVALID_INDEX)
+            return reject(PolicyCompileStatus::arithmeticOverflow,"actorMemory","GRU descriptor exceeds the arena ABI");
+    }
+
     staged->header.counts0 = {
         staged->layout.actorLayerCount,
         staged->layout.criticLayerCount,
@@ -754,8 +808,8 @@ PolicyCompileDiagnostics compilePolicyProgram(
              : 0u) |
             (stochastic
                  ? MR_POLICY_PROGRAM_STOCHASTIC
-                 : 0u),
-        0u,
+                 : 0u) | (pack.actorMemory ? MR_POLICY_PROGRAM_HAS_GRU : 0u),
+        staged->layout.memoryAfterLayer,
     };
     staged->header.offsets0 = {
         actorLayerTableOffset,
@@ -771,7 +825,7 @@ PolicyCompileDiagnostics compilePolicyProgram(
     };
     staged->header.offsets2 = {
         actionLogStdOffset,
-        0u,
+        memoryOffset,
         0u,
         0u,
     };
@@ -785,7 +839,7 @@ PolicyCompileDiagnostics compilePolicyProgram(
         staged->taskFingerprint;
     staged->header.revision = staged->revision;
     staged->header.abi = {
-        MR_POLICY_PROGRAM_ABI_VERSION,
+        pack.actorMemory ? MR_POLICY_PROGRAM_RECURRENT_ABI_VERSION : MR_POLICY_PROGRAM_ABI_VERSION,
         0u,
         0u,
         0u,
