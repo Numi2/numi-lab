@@ -1,0 +1,8 @@
+# Preregistered generic frame-validity and neighbor test
+
+The preceding candidate passes its isolated depth-invalid fixture and matches the explicitly chosen edge-dilation reference on a real 160×120 renderer scene. Existing authored documentation does not define missing-frame edge semantics. This diagnostic evaluates the following conservative contract hypothesis: only depth-valid pixels donate measured neighbor depth; a pixel with FRAME set but no usable depth may receive explicitly configured edge flicker from such a neighbor; a pixel with no FRAME bit never receives a filled value. Geometry-only pixels without depth cannot donate measurements.
+
+Use the existing synthetic eight-pixel kernel fixture and the pinned first candidate shader. Retain its earlier identity, reset, dropout, sensor-invalid and direct-winner gates. Then use a mixed scene containing a valid measured pixel, an adjacent pixel with no frame, an adjacent frame-present geometry-only pixel, and a geometry-only pixel with no measured neighbors. With flicker probability one, require far depth for the no-frame and no-neighbor pixels and near depth for the measured pixel and the frame-present edge-fill pixel. Separately require far depth everywhere for a completely missing frame. Report all test values and stop on failure.
+
+One native process, 120-second cap, exclusive GPU slot, frozen hashes and UTC timestamps. This is a generic synthetic materialized-plane test; the direct-winner interface does not independently expose a missing-frame signal and cannot establish its missing-frame semantics. The conservative proposed contract is an engineering choice to qualify, not a claim of preexisting documented policy or real-sensor calibration.
+
