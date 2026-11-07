@@ -1,0 +1,16 @@
+next env=0 count=2 sensor=1 sample=1
+next env=1 count=3 sensor=1 sample=0
+divergence_guard=refused
+reset_proposal env=0 count=0 sensor=0 sample=1
+reset_proposal env=1 count=3 sensor=1 sample=0
+continuation rc=0 hook=2 reset=1,0 world=0,0 contact=0,0
+metadata reset_reference_mismatch=0 neighbor_held_mismatch=0
+body env=0 changed_words=104
+body env=1 changed_words=224
+actor rejected_mismatch=0 accepted_changed=100
+depth reset_reference_mismatch=0 neighbor_held_mismatch=0 reset_changed=0
+identity reset_reference_mismatch=0 neighbor_held_mismatch=0 reset_changed=0
+validity reset_reference_mismatch=0 neighbor_held_mismatch=0 reset_changed=0
+camera reset_reference_mismatch=0 neighbor_held_mismatch=0 reset_changed=0
+visible env=0 pixels=4
+visible env=1 pixels=5
