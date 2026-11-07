@@ -636,3 +636,14 @@ The modified Objective-C++ implementation compiled separately, object SHA-256
 This is an isolated research change and CPU contract evidence only. It has not
 yet passed an actual native HumanIO transaction, v5 publication, loaded force or
 anatomical qualification; the Release-only crash also remains unresolved.
+
+A separately linked native test of the ABI-6 repair ran at 23:31:17 UTC with
+Debug CLI SHA-256 `328f879586be925c215af13a1644cfa130d40767357d08f5dc233413a52cd076`,
+dylib SHA-256 `059cd155a9979d201aa2df44e9d495a6791fdcc1b8a3b7bf3ea9be241b538c30`,
+and 32-input manifest SHA-256
+`9654cc88fa964ac4653aaa9e8c9dab6170bc9243dd0ed250a7c439f1481899aa`.
+Pre/post checks passed. Begin and pre-dynamics transaction phases progressed;
+post-dynamics transaction encoding was rejected, with runtime status 8/stage
+918 and process exit 1. The unrelated TaskProgram object differs from the
+original link, as already recorded. The new result is a partial integration
+observation, not an accepted physical step, publication or force qualification.
