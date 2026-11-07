@@ -1,0 +1,12 @@
+CMake Error: File /Users/numi/numi-lab-thorax-ownership/numi/VERSION.in does not exist.
+CMake Error at CMakeLists.txt:27 (configure_file):
+  configure_file Problem configuring file
+
+
+CMake Error: File /Users/numi/numi-lab-thorax-ownership/numi/REVISION.in does not exist.
+CMake Error at CMakeLists.txt:32 (configure_file):
+  configure_file Problem configuring file
+
+
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring incomplete, errors occurred!

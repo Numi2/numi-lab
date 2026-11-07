@@ -694,3 +694,12 @@ Human statuses were 0. This is one synthetic step using a separately linked
 build with the documented changed TaskProgram object. It does not establish
 anatomical realism, force accuracy, multi-step continuation, full-state replay,
 or a fix for the separate Release-only Brain crash.
+
+A fresh Release CMake configure from commit `e0c293fb` failed before compilation.
+The isolated source checkout was sparse and omitted tracked CMake inputs; a
+subset was materialized from the exact committed Git blobs and individually
+hash-checked. The next configure also references at least
+`apps/NumiHumanConformingTissueRefinementCheck.cpp`, which is absent from that
+commit, in addition to other sparse omissions. All three failed configure logs
+are retained. The independently linked native test above still has the recorded
+changed TaskProgram object; a fully clean build has not been established.
