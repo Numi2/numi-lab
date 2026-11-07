@@ -50,6 +50,8 @@ if(BUILD_TESTING)
     add_test(NAME numi.contact.fem_fp64_energy_gradient COMMAND numi_contact_fem_fp64_reference --selftest)
     add_executable(numi_contact_fem_fp64_midpoint fem_plane_fp64_midpoint.cpp)
     add_test(NAME numi.contact.fem_fp64_midpoint_discrete COMMAND numi_contact_fem_fp64_midpoint --discrete-check)
+    add_executable(numi_contact_midpoint_transaction midpoint_transaction_cpu.cpp)
+    add_test(NAME numi.contact.midpoint_transaction COMMAND numi_contact_midpoint_transaction)
     add_test(NAME numi.contact.fem_fp64_midpoint_reference COMMAND "${Python3_EXECUTABLE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/midpoint_regression.py" "$<TARGET_FILE:numi_contact_fem_fp64_midpoint>")
     add_test(NAME numi.contact.physical_policy COMMAND numi_contact_policy)
