@@ -1,0 +1,741 @@
+{
+  "control_1_0": {
+    "binding_ids": [
+      100,
+      101,
+      102,
+      103,
+      104,
+      105
+    ],
+    "nonbackground_pixels": [
+      {
+        "pixel": 55,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      },
+      {
+        "pixel": 56,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      },
+      {
+        "pixel": 71,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      },
+      {
+        "pixel": 72,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      }
+    ]
+  },
+  "control_1_1": {
+    "binding_ids": [
+      100,
+      101,
+      102,
+      103,
+      104,
+      105
+    ],
+    "nonbackground_pixels": [
+      {
+        "pixel": 55,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 56,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 57,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 72,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 88,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      }
+    ]
+  },
+  "control_2_0": {
+    "binding_ids": [
+      100,
+      101,
+      102,
+      103,
+      104,
+      105
+    ],
+    "nonbackground_pixels": [
+      {
+        "pixel": 55,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      },
+      {
+        "pixel": 56,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      },
+      {
+        "pixel": 71,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      },
+      {
+        "pixel": 72,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      }
+    ]
+  },
+  "control_2_1": {
+    "binding_ids": [
+      100,
+      101,
+      102,
+      103,
+      104,
+      105
+    ],
+    "nonbackground_pixels": [
+      {
+        "pixel": 55,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 56,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 57,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 72,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 88,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      }
+    ]
+  },
+  "control_3_0": {
+    "binding_ids": [
+      100,
+      101,
+      102,
+      103,
+      104,
+      105
+    ],
+    "nonbackground_pixels": [
+      {
+        "pixel": 55,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      },
+      {
+        "pixel": 56,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      },
+      {
+        "pixel": 71,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      },
+      {
+        "pixel": 72,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      }
+    ]
+  },
+  "control_3_1": {
+    "binding_ids": [
+      100,
+      101,
+      102,
+      103,
+      104,
+      105
+    ],
+    "nonbackground_pixels": [
+      {
+        "pixel": 55,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 56,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 57,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 72,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 88,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      }
+    ]
+  },
+  "failure_1_0": {
+    "binding_ids": [
+      100,
+      101,
+      102,
+      103,
+      104,
+      105
+    ],
+    "nonbackground_pixels": [
+      {
+        "pixel": 55,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      },
+      {
+        "pixel": 56,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      },
+      {
+        "pixel": 71,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      },
+      {
+        "pixel": 72,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      }
+    ]
+  },
+  "failure_1_1": {
+    "binding_ids": [
+      100,
+      101,
+      102,
+      103,
+      104,
+      105
+    ],
+    "nonbackground_pixels": [
+      {
+        "pixel": 55,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 56,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 57,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 72,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 88,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      }
+    ]
+  },
+  "failure_2_0": {
+    "binding_ids": [
+      100,
+      101,
+      102,
+      103,
+      104,
+      105
+    ],
+    "nonbackground_pixels": [
+      {
+        "pixel": 55,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      },
+      {
+        "pixel": 56,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      },
+      {
+        "pixel": 71,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      },
+      {
+        "pixel": 72,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      }
+    ]
+  },
+  "failure_2_1": {
+    "binding_ids": [
+      100,
+      101,
+      102,
+      103,
+      104,
+      105
+    ],
+    "nonbackground_pixels": [
+      {
+        "pixel": 55,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 56,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 57,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 72,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 88,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      }
+    ]
+  },
+  "failure_3_0": {
+    "binding_ids": [
+      100,
+      101,
+      102,
+      103,
+      104,
+      105
+    ],
+    "nonbackground_pixels": [
+      {
+        "pixel": 55,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      },
+      {
+        "pixel": 56,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      },
+      {
+        "pixel": 71,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      },
+      {
+        "pixel": 72,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45100003480911255
+      }
+    ]
+  },
+  "failure_3_1": {
+    "binding_ids": [
+      100,
+      101,
+      102,
+      103,
+      104,
+      105
+    ],
+    "nonbackground_pixels": [
+      {
+        "pixel": 55,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 56,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 57,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 72,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      },
+      {
+        "pixel": 88,
+        "identity": [
+          1,
+          1,
+          36,
+          1
+        ],
+        "validity": 7,
+        "depth": 0.45900002121925354
+      }
+    ]
+  },
+  "actor_status_matches_prior_text": true
+}
