@@ -1,0 +1,14 @@
+Collecting numpy==2.3.4
+  Downloading numpy-2.3.4-cp313-cp313-macosx_14_0_arm64.whl.metadata (62 kB)
+Collecting scipy==1.16.3
+  Downloading scipy-1.16.3-cp313-cp313-macosx_14_0_arm64.whl.metadata (62 kB)
+Collecting scikit-fem==11.0.0
+  Using cached scikit_fem-11.0.0-py3-none-any.whl.metadata (34 kB)
+Downloading numpy-2.3.4-cp313-cp313-macosx_14_0_arm64.whl (5.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.1/5.1 MB 22.9 MB/s  0:00:00
+Downloading scipy-1.16.3-cp313-cp313-macosx_14_0_arm64.whl (20.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 20.9/20.9 MB 34.5 MB/s  0:00:00
+Using cached scikit_fem-11.0.0-py3-none-any.whl (165 kB)
+Installing collected packages: numpy, scipy, scikit-fem
+
+Successfully installed numpy-2.3.4 scikit-fem-11.0.0 scipy-1.16.3

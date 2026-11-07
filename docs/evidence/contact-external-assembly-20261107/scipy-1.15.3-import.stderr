@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import skfem
+  File "/private/tmp/numi-fem-py313-20261107/lib/python3.13/site-packages/skfem/__init__.py", line 4, in <module>
+    from skfem.assembly import *  # noqa
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/numi-fem-py313-20261107/lib/python3.13/site-packages/skfem/assembly/__init__.py", line 53, in <module>
+    from .basis import (Basis, CellBasis, FacetBasis, BoundaryFacetBasis,
+                        InteriorFacetBasis)
+  File "/private/tmp/numi-fem-py313-20261107/lib/python3.13/site-packages/skfem/assembly/basis/__init__.py", line 2, in <module>
+    from .cell_basis import CellBasis  # noqa
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/numi-fem-py313-20261107/lib/python3.13/site-packages/skfem/assembly/basis/cell_basis.py", line 14, in <module>
+    from scipy.sparse import coo_matrix
+  File "/private/tmp/numi-fem-py313-20261107/lib/python3.13/site-packages/scipy/sparse/__init__.py", line 315, in <module>
+    from . import csgraph
+  File "/private/tmp/numi-fem-py313-20261107/lib/python3.13/site-packages/scipy/sparse/csgraph/__init__.py", line 187, in <module>
+    from ._laplacian import laplacian
+  File "/private/tmp/numi-fem-py313-20261107/lib/python3.13/site-packages/scipy/sparse/csgraph/_laplacian.py", line 7, in <module>
+    from scipy.sparse.linalg import LinearOperator
+  File "/private/tmp/numi-fem-py313-20261107/lib/python3.13/site-packages/scipy/sparse/linalg/__init__.py", line 134, in <module>
+    from ._eigen import *
+  File "/private/tmp/numi-fem-py313-20261107/lib/python3.13/site-packages/scipy/sparse/linalg/_eigen/__init__.py", line 11, in <module>
+    from ._svds import svds
+  File "/private/tmp/numi-fem-py313-20261107/lib/python3.13/site-packages/scipy/sparse/linalg/_eigen/_svds.py", line 10, in <module>
+    from scipy.sparse.linalg._svdp import _svdp
+  File "/private/tmp/numi-fem-py313-20261107/lib/python3.13/site-packages/scipy/sparse/linalg/_svdp.py", line 23, in <module>
+    from ._propack import _spropack  # type: ignore[attr-defined]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ImportError: dlopen(/private/tmp/numi-fem-py313-20261107/lib/python3.13/site-packages/scipy/sparse/linalg/_propack/_spropack.cpython-313-darwin.so, 0x0002): tried: '/private/tmp/numi-fem-py313-20261107/lib/python3.13/site-packages/scipy/sparse/linalg/_propack/_spropack.cpython-313-darwin.so' (section '__DATA/__thread_bss' has a zero-fill section type, but offset field is not zero), '/System/Volumes/Preboot/Cryptexes/OS/private/tmp/numi-fem-py313-20261107/lib/python3.13/site-packages/scipy/sparse/linalg/_propack/_spropack.cpython-313-darwin.so' (no such file), '/private/tmp/numi-fem-py313-20261107/lib/python3.13/site-packages/scipy/sparse/linalg/_propack/_spropack.cpython-313-darwin.so' (section '__DATA/__thread_bss' has a zero-fill section type, but offset field is not zero)
