@@ -163,7 +163,8 @@ continuation comparisons are required before exposing this as supported.
 
 The training command now forwards interruption to its active trainer or
 selector process tree and removes its run lock. CPU-only stub-process checks
-cover both phases, descendant termination and lock cleanup. The actual native
+pass through the actual dispatcher and cover both phases, descendant
+termination and lock cleanup. The actual native
 guided UI cancellation path and a complete guided session have not been
 qualified.
 

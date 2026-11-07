@@ -1,9 +1,13 @@
 #!/bin/sh
 set -eu
 script=$1
+dispatcher=$2
 root=$(mktemp -d)
 trap 'rm -rf "$root"' EXIT
-mkdir -p "$root/bin" "$root/build/bin" "$root/build/lib" "$root/build/shaders" "$root/python/metalrobo"
+mkdir -p "$root/bin" "$root/build/bin" "$root/build/lib" "$root/build/shaders" "$root/python/metalrobo" "$root/numi/commands" "$root/tools"
+cp "$script" "$root/numi/commands/train"
+cp "$dispatcher" "$root/tools/numi"
+chmod +x "$root/numi/commands/train" "$root/tools/numi"
 touch "$root/build/lib/libmetalrobo.dylib" "$root/build/shaders/MetalRobo.metallib" "$root/python/metalrobo/mlx_policy_worker.py" "$root/python/metalrobo/policy_selection.py"
 cat > "$root/bin/python" <<'EOF'
 #!/bin/sh
@@ -38,7 +42,7 @@ export TEST_ROOT="$root" NUMI_LAB_ROOT="$root" NUMI_WORKSPACE_ROOT="$root"
 export NUMI_BUILD_DIR="$root/build" NUMI_MLX_PYTHON="$root/bin/python"
 for phase in trainer selection; do
     export TEST_PHASE="$phase" NUMI_RUN_DIR="$root/run-$phase"
-    sh "$script" --steps 1 > "$root/$phase.log" 2>&1 &
+    (cd "$root" && exec "$root/tools/numi" train --steps 1) > "$root/$phase.log" 2>&1 &
     parent=$!
     started=0
     for unused in $(seq 1 100); do
@@ -69,4 +73,4 @@ for phase in trainer selection; do
     fi
     [ ! -d "$NUMI_RUN_DIR/.train.lock" ] || { echo "training lock retained" >&2; exit 1; }
 done
-echo "trainer and selector cancellation contract passed (stubbed processes)"
+echo "dispatcher, trainer and selector cancellation contract passed (stubbed processes)"

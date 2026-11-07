@@ -1644,7 +1644,8 @@ if(METALROBO_HAS_SWIFT)
                 "${CMAKE_CURRENT_SOURCE_DIR}/.numi/commands/window")
         add_test(NAME metalrobo_numi_training_cancel
             COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_training_cancel_check.sh"
-                "${CMAKE_CURRENT_SOURCE_DIR}/numi/commands/train")
+                "${CMAKE_CURRENT_SOURCE_DIR}/numi/commands/train"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tools/numi")
         set(METALROBO_MLX_TEST_EXECUTABLE "" CACHE FILEPATH
             "Python interpreter with MLX and NumPy for policy wire compatibility")
         if(METALROBO_MLX_TEST_EXECUTABLE)
