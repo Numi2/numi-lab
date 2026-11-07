@@ -1,0 +1,5 @@
+# Result: no-op research hooks preserve this bounded fixture
+
+The registered process ran 2026-11-07 23:10:10.718466–23:10:11.250887 UTC. It encoded six prepare/finish pairs in order, one for each single-step attempt across the control and intervention arms. The existing visible-target and delayed mixed-failure conditions reproduced. Actor/status text exactly matched the prior no-hook run at printed nine-significant-digit precision; every retained post-step tracker, frame, binding and camera bit matched the prior instrumented run. Phase-zero renderer planes were not compared because they precede rendering.
+
+These callbacks did not encode snapshot, candidate, commit or restore work. This result qualifies only their host encode-call order, buffer availability and bounded neutrality in the one fixture. It does not establish GPU completion ordering, per-environment cadence or held-frame publication, rollback, replay, or any production sensor fix. The opt-in single-thread research registry and one-step restriction remain isolated to this owner copy.
