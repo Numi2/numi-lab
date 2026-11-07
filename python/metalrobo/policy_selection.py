@@ -944,6 +944,10 @@ def _evaluate(
         f"{evidence_path.name}.meta.json"
     )
     contract = _evaluation_contract(evaluator, arguments)
+    policy_value = _option_value(arguments, "--policy-pack")
+    if policy_value is None or not Path(policy_value).is_file():
+        raise ValueError("evaluation requires an existing policy pack")
+    policy_sha256 = _sha256_file(Path(policy_value))
     state_trace_value = _option_value(arguments, "--state-trace")
     state_trace = Path(state_trace_value) if state_trace_value else None
     if state_trace is None:
@@ -962,6 +966,9 @@ def _evaluate(
             ):
                 record = json.loads(evidence_payload)
                 if isinstance(record, dict):
+                    if metadata.get("policy_sha256") != policy_sha256:
+                        metadata["policy_sha256"] = policy_sha256
+                        _atomic_write_text(metadata_path, json.dumps(metadata, indent=2, sort_keys=True) + "\n")
                     return record
         except (OSError, UnicodeError, ValueError, TypeError):
             # A partial cache is treated as a miss and regenerated below.
@@ -972,6 +979,8 @@ def _evaluate(
         stdout=subprocess.PIPE,
         text=True,
     )
+    if _evaluation_contract(evaluator, arguments) != contract:
+        raise ValueError("evaluation inputs changed during the rollout")
     record = json.loads(completed.stdout)
     if not isinstance(record, dict):
         raise ValueError("evaluator evidence must be a JSON object")
@@ -980,6 +989,7 @@ def _evaluate(
     metadata = {
         "schema": "numi.policy-evidence-cache.v2",
         "contract_sha256": contract,
+        "policy_sha256": policy_sha256,
         "evidence": _content_manifest(evidence_payload),
         "state_trace": trace_manifest,
     }

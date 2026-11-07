@@ -1594,6 +1594,7 @@ if(METALROBO_HAS_SWIFT)
         metalrobo_task_rollout
         apps/task_rollout.swift
         apps/NumiWindow.swift
+        apps/NumiPolicyStatus.swift
         apps/NumiTraining.swift
         bindings/swift/MetalRoboTaskRollout.swift
     )
@@ -1625,6 +1626,7 @@ if(METALROBO_HAS_SWIFT)
         metalrobo_numi_window_check
         apps/numi_window_check.swift
         apps/NumiWindow.swift
+        apps/NumiPolicyStatus.swift
         apps/NumiTraining.swift
         bindings/swift/MetalRoboTaskRollout.swift
     )
@@ -1637,6 +1639,14 @@ if(METALROBO_HAS_SWIFT)
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
         BUILD_RPATH "@loader_path/../lib" INSTALL_RPATH "@loader_path/../lib")
     if(BUILD_TESTING)
+        add_executable(metalrobo_numi_policy_status_check
+            apps/NumiPolicyStatus.swift tests/numi_policy_status_check.swift)
+        target_compile_options(metalrobo_numi_policy_status_check PRIVATE
+            "$<$<COMPILE_LANGUAGE:Swift>:-parse-as-library>")
+        set_target_properties(metalrobo_numi_policy_status_check PROPERTIES
+            Swift_LANGUAGE_VERSION 6 Swift_COMPILATION_MODE singlefile
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+        add_test(NAME metalrobo_numi_policy_status COMMAND metalrobo_numi_policy_status_check)
         add_test(NAME metalrobo_numi_window_metadata
             COMMAND metalrobo_numi_window_check
                 "${CMAKE_CURRENT_SOURCE_DIR}/docs/evidence/window-integration-20261107/historical/native-policy-v5.pack")
@@ -1663,6 +1673,7 @@ if(METALROBO_HAS_SWIFT)
         metalrobo_task_train
         apps/task_train.swift
         apps/NumiWindow.swift
+        apps/NumiPolicyStatus.swift
         apps/NumiTraining.swift
         bindings/swift/MetalRoboTaskRollout.swift
     )
