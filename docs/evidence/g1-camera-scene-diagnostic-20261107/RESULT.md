@@ -1,0 +1,5 @@
+# Result: camera observed, scene-state publication omitted
+
+The process ran 2026-11-07 23:01:56.991150–23:01:57.487283 UTC and completed both arms. It recorded 0 required raw contacts in both environments for steps 1–2 and 8 in step 3; all statuses succeeded. Camera phase 1 gave environment 0 world pose approximately (0.0781, 0.00034, 1.4786), quaternion (0,0,0,1), and environment 1 approximately (0.0606,-0.00285,1.4713), quaternion (0,0,0,1). The camera values were held across steps 1–3, consistent with 10 Hz sampling. None of the six tracker confidences was nonzero.
+
+The scene-body rows were absent: the fixture enabled publishStateTrajectory but omitted the independently required publishFinalState flag. Consequently target placement and sphere motion were not observed; this run does not explain invisibility or why the expected overflow did not occur. A separate telemetry-corrected study is necessary. All raw camera snapshots, contact counts, streams, timing and exact identities are retained.
