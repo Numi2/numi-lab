@@ -1,0 +1,3 @@
+usage: metalrobo_world_pack <output.mrworld>
+       metalrobo_world_pack --franka-tactile <output.mrworld>
+       metalrobo_world_pack --inspect <input.mrworld>

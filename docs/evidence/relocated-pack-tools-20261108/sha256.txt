@@ -1,0 +1,9 @@
+3259b492ee3c13b35360a72728f1cc218060e125eb856b0dd06887022026454b  /Users/numi/numi-lab-pack-tools-relocated-20261108/bin/metalrobo_world_pack
+5f5990590b6cf8104f403a8135bd3653c6d41af01e251f7f9f4a18e48f63a789  /Users/numi/numi-lab-pack-tools-relocated-20261108/bin/metalrobo_episode_compile
+f1c96f0ed70bffe0871c8510ad8da93bec60deec7cc3c6f8ab586670d1f2d59b  /Users/numi/numi-lab-pack-tools-relocated-20261108/lib/libmetalrobo.dylib
+c6cdcbf8d20a0a85089dd3d6911d704bc7f6c6cb8b98f119d77ef7c58f7c9569  /Users/numi/numi-lab-pack-tools-relocated-20261108/share/numi/REVISION
+e14269963ebefaa69eb3ca4a308412e62cfcc9ce68b3c0e2ed69aefef992d91b  /Users/numi/numi-autoload-franka-smoke-20261108/fixture/actuators.actuatorpack
+e09f0a50365ee18c749b163690cff86e1a15032aa36b4a0932aba46925bec70d  /Users/numi/numi-autoload-franka-smoke-20261108/fixture/reality.realitypack
+bdd2fa6da6ee5149f23cf5b9dc10205d982cfca207247cb47d0b8644ca362d06  /Users/numi/numi-autoload-franka-smoke-20261108/fixture/sensors.sensorpack
+c94b7c08249357fcc80888c3fec9437982aac240d46ee5b51a5531543ad87075  /Users/numi/numi-autoload-franka-smoke-20261108/fixture/task.taskpack
+cc4ca3c1e154499019351c8bfc10ab88b76c6e10ab1b79c273904761b9c7610b  /Users/numi/numi-autoload-franka-smoke-20261108/fixture/world.mrworld

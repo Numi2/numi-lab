@@ -1,0 +1,3 @@
+dyld[90850]: Library not loaded: @rpath/libmetalrobo.dylib
+  Referenced from: <EF042FC8-39EF-39B9-A183-C1D7BF0EC191> /Users/numi/numi-lab-autoload-package-relocated-20261108/bin/metalrobo_episode_compile
+  Reason: no LC_RPATH's found
