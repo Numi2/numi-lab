@@ -237,3 +237,10 @@ window. The monitor requires the canceled command status, removed lock, no
 surviving observed descendants and unchanged hashes. It stops the process
 group after 180 seconds. Review its result and retained logs; this procedure
 has not yet been run on the locked host.
+
+The ownership probe now also checks that unsupported digest, changed owner,
+changed fingerprint and mixed-owner requests leave accepted surface bytes
+unchanged, then compares the challenged resident's next continuation with an
+independent unchallenged resident. It checks the pending-inspection gate too.
+This is a fail-closed continuation test; it does not create or restore a
+snapshot. Native execution of the expanded probe is pending.

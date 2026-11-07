@@ -1627,9 +1627,14 @@ bool proveResidentMechanicsOwnership(const metalrobo::CompiledRun& run) {
     MetalWorldResult result;
     diagnostic = first.wait(result);
     if (!diagnostic.succeeded() || diagnostic.failedStepCount != 0u) return false;
+    const MetalMeasuredSurfaceInspection acceptedBefore = mechanics.inspectAccepted();
+    if (acceptedBefore.acceptedStates.size() != environments ||
+        acceptedBefore.acceptedEvidence.size() != environments) return false;
     std::uint64_t digest = 123u;
     diagnostic = context.residentStateFingerprint(resident, digest);
-    if (diagnostic.succeeded() || digest != 0u) return false;
+    if (diagnostic.status != MetalWorldHostStatus::invalidModel || digest != 0u ||
+        diagnostic.message.find("external device-mechanics state") == std::string::npos)
+        return false;
 
     MetalWorldStepConfig changed = config;
     changed.deviceMechanicsProgram = otherMechanics.program();
@@ -1658,13 +1663,64 @@ bool proveResidentMechanicsOwnership(const metalrobo::CompiledRun& run) {
     diagnostic = context.submit(run.world(), initial, changed, rejected);
     if (diagnostic.succeeded() || rejected.valid()) return false;
 
+    // Failed ownership and digest operations must not modify accepted extension
+    // state or evidence, even when no submission was created.
+    const MetalMeasuredSurfaceInspection acceptedAfter = mechanics.inspectAccepted();
+    if (acceptedBefore.acceptedStates.size() != acceptedAfter.acceptedStates.size() ||
+        acceptedBefore.acceptedEvidence.size() != acceptedAfter.acceptedEvidence.size() ||
+        std::memcmp(acceptedBefore.acceptedStates.data(), acceptedAfter.acceptedStates.data(),
+                    acceptedBefore.acceptedStates.size() * sizeof(MRMeasuredSurfaceStateGPU)) != 0 ||
+        std::memcmp(acceptedBefore.acceptedEvidence.data(), acceptedAfter.acceptedEvidence.data(),
+                    acceptedBefore.acceptedEvidence.size() * sizeof(MRMeasuredSurfaceEvidenceGPU)) != 0)
+        return false;
+
+    // An independent, unchallenged resident establishes the continuation
+    // reference for the exact same initial state and two accepted submissions.
+    MetalMeasuredSurfaceMechanics controlMechanics(*run.measuredSurfaceBinding());
+    MetalWorldContext controlContext;
+    MetalWorldResidentState controlResident;
+    MetalWorldStepConfig controlConfig = config;
+    controlConfig.deviceMechanicsProgram = controlMechanics.program();
+    MetalWorldSubmission controlFirst;
+    diagnostic = controlContext.initializeResidentState(
+        run.world(), initial, controlConfig, controlResident, controlFirst);
+    if (!diagnostic.succeeded() || !controlFirst.valid()) return false;
+    MetalWorldResult controlResult;
+    diagnostic = controlFirst.wait(controlResult);
+    if (!diagnostic.succeeded() || diagnostic.failedStepCount != 0u) return false;
+    MetalWorldSubmission controlNext;
+    diagnostic = controlContext.submitResident(
+        run.world(), continuation, controlConfig, controlResident, controlNext);
+    if (!diagnostic.succeeded() || !controlNext.valid()) return false;
+    diagnostic = controlNext.wait(controlResult);
+    if (!diagnostic.succeeded() || diagnostic.failedStepCount != 0u) return false;
+    const MetalMeasuredSurfaceInspection controlAccepted = controlMechanics.inspectAccepted();
+
     MetalWorldSubmission next;
     diagnostic = context.submitResident(run.world(), continuation, config, resident, next);
     if (!diagnostic.succeeded() || !next.valid()) return false;
     diagnostic = context.submitResident(run.world(), continuation, config, resident, rejected);
     if (diagnostic.status != MetalWorldHostStatus::contextBusy || rejected.valid()) return false;
+    digest = 123u;
+    diagnostic = context.residentStateFingerprint(resident, digest);
+    if (diagnostic.succeeded() || digest != 0u) return false;
+    bool pendingInspectionRejected = false;
+    try { (void)mechanics.inspectAccepted(); }
+    catch (const std::logic_error&) { pendingInspectionRejected = true; }
+    if (!pendingInspectionRejected) return false;
     diagnostic = next.wait(result);
-    return diagnostic.succeeded() && diagnostic.failedStepCount == 0u;
+    if (!diagnostic.succeeded() || diagnostic.failedStepCount != 0u ||
+        result.finalQ.size() != environments * nq ||
+        result.finalV.size() != environments * nv ||
+        result.finalQ != controlResult.finalQ || result.finalV != controlResult.finalV)
+        return false;
+    const MetalMeasuredSurfaceInspection finalAccepted = mechanics.inspectAccepted();
+    return finalAccepted.acceptedStates.size() == controlAccepted.acceptedStates.size() &&
+        finalAccepted.acceptedEvidence.size() == controlAccepted.acceptedEvidence.size() &&
+        std::memcmp(finalAccepted.acceptedStates.data(), controlAccepted.acceptedStates.data(),
+                    finalAccepted.acceptedStates.size() * sizeof(MRMeasuredSurfaceStateGPU)) == 0 &&
+        std::memcmp(finalAccepted.acceptedEvidence.data(), controlAccepted.acceptedEvidence.data(),
+                    finalAccepted.acceptedEvidence.size() * sizeof(MRMeasuredSurfaceEvidenceGPU)) == 0;
 }
 
 } // namespace
