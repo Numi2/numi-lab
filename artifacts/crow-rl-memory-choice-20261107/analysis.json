@@ -1,0 +1,237 @@
+{
+  "status": "passed",
+  "source_commit": "ed9ce13c5bdaf44587f831e27c188a7ad1de6ae1",
+  "training_continuation": [
+    {
+      "stage": "prefix",
+      "policy_candidate_rollout_byte_exact": true,
+      "learner_tensors_and_metadata_exact": 53,
+      "native_sections_sha256": [
+        "255a78e087a7c050fa6fe32c433234636b6a5aeec60f78d0c0de8965361ede7e",
+        "820dc66152905fe33f06b3064a5f40a471acc1016acdabd2b68670030acab69a",
+        "3e64896efcaf2d306ac914bf96d701096a66556c5b161dc2ef243bb660c3a262"
+      ]
+    },
+    {
+      "stage": "tail1",
+      "policy_candidate_rollout_byte_exact": true,
+      "learner_tensors_and_metadata_exact": 53,
+      "native_sections_sha256": [
+        "204dc59e7eae5ca6e6209ea327d4f5da934df586e3804627a8b4303998270f30",
+        "a3d045fb9e2d5dbc4d566dff8e4fcc268c577db596321dd23e8cf0a2ff6245e7",
+        "9b00a7c6a07fac075a3508a7e43504df404e080b2246b3f7d52ff07d4980cca9"
+      ]
+    },
+    {
+      "stage": "tail8",
+      "policy_candidate_rollout_byte_exact": true,
+      "learner_tensors_and_metadata_exact": 53,
+      "native_sections_sha256": [
+        "204dc59e7eae5ca6e6209ea327d4f5da934df586e3804627a8b4303998270f30",
+        "a3d045fb9e2d5dbc4d566dff8e4fcc268c577db596321dd23e8cf0a2ff6245e7",
+        "9b00a7c6a07fac075a3508a7e43504df404e080b2246b3f7d52ff07d4980cca9"
+      ]
+    }
+  ],
+  "early_cue_continuation": [
+    {
+      "stage": "tail-chunk1",
+      "all_sample_fields_byte_exact": [
+        "actor_observations",
+        "critic_observations",
+        "motion_features",
+        "teacher_actions",
+        "latents",
+        "old_log_probabilities",
+        "old_values",
+        "transitions",
+        "memory_before",
+        "memory_resets"
+      ],
+      "all_outcomes_byte_exact": [
+        "reward",
+        "task_reward",
+        "done",
+        "timeout",
+        "physics_error",
+        "accepted_intake_utility"
+      ],
+      "final_bootstrap_byte_exact": true,
+      "all_native_sections_byte_exact": [
+        "78a0c02254604e91d57f0b719810f447f23acfa908f05a62315640bc4712bf53",
+        "9537b895ff51ea6d3136cd7e013413f7b854bd9f1a9316ed7e5028d73f3f6ad8",
+        "77e8ef2ab220045523364ce59fe995947e1443a315e6acd8ab8889622e977cbb"
+      ]
+    },
+    {
+      "stage": "tail-chunk8",
+      "all_sample_fields_byte_exact": [
+        "actor_observations",
+        "critic_observations",
+        "motion_features",
+        "teacher_actions",
+        "latents",
+        "old_log_probabilities",
+        "old_values",
+        "transitions",
+        "memory_before",
+        "memory_resets"
+      ],
+      "all_outcomes_byte_exact": [
+        "reward",
+        "task_reward",
+        "done",
+        "timeout",
+        "physics_error",
+        "accepted_intake_utility"
+      ],
+      "final_bootstrap_byte_exact": true,
+      "all_native_sections_byte_exact": [
+        "78a0c02254604e91d57f0b719810f447f23acfa908f05a62315640bc4712bf53",
+        "9537b895ff51ea6d3136cd7e013413f7b854bd9f1a9316ed7e5028d73f3f6ad8",
+        "77e8ef2ab220045523364ce59fe995947e1443a315e6acd8ab8889622e977cbb"
+      ]
+    }
+  ],
+  "C_configuration_negative_controls": 17,
+  "malformed_memory_programs": 7,
+  "legacy_non_scene_files_byte_exact": 134,
+  "zero_reward_scout": {
+    "status": "passed",
+    "samples": 81920,
+    "food_micrograms_per_update": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "lanes_with_intake_per_update": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "reward_path_observed": false,
+    "end_to_end_loop_steps_per_second": 2467.8283650375747,
+    "last_learning_update": {
+      "actor_gradient_norm": 0.13759038597345352,
+      "approximate_kl": 0.0009529973089232868,
+      "behavior_policy_fingerprint": 17334557192555578594,
+      "clip_fraction": 0.0008300781482830644,
+      "critic_gradient_norm": 0.005412288708612323,
+      "deployment_policy_pack": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/memory-choice-learning-scout-01/deployment.policypack",
+      "done_count": 0,
+      "entropy": 18.338451385498047,
+      "generating_logp_max_abs": 1.52587890625e-05,
+      "generating_state_max_abs": 1.1920928955078125e-07,
+      "generating_value_max_abs": 1.1362135410308838e-07,
+      "gradient_norm": 0.1376967877149582,
+      "impact_sequence_metrics": [],
+      "kl_divergence": 0.0009667904814705253,
+      "learner_state": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/memory-choice-learning-scout-01/learner.safetensors",
+      "learning_rate": 0.0003000000142492354,
+      "loss": -0.01890877727419138,
+      "maximum_reward": 0,
+      "mean_action_standard_deviation": 0.6702386140823364,
+      "mean_contact_reward": 0,
+      "mean_dodge_cbf_buffer_reward": 0,
+      "mean_dodge_cbf_correction_reward": 0,
+      "mean_dodge_evasion_reward": 0,
+      "mean_dodge_link_clearance_reward": 0,
+      "mean_dodge_miss_reward": 0,
+      "mean_dodge_predicted_clearance_reward": 0,
+      "mean_dodge_safe_action_rate_reward": 0,
+      "mean_dodge_safe_stillness_reward": 0,
+      "mean_reward": 0,
+      "mean_root_height": 0,
+      "mean_task_reward": 0,
+      "mean_tilt": 0,
+      "mean_tracking_score": 0,
+      "minibatch_updates": 2,
+      "minimum_reward": 0,
+      "mlx_active_memory_bytes": 2153228,
+      "mlx_cache_memory_bytes": 0,
+      "mlx_cache_released_bytes": 833900353,
+      "mlx_peak_memory_bytes": 758896180,
+      "outcomes": {
+        "accepted_intake_utility": {
+          "direction": 1,
+          "mean": 0,
+          "unit": "utility"
+        },
+        "done": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "bool"
+        },
+        "physics_error": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "bool"
+        },
+        "reward": {
+          "direction": 1,
+          "mean": 0,
+          "unit": "reward"
+        },
+        "task_reward": {
+          "direction": 1,
+          "mean": 0,
+          "unit": "reward"
+        },
+        "timeout": {
+          "direction": 0,
+          "mean": 0,
+          "unit": "bool"
+        }
+      },
+      "policy_loss": -0.0006818741443570531,
+      "policy_pack": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/memory-choice-learning-scout-01/updated.policypack",
+      "policy_revision": 9,
+      "policy_revision_after": 9,
+      "policy_revision_before": 8,
+      "real_samples_per_epoch": 10240,
+      "recovery_phase_rates_by_difficulty_band": {
+        "0": {
+          "brace": 0,
+          "foot_support": 0,
+          "mean_root_height": 0,
+          "mean_tilt": 0,
+          "quiet_stand": 0,
+          "restored": 0,
+          "rise": 0,
+          "standing": 0,
+          "support_transfer": 0,
+          "transition_count": 10240,
+          "trunk_clear": 0
+        }
+      },
+      "reward_standard_deviation": 0,
+      "samples": 10240,
+      "sequence_length": 320,
+      "sequence_windows": 32,
+      "status": "updated",
+      "task_fingerprint": 1215058188383983006,
+      "termination_reason_counts": {},
+      "timeout_count": 0,
+      "update_seconds": 0.09928224998293445,
+      "value_loss": 0.00011155009997310117
+    },
+    "learned_memory_qualified": false,
+    "initial_policy_sha256": "ffceec6e1cc1bd0b19d09ad3f526923d7bb8791eb636973e8eacc3613f44e643",
+    "final_policy_sha256": "a6b735b2a251207acb1c7d19cec81063960a81757c24a99b73d2b2d3b03ecc6a"
+  },
+  "Python_tests": 29,
+  "full_native_build": true,
+  "native_cue_and_legacy_life_regressions": true,
+  "initial_intake_reward": 0,
+  "learned_memory_qualified": false
+}
