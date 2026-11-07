@@ -1,4 +1,5 @@
 #include "metalrobo/DiscreteElasticRod.hpp"
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <filesystem>
