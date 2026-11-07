@@ -2,6 +2,7 @@
 """Execute the fixed 8-0 Nylon held-out screen from the pinned PLOS S4 workbook."""
 import argparse
 import hashlib
+import io
 import json
 import math
 import re
@@ -45,7 +46,7 @@ def parse(workbook):
     observed = hashlib.sha256(raw).hexdigest()
     if observed != EXPECTED_SHA:
         raise ValueError(f"workbook SHA mismatch: {observed}")
-    with zipfile.ZipFile(workbook) as z:
+    with zipfile.ZipFile(io.BytesIO(raw)) as z:
         wb = ET.fromstring(z.read("xl/workbook.xml"))
         sheets = wb.find(NS+"sheets")
         names = [s.get("name") for s in sheets]
