@@ -100,6 +100,8 @@ int main(int argc,char** argv) {
   <<",\"failed_vy\":"<<(failed.finalV.size()<2?0:failed.finalV[1])
   <<",\"normal_residual\":"<<(failed.contactStatuses.empty()?0:failed.contactStatuses[0].residuals.y)
   <<",\"active_contacts\":"<<(failed.contactStatuses.empty()?0:failed.contactStatuses[0].activeContacts)
+  <<",\"queue_flags\":"<<(failed.contactStatuses.empty()?0:failed.contactStatuses[0].queueFlags)
+  <<",\"initial_queue_flags\":"<<(before.contactStatuses.empty()?0:before.contactStatuses[0].queueFlags)
   <<",\"failed_cache_count\":"<<countCache(failed)
   <<",\"failed_state_restored\":"<<(restored?"true":"false")
   <<",\"restore_q\":"<<(equal(before.finalQ,failed.finalQ)?"true":"false")
