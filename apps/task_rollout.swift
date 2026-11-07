@@ -1567,58 +1567,9 @@ private enum TaskRolloutMain {
         let deployment = runDirectory.appendingPathComponent(
             "deployment.policypack"
         )
-        var deploymentPolicy: URL?
-        var selection = "experiment complete · review physical results"
-        let selectionURL = runDirectory.appendingPathComponent(
-            "selection/selection.json"
-        )
-        if let data = try? Data(contentsOf: selectionURL),
-           let object = try? JSONSerialization.jsonObject(with: data)
-                as? [String: Any],
-           let selected = object["selected"] as? String {
-            let evidenceName: String
-            if selected == "candidate",
-               let label = object["selected_candidate_label"] as? String {
-                evidenceName = label
-            } else {
-                evidenceName = "incumbent"
-            }
-            let evidenceURL = runDirectory
-                .appendingPathComponent("selection", isDirectory: true)
-                .appendingPathComponent("\(evidenceName).evidence.json")
-            var physicallyQualified = false
-            if let evidenceData = try? Data(contentsOf: evidenceURL),
-               let evidence = try? JSONSerialization.jsonObject(
-                    with: evidenceData
-               ) as? [String: Any] {
-                let failedSteps = (evidence["failed_environment_steps"]
-                    as? NSNumber)?.intValue ?? Int.max
-                let balanceFailures =
-                    (evidence["height_or_tilt_termination_count"]
-                        as? NSNumber)?.intValue ?? Int.max
-                let meanTilt = (evidence["mean_tilt"]
-                    as? NSNumber)?.doubleValue ?? .infinity
-                let cleanHorizon =
-                    (evidence["clean_horizon_environment_rate"]
-                        as? NSNumber)?.doubleValue ?? 0
-                let minimumHeight = (evidence[
-                    "minimum_root_height_by_environment"
-                ] as? [NSNumber])?.map(\.doubleValue).min() ?? 0
-                physicallyQualified = failedSteps == 0 &&
-                    balanceFailures == 0 && meanTilt <= 0.35 &&
-                    cleanHorizon >= 0.5 && minimumHeight >= 0.55
-            }
-            if physicallyQualified,
-               fileManager.fileExists(atPath: deployment.path) {
-                deploymentPolicy = deployment
-                selection = selected == "candidate"
-                    ? "new policy passed balance qualification"
-                    : "starting policy passed balance qualification"
-            } else {
-                selection =
-                    "experiment complete · policy still falls · not loaded"
-            }
-        }
+        let decision = numiGuidedPolicyDecision(policy: deployment, run: runDirectory)
+        let deploymentPolicy: URL? = decision.shouldLoad ? deployment : nil
+        let selection = decision.message
         return WindowTrainingResult(
             runDirectory: runDirectory,
             deploymentPolicy: deploymentPolicy,

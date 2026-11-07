@@ -71,3 +71,24 @@ public func numiPolicyEvidenceStatus(policy: URL, run: URL) -> NumiPolicyEvidenc
     let passed = failed == 0 && falls == 0 && tilt <= 0.35 && horizon >= 0.5 && minHeight >= 0.55
     return NumiPolicyEvidenceStatus(role: role, balance: passed ? .passed : .failed)
 }
+
+// Automatic guided loading shares the catalog's evidence identity checks.
+// Manual selection of research policies is independent of this decision.
+public struct NumiGuidedPolicyDecision {
+    public let shouldLoad: Bool
+    public let message: String
+}
+
+public func numiGuidedPolicyDecision(policy: URL, run: URL) -> NumiGuidedPolicyDecision {
+    let status = numiPolicyEvidenceStatus(policy: policy, run: run)
+    switch status.balance {
+    case .passed where status.role == "selected candidate":
+        return NumiGuidedPolicyDecision(shouldLoad: true, message: "new policy passed guided held-out balance screen")
+    case .passed where status.role == "selected incumbent":
+        return NumiGuidedPolicyDecision(shouldLoad: true, message: "starting policy passed guided held-out balance screen")
+    case .failed:
+        return NumiGuidedPolicyDecision(shouldLoad: false, message: "experiment complete · policy failed guided balance screen · not loaded")
+    default:
+        return NumiGuidedPolicyDecision(shouldLoad: false, message: "experiment complete · balance evidence unavailable · not loaded")
+    }
+}
