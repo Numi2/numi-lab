@@ -1,0 +1,105 @@
+{
+  "prediction_commit": "a116046027bde64d788939ef717e0c210c280468",
+  "native_sha256": "361a612d19ccf3b45899e3d080a44eb8c9b6479ee2b8f03475fd44259d3123f2",
+  "dynamic_sha256": "7ac8d14bccbd11b9991b6414272876a0de79620a4c7bde65091421d341a93eed",
+  "mesh": {
+    "2": {
+      "original_sha256": "6f656ede82afdca446c773edd78941f61af1f9c8ec29959825f728a9e5ef0eaa",
+      "residual_source_sha256": "2106303b549922c297453ebfb82f4b1998a94764f239a16ffda9e14fdf766d75",
+      "state_checks": [
+        {
+          "state": "retained_0",
+          "energy_abs": 0.0,
+          "residual_rel": 0.0,
+          "tangent_rel": 0.0,
+          "min_gap": 0.0001999904148683524,
+          "pass": true
+        },
+        {
+          "state": "retained_150",
+          "energy_abs": 0.0,
+          "residual_rel": 0.0,
+          "tangent_rel": 0.0,
+          "min_gap": 9.161865385603406e-05,
+          "pass": true
+        },
+        {
+          "state": "retained_200",
+          "energy_abs": 0.0,
+          "residual_rel": 0.0,
+          "tangent_rel": 0.0,
+          "min_gap": 0.00011260755484910636,
+          "pass": true
+        },
+        {
+          "state": "retained_319",
+          "energy_abs": 0.0,
+          "residual_rel": 0.0,
+          "tangent_rel": 0.0,
+          "min_gap": 9.446975861536662e-05,
+          "pass": true
+        }
+      ],
+      "run": {
+        "exit": 0,
+        "timeout": 120,
+        "elapsed_seconds": 10.35757079202449,
+        "original_output_sha256": "e816a41ddf5e8232ee7231e2a74368dea2d10c3d7588aabd9d2cf1de5c20ecef",
+        "output_sha256": "e816a41ddf5e8232ee7231e2a74368dea2d10c3d7588aabd9d2cf1de5c20ecef"
+      },
+      "trajectory_parity": {
+        "force_bin_relative": 0.0,
+        "impulse_relative": 0.0,
+        "contact_work_abs_J": 0.0,
+        "min_sampled_gap_m": 8.710907926455707e-05,
+        "momentum_relative": 2.140258629335935e-15,
+        "pass": true
+      }
+    },
+    "4": {
+      "original_sha256": "03f6dabf38c311e695df1ee05aa39b6de4c0841b15fc5b5eb062c029bac8dbbf",
+      "residual_source_sha256": "85abfa233e6eb06f07729d9be38edd7ef5d8e2f16b915afab3f08a82b7d7ede0",
+      "state_checks": [
+        {
+          "state": "initial",
+          "energy_abs": 0.0,
+          "residual_rel": 0.0,
+          "tangent_rel": 0.0,
+          "min_gap": 0.0002,
+          "pass": true
+        },
+        {
+          "state": "uniform_active",
+          "energy_abs": 0.0,
+          "residual_rel": 0.0,
+          "tangent_rel": 0.0,
+          "min_gap": 9.5e-05,
+          "pass": true
+        },
+        {
+          "state": "nonuniform_active",
+          "energy_abs": 0.0,
+          "residual_rel": 0.0,
+          "tangent_rel": 0.0,
+          "min_gap": 9.476794909605546e-05,
+          "pass": true
+        }
+      ],
+      "run": {
+        "exit": 0,
+        "timeout": 180,
+        "elapsed_seconds": 27.41718445799779,
+        "original_output_sha256": "09153273e9dc12449577e5280aabb8dec88715f0c3c9964b76c7cc2a76cc40fe",
+        "output_sha256": "09153273e9dc12449577e5280aabb8dec88715f0c3c9964b76c7cc2a76cc40fe"
+      },
+      "trajectory_parity": {
+        "force_bin_relative": 0.0,
+        "impulse_relative": 0.0,
+        "contact_work_abs_J": 0.0,
+        "min_sampled_gap_m": 9.002387784013477e-05,
+        "momentum_relative": 2.9537781374979994e-15,
+        "pass": true
+      }
+    }
+  }
+}

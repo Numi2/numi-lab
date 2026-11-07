@@ -31,3 +31,25 @@ The initial runner stopped on its first state: JSON could not serialize a
 NumPy boolean. No trajectory was run. The failed invocation and traceback
 are retained; a corrected recorder will be separately identified and does
 not alter numerical checks.
+
+## Result
+
+The corrected runner passes all seven declared identical-state checks:
+energy, residual and requested-tangent differences are exactly zero for
+the four retained n=2 and three defined n=4 states. The residual-only n=2
+and n=4 fine 10 ms trajectory JSON outputs each match the original output
+byte-for-byte, including force bins, impulse, work, clearance and momentum.
+The n=2 and n=4 runs took 10.4 s and 27.4 s; the earlier full-tangent
+diagnostics took 19.5 s and 46.6 s. These separate execution times are
+resource guidance, not controlled performance measurements or a product
+speed claim.
+
+The JSON-recorder failure from the initial attempt remains retained. This
+check supports using the residual-only evaluator for further independent CPU
+reference experiments; it does not prove a spatial reference or pass the
+0.25% contact force or impulse gates.
+
+[Evidence](evidence/contact-external-residual-only-20261108/) retains the
+source hashes, both output hashes, state checks, trajectories, timeouts,
+work and the initial failure. Neither experimental option nor GPU execution
+was involved.
