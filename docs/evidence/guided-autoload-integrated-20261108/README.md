@@ -1,0 +1,3 @@
+# Integrated guided auto-load CPU check
+
+The unified research source was revision `7265fce0d20487280043295e86a5d7453b325dc4`. The shared policy-status and auto-load fixture passed, all 28 selector tests passed, and the full Window/rollout Swift sources type-checked. The first typecheck failed because the integration worktree's sparse checkout omitted the Swift bindings; its message is retained. Materializing the tracked binding fixed that setup error. The tests do not establish a linked production application, native UI, or a GPU run at this revision. The previously staged manual Window package remains unchanged.
