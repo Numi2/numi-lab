@@ -550,3 +550,15 @@ physical-root call threw an unformatted error and the process exited 1. It did
 not reach the physical-wait marker or establish publication. This build differs
 in optimization and binary identity from the Release failure, so it is evidence
 of optimization-sensitive behavior, not proof of its cause or a repair.
+
+A separately pinned typed-error Debug diagnostic ran at 23:25:32 UTC, executable
+SHA-256 `328f879586be925c215af13a1644cfa130d40767357d08f5dc233413a52cd076`,
+32-input manifest SHA-256
+`f55c2db309a588734af1321bc8cdd1bb648e999ca5b14e0720f3f52c0d9ffe47`.
+Both input checks passed. `beginPhysicalRoot` returned native status 8,
+submission failure, stage 918, then exit 1. The linked owner source reports
+stage as 900 plus the articulated submission status; 18 is
+`externalProgramFailure`. The underlying external-program message was not
+captured because the native diagnostic environment switch was absent. This is
+an explicit failed root submission, not accepted publication. The earlier
+compile failure caused by unavailable Swift variadic `fprintf` is also retained.

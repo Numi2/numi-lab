@@ -1,0 +1,79 @@
+Building for debugging...
+[4 / 11] NumiBrainSyntheticV5CLI-product
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainSyntheticV5CLI/main.swift:98:104: [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m96 |[0;0m   } catch let e as MetalNumanXBridgeV1Error {
+ [0;36m97 |[0;0m     switch e {
+ [0;36m98 |[0;0m     case .runtime(let status,let stage): fputs("physical-root=runtime status=",stderr); String(status).withCString [4;39m{ fputs($0,stderr) }[0;0m; fputs(" stage=",stderr); String(stage).withCString { fputs($0,stderr) }; fputs("\n",stderr)
+    [0;36m|[0;0m                                                                                                        `- [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m99 |[0;0m     case .rejected(let detail): fputs("physical-root=rejected ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+[0;36m100 |[0;0m     case .invalidABI(let detail): fputs("physical-root=invalid-abi ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainSyntheticV5CLI/main.swift:98:177: [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m96 |[0;0m   } catch let e as MetalNumanXBridgeV1Error {
+ [0;36m97 |[0;0m     switch e {
+ [0;36m98 |[0;0m     case .runtime(let status,let stage): fputs("physical-root=runtime status=",stderr); String(status).withCString { fputs($0,stderr) }; fputs(" stage=",stderr); String(stage).withCString [4;39m{ fputs($0,stderr) }[0;0m; fputs("\n",stderr)
+    [0;36m|[0;0m                                                                                                                                                                                 `- [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m99 |[0;0m     case .rejected(let detail): fputs("physical-root=rejected ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+[0;36m100 |[0;0m     case .invalidABI(let detail): fputs("physical-root=invalid-abi ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainSyntheticV5CLI/main.swift:99:81: [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m97 |[0;0m     switch e {
+ [0;36m98 |[0;0m     case .runtime(let status,let stage): fputs("physical-root=runtime status=",stderr); String(status).withCString { fputs($0,stderr) }; fputs(" stage=",stderr); String(stage).withCString { fputs($0,stderr) }; fputs("\n",stderr)
+ [0;36m99 |[0;0m     case .rejected(let detail): fputs("physical-root=rejected ",stderr); detail.withCString [4;39m{ fputs($0,stderr) }[0;0m; fputs("\n",stderr)
+    [0;36m|[0;0m                                                                                 `- [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+[0;36m100 |[0;0m     case .invalidABI(let detail): fputs("physical-root=invalid-abi ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+[0;36m101 |[0;0m     case .dynamicLibrary(let detail): fputs("physical-root=library ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainSyntheticV5CLI/main.swift:100:86: [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m98 |[0;0m     case .runtime(let status,let stage): fputs("physical-root=runtime status=",stderr); String(status).withCString { fputs($0,stderr) }; fputs(" stage=",stderr); String(stage).withCString { fputs($0,stderr) }; fputs("\n",stderr)
+ [0;36m99 |[0;0m     case .rejected(let detail): fputs("physical-root=rejected ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+[0;36m100 |[0;0m     case .invalidABI(let detail): fputs("physical-root=invalid-abi ",stderr); detail.withCString [4;39m{ fputs($0,stderr) }[0;0m; fputs("\n",stderr)
+    [0;36m|[0;0m                                                                                      `- [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+[0;36m101 |[0;0m     case .dynamicLibrary(let detail): fputs("physical-root=library ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+[0;36m102 |[0;0m     }
+
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainSyntheticV5CLI/main.swift:101:86: [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m99 |[0;0m     case .rejected(let detail): fputs("physical-root=rejected ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+[0;36m100 |[0;0m     case .invalidABI(let detail): fputs("physical-root=invalid-abi ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+[0;36m101 |[0;0m     case .dynamicLibrary(let detail): fputs("physical-root=library ",stderr); detail.withCString [4;39m{ fputs($0,stderr) }[0;0m; fputs("\n",stderr)
+    [0;36m|[0;0m                                                                                      `- [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+[0;36m102 |[0;0m     }
+[0;36m103 |[0;0m     throw e
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[9 / 39] NumiBrainSyntheticV5CLI-product
+[11 / 39] NumiBrainMetal
+[14 / 39] NumiBrainMetal
+[15 / 39] NumiBrainMetal
+[16 / 39] NumiBrainMetal
+[17 / 39] NumiBrainMetal
+[18 / 39] NumiBrainMetal
+[19 / 39] NumiBrainMetal
+[20 / 39] NumiBrainMetal
+[21 / 39] NumiBrainMetal
+[22 / 39] NumiBrainMetal
+[23 / 39] NumiBrainMetal
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/SyntheticV5QualificationFactory.swift:18:15: [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+[0;36m16 |[0;0m       }
+[0;36m17 |[0;0m       fputs("brain-factory=TissueError: ",stderr)
+[0;36m18 |[0;0m       message.withCString [4;39m{ fputs($0,stderr) }[0;0m;fputs("\n",stderr)
+   [0;36m|[0;0m               `- [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+[0;36m19 |[0;0m       throw error
+[0;36m20 |[0;0m     } catch {fputs("brain-factory=other-error\n",stderr);throw error}
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+[24 / 39] NumiBrainCore
+[26 / 39] NumiBrainCore
+[27 / 39] NumiBrainCore
+[28 / 39] NumiBrainCore
+[29 / 39] NumiBrainCore
+[32 / 39] NumiBrainCore
+[33 / 39] NumiBrainCore
+[34 / 39] NumiBrainCore
+[35 / 39] NumiBrainCore
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainCore: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainMetal: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainSyntheticV5CLI-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainSyntheticV5CLI-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[39 / 40] NumiBrainSyntheticV5CLI-product
+Build complete! (10,13 sek)

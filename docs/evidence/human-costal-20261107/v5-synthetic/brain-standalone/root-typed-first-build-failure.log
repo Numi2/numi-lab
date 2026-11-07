@@ -1,0 +1,114 @@
+Building for debugging...
+[Pre-planning 1 / 301]
+[Constructing 28 / 613]
+[2 / 27]
+[8 / 29] NumiBrainValidation
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[16 / 118]
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainConnectomeABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[31 / 118] NumiBrainABI
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainMetalBridgeABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[45 / 118]
+[47 / 118]
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainNumiLabBridgeABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[49 / 118]
+[54 / 118]
+[58 / 118]
+[61 / 118]
+[63 / 118]
+[64 / 118]
+[71 / 118]
+[72 / 118]
+[76 / 118]
+[77 / 118]
+[79 / 118]
+[81 / 118]
+[86 / 118] NumiBrainValidation
+[93 / 120] NumiBrainValidation
+[99 / 121] NumiBrainValidation
+[103 / 121] NumiBrainQualification
+[105 / 124] NumiBrainQualification
+[109 / 145] NumiBrainQualification
+[115 / 145] NumiBrainQualification
+[119 / 145]
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainValidation: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[120 / 145] NumiBrainQualification
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainQualification: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[123 / 145]
+[124 / 145]
+[129 / 145] NumiBrainCore
+[130 / 145] NumiBrainCore
+[134 / 145] NumiBrainCore
+[134 / 146] NumiBrainCore
+[136 / 146] NumiBrainCore
+[138 / 149] NumiBrainMetal
+[139 / 149] NumiBrainCore
+[140 / 167] NumiBrainCore
+[143 / 167]
+[145 / 167]
+[146 / 167]
+[148 / 167] NumiBrainMetal
+[149 / 167] NumiBrainMetal
+[150 / 167] NumiBrainMetal
+[150 / 167] NumiBrainCore
+[152 / 167] NumiBrainMetal
+[154 / 168] NumiBrainMetal
+[156 / 168] NumiBrainMetal
+[158 / 170] NumiBrainSyntheticV5CLI-product
+[159 / 170] NumiBrainMetal
+[160 / 172] NumiBrainSyntheticV5CLI-product
+[163 / 172] NumiBrainSyntheticV5CLI-product
+error: SwiftCompile normal arm64 /Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainSyntheticV5CLI/main.swift failed with a nonzero exit code. Command line:     cd /Users/numi
+    builtin-SwiftPerFileCompile main.swift
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainSyntheticV5CLI/main.swift:98:42: [1;31merror: [1;39m'fprintf' is unavailable: Variadic function is unavailable[0;0m
+ [0;36m96 |[0;0m   } catch let e as MetalNumanXBridgeV1Error {
+ [0;36m97 |[0;0m     switch e {
+ [0;36m98 |[0;0m     case .runtime(let status,let stage): [4;39mfprintf[0;0m(stderr,"physical-root=runtime status=%u stage=%u\n",status,stage)
+    [0;36m|[0;0m                                          `- [1;31merror: [1;39m'fprintf' is unavailable: Variadic function is unavailable[0;0m
+ [0;36m99 |[0;0m     case .rejected(let detail): fputs("physical-root=rejected ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+[0;36m100 |[0;0m     case .invalidABI(let detail): fputs("physical-root=invalid-abi ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk/usr/include/_stdio.h:245:6: [1;39mnote: [1;39m'fprintf' has been explicitly marked unavailable here[0;0m
+[0;36m243 |[0;0m FILE	*fopen(const char * __restrict __filename, const char * __restrict __mode) __DARWIN_ALIAS_STARTING(__MAC_10_6, __IPHONE_2_0, __DARWIN_ALIAS(fopen));
+[0;36m244 |[0;0m #endif /* (DARWIN_UNLIMITED_STREAMS || _DARWIN_C_SOURCE) */
+[0;36m245 |[0;0m int	 fprintf(FILE * __restrict, const char * __restrict, ...) __printflike(2, 3);
+    [0;36m|[0;0m      `- [1;39mnote: [1;39m'fprintf' has been explicitly marked unavailable here[0;0m
+[0;36m246 |[0;0m int	 fputc(int, FILE *);
+[0;36m247 |[0;0m int	 fputs(const char * __restrict, FILE * __restrict) __DARWIN_ALIAS(fputs);
+
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainSyntheticV5CLI/main.swift:98:42: [1;33mwarning: [1;39mresult of call to 'fprintf' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m96 |[0;0m   } catch let e as MetalNumanXBridgeV1Error {
+ [0;36m97 |[0;0m     switch e {
+ [0;36m98 |[0;0m     case .runtime(let status,let stage): fprintf(stderr,"physical-root=runtime status=%u stage=%u\n",status,stage)
+    [0;36m|[0;0m                                          `- [1;33mwarning: [1;39mresult of call to 'fprintf' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m99 |[0;0m     case .rejected(let detail): fputs("physical-root=rejected ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+[0;36m100 |[0;0m     case .invalidABI(let detail): fputs("physical-root=invalid-abi ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainSyntheticV5CLI/main.swift:99:81: [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m97 |[0;0m     switch e {
+ [0;36m98 |[0;0m     case .runtime(let status,let stage): fprintf(stderr,"physical-root=runtime status=%u stage=%u\n",status,stage)
+ [0;36m99 |[0;0m     case .rejected(let detail): fputs("physical-root=rejected ",stderr); detail.withCString [4;39m{ fputs($0,stderr) }[0;0m; fputs("\n",stderr)
+    [0;36m|[0;0m                                                                                 `- [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+[0;36m100 |[0;0m     case .invalidABI(let detail): fputs("physical-root=invalid-abi ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+[0;36m101 |[0;0m     case .dynamicLibrary(let detail): fputs("physical-root=library ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainSyntheticV5CLI/main.swift:100:86: [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m98 |[0;0m     case .runtime(let status,let stage): fprintf(stderr,"physical-root=runtime status=%u stage=%u\n",status,stage)
+ [0;36m99 |[0;0m     case .rejected(let detail): fputs("physical-root=rejected ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+[0;36m100 |[0;0m     case .invalidABI(let detail): fputs("physical-root=invalid-abi ",stderr); detail.withCString [4;39m{ fputs($0,stderr) }[0;0m; fputs("\n",stderr)
+    [0;36m|[0;0m                                                                                      `- [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+[0;36m101 |[0;0m     case .dynamicLibrary(let detail): fputs("physical-root=library ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+[0;36m102 |[0;0m     }
+
+/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainSyntheticV5CLI/main.swift:101:86: [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+ [0;36m99 |[0;0m     case .rejected(let detail): fputs("physical-root=rejected ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+[0;36m100 |[0;0m     case .invalidABI(let detail): fputs("physical-root=invalid-abi ",stderr); detail.withCString { fputs($0,stderr) }; fputs("\n",stderr)
+[0;36m101 |[0;0m     case .dynamicLibrary(let detail): fputs("physical-root=library ",stderr); detail.withCString [4;39m{ fputs($0,stderr) }[0;0m; fputs("\n",stderr)
+    [0;36m|[0;0m                                                                                      `- [1;33mwarning: [1;39mresult of call to 'withCString' is unused[0;0m [#]8;;https://docs.swift.org/compiler/documentation/diagnostics/no-usage\NoUsage]8;;\]
+[0;36m102 |[0;0m     }
+[0;36m103 |[0;0m     throw e
+
+[#NoUsage]: <https://docs.swift.org/compiler/documentation/diagnostics/no-usage>
+Failed frontend command:
+/Library/Developer/CommandLineTools/usr/bin/swift-frontend -frontend -c -primary-file /Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainSyntheticV5CLI/main.swift -emit-dependencies-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Debug/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/main.d -emit-const-values-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Debug/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/main.swiftconstvalues -emit-reference-dependencies-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Debug/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/main.swiftdeps -serialize-diagnostics-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Debug/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/main.dia -target arm64-apple-macos26.0 -disable-cross-import-overlay-search -load-resolved-plugin /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/libObservationMacros.dylib\#\#ObservationMacros -load-resolved-plugin /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/libSwiftMacros.dylib\#\#SwiftMacros -disable-implicit-swift-modules -Xcc -fno-implicit-modules -Xcc -fno-implicit-module-maps -explicit-swift-module-map-file /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Debug/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/NumiBrainSyntheticV5CLI-dependencies-1.json -Xllvm -aarch64-use-tbi -enable-objc-interop -stack-check -sdk /Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk -I /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Debug -Isystem /Library/Developer/CommandLineTools/Developer/usr/lib -F /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Debug/PackageFrameworks -F /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Debug -F /Library/Developer/CommandLineTools/Library/Developer/Frameworks -F /Library/Developer/CommandLineTools/Developer/Library/Frameworks -module-cache-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/SwiftExplicitPrecompiledModules -color-diagnostics -Xcc -fcolor-diagnostics -enable-testing -g -debug-info-format\=dwarf -dwarf-version\=5 -swift-version 6 -Onone -D SWIFT_PACKAGE -D DEBUG -D Xcode -serialize-debugging-options -enable-experimental-feature DebugDescriptionMacro -empty-abi-descriptor -validate-clang-modules-once -clang-build-session-file /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/ModuleCache.noindex/Session.modulevalidation -Xcc -working-directory -Xcc /Users/numi -enable-anonymous-context-mangled-names -file-compilation-dir /Users/numi -Xcc -fmodule-map-file\=/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/GeneratedModuleMaps/NumiBrainNumiLabBridgeABI.modulemap -Xcc -fmodule-map-file\=/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/GeneratedModuleMaps/NumiBrainMetalBridgeABI.modulemap -Xcc -fmodule-map-file\=/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/GeneratedModuleMaps/NumiBrainConnectomeABI.modulemap -Xcc -fmodule-map-file\=/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/GeneratedModuleMaps/NumiBrainABI.modulemap -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -Xcc -ivfsstatcache -Xcc /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/SDKStatCaches.noindex/macosx27.0-26A425-333f8520f9263b97ee3ee54a1fbb19cdffd68ff603bdaacc80b00cb8898de72d.sdkstatcache -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainNumiLabBridgeABI/include -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetalBridgeABI/include -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainConnectomeABI/include -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainABI/include -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Debug/include -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Debug/NumiBrainSyntheticV5CLI-p.build/DerivedSources-normal/arm64 -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Debug/NumiBrainSyntheticV5CLI-p.build/DerivedSources/arm64 -Xcc -I/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Debug/NumiBrainSyntheticV5CLI-p.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -no-auto-bridging-header-chaining -module-name NumiBrainSyntheticV5CLI -package-name numi_brain_v5_synthetic_20261107 -const-gather-protocols-file /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Debug/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/NumiBrainSyntheticV5CLI_const_extract_protocols.json -disable-clang-spi -clang-target arm64-apple-macos27.0 -target-sdk-version 27.0 -target-sdk-name macosx27.0 -in-process-plugin-server-path /Library/Developer/CommandLineTools/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -o /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Debug/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/main.o -debug-module-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Debug/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/NumiBrainSyntheticV5CLI.swiftmodule -index-unit-output-path /NumiBrain.build/Debug/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/main.o -index-store-path /Users/numi/numi-brain-v5-synthetic-20261107/.build/out -index-system-modules
+error: Build failed
