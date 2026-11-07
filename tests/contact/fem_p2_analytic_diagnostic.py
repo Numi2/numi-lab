@@ -10,9 +10,9 @@ def W(s):
 exact_volume=L*L*quad(lambda z:W(A*np.pi/L*np.cos(np.pi*z/L)),0,L,
                      epsabs=1e-14,epsrel=1e-13)[0]
 def pressure(g):
- q=g*g-d*d;return 2*g*k*(2*q*np.log(g*g/d**2)+q*q/g**2)
+ q=g*g-d*d;return np.where(g<d,2*g*k*(2*q*np.log(g*g/d**2)+q*q/g**2),0.)
 def density(g):
- q=g*g-d*d;return -k*q*q*np.log(g*g/d**2)
+ q=g*g-d*d;return np.where(g<d,-k*q*q*np.log(g*g/d**2),0.)
 def face_exact(order):
  x,w=leggauss(order);x=(x+1)*L/2;w=w*L/2
  xx,yy=np.meshgrid(x,x,indexing='ij');ww=w[:,None]*w[None,:]
