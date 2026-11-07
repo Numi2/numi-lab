@@ -415,3 +415,15 @@ v5 runtime creation and identity checks passed, then real Brain runtime
 construction threw an unformatted error before control or a physical root
 was started. The stage log and input check are retained. This is a failed
 integration diagnostic, not a publication, rollback or force result.
+
+The separately identified typed Brain-construction diagnostic ran at
+23:05:22–23:05:23 UTC with executable SHA-256
+`ff718ba29c5f39c8b5d9f0b6b9c0607aa95b8fafe3ed7a9dad61ff0e8cc35e2f`.
+All 32 immutable inputs passed the retained manifest, SHA-256
+`46e2baa07c6cb5373850b5347a6b346522a81fb72169a7f0a56181fe72bac6b5`.
+The v5 world was created, and Brain construction reached the fast-tissue
+factory before exiting 139. Its crash report records `objc_retain` in the
+test-only qualification wrapper; the underlying construction error is not
+identified. The stage log, build, input manifest, wrapper, factory diagnostic
+diff and crash report are retained. No Brain witness, physical step or v5
+publication was reached.

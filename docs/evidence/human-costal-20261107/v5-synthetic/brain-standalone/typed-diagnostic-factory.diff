@@ -1,0 +1,34 @@
+--- /Users/numi/numi-v5-admission-artifacts-20261107/brain-factory-original.swift	2026-11-07 15:03:15
++++ /Users/numi/numi-brain-v5-synthetic-20261107/Sources/NumiBrainMetal/MetalNumiBrainFactory.swift	2026-11-07 15:03:15
+@@ -76,6 +76,7 @@
+     numanXUncertaintyGate: MetalNumanXUncertaintyGateConfiguration? = nil,
+     device: any MTLDevice
+   ) throws -> MetalNumiBrainRuntime {
++    fputs("brain-factory=identities\n",stderr)
+     let compiledSpeciesTemplate = configuration.compiledSpeciesTemplate
+     let species = compiledSpeciesTemplate.species
+     let regionalProgram = try species.regionalProgram()
+@@ -153,6 +154,7 @@
+         environmentIdentifier: configuration.schedulerEnvironmentIdentifier,
+         episodeIdentifier: UInt64(configuration.randomContext.episodeIdentifier))
+     }
++    fputs("brain-factory=cognitive\n",stderr)
+     let cognitive = if let numanXUncertaintyGate {
+       try MetalEmbodiedBrainRuntime(
+         device: device,
+@@ -177,6 +179,7 @@
+         affectiveModelConfiguration: configuration.affectiveModelConfiguration
+       )
+     }
++    fputs("brain-factory=fast-tissue\n",stderr)
+     let fastTissue = try MetalTissueRuntime(
+       initialState: configuration.initialTissueState,
+       parameters: configuration.tissueParameters,
+@@ -201,6 +204,7 @@
+       maxEncodedSubsteps: configuration.maximumEncodedSubsteps,
+       device: device
+     )
++    fputs("brain-factory=combine\n",stderr)
+     return try MetalNumiBrainRuntime(
+       cognitive: cognitive,
+       fastTissue: fastTissue
