@@ -130,7 +130,13 @@ if [ "$neurons_command" = "protocol" ] || [ "$neurons_command" = "qualify" ]; th
         done
         return 1
     }
-    : "${NUMI_NEURON_METALROBO_REVISION:=$(neurons_git_revision "$neurons_runtime_root")}"
+    neurons_revision=$(neurons_git_revision "$neurons_runtime_root" || true)
+    if [ -z "$neurons_revision" ] &&
+       [ "$neurons_probe" = "$neurons_runtime_root/bin/metalrobo_neuron_culture_probe" ] &&
+       [ -r "$neurons_runtime_root/share/numi/REVISION" ]; then
+        neurons_revision=$(sed -n '1p' "$neurons_runtime_root/share/numi/REVISION")
+    fi
+    : "${NUMI_NEURON_METALROBO_REVISION:=$neurons_revision}"
     neurons_brain_root=${NUMI_BRAIN_ROOT:-$(neurons_find_repo "$HOME/numi-brain" "$HOME/numi-brain-neuron-v1" || true)}
     neurons_numanx_root=${NUMANX_ROOT:-$(neurons_find_repo "$HOME/Numan-X" "$HOME/Numan-X-neuron-v1" || true)}
     if [ -n "$neurons_brain_root" ]; then
@@ -139,7 +145,14 @@ if [ "$neurons_command" = "protocol" ] || [ "$neurons_command" = "qualify" ]; th
     if [ -n "$neurons_numanx_root" ]; then
         : "${NUMI_NEURON_NUMANX_REVISION:=$(neurons_git_revision "$neurons_numanx_root")}"
     fi
-    neurons_metallib="$neurons_build/shaders/NumiNeuron.metallib"
+    neurons_metallib=${NUMI_NEURON_METALLIB:-}
+    if [ ! -f "$neurons_metallib" ]; then
+        if [ "$neurons_probe" = "$neurons_runtime_root/bin/metalrobo_neuron_culture_probe" ]; then
+            neurons_metallib="$neurons_runtime_root/lib/metalrobo/NumiNeuron.metallib"
+        else
+            neurons_metallib="$neurons_build/shaders/NumiNeuron.metallib"
+        fi
+    fi
     if [ -f "$neurons_metallib" ]; then
         : "${NUMI_NEURON_METALLIB_SHA256:=$(shasum -a 256 "$neurons_metallib" | awk '{print $1}')}"
     fi
