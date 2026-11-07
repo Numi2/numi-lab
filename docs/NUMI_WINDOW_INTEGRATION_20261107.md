@@ -82,3 +82,25 @@ external surface save/restore implementation in this checkpoint.
 Both directional CCD and the experimental augmented-Lagrangian contact law
 remain disabled by default. This checkpoint does not change their promotion
 status.
+
+## Synthetic custom-scene and bootstrap check
+
+The clean checkout does not contain the catalog compiler's G1 URDF, Franka
+meshes, or PX4 presentation mesh tree. The built-in catalog therefore reports
+each missing path before trying to build; an explicitly authored scene bypasses
+those optional inputs. The CPU bootstrap check uses stubbed build and rollout
+commands and only tests this shell contract. The PX4 mechanics source has an
+upstream revision and required-file hashes, but its presentation meshes are
+not covered by those hashes. No local matching G1 or Franka source was found.
+
+A bounded native M6 window check used a separately cooked, synthetic
+presentation-only tetrahedron attached to the G1 pelvis, sourced from the
+tracked probe mesh. It is not Unitree G1 presentation geometry. The native
+window initialized one G1 ground/velocity environment, exercised rejection of
+a nonexistent scene and restoration of the previous configuration, then
+closed successfully. Output, generator, fixture, and hashes are retained in
+the evidence directory. This is not saved simulation-state restoration,
+actual G1 visual qualification, training, or physical validation.
+
+An earlier attempt timed out after 45 seconds during the CPU-only Release
+rebuild, before native simulation. That full build log is retained separately.

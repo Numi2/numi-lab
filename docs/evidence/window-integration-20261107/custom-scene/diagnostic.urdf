@@ -1,0 +1,1 @@
+<robot name="diagnostic"><link name="pelvis"><visual><geometry><mesh filename="/Users/numi/numi-lab-release-integration-20261107/assets/probes/mesh_package/meshes/convex_tetra.stl" scale="0.12 0.12 0.12"/></geometry></visual></link></robot>

@@ -1639,6 +1639,9 @@ if(METALROBO_HAS_SWIFT)
         add_test(NAME metalrobo_numi_window_metadata
             COMMAND metalrobo_numi_window_check
                 "${CMAKE_CURRENT_SOURCE_DIR}/docs/evidence/window-integration-20261107/historical/native-policy-v5.pack")
+        add_test(NAME metalrobo_numi_window_bootstrap
+            COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_window_bootstrap_check.sh"
+                "${CMAKE_CURRENT_SOURCE_DIR}/.numi/commands/window")
     endif()
 
     add_executable(

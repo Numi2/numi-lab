@@ -118,15 +118,39 @@ if [ "${1:-}" = "--check" ]; then
     shift
 fi
 
+# An explicit visual scene is independently authored and does not need the
+# optional external meshes used by the built-in robot catalog.
+window_needs_builtins=1
+if [ -n "$window_scene" ] ||
+   window_has_option --window-scene "$@" ||
+   window_has_option --inspect-scene "$@" ||
+   window_has_option --visual-observation-config "$@"; then
+    window_needs_builtins=0
+fi
 window_builtin_catalog="$window_workspace/.numi/runs/numi-window-builtins"
 window_builtin_catalog_version=$(cat "$window_builtin_catalog/catalog.version" 2>/dev/null || true)
-if [ "$window_builtin_catalog_version" != "9" ] ||
+if [ "$window_needs_builtins" -eq 1 ] &&
+   { [ "$window_builtin_catalog_version" != "9" ] ||
    [ ! -f "$window_builtin_catalog/unitree-g1-ground-velocity.numi-window.json" ] ||
    [ ! -f "$window_builtin_catalog/numifly-ground-flight.numi-window.json" ] ||
    [ ! -f "$window_builtin_catalog/numifly-ground-forward-flight.numi-window.json" ] ||
    [ ! -f "$window_builtin_catalog/numifly-no-legs-ground-flight.numi-window.json" ] ||
    [ ! -f "$window_builtin_catalog/franka-pick-place.numi-window.json" ] ||
-   [ ! -f "$window_builtin_catalog/px4-x500-hover.numi-window.json" ]; then
+   [ ! -f "$window_builtin_catalog/px4-x500-hover.numi-window.json" ]; }; then
+    window_missing_assets=0
+    for window_required in \
+        "$window_workspace/build/unitree_ros/robots/g1_description/g1_29dof.urdf" \
+        "$window_workspace/build/franka_description/meshes/robots/fer/collision" \
+        "$window_workspace/.numi/runs/px4-x500-source/source/models/x500_base/meshes"; do
+        if [ ! -e "$window_required" ]; then
+            printf 'numi window: built-in catalog asset missing: %s\n' "$window_required" >&2
+            window_missing_assets=1
+        fi
+    done
+    if [ "$window_missing_assets" -ne 0 ]; then
+        printf '%s\n' "numi window: supply these source assets or use --window-scene PATH for an authored scene." >&2
+        exit 1
+    fi
     cmake -S "$window_workspace" -B "$window_build" \
         -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
     cmake --build "$window_build" \
