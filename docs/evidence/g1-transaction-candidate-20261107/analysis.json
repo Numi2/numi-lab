@@ -1,0 +1,121 @@
+{
+  "track_env_0": {
+    "changed_from_previous": 0,
+    "different_from_control": 4
+  },
+  "track_env_1": {
+    "changed_from_previous": 2,
+    "different_from_control": 0
+  },
+  "frameDepth_env_0": {
+    "changed_from_previous": 0,
+    "different_from_control": 0
+  },
+  "frameDepth_env_1": {
+    "changed_from_previous": 0,
+    "different_from_control": 0
+  },
+  "frameIdentity_env_0": {
+    "changed_from_previous": 0,
+    "different_from_control": 0
+  },
+  "frameIdentity_env_1": {
+    "changed_from_previous": 0,
+    "different_from_control": 0
+  },
+  "frameValidity_env_0": {
+    "changed_from_previous": 0,
+    "different_from_control": 0
+  },
+  "frameValidity_env_1": {
+    "changed_from_previous": 0,
+    "different_from_control": 0
+  },
+  "camera_env_0": {
+    "changed_from_previous": 0,
+    "different_from_control": 0
+  },
+  "camera_env_1": {
+    "changed_from_previous": 0,
+    "different_from_control": 0
+  },
+  "actor_history_env_0": {
+    "changed_from_previous": 0,
+    "different_from_control": 100
+  },
+  "actor_history_env_1": {
+    "changed_from_previous": 100,
+    "different_from_control": 0
+  },
+  "actor_output_env_0": {
+    "changed_from_previous_text": 0,
+    "different_from_control_text": 48
+  },
+  "actor_output_env_1": {
+    "changed_from_previous_text": 48,
+    "different_from_control_text": 0
+  },
+  "statuses": {
+    "control_1_0": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "control_1_1": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "control_2_0": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "control_2_1": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "control_3_0": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "control_3_1": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "failure_1_0": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "failure_1_1": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "failure_2_0": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "failure_2_1": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "failure_3_0": {
+      "status": "5",
+      "physics_error": "1",
+      "done": "1"
+    },
+    "failure_3_1": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    }
+  },
+  "instrumented_equals_no_frame_snapshot_text": true
+}
