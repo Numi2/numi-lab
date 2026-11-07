@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "/Users/numi/numi-lab-release-panel-relocated-20261108/bin/numi",
+    "train",
+    "--envs",
+    "16",
+    "--steps",
+    "24",
+    "--updates",
+    "400",
+    "--chunk",
+    "8",
+    "--update-epochs",
+    "2",
+    "--scene",
+    "ground",
+    "--task",
+    "g1-legs-locomotion",
+    "--seed",
+    "20261203",
+    "--learner-seed",
+    "20261213",
+    "--policy-pack",
+    "/Users/numi/numi-g1-training-200-20261108/seed-3/run/candidate.policypack",
+    "--learner-state",
+    "/Users/numi/numi-g1-training-200-20261108/seed-3/run/learner.safetensors",
+    "--output-learner-state",
+    "/Users/numi/numi-g1-resumed-20261108/run/learner.safetensors"
+  ],
+  "env": {
+    "NUMI_MLX_PYTHON": "/Users/numi/numi-window-integration-venv-20261107/bin/python",
+    "NUMI_RUN_DIR": "/Users/numi/numi-g1-resumed-20261108/run",
+    "NUMI_SELECTION_ENVS": "8",
+    "NUMI_SELECTION_SEED": "4081024",
+    "NUMI_WORKSPACE_ROOT": "/Users/numi/numi-g1-resumed-20261108"
+  }
+}

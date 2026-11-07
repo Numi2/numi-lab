@@ -1,0 +1,12 @@
+{
+  "/Users/numi/numi-lab-release-panel-relocated-20261108/bin/numi": "16cc292c2a1360091b043dd6ec04f191b33e23ba52f164c2862d9001b6e9a1c4",
+  "/Users/numi/numi-lab-release-panel-relocated-20261108/bin/metalrobo_task_train": "31b5db1788ee0b7099a0f96b9ef73f17fee81742c524a210afc2f9c767e4d85e",
+  "/Users/numi/numi-lab-release-panel-relocated-20261108/bin/metalrobo_task_rollout": "a8098dc3126be98fd108679f1755a2022f59b46be93ba7e1c404d5bfd74aae9f",
+  "/Users/numi/numi-lab-release-panel-relocated-20261108/lib/libmetalrobo.dylib": "7831d91e1e6af0e73a6ec64e829465ca4ba788a0be3ce8ea9757f4ee5db5cfbc",
+  "/Users/numi/numi-lab-release-panel-relocated-20261108/lib/metalrobo/MetalRobo.metallib": "55b021d249bc1bf3e40f94158556c93910d85d3611d4d7fc7ab4bda800d6b2f3",
+  "/Users/numi/numi-lab-release-panel-relocated-20261108/share/numi/REVISION": "286f793649adc37811ceb9c329121278fa681cb1e9fae9ffebcba6ab4e3680ec",
+  "/Users/numi/numi-lab-release-panel-relocated-20261108/share/numi/python/metalrobo/policy_selection.py": "8c51a7905711b8b61d2eed008505a4b99442b2e91d7a22edc8fef241682fcd8f",
+  "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/bin/python3.13": "c2d16fe8332897836229aff307d1d9cb32432d405fa889f342ffe1830b1608c5",
+  "/Users/numi/numi-g1-training-200-20261108/seed-3/run/candidate.policypack": "a24781c5696dc2f6b44f70bd81a903d9d695ff2957b7c9c62c88a342cff1ff61",
+  "/Users/numi/numi-g1-training-200-20261108/seed-3/run/learner.safetensors": "a2bee5e9c8b16fca1569a40f41b16969bcb9a10ac8d431d7cb79537ef8715f0f"
+}
