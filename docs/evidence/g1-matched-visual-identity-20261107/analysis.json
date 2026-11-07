@@ -1,0 +1,346 @@
+{
+  "control_1_0": {
+    "target_confidence": 1.0,
+    "target_pixels": [
+      55,
+      56,
+      71,
+      72
+    ],
+    "target_track": [
+      0.0780678316950798,
+      -0.025193164125084877,
+      1.205627202987671,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "control_1_1": {
+    "target_confidence": 1.0,
+    "target_pixels": [
+      55,
+      56,
+      57,
+      72,
+      88
+    ],
+    "target_track": [
+      0.10405363887548447,
+      -0.02044891007244587,
+      1.2136270999908447,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "control_2_0": {
+    "target_confidence": 1.0,
+    "target_pixels": [
+      55,
+      56,
+      71,
+      72
+    ],
+    "target_track": [
+      0.0780678316950798,
+      -0.025193164125084877,
+      1.2080796957015991,
+      1.0,
+      0.0,
+      0.0,
+      0.12262463569641113,
+      0.0
+    ]
+  },
+  "control_2_1": {
+    "target_confidence": 1.0,
+    "target_pixels": [
+      55,
+      56,
+      57,
+      72,
+      88
+    ],
+    "target_track": [
+      0.10405363887548447,
+      -0.02044891007244587,
+      1.216079592704773,
+      1.0,
+      0.0,
+      0.0,
+      0.12262463569641113,
+      0.0
+    ]
+  },
+  "control_3_0": {
+    "target_confidence": 1.0,
+    "target_pixels": [
+      55,
+      56,
+      71,
+      72
+    ],
+    "target_track": [
+      0.0780678316950798,
+      -0.025193165987730026,
+      1.2144562005996704,
+      1.0,
+      0.0,
+      -9.313225746154785e-08,
+      0.31882524490356445,
+      0.0
+    ]
+  },
+  "control_3_1": {
+    "target_confidence": 1.0,
+    "target_pixels": [
+      55,
+      56,
+      57,
+      72,
+      88
+    ],
+    "target_track": [
+      0.10405363887548447,
+      -0.02044891007244587,
+      1.2224560976028442,
+      1.0,
+      0.0,
+      0.0,
+      0.31882524490356445,
+      0.0
+    ]
+  },
+  "failure_1_0": {
+    "target_confidence": 1.0,
+    "target_pixels": [
+      55,
+      56,
+      71,
+      72
+    ],
+    "target_track": [
+      0.0780678316950798,
+      -0.025193164125084877,
+      1.205627202987671,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "failure_1_1": {
+    "target_confidence": 1.0,
+    "target_pixels": [
+      55,
+      56,
+      57,
+      72,
+      88
+    ],
+    "target_track": [
+      0.10405363887548447,
+      -0.02044891007244587,
+      1.2136270999908447,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "failure_2_0": {
+    "target_confidence": 1.0,
+    "target_pixels": [
+      55,
+      56,
+      71,
+      72
+    ],
+    "target_track": [
+      0.0780678316950798,
+      -0.025193164125084877,
+      1.2080796957015991,
+      1.0,
+      0.0,
+      0.0,
+      0.12262463569641113,
+      0.0
+    ]
+  },
+  "failure_2_1": {
+    "target_confidence": 1.0,
+    "target_pixels": [
+      55,
+      56,
+      57,
+      72,
+      88
+    ],
+    "target_track": [
+      0.10405363887548447,
+      -0.02044891007244587,
+      1.216079592704773,
+      1.0,
+      0.0,
+      0.0,
+      0.12262463569641113,
+      0.0
+    ]
+  },
+  "failure_3_0": {
+    "target_confidence": 1.0,
+    "target_pixels": [
+      55,
+      56,
+      71,
+      72
+    ],
+    "target_track": [
+      0.0780678316950798,
+      -0.025193165987730026,
+      1.2144562005996704,
+      1.0,
+      0.0,
+      -9.313225746154785e-08,
+      0.31882524490356445,
+      0.0
+    ]
+  },
+  "failure_3_1": {
+    "target_confidence": 1.0,
+    "target_pixels": [
+      55,
+      56,
+      57,
+      72,
+      88
+    ],
+    "target_track": [
+      0.10405363887548447,
+      -0.02044891007244587,
+      1.2224560976028442,
+      1.0,
+      0.0,
+      0.0,
+      0.31882524490356445,
+      0.0
+    ]
+  },
+  "failure_env_0_changes": [
+    {
+      "index_within_env": 41,
+      "before_bits": 3167642085,
+      "after_bits": 3167642086,
+      "before": -0.025193164125084877,
+      "after": -0.025193165987730026
+    },
+    {
+      "index_within_env": 42,
+      "before_bits": 1067098715,
+      "after_bits": 1067152205,
+      "before": 1.2080796957015991,
+      "after": 1.2144562005996704
+    },
+    {
+      "index_within_env": 45,
+      "before_bits": 0,
+      "after_bits": 3016228864,
+      "before": 0.0,
+      "after": -9.313225746154785e-08
+    },
+    {
+      "index_within_env": 46,
+      "before_bits": 1039868576,
+      "after_bits": 1050885392,
+      "before": 0.12262463569641113,
+      "after": 0.31882524490356445
+    }
+  ],
+  "failure_env_1_changes": [
+    {
+      "index_within_env": 42,
+      "before_bits": 1067165823,
+      "after_bits": 1067219313,
+      "before": 1.216079592704773,
+      "after": 1.2224560976028442
+    },
+    {
+      "index_within_env": 46,
+      "before_bits": 1039868576,
+      "after_bits": 1050885392,
+      "before": 0.12262463569641113,
+      "after": 0.31882524490356445
+    }
+  ],
+  "status": {
+    "control_1_0": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "control_1_1": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "control_2_0": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "control_2_1": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "control_3_0": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "control_3_1": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "failure_1_0": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "failure_1_1": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "failure_2_0": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "failure_2_1": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    },
+    "failure_3_0": {
+      "status": "5",
+      "physics_error": "1",
+      "done": "1"
+    },
+    "failure_3_1": {
+      "status": "0",
+      "physics_error": "0",
+      "done": "0"
+    }
+  },
+  "unaffected_step3_actor_mismatch": [],
+  "instrumented_equals_unobserved_text": true
+}
