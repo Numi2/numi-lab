@@ -1,0 +1,2 @@
+world=4427503722701272825 task=2572120168047819053 observation=7427500870108929417 action=7598392862982026634 actor_count=1210
+fixture failure: advance error: task-rollout publication failed [invalid_dimensions]: device observation program requires a complete callback, native task, and native policy
