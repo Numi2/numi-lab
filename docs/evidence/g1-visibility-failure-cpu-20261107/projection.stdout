@@ -1,0 +1,4 @@
+target_z 3.5 env 0 intersecting_pixel_rays []
+target_z 3.5 env 1 intersecting_pixel_rays []
+target_z 2.0 env 0 intersecting_pixel_rays [(7, 3), (8, 3), (7, 4), (8, 4)]
+target_z 2.0 env 1 intersecting_pixel_rays [(7, 3), (8, 3), (9, 3), (8, 4), (8, 5)]
