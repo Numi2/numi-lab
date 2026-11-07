@@ -647,3 +647,13 @@ post-dynamics transaction encoding was rejected, with runtime status 8/stage
 918 and process exit 1. The unrelated TaskProgram object differs from the
 original link, as already recorded. The new result is a partial integration
 observation, not an accepted physical step, publication or force qualification.
+
+A further separately linked post-dynamics reason diagnostic ran at
+23:31:50–23:31:51 UTC with exit 1, using dylib SHA-256
+`c56a8bcf5dc03f8d2aaa087638a99438beda344c154b5b93255b6209455f42b2`
+and 32-input manifest SHA-256
+`ac42facad64daa4fb9df8604ae3af78f08a170007011c514d1fbff0f2deeb303`.
+Input checks passed. HumanIO reported status 15: its supplemental encoder
+rejected the post-dynamics transaction pass. The callback-specific predicate
+was not printed. This build uses the recorded changed TaskProgram object;
+no physical step or publication was accepted.

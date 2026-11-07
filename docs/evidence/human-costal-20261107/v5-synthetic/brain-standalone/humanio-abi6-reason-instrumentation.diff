@@ -1,0 +1,18 @@
+--- src/metal/MetalNumanXHumanIO.mm	2026-11-07 15:30:20
++++ /Users/numi/numi-v5-admission-artifacts-20261107/MetalNumanXHumanIO-abi6-reason.mm	2026-11-07 15:31:33
+@@ -1,3 +1,5 @@
++#include <cstdio>
++#include <cstdlib>
+ #include "HumanHostPhaseTrace.hpp"
+ #import <Foundation/Foundation.h>
+ #import <Metal/Metal.h>
+@@ -286,6 +288,9 @@
+     const MetalNumanXHumanIOStatus status,
+     std::string message
+ ) {
++    if (std::getenv("MRNX_PHYSICAL_DIAGNOSTICS") != nullptr) {
++        std::fprintf(stderr, "human_io_failure status=%u reason=%s\n", static_cast<unsigned>(status), message.c_str());
++    }
+     state.lastStatus = status;
+     state.lastMessage = std::move(message);
+ }
