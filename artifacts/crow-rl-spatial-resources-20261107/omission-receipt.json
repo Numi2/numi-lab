@@ -1,0 +1,415 @@
+{
+  "commit": "4ddeab1220c05ba89ac05ad2211ab25e54de143e",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 297529304 159819836    66% 3496242 1598198360    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 297539340 159809800    66% 3496323 1598098000    0%   /System/Volumes/Data\n",
+  "omitted_files": [
+    {
+      "bytes": 17262,
+      "git_blob": "267a1db5f93a553e96b9131cf8d78bd8427f897d",
+      "path": "artifacts/crow-rl-recurrent-capacity-20261107/omission-receipt.json"
+    },
+    {
+      "bytes": 12,
+      "git_blob": "57cdc50305d07f35133f80962644debd6b846bf3",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/.gitattributes"
+    },
+    {
+      "bytes": 1573,
+      "git_blob": "59156a6d8380a6f82e7fe637a9638d59c8dc44dd",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/057c0ecab75f997cf288b1c38bbba152eb23d5fbdf334de635417df6bd1817f8.gz"
+    },
+    {
+      "bytes": 962,
+      "git_blob": "f2c96a0061e975725f230bf9436de55c0092f057",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/05f395ceff99f77f1d444e4fbcb1d25431cbd334193ec8359920a8f461381a78.gz"
+    },
+    {
+      "bytes": 49653,
+      "git_blob": "5c9456ed40c542aafba9e23c89580bf860e4dc7c",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/075173c067377c29310d7cdf33ddd8f68ac9baa7d33be42849f9777c1bec4133.gz"
+    },
+    {
+      "bytes": 11808,
+      "git_blob": "19d8e568f13725aaa353e6abd27d7a62e038de60",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/0905c8321691ec475573d26b2717289325755bfeaaca5c0340b49d541ea97b12.gz"
+    },
+    {
+      "bytes": 143,
+      "git_blob": "bdb2761840b59febd1d7c36c80cfee6bc4340287",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/0ca27f87614a470fc687299f7825d068c081c9f2424cc1da1bd08f86df1e4c95.gz"
+    },
+    {
+      "bytes": 53090,
+      "git_blob": "dad8ed2e890765d29c1ceefd4d08d09ea38a5be0",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/1374ab156a9b1efcf27dce6a4c35a314d964f67683c62bd55233ab13fa3952d9.gz"
+    },
+    {
+      "bytes": 379,
+      "git_blob": "442f8cd24d76b82952b5d8c6259b206dbd5845db",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/144487b39610cd56027e3dcd25398ea10f16089cdefc799b62e9963754289ea1.gz"
+    },
+    {
+      "bytes": 126,
+      "git_blob": "889f7f1917bbc04f9f60aeda8ed42ed0d888072e",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/18779f5247b00003c4f6c5dd8f2c6d87b8248d89140a5ac3dd57fefdb072f2f6.gz"
+    },
+    {
+      "bytes": 1663,
+      "git_blob": "71d6956641fb63f7fcab17048946a28a17f20f54",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/1f0a981acd392d94f713f44dc3fa343efa9ca484ad2cfe3c192ad5b4c675bdf1.gz"
+    },
+    {
+      "bytes": 10204,
+      "git_blob": "e6d5f2c7b7ef1e97af50dbd2283d651268051a21",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/1f182b9716a7329dbbd3aa8949897240aa3785c58de3892ea13dcc3d67707f6e.gz"
+    },
+    {
+      "bytes": 206,
+      "git_blob": "19a52049fac67334a129ad38ee77dc96eb2b2848",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/2676c894da3d19bab76f389f1c2255d481ce8f288d6228fc0d1b7b015a4f7e5d.gz"
+    },
+    {
+      "bytes": 339,
+      "git_blob": "6996d140b9176a19ea4873a72e71851694b78f52",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/3a1483be052965b01c7e4afa8c90ebe89f3d2e037222195e47a5015bf3e62651.gz"
+    },
+    {
+      "bytes": 1188,
+      "git_blob": "bc88fcc420bdc00f8dbc3c5a050bd7deaf5c6fae",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/3fbdb6d372f15ed0f61ce1697372335ad7071be1eb3d09ddaffc22bf4cfee9fc.gz"
+    },
+    {
+      "bytes": 692,
+      "git_blob": "e752c2097033796e067cf1cc92a323d18ffd0b68",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/4677b664dcd9d7082455f99a16e7269057375f2efaf6d1c71b1a359843868f44.gz"
+    },
+    {
+      "bytes": 51,
+      "git_blob": "83a4101c373aa97bf413bd4a666a6cdf1e2bb508",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/4b911652191037d9b9f9d5d316c07e1db212ff3f1eb7fc17e4a49cea51c8ea7a.gz"
+    },
+    {
+      "bytes": 55,
+      "git_blob": "bc6105642d851f7abb1c3f49dcccee8549d72d4d",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/4e7fcf18f4ccca54040c4a616203552433da3f6afe2bb4853093ea9d8fe404fb.gz"
+    },
+    {
+      "bytes": 1488,
+      "git_blob": "0639506d8d045de18bbcfe9d569c2821e57665a4",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/5257b7bf0ace51a49221cb1c9c41470344b7b2d3e9870472e427db6967e1f003.gz"
+    },
+    {
+      "bytes": 129,
+      "git_blob": "01bf9c81849f30c1231c47a9fd771253367c6c3d",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/543d4ddc438f5751d2cade9f9b9a80ce1fc9fafe399475ef3093009ea8702583.gz"
+    },
+    {
+      "bytes": 749,
+      "git_blob": "68ab00976acbbebfee5b963574410735e29725fb",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/56ef7dae099900bc4858dc9d3a37f789c188dff90f7e1383d9d231d71324c9df.gz"
+    },
+    {
+      "bytes": 1456,
+      "git_blob": "2a682da83300a3f16c1f08fc3d8a9c7b38bae39a",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/5d60718d55afbb3f2ad0c888dbc7c7d3979a91c9b4c37d9af590be31c7cf3185.gz"
+    },
+    {
+      "bytes": 2796,
+      "git_blob": "b742c333c058e7533cf33dd6d9bd9d163a1a0b35",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/620c43b89a318869f9a83b9f0c5304af3ca0092cc5cfaf32035deb607fe46e77.gz"
+    },
+    {
+      "bytes": 125,
+      "git_blob": "3f6979663efa1e65495d9a233ec9517c45030588",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/63640e9799a4090955e0d06f9b6ec8413cb97a003530224afe3ab7248ff56fd8.gz"
+    },
+    {
+      "bytes": 582,
+      "git_blob": "d7afd8bedd1eec9fc950fd7e75a1967d1054b75a",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/65506bc8a84b55a5c2815434e05abba6319f83b3815a3fff1bc3ccaf66cc860a.gz"
+    },
+    {
+      "bytes": 125,
+      "git_blob": "cb8e7f6802cf19f2e04c04e3541e5bc37c60aef5",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/655f8cd493d613320f7fd9d386c23653fcf1139a7cbb5bf648827dc44ec794d7.gz"
+    },
+    {
+      "bytes": 2464,
+      "git_blob": "4bc554f23c21a2efbc6345e19904cb72cc7a1cd3",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/701a3554ed3a7a859d3b15c7252a3efd640d8ee23787d73a4c3d2518744732b9.gz"
+    },
+    {
+      "bytes": 115,
+      "git_blob": "29218c3e97e11d2866b2aba8a18209d306335307",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/71359c6b276e474613b515c3d3ca4a8956137aedf0ba909f26eef57f03e4c86d.gz"
+    },
+    {
+      "bytes": 2420679,
+      "git_blob": "41c2739416a9a37c0cce3b6d074c5a27fb4895b2",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/80ff9d91335eaadf017addaa420e7931a8e30ded30644fd5c0692bd378d253e3.gz"
+    },
+    {
+      "bytes": 30564,
+      "git_blob": "a08d9b9f13c825b128d5c82a01ada78037d34c75",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/8345d8ba989199881f6ae5734f786ca57b4e74bfd27e3824ac58dca910ec75b4.gz"
+    },
+    {
+      "bytes": 2479,
+      "git_blob": "02f303a1575d165d89fd234e13a9e19d32f2b90b",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/8723787ed952c40f770c5c3180de9af40275c10651e75dfcce2fd81f96125439.gz"
+    },
+    {
+      "bytes": 379,
+      "git_blob": "92c35410c36b2cbf654253de72cfcc7afb816f5a",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/886463812836aadde3358baddcb72981247c37661d5662cf8f7e3f0ade26f261.gz"
+    },
+    {
+      "bytes": 2420658,
+      "git_blob": "63e1231a3858d051dcbb188c0db06eb9fd09490b",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/92ca4fd8c06f34b7abc36c9a21c08a7f6bb4e5b11faa4ec2a181adb195aaaf78.gz"
+    },
+    {
+      "bytes": 2307555,
+      "git_blob": "2fd080574adffbbc621644fa47e983b5223c1599",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/954f1f2970c2c9eb01c3f41e65b945b8ff9688f03417f56ba2499dd0f195b57a.gz"
+    },
+    {
+      "bytes": 223,
+      "git_blob": "751d79bf22167601c7755e38931ad54d85383dbd",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/9583d4bab61522d6d982ae9eeb779a8c262e2049fcd76e862cfa4e2c811471d4.gz"
+    },
+    {
+      "bytes": 10443,
+      "git_blob": "99e40aafbd3476da2d613ef44e81aa387ac4d80b",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/9b1a6ff0ec2cb0b118ed06d4eccf59983a8adaf21728a8baa72283ea4892c872.gz"
+    },
+    {
+      "bytes": 20411,
+      "git_blob": "45f095d99c3d77530551866b3e29064203286017",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/9d741ea6fbd04532e3945ef013bfed0a25c731916b4e50b2e22b095dd9f6ca90.gz"
+    },
+    {
+      "bytes": 401,
+      "git_blob": "8518e75a5bbabd4304441d784306284079deabc6",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/9f4b063c406de856a74b96a807ff4b247a1284fa66bfd63813a3017659bf42f0.gz"
+    },
+    {
+      "bytes": 1420,
+      "git_blob": "b4c24bf43fcf62c3e0d51ed201baaf0537075ea3",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/a1aa718b0afa2a4394d7738c6e26c1074f72df3347cd9ab8aca5bf7734d10708.gz"
+    },
+    {
+      "bytes": 379,
+      "git_blob": "931b4b095970731c2323c90d82e6ace76928a674",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/a29f7bb9a3fac152a4653cd85b0371525bcb3d68fa43f3a4b8a57f1f2893787f.gz"
+    },
+    {
+      "bytes": 411,
+      "git_blob": "81450573e5ada381b0be1b29ba2bd9c6f0773b93",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/a943a32d04dfd0ab71b58394c270deb055754ad485411008f95cd028d3de10e2.gz"
+    },
+    {
+      "bytes": 160,
+      "git_blob": "879dc2538c89dcf6d064861d12af280e979be523",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/aad4110a0913c55a4cd8b0479b88b2b33603fa60baa963316c75be48f0c5460e.gz"
+    },
+    {
+      "bytes": 10516,
+      "git_blob": "85cd7b9356dde482bb77874ab7dc741c147671e6",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/b159fbb2611441d39039fbce3e587bfe830179912e82edf921afc07639b5f112.gz"
+    },
+    {
+      "bytes": 1292,
+      "git_blob": "541f4d2b967180f98d03009fdb2e43aede26cb91",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/b2422547389481cdec53afa638fb212043e079d561eb1744639fd93182cb0611.gz"
+    },
+    {
+      "bytes": 2307123,
+      "git_blob": "dcec77506ba70cb12e7dc4b2c81093bb841b4294",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/b61f33d8722d0d22ec0823cc5171c718355f2dacce00cb832c9724a1021371ff.gz"
+    },
+    {
+      "bytes": 1473,
+      "git_blob": "6f0606103f0c400b6ce5141e20e8bbac52786fd1",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/b73e2d19e8038dcaba56814b8514ff67c3af7ff32174f69a5710e6e13734c43f.gz"
+    },
+    {
+      "bytes": 1666,
+      "git_blob": "2427f6757102f178f889fd3efc3b4c19ae8fe4fc",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/b7cca79222d9c0c5be8d59e829aa6088a1de349adf9aaa340f19f2e41e1ea6b4.gz"
+    },
+    {
+      "bytes": 23630,
+      "git_blob": "fa685720295bae0801cc6ec451508853fb80ae15",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/badfceb839211e788acf9b9750ff5d9734b404e95c0e5a389069af10dd970486.gz"
+    },
+    {
+      "bytes": 68,
+      "git_blob": "8900d9560d76ebb36175255ffb357af1025e643b",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/bb86053e95b9b999bd455518a37ff39242d7fa6f2b98a4029414fa1ee47de6db.gz"
+    },
+    {
+      "bytes": 47459,
+      "git_blob": "cfee098ea4a973f3ebd9721c5f80423db6609a63",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/bed75b5c0d3e25f9936dc664b21b5294a0dd65bb6a6d33bca02a6688a608382e.gz"
+    },
+    {
+      "bytes": 914,
+      "git_blob": "4468e858e29e4c3c9b4b6cc0677273d8790e39f6",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/bf45ad3f15a61650f696e4eb2abbcca1667fb6fcf1a93b953c77a95bf1b64355.gz"
+    },
+    {
+      "bytes": 80,
+      "git_blob": "9807dacdf00ba0fa6ca9ffee08030df91c01b9ce",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/c471bf38ea24cfb6b4d504515da618fecc9ef3e1601ba7a7b91003e4c6a5647a.gz"
+    },
+    {
+      "bytes": 2389,
+      "git_blob": "3092bb5e588700394c1ca3ff134f0c9c5f08ce7a",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/c5b41a4ef47f9bf6d8ecd2fa00220003d8b4d7c20dee6f791e9d4b5dbb6c92d7.gz"
+    },
+    {
+      "bytes": 54765,
+      "git_blob": "81050bf0c0412f83b2915098447443d47cfa035a",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/c8d0d86746eac5c55039f5493faadd4bec313506e5bf9d55da61aa542fd8f7dc.gz"
+    },
+    {
+      "bytes": 380,
+      "git_blob": "2a389cdc3a247ccf4bd1048b7fe2b5169fdaf69e",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/cdfbc2d11176db1815951c03df7d5ba89302e1c88a14a825c2e0b52fe1ded965.gz"
+    },
+    {
+      "bytes": 7726,
+      "git_blob": "d62b7762fd03d23425fe7d0e8b7dcbdd57287f40",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/cdfe67fdacd7f9bd92ccfc3030c52ff96b420fc89a1ae64e12ed75edf37d1e28.gz"
+    },
+    {
+      "bytes": 54989,
+      "git_blob": "03a3ad914b93d804abcea074bed52a1fdd212fec",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/d52c54d072d8ec7db260cf2c30f7118d655262fc0e9baa172cfea91132a2073e.gz"
+    },
+    {
+      "bytes": 1032,
+      "git_blob": "5b62d6e794fc2aacb8d9d093ffda59806224a42b",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/d66cfe36a833d3ef1c554942e5f439c7a686515b5d303e3c4ca1fc1f37fe5cff.gz"
+    },
+    {
+      "bytes": 50891,
+      "git_blob": "125f655a5fc77ab2874bae19df63ab6de2cf9f13",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/d74e5bfdcafe7a3240a690eee9d58b17d8cc88db2d6c0fde536b34bf6953166e.gz"
+    },
+    {
+      "bytes": 184,
+      "git_blob": "b16fe4776499af98e95053ad679eff9a046d6503",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/dfc4fd399da3b4d75d21a9a9d2fbc91eba8ea0c6a376d9178a63788c1985c3f2.gz"
+    },
+    {
+      "bytes": 2818,
+      "git_blob": "f96c53c5a71b902757fa55881b9fcf9481b6321b",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/e1bfe469e7d00ba7687c55748171c1a835a2c0f15d0448ec36b48e69cdd7ff3d.gz"
+    },
+    {
+      "bytes": 368,
+      "git_blob": "1eabc3e02a88c9f89f498677eb6b1a927be5c70a",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/e1e0b10cb48c281a1c6d1c6e39258aa66ce706c58da0a360af1709cff990de8f.gz"
+    },
+    {
+      "bytes": 314,
+      "git_blob": "238c4f1a21ec7707a5cf63d2c6da5bb9cd41ac27",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/e2dfaf8d8683a8b734b4642500bc0aa5fd6d2b4099bcb9fbb6ebf2990adf9967.gz"
+    },
+    {
+      "bytes": 23631,
+      "git_blob": "f5b46bc17cfc34e24ecf3e729075026876ff0160",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/e642a54e8e8583b2c7106d84dcb274813acda1f07290da0a332831e051791d96.gz"
+    },
+    {
+      "bytes": 733,
+      "git_blob": "28f5e11c279cf618d132a2de3691a8f97744f844",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/e82af7128a8db14beb5edf844666f748f4a91256a0503965f420ad9bee5bdb24.gz"
+    },
+    {
+      "bytes": 1391,
+      "git_blob": "02e6ead9e579542733cac4b4a54c25e571d3f004",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/e87e9b9b656811d0ad59e2e4c718338e578c22d8d1586d47685cdf9e1f107f27.gz"
+    },
+    {
+      "bytes": 133,
+      "git_blob": "d7f9778d56c73c03f20e194f84d2bd270734b684",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/e8dc6a46b487222523fb08263c607d405bbf3a87778c58b931f79fafa9ca5cf5.gz"
+    },
+    {
+      "bytes": 933,
+      "git_blob": "34cd1b9fa6e5cb556aef1125e71e9e4d93993f5b",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/ea4e16c4a75b4d9266598b748d21acbbdf4ad7b4973c59b283904021e87246f5.gz"
+    },
+    {
+      "bytes": 2815,
+      "git_blob": "efef4e5e819c39396f6a46e21b3beb66b76a7463",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/edc4077841ad653456501fbf0568777be41458177df1d731076dc38cb40cfbb8.gz"
+    },
+    {
+      "bytes": 4856,
+      "git_blob": "e744cc5d2ca913b544328167ee43f9c29071039e",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/ef5ecc5b92910fb4e0ce5e6b12712c3bbb38aa4d59d6b8c7ab42ed145bd6fded.gz"
+    },
+    {
+      "bytes": 30555,
+      "git_blob": "de49d1b97be02c9ad16f9f8012dbf91e1f5ca48d",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/f1bf928ba0856c8aa8c2f2017ab7a7230891c3ff617b5c5661e5701a6812d76e.gz"
+    },
+    {
+      "bytes": 594,
+      "git_blob": "f21e7193457591ffbaf4d546e27226811f3be227",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/f41617a96a1d8d38b2c42789f43a453cb4da7034096d65acdb1ca39f928e3775.gz"
+    },
+    {
+      "bytes": 557,
+      "git_blob": "25d51a03904c4e5d9531c488ceb8ee471333b2b4",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/f52095cd1a051ef1813d980b278eddcee35034b4eaae926693c2ecb306a529e5.gz"
+    },
+    {
+      "bytes": 126,
+      "git_blob": "f203194d0b474e61a6c71025b2a296c508371f43",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/fa868fb1484110bc51a18c772a3f63cbce9183d35052690321a6545617a7d2af.gz"
+    },
+    {
+      "bytes": 682,
+      "git_blob": "1db24b68717b94600d99eec59864dc48c294ba3e",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/fab2a91175b1a8ebe17d1ddf55c3d5e43998912fd8b0adf60587ab08b0636e77.gz"
+    },
+    {
+      "bytes": 11308,
+      "git_blob": "b2da35b1bc68793ef5ba3229cf906b612cfeac5a",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/blobs/ff2d55ec049c0260fab841fdc3d29526cd19d664f67777ef971b8772f37dd4a4.gz"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/recovery.stderr"
+    },
+    {
+      "bytes": 644,
+      "git_blob": "769520dbd47aee703b462d99065f7f79c9e1190a",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/recovery.stdout"
+    },
+    {
+      "bytes": 486,
+      "git_blob": "c638779de4d90e3756676443a998157b60b56085",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/verification-plan.json"
+    },
+    {
+      "bytes": 4224,
+      "git_blob": "c33508dfef94f114f986ce680ee1a09a2a4ee859",
+      "path": "artifacts/crow-rl-spatial-resources-20261107/verify_recovery.py"
+    }
+  ],
+  "omitted_logical_bytes": 10029342,
+  "open_handles": 0,
+  "preserved_input_prefixes": [
+    "artifacts/crow-rl-feeding-behavior-20261107/policies/",
+    "artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib",
+    "artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib"
+  ],
+  "remote_commit": "4ddeab1220c05ba89ac05ad2211ab25e54de143e"
+}
