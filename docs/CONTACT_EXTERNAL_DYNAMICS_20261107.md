@@ -26,3 +26,26 @@ thresholds. A passing comparison verifies this coarse-mesh numerical
 implementation only; no claim of mesh convergence follows. Preserve failures
 and all raw traces. Limit each run to 240 seconds and stop on a failed
 execution. Disable BLAS threading to bound contention. No GPU.
+
+## Result
+
+Both 10 ms runs completed: coarse 13.8 s and fine 19.5 s. Coarse versus
+fine maximum binned-force and integrated-impulse differences were 8.09e-7
+and 5.40e-8, respectively. Fine external DOP853 versus retained 0.5 µs RK4
+differences were 7.59e-9 and 3.68e-10. Both meet the declared 0.25% gates.
+Minimum sampled gap was 87.109 µm; the ODE evaluator also rejects nonpositive
+gaps at its stage evaluations. Maximum momentum imbalance was 2.14e-15 of
+total impulse. Fine contact work was -4.564e-10 J; this is reported as a
+discrete-work diagnostic, not by itself an energy verdict.
+
+The SciPy integrator and scikit-fem assembly are independent of the C++
+reference's assembly and RK4 stepping, although both intentionally represent
+the same P1 geometry and nodal contact law. This is numerical agreement on
+n=2 only. The earlier n=16→32 force and impulse differences still exceed
+their 0.25% spatial gates, and neither physical validation nor spatial
+qualification follows.
+
+[Evidence](evidence/contact-external-dynamics-20261107/) retains the exact
+input and source hashes, package versions, raw traces, work and comparison.
+The package versions are captured in the preceding
+[assembly study](evidence/contact-external-assembly-20261107/manifest.json).
