@@ -46,3 +46,13 @@ if(BUILD_TESTING)
   "$<TARGET_FILE:metalrobo_ccd_kinematic_rollback_probe>" "${METALROBO_METALLIB}")
  set_tests_properties(metalrobo.ccd.kinematic_rollback PROPERTIES TIMEOUT 180)
 endif()
+
+# Retained discrete geometry fixture used to compare the clean production owner.
+add_executable(metalrobo_ccd_geometry_probe "${NUMI_WORLD_ROOT}/apps/ccd_geometry_probe.cpp")
+target_link_libraries(metalrobo_ccd_geometry_probe PRIVATE numi_ccd_world_owner)
+target_link_options(metalrobo_ccd_geometry_probe PRIVATE -Wl,-dead_strip)
+add_dependencies(metalrobo_ccd_geometry_probe metalrobo_shaders)
+add_executable(metalrobo_ccd_friction_dissipation_probe "${NUMI_WORLD_ROOT}/apps/ccd_friction_dissipation_probe.cpp")
+target_link_libraries(metalrobo_ccd_friction_dissipation_probe PRIVATE numi_ccd_world_owner)
+target_link_options(metalrobo_ccd_friction_dissipation_probe PRIVATE -Wl,-dead_strip)
+add_dependencies(metalrobo_ccd_friction_dissipation_probe metalrobo_shaders)

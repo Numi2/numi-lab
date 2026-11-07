@@ -8607,12 +8607,19 @@ inline void mrWorldWave32SolvePacket(
                 dot(preconditioner.row1.xyz, rhs),
                 dot(preconditioner.row2.xyz, rhs)
             );
-            proposed = projectFrictionCone(
-                proposed,
-                evaluatedCones[
-                    constraintBase + localConstraint
-                ]
-            );
+            // With zero normal impulse and no normal demand, the Coulomb
+            // cone has no tangential capacity. The full-block predictor can
+            // otherwise turn pure slip into a spurious normal force.
+            if (previous.x == 0.0f && rhs.x <= 0.0f) {
+                proposed = float3(0.0f);
+            } else {
+                proposed = projectFrictionCone(
+                    proposed,
+                    evaluatedCones[
+                        constraintBase + localConstraint
+                    ]
+                );
+            }
             if (localFailure != MR_STEP_SUCCESS) {
                 impulseDeltas[
                     constraintBase + localConstraint
