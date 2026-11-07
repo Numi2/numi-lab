@@ -2387,6 +2387,9 @@ private enum TaskTrainMain {
                     "samples", "mean_reward", "minimum_reward", "maximum_reward",
                     "done_count", "timeout_count", "outcomes", "learning_rate",
                     "mean_action_standard_deviation", "mlx_peak_memory_bytes",
+                    "kl_divergence", "approximate_kl", "clip_fraction",
+                    "actor_gradient_norm", "critic_gradient_norm", "gradient_norm",
+                    "minibatch_updates", "update_seconds",
                 ]
                 learningUpdateHistory.append(lastLearning.filter {
                     historyKeys.contains($0.key)
