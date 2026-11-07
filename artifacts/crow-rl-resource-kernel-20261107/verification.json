@@ -1,0 +1,1378 @@
+{
+  "status": "passed",
+  "archive_commit": "ab315d72039d21e49a9f3c750eaa6f271ad7a754",
+  "plan": {
+    "prediction": "One Git-restored native foraging executable runs its full fixed admission from a fresh process. Every reference file must match byte for byte except summary wall_seconds, which must be finite/positive; all other summary fields match. Require the actual dyld library path to equal the restored adjacent library, with no DYLD_LIBRARY_PATH override. Same hardware/OS/dependencies; no behavior or generalization claim.",
+    "budget": "One180second native replay; abort any mismatch, preserve failure. Verify all temporary file identities and open handles before exact-path cleanup."
+  },
+  "command": [
+    "/private/tmp/crow-resource-kernel-git-recovery-20261107/bin/metalrobo_crow_foraging_check",
+    "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay"
+  ],
+  "all_manifest_files_verified": 222,
+  "actual_loaded_library_lines": [
+    "dyld[28633]: <31A33E79-4C7A-333E-9FC2-46C7B10397C9> /private/tmp/crow-resource-kernel-git-recovery-20261107/lib/libmetalrobo.dylib"
+  ],
+  "library_override": false,
+  "runtime_restoration": {
+    "archive_commit": "ab315d72039d21e49a9f3c750eaa6f271ad7a754",
+    "files": [
+      {
+        "bytes": 171184,
+        "mode": 493,
+        "path": "bin/metalrobo_crow_foraging_check",
+        "sha256": "07c4523be256761414f684578859529c49ff7aa7042062d5ae81b323ecba608e"
+      },
+      {
+        "bytes": 163832,
+        "mode": 493,
+        "path": "bin/metalrobo_crow_recurrent_actor_check",
+        "sha256": "b9e262eb95126b9e0d8de8b1733ea27b0f71fd6b6bf973f895cffcb2c2ee6e44"
+      },
+      {
+        "bytes": 998888,
+        "mode": 493,
+        "path": "bin/metalrobo_task_rollout",
+        "sha256": "bc1778a0fa719154fc5e1af014f7e39a02ef5c0ba830eb65d0f38c32c5bf6968"
+      },
+      {
+        "bytes": 966568,
+        "mode": 493,
+        "path": "bin/metalrobo_task_train",
+        "sha256": "9720b62ba67557234edd12fa2bbd56f73d5c27e525ab9efd3077307d4a69e357"
+      },
+      {
+        "bytes": 5601184,
+        "mode": 493,
+        "path": "lib/libmetalrobo.dylib",
+        "sha256": "4fa56f45e4659cd718fa35155806eae20f9f72cac0d0bd45c2426fd814cdc952"
+      },
+      {
+        "bytes": 19391,
+        "mode": 420,
+        "path": "shaders/GRUMemory.metallib",
+        "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+      },
+      {
+        "bytes": 4178409,
+        "mode": 420,
+        "path": "shaders/MetalRobo.metallib",
+        "sha256": "36fae0816bdfa58cf222a7f154e8cc1c86a75971370ab5b2ae7b46cb44ea7aa5"
+      },
+      {
+        "bytes": 16151,
+        "mode": 420,
+        "path": "shaders/RetinalStream.metallib",
+        "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+      },
+      {
+        "bytes": 4075,
+        "mode": 420,
+        "path": "python/metalrobo/__init__.py",
+        "sha256": "8907413cf15904beec23959cf30b949c235531e54f275b9acac90f3096038202"
+      },
+      {
+        "bytes": 48,
+        "mode": 420,
+        "path": "python/metalrobo/__main__.py",
+        "sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d"
+      },
+      {
+        "bytes": 15389,
+        "mode": 420,
+        "path": "python/metalrobo/ardy_g1.py",
+        "sha256": "fe9ee45d3c7efac4827599d5ec7257c3f68b10da83f964624058d2f0e6df8dc0"
+      },
+      {
+        "bytes": 28154,
+        "mode": 420,
+        "path": "python/metalrobo/ardy_interaction_convert.py",
+        "sha256": "ed5b97c6fcd5b3c30bb485187e3f6c2ab94b584cdd97d519f0cb1ac7382e3e55"
+      },
+      {
+        "bytes": 48916,
+        "mode": 420,
+        "path": "python/metalrobo/ardy_onnx.py",
+        "sha256": "840953a7e43e4008304007ea2b9d0c9b77000c64cdb73e4b65a5a10c98f90226"
+      },
+      {
+        "bytes": 6919,
+        "mode": 420,
+        "path": "python/metalrobo/ardy_text_encoder.py",
+        "sha256": "00ce0e692b9f4e35104d1a684515dfbc51b320b308ce43a6dc1b93f501c784b7"
+      },
+      {
+        "bytes": 6607,
+        "mode": 420,
+        "path": "python/metalrobo/cli.py",
+        "sha256": "3348476d8deff8c2712f0afb9892b0f031f5c288eb7724ebd6e6b779e108a14e"
+      },
+      {
+        "bytes": 113601,
+        "mode": 420,
+        "path": "python/metalrobo/crow_environment.py",
+        "sha256": "d0c5a3d47ec2557db8dcb4e8c614540eb72c686923db5d297ac29c3b34baff6d"
+      },
+      {
+        "bytes": 54327,
+        "mode": 420,
+        "path": "python/metalrobo/crow_world_model.py",
+        "sha256": "76e0234af3ee680efbc96eedd4385ccf94f19857ffd6dd19cfc8a7b235a836ad"
+      },
+      {
+        "bytes": 1638,
+        "mode": 420,
+        "path": "python/metalrobo/episode.py",
+        "sha256": "3444a7efd0d2158fcbd74ff49a6e20de0ceb87af6d89a95599447cc0fc2a9fec"
+      },
+      {
+        "bytes": 69056,
+        "mode": 420,
+        "path": "python/metalrobo/foundation_policy.py",
+        "sha256": "2d04dad03bed9cf06a9a53a78423410f1aa4d91387fe8d76d762a6a72816170a"
+      },
+      {
+        "bytes": 3152,
+        "mode": 420,
+        "path": "python/metalrobo/g1_legs_policy.py",
+        "sha256": "ed7085a8634435de00adfff323cfd200085d3829ce24b3119de7e48a6d1c54ef"
+      },
+      {
+        "bytes": 29666,
+        "mode": 420,
+        "path": "python/metalrobo/g1_motion_retarget.py",
+        "sha256": "0452e4db4e0e2fb0e54210321f8a1c6ae0dc45b7533b39a319f02891cd9af93f"
+      },
+      {
+        "bytes": 39733,
+        "mode": 420,
+        "path": "python/metalrobo/g1_policy.py",
+        "sha256": "dc7dc761d05cabe1ae5709b0a35564d07a50dae6418225143d5be9a6f82637c3"
+      },
+      {
+        "bytes": 3184,
+        "mode": 420,
+        "path": "python/metalrobo/gru_memory.py",
+        "sha256": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710"
+      },
+      {
+        "bytes": 12592,
+        "mode": 420,
+        "path": "python/metalrobo/gru_memory_admission.py",
+        "sha256": "9335d92d667903782a5f01595d4f194a214930fa33913be2131e99809ffbd994"
+      },
+      {
+        "bytes": 22666,
+        "mode": 420,
+        "path": "python/metalrobo/hybrid_renderer.py",
+        "sha256": "1a9911d36c70d786558cae59030d521d72510a7656c8b64e48de68781750113e"
+      },
+      {
+        "bytes": 59342,
+        "mode": 420,
+        "path": "python/metalrobo/lerobot_dataset.py",
+        "sha256": "71d01825993401d5ab83f25c4e3f52aa77295a3d92e3b192395ada7e13cb8973"
+      },
+      {
+        "bytes": 147043,
+        "mode": 420,
+        "path": "python/metalrobo/mlx_policy_learning.py",
+        "sha256": "ad3e769daa122e1fdf3925966100df9c7036a6a46e6db1f17816cf29a64752ee"
+      },
+      {
+        "bytes": 71625,
+        "mode": 420,
+        "path": "python/metalrobo/mlx_policy_worker.py",
+        "sha256": "98235337c380acddc3867478edca0d8e28574fbf4c6f40dc4b53e33f46656c4e"
+      },
+      {
+        "bytes": 29364,
+        "mode": 420,
+        "path": "python/metalrobo/mlx_r2s2r.py",
+        "sha256": "bfda444fd276c3663f827c3df677569acfdfa58a0101c9393267cb6d26409781"
+      },
+      {
+        "bytes": 26187,
+        "mode": 420,
+        "path": "python/metalrobo/mlx_recurrent_policy_learning.py",
+        "sha256": "f6718c60ac7d68d74ceeb6300420aedb4097f26386a005609d11a756946f506b"
+      },
+      {
+        "bytes": 45904,
+        "mode": 420,
+        "path": "python/metalrobo/mlx_tactile_policy.py",
+        "sha256": "562c99c52a830443c4376e69f6c651a6c5d8404e24d02290bc85a6db39fbd87d"
+      },
+      {
+        "bytes": 6295,
+        "mode": 420,
+        "path": "python/metalrobo/motion_pack_convert.py",
+        "sha256": "7d57f7c1c044de671195c853e01d48bd22099364c731e486f373bc2eabecae88"
+      },
+      {
+        "bytes": 31988,
+        "mode": 420,
+        "path": "python/metalrobo/native.py",
+        "sha256": "a1960b567d62ba21339af4ecbb853f7f8c35465432fc32bdfc33c2f84a10ef1b"
+      },
+      {
+        "bytes": 65898,
+        "mode": 420,
+        "path": "python/metalrobo/policy_selection.py",
+        "sha256": "556711783591e661873383f31d5038c4090b40c024d7ad9d5cbf49be042e0a8c"
+      },
+      {
+        "bytes": 73305,
+        "mode": 420,
+        "path": "python/metalrobo/r2s2r.py",
+        "sha256": "097607e386845deac162f53c500a3b606e63d363a70e3218dac3aa9ed50b2b65"
+      },
+      {
+        "bytes": 10329,
+        "mode": 420,
+        "path": "python/metalrobo/recurrent_policy_admission.py",
+        "sha256": "df26d935f7d7105168d272740377e4755e35863eb03b18b84c382d7370d9318b"
+      },
+      {
+        "bytes": 14869,
+        "mode": 420,
+        "path": "python/metalrobo/recurrent_ppo_admission.py",
+        "sha256": "df7fe221b2984a29221b0ccaf64502b704fcef80cec9715ebd9b7cb1e4534e90"
+      },
+      {
+        "bytes": 12848,
+        "mode": 420,
+        "path": "python/metalrobo/recurrent_rollout_admission.py",
+        "sha256": "18c9cdf339421a451462282fa6729186edd5ad284edbd727453ca32555b783ed"
+      },
+      {
+        "bytes": 34012,
+        "mode": 420,
+        "path": "python/metalrobo/solver_catalog.py",
+        "sha256": "a47e79b3328fc3e4969eb203ee71c2d31a1fcf639a23823c6e7298bde9252e97"
+      },
+      {
+        "bytes": 21065,
+        "mode": 420,
+        "path": "python/metalrobo/solver_residual_teacher.py",
+        "sha256": "04a892aedb4bd72a533e2e63701342b98e3984f11dc07930536799aa4d5e3d9f"
+      },
+      {
+        "bytes": 29228,
+        "mode": 420,
+        "path": "python/metalrobo/tactile.py",
+        "sha256": "171f65315f854549082f152180c94c011780c50692029caeeb2b7773c8d805a1"
+      },
+      {
+        "bytes": 19417,
+        "mode": 420,
+        "path": "python/metalrobo/tactile_cli.py",
+        "sha256": "e970f22bd57458c4afae50a67b5a45df5f8fa0c707222d683a374ee5558f2fd5"
+      },
+      {
+        "bytes": 50809,
+        "mode": 420,
+        "path": "python/metalrobo/tactile_latent.py",
+        "sha256": "19f74532b8cec002d5c4be813e7d06c95c56f405367f7850e379ff425965b14e"
+      },
+      {
+        "bytes": 21675,
+        "mode": 420,
+        "path": "python/metalrobo/tactile_stream.py",
+        "sha256": "059de4cb94adf32d20576108e91bef7aae4071efcf9f4985d4040a2833b59030"
+      },
+      {
+        "bytes": 16721,
+        "mode": 420,
+        "path": "python/metalrobo/tactile_translator.py",
+        "sha256": "1d563d3946afdd4bc8540a015c97fdcd175542cb8fc88178d0164800cf5452c6"
+      },
+      {
+        "bytes": 6530,
+        "mode": 420,
+        "path": "python/metalrobo/unitree_mjlab_policy.py",
+        "sha256": "4d7eeb6f37d54bdb8d37265d63587cde90f8772aa32a6a2dd8738a7a1518de66"
+      },
+      {
+        "bytes": 97276,
+        "mode": 420,
+        "path": "python/metalrobo/visual.py",
+        "sha256": "6eafa56c6fd8ea87f694ae0da69e2ae53ae3f7199b7f6f8c084caffad10c326f"
+      },
+      {
+        "bytes": 20672,
+        "mode": 420,
+        "path": "python/metalrobo/worlds.py",
+        "sha256": "3d3c85a14387b5bf261497d93a068b39fa36f0b28a8b3c230a383db435166343"
+      },
+      {
+        "bytes": 704,
+        "mode": 384,
+        "path": "reference/allocated-resources.checkpoint",
+        "sha256": "71359c6b276e474613b515c3d3ca4a8956137aedf0ba909f26eef57f03e4c86d"
+      },
+      {
+        "bytes": 630,
+        "mode": 420,
+        "path": "reference/allocation-controls.json",
+        "sha256": "e1e0b10cb48c281a1c6d1c6e39258aa66ce706c58da0a360af1709cff990de8f"
+      },
+      {
+        "bytes": 282,
+        "mode": 420,
+        "path": "reference/allocation-nutrition-debug.json",
+        "sha256": "4b911652191037d9b9f9d5d316c07e1db212ff3f1eb7fc17e4a49cea51c8ea7a"
+      },
+      {
+        "bytes": 60,
+        "mode": 420,
+        "path": "reference/authored-intake.json",
+        "sha256": "d5b87c13ccfacd67e96caa321769e1c4ef98baeb3ca27765f0b23d33e5a7cbff"
+      },
+      {
+        "bytes": 212,
+        "mode": 420,
+        "path": "reference/c-api-accounting-controls.json",
+        "sha256": "a74d725494b143d21191fd2585e9c4a0a0cacc9d16bc386c8ddcb39d85107b24"
+      },
+      {
+        "bytes": 1874,
+        "mode": 384,
+        "path": "reference/feeding.taskpack",
+        "sha256": "c0b227097db169c01dd6fb481f8f193120bae9f41c47193717fcfeb4d3dcc740"
+      },
+      {
+        "bytes": 1062,
+        "mode": 420,
+        "path": "reference/missed.json",
+        "sha256": "329accf625e127a6ac07c4b77a8775d3e914705dc3bda6ffe607133b88f7509f"
+      },
+      {
+        "bytes": 1102,
+        "mode": 420,
+        "path": "reference/ordinary.json",
+        "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7"
+      },
+      {
+        "bytes": 595968,
+        "mode": 420,
+        "path": "reference/other-seed-pre-intake-actor.f32",
+        "sha256": "bed75b5c0d3e25f9936dc664b21b5294a0dd65bb6a6d33bca02a6688a608382e"
+      },
+      {
+        "bytes": 1102,
+        "mode": 420,
+        "path": "reference/partition.json",
+        "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7"
+      },
+      {
+        "bytes": 806,
+        "mode": 420,
+        "path": "reference/plan.json",
+        "sha256": "ccd652c24a30a6a1c90b262f1692f8e151dd0be22ec6b5ef4f16d5fe7b03599f"
+      },
+      {
+        "bytes": 595968,
+        "mode": 420,
+        "path": "reference/pre-intake-actor.f32",
+        "sha256": "bed75b5c0d3e25f9936dc664b21b5294a0dd65bb6a6d33bca02a6688a608382e"
+      },
+      {
+        "bytes": 162,
+        "mode": 420,
+        "path": "reference/pre-intake-observation-control.json",
+        "sha256": "0ca27f87614a470fc687299f7825d068c081c9f2424cc1da1bd08f86df1e4c95"
+      },
+      {
+        "bytes": 1102,
+        "mode": 420,
+        "path": "reference/reset-closing.json",
+        "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7"
+      },
+      {
+        "bytes": 1102,
+        "mode": 420,
+        "path": "reference/reset.json",
+        "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7"
+      },
+      {
+        "bytes": 704,
+        "mode": 384,
+        "path": "reference/resources.checkpoint",
+        "sha256": "79f8c4ca6d5b019a78c14a281ec0c672fbc7a4eb8b068799e3414f5152e98028"
+      },
+      {
+        "bytes": 703,
+        "mode": 420,
+        "path": "reference/resources.checkpoint.negative-0",
+        "sha256": "ffa929f6e7cecbac61c10aa1f769250ac39018be69a9d72dedd3d16257b3c96f"
+      },
+      {
+        "bytes": 704,
+        "mode": 420,
+        "path": "reference/resources.checkpoint.negative-1",
+        "sha256": "ed557a7342e7e1fd69682f8d30a9c7f837a206025f69e02d08683d91d5de332b"
+      },
+      {
+        "bytes": 705,
+        "mode": 420,
+        "path": "reference/resources.checkpoint.negative-2",
+        "sha256": "1cb67745d069057f3167a7185b1aec6bd2573d9f36596731718a5aeba8211ab2"
+      },
+      {
+        "bytes": 704,
+        "mode": 420,
+        "path": "reference/resources.checkpoint.negative-3",
+        "sha256": "8c7341dd147e660c180993155ab11e3812b3a03946066e0b342761e927a514f0"
+      },
+      {
+        "bytes": 704,
+        "mode": 384,
+        "path": "reference/spatial-physical.checkpoint",
+        "sha256": "655f8cd493d613320f7fd9d386c23653fcf1139a7cbb5bf648827dc44ec794d7"
+      },
+      {
+        "bytes": 703,
+        "mode": 420,
+        "path": "reference/spatial-physical.checkpoint.negative-0",
+        "sha256": "63640e9799a4090955e0d06f9b6ec8413cb97a003530224afe3ab7248ff56fd8"
+      },
+      {
+        "bytes": 704,
+        "mode": 420,
+        "path": "reference/spatial-physical.checkpoint.negative-1",
+        "sha256": "18779f5247b00003c4f6c5dd8f2c6d87b8248d89140a5ac3dd57fefdb072f2f6"
+      },
+      {
+        "bytes": 705,
+        "mode": 420,
+        "path": "reference/spatial-physical.checkpoint.negative-2",
+        "sha256": "fa868fb1484110bc51a18c772a3f63cbce9183d35052690321a6545617a7d2af"
+      },
+      {
+        "bytes": 704,
+        "mode": 420,
+        "path": "reference/spatial-physical.checkpoint.negative-3",
+        "sha256": "543d4ddc438f5751d2cade9f9b9a80ce1fc9fafe399475ef3093009ea8702583"
+      },
+      {
+        "bytes": 901,
+        "mode": 420,
+        "path": "reference/spatial-physical.json",
+        "sha256": "2676c894da3d19bab76f389f1c2255d481ce8f288d6228fc0d1b7b015a4f7e5d"
+      },
+      {
+        "bytes": 2811,
+        "mode": 420,
+        "path": "reference/spatial-plan.json",
+        "sha256": "a1aa718b0afa2a4394d7738c6e26c1074f72df3347cd9ab8aca5bf7734d10708"
+      },
+      {
+        "bytes": 644,
+        "mode": 420,
+        "path": "reference/summary.json",
+        "sha256": "cd5c6f539374f7168049220fb38f920d5c4dab2e2ee02bb12eb394a4211cdeb8"
+      },
+      {
+        "bytes": 704,
+        "mode": 384,
+        "path": "reference/synthetic-resources.checkpoint",
+        "sha256": "d355aa883864739b920dbf539d6ff6a59c087d869189b7c2869c7e70050262f9"
+      }
+    ],
+    "scope": "Exact Git blob recovery and filesystem readback; matching Python/MLX/NumPy, macOS and native device remain required.",
+    "status": "passed"
+  },
+  "exact_replay_files": {
+    "allocated-resources.checkpoint": {
+      "bytes": 704,
+      "sha256": "71359c6b276e474613b515c3d3ca4a8956137aedf0ba909f26eef57f03e4c86d"
+    },
+    "allocation-controls.json": {
+      "bytes": 630,
+      "sha256": "e1e0b10cb48c281a1c6d1c6e39258aa66ce706c58da0a360af1709cff990de8f"
+    },
+    "allocation-nutrition-debug.json": {
+      "bytes": 282,
+      "sha256": "4b911652191037d9b9f9d5d316c07e1db212ff3f1eb7fc17e4a49cea51c8ea7a"
+    },
+    "authored-intake.json": {
+      "bytes": 60,
+      "sha256": "d5b87c13ccfacd67e96caa321769e1c4ef98baeb3ca27765f0b23d33e5a7cbff"
+    },
+    "c-api-accounting-controls.json": {
+      "bytes": 212,
+      "sha256": "a74d725494b143d21191fd2585e9c4a0a0cacc9d16bc386c8ddcb39d85107b24"
+    },
+    "feeding.taskpack": {
+      "bytes": 1874,
+      "sha256": "c0b227097db169c01dd6fb481f8f193120bae9f41c47193717fcfeb4d3dcc740"
+    },
+    "missed.json": {
+      "bytes": 1062,
+      "sha256": "329accf625e127a6ac07c4b77a8775d3e914705dc3bda6ffe607133b88f7509f"
+    },
+    "ordinary.json": {
+      "bytes": 1102,
+      "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7"
+    },
+    "other-seed-pre-intake-actor.f32": {
+      "bytes": 595968,
+      "sha256": "bed75b5c0d3e25f9936dc664b21b5294a0dd65bb6a6d33bca02a6688a608382e"
+    },
+    "partition.json": {
+      "bytes": 1102,
+      "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7"
+    },
+    "plan.json": {
+      "bytes": 806,
+      "sha256": "ccd652c24a30a6a1c90b262f1692f8e151dd0be22ec6b5ef4f16d5fe7b03599f"
+    },
+    "pre-intake-actor.f32": {
+      "bytes": 595968,
+      "sha256": "bed75b5c0d3e25f9936dc664b21b5294a0dd65bb6a6d33bca02a6688a608382e"
+    },
+    "pre-intake-observation-control.json": {
+      "bytes": 162,
+      "sha256": "0ca27f87614a470fc687299f7825d068c081c9f2424cc1da1bd08f86df1e4c95"
+    },
+    "reset-closing.json": {
+      "bytes": 1102,
+      "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7"
+    },
+    "reset.json": {
+      "bytes": 1102,
+      "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7"
+    },
+    "resources.checkpoint": {
+      "bytes": 704,
+      "sha256": "79f8c4ca6d5b019a78c14a281ec0c672fbc7a4eb8b068799e3414f5152e98028"
+    },
+    "resources.checkpoint.negative-0": {
+      "bytes": 703,
+      "sha256": "ffa929f6e7cecbac61c10aa1f769250ac39018be69a9d72dedd3d16257b3c96f"
+    },
+    "resources.checkpoint.negative-1": {
+      "bytes": 704,
+      "sha256": "ed557a7342e7e1fd69682f8d30a9c7f837a206025f69e02d08683d91d5de332b"
+    },
+    "resources.checkpoint.negative-2": {
+      "bytes": 705,
+      "sha256": "1cb67745d069057f3167a7185b1aec6bd2573d9f36596731718a5aeba8211ab2"
+    },
+    "resources.checkpoint.negative-3": {
+      "bytes": 704,
+      "sha256": "8c7341dd147e660c180993155ab11e3812b3a03946066e0b342761e927a514f0"
+    },
+    "spatial-physical.checkpoint": {
+      "bytes": 704,
+      "sha256": "655f8cd493d613320f7fd9d386c23653fcf1139a7cbb5bf648827dc44ec794d7"
+    },
+    "spatial-physical.checkpoint.negative-0": {
+      "bytes": 703,
+      "sha256": "63640e9799a4090955e0d06f9b6ec8413cb97a003530224afe3ab7248ff56fd8"
+    },
+    "spatial-physical.checkpoint.negative-1": {
+      "bytes": 704,
+      "sha256": "18779f5247b00003c4f6c5dd8f2c6d87b8248d89140a5ac3dd57fefdb072f2f6"
+    },
+    "spatial-physical.checkpoint.negative-2": {
+      "bytes": 705,
+      "sha256": "fa868fb1484110bc51a18c772a3f63cbce9183d35052690321a6545617a7d2af"
+    },
+    "spatial-physical.checkpoint.negative-3": {
+      "bytes": 704,
+      "sha256": "543d4ddc438f5751d2cade9f9b9a80ce1fc9fafe399475ef3093009ea8702583"
+    },
+    "spatial-physical.json": {
+      "bytes": 901,
+      "sha256": "2676c894da3d19bab76f389f1c2255d481ce8f288d6228fc0d1b7b015a4f7e5d"
+    },
+    "spatial-plan.json": {
+      "bytes": 2811,
+      "sha256": "a1aa718b0afa2a4394d7738c6e26c1074f72df3347cd9ab8aca5bf7734d10708"
+    },
+    "synthetic-resources.checkpoint": {
+      "bytes": 704,
+      "sha256": "d355aa883864739b920dbf539d6ff6a59c087d869189b7c2869c7e70050262f9"
+    }
+  },
+  "native_report": {
+    "schema": "numi.crow-foraging-admission.v1",
+    "status": "passed",
+    "native_environments": 8,
+    "native_steps_per_trial": 448,
+    "native_trials": 9,
+    "spatial_allocation_controls": true,
+    "consumed_micrograms_per_lane": 45000,
+    "bites_per_lane": 3,
+    "physical_terminations": 0,
+    "failed_physics_steps": 0,
+    "exact_partition_replay": true,
+    "resource_only_restore": true,
+    "accepted_intake_utility_per_lane": 4.5,
+    "nutrition_actor_contract": true,
+    "c_api_accounting_controls": true,
+    "ordinary_reset_refills_resources": false,
+    "synthetic_negative_controls": true,
+    "wall_seconds": 23.400973,
+    "boundary": "estimated nutritional intake-volume tracer; no solid food mechanics or whole-world restore"
+  },
+  "temporary_removal": {
+    "status": "removed",
+    "open_handles": 0,
+    "files": [
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/runtime-restoration.json",
+        "bytes": 14737,
+        "sha256": "fa80365e6214aced7b79d0cbbf80a27ce6938a2b8b3c18d46954f48b8da5f24e",
+        "mtime_ns": 1794083092928750824,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/bin/metalrobo_task_rollout",
+        "bytes": 998888,
+        "sha256": "bc1778a0fa719154fc5e1af014f7e39a02ef5c0ba830eb65d0f38c32c5bf6968",
+        "mtime_ns": 1794083092884447723,
+        "mode": 493
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/bin/metalrobo_crow_recurrent_actor_check",
+        "bytes": 163832,
+        "sha256": "b9e262eb95126b9e0d8de8b1733ea27b0f71fd6b6bf973f895cffcb2c2ee6e44",
+        "mtime_ns": 1794083092882676688,
+        "mode": 493
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/bin/metalrobo_task_train",
+        "bytes": 966568,
+        "sha256": "9720b62ba67557234edd12fa2bbd56f73d5c27e525ab9efd3077307d4a69e357",
+        "mtime_ns": 1794083092886851825,
+        "mode": 493
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/bin/metalrobo_crow_foraging_check",
+        "bytes": 171184,
+        "sha256": "07c4523be256761414f684578859529c49ff7aa7042062d5ae81b323ecba608e",
+        "mtime_ns": 1794083092881787003,
+        "mode": 493
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/tactile_stream.py",
+        "bytes": 21675,
+        "sha256": "059de4cb94adf32d20576108e91bef7aae4071efcf9f4985d4040a2833b59030",
+        "mtime_ns": 1794083092918903047,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/gru_memory.py",
+        "bytes": 3184,
+        "sha256": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710",
+        "mtime_ns": 1794083092915064400,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/tactile_translator.py",
+        "bytes": 16721,
+        "sha256": "1d563d3946afdd4bc8540a015c97fdcd175542cb8fc88178d0164800cf5452c6",
+        "mtime_ns": 1794083092919023919,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/hybrid_renderer.py",
+        "bytes": 22666,
+        "sha256": "1a9911d36c70d786558cae59030d521d72510a7656c8b64e48de68781750113e",
+        "mtime_ns": 1794083092915316477,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/ardy_interaction_convert.py",
+        "bytes": 28154,
+        "sha256": "ed5b97c6fcd5b3c30bb485187e3f6c2ab94b584cdd97d519f0cb1ac7382e3e55",
+        "mtime_ns": 1794083092912692131,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/tactile_latent.py",
+        "bytes": 50809,
+        "sha256": "19f74532b8cec002d5c4be813e7d06c95c56f405367f7850e379ff425965b14e",
+        "mtime_ns": 1794083092918766467,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/gru_memory_admission.py",
+        "bytes": 12592,
+        "sha256": "9335d92d667903782a5f01595d4f194a214930fa33913be2131e99809ffbd994",
+        "mtime_ns": 1794083092915184814,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/g1_motion_retarget.py",
+        "bytes": 29666,
+        "sha256": "0452e4db4e0e2fb0e54210321f8a1c6ae0dc45b7533b39a319f02891cd9af93f",
+        "mtime_ns": 1794083092914140133,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/episode.py",
+        "bytes": 1638,
+        "sha256": "3444a7efd0d2158fcbd74ff49a6e20de0ceb87af6d89a95599447cc0fc2a9fec",
+        "mtime_ns": 1794083092913718770,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/mlx_policy_learning.py",
+        "bytes": 147043,
+        "sha256": "ad3e769daa122e1fdf3925966100df9c7036a6a46e6db1f17816cf29a64752ee",
+        "mtime_ns": 1794083092915869795,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/r2s2r.py",
+        "bytes": 73305,
+        "sha256": "097607e386845deac162f53c500a3b606e63d363a70e3218dac3aa9ed50b2b65",
+        "mtime_ns": 1794083092917636789,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/worlds.py",
+        "bytes": 20672,
+        "sha256": "3d3c85a14387b5bf261497d93a068b39fa36f0b28a8b3c230a383db435166343",
+        "mtime_ns": 1794083092919508989,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/mlx_recurrent_policy_learning.py",
+        "bytes": 26187,
+        "sha256": "f6718c60ac7d68d74ceeb6300420aedb4097f26386a005609d11a756946f506b",
+        "mtime_ns": 1794083092916721272,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/recurrent_policy_admission.py",
+        "bytes": 10329,
+        "sha256": "df26d935f7d7105168d272740377e4755e35863eb03b18b84c382d7370d9318b",
+        "mtime_ns": 1794083092917793077,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/__init__.py",
+        "bytes": 4075,
+        "sha256": "8907413cf15904beec23959cf30b949c235531e54f275b9acac90f3096038202",
+        "mtime_ns": 1794083092912280600,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/ardy_onnx.py",
+        "bytes": 48916,
+        "sha256": "840953a7e43e4008304007ea2b9d0c9b77000c64cdb73e4b65a5a10c98f90226",
+        "mtime_ns": 1794083092912868709,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/recurrent_ppo_admission.py",
+        "bytes": 14869,
+        "sha256": "df7fe221b2984a29221b0ccaf64502b704fcef80cec9715ebd9b7cb1e4534e90",
+        "mtime_ns": 1794083092917966489,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/native.py",
+        "bytes": 31988,
+        "sha256": "a1960b567d62ba21339af4ecbb853f7f8c35465432fc32bdfc33c2f84a10ef1b",
+        "mtime_ns": 1794083092917215176,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/foundation_policy.py",
+        "bytes": 69056,
+        "sha256": "2d04dad03bed9cf06a9a53a78423410f1aa4d91387fe8d76d762a6a72816170a",
+        "mtime_ns": 1794083092913887973,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/g1_legs_policy.py",
+        "bytes": 3152,
+        "sha256": "ed7085a8634435de00adfff323cfd200085d3829ce24b3119de7e48a6d1c54ef",
+        "mtime_ns": 1794083092914001470,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/ardy_g1.py",
+        "bytes": 15389,
+        "sha256": "fe9ee45d3c7efac4827599d5ec7257c3f68b10da83f964624058d2f0e6df8dc0",
+        "mtime_ns": 1794083092912537135,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/mlx_tactile_policy.py",
+        "bytes": 45904,
+        "sha256": "562c99c52a830443c4376e69f6c651a6c5d8404e24d02290bc85a6db39fbd87d",
+        "mtime_ns": 1794083092916874643,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/ardy_text_encoder.py",
+        "bytes": 6919,
+        "sha256": "00ce0e692b9f4e35104d1a684515dfbc51b320b308ce43a6dc1b93f501c784b7",
+        "mtime_ns": 1794083092912998872,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/recurrent_rollout_admission.py",
+        "bytes": 12848,
+        "sha256": "18c9cdf339421a451462282fa6729186edd5ad284edbd727453ca32555b783ed",
+        "mtime_ns": 1794083092918088027,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/g1_policy.py",
+        "bytes": 39733,
+        "sha256": "dc7dc761d05cabe1ae5709b0a35564d07a50dae6418225143d5be9a6f82637c3",
+        "mtime_ns": 1794083092914317462,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/solver_catalog.py",
+        "bytes": 34012,
+        "sha256": "a47e79b3328fc3e4969eb203ee71c2d31a1fcf639a23823c6e7298bde9252e97",
+        "mtime_ns": 1794083092918227648,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/cli.py",
+        "bytes": 6607,
+        "sha256": "3348476d8deff8c2712f0afb9892b0f031f5c288eb7724ebd6e6b779e108a14e",
+        "mtime_ns": 1794083092913139285,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/visual.py",
+        "bytes": 97276,
+        "sha256": "6eafa56c6fd8ea87f694ae0da69e2ae53ae3f7199b7f6f8c084caffad10c326f",
+        "mtime_ns": 1794083092919330327,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/crow_world_model.py",
+        "bytes": 54327,
+        "sha256": "76e0234af3ee680efbc96eedd4385ccf94f19857ffd6dd19cfc8a7b235a836ad",
+        "mtime_ns": 1794083092913617939,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/tactile.py",
+        "bytes": 29228,
+        "sha256": "171f65315f854549082f152180c94c011780c50692029caeeb2b7773c8d805a1",
+        "mtime_ns": 1794083092918485600,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/lerobot_dataset.py",
+        "bytes": 59342,
+        "sha256": "71d01825993401d5ab83f25c4e3f52aa77295a3d92e3b192395ada7e13cb8973",
+        "mtime_ns": 1794083092915507638,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/mlx_policy_worker.py",
+        "bytes": 71625,
+        "sha256": "98235337c380acddc3867478edca0d8e28574fbf4c6f40dc4b53e33f46656c4e",
+        "mtime_ns": 1794083092916363115,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/unitree_mjlab_policy.py",
+        "bytes": 6530,
+        "sha256": "4d7eeb6f37d54bdb8d37265d63587cde90f8772aa32a6a2dd8738a7a1518de66",
+        "mtime_ns": 1794083092919123791,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/mlx_r2s2r.py",
+        "bytes": 29364,
+        "sha256": "bfda444fd276c3663f827c3df677569acfdfa58a0101c9393267cb6d26409781",
+        "mtime_ns": 1794083092916534069,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/policy_selection.py",
+        "bytes": 65898,
+        "sha256": "556711783591e661873383f31d5038c4090b40c024d7ad9d5cbf49be042e0a8c",
+        "mtime_ns": 1794083092917416337,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/crow_environment.py",
+        "bytes": 113601,
+        "sha256": "d0c5a3d47ec2557db8dcb4e8c614540eb72c686923db5d297ac29c3b34baff6d",
+        "mtime_ns": 1794083092913419736,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/motion_pack_convert.py",
+        "bytes": 6295,
+        "sha256": "7d57f7c1c044de671195c853e01d48bd22099364c731e486f373bc2eabecae88",
+        "mtime_ns": 1794083092917018639,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/tactile_cli.py",
+        "bytes": 19417,
+        "sha256": "e970f22bd57458c4afae50a67b5a45df5f8fa0c707222d683a374ee5558f2fd5",
+        "mtime_ns": 1794083092918601180,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/solver_residual_teacher.py",
+        "bytes": 21065,
+        "sha256": "04a892aedb4bd72a533e2e63701342b98e3984f11dc07930536799aa4d5e3d9f",
+        "mtime_ns": 1794083092918351437,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/python/metalrobo/__main__.py",
+        "bytes": 48,
+        "sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+        "mtime_ns": 1794083092912403097,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/shaders/GRUMemory.metallib",
+        "bytes": 19391,
+        "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe",
+        "mtime_ns": 1794083092900763201,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/shaders/RetinalStream.metallib",
+        "bytes": 16151,
+        "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12",
+        "mtime_ns": 1794083092911201212,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/shaders/MetalRobo.metallib",
+        "bytes": 4178409,
+        "sha256": "36fae0816bdfa58cf222a7f154e8cc1c86a75971370ab5b2ae7b46cb44ea7aa5",
+        "mtime_ns": 1794083092909255473,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/lib/libmetalrobo.dylib",
+        "bytes": 5601184,
+        "sha256": "4fa56f45e4659cd718fa35155806eae20f9f72cac0d0bd45c2426fd814cdc952",
+        "mtime_ns": 1794083092898005275,
+        "mode": 493
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/allocated-resources.checkpoint",
+        "bytes": 704,
+        "sha256": "71359c6b276e474613b515c3d3ca4a8956137aedf0ba909f26eef57f03e4c86d",
+        "mtime_ns": 1794083093538540306,
+        "mode": 384
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/reset-closing.json",
+        "bytes": 1102,
+        "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7",
+        "mtime_ns": 1794083106575735787,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/spatial-physical.json",
+        "bytes": 901,
+        "sha256": "2676c894da3d19bab76f389f1c2255d481ce8f288d6228fc0d1b7b015a4f7e5d",
+        "mtime_ns": 1794083116894556263,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/synthetic-resources.checkpoint",
+        "bytes": 704,
+        "sha256": "d355aa883864739b920dbf539d6ff6a59c087d869189b7c2869c7e70050262f9",
+        "mtime_ns": 1794083093525862855,
+        "mode": 384
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/summary.json",
+        "bytes": 644,
+        "sha256": "88e23ddb5a3fc02ad56823e3d6484a06c4d0902a34c9b61977f8f8b8e9334ad4",
+        "mtime_ns": 1794083116894537763,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/c-api-accounting-controls.json",
+        "bytes": 212,
+        "sha256": "a74d725494b143d21191fd2585e9c4a0a0cacc9d16bc386c8ddcb39d85107b24",
+        "mtime_ns": 1794083093598374405,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/other-seed-pre-intake-actor.f32",
+        "bytes": 595968,
+        "sha256": "bed75b5c0d3e25f9936dc664b21b5294a0dd65bb6a6d33bca02a6688a608382e",
+        "mtime_ns": 1794083116894363977,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/ordinary.json",
+        "bytes": 1102,
+        "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7",
+        "mtime_ns": 1794083096187301016,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/resources.checkpoint.negative-1",
+        "bytes": 704,
+        "sha256": "ed557a7342e7e1fd69682f8d30a9c7f837a206025f69e02d08683d91d5de332b",
+        "mtime_ns": 1794083096183569574,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/plan.json",
+        "bytes": 806,
+        "sha256": "ccd652c24a30a6a1c90b262f1692f8e151dd0be22ec6b5ef4f16d5fe7b03599f",
+        "mtime_ns": 1794083093494389784,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/resources.checkpoint.negative-0",
+        "bytes": 703,
+        "sha256": "ffa929f6e7cecbac61c10aa1f769250ac39018be69a9d72dedd3d16257b3c96f",
+        "mtime_ns": 1794083096183460328,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/allocation-nutrition-debug.json",
+        "bytes": 282,
+        "sha256": "4b911652191037d9b9f9d5d316c07e1db212ff3f1eb7fc17e4a49cea51c8ea7a",
+        "mtime_ns": 1794083093537762827,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/partition.json",
+        "bytes": 1102,
+        "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7",
+        "mtime_ns": 1794083098763278183,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/missed.json",
+        "bytes": 1062,
+        "sha256": "329accf625e127a6ac07c4b77a8775d3e914705dc3bda6ffe607133b88f7509f",
+        "mtime_ns": 1794083101414037090,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/authored-intake.json",
+        "bytes": 60,
+        "sha256": "d5b87c13ccfacd67e96caa321769e1c4ef98baeb3ca27765f0b23d33e5a7cbff",
+        "mtime_ns": 1794083093599228007,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/spatial-physical.checkpoint.negative-3",
+        "bytes": 704,
+        "sha256": "543d4ddc438f5751d2cade9f9b9a80ce1fc9fafe399475ef3093009ea8702583",
+        "mtime_ns": 1794083109149439181,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/feeding.taskpack",
+        "bytes": 1874,
+        "sha256": "c0b227097db169c01dd6fb481f8f193120bae9f41c47193717fcfeb4d3dcc740",
+        "mtime_ns": 1794083093598724813,
+        "mode": 384
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/pre-intake-actor.f32",
+        "bytes": 595968,
+        "sha256": "bed75b5c0d3e25f9936dc664b21b5294a0dd65bb6a6d33bca02a6688a608382e",
+        "mtime_ns": 1794083116893761201,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/spatial-physical.checkpoint.negative-2",
+        "bytes": 705,
+        "sha256": "fa868fb1484110bc51a18c772a3f63cbce9183d35052690321a6545617a7d2af",
+        "mtime_ns": 1794083109149343226,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/allocation-controls.json",
+        "bytes": 630,
+        "sha256": "e1e0b10cb48c281a1c6d1c6e39258aa66ce706c58da0a360af1709cff990de8f",
+        "mtime_ns": 1794083093549282309,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/spatial-physical.checkpoint",
+        "bytes": 704,
+        "sha256": "655f8cd493d613320f7fd9d386c23653fcf1139a7cbb5bf648827dc44ec794d7",
+        "mtime_ns": 1794083109148514665,
+        "mode": 384
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/resources.checkpoint",
+        "bytes": 704,
+        "sha256": "79f8c4ca6d5b019a78c14a281ec0c672fbc7a4eb8b068799e3414f5152e98028",
+        "mtime_ns": 1794083096182911634,
+        "mode": 384
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/spatial-plan.json",
+        "bytes": 2811,
+        "sha256": "a1aa718b0afa2a4394d7738c6e26c1074f72df3347cd9ab8aca5bf7734d10708",
+        "mtime_ns": 1794083093494681401,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/resources.checkpoint.negative-2",
+        "bytes": 705,
+        "sha256": "1cb67745d069057f3167a7185b1aec6bd2573d9f36596731718a5aeba8211ab2",
+        "mtime_ns": 1794083096183662239,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/resources.checkpoint.negative-3",
+        "bytes": 704,
+        "sha256": "8c7341dd147e660c180993155ab11e3812b3a03946066e0b342761e927a514f0",
+        "mtime_ns": 1794083096183751070,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/pre-intake-observation-control.json",
+        "bytes": 162,
+        "sha256": "0ca27f87614a470fc687299f7825d068c081c9f2424cc1da1bd08f86df1e4c95",
+        "mtime_ns": 1794083116894445433,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/spatial-physical.checkpoint.negative-0",
+        "bytes": 703,
+        "sha256": "63640e9799a4090955e0d06f9b6ec8413cb97a003530224afe3ab7248ff56fd8",
+        "mtime_ns": 1794083109149125398,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/reset.json",
+        "bytes": 1102,
+        "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7",
+        "mtime_ns": 1794083103998116622,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/replay/spatial-physical.checkpoint.negative-1",
+        "bytes": 704,
+        "sha256": "18779f5247b00003c4f6c5dd8f2c6d87b8248d89140a5ac3dd57fefdb072f2f6",
+        "mtime_ns": 1794083109149239270,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/allocated-resources.checkpoint",
+        "bytes": 704,
+        "sha256": "71359c6b276e474613b515c3d3ca4a8956137aedf0ba909f26eef57f03e4c86d",
+        "mtime_ns": 1794083092919679234,
+        "mode": 384
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/reset-closing.json",
+        "bytes": 1102,
+        "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7",
+        "mtime_ns": 1794083092922202875,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/spatial-physical.json",
+        "bytes": 901,
+        "sha256": "2676c894da3d19bab76f389f1c2255d481ce8f288d6228fc0d1b7b015a4f7e5d",
+        "mtime_ns": 1794083092923320303,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/synthetic-resources.checkpoint",
+        "bytes": 704,
+        "sha256": "d355aa883864739b920dbf539d6ff6a59c087d869189b7c2869c7e70050262f9",
+        "mtime_ns": 1794083092923635795,
+        "mode": 384
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/summary.json",
+        "bytes": 644,
+        "sha256": "cd5c6f539374f7168049220fb38f920d5c4dab2e2ee02bb12eb394a4211cdeb8",
+        "mtime_ns": 1794083092923550255,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/c-api-accounting-controls.json",
+        "bytes": 212,
+        "sha256": "a74d725494b143d21191fd2585e9c4a0a0cacc9d16bc386c8ddcb39d85107b24",
+        "mtime_ns": 1794083092920109098,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/other-seed-pre-intake-actor.f32",
+        "bytes": 595968,
+        "sha256": "bed75b5c0d3e25f9936dc664b21b5294a0dd65bb6a6d33bca02a6688a608382e",
+        "mtime_ns": 1794083092920799371,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/ordinary.json",
+        "bytes": 1102,
+        "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7",
+        "mtime_ns": 1794083092920381174,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/resources.checkpoint.negative-1",
+        "bytes": 704,
+        "sha256": "ed557a7342e7e1fd69682f8d30a9c7f837a206025f69e02d08683d91d5de332b",
+        "mtime_ns": 1794083092922518658,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/plan.json",
+        "bytes": 806,
+        "sha256": "ccd652c24a30a6a1c90b262f1692f8e151dd0be22ec6b5ef4f16d5fe7b03599f",
+        "mtime_ns": 1794083092921292274,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/resources.checkpoint.negative-0",
+        "bytes": 703,
+        "sha256": "ffa929f6e7cecbac61c10aa1f769250ac39018be69a9d72dedd3d16257b3c96f",
+        "mtime_ns": 1794083092922436077,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/allocation-nutrition-debug.json",
+        "bytes": 282,
+        "sha256": "4b911652191037d9b9f9d5d316c07e1db212ff3f1eb7fc17e4a49cea51c8ea7a",
+        "mtime_ns": 1794083092919934727,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/partition.json",
+        "bytes": 1102,
+        "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7",
+        "mtime_ns": 1794083092921204527,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/missed.json",
+        "bytes": 1062,
+        "sha256": "329accf625e127a6ac07c4b77a8775d3e914705dc3bda6ffe607133b88f7509f",
+        "mtime_ns": 1794083092920286385,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/authored-intake.json",
+        "bytes": 60,
+        "sha256": "d5b87c13ccfacd67e96caa321769e1c4ef98baeb3ca27765f0b23d33e5a7cbff",
+        "mtime_ns": 1794083092920024850,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/spatial-physical.checkpoint.negative-3",
+        "bytes": 704,
+        "sha256": "543d4ddc438f5751d2cade9f9b9a80ce1fc9fafe399475ef3093009ea8702583",
+        "mtime_ns": 1794083092923208514,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/feeding.taskpack",
+        "bytes": 1874,
+        "sha256": "c0b227097db169c01dd6fb481f8f193120bae9f41c47193717fcfeb4d3dcc740",
+        "mtime_ns": 1794083092920200220,
+        "mode": 384
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/pre-intake-actor.f32",
+        "bytes": 595968,
+        "sha256": "bed75b5c0d3e25f9936dc664b21b5294a0dd65bb6a6d33bca02a6688a608382e",
+        "mtime_ns": 1794083092921697805,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/spatial-physical.checkpoint.negative-2",
+        "bytes": 705,
+        "sha256": "fa868fb1484110bc51a18c772a3f63cbce9183d35052690321a6545617a7d2af",
+        "mtime_ns": 1794083092923092143,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/allocation-controls.json",
+        "bytes": 630,
+        "sha256": "e1e0b10cb48c281a1c6d1c6e39258aa66ce706c58da0a360af1709cff990de8f",
+        "mtime_ns": 1794083092919811314,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/spatial-physical.checkpoint",
+        "bytes": 704,
+        "sha256": "655f8cd493d613320f7fd9d386c23653fcf1139a7cbb5bf648827dc44ec794d7",
+        "mtime_ns": 1794083092922776568,
+        "mode": 384
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/resources.checkpoint",
+        "bytes": 704,
+        "sha256": "79f8c4ca6d5b019a78c14a281ec0c672fbc7a4eb8b068799e3414f5152e98028",
+        "mtime_ns": 1794083092922358204,
+        "mode": 384
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/spatial-plan.json",
+        "bytes": 2811,
+        "sha256": "a1aa718b0afa2a4394d7738c6e26c1074f72df3347cd9ab8aca5bf7734d10708",
+        "mtime_ns": 1794083092923437717,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/resources.checkpoint.negative-2",
+        "bytes": 705,
+        "sha256": "1cb67745d069057f3167a7185b1aec6bd2573d9f36596731718a5aeba8211ab2",
+        "mtime_ns": 1794083092922593239,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/resources.checkpoint.negative-3",
+        "bytes": 704,
+        "sha256": "8c7341dd147e660c180993155ab11e3812b3a03946066e0b342761e927a514f0",
+        "mtime_ns": 1794083092922671446,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/pre-intake-observation-control.json",
+        "bytes": 162,
+        "sha256": "0ca27f87614a470fc687299f7825d068c081c9f2424cc1da1bd08f86df1e4c95",
+        "mtime_ns": 1794083092922127169,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/spatial-physical.checkpoint.negative-0",
+        "bytes": 703,
+        "sha256": "63640e9799a4090955e0d06f9b6ec8413cb97a003530224afe3ab7248ff56fd8",
+        "mtime_ns": 1794083092922878357,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/reset.json",
+        "bytes": 1102,
+        "sha256": "dc3fc404bb72bb02ba268dc23411e9ff48cfa4f84a60e222f76645421acb0fb7",
+        "mtime_ns": 1794083092922282539,
+        "mode": 420
+      },
+      {
+        "path": "/private/tmp/crow-resource-kernel-git-recovery-20261107/reference/spatial-physical.checkpoint.negative-1",
+        "bytes": 704,
+        "sha256": "18779f5247b00003c4f6c5dd8f2c6d87b8248d89140a5ac3dd57fefdb072f2f6",
+        "mtime_ns": 1794083092922981437,
+        "mode": 420
+      }
+    ],
+    "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 297625296 159723844    66% 3496812 1597238440    0%   /System/Volumes/Data\n",
+    "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 297609468 159739672    66% 3496698 1597396720    0%   /System/Volumes/Data\n"
+  }
+}
