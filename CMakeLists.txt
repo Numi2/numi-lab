@@ -1520,8 +1520,9 @@ endif()
 
 # Existing bounded measured-surface mechanics and replay probe.
 add_executable(metalrobo_measured_surface_robot_probe
-    apps/measured_surface_robot_probe.cpp)
-target_link_libraries(metalrobo_measured_surface_robot_probe PRIVATE metalrobo)
+    apps/measured_surface_robot_probe.cpp
+    apps/measured_surface_probe_zero_action.mm)
+target_link_libraries(metalrobo_measured_surface_robot_probe PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
 target_compile_options(metalrobo_measured_surface_robot_probe PRIVATE
     -Wall -Wextra -Wpedantic -Werror)
 set_target_properties(metalrobo_measured_surface_robot_probe PROPERTIES

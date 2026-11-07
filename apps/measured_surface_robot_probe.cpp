@@ -20,6 +20,9 @@
 #include <unordered_set>
 #include <vector>
 
+extern "C" bool measuredSurfaceProbeZeroAction(
+    void*, const metalrobo::MetalWorldDeviceActionPass&) noexcept;
+
 namespace {
 
 constexpr float kNumiflyAuthorityInertialScale = 1.0e4f;
@@ -1676,6 +1679,7 @@ bool proveExternalPolicyDigestFailsClosed(const metalrobo::CompiledRun& run,
     MetalWorldBatch continuation = initial;
     continuation.initialQ = {}; continuation.initialV = {};
     continuation.initialSceneBodies = {}; continuation.actions = {};
+    continuation.policyRevision = 1u;
     struct Owner { std::uint64_t state = 11u; } owner;
     MetalWorldStepConfig config{
         .timestepSeconds = run.profile().controlTimestepSeconds,
@@ -1703,7 +1707,7 @@ bool proveExternalPolicyDigestFailsClosed(const metalrobo::CompiledRun& run,
     if (!diagnostic.succeeded() || before == 0u) return false;
     config.deviceActionProgram = {
         .context = &owner,
-        .encode = [](void*, const MetalWorldDeviceActionPass&) noexcept { return true; },
+        .encode = measuredSurfaceProbeZeroAction,
         .policyRevision = 1u, .taskFingerprint = run.task().fingerprint(),
         .actionCount = run.task().layout().actionCount,
     };

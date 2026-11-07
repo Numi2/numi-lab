@@ -1,0 +1,1 @@
+Initial retry build failed at link: undefined symbol _objc_msgSend in measured_surface_probe_zero_action.mm. The executable target was updated to link its direct Foundation and Metal dependencies. No native probe ran for this build attempt.
