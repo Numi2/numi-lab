@@ -7201,7 +7201,12 @@ kernel void mr_world_wave32_distributed_reduce(
             // The absolute term is in m/s; the relative term scales with
             // the larger incoming or prescribed normal velocity.
             const float tolerance = 1.0e-4f + 1.0e-2f * velocityScale;
-            if (!isfinite(residual) || !isfinite(velocityScale) ||
+            if (!isfinite(normalEquation) || !isfinite(residual) ||
+                !isfinite(velocityScale) || !isfinite(contact.impulses.x) ||
+                contact.impulses.x < -kConeEpsilon ||
+                !isfinite(cone.maximumNormalImpulse) ||
+                (cone.maximumNormalImpulse > 0.0f &&
+                 contact.impulses.x > cone.maximumNormalImpulse + kConeEpsilon) ||
                 residual > tolerance) {
                 laneUncertifiedConstraint = min(laneUncertifiedConstraint, localConstraint);
             }
@@ -8929,16 +8934,39 @@ inline void mrWorldWave32SolvePacket(
             localRows[0].targetVelocity +
             localRows[0].regularization *
                 contact.impulses.x;
-        laneNormalResidual = max(
-            laneNormalResidual,
-            contact.impulses.x > kConeEpsilon
-            ? abs(normalEquation)
-            : max(-normalEquation, 0.0f)
-        );
         const MREvaluatedConstraintIRConeGPU cone =
             evaluatedCones[
                 constraintBase + localConstraint
             ];
+        const bool atUpperBound =
+            cone.maximumNormalImpulse > 0.0f &&
+            contact.impulses.x >=
+                cone.maximumNormalImpulse - kConeEpsilon;
+        const float normalResidual = atUpperBound
+            ? max(normalEquation, 0.0f)
+            : contact.impulses.x > kConeEpsilon
+            ? abs(normalEquation) : max(-normalEquation, 0.0f);
+        const float normalScale = max(
+            abs(localRows[0].preSolveVelocity),
+            abs(localRows[0].targetVelocity));
+        // Interim publication certificate, in m/s. A small global impulse
+        // error cannot substitute for each contact's complementarity.
+        const float normalTolerance = 1.0e-4f + 1.0e-2f * normalScale;
+        const bool invalidImpulse =
+            !isfinite(contact.impulses.x) ||
+            contact.impulses.x < -kConeEpsilon ||
+            !isfinite(cone.maximumNormalImpulse) ||
+            (cone.maximumNormalImpulse > 0.0f &&
+             contact.impulses.x > cone.maximumNormalImpulse + kConeEpsilon);
+        if ((!isfinite(normalEquation) || !isfinite(normalScale) ||
+             !isfinite(normalResidual) || invalidImpulse ||
+             normalResidual > normalTolerance) &&
+            localFailure == MR_STEP_SUCCESS) {
+            localFailure = MR_STEP_DID_NOT_CONVERGE;
+            localFailureConstraint = localConstraint;
+            laneFailureRhs = normalResidual;
+        }
+        laneNormalResidual = max(laneNormalResidual, normalResidual);
         const float limitU =
             cone.effectiveFrictionU * contact.impulses.x;
         const float limitV =
@@ -9026,7 +9054,14 @@ inline void mrWorldWave32SolvePacket(
         result.environment = environment;
         result.islandIndex = islandIndex;
         result.iterations = solverIterations;
-        if (maximumFailureCode != MR_STEP_SUCCESS) {
+        if (maximumFailureCode == MR_STEP_DID_NOT_CONVERGE) {
+            result.residuals = float4(
+                maximumImpulseDelta,
+                maximumNormalResidual,
+                maximumConeViolation,
+                static_cast<float>(firstFailureConstraint)
+            );
+        } else if (maximumFailureCode != MR_STEP_SUCCESS) {
             result.residuals = float4(
                 maximumFailureRhs,
                 maximumFailureInverse,

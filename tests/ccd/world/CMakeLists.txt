@@ -45,3 +45,15 @@ if(BUILD_TESTING)
   "$<TARGET_FILE:metalrobo_ccd_distributed_probe>" "${METALROBO_METALLIB}")
  set_tests_properties(metalrobo.ccd.distributed_response PROPERTIES TIMEOUT 180)
 endif()
+
+add_executable(metalrobo_ccd_owner_rows_probe "${NUMI_WORLD_ROOT}/apps/ccd_wave32_owner_rows_probe.cpp")
+target_link_libraries(metalrobo_ccd_owner_rows_probe PRIVATE numi_ccd_world_owner)
+target_link_options(metalrobo_ccd_owner_rows_probe PRIVATE -Wl,-dead_strip)
+add_dependencies(metalrobo_ccd_owner_rows_probe metalrobo_shaders)
+
+if(BUILD_TESTING)
+ add_test(NAME metalrobo.ccd.owner_rows_containment COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_CURRENT_SOURCE_DIR}/owner_rows_regression.py"
+  "$<TARGET_FILE:metalrobo_ccd_owner_rows_probe>" "${METALROBO_METALLIB}")
+ set_tests_properties(metalrobo.ccd.owner_rows_containment PROPERTIES TIMEOUT 180)
+endif()

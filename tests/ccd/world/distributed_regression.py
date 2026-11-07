@@ -20,5 +20,12 @@ for r in rows:
         else:
             assert r["status"]==11
     else:
-        assert r["accepted"] and r["status"]==0
+        # One sweep is demonstrably under-converged for this fixture.
+        if r["iterations"] == 1:
+            assert not r["accepted"] and r["status"]==11
+            assert r["normal_residual"] > .0101
+        else:
+            assert r["accepted"] and r["status"]==0
+            assert abs(r["final_vn"]) <= .0101
+            assert r["normal_residual"] <= .0101
 print(p.stdout)
