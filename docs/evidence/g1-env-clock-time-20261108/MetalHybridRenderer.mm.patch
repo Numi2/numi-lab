@@ -1,0 +1,26 @@
+--- a/src/metal/MetalHybridRenderer.mm
++++ b/src/metal/MetalHybridRenderer.mm
+@@ -7451,6 +7451,9 @@
+     out.depthHistory.resize(depth.length / sizeof(float));
+     std::memcpy(out.trackHistory.data(), track.contents, track.length);
+     std::memcpy(out.depthHistory.data(), depth.contents, depth.length);
++    const auto metadata = state_->renderer->state_->activeMetadata;
++    static_assert(sizeof(metadata) == 16u * sizeof(std::uint32_t));
++    std::memcpy(out.frameMetadataBits.data(), &metadata, sizeof(metadata));
+     out.observationSequence = state_->observationSequence;
+     out.lastSensorSequence = state_->lastSensorSequence;
+     out.environments = state_->config.capacity;
+@@ -7565,11 +7568,11 @@
+         .previousBodyStates = pass.currentBodies,
+         .environmentCount = pass.environmentCount,
+         .bodyCount = pass.bodyCount,
+-        .frameIndex = pass.controlStep,
++        .frameIndex = state->researchCadence != nil ? observationSequence : pass.controlStep,
+         .sensorSequence = static_cast<std::uint32_t>(sensorSequence),
+         .source = MR_VISUAL_SOURCE_SIMULATION,
+         .captureTimestampSeconds =
+-            double(pass.controlStep) * state->config.timestepSeconds,
++            double(state->researchCadence != nil ? observationSequence : pass.controlStep) * state->config.timestepSeconds,
+         .frameAgeSeconds = 0.0,
+     };
+     id<MTLComputeCommandEncoder> observationEncoder =

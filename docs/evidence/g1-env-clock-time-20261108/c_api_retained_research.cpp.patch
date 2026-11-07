@@ -1,0 +1,10 @@
+--- a/src/c_api_retained_research.cpp
++++ b/src/c_api_retained_research.cpp
+@@ -2147,6 +2147,7 @@
+     camera.exposureSeconds = 1.0f / 240.0f;
+     camera.minimumDepthMeters = 0.05f;
+     camera.maximumDepthMeters = 8.0f;
++    camera.depthNoiseSigma = 0.005f; // isolated seeded-render test
+     episode.sensors.push_back(std::move(camera));
+     if (program.capturePolicyCamera &&
+         !(program.verticalFieldOfViewDegrees > 0.0f)) {

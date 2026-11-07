@@ -1,0 +1,16 @@
+--- a/include/metalrobo/MetalHybridRenderer.hpp
++++ b/include/metalrobo/MetalHybridRenderer.hpp
+@@ -1,4 +1,5 @@
+ #pragma once
++#include <array>
+ 
+ #include "metalrobo/MetalWorldFamily.hpp"
+ #include "metalrobo/MetalWorld.hpp"
+@@ -365,6 +366,7 @@
+ struct TrackerProbeSnapshot {
+     std::vector<float> trackHistory, depthHistory, cameraState;
+     std::vector<std::uint32_t> frameDepthBits, frameIdentityBits, frameValidityBits, bindingIds;
++    std::array<std::uint32_t,16> frameMetadataBits{};
+     std::uint64_t observationSequence = 0u, lastSensorSequence = 0u;
+     std::uint32_t environments = 0u, tracks = 0u, trackHistoryLength = 0u;
+     std::uint32_t depthWidth = 0u, depthHeight = 0u, depthSlots = 0u;
