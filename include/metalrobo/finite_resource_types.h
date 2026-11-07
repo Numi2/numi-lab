@@ -2,6 +2,10 @@
 #include "metalrobo/gpu_types.h"
 
 #define MR_FINITE_RESOURCE_ABI 3u
+// Kernel argument layout is versioned independently from persistent state and
+// program fingerprint bytes. Allocation adds two bindings without changing the
+// legacy state layout. Its entry point is mr_finite_resource_commit_v4.
+#define MR_FINITE_RESOURCE_KERNEL_ABI 4u
 #define MR_FINITE_RESOURCE_MAX_PATCHES 8u
 
 // Optional allocation v1. Zero means the original all-sites, immediate,

@@ -6,7 +6,7 @@ inline float3 resourceRotate(float4 q, float3 p) {
     return p + 2.0f*cross(q.xyz,cross(q.xyz,p)+q.w*p);
 }
 
-kernel void mr_finite_resource_commit(
+kernel void mr_finite_resource_commit_v4(
     device const MRFiniteResourceProgramGPU& program [[buffer(0)]],
     device const MRFiniteResourcePatchGPU* patches [[buffer(1)]],
     device MRFiniteResourceStateGPU* states [[buffer(2)]],
@@ -20,7 +20,7 @@ kernel void mr_finite_resource_commit(
     constant ulong& allocationSeed [[buffer(10)]],
     uint environment [[thread_position_in_grid]]
 ) {
-    if (environment>=dispatch.counts.x || dispatch.limits.y!=MR_FINITE_RESOURCE_ABI ||
+    if (environment>=dispatch.counts.x || dispatch.limits.y!=MR_FINITE_RESOURCE_KERNEL_ABI ||
         statuses[environment].code!=MR_STEP_SUCCESS) return;
     const uint bodyBase=environment*dispatch.counts.y;
     const float angle=q[environment*dispatch.counts.z+program.binding.y];

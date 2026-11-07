@@ -465,5 +465,29 @@
     "full_loop_performance_qualified": false,
     "next": "reachable food sites and causal cue visibility/occlusion in the native renderer, then controlled recurrent memory training and ablations",
     "compiler_limitation": "renaming a legacy avian TaskPack can drop name-derived physical flags; the admitted instrument preserves and asserts canonical support flags"
+  },
+  "resource_runtime_compatibility": {
+    "evidence": "artifacts/crow-rl-resource-kernel-20261107",
+    "kernel_ABI": 4,
+    "state_and_program_ABI": 3,
+    "kernel_entry_point": "mr_finite_resource_commit_v4",
+    "stale_shader_variants_rejected": 2,
+    "reverse_library_shader_mismatch_rejected": true,
+    "relative_only_RPATH_native_roles": [
+      "foraging admission",
+      "recurrent actor admission",
+      "task rollout",
+      "task trainer"
+    ],
+    "missing_adjacent_library_rejected_before_main": true,
+    "actual_loaded_native_library_path_and_hash_verified": true,
+    "matched_native_reference_files_byte_exact": 28,
+    "historical_spatial_native_Git_replay_with_verified_loaded_library": true,
+    "historical_spatial_native_Git_replay_reference_files_byte_exact": 28,
+    "earlier_unverified_loader_isolation_claim_corrected": true,
+    "all_other_historical_loader_identities_reaudited": false,
+    "invalid_instrument_attempts_preserved": 2,
+    "recovery_requires_unique_executable_inodes": true,
+    "qualification": "Engineering compatibility/recovery only; no new learned-memory or performance claim."
   }
 }

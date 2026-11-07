@@ -130,7 +130,7 @@ struct FiniteResourceRuntime : std::enable_shared_from_this<FiniteResourceRuntim
         }
         const MRFiniteResourceDispatchGPU dispatch{
             {pass.environmentCount,pass.bodyStateStride,pass.qStride,pass.bodyCount},
-            {pass.nq,MR_FINITE_RESOURCE_ABI,runtime.config.publishTaskState ? 1u : 0u,0u},
+            {pass.nq,MR_FINITE_RESOURCE_KERNEL_ABI,runtime.config.publishTaskState ? 1u : 0u,0u},
             {resetStride,pass.controlStep,0u,0u}};
         id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
         if (encoder==nil) return false;
@@ -202,8 +202,10 @@ FiniteResourceContext::FiniteResourceContext(FiniteResourceConfig config)
     id<MTLLibrary> library=[runtime_->device newLibraryWithURL:
         [NSURL fileURLWithPath:[NSString stringWithUTF8String:libraryPath.c_str()]] error:&error];
     if (library==nil) throw std::runtime_error("Resource metallib load failed: "+std::string(error.localizedDescription.UTF8String));
-    id<MTLFunction> function=[library newFunctionWithName:@"mr_finite_resource_commit"];
-    require(function!=nil,"Finite-resource kernel unavailable");
+    // Fail before allocation/encoding when the dylib and shader argument layouts
+    // disagree; an older unversioned kernel would silently ignore bindings9/10.
+    id<MTLFunction> function=[library newFunctionWithName:@"mr_finite_resource_commit_v4"];
+    require(function!=nil,"Finite-resource kernel ABI 4 unavailable: incompatible MetalRobo.metallib");
     runtime_->pipeline=[runtime_->device newComputePipelineStateWithFunction:function error:&error];
     require(runtime_->pipeline!=nil,"Resource pipeline creation failed");
     runtime_->program=[runtime_->device newBufferWithBytes:&runtime_->config.program

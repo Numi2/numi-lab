@@ -1128,7 +1128,10 @@ add_executable(metalrobo_crow_recurrent_actor_check apps/crow_recurrent_actor_ch
 target_compile_options(metalrobo_crow_recurrent_actor_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
 target_link_libraries(metalrobo_crow_recurrent_actor_check PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}")
 add_dependencies(metalrobo_crow_recurrent_actor_check metalrobo_gru_shaders metalrobo_retinal_shaders metalrobo_shaders)
-set_target_properties(metalrobo_crow_recurrent_actor_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+set_target_properties(metalrobo_crow_recurrent_actor_check PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    BUILD_WITH_INSTALL_RPATH TRUE
+    INSTALL_RPATH "@loader_path/../lib")
 
 add_executable(metalrobo_retinal_stream_check apps/retinal_stream_check.mm)
 target_compile_options(metalrobo_retinal_stream_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
@@ -1146,7 +1149,8 @@ target_compile_options(metalrobo_crow_foraging_check PRIVATE -fobjc-arc -Wall -W
 target_link_libraries(metalrobo_crow_foraging_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
 set_target_properties(metalrobo_crow_foraging_check PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
-    BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    BUILD_WITH_INSTALL_RPATH TRUE
+    INSTALL_RPATH "@loader_path/../lib")
 target_link_libraries(metalrobo_crow_embodiment_check PRIVATE metalrobo)
 set_target_properties(metalrobo_crow_embodiment_check PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
@@ -1275,6 +1279,7 @@ if(METALROBO_HAS_SWIFT)
             # small command surfaces favor dependable interactive launches.
             Swift_COMPILATION_MODE singlefile
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+            BUILD_WITH_INSTALL_RPATH TRUE
             BUILD_RPATH "@loader_path/../lib"
             INSTALL_RPATH "@loader_path/../lib"
     )
@@ -1326,6 +1331,7 @@ if(METALROBO_HAS_SWIFT)
             Swift_LANGUAGE_VERSION 6
             Swift_COMPILATION_MODE singlefile
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+            BUILD_WITH_INSTALL_RPATH TRUE
             BUILD_RPATH "@loader_path/../lib"
             INSTALL_RPATH "@loader_path/../lib"
     )

@@ -1289,3 +1289,49 @@ learning motivate the broader research scope; the current tracer parameters
 are engineering estimates rather than measurements from those studies:
 [walnut caching](https://www.sciencedirect.com/science/article/pii/S0003347201917488),
 [social learning](https://faculty.washington.edu/wirsinga/Cornell2011.pdf).
+
+
+## Resource kernel and portable runtime identity
+
+The resource shader argument layout is now kernel ABI4, with the explicit
+`mr_finite_resource_commit_v4` entry point and matching dispatch guard. The
+persistent resource state/program ABI remains3: numerical state,80-byte state
+layout, and legacy policy fingerprints are unchanged. The constructor requires
+the versioned entry point before allocating resource state or encoding a tick.
+New libraries reject both preallocation and previous unversioned allocation
+shaders; the previous library rejects the new shader. Matched native admission
+reproduces all28 non-summary reference files byte for byte, including physical
+resource checkpoints, task identity and pre-intake actor streams. The summary
+matches except measured wall time; no mechanics or admission bound changed.
+
+The foraging check, recurrent actor check, rollout and trainer now embed only
+`@loader_path/../lib` as their library search path in build executables. Earlier
+foraging/recurrent checks embedded an absolute build path; copied executables
+could load the checkout library instead of an archived library. An initial
+compatibility test exposed this bypass and is retained as an invalid instrument.
+The corrected controls capture actual dyld loaded-library paths and hashes.
+An executable without its adjacent library fails before main, with no fallback
+to the live checkout. These changes do not make every historical executable
+portable; historical launches require their own loader identity verification.
+
+A second instrument issue came from hardlinking test executables: macOS reused
+a launch closure associated with another hardlink path. Small executable files
+are now copied to distinct inodes for isolated runtime trials; immutable library
+and shader data may share storage. Preserve both invalid attempts rather than
+treating them as native kernel refutations or valid qualification.
+
+The earlier spatial archive verified Git file contents but did not prove which
+library the replay loaded. A supplementary replay restores the three historical
+native roles directly from Git, explicitly selects its restored library and
+checks the actual dyld identity. It reproduces all28 numerical reference files
+exactly. This repairs that native spatial replay qualification; other older
+recovery instruments have not been newly audited here. Current runtime recovery
+likewise verifies the loaded library rather than relying on executable paths.
+
+Plans, failures, loader logs, source/runtime identities, exact comparisons and
+Git recovery are retained in `artifacts/crow-rl-resource-kernel-20261107`.
+All bulk captures and checkout payload duplicates are removed after Git push
+and hash/replay verification. This is compatibility and recovery admission,
+not learned memory, reachable foraging, biological or performance qualification.
+The next behavioral requirement remains two demonstrated reachable sites and
+a causal visible/occluded cue through the native renderer.
