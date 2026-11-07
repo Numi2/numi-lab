@@ -1,0 +1,7 @@
+/Users/numi/numi-lab-deployable-depth-20261107/docs/evidence/generic-depth-validity-20261108/probe.mm:108:30: error: unknown type name 'MRWorldSensorInstanceGPU'
+  108 |     auto* sensor=static_cast<MRWorldSensorInstanceGPU*>([b[15] contents]);
+      |                              ^
+/Users/numi/numi-lab-deployable-depth-20261107/docs/evidence/generic-depth-validity-20261108/probe.mm:109:11: error: member reference base type 'void' is not a structure or union
+  109 |     sensor->noiseAndLatency.z=1.0f;
+      |     ~~~~~~^ ~~~~~~~~~~~~~~~
+2 errors generated.

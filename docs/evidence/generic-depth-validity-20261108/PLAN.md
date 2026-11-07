@@ -1,0 +1,8 @@
+# Preregistered generic depth validity regression
+
+This is a task-independent synthetic Metal-kernel diagnostic, not a G1 rollout. It binds the production masked-depth history kernel to small depth, identity and validity planes. Its baseline repeats the existing raw identity-invariance, oracle identity-sensitivity, valid-depth, reset-fill, full-dropout and direct geometric-winner checks, using the renderer's real validity bits.
+
+The new cases model a depth sensor that returns no measurement while frame and geometry validity remain set. The full-render path receives far-cleared depth and FRAME|GEOMETRY validity without the DEPTH bit; the direct-winner path receives a valid geometric winner but sensor dropout probability one. The SensorPack corruption layer applies nonzero Gaussian depth noise. The expected output is the authored far value for every unavailable sensor measurement in both raw and identity-selected modes. Report all eight pixels and exact failure counts for raw, selected and direct-winner paths; no physical rollout, live renderer, policy or deployment claim follows.
+
+Run the pinned probe once with a 120-second cap on an exclusive GPU slot. Retain source, compiled shader, executable hashes, pre/post checks, stdout, stderr, and UTC times. An initial CPU compilation error caused by a missing type header is retained; the corrected build has not been run. If the baseline fails, stop and retain it. No product shader or policy contract is changed by this diagnostic. A later repair must consider how changing observations affects SensorPack/policy fingerprints and qualify all relevant renderer modes.
+
