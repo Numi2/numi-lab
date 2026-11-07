@@ -1,0 +1,7 @@
+{
+  "reason": "The original verifier correctly exposed a comparison error: native scene fingerprints include visual-pack filesystem paths (VisualPresentation.cpp:computeVisualRenderSceneV3Fingerprint); JSON does not expose those paths. String-prefix normalization cannot account for these hashes. Preserve original failure/plan and native logs. Do not rerun or alter the native task.",
+  "prediction": "All133 non-scene outputs remain byte exact. Reconstruct the unchanged fixture through native authoring only, then recompute both fingerprints at the original and restored pack paths. Both complete scene JSON objects must match their corresponding native reference, with no ignored fields. Reconstructed visual packs must match every corresponding replay pack byte exactly.",
+  "budget": "One bounded authoring-helper compilation and one authoring-only execution; zero additional simulation steps.",
+  "analysis_of_existing_replay": true,
+  "source_commit": "f18e0217d3e6d0a0c132b80c82d6aa9e2027ca17"
+}

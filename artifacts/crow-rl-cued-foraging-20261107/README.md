@@ -38,9 +38,14 @@ learner sources. `restore_runtime.py NEW_DIRECTORY` restores those roles and a
 compact reference summary, without another copy of large reference arrays.
 `verify_recovery.py` runs the current cue instrument from a fresh Git-restored
 runtime, verifies its actual loaded library and compares every native output
-against Git reference hashes. Visual-scene JSON is compared semantically after
-normalizing only relocated output-root path prefixes; geometry/content and every
-causal binary remain exact. Matching device/OS/dependencies are still required.
+against Git reference hashes. All133 non-scene outputs are byte exact. All eight
+visual-scene JSON objects, including their fingerprints, match unchanged native
+authoring recomputed at the original and restored pack paths. Every reconstructed
+visual pack is byte exact. Scene fingerprints intentionally include filesystem
+paths; the initial string-normalization comparison failed and is preserved with
+its analysis amendment. The completed native replay was reused without rerunning
+simulation. Verification removed220 temporary recovery/authoring files (85,583,914
+logical bytes) after exact-file validation and an open-handle check. Matching device/OS/dependencies are still required.
 Historical executables with absolute build RPATH need an explicit adjacent-library
 override and loaded-image audit; the current cue executable uses relative RPATH.
 Cleanup receipts retain exact hashes/paths/open-handle checks before removing
