@@ -1363,6 +1363,12 @@ private enum TaskRolloutMain {
             var firstTerminationTilt = [Double?](
                 repeating: nil, count: options.environments
             )
+            var firstTerminationReason = [UInt32?](
+                repeating: nil, count: options.environments
+            )
+            var firstTerminationTimeout = [Bool?](
+                repeating: nil, count: options.environments
+            )
             var transitionCountByEnvironment = [Int](
                 repeating: 0,
                 count: options.environments
@@ -1880,6 +1886,10 @@ private enum TaskRolloutMain {
                                     globalStep + transitionIndex / options.environments + 1
                                 firstTerminationTilt[transitionEnvironment] =
                                     Double(transition.tilt)
+                                firstTerminationReason[transitionEnvironment] =
+                                    transition.terminationReason
+                                firstTerminationTimeout[transitionEnvironment] =
+                                    transition.timeout
                             }
                             terminationCount += 1
                             terminationCountByEnvironment[
@@ -2497,6 +2507,12 @@ private enum TaskRolloutMain {
                     firstTerminationStep.map { $0.map { $0 as Any } ?? NSNull() },
                 "first_termination_tilt_rad_by_environment":
                     firstTerminationTilt.map { $0.map { $0 as Any } ?? NSNull() },
+                "first_termination_reason_by_environment":
+                    firstTerminationReason.map { $0.map { $0 as Any } ?? NSNull() },
+                "first_termination_timeout_by_environment":
+                    firstTerminationTimeout.map { $0.map { $0 as Any } ?? NSNull() },
+                "first_episode_timeout_count":
+                    firstTerminationTimeout.filter { $0 == true }.count,
                 "physics_error_count_by_environment":
                     physicsErrorCountByEnvironment,
                 "mean_tracking_score_by_environment":
