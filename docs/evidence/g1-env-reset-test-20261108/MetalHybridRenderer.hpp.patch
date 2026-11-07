@@ -1,0 +1,10 @@
+--- /Users/numi/numi-g1-env-mixed-commit-owner-20261108/include/metalrobo/MetalHybridRenderer.hpp	2026-11-07 15:34:27
++++ /Users/numi/numi-g1-env-reset-test-owner-20261108/include/metalrobo/MetalHybridRenderer.hpp	2026-11-07 15:36:38
+@@ -418,6 +418,7 @@
+         const MRVisualFrameMetadataGPU* acceptedMetadata,
+         MRVisualFrameMetadataGPU* candidateMetadata);
+     [[nodiscard]] bool researchSetMixedCandidateBuffers(void* accepted, void* candidate);
++    void researchAllowMixedForOneStep();
+ 
+ 
+ private:

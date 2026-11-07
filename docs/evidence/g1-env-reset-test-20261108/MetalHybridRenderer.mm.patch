@@ -1,0 +1,49 @@
+--- /Users/numi/numi-g1-env-mixed-commit-owner-20261108/src/metal/MetalHybridRenderer.mm	2026-11-07 15:34:35
++++ /Users/numi/numi-g1-env-reset-test-owner-20261108/src/metal/MetalHybridRenderer.mm	2026-11-07 15:37:47
+@@ -7055,6 +7055,7 @@
+     __strong id<MTLBuffer> researchBodies = nil;
+     __strong id<MTLBuffer> researchBodySnapshot = nil;
+     bool researchCaptureBodies = false;
++    bool researchAllowMixedOnce = false;
+     MetalHybridRendererLayout rendererLayout{};
+     MRHybridRenderUniformsGPU maskedDepthRenderUniforms{};
+     std::uint64_t observationSequence = 0u;
+@@ -7573,6 +7574,10 @@
+                    a.length<bytes || c.length<bytes || a==c)) return false;
+     state_->researchAcceptedMetadata=a;state_->researchCandidateMetadata=c;
+     return true;
++}
++
++void MetalHybridObjectTracker::researchAllowMixedForOneStep() {
++    if (state_) state_->researchAllowMixedOnce = true;
+ }
+ 
+ bool MetalHybridObjectTracker::researchSetCadenceBuffer(void* buffer) {
+@@ -7602,6 +7607,9 @@
+             state->config.maximumActorHistoryLength) {
+         return false;
+     }
++    const bool allowResearchMixed = state->researchAllowMixedOnce;
++    state->researchAllowMixedOnce = false;
++    if (allowResearchMixed && (!state->researchCadence || !state->researchAcceptedMetadata || !state->researchCandidateMetadata)) return false;
+     for (const MetalHybridObjectTrackBinding& binding :
+          state->config.bindings) {
+         if (binding.actorFrameOffset + 7u > pass.actorFrameSize) {
+@@ -7659,12 +7667,13 @@
+             if (!research_cadence::propose(records[env],
+                     state->config.timestepSeconds,
+                     state->config.nominalSensorRateHz,
+-                    records[env].captureTimeBits, false, next) ||
+-                records[env].acceptedSteps != observationSequence ||
+-                (state->lastSensorSequence == std::numeric_limits<std::uint64_t>::max()
++                    records[env].captureTimeBits, false, next)) return false;
++            if (!allowResearchMixed &&
++                (records[env].acceptedSteps != observationSequence ||
++                 (state->lastSensorSequence == std::numeric_limits<std::uint64_t>::max()
+                     ? records[env].lastSensor != research_cadence::none
+                     : records[env].lastSensor != state->lastSensorSequence) ||
+-                next.sensor != sensorSequence || next.sample != sampleSensor) return false;
++                 next.sensor != sensorSequence || next.sample != sampleSensor)) return false;
+             if (env == 0u) first = next;
+         }
+         sensorSequence = first.sensor;
