@@ -1331,6 +1331,26 @@ bool createNativeGeometryResources(
     return true;
 }
 
+// Metal I/O queues maintain worker threads beyond individual compile calls.
+// Per-scene queues can exhaust libdispatch's worker limit when a process
+// constructs multiple eyes/worlds. Reuse one bounded serial loader per device;
+// each command still targets its own buffers and callers await their own batch.
+id<MTLIOCommandQueue> sharedVisualIOQueue(id<MTLDevice> device,NSError** error) {
+    static std::mutex mutex;
+    static NSMutableDictionary<NSNumber*,id<MTLIOCommandQueue>>* queues=[[NSMutableDictionary alloc] init];
+    const std::lock_guard lock(mutex);
+    NSNumber* key=@(device.registryID);
+    id<MTLIOCommandQueue> queue=queues[key];
+    if (queue!=nil) return queue;
+    MTLIOCommandQueueDescriptor* descriptor=[[MTLIOCommandQueueDescriptor alloc] init];
+    descriptor.type=MTLIOCommandQueueTypeSerial;descriptor.priority=MTLIOPriorityHigh;
+    descriptor.maxCommandBufferCount=8;descriptor.maxCommandsInFlight=8;
+    queue=[device newIOCommandQueueWithDescriptor:descriptor error:error];
+    if (queue!=nil) queues[key]=queue;
+    return queue;
+}
+
+
 bool createNativeVisualResources(
     id<MTLDevice> device,
     id<MTLCommandQueue> queue,
@@ -1482,17 +1502,8 @@ bool createNativeVisualResources(
     }
 
     if (needsMetalIO) {
-        MTLIOCommandQueueDescriptor* descriptor =
-            [[MTLIOCommandQueueDescriptor alloc] init];
-        descriptor.type = MTLIOCommandQueueTypeSerial;
-        descriptor.priority = MTLIOPriorityHigh;
-        descriptor.maxCommandBufferCount = 2u;
-        descriptor.maxCommandsInFlight = 64u;
         NSError* ioError = nil;
-        id<MTLIOCommandQueue> ioQueue =
-            [device
-                newIOCommandQueueWithDescriptor:descriptor
-                                          error:&ioError];
+        id<MTLIOCommandQueue> ioQueue=sharedVisualIOQueue(device,&ioError);
         if (ioQueue == nil) {
             reason =
                 "could not create Metal I/O texture queue: " +
@@ -1790,17 +1801,8 @@ bool loadAndPrepareStreamedGeometry(
     if (scene.geometrySources.empty()) {
         return true;
     }
-    MTLIOCommandQueueDescriptor* ioDescriptor =
-        [[MTLIOCommandQueueDescriptor alloc] init];
-    ioDescriptor.type = MTLIOCommandQueueTypeSerial;
-    ioDescriptor.priority = MTLIOPriorityHigh;
-    ioDescriptor.maxCommandBufferCount = 2u;
-    ioDescriptor.maxCommandsInFlight = 16u;
     NSError* error = nil;
-    id<MTLIOCommandQueue> ioQueue =
-        [device
-            newIOCommandQueueWithDescriptor:ioDescriptor
-                                      error:&error];
+    id<MTLIOCommandQueue> ioQueue=sharedVisualIOQueue(device,&error);
     if (ioQueue == nil) {
         reason =
             "could not create Metal I/O geometry queue: " +

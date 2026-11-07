@@ -58,6 +58,7 @@ def runtime(root: Path) -> dict:
         "foraging_check": build / "bin/metalrobo_crow_foraging_check",
         "eye_check": build / "bin/metalrobo_crow_eye_check",
         "retinal_check": build / "bin/metalrobo_retinal_stream_check",
+        "retinal_live_check": build / "bin/metalrobo_crow_retinal_live_check",
         "retinal_contract_check": build / "bin/metalrobo_crow_retinal_contract_check",
         "retinal_metallib": build / "shaders/RetinalStream.metallib",
     }
@@ -766,6 +767,7 @@ def main() -> int:
     commands.add_parser("head-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("eye-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("retina-admission").add_argument("--output", type=Path, required=True)
+    commands.add_parser("retinal-live-admission").add_argument("--output",type=Path,required=True)
     retinal_contract=commands.add_parser("retinal-contract-admission")
     retinal_contract.add_argument("--output",type=Path,required=True)
     retinal_contract.add_argument("--legacy-metallib",type=Path)
@@ -881,6 +883,10 @@ def main() -> int:
         plan.update({"purpose":"native retinal actor contract and pre-submission rejection instrument",
           "prediction":"1251 actor/97 critic/18 action channels; 12 malformed manifests and 9 same-dimension sensor changes reject; missing observer and old shader cannot execute; legacy task ABI and mechanics unchanged",
           "boundary":"compiler metadata and native rejection probes only; no rendered actor images or learner integration"})
+    if args.command == "retinal-live-admission":
+        plan.update({"purpose":"live native physical cameras to GPU retina to pixel-dependent actor",
+          "prediction":"two ticks cold-start blindness; actual occlusion reverses pixel-driven yaw; disconnected actor stays zero; chunk1/8 bit identical",
+          "boundary":"authored development actor; no learned vision, biological optics, sensory checkpoint restore or ecological qualification"})
     if args.command == "retina-admission":
         plan.update({"purpose": "native RGB timing instrument calibration",
           "prediction": "integer 3/10 sample cadence, two accepted-tick delay; zero premature/reset-stale frames; feature error <=3e-6 against FP64 oracle; chunk1/8 bit-identical",
@@ -905,6 +911,11 @@ def main() -> int:
                            str(output/"native-evidence"),str(args.legacy_metallib)],root,180)
             if result.get("status")!="passed" or result.get("stale_shader_rejected") is not True:
                 raise RuntimeError("Native retinal contract admission failed")
+        elif args.command == "retinal-live-admission":
+            result=execute(output,"retinal-live",[str(runtime(root)["retinal_live_check"]),
+                           str(output/"native-evidence")],root,180)
+            if result.get("status")!="passed" or result.get("chunk_bit_identical") is not True:
+                raise RuntimeError("Native live retinal actor admission failed")
         elif args.command == "retina-admission":
             result = execute(output, "retinal-timing", [str(runtime(root)["retinal_check"]),
                              str(output / "native-evidence")], root, 180)

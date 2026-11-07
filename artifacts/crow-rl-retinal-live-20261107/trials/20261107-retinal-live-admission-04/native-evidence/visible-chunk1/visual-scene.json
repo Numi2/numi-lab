@@ -1,0 +1,23 @@
+{
+  "schema_version": 3,
+  "id": "crow_head_proxy_camera_v1.visual.v3",
+  "coordinate_convention": "x-forward,y-left,z-up",
+  "world_fingerprint": 18168590596605768636,
+  "fingerprint": 13154871497423605615,
+  "visual_pack_hashes": ["sha256:8d3c5f6fb1bd3dd99ca38877360bec5c2b271b72a8605d981b09e352b128599a","sha256:be907579b5c8af998f4d1c315eea75f0232cd99540d76012b24c6a3b4ba94b40","sha256:2aa1a5cdd843e50441b7ab9e308cd59bd8e5ee082cd3347aea5c7265bcbb1dfc","sha256:a34037ccc6fc281c0a251e70517ec5f0d96bbb99b4b44f1012c3b824f5c34911"],
+  "environment_map_hash": "builtin:neutral-studio-v2",
+  "light_rig_hash": "builtin:indoor-area-v1",
+  "preprocessing_provenance": "compileVisualSceneManifestV3/native-pack-references-v3",
+  "render_scene": {
+    "id": "crow_head_proxy_camera_v1.visual.v3.runtime",
+    "asset_count": 4,
+    "body_count": 20,
+    "gaussian_count": 0,
+    "visual_pack_count": 4,
+    "sensor_binding_count": 2,
+    "light_count": 1,
+    "environment_id": "neutral_studio",
+    "light_rig_id": "indoor_area",
+    "fingerprint": 10639960722597845330
+  }
+}

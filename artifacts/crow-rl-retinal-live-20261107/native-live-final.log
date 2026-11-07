@@ -1,0 +1,29 @@
+Start testing: Nov 07 16:18 CET
+----------------------------------------------------------
+40/80 Testing: metalrobo.crow.retinal_live
+40/80 Test: metalrobo.crow.retinal_live
+Command: "/opt/homebrew/bin/cmake" "-DPROGRAM=/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_retinal_live_check" "-DOUTPUT_PARENT=/Users/n/Developer/numi-crow-rl-20261107/build" "-P" "/Users/n/Developer/numi-crow-rl-20261107/cmake/CheckCrowRetinalLive.cmake"
+Directory: /Users/n/Developer/numi-crow-rl-20261107/build
+"metalrobo.crow.retinal_live" start time: Nov 07 16:18 CET
+Output:
+----------------------------------------------------------
+-- {"schema":"numi.crow-retinal-live-evidence.v1","status":"passed","accepted_native_transitions":384,"cold_start_ticks":2,"chunk_bit_identical":true,"per_lane_reset_bit_identical":true,"visible_tick2_yaw":0.426903,"occluded_tick2_yaw":-0.356149,"visual_learning_qualified":false,"environment_qualified":false}
+ Evidence retained at /Users/n/Developer/numi-crow-rl-20261107/build/crow-retinal-live-478f2ae10dfc5abd
+<end of output>
+Test time =   3.36 sec
+----------------------------------------------------------
+Test Passed.
+"metalrobo.crow.retinal_live" end time: Nov 07 16:18 CET
+"metalrobo.crow.retinal_live" time elapsed: 00:00:03
+----------------------------------------------------------
+
+End testing: Nov 07 16:18 CET
+
+crow =   3.36 sec*proc
+
+metalrobo =   3.36 sec*proc
+
+native =   3.36 sec*proc
+
+visual =   3.36 sec*proc
+

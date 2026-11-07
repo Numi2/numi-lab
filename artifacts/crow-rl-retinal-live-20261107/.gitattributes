@@ -1,0 +1,5 @@
+*.gz binary
+*.mrvpack binary
+*.policypack binary
+*.patch -whitespace
+*.log whitespace=-blank-at-eof

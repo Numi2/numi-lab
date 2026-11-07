@@ -1,0 +1,315 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 3942c01d..5f427082 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -829,6 +829,7 @@ add_library(
+     src/metal/NumiHumanTendonMetal.mm
+     src/metal/MetalArticulatedABA.mm
+     src/metal/FiniteResource.mm
++    src/metal/RetinalObserver.mm
+     src/metal/RetinalStream.mm
+     src/metal/MetalMultiArticulatedABA.mm
+     src/metal/MetalDiscreteElasticRod.mm
+@@ -1079,6 +1080,12 @@ add_executable(
+ )
+ add_executable(metalrobo_crow_embodiment_check apps/crow_embodiment_check.cpp)
+ add_executable(metalrobo_crow_foraging_check apps/crow_foraging_check.mm)
++add_executable(metalrobo_crow_retinal_live_check apps/crow_retinal_live_check.mm)
++target_compile_options(metalrobo_crow_retinal_live_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
++target_link_libraries(metalrobo_crow_retinal_live_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
++add_dependencies(metalrobo_crow_retinal_live_check metalrobo_retinal_shaders)
++set_target_properties(metalrobo_crow_retinal_live_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
++
+ add_executable(metalrobo_crow_retinal_contract_check apps/crow_retinal_contract_check.cpp)
+ target_compile_options(metalrobo_crow_retinal_contract_check PRIVATE -Wall -Wextra -Wpedantic)
+ target_link_libraries(metalrobo_crow_retinal_contract_check PRIVATE metalrobo)
+@@ -2362,6 +2369,13 @@ if(BUILD_TESTING)
+             "-DPROGRAM=$<TARGET_FILE:metalrobo_retinal_stream_check>"
+             "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
+             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckRetinalStream.cmake")
++    add_test(NAME metalrobo.crow.retinal_live
++        COMMAND "${CMAKE_COMMAND}"
++            "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_retinal_live_check>"
++            "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
++            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowRetinalLive.cmake")
++    set_tests_properties(metalrobo.crow.retinal_live PROPERTIES
++        LABELS "metalrobo;crow;native;visual" TIMEOUT 200)
+     add_test(NAME metalrobo.crow.retinal_contract
+         COMMAND "${CMAKE_COMMAND}"
+             "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_retinal_contract_check>"
+diff --git a/docs/CROW_RL_ENVIRONMENT.md b/docs/CROW_RL_ENVIRONMENT.md
+index 431a31c3..4a3c73d8 100644
+--- a/docs/CROW_RL_ENVIRONMENT.md
++++ b/docs/CROW_RL_ENVIRONMENT.md
+@@ -434,9 +434,9 @@ passed the original controls; attempt 02 prospectively added the boundaries
+ and overflow negative with unchanged numerical thresholds. Attempt 03 also
+ rejects source-image index overflow and retains raw output before assertions.
+ 
+-These are synthetic native timing fixtures. No v12 actor consumes these RGB
+-features yet, and the native renderer has not been composed with this stream
+-inside the accepted rollout/inference command buffer. The next gate must bind
++These timing-only fixtures did not compose the native renderer with an actor.
++The separate live v13 instrument below now exercises that composition. No v12
++actor consumes these RGB channels. The subsequent gate had to bind
+ the full sensor semantics/content to a distinct actor contract, compose both
+ physical head cameras without CPU image round trips, test visibility and
+ cadence causally, and measure complete rollout/learning performance. The
+@@ -450,8 +450,9 @@ The native C++ `makeAmericanCrowRetinalFeedingTaskPack` defines a distinct v13
+ contract: 1,251 actor features (the 97 existing channels plus two 16 x 12 RGB
+ planes, valid and age), 97 critic features and 18 actions. It retains the v12
+ mechanics, action meanings and finite-resource state-program identity. This
+-factory and the `retinal-contract-admission` instrument are implemented; a
+-v13 rollout/training CLI and actual rendered actor images are still pending.
++factory and the `retinal-contract-admission` instrument are implemented. The
++separate live instrument below now supplies real rendered actor images. A v13
++C API/Swift rollout/training entry is still pending.
+ 
+ SensorPack owns retinal camera mounts, source and output dimensions, optics,
+ content hashes, rational cadence, latency, depth range and the fixed response
+@@ -485,9 +486,78 @@ controls; 02 additionally requires the observer fingerprint and tests mismatch.
+ The actual ABI-47 shader fixture is preserved with its receipt under
+ artifacts/crow-rl-retinal-contract-20261107/inputs for portable regression.
+ 
+-The next implementation must compose both real head cameras, RGB buffers and
+-the stream in the native accepted rollout callback, publish/inspect stream
+-errors, exercise visibility and per-lane reset/delay behavior, and test a
+-controlled pixel-dependent actor. Only after those checks should the distinct
+-v13 contract be exposed to the MLX learner and measured at production batch size.
+-This contract admission does not establish those still-pending behaviors.
++The contract-only instrument establishes metadata and rejection behavior.
++The live instrument below separately admits camera/stream/actor composition.
++The distinct v13 contract still needs a C API/Swift learner entry, visual
++learning controls and complete measurements at production batch size.
++
++
++## Live native head cameras, retinal stream and pixel-dependent actor
++
++`tools/numi crow-env retinal-live-admission --output NEW_DIRECTORY` runs six
++bounded native controls. `RetinalObserverContext` renders both physical
++head cameras directly from the device-resident current body buffer, then
++encodes `RetinalStreamContext` in the same caller-owned command buffer before
++native inference. It never reads pixels, physics state or task clocks back in
++that callback, and never commits or waits there. Only RGB goes to the retinal
++reducer; renderer depth, identities and geometry do not enter the actor.
++
++The current observer intentionally accepts a fixed collision-proxy fixture,
++neutral studio and fixed area-light rig. It reconstructs the template against
++the actual physics model, checks each source-world/content hash, reconstructs
++camera bindings and fixed lighting, and validates two physical mounts against
++the bound SensorPack. Unsupported variations, optics, noise or exposure reject.
++This prevents an arbitrary precompiled scene from impersonating the bound
++observer. Eight malformed observer controls reject before native rollout.
++An observer owns its images until command completion; concurrent commands
++reject and a GPU failure poisons the owner. Callers must inspect the quiescent
++retinal error publication before admitting a batch to evidence or learning.
++
++The declared actor has one nonzero rule: yaw is twice red-minus-blue in left
++retinal cell [6,8], clamped to [-1,1]. All other controls are zero. Each condition
++gets a fresh artifact bound to its exact task/world; these are authored control
++actors, not a trained policy transferred across changed worlds. With the
++physical target visible, tick-2 yaw is +0.426903; a physical occluder makes it
++-0.356149. Disconnecting the coefficients leaves every action zero. The
++pixel-dependent action changes accepted physical state. Both eyes supply their
++complete RGB features; no semantic target coordinate enters this actor.
++
++Trial 09 passes 384 accepted transitions (six runs, two lanes, 32 ticks), zero
++sensor errors or physical terminations, two blind cold-start ticks, integer
++15 Hz cadence and 40 ms delay. A lane-1 reset at tick 17 repeats the two blind
++ticks without contaminating uninterrupted lane 0. Actor observations, actions,
++latents, transitions, full q/v trajectories and final q/v/scene states are
++bit-identical across native submission sizes 1 and 8, including the reset.
++
++The two chunk-1 controls explicitly inspect rendered RGB *after completion*
++for instrument validation. An independent FP64 area-mean, fixed radiance
++response and frame-history oracle checks every delayed RGB feature. Its maximum
++error is 9.72599e-8 against a prospectively fixed 3e-6 limit. This inspection
++is outside the device callback and is not a production execution requirement.
++Raw RGB, actors/actions, trajectories, transitions, reset states, authored
++policies, source deltas and failed-attempt receipts are preserved in
++artifacts/crow-rl-retinal-live-20261107, with lossless gzip and original hashes
++for large raw arrays. Full-world restore is not implemented by these snapshots.
++
++Attempts 01–03 failed setup/capacity admission; 04–05 passed the initial live
++controls. Attempt 06 added the RGB oracle and per-lane reset controls but was
++stopped at repeated scene construction after a sample showed libdispatch's
++64-worker limit blocked in Metal I/O. Attempt 07 showed autorelease cleanup
++alone did not fix the stall. The renderer now reuses one bounded serial I/O
++loader per device for geometry and textures. Attempt 08 completes all six
++cases in 4.10 seconds; 09 adds stricter negative, lane-isolation and trajectory
++checks with unchanged behavioral/numerical thresholds. This duration includes
++construction and instrument readback and is not a training throughput figure.
++Apple documents the separate I/O command and command-buffer bounds in its
++[MTLIOCommandQueueDescriptor reference](https://developer.apple.com/documentation/metal/mtliocommandqueuedescriptor).
++
++The profile uses 160 x 120 instantaneous parallel pinhole cameras and two
++16 x 12 RGB grids. Mounts, acuity and timing remain engineering estimates,
++not measured American-crow eyes. Rendering currently occurs every control
++tick while GPU sampling admits frames at 15 Hz; optimizing that work and
++measuring full batch performance are pending. The current fixed supported
++feeding body is not ecological foraging, object manipulation or visual
++learning. The full lifelong environment still requires robust locomotion,
++solid-food pickup/carry/cache/swallow, water/energy physiology, trainable
++persistent memory, complete world/RNG/sensory/memory restore, social agents
++and information ablations, and untouched held-out qualification.
+diff --git a/profiles/american-crow-rl-v1.json b/profiles/american-crow-rl-v1.json
+index 07c056f6..b1abec21 100644
+--- a/profiles/american-crow-rl-v1.json
++++ b/profiles/american-crow-rl-v1.json
+@@ -70,7 +70,7 @@
+     "articulated_motor_control": "native-implementation; current-checkout-requalification-required",
+     "visual_obstacle_course": "native-implementation; unreliable-historical-full-route-controller",
+     "first_attempt_evidence": "native-transition-observer",
+-    "crow_eye_perception": "estimated-native-head-camera-geometry-admitted; exact-collision-proxies-and-FP64-ray-controls; causal-actor-image-inputs-cadence-latency-and-biological-eye-calibration-pending",
++    "crow_eye_perception": "estimated-two-camera-native-live-retinal-actor-controls-passed; physical-occlusion-delay-reset-and-FP64-RGB-oracle; biological-optics-learning-and-production-scaling-pending",
+     "active_head_and_beak": "estimated-native-v11; reference-inertia-and-Metal-admission; contact-actuation-and-learner-resume-controls-passed; head-vision-and-behavior-qualification-pending",
+     "finite_food_water_and_energy": "experimental-native-finite-food-tracer-and-capacity-limited-crop-with-bound-reward; water-energy-physiology-pending",
+     "accepted_state_consumption": "native-accepted-mouth-intake-volume-and-open-close-edge-controls-passed; solid-food-pickup-carrying-and-swallowing-pending",
+@@ -78,8 +78,8 @@
+     "persistent_memory_and_life_checkpoint": "resource-only-and-learner-only-checkpoints-tested; whole-world-RNG-sensory-memory-restore-pending",
+     "social_individuals_and_communication": "pending",
+     "weather_and_seasonal_ecology": "pending",
+-    "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-and-partition-controls-passed; renderer-to-actor-composition-and-learner-contract-pending",
+-    "retinal_actor_contract": "native-v13-1251-actor-97-critic-18-actions; sensor-content-and-timing-bound; missing-mismatched-observers-and-stale-shaders-reject; real-rendered-actor-stream-and-learning-pending"
++    "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-and-partition-controls-passed-including-live-head-renderer; sensory-checkpoint-restore-pending",
++    "retinal_actor_contract": "native-v13-1251-actor-97-critic-18-actions; live-pixel-dependent-native-actor-controls-passed; v13-C-API-Swift-MLX-training-entry-and-batch-performance-pending"
+   },
+   "release_requirements": [
+     "deterministic accepted-state execution across submission chunks",
+@@ -112,5 +112,25 @@
+     "latency_ticks": 2,
+     "scope": "synthetic native timing instrument; no live renderer-to-actor integration",
+     "ecological_environment_qualified": false
++  },
++  "retinal_live_development_instrument": {
++    "command": "retinal-live-admission",
++    "evidence": "artifacts/crow-rl-retinal-live-20261107",
++    "native_runs": 6,
++    "environments": 2,
++    "ticks_per_run": 32,
++    "accepted_transitions": 384,
++    "camera_source_shape": [
++      2,
++      120,
++      160,
++      4
++    ],
++    "actor_features": 1251,
++    "maximum_delayed_rgb_error": 9.72599e-08,
++    "registered_rgb_error_limit": 3e-06,
++    "submission_partition": "bit-identical at chunks1 and8, including one per-lane reset",
++    "scope": "authored pixel actor, fixed physical collision-proxy fixture; no visual learning or production throughput qualification",
++    "ecological_environment_qualified": false
+   }
+ }
+diff --git a/python/metalrobo/crow_environment.py b/python/metalrobo/crow_environment.py
+index a364309a..ee06b025 100644
+--- a/python/metalrobo/crow_environment.py
++++ b/python/metalrobo/crow_environment.py
+@@ -58,6 +58,7 @@ def runtime(root: Path) -> dict:
+         "foraging_check": build / "bin/metalrobo_crow_foraging_check",
+         "eye_check": build / "bin/metalrobo_crow_eye_check",
+         "retinal_check": build / "bin/metalrobo_retinal_stream_check",
++        "retinal_live_check": build / "bin/metalrobo_crow_retinal_live_check",
+         "retinal_contract_check": build / "bin/metalrobo_crow_retinal_contract_check",
+         "retinal_metallib": build / "shaders/RetinalStream.metallib",
+     }
+@@ -766,6 +767,7 @@ def main() -> int:
+     commands.add_parser("head-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("eye-admission").add_argument("--output", type=Path, required=True)
+     commands.add_parser("retina-admission").add_argument("--output", type=Path, required=True)
++    commands.add_parser("retinal-live-admission").add_argument("--output",type=Path,required=True)
+     retinal_contract=commands.add_parser("retinal-contract-admission")
+     retinal_contract.add_argument("--output",type=Path,required=True)
+     retinal_contract.add_argument("--legacy-metallib",type=Path)
+@@ -881,6 +883,10 @@ def main() -> int:
+         plan.update({"purpose":"native retinal actor contract and pre-submission rejection instrument",
+           "prediction":"1251 actor/97 critic/18 action channels; 12 malformed manifests and 9 same-dimension sensor changes reject; missing observer and old shader cannot execute; legacy task ABI and mechanics unchanged",
+           "boundary":"compiler metadata and native rejection probes only; no rendered actor images or learner integration"})
++    if args.command == "retinal-live-admission":
++        plan.update({"purpose":"live native physical cameras to GPU retina to pixel-dependent actor",
++          "prediction":"two ticks cold-start blindness; actual occlusion reverses pixel-driven yaw; disconnected actor stays zero; chunk1/8 bit identical",
++          "boundary":"authored development actor; no learned vision, biological optics, sensory checkpoint restore or ecological qualification"})
+     if args.command == "retina-admission":
+         plan.update({"purpose": "native RGB timing instrument calibration",
+           "prediction": "integer 3/10 sample cadence, two accepted-tick delay; zero premature/reset-stale frames; feature error <=3e-6 against FP64 oracle; chunk1/8 bit-identical",
+@@ -905,6 +911,11 @@ def main() -> int:
+                            str(output/"native-evidence"),str(args.legacy_metallib)],root,180)
+             if result.get("status")!="passed" or result.get("stale_shader_rejected") is not True:
+                 raise RuntimeError("Native retinal contract admission failed")
++        elif args.command == "retinal-live-admission":
++            result=execute(output,"retinal-live",[str(runtime(root)["retinal_live_check"]),
++                           str(output/"native-evidence")],root,180)
++            if result.get("status")!="passed" or result.get("chunk_bit_identical") is not True:
++                raise RuntimeError("Native live retinal actor admission failed")
+         elif args.command == "retina-admission":
+             result = execute(output, "retinal-timing", [str(runtime(root)["retinal_check"]),
+                              str(output / "native-evidence")], root, 180)
+diff --git a/src/metal/MetalHybridRenderer.mm b/src/metal/MetalHybridRenderer.mm
+index 4f140598..a5f77642 100644
+--- a/src/metal/MetalHybridRenderer.mm
++++ b/src/metal/MetalHybridRenderer.mm
+@@ -1331,6 +1331,26 @@ bool createNativeGeometryResources(
+     return true;
+ }
+ 
++// Metal I/O queues maintain worker threads beyond individual compile calls.
++// Per-scene queues can exhaust libdispatch's worker limit when a process
++// constructs multiple eyes/worlds. Reuse one bounded serial loader per device;
++// each command still targets its own buffers and callers await their own batch.
++id<MTLIOCommandQueue> sharedVisualIOQueue(id<MTLDevice> device,NSError** error) {
++    static std::mutex mutex;
++    static NSMutableDictionary<NSNumber*,id<MTLIOCommandQueue>>* queues=[[NSMutableDictionary alloc] init];
++    const std::lock_guard lock(mutex);
++    NSNumber* key=@(device.registryID);
++    id<MTLIOCommandQueue> queue=queues[key];
++    if (queue!=nil) return queue;
++    MTLIOCommandQueueDescriptor* descriptor=[[MTLIOCommandQueueDescriptor alloc] init];
++    descriptor.type=MTLIOCommandQueueTypeSerial;descriptor.priority=MTLIOPriorityHigh;
++    descriptor.maxCommandBufferCount=8;descriptor.maxCommandsInFlight=8;
++    queue=[device newIOCommandQueueWithDescriptor:descriptor error:error];
++    if (queue!=nil) queues[key]=queue;
++    return queue;
++}
++
++
+ bool createNativeVisualResources(
+     id<MTLDevice> device,
+     id<MTLCommandQueue> queue,
+@@ -1482,17 +1502,8 @@ bool createNativeVisualResources(
+     }
+ 
+     if (needsMetalIO) {
+-        MTLIOCommandQueueDescriptor* descriptor =
+-            [[MTLIOCommandQueueDescriptor alloc] init];
+-        descriptor.type = MTLIOCommandQueueTypeSerial;
+-        descriptor.priority = MTLIOPriorityHigh;
+-        descriptor.maxCommandBufferCount = 2u;
+-        descriptor.maxCommandsInFlight = 64u;
+         NSError* ioError = nil;
+-        id<MTLIOCommandQueue> ioQueue =
+-            [device
+-                newIOCommandQueueWithDescriptor:descriptor
+-                                          error:&ioError];
++        id<MTLIOCommandQueue> ioQueue=sharedVisualIOQueue(device,&ioError);
+         if (ioQueue == nil) {
+             reason =
+                 "could not create Metal I/O texture queue: " +
+@@ -1790,17 +1801,8 @@ bool loadAndPrepareStreamedGeometry(
+     if (scene.geometrySources.empty()) {
+         return true;
+     }
+-    MTLIOCommandQueueDescriptor* ioDescriptor =
+-        [[MTLIOCommandQueueDescriptor alloc] init];
+-    ioDescriptor.type = MTLIOCommandQueueTypeSerial;
+-    ioDescriptor.priority = MTLIOPriorityHigh;
+-    ioDescriptor.maxCommandBufferCount = 2u;
+-    ioDescriptor.maxCommandsInFlight = 16u;
+     NSError* error = nil;
+-    id<MTLIOCommandQueue> ioQueue =
+-        [device
+-            newIOCommandQueueWithDescriptor:ioDescriptor
+-                                      error:&error];
++    id<MTLIOCommandQueue> ioQueue=sharedVisualIOQueue(device,&error);
+     if (ioQueue == nil) {
+         reason =
+             "could not create Metal I/O geometry queue: " +

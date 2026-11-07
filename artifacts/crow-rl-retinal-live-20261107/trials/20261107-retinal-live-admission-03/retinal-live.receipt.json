@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_retinal_live_check",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/20261107-retinal-live-admission-03/native-evidence"
+  ],
+  "exit_code": 1,
+  "timed_out": false,
+  "interrupted": false,
+  "wall_seconds": 0.32407337496988475,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "3bff7404e98deb51df38fdff90adc46ad41bb840000a1e2d7580316df83993be"
+}

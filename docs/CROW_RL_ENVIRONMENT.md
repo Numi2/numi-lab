@@ -434,9 +434,9 @@ passed the original controls; attempt 02 prospectively added the boundaries
 and overflow negative with unchanged numerical thresholds. Attempt 03 also
 rejects source-image index overflow and retains raw output before assertions.
 
-These are synthetic native timing fixtures. No v12 actor consumes these RGB
-features yet, and the native renderer has not been composed with this stream
-inside the accepted rollout/inference command buffer. The next gate must bind
+These timing-only fixtures did not compose the native renderer with an actor.
+The separate live v13 instrument below now exercises that composition. No v12
+actor consumes these RGB channels. The subsequent gate had to bind
 the full sensor semantics/content to a distinct actor contract, compose both
 physical head cameras without CPU image round trips, test visibility and
 cadence causally, and measure complete rollout/learning performance. The
@@ -450,8 +450,9 @@ The native C++ `makeAmericanCrowRetinalFeedingTaskPack` defines a distinct v13
 contract: 1,251 actor features (the 97 existing channels plus two 16 x 12 RGB
 planes, valid and age), 97 critic features and 18 actions. It retains the v12
 mechanics, action meanings and finite-resource state-program identity. This
-factory and the `retinal-contract-admission` instrument are implemented; a
-v13 rollout/training CLI and actual rendered actor images are still pending.
+factory and the `retinal-contract-admission` instrument are implemented. The
+separate live instrument below now supplies real rendered actor images. A v13
+C API/Swift rollout/training entry is still pending.
 
 SensorPack owns retinal camera mounts, source and output dimensions, optics,
 content hashes, rational cadence, latency, depth range and the fixed response
@@ -485,9 +486,84 @@ controls; 02 additionally requires the observer fingerprint and tests mismatch.
 The actual ABI-47 shader fixture is preserved with its receipt under
 artifacts/crow-rl-retinal-contract-20261107/inputs for portable regression.
 
-The next implementation must compose both real head cameras, RGB buffers and
-the stream in the native accepted rollout callback, publish/inspect stream
-errors, exercise visibility and per-lane reset/delay behavior, and test a
-controlled pixel-dependent actor. Only after those checks should the distinct
-v13 contract be exposed to the MLX learner and measured at production batch size.
-This contract admission does not establish those still-pending behaviors.
+The contract-only instrument establishes metadata and rejection behavior.
+The live instrument below separately admits camera/stream/actor composition.
+The distinct v13 contract still needs a C API/Swift learner entry, visual
+learning controls and complete measurements at production batch size.
+
+
+## Live native head cameras, retinal stream and pixel-dependent actor
+
+`tools/numi crow-env retinal-live-admission --output NEW_DIRECTORY` runs six
+bounded native controls. `RetinalObserverContext` renders both physical
+head cameras directly from the device-resident current body buffer, then
+encodes `RetinalStreamContext` in the same caller-owned command buffer before
+native inference. It never reads pixels, physics state or task clocks back in
+that callback, and never commits or waits there. Only RGB goes to the retinal
+reducer; renderer depth, identities and geometry do not enter the actor.
+
+The current observer intentionally accepts a fixed collision-proxy fixture,
+neutral studio and fixed area-light rig. It reconstructs the template against
+the actual physics model, checks each source-world/content hash, reconstructs
+camera bindings and fixed lighting, and validates two physical mounts against
+the bound SensorPack. Unsupported variations, optics, noise or exposure reject.
+This prevents an arbitrary precompiled scene from impersonating the bound
+observer. Eight malformed observer controls reject before native rollout.
+An observer owns its images until command completion; concurrent commands
+reject and a GPU failure poisons the owner. Callers must inspect the quiescent
+retinal error publication before admitting a batch to evidence or learning.
+
+The declared actor has one nonzero rule: yaw is twice red-minus-blue in left
+retinal cell [6,8], clamped to [-1,1]. All other controls are zero. Each condition
+gets a fresh artifact bound to its exact task/world; these are authored control
+actors, not a trained policy transferred across changed worlds. With the
+physical target visible, tick-2 yaw is +0.426903; a physical occluder makes it
+-0.356149. Disconnecting the coefficients leaves every action zero. The
+pixel-dependent action changes accepted physical state. Both eyes supply their
+complete RGB features; no semantic target coordinate enters this actor.
+
+Trial 12 passes 384 accepted transitions (six runs, two lanes, 32 ticks), zero
+sensor errors or physical terminations, two blind cold-start ticks, integer
+15 Hz cadence and 40 ms delay. A lane-1 reset at tick 17 repeats the two blind
+ticks without contaminating uninterrupted lane 0. Actor observations, actions,
+latents, transitions, full q/v trajectories and final q/v/scene states are
+bit-identical across native submission sizes 1 and 8, including the reset.
+
+The two chunk-1 controls explicitly inspect rendered RGB *after completion*
+for instrument validation. An independent FP64 area-mean, fixed radiance
+response and frame-history oracle checks every delayed RGB feature. Its maximum
+error is 9.72599e-8 against a prospectively fixed 3e-6 limit. This inspection
+is outside the device callback and is not a production execution requirement.
+Raw RGB, actors/actions, trajectories, transitions, reset states, authored
+policies, source deltas and failed-attempt receipts are preserved in
+artifacts/crow-rl-retinal-live-20261107, with lossless gzip and original hashes
+for large raw arrays. Full-world restore is not implemented by these snapshots.
+
+Attempts 01–03 failed setup/capacity admission; 04–05 passed the initial live
+controls. Attempt 06 added the RGB oracle and per-lane reset controls but was
+stopped at repeated scene construction after a sample showed libdispatch's
+64-worker limit blocked in Metal I/O. Attempt 07 showed autorelease cleanup
+alone did not fix the stall. The renderer now reuses one bounded serial I/O
+loader per device for geometry and textures. Attempt 08 completes all six
+cases in 4.10 seconds; 09 adds stricter negative, lane-isolation and trajectory
+checks with unchanged behavioral/numerical thresholds. Attempt 10 publishes
+contact usage; 11 rejects an undersized refinement at the first substep
+(230 raw contacts and 140 blocks required). Attempt 12 retains the original
+pair/manifold/convex/CCD envelope and allocates 256 raw contacts, 160 blocks,
+480 rows and 320 endpoints, passing all controls. The earlier final-substep
+usage report alone was insufficient for substep capacity admission.
+This duration includes
+construction and instrument readback and is not a training throughput figure.
+Apple documents the separate I/O command and command-buffer bounds in its
+[MTLIOCommandQueueDescriptor reference](https://developer.apple.com/documentation/metal/mtliocommandqueuedescriptor).
+
+The profile uses 160 x 120 instantaneous parallel pinhole cameras and two
+16 x 12 RGB grids. Mounts, acuity and timing remain engineering estimates,
+not measured American-crow eyes. Rendering currently occurs every control
+tick while GPU sampling admits frames at 15 Hz; optimizing that work and
+measuring full batch performance are pending. The current fixed supported
+feeding body is not ecological foraging, object manipulation or visual
+learning. The full lifelong environment still requires robust locomotion,
+solid-food pickup/carry/cache/swallow, water/energy physiology, trainable
+persistent memory, complete world/RNG/sensory/memory restore, social agents
+and information ablations, and untouched held-out qualification.

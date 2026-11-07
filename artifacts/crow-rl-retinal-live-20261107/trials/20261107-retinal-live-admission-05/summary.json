@@ -1,0 +1,11 @@
+{
+  "schema": "numi.crow-retinal-live-evidence.v1",
+  "status": "passed",
+  "accepted_native_transitions": 256,
+  "cold_start_ticks": 2,
+  "chunk_bit_identical": true,
+  "visible_tick2_yaw": 0.426903,
+  "occluded_tick2_yaw": -0.356149,
+  "visual_learning_qualified": false,
+  "environment_qualified": false
+}

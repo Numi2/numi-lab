@@ -1,0 +1,1 @@
+compile pixel actor: actor, critic, distribution, and action transforms must match the task contract

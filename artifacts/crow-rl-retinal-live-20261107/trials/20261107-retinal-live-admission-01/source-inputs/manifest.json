@@ -1,0 +1,11 @@
+{
+  "base_commit": "a94d9ce0b8e6570ff797f4536fe9157646975695",
+  "tracked_patch_sha256": "21c4ffd15f9a690c24b59e4193ddabb90e5b4279b4699a520e7da41bf5c90d9a",
+  "retained_untracked": {
+    "apps/CrowCameraFixture.hpp": "1e5b579a93d6584667d108e728b3f69eaeda81d4a7ac2444e76c3d94fc769fd6",
+    "apps/crow_retinal_live_check.mm": "12d20225a3afadb19870bf5fe9be191a4ad68160bb871c083f3ac090eebfa93c",
+    "include/metalrobo/RetinalObserver.hpp": "8d27a510d14d38473cda23f529b0cb364cb8d5f2f0131b97362e1fd160f8f8c1",
+    "src/metal/RetinalObserver.mm": "7083e19aef78a415d6ac3bdfff1f13b535e864ac36b24bbc49d18e4dc8904a17"
+  },
+  "external_artifact_inputs": {}
+}

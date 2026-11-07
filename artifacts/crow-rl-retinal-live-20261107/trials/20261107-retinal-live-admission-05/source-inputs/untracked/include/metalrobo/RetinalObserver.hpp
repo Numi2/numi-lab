@@ -1,0 +1,26 @@
+#pragma once
+#include "metalrobo/MetalWorld.hpp"
+#include "metalrobo/RetinalStream.hpp"
+#include "metalrobo/RunProgram.hpp"
+#include "metalrobo/VisualPlatform.hpp"
+#include <memory>
+namespace metalrobo {
+namespace detail {struct RetinalObserverRuntime;}
+// Two instantaneous head-camera renders in the caller's native command buffer,
+// then GPU area reduction/cadence/delay before actor inference. Truth planes
+// remain private to the renderer and are never accepted by RetinalStream.
+// The owner must outlive use of deviceProgram(); command completion retains
+// its resources. This is a development instrument, not biological optics.
+class RetinalObserverContext {
+public:
+    RetinalObserverContext(const CompiledRun&,const WorldFamily&,
+        const VisualSceneManifestV3&,std::uint32_t environments,std::uint64_t seed);
+    ~RetinalObserverContext();
+    RetinalObserverContext(const RetinalObserverContext&)=delete;
+    RetinalObserverContext& operator=(const RetinalObserverContext&)=delete;
+    [[nodiscard]] MetalWorldDeviceObservationProgram deviceProgram() noexcept;
+    [[nodiscard]] RetinalStreamSnapshot snapshot() const;
+private:
+    std::shared_ptr<detail::RetinalObserverRuntime> runtime_;
+};
+}

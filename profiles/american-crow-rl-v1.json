@@ -70,7 +70,7 @@
     "articulated_motor_control": "native-implementation; current-checkout-requalification-required",
     "visual_obstacle_course": "native-implementation; unreliable-historical-full-route-controller",
     "first_attempt_evidence": "native-transition-observer",
-    "crow_eye_perception": "estimated-native-head-camera-geometry-admitted; exact-collision-proxies-and-FP64-ray-controls; causal-actor-image-inputs-cadence-latency-and-biological-eye-calibration-pending",
+    "crow_eye_perception": "estimated-two-camera-native-live-retinal-actor-controls-passed; physical-occlusion-delay-reset-and-FP64-RGB-oracle; biological-optics-learning-and-production-scaling-pending",
     "active_head_and_beak": "estimated-native-v11; reference-inertia-and-Metal-admission; contact-actuation-and-learner-resume-controls-passed; head-vision-and-behavior-qualification-pending",
     "finite_food_water_and_energy": "experimental-native-finite-food-tracer-and-capacity-limited-crop-with-bound-reward; water-energy-physiology-pending",
     "accepted_state_consumption": "native-accepted-mouth-intake-volume-and-open-close-edge-controls-passed; solid-food-pickup-carrying-and-swallowing-pending",
@@ -78,8 +78,8 @@
     "persistent_memory_and_life_checkpoint": "resource-only-and-learner-only-checkpoints-tested; whole-world-RNG-sensory-memory-restore-pending",
     "social_individuals_and_communication": "pending",
     "weather_and_seasonal_ecology": "pending",
-    "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-and-partition-controls-passed; renderer-to-actor-composition-and-learner-contract-pending",
-    "retinal_actor_contract": "native-v13-1251-actor-97-critic-18-actions; sensor-content-and-timing-bound; missing-mismatched-observers-and-stale-shaders-reject; real-rendered-actor-stream-and-learning-pending"
+    "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-and-partition-controls-passed-including-live-head-renderer; sensory-checkpoint-restore-pending",
+    "retinal_actor_contract": "native-v13-1251-actor-97-critic-18-actions; live-pixel-dependent-native-actor-controls-passed; v13-C-API-Swift-MLX-training-entry-and-batch-performance-pending"
   },
   "release_requirements": [
     "deterministic accepted-state execution across submission chunks",
@@ -111,6 +111,26 @@
     "control_hz": 50,
     "latency_ticks": 2,
     "scope": "synthetic native timing instrument; no live renderer-to-actor integration",
+    "ecological_environment_qualified": false
+  },
+  "retinal_live_development_instrument": {
+    "command": "retinal-live-admission",
+    "evidence": "artifacts/crow-rl-retinal-live-20261107",
+    "native_runs": 6,
+    "environments": 2,
+    "ticks_per_run": 32,
+    "accepted_transitions": 384,
+    "camera_source_shape": [
+      2,
+      120,
+      160,
+      4
+    ],
+    "actor_features": 1251,
+    "maximum_delayed_rgb_error": 9.72599e-08,
+    "registered_rgb_error_limit": 3e-06,
+    "submission_partition": "bit-identical at chunks1 and8, including one per-lane reset",
+    "scope": "authored pixel actor, fixed physical collision-proxy fixture; no visual learning or production throughput qualification",
     "ecological_environment_qualified": false
   }
 }
