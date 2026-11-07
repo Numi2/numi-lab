@@ -189,11 +189,25 @@ the same scheduler mailbox as the window, waits for the real trainer and MLX
 worker, and closes the AppKit window only after both are observed. It checks
 the child exit, lock removal, observed descendant cleanup and source/binary
 identity. The request is test-injected rather than a click through the setup
-panel. Until a native run is retained, this probe is unqualified.
+panel. The first attempt did not reach a live trainer, as described below.
 
 The first guided-cancellation probe did not reach a live trainer: its harness
 resolved the virtualenv symlink to a system Python without MLX. The window
 reported the missing interpreter and removed its lock; this does not test
 cancellation. That failure is retained under guided-cancel-001. The harness
 now preserves the virtualenv path and suppresses generic success after a
-training-start failure. The revised native cancellation check remains pending.
+training-start failure.
+
+The revised M6 probe passed at commit 45b6af1fe49946c4f63edfa8ddfca6ab4854097c.
+The test-injected request reached the guided training scheduler, and its
+monitor observed the native trainer and MLX worker before requesting an
+AppKit window close. The command exited 143, its lock was removed, no
+observed descendants survived, and source/binary hashes matched before and
+after. The trainer and worker were observed during startup; no completed
+update is claimed. Both complete attempts and the canceled run's artifacts
+are retained. This is not a click through the setup panel.
+
+At inspection the host's Aqua console session was locked. An accessibility
+query did not complete before it was stopped, so the actual panel interaction
+and live cancellation by a human operator remain unqualified. Full
+MetalWorld/measured-surface snapshot restoration is still unsupported.

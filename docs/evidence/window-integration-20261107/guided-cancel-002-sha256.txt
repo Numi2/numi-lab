@@ -1,0 +1,15 @@
+2eaf0e4a3f6b3ed676981f42634a43f1732d472beb72e752d929d41dbe802852  docs/evidence/window-integration-20261107/guided-cancel-002/close.trigger
+66da32631bed4064282e5bd7299d53e89c2069889acecb71672bfff58e91d58b  docs/evidence/window-integration-20261107/guided-cancel-002/result.json
+944ab789bd730db9ff5f50f8ea16b9b95b548d3a7cf4ec55b718477dfa288eb8  docs/evidence/window-integration-20261107/guided-cancel-002/run/arguments.txt
+55f1787b71710a262a1dfdd147dd54f5a507b527e2188bc7530a81880aeea044  docs/evidence/window-integration-20261107/guided-cancel-002/run/candidate.deployment.policypack
+da7b0712ddaee2de21bf6481e006b1199171609aebe0e6699105bd22805ee146  docs/evidence/window-integration-20261107/guided-cancel-002/run/candidate.policypack
+55f1787b71710a262a1dfdd147dd54f5a507b527e2188bc7530a81880aeea044  docs/evidence/window-integration-20261107/guided-cancel-002/run/incumbent.deployment.policypack
+da7b0712ddaee2de21bf6481e006b1199171609aebe0e6699105bd22805ee146  docs/evidence/window-integration-20261107/guided-cancel-002/run/initial.policypack
+51bab3aed41822d6b70ae4dc76224efe2a445a26a28eb6f17ef35cf053b8a84c  docs/evidence/window-integration-20261107/guided-cancel-002/run/revision.txt
+c719344907437f6ed810eca478a0c0141f8acb48ae4ed943a67cc7338141e5c3  docs/evidence/window-integration-20261107/guided-cancel-002/run/runtime.sha256
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  docs/evidence/window-integration-20261107/guided-cancel-002/run/stderr.log
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  docs/evidence/window-integration-20261107/guided-cancel-002/run/stdout.log
+18040be755aa226595317035839f296825bc7b820ab5670f4355d4f57b4b109f  docs/evidence/window-integration-20261107/guided-cancel-002/run/window-command.stderr.log
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  docs/evidence/window-integration-20261107/guided-cancel-002/run/window-command.stdout.log
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  docs/evidence/window-integration-20261107/guided-cancel-002/run/worktree-status.txt
+7c1b1fbf09d62895a53b0ba4640b52e997f05fd400370aefc4cb16172b6f445d  docs/evidence/window-integration-20261107/guided-cancel-002/window.log

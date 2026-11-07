@@ -1,0 +1,2 @@
+numi train: artifacts /Users/numi/numi-lab-release-integration-20261107/.numi/runs/window-train-20261107T224156Z-velocity-42029-0FAA98D5
+/Users/numi/numi-lab-release-integration-20261107/numi/commands/train: line 60: 42126 Terminated: 15          "$numi_trainer" "$@" > "$numi_run/stdout.log" 2> "$numi_run/stderr.log"

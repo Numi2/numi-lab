@@ -1,0 +1,1 @@
+request AppKit window close
