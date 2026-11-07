@@ -1,0 +1,3 @@
+# Preregistered scene-publication correction
+
+The preceding diagnostic enabled state trajectory output but not final-state publication, so no scene bodies were exposed. This separate diagnostic changes only publishFinalState=true in the fixture; both publication flags are required by the existing owner. It keeps geometry, camera, policy, timestep, capacity, real task, renderer, private-history snapshots and three-step arms unchanged. Run once with a 120-second limit, retain all output, timing and identities, and report actual target and sphere positions/velocities alongside camera pose and raw-contact counts. If publication or setup fails, retain that outcome. No parameter tuning, retry, timing claims or sensor-transaction conclusion is allowed from this run.
