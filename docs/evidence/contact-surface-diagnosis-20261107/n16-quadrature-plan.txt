@@ -1,0 +1,7 @@
+Extension after the n=8 quadrature result: retain identical physical law,
+geometry, material, initial state and duration, fix the FEM mesh at n=16,
+and compare three-point triangle and original nodal quadrature.
+Run the added rule at 1us and 0.5us; require each 0.25% temporal force and
+impulse gate, plus positive clearance and momentum, before interpreting the
+0.5us same-mesh rule difference. No bin alignment or parameter changes.
+The source/binary identities are binary-source-sha256.txt and source-commit.txt.

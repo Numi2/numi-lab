@@ -1,0 +1,146 @@
+{
+  "schema": "numi.contact.surface-diagnosis.v1",
+  "nodal_meshes": [
+    {
+      "n": 2,
+      "previous_outputs_exact": true,
+      "episodes_s": [
+        [
+          0.0045154999999999995,
+          0.005173
+        ],
+        [
+          0.007396499999999999,
+          0.0082395
+        ],
+        [
+          0.00827,
+          0.009515
+        ],
+        [
+          0.0095995,
+          0.01
+        ]
+      ],
+      "peak_sample_time_s": 0.0048,
+      "peak_sample_force_N": 0.7245757016534625,
+      "corner_force_at_peak_N": 0.17465157261001843,
+      "edge_force_at_peak_N": 0.36013977273296366,
+      "max_displacement_rms_m": 1.6741881329974083e-05,
+      "time_of_max_rms_s": 0.007899999999999999,
+      "cosine_modes_at_max_rms_m": [
+        8.122984111408037e-06,
+        8.122984111408088e-06,
+        3.202327305399122e-07
+      ],
+      "max_surface_velocity_rms_mps": 0.04595956584844457
+    },
+    {
+      "n": 4,
+      "previous_outputs_exact": true,
+      "episodes_s": [
+        [
+          0.0045154999999999995,
+          0.0050355
+        ],
+        [
+          0.006137,
+          0.007825
+        ],
+        [
+          0.007887,
+          0.01
+        ]
+      ],
+      "peak_sample_time_s": 0.0047,
+      "peak_sample_force_N": 0.4253433036968647,
+      "corner_force_at_peak_N": 0.02544115253534154,
+      "edge_force_at_peak_N": 0.15643820385614562,
+      "max_displacement_rms_m": 1.2938286799180828e-05,
+      "time_of_max_rms_s": 0.0086,
+      "cosine_modes_at_max_rms_m": [
+        1.563773235735885e-06,
+        1.5637732357360172e-06,
+        3.910003835222836e-07
+      ],
+      "max_surface_velocity_rms_mps": 0.042539040750753265
+    },
+    {
+      "n": 8,
+      "previous_outputs_exact": true,
+      "episodes_s": [
+        [
+          0.0045154999999999995,
+          0.0049295
+        ],
+        [
+          0.005386,
+          0.01
+        ]
+      ],
+      "peak_sample_time_s": 0.0059,
+      "peak_sample_force_N": 0.335304968540781,
+      "corner_force_at_peak_N": 0.0005296015417751586,
+      "edge_force_at_peak_N": 0.00017261364605908013,
+      "max_displacement_rms_m": 6.564092922809353e-06,
+      "time_of_max_rms_s": 0.0069,
+      "cosine_modes_at_max_rms_m": [
+        5.081546691531106e-07,
+        5.081546691532555e-07,
+        7.908935484163301e-08
+      ],
+      "max_surface_velocity_rms_mps": 0.04484834532237655
+    },
+    {
+      "n": 16,
+      "previous_outputs_exact": true,
+      "episodes_s": [
+        [
+          0.0045154999999999995,
+          0.00485
+        ],
+        [
+          0.004967,
+          0.01
+        ]
+      ],
+      "peak_sample_time_s": 0.0053,
+      "peak_sample_force_N": 0.25729978233266665,
+      "corner_force_at_peak_N": 0.00011886470673725213,
+      "edge_force_at_peak_N": 0.0029697537460747618,
+      "max_displacement_rms_m": 3.2477336721226076e-06,
+      "time_of_max_rms_s": 0.008,
+      "cosine_modes_at_max_rms_m": [
+        2.210467405136505e-07,
+        2.2104674051339966e-07,
+        -1.4151050680405086e-08
+      ],
+      "max_surface_velocity_rms_mps": 0.03807248140716714
+    }
+  ],
+  "gaussian_temporal": {
+    "peak_normalized_binned_force": 2.9373136397197878e-09,
+    "relative_impulse": 2.5590433530945687e-11
+  },
+  "same_mesh_nodal_vs_gaussian": {
+    "peak_normalized_binned_force": 0.08400304051619234,
+    "relative_impulse": 0.033669665254816704
+  },
+  "gaussian_minimum_gap_m": 8.361484844502537e-05,
+  "gaussian_contact_episodes_s": [
+    [
+      0.0045154999999999995,
+      0.0049515
+    ],
+    [
+      0.005545,
+      0.01
+    ]
+  ],
+  "limits": [
+    "RMS and cosine projections are surface diagnostics, not a complete FEM eigenmode decomposition",
+    "corner and edge nodal support areas shrink with mesh refinement",
+    "both quadratures discretize the same regularized pressure energy but neither is a converged continuum reference",
+    "0.1ms point samples do not locate force peaks between samples"
+  ]
+}

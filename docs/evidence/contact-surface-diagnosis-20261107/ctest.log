@@ -1,0 +1,9 @@
+Test project /Users/numi/numi-lab-contact-reference-build-20261107
+    Start 4: numi.contact.surface_energy_nodal
+1/2 Test #4: numi.contact.surface_energy_nodal ......   Passed    0.22 sec
+    Start 5: numi.contact.surface_energy_gaussian
+2/2 Test #5: numi.contact.surface_energy_gaussian ...   Passed    0.01 sec
+
+100% tests passed out of 2
+
+Total Test time (real) =   0.23 sec

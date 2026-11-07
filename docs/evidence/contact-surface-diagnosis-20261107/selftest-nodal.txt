@@ -1,0 +1,1 @@
+energy-gradient absolute 7.74489e-10 relative 2.26215e-08 maxforce 0.0342369

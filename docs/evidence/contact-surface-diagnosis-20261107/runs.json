@@ -1,0 +1,44 @@
+[
+  {
+    "n": 2,
+    "h": 5e-07,
+    "quadrature": "nodal",
+    "wall_seconds": 0.07704887498402968,
+    "exit": 0
+  },
+  {
+    "n": 4,
+    "h": 5e-07,
+    "quadrature": "nodal",
+    "wall_seconds": 0.5231327499495819,
+    "exit": 0
+  },
+  {
+    "n": 8,
+    "h": 5e-07,
+    "quadrature": "nodal",
+    "wall_seconds": 4.969420541019645,
+    "exit": 0
+  },
+  {
+    "n": 16,
+    "h": 5e-07,
+    "quadrature": "nodal",
+    "wall_seconds": 34.50245912501123,
+    "exit": 0
+  },
+  {
+    "n": 8,
+    "h": 1e-06,
+    "quadrature": "gaussian",
+    "wall_seconds": 2.10684520896757,
+    "exit": 0
+  },
+  {
+    "n": 8,
+    "h": 5e-07,
+    "quadrature": "gaussian",
+    "wall_seconds": 4.351055958017241,
+    "exit": 0
+  }
+]

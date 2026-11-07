@@ -1,0 +1,15 @@
+CPU-only FP64 independent semidiscrete FEM. Fixed geometry, material, density,
+gravity, 0.2mm initial gap, 0.1mm activation, k=1e16 N/m^5 and 10ms duration.
+Retained nodal quadrature: record 0.1ms-spaced force, corner/edge force,
+surface displacement RMS and cosine modes and velocity RMS at n=2,4,8,16,
+h=0.5us. Compare force bins, impulse, first contact and release to the
+previously retained same-model reference before interpreting modes.
+Discriminating quadrature experiment: n=8, same mesh and physical energy
+density, compare area-lumped vertex rule with positive three-point triangular
+quadrature evaluated through barycentric gaps and forces. Evaluate both at 1us
+and 0.5us; use unchanged 0.25% temporal gates, same binning and no alignment.
+The two rules are alternative discretizations of the fixed regularized energy,
+not evidence of a different physical contact law. Finite-difference force /
+energy checks must pass first. Record outcomes including failures and wall
+time; do not use results as Metal performance data. A nodal n=2 pilot was
+run before this plan and is retained.
