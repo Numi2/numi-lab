@@ -7391,3 +7391,6 @@ if(NOT BUILD_TESTING)
     unset(_numi_check_target)
     unset(_numi_check_type)
 endif()
+
+# A small standalone-capable project also serves the integrated native test.
+add_subdirectory(tests/ccd)

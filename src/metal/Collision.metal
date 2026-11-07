@@ -5590,7 +5590,8 @@ inline bool finiteContactDispatch(
         MR_METAL_WORLD_CONTACT_BODY_PARAMETERS |
         MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES |
         MR_METAL_WORLD_CONTACT_BODY_WRENCHES |
-        MR_METAL_WORLD_CONTACT_OWNED_FREE_BODY_CANDIDATE;
+        MR_METAL_WORLD_CONTACT_OWNED_FREE_BODY_CANDIDATE |
+        MR_METAL_WORLD_CONTACT_DIRECTIONAL_CCD;
     return
         dispatch.abiVersion ==
             MR_METAL_WORLD_CONTACT_ABI_VERSION &&
@@ -6708,6 +6709,118 @@ bool speculativeEnvelopeCoversCCDPair(
         marginB + tolerance >= motionB;
 }
 
+// For q(a)=normalize((1-a)q0+a*q1), with hemisphere-corrected unit
+// endpoints and c=dot(q0,q1), |omega(a)| <= 4*tan(acos(c)/2).
+// The ratio form avoids cancellation near equal endpoints. This is a bound
+// per unit alpha, not an average angle or the endpoint rotational chord.
+float shortestNlerpAngularSpeedBound(const float4 start, float4 end) {
+    if (dot(start, end) < 0.0f) {
+        end = -end;
+    }
+    return 4.0f * length(end - start) / length(end + start);
+}
+
+bool directionalCCDShapeEligible(
+    device const MRShapeGPU& source,
+    device const MRProjectedColliderGPU& start,
+    device const MRProjectedColliderGPU& end
+) {
+    if (source.shapeType == MR_SHAPE_PLANE) {
+        // An infinite rotating plane has no finite radius bound.
+        return all(start.rotation == end.rotation);
+    }
+    if (source.shapeType == MR_SHAPE_CAPSULE &&
+        start.lowerAndHalfLength.w != end.lowerAndHalfLength.w) {
+        return false;
+    }
+    return source.shapeType == MR_SHAPE_SPHERE ||
+        source.shapeType == MR_SHAPE_CAPSULE ||
+        source.shapeType == MR_SHAPE_BOX ||
+        source.shapeType == MR_SHAPE_CYLINDER ||
+        source.shapeType == MR_SHAPE_CONVEX;
+}
+
+// A closest-point query may overestimate distance before its GJK tolerance
+// closes. Re-evaluate support extrema on its axis: their projected gap is a
+// lower bound on separation. A witness axis is not a separating plane for a
+// nonconvex mesh, so those pairs deliberately retain the established path.
+bool directionalCCDAdvance(
+    const uint colliderA,
+    const uint colliderB,
+    device const MRShapeGPU& sourceA,
+    device const MRShapeGPU& sourceB,
+    device const MRProjectedColliderGPU& startA,
+    device const MRProjectedColliderGPU& startB,
+    device const MRProjectedColliderGPU& endA,
+    device const MRProjectedColliderGPU& endB,
+    device const MRGeometryHeaderGPU* geometryHeaders,
+    device const float4* geometryVertices,
+    const float alpha,
+    const float3 queryNormal,
+    const float tolerance,
+    thread float& advancement
+) {
+    if (!directionalCCDShapeEligible(sourceA, startA, endA) ||
+        !directionalCCDShapeEligible(sourceB, startB, endB)) {
+        return false;
+    }
+    const float normalLength = length(queryNormal);
+    if (!(normalLength > kTiny) || !isfinite(normalLength)) {
+        return false;
+    }
+    const float3 normal = queryNormal / normalLength;
+    const WorldShape a = interpolatedCCDShape(
+        colliderA, sourceA, startA, endA, alpha);
+    const WorldShape b = interpolatedCCDShape(
+        colliderB, sourceB, startB, endB, alpha);
+    float gap = 0.0f;
+    if (a.type == MR_SHAPE_PLANE || b.type == MR_SHAPE_PLANE) {
+        const thread WorldShape& plane = a.type == MR_SHAPE_PLANE ? a : b;
+        const thread WorldShape& finite = a.type == MR_SHAPE_PLANE ? b : a;
+        device const MRShapeGPU& source = a.type == MR_SHAPE_PLANE ? sourceB : sourceA;
+        float3 point;
+        uint feature;
+        if (!supportWorldShape(finite, source, geometryHeaders, geometryVertices,
+                -plane.planeNormal, point, feature)) {
+            return false;
+        }
+        gap = dot(point - plane.center, plane.planeNormal);
+    } else {
+        ConvexSupportPoint support;
+        if (!supportMinkowski(a, b, sourceA, sourceB, geometryHeaders,
+                geometryVertices, normal, support)) {
+            return false;
+        }
+        gap = dot(support.pointB - support.pointA, normal);
+    }
+    if (!(gap > tolerance) || !isfinite(gap)) {
+        return false;
+    }
+    const float radiusA = a.type == MR_SHAPE_PLANE ? 0.0f :
+        shapeSweepRadius(sourceA, startA);
+    const float radiusB = b.type == MR_SHAPE_PLANE ? 0.0f :
+        shapeSweepRadius(sourceB, startB);
+    const float rotation =
+        radiusA * shortestNlerpAngularSpeedBound(startA.rotation, endA.rotation) +
+        radiusB * shortestNlerpAngularSpeedBound(startB.rotation, endB.rotation);
+    const float3 relativeTranslation =
+        (endB.centerAndRadius.xyz - startB.centerAndRadius.xyz) -
+        (endA.centerAndRadius.xyz - startA.centerAndRadius.xyz);
+    const float closing = max(0.0f, -dot(relativeTranslation, normal) + rotation);
+    if (!isfinite(closing)) {
+        return false;
+    }
+    // If this fixed separating plane stays open through alpha=1, the pair
+    // cannot intersect anywhere in the remaining sweep. Include a small FP32
+    // guard before issuing that certificate.
+    const float guardedGap = gap - tolerance;
+    const float guardedClosing = closing * (1.0f + 2.0e-6f);
+    advancement = guardedClosing > 0.0f
+        ? guardedGap / guardedClosing
+        : 2.0f;
+    return isfinite(advancement);
+}
+
 MRCCDPairGPU resolveCCDPair(
     const uint environment,
     const uint compiledPair,
@@ -6879,10 +6992,32 @@ MRCCDPairGPU resolveCCDPair(
             record.normalAndIteration.xyz = query.normal;
             break;
         }
-        const float advancement = max(
-            (query.separation - tolerance) / totalMotion,
-            minimumAlpha
-        );
+        float advancement = (query.separation - tolerance) / totalMotion;
+        if ((dispatch.flags & MR_METAL_WORLD_CONTACT_DIRECTIONAL_CCD) != 0u) {
+            float directionalAdvance = 0.0f;
+            if (directionalCCDShapeEligible(sourceA, startA, endA) &&
+                directionalCCDShapeEligible(sourceB, startB, endB)) {
+                if (!directionalCCDAdvance(
+                        pair.colliderA, pair.colliderB, sourceA, sourceB,
+                        startA, startB, endA, endB, geometryHeaders,
+                        geometryVertices, alpha, query.normal, tolerance,
+                        directionalAdvance)) {
+                    // A positive GJK distance without a positive support-plane
+                    // gap is not a certified advance. Fail closed rather than
+                    // reverting to a potentially underbounded rotational cast.
+                    queryFailed = true;
+                    break;
+                }
+                if (!(directionalAdvance >= minimumAlpha)) {
+                    // The minimum step is a work budget, not permission to
+                    // cross the certified interval. Preserve a typed failure.
+                    queryFailed = true;
+                    break;
+                }
+                advancement = directionalAdvance;
+            }
+        }
+        advancement = max(advancement, minimumAlpha);
         previousAlpha = alpha;
         alpha += advancement;
         if (alpha > 1.0f) {

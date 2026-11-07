@@ -1,0 +1,16 @@
+Test project /Users/numi/numi-lab-ccd-focused-build-20261107
+    Start 1: metalrobo.ccd.directional_advancement
+1/2 Test #1: metalrobo.ccd.directional_advancement ...   Passed    0.48 sec
+    Start 2: metalrobo.ccd.small_scale_regression
+2/2 Test #2: metalrobo.ccd.small_scale_regression ....   Passed    0.14 sec
+
+100% tests passed out of 2
+
+Label Time Summary:
+ccd             =   0.62 sec*proc (2 tests)
+collision       =   0.62 sec*proc (2 tests)
+experimental    =   0.62 sec*proc (2 tests)
+metal           =   0.62 sec*proc (2 tests)
+metalrobo       =   0.62 sec*proc (2 tests)
+
+Total Test time (real) =   0.62 sec

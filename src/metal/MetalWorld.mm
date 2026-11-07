@@ -4359,6 +4359,9 @@ MetalWorldDiagnostics validateAndBuildLayout(
     if (config.ccdMode != MetalWorldCCDMode::disabled) {
         contact.flags |= MR_METAL_WORLD_CONTACT_CCD;
     }
+    if (config.directionalCCDAdvancement) {
+        contact.flags |= MR_METAL_WORLD_CONTACT_DIRECTIONAL_CCD;
+    }
     if (config.ccdMode == MetalWorldCCDMode::hybrid &&
         std::any_of(
             world.model().shapes.begin(),

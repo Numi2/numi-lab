@@ -764,6 +764,9 @@ struct MetalWorldStepConfig {
     std::uint32_t maxCCDZeroTimeReplays =
         MR_CCD_DEFAULT_ZERO_TIME_REPLAYS;
     std::uint32_t maxConservativeAdvancementIterations = 16u;
+    // Experimental: tighter bound for the actual shortest-nlerp CCD path.
+    // Meshes and changing-length capsules retain the established bound.
+    bool directionalCCDAdvancement = false;
     bool applyBodyDamping = true;
     bool deterministic = true;
     bool warmStart = true;

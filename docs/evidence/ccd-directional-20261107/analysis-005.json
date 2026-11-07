@@ -1,0 +1,520 @@
+{
+  "schema": "numi.ccd.bound-analysis.v1",
+  "reports": [
+    {
+      "observation": "confirmation-005-scale-0.5.json",
+      "scale": 0.5,
+      "device": "Apple M6",
+      "distinct_sweeps": 10,
+      "replicated_environments_per_sweep": 1024,
+      "directional_geometry_gate_failures": 0,
+      "unresolved_sweeps": [
+        2,
+        5
+      ],
+      "typed_failure_sweeps": [
+        0,
+        2
+      ],
+      "sum_of_case_gpu_medians_seconds": [
+        0.0055610416457038,
+        0.0056505416287132
+      ],
+      "directional_to_control_gpu_cost_ratio": 1.0160941040746463,
+      "units": [
+        {
+          "unit": "thin-plate-impact",
+          "iterations": [
+            25,
+            3
+          ],
+          "unresolved": [
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000245666713454,
+            8.18750122562e-05
+          ]
+        },
+        {
+          "unit": "tangential-plane-miss",
+          "iterations": [
+            128,
+            1
+          ],
+          "unresolved": [
+            true,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.00109037500806,
+            5.19166933373e-05
+          ]
+        },
+        {
+          "unit": "rotating-plane-hit",
+          "iterations": [
+            2,
+            128
+          ],
+          "unresolved": [
+            false,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            5.79582992941e-05,
+            0.00203174998751
+          ]
+        },
+        {
+          "unit": "rotating-plane-near-miss",
+          "iterations": [
+            58,
+            128
+          ],
+          "unresolved": [
+            false,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000539083324838,
+            0.00203345832415
+          ]
+        },
+        {
+          "unit": "tangential-box-miss",
+          "iterations": [
+            20,
+            2
+          ],
+          "unresolved": [
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.00050704163732,
+            0.000124666665215
+          ]
+        },
+        {
+          "unit": "common-motion-hit",
+          "iterations": [
+            128,
+            2
+          ],
+          "unresolved": [
+            true,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.0024534999975,
+            0.000248333322816
+          ]
+        },
+        {
+          "unit": "moving-catch",
+          "iterations": [
+            25,
+            2
+          ],
+          "unresolved": [
+            false,
+            true
+          ],
+          "typed_failure": [
+            false,
+            true
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000424583326094,
+            8.54583340697e-05
+          ]
+        },
+        {
+          "unit": "rotating-edge-hit",
+          "iterations": [
+            4,
+            7
+          ],
+          "unresolved": [
+            false,
+            true
+          ],
+          "typed_failure": [
+            false,
+            true
+          ],
+          "geometric_or_rejected_gate": [
+            false,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000140374992043,
+            0.000146916660015
+          ]
+        },
+        {
+          "unit": "rotating-edge-miss",
+          "iterations": [
+            6,
+            7
+          ],
+          "unresolved": [
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            7.30416504666e-05,
+            0.000102583318949
+          ]
+        },
+        {
+          "unit": "rotating-antipodal-hit",
+          "iterations": [
+            2,
+            128
+          ],
+          "unresolved": [
+            false,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            2.94166966341e-05,
+            0.000743583310395
+          ]
+        }
+      ]
+    },
+    {
+      "observation": "confirmation-005-scale-4.json",
+      "scale": 4,
+      "device": "Apple M6",
+      "distinct_sweeps": 10,
+      "replicated_environments_per_sweep": 1024,
+      "directional_geometry_gate_failures": 0,
+      "unresolved_sweeps": [
+        2,
+        5
+      ],
+      "typed_failure_sweeps": [
+        0,
+        2
+      ],
+      "sum_of_case_gpu_medians_seconds": [
+        0.0055811249767455,
+        0.0058748332667139
+      ],
+      "directional_to_control_gpu_cost_ratio": 1.0526252845424846,
+      "units": [
+        {
+          "unit": "thin-plate-impact",
+          "iterations": [
+            25,
+            3
+          ],
+          "unresolved": [
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000249583332334,
+            8.31666402519e-05
+          ]
+        },
+        {
+          "unit": "tangential-plane-miss",
+          "iterations": [
+            128,
+            1
+          ],
+          "unresolved": [
+            true,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.0010920833447,
+            4.97499713674e-05
+          ]
+        },
+        {
+          "unit": "rotating-plane-hit",
+          "iterations": [
+            2,
+            128
+          ],
+          "unresolved": [
+            false,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            5.61666674912e-05,
+            0.00203537498601
+          ]
+        },
+        {
+          "unit": "rotating-plane-near-miss",
+          "iterations": [
+            58,
+            128
+          ],
+          "unresolved": [
+            false,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000542416644748,
+            0.00203625002177
+          ]
+        },
+        {
+          "unit": "tangential-box-miss",
+          "iterations": [
+            20,
+            2
+          ],
+          "unresolved": [
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.00050874997396,
+            0.000126083323266
+          ]
+        },
+        {
+          "unit": "common-motion-hit",
+          "iterations": [
+            128,
+            2
+          ],
+          "unresolved": [
+            true,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.00245754164644,
+            0.000248374999501
+          ]
+        },
+        {
+          "unit": "moving-catch",
+          "iterations": [
+            25,
+            2
+          ],
+          "unresolved": [
+            false,
+            true
+          ],
+          "typed_failure": [
+            false,
+            true
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000425625010394,
+            8.51249787956e-05
+          ]
+        },
+        {
+          "unit": "rotating-edge-hit",
+          "iterations": [
+            2,
+            6
+          ],
+          "unresolved": [
+            false,
+            true
+          ],
+          "typed_failure": [
+            false,
+            true
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            0.000128499988932,
+            0.000144041667227
+          ]
+        },
+        {
+          "unit": "rotating-edge-miss",
+          "iterations": [
+            6,
+            7
+          ],
+          "unresolved": [
+            false,
+            false
+          ],
+          "typed_failure": [
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            8.88333306648e-05,
+            0.000118416675832
+          ]
+        },
+        {
+          "unit": "rotating-antipodal-hit",
+          "iterations": [
+            2,
+            128
+          ],
+          "unresolved": [
+            false,
+            true
+          ],
+          "typed_failure": [
+            false,
+            false
+          ],
+          "geometric_or_rejected_gate": [
+            true,
+            true
+          ],
+          "gpu_seconds_median": [
+            3.16250370815e-05,
+            0.000948250002693
+          ]
+        }
+      ]
+    }
+  ],
+  "decision": "retain opt-in experiment; do not promote to default",
+  "accepted_simulated_time_per_wall_second": null,
+  "limitations": [
+    "A geometric gate can pass because a sweep is rejected as unresolved.",
+    "Neither an unresolved result nor a speculative fallback proves a resolved physical interaction.",
+    "A sum of kernel medians is descriptive; it is not accepted simulation throughput.",
+    "Replicated environments and timing repeats are not independent geometric units.",
+    "No force, friction, torque, control, full-transaction or physical validation."
+  ]
+}

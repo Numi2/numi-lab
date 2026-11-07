@@ -1,0 +1,53 @@
+{
+  "schema": "numi.ccd.bound-comparison.v1",
+  "created_utc": "2026-11-07T18:43:48.598794+00:00",
+  "source_revision": "efde73484b24189a8ba83a79be2bff30437d6ba7",
+  "bindings": {
+    "apps/ccd_advancement_probe.mm": "09169a5fa63a63a152812234a4137b000472ba73a70d20ba120c2f528f1ecf29",
+    "src/metal/Collision.metal": "cd558886cd91ea3235584497ce92643af7d58e313f5d6221d7cc67a9b4ea6cb9",
+    "include/metalrobo/engine_types.h": "40a9ee22bc4ac396a7efe32c3e8978c723091ba13453d3e8a0305da3f477db44",
+    "include/metalrobo/MetalWorld.hpp": "6f8eea6dcaa32debc0d390c3100e9f473efa534f21af0797d8a24ea4df6d9a3e",
+    "src/metal/MetalWorld.mm": "84d3fbee04838fce93723ce40b478e03b7f57272654c40a19a3e191db89d0e1c"
+  },
+  "question": "Does a support-plane directional closing bound reduce production CCD advancement work without new geometric misses?",
+  "hypothesis": "No unreported crossing on the declared paths: an uncertified support-plane advance yields typed unresolved failure; tangential miss work decreases at least 50%. Rotation may remain inconclusive within 128 iterations.",
+  "arms": [
+    "existing total-motion bound",
+    "opt-in relative directional translation + shortest-nlerp peak rotation bound"
+  ],
+  "calibration": {
+    "scale": 1,
+    "environments": 32,
+    "repeats": 3,
+    "scope": "FP64 plane support/15-axis OBB SAT; analytic continuous miss certificates; byte-identical production-record replay",
+    "purpose": "regression of exposed scale-0.1 failure plus scale-1 calibration, labelled replication"
+  },
+  "confirmation": {
+    "scales": [
+      0.5,
+      4
+    ],
+    "environments": 1024,
+    "repeats": 9,
+    "unit": "independent geometric sweep at a specified scale, paired arms in alternating order",
+    "stopping": "one invocation per scale; preserve any invalid/failing invocation; amendments receive new plan identities"
+  },
+  "measurements": [
+    "iteration count",
+    "impact interval",
+    "status/unresolved/fallback",
+    "median GPU command seconds"
+  ],
+  "gates": {
+    "directional_new_misses": 0,
+    "directional_new_false_hits": 0,
+    "replay_mismatches": 0
+  },
+  "limitations": [
+    "Kernel-level comparison only; no accepted physical-time throughput, forces, friction, torque, controller or transaction qualification.",
+    "The directional mode fails closed when support separation is uncertified or the safe step falls below the advancement budget. Legacy mode and noneligible paths retain existing semantics.",
+    "Miss certificates prove the specified continuous paths; hit reference roots use a dense FP64 bracket and bisection.",
+    "Mesh and changing-length capsule pairs retain the old path; no broadphase or occlusion changes."
+  ],
+  "amendment": "Instrument 005 also retains every post-warmup GPU timing sample and checks byte-identical status-buffer replay. Physics is identical to candidate 004. Earlier outputs retain median-only timing limitations; use new unused scale units for the final measured comparison."
+}

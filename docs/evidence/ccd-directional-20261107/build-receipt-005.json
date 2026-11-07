@@ -1,0 +1,44 @@
+{
+  "schema": "numi.ccd.build-receipt.v1",
+  "created_utc": "2026-11-07T18:48:42.583133+00:00",
+  "host": "numi",
+  "device": "Apple M6",
+  "memory_bytes": 17179869184,
+  "base_revision": "efde73484b24189a8ba83a79be2bff30437d6ba7",
+  "source_sha256": {
+    "apps/ccd_advancement_probe.mm": "09169a5fa63a63a152812234a4137b000472ba73a70d20ba120c2f528f1ecf29",
+    "tests/ccd/CMakeLists.txt": "ec0448ef9b46c2526d1d26aa4f8df02e13c05ab47fcbdcd9594f145068acec13",
+    "tests/ccd/analyze.py": "599b2d1a265b64efbd625a92595c8e5ff23655a1900fcdb68032b69a5d69f1af",
+    "src/metal/Collision.metal": "cd558886cd91ea3235584497ce92643af7d58e313f5d6221d7cc67a9b4ea6cb9",
+    "src/metal/MetalWorld.mm": "84d3fbee04838fce93723ce40b478e03b7f57272654c40a19a3e191db89d0e1c",
+    "include/metalrobo/MetalWorld.hpp": "6f8eea6dcaa32debc0d390c3100e9f473efa534f21af0797d8a24ea4df6d9a3e",
+    "include/metalrobo/engine_types.h": "40a9ee22bc4ac396a7efe32c3e8978c723091ba13453d3e8a0305da3f477db44",
+    "include/metalrobo/rod_gpu_shared.h": "0e8a2fc59a2969ca2493aaa0ee9d6e51cac723a22a63cb2e6d03b00807fd373d",
+    "include/metalrobo/gpu_types.h": "55777caa42851b167780255c76e02c40e2285ee43cc6dda77063d8639f6728d8",
+    "include/metalrobo/compensated_translation_gpu.h": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097",
+    "include/metalrobo/constraint_ir_shared.h": "1abad282fa1e88b809da2271c8e98bc0fcde6adc6629b61a7f8f7d7633c5403f"
+  },
+  "build_commands": [
+    "cmake -S /Users/numi/numi-lab-ccd-20261107/tests/ccd -B /Users/numi/numi-lab-ccd-focused-build-20261107 -G Ninja -DCMAKE_BUILD_TYPE=Release",
+    "cmake --build /Users/numi/numi-lab-ccd-focused-build-20261107 -j2",
+    "ctest --test-dir /Users/numi/numi-lab-ccd-focused-build-20261107 --output-on-failure",
+    "xcrun clang++ -std=c++23 -fobjc-arc -fsyntax-only -I include -I matter/include src/metal/MetalWorld.mm"
+  ],
+  "os": "ProductName:\t\tmacOS\nProductVersion:\t\t27.0\nBuildVersion:\t\t26A425\n",
+  "compiler": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "metal_compiler_path": "/Users/numi/Library/Developer/Toolchains/Metal.xctoolchain/usr/bin/metal",
+  "native_binary": {
+    "path": "/Users/numi/numi-lab-ccd-focused-build-20261107/bin/metalrobo_ccd_advancement_probe",
+    "sha256": "c051835b90d65ccb7c31c8c7c1e6415ab96827d026358149b8590cbc658a4356"
+  },
+  "metallib": {
+    "path": "/Users/numi/numi-lab-ccd-focused-build-20261107/shaders/NumiCCDProbe.metallib",
+    "sha256": "9be3c477e3f9b70704345c1b3aafae812388e61cad826c967f4d4c89109f2983"
+  },
+  "ctest_evidence": "ctest-005.log",
+  "scope": "focused production CCD shader + instrument; host integration syntax; no complete coupled rollout",
+  "prior_binary_payloads": {
+    "candidate-002/CCD.metallib": "1e42618341b2a35dc78f5a9ed0895cebd81887933946bf42f2d416f83acc1a2f",
+    "candidate-003/CCD.metallib": "f2476b85b6bf58e8beca8d0f8cac2fb19674a3c45b1496a2bb02a61424d70ab4"
+  }
+}
