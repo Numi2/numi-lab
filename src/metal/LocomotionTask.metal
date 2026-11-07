@@ -2,6 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 #include "metalrobo/task_program_types.h"
+#include "metalrobo/measured_surface_types.h"
 
 using namespace metal;
 
@@ -664,6 +665,9 @@ inline float cleanObservation(
         break;
     case MR_TASK_OBSERVE_PREVIOUS_POLICY_ACTION:
         value = previousPolicyAction[operation.source.y];
+        break;
+    case MR_TASK_OBSERVE_DEVICE_MECHANICS:
+        value = state.deviceMechanics[operation.source.z];
         break;
     case MR_TASK_OBSERVE_DELAYED_ACTION:
         value = previousAction[
@@ -1751,6 +1755,7 @@ kernel void mr_locomotion_task_select_threat_query(
             0u,
             MR_INVALID_INDEX
         );
+        state.deviceMechanics = float4(0.0f);
         taskStates[environment] = state;
         return;
     }
@@ -2537,6 +2542,47 @@ kernel void mr_locomotion_task_observe(
                         operation.parameters[component];
                 }
                 break;
+            case MR_TASK_RANDOMIZE_ROOT_LINEAR_VELOCITY:
+                resetV[vBase + program.root.w + operation.target.z] =
+                    randomRange(
+                        dispatch, environment, episode, 0u, channel,
+                        operation.parameters.x, operation.parameters.y);
+                break;
+            case MR_TASK_RANDOMIZE_ROOT_ANGULAR_VELOCITY:
+                resetV[vBase + program.root.w + 3u + operation.target.z] =
+                    randomRange(
+                        dispatch, environment, episode, 0u, channel,
+                        operation.parameters.x, operation.parameters.y);
+                break;
+            case MR_TASK_RANDOMIZE_ROOT_ORIENTATION_CONE: {
+                const float tilt = operation.parameters.x * randomUnit(
+                    dispatch, environment, episode, 0u, channel);
+                const float azimuth = 2.0f * M_PI_F * randomUnit(
+                    dispatch, environment, episode, 0u, channel + 1u);
+                const float yaw = operation.parameters.y * randomSigned(
+                    dispatch, environment, episode, 0u, channel + 2u);
+                const float halfTilt = 0.5f * tilt;
+                const float4 tiltRotation = float4(
+                    cos(azimuth) * sin(halfTilt),
+                    sin(azimuth) * sin(halfTilt),
+                    0.0f,
+                    cos(halfTilt));
+                const float halfYaw = 0.5f * yaw;
+                const float4 yawRotation = float4(
+                    0.0f, 0.0f, sin(halfYaw), cos(halfYaw));
+                const float4 authored = float4(
+                    defaultQ[program.root.z + 3u],
+                    defaultQ[program.root.z + 4u],
+                    defaultQ[program.root.z + 5u],
+                    defaultQ[program.root.z + 6u]);
+                const float4 randomized = quaternionProduct(
+                    yawRotation, quaternionProduct(tiltRotation, authored));
+                for (uint component = 0u; component < 4u; ++component) {
+                    resetQ[qBase + program.root.z + 3u + component] =
+                        randomized[component];
+                }
+                break;
+            }
             case MR_TASK_RANDOMIZE_JOINT_POSITION:
                 resetQ[qBase + operation.target.y] = randomRange(
                     dispatch,
@@ -3331,6 +3377,12 @@ kernel void mr_locomotion_task_observe(
                 scheduled.linearVelocityAndInverseMass.xyz =
                     float3(0.0f);
                 scheduled.angularVelocity = float4(0.0f);
+            } else {
+                // A delayed projectile is parked at reset, so resetScene
+                // deliberately has zero velocity.  Restore the authored
+                // launch state on its exact episode tick rather than letting
+                // it fall vertically from its staging point.
+                scheduled = initialScene[sceneBase + localScene];
             }
             sourceScene[sceneBase + localScene] = scheduled;
         }
@@ -3630,9 +3682,11 @@ kernel void mr_locomotion_task_apply_actions(
             targetCandidate =
                 reference +
                 velocityLeadSeconds * referenceVelocity +
-                (interactionPhysicsGated(program)
-                    ? 1.0f
-                    : program.interactionTiming.z) *
+                mix(
+                    1.0f,
+                    program.interactionTiming.z,
+                    binding.drive.z
+                ) *
                     (studentTarget - defaultQ[binding.indices.z]);
         }
         const float target = clamp(
@@ -3759,7 +3813,8 @@ kernel void mr_locomotion_task_apply_native_actuators(
         if (kind == MR_TASK_ACTUATOR_JOINT_POSITION ||
             kind == MR_TASK_ACTUATOR_GRIPPER_POSITION ||
             kind == MR_TASK_ACTUATOR_ROTOR_MIXER ||
-            kind == MR_TASK_ACTUATOR_MILLARD_EXCITATION) {
+            kind == MR_TASK_ACTUATOR_MILLARD_EXCITATION ||
+            kind == MR_TASK_ACTUATOR_MEASURED_SURFACE) {
             continue;
         }
         const float filtered = actionHistory[historyBase + action];
@@ -4432,6 +4487,7 @@ kernel void mr_locomotion_task_complete(
     float velocitySquared = 0.0f;
     float accelerationSquared = 0.0f;
     float actionRateSquared = 0.0f;
+    float actionSquared = 0.0f;
     float limitViolationSquared = 0.0f;
     const float mechanicalPower =
         state.airReturnTracking.x;
@@ -4454,6 +4510,7 @@ kernel void mr_locomotion_task_complete(
         ];
         const float actionDelta = currentAction - previousAction;
         actionRateSquared += actionDelta * actionDelta;
+        actionSquared += currentAction * currentAction;
         if (binding.indices.y == MR_INVALID_INDEX ||
             binding.indices.z == MR_INVALID_INDEX ||
             binding.indices.w == MR_INVALID_INDEX) {
@@ -5320,6 +5377,9 @@ kernel void mr_locomotion_task_complete(
         case MR_TASK_REWARD_ACTION_RATE_SQUARED:
             value = actionRateSquared;
             break;
+        case MR_TASK_REWARD_ACTION_SQUARED:
+            value = actionSquared;
+            break;
         case MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_SQUARED:
             value = limitViolationSquared;
             break;
@@ -5862,6 +5922,27 @@ kernel void mr_locomotion_task_complete(
             value = positionScore * quietScore;
             break;
         }
+        case MR_TASK_REWARD_ROOT_OBJECT_PROGRESS:
+        case MR_TASK_REWARD_ROOT_OBJECT_PROXIMITY: {
+            const MRBodyStateGPU object =
+                sceneState[sceneBase + operation.source.z];
+            const float3 delta = object.position.xyz -
+                rootWorldPosition(program, q);
+            const float distance = length(delta);
+            if (operation.source.x ==
+                    MR_TASK_REWARD_ROOT_OBJECT_PROGRESS) {
+                const float3 direction = delta /
+                    max(distance, 1.0e-6f);
+                const float3 objectVelocity =
+                    object.linearVelocityAndInverseMass.xyz;
+                value = clamp(dot(direction,
+                    rootLinearVelocity - objectVelocity), -3.0f, 3.0f);
+            } else {
+                value = exp(-distance * distance /
+                    max(operation.parameters.y, 1.0e-8f));
+            }
+            break;
+        }
         case MR_TASK_REWARD_INTERACTION_CONTACT_TRACKING: {
             const uint trackIndex = operation.source.z;
             const MRTaskInteractionContactGPU track =
@@ -6006,6 +6087,8 @@ kernel void mr_locomotion_task_complete(
         case MR_TASK_REWARD_OBJECT_LIFT:
         case MR_TASK_REWARD_OBJECT_POSITION:
         case MR_TASK_REWARD_OBJECT_PLACEMENT:
+        case MR_TASK_REWARD_ROOT_OBJECT_PROGRESS:
+        case MR_TASK_REWARD_ROOT_OBJECT_PROXIMITY:
         case MR_TASK_REWARD_RECOVERY_TILT_PROGRESS:
         case MR_TASK_REWARD_RECOVERY_COMPLETION:
         case MR_TASK_REWARD_WHOLE_BODY_RECOVERY:
@@ -6022,6 +6105,7 @@ kernel void mr_locomotion_task_complete(
             rewardBreakdown0.w += contribution;
             break;
         case MR_TASK_REWARD_ACTION_RATE_SQUARED:
+        case MR_TASK_REWARD_ACTION_SQUARED:
         case MR_TASK_REWARD_PROJECTILE_SAFE_ACTION_RATE:
         case MR_TASK_REWARD_JOINT_CBF_CORRECTION:
         case MR_TASK_REWARD_JOINT_CBF_BUFFER:
@@ -6126,6 +6210,13 @@ kernel void mr_locomotion_task_complete(
                 ) && abs(constraint.impulses.x) /
                     dispatch.timing.y > operation.parameters.x;
             }
+            break;
+        }
+        case MR_TASK_TERMINATE_ROOT_OBJECT_PROXIMITY: {
+            const MRBodyStateGPU object =
+                sceneState[sceneBase + operation.source.y];
+            triggered = distance(object.position.xyz,
+                rootWorldPosition(program, q)) <= operation.parameters.x;
             break;
         }
         default:
@@ -6294,8 +6385,11 @@ kernel void mr_locomotion_task_complete(
             reason == MR_TASK_TERMINATION_CONTACT;
         fallLatched = fallLatched || physicalFall;
 
-        // Bootstrap only after 0.30 s of actual quiet bilateral support. The
-        // spare training-only lane is unused by this non-threat task.
+        // Retain quiet-support time as evidence, but do not use stillness as
+        // a prerequisite for advancing a physically supported reference.
+        // A previously learned balance policy may make small corrective
+        // motions forever; requiring literal quietness deadlocks otherwise
+        // safe upper-body skills at frame zero.
         const bool bootstrapFrame = gatedFramePosition <= 0.50f;
         float quietSupportSeconds = bootstrapFrame
             ? state.threatTeacher.w
@@ -6313,9 +6407,6 @@ kernel void mr_locomotion_task_complete(
                 : 0.0f;
         }
         state.threatTeacher.w = quietSupportSeconds;
-        const bool bootstrapped =
-            !bootstrapFrame || quietSupportSeconds >= 0.30f;
-
         uint nextRateCode = 0u;
         const bool atEnd =
             (program.interaction.w & MR_TASK_INTERACTION_LOOP) == 0u &&
@@ -6331,7 +6422,7 @@ kernel void mr_locomotion_task_complete(
             height > 0.64f &&
             tilt < 0.25f;
 
-        if (!fallLatched && !done && !atEnd && bootstrapped && contactsReady) {
+        if (!fallLatched && !done && !atEnd && contactsReady) {
             if (transitionMode) {
                 // RELEASE must move far enough to unload; APPROACH must move
                 // far enough to make contact. Requiring equality here would

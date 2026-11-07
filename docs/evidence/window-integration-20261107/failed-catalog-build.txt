@@ -1,0 +1,22 @@
+[0/2] Re-checking globbed directories...
+[1/5] Building CXX object CMakeFiles/metalrobo_numi_window_catalog_compile.dir/apps/numi_window_catalog_compile.cpp.o
+FAILED: [code=1] CMakeFiles/metalrobo_numi_window_catalog_compile.dir/apps/numi_window_catalog_compile.cpp.o 
+/usr/bin/c++  -I/Users/numi/numi-lab-release-integration-20261107/include -I/Users/numi/numi-lab-release-integration-20261107/matter/include -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/libxml2 -std=c++23 -arch arm64 -fPIE -MD -MT CMakeFiles/metalrobo_numi_window_catalog_compile.dir/apps/numi_window_catalog_compile.cpp.o -MF CMakeFiles/metalrobo_numi_window_catalog_compile.dir/apps/numi_window_catalog_compile.cpp.o.d -o CMakeFiles/metalrobo_numi_window_catalog_compile.dir/apps/numi_window_catalog_compile.cpp.o -c /Users/numi/numi-lab-release-integration-20261107/apps/numi_window_catalog_compile.cpp
+/Users/numi/numi-lab-release-integration-20261107/apps/numi_window_catalog_compile.cpp:372:17: error: no member named 'linkOriginTransforms' in 'metalrobo::VisualAssetCookOptions'
+  372 |         options.linkOriginTransforms.emplace(link, encoded);
+      |         ~~~~~~~ ^
+/Users/numi/numi-lab-release-integration-20261107/apps/numi_window_catalog_compile.cpp:400:34: error: no member named 'locomotionTerrainHeight' in namespace 'metalrobo'
+  400 |                     ? metalrobo::locomotionTerrainHeight(sx, sy) : 0.0f;
+      |                                  ^~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-release-integration-20261107/apps/numi_window_catalog_compile.cpp:402:25: error: cannot initialize a variable of type 'const float' with an rvalue of type 'void'
+  402 |             const float pz = height(px, py);
+      |                         ^    ~~~~~~~~~~~~~~
+/Users/numi/numi-lab-release-integration-20261107/apps/numi_window_catalog_compile.cpp:406:43: error: invalid operands to binary expression ('void' and 'void')
+  406 |                 (height(px + spacing, py) - height(px - spacing, py)) /
+      |                  ~~~~~~~~~~~~~~~~~~~~~~~~ ^ ~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-release-integration-20261107/apps/numi_window_catalog_compile.cpp:409:43: error: invalid operands to binary expression ('void' and 'void')
+  409 |                 (height(px, py + spacing) - height(px, py - spacing)) /
+      |                  ~~~~~~~~~~~~~~~~~~~~~~~~ ^ ~~~~~~~~~~~~~~~~~~~~~~~~
+5 errors generated.
+[2/5] Building CXX object CMakeFiles/metalrobo_booster_k1_compile.dir/apps/booster_k1_compile.cpp.o
+ninja: build stopped: subcommand failed.

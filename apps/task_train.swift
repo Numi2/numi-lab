@@ -2,6 +2,25 @@ import Foundation
 import Darwin
 import AppKit
 
+private func writeTrainingDiagnostic(_ message: String) {
+    let bytes = Array((message + "\n").utf8)
+    bytes.withUnsafeBytes { raw in
+        guard var base = raw.baseAddress else { return }
+        var remaining = raw.count
+        while remaining > 0 {
+            let written = Darwin.write(STDERR_FILENO, base, remaining)
+            if written > 0 {
+                remaining -= written
+                base = base.advanced(by: written)
+            } else if written < 0 && errno == EINTR {
+                continue
+            } else {
+                break
+            }
+        }
+    }
+}
+
 private struct Options {
     var environments = 32
     var steps = 24
@@ -10,6 +29,13 @@ private struct Options {
     var chunk = 8
     var surface = MetalRoboLocomotionSurface.terrain
     var unitreeG1Task = MetalRoboUnitreeG1Task.velocity
+    var measuredDoveTask: MetalRoboMeasuredSurfaceTask?
+    var measuredDoveManifest: String?
+    var numifly = false
+    var numiflyForwardFlight = false
+    var numiflyNoLegs = false
+    var numiflyWingManifest =
+        "assets/numifly/maeda-wing-pack-v1/manifest.json"
     var seed: UInt64 = 20_260_731
     var metallib = "build/shaders/MetalRobo.metallib"
     var nativeLibrary = "build/lib/libmetalrobo.dylib"
@@ -19,6 +45,7 @@ private struct Options {
     var initializePolicyID: String?
     var initializeActorPolicyPack: String?
     var initializeActorFreshCritic = false
+    var initializeZeroActorOutput = false
     var actorObservationExtensionOffset: Int?
     var actorObservationExtensionMean: Double?
     var actorObservationExtensionInverseStandardDeviation = 1.0
@@ -38,7 +65,10 @@ private struct Options {
     var interactionResetPhaseFraction: Float?
     var interactionResetPhaseProbability: Float?
     var interactionResetMaximumPhase: Float?
+    var interactionPushMaximumVelocity: Float?
+    var interactionPushIntervalSeconds: Float?
     var interactionResetOnly = false
+    var disableTaskTerminations = false
     var materializeArticulatedContactResponses = false
     var minimumDifficultyBand: Int?
     var maximumDifficultyBand: Int?
@@ -79,6 +109,7 @@ private struct Options {
     // of target exploration, rather than a new order-one target every 20 ms.
     var entropyCoefficient = 0.001
     var initialLogStandardDeviation = -1.6094379124341003
+    var initialLogStandardDeviationWasSpecified = false
     var maximumGradientNorm = 1.0
     var targetKL = 0.01
     var discount = 0.99
@@ -144,6 +175,8 @@ private struct Options {
                 index += 1
             case "--initialize-actor-fresh-critic":
                 initializeActorFreshCritic = true
+            case "--initialize-zero-actor-output":
+                initializeZeroActorOutput = true
             case "--actor-observation-extension-offset":
                 actorObservationExtensionOffset = try Self.integer(
                     value(),
@@ -262,8 +295,30 @@ private struct Options {
                 }
                 interactionResetMaximumPhase = parsed
                 index += 1
+            case "--interaction-push-maximum-velocity":
+                guard let parsed = Float(try value()), parsed.isFinite,
+                      parsed >= 0
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--interaction-push-maximum-velocity must be finite and nonnegative."
+                    )
+                }
+                interactionPushMaximumVelocity = parsed
+                index += 1
+            case "--interaction-push-interval-seconds":
+                guard let parsed = Float(try value()), parsed.isFinite,
+                      parsed > 0
+                else {
+                    throw MetalRoboTaskRolloutError.invalidShape(
+                        "--interaction-push-interval-seconds must be finite and positive."
+                    )
+                }
+                interactionPushIntervalSeconds = parsed
+                index += 1
             case "--interaction-reset-only":
                 interactionResetOnly = true
+            case "--disable-task-terminations", "--continue-after-termination":
+                disableTaskTerminations = true
             case "--materialize-articulated-contact-responses":
                 materializeArticulatedContactResponses = true
             case "--minimum-difficulty-band":
@@ -274,6 +329,12 @@ private struct Options {
                 index += 1
             case "--world-pack":
                 worldPack = try value()
+                index += 1
+            case "--dove-manifest":
+                measuredDoveManifest = try value()
+                index += 1
+            case "--numifly-wing-manifest":
+                numiflyWingManifest = try value()
                 index += 1
             case "--task-pack":
                 taskPack = try value()
@@ -314,6 +375,15 @@ private struct Options {
             case "--inspect-height":
                 inspectionHeight = try Self.integer(value(), option)
                 index += 1
+            case "--window-scene":
+                inspectionScene = try value()
+                index += 1
+            case "--window-width":
+                inspectionWidth = try Self.integer(value(), option)
+                index += 1
+            case "--window-height":
+                inspectionHeight = try Self.integer(value(), option)
+                index += 1
             case "--scene":
                 switch try value() {
                 case "ground":
@@ -344,9 +414,23 @@ private struct Options {
                     unitreeG1Task = .ballDisturbanceRecovery
                 case "ball-dodge":
                     unitreeG1Task = .ballDodge
+                case "dove-trim":
+                    measuredDoveTask = .flightTrim
+                case "dove-drop-recovery":
+                    measuredDoveTask = .fatalDropRecovery
+                case "dove-cruise":
+                    measuredDoveTask = .cruise
+                case "dove-food-navigation":
+                    measuredDoveTask = .foodNavigation
+                case "numifly-flight":
+                    numifly = true
+                case "numifly-forward-flight":
+                    numiflyForwardFlight = true
+                case "numifly-no-legs-flight":
+                    numiflyNoLegs = true
                 default:
                     throw MetalRoboTaskRolloutError.invalidShape(
-                        "--task must be velocity, disturbance-recovery, supine-get-up, developmental-recovery, adult-locomotion, g1-legs-locomotion, ball-recovery, or ball-dodge."
+                        "--task must be a bundled G1 task, numifly-flight, numifly-forward-flight, numifly-no-legs-flight, dove-trim, dove-drop-recovery, dove-cruise, or dove-food-navigation."
                     )
                 }
                 index += 1
@@ -408,6 +492,7 @@ private struct Options {
             case "--initial-log-standard-deviation":
                 initialLogStandardDeviation =
                     try Self.double(value(), option)
+                initialLogStandardDeviationWasSpecified = true
                 index += 1
             case "--maximum-gradient-norm":
                 maximumGradientNorm =
@@ -442,6 +527,14 @@ private struct Options {
             // 256 x 20 ms = 5.12 s: long enough for launch, interception,
             // avoidance, and settling instead of truncating the event.
             steps = 256
+        }
+        if (numifly || numiflyForwardFlight || numiflyNoLegs) &&
+            !initialLogStandardDeviationWasSpecified {
+            // Numifly is 9% linear scale and its exact measured wingbeat is
+            // already near weight support. Begin with local residual
+            // exploration; the full-size G1 default can over-rotate the
+            // small articulation before PPO receives its first transition.
+            initialLogStandardDeviation = -4.0
         }
         if (minimumDifficultyBand == nil) !=
             (maximumDifficultyBand == nil) ||
@@ -616,6 +709,27 @@ private struct Options {
                 "--world-pack and --urdf are mutually exclusive."
             )
         }
+        if (measuredDoveTask == nil) != (measuredDoveManifest == nil) ||
+            (measuredDoveTask != nil &&
+             (worldPack != nil || urdf != nil || interactionPack != nil))
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Dove tasks require --dove-manifest and cannot be combined with imported or interaction mechanics."
+            )
+        }
+        if [numifly, numiflyForwardFlight, numiflyNoLegs].filter({ $0 }).count > 1 {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Select exactly one Numifly flight task."
+            )
+        }
+        if (numifly || numiflyForwardFlight || numiflyNoLegs) &&
+            (measuredDoveTask != nil || measuredDoveManifest != nil ||
+            worldPack != nil || urdf != nil || interactionPack != nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Numifly flight cannot be combined with dove, imported, world-pack, or interaction mechanics."
+            )
+        }
         if (interactionPack == nil) != (interactionClip == nil) {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "Interaction tracking requires both --interaction-pack and --interaction-clip."
@@ -643,6 +757,18 @@ private struct Options {
         {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "Interaction reset curriculum options require an InteractionPack."
+            )
+        }
+        if (interactionPushMaximumVelocity == nil) !=
+            (interactionPushIntervalSeconds == nil)
+        {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Interaction push requires both velocity and interval options."
+            )
+        }
+        if interactionPushMaximumVelocity != nil && interactionPack == nil {
+            throw MetalRoboTaskRolloutError.invalidShape(
+                "Interaction push requires an InteractionPack."
             )
         }
         if interactionResetOnly && interactionPack == nil {
@@ -845,6 +971,9 @@ private func initializePolicyIfRequested(
             "--actor-observation-extension-offset",
             String(offset),
         ])
+    }
+    if options.initializeZeroActorOutput {
+        arguments.append("--zero-actor-output")
     }
     process.arguments = arguments
     process.environment = mlxEnvironment(options: options)
@@ -1196,6 +1325,7 @@ private func makeContext(
         surface: options.surface,
         seed: options.seed,
         dynamicSpheres: dynamicSpheres,
+        disableTaskTerminations: options.disableTaskTerminations,
         materializeArticulatedContactResponses:
             options.materializeArticulatedContactResponses,
         difficultyBandRange:
@@ -1213,8 +1343,62 @@ private func makeContext(
             options.interactionResetPhaseProbability,
         interactionResetMaximumPhase:
             options.interactionResetMaximumPhase,
+        interactionPush: options.interactionPushMaximumVelocity.map {
+            (maximumVelocity: $0,
+             intervalSeconds: options.interactionPushIntervalSeconds!)
+        },
         unitreeG1Task: options.unitreeG1Task
     )
+    if let doveManifest = options.measuredDoveManifest,
+       let doveTask = options.measuredDoveTask
+    {
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: .measuredDove(
+                        manifest: URL(fileURLWithPath: doveManifest),
+                        task: doveTask
+                    ),
+                    sensorsAndPhysics: configuration,
+                    inspectionVisual: inspectionVisual
+                ),
+                metallibPath: options.metallib
+            ),
+            "measured_dove"
+        )
+    }
+    if options.numifly || options.numiflyForwardFlight || options.numiflyNoLegs {
+        let noLegs = options.numiflyNoLegs
+        let forwardFlight = options.numiflyForwardFlight
+        return (
+            try MetalRoboTaskRolloutContext(
+                manifest: MetalRoboRunManifest(
+                    source: noLegs
+                        ? .numiflyNoLegs(
+                            wingManifest: URL(
+                                fileURLWithPath: options.numiflyWingManifest
+                            )
+                        )
+                        : (forwardFlight
+                            ? .numiflyForwardFlight(
+                                wingManifest: URL(
+                                    fileURLWithPath: options.numiflyWingManifest
+                                )
+                            )
+                            : .numifly(
+                            wingManifest: URL(
+                                fileURLWithPath: options.numiflyWingManifest
+                            )
+                        )),
+                    sensorsAndPhysics: configuration,
+                    inspectionVisual: inspectionVisual
+                ),
+                metallibPath: options.metallib
+            ),
+            noLegs ? "numifly_no_legs"
+                : (forwardFlight ? "numifly_forward_flight" : "numifly")
+        )
+    }
     if let interactionPack = options.interactionPack,
        let interactionClip = options.interactionClip,
        options.urdf == nil
@@ -1311,60 +1495,84 @@ private func makeContext(
     )
 }
 
-private func publishInspectionFrame(
+private func processTrainingWindowRequests(
     from context: MetalRoboTaskRolloutContext,
-    to inspector: MetalRoboRunInspectorBridge?,
+    to window: NumiWindowBridge?,
     loadPolicy: ((URL) throws -> UInt64)? = nil
 ) throws {
-    guard let inspector else {
+    guard let window else {
         return
     }
-    if let enabled = inspector.takePendingNativeInspectionEnabled() {
+    guard !window.isClosed else {
+        _ = window.waitForDeliveryDrain(timeout: 5)
+        throw NumiWindowError.closed
+    }
+    if let enabled = window.takePendingNativeInspectionEnabled() {
         try context.setInspectionEnabled(enabled)
+    }
+    if let camera = window.takeCameraControl() {
+        try context.setInspectionCamera(
+            translation: camera.translation,
+            orientation: camera.orientation
+        )
     }
     func install(_ url: URL) {
         guard let loadPolicy else {
-            inspector.reportPolicyStatus("policy reload unavailable")
+            window.reportPolicyStatus("policy reload unavailable")
             return
         }
         do {
             let revision = try loadPolicy(url)
-            inspector.reportPolicyInstalled(url, revision: revision)
+            window.reportPolicyInstalled(url, revision: revision)
         } catch {
             // A rejected replacement cannot change the compiled policy that
             // remains active for the current training submission.
-            inspector.reportPolicyRejected()
+            window.reportPolicyRejected(error)
         }
     }
-    let latestRequested = inspector.takeLatestPolicyReloadRequest()
-    if let selected = inspector.takePolicySelection() {
-        install(selected)
+    let latestRequested = window.takeLatestPolicyReloadRequest()
+    if let selected = window.takePolicySelection(),
+       let policyURL = selected.policyURL {
+        install(policyURL)
     } else if latestRequested {
-        guard let selected = inspector.selectedPolicy else {
-            inspector.reportPolicyStatus("select a policy first")
+        guard let selected = window.selectedPolicy else {
+            window.reportPolicyStatus("select a policy first")
             return
         }
         install(selected)
     }
-    guard inspector.acceptsFrames else {
-        if inspector.isClosed {
-            throw MetalRoboRunInspectorError.closed
+}
+
+private func publishInspectionFrame(
+    from context: MetalRoboTaskRolloutContext,
+    to window: NumiWindowBridge?,
+    loadPolicy: ((URL) throws -> UInt64)? = nil
+) throws {
+    try processTrainingWindowRequests(
+        from: context,
+        to: window,
+        loadPolicy: loadPolicy
+    )
+    guard let window else { return }
+    guard window.acceptsFrames else {
+        if window.isClosed {
+            throw NumiWindowError.closed
         }
-        // Pause and window occlusion gate only presentation encoding at this
-        // scheduler-owned boundary; training keeps its original cadence.
+        // Occlusion gates presentation. Explicit Pause is handled before the
+        // next training submission so it also stops simulation time.
         return
     }
     guard let frame = try context.acquireInspectionFrame() else {
         return
     }
-    inspector.publish(frame: frame, context: context)
+    window.publish(frame: frame, context: context)
 }
 
 @main
 private enum TaskTrainMain {
     private static func run(
         options: Options,
-        inspector: MetalRoboRunInspectorBridge?
+        window: NumiWindowBridge?
     ) throws {
             let (context, worldSource) =
                 try makeContext(options: options)
@@ -1427,7 +1635,7 @@ private enum TaskTrainMain {
             )
             try publishInspectionFrame(
                 from: context,
-                to: inspector,
+                to: window,
                 loadPolicy: { url in
                     try context.loadPolicy(
                         at: url
@@ -1523,6 +1731,20 @@ private enum TaskTrainMain {
                 transitions.removeAll(keepingCapacity: true)
                 var completed = 0
                 while completed < options.steps {
+                    try processTrainingWindowRequests(
+                        from: context,
+                        to: window,
+                        loadPolicy: { url in
+                            try context.loadPolicy(at: url)
+                            installedRevision =
+                                context.installedPolicyRevision
+                            return installedRevision
+                        }
+                    )
+                    if window?.isSimulationPaused == true {
+                        window?.waitWhileSimulationPaused()
+                        continue
+                    }
                     let stepCount = min(
                         options.chunk,
                         options.steps - completed
@@ -1535,7 +1757,7 @@ private enum TaskTrainMain {
                     )
                     try publishInspectionFrame(
                         from: context,
-                        to: inspector,
+                        to: window,
                         loadPolicy: { url in
                             try context.loadPolicy(
                                 at: url
@@ -1711,9 +1933,7 @@ private enum TaskTrainMain {
                                 "mean_action_standard_deviation"
                             ] as? NSNumber
                         )?.doubleValue ?? 0
-                    FileHandle.standardError.write(
-                        Data(
-                            (
+                    writeTrainingDiagnostic(
                                 "update=\(updateIndex + 1) " +
                                 "revision=\(installedRevision) " +
                                 "contact_rate=\(lastEvidenceTelemetry.lastContactRate) " +
@@ -1725,9 +1945,7 @@ private enum TaskTrainMain {
                                 "tilt=\(tilt) " +
                                 "done=\(done) loss=\(loss) " +
                                 "kl=\(kl) lr=\(learningRate) " +
-                                "std=\(actionStandardDeviation)\n"
-                            ).utf8
-                        )
+                                "std=\(actionStandardDeviation)"
                     )
                     }
                 }
@@ -1850,18 +2068,19 @@ private enum TaskTrainMain {
     }
 
     static func main() {
+        _ = signal(SIGPIPE, SIG_IGN)
         do {
             let options = try Options(arguments: CommandLine.arguments)
             guard options.inspectionScene != nil else {
-                try run(options: options, inspector: nil)
+                try run(options: options, window: nil)
                 return
             }
-            let policyChoices = metalRoboInspectorPolicyCatalog()
+            let policyChoices = numiWindowPolicyCatalog()
             let initialPolicyURL = (options.updatedPolicyPack ??
                 options.policyPack).map {
                     URL(fileURLWithPath: $0)
                 }
-            let inspector = try MetalRoboRunInspectorBridge.launch(
+            let window = try NumiWindowBridge.launch(
                 canReloadLatestPolicy:
                     initialPolicyURL != nil || !policyChoices.isEmpty,
                 policyChoices: policyChoices,
@@ -1869,14 +2088,12 @@ private enum TaskTrainMain {
             )
             DispatchQueue.global(qos: .userInitiated).async {
                 do {
-                    try run(options: options, inspector: inspector)
+                    try run(options: options, window: window)
                 } catch {
-                    if case MetalRoboRunInspectorError.closed = error {
+                    if case NumiWindowError.closed = error {
                         // Closing the window ends its preview run cleanly.
                     } else {
-                        FileHandle.standardError.write(
-                            Data("task_train failed: \(error)\n".utf8)
-                        )
+                        writeTrainingDiagnostic("task_train failed: \(error)")
                     }
                 }
                 DispatchQueue.main.async {
@@ -1885,9 +2102,7 @@ private enum TaskTrainMain {
             }
             NSApplication.shared.run()
         } catch {
-            FileHandle.standardError.write(
-                Data("task_train failed: \(error)\n".utf8)
-            )
+            writeTrainingDiagnostic("task_train failed: \(error)")
             Darwin.exit(1)
         }
     }

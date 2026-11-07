@@ -2,7 +2,7 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 41u
+#define MR_TASK_PROGRAM_ABI_VERSION 44u
 
 #define MR_TASK_ACTUATOR_JOINT_POSITION 0u
 #define MR_TASK_ACTUATOR_JOINT_VELOCITY 1u
@@ -15,6 +15,7 @@
 // The mapping from ordered task actions to ordered source muscles is checked
 // by MetalWorld, where the immutable source program is available.
 #define MR_TASK_ACTUATOR_MILLARD_EXCITATION 7u
+#define MR_TASK_ACTUATOR_MEASURED_SURFACE 8u
 #define MR_TASK_INTERACTION_CONTACT_FEATURE_COUNT 13u
 #define MR_TASK_MASKED_DEPTH_FEATURE_COUNT 24u
 
@@ -155,6 +156,9 @@ enum MRTaskObservationOpcode : mr_u32 {
     // This remains distinct from the post-transform actuator target stored in
     // the ordinary action history.
     MR_TASK_OBSERVE_PREVIOUS_POLICY_ACTION = 31u,
+    // Four device-mechanics telemetry lanes populated by an attached native
+    // mechanics primitive. Packs without such a program observe zeros.
+    MR_TASK_OBSERVE_DEVICE_MECHANICS = 32u,
 };
 
 enum MRTaskObservationFlags : mr_u32 {
@@ -262,6 +266,11 @@ enum MRTaskRewardOpcode : mr_u32 {
     // source.y selects the goal body; authored x/y/z are positive position,
     // linear-speed, and angular-speed squared-error widths.
     MR_TASK_REWARD_OBJECT_PLACEMENT = 48u,
+    // Squared normalized policy residual. Unlike action-rate cost, this
+    // anchors residual controllers around their authored actuator bias.
+    MR_TASK_REWARD_ACTION_SQUARED = 49u,
+    MR_TASK_REWARD_ROOT_OBJECT_PROGRESS = 50u,
+    MR_TASK_REWARD_ROOT_OBJECT_PROXIMITY = 51u,
 };
 
 enum MRTaskTerminationOpcode : mr_u32 {
@@ -271,6 +280,7 @@ enum MRTaskTerminationOpcode : mr_u32 {
     // Contact-group termination scoped to the active projectile flight. This
     // avoids treating ordinary support contact as a dodge failure.
     MR_TASK_TERMINATE_PROJECTILE_CONTACT = 3u,
+    MR_TASK_TERMINATE_ROOT_OBJECT_PROXIMITY = 4u,
 };
 
 enum MRTaskTerminationReason : mr_u32 {
@@ -281,6 +291,7 @@ enum MRTaskTerminationReason : mr_u32 {
     MR_TASK_TERMINATION_TIMEOUT = 4u,
     MR_TASK_TERMINATION_PHYSICS_ERROR = 5u,
     MR_TASK_TERMINATION_PROJECTILE_CONTACT = 6u,
+    MR_TASK_TERMINATION_FOOD_CONSUMED = 7u,
 };
 
 enum MRTaskRandomizationOpcode : mr_u32 {
@@ -306,6 +317,11 @@ enum MRTaskRandomizationOpcode : mr_u32 {
     // Compiled RealityProgram target. This addresses one resolved world body
     // directly, so physics variation does not depend on a task contact group.
     MR_TASK_RANDOMIZE_WORLD_BODY_PARAMETER = 17u,
+    // Component-addressed floating-root release conditions.
+    MR_TASK_RANDOMIZE_ROOT_LINEAR_VELOCITY = 18u,
+    MR_TASK_RANDOMIZE_ROOT_ANGULAR_VELOCITY = 19u,
+    // parameters.x/y are maximum tilt/yaw magnitudes in radians.
+    MR_TASK_RANDOMIZE_ROOT_ORIENTATION_CONE = 20u,
 };
 
 enum MRTaskImpactTransitionFlags : mr_u32 {
@@ -451,9 +467,9 @@ typedef struct MR_ALIGN16 MRTaskActionBindingGPU {
     mr_uint4 indices;
     // normalized scale, lower target, upper target, response time seconds.
     mr_float4 parameters;
-    // Authored drive stiffness, damping, reserved, reserved. Interaction
-    // playback uses these values to preserve the reference joint velocity
-    // through the implicit position-drive target without bypassing physics.
+    // Authored drive stiffness, damping, interaction-motion flag, reserved.
+    // Interaction playback uses these values to preserve the reference joint
+    // velocity and distinguish generated motion from an invariant base.
     mr_float4 drive;
     // actuator kind, resolved body/component, component lane, reserved.
     // Joint actuators retain indices.y/z/w as DoF/q/v; non-joint actuators
@@ -582,6 +598,10 @@ typedef struct MR_ALIGN16 MRTaskStateGPU {
     // Threatened global body, class, latched escape direction encoded as
     // {-1,+1} shifted to {0,2}, and active impact event index.
     mr_uint4 threatMetadata;
+    // Extension-owned accepted mechanics telemetry. MetalWorld initializes
+    // and resets this with ordinary task state; only the attached device
+    // mechanics program may populate it before observation construction.
+    mr_float4 deviceMechanics;
 } MRTaskStateGPU;
 
 // Compact task-wide physical evidence accumulated on device. It does not own
@@ -656,7 +676,7 @@ static_assert(sizeof(MRTaskImpactEventGPU) == 48u);
 static_assert(sizeof(MRTaskInteractionContactGPU) == 16u);
 static_assert(sizeof(MRTaskInteractionSampleGPU) == 32u);
 static_assert(sizeof(MRTaskBiasSpecGPU) == 32u);
-static_assert(sizeof(MRTaskStateGPU) == 176u);
+static_assert(sizeof(MRTaskStateGPU) == 192u);
 static_assert(sizeof(MRTaskEvidenceStateGPU) == 64u);
 static_assert(sizeof(MRTaskTransitionGPU) == 128u);
 static_assert(sizeof(MRLearningTransitionGPU) == 64u);

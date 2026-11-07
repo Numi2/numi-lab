@@ -27,6 +27,7 @@
 #include <string>
 #include <system_error>
 #include <utility>
+#include <unordered_map>
 #include <vector>
 
 #ifndef METALROBO_DEFAULT_METALLIB
@@ -56,6 +57,22 @@ constexpr std::uint64_t kFNVOffset =
     14695981039346656037ull;
 constexpr std::uint64_t kFNVPrime = 1099511628211ull;
 const char kMetalRoboWorldImageAnchor = 0;
+
+class DeviceMechanicsAbortGuard {
+public:
+    DeviceMechanicsAbortGuard(const MetalWorldDeviceMechanicsProgram& program,
+                              void* command) noexcept
+        : program_(&program), command_(command),
+          armed_(program.valid() && command != nullptr) {}
+    ~DeviceMechanicsAbortGuard() noexcept {
+        if (armed_) program_->abort(program_->context, command_);
+    }
+    void handoff() noexcept { armed_ = false; }
+private:
+    const MetalWorldDeviceMechanicsProgram* program_;
+    void* command_;
+    bool armed_;
+};
 
 class DevicePhysicsAbortGuard {
 public:
@@ -361,24 +378,6 @@ struct RequiredBuffers {
     std::array<BufferRequirement, kRawBufferCount> entries{};
 };
 
-std::uint64_t multicopterFingerprint(
-    const MetalWorldMulticopterProgram& program
-) {
-    if (!program.valid()) {
-        return 0u;
-    }
-    std::uint64_t hash = kFNVOffset;
-    const auto append = [&](const void* bytes, const std::size_t count) {
-        const auto* values = static_cast<const std::byte*>(bytes);
-        for (std::size_t index = 0u; index < count; ++index) {
-            hash ^= std::to_integer<std::uint8_t>(values[index]);
-            hash *= kFNVPrime;
-        }
-    };
-    append(&program, sizeof(program));
-    return hash == 0u ? 1u : hash;
-}
-
 bool privateTransientBuffer(std::size_t index);
 bool privatePersistentBuffer(std::size_t index);
 bool privatePersistentInputBuffer(std::size_t index);
@@ -396,6 +395,10 @@ struct MetalWorldContextState {
     mutable std::mutex mutex;
     bool initialized = false;
     bool inFlight = false;
+    // Stateful mechanics programs own accepted/candidate data outside this
+    // arena. The same program instance cannot safely encode into two command
+    // buffers concurrently even when ordinary MetalWorld slots are free.
+    void* inFlightDeviceMechanicsContext = nullptr;
     __strong id<MTLDevice> device = nil;
     __strong id<MTLCommandQueue> queue = nil;
     __strong id<MTLLibrary> library = nil;
@@ -555,6 +558,7 @@ struct MetalWorldContextState {
     __strong id<MTLBuffer> uploadBuffers[kRawBufferCount] = {};
     __strong id<MTLBuffer> readbackBuffers[kRawBufferCount] = {};
     std::array<std::size_t, kRawBufferCount> capacities{};
+    std::array<std::size_t, kRawBufferCount> logicalBytes{};
     std::array<std::size_t, kRawBufferCount> uploadCapacities{};
     std::array<std::size_t, kRawBufferCount> readbackCapacities{};
     std::size_t readbackBytes = 0u;
@@ -583,6 +587,25 @@ struct MetalWorldContextPool {
     std::size_t nextSlot = 0u;
 };
 
+// One mutable mechanics context belongs to one executor pool for its lifetime.
+// Weak pool ownership avoids retaining completed executors. Reused addresses
+// may be conservatively rejected until their prior pool is destroyed.
+bool claimDeviceMechanicsPool(
+    void* mechanics,
+    const std::shared_ptr<MetalWorldContextPool>& pool
+) {
+    static std::mutex registryMutex;
+    static std::unordered_map<void*, std::weak_ptr<MetalWorldContextPool>> owners;
+    const std::lock_guard lock(registryMutex);
+    for (auto it = owners.begin(); it != owners.end();) {
+        it = it->second.expired() ? owners.erase(it) : std::next(it);
+    }
+    const auto found = owners.find(mechanics);
+    if (found != owners.end() && found->second.lock() != pool) return false;
+    owners[mechanics] = pool;
+    return true;
+}
+
 struct MetalWorldSlotReservation {
     explicit MetalWorldSlotReservation(
         std::shared_ptr<MetalWorldContextState> selected
@@ -596,6 +619,7 @@ struct MetalWorldSlotReservation {
         try {
             const std::lock_guard lock(state->mutex);
             state->inFlight = false;
+            state->inFlightDeviceMechanicsContext = nullptr;
             state->stats.hasInFlightSubmission = false;
         } catch (...) {
         }
@@ -616,6 +640,10 @@ struct MetalWorldResidentStateData {
     std::uint64_t worldFingerprint = 0u;
     std::uint64_t taskFingerprint = 0u;
     std::uint64_t devicePhysicsFingerprint = 0u;
+    std::uint64_t deviceMechanicsFingerprint = 0u;
+    // Borrowed identity only. The extension owner must outlive the resident
+    // state and every submission using it.
+    void* deviceMechanicsContext = nullptr;
     std::uint64_t millardProgramFingerprint = 0u;
     std::uint64_t taskSeed = 0u;
     std::uint64_t stateArenaGeneration = 0u;
@@ -699,13 +727,16 @@ struct MetalWorldSubmissionState {
         @autoreleasepool {
             [commandBuffer waitUntilCompleted];
         }
-        finishResident(
-            commandBuffer.status ==
-                MTLCommandBufferStatusCompleted
-        );
+        const bool commandCompleted =
+            commandBuffer.status == MTLCommandBufferStatusCompleted;
+        finishResident(commandCompleted);
+        if (!commandCompleted && mechanicsProgram.valid()) {
+            mechanicsProgram.failed(mechanicsProgram.context);
+        }
         try {
             const std::lock_guard lock(context->mutex);
             context->inFlight = false;
+            context->inFlightDeviceMechanicsContext = nullptr;
             context->stats.hasInFlightSubmission = false;
             ++context->stats.completedSubmissionCount;
         } catch (...) {
@@ -717,6 +748,7 @@ struct MetalWorldSubmissionState {
 
     std::shared_ptr<MetalWorldContextState> context;
     __strong id<MTLCommandBuffer> commandBuffer = nil;
+    MetalWorldDeviceMechanicsProgram mechanicsProgram{};
     MetalWorldDiagnostics diagnostics{};
     std::chrono::steady_clock::time_point start{};
     MRArticulationGPU articulation{};
@@ -3614,9 +3646,38 @@ MetalWorldDiagnostics validateAndBuildLayout(
     const bool hasBodyWrenches =
         devicePhysicsWritesBodyWrenches ||
         config.multicopterProgram.valid() ||
+        config.deviceMechanicsProgram.valid() ||
         (nativeTask && taskHasActuatorKind(
             config.taskProgram,
             MR_TASK_ACTUATOR_BODY_WRENCH));
+    // The two independently owned extensions have not yet established a
+    // joint transaction/rollback contract. Fail closed for combined runs.
+    if (config.deviceMechanicsProgram.valid() &&
+        config.devicePhysicsProgram.valid()) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "combined device mechanics and device physics are not qualified"
+        );
+    }
+    if (config.deviceMechanicsProgram.configured() &&
+        (!config.deviceMechanicsProgram.valid() || !nativeTask)) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "device mechanics program requires complete prepare/commit callbacks, a semantic fingerprint, and a native task"
+        );
+    }
+    if (!std::isfinite(config.deviceMechanicsWindVelocity.x) ||
+        !std::isfinite(config.deviceMechanicsWindVelocity.y) ||
+        !std::isfinite(config.deviceMechanicsWindVelocity.z) ||
+        !std::isfinite(config.deviceMechanicsWindVelocity.w)) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "device-mechanics wind velocity must be finite"
+        );
+    }
     if (config.multicopterProgram.valid()) {
         const auto& multicopter = config.multicopterProgram;
         if (!nativeTask ||
@@ -3762,6 +3823,14 @@ MetalWorldDiagnostics validateAndBuildLayout(
             std::move(diagnostics),
             MetalWorldHostStatus::invalidDimensions,
             "device action program does not match the native task, action contract, or revision"
+        );
+    }
+    if (config.inspectionProgram.configured() &&
+        !config.inspectionProgram.valid()) {
+        return reject(
+            std::move(diagnostics),
+            MetalWorldHostStatus::invalidDimensions,
+            "inspection program requires a complete callback"
         );
     }
     if (config.inspectionProgram.configured() &&
@@ -7623,6 +7692,21 @@ MetalWorldDiagnostics ensureBufferArena(
             "device.recommendedMaxWorkingSetSize"
         );
     }
+    for (std::size_t index = 0u;
+         index < kRawBufferCount;
+         ++index) {
+        const std::size_t logical =
+            requirements.entries[index].logicalBytes;
+        if (logical > context.capacities[index]) {
+            return reject(
+                std::move(diagnostics),
+                MetalWorldHostStatus::internalFailure,
+                std::string(requirements.entries[index].label) +
+                    " logical byte range exceeds the retained arena"
+            );
+        }
+        context.logicalBytes[index] = logical;
+    }
     context.stats.retainedBufferBytes = retainedBytes;
     context.stats.usingPrivateHeaps =
         usePrivateHeap &&
@@ -8625,7 +8709,7 @@ void uploadBatch(
             config.taskProgram.fingerprint();
     }
     const std::uint64_t multicopterHash =
-        multicopterFingerprint(config.multicopterProgram);
+        config.multicopterProgram.fingerprint();
     if (config.multicopterProgram.valid() &&
         context.boundMulticopterFingerprint != multicopterHash) {
         id<MTLBlitCommandEncoder> actuatorUpload = nil;
@@ -11878,7 +11962,8 @@ bool encodeTaskApplyActions(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
     const MRMetalWorldPassGPU& pass,
-    const std::size_t environmentCount
+    const std::size_t environmentCount,
+    const bool nativePolicy
 ) {
     return encodeContactThreadKernel(
         context,
@@ -11896,7 +11981,9 @@ bool encodeTaskApplyActions(
             {8u, kTaskState},
             {9u, kTaskActionHistory},
             {10u, kTaskTeacherActions},
-            {11u, kPolicyLatents},
+            // External action streams have no PolicyPack latent allocation.
+            // Their raw action history is the submitted action itself.
+            {11u, nativePolicy ? kPolicyLatents : kTaskActions},
         },
         &pass,
         4u,
@@ -11935,6 +12022,53 @@ bool encodeMulticopterActuation(
         11u,
         environmentCount
     );
+}
+
+bool encodeDeviceMechanics(
+    const MetalWorldDeviceMechanicsProgram& program,
+    const bool commit,
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const CompiledWorld& world,
+    const CompiledTaskProgram& task,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t qState,
+    const std::size_t vState,
+    const float timestepSeconds,
+    const mr_float4 windVelocity,
+    const std::uint64_t seed,
+    const std::size_t environmentCount
+) {
+    if (!program.valid()) {
+        return true;
+    }
+    const TaskProgramLayout& layout = task.layout();
+    const MetalWorldDeviceMechanicsPass mechanicsPass{
+        .commandBuffer = (__bridge void*)commandBuffer,
+        .metalLibrary = (__bridge void*)context.library,
+        .q = (__bridge void*)context.buffers[qState],
+        .v = (__bridge void*)context.buffers[vState],
+        .actionHistory = (__bridge void*)context.buffers[kTaskActionHistory],
+        .resetMasks = (__bridge void*)context.buffers[kResetMasks],
+        .bodyWrenches = (__bridge void*)context.buffers[kBodyWrenchPlaceholder],
+        .environmentStatuses = (__bridge void*)context.buffers[kEnvironmentStatuses],
+        .taskStates = (__bridge void*)context.buffers[kTaskState],
+        .seed = seed,
+        .controlStep = pass.controlStep,
+        .physicsSubstep = pass.physicsSubstep,
+        .environmentCount = static_cast<std::uint32_t>(environmentCount),
+        .bodyCount = static_cast<std::uint32_t>(world.model().bodies.size()),
+        .nq = world.nq(),
+        .nv = world.nv(),
+        .actionCount = layout.actionCount,
+        .actionHistoryStride = layout.delayStateCount * layout.actionCount,
+        .actionFilterSlot = layout.delayStateCount - 1u,
+        .timestepSeconds = timestepSeconds,
+        .windVelocity = windVelocity,
+    };
+    const MetalWorldDeviceMechanicsEncode callback =
+        commit ? program.commit : program.prepare;
+    return callback(program.context, mechanicsPass);
 }
 
 bool encodeTaskNativeActuators(
@@ -19982,6 +20116,14 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     (config.devicePhysicsProgram.valid()
                          ? config.devicePhysicsProgram.fingerprint
                          : 0u) ||
+                residentData->deviceMechanicsFingerprint !=
+                    (config.deviceMechanicsProgram.valid()
+                         ? config.deviceMechanicsProgram.fingerprint
+                         : 0u) ||
+                residentData->deviceMechanicsContext !=
+                    (config.deviceMechanicsProgram.valid()
+                         ? config.deviceMechanicsProgram.context
+                         : nullptr) ||
                 residentData->millardProgramFingerprint !=
                     millardProgramFingerprint(config.millardProgram) ||
                 residentData->taskSeed != config.taskSeed ||
@@ -19990,7 +20132,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 return reject(
                     std::move(diagnostics),
                     MetalWorldHostStatus::invalidDimensions,
-                    "resident world, task, device physics, seed, or environment count changed"
+                    "resident world, task, device physics or mechanics owner, seed, or environment count changed"
                 );
             }
             if (!batch.resetMasks.empty() &&
@@ -20037,7 +20179,35 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
         if (!diagnostics.succeeded()) {
             return diagnostics;
         }
+        if (config.deviceMechanicsProgram.valid() &&
+            !detail::claimDeviceMechanicsPool(
+                config.deviceMechanicsProgram.context, pool_)) {
+            return reject(std::move(diagnostics), MetalWorldHostStatus::contextBusy,
+                "device mechanics owner belongs to another MetalWorld context");
+        }
         if (residentContinuation) {
+            // Serialize the owner scan with new non-resident reservations.
+            // A different arena can otherwise submit the same external
+            // mutable mechanics context while this resident arena is idle.
+            const std::lock_guard poolLock(pool_->mutex);
+            if (config.deviceMechanicsProgram.valid()) {
+                for (const auto& slot : pool_->slots) {
+                    const std::lock_guard slotLock(slot->mutex);
+                    const auto owner = slot->residentOwner.lock();
+                    if ((slot->inFlight &&
+                         slot->inFlightDeviceMechanicsContext ==
+                            config.deviceMechanicsProgram.context) ||
+                        (owner && owner != residentData &&
+                         owner->deviceMechanicsContext ==
+                            config.deviceMechanicsProgram.context)) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalWorldHostStatus::contextBusy,
+                            "stateful device mechanics owner is already reserved"
+                        );
+                    }
+                }
+            }
             const std::lock_guard slotLock(
                 selectedState->mutex
             );
@@ -20049,10 +20219,31 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 );
             }
             selectedState->inFlight = true;
+            selectedState->inFlightDeviceMechanicsContext =
+                config.deviceMechanicsProgram.valid()
+                ? config.deviceMechanicsProgram.context : nullptr;
             selectedState->stats.hasInFlightSubmission = true;
         } else {
             const std::lock_guard poolLock(pool_->mutex);
             const std::size_t slotCount = pool_->slots.size();
+            if (config.deviceMechanicsProgram.valid()) {
+                for (const auto& slot : pool_->slots) {
+                    const std::lock_guard slotLock(slot->mutex);
+                    const auto owner = slot->residentOwner.lock();
+                    if ((slot->inFlight &&
+                         slot->inFlightDeviceMechanicsContext ==
+                            config.deviceMechanicsProgram.context) ||
+                        (owner && owner != residentData &&
+                         owner->deviceMechanicsContext ==
+                            config.deviceMechanicsProgram.context)) {
+                        return reject(
+                            std::move(diagnostics),
+                            MetalWorldHostStatus::contextBusy,
+                            "stateful device mechanics owner is already reserved"
+                        );
+                    }
+                }
+            }
             for (std::size_t offset = 0u;
                  offset < slotCount;
                  ++offset) {
@@ -20067,6 +20258,9 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     continue;
                 }
                 candidate->inFlight = true;
+                candidate->inFlightDeviceMechanicsContext =
+                    config.deviceMechanicsProgram.valid()
+                    ? config.deviceMechanicsProgram.context : nullptr;
                 candidate->stats.hasInFlightSubmission = true;
                 selectedState = candidate;
                 // Reuse the warm slot for sequential runs. If it is still
@@ -20090,6 +20284,14 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     config.devicePhysicsProgram.valid()
                     ? config.devicePhysicsProgram.fingerprint
                     : 0u;
+                residentData->deviceMechanicsFingerprint =
+                    config.deviceMechanicsProgram.valid()
+                    ? config.deviceMechanicsProgram.fingerprint
+                    : 0u;
+                residentData->deviceMechanicsContext =
+                    config.deviceMechanicsProgram.valid()
+                    ? config.deviceMechanicsProgram.context
+                    : nullptr;
                 residentData->millardProgramFingerprint =
                     millardProgramFingerprint(config.millardProgram);
                 residentData->taskSeed = config.taskSeed;
@@ -20202,6 +20404,10 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 @"MetalRobo persistent batched world graph";
             DevicePhysicsAbortGuard devicePhysicsAbortGuard(
                 config.devicePhysicsProgram,
+                (__bridge void*)commandBuffer
+            );
+            DeviceMechanicsAbortGuard deviceMechanicsAbortGuard(
+                config.deviceMechanicsProgram,
                 (__bridge void*)commandBuffer
             );
             uploadBatch(
@@ -20557,7 +20763,8 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                             *selectedState,
                             commandBuffer,
                             pass,
-                            batch.environmentCount
+                            batch.environmentCount,
+                            config.policyProgram.valid()
                         )) {
                         return reject(
                             std::move(diagnostics),
@@ -20682,6 +20889,22 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                 sourceMotorState,
                                 batch.environmentCount
                             )
+                        ) &&
+                        encodeDeviceMechanics(
+                            config.deviceMechanicsProgram,
+                            false,
+                            *selectedState,
+                            commandBuffer,
+                            world,
+                            config.taskProgram,
+                            pass,
+                            sourceQ,
+                            sourceV,
+                            config.timestepSeconds /
+                                static_cast<float>(config.physicsSubsteps),
+                            config.deviceMechanicsWindVelocity,
+                            config.taskSeed,
+                            batch.environmentCount
                         ) &&
                         (
                             !config.devicePhysicsProgram.valid() ||
@@ -20940,6 +21163,22 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                 destinationMotorState,
                                 batch.environmentCount
                             )
+                        ) &&
+                        encodeDeviceMechanics(
+                            config.deviceMechanicsProgram,
+                            true,
+                            *selectedState,
+                            commandBuffer,
+                            world,
+                            config.taskProgram,
+                            pass,
+                            destinationQ,
+                            destinationV,
+                            config.timestepSeconds /
+                                static_cast<float>(config.physicsSubsteps),
+                            config.deviceMechanicsWindVelocity,
+                            config.taskSeed,
+                            batch.environmentCount
                         ) &&
                         (
                             !taskTracksImpactContacts ||
@@ -21270,6 +21509,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 config.policyProgram.valid()
                 ? config.policyProgram.revision()
                 : batch.policyRevision;
+            pending->mechanicsProgram = config.deviceMechanicsProgram;
             pending->hasRods = world.rodCount() != 0u;
             pending->contactMode = contactMode;
             pending->hasMillardProgram = hasMillardProgram;
@@ -21301,6 +21541,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 residentReservation->handoff();
             }
             devicePhysicsAbortGuard.handoff();
+            deviceMechanicsAbortGuard.handoff();
         }
         return diagnostics;
     } catch (const std::bad_alloc&) {
@@ -21386,6 +21627,172 @@ MetalWorldContextStats MetalWorldContext::stats()
     } catch (...) {
         return {};
     }
+}
+
+MetalWorldDiagnostics MetalWorldContext::residentStateFingerprint(
+    const MetalWorldResidentState& state,
+    std::uint64_t& fingerprint
+) {
+    fingerprint = 0u;
+    const auto resident = state.state_;
+    if (resident == nullptr) {
+        return reject({}, MetalWorldHostStatus::invalidModel,
+            "resident-state fingerprint requires a valid state");
+    }
+    const auto owner = resident->ownerPool.lock();
+    if (owner == nullptr || owner.get() != pool_.get()) {
+        return reject({}, MetalWorldHostStatus::invalidModel,
+            "resident-state fingerprint owner mismatch");
+    }
+
+    const std::lock_guard residentLock(resident->mutex);
+    if (resident->deviceMechanicsFingerprint != 0u) {
+        return reject({}, MetalWorldHostStatus::invalidModel,
+            "resident fingerprint cannot include external device-mechanics state");
+    }
+    const auto context = resident->context;
+    if (!resident->initialized || resident->pending || context == nullptr) {
+        return reject({}, MetalWorldHostStatus::contextBusy,
+            "resident-state fingerprint requires an accepted idle state");
+    }
+    const std::lock_guard contextLock(context->mutex);
+    if (context->inFlight ||
+        resident->stateArenaGeneration != context->stateArenaGeneration) {
+        return reject({}, MetalWorldHostStatus::contextBusy,
+            "resident-state fingerprint cannot inspect an in-flight or stale arena");
+    }
+
+    std::array<__strong id<MTLBuffer>, kRawBufferCount> staged{};
+    id<MTLCommandBuffer> command = [context->queue commandBuffer];
+    if (command == nil) {
+        return reject({}, MetalWorldHostStatus::metalCommandFailure,
+            "resident-state fingerprint could not allocate a command buffer");
+    }
+    id<MTLBlitCommandEncoder> blit = [command blitCommandEncoder];
+    if (blit == nil) {
+        return reject({}, MetalWorldHostStatus::metalCommandFailure,
+            "resident-state fingerprint could not allocate a blit encoder");
+    }
+
+    for (std::size_t index = 0u; index < kRawBufferCount; ++index) {
+        if (!privatePersistentBuffer(index)) {
+            continue;
+        }
+        id<MTLBuffer> source = context->buffers[index];
+        const std::size_t bytes = context->logicalBytes[index];
+        if (bytes == 0u) {
+            continue;
+        }
+        if (source == nil || source.length < bytes) {
+            [blit endEncoding];
+            return reject({}, MetalWorldHostStatus::metalBufferFailure,
+                "resident-state fingerprint logical range exceeds retained storage");
+        }
+        if (source.storageMode != MTLStorageModePrivate) {
+            continue;
+        }
+        id<MTLBuffer> copy = [context->device
+            newBufferWithLength:static_cast<NSUInteger>(bytes)
+                       options:MTLResourceStorageModeShared];
+        if (copy == nil || copy.contents == nullptr || copy.length < bytes) {
+            [blit endEncoding];
+            return reject({}, MetalWorldHostStatus::metalBufferFailure,
+                "resident-state fingerprint could not allocate readback storage");
+        }
+        staged[index] = copy;
+        [blit copyFromBuffer:source
+                sourceOffset:0u
+                    toBuffer:copy
+           destinationOffset:0u
+                        size:static_cast<NSUInteger>(bytes)];
+    }
+    [blit endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    if (command.status != MTLCommandBufferStatusCompleted) {
+        return reject({}, MetalWorldHostStatus::metalCommandFailure,
+            "resident-state fingerprint readback command failed");
+    }
+
+    std::uint64_t hash = kFNVOffset;
+    const auto append = [&](const void* data, const std::size_t size) {
+        const auto* bytes = static_cast<const std::byte*>(data);
+        for (std::size_t i = 0u; i < size; ++i) {
+            hash ^= std::to_integer<std::uint8_t>(bytes[i]);
+            hash *= kFNVPrime;
+        }
+    };
+    const auto scalar = [&](const auto& value) { append(&value, sizeof(value)); };
+
+    scalar(resident->worldFingerprint);
+    scalar(resident->taskFingerprint);
+    scalar(resident->taskSeed);
+    scalar(resident->stateArenaGeneration);
+    scalar(resident->environmentCount);
+    scalar(resident->qBuffer);
+    scalar(resident->vBuffer);
+    scalar(resident->sceneBuffer);
+    scalar(resident->manifoldHeaderBuffer);
+    scalar(resident->manifoldPointBuffer);
+    scalar(resident->manifoldCountBuffer);
+    scalar(resident->rodNodeBuffer);
+    scalar(resident->rodEdgeBuffer);
+    scalar(resident->rodWitnessBuffer);
+    scalar(context->boundModelFingerprint);
+    scalar(context->boundTaskFingerprint);
+    scalar(context->boundPolicyFingerprint);
+    scalar(context->boundMulticopterFingerprint);
+
+    for (std::size_t index = 0u; index < kRawBufferCount; ++index) {
+        if (!privatePersistentBuffer(index)) {
+            continue;
+        }
+        id<MTLBuffer> source = context->buffers[index];
+        const std::uint64_t index64 = static_cast<std::uint64_t>(index);
+        scalar(index64);
+        const std::size_t bytes = context->logicalBytes[index];
+        const std::uint64_t length = static_cast<std::uint64_t>(bytes);
+        scalar(length);
+        if (bytes == 0u) {
+            continue;
+        }
+        if (source == nil || source.length < bytes) {
+            return reject({}, MetalWorldHostStatus::metalBufferFailure,
+                "resident-state fingerprint logical range exceeds retained storage");
+        }
+        id<MTLBuffer> readable = source.storageMode == MTLStorageModePrivate
+            ? staged[index] : source;
+        if (readable == nil || readable.contents == nullptr ||
+            readable.length < bytes) {
+            return reject({}, MetalWorldHostStatus::metalBufferFailure,
+                "resident-state fingerprint encountered unreadable persistent storage");
+        }
+        append(readable.contents, bytes);
+    }
+    fingerprint = hash == 0u ? 1u : hash;
+    return {};
+}
+
+std::uint64_t MetalWorldMulticopterProgram::fingerprint() const noexcept {
+    if (!valid()) return 0u;
+    std::uint64_t hash = kFNVOffset;
+    const auto append = [&](const auto& value) {
+        const auto* bytes = reinterpret_cast<const std::byte*>(&value);
+        for (std::size_t i = 0u; i < sizeof(value); ++i) {
+            hash ^= std::to_integer<std::uint8_t>(bytes[i]);
+            hash *= kFNVPrime;
+        }
+    };
+    // Hash every authored member, excluding host ABI padding between the
+    // scalar bindings and aligned wind vector. GPU records have exact sizes.
+    append(model);
+    append(rotors);
+    append(mixer);
+    append(articulationIndex);
+    append(bodyIndex);
+    append(firstAction);
+    append(windVelocity);
+    return hash == 0u ? 1u : hash;
 }
 
 const char* metalWorldHostStatusName(

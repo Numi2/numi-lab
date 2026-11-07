@@ -31,6 +31,18 @@ struct PolicyDenseLayer {
     std::vector<float> bias;
 };
 
+struct PolicyTaskBinding {
+    std::uint64_t worldFingerprint = 0u;
+    std::uint64_t taskFingerprint = 0u;
+
+    [[nodiscard]] bool operator==(
+        const PolicyTaskBinding& other
+    ) const noexcept = default;
+};
+
+static_assert(sizeof(PolicyTaskBinding) == 16u);
+inline constexpr std::size_t kMaximumPolicyTaskBindings = 4096u;
+
 // Immutable semantic contract for one robot brain. Dimensions alone are not
 // a safe deployment boundary: two tasks may have identical tensor shapes
 // while assigning different meaning to every value. Version zero is reserved
@@ -42,12 +54,68 @@ struct PolicyContract {
     std::uint64_t taskFingerprint = 0u;
     std::uint64_t observationFingerprint = 0u;
     std::uint64_t actionFingerprint = 0u;
+    // Version 2 explicitly authorizes one robot actor for multiple compiled
+    // world/task pairs that share the exact observation and action semantics.
+    // Entries are sorted, unique, and include the primary pair above.
+    std::vector<PolicyTaskBinding> compatibleTasks;
 
     [[nodiscard]] bool exact() const noexcept {
-        return version == 1u && worldFingerprint != 0u &&
-            taskFingerprint != 0u &&
-            observationFingerprint != 0u &&
-            actionFingerprint != 0u;
+        if (worldFingerprint == 0u || taskFingerprint == 0u ||
+            observationFingerprint == 0u ||
+            actionFingerprint == 0u) {
+            return false;
+        }
+        if (version == 1u) {
+            return compatibleTasks.empty();
+        }
+        if (version != 2u || compatibleTasks.size() < 2u ||
+            compatibleTasks.size() > kMaximumPolicyTaskBindings ||
+            compatibleTasks.front().worldFingerprint !=
+                worldFingerprint ||
+            compatibleTasks.front().taskFingerprint !=
+                taskFingerprint) {
+            return false;
+        }
+        for (std::size_t index = 0u;
+             index < compatibleTasks.size();
+             ++index) {
+            const PolicyTaskBinding& current = compatibleTasks[index];
+            if (current.worldFingerprint == 0u ||
+                current.taskFingerprint == 0u) {
+                return false;
+            }
+            if (index != 0u) {
+                const PolicyTaskBinding& previous =
+                    compatibleTasks[index - 1u];
+                if (current.worldFingerprint <
+                        previous.worldFingerprint ||
+                    (current.worldFingerprint ==
+                         previous.worldFingerprint &&
+                     current.taskFingerprint <=
+                         previous.taskFingerprint)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    [[nodiscard]] bool accepts(
+        const std::uint64_t world,
+        const std::uint64_t task
+    ) const noexcept {
+        if (!exact()) return false;
+        if (version == 1u) {
+            return worldFingerprint == world &&
+                taskFingerprint == task;
+        }
+        for (const PolicyTaskBinding& binding : compatibleTasks) {
+            if (binding.worldFingerprint == world &&
+                binding.taskFingerprint == task) {
+                return true;
+            }
+        }
+        return false;
     }
 };
 
@@ -78,6 +146,14 @@ struct PolicyPack {
 // Binds a newly initialized or deliberately migrated policy to the exact
 // compiled semantics it is allowed to control. Weight tensors are unchanged.
 void bindPolicyPack(
+    PolicyPack& pack,
+    const CompiledTaskProgram& task
+);
+
+// Extends one already exact robot policy to another compiled task only when
+// observation and action semantics remain identical. The task set becomes a
+// canonical version-2 contract and participates in the policy fingerprint.
+[[nodiscard]] bool addPolicyTaskBinding(
     PolicyPack& pack,
     const CompiledTaskProgram& task
 );

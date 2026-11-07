@@ -1,6 +1,7 @@
 #include "metalrobo/TaskProgram.hpp"
 
 #include "metalrobo/MetalWorld.hpp"
+#include "metalrobo/measured_surface_types.h"
 
 #include <algorithm>
 #include <array>
@@ -10,6 +11,7 @@
 #include <cstring>
 #include <limits>
 #include <memory>
+#include <numbers>
 #include <span>
 #include <string>
 #include <string_view>
@@ -709,6 +711,7 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::jointFiniteDifferenceVelocity:
             case TaskObservationSource::previousAction:
             case TaskObservationSource::previousPolicyAction:
+            case TaskObservationSource::deviceMechanics:
             case TaskObservationSource::delayedAction:
             case TaskObservationSource::contactMetric:
             case TaskObservationSource::bodyParameterMean:
@@ -736,6 +739,7 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskRewardOperator::jointVelocitySquared:
             case TaskRewardOperator::jointAccelerationSquared:
             case TaskRewardOperator::actionRateSquared:
+            case TaskRewardOperator::actionSquared:
             case TaskRewardOperator::jointLimitViolationSquared:
             case TaskRewardOperator::jointLimitViolationAbsolute:
             case TaskRewardOperator::mechanicalPower:
@@ -746,6 +750,8 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskRewardOperator::objectLift:
             case TaskRewardOperator::objectPosition:
             case TaskRewardOperator::objectPlacement:
+            case TaskRewardOperator::rootObjectProgress:
+            case TaskRewardOperator::rootObjectProximity:
                 return true;
             default:
                 return false;
@@ -1148,7 +1154,8 @@ TaskCompileDiagnostics compileTaskProgram(
             actuator->kind != RobotActuatorKind::tendonPosition &&
             actuator->kind != RobotActuatorKind::rotorMixer &&
             actuator->kind != RobotActuatorKind::bodyWrench &&
-            actuator->kind != RobotActuatorKind::millardExcitation) {
+            actuator->kind != RobotActuatorKind::millardExcitation &&
+            actuator->kind != RobotActuatorKind::measuredSurface) {
             return reject(
                 TaskCompileStatus::unsupportedOperator,
                 actuator->id,
@@ -1319,7 +1326,9 @@ TaskCompileDiagnostics compileTaskProgram(
                 (actuator->kind == RobotActuatorKind::rotorMixer &&
                  actuator->component >= 4u) ||
                 (actuator->kind == RobotActuatorKind::bodyWrench &&
-                 actuator->component >= 6u)) {
+                 actuator->component >= 6u) ||
+                (actuator->kind == RobotActuatorKind::measuredSurface &&
+                 actuator->component >= MR_MEASURED_SURFACE_ACTION_CAPACITY)) {
                 return reject(
                     bodyAmbiguous
                         ? TaskCompileStatus::ambiguousSemantic
@@ -1868,6 +1877,28 @@ TaskCompileDiagnostics compileTaskProgram(
                 );
             }
         }
+        // Mark trajectory-varying action channels. Metal uses this compiled
+        // flag to keep bounded residual authority on generated motion while
+        // giving the policy full closed-loop authority over the invariant
+        // base. This is inferred from data, not robot or task identities.
+        constexpr float interactionMotionTolerance = 1.0e-6f;
+        for (std::uint32_t action = 0u;
+             action < pack.actions.size();
+             ++action) {
+            const float first = staged->interactionJointTargets[action];
+            bool moves = false;
+            for (std::uint32_t frame = 1u;
+                 frame < interactionClip->frameCount;
+                 ++frame) {
+                const std::size_t targetIndex =
+                    static_cast<std::size_t>(frame) * pack.actions.size() +
+                    action;
+                moves = moves || std::abs(
+                    staged->interactionJointTargets[targetIndex] - first
+                ) > interactionMotionTolerance;
+            }
+            staged->actionBindings[action].drive.z = moves ? 1.0f : 0.0f;
+        }
         for (std::uint32_t frame = 0u;
              frame < interactionClip->frameCount;
              ++frame) {
@@ -2267,6 +2298,9 @@ TaskCompileDiagnostics compileTaskProgram(
             case TaskObservationSource::gaitPhase:
                 componentLimit = 2u;
                 break;
+            case TaskObservationSource::deviceMechanics:
+                componentLimit = 4u;
+                break;
             case TaskObservationSource::recoveryEvent:
                 componentLimit = 4u;
                 break;
@@ -2460,15 +2494,13 @@ TaskCompileDiagnostics compileTaskProgram(
             [](const TaskObservationOperatorSpec& observation) {
                 return observation.source ==
                         TaskObservationSource::maskedDepth ||
-                    observation.source ==
-                        TaskObservationSource::objectTrack ||
                     observation.normalizeVector3;
             }
         )) {
         return reject(
             TaskCompileStatus::invalidPack,
             "actor_current",
-            "actorCurrent cannot contain renderer-owned sources or history-vector normalization"
+            "actorCurrent cannot contain renderer-owned visual sources or history-vector normalization"
         );
     }
     const std::size_t visualSuffixCount =
@@ -2860,6 +2892,33 @@ TaskCompileDiagnostics compileTaskProgram(
             }
             break;
         }
+        case TaskRewardOperator::rootObjectProgress:
+        case TaskRewardOperator::rootObjectProximity: {
+            bool ambiguous = false;
+            const std::uint32_t body = uniqueIndex(
+                model.bodyNames, reward.target, ambiguous);
+            const auto sceneBody = body == MR_INVALID_INDEX
+                ? world.sceneBodyIndices().end()
+                : std::find(world.sceneBodyIndices().begin(),
+                    world.sceneBodyIndices().end(), body);
+            if (reward.target.empty() || ambiguous ||
+                sceneBody == world.sceneBodyIndices().end()) {
+                return reject(
+                    ambiguous ? TaskCompileStatus::ambiguousSemantic
+                              : TaskCompileStatus::unresolvedSemantic,
+                    reward.target,
+                    "root-object navigation reward requires one scene-body target"
+                );
+            }
+            if (reward.operation == TaskRewardOperator::rootObjectProximity &&
+                !(reward.parameters.x > 0.0f)) {
+                return reject(TaskCompileStatus::invalidPack, reward.target,
+                    "root-object proximity requires a positive squared-distance width");
+            }
+            targetIndex = static_cast<std::uint32_t>(
+                sceneBody - world.sceneBodyIndices().begin());
+            break;
+        }
         case TaskRewardOperator::linearVelocityTracking:
         case TaskRewardOperator::yawVelocityTracking:
         case TaskRewardOperator::constant:
@@ -2872,6 +2931,7 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskRewardOperator::jointVelocitySquared:
         case TaskRewardOperator::jointAccelerationSquared:
         case TaskRewardOperator::actionRateSquared:
+        case TaskRewardOperator::actionSquared:
         case TaskRewardOperator::jointLimitViolationSquared:
         case TaskRewardOperator::jointLimitViolationAbsolute:
         case TaskRewardOperator::mechanicalPower:
@@ -3176,8 +3236,7 @@ TaskCompileDiagnostics compileTaskProgram(
                   termination.minimumDifficultyBand)) ||
             termination.reason ==
                 MR_TASK_TERMINATION_CONTINUING ||
-            termination.reason >
-                MR_TASK_TERMINATION_PROJECTILE_CONTACT) {
+            termination.reason > MR_TASK_TERMINATION_FOOD_CONSUMED) {
             return reject(
                 TaskCompileStatus::invalidPack,
                 termination.sourceGroup,
@@ -3212,6 +3271,27 @@ TaskCompileDiagnostics compileTaskProgram(
         case TaskTerminationOperator::minimumRootHeight:
         case TaskTerminationOperator::maximumTilt:
             break;
+        case TaskTerminationOperator::rootObjectProximity: {
+            bool ambiguous = false;
+            const std::uint32_t body = uniqueIndex(
+                model.bodyNames, termination.sourceGroup, ambiguous);
+            const auto sceneBody = body == MR_INVALID_INDEX
+                ? world.sceneBodyIndices().end()
+                : std::find(world.sceneBodyIndices().begin(),
+                    world.sceneBodyIndices().end(), body);
+            if (termination.sourceGroup.empty() || ambiguous ||
+                sceneBody == world.sceneBodyIndices().end() ||
+                !(termination.threshold > 0.0f)) {
+                return reject(
+                    ambiguous ? TaskCompileStatus::ambiguousSemantic
+                              : TaskCompileStatus::unresolvedSemantic,
+                    termination.sourceGroup,
+                    "root-object termination requires a scene target and positive radius");
+            }
+            sourceIndex = static_cast<std::uint32_t>(
+                sceneBody - world.sceneBodyIndices().begin());
+            break;
+        }
         default:
             return reject(
                 TaskCompileStatus::unsupportedOperator,
@@ -3411,6 +3491,30 @@ TaskCompileDiagnostics compileTaskProgram(
                     TaskCompileStatus::invalidPack,
                     random.target,
                     "randomization lower bound exceeds its upper bound"
+                );
+            }
+            break;
+        case TaskRandomizationOperator::rootLinearVelocity:
+        case TaskRandomizationOperator::rootAngularVelocity:
+            if (random.component >= 3u || !orderedRange(random.parameters)) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    "root_velocity",
+                    "root velocity component or range is invalid"
+                );
+            }
+            break;
+        case TaskRandomizationOperator::rootOrientationCone:
+            if (random.parameters.x < 0.0f ||
+                random.parameters.x > std::numbers::pi_v<float> ||
+                random.parameters.y < 0.0f ||
+                random.parameters.y > std::numbers::pi_v<float> ||
+                random.parameters.z != 0.0f ||
+                random.parameters.w != 0.0f) {
+                return reject(
+                    TaskCompileStatus::invalidPack,
+                    "root_orientation_cone",
+                    "orientation cone requires bounded tilt/yaw and zero reserved parameters"
                 );
             }
             break;

@@ -15,11 +15,11 @@
 
 namespace metalrobo {
 
-inline constexpr std::uint32_t kTaskPackFormatVersion = 17u;
-inline constexpr std::uint32_t kRobotActuatorPackFormatVersion = 2u;
+inline constexpr std::uint32_t kTaskPackFormatVersion = 20u;
+inline constexpr std::uint32_t kRobotActuatorPackFormatVersion = 3u;
 inline constexpr std::uint32_t kSensorProgramPackFormatVersion = 1u;
 inline constexpr std::uint32_t kRealityProgramPackFormatVersion = 2u;
-inline constexpr std::uint32_t kPolicyPackFormatVersion = 4u;
+inline constexpr std::uint32_t kPolicyPackFormatVersion = 5u;
 inline constexpr std::uint32_t
     kPolicyRolloutPackFormatVersion = 7u;
 inline constexpr std::uint32_t kMotionPackFormatVersion = 1u;
@@ -172,9 +172,23 @@ struct RealityProgramPack {
     const std::filesystem::path& path
 );
 
+// Version 2 assigned tag 7 to different physical actuators on the main and
+// numisolver branches. Provenance is required only for that ambiguous tag.
+enum class RobotActuatorLegacyOrigin {
+    unspecified,
+    mainMillard,
+    numisolverMeasuredSurface,
+};
+
 [[nodiscard]] LearningPackResult readRobotActuatorPack(
     const std::filesystem::path& path,
     RobotActuatorPack& output
+);
+
+[[nodiscard]] LearningPackResult readRobotActuatorPack(
+    const std::filesystem::path& path,
+    RobotActuatorPack& output,
+    RobotActuatorLegacyOrigin legacyOrigin
 );
 
 [[nodiscard]] LearningPackResult writeSensorProgramPack(

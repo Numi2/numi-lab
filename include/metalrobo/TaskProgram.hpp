@@ -62,6 +62,7 @@ enum class TaskObservationSource : std::uint32_t {
         MR_TASK_OBSERVE_INTERACTION_ANCHOR_ORIENTATION,
     previousPolicyAction =
         MR_TASK_OBSERVE_PREVIOUS_POLICY_ACTION,
+    deviceMechanics = MR_TASK_OBSERVE_DEVICE_MECHANICS,
 };
 
 enum class TaskRewardOperator : std::uint32_t {
@@ -80,6 +81,7 @@ enum class TaskRewardOperator : std::uint32_t {
     jointAccelerationSquared =
         MR_TASK_REWARD_JOINT_ACCELERATION_SQUARED,
     actionRateSquared = MR_TASK_REWARD_ACTION_RATE_SQUARED,
+    actionSquared = MR_TASK_REWARD_ACTION_SQUARED,
     jointLimitViolationSquared =
         MR_TASK_REWARD_JOINT_LIMIT_VIOLATION_SQUARED,
     mechanicalPower = MR_TASK_REWARD_MECHANICAL_POWER,
@@ -134,6 +136,8 @@ enum class TaskRewardOperator : std::uint32_t {
     objectLift = MR_TASK_REWARD_OBJECT_LIFT,
     objectPosition = MR_TASK_REWARD_OBJECT_POSITION,
     objectPlacement = MR_TASK_REWARD_OBJECT_PLACEMENT,
+    rootObjectProgress = MR_TASK_REWARD_ROOT_OBJECT_PROGRESS,
+    rootObjectProximity = MR_TASK_REWARD_ROOT_OBJECT_PROXIMITY,
 };
 
 enum class TaskTerminationOperator : std::uint32_t {
@@ -141,6 +145,7 @@ enum class TaskTerminationOperator : std::uint32_t {
     maximumTilt = MR_TASK_TERMINATE_MAXIMUM_TILT,
     contactGroup = MR_TASK_TERMINATE_CONTACT_GROUP,
     projectileContact = MR_TASK_TERMINATE_PROJECTILE_CONTACT,
+    rootObjectProximity = MR_TASK_TERMINATE_ROOT_OBJECT_PROXIMITY,
 };
 
 enum class TaskRandomizationOperator : std::uint32_t {
@@ -165,6 +170,12 @@ enum class TaskRandomizationOperator : std::uint32_t {
         MR_TASK_RANDOMIZE_SCENE_BODY_EVENT_IMPACT,
     worldBodyParameter =
         MR_TASK_RANDOMIZE_WORLD_BODY_PARAMETER,
+    rootLinearVelocity =
+        MR_TASK_RANDOMIZE_ROOT_LINEAR_VELOCITY,
+    rootAngularVelocity =
+        MR_TASK_RANDOMIZE_ROOT_ANGULAR_VELOCITY,
+    rootOrientationCone =
+        MR_TASK_RANDOMIZE_ROOT_ORIENTATION_CONE,
 };
 
 enum class RobotActuatorKind : std::uint32_t {
@@ -179,6 +190,7 @@ enum class RobotActuatorKind : std::uint32_t {
     // it opaque because the immutable Millard program is admitted later by
     // MetalWorld. Its action is normalized [-1, 1] and maps to [0, 1].
     millardExcitation = 7u,
+    measuredSurface = 8u,
 };
 
 // One sparse tendon Jacobian term. The coefficient maps generalized joint
@@ -194,8 +206,8 @@ struct RobotActuatorTermSpec {
 struct RobotActuatorSpec {
     std::string id;
     RobotActuatorKind kind = RobotActuatorKind::jointPosition;
-    // Joint, tendon, gripper, rotor set, body, or source-muscle identity
-    // according to kind.
+    // Joint, tendon, gripper, rotor set, body, source muscle, or measured
+    // surface identity according to kind.
     std::string target;
     float scale = 0.25f;
     // First-order target-filter time constant in seconds. Zero disables

@@ -85,6 +85,9 @@ typedef struct MRTaskRolloutConfigC {
     uint32_t override_interaction_reset_phase_probability;
     float interaction_reset_maximum_phase;
     uint32_t override_interaction_reset_maximum_phase;
+    float interaction_push_maximum_velocity;
+    float interaction_push_interval_seconds;
+    uint32_t override_interaction_push;
 } MRTaskRolloutConfigC;
 
 typedef struct MRTaskVisualPackC {
@@ -94,6 +97,8 @@ typedef struct MRTaskVisualPackC {
     const char* asset_id;
     uint32_t semantic_id;
     uint32_t instance_id;
+    // 0 = immutable pack geometry, 1 = accepted measured-surface geometry.
+    uint32_t deformation_source;
 } MRTaskVisualPackC;
 
 typedef struct MRTaskVisualObservationConfigC {
@@ -124,6 +129,25 @@ typedef struct MRTaskVisualObservationConfigC {
     // parent and pose instead of the external presentation camera.
     uint32_t capture_policy_camera;
 } MRTaskVisualObservationConfigC;
+
+typedef struct MRTaskActionBindingC {
+    uint32_t action_index;
+    uint32_t dof_index;
+    uint32_t q_index;
+    uint32_t v_index;
+    float normalized_scale;
+    float lower_target;
+    float upper_target;
+    float response_time_seconds;
+    float drive_stiffness;
+    float drive_damping;
+    uint32_t interaction_motion;
+    uint32_t reserved0;
+    uint32_t actuator_kind;
+    uint32_t resolved_component;
+    uint32_t component_lane;
+    uint32_t flags;
+} MRTaskActionBindingC;
 
 typedef struct MRTaskRolloutLayoutC {
     uint32_t environment_count;
@@ -163,6 +187,17 @@ enum MRRunManifestSourceC {
     MR_RUN_SOURCE_IMPORTED_URDF = 2u,
     MR_RUN_SOURCE_WORLD_PACK = 3u,
     MR_RUN_SOURCE_PX4_X500 = 4u,
+    MR_RUN_SOURCE_MEASURED_DOVE = 5u,
+    MR_RUN_SOURCE_NUMIFLY = 6u,
+    MR_RUN_SOURCE_NUMIFLY_NO_LEGS = 7u,
+    MR_RUN_SOURCE_NUMIFLY_FORWARD_FLIGHT = 8u,
+};
+
+enum MRMeasuredSurfaceTaskC {
+    MR_MEASURED_SURFACE_TASK_FLIGHT_TRIM = 0u,
+    MR_MEASURED_SURFACE_TASK_FATAL_DROP_RECOVERY = 1u,
+    MR_MEASURED_SURFACE_TASK_CRUISE = 2u,
+    MR_MEASURED_SURFACE_TASK_FOOD_NAVIGATION = 3u,
 };
 
 // Single native construction boundary for training, evaluation and
@@ -180,6 +215,7 @@ typedef struct MRRunManifestC {
     const char* robot_actuator_pack_path;
     const char* sensor_program_pack_path;
     const char* reality_program_pack_path;
+    const char* measured_surface_manifest_path;
     const char* teacher_pack_path;
     const char* teacher_clip_id;
     const MRTaskVisualObservationConfigC* visual_sensor_program;
@@ -369,6 +405,11 @@ typedef struct MRPolicyPackC {
     size_t action_scale_count;
     float observation_clip;
     float action_clip;
+    // Optional version-2 per-robot task authorization. The two arrays are
+    // parallel [compatible_task_count] world/task fingerprint pairs.
+    const uint64_t* compatible_world_fingerprints;
+    const uint64_t* compatible_task_fingerprints;
+    size_t compatible_task_count;
 } MRPolicyPackC;
 
 typedef struct MRPolicyRolloutBatchC {
@@ -653,6 +694,20 @@ MR_API int mr_task_rollout_advance(
     uint32_t evaluate_final_policy,
     MRTaskRolloutAdvanceC* advance
 );
+MR_API size_t mr_task_rollout_action_binding_count(
+    const MRTaskRolloutHandle* handle
+);
+MR_API int mr_task_rollout_copy_action_bindings(
+    const MRTaskRolloutHandle* handle,
+    MRTaskActionBindingC* output,
+    size_t output_count
+);
+// Returns zero unless the rollout owns an initialized, accepted, idle resident
+// state. The digest covers validated logical bytes of the persistent continuation state.
+MR_API uint64_t mr_task_rollout_resident_state_fingerprint(
+    MRTaskRolloutHandle* handle
+);
+
 MR_API MRTaskRolloutLayoutC mr_task_rollout_layout(
     const MRTaskRolloutHandle* handle
 );
@@ -679,6 +734,16 @@ MR_API int mr_task_rollout_acquire_inspection_frame(
 MR_API int mr_task_rollout_set_inspection_enabled(
     MRTaskRolloutHandle* handle,
     uint32_t enabled
+);
+MR_API int mr_task_rollout_set_inspection_camera(
+    MRTaskRolloutHandle* handle,
+    float translation_x,
+    float translation_y,
+    float translation_z,
+    float quaternion_x,
+    float quaternion_y,
+    float quaternion_z,
+    float quaternion_w
 );
 MR_API int mr_task_rollout_release_inspection_frame(
     MRTaskRolloutHandle* handle,

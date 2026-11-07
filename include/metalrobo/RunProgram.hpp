@@ -5,6 +5,7 @@
 #include "metalrobo/LearningPacks.hpp"
 #include "metalrobo/LocomotionWorld.hpp"
 #include "metalrobo/MetalWorld.hpp"
+#include "metalrobo/MeasuredSurfaceRobot.hpp"
 #include "metalrobo/WorldCompiler.hpp"
 
 #include <cstdint>
@@ -15,6 +16,8 @@
 #include <vector>
 
 namespace metalrobo {
+
+constexpr float kNumiflyLinearScale = 0.09f;
 
 enum class RobotSemanticKind : std::uint32_t {
     body = 0u,
@@ -36,6 +39,11 @@ struct MulticopterActuatorPack {
     mr_float4 windVelocity{};
 };
 
+struct MeasuredSurfaceActuatorPack {
+    MeasuredSurfaceRobotPack surface;
+    std::string bodyRole;
+};
+
 // A robot is mechanics plus stable semantic roles and default sensor mounts.
 // Tasks and policies never own the mechanics. A pack may be copied and
 // configured without changing the bundled default.
@@ -52,6 +60,7 @@ struct RobotPack {
     std::vector<RobotSemanticRole> roles;
     std::vector<RobotActuatorSpec> actuators;
     std::optional<MulticopterActuatorPack> multicopter;
+    std::optional<MeasuredSurfaceActuatorPack> measuredSurface;
 };
 
 struct SceneObject {
@@ -84,12 +93,21 @@ struct MountedSensor {
     std::string mountRole;
 };
 
+enum class VisualDeformationSource : std::uint32_t {
+    none = 0u,
+    measuredSurface = 1u,
+};
+
 struct VisualSensorAssetProgram {
     std::string path;
     std::string assetId;
     std::string contentHash;
     std::uint32_t semanticId = 0u;
     std::uint32_t instanceId = 0u;
+    // An explicitly authored device-resident geometry owner. The indexed
+    // pack remains the material, identity, binding, and provenance contract,
+    // but its phase-zero triangles are not compiled into the static scene.
+    std::uint32_t deformationSource = 0u;
 };
 
 // Immutable resource and camera program for the device-resident visual
@@ -249,6 +267,8 @@ public:
     visualSensorProgram() const noexcept;
     [[nodiscard]] const MetalWorldMulticopterProgram*
     multicopterProgram() const noexcept;
+    [[nodiscard]] const CompiledMeasuredSurfaceBinding*
+    measuredSurfaceBinding() const noexcept;
 
 private:
     std::uint64_t fingerprint_ = 0u;
@@ -267,6 +287,7 @@ private:
     TeacherPack teacher_;
     std::optional<VisualSensorProgram> visualSensorProgram_;
     std::optional<MetalWorldMulticopterProgram> multicopterProgram_;
+    std::optional<CompiledMeasuredSurfaceBinding> measuredSurfaceBinding_;
 
     friend RunCompileDiagnostics compileRun(
         const RunManifest&,
@@ -287,6 +308,59 @@ private:
 [[nodiscard]] ScenePack makeFrankaPickPlaceScenePack();
 [[nodiscard]] ScenePack makePX4X500HoverScenePack();
 [[nodiscard]] TaskPack makePX4X500HoverTaskPack(
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+[[nodiscard]] RobotPack makeMeasuredSurfaceRobotPack(
+    MeasuredSurfaceRobotPack surface,
+    std::string robotId = "measured_surface_robot"
+);
+[[nodiscard]] RobotPack makeNumiflyRobotPack(
+    MeasuredSurfaceRobotPack bilateralWings
+);
+[[nodiscard]] RobotPack makeNumiflyNoLegsRobotPack(
+    MeasuredSurfaceRobotPack bilateralWings
+);
+[[nodiscard]] TaskPack makeNumiflyFlightTaskPack(
+    const RobotPack& robot,
+    LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+[[nodiscard]] TaskPack makeNumiflyForwardFlightTaskPack(
+    const RobotPack& robot,
+    LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+[[nodiscard]] TaskPack makeNumiflyNoLegsFlightTaskPack(
+    const RobotPack& robot,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+[[nodiscard]] TaskPack makeMeasuredSurfaceFlightTaskPack(
+    const RobotPack& robot,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+[[nodiscard]] ScenePack makeMeasuredSurfaceDropRecoveryScenePack(
+    const RobotPack& robot
+);
+[[nodiscard]] TaskPack makeMeasuredSurfaceDropRecoveryTaskPack(
+    const RobotPack& robot,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+[[nodiscard]] TaskPack makeMeasuredSurfaceCruiseTaskPack(
+    const RobotPack& robot,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+);
+[[nodiscard]] ScenePack makeMeasuredSurfaceFoodNavigationScenePack(
+    const RobotPack& robot
+);
+[[nodiscard]] TaskPack makeMeasuredSurfaceFoodNavigationTaskPack(
+    const RobotPack& robot,
     TaskObservationProgram& observations,
     TaskResetProgram& reset
 );

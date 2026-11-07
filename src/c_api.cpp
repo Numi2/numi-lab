@@ -10,6 +10,7 @@
 #include "metalrobo/MetalHybridRenderer.hpp"
 #include "metalrobo/MetalHyperPolicy.hpp"
 #include "metalrobo/MetalRunInspector.hpp"
+#include "metalrobo/MetalMeasuredSurfaceMechanics.hpp"
 #include "metalrobo/MetalTactile.hpp"
 #include "metalrobo/MetalWorld.hpp"
 #include "metalrobo/MetalWorldFamily.hpp"
@@ -86,6 +87,7 @@ struct MRTaskVisualRuntime {
     std::uint64_t captureFrameIndex = 0u;
     bool captureEnabled = false;
     bool capturePolicyCamera = false;
+    bool captureUsesLiveDeformation = false;
     bool deviceObservationEnabled = false;
     std::uint64_t sceneFingerprint = 0u;
 };
@@ -137,6 +139,8 @@ struct MRTaskRolloutHandle {
     std::vector<float> outcomeValues;
     std::unique_ptr<MRTaskVisualRuntime> visualRuntime;
     std::unique_ptr<MRTaskVisualRuntime> inspectionVisualRuntime;
+    std::unique_ptr<metalrobo::MetalMeasuredSurfaceMechanics>
+        measuredSurfaceRuntime;
     std::string deviceName;
     std::string metallibPath;
     std::string taskId;
@@ -604,6 +608,16 @@ void validateTaskRolloutConfiguration(
             "task-rollout difficulty-band range is invalid"
         );
     }
+    if (config.override_interaction_push > 1u ||
+        (config.override_interaction_push != 0u &&
+         (!std::isfinite(config.interaction_push_maximum_velocity) ||
+          config.interaction_push_maximum_velocity < 0.0f ||
+          !std::isfinite(config.interaction_push_interval_seconds) ||
+          !(config.interaction_push_interval_seconds > 0.0f)))) {
+        throw std::invalid_argument(
+            "task-rollout interaction push requires a nonnegative finite velocity and positive finite interval"
+        );
+    }
 }
 
 metalrobo::LocomotionSurface locomotionSurface(
@@ -682,12 +696,32 @@ void authorG1InteractionTrackingTask(
             metalrobo::TaskOutcomeSource::contactReward,
             metalrobo::TaskOutcomeDirection::higherIsBetter},
     };
+    // Publish solver-resident world-frame wrist poses through the existing
+    // compact motion-feature stream. The static authored terrain is the
+    // anchor, so the position triplet for each tracked wrist is a world-space
+    // COM position produced from the accepted Metal body state. This is an
+    // inspection/qualification boundary, not an actor observation or reward.
+    task.motion = {
+        .anchorBody = task.terrain.body,
+        .trackedBodies = {
+            "left_wrist_yaw_link",
+            "right_wrist_yaw_link",
+        },
+    };
     task.difficultyBandCount = 1u;
     task.commands = {};
     task.commands.standingProbability = 1.0f;
     task.pushes.maximumVelocity = 0.0f;
     task.pushes.minimumIntervalSeconds = 5.0f;
     task.pushes.maximumIntervalSeconds = 5.0f;
+    if (config.override_interaction_push != 0u) {
+        task.pushes.maximumVelocity =
+            config.interaction_push_maximum_velocity;
+        task.pushes.minimumIntervalSeconds =
+            config.interaction_push_interval_seconds;
+        task.pushes.maximumIntervalSeconds =
+            config.interaction_push_interval_seconds;
+    }
     reset.operators.clear();
     // The standing profile's 32-manifold envelope is too small for generated
     // whole-body motions. The first physically coherent ARDY residual batch
@@ -710,6 +744,27 @@ void authorG1InteractionTrackingTask(
     task.interactionPhysicsGated = physicsGated;
     if (physicsGated) {
         task.id += "/physics-gated-v4";
+        // Band zero is the exact nominal replay. Band one is a bounded,
+        // seed-replayable robustness condition for generated upper-body
+        // skills: the same reference must tolerate modest stiffness and
+        // damping calibration error without changing its kinematic intent.
+        task.difficultyBandCount = 2u;
+        reset.operators = {
+            {
+                .operation = metalrobo::TaskRandomizationOperator::
+                    controllerParameter,
+                .component = 0u,
+                .minimumDifficultyBand = 1u,
+                .parameters = {0.95f, 1.05f, 0.0f, 0.0f},
+            },
+            {
+                .operation = metalrobo::TaskRandomizationOperator::
+                    controllerParameter,
+                .component = 1u,
+                .minimumDifficultyBand = 1u,
+                .parameters = {0.95f, 1.05f, 0.0f, 0.0f},
+            },
+        };
     }
     task.terminations.clear();
     if (physicsGated && config.disable_task_terminations == 0u) {
@@ -1130,7 +1185,15 @@ createTaskRolloutHandle(
     handle->stepConfig.velocityIterations = profile.velocityIterations;
     handle->stepConfig.finalVelocityIterations =
         profile.finalVelocityIterations;
-    handle->stepConfig.ccdMode = metalrobo::MetalWorldCCDMode::disabled;
+    handle->stepConfig.ccdMode = std::any_of(
+        handle->model.shapes.begin(),
+        handle->model.shapes.end(),
+        [](const MRShapeGPU& shape) {
+            return (shape.flags & MR_SHAPE_FLAG_ENABLE_CCD) != 0u;
+        }
+    )
+        ? metalrobo::MetalWorldCCDMode::hybrid
+        : metalrobo::MetalWorldCCDMode::disabled;
     handle->stepConfig.applyBodyDamping = true;
     handle->stepConfig.deterministic = true;
     handle->stepConfig.warmStart = true;
@@ -1147,6 +1210,14 @@ createTaskRolloutHandle(
     if (const metalrobo::MetalWorldMulticopterProgram* multicopter =
             handle->run.multicopterProgram()) {
         handle->stepConfig.multicopterProgram = *multicopter;
+    }
+    if (const metalrobo::CompiledMeasuredSurfaceBinding* surface =
+            handle->run.measuredSurfaceBinding()) {
+        handle->measuredSurfaceRuntime =
+            std::make_unique<metalrobo::MetalMeasuredSurfaceMechanics>(
+                *surface);
+        handle->stepConfig.deviceMechanicsProgram =
+            handle->measuredSurfaceRuntime->program();
     }
     if (const metalrobo::VisualSensorProgram* visual =
             handle->run.visualSensorProgram()) {
@@ -1656,6 +1727,7 @@ metalrobo::VisualSensorProgram visualSensorProgram(
             pack.contentHash,
             reference.semantic_id,
             reference.instance_id,
+            reference.deformation_source,
         });
     }
     if (config.environment_pack_path != nullptr &&
@@ -1810,6 +1882,32 @@ metalrobo::PolicyPack policyPackFromC(
         .observationFingerprint = policy.observation_fingerprint,
         .actionFingerprint = policy.action_fingerprint,
     };
+    if (policy.compatible_task_count >
+        metalrobo::kMaximumPolicyTaskBindings) {
+        throw std::invalid_argument(
+            "policy compatible task count exceeds the artifact boundary"
+        );
+    }
+    if (policy.compatible_task_count != 0u &&
+        (policy.compatible_world_fingerprints == nullptr ||
+         policy.compatible_task_fingerprints == nullptr)) {
+        throw std::invalid_argument(
+            "policy compatible task fingerprint pointer is null"
+        );
+    }
+    authored.contract.compatibleTasks.reserve(
+        policy.compatible_task_count
+    );
+    for (std::size_t index = 0u;
+         index < policy.compatible_task_count;
+         ++index) {
+        authored.contract.compatibleTasks.push_back({
+            .worldFingerprint =
+                policy.compatible_world_fingerprints[index],
+            .taskFingerprint =
+                policy.compatible_task_fingerprints[index],
+        });
+    }
     authored.observationMean = copyPolicyFloats(
         policy.observation_mean,
         policy.observation_mean_count,
@@ -2155,8 +2253,9 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         );
     }
     const bool deviceObservationEnabled =
-        !trackedOffsets.empty() || maskedDepthCount != 0u;
-    if (!deviceObservationEnabled &&
+        deviceObservation &&
+        (!trackedOffsets.empty() || maskedDepthCount != 0u);
+    if (deviceObservation && !deviceObservationEnabled &&
         (program.captureWidth == 0u || program.captureHeight == 0u)) {
         throw std::invalid_argument(
             "visual runtime requires device observations or presentation capture"
@@ -2365,7 +2464,9 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
               20.0,
           }
         : metalrobo::TaskSpec{
-              "compiled_task_presentation_capture",
+              deviceObservation
+                  ? "compiled_task_presentation_capture"
+                  : "inspection_presentation",
               "robot",
               {},
               {},
@@ -2405,6 +2506,8 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
     std::vector<metalrobo::VisualAssetReferenceV3> references;
     references.reserve(program.assets.size());
     std::unordered_map<std::string, std::uint32_t> trackedInstances;
+    metalrobo::MetalHybridDevicePresentationProgram presentationProgram;
+    std::uint32_t deformableAssetCount = 0u;
     for (std::size_t index = 0u;
          index < program.assets.size();
          ++index) {
@@ -2434,6 +2537,53 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
                 "visual pack content changed after run compilation: " +
                 source.path
             );
+        }
+        if (source.deformationSource != static_cast<std::uint32_t>(
+                metalrobo::VisualDeformationSource::none
+            )) {
+            if (source.deformationSource != static_cast<std::uint32_t>(
+                    metalrobo::VisualDeformationSource::measuredSurface
+                ) ||
+                ++deformableAssetCount != 1u ||
+                handle.measuredSurfaceRuntime == nullptr ||
+                source.assetId != "robot" || pack.materials.empty()) {
+                throw std::invalid_argument(
+                    "measured-surface visual deformation requires exactly one robot pack and an owning mechanics runtime"
+                );
+            }
+            const auto* measuredBinding =
+                handle.run.measuredSurfaceBinding();
+            if (measuredBinding == nullptr ||
+                !std::ranges::any_of(
+                    pack.symbolicBindings,
+                    [&](const metalrobo::VisualSymbolicBindingV2& binding) {
+                        return binding.bodyIndex == measuredBinding->bodyIndex &&
+                            binding.binding ==
+                                MR_VISUAL_BINDING_ARTICULATED_LINK;
+                    }
+                )) {
+                throw std::invalid_argument(
+                    "measured-surface visual pack is not bound to its owning articulated link"
+                );
+            }
+            const MRVisualMaterialGPUV2& material = pack.materials.front();
+            presentationProgram =
+                handle.measuredSurfaceRuntime->presentationProgram({
+                    .semanticId = source.semanticId,
+                    .instanceId = source.instanceId,
+                    .baseColorAndOpacity = material.baseColorAndOpacity,
+                    .perceptualRoughness = material.surface.x,
+                    .metallic = material.surface.y,
+                });
+            if (!presentationProgram.valid()) {
+                throw std::runtime_error(
+                    "measured-surface visual presentation program is invalid"
+                );
+            }
+            // The indexed pack remains the authored material, identity,
+            // binding, and provenance contract. Its frozen phase-zero
+            // triangles must not be compiled beside the live surface.
+            continue;
         }
         const bool robotPresentationPack =
             program.captureWidth != 0u &&
@@ -2579,7 +2729,13 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
                 ) + "]: " + inspectionCompiled.message
             );
         }
-        runtime->sceneFingerprint = manifest.fingerprint;
+        if (presentationProgram.valid()) {
+            runtime->inspector->setDevicePresentationProgram(
+                presentationProgram
+            );
+        }
+        runtime->sceneFingerprint = manifest.fingerprint ^
+            (presentationProgram.valid() ? program.fingerprint : 0u);
         return runtime;
     }
 
@@ -2618,6 +2774,11 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
             "]: " + rendered.message
         );
     }
+    if (presentationProgram.valid()) {
+        runtime->renderer.setDevicePresentationProgram(
+            presentationProgram
+        );
+    }
     if (program.captureWidth != 0u) {
         metalrobo::MetalHybridRendererConfig captureConfig;
         captureConfig.metallibPath = handle.metallibPath;
@@ -2629,7 +2790,9 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         };
         const auto captureCompiled = runtime->captureRenderer.compile(
             std::move(captureScene),
-            metalrobo::VisualRendererProfileV1::sensorReference(),
+            presentationProgram.valid()
+                ? metalrobo::VisualRendererProfileV1::sensorFast()
+                : metalrobo::VisualRendererProfileV1::sensorReference(),
             handle.environmentCount
         );
         if (!captureCompiled.succeeded()) {
@@ -2640,8 +2803,14 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
                 ) + "]: " + captureCompiled.message
             );
         }
+        if (presentationProgram.valid()) {
+            runtime->captureRenderer.setDevicePresentationProgram(
+                presentationProgram
+            );
+        }
         runtime->captureEnabled = true;
         runtime->capturePolicyCamera = program.capturePolicyCamera;
+        runtime->captureUsesLiveDeformation = presentationProgram.valid();
     }
 
     metalrobo::MetalHybridObjectTrackerConfig trackerConfig;
@@ -2737,7 +2906,8 @@ std::unique_ptr<MRTaskVisualRuntime> compileTaskVisualRuntime(
         }
     }
     runtime->deviceObservationEnabled = deviceObservationEnabled;
-    runtime->sceneFingerprint = manifest.fingerprint;
+    runtime->sceneFingerprint = manifest.fingerprint ^
+        (presentationProgram.valid() ? program.fingerprint : 0u);
     return runtime;
 }
 
@@ -3042,6 +3212,171 @@ static MRTaskRolloutHandle* createPX4X500Run(
     return status == 0 ? result : nullptr;
 }
 
+static MRTaskRolloutHandle* createMeasuredDoveRun(
+    const MRTaskRolloutConfigC* config,
+    const char* measured_surface_manifest_path,
+    const uint32_t task_value,
+    const char* metallib_path
+) {
+    if (config == nullptr || measured_surface_manifest_path == nullptr ||
+        measured_surface_manifest_path[0] == '\0') {
+        gLastError = "measured-dove manifest and rollout config are required.";
+        return nullptr;
+    }
+    MRTaskRolloutHandle* result = nullptr;
+    const int status = translateErrors([&] {
+        validateTaskRolloutConfiguration(*config);
+        if (task_value > MR_MEASURED_SURFACE_TASK_FOOD_NAVIGATION) {
+            throw std::invalid_argument("measured-dove task is invalid");
+        }
+        metalrobo::MeasuredSurfaceRobotPack surface =
+            metalrobo::loadDeetjenMeasuredDoveRobotPack(
+                measured_surface_manifest_path);
+        const bool dropRecovery = task_value ==
+            MR_MEASURED_SURFACE_TASK_FATAL_DROP_RECOVERY;
+        const bool cruise = task_value == MR_MEASURED_SURFACE_TASK_CRUISE;
+        const bool foodNavigation = task_value ==
+            MR_MEASURED_SURFACE_TASK_FOOD_NAVIGATION;
+        surface.normalizedActionBias =
+            metalrobo::measuredSurfaceRecoveryTrimActions();
+        metalrobo::RunManifest manifest;
+        manifest.id = foodNavigation ? "deetjen_f03_food_navigation_run"
+            : (cruise ? "deetjen_f03_forward_agility_run"
+            : (dropRecovery ? "deetjen_f03_fatal_drop_recovery_run"
+                            : "deetjen_f03_flight_trim_run"));
+        manifest.robot = metalrobo::makeMeasuredSurfaceRobotPack(
+            std::move(surface), "deetjen_f03_robot");
+        manifest.scene = foodNavigation
+            ? metalrobo::makeMeasuredSurfaceFoodNavigationScenePack(
+                manifest.robot)
+            : ((dropRecovery || cruise)
+            ? metalrobo::makeMeasuredSurfaceDropRecoveryScenePack(
+                manifest.robot)
+            : metalrobo::ScenePack{.id = "unbounded_air"});
+        manifest.sensors.id = "measured_surface_flight_state";
+        manifest.reality.id = "measured_surface_nominal_reality";
+        manifest.teacher.id = "no_teacher";
+        manifest.task = foodNavigation
+            ? metalrobo::makeMeasuredSurfaceFoodNavigationTaskPack(
+                manifest.robot, manifest.sensors.observation,
+                manifest.reality.reset)
+            : (cruise
+            ? metalrobo::makeMeasuredSurfaceCruiseTaskPack(
+                manifest.robot, manifest.sensors.observation,
+                manifest.reality.reset)
+            : (dropRecovery ? metalrobo::makeMeasuredSurfaceDropRecoveryTaskPack(
+                manifest.robot, manifest.sensors.observation,
+                manifest.reality.reset)
+            : metalrobo::makeMeasuredSurfaceFlightTaskPack(
+                manifest.robot, manifest.sensors.observation,
+                manifest.reality.reset)));
+        applyRunProfile(manifest, *config);
+        manifest.profile.capacities = manifest.task.capacities;
+        auto handle = createCompiledRunTaskRollout(
+            std::move(manifest), metallib_path, "measured Deetjen dove",
+            nullptr);
+        result = handle.release();
+    });
+    return status == 0 ? result : nullptr;
+}
+
+enum class NumiflyRunMode {
+    hover,
+    forwardFlight,
+    noLegs,
+};
+
+static MRTaskRolloutHandle* createNumiflyRun(
+    const MRTaskRolloutConfigC* config,
+    const char* measured_surface_manifest_path,
+    const uint32_t surface_value,
+    const MRTaskVisualObservationConfigC* visual_sensor,
+    const char* metallib_path,
+    const NumiflyRunMode mode
+) {
+    if (config == nullptr || measured_surface_manifest_path == nullptr ||
+        measured_surface_manifest_path[0] == '\0') {
+        gLastError = "Numifly wing manifest and rollout config are required.";
+        return nullptr;
+    }
+    MRTaskRolloutHandle* result = nullptr;
+    const int status = translateErrors([&] {
+        validateTaskRolloutConfiguration(*config);
+        const metalrobo::LocomotionSurface surface =
+            locomotionSurface(surface_value);
+        metalrobo::MeasuredSurfaceRobotPack wings =
+            metalrobo::loadNumiflyMaedaWingPack(
+                measured_surface_manifest_path);
+        const bool noLegs = mode == NumiflyRunMode::noLegs;
+        const bool forwardFlight = mode == NumiflyRunMode::forwardFlight;
+        metalrobo::RunManifest manifest;
+        manifest.id = noLegs ? "numifly_no_legs_flight_run"
+            : (forwardFlight ? "numifly_forward_flight_run"
+                             : "numifly_flight_run");
+        manifest.robot = noLegs
+            ? metalrobo::makeNumiflyNoLegsRobotPack(std::move(wings))
+            : metalrobo::makeNumiflyRobotPack(std::move(wings));
+        manifest.scene.id = surface == metalrobo::LocomotionSurface::ground
+            ? (noLegs ? "numifly_no_legs_ground_scene"
+                      : (forwardFlight ? "numifly_forward_ground_scene"
+                                       : "numifly_ground_scene"))
+            : (noLegs ? "numifly_no_legs_terrain_scene"
+                      : (forwardFlight ? "numifly_forward_terrain_scene"
+                                       : "numifly_terrain_scene"));
+        manifest.sensors.id = noLegs ? "numifly_no_legs_flight_state"
+            : (forwardFlight ? "numifly_forward_flight_state"
+                             : "numifly_flight_state");
+        manifest.reality.id = noLegs ? "numifly_no_legs_nominal_reality"
+            : (forwardFlight ? "numifly_forward_nominal_reality"
+                             : "numifly_nominal_reality");
+        manifest.teacher.id = "no_teacher";
+        manifest.task = noLegs
+            ? metalrobo::makeNumiflyNoLegsFlightTaskPack(
+                manifest.robot, manifest.sensors.observation,
+                manifest.reality.reset)
+            : (forwardFlight
+                ? metalrobo::makeNumiflyForwardFlightTaskPack(
+                    manifest.robot, surface, manifest.sensors.observation,
+                    manifest.reality.reset)
+                : metalrobo::makeNumiflyFlightTaskPack(
+                    manifest.robot, surface, manifest.sensors.observation,
+                    manifest.reality.reset));
+        applyRunProfile(manifest, *config);
+        manifest.profile.capacities = manifest.task.capacities;
+        if (config->disable_task_terminations != 0u) {
+            manifest.task.terminations.clear();
+        }
+        const metalrobo::LocomotionSceneComponent surfaceComponent =
+            metalrobo::makeLocomotionSurfaceComponent(
+                manifest.robot.mechanics, surface);
+        manifest.scene.objects.push_back({
+            .id = surface == metalrobo::LocomotionSurface::ground
+                ? (noLegs ? "numifly_no_legs_ground"
+                          : (forwardFlight ? "numifly_forward_ground"
+                                           : "numifly_ground"))
+                : (noLegs ? "numifly_no_legs_terrain"
+                          : (forwardFlight ? "numifly_forward_terrain"
+                                           : "numifly_terrain")),
+            .semanticClass = "support_surface",
+            .role = MR_WORLD_ASSET_FIXTURE,
+            .render = MR_WORLD_RENDER_NONE,
+            .collision = surface == metalrobo::LocomotionSurface::ground
+                ? MR_WORLD_COLLISION_PRIMITIVES
+                : MR_WORLD_COLLISION_TRIANGLE_MESH,
+            .dynamics = MR_WORLD_DYNAMICS_STATIC,
+            .mechanics = surfaceComponent.mechanics,
+            .defaultBodyStates = surfaceComponent.defaultBodyStates,
+        });
+        auto handle = createCompiledRunTaskRollout(
+            std::move(manifest), metallib_path,
+            noLegs ? "Numifly No Legs"
+                   : (forwardFlight ? "Numifly Forward Flight" : "Numifly"),
+            visual_sensor);
+        result = handle.release();
+    });
+    return status == 0 ? result : nullptr;
+}
+
 static MRTaskRolloutHandle* createUnitreeG1TeacherRun(
     const MRTaskRolloutConfigC* config,
     const uint32_t surface_value,
@@ -3317,6 +3652,25 @@ static MRTaskRolloutHandle* createImportedURDFRun(
             .mechanics = std::move(surfaceComponent.mechanics),
             .defaultBodyStates = std::move(surfaceComponent.defaultBodyStates),
         });
+        const auto spheres = locomotionDynamicSpheres(*config);
+        if (!spheres.empty()) {
+            metalrobo::LocomotionSceneComponent sphereComponent =
+                metalrobo::makeLocomotionDynamicSphereComponent(
+                    manifest.robot.mechanics,
+                    spheres
+                );
+            manifest.scene.objects.push_back({
+                .id = "locomotion_dynamic_spheres",
+                .semanticClass = "dynamic_projectile",
+                .role = MR_WORLD_ASSET_MANIPULATED,
+                .render = MR_WORLD_RENDER_NONE,
+                .collision = MR_WORLD_COLLISION_PRIMITIVES,
+                .dynamics = MR_WORLD_DYNAMICS_RIGID,
+                .mechanics = std::move(sphereComponent.mechanics),
+                .defaultBodyStates =
+                    std::move(sphereComponent.defaultBodyStates),
+            });
+        }
         if (interactionClip != nullptr) {
             manifest.teacher = {
                 .id = interactions.id,
@@ -3405,6 +3759,10 @@ static MRTaskRolloutHandle* createWorldPackRun(
         }
         metalrobo::LocomotionWorld materialized =
             metalrobo::makeWorldPackLocomotionWorld(worldPack);
+        const auto spheres = locomotionDynamicSpheres(*config);
+        if (!spheres.empty()) {
+            metalrobo::appendLocomotionDynamicSpheres(materialized, spheres);
+        }
         metalrobo::RunManifest run = makeImportedRunManifest(
             std::move(materialized.model),
             std::move(materialized.sceneBodies),
@@ -3502,6 +3860,44 @@ MRTaskRolloutHandle* mr_create_task_rollout(
         result = createPX4X500Run(
             &manifest->profile,
             manifest->metallib_path
+        );
+        break;
+    case MR_RUN_SOURCE_MEASURED_DOVE:
+        result = createMeasuredDoveRun(
+            &manifest->profile,
+            manifest->measured_surface_manifest_path,
+            manifest->task,
+            manifest->metallib_path
+        );
+        break;
+    case MR_RUN_SOURCE_NUMIFLY:
+        result = createNumiflyRun(
+            &manifest->profile,
+            manifest->measured_surface_manifest_path,
+            manifest->surface,
+            manifest->visual_sensor_program,
+            manifest->metallib_path,
+            NumiflyRunMode::hover
+        );
+        break;
+    case MR_RUN_SOURCE_NUMIFLY_NO_LEGS:
+        result = createNumiflyRun(
+            &manifest->profile,
+            manifest->measured_surface_manifest_path,
+            manifest->surface,
+            manifest->visual_sensor_program,
+            manifest->metallib_path,
+            NumiflyRunMode::noLegs
+        );
+        break;
+    case MR_RUN_SOURCE_NUMIFLY_FORWARD_FLIGHT:
+        result = createNumiflyRun(
+            &manifest->profile,
+            manifest->measured_surface_manifest_path,
+            manifest->surface,
+            manifest->visual_sensor_program,
+            manifest->metallib_path,
+            NumiflyRunMode::forwardFlight
         );
         break;
     default:
@@ -3773,11 +4169,28 @@ size_t mr_task_rollout_copy_visual_rgba(
     motion.sensorSequence =
         static_cast<std::uint32_t>(runtime.captureFrameIndex);
     motion.source = MR_VISUAL_SOURCE_SIMULATION;
-    const auto render = runtime.captureRenderer.renderFrame(
-        runtime.worlds,
-        motion,
-        1u
-    );
+    metalrobo::MetalHybridRendererDiagnostics render;
+    if (runtime.captureUsesLiveDeformation) {
+        metalrobo::HybridLiveStateBatch live;
+        live.environmentCount = environments;
+        live.bodyCount = static_cast<std::uint32_t>(bodyCount);
+        live.currentBodies = bodies;
+        live.previousBodies = previous;
+        live.frameIndex = motion.frameIndex;
+        live.sensorSequence = motion.sensorSequence;
+        live.source = motion.source;
+        render = runtime.captureRenderer.renderLive(
+            runtime.worlds,
+            live,
+            1u
+        );
+    } else {
+        render = runtime.captureRenderer.renderFrame(
+            runtime.worlds,
+            motion,
+            1u
+        );
+    }
     if (!render.succeeded()) {
         gLastError = std::string{"task visual capture render failed: "} +
             render.message;
@@ -4112,15 +4525,69 @@ int mr_task_rollout_advance(
             diagnostics.gpuElapsedMilliseconds;
         handle->totalSubmissionMilliseconds +=
             diagnostics.submissionElapsedMilliseconds;
-        if (!diagnostics.succeeded()) {
-            throw std::runtime_error(
-                std::string{"task-rollout GPU step failed ["} +
-                metalrobo::metalWorldHostStatusName(
-                    diagnostics.status
-                ) + "]: " + diagnostics.message
-            );
-        }
+        // Per-environment failures are transactional: the rejected state is
+        // rolled back, the transition is published with physics_error, and
+        // healthy environments remain valid. Returning the published advance
+        // lets schedulers count/reset those environments instead of aborting
+        // the whole batch. Host/publication failures still throw above.
     });
+}
+
+size_t mr_task_rollout_action_binding_count(
+    const MRTaskRolloutHandle* handle
+) {
+    return handle == nullptr ? 0u : handle->taskProgram.actionBindings().size();
+}
+
+int mr_task_rollout_copy_action_bindings(
+    const MRTaskRolloutHandle* handle,
+    MRTaskActionBindingC* output,
+    const size_t output_count
+) {
+    if (handle == nullptr) {
+        return -1;
+    }
+    const auto bindings = handle->taskProgram.actionBindings();
+    if ((bindings.size() != 0u && output == nullptr) ||
+        output_count < bindings.size()) {
+        return -1;
+    }
+    for (std::size_t index = 0u; index < bindings.size(); ++index) {
+        const MRTaskActionBindingGPU& source = bindings[index];
+        MRTaskActionBindingC& target = output[index];
+        target.action_index = source.indices.x;
+        target.dof_index = source.indices.y;
+        target.q_index = source.indices.z;
+        target.v_index = source.indices.w;
+        target.normalized_scale = source.parameters.x;
+        target.lower_target = source.parameters.y;
+        target.upper_target = source.parameters.z;
+        target.response_time_seconds = source.parameters.w;
+        target.drive_stiffness = source.drive.x;
+        target.drive_damping = source.drive.y;
+        target.interaction_motion = source.drive.z != 0.0f ? 1u : 0u;
+        target.reserved0 = 0u;
+        target.actuator_kind = source.actuator.x;
+        target.resolved_component = source.actuator.y;
+        target.component_lane = source.actuator.z;
+        target.flags = source.actuator.w;
+    }
+    return 0;
+}
+
+uint64_t mr_task_rollout_resident_state_fingerprint(
+    MRTaskRolloutHandle* handle
+) {
+    if (handle == nullptr || !handle->residentState.valid()) {
+        return 0u;
+    }
+    std::uint64_t fingerprint = 0u;
+    const metalrobo::MetalWorldDiagnostics status =
+        handle->context.residentStateFingerprint(
+            handle->residentState,
+            fingerprint
+        );
+    return status.succeeded() ? fingerprint : 0u;
 }
 
 MRTaskRolloutLayoutC mr_task_rollout_layout(
@@ -4255,6 +4722,40 @@ int mr_task_rollout_set_inspection_enabled(
         return -1;
     }
     handle->inspectionVisualRuntime->inspector->setEnabled(enabled != 0u);
+    gLastError.clear();
+    return 0;
+}
+
+int mr_task_rollout_set_inspection_camera(
+    MRTaskRolloutHandle* handle,
+    const float translation_x,
+    const float translation_y,
+    const float translation_z,
+    const float quaternion_x,
+    const float quaternion_y,
+    const float quaternion_z,
+    const float quaternion_w
+) {
+    if (!requireTaskRolloutHandle(handle) ||
+        handle->inspectionVisualRuntime == nullptr ||
+        handle->inspectionVisualRuntime->inspector == nullptr) {
+        return -1;
+    }
+    const float norm = std::sqrt(
+        quaternion_x * quaternion_x + quaternion_y * quaternion_y +
+        quaternion_z * quaternion_z + quaternion_w * quaternion_w
+    );
+    if (!std::isfinite(translation_x) || !std::isfinite(translation_y) ||
+        !std::isfinite(translation_z) || !std::isfinite(norm) ||
+        norm < 1.0e-6f) {
+        gLastError = "inspection camera transform is not finite";
+        return -1;
+    }
+    handle->inspectionVisualRuntime->inspector->setCameraOverride(
+        {translation_x, translation_y, translation_z, 1.0f},
+        {quaternion_x / norm, quaternion_y / norm,
+         quaternion_z / norm, quaternion_w / norm}
+    );
     gLastError.clear();
     return 0;
 }

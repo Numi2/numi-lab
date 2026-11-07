@@ -288,6 +288,10 @@ struct VisualAssetCookOptions {
     // is authored in its link-origin frame, so a bound visual needs this
     // per-link origin-from-center-of-mass translation before runtime binding.
     std::map<std::string, mr_float4> linkCenterOfMassOffsets;
+    // Optional row-major body-link-origin-from-authored-link-origin transform.
+    // This keeps visual-only URDF links attached through fixed joints bound to
+    // the authoritative articulated body instead of dropping their meshes.
+    std::map<std::string, std::array<float, 16u>> linkOriginTransforms;
     std::map<std::string, std::uint32_t> rigidBodyIndices;
 };
 

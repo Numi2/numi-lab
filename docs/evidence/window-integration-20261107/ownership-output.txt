@@ -1,0 +1,2 @@
+independent replay and measured-surface owner guards passed; saved external-state restoration is not supported
+exit_code=0

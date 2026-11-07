@@ -313,6 +313,10 @@ void appendTerrain(
 
 } // namespace
 
+float locomotionTerrainHeight(const float x, const float y) noexcept {
+    return terrainHeight(x, y);
+}
+
 LocomotionWorldCompileDiagnostics compileLocomotionWorld(
     const LocomotionWorld& authored,
     const std::uint32_t articulationIndex,

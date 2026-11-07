@@ -1,0 +1,52 @@
+{
+  "dataset_identifier": "maeda-2017-hovering-right-wing-surface-v1",
+  "format": "numi.measured-surface-pack.v1",
+  "id": "numifly-maeda-bilateral-wing-v1",
+  "layout": {
+    "action_count": 20,
+    "chord_count": 21,
+    "frame_count": 17,
+    "phase_boundary": "wrap",
+    "sample_rate_hz": 460.8,
+    "source_vertex_count_per_wing": 861,
+    "span_count": 41,
+    "triangle_count": 3200,
+    "triangle_count_per_wing": 1600,
+    "vertex_count": 1722
+  },
+  "numifly_design": {
+    "left_wing": "sagittal reflection of right wing with reversed winding",
+    "right_wing": "measured Maeda right-wing surface",
+    "robot_cycle_hz": 28.8,
+    "spatial_scale": 2.5,
+    "surface_contact": "aerodynamic force surface; no wing collision thickness claimed",
+    "temporal_mapping": "17 measured phases mapped uniformly onto one periodic 28.8 Hz cycle; the source wrap interval is time-reparameterized",
+    "torso_mount_meters_forward_left_up": [
+      -0.010799999999999999,
+      0.0,
+      0.0162
+    ],
+    "unitree_g1_inertia_scale": 5.904899999999999e-06,
+    "unitree_g1_linear_scale": 0.09,
+    "unitree_g1_mass_scale": 0.0007289999999999999
+  },
+  "payloads": {
+    "phase_zero_visual": "numifly-maeda-wings-phase0.stl",
+    "phase_zero_visual_sha256": "61a552e3bcfb8f8cb3b0d8b462fbeb0d24dae27beaa8350026e279ad46ba67c4",
+    "positions": "positions.f32le",
+    "positions_sha256": "b9bb126120972241047bc33f34c3ad91f6ada543f5440859968fc832c0997ed0",
+    "triangles": "triangles.u16le",
+    "triangles_sha256": "790a8749ab0eb93c744ad96b34e51c2d48f2cc2693d317d24d9e2eb942db187c"
+  },
+  "scientific_tier": "measured-right-wing-derived-robot-morphology",
+  "source": {
+    "archive_sha256": "5e32b920bfff91ab4ef8c8d872662ce4c6f45180421e42bcaab7729290499375",
+    "article_doi": "10.1098/rsos.170307",
+    "axes": "BirdFlow forward/left/up",
+    "birdflow_json_sha256": "5de3e1d9377ad652ab88d2f460287affd6055c69691e32f120d74cdf79628887",
+    "dataset_doi": "10.6084/m9.figshare.5406124.v1",
+    "license": "CC-BY-4.0",
+    "measured_frequency_hz": 28.8,
+    "origin": "measured right-wing base independently in every frame"
+  }
+}

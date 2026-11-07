@@ -269,7 +269,7 @@ LearningPackResult validateRobotActuatorArtifact(
                     RobotActuatorKind::tendonPosition;
                 return static_cast<std::uint32_t>(actuator.kind) <=
                         static_cast<std::uint32_t>(
-                            RobotActuatorKind::millardExcitation) &&
+                            RobotActuatorKind::measuredSurface) &&
                     stringFits(actuator.id) &&
                     stringFits(actuator.target) &&
                     !actuator.id.empty() && !actuator.target.empty() &&
@@ -411,7 +411,8 @@ LearningPackResult validatePolicyArtifact(
             "PolicyPack identity, exact semantic contract, revision, layers, or clipping is invalid"
         );
     }
-    if (!countFits(pack.layers.size()) ||
+    if (!countFits(pack.contract.compatibleTasks.size()) ||
+        !countFits(pack.layers.size()) ||
         !countFits(pack.criticLayers.size()) ||
         !countFits(pack.observationMean.size()) ||
         !countFits(
@@ -1752,6 +1753,7 @@ std::vector<std::byte> serializePolicy(
     writer.pod(pack.contract.taskFingerprint);
     writer.pod(pack.contract.observationFingerprint);
     writer.pod(pack.contract.actionFingerprint);
+    writer.vector(pack.contract.compatibleTasks);
     return writer.data();
 }
 
@@ -1804,12 +1806,21 @@ bool deserializePolicy(
         pack.contract = {};
         return true;
     }
-    return formatVersion == 4u &&
+    if (formatVersion == 4u) {
+        return reader.pod(pack.contract.version) &&
+            reader.pod(pack.contract.worldFingerprint) &&
+            reader.pod(pack.contract.taskFingerprint) &&
+            reader.pod(pack.contract.observationFingerprint) &&
+            reader.pod(pack.contract.actionFingerprint) &&
+            pack.contract.exact() && reader.finished();
+    }
+    return formatVersion == 5u &&
         reader.pod(pack.contract.version) &&
         reader.pod(pack.contract.worldFingerprint) &&
         reader.pod(pack.contract.taskFingerprint) &&
         reader.pod(pack.contract.observationFingerprint) &&
         reader.pod(pack.contract.actionFingerprint) &&
+        reader.vector(pack.contract.compatibleTasks) &&
         pack.contract.exact() &&
         reader.finished();
 }
@@ -2336,7 +2347,12 @@ LearningPackResult readTaskPack(
         kTaskKind,
         kTaskPackFormatVersion,
         output,
-        deserializeTask
+        [](std::span<const std::byte> payload, TaskPack& candidate,
+           std::uint32_t version) {
+            return (version == 17u || version == 19u || version == 20u) &&
+                deserializeTask(payload, candidate);
+        },
+        17u
     );
 }
 
@@ -2373,13 +2389,46 @@ LearningPackResult readRobotActuatorPack(
     const std::filesystem::path& path,
     RobotActuatorPack& output
 ) {
-    return readPack(
+    return readRobotActuatorPack(path, output, RobotActuatorLegacyOrigin::unspecified);
+}
+
+LearningPackResult readRobotActuatorPack(
+    const std::filesystem::path& path,
+    RobotActuatorPack& output,
+    const RobotActuatorLegacyOrigin legacyOrigin
+) {
+    bool ambiguous = false;
+    auto result = readPack(
         path,
         kRobotActuatorKind,
         kRobotActuatorPackFormatVersion,
         output,
-        deserializeRobotActuators
+        [&](std::span<const std::byte> payload, RobotActuatorPack& candidate,
+            std::uint32_t version) {
+            if (!deserializeRobotActuators(payload, candidate)) return false;
+            for (auto& actuator : candidate.actuators) {
+                const auto tag = static_cast<std::uint32_t>(actuator.kind);
+                if (version == 2u && tag > 7u) return false;
+                if (version == 2u && tag == 7u) {
+                    if (legacyOrigin == RobotActuatorLegacyOrigin::unspecified) {
+                        ambiguous = true;
+                        return false;
+                    }
+                    if (legacyOrigin == RobotActuatorLegacyOrigin::numisolverMeasuredSurface) {
+                        actuator.kind = RobotActuatorKind::measuredSurface;
+                    }
+                }
+            }
+            return true;
+        },
+        2u
     );
+    if (ambiguous) {
+        return fail(LearningPackStatus::unsupportedVersion,
+            "version-2 actuator tag 7 is ambiguous: specify verified main "
+            "Millard or numisolver measured-surface provenance and convert");
+    }
+    return result;
 }
 
 LearningPackResult writeSensorProgramPack(

@@ -187,6 +187,7 @@ bool validActuators(const RobotPack& robot, std::string& reason) {
             break;
         case RobotActuatorKind::rotorMixer:
         case RobotActuatorKind::bodyWrench:
+        case RobotActuatorKind::measuredSurface:
             // These target robot-authored named controller groups or bodies;
             // their specialized compiler validates the concrete program.
             break;
@@ -295,6 +296,11 @@ std::uint64_t robotPackFingerprint(const RobotPack& robot) {
         hash.bytes(&robot.multicopter->mixer, sizeof(robot.multicopter->mixer));
         hash.string(robot.multicopter->bodyRole);
         hash.scalar(robot.multicopter->windVelocity);
+    }
+    if (robot.measuredSurface) {
+        hash.scalar(compileMeasuredSurfaceRobot(
+            robot.measuredSurface->surface).fingerprint);
+        hash.string(robot.measuredSurface->bodyRole);
     }
     return hash.finish();
 }
@@ -582,6 +588,291 @@ void addBodyRole(
     }
 }
 
+void scaleNumiflyMechanics(EngineModel& model) {
+    constexpr float s = kNumiflyLinearScale;
+    constexpr float massScale = s * s * s;
+    constexpr float inertiaScale = massScale * s * s;
+    constexpr float effortScale = massScale * s;
+    const auto scaleXYZ = [](mr_float4& value, const float factor) {
+        value.x *= factor;
+        value.y *= factor;
+        value.z *= factor;
+    };
+    for (MRJointDescriptorGPU& joint : model.joints) {
+        scaleXYZ(joint.parentAnchor, s);
+        scaleXYZ(joint.childAnchor, s);
+    }
+    for (MRBodyPropertiesGPU& body : model.bodies) {
+        scaleXYZ(body.centerOfMass, s);
+        body.massAndInverseMass.x *= massScale;
+        body.massAndInverseMass.y /= massScale;
+        scaleXYZ(body.inertiaRow0, inertiaScale);
+        scaleXYZ(body.inertiaRow1, inertiaScale);
+        scaleXYZ(body.inertiaRow2, inertiaScale);
+        scaleXYZ(body.inverseInertiaRow0, 1.0f / inertiaScale);
+        scaleXYZ(body.inverseInertiaRow1, 1.0f / inertiaScale);
+        scaleXYZ(body.inverseInertiaRow2, 1.0f / inertiaScale);
+        body.dampingAndSpeedLimits.x *= massScale;
+        body.dampingAndSpeedLimits.y *= inertiaScale;
+        body.dampingAndSpeedLimits.z *= s;
+    }
+    for (MRDofPropertiesGPU& dof : model.dofs) {
+        if ((dof.flags & MR_DOF_FLAG_ROOT) != 0u) {
+            continue;
+        }
+        dof.limits.w *= effortScale;
+        dof.drive.x *= effortScale;
+        dof.drive.y *= effortScale;
+        dof.drive.z *= inertiaScale;
+        dof.drive.w *= effortScale;
+    }
+    for (MRActuatorProfileGPU& profile : model.actuatorProfiles) {
+        if ((profile.identity.y & MR_ACTUATOR_PROFILE_ACTIVE) == 0u) {
+            continue;
+        }
+        profile.motorAndSpeed.x *= effortScale;
+        profile.transmissionAndEnvelope.z *= effortScale;
+    }
+    for (MRShapeGPU& shape : model.shapes) {
+        scaleXYZ(shape.localPosition, s);
+        if (shape.geometryCount == 0u &&
+            shape.shapeType != MR_SHAPE_CONVEX &&
+            shape.shapeType != MR_SHAPE_TRIANGLE_MESH) {
+            scaleXYZ(shape.dimensions, s);
+        }
+        shape.contactRestAndBoundingRadius.x *= s;
+        shape.contactRestAndBoundingRadius.y *= s;
+        shape.contactRestAndBoundingRadius.z *= s;
+    }
+    for (mr_float4& vertex : model.geometryVertices) {
+        scaleXYZ(vertex, s);
+    }
+    for (MRGeometryHeaderGPU& geometry : model.geometryHeaders) {
+        scaleXYZ(geometry.localLower, s);
+        scaleXYZ(geometry.localUpper, s);
+    }
+    for (MRConvexFaceGPU& face : model.convexFaces) {
+        face.plane.w *= s;
+    }
+    for (MRMaterialGPU& material : model.materials) {
+        material.friction.z *= s;
+        material.friction.w *= s;
+        material.geometry.x *= s;
+    }
+    if (model.defaultQ.size() >= 3u) {
+        model.defaultQ[0u] *= s;
+        model.defaultQ[1u] *= s;
+        model.defaultQ[2u] *= s;
+    }
+    if (model.defaultV.size() >= 3u) {
+        model.defaultV[0u] *= s;
+        model.defaultV[1u] *= s;
+        model.defaultV[2u] *= s;
+    }
+    model.world.solverScales.z *= s;
+    model.world.solverScales.w *= s;
+    model.name = "numifly";
+}
+
+void removeNumiflyLegs(EngineModel& model) {
+    constexpr std::array<std::string_view, 12u> removedBodyNames{
+        "left_hip_pitch_link",
+        "left_hip_roll_link",
+        "left_hip_yaw_link",
+        "left_knee_link",
+        "left_ankle_pitch_link",
+        "left_ankle_roll_link",
+        "right_hip_pitch_link",
+        "right_hip_roll_link",
+        "right_hip_yaw_link",
+        "right_knee_link",
+        "right_ankle_pitch_link",
+        "right_ankle_roll_link",
+    };
+    if (model.articulations.size() != 1u ||
+        model.articulations.front().rootType != MR_ROOT_FLOATING ||
+        model.articulations.front().rootBody != 0u ||
+        model.constraintProgram.blocks.size() != 0u ||
+        model.bodyNames.size() != model.bodies.size() ||
+        model.jointNames.size() != model.joints.size() ||
+        model.dofNames.size() != model.dofs.size() ||
+        model.defaultQ.size() < 7u || model.defaultV.size() < 6u) {
+        throw std::logic_error(
+            "Numifly no-legs requires the canonical unconstrained floating G1 tree"
+        );
+    }
+    std::unordered_set<std::string_view> removedBodies;
+    for (const std::string_view name : removedBodyNames) {
+        if (std::ranges::count(model.bodyNames, name) != 1u) {
+            throw std::logic_error(
+                "Numifly no-legs could not resolve the canonical leg body " +
+                std::string{name}
+            );
+        }
+        removedBodies.insert(name);
+    }
+
+    EngineModel source = std::move(model);
+    EngineModel result;
+    result.name = "numifly_no_legs";
+    result.world = source.world;
+    result.materials = std::move(source.materials);
+    result.geometryHeaders = std::move(source.geometryHeaders);
+    result.geometryVertices = std::move(source.geometryVertices);
+    result.geometryIndices = std::move(source.geometryIndices);
+    result.convexFaces = std::move(source.convexFaces);
+    result.convexHalfEdges = std::move(source.convexHalfEdges);
+    result.meshBvhNodes = std::move(source.meshBvhNodes);
+    result.meshTriangles = std::move(source.meshTriangles);
+    result.constraintProgram = std::move(source.constraintProgram);
+
+    std::vector<std::uint32_t> bodyMap(
+        source.bodies.size(), MR_INVALID_INDEX);
+    for (std::uint32_t oldBody = 0u;
+         oldBody < source.bodies.size();
+         ++oldBody) {
+        if (!removedBodies.contains(source.bodyNames[oldBody])) {
+            bodyMap[oldBody] = static_cast<std::uint32_t>(
+                result.bodyNames.size());
+            result.bodyNames.push_back(source.bodyNames[oldBody]);
+        }
+    }
+    if (result.bodyNames.size() != 18u || bodyMap[0u] != 0u) {
+        throw std::logic_error(
+            "Numifly no-legs did not retain the expected 18-body upper tree"
+        );
+    }
+
+    std::vector<std::uint32_t> jointMap(
+        source.joints.size(), MR_INVALID_INDEX);
+    result.defaultQ.assign(source.defaultQ.begin(), source.defaultQ.begin() + 7u);
+    result.defaultV.assign(source.defaultV.begin(), source.defaultV.begin() + 6u);
+    result.dofs.assign(source.dofs.begin(), source.dofs.begin() + 6u);
+    result.dofNames.assign(
+        source.dofNames.begin(), source.dofNames.begin() + 6u);
+    if (!source.actuatorProfiles.empty()) {
+        result.actuatorProfiles.assign(
+            source.actuatorProfiles.begin(),
+            source.actuatorProfiles.begin() + 6u);
+    }
+    for (std::uint32_t oldJoint = 0u;
+         oldJoint < source.joints.size();
+         ++oldJoint) {
+        const MRJointDescriptorGPU& authored = source.joints[oldJoint];
+        if (bodyMap[authored.parentBody] == MR_INVALID_INDEX ||
+            bodyMap[authored.childBody] == MR_INVALID_INDEX) {
+            continue;
+        }
+        if (authored.nq != 1u || authored.nv != 1u) {
+            throw std::logic_error(
+                "Numifly no-legs requires scalar retained G1 joints"
+            );
+        }
+        const std::uint32_t newJoint = static_cast<std::uint32_t>(
+            result.joints.size());
+        jointMap[oldJoint] = newJoint;
+        MRJointDescriptorGPU joint = authored;
+        joint.parentBody = bodyMap[authored.parentBody];
+        joint.childBody = bodyMap[authored.childBody];
+        joint.qOffset = static_cast<std::uint32_t>(result.defaultQ.size());
+        joint.vOffset = static_cast<std::uint32_t>(result.defaultV.size());
+        result.joints.push_back(joint);
+        result.jointNames.push_back(source.jointNames[oldJoint]);
+        for (std::uint32_t localQ = 0u; localQ < authored.nq; ++localQ) {
+            result.defaultQ.push_back(
+                source.defaultQ[authored.qOffset + localQ]);
+        }
+        for (std::uint32_t localV = 0u; localV < authored.nv; ++localV) {
+            const std::uint32_t oldV = authored.vOffset + localV;
+            MRDofPropertiesGPU dof = source.dofs[oldV];
+            dof.jointIndex = newJoint;
+            dof.qIndex = joint.qOffset + localV;
+            dof.vIndex = joint.vOffset + localV;
+            result.dofs.push_back(dof);
+            result.dofNames.push_back(source.dofNames[oldV]);
+            result.defaultV.push_back(source.defaultV[oldV]);
+            if (!source.actuatorProfiles.empty()) {
+                MRActuatorProfileGPU profile = source.actuatorProfiles[oldV];
+                profile.identity.x = dof.vIndex;
+                result.actuatorProfiles.push_back(profile);
+            }
+        }
+    }
+    if (result.joints.size() != 17u || result.defaultQ.size() != 24u ||
+        result.defaultV.size() != 23u) {
+        throw std::logic_error(
+            "Numifly no-legs did not retain the expected 17-joint upper tree"
+        );
+    }
+
+    result.bodies.reserve(result.bodyNames.size());
+    for (std::uint32_t oldBody = 0u;
+         oldBody < source.bodies.size();
+         ++oldBody) {
+        if (bodyMap[oldBody] == MR_INVALID_INDEX) continue;
+        MRBodyPropertiesGPU body = source.bodies[oldBody];
+        if (body.parentBody != MR_INVALID_INDEX) {
+            body.parentBody = bodyMap[body.parentBody];
+        }
+        if (body.inboundJoint != MR_INVALID_INDEX) {
+            body.inboundJoint = jointMap[body.inboundJoint];
+        }
+        result.bodies.push_back(body);
+    }
+
+    std::vector<std::uint32_t> shapeMap(
+        source.shapes.size(), MR_INVALID_INDEX);
+    for (std::uint32_t oldShape = 0u;
+         oldShape < source.shapes.size();
+         ++oldShape) {
+        const MRShapeGPU& authored = source.shapes[oldShape];
+        if (bodyMap[authored.bodyIndex] == MR_INVALID_INDEX) continue;
+        MRShapeGPU shape = authored;
+        shape.bodyIndex = bodyMap[authored.bodyIndex];
+        const std::uint32_t newShape = static_cast<std::uint32_t>(
+            result.shapes.size());
+        shapeMap[oldShape] = newShape;
+        result.shapes.push_back(shape);
+        result.shapeNames.push_back(
+            result.bodyNames[shape.bodyIndex] + "/collision_" +
+            std::to_string(newShape));
+    }
+    for (const CollisionPairExclusion& exclusion :
+         source.collisionExclusions) {
+        if (shapeMap[exclusion.colliderA] != MR_INVALID_INDEX &&
+            shapeMap[exclusion.colliderB] != MR_INVALID_INDEX) {
+            result.collisionExclusions.push_back({
+                shapeMap[exclusion.colliderA],
+                shapeMap[exclusion.colliderB],
+            });
+        }
+    }
+
+    MRArticulationGPU articulation = source.articulations.front();
+    articulation.rootBody = bodyMap[articulation.rootBody];
+    articulation.firstBody = 0u;
+    articulation.bodyCount = static_cast<std::uint32_t>(result.bodies.size());
+    articulation.firstJoint = 0u;
+    articulation.jointCount = static_cast<std::uint32_t>(result.joints.size());
+    articulation.qOffset = 0u;
+    articulation.nq = static_cast<std::uint32_t>(result.defaultQ.size());
+    articulation.vOffset = 0u;
+    articulation.nv = static_cast<std::uint32_t>(result.defaultV.size());
+    result.articulations = {articulation};
+    result.world.bodyCount = articulation.bodyCount;
+    result.world.jointCount = articulation.jointCount;
+    result.world.nq = articulation.nq;
+    result.world.nv = articulation.nv;
+    result.world.shapeCount = static_cast<std::uint32_t>(result.shapes.size());
+
+    std::string reason;
+    if (!result.valid(&reason)) {
+        throw std::logic_error(
+            "Numifly no-legs mechanics are invalid: " + reason);
+    }
+    model = std::move(result);
+}
+
 } // namespace
 
 std::uint64_t visualSensorProgramFingerprint(
@@ -594,6 +885,7 @@ std::uint64_t visualSensorProgramFingerprint(
         hash.string(asset.assetId);
         hash.scalar(asset.semanticId);
         hash.scalar(asset.instanceId);
+        hash.scalar(asset.deformationSource);
     }
     hash.string(program.environmentContentHash);
     hash.string(program.rendererProfile);
@@ -662,6 +954,10 @@ const MetalWorldMulticopterProgram*
 CompiledRun::multicopterProgram() const noexcept {
     return multicopterProgram_ ? &*multicopterProgram_ : nullptr;
 }
+const CompiledMeasuredSurfaceBinding*
+CompiledRun::measuredSurfaceBinding() const noexcept {
+    return measuredSurfaceBinding_ ? &*measuredSurfaceBinding_ : nullptr;
+}
 
 RunCompileDiagnostics compileRun(
     const RunManifest& manifest,
@@ -717,10 +1013,36 @@ RunCompileDiagnostics compileRun(
                             asset.semanticId != 0u &&
                             asset.semanticId != MR_INVALID_INDEX &&
                             asset.instanceId != 0u &&
-                            asset.instanceId != MR_INVALID_INDEX;
+                            asset.instanceId != MR_INVALID_INDEX &&
+                            asset.deformationSource <=
+                                static_cast<std::uint32_t>(
+                                    VisualDeformationSource::measuredSurface
+                                );
                     }
                 );
-            if (!validAssets || visual.fingerprint == 0u ||
+            const std::uint32_t measuredSurfaceVisuals =
+                static_cast<std::uint32_t>(std::ranges::count_if(
+                    visual.assets,
+                    [](const VisualSensorAssetProgram& asset) {
+                        return asset.deformationSource ==
+                            static_cast<std::uint32_t>(
+                                VisualDeformationSource::measuredSurface
+                            );
+                    }
+                ));
+            const bool validDeformationOwner =
+                measuredSurfaceVisuals == 0u ||
+                (measuredSurfaceVisuals == 1u &&
+                 manifest.robot.measuredSurface.has_value() &&
+                 std::ranges::all_of(
+                     visual.assets,
+                     [](const VisualSensorAssetProgram& asset) {
+                         return asset.deformationSource == 0u ||
+                             asset.assetId == "robot";
+                     }
+                 ));
+            if (!validAssets || !validDeformationOwner ||
+                visual.fingerprint == 0u ||
                 visual.fingerprint !=
                     visualSensorProgramFingerprint(visual) ||
                 (!visual.environmentPath.empty() !=
@@ -1181,6 +1503,114 @@ RunCompileDiagnostics compileRun(
                 manifest.profile.controlTimestepSeconds /
                 static_cast<float>(manifest.profile.physicsSubsteps);
         }
+        if (manifest.robot.measuredSurface) {
+            const MeasuredSurfaceActuatorPack& authored =
+                *manifest.robot.measuredSurface;
+            const RobotSemanticRole* bodyRole = role(
+                manifest.robot,
+                authored.bodyRole,
+                RobotSemanticKind::body
+            );
+            if (bodyRole == nullptr || bodyRole->members.size() != 1u) {
+                return reject(
+                    RunCompileStatus::invalidRobot,
+                    manifest.robot.id + ".measuredSurface",
+                    "measured-surface mechanics requires exactly one dynamic root body role"
+                );
+            }
+            const auto composedBody = std::ranges::find(
+                model.bodyNames, bodyRole->members.front());
+            if (composedBody == model.bodyNames.end() ||
+                manifest.robot.primaryArticulationIndex >=
+                    model.articulations.size()) {
+                return reject(
+                    RunCompileStatus::invalidRobot,
+                    authored.bodyRole,
+                    "measured-surface root body is unresolved after world composition"
+                );
+            }
+            const std::uint32_t bodyIndex = static_cast<std::uint32_t>(
+                composedBody - model.bodyNames.begin());
+            const MRArticulationGPU& articulation =
+                model.articulations[manifest.robot.primaryArticulationIndex];
+            const bool bodyInArticulation =
+                bodyIndex >= articulation.firstBody &&
+                bodyIndex < articulation.firstBody + articulation.bodyCount;
+            if (!bodyInArticulation || articulation.nq < 7u ||
+                articulation.nv < 6u ||
+                model.bodies[bodyIndex].motionType != MR_MOTION_DYNAMIC) {
+                return reject(
+                    RunCompileStatus::invalidRobot,
+                    bodyRole->members.front(),
+                    "measured-surface mechanics requires a dynamic body on a six-DoF floating articulation"
+                );
+            }
+            std::array<std::uint32_t, kMeasuredSurfaceActionCount>
+                actionByComponent;
+            actionByComponent.fill(MR_INVALID_INDEX);
+            for (std::uint32_t action = 0u;
+                 action < manifest.task.actions.size(); ++action) {
+                const auto actuator = std::ranges::find_if(
+                    manifest.robot.actuators,
+                    [&](const RobotActuatorSpec& value) {
+                        return value.id ==
+                            manifest.task.actions[action].actuator;
+                    });
+                if (actuator == manifest.robot.actuators.end() ||
+                    actuator->kind != RobotActuatorKind::measuredSurface) {
+                    continue;
+                }
+                if (actuator->target != bodyRole->members.front() ||
+                    actuator->component >= actionByComponent.size() ||
+                    actionByComponent[actuator->component] != MR_INVALID_INDEX) {
+                    return reject(
+                        RunCompileStatus::invalidRobot,
+                        actuator->id,
+                        "measured-surface action components must uniquely bind the root body"
+                    );
+                }
+                actionByComponent[actuator->component] = action;
+            }
+            const CompiledMeasuredSurfaceRobot compiledSurface =
+                compileMeasuredSurfaceRobot(authored.surface);
+            const std::uint32_t surfaceActionCount =
+                compiledSurface.gpuModel.actionCount;
+            const std::uint32_t firstAction = actionByComponent.front();
+            for (std::uint32_t component = 0u;
+                 component < surfaceActionCount; ++component) {
+                if (firstAction == MR_INVALID_INDEX ||
+                    actionByComponent[component] != firstAction + component) {
+                    return reject(
+                        RunCompileStatus::invalidRobot,
+                        manifest.robot.id + ".measuredSurface",
+                        "all measured-surface action lanes must form one contiguous canonical block"
+                    );
+                }
+            }
+            CompiledMeasuredSurfaceBinding binding;
+            binding.robot = compiledSurface;
+            binding.articulationIndex = manifest.robot.primaryArticulationIndex;
+            binding.bodyIndex = bodyIndex;
+            binding.qOffset = articulation.qOffset;
+            binding.vOffset = articulation.vOffset;
+            binding.firstAction = firstAction;
+            const mr_float4 centerOfMass = model.bodies[bodyIndex].centerOfMass;
+            binding.visualOriginFromBodyCenterOfMass = {
+                -centerOfMass.x,
+                -centerOfMass.y,
+                -centerOfMass.z,
+                1.0f,
+            };
+            Hash bindingHash;
+            bindingHash.scalar(binding.robot.fingerprint);
+            bindingHash.scalar(binding.articulationIndex);
+            bindingHash.scalar(binding.bodyIndex);
+            bindingHash.scalar(binding.qOffset);
+            bindingHash.scalar(binding.vOffset);
+            bindingHash.scalar(binding.firstAction);
+            binding.fingerprint = bindingHash.finish();
+            staged.measuredSurfaceBinding_ = std::move(binding);
+        }
         if (manifest.policy) {
             const PolicyCompileDiagnostics policyStatus =
                 compilePolicyProgram(
@@ -1276,6 +1706,9 @@ RunCompileDiagnostics compileRun(
             runHash.scalar(multicopter.bodyIndex);
             runHash.scalar(multicopter.firstAction);
             runHash.scalar(multicopter.windVelocity);
+        }
+        if (staged.measuredSurfaceBinding_) {
+            runHash.scalar(staged.measuredSurfaceBinding_->fingerprint);
         }
         runHash.string(staged.profile_.id);
         runHash.scalar(staged.profile_.environmentCount);
@@ -1438,6 +1871,1119 @@ TaskPack makePX4X500HoverTaskPack(
         {.operation = TaskRandomizationOperator::velocity,
             .parameters = {-0.02f, 0.02f, 0.0f, 0.0f}},
     };
+    return task;
+}
+
+RobotPack makeMeasuredSurfaceRobotPack(
+    MeasuredSurfaceRobotPack surface,
+    std::string robotId
+) {
+    if (robotId.empty()) {
+        throw std::invalid_argument("measured-surface robot identity is empty");
+    }
+    const CompiledMeasuredSurfaceRobot compiled =
+        compileMeasuredSurfaceRobot(surface);
+    EngineModel mechanics = makeFreeSphereEngineModel();
+    mechanics.name = robotId;
+    mechanics.world.gravityAndTimestep = {
+        0.0f, 0.0f, -9.81f, 1.0f / 240.0f};
+    mechanics.articulations[0u].rootBody = 0u;
+    mechanics.articulations[0u].firstBody = 0u;
+    // makeFreeSphereEngineModel owns a static fixture at body 0 and the
+    // floating dynamic reference at body 1. The measured-surface RobotPack
+    // retains only that dynamic body; scene fixtures remain ScenePack-owned.
+    MRBodyPropertiesGPU body = mechanics.bodies[1u];
+    body.articulationIndex = 0u;
+    body.massAndInverseMass = {
+        surface.bodyMassKilograms,
+        1.0f / surface.bodyMassKilograms, 0.0f, 0.0f};
+    const auto inertia = surface.principalInertiaKilogramMetersSquared;
+    body.inertiaRow0 = {inertia[0], 0.0f, 0.0f, 0.0f};
+    body.inertiaRow1 = {0.0f, inertia[1], 0.0f, 0.0f};
+    body.inertiaRow2 = {0.0f, 0.0f, inertia[2], 0.0f};
+    body.inverseInertiaRow0 = {1.0f / inertia[0], 0.0f, 0.0f, 0.0f};
+    body.inverseInertiaRow1 = {0.0f, 1.0f / inertia[1], 0.0f, 0.0f};
+    body.inverseInertiaRow2 = {0.0f, 0.0f, 1.0f / inertia[2], 0.0f};
+    body.dampingAndSpeedLimits = {0.0f, 0.0f, 150.0f, 150.0f};
+    mechanics.bodies = {body};
+    mechanics.bodyNames = {robotId + ".root"};
+    mechanics.world.bodyCount = 1u;
+    mechanics.dofNames = {
+        "root_x", "root_y", "root_z",
+        "root_rx", "root_ry", "root_rz"};
+    mechanics.defaultQ = {
+        0.0f, 0.0f, 2.0f,
+        0.0f, 0.0f, 0.0f, 1.0f};
+    // Ground-impact contact is intentionally body-only until deformable mesh
+    // contact is coupled. Aerodynamic geometry remains the exact complete
+    // surface. This proxy never replaces presentation or force geometry.
+    const auto& bodyRange = surface.components.front();
+    mr_float4 bodyMinimum{
+        std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity(),
+        std::numeric_limits<float>::infinity(), 0.0f};
+    mr_float4 bodyMaximum{
+        -std::numeric_limits<float>::infinity(),
+        -std::numeric_limits<float>::infinity(),
+        -std::numeric_limits<float>::infinity(), 0.0f};
+    for (std::uint32_t vertex = bodyRange.vertexOffset;
+         vertex < bodyRange.vertexOffset + bodyRange.vertexCount; ++vertex) {
+        const std::size_t offset = static_cast<std::size_t>(vertex) * 3u;
+        bodyMinimum.x = std::min(bodyMinimum.x, surface.frameMajorPositions[offset]);
+        bodyMinimum.y = std::min(bodyMinimum.y, surface.frameMajorPositions[offset + 1u]);
+        bodyMinimum.z = std::min(bodyMinimum.z, surface.frameMajorPositions[offset + 2u]);
+        bodyMaximum.x = std::max(bodyMaximum.x, surface.frameMajorPositions[offset]);
+        bodyMaximum.y = std::max(bodyMaximum.y, surface.frameMajorPositions[offset + 1u]);
+        bodyMaximum.z = std::max(bodyMaximum.z, surface.frameMajorPositions[offset + 2u]);
+    }
+    MRShapeGPU collision{};
+    collision.bodyIndex = 0u;
+    collision.shapeType = MR_SHAPE_BOX;
+    collision.materialIndex = 0u;
+    collision.collisionGroup = 1u;
+    collision.collisionMask = ~0u;
+    collision.slotGeneration = 1u;
+    collision.localPosition = {
+        0.5f * (bodyMinimum.x + bodyMaximum.x),
+        0.5f * (bodyMinimum.y + bodyMaximum.y),
+        0.5f * (bodyMinimum.z + bodyMaximum.z), 1.0f};
+    collision.localRotation = {0.0f, 0.0f, 0.0f, 1.0f};
+    collision.dimensions = {
+        std::max(0.005f, 0.5f * (bodyMaximum.x - bodyMinimum.x)),
+        std::max(0.005f, 0.5f * (bodyMaximum.y - bodyMinimum.y)),
+        std::max(0.005f, 0.5f * (bodyMaximum.z - bodyMinimum.z)), 0.0f};
+    collision.contactRestAndBoundingRadius = {
+        0.001f, 0.0f,
+        std::sqrt(collision.dimensions.x * collision.dimensions.x +
+                  collision.dimensions.y * collision.dimensions.y +
+                  collision.dimensions.z * collision.dimensions.z), 0.0f};
+    mechanics.shapes = {collision};
+    mechanics.shapeNames = {robotId + ".body_collision_proxy"};
+    mechanics.world.shapeCount = 1u;
+    RobotPack pack = genericRobot(
+        robotId, std::move(mechanics),
+        {"flight", "deformable_surface", "drop_recovery"});
+    pack.sourceRepository = surface.datasetIdentifier;
+    pack.sourceRevision = surface.manifestSHA256;
+    pack.license = "source-dataset-license";
+    addBodyRole(pack, "surface_root", {robotId + ".root"});
+    pack.actuators.clear();
+    for (std::uint32_t component = 0u;
+         component < surface.actionCount; ++component) {
+        pack.actuators.push_back({
+            .id = "surface." + surface.actions[component].name,
+            .kind = RobotActuatorKind::measuredSurface,
+            .target = robotId + ".root",
+            .scale = 1.0f,
+            .responseTimeSeconds = 0.0f,
+            .component = component,
+        });
+    }
+    pack.measuredSurface = MeasuredSurfaceActuatorPack{
+        .surface = std::move(surface),
+        .bodyRole = "surface_root",
+    };
+    (void)compiled;
+    return pack;
+}
+
+RobotPack makeNumiflyRobotPack(MeasuredSurfaceRobotPack bilateralWings) {
+    // Couple the measured insect-scale wing surface to the complete 9%-scale
+    // articulated robot at a qualified load level.  The previous 0.315 scale
+    // was derived before the complete humanoid inertia was exercised by the
+    // current authority probe; it leaves even the strongest bounded command
+    // at only about 0.55x combined-body weight.  Preserve force direction,
+    // torque ratios, cadence, and differential modes while restoring enough
+    // collective authority for ground takeoff and a bounded control reserve.
+    constexpr float kNumiflyAerodynamicLoadScale = 0.85f;
+    bilateralWings.normalDragCoefficient *=
+        kNumiflyAerodynamicLoadScale;
+    bilateralWings.tangentialDragCoefficient *=
+        kNumiflyAerodynamicLoadScale;
+    const auto authorityTrim = numiflyAuthorityTrimActions();
+    for (std::uint32_t action = 0u;
+         action < bilateralWings.actionCount;
+         ++action) {
+        bilateralWings.normalizedActionBias[action] = authorityTrim[action];
+        // Stabilization begins around a force-balanced measured-wing trim.
+        // Keep the learned residual deliberately local: the FEM authority
+        // sweep proved the trim can lift the 9%-scale body, while the first
+        // PPO mean update at 0.35 residual authority crossed a deformation
+        // validity boundary despite very low stochastic variance.
+        bilateralWings.normalizedActionScale[action] = 0.12f;
+    }
+    const CompiledMeasuredSurfaceRobot compiled =
+        compileMeasuredSurfaceRobot(bilateralWings);
+    if (bilateralWings.components.size() != 2u ||
+        bilateralWings.components[0u].component !=
+            MeasuredSurfaceComponent::leftWing ||
+        bilateralWings.components[1u].component !=
+            MeasuredSurfaceComponent::rightWing ||
+        bilateralWings.actionCount != 20u) {
+        throw std::invalid_argument(
+            "Numifly requires the canonical bilateral Maeda wing contract");
+    }
+    auto base = builtinRobotPack("unitree_g1");
+    if (!base) {
+        throw std::logic_error("bundled G1 RobotPack is unavailable");
+    }
+    RobotPack pack = std::move(*base);
+    pack.id = "numifly";
+    pack.revision = 1u;
+    pack.sourceRepository +=
+        "; doi:10.6084/m9.figshare.5406124.v1";
+    pack.sourceRevision += "; " + bilateralWings.manifestSHA256;
+    pack.license += "; CC-BY-4.0 (Maeda wing data)";
+    scaleNumiflyMechanics(pack.mechanics);
+    pack.capabilities = {
+        "flight", "bilateral_measured_surface", "balance",
+        "locomotion", "whole_body_motion",
+    };
+    // The 9%-scale articulation has far less inertia than the source G1, but
+    // its inherited position actuators otherwise accept a new target in one
+    // control step. Filter commanded targets through a finite actuator
+    // response so a rare stochastic residual cannot create an impulsive
+    // whole-body pose change while contacts are active.
+    for (RobotActuatorSpec& actuator : pack.actuators) {
+        actuator.scale *= 0.50f;
+        actuator.responseTimeSeconds = std::max(
+            actuator.responseTimeSeconds, 0.25f);
+    }
+    addBodyRole(pack, "wing_mount", {"torso_link"});
+    for (std::uint32_t component = 0u;
+         component < bilateralWings.actionCount; ++component) {
+        pack.actuators.push_back({
+            .id = "wing." + bilateralWings.actions[component].name,
+            .kind = RobotActuatorKind::measuredSurface,
+            .target = "torso_link",
+            .scale = 0.12f,
+            .responseTimeSeconds = 0.25f,
+            .component = component,
+        });
+    }
+    pack.measuredSurface = MeasuredSurfaceActuatorPack{
+        .surface = std::move(bilateralWings),
+        .bodyRole = "wing_mount",
+    };
+    (void)compiled;
+    return pack;
+}
+
+RobotPack makeNumiflyNoLegsRobotPack(
+    MeasuredSurfaceRobotPack bilateralWings
+) {
+    RobotPack pack = makeNumiflyRobotPack(std::move(bilateralWings));
+    removeNumiflyLegs(pack.mechanics);
+    pack.id = "numifly-no-legs";
+    pack.revision = 1u;
+    pack.sourceRevision += "; morphology:numifly-no-legs-v1";
+    pack.capabilities = {
+        "flight", "bilateral_measured_surface", "upper_body_motion",
+        "legless_morphology",
+    };
+    const auto semanticExists = [&](const RobotSemanticRole& role,
+                                    const std::string& member) {
+        const std::vector<std::string>* names = nullptr;
+        switch (role.kind) {
+        case RobotSemanticKind::body: names = &pack.mechanics.bodyNames; break;
+        case RobotSemanticKind::joint: names = &pack.mechanics.jointNames; break;
+        case RobotSemanticKind::dof: names = &pack.mechanics.dofNames; break;
+        }
+        return names != nullptr && std::ranges::find(*names, member) !=
+            names->end();
+    };
+    for (RobotSemanticRole& role : pack.roles) {
+        std::erase_if(role.members, [&](const std::string& member) {
+            return !semanticExists(role, member);
+        });
+    }
+    std::erase_if(pack.roles, [](const RobotSemanticRole& role) {
+        return role.members.empty();
+    });
+    std::erase_if(pack.actuators, [&](const RobotActuatorSpec& actuator) {
+        return actuator.kind == RobotActuatorKind::jointPosition &&
+            std::ranges::find(pack.mechanics.jointNames, actuator.target) ==
+                pack.mechanics.jointNames.end();
+    });
+    const std::size_t articulatedActions = std::ranges::count_if(
+        pack.actuators, [](const RobotActuatorSpec& actuator) {
+            return actuator.kind == RobotActuatorKind::jointPosition;
+        });
+    const std::size_t wingActions = std::ranges::count_if(
+        pack.actuators, [](const RobotActuatorSpec& actuator) {
+            return actuator.kind == RobotActuatorKind::measuredSurface;
+        });
+    if (articulatedActions != 17u || wingActions != 20u ||
+        pack.actuators.size() != 37u) {
+        throw std::logic_error(
+            "Numifly no-legs actuator contract is not 17 upper-body + 20 wing lanes"
+        );
+    }
+    return pack;
+}
+
+TaskPack makeNumiflyFlightTaskPack(
+    const RobotPack& robot,
+    const LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    if (robot.id != "numifly" || !robot.measuredSurface ||
+        robot.measuredSurface->surface.actionCount != 20u) {
+        throw std::invalid_argument(
+            "Numifly flight task requires the canonical Numifly RobotPack");
+    }
+    TaskPack task = makeUnitreeG1LocomotionTaskPack(
+        surface, observations, reset);
+    task.id = "numifly.flight.v3";
+    // Wing authority is large relative to the 9%-scale articulation and can
+    // fold limbs through substantially more simultaneous self-contact than
+    // the full-size G1 locomotion envelope. These are per-environment hard
+    // capacities; overflow remains a transactional physics failure.
+    task.capacities.candidatePairs = std::max(
+        task.capacities.candidatePairs, 256u);
+    task.capacities.rawContacts = std::max(
+        task.capacities.rawContacts, 512u);
+    task.capacities.manifolds = std::max(
+        task.capacities.manifolds, 128u);
+    task.capacities.constraintBlocks = std::max(
+        task.capacities.constraintBlocks, 256u);
+    task.capacities.constraintRows = std::max(
+        task.capacities.constraintRows, 768u);
+    task.capacities.hardConvexPairs = std::max(
+        task.capacities.hardConvexPairs, 256u);
+    task.capacities.ccdCandidates = std::max(
+        task.capacities.ccdCandidates, 128u);
+    task.capacities.ccdEvents = std::max(
+        task.capacities.ccdEvents, 16u);
+    task.capacities.endpointRuntimeRecords = 512u;
+    task.capacities.articulationPointQueries = 512u;
+    task.capacities.qualityRows = std::max(
+        task.capacities.qualityRows, 768u);
+    task.capacities.islandConstraintReferences = std::max(
+        task.capacities.islandConstraintReferences, 256u);
+    for (const RobotActuatorSpec& actuator : robot.actuators) {
+        if (actuator.kind == RobotActuatorKind::measuredSurface) {
+            task.actions.push_back({actuator.id});
+            observations.actorFrame.push_back({
+                .source = TaskObservationSource::previousAction,
+                .target = actuator.id,
+            });
+        }
+    }
+    for (std::uint32_t component = 0u; component < 3u; ++component) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::rootLinearVelocityLocal,
+            .component = component,
+            .scale = 1.0f,
+        });
+    }
+    observations.actorFrame.push_back({
+        .source = TaskObservationSource::rootHeight,
+        .scale = 2.0f,
+    });
+    for (std::uint32_t component = 0u; component < 4u; ++component) {
+        observations.actorCurrent.push_back({
+            .source = TaskObservationSource::deviceMechanics,
+            .component = component,
+            .scale = component == 2u ? 0.05f : 1.0f,
+        });
+    }
+    observations.critic = observations.actorFrame;
+    observations.critic.insert(
+        observations.critic.end(),
+        observations.actorCurrent.begin(),
+        observations.actorCurrent.end());
+    observations.actorHistoryLength = 2u;
+    observations.criticHistoryLength = 2u;
+    task.outcomes = {
+        {"root_height", "m", TaskOutcomeSource::rootHeight,
+            TaskOutcomeDirection::higherIsBetter},
+        {"tilt", "rad", TaskOutcomeSource::tilt,
+            TaskOutcomeDirection::lowerIsBetter},
+        {"flight_tracking", "ratio", TaskOutcomeSource::trackingScore,
+            TaskOutcomeDirection::higherIsBetter},
+    };
+    task.rewards = {
+        // Ground-start curriculum: reward the transition into flight directly.
+        // A height-error-only objective gives almost no useful distinction
+        // between actions while the robot is still supported by the ground.
+        // Do not pay the policy merely for remaining in a long episode.  With
+        // recoverable ground contact that creates a stable floor-drift local
+        // optimum.  Takeoff must improve return directly.
+        {.operation = TaskRewardOperator::rootHeightProgress,
+            .weight = 30.0f},
+        {.operation = TaskRewardOperator::rootHeightErrorSquared,
+            .weight = -20.0f},
+        // Recovery stage signals must remain informative after the robot has
+        // fallen. Uprightness deliberately clamps the inverted hemisphere to
+        // zero; body-up exponential preserves a smooth orientation gradient
+        // there, while normalized height distinguishes rising from floor
+        // drift without demanding immediate flight.
+        {.operation = TaskRewardOperator::bodyUpExponential,
+            .weight = 4.0f},
+        {.operation = TaskRewardOperator::rootHeightNormalized,
+            .weight = 12.0f},
+        {.operation = TaskRewardOperator::uprightness, .weight = 3.0f},
+        {.operation = TaskRewardOperator::tiltSquared, .weight = -1.0f},
+        {.operation = TaskRewardOperator::rootVerticalVelocitySquared,
+            .weight = -0.04f},
+        {.operation = TaskRewardOperator::rootRollPitchVelocitySquared,
+            .weight = -0.025f},
+        {.operation = TaskRewardOperator::jointVelocitySquared,
+            .weight = -0.0005f},
+        {.operation = TaskRewardOperator::actionSquared,
+            .weight = -0.003f},
+        {.operation = TaskRewardOperator::actionRateSquared,
+            .weight = -0.002f},
+    };
+    task.terminations = {
+        {.operation = TaskTerminationOperator::maximumTilt,
+            .reason = MR_TASK_TERMINATION_TILT, .priority = 20u,
+            // The canonical ground pose begins around 0.73 rad and initially
+            // rocks while the wings spool up. Preserve those physically useful
+            // ground transitions; uprightness remains strongly rewarded and
+            // later curriculum stages can tighten this flight envelope.
+            .threshold = 2.70f, .failurePenalty = -2.0f},
+    };
+    // Ground contact and low height are recoverable states for a robot whose
+    // curriculum begins on the ground.  The old minimum-height terminal reset
+    // episodes after roughly 15 control steps, preventing the policy from
+    // experiencing takeoff or sustained flight.  Keep state continuous for a
+    // full 40-second horizon and terminate only catastrophic orientation.
+    task.maximumEpisodeSteps = 2000u;
+    task.difficultyBandCount = 1u;
+    // NumiFly inherits the G1 posture at 9% linear scale. Keep the first
+    // curriculum stage on the corresponding 0.78 m * 0.09 standing height;
+    // the former 0.45 m target and 0.14--0.16 m reset silently turned a
+    // ground start into a drop test and made height rewards unattainable.
+    constexpr float kNumiflyStandingRootHeight = 0.78f * 0.09f;
+    task.baseHeightTarget = kNumiflyStandingRootHeight;
+    task.gaitPeriodSeconds = 1.0f / 28.8f;
+    task.clearanceTarget = 0.02f;
+    task.successTrackingThreshold = 0.8f;
+    task.supportForceThreshold = 0.01f;
+    task.commands = {};
+    task.commands.standingProbability = 1.0f;
+    task.commands.minimumDurationSeconds = 10.0f;
+    task.commands.maximumDurationSeconds = 10.0f;
+    task.pushes = {};
+    reset.maximumActionDelaySteps = 1u;
+    reset.maximumObservationDelaySteps = 1u;
+    reset.operators = {
+        {.operation = TaskRandomizationOperator::rootPosition,
+            .parameters = {0.01f, 0.01f, 0.0f, 0.0f}},
+        {.operation = TaskRandomizationOperator::rootYaw,
+            .parameters = {-0.15f, 0.15f, 0.0f, 0.0f}},
+        {.operation = TaskRandomizationOperator::rootHeight,
+            .parameters = {
+                kNumiflyStandingRootHeight - 0.003f,
+                kNumiflyStandingRootHeight + 0.003f,
+                0.0f, 0.0f}},
+        {.operation = TaskRandomizationOperator::velocity,
+            .parameters = {-0.02f, 0.02f, 0.0f, 0.0f}},
+    };
+    return task;
+}
+
+TaskPack makeNumiflyForwardFlightTaskPack(
+    const RobotPack& robot,
+    const LocomotionSurface surface,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    TaskPack task = makeNumiflyFlightTaskPack(
+        robot, surface, observations, reset);
+    task.id = "numifly.forward_flight.v2";
+    // Keep the learned objective agnostic to the support strategy.  The
+    // contact solver remains authoritative for feet, hands, torso, and wing
+    // interactions; this task supplies only the forward-progress objective.
+    task.difficultyBandCount = 3u;
+    task.baseHeightTarget = 0.20f;
+    task.successTrackingThreshold = 0.75f;
+    task.supportForceThreshold = 0.0f;
+    task.commands.lower = {0.10f, -0.025f, -0.10f, 0.0f};
+    task.commands.upper = {0.16f, 0.025f, 0.10f, 0.0f};
+    task.commands.limitLower = task.commands.lower;
+    task.commands.limitUpper = {0.34f, 0.075f, 0.30f, 0.0f};
+    task.commands.difficultyStep = {0.09f, 0.025f, 0.10f, 0.0f};
+    task.commands.standingProbability = 0.0f;
+    task.commands.minimumDurationSeconds = 4.0f;
+    task.commands.maximumDurationSeconds = 8.0f;
+    task.outcomes = {
+        {"root_height", "m", TaskOutcomeSource::rootHeight,
+            TaskOutcomeDirection::higherIsBetter},
+        {"tilt", "rad", TaskOutcomeSource::tilt,
+            TaskOutcomeDirection::lowerIsBetter},
+        {"forward_speed_tracking", "ratio",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::linearVelocityTracking},
+    };
+    task.rewards = {
+        {.operation = TaskRewardOperator::constant, .weight = 0.20f},
+        {.operation = TaskRewardOperator::linearVelocityTracking,
+            .weight = 6.0f, .parameters = {0.12f, 0.0f, 0.0f, 0.0f}},
+        {.operation = TaskRewardOperator::rootHeightErrorSquared,
+            .weight = -3.0f},
+        {.operation = TaskRewardOperator::uprightness, .weight = 0.40f},
+        {.operation = TaskRewardOperator::tiltSquared, .weight = -0.25f},
+        {.operation = TaskRewardOperator::rootVerticalVelocitySquared,
+            .weight = -0.05f},
+        {.operation = TaskRewardOperator::rootRollPitchVelocitySquared,
+            .weight = -0.025f},
+        {.operation = TaskRewardOperator::jointVelocitySquared,
+            .weight = -0.0005f},
+        {.operation = TaskRewardOperator::actionSquared, .weight = -0.005f},
+        {.operation = TaskRewardOperator::actionRateSquared,
+            .weight = -0.002f},
+    };
+    task.terminations = {
+        {.operation = TaskTerminationOperator::maximumTilt,
+            .reason = MR_TASK_TERMINATION_TILT, .priority = 20u,
+            .threshold = 2.70f, .failurePenalty = -2.0f},
+    };
+    for (std::uint32_t component = 0u; component < 3u; ++component) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::command,
+            .component = component,
+        });
+    }
+    observations.critic = observations.actorFrame;
+    observations.critic.insert(
+        observations.critic.end(), observations.actorCurrent.begin(),
+        observations.actorCurrent.end());
+    return task;
+}
+
+TaskPack makeNumiflyNoLegsFlightTaskPack(
+    const RobotPack& robot,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    if (robot.id != "numifly-no-legs" || !robot.measuredSurface ||
+        robot.measuredSurface->surface.actionCount != 20u ||
+        robot.actuators.size() != 37u) {
+        throw std::invalid_argument(
+            "Numifly no-legs flight requires its canonical 37-action RobotPack"
+        );
+    }
+    TaskPack task;
+    task.id = "numifly.no_legs.flight.v1";
+    task.capacities = {
+        .candidatePairs = 256u,
+        .rawContacts = 512u,
+        .manifolds = 128u,
+        .constraintBlocks = 256u,
+        .constraintRows = 768u,
+        .hardConvexPairs = 256u,
+        .ccdCandidates = 128u,
+        .ccdEvents = 16u,
+        .endpointRuntimeRecords = 512u,
+        .articulationPointQueries = 512u,
+        .qualityRows = 768u,
+        .islandConstraintReferences = 256u,
+    };
+    for (const RobotActuatorSpec& actuator : robot.actuators) {
+        task.actions.push_back({actuator.id});
+    }
+    task.outcomes = {
+        {"root_height", "m", TaskOutcomeSource::rootHeight,
+            TaskOutcomeDirection::higherIsBetter},
+        {"tilt", "rad", TaskOutcomeSource::tilt,
+            TaskOutcomeDirection::lowerIsBetter},
+        {"flight_tracking", "ratio", TaskOutcomeSource::trackingScore,
+            TaskOutcomeDirection::higherIsBetter},
+    };
+    task.rewards = {
+        {.operation = TaskRewardOperator::constant, .weight = 0.25f},
+        {.operation = TaskRewardOperator::rootHeightErrorSquared,
+            .weight = -8.0f},
+        {.operation = TaskRewardOperator::tiltSquared, .weight = -1.0f},
+        {.operation = TaskRewardOperator::rootVerticalVelocitySquared,
+            .weight = -0.15f},
+        {.operation = TaskRewardOperator::rootRollPitchVelocitySquared,
+            .weight = -0.05f},
+        {.operation = TaskRewardOperator::jointVelocitySquared,
+            .weight = -0.001f},
+        {.operation = TaskRewardOperator::actionRateSquared,
+            .weight = -0.002f},
+    };
+    task.terminations = {
+        {.operation = TaskTerminationOperator::minimumRootHeight,
+            .reason = MR_TASK_TERMINATION_HEIGHT, .priority = 10u,
+            .threshold = 0.025f, .failurePenalty = -5.0f},
+        {.operation = TaskTerminationOperator::maximumTilt,
+            .reason = MR_TASK_TERMINATION_TILT, .priority = 20u,
+            .threshold = 1.45f, .failurePenalty = -2.0f},
+    };
+    task.maximumEpisodeSteps = 1000u;
+    task.difficultyBandCount = 1u;
+    task.baseHeightTarget = 0.45f;
+    task.gaitPeriodSeconds = 1.0f / 28.8f;
+    task.clearanceTarget = 0.02f;
+    task.successTrackingThreshold = 0.8f;
+    task.supportForceThreshold = 0.0f;
+    task.commands.standingProbability = 1.0f;
+    task.commands.minimumDurationSeconds = 10.0f;
+    task.commands.maximumDurationSeconds = 10.0f;
+
+    observations.actorHistoryLength = 2u;
+    observations.criticHistoryLength = 2u;
+    for (std::uint32_t component = 0u; component < 3u; ++component) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::rootLinearVelocityLocal,
+            .component = component,
+        });
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::rootAngularVelocityLocal,
+            .component = component, .scale = 0.2f,
+        });
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::projectedGravity,
+            .component = component, .normalizeVector3 = true,
+        });
+    }
+    observations.actorFrame.push_back({
+        .source = TaskObservationSource::rootHeight,
+        .scale = 2.0f,
+    });
+    for (const RobotActuatorSpec& actuator : robot.actuators) {
+        if (actuator.kind != RobotActuatorKind::jointPosition) continue;
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::jointPositionError,
+            .target = actuator.target,
+        });
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::jointVelocity,
+            .target = actuator.target, .scale = 0.05f,
+        });
+    }
+    for (const TaskActionBinding& action : task.actions) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::previousAction,
+            .target = action.actuator,
+        });
+    }
+    const std::array<TaskObservationOperatorSpec, 4u> mechanics{{
+        {.source = TaskObservationSource::deviceMechanics, .component = 0u},
+        {.source = TaskObservationSource::deviceMechanics, .component = 1u},
+        {.source = TaskObservationSource::deviceMechanics, .component = 2u,
+            .scale = 0.05f},
+        {.source = TaskObservationSource::deviceMechanics, .component = 3u,
+            .scale = 1.0f / std::sqrt(20.0f)},
+    }};
+    observations.actorCurrent.insert(
+        observations.actorCurrent.end(), mechanics.begin(), mechanics.end());
+    observations.critic = observations.actorFrame;
+    observations.critic.insert(
+        observations.critic.end(), mechanics.begin(), mechanics.end());
+    reset.maximumActionDelaySteps = 1u;
+    reset.maximumObservationDelaySteps = 1u;
+    reset.operators = {
+        {.operation = TaskRandomizationOperator::rootPosition,
+            .parameters = {0.01f, 0.01f, 0.0f, 0.0f}},
+        {.operation = TaskRandomizationOperator::rootYaw,
+            .parameters = {-0.15f, 0.15f, 0.0f, 0.0f}},
+        {.operation = TaskRandomizationOperator::rootHeight,
+            .parameters = {0.14f, 0.16f, 0.0f, 0.0f}},
+        {.operation = TaskRandomizationOperator::velocity,
+            .parameters = {-0.02f, 0.02f, 0.0f, 0.0f}},
+    };
+    return task;
+}
+
+TaskPack makeMeasuredSurfaceFlightTaskPack(
+    const RobotPack& robot,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    if (!robot.measuredSurface || robot.actuators.size() !=
+            kMeasuredSurfaceActionCount) {
+        throw std::invalid_argument(
+            "measured-surface flight task requires the canonical robot pack");
+    }
+    TaskPack task;
+    task.id = robot.id + ".flight";
+    for (const RobotActuatorSpec& actuator : robot.actuators) {
+        task.actions.push_back({actuator.id});
+    }
+    task.outcomes = {
+        {"root_height", "m", TaskOutcomeSource::rootHeight,
+            TaskOutcomeDirection::higherIsBetter},
+        {"tilt", "rad", TaskOutcomeSource::tilt,
+            TaskOutcomeDirection::lowerIsBetter},
+        {"tracking", "ratio", TaskOutcomeSource::trackingScore,
+            TaskOutcomeDirection::higherIsBetter},
+    };
+    task.maximumEpisodeSteps = 500u;
+    task.difficultyBandCount = 1u;
+    task.baseHeightTarget = 2.0f;
+    task.gaitPeriodSeconds = 0.286f;
+    task.successTrackingThreshold = 0.80f;
+    task.supportForceThreshold = 0.0f;
+    task.commands.standingProbability = 1.0f;
+    task.commands.minimumDurationSeconds = 10.0f;
+    task.commands.maximumDurationSeconds = 10.0f;
+    task.pushes.minimumIntervalSeconds = 10.0f;
+    task.pushes.maximumIntervalSeconds = 10.0f;
+    task.rewards = {
+        {TaskRewardOperator::constant, {}, {}, 0.25f},
+        {TaskRewardOperator::rootHeightErrorSquared, {}, {}, -1.0f},
+        {TaskRewardOperator::tiltSquared, {}, {}, -0.5f},
+        {TaskRewardOperator::rootVerticalVelocitySquared, {}, {}, -0.10f},
+        {TaskRewardOperator::rootRollPitchVelocitySquared, {}, {}, -0.05f},
+        {TaskRewardOperator::actionRateSquared, {}, {}, -0.002f},
+    };
+    task.terminations = {
+        {TaskTerminationOperator::minimumRootHeight, {},
+            MR_TASK_TERMINATION_HEIGHT, 10u, 0.08f, -5.0f},
+        {TaskTerminationOperator::maximumTilt, {},
+            MR_TASK_TERMINATION_TILT, 20u, 1.45f, -2.0f},
+    };
+    observations.actorHistoryLength = 2u;
+    observations.criticHistoryLength = 2u;
+    for (std::uint32_t component = 0u; component < 3u; ++component) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::rootLinearVelocityLocal,
+            .component = component, .scale = 0.5f});
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::rootAngularVelocityLocal,
+            .component = component, .scale = 0.25f});
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::projectedGravity,
+            .component = component, .normalizeVector3 = true});
+    }
+    observations.actorFrame.push_back({
+        .source = TaskObservationSource::rootHeight,
+        .scale = 0.5f, .offset = -1.0f});
+    for (const TaskActionBinding& action : task.actions) {
+        observations.actorFrame.push_back({
+            .source = TaskObservationSource::previousAction,
+            .target = action.actuator});
+    }
+    observations.critic = observations.actorFrame;
+    const std::array<TaskObservationOperatorSpec, 4u> mechanicsObservations{{
+        {.source = TaskObservationSource::deviceMechanics,
+            .component = 0u},
+        {.source = TaskObservationSource::deviceMechanics,
+            .component = 1u},
+        {.source = TaskObservationSource::deviceMechanics,
+            .component = 2u, .scale = 0.25f},
+        {.source = TaskObservationSource::deviceMechanics,
+            .component = 3u,
+            .scale = 1.0f / std::sqrt(
+                static_cast<float>(kMeasuredSurfaceActionCount))},
+    }};
+    observations.actorCurrent.insert(observations.actorCurrent.end(),
+        mechanicsObservations.begin(), mechanicsObservations.end());
+    observations.critic.insert(observations.critic.end(),
+        mechanicsObservations.begin(), mechanicsObservations.end());
+    reset.maximumActionDelaySteps = 1u;
+    reset.maximumObservationDelaySteps = 1u;
+    reset.operators = {
+        {.operation = TaskRandomizationOperator::rootPosition,
+            .parameters = {0.05f, 0.05f, 0.0f, 0.0f}},
+        {.operation = TaskRandomizationOperator::rootYaw,
+            .parameters = {-0.20f, 0.20f, 0.0f, 0.0f}},
+        {.operation = TaskRandomizationOperator::rootHeight,
+            .parameters = {1.8f, 2.2f, 0.0f, 0.0f}},
+        {.operation = TaskRandomizationOperator::velocity,
+            .parameters = {-0.05f, 0.05f, 0.0f, 0.0f}},
+    };
+    return task;
+}
+
+ScenePack makeMeasuredSurfaceDropRecoveryScenePack(const RobotPack& robot) {
+    LocomotionSceneComponent ground = makeLocomotionSurfaceComponent(
+        robot.mechanics, LocomotionSurface::ground);
+    ScenePack scene;
+    scene.id = robot.id + ".drop_recovery_scene";
+    scene.objects.push_back({
+        .id = "fatal_impact_ground",
+        .semanticClass = "ground",
+        .role = MR_WORLD_ASSET_FIXTURE,
+        .render = MR_WORLD_RENDER_PROCEDURAL,
+        .collision = MR_WORLD_COLLISION_PRIMITIVES,
+        .dynamics = MR_WORLD_DYNAMICS_STATIC,
+        .mechanics = std::move(ground.mechanics),
+        .defaultBodyStates = std::move(ground.defaultBodyStates),
+    });
+    return scene;
+}
+
+TaskPack makeMeasuredSurfaceDropRecoveryTaskPack(
+    const RobotPack& robot,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    TaskPack task = makeMeasuredSurfaceFlightTaskPack(
+        robot, observations, reset);
+    observations.actorHistoryLength = 3u;
+    observations.criticHistoryLength = 3u;
+    task.id = robot.id + ".fatal_drop_recovery";
+    task.capacities = {
+        .candidatePairs = 16u,
+        .rawContacts = 32u,
+        .manifolds = 8u,
+        .constraintBlocks = 16u,
+        .constraintRows = 48u,
+        .hardConvexPairs = 16u,
+        .ccdCandidates = 8u,
+        .ccdEvents = 4u,
+        .endpointRuntimeRecords = 32u,
+        .qualityRows = 48u,
+        .islandConstraintReferences = 16u,
+    };
+    task.maximumEpisodeSteps = 240u;
+    task.difficultyBandCount = 5u;
+    task.baseHeightTarget = 20.0f;
+    task.commands.difficultySamplingExponent = 1.6f;
+    task.outcomes = {
+        {"root_height", "m", TaskOutcomeSource::rootHeight,
+            TaskOutcomeDirection::higherIsBetter},
+        {"tilt", "rad", TaskOutcomeSource::tilt,
+            TaskOutcomeDirection::lowerIsBetter},
+        {"altitude_progress", "m/s", TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::rootHeightProgress},
+        {"uprightness", "ratio", TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::uprightness},
+        {"forward_speed_tracking", "ratio",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::linearVelocityTracking},
+        {"heading_rate_tracking", "ratio",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::yawVelocityTracking},
+        {"vertical_speed_cost", "m2/s2",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::lowerIsBetter,
+            TaskRewardOperator::rootVerticalVelocitySquared},
+    };
+    constexpr float measuredForwardSpeed = 1.3081407f;
+    task.commands.lower = {measuredForwardSpeed, 0.0f, 0.0f, 0.0f};
+    task.commands.upper = task.commands.lower;
+    task.commands.limitLower = task.commands.lower;
+    task.commands.limitUpper = task.commands.lower;
+    task.commands.difficultyStep = {};
+    task.commands.standingProbability = 0.0f;
+    const std::string rootBody = robot.mechanics.bodyNames.front();
+    task.contactGroups = {{
+        .id = "fatal_impact",
+        .bodies = {rootBody},
+        .forbidden = true,
+        .referenceBody = rootBody,
+    }};
+    task.rewards = {
+        {TaskRewardOperator::constant, {}, {}, 0.25f},
+        // Preserve recovery lift, but make matching the measured cruise speed
+        // the dominant post-recovery objective.  The narrower kernel stops a
+        // nearly stationary hover from collecting meaningful flight credit.
+        {TaskRewardOperator::rootHeightProgress, {}, {}, 2.75f},
+        {TaskRewardOperator::linearVelocityTracking, {}, {}, 3.0f,
+            {0.45f, 0.0f, 0.0f, 0.0f}},
+        {TaskRewardOperator::yawVelocityTracking, {}, {}, 0.75f,
+            {0.12f, 0.0f, 0.0f, 0.0f}},
+        {TaskRewardOperator::uprightness, {}, {}, 1.25f},
+        {TaskRewardOperator::tiltSquared, {}, {}, -0.40f},
+        {TaskRewardOperator::rootVerticalVelocitySquared, {}, {}, -0.012f},
+        {TaskRewardOperator::rootRollPitchVelocitySquared, {}, {}, -0.015f},
+        {TaskRewardOperator::actionSquared, {}, {}, -0.012f},
+        {TaskRewardOperator::actionRateSquared, {}, {}, -0.003f},
+    };
+    task.terminations = {
+        {TaskTerminationOperator::contactGroup, "fatal_impact",
+            MR_TASK_TERMINATION_CONTACT, 100u, 1.0f, -50.0f},
+        {TaskTerminationOperator::minimumRootHeight, {},
+            MR_TASK_TERMINATION_HEIGHT, 90u, 0.04f, -50.0f},
+    };
+    reset.maximumActionDelaySteps = 2u;
+    reset.maximumObservationDelaySteps = 2u;
+    reset.operators.clear();
+    const auto addBand = [&reset](
+        const std::uint32_t band,
+        const float heightLower,
+        const float heightUpper,
+        const float verticalLower,
+        const float verticalUpper,
+        const float maximumTilt,
+        const float maximumAngularSpeed
+    ) {
+        reset.operators.push_back({
+            .operation = TaskRandomizationOperator::rootHeight,
+            .minimumDifficultyBand = band,
+            .parameters = {heightLower, heightUpper, 0.0f, 0.0f},
+        });
+        reset.operators.push_back({
+            .operation = TaskRandomizationOperator::rootOrientationCone,
+            .minimumDifficultyBand = band,
+            .parameters = {maximumTilt, 3.14159265f, 0.0f, 0.0f},
+        });
+        reset.operators.push_back({
+            .operation = TaskRandomizationOperator::rootLinearVelocity,
+            .component = 2u,
+            .minimumDifficultyBand = band,
+            .parameters = {verticalLower, verticalUpper, 0.0f, 0.0f},
+        });
+        for (std::uint32_t component = 0u; component < 3u; ++component) {
+            reset.operators.push_back({
+                .operation = TaskRandomizationOperator::rootAngularVelocity,
+                .component = component,
+                .minimumDifficultyBand = band,
+                .parameters = {-maximumAngularSpeed,
+                    maximumAngularSpeed, 0.0f, 0.0f},
+            });
+        }
+    };
+    addBand(0u, 4.0f, 6.0f, -0.5f, 0.0f, 0.15f, 0.25f);
+    addBand(1u, 8.0f, 10.0f, -3.0f, -1.0f, 0.50f, 0.75f);
+    addBand(2u, 12.0f, 16.0f, -7.0f, -3.0f, 1.00f, 1.50f);
+    addBand(3u, 18.0f, 22.0f, -12.0f, -6.0f, 1.57f, 2.50f);
+    // The qualified 1.34x-weight lift envelope leaves about 3.33 m/s2 of net
+    // upward acceleration. Keep the expert band fatal without control but
+    // leave recovery margin for a fully inverted, rotating release.
+    addBand(4u, 22.0f, 28.0f, -10.0f, -6.0f, 3.14159265f, 4.0f);
+    reset.operators.push_back({
+        .operation = TaskRandomizationOperator::actionDelay,
+        .parameters = {0.0f, 2.0f, 0.0f, 0.0f},
+    });
+    reset.operators.push_back({
+        .operation = TaskRandomizationOperator::observationDelay,
+        .parameters = {0.0f, 2.0f, 0.0f, 0.0f},
+    });
+    return task;
+}
+
+TaskPack makeMeasuredSurfaceCruiseTaskPack(
+    const RobotPack& robot,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    TaskPack task = makeMeasuredSurfaceDropRecoveryTaskPack(
+        robot, observations, reset);
+    task.id = robot.id + ".forward_agility";
+    task.maximumEpisodeSteps = 1500u;
+    task.baseHeightTarget = 5.0f;
+    task.difficultyBandCount = 1u;
+    task.commands.difficultySamplingExponent = 1.0f;
+    task.commands.lower = {1.60f, 0.0f, 0.0f, 0.0f};
+    task.commands.upper = task.commands.lower;
+    task.commands.limitLower = task.commands.lower;
+    task.commands.limitUpper = task.commands.lower;
+    task.rewards = {
+        {TaskRewardOperator::constant, {}, {}, 0.35f},
+        {TaskRewardOperator::rootHeightErrorSquared, {}, {}, -0.80f},
+        {TaskRewardOperator::rootHeightProgress, {}, {}, 1.50f},
+        {TaskRewardOperator::linearVelocityTracking, {}, {}, 8.0f,
+            {0.36f, 0.0f, 0.0f, 0.0f}},
+        {TaskRewardOperator::yawVelocityTracking, {}, {}, 0.75f,
+            {0.12f, 0.0f, 0.0f, 0.0f}},
+        {TaskRewardOperator::uprightness, {}, {}, 2.0f},
+        {TaskRewardOperator::tiltSquared, {}, {}, -0.60f},
+        {TaskRewardOperator::rootVerticalVelocitySquared, {}, {}, -0.12f},
+        {TaskRewardOperator::rootRollPitchVelocitySquared, {}, {}, -0.02f},
+        {TaskRewardOperator::actionSquared, {}, {}, -0.01f},
+        {TaskRewardOperator::actionRateSquared, {}, {}, -0.003f},
+    };
+    std::erase_if(reset.operators,
+        [](const TaskRandomizationOperatorSpec& operation) {
+            return operation.minimumDifficultyBand != 0u;
+        });
+    for (TaskRandomizationOperatorSpec& operation : reset.operators) {
+        if (operation.operation == TaskRandomizationOperator::rootHeight) {
+            operation.parameters = {4.9f, 5.1f, 0.0f, 0.0f};
+        } else if (operation.operation ==
+                   TaskRandomizationOperator::rootOrientationCone) {
+            operation.parameters = {0.45f, 3.14159265f, 0.0f, 0.0f};
+        } else if (operation.operation ==
+                   TaskRandomizationOperator::rootLinearVelocity &&
+                   operation.component == 2u) {
+            operation.parameters = {-0.25f, 0.25f, 0.0f, 0.0f};
+        } else if (operation.operation ==
+                   TaskRandomizationOperator::rootAngularVelocity) {
+            operation.parameters = {-1.0f, 1.0f, 0.0f, 0.0f};
+        }
+    }
+    reset.operators.push_back({
+        .operation = TaskRandomizationOperator::rootLinearVelocity,
+        .component = 0u,
+        .parameters = {0.80f, 1.20f, 0.0f, 0.0f},
+    });
+    reset.operators.push_back({
+        .operation = TaskRandomizationOperator::rootLinearVelocity,
+        .component = 1u,
+        .parameters = {-0.35f, 0.35f, 0.0f, 0.0f},
+    });
+    return task;
+}
+
+ScenePack makeMeasuredSurfaceFoodNavigationScenePack(
+    const RobotPack& robot
+) {
+    ScenePack scene = makeMeasuredSurfaceDropRecoveryScenePack(robot);
+    const std::array<LocomotionDynamicSphere, 1u> authoredFood{{{
+        .position = {8.0f, 0.0f, 5.0f, 1.0f},
+        .linearVelocity = {},
+        .radius = 0.14f,
+        .mass = 0.02f,
+    }}};
+    LocomotionSceneComponent food =
+        makeLocomotionDynamicSphereComponent(robot.mechanics, authoredFood);
+    food.mechanics.name = "dove_food_target";
+    food.mechanics.bodyNames[0] = "food_target";
+    food.mechanics.shapeNames[0] = "food_target/collision";
+    food.mechanics.bodies[0].motionType = MR_MOTION_STATIC;
+    food.mechanics.bodies[0].massAndInverseMass = {};
+    food.mechanics.shapes[0].collisionMask = 0u;
+    food.mechanics.shapes[0].flags &= ~MR_SHAPE_FLAG_ENABLE_CCD;
+    food.defaultBodyStates[0].linearVelocityAndInverseMass = {};
+    food.defaultBodyStates[0].flagsAndIndices[0] = MR_MOTION_STATIC;
+    scene.objects.push_back({
+        .id = "dove_food",
+        .semanticClass = "food_target",
+        .role = MR_WORLD_ASSET_BACKGROUND,
+        .render = MR_WORLD_RENDER_PROCEDURAL,
+        .collision = MR_WORLD_COLLISION_NONE,
+        .dynamics = MR_WORLD_DYNAMICS_STATIC,
+        .mechanics = std::move(food.mechanics),
+        .defaultBodyStates = std::move(food.defaultBodyStates),
+    });
+    return scene;
+}
+
+TaskPack makeMeasuredSurfaceFoodNavigationTaskPack(
+    const RobotPack& robot,
+    TaskObservationProgram& observations,
+    TaskResetProgram& reset
+) {
+    TaskPack task = makeMeasuredSurfaceCruiseTaskPack(
+        robot, observations, reset);
+    task.id = robot.id + ".food_navigation";
+    task.difficultyBandCount = 4u;
+    task.commands.difficultySamplingExponent = 1.0f;
+    for (TaskRandomizationOperatorSpec& operation : reset.operators) {
+        if (operation.operation ==
+                TaskRandomizationOperator::rootOrientationCone) {
+            operation.parameters = {0.20f, 0.15f, 0.0f, 0.0f};
+        }
+    }
+    const std::array<TaskObservationOperatorSpec, 4u> targetObservations{{
+        {.source = TaskObservationSource::objectTrack,
+            .target = "food_target", .component = 0u},
+        {.source = TaskObservationSource::objectTrack,
+            .target = "food_target", .component = 1u, .scale = 0.15f},
+        {.source = TaskObservationSource::objectTrack,
+            .target = "food_target", .component = 2u, .scale = 0.15f},
+        {.source = TaskObservationSource::objectTrack,
+            .target = "food_target", .component = 3u, .scale = 0.15f},
+    }};
+    observations.actorCurrent.insert(observations.actorCurrent.end(),
+        targetObservations.begin(), targetObservations.end());
+    observations.critic.insert(observations.critic.end(),
+        targetObservations.begin(), targetObservations.end());
+    // Keep this below the fixed native outcome-channel budget and make the
+    // navigation signals first-class rather than hiding them after the cruise
+    // diagnostics inherited above.
+    task.outcomes = {
+        {"root_height", "m", TaskOutcomeSource::rootHeight,
+            TaskOutcomeDirection::higherIsBetter},
+        {"tilt", "rad", TaskOutcomeSource::tilt,
+            TaskOutcomeDirection::lowerIsBetter},
+        {"food_progress", "m/s", TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::rootObjectProgress},
+        {"food_proximity", "ratio", TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::rootObjectProximity},
+        {"forward_speed_tracking", "reward",
+            TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::linearVelocityTracking},
+        {"uprightness", "ratio", TaskOutcomeSource::rewardContribution,
+            TaskOutcomeDirection::higherIsBetter,
+            TaskRewardOperator::uprightness},
+    };
+    task.rewards = {
+        {TaskRewardOperator::constant, {}, {}, 0.35f},
+        {TaskRewardOperator::rootHeightErrorSquared, {}, {}, -0.80f},
+        {TaskRewardOperator::rootHeightProgress, {}, {}, 1.50f},
+        {TaskRewardOperator::linearVelocityTracking, {}, {}, 8.0f,
+            {0.36f, 0.0f, 0.0f, 0.0f}},
+        {TaskRewardOperator::yawVelocityTracking, {}, {}, 0.75f,
+            {0.12f, 0.0f, 0.0f, 0.0f}},
+        {TaskRewardOperator::uprightness, {}, {}, 2.0f},
+        {TaskRewardOperator::tiltSquared, {}, {}, -0.60f},
+        {TaskRewardOperator::rootVerticalVelocitySquared, {}, {}, -0.12f},
+        {TaskRewardOperator::rootRollPitchVelocitySquared, {}, {}, -0.02f},
+        {TaskRewardOperator::actionSquared, {}, {}, -0.01f},
+        {TaskRewardOperator::actionRateSquared, {}, {}, -0.003f},
+        {TaskRewardOperator::rootObjectProgress, {}, "food_target", 1.50f},
+        {TaskRewardOperator::rootObjectProximity, {}, "food_target", 2.0f,
+            {9.0f, 0.0f, 0.0f, 0.0f}},
+    };
+    task.terminations.push_back({
+        .operation = TaskTerminationOperator::rootObjectProximity,
+        .sourceGroup = "food_target",
+        .reason = MR_TASK_TERMINATION_FOOD_CONSUMED,
+        .priority = 120u,
+        .threshold = 1.25f,
+        .failurePenalty = 25.0f,
+    });
+    reset.operators.push_back({
+        .operation = TaskRandomizationOperator::sceneBodyPosition,
+        .target = "food_target", .component = 0u,
+        .parameters = {3.0f, 6.0f, 0.0f, 0.0f},
+    });
+    reset.operators.push_back({
+        .operation = TaskRandomizationOperator::sceneBodyPosition,
+        .target = "food_target", .component = 1u,
+        .parameters = {-0.25f, 0.25f, 0.0f, 0.0f},
+    });
+    reset.operators.push_back({
+        .operation = TaskRandomizationOperator::sceneBodyPosition,
+        .target = "food_target", .component = 2u,
+        .parameters = {4.5f, 5.5f, 0.0f, 0.0f},
+    });
+    for (const auto& stage : std::array{
+             std::array<float, 7u>{1.0f, 4.0f, 9.0f, -1.5f, 1.5f, 4.3f, 5.7f},
+             std::array<float, 7u>{2.0f, 5.0f, 12.0f, -4.0f, 4.0f, 4.0f, 6.0f},
+             std::array<float, 7u>{3.0f, 4.0f, 12.0f, -6.0f, 6.0f, 3.5f, 6.5f},
+         }) {
+        const std::uint32_t band = static_cast<std::uint32_t>(stage[0]);
+        reset.operators.push_back({
+            .operation = TaskRandomizationOperator::sceneBodyPosition,
+            .target = "food_target", .component = 0u,
+            .minimumDifficultyBand = band,
+            .parameters = {stage[1], stage[2], 0.0f, 0.0f},
+        });
+        reset.operators.push_back({
+            .operation = TaskRandomizationOperator::sceneBodyPosition,
+            .target = "food_target", .component = 1u,
+            .minimumDifficultyBand = band,
+            .parameters = {stage[3], stage[4], 0.0f, 0.0f},
+        });
+        reset.operators.push_back({
+            .operation = TaskRandomizationOperator::sceneBodyPosition,
+            .target = "food_target", .component = 2u,
+            .minimumDifficultyBand = band,
+            .parameters = {stage[5], stage[6], 0.0f, 0.0f},
+        });
+    }
+    for (const auto& heading : std::array{
+             std::array<float, 3u>{1.0f, 0.30f, 0.75f},
+             std::array<float, 3u>{2.0f, 0.40f, 1.50f},
+             std::array<float, 3u>{3.0f, 0.45f, 3.14159265f},
+         }) {
+        reset.operators.push_back({
+            .operation = TaskRandomizationOperator::rootOrientationCone,
+            .minimumDifficultyBand =
+                static_cast<std::uint32_t>(heading[0]),
+            .parameters = {heading[1], heading[2], 0.0f, 0.0f},
+        });
+    }
     return task;
 }
 

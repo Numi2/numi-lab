@@ -47,20 +47,32 @@ private func withUnsafeCStringBuffers<Result>(
     _ strings: [String],
     _ body: ([UnsafePointer<CChar>]) throws -> Result
 ) rethrows -> Result {
-    let storage = strings.map { Array($0.utf8CString) }
-    var pointers: [UnsafePointer<CChar>] = []
-    pointers.reserveCapacity(storage.count)
-    func visit(_ index: Int) throws -> Result {
-        guard index < storage.count else {
-            return try body(pointers)
+    // Swift only guarantees an Array buffer's address for the duration of its
+    // withUnsafeBufferPointer closure. Nesting one closure per string kept all
+    // addresses valid, but visual scenes routinely contain dozens of assets;
+    // that recursion exhausted the worker thread stack during robot switches.
+    // Context creation is a cold path, so pin each small UTF-8 string in one
+    // explicit allocation and keep the call stack constant regardless of scene
+    // complexity. The large mesh and policy buffers remain borrowed/copy-free.
+    var storage: [(pointer: UnsafeMutablePointer<CChar>, count: Int)] = []
+    storage.reserveCapacity(strings.count)
+    for string in strings {
+        let bytes = Array(string.utf8CString)
+        let pointer = UnsafeMutablePointer<CChar>.allocate(
+            capacity: bytes.count
+        )
+        bytes.withUnsafeBufferPointer { source in
+            pointer.initialize(from: source.baseAddress!, count: source.count)
         }
-        return try storage[index].withUnsafeBufferPointer { buffer in
-            pointers.append(buffer.baseAddress!)
-            defer { pointers.removeLast() }
-            return try visit(index + 1)
+        storage.append((pointer, bytes.count))
+    }
+    defer {
+        for allocation in storage {
+            allocation.pointer.deinitialize(count: allocation.count)
+            allocation.pointer.deallocate()
         }
     }
-    return try visit(0)
+    return try body(storage.map { UnsafePointer($0.pointer) })
 }
 
 public enum MetalRoboTaskRolloutError:
@@ -203,22 +215,43 @@ public struct MetalRoboDynamicSphere: Sendable {
     ]
 }
 
+public enum MetalRoboTaskVisualDeformation: UInt32, Sendable, Decodable {
+    case none = 0
+    case measuredSurface = 1
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        switch try container.decode(String.self) {
+        case "none": self = .none
+        case "measured_surface": self = .measuredSurface
+        default:
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Unsupported visual deformation source."
+            )
+        }
+    }
+}
+
 public struct MetalRoboTaskVisualPack: Sendable {
     public var url: URL
     public var assetID: String
     public var semanticID: UInt32
     public var instanceID: UInt32
+    public var deformation: MetalRoboTaskVisualDeformation
 
     public init(
         url: URL,
         assetID: String,
         semanticID: UInt32,
-        instanceID: UInt32
+        instanceID: UInt32,
+        deformation: MetalRoboTaskVisualDeformation = .none
     ) {
         self.url = url
         self.assetID = assetID
         self.semanticID = semanticID
         self.instanceID = instanceID
+        self.deformation = deformation
     }
 }
 
@@ -231,12 +264,14 @@ public struct MetalRoboTaskVisualObservationConfiguration:
             let assetID: String
             let semanticID: UInt32
             let instanceID: UInt32
+            let deformation: MetalRoboTaskVisualDeformation?
 
             private enum CodingKeys: String, CodingKey {
                 case path
                 case assetID = "asset_id"
                 case semanticID = "semantic_id"
                 case instanceID = "instance_id"
+                case deformation
             }
         }
 
@@ -358,7 +393,8 @@ public struct MetalRoboTaskVisualObservationConfiguration:
                     url: resolve(pack.path),
                     assetID: pack.assetID,
                     semanticID: pack.semanticID,
-                    instanceID: pack.instanceID
+                    instanceID: pack.instanceID,
+                    deformation: pack.deformation ?? .none
                 )
             },
             environmentPackURL: artifact.environmentPack.map(resolve),
@@ -619,6 +655,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
     public var interactionResetPhaseFraction: Float?
     public var interactionResetPhaseProbability: Float?
     public var interactionResetMaximumPhase: Float?
+    public var interactionPush: (maximumVelocity: Float, intervalSeconds: Float)?
     public var unitreeG1Task: MetalRoboUnitreeG1Task
 
     public init(
@@ -639,6 +676,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         interactionResetPhaseFraction: Float? = nil,
         interactionResetPhaseProbability: Float? = nil,
         interactionResetMaximumPhase: Float? = nil,
+        interactionPush: (maximumVelocity: Float, intervalSeconds: Float)? = nil,
         unitreeG1Task: MetalRoboUnitreeG1Task = .velocity
     ) {
         self.environmentCount = environmentCount
@@ -659,6 +697,7 @@ public struct MetalRoboTaskRolloutConfiguration: Sendable {
         self.interactionResetPhaseProbability =
             interactionResetPhaseProbability
         self.interactionResetMaximumPhase = interactionResetMaximumPhase
+        self.interactionPush = interactionPush
         self.unitreeG1Task = unitreeG1Task
     }
 }
@@ -1008,10 +1047,23 @@ public struct MetalRoboPolicyRolloutBatch: Sendable {
 /// Swift owns rollout chunking and policy revisions. Native code owns the
 /// compiled world and task program, persistent private Metal state, reset
 /// transaction, and compact learning publication.
+public enum MetalRoboMeasuredSurfaceTask: UInt32, Sendable {
+    case flightTrim = 0
+    case fatalDropRecovery = 1
+    case cruise = 2
+    case foodNavigation = 3
+}
+
 public enum MetalRoboRunSource: Sendable {
     case unitreeG1
+    case numifly(wingManifest: URL)
+    case numiflyForwardFlight(wingManifest: URL)
+    case numiflyNoLegs(wingManifest: URL)
     case frankaPickPlace
     case px4X500
+    case measuredDove(
+        manifest: URL, task: MetalRoboMeasuredSurfaceTask
+    )
     case importedURDF(
         urdf: URL, srdf: URL?, taskPack: URL, actuatorPack: URL,
         sensorPack: URL, realityPack: URL
@@ -1090,13 +1142,29 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         var actuatorPackPath: String?
         var sensorPackPath: String?
         var realityPackPath: String?
+        var measuredSurfaceManifestPath: String?
+        var measuredSurfaceTask =
+            MetalRoboMeasuredSurfaceTask.flightTrim.rawValue
         switch authored.source {
         case .unitreeG1:
             source = MR_RUN_SOURCE_UNITREE_G1.rawValue
+        case let .numifly(wingManifest):
+            source = MR_RUN_SOURCE_NUMIFLY.rawValue
+            measuredSurfaceManifestPath = wingManifest.path
+        case let .numiflyForwardFlight(wingManifest):
+            source = MR_RUN_SOURCE_NUMIFLY_FORWARD_FLIGHT.rawValue
+            measuredSurfaceManifestPath = wingManifest.path
+        case let .numiflyNoLegs(wingManifest):
+            source = MR_RUN_SOURCE_NUMIFLY_NO_LEGS.rawValue
+            measuredSurfaceManifestPath = wingManifest.path
         case .frankaPickPlace:
             source = MR_RUN_SOURCE_FRANKA_PICK_PLACE.rawValue
         case .px4X500:
             source = MR_RUN_SOURCE_PX4_X500.rawValue
+        case let .measuredDove(manifest, task):
+            source = MR_RUN_SOURCE_MEASURED_DOVE.rawValue
+            measuredSurfaceManifestPath = manifest.path
+            measuredSurfaceTask = task.rawValue
         case let .importedURDF(
             urdf, srdf, taskPack, actuatorPack, sensorPack, realityPack
         ):
@@ -1135,6 +1203,9 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                                 withOptionalCString(realityPackPath) {
                                     realityPack in
                                 withOptionalCString(
+                                    measuredSurfaceManifestPath
+                                ) { measuredSurfaceManifest in
+                                withOptionalCString(
                                     authored.teacher?.pack.path
                                 ) { teacherPack in
                                     withOptionalCString(
@@ -1149,6 +1220,12 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                                                 configuration.surface.rawValue
                                             manifest.task = configuration
                                                 .unitreeG1Task.rawValue
+                                            if source ==
+                                                MR_RUN_SOURCE_MEASURED_DOVE.rawValue
+                                            {
+                                                manifest.task =
+                                                    measuredSurfaceTask
+                                            }
                                             manifest.urdf_path = urdf
                                             manifest.srdf_path = srdf
                                             manifest.world_pack_path = world
@@ -1159,6 +1236,8 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                                                 sensorPack
                                             manifest.reality_program_pack_path =
                                                 realityPack
+                                            manifest.measured_surface_manifest_path =
+                                                measuredSurfaceManifest
                                             manifest.teacher_pack_path =
                                                 teacherPack
                                             manifest.teacher_clip_id =
@@ -1173,6 +1252,7 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                                             )
                                         }
                                     }
+                                }
                                 }
                                 }
                                 }
@@ -1233,6 +1313,11 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         if let maximumPhase = configuration.interactionResetMaximumPhase {
             native.interaction_reset_maximum_phase = maximumPhase
             native.override_interaction_reset_maximum_phase = 1
+        }
+        if let push = configuration.interactionPush {
+            native.interaction_push_maximum_velocity = push.maximumVelocity
+            native.interaction_push_interval_seconds = push.intervalSeconds
+            native.override_interaction_push = 1
         }
         return native
     }
@@ -1301,6 +1386,8 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                 pack.asset_id = pointers[2 * index + 1]
                 pack.semantic_id = configuration.packs[index].semanticID
                 pack.instance_id = configuration.packs[index].instanceID
+                pack.deformation_source =
+                    configuration.packs[index].deformation.rawValue
                 nativePacks.append(pack)
             }
             return try nativePacks.withUnsafeBufferPointer { packs in
@@ -1677,6 +1764,19 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         guard mr_task_rollout_set_inspection_enabled(
             handle,
             enabled ? 1 : 0
+        ) == 0 else {
+            throw MetalRoboTaskRolloutError.native(Self.lastError())
+        }
+    }
+
+    public func setInspectionCamera(
+        translation: SIMD3<Float>,
+        orientation: SIMD4<Float>
+    ) throws {
+        guard mr_task_rollout_set_inspection_camera(
+            handle,
+            translation.x, translation.y, translation.z,
+            orientation.x, orientation.y, orientation.z, orientation.w
         ) == 0 else {
             throw MetalRoboTaskRolloutError.native(Self.lastError())
         }

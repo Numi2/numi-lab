@@ -159,6 +159,11 @@ struct HybridDeviceStateBatch {
     // Optional, call-scoped device deformation. The renderer never retains
     // this pointer or any resource reachable through it.
     const MetalHybridMeshDeformationRequest* meshDeformation = nullptr;
+    // Presentation-only camera transform relative to the authored sensor.
+    // xyz is an authored-camera-local translation; w enables the override.
+    mr_float4 cameraTranslationAndEnabled{0.0f, 0.0f, 0.0f, 0.0f};
+    // Normalized xyzw rotation applied after the authored orientation.
+    mr_float4 cameraOrientation{0.0f, 0.0f, 0.0f, 1.0f};
 };
 
 struct HybridDeviceObservationBuffers {
@@ -282,6 +287,38 @@ struct MetalHybridMeshDeformationRequest {
     std::uint32_t expectedMeshInstanceCount = 0u;
 };
 
+struct MetalHybridDevicePresentationPass {
+    MetalHybridComputeEncoderCallbacks encoder;
+    HybridDeviceStateBatch liveState;
+    HybridDeviceObservationBuffers outputs;
+    void* instanceHeaders = nullptr;
+    void* sensorInstances = nullptr;
+    void* appearanceInstances = nullptr;
+    void* cameraStates = nullptr;
+    void* meshWinners = nullptr;
+    void* lights = nullptr;
+    void* environmentData = nullptr;
+    MRHybridRenderUniformsGPU uniforms{};
+};
+
+// Optional GPU geometry stage encoded after the immutable visual scene and
+// before temporal accumulation/sensor response. It borrows the renderer's
+// active encoder and observation planes; it never commits, waits, or reads
+// back. The owner must outlive every renderer on which it is installed.
+struct MetalHybridDevicePresentationProgram {
+    void* context = nullptr;
+    bool (*encode)(
+        void* context,
+        const MetalHybridDevicePresentationPass& pass
+    ) = nullptr;
+    std::uint64_t fingerprint = 0u;
+
+    [[nodiscard]] bool valid() const noexcept {
+        return context != nullptr && encode != nullptr &&
+            fingerprint != 0u;
+    }
+};
+
 enum class MetalHybridRendererBuffer : std::uint32_t {
     rgb = 0u,
     depth = 1u,
@@ -383,6 +420,12 @@ public:
 
     [[nodiscard]] MetalHybridRendererDiagnostics
     readback(HybridObservationBatch& output);
+
+    // Installs an explicitly owned, device-resident deformable presentation
+    // stage. Installation is a compile/setup operation, not a hot-loop path.
+    void setDevicePresentationProgram(
+        MetalHybridDevicePresentationProgram program
+    ) noexcept;
 
     [[nodiscard]] MetalHybridRendererLayout layout() const noexcept;
 

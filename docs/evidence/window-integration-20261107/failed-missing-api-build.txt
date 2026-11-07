@@ -1,0 +1,69 @@
+[0/2] Re-checking globbed directories...
+[1/31] Building CXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[2/31] Generating shaders/MetalRobo.metallib
+/Users/numi/numi-lab-release-integration-20261107/src/metal/NumiHumanStand.metal:2696:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns = (equalityColumnsEnd + nv) * nv;
+               ^
+/Users/numi/numi-lab-release-integration-20261107/src/metal/NumiHumanStand.metal:2811:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns =
+               ^
+2 warnings generated.
+/Users/numi/numi-lab-release-integration-20261107/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/numi/numi-lab-release-integration-20261107/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+In file included from /Users/numi/numi-lab-release-integration-20261107/src/metal/MujocoMuscleReferenceCompensated.metal:4:
+/Users/numi/numi-lab-release-integration-20261107/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/numi/numi-lab-release-integration-20261107/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+[3/31] Building CXX object CMakeFiles/metalrobo.dir/src/core/MeasuredSurfaceRobot.cpp.o
+[4/31] Building CXX object CMakeFiles/metalrobo.dir/src/core/FrankaWorld.cpp.o
+[5/31] Building CXX object CMakeFiles/metalrobo.dir/src/core/VisualPlatform.cpp.o
+[6/31] Building CXX object CMakeFiles/metalrobo.dir/src/core/RunProgram.cpp.o
+[7/31] Building CXX object CMakeFiles/metalrobo.dir/src/core/LocomotionWorld.cpp.o
+[8/31] Building CXX object CMakeFiles/metalrobo.dir/src/core/PolicyProgram.cpp.o
+[9/31] Building CXX object CMakeFiles/metalrobo.dir/src/core/HyperPolicyProgram.cpp.o
+[10/31] Building CXX object CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o
+[11/31] Building CXX object CMakeFiles/metalrobo.dir/src/core/HyperPolicyPacks.cpp.o
+[12/31] Building CXX object CMakeFiles/metalrobo.dir/src/core/MotionCompiler.cpp.o
+[13/31] Building CXX object CMakeFiles/metalrobo.dir/src/core/LearningPacks.cpp.o
+[14/31] Building OBJCXX object CMakeFiles/metalrobo.dir/src/apple/CaptureManifestJSON.mm.o
+[15/31] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o
+[16/31] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanMuscleEquilibrium.cpp.o
+[17/31] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalMeasuredSurfaceMechanics.mm.o
+[18/31] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHyperPolicy.mm.o
+[19/31] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o
+/Users/numi/numi-lab-release-integration-20261107/src/metal/MetalArticulatedOperator.mm:4944:29: warning: 'fastMathEnabled' is deprecated: first deprecated in macOS 15.0 - Use mathMode instead [-Wdeprecated-declarations]
+ 4944 |         standCompileOptions.fastMathEnabled = NO;
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework/Headers/MTLLibrary.h:326:39: note: 'fastMathEnabled' has been explicitly marked deprecated here
+  326 | @property (readwrite, nonatomic) BOOL fastMathEnabled API_DEPRECATED("Use mathMode instead", macos(10.11, 15.0), ios(8.0, 18.0));
+      |                                       ^
+1 warning generated.
+[20/31] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalRunInspector.mm.o
+[21/31] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o
+[22/31] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o
+[23/31] Building CXX object CMakeFiles/metalrobo.dir/src/c_api.cpp.o
+FAILED: [code=1] CMakeFiles/metalrobo.dir/src/c_api.cpp.o 
+/usr/bin/c++ -DMETALROBO_BUILDING_LIBRARY=1 -DMETALROBO_DEFAULT_METALLIB=\"/Users/numi/numi-lab-release-integration-build-20261107/shaders/MetalRobo.metallib\" -DMETALROBO_NEURON_METALLIB=\"/Users/numi/numi-lab-release-integration-build-20261107/shaders/NumiNeuron.metallib\" -Dmetalrobo_EXPORTS -I/Users/numi/numi-lab-release-integration-20261107/include -I/Users/numi/numi-lab-release-integration-20261107/matter/include -I/Users/numi/numi-lab-release-integration-20261107/src -I/Users/numi/numi-lab-release-integration-build-20261107/generated -F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/libxml2 -std=c++23 -arch arm64 -fPIC -Wall -Wextra -Wpedantic -MD -MT CMakeFiles/metalrobo.dir/src/c_api.cpp.o -MF CMakeFiles/metalrobo.dir/src/c_api.cpp.o.d -o CMakeFiles/metalrobo.dir/src/c_api.cpp.o -c /Users/numi/numi-lab-release-integration-20261107/src/c_api.cpp
+/Users/numi/numi-lab-release-integration-20261107/src/c_api.cpp:1886:20: error: no member named 'kMaximumPolicyTaskBindings' in namespace 'metalrobo'
+ 1886 |         metalrobo::kMaximumPolicyTaskBindings) {
+      |                    ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-release-integration-20261107/src/c_api.cpp:1898:23: error: no member named 'compatibleTasks' in 'metalrobo::PolicyContract'
+ 1898 |     authored.contract.compatibleTasks.reserve(
+      |     ~~~~~~~~~~~~~~~~~ ^
+/Users/numi/numi-lab-release-integration-20261107/src/c_api.cpp:1904:27: error: no member named 'compatibleTasks' in 'metalrobo::PolicyContract'
+ 1904 |         authored.contract.compatibleTasks.push_back({
+      |         ~~~~~~~~~~~~~~~~~ ^
+3 errors generated.
+[24/31] Building Swift Module 'metalrobo_numi_window_check' with 4 sources
+[25/31] Building Swift Module 'metalrobo_task_rollout' with 4 sources
+[26/31] Building Swift Module 'metalrobo_task_train' with 4 sources
+ninja: build stopped: subcommand failed.

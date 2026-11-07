@@ -95,6 +95,9 @@ set(METALROBO_FREE_BODY_SOURCE
 set(METALROBO_MULTICOPTER_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MulticopterDynamics.metal"
 )
+set(METALROBO_MEASURED_SURFACE_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MeasuredSurfaceDynamics.metal"
+)
 set(METALROBO_COLLISION_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/Collision.metal"
 )
@@ -223,6 +226,9 @@ set(METALROBO_FREE_BODY_AIR
 )
 set(METALROBO_MULTICOPTER_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboMulticopterDynamics.air"
+)
+set(METALROBO_MEASURED_SURFACE_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboMeasuredSurfaceDynamics.air"
 )
 set(METALROBO_COLLISION_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboCollision.air"
@@ -474,6 +480,12 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_MULTICOPTER_SOURCE}"
             -o "${METALROBO_MULTICOPTER_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_MEASURED_SURFACE_SOURCE}"
+            -o "${METALROBO_MEASURED_SURFACE_AIR}"
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
@@ -771,6 +783,7 @@ add_custom_command(
             "${METALROBO_UNIFIED_QUALITY_AIR}"
             "${METALROBO_FREE_BODY_AIR}"
             "${METALROBO_MULTICOPTER_AIR}"
+            "${METALROBO_MEASURED_SURFACE_AIR}"
             "${METALROBO_COLLISION_AIR}"
             "${METALROBO_BROADPHASE_AIR}"
             "${METALROBO_ARTICULATED_OPERATOR_AIR}"
@@ -825,6 +838,7 @@ add_custom_command(
         "${METALROBO_UNIFIED_QUALITY_SOURCE}"
         "${METALROBO_FREE_BODY_SOURCE}"
         "${METALROBO_MULTICOPTER_SOURCE}"
+        "${METALROBO_MEASURED_SURFACE_SOURCE}"
         "${METALROBO_COLLISION_SOURCE}"
         "${METALROBO_BROADPHASE_SOURCE}"
         "${METALROBO_ARTICULATED_OPERATOR_SOURCE}"
@@ -995,6 +1009,7 @@ add_library(
     src/core/EngineModel.cpp
     src/core/EngineModelComposer.cpp
     src/core/RunProgram.cpp
+    src/core/MeasuredSurfaceRobot.cpp
     src/core/ParallelABASchedule.cpp
     src/core/CompiledMetalMultiArticulatedProgram.cpp
     src/core/CompiledMetalMultiArticulatedContactProgram.cpp
@@ -1105,6 +1120,7 @@ add_library(
     src/metal/MetalQualityContactSolver.mm
     src/metal/MetalUnifiedQualitySolver.mm
     src/metal/MetalWorld.mm
+    src/metal/MetalMeasuredSurfaceMechanics.mm
     src/metal/MetalHyperPolicy.mm
     src/metal/MetalWorldFamily.mm
     src/metal/MetalHybridRenderer.mm
@@ -1489,6 +1505,38 @@ set_target_properties(
         INSTALL_RPATH "@loader_path/../lib"
 )
 
+foreach(_actuator_tool IN ITEMS actuator_pack_migration_check actuator_pack_migrate)
+    add_executable(metalrobo_${_actuator_tool} apps/${_actuator_tool}.cpp)
+    target_link_libraries(metalrobo_${_actuator_tool} PRIVATE metalrobo)
+    set_target_properties(metalrobo_${_actuator_tool} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+endforeach()
+if(BUILD_TESTING)
+    add_test(NAME metalrobo_actuator_pack_migration
+        COMMAND metalrobo_actuator_pack_migration_check)
+endif()
+
+# Existing bounded measured-surface mechanics and replay probe.
+add_executable(metalrobo_measured_surface_robot_probe
+    apps/measured_surface_robot_probe.cpp)
+target_link_libraries(metalrobo_measured_surface_robot_probe PRIVATE metalrobo)
+target_compile_options(metalrobo_measured_surface_robot_probe PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
+set_target_properties(metalrobo_measured_surface_robot_probe PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+
+# Native window catalog and optional imported-robot compiler.
+foreach(_window_tool IN ITEMS numi_window_catalog_compile booster_k1_compile)
+    add_executable(metalrobo_${_window_tool} apps/${_window_tool}.cpp)
+    target_link_libraries(metalrobo_${_window_tool} PRIVATE metalrobo LibXml2::LibXml2)
+    set_target_properties(metalrobo_${_window_tool} PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+        INSTALL_RPATH "@loader_path/../lib")
+endforeach()
+
 if(METALROBO_HAS_SWIFT)
     add_executable(
         metalrobo_matter_foot_lab
@@ -1543,7 +1591,8 @@ if(METALROBO_HAS_SWIFT)
     add_executable(
         metalrobo_task_rollout
         apps/task_rollout.swift
-        apps/RunInspector.swift
+        apps/NumiWindow.swift
+        apps/NumiTraining.swift
         bindings/swift/MetalRoboTaskRollout.swift
     )
     target_include_directories(
@@ -1571,9 +1620,26 @@ if(METALROBO_HAS_SWIFT)
     )
 
     add_executable(
+        metalrobo_numi_window_check
+        apps/numi_window_check.swift
+        apps/NumiWindow.swift
+        apps/NumiTraining.swift
+        bindings/swift/MetalRoboTaskRollout.swift
+    )
+    target_include_directories(metalrobo_numi_window_check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo")
+    target_link_libraries(metalrobo_numi_window_check PRIVATE
+        metalrobo "${APPKIT_FRAMEWORK}")
+    set_target_properties(metalrobo_numi_window_check PROPERTIES
+        Swift_LANGUAGE_VERSION 6 Swift_COMPILATION_MODE singlefile
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "@loader_path/../lib" INSTALL_RPATH "@loader_path/../lib")
+
+    add_executable(
         metalrobo_task_train
         apps/task_train.swift
-        apps/RunInspector.swift
+        apps/NumiWindow.swift
+        apps/NumiTraining.swift
         bindings/swift/MetalRoboTaskRollout.swift
     )
     target_include_directories(

@@ -59,9 +59,20 @@ public:
     [[nodiscard]] MetalWorldInspectionProgram
     inspectionProgram() noexcept;
 
+    void setDevicePresentationProgram(
+        MetalHybridDevicePresentationProgram program
+    ) noexcept;
+
     // Gates presentation encoding without changing the rollout's physics or
     // accepted-state submission. Existing display-owned slots remain valid.
     void setEnabled(bool enabled) noexcept;
+
+    // Updates the presentation-only camera relative to the authored sensor.
+    // It never mutates simulator state or sensor observations used by policy.
+    void setCameraOverride(
+        const mr_float4& translationAndEnabled,
+        const mr_float4& orientation
+    ) noexcept;
 
     // Returns false when no completed presentation frame is available. A
     // successful acquire transfers one ring slot to the caller.

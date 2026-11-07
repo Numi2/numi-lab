@@ -15,6 +15,8 @@ enum class LocomotionSurface : std::uint32_t {
     terrain = 1u,
 };
 
+[[nodiscard]] float locomotionTerrainHeight(float x, float y) noexcept;
+
 // Bundled G1 task presets compile through the same generic TaskPack route.
 // The value selects authored data only; it does not select a robot-specific
 // Metal kernel.
