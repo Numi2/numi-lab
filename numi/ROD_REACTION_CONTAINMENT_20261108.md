@@ -1,0 +1,9 @@
+# CPU rod convergence containment: research only
+
+An unchanged native two-node, two-hard-attachment rod accepted a four-second effective 8-0 Nylon axial loading trajectory while underreporting reaction force and work by approximately 99.8%; the experiment and full original trajectory are retained at `codex/suture-earned-continuation` commit `befe4947a`. A test-only 8,000-sweep diagnostic supports cancellation of within-sweep corrections as the immediate cause.
+
+This candidate includes individual within-sweep positional corrections in the existing CPU stopping check. It makes the retained fixture reject at step 0 with its original 128-sweep budget rather than publish the inaccurate reaction. The standalone `tests/discrete_rod_pinned_reaction_test.cpp` confirms state and reaction outputs remain unchanged on this rejection, a zero-force resting case completes, and a high-budget diagnostic resolves the pinned force to relative error `4.53e-8` in 8,438 sweeps.
+
+The candidate **fails useful-motion qualification**: the existing nine-node `apps/discrete_elastic_rod_probe.cpp`, compiled against the unchanged same-revision owner, passes, but fails under this guard because its implicit step exhausts the iteration budget. This is a correctness containment experiment, not a completed fix. It is unpromoted. Checking individual corrections also does not by itself certify physical force residual under arbitrary conditioning or validate twist, friction, coupled contact, or the Metal owner.
+
+Next derive dimensional row residual and reaction certificates and a well-conditioned or direct constrained update that satisfies them without prohibitive iteration counts. Re-run the original physical force and work trajectory, general rod cases, deterministic rollback, and the actual Metal execution path before integrating any change.

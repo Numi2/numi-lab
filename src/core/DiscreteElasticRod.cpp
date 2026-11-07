@@ -1678,6 +1678,9 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
         const auto iterationTwists =
             candidate.twists;
         double maximumError = 0.0;
+        // Net motion can vanish when successive projections cancel while
+        // their XPBD multipliers and support reactions are still changing.
+        double sweepMaximumCorrection = 0.0;
         for (std::size_t edge = 0u;
              edge < model.restLengths.size();
              ++edge) {
@@ -1688,7 +1691,7 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
                     edge,
                     stretchMultipliers[edge],
                     maximumError,
-                    diagnostics.maximumPositionCorrection
+                    sweepMaximumCorrection
                 )) {
                 return fail(
                     std::move(diagnostics),
@@ -1710,7 +1713,7 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
                     vertex,
                     bendMultipliers[vertex],
                     maximumError,
-                    diagnostics.maximumPositionCorrection
+                    sweepMaximumCorrection
                 )) {
                 return fail(
                     std::move(diagnostics),
@@ -1754,7 +1757,7 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
                             projected,
                             maximumError,
                             diagnostics.maximumSelfPenetration,
-                            diagnostics.maximumPositionCorrection
+                            sweepMaximumCorrection
                         )) {
                         return fail(
                             std::move(diagnostics),
@@ -1785,7 +1788,7 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
                         attachmentIndex
                     ].impulseOnTarget,
                     maximumError,
-                    diagnostics.maximumPositionCorrection
+                    sweepMaximumCorrection
                 )) {
                 return fail(
                     std::move(diagnostics),
@@ -1823,14 +1826,16 @@ DiscreteElasticRodDiagnostics stepDiscreteElasticRodCpu(
                 )
             );
         }
-        diagnostics.maximumPositionCorrection = std::max(
+        diagnostics.maximumPositionCorrection = std::max({
             diagnostics.maximumPositionCorrection,
+            sweepMaximumCorrection,
             model.radius * iterationTwistCorrection
-        );
-        if (std::max(
+        });
+        if (std::max({
                 iterationPositionCorrection,
+                sweepMaximumCorrection,
                 model.radius * iterationTwistCorrection
-            ) <= config.constraintTolerance) {
+            }) <= config.constraintTolerance) {
             converged = true;
             break;
         }
