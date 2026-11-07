@@ -15095,20 +15095,33 @@ bool encodeHybridContactSubstep(
         if(std::getenv("NUMI_CCD_EVENT_TRACE")!=nullptr&&environmentCount==1u&&
             world.nq()==7u&&world.nv()==6u&&world.rodCount()==0u&&
             context.buffers[kContacts].length>=sizeof(MRContactConstraintGPU)) {
-            const uint traceContacts=uint(std::min<NSUInteger>(8u,context.buffers[kContacts].length/sizeof(MRContactConstraintGPU)));
+            const uint traceContacts=uint(std::min({
+                NSUInteger(8u), context.buffers[kContacts].length/sizeof(MRContactConstraintGPU),
+                context.buffers[kIRBlocks].length/sizeof(MRConstraintIRBlockGPU),
+                context.buffers[kContactMetadata].length/sizeof(MRContactPointMetaGPU),
+                context.buffers[kEvaluatedRows].length/(3u*sizeof(MREvaluatedConstraintIRRowGPU))}));
             const NSUInteger qBytes=7u*sizeof(float),vBytes=6u*sizeof(float);
-            const NSUInteger stateOffset=64u,pairOffset=128u,statusOffset=256u,accelerationOffset=768u,contactsOffset=1024u;
+            const NSUInteger stateOffset=64u,pairOffset=128u,statusOffset=256u,accelerationOffset=768u,sourceVOffset=800u,contactsOffset=1024u;
+            const NSUInteger blocksOffset=contactsOffset+traceContacts*sizeof(MRContactConstraintGPU);
+            const NSUInteger metaOffset=blocksOffset+traceContacts*sizeof(MRConstraintIRBlockGPU);
+            const NSUInteger rowsOffset=metaOffset+traceContacts*sizeof(MRContactPointMetaGPU);
             id<MTLBuffer> trace=[context.device newBufferWithLength:
-                contactsOffset+traceContacts*sizeof(MRContactConstraintGPU) options:MTLResourceStorageModeShared];
+                rowsOffset+3u*traceContacts*sizeof(MREvaluatedConstraintIRRowGPU) options:MTLResourceStorageModeShared];
             if(trace==nil)return false;
             id<MTLBlitCommandEncoder> blit=[commandBuffer blitCommandEncoder];
             [blit copyFromBuffer:context.buffers[kCandidateQ] sourceOffset:0 toBuffer:trace destinationOffset:0 size:qBytes];
             [blit copyFromBuffer:context.buffers[kCandidateV] sourceOffset:0 toBuffer:trace destinationOffset:32 size:vBytes];
             [blit copyFromBuffer:context.buffers[kCandidateAcceleration] sourceOffset:0 toBuffer:trace destinationOffset:accelerationOffset size:vBytes];
+            [blit copyFromBuffer:context.buffers[eventSourceV] sourceOffset:0 toBuffer:trace destinationOffset:sourceVOffset size:vBytes];
             [blit copyFromBuffer:context.buffers[eventStateOut] sourceOffset:0 toBuffer:trace destinationOffset:stateOffset size:sizeof(MRCCDEventStateGPU)];
             [blit copyFromBuffer:context.buffers[kCCDPairs] sourceOffset:0 toBuffer:trace destinationOffset:pairOffset size:sizeof(MRCCDPairGPU)];
             [blit copyFromBuffer:context.buffers[kContactStatuses] sourceOffset:0 toBuffer:trace destinationOffset:statusOffset size:sizeof(MRMetalWorldContactStatusGPU)];
-            [blit copyFromBuffer:context.buffers[kContacts] sourceOffset:0 toBuffer:trace destinationOffset:contactsOffset size:traceContacts*sizeof(MRContactConstraintGPU)];
+            if(traceContacts>0u) {
+                [blit copyFromBuffer:context.buffers[kContacts] sourceOffset:0 toBuffer:trace destinationOffset:contactsOffset size:traceContacts*sizeof(MRContactConstraintGPU)];
+                [blit copyFromBuffer:context.buffers[kIRBlocks] sourceOffset:0 toBuffer:trace destinationOffset:blocksOffset size:traceContacts*sizeof(MRConstraintIRBlockGPU)];
+                [blit copyFromBuffer:context.buffers[kContactMetadata] sourceOffset:0 toBuffer:trace destinationOffset:metaOffset size:traceContacts*sizeof(MRContactPointMetaGPU)];
+                [blit copyFromBuffer:context.buffers[kEvaluatedRows] sourceOffset:0 toBuffer:trace destinationOffset:rowsOffset size:3u*traceContacts*sizeof(MREvaluatedConstraintIRRowGPU)];
+            }
             [blit endEncoding];
             const uint capturedPass=eventPass;
             [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
@@ -15117,6 +15130,10 @@ bool encodeHybridContactSubstep(
                 const auto* q=reinterpret_cast<const float*>(bytes);
                 const auto* v=reinterpret_cast<const float*>(bytes+32);
                 const auto* acceleration=reinterpret_cast<const float*>(bytes+accelerationOffset);
+                const auto* sourceV=reinterpret_cast<const float*>(bytes+sourceVOffset);
+                const auto* blocks=reinterpret_cast<const MRConstraintIRBlockGPU*>(bytes+blocksOffset);
+                const auto* meta=reinterpret_cast<const MRContactPointMetaGPU*>(bytes+metaOffset);
+                const auto* rows=reinterpret_cast<const MREvaluatedConstraintIRRowGPU*>(bytes+rowsOffset);
                 const auto* e=reinterpret_cast<const MRCCDEventStateGPU*>(bytes+stateOffset);
                 const auto* p=reinterpret_cast<const MRCCDPairGPU*>(bytes+pairOffset);
                 const auto* status=reinterpret_cast<const MRMetalWorldContactStatusGPU*>(bytes+statusOffset);
@@ -15124,15 +15141,30 @@ bool encodeHybridContactSubstep(
                 for(uint i=0;i<7;++i){if(i)out<<',';out<<q[i];}
                 out<<"],\"v\":[";for(uint i=0;i<6;++i){if(i)out<<',';out<<v[i];}
                 out<<"],\"a\":[";for(uint i=0;i<6;++i){if(i)out<<',';out<<acceleration[i];}
+                out<<"],\"source_v\":[";for(uint i=0;i<6;++i){if(i)out<<',';out<<sourceV[i];}
                 out<<"],\"time\":["<<e->time.x<<','<<e->time.y<<','<<e->time.z<<','<<e->time.w
-                   <<"],\"status\":"<<status->code<<",\"unresolved\":"<<status->unresolvedCCDCount
+                   <<"],\"status\":"<<status->code<<",\"solver_iterations\":"<<status->solverIterations
+                   <<",\"solver_residuals\":["<<status->residuals.x<<','<<status->residuals.y<<','<<status->residuals.z<<','<<status->residuals.w
+                   <<"],\"unresolved\":"<<status->unresolvedCCDCount
                    <<",\"pair_flags\":"<<p->flags<<",\"pair_time\":["<<p->intervalAndDistance.x<<','<<p->intervalAndDistance.y
                    <<"],\"pair_work\":"<<p->normalAndIteration.w<<",\"contacts\":[";
                 const auto* contacts=reinterpret_cast<const MRContactConstraintGPU*>(bytes+contactsOffset);
                 for(uint i=0;i<std::min(status->activeContacts,traceContacts);++i) {
                     if(i)out<<',';const auto& c=contacts[i];
-                    out<<"{\"gap\":"<<c.pointAndSeparation.w<<",\"pre_vn\":"<<c.targetVelocityAndPreSolveNormal.w
-                       <<",\"J\":"<<c.impulses.x<<",\"point\":["<<c.pointAndSeparation.x<<','<<c.pointAndSeparation.y<<','<<c.pointAndSeparation.z<<"]}";
+                    out<<"{\"body_a\":"<<c.bodyA<<",\"body_b\":"<<c.bodyB
+                       <<",\"gap\":"<<c.pointAndSeparation.w<<",\"pre_vn\":"<<c.targetVelocityAndPreSolveNormal.w
+                       <<",\"J\":"<<c.impulses.x<<",\"point\":["<<c.pointAndSeparation.x<<','<<c.pointAndSeparation.y<<','<<c.pointAndSeparation.z
+                       <<"],\"normal\":["<<c.normal.x<<','<<c.normal.y<<','<<c.normal.z
+                       <<"],\"anchor_a\":["<<meta[i].localAnchorA.x<<','<<meta[i].localAnchorA.y<<','<<meta[i].localAnchorA.z
+                       <<"],\"anchor_b\":["<<meta[i].localAnchorB.x<<','<<meta[i].localAnchorB.y<<','<<meta[i].localAnchorB.z
+                       <<"],\"block_flags\":"<<blocks[i].flags<<",\"event_slot\":"<<blocks[i].eventSlot
+                       <<",\"row_offset\":"<<blocks[i].rowOffset;
+                    if(blocks[i].rowOffset<3u*traceContacts) {
+                        const auto& row=rows[blocks[i].rowOffset];
+                        out<<",\"target_vn\":"<<row.targetVelocity<<",\"regularization\":"<<row.regularization
+                           <<",\"row_pre_vn\":"<<row.preSolveVelocity<<",\"row_relative_vn\":"<<row.relativeVelocity;
+                    }
+                    out<<"}";
                 }
                 out<<"]}\n";
                 const auto text=out.str();std::fwrite(text.data(),1,text.size(),stderr);

@@ -1101,6 +1101,38 @@ inline float3 projectFrictionCone(
     return projected;
 }
 
+// A sliding contact cannot satisfy its tangential sticking equation.
+// Updating the normal with the full inverse and then clipping friction mixes
+// that unsatisfied equation into the normal fixed point. Solve the normal
+// complementarity row first, then update the conditional 2x2 tangent block.
+// The Schur identity reconstructs inverse(W_tt) from inverse(W) without a
+// second factorization. The cone projection still enforces the force limit.
+inline float3 normalFirstContactCandidate(
+    const float3 previous,
+    const float3 rhs,
+    const MRWave32PreconditionerGPU inverse,
+    const float normalResponse,
+    device const MREvaluatedConstraintIRConeGPU& cone
+) {
+    const float denominator = max(normalResponse, kMatrixFloor);
+    const float inverseNormal = max(inverse.row0.x, kMatrixFloor);
+    float normal = max(previous.x + rhs.x / denominator, 0.0f);
+    if (cone.maximumNormalImpulse > 0.0f) {
+        normal = min(normal, cone.maximumNormalImpulse);
+    }
+    const float normalDelta = normal - previous.x;
+    const float2 inverseCross = float2(inverse.row1.x, inverse.row2.x);
+    const float2 rhsT = rhs.yz;
+    const float2x2 tangentInverse = float2x2(
+        float2(inverse.row1.y, inverse.row2.y),
+        float2(inverse.row1.z, inverse.row2.z)
+    ) - float2x2(inverseCross * inverse.row0.y,
+                  inverseCross * inverse.row0.z) / inverseNormal;
+    const float2 tangent = previous.yz + tangentInverse * rhsT +
+        inverseCross * (normalDelta / inverseNormal);
+    return projectFrictionCone(float3(normal, tangent), cone);
+}
+
 inline bool invert3x3(
     thread const float matrix[3][3],
     thread float inverse[3][3]
@@ -6731,6 +6763,7 @@ kernel void mr_world_wave32_distributed_prepare(
                     inverse[2][1],
                     inverse[2][2]
                 );
+                preconditioner.row2.w = effective[0][0];
             }
         }
         preconditioner.row0.w =
@@ -6847,16 +6880,9 @@ kernel void mr_world_wave32_distributed_delta(
                 dot(localRows[2].direction.xyz, relative) -
                 localRows[2].regularization * previous.z
         );
-        float3 candidate = previous + float3(
-            dot(preconditioner.row0.xyz, rhs),
-            dot(preconditioner.row1.xyz, rhs),
-            dot(preconditioner.row2.xyz, rhs)
-        );
-        candidate = projectFrictionCone(
-            candidate,
-            evaluatedCones[
-                constraintBase + localConstraint
-            ]
+        const float3 candidate = normalFirstContactCandidate(
+            previous, rhs, preconditioner, preconditioner.row2.w,
+            evaluatedCones[constraintBase + localConstraint]
         );
         const float3 delta = candidate - previous;
         if (!finite3(candidate) || !finite3(delta)) {
@@ -8174,6 +8200,7 @@ inline void mrWorldWave32SolvePacket(
             inverse[2][1],
             inverse[2][2]
         );
+        preconditioner.row1.w = effective[0][0];
         preconditioners[
             constraintBase + localConstraint
         ] = preconditioner;
@@ -8599,16 +8626,9 @@ inline void mrWorldWave32SolvePacket(
                 preconditioners[
                     constraintBase + localConstraint
                 ];
-            float3 proposed = previous + float3(
-                dot(preconditioner.row0.xyz, rhs),
-                dot(preconditioner.row1.xyz, rhs),
-                dot(preconditioner.row2.xyz, rhs)
-            );
-            proposed = projectFrictionCone(
-                proposed,
-                evaluatedCones[
-                    constraintBase + localConstraint
-                ]
+            const float3 proposed = normalFirstContactCandidate(
+                previous, rhs, preconditioner, preconditioner.row1.w,
+                evaluatedCones[constraintBase + localConstraint]
             );
             if (localFailure != MR_STEP_SUCCESS) {
                 impulseDeltas[

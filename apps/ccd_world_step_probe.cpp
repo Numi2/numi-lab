@@ -13,6 +13,10 @@ int main(int argc,char** argv) {
  if(argc<2||!std::filesystem::is_regular_file(argv[1]))return 2;
  std::cout<<std::setprecision(12)<<"{\"schema\":\"numi.ccd.complete-steps.v1\",\"runs\":[";bool first=true;
  for(double scale:{1.,.5})for(int limit:{1,16,128})for(int mode=0;mode<3;++mode)for(int fixture=0;fixture<16;++fixture) {
+  const auto matchesInt=[](const char* key,int value){const char* filter=std::getenv(key);return !filter||std::atoi(filter)==value;};
+  const char* scaleFilter=std::getenv("NUMI_CCD_SCALE");
+  if(!matchesInt("NUMI_CCD_LIMIT",limit)||!matchesInt("NUMI_CCD_MODE",mode)||
+     !matchesInt("NUMI_CCD_FIXTURE",fixture)||(scaleFilter&&std::strtod(scaleFilter,nullptr)!=scale))continue;
   auto model=metalrobo::makeFreeSphereEngineModel();
   model.world.gravityAndTimestep={0,0,0,.01f};
   auto& shape=model.shapes[1];shape.shapeType=MR_SHAPE_BOX;shape.flags|=MR_SHAPE_FLAG_ENABLE_CCD;

@@ -29,6 +29,12 @@ add_dependencies(metalrobo_ccd_world_step_probe metalrobo_shaders)
 
 include(CTest)
 if(BUILD_TESTING)
+ add_test(NAME metalrobo.ccd.contact_frame_diagnostic
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/test_contact_frame_diagnostic.py")
+ add_test(NAME metalrobo.ccd.sliding_reference
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/test_sliding_contact_reference.py")
+ add_test(NAME metalrobo.ccd.interval_reference
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/test_interval_monotonic_reference.py")
  add_test(NAME metalrobo.ccd.acceptance COMMAND "${Python3_EXECUTABLE}"
   "${CMAKE_CURRENT_SOURCE_DIR}/regression.py" "$<TARGET_FILE:metalrobo_ccd_world_step_probe>"
   "${METALROBO_METALLIB}" "${CMAKE_CURRENT_BINARY_DIR}/acceptance-evidence")

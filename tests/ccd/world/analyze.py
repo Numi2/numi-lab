@@ -8,12 +8,10 @@ assert len(rows)==288 and len({(r["scale"],r["limit"],r["mode"],r["fixture"]) fo
 assert all(r["repeat_identical"] and r["rejected_state_restored"] for r in rows)
 local=[r for r in rows if r["mode"]==2]
 assert all(not r["accepted_unresponded_swept_hit"] for r in rows)
-# The two thinner impact stresses still exhaust certified progress/events.
-# Keep that failed all-impact gate explicit; the regression separately requires
-# useful original/unused-rotation impacts and all production-cap clear controls.
+# Require useful motion: genuine impacts and certified near-misses must both
+# complete at the production cap and the diagnostic cap.
 full_resolution=all(r["accepted"] for r in rows if r["limit"]>=16)
-assert all(r["accepted"] for r in rows if r["limit"]>=16 and r["fixture"] not in (12,14))
-assert all(r["accepted"] or r["status"] in (9,11) for r in rows if r["fixture"] in (12,14))
+assert full_resolution
 assert all(r["normal_impulse_Ns"]>0 for r in rows if r["accepted"] and r["free_sweep_min_gap"]<0)
 assert all(r["normal_impulse_Ns"]==0 for r in rows if r["accepted"] and r["free_sweep_min_gap"]>0)
 assert all(r["rejected_contact_cache_empty"] for r in rows)
@@ -29,7 +27,7 @@ print(json.dumps({"schema":"numi.ccd.complete-analysis.v1",
  "production_cap_clear_controls_accept":True,
  "all_impact_resolution_gate_passed":full_resolution,
  "remaining_rejected_production_cap_cases":[{"scale":r["scale"],"fixture":r["fixture"],"status":r["status"]} for r in rows if r["limit"]==16 and r["mode"]==0 and not r["accepted"]],
- "decision":"Original and unused-rotation impacts and clear controls accept at cap16. Thinner impact stresses remain rejected/restored; all-impact resolution is incomplete.",
+ "decision":"The retained fixed-plane box impacts and clear controls complete at cap16; broader contact geometry and force accuracy remain unqualified.",
  "limits":["Hybrid CCD mode with the production iteration cap of 16; production default CCD mode is speculative.",
  "Zero impulse is a failure here because a force-free principal-axis box sweep analytically crosses the fixed plane.",
  "Positive endpoint gap cannot certify the transient sweep.","Wall times include initialization and are not performance comparisons."]},indent=2))

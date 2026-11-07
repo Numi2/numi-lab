@@ -6954,6 +6954,31 @@ CCDI ccdRotatedProjection(thread const CCDI* q,float3 v,float3 n) {
 }
 
 struct CCDPolynomialNode { CCDI r[3],d[3];float lower,upper; };
+
+// Bernstein convex hull bounds, including the derivative over the entire
+// node. The physical-time derivative for q=(1-a)q0+a*q1 is K/|q|^2.
+// For the shortest quaternion arc, dot(q0,q1) <= K <= |q0||q1|;
+// these bounds avoid assuming endpoint angular rates bound the interval.
+CCDI ccdHull3(CCDI a, CCDI b, CCDI c) {
+    return {min(a.lo,min(b.lo,c.lo)), max(a.hi,max(b.hi,c.hi))};
+}
+bool ccdNodeIncreasing(CCDPolynomialNode node, CCDI centerDelta, CCDI k) {
+    const CCDI r=ccdHull3(node.r[0],node.r[1],node.r[2]);
+    const CCDI d=ccdHull3(node.d[0],node.d[1],node.d[2]);
+    if (!(d.lo>0.f)) return false;
+    const CCDI rd0=ccdScale(ccdQuatAdd(node.r[1],ccdQuatNeg(node.r[0])),2.f);
+    const CCDI rd1=ccdScale(ccdQuatAdd(node.r[2],ccdQuatNeg(node.r[1])),2.f);
+    const CCDI dd0=ccdScale(ccdQuatAdd(node.d[1],ccdQuatNeg(node.d[0])),2.f);
+    const CCDI dd1=ccdScale(ccdQuatAdd(node.d[2],ccdQuatNeg(node.d[1])),2.f);
+    const CCDI rd={min(rd0.lo,rd1.lo),max(rd0.hi,rd1.hi)};
+    const CCDI dd={min(dd0.lo,dd1.lo),max(dd0.hi,dd1.hi)};
+    // Differentiate with respect to the node's local parameter. Multiplying
+    // by the positive denominator squared preserves the sign.
+    const CCDI rotation=ccdQuatAdd(ccdQuatMul(rd,d),ccdQuatNeg(ccdQuatMul(r,dd)));
+    const CCDI translation=ccdQuatMul(
+        ccdQuatMul(centerDelta,k),ccdScale(d,node.upper-node.lower));
+    return ccdQuatAdd(rotation,translation).lo>0.f;
+}
 float ccdNlerpPhysicalTime(float a,float4 q0,float4 q1) {
     if(dot(q0,q1)<0)q1=-q1;
     const float norm=length(q0),c=dot(q0,q1)/norm;
@@ -6997,7 +7022,13 @@ bool certifiedBoxPlaneSweep(device const MRShapeGPU& sourceA,device const MRShap
         q0[i]=ccdScalar(box0.rotation[i]);q1[i]=ccdScalar(end[i]);
         delta[i]=ccdQuatAdd(q1[i],ccdQuatNeg(q0[i]));
     }
-    const CCDI D0=ccdNormSquared(q0),D2=ccdNormSquared(delta);
+    const CCDI D0=ccdNormSquared(q0),D2=ccdNormSquared(delta),Dend=ccdNormSquared(q1);
+    CCDI endpointDot={0,0};
+    for(uint i=0;i<4;++i)endpointDot=ccdQuatAdd(endpointDot,ccdQuatMul(q0[i],q1[i]));
+    const CCDI timeRateNumerator={
+        max(0.f,endpointDot.lo),
+        ccdQuatUp(sqrt(ccdQuatUp(D0.hi*Dend.hi)))
+    };
     const CCDI D1=ccdQuatAdd(ccdQuatAdd(ccdNormSquared(q1),ccdQuatNeg(D0)),ccdQuatNeg(D2));
     const float denominatorLower=ccdQuatDown(.5f*min(norm0,norm1)-2e-6f);
     const float guard=as_type<float>(box1.statusAndFlags.z)+(all(box0.rotation==end)?0.f:32.f*1.1920928955078125e-7f*
@@ -7037,6 +7068,11 @@ bool certifiedBoxPlaneSweep(device const MRShapeGPU& sourceA,device const MRShap
             const auto center=ccdQuatAdd(center0,ccdQuatMul(centerDelta,time));
             bool positive=true;for(uint k=0;k<3;++k)
                 positive&=ccdQuatAdd(node.r[k],ccdQuatMul(center,node.d[k])).lo>0;
+            if(!positive) {
+                const auto startCenter=ccdQuatAdd(center0,ccdQuatMul(centerDelta,{tl-2e-6f,tl+2e-6f}));
+                const auto startValue=ccdQuatAdd(node.r[0],ccdQuatMul(startCenter,node.d[0]));
+                positive=startValue.lo>0.f&&ccdNodeIncreasing(node,centerDelta,timeRateNumerator);
+            }
             if(positive) { if(count==0){vertexDone=true;break;} continue; }
             CCDPolynomialNode left,right;ccdSplitPolynomial(node,left,right);
             const float tm=ccdNlerpPhysicalTime(left.upper,box0.rotation,end);
