@@ -28,7 +28,7 @@ for n in (2,4):
   e=abs(ea-eb);r=np.linalg.norm(ra-rb)/max(np.linalg.norm(ra),1e-30)
   t=np.linalg.norm(ta-tbcheck)/max(np.linalg.norm(ta),1e-30)
   gap=np.min(x[area>0,2]);checks.append({'state':name,'energy_abs':e,'residual_rel':r,'tangent_rel':t,'min_gap':gap,
-   'pass':e<=1e-12 and r<=1e-12 and t<=1e-12 and gap>0})
+   'pass':bool(e<=1e-12 and r<=1e-12 and t<=1e-12 and gap>0)})
  manifest['mesh'][str(n)]={'original_sha256':sha(old),'residual_source_sha256':sha(fast),'state_checks':checks}
  (p/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
  print('state_checks',n,checks,flush=True)
