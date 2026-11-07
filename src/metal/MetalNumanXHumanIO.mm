@@ -4,7 +4,7 @@
 
 #include "metalrobo/MetalNumanXHumanIO.hpp"
 #include "NumanXProgramIdentity.hpp"
-#include "NumanXHumanIOPassContract.hpp"
+#include "NumanXTransactionPassContract.hpp"
 
 #include <algorithm>
 #include <bit>
@@ -2617,7 +2617,7 @@ template <typename Input>
         (pass.phase == MetalNumanXTransactionPhase::postDynamics
              ? MetalNumanXTransactionWriteStandFailure
              : 0u);
-    if (!detail::validHumanIOTransactionPassHeader(
+    if (!detail::validNumanXABI6TransactionPassHeader(
             pass.abiVersion, pass.structSize, pass.reserved0) ||
         pass.accessFlags != expectedAccessFlags) {
         reason = "transaction pass ABI, size, reserved field, or phase access contract is incompatible";
@@ -3371,7 +3371,7 @@ void installCompletionHandlerLocked(
     }
     // Check the fixed header before reading any other field in the pass. The
     // producer may provide only the prefix belonging to its declared ABI.
-    if (!detail::validHumanIOTransactionPassHeader(
+    if (!detail::validNumanXABI6TransactionPassHeader(
             pass.abiVersion, pass.structSize, pass.reserved0)) {
         try {
             State& state = *static_cast<State*>(context);

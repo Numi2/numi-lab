@@ -4,8 +4,8 @@
 
 namespace metalrobo::detail {
 
-// HumanIO consumes the complete ABI-6 prefix and no later extension.
-[[nodiscard]] constexpr bool validHumanIOTransactionPassHeader(
+// These ABI-6 consumers use the complete ABI-6 prefix and no later extension.
+[[nodiscard]] constexpr bool validNumanXABI6TransactionPassHeader(
     std::uint32_t abiVersion, std::uint32_t structSize,
     std::uint32_t reserved0
 ) noexcept {

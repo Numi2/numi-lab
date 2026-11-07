@@ -7,6 +7,7 @@
 #import <Metal/Metal.h>
 
 #include "NumanXBridgeV1Internal.hpp"
+#include "NumanXTransactionPassContract.hpp"
 
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/MetalNeuronCulture.hpp"
@@ -5593,6 +5594,8 @@ bool encodeSupplementalSensors(
     @autoreleasepool {
         auto* active = static_cast<ActiveRoot*>(raw);
         if (active == nullptr || active->runtime == nullptr) return false;
+        if (!metalrobo::detail::validNumanXABI6TransactionPassHeader(
+                pass.abiVersion, pass.structSize, pass.reserved0)) return false;
         if (pass.phase != metalrobo::MetalNumanXTransactionPhase::postDynamics) {
             return pass.phase == metalrobo::MetalNumanXTransactionPhase::beginStep ||
                 pass.phase == metalrobo::MetalNumanXTransactionPhase::preDynamics;
@@ -5612,8 +5615,6 @@ bool encodeSupplementalSensors(
         __unsafe_unretained id<MTLBuffer> supportConsequences =
             (__bridge id<MTLBuffer>)supportView.buffer;
         const bool passValid =
-            pass.abiVersion == metalrobo::kMetalNumanXTransactionABIVersion &&
-            pass.structSize == sizeof(pass) && pass.reserved0 == 0u &&
             pass.stepIndex == 0u && pass.stepCount == 1u &&
             pass.environmentCount == 1u &&
             pass.qCoordinateCount == MRNX_FULL_BODY_NQ &&

@@ -1,4 +1,4 @@
-#include "../src/metal/NumanXHumanIOPassContract.hpp"
+#include "../src/metal/NumanXTransactionPassContract.hpp"
 #include <cassert>
 #include <cstdint>
 
@@ -9,13 +9,13 @@ int main() {
     static_assert(prefix == offsetof(MetalNumanXTransactionPass,
                                      exactCandidateKinematicsContext));
     static_assert(prefix < sizeof(MetalNumanXTransactionPass));
-    static_assert(detail::validHumanIOTransactionPassHeader(6u, prefix, 0u));
-    static_assert(!detail::validHumanIOTransactionPassHeader(6u, prefix - 1u, 0u));
-    static_assert(!detail::validHumanIOTransactionPassHeader(6u, prefix + 1u, 0u));
-    static_assert(!detail::validHumanIOTransactionPassHeader(
+    static_assert(detail::validNumanXABI6TransactionPassHeader(6u, prefix, 0u));
+    static_assert(!detail::validNumanXABI6TransactionPassHeader(6u, prefix - 1u, 0u));
+    static_assert(!detail::validNumanXABI6TransactionPassHeader(6u, prefix + 1u, 0u));
+    static_assert(!detail::validNumanXABI6TransactionPassHeader(
         6u, sizeof(MetalNumanXTransactionPass), 0u));
-    static_assert(!detail::validHumanIOTransactionPassHeader(5u, prefix, 0u));
-    static_assert(!detail::validHumanIOTransactionPassHeader(7u, prefix, 0u));
-    static_assert(!detail::validHumanIOTransactionPassHeader(6u, prefix, 1u));
+    static_assert(!detail::validNumanXABI6TransactionPassHeader(5u, prefix, 0u));
+    static_assert(!detail::validNumanXABI6TransactionPassHeader(7u, prefix, 0u));
+    static_assert(!detail::validNumanXABI6TransactionPassHeader(6u, prefix, 1u));
     return 0;
 }

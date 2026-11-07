@@ -670,3 +670,12 @@ predicates have not been individually qualified. This diagnostic replaces the
 runtime object with logging instrumentation and carries the already recorded
 TaskProgram-object provenance difference. No physical step or publication was
 accepted.
+
+The supplemental callback now shares the exact ABI-6 prefix validator, invoked
+before its phase and other pass-field accesses. Its existing sensor, geometry,
+device and buffer checks remain intact. A source audit found no supplemental
+references to ABI-7–9 tail fields. Both Objective-C++ objects compile and the
+CPU header contract test still passes, including malformed lengths and unknown
+ABI versions. These isolated fixes have not yet established a complete native
+transaction, accepted publication or force accuracy. The Release-only Brain
+failure is also unresolved.
