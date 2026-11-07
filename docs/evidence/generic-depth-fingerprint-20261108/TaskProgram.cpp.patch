@@ -1,0 +1,11 @@
+--- /Users/numi/numi-lab-deployable-depth-20261107/src/core/TaskProgram.cpp	2026-11-07 14:44:57
++++ /Users/numi/numi-generic-depth-fingerprint-build-20261108/TaskProgram.cpp	2026-11-07 15:54:32
+@@ -4530,6 +4530,8 @@
+         std::ranges::any_of(staged->criticOperators, readsDelayedAction)) {
+         observationHash.scalar(std::uint32_t{0x444c4101u});
+     }
++    // Research-only depth-validity semantics discriminator.
++    if (hasVisualProgram) observationHash.scalar(std::uint32_t{0x44505601u});
+     staged->observationFingerprint = observationHash.finish();
+ 
+     Hash hash;
