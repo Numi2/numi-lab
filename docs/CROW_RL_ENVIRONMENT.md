@@ -18,6 +18,34 @@ current-checkout qualification. Preserve the original BirdFlow estimated crow,
 artifacts, source history, and every negative result. Do not silently migrate
 legacy PolicyPacks to new sensor, action, world, or task semantics.
 
+## Current native history contract (8 November 2026)
+
+Current executable task ABIs are51 (base),52 (retinal),53 (memory choice), and54
+(held actions). They supersede faulty47..50 semantics. Two temporal arrays per
+lane now use stride `2*actionCount` in observe and complete. This fixes neighboring
+lanes overwriting position/velocity history, exposed at the32-lane SIMD boundary.
+Task and observation fingerprints change; physical action identity and608-byte
+header remain unchanged. Old policies/checkpoints reject; both mixed host/shader
+directions reject missing renamed kernels before execution. No implicit migration.
+
+`tools/numi crow-env temporal-history-admission --output NEW_DIRECTORY` and CTest
+`metalrobo.crow.temporal_history` check actual history against every lane's accepted
+q/v at32,33,64,65 lanes. Complete world/retina/food snapshots and full actor/critic/
+transition stream hashes must match across chunks1/8. Final snapshots and hashes
+bound evidence storage. On macmini13,968 float checks pass. The actual preserved
+faulty checkpoint fails1,970 of2,304 words under the same independent state oracle.
+
+Native cue matching/miss controls still consume40mg/0. Five64-lane320-tick learning
+collections (102,400 transitions) admit v9 selected-factor PPO and exact fresh
+continuation: uninterrupted2 updates versus1+1 at chunks1/8 matches policy, rollout,
+all53 model/Adam tensors/metadata, and all three native state components. This is
+engineering correctness; learned cue memory, manipulation, social learning and
+sustained end-to-end performance remain unqualified. The preceding1.31M-transition
+campaign did not improve intake. Evidence and exact runtime are preserved in
+`artifacts/crow-rl-native-history-20261108`; raw cleanup requires pushed recovery.
+
+The following dated sections preserve earlier investigation and ABI history.
+
 ## Live inspection on 7 November 2026
 
 - Execution host: macmini, Apple M4 Pro, 16 GPU cores, 24 GiB RAM.

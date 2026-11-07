@@ -2908,7 +2908,7 @@ kernel void mr_locomotion_task_motion_features(
     }
 }
 
-kernel void mr_locomotion_task_observe(
+kernel void mr_locomotion_task_observe_history2(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
     device const uchar* arena [[buffer(2)]],
@@ -3043,7 +3043,7 @@ kernel void mr_locomotion_task_observe(
     const uint criticHistoryBase =
         environment * criticHistoryElements;
     const uint previousVelocityBase =
-        environment * program.counts0.x;
+        environment * MR_TASK_TEMPORAL_HISTORY_ARRAYS * program.counts0.x;
     const uint biasBase =
         environment * program.counts2.z;
     const uint bodyParameterBase =
@@ -5625,7 +5625,7 @@ kernel void mr_locomotion_task_measure_effort(
     taskStates[environment] = state;
 }
 
-kernel void mr_locomotion_task_complete(
+kernel void mr_locomotion_task_complete_history2(
     device const MRTaskDispatchGPU& dispatch [[buffer(0)]],
     device const MRTaskProgramHeaderGPU& program [[buffer(1)]],
     device const uchar* arena [[buffer(2)]],
@@ -5784,7 +5784,7 @@ kernel void mr_locomotion_task_complete(
     const uint criticHistoryBase =
         environment * criticHistoryElements;
     const uint previousVelocityBase =
-        environment * program.counts0.x;
+        environment * MR_TASK_TEMPORAL_HISTORY_ARRAYS * program.counts0.x;
     const uint biasBase =
         environment * program.counts2.z;
     const uint bodyParameterBase =
@@ -9204,14 +9204,19 @@ kernel void mr_locomotion_task_update_evidence(
     evidenceState[0] = state;
 }
 
-kernel void mr_task_action_hold_abi50_capability(device uint* output [[buffer(0)]],uint at [[thread_position_in_grid]]) {
+kernel void mr_task_action_hold_abi54_capability(device uint* output [[buffer(0)]],uint at [[thread_position_in_grid]]) {
     if(at==0u)output[0]=MR_TASK_PROGRAM_ACTION_HOLD_ABI_VERSION;
 }
-kernel void mr_task_memory_choice_abi49_capability(device uint* output [[buffer(0)]],uint at [[thread_position_in_grid]]) {
+kernel void mr_task_memory_choice_abi53_capability(device uint* output [[buffer(0)]],uint at [[thread_position_in_grid]]) {
     if (at==0u) output[0]=MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION;
 }
 // Capability belongs to the same translation unit as every ABI guard above.
 // Native admission checks its presence before submitting a retinal task.
-kernel void mr_task_retinal_abi48_capability(device uint* output [[buffer(0)]],uint at [[thread_position_in_grid]]) {
+kernel void mr_task_retinal_abi52_capability(device uint* output [[buffer(0)]],uint at [[thread_position_in_grid]]) {
     if (at==0u) output[0]=MR_TASK_PROGRAM_RETINAL_ABI_VERSION;
+}
+
+// A paired host/shader must agree on the corrected shared temporal layout.
+kernel void mr_task_temporal_history_abi51_capability(device uint* output [[buffer(0)]],uint at [[thread_position_in_grid]]) {
+    if(at==0u)output[0]=MR_TASK_TEMPORAL_HISTORY_ARRAYS;
 }

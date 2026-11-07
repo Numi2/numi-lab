@@ -1,0 +1,11 @@
+if(NOT DEFINED PROGRAM OR NOT DEFINED OUTPUT_PARENT OR NOT EXISTS "${CALIBRATED_PORTS}")
+    message(FATAL_ERROR "Temporal-history check requires native instrument and calibrated ports")
+endif()
+string(RANDOM LENGTH 16 ALPHABET 0123456789abcdef trial_id)
+set(trial "${OUTPUT_PARENT}/crow-temporal-history-${trial_id}")
+execute_process(COMMAND "${PROGRAM}" "${trial}" "${CALIBRATED_PORTS}"
+    RESULT_VARIABLE result OUTPUT_VARIABLE evidence ERROR_VARIABLE failure TIMEOUT 180)
+if(NOT result EQUAL 0)
+    message(FATAL_ERROR "Native temporal-history check failed; evidence ${trial}: ${failure}")
+endif()
+message(STATUS "${evidence} Evidence retained at ${trial}")

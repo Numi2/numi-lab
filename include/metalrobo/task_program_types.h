@@ -2,14 +2,13 @@
 
 #include "metalrobo/engine_types.h"
 
-#define MR_TASK_PROGRAM_ABI_VERSION 47u
-// Additive retinal task semantics use a distinct executable tag. Structs and
-// all legacy task fingerprints retain ABI 47; an older GPU must reject 48.
-#define MR_TASK_PROGRAM_RETINAL_ABI_VERSION 48u
-// ABI49 gives the existing final uint64 an explicit, versioned meaning.
-// Header layout/size and all ABI47/48 bytes remain unchanged. Old GPU rejects49.
-#define MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION 49u
-#define MR_TASK_PROGRAM_ACTION_HOLD_ABI_VERSION 50u
+// ABI51..54 correct the two-array per-lane temporal-history stride. Header
+// size stays608 bytes; old47..50 executables must not interpret this layout.
+#define MR_TASK_PROGRAM_ABI_VERSION 51u
+#define MR_TASK_PROGRAM_RETINAL_ABI_VERSION 52u
+#define MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION 53u
+#define MR_TASK_PROGRAM_ACTION_HOLD_ABI_VERSION 54u
+#define MR_TASK_TEMPORAL_HISTORY_ARRAYS 2u
 #define MR_TASK_PROGRAM_HAS_MEMORY_CHOICE(v) ((v)==MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION || (v)==MR_TASK_PROGRAM_ACTION_HOLD_ABI_VERSION)
 #define MR_TASK_PROGRAM_HAS_RETINAL(v) ((v)==MR_TASK_PROGRAM_RETINAL_ABI_VERSION || MR_TASK_PROGRAM_HAS_MEMORY_CHOICE(v))
 // Sentinel in the native outcome table, never a reward operator.
@@ -532,8 +531,8 @@ typedef struct MR_ALIGN16 MRTaskProgramHeaderGPU {
     // Immutable identity of an external accepted-state task program. Zero
     // means no external nutrition/task-state authority; reserved must be zero.
     mr_u64 deviceStateProgramFingerprint;
-    // ABI47/48 zero. ABI49: low32 accepted episode decision tick,
-    // high32 allowed action bits. ABI50 high32 is the byte offset of one
+    // ABI51/52 zero. ABI53: low32 accepted episode decision tick,
+    // high32 allowed action bits. ABI54 high32 is the byte offset of one
     // uint32 hold period per action (zero disables). No header size change.
     // Actions/history neutral until decision.
     mr_u64 actionAvailabilityProgram;

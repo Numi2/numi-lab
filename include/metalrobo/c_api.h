@@ -709,7 +709,7 @@ MR_API MRTaskRolloutHandle* mr_create_task_rollout_cued_memory_foraging(
     const MRRunManifestC* manifest,const MRRetinalSensorConfigC* retinal,
     const MRCrowCuedForagingConfigC* foraging,uint32_t decision_step
 );
-// ABI50 per-action holds with native selection metadata for recurrent PPO.
+// ABI54 per-action holds with native selection metadata for recurrent PPO.
 MR_API MRTaskRolloutHandle* mr_create_task_rollout_cued_memory_foraging_holds(
     const MRRunManifestC* manifest,const MRRetinalSensorConfigC* retinal,
     const MRCrowCuedForagingConfigC* foraging,uint32_t decision_step,
@@ -952,7 +952,7 @@ MR_API int mr_task_rollout_write_policy_rollout_pack(
     const char* batch_id,
     const char* output_path
 );
-// Requires ABI1 hidden/reset traces and an installed recurrent policy; writes v8.
+// Requires ABI1 hidden/reset traces and an installed recurrent policy; writes v8 or selected-action v9.
 MR_API int mr_task_rollout_write_recurrent_policy_rollout_pack(
     const MRTaskRolloutHandle* handle,
     const MRPolicyRolloutBatchC* batch,

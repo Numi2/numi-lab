@@ -483,7 +483,7 @@ struct TaskPack {
     // bytes. All actions/history neutral before the accepted episode tick;
     // afterwards only allowedActionMask actions have authority. No teacher.
     std::uint32_t actionAvailableAfterSteps=0u, allowedActionMask=0u;
-    // Optional ABI50 per-action accepted-tick holds. Zero disables an action;
+    // Optional ABI54 per-action accepted-tick holds. Zero disables an action;
     // nonzero permits selection at decision + k*period. Empty preserves49.
     std::vector<std::uint32_t> actionHoldSteps;
     // Operational contact-graph budget for this task. Zero fields retain the

@@ -4822,6 +4822,7 @@ TaskCompileDiagnostics compileTaskProgram(
     staged->actionFingerprint = actionHash.finish();
 
     Hash observationHash;
+    observationHash.string("nonoverlapping-two-array-temporal-history-v2");
     observationHash.scalar(world.fingerprint());
     observationHash.scalar(staged->layout.actorFrameSize);
     observationHash.scalar(staged->layout.actorHistoryLength);

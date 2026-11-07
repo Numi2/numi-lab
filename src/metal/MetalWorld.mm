@@ -437,6 +437,7 @@ struct MetalWorldContextState {
     __strong id<MTLDevice> device = nil;
     __strong id<MTLCommandQueue> queue = nil;
     __strong id<MTLLibrary> library = nil;
+    bool supportsTemporalHistoryTaskABI=false;
     bool supportsRetinalTaskABI=false;
     bool supportsMemoryChoiceTaskABI=false;
     bool supportsActionHoldTaskABI=false;
@@ -3506,7 +3507,7 @@ bool buildRequirements(
         ) ||
         !makeRequirement<float>(
             "native previous action velocity",
-            taskEnvironments * taskLayout.actionCount * 2u,
+            taskEnvironments * taskLayout.actionCount * MR_TASK_TEMPORAL_HISTORY_ARRAYS,
             requirements.entries[kTaskPreviousJointVelocity]
         ) ||
         !makeRequirement<float>(
@@ -6459,7 +6460,7 @@ MetalWorldDiagnostics initializeContext(
         @"mr_articulated_materialize_body_velocities"
     );
     taskObserve =
-        createContactPipeline(@"mr_locomotion_task_observe");
+        createContactPipeline(@"mr_locomotion_task_observe_history2");
     taskThreatSelect = createContactPipeline(
         @"mr_locomotion_task_select_threat_query"
     );
@@ -6489,7 +6490,7 @@ MetalWorldDiagnostics initializeContext(
         @"mr_locomotion_task_latch_impact_contact"
     );
     taskComplete =
-        createContactPipeline(@"mr_locomotion_task_complete");
+        createContactPipeline(@"mr_locomotion_task_complete_history2");
     taskEvidence = createContactPipeline(
         @"mr_locomotion_task_update_evidence"
     );
@@ -7014,9 +7015,10 @@ MetalWorldDiagnostics initializeContext(
     context.device = device;
     context.queue = queue;
     context.library = library;
-    context.supportsRetinalTaskABI=[library newFunctionWithName:@"mr_task_retinal_abi48_capability"]!=nil;
-    context.supportsMemoryChoiceTaskABI=[library newFunctionWithName:@"mr_task_memory_choice_abi49_capability"]!=nil;
-    context.supportsActionHoldTaskABI=[library newFunctionWithName:@"mr_task_action_hold_abi50_capability"]!=nil;
+    context.supportsTemporalHistoryTaskABI=[library newFunctionWithName:@"mr_task_temporal_history_abi51_capability"]!=nil;
+    context.supportsRetinalTaskABI=[library newFunctionWithName:@"mr_task_retinal_abi52_capability"]!=nil;
+    context.supportsMemoryChoiceTaskABI=[library newFunctionWithName:@"mr_task_memory_choice_abi53_capability"]!=nil;
+    context.supportsActionHoldTaskABI=[library newFunctionWithName:@"mr_task_action_hold_abi54_capability"]!=nil;
     context.supportsRecurrentPolicyABI=[library newFunctionWithName:@"mr_policy_gru_abi4_capability"]!=nil;
     context.abaPipeline = aba;
     context.functionBasedDenseDynamicsPipeline =
@@ -20743,14 +20745,16 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 MR_TASK_PROGRAM_HAS_RETINAL(config.taskProgram.header().articulation.z) &&
                 !selectedState->supportsRetinalTaskABI)
                 return reject(std::move(diagnostics),MetalWorldHostStatus::metalLibraryFailure,
-                    "selected shader library has no retinal task ABI 48 capability");
+                    "selected shader library has no retinal task ABI 52 capability");
             if (config.taskProgram.valid() &&
                 config.taskProgram.header().articulation.z==MR_TASK_PROGRAM_MEMORY_CHOICE_ABI_VERSION &&
                 !selectedState->supportsMemoryChoiceTaskABI)
                 return reject(std::move(diagnostics),MetalWorldHostStatus::metalLibraryFailure,
-                    "selected shader library has no memory-choice task ABI49 capability");
+                    "selected shader library has no memory-choice task ABI53 capability");
+            if(config.taskProgram.valid() && !selectedState->supportsTemporalHistoryTaskABI)
+                return reject(std::move(diagnostics),MetalWorldHostStatus::metalLibraryFailure,"selected shader library lacks corrected temporal-history ABI51..54 capability");
             if(config.taskProgram.valid() && config.taskProgram.header().articulation.z==MR_TASK_PROGRAM_ACTION_HOLD_ABI_VERSION && !selectedState->supportsActionHoldTaskABI)
-                return reject(std::move(diagnostics),MetalWorldHostStatus::metalLibraryFailure,"selected shader library has no action-hold task ABI50 capability");
+                return reject(std::move(diagnostics),MetalWorldHostStatus::metalLibraryFailure,"selected shader library has no action-hold task ABI54 capability");
             if (config.policyProgram.actorMemory() && (!selectedState->supportsRecurrentPolicyABI || config.birdFlowJourneyTeacher))
                 return reject(std::move(diagnostics),MetalWorldHostStatus::metalLibraryFailure,
                     "recurrent actor requires policy ABI4 shaders and exclusive actor authority");

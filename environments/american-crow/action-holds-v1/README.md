@@ -2,7 +2,7 @@
 
 Use this portable observation configuration with the v13 retinal-feeding native
 rollout/trainer and a recurrent stochastic actor. It reuses the existing visual
-assets. A new ABI50 task holds head yaw for256 accepted ticks and beak requests
+assets. The current ABI54 task holds head yaw for256 accepted ticks and beak requests
 for16 ticks, selecting first at decision64. Other actions and all previous-action
 history remain neutral before64. Retina and GRU retain their existing cadence.
 Ordinary episode reset restarts the action schedule, never the food/cue lifetime.
@@ -99,3 +99,20 @@ This runtime does not qualify native future continuity or a complete learning
 environment. Preserve its exact failures/runtime/checkpoints in Git. Correct and
 version the shared native layout, add cross-lane controls, then repeat relevant
 learning/recovery admissions. No learned memory success is demonstrated.
+
+## Corrected native temporal history (ABI54)
+
+The shared history repair supersedes faulty ABI47..50 with51..54. Both observe
+and complete now stride over velocity and position arrays independently for each
+lane. Task/observation fingerprints change, while physical action identity stays
+unchanged. Old policies/checkpoints and mixed host/shader pairs reject before
+accepted execution. No automatic weight or checkpoint migration is provided.
+
+Native32/33/64/65-lane controls check13,968 history words against accepted joint
+state and compare complete checkpoint/stream bytes across chunks1/8. The archived
+faulty checkpoint fails1,970/2,304 words under an independent q/v oracle. Current
+40mg/0 cue matching/miss controls and64-lane uninterrupted-vs-split PPO continuations
+pass: all53 learner/Adam tensors/metadata, policy/rollout bytes and all three native
+components match. Run `tools/numi crow-env temporal-history-admission --output NEW`.
+This repairs native correctness; the flat learning campaign remains a failure,
+and learned memory/causal generalization and wider lifelong behavior remain open.

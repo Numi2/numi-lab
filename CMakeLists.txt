@@ -1148,6 +1148,11 @@ set_target_properties(metalrobo_crow_eye_check PROPERTIES
     BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
 target_compile_options(metalrobo_crow_foraging_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
 add_executable(metalrobo_crow_cue_foraging_check apps/crow_cue_foraging_check.mm)
+add_executable(metalrobo_crow_temporal_history_check apps/crow_temporal_history_check.mm)
+target_compile_options(metalrobo_crow_temporal_history_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+target_link_libraries(metalrobo_crow_temporal_history_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
+add_dependencies(metalrobo_crow_temporal_history_check metalrobo_shaders metalrobo_retinal_shaders)
+set_target_properties(metalrobo_crow_temporal_history_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin" BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "@loader_path/../lib")
 add_executable(metalrobo_crow_foraging_compile apps/crow_foraging_compile.cpp)
 target_compile_options(metalrobo_crow_foraging_compile PRIVATE -Wall -Wextra -Wpedantic)
 target_link_libraries(metalrobo_crow_foraging_compile PRIVATE metalrobo)
@@ -2491,6 +2496,14 @@ if(BUILD_TESTING)
             "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
             "-DLEGACY_METALLIB=${CMAKE_CURRENT_SOURCE_DIR}/artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowRetinalContract.cmake")
+    add_test(NAME metalrobo.crow.temporal_history
+        COMMAND "${CMAKE_COMMAND}"
+            "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_temporal_history_check>"
+            "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
+            "-DCALIBRATED_PORTS=${CMAKE_CURRENT_SOURCE_DIR}/environments/american-crow/cued-foraging-v1/calibrated-ports.bin"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowTemporalHistory.cmake")
+    set_tests_properties(metalrobo.crow.temporal_history PROPERTIES
+        LABELS "metalrobo;crow;native;history;persistence" TIMEOUT 200)
     set_tests_properties(metalrobo.crow.retinal_contract PROPERTIES
         LABELS "metalrobo;crow;native;visual" TIMEOUT 200)
     set_tests_properties(metalrobo.crow.retinal_timing PROPERTIES

@@ -57,6 +57,7 @@ def runtime(root: Path) -> dict:
         "head_check": build / "bin/metalrobo_crow_embodiment_check",
         "foraging_check": build / "bin/metalrobo_crow_foraging_check",
         "cue_foraging_check": build / "bin/metalrobo_crow_cue_foraging_check",
+        "temporal_history_check": build / "bin/metalrobo_crow_temporal_history_check",
         "foraging_compile": build / "bin/metalrobo_crow_foraging_compile",
         "eye_check": build / "bin/metalrobo_crow_eye_check",
         "retinal_check": build / "bin/metalrobo_retinal_stream_check",
@@ -1206,6 +1207,7 @@ def main() -> int:
     commands.add_parser("cue-foraging-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("memory-choice-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("action-holds-admission").add_argument("--output", type=Path, required=True)
+    commands.add_parser("temporal-history-admission").add_argument("--output", type=Path, required=True)
     prepare_cued = commands.add_parser("prepare-cued-foraging")
     prepare_cued.add_argument("--output", type=Path, required=True)
     prepare_cued.add_argument("--allocation-seed", type=int, required=True)
@@ -1382,7 +1384,7 @@ def main() -> int:
           "unused": "original qualification seeds/layouts remain unspent"})
     if args.command == "retinal-contract-admission":
         plan.update({"purpose":"native retinal actor contract and pre-submission rejection instrument",
-          "prediction":"1251 actor/97 critic/18 action channels; 12 malformed manifests and 9 same-dimension sensor changes reject; missing observer and old shader cannot execute; legacy task ABI and mechanics unchanged",
+          "prediction":"1251 actor/97 critic/18 action channels; 12 malformed manifests and 9 same-dimension sensor changes reject; missing observer and old shader cannot execute; corrected base/retinal ABI51/52 with mechanics unchanged",
           "boundary":"compiler metadata and native rejection probes only; no rendered actor images or learner integration"})
     if args.command == "learn-probe" and args.variant == "v13-retinal-feeding":
         plan.update({"purpose":"native RGB to Swift/MLX learner and learner-only restore engineering admission",
@@ -1409,7 +1411,7 @@ def main() -> int:
           "estimated_raw_output_limit_bytes":750*1024*1024, "ecological_environment_qualified":False})
     if args.command in ("recurrent-actor-admission", "recurrent-policy-admission", "recurrent-rollout-admission"):
         plan.update({"purpose": "native embodied recurrent actor and full-life checkpoint engineering admission",
-          "prediction": "FP64 actor/pre-cell max error<=5e-6; chunks1/8 and extra intermediate terminal previews have exact real traces/actions/physics; fresh process has exact future and all three final life-state component blobs; seven compiler and five resident publication controls reject including reused/reversed generating revisions; stale policyABI3 shader rejects for declared ABI4 cause; independently retained runtime reproduces all future stream bytes",
+          "prediction": "FP64 actor/pre-cell max error<=5e-6; chunks1/8 and extra intermediate terminal previews have exact real traces/actions/physics; fresh process has exact future and all three final life-state component blobs; seven compiler and five resident publication controls reject including reused/reversed generating revisions; stale policyABI3 shader rejects by ABI4 or missing corrected temporal-history kernel; independently retained runtime reproduces all future stream bytes",
           "control": "two supported real native v13 lanes, authored encoder5-GRU7-action18 actor,40 ticks; lane1 reset9; next weights published18 without physical step; aligned final camera capture in all arms; no qualification seeds",
           "unit": "one authored neural/controller engineering instrument, not a learned-memory experiment",
           "stopping": "one native admission180s including bounded40s child; one retained-runtime continuation40s; preserve failures, no automatic retries",
@@ -1541,6 +1543,14 @@ def main() -> int:
                              ([str(x) for x in holds] if holds[0] is not None else []), root, 60)
             if result.get("status") != "passed" or result.get("simulation_steps") != 0:
                 raise RuntimeError("Native cue environment authoring failed")
+        elif args.command == "temporal-history-admission":
+            execute(output, "temporal-history", [str(runtime(root)["temporal_history_check"]),
+                    str(output / "native-evidence"),
+                    str(root / "environments/american-crow/cued-foraging-v1/calibrated-ports.bin")],
+                    root, 600, json_output=False)
+            result = json.loads((output / "native-evidence/summary.json").read_text())
+            if result.get("status") != "passed" or result.get("history_float_checks") != 13968 or result.get("full_checkpoint_and_stream_partition_exact") is not True:
+                raise RuntimeError("Native temporal-history ownership/partition admission failed")
         elif args.command == "action-holds-admission":
             result = execute(output, "action-holds", [str(runtime(root)["cue_foraging_check"]),
                              str(output / "native-evidence"), "--action-holds"], root, 1200)
