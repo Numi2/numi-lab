@@ -473,3 +473,15 @@ copy submits a Metal 4 command and waits for feedback; this observation does not
 identify whether that copy, its error handling, or the intervening code failed.
 The source instrumentation and complete logs, hashes and crash are retained.
 No Brain witness or accepted physical step was produced.
+
+A pinned submit-stage diagnostic ran at 23:16:46 UTC with executable SHA-256
+`d968a5b7c335fc8ab1c9d8f77a4bb83652f3699166f2e44309b4123f5046537d`
+and 32-input manifest SHA-256
+`4324eb6e7c5d2e7eab45eba7f00dc436c6d8276a9e47a045c6301cce46492141`;
+pre- and post-run input checks passed. The first upload reached commit, waited,
+received feedback with no reported error, and reached the submit success marker.
+The process then exited 139 before the second initial-copy marker. The diagnostic
+replaced error interpolation with a fixed message only on the feedback-error
+path; that path was not reached. The crash, source diff and complete evidence
+are retained. This establishes neither completion of the first caller operation
+nor a Brain witness, physical step or publication.
