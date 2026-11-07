@@ -33,3 +33,32 @@ Use positive-duration RK4 with the same source model and independent body
 state, 180-second timeout per run, and stop at the first execution failure.
 The unchanged 1 ms force-bin and integrated impulse qualification gates
 remain 0.25% and cannot be passed by this test.
+
+## Result
+
+All four runs completed under budget, in 6.8 and 13.3 seconds for n=16,
+55.7 and 112.2 seconds for n=32. The maximum 2 µs versus 1 µs change in
+mean surface displacement was 2.17e-15 m at n=16 and 1.34e-14 m at n=32,
+passing the registered temporal check. Momentum balance relative to total
+prescribed impulse differed by at most 7.51e-15 and 3.10e-13, respectively.
+
+The maximum n=16 versus n=32 mean surface displacement difference was
+4.968 µm at 4.8 ms, or 4.968% of the 100 µm diagnostic length scale.
+This exceeds the preregistered 0.25% diagnostic threshold. The maximum
+difference between RMS surface displacements was 0.988 µm. Thus a substantial
+mesh-dependent bulk response appears with identical applied total traction,
+without contact feedback. This is consistent with the separate standing-wave
+dispersion result and gives a specific bulk-resolution effect for a
+force-derived transient.
+
+The load is prescribed from a numerical contact trace, not an independent
+physical force reference. Its uniform spatial distribution and temporal
+interpolation differ from the original interaction, and no contact geometry
+is enforced here. The displacement comparison cannot identify how much of
+the original 12.43% force-bin discrepancy comes from bulk discretization
+versus contact or their feedback. Neither original force nor impulse
+qualification gate is met.
+
+[Evidence](evidence/contact-prescribed-load-20261107/) contains the immutable
+input, hashes, exact run identities, raw traces, and calculation. No GPU
+or performance comparison was involved.

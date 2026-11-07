@@ -1,0 +1,58 @@
+{
+  "prediction_commit": "71c25b9895d2b4cf7235e83d5ee218a2741468b6",
+  "source_sha256": "9c0105046423c3ecaf7e227aa22d9b52538cbf942ff7e6a580b05545cba8b05a",
+  "model_sha256": "5b849e79f93272f2bbc5043b62607d967c698d6bbf9c21da8f66edd61134297a",
+  "input_sha256": "de10d8296910a5ed1138c60dd5211e6e199656774f1f984fa72b5a3a990e663d",
+  "binary_sha256": "1f24cc314c793f2387de9d1851309bc8157729e3b8e82a542ebcc7a094dd4fc3",
+  "timeout_seconds": 180,
+  "runs": [
+    {
+      "name": "n16-h2us",
+      "argv": [
+        "/tmp/numi_prescribed_load_20261107",
+        "16",
+        "0.000002",
+        "/Users/numi/numi-lab-contact-reference-20261107/docs/evidence/contact-prescribed-load-20261107/traction-input.csv"
+      ],
+      "status": 0,
+      "elapsed_seconds": 6.772826959029771,
+      "output_sha256": "bbbee86f88f694f3c77583bbfdf611845f1d6961ea8ffb0823ae41515b70fe90"
+    },
+    {
+      "name": "n16-h1us",
+      "argv": [
+        "/tmp/numi_prescribed_load_20261107",
+        "16",
+        "0.000001",
+        "/Users/numi/numi-lab-contact-reference-20261107/docs/evidence/contact-prescribed-load-20261107/traction-input.csv"
+      ],
+      "status": 0,
+      "elapsed_seconds": 13.26046654197853,
+      "output_sha256": "8f3c5811f724b85e4f38be920ceaf8645c9b621dd76caecb85be95f7cca4beb5"
+    },
+    {
+      "name": "n32-h2us",
+      "argv": [
+        "/tmp/numi_prescribed_load_20261107",
+        "32",
+        "0.000002",
+        "/Users/numi/numi-lab-contact-reference-20261107/docs/evidence/contact-prescribed-load-20261107/traction-input.csv"
+      ],
+      "status": 0,
+      "elapsed_seconds": 55.65457629098091,
+      "output_sha256": "932f97bb7b9b0a202fe40e245bf97dcca5ad81ab169f4a6c0a973f72fc0695cd"
+    },
+    {
+      "name": "n32-h1us",
+      "argv": [
+        "/tmp/numi_prescribed_load_20261107",
+        "32",
+        "0.000001",
+        "/Users/numi/numi-lab-contact-reference-20261107/docs/evidence/contact-prescribed-load-20261107/traction-input.csv"
+      ],
+      "status": 0,
+      "elapsed_seconds": 112.19027666695183,
+      "output_sha256": "93e4c4e1c38f4efaacf22c26083eb81a60a1f654250afeefe826a1e181d4697e"
+    }
+  ]
+}

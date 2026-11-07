@@ -1,0 +1,31 @@
+{
+  "diagnostic_displacement_scale_m": 0.0001,
+  "diagnostic_threshold": 0.0025,
+  "impact_force_gate": 0.0025,
+  "impact_impulse_gate": 0.0025,
+  "meshes": {
+    "16": {
+      "temporal_max_displacement_difference_m": 2.165070423290616e-15,
+      "temporal_difference_in_activation_distances": 2.165070423290616e-11,
+      "temporal_check_pass": true,
+      "momentum_balance_over_input_impulse": 7.50917279826758e-15,
+      "momentum_check_pass": true,
+      "input_impulse_Ns": 0.0004114935525650132
+    },
+    "32": {
+      "temporal_max_displacement_difference_m": 1.3372671568180616e-14,
+      "temporal_difference_in_activation_distances": 1.3372671568180616e-10,
+      "temporal_check_pass": true,
+      "momentum_balance_over_input_impulse": 3.09852182833778e-13,
+      "momentum_check_pass": true,
+      "input_impulse_Ns": 0.0004114935525650132
+    }
+  },
+  "spatial": {
+    "max_mean_surface_displacement_difference_m": 4.967692527888464e-06,
+    "time_s": 0.0048,
+    "difference_in_activation_distances": 0.04967692527888464,
+    "prediction_exceeds_threshold": true,
+    "max_rms_displacement_difference_m": 9.876236555696403e-07
+  }
+}
