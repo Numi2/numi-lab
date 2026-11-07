@@ -1,0 +1,27 @@
+{
+  "schema": "numi.contact.n32-gaussian.v1",
+  "n32_temporal_2us_vs_1us": {
+    "binned_force": 7.128139226160406e-08,
+    "impulse": 6.454433987477851e-09
+  },
+  "n16_temporal_1us_vs_0.5us": {
+    "binned_force": 9.468888854973113e-09,
+    "impulse": 5.892744288910445e-10
+  },
+  "temporal_and_validity_gate": true,
+  "gaussian_n16_vs_n32_at_1us": {
+    "binned_force": 0.14746085845281975,
+    "impulse": 0.003621009147217999
+  },
+  "nodal_vs_gaussian_n32_at_1us": {
+    "binned_force": 0.06592462421551848,
+    "impulse": 0.009065065954693401
+  },
+  "spatial_gate": false,
+  "primary_quadrature_hypothesis_below_half_nodal_difference": false,
+  "limits": [
+    "diagnostic prediction is not the scientific gate",
+    "fixed regularized law, not a hard-contact or physical material reference",
+    "a failed primary-cause prediction does not isolate a unique remaining source"
+  ]
+}

@@ -1,0 +1,15 @@
+Bounded CPU-only test: n=32, same 20mm FEM mesh, Neo-Hookean parameters,
+density, gravity, initial gap, 10ms duration and fixed positive-separation
+energy as the retained nodal experiment. Change only to the independently
+verified positive three-point triangular surface quadrature.
+Run 2us then 1us, with process-group timeouts 240s and 360s; retain failures,
+time and memory. Require the unchanged 0.25% temporal force/impulse gates,
+clearance and momentum before any n16-to-n32 1us spatial or same-n32 rule
+comparison. n16 Gaussian 1us and 0.5us and n32 nodal 2us and 1us are retained
+and independently temporally checked. Compare 1ms bins without alignment.
+Falsifiable diagnostic prediction: if surface quadrature is the main cause
+of the retained 12.43% nodal n16-to-n32 force-bin difference, the Gaussian
+same-mesh-sequence difference will be less than half that value (6.2126%).
+Otherwise that simple primary-cause hypothesis is not supported. This
+diagnostic threshold is not a replacement for the scientific 0.25% gate.
+No conclusion about a unique cause or physical tissue calibration follows.
