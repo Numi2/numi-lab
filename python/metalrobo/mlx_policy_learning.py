@@ -2279,6 +2279,12 @@ def _actor_residual_output_only_gradients(
 class MLXPolicyLearner:
     """Owns only policy parameters, optimizer state, and PPO updates."""
 
+    def _create_model(self, actor_observation_count: int,
+                      critic_observation_count: int, action_count: int,
+                      configuration: MLXPPOConfiguration) -> nn.Module:
+        return MLXActorCritic(actor_observation_count, critic_observation_count,
+                              action_count, configuration)
+
     def __init__(
         self,
         actor_observation_count: int,
@@ -2292,7 +2298,7 @@ class MLXPolicyLearner:
         self.action_count = action_count
         self.configuration = configuration
         mx.random.seed(configuration.seed)
-        self.model = MLXActorCritic(
+        self.model = self._create_model(
             actor_observation_count,
             critic_observation_count,
             action_count,

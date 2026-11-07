@@ -75,12 +75,12 @@
     "finite_food_water_and_energy": "experimental-native-finite-food-tracer-and-capacity-limited-crop-with-bound-reward; water-energy-physiology-pending",
     "accepted_state_consumption": "native-accepted-mouth-intake-volume-and-open-close-edge-controls-passed; solid-food-pickup-carrying-and-swallowing-pending",
     "feeding_station_curriculum": "native-v12; frozen-stochastic-policy-complete-intake-1536-of-1536-versus-untrained-20-of-1536; deterministic-intake-zero; canonical-supported-tracer-only; ecology-unqualified",
-    "persistent_memory_and_life_checkpoint": "native-v13-world-contact-task-RNG-retinal-food-and-Swift-MLX-model-Adam-coupled-fresh-process-resume-passed; exact-every-boundary-replay-and-nine-rejection-controls; trainable-persistent-memory-pending",
+    "persistent_memory_and_life_checkpoint": "native world/contact/task/RNG/GRU/retina/food plus Swift-MLX model/Adam coupled fresh-process resume exact at development boundaries; learned lifelong memory unqualified",
     "social_individuals_and_communication": "pending",
     "weather_and_seasonal_ecology": "pending",
     "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-partition-and-pending-frame-fresh-process-restore-controls-passed-including-live-head-renderer",
     "retinal_actor_contract": "native-v13-1251-actor-97-critic-18-actions; live-pixel-controls-and-C-API-Swift-MLX-update-learner-restore-passed-at16-64-128; visual-learning-and-production-performance-qualification-pending",
-    "native_working_memory": "native-PolicyPack5-encoder-GRU-head-actor-life-state-canonical-Python-policy-and-native-Swift-MLX-rollout8-handoff-admitted; ordinary-CLI37+13tick-resume-and-sequence-parity-exact; contiguous-PPO-recurrent-optimizer-and-behavioral-qualification-pending"
+    "native_working_memory": "native recurrent actor, rollout8 and contiguous sequence PPO integrated; causal full-life/model/Adam fresh-process resume exact in two-lane development controls; learned memory behavior and production performance pending"
   },
   "release_requirements": [
     "deterministic accepted-state execution across submission chunks",
@@ -338,5 +338,38 @@
     "embodied_memory_qualified": false,
     "full_loop_performance_qualified": false,
     "ecological_environment_qualified": false
+  },
+  "recurrent_ppo_development_instrument": {
+    "command": "recurrent-ppo-admission",
+    "evidence": "artifacts/crow-rl-sequence-ppo-20261107",
+    "sequence_PPO_integrated": true,
+    "architecture_scope": "estimated supported v13 actor1251 -> tanh5 -> GRU7 -> Gaussian18; critic97 -> scalar; bounded development instrument",
+    "sequence_windows": 10,
+    "sequence_length": 8,
+    "real_native_stochastic_slots": 100,
+    "FP64_selected_gradient_max_abs": 1.0155116067167569e-05,
+    "gradient_parameter_families": 11,
+    "padding_gradient_max_abs": 0.0,
+    "reset_and_initial_state_gradient_cuts_exact": true,
+    "GRU_parameter_families_trained": 4,
+    "invalid_batch_and_input_controls": 8,
+    "checkpoint_contract_rejections": 3,
+    "ordinary_training_sequence_length": 32,
+    "ordinary_training_pair": "3 versus2+1 updates of37ticks, two lanes, chunk8",
+    "lifetime_ticks_per_lane": 111,
+    "causal_native_components_all_byte_exact": true,
+    "policies_rollouts_and_canonical_learner_files_byte_exact": true,
+    "model_Adam_tensors_exact": 35,
+    "native_envelope_timing_fields": "validated finite and nonnegative; measured elapsed times are excluded from causal state identity",
+    "all_six_manifest_commit_markers_and_payload_hashes_verified": true,
+    "feedforward_learner_prior_checkpoint_hashes_exact": true,
+    "focused_Python_checks_passed": 33,
+    "coupled_resume_scope": "same native device/OS, exact runtime and learner dependency identity; development fixture only",
+    "embodied_memory_qualified": false,
+    "social_learning_qualified": false,
+    "physical_manipulation_qualified": false,
+    "full_loop_performance_qualified": false,
+    "ecological_environment_qualified": false,
+    "next": "task-relevant memory ablations and recurrent model initialization/capacity; object manipulation, social learning and measured end-to-end performance"
   }
 }

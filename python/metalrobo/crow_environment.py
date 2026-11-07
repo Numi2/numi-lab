@@ -1186,6 +1186,7 @@ def main() -> int:
     commands.add_parser("recurrent-actor-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("recurrent-policy-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("recurrent-rollout-admission").add_argument("--output", type=Path, required=True)
+    commands.add_parser("recurrent-ppo-admission").add_argument("--output", type=Path, required=True)
     life_training=commands.add_parser("life-training-probe")
     life_training.add_argument("--output",type=Path,required=True)
     life_training.add_argument("--retinal-calibration",type=Path,required=True)
@@ -1245,7 +1246,7 @@ def main() -> int:
         print(json.dumps(profile, indent=2))
         return 0
     checked = preflight(root, profile)
-    if args.command in ("recurrent-actor-admission", "recurrent-policy-admission", "recurrent-rollout-admission"):
+    if args.command in ("recurrent-actor-admission", "recurrent-policy-admission", "recurrent-rollout-admission", "recurrent-ppo-admission"):
         build = Path(checked["inputs"]["library"]["path"]).parent.parent
         for name, path in (("recurrent_check", build/"bin/metalrobo_crow_recurrent_actor_check"),
                            ("gru_metallib", build/"shaders/GRUMemory.metallib"),
@@ -1455,6 +1456,11 @@ def main() -> int:
             result=life_training_probe(root,output,args)
         elif args.command == "life-swift-probe":
             result=life_swift_probe(root,output,args)
+        elif args.command == "recurrent-ppo-admission":
+            from .recurrent_ppo_admission import run as run_recurrent_ppo
+            proof=output/"ppo-evidence"
+            proof.mkdir()
+            result=run_recurrent_ppo(root,proof)
         elif args.command == "recurrent-rollout-admission":
             result=recurrent_rollout_admission(root,output,checked)
         elif args.command == "recurrent-policy-admission":

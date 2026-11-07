@@ -1095,10 +1095,9 @@ Earlier successful variants, source/runtime identities, raw records, controls,
 checkpoints, regression output and lossless payload inventories are in
 `artifacts/crow-rl-recurrent-rollout-20261107`.
 
-The native-to-learner recurrent record is now usable. Contiguous PPO/BPTT,
-sequence minibatch scheduling and coupled recurrent optimizer/life resume remain
-the next implementation work. Current training entry points reject recurrent
-policies explicitly. Embodied memory experiments, physical manipulation, social
+At the rollout milestone, contiguous PPO/BPTT, sequence minibatch scheduling
+and coupled recurrent optimizer/life resume remained pending. The sequence PPO
+admission below supersedes that implementation status. Embodied memory experiments, physical manipulation, social
 learning, ecology and production performance remain unqualified. These replay
 instruments use development conditions only and promote no learned policy.
 
@@ -1107,3 +1106,59 @@ instruments use development conditions only and promote no learned policy.
 Crow evidence belongs in the Git repository. Use bounded temporary captures; preserve failures and runtime identities, archive missing content once, commit and push, verify recovery, then remove the covered raw files. Keep only current build products and active policy/shader inputs locally. Do not retain duplicate run trees, runtime trees or bulky checked-out archive payloads. Shared Git objects, history and other projects remain protected.
 
 `artifacts/crow-rl-git-recovery-20261107/README.md` documents the exact-file manifest, content deduplication, Git-object verification, restoration and cleanup receipts. `tools/crow_evidence_archive.py` provides the corresponding commands. Bulk archives can be absent from this worktree with per-index skip-worktree flags; recovery reads committed Git blobs directly. These storage operations establish preservation, not additional scientific qualification.
+
+## Contiguous recurrent PPO and coupled training life
+
+`tools/numi crow-env recurrent-ppo-admission --output NEW` now constructs its
+own native fixture, authors a distinct stochastic seed and collects real native
+rollouts. The production MLX worker recognizes recurrent PolicyPack5 and uses
+contiguous truncated BPTT. It shuffles lane/time windows as units, detaches the
+captured initial state, applies every reset mask and masks padded tails in all
+losses and metrics. Only the active sequence minibatch reaches MLX; full visual
+observations remain NumPy views. Old-policy means are frozen before the first
+Adam step. The supported trainable encoder ends in tanh, preserving the native
+GRU input bound. Flat teacher/retention/projection modes reject explicitly.
+
+The native stochastic37+13-tick instrument uses two lanes on development seed
+2651109503. Ten length8 windows cover all74 initial transitions once per epoch.
+Padding changes no gradients; detached-initial and episode-reset gradient cuts
+are exactly zero. Eleven selected parameter-family coordinates match independent
+FP64 PPO finite differences within1.016e-5 against the prospective3e-5 bound.
+Both updates pass native generating-state/log-probability/value parity; all four
+GRU parameter families train. A fresh learner restores all model/Adam tensors
+and reproduces its next update and policy bytes exactly. Eight invalid batch
+and input controls reject without changing learner state.
+
+The ordinary Swift/Metal/MLX training path then runs three uninterrupted updates
+versus two plus a fresh-process continuation: two lanes,37ticks/update, chunk8,
+sequence length32, development seed2651109507. At all three boundaries the
+world/contact/task/RNG/GRU, delayed retina and finite-food components are byte
+exact. Policies, rollouts and canonical learner files are also byte exact; all35
+model/Adam tensors match. Accepted clocks are37,74 and111 with no warmup. All six
+checkpoint manifests, commit markers and declared payload hashes validate.
+Changed GRU input bound, changed sequence length and missing recurrent checkpoint
+contract each reject before mutating state.
+
+The initial whole-container byte prediction failed: native envelopes include
+measured GPU/submission times, and restored Adam dictionaries changed tensor
+serialization order. That attempt is preserved. Recurrent publication now sorts
+tensor names. The corrected instrument validates native checksums, exact
+clocks/counters and every causal component while retaining and validating the
+two nonnegative timing measurements separately. No numerical tolerance changed.
+
+The ordinary feedforward initial/resume learner checkpoint hashes remain exactly
+29f79d3c670b7476757945a62104d78ba76012220be388c07b6f24e93f75d8d1 and
+6c2d517062ccc6c28ea127ffea9f59fc12c00d33179140c6565503a758c882fe. Thirty-three
+focused Python checks pass, including independent timeout/GAE and reset-edge
+tests. Evidence, failures and source variants are archived once under
+`artifacts/crow-rl-sequence-ppo-20261107`; temporary captures are pruned after
+push and recovery verification. Earlier instrument profile flags describe their
+historical stage; current integration is recorded in
+`recurrent_ppo_development_instrument`.
+
+This admits an engineering learning/persistence path on the small authored
+encoder5/GRU7 controller. It does not demonstrate learned use of memory, lifelong
+foraging, solid-object manipulation, social learning, biological fidelity or
+production throughput. Larger recurrent initialization, controlled behavioral
+memory tasks, manipulation/social mechanisms and complete-loop profiling remain
+required before the research environment can qualify.

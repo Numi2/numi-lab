@@ -30,6 +30,7 @@ from .mlx_policy_learning import (
     MLXPPOConfiguration,
     MLXPolicyBatch,
     MLXPolicyLearner,
+    read_policy_pack,
     read_motion_pack,
     read_policy_rollout_pack,
 )
@@ -422,6 +423,10 @@ def _write_learner_state(
             }
         )
     mx.eval(*arrays.values())
+    if getattr(learner, "recurrent", False):
+        # Restored Adam dictionaries have sorted topology. Use the same order
+        # before and after restore so equal recurrent tensors serialize equally.
+        arrays = dict(sorted(arrays.items()))
     metadata = {
         "format": "metalrobo.mlx-learner-state",
         "schema": "3" if motion_prior is not None else "2",
@@ -436,6 +441,8 @@ def _write_learner_state(
         "action_count": str(learner.action_count),
         "configuration": _configuration_record(learner),
     }
+    if getattr(learner, "recurrent", False):
+        metadata["recurrent_contract"] = learner.recurrent_contract()
     if motion_prior is not None:
         metadata.update(
             {
@@ -492,6 +499,8 @@ def _restore_learner_state(
         ),
         "action_count": str(learner.action_count),
     }
+    if getattr(learner, "recurrent", False):
+        expected_metadata["recurrent_contract"] = learner.recurrent_contract()
     if motion_prior is not None:
         expected_metadata.update(
             {
@@ -908,11 +917,21 @@ def _rollout_metrics(rollout: Any) -> dict[str, Any]:
 
 
 def _serve(arguments: argparse.Namespace) -> int:
-    learner = MLXPolicyLearner.from_policy_pack(
-        arguments.policy_pack,
-        _configuration(arguments),
-        library_path=arguments.native_library,
-    )
+    recurrent = read_policy_pack(arguments.policy_pack, library_path=arguments.native_library).actor_memory is not None
+    if recurrent:
+        from .mlx_recurrent_policy_learning import MLXRecurrentPolicyLearner, MLXRecurrentPPOConfiguration
+        if (arguments.motion_pack is not None or arguments.retention_policy_pack is not None
+                or arguments.navigation_return_weighted_self_imitation
+                or arguments.actor_observation_extension_offset is not None
+                or any(value for key,value in vars(arguments).items() if key.startswith("train_actor_"))):
+            raise ValueError("Recurrent PPO requires native rewards and its complete bound actor; flat motion/retention/projection modes are unsupported")
+        configuration = MLXRecurrentPPOConfiguration(**asdict(_configuration(arguments)),
+            sequence_length=arguments.recurrent_sequence_length)
+        learner = MLXRecurrentPolicyLearner.from_policy_pack(arguments.policy_pack,
+            configuration, library_path=arguments.native_library)
+    else:
+        learner = MLXPolicyLearner.from_policy_pack(
+            arguments.policy_pack, _configuration(arguments), library_path=arguments.native_library)
     _bind_contract(learner, arguments)
     retention_reference = None
     if (
@@ -1235,17 +1254,22 @@ def _serve(arguments: argparse.Namespace) -> int:
                 learning_rewards, motion_metrics = (
                     motion_prior.blend_rewards(rollout)
                 )
-            policy_batch = rollout.policy_batch(
-                discount=learner.configuration.discount,
-                gae_lambda=learner.configuration.gae_lambda,
-                rewards=learning_rewards,
-                navigation_teacher_minimum_waypoint=(
-                    arguments.navigation_self_imitation_minimum_waypoint
-                ),
-                navigation_return_weighted_self_imitation=(
-                    arguments.navigation_return_weighted_self_imitation
-                ),
-            )
+            if recurrent:
+                from .mlx_recurrent_policy_learning import MLXRecurrentPolicyBatch
+                policy_batch = MLXRecurrentPolicyBatch.from_rollout(rollout,
+                    discount=learner.configuration.discount, gae_lambda=learner.configuration.gae_lambda)
+            else:
+                policy_batch = rollout.policy_batch(
+                    discount=learner.configuration.discount,
+                    gae_lambda=learner.configuration.gae_lambda,
+                    rewards=learning_rewards,
+                    navigation_teacher_minimum_waypoint=(
+                        arguments.navigation_self_imitation_minimum_waypoint
+                    ),
+                    navigation_return_weighted_self_imitation=(
+                        arguments.navigation_return_weighted_self_imitation
+                    ),
+                )
             if retention_reference is not None:
                 retention_weights = None
                 if arguments.retention_maximum_difficulty_band is not None:
@@ -1669,6 +1693,7 @@ def main() -> int:
         help="retain optimizer state while Swift schedules rollout updates",
     )
     serve.add_argument("--policy-pack", type=Path, required=True)
+    serve.add_argument("--recurrent-sequence-length", type=_positive, default=32)
     serve.add_argument("--exact-life-checkpoints", action="store_true")
     serve.add_argument(
         "--output-policy-pack",

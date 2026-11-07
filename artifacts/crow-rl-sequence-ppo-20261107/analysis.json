@@ -1,0 +1,192 @@
+{
+  "status": "passed_development_integration_only",
+  "recurrent_PPO": {
+    "status": "passed",
+    "native_stochastic_samples": 100,
+    "sequence_windows": 10,
+    "sequence_coverage_exact": true,
+    "padding_gradient_max_abs": 0.0,
+    "FP64_PPO_gradient_max_abs": 1.0155116067167569e-05,
+    "gradient_parameter_families": 11,
+    "reset_and_initial_gradient_cuts_exact": true,
+    "GRU_parameter_families_trained": [
+      "model.actor.memory.input_weights",
+      "model.actor.memory.recurrent_weights",
+      "model.actor.memory.input_bias",
+      "model.actor.memory.recurrent_bias"
+    ],
+    "optimizer_restore_and_next_update_exact": true,
+    "policy_recovery_bytes_exact": true,
+    "nonzero_life_continuation_hidden_norm": 0.2611294686794281,
+    "rejection_controls": 8,
+    "first_update": {
+      "loss": 0.017037406261708285,
+      "policy_loss": -0.0029101099919628453,
+      "value_loss": 0.00048690799303585663,
+      "entropy": -19.46061404975685,
+      "kl_divergence": 0.0014914338788838831,
+      "approximate_kl": 0.0016584118368612238,
+      "clip_fraction": 0.0,
+      "actor_gradient_norm": 13.08033876805692,
+      "critic_gradient_norm": 0.08814922503724291,
+      "gradient_norm": 13.08084291380805,
+      "learning_rate": 0.0003000000142492354,
+      "update_seconds": 0.051376165996771306,
+      "minibatch_updates": 10.0,
+      "policy_revision": 32.0,
+      "sequence_windows": 10.0,
+      "sequence_length": 8.0,
+      "real_samples_per_epoch": 74.0,
+      "generating_state_max_abs": 1.4901161193847656e-08,
+      "generating_logp_max_abs": 5.7220458984375e-06,
+      "generating_value_max_abs": 0.0,
+      "mean_action_standard_deviation": 0.08204822987318039
+    },
+    "next_update": {
+      "loss": 0.011208849726244807,
+      "policy_loss": -0.008445626444881782,
+      "value_loss": 0.00018603124408400618,
+      "entropy": -19.468443870544434,
+      "kl_divergence": 0.0002444569945510011,
+      "approximate_kl": 0.0002795778766362389,
+      "clip_fraction": 0.0,
+      "actor_gradient_norm": 14.844952583312988,
+      "critic_gradient_norm": 0.04900323133915663,
+      "gradient_norm": 14.845037698745728,
+      "learning_rate": 0.0003000000142492354,
+      "update_seconds": 0.006224958982784301,
+      "minibatch_updates": 4.0,
+      "policy_revision": 33.0,
+      "sequence_windows": 4.0,
+      "sequence_length": 8.0,
+      "real_samples_per_epoch": 26.0,
+      "generating_state_max_abs": 2.9802322387695312e-08,
+      "generating_logp_max_abs": 9.5367431640625e-06,
+      "generating_value_max_abs": 7.450580596923828e-08,
+      "mean_action_standard_deviation": 0.0820353627204895
+    },
+    "ecological_or_learned_memory_qualified": false
+  },
+  "coupled_recurrent_training_life": {
+    "status": "passed",
+    "paired": "3 versus2+1",
+    "updates": 3,
+    "ticks_per_lane": 111,
+    "checkpoint_files_all_byte_exact": [
+      {
+        "revision": 32,
+        "files": [
+          "COMMITTED",
+          "candidate.policypack",
+          "learner.safetensors",
+          "life.native",
+          "manifest.json",
+          "policy.policypack",
+          "rollout.rolloutpack"
+        ],
+        "causal_byte_differences": [],
+        "native_components_all_exact": true
+      },
+      {
+        "revision": 33,
+        "files": [
+          "COMMITTED",
+          "candidate.policypack",
+          "learner.safetensors",
+          "life.native",
+          "manifest.json",
+          "policy.policypack",
+          "rollout.rolloutpack"
+        ],
+        "causal_byte_differences": [],
+        "native_components_all_exact": true
+      },
+      {
+        "revision": 34,
+        "files": [
+          "COMMITTED",
+          "candidate.policypack",
+          "learner.safetensors",
+          "life.native",
+          "manifest.json",
+          "policy.policypack",
+          "rollout.rolloutpack"
+        ],
+        "causal_byte_differences": [],
+        "native_components_all_exact": true
+      }
+    ],
+    "model_Adam_tensors_exact": 35,
+    "learned_memory_or_ecology_qualified": false
+  },
+  "feedforward_regression": {
+    "status": "passed",
+    "records": [
+      {
+        "stage": "initial",
+        "checkpoint_sha256": "29f79d3c670b7476757945a62104d78ba76012220be388c07b6f24e93f75d8d1",
+        "baseline_exact": true
+      },
+      {
+        "stage": "resume",
+        "checkpoint_sha256": "6c2d517062ccc6c28ea127ffea9f59fc12c00d33179140c6565503a758c882fe",
+        "baseline_exact": true
+      }
+    ]
+  },
+  "checkpoint_integrity_and_contract_audit": {
+    "status": "passed",
+    "checkpoint_pairs": [
+      {
+        "revision": 32,
+        "manifest_semantics_exact": true,
+        "both_manifests_and_all_payload_hashes_valid": true
+      },
+      {
+        "revision": 33,
+        "manifest_semantics_exact": true,
+        "both_manifests_and_all_payload_hashes_valid": true
+      },
+      {
+        "revision": 34,
+        "manifest_semantics_exact": true,
+        "both_manifests_and_all_payload_hashes_valid": true
+      }
+    ],
+    "nonmutating_checkpoint_rejections": [
+      {
+        "name": "changed-bound",
+        "error": "MLX learner state contract differs from the PolicyPack or PPO configuration: metadata=recurrent_contract, ppo=True, motion=True"
+      },
+      {
+        "name": "changed-sequence-length",
+        "error": "MLX learner state contract differs from the PolicyPack or PPO configuration: metadata=, ppo=False[sequence_length], motion=True"
+      },
+      {
+        "name": "missing-recurrent-contract",
+        "error": "MLX learner state contract differs from the PolicyPack or PPO configuration: metadata=recurrent_contract, ppo=True, motion=True"
+      }
+    ]
+  },
+  "focused_unique_Python_checks": 33,
+  "failures_preserved": [
+    "sequence-ppo-01: omitted relative visual assets; zero physical ticks",
+    "sequence-ppo-training-01: overly broad whole-container identity prediction; causal state and all model/Adam tensors already exact; recurrent tensor publication subsequently canonicalized"
+  ],
+  "source_scope": "Native binaries unchanged; production Python sequence learner, worker dispatch/checkpoint metadata, native admission command and return-boundary tests added.",
+  "archive": {
+    "existing_archive_blobs_indexed": 12347,
+    "files": 364,
+    "new_compressed_bytes": 2342198,
+    "source_bytes": 95008196,
+    "unique_file_contents": 204
+  },
+  "qualification": {
+    "learned_memory_behavior": false,
+    "manipulation": false,
+    "social_learning": false,
+    "ecology": false,
+    "production_performance": false
+  },
+  "next": "Recurrent initialization/capacity and task-relevant memory ablations; solid-object and social mechanics; complete-loop profiling."
+}

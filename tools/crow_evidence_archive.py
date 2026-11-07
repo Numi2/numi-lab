@@ -84,9 +84,10 @@ def safe_path(value):
 
 
 def selected_roots():
-    return [Path(".numi/runs/american-crow"), Path(".numi/retained-runtime")] + sorted(
+    roots = [Path(".numi/runs/american-crow"), Path(".numi/retained-runtime")] + sorted(
         p for p in Path("build").iterdir()
         if p.is_dir() and (p.name.startswith("crow-") or p.name.startswith("gru-memory-")))
+    return [p for p in roots if p.exists()]
 
 
 def capture(out):
@@ -248,6 +249,9 @@ def prune(manifest, receipt):
     before = subprocess.check_output(["df", "-k", "."]).decode()
     handles = []
     for root in [".numi/runs/american-crow", ".numi/retained-runtime", "build"]:
+        if not Path(root).exists():
+            handles.append({"root": root, "exists": False, "open_handles": 0})
+            continue
         p = subprocess.run(["/usr/sbin/lsof", "-Fpn", "+D", root], capture_output=True, text=True, timeout=60)
         if p.returncode not in (0, 1) or p.stdout or p.stderr:
             raise ValueError(f"Open handles or lsof failure at {root}: {p.stdout}{p.stderr}")
@@ -295,6 +299,10 @@ def omit_archives(receipt):
             continue
         if name.startswith("artifacts/crow-rl-git-recovery-") and "/blobs/" not in name:
             continue  # Keep compact recovery controls and receipts visible.
+        if len(Path(name).parts) == 3 and Path(name).name in (
+                "README.md", "manifest.json", "analysis.json", "cleanup-receipt.json", "verification.json",
+                "runtime-recovery.json", "restore_runtime.py"):
+            continue
         path = safe_path(name)
         if not path.exists():
             continue
