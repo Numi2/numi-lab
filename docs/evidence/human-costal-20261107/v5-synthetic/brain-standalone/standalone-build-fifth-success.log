@@ -1,0 +1,10 @@
+Building for production...
+[Planning 217 / 301]
+[3 / 26]
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainMetalBridgeABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[8 / 10] NumiBrainSyntheticV5CLI-product
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainSyntheticV5CLI-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/usr/lib' not found
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainSyntheticV5CLI-product: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[9 / 10] NumiBrainSyntheticV5CLI-product
+Build complete! (1,18 sek)
+EXIT_CODE=0

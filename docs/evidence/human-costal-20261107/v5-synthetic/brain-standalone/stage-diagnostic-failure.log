@@ -1,0 +1,20 @@
+START=2026-11-07T23:02:47Z
+stage=equality
+stage=tissue
+stage=world
+stage=native-create
+mrnx authored world=8141185403901143359 expected=8141185403901143359 physics=8141185403901143359 env=1 rate=0 flags=265 nv=160 nq=161 attachments=448 proxies=0 dt=9.99999975e-06 expected_dt=9.99999975e-06 gravity=0,0,-9.81000042 human=0,0,-9.81000042
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_canonical_precision_materials=0 source=compiler_exact_energy_proof tangent_policy=unchanged
+stage=native-created
+stage=brain-template
+stage=brain-publication
+stage=brain-resting
+stage=brain-config
+stage=brain-create
+synthetic v5 publication FAILED: unformatted Swift error
+END=2026-11-07T23:02:49Z
+EXIT_CODE=1

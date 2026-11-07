@@ -88,12 +88,12 @@ func run() throws {
   let proposal=try proposalLatch.wait();try waitPreflight(prepared)
   let joint=try brain.numanXPreparedJointCommitFingerprint(for:prepared,identity:physical.identity)
   try physical.reserveApplication(brain:prepared)
-  let ack=try brain.submitNumanXBrainAck(prepared,proposal:proposal,signal:point(device))
+  let ack=try brain.qualificationSubmitAck(prepared,proposal:proposal,signal:point(device))
   let applyLatch=Latch<MetalNumanXHumanMatterAppliedLease>()
   try physical.submitApply(ack:ack) { applyLatch.complete($0) }
   let applied=try applyLatch.wait();try check(applied.commandDisposition == .acceptedPendingPublication,"apply disposition")
   let resolution=try physical.makeResolution(proposal:proposal,applied:applied,jointCommitFingerprint:joint,brainGeneration:tx.token.shadowGeneration)
-  _ = try brain.validateNumanXAppliedRoot(prepared,ack:ack,applied:applied,resolution:resolution,signal:point(device))
+  _ = try brain.qualificationValidate(prepared,ack:ack,applied:applied,resolution:resolution,signal:point(device))
   try waitCommit(prepared);try check(!brain.hasOpenControl,"control remains open")
   guard let aggregate=try native.aggregateSnapshotIfAvailable() else {throw ProbeFailure(message:"missing aggregate")}
   try check(aggregate.publicationEpoch == 1 && aggregate.brainGeneration == brain.committedGeneration && aggregate.physicsGeneration == 1 && aggregate.sensorGeneration == 1 && aggregate.identity == physical.identity,"published aggregate")

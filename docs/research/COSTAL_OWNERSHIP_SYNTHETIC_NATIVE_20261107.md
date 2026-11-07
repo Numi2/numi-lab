@@ -383,3 +383,35 @@ sequence is being built without XCTest. Its first build failed on the internal
 factory visibility and two throwing check expressions; that build is retained.
 A test-only factory wrapper calls the existing factory unchanged. This is
 preparation, not evidence of an accepted v5 step or complete restoration.
+
+## Failed real-Brain publication attempt and stage diagnosis
+
+The standalone XCTest-free extraction was built after adding an isolated empty
+C translation unit for the header-only ABI target and forwarding wrappers to
+the existing internal Brain factory, ACK and applied-validation methods. No
+witness or transaction implementation was replaced. Its source SHA-256 was
+`c9cb81cc9e5511b8eedf723873d2db257744a82a2f95542971cb4fc77479e413`; its
+executable was `9f0348e34661a05c7c4543bdb45ef7a9ff9c99ed642d77ca8513f646b850ccf2`.
+It dynamically loaded the research dylib identified above. The run at
+23:01:32–23:01:38 UTC failed with exit 139 after native world admission and
+Matter initialization. Its crash report identifies EXC_BAD_ACCESS in Swift's
+error formatting, rather than the original failing operation. The raw log and
+crash report are retained. It did not establish accepted publication.
+
+For this run the shared `MetalRobo.metallib` had been rebuilt at 22:55:58 UTC,
+after the earlier 22:50:21 v5 admission. Its SHA-256 was
+`55b021d249bc1bf3e40f94158556c93910d85d3611d4d7fc7ab4bda800d6b2f3`.
+The prior admission's `66c694...` shader identity remains unchanged. Exact
+copies of the failed executable, shader, Matter metallib, visual/profile and
+crash report are retained under `ssh numi` in
+`/Users/numi/numi-v5-admission-artifacts-20261107/first-publication-assets/`.
+
+A separately built diagnostic added stage markers and did not format caught
+errors. Its executable SHA-256 was
+`c71266c7ddd48dbfdd3d692b8774e946325944d0f3365900be5b6582bb31120e`.
+All 32 copied model, shader, library, executable and Brain bundle inputs passed
+the retained SHA-256 manifest. The run at 23:02:47–23:02:49 UTC exited 1:
+v5 runtime creation and identity checks passed, then real Brain runtime
+construction threw an unformatted error before control or a physical root
+was started. The stage log and input check are retained. This is a failed
+integration diagnostic, not a publication, rollback or force result.

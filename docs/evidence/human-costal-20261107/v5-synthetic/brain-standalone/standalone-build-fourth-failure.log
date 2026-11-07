@@ -1,0 +1,24 @@
+Building for production...
+[1 / 24]
+[6 / 26] NumiBrainValidation
+[7 / 26] NumiBrainQualification
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[12 / 28] NumiBrainConnectomeABI
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainConnectomeABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainNumiLabBridgeABI: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[15 / 30] NumiBrainValidation
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainValidation: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainQualification: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[25 / 36] NumiBrainCore
+[27 / 37] NumiBrainCore
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainCore: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[32 / 39] NumiBrainMetal
+[33 / 40] NumiBrainMetal
+/Users/numi/numi-brain-v5-synthetic-20261107/Package.swift: NumiBrainMetal: ld: warning: search path '/Library/Developer/CommandLineTools/Developer/Library/Frameworks' not found
+[40 / 45] NumiBrainSyntheticV5CLI-product
+[42 / 46] NumiBrainSyntheticV5CLI-product
+error: Build input file cannot be found: '/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Release/NumiBrainMetalBridgeABI.o'. Did you forget to declare this file as an output of a script phase or custom build rule which produces it?
+error: Ld /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Release/NumiBrainSyntheticV5CLI normal failed with a nonzero exit code. Command line:     cd /Users/numi/numi-brain-v5-synthetic-20261107
+    /Library/Developer/CommandLineTools/usr/bin/swiftc -Xlinker -reproducible -target arm64-apple-macos26.0 -emit-executable -sdk /Library/Developer/CommandLineTools/SDKs/MacOSX27.0.sdk -Xlinker -no_warn_duplicate_libraries -L/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/EagerLinkingTBDs/Release -L/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Release -L/Library/Developer/CommandLineTools/Developer/usr/lib -F/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/EagerLinkingTBDs/Release -F/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Release/PackageFrameworks -F/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Release -Fsystem /Library/Developer/CommandLineTools/Library/Developer/Frameworks -Fsystem /Library/Developer/CommandLineTools/Developer/Library/Frameworks @/Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/NumiBrainSyntheticV5CLI.LinkFileList -Xlinker -rpath -Xlinker /usr/lib/swift -Xlinker -rpath -Xlinker @loader_path -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/NumiBrainSyntheticV5CLI_lto.o -Xlinker -dependency_info -Xlinker /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/NumiBrainSyntheticV5CLI_dependency_info.dat -link-objc-runtime -L/Library/Developer/CommandLineTools/usr/lib/swift/macosx -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Intermediates.noindex/NumiBrain.build/Release/NumiBrainSyntheticV5CLI-p.build/Objects-normal/arm64/NumiBrainSyntheticV5CLI.swiftmodule -lc++ -lc++ -o /Users/numi/numi-brain-v5-synthetic-20261107/.build/out/Products/Release/NumiBrainSyntheticV5CLI -no-stdlib-rpath
+error: Build failed
+EXIT_CODE=1
