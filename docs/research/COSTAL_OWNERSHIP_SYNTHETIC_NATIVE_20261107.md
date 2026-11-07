@@ -508,3 +508,15 @@ caller return marker. This narrows the failure to return/cleanup or related
 lifetimes but does not identify a root cause. A returning callback marker does
 not itself prove the callback has fully unwound. No physical step or publication
 was reached. All input, source-diff, crash and output evidence is retained.
+
+A separate minimal Swift Metal 4 program reproduces the same callback box,
+semaphore, feedback-property reads, and submit/copy return pattern with a 4096-byte
+shared-to-private buffer copy. It ran at 23:22:12 UTC with exit 0, reporting
+successful feedback and return from both calls. Source SHA-256 was
+`abff3afefcda3150266cc61f4db3b62bf2450287edc63e833e98a3d7b5595d8e`
+and executable SHA-256 was
+`e529ba6f97926d555932a621b310b97372a460a651172c29b96e7cdb012531ba`.
+The isolated success does not qualify the larger Brain initializer or disprove
+an interaction with its other object lifetimes or ABI; it only shows that the
+small feedback pattern alone does not reproduce that failure. Source, build,
+output and pre/post identities are retained.
