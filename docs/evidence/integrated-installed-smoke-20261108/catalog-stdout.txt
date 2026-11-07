@@ -1,0 +1,12 @@
+[
+  {
+    "balance" : "guided held-out balance screen failed",
+    "path" : "\/Users\/numi\/numi-integrated-installed-smoke-20261108\/workspace\/.numi\/runs\/window-train-smoke\/candidate.deployment.policypack",
+    "role" : "candidate experiment"
+  },
+  {
+    "balance" : "guided held-out balance screen failed",
+    "path" : "\/Users\/numi\/numi-integrated-installed-smoke-20261108\/workspace\/.numi\/runs\/window-train-smoke\/deployment.policypack",
+    "role" : "selected incumbent"
+  }
+]
