@@ -12,6 +12,20 @@ import Foundation
         let pack = run.appendingPathComponent("deployment.policypack")
         let policy = Data("bound policy".utf8)
         try policy.write(to: pack)
+        let evaluator = run.appendingPathComponent("evaluator")
+        let shader = run.appendingPathComponent("shader")
+        let world = run.appendingPathComponent("world")
+        try Data("evaluator".utf8).write(to: evaluator)
+        try Data("shader".utf8).write(to: shader)
+        let worldBytes = Data("world-a".utf8)
+        try worldBytes.write(to: world)
+        func canonical(_ url: URL) -> String { url.resolvingSymlinksInPath().standardizedFileURL.path }
+        func binding(complete: Bool = true, argsExtra: [String] = []) -> [String: Any] {
+            func entry(_ url: URL, _ data: Data) -> [String: String] { ["path":canonical(url), "sha256":hash(data)] }
+            return ["schema":"numi.catalog-input-identity.v1", "complete":complete, "cwd":canonical(run),
+                    "arguments":["--metallib", canonical(shader), "--policy-pack", canonical(pack), "--world-pack", canonical(world)] + argsExtra,
+                    "files":["evaluator":entry(evaluator, Data("evaluator".utf8)), "--metallib":entry(shader, Data("shader".utf8)), "--policy-pack":entry(pack, policy), "--world-pack":entry(world, worldBytes)]]
+        }
         try JSONSerialization.data(withJSONObject: ["selected":"incumbent"]).write(to: selection.appendingPathComponent("selection.json"))
         let evidenceURL = selection.appendingPathComponent("incumbent.evidence.json")
         let metaURL = selection.appendingPathComponent("incumbent.evidence.json.meta.json")
@@ -20,6 +34,7 @@ import Foundation
             try data.write(to: evidenceURL)
             var meta: [String: Any] = ["schema":"numi.policy-evidence-cache.v2", "evidence":["sha256":hash(data), "size_bytes":data.count]]
             if includeHash { meta["policy_sha256"] = hash(policy) }
+            meta["catalog_input_identity"] = binding()
             try JSONSerialization.data(withJSONObject: meta).write(to: metaURL)
         }
         precondition(numiPolicyEvidenceStatus(policy: pack, run: run).balance == .unknown)
@@ -28,6 +43,37 @@ import Foundation
         let passed = numiPolicyEvidenceStatus(policy: pack, run: run)
         precondition(passed.balance == .passed && passed.role == "selected incumbent")
         precondition(numiGuidedPolicyDecision(policy: pack, run: run).shouldLoad)
+        try Data("world-b".utf8).write(to: world)
+        precondition(numiPolicyEvidenceStatus(policy: pack, run: run).balance == .unknown)
+        precondition(!numiGuidedPolicyDecision(policy: pack, run: run).shouldLoad)
+        try fm.removeItem(at: world)
+        precondition(numiPolicyEvidenceStatus(policy: pack, run: run).balance == .unknown)
+        try worldBytes.write(to: world)
+        let validMeta = try Data(contentsOf: metaURL)
+        var badMeta = try JSONSerialization.jsonObject(with: validMeta) as! [String: Any]
+        badMeta["catalog_input_identity"] = binding(complete: false)
+        try JSONSerialization.data(withJSONObject: badMeta).write(to: metaURL)
+        precondition(numiPolicyEvidenceStatus(policy: pack, run: run).balance == .unknown)
+        precondition(!numiGuidedPolicyDecision(policy: pack, run: run).shouldLoad)
+        var incompleteBinding = binding()
+        var incompleteFiles = incompleteBinding["files"] as! [String: [String: String]]
+        incompleteFiles.removeValue(forKey: "--world-pack")
+        incompleteBinding["files"] = incompleteFiles
+        badMeta["catalog_input_identity"] = incompleteBinding
+        try JSONSerialization.data(withJSONObject: badMeta).write(to: metaURL)
+        precondition(numiPolicyEvidenceStatus(policy: pack, run: run).balance == .unknown)
+        precondition(!numiGuidedPolicyDecision(policy: pack, run: run).shouldLoad)
+        badMeta["catalog_input_identity"] = binding(argsExtra: ["--urdf", "robot.urdf"])
+        try JSONSerialization.data(withJSONObject: badMeta).write(to: metaURL)
+        precondition(numiPolicyEvidenceStatus(policy: pack, run: run).balance == .unknown)
+        badMeta.removeValue(forKey: "catalog_input_identity")
+        try JSONSerialization.data(withJSONObject: badMeta).write(to: metaURL)
+        precondition(numiPolicyEvidenceStatus(policy: pack, run: run).balance == .unknown)
+        try validMeta.write(to: metaURL)
+        try Data("changed evaluator".utf8).write(to: evaluator)
+        precondition(numiPolicyEvidenceStatus(policy: pack, run: run).balance == .unknown)
+        try Data("evaluator".utf8).write(to: evaluator)
+        precondition(numiPolicyEvidenceStatus(policy: pack, run: run).balance == .passed)
         try store(2)
         precondition(numiPolicyEvidenceStatus(policy: pack, run: run).balance == .failed)
         precondition(!numiGuidedPolicyDecision(policy: pack, run: run).shouldLoad)

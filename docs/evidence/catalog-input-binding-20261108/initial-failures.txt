@@ -1,0 +1,10 @@
+Initial CPU harness attempt failed before exercising the contract:
+TypeError: not all arguments converted during string formatting
+
+After fixing the harness quoting, the first real producer-consumer check failed:
+producer metadata: guided held-out balance status unknown|load=false
+AssertionError
+
+The actual mismatch was Python realpath /private/var versus Swift Foundation's
+normalized /var. The Swift verifier now normalizes both recorded and argument
+paths before comparing them. The corrected cross-language check passes.

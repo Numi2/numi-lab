@@ -208,6 +208,22 @@ def _atomic_write_text(destination: Path, contents: str) -> None:
         temporary.unlink(missing_ok=True)
 
 
+def _catalog_input_identity(evaluator: Path, arguments: Sequence[str]) -> dict[str, Any]:
+    # Dependencies of these inputs have not been fully enumerated. Keep the
+    # catalog unknown even if the native evaluation itself succeeded.
+    complete = _cache_reusable(arguments)
+    files: dict[str, dict[str, str]] = {}
+    if complete:
+        files["evaluator"] = {"path": str(evaluator.resolve()), "sha256": _sha256_file(evaluator)}
+        for option in sorted(_DIRECT_INPUT_FILES):
+            value = _option_value(arguments, option)
+            if value is not None:
+                path = Path(value)
+                files[option] = {"path": str(path.resolve()), "sha256": _sha256_file(path)}
+    return {"schema": "numi.catalog-input-identity.v1", "complete": complete,
+            "cwd": str(Path.cwd().resolve()), "arguments": list(arguments), "files": files}
+
+
 def _evaluation_contract(evaluator: Path, arguments: Sequence[str]) -> str:
     """Fingerprint the exact native rollout contract for resumable evidence."""
 
@@ -987,6 +1003,7 @@ def _evaluate(
         f"{evidence_path.name}.meta.json"
     )
     contract = _evaluation_contract(evaluator, arguments)
+    input_identity = _catalog_input_identity(evaluator, arguments)
     policy_value = _option_value(arguments, "--policy-pack")
     if policy_value is None or not Path(policy_value).is_file():
         raise ValueError("evaluation requires an existing policy pack")
@@ -1009,8 +1026,10 @@ def _evaluate(
             ):
                 record = json.loads(evidence_payload)
                 if isinstance(record, dict):
-                    if metadata.get("policy_sha256") != policy_sha256:
+                    if (metadata.get("policy_sha256") != policy_sha256 or
+                            metadata.get("catalog_input_identity") != input_identity):
                         metadata["policy_sha256"] = policy_sha256
+                        metadata["catalog_input_identity"] = input_identity
                         _atomic_write_text(metadata_path, json.dumps(metadata, indent=2, sort_keys=True) + "\n")
                     return record
         except (OSError, UnicodeError, ValueError, TypeError):
@@ -1022,7 +1041,8 @@ def _evaluate(
         stdout=subprocess.PIPE,
         text=True,
     )
-    if _evaluation_contract(evaluator, arguments) != contract:
+    if (_evaluation_contract(evaluator, arguments) != contract or
+            _catalog_input_identity(evaluator, arguments) != input_identity):
         raise ValueError("evaluation inputs changed during the rollout")
     record = json.loads(completed.stdout)
     if not isinstance(record, dict):
@@ -1033,6 +1053,7 @@ def _evaluate(
         "schema": "numi.policy-evidence-cache.v2",
         "contract_sha256": contract,
         "policy_sha256": policy_sha256,
+        "catalog_input_identity": input_identity,
         "evidence": _content_manifest(evidence_payload),
         "state_trace": trace_manifest,
     }
