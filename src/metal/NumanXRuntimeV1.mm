@@ -1222,7 +1222,8 @@ void shiftTissuePoint(Point& point, const std::uint32_t body,
             requireBuild(actual[axis]==expected,MRNX_RUNTIME_ASSET_FAILURE_V1,"costal mass package changes registered rest geometry");
         }
         requireBuild(cooked.restAndFixed.w==(original.flags?2.0f:0.0f),MRNX_RUNTIME_ASSET_FAILURE_V1,"costal attachment mask drifted");
-        const auto donor=binding.regions[original.regionIndex].donorBody;
+        const auto donor=binding.nodeDonorBodies.empty()
+            ?binding.regions[original.regionIndex].donorBody:binding.nodeDonorBodies[i];
         const auto& b=bodies[donor];const auto& rotation=b.orientation;
         const std::array<double,3> p{actual[0]-b.centerOfMassPosition[0],actual[1]-b.centerOfMassPosition[1],actual[2]-b.centerOfMassPosition[2]};
         const std::array<double,3> t{2*(-rotation[1]*p[2]+rotation[2]*p[1]),2*(-rotation[2]*p[0]+rotation[0]*p[2]),2*(-rotation[0]*p[1]+rotation[1]*p[0])};
@@ -1242,7 +1243,9 @@ void shiftTissuePoint(Point& point, const std::uint32_t body,
     for(const auto& attachment:world.fem.humanAttachments) {
         const auto n=attachment.identity.x;
         requireBuild(n<nodes.size()&&!attached[n]&&cartilage.nodes[n].flags!=0&&
-                     attachment.identity.y==binding.regions[cartilage.nodes[n].regionIndex].donorBody,
+                     attachment.identity.y==((cartilage.nodes[n].flags&metalrobo::NUMI_HUMAN_COSTAL_CARTILAGE_STERNAL_ATTACHMENT)
+                         ?binding.regions[cartilage.nodes[n].regionIndex].sternalBody
+                         :binding.regions[cartilage.nodes[n].regionIndex].ribBody),
                      MRNX_RUNTIME_ASSET_FAILURE_V1,"costal source attachment ownership drifted");
         attached[n]=true;
     }

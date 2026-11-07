@@ -31,7 +31,7 @@ bool decodeNumiHumanCostalBinding(
     std::span<const std::uint8_t,32> rigidHash, NumiHumanCostalBinding& result, std::string& error) {
     result={};error.clear();
     const auto reject=[&](const char* why){error=why;return false;};
-    if(bytes.size()!=424u) return reject("NHTBIND1 must contain exactly fourteen region bindings");
+    if(bytes.size()<424u) return reject("costal binding is truncated");
     std::size_t at=0;
     const auto magic=take<std::array<char,8>>(bytes,at);
     const auto h=take<std::array<std::uint32_t,6>>(bytes,at);
@@ -39,33 +39,47 @@ bool decodeNumiHumanCostalBinding(
     const auto rigid=take<std::array<std::uint8_t,32>>(bytes,at);
     NumiHumanCostalBinding candidate;
     candidate.registrationSHA256=take<std::array<std::uint8_t,32>>(bytes,at);
-    if(magic!=std::array<char,8>{'N','H','T','B','I','N','D','1'} || h[0]!=1 || h[1]!=14 ||
+    const bool legacy=magic==std::array<char,8>{'N','H','T','B','I','N','D','1'} && h[0]==1;
+    const bool split=magic==std::array<char,8>{'N','H','T','B','I','N','D','2'} && h[0]==2;
+    if((!legacy&&!split) || h[1]!=14 ||
        h[2]==0 || h[2]>4096 || h[3]==0 || h[3]>100000 || h[4]==0 || h[4]>600000 || h[5]!=0)
-        return reject("invalid NHTBIND1 header");
+        return reject("invalid costal binding header");
+    if(bytes.size()!=424u+(split?std::size_t(h[3])*sizeof(std::uint32_t):0u))
+        return reject("costal binding donor map has incorrect length");
     if(!std::equal(cart.begin(),cart.end(),cartHash.begin()) ||
        !std::equal(rigid.begin(),rigid.end(),rigidHash.begin()) ||
        std::all_of(candidate.registrationSHA256.begin(),candidate.registrationSHA256.end(),[](auto v){return v==0;}))
-        return reject("NHTBIND1 source identity mismatch");
+        return reject("costal binding source identity mismatch");
     candidate.bodyCount=h[2];candidate.nodeCount=h[3];candidate.tetrahedronCount=h[4];
     candidate.atlasToWorld=take<std::array<double,16>>(bytes,at);
     const auto& a=candidate.atlasToWorld;
     if(!std::all_of(a.begin(),a.end(),[](double v){return std::isfinite(v);}) ||
        a[12]!=0 || a[13]!=0 || a[14]!=0 || a[15]!=1)
-        return reject("NHTBIND1 has invalid affine registration");
+        return reject("costal binding has invalid affine registration");
     double scale2=0;
     for(int i=0;i<3;++i) for(int j=0;j<3;++j) scale2+=a[4*i+j]*a[4*i+j]/3;
-    if(scale2<0.25 || scale2>4) return reject("NHTBIND1 anatomical scale is outside its admitted domain");
+    if(scale2<0.25 || scale2>4) return reject("costal binding anatomical scale is outside its admitted domain");
     for(int i=0;i<3;++i) for(int j=0;j<3;++j) {
         double gram=0;for(int k=0;k<3;++k) gram+=a[4*k+i]*a[4*k+j];
-        if(std::abs(gram-(i==j?scale2:0))>1e-10*scale2) return reject("NHTBIND1 contains nonuniform scale or shear");
+        if(std::abs(gram-(i==j?scale2:0))>1e-10*scale2) return reject("costal binding contains nonuniform scale or shear");
     }
     const double determinant=a[0]*(a[5]*a[10]-a[6]*a[9])-a[1]*(a[4]*a[10]-a[6]*a[8])+a[2]*(a[4]*a[9]-a[5]*a[8]);
-    if(determinant<=0) return reject("NHTBIND1 registration reverses tissue orientation");
+    if(determinant<=0) return reject("costal binding registration reverses tissue orientation");
     for(unsigned i=0;i<14;++i) {
         const auto r=take<std::array<std::uint32_t,3>>(bytes,at);
-        if(r[0]>=h[2] || r[0]!=r[1] || r[0]!=r[2])
-            return reject("NHTBIND1 requires an explicit partition for a split thorax");
+        if(r[1]>=h[2] || r[2]>=h[2] ||
+           (legacy && (r[0]>=h[2] || r[0]!=r[1] || r[0]!=r[2])) ||
+           (split && r[0]!=MR_INVALID_INDEX))
+            return reject("costal region has invalid donor or attachment ownership");
         candidate.regions.push_back({r[0],r[1],r[2]});
+    }
+    if(split) {
+        candidate.nodeDonorBodies.reserve(h[3]);
+        for(std::uint32_t i=0;i<h[3];++i) {
+            const auto donor=take<std::uint32_t>(bytes,at);
+            if(donor>=h[2]) return reject("costal node donor is outside the Human body table");
+            candidate.nodeDonorBodies.push_back(donor);
+        }
     }
     result=std::move(candidate);return true;
 }
@@ -77,6 +91,7 @@ NumiHumanCostalCompilation compileNumiHumanCostalTissue(
     if(binding.regions.size()!=14 || cartilage.regions.size()!=14 ||
        binding.nodeCount!=cartilage.nodes.size() || binding.tetrahedronCount!=cartilage.tetrahedra.size() ||
        binding.bodyCount!=human.bodies.size() || human.articulations.size()!=1 ||
+       (!binding.nodeDonorBodies.empty() && binding.nodeDonorBodies.size()!=cartilage.nodes.size()) ||
        !std::isfinite(timestepSeconds) || timestepSeconds<=0)
         return fail("costal compiler input coverage mismatch");
     std::string error;
@@ -106,7 +121,8 @@ NumiHumanCostalCompilation compileNumiHumanCostalTissue(
         for(int i=0;i<3;++i) point[i]=static_cast<float>(a[4*i]*n.restPosition[0]+a[4*i+1]*n.restPosition[1]+a[4*i+2]*n.restPosition[2]+a[4*i+3]);
         object.femNodes.push_back(point);
         const auto& b=binding.regions[n.regionIndex];
-        if(b.donorBody>=poses.size() || b.sternalBody>=poses.size() || b.ribBody>=poses.size())
+        const auto donor=binding.nodeDonorBodies.empty()?b.donorBody:binding.nodeDonorBodies[index];
+        if(donor>=poses.size() || b.sternalBody>=poses.size() || b.ribBody>=poses.size())
             return fail("costal donor or attachment outside Human body table");
         if(n.flags!=0) {
             const auto body=(n.flags&NUMI_HUMAN_COSTAL_CARTILAGE_STERNAL_ATTACHMENT)?b.sternalBody:b.ribBody;
@@ -128,7 +144,8 @@ NumiHumanCostalCompilation compileNumiHumanCostalTissue(
     std::vector<NumiHumanTissueMassNode> nodes;
     for(std::uint32_t i=0;i<world.fem.nodes.size();++i) {
         const auto& n=world.fem.nodes[i];
-        const auto donor=binding.regions[cartilage.nodes[i].regionIndex].donorBody;
+        const auto donor=binding.nodeDonorBodies.empty()
+            ?binding.regions[cartilage.nodes[i].regionIndex].donorBody:binding.nodeDonorBodies[i];
         nodes.push_back({i,donor,n.positionAndMass.w,
                         local(poses[donor],{n.positionAndMass.x,n.positionAndMass.y,n.positionAndMass.z})});
     }

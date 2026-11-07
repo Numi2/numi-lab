@@ -101,3 +101,31 @@ matrix qualification remains false. Costal contact is disabled explicitly,
 rib/sternum anchors remain on torso 20, and material parameters are uncalibrated
 population priors. See the Human repository's tissue-ownership evidence receipt
 for exact input hashes, raw failures and measured outcomes.
+
+
+### Experimental explicit donor and attachment binding (NHTBIND2)
+
+The binding decoder also accepts a version 2 prototype. It retains the version 1
+source hashes, registration, counts and fourteen region records, but permits
+independent sternal and rib attachment body indices. Each region's donor field
+must be the invalid-index sentinel; immediately following the 424-byte common
+prefix are exactly `nodeCount` little-endian 32-bit body indices, one mass donor
+for each cartilage node. The compiler uses these donors for mass partitioning
+and the region attachment indices for anchor frames; the runtime validates each
+cooked anchor against the appropriate endpoint rather than the mass donor.
+Legacy version 1 bytes retain their original single-body semantics.
+
+The format does **not** establish anatomical identity or an anatomical mass
+partition. It cannot represent a node with contributions from several donor
+bodies. The authoring process must establish provenance for each donor and
+endpoint, verify the bodies and articulation actually exist and can move
+relative to one another, and establish the mass partition before a patient or
+atlas model may be treated as qualified. Distinct body indices alone do not
+prove relative mobility. No such new anatomical mapping is supplied here.
+
+The CPU binding regression uses synthetic identities and checks version 1
+compatibility, separated version 2 identities and atomic rejection of malformed
+bindings. It does not qualify compiler/Metal rollout dynamics, loaded thorax
+response, biological accuracy, or a surgical task. The existing synthetic
+mass-partition invariants and earlier qualified Human evidence retain their
+original scope.

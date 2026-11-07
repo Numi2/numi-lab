@@ -17,6 +17,9 @@ struct NumiHumanCostalBinding {
     std::array<double,16> atlasToWorld{};
     std::array<std::uint8_t,32> registrationSHA256{};
     std::vector<NumiHumanCostalRegionBinding> regions;
+    // NHTBIND2: an explicit donor for each cooked source node. Empty for
+    // legacy NHTBIND1, whose region donor owns every node in that region.
+    std::vector<std::uint32_t> nodeDonorBodies;
 };
 // The caller must hash the actual payload bytes, not trust manifest hashes.
 [[nodiscard]] bool decodeNumiHumanCostalBinding(
