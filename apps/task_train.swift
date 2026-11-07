@@ -19,6 +19,9 @@ private struct Options {
     var basePolicyPack: String?
     var initializePolicyID: String?
     var zeroActorOutput = false
+    var recurrentHiddenSize: Int?
+    var recurrentEncoderSizes: [Int]?
+    var recurrentSequenceLength = 32
     var initializeActorPolicyPack: String?
     var initializeActorFreshCritic = false
     var retentionPolicyPack: String?
@@ -177,6 +180,16 @@ private struct Options {
                 index += 1
             case "--initialize-policy":
                 initializePolicyID = try value()
+                index += 1
+            case "--recurrent-hidden-size":
+                recurrentHiddenSize = try Self.integer(value(), option)
+                index += 1
+            case "--recurrent-encoder-sizes":
+                let widths = try value().split(separator: ",", omittingEmptySubsequences: false)
+                recurrentEncoderSizes = try widths.map { try Self.integer(String($0), option) }
+                index += 1
+            case "--recurrent-sequence-length":
+                recurrentSequenceLength = try Self.integer(value(), option)
                 index += 1
             case "--zero-actor-output":
                 zeroActorOutput = true
@@ -656,6 +669,23 @@ private struct Options {
                 "difficulty-band overrides require an ordered non-negative minimum and maximum."
             )
         }
+        if let width = recurrentHiddenSize {
+            guard width > 0, initializePolicyID != nil, initializeActorPolicyPack == nil,
+                  !initializeActorFreshCritic, actorObservationExtensionOffset == nil,
+                  actorRouteResidualObservationOffset == nil else {
+                throw MetalRoboTaskRolloutError.invalidShape(
+                    "--recurrent-hidden-size requires fresh --initialize-policy and no imported actor/projection.")
+            }
+        }
+        if let widths = recurrentEncoderSizes {
+            guard recurrentHiddenSize != nil, !widths.isEmpty, widths.allSatisfy({ $0 > 0 }) else {
+                throw MetalRoboTaskRolloutError.invalidShape(
+                    "--recurrent-encoder-sizes requires fresh recurrent initialization and positive comma-separated widths.")
+            }
+        }
+        guard recurrentSequenceLength > 0 else {
+            throw MetalRoboTaskRolloutError.invalidShape("--recurrent-sequence-length must be positive.")
+        }
         if let path = resumeTrainingCheckpoint {
             guard policyPack == nil, learnerState == nil, initializePolicyID == nil else {
                 throw MetalRoboTaskRolloutError.invalidShape(
@@ -1051,6 +1081,7 @@ private struct Options {
             "learnerState", "outputLearnerState", "checkpointDirectory", "checkpointInterval", "checkpointLife",
             "resumeTrainingCheckpoint", "trainingResume", "learnerTimeoutSeconds", "visualObservationConfig",
             "initializePolicyID", "zeroActorOutput", "initializeActorPolicyPack", "initializeActorFreshCritic",
+            "recurrentHiddenSize", "recurrentEncoderSizes",
         ]
         return Dictionary(uniqueKeysWithValues: Mirror(reflecting: self).children.compactMap { child in
             guard let name = child.label, !executionOnly.contains(name) else { return nil }
@@ -1202,6 +1233,12 @@ private func initializePolicyIfRequested(
         "--initial-log-standard-deviation",
         String(options.initialLogStandardDeviation),
     ]
+    if let width = options.recurrentHiddenSize {
+        arguments.append(contentsOf: ["--recurrent-hidden-size", String(width),
+            "--recurrent-sequence-length", String(options.recurrentSequenceLength),
+            "--minibatch-size", String(options.minibatchSize), "--hidden-sizes"])
+        arguments.append(contentsOf: (options.recurrentEncoderSizes ?? [128]).map(String.init))
+    }
     if options.zeroActorOutput {
         arguments.append("--zero-actor-output")
     }
@@ -1327,6 +1364,8 @@ private final class MLXLearnerWorker {
             String(options.updateEpochs),
             "--minibatch-size",
             String(options.minibatchSize),
+            "--recurrent-sequence-length",
+            String(options.recurrentSequenceLength),
             "--learning-rate",
             String(options.learningRate),
             "--minimum-learning-rate",

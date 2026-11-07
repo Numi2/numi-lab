@@ -19,7 +19,7 @@ import numpy as np
 
 from .gru_memory import PARAMETER_NAMES, gru_sequence
 from .mlx_policy_learning import (MLXActorCritic, MLXPPOConfiguration,
-    MLXPolicyLearner, NativePolicyPack, NativePolicyRollout, read_policy_pack)
+    MLXPolicyLearner, NativePolicyDenseLayer, NativePolicyPack, NativePolicyRollout, read_policy_pack)
 from .native import PolicyDenseLayerArtifact, PolicyGRUMemoryArtifact, write_policy_pack
 
 
@@ -184,6 +184,10 @@ class MLXRecurrentPolicyLearner(MLXPolicyLearner):
                          configuration: MLXRecurrentPPOConfiguration = MLXRecurrentPPOConfiguration(),
                          *, library_path=None):
         pack = read_policy_pack(path, library_path=library_path)
+        return cls._from_pack(pack, configuration)
+
+    @classmethod
+    def _from_pack(cls, pack, configuration):
         memory = pack.actor_memory
         if memory is None or not pack.critic_layers or pack.action_log_standard_deviation.size != pack.action_count:
             raise ValueError("Recurrent PPO requires a stochastic recurrent PolicyPack with critic")
@@ -206,6 +210,66 @@ class MLXRecurrentPolicyLearner(MLXPolicyLearner):
         learner.set_action_contract(action_bias=pack.effective_action_bias,
             action_scale=pack.effective_action_scale, action_clip=pack.action_clip)
         return learner
+
+    @classmethod
+    def initialize(cls, actor_observation_count: int, critic_observation_count: int,
+                   action_count: int, hidden_count: int,
+                   configuration: MLXRecurrentPPOConfiguration = MLXRecurrentPPOConfiguration()):
+        """Seed a bounded tanh encoder, native GRU and Gaussian actor/critic.
+
+        Dense and GRU rows use a seeded fan-in uniform initializer; biases are
+        zero. The last encoder tanh guarantees the native cell's input bound.
+        This authors learner parameters, never simulator or recurrent life state.
+        """
+        if not isinstance(configuration, MLXRecurrentPPOConfiguration):
+            raise ValueError("Recurrent initialization requires sequence configuration")
+        configuration.validate()
+        if min(actor_observation_count, critic_observation_count, action_count, hidden_count) <= 0:
+            raise ValueError("Recurrent policy dimensions must be positive")
+        if not configuration.hidden_sizes:
+            raise ValueError("Recurrent initialization requires a nonempty tanh encoder")
+        generator = np.random.default_rng(configuration.seed)
+        def weights(rows, columns):
+            bound = 1 / math.sqrt(columns)
+            return generator.uniform(-bound, bound, (rows, columns)).astype(np.float32)
+        def dense(inputs, outputs, activation):
+            return NativePolicyDenseLayer(inputs, outputs, activation,
+                weights(outputs, inputs), np.zeros(outputs, np.float32))
+        encoder = []
+        width = actor_observation_count
+        for output in configuration.hidden_sizes:
+            encoder.append(dense(width, output, 2))
+            width = output
+        memory = PolicyGRUMemoryArtifact(len(encoder), weights(3*hidden_count, width),
+            weights(3*hidden_count, hidden_count), np.zeros(3*hidden_count, np.float32),
+            np.zeros(3*hidden_count, np.float32), 1.)
+        layers = tuple(encoder + [dense(hidden_count, action_count, 0)])
+        critic = []
+        width = critic_observation_count
+        critic_sizes = (configuration.critic_hidden_sizes if configuration.critic_hidden_sizes is not None
+                        else configuration.hidden_sizes)
+        for output in critic_sizes:
+            critic.append(dense(width, output, 3))
+            width = output
+        critic.append(dense(width, 1, 0))
+        empty = np.empty(0, np.float32)
+        pack = NativePolicyPack(id="", revision=1, contract_version=0,
+            world_fingerprint=0, task_fingerprint=0, observation_fingerprint=0, action_fingerprint=0,
+            observation_mean=empty, observation_inverse_standard_deviation=empty, layers=layers,
+            critic_observation_mean=empty, critic_observation_inverse_standard_deviation=empty,
+            critic_layers=tuple(critic), action_log_standard_deviation=np.full(action_count,
+                configuration.initial_log_standard_deviation, np.float32), action_bias=empty,
+            action_scale=empty, observation_clip=configuration.observation_clip,
+            action_clip=float(np.finfo(np.float32).max), content_hash=0, format_version=5, actor_memory=memory)
+        return cls._from_pack(pack, configuration)
+
+    def zero_actor_output(self):
+        output = self.model.actor.decoder[-1]
+        output.weight, output.bias = mx.zeros_like(output.weight), mx.zeros_like(output.bias)
+        self.optimizer = optim.Adam(learning_rate=self.configuration.learning_rate, bias_correction=True)
+        self.optimizer.init(self.model.trainable_parameters())
+        self.refresh_compiled_training_state()
+        mx.eval(self.model.parameters(), self.optimizer.state)
 
     def recurrent_contract(self):
         p = self._source_pack

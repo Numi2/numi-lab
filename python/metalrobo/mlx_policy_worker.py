@@ -1379,7 +1379,18 @@ def _initialize(arguments: argparse.Namespace) -> int:
         raise ValueError(
             "actor route residual initialization requires an actor PolicyPack"
         )
-    if arguments.actor_policy_pack is None:
+    if arguments.recurrent_hidden_size is not None:
+        if (arguments.actor_policy_pack is not None or arguments.actor_fresh_critic
+                or arguments.zero_actor_observation_offset is not None
+                or arguments.zero_actor_observation_count is not None
+                or arguments.actor_observation_extension_offset is not None):
+            raise ValueError("Fresh recurrent initialization cannot import/extend/project a source actor")
+        from .mlx_recurrent_policy_learning import MLXRecurrentPolicyLearner, MLXRecurrentPPOConfiguration
+        configuration = MLXRecurrentPPOConfiguration(**asdict(_configuration(arguments)),
+            sequence_length=arguments.recurrent_sequence_length)
+        learner = MLXRecurrentPolicyLearner.initialize(arguments.actor_observations,
+            arguments.critic_observations, arguments.actions, arguments.recurrent_hidden_size, configuration)
+    elif arguments.actor_policy_pack is None:
         learner = MLXPolicyLearner(
             arguments.actor_observations,
             arguments.critic_observations,
@@ -1583,6 +1594,9 @@ def main() -> int:
         "initialize",
         help="publish an initial stochastic actor/critic PolicyPack",
     )
+    initialize.add_argument("--recurrent-hidden-size", type=_positive,
+        help="initialize a fresh tanh encoder / GRU / Gaussian actor; --hidden-sizes sets encoder widths")
+    initialize.add_argument("--recurrent-sequence-length", type=_positive, default=32)
     initialize.add_argument(
         "--actor-observations",
         type=_positive,

@@ -370,6 +370,53 @@
     "physical_manipulation_qualified": false,
     "full_loop_performance_qualified": false,
     "ecological_environment_qualified": false,
-    "next": "task-relevant memory ablations and recurrent model initialization/capacity; object manipulation, social learning and measured end-to-end performance"
+    "next": "task-relevant memory ablations; object manipulation, social learning and measured end-to-end performance"
+  },
+  "recurrent_capacity_development_instrument": {
+    "owner": "metalrobo_task_train",
+    "evidence": "artifacts/crow-rl-recurrent-capacity-20261107",
+    "fresh_recurrent_initialization_integrated": true,
+    "native_architecture": {
+      "actor": [
+        1251,
+        96,
+        48,
+        64,
+        18
+      ],
+      "GRU_hidden": 64,
+      "memory_after_encoder_layers": 2,
+      "encoder_activation": "tanh",
+      "critic": [
+        97,
+        96,
+        48,
+        1
+      ]
+    },
+    "environments": 8,
+    "steps_per_update": 37,
+    "sequence_length": 16,
+    "minibatch_size": 128,
+    "update_epochs": 1,
+    "seeded_initial_policy_bytes_exact": true,
+    "training_pair": "3 versus2+1 fresh-process resumed updates",
+    "lifetime_ticks_per_lane": 111,
+    "model_Adam_tensors_exact": 53,
+    "policies_rollouts_and_learner_bytes_exact": true,
+    "native_causal_components_exact": 3,
+    "GRU_parameter_families_updated": 4,
+    "native_failed_environment_steps": 0,
+    "food_consumed_in_admission": false,
+    "focused_Python_checks_passed": 29,
+    "full_build_passed": true,
+    "initialization_and_resume_rejection_controls": 6,
+    "feedforward_prior_learner_hashes_exact": true,
+    "architecture_optimality_qualified": false,
+    "embodied_memory_qualified": false,
+    "physical_manipulation_qualified": false,
+    "social_learning_qualified": false,
+    "full_loop_performance_qualified": false,
+    "next": "native memory-dependent foraging with causal cue/occlusion and paired memory ablations, then manipulation/social mechanisms and measured scaling"
   }
 }

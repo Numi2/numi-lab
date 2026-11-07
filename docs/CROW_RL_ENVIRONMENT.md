@@ -1159,6 +1159,63 @@ historical stage; current integration is recorded in
 This admits an engineering learning/persistence path on the small authored
 encoder5/GRU7 controller. It does not demonstrate learned use of memory, lifelong
 foraging, solid-object manipulation, social learning, biological fidelity or
-production throughput. Larger recurrent initialization, controlled behavioral
-memory tasks, manipulation/social mechanisms and complete-loop profiling remain
-required before the research environment can qualify.
+production throughput. Configurable initialization is now available as described
+below; controlled behavioral memory tasks, manipulation/social mechanisms and
+complete-loop profiling remain required before the research environment can qualify.
+
+
+## Configurable recurrent policy initialization
+
+The ordinary `metalrobo_task_train` owner can now author a fresh recurrent
+PolicyPack directly from the compiled task contract. With its existing native
+world, policy paths and MLX arguments, use:
+
+```sh
+--initialize-policy crow-recurrent-development \
+--recurrent-hidden-size 64 \
+--recurrent-encoder-sizes 96,48 \
+--recurrent-sequence-length 16 \
+--minibatch-size 128
+```
+
+`--recurrent-hidden-size` selects a fresh GRU actor. Positive comma-separated
+encoder widths default to128 when omitted. Every encoder layer uses tanh; the
+last one enforces the native absolute input bound of1. A seeded fan-in uniform
+initializer and zero biases author the encoder, reset-after r/z/n GRU,
+identity-output Gaussian actor and separate ELU critic. The worker's existing
+`--hidden-sizes` option chooses encoder widths when initializing it directly;
+the learner API also supports independent critic widths.
+
+`--zero-actor-output` works for a recurrent actor and preserves its encoder and
+GRU. Source-actor import, input projection and nonpositive capacity reject.
+Fresh initialization flags are omitted on resume; the checkpoint already binds
+the exact architecture. Repeat `--recurrent-sequence-length` on resume: it is
+part of the scheduler/learner contract, and changing it rejects before updates.
+The default sequence length remains32. Feedforward initialization is unchanged.
+
+The development admission used actor1251→tanh96→tanh48→GRU64→Gaussian18,
+critic97→ELU96→ELU48→scalar, eight native crow lanes,37ticks/update, chunk8,
+sequence length16, minibatch128, one epoch/update and fixed learning rate0.0003.
+Environment seed2651109601 and learner seed2651109603 are engineering units.
+Two independent initial publications were byte exact. Three uninterrupted
+updates versus2+1 fresh-process resumed updates matched policies, rollouts,
+canonical learner bytes and all53 model/Adam tensors. All three native causal
+components matched at clocks37,74 and111; native wall timings are validated
+separately. All four GRU parameter families changed and native failed steps
+were zero. No food was consumed in these short runs, so parameter updates do
+not demonstrate useful foraging or learned use of memory.
+
+The full build and29 focused Python checks passed. Six malformed/incompatible
+initialization and resume controls rejected, leaving the valid checkpoint
+unchanged. The prior feedforward initial and resumed learner hashes remained
+exact. The first negative-control harness expected a different error substring
+for the correctly rejected sequence change; its logs and revised assertion are
+both retained. An initial unused import error occurred before any native trial
+and is also preserved.
+
+Inputs, programs, source snapshots, failures and bounded raw evidence are
+archived under `artifacts/crow-rl-recurrent-capacity-20261107`. Recovery uses the
+committed Git blobs; duplicate captures and archive checkout payloads are
+removed after push and verification. This is a configurable training-path
+admission. Architecture optimality, memory-dependent behavior, manipulation,
+social learning and production throughput remain unqualified.
