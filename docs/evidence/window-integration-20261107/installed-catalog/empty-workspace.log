@@ -1,0 +1,5 @@
+numi window: built-in catalog asset missing: /Users/numi/numi-lab-release-package-empty-20261108/build/unitree_ros/robots/g1_description/g1_29dof.urdf
+numi window: built-in catalog asset missing: /Users/numi/numi-lab-release-package-empty-20261108/build/franka_description/meshes/robots/fer/collision
+numi window: built-in catalog asset missing: /Users/numi/numi-lab-release-package-empty-20261108/.numi/runs/px4-x500-source/source/models/x500_base/meshes
+numi window: supply these source assets or use --window-scene PATH for an authored scene.
+exit_code=1

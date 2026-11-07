@@ -1,0 +1,5 @@
+numi window: robot/scene catalog /Users/numi/numi-lab-release-package-workspace-20261108/.numi/runs
+numi window: close the window to end the preview run.
+numi window check scene __numi_window_missing_scene_check__
+numi window check restored configuration
+numi window runtime check passed

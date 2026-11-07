@@ -1,0 +1,9 @@
+/Users/numi/numi-lab-release-package-catalog-relocated-20261108/bin/numi
+window
+--check
+--steps
+16
+--envs
+1
+--chunk
+1
