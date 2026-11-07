@@ -1,0 +1,26 @@
+{
+  "prediction_commit": "647fcbde468650b58f26db0d6d56828f28501257",
+  "source_sha256": "9f9a5c1d43714d3316590c1708c4ade5f0d5b29de7fd479b2d59a7a1f9fff6f2",
+  "python": "/private/tmp/numi-fem-py313b-20261107/bin/python",
+  "timeout_seconds": 180,
+  "packages": [
+    "numpy==2.3.4",
+    "scikit-fem==11.0.0",
+    "scipy==1.16.3"
+  ],
+  "runs": [
+    {
+      "n": 2,
+      "argv": [
+        "/usr/bin/time",
+        "-l",
+        "/private/tmp/numi-fem-py313b-20261107/bin/python",
+        "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_p2_analytic_diagnostic.py",
+        "2"
+      ],
+      "exit": 1,
+      "elapsed_seconds": 0.26954008295433596,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

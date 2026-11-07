@@ -33,3 +33,8 @@ timeout with single-thread BLAS and no GPU. Retain source, environment,
 reference values, all outputs, elapsed time and failures. This calculation
 establishes approximation properties of manufactured smooth fields, not a
 bound on impact-force error or material validation.
+
+The first n=2 attempt stopped at output serialization because the element
+count was a NumPy int32. No numerical result was emitted. Its traceback is
+retained in the first-run evidence. The separately recorded corrected
+attempt changes only JSON type conversion.
