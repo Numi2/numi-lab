@@ -81,6 +81,12 @@ ea,ra,ta=energy_residual_tangent(xa,direction)
 j=np.linalg.det(F0);l=np.log(j)
 wa=mu*(np.sum(F0*F0)-3)/2-mu*l+lam*l*l/2
 expected=wa*.02**3+np.dot(mass,9.81*xa[:,2])
+Fa=np.broadcast_to(np.eye(3),(basis.nelems,basis.dx.shape[1],3,3)).copy()
+for i in range(3):
+ field=basis.interpolate((xa-ref)[:,i])
+ for j in range(3):Fa[:,:,i,j]+=field.grad[j]
+Ja=np.linalg.det(Fa);la=np.log(Ja)
+Wa=mu*(np.sum(Fa*Fa,axis=(-1,-2))-3)/2-mu*la+lam*la**2/2
 xc=ref+np.array([0.,0.,-.000105])
 ec,rc,tc=energy_residual_tangent(xc,np.tile([0.,0.,1.],(len(ref),1)))
 g=.000095;q=g*g-d*d;lg=np.log(g*g/d**2)
@@ -88,6 +94,7 @@ contact_energy=-k*q*q*lg*.02**2
 contact_force=2*g*k*(2*q*lg+q*q/g**2)*.02**2
 out['analytic_controls']={
  'affine_energy_absolute_error_J':float(abs(ea-expected)),
+ 'affine_element_density_max_absolute_error_Pa':float(np.max(np.abs(Wa-wa))),
  'uniform_contact_energy_absolute_error_J':float(abs(ec-(contact_energy+np.dot(mass,9.81*xc[:,2])))),
  'uniform_contact_total_residual_error_N':float(abs(rc[:,2].sum()-(mass.sum()*9.81-contact_force))),
  'uniform_contact_total_force_N':float(contact_force)}
