@@ -180,6 +180,7 @@ int main(int argc,char** argv) {@autoreleasepool {try {
  accepted[0]={};accepted[1]={};
  mr_research_set_observation_hooks(h->stepConfig.deviceObservationProgram.context,prepareHook,finishHook);
  metalrobo::TrackerProbeSnapshot before,after;
+ std::array<std::array<std::uint32_t,280>,2> actorBits{};
  for(int step=1;step<=3;++step) {
   for(unsigned e=0;e<2;++e){research_cadence::Candidate p{};require(research_cadence::propose(accepted[e],.02f,25.f,0,false,p),"proposal");
    // Existing single-step batch renderer records frame 0 / time 0; do not
@@ -193,6 +194,10 @@ int main(int argc,char** argv) {@autoreleasepool {try {
   else {std::cerr<<"mixed_status world="<<st[0]<<","<<st[1]<<" contact="<<h->result.contactStatuses[0].code<<","<<h->result.contactStatuses[1].code<<" required0="<<h->result.contactStatuses[0].requiredRawContacts<<'\n';
    require(st[0]!=0 && st[1]==0 && h->result.contactStatuses[0].code!=0 && h->result.contactStatuses[1].code==0,"mixed status");}
   for(unsigned e=0;e<2;++e)std::cerr<<"accepted step="<<step<<" env="<<e<<" words="<<accepted[e].acceptedSteps<<","<<accepted[e].lastSensor<<","<<accepted[e].captureStep<<","<<accepted[e].captureTimeBits<<'\n';
+  if(step>=2) {
+   require(actorReadback && actorReadback.length>=280*sizeof(std::uint32_t),"actor readback");
+   std::memcpy(actorBits[step-2].data(),actorReadback.contents,280*sizeof(std::uint32_t));
+  }
   if(step==2)require(tracker->researchSnapshot(before),"before snapshot");
   if(step==3)require(tracker->researchSnapshot(after),"after snapshot");
  }
@@ -213,6 +218,11 @@ int main(int argc,char** argv) {@autoreleasepool {try {
   for(std::size_t i=0;i<x.cameraState.size();++i)file<<phase<<"\tcamera\t"<<i<<'\t'<<std::bit_cast<std::uint32_t>(x.cameraState[i])<<'\n';
   for(std::size_t i=0;i<x.trackHistory.size();++i)file<<phase<<"\ttrack\t"<<i<<'\t'<<std::bit_cast<std::uint32_t>(x.trackHistory[i])<<'\n';};
  dump("before",before);dump("after",after);dump("reference",reference);
+ for(unsigned phase=0;phase<2;++phase)for(unsigned i=0;i<280;++i)file<<(phase?"after":"before")<<"\tactor\t"<<i<<'\t'<<actorBits[phase][i]<<'\n';
+ unsigned actorRejected=0,actorAcceptedChanged=0;
+ for(unsigned i=0;i<140;++i){actorRejected+=actorBits[0][i]!=actorBits[1][i];actorAcceptedChanged+=actorBits[0][140+i]!=actorBits[1][140+i];}
+ std::cout<<"actor rejected_mismatch="<<actorRejected<<" accepted_changed="<<actorAcceptedChanged<<'\n';
+ require(actorRejected==0,"rejected actor history changed");
  auto compare=[&](const char* name,const auto& prev,const auto& now,const auto& ref,unsigned stride) {
   require(prev.size()==stride*2 && now.size()==prev.size() && ref.size()==prev.size(),"frame shape");unsigned bad0=0,bad1=0,changed1=0;
   for(unsigned i=0;i<stride;++i){bad0+=prev[i]!=now[i];bad1+=now[stride+i]!=ref[stride+i];changed1+=prev[stride+i]!=now[stride+i];}
