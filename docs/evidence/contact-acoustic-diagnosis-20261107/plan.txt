@@ -1,0 +1,12 @@
+Exploratory prediction, informed by an earlier rough 1us pilot: if early
+mesh sensitivity is dominated by unresolved compressional-wave propagation,
+the first 1ms force bin should approach an independently integrated linear
+acoustic half-space result as n increases; expect decreasing errors for n=4,
+8,16 and <5% at n=16. This is a diagnostic prediction, not the scientific
+0.25% force-qualification gate. Same k, d, area, density, elastic wave speed,
+gravity and initial gap. Independent one-dimensional half-space equations;
+start at exact analytical contact-onset time and integrate pressure with RK4
+at 1us and 0.5us, splitting exactly at force-bin boundaries. Require unchanged
+0.25% temporal force/impulse gate before comparing first 1ms bin with retained
+FEM n2/4/8/16. The model ignores 3D lateral/free-edge effects and is not an
+independent exact solution of the finite block; no spatial qualification.

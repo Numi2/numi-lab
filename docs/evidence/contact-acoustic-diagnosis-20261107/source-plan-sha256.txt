@@ -1,0 +1,2 @@
+60cce63ebcacecdc97c27fc99b5f1c2d285a34638e02aa5302c037bfadeef5dd  tests/contact/acoustic_halfspace_diagnostic.py
+cdf40b498ba40501c1d059f191b663e5e9239b92e01534cbb8e980f11f0f2167  /Users/numi/numi-lab-contact-acoustic-evidence-20261107/plan.txt

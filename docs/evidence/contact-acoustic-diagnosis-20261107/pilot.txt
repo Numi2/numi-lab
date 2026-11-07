@@ -1,0 +1,3 @@
+A rough standalone 1us pilot was performed before this plan and used its
+rounded timestep at first contact. It yielded first-bin 0.0252779826 N.
+The planned implementation starts at exact onset and retains both refinements.

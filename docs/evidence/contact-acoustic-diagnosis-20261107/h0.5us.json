@@ -1,0 +1,26 @@
+{
+  "schema": "numi.contact.acoustic-halfspace.v1",
+  "h": 5e-07,
+  "onset_s": 0.004515236409857309,
+  "longitudinal_speed_mps": 2.860387767736777,
+  "impedance_Pa_s_per_m": 3146.4265445104547,
+  "force_bins_N": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.025264803603459486,
+    0.06759460825663233,
+    0.07996607411782342,
+    0.09233228519393774,
+    0.10469486829263423,
+    0.11705482101735173
+  ],
+  "impulse_Ns": 0.0004869074604818368,
+  "normal_arrival_from_top_s": 0.01849935438545933,
+  "limits": [
+    "linear semi-infinite one-dimensional stress wave model",
+    "omits finite-width free edges and all transverse deformation",
+    "later bins are not a qualified 3D finite-body reference"
+  ]
+}

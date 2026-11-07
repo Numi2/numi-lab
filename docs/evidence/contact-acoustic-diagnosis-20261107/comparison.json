@@ -1,0 +1,37 @@
+{
+  "schema": "numi.contact.acoustic-diagnostic-comparison.v1",
+  "acoustic_first_bin_N": 0.025264803603459486,
+  "acoustic_temporal_force_relative": 7.731168482274058e-13,
+  "acoustic_temporal_impulse_relative": 1.8682104846271314e-13,
+  "temporal_gate": true,
+  "nodal": [
+    {
+      "n": 2,
+      "first_bin_force_N": 0.19932052823492982,
+      "relative_to_1d_acoustic": 6.889256982295998
+    },
+    {
+      "n": 4,
+      "first_bin_force_N": 0.1027863246207752,
+      "relative_to_1d_acoustic": 3.0683603258527117
+    },
+    {
+      "n": 8,
+      "first_bin_force_N": 0.05119371338646462,
+      "relative_to_1d_acoustic": 1.026285823945796
+    },
+    {
+      "n": 16,
+      "first_bin_force_N": 0.025818193951067814,
+      "relative_to_1d_acoustic": 0.021903607734063413
+    }
+  ],
+  "n16_gaussian_first_bin_N": 0.02579444580343439,
+  "pilot_informed_prediction_decreasing": true,
+  "pilot_informed_prediction_n16_below_5pct": true,
+  "limits": [
+    "1D linear half-space, not the 3D finite block; free side effects are omitted",
+    "prediction was selected after an exploratory pilot",
+    "2.5% or 5% diagnostic agreement does not meet the 0.25% scientific force gate"
+  ]
+}
