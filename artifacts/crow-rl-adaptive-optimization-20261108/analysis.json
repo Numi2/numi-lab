@@ -1,0 +1,146 @@
+{
+  "status": "adaptive_optimization_active_native_memory_still_unqualified",
+  "source_commit": "eed3333ac1e708f9b1bd132317aa277ae7d4f309",
+  "campaign": {
+    "status": "completed",
+    "accepted_transitions": 327680,
+    "source_policy_revision": 65,
+    "final_policy_revision": 81,
+    "intake_lifetimes_per_update": [
+      8,
+      10,
+      10,
+      9,
+      13,
+      8,
+      9,
+      9,
+      8,
+      5,
+      12,
+      13,
+      14,
+      12,
+      16,
+      14
+    ],
+    "food_micrograms_per_update": [
+      220000,
+      305000,
+      320000,
+      335000,
+      490000,
+      250000,
+      285000,
+      300000,
+      295000,
+      165000,
+      420000,
+      475000,
+      545000,
+      465000,
+      540000,
+      510000
+    ],
+    "first256_intake_lifetimes": 37,
+    "last256_intake_lifetimes": 56,
+    "learning_rate_per_update": [
+      0.00037500001781154424,
+      0.0005625000194413587,
+      0.0008437500218860805,
+      0.0012656250619329512,
+      0.0018984376220032573,
+      0.002847656491212547,
+      0.003417187836021185,
+      0.003417187836021185,
+      0.003417187836021185,
+      0.003417187836021185,
+      0.003417187836021185,
+      0.004271484678611159,
+      0.005125781521201134,
+      0.005125781521201134,
+      0.005125781521201134,
+      0.0042714845621958375
+    ],
+    "KL_per_update": [
+      3.5210876376368105e-05,
+      7.714450475759804e-05,
+      0.00026349653489887714,
+      0.0011803628876805305,
+      0.0017183130839839578,
+      0.001110309036448598,
+      0.0026185987517237663,
+      0.005697277374565601,
+      0.006364038679748774,
+      0.008706377819180489,
+      0.005600815638899803,
+      0.001837549265474081,
+      0.0031460754107683897,
+      0.009634708985686302,
+      0.005932728294283152,
+      0.03300727903842926
+    ],
+    "clip_fraction_per_update": [
+      0,
+      0,
+      0.0009765625,
+      0.01513671875,
+      0.02490234375,
+      0.0087890625,
+      0.03271484375,
+      0.08203125,
+      0.0888671875,
+      0.11962890625,
+      0.0615234375,
+      0.021484375,
+      0.03515625,
+      0.10400390625,
+      0.083984375,
+      0.2197265625
+    ],
+    "loop_steps_per_second": 3853.100052883055,
+    "frozen_normalization_byte_exact": true,
+    "learned_memory_qualified": false
+  },
+  "offline_mechanism": {
+    "status": "measured",
+    "values": {
+      "source65": {
+        "head_left_minus_right": 0.5103373527526855,
+        "exchanged_early_RGB_head_left_minus_right": -0.5103374719619751,
+        "memory_cut40_head_left_minus_right": 4.470348358154297e-08,
+        "early_RGB_exchange_effect_max_abs": 0.5103374719619751,
+        "head_mean_minmax": [
+          -0.4941027760505676,
+          0.016234666109085083
+        ]
+      },
+      "adaptive81": {
+        "head_left_minus_right": 1.1405564546585083,
+        "exchanged_early_RGB_head_left_minus_right": -1.1405562162399292,
+        "memory_cut40_head_left_minus_right": -1.1175870895385742e-08,
+        "early_RGB_exchange_effect_max_abs": 1.1405563354492188,
+        "head_mean_minmax": [
+          -0.7451872825622559,
+          0.3953690230846405
+        ]
+      }
+    },
+    "source_revision": 65,
+    "final_revision": 81,
+    "learned_memory_qualified": false
+  },
+  "final_training_continuation": {
+    "status": "passed",
+    "learner_tensors_and_metadata_exact": 53,
+    "policy_candidate_rollout_byte_exact": true,
+    "native_sections_sha256": [
+      "ac57901fbbeb451db6d366719f940e81120990c1becb5c6acc9975553dcd4da7",
+      "5c19f02728e1c89fd44d01bcd2deec30dcd98b865bb8fefe7f0cd0f7e0525feb",
+      "447c81c49f317b549b46b36ea997b9a3f55cc626387ecba2d77a91d6803baf66"
+    ],
+    "reference_checkpoint": ".numi/runs/american-crow/adaptive-optimization-continuation-02/tail8/checkpoints/revision-00000082.trainingcheckpoint",
+    "learned_memory_qualified": false
+  },
+  "learned_memory_qualified": false
+}
