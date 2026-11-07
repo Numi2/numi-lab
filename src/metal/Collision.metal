@@ -7119,10 +7119,9 @@ MRCCDPairGPU resolveCCDPair(
     }
     if (!resolved) {
         record.flags |= MR_CCD_PAIR_UNRESOLVED;
-        // The experimental interval bound never certifies an unresolved cast
-        // through the legacy rotational speculative envelope. Reject the step.
+        // Diagnostic only: an envelope is not a certified swept trajectory.
+        // The owning acceptance kernels reject every unresolved cast.
         if (!queryFailed &&
-            (dispatch.flags & MR_METAL_WORLD_CONTACT_INTERVAL_LOCAL_CCD) == 0u &&
             speculativeEnvelopeCoversCCDPair(
                 sourceA,
                 sourceB,
@@ -7444,14 +7443,10 @@ kernel void mr_world_resolve_ccd(
         }
         if ((record.flags & MR_CCD_PAIR_UNRESOLVED) != 0u) {
             ++unresolvedCount;
-            if ((record.flags &
-                 MR_CCD_PAIR_SPECULATIVE_FALLBACK) == 0u) {
-                ++unsafeUnresolvedCount;
-                firstUnsafe = min(
-                    firstUnsafe,
-                    compiledPair
-                );
-            }
+            // Search method and speculative-envelope coverage cannot waive
+            // an unresolved geometric query at the publication boundary.
+            ++unsafeUnresolvedCount;
+            firstUnsafe = min(firstUnsafe, compiledPair);
         }
         if (destination >= dispatch.ccdCandidateCapacity) {
             if (firstOverflow == MR_INVALID_INDEX) {
@@ -7665,14 +7660,8 @@ kernel void mr_world_resolve_rod_ccd(
         ++candidateCount;
         if ((record.flags & MR_CCD_PAIR_UNRESOLVED) != 0u) {
             ++unresolvedCount;
-            if ((record.flags &
-                 MR_CCD_PAIR_SPECULATIVE_FALLBACK) == 0u) {
-                ++unsafeUnresolvedCount;
-                firstUnsafe = min(
-                    firstUnsafe,
-                    record.compiledPair
-                );
-            }
+            ++unsafeUnresolvedCount;
+            firstUnsafe = min(firstUnsafe, record.compiledPair);
         }
         if (destination >= dispatch.ccdCandidateCapacity) {
             firstOverflow = min(

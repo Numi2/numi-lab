@@ -26,3 +26,11 @@ add_executable(metalrobo_ccd_world_step_probe "${NUMI_WORLD_ROOT}/apps/ccd_world
 target_link_libraries(metalrobo_ccd_world_step_probe PRIVATE numi_ccd_world_owner)
 target_link_options(metalrobo_ccd_world_step_probe PRIVATE -Wl,-dead_strip)
 add_dependencies(metalrobo_ccd_world_step_probe metalrobo_shaders)
+
+include(CTest)
+if(BUILD_TESTING)
+ add_test(NAME metalrobo.ccd.acceptance COMMAND "${Python3_EXECUTABLE}"
+  "${CMAKE_CURRENT_SOURCE_DIR}/regression.py" "$<TARGET_FILE:metalrobo_ccd_world_step_probe>"
+  "${METALROBO_METALLIB}" "${CMAKE_CURRENT_BINARY_DIR}/acceptance-evidence")
+ set_tests_properties(metalrobo.ccd.acceptance PROPERTIES TIMEOUT 180)
+endif()

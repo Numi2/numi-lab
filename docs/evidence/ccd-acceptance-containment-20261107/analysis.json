@@ -1,0 +1,15 @@
+{
+  "schema": "numi.ccd.complete-analysis.v1",
+  "repeated_final_q_v_byte_identical": true,
+  "rejected_q_v_byte_restored": true,
+  "interval_local_accepted_steps": 6,
+  "interval_local_unresponded_swept_hits": 0,
+  "accepted_unresponded_swept_hits": [],
+  "decision": "unresolved sweeps reject regardless of method; legacy clear controls and plate impact must accept",
+  "limits": [
+    "Hybrid CCD mode with the production iteration cap of 16; production default CCD mode is speculative.",
+    "Zero impulse is a failure here because a force-free principal-axis box sweep analytically crosses the fixed plane.",
+    "Positive endpoint gap cannot certify the transient sweep.",
+    "Wall times include initialization and are not performance comparisons."
+  ]
+}

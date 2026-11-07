@@ -1,0 +1,16 @@
+{
+  "base": "30ee40e43e048bc7848ff4b4601a2aa9e88b03c1",
+  "device": "Apple M6, ssh numi",
+  "source_sha256": {
+    "src/metal/Collision.metal": "cb1079da9bbf4b1d324af59550431f27053b89b4a7b1939d4d500d5dfb5ee732",
+    "apps/ccd_world_step_probe.cpp": "7a88ef310d4156981f8d76bfc5b6fece624e9bd4b2aa8a382d4e7f2bb9aea7ff",
+    "tests/ccd/world/CMakeLists.txt": "5c235466d2cf18ed029a670bc91da840a0706a16b7040b7b3aca9eb06813c7e0",
+    "tests/ccd/world/analyze.py": "c875cd2e3f25e1133bf4c497e5b89a59d77c98e8ad3939743f76210a2dec94f5",
+    "tests/ccd/world/regression.py": "24857d5fcb786b0974ff122519af2b54aa369d599ba4de6b4cc70045b5f7e046"
+  },
+  "artifact_sha256": {
+    "/Users/numi/numi-lab-ccd-world-build-20261107/metalrobo_ccd_world_step_probe": "6374ef99283f412928cf746904bec486f99627b010bba2883a4ac0667baf5623",
+    "/Users/numi/numi-lab-ccd-world-build-20261107/shaders/MetalRobo.metallib": "d792bbc1dcd15ad1693d2f588f649c2a38d583833091479af4cbed9f7e4de61f"
+  },
+  "scope": "CCD acceptance containment; no contact-law or performance change"
+}

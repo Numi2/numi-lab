@@ -10,7 +10,7 @@
 int main(int argc,char** argv) {
  if(argc<2)return 2;
  std::cout<<std::setprecision(12)<<"{\"schema\":\"numi.ccd.complete-steps.v1\",\"runs\":[";bool first=true;
- for(int limit:{16,128})for(int mode=0;mode<3;++mode)for(int fixture=0;fixture<3;++fixture) {
+ for(int limit:{16,128})for(int mode=0;mode<3;++mode)for(int fixture=0;fixture<6;++fixture) {
   auto model=metalrobo::makeFreeSphereEngineModel();
   model.world.gravityAndTimestep={0,0,0,.01f};
   auto& shape=model.shapes[1];shape.shapeType=MR_SHAPE_BOX;shape.flags|=MR_SHAPE_FLAG_ENABLE_CCD;
@@ -18,9 +18,9 @@ int main(int argc,char** argv) {
   auto& body=model.bodies[1];const float ix=(.002f*.002f+.03f*.03f)/3.f,iy=(.2f*.2f+.03f*.03f)/3.f,iz=(.2f*.2f+.002f*.002f)/3.f;
   body.inertiaRow0={ix,0,0,0};body.inertiaRow1={0,iy,0,0};body.inertiaRow2={0,0,iz,0};
   body.inverseInertiaRow0={1/ix,0,0,0};body.inverseInertiaRow1={0,1/iy,0,0};body.inverseInertiaRow2={0,0,1/iz,0};
-  model.defaultQ[1]=fixture==0?.12f:.1998f;
-  model.defaultV[1]=fixture==0?-22.f:0.f;
-  model.defaultV[5]=fixture==0?0.f:(fixture==1?250.f:177.f);
+  model.defaultQ[1]=fixture==0||fixture==5?.12f:(fixture>=3?.23f:.1998f);
+  model.defaultV[1]=fixture==0?-22.f:(fixture==5?-1.f:0.f);
+  model.defaultV[5]=fixture==0||fixture==5?0.f:(fixture%2==1?250.f:177.f);
   metalrobo::CompiledWorld world;auto compiled=metalrobo::compileMetalWorld(model,0,world);
   if(!compiled.succeeded()){std::cerr<<"world compile failed\n";return 1;}
   std::vector<float> efforts(world.nv(),0.f);
@@ -44,7 +44,7 @@ int main(int argc,char** argv) {
   const unsigned unresolved=result.environmentStatuses.empty()?0:result.environmentStatuses[0].unresolvedCCDCount;
   // Both torque-free rotation fixtures pass pi/2 during the step. The analytic
   // minimum plane gap of their unforced sweep is independent of endpoint pose.
-  const double freeSweepGap=fixture==0?-.102:.1998-std::hypot(.2,.002);
+  const double freeSweepGap=fixture==0?-.102:(fixture==5?.108:(fixture>=3?.23:.1998)-std::hypot(.2,.002));
   const bool unresponded=d.succeeded()&&fixture>0&&impulse==0.&&freeSweepGap<0.;
   double gap=0.;if(result.finalQ.size()>=7){const auto& q=result.finalQ;
    const double nx=2*(q[3]*q[4]+q[5]*q[6]),ny=1-2*(q[3]*q[3]+q[5]*q[5]),nz=2*(q[4]*q[5]-q[3]*q[6]);
