@@ -36,3 +36,10 @@ Its CPU fault-injection suite passed, and a rebuilt 1-environment native smoke
 accepted 2/2 steps with no reported errors. The new binary's source and hash
 are retained in the final-reporting subdirectory; the earlier results remain
 bound to their original source and binary.
+
+An independent CMake Release build at source revision dfa906b5 completed.
+Both CPU accounting/adapter CTests passed, and a 1-environment native smoke
+accepted 2/2 steps. Exact executable, library and shader hashes and the
+native result are retained in the release-smoke subdirectory. This verifies
+the Release target and success accounting, not an optimized performance
+comparison or contact qualification.
