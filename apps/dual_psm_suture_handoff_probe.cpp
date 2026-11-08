@@ -1,5 +1,6 @@
 #include "SutureContactPublication.hpp"
 #include "SutureRigidCacheIdentity.hpp"
+#include "SutureRodWitnessAudit.hpp"
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/HeterogeneousWorld.hpp"
 #include "metalrobo/MatterSnapshotArchive.hpp"
@@ -17205,6 +17206,7 @@ int main(const int argc, const char* const argv[]) {
         stepConfig.deterministic = true;
         stepConfig.warmStart = true;
         stepConfig.captureContactEvidence = true;
+        stepConfig.captureRodWitnessEvidence = options.sameResidentControl;
         stepConfig.publishFinalState = true;
         stepConfig.publishStateTrajectory = false;
         stepConfig.rodContactOuterIterations = 4u;
@@ -18357,6 +18359,31 @@ int main(const int argc, const char* const argv[]) {
                     : options.stateOutputDirectory;
                 if (options.sameResidentControl) {
                     std::filesystem::create_directories(stageOutput);
+                }
+                if (options.sameResidentControl) {
+                    const auto& witnesses = driven.result.contactEvidence.rodToolWitnesses;
+                    const auto pairs = compiled.rodToolPairs();
+                    const auto colliders = compiled.rodColliders();
+                    require(witnesses.size() == pairs.size() * MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR,
+                        "rod witness readback has wrong compiled capacity");
+                    const auto witnessPath = stageOutput / "rod-tool-witnesses.bin";
+                    std::ofstream witnessOutput(witnessPath, std::ios::binary | std::ios::trunc);
+                    require(witnessOutput.good(), "could not create rod witness evidence");
+                    witnessOutput.write(reinterpret_cast<const char*>(witnesses.data()),
+                        static_cast<std::streamsize>(witnesses.size() * sizeof(MRRodToolWitnessGPU)));
+                    witnessOutput.close();
+                    require(witnessOutput.good(), "could not publish rod witness evidence");
+                    std::uint64_t witnessHash = 1469598103934665603ull;
+                    appendStateHash(witnessHash, witnesses);
+                    const auto audit = auditSutureRodWitnesses(witnesses, pairs, colliders);
+                    std::cout << "rod_witness_boundary stage=" << residentStage
+                        << " pair_capacity=" << pairs.size() << " slot_capacity=" << witnesses.size()
+                        << " valid=" << audit.valid << " warm_started=" << audit.warmStarted
+                        << " nonzero_impulse=" << audit.nonzeroImpulse << " identity_valid=" << audit.identity
+                        << " impulses_finite=" << audit.finiteImpulses
+                        << " raw_hash=" << witnessHash << std::endl;
+                    require(audit.capacity && audit.identity && audit.finiteImpulses,
+                        "rod witness readback contains invalid capacity, identity or nonfinite impulse");
                 }
                 writeHandoffStateArtifact(
                     stageOutput,

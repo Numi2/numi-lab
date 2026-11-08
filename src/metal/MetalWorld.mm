@@ -738,6 +738,8 @@ struct MetalWorldSubmissionState {
     bool hasMillardProgram = false;
     bool nativeTask = false;
     bool captureContactEvidence = false;
+    bool captureRodWitnessEvidence = false;
+    std::size_t rodWitnessElements = 0u;
     bool publishFinalState = true;
     bool publishStateTrajectory = true;
     bool ownsInFlight = false;
@@ -3636,6 +3638,11 @@ MetalWorldDiagnostics validateAndBuildLayout(
     }
     const bool contactMode =
         config.solverMode != MetalWorldSolverMode::freeMotionABA;
+    if (config.captureRodWitnessEvidence &&
+        (!config.captureContactEvidence || !contactMode || world.rodCount() == 0u)) {
+        return reject(std::move(diagnostics), MetalWorldHostStatus::invalidDimensions,
+            "rod witness capture requires rod/contact evidence mode");
+    }
     const bool qualityMode =
         config.solverMode == MetalWorldSolverMode::qualityNewton;
     const bool hasFunctionBasedDynamics =
@@ -19525,6 +19532,9 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                     evidence.manifoldCounts.resize(
                         staged.layout.dispatch.environmentCount
                     );
+                    if (pending->captureRodWitnessEvidence) {
+                        evidence.rodToolWitnesses.resize(pending->rodWitnessElements);
+                    }
                     evidence.contacts.resize(
                         staged.layout.contactConstraintElements
                     );
@@ -19725,6 +19735,24 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                             pending->finalManifoldCountBuffer
                         )
                     );
+                    if (pending->captureRodWitnessEvidence) {
+                        id<MTLBuffer> witnessReadback =
+                            stateOutputBuffer(pending->finalRodWitnessBuffer);
+                        const std::size_t requiredBytes =
+                            evidence.rodToolWitnesses.size() * sizeof(MRRodToolWitnessGPU);
+                        if (requiredBytes != 0u &&
+                            (witnessReadback == nil || witnessReadback.contents == nullptr ||
+                             witnessReadback.length < requiredBytes)) {
+                            // The command may have advanced the private arena. Do not
+                            // permit continuation after its evidence cannot be read.
+                            pending->finishResident(false);
+                            pending->resident.reset();
+                            return reject(std::move(diagnostics),
+                                MetalWorldHostStatus::metalBufferFailure,
+                                "rod witness readback is unavailable or truncated");
+                        }
+                        copyOutput(evidence.rodToolWitnesses, witnessReadback);
+                    }
                     copyOutput(
                         evidence.contacts,
                         stateOutputBuffer(kContacts)
@@ -21158,6 +21186,9 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 readbackIndices.push_back(kMillardGeneralizedForces);
                 readbackIndices.push_back(kMillardStates);
             }
+            if (config.captureRodWitnessEvidence) {
+                readbackIndices.push_back(sourceRodWitnesses);
+            }
             if (config.captureContactEvidence) {
                 readbackIndices.push_back(
                     sourceManifoldHeaders
@@ -21232,6 +21263,10 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             pending->nativeTask = nativeTask;
             pending->captureContactEvidence =
                 config.captureContactEvidence;
+            pending->captureRodWitnessEvidence =
+                config.captureRodWitnessEvidence;
+            pending->rodWitnessElements =
+                requirements.entries[sourceRodWitnesses].logicalElements;
             pending->publishFinalState =
                 config.publishFinalState;
             pending->publishStateTrajectory =

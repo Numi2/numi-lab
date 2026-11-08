@@ -700,6 +700,8 @@ struct MetalWorldStepConfig {
     // Streams inverse-ABA response columns directly into the contact solve.
     bool streamedArticulatedContactResponses = true;
     bool captureContactEvidence = false;
+    // Opt-in, completion-boundary copy of the final accepted rod/tool witness arena.
+    bool captureRodWitnessEvidence = false;
     // Full state/trajectory publication is an explicit inspection boundary.
     // Native rollout sessions disable both and retain simulator state on the
     // device while still publishing checked status records.
@@ -815,6 +817,8 @@ struct MetalWorldContactEvidence {
     std::vector<MRManifoldHeaderGPU> manifoldHeaders;
     std::vector<MRManifoldPointGPU> manifoldPoints;
     std::vector<std::uint32_t> manifoldCounts;
+    // Full environment-major pair/slot capacity, including invalid slots.
+    std::vector<MRRodToolWitnessGPU> rodToolWitnesses;
     std::vector<MRContactConstraintGPU> contacts;
     std::vector<MRContactPointMetaGPU> contactMetadata;
     std::vector<MRConstraintIRBlockGPU> blocks;
