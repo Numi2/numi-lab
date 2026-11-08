@@ -1,0 +1,5 @@
+{
+  "budget": "Two complete12-arm native evaluations,245760 transitions each,600seconds each; two native identity-oracle runs, no learning or retries.",
+  "prediction": "All behavior/GRU intervention files reproduce byte-exact from Git-restored runtime/policies/product inputs. Path-bound visual identities are recomputed by native owning functions at original/restored locations, every other JSON field exact. Canonical project candidate equals the restored mean pack.",
+  "scope": "Fixed two-cue fixture,3 allocation/action seeds, matching OS/device. No full lifelong or broader geometric qualification."
+}
