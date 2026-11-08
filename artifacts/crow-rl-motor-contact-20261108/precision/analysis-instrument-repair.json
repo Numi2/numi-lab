@@ -1,0 +1,7 @@
+{
+  "original_runner_sha256": "bbf776e506023ea427afff8af4056160b9cfd942c40d6bbc08ced9384f2e9902",
+  "failure": "The analysis assumed exactly6 archived files; all10 actual reference files had already compared byte-exact before the count assertion.",
+  "correction": "Require all10 exact reference files and explicitly include the6 original primary replay files. Numerical and physical gates are unchanged.",
+  "new_native_executions": 0,
+  "original_runner_preserved": true
+}

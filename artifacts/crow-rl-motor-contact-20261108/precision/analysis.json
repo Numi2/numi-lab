@@ -1,0 +1,59 @@
+{
+  "accepted_comparison_native_conditions": 144,
+  "candidate_max_force_law_error_N": 5.50613008312717e-10,
+  "candidate_max_penetration_m": 1.4258044744863696e-10,
+  "default_contact_owner_pass_previously_verified_on_same_library": true,
+  "default_crow640transition_comparisons": {
+    "final-q.f32": {
+      "byte_exact": true,
+      "sha256": "4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42"
+    },
+    "final-scene.bin": {
+      "byte_exact": true,
+      "sha256": "e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090"
+    },
+    "final-v.f32": {
+      "byte_exact": true,
+      "sha256": "a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27"
+    },
+    "initial-geometry.json": {
+      "byte_exact": true,
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    "initial-q.f32": {
+      "byte_exact": true,
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    "initial-scene.bin": {
+      "byte_exact": true,
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    "initial-v.f32": {
+      "byte_exact": true,
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    "scene.bin": {
+      "byte_exact": true,
+      "sha256": "097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e"
+    },
+    "summary.json": {
+      "byte_exact": true,
+      "sha256": "765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9"
+    },
+    "trace.tsv": {
+      "byte_exact": true,
+      "sha256": "8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921"
+    }
+  },
+  "fixed_force_quality_vs_split_force_error_N": 1.192092854984672e-09,
+  "limits": "Fixed-root1-DoF mechanism only. Motor impulse rows are authored by the probe, not integrated into native crow drive generation. No hybrid CCD, dry-friction, multi-joint, biological, learning or throughput qualification.",
+  "maximum_momentum_residual_Ns": 1.6797679377013666e-12,
+  "maximum_q_hv_residual_m": 1.2404817841329963e-14,
+  "policy_or_profile_promoted": false,
+  "primary_error_reduction_range": [
+    0.9687844386249301,
+    0.9999999604015077
+  ],
+  "tight_momentum_engineering_replay_pass": true,
+  "verdict": "contradicted"
+}

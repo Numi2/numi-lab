@@ -1,0 +1,48 @@
+[
+  {
+    "args": [
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/probe-precision",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-build-01/momentum-replay.tsv",
+      "--momentum-replay"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "loader_lines": [
+      "dyld[36174]: <A05C8436-FB94-3E34-86E5-519DECA2653D> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/libmetalrobo.dylib"
+    ],
+    "name": "momentum-replay",
+    "seconds": 0.367089208
+  },
+  {
+    "args": [
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/probe-precision",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-build-01/coupled-precision.tsv",
+      "--coupled-precision"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "loader_lines": [
+      "dyld[36175]: <A05C8436-FB94-3E34-86E5-519DECA2653D> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/libmetalrobo.dylib"
+    ],
+    "name": "joint-precision",
+    "seconds": 0.270557666
+  },
+  {
+    "args": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-build-01/fixture-default",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-build-01/default-crow",
+      "0",
+      "1",
+      "32"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "loader_lines": [
+      "dyld[36176]: <A05C8436-FB94-3E34-86E5-519DECA2653D> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/libmetalrobo.dylib"
+    ],
+    "name": "default-crow-replay",
+    "seconds": 17.021975916
+  }
+]
