@@ -1,0 +1,25 @@
+{
+  "case_count": 60,
+  "row_count": 180,
+  "active_friction_rows": 70,
+  "sliding_rows_64_checked": 18,
+  "maxima": {
+    "positive_tangent_work_J": 1.940811765819935e-30,
+    "normal_residual_m_s": 0.4533487558,
+    "sphere_velocity_mismatch_m_s": 2.8103834481818524e-08,
+    "angle_error_rad_64": 2.3654860059004396e-07,
+    "relative_cone_bound_error_64": 2.024315297100394e-07
+  },
+  "counts": {
+    "instrument_equivalence_failures": 0,
+    "replay_failures": 0,
+    "bad_status": 0,
+    "bad_momentum": 0,
+    "invalid_cones": 0,
+    "frictionless_tangent_impulses": 0,
+    "positive_tangent_work": 0,
+    "normal_residual_exceedances": 23,
+    "sliding_direction_failures_64": 0,
+    "sphere_independent_velocity_mismatch": 0
+  }
+}
