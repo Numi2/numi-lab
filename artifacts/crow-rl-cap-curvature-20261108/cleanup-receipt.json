@@ -1,0 +1,27 @@
+{
+  "archive_commit": "380ca08cda79c82f7ada5904c8efb4b7461beb0c",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300390692 156958448    66% 3498710 1569584480    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300414272 156934868    66% 3498862 1569348680    0%   /System/Volumes/Data\n",
+  "manifest": "artifacts/crow-rl-cap-curvature-20261108/payload/manifest.json",
+  "manifest_sha256": "2144c499c41628bc37c1dfc390934595e727716099289b624906d2eeed773eaa",
+  "open_handle_checks": [
+    {
+      "exists": false,
+      "open_handles": 0,
+      "root": ".numi/runs/american-crow"
+    },
+    {
+      "exists": false,
+      "open_handles": 0,
+      "root": ".numi/retained-runtime"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": "build"
+    }
+  ],
+  "remote_commit": "380ca08cda79c82f7ada5904c8efb4b7461beb0c",
+  "removed_files": 138,
+  "removed_logical_bytes": 23705148
+}
