@@ -1,0 +1,27 @@
+{
+  "archive_commit": "0eebe51911341f660e1c5b8ecec48a2616698f6c",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 299579660 157769480    66% 3496317 1577694800    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 299835440 157513700    66% 3496369 1575137000    0%   /System/Volumes/Data\n",
+  "manifest": "artifacts/crow-rl-object-continuation-failure-20261108/manifest.json",
+  "manifest_sha256": "d32b0fe207e0dbe1ac25f5de8498ba114cbf4c578f6351bd4e83123585c24d20",
+  "open_handle_checks": [
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/runs/american-crow"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/retained-runtime"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": "build"
+    }
+  ],
+  "remote_commit": "0eebe51911341f660e1c5b8ecec48a2616698f6c",
+  "removed_files": 42,
+  "removed_logical_bytes": 261831236
+}
