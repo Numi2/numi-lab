@@ -1,0 +1,12 @@
+{
+  "schema": "numi.ccd-protected-recovery.v1",
+  "source_commit": "3b70370019a8cdf45a824583268c5f68d5c5c1ee",
+  "files": {
+    "bin/probe": ".numi/retained-runtime/ccd-protected-20261108/bin/metalrobo_ccd_sweep_probe",
+    "shaders/production.metallib": ".numi/retained-runtime/ccd-protected-20261108/shaders/MetalRobo.metallib",
+    "shaders/query.metallib": ".numi/retained-runtime/ccd-protected-20261108/shaders/CCDSweepProbe.metallib",
+    "input/failure.ccdsweep": ".numi/runs/american-crow/ccd-protected-failure-01/failure.ccdsweep",
+    "input/reference.bin": ".numi/runs/american-crow/ccd-sweep-cmake-admission-01/probe.bin"
+  },
+  "scope": "Minimal causal-sweep replay; the complete manifest also retains original diagnostic execution, coupled checkpoint, model and Adam state. No independently executed full learner recovery claim."
+}
