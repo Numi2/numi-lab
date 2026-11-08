@@ -1,0 +1,4 @@
+3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]
+/private/tmp/numi-fem-py313b-20261107/bin/python
+2.3.4
+/private/tmp/numi-fem-py313b-20261107/lib/python3.13/site-packages/numpy/__init__.py
