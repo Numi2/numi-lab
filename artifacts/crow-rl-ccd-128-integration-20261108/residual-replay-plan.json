@@ -1,0 +1,17 @@
+{
+  "budget": {
+    "outputs_less_than_bytes": 1000000,
+    "runs": 2,
+    "timeout_seconds_each": 100
+  },
+  "changes": "Two host output-only additions, no world, step, task, action or native changes.",
+  "input_source_sha256": "c462a9137abaffc7682767784307e5d9ab7c5edcff62f45ad37e418c45d06f3b",
+  "instrument_source_sha256": "6201347b092c9744267073428e1f6efcf037e5259b90345846e3cd04e762ef67",
+  "limits": "Published residuals are final-substep solver diagnostics, not full microstep history or an independent contact certificate.",
+  "native_dylib_sha256": "5b8766012ae4da995cbd26e9832ebd7a9bccbfb67e2af2bc72b960e028e2ec5f",
+  "native_shader_sha256": "ea6fbf5e8365d6332251d27928202911604d3145636454abb2df560900b73372",
+  "prediction": "All trace, final q/v/scene, complete scene trajectory and summaries byte exact to existing32/64. Residual sizes are exploratory; no claim that a global maximum localizes to jaw.",
+  "purpose": "Observe accepted final-substep contact solver residuals and joint velocities with exact replay of retained32/64 traces. Diagnose unresolved iteration error before any solver/model change.",
+  "source_commit": "bac0a7a2bac98ea96fa3cc5c7aec443a2d240ea6",
+  "stopping": "First mismatch or native failure stops. No parameter trials, retries or relaxed thresholds."
+}

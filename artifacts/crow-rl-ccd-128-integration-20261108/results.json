@@ -156,7 +156,38 @@
   "legacy32_and64_complete_trace_final_states_scene_trajectory_and_summary_exact": true,
   "maximum_64vs128_position_error_m": 0.06260651242386177,
   "native_contact_regression_passed": true,
-  "native_object_push_regression_passed": false,
+  "native_object_push_regression_passed": true,
+  "object_push_summary": {
+    "accepted_transitions": 7296,
+    "actor_has_object_truth": false,
+    "biological_calibration": false,
+    "critic_object_channels": 7,
+    "goal_reward_fp64_agrees": true,
+    "learned_manipulation": false,
+    "physical_contact_and_miss_controls": true,
+    "physics_rejections": 0,
+    "status": "passed_engineering_controls",
+    "terminations": 0,
+    "world_retina_future_restore_exact": true,
+    "world_retina_stream_partition_exact": true
+  },
+  "packaging_repair": {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/integrated128/object-push-check",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/packaged-object-push"
+    ],
+    "exit_code": 0,
+    "runtime": {
+      ".numi/retained-runtime/ccd-event-capture-20261108/integrated128/CCDSweepProbe.metallib": "fdc54b0d342d8e1a19d229aa4271dcd9da85ec39a12c95d649a165cbbee19829",
+      ".numi/retained-runtime/ccd-event-capture-20261108/integrated128/contact-probe": "bd0777b062295b4e08a4722124665725cb6842506054d05357a6346a76d39293",
+      ".numi/retained-runtime/ccd-event-capture-20261108/integrated128/libmetalrobo.dylib": "5b8766012ae4da995cbd26e9832ebd7a9bccbfb67e2af2bc72b960e028e2ec5f",
+      ".numi/retained-runtime/ccd-event-capture-20261108/integrated128/metalrobo/MetalRobo.metallib": "ea6fbf5e8365d6332251d27928202911604d3145636454abb2df560900b73372",
+      ".numi/retained-runtime/ccd-event-capture-20261108/integrated128/metalrobo/RetinalStream.metallib": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12",
+      ".numi/retained-runtime/ccd-event-capture-20261108/integrated128/object-push-check": "ba7630d5c0e043a02ad00518e6d0a14b206f344c8adde4de635297f0b8422d93",
+      ".numi/retained-runtime/ccd-event-capture-20261108/integrated128/sweep-probe": "877d9873e0ccc38b9d93409b68aae07f3f64924fac09005dfb9e2cab1643bea0"
+    },
+    "seconds": 103.60934224998346
+  },
   "phase_errors_m": {
     "0:31": 0.0010722300388215685,
     "128:159": 0.027912590912672248,
