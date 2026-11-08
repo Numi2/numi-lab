@@ -72,6 +72,8 @@ int main(int argc, char **argv) {
             ru.live.w = 1;
             ru.clearColorAndDepth.w = 5.f;
             ru.sensorRangeAndResponse = {.1f, 5.f, 0.f, 0.f};
+            std::uint32_t fresh[envs] = {1u, 1u};
+            u.curriculum.w = 1.f; // This invocation contains a newly sampled frame.
             auto run = [&](const char *phase) {
                 id<MTLCommandQueue> q = [dev newCommandQueue];
                 id<MTLCommandBuffer> cb = [q commandBuffer];
@@ -83,7 +85,6 @@ int main(int argc, char **argv) {
                 for (unsigned i = 10; i <= 15; ++i)
                     [e setBuffer:b[i] offset:0 atIndex:i];
                 [e setBytes:&ru length:sizeof ru atIndex:16];
-                const std::uint32_t fresh[envs] = {1u, 1u};
                 [e setBytes:fresh length:sizeof fresh atIndex:17];
                 [e dispatchThreadgroups:MTLSizeMake(envs, 1, 1)
                     threadsPerThreadgroup:MTLSizeMake(32, 1, 1)];
@@ -187,6 +188,54 @@ int main(int argc, char **argv) {
             std::cout << "invalid " << w << 'x' << h << " direct=" << direct
                       << " false_near=" << falseNear << " nonfinite=" << nonfinite
                       << " total=" << total << '\n';
+            // A sampled corrupted image is a measurement, not a new random
+            // draw at each control tick. Exercise both a wrapped ring and a
+            // one-slot ring on each materialized/direct path.
+            sensor->noiseAndLatency.z = 0.f;
+            u.corruption = {0.f, .25f, .12f, .04f};
+            u.range.w = 0.f;
+            auto *tasks = (MRTaskStateGPU *)b[8].contents;
+            for (unsigned i=0; i<total; ++i) {
+                depths[i]=.5f; ids[i].y=42;
+                val[i]=MR_VISUAL_VALIDITY_FRAME | MR_VISUAL_VALIDITY_GEOMETRY | MR_VISUAL_VALIDITY_DEPTH;
+                float d=.5f; uint32_t bits; std::memcpy(&bits,&d,sizeof bits);
+                winners[i]=uint64_t(bits)<<32;
+            }
+            for (unsigned capacity : {3u, 1u}) {
+                u.history.x=capacity;u.curriculum.w=1.f;
+                masks[0]=masks[1]=1u; tasks[0].episode.x=tasks[1].episode.x=0u;
+                auto first=run("hold-first");
+                masks[0]=masks[1]=0u; tasks[0].episode.x=tasks[1].episode.x=1u;
+                u.curriculum.w=0.f; auto held1=run("hold-one");
+                tasks[0].episode.x=tasks[1].episode.x=2u;u.curriculum.w=1.f;
+                auto sampled=run("hold-sample");
+                tasks[0].episode.x=tasks[1].episode.x=3u;u.curriculum.w=0.f;
+                auto held2=run("hold-two");
+                const bool holdOK=first==held1 && sampled==held2;
+                const bool changed=first!=sampled;
+                failures += !holdOK || !changed;
+                std::cout << "hold " << w << 'x' << h << " direct=" << direct
+                          << " capacity=" << capacity << " held=" << holdOK
+                          << " fresh_changed=" << changed << '\n';
+                // Invalidated reset must never reuse the old episode's image;
+                // the other environment continues to hold its last sample.
+                masks[0]=1u; fresh[0]=0u;
+                tasks[0].episode.x=0u;tasks[1].episode.x=4u;
+                auto invalidReset=run("hold-reset");
+                bool invalidOK=std::all_of(invalidReset.begin(),invalidReset.begin()+n,[](float x){return x==1.f;});
+                bool neighborOK=std::equal(invalidReset.begin()+n,invalidReset.end(),held2.begin()+n);
+                failures += !invalidOK || !neighborOK;
+                std::cout << "hold_reset " << w << 'x' << h << " direct=" << direct
+                          << " capacity=" << capacity << " invalid=" << invalidOK
+                          << " neighbor_held=" << neighborOK << '\n';
+                fresh[0]=1u;masks[0]=0u;u.curriculum.w=1.f;
+                tasks[0].episode.x=1u;tasks[1].episode.x=5u;
+                auto recovered=run("hold-recovered");
+                bool recovery=std::any_of(recovered.begin(),recovered.begin()+n,[](float x){return x<1.f;});
+                failures += !recovery;
+                std::cout << "hold_recovery " << w << 'x' << h << " direct=" << direct
+                          << " capacity=" << capacity << " recovered=" << recovery << '\n';
+            }
         };
         test(4, 2, false);
         test(20, 20, false);

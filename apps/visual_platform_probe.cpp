@@ -8,6 +8,7 @@
 #import <Metal/Metal.h>
 
 #include <algorithm>
+#include <numeric>
 #include <array>
 #include <cmath>
 #include <cstring>
@@ -451,6 +452,8 @@ int main() {
         constexpr std::uint32_t kActorHistoryLength = 5u;
         trackerConfig.maximumActorHistoryLength = kActorHistoryLength;
         trackerConfig.timestepSeconds = 0.02f;
+        if (std::getenv("NUMI_TEST_DEPTH_HOLD") != nullptr)
+            trackerConfig.nominalSensorRateHz = 25.0f;
         if (std::getenv("NUMI_TEST_RESET_FRAME") != nullptr)
             trackerConfig.nominalSensorRateHz = std::getenv("NUMI_TEST_LONG_RATE") != nullptr ? 10.0f :
                 (std::getenv("NUMI_TEST_RESET_SAMPLED_FAILURE") != nullptr ? 25.0f : 50.0f);
@@ -869,6 +872,54 @@ int main() {
             depthFeatures[23u] == 0.0f,
             "device masked-depth reset history is invalid"
         );
+        if (std::getenv("NUMI_TEST_DEPTH_HOLD") != nullptr) {
+            auto* tasks = static_cast<MRTaskStateGPU*>(taskStateBuffer.contents);
+            auto* masks = static_cast<std::uint32_t*>(resetBuffer.contents);
+            auto* bodies = static_cast<MRBodyStateGPU*>(bodyBuffer.contents);
+            std::fill_n(masks, kEnvironmentCount, 0u);
+            id<MTLBuffer> statuses = [device newBufferWithLength:
+                kEnvironmentCount * sizeof(MRMetalWorldStatusGPU)
+                options:MTLResourceStorageModeShared];
+            require(statuses != nil, "hold statuses");
+            std::memset(statuses.contents, 0, statuses.length);
+            const auto pixels = [&]() {
+                const auto* out = static_cast<const float*>(observationBuffer.contents);
+                std::vector<float> values;
+                for (std::uint32_t e=0; e<kEnvironmentCount; ++e) {
+                    const auto* begin = out + e*kTrackWidth + kActorFrameSize*kActorHistoryLength;
+                    values.insert(values.end(), begin, begin + visualPixels);
+                }
+                return values;
+            };
+            auto previous = pixels();
+            bool held = true, sampledChange = false;
+            for (std::uint32_t step=1; step<=3; ++step) {
+                for (std::uint32_t e=0; e<kEnvironmentCount; ++e) tasks[e].episode.x=step;
+                if (step == 2) bodies[trackedBody].position.x += 0.20f;
+                id<MTLCommandBuffer> cb=[queue commandBuffer]; trackerPass.commandBuffer=(__bridge void*)cb;
+                require(trackerProgram.begin(trackerProgram.context,trackerPass.commandBuffer),"hold begin");
+                require(trackerProgram.encode(trackerProgram.context,trackerPass),"hold encode");
+                const metalrobo::MetalWorldDeviceObservationStepResult result{
+                    .commandBuffer=trackerPass.commandBuffer,.worldStatuses=(__bridge void*)statuses,
+                    .environmentCount=kEnvironmentCount,.actorFrameSize=kActorFrameSize,
+                    .actorHistoryLength=kActorHistoryLength,.controlStep=0u,.contactMode=false};
+                require(trackerProgram.afterStep(trackerProgram.context,result),"hold afterStep");
+                [cb commit];trackerProgram.finish(trackerProgram.context,trackerPass.commandBuffer,true);
+                [cb waitUntilCompleted];require(cb.status==MTLCommandBufferStatusCompleted,"hold completion");
+                metalrobo::HybridObservationBatch capture;require(renderer.readback(capture),"hold metadata");
+                auto current=pixels();
+                const auto changed = static_cast<std::size_t>(std::inner_product(
+                    previous.begin(),previous.end(),current.begin(),std::size_t{0},std::plus<>(),
+                    [](float x,float y){return std::memcmp(&x,&y,sizeof(float)) != 0 ? std::size_t{1} : std::size_t{0};}));
+                std::cout << "HOLD step=" << step << " sensor=" << capture.metadata.identity.z << " changed_pixels=" << changed << '\n';
+                if (step == 2) sampledChange = changed > 0u;
+                else held = held && changed == 0u;
+                previous=std::move(current);
+            }
+            require(sampledChange, "fresh sample did not change");
+            require(held, "unsampled masked depth changed");
+            return 0;
+        }
         if (std::getenv("NUMI_TEST_RESET_FRAME") != nullptr) {
             auto* bodies = static_cast<MRBodyStateGPU*>(bodyBuffer.contents);
             auto* tasks = static_cast<MRTaskStateGPU*>(taskStateBuffer.contents);
