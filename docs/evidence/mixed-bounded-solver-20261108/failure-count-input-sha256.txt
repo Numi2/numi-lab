@@ -1,0 +1,3 @@
+35d1e753bc5b42b9398e0323707dd4188b3b1dc34e02d1688f3cd81e94bda471  FAILURE-COUNT-PLAN.md
+780ebfa93c9503d2f4befb9a19e24265967eb3b6b2c1661ea14d31584e40bdce  make_count_fix.py
+56fae3be8f8fa33ac63237b493e9da4e7d96f2f82584fe3397394d7b4e8de11c  candidate-2-count-fixed.metal
