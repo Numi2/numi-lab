@@ -1,0 +1,398 @@
+[
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/substep7.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/substep7-0"
+    ],
+    "name": "substep7-0",
+    "returncode": 0,
+    "seconds": 1.027976540965028
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/substep7.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/substep7-1"
+    ],
+    "name": "substep7-1",
+    "returncode": 0,
+    "seconds": 0.04043879103846848
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/substep7-rounding.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/substep7-rounding-0"
+    ],
+    "name": "substep7-rounding-0",
+    "returncode": 0,
+    "seconds": 0.14980841695796698
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/substep7-rounding.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/substep7-rounding-1"
+    ],
+    "name": "substep7-rounding-1",
+    "returncode": 0,
+    "seconds": 0.15069970802869648
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/substep2.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/substep2-0"
+    ],
+    "name": "substep2-0",
+    "returncode": 0,
+    "seconds": 0.04778183298185468
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/substep2.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/substep2-1"
+    ],
+    "name": "substep2-1",
+    "returncode": 0,
+    "seconds": 0.04775587498443201
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n3-boundary.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n3-boundary-0"
+    ],
+    "name": "n3-boundary-0",
+    "returncode": 0,
+    "seconds": 0.04817670799093321
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n3-boundary.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n3-boundary-1"
+    ],
+    "name": "n3-boundary-1",
+    "returncode": 0,
+    "seconds": 0.048414917022455484
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n3-adhesion.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n3-adhesion-0"
+    ],
+    "name": "n3-adhesion-0",
+    "returncode": 0,
+    "seconds": 0.048297957982867956
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n3-adhesion.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n3-adhesion-1"
+    ],
+    "name": "n3-adhesion-1",
+    "returncode": 0,
+    "seconds": 0.04810579103650525
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n3-cap-boundary.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n3-cap-boundary-0"
+    ],
+    "name": "n3-cap-boundary-0",
+    "returncode": 0,
+    "seconds": 0.04787304199999198
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n3-cap-boundary.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n3-cap-boundary-1"
+    ],
+    "name": "n3-cap-boundary-1",
+    "returncode": 0,
+    "seconds": 0.023758209019433707
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n3-cap-interior.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n3-cap-interior-0"
+    ],
+    "name": "n3-cap-interior-0",
+    "returncode": 0,
+    "seconds": 0.02395587501814589
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n3-cap-interior.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n3-cap-interior-1"
+    ],
+    "name": "n3-cap-interior-1",
+    "returncode": 0,
+    "seconds": 0.023642291023861617
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n4-boundary.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n4-boundary-0"
+    ],
+    "name": "n4-boundary-0",
+    "returncode": 0,
+    "seconds": 0.023644458036869764
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n4-boundary.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n4-boundary-1"
+    ],
+    "name": "n4-boundary-1",
+    "returncode": 0,
+    "seconds": 0.023767542035784572
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n4-adhesion.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n4-adhesion-0"
+    ],
+    "name": "n4-adhesion-0",
+    "returncode": 0,
+    "seconds": 0.023680874961428344
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n4-adhesion.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n4-adhesion-1"
+    ],
+    "name": "n4-adhesion-1",
+    "returncode": 0,
+    "seconds": 0.0236776249948889
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n4-cap-boundary.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n4-cap-boundary-0"
+    ],
+    "name": "n4-cap-boundary-0",
+    "returncode": 0,
+    "seconds": 0.02371829195180908
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n4-cap-boundary.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n4-cap-boundary-1"
+    ],
+    "name": "n4-cap-boundary-1",
+    "returncode": 0,
+    "seconds": 0.02182324999012053
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n4-cap-interior.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n4-cap-interior-0"
+    ],
+    "name": "n4-cap-interior-0",
+    "returncode": 0,
+    "seconds": 0.0236427920171991
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n4-cap-interior.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n4-cap-interior-1"
+    ],
+    "name": "n4-cap-interior-1",
+    "returncode": 0,
+    "seconds": 0.02350720902904868
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n6-boundary.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n6-boundary-0"
+    ],
+    "name": "n6-boundary-0",
+    "returncode": 0,
+    "seconds": 0.04767262504901737
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n6-boundary.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n6-boundary-1"
+    ],
+    "name": "n6-boundary-1",
+    "returncode": 0,
+    "seconds": 0.02368437498807907
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n6-adhesion.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n6-adhesion-0"
+    ],
+    "name": "n6-adhesion-0",
+    "returncode": 0,
+    "seconds": 0.02365716698113829
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n6-adhesion.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n6-adhesion-1"
+    ],
+    "name": "n6-adhesion-1",
+    "returncode": 0,
+    "seconds": 0.02350645896513015
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n6-cap-boundary.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n6-cap-boundary-0"
+    ],
+    "name": "n6-cap-boundary-0",
+    "returncode": 0,
+    "seconds": 0.023535916989203542
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n6-cap-boundary.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n6-cap-boundary-1"
+    ],
+    "name": "n6-cap-boundary-1",
+    "returncode": 0,
+    "seconds": 0.023587458999827504
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n6-cap-interior.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n6-cap-interior-0"
+    ],
+    "name": "n6-cap-interior-0",
+    "returncode": 0,
+    "seconds": 0.023635416000615805
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/n6-cap-interior.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/n6-cap-interior-1"
+    ],
+    "name": "n6-cap-interior-1",
+    "returncode": 0,
+    "seconds": 0.023500540992245078
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/seven-regions.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/seven-regions-0"
+    ],
+    "name": "seven-regions-0",
+    "returncode": 0,
+    "seconds": 0.023587333969771862
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/seven-regions.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/seven-regions-1"
+    ],
+    "name": "seven-regions-1",
+    "returncode": 0,
+    "seconds": 0.023871832992881536
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/null.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/null-0"
+    ],
+    "name": "null-0",
+    "returncode": 0,
+    "seconds": 0.023687666980549693
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/null.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/null-1"
+    ],
+    "name": "null-1",
+    "returncode": 0,
+    "seconds": 0.0236865829792805
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/invalid-r.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/invalid-r-0"
+    ],
+    "name": "invalid-r-0",
+    "returncode": 0,
+    "seconds": 0.023530707985628396
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/inputs/invalid-r.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/observations/invalid-r-1"
+    ],
+    "name": "invalid-r-1",
+    "returncode": 0,
+    "seconds": 0.0236216249759309
+  }
+]

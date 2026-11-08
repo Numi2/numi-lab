@@ -1,0 +1,57 @@
+{
+  "cases": [
+    {
+      "error": 2.0470181105736174e-11,
+      "name": "n3-boundary"
+    },
+    {
+      "error": 1.685290795805372e-11,
+      "name": "n3-adhesion"
+    },
+    {
+      "error": 3.442746088211379e-12,
+      "name": "n3-cap-boundary"
+    },
+    {
+      "error": 1.9984014443252818e-14,
+      "name": "n3-cap-interior"
+    },
+    {
+      "error": 1.2018663841928401e-11,
+      "name": "n4-boundary"
+    },
+    {
+      "error": 2.4713286972399828e-11,
+      "name": "n4-adhesion"
+    },
+    {
+      "error": 5.1498527664506355e-12,
+      "name": "n4-cap-boundary"
+    },
+    {
+      "error": 4.085620730620576e-14,
+      "name": "n4-cap-interior"
+    },
+    {
+      "error": 3.3602287619061144e-11,
+      "name": "n6-boundary"
+    },
+    {
+      "error": 3.263215739290892e-11,
+      "name": "n6-adhesion"
+    },
+    {
+      "error": 1.585814812798958e-11,
+      "name": "n6-cap-boundary"
+    },
+    {
+      "error": 5.1181281435219717e-14,
+      "name": "n6-cap-interior"
+    }
+  ],
+  "prior": {
+    "euclidean_closed_form_cases": 5,
+    "passed": true,
+    "weighted_boundary_derivative_max_error": 7.482731101404738e-11
+  }
+}

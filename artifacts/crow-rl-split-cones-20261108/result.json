@@ -1,0 +1,37 @@
+{
+  "all_predictions_supported": true,
+  "calibration_fd_max_error": 3.3602287619061144e-11,
+  "cases": 18,
+  "commands": 36,
+  "goal_complete": false,
+  "observations": {
+    "all_seven_regions": true,
+    "derivative_scaled_error_max": 4.22348322688221e-15,
+    "gradient_scaled_error_max": 4.7739590058492215e-15,
+    "impulse_scaled_error_max": 3.858137725994833e-15,
+    "invalid_r_typed_and_start_unchanged": true,
+    "reference_velocity_abs_error_max": 4.4366732510070506e-12,
+    "repeated_outputs_exact": true,
+    "rounding_ablation_rejected": true,
+    "valid_split_feasibility_max": 3.552713678800501e-15,
+    "valid_split_native_and_independent_residual_max": 3.710968164705175e-12
+  },
+  "predictions_supported": {
+    "all_seven_regions": true,
+    "derivative_scaled_error_max": true,
+    "gradient_scaled_error_max": true,
+    "impulse_scaled_error_max": true,
+    "invalid_r_typed_and_start_unchanged": true,
+    "reference_velocity_abs_error_max": true,
+    "repeated_outputs_exact": true,
+    "rounding_ablation_rejected": true,
+    "valid_split_feasibility_max": true,
+    "valid_split_native_and_independent_residual_max": true
+  },
+  "production_changed": false,
+  "raw_bytes": 1028585,
+  "schema": "crow-split-cones-result-v1",
+  "scope": "Research native two-FP32 cone, cap, adhesion and scalar solver. No world integration, FP32 output certificate, production/policy promotion or physical ecology qualification.",
+  "seconds": 2.3737542500020936,
+  "valid_cases": 16
+}

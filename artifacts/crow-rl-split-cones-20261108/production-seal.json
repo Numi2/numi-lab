@@ -1,0 +1,39 @@
+{
+  "files": {
+    "apps/metal_unified_quality_probe.cpp": {
+      "bytes": 19717,
+      "sha256": "134707f772b22f18e12bd2be43a2c6fd22142ab4f781187ff481e0be7a1004e5"
+    },
+    "build/bin/metalrobo_metal_unified_quality_probe": {
+      "bytes": 55176,
+      "sha256": "df2f144721ff04692399afa7316ca7c88a189689acdbfb4358030ef570c0f687"
+    },
+    "build/bin/metalrobo_motor_contact_probe": {
+      "bytes": 116464,
+      "sha256": "746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2"
+    },
+    "build/lib/libmetalrobo.dylib": {
+      "bytes": 5711408,
+      "sha256": "1368fa931e24c336953fcda6fb904734391f3ebe56063dd53eb237bcc1a3bbc6"
+    },
+    "build/shaders/MetalRobo.metallib": {
+      "bytes": 4320928,
+      "sha256": "91416d391489b37c1c79918c1ec51ad81dbaa26ef99e6536f8a57d9f720cf8d7"
+    },
+    "docs/NUMERICS.md": {
+      "bytes": 32997,
+      "sha256": "7026de7302e5da90438e49405e76733cc33e2b9171657a5653c2d13698c7594a"
+    },
+    "environments/american-crow/action-holds-v1/policies/deployment97.policypack": {
+      "bytes": 602144,
+      "sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389"
+    },
+    "src/metal/MetalUnifiedQualitySolver.metal": {
+      "bytes": 93649,
+      "sha256": "48c3ce600907519b28b59e4ba68a549cb518c11d138bf1785c8274f87e9fa427"
+    }
+  },
+  "production_changed": false,
+  "shared_provider": "/Users/n/MetalRobo-main/.git",
+  "source_baseline": "8787af9eb02afc2d31feb987c6cd5885fdcd1523"
+}
