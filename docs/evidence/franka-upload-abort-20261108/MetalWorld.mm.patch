@@ -1,0 +1,55 @@
+--- /Users/numi/numi-franka-presubmit-owner-20261108/src/metal/MetalWorld.mm	2026-11-07 16:11:16
++++ /Users/numi/numi-franka-upload-abort-owner-20261108/src/metal/MetalWorld.mm	2026-11-07 16:45:33
+@@ -15,6 +15,7 @@
+ #include <cstddef>
+ #include <cstdint>
+ #include <cstring>
++#include <cstdio>
+ #include <filesystem>
+ #include <initializer_list>
+ #include <limits>
+@@ -16738,6 +16739,36 @@
+             }
+             commandBuffer.label =
+                 @"MetalRobo persistent batched world graph";
++            // Isolated synchronous single-step study: do not retain upload
++            // bindings from a command buffer that was never submitted.
++            struct ResearchUploadGuard {
++                detail::MetalWorldContextState* state = nullptr;
++                std::uint64_t model=0,task=0,policy=0,multicopter=0;
++                std::vector<MRArticulationGPU> articulations;
++                bool armed=false;
++                explicit ResearchUploadGuard(detail::MetalWorldContextState* p):state(p) {
++                    if(!state)return;
++                    model=state->boundModelFingerprint;task=state->boundTaskFingerprint;
++                    policy=state->boundPolicyFingerprint;multicopter=state->boundMulticopterFingerprint;
++                    articulations=state->boundArticulations;armed=true;
++                }
++                ~ResearchUploadGuard() {
++                    if(!armed)return;
++                    std::fprintf(stderr,"upload_abort before=%llu,%llu,%llu,%llu staged=%llu,%llu,%llu,%llu\n",
++                      (unsigned long long)model,(unsigned long long)task,(unsigned long long)policy,(unsigned long long)multicopter,
++                      (unsigned long long)state->boundModelFingerprint,(unsigned long long)state->boundTaskFingerprint,
++                      (unsigned long long)state->boundPolicyFingerprint,(unsigned long long)state->boundMulticopterFingerprint);
++                    state->boundModelFingerprint=model;state->boundTaskFingerprint=task;
++                    state->boundPolicyFingerprint=policy;state->boundMulticopterFingerprint=multicopter;
++                    state->boundArticulations.swap(articulations);
++                    std::fprintf(stderr,"upload_restored=%llu,%llu,%llu,%llu\n",
++                      (unsigned long long)state->boundModelFingerprint,(unsigned long long)state->boundTaskFingerprint,
++                      (unsigned long long)state->boundPolicyFingerprint,(unsigned long long)state->boundMulticopterFingerprint);
++                }
++            } researchUploadGuard{
++                researchObservationHooks.context != nullptr &&
++                researchObservationHooks.context == config.deviceObservationProgram.context &&
++                batch.controlStepCount == 1u ? selectedState.get() : nullptr};
+             uploadBatch(
+                 *selectedState,
+                 commandBuffer,
+@@ -17628,6 +17659,7 @@
+             }
+             ++selectedState->stats.submissionCount;
+             [commandBuffer commit];
++            researchUploadGuard.armed = false;
+             researchGuard.armed = false;
+             submission.state_ = std::move(pending);
+             if (initializeResidentState) {
