@@ -21,3 +21,31 @@ The experimental motor mode is not promoted. The final crow trial fails on tilt
 and penetration; the default-mode regression remains byte-exact. See the
 [physical study](../crow-rl-bounded-drive-crow-20261108/README.md) and
 [requested optimizer checks](../crow-rl-post-step-rate-20261108/README.md).
+
+## Executed recovery and cleanup
+
+All 9 native commands passed their declared exits and all
+50 byte comparisons were exact. The known bad shader
+was rejected at its first invalid batch. All 396 original
+files (89518819 bytes) were read from actual committed Git objects.
+This includes reproducing the physical tilt failure, not qualifying it.
+
+After pushed HEAD parity, actual Git verification, exact inventories and zero
+open handles, 448 temporary recovery files
+(90640420 logical bytes) and 396 original
+raw files (89518819 logical bytes) were removed. Receipts:
+`temporary-cleanup.json` and the constitutive study's `cleanup-receipt.json`.
+
+A separate `local-scratch/manifest.json` preserves all 755
+local authoring drafts, copied sources and derivative caches
+(27555022 bytes). Every unique content was decoded from actual Git
+objects before deleting 1497 source/export copies
+(33208362 logical bytes). See
+`local-scratch-verification.json` and `local-scratch-cleanup.json`. Draft
+preservation makes no additional scientific or native-execution claim.
+
+Two archival checks correctly blocked cleanup before any source deletion:
+a raw backing script had been edited after capture, and a local transfer was
+staged before it finished. Original backing bytes were restored, the changed
+instrument received a separate filename, and the completed transfer was
+recommitted. The repair and incomplete-stage receipts preserve both failures.
