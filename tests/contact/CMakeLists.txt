@@ -56,6 +56,15 @@ if(BUILD_TESTING)
         COMMAND numi_contact_fem_fp64_midpoint --discrete-check)
     add_executable(numi_contact_midpoint_balance midpoint_balance_test.cpp)
     add_test(NAME numi.contact.midpoint_balance COMMAND numi_contact_midpoint_balance)
+    add_executable(numi_contact_midpoint_endpoint_metal midpoint_endpoint_metal.mm)
+    target_include_directories(numi_contact_midpoint_endpoint_metal PRIVATE "${_matter}/include")
+    target_compile_options(numi_contact_midpoint_endpoint_metal PRIVATE -fobjc-arc)
+    target_link_libraries(numi_contact_midpoint_endpoint_metal PRIVATE
+        "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    add_dependencies(numi_contact_midpoint_endpoint_metal numi_plane_contact_shader)
+    add_test(NAME numi.contact.midpoint_endpoint_metal
+        COMMAND numi_contact_midpoint_endpoint_metal "${_shader}")
+    set_tests_properties(numi.contact.midpoint_endpoint_metal PROPERTIES TIMEOUT 120)
     add_executable(numi_contact_midpoint_transaction midpoint_transaction_cpu.cpp)
     add_test(NAME numi.contact.midpoint_transaction
         COMMAND numi_contact_midpoint_transaction)

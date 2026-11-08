@@ -13864,6 +13864,111 @@ inline NMContactInterval nmContactProjectionIntervalRefined(
         result=nmContactIntervalAdd(result,{expansion[i],expansion[i]});
     return nmContactIntervalAdd(result,smallProducts);
 }
+// Midpoint endpoint scratch: never publishes or mutates the accepted or
+// working state. The owning transaction must reduce every result, validate
+// endpoint elements and physical residuals, and only then consider commit.
+// Plane is dot(n, x) = offset; clearance is a physical distance.
+inline NMContactInterval nmMidpointReferencePlaneProjection(
+    const NMFEMNodeStateGPU node, const float3 normal, const float offset) {
+    NMContactInterval sum{-offset, -offset};
+    for (uint axis = 0u; axis < 3u; ++axis) {
+        const float values[3] = {node.restAndFixed[axis],
+            node.referenceDisplacementAndMode[axis],
+            node.referenceDisplacementLow[axis]};
+        for (uint limb = 0u; limb < 3u; ++limb)
+            sum = nmContactIntervalAdd(sum,
+                nmContactIntervalScale({values[limb], values[limb]}, normal[axis]));
+    }
+    return sum;
+}
+
+kernel void nm_fem_midpoint_reflect_endpoint_scratch(
+    constant float4& plane [[buffer(0)]],
+    constant float& clearance [[buffer(1)]],
+    constant uint& count [[buffer(2)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(3)]],
+    device const NMFEMNodeStateGPU* midpoint [[buffer(4)]],
+    device NMFEMNodeStateGPU* endpoint [[buffer(5)]],
+    device uint* result [[buffer(6)]],
+    uint i [[thread_position_in_grid]]
+) {
+    if (i >= count) return;
+    // 0: certified; 1: malformed/nonfinite; 2: clearance not certified.
+    result[i] = 1u;
+    const NMFEMNodeStateGPU a = accepted[i], m = midpoint[i];
+    if (!all(isfinite(plane)) || !isfinite(clearance) || clearance < 0.0f ||
+        !all(isfinite(a.positionAndMass)) || !all(isfinite(m.positionAndMass)) ||
+        !all(isfinite(a.velocityAndInverseMass)) ||
+        !all(isfinite(m.velocityAndInverseMass)) ||
+        !all(isfinite(a.restAndFixed)) || !all(isfinite(m.restAndFixed)) ||
+        !all(isfinite(a.referenceDisplacementAndMode)) ||
+        !all(isfinite(m.referenceDisplacementAndMode)) ||
+        !all(isfinite(a.referenceDisplacementLow)) ||
+        !all(isfinite(m.referenceDisplacementLow)) ||
+        a.referenceDisplacementAndMode.w != 1.0f ||
+        m.referenceDisplacementAndMode.w != 1.0f ||
+        a.referenceDisplacementLow.w != 0.0f ||
+        m.referenceDisplacementLow.w != 0.0f ||
+        any(a.restAndFixed != m.restAndFixed) ||
+        a.positionAndMass.w != m.positionAndMass.w ||
+        a.velocityAndInverseMass.w != m.velocityAndInverseMass.w ||
+        !(a.positionAndMass.w > 0.0f) ||
+        (a.restAndFixed.w != 0.0f && a.restAndFixed.w != 1.0f))
+        return;
+    const bool fixed = a.restAndFixed.w == 1.0f;
+    if ((!fixed && !(a.velocityAndInverseMass.w > 0.0f)) ||
+        (fixed && (a.velocityAndInverseMass.w != 0.0f ||
+          any(a.velocityAndInverseMass.xyz != float3(0.0f)) ||
+          any(m.velocityAndInverseMass.xyz != float3(0.0f)) ||
+          any(a.referenceDisplacementAndMode.xyz != m.referenceDisplacementAndMode.xyz) ||
+          any(a.referenceDisplacementLow.xyz != m.referenceDisplacementLow.xyz))))
+        return;
+    NMContactInterval normSquared{0.0f, 0.0f};
+    for (uint axis = 0u; axis < 3u; ++axis)
+        normSquared = nmContactIntervalAdd(normSquared,
+            nmContactIntervalScale({plane[axis], plane[axis]}, plane[axis]));
+    if (!(normSquared.lower > 0.0f) || !isfinite(normSquared.upper)) return;
+    const float normUpper = nmContactIntervalUp(sqrt(normSquared.upper));
+    const float threshold = nmContactIntervalScale({clearance, clearance}, normUpper).upper;
+    if (!isfinite(threshold)) return;
+
+    NMFEMNodeStateGPU e = a;
+    if (!fixed) {
+        for (uint axis = 0u; axis < 3u; ++axis) {
+            const MRCompensatedScalar mid{m.referenceDisplacementAndMode[axis],
+                m.referenceDisplacementLow[axis]};
+            const MRCompensatedScalar old{-a.referenceDisplacementAndMode[axis],
+                -a.referenceDisplacementLow[axis]};
+            const MRCompensatedScalar displacement =
+                mrCompensatedAdd(mrCompensatedAdd(mid, mid), old);
+            const float velocity = 2.0f * m.velocityAndInverseMass[axis] -
+                a.velocityAndInverseMass[axis];
+            if (!isfinite(displacement.high) || !isfinite(displacement.low) ||
+                !isfinite(velocity)) return;
+            e.referenceDisplacementAndMode[axis] = displacement.high;
+            e.referenceDisplacementLow[axis] = displacement.low;
+            e.positionAndMass[axis] = femReferencePositionProjection(
+                e.restAndFixed[axis], displacement.high, displacement.low);
+            e.velocityAndInverseMass[axis] = velocity;
+            e.deltaVelocity[axis] = velocity - a.velocityAndInverseMass[axis];
+        }
+    }
+    if (!all(isfinite(e.positionAndMass)) || !all(isfinite(e.velocityAndInverseMass)) ||
+        !all(isfinite(e.deltaVelocity)) ||
+        !all(isfinite(e.referenceDisplacementAndMode)) ||
+        !all(isfinite(e.referenceDisplacementLow))) return;
+    const NMContactInterval start = nmMidpointReferencePlaneProjection(a, plane.xyz, plane.w);
+    const NMContactInterval finish = nmMidpointReferencePlaneProjection(e, plane.xyz, plane.w);
+    if (!isfinite(start.lower) || !isfinite(start.upper) ||
+        !isfinite(finish.lower) || !isfinite(finish.upper) ||
+        !(start.lower > threshold) || !(finish.lower > threshold)) {
+        result[i] = 2u;
+        return;
+    }
+    endpoint[i] = e;
+    result[i] = 0u;
+}
+
 // A fixed plane separates two convex features throughout a linear sweep if
 // every pairwise projected difference stays above clearance*|axis|. Bounds at
 // both endpoints enclose their affine interpolation. A shorter certified
