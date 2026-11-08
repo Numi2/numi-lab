@@ -110,8 +110,28 @@ before execution and do not overlap queued native correctness checks.
 ## First transfer attempt
 
 The first registered transfer exited 1 after 1.02 s before any force result or
-resource limit. The quadratic-control interpolation failed in scikit-fem
+resource limit. The polynomial-control interpolation failed in scikit-fem
 element finding with “Point is outside of the mesh.” The manifest and complete
 stderr are retained in the transfer evidence. No numerical comparison is
 valid from this attempt. Diagnose the point ownership before preparing a
 separately identified corrected attempt; do not silently repeat it.
+
+## Separately registered inset transfer
+
+A short point-ownership probe found the first rejected point at x=y=0,
+z=z0+1e-12 in the n16-to-n8 direction. Insets in x and y as well as z
+allowed element finding for all surface nodes at both 1e-12 and 1e-13 m
+insets, in both directions. This identifies an element-finder boundary
+failure; the check by itself establishes neither exact transfer nor contact
+accuracy.
+
+The next attempt uses the separately named inset source. For each destination
+surface node, clamp x and y to [inset, L-inset] and move z inward by the
+same inset; evaluate the analytic polynomial controls at those actual
+coordinates. Retain and compare both inset choices, including the force
+sensitivity gate already registered. The same force reproduction, Duffy,
+positivity, polynomial, 600 s and 4 GiB gates apply. The inset makes this an
+approximation to a boundary evaluation, and the sensitivity check is a
+necessary control, not a proof of continuum transfer accuracy. Capture,
+transfer and original failed source/output remain distinct. No physical
+law or force gate changes.
