@@ -1,0 +1,15 @@
+{
+  "exit": 0,
+  "reason": null,
+  "output_hash_matches": true,
+  "shape_pass": true,
+  "min_gap": 9.452159317596562e-05,
+  "min_J": 0.9661490455278655,
+  "duffy_relative": 7.972188233571595e-11,
+  "order18_relative": 2.7079600043961724e-08,
+  "momentum_relative": 7.972597238965512e-14,
+  "energy_relative": 2.872001658638153e-09,
+  "work_relative": 8.586092815748246e-07,
+  "local_mass_relative": 9.584812222559024e-15,
+  "coarse_self_scaled_pass": true
+}
