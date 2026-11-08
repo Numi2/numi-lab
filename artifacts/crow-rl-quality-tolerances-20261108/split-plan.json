@@ -1,0 +1,40 @@
+{
+  "files": {
+    "build/crow-quality-tolerances-build-01/split-runtime/probe": {
+      "bytes": 58216,
+      "sha256": "1b35245d3f1e30f68c6d8c68787f3d3f48c60389d8a23cefe7f2840b801b5d02"
+    },
+    "build/crow-quality-tolerances-build-01/split-runtime/solver.metallib": {
+      "bytes": 33531,
+      "sha256": "6b34834a05484be152b963a9ffa0166b2b8ea6b1a296e4d768e46c7c4dc11b8e"
+    }
+  },
+  "inputs": {
+    "api-default": {
+      "path": "build/crow-quality-tolerances-build-01/analysis/api-default-split-input.bin",
+      "sha256": "ffd64212875b85943e58079dd9c08faf4546473b0e0052cbc07ab3d21517c0d8"
+    },
+    "opt6": {
+      "path": "build/crow-quality-tolerances-build-01/analysis/opt6-split-input.bin",
+      "sha256": "6a22c81c02c2647475bc7319665ef6cf89d00ec2766dabcc5be0aeb904c6e047"
+    },
+    "opt7": {
+      "path": "build/crow-quality-tolerances-build-01/analysis/opt7-split-input.bin",
+      "sha256": "bda485334c51ac0e482414b1837a2858a9106897fad1b10e3e48f9e2a8016729"
+    }
+  },
+  "limits": {
+    "native_commands": 6,
+    "per_command_seconds": 30,
+    "total_seconds": 180
+  },
+  "predictions": {
+    "native_and_independent_residual_max": 1e-10,
+    "repeated_binary_outputs_exact": true,
+    "rounded_satisfies_original_declared_optimality": true,
+    "velocity_reference_abs_error_max": 2e-08
+  },
+  "repeats": 2,
+  "schema": "crow-quality-tolerances-retained-split-plan-v1",
+  "scope": "Post-observation numerical diagnosis using the previously sealed native solver, not a new physical trajectory or profile promotion. Expanded state is independently checked; rounded state must meet the original captured tolerance."
+}

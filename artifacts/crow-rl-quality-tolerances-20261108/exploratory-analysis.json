@@ -1,0 +1,142 @@
+{
+  "calibration": {
+    "euclidean_closed_form_cases": 5,
+    "passed": true,
+    "weighted_boundary_derivative_max_error": 7.482731101404738e-11
+  },
+  "goal_complete": false,
+  "observations": {
+    "fp64_reference_converges_80_steps": true,
+    "reference_reprojected_native_residual_relative_error_max": 0.1722939758614411,
+    "rounded_reference_satisfies_declared_optimality": true
+  },
+  "predictions_supported": {
+    "fp64_reference_converges_80_steps": true,
+    "reference_reprojected_native_residual_relative_error_max": false,
+    "rounded_reference_satisfies_declared_optimality": true
+  },
+  "production_changed": false,
+  "rows": [
+    {
+      "arm": "api-default",
+      "capture_sha256": "6399bf825f83b883e55f699b877f3cba827bb2501deee85a4a423e8547f39e3a",
+      "declared_optimality": 9.999999747378752e-06,
+      "final_hessian_condition": 122219505771.65549,
+      "final_projection_regions": {
+        "interior": 126,
+        "scalar-bound": 17,
+        "scalar-free": 15,
+        "vertex": 2
+      },
+      "fp64_history": [
+        0.0010853455771975189,
+        0.0010134562464519292,
+        0.0008915960613016825,
+        0.004536090719688511,
+        0.0006465100441066494,
+        8.51267016126993e-17
+      ],
+      "fp64_newton": 5,
+      "fp64_reference_residual": 8.51267016126993e-17,
+      "independent_initial_residual": 0.0010853455771975189,
+      "initial_hessian_condition": 59505722643.80843,
+      "initial_hessian_eigen_min": 1.600000243406896e-09,
+      "initial_projection_regions": {
+        "boundary": 2,
+        "interior": 120,
+        "scalar-bound": 17,
+        "scalar-free": 15,
+        "vertex": 6
+      },
+      "native_backtracks": 52,
+      "native_code": 7,
+      "native_newton": 20,
+      "native_pcg": 139,
+      "native_residual": 0.0010853450512513518,
+      "native_residual_relative_error": 4.84588667511369e-07,
+      "reference_velocity_difference_max": 0.3511044296376564,
+      "rounded_reference_residual": 1.4133210253793225e-08,
+      "rounded_reference_within_declared_optimality": true,
+      "substep": 9
+    },
+    {
+      "arm": "opt6",
+      "capture_sha256": "01862ed69e7cbc99a9ccc4aeba7d6c180ef684fb61bff093078731a42a1f4f4f",
+      "declared_optimality": 9.999999974752427e-07,
+      "final_hessian_condition": 122221533471.43051,
+      "final_projection_regions": {
+        "interior": 126,
+        "scalar-bound": 17,
+        "scalar-free": 15,
+        "vertex": 2
+      },
+      "fp64_history": [
+        0.0025947134826620174,
+        0.004792924826911165,
+        1.7865871116646655e-16
+      ],
+      "fp64_newton": 2,
+      "fp64_reference_residual": 1.7865871116646655e-16,
+      "independent_initial_residual": 0.0025947134826620174,
+      "initial_hessian_condition": 78091251526.52971,
+      "initial_hessian_eigen_min": 1.600000243406896e-09,
+      "initial_projection_regions": {
+        "interior": 124,
+        "scalar-bound": 17,
+        "scalar-free": 15,
+        "vertex": 4
+      },
+      "native_backtracks": 49,
+      "native_code": 7,
+      "native_newton": 20,
+      "native_pcg": 178,
+      "native_residual": 0.002594716614112258,
+      "native_residual_relative_error": 1.2068578136004852e-06,
+      "reference_velocity_difference_max": 0.3839862704943007,
+      "rounded_reference_residual": 7.685859038836901e-08,
+      "rounded_reference_within_declared_optimality": true,
+      "substep": 8
+    },
+    {
+      "arm": "opt7",
+      "capture_sha256": "915416ed9bedc51bfbbb8fabf2a6c4b1ff3cefea32cbe96dc23876aa09c51272",
+      "declared_optimality": 1.0000000116860974e-07,
+      "final_hessian_condition": 122221451209.79124,
+      "final_projection_regions": {
+        "interior": 126,
+        "scalar-bound": 17,
+        "scalar-free": 15,
+        "vertex": 2
+      },
+      "fp64_history": [
+        0.016769599778008817,
+        0.024747733225803727,
+        0.0017270839941875666,
+        2.978764731000531e-17
+      ],
+      "fp64_newton": 3,
+      "fp64_reference_residual": 2.978764731000531e-17,
+      "independent_initial_residual": 0.016769599778008817,
+      "initial_hessian_condition": 75390284868.9479,
+      "initial_hessian_eigen_min": 1.600000243406896e-09,
+      "initial_projection_regions": {
+        "boundary": 3,
+        "interior": 121,
+        "scalar-bound": 17,
+        "scalar-free": 15,
+        "vertex": 4
+      },
+      "native_backtracks": 73,
+      "native_code": 7,
+      "native_newton": 20,
+      "native_pcg": 192,
+      "native_residual": 0.019658900797367096,
+      "native_residual_relative_error": 0.1722939758614411,
+      "reference_velocity_difference_max": 0.35544641571170854,
+      "rounded_reference_residual": 4.5719306617667654e-08,
+      "rounded_reference_within_declared_optimality": true,
+      "substep": 8
+    }
+  ],
+  "schema": "crow-quality-tolerances-exploratory-v1"
+}
