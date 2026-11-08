@@ -1,0 +1,341 @@
+{
+  "commit": "28a0606c87a62eb4b2a7071dbe2ca871e362c48f",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300340276 157008864    66% 3498345 1570088640    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300343572 157005568    66% 3498411 1570055680    0%   /System/Volumes/Data\n",
+  "omitted_files": [
+    {
+      "bytes": 2308,
+      "git_blob": "6eb0e38332cf03e9197d488cec0a4a100fce45bc",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/build.json"
+    },
+    {
+      "bytes": 3954,
+      "git_blob": "1e4d59fd0aa1c5ae154f2771e145c373f1c6324c",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/cap_regression.cpp.inc"
+    },
+    {
+      "bytes": 14085,
+      "git_blob": "303e736f16af4057fd8a153a1117ec933961d761",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/cases.json"
+    },
+    {
+      "bytes": 6853,
+      "git_blob": "29932afabe06d65a6001ea469168e385f3c269d8",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/closure-analysis.json"
+    },
+    {
+      "bytes": 2496,
+      "git_blob": "13093a9726fe55cddfb9dd1fc11be7f48284762e",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/closure.cpp"
+    },
+    {
+      "bytes": 3856,
+      "git_blob": "438f146367cad2151e92a89869416b90b97b099a",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/execution.json"
+    },
+    {
+      "bytes": 8244,
+      "git_blob": "681ecd193fea182dbcdd16fc41d11976a26a3ac9",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/independent-reference.py"
+    },
+    {
+      "bytes": 1118,
+      "git_blob": "8321f53e118425a60bcb2666afccc73855a44935",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/integrated-runtime.json"
+    },
+    {
+      "bytes": 7709,
+      "git_blob": "ab23624c864c868be947f60c47f533010e457c22",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/integration-execution.json"
+    },
+    {
+      "bytes": 2379,
+      "git_blob": "168447708761262a700bae94a939b62996c0301b",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/integration-plan.json"
+    },
+    {
+      "bytes": 3223,
+      "git_blob": "b3396384a9b4e13d3265a0e65e68334b8d49a014",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/integration-result.json"
+    },
+    {
+      "bytes": 9243,
+      "git_blob": "70b4ace830ab76c7165184bf61721319c0543cd1",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/integration.py"
+    },
+    {
+      "bytes": 12,
+      "git_blob": "57cdc50305d07f35133f80962644debd6b846bf3",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/.gitattributes"
+    },
+    {
+      "bytes": 23948,
+      "git_blob": "775e234bf6d071c33b9e0818e4ffedaf961f085b",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/010ca505cb75e74920b6d833ab74458cd99dfcf349a81f3b355504bfd338cd2d.gz"
+    },
+    {
+      "bytes": 940,
+      "git_blob": "c8a9367abd47ebd913a4eb95047af35b6005f124",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/096248f37a5c5089a307337bc1bf4cdea9ad0e4f10f3b35e5ac6c2dd9da9a455.gz"
+    },
+    {
+      "bytes": 14595,
+      "git_blob": "4c41879008c505e08982557963d525312f664785",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/0ead26f0181754bdbc33ab4c02a7b5a91f3f65e97a98be5cd0919388306c0168.gz"
+    },
+    {
+      "bytes": 24148,
+      "git_blob": "4ff91c4b53e494c4963629881d50828e08b1b233",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/12f3efaff28088f628a882d218840f4e00881c31659d3509768c7b1d526b7699.gz"
+    },
+    {
+      "bytes": 3942,
+      "git_blob": "e8f4112b10c1e39b8dab4d583ecd3993543e7aa4",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/134707f772b22f18e12bd2be43a2c6fd22142ab4f781187ff481e0be7a1004e5.gz"
+    },
+    {
+      "bytes": 7528,
+      "git_blob": "e4fdc830c5de948b6f781723446a2c75c86b9576",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/17c64dc5cce1e1ecae0b986b19c06fcd2ba066b354576a9d9893b7f635b2917c.gz"
+    },
+    {
+      "bytes": 1457,
+      "git_blob": "944070176401ea0f85a82f41da43579a8ab00a16",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/255bcbadb8106a5ac559156fdfba6127e621a865d997d7c734b049ae5e760807.gz"
+    },
+    {
+      "bytes": 308,
+      "git_blob": "3031282c2221f7af9070f53f00b262f777dc572e",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/2a9bb6045ed87be5cb0b9dc5ab7fd00c52b22d74e26f6977c7e6e298ed7d34e9.gz"
+    },
+    {
+      "bytes": 33080,
+      "git_blob": "861e7f8583c164cf8b7695b95b0d57708db66aba",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/2c631710fab41cca6a6fd99fba09c51b92d2c6ab24dac186d0495cee26a662dd.gz"
+    },
+    {
+      "bytes": 85,
+      "git_blob": "45718769d469e99f9e3165303884e1f10bea38db",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/2f3ed95b1c3d05a85d39190474d69a67ae7e5268d0c57af9524217d5a6fdb80c.gz"
+    },
+    {
+      "bytes": 121679,
+      "git_blob": "bb68b1e3af53ce22a9d3b12a0943622f134f54cc",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/2fbd001fc69a0499bccb543857c1c65bff1fb91407fbe2b8025e3abf2c3588af.gz"
+    },
+    {
+      "bytes": 24043,
+      "git_blob": "4a1d014af09d7a7e2502d8899ca37867dde53ef0",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/31c58792d9b03a1ccb6345d6045085a98b178eec69020c570efc9f460c39acf3.gz"
+    },
+    {
+      "bytes": 436,
+      "git_blob": "041e6958c38972dcab33724b9745fccba2948b26",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/3a8d78e9bc4386b65610b745f49185f66ffa64b1d74a68f0d7d5b5fe0e21f980.gz"
+    },
+    {
+      "bytes": 83,
+      "git_blob": "687830c5dd9c09cbabb68328cdaaa935653b4377",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/3b363da6634375ac7aeb84059ee75d182c47d8f0dd35656ebac4c6435647734d.gz"
+    },
+    {
+      "bytes": 14595,
+      "git_blob": "fdc1b4bef152d2125e9d169ae9d6e1eeb818070d",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/48c3ce600907519b28b59e4ba68a549cb518c11d138bf1785c8274f87e9fa427.gz"
+    },
+    {
+      "bytes": 1877,
+      "git_blob": "1a2f98a633ff5d7129a6825792e39c499257d308",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/4983d32133214f7970eb60d8e4da4884f6e30b45c89762da3f7fb6bf161c1b3a.gz"
+    },
+    {
+      "bytes": 173,
+      "git_blob": "0018490adcc9b62beaeeafe39afefd9e8b36dae9",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/5067542867f5201970e2ab94ed36d2555af7f82b2b7041e0c2cc315ffb43b6a4.gz"
+    },
+    {
+      "bytes": 24622,
+      "git_blob": "fb58cb0c24437b5576d697011185d2cc2cad880b",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/558a195f74e148f6ad7c135eb832cc371a02c3b5fb7c4058662a483459018020.gz"
+    },
+    {
+      "bytes": 218,
+      "git_blob": "94a8678800819f87e8ed984be28757c6baa4d453",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/55c08bb1abda60c6dbd8d14e06f98c989cef0f3eba65bca35698eacd5d8c7d1b.gz"
+    },
+    {
+      "bytes": 2101,
+      "git_blob": "e9dc150520509b9219335c18122b7c7d6272d0cf",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/5f9fce5fc1d78816ea2e188ad642a44d239fe65d69d3ccff185649b498d8a3eb.gz"
+    },
+    {
+      "bytes": 415,
+      "git_blob": "f9ce139c93afaeabdfe31dd28ba6fe7e2fe783a6",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/658b33a93a07f3d85bcab33191064864714969692b3ba89a7cd5d17cee864fbd.gz"
+    },
+    {
+      "bytes": 82,
+      "git_blob": "75980977bce2ea01db42573847409c4a7663176d",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/6bf487041ad42a9b11509af3f9293de5b9b45c63742ad281351eba25384c809f.gz"
+    },
+    {
+      "bytes": 172,
+      "git_blob": "cc7d5a39d7cca4cd38f079acaa274e0a21cc23a6",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/6ea82d02faf957342d7f8630bebc0a0f7613ade4c38719e9227bbda4f90fb5ee.gz"
+    },
+    {
+      "bytes": 121654,
+      "git_blob": "94aca057715b8b9e04be80d08f4164a351844899",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/711675f6b8591b2cfc0e80026ce80194d8bbdbd0be7d6488c6cf04ea88ca51e5.gz"
+    },
+    {
+      "bytes": 24041,
+      "git_blob": "94bb342d11ac4e1eafaf0932cae0fb509ec7dce9",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/75740ccf0b0a00228f104c468409fdb984121221361ce5846b1082a517aefa5a.gz"
+    },
+    {
+      "bytes": 161,
+      "git_blob": "fe6f36de99e5f4547a5f1da6b8905d06c04a3856",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/80349fcd5d80c17086985b80ffa70e30bf279a73b3d79a5408b864c6e033a40a.gz"
+    },
+    {
+      "bytes": 7795,
+      "git_blob": "fe37f979225bd5c96f5c39c52b74f945a10bdc96",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/866d199a6aa4b06ab04f566067dec5adc92c9d5442036d8f96dbb1a99ba030b8.gz"
+    },
+    {
+      "bytes": 3053,
+      "git_blob": "9c7b298f629c0d097d17d914b3cd99f36fc43837",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/8dd7f0f85b1835a66de454194acb741ed3a7ba6896a5682e6c968256d7df6a57.gz"
+    },
+    {
+      "bytes": 24628,
+      "git_blob": "35d3cb99af3346a2339e2d373f241e3ba567e9da",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/8e565bba58792c7cca3bddf5c97a0cc4ae4dc17be2ab7f80232ff5a084dca5e2.gz"
+    },
+    {
+      "bytes": 24042,
+      "git_blob": "05c0064c6bf39081a7f830a6450a4931feda27f4",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/8fa75038ac0160bb24d040388e99db8e162730693d2720c2c00d3ce51d0f55fc.gz"
+    },
+    {
+      "bytes": 2380543,
+      "git_blob": "1bfb9e423515788aacb89a93dcb28541a4ee8e3d",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/91416d391489b37c1c79918c1ec51ad81dbaa26ef99e6536f8a57d9f720cf8d7.gz"
+    },
+    {
+      "bytes": 21751,
+      "git_blob": "247ef146887753aab682636e5537920b545d6a00",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/921f882417a32aaf3eecda97e45f4ec14657ccabf72d65d80bdaa48d87cc7b0a.gz"
+    },
+    {
+      "bytes": 33091,
+      "git_blob": "42c9817131106339217b4c1a1604a667502b4ec2",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/93c472070e7d11545c732917cf12e7ed193ae871381fc8480e6f46545b85438c.gz"
+    },
+    {
+      "bytes": 85,
+      "git_blob": "d6cc548f4686984a7e186dccd4679a2699a3e0cf",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/93d75c72d4b1a067c6fd7ecaecde106441e602cc3b5df8c9676f0f7db19f3a6f.gz"
+    },
+    {
+      "bytes": 24143,
+      "git_blob": "5d4ee16e2e4aee3577c01c0960d4496442d700d8",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/9cb1c2729728a9ab199d18b80337adf75634121a1934a59b498e31e1b08c1516.gz"
+    },
+    {
+      "bytes": 21754,
+      "git_blob": "9035ef501de488a21bc56b23869c5d5a782a0e15",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/a0c9c3b765b7dadebed65ad7c6ecbbe9be04edb614bb128080b6e574b9623936.gz"
+    },
+    {
+      "bytes": 523,
+      "git_blob": "14d7fc9f4988a49a4773c0d6e434121915861b25",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/acb2e71dc856774588b124acb7b47f00a546538b6e6f0a94a63743304cb50763.gz"
+    },
+    {
+      "bytes": 24047,
+      "git_blob": "04fc125c2ae8d544ebe7162cb4a61a9e38b95a9f",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/b28c7a0b20bea2ad2bad34d62208a51b2a56ee4ed55becc2efa771c9d5c8209c.gz"
+    },
+    {
+      "bytes": 24041,
+      "git_blob": "a3456b9628070f144910d68951a27f43442739c3",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/d489da79e9bb3c47552c4c1842d1ff47a51936ff06ca20734be4c4abb872e84d.gz"
+    },
+    {
+      "bytes": 11899,
+      "git_blob": "e6f455c3b7f13189fdd481e3ffeb45a5750ae087",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/df2f144721ff04692399afa7316ca7c88a189689acdbfb4358030ef570c0f687.gz"
+    },
+    {
+      "bytes": 24047,
+      "git_blob": "c74112a477435a61d8176a3c4f13c9d03d91147b",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/e0c3d6ad5a27a4f3238b5f8f0a40a9f9e411a09bff84d88b4d79bd4175899053.gz"
+    },
+    {
+      "bytes": 2110,
+      "git_blob": "ab9accd2dd50c45cc0cbd5f136a94eb11fb70d95",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/f2132f25daf4eecbc1084f8a34685e8af651193102cd72c75bc7c71b28dcb348.gz"
+    },
+    {
+      "bytes": 70170,
+      "git_blob": "a928d16dd31846c5a5bfe40da740f604bf494df5",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/payload/manifest.json"
+    },
+    {
+      "bytes": 4213,
+      "git_blob": "4e8c884943c4bd8d8b63a55b00416d2842275cef",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/plan.json"
+    },
+    {
+      "bytes": 5208,
+      "git_blob": "eb41352317fce60ccb315d450a148c13cfc13b39",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/prepare.py"
+    },
+    {
+      "bytes": 1257,
+      "git_blob": "bc84d4039901afc4ab0a2950e09a63fe35a4da89",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/production-bindings.json"
+    },
+    {
+      "bytes": 708,
+      "git_blob": "06b6e049fffd79e53f0346d275e70c4125363ce7",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/project.metal"
+    },
+    {
+      "bytes": 2711,
+      "git_blob": "422eb287751e4625b75a28d39eef648b5cfa9e6b",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/project.mm"
+    },
+    {
+      "bytes": 15666,
+      "git_blob": "3cfceea8936350f814d5762a50c7348b1985215b",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/projection-analysis.json"
+    },
+    {
+      "bytes": 1687,
+      "git_blob": "81ebae765c77e9ccab14146fce93180980fb3364",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/result.json"
+    },
+    {
+      "bytes": 6310,
+      "git_blob": "b111fd0dbaa1921da340c4cfaf127965a3aed37f",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/run.py"
+    },
+    {
+      "bytes": 1219,
+      "git_blob": "456a4f29306f964e16c09a3f41aed64260540ebb",
+      "path": "artifacts/crow-rl-cap-curvature-20261108/runtime.json"
+    }
+  ],
+  "omitted_logical_bytes": 3248564,
+  "open_handles": 0,
+  "preserved_input_prefixes": [
+    "artifacts/crow-rl-feeding-behavior-20261107/policies/",
+    "artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib",
+    "artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib"
+  ],
+  "remote_commit": "28a0606c87a62eb4b2a7071dbe2ca871e362c48f",
+  "status": "omitted"
+}
