@@ -1,0 +1,1021 @@
+{
+  "commit": "0e37533e2f2f1ec53b5b78f43b38631f6560a224",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300199344 157149796    66% 3497042 1571497960    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300209380 157139760    66% 3497245 1571397600    0%   /System/Volumes/Data\n",
+  "omitted_files": [
+    {
+      "bytes": 42,
+      "git_blob": "a255804de3e109a9eaefac2f1b01db1d190fb6c7",
+      "path": "artifacts/crow-rl-beak-hold-ccd-fix-20261108/.gitattributes"
+    },
+    {
+      "bytes": 4800,
+      "git_blob": "1cbe7af610133b9ceb8f6bc8c1959b272e33a066",
+      "path": "artifacts/crow-rl-beak-hold-ccd-fix-20261108/execution-summary.json"
+    },
+    {
+      "bytes": 6032,
+      "git_blob": "ee2f3e2dd4678073832e97b64495e0ab55cee8af",
+      "path": "artifacts/crow-rl-beak-hold-ccd-fix-20261108/plan.json"
+    },
+    {
+      "bytes": 15943,
+      "git_blob": "877a30d2fd639107160031261d746b075dce4a51",
+      "path": "artifacts/crow-rl-beak-hold-ccd-fix-20261108/probe.mm"
+    },
+    {
+      "bytes": 7907,
+      "git_blob": "65c97ef06c0a9f0a8449a1374d2cfd14f6377c29",
+      "path": "artifacts/crow-rl-beak-hold-ccd-fix-20261108/study.py"
+    },
+    {
+      "bytes": 1124,
+      "git_blob": "931619c6efa809549cf4c02fcaeeba5622aede88",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/compiler-cache-cleanup.json"
+    },
+    {
+      "bytes": 404,
+      "git_blob": "3fd5f67051a8a4a5eb153e4183d907292f4ee246",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/completion-boundary.json"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/crow-ccd-event-status-archive.stderr"
+    },
+    {
+      "bytes": 444,
+      "git_blob": "30b36a86dafc56a90dcea356e8dba86828f83f17",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/crow-ccd-event-status-archive.stdout"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/crow-ccd-event-status-prepare.stderr"
+    },
+    {
+      "bytes": 8858,
+      "git_blob": "ce8d62265cadaa512342b1c2bf1542af10cd102b",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/crow-ccd-event-status-prepare.stdout"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/crow-ccd-event-status-recovery-v2.stderr"
+    },
+    {
+      "bytes": 888,
+      "git_blob": "1ed6f0e384c1e9424aabc1d856b9851ad9040d16",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/crow-ccd-event-status-recovery-v2.stdout"
+    },
+    {
+      "bytes": 699,
+      "git_blob": "f9937a0a29a8725e3bb1b17acbc8ae053a04f34f",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/crow-ccd-event-status-recovery.stderr"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/crow-ccd-event-status-recovery.stdout"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/crow-ccd-event-status-verify.stderr"
+    },
+    {
+      "bytes": 198,
+      "git_blob": "2555ca44ecb094b62c445db510841bf1cd4a4579",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/crow-ccd-event-status-verify.stdout"
+    },
+    {
+      "bytes": 5446,
+      "git_blob": "7638af1bd843fb4f64be3595c6d08178ed3bbabe",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/finalize.py"
+    },
+    {
+      "bytes": 35484,
+      "git_blob": "140e81aaa9608de9e32867b04dd182b358dc602c",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/git-recovery.json"
+    },
+    {
+      "bytes": 12,
+      "git_blob": "57cdc50305d07f35133f80962644debd6b846bf3",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/.gitattributes"
+    },
+    {
+      "bytes": 71,
+      "git_blob": "14e3838a2ad8231232ed6a18f4a06af7d6445576",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28.gz"
+    },
+    {
+      "bytes": 24067,
+      "git_blob": "60b6880927775259d8b8efa4719313c2f259b5c7",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/08a8a4deb24f5e8246b7dbb18ce14833ceea8d786980988dabe19e0a710a8904.gz"
+    },
+    {
+      "bytes": 4342,
+      "git_blob": "cdfa6915ec744bfa4449177505983ff55919884c",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/09662f0f2a4ce7c31da35cf278156f09c7975246f2d065c74c333e75bd7335c0.gz"
+    },
+    {
+      "bytes": 362260,
+      "git_blob": "ed8dc89b615274eef9c955e3236bdc5ca334aaaf",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/0c12773c50687d150f7b3d0def4d85319c994f80a44c7ed1af3cc1532bf45c05.gz"
+    },
+    {
+      "bytes": 72,
+      "git_blob": "3c2d5d2991ffa98bf6be671715675d1bc20ff8c8",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/0dc09f077c254e3a333d04bf11b654e373c0003aa469650d606b61c3534a56ff.gz"
+    },
+    {
+      "bytes": 133,
+      "git_blob": "09b648f5493329b623777ee216ba6c5648920c4f",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/0e3621c12fd838ecfe79ee57282d7acf95feabbb7a42aaa1af1ae8fb7db70711.gz"
+    },
+    {
+      "bytes": 57973,
+      "git_blob": "571beff22605d1f129a34f456657fc3d63b8cead",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/0fcb6efc8d9e00af5537fa0480c3fa9fbc465427406257b18d9fbaa65206e46d.gz"
+    },
+    {
+      "bytes": 23530,
+      "git_blob": "004586c045920b3e320f3c1fffad46b27e209ba8",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/10c2fbeb7e19c7a9bfb51b4339514ccd96a8ee9691460efbf09b7d3f40357742.gz"
+    },
+    {
+      "bytes": 23559,
+      "git_blob": "614907d2871dfae5a0114e09848f540b32709364",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/184fb6e4ca6a6ed686e61a03fbd08aea4430d20b65fecedccaeefc8a506c735e.gz"
+    },
+    {
+      "bytes": 620,
+      "git_blob": "4ac8937651c0efdf44f57049fcd6e7ecb6767a38",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/190b4e6b2e0ea05790c22eea0badeb06b69f69613b75f2bf418c5037c7762023.gz"
+    },
+    {
+      "bytes": 154236,
+      "git_blob": "099c5476ee4d6346a9e132949a553a1fb7943ac6",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/1a4732340648d420702f5d585dde0f17b16e2e08161f686c56b7f46ff0638931.gz"
+    },
+    {
+      "bytes": 68,
+      "git_blob": "b9102127a85c546d5bab951abf003425dea919c4",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/1b8294081aaa4810f61623b92a72c61cecfd18c87c08fb4e6ab182e11bd4e4d8.gz"
+    },
+    {
+      "bytes": 33679,
+      "git_blob": "82bbc00edd387ade6e20593d1b81840577d33236",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/1c8acd9e2962b0561a831f786d7c65dab1bf43b4bd535bd2371f430fdc812446.gz"
+    },
+    {
+      "bytes": 4274,
+      "git_blob": "9c5a3a6b2b9ae9c9a4c4693307f60f8c97ec174c",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/1e0240cfb3cea5575d909ca13006f0838cc31a989a073e1faef91f8ed0953ef3.gz"
+    },
+    {
+      "bytes": 288,
+      "git_blob": "21c39efe91eaaaaf24c1919520cc7940ccd54a69",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/1edd5aae7af26fd2760c9467cee3320ddef30105ae30c2772b6aae044e29fdaa.gz"
+    },
+    {
+      "bytes": 1708,
+      "git_blob": "975e39c1a4efb36a6fb09b4c134a64224997d74e",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/2164448feadd035acaa3c2bc43125e79a442532450594f92c8972d6d7b2733d7.gz"
+    },
+    {
+      "bytes": 388,
+      "git_blob": "8b46e4f1d6aa7fee8a764ec87ce24ad848f5a0d0",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/221e82d4f465284a6f2c1bdcaca002531deb2bd0d1f193bce19847d329348028.gz"
+    },
+    {
+      "bytes": 399,
+      "git_blob": "02c4f6cd9ea4dcb442c8f027af39cf8cce8d89fe",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/2367b90ab9ff92f9493b932f0b0e79ec22e2423d7585f5336bc51b7097a3cfb3.gz"
+    },
+    {
+      "bytes": 4155,
+      "git_blob": "05ac8b08c3161732c02cdad517f3711c3103383b",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/23cccf5ab448e7ecf8e5bc83ad33e3f91bc2301f3843078f8f37474d4068ae3f.gz"
+    },
+    {
+      "bytes": 259,
+      "git_blob": "a12d3cb1380edcf77eaf8cd394a7540c85a29a75",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/258c0300a853b33ba4fde122c8c5fbb93341e2f0cbf37e79a11913876b698111.gz"
+    },
+    {
+      "bytes": 420,
+      "git_blob": "61c3f0973dc402a5d9ac6f6e24ea5eed442f2903",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/268b4429167ce1c29ff0c12f9e532df8203b83dad3f448fefb321ce529d21a83.gz"
+    },
+    {
+      "bytes": 107325,
+      "git_blob": "272e6afecbcd6149181ae6ba9f791e75b65a7211",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/280a9e2f849592a078a48ac1dc12b6265404f8954025ce93b01b4b3a6a1814b3.gz"
+    },
+    {
+      "bytes": 23559,
+      "git_blob": "eb91ceaaaeb337427db1e3cdd69c101665ce5cba",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/2f528b2ff81fa924e3656e492de79bdf5a446ac2ad6122614f7de3479dd58832.gz"
+    },
+    {
+      "bytes": 153,
+      "git_blob": "4d6ec92e2d59ee91044be4624684da21ff6af11b",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/31a52a2859e7c1752b3b24118a1ba06f855b1e99494793d5747c91e09df9bab1.gz"
+    },
+    {
+      "bytes": 4281,
+      "git_blob": "6c756682f2d355a4c48e92981a10070a4afb799e",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/32510d3dc3a482b1ae9ef6055d4915ff0a8a2477204cccf92c3cd236fb1b858f.gz"
+    },
+    {
+      "bytes": 262,
+      "git_blob": "9d3140b14121bbc90b3942e3f2bc1aab7a98103b",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/336b2a003dea9d9fa1e504c44ac2cdef6af0383cfc27aa713e0669710870585d.gz"
+    },
+    {
+      "bytes": 9365,
+      "git_blob": "fe7e90dad9c27f00711782b6565ba07473bbfe03",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/38f740830e24d592ff55f8b375ec3a4ead10e8c70933559a36c3542658e77a77.gz"
+    },
+    {
+      "bytes": 70,
+      "git_blob": "35f3768a1af56a476fffb15833dfe9f7b8ab7d91",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/399adb11a21173e0919839730e7b52792b7c17312ddeafacf58b7d65beef846d.gz"
+    },
+    {
+      "bytes": 23996,
+      "git_blob": "13ce9b9a7647a41408bbe51bc9c8d125b72e84a9",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/399fb39ebc4cbef9e5207acb1eee9aab888a3104f688cba55ea2da953740c4b8.gz"
+    },
+    {
+      "bytes": 416,
+      "git_blob": "c8728eb048a992791edcb4c077cc5225ed3d0763",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/39a7c2b5bac16fd911c10a97ff4e86cf36ed7db9f0aac700f4baffd5505d1583.gz"
+    },
+    {
+      "bytes": 37,
+      "git_blob": "d7633733c104bfeb308245bf3e2f1fe4e1c10902",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/3ac9e918706fe035f6f4d624bf76c7fb4575d4d78a7ce3e8b7f53d20ab701cdd.gz"
+    },
+    {
+      "bytes": 4736,
+      "git_blob": "848547b5d1ec3288076dfda4198873bcb2e817c5",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/3ae6c9d5e70cc879429dd1094a7a1321a3f5cb3e95490a34418800aae464c5ab.gz"
+    },
+    {
+      "bytes": 603,
+      "git_blob": "1433ae73284bb49c3a9a4c37dedd0234764ae931",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/3b9ca28dc104a0baf0b0458ac3b95ccd52aeb7312bb7be39dac1ddd4897b5d9a.gz"
+    },
+    {
+      "bytes": 2316888,
+      "git_blob": "013a9047e53b9e042ece4480d150f7694dd9de4b",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/3fe0680c48604b8cd6fef6093381c17952d1242c6feeb325251e625b6ede4830.gz"
+    },
+    {
+      "bytes": 316,
+      "git_blob": "32db9d7a764cfbeac3bdb49a9121ed3ab3d0dd8e",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/41ff7c4ca446b4790059d07ea0875b23deb006754f27dba20c66d7a7edf01293.gz"
+    },
+    {
+      "bytes": 351,
+      "git_blob": "8fdc7fadc59abc9a6c811d31a0179010819cb094",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/488e67b4fd0809addac9e81faceb4b51cc1b051d72247e5fc6126985e2b3a58c.gz"
+    },
+    {
+      "bytes": 594,
+      "git_blob": "a8400dad1dc435c4568ff836c1c9db8f8c183263",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/4942aaa79cf6edcf922885965c6a6b865232fdc68fb7f1da78fce9774ca97801.gz"
+    },
+    {
+      "bytes": 604,
+      "git_blob": "3f488a847256e499430a755c71e4a82b97641a43",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/4ec1c45e403853565c2c3d5d082721589a97b92149ed13d580f4a4f03c9b56d8.gz"
+    },
+    {
+      "bytes": 225,
+      "git_blob": "00d86809d0a649487a15a9f0a1846dd51e79eb3f",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/51e1866239348de88a7dd0b5712f9bd87c531a0ce80fef988492a3dad4d4e967.gz"
+    },
+    {
+      "bytes": 303,
+      "git_blob": "ce3b870c10dd6c27d7e9fc9d394a8b392d1ce704",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/53279ddb014d1188670ec810c4cd1171f619c07e6bcbdcf6619879579f6e8d4d.gz"
+    },
+    {
+      "bytes": 90,
+      "git_blob": "c751cdddb60cb2805ab4d62fe7eaa8896df90694",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/53bc276ee6f2b6c46472f5fc67eb290b780c35e9f75d41140a2f43a1553a5605.gz"
+    },
+    {
+      "bytes": 371,
+      "git_blob": "967babf7ee67da5fb34b53af14c6aba0599b96dd",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/554bac471201f0376ae3b5c7beb3dd08d1dae17a9bf4abdc4266376c268b3d1e.gz"
+    },
+    {
+      "bytes": 112,
+      "git_blob": "2b6a644bbe5ce61dd56ee29fb5fe34bae7bb0bc1",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/585a3103270b57db3a75caf9ab9ccb5278a46a7697104d8b45d5d7b15219386e.gz"
+    },
+    {
+      "bytes": 24642,
+      "git_blob": "3868c65dfa931ef048485fb25b1e7a2e50c31f55",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/6077a1b027ee960d57df50f07f11c22b7f7f10a8ed002a78f0fa2d75dd3a6b9a.gz"
+    },
+    {
+      "bytes": 24263,
+      "git_blob": "150bc55106b1550f1b7718173fcd5a93d51c32ec",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/625c2ad3025a81febf03b718957c8129b2fb8474b4c861d091f5de842773c43b.gz"
+    },
+    {
+      "bytes": 25,
+      "git_blob": "198ef60706e6d77ddb5f4f4f68d44b84893f154b",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0.gz"
+    },
+    {
+      "bytes": 424,
+      "git_blob": "e9c44e1efc29b2971cc11d7d4cc98c4b0a114fd1",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/65560cea7be452f51e3ded1a3b317dfd1b98a57cb6edd53df10115e61070a50c.gz"
+    },
+    {
+      "bytes": 329,
+      "git_blob": "a260e554cff72b3a97e6f4948d6ac725d140ece2",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/6721066a9251c3bbda29e0ad78e4dc44e6dbf1c82b530ccd0cdfce83e4e995db.gz"
+    },
+    {
+      "bytes": 4234,
+      "git_blob": "6d8aeca386de9b594b6282e4718350bb60cb8de5",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/6c7b1b3da5e6b8eddba68269a49bf89a84c386db0434b8a4b9414d24d196f726.gz"
+    },
+    {
+      "bytes": 4162,
+      "git_blob": "c6914619a1991230496ebf7da5cf4aac54b8d1b4",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/70830ce1fdfda7bbdd75cdabd9ebc9ae711c614c00ef3079bf2d8380cf75b41f.gz"
+    },
+    {
+      "bytes": 623,
+      "git_blob": "efd60ce13868aa4f7e2dea8826bfd81a26323cb8",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/723b9b03828fe284d81366b1bde0bcc8b1caa9030990f8d4f0b8330a0ce63e99.gz"
+    },
+    {
+      "bytes": 545,
+      "git_blob": "d501fbfdfcc6fd59dabc6b1e3b9fe9bd28fd6049",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/7560c9d37346e53facc627d7307b817872a639c3d99a99a761a74c7951736ef8.gz"
+    },
+    {
+      "bytes": 291,
+      "git_blob": "e59a76dbbb0f6e64222561cc4556b726ec536d01",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/75e969adc48e4dee2e7a49134a5121b7ace1d454fd4abbfab2d88ef591e49e87.gz"
+    },
+    {
+      "bytes": 9671,
+      "git_blob": "aa4afad635e33d58567a6868cac24722845bf857",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/763344e3461057408651750b7b46ac08c382ea095478d69cb36dedf96db471f0.gz"
+    },
+    {
+      "bytes": 65,
+      "git_blob": "8051370a7385fc65f5af557324a36cbb651b03fe",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/7640de622c28af0ff8ce504c0a1e959161f4dafff84f9944479dd91c3c5bc069.gz"
+    },
+    {
+      "bytes": 24263,
+      "git_blob": "ac3c3bae100535585cce41eb4f182217743a538c",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/769de1fee11d64c773ed7adc718af6bd28024ae4eb790f1eefa9a4a304c4117a.gz"
+    },
+    {
+      "bytes": 23558,
+      "git_blob": "a2f15eba81c327e10c278a8b4312d5e13f8fc7f0",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/77352053bdcd6c6604161f61641b192f34cc839c2b4d1224758141f2d87fef09.gz"
+    },
+    {
+      "bytes": 24645,
+      "git_blob": "b331c3bd2c6901c8495fc55eb2bc31d349d97492",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/77fc65a04ffabe5498f99c630b6852c0cbc7d0651c255b974f3c19a3103999c2.gz"
+    },
+    {
+      "bytes": 23560,
+      "git_blob": "d792d158d6a9fabdfcb7f9f3935eb695d95dbe3e",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/7a7fcadb277a488d8bca777371c3360e1f0a2b683defffc141191973fdbcd5f3.gz"
+    },
+    {
+      "bytes": 426,
+      "git_blob": "b9ab35be023edc2fa7ac83e1b0b697a10e248a93",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/7b990b741659fd53cd741e9cfb2e64d2c6ef5ec068dd8f2f3c35a7b282381592.gz"
+    },
+    {
+      "bytes": 24641,
+      "git_blob": "c8a56310d57eb751621c26108bb59913b2a10db6",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/7e397faa977bcd57ccfc1a21c83bfe6d959e154e3c52f1f0fbeb92b55497b83f.gz"
+    },
+    {
+      "bytes": 128,
+      "git_blob": "a9fe81469d4552d17b59bcc6900beaec4fc81ac7",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/848a64c8ecb6b733326a6bd98e4d729de6d46f2263d86acda12354c0dc581ab6.gz"
+    },
+    {
+      "bytes": 24049,
+      "git_blob": "7e86702ba6c9e81c9b25285fdd32ba7b0e6c7df6",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/8dc2d1588d21dc614dfebecfa8ba08532d70b82860efd1c4c072e8796e208996.gz"
+    },
+    {
+      "bytes": 802,
+      "git_blob": "4c28045d0cc3ce70a4685e4209344f675d63150a",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/8edebb7fbb6730c4adf6a6456ffc92d9d200bae2e36a9895276420256a1b5b29.gz"
+    },
+    {
+      "bytes": 125,
+      "git_blob": "8fe87de7894abb3b5891926fc8fdbb136d4d45cd",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/92441af180b9fac905c131587e9f5fc142936259399447672fe862da2536ab06.gz"
+    },
+    {
+      "bytes": 375,
+      "git_blob": "76ed6dd023c7bf13addc8ef8d3f4e82e036d7aac",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/92b5c7986bfc0b9728c4d10b5b00f5883aea1630d6bd23afbb50f4cbfbd914ee.gz"
+    },
+    {
+      "bytes": 349,
+      "git_blob": "81a1381275fcb01e33c3ded2c9c825f20ae75a5b",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/94aecf67499dfbfbe2dfea9f7a7aa95890cf98c125230281524ddadff9f27834.gz"
+    },
+    {
+      "bytes": 375,
+      "git_blob": "1b8105b5ddd01cfb29f52e9d4a8d7b0820e021ba",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/9525efdfbe48a8690c9cfe012b837901c0dc3c5e40c0ced984ce4e6bddf018d0.gz"
+    },
+    {
+      "bytes": 101,
+      "git_blob": "3b3bf772f75fa15d71c5a1d8a8490e3fba086dd6",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/9833211ecc95c1732d328ca023ce3e5d3dcdef010379708533ccfdcf040e9518.gz"
+    },
+    {
+      "bytes": 751,
+      "git_blob": "8e32568684a8f040f8d03483f6688150ff2f7754",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/990c2f1158ca7054be3f0dd65a3ad816d7a111f95c98fc560379dd7f622b0a26.gz"
+    },
+    {
+      "bytes": 12687,
+      "git_blob": "ac45e3bf8ce06672c3e07ca862ff653288a5745f",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/9b6211bfeff54b017d72f1026384ab1718876ac9fbfa9f1e782948c936596b60.gz"
+    },
+    {
+      "bytes": 375,
+      "git_blob": "3c036283d4f33ac10c74d9b89f8858952ec60e0d",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/9dcafc7a652e66335460390182c59034489fec2437ce2255a6bee445296cc20b.gz"
+    },
+    {
+      "bytes": 40991,
+      "git_blob": "f99d7800f9467febd6efd9da20fdd25a3b68946a",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/a07079970c1f185747425e5c67aacf1f223f8fc34a0db2c798a5bcc54174e399.gz"
+    },
+    {
+      "bytes": 474,
+      "git_blob": "588459a52a77581d57dc658a25c11929c4785e5a",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/a233bc489eb3195bf249073b5b733749bb76c18e816ccba5a2a173602c7923f8.gz"
+    },
+    {
+      "bytes": 486,
+      "git_blob": "d038fe8e3d8bee28d9ed23cdc383c236a647651c",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/a28c852da3c068e3b305cee4fc29d6e7af3991a301d9b514024ea5c40f7a6e9b.gz"
+    },
+    {
+      "bytes": 161388,
+      "git_blob": "d816882ba730a3754c516c31da504e8c3112c6db",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/a3142ab05c7d1e1d7c998cc11ddb77031e256c53114c93b372aa49f902673f11.gz"
+    },
+    {
+      "bytes": 375,
+      "git_blob": "312222e585c069707266233f8c9128163ed3827d",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/a8330f1517cea99a515ffeb85bdf464ab5e8d584b6621d64777add62e232a033.gz"
+    },
+    {
+      "bytes": 488,
+      "git_blob": "600d576d2f1d954c6a80d5547cef5ea6b325b395",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/a8f297b0ac7618aebe5b83542eb5ef0b3012b0d535f9662c15e694f9b7e52e08.gz"
+    },
+    {
+      "bytes": 175,
+      "git_blob": "966b9803a2bf824ecbaae13a4f5be6b9a812343d",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/b1143bd5cba0dbcf10eda2b3402a2d9e3166682cd7c3875588d0825c6eed2656.gz"
+    },
+    {
+      "bytes": 494,
+      "git_blob": "b5675d43d185189c2fbf8727422be69da1430deb",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/b1cf4efab0850e7a93b6a5d7860b30834aaff6a8546790ed120a50ef1a2b3084.gz"
+    },
+    {
+      "bytes": 97,
+      "git_blob": "39cf031a8e3631a5197f8208a77f936aaf4e6e38",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/b2b04f5745402f68d2737d685300a79e2cb0ae999f523523f0ad0741a0566a83.gz"
+    },
+    {
+      "bytes": 4097,
+      "git_blob": "35f213652ab2da39926f4e6a3177ca04d5cec712",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/b2c4b601e83765bc27af556e7286950a2810b2df33d73973ecfe2109f3a722e3.gz"
+    },
+    {
+      "bytes": 295,
+      "git_blob": "ed2929d3cb03aaf18e2d55c8332d5cba8856906f",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/b34cfa36280e18ebeb22fade4366c5adb646fb5859ca23c543844658f8e44ed1.gz"
+    },
+    {
+      "bytes": 2317148,
+      "git_blob": "e45d2df7bdc96773a947c928658cd9fcdddcba22",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/b5dbe6bacc93a20ee00c0e63113f80bb91df9cfa529d4a853be961783bde7319.gz"
+    },
+    {
+      "bytes": 190,
+      "git_blob": "dedfea630e54972473faa950fa383ca0f8f9b82a",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/b5e924d9457b6be6fa7abd561d6c43ec0b1e399131cb4ae7ea912de8c6be5fda.gz"
+    },
+    {
+      "bytes": 181,
+      "git_blob": "8b125488855e025595e254e00b5d0b9d74377ef9",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/b641c4c6f0671f2ff994e8d2cd7211208763850f9238d64706e6eaf6a3c795a0.gz"
+    },
+    {
+      "bytes": 5247,
+      "git_blob": "b4c4c9f75c93bf18286cb614b8d76baf569d6937",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/b7846c99023e4c1daa3ee2dfccf9c4123da046172e93682acadcbf4593de77e0.gz"
+    },
+    {
+      "bytes": 28562,
+      "git_blob": "1a7c5604c1c9b3a3286573d74751d89b37a8f26d",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/b8cb6d4e96f43052d84dc8fbe88c0b13c6b50250a1ea74116125d02e0b076b90.gz"
+    },
+    {
+      "bytes": 174,
+      "git_blob": "a744f63d5297d98594fab4989b6f8f69e8ceac5e",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/b8fc1e16565904abc73e62fa989db072662dbe577f836512eea3dbe931f1ea1f.gz"
+    },
+    {
+      "bytes": 42173,
+      "git_blob": "c301bd021e4719c9771566655ee0ce12c21f2566",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/ba5819e0271671f17cc80bf093e6afb0ab2ec49f084e28ac6f6d70d0f65a29cf.gz"
+    },
+    {
+      "bytes": 587387,
+      "git_blob": "62e0d20e866c41feaaf30f31720d3a397c57c7ad",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/bac848a28a7592c675b481b58918a8f78cf20349401e2f4e65e39a2e38372a99.gz"
+    },
+    {
+      "bytes": 196,
+      "git_blob": "913146d3358ef147fa9a156a19509343d70cdf7a",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/bdff691c8b2b979e55f05289a7c0bdc40f4fa6fa085a201950aca6d054fc7508.gz"
+    },
+    {
+      "bytes": 4395,
+      "git_blob": "fd26b96defe4101b7a9abaab5e90f85893e5c957",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/be4fde942cf7742e58671f8a705d8f59c510b030426ac0cdc68c9ccfe65060f3.gz"
+    },
+    {
+      "bytes": 49267,
+      "git_blob": "90d0c1f0c1496f38203fe2e869756e3a3e745818",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/bffa6f412bef1832c839a55c4aa287736b38e25b5b3625216fc607db64a64bc9.gz"
+    },
+    {
+      "bytes": 627628,
+      "git_blob": "14a0693045d9a6c0393e09bc0fc7792419ca0f20",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/c1e53d3b6ecaeca1144d5d534cc87c91bf2dbdbcb4122f77c9e6c767087e7fd4.gz"
+    },
+    {
+      "bytes": 175,
+      "git_blob": "12e7543c96064ea54bf5ae5f5a9d543b176f5242",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/c2984e218e3bf9c68789be15d9b23854013795355efb954d58495750de66c80b.gz"
+    },
+    {
+      "bytes": 172,
+      "git_blob": "998ab9fae7594f5ed9ca71aca5e52ffed4dfdffe",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/c497b69b1d8a99b8e847812513cf97ae4cc3b92911c9bb4b4cc83ea60e786fd0.gz"
+    },
+    {
+      "bytes": 417,
+      "git_blob": "84aa8886f14ee914fd20289eba93e03881148025",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/c83fbd58150ade8455c1ad5a9ce70fed996727aa4b63651f323e13f52ab1ffd4.gz"
+    },
+    {
+      "bytes": 117,
+      "git_blob": "13828ee97015099dcaf6ce1d9410d3843c1e4cfb",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/caa381fae5d82cc4f1cc145501a415e57c268c8abb2dab195d2c78f8a7bdf8b7.gz"
+    },
+    {
+      "bytes": 464,
+      "git_blob": "98086ca423093c538c87b6cdf85b74b20aab0922",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/cff96385f6750e24fb3d8eed4b31e58d038ce124bb7de89fdee06e20a1d5efe1.gz"
+    },
+    {
+      "bytes": 630,
+      "git_blob": "1decaf841e6c5c9492ca0172deb2992fe441e8d1",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/d030723603130f89a3eeebbd6781df163a08ae8abdceaaee185522856da6e22e.gz"
+    },
+    {
+      "bytes": 249,
+      "git_blob": "c104d509e69418e7110a540f771b0ec68084b5ff",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/d1b1a9c45f754ae95f78e8a0e7f8094c094150908a324e54a5eef9462899ffb1.gz"
+    },
+    {
+      "bytes": 97,
+      "git_blob": "f1239b38c5d15290f0f41af5412e913556f1a79c",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/d23759f899245fcdd143ef59bd6c95169fc4aed7934c578f1e697686f0d4bbb6.gz"
+    },
+    {
+      "bytes": 43400,
+      "git_blob": "d1646ae224ca0e447a0f424ee78c0ddbe2b4407f",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/d419f6f739f6b748db200ba0406ecd9261120027f64f32708ee2bb98671196e9.gz"
+    },
+    {
+      "bytes": 809,
+      "git_blob": "0e3a8ebd25db7e796143c98d01562a6d6a069aa3",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/d50746428eebc184998cafd155b894291eac932f7c4de8005d4052fa6b60dd2c.gz"
+    },
+    {
+      "bytes": 390,
+      "git_blob": "08bb3c28b6f988819253bdba54e788558d534f04",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/d8b6f55f0fba8a3d0843cc778b7cffa1184f584854913db872835460352ec37a.gz"
+    },
+    {
+      "bytes": 1997,
+      "git_blob": "5afe69c63cabda9bb955c0a3e78b2fc999965ea6",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/d9ce56da652804f9ed8521c885c0920dabc856def6866c31af0b0c393948e606.gz"
+    },
+    {
+      "bytes": 651,
+      "git_blob": "f5c5862907f93570d13534afe8079d4a5f3c16d6",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/dee157f60a191ada41930c889eeee764ac6d042534351f176b90d7c4fd86bc2e.gz"
+    },
+    {
+      "bytes": 23999,
+      "git_blob": "c544594898ca33820b95952f6273c5c34cb55296",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/dfc009f2e4b23141335506ec1ce4826b9deb04203bf848cca62df25efbc509fc.gz"
+    },
+    {
+      "bytes": 66044,
+      "git_blob": "e24e19cc08c24949d547e66933cd8cae31e53c53",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/e20525d52010dae9492db83e03e37171fcda9f92a6ee00194e48bf4d890c5fbd.gz"
+    },
+    {
+      "bytes": 24263,
+      "git_blob": "e79d64bcfca44354d3870431e3ce853b5cfa94b8",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/e252d54be6ca7dd14f4360cac015a82849a567f9eeb950e28e1bbfe57e90eab9.gz"
+    },
+    {
+      "bytes": 127,
+      "git_blob": "15d722d36b122d9a74878154711e5a6374e5787d",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/e5079557b9dc943e3fdcfaaeff7d9a5b41bf96dc4e9cea35e3bc5197db84189a.gz"
+    },
+    {
+      "bytes": 329,
+      "git_blob": "d0a282c9c265b94df2035a964bfecc8c91619c85",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/eae831a4857188cf269f999f0f951d9dddb1985e056f7bf69afec929cfc77486.gz"
+    },
+    {
+      "bytes": 35179,
+      "git_blob": "14e62027feac8613ebc383cab90145da720ce9a0",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/ec7148a6454e792cf5ed06a4f92a6aa109a5775a2602528ab4a710234c40371b.gz"
+    },
+    {
+      "bytes": 37076,
+      "git_blob": "5a56be0f47ff423b5a1acd42102dcc701e22ce35",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/f48467a0641ffef01243865730589ec2c3b9ba641f8403592c7e1fb40b54ee02.gz"
+    },
+    {
+      "bytes": 619,
+      "git_blob": "de2af584c4c16e053ad0b98a716cc879062e8a1b",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/f5f888c7c1f7a2e1a1818d1ddaa79a06873c934796e17f59b3466d4038184d6c.gz"
+    },
+    {
+      "bytes": 24451,
+      "git_blob": "b3961bc8a8f364d8c37e665d7c719f2652dbb641",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/f64cc70e3b829cdb4532c793678fa1893cb54c4a568e8f5d0bba58931dd3ed32.gz"
+    },
+    {
+      "bytes": 274,
+      "git_blob": "6cab3564e90a6f3a434dbd0fc380fa66f39c1da0",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/f6ebe6c7babdb152b115688b5cd24f36e03d3c8b8c9d7b2ed6c76ce7f7678c24.gz"
+    },
+    {
+      "bytes": 415,
+      "git_blob": "4004038ab40008bc32c2e63dd15e2192025b4d25",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/f7f1e5678428280b817a775952ebdf03b7367ce0eab6e30cd1887a3e89ec1bf5.gz"
+    },
+    {
+      "bytes": 78,
+      "git_blob": "5ec7fd746eb0e1ff77df3aba4542509392757c83",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/f85570d1173edccbb88e445f98eefc024f613ee62e23ee75701b11d1221b5fcf.gz"
+    },
+    {
+      "bytes": 868,
+      "git_blob": "049c7d9edaf8f741df7e5021ea39eb2ce3c01585",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/f90c50e6f9f6f5203b32ae1f402c4b555826a16558d409e4509950448ceb4c25.gz"
+    },
+    {
+      "bytes": 398,
+      "git_blob": "f5fc3c26af7a7e4bb70b4a48e0d38922128f1384",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/fae8739c68227c06368ff87741a634a8160384e63b6994bd944d93db216d175b.gz"
+    },
+    {
+      "bytes": 606,
+      "git_blob": "19d34da127bfdc1d2fdc852019b5bdb142e82b7d",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/fdc875358e8efbcd8cc0c9e8edb37861062b5844a912788ced319ba41d846745.gz"
+    },
+    {
+      "bytes": 203967,
+      "git_blob": "630f75cf8e01ea3b93c800dd577724af86278347",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/manifest.json"
+    },
+    {
+      "bytes": 1827,
+      "git_blob": "25dc47ecae832f89fe945afc809e8ee7a055f5fc",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/plan.json"
+    },
+    {
+      "bytes": 6277,
+      "git_blob": "302cd18209c7d0bd1e0db1ecd245f9c0cd21f5da",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/prepare.py"
+    },
+    {
+      "bytes": 7356,
+      "git_blob": "ec7f267d25b31652e9203a7979925b0766c4ac4c",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/recover.py"
+    },
+    {
+      "bytes": 85488,
+      "git_blob": "9a6425204623691592e5b096809e9ee0f9f685ff",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/recovery-attempt-1-clamp.stderr"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/recovery-attempt-1-clamp.stdout"
+    },
+    {
+      "bytes": 12825,
+      "git_blob": "4bd34e30d509a7efe63703ff6e596ee48fb1c745",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/recovery-attempt-1.json"
+    },
+    {
+      "bytes": 1475,
+      "git_blob": "004160db94014c0a47359c99b63a6a5df06896f1",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/recovery-continuation-execution.json"
+    },
+    {
+      "bytes": 85494,
+      "git_blob": "cc15ab8fe08acad58472d030a2ea661ef0ee31c1",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/recovery-event-clamp.stderr"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/recovery-event-clamp.stdout"
+    },
+    {
+      "bytes": 85492,
+      "git_blob": "3122c7905cb3db728025f8285e1db2e1716e7b8e",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/recovery-old-clamp.stderr"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/recovery-old-clamp.stdout"
+    },
+    {
+      "bytes": 4487,
+      "git_blob": "47480e43b88526c5cc2ceed652eb65e5e36f134c",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/results.json"
+    },
+    {
+      "bytes": 7226,
+      "git_blob": "f088e986072640d0fb5b9716e734779d8c10e6fc",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/resume_recovery.py"
+    },
+    {
+      "bytes": 3582,
+      "git_blob": "47f4308ad2afa304c6bc6186fa4ddf11146a907c",
+      "path": "artifacts/crow-rl-ccd-event-status-20261108/run.py"
+    },
+    {
+      "bytes": 5046,
+      "git_blob": "f757a486530a38947dd0c7635b6ea196b0eba9aa",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/analyze-v2.py"
+    },
+    {
+      "bytes": 380,
+      "git_blob": "1c0e54cc5abbb2fcdf52884e8a11d65da5bd8e8f",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/calibration.json"
+    },
+    {
+      "bytes": 677,
+      "git_blob": "413a677e68e79aa138efacb5010bad75fb8be937",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/compiler-cache-cleanup.json"
+    },
+    {
+      "bytes": 2532,
+      "git_blob": "d7a057fb0fa04091f7ff6e2ee71bc544af6672d7",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/oracle.py"
+    },
+    {
+      "bytes": 12,
+      "git_blob": "57cdc50305d07f35133f80962644debd6b846bf3",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/.gitattributes"
+    },
+    {
+      "bytes": 3339,
+      "git_blob": "14c6a457eae03801a8e03b5ac0ad58bda770d781",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/141c5efa31a888b0ca4658d3ff759fdc34192b967ef8e7dbaf0636e02c498e23.gz"
+    },
+    {
+      "bytes": 575,
+      "git_blob": "69fa9295be1fe4c26c46f6f8f034b90eab3e285b",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/1a87a966c2e56187c81cc0a229f18f35167526a8c9fa2657c84ebf7174c8c52f.gz"
+    },
+    {
+      "bytes": 86271,
+      "git_blob": "8421aae876bedbbead3fc58718e359733076960a",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/2c8234e705ed034a3f619ff69616ecfb86ef4b60bb819c1963c0b4924d3354b8.gz"
+    },
+    {
+      "bytes": 1161,
+      "git_blob": "17932049353bd72cf97ac294249729e2fabf801d",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/371d508ffabd0177c29c61c28e650cdd70dcb66f585c3aa55c0943b25f61e93c.gz"
+    },
+    {
+      "bytes": 493,
+      "git_blob": "071731ecc7ae2093b0e5ff330ad164d0883dd6cb",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/3bd1268437ffd9dcae3709f4f03403b2a8b143c5c6005bbb490261611d9218bc.gz"
+    },
+    {
+      "bytes": 205,
+      "git_blob": "c524af3781e24a5bb3afe0300bb958c89ab87874",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/43b4d8f9c05162b876dbefc13dcf5d4bd331b928607c723dc88832cde027560b.gz"
+    },
+    {
+      "bytes": 43443,
+      "git_blob": "97556b708a4fea5910e3f7ce784e124170b7cfc6",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/60d41a92eec58a66142df9ccff9d5c930a17b05c6ead81a63a5be7fb4ab165fb.gz"
+    },
+    {
+      "bytes": 267,
+      "git_blob": "f4fb8ab012120e2b8d789273ec74b40a472763ec",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/818993079bd29237be8213e4376aecf17d1703b1ce330eaa47d53cfcc959dad4.gz"
+    },
+    {
+      "bytes": 575,
+      "git_blob": "d1d2cfd7ef947768f93db6f4bd919250135f5ab8",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/851e429c2e17c0c2d484663a7c67feb544f588fd3a3f35279504da94f3886ec2.gz"
+    },
+    {
+      "bytes": 1260,
+      "git_blob": "636fb752f9cf4c0de243a526c7e4e48e01887a1f",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/85be54ee0a040bb09ffcf75116bb29906516b24224ad039a16ee5ced022fa12a.gz"
+    },
+    {
+      "bytes": 1163,
+      "git_blob": "51b4e15193fe89684bfc29d0bfdd92470c463458",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/96ddb8743fb4da6dcd736819c364bc9363d4bce32dce946d42591d052ff3e929.gz"
+    },
+    {
+      "bytes": 352,
+      "git_blob": "0c547f167736d6735dd3929ac6aac8ece11deb83",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/9a9a316e2da3ef3b232c2ff0a12ef7bfa25db5257817df0be41da21b110c402c.gz"
+    },
+    {
+      "bytes": 154529,
+      "git_blob": "c222a200f874e71c6b15cff37ebdb3c129f6aa03",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/a3d46e97efb9979d09fb1b385f6776c17626d27d12800e3fc81e5a326f8c14d7.gz"
+    },
+    {
+      "bytes": 362230,
+      "git_blob": "7a5223bc0e4156fa226737d5fc61876bb35e172c",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/a866d9c9f795da34ce176c0f74d3022c05e9c4ad6158b256873126c5c16de357.gz"
+    },
+    {
+      "bytes": 1212,
+      "git_blob": "ab1e2676bb9427dd93d0273060de090f045c0517",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/b1691c478d60fd0e0d7fa7d7c2b3c76651dbb669f51aa4b9a0ce3f78f4b34b3e.gz"
+    },
+    {
+      "bytes": 765,
+      "git_blob": "66ff7ff3a21a1fa3a3481e667ffdcd50a8af9248",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/ba851c444421225076c6c00e3377d01b53c0a0ddff09ee66f2ab58a9df5d1d72.gz"
+    },
+    {
+      "bytes": 68,
+      "git_blob": "2b6edc9ce5da315f229c31113982edacd04298ce",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/bc876bd1dddc7595927acaadbed651b8f56f3a56b7850b26c29e2e3ea89bcdd0.gz"
+    },
+    {
+      "bytes": 751,
+      "git_blob": "1c5b41d46c789965f11320b9b52a4b63ad4d435f",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/c384557c2e884f5418e7aef12f510966a5fcaa5c98b2fe6d3ffbe09b9b26eef0.gz"
+    },
+    {
+      "bytes": 758,
+      "git_blob": "4e9366b3e571d2896a21ff8ca0cdc255621fdd65",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/c5480dbf5982459e30974256e7daedacb0b3e662524960a800b14ae2daa8188d.gz"
+    },
+    {
+      "bytes": 65856,
+      "git_blob": "e6433e46c4894f33fea9a6dc7ae80651b1839c1c",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/d94b6fa5a8bfb67539da1d3d5269fb223a451665053bf9ec4313ea109a6e2eec.gz"
+    },
+    {
+      "bytes": 1953,
+      "git_blob": "7cf75277aa2cb9eba2521801c3739b675b4d8664",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/d97882c5da37dda1114edea65ace871e53c7250627912321389421ec6e9e0058.gz"
+    },
+    {
+      "bytes": 155398,
+      "git_blob": "924cb732dde1d830aecb6377fdca7bdd3ce69371",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/e2073aaa5fbe328d12e73db747c23a00cff1d5b4d456e86b9a27e4fa29b464e2.gz"
+    },
+    {
+      "bytes": 752,
+      "git_blob": "e3f3b128dcdf7eb1b86cfcc451844462d5d9a140",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/e4ef4b5e0e4bd4f9df1bd3119e41b2d355eb1c5c6d6765a6e180c4d3dbb81f89.gz"
+    },
+    {
+      "bytes": 634,
+      "git_blob": "1d31b850b2c6eee3109e09e7ee7210af37e7ca45",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/ee44009a9d32c3e01ffd486619c91ed25a12680310ed06789c52d8687d472915.gz"
+    },
+    {
+      "bytes": 587282,
+      "git_blob": "a8c8bd85c9db4843f004828c6ad5ef341665ebdf",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/blobs/f7f0cc781c3f780e5ba32d36ce2a6c8a5d17e5071594a119a0e12cfe15fbcf3e.gz"
+    },
+    {
+      "bytes": 32089,
+      "git_blob": "0fae46b60b334d6fa74c0db7ecba4da60750ffa0",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/payload/manifest.json"
+    },
+    {
+      "bytes": 8064,
+      "git_blob": "0aaa01bd3d94cbf0c33bc5d459885c91d6917625",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/plan.json"
+    },
+    {
+      "bytes": 7827,
+      "git_blob": "f139e05c353e91f6d9cc173339caa7680f9a6d47",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/prepare.py"
+    },
+    {
+      "bytes": 6225,
+      "git_blob": "6cc9ed837d10f368ac4843e95ff29b9670c2665b",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/run.py"
+    },
+    {
+      "bytes": 5626,
+      "git_blob": "2d30994bec2056a2b0055d9f3a0468d46c0e6e5f",
+      "path": "artifacts/crow-rl-ccd-translation-20261108/runtime.json"
+    },
+    {
+      "bytes": 380,
+      "git_blob": "1c0e54cc5abbb2fcdf52884e8a11d65da5bd8e8f",
+      "path": "artifacts/crow-rl-ccd-translation-no-floor-20261108/calibration.json"
+    },
+    {
+      "bytes": 2557,
+      "git_blob": "ad403e0b6aa08d67d416c760425d5693395fceb0",
+      "path": "artifacts/crow-rl-ccd-translation-no-floor-20261108/integrate.py"
+    },
+    {
+      "bytes": 5004,
+      "git_blob": "9f9d36cb270af24352471f66ce46849677c5daee",
+      "path": "artifacts/crow-rl-ccd-translation-no-floor-20261108/integration.json"
+    },
+    {
+      "bytes": 2616,
+      "git_blob": "0d19ef5ebdf4428fbd3d3c0d8ea6541b41af90cd",
+      "path": "artifacts/crow-rl-ccd-translation-no-floor-20261108/oracle.py"
+    },
+    {
+      "bytes": 9406,
+      "git_blob": "9c20581915921e012a86e4b3e9c4e18d916a8508",
+      "path": "artifacts/crow-rl-ccd-translation-no-floor-20261108/plan.json"
+    },
+    {
+      "bytes": 11253,
+      "git_blob": "c30673da336684633b794f2ae9e1347cabd6e53b",
+      "path": "artifacts/crow-rl-ccd-translation-no-floor-20261108/prepare.py"
+    },
+    {
+      "bytes": 7518,
+      "git_blob": "8885fb5daee90b1bb739f9d2989bc50d47b1f85e",
+      "path": "artifacts/crow-rl-ccd-translation-no-floor-20261108/run.py"
+    },
+    {
+      "bytes": 7424,
+      "git_blob": "3b0dbf05e5a2ffc5a071f9b3e18ffebd73e6b46c",
+      "path": "artifacts/crow-rl-ccd-translation-no-floor-20261108/runtime.json"
+    }
+  ],
+  "omitted_logical_bytes": 9737549,
+  "open_handles": 0,
+  "preserved_input_prefixes": [
+    "artifacts/crow-rl-feeding-behavior-20261107/policies/",
+    "artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib",
+    "artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib"
+  ],
+  "remote_commit": "0e37533e2f2f1ec53b5b78f43b38631f6560a224",
+  "status": "omitted"
+}

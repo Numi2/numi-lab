@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-ccd-event-status-20261108/recover.py", line 52, in <module>
+    exact(version+'-clamp/'+name,'input/'+version+'-'+name)
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-ccd-event-status-20261108/recover.py", line 39, in exact
+    def exact(actual,expected):assert (T/actual).read_bytes()==(T/expected).read_bytes(),(actual,expected)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('old-clamp/failure-contact-status.bin', 'input/old-failure-contact-status.bin')
