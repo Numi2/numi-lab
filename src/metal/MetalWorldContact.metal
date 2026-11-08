@@ -8177,6 +8177,14 @@ inline void mrWorldWave32SolvePacket(
             inverse[2][1],
             inverse[2][2]
         );
+        // The normal-only candidate uses the same regularized diagonal as
+        // the actual 3x3 factor, stored in otherwise-unused row padding.
+        float normalScale = 0.0f;
+        for (uint i=0u; i<3u; ++i)
+            for (uint j=0u; j<3u; ++j)
+                normalScale = max(normalScale, abs(effective[i][j]));
+        preconditioner.row0.w = effective[0][0] +
+            normalScale * kContactMatrixRegularization;
         preconditioners[
             constraintBase + localConstraint
         ] = preconditioner;
@@ -8544,6 +8552,25 @@ inline void mrWorldWave32SolvePacket(
     }
     threadgroup_barrier(mem_flags::mem_device);
 
+    // Bounded normal-only research domain: small mixed islands in which
+    // every cone is frictionless and uncapped. Other islands keep the
+    // original solver and the final mixed-state acceptance check.
+    const uint mixedWorkFlags = MR_ISLAND_WORK_HAS_ROD |
+                                MR_ISLAND_WORK_HAS_ARTICULATION;
+    bool priorityMixedNormal =
+        (work.flags & mixedWorkFlags) == mixedWorkFlags &&
+        work.constraintCount > 0u && work.constraintCount <= 32u;
+    if (priorityMixedNormal) for (uint ti=0u; ti<work.tileCount; ++ti) {
+        const MRContactTileGPU tile = tiles[tileBase + work.firstTile + ti];
+        for (uint j=0u; j<tile.constraintCount; ++j) {
+            const uint ci = tileConstraintIndices[constraintBase + tile.partialOffset + j];
+            const auto cone = evaluatedCones[constraintBase + ci];
+            priorityMixedNormal = priorityMixedNormal &&
+                cone.effectiveFrictionU == 0.0f &&
+                cone.effectiveFrictionV == 0.0f &&
+                cone.maximumNormalImpulse == 0.0f;
+        }
+    }
     const uint solverIterations =
         dispatch.velocityIterations +
         (pass.reserved0 != 0u
@@ -8552,6 +8579,38 @@ inline void mrWorldWave32SolvePacket(
     for (uint iteration = 0u;
          iteration < solverIterations;
          ++iteration) {
+      // Each pivot applies through the factorized operator before rechecking
+      // every row; fixed work limit and final certificate remain in force.
+      const uint pivotCount = priorityMixedNormal ? 8u : 1u;
+      for (uint pivot=0u; pivot<pivotCount; ++pivot) {
+        if (priorityMixedNormal && localLane == 0u) {
+            uint best = MR_INVALID_INDEX;
+            float bestScore = 0.0f;
+            for (uint ti=0u; ti<work.tileCount; ++ti) {
+                const MRContactTileGPU tile = tiles[tileBase + work.firstTile + ti];
+                for (uint j=0u; j<tile.constraintCount; ++j) {
+                    const uint ci = tileConstraintIndices[constraintBase + tile.partialOffset + j];
+                    device const MRContactConstraintGPU& ct = contacts[constraintBase + ci];
+                    device const MREvaluatedConstraintIRRowGPU& row = evaluatedRows[rowBase + 3u*ci];
+                    const float3 rel = typedRelativePointVelocity(ci,ct,bodies,dispatch.articulationIndex,
+                        pointJacobians,pointJacobianBase,dispatch.nv,articulationVelocity,rodNodes,rodEdges,
+                        rodColliders,rodWitnesses,constraintWitnessIndices,constraintBase);
+                    const float denominator = preconditioners[constraintBase+ci].row0.w;
+                    const float rhs = row.targetVelocity-dot(row.direction.xyz,rel)-row.regularization*ct.impulses.x;
+                    const float next = max(ct.impulses.x + rhs/denominator,0.0f);
+                    const float score = abs(next-ct.impulses.x)*sqrt(denominator);
+                    if (!(denominator > 0.0f) || !isfinite(denominator) ||
+                        !isfinite(next) || !isfinite(score)) {
+                        localFailure = MR_STEP_NONFINITE_RESULT;
+                        localFailureConstraint = min(localFailureConstraint,ci);
+                    } else if (score > bestScore) {
+                        bestScore=score; best=ci;
+                    }
+                }
+            }
+            sharedFailure[cohortIndex] = best;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
         for (uint localTile = 0u;
              localTile < work.tileCount;
              ++localTile) {
@@ -8566,6 +8625,10 @@ inline void mrWorldWave32SolvePacket(
                 ];
             device MRContactConstraintGPU& contact =
                 contacts[constraintBase + localConstraint];
+            if (priorityMixedNormal && localConstraint != sharedFailure[cohortIndex]) {
+                impulseDeltas[constraintBase + localConstraint] = float4(0.0f);
+                continue;
+            }
             device const MREvaluatedConstraintIRRowGPU*
                 localRows =
                     evaluatedRows +
@@ -8622,8 +8685,13 @@ inline void mrWorldWave32SolvePacket(
             // The exact rod inverse is dense, so its retained relaxation uses
             // the full active contact count rather than a SIMD-width cap.
             const float relaxation = preconditioner.row2.w;
-            const float3 delta =
-                relaxation * (proposed - previous);
+            float3 delta;
+            if (priorityMixedNormal) {
+                const float normalNext = max(previous.x + rhs.x / preconditioner.row0.w, 0.0f);
+                delta = float3(normalNext - previous.x, -previous.y, -previous.z);
+            } else {
+                delta = relaxation * (proposed - previous);
+            }
             const float3 candidate = previous + delta;
             if (!finite3(candidate) || !finite3(delta)) {
                 laneFailureRhs = max(
@@ -8872,6 +8940,7 @@ inline void mrWorldWave32SolvePacket(
             localFailure = MR_STEP_FACTORIZATION_FAILED;
         }
         threadgroup_barrier(mem_flags::mem_device);
+      }
     }
 
     float laneNormalResidual = 0.0f;
@@ -8937,7 +9006,8 @@ inline void mrWorldWave32SolvePacket(
             const float tolerance = 1.0e-4f + 0.01f *
                 max(abs(localRows[0].preSolveVelocity),
                     abs(localRows[0].targetVelocity));
-            const bool finite = isfinite(pn) && isfinite(upper) &&
+            const bool finite = finite3(contact.impulses.xyz) && isfinite(upper) &&
+                isfinite(cone.effectiveFrictionU) && isfinite(cone.effectiveFrictionV) &&
                 finite3(relative) && isfinite(normalEquation) &&
                 isfinite(localRows[0].preSolveVelocity) &&
                 isfinite(localRows[0].targetVelocity) &&
@@ -8947,8 +9017,15 @@ inline void mrWorldWave32SolvePacket(
                 (pn > kConeEpsilon ? abs(normalEquation) : max(-normalEquation, 0.0f));
             const bool validImpulse = pn >= -kConeEpsilon &&
                 !(upper > 0.0f && pn > upper + kConeEpsilon);
-            if (!finite || !validImpulse || violation > tolerance) {
-                localFailure = !finite ? MR_STEP_NONFINITE_RESULT : MR_STEP_DID_NOT_CONVERGE;
+            // Until frictional mixed response has a qualified selection
+            // rule, only force-free frictional rows may be published.
+            const bool hasFriction = cone.effectiveFrictionU > 0.0f ||
+                                     cone.effectiveFrictionV > 0.0f;
+            const bool unsupportedFriction = hasFriction &&
+                any(contact.impulses.xyz != float3(0.0f));
+            if (!finite || !validImpulse || violation > tolerance || unsupportedFriction) {
+                localFailure = !finite ? MR_STEP_NONFINITE_RESULT :
+                    unsupportedFriction ? MR_STEP_UNSUPPORTED : MR_STEP_DID_NOT_CONVERGE;
                 localFailureConstraint = min(localFailureConstraint, localConstraint);
                 laneFailureRhs = max(laneFailureRhs, violation);
                 laneFailureInverse = max(laneFailureInverse, tolerance);
