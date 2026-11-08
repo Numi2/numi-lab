@@ -1,0 +1,39 @@
+{
+  "arm": "ipc_area",
+  "h": 7.8125e-06,
+  "native_sampled_peak_N": 0.433220933246,
+  "native_peak_sample_time_s": 0.004734375,
+  "reference_2us_sampled_peak_N": 0.4644868870495682,
+  "reference_2us_peak_time_s": 0.004739999999999999,
+  "reference_full_025us_sampled_peak_N": 0.4644937609987676,
+  "max_cumulative_error_time_s": 0.008472,
+  "max_cumulative_signed_error_Ns": 4.074099018510675e-05,
+  "reference_final_impulse_Ns": 0.0004221144656084999,
+  "impulse_samples": [
+    {
+      "t_s": 0.002,
+      "native_Ns": 0.0,
+      "reference_Ns": 0
+    },
+    {
+      "t_s": 0.004,
+      "native_Ns": 0.0,
+      "reference_Ns": 0
+    },
+    {
+      "t_s": 0.006,
+      "native_Ns": 9.780445465813283e-05,
+      "reference_Ns": 0.00010279533269974367
+    },
+    {
+      "t_s": 0.008,
+      "native_Ns": 0.00024106627734202357,
+      "reference_Ns": 0.0002530760372822685
+    },
+    {
+      "t_s": 0.01,
+      "native_Ns": 0.00044067537242336067,
+      "reference_Ns": 0.0004221144656084999
+    }
+  ]
+}

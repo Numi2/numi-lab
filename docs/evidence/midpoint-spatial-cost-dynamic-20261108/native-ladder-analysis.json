@@ -1,0 +1,546 @@
+{
+  "n2-ipc_area_midpoint": {
+    "attempts": [
+      {
+        "h": 0.000125,
+        "accepted_steps": 80,
+        "rejected_steps": 0,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.05661948182753015,
+        "peak_force_error": 0.0625831079815892,
+        "total_impulse_error": 0.0063213740761941745,
+        "cumulative_impulse_error": 0.026708637974578214
+      },
+      {
+        "h": 6.25e-05,
+        "accepted_steps": 160,
+        "rejected_steps": 0,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.01565419221706974,
+        "peak_force_error": 0.03220644495211765,
+        "total_impulse_error": 0.0023593841616223925,
+        "cumulative_impulse_error": 0.007546065011510455
+      },
+      {
+        "h": 3.125e-05,
+        "accepted_steps": 320,
+        "rejected_steps": 0,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.0031412622652621214,
+        "peak_force_error": 0.005009976790384976,
+        "total_impulse_error": 0.00037354243032591524,
+        "cumulative_impulse_error": 0.002016001241733015
+      },
+      {
+        "h": 1.5625e-05,
+        "accepted_steps": 640,
+        "rejected_steps": 0,
+        "passes": true,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.0008545475655432048,
+        "peak_force_error": 0.0025836490280266833,
+        "total_impulse_error": 0.0001080943510635038,
+        "cumulative_impulse_error": 0.0005162791587047887
+      }
+    ],
+    "largest_tested_passing_h": 1.5625e-05
+  },
+  "n2-ipc_area": {
+    "attempts": [
+      {
+        "h": 0.000125,
+        "accepted_steps": 80,
+        "rejected_steps": 0,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.39244467923514736,
+        "peak_force_error": 0.4885379948347963,
+        "total_impulse_error": 0.08720869293740482,
+        "cumulative_impulse_error": 0.17858324386781424
+      },
+      {
+        "h": 6.25e-05,
+        "accepted_steps": 160,
+        "rejected_steps": 0,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.509001390663288,
+        "peak_force_error": 0.3228168798940743,
+        "total_impulse_error": 0.08189344567771917,
+        "cumulative_impulse_error": 0.19226691683347485
+      },
+      {
+        "h": 3.125e-05,
+        "accepted_steps": 320,
+        "rejected_steps": 0,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.21996974917730702,
+        "peak_force_error": 0.1878830518183547,
+        "total_impulse_error": 0.10907374354821461,
+        "cumulative_impulse_error": 0.17968274374236928
+      },
+      {
+        "h": 1.5625e-05,
+        "accepted_steps": 640,
+        "rejected_steps": 0,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.29870853627931415,
+        "peak_force_error": 0.10261086435432926,
+        "total_impulse_error": 0.08814583243074334,
+        "cumulative_impulse_error": 0.1250757249778977
+      },
+      {
+        "h": 7.8125e-06,
+        "accepted_steps": 1280,
+        "rejected_steps": 0,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.2695207359075447,
+        "peak_force_error": 0.05340593011624214,
+        "total_impulse_error": 0.061728662705952855,
+        "cumulative_impulse_error": 0.07718165929984311
+      },
+      {
+        "h": 3.90625e-06,
+        "accepted_steps": 2560,
+        "rejected_steps": 0,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.1898347912450293,
+        "peak_force_error": 0.027270668159450596,
+        "total_impulse_error": 0.043305724591615156,
+        "cumulative_impulse_error": 0.043305724591615156
+      }
+    ],
+    "largest_tested_passing_h": null
+  },
+  "n4-ipc_area_midpoint": {
+    "attempts": [
+      {
+        "h": 0.000125,
+        "accepted_steps": 80,
+        "rejected_steps": 0,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.1331416131359212,
+        "peak_force_error": 0.19448977632017597,
+        "total_impulse_error": 0.017531335523316195,
+        "cumulative_impulse_error": 0.05033212070277687
+      },
+      {
+        "h": 6.25e-05,
+        "accepted_steps": 160,
+        "rejected_steps": 0,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.020787909268615925,
+        "peak_force_error": 0.06329140816779588,
+        "total_impulse_error": 0.002814218798740915,
+        "cumulative_impulse_error": 0.0129374762469508
+      },
+      {
+        "h": 3.125e-05,
+        "accepted_steps": 320,
+        "rejected_steps": 0,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.004742916521399648,
+        "peak_force_error": 0.010573323859522508,
+        "total_impulse_error": 0.000779245332959448,
+        "cumulative_impulse_error": 0.0035311786407848096
+      },
+      {
+        "h": 1.5625e-05,
+        "accepted_steps": 640,
+        "rejected_steps": 0,
+        "passes": true,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.0011513067482543837,
+        "peak_force_error": 0.002411024024003166,
+        "total_impulse_error": 0.00019421777172695296,
+        "cumulative_impulse_error": 0.0008706343814725422
+      }
+    ],
+    "largest_tested_passing_h": 1.5625e-05
+  },
+  "n4-ipc_area": {
+    "attempts": [
+      {
+        "h": 0.000125,
+        "accepted_steps": 80,
+        "rejected_steps": 0,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.30827336276712386,
+        "peak_force_error": 0.5778050731008197,
+        "total_impulse_error": 0.01865994884171402,
+        "cumulative_impulse_error": 0.10483120751462967
+      },
+      {
+        "h": 6.25e-05,
+        "accepted_steps": 160,
+        "rejected_steps": 0,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.2857112797235849,
+        "peak_force_error": 0.386662480974086,
+        "total_impulse_error": 0.012661872411479216,
+        "cumulative_impulse_error": 0.1092362106545678
+      },
+      {
+        "h": 3.125e-05,
+        "accepted_steps": 320,
+        "rejected_steps": 0,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.257299440847698,
+        "peak_force_error": 0.23005636546332672,
+        "total_impulse_error": 0.001183284352989533,
+        "cumulative_impulse_error": 0.1237130227103131
+      },
+      {
+        "h": 1.5625e-05,
+        "accepted_steps": 640,
+        "rejected_steps": 0,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.23291581089125316,
+        "peak_force_error": 0.12953084889105157,
+        "total_impulse_error": 0.00011874222843472092,
+        "cumulative_impulse_error": 0.09383260354485391
+      },
+      {
+        "h": 7.8125e-06,
+        "accepted_steps": 1280,
+        "rejected_steps": 0,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.3420883751108028,
+        "peak_force_error": 0.06732669064386121,
+        "total_impulse_error": 0.04397126449600407,
+        "cumulative_impulse_error": 0.09651645111563874
+      },
+      {
+        "h": 3.90625e-06,
+        "accepted_steps": 815,
+        "rejected_steps": 1,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "failure_status": 10,
+        "failure_outer_status": 11,
+        "failure_gap_m": 0.000150225605466,
+        "failure_contacts": 0,
+        "failure_diagnostics": [
+          3.26352055708e-05,
+          1.76101377924e-09,
+          0,
+          0
+        ]
+      }
+    ],
+    "largest_tested_passing_h": null
+  },
+  "n8-ipc_area_midpoint": {
+    "attempts": [
+      {
+        "h": 0.000125,
+        "accepted_steps": 50,
+        "rejected_steps": 1,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "failure_status": 10,
+        "failure_outer_status": 11,
+        "failure_gap_m": 9.22198378248e-05,
+        "failure_contacts": 16,
+        "failure_diagnostics": [
+          4.5600290037e-12,
+          4.39086917867e-12,
+          1.02999206386e-18,
+          0.000125000005937
+        ]
+      },
+      {
+        "h": 6.25e-05,
+        "accepted_steps": 160,
+        "rejected_steps": 0,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.06383954134650202,
+        "peak_force_error": 0.07885658191641672,
+        "total_impulse_error": 0.0011695271293227592,
+        "cumulative_impulse_error": 0.032965417174300106
+      },
+      {
+        "h": 3.125e-05,
+        "accepted_steps": 204,
+        "rejected_steps": 1,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "failure_status": 10,
+        "failure_outer_status": 11,
+        "failure_gap_m": 9.58052260103e-05,
+        "failure_contacts": 8,
+        "failure_diagnostics": [
+          1.21690266371e-12,
+          1.09771729467e-12,
+          9.48676900925e-19,
+          3.12500014843e-05
+        ]
+      },
+      {
+        "h": 1.5625e-05,
+        "accepted_steps": 294,
+        "rejected_steps": 1,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "failure_status": 10,
+        "failure_outer_status": 11,
+        "failure_gap_m": 9.65646686382e-05,
+        "failure_contacts": 81,
+        "failure_diagnostics": [
+          5.60577083884e-13,
+          5.48858647333e-13,
+          4.06575814682e-19,
+          1.56250007421e-05
+        ]
+      },
+      {
+        "h": 7.8125e-06,
+        "accepted_steps": 407,
+        "rejected_steps": 1,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "failure_status": 10,
+        "failure_outer_status": 11,
+        "failure_gap_m": 0.000150408508489,
+        "failure_contacts": 0,
+        "failure_diagnostics": [
+          3.28016205777e-13,
+          2.74429323667e-13,
+          2.13452302708e-19,
+          7.81250037107e-06
+        ]
+      },
+      {
+        "h": 3.90625e-06,
+        "accepted_steps": 203,
+        "rejected_steps": 1,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "failure_status": 10,
+        "failure_outer_status": 11,
+        "failure_gap_m": 0.000196915731067,
+        "failure_contacts": 0,
+        "failure_diagnostics": [
+          1.39946322759e-13,
+          1.37214661833e-13,
+          1.37642853929e-20,
+          3.90625018554e-06
+        ]
+      }
+    ],
+    "largest_tested_passing_h": null
+  },
+  "n8-ipc_area": {
+    "attempts": [
+      {
+        "h": 0.000125,
+        "accepted_steps": 35,
+        "rejected_steps": 1,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "failure_status": 10,
+        "failure_outer_status": 11,
+        "failure_gap_m": 0.000103432787,
+        "failure_contacts": 81,
+        "failure_diagnostics": [
+          1.55417183123e-05,
+          1.30738825987e-07,
+          0,
+          0
+        ]
+      },
+      {
+        "h": 6.25e-05,
+        "accepted_steps": 86,
+        "rejected_steps": 1,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "failure_status": 10,
+        "failure_outer_status": 11,
+        "failure_gap_m": 9.72678899416e-05,
+        "failure_contacts": 81,
+        "failure_diagnostics": [
+          1.03791226138e-05,
+          7.31152312028e-08,
+          0,
+          0
+        ]
+      },
+      {
+        "h": 3.125e-05,
+        "accepted_steps": 320,
+        "rejected_steps": 0,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "binned_force_error": 0.16333059014689874,
+        "peak_force_error": 0.41708126552440483,
+        "total_impulse_error": 0.04879947983344217,
+        "cumulative_impulse_error": 0.05874929636694648
+      },
+      {
+        "h": 1.5625e-05,
+        "accepted_steps": 408,
+        "rejected_steps": 1,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "failure_status": 10,
+        "failure_outer_status": 11,
+        "failure_gap_m": 9.57497759373e-05,
+        "failure_contacts": 64,
+        "failure_diagnostics": [
+          1.14339281936e-05,
+          1.27999788546e-08,
+          0,
+          0
+        ]
+      },
+      {
+        "h": 7.8125e-06,
+        "accepted_steps": 407,
+        "rejected_steps": 1,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "failure_status": 10,
+        "failure_outer_status": 11,
+        "failure_gap_m": 0.000150286650751,
+        "failure_contacts": 0,
+        "failure_diagnostics": [
+          1.57643044076e-05,
+          1.69255787164e-09,
+          0,
+          0
+        ]
+      },
+      {
+        "h": 3.90625e-06,
+        "accepted_steps": 407,
+        "rejected_steps": 1,
+        "passes": false,
+        "area_valid": true,
+        "rejected_state_unchanged": true,
+        "restore_replay": true,
+        "continuation_replay": true,
+        "failure_status": 10,
+        "failure_outer_status": 11,
+        "failure_gap_m": 0.00018757165526,
+        "failure_contacts": 0,
+        "failure_diagnostics": [
+          1.47083510456e-05,
+          8.31265889456e-10,
+          0,
+          0
+        ]
+      }
+    ],
+    "largest_tested_passing_h": null
+  }
+}

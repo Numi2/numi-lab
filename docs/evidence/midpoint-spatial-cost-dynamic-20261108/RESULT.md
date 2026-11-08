@@ -1,4 +1,4 @@
-# Spatial and accuracy-adjusted midpoint study — in progress
+# Spatial and accuracy-adjusted midpoint study — 32-division reference in progress
 
 Native runs are on Apple M6 with the binary and shader hashes in
 [BINARY_INPUTS.sha256](BINARY_INPUTS.sha256). The native physics inputs were
@@ -56,7 +56,13 @@ the median accepted simulated seconds per wall second was approximately
 0.0003536. Initialization and the final verification snapshot are outside
 the timer; GPU diagnostic collection and normal per-step log output remain
 inside it. These standalone results are not an integrator comparison.
-At 4 divisions, midpoint also passed at 15.625 us: 0.1151% binned force, 0.2411% sampled peak, 0.0194% final impulse, and 0.0871% maximum cumulative impulse. Three standalone 4-division midpoint costs were 30.6918, 30.6668 and 30.4342 s per 10 ms rollout; each final digest matched its accuracy trace. At 4 divisions, backward Euler found no qualifying step in the prescribed ladder: 7.8125 us failed the accuracy gates, while the 3.90625 us attempt rejected with status 10 after 815 accepted steps, before contact, and restored the prior physical state. At 8 divisions, midpoint at 125, 31.25 and 15.625 us rejected with nonlinear-solver status 10 and restored the previous physical state; 62.5 us completed but failed the accuracy gates. Smaller-step trials and the backward Euler search are still in progress.
+At 4 divisions, midpoint also passed at 15.625 us: 0.1151% binned force, 0.2411% sampled peak, 0.0194% final impulse, and 0.0871% maximum cumulative impulse. The four-division [midpoint](curve-n4-midpoint.json) and [backward Euler](curve-n4-backward-euler.json) peak and cumulative-impulse curves are retained separately. Three standalone 4-division midpoint costs were 30.6918, 30.6668 and 30.4342 s per 10 ms rollout; each final digest matched its accuracy trace. 
+
+At 4 divisions, backward Euler found no qualifying step in the prescribed ladder: 7.8125 us failed the accuracy gates, while the 3.90625 us attempt rejected with status 10 after 815 accepted steps, before contact, and restored the prior physical state. 
+
+At 8 divisions no midpoint step qualified. The 62.5 us rollout completed but failed the accuracy gates; 125, 31.25, 15.625, 7.8125 and 3.90625 us rejected with nonlinear-solver status 10 and restored the previous physical state. The smallest step rejected after 203 accepted steps, before contact. Its status values have the final midpoint momentum-certificate layout: reported norm 1.39946e-13 N s, limit 1.37215e-13 N s, and maximum kinematic defect 1.37643e-20 m. The 7.8125 us failure likewise occurred before contact. These observations identify the failing certificate; they do not by themselves distinguish an inaccurate solve from finite-precision sensitivity. 
+
+At 8 divisions backward Euler also found no qualifying step: the 31.25 us rollout completed but failed the accuracy gates, and the other five attempts rejected. Across all 11 rejected native trials in the ladder, the recorded accepted physical state was restored and the restore/continuation replay checks passed. The complete per-attempt statuses and diagnostics are in [native-ladder-analysis.json](native-ladder-analysis.json).
 
 ## Transactions and dynamic owner
 
