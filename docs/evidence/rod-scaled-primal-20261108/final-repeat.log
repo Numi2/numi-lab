@@ -1,0 +1,6 @@
+trajectory inputs, outputs and analysis byte-identical
+device=Apple M6 cases=10 input_stride=576 output_stride=560
+device=Apple M6 cases=12 input_stride=576 output_stride=560
+device=Apple M6 cases=5 input_stride=576 output_stride=560
+device=Apple M6 cases=2 input_stride=576 output_stride=560
+all four final single-step buffers byte-identical

@@ -1,0 +1,3 @@
+device=Apple M6 cases=10 input_stride=576 output_stride=560
+device=Apple M6 cases=5 input_stride=576 output_stride=560
+both output buffers identical on repeat
