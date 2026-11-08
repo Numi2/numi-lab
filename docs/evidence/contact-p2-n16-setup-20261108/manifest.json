@@ -1,0 +1,16 @@
+{
+  "commit": "7bf341f9e3e92513babad97a0b9b094cc5982eab",
+  "source_sha256": "fbf47651781e5c18d0180f1cf90b861a005fcb2de3ffcab470d3965cb8a22bd1",
+  "model_sha256": "726dbf72ff85ceec348df396b6a26c4db90583bc7843d8c8303035d6580f96bb",
+  "cmd": [
+    "/private/tmp/numi-fem-py313b-20261107/bin/python",
+    "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_p2_n16_setup.py"
+  ],
+  "exit": 0,
+  "limit_reason": null,
+  "wall_seconds": 10.124420625041239,
+  "sampled_peak_rss_kib": 1611872,
+  "rss_limit_kib": 4194304,
+  "output_sha256": "2998502711b7b14a1aed6a7f206e0d8912f1378a1c419932795908ad6bfdf7d3",
+  "setup_check_pass": true
+}

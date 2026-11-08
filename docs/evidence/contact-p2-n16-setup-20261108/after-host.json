@@ -1,0 +1,10 @@
+{
+  "uptime": {
+    "exit": 0,
+    "output": "16:10  up 5 days, 37 mins, 3 users, load averages: 5.00 4.59 4.29\n"
+  },
+  "memory_pressure": {
+    "exit": 0,
+    "output": "The system has 17179869184 (1048576 pages with a page size of 16384).\n\nStats: \nPages free: 119788 \nPages purgeable: 5749 \nPages purged: 17893198 \n\nSwap I/O:\nSwapins: 4449438 \nSwapouts: 30970378 \n\nPage Q counts:\nPages active: 374877 \nPages inactive: 374523 \nPages speculative: 2288 \nPages throttled: 0 \nPages wired down: 118522 \n\nCompressor Stats:\nPages used by compressor: 23263 \nPages decompressed: 130511635 \nPages compressed: 345265910 \n\nFile I/O:\nPageins: 300854966 \nPageouts: 930325 \n\nSystem-wide memory free percentage: 85%\n"
+  }
+}

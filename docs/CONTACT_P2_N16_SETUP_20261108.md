@@ -21,3 +21,17 @@ full-trajectory runtime, temporal or force accuracy, continuum clearance,
 spatial convergence or production qualification. A separate preregistered
 run would still be required. The unchanged force and impulse gates remain
 open.
+
+## Result
+
+Setup completed in 10.1 s with sampled peak RSS 1,611,872 KiB (1.54 GiB),
+under the 4 GiB sampled limit. The model has 35,937 P2 DOFs, 24,576 tets,
+977,793 mass-matrix nonzeros, 69,689,492 sparse-factor nonzeros and total
+mass 0.0088 kg. Before/after host snapshots each reported 85% system memory
+free; load averages were 5.37/4.65/4.31 and 5.00/4.59/4.29.
+
+The [evidence](evidence/contact-p2-n16-setup-20261108/) includes the
+one-second RSS samples, identities and host snapshots. Sampling can miss
+short memory spikes. Neither full-step runtime nor full-trajectory peak RSS
+was measured, and this does not qualify spatial force or other physical
+behavior. No trajectory or GPU was run.
