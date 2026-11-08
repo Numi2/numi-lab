@@ -1,0 +1,3 @@
+# Independent curvature at published Metal states
+
+At each of the nine unchanged Metal outputs retained in free-3d-global-1-results.json, evaluate the complete unshifted FP64 discrete tangent independently from central differences of the native FP64 energy gradient, including all free positions and twists and the backward-Euler inertia. Form the inertially normalized symmetric tangent. Require its smallest eigenvalue to be strictly positive at both derivative spacings: position 1e-6 and 5e-7 m, twist 1e-4 and 5e-5 rad. Record both minimum eigenvalues and maximum absolute matrix disagreement. This checks local curvature at the actual published state, not global uniqueness. It does not prove the Metal tangent matches the FP64 tangent or cover states beyond this fixture.
