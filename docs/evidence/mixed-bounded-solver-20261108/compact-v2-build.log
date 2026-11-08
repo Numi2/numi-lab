@@ -1,0 +1,4 @@
+compact-v2.cpp:17:283: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+   17 |  std::vector<metalrobo::MetalWorldResult> out(3),repeat(3);std::vector<metalrobo::MetalWorldDiagnostics> diag;for(int i=0;i<3;++i){metalrobo::MetalWorldConfig owner;owner.metallibPath=argv[i+1];metalrobo::MetalWorldContext ctx(owner);diag.push_back(ctx.run(world,batch,cfg,out[i]));ctx.run(world,batch,cfg,repeat[i]);}
+      |                                                                                                                                                                                                                                                                                           ^~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.
