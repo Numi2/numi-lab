@@ -54,6 +54,8 @@ if(BUILD_TESTING)
     add_executable(numi_contact_fem_fp64_midpoint fem_plane_fp64_midpoint.cpp)
     add_test(NAME numi.contact.fem_fp64_midpoint_discrete
         COMMAND numi_contact_fem_fp64_midpoint --discrete-check)
+    add_executable(numi_contact_midpoint_balance midpoint_balance_test.cpp)
+    add_test(NAME numi.contact.midpoint_balance COMMAND numi_contact_midpoint_balance)
     add_executable(numi_contact_midpoint_transaction midpoint_transaction_cpu.cpp)
     add_test(NAME numi.contact.midpoint_transaction
         COMMAND numi_contact_midpoint_transaction)

@@ -5,6 +5,7 @@
 #define NM_FEM_BE_NO_MAIN
 #include "fem_plane_fp64_backward_euler.cpp"
 #undef NM_FEM_BE_NO_MAIN
+#include "midpoint_balance.hpp"
 #pragma clang diagnostic pop
 
 static std::vector<double> midResidual(const Model& m,const State& old,const State& end,double h){
@@ -128,12 +129,29 @@ int main(int argc,char**argv){
    &&s.v[i].x==old.v[i].x&&s.v[i].y==old.v[i].y&&s.v[i].z==old.v[i].z;
   std::array<double,10> bins{};double impulse=0,worst=0,minGap=1,work=0,maxStepWorkDefect=0;
   double initialEnergy=m.energy(s)+kinetic(m,s),initialContact=contactEnergy(m,s),energyDefect=0;int maxIterations=0;
+  double maxLocalImpulseResidual=0,maxGlobalImpulseResidual=0;
   long steps=std::lround(duration/h);
   for(long i=0;i<steps;++i){
    old=s;int it=0;s=midAdvance(m,old,h,it,worst);maxIterations=std::max(maxIterations,it);
    State mid=old;
    for(size_t j=0;j<mid.x.size();++j)mid.x[j]=(old.x[j]+s.x[j])*.5;
-   double force=m.rhs(mid).impulse;impulse+=h*force;bins[std::min(9,int((i+.5)*h/.001))]+=force*h/.001;
+   const Change midpointForce=m.rhs(mid);
+   MidpointBalance balance; V totalMomentumChange{}; double totalMass=0;
+   for(size_t j=0;j<m.mass.size();++j){
+    const double mass=m.mass[j];
+    const V dp=(s.v[j]-old.v[j])*mass;
+    const V applied=midpointForce.v[j]*(h*mass);
+    balance.add({dp.x,dp.y,dp.z},{applied.x,applied.y,applied.z});
+    totalMomentumChange+=dp; totalMass+=mass;
+   }
+   // Independently reconstruct external impulse from gravity and normal
+   // contact. Internal element forces are not included in this global check.
+   const V globalResidual=totalMomentumChange-V{0,0,h*(midpointForce.impulse-9.81*totalMass)};
+   const double globalNorm=std::hypot(globalResidual.x,globalResidual.y,globalResidual.z);
+   if(!std::isfinite(globalNorm))throw std::runtime_error("nonfinite global momentum residual");
+   maxLocalImpulseResidual=std::max(maxLocalImpulseResidual,balance.maxLocal);
+   maxGlobalImpulseResidual=std::max(maxGlobalImpulseResidual,globalNorm);
+   double force=midpointForce.impulse;impulse+=h*force;bins[std::min(9,int((i+.5)*h/.001))]+=force*h/.001;
    double stepWork=0;
    for(size_t j=0;j<m.mass.size();++j){
     minGap=std::min(minGap,s.x[j].z);
@@ -150,6 +168,8 @@ int main(int argc,char**argv){
    <<",\"initial_contact_potential_J\":"<<initialContact<<",\"final_contact_potential_J\":"<<contactEnergy(m,s)
    <<",\"contact_work_plus_potential_change_J\":"<<work+contactEnergy(m,s)-initialContact
    <<",\"max_step_contact_work_plus_potential_change_J\":"<<maxStepWorkDefect
+   <<",\"max_local_momentum_residual_Ns\":"<<maxLocalImpulseResidual
+   <<",\"max_global_momentum_residual_Ns\":"<<maxGlobalImpulseResidual
    <<",\"max_nonlinear_residual_m\":"<<worst<<",\"max_newton_iterations\":"<<maxIterations
    <<",\"forced_rejection_left_state_unchanged\":"<<(rejected&&restored?"true":"false")<<",\"force_bins_N\":[";
   for(int i=0;i<10;++i)std::cout<<(i?",":"")<<bins[i];
