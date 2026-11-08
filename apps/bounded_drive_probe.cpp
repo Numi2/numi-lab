@@ -105,6 +105,19 @@ void execute(const char* shader,const char* output){
     std::ofstream out(output);need(bool(out),"Cannot create new native evidence");
     out<<std::setprecision(17)<<"variant\tbounded\thybrid\tcadence\tlane\tdof\th\tq\tv\ttarget\tfinal_q\tfinal_v\treference_v\tmotor_torque\treference_torque\taccepted\taba_implicit\tcontact_mass_implicit\n";
     unsigned accepted=0;
+    double maxVelocityError=0,maxPositionError=0,maxTorqueError=0;
+    bool massFlagsMatch=true;
+    const auto observe=[&](double q,double v,double sourceQ,double h,double referenceV,double torque,double referenceTorque){
+        maxVelocityError=std::max(maxVelocityError,std::abs(v-referenceV));
+        maxPositionError=std::max(maxPositionError,std::abs(q-sourceQ-h*v));
+        maxTorqueError=std::max(maxTorqueError,std::abs(torque-referenceTorque));
+    };
+    const auto verifyBatch=[&]{
+        need(maxVelocityError<=2e-6 && maxPositionError<=2e-7 && maxTorqueError<=1e-7 && massFlagsMatch,
+             "Native motor reference gate failed: velocity="+std::to_string(maxVelocityError)+
+             " q="+std::to_string(maxPositionError)+" torque="+std::to_string(maxTorqueError)+
+             " mass_flags="+std::to_string(massFlagsMatch));
+    };
     for(unsigned variant=0;variant<4;++variant){const auto m=mechanism(variant);const auto M=mass(m);const unsigned n=m.world.nv;
         CompiledWorld world;const auto c=compileMetalWorld(m,0,world);need(c.succeeded(),"Native world compilation failed: "+c.message);
         std::vector<float>q(8*n),v(8*n),target(8*n);
@@ -119,9 +132,14 @@ void execute(const char* shader,const char* output){
             for(unsigned lane=0;lane<8;++lane){std::vector<float>lq(q.begin()+lane*n,q.begin()+(lane+1)*n),lv(v.begin()+lane*n,v.begin()+(lane+1)*n),lt(target.begin()+lane*n,target.begin()+(lane+1)*n);
                 const auto a=reference(m,M,s.timestepSeconds,lq,lv,lt,bounded);
                 for(unsigned i=0;i<n;++i){double tau=0,refTau=0;for(unsigned j=0;j<n;++j){tau+=M[i*n+j]*(result.finalV[lane*n+j]-lv[j])/s.timestepSeconds;refTau+=M[i*n+j]*a[j];}
+                    observe(result.finalQ[lane*n+i],result.finalV[lane*n+i],lq[i],s.timestepSeconds,
+                            lv[i]+s.timestepSeconds*a[i],tau,refTau);
+                    massFlagsMatch &= ((r.layout.abaDispatch.flags&MR_ABA_IMPLICIT_DRIVES)!=0)==!bounded &&
+                        ((r.layout.factorDispatches.front().flags&MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES)!=0)==!bounded;
                     out<<variant<<'\t'<<bounded<<'\t'<<hybrid<<'\t'<<cadence<<'\t'<<lane<<'\t'<<i<<'\t'<<s.timestepSeconds<<'\t'<<lq[i]<<'\t'<<lv[i]<<'\t'<<lt[i]<<'\t'<<result.finalQ[lane*n+i]<<'\t'<<result.finalV[lane*n+i]<<'\t'<<lv[i]+s.timestepSeconds*a[i]<<'\t'<<tau<<'\t'<<refTau<<'\t'<<8<<'\t'<<((r.layout.abaDispatch.flags&MR_ABA_IMPLICIT_DRIVES)!=0)<<'\t'<<((r.layout.factorDispatches.front().flags&MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES)!=0)<<'\n';
                 }
             }
+            verifyBatch(); // A failed numerical batch cannot launch later physics conditions.
         }
     }
     // Exercise every declared generalized-velocity slot, including columns
@@ -135,8 +153,12 @@ void execute(const char* shader,const char* output){
         MetalWorldResult result;const auto r=context.run(wideWorld,wideBatch,s,result);need(r.succeeded()&&r.successfulStepCount==1&&!r.failedStepCount,"40-DoF native prediction failed: "+r.message);++accepted;
         for(unsigned i=0;i<40;++i){const auto&d=wide.dofs[i];const double inertia=double(wide.bodies[(i/20)*21+(i%20)+1].inertiaRow2.z)+d.drive.z;const double h=s.timestepSeconds;
             const double rv=std::clamp(h*d.drive.x*target[i]/(inertia+h*d.drive.y+h*h*d.drive.x),-h*d.limits.w/inertia,h*d.limits.w/inertia);
+            observe(result.finalQ[i],result.finalV[i],0,h,rv,inertia*result.finalV[i]/h,inertia*rv/h);
+            massFlagsMatch &= (r.layout.abaDispatch.flags&MR_ABA_IMPLICIT_DRIVES)==0 &&
+                (r.layout.factorDispatches.front().flags&MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES)==0;
             out<<4<<'\t'<<1<<'\t'<<hybrid<<'\t'<<32<<'\t'<<0<<'\t'<<i<<'\t'<<h<<'\t'<<0<<'\t'<<0<<'\t'<<target[i]<<'\t'<<result.finalQ[i]<<'\t'<<result.finalV[i]<<'\t'<<rv<<'\t'<<inertia*result.finalV[i]/h<<'\t'<<inertia*rv/h<<'\t'<<1<<'\t'<<((r.layout.abaDispatch.flags&MR_ABA_IMPLICIT_DRIVES)!=0)<<'\t'<<((r.layout.factorDispatches.front().flags&MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES)!=0)<<'\n';
         }
+        verifyBatch();
     }
     need(accepted==514&&bool(out),"Incomplete native motor study");std::cout<<"514 accepted native motor microsteps completed\n";
 }

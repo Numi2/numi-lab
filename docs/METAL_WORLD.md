@@ -200,6 +200,25 @@ actions/reset
   -> transactional q/v/body/manifold commit
 ```
 
+The opt-in native `boundedPositionDrive` mode is experimental and admits
+contact graphs with at most 40 generalized velocities. It solves the bounded
+motor constitutive equations against physical mass before each CCD prediction
+and selected-segment advance. Unlike `implicitPositionDrive`, it does not retain
+`hD + h²K` inertia after torque saturation. Its contact solve uses physical mass;
+continuous motor forces and contact impulses are currently split. Numerical motor
+qualification therefore does not establish coupled contact fidelity, grasping,
+or learning performance. RunProfile/C API selectors and default deployment have
+not been switched to this mode. See
+[`artifacts/crow-rl-bounded-drive-crow-20261108`](../artifacts/crow-rl-bounded-drive-crow-20261108/README.md)
+for the current physical qualification boundary.
+
+`METALROBO_BOUNDED_FAILURE_CAPTURE=NEW_FILE` optionally retains a protected
+first motor-certificate failure record after a submission completes. The record
+binds the public failure stamp to the physical Cholesky factor, computed inverse,
+constitutive inputs and failed iterate. It never feeds state back into physics,
+the task or the learner. A captured record must reproduce the public failure
+before it can be used to diagnose that failure.
+
 The complete horizon is encoded before one command-buffer commit. Normal
 stepping performs no CPU count read, collision/solver fallback, resource
 synchronization, or command-buffer wait between stages or control steps.

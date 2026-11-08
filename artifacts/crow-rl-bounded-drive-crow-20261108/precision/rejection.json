@@ -1,0 +1,8 @@
+{
+  "rejected_revision": "1c7e002d",
+  "reason": "Stale lane!=0 return remained after inverse construction, so new SIMD-cooperative motor logic ran with only lane0. N1 passed; N>=2 published incorrect accelerations/torques while native status reported success.",
+  "instrument_failure": "Python runner recorded component reference failure but did not gate downstream crow runs. All three downstream precision crow runs are invalid for physical qualification, including the apparent reduced penetration and failure to grasp.",
+  "revision": "Remove stale lane exit. Move numerical reference gates into native probe after every batch. Add explicit known-bad-shader negative control; future runner cannot start crow unless all independent component gates pass.",
+  "preservation": "Failed shader/executable/logs/TSVs remain retained for Git archival and failure-detection replay.",
+  "promotion": false
+}

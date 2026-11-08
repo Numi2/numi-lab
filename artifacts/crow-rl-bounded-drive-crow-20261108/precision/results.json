@@ -1,0 +1,258 @@
+{
+  "all_native_commands_completed": true,
+  "commands": [
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-precision-20261108/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-precision-20261108/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/precision-constitutive.tsv"
+      ],
+      "exit_code": 0,
+      "loader_lines": [
+        "dyld[27919]: <2EDE1C98-62C1-3B80-B182-DA0763DA6B9E> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-precision-20261108/libmetalrobo.dylib"
+      ],
+      "name": "precision-constitutive",
+      "sealed_head": "1c7e002d3509dcb95b4e9ffc9a36a30a85ab4ba9",
+      "seconds": 0.26963912503561005
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/fixture-bounded",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/precision-crow32",
+        "0",
+        "1",
+        "32"
+      ],
+      "exit_code": 0,
+      "loader_lines": [
+        "dyld[27921]: <2EDE1C98-62C1-3B80-B182-DA0763DA6B9E> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-precision-20261108/libmetalrobo.dylib"
+      ],
+      "name": "precision-crow32",
+      "sealed_head": "1c7e002d3509dcb95b4e9ffc9a36a30a85ab4ba9",
+      "seconds": 30.529517166956794
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/fixture-unused",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/precision-unused64",
+        "0",
+        "1",
+        "64"
+      ],
+      "exit_code": 0,
+      "loader_lines": [
+        "dyld[27976]: <2EDE1C98-62C1-3B80-B182-DA0763DA6B9E> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-precision-20261108/libmetalrobo.dylib"
+      ],
+      "name": "precision-unused64",
+      "sealed_head": "1c7e002d3509dcb95b4e9ffc9a36a30a85ab4ba9",
+      "seconds": 60.7027892920305
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/fixture-unused",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/precision-unused128",
+        "0",
+        "1",
+        "128"
+      ],
+      "exit_code": 0,
+      "loader_lines": [
+        "dyld[28056]: <2EDE1C98-62C1-3B80-B182-DA0763DA6B9E> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-precision-20261108/libmetalrobo.dylib"
+      ],
+      "name": "precision-unused128",
+      "sealed_head": "1c7e002d3509dcb95b4e9ffc9a36a30a85ab4ba9",
+      "seconds": 120.74459475005278
+    }
+  ],
+  "completed_native_steps": 2434,
+  "component_checks": {
+    "0": {
+      "mass_flags_match": true,
+      "maximum_q_integration_error_rad": 7.119150935430696e-09,
+      "maximum_torque_error_Nm": 1.219172150387915e-09,
+      "maximum_velocity_reference_error_rad_s": 6.780838801567768e-08,
+      "pass": true,
+      "rows": 448
+    },
+    "1": {
+      "mass_flags_match": true,
+      "maximum_q_integration_error_rad": 4.5016422516724885e-09,
+      "maximum_torque_error_Nm": 0.009723404210400173,
+      "maximum_velocity_reference_error_rad_s": 2.793199444526414,
+      "pass": false,
+      "rows": 528
+    }
+  },
+  "component_gates_pass": false,
+  "exposed_prefix_penetration_m": 4.3259779329e-05,
+  "failure": null,
+  "full_crow_qualified": false,
+  "legacy448rows_byte_values_exact": true,
+  "policy_or_profile_promoted": false,
+  "precision_alone_does_not_remove_contact_penetration": false,
+  "runs": {
+    "precision-crow32": {
+      "accepted_transitions": 640,
+      "all_mechanical_pass": false,
+      "lanes": [
+        {
+          "maximum_penetration_before96_m": 4.3259779329e-05,
+          "maximum_slip_m": 0.4337450558856836,
+          "mechanical_gates_pass": false,
+          "minimum_lift_m": -0.26269447989774003,
+          "minimum_release_gap_m": 0.780375965726,
+          "opposed_samples": 0,
+          "release_drop_m": -9.313200002858402e-10
+        },
+        {
+          "maximum_penetration_before96_m": 4.32029264288e-05,
+          "maximum_slip_m": 0.42430639614563387,
+          "mechanical_gates_pass": false,
+          "minimum_lift_m": -0.26269447989774003,
+          "minimum_release_gap_m": 0.766304379251,
+          "opposed_samples": 0,
+          "release_drop_m": 0.0
+        },
+        {
+          "maximum_penetration_before96_m": 4.31735453869e-05,
+          "maximum_slip_m": 0.4348516682088886,
+          "mechanical_gates_pass": false,
+          "minimum_lift_m": -0.26309448666874,
+          "minimum_release_gap_m": 0.781934128122,
+          "opposed_samples": 0,
+          "release_drop_m": -4.656600001429201e-10
+        },
+        {
+          "maximum_penetration_before96_m": 4.31008575773e-05,
+          "maximum_slip_m": 0.42505475039442453,
+          "mechanical_gates_pass": false,
+          "minimum_lift_m": -0.26309448620308,
+          "minimum_release_gap_m": 0.767336075511,
+          "opposed_samples": 0,
+          "release_drop_m": -4.656600001429201e-10
+        }
+      ],
+      "runtime": {
+        "accepted_transitions_per_wall_second": 20.9834332721,
+        "device": "Apple M4 Pro",
+        "gpu_milliseconds": 29822.5477085,
+        "retained_native_bytes": 3730276,
+        "submission_milliseconds": 29918.598467,
+        "wall_seconds": 30.500251875
+      }
+    },
+    "precision-unused128": {
+      "accepted_transitions": 640,
+      "all_mechanical_pass": false,
+      "lanes": [
+        {
+          "maximum_penetration_before96_m": 1.20657479908e-05,
+          "maximum_slip_m": 0.43173539044226517,
+          "mechanical_gates_pass": false,
+          "minimum_lift_m": -0.26276216330025004,
+          "minimum_release_gap_m": 0.777239479138,
+          "opposed_samples": 0,
+          "release_drop_m": 4.656699999563974e-10
+        },
+        {
+          "maximum_penetration_before96_m": 1.2031847872e-05,
+          "maximum_slip_m": 0.4276773357985224,
+          "mechanical_gates_pass": false,
+          "minimum_lift_m": -0.26276216330025004,
+          "minimum_release_gap_m": 0.771312504989,
+          "opposed_samples": 0,
+          "release_drop_m": -4.656600001429201e-10
+        },
+        {
+          "maximum_penetration_before96_m": 1.21085227803e-05,
+          "maximum_slip_m": 0.43204088353685904,
+          "mechanical_gates_pass": false,
+          "minimum_lift_m": -0.26296213734892004,
+          "minimum_release_gap_m": 0.777609769778,
+          "opposed_samples": 0,
+          "release_drop_m": -9.313300000993174e-10
+        },
+        {
+          "maximum_penetration_before96_m": 1.21044460536e-05,
+          "maximum_slip_m": 0.4278901635855156,
+          "mechanical_gates_pass": false,
+          "minimum_lift_m": -0.26296213734892004,
+          "minimum_release_gap_m": 0.771527362202,
+          "opposed_samples": 0,
+          "release_drop_m": -9.313300000993174e-10
+        }
+      ],
+      "runtime": {
+        "accepted_transitions_per_wall_second": 5.30190136455,
+        "device": "Apple M4 Pro",
+        "gpu_milliseconds": 118489.744916,
+        "retained_native_bytes": 3730276,
+        "submission_milliseconds": 118586.473128,
+        "wall_seconds": 120.711412
+      }
+    },
+    "precision-unused64": {
+      "accepted_transitions": 640,
+      "all_mechanical_pass": false,
+      "lanes": [
+        {
+          "maximum_penetration_before96_m": 1.83246654734e-05,
+          "maximum_slip_m": 0.4312024528953283,
+          "mechanical_gates_pass": false,
+          "minimum_lift_m": -0.26276863040421,
+          "minimum_release_gap_m": 0.776389236772,
+          "opposed_samples": 0,
+          "release_drop_m": -9.313200002858402e-10
+        },
+        {
+          "maximum_penetration_before96_m": 1.83449649236e-05,
+          "maximum_slip_m": 0.42771005386439626,
+          "mechanical_gates_pass": false,
+          "minimum_lift_m": -0.26276863040421,
+          "minimum_release_gap_m": 0.771395626822,
+          "opposed_samples": 0,
+          "release_drop_m": -4.656600001429201e-10
+        },
+        {
+          "maximum_penetration_before96_m": 1.83474428855e-05,
+          "maximum_slip_m": 0.43235859211966354,
+          "mechanical_gates_pass": false,
+          "minimum_lift_m": -0.26296860398721,
+          "minimum_release_gap_m": 0.778206303517,
+          "opposed_samples": 0,
+          "release_drop_m": 0.0
+        },
+        {
+          "maximum_penetration_before96_m": 1.82864194784e-05,
+          "maximum_slip_m": 0.42747650677457744,
+          "mechanical_gates_pass": false,
+          "minimum_lift_m": -0.26296860398721,
+          "minimum_release_gap_m": 0.770898732083,
+          "opposed_samples": 0,
+          "release_drop_m": -9.313200002858402e-10
+        }
+      ],
+      "runtime": {
+        "accepted_transitions_per_wall_second": 10.55155162,
+        "device": "Apple M4 Pro",
+        "gpu_milliseconds": 59443.1052498,
+        "retained_native_bytes": 3730276,
+        "submission_milliseconds": 59542.261971,
+        "wall_seconds": 60.654586458
+      }
+    }
+  },
+  "sealed_head": "1c7e002d3509dcb95b4e9ffc9a36a30a85ab4ba9",
+  "unused_pose_64vs128": {
+    "maximum_position_error_m": 0.026057512134574818,
+    "pass_5mm": false,
+    "phase_errors_m": {
+      "0:31": 0.026057512134574818,
+      "128:159": 0.0011776863216321376,
+      "32:63": 0.000378544724776097,
+      "64:95": 0.0006451334859907866,
+      "96:127": 0.0009039275636763625
+    }
+  },
+  "verdict": "native_precision_prediction_contradicted"
+}

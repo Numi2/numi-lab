@@ -13945,7 +13945,6 @@ kernel void mr_world_bounded_drive_prediction(
         }
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
-    if (lane != 0u) return;
 
     const float4 controller = (worldDispatch.flags & MR_METAL_WORLD_NATIVE_TASK) != 0u
         ? controllerParameters[environment] : float4(1.0f);

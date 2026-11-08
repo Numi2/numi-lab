@@ -1,0 +1,34 @@
+{
+  "analysis": "IndependentnativeandPythonreferencegates, all976rows, explicitknown-badshaderfailure. Ifcrowcompletes analyzeunchangedlift/slip/opposed/penetration/releasegates. Ifrejected recordtypedstampandprotectedmotorwitness.",
+  "budget": {
+    "maximum_accepted_environment_steps": 1668,
+    "maximum_new_output_bytes": 3000000,
+    "native_invocations": 3,
+    "stop": "Unexpectednegativecontrolresult stops. Anypositivecomponentfailure stops beforecrow. Anycrowrejection stops withpartialstate; noothercadences,retries,tuning orpromotion.",
+    "timeout_seconds_each": 300
+  },
+  "calibration": "HostFP64 mass/constitutive128cases unchanged andpassed. Known-badshader is explicitnegativefailure-detection control.",
+  "conditions": "Allcomponentconditions areexposedengineeringregressions. Croworiginal32prefixthrough20 exposed,suffixunused undercorrectnewsolver. No biologicalreplication orlearningclaim.",
+  "inputs": {
+    ".numi/retained-runtime/bounded-drive-precision-20261108/metalrobo/MetalRobo.metallib": "6b7b0274688c211876709125b047a487b1d7293820348821a7acae5c90ad570e",
+    ".numi/retained-runtime/bounded-drive-precision-v2-20261108/libmetalrobo.dylib": "7f5ce8781fe1cb85d52736b8bcd640484fd8225a612cc9317805e906cbb78d16",
+    ".numi/retained-runtime/bounded-drive-precision-v2-20261108/metalrobo/MetalRobo.metallib": "70cb955a2177af6a3b458d26853f5fa17b5b961ce5a9eb2fbd98f4543dc7ef00",
+    ".numi/retained-runtime/bounded-drive-precision-v2-20261108/probe": "5bd31622ca6e50da26f58e9c52a2dd7aa2588b45c711d40c032720cc293ad18f",
+    "apps/bounded_drive_probe.cpp": "fce3c86c27e685dd4261b2f84827308c145fa59353f29b7c8941145b7be602e1",
+    "artifacts/crow-rl-bounded-drive-crow-20261108/precision-v2/run_precision_v2.py": "55c4578b31ba80409ee5f509b20ef8b6fe27075d1fa6216966a1e6726082ba11",
+    "build/crow-bounded-drive-integration-build-01/fixture-bounded": "116dfb25a90cccb35f32400509c0119ac634962be4cb93cd41c805af7a3b49ea",
+    "build/crow-bounded-drive-integration-build-01/precision-v2-host-calibration.stdout": "d8a4edeb3b57fc33800738d49c2342c649e45dce841092c1acaa2a462a445b92",
+    "src/metal/MetalWorldContact.metal": "7eb89ec2a9802bb14e54ca37b9afa20455d0d3568b61efead6d52c9d37787d3b"
+  },
+  "parent": "precision/rejection.json:1c7e002d rejected. Cooperative kernel erroneously retained lane!=0 return; componentN1passed whileN>=2 acceleration/torque incorrect. Prior precision crow32/64/128 physics invalid for qualification. Defaults/deployment unchanged.",
+  "physical_hypothesis": "Pureprecisionfix should not be assumed to qualifycontact physics. Original validprefix had2.0166mmpenetration. Priorcompensatedcrowobservations cannot supportanyphysicalclaim duecomponentgatefailure. Remainingneed ismotor/contactcoupling and fullfixturevalidation.",
+  "prediction": {
+    "crow": "Onlyafterbothcontrols pass: one640transitionoriginal32crowtrajectory, zero native/GPUfailures. Fullmechanicalgates measured separately; noautomaticpromotion evenif itpasses.",
+    "negative_control": "Newnativeprobe withretainedknown-bad1c7e002dshader exits1 withtypedreferencegatefailure beforeall514steps. No furthernegativeconditions afterfirstbadbatch.",
+    "positive_control": "Correctedshader passesall514steps/976rows underunchanged2e-6rad/svelocity,2e-7radposition,1e-7Nmtorqueandmassflags gates."
+  },
+  "promotion": false,
+  "protected_policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+  "question": "Does removing the stale single-lane exit make the compensated SIMD motor solve correct, with native numerical gates that prevent further invalid crow runs?",
+  "revision": "Delete that stale return; no arithmetic,physicalcoefficients,tolerance or256sweepchange. Nativeprobe now enforcesindependent reference gates aftereverybatch, includingflags, so awrong acceptedGPUstatus cannot startlaterprobeconditions or a crowtrajectory."
+}
