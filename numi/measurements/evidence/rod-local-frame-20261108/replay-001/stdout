@@ -1,0 +1,1 @@
+continuous_steps=41 replay_steps=20 environments=2 bitwise_states_and_reactions=1 truncated_rejected_unchanged=1
