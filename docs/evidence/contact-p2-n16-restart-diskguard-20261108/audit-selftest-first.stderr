@@ -1,0 +1,4 @@
+  File "/Users/numi/numi-lab-contact-reference-20261107/docs/evidence/contact-p2-n16-restart-diskguard-20261108/test_audit.py", line 30
+    (pass if want else rejection)
+     ^
+SyntaxError: f-string: invalid syntax
