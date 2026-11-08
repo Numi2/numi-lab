@@ -1,0 +1,38 @@
+{
+  "production_changed": false,
+  "schema": "crow-split-cones-source-seal-v1",
+  "sources": {
+    "README.md": {
+      "bytes": 1504,
+      "sha256": "aabdd878b5cebb137b134d0c5585ad3c094fb23932e3fa0eb695831fe61ab5b8"
+    },
+    "arithmetic.metal.inc": {
+      "bytes": 1352,
+      "sha256": "c2bffb45d99d966a4491854bd6f642ba672a1ad91be2b18aac3cae3fba35b632"
+    },
+    "independent.py": {
+      "bytes": 5272,
+      "sha256": "6349222af7835d775987bc145c6c4ac8327ff7a4644641641532f6ae4fb3e93e"
+    },
+    "prepare.py": {
+      "bytes": 5721,
+      "sha256": "a82cd5b95a5cb2642c45ca782865d04c8c831755a0c0333673ee407e5cc436e4"
+    },
+    "probe.mm": {
+      "bytes": 3249,
+      "sha256": "3bd0376b698952ea6efae93fb3b9caacca5f6d335a1d67d1db0ebcb886dbaa4d"
+    },
+    "projector.metal.inc": {
+      "bytes": 6534,
+      "sha256": "957920261ec0a1a38d53e33688ca64735295fdbbfe108baea081294f52f7d959"
+    },
+    "run.py": {
+      "bytes": 5673,
+      "sha256": "b52c93055d9a5d0cfc5fa86f213e21d9cad1bc5467236dbac3d9573e10a4355d"
+    },
+    "solver.metal": {
+      "bytes": 6542,
+      "sha256": "dcacdb069e8da03e211e0e416324eef0be0285eca633c3482e28a2625525690d"
+    }
+  }
+}
