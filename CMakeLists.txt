@@ -4084,6 +4084,8 @@ if(BUILD_TESTING)
         NAME metalrobo.cli.discovery
         COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_cli_test.sh"
     )
+    add_test(NAME metalrobo_numi_window_source_workspace
+        COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_window_source_workspace_check.sh")
     set_tests_properties(
         metalrobo.cli.discovery
         PROPERTIES LABELS "metalrobo;cli" TIMEOUT 120
