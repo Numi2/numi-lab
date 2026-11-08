@@ -1,0 +1,486 @@
+[
+  {
+    "actual": "generated/old-expanded/capture.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-expanded/capture.bin",
+    "sha256": "5fa3a67a6fa600f71afcce1a3a5c54e77be39f0c3b047cd165517d660517a39d"
+  },
+  {
+    "actual": "generated/old-expanded/status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-expanded/status.bin",
+    "sha256": "5c22465161afa338b1c8935436bfabc42a75c33073efcc6363528069764c05f3"
+  },
+  {
+    "actual": "generated/corrected-legacy/capture.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-legacy/capture.bin",
+    "sha256": "abd531b3e9f580c7f5c208c358e87821c51470d3671367571c8a713f3885b441"
+  },
+  {
+    "actual": "generated/corrected-legacy/status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-legacy/status.bin",
+    "sha256": "5c22465161afa338b1c8935436bfabc42a75c33073efcc6363528069764c05f3"
+  },
+  {
+    "actual": "generated/corrected-original/impulse.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-original/impulse.f32",
+    "sha256": "42734f03107eb22c4355909d6fce7260b860499a00df679dcd5991bdf3917990"
+  },
+  {
+    "actual": "generated/corrected-original/status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-original/status.bin",
+    "sha256": "a7d4975317757066915bff491f66205773a2ac6281e50f419022c7b0145ea1dc"
+  },
+  {
+    "actual": "generated/corrected-original/velocity.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-original/velocity.f32",
+    "sha256": "4b6804da9d5f5ea5fc9c07cf0610f713436b7a815ef2c26830c71ba96b3d324a"
+  },
+  {
+    "actual": "generated/old-free-0p81/capture.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-free-0p81/capture.bin",
+    "sha256": "c382fef70f7f38c19f0a873b01534295b5cbb114ffd1dcb84beda00fa23f95d4"
+  },
+  {
+    "actual": "generated/old-free-0p81/status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-free-0p81/status.bin",
+    "sha256": "622e13612d5a7bf8c188c4268bbea2f471f6712a3c22423bcae4b9f7340df11b"
+  },
+  {
+    "actual": "generated/corrected-free-0p81/impulse.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-free-0p81/impulse.f32",
+    "sha256": "fc5ef9ac18f4a8ec0599b5bdd0729867533b683f6084259468a21f3aecf078cb"
+  },
+  {
+    "actual": "generated/corrected-free-0p81/status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-free-0p81/status.bin",
+    "sha256": "ce623de56bff68f98115727f11cef4ce92cb0f900825a081f49074cdb2e9663c"
+  },
+  {
+    "actual": "generated/corrected-free-0p81/velocity.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-free-0p81/velocity.f32",
+    "sha256": "f70a6141f1da1c5edc1a4d53a6a17a07b709fea4c2a88e3cd3bbd7c7327f9376"
+  },
+  {
+    "actual": "generated/old-free-0p93/capture.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-free-0p93/capture.bin",
+    "sha256": "5ece1ab66460c0072a31ba9e1567a2e267b0f5218b3a7694e16db9e48b163b99"
+  },
+  {
+    "actual": "generated/old-free-0p93/status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-free-0p93/status.bin",
+    "sha256": "f6cdfdfb3f161216ab4e9d31dee01020cac33d0ef0deeb5bb04fb82e8a9f465f"
+  },
+  {
+    "actual": "generated/corrected-free-0p93/impulse.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-free-0p93/impulse.f32",
+    "sha256": "0e070f62d938de88bfb64b669b9a6a69f515d0c4ead10e6e42e6f6d3f99ce5b4"
+  },
+  {
+    "actual": "generated/corrected-free-0p93/status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-free-0p93/status.bin",
+    "sha256": "27a461a1c55fd32cce63c7ac1f2e0b381ba3375f2ce92a503fb0ff43e888f90d"
+  },
+  {
+    "actual": "generated/corrected-free-0p93/velocity.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-free-0p93/velocity.f32",
+    "sha256": "cae6f8d56a3efd89632facefb5a56b8eedba5e4654a49061856e880880928c2b"
+  },
+  {
+    "actual": "generated/old-free-1p07/impulse.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-free-1p07/impulse.f32",
+    "sha256": "766edf2c90904fc2c8053d96e7423ec19c79b5c48f86d1357e30e3240553cb63"
+  },
+  {
+    "actual": "generated/old-free-1p07/status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-free-1p07/status.bin",
+    "sha256": "92a8b969d3ab61946b85721963c574b4c5eaa1f6211553780401063e1178b172"
+  },
+  {
+    "actual": "generated/old-free-1p07/velocity.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-free-1p07/velocity.f32",
+    "sha256": "352b3b828c56fede852bbced307eb523236d7436a517169766c7995d32b97dd3"
+  },
+  {
+    "actual": "generated/corrected-free-1p07/impulse.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-free-1p07/impulse.f32",
+    "sha256": "766edf2c90904fc2c8053d96e7423ec19c79b5c48f86d1357e30e3240553cb63"
+  },
+  {
+    "actual": "generated/corrected-free-1p07/status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-free-1p07/status.bin",
+    "sha256": "92a8b969d3ab61946b85721963c574b4c5eaa1f6211553780401063e1178b172"
+  },
+  {
+    "actual": "generated/corrected-free-1p07/velocity.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-free-1p07/velocity.f32",
+    "sha256": "352b3b828c56fede852bbced307eb523236d7436a517169766c7995d32b97dd3"
+  },
+  {
+    "actual": "generated/old-free-1p19/capture.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-free-1p19/capture.bin",
+    "sha256": "ef6f5a6e7f9da133cc5a469de6bf07a9448062ec4d91da40392622ae55d5041d"
+  },
+  {
+    "actual": "generated/old-free-1p19/status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-free-1p19/status.bin",
+    "sha256": "28fde428662037bc52d35e8e60ec210103b984f62b6bb27510c652e35f8e993c"
+  },
+  {
+    "actual": "generated/corrected-free-1p19/impulse.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-free-1p19/impulse.f32",
+    "sha256": "67053b2a4942a30baac1153847edca7a7e2d57eee2c9aff94849b1d40c4abac3"
+  },
+  {
+    "actual": "generated/corrected-free-1p19/status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-free-1p19/status.bin",
+    "sha256": "e284b48253bdefc40def89926e60a26a4b384cb8d0d7b8c75ce901e96ce50bee"
+  },
+  {
+    "actual": "generated/corrected-free-1p19/velocity.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-free-1p19/velocity.f32",
+    "sha256": "714e20a4f5e37a26fc7d98119273cac3cd4d3af6fa2d072cd9e3eb3c1164e9c7"
+  },
+  {
+    "actual": "generated/warm-neighbor/impulse.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/warm-validation-01/neighbor/impulse.f32",
+    "sha256": "7a1768ff038302d8e5af83f9229df12b8b5155d54583aef08414a2e373880ddf"
+  },
+  {
+    "actual": "generated/warm-neighbor/status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/warm-validation-01/neighbor/status.bin",
+    "sha256": "5978e4590256bddf6c538ffcf30d1b614a077ff64343c325e5122399493e0852"
+  },
+  {
+    "actual": "generated/warm-neighbor/velocity.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/warm-validation-01/neighbor/velocity.f32",
+    "sha256": "ee4620f6ecac23b3393603c7f914234979106da60658edcf1352d57f756890c8"
+  },
+  {
+    "actual": "generated/default/final-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-default/final-q.f32",
+    "sha256": "4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42"
+  },
+  {
+    "actual": "generated/default/final-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-default/final-scene.bin",
+    "sha256": "e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090"
+  },
+  {
+    "actual": "generated/default/final-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-default/final-v.f32",
+    "sha256": "a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27"
+  },
+  {
+    "actual": "generated/default/initial-geometry.json",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-default/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "actual": "generated/default/initial-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-default/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "actual": "generated/default/initial-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-default/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "actual": "generated/default/initial-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-default/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "actual": "generated/default/scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-default/scene.bin",
+    "sha256": "097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e"
+  },
+  {
+    "actual": "generated/default/summary.json",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-default/summary.json",
+    "sha256": "765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9"
+  },
+  {
+    "actual": "generated/default/trace.tsv",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-default/trace.tsv",
+    "sha256": "8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921"
+  },
+  {
+    "actual": "generated/old-crow/failure-contact-status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-crow/failure-contact-status.bin",
+    "sha256": "77ee7956419fb21264cae1d6a494125f89e4341bd8e3901ab610dc3797e9e667"
+  },
+  {
+    "actual": "generated/old-crow/failure-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-crow/failure-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "actual": "generated/old-crow/failure-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-crow/failure-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "actual": "generated/old-crow/failure-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-crow/failure-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "actual": "generated/old-crow/failure-world-status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-crow/failure-world-status.bin",
+    "sha256": "0dda58816e372b387318630d283cad95baa0de18b7b101695ea4692a2794bc1a"
+  },
+  {
+    "actual": "generated/old-crow/failure.json",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-crow/failure.json",
+    "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+  },
+  {
+    "actual": "generated/old-crow/initial-geometry.json",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-crow/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "actual": "generated/old-crow/initial-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-crow/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "actual": "generated/old-crow/initial-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-crow/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "actual": "generated/old-crow/initial-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-crow/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "actual": "generated/old-crow/trace.tsv",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-crow/trace.tsv",
+    "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+  },
+  {
+    "actual": "generated/old-crow.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/old-crow.bin",
+    "sha256": "abd531b3e9f580c7f5c208c358e87821c51470d3671367571c8a713f3885b441"
+  },
+  {
+    "actual": "generated/corrected-crow-one/failure-contact-status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-one/failure-contact-status.bin",
+    "sha256": "672147c6a1822c8882227848139edb8646f7bde085987de79e98828029f37534"
+  },
+  {
+    "actual": "generated/corrected-crow-one/failure-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-one/failure-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "actual": "generated/corrected-crow-one/failure-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-one/failure-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "actual": "generated/corrected-crow-one/failure-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-one/failure-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "actual": "generated/corrected-crow-one/failure-world-status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-one/failure-world-status.bin",
+    "sha256": "6c7c369c4f8134f5e6b6584e5bf1b3da87b080b9d8eb58ddc7d352555c41b4af"
+  },
+  {
+    "actual": "generated/corrected-crow-one/failure.json",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-one/failure.json",
+    "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+  },
+  {
+    "actual": "generated/corrected-crow-one/initial-geometry.json",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-one/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "actual": "generated/corrected-crow-one/initial-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-one/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "actual": "generated/corrected-crow-one/initial-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-one/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "actual": "generated/corrected-crow-one/initial-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-one/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "actual": "generated/corrected-crow-one/trace.tsv",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-one/trace.tsv",
+    "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+  },
+  {
+    "actual": "generated/corrected-crow-one.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-one.bin",
+    "sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f"
+  },
+  {
+    "actual": "generated/corrected-crow-eight/failure-contact-status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-eight/failure-contact-status.bin",
+    "sha256": "e09946fc023daa964407cd0fbafa0223b90072666bf521110bafc74e48f4620f"
+  },
+  {
+    "actual": "generated/corrected-crow-eight/failure-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-eight/failure-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "actual": "generated/corrected-crow-eight/failure-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-eight/failure-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "actual": "generated/corrected-crow-eight/failure-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-eight/failure-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "actual": "generated/corrected-crow-eight/failure-world-status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-eight/failure-world-status.bin",
+    "sha256": "ef8d11181ed0e0c709316a1a7eea526d97f2312f1e4a0c7be60fc4f58af3d23b"
+  },
+  {
+    "actual": "generated/corrected-crow-eight/failure.json",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-eight/failure.json",
+    "sha256": "c8b9b4136b647dd0268d1045b7a4e7971fad20b63646d117a78623f3da723c6b"
+  },
+  {
+    "actual": "generated/corrected-crow-eight/initial-geometry.json",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-eight/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "actual": "generated/corrected-crow-eight/initial-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-eight/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "actual": "generated/corrected-crow-eight/initial-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-eight/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "actual": "generated/corrected-crow-eight/initial-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-eight/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "actual": "generated/corrected-crow-eight/trace.tsv",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-eight/trace.tsv",
+    "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+  },
+  {
+    "actual": "generated/corrected-crow-eight.bin",
+    "byte_exact": true,
+    "reference": "build/crow-quality-representability-build-01/native-trial-01/corrected-crow-eight.bin",
+    "sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f"
+  },
+  {
+    "analysis": "explore.py",
+    "exact_array_files": 2,
+    "excluded_fields": [
+      "seconds"
+    ],
+    "result_fields_exact": true
+  },
+  {
+    "analysis": "failed_start_explore.py",
+    "exact_array_files": 2,
+    "excluded_fields": [
+      "seconds"
+    ],
+    "result_fields_exact": true
+  },
+  {
+    "analysis": "substep7_reference.py",
+    "exact_array_files": 3,
+    "excluded_fields": [],
+    "result_fields_exact": true
+  }
+]

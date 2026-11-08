@@ -1,0 +1,23 @@
+[
+  {
+    "bytes": 6453,
+    "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/crow-representability-local-inventory.json",
+    "mode": 420,
+    "mtime_ns": 1794140894742659709,
+    "sha256": "13715cc94bba866455d60fa81a4f719d36c2c0dea0bd9c77811b0bb96390c5b5"
+  },
+  {
+    "bytes": 8467,
+    "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/quality-representability-recovery.py",
+    "mode": 420,
+    "mtime_ns": 1794141037362661696,
+    "sha256": "87962f946aaf4e74459ed57858fb6c0b435199a3ec5faee0ddea397075e66acf"
+  },
+  {
+    "bytes": 3872,
+    "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/cleanup_representability_local.py",
+    "mode": 420,
+    "mtime_ns": 1794141147120607902,
+    "sha256": "de0b490f0dc98e440a1b24e3dfdc151b06851a763c40be7a9bf0a46bf02db00e"
+  }
+]

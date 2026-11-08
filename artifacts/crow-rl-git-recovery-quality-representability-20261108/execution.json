@@ -1,0 +1,319 @@
+[
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/warm-validation-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/capture-one.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-representability-base-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/generated/old-expanded",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/original-warm-v.f32",
+      "--polish-scratch"
+    ],
+    "expected_exit_code": 0,
+    "name": "old-expanded",
+    "returncode": 0,
+    "seconds": 0.5061473750392906
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/warm-validation-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/capture-one.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/generated/corrected-legacy"
+    ],
+    "expected_exit_code": 0,
+    "name": "corrected-legacy",
+    "returncode": 0,
+    "seconds": 0.08996183401905
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/warm-validation-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/capture-one.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/generated/corrected-original",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/original-warm-v.f32",
+      "--polish-scratch"
+    ],
+    "expected_exit_code": 0,
+    "name": "corrected-original",
+    "returncode": 0,
+    "seconds": 0.09075983299408108
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/warm-validation-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/free-0p81.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-representability-base-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/generated/old-free-0p81",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/original-warm-v.f32",
+      "--polish-scratch"
+    ],
+    "expected_exit_code": 0,
+    "name": "old-free-0p81",
+    "returncode": 0,
+    "seconds": 0.0484796249656938
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/warm-validation-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/free-0p81.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/generated/corrected-free-0p81",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/original-warm-v.f32",
+      "--polish-scratch"
+    ],
+    "expected_exit_code": 0,
+    "name": "corrected-free-0p81",
+    "returncode": 0,
+    "seconds": 0.09030325000640005
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/warm-validation-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/free-0p93.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-representability-base-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/generated/old-free-0p93",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/original-warm-v.f32",
+      "--polish-scratch"
+    ],
+    "expected_exit_code": 0,
+    "name": "old-free-0p93",
+    "returncode": 0,
+    "seconds": 0.08773820800706744
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/warm-validation-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/free-0p93.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/generated/corrected-free-0p93",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/original-warm-v.f32",
+      "--polish-scratch"
+    ],
+    "expected_exit_code": 0,
+    "name": "corrected-free-0p93",
+    "returncode": 0,
+    "seconds": 0.0907603750238195
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/warm-validation-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/free-1p07.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-representability-base-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/generated/old-free-1p07",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/original-warm-v.f32",
+      "--polish-scratch"
+    ],
+    "expected_exit_code": 0,
+    "name": "old-free-1p07",
+    "returncode": 0,
+    "seconds": 0.04828324995469302
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/warm-validation-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/free-1p07.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/generated/corrected-free-1p07",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/original-warm-v.f32",
+      "--polish-scratch"
+    ],
+    "expected_exit_code": 0,
+    "name": "corrected-free-1p07",
+    "returncode": 0,
+    "seconds": 0.0479690830106847
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/warm-validation-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/free-1p19.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-representability-base-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/generated/old-free-1p19",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/original-warm-v.f32",
+      "--polish-scratch"
+    ],
+    "expected_exit_code": 0,
+    "name": "old-free-1p19",
+    "returncode": 0,
+    "seconds": 0.04804545902879909
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/warm-validation-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/free-1p19.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/generated/corrected-free-1p19",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/original-warm-v.f32",
+      "--polish-scratch"
+    ],
+    "expected_exit_code": 0,
+    "name": "corrected-free-1p19",
+    "returncode": 0,
+    "seconds": 0.0850756669533439
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/warm-validation-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/capture-one.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-representability-base-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/generated/warm-neighbor",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/neighbor-v.f32"
+    ],
+    "expected_exit_code": 0,
+    "name": "warm-neighbor",
+    "returncode": 0,
+    "seconds": 0.047958915994968265
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/generated/motor.tsv",
+      "--native-drive"
+    ],
+    "expected_exit_code": 0,
+    "loader_lines": [
+      "dyld[50259]: <FC6B5BA3-A31D-380A-8291-2A5E3080BF33> /Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/libmetalrobo.dylib"
+    ],
+    "name": "motor",
+    "returncode": 0,
+    "seconds": 0.7115763750043698
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/generated/zero.tsv",
+      "--zero-gain"
+    ],
+    "expected_exit_code": 0,
+    "loader_lines": [
+      "dyld[50260]: <FC6B5BA3-A31D-380A-8291-2A5E3080BF33> /Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/libmetalrobo.dylib"
+    ],
+    "name": "zero",
+    "returncode": 0,
+    "seconds": 0.09054375003324822
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/reference/fixture-default",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/generated/default",
+      "0",
+      "1",
+      "32"
+    ],
+    "expected_exit_code": 0,
+    "loader_lines": [
+      "dyld[50261]: <FC6B5BA3-A31D-380A-8291-2A5E3080BF33> /Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/libmetalrobo.dylib"
+    ],
+    "name": "default",
+    "returncode": 0,
+    "seconds": 17.055619375023525
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/reference/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/generated/old-crow",
+      "0",
+      "1",
+      "32",
+      "2"
+    ],
+    "expected_exit_code": 1,
+    "loader_lines": [
+      "dyld[50275]: <EC4D07BC-49EB-39A9-B592-CDBBA4AC9E35> /Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-representability-base-20261108/libmetalrobo.dylib"
+    ],
+    "name": "old-crow",
+    "returncode": 1,
+    "seconds": 0.7200713339843787
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/reference/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/generated/corrected-crow-one",
+      "0",
+      "1",
+      "32",
+      "2"
+    ],
+    "expected_exit_code": 1,
+    "loader_lines": [
+      "dyld[50276]: <FC6B5BA3-A31D-380A-8291-2A5E3080BF33> /Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/libmetalrobo.dylib"
+    ],
+    "name": "corrected-crow-one",
+    "returncode": 1,
+    "seconds": 0.33083849999820814
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/build/crow-quality-representability-build-01/reference/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/generated/corrected-crow-eight",
+      "0",
+      "8",
+      "32",
+      "2"
+    ],
+    "expected_exit_code": 1,
+    "loader_lines": [
+      "dyld[50277]: <FC6B5BA3-A31D-380A-8291-2A5E3080BF33> /Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/libmetalrobo.dylib"
+    ],
+    "name": "corrected-crow-eight",
+    "returncode": 1,
+    "seconds": 1.996156000008341
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/ir-probe"
+    ],
+    "expected_exit_code": 0,
+    "loader_lines": [
+      "dyld[50291]: <FC6B5BA3-A31D-380A-8291-2A5E3080BF33> /Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/libmetalrobo.dylib"
+    ],
+    "name": "ir-owner",
+    "returncode": 0,
+    "seconds": 0.3192204159568064
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/contact-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/metalrobo/MetalRobo.metallib"
+    ],
+    "expected_exit_code": 0,
+    "loader_lines": [
+      "dyld[50292]: <FC6B5BA3-A31D-380A-8291-2A5E3080BF33> /Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/.numi/retained-runtime/quality-adjacent-refinement-20261108/libmetalrobo.dylib"
+    ],
+    "name": "contact-owner",
+    "returncode": 0,
+    "seconds": 0.8921910410281271
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/artifacts/crow-rl-quality-representability-20261108/explore.py"
+    ],
+    "expected_exit_code": 0,
+    "name": "analysis-explore.py",
+    "returncode": 0,
+    "seconds": 0.0898918749880977
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/artifacts/crow-rl-quality-representability-20261108/failed_start_explore.py"
+    ],
+    "expected_exit_code": 0,
+    "name": "analysis-failed_start_explore.py",
+    "returncode": 0,
+    "seconds": 0.08994195802370086
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-representability-git-recovery-01/artifacts/crow-rl-quality-representability-20261108/substep7_reference.py"
+    ],
+    "expected_exit_code": 0,
+    "name": "analysis-substep7_reference.py",
+    "returncode": 0,
+    "seconds": 0.04761012503877282
+  }
+]

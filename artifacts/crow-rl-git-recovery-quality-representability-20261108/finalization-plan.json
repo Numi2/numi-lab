@@ -1,0 +1,7 @@
+{
+  "action": "Verify exact Git payload and committed recovery inventory, require original PID absent and lsof zero, then publish completed verification. No native command or scientific observation is repeated.",
+  "prediction": "All recorded files remain unchanged and a separate finalizer observes zero handles after the original recovery process exited",
+  "reason": "All 23 recovery commands and comparisons completed. Final lsof observed two file handles at PID 50236 and blocked closure; no files were removed. That process is no longer present.",
+  "schema": "crow-quality-recovery-handle-recheck-v1",
+  "stop": "Any data, process, handle, hash/mode/mtime or remote-head discrepancy; do not clean up."
+}

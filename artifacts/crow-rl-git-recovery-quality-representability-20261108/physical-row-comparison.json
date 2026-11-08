@@ -1,0 +1,16 @@
+[
+  {
+    "case": "motor",
+    "excluded_columns": [
+      "gpu_ms"
+    ],
+    "physical_records_exact": 576
+  },
+  {
+    "case": "zero",
+    "excluded_columns": [
+      "gpu_ms"
+    ],
+    "physical_records_exact": 48
+  }
+]
