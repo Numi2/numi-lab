@@ -1,0 +1,69 @@
+{
+  "inputs_unchanged": true,
+  "invalid": {
+    "argv": [
+      "/Users/numi/numi-lab-tracker-step-rollback-20261108/tools/numi",
+      "window",
+      "--inspect-scene",
+      "/Users/numi/main-inspector-owner-diagnostic-final-20261108/invalid.json",
+      "--envs",
+      "1",
+      "--steps",
+      "8",
+      "--chunk",
+      "1",
+      "--world-pack",
+      "/Users/numi/numi-lab-tracker-step-rollback-20261108/docs/evidence/inspector-failure-reporting-20261108/inputs/fixture/world.mrworld",
+      "--task-pack",
+      "/Users/numi/numi-lab-tracker-step-rollback-20261108/docs/evidence/inspector-failure-reporting-20261108/inputs/fixture/task.taskpack",
+      "--robot-actuator-pack",
+      "/Users/numi/numi-lab-tracker-step-rollback-20261108/docs/evidence/inspector-failure-reporting-20261108/inputs/fixture/actuators.actuatorpack",
+      "--sensor-program-pack",
+      "/Users/numi/numi-lab-tracker-step-rollback-20261108/docs/evidence/inspector-failure-reporting-20261108/inputs/fixture/sensors.sensorpack",
+      "--reality-program-pack",
+      "/Users/numi/numi-lab-tracker-step-rollback-20261108/docs/evidence/inspector-failure-reporting-20261108/inputs/fixture/reality.realitypack",
+      "--zero-actions"
+    ],
+    "exit": 1,
+    "runtime_sha256": {
+      "/Users/numi/numi-tracker-step-rollback-build-20261108/bin/metalrobo_task_rollout": "f92f14c28254272dd283dfa0cc8a87678754ba48cb873afaa1ab41c614e60361",
+      "/Users/numi/numi-tracker-step-rollback-build-20261108/lib/libmetalrobo.dylib": "39e4a05b4c36b45d32cac5798941ca6718b4c48bccff592098c806fc008f78bf",
+      "/Users/numi/numi-tracker-step-rollback-build-20261108/shaders/MetalRobo.metallib": "12081204fc003289fb1cd9d89286417b2a237130875f3a8a6edce146a44908de"
+    },
+    "timed_out": false
+  },
+  "passed": true,
+  "runtime_unchanged": true,
+  "valid": {
+    "argv": [
+      "/Users/numi/numi-lab-tracker-step-rollback-20261108/tools/numi",
+      "window",
+      "--inspect-scene",
+      "/Users/numi/main-inspector-owner-diagnostic-final-20261108/valid.json",
+      "--envs",
+      "1",
+      "--steps",
+      "8",
+      "--chunk",
+      "1",
+      "--world-pack",
+      "/Users/numi/numi-lab-tracker-step-rollback-20261108/docs/evidence/inspector-failure-reporting-20261108/inputs/fixture/world.mrworld",
+      "--task-pack",
+      "/Users/numi/numi-lab-tracker-step-rollback-20261108/docs/evidence/inspector-failure-reporting-20261108/inputs/fixture/task.taskpack",
+      "--robot-actuator-pack",
+      "/Users/numi/numi-lab-tracker-step-rollback-20261108/docs/evidence/inspector-failure-reporting-20261108/inputs/fixture/actuators.actuatorpack",
+      "--sensor-program-pack",
+      "/Users/numi/numi-lab-tracker-step-rollback-20261108/docs/evidence/inspector-failure-reporting-20261108/inputs/fixture/sensors.sensorpack",
+      "--reality-program-pack",
+      "/Users/numi/numi-lab-tracker-step-rollback-20261108/docs/evidence/inspector-failure-reporting-20261108/inputs/fixture/reality.realitypack",
+      "--zero-actions"
+    ],
+    "exit": 0,
+    "runtime_sha256": {
+      "/Users/numi/numi-tracker-step-rollback-build-20261108/bin/metalrobo_task_rollout": "f92f14c28254272dd283dfa0cc8a87678754ba48cb873afaa1ab41c614e60361",
+      "/Users/numi/numi-tracker-step-rollback-build-20261108/lib/libmetalrobo.dylib": "39e4a05b4c36b45d32cac5798941ca6718b4c48bccff592098c806fc008f78bf",
+      "/Users/numi/numi-tracker-step-rollback-build-20261108/shaders/MetalRobo.metallib": "12081204fc003289fb1cd9d89286417b2a237130875f3a8a6edce146a44908de"
+    },
+    "timed_out": false
+  }
+}

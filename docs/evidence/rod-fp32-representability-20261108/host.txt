@@ -1,0 +1,9 @@
+source_revision=0169c59d34038dea17577e7b359442789ea8d649
+ProductName:		macOS
+ProductVersion:		27.0
+BuildVersion:		26A425
+Apple metal version 32023.883 (metalfe-32023.883)
+Target: air64-apple-darwin27.0.0
+Thread model: posix
+InstalledDir: /Users/numi/Library/Developer/Toolchains/Metal.xctoolchain/usr/metal/current/bin
+Apple clang version 21.0.0 (clang-2100.3.34.2)

@@ -4086,6 +4086,12 @@ if(BUILD_TESTING)
     )
     add_test(NAME metalrobo_numi_window_source_workspace
         COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/tests/numi_window_source_workspace_check.sh")
+    add_executable(metalrobo_run_manifest_load_failure_test
+        tests/run_manifest_load_failure_test.cpp)
+    target_link_libraries(metalrobo_run_manifest_load_failure_test PRIVATE metalrobo)
+    add_test(NAME metalrobo_run_manifest_load_failure
+        COMMAND metalrobo_run_manifest_load_failure_test
+            "${CMAKE_CURRENT_SOURCE_DIR}/docs/evidence/inspector-failure-reporting-20261108/inputs/fixture")
     set_tests_properties(
         metalrobo.cli.discovery
         PROPERTIES LABELS "metalrobo;cli" TIMEOUT 120

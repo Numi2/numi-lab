@@ -1,0 +1,3 @@
+numi window: scene /Users/numi/numi-integrated-installed-smoke-20261108/workspace/.numi/runs/synthetic/diagnostic.json
+numi window: close the window to end the preview run.
+task_rollout failed: TaskPack load failed [unsupported_version]: learning pack wire version is unsupported (/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/task.taskpack)
