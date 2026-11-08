@@ -10,7 +10,6 @@ namespace {
 
 constant float kQuaternionMinimum = 1.0e-12f;
 constant float kMatrixFloor = 1.0e-10f;
-constant float kConeEpsilon = 1.0e-7f;
 // The coupled point response is scale-normalized below. Keep its smallest
 // resolved mode at one percent of the dominant response so redundant or
 // nearly rank-deficient articulated contacts cannot turn a bounded target
@@ -22,6 +21,13 @@ struct Mat3 {
     float3 row1;
     float3 row2;
 };
+
+// Impulse is measured in N s, so a fixed absolute cutoff would classify the
+// same contact differently when mass or units change. Report the active-row
+// normal equation for every strictly positive impulse.
+inline float normalComplementarityResidual(const float equation, const float impulse) {
+    return impulse > 0.0f ? abs(equation) : max(-equation, 0.0f);
+}
 
 inline bool finite3(const float3 value) {
     return all(isfinite(value));
@@ -7187,9 +7193,7 @@ kernel void mr_world_wave32_distributed_reduce(
                     contact.impulses.x;
             laneNormalResidual = max(
                 laneNormalResidual,
-                contact.impulses.x > kConeEpsilon
-                ? abs(normalEquation)
-                : max(-normalEquation, 0.0f)
+                normalComplementarityResidual(normalEquation, contact.impulses.x)
             );
             const MREvaluatedConstraintIRConeGPU cone =
                 evaluatedCones[
@@ -8917,9 +8921,7 @@ inline void mrWorldWave32SolvePacket(
                 contact.impulses.x;
         laneNormalResidual = max(
             laneNormalResidual,
-            contact.impulses.x > kConeEpsilon
-            ? abs(normalEquation)
-            : max(-normalEquation, 0.0f)
+            normalComplementarityResidual(normalEquation, contact.impulses.x)
         );
         const MREvaluatedConstraintIRConeGPU cone =
             evaluatedCones[
@@ -10666,9 +10668,7 @@ kernel void mr_world_solve_contact_islands(
             localRows[0].regularization *
                 contact.impulses.x;
         const float normalResidual =
-            contact.impulses.x > kConeEpsilon
-            ? abs(normalEquation)
-            : max(-normalEquation, 0.0f);
+            normalComplementarityResidual(normalEquation, contact.impulses.x);
         maximumNormalResidual = max(
             maximumNormalResidual,
             normalResidual
