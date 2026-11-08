@@ -1,0 +1,7 @@
+# Preliminary standalone local-frame results
+
+The explicitly invoked [research adapter](measurements/rod_local_frame.hpp) translates each standalone, uncoupled rod and its attachment targets into a double-precision host-selected local frame before Metal upload, then reconstructs the returned world positions in double precision. It is not connected to MetalWorld or the default API path and explicitly refuses rigid, self-contact and tool-contact inputs.
+
+On the Apple M6, the unchanged 5/17/128-node by 0/1/16 m matrix passed all original requested-geometry FP64 state and support-force gates. At 128 nodes and 16 m the maximum force error was 7.018e-6 N, compared with 0.00250847 N for the previous world-FP32 run. Maximum position and velocity errors in that local-frame case were 3.475e-8 m and 3.328e-5 m/s. All checked results replayed from identical input. Reversed targets rejected without publishing and left the caller's input arrays unchanged.
+
+The [pinned plan](ROD_STANDALONE_LOCAL_FRAME_PLAN_20261108.md), [raw nine-case results and identities](measurements/evidence/rod-local-frame-20261108), and the first compile/launch failures remain available. This result does not establish multi-environment isolation, multi-step continuation, caller-output restoration, unsupported-coupling rejection, resident snapshots, contact, bending or surgical physics. Those gates remain required; this is not promoted and no performance claim is made.
