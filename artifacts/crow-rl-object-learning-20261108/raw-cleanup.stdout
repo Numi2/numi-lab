@@ -1,0 +1,29 @@
+{"verified_files": 158, "verified_unique_contents": 127, "manifest_sha256": "56a5ec34d2a01d91857ae6154ed42b5c2b279b10f250f3781de43d205b12e6c1", "commit": "26568b6bb918425dca0f0e00129ade30fbb2f6f6"}
+{
+  "archive_commit": "26568b6bb918425dca0f0e00129ade30fbb2f6f6",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 299707060 157642080    66% 3496690 1576420800    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300305660 157043480    66% 3496864 1570434800    0%   /System/Volumes/Data\n",
+  "manifest": "artifacts/crow-rl-object-learning-20261108/manifest.json",
+  "manifest_sha256": "56a5ec34d2a01d91857ae6154ed42b5c2b279b10f250f3781de43d205b12e6c1",
+  "open_handle_checks": [
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/runs/american-crow"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/retained-runtime"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": "build"
+    }
+  ],
+  "remote_commit": "26568b6bb918425dca0f0e00129ade30fbb2f6f6",
+  "removed_files": 158,
+  "removed_logical_bytes": 729996028
+}
+
