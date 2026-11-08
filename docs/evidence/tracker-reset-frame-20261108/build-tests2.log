@@ -1,0 +1,14 @@
+[0/2] Re-checking globbed directories...
+[1/3] Building OBJCXX object CMakeFiles/metalrobo_visual_platform_probe.dir/apps/visual_platform_probe.cpp.o
+FAILED: [code=1] CMakeFiles/metalrobo_visual_platform_probe.dir/apps/visual_platform_probe.cpp.o 
+/usr/bin/clang++  -I/Users/numi/numi-lab-tracker-step-rollback-20261108/include -I/Users/numi/numi-lab-tracker-step-rollback-20261108/matter/include -F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -MD -MT CMakeFiles/metalrobo_visual_platform_probe.dir/apps/visual_platform_probe.cpp.o -MF CMakeFiles/metalrobo_visual_platform_probe.dir/apps/visual_platform_probe.cpp.o.d -o CMakeFiles/metalrobo_visual_platform_probe.dir/apps/visual_platform_probe.cpp.o -c /Users/numi/numi-lab-tracker-step-rollback-20261108/apps/visual_platform_probe.cpp
+/Users/numi/numi-lab-tracker-step-rollback-20261108/apps/visual_platform_probe.cpp:1110:21: error: value of type 'MetalWorldFamilyDiagnostics' is not contextually convertible to 'bool'
+ 1110 |             require(directSmallWorlds.compile(directFamily,kEnvironmentCount) &&
+      |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-lab-tracker-step-rollback-20261108/apps/visual_platform_probe.cpp:1110:79: error: invalid operands to binary expression ('MetalWorldFamilyDiagnostics' and 'MetalWorldFamilyDiagnostics')
+ 1110 |             require(directSmallWorlds.compile(directFamily,kEnvironmentCount) &&
+      |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^
+ 1111 |                         directSmallWorlds.sample(kEnvironmentCount,0x5eed1234ull), "direct small camera world");
+      |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2 errors generated.
+ninja: build stopped: subcommand failed.

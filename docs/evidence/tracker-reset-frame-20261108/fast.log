@@ -1,0 +1,2 @@
+RESET_OBSERVATION initial frame=0 env0_visible=1 env0_x=0.50244689 env1_visible=1 env1_x=0.530237973
+RESET_OBSERVATION reset frame=1 env0_visible=1 env0_x=0.593514681 env1_visible=1 env1_x=0.530177593

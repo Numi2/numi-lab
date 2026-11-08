@@ -1,0 +1,20 @@
+Test project /Users/numi/numi-tracker-step-rollback-build-20261108
+    Start 185: metalrobo.visual.reset_frame_materialized
+1/2 Test #185: metalrobo.visual.reset_frame_materialized ...   Passed    0.32 sec
+    Start 186: metalrobo.visual.reset_frame_direct
+2/2 Test #186: metalrobo.visual.reset_frame_direct .........***Failed    0.07 sec
+retry_sensor_sequence=1
+metalrobo_visual_platform_probe: direct initial scene has no returns
+
+
+50% tests passed, 1 tests failed out of 2
+
+Label Time Summary:
+metal        =   0.39 sec*proc (2 tests)
+metalrobo    =   0.39 sec*proc (2 tests)
+visual       =   0.39 sec*proc (2 tests)
+
+Total Test time (real) =   0.39 sec
+
+The following tests FAILED:
+	186 - metalrobo.visual.reset_frame_direct (Failed)      metal metalrobo visual

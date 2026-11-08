@@ -1,0 +1,4 @@
+paired real fixture: reset masks and physics arrays match; both arms repeat byte-for-byte
+baseline exposed cached track at nonsampled resets 14/0, 27/0, 28/0, 28/1; candidate suppresses all three track slots
+non-reset neighbors unchanged at steps 14 and 27; reset frame is visible again at sampled step 15
+failed steps 14/0 and 27/0 restore pre-visual history; accepted step 28 retains the invalid observation
