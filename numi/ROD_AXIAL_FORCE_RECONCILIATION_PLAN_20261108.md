@@ -1,0 +1,3 @@
+# Axial support force and published geometry reconciliation
+
+Repeat the rounded-input reference matrix with the identical candidate shader. Independently recompute each support reaction from the public final endpoint and adjacent-node positions, the rounded constitutive parameters, the prescribed velocity, and endpoint momentum. Compare that result with both the published reaction and the FP64 implicit reference. This distinguishes reaction inconsistency with the published geometry from error in the geometry represented by the published state. The already recorded application-level and rounded-input failures remain unchanged. No tolerance will be relaxed, and no success will be inferred from this diagnostic alone.
