@@ -1,0 +1,20 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.4s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/numi/numi-tracker-step-rollback-build-20261108
+[0/4] Re-checking globbed directories...
+[1/8] Linking CXX shared library lib/libmetalrobo.dylib
+[2/8] Building OBJCXX object CMakeFiles/metalrobo_visual_history_restore_probe.dir/tests/visual_history_restore_probe.mm.o
+FAILED: [code=1] CMakeFiles/metalrobo_visual_history_restore_probe.dir/tests/visual_history_restore_probe.mm.o
+/usr/bin/clang++  -I/Users/numi/numi-lab-tracker-step-rollback-20261108/include -F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -MD -MT CMakeFiles/metalrobo_visual_history_restore_probe.dir/tests/visual_history_restore_probe.mm.o -MF CMakeFiles/metalrobo_visual_history_restore_probe.dir/tests/visual_history_restore_probe.mm.o.d -o CMakeFiles/metalrobo_visual_history_restore_probe.dir/tests/visual_history_restore_probe.mm.o -c /Users/numi/numi-lab-tracker-step-rollback-20261108/tests/visual_history_restore_probe.mm
+/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/visual_history_restore_probe.mm:17:42: error: 'newLibraryWithFile:error:' is deprecated: first deprecated in macOS 13.0 - Use -newLibraryWithURL:error: instead [-Werror,-Wdeprecated-declarations]
+   17 |         id<MTLLibrary> library = [device newLibraryWithFile:path error:&error];
+      |                                          ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework/Headers/MTLDevice.h:766:1: note: 'newLibraryWithFile:error:' has been explicitly marked deprecated here
+  766 | - (nullable id <MTLLibrary>)newLibraryWithFile:(NSString *)filepath error:(__autoreleasing NSError **)error
+      | ^
+1 error generated.
+[3/8] Building OBJCXX object CMakeFiles/metalrobo_visual_platform_probe.dir/apps/visual_platform_probe.cpp.o
+ninja: build stopped: subcommand failed.

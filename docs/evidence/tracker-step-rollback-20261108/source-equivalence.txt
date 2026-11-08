@@ -1,0 +1,1 @@
+PASS: relevant instrumented source equals committed runtime plus read-only diagnosticHistory accessor; app harness wraps callback and copies history.
