@@ -12,7 +12,7 @@
   "goal_complete": false,
   "mechanism_hypotheses_supported": {
     "disconnected": true,
-    "frictionless": false,
+    "frictionless": null,
     "normal": true,
     "open": true
   },

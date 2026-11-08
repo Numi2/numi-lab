@@ -37,7 +37,7 @@ gates=dict(all_arms_complete_640=complete,normal_physical_files_exact=normal_exa
  disconnected_jaw_impulses_zero='disconnected' in by and by['disconnected']['summary'] is not None and by['disconnected']['trace_complete_rows']==640 and by['disconnected']['max_sampled_jaw_normal_impulse']<=1e-12 and by['disconnected']['max_sampled_jaw_tangent_impulse']<=1e-12,
  frictionless_jaw_tangent_impulses_zero='frictionless' in by and by['frictionless']['summary'] is not None and by['frictionless']['trace_complete_rows']==640 and by['frictionless']['max_sampled_jaw_tangent_impulse']<=1e-12)
 observations={name:c['held_count'] for name,c in by.items()}
-hypotheses={name:observations.get(name)==v for name,v in plan['mechanism_predictions_held_count'].items()}
+hypotheses={name:(observations.get(name)==v if observations.get(name) is not None else None) for name,v in plan['mechanism_predictions_held_count'].items()}
 write(A/'analysis.json',dict(cases=cases,normal_gold_files=len(list(gold.iterdir())),sample_scope='Control-boundary evidence; no bound on every unobserved physics substep'))
 write(A/'result.json',dict(schema='crow-grasp-controls-result-v1',native_commands=len(execution),correctness_gates=gates,all_correctness_gates_passed=all(gates.values()),
  observed_held_counts=observations,mechanism_hypotheses_supported=hypotheses,all_mechanism_hypotheses_supported=all(hypotheses.values()),production_changed=False,policy_or_profile_promoted=False,goal_complete=False))
