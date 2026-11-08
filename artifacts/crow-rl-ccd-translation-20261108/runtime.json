@@ -1,0 +1,123 @@
+{
+  "baseline_sha256": "80b9c0535c353fa1cd98d381e92f7cd0bf869da328eb419839d8310e6925ebd0",
+  "candidate_sha256": "f7f0cc781c3f780e5ba32d36ce2a6c8a5d17e5071594a119a0e12cfe15fbcf3e",
+  "commands": [
+    {
+      "command": [
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metal",
+        "-std=metal4.0",
+        "-O3",
+        "-fno-fast-math",
+        "-I",
+        "/Users/n/Developer/numi-crow-rl-20261107/include",
+        "-c",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/candidate_probe.metal",
+        "-o",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/candidate.air"
+      ],
+      "exit_code": 0,
+      "name": "compile",
+      "seconds": 1.0488919590134174
+    },
+    {
+      "command": [
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/candidate.air",
+        "-o",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/candidate.metallib"
+      ],
+      "exit_code": 0,
+      "name": "link",
+      "seconds": 0.26974999997764826
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/cases_probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/baseline.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/cases.bin",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/baseline.bin"
+      ],
+      "exit_code": 0,
+      "name": "baseline",
+      "seconds": 0.6653073329944164
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/cases_probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/candidate.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/cases.bin",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/candidate.bin"
+      ],
+      "exit_code": 0,
+      "name": "candidate",
+      "seconds": 13.689344374986831
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/cases_probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/candidate.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/cases.bin",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/repeat.bin"
+      ],
+      "exit_code": 0,
+      "name": "repeat",
+      "seconds": 0.047701333998702466
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/sweep_probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/candidate.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/candidate.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/input/clamp.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/clamp.bin"
+      ],
+      "exit_code": 0,
+      "name": "capture-clamp",
+      "seconds": 0.37823345902143046
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/sweep_probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/candidate.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/candidate.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/input/open.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/open.bin"
+      ],
+      "exit_code": 0,
+      "name": "capture-open",
+      "seconds": 0.09008474997244775
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/sweep_probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/candidate.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/candidate.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/input/zero-friction.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/zero-friction.bin"
+      ],
+      "exit_code": 0,
+      "name": "capture-zero-friction",
+      "seconds": 0.04760070901829749
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/sweep_probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/candidate.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/candidate.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/input/refinement.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-01/refinement.bin"
+      ],
+      "exit_code": 0,
+      "name": "capture-refinement",
+      "seconds": 0.04779124999186024
+    }
+  ],
+  "native_capture_executable_sha256": "29a4276b74e0b31410b14eb31b3cb90b53b994f2759b85895009eec7d5584326",
+  "native_case_executable_sha256": "8587ecde51ef2182265d13aa2d19efbef0bbdbd59a3cf35d0b97bf3467814057"
+}

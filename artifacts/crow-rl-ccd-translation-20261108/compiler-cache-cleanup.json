@@ -1,0 +1,20 @@
+{
+  "reason": "Rebuildable compiler/bytecode intermediates only; exact source, command, native executable and metallib retained.",
+  "files": [
+    {
+      "path": "build/crow-ccd-translation-build-01/candidate.air",
+      "sha256": "f54c25e4e822b03140d5e1bc7af280f35119b2231108be37d6e40e74e19e076d",
+      "bytes": 299568,
+      "mode": 420,
+      "mtime_ns": 1794120552107738074
+    },
+    {
+      "path": "build/crow-ccd-translation-build-01/__pycache__/oracle.cpython-313.pyc",
+      "sha256": "28cfba99028dd0778623d466f6607cf565abc9a0184e2d455cb1cc034a8b4fc6",
+      "bytes": 6533,
+      "mode": 420,
+      "mtime_ns": 1794120500306680196
+    }
+  ],
+  "open_handles": 0
+}
