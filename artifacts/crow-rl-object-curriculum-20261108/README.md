@@ -108,3 +108,9 @@ all metadata, native components and scientific learner metrics through tick291.
 Elapsed time and allocator counters were recorded separately. No reanalysis or
 retry was needed for these recovery executions. The exact28168951B temporary
 recovery set was hash/mode/mtime/closed-handle checked and removed.
+
+Verified raw cleanup removed766 files /569355687B. The archive checkout omission
+removed320 duplicate files /146965270B after remote HEAD and Git-blob checks.
+The complete evidence remains in Git; compact reports and recovery metadata stay
+visible in the checkout. These receipts record logical bytes, not physical APFS
+space reclaimed.
