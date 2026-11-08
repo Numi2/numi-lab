@@ -1,0 +1,33 @@
+{
+  "actual_git_files_verified": 157,
+  "actual_git_unique_contents_verified": 86,
+  "build_open_handles": 0,
+  "data_available_GiB": 149.75054168701172,
+  "df": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300324316 157024824    66% 3498994 1570248240    0%   /System/Volumes/Data\n",
+  "goal_complete": false,
+  "manifest_sha256": "1387ff33eea545a4243cfe1b276a4b2b6cd6fdf90a20effa60be4a7be36e1dd6",
+  "original_raw_and_temporary_scopes_absent": [
+    "build/crow-quality-first-failure-build-01",
+    "build/crow-quality-first-failure-git-recovery-01",
+    ".numi/retained-runtime/quality-first-failure-20261108",
+    ".numi/retained-runtime/quality-first-failure-mask-fix-20261108"
+  ],
+  "own_native_workers": [],
+  "policy_or_profile_promoted": false,
+  "protected_policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+  "recovery_files_verified": 201,
+  "recovery_unique_contents_verified": 89,
+  "remote_commit": "45162f0225a677ff690f6974f991ec9d950f4f23",
+  "source_and_current_runtime_sha256": {
+    "build/bin/metalrobo_motor_contact_probe": "746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2",
+    "build/lib/libmetalrobo.dylib": "3ec0722fa588dd1ed2426c2ff4966d2157ddfeae1bfff9b6067c1d93fdbd2b42",
+    "build/shaders/MetalRobo.metallib": "37f2466de50d4c2003dd8aeea4d55a680aaaab0f2ab21f9601f976032d80e675",
+    "include/metalrobo/engine_types.h": "891b9ccd844b0da9210f52d6c86e06823230b9c8be65666fb61d724e5566e495",
+    "include/metalrobo/unified_quality_capture_shared.h": "5ee8449a678a25b164b717bede06d02b9e294d3dcec0f10cbd8ae0feeacd7c6c",
+    "src/metal/MetalUnifiedQualitySolver.metal": "4497c4c45e870de5872995067370ad5af5a39a6ba1527313f6a12c3a9bda36ed",
+    "src/metal/MetalWorld.metal": "76808bafadbdf8f7a46c61fa3f73f77e571c12fb656a5cb935415b52b2f3838f",
+    "src/metal/MetalWorld.mm": "28ac088d4fb20f61fb4854c8c0f13e7bf7267df6eda9e676623782d1d3c6734c",
+    "src/metal/QualityFailureCapture.inc": "13b9b9ddc7a22ac335ace7ba875a8ffc2dd38f329b22f7d2f2ee4df6f8ea295d"
+  },
+  "verification_commit": "45162f0225a677ff690f6974f991ec9d950f4f23"
+}
