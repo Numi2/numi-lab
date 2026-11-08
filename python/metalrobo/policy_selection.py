@@ -392,11 +392,22 @@ def _recovery_phase_rate(
 
 
 def _physical_failure_rate(record: dict[str, Any]) -> float:
-    """Exclude ordinary horizon timeouts from physical policy failures."""
+    """Exclude horizon timeouts and known successes from physical failures."""
 
     environments = max(
         len(record.get("termination_count_by_environment", [])), 1
     )
+    reason_counts = record.get("termination_reason_counts", {})
+    success_count = (
+        int(reason_counts.get("7", reason_counts.get(7, 0)))
+        if isinstance(reason_counts, dict) else 0
+    )
+    timeout_count = record.get("timeout_count")
+    if timeout_count is None:
+        timeout_count = (
+            reason_counts.get("4", reason_counts.get(4, 0))
+            if isinstance(reason_counts, dict) else 0
+        )
     if (
         "height_or_tilt_termination_count" in record
         and str(record.get("world_source", ""))
@@ -406,7 +417,7 @@ def _physical_failure_rate(record: dict[str, Any]) -> float:
     else:
         failures = max(
             int(record.get("termination_count", 0))
-            - int(record.get("timeout_count", 0)),
+            - int(timeout_count) - success_count,
             0,
         )
     return failures / environments
@@ -705,6 +716,9 @@ def compare_evidence(
         )
         selected = (
             int(candidate.get("failed_environment_steps", 0)) == 0
+            # Reward ranks eligible candidates; it cannot buy worse physical
+            # failure rates than those observed for the incumbent.
+            and candidate_termination <= incumbent_termination + 1.0e-12
             and not (
                 task == "velocity"
                 and "clean_horizon_environment_rate" in candidate

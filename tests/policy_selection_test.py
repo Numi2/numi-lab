@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import json
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -438,6 +439,117 @@ class PolicySelectionTest(unittest.TestCase):
             "candidate has failed environment steps",
             decision["regressions"],
         )
+
+    def test_generic_physical_regression_cannot_be_bought_with_reward(self) -> None:
+        for source in ("world_pack", "urdf"):
+            with self.subTest(source=source):
+                incumbent = {
+                    "task": "grasp",
+                    "world_source": source,
+                    "termination_count_by_environment": [0] * 16,
+                    "termination_count": 0,
+                    "failed_environment_steps": 0,
+                    "mean_task_reward": 0.1,
+                    "mean_reward": 0.1,
+                }
+                candidate = {
+                    **incumbent,
+                    "termination_count_by_environment": [1] + [0] * 15,
+                    "termination_count": 1,
+                    "termination_reason_counts": {"3": 1},
+                    "mean_task_reward": 0.2,
+                    "mean_reward": 0.2,
+                }
+                decision = compare_evidence(incumbent, candidate)
+                self.assertGreater(decision["selection_score"], 0)
+                self.assertIn("termination rate increased", decision["regressions"])
+                self.assertEqual(decision["selected"], "incumbent")
+
+    def test_generic_timeout_does_not_block_reward_gain(self) -> None:
+        incumbent = {
+            "task": "grasp",
+            "world_source": "world_pack",
+            "termination_count_by_environment": [0] * 16,
+            "termination_count": 0,
+            "failed_environment_steps": 0,
+            "mean_task_reward": 0.1,
+            "mean_reward": 0.1,
+        }
+        candidate = {
+            **incumbent,
+            "termination_count_by_environment": [1] + [0] * 15,
+            "termination_count": 1,
+            "termination_reason_counts": {"4": 1},
+            "mean_task_reward": 0.2,
+            "mean_reward": 0.2,
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["metrics"]["candidate_physical_failure_rate"], 0)
+        self.assertEqual(decision["selected"], "candidate")
+
+    def test_selector_cli_preserves_incumbent_on_physical_regression(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            incumbent, candidate = root / "incumbent.pack", root / "candidate.pack"
+            deployment, shader = root / "deployment.pack", root / "shader"
+            evaluator, evidence = root / "evaluator.py", root / "evidence"
+            incumbent.write_bytes(b"incumbent-policy")
+            candidate.write_bytes(b"candidate-policy")
+            shader.write_bytes(b"shader")
+            evaluator.write_text(
+                "#!" + sys.executable + "\n"
+                "import json, pathlib, sys\n"
+                "args=sys.argv[1:]\n"
+                "policy=pathlib.Path(args[args.index('--policy-pack')+1])\n"
+                "trace=pathlib.Path(args[args.index('--state-trace')+1])\n"
+                "trace.write_text('# step nq=1 scene_bodies=0 scene_stride=13 timestep=0.02 environment=0\\n1\\t0\\n')\n"
+                "candidate=policy.name == 'candidate.pack'\n"
+                "print(json.dumps({'task':'grasp','world_source':'world_pack',"
+                "'termination_count_by_environment':([1]+[0]*15 if candidate else [0]*16),"
+                "'termination_count':int(candidate),'termination_reason_counts':({'3':1} if candidate else {}),"
+                "'failed_environment_steps':0,'mean_task_reward':(0.2 if candidate else 0.1),"
+                "'mean_reward':(0.2 if candidate else 0.1)}))\n",
+                encoding="utf-8",
+            )
+            evaluator.chmod(0o755)
+            selector = Path(__file__).resolve().parents[1] / "python/metalrobo/policy_selection.py"
+            completed = subprocess.run(
+                [sys.executable, str(selector), "--evaluator", str(evaluator),
+                 "--metallib", str(shader), "--incumbent", str(incumbent),
+                 "--candidate", str(candidate), "--deployment", str(deployment),
+                 "--evidence-directory", str(evidence), "--maximum-environments", "16",
+                 "--held-out-seed", "42", "--evaluation-steps", "1",
+                 "--", "--task", "grasp", "--envs", "16", "--steps", "1"],
+                text=True, capture_output=True, check=True,
+            )
+            decision = json.loads(completed.stdout)
+            self.assertEqual(decision["selected"], "incumbent")
+            self.assertIn("termination rate increased", decision["regressions"])
+            self.assertEqual(deployment.read_bytes(), incumbent.read_bytes())
+            self.assertEqual(candidate.read_bytes(), b"candidate-policy")
+            self.assertTrue((evidence / "candidate.evidence.json.meta.json").is_file())
+
+    def test_generic_success_termination_is_not_a_physical_failure(self) -> None:
+        incumbent = {
+            "task": "foraging",
+            "world_source": "world_pack",
+            "termination_count_by_environment": [0] * 16,
+            "termination_count": 0,
+            "failed_environment_steps": 0,
+            "mean_task_reward": 0.1,
+            "mean_reward": 0.1,
+        }
+        candidate = {
+            **incumbent,
+            "termination_count_by_environment": [1] + [0] * 15,
+            "termination_count": 1,
+            "termination_reason_counts": {"7": 1},
+            "mean_task_reward": 0.2,
+            "mean_reward": 0.2,
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["metrics"]["candidate_physical_failure_rate"], 0)
+        self.assertEqual(decision["selected"], "candidate")
 
     def test_world_pack_reward_sign_change_cannot_buy_total_failure(self) -> None:
         incumbent = {
