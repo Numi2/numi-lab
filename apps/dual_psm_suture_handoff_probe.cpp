@@ -7119,6 +7119,7 @@ numi::matter::CompiledWorld compileNeedleSutureTissueWorld(
 struct Arguments {
     std::string mode;
     bool syntheticSkin = false;
+    bool sameResidentControl = false;
     bool robotContactBrake = false;
     bool robotFastOneNewton = false;
     bool robotPunctureOneNewton = false;
@@ -7393,6 +7394,9 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         } else if (argument == "--synthetic-skin") {
             require(!result.syntheticSkin, "--synthetic-skin specified twice");
             result.syntheticSkin = true;
+        } else if (argument == "--same-resident-control") {
+            require(!result.sameResidentControl, "--same-resident-control specified twice");
+            result.sameResidentControl = true;
         } else if (argument == "--robot-contact-brake") {
             require(
                 !result.robotContactBrake,
@@ -8128,6 +8132,13 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         tissueCheckpointMode ==
             !result.resumeTissueCheckpointPath.empty(),
         "tissue checkpoint mode requires exactly one v3 checkpoint"
+    );
+    require(
+        !result.sameResidentControl ||
+            (result.syntheticSkin &&
+             result.mode == "--tissue-robot-first-bite-entry-only" &&
+             !result.stateOutputDirectory.empty()),
+        "same-resident control requires synthetic entry and an output directory"
     );
     require(
         !result.robotContactBrake ||
@@ -17245,7 +17256,7 @@ int main(const int argc, const char* const argv[]) {
         }
 
         if (tissueCheckpointResume) {
-            const numi::matter::RuntimeStateSnapshot restored =
+            numi::matter::RuntimeStateSnapshot restored =
                 tissueRuntime.snapshot();
             require(
                 restored.available &&
@@ -17465,6 +17476,19 @@ int main(const int argc, const char* const argv[]) {
                 tissueRobotFirstBiteEntryOnly ||
                 tissueRobotFirstBiteContactAdvanceOnly ||
                 tissueRobotFirstBitePunctureMicrostepOnly) {
+                const bool originalEntry = tissueRobotFirstBiteEntryOnly;
+                const bool originalAdvance = tissueRobotFirstBiteContactAdvanceOnly;
+                metalrobo::MetalWorldContext context;
+                metalrobo::MetalWorldResidentState resident;
+                const std::uint32_t residentStageCount = options.sameResidentControl ? 2u : 1u;
+                for (std::uint32_t residentStage = 0u;
+                     residentStage < residentStageCount; ++residentStage) {
+                const bool tissueRobotFirstBiteEntryOnly =
+                    originalEntry && residentStage == 0u;
+                const bool tissueRobotFirstBiteContactAdvanceOnly =
+                    originalAdvance || (options.sameResidentControl && residentStage == 1u);
+                std::cout << "same_resident_stage=" << residentStage
+                    << " enabled=" << options.sameResidentControl << std::endl;
                 const bool robotContactProbe =
                     tissueRobotFirstBiteEntryOnly ||
                     tissueRobotFirstBiteContactAdvanceOnly ||
@@ -17771,10 +17795,13 @@ int main(const int argc, const char* const argv[]) {
                             << rigidTimestepMultiplier << '\n';
                     }
                 }
-                metalrobo::MetalWorldContext context;
-                metalrobo::MetalWorldResidentState resident;
                 const PhaseResult driven =
-                    (tissueRobotFirstBiteContactAdvanceOnly ||
+                    residentStage != 0u
+                        ? continuePhaseUnchecked(
+                            context, compiled, stepConfig, resident,
+                            trajectory.efforts, robotApproachSteps,
+                            "same-resident contact advance")
+                    : (tissueRobotFirstBiteContactAdvanceOnly ||
                      tissueRobotFirstBitePunctureMicrostepOnly)
                         ? initializePhaseUnchecked(
                             context,
@@ -18324,8 +18351,15 @@ int main(const int argc, const char* const argv[]) {
                 const std::uint64_t acceptedStateStep =
                     resumedTissueCheckpointStep +
                     robotApproachSteps * stepConfig.physicsSubsteps;
+                const std::filesystem::path stageOutput = options.sameResidentControl
+                    ? options.stateOutputDirectory /
+                        (residentStage == 0u ? "entry" : "advance")
+                    : options.stateOutputDirectory;
+                if (options.sameResidentControl) {
+                    std::filesystem::create_directories(stageOutput);
+                }
                 writeHandoffStateArtifact(
-                    options.stateOutputDirectory,
+                    stageOutput,
                     acceptedPhase,
                     acceptedStateStep,
                     world,
@@ -18335,7 +18369,7 @@ int main(const int argc, const char* const argv[]) {
                 );
                 if (robotContactProbe) {
                     writeRigidContactCacheArchive(
-                        options.stateOutputDirectory,
+                        stageOutput,
                         acceptedPhase,
                         acceptedStateStep,
                         driven.result,
@@ -18353,7 +18387,28 @@ int main(const int argc, const char* const argv[]) {
                                 ? "robot_first_bite_entry_puncture=ok\n"
                                 : "robot_first_bite_puncture_continuation=ok\n")))
                     : "robot_first_bite_resumed_approach=ok\n");
+                if (options.sameResidentControl && residentStage == 0u) {
+                    require(channels == 0u && resident.valid(),
+                        "same-resident control requires accepted pre-puncture contact");
+                    require(driven.result.finalQ.size() == world.model.defaultQ.size() &&
+                        driven.result.finalV.size() == world.model.defaultV.size() &&
+                        driven.result.finalSceneBodies.size() == world.defaultSceneBodies.size(),
+                        "same-resident control lacks a complete host target-planning mirror");
+                    world.model.defaultQ = driven.result.finalQ;
+                    world.model.defaultV = driven.result.finalV;
+                    world.defaultSceneBodies = driven.result.finalSceneBodies;
+                    restored = matter;
+                    activeChannels = channels;
+                    resumedTissueCheckpointStep = acceptedStateStep;
+                    std::cout << "same_resident_entry_accepted=1 next_step="
+                        << acceptedStateStep << std::endl;
+                    continue;
+                }
+                if (options.sameResidentControl) {
+                    std::cout << "same_resident_continuation=ok\n";
+                }
                 return 0;
+                }
             }
             if (tissueSuturePullStrokeOnly) {
                 require(
