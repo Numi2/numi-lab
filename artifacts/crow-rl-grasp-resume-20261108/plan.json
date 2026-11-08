@@ -1,0 +1,49 @@
+{
+  "arms": {
+    "disconnected": 2,
+    "frictionless": 3,
+    "open": 1
+  },
+  "goal_complete": false,
+  "inputs": {
+    "build/crow-grasp-resume-build-01/crow-fixture": "9b21fd7c04cd6f3ba51dfc570d2dfc4e983bf5835b8589db1e40beecb4bb01d5",
+    "build/crow-grasp-resume-build-01/observations/normal/effective-config.json": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c",
+    "build/crow-grasp-resume-build-01/observations/normal/final-q.f32": "b08767dc7c056c0819a1df1bbeafab2378a61c7c180a9d42a3bb1b1fc07a4c90",
+    "build/crow-grasp-resume-build-01/observations/normal/final-scene.bin": "5f1c0ce3fc2faeeabce7ead2ac3ca842e990f3f7efd79b3a3e0a3205fd0559f7",
+    "build/crow-grasp-resume-build-01/observations/normal/final-v.f32": "0617787449287d791e5c4187242e5ef431c21036b3e17ce623760537cc7ec767",
+    "build/crow-grasp-resume-build-01/observations/normal/initial-geometry.json": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7",
+    "build/crow-grasp-resume-build-01/observations/normal/initial-q.f32": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28",
+    "build/crow-grasp-resume-build-01/observations/normal/initial-scene.bin": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57",
+    "build/crow-grasp-resume-build-01/observations/normal/initial-v.f32": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0",
+    "build/crow-grasp-resume-build-01/observations/normal/runtime.json": "225b892d86a6bbf78e95537be8fdebf09a1e33221a15b02968101b1200f01b10",
+    "build/crow-grasp-resume-build-01/observations/normal/scene.bin": "1d9db4488809ec7a4a64a9e597873538fceb02979ea3d17497aa9010e21335b1",
+    "build/crow-grasp-resume-build-01/observations/normal/summary.json": "0e20bf63647f03e80dfcd48bd4f451706321a1c15796d496406e744de19e6aee",
+    "build/crow-grasp-resume-build-01/observations/normal/trace.tsv": "c34be0c3fc1b5282a43789036fd3aee795e6d5c6f56d37bbeacb942bcea212e2",
+    "build/crow-grasp-resume-build-01/reference/normal-gold/effective-config.json": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c",
+    "build/crow-grasp-resume-build-01/reference/normal-gold/final-q.f32": "b08767dc7c056c0819a1df1bbeafab2378a61c7c180a9d42a3bb1b1fc07a4c90",
+    "build/crow-grasp-resume-build-01/reference/normal-gold/final-scene.bin": "5f1c0ce3fc2faeeabce7ead2ac3ca842e990f3f7efd79b3a3e0a3205fd0559f7",
+    "build/crow-grasp-resume-build-01/reference/normal-gold/final-v.f32": "0617787449287d791e5c4187242e5ef431c21036b3e17ce623760537cc7ec767",
+    "build/crow-grasp-resume-build-01/reference/normal-gold/initial-geometry.json": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7",
+    "build/crow-grasp-resume-build-01/reference/normal-gold/initial-q.f32": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28",
+    "build/crow-grasp-resume-build-01/reference/normal-gold/initial-scene.bin": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57",
+    "build/crow-grasp-resume-build-01/reference/normal-gold/initial-v.f32": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0",
+    "build/crow-grasp-resume-build-01/reference/normal-gold/scene.bin": "1d9db4488809ec7a4a64a9e597873538fceb02979ea3d17497aa9010e21335b1",
+    "build/crow-grasp-resume-build-01/reference/normal-gold/summary.json": "0e20bf63647f03e80dfcd48bd4f451706321a1c15796d496406e744de19e6aee",
+    "build/crow-grasp-resume-build-01/reference/normal-gold/trace.tsv": "c34be0c3fc1b5282a43789036fd3aee795e6d5c6f56d37bbeacb942bcea212e2",
+    "build/crow-grasp-resume-build-01/runtime/libmetalrobo.dylib": "652f43415f24be1fce73eb91589e35d558d6dec7fb610965942239fc49771f61",
+    "build/crow-grasp-resume-build-01/runtime/metalrobo/MetalRobo.metallib": "b5a84cbf77b00ec94a31757e9ce6e87cd970cb4ba0d4ee029d1351d36577dae7"
+  },
+  "limits": {
+    "raw_bytes": 25000000,
+    "seconds_per_arm": 600
+  },
+  "mechanism_predictions_held_count": {
+    "disconnected": 0,
+    "frictionless": 0,
+    "normal": 4,
+    "open": 0
+  },
+  "prediction": "Each completes 640 transitions with original gates; disconnected jaw impulses and frictionless tangential impulses are zero. Compare held grasp against frozen normal; friction necessity is a hypothesis.",
+  "prior_commit": "4c9980b579994a2f5fdf5dba172f22c84f816aac",
+  "schema": "crow-grasp-resume-v1"
+}
