@@ -1,0 +1,105 @@
+UpdateCTestConfiguration  from :/Users/numi/numi-tracker-step-rollback-build-20261108/DartConfiguration.tcl
+Parse Config file:/Users/numi/numi-tracker-step-rollback-build-20261108/DartConfiguration.tcl
+Test project /Users/numi/numi-tracker-step-rollback-build-20261108
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 148
+    Start 148: metalrobo.surgical.tissue_static_equilibrium
+
+148: Test command: /Users/numi/numi-tracker-step-rollback-build-20261108/bin/metalrobo_dual_psm_suture_handoff_probe "--tissue-rest-only" "--state-output-dir" "/Users/numi/numi-tracker-step-rollback-build-20261108/testing/suture/tissue-checkpoint"
+148: Working Directory: /Users/numi/numi-tracker-step-rollback-build-20261108
+148: Test timeout computed to be: 900
+148: handoff_phase=authored_reset swage_material_frame_error_rad=0
+148: [NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+148: matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+148: matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+148: matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+148: matter_canonical_precision_materials=0 source=compiler_exact_energy_proof tangent_policy=unchanged
+148: matter_mixed_field_smoother_dispatch_count=skipped step=0 count=450 multiphysics_objects=0 field_boundaries=0
+148: matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=400 element=100 environment_count=1
+148: tissue_contact_region=swage tissue_authored_minimum_separation_m=0.00015 tissue_surface_offset_m=0.00015 tissue_anchor_node=73 tissue_contact_nodes=102/102 tissue_authored_capsule_first=[-0.005502,-0.007385,0.001885] tissue_authored_capsule_second=[-0.007470,-0.007385,0.001885]
+148: tissue_contact_anchor_node=73 fixed=0 compiled_pairs=1 needle_contact_segments=1 suture_contact_segments=0 total_contact_proxies=1 proxy_flags=2
+148: tissue_static_control reaction_count=0 active_contacts=0 reaction_norm=0 needle_velocity_delta=0 thread_root_velocity_delta=0 maximum_tissue_displacement=0 maximum_tissue_position_ulp=2.636749216566357e-09 certificates_accepted=1 minimum_determinant=0.99999988079071045 swage_error=4.263548361321057e-09 relative_correction=0
+148: tissue_static_equilibrium=ok reaction_contacts=0 final_active_contacts=0 final_normal_impulse_ns=0 reaction_impulse_ns=[0.000000,0.000000,0.000000] needle_velocity_delta_mps=0 thread_root_velocity_delta_mps=0 maximum_tissue_displacement_m=0 hard_swage_root_error_m=4.26354836e-09 matter_maximum_nonlinear_residual=1.60900441e-07 matter_maximum_relative_correction=0 matter_maximum_volume_residual=2.33129214e-08 matter_minimum_determinant=0.999999881 matter_maximum_fgmres_iterations=3 active_puncture_channels=0 active_tetrahedra=216 removed_tissue_mass_kg=0 analytic_channel_tract_mass_kg=1.5710916e-09 removed_to_channel_tract_mass_ratio=0 puncture_channel_radius_m=0 puncture_channel_length_m=0 puncture_channel_axis_alignment=0 puncture_impulse_threshold_ns=0 channel_release_contacts=0 channel_release_puncture_tip_contacts=0 channel_release_strand_contacts=0 channel_release_channels=0 channel_release_links=0 channel_release_total_length_m=0 channel_release_signed_needle_motion_m=0 channel_release_minimum_determinant=0 channel_release_maximum_residual=0 channel_release_swage_error_m=0 channel_release_state_fnv64=0x0 accepted_state_fnv64=0x645fc1f6a7776cc reference_gpu_ms=128.025167 coupled_gpu_ms=135.347792 failed_steps=0
+1/4 Test #148: metalrobo.surgical.tissue_static_equilibrium .....   Passed    0.64 sec
+test 149
+    Start 149: metalrobo.surgical.tissue_checkpoint_restore
+
+149: Test command: /Users/numi/numi-tracker-step-rollback-build-20261108/bin/metalrobo_dual_psm_suture_handoff_probe "--tissue-checkpoint-restore-only" "--resume-tissue-checkpoint" "tissue-rest" "/Users/numi/numi-tracker-step-rollback-build-20261108/testing/suture/tissue-checkpoint/tissue-rest.tsv"
+149: Working Directory: /Users/numi/numi-tracker-step-rollback-build-20261108
+149: Test timeout computed to be: 900
+149: handoff_phase=authored_reset swage_material_frame_error_rad=0
+149: [NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+149: matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+149: matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+149: matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+149: matter_canonical_precision_materials=0 source=compiler_exact_energy_proof tangent_policy=unchanged
+149: tissue_contact_region=swage tissue_authored_minimum_separation_m=0.00015 tissue_surface_offset_m=0.00015 tissue_anchor_node=73 tissue_contact_nodes=102/102 tissue_authored_capsule_first=[-0.005502,-0.007385,0.001885] tissue_authored_capsule_second=[-0.007470,-0.007385,0.001885]
+149: tissue_contact_anchor_node=73 fixed=0 compiled_pairs=1 needle_contact_segments=1 suture_contact_segments=0 total_contact_proxies=1 proxy_flags=2
+149: tissue_checkpoint_restore=ok phase=tissue-rest state_step=1 source_fingerprint=0x54b24d6dd85d8561 device_program_fingerprint=0x2565d008e6aae4b2 control_step=0 physics_substep=0 active_puncture_channels=0 active_tetrahedra=216 removed_tissue_mass_kg=0 matter_minimum_determinant=0.999999881 matter_maximum_residual=1.60900441e-07 authority_byte_exact=yes physics_advanced=no
+2/4 Test #149: metalrobo.surgical.tissue_checkpoint_restore .....   Passed    0.11 sec
+test 150
+    Start 150: metalrobo.surgical.tissue_checkpoint_integrity
+
+150: Test command: /opt/homebrew/bin/python3 "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/surgical_checkpoint_integrity_test.py" "/Users/numi/numi-tracker-step-rollback-build-20261108/bin/metalrobo_dual_psm_suture_handoff_probe" "/Users/numi/numi-tracker-step-rollback-build-20261108/testing/suture/tissue-checkpoint/tissue-rest.tsv"
+150: Working Directory: /Users/numi/numi-tracker-step-rollback-build-20261108
+150: Test timeout computed to be: 900
+150: missing-one-twist: rejected: handoff resume rod twist state is incomplete
+150: missing-all-twists: rejected: handoff resume rod twist state is incomplete
+150: duplicate-schema: rejected: duplicate handoff resume schema
+150: duplicate-phase: rejected: duplicate handoff resume phase
+150: duplicate-step: rejected: invalid or duplicate resume step
+150: duplicate-q: rejected: duplicate handoff generalized state
+150: duplicate-needle_position: rejected: invalid resume needle position
+150: duplicate-thread_position: rejected: duplicate resume thread node
+150: duplicate-thread_velocity: rejected: duplicate resume thread node
+150: duplicate-thread_twist: rejected: duplicate resume thread twist
+150: duplicate-schema-downgrade: rejected: duplicate handoff resume schema
+150: legacy-v2-no-twists: rejected: surgical tissue resume requires a v3 Matter checkpoint
+150: legacy-v2-partial-twists: rejected: handoff resume rod twist state is incomplete
+150: original_sha256=309bed167f2ebbfd584afa7664c90e8b3a0836bb2e0f790c75ad19a38b38b237
+150: control restored without advancing; original bytes unchanged
+3/4 Test #150: metalrobo.surgical.tissue_checkpoint_integrity ...   Passed    1.53 sec
+test 151
+    Start 151: metalrobo.surgical.tissue_checkpoint_hold
+
+151: Test command: /Users/numi/numi-tracker-step-rollback-build-20261108/bin/metalrobo_dual_psm_suture_handoff_probe "--tissue-checkpoint-hold-only" "--resume-tissue-checkpoint" "tissue-rest" "/Users/numi/numi-tracker-step-rollback-build-20261108/testing/suture/tissue-checkpoint/tissue-rest.tsv" "--state-output-dir" "/Users/numi/numi-tracker-step-rollback-build-20261108/testing/suture/tissue-checkpoint-continued"
+151: Working Directory: /Users/numi/numi-tracker-step-rollback-build-20261108
+151: Test timeout computed to be: 900
+151: handoff_phase=authored_reset swage_material_frame_error_rad=0
+151: [NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+151: matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+151: matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+151: matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+151: matter_canonical_precision_materials=0 source=compiler_exact_energy_proof tangent_policy=unchanged
+151: matter_mixed_field_smoother_dispatch_count=skipped step=0 count=450 multiphysics_objects=0 field_boundaries=0
+151: matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=400 element=100 environment_count=1
+151: matter_mixed_field_smoother_dispatch_count=skipped step=0 count=450 multiphysics_objects=0 field_boundaries=0
+151: matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=400 element=100 environment_count=1
+151: tissue_contact_region=swage tissue_authored_minimum_separation_m=0.00015 tissue_surface_offset_m=0.00015 tissue_anchor_node=73 tissue_contact_nodes=102/102 tissue_authored_capsule_first=[-0.005502,-0.007385,0.001885] tissue_authored_capsule_second=[-0.007470,-0.007385,0.001885]
+151: tissue_contact_anchor_node=73 fixed=0 compiled_pairs=1 needle_contact_segments=1 suture_contact_segments=0 total_contact_proxies=1 proxy_flags=2
+151: tissue_checkpoint_restore=ok phase=tissue-rest state_step=1 source_fingerprint=0x54b24d6dd85d8561 device_program_fingerprint=0x2565d008e6aae4b2 control_step=0 physics_substep=0 active_puncture_channels=0 active_tetrahedra=216 removed_tissue_mass_kg=0 matter_minimum_determinant=0.999999881 matter_maximum_residual=1.60900441e-07 authority_byte_exact=yes physics_advanced=no
+151: tissue_checkpoint_hold=ok phase=tissue-rest state_step=2 hold_steps=1 timestep_s=6.2500003e-05 cadence_multiplier=1 cadence_divisor=1 active_puncture_channels=0 active_tetrahedra=216 removed_tissue_mass_kg=0 puncture_channels_unchanged=1 maximum_tissue_increment_m=5.82076609e-11 matter_minimum_determinant=0.999999881 matter_maximum_residual=1.25166679e-07 hard_swage_root_error_m=1.17167389e-08 thread_maximum_edge_error_m=3.40916399e-09 replay_byte_exact=yes metalworld_warmstart=cold_reinitialized state_fnv64=0x1513fc84b3a8fe74 physics_advanced=yes
+4/4 Test #151: metalrobo.surgical.tissue_checkpoint_hold ........   Passed    0.43 sec
+
+The following tests passed:
+	metalrobo.surgical.tissue_static_equilibrium
+	metalrobo.surgical.tissue_checkpoint_restore
+	metalrobo.surgical.tissue_checkpoint_integrity
+	metalrobo.surgical.tissue_checkpoint_hold
+
+100% tests passed out of 4
+
+Label Time Summary:
+checkpoint    =   2.07 sec*proc (3 tests)
+matter        =   2.70 sec*proc (4 tests)
+metal         =   2.70 sec*proc (4 tests)
+metalrobo     =   2.70 sec*proc (4 tests)
+physics       =   2.70 sec*proc (4 tests)
+surgical      =   2.70 sec*proc (4 tests)
+
+Total Test time (real) =   2.71 sec

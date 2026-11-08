@@ -719,6 +719,12 @@ reported as `metalworld_warmstart=cold_reinitialized`: Matter continuation is
 exact, while MetalWorld contact-manifold and warm-start caches are not archived,
 so uninterrupted resident equivalence is not claimed.
 
+The handoff reader rejects incomplete v3 rod twist records and duplicate
+authoritative state records. Legacy v2 visual states may omit all twist records,
+but a partially present twist set is rejected; v2 does not become a resumable
+Matter checkpoint. See `docs/evidence/surgical-checkpoint-integrity-20261108/`
+for the bounded fixture and its limitations.
+
 A long resident Apple M4 receiver-acquisition replay first exposed a narrow live
 boundary after the complete stand-off alignment. At 36 ms into its nominal
 hold, a valid strand/tissue proxy contact carried 4.969391739 um separation and
