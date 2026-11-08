@@ -1,0 +1,20 @@
+{
+  "n16_temporal": {
+    "binned_force": 8.624848615706124e-10,
+    "total_impulse": 2.2569252385747084e-10,
+    "peak_force": 6.155757105500837e-06,
+    "cumulative_impulse": 3.652977187518515e-10,
+    "passes": true
+  },
+  "n8_to_16": {
+    "binned_force": 0.2723758449852934,
+    "total_impulse": 0.06658893834506226,
+    "peak_force": 0.3844897700905873,
+    "cumulative_impulse": 0.0831678801754061,
+    "passes": false
+  },
+  "predicted_nonconvergence_confirmed": true,
+  "peak_n16_N": 0.2612198260657593,
+  "impulse_n16_Ns": 0.00040958018487448203,
+  "area_n16_m2": 0.00039999999999999915
+}

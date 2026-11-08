@@ -1,0 +1,57 @@
+{
+  "temporal": {
+    "2": {
+      "binned_force": 6.009073854618156e-10,
+      "total_impulse": 1.00982110674053e-10,
+      "peak_force": 6.139367811309974e-11,
+      "cumulative_impulse": 1.3653030831677736e-10,
+      "passes": true
+    },
+    "4": {
+      "binned_force": 1.5745862986781474e-10,
+      "total_impulse": 3.343342995423724e-11,
+      "peak_force": 1.2505438080759232e-10,
+      "cumulative_impulse": 1.6156974011837316e-10,
+      "passes": true
+    },
+    "8": {
+      "binned_force": 9.511368416239833e-10,
+      "total_impulse": 2.491834643969662e-10,
+      "peak_force": 2.927016587835914e-06,
+      "cumulative_impulse": 5.26641694543645e-10,
+      "passes": true
+    }
+  },
+  "spatial": {
+    "2_to_4": {
+      "binned_force": 0.9290390819313833,
+      "total_impulse": 0.2000899010448905,
+      "peak_force": 0.5601375270313294,
+      "cumulative_impulse": 0.29230470188062174,
+      "passes": false
+    },
+    "4_to_8": {
+      "binned_force": 0.7042608293888012,
+      "total_impulse": 0.03373950850764441,
+      "peak_force": 0.284351797715777,
+      "cumulative_impulse": 0.12563837234208325,
+      "passes": false
+    }
+  },
+  "reference_area_m2": {
+    "2": 0.0004000000000000001,
+    "4": 0.00039999999999999996,
+    "8": 0.00039999999999999996
+  },
+  "peak_force_N": {
+    "2": 0.7246741476060986,
+    "4": 0.4644937609987676,
+    "8": 0.36165617693288626
+  },
+  "impulse_Ns": {
+    "2": 0.0005065753072617215,
+    "4": 0.0004221144656084999,
+    "8": 0.0004368536945524481
+  },
+  "spatial_qualified": false
+}
