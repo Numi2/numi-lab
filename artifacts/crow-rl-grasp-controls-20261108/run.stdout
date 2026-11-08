@@ -1,0 +1,32 @@
+{"name": "admission", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-grasp-controls-build-01/crow-fixture", "--admit"], "returncode": 0, "seconds": 0.679004708013963}
+{"name": "calibration", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-grasp-controls-build-01/crow-fixture", "--calibrate"], "returncode": 0, "seconds": 0.024684834002982825}
+{"name": "normal", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-grasp-controls-build-01/crow-fixture", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-grasp-controls-build-01/observations/normal", "0", "1", "32", "2", "api-default"], "returncode": 0, "seconds": 377.157303999993}
+{"name": "open", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-grasp-controls-build-01/crow-fixture", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-grasp-controls-build-01/observations/open", "1", "1", "32", "2", "api-default"], "returncode": -15, "seconds": 200.86785220901947}
+{
+  "all_correctness_gates_passed": false,
+  "all_mechanism_hypotheses_supported": false,
+  "correctness_gates": {
+    "all_arms_complete_640": false,
+    "disconnected_jaw_impulses_zero": false,
+    "enabled_jaw_penetration_bound": false,
+    "frictionless_jaw_tangent_impulses_zero": false,
+    "ground_penetration_bound": false,
+    "normal_physical_files_exact": true
+  },
+  "goal_complete": false,
+  "mechanism_hypotheses_supported": {
+    "disconnected": false,
+    "frictionless": false,
+    "normal": true,
+    "open": false
+  },
+  "native_commands": 4,
+  "observed_held_counts": {
+    "normal": 4,
+    "open": null
+  },
+  "policy_or_profile_promoted": false,
+  "production_changed": false,
+  "schema": "crow-grasp-controls-result-v1"
+}
+

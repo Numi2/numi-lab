@@ -1,0 +1,28 @@
+{
+  "both_processes_absent": true,
+  "child_signal": "SIGTERM",
+  "completed": [
+    "Compiled admission and FP64 known-value calibration",
+    "Normal arm640 transitions, eleven prior physical files exactly matched"
+  ],
+  "driver_exited": true,
+  "goal_complete": false,
+  "goal_status": "paused",
+  "interrupted": "Open-jaw arm stopped by user pause; not a numerical rejection or complete scientific trial",
+  "owned_child_pid": 70769,
+  "owned_runner_pid": 70209,
+  "policy_or_profile_promoted": false,
+  "production_changed": false,
+  "qualification_complete": false,
+  "raw_bytes": 11305702,
+  "raw_cleanup_deferred": "Archive/hash verification only during pause. No further native replay or raw removal until authorized goal resume.",
+  "raw_files": 42,
+  "reason": "Explicit user goal pause",
+  "resume_notes": "Keep the frozen source/runtime and complete normal arm. A resumed open-jaw trial needs a new output directory and fresh native initial state; do not treat its interrupted prefix as a numerical failure. Then run the two unstarted controls. Original recovery protocol must be scoped around the user-interrupted prefix.",
+  "schema": "crow-grasp-controls-user-pause-v1",
+  "unstarted": [
+    "Disconnected crow/object arm",
+    "Frictionless arm",
+    "Native Git recovery"
+  ]
+}
