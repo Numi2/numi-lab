@@ -1,0 +1,3 @@
+# Durable native regression
+
+Turn the retained full-world instrument into a registered Metal CTest, with a standard-library-only Python runner. Execute two captured runs and one capture-disabled control; reproduce the normalized-depth acceptance, rejected reset/non-reset, nonvacuity, physical-output equality and byte-for-byte repetition checks. The test uses a temporary output directory and fails if any subprocess, geometry, reset, rejection or replay requirement is absent. Build the test against a clean build of the same branch and run it alongside the existing visual tests. This adds test coverage, not a runtime fix or qualification of the remaining sensor transaction.
