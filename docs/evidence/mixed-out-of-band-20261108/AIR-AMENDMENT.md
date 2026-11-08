@@ -1,0 +1,5 @@
+# Shader link-input amendment
+
+The reason-capture build stopped before compilation because the retained AIR input manifest no longer matched the shared build. Exactly one linked input differs: MetalRoboHybridRenderer.air, formerly 541b0fd9d1d922589d2900f1b4858b0f07fb7e422badf62975eefecf3c01cb6c and currently ea9b8641e6b13b8d5ab8ca9bd571816c144fa36a283137b8235147b3a608798a. The other recorded AIR hashes still match. No guard trial ran.
+
+Before admitting the reason capture, compile and link the unmodified retained witness shader with the current, fully recorded AIR inputs and run it on the bent fixture. Require exact full JSON equality to the already captured witness, including scratch, statuses, capture and repeat flags. Only if that control succeeds may the separately compiled reason-capture shader be run and compared to the original ordinary shader under the plan. This is a narrow observed equivalence, not proof that renderer code changes are generally inert. Retain the failed manifest check and both input manifests.
