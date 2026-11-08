@@ -16,7 +16,8 @@ static bool observe(void* context,const metalrobo::MetalWorldDeviceObservationPa
 }
 static void require(bool ok,const char* why){if(!ok)throw std::runtime_error(why);}
 int main(int argc,char** argv){try{
- require(argc==4,"usage: probe METALLIB OUTPUT control|retry");
+ require(argc==5,"usage: probe METALLIB OUTPUT control|retry private|shared");
+ const std::string storage=argv[4];require(storage=="private"||storage=="shared","storage mode");
  const bool retry=std::string(argv[3])=="retry";require(retry||std::string(argv[3])=="control","arm");
  metalrobo::RunManifest m;m.id="upload_abort_franka";auto robot=metalrobo::builtinRobotPack("franka_panda");require(robot.has_value(),"robot");m.robot=*robot;
  m.scene=metalrobo::makeFrankaPickPlaceScenePack();m.sensors.id="default";
@@ -32,7 +33,7 @@ int main(int argc,char** argv){try{
  std::array<std::uint32_t,2> masks{0,0};std::vector<float> actions(2*run.task().layout().actionCount,0.f);
  metalrobo::MetalWorldBatch batch{.environmentCount=2,.controlStepCount=1,.initialQ=q,.initialV=v,.actions=actions,.policyRevision=19,.resetMasks=masks,.initialSceneBodies=scene};
  metalrobo::MetalWorldStepConfig config{};config.timestepSeconds=.02f;config.physicsSubsteps=4;config.solverMode=metalrobo::MetalWorldSolverMode::temporalCone;config.actuationMode=metalrobo::MetalWorldActuationMode::implicitPositionDrive;config.taskProgram=run.task();config.taskSeed=20261108;config.velocityIterations=4;config.finalVelocityIterations=2;config.publishFinalState=true;
- Probe probe{};config.deviceObservationProgram={&probe,observe};metalrobo::MetalWorldConfig ctxConfig{};ctxConfig.metallibPath=argv[1];metalrobo::MetalWorldContext ctx(ctxConfig);
+ Probe probe{};config.deviceObservationProgram={&probe,observe};metalrobo::MetalWorldConfig ctxConfig{};ctxConfig.metallibPath=argv[1];ctxConfig.preferPrivateHeaps=(storage=="private");metalrobo::MetalWorldContext ctx(ctxConfig);
  auto execute=[&](){metalrobo::MetalWorldSubmission ticket;metalrobo::MetalWorldResult result;auto d=ctx.submit(run.world(),batch,config,ticket);if(d.succeeded())d=ticket.wait(result);return std::pair{d,std::move(result)};};
  if(retry){probe.reject=true;auto [d,r]=execute();std::cout<<"rejected_status="<<(unsigned)d.status<<" published="<<d.published<<" calls="<<probe.calls<<"\n";require(!d.succeeded()&&!d.published&&probe.calls==1,"rejection missing");}
  auto [d,r]=execute();std::cout<<"status="<<(unsigned)d.status<<" published="<<d.published<<" calls="<<probe.calls<<" message="<<d.message<<"\n";
