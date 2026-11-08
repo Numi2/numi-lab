@@ -9021,11 +9021,14 @@ inline void mrWorldWave32SolvePacket(
             // rule, only force-free frictional rows may be published.
             const bool hasFriction = cone.effectiveFrictionU > 0.0f ||
                                      cone.effectiveFrictionV > 0.0f;
+            const bool invalidCone = upper < 0.0f ||
+                cone.effectiveFrictionU < 0.0f || cone.effectiveFrictionV < 0.0f ||
+                ((cone.effectiveFrictionU == 0.0f) != (cone.effectiveFrictionV == 0.0f));
             const bool unsupportedFriction = hasFriction &&
                 any(contact.impulses.xyz != float3(0.0f));
-            if (!finite || !validImpulse || violation > tolerance || unsupportedFriction) {
+            if (!finite || invalidCone || !validImpulse || violation > tolerance || unsupportedFriction) {
                 localFailure = !finite ? MR_STEP_NONFINITE_RESULT :
-                    unsupportedFriction ? MR_STEP_UNSUPPORTED : MR_STEP_DID_NOT_CONVERGE;
+                    (invalidCone || unsupportedFriction) ? MR_STEP_UNSUPPORTED : MR_STEP_DID_NOT_CONVERGE;
                 localFailureConstraint = min(localFailureConstraint, localConstraint);
                 laneFailureRhs = max(laneFailureRhs, violation);
                 laneFailureInverse = max(laneFailureInverse, tolerance);
