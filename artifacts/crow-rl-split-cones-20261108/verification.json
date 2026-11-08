@@ -1,0 +1,20 @@
+{
+  "all_passed": true,
+  "duplicate_checkout_bytes_omitted": 328198,
+  "duplicate_checkout_files_omitted": 126,
+  "free_gib": 149.7474250793457,
+  "goal_complete": false,
+  "native_binary_outputs_exact": 72,
+  "native_recovery_commands": 36,
+  "new_compressed_bytes": 105336,
+  "production_source_runtime_policy_unchanged": true,
+  "raw_bytes_archived": 1028585,
+  "raw_files_verified_absent": 173,
+  "remote_commit": "b0d3f4707936cd6214c776177cd46debcb8c99bc",
+  "schema": "crow-split-cones-final-verification-v1",
+  "shared_git_provider": "/Users/n/MetalRobo-main/.git",
+  "shared_git_provider_protected": true,
+  "temporary_bytes_removed": 2155427,
+  "temporary_files_git_verified_absent": 363,
+  "verified_commit": "b0d3f4707936cd6214c776177cd46debcb8c99bc"
+}
