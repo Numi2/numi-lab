@@ -527,20 +527,37 @@ using MetalWorldDeviceObservationEncode = bool (*)(
 using MetalWorldDeviceObservationBegin = bool (*)(void*, void*) noexcept;
 using MetalWorldDeviceObservationFinish = void (*)(void*, void*, bool) noexcept;
 
+// Borrowed per-environment status after the physical substeps. The callback
+// may encode GPU work but must not wait or retain borrowed buffers.
+struct MetalWorldDeviceObservationStepResult {
+    void* commandBuffer = nullptr;
+    void* worldStatuses = nullptr;
+    void* contactStatuses = nullptr;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t actorHistoryLength = 0u;
+    std::uint32_t controlStep = 0u;
+    bool contactMode = false;
+};
+using MetalWorldDeviceObservationAfterStep = bool (*)(
+    void*, const MetalWorldDeviceObservationStepResult&
+);
+
 struct MetalWorldDeviceObservationProgram {
     void* context = nullptr;
     MetalWorldDeviceObservationEncode encode = nullptr;
     MetalWorldDeviceObservationBegin begin = nullptr;
     MetalWorldDeviceObservationFinish finish = nullptr;
+    MetalWorldDeviceObservationAfterStep afterStep = nullptr;
 
     [[nodiscard]] bool valid() const noexcept {
         return context != nullptr && encode != nullptr &&
-            ((begin == nullptr) == (finish == nullptr));
+            ((begin == nullptr) == (finish == nullptr)) &&
+            (afterStep == nullptr || begin != nullptr);
     }
 
     [[nodiscard]] bool configured() const noexcept {
         return context != nullptr || encode != nullptr ||
-            begin != nullptr || finish != nullptr;
+            begin != nullptr || finish != nullptr || afterStep != nullptr;
     }
 };
 

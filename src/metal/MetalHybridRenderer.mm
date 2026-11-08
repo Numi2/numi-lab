@@ -7566,6 +7566,10 @@ struct MetalHybridObjectTracker::State {
     __strong id<MTLDevice> device = nil;
     __strong id<MTLComputePipelineState> pipeline = nil;
     __strong id<MTLComputePipelineState> maskedDepthPipeline = nil;
+    __strong id<MTLComputePipelineState> restoreHistoryPipeline = nil;
+    // Each begun submission owns a backup retained by its command buffer.
+    __strong id<MTLBuffer> pendingHistoryBackup = nil;
+    __strong id<MTLBuffer> pendingDepthBackup = nil;
     __strong id<MTLBuffer> bindings = nil;
     __strong id<MTLBuffer> history = nil;
     __strong id<MTLBuffer> maskedDepthInstances = nil;
@@ -7723,6 +7727,14 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
                     describeError(error)
             );
         }
+        id<MTLFunction> restoreFunction = [renderer.state_->library
+            newFunctionWithName:@"mr_hybrid_restore_failed_observation_history"];
+        id<MTLComputePipelineState> restorePipeline = restoreFunction == nil
+            ? nil : [device newComputePipelineStateWithFunction:restoreFunction error:&error];
+        if (restorePipeline == nil) {
+            return reject(std::move(diagnostics), MetalHybridRendererStatus::metalPipelineFailure,
+                "could not create tracker history restore pipeline: " + describeError(error));
+        }
         id<MTLFunction> maskedDepthFunction =
             [renderer.state_->library
                 newFunctionWithName:@"mr_hybrid_masked_depth_history"];
@@ -7826,6 +7838,7 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
         state_->device = device;
         state_->pipeline = pipeline;
         state_->maskedDepthPipeline = maskedDepthPipeline;
+        state_->restoreHistoryPipeline = restorePipeline;
         state_->bindings = bindingBuffer;
         state_->history = history;
         state_->maskedDepthInstances = maskedDepthInstances;
@@ -7947,6 +7960,13 @@ bool MetalHybridObjectTracker::beginObservation(void* context, void* command) no
         auto& renderer = *state->renderer->state_;
         const std::lock_guard rendererLock(renderer.mutex);
         if (!renderer.compiled || renderer.observationOwner != nullptr) return false;
+        id<MTLBuffer> historyBackup = [state->device
+            newBufferWithLength:state->history.length options:MTLResourceStorageModePrivate];
+        id<MTLBuffer> depthBackup = [state->device
+            newBufferWithLength:state->maskedDepthHistory.length options:MTLResourceStorageModePrivate];
+        if (historyBackup == nil || depthBackup == nil) return false;
+        state->pendingHistoryBackup = historyBackup;
+        state->pendingDepthBackup = depthBackup;
         state->savedObservationSequence = state->observationSequence;
         state->savedSensorSequence = state->lastSensorSequence;
         state->savedRenderUniforms = state->maskedDepthRenderUniforms;
@@ -7977,6 +7997,8 @@ void MetalHybridObjectTracker::finishObservation(void* context, void* command, b
         }
         renderer.observationOwner = nullptr;
         state->pendingCommand = nullptr;
+        state->pendingHistoryBackup = nil;
+        state->pendingDepthBackup = nil;
     } catch (...) {}
 }
 
@@ -8105,6 +8127,16 @@ bool MetalHybridObjectTracker::encodeObservation(
             double(pass.controlStep) * state->config.timestepSeconds,
         .frameAgeSeconds = 0.0,
     };
+    if (state->pendingCommand != nullptr) {
+        if (state->pendingHistoryBackup == nil || state->pendingDepthBackup == nil) return false;
+        id<MTLBlitCommandEncoder> snapshot = [command blitCommandEncoder];
+        if (snapshot == nil) return false;
+        [snapshot copyFromBuffer:state->history sourceOffset:0
+            toBuffer:state->pendingHistoryBackup destinationOffset:0 size:state->history.length];
+        [snapshot copyFromBuffer:state->maskedDepthHistory sourceOffset:0
+            toBuffer:state->pendingDepthBackup destinationOffset:0 size:state->maskedDepthHistory.length];
+        [snapshot endEncoding];
+    }
     id<MTLComputeCommandEncoder> observationEncoder =
         [command computeCommandEncoder];
     if (observationEncoder == nil) {
@@ -8330,6 +8362,47 @@ bool MetalHybridObjectTracker::encodeObservation(
     return true;
 }
 
+bool MetalHybridObjectTracker::finishPhysicalStep(
+    void* context, const MetalWorldDeviceObservationStepResult& pass
+) {
+    auto* state = static_cast<State*>(context);
+    if (state == nullptr) return false;
+    const std::lock_guard lock(state->mutex);
+    if (!state->compiled || state->pendingCommand != pass.commandBuffer ||
+        pass.worldStatuses == nullptr || (pass.contactMode && pass.contactStatuses == nullptr) ||
+        state->restoreHistoryPipeline == nil || state->pendingHistoryBackup == nil ||
+        state->pendingDepthBackup == nil || pass.environmentCount == 0u ||
+        pass.environmentCount > state->config.capacity || pass.actorHistoryLength == 0u ||
+        pass.actorHistoryLength > state->config.maximumActorHistoryLength) return false;
+    const std::uint64_t tracks = std::uint64_t(pass.actorHistoryLength) *
+        state->config.bindings.size() * 2u;
+    const std::uint64_t depth = state->config.maskedDepthInstanceIds.empty() ? 0u :
+        std::uint64_t(state->config.maskedDepthWidth) * state->config.maskedDepthHeight *
+        (std::uint64_t(state->config.maskedDepthFrameOffsets.back()) + 1u);
+    if (tracks > std::numeric_limits<std::uint32_t>::max() ||
+        depth > std::numeric_limits<std::uint32_t>::max() ||
+        tracks * pass.environmentCount > std::numeric_limits<std::uint32_t>::max() ||
+        depth * pass.environmentCount > std::numeric_limits<std::uint32_t>::max()) return false;
+    const mr_uint4 counts{pass.environmentCount, static_cast<std::uint32_t>(tracks),
+        static_cast<std::uint32_t>(depth), pass.contactMode ? 1u : 0u};
+    id<MTLCommandBuffer> command = (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+    id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+    if (encoder == nil) return false;
+    encoder.label = @"MetalRobo rejected observation history restore";
+    [encoder setComputePipelineState:state->restoreHistoryPipeline];
+    const std::array<id<MTLBuffer>, 6u> buffers{{state->history, state->pendingHistoryBackup,
+        state->maskedDepthHistory, state->pendingDepthBackup,
+        (__bridge id<MTLBuffer>)pass.worldStatuses,
+        (__bridge id<MTLBuffer>)(pass.contactMode ? pass.contactStatuses : pass.worldStatuses)}};
+    for (NSUInteger i=0u; i<buffers.size(); ++i) [encoder setBuffer:buffers[i] offset:0u atIndex:i];
+    [encoder setBytes:&counts length:sizeof(counts) atIndex:6u];
+    const NSUInteger width = std::min<NSUInteger>(state->restoreHistoryPipeline.maxTotalThreadsPerThreadgroup, 256u);
+    [encoder dispatchThreadgroups:MTLSizeMake(pass.environmentCount, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+    [encoder endEncoding];
+    return true;
+}
+
 MetalWorldDeviceObservationProgram
 MetalHybridObjectTracker::observationProgram() noexcept {
     if (state_ == nullptr) return {};
@@ -8341,6 +8414,7 @@ MetalHybridObjectTracker::observationProgram() noexcept {
             .encode = &MetalHybridObjectTracker::encodeObservation,
             .begin = &MetalHybridObjectTracker::beginObservation,
             .finish = &MetalHybridObjectTracker::finishObservation,
+            .afterStep = &MetalHybridObjectTracker::finishPhysicalStep,
         };
     } catch (...) { return {}; }
 }

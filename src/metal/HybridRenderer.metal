@@ -9,6 +9,32 @@
 
 using namespace metal;
 
+// Restore failed environments from the submission-local pre-observation copy.
+kernel void mr_hybrid_restore_failed_observation_history(
+    device float4* tracks [[buffer(0)]],
+    device const float4* savedTracks [[buffer(1)]],
+    device float* depthHistory [[buffer(2)]],
+    device const float* savedDepth [[buffer(3)]],
+    device const MRMetalWorldStatusGPU* world [[buffer(4)]],
+    device const MRMetalWorldContactStatusGPU* contact [[buffer(5)]],
+    constant uint4& counts [[buffer(6)]],
+    uint environment [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint lanes [[threads_per_threadgroup]]
+) {
+    if (environment >= counts.x ||
+        (world[environment].code == MR_STEP_SUCCESS &&
+         (counts.w == 0u || contact[environment].code == MR_STEP_SUCCESS))) return;
+    for (uint i = lane; i < counts.y; i += lanes) {
+        const uint index = environment * counts.y + i;
+        tracks[index] = savedTracks[index];
+    }
+    for (uint i = lane; i < counts.z; i += lanes) {
+        const uint index = environment * counts.z + i;
+        depthHistory[index] = savedDepth[index];
+    }
+}
+
 kernel void mr_hybrid_reduce_object_tracks(
     device const float* depth [[buffer(0)]],
     device const uint4* identities [[buffer(1)]],

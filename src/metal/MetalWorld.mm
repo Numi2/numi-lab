@@ -21382,6 +21382,24 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 }
 
                 pass.physicsSubstep = MR_INVALID_INDEX;
+                if (nativeTask && config.deviceObservationProgram.valid() &&
+                    config.deviceObservationProgram.afterStep != nullptr) {
+                    const MetalWorldDeviceObservationStepResult outcome{
+                        .commandBuffer = (__bridge void*)commandBuffer,
+                        .worldStatuses = (__bridge void*)selectedState->buffers[kEnvironmentStatuses],
+                        .contactStatuses = (__bridge void*)selectedState->buffers[kContactStatuses],
+                        .environmentCount = static_cast<std::uint32_t>(batch.environmentCount),
+                        .actorHistoryLength = config.taskProgram.layout().actorHistoryLength,
+                        .controlStep = controlStep,
+                        .contactMode = contactMode,
+                    };
+                    if (!config.deviceObservationProgram.afterStep(
+                            config.deviceObservationProgram.context, outcome)) {
+                        return reject(std::move(diagnostics),
+                            MetalWorldHostStatus::metalCommandFailure,
+                            "device observation program rejected physical-step outcome");
+                    }
+                }
                 if ((nativeTask &&
                      (
                          !encodeTaskEffort(

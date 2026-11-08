@@ -6746,6 +6746,14 @@ set_target_properties(
 )
 
 if(BUILD_TESTING)
+    add_executable(metalrobo_visual_history_restore_probe tests/visual_history_restore_probe.mm)
+    target_include_directories(metalrobo_visual_history_restore_probe PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    target_compile_options(metalrobo_visual_history_restore_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_link_libraries(metalrobo_visual_history_restore_probe PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    add_dependencies(metalrobo_visual_history_restore_probe metalrobo)
+    add_test(NAME metalrobo.visual.history_restore_layouts
+        COMMAND $<TARGET_FILE:metalrobo_visual_history_restore_probe> ${CMAKE_CURRENT_BINARY_DIR}/shaders/MetalRobo.metallib)
+    set_tests_properties(metalrobo.visual.history_restore_layouts PROPERTIES LABELS "metalrobo;visual;metal" TIMEOUT 120)
     add_test(
         NAME metalrobo.visual.tracker_encode_retry
         COMMAND metalrobo_visual_platform_probe
@@ -6783,6 +6791,19 @@ if(BUILD_TESTING)
         set_tests_properties(metalrobo.visual.resident_observation_${mode}
             PROPERTIES LABELS "metalrobo;visual;metal" TIMEOUT 120)
     endforeach()
+    add_test(NAME metalrobo.visual.world_step_callback
+        COMMAND ${CMAKE_COMMAND} -E env NUMI_TEST_WORLD_TRANSACTION=1 NUMI_TEST_WORLD_STEP_CALLBACK=1
+                $<TARGET_FILE:metalrobo_visual_platform_probe>)
+    add_test(NAME metalrobo.visual.world_step_callback_abort
+        COMMAND ${CMAKE_COMMAND} -E env NUMI_TEST_WORLD_TRANSACTION=1 NUMI_TEST_REJECT_AFTER_STEP=1
+                $<TARGET_FILE:metalrobo_visual_platform_probe>)
+    set_tests_properties(metalrobo.visual.world_step_callback metalrobo.visual.world_step_callback_abort
+        PROPERTIES LABELS "metalrobo;visual;metal" TIMEOUT 120)
+    add_test(NAME metalrobo.visual.history_step_rollback
+        COMMAND ${CMAKE_COMMAND} -E env NUMI_TEST_TRACKER_STEP_ROLLBACK=1
+                $<TARGET_FILE:metalrobo_visual_platform_probe>)
+    set_tests_properties(metalrobo.visual.history_step_rollback
+        PROPERTIES LABELS "metalrobo;visual;metal" TIMEOUT 120)
     add_test(NAME metalrobo.visual.observation_lease
         COMMAND ${CMAKE_COMMAND} -E env NUMI_TEST_TRACKER_LEASE=1
                 $<TARGET_FILE:metalrobo_visual_platform_probe>)
