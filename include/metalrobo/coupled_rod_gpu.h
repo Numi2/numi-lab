@@ -10,7 +10,8 @@ struct RodInput {
  float gravity[3];
 };
 struct RodOutput {
- unsigned status, iterations, backtracks;
+ unsigned status, iterations, backtracks, regularizedSteps;
+ float maximumShift;
  float displacement[ROD_N*3], displacementLow[ROD_N*3], twistDelta[ROD_E], reaction[6];
  float maxLinear, maxAngular;
 };

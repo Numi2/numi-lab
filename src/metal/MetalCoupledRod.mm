@@ -181,6 +181,7 @@ MetalDiscreteElasticRodDiagnostics runResearchMetalCoupledRod(
             reaction.finalPositionError=norm(subtract(staged.state.positions[reaction.nodeIndex],attachments[k].targetPosition));
         }
         staged.iterations=result.iterations; staged.backtracks=result.backtracks;
+        staged.regularizedSteps=result.regularizedSteps; staged.maximumInertiaShift=result.maximumShift;
         staged.maximumLinearResidual=double(result.maxLinear)+linearConversion;
         staged.maximumAngularResidual=double(result.maxAngular)+angularConversion;
         output=std::move(staged);

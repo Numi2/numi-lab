@@ -28,6 +28,8 @@ struct MetalCoupledRodResult {
     std::uint32_t reactionCount = 0u;
     std::uint32_t iterations = 0u;
     std::uint32_t backtracks = 0u;
+    std::uint32_t regularizedSteps = 0u;
+    double maximumInertiaShift = 0.0;
     double maximumLinearResidual = 0.0;
     double maximumAngularResidual = 0.0;
 };

@@ -65,11 +65,36 @@ inline float merit(constant RodInput& in,thread const float* g,thread float& lin
  for(uint i=0;i<n-1;i++)ang=max(ang,abs(g[m+i])*in.h/in.inertia[i]);
  return max(lin/in.linearTolerance,ang/in.angularTolerance);
 }
+// Factor the physical Hessian plus an optional dimensionless inertia shift.
+// The shift is used only to obtain a search direction, never in the residual.
+inline bool factorRodHessian(constant RodInput& in,thread const float* raw,
+                             thread float* factor,thread float* scale,
+                             thread const uint* freeIndex,uint count,float shift) {
+ uint m=3*in.n;
+ for(uint i=0;i<count;i++){
+  uint k=freeIndex[i];float inertia=k<m?in.mass[k/3]:in.inertia[k-m];
+  float diagonal=raw[i*MAXD+i]+shift*inertia/(in.h*in.h);
+  if(!(diagonal>0.0f)||!isfinite(diagonal))return false;
+  scale[i]=rsqrt(diagonal);
+ }
+ for(uint i=0;i<count;i++)for(uint j=0;j<count;j++){
+  uint k=freeIndex[i];float inertia=k<m?in.mass[k/3]:in.inertia[k-m];
+  float value=raw[i*MAXD+j]+(i==j?shift*inertia/(in.h*in.h):0.0f);
+  factor[i*MAXD+j]=value*scale[i]*scale[j];
+ }
+ for(uint i=0;i<count;i++)for(uint j=0;j<=i;j++){
+  float value=factor[i*MAXD+j];
+  for(uint k=0;k<j;k++)value-=factor[i*MAXD+k]*factor[j*MAXD+k];
+  if(i==j){if(!(value>1e-8f)||!isfinite(value))return false;factor[i*MAXD+j]=sqrt(value);}
+  else factor[i*MAXD+j]=value/factor[j*MAXD+j];
+ }
+ return true;
+}
 kernel void mr_research_coupled_rod_step(constant RodInput& in [[buffer(0)]],device RodOutput& out [[buffer(1)]],uint tid [[thread_position_in_grid]]){
- if(tid)return;out.status=1;out.iterations=0;out.backtracks=0;
+ if(tid)return;out.status=1;out.iterations=0;out.backtracks=0;out.regularizedSteps=0;out.maximumShift=0;
  uint n=in.n;if(n<3||n>ROD_N)return;uint m=3*n,N=4*n-1,freeN=0;uint fi[MAXD];
  for(uint node=0;node<n;node++){if((node==0&&(in.fixedEndpoints&1u))||(node==n-1&&(in.fixedEndpoints&2u)))continue;for(uint j=0;j<3;j++)fi[freeN++]=3*node+j;}for(uint i=m;i<N;i++)fi[freeN++]=i;
- float y[MAXD],yLow[MAXD],g[MAXD],hv[MAXD],dir[MAXD],mat[MAXD*MAXD],scale[MAXD],rhs[MAXD],candidate[MAXD],candidateLow[MAXD],gt[MAXD],ht[MAXD];
+ float y[MAXD],yLow[MAXD],g[MAXD],hv[MAXD],dir[MAXD],raw[MAXD*MAXD],mat[MAXD*MAXD],scale[MAXD],rhs[MAXD],candidate[MAXD],candidateLow[MAXD],gt[MAXD],ht[MAXD];
  for(uint i=0;i<MAXD;i++){y[i]=0;yLow[i]=0;dir[i]=0;}
  for(uint i=0;i<n;i++)for(uint j=0;j<3;j++)y[3*i+j]=in.h*(in.vel[3*i+j]+in.h*in.gravity[j]);
  for(uint i=0;i<n-1;i++)y[m+i]=in.twist[i]+in.h*in.omega[i];
@@ -77,21 +102,26 @@ kernel void mr_research_coupled_rod_step(constant RodInput& in [[buffer(0)]],dev
  for(uint iteration=0;iteration<in.maxIterations;iteration++){
   out.iterations=iteration+1;if(!eval(in,y,yLow,dir,g,hv)){out.status=2;return;}
   float lin,ang;float base=merit(in,g,lin,ang);out.maxLinear=lin;out.maxAngular=ang;
+  // Assemble the unmodified physical tangent even when the residual has
+  // converged: a stationary saddle must never be reported as a stable step.
+  for(uint j=0;j<freeN;j++){
+   dir[fi[j]]=1;if(!eval(in,y,yLow,dir,gt,hv)){out.status=2;return;}dir[fi[j]]=0;
+   for(uint i=0;i<freeN;i++)raw[i*MAXD+j]=hv[fi[i]];
+  }
   if(lin<=in.linearTolerance && ang<=in.angularTolerance){
+   if(!factorRodHessian(in,raw,mat,scale,fi,freeN,0.0f)){out.status=6;return;}
    for(uint i=0;i<3*n;i++){out.displacement[i]=y[i];out.displacementLow[i]=yLow[i];}for(uint i=0;i<n-1;i++)out.twistDelta[i]=y[m+i];
    for(uint j=0;j<3;j++){out.reaction[j]=-g[j];out.reaction[3+j]=-g[3*(n-1)+j];}
    out.status=0;return;
   }
-  for(uint j=0;j<freeN;j++){
-   dir[fi[j]]=1;if(!eval(in,y,yLow,dir,gt,hv)){out.status=2;return;}dir[fi[j]]=0;
-   for(uint i=0;i<freeN;i++)mat[i*MAXD+j]=hv[fi[i]];
+  const float shifts[7]={0.0f,0.01f,0.1f,1.0f,10.0f,100.0f,1000.0f};
+  bool factored=false;float usedShift=0;
+  for(uint attempt=0;attempt<7;attempt++){
+   usedShift=shifts[attempt];
+   if(factorRodHessian(in,raw,mat,scale,fi,freeN,usedShift)){factored=true;break;}
   }
-  for(uint i=0;i<freeN;i++){float d=mat[i*MAXD+i];if(!(d>0)||!isfinite(d)){out.status=3;return;}scale[i]=rsqrt(d);rhs[i]=-g[fi[i]]*scale[i];}
-  for(uint i=0;i<freeN;i++)for(uint j=0;j<freeN;j++)mat[i*MAXD+j]*=scale[i]*scale[j];
-  for(uint i=0;i<freeN;i++)for(uint j=0;j<=i;j++){
-   float v=mat[i*MAXD+j];for(uint k=0;k<j;k++)v-=mat[i*MAXD+k]*mat[j*MAXD+k];
-   if(i==j){if(!(v>1e-8f)||!isfinite(v)){out.status=3;return;}mat[i*MAXD+j]=sqrt(v);}else mat[i*MAXD+j]=v/mat[j*MAXD+j];
-  }
+  if(!factored){out.status=3;return;}
+  for(uint i=0;i<freeN;i++)rhs[i]=-g[fi[i]]*scale[i];
   for(uint i=0;i<freeN;i++){float v=rhs[i];for(uint j=0;j<i;j++)v-=mat[i*MAXD+j]*rhs[j];rhs[i]=v/mat[i*MAXD+i];}
   for(int i=int(freeN)-1;i>=0;i--){float v=rhs[i];for(uint j=uint(i)+1;j<freeN;j++)v-=mat[j*MAXD+uint(i)]*rhs[j];rhs[i]=v/mat[uint(i)*MAXD+uint(i)];}
   bool accepted=false;
@@ -100,7 +130,9 @@ kernel void mr_research_coupled_rod_step(constant RodInput& in [[buffer(0)]],dev
    for(uint i=0;i<freeN;i++){uint k=fi[i];auto z=mrCompensatedAdd({y[k],yLow[k]},{alpha*scale[i]*rhs[i],0});candidate[k]=z.high;candidateLow[k]=(k<m)?z.low:0;}
    if(eval(in,candidate,candidateLow,dir,gt,ht)){float l,a;float test=merit(in,gt,l,a);if(isfinite(test)&&test<base){accepted=true;out.backtracks+=step;break;}}
   }
-  if(!accepted){out.status=4;return;}for(uint i=0;i<N;i++){y[i]=candidate[i];yLow[i]=candidateLow[i];}
+  if(!accepted){out.status=4;return;}
+  if(usedShift>0.0f){out.regularizedSteps++;out.maximumShift=max(out.maximumShift,usedShift);}
+  for(uint i=0;i<N;i++){y[i]=candidate[i];yLow[i]=candidateLow[i];}
  }
  out.status=5;
 }
