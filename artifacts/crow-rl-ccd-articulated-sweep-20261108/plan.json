@@ -1,0 +1,147 @@
+{
+  "budget": {
+    "grid_executions": 1,
+    "new_raw_max_bytes": 33554432,
+    "physical_executions": 6,
+    "projection_executions": 3,
+    "stop": "One execution per condition; failed projection controls stop before physical trials. Retain all missing/rejected/negative results, no retries or threshold changes. No production replacement or biological/general manipulation qualification from this trial alone.",
+    "timeout_seconds_each": 180
+  },
+  "inputs": {
+    "build/crow-ccd-articulated-sweep-build-01/Collision.candidate.metal": {
+      "bytes": 414653,
+      "sha256": "767a23c5a1228f0a69a18b6699c342d688a76e35d593aee775660f8b2cf5ab60"
+    },
+    "build/crow-ccd-articulated-sweep-build-01/baseline.metallib": {
+      "bytes": 4213074,
+      "sha256": "ed200adb0c43f297c93ce82c5b0f2b358ec3099d7822ae6b2a7ab1d92f0c4aed"
+    },
+    "build/crow-ccd-articulated-sweep-build-01/candidate.metallib": {
+      "bytes": 4213074,
+      "sha256": "7cb880bdbe0c9dea27534df48c5ad58b4bb4373ef056d8580334dca8c2b5a8e0"
+    },
+    "build/crow-ccd-articulated-sweep-build-01/cases-probe": {
+      "bytes": 57976,
+      "sha256": "8587ecde51ef2182265d13aa2d19efbef0bbdbd59a3cf35d0b97bf3467814057"
+    },
+    "build/crow-ccd-articulated-sweep-build-01/cases.bin": {
+      "bytes": 655364,
+      "sha256": "d67006aa795ac752c2d2ffd038f3968f3f2fc769836a8ac5623847ee111efe1a"
+    },
+    "build/crow-ccd-articulated-sweep-build-01/expected-grid.bin": {
+      "bytes": 262144,
+      "sha256": "95e9f7442db989a8e0b1e754aa4f0dfb508fbabe5e334b9562f11dcd0d747cc0"
+    },
+    "build/crow-ccd-articulated-sweep-build-01/fixture-original.mm": {
+      "bytes": 15943,
+      "sha256": "604f1b211d9ba28bf3ca04a2551bf5375f2034b4577855a4b7d7479fdd9fb6a7"
+    },
+    "build/crow-ccd-articulated-sweep-build-01/fixture.mm": {
+      "bytes": 17078,
+      "sha256": "7cf6f80d49b2b603535c5c930a1b0ea16d827849c1c7aed7a1700a6f897634f1"
+    },
+    "build/crow-ccd-articulated-sweep-build-01/link-command.json": {
+      "bytes": 4039,
+      "sha256": "84b2e55f4d09832afc3313f1217972ba86657ac775946a1240a683357f365ed4"
+    },
+    "build/crow-ccd-articulated-sweep-build-01/prepare-execution.json": {
+      "bytes": 6258,
+      "sha256": "c1e1dc2a9bb4bb8fb6d906d6059951d2488a1a882158d5bfad70654d238005f4"
+    },
+    "build/crow-ccd-articulated-sweep-build-01/prepare.py": {
+      "bytes": 8615,
+      "sha256": "030dc7145ef38c6f106e1f2cc6aa60e2a418b5a532ee0f25a1448c8b70af266d"
+    },
+    "build/crow-ccd-articulated-sweep-build-01/probe": {
+      "bytes": 99768,
+      "sha256": "534788e175e6886d42434b8c1f405ac8a23727f7d3b3fcd23225049fb1993b1c"
+    },
+    "build/crow-ccd-articulated-sweep-build-01/projection-probe": {
+      "bytes": 56960,
+      "sha256": "91a1d4553ebbd445a9a5ebaa78901ce4a71a6cb9797fd2aa7e299c2ebea95fdb"
+    },
+    "build/crow-ccd-articulated-sweep-build-01/projection.mm": {
+      "bytes": 4426,
+      "sha256": "316a2a7e5b00cfc79ba8a0a6b2d98230a17a95a94fb020f70adfe30fb965b68d"
+    },
+    "build/crow-ccd-articulated-sweep-build-01/run.py": {
+      "bytes": 7019,
+      "sha256": "498aac616f30acf4555305a48982e02375fef2aba1072747cf078c47dd520d2d"
+    },
+    "build/crow-ccd-articulated-sweep-build-01/runtime/libmetalrobo.dylib": {
+      "bytes": 5693648,
+      "sha256": "ba1d935c24ab6bc914d7bcc36176788a1ca7a689c54eb132a5e35b823e6aaa42"
+    },
+    "build/crow-ccd-articulated-sweep-build-01/runtime/metalrobo/MetalRobo.metallib": {
+      "bytes": 4213074,
+      "sha256": "7cb880bdbe0c9dea27534df48c5ad58b4bb4373ef056d8580334dca8c2b5a8e0"
+    },
+    "build/crow-ccd-articulated-sweep-build-01/unchanged-air-identities.json": {
+      "bytes": 6495,
+      "sha256": "efd793957e04ea56f60351ab64b032748a70c17c151291d6ae5273ab31d6d654"
+    }
+  },
+  "model_revision": "Keep supporting-plane contact time candidate. In hybrid CCD, consume future FK for every articulated collider, because an unflagged collider can pair with a CCD sphere. In the speculative fast path, encode the actual float margin bits, matching the existing reader, rather than Boolean1. No tolerance, budget, contact geometry, actuation or solver changes.",
+  "native_projection_controls": "128 prescribed distinct future poses; two identical shapes on the same articulation differing only in own CCD flag, under hybrid and speculative modes. These are deterministic kernel conditions, not physical/biological replicates.",
+  "parent": "artifacts/crow-rl-ccd-contact-time-20261108",
+  "physical_conditions": "Four unused positions around(0.215,0,0.26685): x\u00b10.00035, z\u00b10.00020 in full2x2; y\u00b10.00010 according to x. Same clamp/lift/wide-release actions, no attachments, food ledger or retinal policy.",
+  "physical_gates": {
+    "32vs64_max_paired_object_position_difference_all160ticks_m": 0.005,
+    "all_six_runs_and3840_transitions_accepted": true,
+    "chunk1_vs8_final_q_v_scene": "byte exact",
+    "controls": "Open, no-contact and zero-friction each fail the primary hold/lift. No-contact disables ground too.",
+    "each_positive_lane_minimum_lift_64_95_m": 0.02,
+    "maximum_penetration_before96_m": 0.0008,
+    "maximum_slip_m": 0.005,
+    "minimum_gap_ticks128_159_m": 0.001,
+    "opposed_hold_samples_at_least": 16,
+    "release_drop_m": 0.03
+  },
+  "predictions": [
+    "Hybrid unflagged and flagged shapes have identical projected geometry and float margin, retaining their own source flag metadata.",
+    "Speculative unflagged fast path retains all geometry but corrects exactly its float margin bits to the known generalized-speed envelope.",
+    "Flagged future FK geometry remains byte exact against baseline.",
+    "Candidate projection repetition is byte exact.",
+    "Existing4096 contact-time records remain byte exact."
+  ],
+  "question": "Does authoritative hybrid articulated motion plus correctly encoded speculative margin remove the coarse clamp failure and preserve a converged physical gesture?",
+  "source_base": "868e06ba112cf6088d0a22b786e512ac01b7d298",
+  "trials": [
+    {
+      "arm": 0,
+      "chunk": 1,
+      "name": "clamp",
+      "substeps": 32
+    },
+    {
+      "arm": 1,
+      "chunk": 1,
+      "name": "open",
+      "substeps": 32
+    },
+    {
+      "arm": 2,
+      "chunk": 1,
+      "name": "no-contact",
+      "substeps": 32
+    },
+    {
+      "arm": 3,
+      "chunk": 1,
+      "name": "zero-friction",
+      "substeps": 32
+    },
+    {
+      "arm": 0,
+      "chunk": 8,
+      "name": "partition",
+      "substeps": 32
+    },
+    {
+      "arm": 0,
+      "chunk": 1,
+      "name": "refinement",
+      "substeps": 64
+    }
+  ]
+}
