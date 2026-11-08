@@ -1,0 +1,13 @@
+o0.25-fixed-r0 exit 0 wall 0.46
+o0.25-fixed-r1 exit 0 wall 0.1
+o0.25-moving-r0 exit 0 wall 0.1
+o0.25-moving-r1 exit 0 wall 0.1
+o0.25-internal-r0 exit 0 wall 0.1
+o0.25-internal-r1 exit 0 wall 0.09
+o100-fixed-r0 exit 0 wall 0.1
+o100-fixed-r1 exit 0 wall 0.1
+o100-moving-r0 exit 0 wall 0.1
+o100-moving-r1 exit 0 wall 0.1
+o100-internal-r0 exit 0 wall 0.09
+o100-internal-r1 exit 0 wall 0.09
+completed 12
