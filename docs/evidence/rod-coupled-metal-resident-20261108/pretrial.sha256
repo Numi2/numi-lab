@@ -1,0 +1,14 @@
+acad537c55cb9e88fdf8bc9a6ee3a3ae2617e8d72b4a6e12e56f8a91f1e5e0dd  docs/evidence/rod-coupled-metal-resident-20261108/PLAN.md
+63ec5add1bcb20009cb84b19a8621ee9ccdaa8a00283af595fa65954a994a283  docs/evidence/rod-coupled-metal-resident-20261108/kernel.metal
+db4bb90621fa43bc45dc36e1421d8ec2743dd85be0a09fc8c94fa4827ec39017  docs/evidence/rod-coupled-metal-resident-20261108/shared.h
+d4b5b437a8047c9bd1e13e9c0d1e5ab820aa57350a636aa3581a62a23fa93d5e  docs/evidence/rod-coupled-metal-resident-20261108/resident.mm
+a28532bd470fec95142809e50a10a7b29e2475cfd7c0da84f80e3e0a58624457  docs/evidence/rod-coupled-metal-resident-20261108/build.sh
+50e0e92e737ca86a4162deaf9f5f6e6ea78db6f22a9c3fc58cdb60ab4496f35a  docs/evidence/rod-coupled-metal-resident-20261108/build-initial.log
+bed3fd52c9bc6b2d0337aa2288e9a309807302791db0c9fab73d10d1d07e9f25  docs/evidence/rod-coupled-metal-resident-20261108/trajectory.py
+b59c248dc489692ffb383cb3ad4296af5f2d93126ab09f46d926989d79fdf013  docs/evidence/rod-coupled-metal-resident-20261108/solver-source-match.txt
+d8979231f8594f58b041d0add1c7ef1545ecf4b21105c6940ed18a7e4c8f94d7  /Users/numi/rod-coupled-metal-resident-20261108/resident
+1c593f56562dc842454a7d6cb210f5004f60da20f44923eb77410faddab8e79b  /Users/numi/rod-coupled-metal-resident-20261108/kernel.metallib
+a86644d9e1c88991726e487422f68969fedef562148ef29b42213150affeec40  docs/evidence/rod-coupled-bend-20261108/native-full-energy
+e0f148a4d91a716253f43f8bd6d1ab062d4be497568d56ab946e822ab12d2694  docs/evidence/rod-coupled-bend-20261108/tangent.py
+6227a1177f4eca12066b4d629de547b11966aae874dc95e9e93cb1e66e299a03  docs/evidence/rod-coupled-bend-20261108/solve.py
+de99b3204f230b489652683fe357feb8dae477ad4961e817d40f1199527b7f93  docs/evidence/rod-coupled-metal-holdout-20261108/cases.json
