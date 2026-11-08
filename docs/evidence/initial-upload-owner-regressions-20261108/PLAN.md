@@ -1,0 +1,3 @@
+# Candidate owner full-step regression
+
+Using the current-main limited initial-upload guard, run the existing CCD acceptance and kinematic rollback scripts against their original probe sources freshly linked with the candidate owner and the pinned original shader. Run acceptance first and kinematic only after it passes; each has a 180-second cap, no retries. Retain the acceptance output and analysis, the kinematic report, statuses, timestamps and pre/post identities. These checks seek unrelated regressions in world stepping and reset/rollback; they do not qualify the guard under shared storage, nonempty cache, excluded physics programs, post-commit failure, mixed sensor histories, contact-force accuracy or performance. This is not promotion.
