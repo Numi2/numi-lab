@@ -1,0 +1,39 @@
+[
+  {
+    "steps_per_repeat": 255,
+    "maximum_episode_steps": 256,
+    "termination_count": 0,
+    "termination_reason_counts": {},
+    "termination_count_by_environment": [
+      0
+    ],
+    "clean_horizon_environment_rate": 1,
+    "failed_environment_steps": 0
+  },
+  {
+    "steps_per_repeat": 256,
+    "maximum_episode_steps": 256,
+    "termination_count": 1,
+    "termination_reason_counts": {
+      "4": 1
+    },
+    "termination_count_by_environment": [
+      1
+    ],
+    "clean_horizon_environment_rate": 0,
+    "failed_environment_steps": 0
+  },
+  {
+    "steps_per_repeat": 257,
+    "maximum_episode_steps": 256,
+    "termination_count": 1,
+    "termination_reason_counts": {
+      "4": 1
+    },
+    "termination_count_by_environment": [
+      1
+    ],
+    "clean_horizon_environment_rate": 0,
+    "failed_environment_steps": 0
+  }
+]

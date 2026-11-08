@@ -1,0 +1,270 @@
+{
+  "action_count" : 9,
+  "action_fingerprint" : "2008931235177141276",
+  "action_source" : "policy_pack",
+  "action_stream" : "",
+  "actor_observation_count" : 9,
+  "any_link_dodge_rate" : 0,
+  "any_link_projectile_hit_count" : 0,
+  "any_link_projectile_hit_rate" : 0,
+  "articulated_contact_responses" : "streamed_inverse_aba",
+  "benchmark" : "swift_native_task_rollout",
+  "benchmark_seed" : 4081019,
+  "clean_horizon_environment_count" : 2,
+  "clean_horizon_environment_rate" : 1,
+  "clean_projectile_miss_count" : 0,
+  "compiled_impact_event_count" : 0,
+  "completed_projectile_trial_count" : 0,
+  "control_steps_per_submission" : 1,
+  "device" : "Apple M6",
+  "dynamic_sphere_count" : 0,
+  "elapsed_seconds" : 1.219182625,
+  "environment_control_steps_per_second" : 419.95349138116205,
+  "environments" : 2,
+  "failed_environment_steps" : 0,
+  "final_forward_progress_by_environment_m" : [
+
+  ],
+  "final_velocity_iterations" : 2,
+  "foot_support_step_count" : 0,
+  "forward_progress_available" : false,
+  "gpu_milliseconds" : 772.97104225726798,
+  "height_or_tilt_termination_count" : 0,
+  "host_requested_resets" : 3,
+  "immutable_private_bytes" : 722364,
+  "impact_sequence_enabled_steps" : 0,
+  "impact_sequence_metrics" : [
+
+  ],
+  "maximum_active_contacts" : 8,
+  "maximum_episode_steps" : 256,
+  "maximum_forward_progress_m" : 0,
+  "maximum_manifolds" : 2,
+  "maximum_root_height" : 0,
+  "maximum_sampled_difficulty_band" : 0,
+  "maximum_tilt" : 0,
+  "maximum_tilt_by_environment" : [
+    0,
+    0
+  ],
+  "mean_base_reward" : 0,
+  "mean_contact_reward" : 0,
+  "mean_control_reward" : 0,
+  "mean_energy_reward" : 0,
+  "mean_final_forward_progress_m" : 0,
+  "mean_joint_acceleration_reward" : 0,
+  "mean_joint_velocity_reward" : 0,
+  "mean_peak_forward_progress_m" : 0,
+  "mean_posture_reward" : 0,
+  "mean_reward" : 0,
+  "mean_root_height" : 0,
+  "mean_root_height_by_environment" : [
+    0,
+    0
+  ],
+  "mean_task_reward" : 0,
+  "mean_tilt" : 0,
+  "mean_tilt_by_environment" : [
+    0,
+    0
+  ],
+  "mean_tracking_score" : 1,
+  "mean_tracking_score_by_environment" : [
+    1,
+    1
+  ],
+  "minimum_root_height_by_environment" : [
+    0,
+    0
+  ],
+  "minimum_sampled_difficulty_band" : 0,
+  "motion_feature_trace" : "",
+  "observation_fingerprint" : "16154330152998223061",
+  "outcomes" : {
+    "done" : {
+      "direction" : 2,
+      "mean" : 0.001953125,
+      "unit" : "bool"
+    },
+    "physics_error" : {
+      "direction" : 2,
+      "mean" : 0,
+      "unit" : "bool"
+    },
+    "reward" : {
+      "direction" : 1,
+      "mean" : 0,
+      "unit" : "reward"
+    },
+    "task_reward" : {
+      "direction" : 1,
+      "mean" : 0,
+      "unit" : "reward"
+    },
+    "timeout" : {
+      "direction" : 0,
+      "mean" : 0.001953125,
+      "unit" : "bool"
+    }
+  },
+  "peak_aliased_bytes" : 1334016,
+  "peak_forward_progress_by_environment_m" : [
+
+  ],
+  "persistent_state_private_bytes" : 94032,
+  "physical_evidence" : {
+    "control_steps" : 256,
+    "evidence_windows" : 1,
+    "last_balance_failure_rate" : 0,
+    "last_clean_miss_rate" : 0,
+    "last_completed_episode_count" : 1,
+    "last_contact_rate" : 0,
+    "last_mean_tracking_per_million" : 1000000,
+    "pending_completed_episode_count" : 0,
+    "pending_timeout_episode_count" : 0
+  },
+  "physics_error_count_by_environment" : [
+    0,
+    0
+  ],
+  "physics_substeps" : 4,
+  "policy_rollout_fingerprint" : "7580962436473727631",
+  "policy_sample_count" : 512,
+  "quiet_stand_step_count" : 0,
+  "reality_fingerprint" : "18322226883807281473",
+  "recovery_brace_step_count" : 0,
+  "recovery_phase_rates" : {
+    "brace" : 0,
+    "foot_support" : 0,
+    "quiet_stand" : 0,
+    "rise" : 0,
+    "support_transfer" : 0,
+    "trunk_clear" : 0
+  },
+  "recovery_phase_rates_by_difficulty_band" : {
+    "0" : {
+      "brace" : 0,
+      "foot_support" : 0,
+      "mean_root_height" : 0,
+      "mean_tilt" : 0,
+      "quiet_stand" : 0,
+      "restored" : 0,
+      "rise" : 0,
+      "standing" : 0,
+      "support_transfer" : 0,
+      "transition_count" : 512,
+      "trunk_clear" : 0
+    }
+  },
+  "recovery_rise_step_count" : 0,
+  "repeats" : 1,
+  "restored_step_count" : 0,
+  "retained_buffer_bytes" : 3031388,
+  "robot_fingerprint" : "4605000300175302170",
+  "rollout_pack" : "",
+  "rollout_pack_bytes" : 0,
+  "run_fingerprint" : "6229932273003025717",
+  "scene" : "terrain",
+  "scheduled_resets" : true,
+  "sensor_fingerprint" : "10182617072063863298",
+  "shared_boundary_bytes" : 772432,
+  "solver_mode" : "temporal_cone",
+  "squat_cycle_completed_environment_count" : 0,
+  "squat_cycle_completed_environment_rate" : 0,
+  "squat_cycle_completed_environments" : [
+
+  ],
+  "squat_cycle_evidence" : {
+    "available" : false,
+    "bilateral_knee_excursion" : 0,
+    "bilateral_support_rate" : 0,
+    "completed" : false,
+    "environment" : 0,
+    "final_mean_knee_flexion" : 0,
+    "final_pelvis_height" : 0,
+    "initial_mean_knee_flexion" : 0,
+    "initial_pelvis_height" : 0,
+    "maximum_left_knee_flexion" : 0,
+    "maximum_right_knee_flexion" : 0,
+    "minimum_pelvis_height" : 0,
+    "pelvis_descent" : 0,
+    "returned_to_initial_pose" : false,
+    "termination_count" : 1
+  },
+  "squat_cycle_evidence_by_environment" : [
+    {
+      "available" : false,
+      "bilateral_knee_excursion" : 0,
+      "bilateral_support_rate" : 0,
+      "completed" : false,
+      "environment" : 0,
+      "pelvis_descent" : 0,
+      "returned_to_initial_pose" : false,
+      "termination_count" : 1
+    },
+    {
+      "available" : false,
+      "bilateral_knee_excursion" : 0,
+      "bilateral_support_rate" : 0,
+      "completed" : false,
+      "environment" : 1,
+      "pelvis_descent" : 0,
+      "returned_to_initial_pose" : false,
+      "termination_count" : 0
+    }
+  ],
+  "stage_high_water" : {
+    "articulation_point_queries" : 0,
+    "candidate_pairs" : 2,
+    "ccd_candidates" : 0,
+    "ccd_events" : 0,
+    "constraint_blocks" : 8,
+    "constraint_rows" : 24,
+    "dynamic_nodes" : 0,
+    "endpoint_runtime_records" : 0,
+    "hard_convex_pairs" : 0,
+    "island_constraint_references" : 0,
+    "island_node_references" : 0,
+    "islands" : 2,
+    "manifolds" : 2,
+    "mesh_triangle_candidates" : 0,
+    "operator_velocity_elements" : 0,
+    "quality_direct_tiles" : 0,
+    "quality_generalized_velocities" : 0,
+    "quality_krylov_vectors" : 0,
+    "quality_rows" : 0,
+    "raw_contacts" : 8,
+    "rod_candidate_pairs" : 0,
+    "rod_ccd_events" : 0,
+    "rod_factor_blocks" : 0,
+    "rod_manifolds" : 0,
+    "rod_raw_contacts" : 0,
+    "solver_tiles" : 2,
+    "spill_rows" : 0
+  },
+  "standing_step_count" : 0,
+  "state_trace" : "",
+  "steps_per_repeat" : 256,
+  "submission_count" : 256,
+  "submission_milliseconds" : 861.69037299999957,
+  "support_transfer_step_count" : 0,
+  "task" : "franka_typed_actuator_pipeline_v1",
+  "task_fingerprint" : "9997792044975038566",
+  "teacher_fingerprint" : "13024622056791047426",
+  "termination_count" : 1,
+  "termination_count_by_environment" : [
+    1,
+    0
+  ],
+  "termination_reason_counts" : {
+    "4" : 1
+  },
+  "transient_private_bytes" : 1334016,
+  "trunk_clear_step_count" : 0,
+  "velocity_iterations" : 4,
+  "visual_observation" : false,
+  "visual_observation_config" : "",
+  "visual_scene_fingerprint" : 0,
+  "world_fingerprint" : "6037940950680924787",
+  "world_source" : "world_pack"
+}
