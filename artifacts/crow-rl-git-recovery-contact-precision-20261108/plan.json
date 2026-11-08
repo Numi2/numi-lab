@@ -1,0 +1,33 @@
+{
+  "excluded_scientific_fields": [
+    "seconds"
+  ],
+  "limits": "Existing observations only. No new ecology, production change, gate relaxation or physical qualification. Open-handle/unchanged-file checks occur in a separate process after the recovery executor exits.",
+  "manifest": "artifacts/crow-rl-contact-precision-20261108/payload/manifest.json",
+  "manifest_sha256": "c12159b01e536a5b415e51e2c98d4ccfd65d3facb77b4b5eb9fbbac543a6cd46",
+  "native_commands": 4,
+  "production_baseline": "d4cfe392c190d2ea96f6dcb17d0c27b9f51b7c0a",
+  "report_audit_commands": 1,
+  "restore_max_bytes": 10000000,
+  "runtime_pairs": [
+    [
+      "build/lib/libmetalrobo.dylib",
+      ".numi/retained-runtime/quality-adjacent-refinement-20261108/libmetalrobo.dylib"
+    ],
+    [
+      "build/shaders/MetalRobo.metallib",
+      ".numi/retained-runtime/quality-adjacent-refinement-20261108/metalrobo/MetalRobo.metallib"
+    ],
+    [
+      "build/bin/metalrobo_motor_contact_probe",
+      ".numi/retained-runtime/quality-adjacent-refinement-20261108/probe"
+    ]
+  ],
+  "runtime_reference_manifest": "artifacts/crow-rl-quality-representability-20261108/payload/manifest.json",
+  "schema": "crow-contact-precision-git-recovery-plan-v1",
+  "scientific_analysis_commands": 8,
+  "scope": "Restore every captured byte from actual Git; rerun all eight numerical analyses, independent proof and report audit; execute four native warm/rejection cases; compare complete typed statuses and physical/capture outputs exactly",
+  "stop": "First unexpected return, native typed record, scientific field, defined byte, handle, metadata, remote-head or budget discrepancy.",
+  "temporary_budget_bytes": 20000000,
+  "timeout_seconds_each": 120
+}

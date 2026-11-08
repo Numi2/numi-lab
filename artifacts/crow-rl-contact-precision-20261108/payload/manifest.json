@@ -1,0 +1,916 @@
+{
+  "base_commit": "766352917c2f5c1b4ffc43b670068126f12308b2",
+  "files": [
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/bcbd1f080aa8891b1e09e029be724d7eb28fc76e075e7579218f9d6c93984851.gz"
+      },
+      "bytes": 4320944,
+      "mode": 420,
+      "mtime_ns": 1794140608370091246,
+      "path": ".numi/retained-runtime/contact-precision-20261108/MetalRobo.metallib",
+      "sha256": "bcbd1f080aa8891b1e09e029be724d7eb28fc76e075e7579218f9d6c93984851"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794141907513744538,
+      "path": "build/crow-contact-precision-build-01/block-search.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 500,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/d19ab41e3bcda2cdc5d7199b4825524f80a3f70b6ae1f52dfbcdbb298d13c572.gz",
+            "sha256": "d19ab41e3bcda2cdc5d7199b4825524f80a3f70b6ae1f52dfbcdbb298d13c572"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 500,
+      "mode": 420,
+      "mtime_ns": 1794141909849583341,
+      "path": "build/crow-contact-precision-build-01/block-search.stdout",
+      "sha256": "d19ab41e3bcda2cdc5d7199b4825524f80a3f70b6ae1f52dfbcdbb298d13c572"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794142514455818047,
+      "path": "build/crow-contact-precision-build-01/chebyshev-search.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 428,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/186fe2e3a1100b49256c697ec594eb9fc7c5fe2616d7b3a032664fa0e4afec4e.gz",
+            "sha256": "186fe2e3a1100b49256c697ec594eb9fc7c5fe2616d7b3a032664fa0e4afec4e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 428,
+      "mode": 420,
+      "mtime_ns": 1794142515976773377,
+      "path": "build/crow-contact-precision-build-01/chebyshev-search.stdout",
+      "sha256": "186fe2e3a1100b49256c697ec594eb9fc7c5fe2616d7b3a032664fa0e4afec4e"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 136,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/f56e52c61c6607c2a42fe9ed95ce830d96c309d49a9abac5e233603a208da9ff.gz",
+            "sha256": "f56e52c61c6607c2a42fe9ed95ce830d96c309d49a9abac5e233603a208da9ff"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 136,
+      "mode": 420,
+      "mtime_ns": 1794142515976531165,
+      "path": "build/crow-contact-precision-build-01/chebyshev-v.f32",
+      "sha256": "f56e52c61c6607c2a42fe9ed95ce830d96c309d49a9abac5e233603a208da9ff"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/ee4620f6ecac23b3393603c7f914234979106da60658edcf1352d57f756890c8.gz"
+      },
+      "bytes": 136,
+      "mode": 420,
+      "mtime_ns": 1794139823421402155,
+      "path": "build/crow-contact-precision-build-01/control-neighbor-v.f32",
+      "sha256": "ee4620f6ecac23b3393603c7f914234979106da60658edcf1352d57f756890c8"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/abd531b3e9f580c7f5c208c358e87821c51470d3671367571c8a713f3885b441.gz"
+      },
+      "bytes": 98864,
+      "mode": 420,
+      "mtime_ns": 1794139760474266259,
+      "path": "build/crow-contact-precision-build-01/control-substep2.bin",
+      "sha256": "abd531b3e9f580c7f5c208c358e87821c51470d3671367571c8a713f3885b441"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794141684482415094,
+      "path": "build/crow-contact-precision-build-01/diagnose.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 842,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/7db4c3a0e8260bc0751d87376c3d6e30cc0eff4ea0af295c0e77cfd348d5b276.gz",
+            "sha256": "7db4c3a0e8260bc0751d87376c3d6e30cc0eff4ea0af295c0e77cfd348d5b276"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 842,
+      "mode": 420,
+      "mtime_ns": 1794141684867195390,
+      "path": "build/crow-contact-precision-build-01/diagnose.stdout",
+      "sha256": "7db4c3a0e8260bc0751d87376c3d6e30cc0eff4ea0af295c0e77cfd348d5b276"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794143357428089142,
+      "path": "build/crow-contact-precision-build-01/doctor.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/dc0c51738c69d827160353de152f6ddd08e9f4c2133bdae6d85f4ed5f2935779.gz"
+      },
+      "bytes": 594,
+      "mode": 420,
+      "mtime_ns": 1794143357428014974,
+      "path": "build/crow-contact-precision-build-01/doctor.stdout",
+      "sha256": "dc0c51738c69d827160353de152f6ddd08e9f4c2133bdae6d85f4ed5f2935779"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794142690431991781,
+      "path": "build/crow-contact-precision-build-01/dual_mix.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 574,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/b7bda223f612f7245925fa1313816822ca198e17df0195c8a8ef8f7bb50f1cd7.gz",
+            "sha256": "b7bda223f612f7245925fa1313816822ca198e17df0195c8a8ef8f7bb50f1cd7"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 574,
+      "mode": 420,
+      "mtime_ns": 1794142691523726015,
+      "path": "build/crow-contact-precision-build-01/dual_mix.stdout",
+      "sha256": "b7bda223f612f7245925fa1313816822ca198e17df0195c8a8ef8f7bb50f1cd7"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 136,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/6752da6590c9ec1addadba9cd9b02f4a24ffcf2d132e64165415d82f022e39a8.gz",
+            "sha256": "6752da6590c9ec1addadba9cd9b02f4a24ffcf2d132e64165415d82f022e39a8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 136,
+      "mode": 420,
+      "mtime_ns": 1794141908707990437,
+      "path": "build/crow-contact-precision-build-01/failed-block-v.f32",
+      "sha256": "6752da6590c9ec1addadba9cd9b02f4a24ffcf2d132e64165415d82f022e39a8"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 136,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/164547caee3414d2f0298400c25ad312bce67bb1022e37baa97171e338c5c98b.gz",
+            "sha256": "164547caee3414d2f0298400c25ad312bce67bb1022e37baa97171e338c5c98b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 136,
+      "mode": 420,
+      "mtime_ns": 1794141684732939382,
+      "path": "build/crow-contact-precision-build-01/failed-neighbor-v.f32",
+      "sha256": "164547caee3414d2f0298400c25ad312bce67bb1022e37baa97171e338c5c98b"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794142393721842125,
+      "path": "build/crow-contact-precision-build-01/lattice-certificate.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1087,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/9065d96e88e9211a69c0e6502bad24c1c8ba22a3f4a2f87d6c801933d0893f8a.gz",
+            "sha256": "9065d96e88e9211a69c0e6502bad24c1c8ba22a3f4a2f87d6c801933d0893f8a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1087,
+      "mode": 420,
+      "mtime_ns": 1794142394444854194,
+      "path": "build/crow-contact-precision-build-01/lattice-certificate.stdout",
+      "sha256": "9065d96e88e9211a69c0e6502bad24c1c8ba22a3f4a2f87d6c801933d0893f8a"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794142066333847028,
+      "path": "build/crow-contact-precision-build-01/lattice-search.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 564,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/802bb3859aa5007c9eca6d0690df5e98c3051d12f11f84b36bd434dd59ec4387.gz",
+            "sha256": "802bb3859aa5007c9eca6d0690df5e98c3051d12f11f84b36bd434dd59ec4387"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 564,
+      "mode": 420,
+      "mtime_ns": 1794142067650722553,
+      "path": "build/crow-contact-precision-build-01/lattice-search.stdout",
+      "sha256": "802bb3859aa5007c9eca6d0690df5e98c3051d12f11f84b36bd434dd59ec4387"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 136,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/faf993cae02ea03c1d737aa59cb673daa73ab4800d0b83acfd3a7ce85f019754.gz",
+            "sha256": "faf993cae02ea03c1d737aa59cb673daa73ab4800d0b83acfd3a7ce85f019754"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 136,
+      "mode": 420,
+      "mtime_ns": 1794142067649778038,
+      "path": "build/crow-contact-precision-build-01/lattice-v.f32",
+      "sha256": "faf993cae02ea03c1d737aa59cb673daa73ab4800d0b83acfd3a7ce85f019754"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794142678946063204,
+      "path": "build/crow-contact-precision-build-01/native-prepare-02.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2008,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/0c3a1dee11bb8172bbed872428ad27ade490f290fa42f1952873b8a0604bdf4d.gz",
+            "sha256": "0c3a1dee11bb8172bbed872428ad27ade490f290fa42f1952873b8a0604bdf4d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2008,
+      "mode": 420,
+      "mtime_ns": 1794142678987314838,
+      "path": "build/crow-contact-precision-build-01/native-prepare-02.stdout",
+      "sha256": "0c3a1dee11bb8172bbed872428ad27ade490f290fa42f1952873b8a0604bdf4d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 615,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/e4e8c658c87c457244275f3f63e1f7d2e0f5eaadb850459bccec152dd93f11ad.gz",
+            "sha256": "e4e8c658c87c457244275f3f63e1f7d2e0f5eaadb850459bccec152dd93f11ad"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 615,
+      "mode": 420,
+      "mtime_ns": 1794142651261903764,
+      "path": "build/crow-contact-precision-build-01/native-prepare.stderr",
+      "sha256": "e4e8c658c87c457244275f3f63e1f7d2e0f5eaadb850459bccec152dd93f11ad"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794142651222533618,
+      "path": "build/crow-contact-precision-build-01/native-prepare.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794142690432733292,
+      "path": "build/crow-contact-precision-build-01/native_check.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2821,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/5a4d33445f751f72e751505204061c749d228b47813c997e65ee4e26a56f7c6b.gz",
+            "sha256": "5a4d33445f751f72e751505204061c749d228b47813c997e65ee4e26a56f7c6b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2821,
+      "mode": 420,
+      "mtime_ns": 1794142690973739981,
+      "path": "build/crow-contact-precision-build-01/native_check.stdout",
+      "sha256": "5a4d33445f751f72e751505204061c749d228b47813c997e65ee4e26a56f7c6b"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794143044292566181,
+      "path": "build/crow-contact-precision-build-01/prove_local_box.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4264,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/42c022e3d0c163bfa995af10556a2d6c63c72d36bed90da001a98f3f8553aced.gz",
+            "sha256": "42c022e3d0c163bfa995af10556a2d6c63c72d36bed90da001a98f3f8553aced"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4264,
+      "mode": 420,
+      "mtime_ns": 1794143044449029210,
+      "path": "build/crow-contact-precision-build-01/prove_local_box.stdout",
+      "sha256": "42c022e3d0c163bfa995af10556a2d6c63c72d36bed90da001a98f3f8553aced"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/c0cd0c71ee61ededa43567171c377c0a08122369b644e89540d7f34a42605a47.gz"
+      },
+      "bytes": 3840,
+      "mode": 420,
+      "mtime_ns": 1794140755626080178,
+      "path": "build/crow-contact-precision-build-01/reference-p.f64",
+      "sha256": "c0cd0c71ee61ededa43567171c377c0a08122369b644e89540d7f34a42605a47"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/ca64316a9e1f9942ba04d9a539134e3855e7fd605351dc33b1f79117015fffa9.gz"
+      },
+      "bytes": 272,
+      "mode": 420,
+      "mtime_ns": 1794140755625972344,
+      "path": "build/crow-contact-precision-build-01/reference-v.f64",
+      "sha256": "ca64316a9e1f9942ba04d9a539134e3855e7fd605351dc33b1f79117015fffa9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 136,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/60f28c5938c68b40c989eef9985cfa66715d1af6c020f0ee501dc6971b2ee820.gz",
+            "sha256": "60f28c5938c68b40c989eef9985cfa66715d1af6c020f0ee501dc6971b2ee820"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 136,
+      "mode": 420,
+      "mtime_ns": 1794141909848938665,
+      "path": "build/crow-contact-precision-build-01/rounded-block-v.f32",
+      "sha256": "60f28c5938c68b40c989eef9985cfa66715d1af6c020f0ee501dc6971b2ee820"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 136,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/af189f7c744bc184e7c7879b7e9f8239f8e65a1aceb4c6aab867983090904623.gz",
+            "sha256": "af189f7c744bc184e7c7879b7e9f8239f8e65a1aceb4c6aab867983090904623"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 136,
+      "mode": 420,
+      "mtime_ns": 1794141684865277278,
+      "path": "build/crow-contact-precision-build-01/rounded-neighbor-v.f32",
+      "sha256": "af189f7c744bc184e7c7879b7e9f8239f8e65a1aceb4c6aab867983090904623"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 136,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/953063577f4a6eccf6afaad7e1648948189bf39404567e6a13c4171a28b75694.gz",
+            "sha256": "953063577f4a6eccf6afaad7e1648948189bf39404567e6a13c4171a28b75694"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 136,
+      "mode": 420,
+      "mtime_ns": 1794142678985301848,
+      "path": "build/crow-contact-precision-build-01/rounded-reference-v.f32",
+      "sha256": "953063577f4a6eccf6afaad7e1648948189bf39404567e6a13c4171a28b75694"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f.gz"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794140719396297109,
+      "path": "build/crow-contact-precision-build-01/substep7-capture.bin",
+      "sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794142868671960816,
+      "path": "build/crow-contact-precision-build-01/verify_certificate.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 976,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/b8f64ae0432b9f016347b10af0f072139d9a0b837a72de580f0996a68a154bd9.gz",
+            "sha256": "b8f64ae0432b9f016347b10af0f072139d9a0b837a72de580f0996a68a154bd9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 976,
+      "mode": 420,
+      "mtime_ns": 1794142868748518117,
+      "path": "build/crow-contact-precision-build-01/verify_certificate.stdout",
+      "sha256": "b8f64ae0432b9f016347b10af0f072139d9a0b837a72de580f0996a68a154bd9"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/ce4db4e79b1bc1c89daf4480894b3fa4d47d3ee8d313b8e6e1ed4080f41c1431.gz"
+      },
+      "bytes": 122680,
+      "mode": 493,
+      "mtime_ns": 1794140290571701751,
+      "path": "build/crow-contact-precision-build-01/warm-probe",
+      "sha256": "ce4db4e79b1bc1c89daf4480894b3fa4d47d3ee8d313b8e6e1ed4080f41c1431"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-contact-precision-20261108/README.md"
+      },
+      "bytes": 2957,
+      "mode": 420,
+      "mtime_ns": 1794143238000000000,
+      "path": "build/crow-contact-precision-build-01/local-authoring/README.md",
+      "sha256": "d5b3834fab517f46ce7b21c103f3cd98e7dc99945e711917f924e793974a8cf1"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-contact-precision-20261108/block_search.py"
+      },
+      "bytes": 3887,
+      "mode": 420,
+      "mtime_ns": 1794141904000000000,
+      "path": "build/crow-contact-precision-build-01/local-authoring/block_search.py",
+      "sha256": "efa5e2f84e6f8fe0b0c118286180babeb1b8b3680d5a845b8984d389dd60b976"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-contact-precision-20261108/chebyshev_search.py"
+      },
+      "bytes": 3710,
+      "mode": 420,
+      "mtime_ns": 1794142511000000000,
+      "path": "build/crow-contact-precision-build-01/local-authoring/chebyshev_search.py",
+      "sha256": "2e221dad44389ba7fcb6db41a41d7ae084a2296e9f52252a9fc9a4fc33f029cf"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-contact-precision-20261108/diagnose.py"
+      },
+      "bytes": 7790,
+      "mode": 420,
+      "mtime_ns": 1794141653000000000,
+      "path": "build/crow-contact-precision-build-01/local-authoring/diagnose.py",
+      "sha256": "ed398b379e4ce79f7674fe7c1f638f19a5d2dcb464c8474697e096c07d1127d6"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-contact-precision-20261108/dual_mix.py"
+      },
+      "bytes": 3635,
+      "mode": 420,
+      "mtime_ns": 1794142650000000000,
+      "path": "build/crow-contact-precision-build-01/local-authoring/dual_mix.py",
+      "sha256": "8f26ae027a55a1770bad3f8dd7262323796c35d1e6fbc83d24029684630e9a39"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-contact-precision-20261108/execute.py"
+      },
+      "bytes": 745,
+      "mode": 420,
+      "mtime_ns": 1794142650000000000,
+      "path": "build/crow-contact-precision-build-01/local-authoring/execute.py",
+      "sha256": "79f4765c8fda6fda5ed4cb788be6f18e89684ff613639de4d4ebdb1ce1e47dc1"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-contact-precision-20261108/lattice_certificate.py"
+      },
+      "bytes": 5747,
+      "mode": 420,
+      "mtime_ns": 1794142390000000000,
+      "path": "build/crow-contact-precision-build-01/local-authoring/lattice_certificate.py",
+      "sha256": "0abcedb465b6976820fd5318ab05391f8906fe061ab97602940635b4997583e1"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-contact-precision-20261108/lattice_search.py"
+      },
+      "bytes": 4855,
+      "mode": 420,
+      "mtime_ns": 1794142063000000000,
+      "path": "build/crow-contact-precision-build-01/local-authoring/lattice_search.py",
+      "sha256": "bcf3567dd9964e00465f1682a93a4c7124cee8e333b75cff1efd7321ed7a3b7a"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-contact-precision-20261108/native_check.py"
+      },
+      "bytes": 3495,
+      "mode": 420,
+      "mtime_ns": 1794142678000000000,
+      "path": "build/crow-contact-precision-build-01/local-authoring/native_check.py",
+      "sha256": "f29cbd13daeeb684b2c5069afc1da9fcf54be8ddaf1a94fe6127b882acaa52f3"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-contact-precision-20261108/prove_local_box.py"
+      },
+      "bytes": 4485,
+      "mode": 420,
+      "mtime_ns": 1794143040000000000,
+      "path": "build/crow-contact-precision-build-01/local-authoring/prove_local_box.py",
+      "sha256": "e9523ad89df6a2b11025ef1c2682fc77d320f3f5a6cd82d448f64c30c213eaae"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-contact-precision-20261108/summarize.py"
+      },
+      "bytes": 2672,
+      "mode": 420,
+      "mtime_ns": 1794143238000000000,
+      "path": "build/crow-contact-precision-build-01/local-authoring/summarize.py",
+      "sha256": "35016683c03cb3bfeb76571340e968bd2e953f6012dc675d10a050f5420b3fd0"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-contact-precision-20261108/verify_certificate.py"
+      },
+      "bytes": 4882,
+      "mode": 420,
+      "mtime_ns": 1794142865000000000,
+      "path": "build/crow-contact-precision-build-01/local-authoring/verify_certificate.py",
+      "sha256": "909dbbccfd18fef03ff0be443abd73b41e43b16a2eefe714d0e37960b824a006"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794142690956675177,
+      "path": "build/crow-contact-precision-build-01/native-01/chebyshev.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 115,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/1338a79a9b180a9cb01551df8bc8cb327dc5f120457e939f3649f9c53421edd9.gz",
+            "sha256": "1338a79a9b180a9cb01551df8bc8cb327dc5f120457e939f3649f9c53421edd9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 115,
+      "mode": 420,
+      "mtime_ns": 1794142690956642093,
+      "path": "build/crow-contact-precision-build-01/native-01/chebyshev.stdout",
+      "sha256": "1338a79a9b180a9cb01551df8bc8cb327dc5f120457e939f3649f9c53421edd9"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794142690973415642,
+      "path": "build/crow-contact-precision-build-01/native-01/control.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 113,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/750e05674df2b91c130e6d23ad5cbd542dc9d850b10b2f830d37b04f8b8dbcd2.gz",
+            "sha256": "750e05674df2b91c130e6d23ad5cbd542dc9d850b10b2f830d37b04f8b8dbcd2"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 113,
+      "mode": 420,
+      "mtime_ns": 1794142690973369933,
+      "path": "build/crow-contact-precision-build-01/native-01/control.stdout",
+      "sha256": "750e05674df2b91c130e6d23ad5cbd542dc9d850b10b2f830d37b04f8b8dbcd2"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794142690872179170,
+      "path": "build/crow-contact-precision-build-01/native-01/original.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 115,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/9fda7b136131e8962debb69b67c7b8c86c55113a1109de9f21662a73fb8bdaf7.gz",
+            "sha256": "9fda7b136131e8962debb69b67c7b8c86c55113a1109de9f21662a73fb8bdaf7"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 115,
+      "mode": 420,
+      "mtime_ns": 1794142690872058793,
+      "path": "build/crow-contact-precision-build-01/native-01/original.stdout",
+      "sha256": "9fda7b136131e8962debb69b67c7b8c86c55113a1109de9f21662a73fb8bdaf7"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794142690914707699,
+      "path": "build/crow-contact-precision-build-01/native-01/rounded.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 114,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/9a96488f8082d73d576e3e26868973ddb0ca01e196ec363683774ee8d6cb3a0a.gz",
+            "sha256": "9a96488f8082d73d576e3e26868973ddb0ca01e196ec363683774ee8d6cb3a0a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 114,
+      "mode": 420,
+      "mtime_ns": 1794142690914665073,
+      "path": "build/crow-contact-precision-build-01/native-01/rounded.stdout",
+      "sha256": "9a96488f8082d73d576e3e26868973ddb0ca01e196ec363683774ee8d6cb3a0a"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 98864,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/6f495985e5391e000ca0bceb673a5d4d81bcceb48d6ea076689ce04d88848f62.gz",
+            "sha256": "6f495985e5391e000ca0bceb673a5d4d81bcceb48d6ea076689ce04d88848f62"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 98864,
+      "mode": 420,
+      "mtime_ns": 1794142690955314989,
+      "path": "build/crow-contact-precision-build-01/native-01/chebyshev/capture.bin",
+      "sha256": "6f495985e5391e000ca0bceb673a5d4d81bcceb48d6ea076689ce04d88848f62"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/51d1742d667adce665352104b0a60296213ea1501b897efc37e274d8d2ceb855.gz",
+            "sha256": "51d1742d667adce665352104b0a60296213ea1501b897efc37e274d8d2ceb855"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794142690955180487,
+      "path": "build/crow-contact-precision-build-01/native-01/chebyshev/status.bin",
+      "sha256": "51d1742d667adce665352104b0a60296213ea1501b897efc37e274d8d2ceb855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 98864,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/45e28ebcc4fee5a43e659d0a76c1a2d32b7c6659a0646f060623059a111f53f6.gz",
+            "sha256": "45e28ebcc4fee5a43e659d0a76c1a2d32b7c6659a0646f060623059a111f53f6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 98864,
+      "mode": 420,
+      "mtime_ns": 1794142690912941213,
+      "path": "build/crow-contact-precision-build-01/native-01/rounded/capture.bin",
+      "sha256": "45e28ebcc4fee5a43e659d0a76c1a2d32b7c6659a0646f060623059a111f53f6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/abe531f8362be02fe0b5a6b4e20de9fab7b04424132531dbce803067de558942.gz",
+            "sha256": "abe531f8362be02fe0b5a6b4e20de9fab7b04424132531dbce803067de558942"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794142690912784669,
+      "path": "build/crow-contact-precision-build-01/native-01/rounded/status.bin",
+      "sha256": "abe531f8362be02fe0b5a6b4e20de9fab7b04424132531dbce803067de558942"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f.gz"
+      },
+      "bytes": 98864,
+      "mode": 420,
+      "mtime_ns": 1794142690867622975,
+      "path": "build/crow-contact-precision-build-01/native-01/original/capture.bin",
+      "sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/0c06a4eb90064fb1db299c1900f62dc69efc1b11afd7383ba843254152ace666.gz",
+            "sha256": "0c06a4eb90064fb1db299c1900f62dc69efc1b11afd7383ba843254152ace666"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794142690867146884,
+      "path": "build/crow-contact-precision-build-01/native-01/original/status.bin",
+      "sha256": "0c06a4eb90064fb1db299c1900f62dc69efc1b11afd7383ba843254152ace666"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/7a1768ff038302d8e5af83f9229df12b8b5155d54583aef08414a2e373880ddf.gz"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794142690971927494,
+      "path": "build/crow-contact-precision-build-01/native-01/control/impulse.f32",
+      "sha256": "7a1768ff038302d8e5af83f9229df12b8b5155d54583aef08414a2e373880ddf"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/5978e4590256bddf6c538ffcf30d1b614a077ff64343c325e5122399493e0852.gz"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794142690971817993,
+      "path": "build/crow-contact-precision-build-01/native-01/control/status.bin",
+      "sha256": "5978e4590256bddf6c538ffcf30d1b614a077ff64343c325e5122399493e0852"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/ee4620f6ecac23b3393603c7f914234979106da60658edcf1352d57f756890c8.gz"
+      },
+      "bytes": 136,
+      "mode": 420,
+      "mtime_ns": 1794142690971878285,
+      "path": "build/crow-contact-precision-build-01/native-01/control/velocity.f32",
+      "sha256": "ee4620f6ecac23b3393603c7f914234979106da60658edcf1352d57f756890c8"
+    }
+  ],
+  "roots": [
+    ".numi/retained-runtime",
+    "build/crow-contact-precision-build-01"
+  ],
+  "schema": "crow-git-evidence-archive-v1",
+  "summary": {
+    "existing_archive_blobs_indexed": 19788,
+    "files": 67,
+    "new_compressed_bytes": 18994,
+    "source_bytes": 5010174,
+    "unique_file_contents": 50
+  }
+}
