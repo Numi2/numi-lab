@@ -1,0 +1,3186 @@
+{
+  "base_commit": "6880cd8109d94a2eba253ba8c4d42dddba419ed7",
+  "files": [
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 320,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/18cdd839d1e7c8f397e2826b502784f239d737caa1ab4011c8f7d6f01237eadc.gz",
+            "sha256": "18cdd839d1e7c8f397e2826b502784f239d737caa1ab4011c8f7d6f01237eadc"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 320,
+      "mode": 420,
+      "mtime_ns": 1794155235129521134,
+      "path": "build/crow-active-head-navigation-admission-01/feeding_policy.stderr",
+      "sha256": "18cdd839d1e7c8f397e2826b502784f239d737caa1ab4011c8f7d6f01237eadc"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794155235100941748,
+      "path": "build/crow-active-head-navigation-admission-01/feeding_policy.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 163,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/b22bbf659112ab997d772564ce214efdae0ae001f99079ca9cd9d35ecbacc7da.gz",
+            "sha256": "b22bbf659112ab997d772564ce214efdae0ae001f99079ca9cd9d35ecbacc7da"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 163,
+      "mode": 420,
+      "mtime_ns": 1794155235044078187,
+      "path": "build/crow-active-head-navigation-admission-01/head_zero.stderr",
+      "sha256": "b22bbf659112ab997d772564ce214efdae0ae001f99079ca9cd9d35ecbacc7da"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794155234951060118,
+      "path": "build/crow-active-head-navigation-admission-01/head_zero.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 82,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/5033d6a6c17f58d4ef74bfd570ec0c4d82974afd49695d74fc999a5de52c8f44.gz",
+            "sha256": "5033d6a6c17f58d4ef74bfd570ec0c4d82974afd49695d74fc999a5de52c8f44"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 82,
+      "mode": 420,
+      "mtime_ns": 1794155234945002887,
+      "path": "build/crow-active-head-navigation-admission-01/legacy_camera.stderr",
+      "sha256": "5033d6a6c17f58d4ef74bfd570ec0c4d82974afd49695d74fc999a5de52c8f44"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794155234939243992,
+      "path": "build/crow-active-head-navigation-admission-01/legacy_camera.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794155351680307216,
+      "path": "build/crow-active-head-navigation-admission-02/initialize.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 325,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/21ed30d2ebaf15cd6ec103b1eba0e2ee9efa999b36278819ce92b33d7ee9bc53.gz",
+            "sha256": "21ed30d2ebaf15cd6ec103b1eba0e2ee9efa999b36278819ce92b33d7ee9bc53"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 325,
+      "mode": 420,
+      "mtime_ns": 1794155351771167345,
+      "path": "build/crow-active-head-navigation-admission-02/initialize.stdout",
+      "sha256": "21ed30d2ebaf15cd6ec103b1eba0e2ee9efa999b36278819ce92b33d7ee9bc53"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 256106,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/2a1119a5a107936504d28d07e1636d702d5c9f613e0ca2f9db4f29ed10ca3604.gz",
+            "sha256": "2a1119a5a107936504d28d07e1636d702d5c9f613e0ca2f9db4f29ed10ca3604"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 256106,
+      "mode": 420,
+      "mtime_ns": 1794155352220933696,
+      "path": "build/crow-active-head-navigation-admission-02/replay.json",
+      "sha256": "2a1119a5a107936504d28d07e1636d702d5c9f613e0ca2f9db4f29ed10ca3604"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794155351830267805,
+      "path": "build/crow-active-head-navigation-admission-02/rollout.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 11547,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/89454b73c731e32f03f0a29fafc529e4d6c58993a08453f578e0b96bb8b22262.gz",
+            "sha256": "89454b73c731e32f03f0a29fafc529e4d6c58993a08453f578e0b96bb8b22262"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 11547,
+      "mode": 420,
+      "mtime_ns": 1794155352224276065,
+      "path": "build/crow-active-head-navigation-admission-02/rollout.stdout",
+      "sha256": "89454b73c731e32f03f0a29fafc529e4d6c58993a08453f578e0b96bb8b22262"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2346375,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/3dd5c1ad6fe3292c2a9997d0f5a45bc3ac1703c33c5e7a475e57faec45b8efae.gz",
+            "sha256": "3dd5c1ad6fe3292c2a9997d0f5a45bc3ac1703c33c5e7a475e57faec45b8efae"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2346375,
+      "mode": 384,
+      "mtime_ns": 1794155351770624590,
+      "path": "build/crow-active-head-navigation-admission-02/zero.policypack",
+      "sha256": "3dd5c1ad6fe3292c2a9997d0f5a45bc3ac1703c33c5e7a475e57faec45b8efae"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 773,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/6a7f5337c83f282da22f94597b1a65735657fbcbb2a0d7682dd89a295efeeb97.gz",
+            "sha256": "6a7f5337c83f282da22f94597b1a65735657fbcbb2a0d7682dd89a295efeeb97"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 773,
+      "mode": 420,
+      "mtime_ns": 1794155505792264784,
+      "path": "build/crow-active-head-navigation-vision-01/frame-000000.png",
+      "sha256": "6a7f5337c83f282da22f94597b1a65735657fbcbb2a0d7682dd89a295efeeb97"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 43214,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/bf83e369dfa0ac14e34961e911a522b5018fd2316c7afc9f0d483435be833480.gz",
+            "sha256": "bf83e369dfa0ac14e34961e911a522b5018fd2316c7afc9f0d483435be833480"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 43214,
+      "mode": 420,
+      "mtime_ns": 1794155493004771693,
+      "path": "build/crow-active-head-navigation-vision-01/frame-000000.ppm",
+      "sha256": "bf83e369dfa0ac14e34961e911a522b5018fd2316c7afc9f0d483435be833480"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794155583652848493,
+      "path": "build/crow-active-head-vision-controls-01/flat-ground-baseline-contract.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 11588,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/28ca842949477c00438b59f6bc1d970342f96283ee3838e5cdd23adca396196c.gz",
+            "sha256": "28ca842949477c00438b59f6bc1d970342f96283ee3838e5cdd23adca396196c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 11588,
+      "mode": 420,
+      "mtime_ns": 1794155583963235825,
+      "path": "build/crow-active-head-vision-controls-01/flat-ground-baseline-contract.stdout",
+      "sha256": "28ca842949477c00438b59f6bc1d970342f96283ee3838e5cdd23adca396196c"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794155583316648805,
+      "path": "build/crow-active-head-vision-controls-01/no-robot-baseline-contract.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 11584,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/f940cf34ce564fcf2daabc0cacaac2063ac04aafe509dd89b69b94feea5d32a3.gz",
+            "sha256": "f940cf34ce564fcf2daabc0cacaac2063ac04aafe509dd89b69b94feea5d32a3"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 11584,
+      "mode": 420,
+      "mtime_ns": 1794155583594739252,
+      "path": "build/crow-active-head-vision-controls-01/no-robot-baseline-contract.stdout",
+      "sha256": "f940cf34ce564fcf2daabc0cacaac2063ac04aafe509dd89b69b94feea5d32a3"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794155583994659742,
+      "path": "build/crow-active-head-vision-controls-01/no-robot-flat-ground-baseline-contract.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 11609,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/7388ca5aea29f24ab11101ccd41316debd82b98038dc89d11398f7bb349a291a.gz",
+            "sha256": "7388ca5aea29f24ab11101ccd41316debd82b98038dc89d11398f7bb349a291a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 11609,
+      "mode": 420,
+      "mtime_ns": 1794155584292084936,
+      "path": "build/crow-active-head-vision-controls-01/no-robot-flat-ground-baseline-contract.stdout",
+      "sha256": "7388ca5aea29f24ab11101ccd41316debd82b98038dc89d11398f7bb349a291a"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 133798,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/ff5e0b63cc8f31cf894f0537a9aaa43c56a565d0aaa0ba1a5524856675fbfce8.gz",
+            "sha256": "ff5e0b63cc8f31cf894f0537a9aaa43c56a565d0aaa0ba1a5524856675fbfce8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 133798,
+      "mode": 420,
+      "mtime_ns": 1794155584288105560,
+      "path": "build/crow-active-head-vision-controls-01/no-robot-flat-ground/replay.json",
+      "sha256": "ff5e0b63cc8f31cf894f0537a9aaa43c56a565d0aaa0ba1a5524856675fbfce8"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 43214,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/ad0eadb7a35bcec9b02e9d7b22712d11f4a1a0979e07f20a29889b48c903eeb6.gz",
+            "sha256": "ad0eadb7a35bcec9b02e9d7b22712d11f4a1a0979e07f20a29889b48c903eeb6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 43214,
+      "mode": 420,
+      "mtime_ns": 1794155584125362419,
+      "path": "build/crow-active-head-vision-controls-01/no-robot-flat-ground/capture/frame-000000.ppm",
+      "sha256": "ad0eadb7a35bcec9b02e9d7b22712d11f4a1a0979e07f20a29889b48c903eeb6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 133799,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/f8650a8e27643fab447cff37457c3b476890100127c6f17431981483621ebc98.gz",
+            "sha256": "f8650a8e27643fab447cff37457c3b476890100127c6f17431981483621ebc98"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 133799,
+      "mode": 420,
+      "mtime_ns": 1794155583590032119,
+      "path": "build/crow-active-head-vision-controls-01/no-robot/replay.json",
+      "sha256": "f8650a8e27643fab447cff37457c3b476890100127c6f17431981483621ebc98"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 568,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/b16c519e966f1be780adfd1d5734ba081d4efb15f1a428b7582563308582c7a8.gz",
+            "sha256": "b16c519e966f1be780adfd1d5734ba081d4efb15f1a428b7582563308582c7a8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 568,
+      "mode": 420,
+      "mtime_ns": 1794155601292283307,
+      "path": "build/crow-active-head-vision-controls-01/no-robot/capture/frame-000000.png",
+      "sha256": "b16c519e966f1be780adfd1d5734ba081d4efb15f1a428b7582563308582c7a8"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 43214,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/ad0eadb7a35bcec9b02e9d7b22712d11f4a1a0979e07f20a29889b48c903eeb6.gz",
+            "sha256": "ad0eadb7a35bcec9b02e9d7b22712d11f4a1a0979e07f20a29889b48c903eeb6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 43214,
+      "mode": 420,
+      "mtime_ns": 1794155583416692240,
+      "path": "build/crow-active-head-vision-controls-01/no-robot/capture/frame-000000.ppm",
+      "sha256": "ad0eadb7a35bcec9b02e9d7b22712d11f4a1a0979e07f20a29889b48c903eeb6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 131963,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/2b4f13238929e8344fa2f11a3f28a970ba4bafa7b1624a2b110a6c2d32bd496a.gz",
+            "sha256": "2b4f13238929e8344fa2f11a3f28a970ba4bafa7b1624a2b110a6c2d32bd496a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 131963,
+      "mode": 420,
+      "mtime_ns": 1794155583956550463,
+      "path": "build/crow-active-head-vision-controls-01/flat-ground/replay.json",
+      "sha256": "2b4f13238929e8344fa2f11a3f28a970ba4bafa7b1624a2b110a6c2d32bd496a"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 773,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/6a7f5337c83f282da22f94597b1a65735657fbcbb2a0d7682dd89a295efeeb97.gz",
+            "sha256": "6a7f5337c83f282da22f94597b1a65735657fbcbb2a0d7682dd89a295efeeb97"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 773,
+      "mode": 420,
+      "mtime_ns": 1794155601307954890,
+      "path": "build/crow-active-head-vision-controls-01/flat-ground/capture/frame-000000.png",
+      "sha256": "6a7f5337c83f282da22f94597b1a65735657fbcbb2a0d7682dd89a295efeeb97"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 43214,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/bf83e369dfa0ac14e34961e911a522b5018fd2316c7afc9f0d483435be833480.gz",
+            "sha256": "bf83e369dfa0ac14e34961e911a522b5018fd2316c7afc9f0d483435be833480"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 43214,
+      "mode": 420,
+      "mtime_ns": 1794155583789559151,
+      "path": "build/crow-active-head-vision-controls-01/flat-ground/capture/frame-000000.ppm",
+      "sha256": "bf83e369dfa0ac14e34961e911a522b5018fd2316c7afc9f0d483435be833480"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794156036112413406,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-actual.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 11597,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/37458ccce2b22d1f638a44165a2d67897a8d32c8087f2fa5913da45fd17d762e.gz",
+            "sha256": "37458ccce2b22d1f638a44165a2d67897a8d32c8087f2fa5913da45fd17d762e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 11597,
+      "mode": 420,
+      "mtime_ns": 1794156036385665658,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-actual.stdout",
+      "sha256": "37458ccce2b22d1f638a44165a2d67897a8d32c8087f2fa5913da45fd17d762e"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 319,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/4c3bbdb4eb3a63be327e58c0b681ba992a48f4f857f55dffa1c68b395f565734.gz",
+            "sha256": "4c3bbdb4eb3a63be327e58c0b681ba992a48f4f857f55dffa1c68b395f565734"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 319,
+      "mode": 420,
+      "mtime_ns": 1794156035902857491,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-baseline-contract.stderr",
+      "sha256": "4c3bbdb4eb3a63be327e58c0b681ba992a48f4f857f55dffa1c68b395f565734"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794156035516510125,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-baseline-contract.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794156037194705357,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-camera-shift-actual.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 11614,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/c0d42bb7692aedd6bbe92f486de9b81f74f08c553098214b4f04a1ff3c85f11a.gz",
+            "sha256": "c0d42bb7692aedd6bbe92f486de9b81f74f08c553098214b4f04a1ff3c85f11a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 11614,
+      "mode": 420,
+      "mtime_ns": 1794156037467872942,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-camera-shift-actual.stdout",
+      "sha256": "c0d42bb7692aedd6bbe92f486de9b81f74f08c553098214b4f04a1ff3c85f11a"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 318,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/a96f94138766351adf1c2045844a358339232d2c91ec6682ba8d69226b99d928.gz",
+            "sha256": "a96f94138766351adf1c2045844a358339232d2c91ec6682ba8d69226b99d928"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 318,
+      "mode": 420,
+      "mtime_ns": 1794156037014588317,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-camera-shift-baseline-contract.stderr",
+      "sha256": "a96f94138766351adf1c2045844a358339232d2c91ec6682ba8d69226b99d928"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794156036953368690,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-camera-shift-baseline-contract.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794156037044426149,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-camera-shift-initialize.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 359,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/ca2d2c4bd98efff4339d7b194f489726beafa73344ce41f38777153c5cdbb8b7.gz",
+            "sha256": "ca2d2c4bd98efff4339d7b194f489726beafa73344ce41f38777153c5cdbb8b7"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 359,
+      "mode": 420,
+      "mtime_ns": 1794156037142026034,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-camera-shift-initialize.stdout",
+      "sha256": "ca2d2c4bd98efff4339d7b194f489726beafa73344ce41f38777153c5cdbb8b7"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794156035961688614,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-initialize.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 333,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/ab8bcc2f7e4692e959d21f53bdf2486fae5e9e2c019025c5f4e6c00520a6daf0.gz",
+            "sha256": "ab8bcc2f7e4692e959d21f53bdf2486fae5e9e2c019025c5f4e6c00520a6daf0"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 333,
+      "mode": 420,
+      "mtime_ns": 1794156036072696976,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-initialize.stdout",
+      "sha256": "ab8bcc2f7e4692e959d21f53bdf2486fae5e9e2c019025c5f4e6c00520a6daf0"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794156036681111773,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-no-robot-actual.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 11608,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/4f273f9556bd54301918aca9fd68a7c78bebb7c9f50d180330bf752b1855d423.gz",
+            "sha256": "4f273f9556bd54301918aca9fd68a7c78bebb7c9f50d180330bf752b1855d423"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 11608,
+      "mode": 420,
+      "mtime_ns": 1794156036934422039,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-no-robot-actual.stdout",
+      "sha256": "4f273f9556bd54301918aca9fd68a7c78bebb7c9f50d180330bf752b1855d423"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 318,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/ff3396370d0029e0231a829fdf383db3afa70549832f81bc459d29b390fe9be0.gz",
+            "sha256": "ff3396370d0029e0231a829fdf383db3afa70549832f81bc459d29b390fe9be0"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 318,
+      "mode": 420,
+      "mtime_ns": 1794156036510719372,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-no-robot-baseline-contract.stderr",
+      "sha256": "ff3396370d0029e0231a829fdf383db3afa70549832f81bc459d29b390fe9be0"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794156036437564729,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-no-robot-baseline-contract.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794156036530327607,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-no-robot-initialize.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 351,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/26975922b902b0fcf47ec07a42d4e15bae7acb4b666564bb082b72175bf6b3e7.gz",
+            "sha256": "26975922b902b0fcf47ec07a42d4e15bae7acb4b666564bb082b72175bf6b3e7"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 351,
+      "mode": 420,
+      "mtime_ns": 1794156036631488705,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-no-robot-initialize.stdout",
+      "sha256": "26975922b902b0fcf47ec07a42d4e15bae7acb4b666564bb082b72175bf6b3e7"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 102,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/eade429f5fc23836df6f48d30ed612719249ed7c41a48bab052b0ed5b858f04e.gz",
+            "sha256": "eade429f5fc23836df6f48d30ed612719249ed7c41a48bab052b0ed5b858f04e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 102,
+      "mode": 420,
+      "mtime_ns": 1794156083318782113,
+      "path": "build/crow-active-head-vision-corrected-01/old-misbound.stderr",
+      "sha256": "eade429f5fc23836df6f48d30ed612719249ed7c41a48bab052b0ed5b858f04e"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794156083318642238,
+      "path": "build/crow-active-head-vision-corrected-01/old-misbound.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 319,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/57e93860ed89a026b519882c07205bd41e29d49db7359ef27528512f00b8eecd.gz",
+            "sha256": "57e93860ed89a026b519882c07205bd41e29d49db7359ef27528512f00b8eecd"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 319,
+      "mode": 420,
+      "mtime_ns": 1794156083366449637,
+      "path": "build/crow-active-head-vision-corrected-01/shifted-old-policy.stderr",
+      "sha256": "57e93860ed89a026b519882c07205bd41e29d49db7359ef27528512f00b8eecd"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794156083366314470,
+      "path": "build/crow-active-head-vision-corrected-01/shifted-old-policy.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 121325,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/b3bb9d15f820be644c0f202d4c409559d6afa1eda60491e2780554f2f6016187.gz",
+            "sha256": "b3bb9d15f820be644c0f202d4c409559d6afa1eda60491e2780554f2f6016187"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 121325,
+      "mode": 420,
+      "mtime_ns": 1794156083607024554,
+      "path": "build/crow-active-head-vision-corrected-01/without-capture.json",
+      "sha256": "b3bb9d15f820be644c0f202d4c409559d6afa1eda60491e2780554f2f6016187"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794156083614210272,
+      "path": "build/crow-active-head-vision-corrected-01/without-capture.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 11596,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/d9ddc91d757617a9495154eef9bfe0e888c1600c9177a12ec18c206c8b169eb6.gz",
+            "sha256": "d9ddc91d757617a9495154eef9bfe0e888c1600c9177a12ec18c206c8b169eb6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 11596,
+      "mode": 420,
+      "mtime_ns": 1794156083614113439,
+      "path": "build/crow-active-head-vision-corrected-01/without-capture.stdout",
+      "sha256": "d9ddc91d757617a9495154eef9bfe0e888c1600c9177a12ec18c206c8b169eb6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 123178,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/b7cfebcf159a805203c40054ddf3040efa1342991b47f712488e7dda35e74fc4.gz",
+            "sha256": "b7cfebcf159a805203c40054ddf3040efa1342991b47f712488e7dda35e74fc4"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 123178,
+      "mode": 420,
+      "mtime_ns": 1794156037463489353,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-camera-shift/replay.json",
+      "sha256": "b7cfebcf159a805203c40054ddf3040efa1342991b47f712488e7dda35e74fc4"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2346390,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/1ef6198f68f6b8bc3b8bb231be48ea8d93c66e88bf4bbe9173243e8fe77ca853.gz",
+            "sha256": "1ef6198f68f6b8bc3b8bb231be48ea8d93c66e88bf4bbe9173243e8fe77ca853"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2346390,
+      "mode": 384,
+      "mtime_ns": 1794156037141166658,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-camera-shift/zero.policypack",
+      "sha256": "1ef6198f68f6b8bc3b8bb231be48ea8d93c66e88bf4bbe9173243e8fe77ca853"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 43214,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/4f705e1c92857413a9546da5221786d471c361168c4e00b8f750cbaf7085672d.gz",
+            "sha256": "4f705e1c92857413a9546da5221786d471c361168c4e00b8f750cbaf7085672d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 43214,
+      "mode": 420,
+      "mtime_ns": 1794156037298379625,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-camera-shift/capture/frame-000000.ppm",
+      "sha256": "4f705e1c92857413a9546da5221786d471c361168c4e00b8f750cbaf7085672d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 123203,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/a369be151cb52d84b954ad5e1be5153df181b2b2d03d698de9e5d8ec521eeb3d.gz",
+            "sha256": "a369be151cb52d84b954ad5e1be5153df181b2b2d03d698de9e5d8ec521eeb3d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 123203,
+      "mode": 420,
+      "mtime_ns": 1794156036930922076,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-no-robot/replay.json",
+      "sha256": "a369be151cb52d84b954ad5e1be5153df181b2b2d03d698de9e5d8ec521eeb3d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2346386,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/60823d53c4c0f631ad1c9672e6793572b0fcac08cd72d33de9e23c0e3be96523.gz",
+            "sha256": "60823d53c4c0f631ad1c9672e6793572b0fcac08cd72d33de9e23c0e3be96523"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2346386,
+      "mode": 384,
+      "mtime_ns": 1794156036630685246,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-no-robot/zero.policypack",
+      "sha256": "60823d53c4c0f631ad1c9672e6793572b0fcac08cd72d33de9e23c0e3be96523"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 43214,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/a54c8fbd973a02217eeda0ecef1d865c9098e7d8d1f9f2a7a67bd0966a7f055f.gz",
+            "sha256": "a54c8fbd973a02217eeda0ecef1d865c9098e7d8d1f9f2a7a67bd0966a7f055f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 43214,
+      "mode": 420,
+      "mtime_ns": 1794156036769522770,
+      "path": "build/crow-active-head-vision-corrected-01/corrected-no-robot/capture/frame-000000.ppm",
+      "sha256": "a54c8fbd973a02217eeda0ecef1d865c9098e7d8d1f9f2a7a67bd0966a7f055f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 121325,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/0271fc9d030067910f74a2c69a16f2a5c73a2b21a505ff960645d1e30de3dc87.gz",
+            "sha256": "0271fc9d030067910f74a2c69a16f2a5c73a2b21a505ff960645d1e30de3dc87"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 121325,
+      "mode": 420,
+      "mtime_ns": 1794156036380814193,
+      "path": "build/crow-active-head-vision-corrected-01/corrected/replay.json",
+      "sha256": "0271fc9d030067910f74a2c69a16f2a5c73a2b21a505ff960645d1e30de3dc87"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2346377,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/eb2aae079c3261f7796969967d54c8cd61a3560b135599f80ed51104d53faac0.gz",
+            "sha256": "eb2aae079c3261f7796969967d54c8cd61a3560b135599f80ed51104d53faac0"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2346377,
+      "mode": 384,
+      "mtime_ns": 1794156036071889850,
+      "path": "build/crow-active-head-vision-corrected-01/corrected/zero.policypack",
+      "sha256": "eb2aae079c3261f7796969967d54c8cd61a3560b135599f80ed51104d53faac0"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 43214,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/5ae7d8940d0c530f9cb8d4b3d7e7846f6cc98168c2b3d367fe764a93c23b1fdf.gz",
+            "sha256": "5ae7d8940d0c530f9cb8d4b3d7e7846f6cc98168c2b3d367fe764a93c23b1fdf"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 43214,
+      "mode": 420,
+      "mtime_ns": 1794156036214296505,
+      "path": "build/crow-active-head-vision-corrected-01/corrected/capture/frame-000000.ppm",
+      "sha256": "5ae7d8940d0c530f9cb8d4b3d7e7846f6cc98168c2b3d367fe764a93c23b1fdf"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794155711525993927,
+      "path": "build/crow-active-head-vision-obstruction-01/tiny-course-baseline-contract.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 11602,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/f5aa2257d65d77cc35943052b8e03922aa3684a4a2a3d1ae44d6cac4ab15da56.gz",
+            "sha256": "f5aa2257d65d77cc35943052b8e03922aa3684a4a2a3d1ae44d6cac4ab15da56"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 11602,
+      "mode": 420,
+      "mtime_ns": 1794155711794891235,
+      "path": "build/crow-active-head-vision-obstruction-01/tiny-course-baseline-contract.stdout",
+      "sha256": "f5aa2257d65d77cc35943052b8e03922aa3684a4a2a3d1ae44d6cac4ab15da56"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794155711861926904,
+      "path": "build/crow-active-head-vision-obstruction-01/tiny-course-ground-baseline-contract.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 11610,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/2575edc029dbd8d380d7d57281564758e43f4576b265b75a3c2c6c9f488966cd.gz",
+            "sha256": "2575edc029dbd8d380d7d57281564758e43f4576b265b75a3c2c6c9f488966cd"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 11610,
+      "mode": 420,
+      "mtime_ns": 1794155712152974781,
+      "path": "build/crow-active-head-vision-obstruction-01/tiny-course-ground-baseline-contract.stdout",
+      "sha256": "2575edc029dbd8d380d7d57281564758e43f4576b265b75a3c2c6c9f488966cd"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 114813,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/7d81931e9dc05a1693be8785060bd2fa3e0e65aad29e7f41e2ce9fc30c3db830.gz",
+            "sha256": "7d81931e9dc05a1693be8785060bd2fa3e0e65aad29e7f41e2ce9fc30c3db830"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 114813,
+      "mode": 420,
+      "mtime_ns": 1794155711790203060,
+      "path": "build/crow-active-head-vision-obstruction-01/tiny-course/replay.json",
+      "sha256": "7d81931e9dc05a1693be8785060bd2fa3e0e65aad29e7f41e2ce9fc30c3db830"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 43214,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/4b51e89f4e026a433ff5a49b95955a8c181eea0b7ddb832b6958000734d2cd90.gz",
+            "sha256": "4b51e89f4e026a433ff5a49b95955a8c181eea0b7ddb832b6958000734d2cd90"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 43214,
+      "mode": 420,
+      "mtime_ns": 1794155711634386159,
+      "path": "build/crow-active-head-vision-obstruction-01/tiny-course/capture/frame-000000.ppm",
+      "sha256": "4b51e89f4e026a433ff5a49b95955a8c181eea0b7ddb832b6958000734d2cd90"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 95861,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/a8a9aa9ca1c901e1aff67300961444bd1bd2515f60cd9d7a3ff7441dc641d8c6.gz",
+            "sha256": "a8a9aa9ca1c901e1aff67300961444bd1bd2515f60cd9d7a3ff7441dc641d8c6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 95861,
+      "mode": 420,
+      "mtime_ns": 1794155712147621057,
+      "path": "build/crow-active-head-vision-obstruction-01/tiny-course-ground/replay.json",
+      "sha256": "a8a9aa9ca1c901e1aff67300961444bd1bd2515f60cd9d7a3ff7441dc641d8c6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 43214,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/22be4f0b2fbeff6bfcb25ec86b374815a8ea85ce7f713f4e41f0489d3d7e77c4.gz",
+            "sha256": "22be4f0b2fbeff6bfcb25ec86b374815a8ea85ce7f713f4e41f0489d3d7e77c4"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 43214,
+      "mode": 420,
+      "mtime_ns": 1794155711992201368,
+      "path": "build/crow-active-head-vision-obstruction-01/tiny-course-ground/capture/frame-000000.ppm",
+      "sha256": "22be4f0b2fbeff6bfcb25ec86b374815a8ea85ce7f713f4e41f0489d3d7e77c4"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 219584,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/d9772291d043453cd3eb66d5295378e99c05d3f0f78091121291cfe6bbf66ae9.gz",
+            "sha256": "d9772291d043453cd3eb66d5295378e99c05d3f0f78091121291cfe6bbf66ae9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 219584,
+      "mode": 493,
+      "mtime_ns": 1794155791701589175,
+      "path": "build/crow-active-head-visual-inspection-01/inspect-bindings",
+      "sha256": "d9772291d043453cd3eb66d5295378e99c05d3f0f78091121291cfe6bbf66ae9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa.gz",
+            "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2,
+      "mode": 420,
+      "mtime_ns": 1794156123057258739,
+      "path": "build/crow-active-navigation-train-smoke-01/exit-code",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794156148972393373,
+      "path": "build/crow-active-navigation-train-smoke-01/held-out-a-initial.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 17818,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/72d9fa9430ab6f7be6388444e243b35f2db9a705c8c3743a4d13411fa80f7896.gz",
+            "sha256": "72d9fa9430ab6f7be6388444e243b35f2db9a705c8c3743a4d13411fa80f7896"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 17818,
+      "mode": 420,
+      "mtime_ns": 1794156148972349123,
+      "path": "build/crow-active-navigation-train-smoke-01/held-out-a-initial.stdout",
+      "sha256": "72d9fa9430ab6f7be6388444e243b35f2db9a705c8c3743a4d13411fa80f7896"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794156150474412997,
+      "path": "build/crow-active-navigation-train-smoke-01/held-out-a-updated.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 17746,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/fb785a0cb5eeca0827da3b4fcd62c7de23bb0893d0d4624177cd846cbbd29a70.gz",
+            "sha256": "fb785a0cb5eeca0827da3b4fcd62c7de23bb0893d0d4624177cd846cbbd29a70"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 17746,
+      "mode": 420,
+      "mtime_ns": 1794156150474368288,
+      "path": "build/crow-active-navigation-train-smoke-01/held-out-a-updated.stdout",
+      "sha256": "fb785a0cb5eeca0827da3b4fcd62c7de23bb0893d0d4624177cd846cbbd29a70"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794156151980570168,
+      "path": "build/crow-active-navigation-train-smoke-01/held-out-b-initial.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 17440,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/d377eebafabfb978e9e9096bd0e47beca8f5f013db8a651cc4ec88b9725644da.gz",
+            "sha256": "d377eebafabfb978e9e9096bd0e47beca8f5f013db8a651cc4ec88b9725644da"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 17440,
+      "mode": 420,
+      "mtime_ns": 1794156151980534251,
+      "path": "build/crow-active-navigation-train-smoke-01/held-out-b-initial.stdout",
+      "sha256": "d377eebafabfb978e9e9096bd0e47beca8f5f013db8a651cc4ec88b9725644da"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794156153488982884,
+      "path": "build/crow-active-navigation-train-smoke-01/held-out-b-updated.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 17071,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/b947f753f4fa135ebaef6c609a5ba2d387bbea5ec9612444166b25ac83d08492.gz",
+            "sha256": "b947f753f4fa135ebaef6c609a5ba2d387bbea5ec9612444166b25ac83d08492"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 17071,
+      "mode": 420,
+      "mtime_ns": 1794156153488937467,
+      "path": "build/crow-active-navigation-train-smoke-01/held-out-b-updated.stdout",
+      "sha256": "b947f753f4fa135ebaef6c609a5ba2d387bbea5ec9612444166b25ac83d08492"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 3223957,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/3f6e8c60665566c7a5bc47609d751a52fc694f0953c177ec73c954c4b112bde9.gz",
+            "sha256": "3f6e8c60665566c7a5bc47609d751a52fc694f0953c177ec73c954c4b112bde9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 3223957,
+      "mode": 384,
+      "mtime_ns": 1794156122262481596,
+      "path": "build/crow-active-navigation-train-smoke-01/initial.policypack",
+      "sha256": "3f6e8c60665566c7a5bc47609d751a52fc694f0953c177ec73c954c4b112bde9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 500656,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/135bf601caa2e71f6ff630b3736aecf340f1532aa2ab89f038c62fb1adae1ea5.gz",
+            "sha256": "135bf601caa2e71f6ff630b3736aecf340f1532aa2ab89f038c62fb1adae1ea5"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 500656,
+      "mode": 384,
+      "mtime_ns": 1794156122939482951,
+      "path": "build/crow-active-navigation-train-smoke-01/rollout.bin",
+      "sha256": "135bf601caa2e71f6ff630b3736aecf340f1532aa2ab89f038c62fb1adae1ea5"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794156122135125169,
+      "path": "build/crow-active-navigation-train-smoke-01/train.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-navigation-training-smoke-20261108/train.json"
+      },
+      "bytes": 16650,
+      "mode": 420,
+      "mtime_ns": 1794156123055304320,
+      "path": "build/crow-active-navigation-train-smoke-01/train.stdout",
+      "sha256": "959676c4bc325c7c4219a9d0b3ebc30c0afad603a726882c546de1f631898468"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 3223957,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/e4ea46e7226d51b3a40eb4ce81eebb071663bcaa7fe648f46b8f2aa5a5555bcb.gz",
+            "sha256": "e4ea46e7226d51b3a40eb4ce81eebb071663bcaa7fe648f46b8f2aa5a5555bcb"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 3223957,
+      "mode": 384,
+      "mtime_ns": 1794156122962514524,
+      "path": "build/crow-active-navigation-train-smoke-01/updated.policypack",
+      "sha256": "e4ea46e7226d51b3a40eb4ce81eebb071663bcaa7fe648f46b8f2aa5a5555bcb"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2346377,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/9bc617ebf678ab20e5100cd8c272ba58e8180446f22d3e25db82351bf26dbd37.gz",
+            "sha256": "9bc617ebf678ab20e5100cd8c272ba58e8180446f22d3e25db82351bf26dbd37"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2346377,
+      "mode": 384,
+      "mtime_ns": 1794156122966702530,
+      "path": "build/crow-active-navigation-train-smoke-01/updated.policypack.deployment.policypack",
+      "sha256": "9bc617ebf678ab20e5100cd8c272ba58e8180446f22d3e25db82351bf26dbd37"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2346377,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/6ee62722ebe2ddac8743a6dcfb733535af78524e5a256d51016526de7d41318b.gz",
+            "sha256": "6ee62722ebe2ddac8743a6dcfb733535af78524e5a256d51016526de7d41318b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2346377,
+      "mode": 384,
+      "mtime_ns": 1794156122407705839,
+      "path": "build/crow-active-navigation-train-smoke-01/updated.policypack.incumbent.policypack",
+      "sha256": "6ee62722ebe2ddac8743a6dcfb733535af78524e5a256d51016526de7d41318b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 9653950,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/c5c5d8702f76e3ff8c73fc0eec9f459adb5ac83d7fa51845cc6d3228e53d4948.gz",
+            "sha256": "c5c5d8702f76e3ff8c73fc0eec9f459adb5ac83d7fa51845cc6d3228e53d4948"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 9653950,
+      "mode": 420,
+      "mtime_ns": 1794156122969274159,
+      "path": "build/crow-active-navigation-train-smoke-01/updated.policypack.learner.safetensors",
+      "sha256": "c5c5d8702f76e3ff8c73fc0eec9f459adb5ac83d7fa51845cc6d3228e53d4948"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794152736516397182,
+      "path": "build/crow-grasp-controls-build-01/build.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794152736516341806,
+      "path": "build/crow-grasp-controls-build-01/build.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-grasp-controls-20261108/payload/blobs/9b21fd7c04cd6f3ba51dfc570d2dfc4e983bf5835b8589db1e40beecb4bb01d5.gz"
+      },
+      "bytes": 118912,
+      "mode": 493,
+      "mtime_ns": 1794152737860906456,
+      "path": "build/crow-grasp-controls-build-01/crow-fixture",
+      "sha256": "9b21fd7c04cd6f3ba51dfc570d2dfc4e983bf5835b8589db1e40beecb4bb01d5"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/652f43415f24be1fce73eb91589e35d558d6dec7fb610965942239fc49771f61.gz"
+      },
+      "bytes": 5711408,
+      "mode": 493,
+      "mtime_ns": 1794150166006049780,
+      "path": "build/crow-grasp-controls-build-01/runtime/libmetalrobo.dylib",
+      "sha256": "652f43415f24be1fce73eb91589e35d558d6dec7fb610965942239fc49771f61"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/b5a84cbf77b00ec94a31757e9ce6e87cd970cb4ba0d4ee029d1351d36577dae7.gz"
+      },
+      "bytes": 4458160,
+      "mode": 420,
+      "mtime_ns": 1794150374135641165,
+      "path": "build/crow-grasp-controls-build-01/runtime/metalrobo/MetalRobo.metallib",
+      "sha256": "b5a84cbf77b00ec94a31757e9ce6e87cd970cb4ba0d4ee029d1351d36577dae7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-grasp-controls-20261108/payload/blobs/ba410c35d789bda65f31df220e013c5790afd528d4b654bedd108db21957fbb0.gz"
+      },
+      "bytes": 84316,
+      "mode": 420,
+      "mtime_ns": 1794152741162683270,
+      "path": "build/crow-grasp-controls-build-01/observations/admission.stderr",
+      "sha256": "ba410c35d789bda65f31df220e013c5790afd528d4b654bedd108db21957fbb0"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-grasp-controls-20261108/payload/blobs/57e57d37331fadb0767d755e96e6209fafb16f6245a6092cb7bea2fbe8946737.gz"
+      },
+      "bytes": 1179,
+      "mode": 420,
+      "mtime_ns": 1794152741174828865,
+      "path": "build/crow-grasp-controls-build-01/observations/admission.stdout",
+      "sha256": "57e57d37331fadb0767d755e96e6209fafb16f6245a6092cb7bea2fbe8946737"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-grasp-controls-20261108/payload/blobs/daaa72a65afef1b1f465447da09aaff79ffdfbfe28adb9a457b2dacd458eafe7.gz"
+      },
+      "bytes": 84316,
+      "mode": 420,
+      "mtime_ns": 1794152741204277482,
+      "path": "build/crow-grasp-controls-build-01/observations/calibration.stderr",
+      "sha256": "daaa72a65afef1b1f465447da09aaff79ffdfbfe28adb9a457b2dacd458eafe7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/2b71af5bc0f5f56fbdaf8055ec1f0425ff60049e10161e5a5d865f0b9c49927a.gz"
+      },
+      "bytes": 245,
+      "mode": 420,
+      "mtime_ns": 1794152741207720003,
+      "path": "build/crow-grasp-controls-build-01/observations/calibration.stdout",
+      "sha256": "2b71af5bc0f5f56fbdaf8055ec1f0425ff60049e10161e5a5d865f0b9c49927a"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-grasp-controls-20261108/payload/blobs/588741412d392a2db33eaa1d6d18c61183c233e9e02a3b617726a8417d0c15f2.gz"
+      },
+      "bytes": 84696,
+      "mode": 420,
+      "mtime_ns": 1794152741235325545,
+      "path": "build/crow-grasp-controls-build-01/observations/normal.stderr",
+      "sha256": "588741412d392a2db33eaa1d6d18c61183c233e9e02a3b617726a8417d0c15f2"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794152741214906550,
+      "path": "build/crow-grasp-controls-build-01/observations/normal.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-grasp-controls-20261108/payload/blobs/68520a26e74b8e53fb045f25165be704e1edbc057b7302977667fd81cf8b768b.gz"
+      },
+      "bytes": 84696,
+      "mode": 420,
+      "mtime_ns": 1794153118338802252,
+      "path": "build/crow-grasp-controls-build-01/observations/open.stderr",
+      "sha256": "68520a26e74b8e53fb045f25165be704e1edbc057b7302977667fd81cf8b768b"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794153118324812607,
+      "path": "build/crow-grasp-controls-build-01/observations/open.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-tolerances-20261108/payload/blobs/c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c.gz"
+      },
+      "bytes": 169,
+      "mode": 420,
+      "mtime_ns": 1794152741230125159,
+      "path": "build/crow-grasp-controls-build-01/observations/normal/effective-config.json",
+      "sha256": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/b08767dc7c056c0819a1df1bbeafab2378a61c7c180a9d42a3bb1b1fc07a4c90.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794153118313604432,
+      "path": "build/crow-grasp-controls-build-01/observations/normal/final-q.f32",
+      "sha256": "b08767dc7c056c0819a1df1bbeafab2378a61c7c180a9d42a3bb1b1fc07a4c90"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/5f1c0ce3fc2faeeabce7ead2ac3ca842e990f3f7efd79b3a3e0a3205fd0559f7.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794153118313739266,
+      "path": "build/crow-grasp-controls-build-01/observations/normal/final-scene.bin",
+      "sha256": "5f1c0ce3fc2faeeabce7ead2ac3ca842e990f3f7efd79b3a3e0a3205fd0559f7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/0617787449287d791e5c4187242e5ef431c21036b3e17ce623760537cc7ec767.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794153118313695724,
+      "path": "build/crow-grasp-controls-build-01/observations/normal/final-v.f32",
+      "sha256": "0617787449287d791e5c4187242e5ef431c21036b3e17ce623760537cc7ec767"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7.gz"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794152741229818111,
+      "path": "build/crow-grasp-controls-build-01/observations/normal/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794152741229921155,
+      "path": "build/crow-grasp-controls-build-01/observations/normal/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794152741230057407,
+      "path": "build/crow-grasp-controls-build-01/observations/normal/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794152741229992531,
+      "path": "build/crow-grasp-controls-build-01/observations/normal/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-grasp-controls-20261108/payload/blobs/225b892d86a6bbf78e95537be8fdebf09a1e33221a15b02968101b1200f01b10.gz"
+      },
+      "bytes": 212,
+      "mode": 420,
+      "mtime_ns": 1794153118314021350,
+      "path": "build/crow-grasp-controls-build-01/observations/normal/runtime.json",
+      "sha256": "225b892d86a6bbf78e95537be8fdebf09a1e33221a15b02968101b1200f01b10"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/1d9db4488809ec7a4a64a9e597873538fceb02979ea3d17497aa9010e21335b1.gz"
+      },
+      "bytes": 163840,
+      "mode": 420,
+      "mtime_ns": 1794153118313892016,
+      "path": "build/crow-grasp-controls-build-01/observations/normal/scene.bin",
+      "sha256": "1d9db4488809ec7a4a64a9e597873538fceb02979ea3d17497aa9010e21335b1"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/0e20bf63647f03e80dfcd48bd4f451706321a1c15796d496406e744de19e6aee.gz"
+      },
+      "bytes": 754,
+      "mode": 420,
+      "mtime_ns": 1794153118313990225,
+      "path": "build/crow-grasp-controls-build-01/observations/normal/summary.json",
+      "sha256": "0e20bf63647f03e80dfcd48bd4f451706321a1c15796d496406e744de19e6aee"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/c34be0c3fc1b5282a43789036fd3aee795e6d5c6f56d37bbeacb942bcea212e2.gz"
+      },
+      "bytes": 140084,
+      "mode": 420,
+      "mtime_ns": 1794153118314034517,
+      "path": "build/crow-grasp-controls-build-01/observations/normal/trace.tsv",
+      "sha256": "c34be0c3fc1b5282a43789036fd3aee795e6d5c6f56d37bbeacb942bcea212e2"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-tolerances-20261108/payload/blobs/c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c.gz"
+      },
+      "bytes": 169,
+      "mode": 420,
+      "mtime_ns": 1794153118334933568,
+      "path": "build/crow-grasp-controls-build-01/observations/open/effective-config.json",
+      "sha256": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7.gz"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794153118334750776,
+      "path": "build/crow-grasp-controls-build-01/observations/open/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794153118334807943,
+      "path": "build/crow-grasp-controls-build-01/observations/open/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794153118334892276,
+      "path": "build/crow-grasp-controls-build-01/observations/open/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794153118334849943,
+      "path": "build/crow-grasp-controls-build-01/observations/open/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-grasp-controls-20261108/payload/blobs/5fec395f79d72cb0f190755c49436af2e62b40608fffbfd2b20051b02a6bc52c.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794153308648296791,
+      "path": "build/crow-grasp-controls-build-01/observations/open/trace.tsv",
+      "sha256": "5fec395f79d72cb0f190755c49436af2e62b40608fffbfd2b20051b02a6bc52c"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-tolerances-20261108/payload/blobs/c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c.gz"
+      },
+      "bytes": 169,
+      "mode": 420,
+      "mtime_ns": 1794152633035038399,
+      "path": "build/crow-grasp-controls-build-01/reference/normal-gold/effective-config.json",
+      "sha256": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/b08767dc7c056c0819a1df1bbeafab2378a61c7c180a9d42a3bb1b1fc07a4c90.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794152633035225403,
+      "path": "build/crow-grasp-controls-build-01/reference/normal-gold/final-q.f32",
+      "sha256": "b08767dc7c056c0819a1df1bbeafab2378a61c7c180a9d42a3bb1b1fc07a4c90"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/5f1c0ce3fc2faeeabce7ead2ac3ca842e990f3f7efd79b3a3e0a3205fd0559f7.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794152633035354238,
+      "path": "build/crow-grasp-controls-build-01/reference/normal-gold/final-scene.bin",
+      "sha256": "5f1c0ce3fc2faeeabce7ead2ac3ca842e990f3f7efd79b3a3e0a3205fd0559f7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/0617787449287d791e5c4187242e5ef431c21036b3e17ce623760537cc7ec767.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794152633035506199,
+      "path": "build/crow-grasp-controls-build-01/reference/normal-gold/final-v.f32",
+      "sha256": "0617787449287d791e5c4187242e5ef431c21036b3e17ce623760537cc7ec767"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7.gz"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794152633040254244,
+      "path": "build/crow-grasp-controls-build-01/reference/normal-gold/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794152633040357870,
+      "path": "build/crow-grasp-controls-build-01/reference/normal-gold/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794152633040509873,
+      "path": "build/crow-grasp-controls-build-01/reference/normal-gold/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794152633040627375,
+      "path": "build/crow-grasp-controls-build-01/reference/normal-gold/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/1d9db4488809ec7a4a64a9e597873538fceb02979ea3d17497aa9010e21335b1.gz"
+      },
+      "bytes": 163840,
+      "mode": 420,
+      "mtime_ns": 1794152633041121634,
+      "path": "build/crow-grasp-controls-build-01/reference/normal-gold/scene.bin",
+      "sha256": "1d9db4488809ec7a4a64a9e597873538fceb02979ea3d17497aa9010e21335b1"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/0e20bf63647f03e80dfcd48bd4f451706321a1c15796d496406e744de19e6aee.gz"
+      },
+      "bytes": 754,
+      "mode": 420,
+      "mtime_ns": 1794152633041279304,
+      "path": "build/crow-grasp-controls-build-01/reference/normal-gold/summary.json",
+      "sha256": "0e20bf63647f03e80dfcd48bd4f451706321a1c15796d496406e744de19e6aee"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/c34be0c3fc1b5282a43789036fd3aee795e6d5c6f56d37bbeacb942bcea212e2.gz"
+      },
+      "bytes": 140084,
+      "mode": 420,
+      "mtime_ns": 1794152633041675936,
+      "path": "build/crow-grasp-controls-build-01/reference/normal-gold/trace.tsv",
+      "sha256": "c34be0c3fc1b5282a43789036fd3aee795e6d5c6f56d37bbeacb942bcea212e2"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-grasp-controls-20261108/payload/blobs/9b21fd7c04cd6f3ba51dfc570d2dfc4e983bf5835b8589db1e40beecb4bb01d5.gz"
+      },
+      "bytes": 118912,
+      "mode": 493,
+      "mtime_ns": 1794153691862787811,
+      "path": "build/crow-grasp-resume-build-01/crow-fixture",
+      "sha256": "9b21fd7c04cd6f3ba51dfc570d2dfc4e983bf5835b8589db1e40beecb4bb01d5"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/652f43415f24be1fce73eb91589e35d558d6dec7fb610965942239fc49771f61.gz"
+      },
+      "bytes": 5711408,
+      "mode": 493,
+      "mtime_ns": 1794153691874539447,
+      "path": "build/crow-grasp-resume-build-01/runtime/libmetalrobo.dylib",
+      "sha256": "652f43415f24be1fce73eb91589e35d558d6dec7fb610965942239fc49771f61"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/b5a84cbf77b00ec94a31757e9ce6e87cd970cb4ba0d4ee029d1351d36577dae7.gz"
+      },
+      "bytes": 4458160,
+      "mode": 420,
+      "mtime_ns": 1794153691883591195,
+      "path": "build/crow-grasp-resume-build-01/runtime/metalrobo/MetalRobo.metallib",
+      "sha256": "b5a84cbf77b00ec94a31757e9ce6e87cd970cb4ba0d4ee029d1351d36577dae7"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84690,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/1e5944d1516303dcf4b2a56aa52f1979494567a5860e1eab92bb748b347b098f.gz",
+            "sha256": "1e5944d1516303dcf4b2a56aa52f1979494567a5860e1eab92bb748b347b098f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84690,
+      "mode": 420,
+      "mtime_ns": 1794153716103626112,
+      "path": "build/crow-grasp-resume-build-01/observations/disconnected.stderr",
+      "sha256": "1e5944d1516303dcf4b2a56aa52f1979494567a5860e1eab92bb748b347b098f"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794153715446970555,
+      "path": "build/crow-grasp-resume-build-01/observations/disconnected.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 85874,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/1f46fe8e934ca6c7d3c01e3997fb8b9557fb648050b55ea901e929f081f981d9.gz",
+            "sha256": "1f46fe8e934ca6c7d3c01e3997fb8b9557fb648050b55ea901e929f081f981d9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 85874,
+      "mode": 420,
+      "mtime_ns": 1794154079479975449,
+      "path": "build/crow-grasp-resume-build-01/observations/frictionless.stderr",
+      "sha256": "1f46fe8e934ca6c7d3c01e3997fb8b9557fb648050b55ea901e929f081f981d9"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794154079382090845,
+      "path": "build/crow-grasp-resume-build-01/observations/frictionless.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84690,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/66f5d078f8f308d4256c3144632847bbf5ba72a0d370f826742daaffffd3981b.gz",
+            "sha256": "66f5d078f8f308d4256c3144632847bbf5ba72a0d370f826742daaffffd3981b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84690,
+      "mode": 420,
+      "mtime_ns": 1794154079560204932,
+      "path": "build/crow-grasp-resume-build-01/observations/open.stderr",
+      "sha256": "66f5d078f8f308d4256c3144632847bbf5ba72a0d370f826742daaffffd3981b"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794154079534065690,
+      "path": "build/crow-grasp-resume-build-01/observations/open.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-tolerances-20261108/payload/blobs/c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c.gz"
+      },
+      "bytes": 169,
+      "mode": 420,
+      "mtime_ns": 1794154079396680160,
+      "path": "build/crow-grasp-resume-build-01/observations/frictionless/effective-config.json",
+      "sha256": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1152,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/62a9a36f33a826a16582d97265d7d3612c8f4edf9576cf5052ea0f93ef897ec6.gz",
+            "sha256": "62a9a36f33a826a16582d97265d7d3612c8f4edf9576cf5052ea0f93ef897ec6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794154079477447104,
+      "path": "build/crow-grasp-resume-build-01/observations/frictionless/failure-contact-status.bin",
+      "sha256": "62a9a36f33a826a16582d97265d7d3612c8f4edf9576cf5052ea0f93ef897ec6"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794154079477132603,
+      "path": "build/crow-grasp-resume-build-01/observations/frictionless/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794154079477319478,
+      "path": "build/crow-grasp-resume-build-01/observations/frictionless/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794154079477244728,
+      "path": "build/crow-grasp-resume-build-01/observations/frictionless/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 192,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/f24533aebc5a10b3bbbb3700b727d59a5fd74be0b968e575b96643c33e9b9e42.gz",
+            "sha256": "f24533aebc5a10b3bbbb3700b727d59a5fd74be0b968e575b96643c33e9b9e42"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794154079477384562,
+      "path": "build/crow-grasp-resume-build-01/observations/frictionless/failure-world-status.bin",
+      "sha256": "f24533aebc5a10b3bbbb3700b727d59a5fd74be0b968e575b96643c33e9b9e42"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 177,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/7082a31f6927ca88ebbce468a499b17550d5bacf48618526db34f960082a60f4.gz",
+            "sha256": "7082a31f6927ca88ebbce468a499b17550d5bacf48618526db34f960082a60f4"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 177,
+      "mode": 420,
+      "mtime_ns": 1794154079477533938,
+      "path": "build/crow-grasp-resume-build-01/observations/frictionless/failure.json",
+      "sha256": "7082a31f6927ca88ebbce468a499b17550d5bacf48618526db34f960082a60f4"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7.gz"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794154079396392867,
+      "path": "build/crow-grasp-resume-build-01/observations/frictionless/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794154079396495326,
+      "path": "build/crow-grasp-resume-build-01/observations/frictionless/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794154079396621410,
+      "path": "build/crow-grasp-resume-build-01/observations/frictionless/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794154079396562326,
+      "path": "build/crow-grasp-resume-build-01/observations/frictionless/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-drive-ir-20261108/payload/blobs/0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0.gz"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794154079477572313,
+      "path": "build/crow-grasp-resume-build-01/observations/frictionless/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-tolerances-20261108/payload/blobs/c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c.gz"
+      },
+      "bytes": 169,
+      "mode": 420,
+      "mtime_ns": 1794153716096848123,
+      "path": "build/crow-grasp-resume-build-01/observations/disconnected/effective-config.json",
+      "sha256": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 368,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/a23698477abce0444c222d37e70459fe52b91e93a7917b7bdf46ee24bee2573d.gz",
+            "sha256": "a23698477abce0444c222d37e70459fe52b91e93a7917b7bdf46ee24bee2573d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794154079324811214,
+      "path": "build/crow-grasp-resume-build-01/observations/disconnected/final-q.f32",
+      "sha256": "a23698477abce0444c222d37e70459fe52b91e93a7917b7bdf46ee24bee2573d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1024,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/7cfc9283d4c807e6a02faedb81e8f87af6abae8deefbc1c883fd7c564196d4aa.gz",
+            "sha256": "7cfc9283d4c807e6a02faedb81e8f87af6abae8deefbc1c883fd7c564196d4aa"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794154079324939006,
+      "path": "build/crow-grasp-resume-build-01/observations/disconnected/final-scene.bin",
+      "sha256": "7cfc9283d4c807e6a02faedb81e8f87af6abae8deefbc1c883fd7c564196d4aa"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 352,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/0a0938c5e33c97aad8815160017d96fbb6617d6f0fc877db89d04724b3cbd0df.gz",
+            "sha256": "0a0938c5e33c97aad8815160017d96fbb6617d6f0fc877db89d04724b3cbd0df"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794154079324894673,
+      "path": "build/crow-grasp-resume-build-01/observations/disconnected/final-v.f32",
+      "sha256": "0a0938c5e33c97aad8815160017d96fbb6617d6f0fc877db89d04724b3cbd0df"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7.gz"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794153716096400163,
+      "path": "build/crow-grasp-resume-build-01/observations/disconnected/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794153716096564747,
+      "path": "build/crow-grasp-resume-build-01/observations/disconnected/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794153716096756123,
+      "path": "build/crow-grasp-resume-build-01/observations/disconnected/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794153716096657456,
+      "path": "build/crow-grasp-resume-build-01/observations/disconnected/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 212,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/b1d992e3b2e57e6580e737376c6547c8f4c07f36ad45ae44e552d97c75d4b069.gz",
+            "sha256": "b1d992e3b2e57e6580e737376c6547c8f4c07f36ad45ae44e552d97c75d4b069"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 212,
+      "mode": 420,
+      "mtime_ns": 1794154079325226341,
+      "path": "build/crow-grasp-resume-build-01/observations/disconnected/runtime.json",
+      "sha256": "b1d992e3b2e57e6580e737376c6547c8f4c07f36ad45ae44e552d97c75d4b069"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 163840,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/b8b157855959ccc1f5607c1f7cb8f848f2ed7a76211dba024b66a259de68ee5b.gz",
+            "sha256": "b8b157855959ccc1f5607c1f7cb8f848f2ed7a76211dba024b66a259de68ee5b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 163840,
+      "mode": 420,
+      "mtime_ns": 1794154079325094715,
+      "path": "build/crow-grasp-resume-build-01/observations/disconnected/scene.bin",
+      "sha256": "b8b157855959ccc1f5607c1f7cb8f848f2ed7a76211dba024b66a259de68ee5b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 744,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/3cebd3eef3407c77e6b9dd95240888ab53ca002eb442a7d33d6c9ecb2d83edc2.gz",
+            "sha256": "3cebd3eef3407c77e6b9dd95240888ab53ca002eb442a7d33d6c9ecb2d83edc2"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 744,
+      "mode": 420,
+      "mtime_ns": 1794154079325205341,
+      "path": "build/crow-grasp-resume-build-01/observations/disconnected/summary.json",
+      "sha256": "3cebd3eef3407c77e6b9dd95240888ab53ca002eb442a7d33d6c9ecb2d83edc2"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 112364,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/a2d502a8711a0ba593c1dfe3ce1917a381f0db9fd11f6629839640f1935dbf39.gz",
+            "sha256": "a2d502a8711a0ba593c1dfe3ce1917a381f0db9fd11f6629839640f1935dbf39"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 112364,
+      "mode": 420,
+      "mtime_ns": 1794154079325235591,
+      "path": "build/crow-grasp-resume-build-01/observations/disconnected/trace.tsv",
+      "sha256": "a2d502a8711a0ba593c1dfe3ce1917a381f0db9fd11f6629839640f1935dbf39"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-tolerances-20261108/payload/blobs/c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c.gz"
+      },
+      "bytes": 169,
+      "mode": 420,
+      "mtime_ns": 1794153691883943697,
+      "path": "build/crow-grasp-resume-build-01/observations/normal/effective-config.json",
+      "sha256": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/b08767dc7c056c0819a1df1bbeafab2378a61c7c180a9d42a3bb1b1fc07a4c90.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794153691884113114,
+      "path": "build/crow-grasp-resume-build-01/observations/normal/final-q.f32",
+      "sha256": "b08767dc7c056c0819a1df1bbeafab2378a61c7c180a9d42a3bb1b1fc07a4c90"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/5f1c0ce3fc2faeeabce7ead2ac3ca842e990f3f7efd79b3a3e0a3205fd0559f7.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794153691884255657,
+      "path": "build/crow-grasp-resume-build-01/observations/normal/final-scene.bin",
+      "sha256": "5f1c0ce3fc2faeeabce7ead2ac3ca842e990f3f7efd79b3a3e0a3205fd0559f7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/0617787449287d791e5c4187242e5ef431c21036b3e17ce623760537cc7ec767.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794153691884386491,
+      "path": "build/crow-grasp-resume-build-01/observations/normal/final-v.f32",
+      "sha256": "0617787449287d791e5c4187242e5ef431c21036b3e17ce623760537cc7ec767"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7.gz"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794153691889893265,
+      "path": "build/crow-grasp-resume-build-01/observations/normal/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794153691890015391,
+      "path": "build/crow-grasp-resume-build-01/observations/normal/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794153691890105308,
+      "path": "build/crow-grasp-resume-build-01/observations/normal/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794153691890195225,
+      "path": "build/crow-grasp-resume-build-01/observations/normal/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-grasp-controls-20261108/payload/blobs/225b892d86a6bbf78e95537be8fdebf09a1e33221a15b02968101b1200f01b10.gz"
+      },
+      "bytes": 212,
+      "mode": 420,
+      "mtime_ns": 1794153691890335975,
+      "path": "build/crow-grasp-resume-build-01/observations/normal/runtime.json",
+      "sha256": "225b892d86a6bbf78e95537be8fdebf09a1e33221a15b02968101b1200f01b10"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/1d9db4488809ec7a4a64a9e597873538fceb02979ea3d17497aa9010e21335b1.gz"
+      },
+      "bytes": 163840,
+      "mode": 420,
+      "mtime_ns": 1794153691890726019,
+      "path": "build/crow-grasp-resume-build-01/observations/normal/scene.bin",
+      "sha256": "1d9db4488809ec7a4a64a9e597873538fceb02979ea3d17497aa9010e21335b1"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/0e20bf63647f03e80dfcd48bd4f451706321a1c15796d496406e744de19e6aee.gz"
+      },
+      "bytes": 754,
+      "mode": 420,
+      "mtime_ns": 1794153691890862394,
+      "path": "build/crow-grasp-resume-build-01/observations/normal/summary.json",
+      "sha256": "0e20bf63647f03e80dfcd48bd4f451706321a1c15796d496406e744de19e6aee"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/c34be0c3fc1b5282a43789036fd3aee795e6d5c6f56d37bbeacb942bcea212e2.gz"
+      },
+      "bytes": 140084,
+      "mode": 420,
+      "mtime_ns": 1794153691891246105,
+      "path": "build/crow-grasp-resume-build-01/observations/normal/trace.tsv",
+      "sha256": "c34be0c3fc1b5282a43789036fd3aee795e6d5c6f56d37bbeacb942bcea212e2"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-tolerances-20261108/payload/blobs/c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c.gz"
+      },
+      "bytes": 169,
+      "mode": 420,
+      "mtime_ns": 1794154079554315031,
+      "path": "build/crow-grasp-resume-build-01/observations/open/effective-config.json",
+      "sha256": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 368,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/600be5e1f396b6f66bc1487ad4a7a27d875c3f765e7801a124cc2fe4dd3ded99.gz",
+            "sha256": "600be5e1f396b6f66bc1487ad4a7a27d875c3f765e7801a124cc2fe4dd3ded99"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794154465176835004,
+      "path": "build/crow-grasp-resume-build-01/observations/open/final-q.f32",
+      "sha256": "600be5e1f396b6f66bc1487ad4a7a27d875c3f765e7801a124cc2fe4dd3ded99"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1024,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/bf51c08e76a7f8232fa63f9347932c475e908340b4c5fbc50942ae00fb1d547c.gz",
+            "sha256": "bf51c08e76a7f8232fa63f9347932c475e908340b4c5fbc50942ae00fb1d547c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794154465176970531,
+      "path": "build/crow-grasp-resume-build-01/observations/open/final-scene.bin",
+      "sha256": "bf51c08e76a7f8232fa63f9347932c475e908340b4c5fbc50942ae00fb1d547c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 352,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/19eb0d55d48a045814fd94d878783bbbb82803eb637a00ae0f6d0860a8132e0c.gz",
+            "sha256": "19eb0d55d48a045814fd94d878783bbbb82803eb637a00ae0f6d0860a8132e0c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794154465176922924,
+      "path": "build/crow-grasp-resume-build-01/observations/open/final-v.f32",
+      "sha256": "19eb0d55d48a045814fd94d878783bbbb82803eb637a00ae0f6d0860a8132e0c"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7.gz"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794154079553995362,
+      "path": "build/crow-grasp-resume-build-01/observations/open/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794154079554093696,
+      "path": "build/crow-grasp-resume-build-01/observations/open/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794154079554244697,
+      "path": "build/crow-grasp-resume-build-01/observations/open/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794154079554164363,
+      "path": "build/crow-grasp-resume-build-01/observations/open/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 213,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/b1a42794d3674c6a1a9b7d0aef855996465b4dc807e007457463d06ccf765540.gz",
+            "sha256": "b1a42794d3674c6a1a9b7d0aef855996465b4dc807e007457463d06ccf765540"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 213,
+      "mode": 420,
+      "mtime_ns": 1794154465177232997,
+      "path": "build/crow-grasp-resume-build-01/observations/open/runtime.json",
+      "sha256": "b1a42794d3674c6a1a9b7d0aef855996465b4dc807e007457463d06ccf765540"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 163840,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/e1b9f456d7e08aee145e53a18f00b198d5747bfbc1652616f8bdc923e31f5eee.gz",
+            "sha256": "e1b9f456d7e08aee145e53a18f00b198d5747bfbc1652616f8bdc923e31f5eee"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 163840,
+      "mode": 420,
+      "mtime_ns": 1794154465177117314,
+      "path": "build/crow-grasp-resume-build-01/observations/open/scene.bin",
+      "sha256": "e1b9f456d7e08aee145e53a18f00b198d5747bfbc1652616f8bdc923e31f5eee"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 739,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/39b224199f143d3778367cea75ccc4adea07d9b798eafc43a067197e18803a10.gz",
+            "sha256": "39b224199f143d3778367cea75ccc4adea07d9b798eafc43a067197e18803a10"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 739,
+      "mode": 420,
+      "mtime_ns": 1794154465177218907,
+      "path": "build/crow-grasp-resume-build-01/observations/open/summary.json",
+      "sha256": "39b224199f143d3778367cea75ccc4adea07d9b798eafc43a067197e18803a10"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 111560,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/d2f8a343c660f3bd81b8187d0a8c26688dd729dffa35611f0b9df97fc39adf7e.gz",
+            "sha256": "d2f8a343c660f3bd81b8187d0a8c26688dd729dffa35611f0b9df97fc39adf7e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 111560,
+      "mode": 420,
+      "mtime_ns": 1794154465177244295,
+      "path": "build/crow-grasp-resume-build-01/observations/open/trace.tsv",
+      "sha256": "d2f8a343c660f3bd81b8187d0a8c26688dd729dffa35611f0b9df97fc39adf7e"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-tolerances-20261108/payload/blobs/c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c.gz"
+      },
+      "bytes": 169,
+      "mode": 420,
+      "mtime_ns": 1794153691891477856,
+      "path": "build/crow-grasp-resume-build-01/reference/normal-gold/effective-config.json",
+      "sha256": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/b08767dc7c056c0819a1df1bbeafab2378a61c7c180a9d42a3bb1b1fc07a4c90.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794153691891625981,
+      "path": "build/crow-grasp-resume-build-01/reference/normal-gold/final-q.f32",
+      "sha256": "b08767dc7c056c0819a1df1bbeafab2378a61c7c180a9d42a3bb1b1fc07a4c90"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/5f1c0ce3fc2faeeabce7ead2ac3ca842e990f3f7efd79b3a3e0a3205fd0559f7.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794153691891836066,
+      "path": "build/crow-grasp-resume-build-01/reference/normal-gold/final-scene.bin",
+      "sha256": "5f1c0ce3fc2faeeabce7ead2ac3ca842e990f3f7efd79b3a3e0a3205fd0559f7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/0617787449287d791e5c4187242e5ef431c21036b3e17ce623760537cc7ec767.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794153691892001775,
+      "path": "build/crow-grasp-resume-build-01/reference/normal-gold/final-v.f32",
+      "sha256": "0617787449287d791e5c4187242e5ef431c21036b3e17ce623760537cc7ec767"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7.gz"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794153691892106192,
+      "path": "build/crow-grasp-resume-build-01/reference/normal-gold/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794153691892197484,
+      "path": "build/crow-grasp-resume-build-01/reference/normal-gold/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794153691892290734,
+      "path": "build/crow-grasp-resume-build-01/reference/normal-gold/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794153691892373276,
+      "path": "build/crow-grasp-resume-build-01/reference/normal-gold/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/1d9db4488809ec7a4a64a9e597873538fceb02979ea3d17497aa9010e21335b1.gz"
+      },
+      "bytes": 163840,
+      "mode": 420,
+      "mtime_ns": 1794153691892797361,
+      "path": "build/crow-grasp-resume-build-01/reference/normal-gold/scene.bin",
+      "sha256": "1d9db4488809ec7a4a64a9e597873538fceb02979ea3d17497aa9010e21335b1"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/0e20bf63647f03e80dfcd48bd4f451706321a1c15796d496406e744de19e6aee.gz"
+      },
+      "bytes": 754,
+      "mode": 420,
+      "mtime_ns": 1794153691892944904,
+      "path": "build/crow-grasp-resume-build-01/reference/normal-gold/summary.json",
+      "sha256": "0e20bf63647f03e80dfcd48bd4f451706321a1c15796d496406e744de19e6aee"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/c34be0c3fc1b5282a43789036fd3aee795e6d5c6f56d37bbeacb942bcea212e2.gz"
+      },
+      "bytes": 140084,
+      "mode": 420,
+      "mtime_ns": 1794153691893309364,
+      "path": "build/crow-grasp-resume-build-01/reference/normal-gold/trace.tsv",
+      "sha256": "c34be0c3fc1b5282a43789036fd3aee795e6d5c6f56d37bbeacb942bcea212e2"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-grasp-controls-20261108/payload/blobs/9b21fd7c04cd6f3ba51dfc570d2dfc4e983bf5835b8589db1e40beecb4bb01d5.gz"
+      },
+      "bytes": 118912,
+      "mode": 493,
+      "mtime_ns": 1794154313979228443,
+      "path": "build/crow-zero-friction-build-01/crow-fixture",
+      "sha256": "9b21fd7c04cd6f3ba51dfc570d2dfc4e983bf5835b8589db1e40beecb4bb01d5"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/652f43415f24be1fce73eb91589e35d558d6dec7fb610965942239fc49771f61.gz"
+      },
+      "bytes": 5711408,
+      "mode": 493,
+      "mtime_ns": 1794154313983268002,
+      "path": "build/crow-zero-friction-build-01/runtime/libmetalrobo.dylib",
+      "sha256": "652f43415f24be1fce73eb91589e35d558d6dec7fb610965942239fc49771f61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4458416,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/9c8b4ba7f4dbda0a0c39c561b875b3557e4490bdde3c7219fb391f6e2a6256e8.gz",
+            "sha256": "9c8b4ba7f4dbda0a0c39c561b875b3557e4490bdde3c7219fb391f6e2a6256e8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4458416,
+      "mode": 420,
+      "mtime_ns": 1794154313986782560,
+      "path": "build/crow-zero-friction-build-01/runtime/metalrobo/MetalRobo.metallib",
+      "sha256": "9c8b4ba7f4dbda0a0c39c561b875b3557e4490bdde3c7219fb391f6e2a6256e8"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84693,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/adfee0e83c003a8a68f8d0a17e1896404d06e47cc1aeac43bbe19039377cf927.gz",
+            "sha256": "adfee0e83c003a8a68f8d0a17e1896404d06e47cc1aeac43bbe19039377cf927"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84693,
+      "mode": 420,
+      "mtime_ns": 1794154510732146647,
+      "path": "build/crow-zero-friction-build-01/observations/frictionless.stderr",
+      "sha256": "adfee0e83c003a8a68f8d0a17e1896404d06e47cc1aeac43bbe19039377cf927"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794154510148673609,
+      "path": "build/crow-zero-friction-build-01/observations/frictionless.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794154501540058576,
+      "path": "build/crow-zero-friction-build-01/observations/metalrobo_metal_unified_quality_probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-git-recovery-line-search-20261108/regression-unified-owner.stdout"
+      },
+      "bytes": 289,
+      "mode": 420,
+      "mtime_ns": 1794154505534438175,
+      "path": "build/crow-zero-friction-build-01/observations/metalrobo_metal_unified_quality_probe.stdout",
+      "sha256": "e334c6726e4caa592b6bc22f2c9e64b72cba5bba6730a32797289536c3ebb692"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794154505581939099,
+      "path": "build/crow-zero-friction-build-01/observations/metalrobo_metal_world_contact_probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 855,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/91a75984c4bb14cbd1b66a8679d745d95db4fe7c868e477ca06d7df4188bf363.gz",
+            "sha256": "91a75984c4bb14cbd1b66a8679d745d95db4fe7c868e477ca06d7df4188bf363"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 855,
+      "mode": 420,
+      "mtime_ns": 1794154510088416458,
+      "path": "build/crow-zero-friction-build-01/observations/metalrobo_metal_world_contact_probe.stdout",
+      "sha256": "91a75984c4bb14cbd1b66a8679d745d95db4fe7c868e477ca06d7df4188bf363"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84693,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/14414fcc6baabb83d74d6a30487ef872a45439e0166d0bdb3f8b887564d5f187.gz",
+            "sha256": "14414fcc6baabb83d74d6a30487ef872a45439e0166d0bdb3f8b887564d5f187"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84693,
+      "mode": 420,
+      "mtime_ns": 1794154824833630321,
+      "path": "build/crow-zero-friction-build-01/observations/normal.stderr",
+      "sha256": "14414fcc6baabb83d74d6a30487ef872a45439e0166d0bdb3f8b887564d5f187"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-active-head-navigation-20261108/followup.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794154824814557494,
+      "path": "build/crow-zero-friction-build-01/observations/normal.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-tolerances-20261108/payload/blobs/c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c.gz"
+      },
+      "bytes": 169,
+      "mode": 420,
+      "mtime_ns": 1794154510725378653,
+      "path": "build/crow-zero-friction-build-01/observations/frictionless/effective-config.json",
+      "sha256": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 368,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/f94f5152cb964ee2a63df8cdd16b682480c6a8c6ffa1c92759f97dc5a605ec30.gz",
+            "sha256": "f94f5152cb964ee2a63df8cdd16b682480c6a8c6ffa1c92759f97dc5a605ec30"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794154824753387179,
+      "path": "build/crow-zero-friction-build-01/observations/frictionless/final-q.f32",
+      "sha256": "f94f5152cb964ee2a63df8cdd16b682480c6a8c6ffa1c92759f97dc5a605ec30"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1024,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/46044d8226cc45169b50c874b0001bdc395335e06f3d247a35629df4d1d279e3.gz",
+            "sha256": "46044d8226cc45169b50c874b0001bdc395335e06f3d247a35629df4d1d279e3"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794154824753525264,
+      "path": "build/crow-zero-friction-build-01/observations/frictionless/final-scene.bin",
+      "sha256": "46044d8226cc45169b50c874b0001bdc395335e06f3d247a35629df4d1d279e3"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 352,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/1eaea33d02703da9893d453176880ed91c845760a6712437108b60e13078b149.gz",
+            "sha256": "1eaea33d02703da9893d453176880ed91c845760a6712437108b60e13078b149"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794154824753476138,
+      "path": "build/crow-zero-friction-build-01/observations/frictionless/final-v.f32",
+      "sha256": "1eaea33d02703da9893d453176880ed91c845760a6712437108b60e13078b149"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7.gz"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794154510724954596,
+      "path": "build/crow-zero-friction-build-01/observations/frictionless/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794154510725110643,
+      "path": "build/crow-zero-friction-build-01/observations/frictionless/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794154510725287233,
+      "path": "build/crow-zero-friction-build-01/observations/frictionless/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794154510725198646,
+      "path": "build/crow-zero-friction-build-01/observations/frictionless/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 211,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/a49132c48563c153ffcbd63762f23bdfaa15792cb0ff628525495ea94937e073.gz",
+            "sha256": "a49132c48563c153ffcbd63762f23bdfaa15792cb0ff628525495ea94937e073"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 211,
+      "mode": 420,
+      "mtime_ns": 1794154824753843350,
+      "path": "build/crow-zero-friction-build-01/observations/frictionless/runtime.json",
+      "sha256": "a49132c48563c153ffcbd63762f23bdfaa15792cb0ff628525495ea94937e073"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 163840,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/85e28b4ae8e9efb31e256da378b9e0dbeb30da5fabdfebd2ea804f1cf91adc07.gz",
+            "sha256": "85e28b4ae8e9efb31e256da378b9e0dbeb30da5fabdfebd2ea804f1cf91adc07"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 163840,
+      "mode": 420,
+      "mtime_ns": 1794154824753695099,
+      "path": "build/crow-zero-friction-build-01/observations/frictionless/scene.bin",
+      "sha256": "85e28b4ae8e9efb31e256da378b9e0dbeb30da5fabdfebd2ea804f1cf91adc07"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 739,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/f771f71c9219ffaab1ec59aca4810863b1f10d29d6a394a3ff15bdda3bf4d1db.gz",
+            "sha256": "f771f71c9219ffaab1ec59aca4810863b1f10d29d6a394a3ff15bdda3bf4d1db"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 739,
+      "mode": 420,
+      "mtime_ns": 1794154824753817892,
+      "path": "build/crow-zero-friction-build-01/observations/frictionless/summary.json",
+      "sha256": "f771f71c9219ffaab1ec59aca4810863b1f10d29d6a394a3ff15bdda3bf4d1db"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 110929,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/a072ff9a02a86c7a46049f02c4f44f2a2baab34579efc6a5f97ea2a8ca7c905d.gz",
+            "sha256": "a072ff9a02a86c7a46049f02c4f44f2a2baab34579efc6a5f97ea2a8ca7c905d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 110929,
+      "mode": 420,
+      "mtime_ns": 1794154824753852559,
+      "path": "build/crow-zero-friction-build-01/observations/frictionless/trace.tsv",
+      "sha256": "a072ff9a02a86c7a46049f02c4f44f2a2baab34579efc6a5f97ea2a8ca7c905d"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-tolerances-20261108/payload/blobs/c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c.gz"
+      },
+      "bytes": 169,
+      "mode": 420,
+      "mtime_ns": 1794154824828296306,
+      "path": "build/crow-zero-friction-build-01/observations/normal/effective-config.json",
+      "sha256": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/b08767dc7c056c0819a1df1bbeafab2378a61c7c180a9d42a3bb1b1fc07a4c90.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794155202170436263,
+      "path": "build/crow-zero-friction-build-01/observations/normal/final-q.f32",
+      "sha256": "b08767dc7c056c0819a1df1bbeafab2378a61c7c180a9d42a3bb1b1fc07a4c90"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/5f1c0ce3fc2faeeabce7ead2ac3ca842e990f3f7efd79b3a3e0a3205fd0559f7.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794155202170567556,
+      "path": "build/crow-zero-friction-build-01/observations/normal/final-scene.bin",
+      "sha256": "5f1c0ce3fc2faeeabce7ead2ac3ca842e990f3f7efd79b3a3e0a3205fd0559f7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/0617787449287d791e5c4187242e5ef431c21036b3e17ce623760537cc7ec767.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794155202170525555,
+      "path": "build/crow-zero-friction-build-01/observations/normal/final-v.f32",
+      "sha256": "0617787449287d791e5c4187242e5ef431c21036b3e17ce623760537cc7ec767"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7.gz"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794154824828021637,
+      "path": "build/crow-zero-friction-build-01/observations/normal/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794154824828118971,
+      "path": "build/crow-zero-friction-build-01/observations/normal/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794154824828240139,
+      "path": "build/crow-zero-friction-build-01/observations/normal/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794154824828179930,
+      "path": "build/crow-zero-friction-build-01/observations/normal/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 212,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/88b181739e27e3b9f394e3c0c62fdb65007bf8dff73ce245f7ebbf35488c4bfe.gz",
+            "sha256": "88b181739e27e3b9f394e3c0c62fdb65007bf8dff73ce245f7ebbf35488c4bfe"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 212,
+      "mode": 420,
+      "mtime_ns": 1794155202170820392,
+      "path": "build/crow-zero-friction-build-01/observations/normal/runtime.json",
+      "sha256": "88b181739e27e3b9f394e3c0c62fdb65007bf8dff73ce245f7ebbf35488c4bfe"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/1d9db4488809ec7a4a64a9e597873538fceb02979ea3d17497aa9010e21335b1.gz"
+      },
+      "bytes": 163840,
+      "mode": 420,
+      "mtime_ns": 1794155202170710807,
+      "path": "build/crow-zero-friction-build-01/observations/normal/scene.bin",
+      "sha256": "1d9db4488809ec7a4a64a9e597873538fceb02979ea3d17497aa9010e21335b1"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/0e20bf63647f03e80dfcd48bd4f451706321a1c15796d496406e744de19e6aee.gz"
+      },
+      "bytes": 754,
+      "mode": 420,
+      "mtime_ns": 1794155202170801267,
+      "path": "build/crow-zero-friction-build-01/observations/normal/summary.json",
+      "sha256": "0e20bf63647f03e80dfcd48bd4f451706321a1c15796d496406e744de19e6aee"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-line-search-refinement-20261108/payload/blobs/c34be0c3fc1b5282a43789036fd3aee795e6d5c6f56d37bbeacb942bcea212e2.gz"
+      },
+      "bytes": 140084,
+      "mode": 420,
+      "mtime_ns": 1794155202170830059,
+      "path": "build/crow-zero-friction-build-01/observations/normal/trace.tsv",
+      "sha256": "c34be0c3fc1b5282a43789036fd3aee795e6d5c6f56d37bbeacb942bcea212e2"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5711824,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/64a064c7792916c784e00f22d1851ac7f65f78ca1a8137a5e300cfed85410b00.gz",
+            "sha256": "64a064c7792916c784e00f22d1851ac7f65f78ca1a8137a5e300cfed85410b00"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5711824,
+      "mode": 493,
+      "mtime_ns": 1794154857050630824,
+      "path": "build/crow-zero-friction-build-01/retained-probes/libmetalrobo.dylib",
+      "sha256": "64a064c7792916c784e00f22d1851ac7f65f78ca1a8137a5e300cfed85410b00"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/df2f144721ff04692399afa7316ca7c88a189689acdbfb4358030ef570c0f687.gz"
+      },
+      "bytes": 55176,
+      "mode": 493,
+      "mtime_ns": 1794154857045914316,
+      "path": "build/crow-zero-friction-build-01/retained-probes/metalrobo_metal_unified_quality_probe",
+      "sha256": "df2f144721ff04692399afa7316ca7c88a189689acdbfb4358030ef570c0f687"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 113984,
+            "path": "artifacts/crow-active-head-controls-evidence-20261108/blobs/e8135dfeb1c529bae60043a6ae87b3c1a00eba40f6a284bd90325c5be6a6ea08.gz",
+            "sha256": "e8135dfeb1c529bae60043a6ae87b3c1a00eba40f6a284bd90325c5be6a6ea08"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 113984,
+      "mode": 493,
+      "mtime_ns": 1794154857047684168,
+      "path": "build/crow-zero-friction-build-01/retained-probes/metalrobo_metal_world_contact_probe",
+      "sha256": "e8135dfeb1c529bae60043a6ae87b3c1a00eba40f6a284bd90325c5be6a6ea08"
+    }
+  ],
+  "roots": [
+    "build/crow-active-head-navigation-admission-01",
+    "build/crow-active-head-navigation-admission-02",
+    "build/crow-active-head-navigation-vision-01",
+    "build/crow-active-head-vision-controls-01",
+    "build/crow-active-head-vision-corrected-01",
+    "build/crow-active-head-vision-obstruction-01",
+    "build/crow-active-head-visual-inspection-01",
+    "build/crow-active-navigation-train-smoke-01",
+    "build/crow-grasp-controls-build-01",
+    "build/crow-grasp-resume-build-01",
+    "build/crow-zero-friction-build-01"
+  ],
+  "schema": "crow-git-evidence-archive-v1",
+  "summary": {
+    "existing_archive_blobs_indexed": 21065,
+    "files": 236,
+    "new_compressed_bytes": 33159322,
+    "source_bytes": 72817202,
+    "unique_file_contents": 118
+  }
+}
