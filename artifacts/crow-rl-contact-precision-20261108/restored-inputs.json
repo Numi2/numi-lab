@@ -1,0 +1,42 @@
+{
+  "files": [
+    {
+      "bytes": 98864,
+      "destination": "build/crow-contact-precision-build-01/substep7-capture.bin",
+      "sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f",
+      "source": "build/crow-quality-representability-build-01/substep7-capture.bin"
+    },
+    {
+      "bytes": 272,
+      "destination": "build/crow-contact-precision-build-01/reference-v.f64",
+      "sha256": "ca64316a9e1f9942ba04d9a539134e3855e7fd605351dc33b1f79117015fffa9",
+      "source": "build/crow-quality-representability-build-01/substep7-fp64-reference-v.f64"
+    },
+    {
+      "bytes": 3840,
+      "destination": "build/crow-contact-precision-build-01/reference-p.f64",
+      "sha256": "c0cd0c71ee61ededa43567171c377c0a08122369b644e89540d7f34a42605a47",
+      "source": "build/crow-quality-representability-build-01/substep7-fp64-reference-impulse.f64"
+    },
+    {
+      "bytes": 98864,
+      "destination": "build/crow-contact-precision-build-01/control-substep2.bin",
+      "sha256": "abd531b3e9f580c7f5c208c358e87821c51470d3671367571c8a713f3885b441",
+      "source": "build/crow-quality-representability-build-01/capture-one.bin"
+    },
+    {
+      "bytes": 136,
+      "destination": "build/crow-contact-precision-build-01/control-neighbor-v.f32",
+      "sha256": "ee4620f6ecac23b3393603c7f914234979106da60658edcf1352d57f756890c8",
+      "source": "build/crow-quality-representability-build-01/neighbor-v.f32"
+    },
+    {
+      "bytes": 122680,
+      "destination": "build/crow-contact-precision-build-01/warm-probe",
+      "sha256": "ce4db4e79b1bc1c89daf4480894b3fa4d47d3ee8d313b8e6e1ed4080f41c1431",
+      "source": "build/crow-quality-representability-build-01/warm-validation-01/warm-probe"
+    }
+  ],
+  "manifest": "artifacts/crow-rl-quality-representability-20261108/payload/manifest.json",
+  "source_reference": "artifacts/crow-rl-quality-representability-20261108/substep7_reference.py"
+}

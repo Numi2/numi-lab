@@ -1,0 +1,47 @@
+{
+  "budget": {
+    "iterations_each": 64,
+    "process_seconds": 120,
+    "raw_bytes_max": 2000000,
+    "search_start_states": 2
+  },
+  "controls": [
+    "Previously calibrated independent FP64 constitutive projection/Hessian",
+    "Two known cancellation-dot values",
+    "FMA32 emulation must reproduce every native captured row before attribution",
+    "Compensated dot compared with independent FP64 row sums",
+    "Fully reproject every selected adjacent-FP32 candidate"
+  ],
+  "decision": "Only a found state proves representability here. Failed search remains inconclusive. Native implementation requires a separately sealed experiment and independent residual check.",
+  "inputs": {
+    "artifacts/crow-rl-contact-precision-20261108/diagnose.py": {
+      "bytes": 7790,
+      "sha256": "ed398b379e4ce79f7674fe7c1f638f19a5d2dcb464c8474697e096c07d1127d6"
+    },
+    "artifacts/crow-rl-contact-precision-20261108/reference-source.py": {
+      "bytes": 8244,
+      "sha256": "89f85b795eb8a5d0f1041e00a9a99ccf871636b1dacf6ffd61038565de98d4b0"
+    },
+    "build/crow-contact-precision-build-01/reference-p.f64": {
+      "bytes": 3840,
+      "sha256": "c0cd0c71ee61ededa43567171c377c0a08122369b644e89540d7f34a42605a47"
+    },
+    "build/crow-contact-precision-build-01/reference-v.f64": {
+      "bytes": 272,
+      "sha256": "ca64316a9e1f9942ba04d9a539134e3855e7fd605351dc33b1f79117015fffa9"
+    },
+    "build/crow-contact-precision-build-01/substep7-capture.bin": {
+      "bytes": 98864,
+      "sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f"
+    }
+  },
+  "limits": "Exposed engineering diagnosis, not a new physical or ecological observation.",
+  "native_settings_changed": false,
+  "predictions": {
+    "at_least_one_representable_neighbor_search_reaches_1e_10": true,
+    "compensated_row_error_reduction_min": 8,
+    "fma32_rows_exact": 480
+  },
+  "question": "Separate FP32 velocity quantization, row arithmetic, projection arithmetic and finite Newton convergence in the exposed substep-seven rejection",
+  "schema": "crow-contact-precision-diagnosis-plan-v1"
+}
