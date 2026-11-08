@@ -1,0 +1,51 @@
+[
+  {
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metal",
+      "-std=metal3.1",
+      "-O3",
+      "-fno-fast-math",
+      "-Iinclude",
+      "-I/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-split-cones-20261108",
+      "-c",
+      "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-split-cones-20261108/solver.metal",
+      "-o",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.air"
+    ],
+    "code": 0,
+    "seconds": 0.09037445799913257
+  },
+  {
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.air",
+      "-o",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/solver.metallib"
+    ],
+    "code": 0,
+    "seconds": 0.023547124990727752
+  },
+  {
+    "argv": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fobjc-arc",
+      "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-split-cones-20261108/probe.mm",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "Metal",
+      "-o",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-cones-build-01/probe"
+    ],
+    "code": 0,
+    "seconds": 0.6297595000360161
+  }
+]

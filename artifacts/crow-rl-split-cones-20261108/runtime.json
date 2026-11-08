@@ -1,0 +1,21 @@
+{
+  "build_source_sha256": "36e78f526a3d4e7e693196a38f41615495e02fe119e1eeb68bddef0a24c1df94",
+  "files": {
+    "build/crow-split-cones-build-01/probe": {
+      "bytes": 58216,
+      "sha256": "1b35245d3f1e30f68c6d8c68787f3d3f48c60389d8a23cefe7f2840b801b5d02"
+    },
+    "build/crow-split-cones-build-01/solver.metallib": {
+      "bytes": 33531,
+      "sha256": "6b34834a05484be152b963a9ffa0166b2b8ea6b1a296e4d768e46c7c4dc11b8e"
+    }
+  },
+  "plan_sha256": "52f4e0f57b3fdbd52005e6490fd9242cecb31b13ba714317e742be8b84293514",
+  "production_changed": false,
+  "schema": "crow-split-cones-runtime-v1",
+  "toolchain": {
+    "clang": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode-26.6.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+    "metal": "Apple metal version 32023.883 (metalfe-32023.883)\nTarget: air64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /private/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.UbUdZg/Metal.xctoolchain/usr/metal/current/bin\n",
+    "os": "ProductName:\t\tmacOS\nProductVersion:\t\t26.6\nBuildVersion:\t\t25G72\n"
+  }
+}
