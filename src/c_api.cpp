@@ -330,6 +330,20 @@ std::string unitreeG1DeploymentContractJSON() {
     return output.str();
 }
 
+void requireLearningPackLoaded(
+    const metalrobo::LearningPackResult& result,
+    const char* const owner,
+    const char* const path
+) {
+    if (!result.succeeded()) {
+        throw std::invalid_argument(
+            std::string{owner} + " load failed [" +
+            metalrobo::learningPackStatusName(result.status) + "]: " +
+            result.message + " (" + path + ")"
+        );
+    }
+}
+
 template <typename Function>
 int translateErrors(Function&& function) noexcept {
     try {
@@ -3214,12 +3228,13 @@ static MRTaskRolloutHandle* createImportedURDFRun(
         const metalrobo::LearningPackResult realityLoaded =
             metalrobo::readRealityProgramPack(
                 reality_program_pack_path, reality);
-        if (!taskLoaded.succeeded() || !actuatorLoaded.succeeded() ||
-            !sensorLoaded.succeeded() || !realityLoaded.succeeded()) {
-            throw std::invalid_argument(
-                "one or more imported run owner artifacts failed to load"
-            );
-        }
+        requireLearningPackLoaded(taskLoaded, "TaskPack", task_pack_path);
+        requireLearningPackLoaded(
+            actuatorLoaded, "RobotActuatorPack", robot_actuator_pack_path);
+        requireLearningPackLoaded(
+            sensorLoaded, "SensorProgramPack", sensor_program_pack_path);
+        requireLearningPackLoaded(
+            realityLoaded, "RealityProgramPack", reality_program_pack_path);
         const bool hasInteraction = interaction_pack_path != nullptr &&
             interaction_pack_path[0] != '\0';
         if (hasInteraction != (interaction_clip_id != nullptr &&
@@ -3383,12 +3398,13 @@ static MRTaskRolloutHandle* createWorldPackRun(
         const metalrobo::LearningPackResult realityLoaded =
             metalrobo::readRealityProgramPack(
                 reality_program_pack_path, reality);
-        if (!taskLoaded.succeeded() || !actuatorLoaded.succeeded() ||
-            !sensorLoaded.succeeded() || !realityLoaded.succeeded()) {
-            throw std::invalid_argument(
-                "one or more WorldPack run owner artifacts failed to load"
-            );
-        }
+        requireLearningPackLoaded(taskLoaded, "TaskPack", task_pack_path);
+        requireLearningPackLoaded(
+            actuatorLoaded, "RobotActuatorPack", robot_actuator_pack_path);
+        requireLearningPackLoaded(
+            sensorLoaded, "SensorProgramPack", sensor_program_pack_path);
+        requireLearningPackLoaded(
+            realityLoaded, "RealityProgramPack", reality_program_pack_path);
         metalrobo::MRWorldPack worldPack;
         const metalrobo::WorldPackResult worldLoaded =
             metalrobo::readWorldPack(

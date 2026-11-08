@@ -1,0 +1,3 @@
+numi window: scene /Users/numi/main-inspector-owner-diagnostic-final-20261108/invalid.json
+numi window: close the window to end the preview run.
+task_rollout failed: head-camera parent body is not present in the compiled world

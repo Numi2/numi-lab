@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/Users/numi/numi-lab-tracker-step-rollback-20261108/tools/numi",
+    "window",
+    "--envs",
+    "1",
+    "--steps",
+    "8",
+    "--chunk",
+    "1",
+    "--world-pack",
+    "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/world.mrworld",
+    "--task-pack",
+    "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/task.taskpack",
+    "--robot-actuator-pack",
+    "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/actuators.actuatorpack",
+    "--sensor-program-pack",
+    "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/sensors.sensorpack",
+    "--reality-program-pack",
+    "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/reality.realitypack",
+    "--zero-actions"
+  ],
+  "exit": 1
+}

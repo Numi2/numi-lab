@@ -1,0 +1,9 @@
+Test project /Users/numi/numi-tracker-step-rollback-build-20261108
+    Start 111: metalrobo_numi_window_source_workspace
+1/2 Test #111: metalrobo_numi_window_source_workspace ...   Passed    0.23 sec
+    Start 112: metalrobo_run_manifest_load_failure
+2/2 Test #112: metalrobo_run_manifest_load_failure ......   Passed    0.01 sec
+
+100% tests passed out of 2
+
+Total Test time (real) =   0.24 sec
