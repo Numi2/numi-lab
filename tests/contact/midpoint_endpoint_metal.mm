@@ -36,10 +36,10 @@ int main(int argc, const char** argv) {
     id<MTLDevice> device=MTLCreateSystemDefaultDevice();
     require(device != nil,"Metal device unavailable");
     NSError* error=nil;
-    id<MTLLibrary> library=[device newLibraryWithFile:
-        [NSString stringWithUTF8String:argv[1]] error:&error];
+    id<MTLLibrary> library=[device newLibraryWithURL:
+        [NSURL fileURLWithPath:[NSString stringWithUTF8String:argv[1]]] error:&error];
     require(library != nil, error ? error.localizedDescription.UTF8String : "library error");
-    id<MTLFunction> function=[library newFunctionWithName:@"nm_fem_midpoint_reflect_endpoint_scratch"];
+    id<MTLFunction> function=[library newFunctionWithName:@"numi_matter_metal::nm_fem_midpoint_reflect_endpoint_scratch"];
     require(function != nil,"endpoint kernel missing");
     id<MTLComputePipelineState> pipeline=[device newComputePipelineStateWithFunction:function error:&error];
     require(pipeline != nil,error ? error.localizedDescription.UTF8String : "pipeline error");
