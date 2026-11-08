@@ -1,0 +1,376 @@
+{
+  "commit": "9f26d3ff272dc7755b9262395e02d2bc4a563f8e",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300324364 157024776    66% 3498989 1570247760    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300332272 157016868    66% 3499062 1570168680    0%   /System/Volumes/Data\n",
+  "omitted_files": [
+    {
+      "bytes": 693,
+      "git_blob": "3a803b1401fa2bb17f13fdd3b7d5be511b557c42",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/admission-failure-analysis.json"
+    },
+    {
+      "bytes": 8211,
+      "git_blob": "c5a90f46f2fcac84984926833dd3bc0353c7f507",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/analyze_mask_fix.py"
+    },
+    {
+      "bytes": 7564,
+      "git_blob": "898613207adc41bc82722421cb5add6b60b387ec",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/continuation-comparisons.json"
+    },
+    {
+      "bytes": 3047,
+      "git_blob": "89c735c4b0769ed91c3de6c0d8c4720aac622c9d",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/continuation-execution.json"
+    },
+    {
+      "bytes": 4703,
+      "git_blob": "19ee1da6982ee528061274e29e3978063462f4eb",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/continue_capture.py"
+    },
+    {
+      "bytes": 19050,
+      "git_blob": "43e8ac90b72ccaf717a4d73fd2078fce5cd0c2a5",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/crow-fixture.mm"
+    },
+    {
+      "bytes": 2033,
+      "git_blob": "2457cbd1647bbac1e2947682955dd3090f0c2330",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/execution-plan.json"
+    },
+    {
+      "bytes": 1919,
+      "git_blob": "3ebe886499145292f6407d2c5d5b86d41cf33c95",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/execution.json"
+    },
+    {
+      "bytes": 2817,
+      "git_blob": "d4b70a0407e22cf5dbe72bbff47388ced6608c7c",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/fp64-analysis.json"
+    },
+    {
+      "bytes": 727,
+      "git_blob": "971c972df70bcaee741c51b4850cf67429f21f0c",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/instrument-analysis.json"
+    },
+    {
+      "bytes": 2391,
+      "git_blob": "dafc44b5511f9b0cf587fb91ea0abdb0f6ed9ca6",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/mask-repair-execution-plan.json"
+    },
+    {
+      "bytes": 2200,
+      "git_blob": "5177820ae66c7399199d0b816b020e2720cc1048",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/mask-repair-plan.json"
+    },
+    {
+      "bytes": 12,
+      "git_blob": "57cdc50305d07f35133f80962644debd6b846bf3",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/.gitattributes"
+    },
+    {
+      "bytes": 122,
+      "git_blob": "194cd96031a108559937ea06163e3e58248cd23a",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/06e1b4bc3d99d4acf718ea8a25395ca9a03886090fe440e92ba382cdabb7664d.gz"
+    },
+    {
+      "bytes": 24637,
+      "git_blob": "389a71710661f8ee11522b1fa2bed147b87bbf4b",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/074a0a2d3840231c0a8a0a1d8b6eb66e91f14bc6ce5ae5337e9b6fae82990a97.gz"
+    },
+    {
+      "bytes": 59,
+      "git_blob": "0ebb43dc7b302e442ea9ae808304d79beab80855",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/0dda58816e372b387318630d283cad95baa0de18b7b101695ea4692a2794bc1a.gz"
+    },
+    {
+      "bytes": 24326,
+      "git_blob": "b4a3fe194fd12f80c07866f478f8de48a89c038b",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/12c40f2b46b9524f8e75cb1dd95e327e0faa5af9e1fcad156cff72a4ef54c407.gz"
+    },
+    {
+      "bytes": 1636,
+      "git_blob": "f65ecadd2d7f1ec8bee694549a466984a3204817",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/13b9b9ddc7a22ac335ace7ba875a8ffc2dd38f329b22f7d2f2ee4df6f8ea295d.gz"
+    },
+    {
+      "bytes": 121579,
+      "git_blob": "b327c4c8707d240e45afe405a4f6dd1c972bb05d",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/28ac088d4fb20f61fb4854c8c0f13e7bf7267df6eda9e676623782d1d3c6734c.gz"
+    },
+    {
+      "bytes": 160,
+      "git_blob": "200c4a8368a3e957770f279fa29b888c7f15142b",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/2ae4e58b36910e214a7c3d5a6956cd56fe0c574c78fd2a70265d9bf383dcb788.gz"
+    },
+    {
+      "bytes": 1136,
+      "git_blob": "772fede822c8c3b77ea434255e4848f90765eb5b",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/2e211b436ed103704bcb4f6b7c206796cab39b6c23023e18897e8923f1e210cf.gz"
+    },
+    {
+      "bytes": 140,
+      "git_blob": "1c3dc266e362e191fb53f0b198071df62794b6e9",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/34066cb3a171106462e88537928b35946fd91d7b6e4404a73585c5b2705854bc.gz"
+    },
+    {
+      "bytes": 252,
+      "git_blob": "93c58966661b382933b904161233c3d57e7bd0d5",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/3795259cac46ca8ba9eaeed6a27bf7526344d184d0457dc89f29a9af660f9e41.gz"
+    },
+    {
+      "bytes": 2372052,
+      "git_blob": "72686b3149361ef6ea4ffea6e6e201f86e456d76",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/37f2466de50d4c2003dd8aeea4d55a680aaaab0f2ab21f9601f976032d80e675.gz"
+    },
+    {
+      "bytes": 2480277,
+      "git_blob": "8b4b3eed40e240f90a6bfa3f68fc43abf3a2b92f",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/3ec0722fa588dd1ed2426c2ff4966d2157ddfeae1bfff9b6067c1d93fdbd2b42.gz"
+    },
+    {
+      "bytes": 13131,
+      "git_blob": "80fbeecd56a9d374cdd1691bdfe654a76319809f",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/4497c4c45e870de5872995067370ad5af5a39a6ba1527313f6a12c3a9bda36ed.gz"
+    },
+    {
+      "bytes": 24054,
+      "git_blob": "ee133318867b599d40f1d9303be6765b109dfd61",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/457d3ba4f3b834af03a60d41b488479a214cf85e2615fe11b079b5b63b829bbe.gz"
+    },
+    {
+      "bytes": 24054,
+      "git_blob": "9e949f646138e7305c7a8aaa42a9dd878cec396d",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/4e7a086499b2ba21e20cbba7cd32c3e25c066c3da57898f0677165d48602333b.gz"
+    },
+    {
+      "bytes": 415,
+      "git_blob": "7d38da721168850402426d9f70f5ae06a24609d5",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/5bb96922fc44ea41bfc42a4ab11f95368bd2d5964fa0adb7caa28169f8a64900.gz"
+    },
+    {
+      "bytes": 1005,
+      "git_blob": "142cce72a9a5bbaf1229d797c7e811ce41439db5",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/5be4f23252cfafce9e4958ad37d5dd88c086d51e18ebd7dbff6a5b5af9e39a60.gz"
+    },
+    {
+      "bytes": 2372054,
+      "git_blob": "a66b5ebb2b3dc461c0d147b14b7f4f6cea34ad2c",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/5c81c53dc3df1e860f39a048427707919d5be1129be7b64ebb5ea0acd5ba769a.gz"
+    },
+    {
+      "bytes": 24190,
+      "git_blob": "8e1cb40b2ca36278bf06c0e680dd74b3ca4b3c10",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/5e86142152eb28279604dfb25f768b35bd52c58550b8a2c8bd4f5097bd5c356a.gz"
+    },
+    {
+      "bytes": 748,
+      "git_blob": "c195621a818b150a402bae32258377f3cb5843b9",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/5ee8449a678a25b164b717bede06d02b9e294d3dcec0f10cbd8ae0feeacd7c6c.gz"
+    },
+    {
+      "bytes": 3366,
+      "git_blob": "1005fbeb28f7357d72b2952aca76108be5814aba",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/62e3aed660d3b882f0b426b8842bc040155fe72ca3eccd4c8a532e6e2e1eed66.gz"
+    },
+    {
+      "bytes": 7019,
+      "git_blob": "f0612807ac420f8fab43dbe2ed326598d5fddfd5",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/76808bafadbdf8f7a46c61fa3f73f77e571c12fb656a5cb935415b52b2f3838f.gz"
+    },
+    {
+      "bytes": 23961,
+      "git_blob": "9714bfc92b05eb6504702cc09ea01844f9bfc205",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/77cbefa707be2d0bad0470a5d5b7dce57daee06a86b1bd2b57fce12e9207482e.gz"
+    },
+    {
+      "bytes": 2491,
+      "git_blob": "5c2542a55bf079e7d7662ce3fd24f170d0badb29",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/78cc32e43bb37f8cab810eb9f2eb3515f3c6f90f0564d62fd071eb3211fc831c.gz"
+    },
+    {
+      "bytes": 206,
+      "git_blob": "7e61b148d046c0d36cde7bb27c62baddc9126eba",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/79d25080e99ddc746a48a4204cd28ce60515beddeb0a7ab414d296f5d0f0c0f8.gz"
+    },
+    {
+      "bytes": 3895,
+      "git_blob": "ed8109a2ad4ce5f6202274e88aa6992c741ee479",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/7a2a0b532035793485273128dd3afe156d6e2eaf64c4a6eec1ae89b811f9e0de.gz"
+    },
+    {
+      "bytes": 121,
+      "git_blob": "5e07a23150a9b4f302b6998fd26a6098ae586772",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/83542d2600045bba8cf0d5620c3abab604b4171da28c6d5c80be0a5164618480.gz"
+    },
+    {
+      "bytes": 17393,
+      "git_blob": "975d84262fa7ea243c3b599ec0105c016ea4a931",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/891b9ccd844b0da9210f52d6c86e06823230b9c8be65666fb61d724e5566e495.gz"
+    },
+    {
+      "bytes": 173,
+      "git_blob": "c3162104518e905e52fea1b51e34fad727b80fcf",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/8c2c7efc51b75f69a97bbf896aae9432673aba655e6a1e4bb555f152cec71013.gz"
+    },
+    {
+      "bytes": 213,
+      "git_blob": "4339b3763bb4edd04e9e621cfccad29fdabbd22b",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/917ec160b2682da5ae117ce8b9e0032f009c754a1a8177b8462313080cdb4a17.gz"
+    },
+    {
+      "bytes": 76,
+      "git_blob": "01a324ad03081023f231a65461cc767d5b00f689",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/a0e940f88f17fabed25f13376fb874daece85106817b498f1899ff7e4b611fa8.gz"
+    },
+    {
+      "bytes": 119,
+      "git_blob": "81d1d5ec706b748098343271636cc00c8ccf7d7d",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/a28ba238fc5cd88a7c4c37d9b2a6ea8726e1bb9de1176902b69853d9f359f526.gz"
+    },
+    {
+      "bytes": 122,
+      "git_blob": "46f9618ff19eacd0beb599a0a209dcdd25882958",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/a4d949acaa0be1ca6efbba3c980f333b683589014619a3e5e0c15965027f6580.gz"
+    },
+    {
+      "bytes": 24678,
+      "git_blob": "8b18ab0b19f0dd6f259e4648be207b1802e9fa90",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/a6430b33d203e0d75add0f1f38190f65c42ef56c9e08a1ae32e693614fc3023e.gz"
+    },
+    {
+      "bytes": 5158,
+      "git_blob": "6f90bb512064008e1d50f1a1d218496fd273cec3",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/abd531b3e9f580c7f5c208c358e87821c51470d3671367571c8a713f3885b441.gz"
+    },
+    {
+      "bytes": 275,
+      "git_blob": "6543d671b6a048d17e3c96a1372a0b43116c32fa",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/bf24a5e34a2b48214ec4b9ca0134803ee846c43ad6084a872eb927f70d340907.gz"
+    },
+    {
+      "bytes": 23952,
+      "git_blob": "81b8b65d0e4a6c72653166e014b2cebdd850ae03",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/c68cec855694473dbd801d1ca3172f81df2aef7aa7c0123004f9b2b8e7d1d656.gz"
+    },
+    {
+      "bytes": 130,
+      "git_blob": "447826e69171490eb5e840687c1733de21fea25a",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/c8b9b4136b647dd0268d1045b7a4e7971fad20b63646d117a78623f3da723c6b.gz"
+    },
+    {
+      "bytes": 24208,
+      "git_blob": "09074a1dca11d01941d6979e5bf9d3f49412d6e6",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/c8f89b34ecc5c0963f0b54cd08dbb1d78cb07e2d262ed826b9d5d003eac175db.gz"
+    },
+    {
+      "bytes": 91,
+      "git_blob": "369f4e0825210a95fee87ea9d6e600f01eae4620",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/c8fb76b2a54b3b5920e6686797950381638b6277f1b5f95076742bc38dcdb4d6.gz"
+    },
+    {
+      "bytes": 24060,
+      "git_blob": "9c3f737dc8593a33af1c087721332ad974c8571c",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/c997c498b36ab7793dc5b08781436e7a294773807f4bb7010b1a5ac066c181d9.gz"
+    },
+    {
+      "bytes": 24051,
+      "git_blob": "936271e5765eb0c0d866bc5c411621bcf43d9044",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/d5fcc8f9dcbd8bdd9b58b6cd5301698e0dc21efc2b3886729520abfa151711b8.gz"
+    },
+    {
+      "bytes": 1979,
+      "git_blob": "8472b7524f62fbff21b091f0be60aef57b24bf39",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/e32d2c0ef3ae504de0e16230e39237abf5b99f70fd8da0cbd42e653a0a311f3b.gz"
+    },
+    {
+      "bytes": 419,
+      "git_blob": "5926f184af249b30a7b8fc074c35671261754bf5",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/e3de013c1dfa22b4291be981de61e2efa26465dd55f92328454dbec322905d38.gz"
+    },
+    {
+      "bytes": 21765,
+      "git_blob": "9593513d669ac14aa2153ae4b6d77c6eb67fd0db",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/eecb1d0ec15f34f7ca565ff111f8d10467a7b063c07a0eb95a6810a668fa5b31.gz"
+    },
+    {
+      "bytes": 9604,
+      "git_blob": "1ffe318c00083107f313d1f09b3b0af2aa11f3a1",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/f4bc4eeb113dd61a1aa5bde66685cb8a7e0e5004ef84f8e6655d470c85705ae4.gz"
+    },
+    {
+      "bytes": 23581,
+      "git_blob": "2b9b9bd2edfec99f2152f4993666d2119d549386",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/f4c06fa1de00bc13f7406de8ea1f1034914c9cbe67ca9fb53a1b76a7a0f5747e.gz"
+    },
+    {
+      "bytes": 24676,
+      "git_blob": "697ab2b3a63f5ce87c8d207e03a899d8c9a6e9e9",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/fc8a1f3fe6410c5e9993845bebb48c3a6edb8755287bd850cfe2aaa51130bd2e.gz"
+    },
+    {
+      "bytes": 83168,
+      "git_blob": "9739aab3bbd2ff390f4ac3db3ff9a1aeaf84feab",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/manifest.json"
+    },
+    {
+      "bytes": 4076,
+      "git_blob": "c07a8368ef5d79fba3d9bc7f8c3cd48455a79d10",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/plan.json"
+    },
+    {
+      "bytes": 5947,
+      "git_blob": "d495dc4e4030f14970384d7c5b371ba871814652",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/repair-comparisons.json"
+    },
+    {
+      "bytes": 4349,
+      "git_blob": "b0b721b0c27731b01724dd81843e8c9515622a07",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/repair-execution.json"
+    },
+    {
+      "bytes": 98,
+      "git_blob": "45d6a807918bc8f618ac5a4533a14be62170c064",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/repair-native-physical-comparison.json"
+    },
+    {
+      "bytes": 5289,
+      "git_blob": "91eabac8f5ca0ce421001d1b072b8b4dbcde0726",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/replay.mm"
+    },
+    {
+      "bytes": 16621,
+      "git_blob": "b711346c9c27f149907155024aa55394de464cb4",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/restored-inputs.json"
+    },
+    {
+      "bytes": 4503,
+      "git_blob": "ace0bd3b9be68d0a214e37b60495bac9962f962f",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/run.py"
+    },
+    {
+      "bytes": 4578,
+      "git_blob": "3612ece6957c8b87bb0005ca19498d372db88f8e",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/run_mask_fix.py"
+    },
+    {
+      "bytes": 545,
+      "git_blob": "2e206a1003af6825d51fe55de715841ff202570a",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/status-flag-comparison.json"
+    },
+    {
+      "bytes": 1143,
+      "git_blob": "838054b5b464ed843c3c291bc0d629e85d6e05f7",
+      "path": "artifacts/crow-rl-quality-first-failure-20261108/status-metadata-plan.json"
+    }
+  ],
+  "omitted_logical_bytes": 7939493,
+  "open_handles": 0,
+  "preserved_input_prefixes": [
+    "artifacts/crow-rl-feeding-behavior-20261107/policies/",
+    "artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib",
+    "artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib"
+  ],
+  "remote_commit": "9f26d3ff272dc7755b9262395e02d2bc4a563f8e",
+  "status": "omitted"
+}
