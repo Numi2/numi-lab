@@ -1,0 +1,3 @@
+passed: 30 steps, 60 environment transitions; failures: [(13, 0), (14, 0), (26, 0), (27, 0), (27, 1)]
+failed histories restored; accepted histories kept; legacy retained visual writes; mixed steps 13 and 26 both environments changed
+q, v, scene, actor, status match old and repeated candidate; candidate history repeats byte-for-byte
