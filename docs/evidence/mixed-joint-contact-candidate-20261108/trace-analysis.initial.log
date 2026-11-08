@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-reconciliation-20261108/docs/evidence/mixed-joint-contact-candidate-20261108/analyze_trace.py", line 28, in <module>
+    assert abs(natural-reported)<2e-6 and natural<=2e-5 and normal<=2e-5 and cone<2e-5
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
