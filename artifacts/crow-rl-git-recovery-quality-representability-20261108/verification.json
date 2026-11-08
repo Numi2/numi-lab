@@ -1,0 +1,21 @@
+{
+  "actual_git_recovery_unique_contents_verified": 163,
+  "all_comparisons_passed": true,
+  "analysis_commands": 3,
+  "comparison_records": 80,
+  "executed_commands": 23,
+  "goal_complete": false,
+  "initial_handle_check_retained": "temporary-open-handles.json",
+  "limits": "Executed recovery repeats existing observations. Closure was initially blocked by observed handles; separate exact inventory and Git verification passed after that process exited. No compiler rebuild or new ecological qualification.",
+  "manifest": "artifacts/crow-rl-quality-representability-20261108/payload/manifest.json",
+  "manifest_sha256": "5ecd16c1ae04e86e6034d16e9103fa808ec0cae1a68cfdadcb1ebc8664e69f76",
+  "native_commands": 20,
+  "new_recovery_blobs": 28,
+  "open_handles": 0,
+  "physical_rows_exact": 624,
+  "policy_or_profile_promoted": false,
+  "restored_bytes": 25620799,
+  "restored_files": 215,
+  "temporary_bytes": 27713309,
+  "temporary_files": 348
+}
