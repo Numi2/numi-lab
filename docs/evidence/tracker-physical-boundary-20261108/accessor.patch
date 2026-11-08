@@ -1,0 +1,29 @@
+diff --git a/include/metalrobo/MetalHybridRenderer.hpp b/include/metalrobo/MetalHybridRenderer.hpp
+index 43c1428a1..58022dfaa 100644
+--- a/include/metalrobo/MetalHybridRenderer.hpp
++++ b/include/metalrobo/MetalHybridRenderer.hpp
+@@ -462,6 +462,9 @@ public:
+     // boundary. No observation plane is read back or reallocated.
+     [[nodiscard]] MetalHybridRendererDiagnostics reset();
+ 
++    // Scratch diagnostic only: borrowed, read-only device history.
++    [[nodiscard]] void* diagnosticHistory() const noexcept;
++
+ private:
+     struct State;
+     static bool beginObservation(void*, void*) noexcept;
+diff --git a/src/metal/MetalHybridRenderer.mm b/src/metal/MetalHybridRenderer.mm
+index 0dbdea775..f417187be 100644
+--- a/src/metal/MetalHybridRenderer.mm
++++ b/src/metal/MetalHybridRenderer.mm
+@@ -7423,6 +7423,10 @@ struct MetalHybridObjectTracker::State {
+     bool directWinnerMaskedDepth = false;
+ };
+ 
++void* MetalHybridObjectTracker::diagnosticHistory() const noexcept {
++    return state_ ? (__bridge void*)state_->history : nullptr;
++}
++
+ MetalHybridObjectTracker::MetalHybridObjectTracker()
+     : state_(std::make_unique<State>()) {}
+ 

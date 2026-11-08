@@ -1,0 +1,27 @@
+--- a/probe.cpp
++++ b/probe.cpp
+@@ -653,22 +653,11 @@
+                     auto* c=static_cast<CaptureOwner*>(opaque);
+                     c->tracker.finish(c->tracker.context,command,committed);
+                 }};
++            (void)measuredProgram;
+             MetalWorldStepConfig config;
+             config.timestepSeconds=0.02f; config.physicsSubsteps=4u;
+             config.actuationMode=MetalWorldActuationMode::implicitPositionDrive;
+-            config.taskProgram=run.task(); config.deviceObservationProgram=measuredProgram;
+-            config.devicePhysicsProgram={.context=&capture,
+-                .encode=[](void* opaque, const MetalWorldDevicePhysicsPass& pass) -> bool {
+-                    if (pass.phase != MetalWorldDevicePhysicsPhase::postCommit ||
+-                        pass.physicsSubstep + 1u != pass.physicsSubsteps) return true;
+-                    auto* c=static_cast<CaptureOwner*>(opaque);
+-                    id<MTLCommandBuffer> cmd=(__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+-                    id<MTLBlitCommandEncoder> blit=[cmd blitCommandEncoder];
+-                    if (!blit) return false;
+-                    [blit copyFromBuffer:c->history sourceOffset:0 toBuffer:c->snapshots
+-                        destinationOffset:(pass.controlStep*3u+2u)*c->bytes size:c->bytes];
+-                    [blit endEncoding]; return true;
+-                }, .abort=[](void*, void*) {}, .fingerprint=0x4341505455524531ull};
++            config.taskProgram=run.task(); config.deviceObservationProgram=trackerProgram;
+             config.deviceActionProgram={.context=&action,
+                 .encode=[](void* opaque, const MetalWorldDeviceActionPass& pass) noexcept -> bool {
+                     auto* owner = static_cast<ActionOwner*>(opaque);

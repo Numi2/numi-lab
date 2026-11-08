@@ -1,0 +1,70 @@
+--- a/probe.cpp
++++ b/probe.cpp
+@@ -624,13 +624,36 @@
+             id<MTLBuffer> snapshots = [diagnosticDevice newBufferWithLength:30u*3u*snapshotBytes
+                 options:MTLResourceStorageModeShared];
+             require(snapshots != nil, "diagnostic snapshot allocation");
++            id<MTLBuffer> backup = [diagnosticDevice newBufferWithLength:snapshotBytes options:MTLResourceStorageModePrivate];
++            require(backup != nil, "backup allocation");
++            NSString* restoreSource = @R"METAL(
++                #include <metal_stdlib>
++                using namespace metal;
++                kernel void restore(device float4* history [[buffer(0)]],
++                    device const float4* saved [[buffer(1)]],
++                    device const uint* world [[buffer(2)]],
++                    device const uint* contact [[buffer(3)]],
++                    uint id [[thread_position_in_grid]]) {
++                    uint env=id/6u;
++                    if (env<2u && (world[env*12u] != 0u || contact[env*72u] != 0u))
++                        history[id]=saved[id];
++                }
++            )METAL";
++            NSError* shaderError=nil;
++            id<MTLLibrary> restoreLibrary=[diagnosticDevice newLibraryWithSource:restoreSource options:nil error:&shaderError];
++            require(restoreLibrary != nil, "restore diagnostic shader compile");
++            id<MTLFunction> restoreFunction=[restoreLibrary newFunctionWithName:@"restore"];
++            id<MTLComputePipelineState> restorePipeline=[diagnosticDevice newComputePipelineStateWithFunction:restoreFunction error:&shaderError];
++            require(restorePipeline != nil, "restore diagnostic pipeline");
+             std::memset(snapshots.contents, 0, snapshots.length);
+             struct CaptureOwner {
+                 MetalWorldDeviceObservationProgram tracker;
+                 __strong id<MTLBuffer> history;
+                 __strong id<MTLBuffer> snapshots;
++                __strong id<MTLBuffer> backup;
++                __strong id<MTLComputePipelineState> restorePipeline;
+                 NSUInteger bytes;
+-            } capture{trackerProgram, trackerHistory, snapshots, snapshotBytes};
++            } capture{trackerProgram, trackerHistory, snapshots, backup, restorePipeline, snapshotBytes};
+             MetalWorldDeviceObservationProgram measuredProgram{
+                 .context=&capture,
+                 .encode=[](void* opaque, const MetalWorldDeviceObservationPass& pass) -> bool {
+@@ -643,7 +666,12 @@
+                             destinationOffset:(pass.controlStep*3u+phase)*c->bytes size:c->bytes];
+                         [blit endEncoding]; return true;
+                     };
+-                    return copy(0u) && c->tracker.encode(c->tracker.context,pass) && copy(1u);
++                    if (!copy(0u)) return false;
++                    id<MTLBlitCommandEncoder> backupBlit=[cmd blitCommandEncoder];
++                    if (!backupBlit) return false;
++                    [backupBlit copyFromBuffer:c->history sourceOffset:0 toBuffer:c->backup destinationOffset:0 size:c->bytes];
++                    [backupBlit endEncoding];
++                    return c->tracker.encode(c->tracker.context,pass) && copy(1u);
+                 },
+                 .begin=[](void* opaque, void* command) noexcept -> bool {
+                     auto* c=static_cast<CaptureOwner*>(opaque);
+@@ -663,6 +691,15 @@
+                         pass.physicsSubstep + 1u != pass.physicsSubsteps) return true;
+                     auto* c=static_cast<CaptureOwner*>(opaque);
+                     id<MTLCommandBuffer> cmd=(__bridge id<MTLCommandBuffer>)pass.commandBuffer;
++                    id<MTLComputeCommandEncoder> restore=[cmd computeCommandEncoder];
++                    if (!restore) return false;
++                    [restore setComputePipelineState:c->restorePipeline];
++                    [restore setBuffer:c->history offset:0 atIndex:0];
++                    [restore setBuffer:c->backup offset:0 atIndex:1];
++                    [restore setBuffer:(__bridge id<MTLBuffer>)pass.environmentStatuses offset:0 atIndex:2];
++                    [restore setBuffer:(__bridge id<MTLBuffer>)pass.contactStatuses offset:0 atIndex:3];
++                    [restore dispatchThreads:MTLSizeMake(12u,1u,1u) threadsPerThreadgroup:MTLSizeMake(12u,1u,1u)];
++                    [restore endEncoding];
+                     id<MTLBlitCommandEncoder> blit=[cmd blitCommandEncoder];
+                     if (!blit) return false;
+                     [blit copyFromBuffer:c->history sourceOffset:0 toBuffer:c->snapshots

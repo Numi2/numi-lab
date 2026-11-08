@@ -1,0 +1,149 @@
+--- a/apps/visual_platform_probe.cpp
++++ b/apps/visual_platform_probe.cpp
+@@ -188,10 +188,12 @@
+ 
+ int main() {
+     try {
++        auto diagnosticEpisode = metalrobo::makeFrankaPickPlaceEpisodeTwin();
++        diagnosticEpisode.sensors[0].depthDropout = 0.35f;
+         metalrobo::WorldTemplate worldTemplate;
+         require(
+             metalrobo::compileEpisodeTwin(
+-                metalrobo::makeFrankaPickPlaceEpisodeTwin(),
++                diagnosticEpisode,
+                 metalrobo::makeFrankaPickPlaceEngineModel(),
+                 worldTemplate
+             ),
+@@ -572,7 +574,8 @@
+             manifest.reality.id = "nominal_reality";
+             manifest.profile.id = "franka_probe";
+             manifest.profile.environmentCount = kEnvironmentCount;
+-            manifest.profile.controlSteps = 1u;
++            manifest.profile.capacities.rawContacts = 1u;
++            manifest.profile.controlSteps = 30u;
+             manifest.profile.physicsSubsteps = 4u;
+             manifest.profile.controlTimestepSeconds = 0.02f;
+             manifest.teacher.id = "no_teacher";
+@@ -595,10 +598,16 @@
+                 std::copy(run.model().defaultQ.begin(), run.model().defaultQ.end(), q.begin()+e*run.world().nq());
+                 scene.insert(scene.end(), run.defaultSceneBodies().begin(), run.defaultSceneBodies().end());
+             }
+-            std::vector<std::uint32_t> resetMasks(2u*kEnvironmentCount, 0u);
+-            MetalWorldBatch batch{.environmentCount=kEnvironmentCount, .controlStepCount=1u,
++            const auto sceneCount = run.defaultSceneBodies().size();
++            require(sceneCount == 4u, "unexpected scene body layout");
++            scene[0].position.z += 0.15f;
++            scene[3].position.z += 2.0f;
++            scene[sceneCount].position.z += 2.0f;
++            scene[sceneCount+3u].position.z += 2.0f;
++            std::vector<std::uint32_t> resetMasks(30u*kEnvironmentCount, 0u);
++            MetalWorldBatch batch{.environmentCount=kEnvironmentCount, .controlStepCount=30u,
+                 .initialQ=q, .initialV=v, .policyRevision=1u,
+-                .resetMasks=std::span<const std::uint32_t>{resetMasks.data(), kEnvironmentCount},
++                .resetMasks=resetMasks,
+                 .initialSceneBodies=scene};
+             const char* rejection = std::getenv("NUMI_TEST_REJECT_ACTION");
+             struct ActionOwner {
+@@ -608,10 +617,58 @@
+                 bool checkedLease = false;
+             } action{rejection == nullptr ? -1 : (std::strcmp(rejection, "second") == 0 ? 1 : 0),
+                      &renderer, &tracker};
++            id<MTLDevice> diagnosticDevice = MTLCreateSystemDefaultDevice();
++            id<MTLBuffer> trackerHistory = (__bridge id<MTLBuffer>)tracker.diagnosticHistory();
++            require(diagnosticDevice && trackerHistory, "diagnostic tracker history missing");
++            const NSUInteger snapshotBytes = trackerHistory.length;
++            id<MTLBuffer> snapshots = [diagnosticDevice newBufferWithLength:30u*3u*snapshotBytes
++                options:MTLResourceStorageModeShared];
++            require(snapshots != nil, "diagnostic snapshot allocation");
++            std::memset(snapshots.contents, 0, snapshots.length);
++            struct CaptureOwner {
++                MetalWorldDeviceObservationProgram tracker;
++                __strong id<MTLBuffer> history;
++                __strong id<MTLBuffer> snapshots;
++                NSUInteger bytes;
++            } capture{trackerProgram, trackerHistory, snapshots, snapshotBytes};
++            MetalWorldDeviceObservationProgram measuredProgram{
++                .context=&capture,
++                .encode=[](void* opaque, const MetalWorldDeviceObservationPass& pass) -> bool {
++                    auto* c=static_cast<CaptureOwner*>(opaque);
++                    id<MTLCommandBuffer> cmd=(__bridge id<MTLCommandBuffer>)pass.commandBuffer;
++                    auto copy=[&](NSUInteger phase) -> bool {
++                        id<MTLBlitCommandEncoder> blit=[cmd blitCommandEncoder];
++                        if (!blit) return false;
++                        [blit copyFromBuffer:c->history sourceOffset:0 toBuffer:c->snapshots
++                            destinationOffset:(pass.controlStep*3u+phase)*c->bytes size:c->bytes];
++                        [blit endEncoding]; return true;
++                    };
++                    return copy(0u) && c->tracker.encode(c->tracker.context,pass) && copy(1u);
++                },
++                .begin=[](void* opaque, void* command) noexcept -> bool {
++                    auto* c=static_cast<CaptureOwner*>(opaque);
++                    return c->tracker.begin(c->tracker.context,command);
++                },
++                .finish=[](void* opaque, void* command, bool committed) noexcept {
++                    auto* c=static_cast<CaptureOwner*>(opaque);
++                    c->tracker.finish(c->tracker.context,command,committed);
++                }};
+             MetalWorldStepConfig config;
+             config.timestepSeconds=0.02f; config.physicsSubsteps=4u;
+             config.actuationMode=MetalWorldActuationMode::implicitPositionDrive;
+-            config.taskProgram=run.task(); config.deviceObservationProgram=trackerProgram;
++            config.taskProgram=run.task(); config.deviceObservationProgram=measuredProgram;
++            config.devicePhysicsProgram={.context=&capture,
++                .encode=[](void* opaque, const MetalWorldDevicePhysicsPass& pass) -> bool {
++                    if (pass.phase != MetalWorldDevicePhysicsPhase::postCommit ||
++                        pass.physicsSubstep + 1u != pass.physicsSubsteps) return true;
++                    auto* c=static_cast<CaptureOwner*>(opaque);
++                    id<MTLCommandBuffer> cmd=(__bridge id<MTLCommandBuffer>)pass.commandBuffer;
++                    id<MTLBlitCommandEncoder> blit=[cmd blitCommandEncoder];
++                    if (!blit) return false;
++                    [blit copyFromBuffer:c->history sourceOffset:0 toBuffer:c->snapshots
++                        destinationOffset:(pass.controlStep*3u+2u)*c->bytes size:c->bytes];
++                    [blit endEncoding]; return true;
++                }, .abort=[](void*, void*) {}, .fingerprint=0x4341505455524531ull};
+             config.deviceActionProgram={.context=&action,
+                 .encode=[](void* opaque, const MetalWorldDeviceActionPass& pass) noexcept -> bool {
+                     auto* owner = static_cast<ActionOwner*>(opaque);
+@@ -665,10 +722,29 @@
+             require(r.succeeded() && submission.valid(), "retry submit: " + r.message);
+             MetalWorldResult result; r=submission.wait(result);
+             std::cout << "retry_wait=" << r.succeeded() << " failed_steps=" << r.failedStepCount << " message=" << r.message << '\n';
+-            require(r.succeeded() && r.failedStepCount==0u && action.checkedLease, "retry physical step failed");
++            std::cout << "published=" << r.published << " success_steps=" << r.successfulStepCount
++                      << " failure_steps=" << r.failedStepCount << " host_status=" << static_cast<int>(r.status)
++                      << " contact_status_count=" << result.contactStatuses.size() << "\n";
++            for (std::size_t i=0; i<result.contactStatuses.size(); ++i) {
++                const auto& s = result.contactStatuses[i];
++                std::cout << "contact[" << i << "] code=" << s.code << " required_raw=" << s.requiredRawContacts << "\n";
++            }
++            for (const auto& s : result.environmentStatuses) {
++                std::cout << "environment=" << s.environment << " code=" << s.code
++                          << " required_raw=" << s.required.rawContacts << " successful="
++                          << s.successfulControlSteps << " failed=" << s.failedControlSteps << "\n";
++            }
++            for (std::size_t i=0; i<result.transitions.size(); ++i) {
++                const auto& tr = result.transitions[i];
++                std::cout << "transition[" << i << "] done=" << tr.termination.x
++                          << " timeout=" << tr.termination.y << " physics_error=" << tr.termination.z
++                          << " reason=" << tr.termination.w << " reward=" << tr.rewardAndState.x << "\n";
++            }
++            require(r.published, "diagnostic rollout was not published");
++            require(action.checkedLease, "observation lease was not active");
+             HybridObservationBatch rendered; require(renderer.readback(rendered), "retry frame readback");
+             std::cout << "world_retry_sensor_sequence=" << rendered.metadata.identity.z << '\n';
+-            require(rendered.metadata.identity.z==(residentMode ? 1u : 0u),
++            require(rendered.metadata.identity.z==(residentMode ? 30u : 29u),
+                     "rejected world submission advanced sensor sequence");
+             if (const char* prefix = std::getenv("NUMI_TEST_RESULT_PREFIX")) {
+                 auto save = [prefix](const char* suffix, const auto& data) {
+@@ -681,6 +757,10 @@
+                 save(".q", result.finalQ); save(".v", result.finalV);
+                 save(".scene", result.finalSceneBodies); save(".actor", result.actorObservations);
+                 save(".status", result.statuses);
++                std::ofstream historyFile(std::string(prefix)+".history",std::ios::binary|std::ios::trunc);
++                historyFile.write(static_cast<const char*>(snapshots.contents),static_cast<std::streamsize>(snapshots.length));
++                historyFile.close(); require(historyFile.good(), "history snapshot write failed");
++                std::cout << "snapshot_bytes=" << snapshotBytes << " snapshot_count=90\n";
+                 std::cout << "saved_actor_values=" << result.actorObservations.size() << '\n';
+                 require(!result.actorObservations.empty(), "missing actor observations");
+             }
