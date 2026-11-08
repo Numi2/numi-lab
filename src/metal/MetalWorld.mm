@@ -20373,6 +20373,27 @@ MetalWorldContext& MetalWorldContext::operator=(
     MetalWorldContext&& other
 ) noexcept = default;
 
+void MetalWorldContext::clearResidentPolicyMemoryForEvaluation(
+    const MetalWorldResidentState& state,const MetalWorldStepConfig& config) const {
+    const auto resident=state.state_;
+    checkpoint::require(bool(resident),"Memory intervention requires a resident world");
+    const std::lock_guard residentLock(resident->mutex);
+    const auto context=resident->context;
+    checkpoint::require(bool(context),"Memory intervention context missing");
+    const std::lock_guard slotLock(context->mutex);
+    checkpoint::require(resident->ownerPool.lock()==pool_ && resident->initialized &&
+        !resident->pending && !context->inFlight &&
+        resident->stateArenaGeneration==context->stateArenaGeneration &&
+        context->checkpointSupported &&
+        context->checkpointExecutionIdentity==checkpointExecutionIdentity(config),
+        "Memory intervention requires matching quiescent successful checkpoint execution");
+    checkpoint::require(config.policyProgram.actorMemory()!=nullptr && context->actorMemory &&
+        context->actorMemory->healthy() &&
+        context->actorMemory->parameterFingerprint()==config.policyProgram.memoryParameterFingerprint(),
+        "Memory intervention requires the installed healthy recurrent policy");
+    context->actorMemory->reset();
+}
+
 std::vector<std::byte> MetalWorldContext::checkpointResident(
     const MetalWorldResidentState& state,const MetalWorldStepConfig& config) const {
     const auto resident=state.state_;checkpoint::require(bool(resident),"Cannot checkpoint an empty resident world");

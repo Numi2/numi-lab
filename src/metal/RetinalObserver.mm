@@ -29,6 +29,7 @@ struct RetinalObserverRuntime : std::enable_shared_from_this<RetinalObserverRunt
     mutable std::mutex mutex;
     std::uintptr_t activeToken=0;
     bool poisoned=false;
+    RetinalCueEvaluationIntervention cueIntervention=RetinalCueEvaluationIntervention::none;
     static bool encode(void* opaque,const MetalWorldDeviceObservationPass& pass) {
         auto s=static_cast<RetinalObserverRuntime*>(opaque)->shared_from_this();
         const std::lock_guard lock(s->mutex);
@@ -85,12 +86,25 @@ RetinalObserverContext::RetinalObserverContext(const CompiledRun& run,const Worl
     :RetinalObserverContext(run,family,scene,environments,seed,nullptr) {}
 RetinalObserverContext::RetinalObserverContext(const CompiledRun& run,const WorldFamily& family,
     const VisualSceneManifestV3& scene,unsigned environments,std::uint64_t seed,
-    const FiniteResourceContext* cueResources) {
+    const FiniteResourceContext* cueResources)
+    :RetinalObserverContext(run,family,scene,environments,seed,cueResources,
+        RetinalCueEvaluationIntervention::none) {}
+RetinalObserverContext::RetinalObserverContext(const CompiledRun& run,const WorldFamily& family,
+    const VisualSceneManifestV3& scene,unsigned environments,std::uint64_t seed,
+    const FiniteResourceContext* cueResources,RetinalCueEvaluationIntervention intervention) {
+    require(intervention==RetinalCueEvaluationIntervention::none ||
+        intervention==RetinalCueEvaluationIntervention::absent ||
+        intervention==RetinalCueEvaluationIntervention::swapBinary,
+        "Unknown retinal cue evaluation intervention");
     const auto* p=run.visualSensorProgram();
     require(run.valid() && p && p->retinal && environments>0 && MR_TASK_PROGRAM_HAS_RETINAL(run.task().header().articulation.z),
         "Retinal observer requires a compiled native retinal task");
     const auto& r=*p->retinal;const auto& sensors=family.worldTemplate.sensors;
     FiniteResourceDeviceView cueView;
+    if (intervention!=RetinalCueEvaluationIntervention::none) {
+        require(r.resourceCues.size()==2 && r.resourceCues[0].binding.y!=r.resourceCues[1].binding.y,
+            "Cue intervention requires two distinct native resource cues");
+    }
     if (!r.resourceCues.empty()) {
         require(cueResources,"Rendered resource cues require their actual native resource owner");
         cueView=cueResources->deviceView();const auto& c=cueView.config;
@@ -202,7 +216,13 @@ RetinalObserverContext::RetinalObserverContext(const CompiledRun& run,const Worl
         require(function!=nil,"Resource visual cue kernel v1 unavailable");NSError* error=nil;
         s->cuePipeline=[device newComputePipelineStateWithFunction:function error:&error];
         require(s->cuePipeline!=nil,"Resource visual cue pipeline creation failed");
-        s->cueBindings=[device newBufferWithBytes:r.resourceCues.data() length:r.resourceCues.size()*sizeof(MRFiniteResourceCueGPU) options:MTLResourceStorageModeShared];
+        auto cues=r.resourceCues;
+        if (intervention==RetinalCueEvaluationIntervention::absent)
+            for (auto& cue:cues) cue.binding.z=0;
+        if (intervention==RetinalCueEvaluationIntervention::swapBinary)
+            std::swap(cues[0].binding.y,cues[1].binding.y);
+        s->cueIntervention=intervention;
+        s->cueBindings=[device newBufferWithBytes:cues.data() length:cues.size()*sizeof(MRFiniteResourceCueGPU) options:MTLResourceStorageModeShared];
         s->cueVisibility=[device newBufferWithLength:std::size_t(environments)*instances*sizeof(std::uint32_t) options:MTLResourceStorageModePrivate];
         require(s->cueBindings!=nil && s->cueVisibility!=nil,"Resource visual cue buffer allocation failed");
         s->cueCounts={environments,instances,std::uint32_t(r.resourceCues.size()),1};
@@ -237,10 +257,16 @@ std::array<HybridObservationBatch,2> RetinalObserverContext::inspectImages() con
 
 std::vector<std::byte> RetinalObserverContext::checkpointState() const {
     const auto s=runtime_;const std::lock_guard lock(s->mutex);
-    require(!s->poisoned && !s->activeToken,"Retinal observer checkpoint requires quiescent successful work");return s->stream->checkpointState();
+    require(!s->poisoned && !s->activeToken,"Retinal observer checkpoint requires quiescent successful work");
+    require(s->cueIntervention==RetinalCueEvaluationIntervention::none,
+        "Intervened cue evaluation cannot publish a canonical retinal checkpoint");
+    return s->stream->checkpointState();
 }
 void RetinalObserverContext::restoreState(std::span<const std::byte> state) {
     const auto s=runtime_;const std::lock_guard lock(s->mutex);
-    require(!s->poisoned && !s->activeToken,"Retinal observer restore requires quiescent successful work");s->stream->restoreState(state);
+    require(!s->poisoned && !s->activeToken,"Retinal observer restore requires quiescent successful work");
+    require(s->cueIntervention==RetinalCueEvaluationIntervention::none,
+        "Intervened cue evaluation cannot restore a canonical retinal checkpoint");
+    s->stream->restoreState(state);
 }
 }

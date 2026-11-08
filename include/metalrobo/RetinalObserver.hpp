@@ -8,6 +8,9 @@
 namespace metalrobo {
 namespace detail {struct RetinalObserverRuntime;}
 class FiniteResourceContext;
+// Explicit paired causal evaluation of a fixed policy. Only cue mesh visibility
+// changes; food allocation, camera, rasterization and physical state stay native.
+enum class RetinalCueEvaluationIntervention { none, absent, swapBinary };
 // Two instantaneous head-camera renders in the caller's native command buffer,
 // then GPU area reduction/cadence/delay before actor inference. Truth planes
 // remain private to the renderer and are never accepted by RetinalStream.
@@ -20,6 +23,9 @@ public:
     RetinalObserverContext(const CompiledRun&,const WorldFamily&,
         const VisualSceneManifestV3&,std::uint32_t environments,std::uint64_t seed,
         const FiniteResourceContext* cueResources);
+    RetinalObserverContext(const CompiledRun&,const WorldFamily&,
+        const VisualSceneManifestV3&,std::uint32_t environments,std::uint64_t seed,
+        const FiniteResourceContext* cueResources,RetinalCueEvaluationIntervention);
     ~RetinalObserverContext();
     RetinalObserverContext(const RetinalObserverContext&)=delete;
     RetinalObserverContext& operator=(const RetinalObserverContext&)=delete;

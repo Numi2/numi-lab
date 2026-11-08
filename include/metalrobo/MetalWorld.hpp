@@ -1155,6 +1155,13 @@ public:
     [[nodiscard]] std::vector<std::byte> checkpointResident(
         const MetalWorldResidentState& state, const MetalWorldStepConfig& config
     ) const;
+    // Explicit causal evaluation intervention at a successful quiescent
+    // checkpoint boundary. Clears only actor GRU state/clock metadata; task,
+    // physics, held actions, sensor history and external resources are untouched.
+    // This is not an episode reset or a training warmup.
+    void clearResidentPolicyMemoryForEvaluation(
+        const MetalWorldResidentState& state, const MetalWorldStepConfig& config
+    ) const;
     void validateResidentCheckpoint(const CompiledWorld& world,
         const MetalWorldBatch& batch,const MetalWorldStepConfig& config,
         std::span<const std::byte> checkpoint) const;
