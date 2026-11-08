@@ -1,0 +1,21 @@
+{
+  "inputs": {
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/admitted128/initial-scene.bin": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/admitted128/scene.bin": "81b8384f87ddefdd45208b5c165f0b829bc5f2197b27428fc409d92b4b85fe89",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/admitted128/trace.tsv": "33ecfed7121e8e747d572fe916e26a0e74671689f9e390cb3407092a31dc3135",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/integrated32/initial-scene.bin": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/integrated32/scene.bin": "097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/integrated32/trace.tsv": "8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/integrated64/initial-scene.bin": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/integrated64/scene.bin": "9c4874502bbe49db34731f6c26342abddfd9e5d785452e60fdba4e7cb7ba8ec8",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/integrated64/trace.tsv": "c4ae12ae4ecf88097709192dce9353021696fa71394c598449b8b864b8fb4b4d"
+  },
+  "limits": "Control-boundary contact evidence samples only final substep; last sampled contact is not a certified intra-control release time. Scene object inferred uniquely from its initial z near .26685 and inverse mass4000.",
+  "observables": [
+    "head pitch and jaw angle at matched ticks",
+    "last solved jaw-contact sample then first sustained separation",
+    "scene COM velocities, angular velocities and mechanical kinetic energy",
+    "free-flight z acceleration versus -9.81 and energy drift"
+  ],
+  "purpose": "Analyze retained traces only: localize cadence disagreement to joint path, release time, free flight or impact. No physical run or parameter changes."
+}
