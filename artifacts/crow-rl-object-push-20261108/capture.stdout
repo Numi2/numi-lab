@@ -1,0 +1,10 @@
+Indexed 2000 committed archive blobs
+Indexed 4000 committed archive blobs
+Indexed 6000 committed archive blobs
+Indexed 8000 committed archive blobs
+Indexed 10000 committed archive blobs
+Indexed 12000 committed archive blobs
+Indexed 14000 committed archive blobs
+Mapped 2000 source files; added 131206784 compressed bytes
+{"files": 2428, "source_bytes": 625259923, "new_compressed_bytes": 131296939, "existing_archive_blobs_indexed": 14851, "unique_file_contents": 988}
+{"archive": "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-object-push-20261108", "raw_files": 2428}
