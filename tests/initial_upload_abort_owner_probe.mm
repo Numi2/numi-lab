@@ -1,6 +1,8 @@
 // A real MetalWorld owner rejection after immutable uploads are encoded.
 #include "metalrobo/FrankaWorld.hpp"
 #include "metalrobo/MetalWorld.hpp"
+#include "metalrobo/LearningPacks.hpp"
+#include "metalrobo/PolicyProgram.hpp"
 #include "metalrobo/RunProgram.hpp"
 #include <array>
 #include <fstream>
@@ -30,9 +32,12 @@ int main(int argc,char** argv){try{
  for(unsigned e=0;e<2;++e){q.insert(q.end(),run.model().defaultQ.begin(),run.model().defaultQ.begin()+nq);v.insert(v.end(),run.model().defaultV.begin(),run.model().defaultV.begin()+nv);scene.insert(scene.end(),run.defaultSceneBodies().begin(),run.defaultSceneBodies().end());}
  const auto n=run.defaultSceneBodies().size();require(n==4,"scene dimensions");
  for(unsigned e=0;e<2;++e){scene[e*n].position={3.f,0.f,3.f,0.f};scene[e*n+3].position={4.f,0.f,3.f,0.f};}
- std::array<std::uint32_t,2> masks{0,0};std::vector<float> actions(2*run.task().layout().actionCount,0.f);
- metalrobo::MetalWorldBatch batch{.environmentCount=2,.controlStepCount=1,.initialQ=q,.initialV=v,.actions=actions,.policyRevision=19,.resetMasks=masks,.initialSceneBodies=scene};
- metalrobo::MetalWorldStepConfig config{};config.timestepSeconds=.02f;config.physicsSubsteps=4;config.solverMode=metalrobo::MetalWorldSolverMode::temporalCone;config.actuationMode=metalrobo::MetalWorldActuationMode::implicitPositionDrive;config.taskProgram=run.task();config.taskSeed=20261108;config.velocityIterations=4;config.finalVelocityIterations=2;config.publishFinalState=true;
+ std::array<std::uint32_t,2> masks{0,0};
+ metalrobo::PolicyPack policy;policy.id="initial_upload_zero_policy";const auto& layout=run.task().layout();
+ policy.layers.push_back({.inputCount=layout.actorObservationSize,.outputCount=layout.actionCount,.activation=metalrobo::PolicyActivation::identity,.weights=std::vector<float>(layout.actorObservationSize*layout.actionCount,0.f),.bias=std::vector<float>(layout.actionCount,0.f)});
+ metalrobo::bindPolicyPack(policy,run.task());metalrobo::CompiledPolicyProgram compiledPolicy;auto policyResult=metalrobo::compilePolicyProgram(policy,run.task(),compiledPolicy);require(policyResult.succeeded()&&compiledPolicy.valid(),"policy compile");
+ metalrobo::MetalWorldBatch batch{.environmentCount=2,.controlStepCount=1,.initialQ=q,.initialV=v,.actions={},.policyRevision=compiledPolicy.revision(),.resetMasks=masks,.initialSceneBodies=scene};
+ metalrobo::MetalWorldStepConfig config{};config.timestepSeconds=.02f;config.physicsSubsteps=4;config.solverMode=metalrobo::MetalWorldSolverMode::temporalCone;config.actuationMode=metalrobo::MetalWorldActuationMode::implicitPositionDrive;config.taskProgram=run.task();config.policyProgram=compiledPolicy;config.taskSeed=20261108;config.velocityIterations=4;config.finalVelocityIterations=2;config.publishFinalState=true;
  Probe probe{};config.deviceObservationProgram={&probe,observe};metalrobo::MetalWorldConfig ctxConfig{};ctxConfig.metallibPath=argv[1];ctxConfig.preferPrivateHeaps=(storage=="private");metalrobo::MetalWorldContext ctx(ctxConfig);
  auto execute=[&](){metalrobo::MetalWorldSubmission ticket;metalrobo::MetalWorldResult result;auto d=ctx.submit(run.world(),batch,config,ticket);if(d.succeeded())d=ticket.wait(result);return std::pair{d,std::move(result)};};
  if(retry){probe.reject=true;auto [d,r]=execute();std::cout<<"rejected_status="<<(unsigned)d.status<<" published="<<d.published<<" calls="<<probe.calls<<"\n";require(!d.succeeded()&&!d.published&&probe.calls==1,"rejection missing");}
