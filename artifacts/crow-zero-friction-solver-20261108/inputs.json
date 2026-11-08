@@ -1,0 +1,40 @@
+{
+  "commands": [
+    [
+      "build/bin/metalrobo_metal_unified_quality_probe"
+    ],
+    [
+      "build/bin/metalrobo_metal_world_contact_probe"
+    ],
+    [
+      "crow-fixture",
+      "frictionless",
+      "3",
+      "1",
+      "32",
+      "2",
+      "api-default"
+    ],
+    [
+      "crow-fixture",
+      "normal",
+      "0",
+      "1",
+      "32",
+      "2",
+      "api-default"
+    ]
+  ],
+  "inputs": {
+    "build/bin/metalrobo_metal_unified_quality_probe": "df2f144721ff04692399afa7316ca7c88a189689acdbfb4358030ef570c0f687",
+    "build/bin/metalrobo_metal_world_contact_probe": "e8135dfeb1c529bae60043a6ae87b3c1a00eba40f6a284bd90325c5be6a6ea08",
+    "build/crow-zero-friction-build-01/crow-fixture": "9b21fd7c04cd6f3ba51dfc570d2dfc4e983bf5835b8589db1e40beecb4bb01d5",
+    "build/crow-zero-friction-build-01/runtime/libmetalrobo.dylib": "652f43415f24be1fce73eb91589e35d558d6dec7fb610965942239fc49771f61",
+    "build/crow-zero-friction-build-01/runtime/metalrobo/MetalRobo.metallib": "9c8b4ba7f4dbda0a0c39c561b875b3557e4490bdde3c7219fb391f6e2a6256e8",
+    "build/lib/libmetalrobo.dylib": "64a064c7792916c784e00f22d1851ac7f65f78ca1a8137a5e300cfed85410b00",
+    "build/shaders/MetalRobo.metallib": "9c8b4ba7f4dbda0a0c39c561b875b3557e4490bdde3c7219fb391f6e2a6256e8"
+  },
+  "schema": "crow-zero-friction-inputs-v1",
+  "seconds_per_fixture": 600,
+  "source_commit": "8123ff879"
+}
