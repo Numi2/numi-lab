@@ -1,0 +1,8 @@
+docs/evidence/rod-coupled-free-20261108/PLAN.md: OK
+docs/evidence/rod-coupled-free-20261108/free_reference.mm: OK
+src/metal/MetalCoupledRod.mm: OK
+src/metal/MetalCoupledRod.metal: OK
+include/metalrobo/coupled_rod_gpu.h: OK
+/Users/numi/numi-rod-integrated-build-20261108/metalrobo_coupled_rod_free_reference: OK
+/Users/numi/numi-rod-integrated-build-20261108/lib/libmetalrobo.dylib: OK
+/Users/numi/numi-rod-integrated-build-20261108/shaders/MetalRobo.metallib: OK

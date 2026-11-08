@@ -1,0 +1,5 @@
+# First free-end matrix: incomplete
+
+At source `dab39e301`, the 27-case free-end axial screen produced 24 passes and three nonpublished cases: all three radii at Young modulus 5e8 Pa and timestep 0.002 s. All other cases, free-fall, one-attachment rejection, invalid-gravity rejection and degenerate-geometry rejection passed. `first.log`, `first.stderr`, pretrial identities, postcheck and build log retain the complete run. The numerical gates were not relaxed. The initial instrument printed only publication status, so it cannot identify whether the three failures are solver nonconvergence or the state-conversion guard. No claim of complete free-end support is made.
+
+Follow up by printing the existing returned host/GPU statuses and message for every case, without changing solver inputs, algorithms or thresholds, then repeat the entire 27-case matrix. Compare the earlier fields for equality and retain all failures. If the instrument shows a specific numerical cause, formulate and register a distinct candidate before changing it; do not increase iteration budgets without diagnosis. Both experimental CCD and AL contact remain disabled.
