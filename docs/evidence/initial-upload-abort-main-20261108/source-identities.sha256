@@ -1,0 +1,4 @@
+04ceb7a8d24e2c3261dd3c9da959b1a93064b2cac98cdd9f0e518d12be7e2ab7  src/metal/MetalWorld.mm
+2bd132bb58e517fb0e644f76420aa3fefc0ae722bf6cff392568c4c69f17d2c3  tests/initial_upload_abort_owner_probe.mm
+b8e2cff682706de38d73083d90c87b69aee3e2e04fdc10ca2b59da6cce578b70  docs/evidence/initial-upload-abort-main-20261108/PLAN.md
+73657102686601d2280f97fef52abb138beaa2e1c8f2b1dadfbd90d953b343c2  docs/evidence/initial-upload-abort-main-20261108/run.py
