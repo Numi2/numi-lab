@@ -81,3 +81,8 @@ optimizer metrics match exactly;95 native behavior/binary files match; owning
 functions explain all12 relocated visual identities. The297132998-byte temporary
 workspace was validated closed/unchanged and removed. All1197 original evidence
 files (1450386822bytes) are verified from actual committed Git objects.
+
+After remote HEAD parity, actual Git verification and zero open handles,
+all1197 archived source files (1450386822logical bytes) were removed;
+see cleanup-receipt.json. The current native build and protected deployment
+remain available.

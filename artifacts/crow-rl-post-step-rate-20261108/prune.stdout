@@ -1,0 +1,29 @@
+{"verified_files": 1197, "verified_unique_contents": 583, "manifest_sha256": "13af03a8ee4692d69583126882c751fc89825571c5c6b96dcd080f984dde49e5", "commit": "6481b0e3e96ff788e879ae77666491db59fd954e"}
+{
+  "archive_commit": "6481b0e3e96ff788e879ae77666491db59fd954e",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300422420 156926720    66% 3498333 1569267200    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 301602780 155746360    66% 3499697 1557463600    0%   /System/Volumes/Data\n",
+  "manifest": "artifacts/crow-rl-post-step-rate-20261108/payload/manifest.json",
+  "manifest_sha256": "13af03a8ee4692d69583126882c751fc89825571c5c6b96dcd080f984dde49e5",
+  "open_handle_checks": [
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/runs/american-crow"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/retained-runtime"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": "build"
+    }
+  ],
+  "remote_commit": "6481b0e3e96ff788e879ae77666491db59fd954e",
+  "removed_files": 1197,
+  "removed_logical_bytes": 1450386822
+}
+
