@@ -1,0 +1,143 @@
+{
+  "schema": "numi.contact.p2.fixed-law.mesh-episode.v1",
+  "source_hashes": {
+    "n8_fine": "b92ee66251b0c3f2bf6ca67927f9aa097b5b5b9d76fa72f65c1a93286e21b100",
+    "n16_fine": "a5dfa28cb468fbd6174b2b3bcfd27676c80ca2c5d56a8588adcb1f6b49544b28",
+    "audit": "8b5a4a0f27c096625f43b15b73b2db2632bf0161c3ff238db5f3c56494a3d7be",
+    "spatial_analysis": "8aaa74099a316aa4b5626cb54d2bbc54890719f36dd6415247003f16c14a9a7c"
+  },
+  "sample_interval_s": 0.0001,
+  "n16_peak_force_bin_N": 0.09061396501283041,
+  "force_bins": [
+    {
+      "bin_start_s": 0.0,
+      "n8_force_N": 0.0,
+      "n16_force_N": 0.0,
+      "difference_N": 0.0,
+      "difference_over_n16_peak": 0.0,
+      "n8_cumulative_impulse_Ns": 0.0,
+      "n16_cumulative_impulse_Ns": 0.0
+    },
+    {
+      "bin_start_s": 0.001,
+      "n8_force_N": 0.0,
+      "n16_force_N": 0.0,
+      "difference_N": 0.0,
+      "difference_over_n16_peak": 0.0,
+      "n8_cumulative_impulse_Ns": 0.0,
+      "n16_cumulative_impulse_Ns": 0.0
+    },
+    {
+      "bin_start_s": 0.002,
+      "n8_force_N": 0.0,
+      "n16_force_N": 0.0,
+      "difference_N": 0.0,
+      "difference_over_n16_peak": 0.0,
+      "n8_cumulative_impulse_Ns": 0.0,
+      "n16_cumulative_impulse_Ns": 0.0
+    },
+    {
+      "bin_start_s": 0.003,
+      "n8_force_N": 0.0,
+      "n16_force_N": 0.0,
+      "difference_N": 0.0,
+      "difference_over_n16_peak": 0.0,
+      "n8_cumulative_impulse_Ns": 0.0,
+      "n16_cumulative_impulse_Ns": 0.0
+    },
+    {
+      "bin_start_s": 0.004,
+      "n8_force_N": 0.027024691413559464,
+      "n16_force_N": 0.02461969693280307,
+      "difference_N": -0.0024049944807563936,
+      "difference_over_n16_peak": -0.026541101919730147,
+      "n8_cumulative_impulse_Ns": 2.7024691413559463e-05,
+      "n16_cumulative_impulse_Ns": 2.4619696932803073e-05
+    },
+    {
+      "bin_start_s": 0.005,
+      "n8_force_N": 0.06433833026685692,
+      "n16_force_N": 0.06464969602924873,
+      "difference_N": 0.00031136576239181035,
+      "difference_over_n16_peak": 0.0034361785443085156,
+      "n8_cumulative_impulse_Ns": 9.136302168041639e-05,
+      "n16_cumulative_impulse_Ns": 8.92693929620518e-05
+    },
+    {
+      "bin_start_s": 0.006,
+      "n8_force_N": 0.06774438786474735,
+      "n16_force_N": 0.07075678830769919,
+      "difference_N": 0.0030124004429518403,
+      "difference_over_n16_peak": 0.03324432875799334,
+      "n8_cumulative_impulse_Ns": 0.00015910740954516375,
+      "n16_cumulative_impulse_Ns": 0.000160026181269751
+    },
+    {
+      "bin_start_s": 0.007,
+      "n8_force_N": 0.07557542457635114,
+      "n16_force_N": 0.07684161664404729,
+      "difference_N": 0.0012661920676961536,
+      "difference_over_n16_peak": 0.01397347602565309,
+      "n8_cumulative_impulse_Ns": 0.0002346828341215149,
+      "n16_cumulative_impulse_Ns": 0.00023686779791379827
+    },
+    {
+      "bin_start_s": 0.008,
+      "n8_force_N": 0.08743226330345472,
+      "n16_force_N": 0.0835512998592491,
+      "difference_N": -0.003880963444205618,
+      "difference_over_n16_peak": -0.042829639379052625,
+      "n8_cumulative_impulse_Ns": 0.0003221150974249696,
+      "n16_cumulative_impulse_Ns": 0.00032041909777304737
+    },
+    {
+      "bin_start_s": 0.009000000000000001,
+      "n8_force_N": 0.08616614023179367,
+      "n16_force_N": 0.09061396501283041,
+      "difference_N": 0.004447824781036738,
+      "difference_over_n16_peak": 0.04908542276465832,
+      "n8_cumulative_impulse_Ns": 0.0004082812376567633,
+      "n16_cumulative_impulse_Ns": 0.0004110330627858778
+    }
+  ],
+  "n8": {
+    "first_active_s": 0.0046,
+    "active_at_final_sample": true,
+    "active_episodes": [
+      {
+        "first_sample_s": 0.0046,
+        "last_sample_s": 0.01
+      }
+    ],
+    "min_gap64_m": 9.215791440545429e-05,
+    "min_J": 0.9681417568716604,
+    "final_contact_work_J": -6.463077779950471e-08,
+    "final_contact_energy_J": 6.463076866690848e-08
+  },
+  "n16": {
+    "first_active_s": 0.0046,
+    "active_at_final_sample": true,
+    "active_episodes": [
+      {
+        "first_sample_s": 0.0046,
+        "last_sample_s": 0.01
+      }
+    ],
+    "min_gap64_m": 9.452159170664382e-05,
+    "min_J": 0.9661490426253394,
+    "final_contact_work_J": -1.3981326971056657e-07,
+    "final_contact_energy_J": 1.3981319153569552e-07
+  },
+  "maximum_sampled_force_difference": {
+    "time_s": 0.0048,
+    "n8_N": 0.0009889624673365609,
+    "n16_N": 0.10649715696518885,
+    "difference_N": 0.1055081944978523
+  },
+  "registered_spatial_pass": false,
+  "limitations": [
+    "Descriptive sampled trace comparison only; no exact onset, release or unsampled clearance guarantee.",
+    "The fixed regularization is not a physical material calibration.",
+    "No causal attribution of the spatial discrepancy follows."
+  ]
+}
