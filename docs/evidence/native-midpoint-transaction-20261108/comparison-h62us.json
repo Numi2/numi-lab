@@ -1,0 +1,28 @@
+{
+  "cpu_contact_work_J": 6.884743567849987e-09,
+  "gates": {
+    "clearance": true,
+    "completed_all_steps": true,
+    "contact_law_0p01_percent": true,
+    "force_reference_0p25_percent": false,
+    "impulse_reference_0p25_percent": true,
+    "kinematics_m": true,
+    "local_momentum": true,
+    "matched_cpu_node_position_m": false,
+    "matched_cpu_node_velocity_mps": true,
+    "nonzero_contact": true,
+    "replay_and_restore": true
+  },
+  "independent_refined": {
+    "integrated_impulse_relative_error": 0.00235938406040224,
+    "max_binned_force_relative_to_peak": 0.01565419161571878
+  },
+  "matched_cpu": {
+    "integrated_impulse_relative_error": 3.947542935590755e-06,
+    "max_binned_force_relative_to_peak": 5.705738150772657e-05
+  },
+  "max_node_position_difference_m": 1.1852414494306629e-08,
+  "max_node_velocity_difference_mps": 4.624785040069357e-06,
+  "native_contact_work_J": 6.83745326149e-09,
+  "native_h": 6.25e-05
+}

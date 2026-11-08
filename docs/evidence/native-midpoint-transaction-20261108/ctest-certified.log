@@ -1,0 +1,37 @@
+Test project /Users/numi/numi-matter-midpoint-reference-build-20261108
+      Start  1: numi.contact.plane_area
+ 1/10 Test  #1: numi.contact.plane_area ....................   Passed    0.00 sec
+      Start  2: numi.contact.fem_fp64_energy_gradient
+ 2/10 Test  #2: numi.contact.fem_fp64_energy_gradient ......   Passed    0.00 sec
+      Start  3: numi.contact.fem_fp64_midpoint_discrete
+ 3/10 Test  #3: numi.contact.fem_fp64_midpoint_discrete ....   Passed    0.00 sec
+      Start  4: numi.contact.midpoint_balance
+ 4/10 Test  #4: numi.contact.midpoint_balance ..............   Passed    0.00 sec
+      Start  5: numi.contact.midpoint_endpoint_metal
+ 5/10 Test  #5: numi.contact.midpoint_endpoint_metal .......   Passed    0.02 sec
+      Start  6: numi.contact.midpoint_transaction
+ 6/10 Test  #6: numi.contact.midpoint_transaction ..........   Passed    0.00 sec
+      Start  7: numi.contact.fem_fp64_midpoint_reference
+ 7/10 Test  #7: numi.contact.fem_fp64_midpoint_reference ...   Passed    0.15 sec
+      Start  8: numi.contact.physical_policy
+ 8/10 Test  #8: numi.contact.physical_policy ...............   Passed    0.01 sec
+      Start  9: numi.contact.residual_restore
+ 9/10 Test  #9: numi.contact.residual_restore ..............   Passed   16.08 sec
+      Start 10: numi.contact.midpoint_native_transaction
+10/10 Test #10: numi.contact.midpoint_native_transaction ...***Failed    1.76 sec
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-matter-midpoint-reference-20261108/tests/contact/midpoint_native_regression.py", line 46, in <module>
+    inversion = run(common + ['ipc_area_midpoint', '1.0', 'physical', 'contact', 'reference', '1e16', '0', '24000', '10000'], False)
+  File "/Users/numi/numi-lab-matter-midpoint-reference-20261108/tests/contact/midpoint_native_regression.py", line 17, in run
+    assert x['restore_replay'] and x['continuation_replay']
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+
+
+90% tests passed, 1 tests failed out of 10
+
+Total Test time (real) =  18.03 sec
+
+The following tests FAILED:
+	 10 - numi.contact.midpoint_native_transaction (Failed)
+Errors while running CTest

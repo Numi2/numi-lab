@@ -1,0 +1,14 @@
+$ git rev-parse HEAD
+7dff38b7a0b05cec6b13493b46e1b94de9a685ea
+
+$ sw_vers
+ProductName:		macOS
+ProductVersion:		27.0
+BuildVersion:		26A425
+
+$ xcrun --version
+xcrun version 72.
+
+$ uname -a
+Darwin numi.local 27.0.0 Darwin Kernel Version 27.0.0: Tue Aug 11 21:06:15 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_T8152 arm64
+

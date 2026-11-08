@@ -1,0 +1,21 @@
+Test project /Users/numi/numi-matter-midpoint-reference-build-20261108
+    Start 10: numi.contact.midpoint_native_transaction
+    Test #10: numi.contact.midpoint_native_transaction ...   Passed    2.06 sec
+    Start 10: numi.contact.midpoint_native_transaction
+    Test #10: numi.contact.midpoint_native_transaction ...   Passed    1.77 sec
+    Start 10: numi.contact.midpoint_native_transaction
+    Test #10: numi.contact.midpoint_native_transaction ...   Passed    1.74 sec
+    Start 10: numi.contact.midpoint_native_transaction
+    Test #10: numi.contact.midpoint_native_transaction ...   Passed    1.74 sec
+    Start 10: numi.contact.midpoint_native_transaction
+    Test #10: numi.contact.midpoint_native_transaction ...   Passed    1.75 sec
+    Start 10: numi.contact.midpoint_native_transaction
+    Test #10: numi.contact.midpoint_native_transaction ...   Passed    1.76 sec
+    Start 10: numi.contact.midpoint_native_transaction
+    Test #10: numi.contact.midpoint_native_transaction ...   Passed    1.77 sec
+    Start 10: numi.contact.midpoint_native_transaction
+1/1 Test #10: numi.contact.midpoint_native_transaction ...   Passed    1.76 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =  14.35 sec
