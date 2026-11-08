@@ -1,0 +1,14 @@
+{
+  "command": [
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-20261108/probe",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-20261108/metalrobo/MetalRobo.metallib",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-build-01/native.tsv"
+  ],
+  "exit_code": 0,
+  "loader_lines": [
+    "dyld[34288]: <4D68CA38-6DDA-3802-BB55-2A7181993869> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-20261108/libmetalrobo.dylib"
+  ],
+  "plan_sha256": "856f07aa25e74fbdb8ff7df354c5249e438194b6d856861488e9367a1ad16a3b",
+  "seconds": 0.668782417,
+  "source_commit": "978151ad4557bcfe006ff883b033ad856ad32894"
+}

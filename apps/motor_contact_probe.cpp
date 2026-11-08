@@ -75,5 +75,49 @@ void execute(const char* shader,const char* output,bool followup){
  }
  need(accepted==96,"Native slider sample budget mismatch");std::cout<<"96 accepted native slider conditions completed\n";
 }
+void addMotorIR(EngineModel& m,float h,float target){
+ const float denominator=8+h*300;
+ const std::array<ConstraintIREndpoint,1> endpoints{makeConstraintIRGeneralizedEndpoint(0,0,0,0,1)};
+ ConstraintIRRow row{};row.targetVelocity=300*target/denominator;row.compliance=h/denominator;row.impulseLower=-h*.01f;row.impulseUpper=h*.01f;
+ const std::array<ConstraintIRRow,1> rows{row};const std::array<float,1> warm{0};
+ ConstraintIRSourceBlock source{};source.key.words[0]=0x4d4f5452;source.endpoints=endpoints;source.rows=rows;source.warmImpulses=warm;
+ const auto ir=compileConstraintIR(std::span(&source,1));need(ir.succeeded(),"Motor IR compilation failed: "+ir.diagnostics.message);m.constraintProgram=ir.ir;
 }
-int main(int argc,char** argv){try{if(argc==2&&std::string(argv[1])=="--calibrate"){calibrate();return 0;}need(argc==3||argc==4,"Usage: motor-contact-probe --calibrate OR METALLIB NEW_TSV [--followup]");need(argc!=4||std::string(argv[3])=="--followup","Unknown selector");execute(argv[1],argv[2],argc==4);return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}
+void calibrateIR(){
+ double maxForceError=0;unsigned cases=0;
+ for(unsigned variant:{2u,3u})for(float h:{.000375f,.00075f,.000875f})for(float target:{-.00003f,-.00008f,-.003f,.00003f}){
+  auto m=model(variant,false);const double M=mass(m);addMotorIR(m,h,target);CompiledWorld w;const auto c=compileMetalWorld(m,0,w);need(c.succeeded(),"Motor IR host compilation failed: "+c.message);
+  const auto& row=m.constraintProgram.rows[0];const double reg=double(row.compliance)/(double(h)*h);
+  // Independently derive the physical free motor impulse and the row's KKT law.
+  const double expected=std::clamp(double(h)*300*target/(M+double(h)*8+double(h)*h*300),-double(h)*.01/M,double(h)*.01/M);
+  const double impulse=std::clamp((double(row.targetVelocity)-expected)/reg,double(row.impulseLower),double(row.impulseUpper));
+  maxForceError=std::max(maxForceError,std::abs(impulse/double(h)-M*expected/double(h)));++cases;
+ }
+ need(maxForceError<1e-7,"Motor IR analytic reference gate failed");std::cout<<std::setprecision(17)<<"{\"conditions\":"<<cases<<",\"maximum_force_mapping_error_N\":"<<maxForceError<<"}\n";
+}
+void executeCoupled(const char* shader,const char* output){
+ MetalWorldConfig cfg;cfg.metallibPath=shader;MetalWorldContext context(cfg);std::ofstream out(output);need(bool(out),"Cannot create coupled output");
+ out<<std::setprecision(17)<<"variant\tcontact\tarm\tlane\th\tmass\ttarget\tq\tv\tapplied_force\tfinal_law_force\tcontact_impulse_y\tmotor_impulse\tmomentum_residual\tq_residual\tcontacts\tquality_optimality\tquality_feasibility\n";unsigned accepted=0;
+ for(unsigned variant:{2u,3u})for(float h:{.000375f,.00075f,.000875f})for(bool contact:{false,true})for(unsigned lane=0;lane<4;++lane)for(unsigned arm=0;arm<3;++arm){
+  const std::array<float,4> targets{-.00003f,-.00008f,-.003f,.00003f};const float target=targets[lane];auto m=model(variant,contact);m.materials[0].friction={.5f,.5f,0,0};const double M=mass(m);
+  if(arm==2)addMotorIR(m,h,target);
+  CompiledWorld world;const auto c=compileMetalWorld(m,0,world);need(c.succeeded(),c.message);
+  std::array<float,1> q{},v{},effort{arm==0?target:arm==1?float(std::clamp(300*double(target)/(1+(double(h)*8+double(h)*h*300)/M),-.01,.01)):0};
+  MRBodyStateGPU scene{};scene.position.w=scene.orientation.w=1;scene.flagsAndIndices[0]=MR_MOTION_STATIC;scene.flagsAndIndices[1]=MR_INVALID_INDEX;scene.flagsAndIndices[2]=0;
+  const MetalWorldBatch batch{.environmentCount=1,.controlStepCount=1,.initialQ=q,.initialV=v,.efforts=effort,.initialSceneBodies=std::span(&scene,1)};
+  MetalWorldStepConfig s;s.timestepSeconds=h;s.physicsSubsteps=1;s.applyBodyDamping=false;s.ccdMode=MetalWorldCCDMode::disabled;s.solverMode=arm==0?MetalWorldSolverMode::temporalCone:MetalWorldSolverMode::qualityNewton;s.actuationMode=arm==0?MetalWorldActuationMode::boundedPositionDrive:MetalWorldActuationMode::effort;s.warmStart=false;s.captureContactEvidence=true;s.matrixFreeArticulatedContact=false;s.streamedArticulatedContactResponses=false;s.velocityIterations=s.finalVelocityIterations=8;s.quality.optimalityTolerance=1e-7f;s.quality.feasibilityTolerance=1e-7f;
+  std::cout<<"begin variant="<<variant<<" h="<<h<<" contact="<<contact<<" lane="<<lane<<" arm="<<arm<<'\n'<<std::flush;
+  MetalWorldResult r;const auto d=context.run(world,batch,s,r);
+  if(!d.succeeded()){std::cerr<<"host="<<unsigned(d.status)<<" gpu="<<d.firstGPUStatusCode<<" message="<<d.message;if(!r.contactStatuses.empty()){const auto& z=r.contactStatuses[0];std::cerr<<" contact_code="<<z.code<<" constraint="<<z.firstFailingConstraint<<" residuals="<<z.residuals.x<<','<<z.residuals.y<<','<<z.residuals.z<<','<<z.residuals.w;}std::cerr<<'\n';}
+  need(d.succeeded()&&d.successfulStepCount==1&&!d.failedStepCount,"Native coupled invocation failed");
+  need(r.finalQ.size()==1&&r.finalV.size()==1&&r.accelerations.size()==1&&r.contactStatuses.size()==1,"Missing coupled measurement");++accepted;
+  const auto& status=r.contactStatuses[0];double p=0,motor=0;
+  for(unsigned i=0;i<status.requiredConstraints;++i){const auto& row=r.contactEvidence.contacts[i];if((row.flags&MR_CONSTRAINT_FLAG_GENERALIZED)!=0){motor+=row.impulses.x;continue;}const double sign=row.bodyB==2?1:row.bodyA==2?-1:0;need(sign!=0,"Invalid contact incidence");p+=sign*row.normal.y*row.impulses.x;}
+  const double force=arm==2?motor/h:M*r.accelerations[0],law=std::clamp(300*(double(target)-r.finalQ[0])-8*r.finalV[0],-.01,.01),balance=M*r.finalV[0]-h*force-p,qr=r.finalQ[0]-double(h)*r.finalV[0];
+  out<<variant<<'\t'<<contact<<'\t'<<arm<<'\t'<<lane<<'\t'<<h<<'\t'<<M<<'\t'<<target<<'\t'<<r.finalQ[0]<<'\t'<<r.finalV[0]<<'\t'<<force<<'\t'<<law<<'\t'<<p<<'\t'<<motor<<'\t'<<balance<<'\t'<<qr<<'\t'<<status.requiredConstraints<<'\t'<<status.residuals.y<<'\t'<<status.residuals.z<<'\n'<<std::flush;
+  need(std::isfinite(force)&&std::isfinite(law)&&std::abs(balance)<=2e-9&&std::abs(qr)<=2e-9,"Coupled force/momentum validity gate failed");
+ }
+ need(accepted==144,"Coupled sample budget mismatch");std::cout<<"144 accepted native coupled comparison conditions completed\n";
+}
+}
+int main(int argc,char** argv){try{if(argc==2&&std::string(argv[1])=="--calibrate-ir"){calibrateIR();return 0;}if(argc==4&&std::string(argv[3])=="--coupled"){executeCoupled(argv[1],argv[2]);return 0;}if(argc==2&&std::string(argv[1])=="--calibrate"){calibrate();return 0;}need(argc==3||argc==4,"Usage: motor-contact-probe --calibrate OR METALLIB NEW_TSV [--followup]");need(argc!=4||std::string(argv[3])=="--followup","Unknown selector");execute(argv[1],argv[2],argc==4);return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

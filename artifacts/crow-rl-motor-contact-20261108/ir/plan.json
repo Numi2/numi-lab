@@ -1,0 +1,74 @@
+{
+  "arms": {
+    "0": "original bounded smooth motor + temporalCone",
+    "1": "analytic original free motor force as fixed direct effort + qualityNewton",
+    "2": "bounded motor ConstraintIR row + qualityNewton"
+  },
+  "budget": {
+    "accepted_native_conditions": 144,
+    "artifact_growth_max_bytes": 2000000,
+    "native_commands": 1,
+    "timeout_seconds": 120
+  },
+  "calibration": {
+    "conditions": 24,
+    "maximum_force_mapping_error_N": 3.395446875054109e-10
+  },
+  "command": [
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-20261108/coupled-probe",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-20261108/metalrobo/MetalRobo.metallib",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-build-01/coupled.tsv",
+    "--coupled"
+  ],
+  "dynamic_library": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-20261108/libmetalrobo.dylib",
+  "equations": {
+    "lambda_motor": "clip(h*(K*(target-q0)-(D+h*K)*v), -h*cap, h*cap)",
+    "momentum": "M*(v1-v0)=lambda_motor+contact_impulse",
+    "q1": "q0+h*v1",
+    "row_compliance": "h/(D+h*K)",
+    "row_target": "K*(target-q0)/(D+h*K)"
+  },
+  "held_fixed": {
+    "body_damping": false,
+    "ccd": "disabled",
+    "friction": 0.5,
+    "friction_rationale": "Both tangential Jacobians are zero for the 1-DoF vertical slider. Positive friction is required by the current quality cone adapter; it is identical in all three arms and cannot produce generalized tangential work.",
+    "gravity": [
+      0,
+      0,
+      0
+    ],
+    "initial_q_v": [
+      0,
+      0
+    ],
+    "masses_and_steps": "Unused parent follow-up: two masses .007/.019 with armatures .001/.002; three steps .000375/.00075/.000875; four targets -.00003/-.00008/-.003/+.00003.",
+    "quality_optimality_and_feasibility_tolerance": 1e-07,
+    "warm_start": false
+  },
+  "independent_unit": "One model/mass/step/target/contact initial condition, paired across3 arms. Lanes/related conditions are not statistical replicates.",
+  "limits": "Single-DoF fixed-root frictionless-in-generalized-motion engineering mechanism. No dry-friction, hybrid CCD, multi-joint, crow, biological, learning or throughput qualification.",
+  "parent_analysis_sha256": "2f2fa2ff386b0215048011300e23f4faba5e8de2b43e02d5dd45e6df55138345",
+  "parent_plan_sha256": "856f07aa25e74fbdb8ff7df354c5249e438194b6d856861488e9367a1ad16a3b",
+  "parent_result": [
+    0.13441531950301638,
+    0.6240601308632807
+  ],
+  "policy_or_profile_promoted": false,
+  "prediction": "All candidate force-law errors <=1e-7 N, momentum residuals <=2e-9 Ns and q-hv residuals <=2e-9 m; >=99% reduction in motor-law error in each of six contact lane-0 primary conditions. Frozen-force quality control remains within1e-7 N of split force, showing a solver change alone does not restore motor feedback.",
+  "purpose": "Controlled model revision on unused deterministic slider conditions.",
+  "revision": "Replace the one-way split with a bounded scalar motor impulse in the existing canonical ConstraintIR and solve jointly with contacts through native qualityNewton. This fixture authors the row per registered step; runtime crow integration is not established.",
+  "schema": "crow-scientific-plan-v1",
+  "source_and_runtime_sha256": {
+    ".numi/retained-runtime/motor-contact-20261108/coupled-probe": "36f902347d9dea3338ccb7937c275b3de96b151b7e06ab536ea5378953698ee9",
+    ".numi/retained-runtime/motor-contact-20261108/libmetalrobo.dylib": "b24ad4015c718e0c688eaf95b4b207ceacafa9f650f20894fefa5581b1698fd5",
+    ".numi/retained-runtime/motor-contact-20261108/metalrobo/MetalRobo.metallib": "6eb48053118d0e54850d21241e499100787de13af84e54e5b48ddc8130876be2",
+    "CMakeLists.txt": "bc43495b80b53b9d8feb9be952afb2a8c7efe7350cedda8c0049a4164e899769",
+    "apps/motor_contact_probe.cpp": "b94690d0e6694d70aad564b0b4ac7d36890264dd708cacae2628214bf40d7292",
+    "artifacts/crow-rl-motor-contact-20261108/ir/prediction.json": "47e082ba9b711e3cab26306712d46f20deb56c78e36f8931ccd664731a97bd76",
+    "artifacts/crow-rl-motor-contact-20261108/ir/theory.py": "a0498e3bdfdf8d908cebb7cc25fa0671a114e92423465ec64491cc9bc619a872",
+    "build/crow-motor-contact-build-01/ir-calibration-v2.stdout": "6e0fe308690afd1db01ebd5fad8805d02f5dc6ffabf9ae48a8259bd9c3fff405"
+  },
+  "stop_rule": "Stop on first unexpected native rejection, measurement validity failure, timeout or identity mismatch. A solver rejection contradicts the all-accepted candidate prediction; preserve partial evidence and do not silently relax tolerances.",
+  "unused_next": "Additional masses, drive coefficients, nonzero initial velocity, dry friction, coupled joints and native per-segment target refresh remain unobserved."
+}
