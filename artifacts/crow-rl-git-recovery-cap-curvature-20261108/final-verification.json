@@ -1,0 +1,31 @@
+{
+  "current_runtime_sha256": {
+    "build/bin/metalrobo_metal_unified_quality_probe": "df2f144721ff04692399afa7316ca7c88a189689acdbfb4358030ef570c0f687",
+    "build/bin/metalrobo_motor_contact_probe": "746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2",
+    "build/lib/libmetalrobo.dylib": "1368fa931e24c336953fcda6fb904734391f3ebe56063dd53eb237bcc1a3bbc6",
+    "build/shaders/MetalRobo.metallib": "91416d391489b37c1c79918c1ec51ad81dbaa26ef99e6536f8a57d9f720cf8d7"
+  },
+  "data_available_GiB": 149.73523330688477,
+  "df": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300340368 157008772    66% 3498352 1570087720    0%   /System/Volumes/Data\n",
+  "goal_complete": false,
+  "manifest_sha256": "2144c499c41628bc37c1dfc390934595e727716099289b624906d2eeed773eaa",
+  "original_files_verified": 138,
+  "original_unique_contents_verified": 69,
+  "own_native_workers": [],
+  "policy_promoted": false,
+  "production_paths": [
+    "apps/metal_unified_quality_probe.cpp",
+    "docs/NUMERICS.md",
+    "src/metal/MetalUnifiedQualitySolver.metal"
+  ],
+  "protected_policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+  "raw_and_temporary_scopes_absent": [
+    "build/crow-cap-curvature-build-01",
+    "build/crow-cap-curvature-git-recovery-01"
+  ],
+  "recovery_files_verified": 276,
+  "recovery_unique_contents_verified": 112,
+  "remote_commit": "8b123b58df0a28f0f184a155469a883ce769c8d1",
+  "shared_git_provider": "/Users/n/MetalRobo-main/.git",
+  "verification_commit": "8b123b58df0a28f0f184a155469a883ce769c8d1"
+}
