@@ -1861,3 +1861,12 @@ original bytes are separately recovered, and the original strict failed
 verification is retained. Evidence and scoped recovery receipts are in
 `artifacts/crow-rl-ccd-sphere-box-20261108`. Native advancement/event diagnosis
 continues before learning-rate tuning or further behavioral qualification.
+
+
+The optional post-submission CCD capture (`f9c5108b`) passes its success-path
+control and reproduces the known failure with all4canonical outputs and
+41model/Adam arrays unchanged. Its13,968B capture is rejected by isolated
+replay admission: later encoded passes overwrite transient candidates/events;
+pair100 is absent. This negative result is preserved in
+`artifacts/crow-rl-ccd-postsubmission-capture-20261108`. Protected capture inside
+the GPU resolver is required before an advancement/event diagnosis.

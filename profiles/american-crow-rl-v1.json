@@ -959,6 +959,17 @@
       "adaptive_LR_selected": false,
       "learned_manipulation_qualified": false,
       "next": "Capture failed projected sweep and event state; require isolated native replay and independent advancement/event regression before another learning trial."
+    },
+    "postsubmission_CCD_capture": {
+      "evidence": "artifacts/crow-rl-ccd-postsubmission-capture-20261108",
+      "status": "replay_admission_prediction_contradicted",
+      "original_failure_exact": true,
+      "original_canonical_training_files_exact": 4,
+      "model_Adam_arrays_exact": 41,
+      "snapshot_bytes": 13968,
+      "failed_candidate_present": false,
+      "causal_failed_sweep_replay_qualified": false,
+      "next": "Protected first-failure capture inside GPU resolver; exact isolated replay before causal diagnosis or repair."
     }
   }
 }

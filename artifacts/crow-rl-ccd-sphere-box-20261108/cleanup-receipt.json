@@ -1,0 +1,27 @@
+{
+  "archive_commit": "9edee0b16dffa92ac240735d6c693c14e909a783",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300127028 157222112    66% 3496998 1572221120    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300417560 156931580    66% 3497245 1569315800    0%   /System/Volumes/Data\n",
+  "manifest": "artifacts/crow-rl-ccd-sphere-box-20261108/manifest.json",
+  "manifest_sha256": "f770f397683284c20fae58dd2121430a5440feb6e55152a593af9f4c43263fb2",
+  "open_handle_checks": [
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/runs/american-crow"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/retained-runtime"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": "build"
+    }
+  ],
+  "remote_commit": "9edee0b16dffa92ac240735d6c693c14e909a783",
+  "removed_files": 224,
+  "removed_logical_bytes": 296880995
+}
