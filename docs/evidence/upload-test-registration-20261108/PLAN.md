@@ -1,0 +1,3 @@
+# Registered upload abort runner check
+
+CMake configuration lists both new upload-abort tests. Execute the same registered Python runner against the pinned already-built candidate executables and shader: first initial-cache control/retry, then nonempty-cache control/retry, each under the runner 120-second per-process limit. Record results and pre/post hashes. This checks test wiring and candidate-owner behavior; it is not a full fresh CMake rebuild. Prior matrices retain individual process results and raw outputs. The shared fixture, excluded program families, post-commit errors, mixed sensor state and cost remain outside this gate.
