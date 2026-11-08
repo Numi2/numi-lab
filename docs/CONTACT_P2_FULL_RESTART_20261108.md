@@ -119,3 +119,27 @@ and the external-stop explanation are preserved. The attempt overlapped
 coordinated correctness work and supplies no performance result. A new
 attempt requires stable disk headroom and separately sealed disk-space and
 phase-transition guards.
+
+## Disk-guarded restart registration
+
+The full n8 scalar JSON was 17,726 bytes; the interrupted n16 coarse run
+produced about 39 KiB of monitor logs in 1,088 s. Even accounting for the
+longer declared timeouts, the pair's own scalar outputs and logs are
+expected to use less than a few MiB. Other system, swap, build and filesystem
+activity is not bounded by this estimate.
+
+Use a new evidence directory and require at least 5 GiB of filesystem
+available space at each phase's startup. Sample available bytes every second
+with statvfs and stop the active process group below 2 GiB or immediately on
+a disk-monitor failure. Keep all previously declared CPU, RSS, pressure,
+swap and wall guards. Coarse and fine require separate explicit invocations;
+fine verifies a successful coarse manifest, its output hash and the same
+source, model, reference and passing prerequisite hashes. A phase refuses to
+overwrite existing artifacts. The output and resource logs are not
+checkpoints: a stopped phase cannot be resumed. Retain this registration and
+the interrupted attempt even if a later attempt passes.
+
+Do not start while headroom remains below the startup threshold. Coordinate
+the phase and host use before launching; other owners may continue bounded
+correctness work, subject to the pressure and disk guards. These safeguards
+reduce risk but do not bound disk writes by other processes between polls.
