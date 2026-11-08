@@ -46,3 +46,18 @@ if(BUILD_TESTING)
   "$<TARGET_FILE:metalrobo_ccd_kinematic_rollback_probe>" "${METALROBO_METALLIB}")
  set_tests_properties(metalrobo.ccd.kinematic_rollback PROPERTIES TIMEOUT 180)
 endif()
+
+foreach(_upload_case initial nonempty)
+ add_executable(metalrobo_${_upload_case}_upload_abort_probe
+  "${NUMI_WORLD_ROOT}/tests/${_upload_case}_upload_abort_owner_probe.mm")
+ target_compile_options(metalrobo_${_upload_case}_upload_abort_probe PRIVATE -fobjc-arc)
+ target_link_libraries(metalrobo_${_upload_case}_upload_abort_probe PRIVATE numi_ccd_world_owner)
+ target_link_options(metalrobo_${_upload_case}_upload_abort_probe PRIVATE -Wl,-dead_strip)
+ add_dependencies(metalrobo_${_upload_case}_upload_abort_probe metalrobo_shaders)
+ if(BUILD_TESTING)
+  add_test(NAME metalrobo.upload_abort.${_upload_case}
+   COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/upload_abort_regression.py"
+   "$<TARGET_FILE:metalrobo_${_upload_case}_upload_abort_probe>" "${METALROBO_METALLIB}")
+  set_tests_properties(metalrobo.upload_abort.${_upload_case} PROPERTIES TIMEOUT 300)
+ endif()
+endforeach()

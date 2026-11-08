@@ -1,0 +1,3 @@
+# Unchanged shared-storage baseline control
+
+The candidate shared control in the prior exact-policy matrix failed before its callback with a CPU upload error. Run the exact same pinned test and shader with the unmodified current-main-baseline executable, privateHeap preference disabled, as one no-retry control. This separately registered test establishes whether the identical setup reaches callback and validated success or exhibits the same preexisting error. It does not qualify shared-storage retry, guard behavior, other fixtures or physical accuracy. One process, 120 seconds, pre/post hash checks, retain all outcomes.

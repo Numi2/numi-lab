@@ -1,0 +1,2 @@
+rejected_status=15 published=0 calls=1
+status=17 published=0 calls=2 message=GPU published a malformed native task transition

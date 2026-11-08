@@ -1,0 +1,3 @@
+# Shared-mode control failure also occurs on baseline
+
+On 8 November 2026 the unchanged baseline control ran 01:11:53.603441–01:11:53.728150 UTC and exited 2; pre/post input hashes passed. Before calling the observation callback it returned status 17 with the exact same `CPU upload attempted for private buffer: native resident task evidence state` error as the candidate control. This identifies a preexisting shared-mode prerequisite in this fixture, not a result of the candidate guard. No shared retry, cache behavior, physical step or promotion is qualified. The separate private-storage result remains valid within its stated scope.

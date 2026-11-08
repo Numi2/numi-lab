@@ -1,0 +1,5 @@
+# Populated unchanged private cache control passed
+
+On 8 November 2026 four pinned processes ran 01:18:05.582105–01:18:06.210956 UTC; all exited 0 and pre/post hashes passed. Each warmed one context slot with exactly one successful model upload. Both baseline and candidate retry arms then rejected a real pre-submit observation callback, retained the model-upload count of one, and subsequently published two successful world/contact statuses. Baseline control/retry and candidate control/retry had identical 2,016-byte q/v/scene/actor outputs (SHA-256 477b0ef006e7598312c5395a0ed3595dbb780414fe322832fb86f39003c1f733). The source predicate disarms the new guard when existing immutable bindings are nonzero.
+
+This control does not overwrite the bound model or shared immutable buffers. The preexisting shared-mode fixture still fails before callback and cannot establish restoration of overwritten shared bytes. It does not qualify new-program or changed-model aborts, visual histories, device failure, mixed physics or performance. Exact outputs and all four process logs are retained.
