@@ -69,6 +69,34 @@ int main(int argc, char **argv) {
                 if (!st.succeeded())
                     throw std::runtime_error("read failed: " + st.message);
             }
+            if (!write) {
+                const PolicyContract old = policy.contract;
+                if (old.worldFingerprint != task.worldFingerprint() ||
+                    old.actionFingerprint != task.actionFingerprint()) {
+                    throw std::runtime_error("fixture world or action changed");
+                }
+                if (old.taskFingerprint != task.fingerprint()) {
+                    CompiledPolicyProgram unchanged;
+                    const auto incompatible =
+                        compilePolicyProgram(policy, task, unchanged);
+                    if (incompatible.status !=
+                        PolicyCompileStatus::incompatibleContract) {
+                        throw std::runtime_error(
+                            "different old task unexpectedly accepted");
+                    }
+                    // Normalize only the task identity on this in-memory test copy.
+                    // Retain the old observation fingerprint under test.
+                    bindPolicyPack(policy, task);
+                    policy.contract.observationFingerprint = old.observationFingerprint;
+                    std::cout << "mode=" << mode << " test_only_task_rebind=1\n";
+                }
+                if ((mode == 0 &&
+                     old.observationFingerprint != task.observationFingerprint()) ||
+                    (mode != 0 &&
+                     old.observationFingerprint == task.observationFingerprint())) {
+                    throw std::runtime_error("observation fingerprint migration gate");
+                }
+            }
             CompiledPolicyProgram out;
             auto ps = compilePolicyProgram(policy, task, out);
             std::cout << "mode=" << mode

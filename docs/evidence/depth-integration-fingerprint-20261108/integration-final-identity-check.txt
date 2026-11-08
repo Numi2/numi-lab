@@ -1,0 +1,10 @@
+INTEGRATION-PLAN.md: OK
+INTEGRATION-TEST-PLAN.md: OK
+/Users/numi/numi-lab-policy-repair-main-20261108/tests/visual/observation_fingerprint.cpp: OK
+/Users/numi/numi-lab-reconciliation-20261108/tests/visual/observation_fingerprint.cpp: OK
+/Users/numi/numi-lab-reconciliation-20261108/src/core/TaskProgram.cpp: OK
+/Users/numi/numi-lab-reconciliation-20261108/src/metal/HybridRenderer.metal: OK
+/Users/numi/numi-reconciliation-build-20261108/lib/libmetalrobo.dylib: OK
+/Users/numi/numi-reconciliation-build-20261108/shaders/MetalRobo.metallib: OK
+/Users/numi/numi-reconciliation-build-20261108/metalrobo_visual_observation_fingerprint_test: OK
+/Users/numi/numi-reconciliation-build-20261108/metalrobo_masked_depth_validity_test: OK

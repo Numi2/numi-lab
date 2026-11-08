@@ -1,0 +1,3 @@
+# Integrated runtime verification
+
+The reconciliation branch contains an independent delayed-action observation discriminator and newer presentation code. Preserve both fingerprint discriminators in the merge, then build the exact merged source with its own configured native build. Run the same permanent masked-depth and old-policy compatibility CTests, the existing task-program CTest, and the native visual-platform probe. Retain source revision, binary/shader identities, outputs and errors. A pass confirms coexistence in this branch for these fixtures, not a completed release or held-out policy.

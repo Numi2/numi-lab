@@ -1,0 +1,3 @@
+[0/2] Re-checking globbed directories...
+[1/3] Building CXX object CMakeFiles/metalrobo_visual_observation_fingerprint_test.dir/tests/visual/observation_fingerprint.cpp.o
+[2/3] Linking CXX executable metalrobo_visual_observation_fingerprint_test

@@ -1,0 +1,23 @@
+Test project /Users/numi/numi-reconciliation-build-20261108
+    Start 111: metalrobo.runtime.task_program
+1/3 Test #111: metalrobo.runtime.task_program .............   Passed    3.03 sec
+    Start 177: metalrobo.visual.masked_depth_validity
+2/3 Test #177: metalrobo.visual.masked_depth_validity .....   Passed    0.39 sec
+    Start 178: metalrobo.visual.observation_fingerprint
+3/3 Test #178: metalrobo.visual.observation_fingerprint ...***Failed    0.22 sec
+mode=0 phase=candidate size=102 old_obs=15428621311878363526 task_obs=15428621311878363526 status=3 message=policy=(world=10270234665231314559,task=3858487257510629116,compatible_tasks=0,observation=15428621311878363526,action=5813922338578158576) task=(world=10270234665231314559,task=9950955990648854557,observation=15428621311878363526,action=5813922338578158576)
+failure: migration gate
+
+
+67% tests passed, 1 tests failed out of 3
+
+Label Time Summary:
+metal        =   0.39 sec*proc (1 test)
+metalrobo    =   3.65 sec*proc (3 tests)
+runtime      =   3.25 sec*proc (2 tests)
+visual       =   0.61 sec*proc (2 tests)
+
+Total Test time (real) =   3.65 sec
+
+The following tests FAILED:
+	178 - metalrobo.visual.observation_fingerprint (Failed) metalrobo runtime visual
