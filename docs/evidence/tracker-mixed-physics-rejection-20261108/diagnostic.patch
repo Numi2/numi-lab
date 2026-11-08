@@ -1,0 +1,82 @@
+--- a/apps/visual_platform_probe.cpp
++++ b/apps/visual_platform_probe.cpp
+@@ -188,10 +188,12 @@
+ 
+ int main() {
+     try {
++        auto diagnosticEpisode = metalrobo::makeFrankaPickPlaceEpisodeTwin();
++        diagnosticEpisode.sensors[0].depthDropout = 0.35f;
+         metalrobo::WorldTemplate worldTemplate;
+         require(
+             metalrobo::compileEpisodeTwin(
+-                metalrobo::makeFrankaPickPlaceEpisodeTwin(),
++                diagnosticEpisode,
+                 metalrobo::makeFrankaPickPlaceEngineModel(),
+                 worldTemplate
+             ),
+@@ -572,6 +574,7 @@
+             manifest.reality.id = "nominal_reality";
+             manifest.profile.id = "franka_probe";
+             manifest.profile.environmentCount = kEnvironmentCount;
++            manifest.profile.capacities.rawContacts = 1u;
+             manifest.profile.controlSteps = 1u;
+             manifest.profile.physicsSubsteps = 4u;
+             manifest.profile.controlTimestepSeconds = 0.02f;
+@@ -595,10 +598,15 @@
+                 std::copy(run.model().defaultQ.begin(), run.model().defaultQ.end(), q.begin()+e*run.world().nq());
+                 scene.insert(scene.end(), run.defaultSceneBodies().begin(), run.defaultSceneBodies().end());
+             }
++            const auto sceneCount = run.defaultSceneBodies().size();
++            require(sceneCount == 4u, "unexpected scene body layout");
++            scene[3].position.z += 2.0f;
++            scene[sceneCount].position.z += 2.0f;
++            scene[sceneCount+3u].position.z += 2.0f;
+             std::vector<std::uint32_t> resetMasks(2u*kEnvironmentCount, 0u);
+-            MetalWorldBatch batch{.environmentCount=kEnvironmentCount, .controlStepCount=1u,
++            MetalWorldBatch batch{.environmentCount=kEnvironmentCount, .controlStepCount=2u,
+                 .initialQ=q, .initialV=v, .policyRevision=1u,
+-                .resetMasks=std::span<const std::uint32_t>{resetMasks.data(), kEnvironmentCount},
++                .resetMasks=resetMasks,
+                 .initialSceneBodies=scene};
+             const char* rejection = std::getenv("NUMI_TEST_REJECT_ACTION");
+             struct ActionOwner {
+@@ -665,10 +673,37 @@
+             require(r.succeeded() && submission.valid(), "retry submit: " + r.message);
+             MetalWorldResult result; r=submission.wait(result);
+             std::cout << "retry_wait=" << r.succeeded() << " failed_steps=" << r.failedStepCount << " message=" << r.message << '\n';
+-            require(r.succeeded() && r.failedStepCount==0u && action.checkedLease, "retry physical step failed");
++            std::cout << "published=" << r.published << " success_steps=" << r.successfulStepCount
++                      << " failure_steps=" << r.failedStepCount << " host_status=" << static_cast<int>(r.status)
++                      << " contact_status_count=" << result.contactStatuses.size() << "\n";
++            for (std::size_t i=0; i<result.contactStatuses.size(); ++i) {
++                const auto& s = result.contactStatuses[i];
++                std::cout << "contact[" << i << "] code=" << s.code << " required_raw=" << s.requiredRawContacts << "\n";
++            }
++            for (const auto& s : result.environmentStatuses) {
++                std::cout << "environment=" << s.environment << " code=" << s.code
++                          << " required_raw=" << s.required.rawContacts << " successful="
++                          << s.successfulControlSteps << " failed=" << s.failedControlSteps << "\n";
++            }
++            for (std::size_t i=0; i<result.transitions.size(); ++i) {
++                const auto& tr = result.transitions[i];
++                std::cout << "transition[" << i << "] done=" << tr.termination.x
++                          << " timeout=" << tr.termination.y << " physics_error=" << tr.termination.z
++                          << " reason=" << tr.termination.w << " reward=" << tr.rewardAndState.x << "\n";
++            }
++            require(r.published && r.failedStepCount == 2u && r.successfulStepCount == 2u &&
++                    result.contactStatuses.size() == 4u && result.transitions.size() == 4u &&
++                    result.contactStatuses[0].code == MR_STEP_CONTACT_CAPACITY_OVERFLOW &&
++                    result.contactStatuses[1].code == MR_STEP_SUCCESS &&
++                    result.contactStatuses[2].code == MR_STEP_CONTACT_CAPACITY_OVERFLOW &&
++                    result.contactStatuses[3].code == MR_STEP_SUCCESS &&
++                    result.transitions[0].termination.z == 1u && result.transitions[1].termination.z == 0u &&
++                    result.transitions[2].termination.z == 1u && result.transitions[3].termination.z == 0u,
++                    "mixed-batch diagnostic did not reproduce its declared physics outcomes");
++            require(action.checkedLease, "observation lease was not active");
+             HybridObservationBatch rendered; require(renderer.readback(rendered), "retry frame readback");
+             std::cout << "world_retry_sensor_sequence=" << rendered.metadata.identity.z << '\n';
+-            require(rendered.metadata.identity.z==(residentMode ? 1u : 0u),
++            require(rendered.metadata.identity.z==(residentMode ? 2u : 1u),
+                     "rejected world submission advanced sensor sequence");
+             if (const char* prefix = std::getenv("NUMI_TEST_RESULT_PREFIX")) {
+                 auto save = [prefix](const char* suffix, const auto& data) {
