@@ -1,0 +1,11 @@
+{
+  "checked_contiguous_accepted_predecessor_nonsampled_observations": 44,
+  "visible_rows": 42,
+  "current_outcomes": {
+    "accepted": 41,
+    "rejected": 3
+  },
+  "different_rows": [],
+  "passed": true,
+  "note": "No reset and previous step accepted; comparisons use the most recent visible actor depth frame versus the next policy input. Frame cadence is batch global."
+}
