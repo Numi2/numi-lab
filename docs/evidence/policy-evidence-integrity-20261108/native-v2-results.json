@@ -1,0 +1,162 @@
+[
+  {
+    "command": [
+      "/opt/homebrew/bin/python3",
+      "/Users/numi/numi-lab-tracker-step-rollback-20261108/python/metalrobo/policy_selection.py",
+      "--evaluator",
+      "/Users/numi/numi-reconciliation-build-20261108/bin/metalrobo_task_rollout",
+      "--metallib",
+      "/Users/numi/numi-reconciliation-build-20261108/shaders/MetalRobo.metallib",
+      "--incumbent",
+      "/Users/numi/numi-autoload-franka-smoke-20261108/workspace/.numi/runs/window-train-smoke/incumbent.deployment.policypack",
+      "--candidate",
+      "/Users/numi/numi-autoload-franka-smoke-20261108/workspace/.numi/runs/window-train-smoke/candidate.deployment.policypack",
+      "--deployment",
+      "/Users/numi/policy-evidence-integrity-20261108/native-v2-run-0/deployment.pack",
+      "--evidence-directory",
+      "/Users/numi/policy-evidence-integrity-20261108/native-v2-run-0/evidence",
+      "--maximum-environments",
+      "1",
+      "--held-out-seed",
+      "4081019",
+      "--evaluation-steps",
+      "16",
+      "--",
+      "--world-pack",
+      "/Users/numi/numi-autoload-franka-smoke-20261108/fixture/world.mrworld",
+      "--task-pack",
+      "/Users/numi/numi-autoload-franka-smoke-20261108/fixture/task.taskpack",
+      "--robot-actuator-pack",
+      "/Users/numi/numi-autoload-franka-smoke-20261108/fixture/actuators.actuatorpack",
+      "--sensor-program-pack",
+      "/Users/numi/numi-autoload-franka-smoke-20261108/fixture/sensors.sensorpack",
+      "--reality-program-pack",
+      "/Users/numi/numi-autoload-franka-smoke-20261108/fixture/reality.realitypack",
+      "--envs",
+      "1",
+      "--steps",
+      "16"
+    ],
+    "deployment_matches": true,
+    "evidence": [
+      {
+        "clean_horizon_environment_rate": 1,
+        "failed_environment_steps": 0,
+        "mean_reward": 0,
+        "mean_task_reward": 0,
+        "mean_tracking_score": 1,
+        "physics_error_count_by_environment": [
+          0
+        ],
+        "task": "franka_typed_actuator_pipeline_v1",
+        "termination_count": 0,
+        "termination_count_by_environment": [
+          0
+        ],
+        "termination_reason_counts": {},
+        "world_source": "world_pack"
+      },
+      {
+        "clean_horizon_environment_rate": 1,
+        "failed_environment_steps": 0,
+        "mean_reward": 0,
+        "mean_task_reward": 0,
+        "mean_tracking_score": 1,
+        "physics_error_count_by_environment": [
+          0
+        ],
+        "task": "franka_typed_actuator_pipeline_v1",
+        "termination_count": 0,
+        "termination_count_by_environment": [
+          0
+        ],
+        "termination_reason_counts": {},
+        "world_source": "world_pack"
+      }
+    ],
+    "inputs_unchanged": true,
+    "regressions": [],
+    "returncode": 0,
+    "selected": "incumbent"
+  },
+  {
+    "command": [
+      "/opt/homebrew/bin/python3",
+      "/Users/numi/numi-lab-tracker-step-rollback-20261108/python/metalrobo/policy_selection.py",
+      "--evaluator",
+      "/Users/numi/numi-reconciliation-build-20261108/bin/metalrobo_task_rollout",
+      "--metallib",
+      "/Users/numi/numi-reconciliation-build-20261108/shaders/MetalRobo.metallib",
+      "--incumbent",
+      "/Users/numi/numi-autoload-franka-smoke-20261108/workspace/.numi/runs/window-train-smoke/incumbent.deployment.policypack",
+      "--candidate",
+      "/Users/numi/numi-autoload-franka-smoke-20261108/workspace/.numi/runs/window-train-smoke/candidate.deployment.policypack",
+      "--deployment",
+      "/Users/numi/policy-evidence-integrity-20261108/native-v2-run-1/deployment.pack",
+      "--evidence-directory",
+      "/Users/numi/policy-evidence-integrity-20261108/native-v2-run-1/evidence",
+      "--maximum-environments",
+      "1",
+      "--held-out-seed",
+      "4081019",
+      "--evaluation-steps",
+      "16",
+      "--",
+      "--world-pack",
+      "/Users/numi/numi-autoload-franka-smoke-20261108/fixture/world.mrworld",
+      "--task-pack",
+      "/Users/numi/numi-autoload-franka-smoke-20261108/fixture/task.taskpack",
+      "--robot-actuator-pack",
+      "/Users/numi/numi-autoload-franka-smoke-20261108/fixture/actuators.actuatorpack",
+      "--sensor-program-pack",
+      "/Users/numi/numi-autoload-franka-smoke-20261108/fixture/sensors.sensorpack",
+      "--reality-program-pack",
+      "/Users/numi/numi-autoload-franka-smoke-20261108/fixture/reality.realitypack",
+      "--envs",
+      "1",
+      "--steps",
+      "16"
+    ],
+    "deployment_matches": true,
+    "evidence": [
+      {
+        "clean_horizon_environment_rate": 1,
+        "failed_environment_steps": 0,
+        "mean_reward": 0,
+        "mean_task_reward": 0,
+        "mean_tracking_score": 1,
+        "physics_error_count_by_environment": [
+          0
+        ],
+        "task": "franka_typed_actuator_pipeline_v1",
+        "termination_count": 0,
+        "termination_count_by_environment": [
+          0
+        ],
+        "termination_reason_counts": {},
+        "world_source": "world_pack"
+      },
+      {
+        "clean_horizon_environment_rate": 1,
+        "failed_environment_steps": 0,
+        "mean_reward": 0,
+        "mean_task_reward": 0,
+        "mean_tracking_score": 1,
+        "physics_error_count_by_environment": [
+          0
+        ],
+        "task": "franka_typed_actuator_pipeline_v1",
+        "termination_count": 0,
+        "termination_count_by_environment": [
+          0
+        ],
+        "termination_reason_counts": {},
+        "world_source": "world_pack"
+      }
+    ],
+    "inputs_unchanged": true,
+    "regressions": [],
+    "returncode": 0,
+    "selected": "incumbent"
+  }
+]

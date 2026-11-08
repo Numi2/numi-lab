@@ -432,6 +432,138 @@ def _uses_generic_task_outcome(record: dict[str, Any]) -> bool:
     return str(record.get("world_source", "")) in _GENERIC_WORLD_SOURCES
 
 
+def _generic_evidence_errors(record: dict[str, Any], label: str) -> list[str]:
+    """Check native physical counters before using them for promotion."""
+    errors: list[str] = []
+
+    def counter(value: Any) -> bool:
+        return type(value) is int and value >= 0
+
+    total = record.get("termination_count")
+    failed = record.get("failed_environment_steps")
+    per_environment = record.get("termination_count_by_environment")
+    physics = record.get("physics_error_count_by_environment")
+    reasons = record.get("termination_reason_counts")
+    if not counter(total):
+        errors.append(f"{label} termination count missing or invalid")
+    if not counter(failed):
+        errors.append(f"{label} failed step count missing or invalid")
+    if (
+        not isinstance(per_environment, list)
+        or not per_environment
+        or not all(counter(value) for value in per_environment)
+    ):
+        errors.append(f"{label} per-environment terminations missing or invalid")
+    elif counter(total) and sum(per_environment) != total:
+        errors.append(f"{label} termination totals disagree")
+    if (
+        not isinstance(physics, list)
+        or not physics
+        or not all(counter(value) for value in physics)
+    ):
+        errors.append(f"{label} per-environment physics errors missing or invalid")
+    elif isinstance(per_environment, list) and len(physics) != len(per_environment):
+        errors.append(f"{label} physical counter environment counts disagree")
+
+    reason_counts: dict[int, int] = {}
+    if isinstance(reasons, dict):
+        for key, value in reasons.items():
+            if type(key) is int and 0 <= key <= 0xFFFFFFFF:
+                reason = key
+            elif (
+                isinstance(key, str)
+                and len(key) <= 10
+                and key.isascii()
+                and key.isdecimal()
+                and str(int(key)) == key
+                and int(key) <= 0xFFFFFFFF
+            ):
+                reason = int(key)
+            else:
+                errors.append(f"{label} termination reason key invalid")
+                continue
+            if reason in reason_counts or not counter(value):
+                errors.append(f"{label} termination reason count invalid")
+                continue
+            reason_counts[reason] = value
+        if counter(total) and sum(reason_counts.values()) != total:
+            errors.append(f"{label} termination reason totals disagree")
+    else:
+        errors.append(f"{label} termination reasons missing or invalid")
+    if "timeout_count" in record and (
+        not counter(record["timeout_count"])
+        or record["timeout_count"] != reason_counts.get(4, 0)
+    ):
+        errors.append(f"{label} timeout count disagrees")
+
+    def finite_number(value: Any) -> bool:
+        if type(value) not in (int, float):
+            return False
+        try:
+            return math.isfinite(value)
+        except OverflowError:
+            return False
+
+    for key in ("mean_task_reward", "mean_reward", "mean_tracking_score"):
+        if not finite_number(record.get(key)):
+            errors.append(f"{label} {key} missing or invalid")
+    horizon = record.get("clean_horizon_environment_rate")
+    if "clean_horizon_environment_rate" in record and (
+        not finite_number(horizon) or not 0.0 <= horizon <= 1.0
+    ):
+        errors.append(f"{label} clean horizon rate invalid")
+    if (
+        _task_kind(str(record.get("task", ""))) == "velocity"
+        and horizon is None
+    ):
+        errors.append(f"{label} clean horizon rate missing")
+    return errors
+
+
+def _generic_evidence_pair_errors(
+    incumbent: dict[str, Any], candidate: dict[str, Any]
+) -> list[str]:
+    errors = _generic_evidence_errors(incumbent, "incumbent")
+    errors += _generic_evidence_errors(candidate, "candidate")
+    if (
+        incumbent.get("world_source") != candidate.get("world_source")
+        or incumbent.get("world_source") not in _GENERIC_WORLD_SOURCES
+    ):
+        errors.append("world sources differ or are missing")
+    if (
+        not isinstance(incumbent.get("task"), str)
+        or not incumbent["task"].strip()
+        or incumbent["task"] != candidate.get("task")
+    ):
+        errors.append("task identities differ or are missing")
+    old = incumbent.get("termination_count_by_environment")
+    new = candidate.get("termination_count_by_environment")
+    if (
+        isinstance(old, list) and isinstance(new, list)
+        and len(old) != len(new)
+    ):
+        errors.append("evaluation environment counts differ")
+    return errors
+
+
+def _validate_evaluation_source(
+    arguments: Sequence[str], record: dict[str, Any]
+) -> None:
+    # Native rollout records always name their source. Without it, two
+    # imported results could both be mistaken for a bundled task.
+    source = record.get("world_source")
+    if not isinstance(source, str) or not source.strip():
+        raise ValueError("evaluator world source is missing or invalid")
+    # The command line is authoritative when an explicit source is present.
+    expected = None
+    if _option_value(arguments, "--world-pack") is not None:
+        expected = "world_pack"
+    elif _option_value(arguments, "--urdf") is not None:
+        expected = "urdf"
+    if expected is not None and record.get("world_source") != expected:
+        raise ValueError(f"evaluator world source does not match {expected}")
+
+
 def _relative_progress(old: float, new: float, floor: float) -> float:
     progress = (new - old) / max(abs(old), abs(new), floor)
     return max(-1.0, min(progress, 1.0))
@@ -517,6 +649,21 @@ def compare_evidence(
     generic_task = _uses_generic_task_outcome(candidate) or (
         _uses_generic_task_outcome(incumbent)
     )
+    if generic_task:
+        evidence_errors = _generic_evidence_pair_errors(incumbent, candidate)
+        if evidence_errors:
+            return {
+                "schema": "numi.policy-selection.v1",
+                "task": task,
+                "selected": "incumbent",
+                "candidate_advanced_deployment": False,
+                "candidate_retained": True,
+                "selection_score": None,
+                "selection_method": "continuous_authored_task_outcome",
+                "regressions": evidence_errors,
+                "improvements": [],
+                "metrics": {"evidence_valid": False},
+            }
     incumbent_termination = _physical_failure_rate(incumbent)
     candidate_termination = _physical_failure_rate(candidate)
     incumbent_clean_horizon = float(
@@ -530,6 +677,8 @@ def compare_evidence(
 
     if int(candidate.get("failed_environment_steps", 0)) != 0:
         regressions.append("candidate has failed environment steps")
+    if generic_task and any(candidate["physics_error_count_by_environment"]):
+        regressions.append("candidate has per-environment physics errors")
     if candidate_termination > incumbent_termination + 1.0e-12:
         regressions.append("termination rate increased")
     elif candidate_termination < incumbent_termination - 1.0e-12:
@@ -719,6 +868,7 @@ def compare_evidence(
         )
         selected = (
             int(candidate.get("failed_environment_steps", 0)) == 0
+            and not any(candidate["physics_error_count_by_environment"])
             # Reward ranks eligible candidates; it cannot buy worse physical
             # failure rates than those observed for the incumbent.
             and candidate_termination <= incumbent_termination + 1.0e-12
@@ -979,6 +1129,7 @@ def _evaluate(
             ):
                 record = json.loads(evidence_payload)
                 if isinstance(record, dict):
+                    _validate_evaluation_source(arguments, record)
                     return record
         except (OSError, UnicodeError, ValueError, TypeError):
             # A partial cache is treated as a miss and regenerated below.
@@ -992,6 +1143,7 @@ def _evaluate(
     record = json.loads(completed.stdout)
     if not isinstance(record, dict):
         raise ValueError("evaluator evidence must be a JSON object")
+    _validate_evaluation_source(arguments, record)
     trace_manifest = _state_trace_manifest(state_trace, arguments)
     evidence_payload = completed.stdout.encode("utf-8")
     metadata = {

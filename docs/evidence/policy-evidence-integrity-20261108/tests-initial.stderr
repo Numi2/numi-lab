@@ -1,0 +1,120 @@
+.............EE.EE.F.....F..FFEF.
+======================================================================
+ERROR: test_generic_physical_regression_cannot_be_bought_with_reward (tests.policy_selection_test.PolicySelectionTest.test_generic_physical_regression_cannot_be_bought_with_reward) (source='world_pack')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/policy_selection_test.py", line 476, in test_generic_physical_regression_cannot_be_bought_with_reward
+    self.assertGreater(decision["selection_score"], 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/lib/python3.15/unittest/case.py", line 1331, in assertGreater
+    if not a > b:
+           ^^^^^
+TypeError: '>' not supported between instances of 'NoneType' and 'int'
+
+======================================================================
+ERROR: test_generic_physical_regression_cannot_be_bought_with_reward (tests.policy_selection_test.PolicySelectionTest.test_generic_physical_regression_cannot_be_bought_with_reward) (source='urdf')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/policy_selection_test.py", line 476, in test_generic_physical_regression_cannot_be_bought_with_reward
+    self.assertGreater(decision["selection_score"], 0)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/lib/python3.15/unittest/case.py", line 1331, in assertGreater
+    if not a > b:
+           ^^^^^
+TypeError: '>' not supported between instances of 'NoneType' and 'int'
+
+======================================================================
+ERROR: test_generic_success_termination_is_not_a_physical_failure (tests.policy_selection_test.PolicySelectionTest.test_generic_success_termination_is_not_a_physical_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/policy_selection_test.py", line 563, in test_generic_success_termination_is_not_a_physical_failure
+    self.assertEqual(decision["metrics"]["candidate_physical_failure_rate"], 0)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'candidate_physical_failure_rate'
+
+======================================================================
+ERROR: test_generic_timeout_does_not_block_reward_gain (tests.policy_selection_test.PolicySelectionTest.test_generic_timeout_does_not_block_reward_gain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/policy_selection_test.py", line 499, in test_generic_timeout_does_not_block_reward_gain
+    self.assertEqual(decision["metrics"]["candidate_physical_failure_rate"], 0)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'candidate_physical_failure_rate'
+
+======================================================================
+ERROR: test_world_pack_reward_sign_change_cannot_buy_total_failure (tests.policy_selection_test.PolicySelectionTest.test_world_pack_reward_sign_change_cannot_buy_total_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/policy_selection_test.py", line 586, in test_world_pack_reward_sign_change_cannot_buy_total_failure
+    self.assertLessEqual(decision["selection_score"], 0.0)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/lib/python3.15/unittest/case.py", line 1325, in assertLessEqual
+    if not a <= b:
+           ^^^^^^
+TypeError: '<=' not supported between instances of 'NoneType' and 'float'
+
+======================================================================
+FAIL: test_imported_velocity_requires_a_clean_horizon_to_deploy (tests.policy_selection_test.PolicySelectionTest.test_imported_velocity_requires_a_clean_horizon_to_deploy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/policy_selection_test.py", line 140, in test_imported_velocity_requires_a_clean_horizon_to_deploy
+    self.assertIn(
+    ~~~~~~~~~~~~~^
+        "candidate completed no clean horizon", decision["regressions"]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+AssertionError: 'candidate completed no clean horizon' not found in ['incumbent per-environment physics errors missing or invalid', 'incumbent termination reasons missing or invalid', 'candidate per-environment physics errors missing or invalid', 'candidate termination reasons missing or invalid']
+
+======================================================================
+FAIL: test_selector_cli_preserves_incumbent_on_physical_regression (tests.policy_selection_test.PolicySelectionTest.test_selector_cli_preserves_incumbent_on_physical_regression)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/policy_selection_test.py", line 539, in test_selector_cli_preserves_incumbent_on_physical_regression
+    self.assertIn("termination rate increased", decision["regressions"])
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'termination rate increased' not found in ['incumbent per-environment physics errors missing or invalid', 'incumbent mean_tracking_score missing or invalid', 'candidate per-environment physics errors missing or invalid', 'candidate mean_tracking_score missing or invalid']
+
+======================================================================
+FAIL: test_world_pack_checkpoints_compare_to_one_incumbent (tests.policy_selection_test.PolicySelectionTest.test_world_pack_checkpoints_compare_to_one_incumbent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/policy_selection_test.py", line 612, in test_world_pack_checkpoints_compare_to_one_incumbent
+    self.assertEqual(champion, "best")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: 'incumbent' != 'best'
+- incumbent
++ best
+
+
+======================================================================
+FAIL: test_world_pack_failed_step_never_advances (tests.policy_selection_test.PolicySelectionTest.test_world_pack_failed_step_never_advances)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/policy_selection_test.py", line 450, in test_world_pack_failed_step_never_advances
+    self.assertIn(
+    ~~~~~~~~~~~~~^
+        "candidate has failed environment steps",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        decision["regressions"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+AssertionError: 'candidate has failed environment steps' not found in ['incumbent termination count missing or invalid', 'incumbent per-environment physics errors missing or invalid', 'incumbent termination reasons missing or invalid', 'incumbent mean_tracking_score missing or invalid', 'candidate termination count missing or invalid', 'candidate per-environment physics errors missing or invalid', 'candidate termination reasons missing or invalid', 'candidate mean_tracking_score missing or invalid']
+
+======================================================================
+FAIL: test_world_pack_selection_uses_authored_task_outcome (tests.policy_selection_test.PolicySelectionTest.test_world_pack_selection_uses_authored_task_outcome)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/policy_selection_test.py", line 423, in test_world_pack_selection_uses_authored_task_outcome
+    self.assertEqual(decision["selected"], "candidate")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'incumbent' != 'candidate'
+- incumbent
++ candidate
+
+
+----------------------------------------------------------------------
+Ran 32 tests in 0.560s
+
+FAILED (failures=5, errors=5)
