@@ -1,0 +1,58 @@
+{
+  "base_commit": "915ef1f68bc39f975c448d6c30066689996362e9",
+  "files": {
+    "build/bin/metalrobo_constraint_ir_probe": {
+      "bytes": 58416,
+      "sha256": "80a77b7789e61262ef09f5a4377106e7f41994ae6774b45a9e1926a2a377646a"
+    },
+    "build/bin/metalrobo_metal_unified_quality_probe": {
+      "bytes": 55176,
+      "sha256": "df2f144721ff04692399afa7316ca7c88a189689acdbfb4358030ef570c0f687"
+    },
+    "build/bin/metalrobo_metal_world_contact_probe": {
+      "bytes": 97472,
+      "sha256": "bd0777b062295b4e08a4722124665725cb6842506054d05357a6346a76d39293"
+    },
+    "build/bin/metalrobo_motor_contact_probe": {
+      "bytes": 116464,
+      "sha256": "746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2"
+    },
+    "build/lib/libmetalrobo.dylib": {
+      "bytes": 5711408,
+      "sha256": "652f43415f24be1fce73eb91589e35d558d6dec7fb610965942239fc49771f61"
+    },
+    "build/shaders/MetalRobo.metallib": {
+      "bytes": 4458160,
+      "sha256": "b5a84cbf77b00ec94a31757e9ce6e87cd970cb4ba0d4ee029d1351d36577dae7"
+    },
+    "docs/NUMERICS.md": {
+      "bytes": 34201,
+      "sha256": "77d99dacb7066ba10ca572ff4924ab590abea264789c1734acd46f17d29ff4c3"
+    },
+    "include/metalrobo/unified_quality_shared.h": {
+      "bytes": 5974,
+      "sha256": "a3a4c0dd2aecd9f5e5858051832e5ce962fd45356ac54835ab3ec59d73e48b17"
+    },
+    "src/metal/MetalUnifiedQualitySolver.metal": {
+      "bytes": 98860,
+      "sha256": "0e22ddad262a62634165fc5bd45ebe51e02bc14eac16a618d1357b786e3c10f8"
+    },
+    "src/metal/QualityFailureCapture.inc": {
+      "bytes": 4579,
+      "sha256": "46aebb843a16c1629cbc4b18584b6fe7529aea28b70edfe85504c0ab91039ca7"
+    },
+    "src/metal/UnifiedQualityExpansion.metal.inc": {
+      "bytes": 16160,
+      "sha256": "f2793e69e099b8d850f09c476a08d5f6fa77e773e0565aa6f7c206cc0bf32cc9"
+    }
+  },
+  "goal_complete": false,
+  "observed_commit": "bb9782aeb544d1d88e9c5c2e331eea3f200cb6b2",
+  "policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+  "production_patch_paths": [
+    "src/metal/MetalUnifiedQualitySolver.metal",
+    "src/metal/QualityFailureCapture.inc",
+    "docs/NUMERICS.md"
+  ],
+  "shared_provider": "/Users/n/MetalRobo-main/.git"
+}

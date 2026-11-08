@@ -1,0 +1,9 @@
+# Coupled crow grasp counterfactuals
+
+Qualify the physical grasp mechanism before throughput work. Existing arm2 excludes ground as well as crow because both use group1. This diagnostic gives the unique ground plane group4 in every arm. The complete bilateral normal pair-mask matrix must remain unchanged; the collision-off object retains only ground contact. Admission checks exact nonintervened bodies, joints, DoFs, actuator profiles, active materials, initial coordinates and shapes. Friction mixing in the owning native collision kernel is the geometric mean, so zero object coefficients imply zero effective friction.
+
+Use the same four normal initial poses,32 substeps,50Hz control,160 ticks, coupled position drives, native quality solver and original API defaults. Arm0 is unchanged normal grasp; arm1 commands the open jaw; arm2 excludes only crow/object contact; arm3 sets object friction to zero. Compare the new normal trajectory and final states against prior complete Git-recovered physical files exactly.
+
+Define a held grasp at ticks64–95 by minimum lift>=10mm, head-relative slip<=0.5mm and at least28/32 opposed-contact samples. Predict normal held in all four lanes, open/collision-off not held, and frictionless not held. The frictionless prediction is a mechanism hypothesis: geometry could supply form closure. A rejected mechanism prediction is not silently converted into a pass or treated as a numerical failure. Always require original native gates and bounded penetration for enabled collision pairs. Excluded crow/object overlap is not a penetration failure; ground contact remains required.
+
+Only native Metal advances physics. No policy/profile change, tolerance relaxation or held-out tuning. Bound captures, archive raw inputs/outputs and failures in Git, execute scoped native Git recovery, and remove only verified owned scratch.

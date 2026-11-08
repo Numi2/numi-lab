@@ -1,0 +1,3 @@
+*.stdout* binary
+*.stderr* binary
+*.gz binary

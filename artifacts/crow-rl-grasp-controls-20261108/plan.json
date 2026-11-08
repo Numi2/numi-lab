@@ -1,0 +1,48 @@
+{
+  "failure_rule": "Preserve first unsuccessful native arm and stop remaining physics commands for diagnosis.",
+  "goal_complete": false,
+  "hard_gates": [
+    "All four arms complete640 transitions",
+    "Normal physical files match prior normal exactly",
+    "Ground contact retained in every arm; sampled penetration<=0.8mm",
+    "Collision-enabled jaw sampled penetration<=0.8mm",
+    "Disconnected jaw impulses zero",
+    "Frictionless sampled jaw tangent impulses zero"
+  ],
+  "hypothesis_scope": "Held grasp needs >=10mm lift, <=0.5mm slip, >=28/32 opposed samples during ticks64..95. Friction necessity is a hypothesis, not a numerical acceptance gate.",
+  "inputs": {
+    "build/crow-grasp-controls-build-01/reference/normal-gold/effective-config.json": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c",
+    "build/crow-grasp-controls-build-01/reference/normal-gold/final-q.f32": "b08767dc7c056c0819a1df1bbeafab2378a61c7c180a9d42a3bb1b1fc07a4c90",
+    "build/crow-grasp-controls-build-01/reference/normal-gold/final-scene.bin": "5f1c0ce3fc2faeeabce7ead2ac3ca842e990f3f7efd79b3a3e0a3205fd0559f7",
+    "build/crow-grasp-controls-build-01/reference/normal-gold/final-v.f32": "0617787449287d791e5c4187242e5ef431c21036b3e17ce623760537cc7ec767",
+    "build/crow-grasp-controls-build-01/reference/normal-gold/initial-geometry.json": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7",
+    "build/crow-grasp-controls-build-01/reference/normal-gold/initial-q.f32": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28",
+    "build/crow-grasp-controls-build-01/reference/normal-gold/initial-scene.bin": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57",
+    "build/crow-grasp-controls-build-01/reference/normal-gold/initial-v.f32": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0",
+    "build/crow-grasp-controls-build-01/reference/normal-gold/scene.bin": "1d9db4488809ec7a4a64a9e597873538fceb02979ea3d17497aa9010e21335b1",
+    "build/crow-grasp-controls-build-01/reference/normal-gold/summary.json": "0e20bf63647f03e80dfcd48bd4f451706321a1c15796d496406e744de19e6aee",
+    "build/crow-grasp-controls-build-01/reference/normal-gold/trace.tsv": "c34be0c3fc1b5282a43789036fd3aee795e6d5c6f56d37bbeacb942bcea212e2"
+  },
+  "limits": {
+    "native_commands": 6,
+    "per_physical_command_seconds": 600,
+    "raw_bytes": 25000000
+  },
+  "mechanism_predictions_held_count": {
+    "disconnected": 0,
+    "frictionless": 0,
+    "normal": 4,
+    "open": 0
+  },
+  "production_changed": false,
+  "schema": "crow-grasp-controls-plan-v1",
+  "sources": {
+    "artifacts/crow-rl-grasp-controls-20261108/.gitattributes": "34b53ee7211bb47e625c655ab8159541826a1eff7a7785d430a95e20f6a6658e",
+    "artifacts/crow-rl-grasp-controls-20261108/README.md": "8dfe723e2fbe87cec667527a921d4da232b54c7a919ea049edcfc90d6828c301",
+    "artifacts/crow-rl-grasp-controls-20261108/analyze.py": "8dc89caf270b587265edd304754858f529993a7bebf8abe32dc9f259509ab601",
+    "artifacts/crow-rl-grasp-controls-20261108/build.py": "5c458a64e0755e5e802242bad3a68e41418bff117a897699b677e099f2310719",
+    "artifacts/crow-rl-grasp-controls-20261108/crow-fixture.mm": "fcf0b2c46fb8b778d6260e55ba62a7a1f4cf5ab9bfb7125058512bc1ad795bc1",
+    "artifacts/crow-rl-grasp-controls-20261108/production-seal.json": "2b54b5570583085730bc18523dee61b7d7b20ee0c968b144c9da314dd8278b59",
+    "artifacts/crow-rl-grasp-controls-20261108/run.py": "e99424d8e04b2d126eeb18e4f1111f1001a00e1dd3452c3b1f783d2a1fc03873"
+  }
+}
