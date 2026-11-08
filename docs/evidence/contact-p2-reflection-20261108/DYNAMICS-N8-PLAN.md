@@ -1,0 +1,3 @@
+# Next-mesh dynamic equivalence
+
+Repeat the preregistered full-versus-quarter episode and unchanged gates at n=8, with the same fixed law, integration settings and geometrical validity criteria. Retain both trajectories and report any noncompletion. Unlike n=4, the full n=8 reflected calculation has several thousand P2 nodes, so stop rather than assert success if it exceeds host capacity. This checks only reduction equivalence for this mesh; compare with the separately retained original tensor mesh as an explicitly different discretization. No force-reference refinement or performance claim follows from this test alone.
