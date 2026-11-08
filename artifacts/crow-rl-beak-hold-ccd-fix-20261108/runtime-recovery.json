@@ -1,0 +1,26 @@
+{
+  "CCDSweepProbe.metallib": {
+    "archive_source": ".numi/retained-runtime/beak-hold-ccd-fix-20261108/CCDSweepProbe.metallib",
+    "sha256": "bac848a28a7592c675b481b58918a8f78cf20349401e2f4e65e39a2e38372a99"
+  },
+  "MetalRobo.metallib": {
+    "archive_source": ".numi/retained-runtime/beak-hold-ccd-fix-20261108/MetalRobo.metallib",
+    "sha256": "3fe0680c48604b8cd6fef6093381c17952d1242c6feeb325251e625b6ede4830"
+  },
+  "contact-probe": {
+    "archive_source": ".numi/retained-runtime/beak-hold-ccd-fix-20261108/contact-probe",
+    "sha256": "31f845146c4ae6f11b0b4b201f9b9a3ddf7c19059cb6b99232a081fb8afacee5"
+  },
+  "libmetalrobo.dylib": {
+    "archive_source": ".numi/retained-runtime/beak-hold-ccd-fix-20261108/libmetalrobo.dylib",
+    "sha256": "cdca44609a3cee9747c96895ffff431702d685075621ec5013414910adfba49c"
+  },
+  "object-push-check": {
+    "archive_source": ".numi/retained-runtime/beak-hold-ccd-fix-20261108/object-push-check",
+    "sha256": "ba7630d5c0e043a02ad00518e6d0a14b206f344c8adde4de635297f0b8422d93"
+  },
+  "sweep-probe": {
+    "archive_source": ".numi/retained-runtime/beak-hold-ccd-fix-20261108/sweep-probe",
+    "sha256": "29a4276b74e0b31410b14eb31b3cb90b53b994f2759b85895009eec7d5584326"
+  }
+}

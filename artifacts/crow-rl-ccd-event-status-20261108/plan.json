@@ -1,0 +1,22 @@
+{
+  "checks": [
+    "Production initializer healthy outputs byte exact against the retained baseline, both hybrid and disabled CCD, two substep generations.",
+    "All 13 non-success codes and out-of-range lanes preserve entire A/B cursor, cluster and status bytes, twice per mode.",
+    "Repeat initializer candidate outputs byte exact.",
+    "One exact clamp failure replication: trace and accepted rollback q/v/scene byte exact; retain first event counters without changing failure tick/codes.",
+    "One exact open-jaw successful control: trace and final q/v/scene byte exact.",
+    "Native contact regression passes."
+  ],
+  "diagnostic_prediction": "Counters in failed lanes remain visible after subsequent statically encoded substeps. Do not infer the original mechanism from previously cleared counters.",
+  "inputs": {
+    ".numi/retained-runtime/beak-hold-ccd-fix-20261108/MetalRobo.metallib": "3fe0680c48604b8cd6fef6093381c17952d1242c6feeb325251e625b6ede4830",
+    "CMakeLists.txt": "03046e9804b83ab2876c6f9508cecc053bc168866f34f74f55a5c99e82062203",
+    "apps/ccd_event_status_probe.mm": "9db66aae7d024d73a8410c1233503c24121992101d56c9414ca065c316074baa",
+    "build/crow-beak-hold-build-02/probe-with-runtime": "ec7148a6454e792cf5ed06a4f92a6aa109a5775a2602528ab4a710234c40371b",
+    "src/metal/Collision.metal": "339b07f841248b1ad391708a71dc4f41b51e1e0045ee26d947aa6633845515a1"
+  },
+  "parent": "artifacts/crow-rl-beak-hold-ccd-fix-20261108",
+  "purpose": "Repair first-failure diagnostic preservation; no contact/integration physics change.",
+  "source_base": "b2f9da32bf3ff2b6a809fd7caca894baa4d521ae",
+  "stop": "One baseline initializer, candidate and repeat; one clamp failure, one open control and one native contact regression, each timeout180s. No retries or physics tuning. Maximum new evidence32MiB."
+}

@@ -2729,6 +2729,16 @@ target_link_libraries(metalrobo_ccd_sweep_probe PRIVATE
 set_target_properties(metalrobo_ccd_sweep_probe PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
 
+add_executable(metalrobo_ccd_event_status_probe apps/ccd_event_status_probe.mm)
+add_dependencies(metalrobo_ccd_event_status_probe metalrobo_shaders)
+target_include_directories(metalrobo_ccd_event_status_probe PRIVATE include)
+target_compile_options(metalrobo_ccd_event_status_probe PRIVATE
+    -fobjc-arc -Wall -Wextra -Wpedantic)
+target_link_libraries(metalrobo_ccd_event_status_probe PRIVATE
+    "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+set_target_properties(metalrobo_ccd_event_status_probe PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+
 add_executable(
     metalrobo_deterministic_broadphase_probe
     apps/deterministic_broadphase_probe.mm

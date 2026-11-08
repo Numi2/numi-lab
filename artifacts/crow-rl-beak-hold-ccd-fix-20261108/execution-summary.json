@@ -1,0 +1,125 @@
+{
+  "all_runs_exit_zero": false,
+  "results": [
+    {
+      "command": [
+        "/usr/bin/time",
+        "-lp",
+        "/usr/bin/env",
+        "DYLD_PRINT_LIBRARIES=1",
+        "DYLD_LIBRARY_PATH=/Users/n/Developer/numi-crow-rl-20261107/build/lib",
+        "METALROBO_METALLIB=/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+        "METALROBO_CCD_FAILURE_CAPTURE=/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-02/clamp.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-02/probe-with-runtime",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-02/clamp",
+        "0",
+        "1",
+        "32"
+      ],
+      "exit_code": 1,
+      "name": "clamp",
+      "seconds": 3.57074525,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "/usr/bin/time",
+        "-lp",
+        "/usr/bin/env",
+        "DYLD_PRINT_LIBRARIES=1",
+        "DYLD_LIBRARY_PATH=/Users/n/Developer/numi-crow-rl-20261107/build/lib",
+        "METALROBO_METALLIB=/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+        "METALROBO_CCD_FAILURE_CAPTURE=/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-02/open.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-02/probe-with-runtime",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-02/open",
+        "1",
+        "1",
+        "32"
+      ],
+      "exit_code": 0,
+      "name": "open",
+      "seconds": 16.570353458,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "/usr/bin/time",
+        "-lp",
+        "/usr/bin/env",
+        "DYLD_PRINT_LIBRARIES=1",
+        "DYLD_LIBRARY_PATH=/Users/n/Developer/numi-crow-rl-20261107/build/lib",
+        "METALROBO_METALLIB=/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+        "METALROBO_CCD_FAILURE_CAPTURE=/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-02/no-contact.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-02/probe-with-runtime",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-02/no-contact",
+        "2",
+        "1",
+        "32"
+      ],
+      "exit_code": 0,
+      "name": "no-contact",
+      "seconds": 16.036328166999997,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "/usr/bin/time",
+        "-lp",
+        "/usr/bin/env",
+        "DYLD_PRINT_LIBRARIES=1",
+        "DYLD_LIBRARY_PATH=/Users/n/Developer/numi-crow-rl-20261107/build/lib",
+        "METALROBO_METALLIB=/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+        "METALROBO_CCD_FAILURE_CAPTURE=/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-02/zero-friction.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-02/probe-with-runtime",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-02/zero-friction",
+        "3",
+        "1",
+        "32"
+      ],
+      "exit_code": 0,
+      "name": "zero-friction",
+      "seconds": 16.581810083,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "/usr/bin/time",
+        "-lp",
+        "/usr/bin/env",
+        "DYLD_PRINT_LIBRARIES=1",
+        "DYLD_LIBRARY_PATH=/Users/n/Developer/numi-crow-rl-20261107/build/lib",
+        "METALROBO_METALLIB=/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+        "METALROBO_CCD_FAILURE_CAPTURE=/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-02/partition.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-02/probe-with-runtime",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-02/partition",
+        "0",
+        "8",
+        "32"
+      ],
+      "exit_code": 1,
+      "name": "partition",
+      "seconds": 4.2185491660000025,
+      "timed_out": false
+    },
+    {
+      "command": [
+        "/usr/bin/time",
+        "-lp",
+        "/usr/bin/env",
+        "DYLD_PRINT_LIBRARIES=1",
+        "DYLD_LIBRARY_PATH=/Users/n/Developer/numi-crow-rl-20261107/build/lib",
+        "METALROBO_METALLIB=/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+        "METALROBO_CCD_FAILURE_CAPTURE=/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-02/refinement.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-02/probe-with-runtime",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-build-02/refinement",
+        "0",
+        "1",
+        "64"
+      ],
+      "exit_code": 1,
+      "name": "refinement",
+      "seconds": 20.237931042,
+      "timed_out": false
+    }
+  ]
+}

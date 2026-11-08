@@ -7685,6 +7685,12 @@ kernel void mr_world_initialize_ccd_event_state(
     if (environment >= dispatch.environmentCount) {
         return;
     }
+    // A failed environment is skipped by later statically encoded substeps.
+    // Preserve its first event failure instead of clearing the diagnostic
+    // counters while its accepted physical state is being rolled back.
+    if (statuses[environment].code != MR_STEP_SUCCESS) {
+        return;
+    }
     MRCCDEventStateGPU state = {};
     state.environment = environment;
     state.flags =
