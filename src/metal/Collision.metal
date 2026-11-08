@@ -6829,6 +6829,28 @@ MRCCDPairGPU resolveCCDPair(
         return record;
     }
 
+    // An exactly stationary sphere-box pair has the same signed distance
+    // throughout the sweep. Sphere orientation does not affect its geometry.
+    // Do not feed a positive gap just above tolerance into CA: totalMotion's
+    // tolerance floor can consume every iteration even with zero motion.
+    // Literal endpoint equality is intentional; no small-motion epsilon may
+    // hide a translating sphere or a rotating box that crosses between ends.
+    const bool sphereBox =
+        (sourceA.shapeType == MR_SHAPE_SPHERE &&
+         sourceB.shapeType == MR_SHAPE_BOX) ||
+        (sourceA.shapeType == MR_SHAPE_BOX &&
+         sourceB.shapeType == MR_SHAPE_SPHERE);
+    if (sphereBox &&
+        all(startA.centerAndRadius.xyz == endA.centerAndRadius.xyz) &&
+        all(startB.centerAndRadius.xyz == endB.centerAndRadius.xyz) &&
+        (sourceA.shapeType == MR_SHAPE_BOX
+            ? all(startA.rotation == endA.rotation)
+            : all(startB.rotation == endB.rotation))) {
+        record.flags |= MR_CCD_PAIR_ANALYTIC;
+        record.intervalAndDistance.w = 0.0f;
+        return record;
+    }
+
     // A near contact whose complete predicted sweep is already covered by
     // both speculative envelopes belongs to the ordinary manifold solve.
     // Apply the same coverage certificate used below for unresolved CA to

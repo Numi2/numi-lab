@@ -1258,3 +1258,12 @@ training outputs. Its exact isolated replay is stationary sphere–box geometry,
 with separation just above tolerance and all 16 CA iterations consumed; the
 query matches an independent FP64 OBB calculation within 1.1 nm. This is a scoped
 diagnosis, not a physics repair or learned manipulation result.
+
+Exactly stationary separated sphere–box pairs now return an analytic no-impact
+record after the existing initial-distance/overlap query. Both projected
+centers and the box quaternion must match their endpoint values literally.
+Sphere spin is immaterial. A one-ULP center or box-quaternion change keeps the
+original moving-sweep path. The closing-speed bound is zero for the stationary
+certificate. CCD tolerance, iteration/event budgets and physical integration
+remain unchanged. This certificate does not admit an approximately stationary
+pair or an endpoint-only test for a rotating or translating pair.
