@@ -1,0 +1,31 @@
+{
+  "workbook_sha256": "49a0f7f4875bc6354367c3efd832ec26642355965fe0cae31ffc950280045978",
+  "trajectory_sha256": "366868b43d4dd1e23802a880c4eba745154ab296f664e9dc3cccdf1ead659449",
+  "heldout": [
+    {
+      "specimen": "8-0NS2",
+      "count": 400,
+      "relative_absolute_error": 0.030550115055496405,
+      "passed": true
+    },
+    {
+      "specimen": "8-0NS3",
+      "count": 400,
+      "relative_absolute_error": 0.030171925686415742,
+      "passed": true
+    },
+    {
+      "specimen": "8-0NS4",
+      "count": 401,
+      "relative_absolute_error": 0.01758853012578038,
+      "passed": true
+    },
+    {
+      "specimen": "8-0NS5",
+      "count": 400,
+      "relative_absolute_error": 0.02959326054831438,
+      "passed": true
+    }
+  ],
+  "passed": true
+}
