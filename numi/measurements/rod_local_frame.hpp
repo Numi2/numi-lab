@@ -1,5 +1,6 @@
 #pragma once
 #include "metalrobo/MetalDiscreteElasticRod.hpp"
+#include <array>
 #include <cmath>
 #include <limits>
 #include <utility>
@@ -34,7 +35,7 @@ inline metalrobo::MetalDiscreteElasticRodDiagnostics run(
     }
     std::vector<DiscreteElasticRodState> states(input.states.begin(),input.states.end());
     std::vector<DiscreteRodAttachment> attachments(input.attachments.begin(),input.attachments.end());
-    std::vector<Vec3> origins(count);
+    std::vector<std::array<double,3>> origins(count);
     for (std::size_t env=0;env<count;++env) {
         if (states[env].positions.empty()) {
             return fail(MetalDiscreteElasticRodHostStatus::invalidState,"local-frame state is empty");

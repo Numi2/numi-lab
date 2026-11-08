@@ -1,0 +1,5 @@
+In file included from /Users/numi/numi-lab-rod-local-frame-20261108/numi/measurements/rod_local_frame_stress.mm:1:
+/Users/numi/numi-lab-rod-local-frame-20261108/numi/measurements/rod_local_frame.hpp:37:17: error: use of undeclared identifier 'Vec3'
+   37 |     std::vector<Vec3> origins(count);
+      |                 ^~~~
+1 error generated.
