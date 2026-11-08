@@ -59,6 +59,19 @@ with tempfile.TemporaryDirectory(prefix="checkpoint-integrity-", dir=source.pare
     partial_legacy = legacy + [lines[twists[0]]]
     cases.append(("legacy-v2-partial-twists", partial_legacy,
                   "handoff resume rod twist state is incomplete"))
+    # Finite FP64 text can still overflow when narrowed to GPU state floats.
+    for key in ("q", "v", "needle_position", "needle_orientation_xyzw",
+                "needle_linear_velocity", "needle_angular_velocity",
+                "thread_position", "thread_velocity", "thread_twist"):
+        idx = rows(key)[0]
+        column = 2 if key.startswith("thread_") else 1
+        for value, suffix in (("1e100", "positive"), ("-1e100", "negative")):
+            altered = lines.copy()
+            fields = altered[idx].rstrip("\n").split("\t")
+            fields[column] = value
+            altered[idx] = "\t".join(fields) + "\n"
+            cases.append(("float-overflow-" + key + "-" + suffix, altered,
+                          "outside finite float range"))
     for label, content, expected in cases:
         path = root / (label + ".tsv")
         path.write_text("".join(content))
