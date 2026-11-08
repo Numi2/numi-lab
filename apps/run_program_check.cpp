@@ -731,6 +731,27 @@ int main() {
                     compiledNavigation.world().fingerprint(),
             "Active-head navigation lost its physical bodies or distinct policy ABI");
 
+        require(activeNavigation.task.actions.size() == navigation.task.actions.size() + 3u,
+            "active head task must append exactly three actions");
+        for (std::size_t i = 0; i < navigation.task.actions.size(); ++i)
+            require(activeNavigation.task.actions[i].actuator == navigation.task.actions[i].actuator,
+                "active head altered inherited action order");
+        require(activeNavigation.sensors.observation.actorFrame.size() ==
+                    navigation.sensors.observation.actorFrame.size() &&
+                activeNavigation.sensors.observation.actorCurrent.size() ==
+                    navigation.sensors.observation.actorCurrent.size() + 9u &&
+                compiledNavigation.task().layout().actorObservationSize == 807u &&
+                compiledActiveNavigation.task().layout().actorObservationSize == 816u,
+            "active head observation projection is not the expected appended nine channels");
+        for (std::size_t i = 0; i < navigation.sensors.observation.actorCurrent.size(); ++i) {
+            const auto &oldOp = navigation.sensors.observation.actorCurrent[i];
+            const auto &newOp = activeNavigation.sensors.observation.actorCurrent[i];
+            require(oldOp.source == newOp.source && oldOp.target == newOp.target &&
+                    oldOp.component == newOp.component && oldOp.scale == newOp.scale &&
+                    oldOp.offset == newOp.offset,
+                "active head altered inherited current observations");
+        }
+
         // The policy identity binds policy-visible geometry and camera, but
         // capture dimensions and memory budget are presentation-only.
         auto navVisual = activeNavigation;

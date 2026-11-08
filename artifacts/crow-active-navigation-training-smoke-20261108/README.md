@@ -4,7 +4,7 @@ The corrected v15 visual runtime completed two fixed-rate PPO updates:
 4 environments, 32 steps per update, 256 total samples. No simulation step
 failed. This was an integration smoke, not an optimization or promotion trial.
 
-Paired short held-out screens used 8 environments, 256 steps and four physics
+Paired short screens on held-out-named layouts used the default early difficulty bands, 8 environments, 256 steps and four physics
 substeps on each of two course layouts, comparing the fresh zero-output actor
 with the updated actor. Neither actor reached even the first waypoint in any
 lane. All four runs had zero failed simulation steps, but episodes did have

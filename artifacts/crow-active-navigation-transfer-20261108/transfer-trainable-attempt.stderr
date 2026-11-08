@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-active-navigation-transfer-20261108/transfer.py", line 33, in <module>
+    assert len(src.action_log_standard_deviation)==15
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

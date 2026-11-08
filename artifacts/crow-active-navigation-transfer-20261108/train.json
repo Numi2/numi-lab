@@ -1,0 +1,2085 @@
+{
+  "action_carrier" : "v15_active_head_navigation_rgbd_history",
+  "birdflow_journey_student_authority" : 0,
+  "birdflow_journey_teacher" : false,
+  "birdflow_journey_variant" : "v15-active-head-navigation",
+  "birdflow_navigation_curriculum" : false,
+  "birdflow_navigation_curriculum_stage" : -1,
+  "candidate_deployment_policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-active-navigation-continuation-02\/updated.policypack.deployment.policypack",
+  "checkpoint_directory" : "",
+  "checkpoint_interval" : 0,
+  "control_steps_per_submission" : 1,
+  "deployment_policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-active-navigation-continuation-02\/updated.policypack.deployment.policypack",
+  "deployment_selection_performed" : false,
+  "device" : "Apple M4 Pro",
+  "difficulty_sampling_exponent_override" : 0,
+  "elapsed_seconds" : 12.833232709000001,
+  "end_to_end_environment_steps_per_second" : 2553.3706699653053,
+  "environments" : 16,
+  "failed_environment_steps" : 0,
+  "final_physical_evidence" : {
+    "control_steps" : 2048,
+    "evidence_windows" : 1,
+    "last_balance_failure_rate" : 1719,
+    "last_clean_miss_rate" : 0,
+    "last_completed_episode_count" : 90,
+    "last_contact_rate" : 0,
+    "last_mean_tracking_per_million" : 532905,
+    "pending_completed_episode_count" : 28,
+    "pending_timeout_episode_count" : 0
+  },
+  "final_policy_revision" : 17,
+  "gpu_milliseconds" : 10840.839166601654,
+  "host_requested_resets" : 0,
+  "incumbent_policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-active-navigation-continuation-02\/updated.policypack.incumbent.policypack",
+  "independent_cued_lifetimes" : false,
+  "independent_lifetime_history" : [
+
+  ],
+  "initial_policy_revision" : 1,
+  "last_learning_update" : {
+    "actor_gradient_norm" : 19.744586229324341,
+    "approximate_kl" : 0.2151778319675941,
+    "behavior_policy_fingerprint" : 12140824141730407620,
+    "clip_fraction" : 0.67236328125,
+    "critic_gradient_norm" : 3.5804044157266617,
+    "deployment_policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-active-navigation-continuation-02\/updated.policypack.deployment.policypack",
+    "done_count" : 8,
+    "entropy" : -3.2579856812953949,
+    "gradient_norm" : 20.15270984172821,
+    "imagination_fraction" : 0,
+    "imagination_loss" : 0,
+    "impact_sequence_metrics" : [
+
+    ],
+    "kl_divergence" : 0.21256331726908684,
+    "learner_state" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-active-navigation-continuation-02\/updated.policypack.learner.safetensors",
+    "learning_rate" : 0.0010000000474974513,
+    "loss" : 0.56290765479207039,
+    "maximum_reward" : 0.13716942071914673,
+    "mean_action_standard_deviation" : 0.20198971033096313,
+    "mean_contact_reward" : 0,
+    "mean_dodge_cbf_buffer_reward" : 0,
+    "mean_dodge_cbf_correction_reward" : 0,
+    "mean_dodge_evasion_reward" : 0,
+    "mean_dodge_link_clearance_reward" : 0,
+    "mean_dodge_miss_reward" : 0,
+    "mean_dodge_predicted_clearance_reward" : 0,
+    "mean_dodge_safe_action_rate_reward" : 0,
+    "mean_dodge_safe_stillness_reward" : 0,
+    "mean_reward" : 0.079639680683612823,
+    "mean_root_height" : 0.19346106052398682,
+    "mean_task_reward" : 0.052695188671350479,
+    "mean_tilt" : 0,
+    "mean_tracking_score" : 0.72846901416778564,
+    "minibatch_updates" : 8,
+    "minimum_reward" : -1.0902949571609497,
+    "mlx_active_memory_bytes" : 9692508,
+    "mlx_cache_memory_bytes" : 0,
+    "mlx_cache_released_bytes" : 70026350,
+    "mlx_peak_memory_bytes" : 76222164,
+    "outcomes" : {
+      "approach_pitch_full_envelope_fraction" : {
+        "direction" : 2,
+        "mean" : 0,
+        "unit" : "ratio"
+      },
+      "approach_pitch_warning_fraction" : {
+        "direction" : 2,
+        "mean" : 0,
+        "unit" : "ratio"
+      },
+      "done" : {
+        "direction" : 2,
+        "mean" : 0.00390625,
+        "unit" : "bool"
+      },
+      "figure_eight_tracking" : {
+        "direction" : 1,
+        "mean" : 0,
+        "unit" : "ratio"
+      },
+      "forward_flight_tracking" : {
+        "direction" : 1,
+        "mean" : 0.021386107429862022,
+        "unit" : "ratio"
+      },
+      "ground_support" : {
+        "direction" : 1,
+        "mean" : 0.008414061740040779,
+        "unit" : "ratio"
+      },
+      "liftoff" : {
+        "direction" : 1,
+        "mean" : 0.018004506826400757,
+        "unit" : "ratio"
+      },
+      "navigation_completion" : {
+        "direction" : 1,
+        "mean" : 0,
+        "unit" : "ratio"
+      },
+      "navigation_progress" : {
+        "direction" : 1,
+        "mean" : -0.05168045312166214,
+        "unit" : "m"
+      },
+      "navigation_waypoints_reached" : {
+        "direction" : 1,
+        "mean" : 0,
+        "unit" : "count"
+      },
+      "physics_error" : {
+        "direction" : 2,
+        "mean" : 0,
+        "unit" : "bool"
+      },
+      "push_off" : {
+        "direction" : 1,
+        "mean" : 0.002555633895099163,
+        "unit" : "m\/s"
+      },
+      "reward" : {
+        "direction" : 1,
+        "mean" : 0.079639680683612823,
+        "unit" : "reward"
+      },
+      "root_height" : {
+        "direction" : 0,
+        "mean" : 0.19346106052398682,
+        "unit" : "m"
+      },
+      "task_reward" : {
+        "direction" : 1,
+        "mean" : 0.052695188671350479,
+        "unit" : "reward"
+      },
+      "timeout" : {
+        "direction" : 0,
+        "mean" : 0,
+        "unit" : "bool"
+      },
+      "tracking" : {
+        "direction" : 1,
+        "mean" : 0.72846901416778564,
+        "unit" : "ratio"
+      },
+      "walking_contact" : {
+        "direction" : 1,
+        "mean" : 0.009856934659183025,
+        "unit" : "ratio"
+      }
+    },
+    "policy_loss" : 0.097860043169930577,
+    "policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-active-navigation-continuation-02\/updated.policypack",
+    "policy_revision" : 17,
+    "policy_revision_after" : 17,
+    "policy_revision_before" : 16,
+    "recovery_phase_rates_by_difficulty_band" : {
+      "10" : {
+        "brace" : 0,
+        "foot_support" : 0,
+        "mean_root_height" : 0.19346106052398682,
+        "mean_tilt" : 0,
+        "quiet_stand" : 0,
+        "restored" : 0,
+        "rise" : 0,
+        "standing" : 0,
+        "support_transfer" : 0,
+        "transition_count" : 2048,
+        "trunk_clear" : 0
+      }
+    },
+    "reward_standard_deviation" : 0.069163225591182709,
+    "samples" : 2048,
+    "status" : "updated",
+    "task_fingerprint" : 7218085609339478701,
+    "termination_reason_counts" : {
+      "2" : 2,
+      "3" : 6
+    },
+    "timeout_count" : 0,
+    "update_seconds" : 0.015648667002096772,
+    "value_loss" : 0.46178961545228958
+  },
+  "learner" : "mlx",
+  "learner_execution_identity" : "",
+  "learner_state" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-active-navigation-continuation-02\/updated.policypack.learner.safetensors",
+  "learner_state_restored" : false,
+  "learning_update_history" : [
+    {
+      "actor_gradient_norm" : 5.562234535580501,
+      "approximate_kl" : 23.546657201906783,
+      "clip_fraction" : 0.87353515625,
+      "critic_gradient_norm" : 0.67611768958158791,
+      "done_count" : 0,
+      "gradient_norm" : 5.7425235314294696,
+      "kl_divergence" : 24.306606531143188,
+      "learning_rate" : 0.0010000000474974513,
+      "maximum_reward" : 0.11923599243164062,
+      "mean_action_standard_deviation" : 0.20018067955970764,
+      "mean_reward" : 0.092446282505989075,
+      "minibatch_updates" : 8,
+      "minimum_reward" : 0.043173611164093018,
+      "mlx_peak_memory_bytes" : 76231060,
+      "outcomes" : {
+        "approach_pitch_full_envelope_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "approach_pitch_warning_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "figure_eight_tracking" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "forward_flight_tracking" : {
+          "direction" : 1,
+          "mean" : 0.023437321186065674,
+          "unit" : "ratio"
+        },
+        "ground_support" : {
+          "direction" : 1,
+          "mean" : 0.010995116084814072,
+          "unit" : "ratio"
+        },
+        "liftoff" : {
+          "direction" : 1,
+          "mean" : 0.019260335713624954,
+          "unit" : "ratio"
+        },
+        "navigation_completion" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "navigation_progress" : {
+          "direction" : 1,
+          "mean" : -0.0068055083975195885,
+          "unit" : "m"
+        },
+        "navigation_waypoints_reached" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "count"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "push_off" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "m\/s"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0.092446282505989075,
+          "unit" : "reward"
+        },
+        "root_height" : {
+          "direction" : 0,
+          "mean" : 0.1777271181344986,
+          "unit" : "m"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0.059279613196849823,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "tracking" : {
+          "direction" : 1,
+          "mean" : 0.78375202417373657,
+          "unit" : "ratio"
+        },
+        "walking_contact" : {
+          "direction" : 1,
+          "mean" : 0.010797364637255669,
+          "unit" : "ratio"
+        }
+      },
+      "policy_revision_after" : 2,
+      "policy_revision_before" : 1,
+      "samples" : 2048,
+      "timeout_count" : 0,
+      "update_seconds" : 0.035428542003501207
+    },
+    {
+      "actor_gradient_norm" : 29.986798405647278,
+      "approximate_kl" : 1.3094216492172563,
+      "clip_fraction" : 0.803466796875,
+      "critic_gradient_norm" : 1.5143667832016945,
+      "done_count" : 16,
+      "gradient_norm" : 30.08427882194519,
+      "kl_divergence" : 1.380742684006691,
+      "learning_rate" : 0.0010000000474974513,
+      "maximum_reward" : 0.11878078430891037,
+      "mean_action_standard_deviation" : 0.20055311918258667,
+      "mean_reward" : 0.074475288391113281,
+      "minibatch_updates" : 8,
+      "minimum_reward" : -0.96893757581710815,
+      "mlx_peak_memory_bytes" : 76231060,
+      "outcomes" : {
+        "approach_pitch_full_envelope_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "approach_pitch_warning_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0.0078125,
+          "unit" : "bool"
+        },
+        "figure_eight_tracking" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "forward_flight_tracking" : {
+          "direction" : 1,
+          "mean" : 0.021809225901961327,
+          "unit" : "ratio"
+        },
+        "ground_support" : {
+          "direction" : 1,
+          "mean" : 0.008044920861721039,
+          "unit" : "ratio"
+        },
+        "liftoff" : {
+          "direction" : 1,
+          "mean" : 0.017797473818063736,
+          "unit" : "ratio"
+        },
+        "navigation_completion" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "navigation_progress" : {
+          "direction" : 1,
+          "mean" : -0.062558002769947052,
+          "unit" : "m"
+        },
+        "navigation_waypoints_reached" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "count"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "push_off" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "m\/s"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0.074475288391113281,
+          "unit" : "reward"
+        },
+        "root_height" : {
+          "direction" : 0,
+          "mean" : 0.17127345502376556,
+          "unit" : "m"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0.054680600762367249,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "tracking" : {
+          "direction" : 1,
+          "mean" : 0.73501038551330566,
+          "unit" : "ratio"
+        },
+        "walking_contact" : {
+          "direction" : 1,
+          "mean" : 0.009755859151482582,
+          "unit" : "ratio"
+        }
+      },
+      "policy_revision_after" : 3,
+      "policy_revision_before" : 2,
+      "samples" : 2048,
+      "timeout_count" : 0,
+      "update_seconds" : 0.015874958015047014
+    },
+    {
+      "actor_gradient_norm" : 25.238317251205444,
+      "approximate_kl" : 0.36697970516979694,
+      "clip_fraction" : 0.7236328125,
+      "critic_gradient_norm" : 2.300502160564065,
+      "done_count" : 0,
+      "gradient_norm" : 25.531832098960876,
+      "kl_divergence" : 0.36038269847631454,
+      "learning_rate" : 0.0010000000474974513,
+      "maximum_reward" : 0.12378956377506256,
+      "mean_action_standard_deviation" : 0.20063792169094086,
+      "mean_reward" : 0.088256873190402985,
+      "minibatch_updates" : 8,
+      "minimum_reward" : 0.039873454719781876,
+      "mlx_peak_memory_bytes" : 76229332,
+      "outcomes" : {
+        "approach_pitch_full_envelope_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "approach_pitch_warning_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "figure_eight_tracking" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "forward_flight_tracking" : {
+          "direction" : 1,
+          "mean" : 0.023159842938184738,
+          "unit" : "ratio"
+        },
+        "ground_support" : {
+          "direction" : 1,
+          "mean" : 0.009416014887392521,
+          "unit" : "ratio"
+        },
+        "liftoff" : {
+          "direction" : 1,
+          "mean" : 0.018610138446092606,
+          "unit" : "ratio"
+        },
+        "navigation_completion" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "navigation_progress" : {
+          "direction" : 1,
+          "mean" : -0.010914209298789501,
+          "unit" : "m"
+        },
+        "navigation_waypoints_reached" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "count"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "push_off" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "m\/s"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0.088256873190402985,
+          "unit" : "reward"
+        },
+        "root_height" : {
+          "direction" : 0,
+          "mean" : 0.17432501912117004,
+          "unit" : "m"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0.057722222059965134,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "tracking" : {
+          "direction" : 1,
+          "mean" : 0.76528126001358032,
+          "unit" : "ratio"
+        },
+        "walking_contact" : {
+          "direction" : 1,
+          "mean" : 0.010098633356392384,
+          "unit" : "ratio"
+        }
+      },
+      "policy_revision_after" : 4,
+      "policy_revision_before" : 3,
+      "samples" : 2048,
+      "timeout_count" : 0,
+      "update_seconds" : 0.015938459022436291
+    },
+    {
+      "actor_gradient_norm" : 21.316115260124207,
+      "approximate_kl" : 0.39691328091430478,
+      "clip_fraction" : 0.719482421875,
+      "critic_gradient_norm" : 3.3199634552001953,
+      "done_count" : 13,
+      "gradient_norm" : 21.644031763076782,
+      "kl_divergence" : 0.38385383039712906,
+      "learning_rate" : 0.0010000000474974513,
+      "maximum_reward" : 0.14607758820056915,
+      "mean_action_standard_deviation" : 0.20076076686382294,
+      "mean_reward" : 0.074553132057189941,
+      "minibatch_updates" : 8,
+      "minimum_reward" : -1.1590114831924438,
+      "mlx_peak_memory_bytes" : 76229332,
+      "outcomes" : {
+        "approach_pitch_full_envelope_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "approach_pitch_warning_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0.00634765625,
+          "unit" : "bool"
+        },
+        "figure_eight_tracking" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "forward_flight_tracking" : {
+          "direction" : 1,
+          "mean" : 0.020556848496198654,
+          "unit" : "ratio"
+        },
+        "ground_support" : {
+          "direction" : 1,
+          "mean" : 0.008159179240465164,
+          "unit" : "ratio"
+        },
+        "liftoff" : {
+          "direction" : 1,
+          "mean" : 0.017591945827007294,
+          "unit" : "ratio"
+        },
+        "navigation_completion" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "navigation_progress" : {
+          "direction" : 1,
+          "mean" : -0.099286779761314392,
+          "unit" : "m"
+        },
+        "navigation_waypoints_reached" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "count"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "push_off" : {
+          "direction" : 1,
+          "mean" : 0.005693923681974411,
+          "unit" : "m\/s"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0.074553132057189941,
+          "unit" : "reward"
+        },
+        "root_height" : {
+          "direction" : 0,
+          "mean" : 0.21811549365520477,
+          "unit" : "m"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0.048331268131732941,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "tracking" : {
+          "direction" : 1,
+          "mean" : 0.6784101128578186,
+          "unit" : "ratio"
+        },
+        "walking_contact" : {
+          "direction" : 1,
+          "mean" : 0.009861327707767487,
+          "unit" : "ratio"
+        }
+      },
+      "policy_revision_after" : 5,
+      "policy_revision_before" : 4,
+      "samples" : 2048,
+      "timeout_count" : 0,
+      "update_seconds" : 0.015739625028800219
+    },
+    {
+      "actor_gradient_norm" : 14.017969965934753,
+      "approximate_kl" : 0.19938214153808076,
+      "clip_fraction" : 0.65576171875,
+      "critic_gradient_norm" : 2.7093815244734287,
+      "done_count" : 3,
+      "gradient_norm" : 14.605614900588989,
+      "kl_divergence" : 0.19878541305661201,
+      "learning_rate" : 0.0010000000474974513,
+      "maximum_reward" : 0.12325673550367355,
+      "mean_action_standard_deviation" : 0.20100069046020508,
+      "mean_reward" : 0.085290074348449707,
+      "minibatch_updates" : 8,
+      "minimum_reward" : -1.1504060029983521,
+      "mlx_peak_memory_bytes" : 76222164,
+      "outcomes" : {
+        "approach_pitch_full_envelope_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "approach_pitch_warning_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0.00146484375,
+          "unit" : "bool"
+        },
+        "figure_eight_tracking" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "forward_flight_tracking" : {
+          "direction" : 1,
+          "mean" : 0.023294592276215553,
+          "unit" : "ratio"
+        },
+        "ground_support" : {
+          "direction" : 1,
+          "mean" : 0.009123045951128006,
+          "unit" : "ratio"
+        },
+        "liftoff" : {
+          "direction" : 1,
+          "mean" : 0.018548011779785156,
+          "unit" : "ratio"
+        },
+        "navigation_completion" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "navigation_progress" : {
+          "direction" : 1,
+          "mean" : -0.024776604026556015,
+          "unit" : "m"
+        },
+        "navigation_waypoints_reached" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "count"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "push_off" : {
+          "direction" : 1,
+          "mean" : -8.7470049038529396e-05,
+          "unit" : "m\/s"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0.085290074348449707,
+          "unit" : "reward"
+        },
+        "root_height" : {
+          "direction" : 0,
+          "mean" : 0.18410775065422058,
+          "unit" : "m"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0.056822411715984344,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "tracking" : {
+          "direction" : 1,
+          "mean" : 0.76125258207321167,
+          "unit" : "ratio"
+        },
+        "walking_contact" : {
+          "direction" : 1,
+          "mean" : 0.009905273094773293,
+          "unit" : "ratio"
+        }
+      },
+      "policy_revision_after" : 6,
+      "policy_revision_before" : 5,
+      "samples" : 2048,
+      "timeout_count" : 0,
+      "update_seconds" : 0.015799542015884072
+    },
+    {
+      "actor_gradient_norm" : 20.554686188697815,
+      "approximate_kl" : 0.46794864375260659,
+      "clip_fraction" : 0.727294921875,
+      "critic_gradient_norm" : 3.0559233091771603,
+      "done_count" : 11,
+      "gradient_norm" : 20.945158004760742,
+      "kl_divergence" : 0.46697799116373062,
+      "learning_rate" : 0.0010000000474974513,
+      "maximum_reward" : 0.13425078988075256,
+      "mean_action_standard_deviation" : 0.20121026039123535,
+      "mean_reward" : 0.077003359794616699,
+      "minibatch_updates" : 8,
+      "minimum_reward" : -1.169041633605957,
+      "mlx_peak_memory_bytes" : 76222164,
+      "outcomes" : {
+        "approach_pitch_full_envelope_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "approach_pitch_warning_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0.00537109375,
+          "unit" : "bool"
+        },
+        "figure_eight_tracking" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "forward_flight_tracking" : {
+          "direction" : 1,
+          "mean" : 0.021188188344240189,
+          "unit" : "ratio"
+        },
+        "ground_support" : {
+          "direction" : 1,
+          "mean" : 0.008326171897351742,
+          "unit" : "ratio"
+        },
+        "liftoff" : {
+          "direction" : 1,
+          "mean" : 0.018260296434164047,
+          "unit" : "ratio"
+        },
+        "navigation_completion" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "navigation_progress" : {
+          "direction" : 1,
+          "mean" : -0.083839952945709229,
+          "unit" : "m"
+        },
+        "navigation_waypoints_reached" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "count"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "push_off" : {
+          "direction" : 1,
+          "mean" : 0.004628825932741165,
+          "unit" : "m\/s"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0.077003359794616699,
+          "unit" : "reward"
+        },
+        "root_height" : {
+          "direction" : 0,
+          "mean" : 0.21446064114570618,
+          "unit" : "m"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0.049671158194541931,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "tracking" : {
+          "direction" : 1,
+          "mean" : 0.70719027519226074,
+          "unit" : "ratio"
+        },
+        "walking_contact" : {
+          "direction" : 1,
+          "mean" : 0.009883301332592964,
+          "unit" : "ratio"
+        }
+      },
+      "policy_revision_after" : 7,
+      "policy_revision_before" : 6,
+      "samples" : 2048,
+      "timeout_count" : 0,
+      "update_seconds" : 0.015747624973300844
+    },
+    {
+      "actor_gradient_norm" : 19.399441480636597,
+      "approximate_kl" : 0.86505412892438471,
+      "clip_fraction" : 0.79150390625,
+      "critic_gradient_norm" : 2.7400764524936676,
+      "done_count" : 5,
+      "gradient_norm" : 19.904895782470703,
+      "kl_divergence" : 0.93059854954481125,
+      "learning_rate" : 0.0010000000474974513,
+      "maximum_reward" : 0.15513738989830017,
+      "mean_action_standard_deviation" : 0.2013515830039978,
+      "mean_reward" : 0.080288350582122803,
+      "minibatch_updates" : 8,
+      "minimum_reward" : -1.1433982849121094,
+      "mlx_peak_memory_bytes" : 76222164,
+      "outcomes" : {
+        "approach_pitch_full_envelope_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "approach_pitch_warning_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0.00244140625,
+          "unit" : "bool"
+        },
+        "figure_eight_tracking" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "forward_flight_tracking" : {
+          "direction" : 1,
+          "mean" : 0.020750174298882484,
+          "unit" : "ratio"
+        },
+        "ground_support" : {
+          "direction" : 1,
+          "mean" : 0.008402343839406967,
+          "unit" : "ratio"
+        },
+        "liftoff" : {
+          "direction" : 1,
+          "mean" : 0.018721692264080048,
+          "unit" : "ratio"
+        },
+        "navigation_completion" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "navigation_progress" : {
+          "direction" : 1,
+          "mean" : -0.069300495088100433,
+          "unit" : "m"
+        },
+        "navigation_waypoints_reached" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "count"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "push_off" : {
+          "direction" : 1,
+          "mean" : 0.005459044128656387,
+          "unit" : "m\/s"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0.080288350582122803,
+          "unit" : "reward"
+        },
+        "root_height" : {
+          "direction" : 0,
+          "mean" : 0.23037736117839813,
+          "unit" : "m"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0.048447079956531525,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "tracking" : {
+          "direction" : 1,
+          "mean" : 0.71946036815643311,
+          "unit" : "ratio"
+        },
+        "walking_contact" : {
+          "direction" : 1,
+          "mean" : 0.009848144836723804,
+          "unit" : "ratio"
+        }
+      },
+      "policy_revision_after" : 8,
+      "policy_revision_before" : 7,
+      "samples" : 2048,
+      "timeout_count" : 0,
+      "update_seconds" : 0.015909541049040854
+    },
+    {
+      "actor_gradient_norm" : 16.479789853096008,
+      "approximate_kl" : 0.32132132942206226,
+      "clip_fraction" : 0.7138671875,
+      "critic_gradient_norm" : 3.7427839338779449,
+      "done_count" : 9,
+      "gradient_norm" : 17.019610524177551,
+      "kl_divergence" : 0.33880950696766376,
+      "learning_rate" : 0.0010000000474974513,
+      "maximum_reward" : 0.18882380425930023,
+      "mean_action_standard_deviation" : 0.20147162675857544,
+      "mean_reward" : 0.079988695681095123,
+      "minibatch_updates" : 8,
+      "minimum_reward" : -1.1103435754776001,
+      "mlx_peak_memory_bytes" : 76222164,
+      "outcomes" : {
+        "approach_pitch_full_envelope_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "approach_pitch_warning_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0.00439453125,
+          "unit" : "bool"
+        },
+        "figure_eight_tracking" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "forward_flight_tracking" : {
+          "direction" : 1,
+          "mean" : 0.019217098131775856,
+          "unit" : "ratio"
+        },
+        "ground_support" : {
+          "direction" : 1,
+          "mean" : 0.007584960199892521,
+          "unit" : "ratio"
+        },
+        "liftoff" : {
+          "direction" : 1,
+          "mean" : 0.018484290689229965,
+          "unit" : "ratio"
+        },
+        "navigation_completion" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "navigation_progress" : {
+          "direction" : 1,
+          "mean" : -0.096861690282821655,
+          "unit" : "m"
+        },
+        "navigation_waypoints_reached" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "count"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "push_off" : {
+          "direction" : 1,
+          "mean" : 0.011059550568461418,
+          "unit" : "m\/s"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0.079988695681095123,
+          "unit" : "reward"
+        },
+        "root_height" : {
+          "direction" : 0,
+          "mean" : 0.2535855770111084,
+          "unit" : "m"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0.04612414538860321,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "tracking" : {
+          "direction" : 1,
+          "mean" : 0.67225509881973267,
+          "unit" : "ratio"
+        },
+        "walking_contact" : {
+          "direction" : 1,
+          "mean" : 0.009896485134959221,
+          "unit" : "ratio"
+        }
+      },
+      "policy_revision_after" : 9,
+      "policy_revision_before" : 8,
+      "samples" : 2048,
+      "timeout_count" : 0,
+      "update_seconds" : 0.015663333004340529
+    },
+    {
+      "actor_gradient_norm" : 18.871321201324463,
+      "approximate_kl" : 0.18268973586964421,
+      "clip_fraction" : 0.65625,
+      "critic_gradient_norm" : 3.7047780975699425,
+      "done_count" : 7,
+      "gradient_norm" : 19.441148638725281,
+      "kl_divergence" : 0.18917376361787319,
+      "learning_rate" : 0.0010000000474974513,
+      "maximum_reward" : 0.1692594438791275,
+      "mean_action_standard_deviation" : 0.20159488916397095,
+      "mean_reward" : 0.083343274891376495,
+      "minibatch_updates" : 8,
+      "minimum_reward" : -1.0998216867446899,
+      "mlx_peak_memory_bytes" : 76222164,
+      "outcomes" : {
+        "approach_pitch_full_envelope_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "approach_pitch_warning_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0.00341796875,
+          "unit" : "bool"
+        },
+        "figure_eight_tracking" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "forward_flight_tracking" : {
+          "direction" : 1,
+          "mean" : 0.020357087254524231,
+          "unit" : "ratio"
+        },
+        "ground_support" : {
+          "direction" : 1,
+          "mean" : 0.008124022744596004,
+          "unit" : "ratio"
+        },
+        "liftoff" : {
+          "direction" : 1,
+          "mean" : 0.018705610185861588,
+          "unit" : "ratio"
+        },
+        "navigation_completion" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "navigation_progress" : {
+          "direction" : 1,
+          "mean" : -0.053729221224784851,
+          "unit" : "m"
+        },
+        "navigation_waypoints_reached" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "count"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "push_off" : {
+          "direction" : 1,
+          "mean" : 0.008577151224017143,
+          "unit" : "m\/s"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0.083343274891376495,
+          "unit" : "reward"
+        },
+        "root_height" : {
+          "direction" : 0,
+          "mean" : 0.23785221576690674,
+          "unit" : "m"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0.049769118428230286,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "tracking" : {
+          "direction" : 1,
+          "mean" : 0.70406949520111084,
+          "unit" : "ratio"
+        },
+        "walking_contact" : {
+          "direction" : 1,
+          "mean" : 0.009812988340854645,
+          "unit" : "ratio"
+        }
+      },
+      "policy_revision_after" : 10,
+      "policy_revision_before" : 9,
+      "samples" : 2048,
+      "timeout_count" : 0,
+      "update_seconds" : 0.015869041963014752
+    },
+    {
+      "actor_gradient_norm" : 18.977735996246338,
+      "approximate_kl" : 0.1007070116174873,
+      "clip_fraction" : 0.590087890625,
+      "critic_gradient_norm" : 3.5445926636457443,
+      "done_count" : 6,
+      "gradient_norm" : 19.385800242424011,
+      "kl_divergence" : 0.10049328953027725,
+      "learning_rate" : 0.0010000000474974513,
+      "maximum_reward" : 0.18686361610889435,
+      "mean_action_standard_deviation" : 0.20172598958015442,
+      "mean_reward" : 0.080753587186336517,
+      "minibatch_updates" : 8,
+      "minimum_reward" : -1.0932717323303223,
+      "mlx_peak_memory_bytes" : 76222164,
+      "outcomes" : {
+        "approach_pitch_full_envelope_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "approach_pitch_warning_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0.0029296875,
+          "unit" : "bool"
+        },
+        "figure_eight_tracking" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "forward_flight_tracking" : {
+          "direction" : 1,
+          "mean" : 0.018989171832799911,
+          "unit" : "ratio"
+        },
+        "ground_support" : {
+          "direction" : 1,
+          "mean" : 0.006952147930860519,
+          "unit" : "ratio"
+        },
+        "liftoff" : {
+          "direction" : 1,
+          "mean" : 0.018500935286283493,
+          "unit" : "ratio"
+        },
+        "navigation_completion" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "navigation_progress" : {
+          "direction" : 1,
+          "mean" : -0.085606411099433899,
+          "unit" : "m"
+        },
+        "navigation_waypoints_reached" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "count"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "push_off" : {
+          "direction" : 1,
+          "mean" : 0.010983750224113464,
+          "unit" : "m\/s"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0.080753587186336517,
+          "unit" : "reward"
+        },
+        "root_height" : {
+          "direction" : 0,
+          "mean" : 0.25156033039093018,
+          "unit" : "m"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0.046058081090450287,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "tracking" : {
+          "direction" : 1,
+          "mean" : 0.67996120452880859,
+          "unit" : "ratio"
+        },
+        "walking_contact" : {
+          "direction" : 1,
+          "mean" : 0.009417480789124966,
+          "unit" : "ratio"
+        }
+      },
+      "policy_revision_after" : 11,
+      "policy_revision_before" : 10,
+      "samples" : 2048,
+      "timeout_count" : 0,
+      "update_seconds" : 0.015531499986536801
+    },
+    {
+      "actor_gradient_norm" : 17.823729395866394,
+      "approximate_kl" : 0.10509632006869651,
+      "clip_fraction" : 0.593505859375,
+      "critic_gradient_norm" : 6.2516283392906189,
+      "done_count" : 9,
+      "gradient_norm" : 18.973533153533936,
+      "kl_divergence" : 0.10869329981505871,
+      "learning_rate" : 0.0010000000474974513,
+      "maximum_reward" : 0.16644465923309326,
+      "mean_action_standard_deviation" : 0.20171348750591278,
+      "mean_reward" : 0.080400645732879639,
+      "minibatch_updates" : 8,
+      "minimum_reward" : -1.1052898168563843,
+      "mlx_peak_memory_bytes" : 76222164,
+      "outcomes" : {
+        "approach_pitch_full_envelope_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "approach_pitch_warning_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0.00439453125,
+          "unit" : "bool"
+        },
+        "figure_eight_tracking" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "forward_flight_tracking" : {
+          "direction" : 1,
+          "mean" : 0.020231470465660095,
+          "unit" : "ratio"
+        },
+        "ground_support" : {
+          "direction" : 1,
+          "mean" : 0.0083496086299419403,
+          "unit" : "ratio"
+        },
+        "liftoff" : {
+          "direction" : 1,
+          "mean" : 0.018594708293676376,
+          "unit" : "ratio"
+        },
+        "navigation_completion" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "navigation_progress" : {
+          "direction" : 1,
+          "mean" : -0.078383453190326691,
+          "unit" : "m"
+        },
+        "navigation_waypoints_reached" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "count"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "push_off" : {
+          "direction" : 1,
+          "mean" : 0.008697021752595901,
+          "unit" : "m\/s"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0.080400645732879639,
+          "unit" : "reward"
+        },
+        "root_height" : {
+          "direction" : 0,
+          "mean" : 0.24377787113189697,
+          "unit" : "m"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0.047660678625106812,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "tracking" : {
+          "direction" : 1,
+          "mean" : 0.70446187257766724,
+          "unit" : "ratio"
+        },
+        "walking_contact" : {
+          "direction" : 1,
+          "mean" : 0.009962402284145355,
+          "unit" : "ratio"
+        }
+      },
+      "policy_revision_after" : 12,
+      "policy_revision_before" : 11,
+      "samples" : 2048,
+      "timeout_count" : 0,
+      "update_seconds" : 0.015718832961283624
+    },
+    {
+      "actor_gradient_norm" : 18.664788722991943,
+      "approximate_kl" : 0.16137473392882384,
+      "clip_fraction" : 0.63232421875,
+      "critic_gradient_norm" : 7.1319785118103027,
+      "done_count" : 7,
+      "gradient_norm" : 20.028735518455505,
+      "kl_divergence" : 0.15498614870011806,
+      "learning_rate" : 0.0010000000474974513,
+      "maximum_reward" : 0.14629040658473969,
+      "mean_action_standard_deviation" : 0.20168684422969818,
+      "mean_reward" : 0.081795446574687958,
+      "minibatch_updates" : 8,
+      "minimum_reward" : -1.1147986650466919,
+      "mlx_peak_memory_bytes" : 76222164,
+      "outcomes" : {
+        "approach_pitch_full_envelope_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "approach_pitch_warning_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0.00341796875,
+          "unit" : "bool"
+        },
+        "figure_eight_tracking" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "forward_flight_tracking" : {
+          "direction" : 1,
+          "mean" : 0.022537598386406898,
+          "unit" : "ratio"
+        },
+        "ground_support" : {
+          "direction" : 1,
+          "mean" : 0.008583983406424522,
+          "unit" : "ratio"
+        },
+        "liftoff" : {
+          "direction" : 1,
+          "mean" : 0.017893843352794647,
+          "unit" : "ratio"
+        },
+        "navigation_completion" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "navigation_progress" : {
+          "direction" : 1,
+          "mean" : -0.03261001780629158,
+          "unit" : "m"
+        },
+        "navigation_waypoints_reached" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "count"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "push_off" : {
+          "direction" : 1,
+          "mean" : 0.002331138588488102,
+          "unit" : "m\/s"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0.081795446574687958,
+          "unit" : "reward"
+        },
+        "root_height" : {
+          "direction" : 0,
+          "mean" : 0.18981851637363434,
+          "unit" : "m"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0.054585173726081848,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "tracking" : {
+          "direction" : 1,
+          "mean" : 0.73872280120849609,
+          "unit" : "ratio"
+        },
+        "walking_contact" : {
+          "direction" : 1,
+          "mean" : 0.009654786437749863,
+          "unit" : "ratio"
+        }
+      },
+      "policy_revision_after" : 13,
+      "policy_revision_before" : 12,
+      "samples" : 2048,
+      "timeout_count" : 0,
+      "update_seconds" : 0.015998042013961822
+    },
+    {
+      "actor_gradient_norm" : 17.604985237121582,
+      "approximate_kl" : 0.18721135718806181,
+      "clip_fraction" : 0.642578125,
+      "critic_gradient_norm" : 8.3056086599826813,
+      "done_count" : 7,
+      "gradient_norm" : 19.619053959846497,
+      "kl_divergence" : 0.17589632049202919,
+      "learning_rate" : 0.0010000000474974513,
+      "maximum_reward" : 0.14369238913059235,
+      "mean_action_standard_deviation" : 0.20160537958145142,
+      "mean_reward" : 0.08148396760225296,
+      "minibatch_updates" : 8,
+      "minimum_reward" : -1.1155694723129272,
+      "mlx_peak_memory_bytes" : 76222164,
+      "outcomes" : {
+        "approach_pitch_full_envelope_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "approach_pitch_warning_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0.00341796875,
+          "unit" : "bool"
+        },
+        "figure_eight_tracking" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "forward_flight_tracking" : {
+          "direction" : 1,
+          "mean" : 0.021275606006383896,
+          "unit" : "ratio"
+        },
+        "ground_support" : {
+          "direction" : 1,
+          "mean" : 0.008578124456107616,
+          "unit" : "ratio"
+        },
+        "liftoff" : {
+          "direction" : 1,
+          "mean" : 0.018181230872869492,
+          "unit" : "ratio"
+        },
+        "navigation_completion" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "navigation_progress" : {
+          "direction" : 1,
+          "mean" : -0.059954557567834854,
+          "unit" : "m"
+        },
+        "navigation_waypoints_reached" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "count"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "push_off" : {
+          "direction" : 1,
+          "mean" : 0.006080446764826775,
+          "unit" : "m\/s"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0.08148396760225296,
+          "unit" : "reward"
+        },
+        "root_height" : {
+          "direction" : 0,
+          "mean" : 0.2217189222574234,
+          "unit" : "m"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0.050421036779880524,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "tracking" : {
+          "direction" : 1,
+          "mean" : 0.72166937589645386,
+          "unit" : "ratio"
+        },
+        "walking_contact" : {
+          "direction" : 1,
+          "mean" : 0.009843749925494194,
+          "unit" : "ratio"
+        }
+      },
+      "policy_revision_after" : 14,
+      "policy_revision_before" : 13,
+      "samples" : 2048,
+      "timeout_count" : 0,
+      "update_seconds" : 0.01562929101055488
+    },
+    {
+      "actor_gradient_norm" : 15.935942888259888,
+      "approximate_kl" : 0.15436135428899433,
+      "clip_fraction" : 0.639404296875,
+      "critic_gradient_norm" : 6.0927455127239227,
+      "done_count" : 7,
+      "gradient_norm" : 17.122337460517883,
+      "kl_divergence" : 0.15916573256254196,
+      "learning_rate" : 0.0010000000474974513,
+      "maximum_reward" : 0.13536636531352997,
+      "mean_action_standard_deviation" : 0.20170983672142029,
+      "mean_reward" : 0.080963239073753357,
+      "minibatch_updates" : 8,
+      "minimum_reward" : -1.1021047830581665,
+      "mlx_peak_memory_bytes" : 76222164,
+      "outcomes" : {
+        "approach_pitch_full_envelope_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "approach_pitch_warning_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0.00341796875,
+          "unit" : "bool"
+        },
+        "figure_eight_tracking" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "forward_flight_tracking" : {
+          "direction" : 1,
+          "mean" : 0.021308034658432007,
+          "unit" : "ratio"
+        },
+        "ground_support" : {
+          "direction" : 1,
+          "mean" : 0.008276366628706455,
+          "unit" : "ratio"
+        },
+        "liftoff" : {
+          "direction" : 1,
+          "mean" : 0.01790991984307766,
+          "unit" : "ratio"
+        },
+        "navigation_completion" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "navigation_progress" : {
+          "direction" : 1,
+          "mean" : -0.052114930003881454,
+          "unit" : "m"
+        },
+        "navigation_waypoints_reached" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "count"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "push_off" : {
+          "direction" : 1,
+          "mean" : 0.0039562778547406197,
+          "unit" : "m\/s"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0.080963239073753357,
+          "unit" : "reward"
+        },
+        "root_height" : {
+          "direction" : 0,
+          "mean" : 0.19886410236358643,
+          "unit" : "m"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0.052460592240095139,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "tracking" : {
+          "direction" : 1,
+          "mean" : 0.72564166784286499,
+          "unit" : "ratio"
+        },
+        "walking_contact" : {
+          "direction" : 1,
+          "mean" : 0.009826172143220901,
+          "unit" : "ratio"
+        }
+      },
+      "policy_revision_after" : 15,
+      "policy_revision_before" : 14,
+      "samples" : 2048,
+      "timeout_count" : 0,
+      "update_seconds" : 0.015872875053901225
+    },
+    {
+      "actor_gradient_norm" : 18.599162817001343,
+      "approximate_kl" : 0.12574781384319067,
+      "clip_fraction" : 0.6181640625,
+      "critic_gradient_norm" : 6.1202352494001389,
+      "done_count" : 10,
+      "gradient_norm" : 19.873995661735535,
+      "kl_divergence" : 0.12812921777367592,
+      "learning_rate" : 0.0010000000474974513,
+      "maximum_reward" : 0.14278250932693481,
+      "mean_action_standard_deviation" : 0.2018863707780838,
+      "mean_reward" : 0.08010583370923996,
+      "minibatch_updates" : 8,
+      "minimum_reward" : -1.0977486371994019,
+      "mlx_peak_memory_bytes" : 76222164,
+      "outcomes" : {
+        "approach_pitch_full_envelope_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "approach_pitch_warning_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0.0048828125,
+          "unit" : "bool"
+        },
+        "figure_eight_tracking" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "forward_flight_tracking" : {
+          "direction" : 1,
+          "mean" : 0.022061880677938461,
+          "unit" : "ratio"
+        },
+        "ground_support" : {
+          "direction" : 1,
+          "mean" : 0.009026367217302322,
+          "unit" : "ratio"
+        },
+        "liftoff" : {
+          "direction" : 1,
+          "mean" : 0.017953461036086082,
+          "unit" : "ratio"
+        },
+        "navigation_completion" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "navigation_progress" : {
+          "direction" : 1,
+          "mean" : -0.044712040573358536,
+          "unit" : "m"
+        },
+        "navigation_waypoints_reached" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "count"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "push_off" : {
+          "direction" : 1,
+          "mean" : 0.002645771251991391,
+          "unit" : "m\/s"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0.08010583370923996,
+          "unit" : "reward"
+        },
+        "root_height" : {
+          "direction" : 0,
+          "mean" : 0.19619978964328766,
+          "unit" : "m"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0.053499169647693634,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "tracking" : {
+          "direction" : 1,
+          "mean" : 0.73279786109924316,
+          "unit" : "ratio"
+        },
+        "walking_contact" : {
+          "direction" : 1,
+          "mean" : 0.009975587017834187,
+          "unit" : "ratio"
+        }
+      },
+      "policy_revision_after" : 16,
+      "policy_revision_before" : 15,
+      "samples" : 2048,
+      "timeout_count" : 0,
+      "update_seconds" : 0.01558254100382328
+    },
+    {
+      "actor_gradient_norm" : 19.744586229324341,
+      "approximate_kl" : 0.2151778319675941,
+      "clip_fraction" : 0.67236328125,
+      "critic_gradient_norm" : 3.5804044157266617,
+      "done_count" : 8,
+      "gradient_norm" : 20.15270984172821,
+      "kl_divergence" : 0.21256331726908684,
+      "learning_rate" : 0.0010000000474974513,
+      "maximum_reward" : 0.13716942071914673,
+      "mean_action_standard_deviation" : 0.20198971033096313,
+      "mean_reward" : 0.079639680683612823,
+      "minibatch_updates" : 8,
+      "minimum_reward" : -1.0902949571609497,
+      "mlx_peak_memory_bytes" : 76222164,
+      "outcomes" : {
+        "approach_pitch_full_envelope_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "approach_pitch_warning_fraction" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "done" : {
+          "direction" : 2,
+          "mean" : 0.00390625,
+          "unit" : "bool"
+        },
+        "figure_eight_tracking" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "forward_flight_tracking" : {
+          "direction" : 1,
+          "mean" : 0.021386107429862022,
+          "unit" : "ratio"
+        },
+        "ground_support" : {
+          "direction" : 1,
+          "mean" : 0.008414061740040779,
+          "unit" : "ratio"
+        },
+        "liftoff" : {
+          "direction" : 1,
+          "mean" : 0.018004506826400757,
+          "unit" : "ratio"
+        },
+        "navigation_completion" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "ratio"
+        },
+        "navigation_progress" : {
+          "direction" : 1,
+          "mean" : -0.05168045312166214,
+          "unit" : "m"
+        },
+        "navigation_waypoints_reached" : {
+          "direction" : 1,
+          "mean" : 0,
+          "unit" : "count"
+        },
+        "physics_error" : {
+          "direction" : 2,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "push_off" : {
+          "direction" : 1,
+          "mean" : 0.002555633895099163,
+          "unit" : "m\/s"
+        },
+        "reward" : {
+          "direction" : 1,
+          "mean" : 0.079639680683612823,
+          "unit" : "reward"
+        },
+        "root_height" : {
+          "direction" : 0,
+          "mean" : 0.19346106052398682,
+          "unit" : "m"
+        },
+        "task_reward" : {
+          "direction" : 1,
+          "mean" : 0.052695188671350479,
+          "unit" : "reward"
+        },
+        "timeout" : {
+          "direction" : 0,
+          "mean" : 0,
+          "unit" : "bool"
+        },
+        "tracking" : {
+          "direction" : 1,
+          "mean" : 0.72846901416778564,
+          "unit" : "ratio"
+        },
+        "walking_contact" : {
+          "direction" : 1,
+          "mean" : 0.009856934659183025,
+          "unit" : "ratio"
+        }
+      },
+      "policy_revision_after" : 17,
+      "policy_revision_before" : 16,
+      "samples" : 2048,
+      "timeout_count" : 0,
+      "update_seconds" : 0.015648667002096772
+    }
+  ],
+  "life_checkpoint_count" : 0,
+  "life_checkpoint_enabled" : false,
+  "life_checkpoint_seconds" : 0,
+  "life_state_restored" : false,
+  "lifetime_updates_completed" : 16,
+  "maximum_active_contacts" : 8,
+  "maximum_episode_steps" : 1600,
+  "maximum_manifolds" : 3,
+  "minibatch_size" : 512,
+  "minibatches_per_epoch" : 4,
+  "motion_minibatch_size" : 0,
+  "native_submission_count" : 2048,
+  "navigation_return_weighted_self_imitation" : false,
+  "navigation_self_imitation_minimum_waypoint" : 5,
+  "object_push_curriculum" : "",
+  "operation" : "swift_native_policy_training",
+  "physics" : "metal",
+  "policy_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-active-navigation-continuation-02\/updated.policypack",
+  "resumed_exploration_overridden" : false,
+  "resumed_learning_rate_overridden" : false,
+  "retained_buffer_bytes" : 14898838,
+  "retention_maximum_difficulty_band" : -1,
+  "retention_policy_pack" : "",
+  "retention_protected_actor_only" : false,
+  "retention_rollout_teacher_blend" : 0,
+  "rollout_pack" : "\/Users\/n\/Developer\/numi-crow-rl-20261107\/build\/crow-active-navigation-continuation-02\/rollout.bin",
+  "samples_per_update" : 2048,
+  "scheduler" : "swift",
+  "stage_high_water" : {
+    "articulation_point_queries" : 0,
+    "candidate_pairs" : 8,
+    "ccd_candidates" : 0,
+    "ccd_events" : 0,
+    "constraint_blocks" : 8,
+    "constraint_rows" : 24,
+    "dynamic_nodes" : 0,
+    "endpoint_runtime_records" : 0,
+    "hard_convex_pairs" : 0,
+    "island_constraint_references" : 0,
+    "island_node_references" : 0,
+    "islands" : 1,
+    "manifolds" : 3,
+    "mesh_triangle_candidates" : 0,
+    "operator_velocity_elements" : 0,
+    "quality_direct_tiles" : 0,
+    "quality_generalized_velocities" : 0,
+    "quality_krylov_vectors" : 0,
+    "quality_rows" : 0,
+    "raw_contacts" : 8,
+    "rod_candidate_pairs" : 0,
+    "rod_ccd_events" : 0,
+    "rod_factor_blocks" : 0,
+    "rod_manifolds" : 0,
+    "rod_raw_contacts" : 0,
+    "solver_tiles" : 1,
+    "spill_rows" : 0
+  },
+  "steps_per_update" : 128,
+  "submission_milliseconds" : 11224.407674999997,
+  "training_samples" : 32768,
+  "transient_private_bytes" : 6978812,
+  "updates" : 16,
+  "visual_observation" : true,
+  "visual_observation_config" : "assets\/crow_navigation_course\/crow-navigation.active-head.visual-observation.json",
+  "visual_scene_fingerprint" : 11279328382246347246,
+  "world_source" : "american_crow_active_head_navigation_development_v1"
+}
