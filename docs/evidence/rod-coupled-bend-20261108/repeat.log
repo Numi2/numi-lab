@@ -1,0 +1,9 @@
+{
+  "seed": "809..832",
+  "null_pass": true,
+  "rigid_transform_pass": true,
+  "negative_control_detected": 24,
+  "negative_control_expected": 24,
+  "all_pass": true
+}
+failed_indices []
