@@ -3,7 +3,7 @@ import hashlib,json,subprocess,sys,tempfile
 build=Path(sys.argv[1]).resolve()
 root=Path(__file__).resolve().parent
 probe=build/"bin/metalrobo_dual_psm_suture_handoff_probe"
-source=build/"testing/suture/tissue-checkpoint/tissue-rest.tsv"
+source=Path(sys.argv[3]).resolve() if len(sys.argv)>3 else build/"testing/suture/tissue-checkpoint/tissue-rest.tsv"
 raw=source.read_bytes()
 lines=raw.decode().splitlines(keepends=True)
 matter=[line.split("\t")[1] for line in lines if line.startswith("matter_snapshot\t")]

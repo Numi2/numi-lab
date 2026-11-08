@@ -8082,6 +8082,19 @@ double parseNumber(
     return value;
 }
 
+float parseStateFloat(
+    const std::string_view text,
+    const std::string_view label
+) {
+    const double value = parseNumber(text, label);
+    const double limit = static_cast<double>(std::numeric_limits<float>::max());
+    require(
+        value >= -limit && value <= limit,
+        "handoff resume " + std::string{label} + " is outside finite float range"
+    );
+    return static_cast<float>(value);
+}
+
 std::uint32_t parseIndex(
     const std::string_view text,
     const std::string_view label
@@ -8296,9 +8309,9 @@ std::uint64_t loadHandoffState(
                 fields[0] == "q" ? q : v;
             destination.reserve(fields.size() - 1u);
             for (std::size_t index = 1u; index < fields.size(); ++index) {
-                destination.push_back(static_cast<float>(parseNumber(
+                destination.push_back(parseStateFloat(
                     fields[index], fields[0]
-                )));
+                ));
             }
         } else if (fields[0] == "needle_position") {
             require(
@@ -8306,9 +8319,9 @@ std::uint64_t loadHandoffState(
                 "invalid resume needle position"
             );
             needle.position = {
-                static_cast<float>(parseNumber(fields[1], "needle x")),
-                static_cast<float>(parseNumber(fields[2], "needle y")),
-                static_cast<float>(parseNumber(fields[3], "needle z")),
+                parseStateFloat(fields[1], "needle x"),
+                parseStateFloat(fields[2], "needle y"),
+                parseStateFloat(fields[3], "needle z"),
                 1.0f,
             };
             needlePosition = true;
@@ -8318,10 +8331,10 @@ std::uint64_t loadHandoffState(
                 "invalid resume needle orientation"
             );
             needle.orientation = {
-                static_cast<float>(parseNumber(fields[1], "needle qx")),
-                static_cast<float>(parseNumber(fields[2], "needle qy")),
-                static_cast<float>(parseNumber(fields[3], "needle qz")),
-                static_cast<float>(parseNumber(fields[4], "needle qw")),
+                parseStateFloat(fields[1], "needle qx"),
+                parseStateFloat(fields[2], "needle qy"),
+                parseStateFloat(fields[3], "needle qz"),
+                parseStateFloat(fields[4], "needle qw"),
             };
             needleOrientation = true;
         } else if (fields[0] == "needle_linear_velocity") {
@@ -8330,11 +8343,11 @@ std::uint64_t loadHandoffState(
                 "invalid resume needle velocity"
             );
             needle.linearVelocityAndInverseMass.x =
-                static_cast<float>(parseNumber(fields[1], "needle vx"));
+                parseStateFloat(fields[1], "needle vx");
             needle.linearVelocityAndInverseMass.y =
-                static_cast<float>(parseNumber(fields[2], "needle vy"));
+                parseStateFloat(fields[2], "needle vy");
             needle.linearVelocityAndInverseMass.z =
-                static_cast<float>(parseNumber(fields[3], "needle vz"));
+                parseStateFloat(fields[3], "needle vz");
             needleLinearVelocity = true;
         } else if (fields[0] == "needle_angular_velocity") {
             require(
@@ -8342,9 +8355,9 @@ std::uint64_t loadHandoffState(
                 "invalid resume needle angular velocity"
             );
             needle.angularVelocity = {
-                static_cast<float>(parseNumber(fields[1], "needle wx")),
-                static_cast<float>(parseNumber(fields[2], "needle wy")),
-                static_cast<float>(parseNumber(fields[3], "needle wz")),
+                parseStateFloat(fields[1], "needle wx"),
+                parseStateFloat(fields[2], "needle wy"),
+                parseStateFloat(fields[3], "needle wz"),
                 0.0f,
             };
             needleAngularVelocity = true;
@@ -8362,9 +8375,9 @@ std::uint64_t loadHandoffState(
                 ? nodes[index].position
                 : nodes[index].velocity;
             destination = {
-                static_cast<float>(parseNumber(fields[2], "thread x")),
-                static_cast<float>(parseNumber(fields[3], "thread y")),
-                static_cast<float>(parseNumber(fields[4], "thread z")),
+                parseStateFloat(fields[2], "thread x"),
+                parseStateFloat(fields[3], "thread y"),
+                parseStateFloat(fields[4], "thread z"),
                 fields[0] == "thread_position" ? 1.0f : 0.0f,
             };
             if (fields[0] == "thread_position") {
@@ -8378,8 +8391,8 @@ std::uint64_t loadHandoffState(
             require(index < edges.size(), "resume thread edge is out of range");
             require(!haveEdge[index], "duplicate resume thread twist");
             edges[index].twistAndRate = {
-                static_cast<float>(parseNumber(fields[2], "thread twist")),
-                static_cast<float>(parseNumber(fields[3], "thread twist rate")),
+                parseStateFloat(fields[2], "thread twist"),
+                parseStateFloat(fields[3], "thread twist rate"),
                 0.0f,
                 0.0f,
             };
