@@ -1,0 +1,3 @@
+# Oversized checkpoint baseline
+
+The nine finite double values in the retained baseline were each too large for a finite float. All nine restores failed at the later MetalWorld reset validation. No invalid restore or physical step was published by these tests. The loader nevertheless narrowed and applied the values before that downstream validation; this experiment moves the range check to parsing and retains the later guard. The control is a synthetic tissue-rest fixture, not the earned surgical bridge checkpoint or evidence of a physical continuation. The complete original output and fixture hashes are in baseline.json and baseline.log.
