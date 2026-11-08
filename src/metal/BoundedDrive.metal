@@ -58,7 +58,13 @@ kernel void mr_world_prepare_coupled_drive_ir(
         if (!valid) break;
         row.flags=0u;
         row.targetVelocity=0.0f;row.compliance=h*h;row.impulseLower=row.impulseUpper=0.0f;
-        if (C>0.0f && cap>0.0f) {
+        if (C==0.0f && cap>0.0f && !negative) {
+            // Zero stiffness/damping still permits the existing moving
+            // source-friction force. A fixed impulse needs no division by C.
+            const float requested=abs(v)>1.0e-4f ? B-copysign(dry,v)
+                : copysign(max(abs(B)-dry,0.0f),B);
+            row.impulseLower=row.impulseUpper=h*clamp(requested,-cap,cap);
+        } else if (C>0.0f && cap>0.0f) {
             if (abs(v)>1.0e-4f) {
                 if (!negative) {
                     row.targetVelocity=(B-copysign(dry,v))/C;row.compliance=h/C;

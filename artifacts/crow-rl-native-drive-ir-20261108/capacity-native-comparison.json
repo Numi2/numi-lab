@@ -1,0 +1,7 @@
+{
+  "excluded_columns": [
+    "gpu_ms"
+  ],
+  "original_and_replayed_timings_retained": true,
+  "physical_records_byte_exact": 576
+}

@@ -1,0 +1,44 @@
+{
+  "candidate_exit_code": 1,
+  "candidate_trace_rows": 0,
+  "default_physical_files_exact": 10,
+  "diagnostic": [
+    "Crow probe metallib: /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-capacity-20261108/metalrobo/MetalRobo.metallib",
+    "Complete contact trial: one or more MetalWorld control steps rolled back after a GPU environment failure: status=11 environment=0 control_step=0 aba_status=0 failing_substep=2 failing_index=4294967295 aba_diagnostic_0=0.002328 aba_diagnostic_1=0.646554 aba_diagnostic_2=2379.495850 aba_diagnostic_3=0.000000 contact_status=11 required_pairs=4 pair_capacity=95 required_raw_contacts=10 raw_contact_capacity=256 required_manifolds=4 manifold_capacity=95 required_constraints=42 constraint_capacity=160 failing_constraint=4294967295 failing_stable_key=4294967295,4294967295 diagnostic_0=1.000000 diagnostic_1=0.000000 diagnostic_2=0.002169 diagnostic_3=0.670850 contact_residuals=0.000000,0.000000,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000006 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.029272 solver_iterations=20 quality_newton=20 quality_pcg=77 quality_backtracks=0 quality_path=1 quality_status=7 quality_path=1 quality_block=4294967295 quality_key=4294967295,4294967295,4294967295,4294967295 quality_newton=20 quality_pcg=77 quality_backtracks=0 quality_retries=0 quality_cert0=0.000000,0.000000,0.000000,0.000006 quality_cert1=0.000000,0.000000,0.000000,0.000012 quality_numerics=0.029272,0.000000,0.000000,0.000000"
+  ],
+  "host_template_checks": 10,
+  "initial_physical_files": {
+    "initial-geometry.json": {
+      "byte_exact": true,
+      "present": true
+    },
+    "initial-q.f32": {
+      "byte_exact": true,
+      "present": true
+    },
+    "initial-scene.bin": {
+      "byte_exact": true,
+      "present": true
+    },
+    "initial-v.f32": {
+      "byte_exact": true,
+      "present": true
+    }
+  },
+  "limits": "Capacity-only engineering correction. Hybrid CCD remains rejected. No new scientific qualification or tolerance change.",
+  "maximum_recorded_penetration_m": null,
+  "native_failure": {
+    "failed_steps": 4,
+    "first_failing_lane": 0,
+    "first_failing_local_tick": 0,
+    "first_gpu_status": 11,
+    "host_status": 16,
+    "submission_begin_tick": 0,
+    "submission_ticks": 1,
+    "successful_steps": 0
+  },
+  "native_replay_conditions": 576,
+  "policy_or_profile_promoted": false,
+  "terminal": null,
+  "verdict": "contradicted"
+}

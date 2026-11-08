@@ -1,0 +1,54 @@
+{
+  "budget": {
+    "edge_native_conditions": 48,
+    "known_bad_stops_after_first_bad_batch": true,
+    "raw_max_bytes": 67108864,
+    "timeout_each_s": 120
+  },
+  "conditions": {
+    "CCD": "disabled",
+    "D": 0,
+    "K": 0,
+    "cap_N": [
+      0.001,
+      0.01
+    ],
+    "collision": [
+      false,
+      true
+    ],
+    "dry_force_N": [
+      0,
+      0.002
+    ],
+    "h_s": 0.00045,
+    "physical_plus_armature_masses_kg": [
+      0.007,
+      0.015
+    ],
+    "quality_feasibility": 1e-07,
+    "quality_optimality": 1e-10,
+    "source_q_m": 0,
+    "source_v_mps": [
+      -0.02,
+      0,
+      0.02
+    ]
+  },
+  "issue": "At K=D=0 and nonzero dry friction, the source-moving motor force remains finite. The initial new coupled kernel incorrectly made both impulse rows zero.",
+  "prediction": {
+    "maximum_force_error_N": 1e-07,
+    "maximum_momentum_residual_Ns": 2e-09,
+    "maximum_q_hv_error_m": 2e-09,
+    "new_native_conditions": 48,
+    "old_shader_detected_by_first_inconsistent_batch": true
+  },
+  "regression": [
+    "576 physical records unchanged except GPU timing",
+    "default640 physical files exact",
+    "candidate's previously observed first-step rejection reproduced; not a new scientific observation"
+  ],
+  "repair": "When C=0, represent the exact existing bounded source-friction force with one fixed-impulse scalar row; the second row remains zero. No division by zero, coefficient or tolerance change.",
+  "schema": "crow-native-drive-zero-gain-v1",
+  "stop": "One old-shader negative control, one repaired edge study and bounded engineering regression only. Stop at first unexpected outcome; no quality tolerance change or promotion."
+}

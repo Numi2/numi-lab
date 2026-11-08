@@ -1,0 +1,82 @@
+[
+  {
+    "args": [
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-capacity-20261108/probe",
+      "--native-drive-calibrate"
+    ],
+    "exit_code": 0,
+    "loader_lines": [
+      "dyld[41327]: <2CBDC822-F332-37C1-92BA-C4EEE2B19C6E> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-capacity-20261108/libmetalrobo.dylib"
+    ],
+    "name": "capacity-host",
+    "seconds": 0.7106105420000001
+  },
+  {
+    "args": [
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-capacity-20261108/ir-probe"
+    ],
+    "exit_code": 0,
+    "loader_lines": [
+      "dyld[41328]: <2CBDC822-F332-37C1-92BA-C4EEE2B19C6E> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-capacity-20261108/libmetalrobo.dylib"
+    ],
+    "name": "capacity-ir-owner",
+    "seconds": 0.324588958
+  },
+  {
+    "args": [
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-capacity-20261108/contact-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-capacity-20261108/metalrobo/MetalRobo.metallib"
+    ],
+    "exit_code": 0,
+    "loader_lines": [
+      "dyld[41329]: <2CBDC822-F332-37C1-92BA-C4EEE2B19C6E> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-capacity-20261108/libmetalrobo.dylib"
+    ],
+    "name": "capacity-contact-owner",
+    "seconds": 0.961210208
+  },
+  {
+    "args": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-build-01/fixture-default",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-build-01/default-crow-capacity",
+      "0",
+      "1",
+      "32"
+    ],
+    "exit_code": 0,
+    "loader_lines": [
+      "dyld[41334]: <2CBDC822-F332-37C1-92BA-C4EEE2B19C6E> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-capacity-20261108/libmetalrobo.dylib"
+    ],
+    "name": "capacity-default-crow",
+    "seconds": 16.754622083
+  },
+  {
+    "args": [
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-capacity-20261108/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-capacity-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-build-01/native-capacity.tsv",
+      "--native-drive"
+    ],
+    "exit_code": 0,
+    "loader_lines": [
+      "dyld[41365]: <2CBDC822-F332-37C1-92BA-C4EEE2B19C6E> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-capacity-20261108/libmetalrobo.dylib"
+    ],
+    "name": "capacity-native-replay",
+    "seconds": 0.09052570800000126
+  },
+  {
+    "args": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-build-01/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-build-01/crow-mode2-capacity",
+      "0",
+      "1",
+      "32",
+      "2"
+    ],
+    "exit_code": 1,
+    "loader_lines": [
+      "dyld[41366]: <2CBDC822-F332-37C1-92BA-C4EEE2B19C6E> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-capacity-20261108/libmetalrobo.dylib"
+    ],
+    "name": "capacity-crow-candidate",
+    "seconds": 0.15035808299999687
+  }
+]

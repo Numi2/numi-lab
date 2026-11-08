@@ -204,5 +204,40 @@ void executeNativeDrive(const char* shader,const char* output){
  std::cout<<std::setprecision(17)<<"{\"accepted_native_conditions\":"<<accepted<<",\"maximum_force_error_N\":"<<maxForce<<",\"maximum_momentum_error_Ns\":"<<maxMomentum<<",\"maximum_q_hv_error_m\":"<<maxQ<<"}\n";
 }
 
+void executeZeroGain(const char* shader,const char* output){
+ MetalWorldConfig cfg;cfg.metallibPath=shader;MetalWorldContext context(cfg);
+ std::ofstream out(output);need(bool(out),"Cannot create zero-gain output");
+ out<<std::setprecision(17)<<"variant\tcontact\tdry\tcap\tlane\th\tv0\tq\tv\tforce\texpected_force\tforce_error\tmomentum_residual\tq_residual\n";
+ const float h=.00045f;unsigned accepted=0;
+ for(unsigned variant:{6u,7u})for(bool contact:{false,true})for(float dry:{0.0f,.002f})for(float cap:{.001f,.01f}){
+  auto original=model(variant,contact);original.dofs[0].drive.x=original.dofs[0].drive.y=0;
+  original.dofs[0].drive.w=dry;original.dofs[0].limits.w=cap;original.materials[0].friction={.5f,.5f,0,0};
+  EngineModel m;const auto c=compileCoupledPositionDrives(original,m);need(c.succeeded(),c.message);const double M=mass(m);
+  CompiledWorld world;const auto compiled=compileMetalWorld(m,0,world);need(compiled.succeeded(),compiled.message);
+  std::array<float,3>q{},v{-.02f,0,.02f},target{};std::array<MRBodyStateGPU,3>scene{};
+  for(auto& s:scene){s.position.w=s.orientation.w=1;s.flagsAndIndices[0]=MR_MOTION_STATIC;s.flagsAndIndices[1]=MR_INVALID_INDEX;s.flagsAndIndices[2]=0;}
+  MetalWorldBatch batch{.environmentCount=3,.controlStepCount=1,.initialQ=q,.initialV=v,.efforts=target,.initialSceneBodies=scene};
+  MetalWorldStepConfig step;step.timestepSeconds=h;step.physicsSubsteps=1;step.applyBodyDamping=false;step.ccdMode=MetalWorldCCDMode::disabled;
+  step.solverMode=MetalWorldSolverMode::qualityNewton;step.actuationMode=MetalWorldActuationMode::coupledPositionDrive;
+  step.warmStart=false;step.captureContactEvidence=true;step.matrixFreeArticulatedContact=false;step.streamedArticulatedContactResponses=false;
+  step.quality.optimalityTolerance=1e-10f;step.quality.feasibilityTolerance=1e-7f;
+  MetalWorldResult r;const auto d=context.run(world,batch,step,r);need(d.succeeded()&&d.successfulStepCount==3&&!d.failedStepCount,"Native zero-gain invocation failed: "+d.message);
+  const unsigned stride=r.contactEvidence.contacts.size()/3;double maxForce=0,maxMomentum=0,maxQ=0;accepted+=3;
+  for(unsigned lane=0;lane<3;++lane){double motor=0,p=0;
+   for(unsigned j=0;j<r.contactStatuses[lane].requiredConstraints;++j){need(j<stride,"Zero-gain contact stride");const auto& row=r.contactEvidence.contacts[lane*stride+j];
+    if((row.flags&MR_CONSTRAINT_FLAG_GENERALIZED)!=0u)motor+=row.impulses.x;
+    else{const double sign=row.bodyB==2?1:row.bodyA==2?-1:0;need(sign!=0,"Zero-gain contact incidence");p+=sign*row.normal.y*row.impulses.x;}}
+   const double expected=std::abs(v[lane])>1e-4f?std::clamp(-std::copysign(double(dry),double(v[lane])),-double(cap),double(cap)):0;
+   const double force=motor/h,fe=std::abs(force-expected),balance=M*(double(r.finalV[lane])-v[lane])-motor-p,qr=double(r.finalQ[lane])-double(h)*r.finalV[lane];
+   out<<variant<<'\t'<<contact<<'\t'<<dry<<'\t'<<cap<<'\t'<<lane<<'\t'<<h<<'\t'<<v[lane]<<'\t'<<r.finalQ[lane]<<'\t'<<r.finalV[lane]<<'\t'<<force<<'\t'<<expected<<'\t'<<fe<<'\t'<<balance<<'\t'<<qr<<'\n';
+   need(std::isfinite(force)&&std::isfinite(balance)&&std::isfinite(qr),"Nonfinite zero-gain measurement");maxForce=std::max(maxForce,fe);maxMomentum=std::max(maxMomentum,std::abs(balance));maxQ=std::max(maxQ,std::abs(qr));
+  }
+  out.flush();need(bool(out),"Zero-gain evidence write failed");
+  std::cout<<"zero-gain accepted="<<accepted<<" force="<<maxForce<<" momentum="<<maxMomentum<<" q="<<maxQ<<'\n'<<std::flush;
+  need(maxForce<=1e-7&&maxMomentum<=2e-9&&maxQ<=2e-9,"Native zero-gain physical gate failed");
+ }
+ need(accepted==48,"Zero-gain sample budget mismatch");
 }
-int main(int argc,char** argv){try{if(argc==2&&std::string(argv[1])=="--native-drive-calibrate"){calibrateNativeDrive();return 0;}if(argc==4&&std::string(argv[3])=="--native-drive"){executeNativeDrive(argv[1],argv[2]);return 0;}if(argc==2&&std::string(argv[1])=="--calibrate-precision"){calibrateIR(true);return 0;}if(argc==4&&std::string(argv[3])=="--coupled-precision"){executeCoupled(argv[1],argv[2],3);return 0;}if(argc==4&&std::string(argv[3])=="--momentum-replay"){executeCoupled(argv[1],argv[2],4);return 0;}if(argc==4&&std::string(argv[3])=="--coupled-unused"){executeCoupled(argv[1],argv[2],1);return 0;}if(argc==4&&std::string(argv[3])=="--empty-quality-replay"){executeCoupled(argv[1],argv[2],2);return 0;}if(argc==2&&std::string(argv[1])=="--calibrate-ir"){calibrateIR();return 0;}if(argc==4&&std::string(argv[3])=="--coupled"){executeCoupled(argv[1],argv[2]);return 0;}if(argc==2&&std::string(argv[1])=="--calibrate"){calibrate();return 0;}need(argc==3||argc==4,"Usage: motor-contact-probe --calibrate OR METALLIB NEW_TSV [--followup]");need(argc!=4||std::string(argv[3])=="--followup","Unknown selector");execute(argv[1],argv[2],argc==4);return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}
+
+}
+int main(int argc,char** argv){try{if(argc==4&&std::string(argv[3])=="--zero-gain"){executeZeroGain(argv[1],argv[2]);return 0;}if(argc==2&&std::string(argv[1])=="--native-drive-calibrate"){calibrateNativeDrive();return 0;}if(argc==4&&std::string(argv[3])=="--native-drive"){executeNativeDrive(argv[1],argv[2]);return 0;}if(argc==2&&std::string(argv[1])=="--calibrate-precision"){calibrateIR(true);return 0;}if(argc==4&&std::string(argv[3])=="--coupled-precision"){executeCoupled(argv[1],argv[2],3);return 0;}if(argc==4&&std::string(argv[3])=="--momentum-replay"){executeCoupled(argv[1],argv[2],4);return 0;}if(argc==4&&std::string(argv[3])=="--coupled-unused"){executeCoupled(argv[1],argv[2],1);return 0;}if(argc==4&&std::string(argv[3])=="--empty-quality-replay"){executeCoupled(argv[1],argv[2],2);return 0;}if(argc==2&&std::string(argv[1])=="--calibrate-ir"){calibrateIR();return 0;}if(argc==4&&std::string(argv[3])=="--coupled"){executeCoupled(argv[1],argv[2]);return 0;}if(argc==2&&std::string(argv[1])=="--calibrate"){calibrate();return 0;}need(argc==3||argc==4,"Usage: motor-contact-probe --calibrate OR METALLIB NEW_TSV [--followup]");need(argc!=4||std::string(argv[3])=="--followup","Unknown selector");execute(argv[1],argv[2],argc==4);return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}
