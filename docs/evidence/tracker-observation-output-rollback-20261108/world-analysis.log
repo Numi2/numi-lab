@@ -1,0 +1,8 @@
+{
+  "accepted": 55,
+  "rejected_reset": 2,
+  "rejected_no_reset": 3,
+  "accepted_changed": 53,
+  "rejected_changed": 3,
+  "mixed_steps": 3
+}

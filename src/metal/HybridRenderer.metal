@@ -24,6 +24,14 @@ kernel void mr_hybrid_restore_failed_observation_history(
     device uint* frameFresh [[buffer(10)]],
     device const uint* savedFrameFresh [[buffer(11)]],
     constant uint& sampledFrame [[buffer(12)]],
+    device float* actorOutput [[buffer(13)]],
+    device const float* savedActorOutput [[buffer(14)]],
+    constant uint& outputStride [[buffer(15)]],
+    constant ulong& outputOffset [[buffer(16)]],
+    device const uint* resetMasks [[buffer(17)]],
+    device const MRHybridObjectTrackBindingGPU* bindings [[buffer(18)]],
+    constant uint4& resetLayout [[buffer(19)]],
+    constant uint4& resetDepth [[buffer(20)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint lanes [[threads_per_threadgroup]]
@@ -43,6 +51,25 @@ kernel void mr_hybrid_restore_failed_observation_history(
     for (uint i = lane; i < actorStride; i += lanes) {
         const uint index = environment * actorStride + i;
         actorHistory[index] = savedActorHistory[index];
+    }
+    for (uint i = lane; i < outputStride; i += lanes) {
+        const ulong index = ulong(environment) * outputStride + i;
+        float value = savedActorOutput[index];
+        if (resetMasks[ulong(resetLayout.w) * counts.x + environment] != 0u) {
+            if (resetLayout.x != 0u && ulong(i) < ulong(resetLayout.x) * resetLayout.y) {
+                const uint component = i % resetLayout.x;
+                for (uint binding = 0u; binding < resetLayout.z; ++binding) {
+                    const uint start = bindings[binding].identity.y;
+                    if (component >= start && component - start < 7u) value = 0.0f;
+                }
+            }
+            if (resetDepth.w != 0u && i >= resetDepth.x) {
+                const uint relative = i - resetDepth.x;
+                if (relative < resetDepth.y) value = 1.0f;
+                else if (relative - resetDepth.y < resetDepth.z) value = 0.0f;
+            }
+        }
+        actorOutput[outputOffset + index] = value;
     }
 }
 
