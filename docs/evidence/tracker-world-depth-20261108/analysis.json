@@ -1,0 +1,22 @@
+{
+  "layout": {
+    "width": 160,
+    "height": 120,
+    "features": 24,
+    "output": 38526
+  },
+  "counts": {
+    "accepted": 55,
+    "rejected_reset": 2,
+    "rejected_nonreset": 3,
+    "accepted_depth_changed": 55,
+    "rejected_depth_changed": 5,
+    "mixed": 3,
+    "accepted_reset": 5
+  },
+  "failures": [
+    "reset depth 14/0",
+    "reset depth 27/0"
+  ],
+  "passed": false
+}
