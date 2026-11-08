@@ -1,0 +1,29 @@
+{
+  "5": {
+    "steps": 20,
+    "node_span_max": 2,
+    "edge_span_max": 1,
+    "patterns": {
+      "[(1, 2, 1), (2, 3, 2)]": 20
+    },
+    "trace_equal": true
+  },
+  "9": {
+    "steps": 20,
+    "node_span_max": 2,
+    "edge_span_max": 1,
+    "patterns": {
+      "[(3, 4, 3), (4, 5, 4)]": 20
+    },
+    "trace_equal": true
+  },
+  "17": {
+    "steps": 20,
+    "node_span_max": 2,
+    "edge_span_max": 1,
+    "patterns": {
+      "[(7, 8, 7), (8, 9, 8)]": 20
+    },
+    "trace_equal": true
+  }
+}

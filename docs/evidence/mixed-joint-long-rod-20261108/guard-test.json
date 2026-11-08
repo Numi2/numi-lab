@@ -1,0 +1,55 @@
+[
+  {
+    "command": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metal",
+      "-std=metal4.0",
+      "-c",
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/guard.metal",
+      "-o",
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/guard.air"
+    ],
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "command": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metallib",
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/guard.air",
+      "-o",
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/guard.metallib"
+    ],
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "command": [
+      "xcrun",
+      "clang++",
+      "-std=c++20",
+      "-fobjc-arc",
+      "/Users/numi/numi-lab-reconciliation-20261108/docs/evidence/mixed-joint-long-rod-20261108/guard_test.mm",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "Metal",
+      "-o",
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/guard_test"
+    ],
+    "returncode": 0,
+    "output": "/Users/numi/numi-lab-reconciliation-20261108/docs/evidence/mixed-joint-long-rod-20261108/guard_test.mm:15:37: warning: 'newLibraryWithFile:error:' is deprecated: first deprecated in macOS 13.0 - Use -newLibraryWithURL:error: instead [-Wdeprecated-declarations]\n   15 |  NSError*e=nil;id<MTLLibrary>lib=[d newLibraryWithFile:[NSString stringWithUTF8String:argv[1]] error:&e];if(!lib){std::cerr<<e.localizedDescription.UTF8String;return 4;}\n      |                                     ^\n/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework/Headers/MTLDevice.h:766:1: note: 'newLibraryWithFile:error:' has been explicitly marked deprecated here\n  766 | - (nullable id <MTLLibrary>)newLibraryWithFile:(NSString *)filepath error:(__autoreleasing NSError **)error\n      | ^\n1 warning generated.\n"
+  },
+  {
+    "command": [
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/guard_test",
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/guard.metallib"
+    ],
+    "returncode": 0,
+    "output": "{\"cases\":[{\"index\":0,\"actual\":1,\"expected\":1},{\"index\":1,\"actual\":1,\"expected\":1},{\"index\":2,\"actual\":1,\"expected\":1},{\"index\":3,\"actual\":1,\"expected\":1},{\"index\":4,\"actual\":0,\"expected\":0},{\"index\":5,\"actual\":0,\"expected\":0},{\"index\":6,\"actual\":0,\"expected\":0},{\"index\":7,\"actual\":0,\"expected\":0},{\"index\":8,\"actual\":1,\"expected\":1},{\"index\":9,\"actual\":0,\"expected\":0},{\"index\":10,\"actual\":1,\"expected\":1},{\"index\":11,\"actual\":0,\"expected\":0}],\"passed\":true}\n"
+  }
+]
