@@ -1241,3 +1241,20 @@ publish active, cached, released-cache, and peak MLX byte counts. Revision
 checkpoints retain the stochastic PolicyPack and matching learner state for
 resume, plus a separately named deterministic PolicyPack for physical
 evaluation and explicit deployment selection.
+
+### Exact replay of protected CCD failures
+
+`metalrobo_ccd_sweep_probe PRODUCTION_METALLIB QUERY_METALLIB SNAPSHOT NEW_OUTPUT`
+reads a bounded `CCDSNP01` snapshot. Version 2 uses the protected first unsafe
+record, source shapes, projections and event cursor; post-submission scratch
+remains separately visible. The probe loads the actual production resolver
+kernel, admits only the failed sphere–box pair at its original lane/pair index,
+and queries 257 interpolation points in a separate test entry point. Compare
+every replayed candidate byte before attributing a failure to these inputs.
+Different compiler settings can change even a scalar motion bound by one ULP.
+
+The protected capture reproduced the original crow failure and all canonical
+training outputs. Its exact isolated replay is stationary sphere–box geometry,
+with separation just above tolerance and all 16 CA iterations consumed; the
+query matches an independent FP64 OBB calculation within 1.1 nm. This is a scoped
+diagnosis, not a physics repair or learned manipulation result.

@@ -2701,6 +2701,34 @@ target_link_libraries(metalrobo_ccd_distance_probe PRIVATE
 set_target_properties(metalrobo_ccd_distance_probe PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
 
+set(METALROBO_CCD_SWEEP_METALLIB
+    "${METALROBO_SHADER_DIR}/CCDSweepProbe.metallib")
+add_custom_command(
+    OUTPUT "${METALROBO_CCD_SWEEP_METALLIB}"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${METALROBO_SHADER_DIR}"
+    COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
+        -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        -c "${CMAKE_CURRENT_SOURCE_DIR}/apps/ccd_sweep_probe.metal"
+        -o "${METALROBO_SHADER_DIR}/CCDSweepProbe.air"
+    COMMAND xcrun -sdk macosx metallib
+        "${METALROBO_SHADER_DIR}/CCDSweepProbe.air"
+        -o "${METALROBO_CCD_SWEEP_METALLIB}"
+    DEPENDS apps/ccd_sweep_probe.metal src/metal/Collision.metal
+        include/metalrobo/engine_types.h include/metalrobo/gpu_types.h
+        include/metalrobo/rod_gpu_shared.h
+    VERBATIM)
+add_custom_target(metalrobo_ccd_sweep_shaders
+    DEPENDS "${METALROBO_CCD_SWEEP_METALLIB}")
+add_executable(metalrobo_ccd_sweep_probe apps/ccd_sweep_probe.mm)
+add_dependencies(metalrobo_ccd_sweep_probe metalrobo_ccd_sweep_shaders)
+target_include_directories(metalrobo_ccd_sweep_probe PRIVATE include)
+target_compile_options(metalrobo_ccd_sweep_probe PRIVATE
+    -fobjc-arc -Wall -Wextra -Wpedantic)
+target_link_libraries(metalrobo_ccd_sweep_probe PRIVATE
+    "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+set_target_properties(metalrobo_ccd_sweep_probe PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+
 add_executable(
     metalrobo_deterministic_broadphase_probe
     apps/deterministic_broadphase_probe.mm
