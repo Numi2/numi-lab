@@ -44,7 +44,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 266u;
+constexpr std::size_t kRawBufferCount = 267u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -370,6 +370,7 @@ enum BufferIndex : std::size_t {
     kPolicyMemoryResets = 263u,
     kDriveFreeAcceleration = 264u,
     kDriveEffectiveEffort = 265u,
+    kDriveFailureSnapshot = 266u,
 };
 
 struct BufferRequirement {
@@ -2116,6 +2117,10 @@ bool buildRequirements(
             (layout.dispatch.flags & MR_METAL_WORLD_BOUNDED_POSITION_DRIVES) != 0u
                 ? layout.initialVElements : 0u,
             requirements.entries[kDriveEffectiveEffort]) ||
+        !makeRequirement<MRBoundedDriveFailureGPU>("bounded drive failure witness",
+            (layout.dispatch.flags & MR_METAL_WORLD_CAPTURE_BOUNDED_DRIVE_FAILURE) != 0u
+                ? layout.dispatch.environmentCount : 0u,
+            requirements.entries[kDriveFailureSnapshot]) ||
         !makeRequirement<MRABABodyWrenchGPU>(
             "external body wrenches",
             (layout.dispatch.flags &
@@ -4233,6 +4238,10 @@ MetalWorldDiagnostics validateAndBuildLayout(
         (config.actuationMode == MetalWorldActuationMode::boundedPositionDrive
              ? static_cast<mr_u32>(MR_METAL_WORLD_BOUNDED_POSITION_DRIVES)
              : 0u) |
+        (config.actuationMode == MetalWorldActuationMode::boundedPositionDrive &&
+         std::getenv("METALROBO_BOUNDED_FAILURE_CAPTURE") != nullptr
+             ? static_cast<mr_u32>(MR_METAL_WORLD_CAPTURE_BOUNDED_DRIVE_FAILURE)
+             : 0u) |
         (nativeTask
              ? static_cast<mr_u32>(
                    MR_METAL_WORLD_NATIVE_TASK
@@ -5509,6 +5518,7 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld working effort";
     case kDriveFreeAcceleration: return @"MetalWorld physical free acceleration";
     case kDriveEffectiveEffort: return @"MetalWorld bounded effective effort";
+    case kDriveFailureSnapshot: return @"MetalWorld bounded first failure witness";
     case kBodyWrenchPlaceholder:
         return @"MetalWorld external body wrenches";
     case kMulticopterRotors:
@@ -7264,6 +7274,7 @@ bool privateTransientBuffer(const std::size_t index) {
     case kWorkingEffort:
     case kDriveFreeAcceleration:
     case kDriveEffectiveEffort:
+    case kDriveFailureSnapshot:
     case kMillardResults:
     case kMillardGeneralizedForces:
     case kBodyWrenchPlaceholder:
@@ -9720,6 +9731,7 @@ void uploadBatch(
         kWorkingEffort,
         kDriveFreeAcceleration,
         kDriveEffectiveEffort,
+        kDriveFailureSnapshot,
         kBodyWrenchPlaceholder,
         kCandidateAcceleration,
         kCandidateV,
@@ -15151,6 +15163,7 @@ bool encodeBoundedDrivePrediction(
         else [encoder setBuffer:context.buffers[buffers[index]] offset:0u atIndex:index];
     }
     [encoder setBytes:&mode length:sizeof(mode) atIndex:18u];
+    [encoder setBuffer:context.buffers[kDriveFailureSnapshot] offset:0u atIndex:19u];
     [encoder dispatchThreadgroups:MTLSizeMake(environmentCount,1u,1u)
         threadsPerThreadgroup:MTLSizeMake(MR_SIMD_WIDTH,1u,1u)];
     [encoder endEncoding];
@@ -20033,6 +20046,7 @@ bool MetalWorldSubmission::valid() const noexcept {
 }
 
 #include "CCDFailureCapture.inc"
+#include "BoundedDriveFailureCapture.inc"
 
 MetalWorldDiagnostics MetalWorldSubmission::wait(
     MetalWorldResult& result
@@ -20448,7 +20462,10 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
             }
         }
 
-        if (pending->contactMode) captureCCDFailure(*pending->context, staged);
+        if (pending->contactMode) {
+            captureCCDFailure(*pending->context, staged);
+            captureBoundedDriveFailure(*pending->context, staged);
+        }
 
         return validateAndPublish(
             std::move(staged),

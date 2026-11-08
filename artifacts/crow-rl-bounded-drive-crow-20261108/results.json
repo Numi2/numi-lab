@@ -1,0 +1,75 @@
+{
+  "accepted_control_transitions": 0,
+  "all_5mm_convergence_pass": false,
+  "all_declared_commands_completed": false,
+  "all_negative_fail_hold": false,
+  "all_positive_mechanical_pass": false,
+  "chunk_equivalence": {},
+  "commands": [
+    {
+      "arm": 0,
+      "chunk": 1,
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/fixture-bounded",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/crow-bounded32",
+        "0",
+        "1",
+        "32"
+      ],
+      "executable": "fixture-bounded",
+      "exit_code": 1,
+      "name": "crow-bounded32",
+      "sealed_head": "bd9885ed1b9fd50c11fba5aa714f25b7bc4782ed",
+      "seconds": 7.0516115,
+      "substeps": 32,
+      "timedout": false
+    }
+  ],
+  "convergence": {},
+  "failure": {
+    "arm": 0,
+    "chunk": 1,
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/fixture-bounded",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/crow-bounded32",
+      "0",
+      "1",
+      "32"
+    ],
+    "executable": "fixture-bounded",
+    "exit_code": 1,
+    "name": "crow-bounded32",
+    "native_failure": {
+      "failed_steps": 3,
+      "first_failing_lane": 0,
+      "first_failing_local_tick": 0,
+      "first_gpu_status": 11,
+      "host_status": 16,
+      "submission_begin_tick": 21,
+      "submission_ticks": 1,
+      "successful_steps": 1
+    },
+    "sealed_head": "bd9885ed1b9fd50c11fba5aa714f25b7bc4782ed",
+    "seconds": 7.0516115,
+    "substeps": 32,
+    "timedout": false
+  },
+  "final_state_chunk_exact": false,
+  "full_crow_qualified": false,
+  "limitations": "Controlled rigid sphere surrogate, not learned manipulation, food intake, sensor-driven task, checkpoint/reset equivalence, energy integral or biology. Even a pass does not qualify the full environment or end-to-end training performance.",
+  "policy_or_profile_promoted": false,
+  "runs": {},
+  "sealed_head": "bd9885ed1b9fd50c11fba5aa714f25b7bc4782ed",
+  "unrun": [
+    "crow-bounded64",
+    "crow-bounded128",
+    "crow-open",
+    "crow-nocontact",
+    "crow-frictionless",
+    "crow-chunk8",
+    "crow-unused64",
+    "crow-unused128",
+    "crow-legacy32"
+  ],
+  "verdict": "inconclusive_native_failure"
+}

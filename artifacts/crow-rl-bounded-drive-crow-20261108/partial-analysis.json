@@ -1,0 +1,78 @@
+{
+  "accepted_complete_control_ticks_before_failed_submission": 21,
+  "accepted_control_transitions_before_failed_submission": 84,
+  "accepted_transitions_in_failed_submission": 1,
+  "frozen_trial_result": "inconclusive_native_failure",
+  "limits": "Partial pre-hold trace; cannot evaluate full hold/release or cadence convergence. A motor certificate failure is identified by256completed sweeps. Its cause is not yet established.",
+  "maximum_observed_penetration_m": 0.00201661905861,
+  "rejected_transitions": 3,
+  "reporting_note": "results.json accepted_control_transitions=0 counts only fully completed640transitionruns; this supplemental ledger includes the85accepted partial-run transitions.",
+  "total_accepted_transitions": 85,
+  "unrun_arms": 9,
+  "world_statuses": [
+    {
+      "aba_code": 0,
+      "code": 11,
+      "control_step": 0,
+      "diagnostics": [
+        6.984919309616089e-07,
+        256.0,
+        0.0006249999860301614,
+        0.0
+      ],
+      "failing_index": 4294967295,
+      "failing_substep": 27,
+      "flags": 503,
+      "lane": 0,
+      "successful_substeps": 27
+    },
+    {
+      "aba_code": 0,
+      "code": 0,
+      "control_step": 0,
+      "diagnostics": [
+        0.0023278023581951857,
+        0.6633629202842712,
+        19361.771484375,
+        5.960464477539063e-08
+      ],
+      "failing_index": 4294967295,
+      "failing_substep": 4294967295,
+      "flags": 503,
+      "lane": 1,
+      "successful_substeps": 32
+    },
+    {
+      "aba_code": 0,
+      "code": 11,
+      "control_step": 0,
+      "diagnostics": [
+        8.847564458847046e-07,
+        256.0,
+        0.0006249999860301614,
+        0.0
+      ],
+      "failing_index": 4294967295,
+      "failing_substep": 27,
+      "flags": 503,
+      "lane": 2,
+      "successful_substeps": 27
+    },
+    {
+      "aba_code": 0,
+      "code": 11,
+      "control_step": 0,
+      "diagnostics": [
+        1.3504177331924438e-06,
+        256.0,
+        0.0006249999860301614,
+        0.0
+      ],
+      "failing_index": 4294967295,
+      "failing_substep": 31,
+      "flags": 503,
+      "lane": 3,
+      "successful_substeps": 31
+    }
+  ]
+}

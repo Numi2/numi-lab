@@ -13850,6 +13850,7 @@ kernel void mr_world_bounded_drive_prediction(
     device float* acceleration [[buffer(16)]],
     device const MRCCDEventStateGPU* eventStates [[buffer(17)]],
     constant uint& mode [[buffer(18)]],
+    device MRBoundedDriveFailureGPU* failures [[buffer(19)]],
     const uint environment [[threadgroup_position_in_grid]],
     const uint lane [[thread_index_in_threadgroup]]
 ) {
@@ -13982,6 +13983,26 @@ kernel void mr_world_bounded_drive_prediction(
         status.failingSubstep=pass.physicsSubstep;
         status.diagnostics=float4(maximumScaledResidual,float(completed),h,0.0f);
         worldStatuses[environment]=status;
+        if ((worldDispatch.flags & MR_METAL_WORLD_CAPTURE_BOUNDED_DRIVE_FAILURE) != 0u) {
+            device MRBoundedDriveFailureGPU& saved=failures[environment];
+            saved.valid=0u;
+            saved.environment=environment; saved.controlStep=pass.controlStep;
+            saved.physicsSubstep=pass.physicsSubstep; saved.nv=n;
+            saved.mode=mode; saved.sweeps=completed; saved.code=contact.code;
+            saved.diagnostics=float4(h,maximumScaledResidual,0.0f,0.0f);
+            for (uint i=0u;i<capacity;++i) {
+                for (uint j=0u;j<capacity;++j) {
+                    saved.factor[i*capacity+j]=i<n && j<n ? factor[fBase+i*n+j] : 0.0f;
+                    saved.inverse[i*capacity+j]=i<n && j<n ? inverse[i*capacity+j] : 0.0f;
+                }
+                saved.freeAcceleration[i]=i<n ? freeAcceleration[vBase+i] : 0.0f;
+                saved.b[i]=i<n ? b[i] : 0.0f; saved.c[i]=i<n ? c[i] : 0.0f;
+                saved.cap[i]=i<n ? cap[i] : 0.0f; saved.friction[i]=i<n ? friction[i] : 0.0f;
+                saved.torque[i]=i<n ? torque[i] : 0.0f;
+                saved.acceleration[i]=i<n ? a[i] : 0.0f;
+            }
+            saved.valid=0x42444631u;
+        }
         return;
     }
     for (uint i=0u; i<n; ++i) {

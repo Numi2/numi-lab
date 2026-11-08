@@ -1,0 +1,36 @@
+{
+  "budget": {
+    "first": "Constitutive514steps,976rows,captureoff",
+    "maximum_new_output_bytes": 2000000,
+    "native_invocations": 2,
+    "second": "One exposed crow32replication expectedexit1,tick21/substep27lane0,85accepted3failed; no retry if mismatch",
+    "timeout_seconds_each": 180
+  },
+  "failed_instrument_attempts": "Firstbuild referencednonexistentcontext.boundDispatch; repaired useBoundedDrives before anynative observations. FirstFP64calibration usedsystemPythonwithoutNumPy; repointedtoexistingprojectvenv and48casecalibrationpassed. Preservebothfailures.",
+  "inputs": {
+    ".numi/retained-runtime/bounded-drive-witness-20261108/libmetalrobo.dylib": "7f5ce8781fe1cb85d52736b8bcd640484fd8225a612cc9317805e906cbb78d16",
+    ".numi/retained-runtime/bounded-drive-witness-20261108/metalrobo/MetalRobo.metallib": "fbe3878c402306838a44eb2b981eb661db7a8cb6bc88dea619e1e5b39b79a9c9",
+    ".numi/retained-runtime/bounded-drive-witness-20261108/probe": "b16fa83771f3fc0820dc2699d66debc7fc0b4bd219128c4af4121ebd7c39b04c",
+    "artifacts/crow-rl-bounded-drive-crow-20261108/witness/motor_reference.py": "0a8f9acc13b424905637364fd917a049d0229bb15d6f4aa2b07e9106ff9ae447",
+    "artifacts/crow-rl-bounded-drive-crow-20261108/witness/run_witness.py": "87b8607c73afd9a62b9ee6fc9f9030bed71232d58be2ed1d3f53500ce09e7213",
+    "build/crow-bounded-drive-integration-build-01/fixture-bounded": "116dfb25a90cccb35f32400509c0119ac634962be4cb93cd41c805af7a3b49ea",
+    "build/crow-bounded-drive-integration-build-01/native-v2.tsv": "251b4ad249202e8e87caeb1992e70d1ef2f586a126289fba56eba4b5c6bd4a7d",
+    "build/crow-bounded-drive-integration-build-01/witness-host-calibration.stdout": "d8a4edeb3b57fc33800738d49c2342c649e45dce841092c1acaa2a462a445b92",
+    "build/crow-bounded-drive-integration-build-01/witness-reference-calibration-v2.stdout": "46d35762661452f694b682782e0a4ffcd000ff1f7c20eb3bed0b0cdf298afee8",
+    "include/metalrobo/engine_types.h": "59df41cbc292472df500d781f24f4854bbd160f19169d17703afa1600e61b60e",
+    "src/metal/BoundedDriveFailureCapture.inc": "36bfd6a8e80e2c42a44f8833631c887f5372a1b9252addf69229f8145c1809ff",
+    "src/metal/MetalWorld.metal": "dc2fb551ae5a4befef62cccded092509e5691ab570f464ae956fa7f247d8004e",
+    "src/metal/MetalWorld.mm": "1d822d400e1c1341557fa561ade3c151487d53288feb4e1a210642b1f06d4833",
+    "src/metal/MetalWorldContact.metal": "a74e2bc69b232cb0d81a1d5e4580d5de1c25131a8c492bcf2bbf3193a350f292"
+  },
+  "instrument": "Optional protected first-failure native snapshot: exact physical factor,computed inverse,free acceleration,b/c,cap/friction,failed torque/acceleration,stamp. No solver/equation/threshold change. New flag controls diagnostics only; snapshots never feed physics,task,policy or learner.",
+  "parent": "bd9885ed sealed crow trial:85acceptedtransitions,3rollback at21,9arms unrun. Native maximum scaled residual6.9849193096e-7 atlane0,256sweeps vs4.7683715820e-7 tolerance. Observed penetration2.016619mm beforehold exceeds gate.",
+  "prediction": {
+    "equivalence": "With capture disabled all976constitutive rows arebyteexact withv2. With capture enabled crow trace,typed failure,q/v/scene/contactstatus equal original; worldstatus differs only diagnosticflagbit9.",
+    "hypothesis": "Evaluation-floor explanation supported only if FP64evaluation at capturedtau passesunchanged4eps scaled residual while GPUevaluation fails, and FP64reference displacement remains <=1e-7Nm and <=2e-6rad/s. Otherwise do not attribute to evaluation floor alone."
+  },
+  "promotion": false,
+  "question": "Is the native crow motor failure at tick21/substep27 a residual evaluation floor or an undersolved coupled motor iterate?",
+  "reference": "FP64 symmetriccoordinate solve with20000sweepbound and1e-13Nm absolute residual, calibrated separately against exhaustive5region enumeration on48two-coordinate cases,maximumtauerror5.5511151231e-17Nm. Analyze both exact capturedGPUinverse and independentFP64inverse from capturedphysicalCholesky; report conditioning/asymmetry and allcoordinate velocitydifferences.",
+  "validity": "Must bind protected stamp/publicworldfailure and verifydata13968bytes,n22,masspositive. Instrument equivalence failure is inconclusive and cannot explain original publicfailure. No population inference."
+}

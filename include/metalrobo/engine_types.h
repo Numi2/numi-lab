@@ -714,6 +714,8 @@ enum MRMetalWorldFlags : mr_u32 {
     // Refines position-target semantics: solve bounded motor forces before
     // prediction, with no implicit damping/stiffness in contact inertia.
     MR_METAL_WORLD_BOUNDED_POSITION_DRIVES = 1u << 8u,
+    // Optional protected diagnostics. No input to the physical solve.
+    MR_METAL_WORLD_CAPTURE_BOUNDED_DRIVE_FAILURE = 1u << 9u,
 };
 
 // Immutable strides and dimensions for one environment-major rollout.
@@ -768,6 +770,23 @@ typedef struct MR_ALIGN16 MRMetalWorldStatusGPU {
     // an ABA failure this retains that typed ABA record's diagnostics.
     mr_float4 diagnostics;
 } MRMetalWorldStatusGPU;
+
+// First failed bounded motor certificate, retained across transactional rollback.
+// Fixed capacity matches the admitted native mode. Unused array tails are zero.
+typedef struct MR_ALIGN16 MRBoundedDriveFailureGPU {
+    mr_u32 valid, environment, controlStep, physicsSubstep;
+    mr_u32 nv, mode, sweeps, code;
+    mr_float4 diagnostics; // h, maximum scaled residual, reserved, reserved
+    float factor[MR_ARTICULATED_ABA_MAX_DOFS * MR_ARTICULATED_ABA_MAX_DOFS];
+    float inverse[MR_ARTICULATED_ABA_MAX_DOFS * MR_ARTICULATED_ABA_MAX_DOFS];
+    float freeAcceleration[MR_ARTICULATED_ABA_MAX_DOFS];
+    float b[MR_ARTICULATED_ABA_MAX_DOFS];
+    float c[MR_ARTICULATED_ABA_MAX_DOFS];
+    float cap[MR_ARTICULATED_ABA_MAX_DOFS];
+    float friction[MR_ARTICULATED_ABA_MAX_DOFS];
+    float torque[MR_ARTICULATED_ABA_MAX_DOFS];
+    float acceleration[MR_ARTICULATED_ABA_MAX_DOFS];
+} MRBoundedDriveFailureGPU;
 
 enum MRMetalWorldContactFlags : mr_u32 {
     MR_METAL_WORLD_CONTACT_DETERMINISTIC = 1u << 0u,
@@ -1746,6 +1765,7 @@ static_assert(sizeof(MRMLXContactAdapterDispatchGPU) == 32);
 static_assert(sizeof(MRMetalWorldDispatchGPU) == 64);
 static_assert(sizeof(MRMetalWorldPassGPU) == 16);
 static_assert(sizeof(MRMetalWorldStatusGPU) == 48);
+static_assert(sizeof(MRBoundedDriveFailureGPU) == 13968);
 static_assert(sizeof(MRCompiledCollisionPairGPU) == 16);
 static_assert(sizeof(MRMetalWorldContactDispatchGPU) == 304);
 static_assert(sizeof(MRIndirectDispatchArgumentsGPU) == 16);
