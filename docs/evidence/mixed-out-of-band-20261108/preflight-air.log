@@ -1,0 +1,1 @@
+First run of guard.py stopped before compilation with AssertionError at the retained AIR input manifest check. The sole differing input, hashes and later control procedure are in AIR-AMENDMENT.md.

@@ -1,0 +1,1 @@
+First run of run.py stopped before compilation with AssertionError at the expected historical libmetalrobo.dylib SHA-256 check. The actual and expected hashes and later control procedure are in LIBRARY-AMENDMENT.md.
