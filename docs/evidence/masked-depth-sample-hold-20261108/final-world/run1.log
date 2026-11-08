@@ -1,0 +1,145 @@
+body_binding 0 run=panda_link0 visual=panda_link0
+body_binding 1 run=panda_link1 visual=panda_link1
+body_binding 2 run=panda_link2 visual=panda_link2
+body_binding 3 run=panda_link3 visual=panda_link3
+body_binding 4 run=panda_link4 visual=panda_link4
+body_binding 5 run=panda_link5 visual=panda_link5
+body_binding 6 run=panda_link6 visual=panda_link6
+body_binding 7 run=panda_link7 visual=panda_link7
+body_binding 8 run=panda_hand visual=panda_hand
+body_binding 9 run=panda_leftfinger visual=panda_leftfinger
+body_binding 10 run=panda_rightfinger visual=panda_rightfinger
+body_binding 11 run=pick_object visual=pick_object
+body_binding 12 run=workspace visual=workspace
+body_binding 13 run=target_fixture visual=target_fixture
+body_binding 14 run=clutter visual=clutter
+world_task_frame=34 history=3 bodies=15
+retry_wait=0 failed_steps=5 message=one or more MetalWorld control steps rolled back after a GPU environment failure: status=5 environment=0 control_step=13 aba_status=0 failing_substep=1 failing_index=64 aba_diagnostic_0=0.457274 aba_diagnostic_1=1.395491 aba_diagnostic_2=0.885554 aba_diagnostic_3=0.000000 contact_status=5 required_pairs=1 pair_capacity=69 required_raw_contacts=2 raw_contact_capacity=1 required_manifolds=1 manifold_capacity=69 required_constraints=2 constraint_capacity=276 failing_constraint=4294967295 failing_stable_key=64,0 diagnostic_0=0.500000 diagnostic_1=0.000796 diagnostic_2=0.000000 diagnostic_3=0.000000 contact_residuals=0.078959,0.359171,0.000000,0.000000 contact_quality_certificates=0.000000,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000000,0.000000,0.000000,0.000000 solver_iterations=1 quality_newton=0 quality_pcg=0 quality_backtracks=0 quality_path=0
+published=1 success_steps=55 failure_steps=5 host_status=16 contact_status_count=60
+contact[0] code=0 required_raw=1
+contact[1] code=0 required_raw=0
+contact[2] code=0 required_raw=1
+contact[3] code=0 required_raw=0
+contact[4] code=0 required_raw=1
+contact[5] code=0 required_raw=0
+contact[6] code=0 required_raw=0
+contact[7] code=0 required_raw=0
+contact[8] code=0 required_raw=0
+contact[9] code=0 required_raw=0
+contact[10] code=0 required_raw=1
+contact[11] code=0 required_raw=0
+contact[12] code=0 required_raw=0
+contact[13] code=0 required_raw=0
+contact[14] code=0 required_raw=1
+contact[15] code=0 required_raw=0
+contact[16] code=0 required_raw=1
+contact[17] code=0 required_raw=0
+contact[18] code=0 required_raw=0
+contact[19] code=0 required_raw=0
+contact[20] code=0 required_raw=0
+contact[21] code=0 required_raw=0
+contact[22] code=0 required_raw=1
+contact[23] code=0 required_raw=0
+contact[24] code=0 required_raw=0
+contact[25] code=0 required_raw=0
+contact[26] code=5 required_raw=2
+contact[27] code=0 required_raw=0
+contact[28] code=5 required_raw=2
+contact[29] code=0 required_raw=0
+contact[30] code=0 required_raw=1
+contact[31] code=0 required_raw=0
+contact[32] code=0 required_raw=1
+contact[33] code=0 required_raw=0
+contact[34] code=0 required_raw=1
+contact[35] code=0 required_raw=0
+contact[36] code=0 required_raw=0
+contact[37] code=0 required_raw=0
+contact[38] code=0 required_raw=0
+contact[39] code=0 required_raw=0
+contact[40] code=0 required_raw=1
+contact[41] code=0 required_raw=0
+contact[42] code=0 required_raw=0
+contact[43] code=0 required_raw=0
+contact[44] code=0 required_raw=1
+contact[45] code=0 required_raw=0
+contact[46] code=0 required_raw=1
+contact[47] code=0 required_raw=0
+contact[48] code=0 required_raw=0
+contact[49] code=0 required_raw=0
+contact[50] code=0 required_raw=0
+contact[51] code=0 required_raw=0
+contact[52] code=5 required_raw=2
+contact[53] code=0 required_raw=1
+contact[54] code=5 required_raw=2
+contact[55] code=5 required_raw=2
+contact[56] code=0 required_raw=0
+contact[57] code=0 required_raw=0
+contact[58] code=0 required_raw=0
+contact[59] code=0 required_raw=0
+environment=0 code=5 required_raw=2 successful=26 failed=4
+environment=1 code=5 required_raw=2 successful=29 failed=1
+transition[0] done=0 timeout=0 physics_error=0 reason=0 reward=0.0599752
+transition[1] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603932
+transition[2] done=0 timeout=0 physics_error=0 reason=0 reward=0.058988
+transition[3] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603825
+transition[4] done=0 timeout=0 physics_error=0 reason=0 reward=0.0563195
+transition[5] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603762
+transition[6] done=0 timeout=0 physics_error=0 reason=0 reward=0.0508069
+transition[7] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603746
+transition[8] done=0 timeout=0 physics_error=0 reason=0 reward=0.0415568
+transition[9] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603762
+transition[10] done=0 timeout=0 physics_error=0 reason=0 reward=0.0296866
+transition[11] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603796
+transition[12] done=0 timeout=0 physics_error=0 reason=0 reward=0.0194255
+transition[13] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603837
+transition[14] done=0 timeout=0 physics_error=0 reason=0 reward=0.0111197
+transition[15] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603877
+transition[16] done=0 timeout=0 physics_error=0 reason=0 reward=0.00809029
+transition[17] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603913
+transition[18] done=0 timeout=0 physics_error=0 reason=0 reward=0.00508114
+transition[19] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603943
+transition[20] done=0 timeout=0 physics_error=0 reason=0 reward=0.00184261
+transition[21] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603965
+transition[22] done=0 timeout=0 physics_error=0 reason=0 reward=0.000544039
+transition[23] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603982
+transition[24] done=0 timeout=0 physics_error=0 reason=0 reward=0.000399402
+transition[25] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603994
+transition[26] done=1 timeout=0 physics_error=1 reason=5 reward=0.000399403
+transition[27] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603999
+transition[28] done=1 timeout=0 physics_error=1 reason=5 reward=0.0602045
+transition[29] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603997
+transition[30] done=0 timeout=0 physics_error=0 reason=0 reward=0.0599737
+transition[31] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603997
+transition[32] done=0 timeout=0 physics_error=0 reason=0 reward=0.0589825
+transition[33] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603997
+transition[34] done=0 timeout=0 physics_error=0 reason=0 reward=0.0563062
+transition[35] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603997
+transition[36] done=0 timeout=0 physics_error=0 reason=0 reward=0.050782
+transition[37] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603997
+transition[38] done=0 timeout=0 physics_error=0 reason=0 reward=0.0415182
+transition[39] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603997
+transition[40] done=0 timeout=0 physics_error=0 reason=0 reward=0.0293737
+transition[41] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603998
+transition[42] done=0 timeout=0 physics_error=0 reason=0 reward=0.0184322
+transition[43] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603998
+transition[44] done=0 timeout=0 physics_error=0 reason=0 reward=0.010091
+transition[45] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603999
+transition[46] done=0 timeout=0 physics_error=0 reason=0 reward=0.00642131
+transition[47] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603999
+transition[48] done=0 timeout=0 physics_error=0 reason=0 reward=0.00272652
+transition[49] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603999
+transition[50] done=0 timeout=0 physics_error=0 reason=0 reward=0.000435457
+transition[51] done=0 timeout=0 physics_error=0 reason=0 reward=0.0604
+transition[52] done=1 timeout=0 physics_error=1 reason=5 reward=0.000435541
+transition[53] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603991
+transition[54] done=1 timeout=0 physics_error=1 reason=5 reward=0.0602044
+transition[55] done=1 timeout=0 physics_error=1 reason=5 reward=0.0603991
+transition[56] done=0 timeout=0 physics_error=0 reason=0 reward=0.0599636
+transition[57] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603932
+transition[58] done=0 timeout=0 physics_error=0 reason=0 reward=0.058947
+transition[59] done=0 timeout=0 physics_error=0 reason=0 reward=0.0603825
+world_retry_sensor_sequence=5
+actor_size=38526 visual_pixels=19200 actions=9
+output_per_env=38526
+actor_snapshot_bytes=816
+saved_actor_values=2311560
