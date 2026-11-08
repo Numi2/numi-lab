@@ -1,0 +1,62 @@
+{
+  "format": "numi.visual-observation.v1",
+  "id": "crow_vision_diagnostic_tiny-course",
+  "packs": [
+    {
+      "path": "../../../assets/crow_journey_window/room.mrvpack",
+      "asset_id": "locomotion_ground",
+      "semantic_id": 4,
+      "instance_id": 11
+    },
+    {
+      "path": "../../../environments/american-crow/object-push-v1/crow_manipulandum.mrvpack",
+      "asset_id": "crow_course_gate_left",
+      "semantic_id": 7,
+      "instance_id": 12
+    },
+    {
+      "path": "../../../environments/american-crow/object-push-v1/crow_manipulandum.mrvpack",
+      "asset_id": "crow_course_gate_right",
+      "semantic_id": 7,
+      "instance_id": 13
+    },
+    {
+      "path": "../../../environments/american-crow/object-push-v1/crow_manipulandum.mrvpack",
+      "asset_id": "crow_course_slalom_a",
+      "semantic_id": 7,
+      "instance_id": 14
+    },
+    {
+      "path": "../../../environments/american-crow/object-push-v1/crow_manipulandum.mrvpack",
+      "asset_id": "crow_course_slalom_b",
+      "semantic_id": 7,
+      "instance_id": 15
+    },
+    {
+      "path": "../../../environments/american-crow/object-push-v1/crow_manipulandum.mrvpack",
+      "asset_id": "crow_course_perch",
+      "semantic_id": 8,
+      "instance_id": 16
+    }
+  ],
+  "camera": {
+    "parent_body": "crow_head",
+    "position": [
+      0.018,
+      0.026,
+      0.012
+    ],
+    "orientation": [
+      -0.5,
+      0.5,
+      -0.5,
+      0.5
+    ],
+    "width": 16,
+    "height": 9,
+    "minimum_visible_pixels": 1,
+    "vertical_field_of_view_degrees": 55.0,
+    "nominal_rate_hz": 15.0,
+    "maximum_retained_bytes": 1073741824
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "flat-ground": {
+    "depth_mean": [
+      0.08861936154587763,
+      0.1111315771021408,
+      0.0694829142240173,
+      0.07644474508523065
+    ],
+    "far_counts": [
+      12,
+      16,
+      10,
+      11
+    ],
+    "finite": true,
+    "frames": 4,
+    "near_counts": [
+      132,
+      128,
+      134,
+      133
+    ],
+    "returncode": 0,
+    "zero_actions": true
+  },
+  "no-robot": {
+    "depth_mean": [
+      0.04026888024236541,
+      0.0625204659910297,
+      0.02087480929383724,
+      0.03478856511055205
+    ],
+    "far_counts": [
+      5,
+      9,
+      3,
+      5
+    ],
+    "finite": true,
+    "frames": 4,
+    "near_counts": [
+      139,
+      135,
+      141,
+      139
+    ],
+    "returncode": 0,
+    "zero_actions": true
+  },
+  "no-robot-flat-ground": {
+    "depth_mean": [
+      0.04026888024236541,
+      0.0625204659910297,
+      0.02087480929383724,
+      0.03478856511055205
+    ],
+    "far_counts": [
+      5,
+      9,
+      3,
+      5
+    ],
+    "finite": true,
+    "frames": 4,
+    "near_counts": [
+      139,
+      135,
+      141,
+      139
+    ],
+    "returncode": 0,
+    "zero_actions": true
+  }
+}
