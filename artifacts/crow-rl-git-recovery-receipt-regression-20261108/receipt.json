@@ -1,0 +1,15 @@
+{
+  "commit": "e53d554eb9f93db04b5362f8039f5b0b6372c659",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 299494548 157854592    66% 3496303 1578545920    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 299494516 157854624    66% 3496301 1578546240    0%   /System/Volumes/Data\n",
+  "omitted_files": [],
+  "omitted_logical_bytes": 0,
+  "open_handles": 0,
+  "preserved_input_prefixes": [
+    "artifacts/crow-rl-feeding-behavior-20261107/policies/",
+    "artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib",
+    "artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib"
+  ],
+  "remote_commit": "e53d554eb9f93db04b5362f8039f5b0b6372c659",
+  "status": "omitted"
+}

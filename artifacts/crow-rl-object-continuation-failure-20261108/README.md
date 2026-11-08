@@ -79,3 +79,23 @@ all4 partial canonical policy/rollout files and all41 model/Adam arrays and meta
 The restored run publishes no new coupled checkpoint. Its verified264003714B
 temporary copy is removed after exact hash/mode/mtime/closed-handle checks.
 No held-out behavioral evaluation or learning-rate trial is added.
+
+## Storage receipt correction
+
+The original archive-checkout omission removed51 Git-verified duplicates totaling
+87877386B, then failed while publishing its receipt because its own empty-directory
+cleanup had removed the new receipt parent. No scientific evidence was lost:
+every omitted path remains an actual committed Git blob with skip-worktree.
+The reconstructed receipt is retained at
+`artifacts/crow-rl-git-recovery-object-continuation-failure-20261108/checkout-omission-receipt.json`.
+Its limits are explicit: the immediate pre-deletion free-space reading and original
+receipt did not survive.
+
+The archival tool now writes the exact validated deletion set before changing
+skip-worktree flags or unlinking files, which also anchors the receipt directory.
+A real invocation with a new nested receipt directory passes; the receipt remains
+present with status `omitted` (zero additional files needed omission). This directly
+exercises the prior empty-parent failure. The result is retained at
+`artifacts/crow-rl-git-recovery-receipt-regression-20261108/receipt.json`.
+The raw-trial cleanup, restored-runtime cleanup and auxiliary cleanup have their
+own exact receipts. Current live native runtime and shared Git dependencies remain.
