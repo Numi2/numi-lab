@@ -1,0 +1,25 @@
+{
+  "completed_bounded_velocity_prediction": "contradicted:2.058839697e-6 exceeds frozen2e-6 rad/s gate",
+  "completed_native_microsteps": 512,
+  "groups": {
+    "0": {
+      "mass_flags_match": true,
+      "maximum_q_integration_error": 7.119150935430696e-09,
+      "maximum_torque_reference_error": 1.219172150387915e-09,
+      "maximum_velocity_reference_error": 6.780838801567768e-08,
+      "rows": 448
+    },
+    "1": {
+      "mass_flags_match": true,
+      "maximum_q_integration_error": 6.181072750854888e-09,
+      "maximum_torque_reference_error": 6.804680050334633e-09,
+      "maximum_velocity_reference_error": 2.058839697005599e-06,
+      "rows": 448
+    }
+  },
+  "instrument_failure": "40 independent articulations require80 bodies, exceeding MR_ARTICULATED_OPERATOR_MAX_BODIES. Host compilation refused; zero wide native steps occurred.",
+  "missing_native_microsteps": 2,
+  "next_revision": "Tighten motor fixed-point convergence from32eps to4eps and use FMA in coordinate RHS/certificate; replace invalid80-body wide fixture with41-body fixed-root star with40 independent scalar coordinates. No physical parameters, solver sweep budget or acceptance gates changed.",
+  "overall": "inconclusive_incomplete_predeclared_trial",
+  "rows": 896
+}

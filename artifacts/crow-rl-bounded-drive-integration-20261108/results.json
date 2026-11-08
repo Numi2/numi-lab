@@ -1,0 +1,16 @@
+{
+  "execution": {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-integration-20261108/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-integration-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/native.tsv"
+    ],
+    "exit_code": 1,
+    "sealed_head": "3476e8ab62cf0da74afe82b09ea614a254785745",
+    "seconds": 0.843934208038263
+  },
+  "failure": "Native invocation rejected; partial TSV and typed stderr retained, no rerun.",
+  "full_crow_qualified": false,
+  "policy_or_profile_promoted": false,
+  "verdict": "inconclusive_native_instrument_failure"
+}
