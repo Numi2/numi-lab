@@ -13,6 +13,12 @@
 #include <algorithm>
 #include <array>
 #include <chrono>
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
+#include <stdexcept>
+#include <fcntl.h>
+#include <unistd.h>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -19909,6 +19915,8 @@ bool MetalWorldSubmission::valid() const noexcept {
     return state_ != nullptr;
 }
 
+#include "CCDFailureCapture.inc"
+
 MetalWorldDiagnostics MetalWorldSubmission::wait(
     MetalWorldResult& result
 ) {
@@ -20322,6 +20330,8 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                 }
             }
         }
+
+        if (pending->contactMode) captureCCDFailure(*pending->context, staged);
 
         return validateAndPublish(
             std::move(staged),

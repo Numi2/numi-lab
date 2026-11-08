@@ -344,6 +344,19 @@ time, and first failing event keys. The current step clusters certified events
 and uses speculative temporal cone solves to consume the complete microstep; literal repeated
 TOI advance/solve/continue publication remains the next collision milestone.
 
+### Optional failed CCD sweep inspection
+
+Set `METALROBO_CCD_FAILURE_CAPTURE` to a new file path to inspect a rigid
+hybrid-CCD convergence failure after its command buffer completes. The owner
+reads only the first failed lane's projected/current/future shapes, candidate
+records, both event cursors, typed dispatch and public failure status. The
+`CCDSNP01` envelope is limited to1MiB and uses exclusive creation; successful
+submissions write nothing. Inspection never feeds state back into physics or
+policy inputs, and write failure preserves the original rollback diagnosis.
+A post-submission capture becomes evidence for the failing sweep only after
+isolated replay matches the stored candidate and reported failure boundary.
+No tolerance or solver-budget change follows from enabling inspection.
+
 ## Native sensors and specialized physics
 
 Physics, rendering, tactile, and geometric-sensor stages execute on native
