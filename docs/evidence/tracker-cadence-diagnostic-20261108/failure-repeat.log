@@ -1,0 +1,4 @@
+cadence step=1 failure0=1 frame_sequence=0 env0_last_x=0.502447 env1_last_x=0.530238
+cadence step=2 failure0=0 frame_sequence=1 env0_last_x=0.518905 env1_last_x=0.54629
+cadence step=3 failure0=0 frame_sequence=1 env0_last_x=0.518905 env1_last_x=0.54629
+cadence step=4 failure0=0 frame_sequence=2 env0_last_x=0.534802 env1_last_x=0.566154
