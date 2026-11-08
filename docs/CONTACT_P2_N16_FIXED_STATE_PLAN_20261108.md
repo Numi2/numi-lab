@@ -135,3 +135,22 @@ approximation to a boundary evaluation, and the sensitivity check is a
 necessary control, not a proof of continuum transfer accuracy. Capture,
 transfer and original failed source/output remain distinct. No physical
 law or force gate changes.
+
+## Inset transfer outcome
+
+The separately registered transfer exited 0 in 5.08 s, with 2,180,640 KiB
+peak sampled RSS and no resource stop. The polynomial, positive sampled
+gap, saved-force reproduction, quadrature and inset-sensitivity controls
+all passed. Maximum polynomial error was 1.70e-21 m, maximum Duffy-48/64
+difference was 8.80e-9 of the n=8 peak bin, reproduction was exact, and
+maximum inset sensitivity was 1.18e-8 of that peak.
+
+At these six states, transferring n=8 to n=16 changed force by at most
+1.31e-8 of the n=8 peak bin; transferring n=16 to n=8 changed it by up to
+35.74%. At 4.8 ms, for example, n=16's actual force was 0.10649716 N,
+its n=8 transferred force was 0.07525209 N, and the independent actual n=8
+state had 0.000988969 N. This supports sensitivity to coarse surface
+representation for the sampled n=16 state. It does not apportion the
+integrated first-bin discrepancy between bulk and contact effects or explain
+why the fields evolve differently. The 10 ms spatial force gate, continuous
+clearance, native replay and physical validation remain open.

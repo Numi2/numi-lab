@@ -1,0 +1,123 @@
+{
+  "peak_n8_full_bin_N": 0.08743226330345472,
+  "max_polynomial_abs_m": 1.6940658945086007e-21,
+  "min_sampled_gap_m": 9.516250206506103e-05,
+  "max_duffy_difference_relative": 8.793482855276915e-09,
+  "max_reproduction_difference_relative": 0.0,
+  "max_inset_difference_relative": 1.1745383166097318e-08,
+  "samples": [
+    {
+      "time_s": 0.0045,
+      "source_mesh": 16,
+      "destination_mesh": 8,
+      "source_force_N": 0.0,
+      "transferred_force_N": 0.0,
+      "destination_actual_force_N": 0.0,
+      "transfer_change_relative_to_peak": 0.0
+    },
+    {
+      "time_s": 0.0046,
+      "source_mesh": 16,
+      "destination_mesh": 8,
+      "source_force_N": 0.0715664718754609,
+      "transferred_force_N": 0.08071138222070608,
+      "destination_actual_force_N": 0.09607061297177025,
+      "transfer_change_relative_to_peak": 0.10459423100492732
+    },
+    {
+      "time_s": 0.004699999999999999,
+      "source_mesh": 16,
+      "destination_mesh": 8,
+      "source_force_N": 0.017309216733886225,
+      "transferred_force_N": 0.03630488506335057,
+      "destination_actual_force_N": 0.030380839877422294,
+      "transfer_change_relative_to_peak": 0.2172615418124921
+    },
+    {
+      "time_s": 0.0048,
+      "source_mesh": 16,
+      "destination_mesh": 8,
+      "source_force_N": 0.10649715693498527,
+      "transferred_force_N": 0.07525209279119062,
+      "destination_actual_force_N": 0.00098896909006874,
+      "transfer_change_relative_to_peak": -0.3573630941629765
+    },
+    {
+      "time_s": 0.0049,
+      "source_mesh": 16,
+      "destination_mesh": 8,
+      "source_force_N": 0.0273534496654888,
+      "transferred_force_N": 0.031303136691466296,
+      "destination_actual_force_N": 0.07043866830078102,
+      "transfer_change_relative_to_peak": 0.045174251205978226
+    },
+    {
+      "time_s": 0.004999999999999999,
+      "source_mesh": 16,
+      "destination_mesh": 8,
+      "source_force_N": 0.0913154565691678,
+      "transferred_force_N": 0.06586081452327751,
+      "destination_actual_force_N": 0.1193732879753027,
+      "transfer_change_relative_to_peak": -0.2911355726609047
+    },
+    {
+      "time_s": 0.0045,
+      "source_mesh": 8,
+      "destination_mesh": 16,
+      "source_force_N": 0.0,
+      "transferred_force_N": 0.0,
+      "destination_actual_force_N": 0.0,
+      "transfer_change_relative_to_peak": 0.0
+    },
+    {
+      "time_s": 0.0046,
+      "source_mesh": 8,
+      "destination_mesh": 16,
+      "source_force_N": 0.09607061297177025,
+      "transferred_force_N": 0.09607061302884656,
+      "destination_actual_force_N": 0.0715664718754609,
+      "transfer_change_relative_to_peak": 6.528061122894836e-10
+    },
+    {
+      "time_s": 0.004699999999999999,
+      "source_mesh": 8,
+      "destination_mesh": 16,
+      "source_force_N": 0.030380839877422294,
+      "transferred_force_N": 0.030380840206203612,
+      "destination_actual_force_N": 0.017309216733886225,
+      "transfer_change_relative_to_peak": 3.760411840213285e-09
+    },
+    {
+      "time_s": 0.0048,
+      "source_mesh": 8,
+      "destination_mesh": 16,
+      "source_force_N": 0.00098896909006874,
+      "transferred_force_N": 0.0009889693833686178,
+      "destination_actual_force_N": 0.10649715693498527,
+      "transfer_change_relative_to_peak": 3.3545955096286236e-09
+    },
+    {
+      "time_s": 0.0049,
+      "source_mesh": 8,
+      "destination_mesh": 16,
+      "source_force_N": 0.07043866830078102,
+      "transferred_force_N": 0.0704386691313682,
+      "destination_actual_force_N": 0.0273534496654888,
+      "transfer_change_relative_to_peak": 9.499779040178253e-09
+    },
+    {
+      "time_s": 0.004999999999999999,
+      "source_mesh": 8,
+      "destination_mesh": 16,
+      "source_force_N": 0.1193732879753027,
+      "transferred_force_N": 0.11937328911638445,
+      "destination_actual_force_N": 0.0913154565691678,
+      "transfer_change_relative_to_peak": 1.3051037611836042e-08
+    }
+  ],
+  "controls_pass": true,
+  "max_abs_transfer_change_relative_by_direction": {
+    "8_to_16": 1.3051037611836042e-08,
+    "16_to_8": 0.3573630941629765
+  }
+}
