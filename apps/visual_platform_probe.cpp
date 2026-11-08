@@ -713,8 +713,11 @@ int main() {
             if (checkStep) require(stepOwner.calls == priorStepCalls + 1u, "physical-step callback did not execute");
             HybridObservationBatch rendered; require(renderer.readback(rendered), "retry frame readback");
             std::cout << "world_retry_sensor_sequence=" << rendered.metadata.identity.z << '\n';
-            require(rendered.metadata.identity.z==(residentMode ? 1u : 0u),
-                    "rejected world submission advanced sensor sequence");
+            require(rendered.metadata.identity.z==(residentMode ? 1u : 0u) &&
+                    rendered.metadata.identity.x==(residentMode ? 1u : 0u) &&
+                    rendered.metadata.identity.y==0u &&
+                    std::abs(rendered.metadata.timing.x-(residentMode ? 0.02f : 0.0f)) < 1.0e-7f,
+                    "rejected world submission advanced sensor sequence, frame or time");
             if (const char* prefix = std::getenv("NUMI_TEST_RESULT_PREFIX")) {
                 auto save = [prefix](const char* suffix, const auto& data) {
                     std::ofstream file(std::string(prefix) + suffix, std::ios::binary | std::ios::trunc);
@@ -1021,8 +1024,11 @@ int main() {
         }
         metalrobo::HybridObservationBatch beforeRejectedEncode;
         require(renderer.readback(beforeRejectedEncode), "pre-rejection readback");
-        require(beforeRejectedEncode.metadata.identity.z == 0u,
-                "first sensor sequence is not zero");
+        require(beforeRejectedEncode.metadata.identity.z == 0u &&
+                    beforeRejectedEncode.metadata.identity.x == 0u &&
+                    beforeRejectedEncode.metadata.identity.y == 0u &&
+                    beforeRejectedEncode.metadata.timing.x == 0.0f,
+                "first tracker frame identity or time is not zero");
         id<MTLCommandBuffer> rejectedCommand = [queue commandBuffer];
         auto rejectedPass = trackerPass;
         rejectedPass.commandBuffer = (__bridge void*)rejectedCommand;
@@ -1065,6 +1071,12 @@ int main() {
         std::cout << "retry_sensor_sequence=" << retryFrame.metadata.identity.z << '\n';
         require(retryFrame.metadata.identity.z == 1u,
                 "rejected encode advanced the retry sensor sequence");
+        std::cout << "retry_frame=" << retryFrame.metadata.identity.x
+                  << " retry_time=" << retryFrame.metadata.timing.x << std::endl;
+        require(retryFrame.metadata.identity.x == 1u &&
+                    retryFrame.metadata.identity.y == 0u &&
+                    std::abs(retryFrame.metadata.timing.x - 0.02f) < 1.0e-7f,
+                "tracker frame identity or time reset at submission boundary");
         const std::uint32_t newestTrack =
             (kActorHistoryLength - 1u) * kActorFrameSize;
         require(

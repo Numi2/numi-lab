@@ -1,0 +1,83 @@
+diff --git a/apps/visual_platform_probe.cpp b/apps/visual_platform_probe.cpp
+index eee844d2f..b21e586bc 100644
+--- a/apps/visual_platform_probe.cpp
++++ b/apps/visual_platform_probe.cpp
+@@ -713,8 +713,11 @@ int main() {
+             if (checkStep) require(stepOwner.calls == priorStepCalls + 1u, "physical-step callback did not execute");
+             HybridObservationBatch rendered; require(renderer.readback(rendered), "retry frame readback");
+             std::cout << "world_retry_sensor_sequence=" << rendered.metadata.identity.z << '\n';
+-            require(rendered.metadata.identity.z==(residentMode ? 1u : 0u),
+-                    "rejected world submission advanced sensor sequence");
++            require(rendered.metadata.identity.z==(residentMode ? 1u : 0u) &&
++                    rendered.metadata.identity.x==(residentMode ? 1u : 0u) &&
++                    rendered.metadata.identity.y==0u &&
++                    std::abs(rendered.metadata.timing.x-(residentMode ? 0.02f : 0.0f)) < 1.0e-7f,
++                    "rejected world submission advanced sensor sequence, frame or time");
+             if (const char* prefix = std::getenv("NUMI_TEST_RESULT_PREFIX")) {
+                 auto save = [prefix](const char* suffix, const auto& data) {
+                     std::ofstream file(std::string(prefix) + suffix, std::ios::binary | std::ios::trunc);
+@@ -1021,8 +1024,11 @@ int main() {
+         }
+         metalrobo::HybridObservationBatch beforeRejectedEncode;
+         require(renderer.readback(beforeRejectedEncode), "pre-rejection readback");
+-        require(beforeRejectedEncode.metadata.identity.z == 0u,
+-                "first sensor sequence is not zero");
++        require(beforeRejectedEncode.metadata.identity.z == 0u &&
++                    beforeRejectedEncode.metadata.identity.x == 0u &&
++                    beforeRejectedEncode.metadata.identity.y == 0u &&
++                    beforeRejectedEncode.metadata.timing.x == 0.0f,
++                "first tracker frame identity or time is not zero");
+         id<MTLCommandBuffer> rejectedCommand = [queue commandBuffer];
+         auto rejectedPass = trackerPass;
+         rejectedPass.commandBuffer = (__bridge void*)rejectedCommand;
+@@ -1065,6 +1071,12 @@ int main() {
+         std::cout << "retry_sensor_sequence=" << retryFrame.metadata.identity.z << '\n';
+         require(retryFrame.metadata.identity.z == 1u,
+                 "rejected encode advanced the retry sensor sequence");
++        std::cout << "retry_frame=" << retryFrame.metadata.identity.x
++                  << " retry_time=" << retryFrame.metadata.timing.x << std::endl;
++        require(retryFrame.metadata.identity.x == 1u &&
++                    retryFrame.metadata.identity.y == 0u &&
++                    std::abs(retryFrame.metadata.timing.x - 0.02f) < 1.0e-7f,
++                "tracker frame identity or time reset at submission boundary");
+         const std::uint32_t newestTrack =
+             (kActorHistoryLength - 1u) * kActorFrameSize;
+         require(
+diff --git a/docs/VISUAL_PLATFORM.md b/docs/VISUAL_PLATFORM.md
+index ae9c39520..4d8764d17 100644
+--- a/docs/VISUAL_PLATFORM.md
++++ b/docs/VISUAL_PLATFORM.md
+@@ -205,7 +205,11 @@ invalidates its cached frame until the next capture. In that interval its
+ object track reports no visibility and zero position/velocity, and its
+ masked depth reports far/no-return with zero derived features. Other
+ environments keep their existing cached frames and the batch camera schedule
+-is unchanged. If physics fails after a new batch frame was rendered, the
++is unchanged. Rendered frame identity and capture timestamp use the same
++batch observation sequence as sensor cadence, so they continue across rollout
++submission boundaries. This is a scheduled observation timeline, not a
++per-environment accepted-physics clock: a rejected physical step can still
++advance it. If physics fails after a new batch frame was rendered, the
+ failed environment's frame is invalidated; without a new render, its prior
+ freshness state is restored with tracker history. This guards actor inputs against the previous episode;
+ it does not restore renderer pixels or make the shared camera clock
+diff --git a/src/metal/MetalHybridRenderer.mm b/src/metal/MetalHybridRenderer.mm
+index f34cf94bc..da649a13e 100644
+--- a/src/metal/MetalHybridRenderer.mm
++++ b/src/metal/MetalHybridRenderer.mm
+@@ -8002,11 +8002,14 @@ bool MetalHybridObjectTracker::encodeObservation(
+         .previousBodyStates = pass.currentBodies,
+         .environmentCount = pass.environmentCount,
+         .bodyCount = pass.bodyCount,
+-        .frameIndex = pass.controlStep,
++        // controlStep is a submission-local output slot. The observation
++        // sequence persists across submissions and drives the batch cadence.
++        // It is not a per-environment accepted-physics clock.
++        .frameIndex = observationSequence,
+         .sensorSequence = static_cast<std::uint32_t>(sensorSequence),
+         .source = MR_VISUAL_SOURCE_SIMULATION,
+         .captureTimestampSeconds =
+-            double(pass.controlStep) * state->config.timestepSeconds,
++            double(observationSequence) * state->config.timestepSeconds,
+         .frameAgeSeconds = 0.0,
+     };
+     if (state->pendingCommand != nullptr) {

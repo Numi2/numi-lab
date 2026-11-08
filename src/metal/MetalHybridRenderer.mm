@@ -8158,11 +8158,14 @@ bool MetalHybridObjectTracker::encodeObservation(
         .previousBodyStates = pass.currentBodies,
         .environmentCount = pass.environmentCount,
         .bodyCount = pass.bodyCount,
-        .frameIndex = pass.controlStep,
+        // controlStep is a submission-local output slot. The observation
+        // sequence persists across submissions and drives the batch cadence.
+        // It is not a per-environment accepted-physics clock.
+        .frameIndex = observationSequence,
         .sensorSequence = static_cast<std::uint32_t>(sensorSequence),
         .source = MR_VISUAL_SOURCE_SIMULATION,
         .captureTimestampSeconds =
-            double(pass.controlStep) * state->config.timestepSeconds,
+            double(observationSequence) * state->config.timestepSeconds,
         .frameAgeSeconds = 0.0,
     };
     if (state->pendingCommand != nullptr) {
