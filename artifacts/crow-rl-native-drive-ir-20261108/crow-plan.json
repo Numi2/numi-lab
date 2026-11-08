@@ -1,0 +1,51 @@
+{
+  "arms": [
+    {
+      "CCD": "hybrid",
+      "actuator": "split bounded",
+      "expected": "Retained tilt termination at tick91; prior trace prefix must remain exact.",
+      "mode": 0,
+      "solver": "temporalCone"
+    },
+    {
+      "CCD": "disabled",
+      "actuator": "split bounded",
+      "expected": "Mechanism control: same solver/CCD as candidate, no motor/contact feedback.",
+      "mode": 1,
+      "solver": "qualityNewton"
+    },
+    {
+      "CCD": "disabled",
+      "actuator": "joint native intervals",
+      "expected": "All640 transitions accepted, no physical task termination and max jaw penetration <=0.0008m.",
+      "mode": 2,
+      "solver": "qualityNewton"
+    }
+  ],
+  "budget": {
+    "max_native_transitions": 1920,
+    "no_training_or_video": true,
+    "raw_max_bytes": 67108864,
+    "timeout_seconds_each": 120
+  },
+  "configuration": {
+    "arm": 0,
+    "chunk": 1,
+    "h_control_s": 0.02,
+    "lanes": 4,
+    "quality_feasibility_tolerance": 1e-07,
+    "quality_optimality_tolerance": 1e-10,
+    "substeps": 32,
+    "task_seed": 2651511101,
+    "ticks": 160
+  },
+  "controls": [
+    "Initial q/v/scene bytes must agree across all arms.",
+    "Only native actuator templates and explicit solver/CCD selections differ. Contact impulse instrumentation includes all physical constraints after authored drive rows.",
+    "Record the accepted terminal frame before stopping; compare its earlier trace prefix against the retained baseline."
+  ],
+  "interpretation": "Mode0/1 difference includes CCD and contact solver; it is not a causal test of motor feedback. Mode1/2 share solver and CCD and isolate the native motor/contact coupling formulation. No hybrid correctness is inferred from disabled-CCD results.",
+  "purpose": "Engineering comparison on the retained four-lane grasp/lift/release fixture. Its poses and baseline failure are already exposed; no independent biological or held-out qualification.",
+  "schema": "crow-native-drive-ir-engineering-comparison-v1",
+  "stop": "Each arm stops at its first native rejection, physical termination or end160; run the three frozen arms once. Preserve failures. No retries, threshold changes or policy/profile promotion."
+}

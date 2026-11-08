@@ -1,0 +1,12 @@
+{
+  "accepted_native_conditions": 576,
+  "default_crow_physical_files_byte_exact": 10,
+  "default_native_contact_owner_passed": true,
+  "host_template_checks": 8,
+  "limits": "This first native binding study does not qualify coupled multi-joint crow dynamics, dry-friction biology, hybrid impact timing, reset/checkpoint/partition, energy integral or end-to-end learning performance. Hybrid mode remains rejected; no policy/profile promotion.",
+  "maximum_force_law_error_N": 2.034131208958345e-09,
+  "maximum_momentum_residual_Ns": 6.703894342558988e-11,
+  "maximum_q_hv_error_m": 9.042610003883247e-13,
+  "policy_or_profile_promoted": false,
+  "verdict": "supported"
+}
