@@ -1,0 +1,101 @@
+{
+  "commit": "c7210929d9ac5e32888ab59ead7a387a9914b778",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 299580352 157768788    66% 3496322 1577687880    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 299580712 157768428    66% 3496332 1577684280    0%   /System/Volumes/Data\n",
+  "files": [
+    {
+      "bytes": 6514,
+      "git_blob": "8b051c4e0971fa14de73e5300cd547332c7b9c4a",
+      "git_path": "artifacts/crow-rl-object-continuation-failure-20261108/verify_recovery.py",
+      "mode": 420,
+      "mtime_ns": 1794109776965715119,
+      "path": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-object-continuation-build-01/verify_failure_recovery.py",
+      "sha256": "79a8152354f4f0a1299a696f234eac2968b25094bea5cf940bfa35b918f20756"
+    },
+    {
+      "bytes": 390432,
+      "git_blob": "8d1c99dc13c0996c87bd2efb06f82c74ae465cfb",
+      "git_path": "artifacts/crow-rl-object-continuation-failure-20261108/pair_identity",
+      "mode": 493,
+      "mtime_ns": 1794109894034695143,
+      "path": "/private/tmp/crow-ccd-pair-identity-20261108",
+      "sha256": "b2908df990da0d33e421be0e9b07e9bdd1f387313eeaaa2d2961c2f6835d7b38"
+    },
+    {
+      "bytes": 542,
+      "git_blob": "476f0e183d45430831d325c68313592f94540523",
+      "git_path": "artifacts/crow-rl-object-continuation-failure-20261108/archive-capture.stdout",
+      "mode": 420,
+      "mtime_ns": 1794109748781080437,
+      "path": "/private/tmp/crow-object-continuation-failure-archive-20261108.stdout",
+      "sha256": "b69aaec922b1062d8fcac1afb793124e200a4ab7c85761e340074e95b6035016"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "git_path": "artifacts/crow-rl-object-continuation-failure-20261108/archive-capture.stderr",
+      "mode": 420,
+      "mtime_ns": 1794109727598146135,
+      "path": "/private/tmp/crow-object-continuation-failure-archive-20261108.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 72,
+      "git_blob": "512a425cc929842938ded57094092ba414553a75",
+      "git_path": "artifacts/crow-rl-object-continuation-failure-20261108/restore-wrapper.stdout",
+      "mode": 420,
+      "mtime_ns": 1794109854260779007,
+      "path": "/private/tmp/crow-object-continuation-failure-restore-20261108.stdout",
+      "sha256": "f848c8e7f6cdae9996b684e10edba3d720b9140b66c2bbd97870fa3bb1f2c2bf"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "git_path": "artifacts/crow-rl-object-continuation-failure-20261108/restore-wrapper.stderr",
+      "mode": 420,
+      "mtime_ns": 1794109853831971652,
+      "path": "/private/tmp/crow-object-continuation-failure-restore-20261108.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 118,
+      "git_blob": "7c5dacab64570682082635543e53f7078aaefb17",
+      "git_path": "artifacts/crow-rl-object-continuation-failure-20261108/verify-wrapper.stdout",
+      "mode": 420,
+      "mtime_ns": 1794109950847851882,
+      "path": "/private/tmp/crow-object-continuation-failure-verify-20261108.stdout",
+      "sha256": "1751429ae4ff26c47631cc31fd6aa029fb5ee795d40c1545f2e1adb7ba5cfb9f"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "git_path": "artifacts/crow-rl-object-continuation-failure-20261108/verify-wrapper.stderr",
+      "mode": 420,
+      "mtime_ns": 1794109860184148270,
+      "path": "/private/tmp/crow-object-continuation-failure-verify-20261108.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1296,
+      "git_blob": "513e13cba90f7da55d786aeddcbecf3464b48a3f",
+      "git_path": "artifacts/crow-rl-object-continuation-failure-20261108/prune-wrapper.stdout",
+      "mode": 420,
+      "mtime_ns": 1794110082045774766,
+      "path": "/private/tmp/crow-object-continuation-failure-prune-20261108.stdout",
+      "sha256": "2ebe75b2e2435b1da8bd230cc3b578defff17ab51d33645c1422f4e423f54876"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "git_path": "artifacts/crow-rl-object-continuation-failure-20261108/prune-wrapper.stderr",
+      "mode": 420,
+      "mtime_ns": 1794110080625627922,
+      "path": "/private/tmp/crow-object-continuation-failure-prune-20261108.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "open_handles": 0,
+  "remote_commit": "c7210929d9ac5e32888ab59ead7a387a9914b778",
+  "removed_logical_bytes": 398974,
+  "status": "removed"
+}
