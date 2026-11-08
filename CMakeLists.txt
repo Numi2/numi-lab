@@ -15,6 +15,17 @@ project(
 
 include(CTest)
 
+if(BUILD_TESTING)
+    find_package(Python3 QUIET COMPONENTS Interpreter)
+    if(Python3_Interpreter_FOUND)
+        foreach(_numi_provenance_test IN ITEMS numi_source_provenance numi_neuron_installed_provenance)
+            add_test(NAME "${_numi_provenance_test}"
+                COMMAND "${CMAKE_COMMAND}" -E env PYTHONDONTWRITEBYTECODE=1
+                    "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/${_numi_provenance_test}_test.py")
+        endforeach()
+    endif()
+endif()
+
 execute_process(
     COMMAND git -C "${CMAKE_CURRENT_SOURCE_DIR}" rev-parse HEAD
     OUTPUT_VARIABLE NUMI_SOURCE_REVISION
@@ -6600,6 +6611,7 @@ install(
         numi/commands/wet-lab
         numi/commands/view
         .numi/commands/window
+        python/metalrobo/numi_source_provenance.py
     DESTINATION libexec/numi
 )
 install(
@@ -6628,7 +6640,7 @@ install(
         PATTERN "*.py"
         PATTERN "py.typed"
 )
-install(FILES docs/SCIENTIFIC_WORKFLOW.md docs/VIRTUAL_WET_LAB.md docs/BIOLOGICAL_VIEWERS.md DESTINATION share/numi/docs)
+install(FILES docs/SCIENTIFIC_WORKFLOW.md docs/VIRTUAL_WET_LAB.md docs/BIOLOGICAL_VIEWERS.md numi/SPARSE_SOURCE_PROVENANCE.md DESTINATION share/numi/docs)
 install(DIRECTORY python/metalrobo/wet_lab/ DESTINATION share/numi/python/metalrobo/wet_lab
     FILES_MATCHING PATTERN "*.html" PATTERN "*.js" PATTERN "*.css"
     PATTERN "qualification" EXCLUDE)

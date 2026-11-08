@@ -47,6 +47,24 @@ printf 'revision=%s\\nshader=%s\\n' "${NUMI_NEURON_METALROBO_REVISION-unset}" "$
         expected = self.shader(self.runtime / 'lib/metalrobo/NumiNeuron.metallib', b'installed')
         self.assertEqual(self.call(), {'revision': 'revision-from-package', 'shader': expected})
 
+    def test_verified_bundle_requires_independent_identity_and_audit(self):
+        meta = self.runtime / 'share/numi/REVISION'
+        meta.parent.mkdir(parents=True)
+        meta.write_text('verified-source:abc123\n')
+        helper = self.runtime / 'libexec/numi/numi_source_provenance.py'
+        helper.parent.mkdir(parents=True)
+        helper.write_text("#!/bin/sh\n[ \"$1\" = audit ] && [ \"$5\" = abc123 ] && [ \"$7\" = expectedhash ]\n")
+        helper.chmod(0o755)
+        self.assertEqual(self.call()['revision'], 'unknown')
+        expected = dict(self.env, NUMI_SOURCE_EXPECTED_REVISION='abc123', NUMI_SOURCE_EXPECTED_ARCHIVE_SHA256='expectedhash')
+        self.assertEqual(self.call(expected)['revision'], 'abc123')
+        expected['NUMI_SOURCE_EXPECTED_ARCHIVE_SHA256'] = 'wrong'
+        self.assertEqual(self.call(expected)['revision'], 'unknown')
+        helper.unlink()
+        self.assertEqual(self.call(expected)['revision'], 'unknown')
+        expected['NUMI_NEURON_METALROBO_REVISION'] = 'explicit'
+        self.assertEqual(self.call(expected)['revision'], 'explicit')
+
     def test_installed_revision_wins_inside_git_tree(self):
         subprocess.run(['git', 'init', '-q', str(self.base)], check=True)
         subprocess.run(['git', '-C', str(self.base), '-c', 'user.name=Test',

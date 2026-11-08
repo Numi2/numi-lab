@@ -134,6 +134,20 @@ if [ "$neurons_command" = "protocol" ] || [ "$neurons_command" = "qualify" ]; th
     if [ -r "$neurons_runtime_root/share/numi/REVISION" ]; then
         if [ "$neurons_probe" = "$neurons_runtime_root/bin/metalrobo_neuron_culture_probe" ]; then
             neurons_revision=$(sed -n '1p' "$neurons_runtime_root/share/numi/REVISION")
+            case "$neurons_revision" in
+                verified-source:*)
+                    neurons_revision=unknown
+                    neurons_provenance="$neurons_runtime_root/libexec/numi/numi_source_provenance.py"
+                    if [ -n "${NUMI_SOURCE_EXPECTED_REVISION:-}" ] &&
+                       [ -n "${NUMI_SOURCE_EXPECTED_ARCHIVE_SHA256:-}" ] &&
+                       [ -x "$neurons_provenance" ] &&
+                       "$neurons_provenance" audit --prefix "$neurons_runtime_root" \
+                           --expected-revision "$NUMI_SOURCE_EXPECTED_REVISION" \
+                           --expected-archive-sha256 "$NUMI_SOURCE_EXPECTED_ARCHIVE_SHA256" >/dev/null 2>&1; then
+                        neurons_revision=$NUMI_SOURCE_EXPECTED_REVISION
+                    fi
+                    ;;
+            esac
         fi
     else
         neurons_revision=$(neurons_git_revision "$neurons_runtime_root" || true)
