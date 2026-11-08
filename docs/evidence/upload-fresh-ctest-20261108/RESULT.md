@@ -1,0 +1,5 @@
+# Freshly built upload-abort CTest passed
+
+A fresh CMake/Ninja build of the isolated candidate source completed both registered owner targets using two low-priority jobs; the complete build output, including compiler warnings, is retained. On 8 November 2026 CTest ran 01:21:26.278551–01:21:26.957092 UTC and passed both `metalrobo.upload_abort.initial` and `metalrobo.upload_abort.nonempty` (2/2). The CMake-built executable, shader, static owner, test definition and runner hashes matched before and after. The earlier matrices retain detailed native statuses, independent controls and exact output bytes.
+
+This qualifies only the declared private first-empty-cache and unchanged-populated-cache fixtures. Shared mode remains blocked before callback in the unchanged baseline; changed bound models, excluded device-physics/Millard/multicopter programs, post-commit errors, mixed sensor history, force accuracy and performance remain unqualified. CCD acceptance and kinematic rollback checks, with their own stated limits, are retained separately. No production merge is implied.

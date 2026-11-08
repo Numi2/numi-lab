@@ -1,0 +1,9 @@
+Test project /Users/numi/numi-lab-upload-cmake-config-20261108
+    Start 3: metalrobo.upload_abort.initial
+1/2 Test #3: metalrobo.upload_abort.initial ....   Passed    0.34 sec
+    Start 4: metalrobo.upload_abort.nonempty
+2/2 Test #4: metalrobo.upload_abort.nonempty ...   Passed    0.31 sec
+
+100% tests passed out of 2
+
+Total Test time (real) =   0.65 sec
