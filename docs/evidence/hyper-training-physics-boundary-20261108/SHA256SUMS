@@ -1,0 +1,6 @@
+2b0ceee4194966146fdc53d0e24de9138ca899b58157c77cd43d408d17be6fff  docs/evidence/hyper-training-physics-boundary-20261108/RESULT.md
+0d06b6413e3f15c3029ede71ab89254801b208232c397a689d70863f840985b9  docs/evidence/hyper-training-physics-boundary-20261108/baseline.log
+6a5161b3cf086718f005a0ea6d682568d0515d223388a0eecf7c27866f37699d  docs/evidence/hyper-training-physics-boundary-20261108/cpu.log
+6e2c2e2d0c5d4f2445feb5005937a4d47635379f8adf4113de6f692d171b2766  docs/evidence/hyper-training-physics-boundary-20261108/gpu.log
+3f7b408991beb80dd4e64b2c805598c1d8caf174ec9141607a86527920b7cf4d  docs/evidence/hyper-training-physics-boundary-20261108/selector.log
+305f085a9d2041b9e24d4a598c1c7787408cba8384b786047ac438401160ae8a  docs/evidence/hyper-training-physics-boundary-20261108/source-sha256.txt
