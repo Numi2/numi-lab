@@ -1,0 +1,38 @@
+{
+  "budget": {
+    "arithmetic_numerical_rows": 22,
+    "maximum_native_environment_steps": 1668,
+    "maximum_new_output_bytes": 3000000,
+    "native_invocations": 4,
+    "stop": "Firstinstrument/positive/reference/nativefailure stops;retainpartialoutputs andunrunconditions. Noothercadence, retry,tuning orpromotion.",
+    "timeout_seconds_each": 300
+  },
+  "inputs": {
+    ".numi/retained-runtime/bounded-drive-precision-20261108/metalrobo/MetalRobo.metallib": "6b7b0274688c211876709125b047a487b1d7293820348821a7acae5c90ad570e",
+    ".numi/retained-runtime/bounded-drive-strict-20261108/libmetalrobo.dylib": "7f5ce8781fe1cb85d52736b8bcd640484fd8225a612cc9317805e906cbb78d16",
+    ".numi/retained-runtime/bounded-drive-strict-20261108/metalrobo/MetalRobo.metallib": "5b2ed103a821bf3daee5484f9024b4fb06a011b0935730bccccd08ba86017960",
+    ".numi/retained-runtime/bounded-drive-strict-20261108/probe": "5bd31622ca6e50da26f58e9c52a2dd7aa2588b45c711d40c032720cc293ad18f",
+    "CMakeLists.txt": "d5ba5b4806eaa63c32092ed8302407b5beda5eddc061927c0d1c0e847a690b69",
+    "apps/bounded_drive_probe.cpp": "fce3c86c27e685dd4261b2f84827308c145fa59353f29b7c8941145b7be602e1",
+    "artifacts/crow-rl-bounded-drive-crow-20261108/strict/certificate.mm": "5ba4fcadfbdf1a3777c634deb2b55b19a203f5ac471e10983285634e2967c188",
+    "artifacts/crow-rl-bounded-drive-crow-20261108/strict/run_strict.py": "caf16620b2f11c2ea66bc3f46e1e6d8d1290470851edec325d642d9ab70bc6ed",
+    "build/crow-bounded-drive-integration-build-01/certificate": "fc165c2b21f500b1ead4e5bc250e93a1c53aeda96606ac7d7679fad7926b5c02",
+    "build/crow-bounded-drive-integration-build-01/fixture-bounded": "116dfb25a90cccb35f32400509c0119ac634962be4cb93cd41c805af7a3b49ea",
+    "build/crow-bounded-drive-integration-build-01/precision-v2-crow32.motorsnp": "6edcb6d47502e49c3bcae0aa8a2df471e9f79adf2cd1572d40f341eb4082ea7f",
+    "include/metalrobo/ccd_segment_time.metalh": "0b2889a7aedf858ce713df93e4b0ccc8f7b699ebcd4428df63cf6bc20c00d826",
+    "src/metal/BoundedDrive.metal": "639d7af05c9075ba97de5ed9d2a7eda666a5a7a3ff97a372133996a267c6d786",
+    "src/metal/MetalWorldContact.metal": "9d989471ee4e62c8547dbf8ca59b9bb55d5311de9a14dd72a4770de7fbb49a88"
+  },
+  "parent": "7f9171ac: component976rows pass, but actualcrow rollsbackall4lanes at21. Protectedlane0step28scaledresidual1.3969838619e-6 vsFP64evaluationofsamecapturedtau8.9920386692e-8; bothnearest-referenceandcapturedfloat\u03c4can satisfy4eps, so higherprecisiontorquestorage not yet warranted.",
+  "prediction": {
+    "arithmetic": "Native22rowinspectionofprotectedoldfailediterate agreeswithFP64:accelerationerror<=2e-7rad/s2,absolute scaledresidualerror<=1e-9,nativemaxscaledresidual<=4eps. Oldnative1.397e-6 shouldnotreappear forsameinputs.",
+    "crow": "Onlyaftereverycontrolpasses, one640transitionoriginal32crowrunwithzeronativefailures; evaluateallunchangedmechanicalgates separately. Noqualificationclaimed fromnumericalsuccess.",
+    "negative_control": "Nativeprobe withretained1c7e002dshaderrejectsfirstbadbatchwithtypedreferencegateexit1.",
+    "positive_control": "All514steps/976rows passtheunchangednativeandPythonreferencegates."
+  },
+  "promotion": false,
+  "question": "Does strict floating-point compilation restore the protected motor certificate arithmetic and allow the correctly cooperative solver through the real crow trajectory?",
+  "revision": "Move bounded motorandtwofoldhelpers toseparateBoundedDrive.metal compiled-O3-fno-fast-math. Existingcontacttranslationunitkeepsitscompilerflags. SharedCCDevent-durationheaderpreservesonetimesource. Nochangeequations,caps,gains,256sweeps,4epsorpublicationprecision.",
+  "source_evidence": "CMake compiled MetalWorldContact.metal without-fno-fast-math. Compensatedtwo-sum/product can be reassociated away. Prior Collision.metal already usesstrictcompilation forcompensatedpredicates.",
+  "validity": "Explicitshader/loaderhashes,actualAppleM4Pro. Arithmeticprobe hasnoauthorityoverphysicalstate;readsprotectedwitnessonly. Nativecomponentprobehardgatesaftereachbatchbeforefurtherphysics. Allconditions manufacturedengineeringregressions,notbiologicalevidence."
+}

@@ -1,0 +1,76 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-precision-v2-20261108/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-precision-20261108/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/precision-v2-negative.tsv"
+      ],
+      "exit_code": 1,
+      "loader_lines": [
+        "dyld[28778]: <2EDE1C98-62C1-3B80-B182-DA0763DA6B9E> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-precision-v2-20261108/libmetalrobo.dylib"
+      ],
+      "name": "precision-v2-negative",
+      "seconds": 0.149550417
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-precision-v2-20261108/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-precision-v2-20261108/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/precision-v2-constitutive.tsv"
+      ],
+      "exit_code": 0,
+      "loader_lines": [
+        "dyld[28779]: <2EDE1C98-62C1-3B80-B182-DA0763DA6B9E> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-precision-v2-20261108/libmetalrobo.dylib"
+      ],
+      "name": "precision-v2-constitutive",
+      "seconds": 0.270126458
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/fixture-bounded",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/precision-v2-crow32",
+        "0",
+        "1",
+        "32"
+      ],
+      "exit_code": 1,
+      "loader_lines": [
+        "dyld[28781]: <2EDE1C98-62C1-3B80-B182-DA0763DA6B9E> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-precision-v2-20261108/libmetalrobo.dylib"
+      ],
+      "name": "precision-v2-crow32",
+      "seconds": 4.767468792
+    }
+  ],
+  "full_crow_qualified": false,
+  "native_failure": {
+    "failed_steps": 4,
+    "first_failing_lane": 0,
+    "first_failing_local_tick": 0,
+    "first_gpu_status": 11,
+    "host_status": 16,
+    "submission_begin_tick": 21,
+    "submission_ticks": 1,
+    "successful_steps": 0
+  },
+  "negative_instrument_control": {
+    "mass_flags_match": true,
+    "maximum_q_integration_error_rad": 7.119150935430696e-09,
+    "maximum_torque_error_Nm": 0.006960127807696496,
+    "maximum_velocity_error_rad_s": 2.793199444526414,
+    "pass": false,
+    "rows": 272,
+    "typed_reference_failure": true
+  },
+  "policy_or_profile_promoted": false,
+  "positive_component_control": {
+    "mass_flags_match": true,
+    "maximum_q_integration_error_rad": 7.119150935430696e-09,
+    "maximum_torque_error_Nm": 2.248500871604442e-09,
+    "maximum_velocity_error_rad_s": 4.088330274321095e-07,
+    "pass": true,
+    "rows": 976
+  },
+  "sealed_head": "7f9171ac7bd9757654cbb27d5f9c1019dc89820a",
+  "verdict": "inconclusive_crow_native_failure"
+}

@@ -140,6 +140,9 @@ set(METALROBO_WORLD_SOURCE
 set(METALROBO_WORLD_CONTACT_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MetalWorldContact.metal"
 )
+set(METALROBO_BOUNDED_DRIVE_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/BoundedDrive.metal"
+)
 set(METALROBO_WORLD_COMPILER_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/WorldCompiler.metal"
 )
@@ -275,6 +278,9 @@ set(METALROBO_WORLD_AIR
 )
 set(METALROBO_WORLD_CONTACT_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboWorldContact.air"
+)
+set(METALROBO_BOUNDED_DRIVE_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboBoundedDrive.air"
 )
 set(METALROBO_WORLD_COMPILER_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboWorldCompiler.air"
@@ -552,6 +558,13 @@ add_custom_command(
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_BOUNDED_DRIVE_SOURCE}"
+            -o "${METALROBO_BOUNDED_DRIVE_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_WORLD_COMPILER_SOURCE}"
             -o "${METALROBO_WORLD_COMPILER_AIR}"
@@ -636,6 +649,7 @@ add_custom_command(
             "${METALROBO_STREAMING_ARTICULATED_INVERSE_MASS_AIR}"
             "${METALROBO_WORLD_AIR}"
             "${METALROBO_WORLD_CONTACT_AIR}"
+            "${METALROBO_BOUNDED_DRIVE_AIR}"
             "${METALROBO_WORLD_COMPILER_AIR}"
             "${METALROBO_LOCOMOTION_TASK_AIR}"
             "${METALROBO_POLICY_INFERENCE_AIR}"
@@ -668,6 +682,8 @@ add_custom_command(
         "${METALROBO_OPENSIM_SPATIAL_TRANSFORM_SOURCE}"
         "${METALROBO_WORLD_SOURCE}"
         "${METALROBO_WORLD_CONTACT_SOURCE}"
+        "${METALROBO_BOUNDED_DRIVE_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/ccd_segment_time.metalh"
         "${METALROBO_WORLD_COMPILER_SOURCE}"
         "${METALROBO_LOCOMOTION_TASK_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/FiniteResource.metal"

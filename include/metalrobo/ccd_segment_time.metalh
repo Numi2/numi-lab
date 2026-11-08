@@ -1,0 +1,12 @@
+#pragma once
+
+#include <metal_stdlib>
+#include "metalrobo/engine_types.h"
+
+// Both smooth-force prediction and physical event integration consume the
+// duration selected by the same native CCD cursor.
+inline float mrCCDSegmentDuration(
+    device const MRCCDEventStateGPU& state, const mr_u32 mode
+) {
+    return metal::max(mode == MR_CCD_SEGMENT_SELECTED ? state.time.w : state.time.y, 0.0f);
+}
