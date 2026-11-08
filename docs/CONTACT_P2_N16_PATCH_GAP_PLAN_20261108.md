@@ -28,3 +28,22 @@ Coordinate with the parent before execution. This sampled-state diagnostic
 cannot establish integrated-force causation, continuous clearance, a 10 ms
 spatial reference, or physical validity; 0.25% temporal and mesh gates stay
 unchanged.
+
+## Result
+
+The registered process exited 0 in 2.04 s, with peak sampled RSS
+1,647,952 KiB and no resource stop. All controls passed: maximum patch
+area error 9.33e-14 relative, actual total-force reproduction 1.27e-15
+and transferred total reproduction 7.39e-8 of the n=8 peak bin, maximum
+per-patch Duffy difference 7.08e-13 and inset difference 3.85e-9 of that
+peak. All evaluated gaps were positive.
+
+At this snapshot the transferred gap was larger on average in every one
+of the sixteen patches, by 0.438–0.701 µm, and all sixteen transferred
+forces decreased. The actual total was 0.10649716 N and transferred total
+0.07525209 N; the largest patch loss was 0.00233692 N. Signed patch forces,
+gap means, RMS and maxima are retained in the analysis. These common-point
+results identify a distributed fixed-state interpolation effect with
+quadrature differences far below the control thresholds; they do not
+establish an integrated-force cause, trajectory convergence or physical
+qualification.

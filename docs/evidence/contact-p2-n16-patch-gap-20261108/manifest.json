@@ -1,0 +1,28 @@
+{
+  "prediction_commit": "5a607f7b529cac51a0c5b28e26f295193b3f7c59",
+  "source_sha256": "3e0bca1b66432c38e633dde6c3db01198840defba16850cf769b1a138d4311e5",
+  "model_sha256": "726dbf72ff85ceec348df396b6a26c4db90583bc7843d8c8303035d6580f96bb",
+  "reference_sha256": "b2dd05ceee940b154d7038bf8684bde176d64a8b375958275c72a9d75d0aadc7",
+  "transfer_sha256": "eafe7a7848854b7c746f708443cd4bc9c3bd4b9cff1255af0b25738829148a2b",
+  "python_executable": "/private/tmp/numi-fem-py313b-20261107/bin/python",
+  "python_version": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "numerical_versions": "2.3.4 1.16.3 11.0.0",
+  "runs": [
+    {
+      "variant": "transfer",
+      "cmd": [
+        "/private/tmp/numi-fem-py313b-20261107/bin/python",
+        "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_p2_onset_patch_gap.py",
+        "/Users/numi/numi-lab-contact-reference-20261107/docs/evidence/contact-p2-n16-capture-20261108/fine.json",
+        "/Users/numi/numi-lab-contact-reference-20261107/docs/evidence/contact-p2-n16-transfer-inset-20261108/transfer.json"
+      ],
+      "exit": 0,
+      "limit_reason": null,
+      "timeout_s": 600,
+      "rss_limit_kib": 4194304,
+      "peak_rss_kib": 1647952,
+      "elapsed_s": 2.0400508329621516,
+      "output_sha256": "68d4e5988d1a1cdeafcfb3814bc48af26774f4b2ef19633bddad2cc32068886e"
+    }
+  ]
+}
