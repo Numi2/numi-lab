@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-git-recovery-split-cones-20261108/final-verify.py", line 22, in <module>
+    omission=value(gr+'/omission.json');assert omission['status']=='omitted' and all(not (R/f['path']).exists() for f in omission['omitted_files'])
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-git-recovery-split-cones-20261108/final-verify.py", line 8, in value
+    def value(path):return json.loads(objects.read(entries[path][1]))
+                                                   ~~~~~~~^^^^^^
+KeyError: 'artifacts/crow-rl-git-recovery-split-cones-20261108/omission.json'

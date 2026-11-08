@@ -1,0 +1,4 @@
+{
+  "archive_files_removed_in_failed_attempt": 0,
+  "reason": "Omission correctly rejected open handles because its own stdout/stderr were redirected under artifacts. No archive files were removed. The following final verifier consequently found no omission receipt. Preserve both failures and capture omission output through memory pipes, saving logs only after the zero-handle scan finishes. No native or scientific work repeated."
+}
