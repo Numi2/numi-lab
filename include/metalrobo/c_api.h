@@ -184,6 +184,13 @@ typedef struct MRRetinalSensorConfigC {
 // Explicit engineering two-port fixture, used only by the additive cue entry.
 // Version1 is64 bytes. Ports are ground-local x/y/z/radius in meters, from
 // native calibration. Mesh indices bind authored indicator instances to port0/1.
+// Additive resource-free object practice configuration; ABI1 is32 bytes.
+// Placement ranges are meters in the admitted support frame. No host resets.
+typedef struct MRCrowObjectPushCurriculumC {
+    uint32_t struct_size, abi_version, episode_steps, reserved;
+    float minimum_x, maximum_x, minimum_y, maximum_y;
+} MRCrowObjectPushCurriculumC;
+
 typedef struct MRCrowCuedForagingConfigC {
     uint32_t struct_size, abi_version;
     float left_port[4], right_port[4];
@@ -698,6 +705,11 @@ MR_API int mr_compile_episode_manifest(
 // retinal programs. No missing-image fallback or legacy struct reinterpretation.
 MR_API MRTaskRolloutHandle* mr_create_task_rollout_retinal(
     const MRRunManifestC* manifest, const MRRetinalSensorConfigC* retinal
+);
+// Optional native reset distribution for v14; other sources and teachers reject.
+MR_API MRTaskRolloutHandle* mr_create_task_rollout_object_push_curriculum(
+    const MRRunManifestC* manifest,const MRRetinalSensorConfigC* retinal,
+    const MRCrowObjectPushCurriculumC* curriculum
 );
 MR_API MRTaskRolloutHandle* mr_create_task_rollout_cued_foraging(
     const MRRunManifestC* manifest,const MRRetinalSensorConfigC* retinal,

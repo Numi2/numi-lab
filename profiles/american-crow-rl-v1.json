@@ -785,6 +785,68 @@
         "temporary_bytes_removed": 24898132,
         "reanalysis_reused_original_successful_executions": true
       }
+    },
+    "native_practice_curriculum": {
+      "configuration": "environments/american-crow/object-push-v1/curriculum.json",
+      "evidence": "artifacts/crow-rl-object-curriculum-20261108",
+      "selection_flag": "--object-push-curriculum",
+      "native_admission_command": "object-push-curriculum-admission",
+      "recurrent_admission_command": "object-push-life-admission --curriculum FILE",
+      "episode_ticks": 160,
+      "x_range_m": [
+        0.223,
+        0.227
+      ],
+      "y_range_m": [
+        0.028,
+        0.042
+      ],
+      "reset_authority": "native generic RealityPack operators; no host reset requests",
+      "episode_reset_scope": "body/scene/camera/GRU; preserves model/Adam and lifetime clock",
+      "native_engineering_lanes": 33,
+      "native_engineering_episode_ticks": 32,
+      "distinct_native_lane_episode_placements": 99,
+      "native_control_transitions": 6930,
+      "native_physics_rejections": 0,
+      "native_host_requested_resets": 0,
+      "native_and_fresh_process_future_exact": true,
+      "coupled_optimizer_boundaries_compared": 5,
+      "model_Adam_arrays_per_boundary": 41,
+      "coupled_update_ticks": 97,
+      "scripted_full_life_ticks": 345,
+      "scripted_split_tick": 159,
+      "scripted_future_ticks": 186,
+      "scripted_episode_reset_ticks": [
+        160,
+        320
+      ],
+      "GRU_and_camera_reset_semantics_verified": true,
+      "native_malformed_config_controls": 6,
+      "coupled_checkpoint_rejection_controls": 6,
+      "legacy_fixed_fixture_unchanged_and_policy_misuse_rejected": true,
+      "configuration_guard_envelope_is_not_full_physics_qualification": true,
+      "learned_manipulation_qualified": false,
+      "ecological_environment_qualified": false,
+      "bounded_performance": {
+        "environments": 128,
+        "update_ticks": 160,
+        "updates": 2,
+        "training_samples": 40960,
+        "accepted_transitions_per_second": 711.496449435562,
+        "elapsed_seconds": 57.5688045,
+        "life_checkpoint_publication_seconds": 0.135634417,
+        "mlx_peak_bytes": 580314256,
+        "native_retained_buffer_bytes": 104109362,
+        "native_transient_private_bytes": 76476188,
+        "reported_swap_before_after_bytes": [
+          0,
+          0
+        ],
+        "physics_rejections": 0,
+        "raw_bytes_before_summary": 380874954,
+        "prospective_raw_bound_bytes": 536870912,
+        "sustained_throughput_qualified": false
+      }
     }
   }
 }

@@ -62,6 +62,7 @@ def runtime(root: Path) -> dict:
         "foraging_compile": build / "bin/metalrobo_crow_foraging_compile",
         "object_push_compile": build / "bin/metalrobo_crow_object_push_compile",
         "object_push_check": build / "bin/metalrobo_crow_object_push_check",
+        "object_curriculum_check": build / "bin/metalrobo_crow_object_curriculum_check",
         "eye_check": build / "bin/metalrobo_crow_eye_check",
         "retinal_check": build / "bin/metalrobo_retinal_stream_check",
         "retinal_api_check": build / "bin/metalrobo_crow_retinal_api_check",
@@ -1212,7 +1213,10 @@ def main() -> int:
     commands.add_parser("action-holds-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("temporal-history-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("object-push-admission").add_argument("--output", type=Path, required=True)
-    commands.add_parser("object-push-life-admission").add_argument("--output", type=Path, required=True)
+    object_life=commands.add_parser("object-push-life-admission")
+    object_life.add_argument("--output", type=Path, required=True)
+    object_life.add_argument("--curriculum", type=Path)
+    commands.add_parser("object-push-curriculum-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("prepare-object-push").add_argument("--output", type=Path, required=True)
     causal = commands.add_parser("memory-causal-admission")
     causal.add_argument("--output", type=Path, required=True)
@@ -1571,9 +1575,18 @@ def main() -> int:
                 str(output / "environment")], root, 60)
             if result.get("status") != "passed" or result.get("simulation_steps") != 0 or result.get("actor_features") != 1247 or result.get("critic_features") != 100:
                 raise RuntimeError("Native object-push environment authoring failed")
+        elif args.command == "object-push-curriculum-admission":
+            execute(output, "object-curriculum", ["/usr/bin/env", "DYLD_PRINT_LIBRARIES=1", str(runtime(root)["object_curriculum_check"]),
+                str(output/"native-evidence"), str(root/"environments/american-crow/object-push-v1")], root, 240, json_output=False)
+            loaded=[line for line in (output/"object-curriculum.stderr").read_text().splitlines() if line.startswith("dyld[") and "libmetalrobo.dylib" in line]
+            if not loaded or any(not line.endswith(str(runtime(root)["library"])) for line in loaded):
+                raise RuntimeError("Unexpected native object curriculum library")
+            result = json.loads((output/"native-evidence/summary.json").read_text())
+            if result.get("status") != "passed_engineering_controls" or result.get("accepted_transitions") != 6930 or result.get("fresh_process_future_exact") is not True:
+                raise RuntimeError("Native object curriculum admission failed")
         elif args.command == "object-push-life-admission":
             from .crow_object_life import run
-            result = run(root, output, runtime(root))
+            result = run(root, output, runtime(root), curriculum=args.curriculum.resolve(strict=True) if args.curriculum else None)
         elif args.command == "object-push-admission":
             execute(output, "object-push", [str(runtime(root)["object_push_check"]),
                 str(output / "native-evidence")], root, 600, json_output=False)

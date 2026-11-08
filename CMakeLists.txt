@@ -1163,6 +1163,12 @@ add_executable(metalrobo_crow_object_push_compile apps/crow_object_push_compile.
 target_compile_options(metalrobo_crow_object_push_compile PRIVATE -Wall -Wextra -Wpedantic)
 target_link_libraries(metalrobo_crow_object_push_compile PRIVATE metalrobo)
 set_target_properties(metalrobo_crow_object_push_compile PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin" BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "@loader_path/../lib")
+add_executable(metalrobo_crow_object_curriculum_check apps/crow_object_curriculum_check.mm)
+target_compile_options(metalrobo_crow_object_curriculum_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+target_link_libraries(metalrobo_crow_object_curriculum_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
+add_dependencies(metalrobo_crow_object_curriculum_check metalrobo_shaders metalrobo_retinal_shaders)
+set_target_properties(metalrobo_crow_object_curriculum_check PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin" BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "@loader_path/../lib")
+
 add_executable(metalrobo_crow_object_push_check apps/crow_object_push_check.mm)
 target_compile_options(metalrobo_crow_object_push_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
 target_link_libraries(metalrobo_crow_object_push_check PRIVATE metalrobo "${METAL_FRAMEWORK}" "${FOUNDATION_FRAMEWORK}")
@@ -2512,6 +2518,14 @@ if(BUILD_TESTING)
             "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
             "-DLEGACY_METALLIB=${CMAKE_CURRENT_SOURCE_DIR}/artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib"
             -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowRetinalContract.cmake")
+    add_test(NAME metalrobo.crow.object_curriculum
+        COMMAND "${CMAKE_COMMAND}"
+            "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_object_curriculum_check>"
+            "-DOUTPUT_PARENT=${CMAKE_CURRENT_BINARY_DIR}"
+            "-DASSETS=${CMAKE_CURRENT_SOURCE_DIR}/environments/american-crow/object-push-v1"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/CheckCrowObjectCurriculum.cmake")
+    set_tests_properties(metalrobo.crow.object_curriculum PROPERTIES
+        LABELS "metalrobo;crow;native;manipulation;persistence;visual" TIMEOUT 240)
     add_test(NAME metalrobo.crow.object_push
         COMMAND "${CMAKE_COMMAND}"
             "-DPROGRAM=$<TARGET_FILE:metalrobo_crow_object_push_check>"

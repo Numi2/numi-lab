@@ -3300,7 +3300,8 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
     const MRRetinalSensorConfigC* retinalConfig=nullptr,
     const MRCrowCuedForagingConfigC* cueConfig=nullptr,
     const std::uint32_t memoryChoiceDecisionStep=0u,
-    const std::uint32_t headHold=0u,const std::uint32_t beakHold=0u
+    const std::uint32_t headHold=0u,const std::uint32_t beakHold=0u,
+    const MRCrowObjectPushCurriculumC* objectCurriculum=nullptr
 ) {
     if (config == nullptr) {
         gLastError = "BirdFlow American-crow rollout configuration is required.";
@@ -3312,6 +3313,10 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
         const bool manipulation=journey && config->birdflow_journey_variant==MR_BIRDFLOW_JOURNEY_V14_OBJECT_PUSH;
         const bool retinal=journey && (config->birdflow_journey_variant==MR_BIRDFLOW_JOURNEY_V13_RETINAL_FEEDING || manipulation);
         static_assert(sizeof(MRCrowCuedForagingConfigC)==64);
+        static_assert(sizeof(MRCrowObjectPushCurriculumC)==32);
+        if(objectCurriculum && (!manipulation || objectCurriculum->struct_size!=sizeof(*objectCurriculum) ||
+            objectCurriculum->abi_version!=1 || objectCurriculum->reserved))
+            throw std::invalid_argument("Unsupported native object curriculum configuration");
         if(cueConfig && (!retinal || cueConfig->struct_size!=sizeof(*cueConfig) || cueConfig->abi_version!=1 || cueConfig->reserved || cueConfig->occluded>1))
             throw std::invalid_argument("Unsupported native cue-foraging configuration");
         if (retinal != (retinalConfig!=nullptr) || (retinal && visual_sensor==nullptr))
@@ -3344,6 +3349,11 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             manifest.sensors.deviceVisual=std::move(p);
             if(config->disable_task_terminations)manifest.task.terminations.clear();
             applyRunProfile(manifest,*config);metalrobo::applyAmericanCrowForagingFixtureLimits(manifest);
+            if(objectCurriculum) {
+                const auto& c=*objectCurriculum;
+                metalrobo::applyAmericanCrowObjectPushCurriculum(manifest,
+                    {c.episode_steps,c.minimum_x,c.maximum_x,c.minimum_y,c.maximum_y});
+            }
             result=createCompiledRunTaskRollout(std::move(manifest),metallib_path,
                 "American-crow native object push",nullptr).release();
             return;
@@ -4041,6 +4051,19 @@ MRTaskRolloutHandle* mr_create_task_rollout_retinal(const MRRunManifestC* manife
         }
     }
     return result;
+}
+
+MRTaskRolloutHandle* mr_create_task_rollout_object_push_curriculum(const MRRunManifestC* manifest,
+    const MRRetinalSensorConfigC* retinal,const MRCrowObjectPushCurriculumC* curriculum) {
+    if(!manifest || !retinal || !curriculum ||
+       manifest->source!=MR_RUN_SOURCE_BIRDFLOW_AMERICAN_CROW_JOURNEY ||
+       manifest->profile.birdflow_journey_variant!=MR_BIRDFLOW_JOURNEY_V14_OBJECT_PUSH ||
+       manifest->inspection_visual_program || manifest->profile.birdflow_journey_teacher) {
+        gLastError="Object curriculum requires explicit v14 retinal crow, exclusive policy authority and no separate inspection program";
+        return nullptr;
+    }
+    return createBirdFlowAmericanCrowRun(&manifest->profile,manifest->visual_sensor_program,
+        manifest->metallib_path,true,retinal,nullptr,0,0,0,curriculum);
 }
 
 MRTaskRolloutHandle* mr_create_task_rollout_cued_foraging(const MRRunManifestC* manifest,

@@ -1,0 +1,11 @@
+if(NOT DEFINED PROGRAM OR NOT DEFINED OUTPUT_PARENT OR NOT DEFINED ASSETS)
+    message(FATAL_ERROR "Object-push check requires native instrument and output parent")
+endif()
+string(RANDOM LENGTH 16 ALPHABET 0123456789abcdef trial_id)
+set(trial "${OUTPUT_PARENT}/crow-object-curriculum-${trial_id}")
+execute_process(COMMAND "${PROGRAM}" "${trial}" "${ASSETS}"
+    RESULT_VARIABLE result OUTPUT_VARIABLE evidence ERROR_VARIABLE failure TIMEOUT 240)
+if(NOT result EQUAL 0)
+    message(FATAL_ERROR "Native object-push check failed; evidence ${trial}: ${failure}")
+endif()
+message(STATUS "${evidence} Evidence retained at ${trial}")

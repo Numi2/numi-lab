@@ -1,9 +1,30 @@
 #include "metalrobo/CrowManipulation.hpp"
 #include "metalrobo/LocomotionWorld.hpp"
 #include <algorithm>
+#include <cmath>
 #include <stdexcept>
 
 namespace metalrobo {
+void applyAmericanCrowObjectPushCurriculum(
+    RunManifest& m,const CrowObjectPushCurriculum& c) {
+    if(m.task.id!="american_crow_object_push_v14" || c.episodeSteps<32 || c.episodeSteps>4096 ||
+       !std::isfinite(c.minimumX) || !std::isfinite(c.maximumX) ||
+       !std::isfinite(c.minimumY) || !std::isfinite(c.maximumY) ||
+       c.minimumX>c.maximumX || c.minimumY>c.maximumY ||
+       c.minimumX<.222f || c.maximumX>.228f || c.minimumY<.026f || c.maximumY>.060f)
+        throw std::invalid_argument("Object curriculum requires ticks32..4096, x within[.222,.228]m and y within[.026,.060]m");
+    if(!m.reality.reset.operators.empty())
+        throw std::invalid_argument("Object curriculum cannot replace an existing reset program");
+    // Preserve z, orientation, material, mass and zero launch velocity. These
+    // generic operators sample from the native lane/episode counter RNG.
+    m.reality.reset.operators={
+        {.operation=TaskRandomizationOperator::sceneBodyPosition,.target="crow_manipulandum",
+         .component=0,.parameters={c.minimumX,c.maximumX,0,0}},
+        {.operation=TaskRandomizationOperator::sceneBodyPosition,.target="crow_manipulandum",
+         .component=1,.parameters={c.minimumY,c.maximumY,0,0}}};
+    m.task.maximumEpisodeSteps=c.episodeSteps;
+}
+
 TaskPack makeAmericanCrowObjectPushTaskPack(TaskObservationProgram& observations,
     TaskResetProgram& reset,const RetinalSensorProgram* retinal) {
     auto task=makeAmericanCrowEmbodiedTaskPack(observations,reset);

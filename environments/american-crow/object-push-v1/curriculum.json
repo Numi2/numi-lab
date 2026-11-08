@@ -1,0 +1,12 @@
+{
+  "schema": "numi.crow-object-push-curriculum.v1",
+  "episode_steps": 160,
+  "x_range_m": [
+    0.223,
+    0.227
+  ],
+  "y_range_m": [
+    0.028,
+    0.042
+  ]
+}

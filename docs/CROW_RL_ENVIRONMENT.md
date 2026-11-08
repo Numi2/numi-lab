@@ -121,6 +121,64 @@ Corrected analysis reused command/hash-verified successful native runs. These
 checks establish same-device exact-runtime engineering persistence; persistent
 ecological needs, solid-food handling and social learning remain unqualified.
 
+## Native object practice curriculum (8 November 2026)
+
+The explicit `--object-push-curriculum FILE` option adds repeated motor practice
+to ordinary v14 rollout/training. The canonical configuration is
+`environments/american-crow/object-push-v1/curriculum.json`:160-tick episodes,
+object x in[.223,.227]m and y in[.028,.042]m. Existing generic RealityPack reset
+operators sample each native lane/episode. They preserve the object's authored
+z, orientation, mass, material and zero launch velocity. No host step loop or
+new physics kernel is introduced. The optional configuration changes the task
+fingerprint; it requires a freshly bound policy. The fixed fixture keeps its
+original100000-tick horizon and rejects a curriculum-bound policy.
+
+Episode boundaries restore authored body/scene state and clear camera/GRU state.
+Model/Adam and the accepted lifetime clock continue. This is an explicit
+episodic practice distribution; unbroken ecological object/resource processes
+remain a separate requirement. The actor still receives only proprioception
+and genuine delayed RGB, with object truth confined to the critic. The goal,
+support and material remain the same development apparatus. Neither this
+placement variation nor the scripted controls qualify learned generalization.
+
+`tools/numi crow-env object-push-curriculum-admission --output NEW_DIRECTORY`
+checks33 native lanes across a SIMD boundary and three32-tick episodes. All99
+lane/episode placements are distinct and within the declared narrow range;
+neutral horizontal motion stays below10um and settling-depth error below0.5mm.
+Camera validity clears for the first two ticks of each episode, then real RGB
+varies with placement. Lifetime clocks reach70 despite two resets. Complete
+chunk1/8 streams and final native state, plus two fresh-process futures from
+tick35 across reset64, match exactly. Six invalid configurations reject, and
+the fixed-fixture policy contract rejects silent reuse. These are6930 accepted
+engineering transitions with zero physics rejection and zero host resets.
+
+`tools/numi crow-env object-push-life-admission --curriculum FILE --output NEW_DIR`
+checks the canonical160-tick distribution with ordinary recurrent MLX training:
+three uninterrupted97-tick updates versus one plus two resumed at chunks1/8.
+Five shared boundaries match all41 model/Adam arrays/metadata, policies,
+rollouts and native components. A345-tick scripted policy matches fresh186-tick
+futures from tick159 across resets160/320, including exact GRU reset traces and
+the camera's two-tick cold start. The lifetime clock remains345. All six coupled
+checkpoint rejection controls pass. This verifies the practice/reset/learning
+interface; the scripted policy is not a learned manipulation result.
+
+
+A bounded128-lane run accepts40960 samples through two160-tick updates at
+711.496 transitions/s in57.569s, with full coupled checkpoint publication after
+each update (0.135634417s total). MLX peak is580314256B, native retained buffers
+104109362B and transient private buffers76476188B. These counters do not measure
+whole-system peak. Swap is zero before/after and native steps reject zero.
+Raw performance evidence is380874954B before its summary, within the declared
+512MiB limit. This is a short engineering measurement, not sustained throughput
+or a controlled learning speedup comparison.
+
+Source, plans, complete bounded evidence, runtime and recovery controls are in
+`artifacts/crow-rl-object-curriculum-20261108`. The wider API validation envelope
+(x[.222,.228],y[.026,.060]m, episodes32..4096) is a configuration guard; the
+physical/behavioral checks above cover their declared sampled ranges and
+durations. Material sensitivity, held-out layouts, learned manipulation,
+persistent needs and social learning remain unqualified.
+
 ## Current native history contract (8 November 2026)
 
 Current executable task ABIs are51 (base),52 (retinal),53 (memory choice), and54

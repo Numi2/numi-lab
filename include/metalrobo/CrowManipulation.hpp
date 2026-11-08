@@ -2,6 +2,16 @@
 #include "metalrobo/CrowForaging.hpp"
 
 namespace metalrobo {
+// Explicit engineering practice distribution. Reset variation is compiled into
+// RealityPack operators; native accepted episode resets are the sole authority.
+struct CrowObjectPushCurriculum {
+    unsigned episodeSteps=160;
+    float minimumX=.223f, maximumX=.227f;
+    float minimumY=.028f, maximumY=.042f;
+};
+void applyAmericanCrowObjectPushCurriculum(
+    RunManifest& manifest,const CrowObjectPushCurriculum& curriculum);
+
 // Ten-degree downward engineering camera pitch covers the beak workspace.
 inline constexpr mr_float4 crowObjectPushCameraOrientation={-.5416752204f,.5416752204f,-.4545194777f,.4545194777f};
 // Estimated engineering task: an initially resting rigid 2g sphere on a

@@ -115,3 +115,45 @@ Six invalid restores reject; the v13 feeding regression retains its food ledger
 and all nine rejection controls. The initial checker treated flat feature
 arrays as sample rows; its failure and source are preserved, and corrected
 analysis reused the original successful runs without repeating them.
+
+## Explicit episodic practice
+
+Use `--object-push-curriculum curriculum.json` with ordinary training/rollout
+to select the canonical160-tick practice distribution. Native RealityPack
+operators sample object x[.223,.227]m and y[.028,.042]m on each lane/episode.
+The object retains its authored mass/material/height and zero launch velocity.
+Episode boundaries restore body/scene state and clear camera/GRU state;
+model/Adam and the lifetime clock continue. `--no-scheduled-resets` disables
+benchmark host requests; native episode timeouts still follow this explicit
+configuration. The fixed fixture keeps its100000-tick horizon without the flag.
+Initialize a fresh policy for the changed task fingerprint.
+
+```sh
+tools/numi crow-env object-push-curriculum-admission --output NEW_NATIVE_DIRECTORY
+tools/numi crow-env object-push-life-admission \
+  --curriculum environments/american-crow/object-push-v1/curriculum.json \
+  --output NEW_RECURRENT_DIRECTORY
+```
+
+The33-lane native instrument verifies99 distinct placements over three32-tick
+episodes, bounded neutral settling, real RGB variation, camera reset timing,
+lifetime clocks and exact chunk/fresh-process continuation. The ordinary
+recurrent instrument uses the160-tick configuration and checks learning across
+episode boundaries, all41 model/Adam arrays at five shared update boundaries,
+and a345-tick scripted physical life with resets160/320. Six native malformed
+configuration controls and six coupled-checkpoint controls reject. Evidence is
+in `artifacts/crow-rl-object-curriculum-20261108`.
+
+
+A bounded128-lane run accepts40960 samples through two160-tick updates at
+711.496 transitions/s in57.569s, with full coupled checkpoint publication after
+each update (0.135634417s total). MLX peak is580314256B, native retained buffers
+104109362B and transient private buffers76476188B. These counters do not measure
+whole-system peak. Swap is zero before/after and native steps reject zero.
+Raw performance evidence is380874954B before its summary, within the declared
+512MiB limit. This is a short engineering measurement, not sustained throughput
+or a controlled learning speedup comparison.
+
+This enables repeated motor-learning opportunities in the fixed apparatus.
+Learned visual manipulation and held-out layout/material generalization remain
+unqualified, as do unbroken ecological needs/resources and social learning.

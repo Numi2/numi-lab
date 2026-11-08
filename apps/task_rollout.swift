@@ -248,6 +248,8 @@ private struct Options {
     var g1VisualPackDirectory: String?
     var ballVisualPackDirectory: String?
     var visualEnvironmentPack: String?
+    var objectPushCurriculumPath: String?
+    var objectPushCurriculum: MetalRoboCrowObjectPushCurriculum?
     var visualObservationConfig: String?
     var inspectionScene: String?
     var inspectionWidth = 640
@@ -536,6 +538,9 @@ private struct Options {
                 index += 1
             case "--visual-environment-pack":
                 visualEnvironmentPack = try value()
+                index += 1
+            case "--object-push-curriculum":
+                objectPushCurriculumPath = try value()
                 index += 1
             case "--visual-observation-config":
                 visualObservationConfig = try value()
@@ -1091,6 +1096,13 @@ private struct Options {
                 "--ball-visual-pack-dir requires --g1-visual-pack-dir."
             )
         }
+        if let path = objectPushCurriculumPath {
+            guard birdFlowAmericanCrowJourney, birdFlowJourneyVariant == .v14ObjectPush,
+                  !birdFlowJourneyTeacher, inspectionScene == nil else {
+                throw MetalRoboTaskRolloutError.invalidShape("--object-push-curriculum requires native v14, exclusive policy authority and no inspection scene.")
+            }
+            objectPushCurriculum = try .load(from: URL(fileURLWithPath: path))
+        }
         if visualObservationConfig != nil &&
             (g1VisualPackDirectory != nil ||
              ballVisualPackDirectory != nil ||
@@ -1373,7 +1385,8 @@ private func makeContext(
                     source: .birdFlowAmericanCrowJourney,
                     sensorsAndPhysics: configuration,
                     visualSensor: visualSensor,
-                    inspectionVisual: inspectionVisual
+                    inspectionVisual: inspectionVisual,
+                    objectPushCurriculum: options.objectPushCurriculum
                 ),
                 metallibPath: options.metallib
             ),
@@ -3815,6 +3828,7 @@ private enum TaskRolloutMain {
                 "policy_action_trace": options.policyActionTrace ?? "",
                 "environments": options.environments,
                 "steps_per_repeat": options.steps,
+                "object_push_curriculum": options.objectPushCurriculumPath ?? "",
                 "maximum_episode_steps":
                     layout.maximumEpisodeSteps,
                 "repeats": options.repeats,

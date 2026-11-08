@@ -82,6 +82,8 @@ private struct Options {
     var g1VisualPackDirectory: String?
     var ballVisualPackDirectory: String?
     var visualEnvironmentPack: String?
+    var objectPushCurriculumPath: String?
+    var objectPushCurriculum: MetalRoboCrowObjectPushCurriculum?
     var visualObservationConfig: String?
     var birdFlowDove = false
     var birdFlowAmericanCrow = false
@@ -462,6 +464,9 @@ private struct Options {
                 index += 1
             case "--visual-environment-pack":
                 visualEnvironmentPack = try value()
+                index += 1
+            case "--object-push-curriculum":
+                objectPushCurriculumPath = try value()
                 index += 1
             case "--visual-observation-config":
                 visualObservationConfig = try value()
@@ -942,6 +947,13 @@ private struct Options {
                 "Visual training requires both --g1-visual-pack-dir and --ball-visual-pack-dir."
             )
         }
+        if let path = objectPushCurriculumPath {
+            guard birdFlowAmericanCrowJourney, birdFlowJourneyVariant == .v14ObjectPush,
+                  !birdFlowJourneyTeacher, inspectionScene == nil else {
+                throw MetalRoboTaskRolloutError.invalidShape("--object-push-curriculum requires native v14, exclusive policy authority and no inspection scene.")
+            }
+            objectPushCurriculum = try .load(from: URL(fileURLWithPath: path))
+        }
         if visualObservationConfig != nil &&
             (g1VisualPackDirectory != nil ||
              ballVisualPackDirectory != nil ||
@@ -1106,6 +1118,7 @@ private struct Options {
             "policyPack", "updatedPolicyPack", "deploymentPolicyPack", "incumbentPolicyPack", "rolloutPack",
             "learnerState", "outputLearnerState", "checkpointDirectory", "checkpointInterval", "checkpointLife",
             "resumeTrainingCheckpoint", "trainingResume", "learnerTimeoutSeconds", "visualObservationConfig",
+            "objectPushCurriculumPath",
             "initializePolicyID", "zeroActorOutput", "initializeActorPolicyPack", "initializeActorFreshCritic",
             "recurrentHiddenSize", "recurrentEncoderSizes", "recurrentMemoryTimescaleTicks",
         ]
@@ -1863,7 +1876,8 @@ private func makeContext(
                 manifest: MetalRoboRunManifest(
                     source: .birdFlowAmericanCrowJourney,
                     sensorsAndPhysics: configuration,
-                    visualSensor: visualSensor
+                    visualSensor: visualSensor,
+                    objectPushCurriculum: options.objectPushCurriculum
                 ),
                 metallibPath: options.metallib
             ),
@@ -2603,6 +2617,7 @@ private enum TaskTrainMain {
                     options.visualObservationConfig ?? "",
                 "environments": options.environments,
                 "steps_per_update": options.steps,
+                "object_push_curriculum": options.objectPushCurriculumPath ?? "",
                 "maximum_episode_steps":
                     finalLayout.maximumEpisodeSteps,
                 "updates": options.updates,

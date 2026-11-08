@@ -257,6 +257,44 @@ public struct MetalRoboRetinalObservationConfiguration: Sendable, Decodable {
     }
 }
 
+public struct MetalRoboCrowObjectPushCurriculum: Sendable, Decodable {
+    public let schema: String
+    public let episodeSteps: UInt32
+    public let xRangeMeters: [Float]
+    public let yRangeMeters: [Float]
+    private enum CodingKeys: String, CodingKey {
+        case schema
+        case episodeSteps = "episode_steps"
+        case xRangeMeters = "x_range_m", yRangeMeters = "y_range_m"
+    }
+    public static func load(from url: URL) throws -> Self {
+        let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
+        guard attributes[.type] as? FileAttributeType == .typeRegular,
+              let bytes = attributes[.size] as? NSNumber, bytes.intValue > 0, bytes.intValue <= 16384 else {
+            throw MetalRoboTaskRolloutError.invalidShape("Object curriculum must be a bounded regular JSON file.")
+        }
+        let result = try JSONDecoder().decode(Self.self, from: Data(contentsOf: url))
+        _ = try result.native()
+        return result
+    }
+    fileprivate func native() throws -> MRCrowObjectPushCurriculumC {
+        guard schema == "numi.crow-object-push-curriculum.v1", (32...4096).contains(episodeSteps),
+              xRangeMeters.count == 2, yRangeMeters.count == 2,
+              (xRangeMeters + yRangeMeters).allSatisfy(\.isFinite),
+              xRangeMeters[0] <= xRangeMeters[1], yRangeMeters[0] <= yRangeMeters[1],
+              xRangeMeters[0] >= 0.222, xRangeMeters[1] <= 0.228,
+              yRangeMeters[0] >= 0.026, yRangeMeters[1] <= 0.060 else {
+            throw MetalRoboTaskRolloutError.invalidShape("Invalid object curriculum schema, lifetime or placement envelope.")
+        }
+        var c = MRCrowObjectPushCurriculumC()
+        c.struct_size = UInt32(MemoryLayout<MRCrowObjectPushCurriculumC>.size)
+        c.abi_version = 1; c.episode_steps = episodeSteps
+        c.minimum_x = xRangeMeters[0]; c.maximum_x = xRangeMeters[1]
+        c.minimum_y = yRangeMeters[0]; c.maximum_y = yRangeMeters[1]
+        return c
+    }
+}
+
 public struct MetalRoboCrowCuedForagingConfiguration: Sendable, Decodable {
     public var ports: [[Float]]
     public var cueMeshInstances: [UInt32]
@@ -1220,19 +1258,22 @@ public struct MetalRoboRunManifest: Sendable {
     public let inspectionVisual:
         MetalRoboTaskVisualObservationConfiguration?
     public let teacher: MetalRoboTeacherSource?
+    public let objectPushCurriculum: MetalRoboCrowObjectPushCurriculum?
 
     public init(
         source: MetalRoboRunSource,
         sensorsAndPhysics: MetalRoboTaskRolloutConfiguration,
         visualSensor: MetalRoboTaskVisualObservationConfiguration? = nil,
         inspectionVisual: MetalRoboTaskVisualObservationConfiguration? = nil,
-        teacher: MetalRoboTeacherSource? = nil
+        teacher: MetalRoboTeacherSource? = nil,
+        objectPushCurriculum: MetalRoboCrowObjectPushCurriculum? = nil
     ) {
         self.source = source
         self.sensorsAndPhysics = sensorsAndPhysics
         self.visualSensor = visualSensor
         self.inspectionVisual = inspectionVisual
         self.teacher = teacher
+        self.objectPushCurriculum = objectPushCurriculum
     }
 }
 
@@ -1261,6 +1302,10 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
         }
         var retinal = try authored.visualSensor?.retinal?.native()
         var foraging = try authored.visualSensor?.cuedForaging?.native()
+        var objectCurriculum = try authored.objectPushCurriculum?.native()
+        guard objectCurriculum == nil || (retinal != nil && foraging == nil) else {
+            throw MetalRoboTaskRolloutError.invalidShape("Object curriculum requires a resource-free retinal sensor.")
+        }
         guard foraging == nil || retinal != nil else {
             throw MetalRoboTaskRolloutError.invalidShape("Cued foraging requires an explicit retinal program.")
         }
@@ -1359,6 +1404,11 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
                                             manifest.metallib_path = metallib
                                             if retinal != nil {
                                                 return withUnsafePointer(to: &retinal!) { sensor in
+                                                    if objectCurriculum != nil {
+                                                        return withUnsafePointer(to: &objectCurriculum!) { curriculum in
+                                                            mr_create_task_rollout_object_push_curriculum(&manifest, sensor, curriculum)
+                                                        }
+                                                    }
                                                     if foraging != nil {
                                                         return withUnsafePointer(to: &foraging!) { resources in
                                                             if let decision = authored.visualSensor?.cuedForaging?.memoryChoiceDecisionTick {
