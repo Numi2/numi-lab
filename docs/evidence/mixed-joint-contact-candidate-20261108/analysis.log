@@ -1,0 +1,38 @@
+{
+  "baseline_reproduced": true,
+  "reference_peak_ground_force_N": 19.82754841,
+  "comparison": {
+    "control": {
+      "accepted_steps": 12,
+      "accepted_physical_seconds": 0.012,
+      "first_rejection": 12,
+      "full_duration": false,
+      "force_error_relative_peak": 0.0012429033327978265,
+      "impulse_relative_error": 4.449990144737308e-06,
+      "force_gate": false,
+      "impulse_gate": false,
+      "sustained_mixed_steps": 12,
+      "max_normal_residual_m_s": 1.990096644e-05,
+      "max_momentum_balance_Ns": 5.794527887029166e-09,
+      "normal_work_estimate_J": 0.0006586813608477656,
+      "tangent_work_estimate_J": -0.001248002449858267,
+      "rejected_exposed_state_unchanged": true
+    },
+    "joint": {
+      "accepted_steps": 20,
+      "accepted_physical_seconds": 0.02,
+      "first_rejection": null,
+      "full_duration": true,
+      "force_error_relative_peak": 1.7942964639046137e-05,
+      "impulse_relative_error": 4.7645294393501695e-07,
+      "force_gate": true,
+      "impulse_gate": true,
+      "sustained_mixed_steps": 20,
+      "max_normal_residual_m_s": 7.674098015e-07,
+      "max_momentum_balance_Ns": 2.0869775838039395e-09,
+      "normal_work_estimate_J": 0.0007951205683385267,
+      "tangent_work_estimate_J": -0.0012480005262594962,
+      "rejected_exposed_state_unchanged": true
+    }
+  }
+}
