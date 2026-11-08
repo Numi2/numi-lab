@@ -1,0 +1,10 @@
+{
+  "actual_git_unique_contents_verified": 76,
+  "archive_commit": "065608b8ed90558fd96360728fe6b14558e5dcbe",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300314204 157034936    66% 3498478 1570349360    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300336912 157012228    66% 3498613 1570122280    0%   /System/Volumes/Data\n",
+  "open_handles": 0,
+  "remote_commit": "065608b8ed90558fd96360728fe6b14558e5dcbe",
+  "removed_files": 123,
+  "removed_logical_bytes": 22891050
+}
