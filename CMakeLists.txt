@@ -317,6 +317,8 @@ set(METALROBO_DISCRETE_ELASTIC_ROD_SOURCE
 set(METALROBO_DISCRETE_ELASTIC_ROD_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboDiscreteElasticRod.air"
 )
+set(METALROBO_COUPLED_ROD_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MetalCoupledRod.metal")
+set(METALROBO_COUPLED_ROD_AIR "${METALROBO_SHADER_DIR}/MetalRoboCoupledRod.air")
 set(METALROBO_GENERALIZED_CONSTRAINT_SOURCE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/MetalGeneralizedConstraints.metal"
 )
@@ -644,6 +646,10 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_DISCRETE_ELASTIC_ROD_SOURCE}"
             -o "${METALROBO_DISCRETE_ELASTIC_ROD_AIR}"
+    COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -c "${METALROBO_COUPLED_ROD_SOURCE}"
+            -o "${METALROBO_COUPLED_ROD_AIR}"
     COMMAND xcrun -sdk macosx metal
             -std=metal4.0
             -O3
@@ -801,6 +807,7 @@ add_custom_command(
             "${METALROBO_PARALLEL_ARTICULATED_ABA_SMALL_AIR}"
             "${METALROBO_PARALLEL_MULTI_ARTICULATED_ABA_AIR}"
             "${METALROBO_DISCRETE_ELASTIC_ROD_AIR}"
+            "${METALROBO_COUPLED_ROD_AIR}"
             "${METALROBO_GENERALIZED_CONSTRAINT_AIR}"
             "${METALROBO_MULTI_ARTICULATED_CONTACT_AIR}"
             "${METALROBO_ARTICULATED_INVERSE_MASS_AIR}"
@@ -858,6 +865,8 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numanx_human_matter_gpu.h"
         "${METALROBO_PARALLEL_ARTICULATED_ABA_SOURCE}"
         "${METALROBO_DISCRETE_ELASTIC_ROD_SOURCE}"
+        "${METALROBO_COUPLED_ROD_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/coupled_rod_gpu.h"
         "${METALROBO_GENERALIZED_CONSTRAINT_SOURCE}"
         "${METALROBO_MULTI_ARTICULATED_CONTACT_SOURCE}"
         "${METALROBO_ARTICULATED_INVERSE_MASS_SOURCE}"
@@ -1098,6 +1107,7 @@ add_library(
     src/metal/MetalArticulatedABA.mm
     src/metal/MetalMultiArticulatedABA.mm
     src/metal/MetalDiscreteElasticRod.mm
+    src/metal/MetalCoupledRod.mm
     src/metal/MetalArticulatedInverseMass.mm
     src/metal/MetalMultiArticulatedInverseMass.mm
     src/metal/MetalMultiArticulatedConstraints.mm
