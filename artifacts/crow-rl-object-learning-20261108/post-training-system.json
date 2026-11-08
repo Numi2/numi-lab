@@ -1,0 +1,6 @@
+{
+  "observed_at_utc": "2026-11-08T03:27:17.777536+00:00",
+  "scope": "After both training and amplitude follow-up; no immediately pre-training swap reading exists",
+  "swapusage": "vm.swapusage: total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)\n",
+  "free_Data_volume": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300284912 157064228    66% 3496743 1570642280    0%   /System/Volumes/Data\n"
+}

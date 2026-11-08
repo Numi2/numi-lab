@@ -146,3 +146,24 @@ Exact cleanup receipts preserve deletion sets. Archive checkout duplicates may
 then be omitted while all evidence remains in Git. Shared Git providers and
 unrelated work are protected. Full lifelong ecology, solid-food handling,
 generalization and social learning remain unfinished.
+
+## Completed committed-object recovery
+
+Git content verification passes all158 captured files (127 unique contents),
+729996028 raw bytes, adding273710558 compressed bytes. Actual Git restoration
+recovers79 files /162030498B in a separate temporary path. All six native frozen
+evaluations reproduce their original rollout bytes and every accepted endpoint
+field exactly, including relocated canonical assets/curriculum. Checkpoint8
+resumes eight updates and reproduces all41 model/Adam arrays, metadata, three
+canonical policy/candidate/rollout files, all causal native components and
+scientific learner metrics at checkpoint16. Process time and allocator counters
+are recorded separately. No recovery reanalysis or retry is needed.
+The exact temporary recovery set is hash/mode/mtime/closed-handle checked and
+removed; its file manifest is in `verification.json`.
+
+The full update16 checkpoint remains recoverable using the generic archive
+restore tool with prefix
+`.numi/runs/american-crow/object-learning-02/training/checkpoints/revision-00000017.trainingcheckpoint`.
+Use the recorded exact runtime and learner recipe for further fixed-rate
+continuation; it begins at lifetime tick2560/episode16, with new native episode
+draws. The source/current feeding deployment remains separate.

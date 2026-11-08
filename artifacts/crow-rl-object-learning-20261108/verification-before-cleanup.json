@@ -1,0 +1,1405 @@
+{
+  "status": "passed",
+  "archive_commit": "31ce24f95b5e2072f96b8715863ec27264f4332f",
+  "results": {
+    "evaluation_rollouts_and_all_endpoint_fields_exact": [
+      "amplitude-control",
+      "amplitude-offset",
+      "final-a",
+      "final-b",
+      "initial-a",
+      "initial-b"
+    ],
+    "model_Adam_arrays_exact": 41,
+    "model_Adam_metadata_exact": true,
+    "canonical_training_files_exact": [
+      "checkpoints/revision-00000017.trainingcheckpoint/candidate.policypack",
+      "checkpoints/revision-00000017.trainingcheckpoint/policy.policypack",
+      "checkpoints/revision-00000017.trainingcheckpoint/rollout.rolloutpack"
+    ],
+    "native_boundaries_exact": 1,
+    "scientific_learner_metrics_exact": true,
+    "process_measurements": [
+      {
+        "original": {
+          "mlx_peak_memory_bytes": 577283984,
+          "update_seconds": 0.1068299159524031
+        },
+        "recovered": {
+          "mlx_peak_memory_bytes": 575756920,
+          "update_seconds": 0.16651974996784702
+        }
+      },
+      {
+        "original": {
+          "mlx_peak_memory_bytes": 576007824,
+          "update_seconds": 0.10699783294694498
+        },
+        "recovered": {
+          "mlx_peak_memory_bytes": 576899812,
+          "update_seconds": 0.10969420796027407
+        }
+      },
+      {
+        "original": {
+          "mlx_peak_memory_bytes": 580054472,
+          "update_seconds": 0.11043466598493978
+        },
+        "recovered": {
+          "mlx_peak_memory_bytes": 577180216,
+          "update_seconds": 0.10699920798651874
+        }
+      },
+      {
+        "original": {
+          "mlx_peak_memory_bytes": 576882056,
+          "update_seconds": 0.10736145899863914
+        },
+        "recovered": {
+          "mlx_peak_memory_bytes": 575920048,
+          "update_seconds": 0.10800358303822577
+        }
+      },
+      {
+        "original": {
+          "mlx_peak_memory_bytes": 580382152,
+          "update_seconds": 0.1094637910136953
+        },
+        "recovered": {
+          "mlx_peak_memory_bytes": 575796992,
+          "update_seconds": 0.10715733299730346
+        }
+      },
+      {
+        "original": {
+          "mlx_peak_memory_bytes": 576848900,
+          "update_seconds": 0.10704962501768023
+        },
+        "recovered": {
+          "mlx_peak_memory_bytes": 579586956,
+          "update_seconds": 0.10989583400078118
+        }
+      },
+      {
+        "original": {
+          "mlx_peak_memory_bytes": 579599904,
+          "update_seconds": 0.10924295801669359
+        },
+        "recovered": {
+          "mlx_peak_memory_bytes": 576947976,
+          "update_seconds": 0.10770266701001674
+        }
+      },
+      {
+        "original": {
+          "mlx_peak_memory_bytes": 577682972,
+          "update_seconds": 0.10762483399594203
+        },
+        "recovered": {
+          "mlx_peak_memory_bytes": 576930824,
+          "update_seconds": 0.10757191601442173
+        }
+      }
+    ]
+  },
+  "restoration": {
+    "archive_commit": "31ce24f95b5e2072f96b8715863ec27264f4332f",
+    "files": [
+      {
+        "bytes": 122648,
+        "mode": 493,
+        "path": "bin/metalrobo_crow_object_curriculum_check",
+        "sha256": "e6e0724168271792e02ec1e42fc9c528f89a35dc991592396522e7d669a0b34f"
+      },
+      {
+        "bytes": 1081480,
+        "mode": 493,
+        "path": "bin/metalrobo_task_rollout",
+        "sha256": "18e19b7c37e246087ca8c76b08aafcc228116b0badf8962e0da0eb1bb4906e85"
+      },
+      {
+        "bytes": 1042744,
+        "mode": 493,
+        "path": "bin/metalrobo_task_train",
+        "sha256": "272689ec6a564c15b26ef97b79e8a8fe6ccf6989b842591b5f2323b213f692b4"
+      },
+      {
+        "bytes": 5676064,
+        "mode": 493,
+        "path": "lib/libmetalrobo.dylib",
+        "sha256": "5dac60d448d66c0872ebdffb96260c92956aab677f4210e3f8ed7c1ac195bd6b"
+      },
+      {
+        "bytes": 19391,
+        "mode": 420,
+        "path": "shaders/GRUMemory.metallib",
+        "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+      },
+      {
+        "bytes": 4200073,
+        "mode": 420,
+        "path": "shaders/MetalRobo.metallib",
+        "sha256": "ab8eb4013d6fb2fbae2877602145a5a59a16adb17abf769619466298ab858d95"
+      },
+      {
+        "bytes": 16151,
+        "mode": 420,
+        "path": "shaders/RetinalStream.metallib",
+        "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+      },
+      {
+        "bytes": 4075,
+        "mode": 420,
+        "path": "python/metalrobo/__init__.py",
+        "sha256": "8907413cf15904beec23959cf30b949c235531e54f275b9acac90f3096038202"
+      },
+      {
+        "bytes": 48,
+        "mode": 420,
+        "path": "python/metalrobo/__main__.py",
+        "sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d"
+      },
+      {
+        "bytes": 15389,
+        "mode": 420,
+        "path": "python/metalrobo/ardy_g1.py",
+        "sha256": "fe9ee45d3c7efac4827599d5ec7257c3f68b10da83f964624058d2f0e6df8dc0"
+      },
+      {
+        "bytes": 28154,
+        "mode": 420,
+        "path": "python/metalrobo/ardy_interaction_convert.py",
+        "sha256": "ed5b97c6fcd5b3c30bb485187e3f6c2ab94b584cdd97d519f0cb1ac7382e3e55"
+      },
+      {
+        "bytes": 48916,
+        "mode": 420,
+        "path": "python/metalrobo/ardy_onnx.py",
+        "sha256": "840953a7e43e4008304007ea2b9d0c9b77000c64cdb73e4b65a5a10c98f90226"
+      },
+      {
+        "bytes": 6919,
+        "mode": 420,
+        "path": "python/metalrobo/ardy_text_encoder.py",
+        "sha256": "00ce0e692b9f4e35104d1a684515dfbc51b320b308ce43a6dc1b93f501c784b7"
+      },
+      {
+        "bytes": 6607,
+        "mode": 420,
+        "path": "python/metalrobo/cli.py",
+        "sha256": "3348476d8deff8c2712f0afb9892b0f031f5c288eb7724ebd6e6b779e108a14e"
+      },
+      {
+        "bytes": 124020,
+        "mode": 420,
+        "path": "python/metalrobo/crow_environment.py",
+        "sha256": "209456211fc4f1e353c64661adb07d01f053a7437df935161dee1cb838db6cb4"
+      },
+      {
+        "bytes": 17619,
+        "mode": 420,
+        "path": "python/metalrobo/crow_object_learning.py",
+        "sha256": "adae25a70d69fbf2d059b72523581da00e1b9e0bae3d4425641a5799899b470e"
+      },
+      {
+        "bytes": 18690,
+        "mode": 420,
+        "path": "python/metalrobo/crow_object_life.py",
+        "sha256": "d18128b48ecce31c852b3264476864c7f39c8a3abb358621f55c5d51cdd6b9c1"
+      },
+      {
+        "bytes": 6097,
+        "mode": 420,
+        "path": "python/metalrobo/crow_retinal_normalization.py",
+        "sha256": "b9e9f067fb21152cda9d5f7dc41b3e6176910f9d4b4b97e352c5bda7640455b7"
+      },
+      {
+        "bytes": 54327,
+        "mode": 420,
+        "path": "python/metalrobo/crow_world_model.py",
+        "sha256": "76e0234af3ee680efbc96eedd4385ccf94f19857ffd6dd19cfc8a7b235a836ad"
+      },
+      {
+        "bytes": 1638,
+        "mode": 420,
+        "path": "python/metalrobo/episode.py",
+        "sha256": "3444a7efd0d2158fcbd74ff49a6e20de0ceb87af6d89a95599447cc0fc2a9fec"
+      },
+      {
+        "bytes": 69056,
+        "mode": 420,
+        "path": "python/metalrobo/foundation_policy.py",
+        "sha256": "2d04dad03bed9cf06a9a53a78423410f1aa4d91387fe8d76d762a6a72816170a"
+      },
+      {
+        "bytes": 3152,
+        "mode": 420,
+        "path": "python/metalrobo/g1_legs_policy.py",
+        "sha256": "ed7085a8634435de00adfff323cfd200085d3829ce24b3119de7e48a6d1c54ef"
+      },
+      {
+        "bytes": 29666,
+        "mode": 420,
+        "path": "python/metalrobo/g1_motion_retarget.py",
+        "sha256": "0452e4db4e0e2fb0e54210321f8a1c6ae0dc45b7533b39a319f02891cd9af93f"
+      },
+      {
+        "bytes": 39733,
+        "mode": 420,
+        "path": "python/metalrobo/g1_policy.py",
+        "sha256": "dc7dc761d05cabe1ae5709b0a35564d07a50dae6418225143d5be9a6f82637c3"
+      },
+      {
+        "bytes": 3184,
+        "mode": 420,
+        "path": "python/metalrobo/gru_memory.py",
+        "sha256": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710"
+      },
+      {
+        "bytes": 12592,
+        "mode": 420,
+        "path": "python/metalrobo/gru_memory_admission.py",
+        "sha256": "9335d92d667903782a5f01595d4f194a214930fa33913be2131e99809ffbd994"
+      },
+      {
+        "bytes": 22666,
+        "mode": 420,
+        "path": "python/metalrobo/hybrid_renderer.py",
+        "sha256": "1a9911d36c70d786558cae59030d521d72510a7656c8b64e48de68781750113e"
+      },
+      {
+        "bytes": 59342,
+        "mode": 420,
+        "path": "python/metalrobo/lerobot_dataset.py",
+        "sha256": "71d01825993401d5ab83f25c4e3f52aa77295a3d92e3b192395ada7e13cb8973"
+      },
+      {
+        "bytes": 148349,
+        "mode": 420,
+        "path": "python/metalrobo/mlx_policy_learning.py",
+        "sha256": "755df3777b73b10e741f375eeca0c9cca48db5006cdd10bf9a22763d35bf714d"
+      },
+      {
+        "bytes": 72241,
+        "mode": 420,
+        "path": "python/metalrobo/mlx_policy_worker.py",
+        "sha256": "6772d2e59ebd58b55e8354da2bb79a79845e5a44889fab36e7f4b5525154ae55"
+      },
+      {
+        "bytes": 29364,
+        "mode": 420,
+        "path": "python/metalrobo/mlx_r2s2r.py",
+        "sha256": "bfda444fd276c3663f827c3df677569acfdfa58a0101c9393267cb6d26409781"
+      },
+      {
+        "bytes": 33652,
+        "mode": 420,
+        "path": "python/metalrobo/mlx_recurrent_policy_learning.py",
+        "sha256": "512c9f487861078b656918a52263fd4251b488bcef724a5bf4f580bb07d8c0d9"
+      },
+      {
+        "bytes": 45904,
+        "mode": 420,
+        "path": "python/metalrobo/mlx_tactile_policy.py",
+        "sha256": "562c99c52a830443c4376e69f6c651a6c5d8404e24d02290bc85a6db39fbd87d"
+      },
+      {
+        "bytes": 6295,
+        "mode": 420,
+        "path": "python/metalrobo/motion_pack_convert.py",
+        "sha256": "7d57f7c1c044de671195c853e01d48bd22099364c731e486f373bc2eabecae88"
+      },
+      {
+        "bytes": 31988,
+        "mode": 420,
+        "path": "python/metalrobo/native.py",
+        "sha256": "a1960b567d62ba21339af4ecbb853f7f8c35465432fc32bdfc33c2f84a10ef1b"
+      },
+      {
+        "bytes": 65898,
+        "mode": 420,
+        "path": "python/metalrobo/policy_selection.py",
+        "sha256": "556711783591e661873383f31d5038c4090b40c024d7ad9d5cbf49be042e0a8c"
+      },
+      {
+        "bytes": 73305,
+        "mode": 420,
+        "path": "python/metalrobo/r2s2r.py",
+        "sha256": "097607e386845deac162f53c500a3b606e63d363a70e3218dac3aa9ed50b2b65"
+      },
+      {
+        "bytes": 10329,
+        "mode": 420,
+        "path": "python/metalrobo/recurrent_policy_admission.py",
+        "sha256": "df26d935f7d7105168d272740377e4755e35863eb03b18b84c382d7370d9318b"
+      },
+      {
+        "bytes": 15389,
+        "mode": 420,
+        "path": "python/metalrobo/recurrent_ppo_admission.py",
+        "sha256": "53a3b88c152a380cf4a82a54b32be00537fe402d041f0b2951cc241e5b2af0e6"
+      },
+      {
+        "bytes": 12848,
+        "mode": 420,
+        "path": "python/metalrobo/recurrent_rollout_admission.py",
+        "sha256": "18c9cdf339421a451462282fa6729186edd5ad284edbd727453ca32555b783ed"
+      },
+      {
+        "bytes": 34012,
+        "mode": 420,
+        "path": "python/metalrobo/solver_catalog.py",
+        "sha256": "a47e79b3328fc3e4969eb203ee71c2d31a1fcf639a23823c6e7298bde9252e97"
+      },
+      {
+        "bytes": 21065,
+        "mode": 420,
+        "path": "python/metalrobo/solver_residual_teacher.py",
+        "sha256": "04a892aedb4bd72a533e2e63701342b98e3984f11dc07930536799aa4d5e3d9f"
+      },
+      {
+        "bytes": 29228,
+        "mode": 420,
+        "path": "python/metalrobo/tactile.py",
+        "sha256": "171f65315f854549082f152180c94c011780c50692029caeeb2b7773c8d805a1"
+      },
+      {
+        "bytes": 19417,
+        "mode": 420,
+        "path": "python/metalrobo/tactile_cli.py",
+        "sha256": "e970f22bd57458c4afae50a67b5a45df5f8fa0c707222d683a374ee5558f2fd5"
+      },
+      {
+        "bytes": 50809,
+        "mode": 420,
+        "path": "python/metalrobo/tactile_latent.py",
+        "sha256": "19f74532b8cec002d5c4be813e7d06c95c56f405367f7850e379ff425965b14e"
+      },
+      {
+        "bytes": 21675,
+        "mode": 420,
+        "path": "python/metalrobo/tactile_stream.py",
+        "sha256": "059de4cb94adf32d20576108e91bef7aae4071efcf9f4985d4040a2833b59030"
+      },
+      {
+        "bytes": 16721,
+        "mode": 420,
+        "path": "python/metalrobo/tactile_translator.py",
+        "sha256": "1d563d3946afdd4bc8540a015c97fdcd175542cb8fc88178d0164800cf5452c6"
+      },
+      {
+        "bytes": 6530,
+        "mode": 420,
+        "path": "python/metalrobo/unitree_mjlab_policy.py",
+        "sha256": "4d7eeb6f37d54bdb8d37265d63587cde90f8772aa32a6a2dd8738a7a1518de66"
+      },
+      {
+        "bytes": 97276,
+        "mode": 420,
+        "path": "python/metalrobo/visual.py",
+        "sha256": "6eafa56c6fd8ea87f694ae0da69e2ae53ae3f7199b7f6f8c084caffad10c326f"
+      },
+      {
+        "bytes": 20672,
+        "mode": 420,
+        "path": "python/metalrobo/worlds.py",
+        "sha256": "3d3c85a14387b5bf261497d93a068b39fa36f0b28a8b3c230a383db435166343"
+      },
+      {
+        "bytes": 10287,
+        "mode": 420,
+        "path": "environments/american-crow/object-push-v1/README.md",
+        "sha256": "9bb7d349c046b5b1ebd2ef11a0713d29d95d0e1376a9b901029117d99565a8c1"
+      },
+      {
+        "bytes": 77824,
+        "mode": 420,
+        "path": "environments/american-crow/object-push-v1/crow_manipulandum.mrvpack",
+        "sha256": "cfae7df3cf0bea43180792d53f35f810eeac27b6c65633a1744a6cf74c4a2a6a"
+      },
+      {
+        "bytes": 164,
+        "mode": 420,
+        "path": "environments/american-crow/object-push-v1/curriculum.json",
+        "sha256": "3c515038ad563c3112e0123b3eb4185d5606a134ed125243af181663f28497c4"
+      },
+      {
+        "bytes": 32768,
+        "mode": 420,
+        "path": "environments/american-crow/object-push-v1/locomotion_ground.mrvpack",
+        "sha256": "4c91c5b21fa169c633e3b9921e7bea811f6172671df246fc4f1d59a6c6bc4882"
+      },
+      {
+        "bytes": 32768,
+        "mode": 420,
+        "path": "environments/american-crow/object-push-v1/object_support.mrvpack",
+        "sha256": "9d2a20355a5b5448fdd655a5e925dfd5de9cc707227e7516c33bca49acb24b9f"
+      },
+      {
+        "bytes": 1002,
+        "mode": 420,
+        "path": "environments/american-crow/object-push-v1/retinal-observation.json",
+        "sha256": "94dc9894c9ffc051d3e8e0b41cddd364060cffad8a1bd98829416db510f8df03"
+      },
+      {
+        "bytes": 57344,
+        "mode": 420,
+        "path": "environments/american-crow/object-push-v1/robot.mrvpack",
+        "sha256": "04b9cf3b0a17d1b1026e827b84b0083d6f79da6397156eecd973e798a4894dda"
+      },
+      {
+        "bytes": 1066,
+        "mode": 420,
+        "path": "environments/american-crow/object-push-v1/visual-scene.json",
+        "sha256": "0add8444b2d41ad84a2ea8281bfbad9083884b68848ecfac19e55ff148435ea2"
+      },
+      {
+        "bytes": 197903,
+        "mode": 384,
+        "path": "input/amplitude-control.policypack",
+        "sha256": "d07725f21ff9b03ddb8cdc9beb9265f3ce864a952acc377ee0768b6f42a0eb81"
+      },
+      {
+        "bytes": 197923,
+        "mode": 384,
+        "path": "input/amplitude-offset.policypack",
+        "sha256": "0513af61fd584cefd4d16ca02d3b3bbdc477b7842991a98fbcca35dfa5fdcc84"
+      },
+      {
+        "bytes": 197903,
+        "mode": 384,
+        "path": "input/final-mean.policypack",
+        "sha256": "d07725f21ff9b03ddb8cdc9beb9265f3ce864a952acc377ee0768b6f42a0eb81"
+      },
+      {
+        "bytes": 197903,
+        "mode": 384,
+        "path": "input/initial-mean.policypack",
+        "sha256": "44bd35cf4207f9f7cdea5443b08e9eecafe06cdcd3b854ded9e2695967b01b0b"
+      },
+      {
+        "bytes": 211879,
+        "mode": 384,
+        "path": "input/initial.policypack",
+        "sha256": "e140255d5d4deb1256f9e5dfab627dd57f60bc0757b69544a3e6b8c85b37f990"
+      },
+      {
+        "bytes": 197903,
+        "mode": 384,
+        "path": "input/scripted-positive.policypack",
+        "sha256": "835769d634ef956f7b2ba16400ed015c0540803df3e78426f6204e54cf03438a"
+      },
+      {
+        "bytes": 64,
+        "mode": 384,
+        "path": "input/source.trainingcheckpoint/COMMITTED",
+        "sha256": "7fb3b9f4d56ef13e37596291f59481acdc5849cd401ad57854534073deb51332"
+      },
+      {
+        "bytes": 197891,
+        "mode": 384,
+        "path": "input/source.trainingcheckpoint/candidate.policypack",
+        "sha256": "03e8e2ee729bd88a3403a69213801a72d668265e8d04862d54350b5e96c84e47"
+      },
+      {
+        "bytes": 617749,
+        "mode": 420,
+        "path": "input/source.trainingcheckpoint/learner.safetensors",
+        "sha256": "02fc7261192e1eafbc7e1e1fc2aeb6f6b0c6b337a4e9c75df29bd7300e4d9fb0"
+      },
+      {
+        "bytes": 13814860,
+        "mode": 384,
+        "path": "input/source.trainingcheckpoint/life.native",
+        "sha256": "20c1554c8eeb20d1dc322518e6857361251b43a6df0311fed8e94b96121409a8"
+      },
+      {
+        "bytes": 6291,
+        "mode": 384,
+        "path": "input/source.trainingcheckpoint/manifest.json",
+        "sha256": "e2b7c8d4beac02f097032dc6da8dab6aef1ac0e213e9cb978b0d0ec0286a55f9"
+      },
+      {
+        "bytes": 211879,
+        "mode": 384,
+        "path": "input/source.trainingcheckpoint/policy.policypack",
+        "sha256": "d4af70e9a06360ef8682e102b8ba291a5791ad7ae949fec4e04ad592f52e67be"
+      },
+      {
+        "bytes": 116573162,
+        "mode": 384,
+        "path": "input/source.trainingcheckpoint/rollout.rolloutpack",
+        "sha256": "2388d2577d5eaa61bf1ce6e808657cfb65ca71548a3d4e8d32e57783d5ed424f"
+      },
+      {
+        "bytes": 194192,
+        "mode": 420,
+        "path": "reference/evaluation/amplitude-control.state.json",
+        "sha256": "34b1c4eed6b36aad496894c280cead1445c874233d0211b9f149d22a81058133"
+      },
+      {
+        "bytes": 198639,
+        "mode": 420,
+        "path": "reference/evaluation/amplitude-offset.state.json",
+        "sha256": "40e101b17d898fcacb8f0da0c3585067f488e13469e52bca44a8febdcddeef83"
+      },
+      {
+        "bytes": 194809,
+        "mode": 420,
+        "path": "reference/evaluation/final-a.state.json",
+        "sha256": "4a020fc527d4ca4499771dfbd5092f09c049a6e8ca736d50351601cb0b80a1fb"
+      },
+      {
+        "bytes": 194888,
+        "mode": 420,
+        "path": "reference/evaluation/final-b.state.json",
+        "sha256": "ee88495c295b94917d257553440a803c356600b6c10b5a28275c6066dc7f0aab"
+      },
+      {
+        "bytes": 192710,
+        "mode": 420,
+        "path": "reference/evaluation/initial-a.state.json",
+        "sha256": "206d6a4ce8b045ea5bf6220c6d3486125af19868de1a69683027a9c15894e092"
+      },
+      {
+        "bytes": 192709,
+        "mode": 420,
+        "path": "reference/evaluation/initial-b.state.json",
+        "sha256": "b0cdbb99067091ee228e55e797258fabc1830634547bd309d085363682fbc5b1"
+      },
+      {
+        "bytes": 617750,
+        "mode": 420,
+        "path": "reference/training/checkpoints/revision-00000017.trainingcheckpoint/learner.safetensors",
+        "sha256": "4cb95b87d594adad289cd5504b15214da09e2a009b0f70532e6bc3aac1fbbd60"
+      },
+      {
+        "bytes": 13814860,
+        "mode": 384,
+        "path": "reference/training/checkpoints/revision-00000017.trainingcheckpoint/life.native",
+        "sha256": "902ce8bff0cdf660667048e2223a7617e3d346906792dd440d01bb4ae5831bca"
+      }
+    ],
+    "scope": "Exact Git blob recovery and filesystem readback; matching Python/MLX/NumPy, macOS and native device remain required.",
+    "status": "passed"
+  },
+  "temporary_cleanup": {
+    "status": "validated",
+    "files": [
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/final-b.state.json",
+        "bytes": 194888,
+        "mode": 420,
+        "mtime_ns": 1794108593668484200,
+        "sha256": "ee88495c295b94917d257553440a803c356600b6c10b5a28275c6066dc7f0aab"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/amplitude-offset.state.json",
+        "bytes": 198639,
+        "mode": 420,
+        "mtime_ns": 1794108552369703710,
+        "sha256": "40e101b17d898fcacb8f0da0c3585067f488e13469e52bca44a8febdcddeef83"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/initial-a.rolloutpack",
+        "bytes": 29143654,
+        "mode": 384,
+        "mtime_ns": 1794108614354470883,
+        "sha256": "2042ef6a2bbce7a76e628b435714d925f89527a04c48c6448feef522c83af788"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/initial-b.life",
+        "bytes": 3454540,
+        "mode": 384,
+        "mtime_ns": 1794108634975379704,
+        "sha256": "e6ed9a4a571e64f8f8688b2a6dbcd1842f493ecd96f58ac7d786a9987c6c95f5"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/final-a.rolloutpack",
+        "bytes": 29143654,
+        "mode": 384,
+        "mtime_ns": 1794108573060095256,
+        "sha256": "940619a545075429fef69b45940f449da594b7db61cd98a56e3dec6c366f778b"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/final-b.rolloutpack",
+        "bytes": 29143654,
+        "mode": 384,
+        "mtime_ns": 1794108593704658989,
+        "sha256": "fb09104dc94ef7c029c8f29a347418af079d094adfaa1a2e433556b5dc17e109"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/initial-b.state.json",
+        "bytes": 192709,
+        "mode": 420,
+        "mtime_ns": 1794108634933036998,
+        "sha256": "b0cdbb99067091ee228e55e797258fabc1830634547bd309d085363682fbc5b1"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/amplitude-offset.life",
+        "bytes": 3454540,
+        "mode": 384,
+        "mtime_ns": 1794108552411007618,
+        "sha256": "eef8f385d6fab738e674d21a9530805fc5f268ae1270d19edb5dee0bc03759b9"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/initial-b.rolloutpack",
+        "bytes": 29143654,
+        "mode": 384,
+        "mtime_ns": 1794108634968881243,
+        "sha256": "a73d2660f3c82c23c9114e824b1fe4d44159eb0a988740bc96c45fe79cab6791"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/amplitude-offset.rolloutpack",
+        "bytes": 29143654,
+        "mode": 384,
+        "mtime_ns": 1794108552405351787,
+        "sha256": "ab923b8ab4027c5305ff935fbf0e80e4a89b1f9e1d10041d0094c457e94b977e"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/amplitude-control.life",
+        "bytes": 3454540,
+        "mode": 384,
+        "mtime_ns": 1794108531702978409,
+        "sha256": "f08cf3851c5afbc945ee54fff29b8cda0c864e6de24b2144f554eeea9ba4d111"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/final-a.life",
+        "bytes": 3454540,
+        "mode": 384,
+        "mtime_ns": 1794108573066435591,
+        "sha256": "5cad31cee0a9cba0f9711341b6346edfc285dcf69701721a3c715012dd3b0294"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/final-b.life",
+        "bytes": 3454540,
+        "mode": 384,
+        "mtime_ns": 1794108593711531745,
+        "sha256": "e6048ecbe5bb79d53f137bdac97f3c2d03d62d7a5bbe72b38c62894715f0225f"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/initial-a.state.json",
+        "bytes": 192710,
+        "mode": 420,
+        "mtime_ns": 1794108614318246843,
+        "sha256": "206d6a4ce8b045ea5bf6220c6d3486125af19868de1a69683027a9c15894e092"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/amplitude-control.state.json",
+        "bytes": 194192,
+        "mode": 420,
+        "mtime_ns": 1794108531660699870,
+        "sha256": "34b1c4eed6b36aad496894c280cead1445c874233d0211b9f149d22a81058133"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/initial-a.life",
+        "bytes": 3454540,
+        "mode": 384,
+        "mtime_ns": 1794108614361003678,
+        "sha256": "8ceb18e6d91aeada82cbe18da260b9396145fccab89da5474580a14315e00863"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/amplitude-control.rolloutpack",
+        "bytes": 29143654,
+        "mode": 384,
+        "mtime_ns": 1794108531696383489,
+        "sha256": "3009e150b36beb6b69d3cb366859ef1b8377d1c5fa815c78206f234774ea9509"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/runtime-restoration.json",
+        "bytes": 15619,
+        "mode": 420,
+        "mtime_ns": 1794108510302794677,
+        "sha256": "407986781bc84ae0e1ed42544cec2d31c85677ef8620738582e34cef52699552"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/final-a.state.json",
+        "bytes": 194809,
+        "mode": 420,
+        "mtime_ns": 1794108573023817216,
+        "sha256": "4a020fc527d4ca4499771dfbd5092f09c049a6e8ca736d50351601cb0b80a1fb"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/bin/metalrobo_crow_object_curriculum_check",
+        "bytes": 122648,
+        "mode": 493,
+        "mtime_ns": 1794108509898451579,
+        "sha256": "e6e0724168271792e02ec1e42fc9c528f89a35dc991592396522e7d669a0b34f"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/bin/metalrobo_task_rollout",
+        "bytes": 1081480,
+        "mode": 493,
+        "mtime_ns": 1794108509900486426,
+        "sha256": "18e19b7c37e246087ca8c76b08aafcc228116b0badf8962e0da0eb1bb4906e85"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/bin/metalrobo_task_train",
+        "bytes": 1042744,
+        "mode": 493,
+        "mtime_ns": 1794108509902398856,
+        "sha256": "272689ec6a564c15b26ef97b79e8a8fe6ccf6989b842591b5f2323b213f692b4"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/tactile_stream.py",
+        "bytes": 21675,
+        "mode": 420,
+        "mtime_ns": 1794108509935469499,
+        "sha256": "059de4cb94adf32d20576108e91bef7aae4071efcf9f4985d4040a2833b59030"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/gru_memory.py",
+        "bytes": 3184,
+        "mode": 420,
+        "mtime_ns": 1794108509932147768,
+        "sha256": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/tactile_translator.py",
+        "bytes": 16721,
+        "mode": 420,
+        "mtime_ns": 1794108509935588791,
+        "sha256": "1d563d3946afdd4bc8540a015c97fdcd175542cb8fc88178d0164800cf5452c6"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/hybrid_renderer.py",
+        "bytes": 22666,
+        "mode": 420,
+        "mtime_ns": 1794108509932397769,
+        "sha256": "1a9911d36c70d786558cae59030d521d72510a7656c8b64e48de68781750113e"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/ardy_interaction_convert.py",
+        "bytes": 28154,
+        "mode": 420,
+        "mtime_ns": 1794108509927508694,
+        "sha256": "ed5b97c6fcd5b3c30bb485187e3f6c2ab94b584cdd97d519f0cb1ac7382e3e55"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/tactile_latent.py",
+        "bytes": 50809,
+        "mode": 420,
+        "mtime_ns": 1794108509935336081,
+        "sha256": "19f74532b8cec002d5c4be813e7d06c95c56f405367f7850e379ff425965b14e"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/crow_retinal_normalization.py",
+        "bytes": 6097,
+        "mode": 420,
+        "mtime_ns": 1794108509929768626,
+        "sha256": "b9e9f067fb21152cda9d5f7dc41b3e6176910f9d4b4b97e352c5bda7640455b7"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/gru_memory_admission.py",
+        "bytes": 12592,
+        "mode": 420,
+        "mtime_ns": 1794108509932274352,
+        "sha256": "9335d92d667903782a5f01595d4f194a214930fa33913be2131e99809ffbd994"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/g1_motion_retarget.py",
+        "bytes": 29666,
+        "mode": 420,
+        "mtime_ns": 1794108509930558132,
+        "sha256": "0452e4db4e0e2fb0e54210321f8a1c6ae0dc45b7533b39a319f02891cd9af93f"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/episode.py",
+        "bytes": 1638,
+        "mode": 420,
+        "mtime_ns": 1794108509930071670,
+        "sha256": "3444a7efd0d2158fcbd74ff49a6e20de0ceb87af6d89a95599447cc0fc2a9fec"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/mlx_policy_learning.py",
+        "bytes": 148349,
+        "mode": 420,
+        "mtime_ns": 1794108509932840314,
+        "sha256": "755df3777b73b10e741f375eeca0c9cca48db5006cdd10bf9a22763d35bf714d"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/crow_object_life.py",
+        "bytes": 18690,
+        "mode": 420,
+        "mtime_ns": 1794108509928602535,
+        "sha256": "d18128b48ecce31c852b3264476864c7f39c8a3abb358621f55c5d51cdd6b9c1"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/r2s2r.py",
+        "bytes": 73305,
+        "mode": 420,
+        "mtime_ns": 1794108509934233282,
+        "sha256": "097607e386845deac162f53c500a3b606e63d363a70e3218dac3aa9ed50b2b65"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/worlds.py",
+        "bytes": 20672,
+        "mode": 420,
+        "mtime_ns": 1794108509936085628,
+        "sha256": "3d3c85a14387b5bf261497d93a068b39fa36f0b28a8b3c230a383db435166343"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/mlx_recurrent_policy_learning.py",
+        "bytes": 33652,
+        "mode": 420,
+        "mtime_ns": 1794108509933406276,
+        "sha256": "512c9f487861078b656918a52263fd4251b488bcef724a5bf4f580bb07d8c0d9"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/recurrent_policy_admission.py",
+        "bytes": 10329,
+        "mode": 420,
+        "mtime_ns": 1794108509934381658,
+        "sha256": "df26d935f7d7105168d272740377e4755e35863eb03b18b84c382d7370d9318b"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/__init__.py",
+        "bytes": 4075,
+        "mode": 420,
+        "mtime_ns": 1794108509927106150,
+        "sha256": "8907413cf15904beec23959cf30b949c235531e54f275b9acac90f3096038202"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/ardy_onnx.py",
+        "bytes": 48916,
+        "mode": 420,
+        "mtime_ns": 1794108509927705945,
+        "sha256": "840953a7e43e4008304007ea2b9d0c9b77000c64cdb73e4b65a5a10c98f90226"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/recurrent_ppo_admission.py",
+        "bytes": 15389,
+        "mode": 420,
+        "mtime_ns": 1794108509934498784,
+        "sha256": "53a3b88c152a380cf4a82a54b32be00537fe402d041f0b2951cc241e5b2af0e6"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/native.py",
+        "bytes": 31988,
+        "mode": 420,
+        "mtime_ns": 1794108509933819404,
+        "sha256": "a1960b567d62ba21339af4ecbb853f7f8c35465432fc32bdfc33c2f84a10ef1b"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/foundation_policy.py",
+        "bytes": 69056,
+        "mode": 420,
+        "mtime_ns": 1794108509930260130,
+        "sha256": "2d04dad03bed9cf06a9a53a78423410f1aa4d91387fe8d76d762a6a72816170a"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/g1_legs_policy.py",
+        "bytes": 3152,
+        "mode": 420,
+        "mtime_ns": 1794108509930390089,
+        "sha256": "ed7085a8634435de00adfff323cfd200085d3829ce24b3119de7e48a6d1c54ef"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/ardy_g1.py",
+        "bytes": 15389,
+        "mode": 420,
+        "mtime_ns": 1794108509927346360,
+        "sha256": "fe9ee45d3c7efac4827599d5ec7257c3f68b10da83f964624058d2f0e6df8dc0"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/mlx_tactile_policy.py",
+        "bytes": 45904,
+        "mode": 420,
+        "mtime_ns": 1794108509933566485,
+        "sha256": "562c99c52a830443c4376e69f6c651a6c5d8404e24d02290bc85a6db39fbd87d"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/ardy_text_encoder.py",
+        "bytes": 6919,
+        "mode": 420,
+        "mtime_ns": 1794108509927851321,
+        "sha256": "00ce0e692b9f4e35104d1a684515dfbc51b320b308ce43a6dc1b93f501c784b7"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/recurrent_rollout_admission.py",
+        "bytes": 12848,
+        "mode": 420,
+        "mtime_ns": 1794108509934609451,
+        "sha256": "18c9cdf339421a451462282fa6729186edd5ad284edbd727453ca32555b783ed"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/g1_policy.py",
+        "bytes": 39733,
+        "mode": 420,
+        "mtime_ns": 1794108509930736591,
+        "sha256": "dc7dc761d05cabe1ae5709b0a35564d07a50dae6418225143d5be9a6f82637c3"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/solver_catalog.py",
+        "bytes": 34012,
+        "mode": 420,
+        "mtime_ns": 1794108509934758869,
+        "sha256": "a47e79b3328fc3e4969eb203ee71c2d31a1fcf639a23823c6e7298bde9252e97"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/cli.py",
+        "bytes": 6607,
+        "mode": 420,
+        "mtime_ns": 1794108509927997156,
+        "sha256": "3348476d8deff8c2712f0afb9892b0f031f5c288eb7724ebd6e6b779e108a14e"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/crow_object_learning.py",
+        "bytes": 17619,
+        "mode": 420,
+        "mtime_ns": 1794108509928472576,
+        "sha256": "adae25a70d69fbf2d059b72523581da00e1b9e0bae3d4425641a5799899b470e"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/visual.py",
+        "bytes": 97276,
+        "mode": 420,
+        "mtime_ns": 1794108509935915335,
+        "sha256": "6eafa56c6fd8ea87f694ae0da69e2ae53ae3f7199b7f6f8c084caffad10c326f"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/crow_world_model.py",
+        "bytes": 54327,
+        "mode": 420,
+        "mtime_ns": 1794108509929955336,
+        "sha256": "76e0234af3ee680efbc96eedd4385ccf94f19857ffd6dd19cfc8a7b235a836ad"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/tactile.py",
+        "bytes": 29228,
+        "mode": 420,
+        "mtime_ns": 1794108509935053037,
+        "sha256": "171f65315f854549082f152180c94c011780c50692029caeeb2b7773c8d805a1"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/lerobot_dataset.py",
+        "bytes": 59342,
+        "mode": 420,
+        "mtime_ns": 1794108509932563687,
+        "sha256": "71d01825993401d5ab83f25c4e3f52aa77295a3d92e3b192395ada7e13cb8973"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/mlx_policy_worker.py",
+        "bytes": 72241,
+        "mode": 420,
+        "mtime_ns": 1794108509933104774,
+        "sha256": "6772d2e59ebd58b55e8354da2bb79a79845e5a44889fab36e7f4b5525154ae55"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/unitree_mjlab_policy.py",
+        "bytes": 6530,
+        "mode": 420,
+        "mtime_ns": 1794108509935698667,
+        "sha256": "4d7eeb6f37d54bdb8d37265d63587cde90f8772aa32a6a2dd8738a7a1518de66"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/mlx_r2s2r.py",
+        "bytes": 29364,
+        "mode": 420,
+        "mtime_ns": 1794108509933267358,
+        "sha256": "bfda444fd276c3663f827c3df677569acfdfa58a0101c9393267cb6d26409781"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/policy_selection.py",
+        "bytes": 65898,
+        "mode": 420,
+        "mtime_ns": 1794108509934015155,
+        "sha256": "556711783591e661873383f31d5038c4090b40c024d7ad9d5cbf49be042e0a8c"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/crow_environment.py",
+        "bytes": 124020,
+        "mode": 420,
+        "mtime_ns": 1794108509928266408,
+        "sha256": "209456211fc4f1e353c64661adb07d01f053a7437df935161dee1cb838db6cb4"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/motion_pack_convert.py",
+        "bytes": 6295,
+        "mode": 420,
+        "mtime_ns": 1794108509933689361,
+        "sha256": "7d57f7c1c044de671195c853e01d48bd22099364c731e486f373bc2eabecae88"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/tactile_cli.py",
+        "bytes": 19417,
+        "mode": 420,
+        "mtime_ns": 1794108509935173622,
+        "sha256": "e970f22bd57458c4afae50a67b5a45df5f8fa0c707222d683a374ee5558f2fd5"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/solver_residual_teacher.py",
+        "bytes": 21065,
+        "mode": 420,
+        "mtime_ns": 1794108509934905536,
+        "sha256": "04a892aedb4bd72a533e2e63701342b98e3984f11dc07930536799aa4d5e3d9f"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/__main__.py",
+        "bytes": 48,
+        "mode": 420,
+        "mtime_ns": 1794108509927213942,
+        "sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/__pycache__/mlx_recurrent_policy_learning.cpython-313.pyc",
+        "bytes": 55049,
+        "mode": 420,
+        "mtime_ns": 1794108635566614538,
+        "sha256": "08fffd16341de52aa95948e2065fd4102dc8308234811abd04a034555f36f4d7"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/__pycache__/mlx_policy_worker.cpython-313.pyc",
+        "bytes": 75578,
+        "mode": 420,
+        "mtime_ns": 1794108635494510212,
+        "sha256": "dbfbcc3cce66eb2ade87d17671fe8e80e43224dc1204d1d1a7e14bb093a15a52"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/__pycache__/native.cpython-313.pyc",
+        "bytes": 46809,
+        "mode": 420,
+        "mtime_ns": 1794108635554683206,
+        "sha256": "c843ed9197d4a7cc03c2a67f52ae2bba5e253f57b06446c3450f70579c8ec023"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/__pycache__/__init__.cpython-313.pyc",
+        "bytes": 3904,
+        "mode": 420,
+        "mtime_ns": 1794108635489530011,
+        "sha256": "1ffe76269dc50861fcb9731a28d38f0b963bcc9511cb14670dace133206740a6"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/__pycache__/gru_memory.cpython-313.pyc",
+        "bytes": 5283,
+        "mode": 420,
+        "mtime_ns": 1794108635567118083,
+        "sha256": "0c9d8f446679d8ffed3bc7caa2016dd5f15645acbb851a32f38e52b126deb1d8"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/python/metalrobo/__pycache__/mlx_policy_learning.cpython-313.pyc",
+        "bytes": 159143,
+        "mode": 420,
+        "mtime_ns": 1794108635550142175,
+        "sha256": "9e8c64e79ff95ba4d56e713afd57f914f3e646920bb8d51369347a5ec21530ac"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/input/amplitude-offset.policypack",
+        "bytes": 197923,
+        "mode": 384,
+        "mtime_ns": 1794108509938966064,
+        "sha256": "0513af61fd584cefd4d16ca02d3b3bbdc477b7842991a98fbcca35dfa5fdcc84"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/input/final-mean.policypack",
+        "bytes": 197903,
+        "mode": 384,
+        "mtime_ns": 1794108509939664861,
+        "sha256": "d07725f21ff9b03ddb8cdc9beb9265f3ce864a952acc377ee0768b6f42a0eb81"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/input/scripted-positive.policypack",
+        "bytes": 197903,
+        "mode": 384,
+        "mtime_ns": 1794108509941734833,
+        "sha256": "835769d634ef956f7b2ba16400ed015c0540803df3e78426f6204e54cf03438a"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/input/initial-mean.policypack",
+        "bytes": 197903,
+        "mode": 384,
+        "mtime_ns": 1794108509940342532,
+        "sha256": "44bd35cf4207f9f7cdea5443b08e9eecafe06cdcd3b854ded9e2695967b01b0b"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/input/initial.policypack",
+        "bytes": 211879,
+        "mode": 384,
+        "mtime_ns": 1794108509941051453,
+        "sha256": "e140255d5d4deb1256f9e5dfab627dd57f60bc0757b69544a3e6b8c85b37f990"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/input/amplitude-control.policypack",
+        "bytes": 197903,
+        "mode": 384,
+        "mtime_ns": 1794108509938193726,
+        "sha256": "d07725f21ff9b03ddb8cdc9beb9265f3ce864a952acc377ee0768b6f42a0eb81"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/input/source.trainingcheckpoint/learner.safetensors",
+        "bytes": 617749,
+        "mode": 420,
+        "mtime_ns": 1794108509944270934,
+        "sha256": "02fc7261192e1eafbc7e1e1fc2aeb6f6b0c6b337a4e9c75df29bd7300e4d9fb0"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/input/source.trainingcheckpoint/rollout.rolloutpack",
+        "bytes": 116573162,
+        "mode": 384,
+        "mtime_ns": 1794108510229774636,
+        "sha256": "2388d2577d5eaa61bf1ce6e808657cfb65ca71548a3d4e8d32e57783d5ed424f"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/input/source.trainingcheckpoint/COMMITTED",
+        "bytes": 64,
+        "mode": 384,
+        "mtime_ns": 1794108509941982043,
+        "sha256": "7fb3b9f4d56ef13e37596291f59481acdc5849cd401ad57854534073deb51332"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/input/source.trainingcheckpoint/life.native",
+        "bytes": 13814860,
+        "mode": 384,
+        "mtime_ns": 1794108509957788859,
+        "sha256": "20c1554c8eeb20d1dc322518e6857361251b43a6df0311fed8e94b96121409a8"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/input/source.trainingcheckpoint/candidate.policypack",
+        "bytes": 197891,
+        "mode": 384,
+        "mtime_ns": 1794108509942591589,
+        "sha256": "03e8e2ee729bd88a3403a69213801a72d668265e8d04862d54350b5e96c84e47"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/input/source.trainingcheckpoint/policy.policypack",
+        "bytes": 211879,
+        "mode": 384,
+        "mtime_ns": 1794108509963816484,
+        "sha256": "d4af70e9a06360ef8682e102b8ba291a5791ad7ae949fec4e04ad592f52e67be"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/input/source.trainingcheckpoint/manifest.json",
+        "bytes": 6291,
+        "mode": 384,
+        "mtime_ns": 1794108509963116229,
+        "sha256": "e2b7c8d4beac02f097032dc6da8dab6aef1ac0e213e9cb978b0d0ec0286a55f9"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/environments/american-crow/object-push-v1/visual-scene.json",
+        "bytes": 1066,
+        "mode": 420,
+        "mtime_ns": 1794108509937475346,
+        "sha256": "0add8444b2d41ad84a2ea8281bfbad9083884b68848ecfac19e55ff148435ea2"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/environments/american-crow/object-push-v1/crow_manipulandum.mrvpack",
+        "bytes": 77824,
+        "mode": 420,
+        "mtime_ns": 1794108509936637006,
+        "sha256": "cfae7df3cf0bea43180792d53f35f810eeac27b6c65633a1744a6cf74c4a2a6a"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/environments/american-crow/object-push-v1/robot.mrvpack",
+        "bytes": 57344,
+        "mode": 420,
+        "mtime_ns": 1794108509937342261,
+        "sha256": "04b9cf3b0a17d1b1026e827b84b0083d6f79da6397156eecd973e798a4894dda"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/environments/american-crow/object-push-v1/README.md",
+        "bytes": 10287,
+        "mode": 420,
+        "mtime_ns": 1794108509936368338,
+        "sha256": "9bb7d349c046b5b1ebd2ef11a0713d29d95d0e1376a9b901029117d99565a8c1"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/environments/american-crow/object-push-v1/object_support.mrvpack",
+        "bytes": 32768,
+        "mode": 420,
+        "mtime_ns": 1794108509937083301,
+        "sha256": "9d2a20355a5b5448fdd655a5e925dfd5de9cc707227e7516c33bca49acb24b9f"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/environments/american-crow/object-push-v1/curriculum.json",
+        "bytes": 164,
+        "mode": 420,
+        "mtime_ns": 1794108509936827800,
+        "sha256": "3c515038ad563c3112e0123b3eb4185d5606a134ed125243af181663f28497c4"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/environments/american-crow/object-push-v1/retinal-observation.json",
+        "bytes": 1002,
+        "mode": 420,
+        "mtime_ns": 1794108509937211011,
+        "sha256": "94dc9894c9ffc051d3e8e0b41cddd364060cffad8a1bd98829416db510f8df03"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/environments/american-crow/object-push-v1/locomotion_ground.mrvpack",
+        "bytes": 32768,
+        "mode": 420,
+        "mtime_ns": 1794108509936950050,
+        "sha256": "4c91c5b21fa169c633e3b9921e7bea811f6172671df246fc4f1d59a6c6bc4882"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/training/learner.safetensors",
+        "bytes": 617750,
+        "mode": 420,
+        "mtime_ns": 1794108867725711356,
+        "sha256": "4cb95b87d594adad289cd5504b15214da09e2a009b0f70532e6bc3aac1fbbd60"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/training/rollout.rolloutpack",
+        "bytes": 116573162,
+        "mode": 384,
+        "mtime_ns": 1794108867441163196,
+        "sha256": "ca641bf293f854786347442a41874bb205fd52f1e0040772cd5d477ae20c3b18"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/training/incumbent.policypack",
+        "bytes": 197891,
+        "mode": 384,
+        "mtime_ns": 1794108635576560856,
+        "sha256": "03e8e2ee729bd88a3403a69213801a72d668265e8d04862d54350b5e96c84e47"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/training/candidate.policypack",
+        "bytes": 197891,
+        "mode": 384,
+        "mtime_ns": 1794108867724250513,
+        "sha256": "e44142ed181229fd4cc5dd70848f732ff52ea7c4b4ce1e17c29e143ee5d2153e"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/training/updated.policypack",
+        "bytes": 211879,
+        "mode": 384,
+        "mtime_ns": 1794108867723409466,
+        "sha256": "5f11f8e12e63ffe2eba1771d48948586c10d1210062fd0abba761dde31576b07"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/training/checkpoints/revision-00000017.trainingcheckpoint/learner.safetensors",
+        "bytes": 617750,
+        "mode": 420,
+        "mtime_ns": 1794108867725711356,
+        "sha256": "4cb95b87d594adad289cd5504b15214da09e2a009b0f70532e6bc3aac1fbbd60"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/training/checkpoints/revision-00000017.trainingcheckpoint/rollout.rolloutpack",
+        "bytes": 116573162,
+        "mode": 384,
+        "mtime_ns": 1794108867441163196,
+        "sha256": "ca641bf293f854786347442a41874bb205fd52f1e0040772cd5d477ae20c3b18"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/training/checkpoints/revision-00000017.trainingcheckpoint/COMMITTED",
+        "bytes": 64,
+        "mode": 384,
+        "mtime_ns": 1794108867805470433,
+        "sha256": "598209b11014420393813eefe2edad30c85b8df406b4032a1d863062a15cfcb0"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/training/checkpoints/revision-00000017.trainingcheckpoint/life.native",
+        "bytes": 13814860,
+        "mode": 384,
+        "mtime_ns": 1794108867750904317,
+        "sha256": "2c607322d25c7241b1ebe12ae24222988e1e214648a6977f9f8c6350780c957d"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/training/checkpoints/revision-00000017.trainingcheckpoint/candidate.policypack",
+        "bytes": 197891,
+        "mode": 384,
+        "mtime_ns": 1794108867724250513,
+        "sha256": "e44142ed181229fd4cc5dd70848f732ff52ea7c4b4ce1e17c29e143ee5d2153e"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/training/checkpoints/revision-00000017.trainingcheckpoint/policy.policypack",
+        "bytes": 211879,
+        "mode": 384,
+        "mtime_ns": 1794108867723409466,
+        "sha256": "5f11f8e12e63ffe2eba1771d48948586c10d1210062fd0abba761dde31576b07"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/training/checkpoints/revision-00000017.trainingcheckpoint/manifest.json",
+        "bytes": 6293,
+        "mode": 384,
+        "mtime_ns": 1794108867805339974,
+        "sha256": "8d89fc95c7b7fee6c2dd0410aaeb7c9ee98b2417b1a50f6f806b99b1a5d15721"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/shaders/GRUMemory.metallib",
+        "bytes": 19391,
+        "mode": 420,
+        "mtime_ns": 1794108509917033164,
+        "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/shaders/RetinalStream.metallib",
+        "bytes": 16151,
+        "mode": 420,
+        "mtime_ns": 1794108509926081101,
+        "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/shaders/MetalRobo.metallib",
+        "bytes": 4200073,
+        "mode": 420,
+        "mtime_ns": 1794108509924154005,
+        "sha256": "ab8eb4013d6fb2fbae2877602145a5a59a16adb17abf769619466298ab858d95"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/lib/libmetalrobo.dylib",
+        "bytes": 5676064,
+        "mode": 493,
+        "mtime_ns": 1794108509912626926,
+        "sha256": "5dac60d448d66c0872ebdffb96260c92956aab677f4210e3f8ed7c1ac195bd6b"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/reference/training/checkpoints/revision-00000017.trainingcheckpoint/learner.safetensors",
+        "bytes": 617750,
+        "mode": 420,
+        "mtime_ns": 1794108510273889271,
+        "sha256": "4cb95b87d594adad289cd5504b15214da09e2a009b0f70532e6bc3aac1fbbd60"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/reference/training/checkpoints/revision-00000017.trainingcheckpoint/life.native",
+        "bytes": 13814860,
+        "mode": 384,
+        "mtime_ns": 1794108510286787026,
+        "sha256": "902ce8bff0cdf660667048e2223a7617e3d346906792dd440d01bb4ae5831bca"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/reference/evaluation/final-b.state.json",
+        "bytes": 194888,
+        "mode": 420,
+        "mtime_ns": 1794108510271453504,
+        "sha256": "ee88495c295b94917d257553440a803c356600b6c10b5a28275c6066dc7f0aab"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/reference/evaluation/amplitude-offset.state.json",
+        "bytes": 198639,
+        "mode": 420,
+        "mtime_ns": 1794108510270406080,
+        "sha256": "40e101b17d898fcacb8f0da0c3585067f488e13469e52bca44a8febdcddeef83"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/reference/evaluation/initial-b.state.json",
+        "bytes": 192709,
+        "mode": 420,
+        "mtime_ns": 1794108510272115925,
+        "sha256": "b0cdbb99067091ee228e55e797258fabc1830634547bd309d085363682fbc5b1"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/reference/evaluation/initial-a.state.json",
+        "bytes": 192710,
+        "mode": 420,
+        "mtime_ns": 1794108510271794006,
+        "sha256": "206d6a4ce8b045ea5bf6220c6d3486125af19868de1a69683027a9c15894e092"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/reference/evaluation/amplitude-control.state.json",
+        "bytes": 194192,
+        "mode": 420,
+        "mtime_ns": 1794108510269820493,
+        "sha256": "34b1c4eed6b36aad496894c280cead1445c874233d0211b9f149d22a81058133"
+      },
+      {
+        "path": "/private/tmp/crow-object-learning-git-recovery-20261108/reference/evaluation/final-a.state.json",
+        "bytes": 194809,
+        "mode": 420,
+        "mtime_ns": 1794108510270940584,
+        "sha256": "4a020fc527d4ca4499771dfbd5092f09c049a6e8ca736d50351601cb0b80a1fb"
+      }
+    ],
+    "open_handles": 0,
+    "removed_logical_bytes": 608369466
+  }
+}

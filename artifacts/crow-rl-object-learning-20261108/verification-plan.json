@@ -1,0 +1,6 @@
+{
+  "prediction": "Six restored frozen native evaluations reproduce rollout bytes and all accepted body/q/v endpoint fields. Coupled checkpoint8 resumes8 updates and reproduces checkpoint16 model/Adam tensors/metadata, canonical policies/rollout and native components, plus scientific learner metrics.",
+  "budget": "Six32-lane160-tick evaluations180s each and one128-lane8-update160-tick training continuation600s. No retries or tuning. Temporary raw bound768MiB; no video.",
+  "scope": "Same device/OS and external Python/MLX, Git-restored exact executables/library/shaders/sources/assets/curriculum/checkpoint. Reproduction, not new independent behavior evidence.",
+  "measurement_scope": "Record timing and allocator metrics separately; compare causal bytes/tensors and scientific fields exactly."
+}
