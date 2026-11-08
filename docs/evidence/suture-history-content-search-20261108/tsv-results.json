@@ -1,0 +1,1778 @@
+{
+  "pairs": 192,
+  "errors": [],
+  "rows": [
+    {
+      "commit": "0068bea9d04edd2f14cbaa9ceed83116cc4d01ed",
+      "path": "docs/evidence/g1-free-spheres-track-20261107/snapshot.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f1feaf5670aa4d1e02cb7a7f3a2e48c934bbbf07"
+    },
+    {
+      "commit": "06f2c99415972264da4308abb46d42e0a72ed1fe",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "06f2c99415972264da4308abb46d42e0a72ed1fe",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "06f2c99415972264da4308abb46d42e0a72ed1fe",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "06f2c99415972264da4308abb46d42e0a72ed1fe",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "10b68a4b9ca094ad30d89f274ebab1363bc6cd1b",
+      "path": "docs/evidence/g1-replay-gates-20261107/closed.trace.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "312bd3a1850ef11e60f9e2b191811d1f618d5ee9"
+    },
+    {
+      "commit": "10b68a4b9ca094ad30d89f274ebab1363bc6cd1b",
+      "path": "docs/evidence/g1-replay-gates-20261107/recorded.trace.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "312bd3a1850ef11e60f9e2b191811d1f618d5ee9"
+    },
+    {
+      "commit": "10b68a4b9ca094ad30d89f274ebab1363bc6cd1b",
+      "path": "docs/evidence/g1-replay-gates-20261107/replay.trace.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "312bd3a1850ef11e60f9e2b191811d1f618d5ee9"
+    },
+    {
+      "commit": "14c0d6a5bd05b915a49255c13d0d6b98ad20b015",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "14c0d6a5bd05b915a49255c13d0d6b98ad20b015",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "14c0d6a5bd05b915a49255c13d0d6b98ad20b015",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "14c0d6a5bd05b915a49255c13d0d6b98ad20b015",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "1e362abe482d71f07258db81fd255e06d562ce19",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "1e362abe482d71f07258db81fd255e06d562ce19",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "1e362abe482d71f07258db81fd255e06d562ce19",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "1e362abe482d71f07258db81fd255e06d562ce19",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "1ff5b48e587885f7ebcc7ebf3c810cacac1bedc0",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "1ff5b48e587885f7ebcc7ebf3c810cacac1bedc0",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "1ff5b48e587885f7ebcc7ebf3c810cacac1bedc0",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "1ff5b48e587885f7ebcc7ebf3c810cacac1bedc0",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "2231e4276e61523ea7a3a442d8771cf3a4fe54f9",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "2231e4276e61523ea7a3a442d8771cf3a4fe54f9",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "2231e4276e61523ea7a3a442d8771cf3a4fe54f9",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "2231e4276e61523ea7a3a442d8771cf3a4fe54f9",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "24255f8b84dacb74a0aae2abbc36510eaa30e624",
+      "path": "docs/evidence/g1-env-mixed-commit-20261108/snapshots.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "8c19fac005c869261f5af52773679e5732fcb0f3"
+    },
+    {
+      "commit": "2728a9ac1403e4f073a993c0581d32f11ad6f127",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "2728a9ac1403e4f073a993c0581d32f11ad6f127",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "2728a9ac1403e4f073a993c0581d32f11ad6f127",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "2728a9ac1403e4f073a993c0581d32f11ad6f127",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "286bf2f13d90bdc2797db14f6ad762cd091f2b8f",
+      "path": "docs/evidence/g1-transaction-owner-hooks-20261107/snapshot.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "4da17e92f41c274d2410e0e55537766cac86cf15"
+    },
+    {
+      "commit": "2bcc4fa64a6b6f5888d9cb1989edcd33282efb47",
+      "path": "docs/evidence/g1-transaction-fresh-frame-20261107/baseline-snapshot.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "11223edd16b0668cd82069283986a91f4e0f62f8"
+    },
+    {
+      "commit": "2bcc4fa64a6b6f5888d9cb1989edcd33282efb47",
+      "path": "docs/evidence/g1-transaction-fresh-frame-20261107/candidate-snapshot.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "cea9250d753214dd8e0c61bdee4a98d915778c36"
+    },
+    {
+      "commit": "2e740d1b44db8c034fb72307fe6af7a7db87d1e2",
+      "path": "docs/evidence/g1-env-render-select-20261108/selection.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "3d9250ea5d349c1320a8c264d39a1d16ab7cda12"
+    },
+    {
+      "commit": "31627c1ce75b5f7ba69736fb19b3a63dac3016a8",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "31627c1ce75b5f7ba69736fb19b3a63dac3016a8",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "31627c1ce75b5f7ba69736fb19b3a63dac3016a8",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "31627c1ce75b5f7ba69736fb19b3a63dac3016a8",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "33fe48f8a814561e37bb88ce60c0ef2c8640c85b",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "33fe48f8a814561e37bb88ce60c0ef2c8640c85b",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "33fe48f8a814561e37bb88ce60c0ef2c8640c85b",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "33fe48f8a814561e37bb88ce60c0ef2c8640c85b",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "3651b5109b5cbd0ca32c6d716e300b915090cf30",
+      "path": "docs/evidence/g1-transaction-moving-pixels-20261107/baseline-snapshot.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "ad9b00fe4e2354d2a2a6355e7e4ec4f2e67f82ec"
+    },
+    {
+      "commit": "3651b5109b5cbd0ca32c6d716e300b915090cf30",
+      "path": "docs/evidence/g1-transaction-moving-pixels-20261107/candidate-snapshot.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "4b3ad586fe8864753e4d1c2af72ba53844bc96fa"
+    },
+    {
+      "commit": "3a5b4b344bd3ae28cf5227517c4032e2413c22e7",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "3a5b4b344bd3ae28cf5227517c4032e2413c22e7",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "3a5b4b344bd3ae28cf5227517c4032e2413c22e7",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "3a5b4b344bd3ae28cf5227517c4032e2413c22e7",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "414024f0ad078cb209962a355b30c9d86ebde772",
+      "path": "docs/evidence/g1-env-clock-owner-20261108/observed-snapshot.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "c0c69bc20316c816e0470d447f790b072b009668"
+    },
+    {
+      "commit": "4642668b37f385ee7dde3d9fdde097fc0f5d9ab2",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/reference-contact-038/replay-root4-tick2/analysis/trials.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "e0a02b582ccadd74e59b1b1d3affb6e8ebe4a1a8"
+    },
+    {
+      "commit": "52fb39e69f8f13c5e87d304b75f2cce0822bdf58",
+      "path": "docs/evidence/g1-transaction-moving-target-20261107/baseline-snapshot.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "66883c17ff677d3debe31dd8bf3be3bbe2acd637"
+    },
+    {
+      "commit": "52fb39e69f8f13c5e87d304b75f2cce0822bdf58",
+      "path": "docs/evidence/g1-transaction-moving-target-20261107/candidate-snapshot.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "51c3afc54b7ae6b912ac013e29d75f2053b17f9a"
+    },
+    {
+      "commit": "5c83a94632ad5c7061e8d465cc2271f96f53429d",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/reference-contact-expansion-039/replay-root25-tick3/analysis/selected-traces.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d7930fbdb5eeaa9c97cf19109789dbd1c2dd889a"
+    },
+    {
+      "commit": "5d5aba9c03b39a939551ba75eed11a91824e03b6",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "5d5aba9c03b39a939551ba75eed11a91824e03b6",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "5d5aba9c03b39a939551ba75eed11a91824e03b6",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "5d5aba9c03b39a939551ba75eed11a91824e03b6",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "659735a0a204f4491bb992673cfce54a0a44d5a7",
+      "path": "docs/evidence/franka-retry-reference-20261108/comparison.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "6d1d3259950cffb03f5b517afdbf6db3522d899e"
+    },
+    {
+      "commit": "683ea4088b7c7fc0c9878495b102228cd8a67163",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "683ea4088b7c7fc0c9878495b102228cd8a67163",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "683ea4088b7c7fc0c9878495b102228cd8a67163",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "683ea4088b7c7fc0c9878495b102228cd8a67163",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "6a6d3783e71d923fc1dd6640b1eabe0a376f97f9",
+      "path": "docs/evidence/g1-scene-publication-20261107/snapshot.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f1feaf5670aa4d1e02cb7a7f3a2e48c934bbbf07"
+    },
+    {
+      "commit": "6f8453c3f9ae3a165d0cb8bc05b838011a7a0453",
+      "path": "docs/evidence/g1-matched-visual-identity-20261107/snapshot.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "4da17e92f41c274d2410e0e55537766cac86cf15"
+    },
+    {
+      "commit": "7054b3763e8d4ee5242d30cb90f5a8d7a09d35e3",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/barycentric-embedding-owner-001/current-075-missing-palm-fixture.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "a01fe8466ee80704277e2a64abc615507efddf68"
+    },
+    {
+      "commit": "791fb586934f8222fcf8269c411c17eb2a774087",
+      "path": "artifacts/g1-legs-locomotion-60min-20260805/selection/candidate-00000108.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "9a7138740b830a101bd35a43de4534708aefe1dc"
+    },
+    {
+      "commit": "791fb586934f8222fcf8269c411c17eb2a774087",
+      "path": "artifacts/g1-locomotion-preserved-continuation-60min-20260805/fixed-forward-validation/state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "416a21334e652e37d1dc3c576f1599ffee61ca11"
+    },
+    {
+      "commit": "791fb586934f8222fcf8269c411c17eb2a774087",
+      "path": "artifacts/g1-locomotion-preserved-continuation-60min-20260805/selected-revision-203/selection/candidate-00000203.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "e04ede0e9594a1a9efbe257656d4401d280254f6"
+    },
+    {
+      "commit": "79d8afd87b62dbc7b210c5a16c3a917b2e6fc598",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "79d8afd87b62dbc7b210c5a16c3a917b2e6fc598",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "79d8afd87b62dbc7b210c5a16c3a917b2e6fc598",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "79d8afd87b62dbc7b210c5a16c3a917b2e6fc598",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "7a53aa38c1839ecbb75de9e212fdf48805346944",
+      "path": "docs/evidence/g1-episode-local-20261107/policy-4081007.trace.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "047501b6dc6f63bb24a736fd1cc0ac8f89e61e50"
+    },
+    {
+      "commit": "7a53aa38c1839ecbb75de9e212fdf48805346944",
+      "path": "docs/evidence/g1-episode-local-20261107/policy-4081008.trace.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "95672a1c856dbc567bdb00991ab46423e5bc82ef"
+    },
+    {
+      "commit": "7a53aa38c1839ecbb75de9e212fdf48805346944",
+      "path": "docs/evidence/g1-episode-local-20261107/zero-4081007.trace.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d55db6e88bd6f529493df7d0f89d0818e9d5c9cb"
+    },
+    {
+      "commit": "7c7dcbeac27fcaba9dcd66c3fef39e0418220b43",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "7c7dcbeac27fcaba9dcd66c3fef39e0418220b43",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "7c7dcbeac27fcaba9dcd66c3fef39e0418220b43",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "7c7dcbeac27fcaba9dcd66c3fef39e0418220b43",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "7dbc9c678f8a5eca80a4b3a5773d4720a6ce24cf",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "7dbc9c678f8a5eca80a4b3a5773d4720a6ce24cf",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "7e14f61eb6556f7fda9a697d01dc3602f15decc1",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "7e14f61eb6556f7fda9a697d01dc3602f15decc1",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "7e14f61eb6556f7fda9a697d01dc3602f15decc1",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "7e14f61eb6556f7fda9a697d01dc3602f15decc1",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "7fcc98136014d001164dfbc839f5015ff6d5e29d",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/contact-armijo-024/native-integrated/analysis/selected-traces.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "eeeac5cab43b351dd0b55486f4663d0d3fd0c2fe"
+    },
+    {
+      "commit": "7fcc98136014d001164dfbc839f5015ff6d5e29d",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/contact-armijo-024/selected-traces.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "eeeac5cab43b351dd0b55486f4663d0d3fd0c2fe"
+    },
+    {
+      "commit": "814a24e75c1cfa7f08c61ccc456c8eeb86542433",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "814a24e75c1cfa7f08c61ccc456c8eeb86542433",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "814a24e75c1cfa7f08c61ccc456c8eeb86542433",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "814a24e75c1cfa7f08c61ccc456c8eeb86542433",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "8a068ffe9a672365736122868a2d5154bbbb61c3",
+      "path": "docs/evidence/g1-env-render-ref-20261108/reference.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "cc4957909b7c752fc2a8d433eae371cfef95a439"
+    },
+    {
+      "commit": "8e9c76e90bb8c7da188f3977ab1e7741bdf75263",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "8f6a26670772d18a1245cfd3846b93738b2ca718",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "8f6a26670772d18a1245cfd3846b93738b2ca718",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "8f6a26670772d18a1245cfd3846b93738b2ca718",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "8f6a26670772d18a1245cfd3846b93738b2ca718",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "92489f5c93eecfcc9b8bd7004c075323a00881e4",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "92489f5c93eecfcc9b8bd7004c075323a00881e4",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "92489f5c93eecfcc9b8bd7004c075323a00881e4",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "92489f5c93eecfcc9b8bd7004c075323a00881e4",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "949a5dae5b506e7de84ab889f535be9ff0b3fbe3",
+      "path": "docs/evidence/g1-env-reset-test-20261108/snapshots.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "a1f13139b603db68290048a9d9a1a011dad59100"
+    },
+    {
+      "commit": "949a5dae5b506e7de84ab889f535be9ff0b3fbe3",
+      "path": "docs/evidence/g1-env-reset-test-20261108/snapshots.tsv.partial.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "7c29253e73d5c7e84c8b8ea4d80871986f03683e"
+    },
+    {
+      "commit": "9c034846fed76d8e9424a841496cad819a84554e",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/regional-reference-fascia-041/replay-root21-tick3/analysis/selected-traces.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "c5d954be10302d7e81b0149f197ebb38ee229c32"
+    },
+    {
+      "commit": "9e0ba9f8aaa336d0c81a029058700431ccf6e47a",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/contact-slope-037/replay-root2-tick3/analysis/selected-traces.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "7fe5dc0fcce4c1c2e88c996c7260ff8935cdaa27"
+    },
+    {
+      "commit": "a026294f74b78951437b36a84a248baabc2f6a99",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "a026294f74b78951437b36a84a248baabc2f6a99",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "a026294f74b78951437b36a84a248baabc2f6a99",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "a026294f74b78951437b36a84a248baabc2f6a99",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "a1afa7920214a67e7e06dd820339115c4128c8fb",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/contact-budget64-028/native-integrated/analysis/selected-traces.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "0f263c3cc339f357faa1db5c236a0fc6184894c7"
+    },
+    {
+      "commit": "a60f89dcabfb7bdf2d73957add67c83963c1ffce",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "a60f89dcabfb7bdf2d73957add67c83963c1ffce",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "a60f89dcabfb7bdf2d73957add67c83963c1ffce",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "a60f89dcabfb7bdf2d73957add67c83963c1ffce",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "a80566766f5f8d51b8c8ce3bd1ae32c1160361e6",
+      "path": "docs/evidence/g1-camera-scene-diagnostic-20261107/snapshot.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f1feaf5670aa4d1e02cb7a7f3a2e48c934bbbf07"
+    },
+    {
+      "commit": "a926768a4723d3233911ab90f38087f5aea4b412",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "a926768a4723d3233911ab90f38087f5aea4b412",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "a926768a4723d3233911ab90f38087f5aea4b412",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "a926768a4723d3233911ab90f38087f5aea4b412",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "afd5cdbc4aa390aeff75c13705840fd0c594f5b1",
+      "path": "docs/evidence/g1-transaction-candidate-20261107/snapshot.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "b7e6b005acf57039f29f260de22b009a9a89620d"
+    },
+    {
+      "commit": "b3517973c337d2f380c6cf63d2e51030d24b8766",
+      "path": "docs/evidence/g1-track-frame-diagnostic-20261107/snapshot.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "0bccbb9bf6b27bfc48361622a768dd74b121c718"
+    },
+    {
+      "commit": "be17fbfb754adf83597d957d81b89625ac929ebc",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "be17fbfb754adf83597d957d81b89625ac929ebc",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "be17fbfb754adf83597d957d81b89625ac929ebc",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "be17fbfb754adf83597d957d81b89625ac929ebc",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "c4c94d2587f08e41eceeffa032553f132faa04d0",
+      "path": "docs/evidence/g1-tracker-snapshot-20261107/snapshot.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "2ab96fd2c589c5da306d17d7165f9dbf45b8db4e"
+    },
+    {
+      "commit": "c74db1dd36f6fef368ced71f0c39807a641fe409",
+      "path": "artifacts/crow-rl-recurrent-rollout-20261107/native-ctest-evidence/crow-recurrent-actor-3e25658875b1e336/rollout-rejections.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f6439dea2b218f03ba1f0ccfcbca9e7bfba07c4b"
+    },
+    {
+      "commit": "c74db1dd36f6fef368ced71f0c39807a641fe409",
+      "path": "artifacts/crow-rl-recurrent-rollout-20261107/native-ctest-evidence/crow-recurrent-actor-60bc7428434068dd/rollout-rejections.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f6439dea2b218f03ba1f0ccfcbca9e7bfba07c4b"
+    },
+    {
+      "commit": "c74db1dd36f6fef368ced71f0c39807a641fe409",
+      "path": "artifacts/crow-rl-recurrent-rollout-20261107/native-ctest-evidence/crow-recurrent-rollout-ab9625666f378804/native/rollout-rejections.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f6439dea2b218f03ba1f0ccfcbca9e7bfba07c4b"
+    },
+    {
+      "commit": "c74db1dd36f6fef368ced71f0c39807a641fe409",
+      "path": "artifacts/crow-rl-recurrent-rollout-20261107/native-ctest-evidence/crow-recurrent-rollout-cabe3ef31216c8b6/native/rollout-rejections.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f6439dea2b218f03ba1f0ccfcbca9e7bfba07c4b"
+    },
+    {
+      "commit": "c74db1dd36f6fef368ced71f0c39807a641fe409",
+      "path": "artifacts/crow-rl-recurrent-rollout-20261107/trials/recurrent-rollout-admission-01/native-evidence/rollout-rejections.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f6439dea2b218f03ba1f0ccfcbca9e7bfba07c4b"
+    },
+    {
+      "commit": "c74db1dd36f6fef368ced71f0c39807a641fe409",
+      "path": "artifacts/crow-rl-recurrent-rollout-20261107/trials/recurrent-rollout-admission-02/native-evidence/rollout-rejections.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f6439dea2b218f03ba1f0ccfcbca9e7bfba07c4b"
+    },
+    {
+      "commit": "c74db1dd36f6fef368ced71f0c39807a641fe409",
+      "path": "artifacts/crow-rl-recurrent-rollout-20261107/trials/recurrent-rollout-admission-03/native-evidence/rollout-rejections.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f6439dea2b218f03ba1f0ccfcbca9e7bfba07c4b"
+    },
+    {
+      "commit": "c74db1dd36f6fef368ced71f0c39807a641fe409",
+      "path": "artifacts/crow-rl-recurrent-rollout-20261107/trials/recurrent-rollout-admission-04/native-evidence/rollout-rejections.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f6439dea2b218f03ba1f0ccfcbca9e7bfba07c4b"
+    },
+    {
+      "commit": "c74db1dd36f6fef368ced71f0c39807a641fe409",
+      "path": "artifacts/crow-rl-recurrent-rollout-20261107/trials/recurrent-rollout-native-01/rollout-rejections.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f6439dea2b218f03ba1f0ccfcbca9e7bfba07c4b"
+    },
+    {
+      "commit": "c77b531f452ca5f315837d33bb0839f43b03641d",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "c77b531f452ca5f315837d33bb0839f43b03641d",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "c77b531f452ca5f315837d33bb0839f43b03641d",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "c77b531f452ca5f315837d33bb0839f43b03641d",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "c791812c1f6fa69c07db43d42a154e08db9a9e8e",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "c791812c1f6fa69c07db43d42a154e08db9a9e8e",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "c791812c1f6fa69c07db43d42a154e08db9a9e8e",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "c791812c1f6fa69c07db43d42a154e08db9a9e8e",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "c81dfc37291a400c32f6ec55578a55a9a9eb0870",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "c81dfc37291a400c32f6ec55578a55a9a9eb0870",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "c81dfc37291a400c32f6ec55578a55a9a9eb0870",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "c81dfc37291a400c32f6ec55578a55a9a9eb0870",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "cb8ade2e8da8a50bbc78da89fdcea52fbf52ecfe",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "cb8ade2e8da8a50bbc78da89fdcea52fbf52ecfe",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "cb8ade2e8da8a50bbc78da89fdcea52fbf52ecfe",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "cb8ade2e8da8a50bbc78da89fdcea52fbf52ecfe",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "ceee004890cd43ae3a58a314178ed124b7951a3e",
+      "path": "matter/examples/cardboard/evidence/native-implementation-20261014/native/accurate-paper-tangents-024/replay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "5d0b3e6e63a23760e4fd2804976bcc311166f7c0"
+    },
+    {
+      "commit": "d43cbb9dba244213b16bd72421a4b3116f8631cd",
+      "path": "docs/evidence/franka-upload-abort-20261108/comparison.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "64c9d42959c28dd27e8dfc60f195df773c537ed8"
+    },
+    {
+      "commit": "d8764b03adea7ae3af36d266b2c27e4a28fabc3c",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "d8764b03adea7ae3af36d266b2c27e4a28fabc3c",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "d8764b03adea7ae3af36d266b2c27e4a28fabc3c",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "d8764b03adea7ae3af36d266b2c27e4a28fabc3c",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "e05fac9a3a426e8a3c2a42ef3367c38eefed2e51",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "e05fac9a3a426e8a3c2a42ef3367c38eefed2e51",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "e05fac9a3a426e8a3c2a42ef3367c38eefed2e51",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "e05fac9a3a426e8a3c2a42ef3367c38eefed2e51",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "e05fac9a3a426e8a3c2a42ef3367c38eefed2e51",
+      "path": "matter/examples/cardboard/evidence/native-implementation-20261014/native/accurate-paper-tangents-024/replay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "5d0b3e6e63a23760e4fd2804976bcc311166f7c0"
+    },
+    {
+      "commit": "e05fac9a3a426e8a3c2a42ef3367c38eefed2e51",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/contact-armijo-024/native-integrated/analysis/selected-traces.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "eeeac5cab43b351dd0b55486f4663d0d3fd0c2fe"
+    },
+    {
+      "commit": "e05fac9a3a426e8a3c2a42ef3367c38eefed2e51",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/contact-armijo-024/selected-traces.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "eeeac5cab43b351dd0b55486f4663d0d3fd0c2fe"
+    },
+    {
+      "commit": "e05fac9a3a426e8a3c2a42ef3367c38eefed2e51",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/contact-budget64-028/native-integrated/analysis/selected-traces.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "0f263c3cc339f357faa1db5c236a0fc6184894c7"
+    },
+    {
+      "commit": "e05fac9a3a426e8a3c2a42ef3367c38eefed2e51",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/contact-slope-037/replay-root2-tick3/analysis/selected-traces.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "7fe5dc0fcce4c1c2e88c996c7260ff8935cdaa27"
+    },
+    {
+      "commit": "e05fac9a3a426e8a3c2a42ef3367c38eefed2e51",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/barycentric-embedding-owner-001/current-075-missing-palm-fixture.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "a01fe8466ee80704277e2a64abc615507efddf68"
+    },
+    {
+      "commit": "e05fac9a3a426e8a3c2a42ef3367c38eefed2e51",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-054/publication-filelist-054.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "c1239e84c32599a1b38ce389b97ee40744bb3287"
+    },
+    {
+      "commit": "e05fac9a3a426e8a3c2a42ef3367c38eefed2e51",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/reference-contact-038/replay-root4-tick2/analysis/trials.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "e0a02b582ccadd74e59b1b1d3affb6e8ebe4a1a8"
+    },
+    {
+      "commit": "e05fac9a3a426e8a3c2a42ef3367c38eefed2e51",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/reference-contact-expansion-039/replay-root25-tick3/analysis/selected-traces.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d7930fbdb5eeaa9c97cf19109789dbd1c2dd889a"
+    },
+    {
+      "commit": "e05fac9a3a426e8a3c2a42ef3367c38eefed2e51",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/regional-reference-fascia-041/replay-root21-tick3/analysis/selected-traces.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "c5d954be10302d7e81b0149f197ebb38ee229c32"
+    },
+    {
+      "commit": "e126345622184cc1cf8e72430604365f95351ee2",
+      "path": "docs/evidence/g1-env-body-capture-20261108/snapshots.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "8a3b491db4293b71c6ca433660644ba5e4188479"
+    },
+    {
+      "commit": "e4d803570194f174ebc784ac184a8bfef391ca13",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "eab4e75b35ea3412abfc2b2a02326364598ac5b4",
+      "path": "docs/evidence/g1-env-mixed-owner-20261108/snapshots.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "82923ad6ceb3779dbd30ec24b48353da3b8e4b67"
+    },
+    {
+      "commit": "eb6306585ac835c740e199ee7058192be31a0e67",
+      "path": "docs/evidence/g1-observation-diagnostic-20261107/observations.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f6077725efbbf072481049653b293cdb1c633524"
+    },
+    {
+      "commit": "ebef1e7ef966ab18a596103a8c41f9ef76c8044a",
+      "path": "docs/evidence/g1-track-retained-planes-20261107/snapshot.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "e567eadc1ca7ebf36c6c597a02ee5d982abd941e"
+    },
+    {
+      "commit": "ed1a84616332ec52d1d395b967befe6f4b86d84e",
+      "path": "docs/evidence/g1-track-visible-failure-20261107/snapshot.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "a1e552d8508322f1d447c0a1fa0caad20674c474"
+    },
+    {
+      "commit": "f00ef1b0fe6a6ec599ee0a631c7660ef03158007",
+      "path": "artifacts/crow-rl-embodiment-20261107/trials/20261107-embodied-contact-control-02/head-beak-command.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "4b5823f7b0bca895260d84a618f87d74e9ec488c"
+    },
+    {
+      "commit": "f00ef1b0fe6a6ec599ee0a631c7660ef03158007",
+      "path": "artifacts/crow-rl-embodiment-20261107/trials/20261107-embodied-contact-control-02/neutral.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "4b5823f7b0bca895260d84a618f87d74e9ec488c"
+    },
+    {
+      "commit": "f00ef1b0fe6a6ec599ee0a631c7660ef03158007",
+      "path": "artifacts/crow-rl-embodiment-20261107/trials/20261107-embodied-contact-control-03/head-beak-command.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "b121240ef87bf1a8cfc9378960bb4db155fbdb2f"
+    },
+    {
+      "commit": "f00ef1b0fe6a6ec599ee0a631c7660ef03158007",
+      "path": "artifacts/crow-rl-embodiment-20261107/trials/20261107-embodied-contact-control-03/neutral.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "4b5823f7b0bca895260d84a618f87d74e9ec488c"
+    },
+    {
+      "commit": "f23b199ae4e6d8b18d506b1d372410be0f6d9255",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "f23b199ae4e6d8b18d506b1d372410be0f6d9255",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "f23b199ae4e6d8b18d506b1d372410be0f6d9255",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "f23b199ae4e6d8b18d506b1d372410be0f6d9255",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "f3c4acd72cd8363fa77b465509a051cf3578a72f",
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/publication-054/publication-filelist-054.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "c1239e84c32599a1b38ce389b97ee40744bb3287"
+    },
+    {
+      "commit": "f62970afd2667ab7953b26d3cffc827be6109615",
+      "path": "docs/evidence/window-integration-20261107/clean-configured-build/delay.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "f62970afd2667ab7953b26d3cffc827be6109615",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/candidate.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a"
+    },
+    {
+      "commit": "f62970afd2667ab7953b26d3cffc827be6109615",
+      "path": "docs/evidence/window-integration-20261107/command-train/run/selection/incumbent.state.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609"
+    },
+    {
+      "commit": "f62970afd2667ab7953b26d3cffc827be6109615",
+      "path": "docs/evidence/window-integration-20261107/delay-native-controlled/output.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d"
+    },
+    {
+      "commit": "f65a2ffcda220bbb1ff1b54cb823d487c499bc37",
+      "path": "docs/evidence/g1-env-clock-25hz-20261108/snapshots.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "003a6c1fce10c8c479e09c363c73a489a29842f8"
+    },
+    {
+      "commit": "f6dc3fcc32bea909c6395343e4dcccd7fc7fed11",
+      "path": "docs/evidence/g1-env-clock-time-20261108/observed-snapshot.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "ae528e7f721cc469d03eef58d093b419bb5cb071"
+    },
+    {
+      "commit": "fd722ec991ac4c2e59892a726a14de7b9c9e1f0b",
+      "path": "docs/evidence/g1-env-reset-ref-20261108/snapshots.tsv.partial.tsv",
+      "mode": "100644",
+      "kind": "blob",
+      "object": "e71bd5bbbff86f13afcfc39bc7b13bf9efd7d44e"
+    }
+  ],
+  "objects": [
+    {
+      "object": "003a6c1fce10c8c479e09c363c73a489a29842f8",
+      "kind": "blob",
+      "size": 175129,
+      "status": "read",
+      "sha256": "f795180b9e433ee6af8ce7a33df3e91caa5f81d32d4b4253a7902a16d61cda55",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "047501b6dc6f63bb24a736fd1cc0ac8f89e61e50",
+      "kind": "blob",
+      "size": 501557,
+      "status": "read",
+      "sha256": "2b99312874472b42a0d168d463e8648a659fd5590460f8a922d07ef6958247d5",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "0bccbb9bf6b27bfc48361622a768dd74b121c718",
+      "kind": "blob",
+      "size": 506741,
+      "status": "read",
+      "sha256": "87b4b5d250bdd7496977b6b3658e615886e464e4378c5c2a78ccd9f970a96bdb",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "0f263c3cc339f357faa1db5c236a0fc6184894c7",
+      "kind": "blob",
+      "size": 3235,
+      "status": "read",
+      "sha256": "8554569a52cad25542b264b2948928f2ffc5f55b0798a713cc5db3ee55349e93",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "11223edd16b0668cd82069283986a91f4e0f62f8",
+      "kind": "blob",
+      "size": 507723,
+      "status": "read",
+      "sha256": "92a5980707b9e0f3bfaae820f82335e7312bfa5973a2c01002fb93e82298c5b3",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "1cf6625b8b187ce58fe56cd48d0b27d3a6e07a8d",
+      "kind": "blob",
+      "size": 25220,
+      "status": "read",
+      "sha256": "3d110819051928b4b64b61f26c6796b98c2396f573f93cabdf7742eda623a7b6",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "2ab96fd2c589c5da306d17d7165f9dbf45b8db4e",
+      "kind": "blob",
+      "size": 945975,
+      "status": "read",
+      "sha256": "3ea619cfdc92b52f6680acd7cb3a007875831b58018bc40ce095ecce89510aef",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "312bd3a1850ef11e60f9e2b191811d1f618d5ee9",
+      "kind": "blob",
+      "size": 498476,
+      "status": "read",
+      "sha256": "d4fdddc60813dd63ea966323dd2ff0e0b3af8018158a0e69af95e74cb7ef6554",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "3d9250ea5d349c1320a8c264d39a1d16ab7cda12",
+      "kind": "blob",
+      "size": 337752,
+      "status": "read",
+      "sha256": "f70c36654c168dacafcfc1fce3af29df238df4cd2e25405f98f11d98d3497ff7",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "416a21334e652e37d1dc3c576f1599ffee61ca11",
+      "kind": "blob",
+      "size": 503686,
+      "status": "read",
+      "sha256": "d9ffab5a0eaf89d8e625f5d10f9a2216fb93c9ca9f4c072fd86268ad73cf427d",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "4b3ad586fe8864753e4d1c2af72ba53844bc96fa",
+      "kind": "blob",
+      "size": 507905,
+      "status": "read",
+      "sha256": "efa4bad0245136e586acbccfdb723ebd46d59db98a96152c0d3919bcb7ecf566",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "4b5823f7b0bca895260d84a618f87d74e9ec488c",
+      "status": "missing"
+    },
+    {
+      "object": "4da17e92f41c274d2410e0e55537766cac86cf15",
+      "kind": "blob",
+      "size": 507371,
+      "status": "read",
+      "sha256": "9396d6beb9bb2cef7a513a468fd6ca6c4d3cad279c176a9651fa855c14e0ac78",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "51c3afc54b7ae6b912ac013e29d75f2053b17f9a",
+      "kind": "blob",
+      "size": 507869,
+      "status": "read",
+      "sha256": "754427bb986aa1da8a488b169ead624db75a59088ac9683d665eb9a42eea7ba6",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "5d0b3e6e63a23760e4fd2804976bcc311166f7c0",
+      "kind": "blob",
+      "size": 22517,
+      "status": "read",
+      "sha256": "9836973132d1ce854e32db73209627823cbb1d81e0412ef1233be30e4b975a34",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "64c9d42959c28dd27e8dfc60f195df773c537ed8",
+      "kind": "blob",
+      "size": 1181,
+      "status": "read",
+      "sha256": "d5eecae0a69fd17741ea1094ee21c1c8ee952ef653bcaa5e8db5a5c4e1a93dde",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "66883c17ff677d3debe31dd8bf3be3bbe2acd637",
+      "kind": "blob",
+      "size": 507869,
+      "status": "read",
+      "sha256": "f0c9d421b9976d0016d41badf51060a4132eec05ee09b998d24e4bacfc0bcbda",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "6d1d3259950cffb03f5b517afdbf6db3522d899e",
+      "kind": "blob",
+      "size": 1771,
+      "status": "read",
+      "sha256": "4b933dc6ae3165df63349b5ad00b7f343e3ed9c2f354a2d2a7bb862b164d367c",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "7c29253e73d5c7e84c8b8ea4d80871986f03683e",
+      "kind": "blob",
+      "size": 161619,
+      "status": "read",
+      "sha256": "9054abbfecfcb7dd6dc8881ca8463367b220af1154d785d6322a24eb999cd3d9",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "7fe5dc0fcce4c1c2e88c996c7260ff8935cdaa27",
+      "kind": "blob",
+      "size": 3234,
+      "status": "read",
+      "sha256": "8112f4438d065070aa424cada1b5142e7cddccf3c1d39385310bf10e053482a0",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "82923ad6ceb3779dbd30ec24b48353da3b8e4b67",
+      "kind": "blob",
+      "size": 323281,
+      "status": "read",
+      "sha256": "6679678a473bc0379f58e558ba670c767dc9f649c6d73fcd88a7c570e79006e2",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "8a3b491db4293b71c6ca433660644ba5e4188479",
+      "kind": "blob",
+      "size": 276595,
+      "status": "read",
+      "sha256": "44606245a2c0b3d9b30b371f6eeff6dc6dd823036b0df1200c1689bf8974a4c3",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "8c19fac005c869261f5af52773679e5732fcb0f3",
+      "kind": "blob",
+      "size": 278168,
+      "status": "read",
+      "sha256": "a8ca1f91289f1be66b5087520dc7be169a3a951c366ea8dec1914f86c4321648",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "95672a1c856dbc567bdb00991ab46423e5bc82ef",
+      "kind": "blob",
+      "size": 499675,
+      "status": "read",
+      "sha256": "d3184cb187300af8f98b39868e219c1aa4c67295755d3c2c20087852f6247783",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "9a7138740b830a101bd35a43de4534708aefe1dc",
+      "kind": "blob",
+      "size": 503613,
+      "status": "read",
+      "sha256": "128df7a12e510925504d92e54595efe1bb28f3b8e3fcbfbd8e4c2c39381d5079",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "a01fe8466ee80704277e2a64abc615507efddf68",
+      "kind": "blob",
+      "size": 266222,
+      "status": "read",
+      "sha256": "8de8ecc759a6b4f161b474781e8bba869bde81e445450f16c0ca3c7e8258926c",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "a1e552d8508322f1d447c0a1fa0caad20674c474",
+      "kind": "blob",
+      "size": 2113,
+      "status": "read",
+      "sha256": "8cd5545157c29b239a991431b136819def74facefa8000024f801edd68322c9e",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "a1f13139b603db68290048a9d9a1a011dad59100",
+      "kind": "blob",
+      "size": 336508,
+      "status": "read",
+      "sha256": "606cb91852fcb9c4893bed88a2ff999500c7e7e950df4e9679e8a56e79a699b3",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "ad9b00fe4e2354d2a2a6355e7e4ec4f2e67f82ec",
+      "kind": "blob",
+      "size": 507839,
+      "status": "read",
+      "sha256": "1c51156b5b4a85b4293deb4ecd73bc06d8c88746fcf5a1e5e3f4fddfe323a898",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "ae528e7f721cc469d03eef58d093b419bb5cb071",
+      "kind": "blob",
+      "size": 646089,
+      "status": "read",
+      "sha256": "24c3e7670a8ad136a41bab75cd0756e6a16bd82a8fbc74b0204a3b481281f6db",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "b121240ef87bf1a8cfc9378960bb4db155fbdb2f",
+      "status": "missing"
+    },
+    {
+      "object": "b7e6b005acf57039f29f260de22b009a9a89620d",
+      "kind": "blob",
+      "size": 507362,
+      "status": "read",
+      "sha256": "6a83415179dc4105af6d86c55b4839359bd4a12587d87ff54591d77eeb39f26d",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "c0c69bc20316c816e0470d447f790b072b009668",
+      "kind": "blob",
+      "size": 641425,
+      "status": "read",
+      "sha256": "bbcef955463848ce8a38064e11dbb0ff58a8191a879652a6ce5171534ec25136",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "c1239e84c32599a1b38ce389b97ee40744bb3287",
+      "kind": "blob",
+      "size": 10077,
+      "status": "read",
+      "sha256": "ea66a777900178216e99fe448fdd1f2e95aa8afc940d474230add95f06227970",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "c5d954be10302d7e81b0149f197ebb38ee229c32",
+      "kind": "blob",
+      "size": 3199,
+      "status": "read",
+      "sha256": "d7d559a74fd429ce2468d566d7469caf7313b3f13efb1dc3908f192c64032420",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "cc4957909b7c752fc2a8d433eae371cfef95a439",
+      "kind": "blob",
+      "size": 220865,
+      "status": "read",
+      "sha256": "6eb5cf3c7e9144d7ecccc6915e928c2078e174e1ef74a9a4b958e4a002b64b5b",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "cea9250d753214dd8e0c61bdee4a98d915778c36",
+      "kind": "blob",
+      "size": 507732,
+      "status": "read",
+      "sha256": "e5af54b837e25451d52ee68bff09b8cb854ef1105fe4c19e73e63ac00abd56d5",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "d55db6e88bd6f529493df7d0f89d0818e9d5c9cb",
+      "kind": "blob",
+      "size": 526825,
+      "status": "read",
+      "sha256": "e8aca05ab2508aa49abfc0f33250a53bfa8e2e1298259eca4f2ceb02d2d3fb79",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "d6045609a540ecf0e3ab7f0fe96a703bdc32de2a",
+      "kind": "blob",
+      "size": 499630,
+      "status": "read",
+      "sha256": "2925d086abc94d603245f457049f7518a90c63b0e7374cd9feca171d1de83216",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "d7930fbdb5eeaa9c97cf19109789dbd1c2dd889a",
+      "kind": "blob",
+      "size": 3243,
+      "status": "read",
+      "sha256": "d034aacb727ec46ba87620e8a48d903a8bcf8771daaf60dd17b68d74c61ae653",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "e04ede0e9594a1a9efbe257656d4401d280254f6",
+      "kind": "blob",
+      "size": 503711,
+      "status": "read",
+      "sha256": "8b622beeb6d69e8a09017b38c4be8fc4aae2c1e5ac7af1f2aac8fbf2871cc06c",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "e0a02b582ccadd74e59b1b1d3affb6e8ebe4a1a8",
+      "kind": "blob",
+      "size": 2718,
+      "status": "read",
+      "sha256": "30de7d419e5ad18389b3c945654aefa0d0fdfae2062046082a035d43f0ca259a",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "e567eadc1ca7ebf36c6c597a02ee5d982abd941e",
+      "kind": "blob",
+      "size": 16715,
+      "status": "read",
+      "sha256": "ae054ce5a2fd7b9094fbf1f7042cc79e1dee213bd6797981f87c5e1504ab3436",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "e71bd5bbbff86f13afcfc39bc7b13bf9efd7d44e",
+      "kind": "blob",
+      "size": 305280,
+      "status": "read",
+      "sha256": "339a493d435d778ff1a5a67883acc449794192150c36e57036d235ca6ee064a0",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "eeeac5cab43b351dd0b55486f4663d0d3fd0c2fe",
+      "kind": "blob",
+      "size": 3242,
+      "status": "read",
+      "sha256": "c45c1ab34506261b31e1f9656e878ca42382b04275d8ed3569a91b35382c1a1a",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "f1feaf5670aa4d1e02cb7a7f3a2e48c934bbbf07",
+      "kind": "blob",
+      "size": 23335,
+      "status": "read",
+      "sha256": "6ac7d33b803d42cacb6b4a9a9d292443f83a36db9c3152d4560fb26d404b92f7",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "f6077725efbbf072481049653b293cdb1c633524",
+      "kind": "blob",
+      "size": 105543,
+      "status": "read",
+      "sha256": "6fbd0be0199ded46bb776c6f4d3fb20282956897eb912d4f616711d9da765912",
+      "schema": false,
+      "phase": false
+    },
+    {
+      "object": "f6439dea2b218f03ba1f0ccfcbca9e7bfba07c4b",
+      "status": "missing"
+    },
+    {
+      "object": "f64b459493be0d4f82270cce9dab04f3088ea609",
+      "kind": "blob",
+      "size": 499873,
+      "status": "read",
+      "sha256": "b7651df08e7fae7eb8d3417919766c80537f812953b298897986442a7b9a0c35",
+      "schema": false,
+      "phase": false
+    }
+  ]
+}

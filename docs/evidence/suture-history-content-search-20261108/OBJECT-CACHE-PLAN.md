@@ -1,0 +1,3 @@
+# Inspect nested object-cache archive inventories
+
+The three tip archives described as retired Git object/index caches were scanned as archive members but their Git pack contents were not inspected. Stream their member names, types and sizes without extraction to determine whether each contains a complete identifiable Git pack/index or incomplete fragments. Compare the retained recovery receipts before considering any non-destructive isolated copy. Never treat a pack filename as checkpoint evidence; skip unrelated Human object caches or incomplete fragments unless a concrete surgical provenance lead exists. Record pipeline exit and do not alter the originals.

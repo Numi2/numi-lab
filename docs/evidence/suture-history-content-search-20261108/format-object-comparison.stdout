@@ -1,0 +1,9 @@
+history pairs 921 resolved 921 errors 0 historical-only rows 8 unique objects 7
+fc8ca33230895b1aeb0c831964e0eaa5403206f9 cc607703d59ee92aaabffc7d1014b5aae31083e4 tools/evidence/human-rejection-recovery125-20261103/solver-finalization/active-final-control-056/execution-source-snapshots.tar.gz
+fc8ca33230895b1aeb0c831964e0eaa5403206f9 a473fe4ca193cbfda5eba8c762cdf5af5517bcb7 tools/evidence/human-rejection-recovery125-20261103/solver-finalization/active-linear-ew-058/execution-source-snapshots.tar.gz
+fc8ca33230895b1aeb0c831964e0eaa5403206f9 ef297c8245cb2459b1a82f7c17575d290a2abd62 tools/evidence/human-rejection-recovery125-20261103/solver-finalization/final-control-uninstrumented-059/execution-source-snapshots.tar.gz
+fc8ca33230895b1aeb0c831964e0eaa5403206f9 3bb69eacdd0e8daa902584a14865c8f77c326b4a tools/evidence/human-rejection-recovery125-20261103/solver-finalization/final-ew-midpoint-062/execution-source-snapshots.tar.gz
+fc8ca33230895b1aeb0c831964e0eaa5403206f9 9302b721cb89cb88bccf801c63db04ad85deafad tools/evidence/human-rejection-recovery125-20261103/solver-finalization/final-ew-uninstrumented-060/execution-source-snapshots.tar.gz
+fc8ca33230895b1aeb0c831964e0eaa5403206f9 a1f9f3ccace385d08f3ab98cc12d94cf94ffb193 tools/evidence/human-rejection-recovery125-20261103/solver-finalization/shared-contact-control-049/execution-source-snapshots.tar.gz
+fc8ca33230895b1aeb0c831964e0eaa5403206f9 85adbdce10244febaa41337c9274c10699e16651 tools/evidence/human-rejection-recovery125-20261103/solver-finalization/shared-contact-stage-combined-052/execution-source-snapshots.tar.gz
+fc8ca33230895b1aeb0c831964e0eaa5403206f9 85adbdce10244febaa41337c9274c10699e16651 tools/evidence/human-rejection-recovery125-20261103/solver-finalization/shared-contact-stage-control-051/execution-source-snapshots.tar.gz
