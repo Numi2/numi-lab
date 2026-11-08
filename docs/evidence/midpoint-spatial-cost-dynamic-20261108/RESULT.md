@@ -40,7 +40,7 @@ maximum cumulative impulse. The native sampled peak was 0.722802 N versus
 0.724674 N in the 0.25 us reference. The 0.0855% result is a 1 ms-binned
 force error and is not a peak-force result. The native area sum was
 0.0003999999607912 m² and the maximum independently checked nodal-weight
-error was 2.46e-8 of total area.
+error was 2.46e-8 of total area. The sampled peak occurred at 4.8047 ms versus 4.798 ms on the reference 2 us trace. The largest cumulative-impulse deviation was -2.615e-7 N s at 4.882 ms; the final deviation was +5.476e-8 N s. The retained [curve inspection](curve-n2-midpoint.json) includes intermediate values and the reference sampling resolution.
 
 Backward Euler passed none of the six preregistered steps down to 3.90625 us
 at this mesh. At the smallest step its sampled peak error was 2.73%, final
@@ -56,7 +56,7 @@ the median accepted simulated seconds per wall second was approximately
 0.0003536. Initialization and the final verification snapshot are outside
 the timer; GPU diagnostic collection and normal per-step log output remain
 inside it. These standalone results are not an integrator comparison.
-At 4 divisions, midpoint also passed at 15.625 us: 0.1151% binned force, 0.2411% sampled peak, 0.0194% final impulse, and 0.0871% maximum cumulative impulse. The corresponding backward Euler and 8-division searches are still in progress.
+At 4 divisions, midpoint also passed at 15.625 us: 0.1151% binned force, 0.2411% sampled peak, 0.0194% final impulse, and 0.0871% maximum cumulative impulse. Three standalone 4-division midpoint costs were 30.6918, 30.6668 and 30.4342 s per 10 ms rollout; each final digest matched its accuracy trace. The corresponding backward Euler and 8-division searches are still in progress.
 
 ## Transactions and dynamic owner
 

@@ -12,7 +12,7 @@ The current free-rigid candidate projects positions and orientations with
 uses half that step. Merely allowing a dynamic proxy through preflight would
 therefore mix evaluation times. A valid implementation must instead give both
 owners the same midpoint primal state, use the unchanged physical contact law,
-and publish full-step impulses consistently from that state. The rigid-body
+and publish full-step impulses consistently from that state. The compensated reference-plane contact evaluator is also explicitly limited to a fixed, bodyless plane; a dynamic candidate would use the generic gap path. A dynamic implementation must independently check the same physical law and precision at its moving witnesses rather than assuming those paths agree. The rigid-body
 orientation, inertia and angular momentum update must also agree with the
 actual MetalWorld integrator and its gyroscopic terms.
 

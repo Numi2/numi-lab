@@ -1,0 +1,19 @@
+{
+  "arm": "ipc_area_midpoint",
+  "divisions": 4,
+  "timestep_seconds": 1.5625e-05,
+  "wall_seconds": [
+    30.691781042,
+    30.666795125,
+    30.434163375
+  ],
+  "median_wall_seconds": 30.666795125,
+  "accepted_seconds_per_wall_second": [
+    0.0003258201270990287,
+    0.00032608559059527743,
+    0.00032857811390387857
+  ],
+  "median_accepted_seconds_per_wall_second": 0.00032608559059527743,
+  "all_final_digests_match_qualified_trace": true,
+  "accuracy_qualification_must_be_checked_separately": true
+}
