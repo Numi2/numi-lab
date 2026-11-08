@@ -1,0 +1,98 @@
+[
+  {
+    "archive_path": "build/crow-contact-precision-build-01/local-authoring/README.md",
+    "bytes": 2957,
+    "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/contact-precision/README.md",
+    "mode": 420,
+    "mtime_ns": 1794143238465354147,
+    "sha256": "d5b3834fab517f46ce7b21c103f3cd98e7dc99945e711917f924e793974a8cf1"
+  },
+  {
+    "archive_path": "build/crow-contact-precision-build-01/local-authoring/block_search.py",
+    "bytes": 3887,
+    "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/contact-precision/block_search.py",
+    "mode": 420,
+    "mtime_ns": 1794141904133260270,
+    "sha256": "efa5e2f84e6f8fe0b0c118286180babeb1b8b3680d5a845b8984d389dd60b976"
+  },
+  {
+    "archive_path": "build/crow-contact-precision-build-01/local-authoring/chebyshev_search.py",
+    "bytes": 3710,
+    "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/contact-precision/chebyshev_search.py",
+    "mode": 420,
+    "mtime_ns": 1794142511142888470,
+    "sha256": "2e221dad44389ba7fcb6db41a41d7ae084a2296e9f52252a9fc9a4fc33f029cf"
+  },
+  {
+    "archive_path": "build/crow-contact-precision-build-01/local-authoring/diagnose.py",
+    "bytes": 7790,
+    "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/contact-precision/diagnose.py",
+    "mode": 420,
+    "mtime_ns": 1794141653926248848,
+    "sha256": "ed398b379e4ce79f7674fe7c1f638f19a5d2dcb464c8474697e096c07d1127d6"
+  },
+  {
+    "archive_path": "build/crow-contact-precision-build-01/local-authoring/dual_mix.py",
+    "bytes": 3635,
+    "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/contact-precision/dual_mix.py",
+    "mode": 420,
+    "mtime_ns": 1794142650404030247,
+    "sha256": "8f26ae027a55a1770bad3f8dd7262323796c35d1e6fbc83d24029684630e9a39"
+  },
+  {
+    "archive_path": "build/crow-contact-precision-build-01/local-authoring/execute.py",
+    "bytes": 745,
+    "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/contact-precision/execute.py",
+    "mode": 420,
+    "mtime_ns": 1794142650404725375,
+    "sha256": "79f4765c8fda6fda5ed4cb788be6f18e89684ff613639de4d4ebdb1ce1e47dc1"
+  },
+  {
+    "archive_path": "build/crow-contact-precision-build-01/local-authoring/lattice_certificate.py",
+    "bytes": 5747,
+    "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/contact-precision/lattice_certificate.py",
+    "mode": 420,
+    "mtime_ns": 1794142390609205399,
+    "sha256": "0abcedb465b6976820fd5318ab05391f8906fe061ab97602940635b4997583e1"
+  },
+  {
+    "archive_path": "build/crow-contact-precision-build-01/local-authoring/lattice_search.py",
+    "bytes": 4855,
+    "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/contact-precision/lattice_search.py",
+    "mode": 420,
+    "mtime_ns": 1794142063134495333,
+    "sha256": "bcf3567dd9964e00465f1682a93a4c7124cee8e333b75cff1efd7321ed7a3b7a"
+  },
+  {
+    "archive_path": "build/crow-contact-precision-build-01/local-authoring/native_check.py",
+    "bytes": 3495,
+    "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/contact-precision/native_check.py",
+    "mode": 420,
+    "mtime_ns": 1794142678105726378,
+    "sha256": "f29cbd13daeeb684b2c5069afc1da9fcf54be8ddaf1a94fe6127b882acaa52f3"
+  },
+  {
+    "archive_path": "build/crow-contact-precision-build-01/local-authoring/prove_local_box.py",
+    "bytes": 4485,
+    "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/contact-precision/prove_local_box.py",
+    "mode": 420,
+    "mtime_ns": 1794143040736212192,
+    "sha256": "e9523ad89df6a2b11025ef1c2682fc77d320f3f5a6cd82d448f64c30c213eaae"
+  },
+  {
+    "archive_path": "build/crow-contact-precision-build-01/local-authoring/summarize.py",
+    "bytes": 2672,
+    "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/contact-precision/summarize.py",
+    "mode": 420,
+    "mtime_ns": 1794143238466125775,
+    "sha256": "35016683c03cb3bfeb76571340e968bd2e953f6012dc675d10a050f5420b3fd0"
+  },
+  {
+    "archive_path": "build/crow-contact-precision-build-01/local-authoring/verify_certificate.py",
+    "bytes": 4882,
+    "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/contact-precision/verify_certificate.py",
+    "mode": 420,
+    "mtime_ns": 1794142865329823491,
+    "sha256": "909dbbccfd18fef03ff0be443abd73b41e43b16a2eefe714d0e37960b824a006"
+  }
+]

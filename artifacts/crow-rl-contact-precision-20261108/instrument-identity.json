@@ -1,0 +1,9 @@
+{
+  "longdouble_bits": 64,
+  "longdouble_epsilon": "2.220446049250313e-16",
+  "longdouble_mantissa": 52,
+  "machine": "arm64",
+  "numpy": "2.5.4",
+  "python": "3.13.14 (main, Jul 23 2026, 14:48:16) [Clang 22.1.3 ]",
+  "source_baseline": "d4cfe392c190d2ea96f6dcb17d0c27b9f51b7c0a"
+}

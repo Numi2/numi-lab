@@ -1,0 +1,23 @@
+[
+  {
+    "bytes": 4286,
+    "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/crow-contact-precision-local-inventory.json",
+    "mode": 420,
+    "mtime_ns": 1794143319150450950,
+    "sha256": "1c9ee0a7bca40456b7cbe406f67fdbee6ad232b7e12065d9904a3fba7a5ab6db"
+  },
+  {
+    "bytes": 5709,
+    "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/contact-precision-recovery.py",
+    "mode": 420,
+    "mtime_ns": 1794143318131382768,
+    "sha256": "4153f0060b6eac2d5920968d15dc3e6bf80b3d5aed1ca9030f2d3f8c0fa446d3"
+  },
+  {
+    "bytes": 3842,
+    "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/cleanup_contact_precision_local.py",
+    "mode": 420,
+    "mtime_ns": 1794143356440601303,
+    "sha256": "c2a2e50b36ab3f32dcdce1d685af63512fc69335e9582c71bbff6ffa41afb93f"
+  }
+]
