@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "/Users/numi/numi-lab-reconciliation-20261108/tools/numi",
+    "window",
+    "--check",
+    "--window-scene",
+    "/Users/numi/numi-integrated-installed-smoke-20261108/workspace/.numi/runs/synthetic/diagnostic.json",
+    "--envs",
+    "1",
+    "--steps",
+    "8",
+    "--chunk",
+    "1",
+    "--world-pack",
+    "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/world.mrworld",
+    "--task-pack",
+    "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/task.taskpack",
+    "--robot-actuator-pack",
+    "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/actuators.actuatorpack",
+    "--sensor-program-pack",
+    "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/sensors.sensorpack",
+    "--reality-program-pack",
+    "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/reality.realitypack",
+    "--zero-actions"
+  ],
+  "cwd": "/Users/numi/window-source-workspace-native-20261108/project",
+  "runtime": "/Users/numi/numi-lab-reconciliation-20261108",
+  "scope": "source-project dispatch with synthetic Franka fixture; bounded native check, not physical validation",
+  "scene_sha256": "deaa34004f55bedd9650a828e1897087b29b512e4ff1305344a64710316ec8c3"
+}

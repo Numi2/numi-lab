@@ -1,0 +1,3 @@
+numi window: scene /Users/numi/window-failure-probe-qualified-20261108/invalid.json
+numi window: close the window to end the preview run.
+numi window failed: head-camera parent body is not present in the compiled world

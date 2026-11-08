@@ -1,0 +1,71 @@
+{
+  "inputs_unchanged": true,
+  "invalid": {
+    "argv": [
+      "/Users/numi/numi-lab-reconciliation-20261108/tools/numi",
+      "window",
+      "--check",
+      "--window-scene",
+      "/Users/numi/window-failure-probe-qualified-20261108/invalid.json",
+      "--envs",
+      "1",
+      "--steps",
+      "8",
+      "--chunk",
+      "1",
+      "--world-pack",
+      "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/world.mrworld",
+      "--task-pack",
+      "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/task.taskpack",
+      "--robot-actuator-pack",
+      "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/actuators.actuatorpack",
+      "--sensor-program-pack",
+      "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/sensors.sensorpack",
+      "--reality-program-pack",
+      "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/reality.realitypack",
+      "--zero-actions"
+    ],
+    "exit": 1,
+    "runtime_sha256": {
+      "/Users/numi/numi-reconciliation-build-20261108/bin/metalrobo_task_rollout": "ac2a677c287ae73c05e2a6243f88cdf1471027168a8b522643cf4781498f69e7",
+      "/Users/numi/numi-reconciliation-build-20261108/lib/libmetalrobo.dylib": "59192fd18f4aecf690eb29b10bd8e92db8a2b5f85bae84dde8c35b6c0e1b0daf",
+      "/Users/numi/numi-reconciliation-build-20261108/shaders/MetalRobo.metallib": "14779de4a20dcd56ee2fcf615cd1ca37d2af7d76d81c0734f625a25dd2923abf"
+    },
+    "timed_out": false
+  },
+  "passed": true,
+  "runtime_unchanged": true,
+  "valid": {
+    "argv": [
+      "/Users/numi/numi-lab-reconciliation-20261108/tools/numi",
+      "window",
+      "--check",
+      "--window-scene",
+      "/Users/numi/window-failure-probe-qualified-20261108/valid.json",
+      "--envs",
+      "1",
+      "--steps",
+      "8",
+      "--chunk",
+      "1",
+      "--world-pack",
+      "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/world.mrworld",
+      "--task-pack",
+      "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/task.taskpack",
+      "--robot-actuator-pack",
+      "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/actuators.actuatorpack",
+      "--sensor-program-pack",
+      "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/sensors.sensorpack",
+      "--reality-program-pack",
+      "/Users/numi/numi-franka-clean-build-smoke-20261108/fixture/reality.realitypack",
+      "--zero-actions"
+    ],
+    "exit": 0,
+    "runtime_sha256": {
+      "/Users/numi/numi-reconciliation-build-20261108/bin/metalrobo_task_rollout": "ac2a677c287ae73c05e2a6243f88cdf1471027168a8b522643cf4781498f69e7",
+      "/Users/numi/numi-reconciliation-build-20261108/lib/libmetalrobo.dylib": "59192fd18f4aecf690eb29b10bd8e92db8a2b5f85bae84dde8c35b6c0e1b0daf",
+      "/Users/numi/numi-reconciliation-build-20261108/shaders/MetalRobo.metallib": "14779de4a20dcd56ee2fcf615cd1ca37d2af7d76d81c0734f625a25dd2923abf"
+    },
+    "timed_out": false
+  }
+}

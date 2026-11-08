@@ -24,6 +24,32 @@ private func writeDiagnostic(_ message: String) {
     }
 }
 
+// The simulation runs off the AppKit thread. Publish only terminal status
+// across that boundary; recoverable scene-selection failures remain local.
+private final class NumiWindowRunOutcome: @unchecked Sendable {
+    private let lock = NSLock()
+    private var failed = false
+    private var runtimeCheckPassed = false
+
+    func markFailed() {
+        lock.lock()
+        failed = true
+        lock.unlock()
+    }
+
+    func markRuntimeCheckPassed() {
+        lock.lock()
+        runtimeCheckPassed = true
+        lock.unlock()
+    }
+
+    func shouldFail(requireRuntimeCheck: Bool) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return failed || (requireRuntimeCheck && !runtimeCheckPassed)
+    }
+}
+
 private struct SplitMix64 {
     private var state: UInt64
 
@@ -3515,6 +3541,7 @@ private enum TaskRolloutMain {
             )
             let launchSceneID =
                 initialSceneID ?? options.windowChoiceID ?? ""
+            let windowOutcome = NumiWindowRunOutcome()
             DispatchQueue.global(qos: .userInitiated).async {
                 var activeOptions = options
                 var requestedSelection = NumiWindowPolicySelection(
@@ -3647,6 +3674,7 @@ private enum TaskRolloutMain {
                                     writeDiagnostic(
                                         "numi window runtime check passed"
                                     )
+                                    windowOutcome.markRuntimeCheckPassed()
                                     window.closeAfterRuntimeCheck()
                                 }
                             }
@@ -3748,6 +3776,7 @@ private enum TaskRolloutMain {
                             window.reportPolicyStatus(
                                 "preview unavailable · check the selected robot setup"
                             )
+                            windowOutcome.markFailed()
                             break
                         }
                         if let confirmedOptions,
@@ -3780,6 +3809,11 @@ private enum TaskRolloutMain {
                 }
             }
             NSApplication.shared.run()
+            if windowOutcome.shouldFail(
+                requireRuntimeCheck: runtimeCheckEnabled && !runtimeTrainCancelCheck
+            ) {
+                Darwin.exit(1)
+            }
         } catch {
             writeDiagnostic("task_rollout failed: \(error)")
             Darwin.exit(1)
