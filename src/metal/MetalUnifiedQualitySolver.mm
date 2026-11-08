@@ -494,7 +494,8 @@ MetalUnifiedQualityDiagnostics solveMetalUnifiedQuality(
                 config.directMaximumGeneralizedVelocities &&
             problem.rowCount <= config.directMaximumRows;
         const std::size_t hessianStride =
-            directPath
+            (directPath || problem.generalizedVelocityCount <=
+                MR_UNIFIED_QUALITY_MAX_ADJACENT_VELOCITIES)
             ? dynamicsStride
             : 1u;
         if (problem.problemCount >

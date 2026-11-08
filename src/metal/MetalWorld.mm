@@ -2497,11 +2497,12 @@ bool buildRequirements(
         !checkedMultiply(
             qualityEnvironments,
             (
-                qualityNv <=
+                (qualityNv <= MR_UNIFIED_QUALITY_MAX_ADJACENT_VELOCITIES ||
+                 (qualityNv <=
                     layout.qualityDispatch
                         .directMaximumGeneralizedVelocities &&
-                qualityRows <=
-                    layout.qualityDispatch.directMaximumRows
+                  qualityRows <=
+                    layout.qualityDispatch.directMaximumRows))
                 ? qualityNv * qualityNv
                 : 1u
             ),
@@ -4780,11 +4781,12 @@ MetalWorldDiagnostics validateAndBuildLayout(
         quality.derivativeStride =
             qualityBlockCount * 36u;
         quality.hessianStride =
-            generalizedVelocityCount <=
+            (generalizedVelocityCount <= MR_UNIFIED_QUALITY_MAX_ADJACENT_VELOCITIES ||
+             (generalizedVelocityCount <=
                     config.quality
                         .directMaximumGeneralizedVelocities &&
-                qualityRowCount <=
-                    config.quality.directMaximumRows
+              qualityRowCount <=
+                    config.quality.directMaximumRows))
             ? generalizedVelocityCount *
                   generalizedVelocityCount
             : 1u;

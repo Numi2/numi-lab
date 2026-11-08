@@ -1165,6 +1165,104 @@ inline float directHessianEntry(
     return value;
 }
 
+// A continuous Newton direction can round back to the same FP32 point near
+// stationarity. Search adjacent representable single/pair moves using the
+// current generalized Hessian. Selection is distributed across SIMD32 and
+// deterministic; the caller must fully reproject and validate the winner.
+inline bool chooseAdjacentVelocity(
+    device const MRUnifiedQualityDispatchGPU& dispatch,
+    device const MRUnifiedQualityBlockGPU* blocks,
+    device const float* dynamics,
+    device const float* jacobian,
+    device const float* derivatives,
+    device float* hessian,
+    threadgroup const float* velocity,
+    threadgroup const float* gradient,
+    threadgroup float* adjacentDeltas,
+    threadgroup float* candidateVelocity,
+    const uint lane
+) {
+    const uint nv = dispatch.generalizedVelocityCount;
+    const uint changes = 2u * nv;
+    for (uint entry = lane; entry < nv * nv; entry += kWidth) {
+        hessian[entry] = directHessianEntry(
+            dispatch, blocks, dynamics, jacobian, derivatives,
+            entry / nv, entry % nv, 0.0f
+        );
+    }
+    for (uint change = lane; change < changes; change += kWidth) {
+        const float current = velocity[change / 2u];
+        const float target = nextafter(
+            current, (change & 1u) == 0u ? -INFINITY : INFINITY
+        );
+        adjacentDeltas[change] = isfinite(target) ? target - current : 0.0f;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+
+    float bestMaximum = 0.0f;
+    float bestSquared = 0.0f;
+    for (uint row = 0u; row < nv; ++row) {
+        bestMaximum = max(bestMaximum, abs(gradient[row]));
+        bestSquared = fma(gradient[row], gradient[row], bestSquared);
+    }
+    uint bestIndex = MR_UNIFIED_QUALITY_INVALID_INDEX;
+    const uint candidates = changes + changes * changes;
+    for (uint index = lane; index < candidates; index += kWidth) {
+        const bool pair = index >= changes;
+        const uint first = pair ? (index - changes) / changes : index;
+        const uint second = pair ? (index - changes) % changes : first;
+        if (pair && (first >= second || first / 2u == second / 2u)) {
+            continue;
+        }
+        const float firstDelta = adjacentDeltas[first];
+        const float secondDelta = pair ? adjacentDeltas[second] : 0.0f;
+        if (firstDelta == 0.0f || (pair && secondDelta == 0.0f)) {
+            continue;
+        }
+        float maximum = 0.0f;
+        float squared = 0.0f;
+        for (uint row = 0u; row < nv; ++row) {
+            float value = fma(
+                hessian[row * nv + first / 2u], firstDelta, gradient[row]
+            );
+            if (pair) {
+                value = fma(hessian[row * nv + second / 2u], secondDelta, value);
+            }
+            maximum = max(maximum, abs(value));
+            squared = fma(value, value, squared);
+        }
+        if (isfinite(maximum) && isfinite(squared) &&
+            (maximum < bestMaximum ||
+             (maximum == bestMaximum && squared < bestSquared))) {
+            bestMaximum = maximum;
+            bestSquared = squared;
+            bestIndex = index;
+        }
+    }
+    const float selectedMaximum = simd_min(bestMaximum);
+    const float selectedSquared = simd_min(
+        bestMaximum == selectedMaximum ? bestSquared : INFINITY
+    );
+    const uint selected = simd_min(
+        bestMaximum == selectedMaximum && bestSquared == selectedSquared
+        ? bestIndex : MR_UNIFIED_QUALITY_INVALID_INDEX
+    );
+    if (selected == MR_UNIFIED_QUALITY_INVALID_INDEX) {
+        return false;
+    }
+    const bool pair = selected >= changes;
+    const uint first = pair ? (selected - changes) / changes : selected;
+    const uint second = pair ? (selected - changes) % changes : first;
+    for (uint dof = lane; dof < nv; dof += kWidth) {
+        float value = velocity[dof];
+        if (dof == first / 2u) value += adjacentDeltas[first];
+        if (pair && dof == second / 2u) value += adjacentDeltas[second];
+        candidateVelocity[dof] = value;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    return true;
+}
+
 inline bool factorAndSolveDirect(
     device float* hessian,
     threadgroup const float* gradient,
@@ -2083,6 +2181,68 @@ inline void mrUnifiedQualitySolveProblem(
                 MR_UNIFIED_QUALITY_DID_NOT_CONVERGE;
         }
     }
+    // Refinement has its own small, fixed work bound. It never changes the
+    // Newton/PCG budgets or acceptance tolerances, and old dispatches with a
+    // one-float PCG Hessian arena safely skip it.
+    if (failureCode == MR_UNIFIED_QUALITY_DID_NOT_CONVERGE &&
+        nv <= MR_UNIFIED_QUALITY_MAX_ADJACENT_VELOCITIES &&
+        dispatch.hessianStride >= nv * nv &&
+        isfinite(scalars[0]) && isfinite(scalars[1]) &&
+        scalars[1] <= 16.0f * dispatch.tolerances.x &&
+        scalars[2] <= dispatch.tolerances.y) {
+        for (uint refinement = 0u;
+             refinement < MR_UNIFIED_QUALITY_MAX_ADJACENT_REFINEMENTS;
+             ++refinement) {
+            if (!chooseAdjacentVelocity(
+                    dispatch, problemBlocks, dynamics, jacobian, derivatives,
+                    hessian, velocity, gradient, direction,
+                    candidateVelocity, lane)) {
+                break;
+            }
+            const float previousObjective = scalars[0];
+            const float previousOptimality = scalars[1];
+            const bool candidateValid = evaluateState(
+                dispatch, problemBlocks, dynamics, jacobian, bias,
+                freeVelocity, candidateVelocity, candidateRowVelocity,
+                candidateImpulses, candidateGradient, candidateDynamicsAction,
+                candidateConstraintAction, derivatives, candidateScalars,
+                control, false, lane
+            );
+            const float objectiveRoundoff = 32.0f * kFloatEpsilon *
+                max(abs(previousObjective), 1.0e-12f);
+            const bool accepted = candidateValid &&
+                candidateScalars[1] < previousOptimality &&
+                candidateScalars[2] <= dispatch.tolerances.y &&
+                candidateScalars[0] <= previousObjective + objectiveRoundoff;
+            if (accepted) {
+                objectiveChange = candidateScalars[0] - previousObjective;
+                for (uint dof = lane; dof < nv; dof += kWidth) {
+                    velocity[dof] = candidateVelocity[dof];
+                }
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            // Candidate evaluation aliases current action scratch. Restore
+            // the chosen state and derivatives even when the move is rejected.
+            if (!evaluateState(
+                    dispatch, problemBlocks, dynamics, jacobian, bias,
+                    freeVelocity, velocity, rowVelocity, impulses, gradient,
+                    dynamicsAction, constraintAction, derivatives, scalars,
+                    control, true, lane)) {
+                failureCode = control[0] == MR_UNIFIED_QUALITY_INVALID_INDEX
+                    ? MR_UNIFIED_QUALITY_NONFINITE_RESULT
+                    : MR_UNIFIED_QUALITY_INVALID_BLOCK;
+                break;
+            }
+            if (scalars[1] <= dispatch.tolerances.x &&
+                scalars[2] <= dispatch.tolerances.y) {
+                converged = true;
+                failureCode = MR_UNIFIED_QUALITY_SUCCESS;
+                break;
+            }
+            if (!accepted) break;
+        }
+    }
+
     if (failureCode != MR_UNIFIED_QUALITY_SUCCESS) {
         if (lane == 0u) {
             float largestEquality = -1.0f;
