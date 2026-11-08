@@ -14,6 +14,8 @@ with open(reference_path) as f:
 assert a['arm'] == 'ipc_area_midpoint'
 assert a['h'] == c['h'] and a['divisions'] == 2
 assert a['area_ipc_k_N_per_m5'] > 0
+assert len(c['force_bins_N']) == len(r['force_bins_N']) == 10
+assert all(math.isfinite(v) for v in c['force_bins_N'] + r['force_bins_N'])
 bins = [0.0] * 10
 for row in a['traces']:
     idx = min(9, int((row['step'] + .5) * a['h'] / .001))
