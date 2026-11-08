@@ -37,7 +37,7 @@ helper="""template<class T> std::string bytehex(const std::vector<T>& v){
 needle="struct Capture {"
 assert base.count(needle)==1;base=base.replace(needle,helper+needle,1)
 old="std::cout<<std::setprecision(10)<<\"{\\\"plain_published\\\":\""
-new="""std::cout<<std::setprecision(10)<<"{\\\"final_bytes\\\":{\\\"q\\\":\\\""<<bytehex(recorded.finalQ)<<"\\\",\\\"v\\\":\\\""<<bytehex(recorded.finalV)<<"\\\",\\\"scene\\\":\\\""<<bytehex(recorded.finalSceneBodies)<<"\\\",\\\"rod_nodes\\\":\\\""<<bytehex(recorded.finalRodNodes)<<"\\\",\\\"rod_edges\\\":\\\""<<bytehex(recorded.finalRodEdges)<<"\\\"},\\\"plain_published\\\":"""
+new="""std::cout<<std::setprecision(10)<<"{\\\"final_bytes\\\":{\\\"q\\\":\\\""<<bytehex(recorded.finalQ)<<"\\\",\\\"v\\\":\\\""<<bytehex(recorded.finalV)<<"\\\",\\\"scene\\\":\\\""<<bytehex(recorded.finalSceneBodies)<<"\\\",\\\"rod_nodes\\\":\\\""<<bytehex(recorded.finalRodNodes)<<"\\\",\\\"rod_edges\\\":\\\""<<bytehex(recorded.finalRodEdges)<<"\\\"},\\\"plain_published\\\":""" + chr(34)
 assert base.count(old)==1;base=base.replace(old,new,1)
 for n in (10,11):
  text=base.replace("constexpr unsigned N=20;","constexpr unsigned N="+str(n)+";")
