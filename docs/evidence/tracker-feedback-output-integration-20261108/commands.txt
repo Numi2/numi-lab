@@ -1,0 +1,8 @@
+Host: ssh numi
+Pretrial integration source: 700be5eb1
+Generate: python3 prepare.py
+Build: xcrun clang++ -std=c++23 -O3 -fobjc-arc -x objective-c++ -I /Users/numi/numi-lab-reconciliation-20261108/include probe.cpp -L /Users/numi/numi-reconciliation-build-20261108/lib -lmetalrobo -Wl,-rpath,/Users/numi/numi-reconciliation-build-20261108/lib -framework Foundation -framework Metal -o /Users/numi/Work/tracker-feedback-output-20261108/probe
+Run 1: NUMI_TEST_WORLD_TRANSACTION=1 NUMI_TEST_RESULT_PREFIX=/Users/numi/Work/tracker-feedback-output-20261108/run1 /Users/numi/Work/tracker-feedback-output-20261108/probe > run1.log 2>&1
+Run 2: NUMI_TEST_WORLD_TRANSACTION=1 NUMI_TEST_RESULT_PREFIX=/Users/numi/Work/tracker-feedback-output-20261108/run2 /Users/numi/Work/tracker-feedback-output-20261108/probe > run2.log 2>&1
+Verify: python3 verify.py /Users/numi/Work/tracker-feedback-output-20261108
+Archive verification: python3 verify.py /Users/numi/Work/tracker-feedback-output-20261108/archive-verify
