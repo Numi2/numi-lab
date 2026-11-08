@@ -61,7 +61,7 @@ final native checkpoints97 with explicit interval1. Process-local incumbent
 selection is excluded from that continuation comparison. These replays do not
 add independent trial observations or change the frozen primary endpoints.
 
-`manifest.json` recovers every raw plan, command, outcome, failure, checkpoint
+`payload/manifest.json` recovers every raw plan, command, outcome, failure, checkpoint
 and exact runtime through content-deduplicated Git objects. `runtime-recovery.json`
 binds native binaries/shaders, actual Python source blobs and product inputs.
 The executed Git-restored check independently replays both actual final learner

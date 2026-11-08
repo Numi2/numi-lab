@@ -1,0 +1,6 @@
+{
+  "status": "executed_fixed_budget",
+  "training_transitions": 1310720,
+  "evaluation_transitions": 2211840,
+  "new_policy_promotions": 0
+}

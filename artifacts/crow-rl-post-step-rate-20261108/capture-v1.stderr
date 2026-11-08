@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/build/crow-post-step-rate-build-01/archive_stage.py", line 38, in <module>
+    a.capture(b)
+    ~~~~~~~~~^^^
+  File "/Users/n/Developer/numi-crow-rl-20261107/tools/crow_evidence_archive.py", line 94, in capture
+    out.mkdir(parents=True, exist_ok=False)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/n/.local/share/uv/python/cpython-3.13.14-macos-aarch64-none/lib/python3.13/pathlib/_local.py", line 722, in mkdir
+    os.mkdir(self, mode)
+    ~~~~~~~~^^^^^^^^^^^^
+FileExistsError: [Errno 17] File exists: 'artifacts/crow-rl-post-step-rate-20261108'
