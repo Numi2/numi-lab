@@ -1,0 +1,5 @@
+2c11148f4fb58647738f745be717c3dcf238ba57efb4fae5cb53969a9fa7c160  src/metal/MetalHybridRenderer.mm
+0108f98d85dc6e6512de3b41718cbc197346e3c975c03bf31dd925b4b854bff1  apps/visual_platform_probe.cpp
+e524de2d97c55ba8b3ca0f5b6027822883f2ae50cfb5edf41ab96f85ac5d51b5  CMakeLists.txt
+7160fe20aaa89c8fd8e57c8bbe6e227119a152847f1a9471b021265ad7438017  /Users/numi/numi-lab-horizon-main-build-20261108/lib/libmetalrobo.dylib
+85856d606703206d4efc1085954f5bfaf5311621309b67c4e4f8bf0f1b75812a  /Users/numi/numi-lab-horizon-main-build-20261108/bin/metalrobo_visual_platform_probe

@@ -6720,6 +6720,17 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+if(BUILD_TESTING)
+    add_test(
+        NAME metalrobo.visual.tracker_encode_retry
+        COMMAND metalrobo_visual_platform_probe
+    )
+    set_tests_properties(
+        metalrobo.visual.tracker_encode_retry
+        PROPERTIES LABELS "metalrobo;visual;metal" TIMEOUT 120
+    )
+endif()
+
 install(
     TARGETS
         metalrobo

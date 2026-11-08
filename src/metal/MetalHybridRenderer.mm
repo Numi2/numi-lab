@@ -7911,10 +7911,56 @@ bool MetalHybridObjectTracker::encodeObservation(
          state->maskedDepthHistory == nil)) {
         return false;
     }
+    id<MTLBuffer> depth =
+        (__bridge id<MTLBuffer>)state->renderer->nativeBuffer(
+            MetalHybridRendererBuffer::depth
+        );
+    id<MTLBuffer> identities =
+        (__bridge id<MTLBuffer>)state->renderer->nativeBuffer(
+            MetalHybridRendererBuffer::identities
+        );
+    id<MTLBuffer> validity =
+        (__bridge id<MTLBuffer>)state->renderer->nativeBuffer(
+            MetalHybridRendererBuffer::validity
+        );
+    id<MTLBuffer> cameraStates =
+        (__bridge id<MTLBuffer>)state->renderer->nativeBuffer(
+            MetalHybridRendererBuffer::cameraStates
+        );
+    id<MTLBuffer> instanceHeaders =
+        (__bridge id<MTLBuffer>)state->worlds->nativeBuffer(
+            MetalWorldFamilyBuffer::instanceHeaders
+        );
+    id<MTLBuffer> sensorInstances =
+        (__bridge id<MTLBuffer>)state->worlds->nativeBuffer(
+            MetalWorldFamilyBuffer::sensorInstances
+        );
+    auto& visualBuffers = state->renderer->state_->buffers;
+    if (state->directWinnerMaskedDepth) {
+        if (depth == nil) {
+            depth = visualBuffers.meshWinners;
+        }
+        if (identities == nil) {
+            identities = visualBuffers.meshWinners;
+        }
+        if (validity == nil) {
+            validity = visualBuffers.meshWinners;
+        }
+    }
+    if (depth == nil || identities == nil || validity == nil ||
+        cameraStates == nil || instanceHeaders == nil ||
+        sensorInstances == nil) {
+        return false;
+    }
+    // Keep host cadence and direct-winner uniforms provisional until this
+    // callback has finished encoding. The caller still owns submission and
+    // any later physical acceptance transaction.
+    MRHybridRenderUniformsGPU candidateRenderUniforms =
+        state->maskedDepthRenderUniforms;
     id<MTLCommandBuffer> command =
         (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
     const std::uint64_t observationSequence =
-        state->observationSequence++;
+        state->observationSequence;
     const double sensorTime =
         static_cast<double>(observationSequence) *
         static_cast<double>(state->config.timestepSeconds) *
@@ -7952,7 +7998,7 @@ bool MetalHybridObjectTracker::encodeObservation(
             options.truthOnly = true;
             options.geometricWinnersOnly = true;
             options.encodedUniforms =
-                &state->maskedDepthRenderUniforms;
+                &candidateRenderUniforms;
             rendered = encodeLocked(
                 rendererState,
                 *state->worlds,
@@ -7961,7 +8007,7 @@ bool MetalHybridObjectTracker::encodeObservation(
                 encoder,
                 options
             );
-            state->maskedDepthRenderUniforms.shadowBatch.w = 1u;
+            candidateRenderUniforms.shadowBatch.w = 1u;
         } else {
             rendered = state->renderer->encode(
                 *state->worlds,
@@ -7974,50 +8020,6 @@ bool MetalHybridObjectTracker::encodeObservation(
             [observationEncoder endEncoding];
             return false;
         }
-        state->lastSensorSequence = sensorSequence;
-    }
-    id<MTLBuffer> depth =
-        (__bridge id<MTLBuffer>)state->renderer->nativeBuffer(
-            MetalHybridRendererBuffer::depth
-        );
-    id<MTLBuffer> identities =
-        (__bridge id<MTLBuffer>)state->renderer->nativeBuffer(
-            MetalHybridRendererBuffer::identities
-        );
-    id<MTLBuffer> validity =
-        (__bridge id<MTLBuffer>)state->renderer->nativeBuffer(
-            MetalHybridRendererBuffer::validity
-        );
-    id<MTLBuffer> cameraStates =
-        (__bridge id<MTLBuffer>)state->renderer->nativeBuffer(
-            MetalHybridRendererBuffer::cameraStates
-        );
-    id<MTLBuffer> instanceHeaders =
-        (__bridge id<MTLBuffer>)state->worlds->nativeBuffer(
-            MetalWorldFamilyBuffer::instanceHeaders
-        );
-    id<MTLBuffer> sensorInstances =
-        (__bridge id<MTLBuffer>)state->worlds->nativeBuffer(
-            MetalWorldFamilyBuffer::sensorInstances
-        );
-    auto& visualBuffers = state->renderer->state_->buffers;
-    if (state->directWinnerMaskedDepth) {
-        if (depth == nil) {
-            depth = visualBuffers.meshWinners;
-        }
-        if (identities == nil) {
-            identities = visualBuffers.meshWinners;
-        }
-        if (validity == nil) {
-            validity = visualBuffers.meshWinners;
-        }
-    }
-    if ((!state->directWinnerMaskedDepth &&
-         (depth == nil || identities == nil || validity == nil)) ||
-        cameraStates == nil || instanceHeaders == nil ||
-        sensorInstances == nil) {
-        [observationEncoder endEncoding];
-        return false;
     }
     const std::uint64_t outputOffset =
         pass.actorObservationOffsetElements;
@@ -8192,8 +8194,8 @@ bool MetalHybridObjectTracker::encodeObservation(
                   atIndex:10u + index];
         }
         [observationEncoder
-            setBytes:&state->maskedDepthRenderUniforms
-              length:sizeof(state->maskedDepthRenderUniforms)
+            setBytes:&candidateRenderUniforms
+              length:sizeof(candidateRenderUniforms)
              atIndex:16u];
         const NSUInteger width = std::min<NSUInteger>(
             state->maskedDepthPipeline.maxTotalThreadsPerThreadgroup,
@@ -8208,6 +8210,11 @@ bool MetalHybridObjectTracker::encodeObservation(
             threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
     }
     [observationEncoder endEncoding];
+    state->maskedDepthRenderUniforms = candidateRenderUniforms;
+    state->observationSequence = observationSequence + 1u;
+    if (sampleSensor) {
+        state->lastSensorSequence = sensorSequence;
+    }
     return true;
 }
 

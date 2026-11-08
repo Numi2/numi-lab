@@ -358,6 +358,10 @@ int main() {
             authoredVisualScene.renderScene.environment.fingerprint;
         const std::uint64_t lightRigFingerprint =
             authoredVisualScene.renderScene.lightRig.fingerprint;
+        auto directScene = authoredVisualScene.renderScene;
+        directScene.gaussians.clear();
+        directScene.fingerprint =
+            metalrobo::computeVisualRenderSceneV3Fingerprint(directScene);
         metalrobo::MetalHybridRenderer renderer;
         require(
             renderer.compile(
@@ -366,10 +370,6 @@ int main() {
                 kEnvironmentCount
             ),
             "visual sensor runtime compile"
-        );
-        std::filesystem::remove(
-            authoredPackPath,
-            ignoredAuthoredPackRemoval
         );
         metalrobo::HybridLiveStateBatch liveState;
         liveState.environmentCount = kEnvironmentCount;
@@ -632,6 +632,21 @@ int main() {
                 trackedBody
             ].position.x += 0.02f;
         }
+        metalrobo::HybridObservationBatch beforeRejectedEncode;
+        require(renderer.readback(beforeRejectedEncode), "pre-rejection readback");
+        require(beforeRejectedEncode.metadata.identity.z == 0u,
+                "first sensor sequence is not zero");
+        id<MTLCommandBuffer> rejectedCommand = [queue commandBuffer];
+        auto rejectedPass = trackerPass;
+        rejectedPass.commandBuffer = (__bridge void*)rejectedCommand;
+        rejectedPass.bodyCount += 1u;
+        require(!trackerProgram.encode(trackerProgram.context, rejectedPass),
+                "invalid body count must reject tracker encode");
+        metalrobo::HybridObservationBatch afterRejectedEncode;
+        require(renderer.readback(afterRejectedEncode), "post-rejection readback");
+        require(std::memcmp(&beforeRejectedEncode.metadata, &afterRejectedEncode.metadata,
+                            sizeof(beforeRejectedEncode.metadata)) == 0,
+                "rejected encode changed frame metadata");
         id<MTLCommandBuffer> secondCommand = [queue commandBuffer];
         std::fill_n(
             static_cast<std::uint32_t*>(resetBuffer.contents),
@@ -656,6 +671,13 @@ int main() {
         );
         [secondCommand commit];
         [secondCommand waitUntilCompleted];
+        require(secondCommand.status == MTLCommandBufferStatusCompleted,
+                "retry command failed");
+        metalrobo::HybridObservationBatch retryFrame;
+        require(renderer.readback(retryFrame), "retry frame readback");
+        std::cout << "retry_sensor_sequence=" << retryFrame.metadata.identity.z << '\n';
+        require(retryFrame.metadata.identity.z == 1u,
+                "rejected encode advanced the retry sensor sequence");
         const std::uint32_t newestTrack =
             (kActorHistoryLength - 1u) * kActorFrameSize;
         require(
@@ -669,6 +691,86 @@ int main() {
                 ),
             "device object tracker did not retain visible temporal motion"
         );
+
+        // Graph-only geometric rendering has no materialized observation
+        // planes, so this masked-depth tracker must use direct winners.
+        metalrobo::MetalHybridRendererConfig directRendererConfig;
+        directRendererConfig.width = 16u;
+        directRendererConfig.height = 9u;
+        directRendererConfig.geometricObservationsOnly = true;
+        directRendererConfig.retainObservationBuffers = false;
+        metalrobo::MetalHybridRenderer directRenderer(directRendererConfig);
+        require(directRenderer.compile(
+                    std::move(directScene),
+                    metalrobo::VisualRendererProfileV1::sensorFast(),
+                    kEnvironmentCount),
+                "direct-winner graph-only renderer compile");
+        std::filesystem::remove(
+            authoredPackPath,
+            ignoredAuthoredPackRemoval
+        );
+
+        metalrobo::MetalHybridObjectTrackerConfig directConfig;
+        directConfig.capacity = kEnvironmentCount;
+        directConfig.cameraIndex = 0u;
+        directConfig.rootBodyIndex =
+            worldTemplate.engineModel.articulations.front().firstBody;
+        directConfig.maximumActorHistoryLength = kActorHistoryLength;
+        directConfig.timestepSeconds = 0.02f;
+        directConfig.maskedDepthInstanceIds = {
+            observations[0].identities[visibleIndex].y};
+        directConfig.maskedDepthWidth = 16u;
+        directConfig.maskedDepthHeight = 9u;
+        directConfig.maskedDepthActorFrameOffset =
+            kActorFrameSize * kActorHistoryLength;
+        directConfig.maskedDepthFrameOffsets = {0u, 1u};
+        directConfig.maskedDepthNearMeters = 0.1f;
+        directConfig.maskedDepthFarMeters = 5.0f;
+        metalrobo::MetalHybridObjectTracker directTracker;
+        require(directTracker.compile(directRenderer, worlds, std::move(directConfig)),
+                "direct-winner tracker compile");
+        const auto directProgram = directTracker.observationProgram();
+        require(directProgram.valid(), "direct-winner tracker program");
+        std::memset(observationBuffer.contents, 0, observationBuffer.length);
+        std::fill_n(static_cast<std::uint32_t*>(resetBuffer.contents),
+                    kEnvironmentCount, 1u);
+        auto directPass = trackerPass;
+        id<MTLCommandBuffer> directFirst = [queue commandBuffer];
+        directPass.commandBuffer = (__bridge void*)directFirst;
+        require(directProgram.encode(directProgram.context, directPass),
+                "direct-winner first encode");
+        [directFirst commit];
+        [directFirst waitUntilCompleted];
+        require(directFirst.status == MTLCommandBufferStatusCompleted,
+                "direct-winner first completion");
+        id<MTLCommandBuffer> directRejected = [queue commandBuffer];
+        auto directRejectedPass = directPass;
+        directRejectedPass.commandBuffer = (__bridge void*)directRejected;
+        directRejectedPass.bodyCount += 1u;
+        require(!directProgram.encode(directProgram.context, directRejectedPass),
+                "direct-winner invalid body count must reject");
+        std::fill_n(static_cast<std::uint32_t*>(resetBuffer.contents),
+                    kEnvironmentCount, 0u);
+        id<MTLCommandBuffer> directRetry = [queue commandBuffer];
+        directPass.commandBuffer = (__bridge void*)directRetry;
+        require(directProgram.encode(directProgram.context, directPass),
+                "direct-winner retry encode");
+        [directRetry commit];
+        [directRetry waitUntilCompleted];
+        require(directRetry.status == MTLCommandBufferStatusCompleted,
+                "direct-winner retry completion");
+        const auto* directOutput = static_cast<const float*>(observationBuffer.contents);
+        for (std::uint32_t env = 0u; env < kEnvironmentCount; ++env) {
+            const float* first = directOutput + env * kTrackWidth +
+                kActorFrameSize * kActorHistoryLength;
+            require(std::all_of(first, first + 2u * 16u * 9u,
+                                [](float value) {
+                                    return std::isfinite(value) &&
+                                        value >= 0.0f && value <= 1.0f;
+                                }),
+                    "direct-winner retry produced invalid depth");
+        }
+        std::cout << "direct_winner_retry=pass\n";
 
         metalrobo::VisualSensorProfileV2 sensorProfile;
         sensorProfile.id = "franka.rgbd.reference";
