@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "python/.venv/bin/python",
+    "artifacts/crow-rl-contact-precision-20261108/dual_mix.py"
+  ],
+  "returncode": 0,
+  "seconds": 1.1031866670000001
+}

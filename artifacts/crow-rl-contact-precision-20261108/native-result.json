@@ -1,0 +1,79 @@
+[
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-build-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-build-01/substep7-capture.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/contact-precision-20261108/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-build-01/native-01/original"
+    ],
+    "capture_exact": true,
+    "case": "original",
+    "code": 7,
+    "device": "Apple M4 Pro",
+    "feasibility": 0,
+    "gpu_ms": 41.2214,
+    "newton": 20,
+    "optimality": 5.14715e-08,
+    "pcg": 173,
+    "returncode": 0,
+    "seconds": 0.39791262499056756
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-build-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-build-01/substep7-capture.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/contact-precision-20261108/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-build-01/native-01/rounded",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-build-01/rounded-reference-v.f32"
+    ],
+    "case": "rounded",
+    "code": 7,
+    "device": "Apple M4 Pro",
+    "feasibility": 0,
+    "gpu_ms": 18.5473,
+    "newton": 20,
+    "optimality": 4.43973e-08,
+    "pcg": 82,
+    "returncode": 0,
+    "seconds": 0.041807000001426786
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-build-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-build-01/substep7-capture.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/contact-precision-20261108/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-build-01/native-01/chebyshev",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-build-01/chebyshev-v.f32"
+    ],
+    "case": "chebyshev",
+    "code": 7,
+    "device": "Apple M4 Pro",
+    "feasibility": 0,
+    "gpu_ms": 25.1399,
+    "newton": 20,
+    "optimality": 5.61687e-08,
+    "pcg": 124,
+    "returncode": 0,
+    "seconds": 0.04176804196322337
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-build-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-build-01/control-substep2.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/contact-precision-20261108/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-build-01/native-01/control",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-build-01/control-neighbor-v.f32"
+    ],
+    "case": "control",
+    "code": 0,
+    "device": "Apple M4 Pro",
+    "feasibility": 0,
+    "gpu_ms": 0.411833,
+    "newton": 0,
+    "optimality": 3.94941e-11,
+    "pcg": 0,
+    "returncode": 0,
+    "seconds": 0.016560207994189113,
+    "velocity_exact": true
+  }
+]

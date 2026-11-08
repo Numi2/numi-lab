@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "python/.venv/bin/python",
+    "artifacts/crow-rl-contact-precision-20261108/native_check.py",
+    "run"
+  ],
+  "returncode": 0,
+  "seconds": 0.606048833
+}

@@ -1,0 +1,10 @@
+{
+  "budget": {
+    "seconds": 120
+  },
+  "prediction": "All 23 dual identities, exact gradient phase, denominator bound and scaled lower bound match; lower bound exceeds 1e-10 under stated hypotheses",
+  "purpose": "Independently reconstruct the exact certificate directly from binary compiled inputs and published witness, without producer code, LLL, matrix inverse or LDL solve",
+  "schema": "crow-contact-independent-certificate-verification-plan-v1",
+  "scope": "Verify certificate math and explicitly limited hypotheses; no global FP32 impossibility inference or native setting change",
+  "source_sha256": "909dbbccfd18fef03ff0be443abd73b41e43b16a2eefe714d0e37960b824a006"
+}
