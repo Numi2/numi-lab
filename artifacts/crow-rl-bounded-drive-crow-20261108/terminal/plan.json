@@ -1,0 +1,21 @@
+{
+  "budget": {
+    "maximum_environment_steps": 640,
+    "maximum_new_output_bytes": 500000,
+    "native_invocations": 1,
+    "timeout_seconds": 300
+  },
+  "inputs": {
+    ".numi/retained-runtime/bounded-drive-twofold-20261108/libmetalrobo.dylib": "b24ad4015c718e0c688eaf95b4b207ceacafa9f650f20894fefa5581b1698fd5",
+    ".numi/retained-runtime/bounded-drive-twofold-20261108/metalrobo/MetalRobo.metallib": "6eb48053118d0e54850d21241e499100787de13af84e54e5b48ddc8130876be2",
+    "artifacts/crow-rl-bounded-drive-crow-20261108/terminal/fixture-terminal.mm": "24b1540f3cbf94fc61769d06acf18b2e68cc5088d50dc008cf56a03cd7e7e374",
+    "artifacts/crow-rl-bounded-drive-crow-20261108/terminal/run_terminal.py": "29b9c85349e71d56f71570b5d8df4a217f72c9413f20c61f222a8eb1c988a3e5",
+    "build/crow-bounded-drive-integration-build-01/fixture-terminal": "33e7c0e20a5e4f08dc7add642842abe66a57b8457efd0779b329753217079a4a",
+    "build/crow-bounded-drive-integration-build-01/twofold-crow32/trace.tsv": "0c6f18fd1ecb22f6669325b7f2b9ee52edc8875745f1aaff1135126b345e5f75"
+  },
+  "instrument_revision": "Samehelper withonlypost-completion observation added: persistq/v/scenebodies/worldandcontactstatuses/transitions beforetaskterminationexception. Noequation/action/model/parameterchange.",
+  "parent": "fc65c08a allnumericalcontrols pass. Twofoldcrowtrace endsaftertick90; stderr Physicaltermination, butoriginalhelperthrewbeforesavingterminalstate.",
+  "prediction": "Oneexposedoriginal32trajectory exits1atbegin91withterminalrecord; its364prefixtrace rowsbyteexact; terminalaccepted4,failed0; atleastsometasktermination.x=1 withreasoncaptured. Noautomaticretries orothercadences.",
+  "promotion": false,
+  "question": "Can the final twofold crow termination be reproduced with complete terminal state retained and classified as task termination rather than motor/GPU rejection?"
+}
