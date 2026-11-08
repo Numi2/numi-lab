@@ -1,0 +1,7 @@
+# Free-middle-node rod at default tolerance: an incorrect accepted state
+
+At the public 1e-7 m correction tolerance, both the existing shader and the two-node candidate produced the same results. In the symmetric prestrained state, both published success but the middle node moved 0.437637 mm and acquired 0.437636 m/s, where the independent symmetric implicit reference remains stationary. The reported left/right support reactions were +0.000621585/−0.000657152 N against +0.089379112/−0.089379112 N; errors are about 99.30% and 99.26%. Both motion and force gates fail.
+
+The asymmetric and initially moving cases rejected with status MR_ROD_GPU_DID_NOT_CONVERGE at 128 iterations. Thus the limited fixture exposes both an incorrect published result at the public tolerance and incomplete motion. This is distinct from the earlier 1e-10 m result, whose threshold was below FP32 coordinate spacing.
+
+The [plan](OPHTHALMIC_MIDNODE_DEFAULT_TOLERANCE_PLAN_20261108.md), [instrument](measurements/metal_rod_midnode_default_probe.mm) and [raw evidence and identities](measurements/evidence/metal-midnode-default-20261108) are retained. The reference assumes straight, ordered, purely axial dynamics with two fixed hard supports, zero gravity and damping. This is not a statement about every rod configuration, bending, contact or surgical performance. The two-node specialization was not used. A general repair must prevent this inaccurate publication and also solve valid moving cases without merely rejecting the whole domain.
