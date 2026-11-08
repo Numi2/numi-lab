@@ -1,0 +1,18 @@
+{
+  "moved_new_post_capture_driver_logs": [
+    {
+      "bytes": 558,
+      "destination": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-driver.stdout",
+      "sha256": "de3f95294a909beb2f7f932c85768138cd5866b38b741bfe43e9cdc5bd3fd308",
+      "source": "build/crow-split-precision-build-01/recovery-driver.stdout"
+    },
+    {
+      "bytes": 0,
+      "destination": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-driver.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "build/crow-split-precision-build-01/recovery-driver.stderr"
+    }
+  ],
+  "open_handles": 0,
+  "original_manifest_files_unchanged": true
+}

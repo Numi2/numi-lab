@@ -1,0 +1,1306 @@
+[
+  {
+    "bytes": 3088,
+    "mode": 420,
+    "mtime_ns": 1794144510208197235,
+    "path": "build/crow-split-precision-git-recovery-01/artifacts/crow-rl-split-precision-20261108/README.md",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/380d5a37568bc41f0dfd2cbe79896d6a41ecaa1e9546502c9e99353304904179.gz",
+    "sha256": "380d5a37568bc41f0dfd2cbe79896d6a41ecaa1e9546502c9e99353304904179"
+  },
+  {
+    "bytes": 9328,
+    "mode": 420,
+    "mtime_ns": 1794144510208358278,
+    "path": "build/crow-split-precision-git-recovery-01/artifacts/crow-rl-split-precision-20261108/analysis-at-control-stop.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/ed1171ca7e4127c0af92526ad74714c0a7cfc35609aabde9ee1dd651efe41585.gz",
+    "sha256": "ed1171ca7e4127c0af92526ad74714c0a7cfc35609aabde9ee1dd651efe41585"
+  },
+  {
+    "bytes": 11357,
+    "mode": 420,
+    "mtime_ns": 1794144511043570463,
+    "path": "build/crow-split-precision-git-recovery-01/artifacts/crow-rl-split-precision-20261108/analysis.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/c0a043903214a879dba5dc92f2222fce1786b153b9d55d29089ce1f18631bd16.gz",
+    "sha256": "c0a043903214a879dba5dc92f2222fce1786b153b9d55d29089ce1f18631bd16"
+  },
+  {
+    "bytes": 1530,
+    "mode": 420,
+    "mtime_ns": 1794144510208661030,
+    "path": "build/crow-split-precision-git-recovery-01/artifacts/crow-rl-split-precision-20261108/build.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/c1c25e114da03f7b85b3c00a672dc66d7d79f9250b3040cacd988c1efa9b49d2.gz",
+    "sha256": "c1c25e114da03f7b85b3c00a672dc66d7d79f9250b3040cacd988c1efa9b49d2"
+  },
+  {
+    "bytes": 7244,
+    "mode": 420,
+    "mtime_ns": 1794144510208815614,
+    "path": "build/crow-split-precision-git-recovery-01/artifacts/crow-rl-split-precision-20261108/execution-at-control-stop.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/bab06459dc070871679b511d97cc21da38300affbc74d3cf1a66b0fbe6821c2c.gz",
+    "sha256": "bab06459dc070871679b511d97cc21da38300affbc74d3cf1a66b0fbe6821c2c"
+  },
+  {
+    "bytes": 11572,
+    "mode": 420,
+    "mtime_ns": 1794144511043273169,
+    "path": "build/crow-split-precision-git-recovery-01/artifacts/crow-rl-split-precision-20261108/execution.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/1e35f3e0bfed7060937d1ffdc95d31f8b16b3872c83ed0bdeff37f1b53a31f1d.gz",
+    "sha256": "1e35f3e0bfed7060937d1ffdc95d31f8b16b3872c83ed0bdeff37f1b53a31f1d"
+  },
+  {
+    "bytes": 8244,
+    "mode": 420,
+    "mtime_ns": 1794144510209140116,
+    "path": "build/crow-split-precision-git-recovery-01/artifacts/crow-rl-split-precision-20261108/independent-reference-source.py",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/89f85b795eb8a5d0f1041e00a9a99ccf871636b1dacf6ffd61038565de98d4b0.gz",
+    "sha256": "89f85b795eb8a5d0f1041e00a9a99ccf871636b1dacf6ffd61038565de98d4b0"
+  },
+  {
+    "bytes": 7813,
+    "mode": 420,
+    "mtime_ns": 1794144510209387118,
+    "path": "build/crow-split-precision-git-recovery-01/artifacts/crow-rl-split-precision-20261108/plan.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/29f4e07fbec00c087f775be31c80891581605cbf0dbdc0662c756f95cab93a29.gz",
+    "sha256": "29f4e07fbec00c087f775be31c80891581605cbf0dbdc0662c756f95cab93a29"
+  },
+  {
+    "bytes": 6387,
+    "mode": 420,
+    "mtime_ns": 1794144510209513410,
+    "path": "build/crow-split-precision-git-recovery-01/artifacts/crow-rl-split-precision-20261108/prepare.py",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/adc57f3c1dce370ebd412cca3939ceb64060a412d1321684576682269943962c.gz",
+    "sha256": "adc57f3c1dce370ebd412cca3939ceb64060a412d1321684576682269943962c"
+  },
+  {
+    "bytes": 4352,
+    "mode": 420,
+    "mtime_ns": 1794144510209618869,
+    "path": "build/crow-split-precision-git-recovery-01/artifacts/crow-rl-split-precision-20261108/probe.mm",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/1f2e5bbd50b950401b8a6d33071263e2387460226858fd475407159f4bcf27ba.gz",
+    "sha256": "1f2e5bbd50b950401b8a6d33071263e2387460226858fd475407159f4bcf27ba"
+  },
+  {
+    "bytes": 1236,
+    "mode": 420,
+    "mtime_ns": 1794144510209757745,
+    "path": "build/crow-split-precision-git-recovery-01/artifacts/crow-rl-split-precision-20261108/production-bindings.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/c79e574bd60c2a9f13035e046a86d0bc6e6211255b602d546514a74005f3c91c.gz",
+    "sha256": "c79e574bd60c2a9f13035e046a86d0bc6e6211255b602d546514a74005f3c91c"
+  },
+  {
+    "bytes": 1406,
+    "mode": 420,
+    "mtime_ns": 1794144511044486052,
+    "path": "build/crow-split-precision-git-recovery-01/artifacts/crow-rl-split-precision-20261108/result.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/6df26558bc1afc9e9929174b64e2f44e80a25016af8d1d012d2efa14c267a5ee.gz",
+    "sha256": "6df26558bc1afc9e9929174b64e2f44e80a25016af8d1d012d2efa14c267a5ee"
+  },
+  {
+    "bytes": 8468,
+    "mode": 420,
+    "mtime_ns": 1794144510210022955,
+    "path": "build/crow-split-precision-git-recovery-01/artifacts/crow-rl-split-precision-20261108/run.py",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/d8b5a9bd10141121bd0a74fd7c56b5b14eefc4045451c98e3f97ad5a26b6619a.gz",
+    "sha256": "d8b5a9bd10141121bd0a74fd7c56b5b14eefc4045451c98e3f97ad5a26b6619a"
+  },
+  {
+    "bytes": 945,
+    "mode": 420,
+    "mtime_ns": 1794144510210124748,
+    "path": "build/crow-split-precision-git-recovery-01/artifacts/crow-rl-split-precision-20261108/runtime.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/5261eccf480d1e9b96f922ce2f42b580d68710a6cc8d006a8ece8fc2ba73f0dd.gz",
+    "sha256": "5261eccf480d1e9b96f922ce2f42b580d68710a6cc8d006a8ece8fc2ba73f0dd"
+  },
+  {
+    "bytes": 7911,
+    "mode": 420,
+    "mtime_ns": 1794144510210255248,
+    "path": "build/crow-split-precision-git-recovery-01/artifacts/crow-rl-split-precision-20261108/split.metal",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/71026c6dd8ccb559d28ec41fa10de515ff877dad710dada7f241742d8e840008.gz",
+    "sha256": "71026c6dd8ccb559d28ec41fa10de515ff877dad710dada7f241742d8e840008"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/null.input",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144510215957409,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/null.input",
+    "sha256": "c690b1df0be13a7785db572e549b2c17a2175c28eeb32ea9d49335d80562720c"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/calibration-0/arithmetic.f32x2",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144510482382701,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/calibration-0/arithmetic.f32x2",
+    "sha256": "b2bddc51c78edf015e6ed3e6ee5fdd628f9408aee53022ca8f500554ebd949ec"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144510258193215,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/calibration-0.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 101,
+    "mode": 420,
+    "mtime_ns": 1794144510482996122,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/calibration-0.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/f9c5890dc59c3b3cf2091311d074b01d443d75508d27dbcb595afcad99226672.gz",
+    "sha256": "f9c5890dc59c3b3cf2091311d074b01d443d75508d27dbcb595afcad99226672"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/calibration-0/arithmetic.f32x2",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144510544429298,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/calibration-1/arithmetic.f32x2",
+    "sha256": "b2bddc51c78edf015e6ed3e6ee5fdd628f9408aee53022ca8f500554ebd949ec"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144510528967451,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/calibration-1.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 101,
+    "mode": 420,
+    "mtime_ns": 1794144510545033968,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/calibration-1.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/28cc7e39f9d357a3b427b67f01fcbb1386c73f145fa6115a3e6ce25b4b644770.gz",
+    "sha256": "28cc7e39f9d357a3b427b67f01fcbb1386c73f145fa6115a3e6ce25b4b644770"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/null-0/scratch.f32x2",
+    "bytes": 80,
+    "mode": 420,
+    "mtime_ns": 1794144510961068321,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/null-0/scratch.f32x2",
+    "sha256": "b11c60999fc1f4eeeb197ca3d69a2fd48e0940d7377adb19ade93728812acc7a"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/null-0/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144510961123072,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/null-0/status.bin",
+    "sha256": "f3eb02e27a9296fc6ef300ffa41e7495aaabf55f1b356c411907db7230a3ca6d"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144510945744059,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/null-0.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 101,
+    "mode": 420,
+    "mtime_ns": 1794144510961755451,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/null-0.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/38b65259f82f1fc073735cd27dffa5da6fd53036fd489062df44a9a7914415c7.gz",
+    "sha256": "38b65259f82f1fc073735cd27dffa5da6fd53036fd489062df44a9a7914415c7"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/scalar-bound-0/scratch.f32x2",
+    "bytes": 56,
+    "mode": 420,
+    "mtime_ns": 1794144511010302463,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/scalar-bound-0/scratch.f32x2",
+    "sha256": "a42b4e2196ccf2f25514312de89bb305c8c75f045b15f4aec2ca141d63db0be6"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/scalar-bound-0/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144511010363338,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/scalar-bound-0/status.bin",
+    "sha256": "a0a0eb22e5f3921ac537eab517fbf542b995970c55b3c14b6da05e9b57741fdc"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144510994946200,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/scalar-bound-0.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 101,
+    "mode": 420,
+    "mtime_ns": 1794144511011028009,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/scalar-bound-0.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/5f5e43e6fbaa2a35629c2e3aab5f437c4d1acf7c5b3cc629affaad55f573ac3f.gz",
+    "sha256": "5f5e43e6fbaa2a35629c2e3aab5f437c4d1acf7c5b3cc629affaad55f573ac3f"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/spd-0/scratch.f32x2",
+    "bytes": 128,
+    "mode": 420,
+    "mtime_ns": 1794144510985621392,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/spd-0/scratch.f32x2",
+    "sha256": "3dd8d9d52564a444d1f62b2495ec1d9dd786bc9409e4918d218164157a22ce78"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/spd-0/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144510985677725,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/spd-0/status.bin",
+    "sha256": "06b4157efe00ab1082b6182d82e38f6bb1012176c11101190f44801e4e3fe60c"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144510970268212,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/spd-0.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 102,
+    "mode": 420,
+    "mtime_ns": 1794144510986333729,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/spd-0.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/c63d8e35d7b40c6f071c703b3fac213dd38b1e3909119f1d904e0d83892eff61.gz",
+    "sha256": "c63d8e35d7b40c6f071c703b3fac213dd38b1e3909119f1d904e0d83892eff61"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-rounded-1/scratch.f32x2",
+    "bytes": 21584,
+    "mode": 420,
+    "mtime_ns": 1794144510862329037,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep2-rounded-0/scratch.f32x2",
+    "sha256": "b89ed2ceb752e395cfa3a906d2c8859e9d8c8788048b7b3ea41ede897411b20c"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-rounded-1/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144510862416496,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep2-rounded-0/status.bin",
+    "sha256": "032cfa6633be5be7cf52ecea4548d1eda02d82248ff5b2cfeac93f87903ee993"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144510835975455,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep2-rounded-0.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 101,
+    "mode": 420,
+    "mtime_ns": 1794144510863195126,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep2-rounded-0.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/dffb6041215b063546cd7f153a5abfee4921c064b53c1d4c281efab5306ec5c0.gz",
+    "sha256": "dffb6041215b063546cd7f153a5abfee4921c064b53c1d4c281efab5306ec5c0"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-rounded-1/scratch.f32x2",
+    "bytes": 21584,
+    "mode": 420,
+    "mtime_ns": 1794144510917069838,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep2-rounded-1/scratch.f32x2",
+    "sha256": "b89ed2ceb752e395cfa3a906d2c8859e9d8c8788048b7b3ea41ede897411b20c"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-rounded-1/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144510917172338,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep2-rounded-1/status.bin",
+    "sha256": "032cfa6633be5be7cf52ecea4548d1eda02d82248ff5b2cfeac93f87903ee993"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144510890860465,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep2-rounded-1.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 101,
+    "mode": 420,
+    "mtime_ns": 1794144510917987885,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep2-rounded-1.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/29d7b9398d0690e1d0080254781ba198905885ae4979678fcbb4044dbd952810.gz",
+    "sha256": "29d7b9398d0690e1d0080254781ba198905885ae4979678fcbb4044dbd952810"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-split-1/scratch.f32x2",
+    "bytes": 21584,
+    "mode": 420,
+    "mtime_ns": 1794144510792201598,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep2-split-0/scratch.f32x2",
+    "sha256": "632f3f60ffa894850b7d89e3f55ff64f37623b7429d6695cb61a93de191e9d72"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-split-1/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144510792271974,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep2-split-0/status.bin",
+    "sha256": "ff52f7bfe4c74cfa3033f2af65fc02244f1a8078d914dc4b8ea611d1a73f890f"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144510773733899,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep2-split-0.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 103,
+    "mode": 420,
+    "mtime_ns": 1794144510792619017,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep2-split-0.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/73721d5ae50ba1dcabb4ff187e023fdaa6e8db098c627ed89e88d7cd42e41df9.gz",
+    "sha256": "73721d5ae50ba1dcabb4ff187e023fdaa6e8db098c627ed89e88d7cd42e41df9"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-split-1/scratch.f32x2",
+    "bytes": 21584,
+    "mode": 420,
+    "mtime_ns": 1794144510823009457,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep2-split-1/scratch.f32x2",
+    "sha256": "632f3f60ffa894850b7d89e3f55ff64f37623b7429d6695cb61a93de191e9d72"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-split-1/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144510823094583,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep2-split-1/status.bin",
+    "sha256": "ff52f7bfe4c74cfa3033f2af65fc02244f1a8078d914dc4b8ea611d1a73f890f"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144510804583759,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep2-split-1.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 103,
+    "mode": 420,
+    "mtime_ns": 1794144510823787421,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep2-split-1.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/c26d58c36e6877e2371ae9143edf1ad71e253f28c50573f8b31115e2ec54f3a6.gz",
+    "sha256": "c26d58c36e6877e2371ae9143edf1ad71e253f28c50573f8b31115e2ec54f3a6"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-rounded-1/scratch.f32x2",
+    "bytes": 21584,
+    "mode": 420,
+    "mtime_ns": 1794144510692668559,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep7-rounded-0/scratch.f32x2",
+    "sha256": "e4085512ed702a076572bbe161e26ac0ed9682ff3d2086eb2e370d9c4b6b1527"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-rounded-1/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144510692738684,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep7-rounded-0/status.bin",
+    "sha256": "14612ffc3f1c697fa850e5b9f43afa590e5a9ce3034823a52cb921c49196825e"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144510663845587,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep7-rounded-0.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 101,
+    "mode": 420,
+    "mtime_ns": 1794144510693184353,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep7-rounded-0.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/9d862c5ac67afaaf605de0f050aea2a192d616150fa9ffad07cab7f38615363d.gz",
+    "sha256": "9d862c5ac67afaaf605de0f050aea2a192d616150fa9ffad07cab7f38615363d"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-rounded-1/scratch.f32x2",
+    "bytes": 21584,
+    "mode": 420,
+    "mtime_ns": 1794144510744721009,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep7-rounded-1/scratch.f32x2",
+    "sha256": "e4085512ed702a076572bbe161e26ac0ed9682ff3d2086eb2e370d9c4b6b1527"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-rounded-1/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144510744802051,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep7-rounded-1/status.bin",
+    "sha256": "14612ffc3f1c697fa850e5b9f43afa590e5a9ce3034823a52cb921c49196825e"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144510718680596,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep7-rounded-1.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 101,
+    "mode": 420,
+    "mtime_ns": 1794144510745530889,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep7-rounded-1.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/10be91309280e198dcde3ee9038e81190e0931a933958049e59c5c5cdbd37219.gz",
+    "sha256": "10be91309280e198dcde3ee9038e81190e0931a933958049e59c5c5cdbd37219"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-split-0/scratch.f32x2",
+    "bytes": 21584,
+    "mode": 420,
+    "mtime_ns": 1794144510579698185,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep7-split-0/scratch.f32x2",
+    "sha256": "fe40fc593d120af7e3ce12a355466de4651e372484824bf34c483bd04fd157b9"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-split-0/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144510579771977,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep7-split-0/status.bin",
+    "sha256": "7d2f17968fb13b2608ca9673d4089917bdeb33aff21688ef77f721dd755b9352"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144510553629689,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep7-split-0.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 103,
+    "mode": 420,
+    "mtime_ns": 1794144510580508023,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep7-split-0.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/4922daaa51b7a0d46ed24803eb832c47456f2ef71cc2c902ab86d259463e35ac.gz",
+    "sha256": "4922daaa51b7a0d46ed24803eb832c47456f2ef71cc2c902ab86d259463e35ac"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-split-0/scratch.f32x2",
+    "bytes": 21584,
+    "mode": 420,
+    "mtime_ns": 1794144510633009019,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep7-split-1/scratch.f32x2",
+    "sha256": "fe40fc593d120af7e3ce12a355466de4651e372484824bf34c483bd04fd157b9"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-split-0/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144510633073727,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep7-split-1/status.bin",
+    "sha256": "7d2f17968fb13b2608ca9673d4089917bdeb33aff21688ef77f721dd755b9352"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144510608526199,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep7-split-1.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 103,
+    "mode": 420,
+    "mtime_ns": 1794144510633491063,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/substep7-split-1.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/b9401ca1783bd0eed539b6931f0f00331caf4502260a9b4c1b94f4024c7b189a.gz",
+    "sha256": "b9401ca1783bd0eed539b6931f0f00331caf4502260a9b4c1b94f4024c7b189a"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0/scratch.f32x2",
+    "bytes": 216,
+    "mode": 420,
+    "mtime_ns": 1794144511034397405,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/unsupported-boundary-0/scratch.f32x2",
+    "sha256": "24920abfb1153303e0aa55610bf7b1dbab29cc3a7fee5426f00dd22e72096df3"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144511034453405,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/unsupported-boundary-0/status.bin",
+    "sha256": "e7b4bb67551dde9589c1553dfda37a942a18caf184f9cc1629d25cf5c60be416"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144511019281019,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 102,
+    "mode": 420,
+    "mtime_ns": 1794144511035095993,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/observations/unsupported-boundary-0.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/d420d70e69da4a626f5df679d5b3156b2eb0880c2a31a6d4c82e44761583ef78.gz",
+    "sha256": "d420d70e69da4a626f5df679d5b3156b2eb0880c2a31a6d4c82e44761583ef78"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/probe",
+    "bytes": 58264,
+    "mode": 493,
+    "mtime_ns": 1794144510215355197,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/probe",
+    "sha256": "7f1523c6b172bed5e1d3790c95e74198af6d747e0f27a49ebde8a903d5139cb2"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/scalar-bound.input",
+    "bytes": 180,
+    "mode": 420,
+    "mtime_ns": 1794144510216141077,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/scalar-bound.input",
+    "sha256": "d40dbddfc72aac8f05a182e46d4e1a809bd61b8d6b1865d797c3d8b1e19d0c54"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/spd.input",
+    "bytes": 344,
+    "mode": 420,
+    "mtime_ns": 1794144510216053534,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/spd.input",
+    "sha256": "ed8193e01e2990b8cc0d259e0114a33eca8dd7c6b7b3edee244fc1e38128ee31"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/split.metallib",
+    "bytes": 20490,
+    "mode": 420,
+    "mtime_ns": 1794144510215470448,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/split.metallib",
+    "sha256": "92d4dfca8cd2f6dcdcff60787e72fb1f974544ecf854d4ab5bb73a788eeab81f"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/substep2-rounded.input",
+    "bytes": 92608,
+    "mode": 420,
+    "mtime_ns": 1794144510215868200,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/substep2-rounded.input",
+    "sha256": "cf995bbb76095fc67b0e988132f2af59a33879223d55e5e8f550f43ac47dfe03"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/substep2-split.input",
+    "bytes": 92608,
+    "mode": 420,
+    "mtime_ns": 1794144510215772491,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/substep2-split.input",
+    "sha256": "0c25f3c2f5084042114d4eb27b021660b5db17ab683504d06894d59a2b74ddb8"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/substep7-rounded.input",
+    "bytes": 92608,
+    "mode": 420,
+    "mtime_ns": 1794144510215672491,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/substep7-rounded.input",
+    "sha256": "bc895ead68e541923a975b64a86188cfa4d538f86befa9060aa05b093ff52890"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/substep7-split.input",
+    "bytes": 92608,
+    "mode": 420,
+    "mtime_ns": 1794144510215574365,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/substep7-split.input",
+    "sha256": "362cfb847ed103279876ec42eff3270f4a364d511537f12e45bd937e20cc1901"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/unsupported-boundary.input",
+    "bytes": 268,
+    "mode": 420,
+    "mtime_ns": 1794144510216227369,
+    "path": "build/crow-split-precision-git-recovery-01/build/crow-split-precision-build-01/unsupported-boundary.input",
+    "sha256": "acdb05ebd680b679df3d0546a6bac0e0b7ad393fbb335ea999e45022d93d0f74"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144211807070036,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/build_library-02.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144211807023702,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/build_library-02.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144211759055360,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/build_metal-02.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144211758985985,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/build_metal-02.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/build_metal.stderr",
+    "bytes": 3538,
+    "mode": 420,
+    "mtime_ns": 1794144181190243210,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/build_metal.stderr",
+    "sha256": "d39e0a4054cec227e3de13a9e1ec591dbddab635a879c4f8a422f8e8121ea74b"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144180835821700,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/build_metal.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144211830719725,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/build_probe-02.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144211830673850,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/build_probe-02.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/null.input",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144159236059213,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/null.input",
+    "sha256": "c690b1df0be13a7785db572e549b2c17a2175c28eeb32ea9d49335d80562720c"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/calibration-0/arithmetic.f32x2",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144225320346133,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/calibration-0/arithmetic.f32x2",
+    "sha256": "b2bddc51c78edf015e6ed3e6ee5fdd628f9408aee53022ca8f500554ebd949ec"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144224888832016,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/calibration-0.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/calibration-0.stdout",
+    "bytes": 101,
+    "mode": 420,
+    "mtime_ns": 1794144225321028262,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/calibration-0.stdout",
+    "sha256": "e927b9d5244f4f520f60ee69387e368f0f33c5986ecbda19f91273ced6f7b231"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/calibration-0/arithmetic.f32x2",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144225351835163,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/calibration-1/arithmetic.f32x2",
+    "sha256": "b2bddc51c78edf015e6ed3e6ee5fdd628f9408aee53022ca8f500554ebd949ec"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144225334908765,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/calibration-1.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/calibration-1.stdout",
+    "bytes": 101,
+    "mode": 420,
+    "mtime_ns": 1794144225352457209,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/calibration-1.stdout",
+    "sha256": "06a6561ef482260148e7658c85ca8c01908b93b6be690d61b41d7da0884c05f2"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/null-0/scratch.f32x2",
+    "bytes": 80,
+    "mode": 420,
+    "mtime_ns": 1794144225781878729,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/null-0/scratch.f32x2",
+    "sha256": "b11c60999fc1f4eeeb197ca3d69a2fd48e0940d7377adb19ade93728812acc7a"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/null-0/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144225781940479,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/null-0/status.bin",
+    "sha256": "f3eb02e27a9296fc6ef300ffa41e7495aaabf55f1b356c411907db7230a3ca6d"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144225768161101,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/null-0.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/null-0.stdout",
+    "bytes": 101,
+    "mode": 420,
+    "mtime_ns": 1794144225782276856,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/null-0.stdout",
+    "sha256": "a00c9e13e1272dccc8f51de35e2d0139867bf7c32af9e38329543ae1dc58f406"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/scalar-bound-0/scratch.f32x2",
+    "bytes": 56,
+    "mode": 420,
+    "mtime_ns": 1794144276895082138,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/scalar-bound-0/scratch.f32x2",
+    "sha256": "a42b4e2196ccf2f25514312de89bb305c8c75f045b15f4aec2ca141d63db0be6"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/scalar-bound-0/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144276895155305,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/scalar-bound-0/status.bin",
+    "sha256": "a0a0eb22e5f3921ac537eab517fbf542b995970c55b3c14b6da05e9b57741fdc"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144276880907633,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/scalar-bound-0.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/scalar-bound-0.stdout",
+    "bytes": 101,
+    "mode": 420,
+    "mtime_ns": 1794144276895504141,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/scalar-bound-0.stdout",
+    "sha256": "30032ceb2345d45ce494c3de34bc45cdd70794dc3025cd210c235a9d88c9bc32"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/spd-0/scratch.f32x2",
+    "bytes": 128,
+    "mode": 420,
+    "mtime_ns": 1794144276872273204,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/spd-0/scratch.f32x2",
+    "sha256": "3dd8d9d52564a444d1f62b2495ec1d9dd786bc9409e4918d218164157a22ce78"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/spd-0/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144276872357913,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/spd-0/status.bin",
+    "sha256": "06b4157efe00ab1082b6182d82e38f6bb1012176c11101190f44801e4e3fe60c"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144276856244645,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/spd-0.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/spd-0.stdout",
+    "bytes": 102,
+    "mode": 420,
+    "mtime_ns": 1794144276872722915,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/spd-0.stdout",
+    "sha256": "129f62c2662ac66fa353bf83ac64e437458de231bb10e76d06c7eda51f14efcf"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-rounded-1/scratch.f32x2",
+    "bytes": 21584,
+    "mode": 420,
+    "mtime_ns": 1794144225704797455,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep2-rounded-0/scratch.f32x2",
+    "sha256": "b89ed2ceb752e395cfa3a906d2c8859e9d8c8788048b7b3ea41ede897411b20c"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-rounded-1/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144225704881622,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep2-rounded-0/status.bin",
+    "sha256": "032cfa6633be5be7cf52ecea4548d1eda02d82248ff5b2cfeac93f87903ee993"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144225682708483,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep2-rounded-0.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-rounded-0.stdout",
+    "bytes": 103,
+    "mode": 420,
+    "mtime_ns": 1794144225705624294,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep2-rounded-0.stdout",
+    "sha256": "4f5e22353670437f862e809df890b2957a77a86f6d98713842135c1f87b21cf8"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-rounded-1/scratch.f32x2",
+    "bytes": 21584,
+    "mode": 420,
+    "mtime_ns": 1794144225759779049,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep2-rounded-1/scratch.f32x2",
+    "sha256": "b89ed2ceb752e395cfa3a906d2c8859e9d8c8788048b7b3ea41ede897411b20c"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-rounded-1/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144225759876008,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep2-rounded-1/status.bin",
+    "sha256": "032cfa6633be5be7cf52ecea4548d1eda02d82248ff5b2cfeac93f87903ee993"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144225737536993,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep2-rounded-1.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-rounded-1.stdout",
+    "bytes": 103,
+    "mode": 420,
+    "mtime_ns": 1794144225760215885,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep2-rounded-1.stdout",
+    "sha256": "70d5ca2242721477429967b84398adf1af319cb22e4ebb984efdf61da23f8685"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-split-1/scratch.f32x2",
+    "bytes": 21584,
+    "mode": 420,
+    "mtime_ns": 1794144225638449331,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep2-split-0/scratch.f32x2",
+    "sha256": "632f3f60ffa894850b7d89e3f55ff64f37623b7429d6695cb61a93de191e9d72"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-split-1/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144225638548624,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep2-split-0/status.bin",
+    "sha256": "ff52f7bfe4c74cfa3033f2af65fc02244f1a8078d914dc4b8ea611d1a73f890f"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144225621342933,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep2-split-0.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-split-0.stdout",
+    "bytes": 103,
+    "mode": 420,
+    "mtime_ns": 1794144225639278420,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep2-split-0.stdout",
+    "sha256": "5a7b0689e1ab2342bbf911aa12cd58f9f4d5e848dc26aa42e752de6d3904f020"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-split-1/scratch.f32x2",
+    "bytes": 21584,
+    "mode": 420,
+    "mtime_ns": 1794144225668032600,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep2-split-1/scratch.f32x2",
+    "sha256": "632f3f60ffa894850b7d89e3f55ff64f37623b7429d6695cb61a93de191e9d72"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-split-1/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144225668105809,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep2-split-1/status.bin",
+    "sha256": "ff52f7bfe4c74cfa3033f2af65fc02244f1a8078d914dc4b8ea611d1a73f890f"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144225651949041,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep2-split-1.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep2-split-1.stdout",
+    "bytes": 103,
+    "mode": 420,
+    "mtime_ns": 1794144225668436352,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep2-split-1.stdout",
+    "sha256": "0279241f69c142df595763856bdbb36f0af080508ea81c02193ab190d878397a"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-rounded-1/scratch.f32x2",
+    "bytes": 21584,
+    "mode": 420,
+    "mtime_ns": 1794144225539061626,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep7-rounded-0/scratch.f32x2",
+    "sha256": "e4085512ed702a076572bbe161e26ac0ed9682ff3d2086eb2e370d9c4b6b1527"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-rounded-1/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144225539169294,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep7-rounded-0/status.bin",
+    "sha256": "14612ffc3f1c697fa850e5b9f43afa590e5a9ce3034823a52cb921c49196825e"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144225511470829,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep7-rounded-0.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-rounded-0.stdout",
+    "bytes": 101,
+    "mode": 420,
+    "mtime_ns": 1794144225539502129,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep7-rounded-0.stdout",
+    "sha256": "54a9bca31a04386eee273e762f38aab9f35fc298a12e02c7ffe3b14b5a4e3138"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-rounded-1/scratch.f32x2",
+    "bytes": 21584,
+    "mode": 420,
+    "mtime_ns": 1794144225590962201,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep7-rounded-1/scratch.f32x2",
+    "sha256": "e4085512ed702a076572bbe161e26ac0ed9682ff3d2086eb2e370d9c4b6b1527"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-rounded-1/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144225591046868,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep7-rounded-1/status.bin",
+    "sha256": "14612ffc3f1c697fa850e5b9f43afa590e5a9ce3034823a52cb921c49196825e"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144225566257380,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep7-rounded-1.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-rounded-1.stdout",
+    "bytes": 102,
+    "mode": 420,
+    "mtime_ns": 1794144225591383287,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep7-rounded-1.stdout",
+    "sha256": "02fed9a940ee694974b2c1758cb9b7569fb4349c6887b9db0c5ae9c7a415462c"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-split-0/scratch.f32x2",
+    "bytes": 21584,
+    "mode": 420,
+    "mtime_ns": 1794144225442670815,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep7-split-0/scratch.f32x2",
+    "sha256": "fe40fc593d120af7e3ce12a355466de4651e372484824bf34c483bd04fd157b9"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-split-0/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144225442766065,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep7-split-0/status.bin",
+    "sha256": "7d2f17968fb13b2608ca9673d4089917bdeb33aff21688ef77f721dd755b9352"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144225359654712,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep7-split-0.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-split-0.stdout",
+    "bytes": 103,
+    "mode": 420,
+    "mtime_ns": 1794144225443356861,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep7-split-0.stdout",
+    "sha256": "7501728ab925b5a795939c262096d8d556b0bcc29a92a1d84ecccfa07c137315"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-split-0/scratch.f32x2",
+    "bytes": 21584,
+    "mode": 420,
+    "mtime_ns": 1794144225480724261,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep7-split-1/scratch.f32x2",
+    "sha256": "fe40fc593d120af7e3ce12a355466de4651e372484824bf34c483bd04fd157b9"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-split-0/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144225480817220,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep7-split-1/status.bin",
+    "sha256": "7d2f17968fb13b2608ca9673d4089917bdeb33aff21688ef77f721dd755b9352"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144225456242108,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep7-split-1.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/substep7-split-1.stdout",
+    "bytes": 103,
+    "mode": 420,
+    "mtime_ns": 1794144225481152681,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/substep7-split-1.stdout",
+    "sha256": "51733b78f9ce138db9bf3d3545986e24b9e22afbb5fccb5ef4cfb86b18b1409e"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0/scratch.f32x2",
+    "bytes": 216,
+    "mode": 420,
+    "mtime_ns": 1794144276919226289,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/unsupported-boundary-0/scratch.f32x2",
+    "sha256": "24920abfb1153303e0aa55610bf7b1dbab29cc3a7fee5426f00dd22e72096df3"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0/status.bin",
+    "bytes": 64,
+    "mode": 420,
+    "mtime_ns": 1794144276919287290,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/unsupported-boundary-0/status.bin",
+    "sha256": "e7b4bb67551dde9589c1553dfda37a942a18caf184f9cc1629d25cf5c60be416"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144276905301202,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stdout",
+    "bytes": 102,
+    "mode": 420,
+    "mtime_ns": 1794144276919617667,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/observations/unsupported-boundary-0.stdout",
+    "sha256": "2a136a4e07698780b4008a15cb9b62dbcc9d88ebe584dc9aabff211b71d0157d"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/probe",
+    "bytes": 58264,
+    "mode": 493,
+    "mtime_ns": 1794144212402138634,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/probe",
+    "sha256": "7f1523c6b172bed5e1d3790c95e74198af6d747e0f27a49ebde8a903d5139cb2"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144276724804656,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/run-resumed.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/run-resumed.stdout",
+    "bytes": 12307,
+    "mode": 420,
+    "mtime_ns": 1794144276930481568,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/run-resumed.stdout",
+    "sha256": "3fb9fa530d339c9411a8e1ccdf707d32f736b848f087ce638743143be01923ed"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/run.stderr",
+    "bytes": 521,
+    "mode": 420,
+    "mtime_ns": 1794144225793546302,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/run.stderr",
+    "sha256": "01e73dc635298cb56c9631ec98ae11709f1b6cd75081eaa2365b14c720f4266b"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/run.stdout",
+    "bytes": 13924,
+    "mode": 420,
+    "mtime_ns": 1794144225792491212,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/run.stdout",
+    "sha256": "d1b01cab858acec9078a38e5807313f4909e056fc3f70a7ad3163f301b35ffee"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/scalar-bound.input",
+    "bytes": 180,
+    "mode": 420,
+    "mtime_ns": 1794144273949613916,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/scalar-bound.input",
+    "sha256": "d40dbddfc72aac8f05a182e46d4e1a809bd61b8d6b1865d797c3d8b1e19d0c54"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/scalar-bound.input.invalid01",
+    "bytes": 164,
+    "mode": 420,
+    "mtime_ns": 1794144159236208964,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/scalar-bound.input.invalid01",
+    "sha256": "d1c6e9731fb551bf5c2915830e3a791eb30e09fbd6a574ac918a0c8e7ec930fd"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/spd.input",
+    "bytes": 344,
+    "mode": 420,
+    "mtime_ns": 1794144273949382165,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/spd.input",
+    "sha256": "ed8193e01e2990b8cc0d259e0114a33eca8dd7c6b7b3edee244fc1e38128ee31"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/spd.input.invalid01",
+    "bytes": 312,
+    "mode": 420,
+    "mtime_ns": 1794144159236138255,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/spd.input.invalid01",
+    "sha256": "fe688c51d909b011a2ce6c84bfc238190d20e6f9be24b3e2a91ea74a134fe9ed"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/split.air",
+    "bytes": 16464,
+    "mode": 420,
+    "mtime_ns": 1794144211802523007,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/split.air",
+    "sha256": "6b7a5084cdf6c11a186c52e1dac1bd649bf47520b120dcfa91fba679f2742ab1"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/split.metallib",
+    "bytes": 20490,
+    "mode": 420,
+    "mtime_ns": 1794144211829423676,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/split.metallib",
+    "sha256": "92d4dfca8cd2f6dcdcff60787e72fb1f974544ecf854d4ab5bb73a788eeab81f"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/substep2-capture.bin",
+    "bytes": 98864,
+    "mode": 420,
+    "mtime_ns": 1794144159235070540,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/substep2-capture.bin",
+    "sha256": "abd531b3e9f580c7f5c208c358e87821c51470d3671367571c8a713f3885b441"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/substep2-rounded.input",
+    "bytes": 92608,
+    "mode": 420,
+    "mtime_ns": 1794144159235928337,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/substep2-rounded.input",
+    "sha256": "cf995bbb76095fc67b0e988132f2af59a33879223d55e5e8f550f43ac47dfe03"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/substep2-split.input",
+    "bytes": 92608,
+    "mode": 420,
+    "mtime_ns": 1794144159235823795,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/substep2-split.input",
+    "sha256": "0c25f3c2f5084042114d4eb27b021660b5db17ab683504d06894d59a2b74ddb8"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/substep7-capture.bin",
+    "bytes": 98864,
+    "mode": 420,
+    "mtime_ns": 1794144159234836288,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/substep7-capture.bin",
+    "sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/substep7-rounded.input",
+    "bytes": 92608,
+    "mode": 420,
+    "mtime_ns": 1794144159235697752,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/substep7-rounded.input",
+    "sha256": "bc895ead68e541923a975b64a86188cfa4d538f86befa9060aa05b093ff52890"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/substep7-split.input",
+    "bytes": 92608,
+    "mode": 420,
+    "mtime_ns": 1794144159235532376,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/substep7-split.input",
+    "sha256": "362cfb847ed103279876ec42eff3270f4a364d511537f12e45bd937e20cc1901"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/unsupported-boundary.input",
+    "bytes": 268,
+    "mode": 420,
+    "mtime_ns": 1794144273949847459,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/unsupported-boundary.input",
+    "sha256": "acdb05ebd680b679df3d0546a6bac0e0b7ad393fbb335ea999e45022d93d0f74"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/unsupported-boundary.input.invalid01",
+    "bytes": 252,
+    "mode": 420,
+    "mtime_ns": 1794144159236271298,
+    "path": "build/crow-split-precision-git-recovery-01/original/build/crow-split-precision-build-01/unsupported-boundary.input.invalid01",
+    "sha256": "1d7222e1dafe1a5f5724e0347d47d7e66e7bcf41102c5576d7867a39e2d6b912"
+  },
+  {
+    "archive_source": "build/crow-split-precision-build-01/observations/unsupported-boundary-0.stderr",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794144510216814373,
+    "path": "build/crow-split-precision-git-recovery-01/replay.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "bytes": 21005,
+    "mode": 420,
+    "mtime_ns": 1794144511044514468,
+    "path": "build/crow-split-precision-git-recovery-01/replay.stdout",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-split-precision-20261108/recovery-blobs/dcfed6448383e0ad6b2004d8867e3e692ec1cc30846f86d9f055570c3ae1a4e5.gz",
+    "sha256": "dcfed6448383e0ad6b2004d8867e3e692ec1cc30846f86d9f055570c3ae1a4e5"
+  }
+]

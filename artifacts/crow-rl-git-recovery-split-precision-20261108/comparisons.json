@@ -1,0 +1,144 @@
+[
+  {
+    "all_scientific_fields_exact": true,
+    "excluded_administrative_fields": [],
+    "report": "analysis.json"
+  },
+  {
+    "all_scientific_fields_exact": true,
+    "excluded_administrative_fields": [
+      "raw_bytes"
+    ],
+    "report": "result.json"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/calibration-0/arithmetic.f32x2",
+    "byte_exact": true,
+    "sha256": "b2bddc51c78edf015e6ed3e6ee5fdd628f9408aee53022ca8f500554ebd949ec"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/calibration-1/arithmetic.f32x2",
+    "byte_exact": true,
+    "sha256": "b2bddc51c78edf015e6ed3e6ee5fdd628f9408aee53022ca8f500554ebd949ec"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/null-0/scratch.f32x2",
+    "byte_exact": true,
+    "sha256": "b11c60999fc1f4eeeb197ca3d69a2fd48e0940d7377adb19ade93728812acc7a"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/null-0/status.bin",
+    "byte_exact": true,
+    "sha256": "f3eb02e27a9296fc6ef300ffa41e7495aaabf55f1b356c411907db7230a3ca6d"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/scalar-bound-0/scratch.f32x2",
+    "byte_exact": true,
+    "sha256": "a42b4e2196ccf2f25514312de89bb305c8c75f045b15f4aec2ca141d63db0be6"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/scalar-bound-0/status.bin",
+    "byte_exact": true,
+    "sha256": "a0a0eb22e5f3921ac537eab517fbf542b995970c55b3c14b6da05e9b57741fdc"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/spd-0/scratch.f32x2",
+    "byte_exact": true,
+    "sha256": "3dd8d9d52564a444d1f62b2495ec1d9dd786bc9409e4918d218164157a22ce78"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/spd-0/status.bin",
+    "byte_exact": true,
+    "sha256": "06b4157efe00ab1082b6182d82e38f6bb1012176c11101190f44801e4e3fe60c"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/substep2-rounded-0/scratch.f32x2",
+    "byte_exact": true,
+    "sha256": "b89ed2ceb752e395cfa3a906d2c8859e9d8c8788048b7b3ea41ede897411b20c"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/substep2-rounded-0/status.bin",
+    "byte_exact": true,
+    "sha256": "032cfa6633be5be7cf52ecea4548d1eda02d82248ff5b2cfeac93f87903ee993"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/substep2-rounded-1/scratch.f32x2",
+    "byte_exact": true,
+    "sha256": "b89ed2ceb752e395cfa3a906d2c8859e9d8c8788048b7b3ea41ede897411b20c"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/substep2-rounded-1/status.bin",
+    "byte_exact": true,
+    "sha256": "032cfa6633be5be7cf52ecea4548d1eda02d82248ff5b2cfeac93f87903ee993"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/substep2-split-0/scratch.f32x2",
+    "byte_exact": true,
+    "sha256": "632f3f60ffa894850b7d89e3f55ff64f37623b7429d6695cb61a93de191e9d72"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/substep2-split-0/status.bin",
+    "byte_exact": true,
+    "sha256": "ff52f7bfe4c74cfa3033f2af65fc02244f1a8078d914dc4b8ea611d1a73f890f"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/substep2-split-1/scratch.f32x2",
+    "byte_exact": true,
+    "sha256": "632f3f60ffa894850b7d89e3f55ff64f37623b7429d6695cb61a93de191e9d72"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/substep2-split-1/status.bin",
+    "byte_exact": true,
+    "sha256": "ff52f7bfe4c74cfa3033f2af65fc02244f1a8078d914dc4b8ea611d1a73f890f"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/substep7-rounded-0/scratch.f32x2",
+    "byte_exact": true,
+    "sha256": "e4085512ed702a076572bbe161e26ac0ed9682ff3d2086eb2e370d9c4b6b1527"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/substep7-rounded-0/status.bin",
+    "byte_exact": true,
+    "sha256": "14612ffc3f1c697fa850e5b9f43afa590e5a9ce3034823a52cb921c49196825e"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/substep7-rounded-1/scratch.f32x2",
+    "byte_exact": true,
+    "sha256": "e4085512ed702a076572bbe161e26ac0ed9682ff3d2086eb2e370d9c4b6b1527"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/substep7-rounded-1/status.bin",
+    "byte_exact": true,
+    "sha256": "14612ffc3f1c697fa850e5b9f43afa590e5a9ce3034823a52cb921c49196825e"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/substep7-split-0/scratch.f32x2",
+    "byte_exact": true,
+    "sha256": "fe40fc593d120af7e3ce12a355466de4651e372484824bf34c483bd04fd157b9"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/substep7-split-0/status.bin",
+    "byte_exact": true,
+    "sha256": "7d2f17968fb13b2608ca9673d4089917bdeb33aff21688ef77f721dd755b9352"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/substep7-split-1/scratch.f32x2",
+    "byte_exact": true,
+    "sha256": "fe40fc593d120af7e3ce12a355466de4651e372484824bf34c483bd04fd157b9"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/substep7-split-1/status.bin",
+    "byte_exact": true,
+    "sha256": "7d2f17968fb13b2608ca9673d4089917bdeb33aff21688ef77f721dd755b9352"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/unsupported-boundary-0/scratch.f32x2",
+    "byte_exact": true,
+    "sha256": "24920abfb1153303e0aa55610bf7b1dbab29cc3a7fee5426f00dd22e72096df3"
+  },
+  {
+    "binary": "build/crow-split-precision-build-01/observations/unsupported-boundary-0/status.bin",
+    "byte_exact": true,
+    "sha256": "e7b4bb67551dde9589c1553dfda37a942a18caf184f9cc1629d25cf5c60be416"
+  }
+]

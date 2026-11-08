@@ -1,0 +1,2 @@
+{"restored_files": 82, "raw_bytes": 870729, "working_inputs": 10}
+{"schema": "crow-split-precision-executed-git-recovery-v1", "restored_files": 82, "all_original_raw_byte_exact_after_execution": true, "native_submissions": 14, "scientific_reports_exact": 2, "binary_files_exact": 26, "temporary_files": 163, "temporary_bytes": 1608129, "closure_handle_check": "Pending separate process after executor exits", "limits": "Exact scoped replay of two exposed algebraic problems and controls; not whole world or ecological qualification", "goal_complete": false}

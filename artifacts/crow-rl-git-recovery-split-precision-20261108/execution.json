@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-git-recovery-01/artifacts/crow-rl-split-precision-20261108/run.py"
+  ],
+  "cwd": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-git-recovery-01",
+  "returncode": 0,
+  "seconds": 0.852560833
+}
