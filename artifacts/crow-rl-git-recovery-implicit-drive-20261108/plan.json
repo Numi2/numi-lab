@@ -1,0 +1,67 @@
+{
+  "budget": {
+    "invocations": 4,
+    "native_microstep_conditions": 240,
+    "recovery_scratch_max_bytes": 16000000,
+    "timeout_per_invocation_seconds": 90
+  },
+  "cleanup": "Record exact path/hash/mode/mtime inventory, persist lsof return/stdout/stderr, validate unchanged files and closed handles, then remove only enumerated recovery files. Keep all replay logs compressed in Git.",
+  "commands": [
+    {
+      "args": [
+        "--calibrate"
+      ],
+      "binary": "build/crow-implicit-drive-audit-build-01/probe",
+      "exit": 0,
+      "id": "calibration",
+      "stdout_reference": "build/crow-implicit-drive-audit-build-01/calibration.stdout"
+    },
+    {
+      "args": [
+        "SHADER",
+        "NEW_TSV"
+      ],
+      "binary": "build/crow-implicit-drive-audit-build-01/probe",
+      "exit": 0,
+      "id": "production",
+      "rows": 96,
+      "tsv_reference": "build/crow-implicit-drive-audit-build-01/native.tsv"
+    },
+    {
+      "args": [
+        "SHADER",
+        "NEW_TSV"
+      ],
+      "binary": "build/crow-implicit-drive-audit-build-01/bounded-probe",
+      "exit": 1,
+      "id": "invalid-metadata",
+      "rows": 0,
+      "stderr_tail": "Bounded motor IR invalid: authored constraint payload count is invalid",
+      "tsv_reference": "build/crow-implicit-drive-audit-build-01/bounded.tsv"
+    },
+    {
+      "args": [
+        "SHADER",
+        "NEW_TSV"
+      ],
+      "binary": "build/crow-implicit-drive-audit-build-01/bounded-v2-probe",
+      "exit": 0,
+      "id": "bounded-v2",
+      "rows": 144,
+      "tsv_reference": "build/crow-implicit-drive-audit-build-01/bounded-v2.tsv"
+    }
+  ],
+  "criteria": "Exact calibration stdout and all three native TSV byte sequences, including original pre-physics rejection; expected exit codes and restored dylib load identity. No scientific outcome promotion.",
+  "inputs": {
+    ".numi/retained-runtime/implicit-drive-audit-20261108/libmetalrobo.dylib": "5b8766012ae4da995cbd26e9832ebd7a9bccbfb67e2af2bc72b960e028e2ec5f",
+    ".numi/retained-runtime/implicit-drive-audit-20261108/metalrobo/MetalRobo.metallib": "ea6fbf5e8365d6332251d27928202911604d3145636454abb2df560900b73372",
+    "build/crow-implicit-drive-audit-build-01/bounded-probe": "45864553fbf9ec1bcc18fa1e6dc8f88ecb8bf3fe859c31921c87473fe6e5632c",
+    "build/crow-implicit-drive-audit-build-01/bounded-v2-probe": "56239540644945aaaf072837a994cef27dfd6dff274d138fc4f5096d7bd4c3cf",
+    "build/crow-implicit-drive-audit-build-01/probe": "58288ac8e8d00c665142e1db621dad15e4f2675d2c1610b92ade33655b6358f9"
+  },
+  "manifest": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/manifest.json",
+  "manifest_sha256": "04cc8fa363c16b76edc722bf9e6cb0cc7e6d7931aa060b59f2aec22aca21ad97",
+  "purpose": "Execute exact committed native evidence from Git-restored inputs before raw cleanup.",
+  "scope": "One 96-condition production diagnosis, one 144-condition bounded alternative and invalid-metadata fixture. Does not replay whole crow release, learning, biological or throughput qualification.",
+  "script_sha256": "06e4f77e184245a73c5a9d218dfec7c38e73045fc3188ac460a8f7157482515e"
+}
