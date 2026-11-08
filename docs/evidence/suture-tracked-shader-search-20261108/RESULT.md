@@ -1,0 +1,7 @@
+# Surgical checkpoint tracked-shader search
+
+The saved first-bite synthetic-skin Matter checkpoint has program fingerprint `17848984240238310200`. This is an earlier checkpoint than `tissue-receiver-bridge-start`, and is not a completed stitch. Its native restore previously rejected the available program image. The checkpoint and its identity checks were not modified.
+
+A separate read-only search examined every tracked `.metallib` or `.metallib.gz` in the locally available commit trees for the 11 origin branches whose names contain suture or surgical (or needle / tissue-bridge). All 11 commits were already present. Their union contains 473 paths and 54 distinct Git blobs, all present in the `9d5c239e8fef0cb3c4e0efeaa9277df0e29f9024` tree. The checkpoint-specific source reconstruction ran on each uncompressed byte sequence: 54 examined, zero calculated fingerprint matches, zero read errors. Blob IDs, paths, file sizes, uncompressed SHA-256 values, results, matcher source and branch comparison are retained.
+
+This is a bounded filename-and-tree search. It does not search other archive formats, untracked build files, other Git refs or previously unreachable objects, and it tests the earlier checkpoint fingerprint rather than locating the later bridge checkpoint. A calculated match would only identify a candidate: native restore, rigid cache identity and physical certificates would still be required. No restore or surgical continuation was claimed.

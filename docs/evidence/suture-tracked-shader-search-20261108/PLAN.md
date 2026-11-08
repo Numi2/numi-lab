@@ -1,0 +1,3 @@
+# All tracked shader names in surgical branches
+
+After the named NumiMatter search yielded zero matches, enumerate every tracked .metallib and .metallib.gz in each local branch whose name contains suture or surgical. The ten listed branches have 473 matching paths, all from codex/suture-earned-continuation, and 54 distinct blob IDs. Scan all 54 with the same checkpoint-specific fingerprint reconstruction and resource bounds as the first search. Naming and inventory cannot establish files hidden inside other archive formats or untracked runtime images. A match is only a lead for native restoration.
