@@ -1,0 +1,9 @@
+# Real MetalWorld rejection after observation: diagnostic
+
+Use the pinned native Franka visual-platform fixture and a compiled Franka task/world with two environments and one control step. Encode a real object-track observation, then optionally reject the following device-action callback before command-buffer commit. Require the host submission to reject with no valid ticket. Retry the unchanged initialized inputs in the same context with the action callback enabled; compare the renderer sequence and accepted physical status to a fresh-process no-fault control. Use a deterministic GPU zero-fill action callback, CCD disabled for this bounded baseline, the same authored geometry and physical inputs for both arms, and no timing claims. Retain all failed setups and stop on mismatched source/world binding. This is a pre-commit host rejection test, not per-environment physical rollback or sensor deployment qualification.
+
+The first control and fault calls were rejected by preflight before either callback because the Franka native task requires implicit drives. The retained preflight logs are not a transaction test. Correct the fixture to its required implicit-position-drive mode and rerun both arms unchanged otherwise.
+
+The implicit-drive retry also stopped in preflight because the native task requires a reset-mask stream. Retain those logs and add a two-environment, all-zero reset-mask stream; no callback or physical step ran in that attempt.
+
+After the corrected test reached the intended later callback and found a sequence difference, separately inspect every ordered body name in the compiled run and visual-world template before accepting the renderer/world binding as qualified. Keep the first result unchanged. A mismatch limits the inference about observed geometry even if the cadence result remains measurable.
