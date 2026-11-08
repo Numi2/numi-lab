@@ -1,0 +1,116 @@
+{
+  "cases": [
+    {
+      "gap_m": 0,
+      "reported_gap_m": 0,
+      "impulse_Ns": [
+        -0.05713725463,
+        0.2996569574,
+        0.0
+      ],
+      "actual_delta_omega_rad_s": [
+        0,
+        0,
+        -2.856862783
+      ],
+      "local_witness_delta_omega_rad_s": [
+        -0.0,
+        -0.0,
+        -2.856862774352941
+      ],
+      "midpoint_delta_omega_rad_s": [
+        -0.0,
+        -0.0,
+        -2.856862774352941
+      ],
+      "local_error_rad_s": 8.647059068778162e-09,
+      "midpoint_error_rad_s": 8.647059068778162e-09,
+      "momentum_error_Ns": 3.72999998249357e-09,
+      "discriminating": false
+    },
+    {
+      "gap_m": 0.0006000000285,
+      "reported_gap_m": 0.0005999989808,
+      "impulse_Ns": [
+        -0.05665022135,
+        0.2397210896,
+        0.0
+      ],
+      "actual_delta_omega_rad_s": [
+        0,
+        0,
+        -2.84950614
+      ],
+      "local_witness_delta_omega_rad_s": [
+        -0.0,
+        -0.0,
+        -2.8325111099876663
+      ],
+      "midpoint_delta_omega_rad_s": [
+        -0.0,
+        -0.0,
+        -2.849506147478393
+      ],
+      "local_error_rad_s": 0.0169950300123336,
+      "midpoint_error_rad_s": 7.478393015958318e-09,
+      "momentum_error_Ns": 1.495000001572322e-08,
+      "discriminating": true
+    },
+    {
+      "gap_m": 0.00139999995,
+      "reported_gap_m": 0.001400001347,
+      "impulse_Ns": [
+        -0.05600922927,
+        0.1598097235,
+        0.0
+      ],
+      "actual_delta_omega_rad_s": [
+        0,
+        0,
+        -2.839668036
+      ],
+      "local_witness_delta_omega_rad_s": [
+        -0.0,
+        -0.0,
+        -2.800461505506922
+      ],
+      "midpoint_delta_omega_rad_s": [
+        -0.0,
+        -0.0,
+        -2.8396680033260733
+      ],
+      "local_error_rad_s": 0.039206530493077985,
+      "midpoint_error_rad_s": 3.2673926675386156e-08,
+      "momentum_error_Ns": 1.1169999994398161e-08,
+      "discriminating": true
+    },
+    {
+      "gap_m": 0.00400000019,
+      "reported_gap_m": 0.004000000656,
+      "impulse_Ns": [
+        0,
+        0,
+        0
+      ],
+      "actual_delta_omega_rad_s": [
+        0,
+        0,
+        0
+      ],
+      "local_witness_delta_omega_rad_s": [
+        -0.0,
+        0,
+        0.0
+      ],
+      "midpoint_delta_omega_rad_s": [
+        -0.0,
+        0,
+        0.0
+      ],
+      "local_error_rad_s": 0.0,
+      "midpoint_error_rad_s": 0.0,
+      "momentum_error_Ns": 0.0,
+      "discriminating": false
+    }
+  ]
+}
