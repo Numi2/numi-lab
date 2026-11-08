@@ -1557,3 +1557,27 @@ All134 legacy non-scene native outputs remain byte exact under ABI49-capable
 shaders. ABI49 independent2-vs1+1 training also matches all53 tensors and native
 state at chunks1/8. These controls do not turn the zero-reward scout into a
 learned memory result.
+
+## Native causal cue-memory admission (8 November 2026)
+
+`tools/numi crow-env memory-causal-admission --policy STOCHASTIC_RECURRENT_PACK
+--output NEW_DIRECTORY` executes three held-out allocation/action seeds, four
+matched64-lane320-tick arms: intact, GRU-only clearing at40, absent rendered cue,
+and swapped rendered cue. No learning, weight modification or contract rebinding.
+The C++ evaluation API requires matching quiescent successful checkpoint ownership;
+foreign/pending contexts reject. Clearing is idempotent and preserves all resident
+bytes except the GRU, complete retinal history, food, physics/action/task clocks.
+Cue modes change only native mesh visibility and cannot publish/restore canonical
+retinal checkpoints. Normal rendering, occlusion, sensing and physics remain native.
+
+Unchanged policy81 chooses the food side157/192 (81.8%, Wilson95%75.7..86.6) and
+consumes food38/192 (19.8%). GRU clearing gives80 correct choices and12 intakes;
+absent cues82/13; swapped cues25/5. Paired exact intake p-values are0.000306,
+0.000621 and0.000000250. Every seed has greater intact intake than every control.
+Pre-choice q/v/proprioception, postcue RGB and allocation match across paired arms.
+The actual next hidden input/reset trace confirms clearing. This supports learned
+causal memory only in the fixed head-reachable fixture and sampled seed space.
+Feeding reliability, new geometry, manipulation, social learning and the lifelong
+ecological goal remain unfinished. Eight focused native CTests and full Release
+build pass. Exact runtime, all outcomes and Git-executed recovery are retained in
+`artifacts/crow-rl-native-causal-memory-20261108`; no videos/full rollout captures.

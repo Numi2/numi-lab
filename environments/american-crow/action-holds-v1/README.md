@@ -170,3 +170,14 @@ policy/candidate/rollout bytes and world/retina/food snapshots. Evidence, startu
 and harness failures, exact runtime and Git-executed recovery are retained in
 `artifacts/crow-rl-adaptive-optimization-20261108`. Native held-out causal memory,
 manipulation, social learning and lifelong ecological qualification remain open.
+
+## Held-out native causal cue memory
+
+The public `memory-causal-admission --policy PACK --output NEW` runs intact,
+GRU-cleared40, absent and swapped cue arms on three unused allocation/action seeds.
+For unchanged policy81,192 lifetimes/arm give correct-side counts157/80/82/25
+and intake counts38/12/13/5. Actual byte-level controls preserve pre-choice physics,
+postcue RGB and food allocation; memory clearing changes only the GRU while full
+retina/food state stays exact. The cue controls alter native rendered visibility.
+This supports causal learned memory in this fixed fixture, not reliable feeding
+or general lifelong intelligence. Evidence/recovery: `artifacts/crow-rl-native-causal-memory-20261108`.
