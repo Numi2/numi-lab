@@ -1797,6 +1797,7 @@ kernel void mr_discrete_elastic_rod_step(
     threadgroup uint completedIterations;
     threadgroup uint converged;
     threadgroup uint exactAxial;
+    threadgroup uint axialPinIndex[MR_ROD_GPU_MAX_NODES];
     threadgroup uint selfFrictionContactCount;
 
     if (lane == 0u) {
@@ -1951,32 +1952,35 @@ kernel void mr_discrete_elastic_rod_step(
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
 
-    // Research-only direct solve for an exactly axial, uncoupled hard-ended
-    // chain. No approximate geometric admission: any transverse component,
-    // contact, rigid binding, damping, twist or intrinsic bend uses the
-    // ordinary constrained solver and its stretch certificate.
+    // Research-only exact axial chain solve. Unsupported geometry, coupling,
+    // damping, or attachment arrangements retain the guarded general path.
     if (lane == 0u && !eventSegment && dispatch.nodeCount >= 2u &&
-        dispatch.attachmentCount == 2u && dispatch.rigidBodyCount == 0u &&
+        dispatch.attachmentCount >= 2u && dispatch.rigidBodyCount == 0u &&
         dispatch.flags == 0u && dispatch.dampingDerivativeTolerance.x == 0.0f &&
         dispatch.dampingDerivativeTolerance.y == 0.0f &&
         dispatch.gravityAndTimestep.y == 0.0f &&
         dispatch.gravityAndTimestep.z == 0.0f &&
         atomic_load_explicit(&failure, memory_order_relaxed) == MR_ROD_GPU_SUCCESS) {
         const uint base = environment * dispatch.attachmentCount;
-        const MRRodGPUAttachment a = attachments[base];
-        const MRRodGPUAttachment b = attachments[base + 1u];
         const uint end = dispatch.nodeCount - 1u;
-        const bool endpointPair =
-            ((a.nodeIndex == 0u && b.nodeIndex == end) ||
-             (a.nodeIndex == end && b.nodeIndex == 0u));
-        bool eligible = endpointPair && a.targetAndCompliance.w == 0.0f &&
-            b.targetAndCompliance.w == 0.0f &&
-            a.targetAndCompliance.y == originalPositions[0].y &&
-            b.targetAndCompliance.y == originalPositions[0].y &&
-            a.targetAndCompliance.z == originalPositions[0].z &&
-            b.targetAndCompliance.z == originalPositions[0].z &&
-            a.velocity.y == 0.0f && a.velocity.z == 0.0f &&
-            b.velocity.y == 0.0f && b.velocity.z == 0.0f;
+        for (uint i = 0u; i < dispatch.nodeCount; ++i) axialPinIndex[i] = 0xffffffffu;
+        bool eligible = true;
+        for (uint j = 0u; j < dispatch.attachmentCount && eligible; ++j) {
+            const MRRodGPUAttachment anchor = attachments[base + j];
+            eligible = anchor.nodeIndex < dispatch.nodeCount &&
+                anchor.targetAndCompliance.w == 0.0f &&
+                all(isfinite(anchor.targetAndCompliance)) &&
+                all(isfinite(anchor.velocity)) &&
+                anchor.targetAndCompliance.y == originalPositions[0].y &&
+                anchor.targetAndCompliance.z == originalPositions[0].z &&
+                anchor.velocity.y == 0.0f && anchor.velocity.z == 0.0f;
+            if (eligible) {
+                eligible = axialPinIndex[anchor.nodeIndex] == 0xffffffffu;
+                if (eligible) axialPinIndex[anchor.nodeIndex] = j;
+            }
+        }
+        eligible = eligible && axialPinIndex[0] != 0xffffffffu &&
+            axialPinIndex[end] != 0xffffffffu;
         for (uint i = 0u; i < dispatch.nodeCount && eligible; ++i) {
             eligible = originalPositions[i].y == originalPositions[0].y &&
                 originalPositions[i].z == originalPositions[0].z &&
@@ -1997,41 +2001,46 @@ kernel void mr_discrete_elastic_rod_step(
         }
         if (eligible) {
             exactAxial = 1u;
-            const MRRodGPUAttachment left = a.nodeIndex == 0u ? a : b;
-            const MRRodGPUAttachment right = a.nodeIndex == end ? a : b;
-            positions[0].x = left.targetAndCompliance.x;
-            positions[end].x = right.targetAndCompliance.x;
             const float h = dispatch.gravityAndTimestep.w;
-            bool valid = isfinite(positions[0].x) && isfinite(positions[end].x) &&
-                positions[end].x > positions[0].x;
-            // Thomas elimination on displacement from predicted positions.
-            // Using displacement avoids cancellation of absolute-coordinate
-            // terms in the elastic right-hand side.
+            bool valid = true;
+            for (uint i = 0u; i < dispatch.nodeCount; ++i) {
+                if (axialPinIndex[i] != 0xffffffffu) {
+                    positions[i].x = attachments[base + axialPinIndex[i]].targetAndCompliance.x;
+                }
+            }
+            // Each internal hard anchor separates the chain into independent
+            // tridiagonal free-node intervals. Use displacement from predicted
+            // coordinates to reduce cancellation in the force right-hand side.
             for (uint i = 1u; i < end && valid; ++i) {
+                if (axialPinIndex[i] != 0xffffffffu) continue;
                 const float kl = stretchStiffness[i - 1u] / restLengths[i - 1u];
                 const float kr = stretchStiffness[i] / restLengths[i];
-                const float lower = i > 1u ? -kl : 0.0f;
+                const bool hasPrevious = i > 1u && axialPinIndex[i - 1u] == 0xffffffffu;
+                const bool hasNext = i + 1u < end && axialPinIndex[i + 1u] == 0xffffffffu;
+                const float lower = hasPrevious ? -kl : 0.0f;
                 float diagonal = 1.0f / (inverseMasses[i] * h * h) + kl + kr;
                 float rhs = kl * (positions[i - 1u].x + restLengths[i - 1u] - positions[i].x) +
                     kr * (positions[i + 1u].x - restLengths[i] - positions[i].x);
-                if (i > 1u) {
+                if (hasPrevious) {
                     diagonal -= lower * iterationPositions[i - 1u].z;
                     rhs -= lower * iterationPositions[i - 1u].y;
                 }
                 valid = isfinite(diagonal) && diagonal > 0.0f && isfinite(rhs);
                 if (valid) {
                     iterationPositions[i].y = rhs / diagonal;
-                    iterationPositions[i].z = i + 1u < end ? -kr / diagonal : 0.0f;
+                    iterationPositions[i].z = hasNext ? -kr / diagonal : 0.0f;
                     valid = isfinite(iterationPositions[i].y) && isfinite(iterationPositions[i].z);
                 }
             }
             if (valid && end > 1u) {
                 for (uint i = end - 1u; i > 0u; --i) {
-                    const float next = i + 1u < end ? iterationPositions[i + 1u].x : 0.0f;
+                    if (axialPinIndex[i] != 0xffffffffu) continue;
+                    const bool hasNext = i + 1u < end && axialPinIndex[i + 1u] == 0xffffffffu;
+                    const float next = hasNext ? iterationPositions[i + 1u].x : 0.0f;
                     iterationPositions[i].x = iterationPositions[i].y - iterationPositions[i].z * next;
                 }
                 for (uint i = 1u; i < end; ++i) {
-                    positions[i].x += iterationPositions[i].x;
+                    if (axialPinIndex[i] == 0xffffffffu) positions[i].x += iterationPositions[i].x;
                 }
             }
             for (uint edge = 0u; edge < dispatch.edgeCount && valid; ++edge) {
@@ -2039,21 +2048,24 @@ kernel void mr_discrete_elastic_rod_step(
                 valid = isfinite(lengthX) && lengthX > kGeometryFloor;
                 if (valid) recordPositiveMaximum(maximumErrorBits, abs(lengthX - restLengths[edge]));
             }
-            if (valid) {
-                const float fLeft = (stretchStiffness[0] / restLengths[0]) *
-                    (positions[1].x - positions[0].x - restLengths[0]);
-                const uint lastEdge = dispatch.edgeCount - 1u;
-                const float fRight = -(stretchStiffness[lastEdge] / restLengths[lastEdge]) *
-                    (positions[end].x - positions[end - 1u].x - restLengths[lastEdge]);
-                const MRRodGPUAttachment ends[2] = {a, b};
-                for (uint i = 0u; i < 2u; ++i) {
-                    const uint node = ends[i].nodeIndex;
-                    const float3 projectedVelocity = (positions[node] - originalPositions[node]) / h;
-                    const float3 force = float3(node == 0u ? fLeft : fRight, 0.0f, 0.0f);
-                    targetImpulses[i] = force * h +
-                        (velocities[node] - projectedVelocity) / inverseMasses[node];
-                    valid = valid && all(isfinite(targetImpulses[i]));
+            for (uint j = 0u; j < dispatch.attachmentCount && valid; ++j) {
+                const MRRodGPUAttachment anchor = attachments[base + j];
+                const uint node = anchor.nodeIndex;
+                float force = 0.0f;
+                if (node > 0u) {
+                    const uint edge = node - 1u;
+                    force -= (stretchStiffness[edge] / restLengths[edge]) *
+                        (positions[node].x - positions[node - 1u].x - restLengths[edge]);
                 }
+                if (node < end) {
+                    const uint edge = node;
+                    force += (stretchStiffness[edge] / restLengths[edge]) *
+                        (positions[node + 1u].x - positions[node].x - restLengths[edge]);
+                }
+                const float3 projectedVelocity = (positions[node] - originalPositions[node]) / h;
+                targetImpulses[j] = float3(force * h, 0.0f, 0.0f) +
+                    (velocities[node] - projectedVelocity) / inverseMasses[node];
+                valid = all(isfinite(targetImpulses[j]));
             }
             if (valid) {
                 completedIterations = 1u;
