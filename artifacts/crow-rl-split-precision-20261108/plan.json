@@ -72,34 +72,34 @@
       "sha256": "c690b1df0be13a7785db572e549b2c17a2175c28eeb32ea9d49335d80562720c"
     },
     {
-      "blocks": 1,
-      "bytes": 312,
+      "blocks": 2,
+      "bytes": 344,
       "name": "spd",
       "nv": 2,
       "path": "build/crow-split-precision-build-01/spd.input",
       "rounding": 0,
       "rows": 2,
-      "sha256": "fe688c51d909b011a2ce6c84bfc238190d20e6f9be24b3e2a91ea74a134fe9ed"
+      "sha256": "ed8193e01e2990b8cc0d259e0114a33eca8dd7c6b7b3edee244fc1e38128ee31"
     },
     {
-      "blocks": 0,
-      "bytes": 164,
+      "blocks": 1,
+      "bytes": 180,
       "name": "scalar-bound",
       "nv": 1,
       "path": "build/crow-split-precision-build-01/scalar-bound.input",
       "rounding": 0,
       "rows": 1,
-      "sha256": "d1c6e9731fb551bf5c2915830e3a791eb30e09fbd6a574ac918a0c8e7ec930fd"
+      "sha256": "d40dbddfc72aac8f05a182e46d4e1a809bd61b8d6b1865d797c3d8b1e19d0c54"
     },
     {
-      "blocks": 0,
-      "bytes": 252,
+      "blocks": 1,
+      "bytes": 268,
       "name": "unsupported-boundary",
       "nv": 3,
       "path": "build/crow-split-precision-build-01/unsupported-boundary.input",
       "rounding": 0,
       "rows": 3,
-      "sha256": "1d7222e1dafe1a5f5724e0347d47d7e66e7bcf41102c5576d7867a39e2d6b912"
+      "sha256": "acdb05ebd680b679df3d0546a6bac0e0b7ad393fbb335ea999e45022d93d0f74"
     }
   ],
   "commands": {
@@ -145,6 +145,14 @@
       "artifacts/crow-rl-split-precision-20261108/run.py"
     ]
   },
+  "control_input_repair": {
+    "completed_native_submissions": 11,
+    "mechanism_source_changed": false,
+    "original_sealed_commit": "62731e0b",
+    "reason": "Synthetic block records omitted 16 trailing alignment bytes. Parser rejected SPD input before native submission. Both captured arms and null completed unchanged. Preserve all original inputs and results; fix synthetic record padding and resume only remaining three submissions.",
+    "remaining_native_submissions": 3,
+    "scientific_predictions_changed": false
+  },
   "experimental_units": "Two already exposed fixed captured problems; synthetic controls. Repeat submissions test determinism, not independence.",
   "held_fixed": [
     "compiled FP32 A/J/bias/free/start/block records",
@@ -182,16 +190,16 @@
       "sha256": "89f85b795eb8a5d0f1041e00a9a99ccf871636b1dacf6ffd61038565de98d4b0"
     },
     "prepare.py": {
-      "bytes": 6367,
-      "sha256": "f4e5e921188776047c014f251310bf04b2143833c44a60f95d75cdb134354d32"
+      "bytes": 6387,
+      "sha256": "adc57f3c1dce370ebd412cca3939ceb64060a412d1321684576682269943962c"
     },
     "probe.mm": {
       "bytes": 4352,
       "sha256": "1f2e5bbd50b950401b8a6d33071263e2387460226858fd475407159f4bcf27ba"
     },
     "run.py": {
-      "bytes": 8085,
-      "sha256": "7cb82a868b90476435d24f5d1aec12e2891aff9992938aa683d8330255764348"
+      "bytes": 8468,
+      "sha256": "d8b5a9bd10141121bd0a74fd7c56b5b14eefc4045451c98e3f97ad5a26b6619a"
     },
     "split.metal": {
       "bytes": 7911,

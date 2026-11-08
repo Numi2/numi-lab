@@ -16,9 +16,9 @@ with Objects() as objects:
         raw=b''.join(content(f,entries,objects));assert len(raw)==f['bytes'] and digest(raw)==f['sha256']
         (B/(name+'-capture.bin')).write_bytes(raw);captures[name]=raw
 def scalar(at,reg,lo,hi):
-    return struct.pack('<8I20f',at,1,0,0,0,0,0,0,*([1.]*8),reg,*([1.]*7),lo,hi,0.,0.)
+    return struct.pack('<8I20f',at,1,0,0,0,0,0,0,*([1.]*8),reg,*([1.]*7),lo,hi,0.,0.)+bytes(16)
 def cone(at):
-    return struct.pack('<8I20f',at,3,1,0,0,0,0,0,*([1.]*8),*([1.]*8),0.,0.,0.,0.)
+    return struct.pack('<8I20f',at,3,1,0,0,0,0,0,*([1.]*8),*([1.]*8),0.,0.,0.,0.)+bytes(16)
 cases=[]
 def save(name,nv,rows,blocks,mass,jac,bias,free,start,rounding=0):
     raw=struct.pack('<8I',0x53504c31,1,nv,rows,len(blocks)//128,4,rounding,0)+blocks

@@ -1,0 +1,187 @@
+[
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/probe",
+      "calibrate",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/split.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/observations/calibration-0"
+    ],
+    "code": 0,
+    "device": "Apple M4 Pro",
+    "gpu_seconds": 8.08329787e-06,
+    "name": "calibration-0",
+    "returncode": 0,
+    "scratch_bytes": 64,
+    "seconds": 0.44544629100710154,
+    "thread_width": 32
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/probe",
+      "calibrate",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/split.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/observations/calibration-1"
+    ],
+    "code": 0,
+    "device": "Apple M4 Pro",
+    "gpu_seconds": 9.00001032e-06,
+    "name": "calibration-1",
+    "returncode": 0,
+    "scratch_bytes": 64,
+    "seconds": 0.023778583970852196,
+    "thread_width": 32
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/probe",
+      "solve",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/split.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/observations/substep7-split-0",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/substep7-split.input"
+    ],
+    "code": 0,
+    "device": "Apple M4 Pro",
+    "gpu_seconds": 0.00979208329,
+    "name": "substep7-split-0",
+    "returncode": 0,
+    "scratch_bytes": 21584,
+    "seconds": 0.0897591250250116,
+    "thread_width": 32
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/probe",
+      "solve",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/split.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/observations/substep7-split-1",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/substep7-split.input"
+    ],
+    "code": 0,
+    "device": "Apple M4 Pro",
+    "gpu_seconds": 0.00932312501,
+    "name": "substep7-split-1",
+    "returncode": 0,
+    "scratch_bytes": 21584,
+    "seconds": 0.04767820896813646,
+    "thread_width": 32
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/probe",
+      "solve",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/split.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/observations/substep7-rounded-0",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/substep7-rounded.input"
+    ],
+    "code": 7,
+    "device": "Apple M4 Pro",
+    "gpu_seconds": 0.013098875,
+    "name": "substep7-rounded-0",
+    "returncode": 0,
+    "scratch_bytes": 21584,
+    "seconds": 0.04759324999758974,
+    "thread_width": 32
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/probe",
+      "solve",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/split.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/observations/substep7-rounded-1",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/substep7-rounded.input"
+    ],
+    "code": 7,
+    "device": "Apple M4 Pro",
+    "gpu_seconds": 0.0102896667,
+    "name": "substep7-rounded-1",
+    "returncode": 0,
+    "scratch_bytes": 21584,
+    "seconds": 0.04758508305530995,
+    "thread_width": 32
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/probe",
+      "solve",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/split.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/observations/substep2-split-0",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/substep2-split.input"
+    ],
+    "code": 0,
+    "device": "Apple M4 Pro",
+    "gpu_seconds": 0.00226375001,
+    "name": "substep2-split-0",
+    "returncode": 0,
+    "scratch_bytes": 21584,
+    "seconds": 0.023662041989155114,
+    "thread_width": 32
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/probe",
+      "solve",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/split.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/observations/substep2-split-1",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/substep2-split.input"
+    ],
+    "code": 0,
+    "device": "Apple M4 Pro",
+    "gpu_seconds": 0.00225150003,
+    "name": "substep2-split-1",
+    "returncode": 0,
+    "scratch_bytes": 21584,
+    "seconds": 0.023531500017270446,
+    "thread_width": 32
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/probe",
+      "solve",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/split.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/observations/substep2-rounded-0",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/substep2-rounded.input"
+    ],
+    "code": 7,
+    "device": "Apple M4 Pro",
+    "gpu_seconds": 0.00803274999,
+    "name": "substep2-rounded-0",
+    "returncode": 0,
+    "scratch_bytes": 21584,
+    "seconds": 0.047660125012043864,
+    "thread_width": 32
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/probe",
+      "solve",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/split.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/observations/substep2-rounded-1",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/substep2-rounded.input"
+    ],
+    "code": 7,
+    "device": "Apple M4 Pro",
+    "gpu_seconds": 0.00783991668,
+    "name": "substep2-rounded-1",
+    "returncode": 0,
+    "scratch_bytes": 21584,
+    "seconds": 0.023538167006336153,
+    "thread_width": 32
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/probe",
+      "solve",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/split.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/observations/null-0",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-split-precision-build-01/null.input"
+    ],
+    "code": 0,
+    "device": "Apple M4 Pro",
+    "gpu_seconds": 5.87495742e-06,
+    "name": "null-0",
+    "returncode": 0,
+    "scratch_bytes": 80,
+    "seconds": 0.023638332961127162,
+    "thread_width": 32
+  }
+]

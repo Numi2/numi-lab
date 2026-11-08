@@ -1,6 +1,6 @@
 from pathlib import Path
 from fractions import Fraction
-import hashlib,json,math,os,struct,subprocess,time
+import hashlib,json,math,os,struct,subprocess,time,sys
 import numpy as np
 R=Path.cwd();A=R/'artifacts/crow-rl-split-precision-20261108';B=R/'build/crow-split-precision-build-01'
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
@@ -9,11 +9,20 @@ plan=json.loads((A/'plan.json').read_text());runtime=json.loads((A/'runtime.json
 for name,f in plan['sources'].items():assert sha(A/name)==f['sha256']
 for name,f in runtime['files'].items():assert sha(R/name)==f['sha256']
 for f in plan['cases']:assert sha(R/f['path'])==f['sha256']
-out=B/'observations';out.mkdir();records=[];analysis=[]
+out=B/'observations'
+if '--resume-controls' in sys.argv:
+    assert out.exists();records=json.loads((A/'execution-at-control-stop.json').read_text());assert len(records)==11
+else:
+    out.mkdir();records=[]
+analysis=[]
 env=os.environ.copy();env['PYTHONDONTWRITEBYTECODE']='1'
 def launch(name,mode,input=None):
     dest=out/name;cmd=[B/'probe',mode,B/'split.metallib',dest]
     if input is not None:cmd.append(input)
+    existing=next((r for r in records if r['name']==name),None)
+    if existing is not None:
+        assert existing['argv']==[str(x) for x in cmd] and existing['returncode']==0 and dest.exists()
+        return dest
     start=time.monotonic()
     with (out/(name+'.stdout')).open('xb') as stdout,(out/(name+'.stderr')).open('xb') as stderr:
         try:p=subprocess.run([str(x) for x in cmd],stdout=stdout,stderr=stderr,env=env,timeout=30);code=p.returncode
