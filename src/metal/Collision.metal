@@ -6616,6 +6616,34 @@ bool ccdDistanceAtAlpha(
         endB,
         alpha
     );
+    if ((shapeA.type == MR_SHAPE_SPHERE &&
+         shapeB.type == MR_SHAPE_BOX) ||
+        (shapeA.type == MR_SHAPE_BOX &&
+         shapeB.type == MR_SHAPE_SPHERE)) {
+        // Use the same exact primitive witness as discrete narrowphase.
+        // GJK/EPA's conservative overlap fallback is not a signed-distance
+        // oracle: its witness can differ between pair orders and overestimate
+        // separation for a thin box, invalidating conservative advancement.
+        const bool sphereIsA = shapeA.type == MR_SHAPE_SPHERE;
+        const thread WorldShape& sphere = sphereIsA ? shapeA : shapeB;
+        const thread WorldShape& box = sphereIsA ? shapeB : shapeA;
+        const SphereBoxWitness witness = sphereBoxWitness(sphere, box);
+        const float3 spherePoint =
+            sphere.center + witness.normal * sphere.radius;
+        query = {};
+        query.status = MR_STEP_SUCCESS;
+        query.normal = sphereIsA ? witness.normal : -witness.normal;
+        query.separation = witness.separation;
+        query.pointA = sphereIsA ? spherePoint : witness.boxPoint;
+        query.pointB = sphereIsA ? witness.boxPoint : spherePoint;
+        query.featureA = sphereIsA
+            ? featureKey(MR_SHAPE_SPHERE, 0u)
+            : featureKey(MR_SHAPE_BOX, witness.boxFeature);
+        query.featureB = sphereIsA
+            ? featureKey(MR_SHAPE_BOX, witness.boxFeature)
+            : featureKey(MR_SHAPE_SPHERE, 0u);
+        return true;
+    }
     if (shapeA.type == MR_SHAPE_HEIGHTFIELD ||
         shapeB.type == MR_SHAPE_HEIGHTFIELD) {
         query = {};
