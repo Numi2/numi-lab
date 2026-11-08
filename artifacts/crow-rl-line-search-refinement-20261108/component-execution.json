@@ -358,5 +358,77 @@
     "name": "substep7-legacy-0",
     "returncode": 0,
     "seconds": 0.09021020802902058
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/baseline.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/api-default.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/api-default-baseline-legacy-0",
+      "1"
+    ],
+    "name": "api-default-baseline-legacy-0",
+    "returncode": 0,
+    "seconds": 0.08987295802216977
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/baseline.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/line-search.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/line-search-baseline-legacy-0",
+      "1"
+    ],
+    "name": "line-search-baseline-legacy-0",
+    "returncode": 0,
+    "seconds": 0.08989020896842703
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/baseline.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/opt6.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/opt6-baseline-legacy-0",
+      "1"
+    ],
+    "name": "opt6-baseline-legacy-0",
+    "returncode": 0,
+    "seconds": 0.09015116700902581
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/baseline.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/opt7.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/opt7-baseline-legacy-0",
+      "1"
+    ],
+    "name": "opt7-baseline-legacy-0",
+    "returncode": 0,
+    "seconds": 0.09041774994693696
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/baseline.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/substep2.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/substep2-baseline-legacy-0",
+      "1"
+    ],
+    "name": "substep2-baseline-legacy-0",
+    "returncode": 0,
+    "seconds": 0.09040162502788007
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/baseline.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/substep7.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/substep7-baseline-legacy-0",
+      "1"
+    ],
+    "name": "substep7-baseline-legacy-0",
+    "returncode": 0,
+    "seconds": 0.09036929201101884
   }
 ]

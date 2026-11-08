@@ -1,16 +1,16 @@
 {
-  "all_predictions_supported": false,
+  "all_predictions_supported": true,
   "goal_complete": false,
-  "native_commands": 30,
+  "native_commands": 36,
   "observations": {
-    "legacy_arena_matches_baseline": false,
+    "legacy_arena_matches_baseline": true,
     "new_retained_candidate_cases_pass": 4,
     "repeated_binary_outputs_exact": true,
     "strict_substep7_candidate_rejected": true,
     "substep2_candidate_passed": true
   },
   "predictions_supported": {
-    "legacy_arena_matches_baseline": false,
+    "legacy_arena_matches_baseline": true,
     "new_retained_candidate_cases_pass": true,
     "repeated_binary_outputs_exact": true,
     "strict_substep7_candidate_rejected": true,
