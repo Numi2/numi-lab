@@ -1,0 +1,9 @@
+# Fixed-orientation sphere–box CCD correction
+
+The retained beak-release failure exhausted conservative advancement because its bound counted tangential movement and sphere spin as normal closure. A separating-plane prototype removed these false failures but still missed four short grazing geometries because of the existing ten-microsecond time floor. That rejected version and every raw record remain in artifacts/crow-rl-ccd-translation-20261108.
+
+The revision uses projected relative closing motion only when the analytic box quaternion is literally identical at both endpoints, and removes that fixed time floor for the eligible primitive. It keeps the distance tolerance, sixteen-iteration budget, initial-overlap/stationary/speculative guards and rotating-box path. nextafter is used only for representable-alpha progress.
+
+A fresh grid (seed2651521901,4096 geometries,8192 pair-order records) passed the presealed gates: zero unsafe successful no-impact records beyond the declared0.5micrometre FP32 ambiguity band, all eligible unambiguous records resolved, unresolved1856→0, exact stationary/overlap/rotating controls and exact repeat. All four retained real failure sweeps resolved, with every one of their257 distance-query records unchanged. Sixteen read-only native queries corroborated the independent FP64 reference in the four exposed grazing geometries, and all eight pair-order records became impacts.
+
+The actual rebuilt production shader reproduced all8192 candidate grid records and all four captured replay streams byte exactly. The full Release build, native generic contact probe and7296-transition object-push/camera/checkpoint controls passed with zero object-push physics rejections. The contact probe retained its40k release gate. These are primitive and engineering controls; full beak hold/lift/release, physical ingestion, learned manipulation and general rotating-body safety remain separate requirements.

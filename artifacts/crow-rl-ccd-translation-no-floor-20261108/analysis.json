@@ -1,0 +1,251 @@
+{
+  "baseline_unresolved": 1856,
+  "candidate_shader_sha256": "c1e53d3b6ecaeca1144d5d534cc87c91bf2dbdbcb4122f77c9e6c767087e7fd4",
+  "candidate_source_sha256": "e20525d52010dae9492db83e03e37171fcda9f92a6ee00194e48bf4d890c5fbd",
+  "candidate_unresolved": 0,
+  "captures": {
+    "clamp": {
+      "all_query_bytes_exact": true,
+      "both_captured_events_resolve": true,
+      "record": {
+        "colliders": [
+          11,
+          14
+        ],
+        "compiled_pair": 91,
+        "environment": 0,
+        "flags": 69,
+        "interval_distance": [
+          0,
+          0.00030891507,
+          1.13639981e-05,
+          0.206069887
+        ],
+        "normal_iteration": [
+          0.288253546,
+          1.0111884e-05,
+          -0.957554102,
+          2
+        ],
+        "status": 0
+      }
+    },
+    "open": {
+      "all_query_bytes_exact": true,
+      "both_captured_events_resolve": true,
+      "record": {
+        "colliders": [
+          12,
+          14
+        ],
+        "compiled_pair": 93,
+        "environment": 0,
+        "flags": 65,
+        "interval_distance": [
+          0,
+          0,
+          3.0530151e-05,
+          0.753014743
+        ],
+        "normal_iteration": [
+          0.573947906,
+          6.50998027e-06,
+          0.818891764,
+          1
+        ],
+        "status": 0
+      }
+    },
+    "refinement": {
+      "all_query_bytes_exact": true,
+      "both_captured_events_resolve": true,
+      "record": {
+        "colliders": [
+          11,
+          14
+        ],
+        "compiled_pair": 91,
+        "environment": 0,
+        "flags": 65,
+        "interval_distance": [
+          0,
+          0,
+          1.08601525e-05,
+          0.0626512691
+        ],
+        "normal_iteration": [
+          0.278041512,
+          5.63924004e-06,
+          -0.960569084,
+          1
+        ],
+        "status": 0
+      }
+    },
+    "zero-friction": {
+      "all_query_bytes_exact": true,
+      "both_captured_events_resolve": true,
+      "record": {
+        "colliders": [
+          12,
+          14
+        ],
+        "compiled_pair": 93,
+        "environment": 0,
+        "flags": 65,
+        "interval_distance": [
+          0,
+          0,
+          1.17952004e-05,
+          1.16812062
+        ],
+        "normal_iteration": [
+          0.199899167,
+          1.74806701e-07,
+          0.979816496,
+          1
+        ],
+        "status": 0
+      }
+    }
+  },
+  "checks": {
+    "captured_distance_queries_exact": true,
+    "captured_pairs_resolve": true,
+    "exact_controls": true,
+    "exposed_grazing_impacts_repaired": true,
+    "parent_minimum_native_gap_below_tolerance": true,
+    "parent_native_FP64_minimum_error_bound": true,
+    "parent_query_status_valid": true,
+    "repeat_exact": true,
+    "success_fraction_at_least_99_percent": true,
+    "unresolved_reduction_at_least_50_percent": true,
+    "zero_unsafe_successful_no_impact": true
+  },
+  "control_failures": [],
+  "eligible_records": 6138,
+  "eligible_success_fraction": 1.0,
+  "gray_records": [
+    3644,
+    3645,
+    4426,
+    4427,
+    6272,
+    6273
+  ],
+  "limits": "Synthetic projected geometry and exact retained sweeps. The rotating-box legacy path and event scheduler still require qualification against narrow grazing contacts and full physical release before production selection.",
+  "pair_order_classification_mismatches": [],
+  "parent_query_maximum_absolute_error_m": 4.0312132642411624e-09,
+  "parent_query_values": [
+    [
+      [
+        0.0,
+        1.741945743560791e-05,
+        0.0,
+        1.0
+      ],
+      [
+        0.004830915946513414,
+        9.996816515922546e-06,
+        0.0,
+        1.0
+      ],
+      [
+        0.0057203941978514194,
+        9.568408131599426e-06,
+        0.0,
+        1.0
+      ],
+      [
+        0.006609872914850712,
+        9.422190487384796e-06,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        0.0,
+        1.1859461665153503e-05,
+        0.0,
+        1.0
+      ],
+      [
+        0.0004093224124517292,
+        1.000426709651947e-05,
+        0.0,
+        1.0
+      ],
+      [
+        0.003676928812637925,
+        -7.80448317527771e-07,
+        0.0,
+        1.0
+      ],
+      [
+        0.006944534834474325,
+        -4.385598003864288e-06,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        0.0,
+        1.2283213436603546e-05,
+        0.0,
+        1.0
+      ],
+      [
+        0.0005800504004582763,
+        1.0009855031967163e-05,
+        0.0,
+        1.0
+      ],
+      [
+        0.0013717911206185818,
+        8.030794560909271e-06,
+        0.0,
+        1.0
+      ],
+      [
+        0.0021635317243635654,
+        7.359310984611511e-06,
+        0.0,
+        1.0
+      ]
+    ],
+    [
+      [
+        0.0,
+        1.258309930562973e-05,
+        0.0,
+        1.0
+      ],
+      [
+        0.0008681120816618204,
+        9.996816515922546e-06,
+        0.0,
+        1.0
+      ],
+      [
+        0.004601869732141495,
+        2.130866050720215e-06,
+        0.0,
+        1.0
+      ],
+      [
+        0.008335627615451813,
+        -5.029141902923584e-07,
+        0.0,
+        1.0
+      ]
+    ]
+  ],
+  "prediction_verdict": "supported",
+  "production_replacement_authorized_by_this_result": false,
+  "reference_crossing_time_comparisons_count": 2852,
+  "schema": "crow-native-ccd-translation-no-floor-v2",
+  "unresolved_reduction_fraction": 1.0,
+  "unsafe_successful_no_impact_records": []
+}

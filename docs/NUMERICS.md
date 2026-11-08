@@ -202,6 +202,8 @@ deformable surface path is a separate owner: it rebuilds swept FEM triangles
 and applies conservative-advancement vertex-triangle and edge-edge CCD inside
 its nonlinear transaction.
 
+MetalWorld has a separate opt-in hybrid CCD owner. For an analytic sphere–box sweep whose box quaternion is literally unchanged, conservative advancement uses relative translation along the current separating-plane normal; sphere spin and tangential displacement cannot close that plane. This primitive path advances without the fixed minimum-time jump, which can skip a short grazing contact. It retains a representable-alpha progress step, the existing distance tolerance and iteration budget. Rotating boxes and other geometries retain their prior path. The [translation qualification](../artifacts/crow-rl-ccd-translation-no-floor-20261108/README.md) records the rejected first prototype, independent FP64 reference, native query calibration, unused grid, production shader parity and owning contact controls; it does not establish general rotating-body or biological qualification.
+
 The contact portfolio has three distinct numerical contracts:
 
 - an independent FP64 accelerated projected-gradient exact circular-cone

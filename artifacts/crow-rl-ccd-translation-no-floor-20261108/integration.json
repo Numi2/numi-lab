@@ -1,0 +1,106 @@
+{
+  "all_four_production_captured_replays_byte_exact": true,
+  "commands": [
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-02/cases_probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-02/cases.bin",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-02/integrated-grid.bin"
+      ],
+      "exit_code": 0,
+      "name": "grid",
+      "seconds": 13.640991375
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_ccd_sweep_probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/CCDSweepProbe.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-02/input/clamp.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-02/integrated-clamp.bin"
+      ],
+      "exit_code": 0,
+      "name": "clamp",
+      "seconds": 0.08639916699999972
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_ccd_sweep_probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/CCDSweepProbe.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-02/input/open.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-02/integrated-open.bin"
+      ],
+      "exit_code": 0,
+      "name": "open",
+      "seconds": 0.08965720800000021
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_ccd_sweep_probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/CCDSweepProbe.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-02/input/zero-friction.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-02/integrated-zero-friction.bin"
+      ],
+      "exit_code": 0,
+      "name": "zero-friction",
+      "seconds": 0.0896415829999988
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_ccd_sweep_probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/CCDSweepProbe.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-02/input/refinement.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-02/integrated-refinement.bin"
+      ],
+      "exit_code": 0,
+      "name": "refinement",
+      "seconds": 0.08973816700000015
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_metal_world_contact_probe"
+      ],
+      "exit_code": 0,
+      "name": "contact",
+      "seconds": 0.5667487920000003
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_crow_object_push_check",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-translation-build-02/integrated-object-push"
+      ],
+      "exit_code": 0,
+      "name": "object-push",
+      "seconds": 103.311888958
+    }
+  ],
+  "native_contact_regression_passed": true,
+  "native_object_push_controls": {
+    "accepted_transitions": 7296,
+    "actor_has_object_truth": false,
+    "biological_calibration": false,
+    "critic_object_channels": 7,
+    "goal_reward_fp64_agrees": true,
+    "learned_manipulation": false,
+    "physical_contact_and_miss_controls": true,
+    "physics_rejections": 0,
+    "status": "passed_engineering_controls",
+    "terminations": 0,
+    "world_retina_future_restore_exact": true,
+    "world_retina_stream_partition_exact": true
+  },
+  "production_grid_all_8192_records_byte_exact": true,
+  "runtime": {
+    "build/bin/metalrobo_crow_object_push_check": "ba7630d5c0e043a02ad00518e6d0a14b206f344c8adde4de635297f0b8422d93",
+    "build/bin/metalrobo_metal_world_contact_probe": "31f845146c4ae6f11b0b4b201f9b9a3ddf7c19059cb6b99232a081fb8afacee5",
+    "build/lib/libmetalrobo.dylib": "cdca44609a3cee9747c96895ffff431702d685075621ec5013414910adfba49c",
+    "build/shaders/CCDSweepProbe.metallib": "bac848a28a7592c675b481b58918a8f78cf20349401e2f4e65e39a2e38372a99",
+    "build/shaders/MetalRobo.metallib": "3fe0680c48604b8cd6fef6093381c17952d1242c6feeb325251e625b6ede4830",
+    "src/metal/Collision.metal": "e20525d52010dae9492db83e03e37171fcda9f92a6ee00194e48bf4d890c5fbd"
+  },
+  "scope": "Production implementation matches qualified primitive candidate on tested conditions; full beak hold/lift/release remains to be tested."
+}

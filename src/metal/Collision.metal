@@ -6929,6 +6929,17 @@ MRCCDPairGPU resolveCCDPair(
     float previousAlpha = 0.0f;
     bool resolved = false;
     bool queryFailed = false;
+    // With fixed box orientation, the current analytic sphere-box witness
+    // is a separating plane for the entire translating pair. Only relative
+    // translation along that normal can close its gap; tangential motion and
+    // sphere spin cannot. A rotating box retains the general motion bound.
+    const bool translatingSphereBox = sphereBox &&
+        (sourceA.shapeType == MR_SHAPE_BOX
+            ? all(startA.rotation == endA.rotation)
+            : all(startB.rotation == endB.rotation));
+    const float3 relativeTranslation =
+        (endB.centerAndRadius.xyz - startB.centerAndRadius.xyz) -
+        (endA.centerAndRadius.xyz - startA.centerAndRadius.xyz);
     for (uint iteration = 0u;
          iteration <
              dispatch.maxConservativeAdvancementIterations;
@@ -6944,12 +6955,28 @@ MRCCDPairGPU resolveCCDPair(
             record.normalAndIteration.xyz = query.normal;
             break;
         }
-        const float advancement = max(
-            (query.separation - tolerance) / totalMotion,
-            minimumAlpha
-        );
+        float closingMotion = totalMotion;
+        if (translatingSphereBox) {
+            closingMotion = -dot(query.normal, relativeTranslation);
+            if (closingMotion <= 0.0f) {
+                resolved = true;
+                break;
+            }
+        }
+        const float planeAdvancement =
+            (query.separation - tolerance) / closingMotion;
+        // A fixed minimum time jump can skip an entire short grazing
+        // contact. The translating primitive path advances to its supporting
+        // plane, with only a representable-alpha step if rounding stalls.
+        // Other geometries retain their existing advancement contract.
+        const float advancement = translatingSphereBox
+            ? planeAdvancement
+            : max(planeAdvancement, minimumAlpha);
         previousAlpha = alpha;
-        alpha += advancement;
+        const float nextAlpha = alpha + advancement;
+        alpha = translatingSphereBox
+            ? max(nextAlpha, nextafter(alpha, 2.0f))
+            : nextAlpha;
         if (alpha > 1.0f) {
             resolved = true;
             break;
