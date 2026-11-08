@@ -1,0 +1,17 @@
+b47c76f25f8855afc68c0a1f896758397490be9a5cd02e53700d767bfa946439  docs/evidence/rod-coupled-metal-paired-20261108/PLAN.md
+3cf105512848cc620420c1d1d4e3f50ed7b99262b51713f8a39a63383a949b54  docs/evidence/rod-coupled-metal-paired-20261108/kernel.metal
+5175d1f3fedc728df29cbc5bd8a37126ae0e543ae3df3deb131d930020532d27  docs/evidence/rod-coupled-metal-paired-20261108/probe.mm
+6b5f7fbcb96436444eec58206dd39b9d8b9d999c6cfa70fb069dc3944bf6f28a  docs/evidence/rod-coupled-metal-paired-20261108/shared.h
+526ba1df3a6a89b0c736c2063054be1a36ff6ae4996795bc07aa47fd519a21c5  docs/evidence/rod-coupled-metal-paired-20261108/build.sh
+4b43905055c95d9a536290aedb0833553e907ba8fbb70047030d995b01f36fe9  docs/evidence/rod-coupled-metal-paired-20261108/run.py
+9f4953c0b60d5f91fdab1bd3117facb631f03b974ebd3dfe172ca4188e423dba  docs/evidence/rod-coupled-metal-paired-20261108/build.log
+6b9e02999741bd4b96d4cd44aec5d06251a3ada9ad794e2d7bec2d8947a47d40  docs/evidence/rod-coupled-metal-paired-20261108/pretrial.sha256
+7b8deca965c912befb39f91163b177d8363d33e54633ff16cfc08c16c180913f  docs/evidence/rod-coupled-metal-paired-20261108/results.jsonl
+7b8deca965c912befb39f91163b177d8363d33e54633ff16cfc08c16c180913f  docs/evidence/rod-coupled-metal-paired-20261108/repeat.jsonl
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  docs/evidence/rod-coupled-metal-paired-20261108/run.stderr
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  docs/evidence/rod-coupled-metal-paired-20261108/repeat.stderr
+9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa  docs/evidence/rod-coupled-metal-paired-20261108/run.exit
+9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa  docs/evidence/rod-coupled-metal-paired-20261108/repeat.exit
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  docs/evidence/rod-coupled-metal-paired-20261108/repeat-diff.log
+9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa  docs/evidence/rod-coupled-metal-paired-20261108/repeat-diff.exit
+692b390dee52f1acee90ea8a9053f25110962dea4a20860ef4a9113fe97955e0  docs/evidence/rod-coupled-metal-paired-20261108/RESULT.md
