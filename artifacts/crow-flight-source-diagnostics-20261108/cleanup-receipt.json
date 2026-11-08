@@ -1,0 +1,14 @@
+{
+  "archive_commit": "299ef75c7e5caca23c42ac71d832c3bcc74465c8",
+  "remote_commit_verified": "299ef75c7e5caca23c42ac71d832c3bcc74465c8",
+  "removed_source_files": 74,
+  "removed_source_bytes": 195821634,
+  "removed_temporary_restore_directory": "build/crow-flight-source-restore-check-01",
+  "recovery_manifest": "artifacts/crow-flight-source-recovery-20261108/manifest.json",
+  "checks": [
+    "committed archive content verified",
+    "restored runtime replay matched",
+    "source path set, sha256, size, mode and mtime matched manifest",
+    "lsof found no open handles"
+  ]
+}

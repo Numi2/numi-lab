@@ -1,0 +1,8 @@
+{
+  "first_episode_results_identical": true,
+  "selected_lane_trace_byte_identical": true,
+  "trace_sha256": "5afe087c914a259b24d1183cb3182ea8ea93764c3316805e49bf6cb0bd131f78",
+  "failed_environment_steps": 0,
+  "source": "Git-restored diagnostic shader, dynamic library and policy pack",
+  "scope": "32-lane 1600-step obstacle-free development bench; not autonomous flight qualification"
+}
