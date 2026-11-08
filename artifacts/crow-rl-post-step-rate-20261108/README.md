@@ -75,3 +75,9 @@ bytes, unchanged source hash/mode/mtime, no open handles and remote HEAD parity.
 Protected deterministic feeding deployment97 is unchanged. Reliable stochastic
 feeding, new geometry, solid-food handling, navigation/landing, social learning,
 physiology/weather and the full lifelong embodied goal remain unfinished.
+
+Executed Git recovery passed: both53-array final updates and all scientific
+optimizer metrics match exactly;95 native behavior/binary files match; owning
+functions explain all12 relocated visual identities. The297132998-byte temporary
+workspace was validated closed/unchanged and removed. All1197 original evidence
+files (1450386822bytes) are verified from actual committed Git objects.
