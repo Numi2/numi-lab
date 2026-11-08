@@ -1,0 +1,5 @@
+{
+  "prediction": "Actual Git-restored native probe and both shaders reproduce the protected candidate and all 4240 stream bytes exactly twice from the Git-restored snapshot.",
+  "budget": "Two native executions timeout180s each including cold compilation; temporary<=64MiB; no trajectory or training.",
+  "scope": "Causal sweep replay and exact byte recovery. Full learner recovery is not independently executed for this diagnostic capture."
+}

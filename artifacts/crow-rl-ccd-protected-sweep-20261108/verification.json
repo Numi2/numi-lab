@@ -1,0 +1,90 @@
+{
+  "status": "passed",
+  "archive_commit": "b32e6804b71a61756d0777a7ef78ace5bb7d3b5b",
+  "restored_files": [
+    {
+      "path": "bin/probe",
+      "sha256": "29a4276b74e0b31410b14eb31b3cb90b53b994f2759b85895009eec7d5584326",
+      "bytes": 95704
+    },
+    {
+      "path": "shaders/production.metallib",
+      "sha256": "29376e52d1cddd1892cb59a30317f3031aedb326e3002634449bdfd88d93fc81",
+      "bytes": 4210626
+    },
+    {
+      "path": "shaders/query.metallib",
+      "sha256": "2e74dbfbd675ea4f4003ca9eafa851ec2a964f4dc73f486677d00d2472089a8f",
+      "bytes": 946847
+    },
+    {
+      "path": "input/failure.ccdsweep",
+      "sha256": "af5bc68d5435d48c8b1695325137ab0c8b8f18e1d42c6832cef87a45af516278",
+      "bytes": 14736
+    },
+    {
+      "path": "input/reference.bin",
+      "sha256": "440ff114caaa28affe1bb8e90564ce39e9cfd0d3f55487d1933f1899aa91ead1",
+      "bytes": 4240
+    }
+  ],
+  "protected_candidate_and_all_stream_bytes_exact": true,
+  "repeat_exact": true,
+  "full_learner_recovery_executed": false,
+  "temporary_cleanup": {
+    "status": "removed",
+    "files": [
+      {
+        "path": "/private/tmp/crow-ccd-protected-recovery-20261108/repeat.bin",
+        "bytes": 4240,
+        "mode": 420,
+        "mtime_ns": 1794114540829170596,
+        "sha256": "440ff114caaa28affe1bb8e90564ce39e9cfd0d3f55487d1933f1899aa91ead1"
+      },
+      {
+        "path": "/private/tmp/crow-ccd-protected-recovery-20261108/replay.bin",
+        "bytes": 4240,
+        "mode": 420,
+        "mtime_ns": 1794114540781444014,
+        "sha256": "440ff114caaa28affe1bb8e90564ce39e9cfd0d3f55487d1933f1899aa91ead1"
+      },
+      {
+        "path": "/private/tmp/crow-ccd-protected-recovery-20261108/bin/probe",
+        "bytes": 95704,
+        "mode": 493,
+        "mtime_ns": 1794114540438445893,
+        "sha256": "29a4276b74e0b31410b14eb31b3cb90b53b994f2759b85895009eec7d5584326"
+      },
+      {
+        "path": "/private/tmp/crow-ccd-protected-recovery-20261108/input/failure.ccdsweep",
+        "bytes": 14736,
+        "mode": 384,
+        "mtime_ns": 1794114540452200041,
+        "sha256": "af5bc68d5435d48c8b1695325137ab0c8b8f18e1d42c6832cef87a45af516278"
+      },
+      {
+        "path": "/private/tmp/crow-ccd-protected-recovery-20261108/input/reference.bin",
+        "bytes": 4240,
+        "mode": 420,
+        "mtime_ns": 1794114540452375374,
+        "sha256": "440ff114caaa28affe1bb8e90564ce39e9cfd0d3f55487d1933f1899aa91ead1"
+      },
+      {
+        "path": "/private/tmp/crow-ccd-protected-recovery-20261108/shaders/production.metallib",
+        "bytes": 4210626,
+        "mode": 420,
+        "mtime_ns": 1794114540447522687,
+        "sha256": "29376e52d1cddd1892cb59a30317f3031aedb326e3002634449bdfd88d93fc81"
+      },
+      {
+        "path": "/private/tmp/crow-ccd-protected-recovery-20261108/shaders/query.metallib",
+        "bytes": 946847,
+        "mode": 420,
+        "mtime_ns": 1794114540451505169,
+        "sha256": "2e74dbfbd675ea4f4003ca9eafa851ec2a964f4dc73f486677d00d2472089a8f"
+      }
+    ],
+    "bytes": 5280633,
+    "open_handles": 0
+  }
+}
