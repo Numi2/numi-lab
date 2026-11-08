@@ -8,6 +8,7 @@
 int main(int argc,char**argv) {
     if(argc!=2) return 2;
     auto model=metalrobo::makeFreeSphereEngineModel();
+    model.shapes.clear(); model.world.shapeCount=0;
     metalrobo::CompiledWorld world;
     auto compiled=metalrobo::compileMetalWorld(model,0,world);
     if (!compiled.succeeded()) { std::cerr<<"compile "<<compiled.message<<"\n"; return 2; }
