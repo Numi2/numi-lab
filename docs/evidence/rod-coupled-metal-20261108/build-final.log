@@ -1,0 +1,7 @@
+/Users/numi/numi-lab-tracker-step-rollback-20261108/docs/evidence/rod-coupled-metal-20261108/probe.mm:25:26: warning: 'newLibraryWithFile:error:' is deprecated: first deprecated in macOS 13.0 - Use -newLibraryWithURL:error: instead [-Wdeprecated-declarations]
+   25 |  id<MTLLibrary> lib=[dev newLibraryWithFile:[NSString stringWithUTF8String:argv[1]] error:&err];
+      |                          ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework/Headers/MTLDevice.h:766:1: note: 'newLibraryWithFile:error:' has been explicitly marked deprecated here
+  766 | - (nullable id <MTLLibrary>)newLibraryWithFile:(NSString *)filepath error:(__autoreleasing NSError **)error
+      | ^
+1 warning generated.

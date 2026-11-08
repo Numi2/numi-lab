@@ -1,0 +1,6 @@
+In file included from /Users/numi/numi-lab-tracker-step-rollback-20261108/docs/evidence/rod-coupled-metal-20261108/kernel.metal:4:
+In file included from /Users/numi/numi-lab-tracker-step-rollback-20261108/include/metalrobo/compensated_geometry_gpu.h:2:
+/Users/numi/numi-lab-tracker-step-rollback-20261108/include/metalrobo/compensated_translation_gpu.h:102:12: error: use of undeclared identifier 'nextafter'
+    return nextafter(value.high, value.low > 0.0f ? INFINITY : -INFINITY);
+           ^
+1 error generated.
