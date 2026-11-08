@@ -88,3 +88,21 @@ energy and contact-work checks pass. Raw output, host and RSS records,
 identities and analysis are retained in
 [evidence](evidence/contact-p2-n16-capture-20261108/). This captures states
 for the separate transfer diagnosis; it is not force qualification.
+
+## Transfer execution registration
+
+Run the retained fine n=8 full states (indices 45–50) and verified fine
+n=16 onset capture through the P2 onset transfer script.
+The transfer uses the same P2 tetrahedral mesh family and 32-point
+interpolation chunks, separately evaluating Duffy-48 and Duffy-64 without
+factoring a mass matrix. A polynomial transfer control requires each
+constant, affine and quadratic displacement to agree within 1e-12 m.
+All other reproduction, offset, quadrature and positivity gates above
+remain unchanged. Retain exact source, state, environment and result hashes.
+
+Use a single CPU thread and no GPU, 1 Hz sampled RSS, a 4 GiB hard RSS
+stop and 600-second process-group wall stop. An estimated 1–2 GiB and
+1–3 minutes is uncertain, especially for Duffy-64 allocation; do not infer
+throughput or safety from the smaller preceding n4/n8 transfer. Stop on
+failure, timeout or cap and retain the result. Coordinate with the parent
+before execution and do not overlap queued native correctness checks.
