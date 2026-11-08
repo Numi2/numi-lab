@@ -5091,8 +5091,13 @@ RuntimeDiagnostics Runtime::initialize(
                 world.contact.rigidProxies[0].localCenterAndRadius.y == 0.0f &&
                 world.contact.rigidProxies[0].localCenterAndRadius.z == 1.0f &&
                 world.contact.rigidProxies[0].localCenterAndRadius.w == 0.0f;
-            if (!eligible || !(0.5f*world.mixedSolver.contactAcceptance.w > 0.0f)) {
-                diagnostics.message = "midpoint research mode requires the restricted stateless one-object FEM-plane fixture and explicit physical residual scales";
+            const float absolute = world.mixedSolver.contactAcceptance.y;
+            const float physicalLimit = absolute + world.mixedSolver.contactAcceptance.z *
+                world.mixedSolver.contactAcceptance.w;
+            if (!eligible || !(0.5f*world.mixedSolver.contactAcceptance.w > 0.0f) ||
+                (absolute > 0.0f && !(0.5f*absolute > 0.0f)) ||
+                !std::isfinite(physicalLimit) || !(physicalLimit > 0.0f)) {
+                diagnostics.message = "midpoint research mode requires the restricted stateless one-object FEM-plane fixture and representable physical residual scales";
                 return diagnostics;
             }
         }
@@ -19553,6 +19558,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
         if (!std::isfinite(frameTimestep) || !(frameTimestep > 0.0f)) {
             diagnostics.message =
                 "matter frame timestep must be finite and positive";
+            return diagnostics;
+        }
+        if (state.experimentalFEMPlaneMidpoint && !(0.5f*frameTimestep > 0.0f)) {
+            diagnostics.message = "midpoint stage timestep is not representable";
             return diagnostics;
         }
         if (frameTimestep != activeTimestep) {
