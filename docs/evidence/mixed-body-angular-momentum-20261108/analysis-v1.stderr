@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/numi/mixed-contact-witness-20261108/analyze.py", line 27, in <module>
+    assert norm(dp)<1e-7 and err<1e-7 and poserr<1e-7
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

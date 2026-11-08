@@ -1,0 +1,70 @@
+{
+  "cases": [
+    {
+      "gap_m": 0,
+      "friction": 0.5,
+      "contact_impulse_Ns": [
+        0.1498284787,
+        -0.02856862918,
+        0.0
+      ],
+      "delta_angular_momentum_Nms": [
+        0.0,
+        0.0,
+        1.911470617205202e-10
+      ],
+      "predicted_asymmetric_angular_impulse_Nms": [
+        0.0,
+        0.0,
+        -0.0
+      ],
+      "angular_accounting_error_Nms": 1.911470617205202e-10,
+      "final_position_consistency_error_Nms": 1.3855920095312557e-08,
+      "linear_momentum_error_Ns": 3.6799999991732335e-09
+    },
+    {
+      "gap_m": 0.00139999995,
+      "friction": 0.5,
+      "contact_impulse_Ns": [
+        0.07990665734,
+        -0.02828381024,
+        0.0
+      ],
+      "delta_angular_momentum_Nms": [
+        0.0,
+        0.0,
+        -1.9799927634696086e-05
+      ],
+      "predicted_asymmetric_angular_impulse_Nms": [
+        0.0,
+        0.0,
+        -1.9798686118152835e-05
+      ],
+      "angular_accounting_error_Nms": 1.2415165432508508e-09,
+      "final_position_consistency_error_Nms": 1.4634110843264603e-08,
+      "linear_momentum_error_Ns": 1.7562152465394663e-08
+    },
+    {
+      "gap_m": 0.00139999995,
+      "friction": 0,
+      "contact_impulse_Ns": [
+        0.07990665734,
+        0.0,
+        0.0
+      ],
+      "delta_angular_momentum_Nms": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "predicted_asymmetric_angular_impulse_Nms": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "angular_accounting_error_Nms": 0.0,
+      "final_position_consistency_error_Nms": 5.303629611874694e-09,
+      "linear_momentum_error_Ns": 1.4859999966643223e-08
+    }
+  ]
+}
