@@ -1,0 +1,3 @@
+# Compact rigid-cohort compatibility
+
+The scheduler source explicitly selects a full 32-lane packet whenever any queued island contains a rod. Test the distinct compact path with four rigid-only environments by translating every rod far away; keep the same sphere, plane, friction and requested two sweeps. The native queue flags must show an 8-lane compact cohort, and all four environments' exposed final q/v, scene, rod states and statuses must match the unmodified research shader under both bounded variants, with deterministic repeats. This tests non-rod coexistence through the compact path, not a rod/rigid shared packet. If flags do not prove compact scheduling, report that as unqualified. Retain native failures and make no performance claim.
