@@ -1,0 +1,218 @@
+{
+  "schema": "numi.ccd.pending-independent-geometry.v1",
+  "comparison_pass": true,
+  "trace_count_per_selector": 16,
+  "scales": [
+    {
+      "scale": 1,
+      "capture": {
+        "q0": [
+          0,
+          0,
+          0.6885296702,
+          0.7252081633
+        ],
+        "q1": [
+          7.165505966e-10,
+          6.072529146e-09,
+          0.931892097,
+          0.3627356291
+        ],
+        "y0": 0.1997999996,
+        "y1": 0.2101076543,
+        "plane_y": 0,
+        "guard_m": 2.335924137e-06,
+        "tolerance_m": 9.999999747e-06,
+        "extents": [
+          0.20000000298,
+          0.000199999994948,
+          0.0299999993294
+        ]
+      },
+      "pending": [
+        {
+          "alpha": [
+            0.5,
+            1
+          ],
+          "corner0": {
+            "sample_min_gap_m": 0.019915540184125308,
+            "sample_argmin_alpha": 0.5,
+            "sampling_lower_with_roundoff_guard_m": 0.019914861605019464,
+            "sample_count": 100001,
+            "lipschitz_per_alpha": 0.19143164233826448
+          },
+          "all_corners": {
+            "sample_min_gap_m": 0.019764109579450823,
+            "sample_argmin_alpha": 0.5,
+            "sampling_lower_with_roundoff_guard_m": 0.01976343100034498,
+            "sample_count": 100001,
+            "lipschitz_per_alpha": 0.19143164233826448
+          }
+        }
+      ],
+      "full_remainder_corner0": {
+        "sample_min_gap_m": 5.868824421262353e-05,
+        "sample_argmin_alpha": 0.0,
+        "sampling_lower_with_roundoff_guard_m": 5.753108600093221e-05,
+        "sample_count": 100001,
+        "lipschitz_per_alpha": 0.1914316423382646
+      },
+      "full_remainder_all_corners": {
+        "sample_min_gap_m": 5.868824421262353e-05,
+        "sample_argmin_alpha": 0.0,
+        "sampling_lower_with_roundoff_guard_m": 5.753108600093221e-05,
+        "sample_count": 100001,
+        "lipschitz_per_alpha": 0.1914316423382646
+      }
+    },
+    {
+      "scale": 0.5,
+      "capture": {
+        "q0": [
+          0,
+          0,
+          0.6885296702,
+          0.7252081633
+        ],
+        "q1": [
+          7.165505966e-10,
+          6.072529146e-09,
+          0.931892097,
+          0.3627356291
+        ],
+        "y0": 0.0998999998,
+        "y1": 0.1050538272,
+        "plane_y": 0,
+        "guard_m": 1.167962523e-06,
+        "tolerance_m": 9.999999747e-06,
+        "extents": [
+          0.10000000149,
+          9.99999974738e-05,
+          0.0149999996647
+        ]
+      },
+      "pending": [
+        {
+          "alpha": [
+            0.5,
+            1
+          ],
+          "corner0": {
+            "sample_min_gap_m": 0.009957770117062573,
+            "sample_argmin_alpha": 0.5,
+            "sampling_lower_with_roundoff_guard_m": 0.009957330827509523,
+            "sample_count": 100001,
+            "lipschitz_per_alpha": 0.09571582121995535
+          },
+          "all_corners": {
+            "sample_min_gap_m": 0.009882054814725497,
+            "sample_argmin_alpha": 0.5,
+            "sampling_lower_with_roundoff_guard_m": 0.009881615525172447,
+            "sample_count": 100001,
+            "lipschitz_per_alpha": 0.09571582121995535
+          }
+        },
+        {
+          "alpha": [
+            0.25,
+            0.5
+          ],
+          "corner0": {
+            "sample_min_gap_m": 0.002555419582508364,
+            "sample_argmin_alpha": 0.25,
+            "sampling_lower_with_roundoff_guard_m": 0.002555099937731839,
+            "sample_count": 100001,
+            "lipschitz_per_alpha": 0.09571582121995541
+          },
+          "all_corners": {
+            "sample_min_gap_m": 0.002522471778040117,
+            "sample_argmin_alpha": 0.25,
+            "sampling_lower_with_roundoff_guard_m": 0.0025221521332635917,
+            "sample_count": 100001,
+            "lipschitz_per_alpha": 0.09571582121995541
+          }
+        },
+        {
+          "alpha": [
+            0.125,
+            0.25
+          ],
+          "corner0": {
+            "sample_min_gap_m": 0.0006918593044802773,
+            "sample_argmin_alpha": 0.125,
+            "sampling_lower_with_roundoff_guard_m": 0.000691599872949519,
+            "sample_count": 100001,
+            "lipschitz_per_alpha": 0.09509044921338781
+          },
+          "all_corners": {
+            "sample_min_gap_m": 0.0006807014270050898,
+            "sample_argmin_alpha": 0.125,
+            "sampling_lower_with_roundoff_guard_m": 0.0006804419954743315,
+            "sample_count": 100001,
+            "lipschitz_per_alpha": 0.09509044921338781
+          }
+        },
+        {
+          "alpha": [
+            0.0625,
+            0.125
+          ],
+          "corner0": {
+            "sample_min_gap_m": 0.00021391734107475968,
+            "sample_argmin_alpha": 0.0625,
+            "sampling_lower_with_roundoff_guard_m": 0.00021368786439069704,
+            "sample_count": 100001,
+            "lipschitz_per_alpha": 0.09432538900039461
+          },
+          "all_corners": {
+            "sample_min_gap_m": 0.00021357994603474206,
+            "sample_argmin_alpha": 0.0625,
+            "sampling_lower_with_roundoff_guard_m": 0.00021335046935067942,
+            "sample_count": 100001,
+            "lipschitz_per_alpha": 0.09432538900039461
+          }
+        },
+        {
+          "alpha": [
+            0.03125,
+            0.0625
+          ],
+          "corner0": {
+            "sample_min_gap_m": 8.552062974206964e-05,
+            "sample_argmin_alpha": 0.03125,
+            "sampling_lower_with_roundoff_guard_m": 8.530596759996646e-05,
+            "sample_count": 100001,
+            "lipschitz_per_alpha": 0.09383770946037304
+          },
+          "all_corners": {
+            "sample_min_gap_m": 8.552062974206964e-05,
+            "sample_argmin_alpha": 0.03125,
+            "sampling_lower_with_roundoff_guard_m": 8.530596759996646e-05,
+            "sample_count": 100001,
+            "lipschitz_per_alpha": 0.09383770946037304
+          }
+        }
+      ],
+      "full_remainder_corner0": {
+        "sample_min_gap_m": 2.9344122106311765e-05,
+        "sample_argmin_alpha": 0.0,
+        "sampling_lower_with_roundoff_guard_m": 2.8665543000211988e-05,
+        "sample_count": 100001,
+        "lipschitz_per_alpha": 0.09571582121995541
+      },
+      "full_remainder_all_corners": {
+        "sample_min_gap_m": 2.9344122106311765e-05,
+        "sample_argmin_alpha": 0.0,
+        "sampling_lower_with_roundoff_guard_m": 2.8665543000211988e-05,
+        "sample_count": 100001,
+        "lipschitz_per_alpha": 0.09571582121995541
+      }
+    }
+  ],
+  "limitations": [
+    "Projected candidate sweep only; rejected state is never accepted.",
+    "Whole-interval sampling lower bound includes a 0.2 micrometre implementation/decimal guard and is a diagnostic, not a verified production certificate.",
+    "The certificate halted in corner 0; other corners were not necessarily processed."
+  ]
+}

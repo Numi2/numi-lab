@@ -1,0 +1,11 @@
+--- probe.before.cpp	2026-11-07 20:02:22
++++ probe.cpp	2026-11-07 20:02:22
+@@ -12,7 +12,7 @@
+ int main(int argc,char** argv) {
+  if(argc<2||!std::filesystem::is_regular_file(argv[1]))return 2;
+  std::cout<<std::setprecision(12)<<"{\"schema\":\"numi.ccd.complete-steps.v1\",\"runs\":[";bool first=true;
+- for(double scale:{1.,.5})for(int limit:{16})for(int mode:{0})for(int fixture:{1,2,12,13,14,15}) {
++ for(double scale:{1.,.5})for(int limit:{16})for(int mode:{0})for(int fixture:{12}) {
+   auto model=metalrobo::makeFreeSphereEngineModel();
+   model.world.gravityAndTimestep={0,0,0,.01f};
+   auto& shape=model.shapes[1];shape.shapeType=MR_SHAPE_BOX;shape.flags|=MR_SHAPE_FLAG_ENABLE_CCD;

@@ -1,0 +1,59 @@
+--- Collision.before.metal	2026-11-07 20:02:22
++++ Collision.instrumented.metal	2026-11-07 20:02:22
+@@ -6980,7 +6980,7 @@
+     device const MRProjectedColliderGPU& startA,device const MRProjectedColliderGPU& startB,
+     device const MRProjectedColliderGPU& endA,device const MRProjectedColliderGPU& endB,
+     float tolerance,uint budget,thread bool& clear,thread float& lower,thread float& upper,
+-    thread uint& work) {
++    thread uint& work,thread float2& diagnostic) {
+     const bool planeA=sourceA.shapeType==MR_SHAPE_PLANE;
+     if(!((planeA&&sourceB.shapeType==MR_SHAPE_BOX)||
+          (sourceB.shapeType==MR_SHAPE_PLANE&&sourceA.shapeType==MR_SHAPE_BOX)))return false;
+@@ -7057,7 +7057,31 @@
+             if(count+2>32||left.upper==node.lower||left.upper==node.upper)break;
+             pending[count++]=right;pending[count++]=left;
+         }
+-        if(!vertexDone){clear=false;lower=-1;return true;}
++        if(!vertexDone){
++            clear=false;lower=-1;
++#if CCD_CAPTURE_SLOT < 5
++            diagnostic=CCD_CAPTURE_SLOT<count ? float2(pending[CCD_CAPTURE_SLOT].lower,pending[CCD_CAPTURE_SLOT].upper) : float2(-1.f,-1.f);
++#elif CCD_CAPTURE_SLOT == 5
++            diagnostic=float2(box0.centerAndRadius.y,box1.centerAndRadius.y);
++#elif CCD_CAPTURE_SLOT == 6
++            diagnostic=box0.rotation.xy;
++#elif CCD_CAPTURE_SLOT == 7
++            diagnostic=box0.rotation.zw;
++#elif CCD_CAPTURE_SLOT == 8
++            diagnostic=end.xy;
++#elif CCD_CAPTURE_SLOT == 9
++            diagnostic=end.zw;
++#elif CCD_CAPTURE_SLOT == 10
++            diagnostic=float2(guard,tolerance);
++#elif CCD_CAPTURE_SLOT == 11
++            diagnostic=float2(n.y,plane0.centerAndRadius.y);
++#elif CCD_CAPTURE_SLOT == 12
++            diagnostic=float2(n.x,n.z);
++#else
++#error invalid capture slot
++#endif
++            return true;
++        }
+     }
+     return true;
+ }
+@@ -7144,11 +7168,12 @@
+     }
+     record.intervalAndDistance.z = query.separation;
+     record.normalAndIteration.xyz = query.normal;
+-    bool polynomialClear=false;float polynomialLower=0,polynomialUpper=0;uint polynomialWork=0;
++    bool polynomialClear=false;float polynomialLower=0,polynomialUpper=0;uint polynomialWork=0;float2 diagnostic=float2(0);
+     if(certifiedBoxPlaneSweep(sourceA,sourceB,startA,startB,endA,endB,query.separation<=tolerance?-min(tolerance,1e-6f):tolerance,
+-            dispatch.maxConservativeAdvancementIterations,polynomialClear,polynomialLower,polynomialUpper,polynomialWork)) {
++            dispatch.maxConservativeAdvancementIterations,polynomialClear,polynomialLower,polynomialUpper,polynomialWork,diagnostic)) {
+         record.flags|=MR_CCD_PAIR_ANALYTIC;record.normalAndIteration.w=float(polynomialWork);
+         if(polynomialLower<0) {
++            record.intervalAndDistance.xy=diagnostic;
+             record.flags|=MR_CCD_PAIR_UNRESOLVED;record.status=MR_STEP_DID_NOT_CONVERGE;
+         } else if(polynomialClear&&query.separation<=tolerance) {
+             record.flags|=MR_CCD_PAIR_START_OVERLAP;

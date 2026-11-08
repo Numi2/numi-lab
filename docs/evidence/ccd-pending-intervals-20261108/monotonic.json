@@ -1,0 +1,262 @@
+{
+  "schema": "numi.ccd.monotonic-screen.v1",
+  "results": [
+    {
+      "scale": 1,
+      "dot": 0.9046941975524775,
+      "center_displacement": 0.010307654700000002,
+      "all_corners_screen_positive": true,
+      "corners": [
+        {
+          "corner": 0,
+          "gap_bernstein": [
+            4.635231971966691e-05,
+            -0.004291547322467521,
+            0.06472284746941323
+          ],
+          "derivative_lower_bernstein": [
+            0.000658311393392251,
+            0.07311301684128263,
+            0.13501713945739324
+          ],
+          "positive_gap_bound": false,
+          "monotone_from_positive_start": true
+        },
+        {
+          "corner": 1,
+          "gap_bernstein": [
+            0.39950822827433896,
+            0.36593645784719686,
+            0.33514722434562694
+          ],
+          "derivative_lower_bernstein": [
+            0.018332629365970545,
+            -0.05592449260844089,
+            -0.11613615424793595
+          ],
+          "positive_gap_bound": true,
+          "monotone_from_positive_start": false
+        },
+        {
+          "corner": 2,
+          "gap_bernstein": [
+            6.709382854425128e-05,
+            -0.0044429779261889076,
+            0.06442810917932532
+          ],
+          "derivative_lower_bernstein": [
+            0.0003179207445640937,
+            0.07279753704588815,
+            0.13478670462832756
+          ],
+          "positive_gap_bound": false,
+          "monotone_from_positive_start": true
+        },
+        {
+          "corner": 3,
+          "gap_bernstein": [
+            0.39952896978316355,
+            0.3657850272434755,
+            0.3348524860555391
+          ],
+          "derivative_lower_bernstein": [
+            0.017992238717142388,
+            -0.056239972403835374,
+            -0.1163665890770016
+          ],
+          "positive_gap_bound": true,
+          "monotone_from_positive_start": false
+        },
+        {
+          "corner": 4,
+          "gap_bernstein": [
+            4.635231971966691e-05,
+            -0.0042915471027794375,
+            0.06472284811729603
+          ],
+          "derivative_lower_bernstein": [
+            0.0006583118327684115,
+            0.07311301748916543,
+            0.13501714019028865
+          ],
+          "positive_gap_bound": false,
+          "monotone_from_positive_start": true
+        },
+        {
+          "corner": 5,
+          "gap_bernstein": [
+            0.39950822827433896,
+            0.36593645806688496,
+            0.3351472249935098
+          ],
+          "derivative_lower_bernstein": [
+            0.018332629805346706,
+            -0.0559244919605581,
+            -0.11613615351504053
+          ],
+          "positive_gap_bound": true,
+          "monotone_from_positive_start": false
+        },
+        {
+          "corner": 6,
+          "gap_bernstein": [
+            6.709382854425128e-05,
+            -0.004442977706500824,
+            0.06442810982720812
+          ],
+          "derivative_lower_bernstein": [
+            0.0003179211839402542,
+            0.07279753769377094,
+            0.134786705361223
+          ],
+          "positive_gap_bound": false,
+          "monotone_from_positive_start": true
+        },
+        {
+          "corner": 7,
+          "gap_bernstein": [
+            0.39952896978316355,
+            0.36578502746316355,
+            0.3348524867034219
+          ],
+          "derivative_lower_bernstein": [
+            0.01799223915651855,
+            -0.056239971755952585,
+            -0.11636658834410618
+          ],
+          "positive_gap_bound": true,
+          "monotone_from_positive_start": false
+        }
+      ]
+    },
+    {
+      "scale": 0.5,
+      "dot": 0.9046941975524775,
+      "center_displacement": 0.005153827400000005,
+      "all_corners_screen_positive": true,
+      "corners": [
+        {
+          "corner": 0,
+          "gap_bernstein": [
+            1.817615959752439e-05,
+            -0.0021502971325183477,
+            0.03235642373429311
+          ],
+          "derivative_lower_bernstein": [
+            0.0003291557419306621,
+            0.03655650846156474,
+            0.06750856977393122
+          ],
+          "positive_gap_bound": false,
+          "monotone_from_positive_start": true
+        },
+        {
+          "corner": 1,
+          "gap_bernstein": [
+            0.19974911413690716,
+            0.18296370545231383,
+            0.16756861217239993
+          ],
+          "derivative_lower_bernstein": [
+            0.00916631472821981,
+            -0.02796224626329703,
+            -0.05806807707873339
+          ],
+          "positive_gap_bound": true,
+          "monotone_from_positive_start": false
+        },
+        {
+          "corner": 2,
+          "gap_bernstein": [
+            2.8546914009788815e-05,
+            -0.002226012434378888,
+            0.032209054589249456
+          ],
+          "derivative_lower_bernstein": [
+            0.00015896041751693735,
+            0.036398768563867825,
+            0.06739335235939861
+          ],
+          "positive_gap_bound": false,
+          "monotone_from_positive_start": true
+        },
+        {
+          "corner": 3,
+          "gap_bernstein": [
+            0.19975948489131945,
+            0.18288799015045332,
+            0.1674212430273563
+          ],
+          "derivative_lower_bernstein": [
+            0.008996119403806084,
+            -0.02811998616099394,
+            -0.05818329449326597
+          ],
+          "positive_gap_bound": true,
+          "monotone_from_positive_start": false
+        },
+        {
+          "corner": 4,
+          "gap_bernstein": [
+            1.817615959752439e-05,
+            -0.002150297022674306,
+            0.0323564240582345
+          ],
+          "derivative_lower_bernstein": [
+            0.00032915596161874235,
+            0.036556508785506134,
+            0.06750857014037893
+          ],
+          "positive_gap_bound": false,
+          "monotone_from_positive_start": true
+        },
+        {
+          "corner": 5,
+          "gap_bernstein": [
+            0.19974911413690716,
+            0.18296370556215788,
+            0.16756861249634136
+          ],
+          "derivative_lower_bernstein": [
+            0.00916631494790789,
+            -0.027962245939355628,
+            -0.05806807671228566
+          ],
+          "positive_gap_bound": true,
+          "monotone_from_positive_start": false
+        },
+        {
+          "corner": 6,
+          "gap_bernstein": [
+            2.8546914009788815e-05,
+            -0.0022260123245348463,
+            0.03220905491319085
+          ],
+          "derivative_lower_bernstein": [
+            0.00015896063720501757,
+            0.03639876888780923,
+            0.06739335272584634
+          ],
+          "positive_gap_bound": false,
+          "monotone_from_positive_start": true
+        },
+        {
+          "corner": 7,
+          "gap_bernstein": [
+            0.19975948489131945,
+            0.18288799026029737,
+            0.16742124335129774
+          ],
+          "derivative_lower_bernstein": [
+            0.008996119623494165,
+            -0.028119985837052545,
+            -0.05818329412681825
+          ],
+          "positive_gap_bound": true,
+          "monotone_from_positive_start": false
+        }
+      ]
+    }
+  ],
+  "limitation": "Offline FP64 feasibility only; no outward-rounding or production safety proof."
+}
