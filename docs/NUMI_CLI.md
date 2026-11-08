@@ -53,9 +53,12 @@ all requested control steps without a task termination or host reset during
 the horizon. A timeout on the final requested step counts as completion; any
 other termination, an earlier timeout, or a host reset after the initial
 state interrupts the horizon. Raw termination counts retain the timeout.
-Scheduled evaluation resets can therefore reduce this rate; it is not a
-measure of learned task skill or force accuracy. The native regression can be
-run with `python3 tests/clean_horizon_native_test.py --build BUILD_DIRECTORY`.
+Ordinary rollout defaults still include periodic benchmark resets. Policy
+selection instead disables those periodic resets while retaining the authored
+initial reset, so each held-out trajectory can cover the requested horizon.
+The rate is not a measure of learned task skill or force accuracy. The native
+regression can be run with
+`python3 tests/clean_horizon_native_test.py --build BUILD_DIRECTORY`.
 
 `numi train` and `numi evaluate` are discovered commands, not core CLI logic.
 The dispatcher searches in this order:
