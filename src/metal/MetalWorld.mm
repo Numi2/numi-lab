@@ -20217,9 +20217,10 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 const std::uint64_t modelUploads;
                 std::vector<MRArticulationGPU> articulations;
                 explicit InitialUploadAbortGuard(
-                    detail::MetalWorldContextState& value
+                    detail::MetalWorldContextState& value,
+                    const bool supported
                 ) : state(value),
-                    armedInitially(value.boundModelFingerprint == 0u &&
+                    armedInitially(supported && value.boundModelFingerprint == 0u &&
                         value.boundTaskFingerprint == 0u &&
                         value.boundPolicyFingerprint == 0u &&
                         value.boundMulticopterFingerprint == 0u &&
@@ -20243,7 +20244,12 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                     state.stats.modelUploadCount = modelUploads;
                     state.boundArticulations.swap(articulations);
                 }
-            } initialUploadAbortGuard(*selectedState);
+            } initialUploadAbortGuard(
+                *selectedState,
+                !config.millardProgram.valid() &&
+                !config.multicopterProgram.valid() &&
+                !config.devicePhysicsProgram.valid()
+            );
             uploadBatch(
                 *selectedState,
                 commandBuffer,
