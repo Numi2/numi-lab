@@ -1,0 +1,51 @@
+--- Collision.before.metal	2026-11-07 19:58:58
++++ Collision.instrumented.metal	2026-11-07 19:58:58
+@@ -7027,17 +7027,19 @@
+         pending[0].d[0]=D0;pending[0].d[1]=ccdQuatAdd(D0,ccdScale(D1,.5f));
+         pending[0].d[2]=ccdQuatAdd(ccdQuatAdd(D0,D1),D2);
+         bool vertexDone=false;
++        uint diagnosticReason=1u,diagnosticBits=0u; float diagnosticLower=0.f;
+         for(uint iteration=0;iteration<budget;++iteration) {
+             work=max(work,iteration+1);
+             if(count==0){vertexDone=true;break;}
+             const auto node=pending[--count];
++            diagnosticLower=node.lower; diagnosticBits=0u;
+             const float tl=ccdNlerpPhysicalTime(node.lower,box0.rotation,end);
+             const float tu=ccdNlerpPhysicalTime(node.upper,box0.rotation,end);
+             const CCDI time={max(0.f,ccdQuatDown(tl-2e-6f)),min(1.f,ccdQuatUp(tu+2e-6f))};
+             const auto center=ccdQuatAdd(center0,ccdQuatMul(centerDelta,time));
+             bool positive=true;for(uint k=0;k<3;++k)
+                 positive&=ccdQuatAdd(node.r[k],ccdQuatMul(center,node.d[k])).lo>0;
+-            if(positive) { if(count==0){vertexDone=true;break;} continue; }
++            if(positive) { diagnosticBits|=1u; if(count==0){vertexDone=true;break;} continue; }
+             CCDPolynomialNode left,right;ccdSplitPolynomial(node,left,right);
+             const float tm=ccdNlerpPhysicalTime(left.upper,box0.rotation,end);
+             const auto upperCenter=ccdQuatAdd(center0,ccdQuatMul(centerDelta,{tu-2e-6f,tu+2e-6f}));
+@@ -7050,14 +7052,16 @@
+             // the left endpoint of the entire interval (zero time) repeatedly
+             // applies a speculative solve at an unchanged pose and cannot
+             // resolve the later curved interaction.
++            diagnosticBits|=(negativeWitness?2u:0u)|(tl>0.f?4u:0u)|(leftValue.lo>0?8u:0u)|(leftValue.hi<band*denominatorLower?16u:0u);
+             if(negativeWitness&&tl>0.f&&leftValue.lo>0&&leftValue.hi<band*denominatorLower) {
+                 if(tl<lower){lower=max(0.f,tl-2e-6f);upper=min(1.f,tu+2e-6f);}
+                 clear=false;vertexDone=true;break;
+             }
+-            if(count+2>32||left.upper==node.lower||left.upper==node.upper)break;
++            if(count+2>32){diagnosticReason=2u;break;}
++            if(left.upper==node.lower||left.upper==node.upper){diagnosticReason=3u;break;}
+             pending[count++]=right;pending[count++]=left;
+         }
+-        if(!vertexDone){clear=false;lower=-1;return true;}
++        if(!vertexDone){clear=false;lower=-1.f-diagnosticLower;upper=float(diagnosticReason*65536u+corner*8192u+diagnosticBits*64u+count);return true;}
+     }
+     return true;
+ }
+@@ -7149,6 +7153,8 @@
+             dispatch.maxConservativeAdvancementIterations,polynomialClear,polynomialLower,polynomialUpper,polynomialWork)) {
+         record.flags|=MR_CCD_PAIR_ANALYTIC;record.normalAndIteration.w=float(polynomialWork);
+         if(polynomialLower<0) {
++            record.intervalAndDistance.x=polynomialUpper;
++            record.intervalAndDistance.y=-1.f-polynomialLower;
+             record.flags|=MR_CCD_PAIR_UNRESOLVED;record.status=MR_STEP_DID_NOT_CONVERGE;
+         } else if(polynomialClear&&query.separation<=tolerance) {
+             record.flags|=MR_CCD_PAIR_START_OVERLAP;
