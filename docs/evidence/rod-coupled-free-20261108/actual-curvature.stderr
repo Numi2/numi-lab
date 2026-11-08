@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-rod-integrated-coupled-20261108/docs/evidence/rod-coupled-free-20261108/actual_curvature.py", line 29, in <module>
+    rows=native_rows(c,states); J=np.empty((N,N))
+  File "reference", line 41, in native_rows
+NameError: name 'json' is not defined. Did you forget to import 'json'?
