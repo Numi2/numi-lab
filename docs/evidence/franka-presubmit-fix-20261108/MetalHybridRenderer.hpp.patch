@@ -1,0 +1,27 @@
+--- /Users/numi/numi-franka-frame-gate-owner-20261108/include/metalrobo/MetalHybridRenderer.hpp	2026-11-07 15:59:55
++++ /Users/numi/numi-franka-presubmit-owner-20261108/include/metalrobo/MetalHybridRenderer.hpp	2026-11-07 16:11:16
+@@ -372,6 +372,15 @@
+     std::uint32_t depthWidth = 0u, depthHeight = 0u, depthSlots = 0u;
+ };
+ 
++// Isolated pre-submit research checkpoint; no GPU state is included.
++struct TrackerHostCheckpoint {
++    MRVisualFrameMetadataGPU metadata{};
++    MRHybridRenderUniformsGPU uniforms{};
++    std::uint64_t observationSequence{}, lastSensorSequence{};
++    std::uint32_t activeEnvironmentCount{};
++    bool allowMixedOnce{};
++};
++
+ // Reduces rendered metric depth and instance identity directly into the
+ // compact object-track slots consumed by a TaskPack. The returned device
+ // observation program executes renderer, reduction, and policy inference in
+@@ -421,6 +430,8 @@
+     void researchAllowMixedForOneStep();
+     [[nodiscard]] MetalHybridObjectTrackerConfig researchCopyConfig() const;
+     [[nodiscard]] bool researchDirectWinnerEnabled() const;
++    [[nodiscard]] bool researchCheckpointHost(TrackerHostCheckpoint&) const;
++    void researchRestoreHost(const TrackerHostCheckpoint&) noexcept;
+ 
+ 
+ private:

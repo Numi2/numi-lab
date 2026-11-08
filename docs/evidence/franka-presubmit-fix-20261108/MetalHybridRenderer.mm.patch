@@ -1,0 +1,38 @@
+--- /Users/numi/numi-franka-frame-gate-owner-20261108/src/metal/MetalHybridRenderer.mm	2026-11-07 15:59:55
++++ /Users/numi/numi-franka-presubmit-owner-20261108/src/metal/MetalHybridRenderer.mm	2026-11-07 16:11:16
+@@ -7576,6 +7576,35 @@
+     return true;
+ }
+ 
++bool MetalHybridObjectTracker::researchCheckpointHost(TrackerHostCheckpoint& out) const {
++    if (!state_ || !state_->compiled || !state_->renderer ||
++        state_->researchCadence || state_->researchAcceptedMetadata || state_->researchCandidateMetadata)
++        return false;
++    auto& renderer = *state_->renderer->state_;
++    const std::lock_guard lock(renderer.mutex);
++    out.metadata = renderer.activeMetadata;
++    out.activeEnvironmentCount = renderer.activeEnvironmentCount;
++    out.uniforms = state_->maskedDepthRenderUniforms;
++    out.observationSequence = state_->observationSequence;
++    out.lastSensorSequence = state_->lastSensorSequence;
++    out.allowMixedOnce = state_->researchAllowMixedOnce;
++    return true;
++}
++
++void MetalHybridObjectTracker::researchRestoreHost(const TrackerHostCheckpoint& saved) noexcept {
++    if (!state_ || !state_->renderer) return;
++    try {
++        auto& renderer = *state_->renderer->state_;
++        const std::lock_guard lock(renderer.mutex);
++        renderer.activeMetadata = saved.metadata;
++        renderer.activeEnvironmentCount = saved.activeEnvironmentCount;
++        state_->maskedDepthRenderUniforms = saved.uniforms;
++        state_->observationSequence = saved.observationSequence;
++        state_->lastSensorSequence = saved.lastSensorSequence;
++        state_->researchAllowMixedOnce = saved.allowMixedOnce;
++    } catch (...) {}
++}
++
+ bool MetalHybridObjectTracker::researchDirectWinnerEnabled() const { return state_ && state_->directWinnerMaskedDepth; }
+ 
+ MetalHybridObjectTrackerConfig MetalHybridObjectTracker::researchCopyConfig() const {

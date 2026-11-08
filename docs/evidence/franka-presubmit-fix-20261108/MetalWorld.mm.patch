@@ -1,0 +1,60 @@
+--- /Users/numi/numi-franka-frame-gate-owner-20261108/src/metal/MetalWorld.mm	2026-11-07 15:36:37
++++ /Users/numi/numi-franka-presubmit-owner-20261108/src/metal/MetalWorld.mm	2026-11-07 16:11:16
+@@ -48,6 +48,7 @@
+     void* context = nullptr;
+     ResearchObservationHook prepare = nullptr;
+     ResearchObservationHook finish = nullptr;
++    void (*abort)(void*) = nullptr;
+ };
+ thread_local ResearchObservationHooks researchObservationHooks{};
+ 
+@@ -16872,6 +16873,11 @@
+             const std::size_t rodWitnessCount =
+                 requirements.entries[kRodWitnessesA]
+                     .logicalElements;
++            struct ResearchPreSubmitGuard {
++                ResearchObservationHooks hooks{};
++                bool armed = false;
++                ~ResearchPreSubmitGuard() { if (armed && hooks.abort) hooks.abort(hooks.context); }
++            } researchGuard{researchObservationHooks};
+             for (std::uint32_t controlStep = 0u;
+                  controlStep <
+                      diagnostics.layout.dispatch.controlStepCount;
+@@ -16887,7 +16893,8 @@
+                     if (researchEnabled &&
+                         (batch.controlStepCount != 1u ||
+                          researchObservationHooks.prepare == nullptr ||
+-                         researchObservationHooks.finish == nullptr)) {
++                         researchObservationHooks.finish == nullptr ||
++                         researchObservationHooks.abort == nullptr)) {
+                         return reject(std::move(diagnostics),
+                             MetalWorldHostStatus::invalidDimensions,
+                             "research observation transaction requires one control step and both hooks");
+@@ -16910,6 +16917,7 @@
+                             MetalWorldHostStatus::metalCommandFailure,
+                             "research observation prepare rejected");
+                     }
++                    if (researchEnabled) researchGuard.armed = true;
+                     if (!encodeTaskObserve(
+                             *selectedState,
+                             commandBuffer,
+@@ -17620,6 +17628,7 @@
+             }
+             ++selectedState->stats.submissionCount;
+             [commandBuffer commit];
++            researchGuard.armed = false;
+             submission.state_ = std::move(pending);
+             if (initializeResidentState) {
+                 residentState->state_ = residentData;
+@@ -17764,9 +17773,9 @@
+ // Deliberately only exported from this research owner copy.
+ extern "C" void mr_research_set_observation_hooks(
+     void* context, ResearchObservationHook prepare,
+-    ResearchObservationHook finish
++    ResearchObservationHook finish, void (*abort)(void*)
+ ) noexcept {
+-    researchObservationHooks = {context, prepare, finish};
++    researchObservationHooks = {context, prepare, finish, abort};
+ }
+ 
+ } // namespace metalrobo
