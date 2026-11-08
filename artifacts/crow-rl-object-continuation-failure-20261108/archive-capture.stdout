@@ -1,0 +1,10 @@
+Indexed 2000 committed archive blobs
+Indexed 4000 committed archive blobs
+Indexed 6000 committed archive blobs
+Indexed 8000 committed archive blobs
+Indexed 10000 committed archive blobs
+Indexed 12000 committed archive blobs
+Indexed 14000 committed archive blobs
+Indexed 16000 committed archive blobs
+{"files": 42, "source_bytes": 261831236, "new_compressed_bytes": 87226190, "existing_archive_blobs_indexed": 16363, "unique_file_contents": 40}
+{"status": "captured", "native_files": 7, "recovery_payloads": 8, "failed_trial_preserved": true}
