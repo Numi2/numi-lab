@@ -1,0 +1,17 @@
+20bf22b01964d195849a60370be7011c5e4f55be7a9197f7b1666f15a6a03614  docs/evidence/rod-coupled-metal-force-20261108/PLAN.md
+5b2f8a305be52265190a616459f4e7e7c301148a8e411f23617868bbec5134cc  docs/evidence/rod-coupled-metal-force-20261108/kernel.metal
+5175d1f3fedc728df29cbc5bd8a37126ae0e543ae3df3deb131d930020532d27  docs/evidence/rod-coupled-metal-force-20261108/probe.mm
+6b5f7fbcb96436444eec58206dd39b9d8b9d999c6cfa70fb069dc3944bf6f28a  docs/evidence/rod-coupled-metal-force-20261108/shared.h
+1dfb8e97492317d6aaaed50edacbcc44b24d6eb1cc4d5d5ff2a01167da4037e5  docs/evidence/rod-coupled-metal-force-20261108/build.sh
+4b43905055c95d9a536290aedb0833553e907ba8fbb70047030d995b01f36fe9  docs/evidence/rod-coupled-metal-force-20261108/run.py
+d21b2c5e4c5306a985dd2e38335f15427ef73d141637ed8fdbf82153a9ba4047  docs/evidence/rod-coupled-metal-force-20261108/build.log
+4cdd3d04fbdd3387a65dc86af7eb34d6d84bd253ab1fc09606c8aed59ef05d98  docs/evidence/rod-coupled-metal-force-20261108/pretrial.sha256
+726eae3fc878db4a7961b9c9cf87f493f533d1bc787657b403f36b2c3abddcb2  docs/evidence/rod-coupled-metal-force-20261108/results.jsonl
+726eae3fc878db4a7961b9c9cf87f493f533d1bc787657b403f36b2c3abddcb2  docs/evidence/rod-coupled-metal-force-20261108/repeat.jsonl
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  docs/evidence/rod-coupled-metal-force-20261108/run.stderr
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  docs/evidence/rod-coupled-metal-force-20261108/repeat.stderr
+9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa  docs/evidence/rod-coupled-metal-force-20261108/run.exit
+9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa  docs/evidence/rod-coupled-metal-force-20261108/repeat.exit
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  docs/evidence/rod-coupled-metal-force-20261108/repeat-diff.log
+9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa  docs/evidence/rod-coupled-metal-force-20261108/repeat-diff.exit
+74a42cee4875580524adbbec884f4a2d7e57d0aab8e860b69e9dc378ce3b244f  docs/evidence/rod-coupled-metal-force-20261108/RESULT.md

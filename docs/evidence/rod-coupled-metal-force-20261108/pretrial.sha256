@@ -1,0 +1,11 @@
+20bf22b01964d195849a60370be7011c5e4f55be7a9197f7b1666f15a6a03614  docs/evidence/rod-coupled-metal-force-20261108/PLAN.md
+5b2f8a305be52265190a616459f4e7e7c301148a8e411f23617868bbec5134cc  docs/evidence/rod-coupled-metal-force-20261108/kernel.metal
+5175d1f3fedc728df29cbc5bd8a37126ae0e543ae3df3deb131d930020532d27  docs/evidence/rod-coupled-metal-force-20261108/probe.mm
+6b5f7fbcb96436444eec58206dd39b9d8b9d999c6cfa70fb069dc3944bf6f28a  docs/evidence/rod-coupled-metal-force-20261108/shared.h
+1dfb8e97492317d6aaaed50edacbcc44b24d6eb1cc4d5d5ff2a01167da4037e5  docs/evidence/rod-coupled-metal-force-20261108/build.sh
+4b43905055c95d9a536290aedb0833553e907ba8fbb70047030d995b01f36fe9  docs/evidence/rod-coupled-metal-force-20261108/run.py
+7550b39655cc88d859e39b44af09b4d770d1597cafeaaace5f1f98c36422857f  /Users/numi/rod-coupled-metal-force-20261108/probe
+2ceff95f6618d33a35dd35233de63ffc0d0f5122575170c3134f5b3f2cc0d484  /Users/numi/rod-coupled-metal-force-20261108/kernel.metallib
+a86644d9e1c88991726e487422f68969fedef562148ef29b42213150affeec40  docs/evidence/rod-coupled-bend-20261108/native-full-energy
+8f788c6f2221dcb77df85667fb9968c7c726a923369498a7723f0684c4c2242d  docs/evidence/rod-coupled-bend-20261108/solve-cases.json
+4e970668508e12b57412a67e72128caea12ed5f31145d3a3e40583b1cd971196  docs/evidence/rod-coupled-bend-20261108/solve-analysis.json
