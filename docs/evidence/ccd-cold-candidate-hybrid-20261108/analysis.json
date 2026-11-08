@@ -1,0 +1,173 @@
+{
+  "schema": "numi.ccd.cold-hybrid.v1",
+  "trace_on_off_results_equal": true,
+  "repeat_and_rollback_gates_pass": true,
+  "accepted_trajectory_geometry_gate_pass": true,
+  "near_miss_gate_pass": true,
+  "thin_impact_completion_gate_pass": false,
+  "normal_residual_gate_pass": false,
+  "candidate_promotable": false,
+  "rows": [
+    {
+      "scale": 1,
+      "fixture": 1,
+      "main_accepted": true,
+      "candidate_accepted": true,
+      "candidate_status": 0,
+      "candidate_normal_impulse_Ns": 4.34121322632,
+      "successful_event_residuals": [
+        {
+          "pass": 0,
+          "reported_residual_m_s": 0.4411288202,
+          "reconstructed_residual_m_s": 0.4411288355733874
+        }
+      ]
+    },
+    {
+      "scale": 1,
+      "fixture": 2,
+      "main_accepted": true,
+      "candidate_accepted": true,
+      "candidate_status": 0,
+      "candidate_normal_impulse_Ns": 2.96881222725,
+      "successful_event_residuals": [
+        {
+          "pass": 0,
+          "reported_residual_m_s": 1.788139343e-07,
+          "reconstructed_residual_m_s": 1.7521601863856873e-07
+        }
+      ]
+    },
+    {
+      "scale": 1,
+      "fixture": 12,
+      "main_accepted": false,
+      "candidate_accepted": false,
+      "candidate_status": 11,
+      "candidate_normal_impulse_Ns": 0,
+      "successful_event_residuals": [
+        {
+          "pass": 0,
+          "reported_residual_m_s": 2.980232239e-08,
+          "reconstructed_residual_m_s": 2.2387825204805978e-08
+        }
+      ]
+    },
+    {
+      "scale": 1,
+      "fixture": 13,
+      "main_accepted": true,
+      "candidate_accepted": true,
+      "candidate_status": 0,
+      "candidate_normal_impulse_Ns": 0,
+      "successful_event_residuals": []
+    },
+    {
+      "scale": 1,
+      "fixture": 14,
+      "main_accepted": false,
+      "candidate_accepted": true,
+      "candidate_status": 0,
+      "candidate_normal_impulse_Ns": 1.98105728626,
+      "successful_event_residuals": [
+        {
+          "pass": 0,
+          "reported_residual_m_s": 8.940696716e-08,
+          "reconstructed_residual_m_s": 9.23870288049855e-08
+        }
+      ]
+    },
+    {
+      "scale": 1,
+      "fixture": 15,
+      "main_accepted": true,
+      "candidate_accepted": true,
+      "candidate_status": 0,
+      "candidate_normal_impulse_Ns": 0,
+      "successful_event_residuals": []
+    },
+    {
+      "scale": 0.5,
+      "fixture": 1,
+      "main_accepted": true,
+      "candidate_accepted": true,
+      "candidate_status": 0,
+      "candidate_normal_impulse_Ns": 2.34297847748,
+      "successful_event_residuals": [
+        {
+          "pass": 0,
+          "reported_residual_m_s": 7.003545761e-07,
+          "reconstructed_residual_m_s": 7.079641070051323e-07
+        }
+      ]
+    },
+    {
+      "scale": 0.5,
+      "fixture": 2,
+      "main_accepted": true,
+      "candidate_accepted": true,
+      "candidate_status": 0,
+      "candidate_normal_impulse_Ns": 1.48440611362,
+      "successful_event_residuals": [
+        {
+          "pass": 0,
+          "reported_residual_m_s": 8.940696716e-08,
+          "reconstructed_residual_m_s": 8.691174049890726e-08
+        }
+      ]
+    },
+    {
+      "scale": 0.5,
+      "fixture": 12,
+      "main_accepted": false,
+      "candidate_accepted": false,
+      "candidate_status": 11,
+      "candidate_normal_impulse_Ns": 0,
+      "successful_event_residuals": [
+        {
+          "pass": 0,
+          "reported_residual_m_s": 1.490116119e-08,
+          "reconstructed_residual_m_s": 1.114391259826597e-08
+        }
+      ]
+    },
+    {
+      "scale": 0.5,
+      "fixture": 13,
+      "main_accepted": true,
+      "candidate_accepted": true,
+      "candidate_status": 0,
+      "candidate_normal_impulse_Ns": 0,
+      "successful_event_residuals": []
+    },
+    {
+      "scale": 0.5,
+      "fixture": 14,
+      "main_accepted": false,
+      "candidate_accepted": true,
+      "candidate_status": 0,
+      "candidate_normal_impulse_Ns": 0.990528643131,
+      "successful_event_residuals": [
+        {
+          "pass": 0,
+          "reported_residual_m_s": 4.470348358e-08,
+          "reconstructed_residual_m_s": 4.614600662700141e-08
+        }
+      ]
+    },
+    {
+      "scale": 0.5,
+      "fixture": 15,
+      "main_accepted": true,
+      "candidate_accepted": true,
+      "candidate_status": 0,
+      "candidate_normal_impulse_Ns": 0,
+      "successful_event_residuals": []
+    }
+  ],
+  "limitations": [
+    "The candidate has an independently retained mixed rod-rigid residual failure.",
+    "This is a scoped correctness experiment, not a force calibration or performance measurement.",
+    "The observer bounds only its stated floating-box interpolation domain and sampled acceleration envelope."
+  ]
+}
