@@ -1,0 +1,5 @@
+{
+  "before_native": true,
+  "issue": "git diff --check rejected copied analysis source trailing blank line",
+  "resolution": "Removed trailing blank line and refreshed frozen source hash"
+}

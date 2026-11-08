@@ -1,0 +1,9 @@
+{
+  "commit": "915ef1f68bc39f975c448d6c30066689996362e9",
+  "files": {
+    "src/metal/MetalUnifiedQualitySolver.metal": "d221d54462e3bb9bc82eec914ddfe69e51a000db7b3a30347c5fb94ab3e561b5",
+    "src/metal/QualityFailureCapture.inc": "13b9b9ddc7a22ac335ace7ba875a8ffc2dd38f329b22f7d2f2ee4df6f8ea295d"
+  },
+  "policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+  "shared_provider": "/Users/n/MetalRobo-main/.git"
+}

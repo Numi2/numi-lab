@@ -2704,7 +2704,8 @@ kernel void mr_unified_quality_solve_queued_capture(
     device MRUnifiedQualityFailureHeaderGPU* saved =
         reinterpret_cast<device MRUnifiedQualityFailureHeaderGPU*>(
             failureSnapshots + problem * capturePass.recordBytes);
-    if (statuses[problem].code == MR_UNIFIED_QUALITY_DID_NOT_CONVERGE &&
+    if ((statuses[problem].code == MR_UNIFIED_QUALITY_DID_NOT_CONVERGE ||
+         statuses[problem].code == MR_UNIFIED_QUALITY_LINE_SEARCH_FAILED) &&
         saved->valid == 0u && capturePass.recordBytes ==
             mrUnifiedQualityFailureRecordBytes(dispatch.generalizedVelocityCount,
                 dispatch.rowCount, dispatch.blockCount)) {

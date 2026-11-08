@@ -39,7 +39,8 @@ void captureQualityFailure(const detail::MetalWorldContextState& context,
            saved.environment!=found->environment || saved.controlStep!=found->controlStep ||
            saved.physicsSubstep!=found->failingSubstep ||
            saved.status.problemIndex!=found->environment ||
-           saved.status.code!=MR_UNIFIED_QUALITY_DID_NOT_CONVERGE ||
+           (saved.status.code!=MR_UNIFIED_QUALITY_DID_NOT_CONVERGE &&
+            saved.status.code!=MR_UNIFIED_QUALITY_LINE_SEARCH_FAILED) ||
            saved.packet.identity.x!=found->environment ||
            std::memcmp(&saved.dispatch,&dispatch,sizeof(dispatch))!=0 ||
            contact==result.contactStatuses.end() || contact->code!=found->code ||
