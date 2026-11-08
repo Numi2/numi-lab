@@ -1,0 +1,9 @@
+Indexed 2000 committed archive blobs
+Indexed 4000 committed archive blobs
+Indexed 6000 committed archive blobs
+Indexed 8000 committed archive blobs
+Indexed 10000 committed archive blobs
+Indexed 12000 committed archive blobs
+Indexed 14000 committed archive blobs
+{"files": 781, "source_bytes": 1068473472, "new_compressed_bytes": 178437581, "existing_archive_blobs_indexed": 15556, "unique_file_contents": 387}
+{"status": "captured", "source_commit": "8bef3fc5c2b8c9db167261d1dfc3ce1593c5c9ef", "native_files": 6, "python_sources": 42, "recovery_payloads": 14}

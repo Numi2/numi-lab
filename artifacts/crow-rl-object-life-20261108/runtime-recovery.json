@@ -1,0 +1,1355 @@
+{
+  "checkpoint": {
+    "input/prefix.life": ".numi/runs/american-crow/object-life-01/prefix.life",
+    "input/push.policypack": ".numi/runs/american-crow/object-life-01/push.policypack",
+    "input/source.trainingcheckpoint/COMMITTED": ".numi/runs/american-crow/object-life-01/split/checkpoints/revision-00000002.trainingcheckpoint/COMMITTED",
+    "input/source.trainingcheckpoint/candidate.policypack": ".numi/runs/american-crow/object-life-01/split/checkpoints/revision-00000002.trainingcheckpoint/candidate.policypack",
+    "input/source.trainingcheckpoint/learner.safetensors": ".numi/runs/american-crow/object-life-01/split/checkpoints/revision-00000002.trainingcheckpoint/learner.safetensors",
+    "input/source.trainingcheckpoint/life.native": ".numi/runs/american-crow/object-life-01/split/checkpoints/revision-00000002.trainingcheckpoint/life.native",
+    "input/source.trainingcheckpoint/manifest.json": ".numi/runs/american-crow/object-life-01/split/checkpoints/revision-00000002.trainingcheckpoint/manifest.json",
+    "input/source.trainingcheckpoint/policy.policypack": ".numi/runs/american-crow/object-life-01/split/checkpoints/revision-00000002.trainingcheckpoint/policy.policypack",
+    "input/source.trainingcheckpoint/rollout.rolloutpack": ".numi/runs/american-crow/object-life-01/split/checkpoints/revision-00000002.trainingcheckpoint/rollout.rolloutpack",
+    "reference/future.life": ".numi/runs/american-crow/object-life-01/future1.life",
+    "reference/training/checkpoints/revision-00000003.trainingcheckpoint/learner.safetensors": ".numi/runs/american-crow/object-life-01/resume1/checkpoints/revision-00000003.trainingcheckpoint/learner.safetensors",
+    "reference/training/checkpoints/revision-00000003.trainingcheckpoint/life.native": ".numi/runs/american-crow/object-life-01/resume1/checkpoints/revision-00000003.trainingcheckpoint/life.native",
+    "reference/training/checkpoints/revision-00000004.trainingcheckpoint/learner.safetensors": ".numi/runs/american-crow/object-life-01/resume1/checkpoints/revision-00000004.trainingcheckpoint/learner.safetensors",
+    "reference/training/checkpoints/revision-00000004.trainingcheckpoint/life.native": ".numi/runs/american-crow/object-life-01/resume1/checkpoints/revision-00000004.trainingcheckpoint/life.native"
+  },
+  "fixed_reference": {
+    "command": [
+      "/usr/bin/env",
+      "DYLD_PRINT_LIBRARIES=1",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_rollout",
+      "--birdflow-american-crow-journey",
+      "--birdflow-journey-variant",
+      "v14-object-push",
+      "--visual-observation-config",
+      "/Users/n/Developer/numi-crow-rl-20261107/environments/american-crow/object-push-v1/retinal-observation.json",
+      "--envs",
+      "2",
+      "--seed",
+      "2651315001",
+      "--minimum-difficulty-band",
+      "0",
+      "--maximum-difficulty-band",
+      "0",
+      "--metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "--policy-pack",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/push.policypack",
+      "--repeats",
+      "1",
+      "--no-scheduled-resets",
+      "--steps",
+      "113",
+      "--chunk",
+      "1",
+      "--rollout-pack",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/future1.rolloutpack",
+      "--save-life-checkpoint",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/future1.life",
+      "--resume-life-checkpoint",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/prefix.life"
+    ],
+    "rollout_sha256": "efceb6d1bb41cdcc08f431bb635c052b605fbef527e0cf963d4de93be35aa2f2",
+    "summary": {
+      "accepted_lifetime_control_ticks_by_environment": [
+        160,
+        160
+      ],
+      "action_carrier": "v14_object_push_native_rgb",
+      "action_count": 18,
+      "action_fingerprint": "10689017837368165207",
+      "action_source": "policy_pack",
+      "action_stream": "",
+      "actor_observation_count": 1247,
+      "any_link_dodge_rate": 0,
+      "any_link_projectile_hit_count": 0,
+      "any_link_projectile_hit_rate": 0,
+      "articulated_contact_responses": "streamed_inverse_aba",
+      "benchmark": "swift_native_task_rollout",
+      "benchmark_seed": 2651315001,
+      "birdflow_journey_student_authority": 0,
+      "birdflow_journey_teacher": false,
+      "birdflow_journey_variant": "v14-object-push",
+      "birdflow_navigation_course": "training",
+      "birdflow_navigation_course_role": "training-or-held-out-qualification",
+      "birdflow_navigation_curriculum": false,
+      "birdflow_navigation_curriculum_stage": -1,
+      "birdflow_pronation": 0,
+      "birdflow_pronation_wave_phase": 0,
+      "birdflow_stroke_amplitude": 0,
+      "birdflow_sweep_wave_amplitude": 0,
+      "birdflow_sweep_wave_phase": 0,
+      "birdflow_tail_pitch": 0,
+      "birdflow_wing_pulse_amplitude": 0,
+      "birdflow_wing_pulse_duration_steps": 0,
+      "birdflow_wing_pulse_secondary_amplitude": 0,
+      "birdflow_wing_pulse_secondary_target": "",
+      "birdflow_wing_pulse_start_step": 0,
+      "birdflow_wing_pulse_target": "wings",
+      "clean_horizon_environment_count": 2,
+      "clean_horizon_environment_rate": 1,
+      "clean_projectile_miss_count": 0,
+      "compiled_impact_event_count": 0,
+      "completed_projectile_trial_count": 0,
+      "control_steps_per_submission": 1,
+      "critic_observation_count": 100,
+      "crow_navigation_arrival_pack": "",
+      "crow_navigation_arrival_payload_sha256": "",
+      "crow_navigation_arrival_waypoint": 3,
+      "crow_replay_pack": "",
+      "crow_replay_payload_sha256": "",
+      "device": "Apple M4 Pro",
+      "difficulty_sampling_exponent_override": 0,
+      "dynamic_sphere_count": 0,
+      "elapsed_seconds": 12.522069167,
+      "environment_control_steps_per_second": 18.048135414839305,
+      "environments": 2,
+      "failed_environment_steps": 0,
+      "final_forward_progress_by_environment_m": [],
+      "final_velocity_iterations": 2,
+      "first_episode_navigation": null,
+      "foot_support_step_count": 0,
+      "forward_progress_available": false,
+      "gpu_milliseconds": 12030.273500015028,
+      "height_or_tilt_termination_count": 0,
+      "host_requested_resets": 0,
+      "immutable_private_bytes": 359537,
+      "impact_sequence_enabled_steps": 0,
+      "impact_sequence_metrics": [],
+      "life_checkpoint_restored": true,
+      "life_checkpoint_saved": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/future1.life",
+      "maximum_active_contacts": 11,
+      "maximum_episode_steps": 100000,
+      "maximum_forward_progress_m": 0,
+      "maximum_manifolds": 4,
+      "maximum_navigation_completion_by_environment": [
+        0,
+        0
+      ],
+      "maximum_navigation_progress_by_environment_m": [
+        0,
+        0
+      ],
+      "maximum_navigation_waypoints_by_environment": [
+        0,
+        0
+      ],
+      "maximum_root_height": 0.17718419432640076,
+      "maximum_sampled_difficulty_band": 0,
+      "maximum_tilt": 0.0006087016663514078,
+      "maximum_tilt_by_environment": [
+        0.0005196831189095974,
+        0.0006087016663514078
+      ],
+      "mean_base_reward": 0.013224600726713847,
+      "mean_contact_reward": 0,
+      "mean_control_reward": -7.200412943172999e-08,
+      "mean_energy_reward": -1.5843145564393033e-08,
+      "mean_final_forward_progress_m": 0,
+      "mean_joint_acceleration_reward": 0,
+      "mean_joint_velocity_reward": 0,
+      "mean_peak_forward_progress_m": 0,
+      "mean_posture_reward": 0,
+      "mean_reward": 0.013224512875385055,
+      "mean_root_height": 0.17718283482621203,
+      "mean_root_height_by_environment": [
+        0.17718284992517624,
+        0.1771828197272478
+      ],
+      "mean_task_reward": 0,
+      "mean_tilt": 0.00039912619941200305,
+      "mean_tilt_by_environment": [
+        0.0003982781230645106,
+        0.00039997427575949547
+      ],
+      "mean_tracking_score": 0.999973305294999,
+      "mean_tracking_score_by_environment": [
+        0.9999734706583276,
+        0.9999731399316704
+      ],
+      "minimum_root_height_by_environment": [
+        0.17718076705932617,
+        0.1771790236234665
+      ],
+      "minimum_sampled_difficulty_band": 0,
+      "observation_fingerprint": "10218066259258660752",
+      "outcomes": {
+        "done": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "bool"
+        },
+        "mechanical_power_cost": {
+          "direction": 1,
+          "mean": -1.5843145564393033e-08,
+          "unit": "weighted-cost"
+        },
+        "object_goal_score": {
+          "direction": 1,
+          "mean": 0.013224600726713847,
+          "unit": "score"
+        },
+        "physics_error": {
+          "direction": 2,
+          "mean": 0,
+          "unit": "bool"
+        },
+        "reward": {
+          "direction": 1,
+          "mean": 0.013224512875385055,
+          "unit": "reward"
+        },
+        "task_reward": {
+          "direction": 1,
+          "mean": 0,
+          "unit": "reward"
+        },
+        "timeout": {
+          "direction": 0,
+          "mean": 0,
+          "unit": "bool"
+        }
+      },
+      "peak_aliased_bytes": 1197236,
+      "peak_forward_progress_by_environment_m": [],
+      "persistent_state_private_bytes": 167124,
+      "physical_evidence": {
+        "control_steps": 160,
+        "evidence_windows": 0,
+        "last_balance_failure_rate": 0,
+        "last_clean_miss_rate": 0,
+        "last_completed_episode_count": 0,
+        "last_contact_rate": 0,
+        "last_mean_tracking_per_million": 0,
+        "pending_completed_episode_count": 0,
+        "pending_timeout_episode_count": 0
+      },
+      "physics_error_count_by_environment": [
+        0,
+        0
+      ],
+      "physics_substeps": 32,
+      "policy_action_trace": "",
+      "policy_rollout_fingerprint": "4777237748954337827",
+      "policy_sample_count": 226,
+      "quiet_stand_step_count": 0,
+      "reality_fingerprint": "7535704362920179505",
+      "recovery_brace_step_count": 0,
+      "recovery_phase_rates": {
+        "brace": 0,
+        "foot_support": 0,
+        "quiet_stand": 0,
+        "rise": 0,
+        "support_transfer": 0,
+        "trunk_clear": 0
+      },
+      "recovery_phase_rates_by_difficulty_band": {
+        "0": {
+          "brace": 0,
+          "foot_support": 0,
+          "mean_root_height": 0.17718283482621203,
+          "mean_tilt": 0.00039912619941200305,
+          "quiet_stand": 0,
+          "restored": 0,
+          "rise": 0,
+          "standing": 0,
+          "support_transfer": 0,
+          "transition_count": 226,
+          "trunk_clear": 0
+        }
+      },
+      "recovery_rise_step_count": 0,
+      "repeats": 1,
+      "restored_step_count": 0,
+      "retained_buffer_bytes": 2189354,
+      "robot_fingerprint": "25360054979564016",
+      "rollout_pack": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/future1.rolloutpack",
+      "rollout_pack_bytes": 1286886,
+      "run_fingerprint": "415622124859007531",
+      "scene": "terrain",
+      "scheduled_resets": false,
+      "sensor_fingerprint": "16963195502399067188",
+      "shared_boundary_bytes": 432257,
+      "solver_mode": "temporal_cone",
+      "squat_cycle_completed_environment_count": 0,
+      "squat_cycle_completed_environment_rate": 0,
+      "squat_cycle_completed_environments": [],
+      "squat_cycle_evidence": {
+        "available": false,
+        "bilateral_knee_excursion": 0,
+        "bilateral_support_rate": 0,
+        "completed": false,
+        "environment": 0,
+        "final_mean_knee_flexion": 0,
+        "final_pelvis_height": 0,
+        "initial_mean_knee_flexion": 0,
+        "initial_pelvis_height": 0,
+        "maximum_left_knee_flexion": 0,
+        "maximum_right_knee_flexion": 0,
+        "minimum_pelvis_height": 0,
+        "pelvis_descent": 0,
+        "returned_to_initial_pose": false,
+        "termination_count": 0
+      },
+      "squat_cycle_evidence_by_environment": [
+        {
+          "available": false,
+          "bilateral_knee_excursion": 0,
+          "bilateral_support_rate": 0,
+          "completed": false,
+          "environment": 0,
+          "pelvis_descent": 0,
+          "returned_to_initial_pose": false,
+          "termination_count": 0
+        },
+        {
+          "available": false,
+          "bilateral_knee_excursion": 0,
+          "bilateral_support_rate": 0,
+          "completed": false,
+          "environment": 1,
+          "pelvis_descent": 0,
+          "returned_to_initial_pose": false,
+          "termination_count": 0
+        }
+      ],
+      "stage_high_water": {
+        "articulation_point_queries": 0,
+        "candidate_pairs": 4,
+        "ccd_candidates": 1,
+        "ccd_events": 0,
+        "constraint_blocks": 11,
+        "constraint_rows": 33,
+        "dynamic_nodes": 0,
+        "endpoint_runtime_records": 0,
+        "hard_convex_pairs": 0,
+        "island_constraint_references": 0,
+        "island_node_references": 0,
+        "islands": 2,
+        "manifolds": 4,
+        "mesh_triangle_candidates": 0,
+        "operator_velocity_elements": 0,
+        "quality_direct_tiles": 0,
+        "quality_generalized_velocities": 0,
+        "quality_krylov_vectors": 0,
+        "quality_rows": 0,
+        "raw_contacts": 11,
+        "rod_candidate_pairs": 0,
+        "rod_ccd_events": 0,
+        "rod_factor_blocks": 0,
+        "rod_manifolds": 0,
+        "rod_raw_contacts": 0,
+        "solver_tiles": 2,
+        "spill_rows": 0
+      },
+      "standing_step_count": 0,
+      "state_trace": "",
+      "steps_per_repeat": 113,
+      "submission_count": 113,
+      "submission_milliseconds": 12101.355704999998,
+      "support_transfer_step_count": 0,
+      "task": "american_crow_object_push_v14",
+      "task_fingerprint": "4584940940994350753",
+      "teacher_fingerprint": "16735856756303551147",
+      "termination_count": 0,
+      "termination_count_by_environment": [
+        0,
+        0
+      ],
+      "termination_reason_counts": {},
+      "timeout_count": 0,
+      "transient_private_bytes": 1197236,
+      "trunk_clear_step_count": 0,
+      "velocity_iterations": 4,
+      "visual_observation": true,
+      "visual_observation_config": "/Users/n/Developer/numi-crow-rl-20261107/environments/american-crow/object-push-v1/retinal-observation.json",
+      "visual_scene_fingerprint": 13906885815878462748,
+      "world_fingerprint": "6600400359852534321",
+      "world_source": "american_crow_object_push_v14"
+    }
+  },
+  "git_inputs": {
+    "environments/american-crow/object-push-v1/README.md": {
+      "git_blob": "dd0b64dd5a765310fba3042596db10d87563e986",
+      "mode": 420,
+      "sha256": "506f40056d59cc069a84e91f4e8ed0b1807c342aae87c539602e09c1cfab6024"
+    },
+    "environments/american-crow/object-push-v1/crow_manipulandum.mrvpack": {
+      "git_blob": "4e479e553819ae26389ee6c33d2fa7eb43c2d0fe",
+      "mode": 420,
+      "sha256": "cfae7df3cf0bea43180792d53f35f810eeac27b6c65633a1744a6cf74c4a2a6a"
+    },
+    "environments/american-crow/object-push-v1/locomotion_ground.mrvpack": {
+      "git_blob": "4ac0ac19f319bea97fb7b8280dab8ea108b50d59",
+      "mode": 420,
+      "sha256": "4c91c5b21fa169c633e3b9921e7bea811f6172671df246fc4f1d59a6c6bc4882"
+    },
+    "environments/american-crow/object-push-v1/object_support.mrvpack": {
+      "git_blob": "10149f0a6a7e25ee25d3a4830a204655df84e11f",
+      "mode": 420,
+      "sha256": "9d2a20355a5b5448fdd655a5e925dfd5de9cc707227e7516c33bca49acb24b9f"
+    },
+    "environments/american-crow/object-push-v1/retinal-observation.json": {
+      "git_blob": "a3aea25dc08ea0c298068abd46b20a6843ec18ca",
+      "mode": 420,
+      "sha256": "94dc9894c9ffc051d3e8e0b41cddd364060cffad8a1bd98829416db510f8df03"
+    },
+    "environments/american-crow/object-push-v1/robot.mrvpack": {
+      "git_blob": "45d9ed5c0cf334149caaaaacf88b746d01e52f97",
+      "mode": 420,
+      "sha256": "04b9cf3b0a17d1b1026e827b84b0083d6f79da6397156eecd973e798a4894dda"
+    },
+    "environments/american-crow/object-push-v1/visual-scene.json": {
+      "git_blob": "26989fe2172f51b1393c40364f017eefe758d3df",
+      "mode": 420,
+      "sha256": "0add8444b2d41ad84a2ea8281bfbad9083884b68848ecfac19e55ff148435ea2"
+    }
+  },
+  "manifests": [
+    "artifacts/crow-rl-object-life-20261108/manifest.json"
+  ],
+  "native": {
+    "bin/metalrobo_task_rollout": {
+      "archive_source": ".numi/retained-runtime/object-life-20261108/bin/metalrobo_task_rollout",
+      "sha256": "e26f06390be1947af69491280206b29313c8b3e48949cfacf2c4a5b3d687897a"
+    },
+    "bin/metalrobo_task_train": {
+      "archive_source": ".numi/retained-runtime/object-life-20261108/bin/metalrobo_task_train",
+      "sha256": "56a9dbd6f2e25e87017144aed83c8ea1f1178182b3490514f024fc83d974cc8c"
+    },
+    "lib/libmetalrobo.dylib": {
+      "archive_source": ".numi/retained-runtime/object-life-20261108/lib/libmetalrobo.dylib",
+      "sha256": "5306142c5f4a5746c235d567180e352466737d9b3afc78d81252652a7cb63f74"
+    },
+    "shaders/GRUMemory.metallib": {
+      "archive_source": ".numi/retained-runtime/object-life-20261108/shaders/GRUMemory.metallib",
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    },
+    "shaders/MetalRobo.metallib": {
+      "archive_source": ".numi/retained-runtime/object-life-20261108/shaders/MetalRobo.metallib",
+      "sha256": "ab8eb4013d6fb2fbae2877602145a5a59a16adb17abf769619466298ab858d95"
+    },
+    "shaders/RetinalStream.metallib": {
+      "archive_source": ".numi/retained-runtime/object-life-20261108/shaders/RetinalStream.metallib",
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    }
+  },
+  "python_sources": {
+    "python/metalrobo/__init__.py": {
+      "git_blob": "ccf89e7d18cb84ff6fbbb6bf738a42a2b56b9bd8",
+      "mode": 420,
+      "sha256": "8907413cf15904beec23959cf30b949c235531e54f275b9acac90f3096038202"
+    },
+    "python/metalrobo/__main__.py": {
+      "git_blob": "eb53e2f31b2f703ad32ef64b8a41faa3e7d18e08",
+      "mode": 420,
+      "sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d"
+    },
+    "python/metalrobo/ardy_g1.py": {
+      "git_blob": "0b7bbdeada56a99ab5904f49295df71bf54747dc",
+      "mode": 420,
+      "sha256": "fe9ee45d3c7efac4827599d5ec7257c3f68b10da83f964624058d2f0e6df8dc0"
+    },
+    "python/metalrobo/ardy_interaction_convert.py": {
+      "git_blob": "498a8d4c8aad1bb54a723d9d7fbcdca105d47f29",
+      "mode": 420,
+      "sha256": "ed5b97c6fcd5b3c30bb485187e3f6c2ab94b584cdd97d519f0cb1ac7382e3e55"
+    },
+    "python/metalrobo/ardy_onnx.py": {
+      "git_blob": "2d1e3d779bd4ebd236b7ebc38ab0640408501044",
+      "mode": 420,
+      "sha256": "840953a7e43e4008304007ea2b9d0c9b77000c64cdb73e4b65a5a10c98f90226"
+    },
+    "python/metalrobo/ardy_text_encoder.py": {
+      "git_blob": "c1b5a50eda42dc387a9342ad0e7dda1c7edace40",
+      "mode": 420,
+      "sha256": "00ce0e692b9f4e35104d1a684515dfbc51b320b308ce43a6dc1b93f501c784b7"
+    },
+    "python/metalrobo/cli.py": {
+      "git_blob": "1f28e50f301399838dea9891dfcf23b6684737f0",
+      "mode": 420,
+      "sha256": "3348476d8deff8c2712f0afb9892b0f031f5c288eb7724ebd6e6b779e108a14e"
+    },
+    "python/metalrobo/crow_environment.py": {
+      "git_blob": "84e77d19f1335276549164fea5ee7d6e8ab182e2",
+      "mode": 420,
+      "sha256": "21330964b6505a35d827b3b939524065719d65d47b8e627692631c8ef4de0525"
+    },
+    "python/metalrobo/crow_object_life.py": {
+      "git_blob": "7d4c0f2f3227a6b2aeb92265c2ffb4d76b336f37",
+      "mode": 420,
+      "sha256": "afb311779daba343b59b9765f443901d9d07db65b96569ce92ecacfaab48e2c5"
+    },
+    "python/metalrobo/crow_retinal_normalization.py": {
+      "git_blob": "124d5ba05d53a5c849ade326483111839a19ceb1",
+      "mode": 420,
+      "sha256": "b9e9f067fb21152cda9d5f7dc41b3e6176910f9d4b4b97e352c5bda7640455b7"
+    },
+    "python/metalrobo/crow_world_model.py": {
+      "git_blob": "195532dfea67e6a6ac39d6a66074982448e1e172",
+      "mode": 420,
+      "sha256": "76e0234af3ee680efbc96eedd4385ccf94f19857ffd6dd19cfc8a7b235a836ad"
+    },
+    "python/metalrobo/episode.py": {
+      "git_blob": "f56374a243cc1c3d7ec663f859b3197d42f98768",
+      "mode": 420,
+      "sha256": "3444a7efd0d2158fcbd74ff49a6e20de0ceb87af6d89a95599447cc0fc2a9fec"
+    },
+    "python/metalrobo/foundation_policy.py": {
+      "git_blob": "462a2e8ac82c2e16b409e07708ca962fdf11b541",
+      "mode": 420,
+      "sha256": "2d04dad03bed9cf06a9a53a78423410f1aa4d91387fe8d76d762a6a72816170a"
+    },
+    "python/metalrobo/g1_legs_policy.py": {
+      "git_blob": "0af946fe00f6aa245534c1a594469f7545b6b649",
+      "mode": 420,
+      "sha256": "ed7085a8634435de00adfff323cfd200085d3829ce24b3119de7e48a6d1c54ef"
+    },
+    "python/metalrobo/g1_motion_retarget.py": {
+      "git_blob": "b9232c5564ac4d65611876ee9e1219dd92b1efa5",
+      "mode": 420,
+      "sha256": "0452e4db4e0e2fb0e54210321f8a1c6ae0dc45b7533b39a319f02891cd9af93f"
+    },
+    "python/metalrobo/g1_policy.py": {
+      "git_blob": "4381d032f4773701e84d720dd89f6e2dfdd8fb00",
+      "mode": 420,
+      "sha256": "dc7dc761d05cabe1ae5709b0a35564d07a50dae6418225143d5be9a6f82637c3"
+    },
+    "python/metalrobo/gru_memory.py": {
+      "git_blob": "6c8d681815ccd3e07090f47cfdcea54392901b8c",
+      "mode": 420,
+      "sha256": "237d1e02fa9f1b831c176193b9fb8b619d697e6ed5a18f8fd98d163d78dd2710"
+    },
+    "python/metalrobo/gru_memory_admission.py": {
+      "git_blob": "a0a8adb551bf2edd003db243731ac9568ce2c491",
+      "mode": 420,
+      "sha256": "9335d92d667903782a5f01595d4f194a214930fa33913be2131e99809ffbd994"
+    },
+    "python/metalrobo/hybrid_renderer.py": {
+      "git_blob": "293112cee364d446b163befe309b82fee4cfec05",
+      "mode": 420,
+      "sha256": "1a9911d36c70d786558cae59030d521d72510a7656c8b64e48de68781750113e"
+    },
+    "python/metalrobo/lerobot_dataset.py": {
+      "git_blob": "3d86d65e5361937346ec6434b9fdcb6e21206022",
+      "mode": 420,
+      "sha256": "71d01825993401d5ab83f25c4e3f52aa77295a3d92e3b192395ada7e13cb8973"
+    },
+    "python/metalrobo/mlx_policy_learning.py": {
+      "git_blob": "d6b79d07899eb1dd678b6f697f37c669fc503b23",
+      "mode": 420,
+      "sha256": "755df3777b73b10e741f375eeca0c9cca48db5006cdd10bf9a22763d35bf714d"
+    },
+    "python/metalrobo/mlx_policy_worker.py": {
+      "git_blob": "f17faed3b60ef8718f03a880633d64e7fbe12c46",
+      "mode": 420,
+      "sha256": "6772d2e59ebd58b55e8354da2bb79a79845e5a44889fab36e7f4b5525154ae55"
+    },
+    "python/metalrobo/mlx_r2s2r.py": {
+      "git_blob": "1e89f19b338118c7a0e15f5f6403f9f77d0a74f2",
+      "mode": 420,
+      "sha256": "bfda444fd276c3663f827c3df677569acfdfa58a0101c9393267cb6d26409781"
+    },
+    "python/metalrobo/mlx_recurrent_policy_learning.py": {
+      "git_blob": "b2c542540e738d7c8de52149f5e076149d17fd11",
+      "mode": 420,
+      "sha256": "512c9f487861078b656918a52263fd4251b488bcef724a5bf4f580bb07d8c0d9"
+    },
+    "python/metalrobo/mlx_tactile_policy.py": {
+      "git_blob": "4fb436964ab57a653f770f03f605c34db13f3407",
+      "mode": 420,
+      "sha256": "562c99c52a830443c4376e69f6c651a6c5d8404e24d02290bc85a6db39fbd87d"
+    },
+    "python/metalrobo/motion_pack_convert.py": {
+      "git_blob": "cfca91aa94997b9b2528409cc81fd610687323eb",
+      "mode": 420,
+      "sha256": "7d57f7c1c044de671195c853e01d48bd22099364c731e486f373bc2eabecae88"
+    },
+    "python/metalrobo/native.py": {
+      "git_blob": "460fa799011b4846c8d4612e72da0ea67b5dd447",
+      "mode": 420,
+      "sha256": "a1960b567d62ba21339af4ecbb853f7f8c35465432fc32bdfc33c2f84a10ef1b"
+    },
+    "python/metalrobo/policy_selection.py": {
+      "git_blob": "8eaaa32c7d9a72bc87e044528c572611421412f3",
+      "mode": 420,
+      "sha256": "556711783591e661873383f31d5038c4090b40c024d7ad9d5cbf49be042e0a8c"
+    },
+    "python/metalrobo/r2s2r.py": {
+      "git_blob": "2e172eefae110c54cc4a1fc81d057197b3bd8399",
+      "mode": 420,
+      "sha256": "097607e386845deac162f53c500a3b606e63d363a70e3218dac3aa9ed50b2b65"
+    },
+    "python/metalrobo/recurrent_policy_admission.py": {
+      "git_blob": "0d4aa47c5e8e1e5f78e4f3c7da4933a9d653b77a",
+      "mode": 420,
+      "sha256": "df26d935f7d7105168d272740377e4755e35863eb03b18b84c382d7370d9318b"
+    },
+    "python/metalrobo/recurrent_ppo_admission.py": {
+      "git_blob": "167270733009085586b40b3de00fe44786d19561",
+      "mode": 420,
+      "sha256": "53a3b88c152a380cf4a82a54b32be00537fe402d041f0b2951cc241e5b2af0e6"
+    },
+    "python/metalrobo/recurrent_rollout_admission.py": {
+      "git_blob": "38a1f3f0458d1c4e7f4c78b97c88c7c3e61f14e8",
+      "mode": 420,
+      "sha256": "18c9cdf339421a451462282fa6729186edd5ad284edbd727453ca32555b783ed"
+    },
+    "python/metalrobo/solver_catalog.py": {
+      "git_blob": "875c65e006c046c14fedd7cc19282f6a863fc6b9",
+      "mode": 420,
+      "sha256": "a47e79b3328fc3e4969eb203ee71c2d31a1fcf639a23823c6e7298bde9252e97"
+    },
+    "python/metalrobo/solver_residual_teacher.py": {
+      "git_blob": "7edde6ae88c6523085c113ef83c5efe0e149c4be",
+      "mode": 420,
+      "sha256": "04a892aedb4bd72a533e2e63701342b98e3984f11dc07930536799aa4d5e3d9f"
+    },
+    "python/metalrobo/tactile.py": {
+      "git_blob": "5965ffe52e514666606a07fd6100b9500a584d40",
+      "mode": 420,
+      "sha256": "171f65315f854549082f152180c94c011780c50692029caeeb2b7773c8d805a1"
+    },
+    "python/metalrobo/tactile_cli.py": {
+      "git_blob": "1060ca4fc878edcc2928c4c6abab88226138b9dc",
+      "mode": 420,
+      "sha256": "e970f22bd57458c4afae50a67b5a45df5f8fa0c707222d683a374ee5558f2fd5"
+    },
+    "python/metalrobo/tactile_latent.py": {
+      "git_blob": "ec4ba676c3981f4852953bd0c8a6f76f1808f1f6",
+      "mode": 420,
+      "sha256": "19f74532b8cec002d5c4be813e7d06c95c56f405367f7850e379ff425965b14e"
+    },
+    "python/metalrobo/tactile_stream.py": {
+      "git_blob": "bfc4c431a9645086021f419f85d0dbcd5fb7f687",
+      "mode": 420,
+      "sha256": "059de4cb94adf32d20576108e91bef7aae4071efcf9f4985d4040a2833b59030"
+    },
+    "python/metalrobo/tactile_translator.py": {
+      "git_blob": "66f3a51eda6527b5f4bbbd96a6e975af1e2bfd33",
+      "mode": 420,
+      "sha256": "1d563d3946afdd4bc8540a015c97fdcd175542cb8fc88178d0164800cf5452c6"
+    },
+    "python/metalrobo/unitree_mjlab_policy.py": {
+      "git_blob": "de0848d8eb7072ac6c2d2904e43968c77f687b86",
+      "mode": 420,
+      "sha256": "4d7eeb6f37d54bdb8d37265d63587cde90f8772aa32a6a2dd8738a7a1518de66"
+    },
+    "python/metalrobo/visual.py": {
+      "git_blob": "7221c3fe9f82156415844608f9967067541b9b03",
+      "mode": 420,
+      "sha256": "6eafa56c6fd8ea87f694ae0da69e2ae53ae3f7199b7f6f8c084caffad10c326f"
+    },
+    "python/metalrobo/worlds.py": {
+      "git_blob": "73dd8fd2f01c1173630887611e1610fdc217a442",
+      "mode": 420,
+      "sha256": "3d3c85a14387b5bf261497d93a068b39fa36f0b28a8b3c230a383db435166343"
+    }
+  },
+  "schema": "numi.crow-object-life-git-recovery.v1",
+  "scope": "Git-restored exact runtime/source/inputs on the same device and OS. Fresh fixed-policy and coupled learner continuation; no independent learned-behavior claim.",
+  "source_commit": "8bef3fc5c2b8c9db167261d1dfc3ce1593c5c9ef",
+  "training_reference": {
+    "command": [
+      "/usr/bin/env",
+      "DYLD_PRINT_LIBRARIES=1",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_train",
+      "--birdflow-american-crow-journey",
+      "--birdflow-journey-variant",
+      "v14-object-push",
+      "--visual-observation-config",
+      "/Users/n/Developer/numi-crow-rl-20261107/environments/american-crow/object-push-v1/retinal-observation.json",
+      "--envs",
+      "2",
+      "--seed",
+      "2651315001",
+      "--minimum-difficulty-band",
+      "0",
+      "--maximum-difficulty-band",
+      "0",
+      "--metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "--native-library",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/lib/libmetalrobo.dylib",
+      "--mlx-python",
+      "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+      "--python-root",
+      "/Users/n/Developer/numi-crow-rl-20261107/python",
+      "--learner-seed",
+      "2651315002",
+      "--fixed-learning-rate",
+      "--learning-rate",
+      "0.0003",
+      "--discount",
+      "0.999",
+      "--gae-lambda",
+      "1",
+      "--update-epochs",
+      "2",
+      "--minibatch-size",
+      "94",
+      "--recurrent-sequence-length",
+      "47",
+      "--checkpoint-life",
+      "--checkpoint-interval",
+      "1",
+      "--steps",
+      "47",
+      "--updates",
+      "2",
+      "--chunk",
+      "1",
+      "--updated-policy-pack",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/resume1/updated.policypack",
+      "--deployment-policy-pack",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/resume1/candidate.policypack",
+      "--incumbent-policy-pack",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/resume1/incumbent.policypack",
+      "--rollout-pack",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/resume1/rollout.rolloutpack",
+      "--output-learner-state",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/resume1/learner.safetensors",
+      "--checkpoint-directory",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/resume1/checkpoints",
+      "--resume-training-checkpoint",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/split/checkpoints/revision-00000002.trainingcheckpoint"
+    ],
+    "files": {
+      "checkpoints/revision-00000003.trainingcheckpoint/COMMITTED": {
+        "bytes": 64,
+        "sha256": "b759cadf9b88ae64851b7288130d7dc51376c9cca804e06ce4aab9b9a65148a4"
+      },
+      "checkpoints/revision-00000003.trainingcheckpoint/candidate.policypack": {
+        "bytes": 197886,
+        "sha256": "38f205d153fac891db39da9e13b46ab88f612b9fbe54ccb443c85150b7f57fc4"
+      },
+      "checkpoints/revision-00000003.trainingcheckpoint/learner.safetensors": {
+        "bytes": 617740,
+        "sha256": "889caaaf07bc77aa26ed28b942f334c8e0f6c7e7475208ddeac871f14b9bfa3b"
+      },
+      "checkpoints/revision-00000003.trainingcheckpoint/life.native": {
+        "bytes": 216940,
+        "sha256": "b8d2742e9c3a05e85e0ea9897720abc08b2ed10454a42e0320f0214bfe7b2c44"
+      },
+      "checkpoints/revision-00000003.trainingcheckpoint/manifest.json": {
+        "bytes": 4790,
+        "sha256": "04d0066948961bc64229248ed11d07a6ea35c9894560d11c999cfec8ab3f846b"
+      },
+      "checkpoints/revision-00000003.trainingcheckpoint/policy.policypack": {
+        "bytes": 211874,
+        "sha256": "2822cf720965ab3ed01d929fadedc4768203f7336e1f021078f580134a93f5d0"
+      },
+      "checkpoints/revision-00000003.trainingcheckpoint/rollout.rolloutpack": {
+        "bytes": 535546,
+        "sha256": "b02cf0755575eda92e504c0616978d1d725ebd8b6b127431d9acb6293f768473"
+      },
+      "checkpoints/revision-00000004.trainingcheckpoint/COMMITTED": {
+        "bytes": 64,
+        "sha256": "97be40089c1b3a23d3f691a497712f410e2d771d125774fe99e9e69c9cb6dd43"
+      },
+      "checkpoints/revision-00000004.trainingcheckpoint/candidate.policypack": {
+        "bytes": 197886,
+        "sha256": "a9f92d7a63cd39308f58489a7b90508084ef11892044fc5224b143bd4797001d"
+      },
+      "checkpoints/revision-00000004.trainingcheckpoint/learner.safetensors": {
+        "bytes": 617740,
+        "sha256": "e884a10d4de9efa069e70a14fe9ace7a304e8c8ddd96ed30af74eaee08e4ec0a"
+      },
+      "checkpoints/revision-00000004.trainingcheckpoint/life.native": {
+        "bytes": 216940,
+        "sha256": "6d5dc1761d971d59c2969782294d051f331b782f507bef79e43ba4c441ef7a91"
+      },
+      "checkpoints/revision-00000004.trainingcheckpoint/manifest.json": {
+        "bytes": 4792,
+        "sha256": "2df624dcf355c3929564f5f30ee2a25a8da3d7a660bc6a182b29cf9b1b37d74a"
+      },
+      "checkpoints/revision-00000004.trainingcheckpoint/policy.policypack": {
+        "bytes": 211874,
+        "sha256": "7083463a18200574087552cbf9926cb62b8a912b24e8d47dac4a7831413b729f"
+      },
+      "checkpoints/revision-00000004.trainingcheckpoint/rollout.rolloutpack": {
+        "bytes": 535546,
+        "sha256": "13b521193cb6d75805e40bed2f7c6c86f640d973d2c198f4869f71fbf82b0b0b"
+      }
+    },
+    "summary": {
+      "accepted_lifetime_control_ticks_by_environment": [
+        141,
+        141
+      ],
+      "action_carrier": "v14_object_push_native_rgb",
+      "birdflow_journey_student_authority": 0,
+      "birdflow_journey_teacher": false,
+      "birdflow_journey_variant": "v14-object-push",
+      "birdflow_navigation_curriculum": false,
+      "birdflow_navigation_curriculum_stage": -1,
+      "candidate_deployment_policy_pack": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/resume1/candidate.policypack",
+      "checkpoint_directory": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/resume1/checkpoints",
+      "checkpoint_interval": 1,
+      "control_steps_per_submission": 1,
+      "deployment_policy_pack": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/resume1/candidate.policypack",
+      "deployment_selection_performed": false,
+      "device": "Apple M4 Pro",
+      "difficulty_sampling_exponent_override": 0,
+      "elapsed_seconds": 10.573345833,
+      "end_to_end_environment_steps_per_second": 17.78055905570038,
+      "environments": 2,
+      "failed_environment_steps": 0,
+      "final_physical_evidence": {
+        "control_steps": 141,
+        "evidence_windows": 0,
+        "last_balance_failure_rate": 0,
+        "last_clean_miss_rate": 0,
+        "last_completed_episode_count": 0,
+        "last_contact_rate": 0,
+        "last_mean_tracking_per_million": 0,
+        "pending_completed_episode_count": 0,
+        "pending_timeout_episode_count": 0
+      },
+      "final_policy_revision": 4,
+      "gpu_milliseconds": 9992.764708818868,
+      "host_requested_resets": 0,
+      "incumbent_policy_pack": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/resume1/incumbent.policypack",
+      "independent_cued_lifetimes": false,
+      "independent_lifetime_history": [],
+      "initial_policy_revision": 2,
+      "last_learning_update": {
+        "actor_gradient_norm": 38.84360885620117,
+        "actor_parameter_delta_norm": 0.025698012672364712,
+        "actor_total_parameter_delta_norm": 0.04705168185668416,
+        "approximate_kl": 0.006784223901861175,
+        "behavior_policy_fingerprint": 7017746554319025778,
+        "clip_fraction": 0.12234042584896088,
+        "clipped_actor_gradient_norm": 0.9993246793746948,
+        "critic_gradient_norm": 1.4113869667053223,
+        "deployment_policy_pack": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/resume1/candidate.policypack",
+        "done_count": 0,
+        "entropy": -57.3502082824707,
+        "generating_logp_max_abs": 5.7220458984375e-05,
+        "generating_state_max_abs": 5.960464477539063e-08,
+        "generating_value_max_abs": 4.470348358154297e-08,
+        "gradient_clip_scale": 0.02595808543264866,
+        "gradient_norm": 38.86943435668945,
+        "impact_sequence_metrics": [],
+        "kl_divergence": 0.006564408075064421,
+        "learner_state": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/resume1/learner.safetensors",
+        "learning_rate": 0.0003000000142492354,
+        "loss": 0.2743529975414276,
+        "maximum_reward": 0.019980469718575478,
+        "mean_action_standard_deviation": 0.01000079046934843,
+        "mean_contact_reward": 0,
+        "mean_dodge_cbf_buffer_reward": 0,
+        "mean_dodge_cbf_correction_reward": 0,
+        "mean_dodge_evasion_reward": 0,
+        "mean_dodge_link_clearance_reward": 0,
+        "mean_dodge_miss_reward": 0,
+        "mean_dodge_predicted_clearance_reward": 0,
+        "mean_dodge_safe_action_rate_reward": 0,
+        "mean_dodge_safe_stillness_reward": 0,
+        "mean_reward": 0.018007125705480576,
+        "mean_root_height": 0,
+        "mean_task_reward": 0,
+        "mean_tilt": 0,
+        "mean_tracking_score": 0,
+        "minibatch_updates": 2,
+        "minimum_gradient_clip_scale": 0.02350972406566143,
+        "minimum_reward": 0.013131694868206978,
+        "mlx_active_memory_bytes": 626240,
+        "mlx_cache_memory_bytes": 0,
+        "mlx_cache_released_bytes": 5512884,
+        "mlx_peak_memory_bytes": 4283890,
+        "outcomes": {
+          "done": {
+            "direction": 2,
+            "mean": 0,
+            "unit": "bool"
+          },
+          "mechanical_power_cost": {
+            "direction": 1,
+            "mean": -1.585456388397688e-08,
+            "unit": "weighted-cost"
+          },
+          "object_goal_score": {
+            "direction": 1,
+            "mean": 0.018007218837738037,
+            "unit": "score"
+          },
+          "physics_error": {
+            "direction": 2,
+            "mean": 0,
+            "unit": "bool"
+          },
+          "reward": {
+            "direction": 1,
+            "mean": 0.018007125705480576,
+            "unit": "reward"
+          },
+          "task_reward": {
+            "direction": 1,
+            "mean": 0,
+            "unit": "reward"
+          },
+          "timeout": {
+            "direction": 0,
+            "mean": 0,
+            "unit": "bool"
+          }
+        },
+        "policy_loss": -0.012805472147931596,
+        "policy_pack": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/resume1/updated.policypack",
+        "policy_revision": 4,
+        "policy_revision_after": 4,
+        "policy_revision_before": 3,
+        "post_update_action_0_approximate_kl": 0.002134282390854539,
+        "post_update_action_0_clip_fraction": 0,
+        "post_update_action_0_decision_count": 94,
+        "post_update_action_0_kl": 0.0019340629273272576,
+        "post_update_action_10_approximate_kl": 0.003865235303082761,
+        "post_update_action_10_clip_fraction": 0.02127659574468085,
+        "post_update_action_10_decision_count": 94,
+        "post_update_action_10_kl": 0.003911985361829717,
+        "post_update_action_11_approximate_kl": 0.0058482718540038515,
+        "post_update_action_11_clip_fraction": 0.0425531914893617,
+        "post_update_action_11_decision_count": 94,
+        "post_update_action_11_kl": 0.005374696026457117,
+        "post_update_action_12_approximate_kl": 0.002521067664852029,
+        "post_update_action_12_clip_fraction": 0,
+        "post_update_action_12_decision_count": 94,
+        "post_update_action_12_kl": 0.002232711999974352,
+        "post_update_action_13_approximate_kl": 0.004111729251815903,
+        "post_update_action_13_clip_fraction": 0.02127659574468085,
+        "post_update_action_13_decision_count": 94,
+        "post_update_action_13_kl": 0.004363886853481861,
+        "post_update_action_14_approximate_kl": 0.0004423126278623463,
+        "post_update_action_14_clip_fraction": 0,
+        "post_update_action_14_decision_count": 94,
+        "post_update_action_14_kl": 0.0003115959624026684,
+        "post_update_action_15_approximate_kl": 2.538285445281988e-05,
+        "post_update_action_15_clip_fraction": 0,
+        "post_update_action_15_decision_count": 94,
+        "post_update_action_15_kl": 1.841973751149279e-05,
+        "post_update_action_16_approximate_kl": 0.00529409559602116,
+        "post_update_action_16_clip_fraction": 0.0425531914893617,
+        "post_update_action_16_decision_count": 94,
+        "post_update_action_16_kl": 0.006078231207867886,
+        "post_update_action_17_approximate_kl": 0.001460622958318786,
+        "post_update_action_17_clip_fraction": 0,
+        "post_update_action_17_decision_count": 94,
+        "post_update_action_17_kl": 0.001398443541628249,
+        "post_update_action_1_approximate_kl": 0.003075944357601173,
+        "post_update_action_1_clip_fraction": 0,
+        "post_update_action_1_decision_count": 94,
+        "post_update_action_1_kl": 0.003087578935826078,
+        "post_update_action_2_approximate_kl": 0.0014492837364470804,
+        "post_update_action_2_clip_fraction": 0,
+        "post_update_action_2_decision_count": 94,
+        "post_update_action_2_kl": 0.001396145909390551,
+        "post_update_action_3_approximate_kl": 0.00011903882551315349,
+        "post_update_action_3_clip_fraction": 0,
+        "post_update_action_3_decision_count": 94,
+        "post_update_action_3_kl": 8.794348290626038e-05,
+        "post_update_action_4_approximate_kl": 7.488674043301255e-05,
+        "post_update_action_4_clip_fraction": 0,
+        "post_update_action_4_decision_count": 94,
+        "post_update_action_4_kl": 8.35156187098077e-05,
+        "post_update_action_5_approximate_kl": 0.0019473661755290913,
+        "post_update_action_5_clip_fraction": 0,
+        "post_update_action_5_decision_count": 94,
+        "post_update_action_5_kl": 0.002321348545399118,
+        "post_update_action_6_approximate_kl": 0.003163075054118885,
+        "post_update_action_6_clip_fraction": 0.010638297872340425,
+        "post_update_action_6_decision_count": 94,
+        "post_update_action_6_kl": 0.0030986977384445517,
+        "post_update_action_7_approximate_kl": 0.000180678700958874,
+        "post_update_action_7_clip_fraction": 0,
+        "post_update_action_7_decision_count": 94,
+        "post_update_action_7_kl": 0.00023685173785432855,
+        "post_update_action_8_approximate_kl": 0.000182508658171889,
+        "post_update_action_8_clip_fraction": 0,
+        "post_update_action_8_decision_count": 94,
+        "post_update_action_8_kl": 0.00013158232607740037,
+        "post_update_action_9_approximate_kl": 0.0007259448733109705,
+        "post_update_action_9_clip_fraction": 0,
+        "post_update_action_9_decision_count": 94,
+        "post_update_action_9_kl": 0.0007085013896860975,
+        "post_update_kl_divergence": 0.036776199302774794,
+        "pre_step_kl_divergence": 0.006564408075064421,
+        "real_samples_per_epoch": 94,
+        "recovery_phase_rates_by_difficulty_band": {
+          "0": {
+            "brace": 0,
+            "foot_support": 0,
+            "mean_root_height": 0,
+            "mean_tilt": 0,
+            "quiet_stand": 0,
+            "restored": 0,
+            "rise": 0,
+            "standing": 0,
+            "support_transfer": 0,
+            "transition_count": 94,
+            "trunk_clear": 0
+          }
+        },
+        "reward_standard_deviation": 0.0020802614744752645,
+        "samples": 94,
+        "selected_action_factors": 1692,
+        "selected_decision_samples": 94,
+        "sequence_length": 47,
+        "sequence_windows": 2,
+        "status": "updated",
+        "task_fingerprint": 4584940940994350753,
+        "termination_reason_counts": {},
+        "timeout_count": 0,
+        "update_seconds": 0.013153792009688914,
+        "value_loss": 0.2298082485795021
+      },
+      "learner": "mlx",
+      "learner_execution_identity": "ba60d792bc976202428d7c044031e4a47e2202a5dd2598afe387b5d9c6d2c7aa",
+      "learner_state": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/resume1/learner.safetensors",
+      "learner_state_restored": true,
+      "learning_update_history": [
+        {
+          "actor_gradient_norm": 47.13457679748535,
+          "actor_parameter_delta_norm": 0.04339687153697014,
+          "actor_total_parameter_delta_norm": 0.0857460480482463,
+          "approximate_kl": 0.005001951276542904,
+          "clip_fraction": 0.058510638773441315,
+          "clipped_actor_gradient_norm": 0.9998729228973389,
+          "critic_gradient_norm": 0.7013216912746429,
+          "done_count": 0,
+          "gradient_clip_scale": 0.02232864499092102,
+          "gradient_norm": 47.140031814575195,
+          "kl_divergence": 0.005251774098724127,
+          "learning_rate": 0.0003000000142492354,
+          "maximum_reward": 0.013063890859484673,
+          "mean_action_standard_deviation": 0.01000116765499115,
+          "mean_reward": 0.006757904309779406,
+          "minibatch_updates": 2,
+          "minimum_gradient_clip_scale": 0.017338447272777557,
+          "minimum_reward": 0.002141436794772744,
+          "mlx_peak_memory_bytes": 4083416,
+          "outcomes": {
+            "done": {
+              "direction": 2,
+              "mean": 0,
+              "unit": "bool"
+            },
+            "mechanical_power_cost": {
+              "direction": 1,
+              "mean": -1.587410736192396e-08,
+              "unit": "weighted-cost"
+            },
+            "object_goal_score": {
+              "direction": 1,
+              "mean": 0.0067579904571175575,
+              "unit": "score"
+            },
+            "physics_error": {
+              "direction": 2,
+              "mean": 0,
+              "unit": "bool"
+            },
+            "reward": {
+              "direction": 1,
+              "mean": 0.006757904309779406,
+              "unit": "reward"
+            },
+            "task_reward": {
+              "direction": 1,
+              "mean": 0,
+              "unit": "reward"
+            },
+            "timeout": {
+              "direction": 0,
+              "mean": 0,
+              "unit": "bool"
+            }
+          },
+          "policy_revision_after": 3,
+          "policy_revision_before": 2,
+          "post_update_action_0_approximate_kl": 0.00017184336775244446,
+          "post_update_action_0_clip_fraction": 0,
+          "post_update_action_0_decision_count": 94,
+          "post_update_action_0_kl": 0.00012513804943003554,
+          "post_update_action_10_approximate_kl": 0.0028737091144764837,
+          "post_update_action_10_clip_fraction": 0,
+          "post_update_action_10_decision_count": 94,
+          "post_update_action_10_kl": 0.00279503363244077,
+          "post_update_action_11_approximate_kl": 0.0030265015013084965,
+          "post_update_action_11_clip_fraction": 0.010638297872340425,
+          "post_update_action_11_decision_count": 94,
+          "post_update_action_11_kl": 0.0028490075405607834,
+          "post_update_action_12_approximate_kl": 0.0009009971090176321,
+          "post_update_action_12_clip_fraction": 0,
+          "post_update_action_12_decision_count": 94,
+          "post_update_action_12_kl": 0.0009758573897341464,
+          "post_update_action_13_approximate_kl": 0.006677027547142488,
+          "post_update_action_13_clip_fraction": 0.10638297872340426,
+          "post_update_action_13_decision_count": 94,
+          "post_update_action_13_kl": 0.007389187812805176,
+          "post_update_action_14_approximate_kl": 0.0005126573317071195,
+          "post_update_action_14_clip_fraction": 0,
+          "post_update_action_14_decision_count": 94,
+          "post_update_action_14_kl": 0.0006766962878247525,
+          "post_update_action_15_approximate_kl": 0.0049690703200077286,
+          "post_update_action_15_clip_fraction": 0.0425531914893617,
+          "post_update_action_15_decision_count": 94,
+          "post_update_action_15_kl": 0.005892768819281396,
+          "post_update_action_16_approximate_kl": 0.0017653664842927877,
+          "post_update_action_16_clip_fraction": 0.010638297872340425,
+          "post_update_action_16_decision_count": 94,
+          "post_update_action_16_kl": 0.0017910212912458055,
+          "post_update_action_17_approximate_kl": 0.0005860676532431674,
+          "post_update_action_17_clip_fraction": 0,
+          "post_update_action_17_decision_count": 94,
+          "post_update_action_17_kl": 0.0006435995406292855,
+          "post_update_action_1_approximate_kl": 0.0004888471610567959,
+          "post_update_action_1_clip_fraction": 0,
+          "post_update_action_1_decision_count": 94,
+          "post_update_action_1_kl": 0.0005863670338975622,
+          "post_update_action_2_approximate_kl": 3.2722329203178114e-05,
+          "post_update_action_2_clip_fraction": 0,
+          "post_update_action_2_decision_count": 94,
+          "post_update_action_2_kl": 2.7936506778635876e-05,
+          "post_update_action_3_approximate_kl": 0.00035646764445118606,
+          "post_update_action_3_clip_fraction": 0,
+          "post_update_action_3_decision_count": 94,
+          "post_update_action_3_kl": 0.0002004783204261293,
+          "post_update_action_4_approximate_kl": 0.004208774107726331,
+          "post_update_action_4_clip_fraction": 0.031914893617021274,
+          "post_update_action_4_decision_count": 94,
+          "post_update_action_4_kl": 0.005042593529883852,
+          "post_update_action_5_approximate_kl": 0.00026777475524911696,
+          "post_update_action_5_clip_fraction": 0,
+          "post_update_action_5_decision_count": 94,
+          "post_update_action_5_kl": 0.000284512626363876,
+          "post_update_action_6_approximate_kl": 0.007755986236511392,
+          "post_update_action_6_clip_fraction": 0.09574468085106383,
+          "post_update_action_6_decision_count": 94,
+          "post_update_action_6_kl": 0.008905450714395401,
+          "post_update_action_7_approximate_kl": 0.0018091237607803395,
+          "post_update_action_7_clip_fraction": 0,
+          "post_update_action_7_decision_count": 94,
+          "post_update_action_7_kl": 0.0014926797532020732,
+          "post_update_action_8_approximate_kl": 0.001118590349970544,
+          "post_update_action_8_clip_fraction": 0,
+          "post_update_action_8_decision_count": 94,
+          "post_update_action_8_kl": 0.001165941040566627,
+          "post_update_action_9_approximate_kl": 0.00040985754148618495,
+          "post_update_action_9_clip_fraction": 0,
+          "post_update_action_9_decision_count": 94,
+          "post_update_action_9_kl": 0.0004387789584220724,
+          "post_update_kl_divergence": 0.04128304884788838,
+          "pre_step_kl_divergence": 0.005251774098724127,
+          "samples": 94,
+          "timeout_count": 0,
+          "update_seconds": 0.04992037499323487
+        },
+        {
+          "actor_gradient_norm": 38.84360885620117,
+          "actor_parameter_delta_norm": 0.025698012672364712,
+          "actor_total_parameter_delta_norm": 0.04705168185668416,
+          "approximate_kl": 0.006784223901861175,
+          "clip_fraction": 0.12234042584896088,
+          "clipped_actor_gradient_norm": 0.9993246793746948,
+          "critic_gradient_norm": 1.4113869667053223,
+          "done_count": 0,
+          "gradient_clip_scale": 0.02595808543264866,
+          "gradient_norm": 38.86943435668945,
+          "kl_divergence": 0.006564408075064421,
+          "learning_rate": 0.0003000000142492354,
+          "maximum_reward": 0.019980469718575478,
+          "mean_action_standard_deviation": 0.01000079046934843,
+          "mean_reward": 0.018007125705480576,
+          "minibatch_updates": 2,
+          "minimum_gradient_clip_scale": 0.02350972406566143,
+          "minimum_reward": 0.013131694868206978,
+          "mlx_peak_memory_bytes": 4283890,
+          "outcomes": {
+            "done": {
+              "direction": 2,
+              "mean": 0,
+              "unit": "bool"
+            },
+            "mechanical_power_cost": {
+              "direction": 1,
+              "mean": -1.585456388397688e-08,
+              "unit": "weighted-cost"
+            },
+            "object_goal_score": {
+              "direction": 1,
+              "mean": 0.018007218837738037,
+              "unit": "score"
+            },
+            "physics_error": {
+              "direction": 2,
+              "mean": 0,
+              "unit": "bool"
+            },
+            "reward": {
+              "direction": 1,
+              "mean": 0.018007125705480576,
+              "unit": "reward"
+            },
+            "task_reward": {
+              "direction": 1,
+              "mean": 0,
+              "unit": "reward"
+            },
+            "timeout": {
+              "direction": 0,
+              "mean": 0,
+              "unit": "bool"
+            }
+          },
+          "policy_revision_after": 4,
+          "policy_revision_before": 3,
+          "post_update_action_0_approximate_kl": 0.002134282390854539,
+          "post_update_action_0_clip_fraction": 0,
+          "post_update_action_0_decision_count": 94,
+          "post_update_action_0_kl": 0.0019340629273272576,
+          "post_update_action_10_approximate_kl": 0.003865235303082761,
+          "post_update_action_10_clip_fraction": 0.02127659574468085,
+          "post_update_action_10_decision_count": 94,
+          "post_update_action_10_kl": 0.003911985361829717,
+          "post_update_action_11_approximate_kl": 0.0058482718540038515,
+          "post_update_action_11_clip_fraction": 0.0425531914893617,
+          "post_update_action_11_decision_count": 94,
+          "post_update_action_11_kl": 0.005374696026457117,
+          "post_update_action_12_approximate_kl": 0.002521067664852029,
+          "post_update_action_12_clip_fraction": 0,
+          "post_update_action_12_decision_count": 94,
+          "post_update_action_12_kl": 0.002232711999974352,
+          "post_update_action_13_approximate_kl": 0.004111729251815903,
+          "post_update_action_13_clip_fraction": 0.02127659574468085,
+          "post_update_action_13_decision_count": 94,
+          "post_update_action_13_kl": 0.004363886853481861,
+          "post_update_action_14_approximate_kl": 0.0004423126278623463,
+          "post_update_action_14_clip_fraction": 0,
+          "post_update_action_14_decision_count": 94,
+          "post_update_action_14_kl": 0.0003115959624026684,
+          "post_update_action_15_approximate_kl": 2.538285445281988e-05,
+          "post_update_action_15_clip_fraction": 0,
+          "post_update_action_15_decision_count": 94,
+          "post_update_action_15_kl": 1.841973751149279e-05,
+          "post_update_action_16_approximate_kl": 0.00529409559602116,
+          "post_update_action_16_clip_fraction": 0.0425531914893617,
+          "post_update_action_16_decision_count": 94,
+          "post_update_action_16_kl": 0.006078231207867886,
+          "post_update_action_17_approximate_kl": 0.001460622958318786,
+          "post_update_action_17_clip_fraction": 0,
+          "post_update_action_17_decision_count": 94,
+          "post_update_action_17_kl": 0.001398443541628249,
+          "post_update_action_1_approximate_kl": 0.003075944357601173,
+          "post_update_action_1_clip_fraction": 0,
+          "post_update_action_1_decision_count": 94,
+          "post_update_action_1_kl": 0.003087578935826078,
+          "post_update_action_2_approximate_kl": 0.0014492837364470804,
+          "post_update_action_2_clip_fraction": 0,
+          "post_update_action_2_decision_count": 94,
+          "post_update_action_2_kl": 0.001396145909390551,
+          "post_update_action_3_approximate_kl": 0.00011903882551315349,
+          "post_update_action_3_clip_fraction": 0,
+          "post_update_action_3_decision_count": 94,
+          "post_update_action_3_kl": 8.794348290626038e-05,
+          "post_update_action_4_approximate_kl": 7.488674043301255e-05,
+          "post_update_action_4_clip_fraction": 0,
+          "post_update_action_4_decision_count": 94,
+          "post_update_action_4_kl": 8.35156187098077e-05,
+          "post_update_action_5_approximate_kl": 0.0019473661755290913,
+          "post_update_action_5_clip_fraction": 0,
+          "post_update_action_5_decision_count": 94,
+          "post_update_action_5_kl": 0.002321348545399118,
+          "post_update_action_6_approximate_kl": 0.003163075054118885,
+          "post_update_action_6_clip_fraction": 0.010638297872340425,
+          "post_update_action_6_decision_count": 94,
+          "post_update_action_6_kl": 0.0030986977384445517,
+          "post_update_action_7_approximate_kl": 0.000180678700958874,
+          "post_update_action_7_clip_fraction": 0,
+          "post_update_action_7_decision_count": 94,
+          "post_update_action_7_kl": 0.00023685173785432855,
+          "post_update_action_8_approximate_kl": 0.000182508658171889,
+          "post_update_action_8_clip_fraction": 0,
+          "post_update_action_8_decision_count": 94,
+          "post_update_action_8_kl": 0.00013158232607740037,
+          "post_update_action_9_approximate_kl": 0.0007259448733109705,
+          "post_update_action_9_clip_fraction": 0,
+          "post_update_action_9_decision_count": 94,
+          "post_update_action_9_kl": 0.0007085013896860975,
+          "post_update_kl_divergence": 0.036776199302774794,
+          "pre_step_kl_divergence": 0.006564408075064421,
+          "samples": 94,
+          "timeout_count": 0,
+          "update_seconds": 0.013153792009688914
+        }
+      ],
+      "life_checkpoint_count": 2,
+      "life_checkpoint_enabled": true,
+      "life_checkpoint_seconds": 0.009154416,
+      "life_state_restored": true,
+      "lifetime_updates_completed": 3,
+      "maximum_active_contacts": 11,
+      "maximum_episode_steps": 100000,
+      "maximum_manifolds": 4,
+      "minibatch_size": 94,
+      "minibatches_per_epoch": 1,
+      "motion_minibatch_size": 0,
+      "native_submission_count": 94,
+      "navigation_return_weighted_self_imitation": false,
+      "navigation_self_imitation_minimum_waypoint": 5,
+      "operation": "swift_native_policy_training",
+      "physics": "metal",
+      "policy_pack": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/resume1/updated.policypack",
+      "resumed_exploration_overridden": false,
+      "resumed_learning_rate_overridden": false,
+      "retained_buffer_bytes": 2189354,
+      "retention_maximum_difficulty_band": -1,
+      "retention_policy_pack": "",
+      "retention_protected_actor_only": false,
+      "retention_rollout_teacher_blend": 0,
+      "rollout_pack": "/Users/n/Developer/numi-crow-rl-20261107/.numi/runs/american-crow/object-life-01/resume1/rollout.rolloutpack",
+      "samples_per_update": 94,
+      "scheduler": "swift",
+      "stage_high_water": {
+        "articulation_point_queries": 0,
+        "candidate_pairs": 4,
+        "ccd_candidates": 1,
+        "ccd_events": 0,
+        "constraint_blocks": 11,
+        "constraint_rows": 33,
+        "dynamic_nodes": 0,
+        "endpoint_runtime_records": 0,
+        "hard_convex_pairs": 0,
+        "island_constraint_references": 0,
+        "island_node_references": 0,
+        "islands": 2,
+        "manifolds": 4,
+        "mesh_triangle_candidates": 0,
+        "operator_velocity_elements": 0,
+        "quality_direct_tiles": 0,
+        "quality_generalized_velocities": 0,
+        "quality_krylov_vectors": 0,
+        "quality_rows": 0,
+        "raw_contacts": 11,
+        "rod_candidate_pairs": 0,
+        "rod_ccd_events": 0,
+        "rod_factor_blocks": 0,
+        "rod_manifolds": 0,
+        "rod_raw_contacts": 0,
+        "solver_tiles": 2,
+        "spill_rows": 0
+      },
+      "steps_per_update": 47,
+      "submission_milliseconds": 10051.882503000004,
+      "training_samples": 188,
+      "transient_private_bytes": 1197236,
+      "updates": 2,
+      "visual_observation": true,
+      "visual_observation_config": "/Users/n/Developer/numi-crow-rl-20261107/environments/american-crow/object-push-v1/retinal-observation.json",
+      "visual_scene_fingerprint": 13906885815878462748,
+      "world_source": "american_crow_object_push_v14"
+    }
+  }
+}
