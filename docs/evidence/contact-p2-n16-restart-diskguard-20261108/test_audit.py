@@ -16,7 +16,7 @@ with tempfile.TemporaryDirectory(prefix="numi-contact-audit-test-") as tmp:
     for name in ("audit_before_analysis.py", "analyze.py", "coarse.json", "coarse-manifest.json"):
         shutil.copyfile(source / name, target / name)
     coarse = json.loads((target / "coarse.json").read_text())
-    fake = dict(coarse, variant="fine")
+    fake = dict(coarse, variant="fine", max_step_s=8e-6, rtol=1e-10, atol=1e-13)
     fine = target / "fine.json"
     fine.write_text(json.dumps(fake))
     manifest = json.loads((target / "coarse-manifest.json").read_text())
@@ -35,6 +35,9 @@ with tempfile.TemporaryDirectory(prefix="numi-contact-audit-test-") as tmp:
     manifest["source_sha256"] = sha(r / relative[0])
     def set_fake(value):
         fine.write_text(json.dumps(value)); manifest["output_sha256"] = sha(fine); mf.write_text(json.dumps(manifest))
+    broken = dict(fake, rtol=1e-8); set_fake(broken); check("wrong fine tolerance", False)
+    broken = dict(fake, n=8); set_fake(broken); check("wrong mesh size", False)
+    broken = dict(fake, trace_columns=list(reversed(fake["trace_columns"]))); set_fake(broken); check("wrong trace columns", False)
     broken = dict(fake, trace=fake["trace"][:-1]); set_fake(broken); check("truncated trace", False)
     broken = dict(fake, force_bins_N=[float("nan")] + fake["force_bins_N"][1:]); set_fake(broken); check("nonfinite force", False)
     broken = dict(fake, force_bins_N=[0.0]*10); set_fake(broken); check("zero force normalization", False)

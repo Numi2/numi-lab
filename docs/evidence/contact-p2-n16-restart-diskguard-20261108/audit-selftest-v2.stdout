@@ -1,0 +1,11 @@
+synthetic valid: expected pass observed
+failed process: expected rejection observed
+changed output hash: expected rejection observed
+changed input hash: expected rejection observed
+wrong fine tolerance: expected rejection observed
+wrong mesh size: expected rejection observed
+wrong trace columns: expected rejection observed
+truncated trace: expected rejection observed
+nonfinite force: expected rejection observed
+zero force normalization: expected rejection observed
+nonmonotone time: expected rejection observed

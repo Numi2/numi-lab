@@ -39,7 +39,7 @@ if prerequisite.get("prerequisite_pass") is not True:
 if prerequisite.get("reference_sha256") != identity["reference_sha256"] or prerequisite.get("restart_sha256") != identity["prerequisite_restart_sha256"]:
     fail("n8 prerequisite inputs changed")
 reference = read(paths["reference_sha256"])
-if len(reference.get("force_bins_N", [])) != 10 or not isinstance(reference.get("impulse_Ns"), (int, float)):
+if reference.get("n") != 8 or reference.get("variant") != "fine" or len(reference.get("force_bins_N", [])) != 10 or not isinstance(reference.get("impulse_Ns"), (int, float)):
     fail("n8 comparison output has an unexpected shape")
 output = {"inputs": identity, "phases": {}}
 for variant in ("coarse", "fine"):
@@ -54,7 +54,11 @@ for variant in ("coarse", "fine"):
     data = read(artifact)
     trace = data.get("trace", [])
     bins = data.get("force_bins_N", [])
-    if data.get("n") != 16 or data.get("variant") != variant or len(bins) != 10 or len(trace) != 56 or any(not isinstance(row, list) or len(row) < 14 for row in trace):
+    expected_columns = ["time_s", "force18_N", "force48_N", "force64_N", "gap18_m", "gap48_m", "gap64_m", "minJ", "momentum_Ns", "impulse_Ns", "contact_work_J", "contact_energy_J", "total_energy_J", "local_mass_solve_relative"]
+    expected_solver = {"coarse": (16e-6, 1e-8, 1e-12), "fine": (8e-6, 1e-10, 1e-13)}[variant]
+    if (data.get("max_step_s"), data.get("rtol"), data.get("atol")) != expected_solver:
+        fail(variant + " solver settings differ from registration")
+    if data.get("n") != 16 or data.get("variant") != variant or data.get("trace_columns") != expected_columns or len(bins) != 10 or len(trace) != 56 or any(not isinstance(row, list) or len(row) != 14 for row in trace):
         fail(variant + " output has an unexpected shape")
     if any(not isinstance(x, (int, float)) for x in bins) or max(bins) <= 0 or not isinstance(data.get("impulse_Ns"), (int, float)) or abs(data["impulse_Ns"]) <= 0:
         fail(variant + " has an invalid normalization")
