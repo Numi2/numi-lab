@@ -133,19 +133,32 @@ MetalDiscreteElasticRodDiagnostics runResearchMetalCoupledRod(
             auto d=fail(MetalDiscreteElasticRodHostStatus::gpuEnvironmentFailure, "coupled rod did not converge");
             d.dispatched=true; d.firstGPUStatusCode=result.status; return d;
         }
+        auto publicationFailure=[&]() {
+            auto d=fail(MetalDiscreteElasticRodHostStatus::gpuEnvironmentFailure, "public state cannot represent the accepted coupled rod step");
+            d.dispatched=true; d.firstGPUStatusCode=result.status; return d;
+        };
         MetalCoupledRodResult staged; staged.state=initial;
+        double linearConversion=0.0, angularConversion=0.0;
         for (std::size_t i=0;i<n;i++) for (unsigned j=0;j<3;j++) {
             const double delta=double(result.displacement[3*i+j])+double(result.displacementLow[3*i+j]);
             staged.state.positions[i][j]+=delta; staged.state.velocities[i][j]=delta/h;
+            const double represented=staged.state.positions[i][j]-initial.positions[i][j];
+            linearConversion=std::max(linearConversion, std::abs(represented-delta)/h + std::abs(double(in.vel[3*i+j])-initial.velocities[i][j]));
             if (!std::isfinite(staged.state.positions[i][j]) || !std::isfinite(staged.state.velocities[i][j]))
                 return fail(MetalDiscreteElasticRodHostStatus::gpuEnvironmentFailure, "nonfinite node result");
         }
         for (std::size_t i=0;i<n-1;i++) {
             staged.state.twists[i]=center+double(result.twistDelta[i]);
             staged.state.twistRates[i]=(staged.state.twists[i]-initial.twists[i])/h;
+            const double represented=staged.state.twists[i]-initial.twists[i];
+            const double gpuDelta=double(result.twistDelta[i])-double(in.twist[i]);
+            angularConversion=std::max(angularConversion, std::abs(represented-gpuDelta)/h + std::abs(double(in.omega[i])-initial.twistRates[i]));
             if (!std::isfinite(staged.state.twists[i]) || !std::isfinite(staged.state.twistRates[i]))
                 return fail(MetalDiscreteElasticRodHostStatus::gpuEnvironmentFailure, "nonfinite twist result");
         }
+        if (!std::isfinite(linearConversion) || !std::isfinite(angularConversion) ||
+            double(result.maxLinear)+linearConversion>in.linearTolerance ||
+            double(result.maxAngular)+angularConversion>in.angularTolerance) return publicationFailure();
         for (unsigned k=0;k<2;k++) {
             auto& reaction=staged.reactions[k]; reaction.nodeIndex=attachments[k].nodeIndex;
             for (unsigned j=0;j<3;j++) {
@@ -157,7 +170,8 @@ MetalDiscreteElasticRodDiagnostics runResearchMetalCoupledRod(
             reaction.finalPositionError=norm(subtract(staged.state.positions[reaction.nodeIndex],attachments[k].targetPosition));
         }
         staged.iterations=result.iterations; staged.backtracks=result.backtracks;
-        staged.maximumLinearResidual=result.maxLinear; staged.maximumAngularResidual=result.maxAngular;
+        staged.maximumLinearResidual=double(result.maxLinear)+linearConversion;
+        staged.maximumAngularResidual=double(result.maxAngular)+angularConversion;
         output=std::move(staged);
         MetalDiscreteElasticRodDiagnostics d; d.dispatched=true; d.published=true; d.firstGPUStatusCode=MR_ROD_GPU_SUCCESS; d.deviceName=device.name.UTF8String; return d;
     }

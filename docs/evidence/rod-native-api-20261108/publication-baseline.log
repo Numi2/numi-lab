@@ -1,0 +1,7 @@
+ordinary status=0 published=1 untouched=0 twist=0 rate=0
+nonuniform status=2 published=0 untouched=1
+degenerate status=14 published=0 untouched=1
+nonfinite status=3 published=0 untouched=1
+compliant status=4 published=0 untouched=1
+library status=10 published=0 untouched=1
+large_twist status=0 published=1 untouched=0 twist=1e+12 rate=0
