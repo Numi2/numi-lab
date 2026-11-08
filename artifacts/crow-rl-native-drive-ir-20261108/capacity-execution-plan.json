@@ -1,0 +1,69 @@
+{
+  "commands": [
+    {
+      "args": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-capacity-20261108/probe",
+        "--native-drive-calibrate"
+      ],
+      "name": "capacity-host"
+    },
+    {
+      "args": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-capacity-20261108/ir-probe"
+      ],
+      "name": "capacity-ir-owner"
+    },
+    {
+      "args": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-capacity-20261108/contact-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-capacity-20261108/metalrobo/MetalRobo.metallib"
+      ],
+      "name": "capacity-contact-owner"
+    },
+    {
+      "args": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-build-01/fixture-default",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-build-01/default-crow-capacity",
+        "0",
+        "1",
+        "32"
+      ],
+      "name": "capacity-default-crow"
+    },
+    {
+      "args": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-capacity-20261108/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-capacity-20261108/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-build-01/native-capacity.tsv",
+        "--native-drive"
+      ],
+      "name": "capacity-native-replay"
+    },
+    {
+      "args": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-build-01/crow-fixture",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-build-01/crow-mode2-capacity",
+        "0",
+        "1",
+        "32",
+        "2"
+      ],
+      "name": "capacity-crow-candidate"
+    }
+  ],
+  "source_and_runtime_sha256": {
+    ".numi/retained-runtime/native-drive-ir-capacity-20261108/contact-probe": "bd0777b062295b4e08a4722124665725cb6842506054d05357a6346a76d39293",
+    ".numi/retained-runtime/native-drive-ir-capacity-20261108/ir-probe": "80a77b7789e61262ef09f5a4377106e7f41994ae6774b45a9e1926a2a377646a",
+    ".numi/retained-runtime/native-drive-ir-capacity-20261108/libmetalrobo.dylib": "1402ec75bba383aab4eab810c79b3aa1446592924f99bfedb167b6cec667ae25",
+    ".numi/retained-runtime/native-drive-ir-capacity-20261108/metalrobo/MetalRobo.metallib": "fcafdfa4b9015852bbf52f9f0f18ee0c8196d4603c1a86c847e5d51da6349f5b",
+    ".numi/retained-runtime/native-drive-ir-capacity-20261108/probe": "2cbb308209f947432aab8b02fa25f3d02a54cfdb6d9fe190958cbdf0ad1ce278",
+    "apps/motor_contact_probe.cpp": "fdd88736b3ed3fddf75fa938373013b7f4dc3bcba34ddb0fda26b8c6a7ae5bd6",
+    "artifacts/crow-rl-native-drive-ir-20261108/capacity-plan.json": "b670f8fac3f208945f3095fdee1ad10590d4fce2bca86ce54ae14fc50a330a5e",
+    "artifacts/crow-rl-native-drive-ir-20261108/capacity_run.py": "e26e797bfcee14fd282990ecdaaf7105dd286bfbb292182a8663199f4880f201",
+    "artifacts/crow-rl-native-drive-ir-20261108/crow-fixture.mm": "4484b1924331ffc63e5af1bef0a71ce0d15415e3315a00254c4725cc82e05766",
+    "build/crow-native-drive-ir-build-01/crow-fixture": "f5a82cae406eec0bfa42a9df48967f10bcd4a16a9b27a007f420b5ef06455e08",
+    "build/crow-native-drive-ir-build-01/fixture-default": "a76e0b2a726b9ab2504b4a55b6d557d10a85feaaf94e4cb580de33103e45c63a",
+    "src/metal/MetalWorld.mm": "20889df397346fbc4a305dd5533423657f80a3cbb73efb8a856f0b4efe8876c8"
+  },
+  "timeout_seconds_each": 120
+}
