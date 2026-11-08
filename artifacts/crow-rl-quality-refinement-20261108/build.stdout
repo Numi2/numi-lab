@@ -1,0 +1,2 @@
+{"argv": ["cmake", "--build", "build", "--config", "Release", "-j6"], "code": 0, "seconds": 24.050162750005256}
+{"argv": ["clang++", "-std=c++20", "-O2", "-fobjc-arc", "-Iinclude", "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-quality-refinement-20261108/probe.mm", "-framework", "Foundation", "-framework", "Metal", "-o", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-refinement-build-01/probe"], "code": 0, "seconds": 0.6299072499969043}
