@@ -1,0 +1,27 @@
+{
+  "archive_commit": "ecefe305ece18bf2ecfb2fd79f7b45dd34f8e5e0",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300264392 157084748    66% 3497483 1570847480    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300353084 156996056    66% 3497914 1569960560    0%   /System/Volumes/Data\n",
+  "manifest": "artifacts/crow-rl-bounded-drive-integration-20261108/payload/manifest.json",
+  "manifest_sha256": "5a64d7d4f0443a836723d3c41c8f48a8c32a96b55bc57107f0128c8134c1346f",
+  "open_handle_checks": [
+    {
+      "exists": false,
+      "open_handles": 0,
+      "root": ".numi/runs/american-crow"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/retained-runtime"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": "build"
+    }
+  ],
+  "remote_commit": "ecefe305ece18bf2ecfb2fd79f7b45dd34f8e5e0",
+  "removed_files": 396,
+  "removed_logical_bytes": 89518819
+}
