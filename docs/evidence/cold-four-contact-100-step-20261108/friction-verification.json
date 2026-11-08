@@ -1,0 +1,16 @@
+{
+  "warm": {
+    "accepted_replayed_steps": 500,
+    "checked_rows": 1428,
+    "sliding_rows": 644,
+    "reported_failures": 0,
+    "state_and_normal_impulse_match_prior_run": true
+  },
+  "cold": {
+    "accepted_replayed_steps": 500,
+    "checked_rows": 1428,
+    "sliding_rows": 644,
+    "reported_failures": 0,
+    "state_and_normal_impulse_match_prior_run": true
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "warm": [
+    {
+      "case": 0,
+      "accepted": 100,
+      "first_rejected": null,
+      "replay": true,
+      "restored": true,
+      "max_linear_error": 2.980232239e-08,
+      "max_angular_error": 7.06114857e-10,
+      "max_normal_impulse": 0.9999019802,
+      "max_normal_residual": 0.001093999366,
+      "second_impulse": 0.001211657189,
+      "second_residual": 1.971784513e-09,
+      "gate": true
+    },
+    {
+      "case": 1,
+      "accepted": 100,
+      "first_rejected": null,
+      "replay": true,
+      "restored": true,
+      "max_linear_error": 2.980232239e-08,
+      "max_angular_error": 7.06114857e-10,
+      "max_normal_impulse": 0.9999019802,
+      "max_normal_residual": 0.001093999366,
+      "second_impulse": 0.001090484962,
+      "second_residual": 2.294804569e-09,
+      "gate": true
+    },
+    {
+      "case": 2,
+      "accepted": 100,
+      "first_rejected": null,
+      "replay": true,
+      "restored": true,
+      "max_linear_error": 0,
+      "max_angular_error": 0,
+      "max_normal_impulse": 0,
+      "max_normal_residual": 0,
+      "energy_error": 0.0,
+      "gate": true
+    },
+    {
+      "case": 3,
+      "accepted": 100,
+      "first_rejected": null,
+      "replay": true,
+      "restored": true,
+      "max_linear_error": 4.595518119e-09,
+      "max_angular_error": 3.38086904e-11,
+      "max_normal_impulse": 0.09810001776,
+      "max_normal_residual": 5.985792484e-08,
+      "static_impulse_error": 2.695000000940695e-08,
+      "gate": true
+    },
+    {
+      "case": 4,
+      "accepted": 100,
+      "first_rejected": null,
+      "replay": true,
+      "restored": true,
+      "max_linear_error": 4.595518119e-09,
+      "max_angular_error": 1.076327943e-10,
+      "max_normal_impulse": 0.09810069576,
+      "max_normal_residual": 4.588127638e-07,
+      "gate": true
+    }
+  ],
+  "cold": [
+    {
+      "case": 0,
+      "accepted": 100,
+      "first_rejected": null,
+      "replay": true,
+      "restored": true,
+      "max_linear_error": 2.980232239e-08,
+      "max_angular_error": 7.06114857e-10,
+      "max_normal_impulse": 0.9999019802,
+      "max_normal_residual": 0.001093999366,
+      "second_impulse": 0.001211657189,
+      "second_residual": 1.971784513e-09,
+      "gate": true
+    },
+    {
+      "case": 1,
+      "accepted": 100,
+      "first_rejected": null,
+      "replay": true,
+      "restored": true,
+      "max_linear_error": 2.980232239e-08,
+      "max_angular_error": 7.06114857e-10,
+      "max_normal_impulse": 0.9999019802,
+      "max_normal_residual": 0.001093999366,
+      "second_impulse": 0.001090484962,
+      "second_residual": 2.294804569e-09,
+      "gate": true
+    },
+    {
+      "case": 2,
+      "accepted": 100,
+      "first_rejected": null,
+      "replay": true,
+      "restored": true,
+      "max_linear_error": 0,
+      "max_angular_error": 0,
+      "max_normal_impulse": 0,
+      "max_normal_residual": 0,
+      "energy_error": 0.0,
+      "gate": true
+    },
+    {
+      "case": 3,
+      "accepted": 100,
+      "first_rejected": null,
+      "replay": true,
+      "restored": true,
+      "max_linear_error": 4.595518119e-09,
+      "max_angular_error": 3.38086904e-11,
+      "max_normal_impulse": 0.09810001776,
+      "max_normal_residual": 5.985792484e-08,
+      "static_impulse_error": 2.695000000940695e-08,
+      "gate": true
+    },
+    {
+      "case": 4,
+      "accepted": 100,
+      "first_rejected": null,
+      "replay": true,
+      "restored": true,
+      "max_linear_error": 4.595518119e-09,
+      "max_angular_error": 1.076327943e-10,
+      "max_normal_impulse": 0.09810069576,
+      "max_normal_residual": 4.588127638e-07,
+      "gate": true
+    }
+  ],
+  "all_gates_pass": true
+}
