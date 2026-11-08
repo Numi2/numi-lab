@@ -1,0 +1,14 @@
+free result=0
+fixed result=0
+reflected-crossing result=2
+initially-unsafe result=2
+tangential result=0
+tilted result=0
+large-origin result=0
+exact-floor result=2
+nonfinite result=1
+overflow result=1
+metadata result=1
+zero-normal result=1
+mixed_batch certified=88 rejected=169
+device=Apple M6 endpoint_cases=12 PASS
