@@ -1,0 +1,79 @@
+[
+  {
+    "ref": "refs/heads/codex/suture-earned-continuation",
+    "commit": "9d5c239e8fef0cb3c4e0efeaa9277df0e29f9024",
+    "paths": 473,
+    "unique_objects": 54,
+    "outside_scanned": []
+  },
+  {
+    "ref": "refs/heads/codex/synthetic-skin-suture-20260930",
+    "commit": "8ce44aca14f850dc05259c93d5d723e255ae3237",
+    "paths": 0,
+    "unique_objects": 0,
+    "outside_scanned": []
+  },
+  {
+    "ref": "refs/heads/research/skin-suture-restore-diagnostic-20261107",
+    "commit": "9cc78d2280e6526017e253bec392d0c1052fc1d1",
+    "paths": 0,
+    "unique_objects": 0,
+    "outside_scanned": []
+  },
+  {
+    "ref": "refs/heads/research/surgical-fresh-approach-20261108",
+    "commit": "edf81b80dd39976b67b89749eba625fdd6cb74f5",
+    "paths": 0,
+    "unique_objects": 0,
+    "outside_scanned": []
+  },
+  {
+    "ref": "refs/heads/research/suture-checkpoint-20261107",
+    "commit": "e2f23c0df31845953ca44567defca1cf078f02b5",
+    "paths": 473,
+    "unique_objects": 54,
+    "outside_scanned": []
+  },
+  {
+    "ref": "refs/heads/research/suture-complete-owner-seed-design-20261108",
+    "commit": "8d85fdf874fdd75ce9b33b6b759d67e131995927",
+    "paths": 0,
+    "unique_objects": 0,
+    "outside_scanned": []
+  },
+  {
+    "ref": "refs/heads/research/suture-contact-only-publication-20261108",
+    "commit": "edb8b7e38b14fc1b40b611bb2c0fd35d03c46d03",
+    "paths": 0,
+    "unique_objects": 0,
+    "outside_scanned": []
+  },
+  {
+    "ref": "refs/heads/research/suture-resident-witness-readback-20261108",
+    "commit": "4635a877ae5b356df8263344029b8344bfb19b43",
+    "paths": 0,
+    "unique_objects": 0,
+    "outside_scanned": []
+  },
+  {
+    "ref": "refs/heads/research/suture-same-resident-control-20261108",
+    "commit": "890072ecacb9b59193ff17164e775b816db55821",
+    "paths": 0,
+    "unique_objects": 0,
+    "outside_scanned": []
+  },
+  {
+    "ref": "refs/heads/research/suture-source-bound-partial-capsule-20261108",
+    "commit": "701c4b92bae922a81c000ce9007d34f97535f046",
+    "paths": 0,
+    "unique_objects": 0,
+    "outside_scanned": []
+  },
+  {
+    "ref": "refs/heads/research/suture-witness-device-roundtrip-20261108",
+    "commit": "c79414ac14dd27c3b63170a35c662b4021a9c64b",
+    "paths": 0,
+    "unique_objects": 0,
+    "outside_scanned": []
+  }
+]
