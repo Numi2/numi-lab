@@ -1,0 +1,10 @@
+7874f5fbcfbf71b6c96c0deb44e5121e9500fee7ea5b01ab4f5c00e6134e4361  docs/evidence/rod-coupled-free-20261108/STOPPING-DIAGNOSTIC-PLAN.md
+a4376f7e4467b51b6e58b2c5e0aeb574bb9f06de031093171e4d8083fb5305cc  docs/evidence/rod-coupled-free-20261108/free_3d_probe.mm
+14ee80c853e2cba22d614bf6285dc3d9ef5d8ef2ee31408bc6d841bd395800a7  docs/evidence/rod-coupled-free-20261108/free_3d_tight_probe.mm
+44930ee1d47915970656977fdeff06e8eb722234741e6cae176e5163bcbc4530  docs/evidence/rod-coupled-free-20261108/refined_trajectory.py
+c3a76b173f9203ec366164bdc26ebbc4f4bef154223bf31933abda34f9240adf  docs/evidence/rod-coupled-free-20261108/free_3d_refined_reference.py
+a86644d9e1c88991726e487422f68969fedef562148ef29b42213150affeec40  docs/evidence/rod-coupled-bend-20261108/native-full-energy
+7ab492c853c3a536a51808d8c6148b892497c36230ee4256f81d3e15d9578f05  /Users/numi/rod-native-api-build-20261108/free_3d_probe
+e3a04ac8e0a39352038cfef1b46fcd2576a90c624aa4df1c3be473a3e065b5bb  /Users/numi/rod-native-api-build-20261108/free_3d_tight_probe
+5d043ae978afa222fa7afd6a2a8d89e5014d06cb40569ce1593ff73409828a4b  /Users/numi/numi-rod-integrated-build-20261108/lib/libmetalrobo.dylib
+73b424d9db567373ae42bf0a50d183309ab6ccd7621f44dd1ff877bb9e74ee88  /Users/numi/numi-rod-integrated-build-20261108/shaders/MetalRobo.metallib

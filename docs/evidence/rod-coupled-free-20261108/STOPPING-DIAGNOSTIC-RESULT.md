@@ -1,0 +1,5 @@
+# Research solver stopping sensitivity result
+
+With both internal tolerances set to 0.000025 and the same 1e-6 FP64 reference, two byte-identical runs passed 77 steps for seed 92101 before the unchanged 1e-6 m position gate failed at step 78 (1.0092316045234861e-6 m). Seeds 92105 and 92109 each passed all 100 requested steps. The less stringent 0.00025 configuration against the same reference passed 9, 37 and 100 steps respectively.
+
+This supports internal stopping tolerance as one contributor to these particular trajectory discrepancies, but tightening it tenfold was insufficient to meet all three 100-step position gates. The reference was independently advanced and all gates were held fixed. No solve-budget change, default promotion or performance claim follows. These tests do not separate accumulated local residual from coefficient/representation errors or establish the minimum tolerances for other materials and trajectories. Per-step Metal states, reference states, physical residuals, momentum checks, logs and hashes are retained.
