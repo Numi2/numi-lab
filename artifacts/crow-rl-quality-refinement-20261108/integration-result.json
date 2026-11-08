@@ -1,0 +1,24 @@
+{
+  "all_predictions_supported": false,
+  "goal_complete": false,
+  "native_commands": 10,
+  "observations": {
+    "api_default_complete_640_twice": false,
+    "api_default_penetration_max_m": 2.18242453566e-07,
+    "default_physical_files_exact": 10,
+    "motor_physical_records_exact": 624,
+    "owning_regressions_pass": true,
+    "repeated_api_physical_outputs_exact": true,
+    "strict_capture_diff_only_hessian_stride": true
+  },
+  "policy_or_profile_promoted": false,
+  "predictions_supported": {
+    "api_default_complete_640_twice": false,
+    "api_default_penetration_max_m": true,
+    "default_physical_files_exact": true,
+    "motor_physical_records_exact": true,
+    "owning_regressions_pass": true,
+    "repeated_api_physical_outputs_exact": true,
+    "strict_capture_diff_only_hessian_stride": true
+  }
+}

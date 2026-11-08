@@ -1,0 +1,62 @@
+{
+  "files": {
+    "CMakeLists.txt": {
+      "bytes": 138809,
+      "sha256": "4d1c069563288dd99e7c8d71b0ce808c79a124fd6742cbe662e5a2acf8e0e56c"
+    },
+    "build/bin/metalrobo_constraint_ir_probe": {
+      "bytes": 58416,
+      "sha256": "80a77b7789e61262ef09f5a4377106e7f41994ae6774b45a9e1926a2a377646a"
+    },
+    "build/bin/metalrobo_metal_unified_quality_probe": {
+      "bytes": 55176,
+      "sha256": "df2f144721ff04692399afa7316ca7c88a189689acdbfb4358030ef570c0f687"
+    },
+    "build/bin/metalrobo_metal_world_contact_probe": {
+      "bytes": 97472,
+      "sha256": "bd0777b062295b4e08a4722124665725cb6842506054d05357a6346a76d39293"
+    },
+    "build/bin/metalrobo_motor_contact_probe": {
+      "bytes": 116464,
+      "sha256": "746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2"
+    },
+    "build/lib/libmetalrobo.dylib": {
+      "bytes": 5711408,
+      "sha256": "780a369bb9787a62b2110179a196b6281cb2ad14ecba16ada97792f18e9b2b04"
+    },
+    "build/shaders/MetalRobo.metallib": {
+      "bytes": 4458096,
+      "sha256": "29089d4c0290435dc343e6e6a0984c1be1fd2e9b54192e5f59298ef991b91cda"
+    },
+    "docs/NUMERICS.md": {
+      "bytes": 34136,
+      "sha256": "079e6514b4a0ef984030559ca90c00cc4cfe90bf64dbc21bbefcba3eb2a323ba"
+    },
+    "environments/american-crow/action-holds-v1/policies/deployment97.policypack": {
+      "bytes": 602144,
+      "sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389"
+    },
+    "include/metalrobo/unified_quality_shared.h": {
+      "bytes": 5974,
+      "sha256": "a3a4c0dd2aecd9f5e5858051832e5ce962fd45356ac54835ab3ec59d73e48b17"
+    },
+    "src/metal/MetalUnifiedQualitySolver.metal": {
+      "bytes": 98717,
+      "sha256": "d221d54462e3bb9bc82eec914ddfe69e51a000db7b3a30347c5fb94ab3e561b5"
+    },
+    "src/metal/MetalUnifiedQualitySolver.mm": {
+      "bytes": 31618,
+      "sha256": "59591e3eb0b9d9a1b36745a8fc828a8be89cee9033aef8523d2152de8c32870c"
+    },
+    "src/metal/MetalWorld.mm": {
+      "bytes": 856410,
+      "sha256": "67e9e9c29ae4981e1a841353201c7400b21dcd986dd1f60dba883c23a7b3ba1b"
+    },
+    "src/metal/UnifiedQualityExpansion.metal.inc": {
+      "bytes": 16160,
+      "sha256": "f2793e69e099b8d850f09c476a08d5f6fa77e773e0565aa6f7c206cc0bf32cc9"
+    }
+  },
+  "policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+  "shared_provider": "/Users/n/MetalRobo-main/.git"
+}
