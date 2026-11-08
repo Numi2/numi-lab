@@ -1,0 +1,52 @@
+{
+  "baseline_revision": "fcc0baeb5c49706be5b3fe0510d28ec680d3826b",
+  "baseline_runtime": {
+    "build/crow-cap-curvature-build-01/reference/crow-fixture": {
+      "bytes": 101472,
+      "sha256": "f5a82cae406eec0bfa42a9df48967f10bcd4a16a9b27a007f420b5ef06455e08"
+    },
+    "build/crow-cap-curvature-build-01/reference/fixture-default": {
+      "bytes": 99776,
+      "sha256": "a76e0b2a726b9ab2504b4a55b6d557d10a85feaaf94e4cb580de33103e45c63a"
+    },
+    "build/crow-cap-curvature-build-01/runtime/libmetalrobo.dylib": {
+      "bytes": 5711408,
+      "sha256": "1368fa931e24c336953fcda6fb904734391f3ebe56063dd53eb237bcc1a3bbc6"
+    },
+    "build/crow-cap-curvature-build-01/runtime/metalrobo/MetalRobo.metallib": {
+      "bytes": 4320944,
+      "sha256": "bcbd1f080aa8891b1e09e029be724d7eb28fc76e075e7579218f9d6c93984851"
+    },
+    "build/crow-cap-curvature-build-01/runtime/motor-probe": {
+      "bytes": 116464,
+      "sha256": "746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2"
+    }
+  },
+  "budget": {
+    "build_seconds": 300,
+    "native_seconds_each": 120,
+    "raw_bytes_max": 50000000
+  },
+  "helper_sha256": "1732d01e3fcb9026527262a4de080bccf4795562b152528ba825125793e962ce",
+  "integration_script_sha256": "5986683a4ffbf847052d51891215e8a860f7d57b7284e7a07e852f6e63fb9c4a",
+  "limits": "Production capped derivative correctness fix. No precision-mode or acceptance-tolerance change. Coupled uncapped crow is expected to retain its rejection; broad environment remains unfinished.",
+  "owner_candidate_sha256": "48c3ce600907519b28b59e4ba68a549cb518c11d138bf1785c8274f87e9fa427",
+  "predictions": {
+    "coupled_rejection_capture_exact": true,
+    "default_completed_transitions": 640,
+    "default_physical_files_exact": 10,
+    "full_release_pass": true,
+    "ir_and_contact_owners_pass": true,
+    "motor_physical_records_exact": 576,
+    "permanent_capped_closure_direct_pcg_pass": true,
+    "protected_policy_unchanged": true,
+    "zero_gain_physical_records_exact": 48
+  },
+  "probe_candidate_sha256": "134707f772b22f18e12bd2be43a2c6fd22142ab4f781187ff481e0be7a1004e5",
+  "probe_original_sha256": "8dd7f0f85b1835a66de454194acb741ed3a7ba6896a5682e6c968256d7df6a57",
+  "schema": "crow-cap-curvature-production-integration-v1",
+  "source_changes": [
+    "src/metal/MetalUnifiedQualitySolver.metal",
+    "apps/metal_unified_quality_probe.cpp"
+  ]
+}

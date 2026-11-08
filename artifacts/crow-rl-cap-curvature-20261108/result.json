@@ -1,0 +1,39 @@
+{
+  "all_predictions_supported": true,
+  "calibration": {
+    "prior": {
+      "euclidean_closed_form_cases": 5,
+      "passed": true,
+      "weighted_boundary_derivative_max_error": 7.482731101404738e-11
+    },
+    "weighted_ball_fd_cases": 29,
+    "weighted_ball_fd_max_error": 1.8199675100305512e-10
+  },
+  "goal_complete": false,
+  "limits": "Corrects a capped projection derivative only; current crow captured problems are uncapped. Does not solve their precision rejection, qualify physical feeding or authorize tolerance changes.",
+  "native_commands": 8,
+  "observations": {
+    "baseline_nonunit_closed_derivative_abs_error_min": 0.023688349284231663,
+    "baseline_nonunit_one_newton_rejections": 8,
+    "baseline_unit_one_newton_closure_passes": 2,
+    "candidate_derivative_abs_error_max": 8.590112821407758e-08,
+    "candidate_one_newton_closure_passes": 10,
+    "projection_impulses_and_merits_bit_exact": true,
+    "repeated_binary_and_typed_outputs_exact": true,
+    "unaffected_control_derivatives_bit_exact": true,
+    "unit_control_baseline_abs_error_max": 5.131959916748752e-08
+  },
+  "predictions_supported": {
+    "baseline_nonunit_closed_derivative_abs_error_min": true,
+    "baseline_nonunit_one_newton_rejections": true,
+    "baseline_unit_one_newton_closure_passes": true,
+    "candidate_derivative_abs_error_max": true,
+    "candidate_one_newton_closure_passes": true,
+    "projection_impulses_and_merits_bit_exact": true,
+    "repeated_binary_and_typed_outputs_exact": true,
+    "unaffected_control_derivatives_bit_exact": true,
+    "unit_control_baseline_abs_error_max": true
+  },
+  "production_changed": false,
+  "schema": "crow-cap-derivative-result-v1"
+}

@@ -1,0 +1,362 @@
+{
+  "baseline": [
+    {
+      "adhesion": 0,
+      "code": 7,
+      "feasibility": null,
+      "host_status": 11,
+      "impulses": [],
+      "newton": null,
+      "path": 0,
+      "pcg": null,
+      "radius": 0.25,
+      "residual": null,
+      "velocity": []
+    },
+    {
+      "adhesion": 0,
+      "code": 7,
+      "feasibility": null,
+      "host_status": 11,
+      "impulses": [],
+      "newton": null,
+      "path": 1,
+      "pcg": null,
+      "radius": 0.25,
+      "residual": null,
+      "velocity": []
+    },
+    {
+      "adhesion": 0,
+      "code": 0,
+      "feasibility": 0,
+      "host_status": 0,
+      "impulses": [
+        1,
+        -0.6000000238418579,
+        -0.800000011920929
+      ],
+      "newton": 1,
+      "path": 0,
+      "pcg": 0,
+      "radius": 1,
+      "residual": 1.9868215517249155e-08,
+      "velocity": [
+        0,
+        -7.334165275096893e-08,
+        -6.961636245250702e-08
+      ]
+    },
+    {
+      "adhesion": 0,
+      "code": 0,
+      "feasibility": 0,
+      "host_status": 0,
+      "impulses": [
+        1,
+        -0.6000000238418579,
+        -0.800000011920929
+      ],
+      "newton": 1,
+      "path": 1,
+      "pcg": 1,
+      "radius": 1,
+      "residual": 1.9868215517249155e-08,
+      "velocity": [
+        0,
+        -4.336470738053322e-08,
+        -2.962769940495491e-08
+      ]
+    },
+    {
+      "adhesion": 0,
+      "code": 7,
+      "feasibility": null,
+      "host_status": 11,
+      "impulses": [],
+      "newton": null,
+      "path": 0,
+      "pcg": null,
+      "radius": 2,
+      "residual": null,
+      "velocity": []
+    },
+    {
+      "adhesion": 0,
+      "code": 7,
+      "feasibility": null,
+      "host_status": 11,
+      "impulses": [],
+      "newton": null,
+      "path": 1,
+      "pcg": null,
+      "radius": 2,
+      "residual": null,
+      "velocity": []
+    },
+    {
+      "adhesion": 0,
+      "code": 7,
+      "feasibility": null,
+      "host_status": 11,
+      "impulses": [],
+      "newton": null,
+      "path": 0,
+      "pcg": null,
+      "radius": 4,
+      "residual": null,
+      "velocity": []
+    },
+    {
+      "adhesion": 0,
+      "code": 7,
+      "feasibility": null,
+      "host_status": 11,
+      "impulses": [],
+      "newton": null,
+      "path": 1,
+      "pcg": null,
+      "radius": 4,
+      "residual": null,
+      "velocity": []
+    },
+    {
+      "adhesion": 0.125,
+      "code": 7,
+      "feasibility": null,
+      "host_status": 11,
+      "impulses": [],
+      "newton": null,
+      "path": 0,
+      "pcg": null,
+      "radius": 0.25,
+      "residual": null,
+      "velocity": []
+    },
+    {
+      "adhesion": 0.125,
+      "code": 7,
+      "feasibility": null,
+      "host_status": 11,
+      "impulses": [],
+      "newton": null,
+      "path": 1,
+      "pcg": null,
+      "radius": 0.25,
+      "residual": null,
+      "velocity": []
+    }
+  ],
+  "candidate": [
+    {
+      "adhesion": 0,
+      "code": 0,
+      "feasibility": 0,
+      "host_status": 0,
+      "impulses": [
+        0.25,
+        -0.15000000596046448,
+        -0.20000000298023224
+      ],
+      "newton": 1,
+      "path": 0,
+      "pcg": 0,
+      "radius": 0.25,
+      "residual": 0,
+      "velocity": [
+        0,
+        4.656612873077393e-10,
+        -1.9208528101444244e-09
+      ]
+    },
+    {
+      "adhesion": 0,
+      "code": 0,
+      "feasibility": 0,
+      "host_status": 0,
+      "impulses": [
+        0.25,
+        -0.15000000596046448,
+        -0.20000000298023224
+      ],
+      "newton": 1,
+      "path": 1,
+      "pcg": 1,
+      "radius": 0.25,
+      "residual": 0,
+      "velocity": [
+        0,
+        6.28642737865448e-09,
+        5.878973752260208e-09
+      ]
+    },
+    {
+      "adhesion": 0,
+      "code": 0,
+      "feasibility": 0,
+      "host_status": 0,
+      "impulses": [
+        1,
+        -0.6000000238418579,
+        -0.800000011920929
+      ],
+      "newton": 1,
+      "path": 0,
+      "pcg": 0,
+      "radius": 1,
+      "residual": 1.9868215517249155e-08,
+      "velocity": [
+        0,
+        -7.334165275096893e-08,
+        -6.961636245250702e-08
+      ]
+    },
+    {
+      "adhesion": 0,
+      "code": 0,
+      "feasibility": 0,
+      "host_status": 0,
+      "impulses": [
+        1,
+        -0.6000000238418579,
+        -0.800000011920929
+      ],
+      "newton": 1,
+      "path": 1,
+      "pcg": 1,
+      "radius": 1,
+      "residual": 1.9868215517249155e-08,
+      "velocity": [
+        0,
+        -4.336470738053322e-08,
+        -2.962769940495491e-08
+      ]
+    },
+    {
+      "adhesion": 0,
+      "code": 0,
+      "feasibility": 0,
+      "host_status": 0,
+      "impulses": [
+        2,
+        -1.2000000476837158,
+        -1.600000023841858
+      ],
+      "newton": 1,
+      "path": 0,
+      "pcg": 0,
+      "radius": 2,
+      "residual": 0,
+      "velocity": [
+        0,
+        -1.507578417658806e-08,
+        8.731149137020111e-10
+      ]
+    },
+    {
+      "adhesion": 0,
+      "code": 0,
+      "feasibility": 0,
+      "host_status": 0,
+      "impulses": [
+        2,
+        -1.2000000476837158,
+        -1.600000023841858
+      ],
+      "newton": 1,
+      "path": 1,
+      "pcg": 1,
+      "radius": 2,
+      "residual": 0,
+      "velocity": [
+        0,
+        2.043088898062706e-08,
+        4.848698154091835e-08
+      ]
+    },
+    {
+      "adhesion": 0,
+      "code": 0,
+      "feasibility": 0,
+      "host_status": 0,
+      "impulses": [
+        4,
+        -2.4000000953674316,
+        -3.200000286102295
+      ],
+      "newton": 1,
+      "path": 0,
+      "pcg": 0,
+      "radius": 4,
+      "residual": 2.6490953430879927e-08,
+      "velocity": [
+        0,
+        -1.2275995686650276e-07,
+        -1.0797521099448204e-07
+      ]
+    },
+    {
+      "adhesion": 0,
+      "code": 0,
+      "feasibility": 0,
+      "host_status": 0,
+      "impulses": [
+        4,
+        -2.4000000953674316,
+        -3.200000047683716
+      ],
+      "newton": 1,
+      "path": 1,
+      "pcg": 1,
+      "radius": 4,
+      "residual": 0,
+      "velocity": [
+        0,
+        -2.6775524020195007e-08,
+        2.0023435354232788e-08
+      ]
+    },
+    {
+      "adhesion": 0.125,
+      "code": 0,
+      "feasibility": 0,
+      "host_status": 0,
+      "impulses": [
+        0.125,
+        -0.15000000596046448,
+        -0.20000000298023224
+      ],
+      "newton": 1,
+      "path": 0,
+      "pcg": 0,
+      "radius": 0.25,
+      "residual": 0,
+      "velocity": [
+        0,
+        4.656612873077393e-10,
+        -1.9208528101444244e-09
+      ]
+    },
+    {
+      "adhesion": 0.125,
+      "code": 0,
+      "feasibility": 0,
+      "host_status": 0,
+      "impulses": [
+        0.125,
+        -0.15000000596046448,
+        -0.20000000298023224
+      ],
+      "newton": 1,
+      "path": 1,
+      "pcg": 1,
+      "radius": 0.25,
+      "residual": 0,
+      "velocity": [
+        0,
+        6.28642737865448e-09,
+        5.878973752260208e-09
+      ]
+    }
+  ]
+}

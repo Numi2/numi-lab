@@ -1,0 +1,94 @@
+[
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/project-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/old.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/cases.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/observations/old-0.f32"
+    ],
+    "mode": "project",
+    "name": "old-0",
+    "returncode": 0,
+    "seconds": 0.561268082994502
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/closure-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/old.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/observations/old-0.jsonl"
+    ],
+    "mode": "closure",
+    "name": "old-0",
+    "returncode": 0,
+    "seconds": 2.3258320839959197
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/project-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/fixed.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/cases.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/observations/fixed-0.f32"
+    ],
+    "mode": "project",
+    "name": "fixed-0",
+    "returncode": 0,
+    "seconds": 0.1498218749766238
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/closure-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/fixed.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/observations/fixed-0.jsonl"
+    ],
+    "mode": "closure",
+    "name": "fixed-0",
+    "returncode": 0,
+    "seconds": 1.4101638330030255
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/project-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/fixed.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/cases.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/observations/fixed-1.f32"
+    ],
+    "mode": "project",
+    "name": "fixed-1",
+    "returncode": 0,
+    "seconds": 0.023648083035368472
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/closure-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/fixed.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/observations/fixed-1.jsonl"
+    ],
+    "mode": "closure",
+    "name": "fixed-1",
+    "returncode": 0,
+    "seconds": 0.04757316701579839
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/project-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/old.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/cases.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/observations/old-1.f32"
+    ],
+    "mode": "project",
+    "name": "old-1",
+    "returncode": 0,
+    "seconds": 0.023623624991159886
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/closure-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/old.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-cap-curvature-build-01/observations/old-1.jsonl"
+    ],
+    "mode": "closure",
+    "name": "old-1",
+    "returncode": 0,
+    "seconds": 0.04754241701448336
+  }
+]
