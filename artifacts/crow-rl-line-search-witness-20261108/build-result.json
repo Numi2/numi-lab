@@ -1,0 +1,12 @@
+{
+  "command": [
+    "cmake",
+    "--build",
+    "build",
+    "--config",
+    "Release",
+    "-j6"
+  ],
+  "returncode": 0,
+  "seconds": 9.697034500015434
+}

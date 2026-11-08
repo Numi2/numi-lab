@@ -1,0 +1,22 @@
+{
+  "files": {
+    "build/crow-line-search-witness-build-01/reference/api-gold/effective-config.json": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c",
+    "build/crow-line-search-witness-build-01/reference/api-gold/failure-contact-status.bin": "860e28fbf3fe28f29e77989ab9b230348d7c13c58042c5a61bd0ed55bbc3ecee",
+    "build/crow-line-search-witness-build-01/reference/api-gold/failure-q.f32": "862eb0a3e9d7cf7adac27c1494470a97db68cc0bd7844961a20c61265f939025",
+    "build/crow-line-search-witness-build-01/reference/api-gold/failure-scene.bin": "34a095ce8d4de4e4605e5e057b9cfd110e2b822e3018b78319bb508eef22dc2d",
+    "build/crow-line-search-witness-build-01/reference/api-gold/failure-v.f32": "7fc9a10db7e363e3f137851c896fd1997d2aa2c1c3caa1e7eeafef3aa4c1acf5",
+    "build/crow-line-search-witness-build-01/reference/api-gold/failure-world-status.bin": "826e6d391dced037cb2dae59930751eec67d37745c7d01e57a31b9d1cf3e41ee",
+    "build/crow-line-search-witness-build-01/reference/api-gold/failure.json": "223678d13bcd9b5d167de8dfd28f58613fb2d5f8f8504ba3c0ec9840049170bd",
+    "build/crow-line-search-witness-build-01/reference/api-gold/initial-geometry.json": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7",
+    "build/crow-line-search-witness-build-01/reference/api-gold/initial-q.f32": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28",
+    "build/crow-line-search-witness-build-01/reference/api-gold/initial-scene.bin": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57",
+    "build/crow-line-search-witness-build-01/reference/api-gold/initial-v.f32": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0",
+    "build/crow-line-search-witness-build-01/reference/api-gold/trace.tsv": "312a845ecdbf330536d072261cb8172a1702c18b9ceac5e34b57e4368dfd2a3a",
+    "build/crow-line-search-witness-build-01/reference/crow-fixture": "bf8ad775f9d2f74643432eccd00544d0cc16d1cd74651c22165b7911a9433aeb",
+    "build/crow-line-search-witness-build-01/reference/strict-gold.bin": "610ae4c4dc96691c4b3db69c48e1a62a7bcabeecc67b9d3d2d32dbc6eb6fb153",
+    "build/crow-line-search-witness-build-01/runtime/contact-owner": "bd0777b062295b4e08a4722124665725cb6842506054d05357a6346a76d39293",
+    "build/crow-line-search-witness-build-01/runtime/libmetalrobo.dylib": "652f43415f24be1fce73eb91589e35d558d6dec7fb610965942239fc49771f61",
+    "build/crow-line-search-witness-build-01/runtime/metalrobo/MetalRobo.metallib": "9d2dd55f3ca0b14b62e76a4e1f20351b8c00e800a34567ebe2cdd750e1cb6f5e",
+    "build/crow-line-search-witness-build-01/runtime/quality-owner": "df2f144721ff04692399afa7316ca7c88a189689acdbfb4358030ef570c0f687"
+  }
+}
