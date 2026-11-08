@@ -1,0 +1,182 @@
+[
+  {
+    "label": "rod5-build",
+    "command": [
+      "xcrun",
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fobjc-arc",
+      "-I",
+      "/Users/numi/numi-lab-reconciliation-20261108/include",
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/rod5.mm",
+      "-L",
+      "/Users/numi/numi-reconciliation-build-20261108/lib",
+      "-lmetalrobo",
+      "-Wl,-rpath,/Users/numi/numi-reconciliation-build-20261108/lib",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "Metal",
+      "-o",
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/rod5"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "rod5-reference",
+    "command": [
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/rod5",
+      "/Users/numi/frictionless-mixed-rod-20261108/split.metallib",
+      "128"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "rod5-old",
+    "command": [
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/rod5",
+      "/Users/numi/Work/mixed-joint-contact-v2-artifacts-20261108/joint.metallib",
+      "2"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "rod5-long",
+    "command": [
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/rod5",
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/long.metallib",
+      "2"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "rod5-trace",
+    "command": [
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/rod5",
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/trace.metallib",
+      "2"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "rod9-build",
+    "command": [
+      "xcrun",
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fobjc-arc",
+      "-I",
+      "/Users/numi/numi-lab-reconciliation-20261108/include",
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/rod9.mm",
+      "-L",
+      "/Users/numi/numi-reconciliation-build-20261108/lib",
+      "-lmetalrobo",
+      "-Wl,-rpath,/Users/numi/numi-reconciliation-build-20261108/lib",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "Metal",
+      "-o",
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/rod9"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "rod9-reference",
+    "command": [
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/rod9",
+      "/Users/numi/frictionless-mixed-rod-20261108/split.metallib",
+      "128"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "rod9-old",
+    "command": [
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/rod9",
+      "/Users/numi/Work/mixed-joint-contact-v2-artifacts-20261108/joint.metallib",
+      "2"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "rod9-long",
+    "command": [
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/rod9",
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/long.metallib",
+      "2"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "rod9-trace",
+    "command": [
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/rod9",
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/trace.metallib",
+      "2"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "rod17-build",
+    "command": [
+      "xcrun",
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fobjc-arc",
+      "-I",
+      "/Users/numi/numi-lab-reconciliation-20261108/include",
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/rod17.mm",
+      "-L",
+      "/Users/numi/numi-reconciliation-build-20261108/lib",
+      "-lmetalrobo",
+      "-Wl,-rpath,/Users/numi/numi-reconciliation-build-20261108/lib",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "Metal",
+      "-o",
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/rod17"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "rod17-reference",
+    "command": [
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/rod17",
+      "/Users/numi/frictionless-mixed-rod-20261108/split.metallib",
+      "128"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "rod17-old",
+    "command": [
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/rod17",
+      "/Users/numi/Work/mixed-joint-contact-v2-artifacts-20261108/joint.metallib",
+      "2"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "rod17-long",
+    "command": [
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/rod17",
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/long.metallib",
+      "2"
+    ],
+    "returncode": 0
+  },
+  {
+    "label": "rod17-trace",
+    "command": [
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/rod17",
+      "/Users/numi/Work/mixed-joint-long-rod-artifacts-20261108/trace.metallib",
+      "2"
+    ],
+    "returncode": 0
+  }
+]
