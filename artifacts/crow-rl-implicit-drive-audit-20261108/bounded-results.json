@@ -1,0 +1,16 @@
+{
+  "crow_release_qualified": false,
+  "execution": {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-audit-build-01/bounded-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/implicit-drive-audit-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-audit-build-01/bounded.tsv"
+    ],
+    "exit_code": 1,
+    "seconds": 0.4120187080116011
+  },
+  "failure": "Inspect bounded.stderr; no retry.",
+  "production_integrated": false,
+  "profile_or_policy_promoted": false,
+  "verdict": "inconclusive_native_instrument_failure"
+}
