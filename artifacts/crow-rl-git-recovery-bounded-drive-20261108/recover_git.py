@@ -63,6 +63,7 @@ for p in sorted(X.rglob('*')):
   if not dest.exists():dest.write_bytes(gzip.compress(p.read_bytes(),compresslevel=6,mtime=0))
   item['recovery_blob']=str(dest.relative_to(R))
  inventory.append(item)
+assert sum(f['bytes'] for f in inventory)<=plan['temporary_budget_bytes']
 write(G/'temporary-inventory.json',inventory)
 handles=subprocess.run(['/usr/sbin/lsof','-Fpn','+D',str(X)],capture_output=True,text=True,timeout=60)
 write(G/'temporary-open-handles.json',{'exit_code':handles.returncode,'stdout':handles.stdout,'stderr':handles.stderr})

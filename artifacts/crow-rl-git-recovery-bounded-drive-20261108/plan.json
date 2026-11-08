@@ -1,0 +1,25 @@
+{
+  "archive_summary": {
+    "existing_archive_blobs_indexed": 18233,
+    "files": 396,
+    "new_compressed_bytes": 25192987,
+    "source_bytes": 89518819,
+    "unique_file_contents": 265
+  },
+  "cleanup_requirement": "Verify every temporary byte from actual committed and pushed Git content before deletion; require exact inventory, hashes, modes, mtimes and zero open handles.",
+  "excluded_reexecution": "Invalid early SIMD crow trajectories and the full object-push integration check are restored and Git-byte verified, not re-executed.",
+  "inputs": {
+    "artifacts/crow-rl-git-recovery-bounded-drive-20261108/cleanup_git_recovery.py": "4659a5dfc58908ee4cbe8940f4a24e49a2a3a4e8f1e06d8f94eb276186554b27",
+    "artifacts/crow-rl-git-recovery-bounded-drive-20261108/recover_git.py": "7b072a95f12daeda34f4f0d689bc065ae944ff46082576f58507616e2f5d822a"
+  },
+  "manifest": "artifacts/crow-rl-bounded-drive-integration-20261108/payload/manifest.json",
+  "manifest_sha256": "5a64d7d4f0443a836723d3c41c8f48a8c32a96b55bc57107f0128c8134c1346f",
+  "native_commands": 9,
+  "policy_or_profile_promoted": false,
+  "restore_max_bytes": 89518819,
+  "scope": "Execute original capacity and motor failures, v2 and final constitutive checks, strict quantization failure, current arithmetic, bad-shader rejection, final physical tilt and the default physical replay from restored committed Git bytes.",
+  "status": "sealed_before_restored_native_execution",
+  "stop_rule": "Stop on the first unexpected exit code, loader identity or byte comparison; preserve all failures.",
+  "temporary_budget_bytes": 131461859,
+  "timeout_seconds_per_command": 300
+}
