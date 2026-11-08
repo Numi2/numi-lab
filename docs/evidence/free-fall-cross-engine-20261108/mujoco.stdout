@@ -1,0 +1,11 @@
+{
+  "engine": "mujoco",
+  "version": "4.0.0",
+  "numpy": "2.5.4",
+  "steps": 1000,
+  "y_m": 5.09009500000003,
+  "vy_m_s": -9.80999999999991,
+  "position_error_m": 3.019806626980426e-14,
+  "velocity_error_m_s": 9.059419880941277e-14,
+  "passed": true
+}

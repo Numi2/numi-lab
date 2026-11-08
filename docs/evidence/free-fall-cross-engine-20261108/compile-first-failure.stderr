@@ -1,0 +1,4 @@
+/Users/numi/numi-lab-benchmark-accounting-20261107/experiments/free_fall_cross_engine/numi_free_fall.cpp:29:33: error: no member named 'metallibPath' in 'metalrobo::MetalWorldStepConfig'
+   29 |     cfg.deterministic=true; cfg.metallibPath=argv[1];
+      |                             ~~~ ^
+1 error generated.

@@ -1,0 +1,1 @@
+success=0 published=0 accepted=0 failed=0 host=2 gpu=0 message=free-body candidate ownership requires a scene-only free-motion world, no rigid colliders/CCD/rods, zero damping/speed clipping, and one body-wrench producer
