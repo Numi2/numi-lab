@@ -1,0 +1,1392 @@
+{
+  "fixed64": {
+    "published": true,
+    "success_count": 20,
+    "failed_count": 0,
+    "callback_noninvasive": true,
+    "replay": true,
+    "trace_replay": true,
+    "sustained_mixed_steps": 20,
+    "max_normal_residual_m_s": 0.0002196924761,
+    "max_momentum_balance_Ns": 2.8106685282143495e-08,
+    "unknown_external_contact_steps": 0,
+    "force_bins_N": [
+      11.0663216554,
+      9.2612324282,
+      9.510711953000001,
+      9.650177135999998
+    ],
+    "total_ground_impulse_Ns": 0.197442215863,
+    "total_ground_normal_work_est_J": 0.0007951194153500454,
+    "total_ground_tangent_work_est_J": -0.001247981980941684,
+    "steps": [
+      {
+        "step": 0,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01982754841,
+        "ground_impulse_Ns": [
+          -0.009913774207,
+          0.01982754841,
+          0.0
+        ],
+        "ground_normal_work_est_J": 9.91375274762711e-05,
+        "ground_tangent_work_est_J": -0.00044645481720458036,
+        "momentum_balance_Ns": [
+          -7.82017749861863e-09,
+          1.0030133043570366e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 9.313225746e-10,
+        "sweeps": 64
+      },
+      {
+        "step": 1,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.008702427149,
+        "ground_impulse_Ns": [
+          -0.00435121404,
+          0.008702427149,
+          0.0
+        ],
+        "ground_normal_work_est_J": 8.218954107706642e-05,
+        "ground_tangent_work_est_J": -0.00016486285657616665,
+        "momentum_balance_Ns": [
+          2.8106685282143495e-08,
+          -5.7017270349568605e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 2.884306014e-06,
+        "sweeps": 64
+      },
+      {
+        "step": 2,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.008828094229,
+        "ground_impulse_Ns": [
+          -0.004414047115,
+          0.008828094229,
+          0.0
+        ],
+        "ground_normal_work_est_J": 7.41127093065338e-05,
+        "ground_tangent_work_est_J": -0.00014786892056059658,
+        "momentum_balance_Ns": [
+          -4.045469237379251e-09,
+          -2.482679933163423e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 9.313225746e-10,
+        "sweeps": 64
+      },
+      {
+        "step": 3,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.008937821724,
+        "ground_impulse_Ns": [
+          -0.004468910396,
+          0.008937821724,
+          0.0
+        ],
+        "ground_normal_work_est_J": 6.669699328474592e-05,
+        "ground_tangent_work_est_J": -0.00012982548204596532,
+        "momentum_balance_Ns": [
+          -6.617268226427608e-10,
+          -7.554768512163523e-10,
+          0.0
+        ],
+        "normal_residual_m_s": 9.313225746e-10,
+        "sweeps": 64
+      },
+      {
+        "step": 4,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009035716765,
+        "ground_impulse_Ns": [
+          -0.004517858382,
+          0.009035716765,
+          0.0
+        ],
+        "ground_normal_work_est_J": 5.993568895442975e-05,
+        "ground_tangent_work_est_J": -0.00011091312506608805,
+        "momentum_balance_Ns": [
+          1.1820078102062204e-09,
+          1.8115573589827516e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 4.656612873e-10,
+        "sweeps": 64
+      },
+      {
+        "step": 5,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009122723714,
+        "ground_impulse_Ns": [
+          -0.004561361857,
+          0.009122723714,
+          0.0
+        ],
+        "ground_normal_work_est_J": 5.378950303210482e-05,
+        "ground_tangent_work_est_J": -9.123912547786791e-05,
+        "momentum_balance_Ns": [
+          5.082926007177191e-10,
+          -1.6779735587113542e-11,
+          0.0
+        ],
+        "normal_residual_m_s": 9.313225746e-10,
+        "sweeps": 64
+      },
+      {
+        "step": 6,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009199908003,
+        "ground_impulse_Ns": [
+          -0.004599954002,
+          0.009199908003,
+          0.0
+        ],
+        "ground_normal_work_est_J": 4.821743199578164e-05,
+        "ground_tangent_work_est_J": -7.090551869166266e-05,
+        "momentum_balance_Ns": [
+          -2.033470503960688e-09,
+          -7.563829354517715e-10,
+          0.0
+        ],
+        "normal_residual_m_s": 6.519258022e-09,
+        "sweeps": 64
+      },
+      {
+        "step": 7,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009268364869,
+        "ground_impulse_Ns": [
+          -0.004634181969,
+          0.009268364869,
+          0.0
+        ],
+        "ground_normal_work_est_J": 4.317839731587319e-05,
+        "ground_tangent_work_est_J": -5.001377601973112e-05,
+        "momentum_balance_Ns": [
+          -2.331762724745723e-09,
+          2.2528870591981276e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 8.765468374e-05,
+        "sweeps": 64
+      },
+      {
+        "step": 8,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009330089204,
+        "ground_impulse_Ns": [
+          -0.004665044602,
+          0.009330089204,
+          0.0
+        ],
+        "ground_normal_work_est_J": 3.863600568214022e-05,
+        "ground_tangent_work_est_J": -2.864750970466235e-05,
+        "momentum_balance_Ns": [
+          -1.407218366139551e-09,
+          -2.6397453667392767e-11,
+          0.0
+        ],
+        "normal_residual_m_s": 0.0002196924761,
+        "sweeps": 64
+      },
+      {
+        "step": 9,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009385076351,
+        "ground_impulse_Ns": [
+          -0.003808292327,
+          0.009385076351,
+          0.0
+        ],
+        "ground_normal_work_est_J": 3.454544533651214e-05,
+        "ground_tangent_work_est_J": -7.250848318624474e-06,
+        "momentum_balance_Ns": [
+          -2.1301995757616599e-10,
+          -1.7434138490507456e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 4.656612873e-10,
+        "sweeps": 64
+      },
+      {
+        "step": 10,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009433326311,
+        "ground_impulse_Ns": [
+          -4.502231604e-06,
+          0.009433326311,
+          0.0
+        ],
+        "ground_normal_work_est_J": 3.086489157925077e-05,
+        "ground_tangent_work_est_J": -4.2370857230277905e-13,
+        "momentum_balance_Ns": [
+          -1.5284236813551934e-09,
+          -1.130996681725227e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 4.656612873e-10,
+        "sweeps": 64
+      },
+      {
+        "step": 11,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009476464242,
+        "ground_impulse_Ns": [
+          -4.7747385e-06,
+          0.009476464242,
+          0.0
+        ],
+        "ground_normal_work_est_J": 2.7560601983982797e-05,
+        "ground_tangent_work_est_J": -4.128683543240391e-13,
+        "momentum_balance_Ns": [
+          -2.486696001997724e-10,
+          1.8095528270256622e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 4.656612873e-10,
+        "sweeps": 64
+      },
+      {
+        "step": 12,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009514904581,
+        "ground_impulse_Ns": [
+          -5.02990315e-06,
+          0.009514904581,
+          0.0
+        ],
+        "ground_normal_work_est_J": 2.4597477276312047e-05,
+        "ground_tangent_work_est_J": -4.006535964759451e-13,
+        "momentum_balance_Ns": [
+          3.463131360796471e-10,
+          9.253969066730372e-10,
+          0.0
+        ],
+        "normal_residual_m_s": 4.656612873e-10,
+        "sweeps": 64
+      },
+      {
+        "step": 13,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009549109265,
+        "ground_impulse_Ns": [
+          -3.461648021e-06,
+          0.009549109265,
+          0.0
+        ],
+        "ground_normal_work_est_J": 2.1942811808350195e-05,
+        "ground_tangent_work_est_J": -1.907110142722085e-13,
+        "momentum_balance_Ns": [
+          2.83557672853948e-10,
+          1.531927973363878e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 3.555440344e-05,
+        "sweeps": 64
+      },
+      {
+        "step": 14,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009579755366,
+        "ground_impulse_Ns": [
+          -2.778043324e-07,
+          0.009579755366,
+          0.0
+        ],
+        "ground_normal_work_est_J": 1.956716233466029e-05,
+        "ground_tangent_work_est_J": -4.788659131944855e-15,
+        "momentum_balance_Ns": [
+          8.206305992699727e-10,
+          7.350306396522455e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 6.093340926e-05,
+        "sweeps": 64
+      },
+      {
+        "step": 15,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009606881998,
+        "ground_impulse_Ns": [
+          1.079925255e-06,
+          0.009606881998,
+          0.0
+        ],
+        "ground_normal_work_est_J": 1.7442458227584996e-05,
+        "ground_tangent_work_est_J": 2.072630508953193e-14,
+        "momentum_balance_Ns": [
+          2.976202457956917e-10,
+          5.435425862870824e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 2.150796354e-05,
+        "sweeps": 64
+      },
+      {
+        "step": 16,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009631016292,
+        "ground_impulse_Ns": [
+          1.178544494e-06,
+          0.009631016292,
+          0.0
+        ],
+        "ground_normal_work_est_J": 1.554336552321956e-05,
+        "ground_tangent_work_est_J": 5.4784268162744683e-14,
+        "momentum_balance_Ns": [
+          7.704543383068968e-10,
+          -6.6475155935386e-10,
+          0.0
+        ],
+        "normal_residual_m_s": 1.59535557e-06,
+        "sweeps": 64
+      },
+      {
+        "step": 17,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009652547538,
+        "ground_impulse_Ns": [
+          9.464870345e-07,
+          0.009652547538,
+          0.0
+        ],
+        "ground_normal_work_est_J": 1.3847111887435743e-05,
+        "ground_tangent_work_est_J": 5.304827383992582e-14,
+        "momentum_balance_Ns": [
+          -4.850656792019101e-10,
+          1.2573754121225633e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 2.824934199e-06,
+        "sweeps": 64
+      },
+      {
+        "step": 18,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009671690874,
+        "ground_impulse_Ns": [
+          5.027073939e-07,
+          0.009671690874,
+          0.0
+        ],
+        "ground_normal_work_est_J": 1.2332796837259807e-05,
+        "ground_tangent_work_est_J": 2.8365602630135155e-14,
+        "momentum_balance_Ns": [
+          4.5606814890121493e-10,
+          6.009701625231401e-10,
+          0.0
+        ],
+        "normal_residual_m_s": 4.867091775e-06,
+        "sweeps": 64
+      },
+      {
+        "step": 19,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009688748978,
+        "ground_impulse_Ns": [
+          1.229031099e-09,
+          0.009688748978,
+          0.0
+        ],
+        "ground_normal_work_est_J": 1.098149443053023e-05,
+        "ground_tangent_work_est_J": 6.71405718189676e-17,
+        "momentum_balance_Ns": [
+          3.5353655491409115e-12,
+          4.062492248851912e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 4.69526276e-06,
+        "sweeps": 64
+      }
+    ]
+  },
+  "bounded": {
+    "published": true,
+    "success_count": 20,
+    "failed_count": 0,
+    "callback_noninvasive": true,
+    "replay": true,
+    "trace_replay": true,
+    "sustained_mixed_steps": 20,
+    "max_normal_residual_m_s": 0.001796131954,
+    "max_momentum_balance_Ns": 3.722423261992569e-09,
+    "unknown_external_contact_steps": 0,
+    "force_bins_N": [
+      10.9834235158,
+      9.3385137618,
+      9.506581537199999,
+      9.6576610578
+    ],
+    "total_ground_impulse_Ns": 0.197430899363,
+    "total_ground_normal_work_est_J": 0.0007950015101097952,
+    "total_ground_tangent_work_est_J": -0.0012480342377986094,
+    "steps": [
+      {
+        "step": 0,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01802987419,
+        "ground_impulse_Ns": [
+          -0.009014937095,
+          0.01802987419,
+          0.0
+        ],
+        "ground_normal_work_est_J": 7.395716765299345e-05,
+        "ground_tangent_work_est_J": -0.0004100357976547389,
+        "momentum_balance_Ns": [
+          -1.3021489737169434e-09,
+          -1.7974836931389238e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 0.001796131954,
+        "sweeps": 6
+      },
+      {
+        "step": 1,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01217783056,
+        "ground_impulse_Ns": [
+          -0.006088915281,
+          0.01217783056,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.00011428395501768337,
+        "ground_tangent_work_est_J": -0.0002308857303878595,
+        "momentum_balance_Ns": [
+          -3.4006280603959826e-10,
+          -1.8272542645636491e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 0.001476911828,
+        "sweeps": 4
+      },
+      {
+        "step": 2,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.008672527038,
+        "ground_impulse_Ns": [
+          -0.004336263519,
+          0.008672527038,
+          0.0
+        ],
+        "ground_normal_work_est_J": 8.667505019122172e-05,
+        "ground_tangent_work_est_J": -0.00014178920303238,
+        "momentum_balance_Ns": [
+          -1.5064971796083237e-09,
+          -1.6107033259243897e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 0.001508543268,
+        "sweeps": 3
+      },
+      {
+        "step": 3,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.007893590257,
+        "ground_impulse_Ns": [
+          -0.003946795128,
+          0.007893590257,
+          0.0
+        ],
+        "ground_normal_work_est_J": 6.680035528198815e-05,
+        "ground_tangent_work_est_J": -0.00011268290347217402,
+        "momentum_balance_Ns": [
+          -3.0140792552785234e-10,
+          -1.3816293491231146e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 0.000634602271,
+        "sweeps": 2
+      },
+      {
+        "step": 4,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.008143295534,
+        "ground_impulse_Ns": [
+          -0.004071647767,
+          0.008143295534,
+          0.0
+        ],
+        "ground_normal_work_est_J": 5.4285141968685424e-05,
+        "ground_tangent_work_est_J": -9.989795672158062e-05,
+        "momentum_balance_Ns": [
+          -6.482457999210101e-10,
+          -5.179266061167143e-10,
+          0.0
+        ],
+        "normal_residual_m_s": 0.0004811976105,
+        "sweeps": 2
+      },
+      {
+        "step": 5,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009002262726,
+        "ground_impulse_Ns": [
+          -0.004501131363,
+          0.009002262726,
+          0.0
+        ],
+        "ground_normal_work_est_J": 4.882197953945112e-05,
+        "ground_tangent_work_est_J": -9.111511709857407e-05,
+        "momentum_balance_Ns": [
+          -1.5922538981749668e-10,
+          5.127656181602713e-10,
+          0.0
+        ],
+        "normal_residual_m_s": 0.0005801222287,
+        "sweeps": 3
+      },
+      {
+        "step": 6,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009347825311,
+        "ground_impulse_Ns": [
+          -0.00467391219,
+          0.009347825311,
+          0.0
+        ],
+        "ground_normal_work_est_J": 4.469842203048444e-05,
+        "ground_tangent_work_est_J": -7.314463902011811e-05,
+        "momentum_balance_Ns": [
+          -3.0171881746504647e-10,
+          -3.673415391314272e-10,
+          0.0
+        ],
+        "normal_residual_m_s": 0.0003971480764,
+        "sweeps": 2
+      },
+      {
+        "step": 7,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009483343922,
+        "ground_impulse_Ns": [
+          -0.004741671961,
+          0.009483343922,
+          0.0
+        ],
+        "ground_normal_work_est_J": 4.153823262140117e-05,
+        "ground_tangent_work_est_J": -5.185505343742492e-05,
+        "momentum_balance_Ns": [
+          -1.2987704809189204e-09,
+          -7.461488024662621e-12,
+          0.0
+        ],
+        "normal_residual_m_s": 0.0001200558618,
+        "sweeps": 2
+      },
+      {
+        "step": 8,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009463096038,
+        "ground_impulse_Ns": [
+          -0.004731548019,
+          0.009463096038,
+          0.0
+        ],
+        "ground_normal_work_est_J": 3.8192514684603825e-05,
+        "ground_tangent_work_est_J": -2.93099615436611e-05,
+        "momentum_balance_Ns": [
+          5.077474621306699e-10,
+          -4.5690651782892555e-10,
+          0.0
+        ],
+        "normal_residual_m_s": 0.0002297544852,
+        "sweeps": 5
+      },
+      {
+        "step": 9,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009396040812,
+        "ground_impulse_Ns": [
+          -0.003947298508,
+          0.009396040812,
+          0.0
+        ],
+        "ground_normal_work_est_J": 3.427731431169321e-05,
+        "ground_tangent_work_est_J": -7.31285156532106e-06,
+        "momentum_balance_Ns": [
+          -2.8117188438647744e-10,
+          -1.3125774286915082e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 0.0003917324357,
+        "sweeps": 5
+      },
+      {
+        "step": 10,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009412094019,
+        "ground_impulse_Ns": [
+          -0.001705754548,
+          0.009412094019,
+          0.0
+        ],
+        "ground_normal_work_est_J": 3.0443500897940543e-05,
+        "ground_tangent_work_est_J": 1.6608138674668234e-06,
+        "momentum_balance_Ns": [
+          4.193620773990797e-10,
+          3.2328750093624237e-10,
+          0.0
+        ],
+        "normal_residual_m_s": 0.000467781676,
+        "sweeps": 2
+      },
+      {
+        "step": 11,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009491528384,
+        "ground_impulse_Ns": [
+          0.001678734552,
+          0.009491528384,
+          0.0
+        ],
+        "ground_normal_work_est_J": 2.722234935127617e-05,
+        "ground_tangent_work_est_J": -1.6528640026223877e-06,
+        "momentum_balance_Ns": [
+          2.2795731578414968e-10,
+          -2.212736634546464e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 0.000660484191,
+        "sweeps": 8
+      },
+      {
+        "step": 12,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009508354589,
+        "ground_impulse_Ns": [
+          0.0008310941048,
+          0.009508354589,
+          0.0
+        ],
+        "ground_normal_work_est_J": 2.423691841005165e-05,
+        "ground_tangent_work_est_J": 2.2729808113059724e-07,
+        "momentum_balance_Ns": [
+          2.436086198216725e-10,
+          1.501659265684685e-10,
+          0.0
+        ],
+        "normal_residual_m_s": 0.0006826813333,
+        "sweeps": 2
+      },
+      {
+        "step": 13,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009540976025,
+        "ground_impulse_Ns": [
+          -8.789589629e-06,
+          0.009540976025,
+          0.0
+        ],
+        "ground_normal_work_est_J": 2.150722533088411e-05,
+        "ground_tangent_work_est_J": -6.040755387189205e-09,
+        "momentum_balance_Ns": [
+          2.374224190018141e-10,
+          3.722423261992569e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 0.0006886350457,
+        "sweeps": 2
+      },
+      {
+        "step": 14,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009579954669,
+        "ground_impulse_Ns": [
+          -0.0003822344006,
+          0.009579954669,
+          0.0
+        ],
+        "ground_normal_work_est_J": 1.9109599492349124e-05,
+        "ground_tangent_work_est_J": -1.8888501201010265e-07,
+        "momentum_balance_Ns": [
+          -9.958579181559499e-11,
+          7.755078367671642e-10,
+          0.0
+        ],
+        "normal_residual_m_s": 0.0006353256758,
+        "sweeps": 2
+      },
+      {
+        "step": 15,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009615271352,
+        "ground_impulse_Ns": [
+          -0.0003406343458,
+          0.009615271352,
+          0.0
+        ],
+        "ground_normal_work_est_J": 1.7038242821533123e-05,
+        "ground_tangent_work_est_J": -4.610470424241841e-08,
+        "momentum_balance_Ns": [
+          4.819402424339168e-10,
+          -1.0341609495839732e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 0.0004955304321,
+        "sweeps": 2
+      },
+      {
+        "step": 16,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009642321616,
+        "ground_impulse_Ns": [
+          -0.00013594958,
+          0.009642321616,
+          0.0
+        ],
+        "ground_normal_work_est_J": 1.5234743381638288e-05,
+        "ground_tangent_work_est_J": 1.3583859138531167e-08,
+        "momentum_balance_Ns": [
+          2.651322075840172e-10,
+          9.671000805733243e-11,
+          0.0
+        ],
+        "normal_residual_m_s": 0.0002674399875,
+        "sweeps": 2
+      },
+      {
+        "step": 17,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.00966187939,
+        "ground_impulse_Ns": [
+          2.890593169e-05,
+          0.00966187939,
+          0.0
+        ],
+        "ground_normal_work_est_J": 1.3631442044535313e-05,
+        "ground_tangent_work_est_J": -4.339725540131449e-09,
+        "momentum_balance_Ns": [
+          2.530971604104942e-10,
+          -7.164040714824349e-10,
+          0.0
+        ],
+        "normal_residual_m_s": 8.440052625e-05,
+        "sweeps": 2
+      },
+      {
+        "step": 18,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.009677336551,
+        "ground_impulse_Ns": [
+          8.504500875e-05,
+          0.009677336551,
+          0.0
+        ],
+        "ground_normal_work_est_J": 1.2181788820116693e-05,
+        "ground_tangent_work_est_J": -7.644163343437047e-09,
+        "momentum_balance_Ns": [
+          3.6996501475978875e-10,
+          -1.0366436875575147e-11,
+          0.0
+        ],
+        "normal_residual_m_s": 0.0004443388898,
+        "sweeps": 2
+      },
+      {
+        "step": 19,
+        "accepted": true,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.00969149638,
+        "ground_impulse_Ns": [
+          6.176221359e-05,
+          0.00969149638,
+          0.0
+        ],
+        "ground_normal_work_est_J": 1.0865566259264258e-05,
+        "ground_tangent_work_est_J": -8.413093674264633e-10,
+        "momentum_balance_Ns": [
+          -3.043957231185692e-10,
+          2.0141202039525297e-09,
+          0.0
+        ],
+        "normal_residual_m_s": 0.0008299654,
+        "sweeps": 2
+      }
+    ]
+  },
+  "cap2": {
+    "published": true,
+    "success_count": 0,
+    "failed_count": 20,
+    "callback_noninvasive": true,
+    "replay": true,
+    "trace_replay": true,
+    "sustained_mixed_steps": 0,
+    "max_normal_residual_m_s": 0.0,
+    "max_momentum_balance_Ns": 0.0,
+    "unknown_external_contact_steps": 0,
+    "force_bins_N": [],
+    "total_ground_impulse_Ns": 0,
+    "total_ground_normal_work_est_J": 0,
+    "total_ground_tangent_work_est_J": 0,
+    "steps": [
+      {
+        "step": 0,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      },
+      {
+        "step": 1,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      },
+      {
+        "step": 2,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      },
+      {
+        "step": 3,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      },
+      {
+        "step": 4,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      },
+      {
+        "step": 5,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      },
+      {
+        "step": 6,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      },
+      {
+        "step": 7,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      },
+      {
+        "step": 8,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      },
+      {
+        "step": 9,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      },
+      {
+        "step": 10,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      },
+      {
+        "step": 11,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      },
+      {
+        "step": 12,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      },
+      {
+        "step": 13,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      },
+      {
+        "step": 14,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      },
+      {
+        "step": 15,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      },
+      {
+        "step": 16,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      },
+      {
+        "step": 17,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      },
+      {
+        "step": 18,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      },
+      {
+        "step": 19,
+        "accepted": false,
+        "rod_contacts": 2,
+        "rigid_ground_contacts": 1,
+        "unknown_rigid_contacts": [],
+        "ground_normal_impulse_Ns": 0.01092009153,
+        "ground_impulse_Ns": [
+          -0.005460045766,
+          0.01092009153,
+          0.0
+        ],
+        "ground_normal_work_est_J": 0.0,
+        "ground_tangent_work_est_J": -0.00027300229239503435,
+        "momentum_balance_Ns": [
+          0.005460045766,
+          -0.0010989966813854876,
+          0.0
+        ],
+        "normal_residual_m_s": 0.008899799548,
+        "sweeps": 2
+      }
+    ]
+  },
+  "comparison": {
+    "defined": true,
+    "force_bin_relative_peak": 0.007491029285195926,
+    "impulse_relative": 5.73155034273384e-05,
+    "both_below_0_25_percent": false
+  }
+}

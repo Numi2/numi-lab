@@ -1,0 +1,3 @@
+# Exposed rejected-state inspection
+
+The first capture retained rod node velocities but did not explicitly report whether each rejected step's full node records and q/v matched the initial state. Keep those outputs unchanged and extend the same read-only probe to report per-step byte equality of full rod node records and q/v against the initial values, and final equality of q/v, scene bodies and rod node/edge records. Rerun the identical three native arms; after removing the added fields, all outputs must equal their corresponding earlier run. These checks do not observe all contact caches, hidden state or other owners.

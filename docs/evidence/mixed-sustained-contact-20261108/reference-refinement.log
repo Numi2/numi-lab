@@ -1,0 +1,71 @@
+{
+  "fixed64": {
+    "published": true,
+    "success_count": 20,
+    "failed_count": 0,
+    "callback_noninvasive": true,
+    "replay": true,
+    "trace_replay": true,
+    "sustained_mixed_steps": 20,
+    "max_normal_residual_m_s": 0.0002196924761,
+    "max_momentum_balance_Ns": 2.8106685282143495e-08,
+    "unknown_external_contact_steps": 0,
+    "force_bins_N": [
+      11.0663216554,
+      9.2612324282,
+      9.510711953000001,
+      9.650177135999998
+    ],
+    "total_ground_impulse_Ns": 0.197442215863,
+    "total_ground_normal_work_est_J": 0.0007951194153500454,
+    "total_ground_tangent_work_est_J": -0.001247981980941684
+  },
+  "bounded": {
+    "published": true,
+    "success_count": 20,
+    "failed_count": 0,
+    "callback_noninvasive": true,
+    "replay": true,
+    "trace_replay": true,
+    "sustained_mixed_steps": 20,
+    "max_normal_residual_m_s": 0.001796131954,
+    "max_momentum_balance_Ns": 3.722423261992569e-09,
+    "unknown_external_contact_steps": 0,
+    "force_bins_N": [
+      10.9834235158,
+      9.3385137618,
+      9.506581537199999,
+      9.6576610578
+    ],
+    "total_ground_impulse_Ns": 0.197430899363,
+    "total_ground_normal_work_est_J": 0.0007950015101097952,
+    "total_ground_tangent_work_est_J": -0.0012480342377986094
+  },
+  "cap2": {
+    "published": true,
+    "success_count": 0,
+    "failed_count": 20,
+    "callback_noninvasive": true,
+    "replay": true,
+    "trace_replay": true,
+    "sustained_mixed_steps": 0,
+    "max_normal_residual_m_s": 0.0,
+    "max_momentum_balance_Ns": 0.0,
+    "unknown_external_contact_steps": 0,
+    "force_bins_N": [],
+    "total_ground_impulse_Ns": 0,
+    "total_ground_normal_work_est_J": 0,
+    "total_ground_tangent_work_est_J": 0
+  },
+  "comparison": {
+    "defined": true,
+    "force_bin_relative_peak": 0.007491029285195926,
+    "impulse_relative": 5.73155034273384e-05,
+    "both_below_0_25_percent": false
+  }
+}
+{
+  "force_error_relative_128_peak": 1.737930443409358e-05,
+  "impulse_error_relative_128": 7.971591781375889e-07,
+  "both_below_0_25_percent": true
+}

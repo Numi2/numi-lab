@@ -1,0 +1,3 @@
+# Per-contact diagnosis of the 128-sweep failure
+
+In an isolated research shader, write the final per-row normal equation, tangent natural residual, and normal relative velocity into the contact diagnostic friction vector after the solver finishes. Capture these bytes in the same post-commit trace. Compare an otherwise identical uninstrumented shader and probe against the traced arm, including all other exposed trajectory, contact, status, and replay fields. Report a row attribution only if those fields agree and row maxima reproduce the failing status certificate. This is instrumentation of the existing solve, not a new production path; contact caches and other hidden state remain unqualified.
