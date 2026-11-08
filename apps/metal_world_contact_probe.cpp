@@ -336,6 +336,40 @@ int main() {
                 ),
             "unified quality solver was not promoted through MetalWorld"
         );
+        // Exact zero friction is a normal-only contact, including when the
+        // body has tangential motion. Check the physical MetalWorld path,
+        // not a substituted near-zero cone coefficient.
+        auto frictionlessModel = model;
+        frictionlessModel.materials[0].friction = f4(0.0f, 0.0f, 0.0f, 0.0f);
+        metalrobo::CompiledWorld frictionlessWorld;
+        require(metalrobo::compileMetalWorld(frictionlessModel, 0u,
+                                            frictionlessWorld).succeeded(),
+                "frictionless world compilation failed");
+        auto slidingV = v;
+        for (std::size_t lane = 0; lane < environmentCount; ++lane) {
+            slidingV[lane * frictionlessWorld.nv()] = 0.3f;
+        }
+        auto slidingBatch = batch;
+        slidingBatch.initialV = slidingV;
+        metalrobo::MetalWorldResult frictionlessResult;
+        const auto frictionlessRun = context.run(
+            frictionlessWorld, slidingBatch, qualityConfig, frictionlessResult);
+        require(frictionlessRun.succeeded() &&
+                    frictionlessRun.failedStepCount == 0u,
+                frictionlessRun.message.c_str());
+        bool normalImpulseObserved = false;
+        for (const auto& contact : frictionlessResult.contactEvidence.contacts) {
+            normalImpulseObserved |= contact.impulses.x > 1.0e-8f;
+            require(contact.impulses.y == 0.0f && contact.impulses.z == 0.0f,
+                    "frictionless contact produced a tangential impulse");
+        }
+        require(normalImpulseObserved, "frictionless contact lacked support impulse");
+        for (std::size_t lane = 0; lane < environmentCount; ++lane) {
+            require(std::abs(frictionlessResult.finalV[lane * frictionlessWorld.nv()] -
+                             0.3f) < 1.0e-5f,
+                    "frictionless contact changed tangential momentum");
+        }
+
         metalrobo::MetalWorldContext asynchronousContext(
             metalrobo::MetalWorldConfig{
                 .maximumInFlightSubmissions = 3u,
