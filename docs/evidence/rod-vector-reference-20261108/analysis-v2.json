@@ -1,0 +1,32 @@
+{
+  "vector@0": {
+    "pass": 27,
+    "accepted_failed": 0,
+    "rejected": 0
+  },
+  "vector@0.5": {
+    "pass": 27,
+    "accepted_failed": 0,
+    "rejected": 0
+  },
+  "vector@100": {
+    "pass": 4,
+    "accepted_failed": 8,
+    "rejected": 15
+  },
+  "guarded@0": {
+    "pass": 27,
+    "accepted_failed": 0,
+    "rejected": 0
+  },
+  "guarded@0.5": {
+    "pass": 27,
+    "accepted_failed": 0,
+    "rejected": 0
+  },
+  "guarded@100": {
+    "pass": 0,
+    "accepted_failed": 0,
+    "rejected": 27
+  }
+}
