@@ -141,6 +141,9 @@ int main(int argc,char**argv){
   if(n<1||n>16||h<=0||duration!=.01||std::abs(std::round(duration/h)*h-duration)>1e-12
      ||std::abs(std::round(.001/h)*h-.001)>1e-12)throw std::runtime_error("invalid arguments");
   Model m(n);State s=m.initial;std::array<double,10> bins{};double minGap=1,peak=0,first=-1,lastForce=0;
+  const long requestedStride=std::lround(.000002/h);
+  const long traceStride=requestedStride>=1 && std::abs(requestedStride*h-.000002)<=1e-12 ? requestedStride : 0;
+  std::vector<std::array<double,3>> trace{{0.,m.rhs(s).impulse,0.}};
   std::vector<std::array<double,2>> episodes;double episodeStart=-1;
   long steps=std::lround(duration/h);
   for(long i=0;i<steps;++i){
@@ -153,6 +156,7 @@ int main(int argc,char**argv){
    double di=h*(a.impulse+2*b.impulse+2*c.impulse+d.impulse)/6;
    s.impulse+=di;bins[std::min(9,int((i+.5)*h/.001))]+=di/.001;
    lastForce=m.rhs(s).impulse;peak=std::max(peak,lastForce);
+   if(traceStride>0 && (i+1)%traceStride==0)trace.push_back({(i+1)*h,lastForce,s.impulse});
    if(first<0 && lastForce>0)first=(i+1)*h;
    if(episodeStart<0 && lastForce>0)episodeStart=(i+1)*h;
    if(episodeStart>=0 && lastForce==0){episodes.push_back({episodeStart,(i+1)*h});episodeStart=-1;}
@@ -166,6 +170,10 @@ int main(int argc,char**argv){
    <<",\"onset_time_s\":"<<first<<",\"peak_force_N\":"<<peak<<",\"impulse_Ns\":"<<s.impulse
    <<",\"final_momentum_Ns\":"<<pz<<",\"final_center_z_m\":"<<com/totalMass<<",\"force_bins_N\":[";
   for(int i=0;i<10;++i)std::cout<<(i?",":"")<<bins[i];
+  std::cout<<"],\"contact_area_weights_m2\":[";
+  for(size_t i=0;i<m.area.size();++i)std::cout<<(i?",":"")<<m.area[i];
+  std::cout<<"],\"trace\":[";
+  for(size_t i=0;i<trace.size();++i)std::cout<<(i?",":"")<<"["<<trace[i][0]<<","<<trace[i][1]<<","<<trace[i][2]<<"]";
   std::cout<<"],\"contact_episodes_s\":[";
   for(size_t i=0;i<episodes.size();++i)std::cout<<(i?",":"")<<"["<<episodes[i][0]<<","<<episodes[i][1]<<"]";
   std::cout<<"]}\n";

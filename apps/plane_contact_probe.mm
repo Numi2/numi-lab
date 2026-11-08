@@ -55,6 +55,23 @@ bool physicalEqual(const numi::matter::RuntimeStateSnapshot& a,const numi::matte
         bytesEqual(a.rigidGeneralizedCandidate,b.rigidGeneralizedCandidate);
 }
 
+std::string physicalDigest(const numi::matter::RuntimeStateSnapshot& s){
+    CC_SHA256_CTX ctx;CC_SHA256_Init(&ctx);
+    auto update=[&](const auto& values){
+        const std::uint64_t count=values.size();CC_SHA256_Update(&ctx,&count,sizeof(count));
+        if(!values.empty())CC_SHA256_Update(&ctx,values.data(),CC_LONG(values.size()*sizeof(values[0])));
+    };
+    update(s.femNodes);update(s.femMaterialState);update(s.contactHistories);
+    update(s.schedulers);update(s.adaptive);update(s.femFields);update(s.reactions);
+    update(s.femTopologyNodes);update(s.femTopologyTetrahedra);update(s.topologyStates);
+    CC_SHA256_Update(&ctx,&s.controlStep,sizeof(s.controlStep));
+    CC_SHA256_Update(&ctx,&s.physicsSubstep,sizeof(s.physicsSubstep));
+    unsigned char bytes[CC_SHA256_DIGEST_LENGTH];CC_SHA256_Final(bytes,&ctx);
+    static constexpr char hex[]="0123456789abcdef";std::string out;out.reserve(2*sizeof(bytes));
+    for(unsigned char byte:bytes){out.push_back(hex[byte>>4]);out.push_back(hex[byte&15]);}
+    return out;
+}
+
 // Independent FP64 evaluation of the fixture equations, without integration.
 struct FixtureResidual { double l2=0,local=0,kinematic=0,velocity=0; };
 FixtureResidual fixtureResidual(const numi::matter::CompiledWorld& world,
@@ -246,6 +263,8 @@ int main(int argc,char** argv){
     std::vector<float> area;std::string areaError;
     if(config.experimentalFEMPlaneAreaIPC)
         require(numi::matter::detail::femFixedPlaneReferenceAreas(world,area,areaError),"area: "+areaError);
+    double totalArea=0.;for(float weight:area)totalArea+=weight;
+    std::cerr<<std::setprecision(17)<<"reference_contact_area_m2="<<totalArea<<"\n";
     auto initial=runtime.snapshot();require(initial.available,"initial snapshot unavailable");
     // Optional authored checkpoint perturbation for a transaction rejection test.
     // It changes only accepted velocity; rest geometry and contact law are untouched.
@@ -259,6 +278,9 @@ int main(int argc,char** argv){
     double gpu=0;int accepted=0,rejected=0;double minimumGap=1.e100;bool first=true;
     std::cout<<std::setprecision(12)<<"{\"schema\":\"numi.matter.plane-contact.v1\",\"device\":\""<<device.name.UTF8String
         <<"\",\"arm\":\""<<arm<<"\",\"h\":"<<h<<",\"divisions\":"<<divisions<<",\"initial_gap\":"<<startGap<<",\"nodes\":"<<world.dispatch.femNodeCount
+        <<",\"contact_area_m2\":"<<totalArea<<",\"contact_area_weights_m2\":[";
+    for(size_t i=0;i<area.size();++i)std::cout<<(i?",":"")<<area[i];
+    std::cout<<"]"
         <<",\"area_ipc_k_N_per_m5\":"<<(config.experimentalFEMPlaneAreaIPC?config.experimentalFEMPlaneAreaIPCK:0.f)<<",\"residual_policy\":\""<<policy<<"\",\"coordinate_mode\":\""<<(reference?"reference_displacement":"world_position")<<"\",\"freefall_control\":"<<(freefall?"true":"false")<<",\"mechanical_absolute_tolerance_Ns\":"<<world.mixedSolver.contactAcceptance.y<<",\"mechanical_relative_tolerance\":"<<world.mixedSolver.contactAcceptance.z<<",\"mechanical_impulse_scale_Ns\":"<<world.mixedSolver.contactAcceptance.w<<",\"source_fingerprint\":"<<world.physicsFingerprint<<",\"device_fingerprint\":"<<runtime.deviceProgramFingerprint()<<",\"traces\":[";
     auto previous=initial;bool rejectionRestored=true;
     double totalWork=0,totalKineticWork=0,maxLawError=0,maxMomentumError=0,maxAcceptedDual=0,maxLocalResidual=0,maxKinematicDefect=0,maxFreefallVelocityDefect=0;
@@ -374,6 +396,7 @@ int main(int argc,char** argv){
     std::cout<<"],\"accepted_steps\":"<<accepted<<",\"rejected_steps\":"<<rejected<<",\"wall_seconds\":"<<wall
         <<",\"contact_work_J\":"<<totalWork<<",\"contact_impulse_midvelocity_work_J\":"<<totalKineticWork<<",\"gpu_seconds\":"<<gpu<<",\"accepted_simulated_seconds\":"<<accepted*h
         <<",\"accepted_simulated_seconds_per_wall_second\":"<<accepted*h/wall<<",\"minimum_gap\":"<<minimumGap
+        <<",\"final_physical_sha256\":\""<<physicalDigest(final)<<"\""
         <<",\"rejected_state_unchanged\":"<<(rejectionRestored?"true":"false")
         <<",\"continuation_replay\":"<<(continuationReplay?"true":"false")
         <<",\"replay_status_bytes_exact\":"<<(replayStatusExact?"true":"false")

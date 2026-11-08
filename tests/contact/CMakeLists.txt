@@ -38,6 +38,10 @@ add_executable(metalrobo_plane_contact_probe "${NUMI_CONTACT_ROOT}/apps/plane_co
 target_compile_options(metalrobo_plane_contact_probe PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
 target_link_libraries(metalrobo_plane_contact_probe PRIVATE numi_plane_contact_owner)
 add_dependencies(metalrobo_plane_contact_probe numi_plane_contact_shader)
+add_executable(metalrobo_plane_contact_benchmark "${NUMI_CONTACT_ROOT}/apps/plane_contact_benchmark.mm")
+target_compile_options(metalrobo_plane_contact_benchmark PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic)
+target_link_libraries(metalrobo_plane_contact_benchmark PRIVATE numi_plane_contact_owner)
+add_dependencies(metalrobo_plane_contact_benchmark numi_plane_contact_shader)
 
 if(BUILD_TESTING)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
