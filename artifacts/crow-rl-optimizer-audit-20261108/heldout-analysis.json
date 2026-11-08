@@ -1,0 +1,298 @@
+{
+  "status": "completed",
+  "seed_base": 2651213602,
+  "lifetimes_per_arm": 192,
+  "accepted_transitions": 737280,
+  "cases": {
+    "fixed65": {
+      "policy_revision": 65,
+      "policy_sha256": "4dd8fe29b72ccb540170788945dd238c0c11e3b9db3fb0e014393710ceb505a1",
+      "correct_side": [
+        128,
+        99,
+        98,
+        70
+      ],
+      "intake": [
+        26,
+        16,
+        17,
+        13
+      ],
+      "food_micrograms": [
+        890000,
+        585000,
+        575000,
+        510000
+      ],
+      "by_cue": {
+        "1": {
+          "lifetimes": 94,
+          "correct_side": 54,
+          "intake": 12
+        },
+        "2": {
+          "lifetimes": 98,
+          "correct_side": 74,
+          "intake": 14
+        }
+      },
+      "per_seed": [
+        {
+          "seed": 2651213602,
+          "correct_side": [
+            45,
+            32,
+            32,
+            19
+          ],
+          "intake": [
+            5,
+            7,
+            7,
+            4
+          ]
+        },
+        {
+          "seed": 2651213603,
+          "correct_side": [
+            41,
+            30,
+            28,
+            21
+          ],
+          "intake": [
+            7,
+            2,
+            4,
+            5
+          ]
+        },
+        {
+          "seed": 2651213604,
+          "correct_side": [
+            42,
+            37,
+            38,
+            30
+          ],
+          "intake": [
+            14,
+            7,
+            6,
+            4
+          ]
+        }
+      ]
+    },
+    "adaptive81": {
+      "policy_revision": 81,
+      "policy_sha256": "21de3d792f6aafb4d1fdfdbdd7916f10179321030b31d069ba5f44687d9afbf4",
+      "correct_side": [
+        158,
+        95,
+        95,
+        29
+      ],
+      "intake": [
+        33,
+        16,
+        16,
+        3
+      ],
+      "food_micrograms": [
+        1310000,
+        600000,
+        580000,
+        120000
+      ],
+      "by_cue": {
+        "1": {
+          "lifetimes": 94,
+          "correct_side": 67,
+          "intake": 15
+        },
+        "2": {
+          "lifetimes": 98,
+          "correct_side": 91,
+          "intake": 18
+        }
+      },
+      "per_seed": [
+        {
+          "seed": 2651213602,
+          "correct_side": [
+            54,
+            29,
+            29,
+            9
+          ],
+          "intake": [
+            10,
+            4,
+            2,
+            2
+          ]
+        },
+        {
+          "seed": 2651213603,
+          "correct_side": [
+            47,
+            29,
+            29,
+            7
+          ],
+          "intake": [
+            9,
+            3,
+            6,
+            0
+          ]
+        },
+        {
+          "seed": 2651213604,
+          "correct_side": [
+            57,
+            37,
+            37,
+            13
+          ],
+          "intake": [
+            14,
+            9,
+            8,
+            1
+          ]
+        }
+      ]
+    },
+    "precision97": {
+      "policy_revision": 97,
+      "policy_sha256": "91610c1090ab5b3d4c215e52b184b78abcd4d449a66caa8cdc0e7a392196d039",
+      "correct_side": [
+        169,
+        93,
+        93,
+        20
+      ],
+      "intake": [
+        37,
+        15,
+        12,
+        1
+      ],
+      "food_micrograms": [
+        1370000,
+        630000,
+        480000,
+        20000
+      ],
+      "by_cue": {
+        "1": {
+          "lifetimes": 94,
+          "correct_side": 80,
+          "intake": 16
+        },
+        "2": {
+          "lifetimes": 98,
+          "correct_side": 89,
+          "intake": 21
+        }
+      },
+      "per_seed": [
+        {
+          "seed": 2651213602,
+          "correct_side": [
+            56,
+            29,
+            28,
+            6
+          ],
+          "intake": [
+            14,
+            3,
+            2,
+            0
+          ]
+        },
+        {
+          "seed": 2651213603,
+          "correct_side": [
+            55,
+            29,
+            30,
+            7
+          ],
+          "intake": [
+            12,
+            6,
+            5,
+            0
+          ]
+        },
+        {
+          "seed": 2651213604,
+          "correct_side": [
+            58,
+            35,
+            35,
+            7
+          ],
+          "intake": [
+            11,
+            6,
+            5,
+            1
+          ]
+        }
+      ]
+    }
+  },
+  "paired_comparisons": {
+    "fixed65->adaptive81": {
+      "correct": {
+        "later_only": 47,
+        "earlier_only": 17,
+        "paired_count_gain": 30,
+        "exact_discordant_pair_p": 0.0002268823828832806
+      },
+      "intake": {
+        "later_only": 29,
+        "earlier_only": 22,
+        "paired_count_gain": 7,
+        "exact_discordant_pair_p": 0.4010619910279374
+      }
+    },
+    "adaptive81->precision97": {
+      "correct": {
+        "later_only": 33,
+        "earlier_only": 22,
+        "paired_count_gain": 11,
+        "exact_discordant_pair_p": 0.17700136477035816
+      },
+      "intake": {
+        "later_only": 28,
+        "earlier_only": 24,
+        "paired_count_gain": 4,
+        "exact_discordant_pair_p": 0.6778086391424605
+      }
+    },
+    "fixed65->precision97": {
+      "correct": {
+        "later_only": 55,
+        "earlier_only": 14,
+        "paired_count_gain": 41,
+        "exact_discordant_pair_p": 6.921916920059638e-07
+      },
+      "intake": {
+        "later_only": 32,
+        "earlier_only": 21,
+        "paired_count_gain": 11,
+        "exact_discordant_pair_p": 0.16897782228771874
+      }
+    }
+  },
+  "new_optimizer_updates": 0,
+  "all_native_engineering_controls_passed": true,
+  "scope": "Same fixed fixture, matched unused stochastic seeds. Retrospective behavior evidence; training histories/population/optimization differ, so adaptive-rate causality is not isolated. No broad geometric/ecological generalization."
+}

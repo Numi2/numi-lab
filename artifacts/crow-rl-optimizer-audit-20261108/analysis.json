@@ -1,0 +1,441 @@
+{
+  "actual_gamma": 0.999,
+  "actual_lambda": 1.0,
+  "adaptive_rate_success_qualified": false,
+  "broader_goal_complete": false,
+  "clipping_counterfactual": {
+    "results": {
+      "adaptive81": {
+        "arms": {
+          "actor_independent_clip": {
+            "actor_delta_cosine_to_original": 0.9999999999999998,
+            "actor_delta_l2": 0.5445312727602838,
+            "actor_delta_ratio_to_original": 1.0,
+            "post_update_beak_KL": 0.017883668071590364,
+            "post_update_beak_clip_fraction": 0.20703125,
+            "post_update_head_KL": 0.013926617801189423,
+            "post_update_head_clip_fraction": 0.09375
+          },
+          "joint_reference": {
+            "actor_delta_cosine_to_original": 0.9999999999999998,
+            "actor_delta_l2": 0.5445312727602838,
+            "actor_delta_ratio_to_original": 1.0,
+            "post_update_beak_KL": 0.017883668071590364,
+            "post_update_beak_clip_fraction": 0.20703125,
+            "post_update_head_KL": 0.013926617801189423,
+            "post_update_head_clip_fraction": 0.09375
+          }
+        },
+        "learning_rates_used_identically_in_both_arms": [
+          0.0034171876031905413,
+          0.0034171876031905413
+        ],
+        "original_lr_schedule_reproduces_all_archived_model_tensors_exactly": true
+      },
+      "fixed65": {
+        "arms": {
+          "actor_independent_clip": {
+            "actor_delta_cosine_to_original": 0.9999999999999998,
+            "actor_delta_l2": 0.09420443507973461,
+            "actor_delta_ratio_to_original": 1.0,
+            "post_update_beak_KL": 0.0003236774355173111,
+            "post_update_beak_clip_fraction": 0.0,
+            "post_update_head_KL": 0.00045283325016498566,
+            "post_update_head_clip_fraction": 0.0
+          },
+          "joint_reference": {
+            "actor_delta_cosine_to_original": 0.9999999999999998,
+            "actor_delta_l2": 0.09420443507973461,
+            "actor_delta_ratio_to_original": 1.0,
+            "post_update_beak_KL": 0.0003236774355173111,
+            "post_update_beak_clip_fraction": 0.0,
+            "post_update_head_KL": 0.00045283325016498566,
+            "post_update_head_clip_fraction": 0.0
+          }
+        },
+        "learning_rates_used_identically_in_both_arms": [
+          0.0003000000142492354,
+          0.0003000000142492354
+        ],
+        "original_lr_schedule_reproduces_all_archived_model_tensors_exactly": true
+      },
+      "precision97": {
+        "arms": {
+          "actor_independent_clip": {
+            "actor_delta_cosine_to_original": 0.4395113998938053,
+            "actor_delta_l2": 0.9727440590570575,
+            "actor_delta_ratio_to_original": 2.20644284643584,
+            "post_update_beak_KL": 0.011317756056087092,
+            "post_update_beak_clip_fraction": 0.09228515625,
+            "post_update_head_KL": 0.018196590710431337,
+            "post_update_head_clip_fraction": 0.1953125
+          },
+          "joint_reference": {
+            "actor_delta_cosine_to_original": 1.0000000000000002,
+            "actor_delta_l2": 0.44086528714232137,
+            "actor_delta_ratio_to_original": 1.0,
+            "post_update_beak_KL": 0.021602741471724585,
+            "post_update_beak_clip_fraction": 0.21435546875,
+            "post_update_head_KL": 0.05974093405529857,
+            "post_update_head_clip_fraction": 0.4453125
+          }
+        },
+        "learning_rates_used_identically_in_both_arms": [
+          7.803689368302003e-05,
+          7.803689368302003e-05,
+          0.00011705534416250885,
+          0.00017558301624376327,
+          0.0002633745316416025,
+          0.0003950617974624038,
+          0.0005925926961936057,
+          0.000888889073394239,
+          0.0013333335518836975,
+          0.0020000000949949026,
+          0.0020000000949949026,
+          0.0020000000949949026,
+          0.0013333334354683757,
+          0.0008888889569789171,
+          0.0005925926379859447,
+          0.0003950617683585733
+        ],
+        "original_lr_schedule_reproduces_all_archived_model_tensors_exactly": true
+      }
+    },
+    "scope": "Offline same-starting-model/Adam and retained-batch intervention with identical original per-step rates. No native behavior or candidate publication; larger KL is not a benefit claim.",
+    "status": "measured"
+  },
+  "exact_model_Adam_replays": 3,
+  "matched_unused_seed_evaluation": {
+    "accepted_transitions": 737280,
+    "all_native_engineering_controls_passed": true,
+    "cases": {
+      "adaptive81": {
+        "by_cue": {
+          "1": {
+            "correct_side": 67,
+            "intake": 15,
+            "lifetimes": 94
+          },
+          "2": {
+            "correct_side": 91,
+            "intake": 18,
+            "lifetimes": 98
+          }
+        },
+        "correct_side": [
+          158,
+          95,
+          95,
+          29
+        ],
+        "food_micrograms": [
+          1310000,
+          600000,
+          580000,
+          120000
+        ],
+        "intake": [
+          33,
+          16,
+          16,
+          3
+        ],
+        "per_seed": [
+          {
+            "correct_side": [
+              54,
+              29,
+              29,
+              9
+            ],
+            "intake": [
+              10,
+              4,
+              2,
+              2
+            ],
+            "seed": 2651213602
+          },
+          {
+            "correct_side": [
+              47,
+              29,
+              29,
+              7
+            ],
+            "intake": [
+              9,
+              3,
+              6,
+              0
+            ],
+            "seed": 2651213603
+          },
+          {
+            "correct_side": [
+              57,
+              37,
+              37,
+              13
+            ],
+            "intake": [
+              14,
+              9,
+              8,
+              1
+            ],
+            "seed": 2651213604
+          }
+        ],
+        "policy_revision": 81,
+        "policy_sha256": "21de3d792f6aafb4d1fdfdbdd7916f10179321030b31d069ba5f44687d9afbf4"
+      },
+      "fixed65": {
+        "by_cue": {
+          "1": {
+            "correct_side": 54,
+            "intake": 12,
+            "lifetimes": 94
+          },
+          "2": {
+            "correct_side": 74,
+            "intake": 14,
+            "lifetimes": 98
+          }
+        },
+        "correct_side": [
+          128,
+          99,
+          98,
+          70
+        ],
+        "food_micrograms": [
+          890000,
+          585000,
+          575000,
+          510000
+        ],
+        "intake": [
+          26,
+          16,
+          17,
+          13
+        ],
+        "per_seed": [
+          {
+            "correct_side": [
+              45,
+              32,
+              32,
+              19
+            ],
+            "intake": [
+              5,
+              7,
+              7,
+              4
+            ],
+            "seed": 2651213602
+          },
+          {
+            "correct_side": [
+              41,
+              30,
+              28,
+              21
+            ],
+            "intake": [
+              7,
+              2,
+              4,
+              5
+            ],
+            "seed": 2651213603
+          },
+          {
+            "correct_side": [
+              42,
+              37,
+              38,
+              30
+            ],
+            "intake": [
+              14,
+              7,
+              6,
+              4
+            ],
+            "seed": 2651213604
+          }
+        ],
+        "policy_revision": 65,
+        "policy_sha256": "4dd8fe29b72ccb540170788945dd238c0c11e3b9db3fb0e014393710ceb505a1"
+      },
+      "precision97": {
+        "by_cue": {
+          "1": {
+            "correct_side": 80,
+            "intake": 16,
+            "lifetimes": 94
+          },
+          "2": {
+            "correct_side": 89,
+            "intake": 21,
+            "lifetimes": 98
+          }
+        },
+        "correct_side": [
+          169,
+          93,
+          93,
+          20
+        ],
+        "food_micrograms": [
+          1370000,
+          630000,
+          480000,
+          20000
+        ],
+        "intake": [
+          37,
+          15,
+          12,
+          1
+        ],
+        "per_seed": [
+          {
+            "correct_side": [
+              56,
+              29,
+              28,
+              6
+            ],
+            "intake": [
+              14,
+              3,
+              2,
+              0
+            ],
+            "seed": 2651213602
+          },
+          {
+            "correct_side": [
+              55,
+              29,
+              30,
+              7
+            ],
+            "intake": [
+              12,
+              6,
+              5,
+              0
+            ],
+            "seed": 2651213603
+          },
+          {
+            "correct_side": [
+              58,
+              35,
+              35,
+              7
+            ],
+            "intake": [
+              11,
+              6,
+              5,
+              1
+            ],
+            "seed": 2651213604
+          }
+        ],
+        "policy_revision": 97,
+        "policy_sha256": "91610c1090ab5b3d4c215e52b184b78abcd4d449a66caa8cdc0e7a392196d039"
+      }
+    },
+    "lifetimes_per_arm": 192,
+    "new_optimizer_updates": 0,
+    "paired_comparisons": {
+      "adaptive81->precision97": {
+        "correct": {
+          "earlier_only": 22,
+          "exact_discordant_pair_p": 0.17700136477035816,
+          "later_only": 33,
+          "paired_count_gain": 11
+        },
+        "intake": {
+          "earlier_only": 24,
+          "exact_discordant_pair_p": 0.6778086391424605,
+          "later_only": 28,
+          "paired_count_gain": 4
+        }
+      },
+      "fixed65->adaptive81": {
+        "correct": {
+          "earlier_only": 17,
+          "exact_discordant_pair_p": 0.0002268823828832806,
+          "later_only": 47,
+          "paired_count_gain": 30
+        },
+        "intake": {
+          "earlier_only": 22,
+          "exact_discordant_pair_p": 0.4010619910279374,
+          "later_only": 29,
+          "paired_count_gain": 7
+        }
+      },
+      "fixed65->precision97": {
+        "correct": {
+          "earlier_only": 14,
+          "exact_discordant_pair_p": 6.921916920059638e-07,
+          "later_only": 55,
+          "paired_count_gain": 41
+        },
+        "intake": {
+          "earlier_only": 21,
+          "exact_discordant_pair_p": 0.16897782228771874,
+          "later_only": 32,
+          "paired_count_gain": 11
+        }
+      }
+    },
+    "scope": "Same fixed fixture, matched unused stochastic seeds. Retrospective behavior evidence; training histories/population/optimization differ, so adaptive-rate causality is not isolated. No broad geometric/ecological generalization.",
+    "seed_base": 2651213602,
+    "status": "completed"
+  },
+  "return_identity": {
+    "cases": {
+      "adaptive81": {
+        "FP64_reward_plus_terminal_bootstrap_minus_recorded_value_max_abs": 2.80504037490914e-05,
+        "actual_gamma": 0.999,
+        "actual_lambda": 1,
+        "head_bootstrap_component_std": 0.29134616587451806,
+        "head_recorded_value_std": 0.0,
+        "head_return_std": 1.601524463472478,
+        "scope": "Independent FP64 telescoping identity on retained nonterminal native trajectories; not a learned critic accuracy claim."
+      },
+      "fixed65": {
+        "FP64_reward_plus_terminal_bootstrap_minus_recorded_value_max_abs": 1.8906001664653616e-05,
+        "actual_gamma": 0.999,
+        "actual_lambda": 1,
+        "head_bootstrap_component_std": 0.06281767367548191,
+        "head_recorded_value_std": 0.0,
+        "head_return_std": 1.048773275616101,
+        "scope": "Independent FP64 telescoping identity on retained nonterminal native trajectories; not a learned critic accuracy claim."
+      },
+      "precision97": {
+        "FP64_reward_plus_terminal_bootstrap_minus_recorded_value_max_abs": 3.6360463191442705e-05,
+        "actual_gamma": 0.999,
+        "actual_lambda": 1,
+        "head_bootstrap_component_std": 0.8425532210665319,
+        "head_recorded_value_std": 0.0,
+        "head_return_std": 2.2548079830929204,
+        "scope": "Independent FP64 telescoping identity on retained nonterminal native trajectories; not a learned critic accuracy claim."
+      }
+    },
+    "status": "passed"
+  },
+  "source_commit": "341afe8407b0699c1b0829f5a53360173a16d32f",
+  "status": "diagnosed",
+  "tensors_per_replay": 53
+}

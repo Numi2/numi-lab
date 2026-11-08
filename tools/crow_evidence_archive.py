@@ -132,11 +132,19 @@ def capture(out):
                     with p.open("rb") as f:
                         while data := f.read(CHUNK):
                             part_sha = digest(data)
-                            dest = out / "blobs" / (part_sha + ".gz")
-                            if not dest.exists():
-                                packed = gzip.compress(data, compresslevel=6, mtime=0)
-                                dest.write_bytes(packed)
-                                added += len(packed)
+                            # A large file is indexed as chunks, not as one
+                            # decoded blob. Reuse an already archived gzip
+                            # chunk instead of rematerializing its checkout.
+                            prior = known.get((part_sha, len(data)))
+                            if prior is not None and prior["encoding"] == "gzip":
+                                dest = Path(prior["path"])
+                            else:
+                                dest = out / "blobs" / (part_sha + ".gz")
+                                if not dest.exists():
+                                    packed = gzip.compress(data, compresslevel=6, mtime=0)
+                                    dest.write_bytes(packed)
+                                    added += len(packed)
+                                known[(part_sha, len(data))] = {"path": str(dest), "encoding": "gzip"}
                             chunks.append({"path": str(dest), "sha256": part_sha, "bytes": len(data)})
                     backing = {"encoding": "chunks-gzip", "chunks": chunks}
                     known[key] = backing

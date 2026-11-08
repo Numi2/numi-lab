@@ -1,0 +1,168 @@
+{
+  "all_backing_references_rebound_to_identical_existing_Git_blobs": true,
+  "compressed_checkout_bytes_removed": 232972156,
+  "files": [
+    {
+      "bytes": 11497866,
+      "decoded_sha256": "a7fbba9643f940481a0887aa227ffdc980b7fdbd81d71f2942ed2bc18e4b35f6",
+      "existing_git_path": "artifacts/crow-rl-precision-training-20261108/blobs/a7fbba9643f940481a0887aa227ffdc980b7fdbd81d71f2942ed2bc18e4b35f6.gz",
+      "git_blob": "205faa38147762fc44b1159e325e1bc6afe911d0",
+      "mode": 420,
+      "mtime_ns": 1794099241422311345,
+      "path": "artifacts/crow-rl-optimizer-audit-20261108/blobs/a7fbba9643f940481a0887aa227ffdc980b7fdbd81d71f2942ed2bc18e4b35f6.gz",
+      "sha256": "35d0179e09044d1fcce3c839fa127cdb0e1fc20e31b36ff3060a4ab745cc805e"
+    },
+    {
+      "bytes": 20383948,
+      "decoded_sha256": "f7c75ab3c7bf0ae6f28cc34b6f82dbfbc9f40a0777543b675c69a022a4c33277",
+      "existing_git_path": "artifacts/crow-rl-precision-training-20261108/blobs/f7c75ab3c7bf0ae6f28cc34b6f82dbfbc9f40a0777543b675c69a022a4c33277.gz",
+      "git_blob": "78334e60d5924997c69147a49cc9a568ce214ae5",
+      "mode": 420,
+      "mtime_ns": 1794099243493173580,
+      "path": "artifacts/crow-rl-optimizer-audit-20261108/blobs/f7c75ab3c7bf0ae6f28cc34b6f82dbfbc9f40a0777543b675c69a022a4c33277.gz",
+      "sha256": "6b5c8426606f7b37db269d911040355b605e67579483aaf92d875e280095c0d6"
+    },
+    {
+      "bytes": 3258871,
+      "decoded_sha256": "4b86a196cf596a99346267e6b1954163469002a555ea1a6285993cd91258673e",
+      "existing_git_path": "artifacts/crow-rl-precision-training-20261108/blobs/4b86a196cf596a99346267e6b1954163469002a555ea1a6285993cd91258673e.gz",
+      "git_blob": "bca1f76ca18357a44b8b8a56d28095e0536a949d",
+      "mode": 420,
+      "mtime_ns": 1794099243997974000,
+      "path": "artifacts/crow-rl-optimizer-audit-20261108/blobs/4b86a196cf596a99346267e6b1954163469002a555ea1a6285993cd91258673e.gz",
+      "sha256": "2614bf4b3033e9e5f3f60688f957e56c3623d144bdae4cc2d4c621b523126db0"
+    },
+    {
+      "bytes": 20454170,
+      "decoded_sha256": "3e0e556b13ca5712d00a88f0b420214c038bd2effdfbe428cd937433d7ecd6f5",
+      "existing_git_path": "artifacts/crow-rl-precision-training-20261108/blobs/3e0e556b13ca5712d00a88f0b420214c038bd2effdfbe428cd937433d7ecd6f5.gz",
+      "git_blob": "6f5cc56c9a1c39a35e75482211dffcc7d0b0a9bf",
+      "mode": 420,
+      "mtime_ns": 1794099242976438853,
+      "path": "artifacts/crow-rl-optimizer-audit-20261108/blobs/3e0e556b13ca5712d00a88f0b420214c038bd2effdfbe428cd937433d7ecd6f5.gz",
+      "sha256": "86c4f353a262c413ef45ed637f9c2ec0204e520cb1532488f151764034349e59"
+    },
+    {
+      "bytes": 7021809,
+      "decoded_sha256": "1c54036cd3b5039079f88bbb43bc85ba8cabe63dd186bc69a75fb05e92a779fd",
+      "existing_git_path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/1c54036cd3b5039079f88bbb43bc85ba8cabe63dd186bc69a75fb05e92a779fd.gz",
+      "git_blob": "b629a82bc0208e47a464df0adec8f01f80fea02a",
+      "mode": 420,
+      "mtime_ns": 1794099237985091803,
+      "path": "artifacts/crow-rl-optimizer-audit-20261108/blobs/1c54036cd3b5039079f88bbb43bc85ba8cabe63dd186bc69a75fb05e92a779fd.gz",
+      "sha256": "3fa86b766232aa0897306f0cb244421cae0934fa623e8f045e4414191ec4e1a7"
+    },
+    {
+      "bytes": 16980592,
+      "decoded_sha256": "47842b88dec5383f55226542cb40b7df8c4f7152074e015931c4f4dac4332745",
+      "existing_git_path": "artifacts/crow-rl-precision-training-20261108/blobs/47842b88dec5383f55226542cb40b7df8c4f7152074e015931c4f4dac4332745.gz",
+      "git_blob": "7817769f2ff43898817e0b562b16b24e6ff0f2a2",
+      "mode": 420,
+      "mtime_ns": 1794099243919116951,
+      "path": "artifacts/crow-rl-optimizer-audit-20261108/blobs/47842b88dec5383f55226542cb40b7df8c4f7152074e015931c4f4dac4332745.gz",
+      "sha256": "8277d919adfaa39a4f25d84ebb01d54ea309201cedecba204c94d2cd4325c51b"
+    },
+    {
+      "bytes": 20407773,
+      "decoded_sha256": "7699e24bbb7fda067f99d078e58969cccb68a5672713040a8dbdda27010ad85b",
+      "existing_git_path": "artifacts/crow-rl-precision-training-20261108/blobs/7699e24bbb7fda067f99d078e58969cccb68a5672713040a8dbdda27010ad85b.gz",
+      "git_blob": "9527691d58ac8aef3cda08e50b078f344ba88b1a",
+      "mode": 420,
+      "mtime_ns": 1794099242457273319,
+      "path": "artifacts/crow-rl-optimizer-audit-20261108/blobs/7699e24bbb7fda067f99d078e58969cccb68a5672713040a8dbdda27010ad85b.gz",
+      "sha256": "fd876a0e6a1bd7b35dcb5b1279286d6705e55d103908ca8acab1fb3d947842d9"
+    },
+    {
+      "bytes": 20414954,
+      "decoded_sha256": "4f24704d980d8a5579aaa4008d126900929c91968d324cb164d67bf4a189f16a",
+      "existing_git_path": "artifacts/crow-rl-precision-training-20261108/blobs/4f24704d980d8a5579aaa4008d126900929c91968d324cb164d67bf4a189f16a.gz",
+      "git_blob": "ada974c176cda9f6f9adc6703da2ad98ed7c0296",
+      "mode": 420,
+      "mtime_ns": 1794099241940117498,
+      "path": "artifacts/crow-rl-optimizer-audit-20261108/blobs/4f24704d980d8a5579aaa4008d126900929c91968d324cb164d67bf4a189f16a.gz",
+      "sha256": "45e0dfdffa18c34bacb842f7f487629ae98bae5141d5ded74ef9cc907e51e30d"
+    },
+    {
+      "bytes": 21167074,
+      "decoded_sha256": "e42bf763c10a854d06b79853951582723af112eaa5f18b264b3b6e267f4f660e",
+      "existing_git_path": "artifacts/crow-rl-adaptive-optimization-20261108/blobs/e42bf763c10a854d06b79853951582723af112eaa5f18b264b3b6e267f4f660e.gz",
+      "git_blob": "c8058995ba885d8384f6ce162503d7c165fe0c53",
+      "mode": 420,
+      "mtime_ns": 1794099240687418660,
+      "path": "artifacts/crow-rl-optimizer-audit-20261108/blobs/e42bf763c10a854d06b79853951582723af112eaa5f18b264b3b6e267f4f660e.gz",
+      "sha256": "cb1900179b271006a3a8156e92a5aab5f4c34faec6fc8a4748a822dbfd63132c"
+    },
+    {
+      "bytes": 10138004,
+      "decoded_sha256": "1cff28761248e6b59be64da5a4d85414278409d77f5d72454bc1aab14cb3e5de",
+      "existing_git_path": "artifacts/crow-rl-adaptive-optimization-20261108/blobs/1cff28761248e6b59be64da5a4d85414278409d77f5d72454bc1aab14cb3e5de.gz",
+      "git_blob": "537532a79889d40954a7c2f7ba2f2e77556bc35b",
+      "mode": 420,
+      "mtime_ns": 1794099240935411667,
+      "path": "artifacts/crow-rl-optimizer-audit-20261108/blobs/1cff28761248e6b59be64da5a4d85414278409d77f5d72454bc1aab14cb3e5de.gz",
+      "sha256": "15d83e58098e69281bbe179b66ac4a51ccb8bc6e1c808aae7e78b8cf5a4dcda1"
+    },
+    {
+      "bytes": 21162002,
+      "decoded_sha256": "2588276aeb7f68a53737d86d665e3f30bb3ad93e756aabef7f1d2ba4fda7612a",
+      "existing_git_path": "artifacts/crow-rl-adaptive-optimization-20261108/blobs/2588276aeb7f68a53737d86d665e3f30bb3ad93e756aabef7f1d2ba4fda7612a.gz",
+      "git_blob": "84f3d375b904182b220b587a1d1b95e0dd5c0abc",
+      "mode": 420,
+      "mtime_ns": 1794099240144796412,
+      "path": "artifacts/crow-rl-optimizer-audit-20261108/blobs/2588276aeb7f68a53737d86d665e3f30bb3ad93e756aabef7f1d2ba4fda7612a.gz",
+      "sha256": "83198dd5d7cf8f299fa4865697dc530e9080cc15c78c4e15d9647f2e429a4df2"
+    },
+    {
+      "bytes": 21694454,
+      "decoded_sha256": "e72f570df0d755e67d07a43950bbb3b0f9fe090a7b9282f51fc25b292f5ecfc2",
+      "existing_git_path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/e72f570df0d755e67d07a43950bbb3b0f9fe090a7b9282f51fc25b292f5ecfc2.gz",
+      "git_blob": "55fcaa6d004ae83f71d61b6e61bd87b47b59b4d3",
+      "mode": 420,
+      "mtime_ns": 1794099238545221832,
+      "path": "artifacts/crow-rl-optimizer-audit-20261108/blobs/e72f570df0d755e67d07a43950bbb3b0f9fe090a7b9282f51fc25b292f5ecfc2.gz",
+      "sha256": "1591729908b66fc7f135925b28298453410c99c2941ca1edb88a1d416f9777a9"
+    },
+    {
+      "bytes": 319806,
+      "decoded_sha256": "305b913905edce6d89bc9be4d2a24ec683d596311d626ee15b6c297761d4fdd7",
+      "existing_git_path": "artifacts/crow-rl-precision-training-20261108/blobs/305b913905edce6d89bc9be4d2a24ec683d596311d626ee15b6c297761d4fdd7.gz",
+      "git_blob": "dcf0c56a380547a3246d77b47cc328096c279e3a",
+      "mode": 420,
+      "mtime_ns": 1794099241091066709,
+      "path": "artifacts/crow-rl-optimizer-audit-20261108/blobs/305b913905edce6d89bc9be4d2a24ec683d596311d626ee15b6c297761d4fdd7.gz",
+      "sha256": "b6e705db1879f448e35086540c56f206961efdf3032a28f20068cc6c46025ec7"
+    },
+    {
+      "bytes": 10212217,
+      "decoded_sha256": "cecb073b812a1c2cbb1238ef582b21a437791ef7db99657ca8b5b1a86c6a79a9",
+      "existing_git_path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/cecb073b812a1c2cbb1238ef582b21a437791ef7db99657ca8b5b1a86c6a79a9.gz",
+      "git_blob": "0d875db955e3e816e29323cd7a064af71e234892",
+      "mode": 420,
+      "mtime_ns": 1794099239352443081,
+      "path": "artifacts/crow-rl-optimizer-audit-20261108/blobs/cecb073b812a1c2cbb1238ef582b21a437791ef7db99657ca8b5b1a86c6a79a9.gz",
+      "sha256": "f8f29ab053d5e90e8ad406530e2fedb3c1d018a6535735c53a38e9d130df0be6"
+    },
+    {
+      "bytes": 6194789,
+      "decoded_sha256": "b7befcfd9d2669304b3677c25b10747eee5a1012eb09b6becf9b8ead0acc22d9",
+      "existing_git_path": "artifacts/crow-rl-adaptive-optimization-20261108/blobs/b7befcfd9d2669304b3677c25b10747eee5a1012eb09b6becf9b8ead0acc22d9.gz",
+      "git_blob": "83ff3f7c3a96d61bfcb26780023aa845428ad7b7",
+      "mode": 420,
+      "mtime_ns": 1794099239602747733,
+      "path": "artifacts/crow-rl-optimizer-audit-20261108/blobs/b7befcfd9d2669304b3677c25b10747eee5a1012eb09b6becf9b8ead0acc22d9.gz",
+      "sha256": "de1b7e6e60e28fc27d1ce93ba475df58c694d298a7c890588350f8a111915ecb"
+    },
+    {
+      "bytes": 21663827,
+      "decoded_sha256": "f4e9ab8a010e8a71c43f62dc8ba3439eb2f4266d3ef2815699e1886f25d5ec22",
+      "existing_git_path": "artifacts/crow-rl-retinal-normalization-20261108/blobs/f4e9ab8a010e8a71c43f62dc8ba3439eb2f4266d3ef2815699e1886f25d5ec22.gz",
+      "git_blob": "9dde4658b4ba22b3392387228526638826c86735",
+      "mode": 420,
+      "mtime_ns": 1794099239104388712,
+      "path": "artifacts/crow-rl-optimizer-audit-20261108/blobs/f4e9ab8a010e8a71c43f62dc8ba3439eb2f4266d3ef2815699e1886f25d5ec22.gz",
+      "sha256": "4c686b55cf67831170116805b18db462312cd17773935342d40f34d9b7a9c4f9"
+    }
+  ],
+  "open_handles": 0,
+  "status": "removed_duplicate_checkout_chunks"
+}
