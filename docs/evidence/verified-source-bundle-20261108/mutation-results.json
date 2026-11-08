@@ -1,0 +1,18 @@
+{
+  "changed_installed_mode": {
+    "returncode": 1,
+    "stderr": "Traceback (most recent call last):\n  File \"/Users/numi/numi-lab-autoload-package-source-20261108/python/metalrobo/numi_source_provenance.py\", line 239, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/numi/numi-lab-autoload-package-source-20261108/python/metalrobo/numi_source_provenance.py\", line 235, in main\n    audit(a.prefix, a.expected_archive_sha256, a.expected_revision)\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/numi/numi-lab-autoload-package-source-20261108/python/metalrobo/numi_source_provenance.py\", line 211, in audit\n    raise ValueError(\"installed artifact hash mismatch\")\nValueError: installed artifact hash mismatch"
+  },
+  "extra_source": {
+    "returncode": 1,
+    "stderr": "Traceback (most recent call last):\n  File \"/Users/numi/numi-lab-autoload-package-source-20261108/python/metalrobo/numi_source_provenance.py\", line 239, in <module>\n    main()\n    ~~~~^^\n  File \"/Users/numi/numi-lab-autoload-package-source-20261108/python/metalrobo/numi_source_provenance.py\", line 233, in main\n    stamp(a.archive, a.expected_archive_sha256, a.expected_revision, a.source, a.prefix)\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/Users/numi/numi-lab-autoload-package-source-20261108/python/metalrobo/numi_source_provenance.py\", line 187, in stamp\n    verified = verify_archive(archive, expected_sha, expected_revision, source)\n  File \"/Users/numi/numi-lab-autoload-package-source-20261108/python/metalrobo/numi_source_provenance.py\", line 118, in verify_archive\n    raise ValueError(\"build source file set differs from archive\")\nValueError: build source file set differs from archive"
+  },
+  "independent_audit": {
+    "returncode": 0,
+    "stderr": ""
+  },
+  "restored_audit": {
+    "returncode": 0,
+    "stderr": ""
+  }
+}

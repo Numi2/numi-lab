@@ -1,0 +1,27 @@
+{
+  "changed_world": {
+    "balance": "guided held-out balance status unknown",
+    "message": "experiment complete \u00b7 balance evidence unavailable \u00b7 not loaded",
+    "role": "selected incumbent",
+    "should_load": false
+  },
+  "initial": {
+    "balance": "guided held-out balance status unknown",
+    "message": "experiment complete \u00b7 balance evidence unavailable \u00b7 not loaded",
+    "role": "selected incumbent",
+    "should_load": false
+  },
+  "metadata_complete": true,
+  "missing_world": {
+    "balance": "guided held-out balance status unknown",
+    "message": "experiment complete \u00b7 balance evidence unavailable \u00b7 not loaded",
+    "role": "selected incumbent",
+    "should_load": false
+  },
+  "restored": {
+    "balance": "guided held-out balance status unknown",
+    "message": "experiment complete \u00b7 balance evidence unavailable \u00b7 not loaded",
+    "role": "selected incumbent",
+    "should_load": false
+  }
+}

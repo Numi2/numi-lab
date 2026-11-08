@@ -1,0 +1,3 @@
+ca67f347fe48e531523c66cb5f3a8ac7ae5fa4bab5ec9514dcb3e3d40a2b3bab  /Users/numi/numi-lab-autoload-package-source-20261108/python/metalrobo/numi_source_provenance.py
+ca67f347fe48e531523c66cb5f3a8ac7ae5fa4bab5ec9514dcb3e3d40a2b3bab  /Users/numi/numi-verified-final-offline-20261108/installed/libexec/numi/numi_source_provenance.py
+d1b6ead785962f0c0061f15e6d4d80b32ccdbca8b08a1191077ff2951bcc62c1  /Users/numi/numi-verified-final-bundle-20261108.tar.gz
