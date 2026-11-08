@@ -1,0 +1,6 @@
+{
+  "actual_git_readback": true,
+  "includes_all_generated_fp32_candidate_arrays": true,
+  "post_execution_original_files_byte_exact": 67,
+  "scope": "Every restored original file remains byte exact after the analysis/native replay; modified metadata is separately bound by the post-execution temporary inventory."
+}

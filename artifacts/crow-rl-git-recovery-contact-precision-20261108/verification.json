@@ -1,0 +1,19 @@
+{
+  "all_scientific_and_defined_bytes_match": true,
+  "closure_handle_check": "Pending separate process after this executor exits; no cleanup authorized by this report alone",
+  "comparison_records": 18,
+  "goal_complete": false,
+  "manifest": "artifacts/crow-rl-contact-precision-20261108/payload/manifest.json",
+  "manifest_sha256": "c12159b01e536a5b415e51e2c98d4ccfd65d3facb77b4b5eb9fbbac543a6cd46",
+  "native_commands": 4,
+  "new_recovery_blobs": 43,
+  "policy_or_profile_promoted": false,
+  "report_audit_commands": 1,
+  "restored_bytes": 5010174,
+  "restored_files": 67,
+  "schema": "crow-contact-precision-executed-git-recovery-v1",
+  "scientific_analysis_commands": 8,
+  "scope": "Exact replay of retained numerical/native observations and local proof, not new ecological evidence or whole-system qualification.",
+  "temporary_bytes": 5708619,
+  "temporary_files": 147
+}

@@ -1,0 +1,128 @@
+[
+  {
+    "excluded_fields": [
+      "seconds"
+    ],
+    "report": "diagnosis.json",
+    "scientific_fields_exact": true,
+    "script": "diagnose.py"
+  },
+  {
+    "excluded_fields": [
+      "seconds"
+    ],
+    "report": "block-search-result.json",
+    "scientific_fields_exact": true,
+    "script": "block_search.py"
+  },
+  {
+    "excluded_fields": [
+      "seconds"
+    ],
+    "report": "lattice-search-result.json",
+    "scientific_fields_exact": true,
+    "script": "lattice_search.py"
+  },
+  {
+    "excluded_fields": [
+      "seconds"
+    ],
+    "report": "lattice-certificate.json",
+    "scientific_fields_exact": true,
+    "script": "lattice_certificate.py"
+  },
+  {
+    "excluded_fields": [
+      "seconds"
+    ],
+    "report": "chebyshev-search-result.json",
+    "scientific_fields_exact": true,
+    "script": "chebyshev_search.py"
+  },
+  {
+    "excluded_fields": [
+      "seconds"
+    ],
+    "report": "mixed-dual-certificate.json",
+    "scientific_fields_exact": true,
+    "script": "dual_mix.py"
+  },
+  {
+    "excluded_fields": [
+      "seconds"
+    ],
+    "report": "certificate-verification.json",
+    "scientific_fields_exact": true,
+    "script": "verify_certificate.py"
+  },
+  {
+    "excluded_fields": [
+      "seconds"
+    ],
+    "report": "local-box-proof.json",
+    "scientific_fields_exact": true,
+    "script": "prove_local_box.py"
+  },
+  {
+    "excluded_fields": [
+      "seconds"
+    ],
+    "report": "study-result.json",
+    "scientific_fields_exact": true,
+    "script": "summarize.py"
+  },
+  {
+    "actual": "generated/original/capture.bin",
+    "byte_exact": true,
+    "expected": "build/crow-contact-precision-build-01/native-01/original/capture.bin",
+    "sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f"
+  },
+  {
+    "actual": "generated/original/status.bin",
+    "byte_exact": true,
+    "expected": "build/crow-contact-precision-build-01/native-01/original/status.bin",
+    "sha256": "0c06a4eb90064fb1db299c1900f62dc69efc1b11afd7383ba843254152ace666"
+  },
+  {
+    "actual": "generated/rounded/capture.bin",
+    "byte_exact": true,
+    "expected": "build/crow-contact-precision-build-01/native-01/rounded/capture.bin",
+    "sha256": "45e28ebcc4fee5a43e659d0a76c1a2d32b7c6659a0646f060623059a111f53f6"
+  },
+  {
+    "actual": "generated/rounded/status.bin",
+    "byte_exact": true,
+    "expected": "build/crow-contact-precision-build-01/native-01/rounded/status.bin",
+    "sha256": "abe531f8362be02fe0b5a6b4e20de9fab7b04424132531dbce803067de558942"
+  },
+  {
+    "actual": "generated/chebyshev/capture.bin",
+    "byte_exact": true,
+    "expected": "build/crow-contact-precision-build-01/native-01/chebyshev/capture.bin",
+    "sha256": "6f495985e5391e000ca0bceb673a5d4d81bcceb48d6ea076689ce04d88848f62"
+  },
+  {
+    "actual": "generated/chebyshev/status.bin",
+    "byte_exact": true,
+    "expected": "build/crow-contact-precision-build-01/native-01/chebyshev/status.bin",
+    "sha256": "51d1742d667adce665352104b0a60296213ea1501b897efc37e274d8d2ceb855"
+  },
+  {
+    "actual": "generated/control/impulse.f32",
+    "byte_exact": true,
+    "expected": "build/crow-contact-precision-build-01/native-01/control/impulse.f32",
+    "sha256": "7a1768ff038302d8e5af83f9229df12b8b5155d54583aef08414a2e373880ddf"
+  },
+  {
+    "actual": "generated/control/status.bin",
+    "byte_exact": true,
+    "expected": "build/crow-contact-precision-build-01/native-01/control/status.bin",
+    "sha256": "5978e4590256bddf6c538ffcf30d1b614a077ff64343c325e5122399493e0852"
+  },
+  {
+    "actual": "generated/control/velocity.f32",
+    "byte_exact": true,
+    "expected": "build/crow-contact-precision-build-01/native-01/control/velocity.f32",
+    "sha256": "ee4620f6ecac23b3393603c7f914234979106da60658edcf1352d57f756890c8"
+  }
+]

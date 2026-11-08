@@ -1,0 +1,130 @@
+[
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/artifacts/crow-rl-contact-precision-20261108/diagnose.py"
+    ],
+    "name": "analysis-diagnose",
+    "returncode": 0,
+    "seconds": 0.44989150000037625
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/artifacts/crow-rl-contact-precision-20261108/block_search.py"
+    ],
+    "name": "analysis-block_search",
+    "returncode": 0,
+    "seconds": 2.3086890840204433
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/artifacts/crow-rl-contact-precision-20261108/lattice_search.py"
+    ],
+    "name": "analysis-lattice_search",
+    "returncode": 0,
+    "seconds": 1.3498268330004066
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/artifacts/crow-rl-contact-precision-20261108/lattice_certificate.py"
+    ],
+    "name": "analysis-lattice_certificate",
+    "returncode": 0,
+    "seconds": 0.7497580419876613
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/artifacts/crow-rl-contact-precision-20261108/chebyshev_search.py"
+    ],
+    "name": "analysis-chebyshev_search",
+    "returncode": 0,
+    "seconds": 1.5899774169665761
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/artifacts/crow-rl-contact-precision-20261108/dual_mix.py"
+    ],
+    "name": "analysis-dual_mix",
+    "returncode": 0,
+    "seconds": 1.108504791976884
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/artifacts/crow-rl-contact-precision-20261108/verify_certificate.py"
+    ],
+    "name": "analysis-verify_certificate",
+    "returncode": 0,
+    "seconds": 0.08950433298014104
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/artifacts/crow-rl-contact-precision-20261108/prove_local_box.py"
+    ],
+    "name": "analysis-prove_local_box",
+    "returncode": 0,
+    "seconds": 0.20963341696187854
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/artifacts/crow-rl-contact-precision-20261108/summarize.py"
+    ],
+    "name": "analysis-summarize",
+    "returncode": 0,
+    "seconds": 0.023583500005770475
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/build/crow-contact-precision-build-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/build/crow-contact-precision-build-01/substep7-capture.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/.numi/retained-runtime/contact-precision-20261108/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/generated/original"
+    ],
+    "name": "native-original",
+    "returncode": 0,
+    "seconds": 0.4999376669875346
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/build/crow-contact-precision-build-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/build/crow-contact-precision-build-01/substep7-capture.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/.numi/retained-runtime/contact-precision-20261108/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/generated/rounded",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/build/crow-contact-precision-build-01/rounded-reference-v.f32"
+    ],
+    "name": "native-rounded",
+    "returncode": 0,
+    "seconds": 0.09235058299964294
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/build/crow-contact-precision-build-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/build/crow-contact-precision-build-01/substep7-capture.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/.numi/retained-runtime/contact-precision-20261108/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/generated/chebyshev",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/build/crow-contact-precision-build-01/chebyshev-v.f32"
+    ],
+    "name": "native-chebyshev",
+    "returncode": 0,
+    "seconds": 0.09166345896665007
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/build/crow-contact-precision-build-01/warm-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/build/crow-contact-precision-build-01/control-substep2.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/.numi/retained-runtime/contact-precision-20261108/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/generated/control",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-contact-precision-git-recovery-01/build/crow-contact-precision-build-01/control-neighbor-v.f32"
+    ],
+    "name": "native-control",
+    "returncode": 0,
+    "seconds": 0.049034084018785506
+  }
+]
