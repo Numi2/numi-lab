@@ -20207,7 +20207,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             // On an initial empty binding cache, immutable uploads become
             // authoritative only when this command is submitted. An encode
             // failure must leave the cache empty so the next attempt uploads
-            // the bytes again. Shared-storage behavior remains unqualified.
+            // the bytes again. This guard is limited to private heaps.
             struct InitialUploadAbortGuard {
                 detail::MetalWorldContextState& state;
                 const bool armedInitially;
@@ -20246,6 +20246,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 }
             } initialUploadAbortGuard(
                 *selectedState,
+                selectedState->config.preferPrivateHeaps &&
                 !config.millardProgram.valid() &&
                 !config.multicopterProgram.valid() &&
                 !config.devicePhysicsProgram.valid()
