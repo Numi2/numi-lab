@@ -1,0 +1,870 @@
+{
+  "commit": "52ee7fbc12633b4788c2e512b1c0118b15e566bb",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 299424292 157924848    66% 3496531 1579248480    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 299693032 157656108    66% 3496703 1576561080    0%   /System/Volumes/Data\n",
+  "omitted_files": [
+    {
+      "bytes": 73522,
+      "git_blob": "10ad711ca1979443642044b30df12fded2a15f7f",
+      "path": "artifacts/crow-rl-object-curriculum-20261108/checkout-omission.json"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-object-curriculum-20261108/checkout-omission.stderr"
+    },
+    {
+      "bytes": 141,
+      "git_blob": "da3b9266b11e791d248e7004a61bd9fc76e53427",
+      "path": "artifacts/crow-rl-object-curriculum-20261108/checkout-omission.stdout"
+    },
+    {
+      "bytes": 2353,
+      "git_blob": "56e8c4b54b041c33665acc246720bc103b6cb587",
+      "path": "artifacts/crow-rl-object-curriculum-20261108/temporary-wrapper-log-cleanup.json"
+    },
+    {
+      "bytes": 12,
+      "git_blob": "57cdc50305d07f35133f80962644debd6b846bf3",
+      "path": "artifacts/crow-rl-object-learning-20261108/.gitattributes"
+    },
+    {
+      "bytes": 51,
+      "git_blob": "6a01e0767bddf5bec2ec90e56a911b44ab39446a",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/019c389129ac956ab1e3117acffa0ea73862e49355b44bcd83141a6565bdfac6.gz"
+    },
+    {
+      "bytes": 24088,
+      "git_blob": "63c23a4bf4355f6c3e2a07ca592eebf9f357d9d7",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/027321934ac8e90d413e669cc352b67887d25b32c44d77ab1cb9fd22c4a6386c.gz"
+    },
+    {
+      "bytes": 24089,
+      "git_blob": "76d53b60f732cf3943e68529407da0be5abd7d31",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/02f8f43d5a5a781f6adff68963a737fcd9657626bf5579d545fe4459c0bd9b58.gz"
+    },
+    {
+      "bytes": 529099,
+      "git_blob": "af4794ebeb1fafb7ee414c8554417e10080766bc",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/02fc7261192e1eafbc7e1e1fc2aeb6f6b0c6b337a4e9c75df29bd7300e4d9fb0.gz"
+    },
+    {
+      "bytes": 172294,
+      "git_blob": "db477f7045ddf2f07a040272504cbe3d1d6d9919",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/03e8e2ee729bd88a3403a69213801a72d668265e8d04862d54350b5e96c84e47.gz"
+    },
+    {
+      "bytes": 172614,
+      "git_blob": "2b7c5d191ded70d421f7d1a37ff3ac004ae44172",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/0513af61fd584cefd4d16ca02d3b3bbdc477b7842991a98fbcca35dfa5fdcc84.gz"
+    },
+    {
+      "bytes": 24089,
+      "git_blob": "ebbee0c64d0c8f0c93ec37f6209ff970c3de757f",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/0987b5ededd5a49141d674277ed7d5a7498c9f7d6692295b92dea0e2e363254f.gz"
+    },
+    {
+      "bytes": 11757877,
+      "git_blob": "cbc070001f24b4481467581e7ee23d6ec2b40026",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/0e37abd90baa008a6e7eb6576b49e21a22576fbdc842049e72be0e69132eb4a9.gz"
+    },
+    {
+      "bytes": 3046,
+      "git_blob": "7884abe5469c73a15f4041c0e7c58d6b400b623d",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/120b834b0c98282eea1653ca4735f0a631a4e620da2084bda074a684eef6fd46.gz"
+    },
+    {
+      "bytes": 315511,
+      "git_blob": "9c931b4d016a523917a9b38f6a3913d01bc4a137",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/18e19b7c37e246087ca8c76b08aafcc228116b0badf8962e0da0eb1bb4906e85.gz"
+    },
+    {
+      "bytes": 655,
+      "git_blob": "6b9ca10566e577583423a98acb11f07974dab10b",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/194982f7265770d9c7c30e69247d98d7335515e8272620a013d25467507cd052.gz"
+    },
+    {
+      "bytes": 1751,
+      "git_blob": "0dca5cfc7914cae392f82d8fb38e8ad66c8dd5d7",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/1ca76d9ef1f41224b17d0269d7bd574489b48317dd206491dc6b9805113a17e7.gz"
+    },
+    {
+      "bytes": 1901757,
+      "git_blob": "719f2871aa54425c442245dfcb0c2e5ddd6983cf",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/2042ef6a2bbce7a76e628b435714d925f89527a04c48c6448feef522c83af788.gz"
+    },
+    {
+      "bytes": 5190,
+      "git_blob": "51d2e6cd710edfdc04b280d1db11a311cbc999ed",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/206d6a4ce8b045ea5bf6220c6d3486125af19868de1a69683027a9c15894e092.gz"
+    },
+    {
+      "bytes": 2215278,
+      "git_blob": "1c1339ce0d64932c20887cd509be48492cd71c02",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/20c1554c8eeb20d1dc322518e6857361251b43a6df0311fed8e94b96121409a8.gz"
+    },
+    {
+      "bytes": 58675,
+      "git_blob": "70db090e781e23339e13abed2f37e001b0e79f9e",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/216c7fa746deaba74353af5df9d3afec9e474d3a24b99a7ca0c44992457c3316.gz"
+    },
+    {
+      "bytes": 7658348,
+      "git_blob": "8ba2a8f42edf3a4224c4a9b5f7f7f77701fa01f7",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/246c4c30fbd266f82db6e4ad6be6fe238ec81b4343754c27c88d3b875e6a167b.gz"
+    },
+    {
+      "bytes": 3052,
+      "git_blob": "9f25ed9f7765fb2711c295fe34c6e9432ba3bf5b",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/24747949319e95c620c86f00333667e462d1e612bc866f53df98b7731b3a8568.gz"
+    },
+    {
+      "bytes": 3654,
+      "git_blob": "a95d8a3c1835c25208abcb77d9171d1509657fba",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/2608bb60c8179a2cb02f099271ed5fd587e311d423a46cda0b45cff4e495a050.gz"
+    },
+    {
+      "bytes": 2611,
+      "git_blob": "dcce0d91a17423bbe55025e4bbe2e876f6658316",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/2777d3d1c331cf586f01e836eef8d6093b7c219209f5582b4345f1990559fd14.gz"
+    },
+    {
+      "bytes": 633,
+      "git_blob": "8612f14f190a248796baa84bb9938ac7e35fd59b",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/2972ca063bcd924a1c9db6f66a51bdbade069a271f943570f9e78b0552bc0ac6.gz"
+    },
+    {
+      "bytes": 24089,
+      "git_blob": "b403244e7d44c613e167a4939867819d1cd95e24",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/29ab35b2333bd249cd8499e8030b50d5a49ccc18948fd6b5ace7b1c735c81477.gz"
+    },
+    {
+      "bytes": 16624,
+      "git_blob": "fd59782f80fa205f7dd469f88e7c94fedfc603fc",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/29bb00a8c0c4d0b670408f6d953ddf691cbe464164e8d60968df57689f12c74c.gz"
+    },
+    {
+      "bytes": 22891879,
+      "git_blob": "b8953c2a6239146a5271fa1798425d8036db03ec",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/2b42b528b4d36f86217beadbe6f67661847b84df4f472d1fbf9fd742dbef3739.gz"
+    },
+    {
+      "bytes": 3742,
+      "git_blob": "aa04caa3e5fcea1f7a3f48281cd2c68efc2e576b",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/2c844817d825e57a03eefd2f632d7b8fe2058ff96c303bfc8d16fbf3e313dcee.gz"
+    },
+    {
+      "bytes": 483,
+      "git_blob": "f69e64fb9bd0e37d4ce7074cc69874d65ea2d3cc",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/2db4b20d84805e08023e77f6f55fd183e5a1e6f90f44a3a83e6b2ffa1e33508d.gz"
+    },
+    {
+      "bytes": 25572400,
+      "git_blob": "4ede83ac96b31b0282fc0809cf2a742a346a3a71",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/2ff9553879771148c7db7a626506aa7d467f2444a97e30f958fb32cddffe038b.gz"
+    },
+    {
+      "bytes": 19532809,
+      "git_blob": "e60f2b2fdc5a4ec573ed2b1a2feeb121dc46442d",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/3009e150b36beb6b69d3cb366859ef1b8377d1c5fa815c78206f234774ea9509.gz"
+    },
+    {
+      "bytes": 645,
+      "git_blob": "9b6e00eaa611acff2aa51d47388c82065ea81cc4",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/327b4cfe931e60ca0c23d7bcf47f643ab4a533a2f759e143017a6aecd7ca2249.gz"
+    },
+    {
+      "bytes": 70188,
+      "git_blob": "530b9585c063c93f464c4012f7aa232fab241616",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/34b1c4eed6b36aad496894c280cead1445c874233d0211b9f149d22a81058133.gz"
+    },
+    {
+      "bytes": 640,
+      "git_blob": "5f9aa63100bf65fad49fb7da632dd3c5b432e3c2",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/35da358641fce86ed697f88104f1e896f1df3d1273768b95d535d7a9840a2eb3.gz"
+    },
+    {
+      "bytes": 1138,
+      "git_blob": "4013cdbba0fdadd3cb46ed431467bdb55f46bc74",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/39f93aa1f8c759a067d7f07272a35ef09352f9fc11eafe654de77bfc6089133e.gz"
+    },
+    {
+      "bytes": 814,
+      "git_blob": "1bbfa45e305bd179acbe62f43b995954c7b67278",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/3cdf2cc67365e0adb728292d4b626ed2392fd081c449d7099485073f6745f847.gz"
+    },
+    {
+      "bytes": 638,
+      "git_blob": "5fa1d8a57f985905e81bc952ea88e5790e67269e",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/3d732ce0f786cd8f6eb026d9a9166a599446a5182a5b5695674d4b46b6626297.gz"
+    },
+    {
+      "bytes": 73002,
+      "git_blob": "85262cb61329cb2c36a58e0e6b27399d1a002a7c",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/40e101b17d898fcacb8f0da0c3585067f488e13469e52bca44a8febdcddeef83.gz"
+    },
+    {
+      "bytes": 636,
+      "git_blob": "e0f6e114a61debf6e92c5ec2ef20b4a8ddc97ba7",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/432cd472475160597e223dcb45fcd8436f7af56b8adafe4377c423f2ccebf955.gz"
+    },
+    {
+      "bytes": 169430,
+      "git_blob": "2123f382b76fcbff203e808aed920a611606cb15",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/44bd35cf4207f9f7cdea5443b08e9eecafe06cdcd3b854ded9e2695967b01b0b.gz"
+    },
+    {
+      "bytes": 70298,
+      "git_blob": "58992e5d9112bca3032b50ec2cdd781da53897f3",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/4a020fc527d4ca4499771dfbd5092f09c049a6e8ca736d50351601cb0b80a1fb.gz"
+    },
+    {
+      "bytes": 1013,
+      "git_blob": "75b8523cc069e04e6a3a29f92635196742bdb2d9",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/4a3bf401cd5c261c7eb2609f7bc01085968a39296d44d626413adc7d7efaaf30.gz"
+    },
+    {
+      "bytes": 71,
+      "git_blob": "f7bd6921bc6018e3c8cd2de36c86ce0726e5372c",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/4a6af9881379481f2eb15be8ac9c2d22de360c952fd27879740105530bbfb42b.gz"
+    },
+    {
+      "bytes": 369,
+      "git_blob": "ac3eb86d77f31da1012b7312bbaa5b69fa6723c0",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/4c5dfe3e223c2bacd0525201000752705affa85c82911fb033b9263cd56293f4.gz"
+    },
+    {
+      "bytes": 527983,
+      "git_blob": "05e70d089f9fd6a7fcbc4a5b0513ac7ce1da247f",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/4cb95b87d594adad289cd5504b15214da09e2a009b0f70532e6bc3aac1fbbd60.gz"
+    },
+    {
+      "bytes": 1179,
+      "git_blob": "606a14e2c1710208b764eda511c35427a51c3749",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/4eea92fd12fc03f57343c70518bb89ac4ffb60f6be4509814348c319db213b64.gz"
+    },
+    {
+      "bytes": 24088,
+      "git_blob": "055b8402ade185a1718c957b6b447eb7c3cb243e",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/4fcfef6763233d8486761c004d8c1590bc33bd4b2b1add06309074286b006a0b.gz"
+    },
+    {
+      "bytes": 4306,
+      "git_blob": "6f0ba4cfd6823c473728062dd7608497a4ebe549",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/4ffca263de89bbcf36af909547ffc96600cf1eedb3e60092a6c7ac048c66cd83.gz"
+    },
+    {
+      "bytes": 646,
+      "git_blob": "f2d1c4851ab07e7371835fbb6cfe9231e35e4dd1",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/507f9918c76db7952d86a9c0f32c232df99107a5a7c46852e64db107c34a5ef9.gz"
+    },
+    {
+      "bytes": 86,
+      "git_blob": "b82f875d66fe4be679f0d7659b416e3ae1300d80",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/51329afed7cf012775ce0acde9de834c39a0ca7857b770efb17b7ee25780e89f.gz"
+    },
+    {
+      "bytes": 1287,
+      "git_blob": "90c13bbd4917f5f2dfbe5df2942346296fb745e8",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/5613ac159837a838c7cfffd7a9a648a86352fa9c1190eef9878fb0faf0cef5d3.gz"
+    },
+    {
+      "bytes": 559,
+      "git_blob": "6337cca3ac75c7de686b7022d9673195517f0a14",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/5652c3c452202e49c4859e2eab7b6b4fe601b6af941ec035f2886dd61fb686bb.gz"
+    },
+    {
+      "bytes": 22845181,
+      "git_blob": "91a948170842fd12e6e146e0d70b844cf7ad82b1",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/5d944247310cd03e603aab825c201fc3e5589abbe8bd5c20f198b5c808da3202.gz"
+    },
+    {
+      "bytes": 3784,
+      "git_blob": "3cf7033a8795b2174f3a529a3dea982690fac2fb",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/5eb3863b263060ee04d93d8c7c364d27bfc35cc0f69b704af913fad5f8c14ba4.gz"
+    },
+    {
+      "bytes": 184727,
+      "git_blob": "f2277b372c3701b0ba2aff436fd90fc5b6db7e99",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/5f11f8e12e63ffe2eba1771d48948586c10d1210062fd0abba761dde31576b07.gz"
+    },
+    {
+      "bytes": 3053,
+      "git_blob": "8d4f97639a7c04c1ef2b25d460125542da2e93e2",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/625b8b484d5c0c39e1c1e70a203011fb5934bcee0bb6458c923ad2bd3cf8ac0f.gz"
+    },
+    {
+      "bytes": 1169,
+      "git_blob": "10b9caafc9de7743f758e2c570e16eef71c915bb",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/6d6de1e694a1c52eed251e1e6f6a99607a02a3b48cbfa5a514bfc8ce347ae66b.gz"
+    },
+    {
+      "bytes": 659,
+      "git_blob": "1bcb45e1759be52528e5110bb962ea9f48f8956f",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/6e8d9c022df6ed0312b6f1b93533a933fbc1b4d10aae99e4edcc09f849ce81d8.gz"
+    },
+    {
+      "bytes": 2828,
+      "git_blob": "920d96abe3e05a51ef084a2d9bd88539197b79a9",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/6f0b0c9ccc95ec0b822ef034e0362ac75716461e466475df844ae83c993180a7.gz"
+    },
+    {
+      "bytes": 71,
+      "git_blob": "15834ed13b76a5b418d8f6981c0acce0b56b2789",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/7fb3b9f4d56ef13e37596291f59481acdc5849cd401ad57854534073deb51332.gz"
+    },
+    {
+      "bytes": 1192,
+      "git_blob": "30f447631e1e7c877e046a1077b210b72076dcb6",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/829fb155828489352f056252ab0016296b793aa67b4f1b6c6005397c410a707e.gz"
+    },
+    {
+      "bytes": 527922,
+      "git_blob": "32c1fe7b07bf03332ca6c181f960632d457c2199",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/8334437985903b8aee5fe6f0c0d180fbf9784f8d15c1de34f7d9f375b9b669a1.gz"
+    },
+    {
+      "bytes": 169435,
+      "git_blob": "ddc1866934921833d86e125145d1d5097178b07c",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/835769d634ef956f7b2ba16400ed015c0540803df3e78426f6204e54cf03438a.gz"
+    },
+    {
+      "bytes": 24089,
+      "git_blob": "82471bda5a28b6aa581c4ef6cbf6a0b73fa807da",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/88e6670b21798da50311a58d9b161c18b25385c88855a1444dfbad4b9ba04c4f.gz"
+    },
+    {
+      "bytes": 24132,
+      "git_blob": "4564f1225add28c20c4d1e31286da935347c4b5c",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/8d00f17ef2b694bf5f114843b91bde2778be4f001b5b763e2368be1d799056a1.gz"
+    },
+    {
+      "bytes": 2233098,
+      "git_blob": "d34fb41a5c88dea6ddaade736f9b437930ca090c",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/902ce8bff0cdf660667048e2223a7617e3d346906792dd440d01bb4ae5831bca.gz"
+    },
+    {
+      "bytes": 24088,
+      "git_blob": "808792a172e4142f59e400a25b72f7fad72c61f0",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/916d9da0be0a76d1296fb0f99cd354309333fc49ed35e740ab1ca4c1a212b94a.gz"
+    },
+    {
+      "bytes": 219,
+      "git_blob": "336744c639f645dc63071b63fd7e93edd15cfff1",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/93079d88d8b1349cd09b6caff66ffe992449d07b0342e9bf2139f6c2fba260f5.gz"
+    },
+    {
+      "bytes": 19805706,
+      "git_blob": "2f9ff1b6a359a193e9541cc95e05638610ce7d25",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/940619a545075429fef69b45940f449da594b7db61cd98a56e3dec6c366f778b.gz"
+    },
+    {
+      "bytes": 527289,
+      "git_blob": "d095f11993e5c63ea35ec51526e1458e4d580d1c",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/942064f8d665555cde2b9d58b19c55741dbe9f943fe98b74749ffc3feeeed779.gz"
+    },
+    {
+      "bytes": 1684,
+      "git_blob": "1f8b30638f4309e49587e49eec646936c726b851",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/98bd658a0a007b3d4a26948719a3cb68dee055d821c172a1fc0e1eb14b199d1a.gz"
+    },
+    {
+      "bytes": 559,
+      "git_blob": "c60f38e8699110ad036e032094bb354673ee7d42",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/991d80ba70d2f700d08c1cc760a6639300ebe077fc47a2f7bdc1c192d9719a35.gz"
+    },
+    {
+      "bytes": 659,
+      "git_blob": "187385d0f9de551a48d84564cefab998c310f81f",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/9a0a2c10e285c0f4047a80a780837708d5b92d8e96605d3f7850142717e08fca.gz"
+    },
+    {
+      "bytes": 25605823,
+      "git_blob": "a4baed0da672c3e9dfd7530c910845acd0d06e13",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/9db6dc2eed313f1b919f1aa5f87823a92e3e1e9b42f630771f6889283209f9b3.gz"
+    },
+    {
+      "bytes": 25500066,
+      "git_blob": "a5579feb5e5592342808d2f104cde811abd7711d",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/9e2b2ca783821222023fe732e3d82c0f9a2b76a4d835843711c5c558e8f82aad.gz"
+    },
+    {
+      "bytes": 1265,
+      "git_blob": "0e16e289ef0e399554853c7312fa1882897b7322",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/9f340e250983865df306ffe6a91db8369abcc44a27267750e46def9e24d6adb5.gz"
+    },
+    {
+      "bytes": 3162,
+      "git_blob": "8d0c3c51a61ab1ed08e9e839d7d28b4b16721eeb",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/a3411b268782f10e590b03afe43bd77e9936ebf24039690a775586b7d0d4c335.gz"
+    },
+    {
+      "bytes": 12000,
+      "git_blob": "665940c4a846f010057aed6104551807ec947fce",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/a345bb037587b0bf4517d5cd5e370387c10bf75c9c4bd6a77d51be7f4026cd9e.gz"
+    },
+    {
+      "bytes": 66965,
+      "git_blob": "afd8d11ac3af8a9f3330136342073a20e807109a",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/a5163aa8982e393c29ab4c9cf9535d3feb30b68e31c0be954f1dc2d5cc0782cf.gz"
+    },
+    {
+      "bytes": 218,
+      "git_blob": "ee93580b73f92277126396004be7e087223c46e6",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/a5b1c43b557f719eefa257ae5dabae38586dde618f66395f97a2b1553b62cbf7.gz"
+    },
+    {
+      "bytes": 3227,
+      "git_blob": "4f71ddeb7e0978c7785d09fb64a0ab8867614ee4",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/a650a395522e3d4269eae44b3d533ad809bdd63c54d1086205f0a9801fa357b8.gz"
+    },
+    {
+      "bytes": 1916322,
+      "git_blob": "128992d2b0c280f6cda0fd1249f4babac6483699",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/a73d2660f3c82c23c9114e824b1fe4d44159eb0a988740bc96c45fe79cab6791.gz"
+    },
+    {
+      "bytes": 530282,
+      "git_blob": "0ce91b75e3a0778c4163463047584f95393d4af6",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/ab38fa781b060a9a79f1e9d9305b28772fd0a54c6f7e4c5da5294d9b409c570a.gz"
+    },
+    {
+      "bytes": 18422186,
+      "git_blob": "a9d03b7d648d0818596ef18123b6d8bf1397f7d5",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/ab923b8ab4027c5305ff935fbf0e80e4a89b1f9e1d10041d0094c457e94b977e.gz"
+    },
+    {
+      "bytes": 5190,
+      "git_blob": "94bdb20a8149cda18807bd6344c9100c39652789",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/b0cdbb99067091ee228e55e797258fabc1830634547bd309d085363682fbc5b1.gz"
+    },
+    {
+      "bytes": 24089,
+      "git_blob": "133cd99240df019d550b397107a6352453c8a44e",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/b36abc014f3b021e66268a58df3e8549abd3b6deae4c8a08e2f6c19cce33b64c.gz"
+    },
+    {
+      "bytes": 24087,
+      "git_blob": "44fb031192765dbeeaab473e066a5ebcc412d76b",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/b52010753a37f770ecb89bdace60b6e83206f814dcf30a07ffcab5c0609e8705.gz"
+    },
+    {
+      "bytes": 49731,
+      "git_blob": "0da78ca4464d363a8e48e29fe2895d15c96e1faf",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/bbbbee62292545d6ee0a3b4573c3f4ebb61b6eb67413c7f4185c318c8be1490c.gz"
+    },
+    {
+      "bytes": 505301,
+      "git_blob": "62ac3df31ba52c7dd421eef24373c60540677eef",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/bd8ee1f883de79f9fcb9cb164fe0579aaffde898a7405eb67304b7752d10e63f.gz"
+    },
+    {
+      "bytes": 654,
+      "git_blob": "4a228d6a47ceef1cad45c00472c43701d94c2fe0",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/bed5d0a9c7fdaebf5797eac65aa605bd66d149ac59237f804870c6ad9ebd1bd8.gz"
+    },
+    {
+      "bytes": 24065,
+      "git_blob": "7535284b3c18b19aebb1925c3dd02bd601db6d62",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/bf54a760ae954b23aa4b1287e7bc4e1070a774ed40c51dd633d89708f9b452da.gz"
+    },
+    {
+      "bytes": 59898,
+      "git_blob": "00dd24dbfbd6a8bb129c964904fd70d72e476d32",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/c155d00e42463d08d5753f254a8d045362d604679ebaf2fb8c9550cb92ffd983.gz"
+    },
+    {
+      "bytes": 646,
+      "git_blob": "d77c812babf600ac008c812c8b790f94efcbb682",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/c1f756734661a90c1f25a5850fa81b53c85a974027eafd56cb2075b69a1e5455.gz"
+    },
+    {
+      "bytes": 4281,
+      "git_blob": "004d9cf9106787652978457ea20f68c9075d7aca",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/c2131fe1cb2f6b10f1d1d5562f1b8d46331b4c976f8deb8886a4275e6f2e0234.gz"
+    },
+    {
+      "bytes": 60299,
+      "git_blob": "e244a09af6f642efc2dea409b85afd1d3b1be633",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/c995b59785e1e614de026783f646cd42e68e0d46094ce60ee2e4fb9625660051.gz"
+    },
+    {
+      "bytes": 1013,
+      "git_blob": "fe4db6a71c4462394704992d6879d78175c89c71",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/ca0b2db1d9138af56dc6a39173e6443adc195643089f3cc5dd03a5b1379af875.gz"
+    },
+    {
+      "bytes": 4300,
+      "git_blob": "264335c89d335b2d4200a41fe61edeca58110308",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/cb36238ae30c503cdd0523f92af36b8e0f98bfac33ebfa0f6a437bf16cb7d649.gz"
+    },
+    {
+      "bytes": 161,
+      "git_blob": "05a44c6924affeed48ca7b4f3c1bcbf1e384ac77",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/cf2fa566565b6ad3ff37a9463bb7db5c7d4947702dff0fbd0f8f44d8bc5ecf7f.gz"
+    },
+    {
+      "bytes": 4269,
+      "git_blob": "ecbe20381e65f7868f86496b6599b3e133970caf",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/cf399f921cb5af395dc4a2fb658c3980db6b15d0a5dd26db5797c1025cae1db6.gz"
+    },
+    {
+      "bytes": 172595,
+      "git_blob": "fe83fc9b33e96728bb89a91ec5e8563ef8a13a45",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/d07725f21ff9b03ddb8cdc9beb9265f3ce864a952acc377ee0768b6f42a0eb81.gz"
+    },
+    {
+      "bytes": 184440,
+      "git_blob": "6e1dc280615dfea89717d8e0d71cc7e5627669fe",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/d4af70e9a06360ef8682e102b8ba291a5791ad7ae949fec4e04ad592f52e67be.gz"
+    },
+    {
+      "bytes": 988,
+      "git_blob": "252f2a0a4c2dc052aa22697d55cad4241e750849",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/d57b697c3cea177d1f0a5ad85771ffd7cb6f1e5503ecc6495a78f404df31e53d.gz"
+    },
+    {
+      "bytes": 167972,
+      "git_blob": "42fdc720b1351353bb2c4ee20ff44c3cc8ccef5c",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/d6c548bdfac2cc7550cea1f205741f973fec24fb9885ab1beb7a879609cd1297.gz"
+    },
+    {
+      "bytes": 2519,
+      "git_blob": "f1ad367d0df375184d763b3646c40042169acb6a",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/d9d3e5cc26bb3fc20a5dfbb3a64792148bcab836ce02ab932b05115019640ddc.gz"
+    },
+    {
+      "bytes": 1951557,
+      "git_blob": "0da7ce4eb3af30ab299e2840eacd4e3cd9d04b3c",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/dea2a959a1f3e576c6ade126baaa949c580ed237de3740c979c564a6ab44783e.gz"
+    },
+    {
+      "bytes": 60297,
+      "git_blob": "7a08f2c8fad3c0135e50ed0f1985b42a18cd6c51",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/deee21f5e55bebf3b1a9fe698388710aaade2b4d8785727bd675059e41a6bf0c.gz"
+    },
+    {
+      "bytes": 169421,
+      "git_blob": "da5903b7cceac2c14a29fd951139fad8110217c9",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/e0bf138085872e35c23bb54a46836fd68fba041a733d3a07a73190ce69cffa11.gz"
+    },
+    {
+      "bytes": 181309,
+      "git_blob": "87f34111d915ae85ef444e229990cd03cdc6f221",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/e140255d5d4deb1256f9e5dfab627dd57f60bc0757b69544a3e6b8c85b37f990.gz"
+    },
+    {
+      "bytes": 1746,
+      "git_blob": "24749acc5d667d840f4e34caeef00a23cfc20d33",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/e2b7c8d4beac02f097032dc6da8dab6aef1ac0e213e9cb978b0d0ec0286a55f9.gz"
+    },
+    {
+      "bytes": 1164,
+      "git_blob": "2873dd57b1c9fd22c8450e58bd8d8533f74aba0d",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/e30c592f481d7b613657830440ec382af0e8fc4e4bb42e181e736bceb88af6b6.gz"
+    },
+    {
+      "bytes": 172584,
+      "git_blob": "a326960ef827338fe0d8612fb7a1f4e26caba468",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/e44142ed181229fd4cc5dd70848f732ff52ea7c4b4ce1e17c29e143ee5d2153e.gz"
+    },
+    {
+      "bytes": 368,
+      "git_blob": "7bed2fc3d2950633b6f177720a049530e98194c1",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/e61da8a5e2d3e2ac7925e0c26992a77bdbf7bf29260af9f74049580a8151c4c2.gz"
+    },
+    {
+      "bytes": 2520,
+      "git_blob": "5db7cf9c72ac7cba5391e9a976724ee6f2f2b445",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/e85fdd592e6716b138079a649dfdac1ab7d72103b15312066618e8e598c5a0af.gz"
+    },
+    {
+      "bytes": 70393,
+      "git_blob": "50e549b4b96c6adcfabf9672e02180eed6605da0",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/ee88495c295b94917d257553440a803c356600b6c10b5a28275c6066dc7f0aab.gz"
+    },
+    {
+      "bytes": 24091,
+      "git_blob": "4baf4b6c4a82d0eff98980716195ad5c9e174879",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/efd7f875e7e35d4f71cf360afd26780e974048e9dd27496e5fa9637a0dcc0667.gz"
+    },
+    {
+      "bytes": 5274,
+      "git_blob": "63d4725e4bf864b913796efc57cfc46e4f912152",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/f0882a369b722379e6bf1e16f43096ec5b1cc2c11f70cb9c119cbabca44b8fc2.gz"
+    },
+    {
+      "bytes": 11785266,
+      "git_blob": "3c47818ac81032aab442293a66cb91a8815ed26e",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/f21a6d8e93edfc919b239484e6ae9e994b4248da6259a8fbf978c1de905d6ab0.gz"
+    },
+    {
+      "bytes": 1071,
+      "git_blob": "7035ab6249880146861d0372f9c624de12c78276",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/f258aa391621d0dbd98ad7e4b3a744890c40029626541525b405b95498ff1ebf.gz"
+    },
+    {
+      "bytes": 60299,
+      "git_blob": "aa3fe3525ca59363af7a50ba7106ca02e7fa0197",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/f287c7e958c901e5bf253b3a784feda6a621fab1e36c119504678c3ce389e7b7.gz"
+    },
+    {
+      "bytes": 1204,
+      "git_blob": "409d7c6df61957c66683bcf6c4c0265bd1c9cdcb",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/f49ad8636361b0062179ffcc3c8f325b62af6dff6fcb8c5a8c0a18438ee2e6dc.gz"
+    },
+    {
+      "bytes": 838,
+      "git_blob": "6c818b6e78df1334f9cfaff7cfad7d9cc5994dcf",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/f517152ea028f94e05db969ac326539127bfb2e56fc7fce9316fc324a28dc63f.gz"
+    },
+    {
+      "bytes": 634,
+      "git_blob": "e3e6baf415520ab65869c628523115dbbdd0a91a",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/f5d1b74f0fdde2498af8db0a416f9a1144a87555b0b701c73818eea11f41a6df.gz"
+    },
+    {
+      "bytes": 638,
+      "git_blob": "e602279896f52ea3d800e1455e301d18c1e4a496",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/f8530858206ed9bcc000bbae737ab9cca266f4fe03c3ce4171f812846e0a2ca4.gz"
+    },
+    {
+      "bytes": 19775995,
+      "git_blob": "5c994f2de094796e3781dfaa2b24f4de599fa052",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/fb09104dc94ef7c029c8f29a347418af079d094adfaa1a2e433556b5dc17e109.gz"
+    },
+    {
+      "bytes": 3156,
+      "git_blob": "7072959683dc07ac46de0c0f5e63545d318b147c",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/fd503554ccb23b4e91b2aabbb9a7f8e60d799322dc474ab4d16deb50d2aef720.gz"
+    },
+    {
+      "bytes": 25519899,
+      "git_blob": "a0a3d6ab7b6a85bbd89d618df5236de8e1004d19",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/ff0f612bbad4edcf477c8aa4e68fffa9ea3443e8704ca217dd397fb071d5a269.gz"
+    },
+    {
+      "bytes": 315872,
+      "git_blob": "1768a7ec6f5c9fa2f7e7f966aa8560f1beb4ea39",
+      "path": "artifacts/crow-rl-object-learning-20261108/blobs/ff376c64f63949204b89f0e35416b6034abf7f9e8f9743c5c509353ac4ee219c.gz"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-object-learning-20261108/capture.stderr"
+    },
+    {
+      "bytes": 597,
+      "git_blob": "455b798f122f20291c00e90a08d2d825f938d0d6",
+      "path": "artifacts/crow-rl-object-learning-20261108/capture.stdout"
+    },
+    {
+      "bytes": 1308,
+      "git_blob": "b33302ed2402de2549d4d9fb9e6f9845eef2b317",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-amplitude-control.command.json"
+    },
+    {
+      "bytes": 233,
+      "git_blob": "0fc72484fcdcf3dda6cdf52a0f3ad34065fb5449",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-amplitude-control.receipt.json"
+    },
+    {
+      "bytes": 84711,
+      "git_blob": "3ba235852b7e4e5c0495254ab35e3db26a09cbd2",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-amplitude-control.stderr"
+    },
+    {
+      "bytes": 23449,
+      "git_blob": "9a8ac17275e6463ef873bdb9d636d6f23259f840",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-amplitude-control.stdout"
+    },
+    {
+      "bytes": 1304,
+      "git_blob": "69371da77ca6eae0f2e1e4d1c0c4b6f600a2aba8",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-amplitude-offset.command.json"
+    },
+    {
+      "bytes": 232,
+      "git_blob": "9010b7530f4add2fa75cfba6b3b64cd8590e586f",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-amplitude-offset.receipt.json"
+    },
+    {
+      "bytes": 84711,
+      "git_blob": "b793e534d9f1c84d0670ccd51922e71fe5b259e2",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-amplitude-offset.stderr"
+    },
+    {
+      "bytes": 23440,
+      "git_blob": "6ad1ddfdb23c002a8931ed147352faf139315af7",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-amplitude-offset.stdout"
+    },
+    {
+      "bytes": 1271,
+      "git_blob": "206db527c5b71a9cb8df236f2d0951f20cdf8d5c",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-final-a.command.json"
+    },
+    {
+      "bytes": 233,
+      "git_blob": "de5c04871b7dd23ea754c9d18bc9fae2504d41d6",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-final-a.receipt.json"
+    },
+    {
+      "bytes": 84711,
+      "git_blob": "bb5bc7bd5521fea5f1236194a22ec32448475cef",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-final-a.stderr"
+    },
+    {
+      "bytes": 23423,
+      "git_blob": "90a938a5942e569242d701260641d6dcf2b33838",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-final-a.stdout"
+    },
+    {
+      "bytes": 1271,
+      "git_blob": "48fe146902c90514d389c0bec8168d463e57e276",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-final-b.command.json"
+    },
+    {
+      "bytes": 233,
+      "git_blob": "f8a6cffe8a48573af25a5ebc06afafd1c3a550d4",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-final-b.receipt.json"
+    },
+    {
+      "bytes": 84711,
+      "git_blob": "0f4fd40a9d901a2df8655d225ed5f0495d01b15f",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-final-b.stderr"
+    },
+    {
+      "bytes": 23403,
+      "git_blob": "24a22bff95b898e44529474c850bc12f6c26ffe3",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-final-b.stdout"
+    },
+    {
+      "bytes": 1279,
+      "git_blob": "1619ba66fbf70546c0d12c2add9e1766bbaa6d1c",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-initial-a.command.json"
+    },
+    {
+      "bytes": 233,
+      "git_blob": "f62280f40abd68567f4f4369f466e48f2b3af66f",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-initial-a.receipt.json"
+    },
+    {
+      "bytes": 84711,
+      "git_blob": "1f98736b0278c7234b19cf72d65532deefbf77fe",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-initial-a.stderr"
+    },
+    {
+      "bytes": 23415,
+      "git_blob": "3c1be7eee9ba42141dda5c772949311929cbfabb",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-initial-a.stdout"
+    },
+    {
+      "bytes": 1279,
+      "git_blob": "44ca7e36de844eba0ba6a0f163bcb59027159224",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-initial-b.command.json"
+    },
+    {
+      "bytes": 233,
+      "git_blob": "e5da43fc3dd5ee7808dfd52105945b8c940b02dd",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-initial-b.receipt.json"
+    },
+    {
+      "bytes": 84711,
+      "git_blob": "79fb155df42f612d1ea8f2951788342ba4d45e0a",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-initial-b.stderr"
+    },
+    {
+      "bytes": 23419,
+      "git_blob": "b5c6a2ff461bd0d0841447440521b33e396c2a3a",
+      "path": "artifacts/crow-rl-object-learning-20261108/evaluation-initial-b.stdout"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-object-learning-20261108/git-object-verification.stderr"
+    },
+    {
+      "bytes": 198,
+      "git_blob": "ecb5347e8fa94cdc76f20704a1b6acdc4c5b23bc",
+      "path": "artifacts/crow-rl-object-learning-20261108/git-object-verification.stdout"
+    },
+    {
+      "bytes": 473,
+      "git_blob": "f09bc6d23f4f1148d67fdc7295d205566132dd11",
+      "path": "artifacts/crow-rl-object-learning-20261108/post-training-system.json"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-object-learning-20261108/raw-cleanup.stderr"
+    },
+    {
+      "bytes": 1287,
+      "git_blob": "d773c09555d4d801cd2046748c99f355d49ee80c",
+      "path": "artifacts/crow-rl-object-learning-20261108/raw-cleanup.stdout"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-object-learning-20261108/restoration.stderr"
+    },
+    {
+      "bytes": 72,
+      "git_blob": "b0b11288779445e1f1538cb12a1828446bded20a",
+      "path": "artifacts/crow-rl-object-learning-20261108/restoration.stdout"
+    },
+    {
+      "bytes": 2239,
+      "git_blob": "427164f064bc399874b373f38a1f67de5ac6efea",
+      "path": "artifacts/crow-rl-object-learning-20261108/training-recovery.command.json"
+    },
+    {
+      "bytes": 233,
+      "git_blob": "afe2849dde2906fc4ec815fa280e647bb6f60676",
+      "path": "artifacts/crow-rl-object-learning-20261108/training-recovery.receipt.json"
+    },
+    {
+      "bytes": 186164,
+      "git_blob": "76bdbf0c0fc7ecedbf18e34ef248e2bdf817ac6e",
+      "path": "artifacts/crow-rl-object-learning-20261108/training-recovery.stderr"
+    },
+    {
+      "bytes": 64241,
+      "git_blob": "82a404ae16bfcf808f034c08c2ec5b6049c86724",
+      "path": "artifacts/crow-rl-object-learning-20261108/training-recovery.stdout"
+    },
+    {
+      "bytes": 54880,
+      "git_blob": "788d7203ab759e8cde2733995bc963cbabbe418e",
+      "path": "artifacts/crow-rl-object-learning-20261108/verification-before-cleanup.json"
+    },
+    {
+      "bytes": 803,
+      "git_blob": "ce62d86891620e45c4ad7fba388b30fadc736a65",
+      "path": "artifacts/crow-rl-object-learning-20261108/verification-plan.json"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-object-learning-20261108/verification.stderr"
+    },
+    {
+      "bytes": 109,
+      "git_blob": "7d3c0c615de01e925333651f7689431ab7dd9501",
+      "path": "artifacts/crow-rl-object-learning-20261108/verification.stdout"
+    },
+    {
+      "bytes": 9457,
+      "git_blob": "5f07db7adf5f2dda7e60d88538c80aaf0c329efd",
+      "path": "artifacts/crow-rl-object-learning-20261108/verify_recovery.py"
+    }
+  ],
+  "omitted_logical_bytes": 274765263,
+  "open_handles": 0,
+  "preserved_input_prefixes": [
+    "artifacts/crow-rl-feeding-behavior-20261107/policies/",
+    "artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib",
+    "artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib"
+  ],
+  "remote_commit": "52ee7fbc12633b4788c2e512b1c0118b15e566bb"
+}

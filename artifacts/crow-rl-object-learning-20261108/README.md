@@ -167,3 +167,7 @@ restore tool with prefix
 Use the recorded exact runtime and learner recipe for further fixed-rate
 continuation; it begins at lifetime tick2560/episode16, with new native episode
 draws. The source/current feeding deployment remains separate.
+
+Verified raw cleanup removes158 files /729996028B. The checkout omission removes 171 duplicate files /274765263B after remote HEAD and Git-blob checks.
+All evidence remains recoverable from Git; compact reports and recovery metadata
+remain visible. Receipts record logical bytes rather than physical APFS recovery.
