@@ -1,0 +1,12 @@
+warmup status=0 published=1 success=2 failed=0
+warmup world env=0 code=0
+warmup world env=1 code=0
+warmup contact env=0 code=0 raw_required=0
+warmup contact env=1 code=0 raw_required=0
+snapshot=warmup depth_history=288 track_history=48 frame_depth=288 frame_id=1152 frame_valid=288 camera=32 actor_history_bytes=816 sequence=1 sensor=0 bindings=1
+test status=0 published=1 success=2 failed=0
+test world env=0 code=0
+test world env=1 code=0
+test contact env=0 code=0 raw_required=0
+test contact env=1 code=0 raw_required=0
+snapshot=test depth_history=288 track_history=48 frame_depth=288 frame_id=1152 frame_valid=288 camera=32 actor_history_bytes=816 sequence=2 sensor=1 bindings=1
