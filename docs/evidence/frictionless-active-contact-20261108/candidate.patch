@@ -1,0 +1,21 @@
+diff --git a/src/metal/MetalWorldContact.metal b/Users/numi/ccd-active-contact-20261108/candidate.metal
+index ba6c1693b..b4e17fd96 100644
+--- a/src/metal/MetalWorldContact.metal
++++ b/Users/numi/ccd-active-contact-20261108/candidate.metal
+@@ -1103,0 +1104,10 @@ inline float3 projectFrictionCone(
++inline void frictionlessNormalBlock(
++    thread float effective[3][3],
++    device const MREvaluatedConstraintIRConeGPU& cone
++) {
++    if (cone.effectiveFrictionU == 0.0f && cone.effectiveFrictionV == 0.0f) {
++        effective[0][1] = effective[0][2] = 0.0f;
++        effective[1][0] = effective[2][0] = 0.0f;
++    }
++}
++
+@@ -6717,0 +6728 @@ kernel void mr_world_wave32_distributed_prepare(
++            frictionlessNormalBlock(effective, evaluatedCones[constraintBase + localConstraint]);
+@@ -8154,0 +8166 @@ inline void mrWorldWave32SolvePacket(
++        frictionlessNormalBlock(effective, evaluatedCones[constraintBase + localConstraint]);
+@@ -10553,0 +10566 @@ kernel void mr_world_solve_contact_islands(
++            frictionlessNormalBlock(effective, evaluatedCones[constraintBase + localConstraint]);

@@ -1,0 +1,170 @@
+[
+  {
+    "angle": -0.370000004768,
+    "speed": -0.40000000596,
+    "iterations": 2,
+    "case": 0,
+    "final_clearance_m": -0.00029999359080143395
+  },
+  {
+    "angle": -0.370000004768,
+    "speed": -0.40000000596,
+    "iterations": 2,
+    "case": 1,
+    "final_clearance_m": 0.0001514484271889771
+  },
+  {
+    "angle": -0.370000004768,
+    "speed": -0.40000000596,
+    "iterations": 2,
+    "case": 2,
+    "final_clearance_m": 0.0015585329342814314
+  },
+  {
+    "angle": -0.370000004768,
+    "speed": -0.40000000596,
+    "iterations": 32,
+    "case": 0,
+    "final_clearance_m": -0.00029999359080143395
+  },
+  {
+    "angle": -0.370000004768,
+    "speed": -0.40000000596,
+    "iterations": 32,
+    "case": 1,
+    "final_clearance_m": 0.00015061533428081808
+  },
+  {
+    "angle": -0.370000004768,
+    "speed": -0.40000000596,
+    "iterations": 32,
+    "case": 2,
+    "final_clearance_m": 0.0015550918261366259
+  },
+  {
+    "angle": -0.370000004768,
+    "speed": -1,
+    "iterations": 2,
+    "case": 0,
+    "final_clearance_m": -0.0008999962969014341
+  },
+  {
+    "angle": -0.370000004768,
+    "speed": -1,
+    "iterations": 2,
+    "case": 1,
+    "final_clearance_m": 0.0004551435322133063
+  },
+  {
+    "angle": -0.370000004768,
+    "speed": -1,
+    "iterations": 2,
+    "case": 2,
+    "final_clearance_m": 0.001863990784717079
+  },
+  {
+    "angle": -0.370000004768,
+    "speed": -1,
+    "iterations": 32,
+    "case": 0,
+    "final_clearance_m": -0.0008999962969014341
+  },
+  {
+    "angle": -0.370000004768,
+    "speed": -1,
+    "iterations": 32,
+    "case": 1,
+    "final_clearance_m": 0.00045263587532334837
+  },
+  {
+    "angle": -0.370000004768,
+    "speed": -1,
+    "iterations": 32,
+    "case": 2,
+    "final_clearance_m": 0.0018588724737209766
+  },
+  {
+    "angle": 0.289999991655,
+    "speed": -0.40000000596,
+    "iterations": 2,
+    "case": 0,
+    "final_clearance_m": 0.001417974286566162
+  },
+  {
+    "angle": 0.289999991655,
+    "speed": -0.40000000596,
+    "iterations": 2,
+    "case": 1,
+    "final_clearance_m": 0.00011573869592304553
+  },
+  {
+    "angle": 0.289999991655,
+    "speed": -0.40000000596,
+    "iterations": 2,
+    "case": 2,
+    "final_clearance_m": -0.0002999989930397712
+  },
+  {
+    "angle": 0.289999991655,
+    "speed": -0.40000000596,
+    "iterations": 32,
+    "case": 0,
+    "final_clearance_m": 0.0014161161701571473
+  },
+  {
+    "angle": 0.289999991655,
+    "speed": -0.40000000596,
+    "iterations": 32,
+    "case": 1,
+    "final_clearance_m": 0.00011528510134906078
+  },
+  {
+    "angle": 0.289999991655,
+    "speed": -0.40000000596,
+    "iterations": 32,
+    "case": 2,
+    "final_clearance_m": -0.0002999989930397712
+  },
+  {
+    "angle": 0.289999991655,
+    "speed": -1,
+    "iterations": 2,
+    "case": 0,
+    "final_clearance_m": 0.0016512665274296123
+  },
+  {
+    "angle": 0.289999991655,
+    "speed": -1,
+    "iterations": 2,
+    "case": 1,
+    "final_clearance_m": 0.00034781336239389504
+  },
+  {
+    "angle": 0.289999991655,
+    "speed": -1,
+    "iterations": 2,
+    "case": 2,
+    "final_clearance_m": -0.0009000016990397819
+  },
+  {
+    "angle": 0.289999991655,
+    "speed": -1,
+    "iterations": 32,
+    "case": 0,
+    "final_clearance_m": 0.0016484988019173225
+  },
+  {
+    "angle": 0.289999991655,
+    "speed": -1,
+    "iterations": 32,
+    "case": 1,
+    "final_clearance_m": 0.00034646564527150703
+  },
+  {
+    "angle": 0.289999991655,
+    "speed": -1,
+    "iterations": 32,
+    "case": 2,
+    "final_clearance_m": -0.0009000016990397819
+  }
+]
