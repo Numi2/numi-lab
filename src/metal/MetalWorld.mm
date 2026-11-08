@@ -20207,7 +20207,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             // On an initial empty binding cache, immutable uploads become
             // authoritative only when this command is submitted. An encode
             // failure must leave the cache empty so the next attempt uploads
-            // the bytes again (also for shared-storage configurations).
+            // the bytes again. Shared-storage behavior remains unqualified.
             struct InitialUploadAbortGuard {
                 detail::MetalWorldContextState& state;
                 const bool armedInitially;
