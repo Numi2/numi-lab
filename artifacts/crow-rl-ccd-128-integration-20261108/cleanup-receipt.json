@@ -1,0 +1,27 @@
+{
+  "archive_commit": "4d0bdb9c8725be5b2d3b2deb9bcd0ed4b048e08d",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300217268 157131872    66% 3497174 1571318720    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300331920 157017220    66% 3497718 1570172200    0%   /System/Volumes/Data\n",
+  "manifest": "artifacts/crow-rl-ccd-128-integration-20261108/payload/manifest.json",
+  "manifest_sha256": "ca8d1f550b49daf9c8471cd076a6bc037ceb56d27b79c9eae171397666b34f7b",
+  "open_handle_checks": [
+    {
+      "exists": false,
+      "open_handles": 0,
+      "root": ".numi/runs/american-crow"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/retained-runtime"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": "build"
+    }
+  ],
+  "remote_commit": "4d0bdb9c8725be5b2d3b2deb9bcd0ed4b048e08d",
+  "removed_files": 494,
+  "removed_logical_bytes": 98709460
+}
