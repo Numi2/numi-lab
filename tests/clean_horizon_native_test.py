@@ -27,8 +27,11 @@ def run(command, *, cwd=None, env=None):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build", required=True, type=Path)
-    parser.add_argument("--policy-pack", type=Path,
-                        help="optional compatible policy; otherwise use zero actions")
+    policy_options = parser.add_mutually_exclusive_group()
+    policy_options.add_argument("--policy-pack", type=Path,
+                                help="optional compatible policy")
+    policy_options.add_argument("--self-policy", action="store_true",
+                                help="generate a runtime-compatible zero policy")
     args = parser.parse_args()
     build = args.build.resolve()
     rollout = build / "bin/metalrobo_task_rollout"
@@ -50,6 +53,8 @@ def main():
                 env["NUMI_HORIZON_FORCE_FAILURE"] = "1"
             run([str(generator)], cwd=case_dir, env=env)
 
+        generated_policy = None
+
         def evaluate(name, envs, chunk, steps, repeats=1):
             f = scratch / name / "fixture"
             command = [str(rollout), "--world-pack", str(f / "world.mrworld"),
@@ -60,11 +65,26 @@ def main():
                        "--envs", str(envs), "--chunk", str(chunk),
                        "--steps", str(steps), "--repeats", str(repeats),
                        "--seed", "4081019", "--metallib", str(metallib)]
-            if args.policy_pack and name == "normal":
-                command += ["--policy-pack", str(args.policy_pack.resolve())]
+            policy_path = args.policy_pack or generated_policy
+            if policy_path and name == "normal":
+                command += ["--policy-pack", str(policy_path.resolve())]
             else:
                 command += ["--zero-actions"]
             return json.loads(run(command))
+
+        if args.self_policy:
+            # Capture the contract from this executable and this exact fixture.
+            contract = evaluate("normal", 1, 1, 1)
+            policy_generator = scratch / "generate-policy"
+            run(["xcrun", "clang++", "-std=c++20", "-O0", "-I", str(ROOT / "include"),
+                 str(ROOT / "tests/fixtures/clean_horizon_policy.cpp"),
+                 "-L", str(library), "-lmetalrobo", f"-Wl,-rpath,{library}",
+                 "-o", str(policy_generator)])
+            generated_policy = scratch / "zero.policypack"
+            keys = ("world_fingerprint", "task_fingerprint", "observation_fingerprint",
+                    "action_fingerprint", "actor_observation_count", "action_count")
+            run([str(policy_generator), str(generated_policy)] +
+                [str(contract[key]) for key in keys])
 
         def check(name, envs, chunk, steps, repeats, expected_rate, reasons):
             outcome = evaluate(name, envs, chunk, steps, repeats)
