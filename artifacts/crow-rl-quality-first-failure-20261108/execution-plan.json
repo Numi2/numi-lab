@@ -1,0 +1,23 @@
+{
+  "build_passed": true,
+  "native_commands": 10,
+  "raw_bytes_before_run": 21354363,
+  "runner": "artifacts/crow-rl-quality-first-failure-20261108/run.py",
+  "source_and_runtime_sha256": {
+    ".numi/retained-runtime/quality-first-failure-20261108/contact-probe": "bd0777b062295b4e08a4722124665725cb6842506054d05357a6346a76d39293",
+    ".numi/retained-runtime/quality-first-failure-20261108/ir-probe": "80a77b7789e61262ef09f5a4377106e7f41994ae6774b45a9e1926a2a377646a",
+    ".numi/retained-runtime/quality-first-failure-20261108/libmetalrobo.dylib": "3ec0722fa588dd1ed2426c2ff4966d2157ddfeae1bfff9b6067c1d93fdbd2b42",
+    ".numi/retained-runtime/quality-first-failure-20261108/metalrobo/MetalRobo.metallib": "5c81c53dc3df1e860f39a048427707919d5be1129be7b64ebb5ea0acd5ba769a",
+    ".numi/retained-runtime/quality-first-failure-20261108/probe": "746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2",
+    "artifacts/crow-rl-quality-first-failure-20261108/plan.json": "d06f703640cbb396d72623d45ffa0115125fbc4fea1a7bd7fc642095b94be4b3",
+    "artifacts/crow-rl-quality-first-failure-20261108/replay.mm": "533df75029f913a4a80ec68ed1b0271387d6fe71d1449821ea00dc42dc9a69f8",
+    "artifacts/crow-rl-quality-first-failure-20261108/run.py": "dbd3d4a470f351a8bf91b88885be0dd9c7e8ca0e80947068ef6eeb7d8bcaf4ed",
+    "build/crow-quality-first-failure-build-01/replay": "f4bc4eeb113dd61a1aa5bde66685cb8a7e0e5004ef84f8e6655d470c85705ae4",
+    "include/metalrobo/engine_types.h": "891b9ccd844b0da9210f52d6c86e06823230b9c8be65666fb61d724e5566e495",
+    "include/metalrobo/unified_quality_capture_shared.h": "5ee8449a678a25b164b717bede06d02b9e294d3dcec0f10cbd8ae0feeacd7c6c",
+    "src/metal/MetalUnifiedQualitySolver.metal": "4497c4c45e870de5872995067370ad5af5a39a6ba1527313f6a12c3a9bda36ed",
+    "src/metal/MetalWorld.mm": "28ac088d4fb20f61fb4854c8c0f13e7bf7267df6eda9e676623782d1d3c6734c",
+    "src/metal/QualityFailureCapture.inc": "13b9b9ddc7a22ac335ace7ba875a8ffc2dd38f329b22f7d2f2ee4df6f8ea295d"
+  },
+  "timeout_seconds_each": 120
+}
