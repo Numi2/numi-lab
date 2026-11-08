@@ -20204,6 +20204,53 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 config.devicePhysicsProgram,
                 (__bridge void*)commandBuffer
             );
+            // On an initial empty binding cache, immutable uploads become
+            // authoritative only when this command is submitted. An encode
+            // failure must leave the cache empty so the next attempt uploads
+            // the bytes again. This guard is limited to private heaps.
+            struct InitialUploadAbortGuard {
+                detail::MetalWorldContextState& state;
+                const bool armedInitially;
+                bool armed;
+                const std::uint64_t devicePhysics;
+                const bool functionBased;
+                const std::uint64_t modelUploads;
+                std::vector<MRArticulationGPU> articulations;
+                explicit InitialUploadAbortGuard(
+                    detail::MetalWorldContextState& value,
+                    const bool supported
+                ) : state(value),
+                    armedInitially(supported && value.boundModelFingerprint == 0u &&
+                        value.boundTaskFingerprint == 0u &&
+                        value.boundPolicyFingerprint == 0u &&
+                        value.boundMulticopterFingerprint == 0u &&
+                        value.boundMillardFingerprint == 0u),
+                    armed(armedInitially),
+                    devicePhysics(value.boundDevicePhysicsFingerprint),
+                    functionBased(value.usesFunctionBasedDynamics),
+                    modelUploads(value.stats.modelUploadCount),
+                    articulations(armedInitially
+                        ? value.boundArticulations
+                        : std::vector<MRArticulationGPU>{}) {}
+                ~InitialUploadAbortGuard() noexcept {
+                    if (!armed) return;
+                    state.boundModelFingerprint = 0u;
+                    state.boundTaskFingerprint = 0u;
+                    state.boundPolicyFingerprint = 0u;
+                    state.boundMulticopterFingerprint = 0u;
+                    state.boundMillardFingerprint = 0u;
+                    state.boundDevicePhysicsFingerprint = devicePhysics;
+                    state.usesFunctionBasedDynamics = functionBased;
+                    state.stats.modelUploadCount = modelUploads;
+                    state.boundArticulations.swap(articulations);
+                }
+            } initialUploadAbortGuard(
+                *selectedState,
+                selectedState->config.preferPrivateHeaps &&
+                !config.millardProgram.valid() &&
+                !config.multicopterProgram.valid() &&
+                !config.devicePhysicsProgram.valid()
+            );
             uploadBatch(
                 *selectedState,
                 commandBuffer,
@@ -21292,6 +21339,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             }
             ++selectedState->stats.submissionCount;
             [commandBuffer commit];
+            initialUploadAbortGuard.armed = false;
             submission.state_ = std::move(pending);
             if (initializeResidentState) {
                 residentState->state_ = residentData;

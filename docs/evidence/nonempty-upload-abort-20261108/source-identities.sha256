@@ -1,0 +1,4 @@
+47ed7cf5cb2b7d3e5c180d6dda113f6decad95309205f7258835dc878f4c92d8  src/metal/MetalWorld.mm
+ac80cf974c0fc0ee76349ce1d47a9809e28ddb347fd9093ae89caeea5f8bbc12  tests/nonempty_upload_abort_owner_probe.mm
+06710df92f789c12886ec9b3038f2003e7dec1a7aa181c17eb97400afff93c5b  docs/evidence/nonempty-upload-abort-20261108/run.py
+29129a3ef28e02c8b7439bd746809b00fb8677ab1e8af86cfb39af19bb6c35eb  docs/evidence/nonempty-upload-abort-20261108/PLAN.md

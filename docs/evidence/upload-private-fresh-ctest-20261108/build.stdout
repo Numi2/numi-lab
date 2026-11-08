@@ -1,0 +1,132 @@
+[1/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/ArticulatedActuation.cpp.o
+[2/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/ArticulatedCollision.cpp.o
+[3/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/ArticulatedContact.cpp.o
+[4/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/ArticulatedDynamics.cpp.o
+[5/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/ArticulatedJointLimits.cpp.o
+[6/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/ArticulatedMixedConstraints.cpp.o
+[7/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/ArticulatedRigidCollision.cpp.o
+[8/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/ArticulatedRigidWorld.cpp.o
+[9/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/ArticulatedWorld.cpp.o
+[10/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/CompiledMetalMultiArticulatedContactProgram.cpp.o
+[11/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/Collision.cpp.o
+[12/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/CompiledMetalMultiArticulatedProgram.cpp.o
+[13/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/ConstraintIR.cpp.o
+[14/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/ConstraintSolver.cpp.o
+[15/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/CpuDynamics.cpp.o
+[16/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/CoupledArticulatedRigidContact.cpp.o
+[17/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/DiscreteElasticRod.cpp.o
+[18/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/EmbodiedTactile.cpp.o
+[19/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/EngineModel.cpp.o
+[20/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/EngineModelComposer.cpp.o
+[21/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/Franka.cpp.o
+[22/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/FrankaEngine.cpp.o
+[23/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/EpisodeTwinCompiler.cpp.o
+[24/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/FrankaHand.cpp.o
+[25/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/FreeBodyDynamics.cpp.o
+[26/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/G1.cpp.o
+[27/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/FrankaWorld.cpp.o
+[28/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/HeterogeneousWorld.cpp.o
+[29/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/GeometryCooker.cpp.o
+[30/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/HumanBehaviorAcceptedStateRoot.cpp.o
+[31/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/HumanBehaviorNativeAudit.cpp.o
+[32/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/HumanBehaviorProgram.cpp.o
+[33/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/HumanBehaviorStateComponents.cpp.o
+[34/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/HumanBehaviorTrial.cpp.o
+[35/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/HyperPolicyPacks.cpp.o
+[36/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/HyperPolicyProgram.cpp.o
+[37/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/LearningPacks.cpp.o
+[38/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/LocomotionWorld.cpp.o
+[39/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/MatterSnapshotArchive.cpp.o
+[40/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/MillardMuscleReference.cpp.o
+[41/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/Model.cpp.o
+[42/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/MotionCompiler.cpp.o
+[43/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/MujocoMuscleReference.cpp.o
+[44/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/MultiArticulatedWorld.cpp.o
+[45/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/Multicopter.cpp.o
+[46/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/MultiArticulatedContact.cpp.o
+[47/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NeuronCulture.cpp.o
+[48/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NeuronCultureEmbodiment.cpp.o
+[49/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NeuronCultureArtifacts.cpp.o
+[50/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NumanXExactTransaction.cpp.o
+[51/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NumiHumanCartilage.cpp.o
+[52/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NeuronCultureProtocol.cpp.o
+[53/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NumiHumanInitialState.cpp.o
+[54/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NumiHumanContinuumMap.cpp.o
+[55/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NumiHumanJointEquality.cpp.o
+[56/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NumiHumanKnee.cpp.o
+[57/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NumiHumanKneeContact.cpp.o
+[58/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NumiHumanLoadedKneeNumanX.cpp.o
+[59/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NumiHumanLoadedKnee.cpp.o
+[60/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NumiHumanProductionOwnerEvidenceWriter.cpp.o
+[61/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NumiHumanProductionOwnerSnapshot.cpp.o
+[62/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NumiHumanRuntimeIdentity.cpp.o
+[63/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NumiHumanMuscleEquilibrium.cpp.o
+[64/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NumiHumanSupport.cpp.o
+[65/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NumiHumanSourceConstraints.cpp.o
+[66/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NumiHumanTensionNetwork.cpp.o
+[67/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NumiHumanTendon.cpp.o
+[68/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NumiHumanTissueMass.cpp.o
+[69/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/OpenSimFunction.cpp.o
+[70/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/NumiHumanTissueBinding.cpp.o
+[71/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/OpenSimSpatialTransform.cpp.o
+[72/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/PX4X500.cpp.o
+[73/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/OpenSimMobileRoot.cpp.o
+[74/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/ParallelABASchedule.cpp.o
+[75/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/PolicyProgram.cpp.o
+[76/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/QualityContactSolver.cpp.o
+[77/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/ReferenceConicSolver.cpp.o
+[78/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/R2S2R.cpp.o
+[79/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/RigidBodyWorld.cpp.o
+[80/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/RobotDescriptionCooker.cpp.o
+[81/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/RunProgram.cpp.o
+[82/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/SurgicalKnot.cpp.o
+[83/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/SurgicalAssets.cpp.o
+[84/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/SurgicalThreadTargeting.cpp.o
+[85/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/SurgicalPSM.cpp.o
+[86/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/SurgicalVisual.cpp.o
+[87/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/SurgicalWorld.cpp.o
+[88/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/TactileDebug.cpp.o
+[89/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/Tactile.cpp.o
+[90/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/TaskProgram.cpp.o
+[91/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/VisualPlatform.cpp.o
+[92/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/VisualPresentation.cpp.o
+[93/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/Wave.cpp.o
+[94/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/WorldCompiler.cpp.o
+[95/103] Building CXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/core/WorldPack.cpp.o
+[96/103] Building OBJCXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/metal/MetalWorld.mm.o
+[97/103] Building OBJCXX object CMakeFiles/numi_ccd_world_owner.dir/Users/numi/numi-lab-main-upload-abort-20261108/src/metal/MetalArticulatedOperator.mm.o
+/Users/numi/numi-lab-main-upload-abort-20261108/src/metal/MetalArticulatedOperator.mm:4944:29: warning: 'fastMathEnabled' is deprecated: first deprecated in macOS 15.0 - Use mathMode instead [-Wdeprecated-declarations]
+ 4944 |         standCompileOptions.fastMathEnabled = NO;
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework/Headers/MTLLibrary.h:326:39: note: 'fastMathEnabled' has been explicitly marked deprecated here
+  326 | @property (readwrite, nonatomic) BOOL fastMathEnabled API_DEPRECATED("Use mathMode instead", macos(10.11, 15.0), ios(8.0, 18.0));
+      |                                       ^
+1 warning generated.
+[98/103] Linking CXX static library libnumi_ccd_world_owner.a
+[99/103] Generating shaders/MetalRobo.metallib
+/Users/numi/numi-lab-main-upload-abort-20261108/src/metal/NumiHumanStand.metal:2696:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns = (equalityColumnsEnd + nv) * nv;
+               ^
+/Users/numi/numi-lab-main-upload-abort-20261108/src/metal/NumiHumanStand.metal:2811:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns =
+               ^
+2 warnings generated.
+/Users/numi/numi-lab-main-upload-abort-20261108/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/numi/numi-lab-main-upload-abort-20261108/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+In file included from /Users/numi/numi-lab-main-upload-abort-20261108/src/metal/MujocoMuscleReferenceCompensated.metal:4:
+/Users/numi/numi-lab-main-upload-abort-20261108/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/numi/numi-lab-main-upload-abort-20261108/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+[100/103] Building OBJCXX object CMakeFiles/metalrobo_initial_upload_abort_probe.dir/Users/numi/numi-lab-main-upload-abort-20261108/tests/initial_upload_abort_owner_probe.mm.o
+[101/103] Building OBJCXX object CMakeFiles/metalrobo_nonempty_upload_abort_probe.dir/Users/numi/numi-lab-main-upload-abort-20261108/tests/nonempty_upload_abort_owner_probe.mm.o
+[102/103] Linking CXX executable metalrobo_initial_upload_abort_probe
+[103/103] Linking CXX executable metalrobo_nonempty_upload_abort_probe
