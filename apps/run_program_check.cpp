@@ -757,6 +757,12 @@ int main() {
             << compiledNavigation.task().fingerprint()
             << " crow_navigation_v10_world="
             << compiledNavigation.world().fingerprint()
+            << " active_head_navigation_actor_observations="
+            << compiledActiveNavigation.task().layout().actorObservationSize
+            << " active_head_navigation_critic_observations="
+            << compiledActiveNavigation.task().layout().criticObservationSize
+            << " active_head_navigation_actions="
+            << compiledActiveNavigation.task().actionBindings().size()
             << " transactional=yes\n";
         return 0;
     } catch (const std::exception& error) {
