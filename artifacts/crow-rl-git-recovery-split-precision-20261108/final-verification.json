@@ -1,0 +1,21 @@
+{
+  "current_runtime_and_policy_match_committed_baseline": true,
+  "data_available_GiB": 149.73955917358398,
+  "df": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300335832 157013308    66% 3497969 1570133080    0%   /System/Volumes/Data\n",
+  "goal_complete": false,
+  "manifest_sha256": "a30cd5e398f1857147bcf7ee9cdfd38cd043535c1c3e483ffe6875b1315b09fb",
+  "original_files_verified": 82,
+  "original_unique_contents_verified": 52,
+  "own_native_workers": [],
+  "policy_promoted": false,
+  "production_changes": [],
+  "raw_and_temporary_scopes_absent": [
+    "build/crow-split-precision-build-01",
+    "build/crow-split-precision-git-recovery-01"
+  ],
+  "recovery_files_verified": 163,
+  "recovery_unique_contents_verified": 82,
+  "remote_commit": "12b84b853aa891569c29833f31be417f58506d8f",
+  "shared_git_provider": "/Users/n/MetalRobo-main/.git",
+  "verification_commit": "12b84b853aa891569c29833f31be417f58506d8f"
+}
