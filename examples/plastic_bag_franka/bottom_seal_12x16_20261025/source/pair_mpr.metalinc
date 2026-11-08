@@ -1,0 +1,133 @@
+// Minkowski portal refinement adapted from libccd's BSD-licensed mpr.c.
+// Copyright (c) 2010, 2011 Daniel Fiser. See LIBCCD-BSD-LICENSE.txt.
+// Native Metal implementation: analytic cylinder supports, bounded iterations,
+// explicit unresolved status, and boundary witnesses for reciprocal response.
+struct PBMPRShape { float3 delta,axisA,axisB; float radius,halfThickness; };
+inline PBSupport pb_mpr_support(const PBMPRShape s,const float3 d){
+ PBSupport p;
+ const float aa=dot(s.axisA,d),ab=dot(s.axisB,-d);
+ const float3 ra=cross(s.axisA,cross(d,s.axisA));
+ const float3 rb=cross(s.axisB,cross(-d,s.axisB));
+ const float la=length(ra),lb=length(rb);
+ p.bary=(la>1.e-10f?s.radius*ra/la:float3(0))+s.halfThickness*sign(aa)*s.axisA;
+ p.arm=(lb>1.e-10f?s.radius*rb/lb:float3(0))+s.halfThickness*sign(ab)*s.axisB;
+ p.v=s.delta+p.bary-p.arm;return p;
+}
+#include "pair_epa.metalinc"
+inline bool pb_mpr_direction(thread PBSupport* p,thread float3& n){
+ const float3 q=cross(p[2].v-p[1].v,p[3].v-p[1].v);
+ const float l=length(q);if(l<1.e-15f)return false;n=q/l;return true;
+}
+inline void pb_mpr_expand(thread PBSupport* p,const PBSupport q){
+ const float3 c=cross(q.v,p[0].v);
+ if(dot(p[1].v,c)>0.0f){if(dot(p[2].v,c)>0.0f)p[1]=q;else p[3]=q;}
+ else{if(dot(p[3].v,c)>0.0f)p[2]=q;else p[1]=q;}
+}
+// -1: supporting-plane separation. 0: unresolved (caller rejects interval).
+// 1: converged penetration/touching. Normal points from B toward A.
+inline int pb_pair_mpr_raw(const PlasticBagCoinGPU a,const PlasticBagCoinGPU b,
+ const float R,const float h,thread float& depth,thread float3& normal,
+ thread float3& armA,thread float3& armB){
+ constexpr float tolerance=5.e-8f;
+ depth=0.0f;normal=float3(1,0,0);armA=armB=float3(0);
+ PBMPRShape s;s.delta=pb_coin_difference(a,b);
+ s.axisA=normalize(pb_rotate(float4(a.orientation),float3(0,1,0)));
+ s.axisB=normalize(pb_rotate(float4(b.orientation),float3(0,1,0)));
+ s.radius=R;s.halfThickness=h;
+ // Parallel finite cylinders have an exact axial/radial minimum translation.
+ // This also handles planar cap and coincident-center degeneracy without EPA.
+ if(length(cross(s.axisA,s.axisB))<1.e-7f){
+  const float axial=dot(s.delta,s.axisA);const float3 radial=s.delta-axial*s.axisA;
+  const float radialLength=length(radial),axialDepth=2.0f*h-abs(axial),radialDepth=2.0f*R-radialLength;
+  if(min(axialDepth,radialDepth)<-tolerance)return -1;
+  depth=max(0.0f,min(axialDepth,radialDepth));
+  if(axialDepth<=radialDepth)normal=(axial>=0.0f?1.0f:-1.0f)*s.axisA;
+  else normal=radialLength>1.e-12f?radial/radialLength:normalize(cross(s.axisA,abs(s.axisA.x)<.8f?float3(1,0,0):float3(0,1,0)));
+  armA=-.5f*s.delta;armB=.5f*s.delta;return 1;
+ }
+ 
+ PBSupport p[4];p[0].v=s.delta;p[0].bary=p[0].arm=float3(0);
+ float3 d=length_squared(s.delta)<1.e-18f?float3(1,0,0):-normalize(s.delta);p[1]=pb_mpr_support(s,d);
+ if(dot(p[1].v,d)<-tolerance)return -1;
+ if(length(p[1].v)<=tolerance){normal=-d;return 1;}
+ d=cross(p[0].v,p[1].v);
+ if(length_squared(d)<=1.e-12f*length_squared(p[0].v)*length_squared(p[1].v)){
+  const float3 axis=normalize(p[1].v-p[0].v);
+  const float3 ref=abs(axis.x)<.8f?float3(1,0,0):float3(0,1,0);
+  const float3 u=normalize(cross(axis,ref)),v=cross(axis,u);
+  p[2]=pb_mpr_support(s,u);p[3]=pb_mpr_support(s,v);
+  return pb_pair_epa_bounded(s,p,depth,normal,armA,armB);
+ }
+ d=normalize(d);p[2]=pb_mpr_support(s,d);
+ if(dot(p[2].v,d)<-tolerance)return -1;
+ d=cross(p[1].v-p[0].v,p[2].v-p[0].v);
+ if(length_squared(d)<1.e-30f)return 0;d=normalize(d);
+ if(dot(d,p[0].v)>0.0f){const PBSupport q=p[1];p[1]=p[2];p[2]=q;d=-d;}
+ bool discovered=false;
+ for(uint iteration=0u;iteration<64u;++iteration){
+  p[3]=pb_mpr_support(s,d);if(dot(p[3].v,d)<-tolerance)return -1;
+  bool replaced=false;
+  if(dot(cross(p[1].v,p[3].v),p[0].v)<0.0f){p[2]=p[3];replaced=true;}
+  else if(dot(cross(p[3].v,p[2].v),p[0].v)<0.0f){p[1]=p[3];replaced=true;}
+  if(!replaced){discovered=true;break;}
+  d=cross(p[1].v-p[0].v,p[2].v-p[0].v);
+  if(length_squared(d)<1.e-30f)return 0;d=normalize(d);
+ }
+ if(!discovered)return 0;
+ bool enclosed=false;
+ for(uint iteration=0u;iteration<64u;++iteration){
+  if(!pb_mpr_direction(p,d))return 0;
+  const float plane=dot(p[1].v,d);
+  if(plane>=0.0f){enclosed=true;break;}
+  const PBSupport q=pb_mpr_support(s,d);const float support=dot(q.v,d);
+  if(support<-tolerance)return -1;
+  const float improvement=support-min(dot(p[1].v,d),min(dot(p[2].v,d),dot(p[3].v,d)));
+  if(improvement<=tolerance){normal=-d;return 1;}
+  pb_mpr_expand(p,q);
+ }
+ if(!enclosed)return 0;
+ return pb_pair_epa_bounded(s,p,depth,normal,armA,armB);
+}
+
+// A second independent convex construction handles a failed portal/polytope.
+// Every successful early return is certified by an analytic supporting plane.
+inline int pb_pair_portal_gjk(const PlasticBagCoinGPU a,const PlasticBagCoinGPU b,
+ const float R,const float h,thread float& depth,thread float3& normal,
+ thread float3& armA,thread float3& armB){
+ const int result=pb_pair_mpr_raw(a,b,R,h,depth,normal,armA,armB);if(result!=0)return result;
+ float3 dir=pb_coin_difference(b,a);
+ if(length_squared(dir)<1.e-20f)dir=float3(1,0,0);dir=normalize(dir);
+ PBSupport simplex[4];simplex[0]=pb_pair_support(a,b,dir,R,h);uint count=1u;float3 closest=simplex[0].v,wa,wb;
+ for(uint iteration=0u;iteration<64u;++iteration){
+  const float distance=length(closest);if(distance<2.e-8f)break;
+  const float3 n=closest/distance;const PBSupport support=pb_pair_support(a,b,-n,R,h);
+  const float gap=dot(support.v,n);
+  if(gap>5.e-8f){depth=0.0f;normal=n;return -1;}
+  if(gap>=-5.e-7f){
+   depth=0.0f;normal=n;
+   const float3 delta=pb_coin_difference(a,b);
+   const float3 mid=.5f*(delta+support.bary+support.arm);armA=mid-delta;armB=mid;return 1;
+  }
+  bool duplicate=false;for(uint j=0u;j<count;++j)duplicate=duplicate||length_squared(simplex[j].v-support.v)<1.e-20f;
+  if(duplicate||count>=4u)break;
+  simplex[count++]=support;closest=pb_convex_simplex(simplex,count,wa,wb);
+ }
+ return 0;
+}
+
+// Collision geometry is invariant under exchanging A and B. A reflected
+// portal/simplex can avoid a floating-point sliver in the first construction.
+// Keep every original tolerance and unresolved outcome; accept only a resolved
+// result from the same MPR/EPA/GJK query with reciprocal normal and witnesses.
+inline int pb_pair_mpr(const PlasticBagCoinGPU a,const PlasticBagCoinGPU b,
+ const float R,const float h,thread float& depth,thread float3& normal,
+ thread float3& armA,thread float3& armB){
+ const int status=pb_pair_portal_gjk(a,b,R,h,depth,normal,armA,armB);
+ if(status!=0)return status;
+ float reverseDepth;float3 reverseNormal,reverseArmA,reverseArmB;
+ const int reverse=pb_pair_portal_gjk(b,a,R,h,reverseDepth,reverseNormal,reverseArmA,reverseArmB);
+ if(reverse==0)return 0;
+ depth=reverseDepth;normal=-reverseNormal;
+ armA=reverseArmB;armB=reverseArmA;
+ return reverse;
+}

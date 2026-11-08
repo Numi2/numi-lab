@@ -3,3 +3,4 @@ matter/examples/cardboard/source-data/johnson_popil_2016_pin_strength_summary_di
 matter/examples/cardboard/source-data/popil_2012_ect_rate_fit.csv whitespace=cr-at-eol
 # Preserve native evidence logs byte-for-byte; diagnostics may include trailing spaces.
 matter/examples/cardboard/evidence/native-implementation-20261014/**/*.log whitespace=-blank-at-eol
+*.pdf binary

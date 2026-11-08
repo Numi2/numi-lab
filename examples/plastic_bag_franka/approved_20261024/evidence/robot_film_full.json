@@ -1,0 +1,8 @@
+{
+  "states": 1921,
+  "through_s": 8,
+  "intersection_state_count": 0,
+  "events": [],
+  "narrow_phase_links": 2898,
+  "scope": "Native saved film against authored robot visual meshes; excludes the compliant rubber contact patches and substep events."
+}

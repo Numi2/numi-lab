@@ -1,0 +1,46 @@
+{
+  "continuous_native_checkpoint_run": true,
+  "hz": 240,
+  "duration_s": 8,
+  "states": 1921,
+  "segments": [
+    {
+      "name": "prior first_landing",
+      "first_step": 0,
+      "last_step": 240
+    },
+    {
+      "name": "prior combined before closure",
+      "first_step": 240,
+      "last_step": 600
+    },
+    {
+      "name": "outside-corner lift",
+      "first_step": 600,
+      "last_step": 1440
+    },
+    {
+      "name": "release on lift completion",
+      "first_step": 1440,
+      "last_step": 1516
+    },
+    {
+      "name": "reciprocal contact continuation",
+      "first_step": 1516,
+      "last_step": 1920
+    }
+  ],
+  "executed_gripper_prefix_exact": true,
+  "physics_state_joins_exact": true,
+  "no_interpolated_or_render_engine_motion": true,
+  "initial_transform_m": [
+    0,
+    0.25,
+    0
+  ],
+  "initial_coins_at_rest": true,
+  "release_begin_s": 6.2,
+  "outside_corner_offset_m": 0.006,
+  "contact_geometry": "Stock 17 mm rubber faces derived from native articulated finger bodies9/10; all material nodes dynamic.",
+  "numerical_budget": "Unchanged material/contact equations and tolerances; reciprocal body-order MPR/EPA/GJK retry on unresolved queries added after step1516. Bounded exact rollback."
+}

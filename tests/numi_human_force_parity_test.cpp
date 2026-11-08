@@ -1,5 +1,6 @@
 #include "metalrobo/NumiHumanForceParity.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
@@ -60,6 +61,9 @@ int main() {
         require(!metalrobo::compareNumiHumanUnconstrainedVelocityParity(
                     first, first, 0.0).valid,
                 "zero timestep was admitted");
+        require(!metalrobo::compareNumiHumanUnconstrainedVelocityParity(
+                    first, first, -1.0e-4).valid,
+                "negative timestep was admitted");
         require(!metalrobo::compareNumiHumanUnconstrainedVelocityParity(
                     first, first, std::numeric_limits<double>::infinity()).valid,
                 "non-finite timestep was admitted");

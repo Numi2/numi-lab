@@ -1,0 +1,22 @@
+{
+  "receiver_pad_center_local_z_m": 0.0565,
+  "stock_pad_center_local_z_m": 0.0445,
+  "rubber_pad_forward_extension_m": 0.012,
+  "carrier_front_recess_m": 0.01,
+  "receiver_carrier_size_m": [
+    0.004,
+    0.008,
+    0.004
+  ],
+  "physical_world_pad_trajectory_byte_identical": true,
+  "world_pad_path_sha256": "330b17493ed62b4db3c038b6f1383eae555bc5aa889e1381056e942db070392b",
+  "native_fk_matching_max_errors": {
+    "center_m": 4.25653473166688e-09,
+    "normal": 2.189193994363108e-08,
+    "tangent": 2.1891884717685098e-08,
+    "half_gap_m": 7.28583859910259e-17
+  },
+  "robot2_sha256": "72f4be27b827188cf4a0f22e3e691cfecf397069a2dbef68d5b5aee475ea6625",
+  "physical_equivalence": "World pad geometry, forces, contact coefficients, film dynamics and actuator work unchanged. Authored receiver fixture and its full native rigid FK now keep the housing behind the contact faces. Saved-state geometry must pass again.",
+  "not_stock_hardware": true
+}

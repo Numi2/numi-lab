@@ -1,5 +1,10 @@
 # Matter
 
+This research integration retains the [default-branch README snapshot](docs/evidence/reconciliation-branch-documents-20261108/default-numisolver-README.md)
+for its robotics platform and evidence history. That snapshot was authored at
+the repository root; its relative links are historical. The integrated build,
+visible Window workflow, and full physical qualification remain in progress.
+
 Matter is Numi Lab's Apple-native variational solver for coupled FEM, MPM,
 mixed fields, internal material variables, and every contact involving a Matter
 continuum. The `coupled` branch has one GPU-resident nonlinear authority rather

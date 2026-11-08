@@ -1,0 +1,131 @@
+{
+  "scope": "Six paired eight-interval native measurements: settled-table approach and held-bag lift, exclusive GPU execution; no full-scene throughput claim",
+  "pairs": [
+    {
+      "checkpoint_step": 240,
+      "repetition": 0,
+      "order": [
+        "baseline",
+        "skip"
+      ],
+      "byte_equivalence": {
+        "trajectory.json": true,
+        "latest_checkpoint.bin": true,
+        "solver_accuracy.csv": true,
+        "energy_balance.csv": true,
+        "grip_history.csv": true
+      },
+      "baseline_gpu_ms": 11698.36258,
+      "skip_gpu_ms": 11595.3885,
+      "baseline_wall_s": 11.78149142,
+      "skip_wall_s": 11.65593388,
+      "gpu_reduction_percent": 0.8802435323388758
+    },
+    {
+      "checkpoint_step": 240,
+      "repetition": 1,
+      "order": [
+        "skip",
+        "baseline"
+      ],
+      "byte_equivalence": {
+        "trajectory.json": true,
+        "latest_checkpoint.bin": true,
+        "solver_accuracy.csv": true,
+        "energy_balance.csv": true,
+        "grip_history.csv": true
+      },
+      "baseline_gpu_ms": 11719.93554,
+      "skip_gpu_ms": 11601.69625,
+      "baseline_wall_s": 11.80320108,
+      "skip_wall_s": 11.66337721,
+      "gpu_reduction_percent": 1.0088732109186926
+    },
+    {
+      "checkpoint_step": 240,
+      "repetition": 2,
+      "order": [
+        "baseline",
+        "skip"
+      ],
+      "byte_equivalence": {
+        "trajectory.json": true,
+        "latest_checkpoint.bin": true,
+        "solver_accuracy.csv": true,
+        "energy_balance.csv": true,
+        "grip_history.csv": true
+      },
+      "baseline_gpu_ms": 11712.97367,
+      "skip_gpu_ms": 11600.54216,
+      "baseline_wall_s": 11.79597092,
+      "skip_wall_s": 11.6609,
+      "gpu_reduction_percent": 0.9598886940894058
+    },
+    {
+      "checkpoint_step": 960,
+      "repetition": 0,
+      "order": [
+        "baseline",
+        "skip"
+      ],
+      "byte_equivalence": {
+        "trajectory.json": true,
+        "latest_checkpoint.bin": true,
+        "solver_accuracy.csv": true,
+        "energy_balance.csv": true,
+        "grip_history.csv": true
+      },
+      "baseline_gpu_ms": 11891.34658,
+      "skip_gpu_ms": 11750.65042,
+      "baseline_wall_s": 11.97800712,
+      "skip_wall_s": 11.81147763,
+      "gpu_reduction_percent": 1.1831810556815814
+    },
+    {
+      "checkpoint_step": 960,
+      "repetition": 1,
+      "order": [
+        "skip",
+        "baseline"
+      ],
+      "byte_equivalence": {
+        "trajectory.json": true,
+        "latest_checkpoint.bin": true,
+        "solver_accuracy.csv": true,
+        "energy_balance.csv": true,
+        "grip_history.csv": true
+      },
+      "baseline_gpu_ms": 11901.78963,
+      "skip_gpu_ms": 11761.32042,
+      "baseline_wall_s": 11.98470688,
+      "skip_wall_s": 11.82541937,
+      "gpu_reduction_percent": 1.1802360348054597
+    },
+    {
+      "checkpoint_step": 960,
+      "repetition": 2,
+      "order": [
+        "baseline",
+        "skip"
+      ],
+      "byte_equivalence": {
+        "trajectory.json": true,
+        "latest_checkpoint.bin": true,
+        "solver_accuracy.csv": true,
+        "energy_balance.csv": true,
+        "grip_history.csv": true
+      },
+      "baseline_gpu_ms": 11923.86033,
+      "skip_gpu_ms": 11791.14075,
+      "baseline_wall_s": 12.00527254,
+      "skip_wall_s": 11.85057687,
+      "gpu_reduction_percent": 1.1130588276523246
+    }
+  ],
+  "all_saved_state_and_checkpoint_bytes_equal": true,
+  "median_gpu_reduction_percent": 1.0609660192855086,
+  "minimum_gpu_reduction_percent": 0.8802435323388758,
+  "maximum_gpu_reduction_percent": 1.1831810556815814,
+  "unchanged": "Material/contact equations, active film/self/table/grip passes, tolerances and adaptive budgets",
+  "change": "Skip coin-only Metal dispatches when active coin count is zero"
+}

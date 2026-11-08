@@ -1,0 +1,14 @@
+{
+  "max_boundary_penetration_mm": 0.0004793666880877241,
+  "event": {
+    "time_s": 6.29583333333,
+    "pair": [
+      0,
+      1
+    ]
+  },
+  "samples_per_coin": 1795,
+  "pair_queries": 18650,
+  "states": 1921,
+  "method": "dense finite-cylinder surface and interior witnesses, both directions, normalized quaternions; positive sampled penetration proves overlap, no samples does not prove full nonintersection"
+}

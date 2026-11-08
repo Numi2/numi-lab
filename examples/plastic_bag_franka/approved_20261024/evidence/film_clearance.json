@@ -1,0 +1,17 @@
+{
+  "frames":1921,
+  "film_gauge_um":75,
+  "distance_queries":354588,
+  "distance_queries_not_converged_to_0_1nm":157,
+  "minimum_mid_surface_distance_lower_bound_um":36.9419471978,
+  "minimum_mid_surface_distance_upper_bound_um":36.9419988086,
+  "minimum_thickness_clearance_lower_bound_um":-0.558052802238,
+  "clearance_time_s":5.21666666667,
+  "clearance_coin":8,
+  "clearance_triangle":432,
+  "max_full_triangle_mid_sheet_penetration_mm":0,
+  "penetration_time_s":-1,
+  "penetration_coin":-1,
+  "penetration_triangle":-1,
+  "frame_coin_pairs_over_0_1mm":0
+}

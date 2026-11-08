@@ -1,0 +1,62 @@
+{
+  "full_native_run": true,
+  "duration_s": 8,
+  "native_hz": 240,
+  "saved_states": 1921,
+  "coin_count": 0,
+  "requested_corner_lift_m": 0.5,
+  "actual_corner_lift_m": 0.5012958347009999,
+  "initial_drop_clearance_m": 0.25,
+  "minimum_saved_film_outer_table_gap_m": 1.5049999954974236e-09,
+  "max_accepted_frame_energy_balance_J": 2.1584845629483e-07,
+  "max_energy_balance_to_tolerance_ratio": 0.09799991225120208,
+  "final_grip_contact_nodes": 0,
+  "grip": {
+    "states": 1921,
+    "through_s": 8,
+    "contact_point_samples": 791,
+    "first_contact_s": 2.925,
+    "last_contact_s": 6.21666666667,
+    "max_physical_to_rendered_inner_face_center_error_m": 3.028137185779642e-08,
+    "max_inner_half_gap_error_m": 9.263150767269135e-10,
+    "max_contact_point_outside_actual_fingertip_box_m": 0,
+    "max_point_distance_to_its_active_inner_face_m": 3.748471866030028e-05,
+    "max_unsaturated_pad_spring_equilibrium_residual_m": 1.555797292715201e-08,
+    "saturated_pad_node_samples": 0,
+    "maximum_per_jaw_normal_force_N": 4.00879774337,
+    "no_grip_force_during_first_drop": true,
+    "no_extensions": true,
+    "all_forces_at_visible_stock_jaws": true,
+    "limits": [
+      "Fingertips use authored planar compliant rubber boxes.",
+      "Arm follows prescribed joint positions; no motor dynamics or full robot mesh contact.",
+      "This checks pose/contact placement, not force calibration."
+    ],
+    "authored_fk_center_consistency_error_m": 1.1443916996305594e-16,
+    "max_physical_input_normal_error": 1.0017174884175433e-07,
+    "physical_input": "/Users/home/Documents/Codex/2026-10-21/i-wa/work/plastic_bag_empty_franka_20261024/grip.csv",
+    "physical_input_sha256": "70f3bad043de65636e4361bd3b87fb0ef2d46cc80dddf8c24da09df73976f6a9",
+    "physical_input_precision": "Native path reader casts CSV pose fields to FP32; the exported forces and contact points come from the GPU contact buffer.",
+    "force_channel_to_articulated_body": {
+      "left_normal_N": 10,
+      "right_normal_N": 9
+    },
+    "normal_force_definition": "Legacy channel names denote negative-normal and positive-normal planes respectively. Values are position contact multipliers divided by dt squared; velocity impulses act at the same recorded nodes."
+  },
+  "robot_mesh": {
+    "states": 1921,
+    "through_s": 8,
+    "intersection_state_count": 0,
+    "events": [],
+    "narrow_phase_links": 2310,
+    "scope": "Native saved film against authored robot visual meshes; excludes the compliant rubber contact patches and substep events."
+  },
+  "physics_state_join_exact": true,
+  "source": "same approved material and contact equations, active coin count zero; empty coin dispatch omission measured separately",
+  "limitations": [
+    "No aerodynamic drag, as in approved comparison",
+    "Uncalibrated LDPE and pad parameters",
+    "Prescribed robot joints; no motor or whole-robot collision dynamics",
+    "Robot clearance audited at saved states, not continuous whole-robot CCD"
+  ]
+}

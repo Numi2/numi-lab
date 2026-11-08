@@ -1,0 +1,7 @@
+{
+  "all_code_before_gripper_block_byte_identical": true,
+  "all_code_after_gripper_block_byte_identical": true,
+  "common_before_sha256": "fb7fdec25f12675c7bf4937601aee9798c71b58aaa18a44feb3758d1849265f0",
+  "common_after_sha256": "db2c947c68d7adffdd529199b3f7441eeac9c66d732815f7ed4592fb118ba9c1",
+  "film_laws_table_self_contact_coin_kernels_preserved": true
+}

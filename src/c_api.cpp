@@ -3449,19 +3449,6 @@ static MRTaskRolloutHandle* createUnitreeG1TeacherRun(
                 task != metalrobo::UnitreeG1Task::ballDodge
             );
         }
-        metalrobo::RunManifest compatiblePolicySource;
-        const metalrobo::RunManifest* compatiblePolicySourcePointer =
-            nullptr;
-        if (config->interaction_reference_mode ==
-            MR_INTERACTION_REFERENCE_GUIDE) {
-            manifest.task.interactionControlReference = true;
-        } else if (config->interaction_reference_mode ==
-                   MR_INTERACTION_REFERENCE_RESET_ONLY) {
-            compatiblePolicySource = manifest;
-            compatiblePolicySource.task.interactionControlReference = true;
-            compatiblePolicySourcePointer = &compatiblePolicySource;
-            manifest.task.interactionControlReference = false;
-        }
         if (config->override_interaction_student_authority != 0u) {
             manifest.task.interactionStudentAuthority =
                 config->interaction_student_authority;
@@ -3488,6 +3475,22 @@ static MRTaskRolloutHandle* createUnitreeG1TeacherRun(
             .interactions = interactions,
             .interactionClip = clip.id,
         };
+        // Both variants must start from the complete authored inputs,
+        // including all explicit overrides and the teacher artifact.  The
+        // variant compiler still checks the persisted source fingerprint.
+        metalrobo::RunManifest compatiblePolicySource;
+        const metalrobo::RunManifest* compatiblePolicySourcePointer =
+            nullptr;
+        if (config->interaction_reference_mode ==
+            MR_INTERACTION_REFERENCE_GUIDE) {
+            manifest.task.interactionControlReference = true;
+        } else if (config->interaction_reference_mode ==
+                   MR_INTERACTION_REFERENCE_RESET_ONLY) {
+            compatiblePolicySource = manifest;
+            compatiblePolicySource.task.interactionControlReference = true;
+            compatiblePolicySourcePointer = &compatiblePolicySource;
+            manifest.task.interactionControlReference = false;
+        }
         auto handle = createCompiledRunTaskRollout(
             std::move(manifest),
             metallib_path,

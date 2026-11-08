@@ -1,0 +1,96 @@
+{
+  "native_run_complete": true,
+  "duration_s": 8,
+  "hz": 240,
+  "coins": 10,
+  "release_begin_s": 6.2,
+  "outside_corner_offset_m": 0.006,
+  "first_drop_m": 0.25,
+  "requested_lift_m": 0.32,
+  "actual_opening_corner_lift_m": 0.323202720866,
+  "first_landing_corner_m": [
+    0.10600779147,
+    0.124528411005,
+    0.171092507976
+  ],
+  "maximum_accepted_unaccounted_energy_increase_J": 4.7352743300783e-06,
+  "max_balance_to_tolerance_ratio": 0.9040975176048011,
+  "final_inside_coins": 10,
+  "final_grip_contact_nodes": 0,
+  "final_max_coin_speed_m_s": 0.0020732071385641394,
+  "film_clearance": {
+    "frames": 1921,
+    "film_gauge_um": 75,
+    "distance_queries": 354588,
+    "distance_queries_not_converged_to_0_1nm": 157,
+    "minimum_mid_surface_distance_lower_bound_um": 36.9419471978,
+    "minimum_mid_surface_distance_upper_bound_um": 36.9419988086,
+    "minimum_thickness_clearance_lower_bound_um": -0.558052802238,
+    "clearance_time_s": 5.21666666667,
+    "clearance_coin": 8,
+    "clearance_triangle": 432,
+    "max_full_triangle_mid_sheet_penetration_mm": 0,
+    "penetration_time_s": -1,
+    "penetration_coin": -1,
+    "penetration_triangle": -1,
+    "frame_coin_pairs_over_0_1mm": 0
+  },
+  "pair_support_bound": {
+    "states": 1921,
+    "through_s": 8,
+    "pairs_per_state": 45,
+    "queries": 86445,
+    "maximum_minimum_separating_translation_upper_bound_m": 9.98361137555942e-06,
+    "upper_bound_mm": 0.00998361137555942,
+    "worst_event": {
+      "step": 1203,
+      "time_s": 5.0125,
+      "pair": [
+        2,
+        7
+      ]
+    },
+    "tolerance_m": 0.0001,
+    "within_tolerance": true,
+    "refined_pair_state_bounds": 1620,
+    "method": "FP64 analytic finite-cylinder support functions with additional numerically searched directions. Every searched direction is re-evaluated analytically, so optimization failure cannot create a false clearance claim. Every pair and saved state. Candidate support directions bound minimum separating translation from above; small positive values do not prove intersection. Substep tunneling and physical coin rim geometry are outside this audit."
+  },
+  "stock_grip_alignment": {
+    "states": 1921,
+    "through_s": 8,
+    "contact_point_samples": 787,
+    "first_contact_s": 2.94166666667,
+    "last_contact_s": 6.21666666667,
+    "max_physical_to_rendered_inner_face_center_error_m": 1.6553290908438716e-08,
+    "max_inner_half_gap_error_m": 9.263150801963604e-10,
+    "max_contact_point_outside_actual_fingertip_box_m": 0,
+    "max_point_distance_to_its_active_inner_face_m": 3.74912848051345e-05,
+    "max_unsaturated_pad_spring_equilibrium_residual_m": 1.9913198519201793e-08,
+    "saturated_pad_node_samples": 0,
+    "maximum_per_jaw_normal_force_N": 4.54034838025,
+    "no_grip_force_during_first_drop": true,
+    "no_extensions": true,
+    "all_forces_at_visible_stock_jaws": true,
+    "limits": [
+      "Fingertips use authored planar compliant rubber boxes.",
+      "Arm follows prescribed joint positions; no motor dynamics or full robot mesh contact.",
+      "This checks pose/contact placement, not force calibration."
+    ],
+    "authored_fk_center_consistency_error_m": 1.1443916996305594e-16,
+    "max_physical_input_normal_error": 9.579956362384255e-08,
+    "physical_input": "/Users/home/Documents/Codex/2026-10-21/i-wa/work/plastic_bag_franka_contact_finish_20261024/grip.csv",
+    "physical_input_sha256": "6f0f4041beab9803d5a71f2f85a28aa9f71e146bab10a0dae04300e337df764e",
+    "physical_input_precision": "Native path reader casts CSV pose fields to FP32; the exported forces and contact points come from the GPU contact buffer.",
+    "force_channel_to_articulated_body": {
+      "left_normal_N": 10,
+      "right_normal_N": 9
+    },
+    "normal_force_definition": "Legacy channel names denote negative-normal and positive-normal planes respectively. Values are position contact multipliers divided by dt squared; velocity impulses act at the same recorded nodes."
+  },
+  "limits": [
+    "Prescribed Panda joint trajectory; motor dynamics are not simulated.",
+    "Film and pad properties/friction are assumed, not calibrated.",
+    "Finite compliant contact patches coincide with the authored rubber fingertip faces. Full robot/film mesh collisions and motor dynamics are not simulated.",
+    "Numerical geometry and energy checks are not physical validation."
+  ]
+}

@@ -14,7 +14,8 @@ Usage: numi train [metalrobo_task_train arguments...]
 Numi supplies fresh artifact paths and local runtime paths when they are not
 provided. Every native trainer option passes through unchanged. Common options:
 
-  --task velocity|disturbance-recovery|supine-get-up|developmental-recovery|adult-locomotion|g1-legs-locomotion|ball-recovery|ball-dodge
+  --task velocity|disturbance-recovery|supine-get-up|developmental-recovery|adult-locomotion|g1-legs-locomotion|ball-recovery|ball-dodge|numifly-flight|numifly-forward-flight|numifly-no-legs-flight|dove-trim|dove-drop-recovery
+  --dove-manifest PATH              Measured Deetjen dove surface manifest
   --minimum-difficulty-band N --maximum-difficulty-band N
   --interaction-pack PATH --interaction-clip ID
   --motion-pack PATH [--motion-activation impact|always]
@@ -284,7 +285,7 @@ if [ "$numi_status" -eq 0 ]; then
         # deployment and make the failure explicit for retry/inspection.
         if [ ! -s "$numi_run/selection/selection.json" ]; then
             printf '{\n  "schema": "numi.policy-selection.v1",\n  "selected": "incumbent",\n  "candidate_advanced_deployment": false,\n  "candidate_retained": true,\n  "selection_error": "selector exited with status %s"\n}\n' \
-                "$numi_status" > "$numi_run/selection/selection.json"
+            "$numi_status" > "$numi_run/selection/selection.json"
         fi
     fi
     numi_active_pid=

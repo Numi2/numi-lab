@@ -1,0 +1,4 @@
+{
+  "status": "rejected_construction_not_dynamics",
+  "reason": "An inherited bottom-right cell diagonal duplicated an all-boundary triangle between the front/back charts, giving one four-face edge. The new variant flips this diagonal on both charts. Accepted mesh has maximum incidence two and one mouth loop. Approved parent remains unchanged."
+}

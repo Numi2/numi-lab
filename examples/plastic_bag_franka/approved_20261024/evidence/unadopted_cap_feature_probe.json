@@ -1,0 +1,315 @@
+{
+  "source": "Actual unresolved native coin-pair witnesses at frame1512, each also queried in reverse order.",
+  "queries": 18,
+  "old_unresolved": 9,
+  "new_unresolved": 1,
+  "records": [
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_12_8.bin",
+      "reversed": false,
+      "old_status": 0,
+      "new_status": 1,
+      "depth_m": 5.516894248103199e-07,
+      "fp64_support_plane_penetration_m": 5.513949324835281e-07,
+      "support_depth_error_m": 2.9449232679182313e-10,
+      "reciprocal_point_error_m": 6.925062016607899e-10,
+      "midpoint_inside_margins_m": [
+        2.764806607204358e-07,
+        0.0012148735608947005,
+        2.7486353064388666e-07,
+        -9.87401257979137e-10
+      ],
+      "axes_cross": 1.4905341885264574e-05
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_12_8.bin",
+      "reversed": true,
+      "old_status": 1,
+      "new_status": 1,
+      "depth_m": 3.3300875657005236e-07,
+      "fp64_support_plane_penetration_m": 5.606973747713552e-07,
+      "support_depth_error_m": 2.2768861820130284e-07,
+      "reciprocal_point_error_m": 1.719397663964779e-10,
+      "midpoint_inside_margins_m": [
+        1.6633472799056255e-07,
+        0.01448626881861009,
+        1.662769240949949e-07,
+        0.014486269980456906
+      ],
+      "axes_cross": 1.4905341885264574e-05
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_16_8.bin",
+      "reversed": false,
+      "old_status": 0,
+      "new_status": 1,
+      "depth_m": 7.863134214858292e-07,
+      "fp64_support_plane_penetration_m": 7.869654916922535e-07,
+      "support_depth_error_m": 6.520702064242989e-10,
+      "reciprocal_point_error_m": 2.2250412631134315e-10,
+      "midpoint_inside_margins_m": [
+        3.915118155415308e-07,
+        0.0011727755361113142,
+        3.91818641545371e-07,
+        -3.401485516862923e-10
+      ],
+      "axes_cross": 1.9281336991997523e-05
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_16_8.bin",
+      "reversed": true,
+      "old_status": 1,
+      "new_status": 1,
+      "depth_m": 7.800812795721868e-07,
+      "fp64_support_plane_penetration_m": 7.949796331685639e-07,
+      "support_depth_error_m": 1.4898353596377173e-08,
+      "reciprocal_point_error_m": 2.2250412631134315e-10,
+      "midpoint_inside_margins_m": [
+        3.8815971853964695e-07,
+        0.0002869937277188428,
+        3.8937686170107885e-07,
+        0.0014982884665936235
+      ],
+      "axes_cross": 1.9281336991997523e-05
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_20_8.bin",
+      "reversed": false,
+      "old_status": 0,
+      "new_status": 1,
+      "depth_m": 6.411756885427167e-07,
+      "fp64_support_plane_penetration_m": 6.441615100875875e-07,
+      "support_depth_error_m": 2.9858215448708147e-09,
+      "reciprocal_point_error_m": 3.7232010084151844e-10,
+      "midpoint_inside_margins_m": [
+        3.205377699833263e-07,
+        0.0011282506105510341,
+        3.234380673302305e-07,
+        -5.646558220995246e-11
+      ],
+      "axes_cross": 2.5830006571528276e-05
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_20_8.bin",
+      "reversed": true,
+      "old_status": 1,
+      "new_status": 1,
+      "depth_m": 6.346099326037802e-07,
+      "fp64_support_plane_penetration_m": 6.591895172149316e-07,
+      "support_depth_error_m": 2.4579584611151423e-08,
+      "reciprocal_point_error_m": 3.7232010084151844e-10,
+      "midpoint_inside_margins_m": [
+        3.2000883799570765e-07,
+        0.000237067591163459,
+        3.176072361989364e-07,
+        0.0014092593339215809
+      ],
+      "axes_cross": 2.5830006571528276e-05
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_24_8.bin",
+      "reversed": false,
+      "old_status": 0,
+      "new_status": 0,
+      "depth_m": 5.394356890064955e-07,
+      "fp64_support_plane_penetration_m": 5.386483134853758e-07,
+      "support_depth_error_m": 7.873755211197653e-10,
+      "reciprocal_point_error_m": 0.0039309380014275795,
+      "midpoint_inside_margins_m": [
+        1.438697572533898e-10,
+        -6.475726465476894e-10,
+        -5.622707460219145e-10,
+        -9.023696581622609e-10
+      ],
+      "axes_cross": 2.7957896889612624e-05
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_24_8.bin",
+      "reversed": true,
+      "old_status": 1,
+      "new_status": 1,
+      "depth_m": 4.4172287516630604e-07,
+      "fp64_support_plane_penetration_m": 5.649901932882478e-07,
+      "support_depth_error_m": 1.232673181219418e-07,
+      "reciprocal_point_error_m": 1.4051366143088885e-10,
+      "midpoint_inside_margins_m": [
+        2.2105708035943805e-07,
+        0.0046140606329337155,
+        2.2089934527641346e-07,
+        0.002569658982239072
+      ],
+      "axes_cross": 2.7957896889612624e-05
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_28_8.bin",
+      "reversed": false,
+      "old_status": 0,
+      "new_status": 1,
+      "depth_m": 5.344652436178876e-07,
+      "fp64_support_plane_penetration_m": 5.358374989368128e-07,
+      "support_depth_error_m": 1.3722553189252085e-09,
+      "reciprocal_point_error_m": 3.0947861987027596e-10,
+      "midpoint_inside_margins_m": [
+        2.68448965448035e-07,
+        0.001371504633023251,
+        2.6727306043144647e-07,
+        4.346671304139571e-10
+      ],
+      "axes_cross": 2.2133061883361218e-05
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_28_8.bin",
+      "reversed": true,
+      "old_status": 1,
+      "new_status": 1,
+      "depth_m": 5.309262292030326e-07,
+      "fp64_support_plane_penetration_m": 5.510415818704359e-07,
+      "support_depth_error_m": 2.011535266740333e-08,
+      "reciprocal_point_error_m": 3.0947861987027596e-10,
+      "midpoint_inside_margins_m": [
+        2.6630247981556873e-07,
+        0.0001222301205335806,
+        2.666127137027595e-07,
+        0.0015180106705659016
+      ],
+      "axes_cross": 2.2133061883361218e-05
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_32_8.bin",
+      "reversed": false,
+      "old_status": 0,
+      "new_status": 1,
+      "depth_m": 9.89793647931947e-07,
+      "fp64_support_plane_penetration_m": 9.90805632331438e-07,
+      "support_depth_error_m": 1.011984399491156e-09,
+      "reciprocal_point_error_m": 5.511104217176968e-10,
+      "midpoint_inside_margins_m": [
+        4.949743385787575e-07,
+        0.0015459502948635892,
+        4.952721208918882e-07,
+        -1.0825123176322338e-09
+      ],
+      "axes_cross": 1.319912354097585e-05
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_32_8.bin",
+      "reversed": true,
+      "old_status": 1,
+      "new_status": 1,
+      "depth_m": 7.982208103385346e-07,
+      "fp64_support_plane_penetration_m": 1.0003789388708662e-06,
+      "support_depth_error_m": 2.021581285323315e-07,
+      "reciprocal_point_error_m": 3.266542767058589e-11,
+      "midpoint_inside_margins_m": [
+        3.9931950584701226e-07,
+        0.014498197500826118,
+        3.9910115748635275e-07,
+        0.01449819705612463
+      ],
+      "axes_cross": 1.319912354097585e-05
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_48_8.bin",
+      "reversed": false,
+      "old_status": 0,
+      "new_status": 1,
+      "depth_m": 6.953176239221648e-07,
+      "fp64_support_plane_penetration_m": 6.96753452228676e-07,
+      "support_depth_error_m": 1.4358283065112054e-09,
+      "reciprocal_point_error_m": 3.139461766910048e-10,
+      "midpoint_inside_margins_m": [
+        3.470850904766995e-07,
+        0.0015369683623110732,
+        3.4880985310238935e-07,
+        -1.249148510323872e-09
+      ],
+      "axes_cross": 1.3943654595626334e-05
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_48_8.bin",
+      "reversed": true,
+      "old_status": 1,
+      "new_status": 1,
+      "depth_m": 4.92333185775351e-07,
+      "fp64_support_plane_penetration_m": 7.066698507972834e-07,
+      "support_depth_error_m": 2.1433666502193235e-07,
+      "reciprocal_point_error_m": 9.025567921437775e-11,
+      "midpoint_inside_margins_m": [
+        2.46659963106053e-07,
+        0.014503879031936548,
+        2.4656751884287106e-07,
+        0.014503879318947173
+      ],
+      "axes_cross": 1.3943654595626334e-05
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_64_8.bin",
+      "reversed": false,
+      "old_status": 0,
+      "new_status": 1,
+      "depth_m": 5.405821070780803e-07,
+      "fp64_support_plane_penetration_m": 5.40572063270281e-07,
+      "support_depth_error_m": 1.0043807799342552e-11,
+      "reciprocal_point_error_m": 3.7559903140482156e-10,
+      "midpoint_inside_margins_m": [
+        2.7119851598060227e-07,
+        0.001313516430270686,
+        2.6946837359620793e-07,
+        -2.5089622619073326e-09
+      ],
+      "axes_cross": 2.6658170579157666e-05
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_64_8.bin",
+      "reversed": true,
+      "old_status": 1,
+      "new_status": 1,
+      "depth_m": 5.368449933484953e-07,
+      "fp64_support_plane_penetration_m": 5.583318843540956e-07,
+      "support_depth_error_m": 2.1486891005600278e-08,
+      "reciprocal_point_error_m": 2.448079948379284e-10,
+      "midpoint_inside_margins_m": [
+        2.6772728476754173e-07,
+        0.00011616781419945127,
+        2.693494451041535e-07,
+        0.001456081618342854
+      ],
+      "axes_cross": 2.6658170579157666e-05
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_8_8.bin",
+      "reversed": false,
+      "old_status": 0,
+      "new_status": 1,
+      "depth_m": 5.756515406574181e-07,
+      "fp64_support_plane_penetration_m": 5.75426208615764e-07,
+      "support_depth_error_m": 2.2533204165411935e-10,
+      "reciprocal_point_error_m": 3.8965831046688534e-10,
+      "midpoint_inside_margins_m": [
+        2.8689188706588695e-07,
+        -1.1335507480586537e-09,
+        2.87761012637746e-07,
+        0.003905485387583167
+      ],
+      "axes_cross": 4.536857419148425e-05
+    },
+    {
+      "file": "/Users/home/Documents/Codex/2026-10-21/i-wa/outputs/plastic_bag_franka_release_on_lift_20261024/pair_failure_witnesses/unresolved_pair_1512_8_8.bin",
+      "reversed": true,
+      "old_status": 1,
+      "new_status": 1,
+      "depth_m": 5.011982011637883e-07,
+      "fp64_support_plane_penetration_m": 6.98820597918974e-07,
+      "support_depth_error_m": 1.9762239675518573e-07,
+      "reciprocal_point_error_m": 3.8965831046688534e-10,
+      "midpoint_inside_margins_m": [
+        2.496057607231754e-07,
+        0.006435365030050901,
+        2.5071460132411114e-07,
+        0.0014335727012652708
+      ],
+      "axes_cross": 4.536857419148425e-05
+    }
+  ],
+  "scope": "Isolated Metal narrow-phase contact query, not a completed simulation."
+}

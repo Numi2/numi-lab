@@ -1,0 +1,27 @@
+{
+  "schema": "numi.pqi2-disturbance-protocol.v1",
+  "id": "pqi2-learned-invariant-base-disturbance-recovery",
+  "status": "preregistered",
+  "branch": "numisolver",
+  "research_question": "Can a learned invariant-base controller preserve solver-qualified hand raising at the first task-specific impulse severity that rejects the fixed base?",
+  "pilot_seed": 2650443671,
+  "training_seed": 2650443681,
+  "confirmatory_seeds": [2650443691, 2650443692, 2650443693, 2650443694, 2650443695],
+  "controller_calibration_band": [1, 1],
+  "push_interval_seconds": 0.40,
+  "tasks": {
+    "raise-right-hand": {"steps": 40, "push_maximum_velocity_mps": 0.20, "requested_wrists": ["right"]},
+    "raise-left-hand": {"steps": 40, "push_maximum_velocity_mps": 0.20, "requested_wrists": ["left"]},
+    "raise-both-hands": {"steps": 32, "push_maximum_velocity_mps": 0.80, "requested_wrists": ["left", "right"]}
+  },
+  "methods": ["fixed-base", "learned-invariant-base"],
+  "primary_endpoint": "Qualified success requires every requested wrist COM to reach 0.88 m and rise 0.20 m, zero terminations and failed environment steps, minimum root height above 0.64 m, and maximum tilt below 0.50 rad.",
+  "claim_gates": [
+    "all 30 task-method-seed cells complete from one clean revision",
+    "the fixed base fails at least one held-out run for every task",
+    "the learned invariant base qualifies all 15 held-out runs",
+    "all learned runs exactly replay from retained commands, policies, seeds, and fingerprints",
+    "simulator evidence is not hardware evidence"
+  ],
+  "pilot_note": "The pilot varied only push severity. The frozen severities are the first tested values that rejected the fixed base: 0.20 m/s for each unilateral command and 0.80 m/s for the shorter symmetric bilateral command."
+}

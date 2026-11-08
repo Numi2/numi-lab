@@ -21,7 +21,7 @@ Usage: numi motion inspect --model-directory PATH [--verify-hashes]
            --interaction-pack FILE --output FILE --id ID [--clip ID] \
            --anchor-body BODY --tracked-bodies BODY[,BODY...]
        numi motion imagine-g1 --prompt TEXT [--output-directory PATH] \
-           [--model-family g1|core] [--provider auto|coreml|cpu]
+           [--model-family g1|core] [--provider auto|coreml|cpu] [--no-render]
 
 ARDY is a motion-imagination provider, not a robot action policy. Numi supports
 both ARDY G1 25 FPS Horizon52 and ARDY Core 20 FPS Horizon40 ONNX graphs. G1

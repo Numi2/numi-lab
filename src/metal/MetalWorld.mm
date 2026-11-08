@@ -3845,14 +3845,6 @@ MetalWorldDiagnostics validateAndBuildLayout(
             "inspection program requires a complete callback"
         );
     }
-    if (config.inspectionProgram.configured() &&
-        !config.inspectionProgram.valid()) {
-        return reject(
-            std::move(diagnostics),
-            MetalWorldHostStatus::invalidDimensions,
-            "inspection program requires a complete callback"
-        );
-    }
     if (!std::isfinite(config.timestepSeconds) ||
         !(config.timestepSeconds > 0.0f) ||
         config.physicsSubsteps == 0u ||

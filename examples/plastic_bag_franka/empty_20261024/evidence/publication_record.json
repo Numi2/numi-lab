@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/Numi2/numi-lab",
+  "branch": "numisolver",
+  "commit": "97e5b5dd06f76ea5e543e331bde123b076fdeccb",
+  "release": "https://github.com/Numi2/numi-lab/releases/tag/plastic-bag-empty-franka-2026-10-24",
+  "github_video_git_blob_sha1": "1a2a0e84b98dd6ceca5a65a940f39cbcfe6c6c21",
+  "local_video_git_blob_matches_github": true,
+  "approved_example_and_video_paths_unchanged_since_preservation_commit": true,
+  "active_native_jobs_after_delivery": 0,
+  "replay_download_verification": "passed: independently downloaded archive, all 531 payload hashes, restored source/binary/grip/final checkpoint"
+}

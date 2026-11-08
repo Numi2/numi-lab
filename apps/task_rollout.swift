@@ -729,7 +729,7 @@ private struct Options {
               unitreeG1Task != .supineGetUpDiscovery))
         {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "InteractionPack evaluation supports imported URDF owner packs or bundled G1 velocity, ball-dodge, and supine-get-up mechanics; it cannot be combined with a WorldPack or --ball."
+                "InteractionPack evaluation supports imported URDF owner packs or bundled G1 velocity, ball-dodge, and supine-get-up mechanics; it cannot be combined with a WorldPack."
             )
         }
         let importing = worldPack != nil || urdf != nil
@@ -835,7 +835,7 @@ private struct Options {
         if inspectionScene != nil &&
             (inspectionWidth <= 0 || inspectionHeight <= 0) {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "--inspect-width and --inspect-height must be positive."
+                "Inspection width and height must be positive."
             )
         }
     }

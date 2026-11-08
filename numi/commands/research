@@ -1,0 +1,39 @@
+#!/bin/sh
+
+set -eu
+
+if [ "${1:-}" = "--numi-describe" ]; then
+    printf 'Validate, run, resume, and analyze preregistered Numi studies.\n'
+    exit 0
+fi
+
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ] || [ "$#" -eq 0 ]; then
+    cat <<'EOF'
+Usage: numi research validate --protocol FILE
+       numi research plan --protocol FILE --output-root PATH
+       numi research run --protocol FILE --output-root PATH [--limit N]
+       numi research analyze --protocol FILE --output-root PATH
+       numi research upper-body --output PATH [--inputs PATH]
+
+The protocol is immutable input. Runs are addressed by task, method, and seed,
+resume without repeating completed cells, and retain the protocol hash, Git
+revision, exact arguments, logs, runtime evidence, and policy selection. Paper
+claims remain locked until every preregistered cell is complete and reports
+zero failed environment steps.
+EOF
+    exit 0
+fi
+
+numi_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
+if [ -f "$numi_root/python/metalrobo/research_study.py" ]; then
+    numi_python_root=$numi_root/python
+else
+    numi_python_root=$numi_root/share/numi/python
+fi
+if [ "${1:-}" = "upper-body" ]; then
+    shift
+    PYTHONPATH=$numi_python_root${PYTHONPATH:+:$PYTHONPATH} \
+        exec python3 -m metalrobo.upper_body_study "$@"
+fi
+PYTHONPATH=$numi_python_root${PYTHONPATH:+:$PYTHONPATH} \
+    exec python3 -m metalrobo.research_study "$@"

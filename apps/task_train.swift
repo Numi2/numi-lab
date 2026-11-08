@@ -662,7 +662,7 @@ private struct Options {
         if inspectionScene != nil &&
             (inspectionWidth <= 0 || inspectionHeight <= 0) {
             throw MetalRoboTaskRolloutError.invalidShape(
-                "--inspect-width and --inspect-height must be positive."
+                "Inspection width and height must be positive."
             )
         }
         let ppoValues = [

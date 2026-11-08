@@ -20,3 +20,8 @@ __pycache__/
 *.dSYM/
 compile_commands.json
 python/metalrobo/wet_lab/node_modules/
+website/node_modules/
+website/dist/
+website/.vercel/
+.playwright-cli/
+output/playwright/

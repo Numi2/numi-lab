@@ -28,6 +28,11 @@ _VALUE_OPTIONS = frozenset(
         "--minimum-difficulty-band",
         "--maximum-difficulty-band",
         "--interaction-student-authority",
+        "--interaction-reset-phase-fraction",
+        "--interaction-reset-phase-probability",
+        "--interaction-reset-maximum-phase",
+        "--interaction-push-maximum-velocity",
+        "--interaction-push-interval-seconds",
         "--interaction-pack",
         "--interaction-clip",
         "--dove-manifest",
@@ -262,6 +267,12 @@ def _task_kind(task_id: str) -> str:
     """Map authored task IDs onto the stable promotion-policy vocabulary."""
 
     normalized = task_id.strip().lower().replace("_", "-")
+    if (
+        ("dove" in normalized or "fatal" in normalized)
+        and "drop" in normalized
+        and "recovery" in normalized
+    ):
+        return "dove-drop-recovery"
     if "adult" in normalized and "locomotion" in normalized:
         return "adult-locomotion"
     if "developmental" in normalized and "recovery" in normalized:
@@ -344,11 +355,17 @@ def evaluation_arguments(
         # a different task fingerprint.
         filtered: list[str] = []
         skip = False
+        teacher_only_values = {
+            "--interaction-student-authority",
+            "--interaction-reset-phase-fraction",
+            "--interaction-reset-phase-probability",
+            "--interaction-reset-maximum-phase",
+        }
         for value in projected:
             if skip:
                 skip = False
                 continue
-            if value == "--interaction-student-authority":
+            if value in teacher_only_values:
                 skip = True
                 continue
             if value == "--interaction-reset-only":
@@ -364,16 +381,18 @@ def evaluation_arguments(
             "--interaction-reset-only",
         ]
 
-    # Adult training deliberately mixes the previous and current bands so
-    # the learner retains the earlier balance skill. Promotion evidence must
-    # answer a stricter question: did the candidate survive the newest band
-    # itself? Appending the maximum band makes the native evaluator's last
-    # value authoritative without changing the training rollout contract.
+    # Curriculum training deliberately mixes previous and current bands so
+    # the learner retains earlier skills. Promotion evidence must answer a
+    # stricter question: did the candidate survive the newest band itself?
+    # Appending the maximum band makes the native evaluator's last value
+    # authoritative without changing the training rollout contract.
     task = _task_kind(_option_value(training_arguments, "--task") or "")
     maximum_band = _option_value(
         training_arguments, "--maximum-difficulty-band"
     )
-    if task == "adult-locomotion" and maximum_band is not None:
+    if task in {"adult-locomotion", "dove-drop-recovery"} and (
+        maximum_band is not None
+    ):
         selected_minimum_band = (
             str(evaluation_minimum_band)
             if evaluation_minimum_band is not None
@@ -456,16 +475,37 @@ def _physical_failure_rate(record: dict[str, Any]) -> float:
     environments = max(
         len(record.get("termination_count_by_environment", [])), 1
     )
-    if (
+    timeout_count = record.get("timeout_count")
+    if timeout_count is None:
+        reason_counts = record.get("termination_reason_counts", {})
+        if isinstance(reason_counts, dict):
+            # Native rollout evidence uses the ABI termination opcode as a
+            # JSON object key. Opcode 4 is the ordinary episode timeout.
+            timeout_count = reason_counts.get(
+                "4", reason_counts.get(4, 0)
+            )
+        else:
+            timeout_count = 0
+    timeout_count = int(timeout_count)
+    world_source = str(record.get("world_source", ""))
+    if world_source == "measured_dove":
+        # For aerial recovery, both minimum-height and forbidden-ground
+        # contact are physical failures. The humanoid convenience field only
+        # counts height/tilt reasons and would otherwise hide a lethal impact.
+        failures = max(
+            int(record.get("termination_count", 0))
+            - timeout_count,
+            0,
+        )
+    elif (
         "height_or_tilt_termination_count" in record
-        and str(record.get("world_source", ""))
-        not in _GENERIC_WORLD_SOURCES
+        and world_source not in _GENERIC_WORLD_SOURCES
     ):
         failures = int(record["height_or_tilt_termination_count"])
     else:
         failures = max(
             int(record.get("termination_count", 0))
-            - int(record.get("timeout_count", 0)),
+            - timeout_count,
             0,
         )
     return failures / environments
@@ -625,6 +665,42 @@ def compare_evidence(
                 regressions.append(f"{label} regressed")
             elif delta > 1.0e-12:
                 improvements.append(f"{label} improved")
+    elif task == "dove-drop-recovery":
+        # Survival remains the hard gate. Newer dove tasks also author a
+        # measured forward-speed objective; older recovery evidence has no
+        # such outcome and retains its drift-neutral comparison contract.
+        old_reward = float(incumbent.get("mean_reward", 0))
+        new_reward = float(candidate.get("mean_reward", 0))
+        if new_reward < old_reward - 1.0e-12:
+            regressions.append("flight reward decreased")
+        elif new_reward > old_reward + 1.0e-12:
+            improvements.append("flight reward increased")
+        old_forward_outcome = _authored_outcomes(incumbent).get(
+            "forward_speed_tracking"
+        )
+        new_forward_outcome = _authored_outcomes(candidate).get(
+            "forward_speed_tracking"
+        )
+        if old_forward_outcome and new_forward_outcome:
+            old_forward_tracking = old_forward_outcome[0]
+            new_forward_tracking = new_forward_outcome[0]
+            if new_forward_tracking < old_forward_tracking - 0.001:
+                regressions.append("forward-speed tracking decreased")
+            elif new_forward_tracking > old_forward_tracking + 0.001:
+                improvements.append("forward-speed tracking increased")
+        old_heading_outcome = _authored_outcomes(incumbent).get(
+            "heading_rate_tracking"
+        )
+        new_heading_outcome = _authored_outcomes(candidate).get(
+            "heading_rate_tracking"
+        )
+        if old_heading_outcome and new_heading_outcome:
+            old_heading_tracking = old_heading_outcome[0]
+            new_heading_tracking = new_heading_outcome[0]
+            if new_heading_tracking < old_heading_tracking - 0.001:
+                regressions.append("heading-rate tracking decreased")
+            elif new_heading_tracking > old_heading_tracking + 0.001:
+                improvements.append("heading-rate tracking increased")
     elif task in {"supine-get-up", "developmental-recovery"}:
         old_completed = _rate(
             incumbent,
@@ -708,6 +784,23 @@ def compare_evidence(
         )
         regressions.extend(authored_regressions)
         improvements.extend(authored_improvements)
+    elif task == "dove-drop-recovery":
+        for identifier in (
+            "altitude_progress",
+            "forward_speed_tracking",
+            "heading_rate_tracking",
+        ):
+            old_outcome = _authored_outcomes(incumbent).get(identifier)
+            new_outcome = _authored_outcomes(candidate).get(identifier)
+            if old_outcome and new_outcome:
+                authored_outcome_metrics[f"incumbent_{identifier}"] = {
+                    "mean": old_outcome[0],
+                    "direction": old_outcome[1],
+                }
+                authored_outcome_metrics[f"candidate_{identifier}"] = {
+                    "mean": new_outcome[0],
+                    "direction": new_outcome[1],
+                }
 
     old_tilt = float(incumbent.get("mean_tilt", 0))
     new_tilt = float(candidate.get("mean_tilt", 0))
@@ -729,6 +822,7 @@ def compare_evidence(
         "velocity",
         "adult-locomotion",
         "disturbance-recovery",
+        "dove-drop-recovery",
         "ball-recovery",
         "ball-dodge",
     }
@@ -772,6 +866,70 @@ def compare_evidence(
             and selection_score > 1.0e-12
         )
         selection_method = "continuous_authored_task_outcome"
+    elif task == "dove-drop-recovery":
+        old_reward = float(incumbent.get("mean_reward", 0))
+        new_reward = float(candidate.get("mean_reward", 0))
+        failure_progress = _relative_progress(
+            candidate_termination, incumbent_termination, 1.0
+        )
+        clean_progress = candidate_clean_horizon - incumbent_clean_horizon
+        height_progress = _relative_progress(old_height, new_height, 1.0)
+        tilt_progress = _relative_progress(new_tilt, old_tilt, 0.25)
+        reward_progress = _relative_progress(old_reward, new_reward, 0.05)
+        old_forward_outcome = _authored_outcomes(incumbent).get(
+            "forward_speed_tracking"
+        )
+        new_forward_outcome = _authored_outcomes(candidate).get(
+            "forward_speed_tracking"
+        )
+        forward_progress = 0.0
+        if old_forward_outcome and new_forward_outcome:
+            forward_progress = _relative_progress(
+                old_forward_outcome[0], new_forward_outcome[0], 0.001
+            )
+        old_heading_outcome = _authored_outcomes(incumbent).get(
+            "heading_rate_tracking"
+        )
+        new_heading_outcome = _authored_outcomes(candidate).get(
+            "heading_rate_tracking"
+        )
+        heading_progress = 0.0
+        if old_heading_outcome and new_heading_outcome:
+            heading_progress = _relative_progress(
+                old_heading_outcome[0], new_heading_outcome[0], 0.001
+            )
+        selection_score = (
+            0.25 * failure_progress
+            + 0.15 * clean_progress
+            + 0.10 * tilt_progress
+            + 0.15 * height_progress
+            + 0.05 * reward_progress
+            + 0.20 * forward_progress
+            + 0.10 * heading_progress
+        )
+        forward_retained = (
+            old_forward_outcome is None
+            or new_forward_outcome is None
+            or new_forward_outcome[0] >= old_forward_outcome[0] - 2.0e-5
+        )
+        heading_retained = (
+            old_heading_outcome is None
+            or new_heading_outcome is None
+            or new_heading_outcome[0] >= old_heading_outcome[0] - 2.0e-5
+        )
+        selected = (
+            int(candidate.get("failed_environment_steps", 0)) == 0
+            # A statistically improved crash rate is still a crash rate.
+            # Flight recovery promotion requires zero held-out non-timeout
+            # terminations at the current isolated curriculum band.
+            and candidate_termination <= 1.0e-12
+            and candidate_clean_horizon >= incumbent_clean_horizon - 1.0e-12
+            and new_height >= old_height - 0.01
+            and forward_retained
+            and heading_retained
+            and selection_score > 1.0e-12
+        )
+        selection_method = "dove_flight_recovery_comparison"
     elif (
         task in {"velocity", "adult-locomotion"}
         and bool(incumbent.get("forward_progress_available"))

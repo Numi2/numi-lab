@@ -1,0 +1,33 @@
+{
+  "duration_s": 8,
+  "native_hz": 240,
+  "native_states": 1921,
+  "coins": 0,
+  "dynamic_film_nodes": 1081,
+  "fixed_film_nodes": 0,
+  "film_mass_kg": 0.006519907166648409,
+  "receiver_first_contact_s": 6.195833333333334,
+  "donor_last_contact_s": 6.575,
+  "overlap_grip_duration_s": 0.38333333333333336,
+  "receiver_only_supported_duration_s": 1.425,
+  "receiver_continuous_only_support_after_s": 6.579166666666667,
+  "last_grip_nodes": [
+    0,
+    1
+  ],
+  "min_film_table_outer_gap_m": 1.5440000070509707e-09,
+  "receiver_corner_displacement_after_donor_release_m": 4.420939001233631e-08,
+  "final_film_corner_550_m": [
+    -0.0523056349359,
+    0.503483934079,
+    0.0205361254009
+  ],
+  "final_checkpoint_sha256": "1a7123f4d72d0c4b70a13bee545b33d4499fda714a64f305edd815d6af23e23a",
+  "limitations": [
+    "Prescribed native Franka joint trajectories, not motor dynamics.",
+    "Finite compliant fingertip model; housing/film and inter-arm mesh crossing audited at saved states, not continuous whole-robot CCD.",
+    "Same uncalibrated LDPE parameters as approved empty bag; no air drag.",
+    "Finite inward pad patches, not volumetric rubber or complete back/side surface contact.",
+    "Finite pad patch entry lacks a smooth tangential elastic edge potential; reduced preload is a scene choice, not a repair of that model limit."
+  ]
+}

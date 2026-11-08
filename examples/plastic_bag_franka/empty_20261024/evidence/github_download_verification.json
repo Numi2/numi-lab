@@ -1,0 +1,15 @@
+{
+  "release": "https://github.com/Numi2/numi-lab/releases/tag/plastic-bag-empty-franka-2026-10-24",
+  "independently_downloaded": true,
+  "archive_sha256": "a1010e3fbfad1d68a447b3da4570d54792d198f177474b49d1c30f5d5829b176",
+  "all_manifest_files_verified": true,
+  "verified_payload_files": 531,
+  "restoration_hash_verified": [
+    "solver/source/PlasticBag.metal",
+    "solver/source/plastic_bag_coins_scene.mm",
+    "solver/native_runtime/numi_classic_bag_drop",
+    "solver/grip.csv",
+    "evidence/combined/latest_checkpoint.bin"
+  ],
+  "local_evidence_retired": false
+}

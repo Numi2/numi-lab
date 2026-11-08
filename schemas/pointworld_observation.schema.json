@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://numi.dev/schemas/pointworld_observation.schema.json",
+  "title": "PointWorldObservationV1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "format": {"const": "numi.pointworld-observation.v1"},
+    "model_pack_fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "frame_fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "timestamp_ns": {"type": "array", "minItems": 1, "maxItems": 3, "items": {"type": "integer", "minimum": 0}},
+    "camera_count": {"type": "integer", "minimum": 1, "maximum": 3},
+    "scene_point_count": {"type": "integer", "minimum": 1, "maximum": 12000},
+    "grid_size_m": {"const": 0.015},
+    "coordinate_frame": {"const": "world"},
+    "extrinsic_convention": {"const": "world_to_camera"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "required": ["format", "model_pack_fingerprint", "frame_fingerprint", "timestamp_ns", "camera_count", "scene_point_count", "grid_size_m", "coordinate_frame", "extrinsic_convention", "sha256"]
+}

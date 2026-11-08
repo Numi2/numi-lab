@@ -1,0 +1,14 @@
+{
+  "scope": "8 initial empty-bag native intervals at 240 Hz, one timing pair; not a general speedup qualification",
+  "trajectory_bitwise_equal": true,
+  "checkpoint_bitwise_equal": true,
+  "solver_accuracy_bitwise_equal": true,
+  "baseline_gpu_ms": 11280.11596,
+  "skip_gpu_ms": 11111.23592,
+  "gpu_time_reduction_percent": 1.4971480842826372,
+  "unchanged": "All material/self/table/grip passes, tolerances and iteration budgets; only empty active coin phases skipped",
+  "source_sha256": {
+    "source/PlasticBag.metal": "93d0b2ee4859278e85ce44bcdfbeb4e0bde22cfd4ee41918c4612fa2b540182b",
+    "source/plastic_bag_coins_scene.mm": "4dad411dc510efc92925dd5a8880fcce7121ae72092ca6a2fd7c1eae2a4be445"
+  }
+}

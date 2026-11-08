@@ -1327,6 +1327,9 @@ int main(const int argc, const char* const* argv) {
              MR_TASK_PROGRAM_INTERACTION_RESET) == 0u ||
             interactionProgram.interactionRootTargets().size() != 21u ||
             interactionProgram.interactionJointTargets().size() != 87u ||
+            interactionProgram.actionBindings()[0].drive.z != 0.0f ||
+            interactionProgram.actionBindings()[1].drive.z != 1.0f ||
+            interactionProgram.actionBindings()[9].drive.z != 1.0f ||
             interactionProgram.interactionContacts().size() != 2u ||
             interactionProgram.interactionSamples().size() != 6u ||
             interactionProgram.interactionContactTargets().size() != 78u ||
@@ -3038,6 +3041,131 @@ int main(const int argc, const char* const* argv) {
                 "TaskPack or PolicyPack round trip changed its compiled program"
             );
         }
+
+        metalrobo::PolicyPack duplicateBindingPolicy = policy;
+        metalrobo::CompiledPolicyProgram duplicateBindingProgram;
+        if (!metalrobo::addPolicyTaskBinding(
+                duplicateBindingPolicy,
+                program
+            ) ||
+            duplicateBindingPolicy.contract.version != 1u ||
+            !duplicateBindingPolicy.contract.compatibleTasks.empty() ||
+            !metalrobo::compilePolicyProgram(
+                duplicateBindingPolicy,
+                program,
+                duplicateBindingProgram
+            ).succeeded() ||
+            duplicateBindingProgram.fingerprint() != preservedPolicy) {
+            fail("duplicate policy task binding changed version-1 semantics");
+        }
+
+        metalrobo::TaskPack companionTask = authored.task;
+        companionTask.id += "_multitask_companion";
+        metalrobo::CompiledTaskProgram companionProgram;
+        const auto companionTaskStatus =
+            metalrobo::compileTaskProgram(
+                companionTask,
+                authored.actuators,
+                authored.observations,
+                authored.reset,
+                world,
+                companionProgram
+            );
+        if (!companionTaskStatus.succeeded() ||
+            companionProgram.fingerprint() == program.fingerprint() ||
+            companionProgram.observationFingerprint() !=
+                program.observationFingerprint() ||
+            companionProgram.actionFingerprint() !=
+                program.actionFingerprint()) {
+            fail("multitask companion contract did not preserve actor semantics");
+        }
+        metalrobo::PolicyPack multitaskPolicy = policy;
+        if (!metalrobo::addPolicyTaskBinding(
+                multitaskPolicy,
+                companionProgram
+            ) ||
+            multitaskPolicy.contract.version != 2u ||
+            multitaskPolicy.contract.compatibleTasks.size() != 2u) {
+            fail("PolicyPack did not publish a canonical multitask contract");
+        }
+        metalrobo::CompiledPolicyProgram multitaskPrimary;
+        metalrobo::CompiledPolicyProgram multitaskCompanion;
+        const auto multitaskPrimaryStatus =
+            metalrobo::compilePolicyProgram(
+                multitaskPolicy,
+                program,
+                multitaskPrimary
+            );
+        const auto multitaskCompanionStatus =
+            metalrobo::compilePolicyProgram(
+                multitaskPolicy,
+                companionProgram,
+                multitaskCompanion
+            );
+        if (!multitaskPrimaryStatus.succeeded() ||
+            !multitaskCompanionStatus.succeeded() ||
+            multitaskPrimary.taskFingerprint() !=
+                program.fingerprint() ||
+            multitaskCompanion.taskFingerprint() !=
+                companionProgram.fingerprint()) {
+            fail("multitask PolicyPack did not compile for every authorized task");
+        }
+
+        metalrobo::TaskPack unlistedTask = authored.task;
+        unlistedTask.id += "_multitask_unlisted";
+        metalrobo::CompiledTaskProgram unlistedProgram;
+        const auto unlistedTaskStatus =
+            metalrobo::compileTaskProgram(
+                unlistedTask,
+                authored.actuators,
+                authored.observations,
+                authored.reset,
+                world,
+                unlistedProgram
+            );
+        const std::uint64_t preservedMultitask =
+            multitaskCompanion.fingerprint();
+        const auto unlistedPolicyStatus =
+            metalrobo::compilePolicyProgram(
+                multitaskPolicy,
+                unlistedProgram,
+                multitaskCompanion
+            );
+        if (!unlistedTaskStatus.succeeded() ||
+            unlistedPolicyStatus.status !=
+                metalrobo::PolicyCompileStatus::incompatibleContract ||
+            multitaskCompanion.fingerprint() !=
+                preservedMultitask) {
+            fail("multitask PolicyPack accepted an unlisted task");
+        }
+
+        TemporaryPackFiles multitaskFiles;
+        const auto multitaskWrite = metalrobo::writePolicyPack(
+            multitaskPolicy,
+            multitaskFiles.policy
+        );
+        metalrobo::PolicyPack loadedMultitaskPolicy;
+        const auto multitaskRead = metalrobo::readPolicyPack(
+            multitaskFiles.policy,
+            loadedMultitaskPolicy
+        );
+        metalrobo::CompiledPolicyProgram loadedMultitaskCompanion;
+        const auto loadedMultitaskStatus =
+            metalrobo::compilePolicyProgram(
+                loadedMultitaskPolicy,
+                companionProgram,
+                loadedMultitaskCompanion
+            );
+        if (!multitaskWrite.succeeded() ||
+            !multitaskRead.succeeded() ||
+            !loadedMultitaskStatus.succeeded() ||
+            loadedMultitaskPolicy.contract.compatibleTasks !=
+                multitaskPolicy.contract.compatibleTasks ||
+            loadedMultitaskCompanion.fingerprint() !=
+                preservedMultitask) {
+            fail("multitask PolicyPack round trip changed its contract");
+        }
+
         metalrobo::PolicyRolloutPack rollout;
         rollout.id = "task_program_check_rollout";
         rollout.taskFingerprint = program.fingerprint();

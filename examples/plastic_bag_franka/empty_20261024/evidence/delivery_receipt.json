@@ -1,0 +1,21 @@
+{
+  "native_hz": 240,
+  "duration_s": 8,
+  "native_states": 1921,
+  "coin_count_from_gpu": 0,
+  "dynamic_nodes_from_gpu": 1081,
+  "fixed_nodes_from_gpu": 0,
+  "film_mass_kg_from_gpu": 0.006519907166648409,
+  "native_path_bitwise_matches_launch_csv": true,
+  "source_and_inputs_match_launch_manifest": true,
+  "checkpoint_sha256": "565c39a0604b2a8620bffeccdc616f9195833d944c8ff0d7f40b0c4bb6f097ec",
+  "trajectory_sha256": "c8d84183fc82e7be99e1c56e30ac9bfcb5f0b29edfdc3ac27932e0efc359d627",
+  "video_sha256": "2294fa8502b21b82e171e3e4da83559d03cf44f5b13bdea8d000a70164a50abe",
+  "actual_corner_lift_m": 0.5012958347009999,
+  "limitations": [
+    "No aerodynamic drag, as in approved comparison",
+    "Uncalibrated LDPE and pad parameters",
+    "Prescribed robot joints; no motor or whole-robot collision dynamics",
+    "Robot clearance audited at saved states, not continuous whole-robot CCD"
+  ]
+}

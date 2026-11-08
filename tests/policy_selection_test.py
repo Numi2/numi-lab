@@ -24,6 +24,190 @@ from metalrobo.policy_selection import (  # noqa: E402
 
 
 class PolicySelectionTest(unittest.TestCase):
+    def test_dove_drop_recovery_ignores_planar_drift(self) -> None:
+        incumbent = {
+            "task": "deetjen_f03_robot.fatal_drop_recovery",
+            "world_source": "measured_dove",
+            "termination_count_by_environment": [1, 0, 0, 0],
+            "height_or_tilt_termination_count": 1,
+            "clean_horizon_environment_rate": 0.75,
+            "failed_environment_steps": 0,
+            "mean_reward": -0.16,
+            "mean_root_height": 4.3,
+            "mean_tilt": 1.12,
+            "mean_peak_forward_progress_m": 3.0,
+        }
+        candidate = {
+            **incumbent,
+            "termination_count_by_environment": [0, 0, 0, 0],
+            "height_or_tilt_termination_count": 0,
+            "clean_horizon_environment_rate": 1.0,
+            "mean_reward": -0.05,
+            "mean_root_height": 4.9,
+            "mean_tilt": 0.88,
+            "mean_peak_forward_progress_m": 1.8,
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "candidate")
+        self.assertEqual(
+            decision["selection_method"],
+            "dove_flight_recovery_comparison",
+        )
+        self.assertNotIn(
+            "mean peak forward progress decreased",
+            decision["regressions"],
+        )
+
+    def test_dove_ground_contact_counts_as_physical_failure(self) -> None:
+        incumbent = {
+            "task": "deetjen_f03_robot.fatal_drop_recovery",
+            "world_source": "measured_dove",
+            "termination_count_by_environment": [0, 0, 0, 0],
+            "termination_count": 0,
+            "timeout_count": 0,
+            "height_or_tilt_termination_count": 0,
+            "clean_horizon_environment_rate": 1.0,
+            "failed_environment_steps": 0,
+            "mean_reward": 0.0,
+            "mean_root_height": 5.0,
+            "mean_tilt": 0.5,
+        }
+        candidate = {
+            **incumbent,
+            "termination_count_by_environment": [1, 0, 0, 0],
+            "termination_count": 1,
+            "termination_reason_counts": {"3": 1},
+            "clean_horizon_environment_rate": 0.75,
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "incumbent")
+        self.assertEqual(
+            decision["metrics"]["candidate_physical_failure_rate"],
+            0.25,
+        )
+
+    def test_dove_reason_count_timeouts_are_not_physical_failures(self) -> None:
+        incumbent = {
+            "task": "deetjen_f03_robot.fatal_drop_recovery",
+            "world_source": "measured_dove",
+            "termination_count_by_environment": [1, 0, 0, 0],
+            "termination_count": 1,
+            "termination_reason_counts": {"4": 1},
+            "clean_horizon_environment_rate": 0.75,
+            "failed_environment_steps": 0,
+            "mean_reward": -0.1,
+            "mean_root_height": 5.0,
+            "mean_tilt": 0.5,
+        }
+        candidate = {
+            **incumbent,
+            "mean_reward": -0.09,
+            "mean_root_height": 5.1,
+            "mean_tilt": 0.49,
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(
+            decision["metrics"]["candidate_physical_failure_rate"],
+            0.0,
+        )
+        self.assertEqual(decision["selected"], "candidate")
+
+    def test_dove_authored_forward_tracking_guides_selection(self) -> None:
+        incumbent = {
+            "task": "deetjen_f03_robot.fatal_drop_recovery",
+            "world_source": "measured_dove",
+            "termination_count_by_environment": [0] * 16,
+            "termination_count": 0,
+            "clean_horizon_environment_rate": 1.0,
+            "failed_environment_steps": 0,
+            "mean_reward": 0.1,
+            "mean_root_height": 22.0,
+            "mean_tilt": 0.5,
+            "outcomes": {
+                "forward_speed_tracking": {
+                    "mean": 0.20,
+                    "direction": 1,
+                }
+            },
+        }
+        candidate = {
+            **incumbent,
+            "outcomes": {
+                "forward_speed_tracking": {
+                    "mean": 0.30,
+                    "direction": 1,
+                }
+            },
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "candidate")
+        self.assertIn(
+            "forward-speed tracking increased", decision["improvements"]
+        )
+        self.assertEqual(
+            decision["metrics"]["adult_authored_outcomes"]
+            ["candidate_forward_speed_tracking"]["mean"],
+            0.30,
+        )
+
+    def test_dove_lift_gain_cannot_buy_lost_forward_tracking(self) -> None:
+        incumbent = {
+            "task": "deetjen_f03_robot.fatal_drop_recovery",
+            "world_source": "measured_dove",
+            "termination_count_by_environment": [0] * 16,
+            "termination_count": 0,
+            "clean_horizon_environment_rate": 1.0,
+            "failed_environment_steps": 0,
+            "mean_reward": 0.1,
+            "mean_root_height": 22.0,
+            "mean_tilt": 0.5,
+            "outcomes": {
+                "forward_speed_tracking": {
+                    "mean": 0.00110,
+                    "direction": 1,
+                }
+            },
+        }
+        candidate = {
+            **incumbent,
+            "mean_reward": 0.2,
+            "mean_root_height": 23.0,
+            "outcomes": {
+                "forward_speed_tracking": {
+                    "mean": 0.00100,
+                    "direction": 1,
+                }
+            },
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "incumbent")
+
+    def test_dove_forward_gain_cannot_buy_lost_heading_tracking(self) -> None:
+        incumbent = {
+            "task": "deetjen_f03_robot.fatal_drop_recovery",
+            "world_source": "measured_dove",
+            "termination_count_by_environment": [0] * 16,
+            "termination_count": 0,
+            "clean_horizon_environment_rate": 1.0,
+            "failed_environment_steps": 0,
+            "mean_reward": 0.1,
+            "mean_root_height": 22.0,
+            "mean_tilt": 0.5,
+            "outcomes": {
+                "forward_speed_tracking": {"mean": 0.0010, "direction": 1},
+                "heading_rate_tracking": {"mean": 0.0011, "direction": 1},
+            },
+        }
+        candidate = {
+            **incumbent,
+            "outcomes": {
+                "forward_speed_tracking": {"mean": 0.0012, "direction": 1},
+                "heading_rate_tracking": {"mean": 0.0010, "direction": 1},
+            },
+        }
+        decision = compare_evidence(incumbent, candidate)
+        self.assertEqual(decision["selected"], "incumbent")
+
     def test_catastrophic_get_up_candidate_never_advances(self) -> None:
         incumbent = {
             "task": "supine-get-up",
@@ -607,7 +791,7 @@ class PolicySelectionTest(unittest.TestCase):
             held_out_seed=42,
             evaluation_steps=103,
         )
-        self.assertIn("--interaction-reset-only", arguments)
+        self.assertNotIn("--interaction-reset-only", arguments)
         authority_index = len(arguments) - 1 - arguments[::-1].index(
             "--interaction-student-authority"
         )
@@ -621,6 +805,28 @@ class PolicySelectionTest(unittest.TestCase):
         self.assertEqual(arguments[seed_index + 1], "42")
         steps_index = len(arguments) - 1 - arguments[::-1].index("--steps")
         self.assertEqual(arguments[steps_index + 1], "103")
+
+    def test_interaction_push_contract_is_preserved_for_evaluation(self) -> None:
+        arguments = evaluation_arguments(
+            [
+                "--task", "velocity",
+                "--interaction-pack", "teacher.interactionpack",
+                "--interaction-clip", "raise-right-hand",
+                "--interaction-student-authority", "0.1",
+                "--interaction-push-maximum-velocity", "0.2",
+                "--interaction-push-interval-seconds", "0.4",
+            ],
+            policy_pack=Path("candidate.policypack"),
+            metallib=Path("MetalRobo.metallib"),
+            state_trace=Path("candidate.tsv"),
+            maximum_environments=16,
+            held_out_seed=42,
+            evaluation_steps=40,
+        )
+        velocity = arguments.index("--interaction-push-maximum-velocity")
+        interval = arguments.index("--interaction-push-interval-seconds")
+        self.assertEqual(arguments[velocity + 1], "0.2")
+        self.assertEqual(arguments[interval + 1], "0.4")
 
     def test_generic_sensor_contract_is_preserved_for_evaluation(self) -> None:
         arguments = evaluation_arguments(
@@ -668,6 +874,52 @@ class PolicySelectionTest(unittest.TestCase):
                     metallib=Path("shader"), state_trace=Path("trace"),
                     maximum_environments=1, held_out_seed=4)
                 self.assertEqual(arguments[arguments.index(option) + 1], "authored.json")
+
+    def test_measured_dove_manifest_is_preserved_for_evaluation(self) -> None:
+        arguments = evaluation_arguments(
+            [
+                "--task",
+                "dove-drop-recovery",
+                "--dove-manifest",
+                "deetjen/manifest.json",
+                "--envs",
+                "64",
+            ],
+            policy_pack=Path("candidate.policypack"),
+            metallib=Path("MetalRobo.metallib"),
+            state_trace=Path("candidate.tsv"),
+            maximum_environments=32,
+            held_out_seed=17,
+        )
+        index = arguments.index("--dove-manifest")
+        self.assertEqual(arguments[index + 1], "deetjen/manifest.json")
+
+    def test_dove_selection_isolated_to_highest_training_band(self) -> None:
+        arguments = evaluation_arguments(
+            [
+                "--task",
+                "dove-drop-recovery",
+                "--dove-manifest",
+                "deetjen/manifest.json",
+                "--minimum-difficulty-band",
+                "0",
+                "--maximum-difficulty-band",
+                "4",
+            ],
+            policy_pack=Path("candidate.policypack"),
+            metallib=Path("MetalRobo.metallib"),
+            state_trace=Path("candidate.tsv"),
+            maximum_environments=256,
+            held_out_seed=17,
+        )
+        minimum_index = len(arguments) - 1 - arguments[::-1].index(
+            "--minimum-difficulty-band"
+        )
+        maximum_index = len(arguments) - 1 - arguments[::-1].index(
+            "--maximum-difficulty-band"
+        )
+        self.assertEqual(arguments[minimum_index + 1], "4")
+        self.assertEqual(arguments[maximum_index + 1], "4")
 
     def test_adult_selection_isolated_to_highest_training_band(self) -> None:
         arguments = evaluation_arguments(

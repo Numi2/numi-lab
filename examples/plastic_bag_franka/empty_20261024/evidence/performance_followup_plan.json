@@ -1,0 +1,14 @@
+{
+  "created_utc": "2026-10-24T17:20:38.689194+00:00",
+  "reason": "The first timing pair showed only a 1.5 percent difference; quantify repeatability before claiming a speedup.",
+  "native_gpu_exclusive": true,
+  "checkpoints": [
+    240,
+    960
+  ],
+  "intervals_per_trial": 8,
+  "paired_repetitions_per_checkpoint": 3,
+  "execution_order": "alternate baseline/skip and skip/baseline by repetition",
+  "acceptance": "All trajectory, physical checkpoint, energy and solver-budget bytes must match for each pair. No change to tolerances or passes involving film, self-contact, table or gripper.",
+  "reported": "per-pair and median GPU/wall times; do not describe this as real-time execution"
+}

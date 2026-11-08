@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://numi.dev/schemas/pointworld_robot_flow_candidates.schema.json",
+  "title": "RobotFlowCandidatePack",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "candidate_count", "frames", "robot_point_count", "observation_fingerprint", "source_fingerprint", "visual_geometry_fingerprint", "robot_topology_fingerprint", "kinematics_precision", "sha256"],
+  "properties": {
+    "format": {"const": "numi.pointworld-robot-flow-candidates.v1"},
+    "candidate_count": {"type": "integer", "minimum": 1},
+    "frames": {"const": 11},
+    "robot_point_count": {"type": "integer", "minimum": 1, "maximum": 500},
+    "observation_fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source_fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "visual_geometry_fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "robot_topology_fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "kinematics_precision": {"const": "float64"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

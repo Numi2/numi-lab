@@ -232,28 +232,39 @@ aligned shared buffer and reuses caller-owned host capacity. This avoids
 per-modality Metal allocations without retaining a resolution-sized staging
 buffer after the readback completes.
 
-### Live run inspector
+### Numi Window
 
-`metalrobo_task_rollout` and `metalrobo_task_train` can open a small native
-macOS `MTKView` beside a run. For ordinary use, save the authored visual
-observation file as `.numi/window.visual-observation.json` and run:
+The integrated research candidate accepts an explicitly authored scene even
+when optional built-in robot assets are unavailable. Installed and source-tree
+paths are distinct; missing built-in assets are reported. The `--inspect-scene`,
+`--inspect-width`, and `--inspect-height` aliases remain supported. Native
+visible UI and full integrated-release qualification remain outstanding.
+
+`numi window` is the single native robot, scene, policy, and live-presentation
+UX. Imported robots publish `*.numi-window.json` catalog entries with their
+mechanics, owner packs, authored camera, and compatible action source. Run:
 
 ```sh
 numi window
 ```
 
-The workspace command builds its own isolated runtime, discovers that saved
-scene, starts a one-environment zero-action preview, and stops it when the
-window closes. The lower-level executable remains available for composed
-training/evaluation flows:
+`numi window --check` runs the fast catalog/contract checks and then exercises
+missing-selection recovery, four distinct live robot worlds, a compatible
+PolicyPack transaction, completed presentation, and clean close through the
+same native window path.
+
+The workspace command builds its own isolated runtime, discovers the catalog,
+starts the selected one-environment run, and stops it when the window closes.
+The lower-level executable remains available as a composition surface for
+training/evaluation tooling:
 
 ```sh
 metalrobo_task_rollout ... \
-    --inspect-scene /path/to/visual-observation.json \
-    --inspect-width 960 --inspect-height 540
+    --window-scene /path/to/visual-observation.json \
+    --window-width 960 --window-height 540
 ```
 
-`--inspect-scene` takes the same portable `numi.visual-observation.v1`
+`--window-scene` takes the same portable `numi.visual-observation.v1`
 artifact used for authored cameras, but it compiles an independent
 presentation-only renderer. It neither changes `CompiledRun`, policy
 observations, policy fingerprints, nor the task SensorPack. The render is
@@ -262,26 +273,69 @@ submission, into the submission's command buffer; it never introduces a
 command-buffer wait, a CPU state copy, or a pixel readback.
 
 The window consumes device-private linear RGB buffers through a three-slot
-ring. A slot is released only after its display command buffer completes; if
+ring. A slot is released only after its display command buffer completes; the
+first frame of a newly selected configuration is likewise acknowledged only
+after that drawable completes. If
 the window or compositor falls behind, the producer drops the newest preview
 instead of blocking physics, control, or learning. The window currently
-shows representative environment zero. It is an inspection aid, not evidence
+shows representative environment zero. It is a live presentation, not evidence
 of real-hardware behavior or a media-capture path. Use ordinary visual export
 or state-trace facilities when durable frames or artifacts are required.
 
-The inspector has three controls: **Pause/Resume**, a robot-grouped **Policy
-Selector**, and **Latest Policy**. The selector reads
-`.numi/policies/<robot-id>/*.policypack` (or `NUMI_WINDOW_POLICY_CATALOG`) and
-groups choices by `<robot-id>` without hard-coding a robot catalog. Pause does
-not pause physics or training: it gates the GPU presentation sidecar at the
-next normal rollout boundary, eliminating preview encoding and dropped-frame
-atomics until Resume. Minimizing or fully occluding the window applies the same
-automatic sidecar gate and resumes it when the window is visible again. Policy
-selection and Latest Policy reload at that same boundary and only accept a
-compatible immutable revision; the selector advances only after a successful
-transaction and returns to the active policy after rejection. The image is
-aspect-fit automatically, so authored camera geometry is never stretched to
-the resizable window.
+The window separates four novice-facing concepts: **Robot** chooses the
+machine, **Environment** chooses the visible physical world, **Task** chooses
+what the robot practices, and **Policy** chooses learned behavior. Pause and
+camera reset remain independent presentation controls. Environment and Task
+read the imported catalog and rebuild the selected live run at a normal
+rollout boundary; neither control implicitly selects a policy. The Policy
+selector reads
+`.numi/policies/<robot-id>/*.policypack` (or `NUMI_WINDOW_POLICY_CATALOG`) plus
+the final deployment artifact in each direct run folder. Discovery is bounded
+to the catalog root and one child level; it never descends through checkpoints,
+captures, or rollout evidence. Once the live world has presented, policy menus
+are filtered by exact world/task/observation/action fingerprints rather than a
+filename or folder label.
+
+Pause stops the rollout scheduler before its next native advance and sleeps on
+a condition until Resume or another window transaction; simulation time and
+physics therefore do not continue behind a frozen frame. Minimizing or fully
+occluding the window independently gates the presentation sidecar while the
+simulation keeps its normal cadence. Scene and policy changes unwind the old
+world and construct the replacement serially in the same process. A new choice
+becomes current only after its first display command completes; a rejected
+setup reconstructs the last completed scene and policy together. Latest Policy
+remains an in-place immutable-revision reload at a rollout boundary and leaves
+the active policy unchanged on rejection. The image is aspect-fit
+automatically, so authored camera geometry is never stretched to the resizable
+window.
+
+When a trainable task has no compatible policy, a compact learning guide
+explains the Robot -> Environment -> Task -> Train journey directly over the
+preview and opens the same guided training sheet as the toolbar. It disappears
+after dismissal, while training owns the runtime, or when an eligible policy is
+available. Keyboard controls preserve the mouse-free path: Space pauses the
+simulation, `T` opens training, `R` resets the camera, and `?` restores the
+guide. None of these controls add a simulator-side input or change task state.
+
+The **Train** control is enabled only when the selected catalog entry publishes
+an owning task training contract. It opens a guided sheet that keeps the Robot,
+Environment, and Task visible, offers an explicitly non-qualifying pipeline
+check plus staged standing and movement curricula, explains the transition
+budget and difficulty band, and separates starting a new policy from continuing
+the selected compatible policy. Advanced controls expose environment count,
+rollout horizon, updates, submission chunk, seed, and checkpoint cadence
+without requiring command-line knowledge. Starting a run releases the preview
+world before `numi train` acquires Metal, publishes progress into the window,
+and retains the complete run directory even on failure. The trainer then uses
+its ordinary held-out incumbent/candidate selection followed by a window
+balance qualification requiring zero failed steps, zero height/tilt
+terminations, a clean held-out horizon, bounded tilt, and retained root height.
+A deployment is automatically loaded only when its policy and evidence hashes
+are bound and the supported guided held-out balance screen passes. Research
+policies remain manually selectable; unknown or failing evidence does not
+qualify them for auto-load. Non-humanoid screens remain unknown. A training click therefore never
+makes Environment or Task choose a policy implicitly, and neither a regressing
+candidate nor a less-bad but still falling incumbent is presented as success.
 
 Presentation remains event-driven rather than timer-driven. The `MTKView`
 keeps its drawable render-target-only with a single sample, creates the display
@@ -295,10 +349,20 @@ utility. It reads a cooked BodyParts3D pack and exports three PPM views from
 world-up-stable cameras. It intentionally binds the source surface only to a
 static asset; it is not a BodyParts3D-to-OpenSim registration, a skinned Human
 renderer, or a mechanics/contact qualification.
+The delivery hot path stores numeric frame metadata without formatting a Swift
+string per frame; readable title text is assembled only after the four-hertz
+gate. Toolbar SF Symbols are refreshed only for explicit state changes, and
+drawable sizing is recomputed only when the source resolution or view bounds
+changes.
 
 Fixed and wrist cameras in `FrankaPickPlaceWorldFamily` are the reference
 integration. The fixed camera is calibrated toward the manipulation
 workspace; the wrist camera is bound to the final articulated link.
+
+PointWorld consumes this same visual-provider boundary as an advisory
+action-conditioned scene-flow model. Its Apple-native ownership, artifact
+contracts, parity definition, and current qualification frontier are documented
+in `docs/POINTWORLD.md`.
 
 ### Deployable observations and supervisory truth
 
@@ -449,6 +513,14 @@ multi-camera RGB, validity-masked metric depth, state, and actions.
 | [SIMPLER](https://arxiv.org/abs/2405.05941) and [RialTo](https://arxiv.org/abs/2403.03949) depend on matched scenes and calibration. | Simulation, capture, and replay use one frame contract and one immutable episode provenance model. |
 
 ## Public surfaces
+
+Numi Window's generated built-in catalog also contains the separate
+`numifly-ground-flight` scene. Its 9%-scale G1 body and bilateral Maeda surface
+are authored presentation assets bound to the torso. The Maeda pack explicitly
+delegates geometry to the measured-surface owner: accepted private Metal state
+prepares and depth-composites the deforming topology on the renderer's borrowed
+encoder before sensor response, while the indexed pack retains material,
+identity, binding, and provenance. See `docs/NUMIFLY.md`.
 
 - C++ contracts: `include/metalrobo/VisualPlatform.hpp`
 - Shared Metal ABI: `include/metalrobo/visual_platform_types.h`

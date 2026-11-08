@@ -1,0 +1,21 @@
+{
+  "resume_step": 1680,
+  "shared_states_compared": [
+    1680,
+    1681,
+    1682,
+    1683,
+    1684,
+    1685,
+    1686,
+    1687,
+    1688,
+    1689,
+    1690,
+    1691,
+    1692
+  ],
+  "all_physical_film_arrays_grip_contacts_and_counts_identical": true,
+  "world_pad_input_bytes_unchanged": true,
+  "carrier_geometry_change_only": true
+}

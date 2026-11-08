@@ -835,6 +835,41 @@ def main() -> int:
                 raise RuntimeError(
                     "deterministic deployment retained training-only state"
                 )
+            multitask_learner = make_learner()
+            multitask_learner.bind_contract(
+                world_fingerprint=1,
+                task_fingerprint=2,
+                observation_fingerprint=3,
+                action_fingerprint=4,
+                compatible_task_bindings=((1, 2), (5, 6)),
+            )
+            multitask_artifact = multitask_learner.write_policy_pack(
+                Path(actor_directory) / "multitask.policypack",
+                policy_id="multitask-policy-check",
+                stochastic=False,
+                library_path=arguments.library,
+            )
+            multitask_pack = read_policy_pack(
+                multitask_artifact,
+                library_path=arguments.library,
+            )
+            resumed_multitask = MLXPolicyLearner.from_actor_policy_pack(
+                multitask_artifact,
+                critic_count,
+                multitask_learner.configuration,
+                library_path=arguments.library,
+            )
+            if (
+                multitask_pack.contract_version != 2
+                or multitask_pack.compatible_task_bindings != ((1, 2), (5, 6))
+                or resumed_multitask.compatible_task_bindings != ((1, 2), (5, 6))
+            ):
+                raise RuntimeError(
+                    "multitask PolicyPack did not preserve robot task bindings: "
+                    f"contract={multitask_pack.contract_version} "
+                    f"artifact={multitask_pack.compatible_task_bindings} "
+                    f"resumed={resumed_multitask.compatible_task_bindings}"
+                )
             initialized = MLXPolicyLearner.from_actor_policy_pack(
                 deployment,
                 critic_count,

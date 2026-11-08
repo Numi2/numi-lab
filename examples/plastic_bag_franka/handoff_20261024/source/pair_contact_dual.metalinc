@@ -1,0 +1,39 @@
+// XPBD unilateral pair row, including release of accumulated normal support.
+// lambda[0:1].xyz cache local position witnesses until the velocity phase resets
+// those four slots. The normal multiplier is always nonnegative.
+inline int pb_pair_position_dual(const PlasticBagCoinGPU a,const PlasticBagCoinGPU b,
+ const float R,const float h,const float dt,thread PlasticBagPairLoadGPU& state,
+ thread float3& da,thread float3& db,thread float3& qa,thread float3& qb){
+ da=db=qa=qb=float3(0);const float old=max(0.0f,state.normalImpulse.w*dt);
+ float depth;float3 n,ra,rb;
+ const int status=pb_pair_mpr(a,b,R,h,depth,n,ra,rb);if(status==0)return 0;
+ bool release=false;
+ const float3 oldN=old>0.0f?normalize(state.normalImpulse.xyz):float3(1,0,0);
+ if(old>0.0f&&(status==-1||(depth>5.e-8f&&dot(oldN,n)<.95f))){
+  n=oldN;ra=pb_rotate(float4(a.orientation),state.lambda[0].xyz);
+  rb=pb_rotate(float4(b.orientation),state.lambda[1].xyz);
+  const float gap=dot(pb_coin_difference(a,b)+ra-rb,n);
+  depth=-gap-5.e-8f;
+  // A separated pair with a crossed finite feature must discard its old row.
+  release=status==1||depth>0.0f;
+  const float3 mid=.5f*(a.positionAndInverseMass.xyz+ra+b.positionAndInverseMass.xyz+rb);
+  ra=mid-a.positionAndInverseMass.xyz;rb=mid-b.positionAndInverseMass.xyz;
+ }else{
+  if(status==-1||depth<=5.e-8f)return status;
+  depth-=5.e-8f;
+ }
+ const float3 an=cross(ra,n),bn=cross(rb,n);
+ const float3 ia=pb_apply_inverse_inertia(a,an,R,h),ib=pb_apply_inverse_inertia(b,bn,R,h);
+ const float k=a.positionAndInverseMass.w+b.positionAndInverseMass.w+dot(an,ia)+dot(bn,ib);
+ const float next=release?0.0f:max(0.0f,old+depth/max(k,1.e-12f));const float dl=next-old;
+ da=a.positionAndInverseMass.w*dl*n;db=-b.positionAndInverseMass.w*dl*n;
+ qa=dl*ia;qb=-dl*ib;
+ state.normalImpulse=float4(n*(next/dt),next/dt);
+ state.lambda[0]=float4(pb_rotate(pb_quat_conjugate(float4(a.orientation)),ra),0);
+ state.lambda[1]=float4(pb_rotate(pb_quat_conjugate(float4(b.orientation)),rb),0);
+ return status;
+}
+kernel void pb_pair_velocity_reset(constant PlasticBagConfigGPU& c [[buffer(0)]],
+ device PlasticBagPairLoadGPU* loads [[buffer(1)]],device PlasticBagPairVelocityGeometryGPU* geometry [[buffer(2)]],uint i [[thread_position_in_grid]]){
+ if(i>=c.counts.w*(c.counts.w-1u)/2u)return;geometry[i].validAndCount=mr_uint4(0u);for(uint j=0u;j<4u;++j)loads[i].lambda[j]=float4(0);
+}

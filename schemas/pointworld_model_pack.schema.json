@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://numi.dev/schemas/pointworld_model_pack.schema.json",
+  "title": "PointWorldModelPack",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "id", "source", "checkpoint", "dino", "release_assets", "architecture", "license_receipts", "contract"],
+  "properties": {
+    "format": {"const": "numi.pointworld-model-pack.v1"},
+    "id": {"type": "string", "minLength": 1},
+    "source": {
+      "type": "object", "additionalProperties": false,
+      "required": ["repository", "revision", "license"],
+      "properties": {
+        "repository": {"const": "NVlabs/PointWorld"},
+        "revision": {"const": "05484826dfef74cbe278a3974179a5a16705d35d"},
+        "license": {"const": "Apache-2.0"}
+      }
+    },
+    "checkpoint": {
+      "type": "object", "additionalProperties": false,
+      "required": ["repository", "revision", "path", "sha256", "license"],
+      "properties": {
+        "repository": {"const": "nvidia/PointWorld_models"},
+        "revision": {"const": "b9e2e19a4f2bd65922e1f6d70aa953fe70aa9dba"},
+        "path": {"const": "large-droid+behavior/model-best.pt"},
+        "sha256": {"const": "bb7a5b0d717b79363c75751531c2416b099b8fca28b2f799ff49ace7123af787"},
+        "license": {"const": "nvidia-open-model-license"}
+      }
+    },
+    "dino": {
+      "type": "object", "additionalProperties": false,
+      "required": ["revision", "weights_sha256", "license"],
+      "properties": {
+        "revision": {"const": "54694f7627fd815f62a5dcc82944ffa6153bbb76"},
+        "weights_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "license": {"type": "string", "minLength": 1}
+      }
+    },
+    "release_assets": {
+      "type": "object", "additionalProperties": false,
+      "required": ["normalization_path", "normalization_sha256", "ptv3_blueprint_path", "ptv3_blueprint_sha256", "checkpoint_contract_path", "checkpoint_contract_sha256"],
+      "properties": {
+        "normalization_path": {"const": "stats/droid_behavior/norm_stats.json"},
+        "normalization_sha256": {"const": "9bc88f9ad1402662b6ee24023b022ec515770eeae6aa2a150cfe2b049e0a5f54"},
+        "ptv3_blueprint_path": {"const": "ptv3/ptv3_arch.yaml"},
+        "ptv3_blueprint_sha256": {"const": "58a5022895a639409b7f2659cdd95348bc7f3eeed4dac626603011093588f8ec"},
+        "checkpoint_contract_path": {"const": "pointworld/checkpoint_contract.py"},
+        "checkpoint_contract_sha256": {"const": "d87286cd119d5dcd5cc60b9697920ad1d5df0ade6d24377de4104fc43e7cdb97"}
+      }
+    },
+    "architecture": {
+      "type": "object", "additionalProperties": false,
+      "required": ["scene_encoder", "scene_encoder_layers", "ptv3_size", "ptv3_patch_size", "predictor_dim", "grid_size_m", "depth_threshold_m", "robot_features", "scene_features"],
+      "properties": {
+        "scene_encoder": {"const": "dinov3_vitl16"},
+        "scene_encoder_layers": {"const": [4, 11, 17, 23]},
+        "ptv3_size": {"const": "large"},
+        "ptv3_patch_size": {"const": 256},
+        "predictor_dim": {"const": 256},
+        "grid_size_m": {"const": 0.015},
+        "depth_threshold_m": {"const": 0.003},
+        "robot_features": {"const": ["robot_flows", "robot_colors", "robot_normals", "gripper_open", "robot_velocity", "robot_acceleration"]},
+        "scene_features": {"const": ["scene_flows", "scene_colors", "scene_normals", "gripper_open", "dist2robot"]}
+      }
+    },
+    "license_receipts": {
+      "type": "object", "additionalProperties": false,
+      "required": ["nvidia_open_model_license_accepted", "dinov3_access_granted", "dinov3_license_accepted"],
+      "properties": {
+        "nvidia_open_model_license_accepted": {"const": true},
+        "dinov3_access_granted": {"const": true},
+        "dinov3_license_accepted": {"const": true}
+      }
+    },
+    "contract": {
+      "type": "object", "additionalProperties": false,
+      "required": ["image_width", "image_height", "context_frames", "prediction_frames", "max_scene_points", "max_robot_points", "domains"],
+      "properties": {
+        "image_width": {"const": 320},
+        "image_height": {"const": 180},
+        "context_frames": {"const": 1},
+        "prediction_frames": {"const": 10},
+        "max_scene_points": {"const": 12000},
+        "max_robot_points": {"const": 500},
+        "domains": {"const": ["droid", "behavior"]}
+      }
+    }
+  }
+}

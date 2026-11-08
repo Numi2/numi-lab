@@ -223,6 +223,9 @@ set(METALROBO_NEURON_CULTURE_AIR
 set(METALROBO_NEURON_CULTURE_METALLIB
     "${METALROBO_SHADER_DIR}/NumiNeuron.metallib"
 )
+set(METALROBO_POINTWORLD_SOURCE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/PointWorld.metal"
+)
 set(METALROBO_CONSTRAINT_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboConstraintSolver.air"
 )
@@ -390,6 +393,9 @@ set(METALROBO_TACTILE_AIR
 )
 set(METALROBO_SCENE_QUERY_AIR
     "${METALROBO_SHADER_DIR}/MetalRoboSceneQuery.air"
+)
+set(METALROBO_POINTWORLD_AIR
+    "${METALROBO_SHADER_DIR}/MetalRoboPointWorld.air"
 )
 set(METALROBO_METALLIB "${METALROBO_SHADER_DIR}/MetalRobo.metallib")
 set(METALROBO_HYPER_POLICY_AIR
@@ -788,6 +794,12 @@ add_custom_command(
             -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
             -c "${METALROBO_SCENE_QUERY_SOURCE}"
             -o "${METALROBO_SCENE_QUERY_AIR}"
+    COMMAND xcrun -sdk macosx metal
+            -std=metal4.0
+            -O3
+            -fno-fast-math
+            -c "${METALROBO_POINTWORLD_SOURCE}"
+            -o "${METALROBO_POINTWORLD_AIR}"
     COMMAND xcrun -sdk macosx metallib
             "${METALROBO_CONSTRAINT_AIR}"
             "${METALROBO_QUALITY_CONTACT_AIR}"
@@ -842,6 +854,7 @@ add_custom_command(
             "${METALROBO_VISUAL_ASSET_COOK_AIR}"
             "${METALROBO_TACTILE_AIR}"
             "${METALROBO_SCENE_QUERY_AIR}"
+            "${METALROBO_POINTWORLD_AIR}"
             -o "${METALROBO_METALLIB}"
     DEPENDS
         "${METALROBO_CONSTRAINT_SOURCE}"
@@ -898,6 +911,7 @@ add_custom_command(
         "${METALROBO_VISUAL_ASSET_COOK_SOURCE}"
         "${METALROBO_TACTILE_SOURCE}"
         "${METALROBO_SCENE_QUERY_SOURCE}"
+        "${METALROBO_POINTWORLD_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/gpu_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/engine_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_stand_gpu.h"
@@ -907,6 +921,7 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_friction.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_bilateral.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/multicopter_types.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/measured_surface_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/task_program_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/policy_program_types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/constraint_ir_shared.h"
@@ -1138,6 +1153,7 @@ add_library(
     src/metal/MetalRunInspector.mm
     src/metal/MetalTactile.mm
     src/metal/MetalNeuronCulture.mm
+    src/metal/MetalPointWorld.mm
     src/c_api.cpp
 )
 target_sources(
@@ -1237,6 +1253,39 @@ if(BUILD_TESTING)
         COMMAND numi-matter-cardboard-shipping-rigid-driver-check)
     set_tests_properties(matter.compiler.cardboard_shipping_rigid_driver PROPERTIES
         TIMEOUT 60 LABELS "matter;cardboard;rigid;synthetic")
+endif()
+if(BUILD_TESTING)
+    add_executable(
+        metalrobo_numi_human_force_parity_test
+        tests/numi_human_force_parity_test.cpp
+    )
+    target_include_directories(
+        metalrobo_numi_human_force_parity_test
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    )
+    target_compile_options(
+        metalrobo_numi_human_force_parity_test
+        PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+            -Werror
+            -fno-fast-math
+            -ffp-contract=off
+    )
+    set_target_properties(
+        metalrobo_numi_human_force_parity_test
+        PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    )
+    add_test(
+        NAME numi_human_force_parity
+        COMMAND $<TARGET_FILE:metalrobo_numi_human_force_parity_test>
+    )
+    set_tests_properties(
+        numi_human_force_parity
+        PROPERTIES LABELS "numi-human;mechanics;parity"
+    )
 endif()
 
 add_executable(metalrobo_bench apps/benchmark.cpp)
@@ -1462,6 +1511,15 @@ add_executable(
     apps/task_program_check.cpp
 )
 
+add_executable(metalrobo_task_owner_replay_probe apps/task_owner_replay_probe.cpp)
+target_link_libraries(metalrobo_task_owner_replay_probe PRIVATE metalrobo)
+target_compile_options(metalrobo_task_owner_replay_probe PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
+set_target_properties(metalrobo_task_owner_replay_probe PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+
+
 add_executable(
     metalrobo_run_program_check
     apps/run_program_check.cpp
@@ -1538,7 +1596,8 @@ target_compile_options(metalrobo_measured_surface_robot_probe PRIVATE
     -Wall -Wextra -Wpedantic -Werror)
 set_target_properties(metalrobo_measured_surface_robot_probe PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
-    BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+    INSTALL_RPATH "@loader_path/../lib")
 
 # Native window catalog and optional imported-robot compiler.
 foreach(_window_tool IN ITEMS numi_window_catalog_compile booster_k1_compile)
@@ -1602,6 +1661,39 @@ if(METALROBO_HAS_SWIFT)
     )
 
     add_executable(
+        metalrobo_measured_dove_robot_lab
+        apps/MeasuredDoveRobotLab.swift
+        bindings/swift/MetalRoboTaskRollout.swift
+    )
+    target_include_directories(
+        metalrobo_measured_dove_robot_lab
+        PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo"
+    )
+    target_link_libraries(
+        metalrobo_measured_dove_robot_lab
+        PRIVATE
+            metalrobo
+            "${APPKIT_FRAMEWORK}"
+            "${METAL_FRAMEWORK}"
+            "${METALKIT_FRAMEWORK}"
+            "${QUARTZCORE_FRAMEWORK}"
+    )
+    target_compile_options(
+        metalrobo_measured_dove_robot_lab
+        PRIVATE "$<$<COMPILE_LANGUAGE:Swift>:-parse-as-library>"
+    )
+    set_target_properties(
+        metalrobo_measured_dove_robot_lab
+        PROPERTIES
+            Swift_LANGUAGE_VERSION 6
+            Swift_COMPILATION_MODE singlefile
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+            BUILD_RPATH "@loader_path/../lib"
+            INSTALL_RPATH "@loader_path/../lib"
+    )
+
+    add_executable(
         metalrobo_task_rollout
         apps/task_rollout.swift
         apps/NumiWindow.swift
@@ -1609,6 +1701,7 @@ if(METALROBO_HAS_SWIFT)
         apps/NumiTraining.swift
         bindings/swift/MetalRoboTaskRollout.swift
     )
+
     target_include_directories(
         metalrobo_task_rollout
         PRIVATE
@@ -6412,6 +6505,24 @@ target_compile_definitions(
     metalrobo_visual_reference_probe
     PRIVATE METALROBO_METALLIB="${METALROBO_METALLIB}"
 )
+add_executable(
+    metalrobo_pointworld_probe
+    apps/metal_pointworld_probe.mm
+)
+target_link_libraries(
+    metalrobo_pointworld_probe
+    PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}"
+)
+target_compile_options(
+    metalrobo_pointworld_probe
+    PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror
+)
+set_target_properties(
+    metalrobo_pointworld_probe
+    PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
+)
 target_link_libraries(
     metalrobo_visual_reference_probe
     PRIVATE
@@ -6612,6 +6723,7 @@ install(
         numi/commands/view
         .numi/commands/window
         python/metalrobo/numi_source_provenance.py
+        numi/commands/world-model
     DESTINATION libexec/numi
 )
 install(
@@ -6673,6 +6785,10 @@ install(
         schemas/visual_episode_stream.schema.json
         schemas/visual_frame_batch.schema.json
         schemas/visual_scene_manifest_v3.schema.json
+        schemas/pointworld_model_pack.schema.json
+        schemas/pointworld_observation.schema.json
+        schemas/pointworld_robot_flow_candidates.schema.json
+        schemas/pointworld_forecast.schema.json
     DESTINATION share/metalrobo/schemas
 )
 install(

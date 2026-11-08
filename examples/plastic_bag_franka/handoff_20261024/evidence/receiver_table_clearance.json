@@ -1,0 +1,70 @@
+{
+  "frames": 1921,
+  "all_visual_vertices_and_authored_rubber_pad_vertices": true,
+  "rigid_central_pad_carriers_included": true,
+  "convex_hull_reduction_exact_for_plane_support": true,
+  "table_height_m": 0.108,
+  "minimum_gap_m": -1.3877787807814457e-17,
+  "event": {
+    "link": 0,
+    "time_s": 0
+  },
+  "per_link": [
+    {
+      "link": 0,
+      "minimum_vertex_table_gap_m": -1.3877787807814457e-17,
+      "time_s": 0
+    },
+    {
+      "link": 1,
+      "minimum_vertex_table_gap_m": 0.1410000117421149,
+      "time_s": 0
+    },
+    {
+      "link": 2,
+      "minimum_vertex_table_gap_m": 0.27798128021642715,
+      "time_s": 6.2
+    },
+    {
+      "link": 3,
+      "minimum_vertex_table_gap_m": 0.38696090285805396,
+      "time_s": 0
+    },
+    {
+      "link": 4,
+      "minimum_vertex_table_gap_m": 0.5025043407759751,
+      "time_s": 5.004166666666666
+    },
+    {
+      "link": 5,
+      "minimum_vertex_table_gap_m": 0.5268638001879594,
+      "time_s": 5.995833333333334
+    },
+    {
+      "link": 6,
+      "minimum_vertex_table_gap_m": 0.5260260605979173,
+      "time_s": 5.995833333333334
+    },
+    {
+      "link": 7,
+      "minimum_vertex_table_gap_m": 0.47085702702103294,
+      "time_s": 5.995833333333334
+    },
+    {
+      "link": 8,
+      "minimum_vertex_table_gap_m": 0.4028477088168221,
+      "time_s": 5.995833333333334
+    },
+    {
+      "link": 9,
+      "minimum_vertex_table_gap_m": 0.34754261039965634,
+      "time_s": 5.991666666666666
+    },
+    {
+      "link": 10,
+      "minimum_vertex_table_gap_m": 0.3488304956349285,
+      "time_s": 5.995833333333334
+    }
+  ],
+  "scope": "Plane clearance of authored kinematic robot visual meshes and pad boxes. Not robot self-collision or coupled motor dynamics qualification."
+}

@@ -1,0 +1,98 @@
+// Expanding polytope contact depth. The seed is a portal tetrahedron inside
+// the Minkowski difference containing the origin. Every face is retained;
+// selecting the closest face avoids a portal-ray penetration overestimate.
+// Geometry support/portal discovery follows libccd; see its BSD license.
+struct PBEPAFace {uint3 ids;float3 normal;float distance;bool active;};
+inline bool pb_epa_face(thread PBEPAFace* faces,thread PBSupport* vertices,
+ const uint a,const uint b,const uint c,const float3 interior,const bool orient=true){
+ const float3 ab=vertices[b].v-vertices[a].v,ac=vertices[c].v-vertices[a].v;
+ float3 n=cross(ab,ac);const float l=length(n);if(l<1.e-16f)return false;n/=l;
+ uint3 ids=uint3(a,b,c);if(orient&&dot(n,interior-vertices[a].v)>0.0f){n=-n;ids=uint3(a,c,b);}
+ const float d=dot(n,vertices[a].v);
+ for(uint i=0u;i<96u;++i)if(!faces[i].active){faces[i].ids=ids;faces[i].normal=n;faces[i].distance=d;faces[i].active=true;return true;}
+ return false;
+}
+inline int pb_pair_epa(const PBMPRShape shape,thread PBSupport* seed,
+ thread float& depth,thread float3& normal,thread float3& armA,thread float3& armB){
+ depth=INFINITY;
+ PBSupport vertices[48];PBEPAFace faces[96];uint2 horizon[144];
+ for(uint i=0;i<4;++i)vertices[i]=seed[i];for(uint i=0;i<96;++i)faces[i].active=false;
+ const float3 interior=.25f*(seed[0].v+seed[1].v+seed[2].v+seed[3].v);
+ if(!pb_epa_face(faces,vertices,0,1,2,interior)||!pb_epa_face(faces,vertices,0,3,1,interior)||
+    !pb_epa_face(faces,vertices,0,2,3,interior)||!pb_epa_face(faces,vertices,1,3,2,interior))return 0;
+ uint vertexCount=4u;
+ for(uint iteration=0u;iteration<44u;++iteration){
+  uint best=96u;float distance=INFINITY;
+  for(uint f=0;f<96;++f)if(faces[f].active&&faces[f].distance<distance){best=f;distance=faces[f].distance;}
+  if(best==96u)return 0;const auto face=faces[best];
+  const PBSupport point=pb_mpr_support(shape,face.normal);
+  const float supportPlane=dot(point.v,face.normal);
+  if(supportPlane< -5.e-8f)return -1;
+  // An analytic support plane is also a certified upper bound on the
+  // translation needed for separation, even if a sliver face later fails.
+  if(supportPlane<depth){depth=supportPlane;normal=-face.normal;armA=point.bary;armB=point.arm;}
+  const float gap=supportPlane-distance;
+  // The closest hull plane is a global lower bound. Any analytic support
+  // plane is an upper bound; retain the best one across iterations. A narrow
+  // global bracket remains valid when the current face is a float sliver.
+  const float3 bestNormal=normal;
+  const bool globalClosed=distance>=0.0f&&depth-distance<=2.5e-7f;
+  if((gap<=2.5e-7f&&gap>=-2.5e-7f)||globalClosed){
+   if(distance+gap< -5.e-8f)return -1;
+   depth=max(0.0f,distance);normal=globalClosed?bestNormal:-face.normal;
+   const float3 a=vertices[face.ids.x].v,b=vertices[face.ids.y].v,c=vertices[face.ids.z].v;
+   const float3 e=b-a,f=c-a,q=distance*face.normal-a,area=cross(e,f);
+   const float den=dot(area,area);if(den<1.e-32f)return 0;
+   const float wb=dot(cross(q,f),area)/den,wc=dot(cross(e,q),area)/den;
+   float3 weights=max(float3(1.0f-wb-wc,wb,wc),float3(0));weights/=max(weights.x+weights.y+weights.z,1.e-20f);
+   armA=weights.x*vertices[face.ids.x].bary+weights.y*vertices[face.ids.y].bary+weights.z*vertices[face.ids.z].bary;
+   armB=weights.x*vertices[face.ids.x].arm+weights.y*vertices[face.ids.y].arm+weights.z*vertices[face.ids.z].arm;
+   // Apply reciprocal impulses at a shared contact point. This retains
+   // angular momentum even for a triangulated planar contact patch.
+   const float3 midpoint=.5f*(shape.delta+armA+armB);armA=midpoint-shape.delta;armB=midpoint;
+   return 1;
+  }
+  if(gap< -2.5e-7f||vertexCount>=48u)return 0;
+  uint edgeCount=0u;
+  for(uint f=0;f<96;++f)if(faces[f].active){
+   const auto old=faces[f];if(dot(old.normal,point.v-vertices[old.ids.x].v)<=1.e-9f)continue;
+   faces[f].active=false;
+   for(uint j=0;j<3;++j){
+    const uint2 edge=uint2(old.ids[j],old.ids[(j+1u)%3u]);bool cancelled=false;
+    for(uint k=0;k<edgeCount;++k)if(horizon[k].x==edge.y&&horizon[k].y==edge.x){horizon[k]=horizon[--edgeCount];cancelled=true;break;}
+    if(!cancelled){if(edgeCount>=144u)return 0;horizon[edgeCount++]=edge;}
+   }
+  }
+  if(edgeCount==0u)return 0;const uint next=vertexCount++;vertices[next]=point;
+  for(uint j=0;j<edgeCount;++j)if(!pb_epa_face(faces,vertices,horizon[j].x,horizon[j].y,next,interior,false))return 0;
+ }
+ return 0;
+}
+
+inline int pb_pair_epa_bounded(const PBMPRShape shape,thread PBSupport* seed,
+ thread float& depth,thread float3& normal,thread float3& armA,thread float3& armB){
+ const int status=pb_pair_epa(shape,seed,depth,normal,armA,armB);
+ if(status==0&&depth>5.e-7f){
+  // A refined portal supplies additional supporting planes after a sliver
+  // polytope failure. Only an independently small support value resolves it.
+  for(uint iteration=0u;iteration<64u;++iteration){
+   const float3 cr=cross(seed[2].v-seed[1].v,seed[3].v-seed[1].v);const float len=length(cr);if(len<1.e-15f)break;
+   const float3 d=cr/len;const PBSupport q=pb_mpr_support(shape,d);const float upper=dot(q.v,d);
+   if(upper< -5.e-8f)return -1;
+   if(upper<depth){depth=upper;normal=-d;armA=q.bary;armB=q.arm;}
+   if(depth<=5.e-7f)break;
+   const float improvement=upper-min(dot(seed[1].v,d),min(dot(seed[2].v,d),dot(seed[3].v,d)));
+   if(improvement<=5.e-8f)break;
+   const float3 c=cross(q.v,seed[0].v);
+   if(dot(seed[1].v,c)>0.0f){if(dot(seed[2].v,c)>0.0f)seed[1]=q;else seed[3]=q;}
+   else{if(dot(seed[3].v,c)>0.0f)seed[2]=q;else seed[1]=q;}
+  }
+ }
+ // Resolve a failed polytope only when a support plane independently bounds
+ // possible penetration within the 0.5 micrometer bounded contact tolerance.
+ // No separating velocity or positional kick is manufactured at this scale.
+ if(status==0&&isfinite(depth)&&depth>=-5.e-8f&&depth<=5.e-7f){
+  depth=0.0f;const float3 mid=.5f*(shape.delta+armA+armB);armA=mid-shape.delta;armB=mid;return 1;
+ }
+ return status;
+}

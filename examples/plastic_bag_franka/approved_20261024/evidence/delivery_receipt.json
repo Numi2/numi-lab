@@ -1,0 +1,47 @@
+{
+  "duration_s": 8,
+  "native_hz": 240,
+  "native_states": 1921,
+  "trajectory_sha256": "e492e1d54813ef6200ffcdde65bcb53333d439b68ece47182b2d021ec45e4199",
+  "checkpoint_sha256": "68ce8f0f6b6ec9ce9be35162c00e88a8372303182e565c9b8b8f0dd1f30d12bf",
+  "film_nodes": 1081,
+  "dynamic_film_nodes": 1081,
+  "fixed_film_nodes": 0,
+  "film_mass_kg_from_gpu": 0.006519907166648409,
+  "coin_mass_kg_each_from_gpu": [
+    0.011339999735355377,
+    0.011339999735355377,
+    0.011339999735355377,
+    0.011339999735355377,
+    0.011339999735355377,
+    0.011339999735355377,
+    0.011339999735355377,
+    0.011339999735355377,
+    0.011339999735355377,
+    0.011339999735355377
+  ],
+  "grasp_task_checks": {
+    "actual_lift_over_0_28_m": true,
+    "contact_through_hold": true,
+    "all_ten_coins_lifted": true,
+    "released_at_end": true,
+    "no_saved_non_pad_robot_film_crossing": true,
+    "film_table_clearance_within_0_1_um": true,
+    "coin_table_clearance_within_0_1_um": true
+  },
+  "numerical_checks": {
+    "film": true,
+    "pair": true,
+    "energy": true
+  },
+  "video_sha256": {
+    "air_drop_corner_grip_pickup_drop_8s_normal.mp4": "ac63d5478b7985b2af9ff0fd3d2846dc7f4705c43d54c9bbe1eda236e3b09b41",
+    "stock_grip_side_8s_normal.mp4": "52c82f833384a95934ed10e52ed1b2375674feb03a2709f8a2310b8c9fd8098e"
+  },
+  "source_and_actuator_inputs_match_native_launch_manifest": true,
+  "limits": [
+    "Robot joint positions are prescribed; motor dynamics are not simulated.",
+    "Robot housing clearance is audited at saved states, not continuous body contact.",
+    "Film and pad material parameters are assumptions, not physical calibration."
+  ]
+}

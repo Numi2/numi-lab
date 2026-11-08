@@ -1,0 +1,116 @@
+{
+  "schema": "numi.research-study.v1",
+  "id": "physically-qualified-imagination-ii",
+  "title": "Physically Qualified Imagination at Scale",
+  "status": "pilot_rejected",
+  "branch": "numisolver",
+  "evidence_scope": "Apple Silicon simulator evidence only; no hardware or sim-to-real claim",
+  "research_question": "Can solver qualification turn compositional left, right, and bilateral hand-raising proposals into autonomous humanoid skills without degrading a fixed, previously qualified standing base after the generator is removed?",
+  "pilot_decision": "Rejected before confirmatory execution: the inherited full-body actor was not stable under the current action contract and 64 updates increased held-out physical failure. No confirmatory learning claim is made.",
+  "hypotheses": [
+    "Solver-qualified imagination improves autonomous target-arm completion under a matched transition budget.",
+    "Left-to-right symmetry and bilateral composition remain physically stable when initialized from the same qualified standing actor.",
+    "The improvement persists with ARDY disconnected and does not regress support, tilt, termination, or failed-step outcomes."
+  ],
+  "learner_seeds": [2650443581, 2650443582, 2650443583, 2650443584, 2650443585],
+  "evaluation_seed": 3650443581,
+  "methods": [
+    {
+      "id": "matched_ppo",
+      "description": "Native PPO initialized from the fixed standing actor with no generated teacher.",
+      "teacher_disconnected_evaluation": false,
+      "train_args": [
+        "--fixed-learning-rate",
+        "--learning-rate", "0.000002",
+        "--minimum-learning-rate", "0.000002",
+        "--maximum-learning-rate", "0.000002"
+      ]
+    },
+    {
+      "id": "qualified_imagination",
+      "description": "A task-specific ARDY proposal executed by NumiSolver; valid realized transitions receive continuous distillation weight.",
+      "teacher_disconnected_evaluation": true,
+      "train_args": [
+        "--interaction-student-authority", "0",
+        "--imagination-distillation-coefficient", "10",
+        "--fixed-learning-rate",
+        "--learning-rate", "0.000002",
+        "--minimum-learning-rate", "0.000002",
+        "--maximum-learning-rate", "0.000002"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "raise_right_hand",
+      "train_args": [
+        "--task", "velocity", "--scene", "ground",
+        "--minimum-difficulty-band", "0", "--maximum-difficulty-band", "0",
+        "--envs", "256", "--steps", "256", "--updates", "32", "--chunk", "8",
+        "--initialize-policy", "pqi2-raise-right-hand",
+        "--initialize-actor-policy-pack", ".numi/runs/g1-baby-stage4-standing-lowlr/deployment.policypack",
+        "--initialize-actor-fresh-critic"
+      ],
+      "method_args": {
+        "qualified_imagination": [
+          "--interaction-pack", ".numi/runs/pqi2-inputs/raise-right-hand-composed/motion.interactionpack",
+          "--interaction-clip", "raise-right-hand"
+        ]
+      }
+    },
+    {
+      "id": "raise_left_hand",
+      "train_args": [
+        "--task", "velocity", "--scene", "ground",
+        "--minimum-difficulty-band", "0", "--maximum-difficulty-band", "0",
+        "--envs", "256", "--steps", "256", "--updates", "32", "--chunk", "8",
+        "--initialize-policy", "pqi2-raise-left-hand",
+        "--initialize-actor-policy-pack", ".numi/runs/g1-baby-stage4-standing-lowlr/deployment.policypack",
+        "--initialize-actor-fresh-critic"
+      ],
+      "method_args": {
+        "qualified_imagination": [
+          "--interaction-pack", ".numi/runs/pqi2-inputs/raise-left-hand-composed/motion.interactionpack",
+          "--interaction-clip", "raise-left-hand"
+        ]
+      }
+    },
+    {
+      "id": "raise_both_hands",
+      "train_args": [
+        "--task", "velocity", "--scene", "ground",
+        "--minimum-difficulty-band", "0", "--maximum-difficulty-band", "0",
+        "--envs", "256", "--steps", "256", "--updates", "32", "--chunk", "8",
+        "--initialize-policy", "pqi2-raise-both-hands",
+        "--initialize-actor-policy-pack", ".numi/runs/g1-baby-stage4-standing-lowlr/deployment.policypack",
+        "--initialize-actor-fresh-critic"
+      ],
+      "method_args": {
+        "qualified_imagination": [
+          "--interaction-pack", ".numi/runs/pqi2-inputs/raise-both-hands-composed/motion.interactionpack",
+          "--interaction-clip", "raise-both-hands"
+        ]
+      }
+    }
+  ],
+  "primary_outcomes": [
+    "autonomous target-arm completion rate from wrist and shoulder state",
+    "left-right symmetry gap and bilateral composition gap",
+    "standing and quiet-stand incidence",
+    "height and tilt termination incidence",
+    "failed environment steps",
+    "physical transitions to threshold"
+  ],
+  "held_out_factors": [
+    "mass", "friction", "actuation latency", "observation noise", "reset phase"
+  ],
+  "claim_gates": [
+    "all method-task-seed cells complete",
+    "same fingerprinted standing actor initializes every cell",
+    "teacher disconnected during every confirmatory evaluation",
+    "zero failed environment steps",
+    "raw per-seed outcomes retained",
+    "matched physical transition and tuning budgets",
+    "simulator evidence never relabeled as hardware evidence"
+  ]
+}

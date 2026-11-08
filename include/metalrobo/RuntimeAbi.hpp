@@ -1,6 +1,7 @@
 #pragma once
 
 #include "metalrobo/engine_types.h"
+#include "metalrobo/measured_surface_types.h"
 #include "metalrobo/generalized_constraint_shared.h"
 #include "metalrobo/millard_muscle_gpu.h"
 #include "metalrobo/mujoco_muscle_gpu.h"
@@ -231,6 +232,11 @@ constexpr std::uint64_t runtimeAbiFingerprint() noexcept {
     hash = detail::appendRuntimeAbiType<MRNumiHumanJointEqualityGPU>(hash);
     hash = detail::appendRuntimeAbiType<MRNumiHumanStandDispatchGPU>(hash);
     hash = detail::appendRuntimeAbiType<MRNumiHumanStandStatusGPU>(hash);
+    // The combined runtime owns both the Human/muscle and measured-surface
+    // records. Its fingerprint intentionally differs from either parent;
+    // consumers requiring an exact ABI must compare the combined value.
+    hash = detail::appendRuntimeAbiWord(hash, MR_MEASURED_SURFACE_ABI_VERSION);
+    hash = detail::appendRuntimeAbiType<MRMeasuredSurfaceModelGPU>(hash);
     return hash;
 }
 

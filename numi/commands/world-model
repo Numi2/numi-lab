@@ -1,0 +1,37 @@
+#!/bin/sh
+set -eu
+
+if [ "${1:-}" = "--numi-describe" ]; then
+    printf '%s\n' 'Compile, validate, forecast, and plan with provenance-bound world models.'
+    exit 0
+fi
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
+    cat <<'EOF'
+Usage: numi world-model inspect --model-pack PACK
+       numi world-model fetch --repository REPO --revision REV --path FILE --output FILE
+       numi world-model convert --checkpoint FILE --checkpoint-revision REV --dino-weights FILE --dino-license NAME --normalization-stats FILE --ptv3-blueprint FILE --checkpoint-contract FILE --accept-nvidia-license --dino-access-granted --accept-dino-license --output PACK
+       numi world-model observation --model-pack PACK --source RGBD.npz --output observation.npz
+       numi world-model candidates --source authored_candidates.npz --observation observation.npz --observation-manifest observation.json --output candidates.npz
+       numi world-model reference --model-pack PACK --observation observation.npz --observation-manifest observation.json --candidates candidates.npz --candidates-manifest candidates.json --source cuda_forecast.npz --output forecast.npz
+       numi world-model infer --model-pack PACK
+       numi world-model evaluate --forecast-manifest forecast.json --forecast forecast.npz --ground-truth flows.npz --output metrics.json
+       numi world-model train --model-pack PACK
+       numi world-model plan --observation-manifest observation.json --observation observation.npz --forecast-manifest forecast.json --forecast forecast.npz --target target.npz --output plan.json
+
+PointWorld accepts calibrated RGB-D and 11-frame robot surface-point flows.
+Candidate compilation requires authored FP64 surface geometry/link transforms,
+gripper state, and robot topology receipts. It never accepts raw joint actions
+as model input and never owns simulator
+state, contacts, rewards, safety, or task outcomes.  `reference` seals output
+from the CUDA oracle; native Metal inference will publish the same forecast
+artifact after operator parity is qualified. `infer` and `train` fail closed
+until the large converted ModelPack and all native sparse/PTv3 operators pass
+the CUDA parity gates; no architecture-changing fallback is allowed.
+EOF
+    exit 0
+fi
+
+numi_root=${NUMI_LAB_ROOT:?Run this capability through the numi dispatcher.}
+numi_python=$(command -v python3)
+PYTHONPATH="$numi_root/python${PYTHONPATH:+:$PYTHONPATH}" \
+    "$numi_python" "$numi_root/python/metalrobo/pointworld.py" "$@"

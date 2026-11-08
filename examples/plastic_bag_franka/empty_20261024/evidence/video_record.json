@@ -1,0 +1,23 @@
+{
+  "normal_speed": true,
+  "native_hz": 240,
+  "physics_duration_s": 8,
+  "native_states": 1921,
+  "end_state_included": true,
+  "video_sha256": "2294fa8502b21b82e171e3e4da83559d03cf44f5b13bdea8d000a70164a50abe",
+  "trajectory_sha256": "c8d84183fc82e7be99e1c56e30ac9bfcb5f0b29edfdc3ac27932e0efc359d627",
+  "decode_pass": true,
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "r_frame_rate": "30/1",
+        "nb_frames": "241"
+      }
+    ],
+    "format": {
+      "duration": "8.033333"
+    }
+  }
+}
