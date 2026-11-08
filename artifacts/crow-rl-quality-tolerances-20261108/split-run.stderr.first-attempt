@@ -1,0 +1,4 @@
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-quality-tolerances-20261108/split-run.py", line 24
+    condition=lambda H:float(np.linalg.cond(H/np.sqrt(np.outer(np.diag(H),np.diag(H))))))
+                                                                                        ^
+SyntaxError: unmatched ')'

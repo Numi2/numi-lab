@@ -5,6 +5,8 @@ R=Path.cwd();A=R/'artifacts/crow-rl-quality-tolerances-20261108';B=R/'build/crow
 sys.path.insert(0,str(A));import independent as ref
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def write(p,x):p.write_text(json.dumps(x,indent=2,sort_keys=True)+'\n')
+def condition(H):
+ scale=1/np.sqrt(np.diag(H));return float(np.linalg.cond(H*np.outer(scale,scale)))
 plan=json.loads((A/'split-plan.json').read_text());out=B/'split-observations';out.mkdir();execution=[];started=time.monotonic()
 for name,f in plan['files'].items():assert sha(R/name)==f['sha256']
 for arm,f in plan['inputs'].items():
@@ -21,7 +23,6 @@ for arm,f in plan['inputs'].items():
  c=ref.parse((R/f['path']).read_bytes());nv=c['nv'];p=out/(arm+'-0');status=struct.unpack('<16I16f',(p/'status.bin').read_bytes())
  values=np.fromfile(p/'scratch.f32x2',dtype='<f4').reshape(-1,2).astype(float).sum(axis=1);v=values[:nv]
  q=ref.evaluate(c,v);vref,qr,h=ref.reference(c);initial=ref.evaluate(c,c['start']);rounded=ref.evaluate(c,v.astype('f4').astype(float))
- condition=lambda H:float(np.linalg.cond(H/np.sqrt(np.outer(np.diag(H),np.diag(H))))))
  same=all((out/(arm+'-0')/name).read_bytes()==(out/(arm+'-1')/name).read_bytes() for name in ['scratch.f32x2','status.bin']);exact &=same
  rows.append(dict(arm=arm,code=status[0],native_newton=status[1],native_backtracks=status[10],native_residual=status[16],independent_residual=q['res'],
  reference_velocity_abs_error=float(np.max(np.abs(v-vref))),rounded_residual=rounded['res'],declared_optimality=prior[arm]['declared_optimality'],

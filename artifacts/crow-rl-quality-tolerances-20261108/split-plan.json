@@ -34,7 +34,13 @@
     "rounded_satisfies_original_declared_optimality": true,
     "velocity_reference_abs_error_max": 2e-08
   },
+  "preexecution_amendment": "First runner failed Python parsing before any native submission (one extra closing parenthesis in condition diagnostic). Original source/plan/logs retained. Replace expression with explicit diagonal equilibration; native inputs, runtime, predictions and budget unchanged.",
   "repeats": 2,
   "schema": "crow-quality-tolerances-retained-split-plan-v1",
-  "scope": "Post-observation numerical diagnosis using the previously sealed native solver, not a new physical trajectory or profile promotion. Expanded state is independently checked; rounded state must meet the original captured tolerance."
+  "scope": "Post-observation numerical diagnosis using the previously sealed native solver, not a new physical trajectory or profile promotion. Expanded state is independently checked; rounded state must meet the original captured tolerance.",
+  "sources": {
+    "independent.py": "6349222af7835d775987bc145c6c4ac8327ff7a4644641641532f6ae4fb3e93e",
+    "split-prepare.py": "532f669908b3f59fa431542135571cf7eae0d3387e47c0da738ad8c8fd0bb1fa",
+    "split-run.py": "583f35a430226d86dfd842bd5e35459c4b2c2393db4b8f397d57fe3f3ad9e6fb"
+  }
 }
