@@ -1,0 +1,1 @@
+metal_unified_quality=ok device="Apple M4 Pro" environments=2 nv=12 rows=15 blocks=5 direct_pcg_error=1.71661e-05 optimality=7.6183e-06 feasibility=1.07288e-06 newton=5 pcg=9 capped_newton_optimality=3.3296e-08 frictionless_scalar_oracle=ok allocated_bytes=12384 large_rows=300 large_pcg=2 large_allocated_bytes=173060

@@ -1,0 +1,14 @@
+{
+  "all_checks_passed": false,
+  "checks": {
+    "feeding_policy_rejected": false,
+    "legacy_torso_camera_rejected": true,
+    "new_task_accepted_8_zero_action_steps": false
+  },
+  "legacy_error": "task_rollout failed: Active-head navigation requires a head-mounted visual sensor\n",
+  "policy_error": "task_rollout failed: PolicyPack compile failed [incompatible_contract]: contract: policy=(world=6618065933330223767,task=15700382763478064326,observation=15073528279370871559,action=4478855422321192109) task=(world=1118982794686842073,task=8687229917770684858,observation=3760314101387391754,action=4748075326542083682)\n",
+  "positive": null,
+  "replay_sha256": null,
+  "schema": "crow-active-head-navigation-admission-v1",
+  "scope": "Eight zero-action steps only; not learned navigation, vision qualification, or a held-out outcome."
+}

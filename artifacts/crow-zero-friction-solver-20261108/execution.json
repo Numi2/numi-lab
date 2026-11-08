@@ -1,0 +1,22 @@
+[
+  {
+    "name": "metalrobo_metal_unified_quality_probe",
+    "returncode": 0,
+    "seconds": 4.041375417029485
+  },
+  {
+    "name": "metalrobo_metal_world_contact_probe",
+    "returncode": 0,
+    "seconds": 4.566252957971301
+  },
+  {
+    "name": "frictionless",
+    "returncode": 0,
+    "seconds": 314.66163495898945
+  },
+  {
+    "name": "normal",
+    "returncode": 0,
+    "seconds": 377.4018312920234
+  }
+]
