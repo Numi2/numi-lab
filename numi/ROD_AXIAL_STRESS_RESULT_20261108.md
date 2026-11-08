@@ -1,0 +1,7 @@
+# Axial chain stress: accepted errors at large offset
+
+The preregistered [FP64 reference stress](ROD_AXIAL_STRESS_PLAN_20261108.md) ran all nine cases and retained their results. At offsets 0 m and 1 m, the 5-, 17- and 128-node chains passed the declared state and support-force gates. At 16 m, the candidate published all three cases successfully but **all three failed** the 1 micrometre position and 0.001 m/s velocity requirements. The 128-node case also missed the 1% force gate, with maximum support-force error 0.00250847 N against approximately 0.09842 N. Reversed targets were rejected without publishing and the input host arrays stayed unchanged.
+
+This comparison uses the requested FP64 source geometry rather than reconstructing inputs from their uploaded FP32 bit patterns. Quantization and subsequent FP32 arithmetic are therefore part of the observed error; this run does not separate those sources. It establishes that success on the earlier 0 m cases is not a coordinate-independent accuracy certificate. The 16 m case was a numerical stress, not a claim about typical surgical coordinates.
+
+The candidate remains unpromoted: it lacks a declared physical accuracy acceptance policy that can reject unrepresentable or insufficiently accurate states, in addition to the open multi-step, general rod and restoration gates. Do not weaken these physical thresholds or infer accuracy from successful completion. The [raw run and identities](measurements/evidence/rod-axial-stress-20261108) remain alongside the earlier successes and failures.
