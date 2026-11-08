@@ -1,0 +1,12 @@
+Test project /Users/numi/numi-reconciliation-build-20261108
+    Start 11: hyper_policy_capacity_continuity
+1/1 Test #11: hyper_policy_capacity_continuity ...   Passed    1.15 sec
+
+100% tests passed out of 1
+
+Label Time Summary:
+metal       =   1.15 sec*proc (1 test)
+policy      =   1.15 sec*proc (1 test)
+robotics    =   1.15 sec*proc (1 test)
+
+Total Test time (real) =   1.16 sec
