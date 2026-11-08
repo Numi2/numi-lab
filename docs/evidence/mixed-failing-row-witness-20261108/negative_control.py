@@ -10,7 +10,7 @@ for name in ('corrupt-target','corrupt-geometry'):
   else:d['steps'][7]['rows'][1]['point'][0]+=0.001
   p.write_text(json.dumps(d))
   r=subprocess.run([sys.executable,'analyze.py'],cwd=root,capture_output=True,text=True)
-  results[name]={'exit_code':r.returncode,'detected':r.returncode!=0,'stderr':r.stderr}
+  results[name]={'exit_code':r.returncode,'detected':r.returncode!=0,'exception':r.stderr.strip().splitlines()[-1] if r.stderr.strip() else ''}
 assert all(x['detected'] for x in results.values())
 Path('negative-control.json').write_text(json.dumps(results,indent=2)+'\n')
 print(json.dumps(results,indent=2))
