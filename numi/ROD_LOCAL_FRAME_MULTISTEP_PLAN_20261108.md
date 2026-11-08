@@ -1,0 +1,5 @@
+# Local-frame multistep force and work gate
+
+Test the current fail-closed standalone local-frame helper with the pinned multi-anchor shader on two 128-node uncoupled axial environments translated by 0 m and 16 m. Use the same 8-0 nylon effective linear parameters and 41 prescribed endpoint samples from 0.122 to 0.124 m over 4 s, h=0.1 s, no gravity or damping. Input velocity is the linearly interpolated prescribed endpoint velocity.
+
+At every accepted step compare all node positions and velocities and both endpoint reactions against an independently dense-solved FP64 implicit step from that step's actual accepted input, with the existing 1 micrometre, 0.001 m/s, and 1% or 1e-6 N gates. Also accumulate trapezoidal endpoint work and compare with the change in independently evaluated elastic plus kinetic energy, with the existing 1% work gate. Both translated environments must pass, and each accepted state feeds the next step. Any rejection fails completion. This is a host-mediated uncoupled fixture and does not qualify resident or surgical interactions.
