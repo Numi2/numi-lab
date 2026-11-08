@@ -1,0 +1,431 @@
+{
+  "commit": "878f0a6a8692648b1dd97c95083eec9a18e83ed0",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300148348 157200792    66% 3497898 1572007920    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300149280 157199864    66% 3497981 1571998640    0%   /System/Volumes/Data\n",
+  "omitted_files": [
+    {
+      "bytes": 42,
+      "git_blob": "a255804de3e109a9eaefac2f1b01db1d190fb6c7",
+      "path": "artifacts/crow-rl-beak-hold-20261108/.gitattributes"
+    },
+    {
+      "bytes": 689,
+      "git_blob": "6a0157292db6bc5b3c7ca806d43ce58cec02de8e",
+      "path": "artifacts/crow-rl-beak-hold-20261108/environment.json"
+    },
+    {
+      "bytes": 6647,
+      "git_blob": "da435d584ef73c6cc8b82eee939168ffdd8ab325",
+      "path": "artifacts/crow-rl-beak-hold-20261108/plan.json"
+    },
+    {
+      "bytes": 11996,
+      "git_blob": "62b695bb5785584103d73979ea53e2a654ea3ec1",
+      "path": "artifacts/crow-rl-beak-hold-20261108/probe.mm"
+    },
+    {
+      "bytes": 7419,
+      "git_blob": "7ae21537366b42bf9fd959ecf175690eb399d47e",
+      "path": "artifacts/crow-rl-beak-hold-20261108/study.py"
+    },
+    {
+      "bytes": 2887,
+      "git_blob": "26adc73671f9db1e9e2fbfe48449cf60466bb737",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/analyze.py"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/archive.stderr"
+    },
+    {
+      "bytes": 485,
+      "git_blob": "e704960989cf0158f358f049ee8ba17825d06fc6",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/archive.stdout"
+    },
+    {
+      "bytes": 5583,
+      "git_blob": "27d460fd3c6f09059bdd5f833467e3d9261113e6",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/capture.py"
+    },
+    {
+      "bytes": 12326,
+      "git_blob": "e49b3372fc1e987d5ef07ec570de8d18e86e53a5",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/partial-metrics.json"
+    },
+    {
+      "bytes": 12,
+      "git_blob": "57cdc50305d07f35133f80962644debd6b846bf3",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/.gitattributes"
+    },
+    {
+      "bytes": 13189,
+      "git_blob": "9c7d5276efdfc61a60074997856991b588354c72",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/01cc489a94f8f2b21842c95fb6ad017a66b0b65e0d1f2a8869eeb4f4f8bb65ca.gz"
+    },
+    {
+      "bytes": 4140,
+      "git_blob": "0b585e40c70b83ab68ce136bccacd4cc7bbd1ccd",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/054bdc3a010f993a83d180831603c60326f193f265b8b6f4b2eb3ac8aed17d89.gz"
+    },
+    {
+      "bytes": 1206,
+      "git_blob": "8615acc9bb65079dadcfa258868e996baf31aa6f",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/0c96bb130fb6c4e2cbd22236718a5f977d4977ef4c3256d2354782d36581b99a.gz"
+    },
+    {
+      "bytes": 742,
+      "git_blob": "76dfd4ddc24048d1dc6f12431646fa37b6ca6673",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/125829c8f025e4e49859d4c4d76d3e11ed947170321c26228f78a70c8d788e4a.gz"
+    },
+    {
+      "bytes": 138,
+      "git_blob": "52816de93cdce2aacaf1aef91caa2f966a3cc713",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/128b9f8aa02bffd90ccdc724c59b7ad6f74549efe41a492a63b968f047c485bd.gz"
+    },
+    {
+      "bytes": 436,
+      "git_blob": "ec0efc281198b2197858db26a1da6bfd2a3f5e11",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/154688d8967cb01bd4e2b129e0789330a98fdc82b554ba88365aaf80524bd6b3.gz"
+    },
+    {
+      "bytes": 1663,
+      "git_blob": "1c01fa523328d010c838dae52a6c7dc9a7df5119",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/1abc78635d1088eec660c363bfae2e3a4034cae5344c2b6c5c69b1a46e1d3a6c.gz"
+    },
+    {
+      "bytes": 24309,
+      "git_blob": "99b5f12974b20b7de248d787514074fd67dc1b1f",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/2a8bdbc6b3e3a6ab7e2dc44cc572c2b6d027b7e2e3a7ac1747c8b57e0d749d2e.gz"
+    },
+    {
+      "bytes": 788,
+      "git_blob": "b835b7350e838cf13bbad7af41866237d0db7839",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/2ac9306f101cf1d555a72443fd80173e94d331de657137e504b707b836dc046f.gz"
+    },
+    {
+      "bytes": 1264,
+      "git_blob": "62cbe3e0d596a92b426bec9dc102160c34644aae",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/2bb2ead449be64b268a2b2d10733614df1a2217fee2cbdf2c864cdc8731ef8d7.gz"
+    },
+    {
+      "bytes": 114030,
+      "git_blob": "0b657e3f1c9f0568e5ff1eca26ffe71bd4fcff6c",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/2c915180559147fb4925b9f657d3fa92bfc30d754250e8e44abbd60fe53bbc67.gz"
+    },
+    {
+      "bytes": 220,
+      "git_blob": "1a6922d3d3930f69a5083617712d993971601b12",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/3280b2ef5a7fb5ab69dc543003787b743d4c58c02cc82d545163ef8a95093b74.gz"
+    },
+    {
+      "bytes": 925,
+      "git_blob": "6e10f82063c092c10881e89fbf324079b3177f6d",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/34afaee5f9ae41eaa3f93d345c8410a111654492a3cfc8f667704fe4fab5784e.gz"
+    },
+    {
+      "bytes": 12265,
+      "git_blob": "5614292a641349ce15acbe15caab967571284ff4",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/399cc323d54a0dbf0754d0c480f26d873b3d7a22c55102f55f8adb48dd198577.gz"
+    },
+    {
+      "bytes": 336,
+      "git_blob": "cc36941f90af0d9aad675ac1708386eefbe01283",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/39ccf0f45191dbfd093291172757349ca4f05a47b02d95d5e255bf6a9c2ba846.gz"
+    },
+    {
+      "bytes": 116041,
+      "git_blob": "bb16fa264655cadad3a6ad2144d30344773b5cb9",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/3ec4b61e79fb42b57cfc9215af783b2dbbf94c06a03ddef8392a2ff27957b437.gz"
+    },
+    {
+      "bytes": 291,
+      "git_blob": "bb330e633ab6e283850045cb55714791542e6ea7",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/406bfbda003a9779cb74d16597be5738ffde61784266ec7dcc7d20e7952edb94.gz"
+    },
+    {
+      "bytes": 115232,
+      "git_blob": "d450094b4e51898c5e91ca2925883b48ffb850d1",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/4d46edb881c57e35baf290f40f78ef454692cd2cbb29f7e96da68936896de09c.gz"
+    },
+    {
+      "bytes": 298,
+      "git_blob": "690484d7046c0ca44cc7643737c09b988c00670d",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/4d9dbcf49970545a0c8d5d07676897b1453e0f8a1edd02c4314618559fca8609.gz"
+    },
+    {
+      "bytes": 409,
+      "git_blob": "dd3837bb26800c95085925a51db3dd0ce9537b85",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/4f271b7f6f4146c29519f63aded628ab0f8bbbdd3c55961d28e22f990e9e57d8.gz"
+    },
+    {
+      "bytes": 24306,
+      "git_blob": "a072debac252521e21353f5bc2ea5e3bd56592b8",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/4fc8c0225c516341e7c2148449cda2ba06868aa293eb366747059a55ed4e83fa.gz"
+    },
+    {
+      "bytes": 745,
+      "git_blob": "46b642ecfad43fe69440ee9a30fd20f7a09fb9d2",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/5c3bc5ec8d6324ceda4f540b2a0a8cce2be8d51a568d11c72ea3d016ea395ad9.gz"
+    },
+    {
+      "bytes": 747,
+      "git_blob": "72606c045fd0cecab87ba537927087a0c840f09a",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/5cb23f8fffd1e9c625e45490f4402a804be4d8b85df3e3d6b06cab26c3b2e942.gz"
+    },
+    {
+      "bytes": 298,
+      "git_blob": "a8c414fb99e6e0297938a5eafa8c1faabfe765fd",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/63047970fbe8e58db642e1d9b1f3c5203483ad301e85db658fcddb010e79738a.gz"
+    },
+    {
+      "bytes": 1994,
+      "git_blob": "3801c944c9f1f063857f1e8232e9b4c478955128",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/6c861cdda4886db37534a25d45e5fbdd13db978177f0ea1538d6c9bad4df63d7.gz"
+    },
+    {
+      "bytes": 743,
+      "git_blob": "0de011b05553a3973b83615a7d00e0fc1e71e643",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/707f7e20ac80134b120b9e844e2c28fedbdd1f3a54f7384baf20debdf8e7c1aa.gz"
+    },
+    {
+      "bytes": 12103,
+      "git_blob": "ea5890b835212786f0c70032fa785aae7a0dcbcf",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/725da54b48d72fe73a1c0c5ccd881e6721168f4e7948f2128c3107278caae662.gz"
+    },
+    {
+      "bytes": 291,
+      "git_blob": "4f0d654b90bef6f98071e1bd7ef84e66c9a98c3d",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/77ccf7fe8032250f42ab8b3464dc99d27a96ae08148ddb2efb9ba3e2980114e6.gz"
+    },
+    {
+      "bytes": 24306,
+      "git_blob": "6e2ea2d0b78869d59e32c917bb3c68317ee471f6",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/77d958af3f806023568e5c20b5abd25d03703a736f353a6b451f88dab5642d7a.gz"
+    },
+    {
+      "bytes": 1164,
+      "git_blob": "2b7e36cfa1a60126a7129fcdbbbfb2337b010205",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/7b0251935c0ccfa7eaddc5bbc91852d6f3eb9b00ac6b7f739a608fe7006f400f.gz"
+    },
+    {
+      "bytes": 89,
+      "git_blob": "5ccb951b99ca87f14ccb74680cacd68f3f789e6d",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/7b4572d8dae6a09ae084ea7047e0b6d0f02eac397cc044af5b5b86268879ca96.gz"
+    },
+    {
+      "bytes": 115694,
+      "git_blob": "7d13038b9b68353d06f1755a68f8d501479d3bb4",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/7cae68d6cd275d119f144a489e47d0249be6e7ecfaf416b37a43b3e124064383.gz"
+    },
+    {
+      "bytes": 268,
+      "git_blob": "97e35a675ac0ea8cbcebef46379f916437ec535b",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/863e7b45586a9ffe49bdb6f3bd05b7fbea1b77394214371f46a2a2167891f39c.gz"
+    },
+    {
+      "bytes": 301,
+      "git_blob": "936fd7c639a992a7f1caa446e5d821ca8ec4b62a",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/8b164e3f1e21fb0542e821dce260d93bbab6280e9b68695857dcf2de9f4b64e3.gz"
+    },
+    {
+      "bytes": 266,
+      "git_blob": "9569b54d4375c13319fb669cf14b790f1f285de9",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/8cd3144b37eb64257492884b525d90dfa8095c2ff2a7f4f230f72d04e1f035ba.gz"
+    },
+    {
+      "bytes": 1982,
+      "git_blob": "87445cedf7d94bd491160415b28157eb09caec87",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/8d8532d4c635b031ee37e6e0077022ef7d9cd6ac35ec2d7e19adb06f48180e6d.gz"
+    },
+    {
+      "bytes": 4529,
+      "git_blob": "0d14ed9003bc3e21f03efb32cb44c216d889e12d",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/97acf0942f0132c2c73820e70f8bc069681b0d9ea95ae80f4f9e8c452c2aef46.gz"
+    },
+    {
+      "bytes": 420,
+      "git_blob": "735dab1ca16d1340fb814a2cb46432756df14f3a",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/ace4a7e2863e05d4b00752829dc6755e6c49180511459c66f9d4f7474d7cb4c3.gz"
+    },
+    {
+      "bytes": 2002,
+      "git_blob": "2503bfacb25b9ce27ff7ba644c4e2451a6145715",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/acecf558a50153eb36078073e03dc0edde8b2e7b5ed90a2b4399e5a924839307.gz"
+    },
+    {
+      "bytes": 4127,
+      "git_blob": "18b6e13657444bfdafdebba724e0cd0cd4054ebd",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/acee67cde196d7fa2962615e8189b07cfe3937b17e7bff0c8f2731be453820bc.gz"
+    },
+    {
+      "bytes": 294,
+      "git_blob": "bd83f5f9af614c0abf603c1c1f416544750320dd",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/b1d68dcdd6a3fcef1e5fd17b11be3d76a2ac574f57515004c1bf0740a2170015.gz"
+    },
+    {
+      "bytes": 293,
+      "git_blob": "339ea19105b29aae48844cecd3dcef6ce683cee1",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/b2686d3b96f8d2f743559acf80aea9a2eb60b144a31b2712c7bc6f9b9a502ee0.gz"
+    },
+    {
+      "bytes": 329,
+      "git_blob": "7468578a410b8d7a83b54533a13f4e75490dd130",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/b873180f3e685f38806d2d81e104e2cfd165c763380f6dad4ac782d860b9569a.gz"
+    },
+    {
+      "bytes": 294,
+      "git_blob": "3a4d4658bfad9dbc89a37651485df2a6420dba96",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/b880695fe58fcc0bd8d0198380877869a728e80f1a2a5f444070480ed86e282d.gz"
+    },
+    {
+      "bytes": 1687,
+      "git_blob": "24288e796aa93811726bd103bb313a7df822bb85",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/c3857a8029a10ea322730b97c31c1b7e5c21e7f7a0b92b2eafa8a0ed39ffdca2.gz"
+    },
+    {
+      "bytes": 843,
+      "git_blob": "06852835e340bc594bfeb635fbce416abf27bd2b",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/c750d4e2d57ac4a1ac4f015c32afd727f9522e8ad68ff25548f51ac13401c9b5.gz"
+    },
+    {
+      "bytes": 41252,
+      "git_blob": "a0187abb3b74eabca43a574124953f2da6786c2d",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/cb6b7533fb637ef966e697f5c63aa6d6000ffc488784be44efff1c50155bddc9.gz"
+    },
+    {
+      "bytes": 888,
+      "git_blob": "979a905bdc8c5d8c38e02a8fe05b1304a2e0683a",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/ccb155be82d8835bcd6b88f80de96ef267e8dccca103ef06087dfaf2ebdeb7f7.gz"
+    },
+    {
+      "bytes": 312,
+      "git_blob": "032de926458e0e1d3824cbc0e513168179076dba",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/d22dc831ff1ea82aaf50833d27d1b4a2afdc97f22bbf6974d3bb8c503c4faa3b.gz"
+    },
+    {
+      "bytes": 369,
+      "git_blob": "459bd7f0a4cba29cc31030c53602232e73ebbc93",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/d740356fb38a6200295546de65d29790a5574cd916b4313168fb9a8f146939a0.gz"
+    },
+    {
+      "bytes": 292,
+      "git_blob": "0ebbefb4734390d5ee0aca4376fac08802782bab",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/d7f8f860621443ed6694b63ae04881ae996a911491590f653c777f6718356269.gz"
+    },
+    {
+      "bytes": 300,
+      "git_blob": "2338802ef9c244b89275b9281b3ed091be09bc21",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/da529cada073eb31dabe9894bf371fbcfbec082fb87aaa6168671dc43e653b8a.gz"
+    },
+    {
+      "bytes": 1167,
+      "git_blob": "03eed9a37f6efa11fcb055dd15e4d385bc125941",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/db8ffa66d77fd6963b4778eb7b391244bb114be32a78ab771202df91150be8fc.gz"
+    },
+    {
+      "bytes": 1988,
+      "git_blob": "fda459327e26130cbc9a5083b3bebc093cff7a8b",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/de83e92d87bddcc1769c37cbf2d8dedca67362e8837291e694d9342462633deb.gz"
+    },
+    {
+      "bytes": 301,
+      "git_blob": "f961163e625632726c6494a5198d3dafd561c5cb",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/e21ce7bfb3af3a165b5bae8aad84e8df191b8d4b09a31379f5db10642059316c.gz"
+    },
+    {
+      "bytes": 24308,
+      "git_blob": "f904a117046cfc9212adfb20f8ba2d1ba3d35417",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/blobs/f260d25a01f261440dd3e4830572e9be8233f2aec451d27a58d294333582f350.gz"
+    },
+    {
+      "bytes": 55423,
+      "git_blob": "0dece920da3126e09f1f5642bf12c781b89081d8",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/payload/manifest.json"
+    },
+    {
+      "bytes": 3471,
+      "git_blob": "665d932c06ccb35d25c583430571f7bf91e969db",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/plan.json"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/prune.stderr"
+    },
+    {
+      "bytes": 1296,
+      "git_blob": "5c8f75a9741f8bacccc25dd5a6be669b061a4d5e",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/prune.stdout"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/recovery.stderr"
+    },
+    {
+      "bytes": 60,
+      "git_blob": "eb7bb707248c5c6e3715f64e4dc13a875d6f3172",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/recovery.stdout"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/verify.stderr"
+    },
+    {
+      "bytes": 197,
+      "git_blob": "28262725a0bc3f05045b95a08d370976ff965309",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/verify.stdout"
+    },
+    {
+      "bytes": 4771,
+      "git_blob": "d1188e8b33464b3c6864ac5020a9596c570e2c57",
+      "path": "artifacts/crow-rl-beak-hold-capture-20261108/verify_recovery.py"
+    },
+    {
+      "bytes": 42,
+      "git_blob": "a255804de3e109a9eaefac2f1b01db1d190fb6c7",
+      "path": "artifacts/crow-rl-beak-hold-repair-20261108/.gitattributes"
+    },
+    {
+      "bytes": 689,
+      "git_blob": "647b43850cc67b305ff51421fbc68c6e8e8a92bb",
+      "path": "artifacts/crow-rl-beak-hold-repair-20261108/environment.json"
+    },
+    {
+      "bytes": 7122,
+      "git_blob": "bf9f70fa7e2eebc663783c220639a966f727c566",
+      "path": "artifacts/crow-rl-beak-hold-repair-20261108/plan.json"
+    },
+    {
+      "bytes": 13123,
+      "git_blob": "231915785f559e6ff1a9eb1717e6f345b3b0b5d2",
+      "path": "artifacts/crow-rl-beak-hold-repair-20261108/probe.mm"
+    },
+    {
+      "bytes": 8052,
+      "git_blob": "962e4f3768959ba93efb074e0988cc5a971e0c3b",
+      "path": "artifacts/crow-rl-beak-hold-repair-20261108/study.py"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-post-step-rate-20261108/omit.stderr"
+    },
+    {
+      "bytes": 142,
+      "git_blob": "62a0f94ec4df5a337a9def8b94d5c3fef50fd3cf",
+      "path": "artifacts/crow-rl-post-step-rate-20261108/omit.stdout"
+    }
+  ],
+  "omitted_logical_bytes": 821688,
+  "open_handles": 0,
+  "preserved_input_prefixes": [
+    "artifacts/crow-rl-feeding-behavior-20261107/policies/",
+    "artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib",
+    "artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib"
+  ],
+  "remote_commit": "878f0a6a8692648b1dd97c95083eec9a18e83ed0",
+  "status": "omitted"
+}
