@@ -1790,6 +1790,7 @@ kernel void mr_discrete_elastic_rod_step(
     threadgroup atomic_uint failure;
     threadgroup atomic_uint maximumErrorBits;
     threadgroup atomic_uint maximumCorrectionBits;
+    threadgroup atomic_uint maximumStretchResidualBits;
     threadgroup atomic_uint maximumCorrectionOwnerKey;
     threadgroup atomic_uint maximumPenetrationBits;
     threadgroup atomic_uint projectedContactCount;
@@ -1964,6 +1965,11 @@ kernel void mr_discrete_elastic_rod_step(
             );
             atomic_store_explicit(
                 &maximumCorrectionOwnerKey,
+                0u,
+                memory_order_relaxed
+            );
+            atomic_store_explicit(
+                &maximumStretchResidualBits,
                 0u,
                 memory_order_relaxed
             );
@@ -2243,6 +2249,17 @@ kernel void mr_discrete_elastic_rod_step(
         for (uint edge = lane;
              edge < dispatch.edgeCount;
              edge += laneCount) {
+            const float edgeLength = length(positions[edge + 1u] - positions[edge]);
+            const float h = dispatch.gravityAndTimestep.w;
+            const float alpha = restLengths[edge] / stretchStiffness[edge] / (h * h);
+            const float residual = edgeLength - restLengths[edge] +
+                alpha * stretchMultipliers[edge];
+            if (!(edgeLength > kGeometryFloor) || !isfinite(edgeLength) ||
+                !isfinite(alpha) || !isfinite(residual)) {
+                recordFailure(failure, MR_ROD_GPU_DEGENERATE_GEOMETRY);
+            } else {
+                recordPositiveMaximum(maximumStretchResidualBits, abs(residual));
+            }
             const float correction =
                 abs(twists[edge] - iterationTwists[edge]);
             recordPositiveMaximum(
@@ -2269,7 +2286,11 @@ kernel void mr_discrete_elastic_rod_step(
                     memory_order_relaxed
                 ) == MR_ROD_GPU_SUCCESS &&
                 correction <=
-                    dispatch.dampingDerivativeTolerance.w) {
+                    dispatch.dampingDerivativeTolerance.w &&
+                as_type<float>(atomic_load_explicit(
+                    &maximumStretchResidualBits,
+                    memory_order_relaxed
+                )) <= dispatch.dampingDerivativeTolerance.w) {
                 converged = 1u;
             }
         }
