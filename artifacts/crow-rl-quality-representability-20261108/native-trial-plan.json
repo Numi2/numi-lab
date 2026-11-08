@@ -1,0 +1,122 @@
+{
+  "budgets": {
+    "build_seconds": 300,
+    "crow_control_ticks": 160,
+    "crow_lanes": 4,
+    "crow_substeps": 32,
+    "native_command_seconds": 120,
+    "raw_bytes_max": 100000000
+  },
+  "controls": [
+    "Old runtime with original and full Hessian scratch",
+    "Corrected shader with legacy one-float scratch",
+    "Four predeclared free-velocity variants, old/corrected shaders",
+    "Old/corrected 576 motor and 48 zero-gain cases",
+    "Old/corrected default 640 transitions",
+    "Actual coupled crow, chunk 1 and 8",
+    "Constraint IR and native contact owner checks"
+  ],
+  "implementation": {
+    "candidate": "All +/- one-ULP singles and distinct-coordinate pairs; generalized-Hessian ranking distributed over SIMD32; fully reproject winner; accept only strict native residual improvement, existing feasibility gate and tight objective roundoff bound",
+    "default_path": "Already-converged problems do not execute refinement; insufficient legacy scratch safely skips it",
+    "excluded": "No host physics, crow-specific index rules, tolerance/iteration/configuration changes, padding fix, learner or policy promotion",
+    "maximum_refinements": 8,
+    "maximum_velocities": 64,
+    "trigger": "Completed Newton budget, valid feasible state, scaled residual <=16 times unchanged optimality tolerance, full Hessian scratch available"
+  },
+  "inputs": {
+    ".numi/retained-runtime/quality-representability-base-20261108/libmetalrobo.dylib": {
+      "bytes": 5711408,
+      "sha256": "3ec0722fa588dd1ed2426c2ff4966d2157ddfeae1bfff9b6067c1d93fdbd2b42"
+    },
+    ".numi/retained-runtime/quality-representability-base-20261108/metalrobo/MetalRobo.metallib": {
+      "bytes": 4309920,
+      "sha256": "37f2466de50d4c2003dd8aeea4d55a680aaaab0f2ab21f9601f976032d80e675"
+    },
+    "artifacts/crow-rl-quality-representability-20261108/adjacent_neighbor.metal.inc": {
+      "bytes": 4097,
+      "sha256": "7d6dbe4f4d262b74d0a8a626009d43a80ec3d5da26a6839d8d6e3a8099c6dd03"
+    },
+    "artifacts/crow-rl-quality-representability-20261108/adjacent_refinement.metal.inc": {
+      "bytes": 3111,
+      "sha256": "9ce2a72b09c12de7523e1543ee76a957ff5aad42b4ba82337881139625198c20"
+    },
+    "artifacts/crow-rl-quality-representability-20261108/apply_refinement.py": {
+      "bytes": 2399,
+      "sha256": "bb76abbcc1bd763f9a301d7ec3fb85b838672a04a1633634a29eb0c54e2ae737"
+    },
+    "artifacts/crow-rl-quality-representability-20261108/native_trial.py": {
+      "bytes": 10470,
+      "sha256": "2f5549857a54f4ffffd2236c420fb542d5ff028602fed5612a2cea58428b897e"
+    },
+    "build/crow-quality-representability-build-01/capture-one.bin": {
+      "bytes": 98864,
+      "sha256": "abd531b3e9f580c7f5c208c358e87821c51470d3671367571c8a713f3885b441"
+    },
+    "build/crow-quality-representability-build-01/reference/crow-fixture": {
+      "bytes": 101472,
+      "sha256": "f5a82cae406eec0bfa42a9df48967f10bcd4a16a9b27a007f420b5ef06455e08"
+    },
+    "build/crow-quality-representability-build-01/reference/fixture-default": {
+      "bytes": 99776,
+      "sha256": "a76e0b2a726b9ab2504b4a55b6d557d10a85feaaf94e4cb580de33103e45c63a"
+    },
+    "include/metalrobo/unified_quality_shared.h": {
+      "bytes": 5293,
+      "sha256": "22d658c8dd27daf4136945f3e953620add0c65040c051cfccf684eee37f8a4b9"
+    },
+    "src/metal/MetalUnifiedQualitySolver.metal": {
+      "bytes": 86448,
+      "sha256": "4497c4c45e870de5872995067370ad5af5a39a6ba1527313f6a12c3a9bda36ed"
+    },
+    "src/metal/MetalUnifiedQualitySolver.mm": {
+      "bytes": 31241,
+      "sha256": "613502f0f0c3d8ce15b5b13d7d39fb66fb26def3a3a04c0dba6f2b38aebe4729"
+    },
+    "src/metal/MetalWorld.mm": {
+      "bytes": 856490,
+      "sha256": "28ac088d4fb20f61fb4854c8c0f13e7bf7267df6eda9e676623782d1d3c6734c"
+    }
+  },
+  "limits": "One exposed crow fixture plus numerical variants and existing regressions. No ecological held-out behavior, external validation, or whole-environment qualification.",
+  "numerical_variants": [
+    {
+      "factor": 0.81,
+      "name": "free-0p81",
+      "path": "build/crow-quality-representability-build-01/free-0p81.bin",
+      "sha256": "8f421f1b985dec868b576897e5c5f09d647603dc542d70f747f1742b0761f50d"
+    },
+    {
+      "factor": 0.93,
+      "name": "free-0p93",
+      "path": "build/crow-quality-representability-build-01/free-0p93.bin",
+      "sha256": "c43ed283278f98281c80e27982d8df921f64e1c4c9cbf65d2ba7197bff8aed0b"
+    },
+    {
+      "factor": 1.07,
+      "name": "free-1p07",
+      "path": "build/crow-quality-representability-build-01/free-1p07.bin",
+      "sha256": "51bf33553c45cfacd63803df9bc8b39851513c5e574c3b30a045e626ba727ea2"
+    },
+    {
+      "factor": 1.19,
+      "name": "free-1p19",
+      "path": "build/crow-quality-representability-build-01/free-1p19.bin",
+      "sha256": "e4fc76bbb20a993d9a5f387ea3243cd4faab186137c1840f5d0e08b6394b3bd4"
+    }
+  ],
+  "predictions": {
+    "crow": "At least the formerly failing problem advances; completion is a measured outcome, not assumed",
+    "default_physical_files_exact": 10,
+    "finite_native_physical_rows_exact": 576,
+    "legacy_capture_exact": true,
+    "legacy_scratch_status": 7,
+    "original_corrected_independent_residual_max": 1e-10,
+    "original_corrected_status": 0,
+    "variants_corrected_status": 0,
+    "zero_native_physical_rows_exact": 48
+  },
+  "purpose": "Bounded native implementation and engineering validation of adjacent-FP32 stationarity refinement",
+  "schema": "crow-quality-adjacent-native-trial-plan-v1",
+  "stop": "Stop unexpected host error, GPU error, malformed record, failed build or unsafe resource/binding result. Preserve ordinary solver rejection, record failed predictions and continue finite controls; no automatic setting relaxation."
+}

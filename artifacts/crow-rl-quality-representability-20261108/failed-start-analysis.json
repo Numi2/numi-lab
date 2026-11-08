@@ -1,0 +1,333 @@
+{
+  "capture_sha256": "abd531b3e9f580c7f5c208c358e87821c51470d3671367571c8a713f3885b441",
+  "controlling_coordinates_after": [
+    {
+      "dof": 2,
+      "free_velocity": -0.018032541498541832,
+      "gradient": 7.216590550975132e-11,
+      "hessian_diagonal": 0.4500401020050049,
+      "one_ulp_diagonal_gradient": 8.382650129590274e-10,
+      "positive_ulp": 1.862645149230957e-09,
+      "velocity": -0.017971565946936607
+    },
+    {
+      "dof": 4,
+      "free_velocity": -0.0021272534504532814,
+      "gradient": 2.911893784317684e-11,
+      "hessian_diagonal": 0.011204454116523266,
+      "one_ulp_diagonal_gradient": 2.608740263740361e-12,
+      "positive_ulp": 2.3283064365386963e-10,
+      "velocity": -0.003094468032941222
+    },
+    {
+      "dof": 20,
+      "free_velocity": 0.0947456806898117,
+      "gradient": 1.1022985432161534e-11,
+      "hessian_diagonal": 0.00012187509404800313,
+      "one_ulp_diagonal_gradient": 1.8160804219246377e-12,
+      "positive_ulp": 1.4901161193847656e-08,
+      "velocity": 0.1850590705871582
+    },
+    {
+      "dof": 0,
+      "free_velocity": -9.082313772523776e-05,
+      "gradient": 1.030743144536708e-11,
+      "hessian_diagonal": 0.4500401020050049,
+      "one_ulp_diagonal_gradient": 1.3097890827484804e-11,
+      "positive_ulp": 2.9103830456733704e-11,
+      "velocity": -0.0003182675573043525
+    },
+    {
+      "dof": 21,
+      "free_velocity": 0.09047780185937881,
+      "gradient": 2.9839265341043988e-12,
+      "hessian_diagonal": 5.418667115009157e-06,
+      "one_ulp_diagonal_gradient": 6.459554570924231e-13,
+      "positive_ulp": 1.1920928955078125e-07,
+      "velocity": -1.2058533430099487
+    },
+    {
+      "dof": 12,
+      "free_velocity": -1.186929421237437e-05,
+      "gradient": 7.240121501838824e-13,
+      "hessian_diagonal": 0.00039311393611133114,
+      "one_ulp_diagonal_gradient": 5.720560673381713e-15,
+      "positive_ulp": 1.4551915228366852e-11,
+      "velocity": 0.00018589456158224493
+    },
+    {
+      "dof": 16,
+      "free_velocity": 0.002191591076552868,
+      "gradient": -3.5328313458980057e-13,
+      "hessian_diagonal": 0.000505189574742691,
+      "one_ulp_diagonal_gradient": 1.470295173182068e-14,
+      "positive_ulp": 2.9103830456733704e-11,
+      "velocity": 0.0004876275488641113
+    },
+    {
+      "dof": 17,
+      "free_velocity": -0.0004840075271204114,
+      "gradient": 2.8128265428593305e-13,
+      "hessian_diagonal": 0.0003950538884194102,
+      "one_ulp_diagonal_gradient": 5.748790694915955e-15,
+      "positive_ulp": 1.4551915228366852e-11,
+      "velocity": 0.00022123396047390997
+    },
+    {
+      "dof": 7,
+      "free_velocity": 9.694008622318506e-05,
+      "gradient": 2.559059469055088e-13,
+      "hessian_diagonal": 0.00022085970202065212,
+      "one_ulp_diagonal_gradient": 1.004353644114654e-16,
+      "positive_ulp": 4.547473508864641e-13,
+      "velocity": -5.108905043016421e-06
+    },
+    {
+      "dof": 13,
+      "free_velocity": 0.002193952677771449,
+      "gradient": -2.412609185739576e-13,
+      "hessian_diagonal": 0.0005051895892946062,
+      "one_ulp_diagonal_gradient": 1.4702952155337152e-14,
+      "positive_ulp": 2.9103830456733704e-11,
+      "velocity": 0.0004874192818533629
+    },
+    {
+      "dof": 14,
+      "free_velocity": -0.0004856940358877182,
+      "gradient": 2.275072051184039e-13,
+      "hessian_diagonal": 0.00039505389205738903,
+      "one_ulp_diagonal_gradient": 5.748790747855514e-15,
+      "positive_ulp": 1.4551915228366852e-11,
+      "velocity": 0.0002211694372817874
+    },
+    {
+      "dof": 6,
+      "free_velocity": 8.568208431825042e-05,
+      "gradient": 2.1862069241374135e-13,
+      "hessian_diagonal": 0.00022085970202065212,
+      "one_ulp_diagonal_gradient": 1.004353644114654e-16,
+      "positive_ulp": 4.547473508864641e-13,
+      "velocity": -6.213467713678256e-06
+    }
+  ],
+  "controlling_coordinates_before": [
+    {
+      "dof": 2,
+      "free_velocity": -0.018032541498541832,
+      "gradient": 2.2022554644620007e-10,
+      "hessian_diagonal": 0.4500401020050049,
+      "one_ulp_diagonal_gradient": 8.382650129590274e-10,
+      "positive_ulp": 1.862645149230957e-09,
+      "velocity": -0.017971565946936607
+    },
+    {
+      "dof": 4,
+      "free_velocity": -0.0021272534504532814,
+      "gradient": -3.2342196362820457e-12,
+      "hessian_diagonal": 0.011204454116523266,
+      "one_ulp_diagonal_gradient": 2.608740263740361e-12,
+      "positive_ulp": 2.3283064365386963e-10,
+      "velocity": -0.003094468032941222
+    },
+    {
+      "dof": 0,
+      "free_velocity": -9.082313772523776e-05,
+      "gradient": -2.360076222451353e-12,
+      "hessian_diagonal": 0.4500401020050049,
+      "one_ulp_diagonal_gradient": 1.3097890827484804e-11,
+      "positive_ulp": 2.9103830456733704e-11,
+      "velocity": -0.0003182675573043525
+    },
+    {
+      "dof": 12,
+      "free_velocity": -1.186929421237437e-05,
+      "gradient": 7.240121413297411e-13,
+      "hessian_diagonal": 0.00039311393611133114,
+      "one_ulp_diagonal_gradient": 5.720560673381713e-15,
+      "positive_ulp": 1.4551915228366852e-11,
+      "velocity": 0.00018589456158224493
+    },
+    {
+      "dof": 20,
+      "free_velocity": 0.0947456806898117,
+      "gradient": -4.0862733356251176e-13,
+      "hessian_diagonal": 0.00012187509404800313,
+      "one_ulp_diagonal_gradient": 1.8160804219246377e-12,
+      "positive_ulp": 1.4901161193847656e-08,
+      "velocity": 0.18505901098251343
+    },
+    {
+      "dof": 16,
+      "free_velocity": 0.002191591076552868,
+      "gradient": -3.532831362573967e-13,
+      "hessian_diagonal": 0.000505189574742691,
+      "one_ulp_diagonal_gradient": 1.470295173182068e-14,
+      "positive_ulp": 2.9103830456733704e-11,
+      "velocity": 0.0004876275488641113
+    },
+    {
+      "dof": 17,
+      "free_velocity": -0.0004840075271204114,
+      "gradient": 2.8128265428593305e-13,
+      "hessian_diagonal": 0.0003950538884194102,
+      "one_ulp_diagonal_gradient": 5.748790694915955e-15,
+      "positive_ulp": 1.4551915228366852e-11,
+      "velocity": 0.00022123396047390997
+    },
+    {
+      "dof": 7,
+      "free_velocity": 9.694008622318506e-05,
+      "gradient": 2.5590594694273193e-13,
+      "hessian_diagonal": 0.00022085970202065212,
+      "one_ulp_diagonal_gradient": 1.004353644114654e-16,
+      "positive_ulp": 4.547473508864641e-13,
+      "velocity": -5.108905043016421e-06
+    },
+    {
+      "dof": 13,
+      "free_velocity": 0.002193952677771449,
+      "gradient": -2.4126090878013914e-13,
+      "hessian_diagonal": 0.0005051895892946062,
+      "one_ulp_diagonal_gradient": 1.4702952155337152e-14,
+      "positive_ulp": 2.9103830456733704e-11,
+      "velocity": 0.0004874192818533629
+    },
+    {
+      "dof": 14,
+      "free_velocity": -0.0004856940358877182,
+      "gradient": 2.275072052772226e-13,
+      "hessian_diagonal": 0.00039505389205738903,
+      "one_ulp_diagonal_gradient": 5.748790747855514e-15,
+      "positive_ulp": 1.4551915228366852e-11,
+      "velocity": 0.0002211694372817874
+    },
+    {
+      "dof": 6,
+      "free_velocity": 8.568208431825042e-05,
+      "gradient": 2.186206924629586e-13,
+      "hessian_diagonal": 0.00022085970202065212,
+      "one_ulp_diagonal_gradient": 1.004353644114654e-16,
+      "positive_ulp": 4.547473508864641e-13,
+      "velocity": -6.213467713678256e-06
+    },
+    {
+      "dof": 10,
+      "free_velocity": 0.0013934795279055834,
+      "gradient": 1.9209193949553218e-13,
+      "hessian_diagonal": 0.000319014097619569,
+      "one_ulp_diagonal_gradient": 2.321133052606958e-15,
+      "positive_ulp": 7.275957614183426e-12,
+      "velocity": 8.589607750764117e-05
+    }
+  ],
+  "failed_fp64_scaled_optimality": 2.2022279366132223e-10,
+  "goal_complete": false,
+  "history": [
+    {
+      "actual_gradient_max": 1.8321063621208788e-10,
+      "changed_dofs": [
+        20,
+        21
+      ],
+      "full_reprojection_accepted": true,
+      "gradient_max": 2.2022554644620007e-10,
+      "iteration": 0,
+      "linearized_gradient_max": 1.8321063621208788e-10,
+      "objective": 1.2110282989029148e-05,
+      "projection_branches": {
+        "interior": 118,
+        "scalar_bound": 17,
+        "scalar_free": 15,
+        "vertex": 10
+      },
+      "scaled_optimality": 2.2022279366132223e-10
+    },
+    {
+      "actual_gradient_max": 1.461957259779757e-10,
+      "changed_dofs": [
+        20,
+        21
+      ],
+      "full_reprojection_accepted": true,
+      "gradient_max": 1.8321063621208788e-10,
+      "iteration": 1,
+      "linearized_gradient_max": 1.461957259779757e-10,
+      "objective": 1.2110282989029195e-05,
+      "projection_branches": {
+        "interior": 118,
+        "scalar_bound": 17,
+        "scalar_free": 15,
+        "vertex": 10
+      },
+      "scaled_optimality": 1.8320834610793947e-10
+    },
+    {
+      "actual_gradient_max": 1.0918081574386351e-10,
+      "changed_dofs": [
+        20,
+        21
+      ],
+      "full_reprojection_accepted": true,
+      "gradient_max": 1.461957259779757e-10,
+      "iteration": 2,
+      "linearized_gradient_max": 1.0918081574386351e-10,
+      "objective": 1.2110282989029377e-05,
+      "projection_branches": {
+        "interior": 118,
+        "scalar_bound": 17,
+        "scalar_free": 15,
+        "vertex": 10
+      },
+      "scaled_optimality": 1.461938985544992e-10
+    },
+    {
+      "actual_gradient_max": 7.216590550975132e-11,
+      "changed_dofs": [
+        20,
+        21
+      ],
+      "full_reprojection_accepted": true,
+      "gradient_max": 1.0918081574386351e-10,
+      "iteration": 3,
+      "linearized_gradient_max": 7.216590550975132e-11,
+      "objective": 1.2110282989029695e-05,
+      "projection_branches": {
+        "interior": 118,
+        "scalar_bound": 17,
+        "scalar_free": 15,
+        "vertex": 10
+      },
+      "scaled_optimality": 1.0917945100100151e-10
+    },
+    {
+      "gradient_max": 7.216590550975132e-11,
+      "iteration": 4,
+      "objective": 1.211028298903015e-05,
+      "projection_branches": {
+        "interior": 118,
+        "scalar_bound": 17,
+        "scalar_free": 15,
+        "vertex": 10
+      },
+      "scaled_optimality": 7.216500344744634e-11
+    }
+  ],
+  "iterations": 5,
+  "limitations": "One retained problem and bounded neighbor search. A found FP32 state refutes an unavoidable representability floor here; it does not establish native FP32 arithmetic acceptance or crow physical qualification.",
+  "mass_diagonally_equilibrated_condition": 11.864126820707334,
+  "native_failed_scaled_optimality": 2.2179388881049533e-10,
+  "neighbor_fp32_exact": true,
+  "neighbor_reference_max_velocity_difference": 4.539532161285109e-07,
+  "neighbor_scaled_optimality": 7.216500344744634e-11,
+  "policy_or_profile_promoted": false,
+  "reference_calibration": {
+    "euclidean_closed_form_cases": 5,
+    "passed": true,
+    "weighted_boundary_derivative_max_error": 7.482731101404738e-11
+  },
+  "rounded_reference_scaled_optimality": 2.1846683211082812e-10,
+  "schema": "crow-quality-representability-result-v1",
+  "seconds": 0.015343083010520786,
+  "stopping_reason": "target_reached",
+  "verdict": "representable_state_found"
+}
