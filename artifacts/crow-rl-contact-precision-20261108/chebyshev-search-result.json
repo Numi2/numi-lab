@@ -1,0 +1,237 @@
+{
+  "basis_reductions": 1020,
+  "candidates_seen": 32,
+  "goal_complete": false,
+  "history": [
+    {
+      "best_scaled_optimality": 1.6789198199403734e-10,
+      "iteration": 0,
+      "iteration_scaled_optimality": 1.6789198199403734e-10,
+      "target_infinity": 8.254822818292282e-11,
+      "witness_error": 0.0
+    },
+    {
+      "best_scaled_optimality": 1.620600150553885e-10,
+      "iteration": 1,
+      "iteration_scaled_optimality": 1.620600150553885e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 0.0
+    },
+    {
+      "best_scaled_optimality": 1.620600150553885e-10,
+      "iteration": 2,
+      "iteration_scaled_optimality": 1.7095001682468726e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 5.169878828456423e-26
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 3,
+      "iteration_scaled_optimality": 1.5885271412579135e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 0.0
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 4,
+      "iteration_scaled_optimality": 1.7085128077237082e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 5.169878828456423e-26
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 5,
+      "iteration_scaled_optimality": 1.6689272065983184e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 0.0
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 6,
+      "iteration_scaled_optimality": 1.5914051545064965e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 5.169878828456423e-26
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 7,
+      "iteration_scaled_optimality": 1.6692304970907388e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 5.169878828456423e-26
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 8,
+      "iteration_scaled_optimality": 1.6464895200297158e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 0.0
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 9,
+      "iteration_scaled_optimality": 1.664175961274813e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 0.0
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 10,
+      "iteration_scaled_optimality": 1.6968240416746294e-10,
+      "target_infinity": 1e-10,
+      "witness_error": -5.169878828456423e-26
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 11,
+      "iteration_scaled_optimality": 1.67060222369324e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 5.169878828456423e-26
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 12,
+      "iteration_scaled_optimality": 1.6429030347501396e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 5.169878828456423e-26
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 13,
+      "iteration_scaled_optimality": 1.6664334905357646e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 0.0
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 14,
+      "iteration_scaled_optimality": 1.633311777451103e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 0.0
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 15,
+      "iteration_scaled_optimality": 1.664643002795626e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 0.0
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 16,
+      "iteration_scaled_optimality": 1.6348471466572458e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 5.169878828456423e-26
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 17,
+      "iteration_scaled_optimality": 1.6647825899061704e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 0.0
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 18,
+      "iteration_scaled_optimality": 1.644403522800952e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 0.0
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 19,
+      "iteration_scaled_optimality": 1.667654859902924e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 5.169878828456423e-26
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 20,
+      "iteration_scaled_optimality": 1.628828346378148e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 0.0
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 21,
+      "iteration_scaled_optimality": 1.6145569870320585e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 0.0
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 22,
+      "iteration_scaled_optimality": 1.6075059968393405e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 5.169878828456423e-26
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 23,
+      "iteration_scaled_optimality": 1.6614862619427116e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 0.0
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 24,
+      "iteration_scaled_optimality": 1.624868340503052e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 0.0
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 25,
+      "iteration_scaled_optimality": 1.61637842573568e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 5.169878828456423e-26
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 26,
+      "iteration_scaled_optimality": 1.6012880347641884e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 5.169878828456423e-26
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 27,
+      "iteration_scaled_optimality": 1.6248699436002797e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 5.169878828456423e-26
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 28,
+      "iteration_scaled_optimality": 1.6001119078882495e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 5.169878828456423e-26
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 29,
+      "iteration_scaled_optimality": 1.6487974873716924e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 0.0
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 30,
+      "iteration_scaled_optimality": 1.6244598895460678e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 5.169878828456423e-26
+    },
+    {
+      "best_scaled_optimality": 1.5885271412579135e-10,
+      "iteration": 31,
+      "iteration_scaled_optimality": 1.626001735816322e-10,
+      "target_infinity": 1e-10,
+      "witness_error": 5.169878828456423e-26
+    }
+  ],
+  "reference_difference_max": 2.8314996878497922e-05,
+  "representable_state_found": false,
+  "scaled_optimality": 1.5885271412579135e-10,
+  "schema": "crow-contact-chebyshev-search-v1",
+  "scope": "Exposed bounded diagnostic, one exact dual plane and independent full reprojection. No native feedback, settings or policy changes.",
+  "seconds": 1.4767820830456913
+}

@@ -1,0 +1,13 @@
+{
+  "budget": {
+    "dual_combinations_max": 1544,
+    "seconds": 120
+  },
+  "method": "Exact unimodular inverse and LDL solves, enumerate support size 1/2/3 over final six dual vectors with coefficients +/-1,2, verify the selected strongest witness using exact rational identities",
+  "native_settings_changed": false,
+  "prediction": "The strongest certified local scaled lower bound exceeds 1e-10",
+  "purpose": "Exposed numerical diagnosis: combine coarse reduced-basis dual vectors to seek a stronger exact local-spacing lower bound",
+  "schema": "crow-contact-mixed-dual-plan-v1",
+  "scope": "Same explicitly limited affine branch/spacing/fixed-coordinate/1e-4-box hypotheses. A scoped result cannot be generalized to all FP32 states.",
+  "source_sha256": "8f26ae027a55a1770bad3f8dd7262323796c35d1e6fbc83d24029684630e9a39"
+}

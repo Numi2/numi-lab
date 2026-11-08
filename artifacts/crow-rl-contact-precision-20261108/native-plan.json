@@ -1,0 +1,53 @@
+{
+  "budget": {
+    "cases": 4,
+    "raw_bytes_max": 10000000,
+    "seconds_each": 120
+  },
+  "inputs": {
+    ".numi/retained-runtime/contact-precision-20261108/MetalRobo.metallib": {
+      "bytes": 4320944,
+      "sha256": "bcbd1f080aa8891b1e09e029be724d7eb28fc76e075e7579218f9d6c93984851"
+    },
+    "artifacts/crow-rl-contact-precision-20261108/native_check.py": {
+      "bytes": 3495,
+      "sha256": "f29cbd13daeeb684b2c5069afc1da9fcf54be8ddaf1a94fe6127b882acaa52f3"
+    },
+    "build/crow-contact-precision-build-01/chebyshev-v.f32": {
+      "bytes": 136,
+      "sha256": "f56e52c61c6607c2a42fe9ed95ce830d96c309d49a9abac5e233603a208da9ff"
+    },
+    "build/crow-contact-precision-build-01/control-neighbor-v.f32": {
+      "bytes": 136,
+      "sha256": "ee4620f6ecac23b3393603c7f914234979106da60658edcf1352d57f756890c8"
+    },
+    "build/crow-contact-precision-build-01/control-substep2.bin": {
+      "bytes": 98864,
+      "sha256": "abd531b3e9f580c7f5c208c358e87821c51470d3671367571c8a713f3885b441"
+    },
+    "build/crow-contact-precision-build-01/rounded-reference-v.f32": {
+      "bytes": 136,
+      "sha256": "953063577f4a6eccf6afaad7e1648948189bf39404567e6a13c4171a28b75694"
+    },
+    "build/crow-contact-precision-build-01/substep7-capture.bin": {
+      "bytes": 98864,
+      "sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f"
+    },
+    "build/crow-contact-precision-build-01/warm-probe": {
+      "bytes": 122680,
+      "sha256": "ce4db4e79b1bc1c89daf4480894b3fa4d47d3ee8d313b8e6e1ed4080f41c1431"
+    }
+  },
+  "limits": "No native world transition, settings change, policy promotion or fresh ecological result.",
+  "predictions": {
+    "chebyshev_code": 7,
+    "control_code": 0,
+    "control_velocity_exact": true,
+    "original_capture_exact": true,
+    "original_code": 7,
+    "rounded_code": 7
+  },
+  "purpose": "Native engineering replay and arithmetic cross-check of retained/warm candidate states, without source/configuration changes",
+  "schema": "crow-contact-native-precision-check-plan-v1",
+  "stop": "Unexpected process/GPU/structural failure; ordinary solver rejection is retained. Independently evaluate every accepted substep-seven output; an acceptance outside the gate is a discrepancy."
+}
