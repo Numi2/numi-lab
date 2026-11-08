@@ -1,0 +1,18 @@
+{
+  "crow_runner": {
+    "all_three_native_commands_terminal": true,
+    "corrected_analysis": "crow-analysis.json",
+    "postprocessing_failure": "candidate initial files absent after host capacity rejection",
+    "source": "run_crow.py"
+  },
+  "local_edit_helpers": {
+    "failure": "exact-match assertions before remote source mutation; original drafts retained",
+    "preserved": [
+      "edit-failed-1.py",
+      "edit-failed-2.py",
+      "edit-failed-3.py"
+    ]
+  },
+  "no_failure_discarded": true,
+  "schema": "crow-native-drive-ir-instrument-failures-v1"
+}

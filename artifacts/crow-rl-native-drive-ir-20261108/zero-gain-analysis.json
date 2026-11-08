@@ -1,0 +1,15 @@
+{
+  "accepted_zero_gain_conditions": 48,
+  "crow_candidate_first_step_failure_reproduced_exactly": true,
+  "default_crow_physical_files_exact": 10,
+  "excluded_native_column": [
+    "gpu_ms"
+  ],
+  "maximum_force_error_N": 1.0102264944716888e-11,
+  "maximum_momentum_residual_Ns": 2.2809333306665625e-11,
+  "maximum_q_hv_error_m": 2.909237521026009e-13,
+  "native_576_physical_records_exact": true,
+  "old_shader_rejected_after_published_conditions": 9,
+  "policy_or_profile_promoted": false,
+  "verdict": "supported_finite_zero_gain_regression"
+}

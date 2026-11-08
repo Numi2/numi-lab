@@ -1,0 +1,13 @@
+{
+  "failure-contact-status.bin": true,
+  "failure-q.f32": true,
+  "failure-scene.bin": true,
+  "failure-v.f32": true,
+  "failure-world-status.bin": true,
+  "failure.json": true,
+  "initial-geometry.json": true,
+  "initial-q.f32": true,
+  "initial-scene.bin": true,
+  "initial-v.f32": true,
+  "trace.tsv": true
+}
