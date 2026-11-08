@@ -1,0 +1,5 @@
+{
+  "euclidean_closed_form_cases": 5,
+  "passed": true,
+  "weighted_boundary_derivative_max_error": 7.482731101404738e-11
+}

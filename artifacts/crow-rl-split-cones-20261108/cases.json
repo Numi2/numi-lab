@@ -1,0 +1,130 @@
+[
+  {
+    "capture_sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f",
+    "group": "retained",
+    "name": "substep7",
+    "path": "build/crow-split-cones-build-01/inputs/substep7.bin",
+    "rounding": 0,
+    "sha256": "fb15d32fe1c11806c8778b0edbae1b1156449fb9c6c9ccb72ca90f95afda2a5a"
+  },
+  {
+    "group": "rounding",
+    "name": "substep7-rounding",
+    "path": "build/crow-split-cones-build-01/inputs/substep7-rounding.bin",
+    "rounding": 1,
+    "sha256": "95f102292a8740cb6725da1dbf139257f75c989d6ff355bc461b38cbc0b55709"
+  },
+  {
+    "capture_sha256": "abd531b3e9f580c7f5c208c358e87821c51470d3671367571c8a713f3885b441",
+    "group": "retained",
+    "name": "substep2",
+    "path": "build/crow-split-cones-build-01/inputs/substep2.bin",
+    "rounding": 0,
+    "sha256": "07de6dc4330a61d0ba994382f21b8593df5077e494569ffce3b7976935fea47a"
+  },
+  {
+    "group": "constructed",
+    "name": "n3-boundary",
+    "path": "build/crow-split-cones-build-01/inputs/n3-boundary.bin",
+    "rounding": 0,
+    "sha256": "7f50ce9fbb146fc439937055554f518a90b3d9480ebdb9c7a37bd4e74546522d"
+  },
+  {
+    "group": "constructed",
+    "name": "n3-adhesion",
+    "path": "build/crow-split-cones-build-01/inputs/n3-adhesion.bin",
+    "rounding": 0,
+    "sha256": "8088d0c98841efa2d78221f5039ae008ade30147e4f8b8c682df20c6da600726"
+  },
+  {
+    "group": "constructed",
+    "name": "n3-cap-boundary",
+    "path": "build/crow-split-cones-build-01/inputs/n3-cap-boundary.bin",
+    "rounding": 0,
+    "sha256": "c934a4f1e3a9507f6a697a28f2db431afe2a86220b1d35a4827ee979c31feed3"
+  },
+  {
+    "group": "constructed",
+    "name": "n3-cap-interior",
+    "path": "build/crow-split-cones-build-01/inputs/n3-cap-interior.bin",
+    "rounding": 0,
+    "sha256": "68ebc8bc3b9f4de5462a448ba943c07c822d15fb8462692dc6cb1657ff805fda"
+  },
+  {
+    "group": "constructed",
+    "name": "n4-boundary",
+    "path": "build/crow-split-cones-build-01/inputs/n4-boundary.bin",
+    "rounding": 0,
+    "sha256": "3661b15acf6ace3aeb9261f3c2f883977b0025acc786453c9fd299ec2aba4123"
+  },
+  {
+    "group": "constructed",
+    "name": "n4-adhesion",
+    "path": "build/crow-split-cones-build-01/inputs/n4-adhesion.bin",
+    "rounding": 0,
+    "sha256": "5b88716edac52bddca66c0c8893a9deb69f538e45be4c55d9d45594b5b3681a4"
+  },
+  {
+    "group": "constructed",
+    "name": "n4-cap-boundary",
+    "path": "build/crow-split-cones-build-01/inputs/n4-cap-boundary.bin",
+    "rounding": 0,
+    "sha256": "edb267ec2865f6b152216d3ebeb8d70dd88ce5654f1802a1d212f72fcb996a5a"
+  },
+  {
+    "group": "constructed",
+    "name": "n4-cap-interior",
+    "path": "build/crow-split-cones-build-01/inputs/n4-cap-interior.bin",
+    "rounding": 0,
+    "sha256": "f4a21f2b5e7c5c13598d62d71cd39935307b027a825a0ec5e09014e3bff620f8"
+  },
+  {
+    "group": "constructed",
+    "name": "n6-boundary",
+    "path": "build/crow-split-cones-build-01/inputs/n6-boundary.bin",
+    "rounding": 0,
+    "sha256": "d426afd4637406df86f751aa9fd7f3b56924f7a76cb6eddde64dabf00b9632f9"
+  },
+  {
+    "group": "constructed",
+    "name": "n6-adhesion",
+    "path": "build/crow-split-cones-build-01/inputs/n6-adhesion.bin",
+    "rounding": 0,
+    "sha256": "9bf20ac1db396c6ee8df048acc728a0399992e0c07921a5a8b7284afe0999bf1"
+  },
+  {
+    "group": "constructed",
+    "name": "n6-cap-boundary",
+    "path": "build/crow-split-cones-build-01/inputs/n6-cap-boundary.bin",
+    "rounding": 0,
+    "sha256": "cd4486f95a3f8e7771736b09ae00335a9f3abf43700889dbec3b91dab70a1839"
+  },
+  {
+    "group": "constructed",
+    "name": "n6-cap-interior",
+    "path": "build/crow-split-cones-build-01/inputs/n6-cap-interior.bin",
+    "rounding": 0,
+    "sha256": "2c55e06c73aa43afce1613daf12d2fdea1b9e1b4f0a63e942bcdb10fef483140"
+  },
+  {
+    "group": "constructed",
+    "name": "seven-regions",
+    "path": "build/crow-split-cones-build-01/inputs/seven-regions.bin",
+    "rounding": 0,
+    "sha256": "54197e4fa3325d2eff1f0d28f146d3ac70988ef5ae79feaac35fe58f15fc6a51"
+  },
+  {
+    "group": "null",
+    "name": "null",
+    "path": "build/crow-split-cones-build-01/inputs/null.bin",
+    "rounding": 0,
+    "sha256": "6f1f2b065f7765c93595bcf1c9bf0e8f20025a915aba02e606e48330f06436cd"
+  },
+  {
+    "group": "invalid",
+    "name": "invalid-r",
+    "path": "build/crow-split-cones-build-01/inputs/invalid-r.bin",
+    "rounding": 0,
+    "sha256": "4381e54bffe2a59963da33d72e46d155c9269213c52192ee31b5aa1e187f6890"
+  }
+]
