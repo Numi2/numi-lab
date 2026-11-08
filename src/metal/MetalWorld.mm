@@ -20439,6 +20439,32 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             const std::size_t rodWitnessCount =
                 requirements.entries[kRodWitnessesA]
                     .logicalElements;
+            struct ObservationEncodeLease {
+                const MetalWorldDeviceObservationProgram& program;
+                void* command;
+                bool acquired = false;
+                ~ObservationEncodeLease() {
+                    if (acquired) program.finish(program.context, command, false);
+                }
+                void submitted() noexcept {
+                    if (acquired) {
+                        program.finish(program.context, command, true);
+                        acquired = false;
+                    }
+                }
+            } observationLease{config.deviceObservationProgram,
+                               (__bridge void*)commandBuffer};
+            if (config.deviceObservationProgram.valid() &&
+                config.deviceObservationProgram.begin != nullptr) {
+                if (!config.deviceObservationProgram.begin(
+                        config.deviceObservationProgram.context,
+                        (__bridge void*)commandBuffer)) {
+                    return reject(std::move(diagnostics),
+                                  MetalWorldHostStatus::contextBusy,
+                                  "device observation owner is busy");
+                }
+                observationLease.acquired = true;
+            }
             for (std::uint32_t controlStep = 0u;
                  controlStep <
                      diagnostics.layout.dispatch.controlStepCount;
@@ -21364,6 +21390,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             }
             ++selectedState->stats.submissionCount;
             [commandBuffer commit];
+            observationLease.submitted();
             initialUploadAbortGuard.armed = false;
             submission.state_ = std::move(pending);
             if (initializeResidentState) {

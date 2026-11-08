@@ -6529,6 +6529,40 @@ if(BUILD_TESTING)
         metalrobo.visual.tracker_encode_retry
         PROPERTIES LABELS "metalrobo;visual;metal" TIMEOUT 120
     )
+    foreach(mode IN ITEMS control first second)
+        if(mode STREQUAL "control")
+            add_test(NAME metalrobo.visual.world_observation_${mode}
+                COMMAND ${CMAKE_COMMAND} -E env NUMI_TEST_WORLD_TRANSACTION=1
+                        $<TARGET_FILE:metalrobo_visual_platform_probe>)
+        else()
+            add_test(NAME metalrobo.visual.world_observation_${mode}
+                COMMAND ${CMAKE_COMMAND} -E env NUMI_TEST_WORLD_TRANSACTION=1
+                        NUMI_TEST_REJECT_ACTION=${mode}
+                        $<TARGET_FILE:metalrobo_visual_platform_probe>)
+        endif()
+        set_tests_properties(metalrobo.visual.world_observation_${mode}
+            PROPERTIES LABELS "metalrobo;visual;metal" TIMEOUT 120)
+    endforeach()
+    foreach(mode IN ITEMS control first second)
+        if(mode STREQUAL "control")
+            add_test(NAME metalrobo.visual.resident_observation_${mode}
+                COMMAND ${CMAKE_COMMAND} -E env NUMI_TEST_WORLD_TRANSACTION=1
+                        NUMI_TEST_RESIDENT_REJECT=1
+                        $<TARGET_FILE:metalrobo_visual_platform_probe>)
+        else()
+            add_test(NAME metalrobo.visual.resident_observation_${mode}
+                COMMAND ${CMAKE_COMMAND} -E env NUMI_TEST_WORLD_TRANSACTION=1
+                        NUMI_TEST_RESIDENT_REJECT=1 NUMI_TEST_REJECT_ACTION=${mode}
+                        $<TARGET_FILE:metalrobo_visual_platform_probe>)
+        endif()
+        set_tests_properties(metalrobo.visual.resident_observation_${mode}
+            PROPERTIES LABELS "metalrobo;visual;metal" TIMEOUT 120)
+    endforeach()
+    add_test(NAME metalrobo.visual.observation_lease
+        COMMAND ${CMAKE_COMMAND} -E env NUMI_TEST_TRACKER_LEASE=1
+                $<TARGET_FILE:metalrobo_visual_platform_probe>)
+    set_tests_properties(metalrobo.visual.observation_lease
+        PROPERTIES LABELS "metalrobo;visual;metal" TIMEOUT 120)
 endif()
 
 install(
