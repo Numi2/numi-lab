@@ -1,0 +1,2617 @@
+{
+  "base_commit": "76b778c8431c66c61ee5500854aa31f24795364c",
+  "files": [
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 7002,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/d9d3e5cc26bb3fc20a5dfbb3a64792148bcab836ce02ab932b05115019640ddc.gz",
+            "sha256": "d9d3e5cc26bb3fc20a5dfbb3a64792148bcab836ce02ab932b05115019640ddc"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 7002,
+      "mode": 420,
+      "mtime_ns": 1794107345361185999,
+      "path": ".numi/runs/american-crow/object-learning-02/calibration-plan.json",
+      "sha256": "d9d3e5cc26bb3fc20a5dfbb3a64792148bcab836ce02ab932b05115019640ddc"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1112,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/5652c3c452202e49c4859e2eab7b6b4fe601b6af941ec035f2886dd61fb686bb.gz",
+            "sha256": "5652c3c452202e49c4859e2eab7b6b4fe601b6af941ec035f2886dd61fb686bb"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1112,
+      "mode": 420,
+      "mtime_ns": 1794107408647923349,
+      "path": ".numi/runs/american-crow/object-learning-02/calibration-summary.json",
+      "sha256": "5652c3c452202e49c4859e2eab7b6b4fe601b6af941ec035f2886dd61fb686bb"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-object-curriculum-20261108/blobs/4310d248e33138c4d260a3c29e911471b1253896740b2d0514091ee76d2e902c.gz"
+      },
+      "bytes": 211874,
+      "mode": 420,
+      "mtime_ns": 1794107345401146746,
+      "path": ".numi/runs/american-crow/object-learning-02/contract-template.policypack",
+      "sha256": "4310d248e33138c4d260a3c29e911471b1253896740b2d0514091ee76d2e902c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4236,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/6d6de1e694a1c52eed251e1e6f6a99607a02a3b48cbfa5a514bfc8ce347ae66b.gz",
+            "sha256": "6d6de1e694a1c52eed251e1e6f6a99607a02a3b48cbfa5a514bfc8ce347ae66b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4236,
+      "mode": 420,
+      "mtime_ns": 1794107921815424832,
+      "path": ".numi/runs/american-crow/object-learning-02/final-a.endpoint.json",
+      "sha256": "6d6de1e694a1c52eed251e1e6f6a99607a02a3b48cbfa5a514bfc8ce347ae66b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 23497,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/4ffca263de89bbcf36af909547ffc96600cf1eedb3e60092a6c7ac048c66cd83.gz",
+            "sha256": "4ffca263de89bbcf36af909547ffc96600cf1eedb3e60092a6c7ac048c66cd83"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 23497,
+      "mode": 420,
+      "mtime_ns": 1794107921750913475,
+      "path": ".numi/runs/american-crow/object-learning-02/final-a.json",
+      "sha256": "4ffca263de89bbcf36af909547ffc96600cf1eedb3e60092a6c7ac048c66cd83"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 3454540,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/8334437985903b8aee5fe6f0c0d180fbf9784f8d15c1de34f7d9f375b9b669a1.gz",
+            "sha256": "8334437985903b8aee5fe6f0c0d180fbf9784f8d15c1de34f7d9f375b9b669a1"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 3454540,
+      "mode": 384,
+      "mtime_ns": 1794107921747955121,
+      "path": ".numi/runs/american-crow/object-learning-02/final-a.life",
+      "sha256": "8334437985903b8aee5fe6f0c0d180fbf9784f8d15c1de34f7d9f375b9b669a1"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1699,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/3d732ce0f786cd8f6eb026d9a9166a599446a5182a5b5695674d4b46b6626297.gz",
+            "sha256": "3d732ce0f786cd8f6eb026d9a9166a599446a5182a5b5695674d4b46b6626297"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1699,
+      "mode": 420,
+      "mtime_ns": 1794107921776153606,
+      "path": ".numi/runs/american-crow/object-learning-02/final-a.receipt.json",
+      "sha256": "3d732ce0f786cd8f6eb026d9a9166a599446a5182a5b5695674d4b46b6626297"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 29143654,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/940619a545075429fef69b45940f449da594b7db61cd98a56e3dec6c366f778b.gz",
+            "sha256": "940619a545075429fef69b45940f449da594b7db61cd98a56e3dec6c366f778b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 29143654,
+      "mode": 384,
+      "mtime_ns": 1794107921741124616,
+      "path": ".numi/runs/american-crow/object-learning-02/final-a.rolloutpack",
+      "sha256": "940619a545075429fef69b45940f449da594b7db61cd98a56e3dec6c366f778b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 194809,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/4a020fc527d4ca4499771dfbd5092f09c049a6e8ca736d50351601cb0b80a1fb.gz",
+            "sha256": "4a020fc527d4ca4499771dfbd5092f09c049a6e8ca736d50351601cb0b80a1fb"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 194809,
+      "mode": 420,
+      "mtime_ns": 1794107921705504539,
+      "path": ".numi/runs/american-crow/object-learning-02/final-a.state.json",
+      "sha256": "4a020fc527d4ca4499771dfbd5092f09c049a6e8ca736d50351601cb0b80a1fb"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84693,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/0987b5ededd5a49141d674277ed7d5a7498c9f7d6692295b92dea0e2e363254f.gz",
+            "sha256": "0987b5ededd5a49141d674277ed7d5a7498c9f7d6692295b92dea0e2e363254f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84693,
+      "mode": 420,
+      "mtime_ns": 1794107901143144744,
+      "path": ".numi/runs/american-crow/object-learning-02/final-a.stderr",
+      "sha256": "0987b5ededd5a49141d674277ed7d5a7498c9f7d6692295b92dea0e2e363254f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4242,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/4eea92fd12fc03f57343c70518bb89ac4ffb60f6be4509814348c319db213b64.gz",
+            "sha256": "4eea92fd12fc03f57343c70518bb89ac4ffb60f6be4509814348c319db213b64"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4242,
+      "mode": 420,
+      "mtime_ns": 1794107942489990561,
+      "path": ".numi/runs/american-crow/object-learning-02/final-b.endpoint.json",
+      "sha256": "4eea92fd12fc03f57343c70518bb89ac4ffb60f6be4509814348c319db213b64"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 23474,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/c2131fe1cb2f6b10f1d1d5562f1b8d46331b4c976f8deb8886a4275e6f2e0234.gz",
+            "sha256": "c2131fe1cb2f6b10f1d1d5562f1b8d46331b4c976f8deb8886a4275e6f2e0234"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 23474,
+      "mode": 420,
+      "mtime_ns": 1794107942435330646,
+      "path": ".numi/runs/american-crow/object-learning-02/final-b.json",
+      "sha256": "c2131fe1cb2f6b10f1d1d5562f1b8d46331b4c976f8deb8886a4275e6f2e0234"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 3454540,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/ab38fa781b060a9a79f1e9d9305b28772fd0a54c6f7e4c5da5294d9b409c570a.gz",
+            "sha256": "ab38fa781b060a9a79f1e9d9305b28772fd0a54c6f7e4c5da5294d9b409c570a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 3454540,
+      "mode": 384,
+      "mtime_ns": 1794107942432357584,
+      "path": ".numi/runs/american-crow/object-learning-02/final-b.life",
+      "sha256": "ab38fa781b060a9a79f1e9d9305b28772fd0a54c6f7e4c5da5294d9b409c570a"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1699,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/432cd472475160597e223dcb45fcd8436f7af56b8adafe4377c423f2ccebf955.gz",
+            "sha256": "432cd472475160597e223dcb45fcd8436f7af56b8adafe4377c423f2ccebf955"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1699,
+      "mode": 420,
+      "mtime_ns": 1794107942451750091,
+      "path": ".numi/runs/american-crow/object-learning-02/final-b.receipt.json",
+      "sha256": "432cd472475160597e223dcb45fcd8436f7af56b8adafe4377c423f2ccebf955"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 29143654,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/fb09104dc94ef7c029c8f29a347418af079d094adfaa1a2e433556b5dc17e109.gz",
+            "sha256": "fb09104dc94ef7c029c8f29a347418af079d094adfaa1a2e433556b5dc17e109"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 29143654,
+      "mode": 384,
+      "mtime_ns": 1794107942426688837,
+      "path": ".numi/runs/american-crow/object-learning-02/final-b.rolloutpack",
+      "sha256": "fb09104dc94ef7c029c8f29a347418af079d094adfaa1a2e433556b5dc17e109"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 194888,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/ee88495c295b94917d257553440a803c356600b6c10b5a28275c6066dc7f0aab.gz",
+            "sha256": "ee88495c295b94917d257553440a803c356600b6c10b5a28275c6066dc7f0aab"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 194888,
+      "mode": 420,
+      "mtime_ns": 1794107942390684091,
+      "path": ".numi/runs/american-crow/object-learning-02/final-b.state.json",
+      "sha256": "ee88495c295b94917d257553440a803c356600b6c10b5a28275c6066dc7f0aab"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84693,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/b52010753a37f770ecb89bdace60b6e83206f814dcf30a07ffcab5c0609e8705.gz",
+            "sha256": "b52010753a37f770ecb89bdace60b6e83206f814dcf30a07ffcab5c0609e8705"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84693,
+      "mode": 420,
+      "mtime_ns": 1794107921830126641,
+      "path": ".numi/runs/american-crow/object-learning-02/final-b.stderr",
+      "sha256": "b52010753a37f770ecb89bdace60b6e83206f814dcf30a07ffcab5c0609e8705"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 197903,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/d07725f21ff9b03ddb8cdc9beb9265f3ce864a952acc377ee0768b6f42a0eb81.gz",
+            "sha256": "d07725f21ff9b03ddb8cdc9beb9265f3ce864a952acc377ee0768b6f42a0eb81"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 197903,
+      "mode": 384,
+      "mtime_ns": 1794107880403156567,
+      "path": ".numi/runs/american-crow/object-learning-02/final-mean.policypack",
+      "sha256": "d07725f21ff9b03ddb8cdc9beb9265f3ce864a952acc377ee0768b6f42a0eb81"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4236,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/6d6de1e694a1c52eed251e1e6f6a99607a02a3b48cbfa5a514bfc8ce347ae66b.gz",
+            "sha256": "6d6de1e694a1c52eed251e1e6f6a99607a02a3b48cbfa5a514bfc8ce347ae66b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4236,
+      "mode": 420,
+      "mtime_ns": 1794107901125392123,
+      "path": ".numi/runs/american-crow/object-learning-02/initial-a.endpoint.json",
+      "sha256": "6d6de1e694a1c52eed251e1e6f6a99607a02a3b48cbfa5a514bfc8ce347ae66b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 23489,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/120b834b0c98282eea1653ca4735f0a631a4e620da2084bda074a684eef6fd46.gz",
+            "sha256": "120b834b0c98282eea1653ca4735f0a631a4e620da2084bda074a684eef6fd46"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 23489,
+      "mode": 420,
+      "mtime_ns": 1794107901029908220,
+      "path": ".numi/runs/american-crow/object-learning-02/initial-a.json",
+      "sha256": "120b834b0c98282eea1653ca4735f0a631a4e620da2084bda074a684eef6fd46"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 3454540,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/c155d00e42463d08d5753f254a8d045362d604679ebaf2fb8c9550cb92ffd983.gz",
+            "sha256": "c155d00e42463d08d5753f254a8d045362d604679ebaf2fb8c9550cb92ffd983"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 3454540,
+      "mode": 384,
+      "mtime_ns": 1794107901026954866,
+      "path": ".numi/runs/american-crow/object-learning-02/initial-a.life",
+      "sha256": "c155d00e42463d08d5753f254a8d045362d604679ebaf2fb8c9550cb92ffd983"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1707,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/35da358641fce86ed697f88104f1e896f1df3d1273768b95d535d7a9840a2eb3.gz",
+            "sha256": "35da358641fce86ed697f88104f1e896f1df3d1273768b95d535d7a9840a2eb3"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1707,
+      "mode": 420,
+      "mtime_ns": 1794107901076291287,
+      "path": ".numi/runs/american-crow/object-learning-02/initial-a.receipt.json",
+      "sha256": "35da358641fce86ed697f88104f1e896f1df3d1273768b95d535d7a9840a2eb3"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 29143654,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/2042ef6a2bbce7a76e628b435714d925f89527a04c48c6448feef522c83af788.gz",
+            "sha256": "2042ef6a2bbce7a76e628b435714d925f89527a04c48c6448feef522c83af788"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 29143654,
+      "mode": 384,
+      "mtime_ns": 1794107901021280161,
+      "path": ".numi/runs/american-crow/object-learning-02/initial-a.rolloutpack",
+      "sha256": "2042ef6a2bbce7a76e628b435714d925f89527a04c48c6448feef522c83af788"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 192710,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/206d6a4ce8b045ea5bf6220c6d3486125af19868de1a69683027a9c15894e092.gz",
+            "sha256": "206d6a4ce8b045ea5bf6220c6d3486125af19868de1a69683027a9c15894e092"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 192710,
+      "mode": 420,
+      "mtime_ns": 1794107900985142414,
+      "path": ".numi/runs/american-crow/object-learning-02/initial-a.state.json",
+      "sha256": "206d6a4ce8b045ea5bf6220c6d3486125af19868de1a69683027a9c15894e092"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84693,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/4fcfef6763233d8486761c004d8c1590bc33bd4b2b1add06309074286b006a0b.gz",
+            "sha256": "4fcfef6763233d8486761c004d8c1590bc33bd4b2b1add06309074286b006a0b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84693,
+      "mode": 420,
+      "mtime_ns": 1794107880419247677,
+      "path": ".numi/runs/american-crow/object-learning-02/initial-a.stderr",
+      "sha256": "4fcfef6763233d8486761c004d8c1590bc33bd4b2b1add06309074286b006a0b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4242,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/4eea92fd12fc03f57343c70518bb89ac4ffb60f6be4509814348c319db213b64.gz",
+            "sha256": "4eea92fd12fc03f57343c70518bb89ac4ffb60f6be4509814348c319db213b64"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4242,
+      "mode": 420,
+      "mtime_ns": 1794107963128601211,
+      "path": ".numi/runs/american-crow/object-learning-02/initial-b.endpoint.json",
+      "sha256": "4eea92fd12fc03f57343c70518bb89ac4ffb60f6be4509814348c319db213b64"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 23492,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/625b8b484d5c0c39e1c1e70a203011fb5934bcee0bb6458c923ad2bd3cf8ac0f.gz",
+            "sha256": "625b8b484d5c0c39e1c1e70a203011fb5934bcee0bb6458c923ad2bd3cf8ac0f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 23492,
+      "mode": 420,
+      "mtime_ns": 1794107963076442437,
+      "path": ".numi/runs/american-crow/object-learning-02/initial-b.json",
+      "sha256": "625b8b484d5c0c39e1c1e70a203011fb5934bcee0bb6458c923ad2bd3cf8ac0f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 3454540,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/216c7fa746deaba74353af5df9d3afec9e474d3a24b99a7ca0c44992457c3316.gz",
+            "sha256": "216c7fa746deaba74353af5df9d3afec9e474d3a24b99a7ca0c44992457c3316"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 3454540,
+      "mode": 384,
+      "mtime_ns": 1794107963073858253,
+      "path": ".numi/runs/american-crow/object-learning-02/initial-b.life",
+      "sha256": "216c7fa746deaba74353af5df9d3afec9e474d3a24b99a7ca0c44992457c3316"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1707,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/f8530858206ed9bcc000bbae737ab9cca266f4fe03c3ce4171f812846e0a2ca4.gz",
+            "sha256": "f8530858206ed9bcc000bbae737ab9cca266f4fe03c3ce4171f812846e0a2ca4"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1707,
+      "mode": 420,
+      "mtime_ns": 1794107963091201122,
+      "path": ".numi/runs/american-crow/object-learning-02/initial-b.receipt.json",
+      "sha256": "f8530858206ed9bcc000bbae737ab9cca266f4fe03c3ce4171f812846e0a2ca4"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 29143654,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/a73d2660f3c82c23c9114e824b1fe4d44159eb0a988740bc96c45fe79cab6791.gz",
+            "sha256": "a73d2660f3c82c23c9114e824b1fe4d44159eb0a988740bc96c45fe79cab6791"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 29143654,
+      "mode": 384,
+      "mtime_ns": 1794107963067689711,
+      "path": ".numi/runs/american-crow/object-learning-02/initial-b.rolloutpack",
+      "sha256": "a73d2660f3c82c23c9114e824b1fe4d44159eb0a988740bc96c45fe79cab6791"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 192709,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/b0cdbb99067091ee228e55e797258fabc1830634547bd309d085363682fbc5b1.gz",
+            "sha256": "b0cdbb99067091ee228e55e797258fabc1830634547bd309d085363682fbc5b1"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 192709,
+      "mode": 420,
+      "mtime_ns": 1794107963031274962,
+      "path": ".numi/runs/american-crow/object-learning-02/initial-b.state.json",
+      "sha256": "b0cdbb99067091ee228e55e797258fabc1830634547bd309d085363682fbc5b1"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84693,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/b36abc014f3b021e66268a58df3e8549abd3b6deae4c8a08e2f6c19cce33b64c.gz",
+            "sha256": "b36abc014f3b021e66268a58df3e8549abd3b6deae4c8a08e2f6c19cce33b64c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84693,
+      "mode": 420,
+      "mtime_ns": 1794107942504826204,
+      "path": ".numi/runs/american-crow/object-learning-02/initial-b.stderr",
+      "sha256": "b36abc014f3b021e66268a58df3e8549abd3b6deae4c8a08e2f6c19cce33b64c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 197903,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/44bd35cf4207f9f7cdea5443b08e9eecafe06cdcd3b854ded9e2695967b01b0b.gz",
+            "sha256": "44bd35cf4207f9f7cdea5443b08e9eecafe06cdcd3b854ded9e2695967b01b0b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 197903,
+      "mode": 384,
+      "mtime_ns": 1794107345495318813,
+      "path": ".numi/runs/american-crow/object-learning-02/initial-mean.policypack",
+      "sha256": "44bd35cf4207f9f7cdea5443b08e9eecafe06cdcd3b854ded9e2695967b01b0b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 211879,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/e140255d5d4deb1256f9e5dfab627dd57f60bc0757b69544a3e6b8c85b37f990.gz",
+            "sha256": "e140255d5d4deb1256f9e5dfab627dd57f60bc0757b69544a3e6b8c85b37f990"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 211879,
+      "mode": 384,
+      "mtime_ns": 1794107345483964755,
+      "path": ".numi/runs/american-crow/object-learning-02/initial.policypack",
+      "sha256": "e140255d5d4deb1256f9e5dfab627dd57f60bc0757b69544a3e6b8c85b37f990"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 337,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/93079d88d8b1349cd09b6caff66ffe992449d07b0342e9bf2139f6c2fba260f5.gz",
+            "sha256": "93079d88d8b1349cd09b6caff66ffe992449d07b0342e9bf2139f6c2fba260f5"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 337,
+      "mode": 420,
+      "mtime_ns": 1794107345484170673,
+      "path": ".numi/runs/american-crow/object-learning-02/initialize.json",
+      "sha256": "93079d88d8b1349cd09b6caff66ffe992449d07b0342e9bf2139f6c2fba260f5"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1389,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/194982f7265770d9c7c30e69247d98d7335515e8272620a013d25467507cd052.gz",
+            "sha256": "194982f7265770d9c7c30e69247d98d7335515e8272620a013d25467507cd052"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1389,
+      "mode": 420,
+      "mtime_ns": 1794107345494072474,
+      "path": ".numi/runs/american-crow/object-learning-02/initialize.receipt.json",
+      "sha256": "194982f7265770d9c7c30e69247d98d7335515e8272620a013d25467507cd052"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794107345404002094,
+      "path": ".numi/runs/american-crow/object-learning-02/initialize.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4196,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/829fb155828489352f056252ab0016296b793aa67b4f1b6c6005397c410a707e.gz",
+            "sha256": "829fb155828489352f056252ab0016296b793aa67b4f1b6c6005397c410a707e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4196,
+      "mode": 420,
+      "mtime_ns": 1794107483718947658,
+      "path": ".numi/runs/american-crow/object-learning-02/monitor-during-training.json",
+      "sha256": "829fb155828489352f056252ab0016296b793aa67b4f1b6c6005397c410a707e"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4369,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/f49ad8636361b0062179ffcc3c8f325b62af6dff6fcb8c5a8c0a18438ee2e6dc.gz",
+            "sha256": "f49ad8636361b0062179ffcc3c8f325b62af6dff6fcb8c5a8c0a18438ee2e6dc"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4369,
+      "mode": 420,
+      "mtime_ns": 1794107367261322513,
+      "path": ".numi/runs/american-crow/object-learning-02/neutral1.endpoint.json",
+      "sha256": "f49ad8636361b0062179ffcc3c8f325b62af6dff6fcb8c5a8c0a18438ee2e6dc"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 25949,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/fd503554ccb23b4e91b2aabbb9a7f8e60d799322dc474ab4d16deb50d2aef720.gz",
+            "sha256": "fd503554ccb23b4e91b2aabbb9a7f8e60d799322dc474ab4d16deb50d2aef720"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 25949,
+      "mode": 420,
+      "mtime_ns": 1794107367210855795,
+      "path": ".numi/runs/american-crow/object-learning-02/neutral1.json",
+      "sha256": "fd503554ccb23b4e91b2aabbb9a7f8e60d799322dc474ab4d16deb50d2aef720"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 3562460,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/deee21f5e55bebf3b1a9fe698388710aaade2b4d8785727bd675059e41a6bf0c.gz",
+            "sha256": "deee21f5e55bebf3b1a9fe698388710aaade2b4d8785727bd675059e41a6bf0c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 3562460,
+      "mode": 384,
+      "mtime_ns": 1794107367206778274,
+      "path": ".numi/runs/american-crow/object-learning-02/neutral1.life",
+      "sha256": "deee21f5e55bebf3b1a9fe698388710aaade2b4d8785727bd675059e41a6bf0c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1836,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/6e8d9c022df6ed0312b6f1b93533a933fbc1b4d10aae99e4edcc09f849ce81d8.gz",
+            "sha256": "6e8d9c022df6ed0312b6f1b93533a933fbc1b4d10aae99e4edcc09f849ce81d8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1836,
+      "mode": 420,
+      "mtime_ns": 1794107367222553564,
+      "path": ".numi/runs/american-crow/object-learning-02/neutral1.receipt.json",
+      "sha256": "6e8d9c022df6ed0312b6f1b93533a933fbc1b4d10aae99e4edcc09f849ce81d8"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 30054378,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/dea2a959a1f3e576c6ade126baaa949c580ed237de3740c979c564a6ab44783e.gz",
+            "sha256": "dea2a959a1f3e576c6ade126baaa949c580ed237de3740c979c564a6ab44783e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 30054378,
+      "mode": 384,
+      "mtime_ns": 1794107367200890244,
+      "path": ".numi/runs/american-crow/object-learning-02/neutral1.rolloutpack",
+      "sha256": "dea2a959a1f3e576c6ade126baaa949c580ed237de3740c979c564a6ab44783e"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 198331,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/f0882a369b722379e6bf1e16f43096ec5b1cc2c11f70cb9c119cbabca44b8fc2.gz",
+            "sha256": "f0882a369b722379e6bf1e16f43096ec5b1cc2c11f70cb9c119cbabca44b8fc2"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 198331,
+      "mode": 420,
+      "mtime_ns": 1794107367163559845,
+      "path": ".numi/runs/american-crow/object-learning-02/neutral1.state.json",
+      "sha256": "f0882a369b722379e6bf1e16f43096ec5b1cc2c11f70cb9c119cbabca44b8fc2"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84693,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/88e6670b21798da50311a58d9b161c18b25385c88855a1444dfbad4b9ba04c4f.gz",
+            "sha256": "88e6670b21798da50311a58d9b161c18b25385c88855a1444dfbad4b9ba04c4f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84693,
+      "mode": 420,
+      "mtime_ns": 1794107345890149092,
+      "path": ".numi/runs/american-crow/object-learning-02/neutral1.stderr",
+      "sha256": "88e6670b21798da50311a58d9b161c18b25385c88855a1444dfbad4b9ba04c4f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 71594,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/a345bb037587b0bf4517d5cd5e370387c10bf75c9c4bd6a77d51be7f4026cd9e.gz",
+            "sha256": "a345bb037587b0bf4517d5cd5e370387c10bf75c9c4bd6a77d51be7f4026cd9e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 71594,
+      "mode": 420,
+      "mtime_ns": 1794107367164351807,
+      "path": ".numi/runs/american-crow/object-learning-02/neutral1.trace.tsv",
+      "sha256": "a345bb037587b0bf4517d5cd5e370387c10bf75c9c4bd6a77d51be7f4026cd9e"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4369,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/f49ad8636361b0062179ffcc3c8f325b62af6dff6fcb8c5a8c0a18438ee2e6dc.gz",
+            "sha256": "f49ad8636361b0062179ffcc3c8f325b62af6dff6fcb8c5a8c0a18438ee2e6dc"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4369,
+      "mode": 420,
+      "mtime_ns": 1794107387917016051,
+      "path": ".numi/runs/american-crow/object-learning-02/neutral8.endpoint.json",
+      "sha256": "f49ad8636361b0062179ffcc3c8f325b62af6dff6fcb8c5a8c0a18438ee2e6dc"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 23927,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/24747949319e95c620c86f00333667e462d1e612bc866f53df98b7731b3a8568.gz",
+            "sha256": "24747949319e95c620c86f00333667e462d1e612bc866f53df98b7731b3a8568"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 23927,
+      "mode": 420,
+      "mtime_ns": 1794107387872877949,
+      "path": ".numi/runs/american-crow/object-learning-02/neutral8.json",
+      "sha256": "24747949319e95c620c86f00333667e462d1e612bc866f53df98b7731b3a8568"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 3562460,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/c995b59785e1e614de026783f646cd42e68e0d46094ce60ee2e4fb9625660051.gz",
+            "sha256": "c995b59785e1e614de026783f646cd42e68e0d46094ce60ee2e4fb9625660051"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 3562460,
+      "mode": 384,
+      "mtime_ns": 1794107387869850225,
+      "path": ".numi/runs/american-crow/object-learning-02/neutral8.life",
+      "sha256": "c995b59785e1e614de026783f646cd42e68e0d46094ce60ee2e4fb9625660051"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1704,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/507f9918c76db7952d86a9c0f32c232df99107a5a7c46852e64db107c34a5ef9.gz",
+            "sha256": "507f9918c76db7952d86a9c0f32c232df99107a5a7c46852e64db107c34a5ef9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1704,
+      "mode": 420,
+      "mtime_ns": 1794107387879515566,
+      "path": ".numi/runs/american-crow/object-learning-02/neutral8.receipt.json",
+      "sha256": "507f9918c76db7952d86a9c0f32c232df99107a5a7c46852e64db107c34a5ef9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 30054378,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/dea2a959a1f3e576c6ade126baaa949c580ed237de3740c979c564a6ab44783e.gz",
+            "sha256": "dea2a959a1f3e576c6ade126baaa949c580ed237de3740c979c564a6ab44783e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 30054378,
+      "mode": 384,
+      "mtime_ns": 1794107387863742777,
+      "path": ".numi/runs/american-crow/object-learning-02/neutral8.rolloutpack",
+      "sha256": "dea2a959a1f3e576c6ade126baaa949c580ed237de3740c979c564a6ab44783e"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 198331,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/f0882a369b722379e6bf1e16f43096ec5b1cc2c11f70cb9c119cbabca44b8fc2.gz",
+            "sha256": "f0882a369b722379e6bf1e16f43096ec5b1cc2c11f70cb9c119cbabca44b8fc2"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 198331,
+      "mode": 420,
+      "mtime_ns": 1794107387827041630,
+      "path": ".numi/runs/american-crow/object-learning-02/neutral8.state.json",
+      "sha256": "f0882a369b722379e6bf1e16f43096ec5b1cc2c11f70cb9c119cbabca44b8fc2"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84693,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/027321934ac8e90d413e669cc352b67887d25b32c44d77ab1cb9fd22c4a6386c.gz",
+            "sha256": "027321934ac8e90d413e669cc352b67887d25b32c44d77ab1cb9fd22c4a6386c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84693,
+      "mode": 420,
+      "mtime_ns": 1794107367275707920,
+      "path": ".numi/runs/american-crow/object-learning-02/neutral8.stderr",
+      "sha256": "027321934ac8e90d413e669cc352b67887d25b32c44d77ab1cb9fd22c4a6386c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84533,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/bf54a760ae954b23aa4b1287e7bc4e1070a774ed40c51dd633d89708f9b452da.gz",
+            "sha256": "bf54a760ae954b23aa4b1287e7bc4e1070a774ed40c51dd633d89708f9b452da"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84533,
+      "mode": 420,
+      "mtime_ns": 1794107408647446305,
+      "path": ".numi/runs/american-crow/object-learning-02/overwrite.stderr",
+      "sha256": "bf54a760ae954b23aa4b1287e7bc4e1070a774ed40c51dd633d89708f9b452da"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794107408647328137,
+      "path": ".numi/runs/american-crow/object-learning-02/overwrite.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4386,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/9f340e250983865df306ffe6a91db8369abcc44a27267750e46def9e24d6adb5.gz",
+            "sha256": "9f340e250983865df306ffe6a91db8369abcc44a27267750e46def9e24d6adb5"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4386,
+      "mode": 420,
+      "mtime_ns": 1794107408618974992,
+      "path": ".numi/runs/american-crow/object-learning-02/positive.endpoint.json",
+      "sha256": "9f340e250983865df306ffe6a91db8369abcc44a27267750e46def9e24d6adb5"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 23939,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/5eb3863b263060ee04d93d8c7c364d27bfc35cc0f69b704af913fad5f8c14ba4.gz",
+            "sha256": "5eb3863b263060ee04d93d8c7c364d27bfc35cc0f69b704af913fad5f8c14ba4"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 23939,
+      "mode": 420,
+      "mtime_ns": 1794107408553094361,
+      "path": ".numi/runs/american-crow/object-learning-02/positive.json",
+      "sha256": "5eb3863b263060ee04d93d8c7c364d27bfc35cc0f69b704af913fad5f8c14ba4"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 3562460,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/d6c548bdfac2cc7550cea1f205741f973fec24fb9885ab1beb7a879609cd1297.gz",
+            "sha256": "d6c548bdfac2cc7550cea1f205741f973fec24fb9885ab1beb7a879609cd1297"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 3562460,
+      "mode": 384,
+      "mtime_ns": 1794107408549752386,
+      "path": ".numi/runs/american-crow/object-learning-02/positive.life",
+      "sha256": "d6c548bdfac2cc7550cea1f205741f973fec24fb9885ab1beb7a879609cd1297"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1709,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/c1f756734661a90c1f25a5850fa81b53c85a974027eafd56cb2075b69a1e5455.gz",
+            "sha256": "c1f756734661a90c1f25a5850fa81b53c85a974027eafd56cb2075b69a1e5455"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1709,
+      "mode": 420,
+      "mtime_ns": 1794107408578393783,
+      "path": ".numi/runs/american-crow/object-learning-02/positive.receipt.json",
+      "sha256": "c1f756734661a90c1f25a5850fa81b53c85a974027eafd56cb2075b69a1e5455"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 30054378,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/246c4c30fbd266f82db6e4ad6be6fe238ec81b4343754c27c88d3b875e6a167b.gz",
+            "sha256": "246c4c30fbd266f82db6e4ad6be6fe238ec81b4343754c27c88d3b875e6a167b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 30054378,
+      "mode": 384,
+      "mtime_ns": 1794107408543859064,
+      "path": ".numi/runs/american-crow/object-learning-02/positive.rolloutpack",
+      "sha256": "246c4c30fbd266f82db6e4ad6be6fe238ec81b4343754c27c88d3b875e6a167b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 202882,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/a5163aa8982e393c29ab4c9cf9535d3feb30b68e31c0be954f1dc2d5cc0782cf.gz",
+            "sha256": "a5163aa8982e393c29ab4c9cf9535d3feb30b68e31c0be954f1dc2d5cc0782cf"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 202882,
+      "mode": 420,
+      "mtime_ns": 1794107408506436205,
+      "path": ".numi/runs/american-crow/object-learning-02/positive.state.json",
+      "sha256": "a5163aa8982e393c29ab4c9cf9535d3feb30b68e31c0be954f1dc2d5cc0782cf"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84693,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/02f8f43d5a5a781f6adff68963a737fcd9657626bf5579d545fe4459c0bd9b58.gz",
+            "sha256": "02f8f43d5a5a781f6adff68963a737fcd9657626bf5579d545fe4459c0bd9b58"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84693,
+      "mode": 420,
+      "mtime_ns": 1794107387931688834,
+      "path": ".numi/runs/american-crow/object-learning-02/positive.stderr",
+      "sha256": "02f8f43d5a5a781f6adff68963a737fcd9657626bf5579d545fe4459c0bd9b58"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2547,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/f258aa391621d0dbd98ad7e4b3a744890c40029626541525b405b95498ff1ebf.gz",
+            "sha256": "f258aa391621d0dbd98ad7e4b3a744890c40029626541525b405b95498ff1ebf"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2547,
+      "mode": 420,
+      "mtime_ns": 1794107998216931405,
+      "path": ".numi/runs/american-crow/object-learning-02/retained-diagnostics.json",
+      "sha256": "f258aa391621d0dbd98ad7e4b3a744890c40029626541525b405b95498ff1ebf"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 197903,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/835769d634ef956f7b2ba16400ed015c0540803df3e78426f6204e54cf03438a.gz",
+            "sha256": "835769d634ef956f7b2ba16400ed015c0540803df3e78426f6204e54cf03438a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 197903,
+      "mode": 384,
+      "mtime_ns": 1794107345496162401,
+      "path": ".numi/runs/american-crow/object-learning-02/scripted-positive.policypack",
+      "sha256": "835769d634ef956f7b2ba16400ed015c0540803df3e78426f6204e54cf03438a"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 11016,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/2c844817d825e57a03eefd2f632d7b8fe2058ff96c303bfc8d16fbf3e313dcee.gz",
+            "sha256": "2c844817d825e57a03eefd2f632d7b8fe2058ff96c303bfc8d16fbf3e313dcee"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 11016,
+      "mode": 420,
+      "mtime_ns": 1794107425545826455,
+      "path": ".numi/runs/american-crow/object-learning-02/training-plan.json",
+      "sha256": "2c844817d825e57a03eefd2f632d7b8fe2058ff96c303bfc8d16fbf3e313dcee"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 114630,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/29bb00a8c0c4d0b670408f6d953ddf691cbe464164e8d60968df57689f12c74c.gz",
+            "sha256": "29bb00a8c0c4d0b670408f6d953ddf691cbe464164e8d60968df57689f12c74c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 114630,
+      "mode": 420,
+      "mtime_ns": 1794107880367376281,
+      "path": ".numi/runs/american-crow/object-learning-02/training-run.json",
+      "sha256": "29bb00a8c0c4d0b670408f6d953ddf691cbe464164e8d60968df57689f12c74c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2767,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/f517152ea028f94e05db969ac326539127bfb2e56fc7fce9316fc324a28dc63f.gz",
+            "sha256": "f517152ea028f94e05db969ac326539127bfb2e56fc7fce9316fc324a28dc63f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2767,
+      "mode": 420,
+      "mtime_ns": 1794107880398966080,
+      "path": ".numi/runs/american-crow/object-learning-02/training-run.receipt.json",
+      "sha256": "f517152ea028f94e05db969ac326539127bfb2e56fc7fce9316fc324a28dc63f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 186137,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/bbbbee62292545d6ee0a3b4573c3f4ebb61b6eb67413c7f4185c318c8be1490c.gz",
+            "sha256": "bbbbee62292545d6ee0a3b4573c3f4ebb61b6eb67413c7f4185c318c8be1490c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 186137,
+      "mode": 420,
+      "mtime_ns": 1794107453812854054,
+      "path": ".numi/runs/american-crow/object-learning-02/training-run.stderr",
+      "sha256": "bbbbee62292545d6ee0a3b4573c3f4ebb61b6eb67413c7f4185c318c8be1490c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1264,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/e61da8a5e2d3e2ac7925e0c26992a77bdbf7bf29260af9f74049580a8151c4c2.gz",
+            "sha256": "e61da8a5e2d3e2ac7925e0c26992a77bdbf7bf29260af9f74049580a8151c4c2"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1264,
+      "mode": 420,
+      "mtime_ns": 1794107963129445092,
+      "path": ".numi/runs/american-crow/object-learning-02/training-summary.json",
+      "sha256": "e61da8a5e2d3e2ac7925e0c26992a77bdbf7bf29260af9f74049580a8151c4c2"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 197891,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/e44142ed181229fd4cc5dd70848f732ff52ea7c4b4ce1e17c29e143ee5d2153e.gz",
+            "sha256": "e44142ed181229fd4cc5dd70848f732ff52ea7c4b4ce1e17c29e143ee5d2153e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 197891,
+      "mode": 384,
+      "mtime_ns": 1794107880212883266,
+      "path": ".numi/runs/american-crow/object-learning-02/training/candidate.policypack",
+      "sha256": "e44142ed181229fd4cc5dd70848f732ff52ea7c4b4ce1e17c29e143ee5d2153e"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 197891,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/e0bf138085872e35c23bb54a46836fd68fba041a733d3a07a73190ce69cffa11.gz",
+            "sha256": "e0bf138085872e35c23bb54a46836fd68fba041a733d3a07a73190ce69cffa11"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 197891,
+      "mode": 384,
+      "mtime_ns": 1794107425664445398,
+      "path": ".numi/runs/american-crow/object-learning-02/training/incumbent.policypack",
+      "sha256": "e0bf138085872e35c23bb54a46836fd68fba041a733d3a07a73190ce69cffa11"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 617750,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/4cb95b87d594adad289cd5504b15214da09e2a009b0f70532e6bc3aac1fbbd60.gz",
+            "sha256": "4cb95b87d594adad289cd5504b15214da09e2a009b0f70532e6bc3aac1fbbd60"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 617750,
+      "mode": 420,
+      "mtime_ns": 1794107880214363401,
+      "path": ".numi/runs/american-crow/object-learning-02/training/learner.safetensors",
+      "sha256": "4cb95b87d594adad289cd5504b15214da09e2a009b0f70532e6bc3aac1fbbd60"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/2b42b528b4d36f86217beadbe6f67661847b84df4f472d1fbf9fd742dbef3739.gz",
+            "sha256": "2b42b528b4d36f86217beadbe6f67661847b84df4f472d1fbf9fd742dbef3739"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/9db6dc2eed313f1b919f1aa5f87823a92e3e1e9b42f630771f6889283209f9b3.gz",
+            "sha256": "9db6dc2eed313f1b919f1aa5f87823a92e3e1e9b42f630771f6889283209f9b3"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/2ff9553879771148c7db7a626506aa7d467f2444a97e30f958fb32cddffe038b.gz",
+            "sha256": "2ff9553879771148c7db7a626506aa7d467f2444a97e30f958fb32cddffe038b"
+          },
+          {
+            "bytes": 15909866,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/0e37abd90baa008a6e7eb6576b49e21a22576fbdc842049e72be0e69132eb4a9.gz",
+            "sha256": "0e37abd90baa008a6e7eb6576b49e21a22576fbdc842049e72be0e69132eb4a9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 116573162,
+      "mode": 384,
+      "mtime_ns": 1794107879931937595,
+      "path": ".numi/runs/american-crow/object-learning-02/training/rollout.rolloutpack",
+      "sha256": "ca641bf293f854786347442a41874bb205fd52f1e0040772cd5d477ae20c3b18"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 211879,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/5f11f8e12e63ffe2eba1771d48948586c10d1210062fd0abba761dde31576b07.gz",
+            "sha256": "5f11f8e12e63ffe2eba1771d48948586c10d1210062fd0abba761dde31576b07"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 211879,
+      "mode": 384,
+      "mtime_ns": 1794107880211998135,
+      "path": ".numi/runs/american-crow/object-learning-02/training/updated.policypack",
+      "sha256": "5f11f8e12e63ffe2eba1771d48948586c10d1210062fd0abba761dde31576b07"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 64,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/7fb3b9f4d56ef13e37596291f59481acdc5849cd401ad57854534073deb51332.gz",
+            "sha256": "7fb3b9f4d56ef13e37596291f59481acdc5849cd401ad57854534073deb51332"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 64,
+      "mode": 384,
+      "mtime_ns": 1794107653148557451,
+      "path": ".numi/runs/american-crow/object-learning-02/training/checkpoints/revision-00000009.trainingcheckpoint/COMMITTED",
+      "sha256": "7fb3b9f4d56ef13e37596291f59481acdc5849cd401ad57854534073deb51332"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 197891,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/03e8e2ee729bd88a3403a69213801a72d668265e8d04862d54350b5e96c84e47.gz",
+            "sha256": "03e8e2ee729bd88a3403a69213801a72d668265e8d04862d54350b5e96c84e47"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 197891,
+      "mode": 384,
+      "mtime_ns": 1794107653067224687,
+      "path": ".numi/runs/american-crow/object-learning-02/training/checkpoints/revision-00000009.trainingcheckpoint/candidate.policypack",
+      "sha256": "03e8e2ee729bd88a3403a69213801a72d668265e8d04862d54350b5e96c84e47"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 617749,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/02fc7261192e1eafbc7e1e1fc2aeb6f6b0c6b337a4e9c75df29bd7300e4d9fb0.gz",
+            "sha256": "02fc7261192e1eafbc7e1e1fc2aeb6f6b0c6b337a4e9c75df29bd7300e4d9fb0"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 617749,
+      "mode": 420,
+      "mtime_ns": 1794107653068661871,
+      "path": ".numi/runs/american-crow/object-learning-02/training/checkpoints/revision-00000009.trainingcheckpoint/learner.safetensors",
+      "sha256": "02fc7261192e1eafbc7e1e1fc2aeb6f6b0c6b337a4e9c75df29bd7300e4d9fb0"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 13814860,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/20c1554c8eeb20d1dc322518e6857361251b43a6df0311fed8e94b96121409a8.gz",
+            "sha256": "20c1554c8eeb20d1dc322518e6857361251b43a6df0311fed8e94b96121409a8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 13814860,
+      "mode": 384,
+      "mtime_ns": 1794107653094021633,
+      "path": ".numi/runs/american-crow/object-learning-02/training/checkpoints/revision-00000009.trainingcheckpoint/life.native",
+      "sha256": "20c1554c8eeb20d1dc322518e6857361251b43a6df0311fed8e94b96121409a8"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 6291,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/e2b7c8d4beac02f097032dc6da8dab6aef1ac0e213e9cb978b0d0ec0286a55f9.gz",
+            "sha256": "e2b7c8d4beac02f097032dc6da8dab6aef1ac0e213e9cb978b0d0ec0286a55f9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 6291,
+      "mode": 384,
+      "mtime_ns": 1794107653148425093,
+      "path": ".numi/runs/american-crow/object-learning-02/training/checkpoints/revision-00000009.trainingcheckpoint/manifest.json",
+      "sha256": "e2b7c8d4beac02f097032dc6da8dab6aef1ac0e213e9cb978b0d0ec0286a55f9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 211879,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/d4af70e9a06360ef8682e102b8ba291a5791ad7ae949fec4e04ad592f52e67be.gz",
+            "sha256": "d4af70e9a06360ef8682e102b8ba291a5791ad7ae949fec4e04ad592f52e67be"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 211879,
+      "mode": 384,
+      "mtime_ns": 1794107653066076973,
+      "path": ".numi/runs/american-crow/object-learning-02/training/checkpoints/revision-00000009.trainingcheckpoint/policy.policypack",
+      "sha256": "d4af70e9a06360ef8682e102b8ba291a5791ad7ae949fec4e04ad592f52e67be"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/5d944247310cd03e603aab825c201fc3e5589abbe8bd5c20f198b5c808da3202.gz",
+            "sha256": "5d944247310cd03e603aab825c201fc3e5589abbe8bd5c20f198b5c808da3202"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/ff0f612bbad4edcf477c8aa4e68fffa9ea3443e8704ca217dd397fb071d5a269.gz",
+            "sha256": "ff0f612bbad4edcf477c8aa4e68fffa9ea3443e8704ca217dd397fb071d5a269"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/9e2b2ca783821222023fe732e3d82c0f9a2b76a4d835843711c5c558e8f82aad.gz",
+            "sha256": "9e2b2ca783821222023fe732e3d82c0f9a2b76a4d835843711c5c558e8f82aad"
+          },
+          {
+            "bytes": 15909866,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/f21a6d8e93edfc919b239484e6ae9e994b4248da6259a8fbf978c1de905d6ab0.gz",
+            "sha256": "f21a6d8e93edfc919b239484e6ae9e994b4248da6259a8fbf978c1de905d6ab0"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 116573162,
+      "mode": 384,
+      "mtime_ns": 1794107652777808776,
+      "path": ".numi/runs/american-crow/object-learning-02/training/checkpoints/revision-00000009.trainingcheckpoint/rollout.rolloutpack",
+      "sha256": "2388d2577d5eaa61bf1ce6e808657cfb65ca71548a3d4e8d32e57783d5ed424f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 64,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/4a6af9881379481f2eb15be8ac9c2d22de360c952fd27879740105530bbfb42b.gz",
+            "sha256": "4a6af9881379481f2eb15be8ac9c2d22de360c952fd27879740105530bbfb42b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 64,
+      "mode": 384,
+      "mtime_ns": 1794107880294165655,
+      "path": ".numi/runs/american-crow/object-learning-02/training/checkpoints/revision-00000017.trainingcheckpoint/COMMITTED",
+      "sha256": "4a6af9881379481f2eb15be8ac9c2d22de360c952fd27879740105530bbfb42b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 197891,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/e44142ed181229fd4cc5dd70848f732ff52ea7c4b4ce1e17c29e143ee5d2153e.gz",
+            "sha256": "e44142ed181229fd4cc5dd70848f732ff52ea7c4b4ce1e17c29e143ee5d2153e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 197891,
+      "mode": 384,
+      "mtime_ns": 1794107880212883266,
+      "path": ".numi/runs/american-crow/object-learning-02/training/checkpoints/revision-00000017.trainingcheckpoint/candidate.policypack",
+      "sha256": "e44142ed181229fd4cc5dd70848f732ff52ea7c4b4ce1e17c29e143ee5d2153e"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 617750,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/4cb95b87d594adad289cd5504b15214da09e2a009b0f70532e6bc3aac1fbbd60.gz",
+            "sha256": "4cb95b87d594adad289cd5504b15214da09e2a009b0f70532e6bc3aac1fbbd60"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 617750,
+      "mode": 420,
+      "mtime_ns": 1794107880214363401,
+      "path": ".numi/runs/american-crow/object-learning-02/training/checkpoints/revision-00000017.trainingcheckpoint/learner.safetensors",
+      "sha256": "4cb95b87d594adad289cd5504b15214da09e2a009b0f70532e6bc3aac1fbbd60"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 13814860,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/902ce8bff0cdf660667048e2223a7617e3d346906792dd440d01bb4ae5831bca.gz",
+            "sha256": "902ce8bff0cdf660667048e2223a7617e3d346906792dd440d01bb4ae5831bca"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 13814860,
+      "mode": 384,
+      "mtime_ns": 1794107880239796242,
+      "path": ".numi/runs/american-crow/object-learning-02/training/checkpoints/revision-00000017.trainingcheckpoint/life.native",
+      "sha256": "902ce8bff0cdf660667048e2223a7617e3d346906792dd440d01bb4ae5831bca"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 6293,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/1ca76d9ef1f41224b17d0269d7bd574489b48317dd206491dc6b9805113a17e7.gz",
+            "sha256": "1ca76d9ef1f41224b17d0269d7bd574489b48317dd206491dc6b9805113a17e7"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 6293,
+      "mode": 384,
+      "mtime_ns": 1794107880294045321,
+      "path": ".numi/runs/american-crow/object-learning-02/training/checkpoints/revision-00000017.trainingcheckpoint/manifest.json",
+      "sha256": "1ca76d9ef1f41224b17d0269d7bd574489b48317dd206491dc6b9805113a17e7"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 211879,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/5f11f8e12e63ffe2eba1771d48948586c10d1210062fd0abba761dde31576b07.gz",
+            "sha256": "5f11f8e12e63ffe2eba1771d48948586c10d1210062fd0abba761dde31576b07"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 211879,
+      "mode": 384,
+      "mtime_ns": 1794107880211998135,
+      "path": ".numi/runs/american-crow/object-learning-02/training/checkpoints/revision-00000017.trainingcheckpoint/policy.policypack",
+      "sha256": "5f11f8e12e63ffe2eba1771d48948586c10d1210062fd0abba761dde31576b07"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/2b42b528b4d36f86217beadbe6f67661847b84df4f472d1fbf9fd742dbef3739.gz",
+            "sha256": "2b42b528b4d36f86217beadbe6f67661847b84df4f472d1fbf9fd742dbef3739"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/9db6dc2eed313f1b919f1aa5f87823a92e3e1e9b42f630771f6889283209f9b3.gz",
+            "sha256": "9db6dc2eed313f1b919f1aa5f87823a92e3e1e9b42f630771f6889283209f9b3"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/2ff9553879771148c7db7a626506aa7d467f2444a97e30f958fb32cddffe038b.gz",
+            "sha256": "2ff9553879771148c7db7a626506aa7d467f2444a97e30f958fb32cddffe038b"
+          },
+          {
+            "bytes": 15909866,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/0e37abd90baa008a6e7eb6576b49e21a22576fbdc842049e72be0e69132eb4a9.gz",
+            "sha256": "0e37abd90baa008a6e7eb6576b49e21a22576fbdc842049e72be0e69132eb4a9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 116573162,
+      "mode": 384,
+      "mtime_ns": 1794107879931937595,
+      "path": ".numi/runs/american-crow/object-learning-02/training/checkpoints/revision-00000017.trainingcheckpoint/rollout.rolloutpack",
+      "sha256": "ca641bf293f854786347442a41874bb205fd52f1e0040772cd5d477ae20c3b18"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5914,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/2777d3d1c331cf586f01e836eef8d6093b7c219209f5582b4345f1990559fd14.gz",
+            "sha256": "2777d3d1c331cf586f01e836eef8d6093b7c219209f5582b4345f1990559fd14"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5914,
+      "mode": 420,
+      "mtime_ns": 1794108111481917516,
+      "path": ".numi/runs/american-crow/object-amplitude-01/amplitude_probe.py",
+      "sha256": "2777d3d1c331cf586f01e836eef8d6093b7c219209f5582b4345f1990559fd14"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4242,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/e30c592f481d7b613657830440ec382af0e8fc4e4bb42e181e736bceb88af6b6.gz",
+            "sha256": "e30c592f481d7b613657830440ec382af0e8fc4e4bb42e181e736bceb88af6b6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4242,
+      "mode": 420,
+      "mtime_ns": 1794108132194831174,
+      "path": ".numi/runs/american-crow/object-amplitude-01/control.endpoint.json",
+      "sha256": "e30c592f481d7b613657830440ec382af0e8fc4e4bb42e181e736bceb88af6b6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 23490,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/cb36238ae30c503cdd0523f92af36b8e0f98bfac33ebfa0f6a437bf16cb7d649.gz",
+            "sha256": "cb36238ae30c503cdd0523f92af36b8e0f98bfac33ebfa0f6a437bf16cb7d649"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 23490,
+      "mode": 420,
+      "mtime_ns": 1794108132119616784,
+      "path": ".numi/runs/american-crow/object-amplitude-01/control.json",
+      "sha256": "cb36238ae30c503cdd0523f92af36b8e0f98bfac33ebfa0f6a437bf16cb7d649"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 3454540,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/942064f8d665555cde2b9d58b19c55741dbe9f943fe98b74749ffc3feeeed779.gz",
+            "sha256": "942064f8d665555cde2b9d58b19c55741dbe9f943fe98b74749ffc3feeeed779"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 3454540,
+      "mode": 384,
+      "mtime_ns": 1794108132116589055,
+      "path": ".numi/runs/american-crow/object-amplitude-01/control.life",
+      "sha256": "942064f8d665555cde2b9d58b19c55741dbe9f943fe98b74749ffc3feeeed779"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 197903,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/d07725f21ff9b03ddb8cdc9beb9265f3ce864a952acc377ee0768b6f42a0eb81.gz",
+            "sha256": "d07725f21ff9b03ddb8cdc9beb9265f3ce864a952acc377ee0768b6f42a0eb81"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 197903,
+      "mode": 384,
+      "mtime_ns": 1794107880403156567,
+      "path": ".numi/runs/american-crow/object-amplitude-01/control.policypack",
+      "sha256": "d07725f21ff9b03ddb8cdc9beb9265f3ce864a952acc377ee0768b6f42a0eb81"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1700,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/f5d1b74f0fdde2498af8db0a416f9a1144a87555b0b701c73818eea11f41a6df.gz",
+            "sha256": "f5d1b74f0fdde2498af8db0a416f9a1144a87555b0b701c73818eea11f41a6df"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1700,
+      "mode": 420,
+      "mtime_ns": 1794108132152783886,
+      "path": ".numi/runs/american-crow/object-amplitude-01/control.receipt.json",
+      "sha256": "f5d1b74f0fdde2498af8db0a416f9a1144a87555b0b701c73818eea11f41a6df"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 29143654,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/3009e150b36beb6b69d3cb366859ef1b8377d1c5fa815c78206f234774ea9509.gz",
+            "sha256": "3009e150b36beb6b69d3cb366859ef1b8377d1c5fa815c78206f234774ea9509"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 29143654,
+      "mode": 384,
+      "mtime_ns": 1794108132110941808,
+      "path": ".numi/runs/american-crow/object-amplitude-01/control.rolloutpack",
+      "sha256": "3009e150b36beb6b69d3cb366859ef1b8377d1c5fa815c78206f234774ea9509"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 194192,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/34b1c4eed6b36aad496894c280cead1445c874233d0211b9f149d22a81058133.gz",
+            "sha256": "34b1c4eed6b36aad496894c280cead1445c874233d0211b9f149d22a81058133"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 194192,
+      "mode": 420,
+      "mtime_ns": 1794108132075313356,
+      "path": ".numi/runs/american-crow/object-amplitude-01/control.state.json",
+      "sha256": "34b1c4eed6b36aad496894c280cead1445c874233d0211b9f149d22a81058133"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84693,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/916d9da0be0a76d1296fb0f99cd354309333fc49ed35e740ab1ca4c1a212b94a.gz",
+            "sha256": "916d9da0be0a76d1296fb0f99cd354309333fc49ed35e740ab1ca4c1a212b94a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84693,
+      "mode": 420,
+      "mtime_ns": 1794108111498764381,
+      "path": ".numi/runs/american-crow/object-amplitude-01/control.stderr",
+      "sha256": "916d9da0be0a76d1296fb0f99cd354309333fc49ed35e740ab1ca4c1a212b94a"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1348,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/3cdf2cc67365e0adb728292d4b626ed2392fd081c449d7099485073f6745f847.gz",
+            "sha256": "3cdf2cc67365e0adb728292d4b626ed2392fd081c449d7099485073f6745f847"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1348,
+      "mode": 420,
+      "mtime_ns": 1794108111421473061,
+      "path": ".numi/runs/american-crow/object-amplitude-01/model-revision.json",
+      "sha256": "3cdf2cc67365e0adb728292d4b626ed2392fd081c449d7099485073f6745f847"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4244,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/5613ac159837a838c7cfffd7a9a648a86352fa9c1190eef9878fb0faf0cef5d3.gz",
+            "sha256": "5613ac159837a838c7cfffd7a9a648a86352fa9c1190eef9878fb0faf0cef5d3"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4244,
+      "mode": 420,
+      "mtime_ns": 1794108152946652431,
+      "path": ".numi/runs/american-crow/object-amplitude-01/offset.endpoint.json",
+      "sha256": "5613ac159837a838c7cfffd7a9a648a86352fa9c1190eef9878fb0faf0cef5d3"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 23482,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/cf399f921cb5af395dc4a2fb658c3980db6b15d0a5dd26db5797c1025cae1db6.gz",
+            "sha256": "cf399f921cb5af395dc4a2fb658c3980db6b15d0a5dd26db5797c1025cae1db6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 23482,
+      "mode": 420,
+      "mtime_ns": 1794108152898006181,
+      "path": ".numi/runs/american-crow/object-amplitude-01/offset.json",
+      "sha256": "cf399f921cb5af395dc4a2fb658c3980db6b15d0a5dd26db5797c1025cae1db6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 3454540,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/bd8ee1f883de79f9fcb9cb164fe0579aaffde898a7405eb67304b7752d10e63f.gz",
+            "sha256": "bd8ee1f883de79f9fcb9cb164fe0579aaffde898a7405eb67304b7752d10e63f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 3454540,
+      "mode": 384,
+      "mtime_ns": 1794108152894305031,
+      "path": ".numi/runs/american-crow/object-amplitude-01/offset.life",
+      "sha256": "bd8ee1f883de79f9fcb9cb164fe0579aaffde898a7405eb67304b7752d10e63f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 197923,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/0513af61fd584cefd4d16ca02d3b3bbdc477b7842991a98fbcca35dfa5fdcc84.gz",
+            "sha256": "0513af61fd584cefd4d16ca02d3b3bbdc477b7842991a98fbcca35dfa5fdcc84"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 197923,
+      "mode": 384,
+      "mtime_ns": 1794108111484998537,
+      "path": ".numi/runs/american-crow/object-amplitude-01/offset.policypack",
+      "sha256": "0513af61fd584cefd4d16ca02d3b3bbdc477b7842991a98fbcca35dfa5fdcc84"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1696,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/2972ca063bcd924a1c9db6f66a51bdbade069a271f943570f9e78b0552bc0ac6.gz",
+            "sha256": "2972ca063bcd924a1c9db6f66a51bdbade069a271f943570f9e78b0552bc0ac6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1696,
+      "mode": 420,
+      "mtime_ns": 1794108152910296390,
+      "path": ".numi/runs/american-crow/object-amplitude-01/offset.receipt.json",
+      "sha256": "2972ca063bcd924a1c9db6f66a51bdbade069a271f943570f9e78b0552bc0ac6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 29143654,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/ab923b8ab4027c5305ff935fbf0e80e4a89b1f9e1d10041d0094c457e94b977e.gz",
+            "sha256": "ab923b8ab4027c5305ff935fbf0e80e4a89b1f9e1d10041d0094c457e94b977e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 29143654,
+      "mode": 384,
+      "mtime_ns": 1794108152888551033,
+      "path": ".numi/runs/american-crow/object-amplitude-01/offset.rolloutpack",
+      "sha256": "ab923b8ab4027c5305ff935fbf0e80e4a89b1f9e1d10041d0094c457e94b977e"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 198639,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/40e101b17d898fcacb8f0da0c3585067f488e13469e52bca44a8febdcddeef83.gz",
+            "sha256": "40e101b17d898fcacb8f0da0c3585067f488e13469e52bca44a8febdcddeef83"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 198639,
+      "mode": 420,
+      "mtime_ns": 1794108152852445162,
+      "path": ".numi/runs/american-crow/object-amplitude-01/offset.state.json",
+      "sha256": "40e101b17d898fcacb8f0da0c3585067f488e13469e52bca44a8febdcddeef83"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84693,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/29ab35b2333bd249cd8499e8030b50d5a49ccc18948fd6b5ace7b1c735c81477.gz",
+            "sha256": "29ab35b2333bd249cd8499e8030b50d5a49ccc18948fd6b5ace7b1c735c81477"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84693,
+      "mode": 420,
+      "mtime_ns": 1794108132210304363,
+      "path": ".numi/runs/american-crow/object-amplitude-01/offset.stderr",
+      "sha256": "29ab35b2333bd249cd8499e8030b50d5a49ccc18948fd6b5ace7b1c735c81477"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 7539,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/6f0b0c9ccc95ec0b822ef034e0362ac75716461e466475df844ae83c993180a7.gz",
+            "sha256": "6f0b0c9ccc95ec0b822ef034e0362ac75716461e466475df844ae83c993180a7"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 7539,
+      "mode": 420,
+      "mtime_ns": 1794108111481744681,
+      "path": ".numi/runs/american-crow/object-amplitude-01/plan.json",
+      "sha256": "6f0b0c9ccc95ec0b822ef034e0362ac75716461e466475df844ae83c993180a7"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2150,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/ca0b2db1d9138af56dc6a39173e6443adc195643089f3cc5dd03a5b1379af875.gz",
+            "sha256": "ca0b2db1d9138af56dc6a39173e6443adc195643089f3cc5dd03a5b1379af875"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2150,
+      "mode": 420,
+      "mtime_ns": 1794108153006898093,
+      "path": ".numi/runs/american-crow/object-amplitude-01/summary.json",
+      "sha256": "ca0b2db1d9138af56dc6a39173e6443adc195643089f3cc5dd03a5b1379af875"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 176,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/cf2fa566565b6ad3ff37a9463bb7db5c7d4947702dff0fbd0f8f44d8bc5ecf7f.gz",
+            "sha256": "cf2fa566565b6ad3ff37a9463bb7db5c7d4947702dff0fbd0f8f44d8bc5ecf7f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 176,
+      "mode": 420,
+      "mtime_ns": 1794107276396719897,
+      "path": ".numi/runs/american-crow/object-learning-01/calibration-failure.json",
+      "sha256": "cf2fa566565b6ad3ff37a9463bb7db5c7d4947702dff0fbd0f8f44d8bc5ecf7f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 7002,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/e85fdd592e6716b138079a649dfdac1ab7d72103b15312066618e8e598c5a0af.gz",
+            "sha256": "e85fdd592e6716b138079a649dfdac1ab7d72103b15312066618e8e598c5a0af"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 7002,
+      "mode": 420,
+      "mtime_ns": 1794107233883577899,
+      "path": ".numi/runs/american-crow/object-learning-01/calibration-plan.json",
+      "sha256": "e85fdd592e6716b138079a649dfdac1ab7d72103b15312066618e8e598c5a0af"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-object-curriculum-20261108/blobs/4310d248e33138c4d260a3c29e911471b1253896740b2d0514091ee76d2e902c.gz"
+      },
+      "bytes": 211874,
+      "mode": 420,
+      "mtime_ns": 1794107233922072347,
+      "path": ".numi/runs/american-crow/object-learning-01/contract-template.policypack",
+      "sha256": "4310d248e33138c4d260a3c29e911471b1253896740b2d0514091ee76d2e902c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 197903,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/44bd35cf4207f9f7cdea5443b08e9eecafe06cdcd3b854ded9e2695967b01b0b.gz",
+            "sha256": "44bd35cf4207f9f7cdea5443b08e9eecafe06cdcd3b854ded9e2695967b01b0b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 197903,
+      "mode": 384,
+      "mtime_ns": 1794107234016094705,
+      "path": ".numi/runs/american-crow/object-learning-01/initial-mean.policypack",
+      "sha256": "44bd35cf4207f9f7cdea5443b08e9eecafe06cdcd3b854ded9e2695967b01b0b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 211879,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/e140255d5d4deb1256f9e5dfab627dd57f60bc0757b69544a3e6b8c85b37f990.gz",
+            "sha256": "e140255d5d4deb1256f9e5dfab627dd57f60bc0757b69544a3e6b8c85b37f990"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 211879,
+      "mode": 384,
+      "mtime_ns": 1794107234005564026,
+      "path": ".numi/runs/american-crow/object-learning-01/initial.policypack",
+      "sha256": "e140255d5d4deb1256f9e5dfab627dd57f60bc0757b69544a3e6b8c85b37f990"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 337,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/a5b1c43b557f719eefa257ae5dabae38586dde618f66395f97a2b1553b62cbf7.gz",
+            "sha256": "a5b1c43b557f719eefa257ae5dabae38586dde618f66395f97a2b1553b62cbf7"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 337,
+      "mode": 420,
+      "mtime_ns": 1794107234005777527,
+      "path": ".numi/runs/american-crow/object-learning-01/initialize.json",
+      "sha256": "a5b1c43b557f719eefa257ae5dabae38586dde618f66395f97a2b1553b62cbf7"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1388,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/bed5d0a9c7fdaebf5797eac65aa605bd66d149ac59237f804870c6ad9ebd1bd8.gz",
+            "sha256": "bed5d0a9c7fdaebf5797eac65aa605bd66d149ac59237f804870c6ad9ebd1bd8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1388,
+      "mode": 420,
+      "mtime_ns": 1794107234014826823,
+      "path": ".numi/runs/american-crow/object-learning-01/initialize.receipt.json",
+      "sha256": "bed5d0a9c7fdaebf5797eac65aa605bd66d149ac59237f804870c6ad9ebd1bd8"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794107233924898945,
+      "path": ".numi/runs/american-crow/object-learning-01/initialize.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4369,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/f49ad8636361b0062179ffcc3c8f325b62af6dff6fcb8c5a8c0a18438ee2e6dc.gz",
+            "sha256": "f49ad8636361b0062179ffcc3c8f325b62af6dff6fcb8c5a8c0a18438ee2e6dc"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4369,
+      "mode": 420,
+      "mtime_ns": 1794107255821735983,
+      "path": ".numi/runs/american-crow/object-learning-01/neutral1.endpoint.json",
+      "sha256": "f49ad8636361b0062179ffcc3c8f325b62af6dff6fcb8c5a8c0a18438ee2e6dc"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 25957,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/a3411b268782f10e590b03afe43bd77e9936ebf24039690a775586b7d0d4c335.gz",
+            "sha256": "a3411b268782f10e590b03afe43bd77e9936ebf24039690a775586b7d0d4c335"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 25957,
+      "mode": 420,
+      "mtime_ns": 1794107255741068360,
+      "path": ".numi/runs/american-crow/object-learning-01/neutral1.json",
+      "sha256": "a3411b268782f10e590b03afe43bd77e9936ebf24039690a775586b7d0d4c335"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 3562460,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/f287c7e958c901e5bf253b3a784feda6a621fab1e36c119504678c3ce389e7b7.gz",
+            "sha256": "f287c7e958c901e5bf253b3a784feda6a621fab1e36c119504678c3ce389e7b7"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 3562460,
+      "mode": 384,
+      "mtime_ns": 1794107255737996344,
+      "path": ".numi/runs/american-crow/object-learning-01/neutral1.life",
+      "sha256": "f287c7e958c901e5bf253b3a784feda6a621fab1e36c119504678c3ce389e7b7"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1835,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/9a0a2c10e285c0f4047a80a780837708d5b92d8e96605d3f7850142717e08fca.gz",
+            "sha256": "9a0a2c10e285c0f4047a80a780837708d5b92d8e96605d3f7850142717e08fca"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1835,
+      "mode": 420,
+      "mtime_ns": 1794107255776877378,
+      "path": ".numi/runs/american-crow/object-learning-01/neutral1.receipt.json",
+      "sha256": "9a0a2c10e285c0f4047a80a780837708d5b92d8e96605d3f7850142717e08fca"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 30054378,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/dea2a959a1f3e576c6ade126baaa949c580ed237de3740c979c564a6ab44783e.gz",
+            "sha256": "dea2a959a1f3e576c6ade126baaa949c580ed237de3740c979c564a6ab44783e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 30054378,
+      "mode": 384,
+      "mtime_ns": 1794107255730869266,
+      "path": ".numi/runs/american-crow/object-learning-01/neutral1.rolloutpack",
+      "sha256": "dea2a959a1f3e576c6ade126baaa949c580ed237de3740c979c564a6ab44783e"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 198331,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/f0882a369b722379e6bf1e16f43096ec5b1cc2c11f70cb9c119cbabca44b8fc2.gz",
+            "sha256": "f0882a369b722379e6bf1e16f43096ec5b1cc2c11f70cb9c119cbabca44b8fc2"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 198331,
+      "mode": 420,
+      "mtime_ns": 1794107255692862779,
+      "path": ".numi/runs/american-crow/object-learning-01/neutral1.state.json",
+      "sha256": "f0882a369b722379e6bf1e16f43096ec5b1cc2c11f70cb9c119cbabca44b8fc2"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84693,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/efd7f875e7e35d4f71cf360afd26780e974048e9dd27496e5fa9637a0dcc0667.gz",
+            "sha256": "efd7f875e7e35d4f71cf360afd26780e974048e9dd27496e5fa9637a0dcc0667"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84693,
+      "mode": 420,
+      "mtime_ns": 1794107234417935686,
+      "path": ".numi/runs/american-crow/object-learning-01/neutral1.stderr",
+      "sha256": "efd7f875e7e35d4f71cf360afd26780e974048e9dd27496e5fa9637a0dcc0667"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 71594,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/a345bb037587b0bf4517d5cd5e370387c10bf75c9c4bd6a77d51be7f4026cd9e.gz",
+            "sha256": "a345bb037587b0bf4517d5cd5e370387c10bf75c9c4bd6a77d51be7f4026cd9e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 71594,
+      "mode": 420,
+      "mtime_ns": 1794107255693806284,
+      "path": ".numi/runs/american-crow/object-learning-01/neutral1.trace.tsv",
+      "sha256": "a345bb037587b0bf4517d5cd5e370387c10bf75c9c4bd6a77d51be7f4026cd9e"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794107255821846192,
+      "path": ".numi/runs/american-crow/object-learning-01/neutral8.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1704,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/327b4cfe931e60ca0c23d7bcf47f643ab4a533a2f759e143017a6aecd7ca2249.gz",
+            "sha256": "327b4cfe931e60ca0c23d7bcf47f643ab4a533a2f759e143017a6aecd7ca2249"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1704,
+      "mode": 420,
+      "mtime_ns": 1794107276396625480,
+      "path": ".numi/runs/american-crow/object-learning-01/neutral8.receipt.json",
+      "sha256": "327b4cfe931e60ca0c23d7bcf47f643ab4a533a2f759e143017a6aecd7ca2249"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84750,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/8d00f17ef2b694bf5f114843b91bde2778be4f001b5b763e2368be1d799056a1.gz",
+            "sha256": "8d00f17ef2b694bf5f114843b91bde2778be4f001b5b763e2368be1d799056a1"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84750,
+      "mode": 420,
+      "mtime_ns": 1794107276384187124,
+      "path": ".numi/runs/american-crow/object-learning-01/neutral8.stderr",
+      "sha256": "8d00f17ef2b694bf5f114843b91bde2778be4f001b5b763e2368be1d799056a1"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 197903,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/835769d634ef956f7b2ba16400ed015c0540803df3e78426f6204e54cf03438a.gz",
+            "sha256": "835769d634ef956f7b2ba16400ed015c0540803df3e78426f6204e54cf03438a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 197903,
+      "mode": 384,
+      "mtime_ns": 1794107234016942459,
+      "path": ".numi/runs/american-crow/object-learning-01/scripted-positive.policypack",
+      "sha256": "835769d634ef956f7b2ba16400ed015c0540803df3e78426f6204e54cf03438a"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1081480,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/ff376c64f63949204b89f0e35416b6034abf7f9e8f9743c5c509353ac4ee219c.gz",
+            "sha256": "ff376c64f63949204b89f0e35416b6034abf7f9e8f9743c5c509353ac4ee219c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1081480,
+      "mode": 493,
+      "mtime_ns": 1794107009111824949,
+      "path": ".numi/retained-runtime/object-learning-exporter-failed-20261108/bin/metalrobo_task_rollout",
+      "sha256": "ff376c64f63949204b89f0e35416b6034abf7f9e8f9743c5c509353ac4ee219c"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-object-curriculum-20261108/blobs/e6e0724168271792e02ec1e42fc9c528f89a35dc991592396522e7d669a0b34f.gz"
+      },
+      "bytes": 122648,
+      "mode": 493,
+      "mtime_ns": 1794105497382815639,
+      "path": ".numi/retained-runtime/object-learning-20261108/bin/metalrobo_crow_object_curriculum_check",
+      "sha256": "e6e0724168271792e02ec1e42fc9c528f89a35dc991592396522e7d669a0b34f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1081480,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/18e19b7c37e246087ca8c76b08aafcc228116b0badf8962e0da0eb1bb4906e85.gz",
+            "sha256": "18e19b7c37e246087ca8c76b08aafcc228116b0badf8962e0da0eb1bb4906e85"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1081480,
+      "mode": 493,
+      "mtime_ns": 1794107330321202313,
+      "path": ".numi/retained-runtime/object-learning-20261108/bin/metalrobo_task_rollout",
+      "sha256": "18e19b7c37e246087ca8c76b08aafcc228116b0badf8962e0da0eb1bb4906e85"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-object-curriculum-20261108/blobs/272689ec6a564c15b26ef97b79e8a8fe6ccf6989b842591b5f2323b213f692b4.gz"
+      },
+      "bytes": 1042744,
+      "mode": 493,
+      "mtime_ns": 1794105500765474482,
+      "path": ".numi/retained-runtime/object-learning-20261108/bin/metalrobo_task_train",
+      "sha256": "272689ec6a564c15b26ef97b79e8a8fe6ccf6989b842591b5f2323b213f692b4"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-git-recovery-20261107/blobs/9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe.gz"
+      },
+      "bytes": 19391,
+      "mode": 420,
+      "mtime_ns": 1794092869104936745,
+      "path": ".numi/retained-runtime/object-learning-20261108/shaders/GRUMemory.metallib",
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-object-push-20261108/blobs/ab8eb4013d6fb2fbae2877602145a5a59a16adb17abf769619466298ab858d95.gz"
+      },
+      "bytes": 4200073,
+      "mode": 420,
+      "mtime_ns": 1794101179112568748,
+      "path": ".numi/retained-runtime/object-learning-20261108/shaders/MetalRobo.metallib",
+      "sha256": "ab8eb4013d6fb2fbae2877602145a5a59a16adb17abf769619466298ab858d95"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-git-recovery-20261107/blobs/9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12.gz"
+      },
+      "bytes": 16151,
+      "mode": 420,
+      "mtime_ns": 1794092869103742195,
+      "path": ".numi/retained-runtime/object-learning-20261108/shaders/RetinalStream.metallib",
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-object-curriculum-20261108/blobs/5dac60d448d66c0872ebdffb96260c92956aab677f4210e3f8ed7c1ac195bd6b.gz"
+      },
+      "bytes": 5676064,
+      "mode": 493,
+      "mtime_ns": 1794105494636314677,
+      "path": ".numi/retained-runtime/object-learning-20261108/lib/libmetalrobo.dylib",
+      "sha256": "5dac60d448d66c0872ebdffb96260c92956aab677f4210e3f8ed7c1ac195bd6b"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794108111340803009,
+      "path": "build/crow-object-learning-build-01/amplitude.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2151,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/4a3bf401cd5c261c7eb2609f7bc01085968a39296d44d626413adc7d7efaaf30.gz",
+            "sha256": "4a3bf401cd5c261c7eb2609f7bc01085968a39296d44d626413adc7d7efaaf30"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2151,
+      "mode": 420,
+      "mtime_ns": 1794108153007026552,
+      "path": "build/crow-object-learning-build-01/amplitude.stdout",
+      "sha256": "4a3bf401cd5c261c7eb2609f7bc01085968a39296d44d626413adc7d7efaaf30"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5914,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/2777d3d1c331cf586f01e836eef8d6093b7c219209f5582b4345f1990559fd14.gz",
+            "sha256": "2777d3d1c331cf586f01e836eef8d6093b7c219209f5582b4345f1990559fd14"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5914,
+      "mode": 420,
+      "mtime_ns": 1794108111139039797,
+      "path": "build/crow-object-learning-build-01/amplitude_probe.py",
+      "sha256": "2777d3d1c331cf586f01e836eef8d6093b7c219209f5582b4345f1990559fd14"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4956,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/98bd658a0a007b3d4a26948719a3cb68dee055d821c172a1fc0e1eb14b199d1a.gz",
+            "sha256": "98bd658a0a007b3d4a26948719a3cb68dee055d821c172a1fc0e1eb14b199d1a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4956,
+      "mode": 420,
+      "mtime_ns": 1794108243992292086,
+      "path": "build/crow-object-learning-build-01/archive.py",
+      "sha256": "98bd658a0a007b3d4a26948719a3cb68dee055d821c172a1fc0e1eb14b199d1a"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794107001994381549,
+      "path": "build/crow-object-learning-build-01/build-02.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-git-recovery-20261107/blobs/487c9744fcff906c038e953adaceca2beb153004e65f0380e7ca1604cead82a2.gz"
+      },
+      "bytes": 126,
+      "mode": 420,
+      "mtime_ns": 1794107009114471837,
+      "path": "build/crow-object-learning-build-01/build-02.stdout",
+      "sha256": "487c9744fcff906c038e953adaceca2beb153004e65f0380e7ca1604cead82a2"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794107323152071024,
+      "path": "build/crow-object-learning-build-01/build-03.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-git-recovery-20261107/blobs/487c9744fcff906c038e953adaceca2beb153004e65f0380e7ca1604cead82a2.gz"
+      },
+      "bytes": 126,
+      "mode": 420,
+      "mtime_ns": 1794107330323838327,
+      "path": "build/crow-object-learning-build-01/build-03.stdout",
+      "sha256": "487c9744fcff906c038e953adaceca2beb153004e65f0380e7ca1604cead82a2"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 32,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/019c389129ac956ab1e3117acffa0ea73862e49355b44bcd83141a6565bdfac6.gz",
+            "sha256": "019c389129ac956ab1e3117acffa0ea73862e49355b44bcd83141a6565bdfac6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 32,
+      "mode": 420,
+      "mtime_ns": 1794106984084490910,
+      "path": "build/crow-object-learning-build-01/build.stderr",
+      "sha256": "019c389129ac956ab1e3117acffa0ea73862e49355b44bcd83141a6565bdfac6"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794106984084237867,
+      "path": "build/crow-object-learning-build-01/build.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794107345223143206,
+      "path": "build/crow-object-learning-build-01/calibration-02.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1113,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/991d80ba70d2f700d08c1cc760a6639300ebe077fc47a2f7bdc1c192d9719a35.gz",
+            "sha256": "991d80ba70d2f700d08c1cc760a6639300ebe077fc47a2f7bdc1c192d9719a35"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1113,
+      "mode": 420,
+      "mtime_ns": 1794107408648762603,
+      "path": "build/crow-object-learning-build-01/calibration-02.stdout",
+      "sha256": "991d80ba70d2f700d08c1cc760a6639300ebe077fc47a2f7bdc1c192d9719a35"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1349,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/2db4b20d84805e08023e77f6f55fd183e5a1e6f90f44a3a83e6b2ffa1e33508d.gz",
+            "sha256": "2db4b20d84805e08023e77f6f55fd183e5a1e6f90f44a3a83e6b2ffa1e33508d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1349,
+      "mode": 420,
+      "mtime_ns": 1794107276398204904,
+      "path": "build/crow-object-learning-build-01/calibration.stderr",
+      "sha256": "2db4b20d84805e08023e77f6f55fd183e5a1e6f90f44a3a83e6b2ffa1e33508d"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794107233732276372,
+      "path": "build/crow-object-learning-build-01/calibration.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2180,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/d57b697c3cea177d1f0a5ad85771ffd7cb6f1e5503ecc6495a78f404df31e53d.gz",
+            "sha256": "d57b697c3cea177d1f0a5ad85771ffd7cb6f1e5503ecc6495a78f404df31e53d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2180,
+      "mode": 420,
+      "mtime_ns": 1794108162741359940,
+      "path": "build/crow-object-learning-build-01/restore_runtime.py",
+      "sha256": "d57b697c3cea177d1f0a5ad85771ffd7cb6f1e5503ecc6495a78f404df31e53d"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794108162998186279,
+      "path": "build/crow-object-learning-build-01/retained-diagnostics.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 68,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/51329afed7cf012775ce0acde9de834c39a0ca7857b770efb17b7ee25780e89f.gz",
+            "sha256": "51329afed7cf012775ce0acde9de834c39a0ca7857b770efb17b7ee25780e89f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 68,
+      "mode": 420,
+      "mtime_ns": 1794108163411549938,
+      "path": "build/crow-object-learning-build-01/retained-diagnostics.stdout",
+      "sha256": "51329afed7cf012775ce0acde9de834c39a0ca7857b770efb17b7ee25780e89f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2544,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/39f93aa1f8c759a067d7f07272a35ef09352f9fc11eafe654de77bfc6089133e.gz",
+            "sha256": "39f93aa1f8c759a067d7f07272a35ef09352f9fc11eafe654de77bfc6089133e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2544,
+      "mode": 420,
+      "mtime_ns": 1794108162677555462,
+      "path": "build/crow-object-learning-build-01/retained_diagnostics.py",
+      "sha256": "39f93aa1f8c759a067d7f07272a35ef09352f9fc11eafe654de77bfc6089133e"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794107425412465186,
+      "path": "build/crow-object-learning-build-01/training-02.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1265,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/4c5dfe3e223c2bacd0525201000752705affa85c82911fb033b9263cd56293f4.gz",
+            "sha256": "4c5dfe3e223c2bacd0525201000752705affa85c82911fb033b9263cd56293f4"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1265,
+      "mode": 420,
+      "mtime_ns": 1794107963129661343,
+      "path": "build/crow-object-learning-build-01/training-02.stdout",
+      "sha256": "4c5dfe3e223c2bacd0525201000752705affa85c82911fb033b9263cd56293f4"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 6884,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/a650a395522e3d4269eae44b3d533ad809bdd63c54d1086205f0a9801fa357b8.gz",
+            "sha256": "a650a395522e3d4269eae44b3d533ad809bdd63c54d1086205f0a9801fa357b8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 6884,
+      "mode": 420,
+      "mtime_ns": 1794108243962191839,
+      "path": "build/crow-object-learning-build-01/update_docs.py",
+      "sha256": "a650a395522e3d4269eae44b3d533ad809bdd63c54d1086205f0a9801fa357b8"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 9457,
+            "path": "artifacts/crow-rl-object-learning-20261108/blobs/2608bb60c8179a2cb02f099271ed5fd587e311d423a46cda0b45cff4e495a050.gz",
+            "sha256": "2608bb60c8179a2cb02f099271ed5fd587e311d423a46cda0b45cff4e495a050"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 9457,
+      "mode": 420,
+      "mtime_ns": 1794108244030305555,
+      "path": "build/crow-object-learning-build-01/verify_recovery.py",
+      "sha256": "2608bb60c8179a2cb02f099271ed5fd587e311d423a46cda0b45cff4e495a050"
+    }
+  ],
+  "roots": [
+    ".numi/runs/american-crow",
+    ".numi/retained-runtime",
+    "build/crow-object-learning-build-01"
+  ],
+  "schema": "crow-git-evidence-archive-v1",
+  "summary": {
+    "existing_archive_blobs_indexed": 16186,
+    "files": 158,
+    "new_compressed_bytes": 273710558,
+    "source_bytes": 729996028,
+    "unique_file_contents": 127
+  }
+}

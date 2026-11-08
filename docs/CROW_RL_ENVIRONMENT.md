@@ -225,7 +225,8 @@ Source, plans, failures, all frozen candidates, retained rollouts/checkpoints,
 model revision, native endpoints and actual Git recovery are in
 `artifacts/crow-rl-object-learning-20261108`. The next learning comparison should
 continue the fixed-rate learner on fresh episodes and use fresh frozen held-out
-streams; observed placement streams are development evidence. Physical outcomes,+not KL target attainment, decide whether it improves. Full lifelong ecology,
+streams; observed placement streams are development evidence. Physical outcomes,
+not KL target attainment, decide whether it improves. Full lifelong ecology,
 solid-food handling and social learning remain open.
 
 ## Current native history contract (8 November 2026)
