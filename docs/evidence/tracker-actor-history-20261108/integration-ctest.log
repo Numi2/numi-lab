@@ -1,0 +1,34 @@
+Test project /Users/numi/numi-reconciliation-build-20261108
+      Start 182: metalrobo.visual.history_restore_layouts
+ 1/12 Test #182: metalrobo.visual.history_restore_layouts ........   Passed    0.28 sec
+      Start 183: metalrobo.visual.tracker_encode_retry
+ 2/12 Test #183: metalrobo.visual.tracker_encode_retry ...........   Passed    0.81 sec
+      Start 184: metalrobo.visual.world_observation_control
+ 3/12 Test #184: metalrobo.visual.world_observation_control ......   Passed    0.08 sec
+      Start 185: metalrobo.visual.world_observation_first
+ 4/12 Test #185: metalrobo.visual.world_observation_first ........   Passed    0.07 sec
+      Start 186: metalrobo.visual.world_observation_second
+ 5/12 Test #186: metalrobo.visual.world_observation_second .......   Passed    0.07 sec
+      Start 187: metalrobo.visual.resident_observation_control
+ 6/12 Test #187: metalrobo.visual.resident_observation_control ...   Passed    0.08 sec
+      Start 188: metalrobo.visual.resident_observation_first
+ 7/12 Test #188: metalrobo.visual.resident_observation_first .....   Passed    0.08 sec
+      Start 189: metalrobo.visual.resident_observation_second
+ 8/12 Test #189: metalrobo.visual.resident_observation_second ....   Passed    0.07 sec
+      Start 190: metalrobo.visual.world_step_callback
+ 9/12 Test #190: metalrobo.visual.world_step_callback ............   Passed    0.07 sec
+      Start 191: metalrobo.visual.world_step_callback_abort
+10/12 Test #191: metalrobo.visual.world_step_callback_abort ......   Passed    0.08 sec
+      Start 192: metalrobo.visual.history_step_rollback
+11/12 Test #192: metalrobo.visual.history_step_rollback ..........   Passed    0.07 sec
+      Start 193: metalrobo.visual.observation_lease
+12/12 Test #193: metalrobo.visual.observation_lease ..............   Passed    0.06 sec
+
+100% tests passed out of 12
+
+Label Time Summary:
+metal        =   1.82 sec*proc (12 tests)
+metalrobo    =   1.82 sec*proc (12 tests)
+visual       =   1.82 sec*proc (12 tests)
+
+Total Test time (real) =   1.83 sec
