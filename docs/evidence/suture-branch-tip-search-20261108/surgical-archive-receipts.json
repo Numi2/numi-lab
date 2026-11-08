@@ -1,0 +1,341 @@
+{
+  "archives": [
+    {
+      "object": "07406d18300127d8688d40fc74c59d8d5062a49f",
+      "path": "numi/evidence/fresh-robot-approach-20261108/contact-advance-002-cache.tar.gz",
+      "documents": [
+        {
+          "name": "checkpoint-inputs.sha256",
+          "text": "781947d9eac4b4339364e35dee2ecf10aab4d78147ed13ef4e1eeb51b8b616e8  tissue-robot-first-bite-contact-rigid-contact-cache.bin\n18ade16b07d2550c1d90678ebe97bfa60f10af52667f43e5db4c91b6b1ffddbe  tissue-robot-first-bite-contact.4004270562076127246.matter.bin\n9253d9ab71962cd510ec19c3542273dab63d48b95f15000f57e8c9394afd300a  tissue-robot-first-bite-contact.tsv\n"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "text": "tissue-robot-first-bite-contact-rigid-contact-cache.bin: OK\ntissue-robot-first-bite-contact.4004270562076127246.matter.bin: OK\ntissue-robot-first-bite-contact.tsv: OK\n"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "text": "tissue-robot-first-bite-contact-rigid-contact-cache.bin: OK\ntissue-robot-first-bite-contact.4004270562076127246.matter.bin: OK\ntissue-robot-first-bite-contact.tsv: OK\n"
+        },
+        {
+          "name": "receipt.log",
+          "text": "restore_start=2026-11-08T00:11:52Z\nrestore_end=2026-11-08T00:11:52Z\nrestore_exit=0\nrestore_gate=PASS\ncontinue_start=2026-11-08T00:11:53Z\ncontinue_end=2026-11-08T00:12:02Z\ncontinue_exit=0\nruntime_postcheck=0\ncheckpoint_postcheck=0\ncache_restore_gate=PASS\n"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "object": "1b7cc96eb8d5e9d3d6148eebb41e7d8131405349",
+      "path": "numi/evidence/fresh-robot-approach-20261108/contact-advance-001-partial-state.tar.gz",
+      "documents": [
+        {
+          "name": "checkpoint-inputs.sha256",
+          "text": "781947d9eac4b4339364e35dee2ecf10aab4d78147ed13ef4e1eeb51b8b616e8  tissue-robot-first-bite-contact-rigid-contact-cache.bin\n18ade16b07d2550c1d90678ebe97bfa60f10af52667f43e5db4c91b6b1ffddbe  tissue-robot-first-bite-contact.4004270562076127246.matter.bin\n9253d9ab71962cd510ec19c3542273dab63d48b95f15000f57e8c9394afd300a  tissue-robot-first-bite-contact.tsv\n"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "text": "tissue-robot-first-bite-contact-rigid-contact-cache.bin: OK\ntissue-robot-first-bite-contact.4004270562076127246.matter.bin: OK\ntissue-robot-first-bite-contact.tsv: OK\n"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "text": "tissue-robot-first-bite-contact-rigid-contact-cache.bin: OK\ntissue-robot-first-bite-contact.4004270562076127246.matter.bin: OK\ntissue-robot-first-bite-contact.tsv: OK\n"
+        },
+        {
+          "name": "receipt.log",
+          "text": "restore_start=2026-11-08T00:08:37Z\nrestore_end=2026-11-08T00:08:38Z\nrestore_exit=0\nrestore_gate=PASS\ncontinue_start=2026-11-08T00:08:38Z\ncontinue_end=2026-11-08T00:08:47Z\ncontinue_exit=0\nruntime_postcheck=0\ncheckpoint_postcheck=0\n"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "object": "298630738c140d1d238665f60cf4ab0c55e0165a",
+      "path": "numi/evidence/fresh-robot-approach-20261108/entry-001-rejected.tar.gz",
+      "documents": [
+        {
+          "name": "checkpoint-inputs.sha256",
+          "text": "3976b859083d35f9ae6b0aa325c15872db77e6442cd724959e98053520d0f128  tissue-robot-first-bite-approach.tsv\nff98b89b4aad84d24d62818857f09719453fec5d447393832ed630ff826974de  tissue-robot-first-bite-approach.12396299253965864512.matter.bin\n"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.12396299253965864512.matter.bin: OK\n"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.12396299253965864512.matter.bin: OK\n"
+        },
+        {
+          "name": "receipt.log",
+          "text": "restore_start=2026-11-08T00:03:30Z\nrestore_end=2026-11-08T00:03:30Z\nrestore_exit=0\nrestore_gate=PASS\ncontinue_start=2026-11-08T00:03:30Z\ncontinue_end=2026-11-08T00:03:48Z\ncontinue_exit=1\nruntime_postcheck=0\ncheckpoint_postcheck=0\n"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "object": "3aecef87311844acdcca07dfbde4c9b07369427a",
+      "path": "numi/evidence/fresh-robot-approach-20261108/entry-002-contact-fix.tar.gz",
+      "documents": [
+        {
+          "name": "checkpoint-inputs.sha256",
+          "text": "3976b859083d35f9ae6b0aa325c15872db77e6442cd724959e98053520d0f128  tissue-robot-first-bite-approach.tsv\nff98b89b4aad84d24d62818857f09719453fec5d447393832ed630ff826974de  tissue-robot-first-bite-approach.12396299253965864512.matter.bin\n"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.12396299253965864512.matter.bin: OK\n"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.12396299253965864512.matter.bin: OK\n"
+        },
+        {
+          "name": "receipt.log",
+          "text": "restore_start=2026-11-08T00:07:02Z\nrestore_end=2026-11-08T00:07:03Z\nrestore_exit=0\nrestore_gate=PASS\ncontinue_start=2026-11-08T00:07:03Z\ncontinue_end=2026-11-08T00:07:20Z\ncontinue_exit=0\nruntime_postcheck=0\ncheckpoint_postcheck=0\n"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "object": "68fc3bd91cea3bf9e5948875dd1a09a22a1f217e",
+      "path": "numi/evidence/fresh-robot-approach-20261108/rod-witness-readback-001.tar.gz",
+      "documents": [
+        {
+          "name": "checkpoint-inputs.sha256",
+          "text": "3976b859083d35f9ae6b0aa325c15872db77e6442cd724959e98053520d0f128  tissue-robot-first-bite-approach.tsv\nff98b89b4aad84d24d62818857f09719453fec5d447393832ed630ff826974de  tissue-robot-first-bite-approach.12396299253965864512.matter.bin\n"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.12396299253965864512.matter.bin: OK\n"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.12396299253965864512.matter.bin: OK\n"
+        },
+        {
+          "name": "receipt.log",
+          "text": "restore_start=2026-11-08T00:36:14Z\nrestore_end=2026-11-08T00:36:14Z\nrestore_exit=0\nrestore_gate=PASS\ncontinue_start=2026-11-08T00:36:14Z\ncontinue_end=2026-11-08T00:36:41Z\ncontinue_exit=0\nruntime_postcheck=0\ncheckpoint_postcheck=0\nsame_resident_gate=PASS\nwitness_gate=PASS\n"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "object": "729dcabedd571338c6005540dbca9c275ddb688b",
+      "path": "numi/evidence/fresh-robot-approach-20261108/continuation-001.tar.gz",
+      "documents": [
+        {
+          "name": "checkpoint-inputs.sha256",
+          "text": "aae16c75c7a39eb00643a386b601e176cf5faf05e3efe6b93ca532188433bec2  tissue-robot-first-bite-approach.tsv\na6448627449ceeb932bfd54ef435de9aed0848db365bfc40bc3361a03bf97afd  tissue-robot-first-bite-approach.12200025473249405896.matter.bin\n"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.12200025473249405896.matter.bin: OK\n"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.12200025473249405896.matter.bin: OK\n"
+        },
+        {
+          "name": "receipt.log",
+          "text": "restore_start=2026-11-07T23:56:58Z\nrestore_end=2026-11-07T23:56:58Z\nrestore_exit=0\ncontinue_start=2026-11-07T23:56:58Z\ncontinue_end=2026-11-07T23:57:17Z\ncontinue_exit=0\nruntime_postcheck=0\ncheckpoint_postcheck=0\n"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "object": "7c3e4c04ac3f336380da2a45e693c71582a39027",
+      "path": "numi/evidence/fresh-robot-approach-20261108/witness-device-roundtrip-001.tar.gz",
+      "documents": [
+        {
+          "name": "receipt.log",
+          "text": "positive_start=2026-11-08T00:39:49Z\npositive_end=2026-11-08T00:39:49Z\npositive_exit=0\nnegative_start=2026-11-08T00:39:49Z\nnegative_end=2026-11-08T00:39:50Z\nnegative_exit=6\npostcheck_exit=0\ntransport_gate=PASS\n"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "object": "7efa5d3ee03966644d98424c7a1f00c41c488731",
+      "path": "numi/evidence/fresh-robot-approach-20261108/continuation-003.tar.gz",
+      "documents": [
+        {
+          "name": "checkpoint-inputs.sha256",
+          "text": "6bc9d7b9f22705154b804a5517741e2aa15de26a850606e5cd189b079e6a49b2  tissue-robot-first-bite-approach.tsv\n91decb3aee2fcba7ae298cddf861fe01cf4c55eb66cc6d4aeb395cd49d1c6602  tissue-robot-first-bite-approach.11765248113345440876.matter.bin\n"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.11765248113345440876.matter.bin: OK\n"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.11765248113345440876.matter.bin: OK\n"
+        },
+        {
+          "name": "receipt.log",
+          "text": "restore_start=2026-11-07T23:59:38Z\nrestore_end=2026-11-07T23:59:38Z\nrestore_exit=0\ncontinue_start=2026-11-07T23:59:38Z\ncontinue_end=2026-11-07T23:59:58Z\ncontinue_exit=0\nruntime_postcheck=0\ncheckpoint_postcheck=0\n"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "object": "80317e0927a32dcbf28054f8a76d640e4a3ebc2f",
+      "path": "numi/evidence/fresh-robot-approach-20261108/no-step-continuation-guard-001.tar.gz",
+      "documents": [
+        {
+          "name": "receipt.log",
+          "text": "start=2026-11-08T01:17:07Z\nend=2026-11-08T01:17:07Z\nexit=0\n"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "object": "8bacfb18e4bb19e73adaeaa8de9c79fecff897b9",
+      "path": "numi/evidence/fresh-robot-approach-20261108/populated-convex-control-001.tar.gz",
+      "documents": [
+        {
+          "name": "receipt.log",
+          "text": "start=2026-11-08T01:04:57Z\nend=2026-11-08T01:04:58Z\nexit=0\n"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "object": "90c8b95f848f83e50f54d85617f692f0798a82d2",
+      "path": "numi/evidence/fresh-robot-approach-20261108/continuation-004-guard-stop.tar.gz",
+      "documents": [
+        {
+          "name": "checkpoint-inputs.sha256",
+          "text": "3976b859083d35f9ae6b0aa325c15872db77e6442cd724959e98053520d0f128  tissue-robot-first-bite-approach.tsv\nff98b89b4aad84d24d62818857f09719453fec5d447393832ed630ff826974de  tissue-robot-first-bite-approach.12396299253965864512.matter.bin\n"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.12396299253965864512.matter.bin: OK\n"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.12396299253965864512.matter.bin: OK\n"
+        },
+        {
+          "name": "receipt.log",
+          "text": "restore_start=2026-11-08T00:02:18Z\nrestore_end=2026-11-08T00:02:18Z\nrestore_exit=0\nrestore_gate=PASS\ncontinue_start=2026-11-08T00:02:18Z\ncontinue_end=2026-11-08T00:02:19Z\ncontinue_exit=1\nruntime_postcheck=0\ncheckpoint_postcheck=0\n"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "object": "92722a337a8f7a49838018a93de31e83078fdd56",
+      "path": "numi/evidence/fresh-robot-approach-20261108/no-step-manifold-fault-001.tar.gz",
+      "documents": [
+        {
+          "name": "receipt.log",
+          "text": "start=2026-11-08T01:14:31Z\nend=2026-11-08T01:14:31Z\nexit=0\n"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "object": "9fe625693fedebd7d0c37501651a57ac2a0e1272",
+      "path": "numi/evidence/fresh-robot-approach-20261108/convex-owner-capture-001.tar.gz",
+      "documents": [
+        {
+          "name": "checkpoint-precheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.12396299253965864512.matter.bin: OK\n"
+        },
+        {
+          "name": "checkpoint-inputs.sha256",
+          "text": "3976b859083d35f9ae6b0aa325c15872db77e6442cd724959e98053520d0f128  tissue-robot-first-bite-approach.tsv\nff98b89b4aad84d24d62818857f09719453fec5d447393832ed630ff826974de  tissue-robot-first-bite-approach.12396299253965864512.matter.bin\n"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.12396299253965864512.matter.bin: OK\n"
+        },
+        {
+          "name": "receipt.log",
+          "text": "restore_start=2026-11-08T01:00:41Z\nrestore_end=2026-11-08T01:00:41Z\nrestore_exit=0\nrestore_gate=PASS\ncontinue_start=2026-11-08T01:00:41Z\ncontinue_end=2026-11-08T01:01:09Z\ncontinue_exit=0\nruntime_postcheck=0\ncheckpoint_postcheck=0\nentry_verifier_exit=0\nadvance_verifier_exit=0\nfingerprint_gate=PASS\ncompiled_world_fingerprint=7537437529895409791\ncapsule_restorable=0\nentry_boundary_exit=0\nadvance_boundary_exit=0\nboundary_evidence_gate=PASS\n"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "object": "b154df8dfe61bf393bba59b3d16da3197ae3a365",
+      "path": "numi/evidence/fresh-robot-approach-20261108/partial-owner-capsule-001.tar.gz",
+      "documents": [
+        {
+          "name": "checkpoint-precheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.12396299253965864512.matter.bin: OK\n"
+        },
+        {
+          "name": "checkpoint-inputs.sha256",
+          "text": "3976b859083d35f9ae6b0aa325c15872db77e6442cd724959e98053520d0f128  tissue-robot-first-bite-approach.tsv\nff98b89b4aad84d24d62818857f09719453fec5d447393832ed630ff826974de  tissue-robot-first-bite-approach.12396299253965864512.matter.bin\n"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.12396299253965864512.matter.bin: OK\n"
+        },
+        {
+          "name": "receipt.log",
+          "text": "restore_start=2026-11-08T00:50:42Z\nrestore_end=2026-11-08T00:50:42Z\nrestore_exit=0\nrestore_gate=PASS\ncontinue_start=2026-11-08T00:50:42Z\ncontinue_end=2026-11-08T00:51:08Z\ncontinue_exit=0\nruntime_postcheck=0\ncheckpoint_postcheck=0\nentry_verifier_exit=0\nadvance_verifier_exit=0\nfingerprint_gate=PASS\ncompiled_world_fingerprint=7537437529895409791\ncapsule_restorable=0\n"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "object": "b7cd8a3a7aacb7d6c0109b9c72ae5c97ba2e0be5",
+      "path": "numi/evidence/fresh-robot-approach-20261108/same-resident-control-001.tar.gz",
+      "documents": [
+        {
+          "name": "checkpoint-inputs.sha256",
+          "text": "3976b859083d35f9ae6b0aa325c15872db77e6442cd724959e98053520d0f128  tissue-robot-first-bite-approach.tsv\nff98b89b4aad84d24d62818857f09719453fec5d447393832ed630ff826974de  tissue-robot-first-bite-approach.12396299253965864512.matter.bin\n"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.12396299253965864512.matter.bin: OK\n"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.12396299253965864512.matter.bin: OK\n"
+        },
+        {
+          "name": "receipt.log",
+          "text": "restore_start=2026-11-08T00:18:55Z\nrestore_end=2026-11-08T00:18:56Z\nrestore_exit=0\nrestore_gate=PASS\ncontinue_start=2026-11-08T00:18:56Z\ncontinue_end=2026-11-08T00:19:22Z\ncontinue_exit=0\nruntime_postcheck=0\ncheckpoint_postcheck=0\nsame_resident_gate=PASS\n"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "object": "cc04c66d61f4c55ad8d05ff5160b75f43e9a1d23",
+      "path": "numi/evidence/fresh-robot-approach-20261108/no-step-owner-seed-001.tar.gz",
+      "documents": [
+        {
+          "name": "receipt.log",
+          "text": "start=2026-11-08T01:11:18Z\nend=2026-11-08T01:11:19Z\nexit=0\n"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "object": "df91b76c12cf052041cfb2b2d080071875f03330",
+      "path": "numi/evidence/fresh-robot-approach-20261108/continuation-002.tar.gz",
+      "documents": [
+        {
+          "name": "checkpoint-inputs.sha256",
+          "text": "5a5f9dd59ceb6ffd1c6ed6250ae47515512a73c6ddaac1718f420dd4e30fa1a9  tissue-robot-first-bite-approach.tsv\n4f963497a25d9ad8c92941dc64637b40d55132cc1bd697da6ae5ff3804e14993  tissue-robot-first-bite-approach.4439547654137896886.matter.bin\n"
+        },
+        {
+          "name": "checkpoint-precheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.4439547654137896886.matter.bin: OK\n"
+        },
+        {
+          "name": "checkpoint-postcheck.log",
+          "text": "tissue-robot-first-bite-approach.tsv: OK\ntissue-robot-first-bite-approach.4439547654137896886.matter.bin: OK\n"
+        },
+        {
+          "name": "receipt.log",
+          "text": "restore_start=2026-11-07T23:58:22Z\nrestore_end=2026-11-07T23:58:22Z\nrestore_exit=0\ncontinue_start=2026-11-07T23:58:22Z\ncontinue_end=2026-11-07T23:58:41Z\ncontinue_exit=0\nruntime_postcheck=0\ncheckpoint_postcheck=0\n"
+        }
+      ],
+      "errors": []
+    },
+    {
+      "object": "e48f0c6872c7ad7f4b627a7feeb7452ea31324f3",
+      "path": "numi/evidence/fresh-robot-approach-20261108/trajectory-inputs-outputs.tar.gz",
+      "documents": [],
+      "errors": []
+    }
+  ]
+}
