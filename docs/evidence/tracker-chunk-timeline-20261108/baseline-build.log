@@ -1,0 +1,3 @@
+[0/2] Re-checking globbed directories...
+[1/3] Building OBJCXX object CMakeFiles/metalrobo_visual_platform_probe.dir/apps/visual_platform_probe.cpp.o
+[2/3] Linking OBJCXX executable bin/metalrobo_visual_platform_probe

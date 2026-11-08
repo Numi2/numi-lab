@@ -1,0 +1,20 @@
+Test project /Users/numi/costal-main-build-20261108
+    Start 179: metalrobo.visual.tracker_encode_retry
+1/1 Test #179: metalrobo.visual.tracker_encode_retry ...***Failed    0.38 sec
+retry_sensor_sequence=1
+retry_frame=0 retry_time=0
+metalrobo_visual_platform_probe: tracker frame identity or time reset at submission boundary
+
+
+0% tests passed, 1 tests failed out of 1
+
+Label Time Summary:
+metal        =   0.38 sec*proc (1 test)
+metalrobo    =   0.38 sec*proc (1 test)
+visual       =   0.38 sec*proc (1 test)
+
+Total Test time (real) =   0.39 sec
+
+The following tests FAILED:
+	179 - metalrobo.visual.tracker_encode_retry (Failed)    metal metalrobo visual
+Errors while running CTest

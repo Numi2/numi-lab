@@ -205,7 +205,11 @@ invalidates its cached frame until the next capture. In that interval its
 object track reports no visibility and zero position/velocity, and its
 masked depth reports far/no-return with zero derived features. Other
 environments keep their existing cached frames and the batch camera schedule
-is unchanged. If physics fails after a new batch frame was rendered, the
+is unchanged. Rendered frame identity and capture timestamp use the same
+batch observation sequence as sensor cadence, so they continue across rollout
+submission boundaries. This is a scheduled observation timeline, not a
+per-environment accepted-physics clock: a rejected physical step can still
+advance it. If physics fails after a new batch frame was rendered, the
 failed environment's frame is invalidated; without a new render, its prior
 freshness state is restored with tracker history. This guards actor inputs against the previous episode;
 it does not restore renderer pixels or make the shared camera clock
