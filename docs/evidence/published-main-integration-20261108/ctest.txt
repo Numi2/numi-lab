@@ -1,0 +1,13 @@
+Test project /Users/numi/numi-reconciliation-build-20261108
+    Start  7: metalrobo_numi_policy_status
+1/4 Test  #7: metalrobo_numi_policy_status ......   Passed    0.02 sec
+    Start  8: metalrobo_numi_window_metadata
+2/4 Test  #8: metalrobo_numi_window_metadata ....   Passed    0.66 sec
+    Start  9: metalrobo_numi_window_bootstrap
+3/4 Test  #9: metalrobo_numi_window_bootstrap ...   Passed    0.76 sec
+    Start 10: metalrobo_numi_training_cancel
+4/4 Test #10: metalrobo_numi_training_cancel ....   Passed    1.22 sec
+
+100% tests passed out of 4
+
+Total Test time (real) =   2.65 sec

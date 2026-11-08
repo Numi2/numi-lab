@@ -1,0 +1,6 @@
+[0/2] Re-checking globbed directories...
+[1/6] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o
+[2/6] Linking CXX shared library lib/libmetalrobo.dylib
+[3/6] Linking Swift executable bin/metalrobo_task_rollout
+[4/6] Linking Swift executable bin/metalrobo_numi_window_check
+[5/6] Linking Swift executable bin/metalrobo_task_train
