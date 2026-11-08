@@ -1870,3 +1870,38 @@ replay admission: later encoded passes overwrite transient candidates/events;
 pair100 is absent. This negative result is preserved in
 `artifacts/crow-rl-ccd-postsubmission-capture-20261108`. Protected capture inside
 the GPU resolver is required before an advancement/event diagnosis.
+
+
+## Exact stationary CCD repair and bounded learning result (2026-11-08)
+
+Protected GPU capture (`fc1fc43d`) and actual-production-kernel replay
+(`3b703700`) identify a stationary sphere–box false unresolved case: constant
+10.290µm separation exceeds10µm tolerance, but tolerance-floored CA consumes
+16iterations. The original diagnostic reproduces all41 model/Adam arrays and
+all4 canonical outputs; Git-restored isolated replay is byte exact. See
+`artifacts/crow-rl-ccd-protected-sweep-20261108`. Earlier stale/timeout/compiler
+measurement failures remain preserved, with their explicit revisions.
+
+`d3e6b7dc` returns analytic no-impact only for literally equal projected
+centers and box endpoint quaternions after the initial overlap query; sphere
+spin is invariant. No epsilon or relaxed tolerance/budget. All8194 case/order
+records pass;3072 moving and1024 overlap records retain every baseline byte,
+including one-ULP motion and impact controls. All257 original distance-query
+bytes remain unchanged. Full Release,7296-transition native crow controls
+and generic contact/performance assertions pass.
+
+The same fixed-rate20-update original-seed learner now accepts409600
+transitions with zero rejection at729.2 end-to-end transitions/s. Its held-out
+frozen mean prediction fails:217.204→214.092mm mean goal distance,0/64 goal
+successes for both policies. Joint clipping is1 throughout. Final retained
+reward-only MC/head-advantage correlation at tick64 is.9965;5 goal-visiting
+lives have advantage1.052 versus.110 for the other123. This is useful reward
+credit with no critic clipping, not evidence that adaptive LR would improve
+physical behavior. No promotion or adaptive-rate selection.
+
+`artifacts/crow-rl-ccd-stationary-20261108` retains plans, every outcome,
+checkpoints, runtime, diagnostics and scoped executed Git recovery. The
+first10 updates match the prior run in all41 model/Adam arrays/metadata and
+checkpoint candidate/rollout bytes. This bounded physics repair supports
+further exploration/update-size work; reliable manipulation, solid-food
+handling, social learning and the lifelong ecological goal remain unfinished.

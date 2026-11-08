@@ -970,6 +970,48 @@
       "failed_candidate_present": false,
       "causal_failed_sweep_replay_qualified": false,
       "next": "Protected first-failure capture inside GPU resolver; exact isolated replay before causal diagnosis or repair."
+    },
+    "protected_first_failure_CCD": {
+      "evidence": "artifacts/crow-rl-ccd-protected-sweep-20261108",
+      "capture_source": "fc1fc43d",
+      "replay_source": "3b703700",
+      "snapshot_bytes": 14736,
+      "original_training_files_exact": 4,
+      "original_model_Adam_arrays_exact": 41,
+      "causal_failed_candidate_replay_exact": true,
+      "native_queries": 257,
+      "FP64_query_max_error_m": 1.0496913858959456e-09,
+      "constant_geometric_clearance_m": 1.0290301495737703e-05,
+      "tolerance_m": 9.999999747378752e-06,
+      "cause": "Stationary separated geometry exhausts16 CA iterations with a tolerance-floored motion denominator.",
+      "Git_restored_native_probe_execution_exact": true
+    },
+    "stationary_sphere_box_CCD": {
+      "evidence": "artifacts/crow-rl-ccd-stationary-20261108",
+      "source_commit": "d3e6b7dce81148ac1c1c26bc7bd9276bfd71076f",
+      "certificate": "Literal endpoint equality of both centers and the box orientation; sphere spin invariant; initial overlaps unchanged.",
+      "geometries": 4097,
+      "pair_order_records": 8194,
+      "separated_stationary_records": 4098,
+      "moving_records_preserved_exact": 3072,
+      "overlap_records_preserved_exact": 1024,
+      "retained_distance_query_bytes_unchanged": true,
+      "native_crow_control_transitions": 7296,
+      "generic_native_assertions_passed": true,
+      "fresh_training_samples": 409600,
+      "completed_updates": 20,
+      "native_rejections": 0,
+      "end_to_end_training_transitions_per_second": 729.2117567278058,
+      "held_out_frozen_mean_cases": 64,
+      "held_out_mean_distance_reduction_m": 0.0031125211447127327,
+      "held_out_initial_goal_successes": 0,
+      "held_out_final_goal_successes": 0,
+      "behavioral_prediction": "contradicted",
+      "joint_clip_scale_min": 1.0,
+      "adaptive_LR_selected": false,
+      "learned_manipulation_qualified": false,
+      "ecological_environment_qualified": false,
+      "next": "Separate exploration and update-size mechanisms prospectively, judge physical held-out behavior; preserve the independent v13 cue-conditioned choice/intake criteria."
     }
   }
 }
