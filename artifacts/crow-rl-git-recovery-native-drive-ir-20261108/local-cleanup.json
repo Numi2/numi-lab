@@ -1,0 +1,201 @@
+{
+  "archive_commit": "db7101aba12385b2a9d1fc077ad295f8927194d5",
+  "inventory": [
+    {
+      "bytes": 19938,
+      "mode": 420,
+      "mtime_ns": 1794136901261869997,
+      "path": "work/native-drive-ir/BoundedDrive.metal",
+      "relative_path": "BoundedDrive.metal",
+      "sha256": "329fdbd1f2403bab87a51bffaa69b76ad1522cdf24fcc75bc635cbdb001776bd"
+    },
+    {
+      "bytes": 97532,
+      "mode": 420,
+      "mtime_ns": 1794136057939321679,
+      "path": "work/native-drive-ir/ConstraintIR.cpp",
+      "relative_path": "ConstraintIR.cpp",
+      "sha256": "4c0a40f94420c078d8157a4888ab3333139bd13130ab09c19065d16e8b77d9d1"
+    },
+    {
+      "bytes": 15572,
+      "mode": 420,
+      "mtime_ns": 1794135937682283196,
+      "path": "work/native-drive-ir/ConstraintIR.hpp",
+      "relative_path": "ConstraintIR.hpp",
+      "sha256": "245d4db9fb28af44b4860447586ddb9195daf1e95c0985416212ec7f7f6d8d2f"
+    },
+    {
+      "bytes": 52928,
+      "mode": 420,
+      "mtime_ns": 1794135937683028489,
+      "path": "work/native-drive-ir/MetalWorld.hpp",
+      "relative_path": "MetalWorld.hpp",
+      "sha256": "e613136de2a63762434d2eb44dfff5b65f9cb51002a9a7d6a3c7c3ec657e5282"
+    },
+    {
+      "bytes": 853600,
+      "mode": 420,
+      "mtime_ns": 1794136667490232546,
+      "path": "work/native-drive-ir/MetalWorld.mm",
+      "relative_path": "MetalWorld.mm",
+      "sha256": "20889df397346fbc4a305dd5533423657f80a3cbb73efb8a856f0b4efe8876c8"
+    },
+    {
+      "bytes": 5540,
+      "mode": 420,
+      "mtime_ns": 1794136765270671525,
+      "path": "work/native-drive-ir/capacity_run.py",
+      "relative_path": "capacity_run.py",
+      "sha256": "e26e797bfcee14fd282990ecdaaf7105dd286bfbb292182a8663199f4880f201"
+    },
+    {
+      "bytes": 2667,
+      "mode": 420,
+      "mtime_ns": 1794137120799939987,
+      "path": "work/native-drive-ir/cleanup_git_recovery.py",
+      "relative_path": "cleanup_git_recovery.py",
+      "sha256": "414978762debf2ceb23177ce6cb936aca5d71fa0cbc863cad94e0f13f15b9e56"
+    },
+    {
+      "bytes": 2432,
+      "mode": 420,
+      "mtime_ns": 1794137121527901289,
+      "path": "work/native-drive-ir/cleanup_local_recovery.py",
+      "relative_path": "cleanup_local_recovery.py",
+      "sha256": "1fb8c0cd66a049c6dc1a776f05466e314f0a62eab01403a317e3b2419b1ba855"
+    },
+    {
+      "bytes": 10525,
+      "mode": 420,
+      "mtime_ns": 1794135937682150737,
+      "path": "work/native-drive-ir/constraint_ir_shared.h",
+      "relative_path": "constraint_ir_shared.h",
+      "sha256": "bd6db3c5f8c9fd6c74dfe6e457b8c70c4dfe414fcbaf052fec4eb5caabe1a4e2"
+    },
+    {
+      "bytes": 19050,
+      "mode": 420,
+      "mtime_ns": 1794136489132485044,
+      "path": "work/native-drive-ir/crow-fixture.mm",
+      "relative_path": "crow-fixture.mm",
+      "sha256": "4484b1924331ffc63e5af1bef0a71ce0d15415e3315a00254c4725cc82e05766"
+    },
+    {
+      "bytes": 16003,
+      "mode": 420,
+      "mtime_ns": 1794135870655163946,
+      "path": "work/native-drive-ir/edit-failed-1.py",
+      "relative_path": "edit-failed-1.py",
+      "sha256": "33104f30748b66413a8477ef62e48b0b80a6efd67a69c3820aca8eedb759d915"
+    },
+    {
+      "bytes": 16063,
+      "mode": 420,
+      "mtime_ns": 1794135888810235223,
+      "path": "work/native-drive-ir/edit-failed-2.py",
+      "relative_path": "edit-failed-2.py",
+      "sha256": "2a13ae377f433456c6bf2534b4bbe53db7cfb97920293f89ab7c003935574acc"
+    },
+    {
+      "bytes": 16340,
+      "mode": 420,
+      "mtime_ns": 1794135936138096992,
+      "path": "work/native-drive-ir/edit-failed-3.py",
+      "relative_path": "edit-failed-3.py",
+      "sha256": "84d5addf82e559f0fb2dc30a17a1f9751ea2c54c8ad349ac2ac9e18499cd35ed"
+    },
+    {
+      "bytes": 16574,
+      "mode": 420,
+      "mtime_ns": 1794135936236780058,
+      "path": "work/native-drive-ir/edit.py",
+      "relative_path": "edit.py",
+      "sha256": "8fc02b31c1bcaca6cf280e332272b6d8b138ece982fab893b3b0af9c466a5ca8"
+    },
+    {
+      "bytes": 7411,
+      "mode": 420,
+      "mtime_ns": 1794137162382608228,
+      "path": "work/native-drive-ir/execute_git_recovery.py",
+      "relative_path": "execute_git_recovery.py",
+      "sha256": "02150c7a919d8436d1bf6a824f902811b2cf2be614dbdb1092c0d1de9c84e952"
+    },
+    {
+      "bytes": 18401,
+      "mode": 420,
+      "mtime_ns": 1794136389848415381,
+      "path": "work/native-drive-ir/fixture-terminal-base.mm",
+      "relative_path": "fixture-terminal-base.mm",
+      "sha256": "24b1540f3cbf94fc61769d06acf18b2e68cc5088d50dc008cf56a03cd7e7e374"
+    },
+    {
+      "bytes": 26600,
+      "mode": 420,
+      "mtime_ns": 1794136901671857936,
+      "path": "work/native-drive-ir/motor_contact_probe.cpp",
+      "relative_path": "motor_contact_probe.cpp",
+      "sha256": "1c439c0caf758c368842e6701f8ccb23a48cd5e56a625309bcbb88a86c135b25"
+    },
+    {
+      "bytes": 6561,
+      "mode": 420,
+      "mtime_ns": 1794136136417023112,
+      "path": "work/native-drive-ir/native_probe_functions.cpp",
+      "relative_path": "native_probe_functions.cpp",
+      "sha256": "4c6880fd92b5d60b2b3161790d0e3231ee6778b0cfcd709e6ca676f1a1b76f7f"
+    },
+    {
+      "bytes": 5617,
+      "mode": 420,
+      "mtime_ns": 1794136278218892587,
+      "path": "work/native-drive-ir/prepare_and_run.py",
+      "relative_path": "prepare_and_run.py",
+      "sha256": "24b1a35421ace0e4eb0278348cb85d795bfe873b6dd613ea6adc1d1abc87c841"
+    },
+    {
+      "bytes": 4700,
+      "mode": 420,
+      "mtime_ns": 1794136557846946610,
+      "path": "work/native-drive-ir/run_crow.py",
+      "relative_path": "run_crow.py",
+      "sha256": "f445207af51bbcc3667878744900305db858ba39bf76ab07e64ec275f78aa2e9"
+    },
+    {
+      "bytes": 1500,
+      "mode": 420,
+      "mtime_ns": 1794137121152957994,
+      "path": "work/native-drive-ir/verify_local_recovery.py",
+      "relative_path": "verify_local_recovery.py",
+      "sha256": "dea1c7622703e09a86e25a3c66891d2975a49f56295e981ee850e6bb3f6571eb"
+    },
+    {
+      "bytes": 3640,
+      "mode": 420,
+      "mtime_ns": 1794136901262321043,
+      "path": "work/native-drive-ir/zero_gain_function.cpp",
+      "relative_path": "zero_gain_function.cpp",
+      "sha256": "4984a0ff4b5c8e822ac12cfadf402c05297a606be957352ade1a8b6a5a031902"
+    },
+    {
+      "bytes": 5212,
+      "mode": 420,
+      "mtime_ns": 1794136972803230540,
+      "path": "work/native-drive-ir/zero_gain_run.py",
+      "relative_path": "zero_gain_run.py",
+      "sha256": "3ed7f20100f8506b4ab864285cb66470d1c8576b8eb62a6fe7074e2a504a129a"
+    },
+    {
+      "bytes": 6534,
+      "mode": 420,
+      "mtime_ns": 1794137460175861861,
+      "path": "work/native-drive-ir-local-inventory.json",
+      "sha256": "79be0e78e20db80d406e6ff7f9a9579762565f6e9af4bb89f08526be86f7f46c"
+    }
+  ],
+  "inventory_sha256": "79be0e78e20db80d406e6ff7f9a9579762565f6e9af4bb89f08526be86f7f46c",
+  "open_handles": 0,
+  "remote_commit": "db7101aba12385b2a9d1fc077ad295f8927194d5",
+  "removed_files": 24,
+  "removed_logical_bytes": 1230940
+}

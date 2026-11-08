@@ -29,3 +29,9 @@ Plans, source, exact runtime identities and failures are retained in this reposi
 Capture the exact first failed quality problem and failed iterate inside the native solver, then independently analyze its residuals in FP64 before selecting a numerical correction. Preserve the first failure before later substeps overwrite transient arrays. Do not infer a cause from aggregate status or relax physical gates to obtain acceptance.
 
 Multi-joint accuracy, hybrid event timing, reset/checkpoint/partition behavior, energy integral, biological calibration and end-to-end learning throughput remain unqualified. This slice does not complete the lifelong crow environment.
+
+## Git recovery and storage closure
+
+The [recovery record](../crow-rl-git-recovery-native-drive-ir-20261108/README.md) restored all 176 raw files (35,563,714 bytes) from actual Git objects, executed nine native commands and passed 34 byte-exact file comparisons plus all 576 physical TSV records excluding GPU timing. It reproduced the old capacity admission rejection, old zero-gain shader rejection and current crow numerical failure.
+
+After pushed Git parity and exact recovery verification, all raw inputs, temporary restored runtimes and local drafts were removed with unchanged hash/mode/mtime and zero open handles. The original payload adds 10,616,846 compressed bytes and reuses existing Git content. The active production build is retained. This archive closure does not change the contradicted crow result.

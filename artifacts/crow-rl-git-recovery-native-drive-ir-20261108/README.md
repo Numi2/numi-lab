@@ -5,3 +5,9 @@ The sealed plan restores all 176 raw files (35,563,714 bytes) from committed Git
 This is recovery of existing observations. The original hybrid and split-quality crow trials are byte-verified and restored but not rerun. It does not qualify crow dynamics or the lifelong environment.
 
 Cleanup requires committed and pushed recovery results, actual Git readback, unchanged hash/mode/mtime and zero open handles. The shared Git provider, protected deployment policy and current production build remain in place. The scientific result is recorded in the [native motor-row study](../crow-rl-native-drive-ir-20261108/README.md).
+
+Executed recovery passed: 176 files / 35,563,714 bytes restored, 9 native commands, 34 byte-exact comparisons, and 576 physical records matched excluding only gpu_ms. All three designated failure paths reproduced. The default 640-transition crow replay was exact.
+
+Actual Git readback, pushed HEAD parity and zero open handles preceded cleanup. It removed 212 recovery files (36,089,343 logical bytes), all 176 raw files (35,563,714 logical bytes), and 24 local draft/inventory files (1,230,940 logical bytes). New compressed original payload data totals 10,616,846 bytes; identical existing Git content is reused. Two small new recovery blobs retain changed timing/runtime output.
+
+See verification.json, temporary-cleanup.json, local-cleanup.json, and the scientific record's cleanup-receipt.json. Final verification reads actual Git objects again after duplicate archive checkout copies are omitted. The current production build and protected policy remain in place.
