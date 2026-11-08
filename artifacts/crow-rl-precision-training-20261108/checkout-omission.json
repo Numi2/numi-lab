@@ -1,0 +1,370 @@
+{
+  "commit": "bdd9676ead48da9958d2d383a60d76a08b818337",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 298661112 158688028    66% 3495975 1586880280    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 298893448 158455692    66% 3496047 1584556920    0%   /System/Volumes/Data\n",
+  "omitted_files": [
+    {
+      "bytes": 31517,
+      "git_blob": "b2ae2e77a92a9e88ebaf885d0636e50736d04bce",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/checkout-omission.json"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/omit.stderr"
+    },
+    {
+      "bytes": 142,
+      "git_blob": "f087c07416a56a8e02627a3eaabdfe56f4f853c9",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/omit.stdout"
+    },
+    {
+      "bytes": 12,
+      "git_blob": "57cdc50305d07f35133f80962644debd6b846bf3",
+      "path": "artifacts/crow-rl-precision-training-20261108/.gitattributes"
+    },
+    {
+      "bytes": 5260,
+      "git_blob": "c097955e0eb7c672d81b1aa98d5dc6a70aa5b9b3",
+      "path": "artifacts/crow-rl-precision-training-20261108/archive.py"
+    },
+    {
+      "bytes": 1791526,
+      "git_blob": "8fc481d1d353806904b37fb7697b74ec880468c5",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/03836aba144926f88cdcf7885d9f80604ebc67fff7704be7cb752faae18da9b1.gz"
+    },
+    {
+      "bytes": 1662,
+      "git_blob": "6d0d070c2bd53bf0cd1d53bc46a91273e28c5d11",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/0998a920b0b696e71582f206fcb2e7cbc5eab908c52dee19e528f123bcfff06b.gz"
+    },
+    {
+      "bytes": 70,
+      "git_blob": "6d74812b551039c42e2653028c73225f06c57005",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/1b418541a9da218182ff5e94bc43342226f35b711dca85447fcf494657ca3252.gz"
+    },
+    {
+      "bytes": 1664,
+      "git_blob": "c909d68fb7677eec85af3825a0bf40e2997002ec",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/1d7ccb647eb27d8907dc2dc2da2bc11401e6682f595d5fe96d6fcf4772d37d4e.gz"
+    },
+    {
+      "bytes": 72,
+      "git_blob": "45d54e6b3a5d2112abbf04243fc184399a5cb2d6",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/1dfa16920e52468424954c249b06d2f8691f05e1c170c6f8a9d47f91068c4f8f.gz"
+    },
+    {
+      "bytes": 1759068,
+      "git_blob": "5300b2179dc07ea956c2570ff8324a4d3c2ea963",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/255e73d831b00d766cf45c02405a3aa8a52841d944f15b4bc46d2f6081a25955.gz"
+    },
+    {
+      "bytes": 309,
+      "git_blob": "334c30569dcec218c34486bf4ea947f452635d25",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/2a63d5f9cd91ead1420ff7746289b1e057c569af8ad720c27eb74e1a89e9e350.gz"
+    },
+    {
+      "bytes": 49731,
+      "git_blob": "3371d5861690ebc960c8852809197e1fb1e7072c",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/2af59301fe7aeabf2b9d2ed430f1f15073c5fd1b6dcc1c18efc0c174febf8151.gz"
+    },
+    {
+      "bytes": 319806,
+      "git_blob": "dcf0c56a380547a3246d77b47cc328096c279e3a",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/305b913905edce6d89bc9be4d2a24ec683d596311d626ee15b6c297761d4fdd7.gz"
+    },
+    {
+      "bytes": 49735,
+      "git_blob": "32d2eaca48aca2a55adb0ca455359bed8c653bd7",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/32ae358df2c5902ed0a8961828ab2be1da79d754ae21488b1d4c7a355543b546.gz"
+    },
+    {
+      "bytes": 7300,
+      "git_blob": "779974e0d048a2d1129e6af4fcd7357bf3ca7f6e",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/3562b23d5857dbfa7af3d406daea1beb81ada267c541d1b68e09a838307bc3af.gz"
+    },
+    {
+      "bytes": 166,
+      "git_blob": "8426c47964f099209fafb6419f7833a036b6085e",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/3a576f87d92ab4b3c18317d00402c5e87531c18de7a0f5e2786603eb7ff85022.gz"
+    },
+    {
+      "bytes": 20454170,
+      "git_blob": "6f5cc56c9a1c39a35e75482211dffcc7d0b0a9bf",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/3e0e556b13ca5712d00a88f0b420214c038bd2effdfbe428cd937433d7ecd6f5.gz"
+    },
+    {
+      "bytes": 1404,
+      "git_blob": "503b0059567c12a427bc59098db76abc38e7541c",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/40e65d0481e416ef8abf82289fd3d1213ff05fbd3034e29542b1a4e6626e8543.gz"
+    },
+    {
+      "bytes": 2036,
+      "git_blob": "f36ea2dab7b41491f713b2d6fcc4972faab47849",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/44bb7597907677b9a97c53f945e147d382482d9da44bddb7c2dc3cedd7f03b2d.gz"
+    },
+    {
+      "bytes": 19954324,
+      "git_blob": "6e21d78379d527877df005934763e83781b53eb9",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/46797f39eca3a2ce8261ac3b91a8bd65e64a5ea1e1a3936a3e6212024ebef500.gz"
+    },
+    {
+      "bytes": 16980592,
+      "git_blob": "7817769f2ff43898817e0b562b16b24e6ff0f2a2",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/47842b88dec5383f55226542cb40b7df8c4f7152074e015931c4f4dac4332745.gz"
+    },
+    {
+      "bytes": 321203,
+      "git_blob": "c6aa4ab1162cfe7a3e82b9ff8d4135284c77b94a",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/47bbc5f9d1e33d465b0a5e763c564d34550da3970ff12361724c7671c969dc3e.gz"
+    },
+    {
+      "bytes": 3558,
+      "git_blob": "5d33cfb63941d207c4bb9651b0059705b372e182",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/4add1939038e2d5cbbaaf3f46e2798328de91f8cb789f994d8bbec3756b0bc38.gz"
+    },
+    {
+      "bytes": 3258871,
+      "git_blob": "bca1f76ca18357a44b8b8a56d28095e0536a949d",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/4b86a196cf596a99346267e6b1954163469002a555ea1a6285993cd91258673e.gz"
+    },
+    {
+      "bytes": 20414954,
+      "git_blob": "ada974c176cda9f6f9adc6703da2ad98ed7c0296",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/4f24704d980d8a5579aaa4008d126900929c91968d324cb164d67bf4a189f16a.gz"
+    },
+    {
+      "bytes": 552427,
+      "git_blob": "54b29dba3558c458087cb1cc9449b99ef78a7d8e",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/57dba840f9d7201e2c066e414b19092e66e961250fc989b833827bc6a0856d5c.gz"
+    },
+    {
+      "bytes": 678,
+      "git_blob": "17602d6a54dcd4f206095e60c971ab059b45d4b4",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/60e96fee792fdd49d88c56b1ee37f9c3f31baae0b30e5a998f942c95accfccf5.gz"
+    },
+    {
+      "bytes": 76,
+      "git_blob": "5508262b3f57a727387593208770318bea648e46",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/663c6ec0d9832a8e47095e0a522d9c261cbb16c975952f0b4f2bbafdabfe28f9.gz"
+    },
+    {
+      "bytes": 332,
+      "git_blob": "864c3acce3c8cf592715371ddc340ae5ddf94c86",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/6820ea893daef117bcb4e0370807828f021efc49b7131f3dc91b631f39a92d91.gz"
+    },
+    {
+      "bytes": 552384,
+      "git_blob": "fc81208c5e5c448437611f2ce805f939951e59ea",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389.gz"
+    },
+    {
+      "bytes": 74,
+      "git_blob": "0ff52d3bc5b21a2df1d84d9d1588d1867f17e164",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/6d2a31c0fa749d5a3bc740e39e791a936f294cd9f529c5e71ea9a8ffa82978f2.gz"
+    },
+    {
+      "bytes": 167,
+      "git_blob": "28420b05103800e6c85a87f60a120cdb55bc2882",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/75b026c12081888bfda9b6c63be2f8d419e1596ac343cf03c6ebe62bba9a3c37.gz"
+    },
+    {
+      "bytes": 20407773,
+      "git_blob": "9527691d58ac8aef3cda08e50b078f344ba88b1a",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/7699e24bbb7fda067f99d078e58969cccb68a5672713040a8dbdda27010ad85b.gz"
+    },
+    {
+      "bytes": 604885,
+      "git_blob": "0f99404c0a1acf21c5c3de521e008a41d2078f5c",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/779b6e8ed3d314a423c9e39055edf2c59d86f5870463346a92234ec76313fce6.gz"
+    },
+    {
+      "bytes": 2900,
+      "git_blob": "bd421fab3d7b4004bcb82d4e46626f33f58448e8",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/78d33f13a6624ca3fdf23b38443b8e69929df40290759a4e511353d6035399a0.gz"
+    },
+    {
+      "bytes": 604824,
+      "git_blob": "b8b37e90af6bcb090e62acb93e5d98516fb6f544",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/91610c1090ab5b3d4c215e52b184b78abcd4d449a66caa8cdc0e7a392196d039.gz"
+    },
+    {
+      "bytes": 681,
+      "git_blob": "fe5f0a819233116306297b7128c8dd8d12e6af26",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/91929c1dfa22b1ab898f7c65aa60e96fc33e17f5c854dfe7d2ed4d6ed9202300.gz"
+    },
+    {
+      "bytes": 3260151,
+      "git_blob": "5d2a9a5469a4cfb5d1a621fbdfd11cf92c02cc08",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/95727e463b457e7920e9d4303961ffdd96dda8bdc510f69d415da52437ceb717.gz"
+    },
+    {
+      "bytes": 49731,
+      "git_blob": "952932fd464afc6b08c3daf06843cbb3a4264668",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/97016b97321b196bff22576e5414fde77650ec251c6f19948e6816fea3116a8f.gz"
+    },
+    {
+      "bytes": 680,
+      "git_blob": "3ff0097b86f9cbc7bbc8b20de873dc22a460aa54",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/9f757ce1367090335180d125cdc5190c1ddce7af1e5ca8bbae8fb178bfdc3a27.gz"
+    },
+    {
+      "bytes": 400,
+      "git_blob": "b0e7fe603e1683e0c114ce7eaa0efb2cccd0445a",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/a12d203de707b4500415aa0c1eb3de87b59ebff1a5fa559ec7f3636385627ceb.gz"
+    },
+    {
+      "bytes": 308,
+      "git_blob": "3cd2b635a48719a00a5839b495ef7a1272a1d4a2",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/a136e21616cc2288fd659c5dd5d7380f0723fdb0e99d82f8eb8b9f08b49ef4f8.gz"
+    },
+    {
+      "bytes": 11497866,
+      "git_blob": "205faa38147762fc44b1159e325e1bc6afe911d0",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/a7fbba9643f940481a0887aa227ffdc980b7fdbd81d71f2942ed2bc18e4b35f6.gz"
+    },
+    {
+      "bytes": 70,
+      "git_blob": "5d848b73d1083987aa7369da97e25da75048bd88",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/a9461dae8d467405d0810ce390c17ea8b21bdd13bbe11bd3ce6f05de95353e74.gz"
+    },
+    {
+      "bytes": 2902,
+      "git_blob": "ce63d8cf870136f005a1db344d52966bfc859e0a",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/b9e838c5c9f6c3f37ef2cd15a860ce9fa138a550f80db82e2071324ce4b9f7ff.gz"
+    },
+    {
+      "bytes": 676,
+      "git_blob": "f76f385e14712e57c42bf84788374b9ac08672a4",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/bb85bc4f33162cb34d234d89ccd4d71fdb1ed6af1c38e1bc0369e0d1c3cc1f89.gz"
+    },
+    {
+      "bytes": 819,
+      "git_blob": "bff84121e00f5a071b054d59dd7adecc57af2cb0",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/bc6b1c445196beae4f336ef956dd7a86c917d67ba5c5e59da5faeb59f0ab97f9.gz"
+    },
+    {
+      "bytes": 1791533,
+      "git_blob": "2db4f4a2c094e3fa20f374564081d82dc91057f6",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/c178eb329afd05744a6678820b9d7550e7ce90cd50f5fecc4ea993fe36e38a1b.gz"
+    },
+    {
+      "bytes": 69,
+      "git_blob": "2804ad02b3088031387a5ff473aa36a0911ce971",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/c3cb18f82f2607b1dcd32fe4bd1e0047003d1a58c4bb96e8ce5d74def3a164f0.gz"
+    },
+    {
+      "bytes": 74,
+      "git_blob": "6f703b3997594b54c31de30d60a30cc7e163b000",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/c78a0f5c31dbf25dfeb768b3188063bb1543256c577f7e5aab9e492a106a6ad6.gz"
+    },
+    {
+      "bytes": 1662,
+      "git_blob": "812d866f62a7cbdfaa6010da6ca81f45a05c04bd",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/c7b78fbd45ae0e929b99e5b86befb746c32346f842f54586787aff9cce2e24d7.gz"
+    },
+    {
+      "bytes": 1790316,
+      "git_blob": "b6ba1c97313831b2c7a711877b81e2ac4520276b",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/cd64e5c0b25f00ea48fb7285da3f83c496e33a32e67eefad1eaf1df967ba492c.gz"
+    },
+    {
+      "bytes": 19919103,
+      "git_blob": "7b201a617b4588b7dd4cfa0fbe667238af3fb496",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/cfcd2c501dde23cc7227acebcfca59cbb849c580ecfd31fdaec44d7088272f90.gz"
+    },
+    {
+      "bytes": 19831084,
+      "git_blob": "e4642bd45645158765e5650fc622c63eb167d623",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/d11981de1b589c4d8be258c7492d07e4294865a3b4f24936d0d61580c89ffd84.gz"
+    },
+    {
+      "bytes": 947,
+      "git_blob": "c17706fc16f60942600eba02e7da67a00b9bf4ec",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/d68c7878a9226e40d15412550dcf5e8899ab7f11ad50e9751477b069935a4722.gz"
+    },
+    {
+      "bytes": 17008822,
+      "git_blob": "9e82a146c151288940f4fc926146eea622557a99",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/d8749ae5081407158b7a152dbabbabedf01a65a273eb9809f6edee98945742d7.gz"
+    },
+    {
+      "bytes": 20074102,
+      "git_blob": "f0833b2ff51766ee653cc42c6489e05f9c44c804",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/d9df512dea9a7425739ca838313e11d0537e96e2608498474b079489e1c08649.gz"
+    },
+    {
+      "bytes": 678,
+      "git_blob": "c7f523e9d6dcd7eb91b1dafd568c4b8441fd289b",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/dae1967272d14a986a40a1469a40ddfffedbede5c221ce681a9b8b3b96089e9d.gz"
+    },
+    {
+      "bytes": 2968,
+      "git_blob": "55761b2c5a7f6169ff364945acc96c5ef1031927",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/dd259fd7565a621defa47035246e52023eac67cb56d5232441450274a852cfe5.gz"
+    },
+    {
+      "bytes": 1790699,
+      "git_blob": "eb3714f0b1c136202cb840ccf84b8504b900e882",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/dfca2ca5e0ebbb100e3312db4fe3075c1b254f56f0a258e6a9e3a2d9a215a08b.gz"
+    },
+    {
+      "bytes": 20383948,
+      "git_blob": "78334e60d5924997c69147a49cc9a568ce214ae5",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/f7c75ab3c7bf0ae6f28cc34b6f82dbfbc9f40a0777543b675c69a022a4c33277.gz"
+    },
+    {
+      "bytes": 11962899,
+      "git_blob": "67ed1d367391f0fc96aae6e51f9b8c7c4ea8d74d",
+      "path": "artifacts/crow-rl-precision-training-20261108/blobs/fb03780fc05b64fe413645d59609def238c771b3f8bee542fd31f7470db64839.gz"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-precision-training-20261108/capture.stderr"
+    },
+    {
+      "bytes": 408,
+      "git_blob": "fb02cff283326db2ea4bc7686335c79d8db599be",
+      "path": "artifacts/crow-rl-precision-training-20261108/capture.stdout"
+    },
+    {
+      "bytes": 2233,
+      "git_blob": "9497c2c2b3433e14701c8dac37bcce5af058ea8b",
+      "path": "artifacts/crow-rl-precision-training-20261108/training-recovery.command.json"
+    },
+    {
+      "bytes": 22,
+      "git_blob": "a642c235917f2215e320ca11ecb0bc83aba1814a",
+      "path": "artifacts/crow-rl-precision-training-20261108/training-recovery.receipt.json"
+    },
+    {
+      "bytes": 186173,
+      "git_blob": "22fc54fc8a8727d8bb4a22847db822ec89cf1e6a",
+      "path": "artifacts/crow-rl-precision-training-20261108/training-recovery.stderr"
+    },
+    {
+      "bytes": 13290,
+      "git_blob": "6eda0cecb092005d67348c612c0433ba2d8ec5fa",
+      "path": "artifacts/crow-rl-precision-training-20261108/training-recovery.stdout"
+    },
+    {
+      "bytes": 408,
+      "git_blob": "322a89a48007f1ef6232d69c0834d302b3a739da",
+      "path": "artifacts/crow-rl-precision-training-20261108/verification-plan.json"
+    },
+    {
+      "bytes": 6648,
+      "git_blob": "7da7a7c3ad41a6af1423711644ceb7ed4bf7703c",
+      "path": "artifacts/crow-rl-precision-training-20261108/verify_recovery.py"
+    }
+  ],
+  "omitted_logical_bytes": 237718042,
+  "open_handles": 0,
+  "preserved_input_prefixes": [
+    "artifacts/crow-rl-feeding-behavior-20261107/policies/",
+    "artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib",
+    "artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib"
+  ],
+  "remote_commit": "bdd9676ead48da9958d2d383a60d76a08b818337"
+}
