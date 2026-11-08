@@ -386,6 +386,708 @@
       "bytes": 32768,
       "mode": 420,
       "git_blob": "1e204ee112a3fd5e62228f207e70aed6728f92e7"
+    },
+    "source/include/metalrobo/ArticulatedActuation.hpp": {
+      "sha256": "3ccc86f6da999506ad335e9c6f3f4253a03801174051bbe199d6af1ba17bf835",
+      "bytes": 5837,
+      "mode": 420,
+      "git_blob": "3b59215a9170468b8542580c85da0a454a92e6da"
+    },
+    "source/include/metalrobo/ArticulatedCollision.hpp": {
+      "sha256": "bd7dae13cd0f8c37098ab099de5a893786f853b8066968d54af3f83870736ca4",
+      "bytes": 4442,
+      "mode": 420,
+      "git_blob": "7a321e63b83fd3ea133b7f200a0a2fe23b8ad47a"
+    },
+    "source/include/metalrobo/ArticulatedContact.hpp": {
+      "sha256": "96a8c8ae3872dadce767d9fa61debfc574a7f4b7d1c7ee4049bd9e02687f219d",
+      "bytes": 6456,
+      "mode": 420,
+      "git_blob": "619cb03d6e8df234d5151df5546ec34f2369db7d"
+    },
+    "source/include/metalrobo/ArticulatedDynamics.hpp": {
+      "sha256": "e4c4e1ab6230d16b5fe2c536ebe296fa5fed600f54cb2b28be67d59843c0017d",
+      "bytes": 8653,
+      "mode": 420,
+      "git_blob": "51a490b93c704789044030499bec1e6437a2e926"
+    },
+    "source/include/metalrobo/ArticulatedJointLimits.hpp": {
+      "sha256": "9fc9991b33e8649d85bca98b303f2d37e21a5858ff80fdb49fa17b4f9a5b4a2e",
+      "bytes": 6656,
+      "mode": 420,
+      "git_blob": "9c73f455527f0ba3f2094237838304da832cf1e9"
+    },
+    "source/include/metalrobo/ArticulatedMixedConstraints.hpp": {
+      "sha256": "b666abd0201d8504d52c4852f48dcc03c12b20f09ee2f8d6ded6eb0c6ea2b125",
+      "bytes": 4019,
+      "mode": 420,
+      "git_blob": "c1a8344f19687f6cbc879eed7ec69e0e8973889d"
+    },
+    "source/include/metalrobo/ArticulatedRigidCollision.hpp": {
+      "sha256": "50d93b65fc35247afc427e0507f7ae745fa9cc63a31c50905031dd65a244c2b2",
+      "bytes": 11502,
+      "mode": 420,
+      "git_blob": "f42dd67da1c2afde9a72697aed01339d798bb7cc"
+    },
+    "source/include/metalrobo/ArticulatedRigidWorld.hpp": {
+      "sha256": "2869b6d2bb2df6339555b0a54ff3fc610b8cb68cbcd7a37537802e7a38c152a9",
+      "bytes": 8764,
+      "mode": 420,
+      "git_blob": "17574eec65cb2a870d0ce955ab9a3d5ac0fbd03f"
+    },
+    "source/include/metalrobo/ArticulatedWorld.hpp": {
+      "sha256": "3de610859ff20cac95aeac978f7df0e87f78a2da585a7bd9eabf50764c022ddb",
+      "bytes": 7533,
+      "mode": 420,
+      "git_blob": "e7f1ea8e86dbdaaf116e6887b20e6b6f1628a2cf"
+    },
+    "source/include/metalrobo/Collision.hpp": {
+      "sha256": "dad1688d6d8a8871aa22c98757ddea2f0da8c6e993980c962f0cd1d5a27ba929",
+      "bytes": 3626,
+      "mode": 420,
+      "git_blob": "08d908d2092499dd816612e625a5bdb98624c5f4"
+    },
+    "source/include/metalrobo/CollisionVisualProxy.hpp": {
+      "sha256": "1aeaf6bdda5c36a3a7542de5748fe0e410e1506aa924fb665ca1e3f6bee3793d",
+      "bytes": 781,
+      "mode": 420,
+      "git_blob": "3fcb8e13586ce5884764ff585537d5de827fc4da"
+    },
+    "source/include/metalrobo/ConstraintIR.hpp": {
+      "sha256": "6610aaa7a447a50a6899a2be48e2a3e840fd41a8e82471ba2b4c7d13f813f582",
+      "bytes": 15428,
+      "mode": 420,
+      "git_blob": "ad610749e5570ec99ee0f71561530b3c6879d97b"
+    },
+    "source/include/metalrobo/ConstraintSolver.hpp": {
+      "sha256": "b72032893f0e2803c067f9c4f14bda8b47259ed8f8d56dde61f2382abf0d97a7",
+      "bytes": 3571,
+      "mode": 420,
+      "git_blob": "254197dd3a76f8825abfee81c563163d717d527b"
+    },
+    "source/include/metalrobo/CoupledArticulatedRigidContact.hpp": {
+      "sha256": "347032dc7f3162162bbdc3d8db529f0f62c3a75433f1dceb0e032b8bbf1590dc",
+      "bytes": 8468,
+      "mode": 420,
+      "git_blob": "b114a30fe4bf721f97fc9a7a5a12e09470709dbc"
+    },
+    "source/include/metalrobo/CrowForaging.hpp": {
+      "sha256": "f4bbee3b94c3199d0771d93f03d2a530994b2c90c85cff179b7391acf7139ab8",
+      "bytes": 2753,
+      "mode": 420,
+      "git_blob": "ead77c3260eb95d3708ae459ece0f1cf447e4df6"
+    },
+    "source/include/metalrobo/DiscreteElasticRod.hpp": {
+      "sha256": "386cfb5a316fed5b4420cd5f6eb32b3dce54424d2b5f3386cd2694f7511484fd",
+      "bytes": 8398,
+      "mode": 420,
+      "git_blob": "d2ec160c10be600e2bd7052875969de4611985fd"
+    },
+    "source/include/metalrobo/EmbodiedTactile.hpp": {
+      "sha256": "693a24a65b5221448aa1ec6d2a684488a7af4ea3a1adb6590976fc513546972a",
+      "bytes": 1329,
+      "mode": 420,
+      "git_blob": "b4293000b736460611f460d9d837f6b7f3a8f432"
+    },
+    "source/include/metalrobo/EngineModel.hpp": {
+      "sha256": "04096227fc3ca3360c55fd199553e6c950f4a2620ef8f2c1d39af78a6f1d432e",
+      "bytes": 4044,
+      "mode": 420,
+      "git_blob": "69e93f5827cc46bc40744de02b2cf0c8a715aa63"
+    },
+    "source/include/metalrobo/EngineModelComposer.hpp": {
+      "sha256": "ed780b96d5f649e3a4ce2da3822c7b047da3305acbc32a98ef88aacbd55be4b6",
+      "bytes": 2591,
+      "mode": 420,
+      "git_blob": "eab5d3e6471c98ab92c8c477f880e8546858713a"
+    },
+    "source/include/metalrobo/EpisodeTwinCompiler.hpp": {
+      "sha256": "ba5bcd36dc18790d77efd224076fd23b2b697de58adb0db0529410996c587636",
+      "bytes": 8729,
+      "mode": 420,
+      "git_blob": "d28b1f4ea7b45f2d1a06614eccd02a800e4e9552"
+    },
+    "source/include/metalrobo/FiniteResource.hpp": {
+      "sha256": "a7a32dda1f394d8f1691b00fc6d50cdc4edca0d89e0780a721b34b7b87d4f2ef",
+      "bytes": 3038,
+      "mode": 420,
+      "git_blob": "02b4bb89cb81add26f5716bdfb844187aa00acf4"
+    },
+    "source/include/metalrobo/Franka.hpp": {
+      "sha256": "52317292ae627ee3770eb4ae5f762323dae38780fcb49dd40e080815de82dcab",
+      "bytes": 1314,
+      "mode": 420,
+      "git_blob": "4587d1e7ed81acff41e78e3617e9e360dde485bf"
+    },
+    "source/include/metalrobo/FrankaWorld.hpp": {
+      "sha256": "8fd22506ce94e6aeccd5adfd2ef1c3a6648735223452281aeb813002fef73c96",
+      "bytes": 1919,
+      "mode": 420,
+      "git_blob": "e90d0a5b7508bfe1e460c16dd8285261a55d7a04"
+    },
+    "source/include/metalrobo/FreeBodyDynamics.hpp": {
+      "sha256": "80fb21672731d34cdcb7f7643d821ccfa92bb55b743451e046ba15621ca47ec4",
+      "bytes": 2695,
+      "mode": 420,
+      "git_blob": "640c88cc02d4f653e0d0f01e35a45217f76661a8"
+    },
+    "source/include/metalrobo/G1.hpp": {
+      "sha256": "d4e2fc09fb0beea53a831e7611ed7d250fd7b6183ed70a7da3c4e224c6e5b7a5",
+      "bytes": 3967,
+      "mode": 420,
+      "git_blob": "0d532a49d3735d0959c5159a991689db31f80c6c"
+    },
+    "source/include/metalrobo/GRUMemory.hpp": {
+      "sha256": "c708a331ac20f6af9165c6d5f51097d7d3f3279f0c6d233f66030030dbbb2145",
+      "bytes": 2819,
+      "mode": 420,
+      "git_blob": "bc7a1603de458eb45f04503dfec3d7b4b3f4f5f1"
+    },
+    "source/include/metalrobo/GeometryCooker.hpp": {
+      "sha256": "39ddd22642948a2865d1d28b5ce9002d1dde112c2dfc4c4197340c5e69030815",
+      "bytes": 2394,
+      "mode": 420,
+      "git_blob": "afb3a154d38d2f1140af2913d892d95bf487876c"
+    },
+    "source/include/metalrobo/HeterogeneousWorld.hpp": {
+      "sha256": "5551c99a142f3e0d7a270b9c440a0bba8e94fa23d1e1df8204bfbad220cb34c0",
+      "bytes": 7687,
+      "mode": 420,
+      "git_blob": "e7dab3832bb43d73e16fb587770cdd38128cfce4"
+    },
+    "source/include/metalrobo/InteractionPack.hpp": {
+      "sha256": "375329b1c224cbbe04fda12c93b31350183d974b45a5742689b4d4135b15358d",
+      "bytes": 3067,
+      "mode": 420,
+      "git_blob": "a2a37aca761de6dc75a9f3906a87e6a1d0968f21"
+    },
+    "source/include/metalrobo/LearningPacks.hpp": {
+      "sha256": "4e2df47433603277033bc238d899ee2fe1aa7a0701474c477946aa758bccbdf4",
+      "bytes": 8145,
+      "mode": 420,
+      "git_blob": "7b460c7c948284789d5f672cd17bc361c08c67bb"
+    },
+    "source/include/metalrobo/LocomotionWorld.hpp": {
+      "sha256": "7ea4bc3b657086e49b31df4a1e588856cbaf4cdd1f3ce28af19b33ff731529f8",
+      "bytes": 7898,
+      "mode": 420,
+      "git_blob": "b36abbccf1d3f60300533e0c87b6134813678a78"
+    },
+    "source/include/metalrobo/MatterSnapshotArchive.hpp": {
+      "sha256": "f5374201de1c51287ddcd863560f3bc94c69942e0e5e1b0950a8d17ce6403a3b",
+      "bytes": 1762,
+      "mode": 420,
+      "git_blob": "310b861923137049b6a6a997b7abd6c2a9abf4e4"
+    },
+    "source/include/metalrobo/MetalArticulatedABA.hpp": {
+      "sha256": "e18b88174e1c03549c474e7e573dedfae1986712ae93cad9148b8539e9a1e804",
+      "bytes": 7711,
+      "mode": 420,
+      "git_blob": "703a4142bc888db29b4086fa2eae74bd0bd53316"
+    },
+    "source/include/metalrobo/MetalArticulatedInverseMass.hpp": {
+      "sha256": "125d96c2f520bd6e70e5c498d3bba333a88fdd6a0602afa0c060b389f46f3118",
+      "bytes": 6567,
+      "mode": 420,
+      "git_blob": "5996a720e64438908ce60a3fa3fd126ea08df24c"
+    },
+    "source/include/metalrobo/MetalArticulatedOperator.hpp": {
+      "sha256": "ebe11bf2f022b71ff7f3ad3f775b7b6d2027a429641ee542389c0c4b6e8ae8de",
+      "bytes": 20857,
+      "mode": 420,
+      "git_blob": "79ed706003b03f82bb0ecf909447805c5277e5dd"
+    },
+    "source/include/metalrobo/MetalDiscreteElasticRod.hpp": {
+      "sha256": "04aa88d2fe723b73bff417eb8ed42d209f455e181ef74da2eca39344041f7374",
+      "bytes": 4962,
+      "mode": 420,
+      "git_blob": "f9ff6644a60d596f539bff3a2b8dffb6aff8068d"
+    },
+    "source/include/metalrobo/MetalHybridRenderer.hpp": {
+      "sha256": "89bff74667cbd15cd5acd4c5e67fe74a39648944c3ae8a6bb35f0cad493e8ca7",
+      "bytes": 15315,
+      "mode": 420,
+      "git_blob": "e73451499912f49e4ecd3e4c84fe5c9345176d36"
+    },
+    "source/include/metalrobo/MetalMultiArticulatedABA.hpp": {
+      "sha256": "c7e0b791023450fba6a4a5112dfa274ea0b09a3d8ad8b589e51e8c94e83aa59d",
+      "bytes": 3121,
+      "mode": 420,
+      "git_blob": "c0d4f16d8a77566c780de7cff2425484fee10907"
+    },
+    "source/include/metalrobo/MetalMultiArticulatedConstraints.hpp": {
+      "sha256": "b542b8d92348b742512e51e3b8ced217d421474ac246950a728e72a6c24d91be",
+      "bytes": 10103,
+      "mode": 420,
+      "git_blob": "db49f0b470187c9dff772d83215740805c4c76c7"
+    },
+    "source/include/metalrobo/MetalMultiArticulatedContact.hpp": {
+      "sha256": "f10a49be9c3ab7d496cc007f8cef7d9d5c5a2b11e0bf3c605582bc584fe74277",
+      "bytes": 7416,
+      "mode": 420,
+      "git_blob": "8deba3d1aaffe26234f3241494f43a9a529f6454"
+    },
+    "source/include/metalrobo/MetalMultiArticulatedInverseMass.hpp": {
+      "sha256": "2d3ca165a14bf33a8eb940c98af3a87577ec062de23ac4baa466415e971f1730",
+      "bytes": 3389,
+      "mode": 420,
+      "git_blob": "4e305c339b02e71f6c6aba5882e1c8e7ef591fd3"
+    },
+    "source/include/metalrobo/MetalQualityContactSolver.hpp": {
+      "sha256": "dc4c02eeb659750c33d0d77bcf6dff9480cc7174fdbc94ec1101c94af5c34c5c",
+      "bytes": 2408,
+      "mode": 420,
+      "git_blob": "d49854f0058128a4891eddba56ca80b6ba67dc94"
+    },
+    "source/include/metalrobo/MetalRunInspector.hpp": {
+      "sha256": "d707863ed2b7f090007df7f4c47066c11eb070f459c19f0771684a2894cd64b1",
+      "bytes": 2716,
+      "mode": 420,
+      "git_blob": "46d8592949da8eaa8d5cfa8ce9e452898824575d"
+    },
+    "source/include/metalrobo/MetalTactile.hpp": {
+      "sha256": "040e62d92f9f956bf89b5c1bccc3eaebe726ffe8b948c4bff22cc59b30949989",
+      "bytes": 5337,
+      "mode": 420,
+      "git_blob": "c789957e6163afe7bf003e4ffd75f15d0e5b06e2"
+    },
+    "source/include/metalrobo/MetalUnifiedQualitySolver.hpp": {
+      "sha256": "85f130afebc115a108d73fb188bbab9b1a941e1e4651f160b4e20664e79b913d",
+      "bytes": 3047,
+      "mode": 420,
+      "git_blob": "4af5da55c0a917494164f71789e38679387a2e85"
+    },
+    "source/include/metalrobo/MetalWorld.hpp": {
+      "sha256": "23b1da9a5bd509d351fd574fbaeb18dae6bfd49515d7e8ffe752b67a0a3c1e63",
+      "bytes": 52045,
+      "mode": 420,
+      "git_blob": "05beaa5df46550702949aa11c082fcde0a654aca"
+    },
+    "source/include/metalrobo/MetalWorldCapacity.hpp": {
+      "sha256": "dc5a48c9c1bce091901a789441ba39a678dfb803a0a82c698897c3ab45854143",
+      "bytes": 1739,
+      "mode": 420,
+      "git_blob": "bc68bffa9f44a5d8042bdc95f125b010ab120562"
+    },
+    "source/include/metalrobo/MetalWorldFamily.hpp": {
+      "sha256": "27c39a296099c63e09b71ffebf9b1fa90b5fcc0bf50d2e7b1d700dda8005ba1a",
+      "bytes": 6657,
+      "mode": 420,
+      "git_blob": "8202785add3747e7099754eed97d60925d3f9311"
+    },
+    "source/include/metalrobo/MillardMuscleReference.hpp": {
+      "sha256": "a3dc8b7a5dd75cc4670dbd4293e61c054285bb83006c0c1132739ad4166c318f",
+      "bytes": 8084,
+      "mode": 420,
+      "git_blob": "b9eafe9010320283ebf1e5177dedc7c9fbffa0cd"
+    },
+    "source/include/metalrobo/Model.hpp": {
+      "sha256": "56019f25ec98624e45fa840187f356f8f3bdd92952c8df1eb6322125fc1cd4f7",
+      "bytes": 948,
+      "mode": 420,
+      "git_blob": "65bb8d1b275e97ce26a75e85ac36b92d9503cd1a"
+    },
+    "source/include/metalrobo/MotionCompiler.hpp": {
+      "sha256": "37aa7d8f4dec6a175d652c31797fedc539c75513b94d2988a42e21156b7c804e",
+      "bytes": 1464,
+      "mode": 420,
+      "git_blob": "da788da9fb8890123bf95e28be901244fa893670"
+    },
+    "source/include/metalrobo/MujocoMuscleReference.hpp": {
+      "sha256": "8266f50178bef42b4dec10eec68188235891c24bd34e010b2be96211ba301983",
+      "bytes": 5006,
+      "mode": 420,
+      "git_blob": "5228b6d4eb586d7546db0edebe0417acce902831"
+    },
+    "source/include/metalrobo/MultiArticulatedContact.hpp": {
+      "sha256": "74e1ff34f44e032ad95f4e6c0fb61e9c869973a6cc6acc5c06835135002dd194",
+      "bytes": 11942,
+      "mode": 420,
+      "git_blob": "c8ca79d409842700b5056020d13bcdffc9b65494"
+    },
+    "source/include/metalrobo/MultiArticulatedWorld.hpp": {
+      "sha256": "d0c7e6da7abd34df94775ee21239ecc382ca0ad37044a9bbeb151de91a112264",
+      "bytes": 3665,
+      "mode": 420,
+      "git_blob": "442378de6e401c972eabb7b16dfa113319d27f4c"
+    },
+    "source/include/metalrobo/Multicopter.hpp": {
+      "sha256": "ea202a185deed840741dfa8aa93205987e39ba6111940046eb338ffdc0355b13",
+      "bytes": 1089,
+      "mode": 420,
+      "git_blob": "a222cff73761b8ea382abf1d72e874f5ac09930f"
+    },
+    "source/include/metalrobo/NumiHumanTendon.hpp": {
+      "sha256": "0b7176fb42ad5cea67ea96929e78dc83353cbb10ad3a9fab6633281c41a181d2",
+      "bytes": 5797,
+      "mode": 420,
+      "git_blob": "3212a179d8ad93d4fe4ea7d740dd6b51a36c4f7f"
+    },
+    "source/include/metalrobo/NumiHumanTendonMetal.hpp": {
+      "sha256": "c9117db2e70b8345646700b8d4cd222d5b84f7e96fbcb3739830d5d67907210d",
+      "bytes": 2263,
+      "mode": 420,
+      "git_blob": "9faebb4976d68f2ed058644ae489c6a2262784b7"
+    },
+    "source/include/metalrobo/OpenSimFunction.hpp": {
+      "sha256": "c76d2aea6040ae9476ff1ccb4b3dc2e70344d95a390a7debad9dc93fd0a68246",
+      "bytes": 2937,
+      "mode": 420,
+      "git_blob": "437f938689c85ed4579cd0bbdb7f49b83a2ed270"
+    },
+    "source/include/metalrobo/OpenSimMobileRoot.hpp": {
+      "sha256": "43fc9c120bba549fa889c1d370c204224104bab0934996e40b822fa25ed1b64f",
+      "bytes": 1735,
+      "mode": 420,
+      "git_blob": "733adcfaeac9a4cd256035ad93eb4b5a22961d03"
+    },
+    "source/include/metalrobo/OpenSimSpatialTransform.hpp": {
+      "sha256": "8c1e2c43d6543e096fc26f4cdf68b96f0b6ed9eb3038233c87069f009c307046",
+      "bytes": 5285,
+      "mode": 420,
+      "git_blob": "ce1cb7723526de3c7f54965c3a944ef201800c55"
+    },
+    "source/include/metalrobo/PX4X500.hpp": {
+      "sha256": "d9370e385356428bc948312c1b0f02766e017720173e4c0c5a60ef5884cca165",
+      "bytes": 562,
+      "mode": 420,
+      "git_blob": "735cbfe684cb61632aa8285f06c836ae6f5386e4"
+    },
+    "source/include/metalrobo/ParallelABASchedule.hpp": {
+      "sha256": "9d4acf751386b1e26e6cadb6b5bfd6f6446f9315fdb6ef0581a57830cb7d5ffa",
+      "bytes": 1993,
+      "mode": 420,
+      "git_blob": "ae8f732f45f2de133e4324b9a6150945703f3665"
+    },
+    "source/include/metalrobo/PolicyProgram.hpp": {
+      "sha256": "07af4e3ce56c12478955f3e465f32c1ce65caf87035733634ff97895df5c4651",
+      "bytes": 6060,
+      "mode": 420,
+      "git_blob": "f96d5e3608a7ee0e3185d89e577653e34c3bb69e"
+    },
+    "source/include/metalrobo/QualityContactSolver.hpp": {
+      "sha256": "2684c9d56aca57c5dac0e5d55d2a0cc951cec5ef758604ae0527588f3ac1fc9d",
+      "bytes": 3389,
+      "mode": 420,
+      "git_blob": "483ce04a44676a26d179010f82226be3609413ef"
+    },
+    "source/include/metalrobo/R2S2R.hpp": {
+      "sha256": "adaf7e4d2ff1ae86ba56bf2969593a9be3e7a78fc8b0a7ce0cd20d83c6f7a1da",
+      "bytes": 11901,
+      "mode": 420,
+      "git_blob": "df258ddb7bb59dc22577f6282980cf7f331881a7"
+    },
+    "source/include/metalrobo/ReferenceConicSolver.hpp": {
+      "sha256": "bd0d350b76afb4a86a30ce2689009fa2d3a1a73dc0c91dbc607075d880632b9a",
+      "bytes": 3113,
+      "mode": 420,
+      "git_blob": "148521418c8da7751a49ef8ad236243749bbc1af"
+    },
+    "source/include/metalrobo/RetinalObserver.hpp": {
+      "sha256": "dc465f2692cb291b8acdf2b79255392af308295a899d52067304c1b41a381bb2",
+      "bytes": 2247,
+      "mode": 420,
+      "git_blob": "9c98e5850a2586edc93f314d1ff13af3c315d663"
+    },
+    "source/include/metalrobo/RetinalStream.hpp": {
+      "sha256": "927578fb85ce5aa98787c532589d9be2ae55c892da6339896ba9800f908486b2",
+      "bytes": 2154,
+      "mode": 420,
+      "git_blob": "d6a533a1708c71579ca1e5cd6b174067035217c3"
+    },
+    "source/include/metalrobo/RigidBodyWorld.hpp": {
+      "sha256": "1d63b4ad2af0577cb54c176984bb0aff63a27894899539c1948d554f57949d0c",
+      "bytes": 3855,
+      "mode": 420,
+      "git_blob": "7a337d078de39c94bc747af0f67d7e4e8a1b703c"
+    },
+    "source/include/metalrobo/RobotDescriptionCooker.hpp": {
+      "sha256": "56896725724d2ec96bcd81ac7531bd99b4367cf37b5bbbd65a2a42a87b05cfc8",
+      "bytes": 4424,
+      "mode": 420,
+      "git_blob": "6713ca08033d31c71e2961851e4b63a3e2084947"
+    },
+    "source/include/metalrobo/RunProgram.hpp": {
+      "sha256": "23e12a7cfeac8d985415a7542ed586d327f8327b328c5da47c7124de46596729",
+      "bytes": 13720,
+      "mode": 420,
+      "git_blob": "93ce1e780f66ed8db23da96b64c85a55070528d4"
+    },
+    "source/include/metalrobo/RuntimeAbi.hpp": {
+      "sha256": "cdc8238692c3e6dc2e32e123659aa7fb95b14df7c960026239879f13eed18b5b",
+      "bytes": 7877,
+      "mode": 420,
+      "git_blob": "83da501e47bbe4ad32c5aa06a71c7d5d3ceefe27"
+    },
+    "source/include/metalrobo/SurgicalAssets.hpp": {
+      "sha256": "7ea8a96ef847cb18e0e0dafe093f67b286bbd408246858a89d5fd5e61eff95e8",
+      "bytes": 8013,
+      "mode": 420,
+      "git_blob": "ba4a2caecd472cedc7d43c502d1cfa2474e130bf"
+    },
+    "source/include/metalrobo/SurgicalKnot.hpp": {
+      "sha256": "87bb0d91b989a7f41314ba88672287f2ee16aca609ce0825f8c623e9d4e05933",
+      "bytes": 8692,
+      "mode": 420,
+      "git_blob": "eb6f3b623a39d6ee16437e5156735e9f6e6b3db0"
+    },
+    "source/include/metalrobo/SurgicalPSM.hpp": {
+      "sha256": "e9d93b368649474cc85a6587b970d63aee793e7688faeea303100dcfa0be7d2c",
+      "bytes": 9700,
+      "mode": 420,
+      "git_blob": "fc872413ea473c2a30719d5447e9fa95daa3eb88"
+    },
+    "source/include/metalrobo/SurgicalThreadTargeting.hpp": {
+      "sha256": "5eed9d1a59bbff7623ad942ac083a0dbe1e57e35d654860697fbbc378f7bf51b",
+      "bytes": 6706,
+      "mode": 420,
+      "git_blob": "64fb226fef99db6893806268f29b90641dc5b45f"
+    },
+    "source/include/metalrobo/SurgicalVisual.hpp": {
+      "sha256": "7e4f46c76901f40b4b5ec526d72b003860b2a0c64700430eb083d6d24ad94199",
+      "bytes": 3568,
+      "mode": 420,
+      "git_blob": "0dc526a8b666eed459953398356d03291802d086"
+    },
+    "source/include/metalrobo/SurgicalWorld.hpp": {
+      "sha256": "c47f458a954ca9a9c75e1acd4190d2c4103f235f6ca66f6a3c7c2621047e3a42",
+      "bytes": 8219,
+      "mode": 420,
+      "git_blob": "b5bd6e52f066d66c58fcec2da85ac7cf53aeb0a2"
+    },
+    "source/include/metalrobo/Tactile.hpp": {
+      "sha256": "ad1997a279688ccaa31d0ed1bf68668e7810fe3a424a19d0f8ea1647ac2492a5",
+      "bytes": 10245,
+      "mode": 420,
+      "git_blob": "0d025cd37545dd25ba0cd98f9cc18cc61405f98e"
+    },
+    "source/include/metalrobo/TactileDebug.hpp": {
+      "sha256": "24cdfa4949db0c41e420ff60e9e6012fd23f4e5adde56c9c162164aa005189df",
+      "bytes": 1226,
+      "mode": 420,
+      "git_blob": "a6cd75df375c20e8420acfe5eb1cea68d0671865"
+    },
+    "source/include/metalrobo/TaskProgram.hpp": {
+      "sha256": "6057437a8210269ce54078ac8e89f74f27aa315af584631dd1efe5c7cc2a8f41",
+      "bytes": 28865,
+      "mode": 420,
+      "git_blob": "33d4af03f0285ff05d02b766cc36bd525cf0618e"
+    },
+    "source/include/metalrobo/VisualPlatform.hpp": {
+      "sha256": "5cc1c4bb1536434dc4b832e74e56337f8aaa3cd429da0cb1825cbc99c9f0bebd",
+      "bytes": 11850,
+      "mode": 420,
+      "git_blob": "534b42489ed4c3fd8a31b429a63a352f38fb17ed"
+    },
+    "source/include/metalrobo/VisualPresentation.hpp": {
+      "sha256": "aa2d4cdb2dea0829e683b89a93a2ea38013158ed4266bd94ff2bc13307235a67",
+      "bytes": 12981,
+      "mode": 420,
+      "git_blob": "3511c7553a1d9e572d34ceadab586873432a3ab1"
+    },
+    "source/include/metalrobo/Wave.hpp": {
+      "sha256": "58494799d2cda8a01b877d45bb8274a7b236c0ed4ce6766e0bd6c3f88cd99244",
+      "bytes": 4362,
+      "mode": 420,
+      "git_blob": "04109e0cc7846cbe79654a1dd2cb8779cc95f617"
+    },
+    "source/include/metalrobo/WorldCompiler.hpp": {
+      "sha256": "8bf4460377b299a51d8e8ed3b82936699b878aae70820e805b005f2713dca130",
+      "bytes": 8438,
+      "mode": 420,
+      "git_blob": "0779479654326cea040c435fb2b46912658f60a0"
+    },
+    "source/include/metalrobo/WorldPack.hpp": {
+      "sha256": "ca4b4acaa3547c5e99082a20ae3378de9c3fa6c96114d823217d1f6730974291",
+      "bytes": 1659,
+      "mode": 420,
+      "git_blob": "4b0157cac651b33c8e334b170d175546876628b4"
+    },
+    "source/include/metalrobo/c_api.h": {
+      "sha256": "36bcc3e4437e2f4192fee83e49b47444b69393ce1ec8f401c2786c485697048e",
+      "bytes": 45285,
+      "mode": 420,
+      "git_blob": "c269673712d6ae61f40a038a03a60660c9e604d2"
+    },
+    "source/include/metalrobo/constraint_ir_shared.h": {
+      "sha256": "1abad282fa1e88b809da2271c8e98bc0fcde6adc6629b61a7f8f7d7633c5403f",
+      "bytes": 10182,
+      "mode": 420,
+      "git_blob": "d8a66ab4deecd67ad8ef7fe2f54f5c38a79016c6"
+    },
+    "source/include/metalrobo/detail/Checkpoint.hpp": {
+      "sha256": "a6a81d4169fe88a9cb472ccc275ddd6d5c7ecae10ccb0b4223240263599822b4",
+      "bytes": 5273,
+      "mode": 420,
+      "git_blob": "9ed19c711946ad96dd9b9d346fe350b998661ddc"
+    },
+    "source/include/metalrobo/engine_types.h": {
+      "sha256": "4dfa9a6c9111256137ebb94b8cfe62a4bc7c819b813811182c8979355714e5eb",
+      "bytes": 61340,
+      "mode": 420,
+      "git_blob": "315e71f7466c6ae7008630ba92cbaf910ce9fe19"
+    },
+    "source/include/metalrobo/finite_resource_types.h": {
+      "sha256": "184433d6dc67d22b649dd8509ad31e9e70b91cc8306d40caeeda05a5f55f3e1d",
+      "bytes": 4244,
+      "mode": 420,
+      "git_blob": "90bdbee19255d5b89245f275cb3ddc260a0b85ca"
+    },
+    "source/include/metalrobo/flapping_wing_types.h": {
+      "sha256": "888fec6cfc07521ccdf6fe1ca1ff8bc72476d3d4d3e2c74c463574b226aeeeca",
+      "bytes": 4705,
+      "mode": 420,
+      "git_blob": "14cad6718899b85933a81c8363d097ff0f272a95"
+    },
+    "source/include/metalrobo/generalized_constraint_shared.h": {
+      "sha256": "8a2a07facd9219301b9721181e44315345406455fc44d8d5b57114aca8ca4fcb",
+      "bytes": 1708,
+      "mode": 420,
+      "git_blob": "34177b6a57d2d34e42e48014c7cce97586c0fa5b"
+    },
+    "source/include/metalrobo/gpu_types.h": {
+      "sha256": "55777caa42851b167780255c76e02c40e2285ee43cc6dda77063d8639f6728d8",
+      "bytes": 3809,
+      "mode": 420,
+      "git_blob": "7f48222927548c9a33955966df97a685543512d3"
+    },
+    "source/include/metalrobo/gru_memory_types.h": {
+      "sha256": "0f06a409282d39f79c72570c87dab487ebc0ffdb73a63489293b72dcaf8b3f70",
+      "bytes": 1017,
+      "mode": 420,
+      "git_blob": "403ade278df6ad922f923b2dfdbf310fff731f23"
+    },
+    "source/include/metalrobo/hybrid_renderer_types.h": {
+      "sha256": "a6e649d2b9c76abde86beab68607bd38945d45f030531c7833f6c6dc9cb23595",
+      "bytes": 8703,
+      "mode": 420,
+      "git_blob": "d22dcf2e605c60501e95b29299fcbc807c792ee2"
+    },
+    "source/include/metalrobo/millard_muscle_gpu.h": {
+      "sha256": "c20317582a89332036e1855b7d1fdb71dccacea50aa0ce9c789ecba0886b83f6",
+      "bytes": 5899,
+      "mode": 420,
+      "git_blob": "1e4a66261564bf31dc1eaf133e1b7dadb182e471"
+    },
+    "source/include/metalrobo/mujoco_muscle_gpu.h": {
+      "sha256": "895bac6934519f5b5ad73f531e77bb833f62af97cc4004d27b2dabb70faa6206",
+      "bytes": 5734,
+      "mode": 420,
+      "git_blob": "073fb5001c2239a77b4e8309dfd50edbf979d2b1"
+    },
+    "source/include/metalrobo/multi_contact_shared.h": {
+      "sha256": "c55c60d62c3ab364c5569ccc1781f5a5496b44aea4dc78d26c2308c144cdcc18",
+      "bytes": 4293,
+      "mode": 420,
+      "git_blob": "3d8a3f1c58949a6546a9a7506e86bc9deb574499"
+    },
+    "source/include/metalrobo/multicopter_types.h": {
+      "sha256": "4eb86846416a436667461463119838983ccc88b278fe985b09b705f50b0ca51d",
+      "bytes": 3856,
+      "mode": 420,
+      "git_blob": "a770db7b6136c4e4c85d0b3b827633c5a012f6a4"
+    },
+    "source/include/metalrobo/numi_human_stand_gpu.h": {
+      "sha256": "1ab5427aabd756898fd3ef216da69ea1341b0762e60ec66b6e9bc320e2f99430",
+      "bytes": 3720,
+      "mode": 420,
+      "git_blob": "b2b883d634f56626090b337b32411dd01c27fef2"
+    },
+    "source/include/metalrobo/numi_human_tendon_gpu.h": {
+      "sha256": "1ab91d0618a17981e598d1b16774efc94c05b53d3800d00da67437fa93318058",
+      "bytes": 2594,
+      "mode": 420,
+      "git_blob": "a47fc8ed3a0bb2dd5cb5d9d9ec1517e6a952d760"
+    },
+    "source/include/metalrobo/opensim_spatial_transform_gpu.h": {
+      "sha256": "8e4c21a87be3c2b93db02cc3953f81bf36c7eba7318c5db575afb7cd1c51caf0",
+      "bytes": 4622,
+      "mode": 420,
+      "git_blob": "c2ba1c344eb8b8b2b9c6b7c89c80f867001b6a1b"
+    },
+    "source/include/metalrobo/parallel_aba_shared.h": {
+      "sha256": "017a29c5a992df98541274975f7604a24e260d33b141aff30a51c0695e52b00d",
+      "bytes": 3245,
+      "mode": 420,
+      "git_blob": "d8d73ac42849038a9199fea143cf7a9a0493a73e"
+    },
+    "source/include/metalrobo/policy_program_types.h": {
+      "sha256": "488b0d7fa434eba7d228ff3612fb77711e2ebc2dd85bec5f025d182c749c36b4",
+      "bytes": 3778,
+      "mode": 420,
+      "git_blob": "ffc200a3f812302e9c1b0e9e4340789cc9cb45c8"
+    },
+    "source/include/metalrobo/quality_solver_shared.h": {
+      "sha256": "bd7b4d7a81b3ec2e6d194e82d2e103e89056cdb6af196d8f10f2238a00482768",
+      "bytes": 1682,
+      "mode": 420,
+      "git_blob": "c7475a8aec86888997c067b978f864857a9b54fb"
+    },
+    "source/include/metalrobo/r2s2r_types.h": {
+      "sha256": "10f51ee3602102d9e8f2b5d97ea211850fd32f82a7448880d298e17ec3b7536f",
+      "bytes": 4670,
+      "mode": 420,
+      "git_blob": "0518aec4fb170ed05bd9f796026858083c027ebe"
+    },
+    "source/include/metalrobo/retinal_stream_types.h": {
+      "sha256": "86715583b6f134fc6e867ccde8022dfd417c5fbcdb0530fd12ddc13ab16ff337",
+      "bytes": 1211,
+      "mode": 420,
+      "git_blob": "c43a8481cd8111c8475718e2f5c61ac5f36c00b1"
+    },
+    "source/include/metalrobo/rod_gpu_shared.h": {
+      "sha256": "0e8a2fc59a2969ca2493aaa0ee9d6e51cac723a22a63cb2e6d03b00807fd373d",
+      "bytes": 9612,
+      "mode": 420,
+      "git_blob": "74c3e550952388d331e91d22e7dbc1a3059343ea"
+    },
+    "source/include/metalrobo/scene_query_types.h": {
+      "sha256": "12390a5b34b1db90be109f5373beb4ce23a07d1225435fec4b823b8bca1b63df",
+      "bytes": 2103,
+      "mode": 420,
+      "git_blob": "1d686b0dcb4a49c89c7d87bd3b15c4ee7cee9dbb"
+    },
+    "source/include/metalrobo/tactile_types.h": {
+      "sha256": "edbf8a209e527fb6f74190a63d41b092d196cc8635a7ba3d9586893ab26e1abb",
+      "bytes": 8890,
+      "mode": 420,
+      "git_blob": "7392153c8d7da3ed8ba16fcbd8a4bc1b8635b4ed"
+    },
+    "source/include/metalrobo/task_program_types.h": {
+      "sha256": "1414c48c2ccaeb29d1e3047f4d0ba6642ec86958acdd6299281fc06120730174",
+      "bytes": 38310,
+      "mode": 420,
+      "git_blob": "e5066fd985c52e7234c139d31136c7e4e34a9800"
+    },
+    "source/include/metalrobo/unified_quality_shared.h": {
+      "sha256": "22d658c8dd27daf4136945f3e953620add0c65040c051cfccf684eee37f8a4b9",
+      "bytes": 5293,
+      "mode": 420,
+      "git_blob": "2fedeae7c3d1adc96ffea8f08c691ef3c9d2d843"
+    },
+    "source/include/metalrobo/visual_platform_types.h": {
+      "sha256": "0e4dbb0fce94713c26fb33e1eef206213d962568e22e79f8efd8f41108886601",
+      "bytes": 12043,
+      "mode": 420,
+      "git_blob": "ed63dad949ca62cb62e4564d92aa50480a959722"
+    },
+    "source/include/metalrobo/world_compiler_types.h": {
+      "sha256": "f8cee3f615b509b8338f2bcdff6e6359101f469ea72e86142df2155ad9274c0d",
+      "bytes": 9698,
+      "mode": 420,
+      "git_blob": "b9b224c14b7800f19f6d14acdb21d6f8d0044468"
+    },
+    "source/apps/CrowCameraFixture.hpp": {
+      "sha256": "a55b5547e82e59827fb1df22b00c14b99c90c611c94e08f3f3778fa12cd9b108",
+      "bytes": 870,
+      "mode": 420,
+      "git_blob": "3dd9929fe7153d8c4eb76fefb5444aad395909f0"
+    },
+    "source/identity_oracle.mm": {
+      "sha256": "6328cb9af31cd937ce9e5bd256161339f118d21e189130374e68e80d05e37567",
+      "bytes": 1763,
+      "mode": 420,
+      "git_blob": "fc32aa7e3f559e9af26803e14017fec83b163450"
     }
   },
   "checkpoint": {
@@ -928,5 +1630,5 @@
       "mode": 420
     }
   },
-  "recovery_scope": "Actual Git-restored fixed-policy native12-arm245760-transition evaluation, matching all native reference evidence bytes; matching device/OS required."
+  "recovery_scope": "Actual Git-restored full12-arm245760-transition native evaluation:95 evidence files byte-exact;12 path-bound visual manifests independently verified by native fingerprint owner for original and restored paths, with every other JSON field exact. Matching OS/device required. Original overstrict all107-byte-exact recovery failure is preserved."
 }

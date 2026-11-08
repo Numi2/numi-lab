@@ -32,5 +32,5 @@ harness startup lacked parent directories after verified cleanup; preserved
 original driver and correction, with no native execution in that attempt.
 
 Git recovery executes the complete native evaluation using restored exact binary,
-library, shaders, policy and ports and compares all reference evidence bytes.
+library, shaders, policy and ports and compares95 behavior/checkpoint evidence files byte-exact. Twelve visual manifests bind authored pack filesystem paths; native owning fingerprint functions recompute both original and relocated identities, and every other JSON field matches. The initial overstrict all107-byte-exact verification failure is preserved and explained in verification-v2.json.
 Only then may raw and duplicate checkout payloads be removed. No video captures.

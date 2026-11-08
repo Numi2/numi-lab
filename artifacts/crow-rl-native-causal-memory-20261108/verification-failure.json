@@ -1,0 +1,9 @@
+{
+  "error": "Recovered native causal evidence differs: 2651213403-arm2/visual-scene.json",
+  "type": "RuntimeError",
+  "plan": {
+    "budget": "One complete12-arm245760-transition fixed-policy native evaluation,600second bound, no retries",
+    "prediction": "Git-restored binary/library/shaders/policy/product inputs reproduce every native evidence file byte-exact, including paired outcomes and GRU intervention worlds. Adjacent restored library must actually load.",
+    "scope": "Fixed geometry and3 allocation/action seeds, matching device/OS. Full lifelong behavior remains unqualified."
+  }
+}
