@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "python/.venv/bin/python",
+    "artifacts/crow-rl-contact-precision-20261108/prove_local_box.py"
+  ],
+  "returncode": 0,
+  "seconds": 0.209930208
+}

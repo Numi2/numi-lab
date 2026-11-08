@@ -1,0 +1,112 @@
+{
+  "all_generalized_velocity_dual_identities_exact": true,
+  "attempts": [
+    {
+      "all_branch_and_grid_hypotheses_proven": false,
+      "radius": 0.0001
+    },
+    {
+      "all_branch_and_grid_hypotheses_proven": false,
+      "radius": 5e-05
+    },
+    {
+      "all_branch_and_grid_hypotheses_proven": false,
+      "radius": 2.5e-05
+    },
+    {
+      "all_branch_and_grid_hypotheses_proven": false,
+      "radius": 1.25e-05
+    },
+    {
+      "all_branch_and_grid_hypotheses_proven": false,
+      "radius": 6.25e-06
+    },
+    {
+      "all_branch_and_grid_hypotheses_proven": false,
+      "radius": 3.125e-06
+    },
+    {
+      "all_branch_and_grid_hypotheses_proven": false,
+      "radius": 1.5625e-06
+    },
+    {
+      "all_branch_and_grid_hypotheses_proven": false,
+      "radius": 7.8125e-07
+    },
+    {
+      "all_branch_and_grid_hypotheses_proven": false,
+      "radius": 3.90625e-07
+    },
+    {
+      "all_branch_and_grid_hypotheses_proven": false,
+      "radius": 1.953125e-07
+    },
+    {
+      "all_branch_and_grid_hypotheses_proven": false,
+      "radius": 9.765625e-08
+    },
+    {
+      "all_branch_and_grid_hypotheses_proven": false,
+      "radius": 4.8828125e-08
+    },
+    {
+      "all_branch_and_grid_hypotheses_proven": true,
+      "radius": 2.44140625e-08
+    }
+  ],
+  "box_radius": 2.44140625e-08,
+  "branch_interval_proofs": {
+    "cone_interior": 126,
+    "cone_vertex": 2,
+    "scalar_fixed": 9,
+    "scalar_free": 15,
+    "scalar_lower": 3,
+    "scalar_upper": 5
+  },
+  "capture_sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f",
+  "contact_dual_rows_all_exactly_zero": false,
+  "every_actual_fp32_velocity_in_box_fails_gate": true,
+  "exact_box_radius": "1/40960000",
+  "exact_native_failed_distance": "1/8388608",
+  "exact_scaled_optimality_lower_bound": "9470839806344056504222591134500572349298596240044146004772198702255531407143194964905651398638565609469137656893995352091059699400970882448775390313851142837831091600007924117684180651874972342798847748717279439494999000869296725571126349481030473138325630724195598956369212237652997267069406738165950931322663383755882416683752917621384007100069611055310669088756229491465814527750425186401404559413951010497843309172839776658840408172286354088848629860528596870180618024843069253687486498099328753151436694836843397790730383512734756914771711239315986531646415337833544485281921235085274476432512378941979808827503018532110182165923732654335767835111984720796321719943904535817495672296585261337886830078349682394609892410042219771323906634887195855104104240981110357963556309071187862717275263404787499094420098494838251454464000000/80765325210303569126608324410985048043879984494061167224083079551695923708184091942053088072885790001330810984945597946251775408166519578892841611333092874826263476517894048860081639605188772671946769396131210002019262280937352346512224702200638381724744440263456337372805619510108531159466020619099494367054469238908659587652358971694284063746082838958361752313345542858936927997457079933738297842819393767514590626667651694204221330667493196091515041095264104126816068701753558195081265269622042704274547403708340135410736618004473339030060076207166820812944906417611612775526956363877597739767460900700617076778803569602287910882027017248708677281437900599249536697690202172916376093713383821090976814192666460966305838760061425913937487476015857155618074780286709074383309285388819383016940010076674983348342763870126467626154050374904468419",
+  "excluded_coordinates_need_not_be_fixed": true,
+  "gate": 1e-10,
+  "goal_complete": false,
+  "native_failed_distance": 1.1920928955078125e-07,
+  "native_failed_velocity_inside_proven_box": false,
+  "native_settings_changed": false,
+  "policy_or_profile_promoted": false,
+  "required_fp32_spacing_proofs": [
+    {
+      "dof": 4,
+      "entire_box_on_required_spacing_lattice": true
+    },
+    {
+      "dof": 13,
+      "entire_box_on_required_spacing_lattice": true
+    },
+    {
+      "dof": 14,
+      "entire_box_on_required_spacing_lattice": true
+    },
+    {
+      "dof": 15,
+      "entire_box_on_required_spacing_lattice": true
+    },
+    {
+      "dof": 16,
+      "entire_box_on_required_spacing_lattice": true
+    },
+    {
+      "dof": 17,
+      "entire_box_on_required_spacing_lattice": true
+    },
+    {
+      "dof": 18,
+      "entire_box_on_required_spacing_lattice": true
+    }
+  ],
+  "scaled_optimality_lower_bound": 1.172636868815062e-10,
+  "schema": "crow-contact-exact-local-box-impossibility-v1",
+  "scope": "Exact mathematical proof for every actual finite FP32 velocity in this explicitly bounded box around the rounded reference, using the compiled FP32 input model. No global impossibility claim outside the box; no physical qualification or tolerance change."
+}
