@@ -1,0 +1,47 @@
+[
+  {
+    "object": "3161844fba81ec130a2ace3baa4c0f9826a5f67a",
+    "paths": [
+      "publication-170/evidence/resource-retirement/obsolete-alternate-index-cache-20261027/numi-obsolete-index-cache-20261027.tar.zst"
+    ],
+    "expected_bytes": 34865899,
+    "complete": true,
+    "member_count": 18,
+    "matches": [],
+    "errors": [],
+    "git_exit": 0,
+    "zstd_exit": 0,
+    "sha256": "61ea9042b8372c3dd9f02f954b64c9a61dc357aac04f603b9f94d533e056e8b7",
+    "bytes_read": 34865899
+  },
+  {
+    "object": "d006f941ddc71c22dbde56de3ff0348eee54af1b",
+    "paths": [
+      "publication-172/evidence/resource-retirement/obsolete-temporary-object-cache-20261027/numi-obsolete-object-cache-20261027-long.tar.zst"
+    ],
+    "expected_bytes": 12018572,
+    "complete": true,
+    "member_count": 18,
+    "matches": [],
+    "errors": [],
+    "git_exit": 0,
+    "zstd_exit": 0,
+    "sha256": "e0f0df1f35ee2cb8c601c2c5a7aad9f08d6318ee247d40e367748cdf713e2692",
+    "bytes_read": 12018572
+  },
+  {
+    "object": "f9ad395ddb05a335c9646eb8e7723bf488545c4c",
+    "paths": [
+      "publication-171/evidence/resource-retirement/obsolete-alternate-index-cache-20261027-002/numi-obsolete-index-cache-20261027-002.tar.zst"
+    ],
+    "expected_bytes": 11900792,
+    "complete": true,
+    "member_count": 7,
+    "matches": [],
+    "errors": [],
+    "git_exit": 0,
+    "zstd_exit": 0,
+    "sha256": "49eb80991dd24bc5fff569f4f5dd8192961f74006e8ab7d293dcc7a104c65727",
+    "bytes_read": 11900792
+  }
+]
