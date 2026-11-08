@@ -219,11 +219,10 @@ RobotPack makeAmericanCrowActiveHeadRobotPack() {
     return result;
 }
 
-TaskPack makeAmericanCrowEmbodiedTaskPack(
-    TaskObservationProgram& observations, TaskResetProgram& reset
+namespace {
+void addActiveHeadTaskBindings(
+    TaskPack& task, TaskObservationProgram& observations
 ) {
-    TaskPack task = makeBirdFlowAmericanCrowNeuralJourneyTaskPack(observations,reset);
-    task.id = "american_crow_embodied_development_v11";
     const auto robot = makeAmericanCrowActiveHeadRobotPack();
     task.baseHeightTarget = robot.mechanics.defaultQ[2u];
     for (const char* actuator : {"head.yaw", "head.pitch", "beak.open"}) {
@@ -246,6 +245,25 @@ TaskPack makeAmericanCrowEmbodiedTaskPack(
         observations.critic.push_back(position);
         observations.critic.push_back(velocity);
     }
+}
+} // namespace
+
+TaskPack makeAmericanCrowEmbodiedTaskPack(
+    TaskObservationProgram& observations, TaskResetProgram& reset
+) {
+    TaskPack task = makeBirdFlowAmericanCrowNeuralJourneyTaskPack(observations,reset);
+    task.id = "american_crow_embodied_development_v11";
+    addActiveHeadTaskBindings(task, observations);
+    return task;
+}
+
+TaskPack makeAmericanCrowActiveHeadNavigationTaskPack(
+    TaskObservationProgram& observations, TaskResetProgram& reset
+) {
+    TaskPack task = makeBirdFlowAmericanCrowWorldModelNavigationTaskPack(
+        observations, reset);
+    task.id = "american_crow_active_head_navigation_development_v1";
+    addActiveHeadTaskBindings(task, observations);
     return task;
 }
 

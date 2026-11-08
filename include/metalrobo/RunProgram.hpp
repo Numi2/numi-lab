@@ -72,6 +72,10 @@ struct RobotPack {
 [[nodiscard]] RobotPack makeAmericanCrowActiveHeadRobotPack();
 [[nodiscard]] TaskPack makeAmericanCrowEmbodiedTaskPack(
     TaskObservationProgram& observations, TaskResetProgram& reset);
+// Distinct 18-action development contract; legacy 15-action navigation
+// policies are not compatible with this active-head task.
+[[nodiscard]] TaskPack makeAmericanCrowActiveHeadNavigationTaskPack(
+    TaskObservationProgram& observations, TaskResetProgram& reset);
 
 struct SceneObject {
     std::string id;

@@ -683,6 +683,43 @@ int main() {
                     compiledVisualJourney.world().fingerprint(),
             "BirdFlow v10 navigation lost its split-stable deployment ABI"
         );
+        // The active-head navigation task is a new policy contract. Compile
+        // it against the physical course and verify it cannot masquerade as
+        // the legacy 15-action navigation task.
+        metalrobo::RunManifest activeNavigation = navigation;
+        activeNavigation.id = "american_crow_active_head_navigation_check";
+        activeNavigation.robot = metalrobo::makeAmericanCrowActiveHeadRobotPack();
+        activeNavigation.sensors.observation = {};
+        activeNavigation.reality.reset = {};
+        activeNavigation.task = metalrobo::makeAmericanCrowActiveHeadNavigationTaskPack(
+            activeNavigation.sensors.observation, activeNavigation.reality.reset);
+        metalrobo::CompiledRun compiledActiveNavigation;
+        const auto activeNavigationStatus = metalrobo::compileRun(
+            activeNavigation, compiledActiveNavigation);
+        require(activeNavigationStatus.succeeded(),
+            "Active-head navigation compile failed [" +
+            std::string(metalrobo::runCompileStatusName(activeNavigationStatus.status)) +
+            "] " + activeNavigationStatus.element + ": " + activeNavigationStatus.message);
+        require(compiledActiveNavigation.valid() &&
+                compiledActiveNavigation.model().bodies.size() ==
+                    compiledNavigation.model().bodies.size() + 3u &&
+                compiledActiveNavigation.task().actionBindings().size() == 18u &&
+                compiledActiveNavigation.task().layout().actorObservationSize ==
+                    compiledNavigation.task().layout().actorObservationSize + 9u &&
+                compiledActiveNavigation.task().layout().criticObservationSize ==
+                    compiledNavigation.task().layout().criticObservationSize + 9u &&
+                compiledActiveNavigation.task().randomizationOperators().size() ==
+                    compiledNavigation.task().randomizationOperators().size() &&
+                compiledActiveNavigation.task().fingerprint() !=
+                    compiledNavigation.task().fingerprint() &&
+                compiledActiveNavigation.task().observationFingerprint() !=
+                    compiledNavigation.task().observationFingerprint() &&
+                compiledActiveNavigation.robotFingerprint() !=
+                    compiledNavigation.robotFingerprint() &&
+                compiledActiveNavigation.world().fingerprint() !=
+                    compiledNavigation.world().fingerprint(),
+            "Active-head navigation lost its physical bodies or distinct policy ABI");
+
         std::cout
             << "run_program_check=ok"
             << " run=" << compiled.fingerprint()
