@@ -1,0 +1,21 @@
+{
+  "exposed_capture_equivalence": true,
+  "regularization": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "analytic_mass_kg": 1.0,
+  "analytic_inertia_kg_m2": 0.1,
+  "max_absolute_difference": 7.195453388675332e-08,
+  "relative_difference": 7.188264862731726e-08,
+  "gate_passed": true,
+  "perturbed_mass_negative_rejected": true,
+  "independent_geometric_jacobian_validated": false
+}

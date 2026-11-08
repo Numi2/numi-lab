@@ -1,0 +1,22 @@
+{
+  "scaled_full_eigenvalues": [
+    0.00020419942515917565,
+    0.055576681003194184,
+    0.5999598505515061,
+    0.9984006590062786,
+    0.9989745137719964,
+    0.9990005607854916,
+    1.4010395886630032,
+    1.8757422176560297,
+    2.0711017291373417
+  ],
+  "scaled_full_condition": 10142.544365748805,
+  "scaled_normal_eigenvalues": [
+    0.000983255181567671,
+    0.9988338857612119,
+    2.0001828590572197
+  ],
+  "scaled_normal_condition": 2034.245937934638,
+  "scaled_rod_normal_cross": 0.999016669615791,
+  "scope": "post-hoc scaling of one captured local linear operator, not proof of nonlinear solver mechanism"
+}
