@@ -1,0 +1,16 @@
+{
+  "all_compared_bytes_exact": true,
+  "byte_exact_comparisons": 34,
+  "limits": "Scoped native recovery of existing observations. Original capacity admission, zero-gain rejection and current crow solver failure are executed. All source files and old hybrid controls are Git-byte verified; the old hybrid/split-quality trials are not re-executed. No scientific qualification or promotion.",
+  "manifest": "artifacts/crow-rl-native-drive-ir-20261108/payload/manifest.json",
+  "manifest_sha256": "a58cad23414ea59f916e93b108ae8d8343c4b61c9179274be42dec483c62ed64",
+  "native_commands": 9,
+  "native_physical_rows_compared_without_gpu_timing": 576,
+  "new_recovery_blobs": 2,
+  "open_handles": 0,
+  "policy_or_profile_promoted": false,
+  "restored_bytes": 35563714,
+  "restored_files": 176,
+  "temporary_bytes": 36089343,
+  "temporary_files": 212
+}

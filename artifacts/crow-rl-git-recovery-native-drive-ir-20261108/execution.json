@@ -1,0 +1,139 @@
+[
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/build/crow-native-drive-ir-build-01/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/old-admission",
+      "0",
+      "1",
+      "32",
+      "2"
+    ],
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "loader_lines": [
+      "dyld[42539]: <51816059-8C15-3244-A280-CE67100AECA4> /Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/.numi/retained-runtime/native-drive-ir-20261108/libmetalrobo.dylib"
+    ],
+    "name": "old-capacity-admission",
+    "seconds": 0.7273587910000001
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/build/crow-native-drive-ir-build-01/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/capacity-crow",
+      "0",
+      "1",
+      "32",
+      "2"
+    ],
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "loader_lines": [
+      "dyld[42558]: <2CBDC822-F332-37C1-92BA-C4EEE2B19C6E> /Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/.numi/retained-runtime/native-drive-ir-capacity-20261108/libmetalrobo.dylib"
+    ],
+    "name": "capacity-crow-failure",
+    "seconds": 0.500055416
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/.numi/retained-runtime/native-drive-ir-zero-gain-20261108/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/.numi/retained-runtime/native-drive-ir-capacity-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/zero-old.tsv",
+      "--zero-gain"
+    ],
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "loader_lines": [
+      "dyld[42559]: <2CBDC822-F332-37C1-92BA-C4EEE2B19C6E> /Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/.numi/retained-runtime/native-drive-ir-zero-gain-20261108/libmetalrobo.dylib"
+    ],
+    "name": "old-zero-gain-rejection",
+    "seconds": 0.5496167919999999
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/.numi/retained-runtime/native-drive-ir-zero-gain-20261108/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/.numi/retained-runtime/native-drive-ir-zero-gain-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/zero-new.tsv",
+      "--zero-gain"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "loader_lines": [
+      "dyld[42561]: <2CBDC822-F332-37C1-92BA-C4EEE2B19C6E> /Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/.numi/retained-runtime/native-drive-ir-zero-gain-20261108/libmetalrobo.dylib"
+    ],
+    "name": "current-zero-gain",
+    "seconds": 0.091141833
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/.numi/retained-runtime/native-drive-ir-zero-gain-20261108/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/.numi/retained-runtime/native-drive-ir-zero-gain-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/native.tsv",
+      "--native-drive"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "loader_lines": [
+      "dyld[42562]: <2CBDC822-F332-37C1-92BA-C4EEE2B19C6E> /Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/.numi/retained-runtime/native-drive-ir-zero-gain-20261108/libmetalrobo.dylib"
+    ],
+    "name": "current-native-rows",
+    "seconds": 0.1443195829999997
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/.numi/retained-runtime/native-drive-ir-zero-gain-20261108/ir-probe"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "loader_lines": [
+      "dyld[42563]: <2CBDC822-F332-37C1-92BA-C4EEE2B19C6E> /Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/.numi/retained-runtime/native-drive-ir-zero-gain-20261108/libmetalrobo.dylib"
+    ],
+    "name": "constraint-ir-owner",
+    "seconds": 0.331130833
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/.numi/retained-runtime/native-drive-ir-zero-gain-20261108/contact-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/.numi/retained-runtime/native-drive-ir-zero-gain-20261108/metalrobo/MetalRobo.metallib"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "loader_lines": [
+      "dyld[42564]: <2CBDC822-F332-37C1-92BA-C4EEE2B19C6E> /Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/.numi/retained-runtime/native-drive-ir-zero-gain-20261108/libmetalrobo.dylib"
+    ],
+    "name": "contact-owner",
+    "seconds": 0.919960584
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/build/crow-native-drive-ir-build-01/fixture-default",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/default-crow",
+      "0",
+      "1",
+      "32"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "loader_lines": [
+      "dyld[42565]: <2CBDC822-F332-37C1-92BA-C4EEE2B19C6E> /Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/.numi/retained-runtime/native-drive-ir-zero-gain-20261108/libmetalrobo.dylib"
+    ],
+    "name": "default-crow",
+    "seconds": 17.053640292
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/build/crow-native-drive-ir-build-01/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/current-crow",
+      "0",
+      "1",
+      "32",
+      "2"
+    ],
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "loader_lines": [
+      "dyld[42579]: <2CBDC822-F332-37C1-92BA-C4EEE2B19C6E> /Users/n/Developer/numi-crow-rl-20261107/build/crow-native-drive-ir-git-recovery-01/.numi/retained-runtime/native-drive-ir-zero-gain-20261108/libmetalrobo.dylib"
+    ],
+    "name": "current-crow-failure",
+    "seconds": 0.1504160419999998
+  }
+]

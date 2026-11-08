@@ -1,0 +1,7 @@
+{
+  "all_original_and_recovered_timings_retained": true,
+  "excluded_columns": [
+    "gpu_ms"
+  ],
+  "physical_records_byte_exact": 576
+}
