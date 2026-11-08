@@ -1,0 +1,17 @@
+{
+  "all_checks_passed": false,
+  "checks": {
+    "accepted_actions_zero": true,
+    "actor_observations_finite": true,
+    "eight_transitions_and_visual_runtime": false,
+    "feeding_policy_incompatible_contract_rejected": true,
+    "fresh_task_contract_policy_compiled": true,
+    "legacy_torso_camera_rejected": true
+  },
+  "frames": 8,
+  "policy_sha256": "3dd5c1ad6fe3292c2a9997d0f5a45bc3ac1703c33c5e7a475e57faec45b8efae",
+  "replay_sha256": "2a1119a5a107936504d28d07e1636d702d5c9f613e0ca2f9db4f29ed10ca3604",
+  "report": null,
+  "schema": "crow-active-head-navigation-followup-v1",
+  "scope": "Eight deterministic zero-action transitions; no learned navigation or held-out course qualification."
+}

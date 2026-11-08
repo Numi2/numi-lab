@@ -28,7 +28,7 @@ for name,cmd in [('initialize',cmd1),('rollout',cmd2)]:
  print(json.dumps(records[-1]),flush=True)
  if code!=0: break
 report=None
-try:report=json.loads((B/'rollout.stdout').read_text().strip().splitlines()[-1])
+try:report=json.loads((B/'rollout.stdout').read_text())
 except (OSError,ValueError,IndexError):pass
 payload=json.loads(replay.read_text())['payload'] if replay.exists() else None
 frames=payload['frames'] if payload else []
