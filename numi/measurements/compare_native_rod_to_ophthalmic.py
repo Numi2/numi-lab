@@ -4,6 +4,7 @@ import argparse
 import bisect
 import csv
 import hashlib
+import io
 import json
 import math
 from pathlib import Path
@@ -17,7 +18,7 @@ def main():
     a = p.parse_args()
     series = screen.parse(a.workbook)
     raw = a.trajectory.read_bytes()
-    with a.trajectory.open(newline="") as f:
+    with io.StringIO(raw.decode("utf-8"), newline="") as f:
         rows = list(csv.DictReader(f))
     xs, forces = [], []
     for r in rows:
