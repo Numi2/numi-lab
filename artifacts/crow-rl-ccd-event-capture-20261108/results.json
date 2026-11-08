@@ -1,0 +1,592 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-event-capture-build-01/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-event-capture-build-01/clamp",
+        "0",
+        "1",
+        "32"
+      ],
+      "exit_code": 1,
+      "name": "clamp",
+      "seconds": 18.41317941696616
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-event-capture-build-01/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-event-capture-build-01/refinement",
+        "0",
+        "1",
+        "64"
+      ],
+      "exit_code": 1,
+      "name": "refinement",
+      "seconds": 20.228289459017105
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-event-capture-build-01/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-event-capture-build-01/open",
+        "1",
+        "1",
+        "32"
+      ],
+      "exit_code": 0,
+      "name": "open",
+      "seconds": 16.557752042019274
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/candidate/sweep-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/candidate/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/candidate/CCDSweepProbe.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-event-capture-build-01/clamp.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-event-capture-build-01/clamp-replay.bin"
+      ],
+      "exit_code": 0,
+      "name": "replay-clamp",
+      "seconds": 0.42383854201762006
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/candidate/sweep-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/candidate/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/candidate/CCDSweepProbe.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-event-capture-build-01/refinement.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-event-capture-build-01/refinement-replay.bin"
+      ],
+      "exit_code": 0,
+      "name": "replay-refinement",
+      "seconds": 0.09018195903627202
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/candidate/sweep-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/candidate/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/candidate/CCDSweepProbe.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-event-capture-build-01/old.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-event-capture-build-01/old-replay.bin"
+      ],
+      "exit_code": 0,
+      "name": "replay-old",
+      "seconds": 0.08975258300779387
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-event-capture-build-01/cases-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/candidate/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-event-capture-build-01/cases.bin",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-event-capture-build-01/grid.bin"
+      ],
+      "exit_code": 0,
+      "name": "grid",
+      "seconds": 0.3780499169952236
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/candidate/contact-probe"
+      ],
+      "exit_code": 0,
+      "name": "contact",
+      "seconds": 0.9075576250324957
+    }
+  ],
+  "grid8192_and_old_unresolved_replay_exact": true,
+  "instrument_qualified": true,
+  "native_contact_regression_passed": true,
+  "next": "Use literal selected-event and native query evidence to derive an event-time repair; do not raise event limits.",
+  "physical_capability_qualified": false,
+  "physics_changed": false,
+  "results": {
+    "clamp": {
+      "FP64_reference": {
+        "first_alpha": 0.23418120894284686,
+        "minimum_alpha": 1.0,
+        "minimum_unsigned_box_distance_minus_radius_m": -2.4510360943049044e-05,
+        "start_gap_m": 2.0552989677285506e-05
+      },
+      "actual_loader_lines": [
+        "dyld[13557]: <670E222D-A38C-34FA-BA03-F1E54C6BE11D> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/candidate/libmetalrobo.dylib"
+      ],
+      "available_physical_byte_controls_exact": true,
+      "capture_exists": true,
+      "coarse_zero_lower_hypothesis_supported": true,
+      "event": {
+        "ccd_parameters": [
+          9.99999975e-06,
+          9.99999975e-06,
+          1,
+          10000
+        ],
+        "events": [
+          {
+            "environment": 0,
+            "flags": 21,
+            "generation": 77,
+            "splits": 2,
+            "time": [
+              0,
+              0.000624999986,
+              0,
+              0
+            ],
+            "zero_time_replays": 2
+          },
+          {
+            "environment": 0,
+            "flags": 53,
+            "generation": 78,
+            "splits": 3,
+            "time": [
+              0,
+              0.000624999986,
+              0,
+              0
+            ],
+            "zero_time_replays": 3
+          }
+        ],
+        "header": [
+          3,
+          0,
+          0,
+          19,
+          91,
+          11
+        ],
+        "maximum_CA_iterations": 16,
+        "record_source": "protected-selected-event",
+        "replay_records": [
+          {
+            "colliders": [
+              11,
+              14
+            ],
+            "compiled_pair": 91,
+            "environment": 0,
+            "flags": 69,
+            "interval_distance": [
+              0,
+              0.00014636929,
+              2.05533579e-05,
+              0.144568101
+            ],
+            "normal_iteration": [
+              -0.0210417267,
+              4.51805079e-07,
+              -0.999778569,
+              2
+            ],
+            "status": 0
+          },
+          {
+            "colliders": [
+              11,
+              14
+            ],
+            "compiled_pair": 91,
+            "environment": 0,
+            "flags": 69,
+            "interval_distance": [
+              0,
+              0.00014636929,
+              2.05533579e-05,
+              0.144568101
+            ],
+            "normal_iteration": [
+              -0.0210417267,
+              4.51805079e-07,
+              -0.999778569,
+              2
+            ],
+            "status": 0
+          }
+        ],
+        "schema": "numi.ccd-sweep-probe.v1",
+        "shapes": [
+          {
+            "contact_rest_radius": [
+              0.000500000024,
+              0,
+              0.0267394837,
+              0
+            ],
+            "dimensions": [
+              0.0250000004,
+              0.00899999961,
+              0.00300000003,
+              0
+            ],
+            "end": {
+              "center_radius": [
+                0.207806274,
+                1.17196887e-05,
+                0.272536635,
+                0
+              ],
+              "rotation": [
+                3.41367468e-07,
+                0.0105214464,
+                1.09724488e-05,
+                0.999944627
+              ],
+              "sweep_margin": 1.40129846e-45
+            },
+            "index": 11,
+            "start": {
+              "center_radius": [
+                0.207806274,
+                1.17196887e-05,
+                0.272536635,
+                0
+              ],
+              "rotation": [
+                3.41367468e-07,
+                0.0105214464,
+                1.09724488e-05,
+                0.999944627
+              ],
+              "sweep_margin": 1.40129846e-45
+            },
+            "type": 2
+          },
+          {
+            "contact_rest_radius": [
+              0.000500000024,
+              0,
+              0.00400000019,
+              0
+            ],
+            "dimensions": [
+              0.00400000019,
+              0,
+              0,
+              0
+            ],
+            "end": {
+              "center_radius": [
+                0.218005285,
+                -0.000141262077,
+                0.265344948,
+                0.00400000019
+              ],
+              "rotation": [
+                -2.93152389e-05,
+                0.00346043543,
+                -0.000306926202,
+                0.99999398
+              ],
+              "sweep_margin": 0
+            },
+            "index": 14,
+            "start": {
+              "center_radius": [
+                0.21800755,
+                -0.000141261116,
+                0.265299827,
+                0.00400000019
+              ],
+              "rotation": [
+                -2.9399931e-05,
+                0.00371314702,
+                -0.000306872942,
+                0.999993086
+              ],
+              "sweep_margin": 4.51775304e-05
+            },
+            "type": 0
+          }
+        ],
+        "status_counters": {
+          "advance": 3,
+          "ccd_candidates": 2,
+          "unresolved": 0,
+          "zero_time": 3
+        },
+        "status_event_times": [
+          0,
+          0.000624999986,
+          0,
+          0
+        ],
+        "stored_record": {
+          "colliders": [
+            11,
+            14
+          ],
+          "compiled_pair": 91,
+          "environment": 0,
+          "flags": 69,
+          "interval_distance": [
+            0,
+            0.00014636929,
+            2.05533579e-05,
+            0.144568101
+          ],
+          "normal_iteration": [
+            -0.0210417267,
+            4.51805079e-07,
+            -0.999778569,
+            2
+          ],
+          "status": 0
+        },
+        "stored_record_matches": [
+          true,
+          true
+        ]
+      },
+      "fixed_box_orientation": true,
+      "native_query_max_absolute_error_m": 2.2836121636900242e-08
+    },
+    "open": {
+      "actual_loader_lines": [
+        "dyld[13620]: <670E222D-A38C-34FA-BA03-F1E54C6BE11D> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/candidate/libmetalrobo.dylib"
+      ],
+      "available_physical_byte_controls_exact": true,
+      "capture_exists": false
+    },
+    "refinement": {
+      "FP64_reference": {
+        "first_alpha": 0.9843672861680257,
+        "minimum_alpha": 1.0,
+        "minimum_unsigned_box_distance_minus_radius_m": 9.733989137814675e-06,
+        "start_gap_m": 2.6750267632040525e-05
+      },
+      "actual_loader_lines": [
+        "dyld[13587]: <670E222D-A38C-34FA-BA03-F1E54C6BE11D> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/candidate/libmetalrobo.dylib"
+      ],
+      "available_physical_byte_controls_exact": true,
+      "capture_exists": true,
+      "coarse_zero_lower_hypothesis_supported": true,
+      "event": {
+        "ccd_parameters": [
+          9.99999975e-06,
+          9.99999975e-06,
+          1,
+          10000
+        ],
+        "events": [
+          {
+            "environment": 1,
+            "flags": 21,
+            "generation": 105,
+            "splits": 2,
+            "time": [
+              0,
+              0.000312499993,
+              0,
+              0
+            ],
+            "zero_time_replays": 2
+          },
+          {
+            "environment": 1,
+            "flags": 53,
+            "generation": 106,
+            "splits": 3,
+            "time": [
+              0,
+              0.000312499993,
+              0,
+              0
+            ],
+            "zero_time_replays": 3
+          }
+        ],
+        "header": [
+          3,
+          1,
+          0,
+          26,
+          93,
+          11
+        ],
+        "maximum_CA_iterations": 16,
+        "record_source": "protected-selected-event",
+        "replay_records": [
+          {
+            "colliders": [
+              12,
+              14
+            ],
+            "compiled_pair": 93,
+            "environment": 1,
+            "flags": 69,
+            "interval_distance": [
+              0,
+              0.00030759658,
+              2.6749447e-05,
+              0.119789585
+            ],
+            "normal_iteration": [
+              -0.0843197703,
+              -1.61889125e-06,
+              0.996438742,
+              2
+            ],
+            "status": 0
+          },
+          {
+            "colliders": [
+              12,
+              14
+            ],
+            "compiled_pair": 93,
+            "environment": 1,
+            "flags": 69,
+            "interval_distance": [
+              0,
+              0.00030759658,
+              2.6749447e-05,
+              0.119789585
+            ],
+            "normal_iteration": [
+              -0.0843197703,
+              -1.61889125e-06,
+              0.996438742,
+              2
+            ],
+            "status": 0
+          }
+        ],
+        "schema": "numi.ccd-sweep-probe.v1",
+        "shapes": [
+          {
+            "contact_rest_radius": [
+              0.000500000024,
+              0,
+              0.0268700588,
+              0
+            ],
+            "dimensions": [
+              0.0250000004,
+              0.00899999961,
+              0.00400000019,
+              0
+            ],
+            "end": {
+              "center_radius": [
+                0.205216005,
+                1.8394876e-05,
+                0.285196453,
+                0
+              ],
+              "rotation": [
+                4.07688049e-07,
+                -0.0421974733,
+                9.52949813e-06,
+                0.999109268
+              ],
+              "sweep_margin": 1.40129846e-45
+            },
+            "index": 12,
+            "start": {
+              "center_radius": [
+                0.205216005,
+                1.8394876e-05,
+                0.285196453,
+                0
+              ],
+              "rotation": [
+                4.07688049e-07,
+                -0.0421974733,
+                9.52949813e-06,
+                0.999109268
+              ],
+              "sweep_margin": 1.40129846e-45
+            },
+            "type": 2
+          },
+          {
+            "contact_rest_radius": [
+              0.000500000024,
+              0,
+              0.00400000019,
+              0
+            ],
+            "dimensions": [
+              0.00400000019,
+              0,
+              0,
+              0
+            ],
+            "end": {
+              "center_radius": [
+                0.215181574,
+                0.000163214645,
+                0.294078112,
+                0.00400000019
+              ],
+              "rotation": [
+                1.1166253e-05,
+                -0.153947383,
+                -0.000546681171,
+                0.988078892
+              ],
+              "sweep_margin": 0
+            },
+            "index": 14,
+            "start": {
+              "center_radius": [
+                0.215187907,
+                0.000163212942,
+                0.294095725,
+                0.00400000019
+              ],
+              "rotation": [
+                1.11469108e-05,
+                -0.153927594,
+                -0.000546597526,
+                0.988081992
+              ],
+              "sweep_margin": 1.87171227e-05
+            },
+            "type": 0
+          }
+        ],
+        "status_counters": {
+          "advance": 3,
+          "ccd_candidates": 2,
+          "unresolved": 0,
+          "zero_time": 3
+        },
+        "status_event_times": [
+          0,
+          0.000312499993,
+          0,
+          0
+        ],
+        "stored_record": {
+          "colliders": [
+            12,
+            14
+          ],
+          "compiled_pair": 93,
+          "environment": 1,
+          "flags": 69,
+          "interval_distance": [
+            0,
+            0.00030759658,
+            2.6749447e-05,
+            0.119789585
+          ],
+          "normal_iteration": [
+            -0.0843197703,
+            -1.61889125e-06,
+            0.996438742,
+            2
+          ],
+          "status": 0
+        },
+        "stored_record_matches": [
+          true,
+          true
+        ]
+      },
+      "fixed_box_orientation": true,
+      "native_query_max_absolute_error_m": 2.4795044448189252e-08
+    }
+  }
+}
