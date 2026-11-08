@@ -1,0 +1,300 @@
+{
+  "actual_committed_git_bytes": true,
+  "actual_loader_lines": [
+    "dyld[7127]: <BF906436-36A2-35D8-81F1-697461ABACB4> /Users/n/Developer/numi-crow-rl-20261107/build/crow-beak-hold-git-recovery-01/runtime/libmetalrobo.dylib"
+  ],
+  "all_four_isolated_replays_byte_exact": true,
+  "calibration_exact": true,
+  "physical_clamp_accepted_trace_and_protected_failure_exact": true,
+  "restored_sources": {
+    "input/calibration.jsonl": "build/crow-beak-hold-build-01/calibration-v5.jsonl",
+    "input/clamp-replay.bin": "build/crow-beak-hold-build-01/capture-clamp-replay.bin",
+    "input/clamp-replay.json": "build/crow-beak-hold-build-01/capture-clamp-replay.json",
+    "input/clamp-trace.tsv": "build/crow-beak-hold-build-01/capture-clamp/trace.tsv",
+    "input/clamp.ccdsweep": "build/crow-beak-hold-build-01/capture-clamp.ccdsweep",
+    "input/open-replay.bin": "build/crow-beak-hold-build-01/capture-open-replay.bin",
+    "input/open-replay.json": "build/crow-beak-hold-build-01/capture-open-replay.json",
+    "input/open.ccdsweep": "build/crow-beak-hold-build-01/capture-open.ccdsweep",
+    "input/refinement-replay.bin": "build/crow-beak-hold-build-01/capture-refinement-replay.bin",
+    "input/refinement-replay.json": "build/crow-beak-hold-build-01/capture-refinement-replay.json",
+    "input/refinement.ccdsweep": "build/crow-beak-hold-build-01/capture-refinement.ccdsweep",
+    "input/zero-friction-replay.bin": "build/crow-beak-hold-build-01/capture-zero-friction-replay.bin",
+    "input/zero-friction-replay.json": "build/crow-beak-hold-build-01/capture-zero-friction-replay.json",
+    "input/zero-friction.ccdsweep": "build/crow-beak-hold-build-01/capture-zero-friction.ccdsweep",
+    "runtime/CCDSweepProbe.metallib": ".numi/retained-runtime/beak-hold-capture-20261108/CCDSweepProbe.metallib",
+    "runtime/MetalRobo.metallib": ".numi/retained-runtime/beak-hold-capture-20261108/MetalRobo.metallib",
+    "runtime/libmetalrobo.dylib": ".numi/retained-runtime/beak-hold-capture-20261108/libmetalrobo.dylib",
+    "runtime/probe": ".numi/retained-runtime/beak-hold-capture-20261108/probe",
+    "runtime/sweep-probe": ".numi/retained-runtime/beak-hold-capture-20261108/sweep-probe"
+  },
+  "scope": "One entire failing clamp trajectory and four isolated CCD sweeps; not every parent arm or a successful manipulation capability.",
+  "status": "verified",
+  "temporary_cleanup": {
+    "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300163620 157185520    66% 3498071 1571855200    0%   /System/Volumes/Data\n",
+    "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300175960 157173180    66% 3498111 1571731800    0%   /System/Volumes/Data\n",
+    "files": [
+      {
+        "bytes": 83577,
+        "mode": 420,
+        "mtime_ns": 1794119923134985540,
+        "path": "build/crow-beak-hold-git-recovery-01/calibration.stderr",
+        "sha256": "acd54b34c93fdde5376c93e75265c07f498034b948f2a6f324071505349b2bf4"
+      },
+      {
+        "bytes": 175,
+        "mode": 420,
+        "mtime_ns": 1794119923141482099,
+        "path": "build/crow-beak-hold-git-recovery-01/calibration.stdout",
+        "sha256": "128b9f8aa02bffd90ccdc724c59b7ad6f74549efe41a492a63b968f047c485bd"
+      },
+      {
+        "bytes": 101040,
+        "mode": 420,
+        "mtime_ns": 1794119934281183582,
+        "path": "build/crow-beak-hold-git-recovery-01/clamp/trace.tsv",
+        "sha256": "725da54b48d72fe73a1c0c5ccd881e6721168f4e7948f2128c3107278caae662"
+      },
+      {
+        "bytes": 4240,
+        "mode": 420,
+        "mtime_ns": 1794119934715927685,
+        "path": "build/crow-beak-hold-git-recovery-01/clamp.bin",
+        "sha256": "0c96bb130fb6c4e2cbd22236718a5f977d4977ef4c3256d2354782d36581b99a"
+      },
+      {
+        "bytes": 83888,
+        "mode": 420,
+        "mtime_ns": 1794119934286222230,
+        "path": "build/crow-beak-hold-git-recovery-01/clamp.stderr",
+        "sha256": "20b420e5b528096513f53959bc78252d79496b15be7402a47c9f82efb8f03af9"
+      },
+      {
+        "bytes": 0,
+        "mode": 420,
+        "mtime_ns": 1794119923202792789,
+        "path": "build/crow-beak-hold-git-recovery-01/clamp.stdout",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 175,
+        "mode": 420,
+        "mtime_ns": 1794119922461235486,
+        "path": "build/crow-beak-hold-git-recovery-01/input/calibration.jsonl",
+        "sha256": "128b9f8aa02bffd90ccdc724c59b7ad6f74549efe41a492a63b968f047c485bd"
+      },
+      {
+        "bytes": 4240,
+        "mode": 420,
+        "mtime_ns": 1794119922459052578,
+        "path": "build/crow-beak-hold-git-recovery-01/input/clamp-replay.bin",
+        "sha256": "0c96bb130fb6c4e2cbd22236718a5f977d4977ef4c3256d2354782d36581b99a"
+      },
+      {
+        "bytes": 2186,
+        "mode": 420,
+        "mtime_ns": 1794119922459226577,
+        "path": "build/crow-beak-hold-git-recovery-01/input/clamp-replay.json",
+        "sha256": "5c3bc5ec8d6324ceda4f540b2a0a8cce2be8d51a568d11c72ea3d016ea395ad9"
+      },
+      {
+        "bytes": 101040,
+        "mode": 420,
+        "mtime_ns": 1794119922461030279,
+        "path": "build/crow-beak-hold-git-recovery-01/input/clamp-trace.tsv",
+        "sha256": "725da54b48d72fe73a1c0c5ccd881e6721168f4e7948f2128c3107278caae662"
+      },
+      {
+        "bytes": 13344,
+        "mode": 384,
+        "mtime_ns": 1794119922458859995,
+        "path": "build/crow-beak-hold-git-recovery-01/input/clamp.ccdsweep",
+        "sha256": "6c861cdda4886db37534a25d45e5fbdd13db978177f0ea1538d6c9bad4df63d7"
+      },
+      {
+        "bytes": 4240,
+        "mode": 420,
+        "mtime_ns": 1794119922459568118,
+        "path": "build/crow-beak-hold-git-recovery-01/input/open-replay.bin",
+        "sha256": "2bb2ead449be64b268a2b2d10733614df1a2217fee2cbdf2c864cdc8731ef8d7"
+      },
+      {
+        "bytes": 2188,
+        "mode": 420,
+        "mtime_ns": 1794119922459714617,
+        "path": "build/crow-beak-hold-git-recovery-01/input/open-replay.json",
+        "sha256": "5cb23f8fffd1e9c625e45490f4402a804be4d8b85df3e3d6b06cab26c3b2e942"
+      },
+      {
+        "bytes": 13344,
+        "mode": 384,
+        "mtime_ns": 1794119922459403660,
+        "path": "build/crow-beak-hold-git-recovery-01/input/open.ccdsweep",
+        "sha256": "acecf558a50153eb36078073e03dc0edde8b2e7b5ed90a2b4399e5a924839307"
+      },
+      {
+        "bytes": 4240,
+        "mode": 420,
+        "mtime_ns": 1794119922460551739,
+        "path": "build/crow-beak-hold-git-recovery-01/input/refinement-replay.bin",
+        "sha256": "7b0251935c0ccfa7eaddc5bbc91852d6f3eb9b00ac6b7f739a608fe7006f400f"
+      },
+      {
+        "bytes": 2196,
+        "mode": 420,
+        "mtime_ns": 1794119922460713947,
+        "path": "build/crow-beak-hold-git-recovery-01/input/refinement-replay.json",
+        "sha256": "125829c8f025e4e49859d4c4d76d3e11ed947170321c26228f78a70c8d788e4a"
+      },
+      {
+        "bytes": 13344,
+        "mode": 384,
+        "mtime_ns": 1794119922460398073,
+        "path": "build/crow-beak-hold-git-recovery-01/input/refinement.ccdsweep",
+        "sha256": "8d8532d4c635b031ee37e6e0077022ef7d9cd6ac35ec2d7e19adb06f48180e6d"
+      },
+      {
+        "bytes": 4240,
+        "mode": 420,
+        "mtime_ns": 1794119922460043741,
+        "path": "build/crow-beak-hold-git-recovery-01/input/zero-friction-replay.bin",
+        "sha256": "db8ffa66d77fd6963b4778eb7b391244bb114be32a78ab771202df91150be8fc"
+      },
+      {
+        "bytes": 2172,
+        "mode": 420,
+        "mtime_ns": 1794119922460191699,
+        "path": "build/crow-beak-hold-git-recovery-01/input/zero-friction-replay.json",
+        "sha256": "707f7e20ac80134b120b9e844e2c28fedbdd1f3a54f7384baf20debdf8e7c1aa"
+      },
+      {
+        "bytes": 13344,
+        "mode": 384,
+        "mtime_ns": 1794119922459891241,
+        "path": "build/crow-beak-hold-git-recovery-01/input/zero-friction.ccdsweep",
+        "sha256": "de83e92d87bddcc1769c37cbf2d8dedca67362e8837291e694d9342462633deb"
+      },
+      {
+        "bytes": 13344,
+        "mode": 384,
+        "mtime_ns": 1794119934280656250,
+        "path": "build/crow-beak-hold-git-recovery-01/new-failure.ccdsweep",
+        "sha256": "6c861cdda4886db37534a25d45e5fbdd13db978177f0ea1538d6c9bad4df63d7"
+      },
+      {
+        "bytes": 4240,
+        "mode": 420,
+        "mtime_ns": 1794119934802156866,
+        "path": "build/crow-beak-hold-git-recovery-01/open.bin",
+        "sha256": "2bb2ead449be64b268a2b2d10733614df1a2217fee2cbdf2c864cdc8731ef8d7"
+      },
+      {
+        "bytes": 4240,
+        "mode": 420,
+        "mtime_ns": 1794119934979112838,
+        "path": "build/crow-beak-hold-git-recovery-01/refinement.bin",
+        "sha256": "7b0251935c0ccfa7eaddc5bbc91852d6f3eb9b00ac6b7f739a608fe7006f400f"
+      },
+      {
+        "bytes": 87049,
+        "mode": 420,
+        "mtime_ns": 1794119934685725422,
+        "path": "build/crow-beak-hold-git-recovery-01/replay-clamp.stderr",
+        "sha256": "4030148e60dd67e257cad40fbfff877a0fa777d04cf6f8042497d7b883ce07a3"
+      },
+      {
+        "bytes": 2186,
+        "mode": 420,
+        "mtime_ns": 1794119934719816213,
+        "path": "build/crow-beak-hold-git-recovery-01/replay-clamp.stdout",
+        "sha256": "5c3bc5ec8d6324ceda4f540b2a0a8cce2be8d51a568d11c72ea3d016ea395ad9"
+      },
+      {
+        "bytes": 87049,
+        "mode": 420,
+        "mtime_ns": 1794119934778798411,
+        "path": "build/crow-beak-hold-git-recovery-01/replay-open.stderr",
+        "sha256": "2a1c26384e055d900646a8928fe4855b28832ca9ac34921c7ced8bddf034fa68"
+      },
+      {
+        "bytes": 2188,
+        "mode": 420,
+        "mtime_ns": 1794119934805224939,
+        "path": "build/crow-beak-hold-git-recovery-01/replay-open.stdout",
+        "sha256": "5cb23f8fffd1e9c625e45490f4402a804be4d8b85df3e3d6b06cab26c3b2e942"
+      },
+      {
+        "bytes": 87049,
+        "mode": 420,
+        "mtime_ns": 1794119934956387005,
+        "path": "build/crow-beak-hold-git-recovery-01/replay-refinement.stderr",
+        "sha256": "c6e39d0fcf3b78f76980f9e6d1b9de70009818d76b04f3c438f8677a88d2d714"
+      },
+      {
+        "bytes": 2196,
+        "mode": 420,
+        "mtime_ns": 1794119934982624533,
+        "path": "build/crow-beak-hold-git-recovery-01/replay-refinement.stdout",
+        "sha256": "125829c8f025e4e49859d4c4d76d3e11ed947170321c26228f78a70c8d788e4a"
+      },
+      {
+        "bytes": 87049,
+        "mode": 420,
+        "mtime_ns": 1794119934865716424,
+        "path": "build/crow-beak-hold-git-recovery-01/replay-zero-friction.stderr",
+        "sha256": "89ec6592fa8350ecd043637ff6b300f6d52bdef740f480d33dd7a2a538d33bae"
+      },
+      {
+        "bytes": 2172,
+        "mode": 420,
+        "mtime_ns": 1794119934891922118,
+        "path": "build/crow-beak-hold-git-recovery-01/replay-zero-friction.stdout",
+        "sha256": "707f7e20ac80134b120b9e844e2c28fedbdd1f3a54f7384baf20debdf8e7c1aa"
+      },
+      {
+        "bytes": 947199,
+        "mode": 420,
+        "mtime_ns": 1794119922428675232,
+        "path": "build/crow-beak-hold-git-recovery-01/runtime/CCDSweepProbe.metallib",
+        "sha256": "aee7541a8ce2ca40ce9bfbff1d10f3d13459d3e844756257d4028023374c1d1d"
+      },
+      {
+        "bytes": 4210978,
+        "mode": 420,
+        "mtime_ns": 1794119922439999523,
+        "path": "build/crow-beak-hold-git-recovery-01/runtime/MetalRobo.metallib",
+        "sha256": "80b9c0535c353fa1cd98d381e92f7cd0bf869da328eb419839d8310e6925ebd0"
+      },
+      {
+        "bytes": 5693648,
+        "mode": 493,
+        "mtime_ns": 1794119922454341804,
+        "path": "build/crow-beak-hold-git-recovery-01/runtime/libmetalrobo.dylib",
+        "sha256": "cdca44609a3cee9747c96895ffff431702d685075621ec5013414910adfba49c"
+      },
+      {
+        "bytes": 720872,
+        "mode": 493,
+        "mtime_ns": 1794119922457876707,
+        "path": "build/crow-beak-hold-git-recovery-01/runtime/probe",
+        "sha256": "3ec4b61e79fb42b57cfc9215af783b2dbbf94c06a03ddef8392a2ff27957b437"
+      },
+      {
+        "bytes": 95704,
+        "mode": 493,
+        "mtime_ns": 1794119922458584496,
+        "path": "build/crow-beak-hold-git-recovery-01/runtime/sweep-probe",
+        "sha256": "29a4276b74e0b31410b14eb31b3cb90b53b994f2759b85895009eec7d5584326"
+      },
+      {
+        "bytes": 4240,
+        "mode": 420,
+        "mtime_ns": 1794119934888659089,
+        "path": "build/crow-beak-hold-git-recovery-01/zero-friction.bin",
+        "sha256": "db8ffa66d77fd6963b4778eb7b391244bb114be32a78ab771202df91150be8fc"
+      }
+    ],
+    "open_handles": 0,
+    "removed_bytes": 12504616,
+    "status": "removed"
+  }
+}

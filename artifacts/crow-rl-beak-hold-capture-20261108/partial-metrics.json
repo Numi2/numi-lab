@@ -1,0 +1,317 @@
+{
+  "capability_qualified": false,
+  "chunk_one_vs_eight_accepted_sampled_prefix_fields_exact": true,
+  "limits": "Descriptive prefixes only. Microstep impulse samples are not integrated forces. Four identical lanes are not independent replicates. Final checkpoints and completed release are absent. No change to production mechanics or policies.",
+  "prediction_verdict": "inconclusive due native rejections; accepted clamp hold window passed its hold-only predicates, with release unqualified",
+  "results": {
+    "chunk-eight": {
+      "identical_lanes": true,
+      "lanes": [
+        {
+          "accepted_trace_samples": 13,
+          "last_published_tick": 103.0,
+          "maximum_head_relative_slip_from_tick31_m": 0.0007935240705917319,
+          "maximum_z_m": 0.295492440462,
+          "minimum_lift_ticks64_95_m": 0.028181517744000018,
+          "minimum_lower_gap_m": -0.000176254700516,
+          "minimum_upper_gap_m": 1.62422940119e-06,
+          "minimum_z_m": 0.264684349298,
+          "opposed_positive_normal_samples": 4,
+          "primary_hold_prefix_pass": false,
+          "sampled_hold_ticks": 4
+        },
+        {
+          "accepted_trace_samples": 13,
+          "last_published_tick": 103.0,
+          "maximum_head_relative_slip_from_tick31_m": 0.0007935240705917319,
+          "maximum_z_m": 0.295492440462,
+          "minimum_lift_ticks64_95_m": 0.028181517744000018,
+          "minimum_lower_gap_m": -0.000176254700516,
+          "minimum_upper_gap_m": 1.62422940119e-06,
+          "minimum_z_m": 0.264684349298,
+          "opposed_positive_normal_samples": 4,
+          "primary_hold_prefix_pass": false,
+          "sampled_hold_ticks": 4
+        },
+        {
+          "accepted_trace_samples": 13,
+          "last_published_tick": 103.0,
+          "maximum_head_relative_slip_from_tick31_m": 0.0007935240705917319,
+          "maximum_z_m": 0.295492440462,
+          "minimum_lift_ticks64_95_m": 0.028181517744000018,
+          "minimum_lower_gap_m": -0.000176254700516,
+          "minimum_upper_gap_m": 1.62422940119e-06,
+          "minimum_z_m": 0.264684349298,
+          "opposed_positive_normal_samples": 4,
+          "primary_hold_prefix_pass": false,
+          "sampled_hold_ticks": 4
+        },
+        {
+          "accepted_trace_samples": 13,
+          "last_published_tick": 103.0,
+          "maximum_head_relative_slip_from_tick31_m": 0.0007935240705917319,
+          "maximum_z_m": 0.295492440462,
+          "minimum_lift_ticks64_95_m": 0.028181517744000018,
+          "minimum_lower_gap_m": -0.000176254700516,
+          "minimum_upper_gap_m": 1.62422940119e-06,
+          "minimum_z_m": 0.264684349298,
+          "opposed_positive_normal_samples": 4,
+          "primary_hold_prefix_pass": false,
+          "sampled_hold_ticks": 4
+        }
+      ],
+      "qualified": false
+    },
+    "clamp": {
+      "identical_lanes": true,
+      "lanes": [
+        {
+          "accepted_trace_samples": 104,
+          "last_published_tick": 103.0,
+          "maximum_head_relative_slip_from_tick31_m": 0.0007935240705917319,
+          "maximum_z_m": 0.295503258705,
+          "minimum_lift_ticks64_95_m": 0.027449989938999997,
+          "minimum_lower_gap_m": -0.000307357998952,
+          "minimum_upper_gap_m": -9.07266297095e-05,
+          "minimum_z_m": 0.264684349298,
+          "opposed_positive_normal_samples": 32,
+          "primary_hold_prefix_pass": true,
+          "sampled_hold_ticks": 32
+        },
+        {
+          "accepted_trace_samples": 104,
+          "last_published_tick": 103.0,
+          "maximum_head_relative_slip_from_tick31_m": 0.0007935240705917319,
+          "maximum_z_m": 0.295503258705,
+          "minimum_lift_ticks64_95_m": 0.027449989938999997,
+          "minimum_lower_gap_m": -0.000307357998952,
+          "minimum_upper_gap_m": -9.07266297095e-05,
+          "minimum_z_m": 0.264684349298,
+          "opposed_positive_normal_samples": 32,
+          "primary_hold_prefix_pass": true,
+          "sampled_hold_ticks": 32
+        },
+        {
+          "accepted_trace_samples": 104,
+          "last_published_tick": 103.0,
+          "maximum_head_relative_slip_from_tick31_m": 0.0007935240705917319,
+          "maximum_z_m": 0.295503258705,
+          "minimum_lift_ticks64_95_m": 0.027449989938999997,
+          "minimum_lower_gap_m": -0.000307357998952,
+          "minimum_upper_gap_m": -9.07266297095e-05,
+          "minimum_z_m": 0.264684349298,
+          "opposed_positive_normal_samples": 32,
+          "primary_hold_prefix_pass": true,
+          "sampled_hold_ticks": 32
+        },
+        {
+          "accepted_trace_samples": 104,
+          "last_published_tick": 103.0,
+          "maximum_head_relative_slip_from_tick31_m": 0.0007935240705917319,
+          "maximum_z_m": 0.295503258705,
+          "minimum_lift_ticks64_95_m": 0.027449989938999997,
+          "minimum_lower_gap_m": -0.000307357998952,
+          "minimum_upper_gap_m": -9.07266297095e-05,
+          "minimum_z_m": 0.264684349298,
+          "opposed_positive_normal_samples": 32,
+          "primary_hold_prefix_pass": true,
+          "sampled_hold_ticks": 32
+        }
+      ],
+      "qualified": false
+    },
+    "no-contact": {
+      "identical_lanes": true,
+      "lanes": [
+        {
+          "accepted_trace_samples": 160,
+          "last_published_tick": 159.0,
+          "maximum_head_relative_slip_from_tick31_m": 16.11447412067788,
+          "maximum_z_m": 0.264826834202,
+          "minimum_lift_ticks64_95_m": -17.9722313934,
+          "minimum_lower_gap_m": -0.00698263403391,
+          "minimum_upper_gap_m": 0.00122082636751,
+          "minimum_z_m": -49.4392204285,
+          "opposed_positive_normal_samples": 0,
+          "primary_hold_prefix_pass": false,
+          "sampled_hold_ticks": 32
+        },
+        {
+          "accepted_trace_samples": 160,
+          "last_published_tick": 159.0,
+          "maximum_head_relative_slip_from_tick31_m": 16.11447412067788,
+          "maximum_z_m": 0.264826834202,
+          "minimum_lift_ticks64_95_m": -17.9722313934,
+          "minimum_lower_gap_m": -0.00698263403391,
+          "minimum_upper_gap_m": 0.00122082636751,
+          "minimum_z_m": -49.4392204285,
+          "opposed_positive_normal_samples": 0,
+          "primary_hold_prefix_pass": false,
+          "sampled_hold_ticks": 32
+        },
+        {
+          "accepted_trace_samples": 160,
+          "last_published_tick": 159.0,
+          "maximum_head_relative_slip_from_tick31_m": 16.11447412067788,
+          "maximum_z_m": 0.264826834202,
+          "minimum_lift_ticks64_95_m": -17.9722313934,
+          "minimum_lower_gap_m": -0.00698263403391,
+          "minimum_upper_gap_m": 0.00122082636751,
+          "minimum_z_m": -49.4392204285,
+          "opposed_positive_normal_samples": 0,
+          "primary_hold_prefix_pass": false,
+          "sampled_hold_ticks": 32
+        },
+        {
+          "accepted_trace_samples": 160,
+          "last_published_tick": 159.0,
+          "maximum_head_relative_slip_from_tick31_m": 16.11447412067788,
+          "maximum_z_m": 0.264826834202,
+          "minimum_lift_ticks64_95_m": -17.9722313934,
+          "minimum_lower_gap_m": -0.00698263403391,
+          "minimum_upper_gap_m": 0.00122082636751,
+          "minimum_z_m": -49.4392204285,
+          "opposed_positive_normal_samples": 0,
+          "primary_hold_prefix_pass": false,
+          "sampled_hold_ticks": 32
+        }
+      ],
+      "qualified": false
+    },
+    "open": {
+      "identical_lanes": true,
+      "lanes": [
+        {
+          "accepted_trace_samples": 7,
+          "last_published_tick": 6.0,
+          "maximum_z_m": 0.265603780746,
+          "minimum_lower_gap_m": -6.22278161482e-05,
+          "minimum_upper_gap_m": 0.00107826567024,
+          "minimum_z_m": 0.259324401617
+        },
+        {
+          "accepted_trace_samples": 7,
+          "last_published_tick": 6.0,
+          "maximum_z_m": 0.265603780746,
+          "minimum_lower_gap_m": -6.22278161482e-05,
+          "minimum_upper_gap_m": 0.00107826567024,
+          "minimum_z_m": 0.259324401617
+        },
+        {
+          "accepted_trace_samples": 7,
+          "last_published_tick": 6.0,
+          "maximum_z_m": 0.265603780746,
+          "minimum_lower_gap_m": -6.22278161482e-05,
+          "minimum_upper_gap_m": 0.00107826567024,
+          "minimum_z_m": 0.259324401617
+        },
+        {
+          "accepted_trace_samples": 7,
+          "last_published_tick": 6.0,
+          "maximum_z_m": 0.265603780746,
+          "minimum_lower_gap_m": -6.22278161482e-05,
+          "minimum_upper_gap_m": 0.00107826567024,
+          "minimum_z_m": 0.259324401617
+        }
+      ],
+      "qualified": false
+    },
+    "refinement": {
+      "identical_lanes": true,
+      "lanes": [
+        {
+          "accepted_trace_samples": 106,
+          "last_published_tick": 105.0,
+          "maximum_head_relative_slip_from_tick31_m": 0.00035781444621209004,
+          "maximum_z_m": 0.294165253639,
+          "minimum_lift_ticks64_95_m": 0.025676721954000004,
+          "minimum_lower_gap_m": -6.34401493268e-05,
+          "minimum_upper_gap_m": -4.41610441258e-06,
+          "minimum_z_m": 0.263477772474,
+          "opposed_positive_normal_samples": 32,
+          "primary_hold_prefix_pass": true,
+          "sampled_hold_ticks": 32
+        },
+        {
+          "accepted_trace_samples": 106,
+          "last_published_tick": 105.0,
+          "maximum_head_relative_slip_from_tick31_m": 0.00035781444621209004,
+          "maximum_z_m": 0.294165253639,
+          "minimum_lift_ticks64_95_m": 0.025676721954000004,
+          "minimum_lower_gap_m": -6.34401493268e-05,
+          "minimum_upper_gap_m": -4.41610441258e-06,
+          "minimum_z_m": 0.263477772474,
+          "opposed_positive_normal_samples": 32,
+          "primary_hold_prefix_pass": true,
+          "sampled_hold_ticks": 32
+        },
+        {
+          "accepted_trace_samples": 106,
+          "last_published_tick": 105.0,
+          "maximum_head_relative_slip_from_tick31_m": 0.00035781444621209004,
+          "maximum_z_m": 0.294165253639,
+          "minimum_lift_ticks64_95_m": 0.025676721954000004,
+          "minimum_lower_gap_m": -6.34401493268e-05,
+          "minimum_upper_gap_m": -4.41610441258e-06,
+          "minimum_z_m": 0.263477772474,
+          "opposed_positive_normal_samples": 32,
+          "primary_hold_prefix_pass": true,
+          "sampled_hold_ticks": 32
+        },
+        {
+          "accepted_trace_samples": 106,
+          "last_published_tick": 105.0,
+          "maximum_head_relative_slip_from_tick31_m": 0.00035781444621209004,
+          "maximum_z_m": 0.294165253639,
+          "minimum_lift_ticks64_95_m": 0.025676721954000004,
+          "minimum_lower_gap_m": -6.34401493268e-05,
+          "minimum_upper_gap_m": -4.41610441258e-06,
+          "minimum_z_m": 0.263477772474,
+          "opposed_positive_normal_samples": 32,
+          "primary_hold_prefix_pass": true,
+          "sampled_hold_ticks": 32
+        }
+      ],
+      "qualified": false
+    },
+    "zero-friction": {
+      "identical_lanes": true,
+      "lanes": [
+        {
+          "accepted_trace_samples": 1,
+          "last_published_tick": 0.0,
+          "maximum_z_m": 0.265978604555,
+          "minimum_lower_gap_m": -4.85040063228e-05,
+          "minimum_upper_gap_m": 5.94668669946e-05,
+          "minimum_z_m": 0.265978604555
+        },
+        {
+          "accepted_trace_samples": 1,
+          "last_published_tick": 0.0,
+          "maximum_z_m": 0.265978604555,
+          "minimum_lower_gap_m": -4.85040063228e-05,
+          "minimum_upper_gap_m": 5.94668669946e-05,
+          "minimum_z_m": 0.265978604555
+        },
+        {
+          "accepted_trace_samples": 1,
+          "last_published_tick": 0.0,
+          "maximum_z_m": 0.265978604555,
+          "minimum_lower_gap_m": -4.85040063228e-05,
+          "minimum_upper_gap_m": 5.94668669946e-05,
+          "minimum_z_m": 0.265978604555
+        },
+        {
+          "accepted_trace_samples": 1,
+          "last_published_tick": 0.0,
+          "maximum_z_m": 0.265978604555,
+          "minimum_lower_gap_m": -4.85040063228e-05,
+          "minimum_upper_gap_m": 5.94668669946e-05,
+          "minimum_z_m": 0.265978604555
+        }
+      ],
+      "qualified": false
+    }
+  },
+  "schema": "crow-beak-contact-accepted-prefix-description-v1"
+}
