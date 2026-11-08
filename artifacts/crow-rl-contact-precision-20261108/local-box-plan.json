@@ -1,0 +1,14 @@
+{
+  "budget": {
+    "contraction": 0.5,
+    "initial_radius": 0.0001,
+    "radii": 31,
+    "seconds": 120
+  },
+  "method": "Exact interval bounds prove scalar and cone projection branches; all-coordinate dual identities remove fixed-coordinate assumptions; exact exponent-bin bounds prove every required FP32 spacing",
+  "prediction": "A proven box contains the actual native failed velocity and every FP32 point in that box has scaled residual above 1e-10",
+  "purpose": "Discharge the dual certificate hypotheses for an actual FP32 neighborhood rather than a stipulated lattice/branch region",
+  "schema": "crow-contact-exact-local-box-proof-plan-v1",
+  "scope": "The box only. No extrapolation outside it and no tolerance or native settings change.",
+  "source_sha256": "e9523ad89df6a2b11025ef1c2682fc77d320f3f5a6cd82d448f64c30c213eaae"
+}

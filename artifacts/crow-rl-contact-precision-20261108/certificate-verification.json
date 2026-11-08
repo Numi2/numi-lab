@@ -1,0 +1,23 @@
+{
+  "capture_sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f",
+  "denominator_bound_exact": true,
+  "dual_identities_exact": 23,
+  "goal_complete": false,
+  "gradient_phase_exact": true,
+  "hypotheses": "Constant stated projection branches, base-spacing FP32 lattice, fixed excluded coordinates, and radius 1e-4 for the denominator bound; hypotheses are not established for every nearby FP32 state. No global impossibility or physical-qualification claim.",
+  "native_settings_changed": false,
+  "parser": "struct and exact fractions; no imports from producer or solver-analysis code",
+  "policy_or_profile_promoted": false,
+  "projection_regions": {
+    "interior": 126,
+    "scalar_bound": 17,
+    "scalar_free": 15,
+    "vertex": 2
+  },
+  "raw_lower_bound_exact": true,
+  "scaled_lower_bound_exact": true,
+  "scaled_optimality_lower_bound": 1.1510347949209086e-10,
+  "schema": "crow-contact-independent-exact-certificate-verification-v1",
+  "strictly_exceeds_gate": true,
+  "unchanged_gate": 1e-10
+}
