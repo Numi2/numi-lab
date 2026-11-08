@@ -1,0 +1,5 @@
+# Read-only staged validation diagnostic
+
+Repeat the exact capacity-one Franka control geometry, policy and input of f1a7c2395. The isolated owner adds one callback after command completion and readback but before validation: it receives the staged result by const reference, writes raw world/contact statuses, all arrays checked for finiteness and all transition records, and prints field counts, nonfinite counts and every transition field examined by the existing validator. It does not modify staged buffers, validation, statuses, geometry, capacity or publication. The test program registers this diagnostic callback, retains the original finish-hook pre-submit rejection, and then attempts the same single control step.
+
+Run one preregistered native process with 120-second limit, pinned executable/library/shader/asset identities and pre/post hash checks. Retain raw callback bytes, full text, status and any failure. An unavailable callback or unexpected output is a prerequisite failure. No mixed arm is run, and no physical-acceptance, sensor transaction, production validation or GPU-command-failure claim follows.

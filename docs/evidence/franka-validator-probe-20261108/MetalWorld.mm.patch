@@ -1,0 +1,31 @@
+--- /Users/numi/numi-franka-presubmit-owner-20261108/src/metal/MetalWorld.mm	2026-11-07 16:11:16
++++ /Users/numi/numi-franka-validator-probe-owner-20261108/src/metal/MetalWorld.mm	2026-11-07 16:39:44
+@@ -51,6 +51,9 @@
+     void (*abort)(void*) = nullptr;
+ };
+ thread_local ResearchObservationHooks researchObservationHooks{};
++// Read-only research hook. No mutation, no alternate validation or publication.
++using ResearchStagedProbe = void (*)(const MetalWorldResult&, std::uint64_t) noexcept;
++thread_local ResearchStagedProbe researchStagedProbe = nullptr;
+ 
+ constexpr std::size_t kRawBufferCount = 239u;
+ constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
+@@ -13898,6 +13901,7 @@
+             }
+         }
+     }
++    if (researchStagedProbe != nullptr) researchStagedProbe(staged, expectedPolicyRevision);
+     if (diagnostics.layout.actionElements != 0u) {
+         if (!finiteFloats(staged.actorObservations) ||
+             !finiteFloats(staged.criticObservations) ||
+@@ -17771,6 +17775,10 @@
+ }
+ 
+ // Deliberately only exported from this research owner copy.
++extern "C" void mr_research_set_staged_validation_probe(ResearchStagedProbe callback) noexcept {
++    researchStagedProbe = callback;
++}
++
+ extern "C" void mr_research_set_observation_hooks(
+     void* context, ResearchObservationHook prepare,
+     ResearchObservationHook finish, void (*abort)(void*)
