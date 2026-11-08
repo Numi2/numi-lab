@@ -28,6 +28,10 @@ int main(int argc, char** argv) {
                 for (const bool contactMode : {false, true}) {
                     const std::size_t trackWords = envs * trackCount * 4u + 16u;
                     const std::size_t depthWords = envs * depthCount + 16u;
+                    const std::uint32_t actorCount = depthCount == 0u ? 0u : (trackCount == 0u ? 35u : 102u);
+                    const std::size_t actorWords = envs * actorCount + 16u;
+                    std::vector<std::uint32_t> actors(actorWords), oldActors(actorWords);
+                    for (std::size_t i=0; i<actorWords; ++i) { actors[i]=0x55000000u+static_cast<std::uint32_t>(i); oldActors[i]=0x66000000u+static_cast<std::uint32_t>(i); }
                     std::vector<std::uint32_t> tracks(trackWords), oldTracks(trackWords);
                     std::vector<std::uint32_t> depths(depthWords), oldDepths(depthWords);
                     for (std::size_t i=0; i<trackWords; ++i) { tracks[i]=0x11000000u+static_cast<std::uint32_t>(i); oldTracks[i]=0x22000000u+static_cast<std::uint32_t>(i); }
@@ -47,14 +51,19 @@ int main(int argc, char** argv) {
                     id<MTLBuffer> od=buffer(oldDepths.data(),depthWords*sizeof(std::uint32_t));
                     id<MTLBuffer> w=buffer(worlds.data(),sizeof(worlds));
                     id<MTLBuffer> c=buffer(contacts.data(),sizeof(contacts));
+                    id<MTLBuffer> actor=buffer(actors.data(),actorWords*sizeof(std::uint32_t));
+                    id<MTLBuffer> oldActor=buffer(oldActors.data(),actorWords*sizeof(std::uint32_t));
                     id<MTLCommandBuffer> command=[queue commandBuffer];
                     id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
-                    if (!t || !ot || !d || !od || !w || !c || !command || !encoder) return 4;
+                    if (!t || !ot || !d || !od || !w || !c || !actor || !oldActor || !command || !encoder) return 4;
                     [encoder setComputePipelineState:pipeline];
                     const std::array<id<MTLBuffer>,6> buffers{{t,ot,d,od,w,c}};
                     for (NSUInteger i=0;i<buffers.size();++i) [encoder setBuffer:buffers[i] offset:0 atIndex:i];
                     const mr_uint4 counts{envs,trackCount,depthCount,contactMode ? 1u : 0u};
                     [encoder setBytes:&counts length:sizeof(counts) atIndex:6];
+                    [encoder setBuffer:actor offset:0 atIndex:7];
+                    [encoder setBuffer:oldActor offset:0 atIndex:8];
+                    [encoder setBytes:&actorCount length:sizeof(actorCount) atIndex:9];
                     [encoder dispatchThreadgroups:MTLSizeMake(envs,1,1) threadsPerThreadgroup:MTLSizeMake(64,1,1)];
                     [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
                     if (command.status != MTLCommandBufferStatusCompleted) return 5;
@@ -65,6 +74,10 @@ int main(int argc, char** argv) {
                             const std::size_t j=env*trackCount*4u+i;
                             if (static_cast<const std::uint32_t*>(t.contents)[j] != (failed ? oldTracks[j] : tracks[j])) return 6;
                         }
+                        for (std::uint32_t i=0; i<actorCount; ++i) {
+                            const std::size_t j=env*actorCount+i;
+                            if (static_cast<const std::uint32_t*>(actor.contents)[j] != (failed ? oldActors[j] : actors[j])) return 9;
+                        }
                         for (std::uint32_t i=0; i<depthCount; ++i) {
                             const std::size_t j=env*depthCount+i;
                             if (static_cast<const std::uint32_t*>(d.contents)[j] != (failed ? oldDepths[j] : depths[j])) return 7;
@@ -73,7 +86,9 @@ int main(int argc, char** argv) {
                     if (std::memcmp(static_cast<const std::uint32_t*>(t.contents)+envs*trackCount*4u,
                             tracks.data()+envs*trackCount*4u,16u*sizeof(std::uint32_t)) != 0 ||
                         std::memcmp(static_cast<const std::uint32_t*>(d.contents)+envs*depthCount,
-                            depths.data()+envs*depthCount,16u*sizeof(std::uint32_t)) != 0) return 8;
+                            depths.data()+envs*depthCount,16u*sizeof(std::uint32_t)) != 0 ||
+                        std::memcmp(static_cast<const std::uint32_t*>(actor.contents)+envs*actorCount,
+                            actors.data()+envs*actorCount,16u*sizeof(std::uint32_t)) != 0) return 8;
                 }
             }
         }

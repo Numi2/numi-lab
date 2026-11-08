@@ -534,6 +534,7 @@ struct MetalWorldDeviceObservationStepResult {
     void* worldStatuses = nullptr;
     void* contactStatuses = nullptr;
     std::uint32_t environmentCount = 0u;
+    std::uint32_t actorFrameSize = 0u;
     std::uint32_t actorHistoryLength = 0u;
     std::uint32_t controlStep = 0u;
     bool contactMode = false;

@@ -18,6 +18,9 @@ kernel void mr_hybrid_restore_failed_observation_history(
     device const MRMetalWorldStatusGPU* world [[buffer(4)]],
     device const MRMetalWorldContactStatusGPU* contact [[buffer(5)]],
     constant uint4& counts [[buffer(6)]],
+    device float* actorHistory [[buffer(7)]],
+    device const float* savedActorHistory [[buffer(8)]],
+    constant uint& actorStride [[buffer(9)]],
     uint environment [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint lanes [[threads_per_threadgroup]]
@@ -32,6 +35,10 @@ kernel void mr_hybrid_restore_failed_observation_history(
     for (uint i = lane; i < counts.z; i += lanes) {
         const uint index = environment * counts.z + i;
         depthHistory[index] = savedDepth[index];
+    }
+    for (uint i = lane; i < actorStride; i += lanes) {
+        const uint index = environment * actorStride + i;
+        actorHistory[index] = savedActorHistory[index];
     }
 }
 
