@@ -1,0 +1,7 @@
+# Rejected encoding and retry result
+
+The preregistered process completed on 2026-11-08 from 00:09:52.177785 to 00:09:52.622539 UTC, exit 0. Preflight and postflight checks matched the pinned executable, dylib, shader and authored pack. The direct-winner prerequisite passed, as did a successful two-environment warmup and the zero-nonempty-winner empty-frame gate.
+
+The test-only finish hook returned false after the visual and physics work had been encoded, causing the real owner advance to return -1 before that command was submitted. Captured tracker and depth histories, frame arrays and camera-state arrays compared byte-identical across that rejection. The host frame metadata differed, and observation/sensor cadence nevertheless advanced from 1/0 to 2/1. The next advance succeeded with both world statuses 0 and cadence 3/2. All three raw snapshots, the empty winner words, process output, times and hash checks are retained.
+
+The result demonstrates an encode-rejection publication defect in this isolated owner: host cadence and metadata represent an attempt that was never submitted. The rejection was deliberately induced at the owner hook; this is not a Metal command failure, a rejected physical step, a per-environment mixed outcome or a complete rollback test. The retry has no independent state or observation reference, and the snapshot does not cover all actor or physical state. No sensor correctness or policy compatibility claim follows from its successful return status.
