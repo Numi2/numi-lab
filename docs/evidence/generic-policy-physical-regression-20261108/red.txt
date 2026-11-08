@@ -1,0 +1,29 @@
+FF
+======================================================================
+FAIL: test_generic_physical_regression_cannot_be_bought_with_reward (__main__.PolicySelectionTest.test_generic_physical_regression_cannot_be_bought_with_reward) (source='world_pack')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-reconciliation-20261108/tests/policy_selection_test.py", line 653, in test_generic_physical_regression_cannot_be_bought_with_reward
+    self.assertEqual(decision["selected"], "incumbent")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'candidate' != 'incumbent'
+- candidate
++ incumbent
+
+
+======================================================================
+FAIL: test_generic_physical_regression_cannot_be_bought_with_reward (__main__.PolicySelectionTest.test_generic_physical_regression_cannot_be_bought_with_reward) (source='urdf')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-reconciliation-20261108/tests/policy_selection_test.py", line 653, in test_generic_physical_regression_cannot_be_bought_with_reward
+    self.assertEqual(decision["selected"], "incumbent")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'candidate' != 'incumbent'
+- candidate
++ incumbent
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=2)

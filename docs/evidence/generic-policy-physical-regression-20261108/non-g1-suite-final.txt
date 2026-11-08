@@ -1,0 +1,6 @@
+Excluded known guided G1 test: test_zero_authority_teacher_is_removed_for_student_evaluation
+.............................................
+----------------------------------------------------------------------
+Ran 45 tests in 1.082s
+
+OK

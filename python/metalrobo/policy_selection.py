@@ -470,14 +470,20 @@ def _recovery_phase_rate(
 
 
 def _physical_failure_rate(record: dict[str, Any]) -> float:
-    """Exclude ordinary horizon timeouts from physical policy failures."""
+    """Exclude horizon timeouts and known successes from physical failures."""
 
     environments = max(
         len(record.get("termination_count_by_environment", [])), 1
     )
+    reason_counts = record.get("termination_reason_counts", {})
+    # The native ABI uses reason 7 for the successful food-consumed
+    # termination. It is an episode boundary, not a physical failure.
+    success_count = (
+        int(reason_counts.get("7", reason_counts.get(7, 0)))
+        if isinstance(reason_counts, dict) else 0
+    )
     timeout_count = record.get("timeout_count")
     if timeout_count is None:
-        reason_counts = record.get("termination_reason_counts", {})
         if isinstance(reason_counts, dict):
             # Native rollout evidence uses the ABI termination opcode as a
             # JSON object key. Opcode 4 is the ordinary episode timeout.
@@ -494,7 +500,7 @@ def _physical_failure_rate(record: dict[str, Any]) -> float:
         # counts height/tilt reasons and would otherwise hide a lethal impact.
         failures = max(
             int(record.get("termination_count", 0))
-            - timeout_count,
+            - timeout_count - success_count,
             0,
         )
     elif (
@@ -505,7 +511,7 @@ def _physical_failure_rate(record: dict[str, Any]) -> float:
     else:
         failures = max(
             int(record.get("termination_count", 0))
-            - timeout_count,
+            - timeout_count - success_count,
             0,
         )
     return failures / environments
@@ -858,6 +864,9 @@ def compare_evidence(
         )
         selected = (
             int(candidate.get("failed_environment_steps", 0)) == 0
+            # The score ranks candidates that meet the physical-failure
+            # requirement; a reward gain must not buy a worse failure rate.
+            and candidate_termination <= incumbent_termination + 1.0e-12
             and not (
                 task == "velocity"
                 and "clean_horizon_environment_rate" in candidate

@@ -1,0 +1,14 @@
+F
+======================================================================
+FAIL: test_generic_success_termination_is_not_a_physical_failure (__main__.PolicySelectionTest.test_generic_success_termination_is_not_a_physical_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-reconciliation-20261108/tests/policy_selection_test.py", line 738, in test_generic_success_termination_is_not_a_physical_failure
+    self.assertEqual(decision["metrics"]["candidate_physical_failure_rate"], 0)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0.0625 != 0
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)

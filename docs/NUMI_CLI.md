@@ -176,6 +176,14 @@ device-rejected physics steps remain invalid evidence. Every candidate is
 retained, and all saved checkpoints are compared directly with the immutable
 incumbent so the result does not depend on checkpoint ordering.
 
+For imported WorldPack and URDF tasks, the selector ranks candidates by
+authored outcome, reward and tracking, but does not advance a candidate when
+the reported physical-failure rate is higher than the incumbent's. A rejected
+physics step also prevents advancement. Native horizon timeouts and the
+food-consumed success reason are not physical failures. This comparison is
+limited by the supplied held-out evidence and termination-reason coverage;
+it does not establish that a selected policy is safe or physically qualified.
+
 For generated motions that need physical correction without a hand-authored
 pose, run the solver-residual teacher:
 

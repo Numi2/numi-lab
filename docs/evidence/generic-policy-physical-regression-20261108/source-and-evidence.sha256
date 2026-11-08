@@ -1,0 +1,8 @@
+23753dc0cae82df55ddd4c64bf39d1f101c50de0ea2e8b359f129b507c6942be  python/metalrobo/policy_selection.py
+d83336f8f3f608bdd4977bd78997e4c7240cc10ab6486b05d6856744762f6a3d  tests/policy_selection_test.py
+f88394a6f79c0678bea57a639fe7427e505376243496f05ccf7a48066ded2c06  docs/NUMI_CLI.md
+47a9980318145b83888e79940d52cd8045e86f11837e4231ecb770084006b184  /Users/numi/numi-lab-reconciliation-20261108/docs/evidence/generic-policy-physical-regression-20261108/before.json
+ced2aa22024c7a531e030e14a575e9ef6d03b2f91f94d13b63c8eacb7ca3bbbd  /Users/numi/numi-lab-reconciliation-20261108/docs/evidence/generic-policy-physical-regression-20261108/red.txt
+ae4320ed336d5f032c929d4dbc927ad6ff39746c981cb95bdb4231c050f41a30  /Users/numi/numi-lab-reconciliation-20261108/docs/evidence/generic-policy-physical-regression-20261108/success-termination-red.txt
+8cf829b67b877a66b174b7e4447303507b6e5ac4ab99f51797a707ae87e96350  /Users/numi/numi-lab-reconciliation-20261108/docs/evidence/generic-policy-physical-regression-20261108/full-suite-final.txt
+8357b7ff8ade27137a8291426b6d44c6413cdc39477ab0305c950b953518873e  /Users/numi/numi-lab-reconciliation-20261108/docs/evidence/generic-policy-physical-regression-20261108/non-g1-suite-final.txt
