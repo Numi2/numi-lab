@@ -1,0 +1,117 @@
+{
+  "reverse": {
+    "reference_accepted": 20,
+    "candidate_accepted": 20,
+    "exposed_trace_equal": true,
+    "repeated_and_capture_free": true,
+    "force_error_over_peak_or_absolute_N": 2.6491424412991528e-05,
+    "force_gate": true,
+    "impulse_error_relative_or_absolute_Ns": 9.339679942954202e-07,
+    "impulse_gate": true,
+    "max_normal_residual": 1.21537596e-06,
+    "max_tangent_residual": 7.331903034397645e-07,
+    "max_cone_excess": 2.884665839530953e-10,
+    "invalid_rows": [],
+    "joint_marked_rows": 60,
+    "fallback_rows": 0,
+    "max_momentum_balance_Ns": 2.69770294124283e-09,
+    "normal_work_estimate_J": 0.0007951279216814682,
+    "tangent_work_estimate_J": -0.0006115495578359917,
+    "frictionless_all_zero": null,
+    "separation_checks": []
+  },
+  "raised_rod": {
+    "reference_accepted": 20,
+    "candidate_accepted": 20,
+    "exposed_trace_equal": true,
+    "repeated_and_capture_free": true,
+    "force_error_over_peak_or_absolute_N": 4.8235141192936915e-05,
+    "force_gate": true,
+    "impulse_error_relative_or_absolute_Ns": 2.1652404042675837e-06,
+    "impulse_gate": true,
+    "max_normal_residual": 2.980232239e-07,
+    "max_tangent_residual": 7.339832089274998e-08,
+    "max_cone_excess": 1.0796830096637677e-10,
+    "invalid_rows": [],
+    "joint_marked_rows": 60,
+    "fallback_rows": 0,
+    "max_momentum_balance_Ns": 9.865878685191842e-09,
+    "normal_work_estimate_J": 0.0007950265757011619,
+    "tangent_work_estimate_J": -0.0012483648648727677,
+    "frictionless_all_zero": null,
+    "separation_checks": []
+  },
+  "frictionless": {
+    "reference_accepted": 20,
+    "candidate_accepted": 20,
+    "exposed_trace_equal": true,
+    "repeated_and_capture_free": true,
+    "force_error_over_peak_or_absolute_N": 1.216549797346684e-05,
+    "force_gate": true,
+    "impulse_error_relative_or_absolute_Ns": 1.1319676781262854e-07,
+    "impulse_gate": true,
+    "max_normal_residual": 2.36555934e-07,
+    "max_tangent_residual": 0.0,
+    "max_cone_excess": 0.0,
+    "invalid_rows": [],
+    "joint_marked_rows": 60,
+    "fallback_rows": 0,
+    "max_momentum_balance_Ns": 1.77349742391808e-08,
+    "normal_work_estimate_J": 0.0007951169019874899,
+    "tangent_work_estimate_J": 0.0,
+    "frictionless_all_zero": true,
+    "separation_checks": []
+  },
+  "separating": {
+    "reference_accepted": 20,
+    "candidate_accepted": 20,
+    "exposed_trace_equal": true,
+    "repeated_and_capture_free": true,
+    "force_error_over_peak_or_absolute_N": 0.0,
+    "force_gate": true,
+    "impulse_error_relative_or_absolute_Ns": 0.0,
+    "impulse_gate": true,
+    "max_normal_residual": 5.960464478e-07,
+    "max_tangent_residual": 1.8402934069997765e-05,
+    "max_cone_excess": 0.0,
+    "invalid_rows": [],
+    "joint_marked_rows": 15,
+    "fallback_rows": 30,
+    "max_momentum_balance_Ns": 4.512480590579404e-09,
+    "normal_work_estimate_J": 0.0,
+    "tangent_work_estimate_J": 0.0,
+    "frictionless_all_zero": null,
+    "separation_checks": [
+      [
+        0,
+        0.0015000000199999995,
+        0.03999999911,
+        0
+      ],
+      [
+        1,
+        0.001530051939999999,
+        0.03005158901,
+        0
+      ],
+      [
+        2,
+        0.0015502933,
+        0.02024158835,
+        0
+      ],
+      [
+        3,
+        0.0015607250499999996,
+        0.0104315877,
+        0
+      ],
+      [
+        4,
+        0.001561346239999999,
+        0.0006215868052,
+        0
+      ]
+    ]
+  }
+}
