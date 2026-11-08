@@ -1,0 +1,6 @@
+0 3.6799999991732335e-09 [0.0, 0.0, 1.911470617205202e-10] [0.0, 0.0, -0.0] 1.911470617205202e-10 1.2125695354747723e-07
+Traceback (most recent call last):
+  File "/Users/numi/mixed-contact-witness-20261108/analyze.py", line 28, in <module>
+    assert norm(dp)<1e-7 and err<1e-7 and poserr<1e-7
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
