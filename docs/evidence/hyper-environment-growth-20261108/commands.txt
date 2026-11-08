@@ -1,0 +1,9 @@
+Host: ssh numi, Apple M6
+Baseline source: 2734c0a39 parent code before fix; baseline probe and outputs retained.
+Integration code revision: f4e189d29
+Main code revision: ac0fecc16
+Build targets: cmake --build BUILD --target metalrobo hyper-policy-environment-growth-probe hyper-policy-capacity-probe hyper-policy-rejection-probe hyper-policy-restore-test metalrobo_run_program_check -j 4
+CTest: cd BUILD && ctest --output-on-failure -R "^(hyper_policy_(environment_growth|capacity_continuity|physical_rejection|restore_statuses)|metalrobo.runtime.run_program)$"
+Combined build: /Users/numi/numi-reconciliation-build-20261108
+Main build: /Users/numi/numi-tracker-step-rollback-build-20261108
+Use hyper-policy-environment-growth-probe BUILD/shaders/MetalRoboHyperPolicy.metallib, with and without NO_NEW_RESET=1, to reproduce native JSON.

@@ -1,0 +1,28 @@
+Test project /Users/numi/numi-reconciliation-build-20261108
+    Start 13: hyper_policy_physical_rejection
+1/4 Test #13: hyper_policy_physical_rejection ....   Passed    0.63 sec
+    Start 14: hyper_policy_restore_statuses
+2/4 Test #14: hyper_policy_restore_statuses ......   Passed    0.01 sec
+    Start 15: hyper_policy_capacity_continuity
+3/4 Test #15: hyper_policy_capacity_continuity ...   Passed    0.43 sec
+    Start 16: hyper_policy_environment_growth
+4/4 Test #16: hyper_policy_environment_growth ....***Failed    0.53 sec
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-reconciliation-20261108/tests/hyper_policy_environment_growth_test.py", line 20, in <module>
+    assert all_runs[0] == all_runs[1], "new rows must start from zero"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: new rows must start from zero
+
+
+75% tests passed, 1 tests failed out of 4
+
+Label Time Summary:
+metal       =   1.61 sec*proc (4 tests)
+policy      =   1.61 sec*proc (4 tests)
+robotics    =   1.61 sec*proc (4 tests)
+
+Total Test time (real) =   1.62 sec
+
+The following tests FAILED:
+	 16 - hyper_policy_environment_growth (Failed)          metal policy robotics
+Errors while running CTest

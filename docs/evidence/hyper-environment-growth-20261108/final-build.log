@@ -1,0 +1,18 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.6s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/numi/numi-reconciliation-build-20261108
+[0/4] Re-checking globbed directories...
+[1/14] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHyperPolicy.mm.o
+[2/14] Building OBJCXX object CMakeFiles/hyper-policy-rejection-probe.dir/tests/hyper_policy_rejection_probe.mm.o
+[3/14] Building CXX object CMakeFiles/metalrobo_run_program_check.dir/apps/run_program_check.cpp.o
+[4/14] Building OBJCXX object CMakeFiles/hyper-policy-capacity-probe.dir/tests/hyper_policy_capacity_probe.mm.o
+[5/14] Building OBJCXX object CMakeFiles/hyper-policy-environment-growth-probe.dir/tests/hyper_policy_environment_growth_probe.mm.o
+[6/14] Building CXX object CMakeFiles/metalrobo.dir/src/c_api.cpp.o
+[7/14] Linking CXX shared library lib/libmetalrobo.dylib
+[8/14] Linking CXX executable bin/metalrobo_run_program_check
+[9/14] Linking OBJCXX executable hyper-policy-capacity-probe
+[10/14] Linking OBJCXX executable hyper-policy-environment-growth-probe
+[11/14] Linking OBJCXX executable hyper-policy-rejection-probe

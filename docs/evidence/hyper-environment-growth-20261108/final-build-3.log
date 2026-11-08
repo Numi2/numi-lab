@@ -1,0 +1,11 @@
+[0/2] Re-checking globbed directories...
+[1/11] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHyperPolicy.mm.o
+[2/11] Building OBJCXX object CMakeFiles/hyper-policy-rejection-probe.dir/tests/hyper_policy_rejection_probe.mm.o
+[3/11] Building OBJCXX object CMakeFiles/hyper-policy-capacity-probe.dir/tests/hyper_policy_capacity_probe.mm.o
+[4/11] Building OBJCXX object CMakeFiles/hyper-policy-environment-growth-probe.dir/tests/hyper_policy_environment_growth_probe.mm.o
+[5/11] Building CXX object CMakeFiles/metalrobo.dir/src/c_api.cpp.o
+[6/11] Linking CXX shared library lib/libmetalrobo.dylib
+[7/11] Linking CXX executable bin/metalrobo_run_program_check
+[8/11] Linking OBJCXX executable hyper-policy-capacity-probe
+[9/11] Linking OBJCXX executable hyper-policy-environment-growth-probe
+[10/11] Linking OBJCXX executable hyper-policy-rejection-probe
