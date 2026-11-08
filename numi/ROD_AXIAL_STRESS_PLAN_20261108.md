@@ -1,0 +1,3 @@
+# Axial rod length and coordinate stress gate
+
+Before modifying the direct-solve candidate or considering promotion, run the already pinned independent dense FP64 comparison for the Cartesian product of 5, 17 and 128 nodes and X offsets 0, 1 and 16 metres. Keep the same masses, stiffness variation, target motion, gravity, 1 ms timestep and force/state gates. This deliberately compares requested FP64 source geometry with the owner’s actual FP32 execution, so coordinate quantization is part of the observed application error. Report accepted inaccurate states as failures, not as solver success. Retain out-of-domain/rejected cases. This is a bounded synthetic test, not an assertion of anatomical scene sizes or clinical requirements.
