@@ -89,7 +89,7 @@ biological environment qualification.
 subprocess.run(['git','add',str(A),str(G)],check=True)
 subprocess.run(['git','commit','-m','Record failed release convergence and preserve native diagnostic evidence'],check=True)
 subprocess.run(['git','push','origin','HEAD'],check=True)
-a.capture(A/'payload')
+a.capture(A.relative_to(R)/'payload')
 subprocess.run(['git','add',str(A/'payload')],check=True)
 subprocess.run(['git','commit','-m','Archive crow contact sweep raw evidence with Git deduplication'],check=True)
 subprocess.run(['git','push','origin','HEAD'],check=True)

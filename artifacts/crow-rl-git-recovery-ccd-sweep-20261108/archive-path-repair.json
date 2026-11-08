@@ -1,0 +1,8 @@
+{
+  "cause": "Caller supplied absolute output directory to capture; new backing blob paths became absolute and actual-Git verifier correctly rejected manifest before any raw evidence deletion.",
+  "change": "Normalize only paths within this exact repository root to relative paths. No source files, payload bytes, hashes, modes, mtimes or qualification results change. Caller fixed to use repository-relative output path.",
+  "changed_backing_path_fields": 259,
+  "corrected_manifest_sha256": "ca8d1f550b49daf9c8471cd076a6bc037ceb56d27b79c9eae171397666b34f7b",
+  "original_commit": "c5f2fe96bb3769a845b996c36c65da6da7459374",
+  "original_manifest_sha256": "a5aa20b996b3c4fed4bef3af87da13be5782bc9aa170cab39c5cfdd93a4ab07e"
+}
