@@ -106,3 +106,16 @@ work, and stop promptly under these guards. Timing during overlapping
 work is not performance evidence. These thresholds reduce interference
 but do not guarantee that no swapping, contention or transient memory
 pressure occurs between samples.
+
+## n16 first attempt stopped for disk headroom
+
+The coarse process was externally stopped after 1,087.84 s, peak sampled
+RSS 3,213,264 KiB, when APFS available space had fallen to approximately
+676 MiB. The existing monitor did not include a disk guard and would have
+automatically started fine after coarse. It retained exit -15 and null
+limit_reason because the operator, not a configured guard, sent SIGTERM.
+No coarse trajectory was completed and no fine run started. Resource logs
+and the external-stop explanation are preserved. The attempt overlapped
+coordinated correctness work and supplies no performance result. A new
+attempt requires stable disk headroom and separately sealed disk-space and
+phase-transition guards.

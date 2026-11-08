@@ -1,0 +1,8 @@
+The coarse process group received SIGTERM by operator direction because APFS
+available space had fallen to approximately 676 MiB and the already-running
+monitor could not enforce a disk guard or prevent automatic fine launch.
+This was an external stop; the monitor correctly recorded exit -15 and
+limit_reason null. Coarse output is empty and no fine run started. The process
+was not checkpointed, so no completed trajectory can be recovered from it.
+Product's bounded native builds and Collision's short correctness matrix
+overlapped the coarse run; elapsed time is not performance evidence.
