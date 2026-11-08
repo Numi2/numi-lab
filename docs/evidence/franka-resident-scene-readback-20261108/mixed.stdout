@@ -1,0 +1,39 @@
+input scene_count=8
+input scene=0 xyz=0x1.8p+1,0x0p+0,0x1.1eb852p-4 velocity=0x0p+0,0x0p+0,-0x1p+0 motion=2
+input scene=1 xyz=0x0p+0,0x0p+0,0x0p+0 velocity=0x0p+0,0x0p+0,0x0p+0 motion=0
+input scene=2 xyz=0x1.ccccccp-2,0x1p-2,0x0p+0 velocity=0x0p+0,0x0p+0,0x0p+0 motion=0
+input scene=3 xyz=0x1p+2,0x0p+0,0x1.333334p-4 velocity=0x0p+0,0x0p+0,-0x1p+0 motion=2
+input scene=4 xyz=0x1.8p+1,0x0p+0,0x1.8p+1 velocity=0x0p+0,0x0p+0,0x0p+0 motion=2
+input scene=5 xyz=0x0p+0,0x0p+0,0x0p+0 velocity=0x0p+0,0x0p+0,0x0p+0 motion=0
+input scene=6 xyz=0x1.ccccccp-2,0x1p-2,0x0p+0 velocity=0x0p+0,0x0p+0,0x0p+0 motion=0
+input scene=7 xyz=0x1p+2,0x0p+0,0x1.8p+1 velocity=0x0p+0,0x0p+0,0x0p+0 motion=2
+warmup status=0 published=1 success=2 failed=0
+warmup world env=0 code=0
+warmup world env=1 code=0
+warmup contact env=0 code=0 raw_required=0
+warmup contact env=1 code=0 raw_required=0
+warmup scene_count=8
+warmup scene=0 xyz=0x1.06c66cp-3,0x1.73964ap-4,0x1.14acfp-4 velocity=0x0p+0,0x0p+0,-0x1.91c1ep-3 motion=2
+warmup scene=1 xyz=0x0p+0,0x0p+0,0x0p+0 velocity=0x0p+0,0x0p+0,0x0p+0 motion=0
+warmup scene=2 xyz=0x1.ccccccp-2,0x1p-2,0x0p+0 velocity=0x0p+0,0x0p+0,0x0p+0 motion=0
+warmup scene=3 xyz=0x1p+2,0x0p+0,0x1.2927d2p-4 velocity=0x0p+0,0x0p+0,-0x1.91c1ep-3 motion=2
+warmup scene=4 xyz=-0x1.83c824p-4,-0x1.1b18bp-4,0x1.7fafa4p+1 velocity=0x0p+0,0x0p+0,-0x1.91c1ep-3 motion=2
+warmup scene=5 xyz=0x0p+0,0x0p+0,0x0p+0 velocity=0x0p+0,0x0p+0,0x0p+0 motion=0
+warmup scene=6 xyz=0x1.ccccccp-2,0x1p-2,0x0p+0 velocity=0x0p+0,0x0p+0,0x0p+0 motion=0
+warmup scene=7 xyz=0x1p+2,0x0p+0,0x1.7fafa4p+1 velocity=0x0p+0,0x0p+0,-0x1.91c1ep-3 motion=2
+snapshot=warmup depth_history=288 track_history=48 frame_depth=288 frame_id=1152 frame_valid=288 camera=32 actor_history_bytes=816 sequence=1 sensor=0 bindings=1
+test status=0 published=1 success=2 failed=0
+test world env=0 code=0
+test world env=1 code=0
+test contact env=0 code=0 raw_required=0
+test contact env=1 code=0 raw_required=0
+test scene_count=8
+test scene=0 xyz=0x1.06c66cp-3,0x1.73964ap-4,0x1.f5213p-5 velocity=0x0p+0,0x0p+0,-0x1.91ad4cp-2 motion=2
+test scene=1 xyz=0x0p+0,0x0p+0,0x0p+0 velocity=0x0p+0,0x0p+0,0x0p+0 motion=0
+test scene=2 xyz=0x1.ccccccp-2,0x1p-2,0x0p+0 velocity=0x0p+0,0x0p+0,0x0p+0 motion=0
+test scene=3 xyz=0x1p+2,0x0p+0,0x1.0f0b7ap-4 velocity=0x0p+0,0x0p+0,-0x1.91ad4cp-2 motion=2
+test scene=4 xyz=-0x1.83c824p-4,-0x1.1b18bp-4,0x1.7edec4p+1 velocity=0x0p+0,0x0p+0,-0x1.91ad4cp-2 motion=2
+test scene=5 xyz=0x0p+0,0x0p+0,0x0p+0 velocity=0x0p+0,0x0p+0,0x0p+0 motion=0
+test scene=6 xyz=0x1.ccccccp-2,0x1p-2,0x0p+0 velocity=0x0p+0,0x0p+0,0x0p+0 motion=0
+test scene=7 xyz=0x1p+2,0x0p+0,0x1.7edec4p+1 velocity=0x0p+0,0x0p+0,-0x1.91ad4cp-2 motion=2
+snapshot=test depth_history=288 track_history=48 frame_depth=288 frame_id=1152 frame_valid=288 camera=32 actor_history_bytes=816 sequence=2 sensor=1 bindings=1
