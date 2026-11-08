@@ -1,0 +1,3 @@
+# Continue the failed observation diagnostic
+
+The first fault trial stopped at the existing earlier metadata assertion: the discarded, uncommitted successful encode changed identity.z from 0 to 1. Preserve that failure. For a separate diagnostic binary only, log this failed assertion and bypass it when the discard-fault environment variable is set, allowing the original invalid-encode check and valid retry to run. Do not alter the retry assertion. Run control and fault arms separately with the same pinned library and shader. This shows whether cadence also leaks; it does not claim a production repair or physical-step rollback.
