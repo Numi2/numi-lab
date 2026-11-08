@@ -1,0 +1,648 @@
+{
+  "runs": {
+    "ordinary": {
+      "success": 20,
+      "failed": 0,
+      "repeat": true,
+      "exact_trace": true,
+      "capture_noninvasive": true
+    },
+    "witness": {
+      "success": 20,
+      "failed": 0,
+      "repeat": true,
+      "exact_trace": true,
+      "capture_noninvasive": true
+    },
+    "forced": {
+      "success": 20,
+      "failed": 0,
+      "repeat": true,
+      "exact_trace": true,
+      "capture_noninvasive": true
+    },
+    "old": {
+      "success": 20,
+      "failed": 0,
+      "repeat": true,
+      "exact_trace": true,
+      "capture_noninvasive": true
+    },
+    "guard": {
+      "success": 20,
+      "failed": 0,
+      "repeat": true,
+      "exact_trace": true,
+      "capture_noninvasive": true
+    }
+  },
+  "guard_vs_ordinary": {
+    "exact": true,
+    "difference_count": 0,
+    "max_numeric_difference_mixed_units": 0,
+    "first_differences": []
+  },
+  "witness_vs_ordinary": {
+    "exact": true,
+    "difference_count": 0,
+    "max_numeric_difference_mixed_units": 0,
+    "first_differences": []
+  },
+  "ordinary_vs_forced": {
+    "exact": false,
+    "difference_count": 967,
+    "max_numeric_difference_mixed_units": 0.0001129848606,
+    "first_differences": [
+      [
+        "/steps/0/q/3",
+        -6.367282812e-10,
+        -6.367280592e-10
+      ],
+      [
+        "/steps/0/rod_v/0/2",
+        0.005077513866,
+        0.005077514332
+      ],
+      [
+        "/steps/0/rod_v/1/0",
+        0.01087100897,
+        0.01087101083
+      ],
+      [
+        "/steps/0/rod_v/5/1",
+        -0.01615843736,
+        -0.01615843922
+      ],
+      [
+        "/steps/0/rod_v/6/0",
+        -0.07321923971,
+        -0.07321924716
+      ],
+      [
+        "/steps/0/rod_v/6/2",
+        0.1643216461,
+        0.1643216312
+      ],
+      [
+        "/steps/0/rod_v/7/0",
+        0.02830214798,
+        0.02830214053
+      ],
+      [
+        "/steps/0/rod_v/7/2",
+        -0.06679196656,
+        -0.06679195911
+      ],
+      [
+        "/steps/0/rod_v/8/0",
+        0.009493174031,
+        0.009493172169
+      ],
+      [
+        "/steps/0/rows/0/impulse/1",
+        1.128941858e-05,
+        1.128941949e-05
+      ],
+      [
+        "/steps/0/rows/2/impulse/1",
+        6.614194717e-05,
+        6.61419399e-05
+      ],
+      [
+        "/steps/0/rows/2/impulse/2",
+        -2.309670208e-06,
+        -2.3096718e-06
+      ],
+      [
+        "/steps/0/v/3",
+        -1.273456519e-06,
+        -1.273456064e-06
+      ],
+      [
+        "/steps/1/q/2",
+        -8.688558495e-08,
+        -8.688557074e-08
+      ],
+      [
+        "/steps/1/q/3",
+        -1.599580024e-09,
+        -1.59957958e-09
+      ],
+      [
+        "/steps/1/rod_v/0/2",
+        0.0065542222,
+        0.006554224528
+      ],
+      [
+        "/steps/1/rod_v/1/0",
+        0.01332444232,
+        0.01332444139
+      ],
+      [
+        "/steps/1/rod_v/6/0",
+        -0.1639045924,
+        -0.1639046073
+      ],
+      [
+        "/steps/1/rod_v/7/0",
+        -0.0246486105,
+        -0.02464861423
+      ],
+      [
+        "/steps/1/rod_v/8/0",
+        0.004991857801,
+        0.004991855007
+      ]
+    ]
+  },
+  "ordinary_vs_old": {
+    "exact": true,
+    "difference_count": 0,
+    "max_numeric_difference_mixed_units": 0,
+    "first_differences": []
+  },
+  "steps_with_guard_denied": [
+    {
+      "step": 0,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    },
+    {
+      "step": 1,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    },
+    {
+      "step": 2,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    },
+    {
+      "step": 3,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    },
+    {
+      "step": 4,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    },
+    {
+      "step": 5,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    },
+    {
+      "step": 6,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    },
+    {
+      "step": 7,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    },
+    {
+      "step": 8,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    },
+    {
+      "step": 9,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    },
+    {
+      "step": 10,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    },
+    {
+      "step": 11,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    },
+    {
+      "step": 12,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    },
+    {
+      "step": 13,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    },
+    {
+      "step": 14,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    },
+    {
+      "step": 15,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    },
+    {
+      "step": 16,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    },
+    {
+      "step": 17,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    },
+    {
+      "step": 18,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    },
+    {
+      "step": 19,
+      "indices": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          6,
+          7,
+          6
+        ]
+      ],
+      "node_span": 7,
+      "edge_span": 6,
+      "markers": [
+        8,
+        8,
+        8
+      ],
+      "valid_indices": true,
+      "qualifies": true
+    }
+  ],
+  "qualified_guard_step_count": 20,
+  "strict_guard_gate": true
+}

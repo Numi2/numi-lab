@@ -1,0 +1,20 @@
+{
+  "long": {
+    "returncode": 0,
+    "match": true,
+    "success": 20,
+    "failed": 0,
+    "repeat": true,
+    "exact_trace": true,
+    "capture_noninvasive": true
+  },
+  "old": {
+    "returncode": 0,
+    "match": true,
+    "success": 13,
+    "failed": 7,
+    "repeat": true,
+    "exact_trace": true,
+    "capture_noninvasive": true
+  }
+}
