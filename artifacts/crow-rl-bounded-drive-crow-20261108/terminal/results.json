@@ -1,0 +1,66 @@
+{
+  "accepted_control_transitions": 368,
+  "command": [
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/fixture-terminal",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/terminal-crow32",
+    "0",
+    "1",
+    "32"
+  ],
+  "exit_code": 1,
+  "limits": "Same exposed trajectory, not an independent physical replicate. The former generic runner label inconclusive_crow_native_failure did not distinguish this accepted task termination. This is a physical failure of the fixed fixture, not a GPU motor certificate rejection.",
+  "maximum_observed_penetration_m": 0.00539132553934,
+  "native_rejections": 0,
+  "policy_or_profile_promoted": false,
+  "prefix_trace_byte_exact": true,
+  "sealed_head": "def44f8e36d558eca62e2cd09f160b9f14596411",
+  "seconds": 20.786861625,
+  "terminal": {
+    "accepted": 4,
+    "begin_tick": 91,
+    "control_ticks": 1,
+    "device": "Apple M4 Pro",
+    "failed": 0,
+    "host_status": 0,
+    "transition_bytes": 144,
+    "transitions": [
+      {
+        "done": 0,
+        "height": 0.152321249247,
+        "physics_error": 0,
+        "reason": 0,
+        "reward": -1.15868524517e-05,
+        "tilt": 1.19300055504,
+        "timeout": 0
+      },
+      {
+        "done": 0,
+        "height": 0.151635408401,
+        "physics_error": 0,
+        "reason": 0,
+        "reward": -1.26170843942e-05,
+        "tilt": 1.19742035866,
+        "timeout": 0
+      },
+      {
+        "done": 0,
+        "height": 0.154192611575,
+        "physics_error": 0,
+        "reason": 0,
+        "reward": -1.0695288438e-05,
+        "tilt": 1.18060624599,
+        "timeout": 0
+      },
+      {
+        "done": 1,
+        "height": 0.151237353683,
+        "physics_error": 0,
+        "reason": 2,
+        "reward": -1.00001275539,
+        "tilt": 1.20000863075,
+        "timeout": 0
+      }
+    ]
+  },
+  "verdict": "physical_task_termination_reproduced_with_terminal_evidence"
+}

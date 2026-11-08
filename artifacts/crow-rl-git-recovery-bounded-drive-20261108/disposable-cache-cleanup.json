@@ -1,0 +1,16 @@
+{
+  "status": "removed_rebuildable_untracked_compiler_intermediates",
+  "files": [
+    {
+      "path": "artifacts/crow-rl-bounded-drive-crow-20261108/witness/__pycache__/motor_reference.cpython-313.pyc",
+      "bytes": 6268,
+      "sha256": "ac96387b42598e4cec2c8d69783090a9c0ec13a608ae9e9ce1c62bedc8171146",
+      "mode": 420,
+      "mtime_ns": 1794130074602028340,
+      "lsof_exit": 1,
+      "lsof_stdout": "",
+      "lsof_stderr": ""
+    }
+  ],
+  "removed_bytes": 6268
+}

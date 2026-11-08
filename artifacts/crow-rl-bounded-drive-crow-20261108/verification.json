@@ -1,0 +1,98 @@
+{
+  "commands": [
+    {
+      "command": [
+        "cmake",
+        "--build",
+        "build",
+        "-j4"
+      ],
+      "exit_code": 0,
+      "name": "final-full-release",
+      "seconds": 32.743450291
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-twofold-20261108/contact-probe"
+      ],
+      "exit_code": 0,
+      "name": "final-default-contact",
+      "seconds": 1.0277490839999999
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-twofold-20261108/object-push-check",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/default-object-push"
+      ],
+      "exit_code": 0,
+      "name": "final-default-object-push",
+      "seconds": 103.655836667
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/fixture-base",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/default-crow32",
+        "0",
+        "1",
+        "32"
+      ],
+      "exit_code": 0,
+      "name": "final-default-crow32",
+      "seconds": 16.683703667000003
+    }
+  ],
+  "default_crow640transition_replay": {
+    "final-q.f32": {
+      "byte_exact": true,
+      "reference_source": "build/crow-ccd-articulated-sweep-build-01/integrated32/final-q.f32",
+      "sha256": "4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42"
+    },
+    "final-scene.bin": {
+      "byte_exact": true,
+      "reference_source": "build/crow-ccd-articulated-sweep-build-01/integrated32/final-scene.bin",
+      "sha256": "e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090"
+    },
+    "final-v.f32": {
+      "byte_exact": true,
+      "reference_source": "build/crow-ccd-articulated-sweep-build-01/integrated32/final-v.f32",
+      "sha256": "a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27"
+    },
+    "scene.bin": {
+      "byte_exact": true,
+      "reference_source": "build/crow-ccd-articulated-sweep-build-01/integrated32/scene.bin",
+      "sha256": "097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e"
+    },
+    "summary.json": {
+      "byte_exact": true,
+      "reference_source": "build/crow-ccd-articulated-sweep-build-01/integrated32/summary.json",
+      "sha256": "765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9"
+    },
+    "trace.tsv": {
+      "byte_exact": true,
+      "reference_source": "build/crow-ccd-articulated-sweep-build-01/integrated32/trace.tsv",
+      "sha256": "8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921"
+    }
+  },
+  "default_native_contact_pass": true,
+  "default_native_object_push_pass": true,
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300311936 157037204    66% 3497947 1570372040    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300313740 157035400    66% 3497824 1570354000    0%   /System/Volumes/Data\n",
+  "full_crow_qualified": false,
+  "full_release_pass": true,
+  "full_release_runtime_equals_tested_snapshot": true,
+  "legacy448constitutive_rows_exact": true,
+  "loader_lines": {
+    "final-default-contact": [
+      "dyld[31409]: <4D68CA38-6DDA-3802-BB55-2A7181993869> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-twofold-20261108/libmetalrobo.dylib"
+    ],
+    "final-default-crow32": [
+      "dyld[31548]: <4D68CA38-6DDA-3802-BB55-2A7181993869> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-twofold-20261108/libmetalrobo.dylib"
+    ],
+    "final-default-object-push": [
+      "dyld[31410]: <4D68CA38-6DDA-3802-BB55-2A7181993869> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-twofold-20261108/libmetalrobo.dylib"
+    ]
+  },
+  "policy_or_profile_promoted": false,
+  "protected_policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+  "source_head": "def44f8e36d558eca62e2cd09f160b9f14596411"
+}
