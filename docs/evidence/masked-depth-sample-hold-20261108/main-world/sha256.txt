@@ -1,0 +1,5 @@
+047d5a96405944adae405546127355b71834553239ab90c7f7b84b7bdb541f1c  /Users/numi/numi-tracker-step-rollback-build-20261108/lib/libmetalrobo.dylib
+3452340ef76cb6e851f1fb3b971342528a95ea7da0fb9dcbf9d097d90cdfb4aa  /Users/numi/numi-tracker-step-rollback-build-20261108/shaders/MetalRobo.metallib
+e8f52465e419c18c2098fb47ee72b48883997371eb80087be0f0d7d06ffa3156  /Users/numi/numi-tracker-step-rollback-build-20261108/bin/metalrobo_visual_platform_probe
+828c23b53a64315512ffa63ef8cb568dba82a473f2f0131e306df05fcfe71540  /Users/numi/Work/masked-depth-hold-main-20261108/probe
+a0c8f01d8c6f2b95c104e8e0cca64d5ef2cf3b95c012466b3370fdbcc1609a81  docs/evidence/masked-depth-sample-hold-20261108/main-world/captures.tar.gz
