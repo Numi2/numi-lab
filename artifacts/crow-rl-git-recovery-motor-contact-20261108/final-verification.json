@@ -1,0 +1,23 @@
+{
+  "actual_git_files_verified": 107,
+  "actual_git_unique_contents_verified": 75,
+  "build_open_handles": 0,
+  "data_available_GiB": 149.78351974487305,
+  "df": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300289736 157059404    66% 3498308 1570594040    0%   /System/Volumes/Data\n",
+  "goal_complete": false,
+  "manifest_sha256": "995bf24b97426b4afcee04c0fc5ec8dab22e3a992150a80a217c47e9d2a69f45",
+  "original_raw_and_temporary_scopes_absent": true,
+  "own_native_workers": [],
+  "policy_or_profile_promoted": false,
+  "protected_policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+  "remote_commit": "c308c282decfffa80fdf93ef5fa088324c5706c7",
+  "source_and_current_runtime_sha256": {
+    "CMakeLists.txt": "bc43495b80b53b9d8feb9be952afb2a8c7efe7350cedda8c0049a4164e899769",
+    "apps/motor_contact_probe.cpp": "2a0f881adb35859bd26b403ea68205ba6cebe3aec34fc935963524715f3b93d6",
+    "build/bin/metalrobo_motor_contact_probe": "2deeb6824428ac380bb1bb074ac8d4a83f070543a21eca531bf807eab9b721c3",
+    "build/lib/libmetalrobo.dylib": "18caa3e31857028b159c1cd287ac4721c7cd2b3c014885e3871650412f8562d4",
+    "build/shaders/MetalRobo.metallib": "6eb48053118d0e54850d21241e499100787de13af84e54e5b48ddc8130876be2",
+    "src/metal/MetalWorld.mm": "1a8aba2c7cf8ee5c0b1937ee4ab376a3f9f96eeaaeccab51358f87c7156a758c"
+  },
+  "verification_commit": "c308c282decfffa80fdf93ef5fa088324c5706c7"
+}
