@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-policy-repair-main-20261108/tests/clean_horizon_native_test.py", line 97, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/numi-lab-policy-repair-main-20261108/tests/clean_horizon_native_test.py", line 85, in main
+    check("normal", envs, chunk, steps, 1, rate,
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          {} if steps == 255 else {"4": 1})
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/numi-lab-policy-repair-main-20261108/tests/clean_horizon_native_test.py", line 70, in check
+    outcome = evaluate(name, envs, chunk, steps, repeats)
+  File "/Users/numi/numi-lab-policy-repair-main-20261108/tests/clean_horizon_native_test.py", line 67, in evaluate
+    return json.loads(run(command))
+                      ~~~^^^^^^^^^
+  File "/Users/numi/numi-lab-policy-repair-main-20261108/tests/clean_horizon_native_test.py", line 23, in run
+    raise RuntimeError(f"{command!r} exited {result.returncode}:\n{result.stderr}")
+RuntimeError: ['/Users/numi/numi-lab-horizon-main-build-20261108/bin/metalrobo_task_rollout', '--world-pack', '/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/numi-clean-horizon-5tcb7h3w/normal/fixture/world.mrworld', '--task-pack', '/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/numi-clean-horizon-5tcb7h3w/normal/fixture/task.taskpack', '--robot-actuator-pack', '/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/numi-clean-horizon-5tcb7h3w/normal/fixture/actuators.actuatorpack', '--sensor-program-pack', '/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/numi-clean-horizon-5tcb7h3w/normal/fixture/sensors.sensorpack', '--reality-program-pack', '/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/numi-clean-horizon-5tcb7h3w/normal/fixture/reality.realitypack', '--envs', '1', '--chunk', '1', '--steps', '255', '--repeats', '1', '--seed', '4081019', '--metallib', '/Users/numi/numi-lab-horizon-main-build-20261108/shaders/MetalRobo.metallib', '--policy-pack', '/Users/numi/numi-reconciliation-qualification-20261108/franka-train-merged-20261108/workspace/.numi/runs/qualification/incumbent.deployment.policypack'] exited 1:
+task_rollout failed: PolicyPack load failed [unsupported_version]: learning pack wire version is unsupported
+

@@ -1357,6 +1357,16 @@ private enum TaskRolloutMain {
                 repeating: 0,
                 count: options.environments
             )
+            // A timeout at the final requested control step completes the
+            // evaluated horizon; an earlier timeout still breaks it.
+            var finalStepTimeoutByEnvironment = [Bool](
+                repeating: false,
+                count: options.environments
+            )
+            var resetInterruptedHorizonByEnvironment = [Bool](
+                repeating: false,
+                count: options.environments
+            )
             var transitionCountByEnvironment = [Int](
                 repeating: 0,
                 count: options.environments
@@ -1521,6 +1531,16 @@ private enum TaskRolloutMain {
                             pending: &pending
                         )
                         : []
+                    // The first reset establishes the initial state. Any
+                    // later host reset interrupts the requested horizon.
+                    for (index, reset) in resetBatch.enumerated() where reset != 0 {
+                        let localStep = index / options.environments
+                        if globalStep + localStep > 0 {
+                            resetInterruptedHorizonByEnvironment[
+                                index % options.environments
+                            ] = true
+                        }
+                    }
                     let advance: MetalRoboTaskRolloutAdvance
                     if usesCompiledPolicy {
                         advance = try context.advanceWithPolicy(
@@ -1877,6 +1897,18 @@ private enum TaskRolloutMain {
                             terminationCountByEnvironment[
                                 transitionEnvironment
                             ] += 1
+                            // Native MR_TASK_TERMINATION_TIMEOUT is 4.
+                            // Transition readback is step-major, environment-minor.
+                            let localStep =
+                                transitionIndex / options.environments
+                            if transition.terminationReason == 4 &&
+                                !transition.physicsError &&
+                                repeatIndex == options.repeats - 1 &&
+                                completed + localStep == options.steps - 1 {
+                                finalStepTimeoutByEnvironment[
+                                    transitionEnvironment
+                                ] = true
+                            }
                             let reason = String(
                                 transition.terminationReason
                             )
@@ -2197,7 +2229,13 @@ private enum TaskRolloutMain {
                         }
                 )
             let cleanHorizonEnvironmentCount =
-                terminationCountByEnvironment.filter { $0 == 0 }.count
+                terminationCountByEnvironment.enumerated().filter {
+                    environment, count in
+                    !resetInterruptedHorizonByEnvironment[environment] &&
+                        (count == 0 ||
+                         (count == 1 &&
+                          finalStepTimeoutByEnvironment[environment]))
+                }.count
             let forwardEvidenceAvailable =
                 supportsG1ForwardEvidence &&
                 initialForwardPositionByEnvironment.allSatisfy {

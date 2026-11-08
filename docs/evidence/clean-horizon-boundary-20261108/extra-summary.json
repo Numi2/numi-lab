@@ -1,0 +1,48 @@
+[
+  {
+    "case": "extra-e2-c1-s220-r1",
+    "reason_counts": {},
+    "clean_rate": 1,
+    "failed_steps": 0,
+    "pass": true
+  },
+  {
+    "case": "extra-e2-c1-s221-r1",
+    "reason_counts": {},
+    "clean_rate": 0.5,
+    "failed_steps": 0,
+    "pass": true
+  },
+  {
+    "case": "extra-e2-c8-s220-r1",
+    "reason_counts": {},
+    "clean_rate": 1,
+    "failed_steps": 0,
+    "pass": true
+  },
+  {
+    "case": "extra-e2-c8-s221-r1",
+    "reason_counts": {},
+    "clean_rate": 0.5,
+    "failed_steps": 0,
+    "pass": true
+  },
+  {
+    "case": "extra-e1-c8-s128-r2",
+    "reason_counts": {
+      "4": 1
+    },
+    "clean_rate": 1,
+    "failed_steps": 0,
+    "pass": true
+  },
+  {
+    "case": "extra-e1-c8-s256-r2",
+    "reason_counts": {
+      "4": 1
+    },
+    "clean_rate": 0,
+    "failed_steps": 0,
+    "pass": true
+  }
+]
