@@ -1,0 +1,11 @@
+--- /Users/numi/numi-g1-env-reset-ref-owner-20261108/src/metal/MetalHybridRenderer.mm	2026-11-07 15:40:38
++++ /Users/numi/numi-franka-frame-gate-owner-20261108/src/metal/MetalHybridRenderer.mm	2026-11-07 15:59:55
+@@ -7575,6 +7575,8 @@
+     state_->researchAcceptedMetadata=a;state_->researchCandidateMetadata=c;
+     return true;
+ }
++
++bool MetalHybridObjectTracker::researchDirectWinnerEnabled() const { return state_ && state_->directWinnerMaskedDepth; }
+ 
+ MetalHybridObjectTrackerConfig MetalHybridObjectTracker::researchCopyConfig() const {
+     return state_ ? state_->config : MetalHybridObjectTrackerConfig{};

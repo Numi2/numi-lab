@@ -1,0 +1,10 @@
+--- /Users/numi/numi-g1-env-reset-ref-owner-20261108/include/metalrobo/MetalHybridRenderer.hpp	2026-11-07 15:40:38
++++ /Users/numi/numi-franka-frame-gate-owner-20261108/include/metalrobo/MetalHybridRenderer.hpp	2026-11-07 15:59:55
+@@ -420,6 +420,7 @@
+     [[nodiscard]] bool researchSetMixedCandidateBuffers(void* accepted, void* candidate);
+     void researchAllowMixedForOneStep();
+     [[nodiscard]] MetalHybridObjectTrackerConfig researchCopyConfig() const;
++    [[nodiscard]] bool researchDirectWinnerEnabled() const;
+ 
+ 
+ private:
