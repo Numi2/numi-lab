@@ -1,0 +1,27 @@
+{
+  "archive_commit": "e757d9d24a4e37714d0f839588422c52dbe3968c",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300331204 157017936    66% 3499045 1570179360    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300365588 156983552    66% 3499224 1569835520    0%   /System/Volumes/Data\n",
+  "manifest": "artifacts/crow-rl-quality-first-failure-20261108/payload/manifest.json",
+  "manifest_sha256": "1387ff33eea545a4243cfe1b276a4b2b6cd6fdf90a20effa60be4a7be36e1dd6",
+  "open_handle_checks": [
+    {
+      "exists": false,
+      "open_handles": 0,
+      "root": ".numi/runs/american-crow"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/retained-runtime"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": "build"
+    }
+  ],
+  "remote_commit": "e757d9d24a4e37714d0f839588422c52dbe3968c",
+  "removed_files": 157,
+  "removed_logical_bytes": 34741071
+}
