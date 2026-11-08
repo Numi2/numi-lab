@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/metal_world_small_impulse_residual_test.py", line 52, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/metal_world_small_impulse_residual_test.py", line 42, in main
+    raise AssertionError(f'residual mismatch: {case}; independently reconstructed={independent}')
+AssertionError: residual mismatch: {'mass': 1.00000001169e-07, 'angle': -0.370000004768, 'iterations': 2, 'case': 1, 'initial_y': 0.0910696387291, 'success': True, 'gpu_status': 0, 'repeat': True, 'contacts': 2, 'gap': 9.99999974738e-05, 'q': [0, 0.0904627814889, 0, 1.43960177112e-10, 7.14310416372e-11, -0.181374296546, 0.983414113522], 'v': [0, -0.606858432293, 0, 3.09286690481e-07, 8.74624674907e-08, 5.23247432709], 'solver_residual': 0, 'rows': [{'bodyA': 0, 'bodyB': 1, 'point': [0.179233163595, 4.99933958054e-05, -0.0299999993294], 'direction': [0, 1, 0], 'lambda': 1.9657075967e-08, 'tangent': [0, 0], 'target': -0.0999867841601, 'reg': 0}, {'bodyA': 0, 'bodyB': 1, 'point': [0.179233163595, 4.99933958054e-05, 0.0299999993294], 'direction': [0, 1, 0], 'lambda': 1.9657075967e-08, 'tangent': [0, 0], 'target': -0.0999867841601, 'reg': 0}]}; independently reconstructed=0.43096128821966
