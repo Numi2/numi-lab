@@ -1,0 +1,674 @@
+{
+  "non_scratch_traces_match_control_and_prior": true,
+  "control": "12 accepted, 8 rejected; step 12 status 11",
+  "friction_coefficient": 0.5,
+  "final_capture_agrees_with_prior": true,
+  "series": [
+    {
+      "iteration": 1,
+      "rows": [
+        {
+          "row": 0,
+          "rod": false,
+          "impulse": [
+            0.00948816631,
+            0,
+            4.418405751e-06
+          ],
+          "normal_rhs": 2.928683534e-05,
+          "tangent_rhs": [
+            0,
+            -5.931538908e-06
+          ],
+          "scale": 0.9891098738,
+          "relative_row_velocity": [
+            0.002405767795,
+            0,
+            5.931538908e-06
+          ],
+          "relaxation": 0.333530128,
+          "friction_utilization": 0.0009313508230443317,
+          "tangent_residual": 5.931538908e-06
+        },
+        {
+          "row": 1,
+          "rod": true,
+          "impulse": [
+            4.610906217e-06,
+            2.305453108e-06,
+            0
+          ],
+          "normal_rhs": -0.0001942254603,
+          "tangent_rhs": [
+            0.01762827672,
+            0
+          ],
+          "scale": 0.0002008593583,
+          "relative_row_velocity": [
+            0.003201887943,
+            -0.01762827672,
+            0
+          ],
+          "relaxation": 0.5,
+          "friction_utilization": 0.9999999997831228,
+          "tangent_residual": 2.4893047795444663e-12
+        },
+        {
+          "row": 2,
+          "rod": true,
+          "impulse": [
+            4.378067842e-06,
+            -1.027072685e-07,
+            0
+          ],
+          "normal_rhs": -0.0003970935941,
+          "tangent_rhs": [
+            -0.01146477181,
+            0
+          ],
+          "scale": 0.0002009190066,
+          "relative_row_velocity": [
+            0.00344852847,
+            0.01146477181,
+            0
+          ],
+          "relaxation": 0.5,
+          "friction_utilization": 0.046918993586486324,
+          "tangent_residual": 0.010383918812885468
+        }
+      ]
+    },
+    {
+      "iteration": 32,
+      "rows": [
+        {
+          "row": 0,
+          "rod": false,
+          "impulse": [
+            0.009517549537,
+            0,
+            -3.093574378e-06
+          ],
+          "normal_rhs": 3.958120942e-09,
+          "tangent_rhs": [
+            0,
+            -5.302524642e-09
+          ],
+          "scale": 0.9891098738,
+          "relative_row_velocity": [
+            0.002435050672,
+            0,
+            5.302524642e-09
+          ],
+          "relaxation": 0.333530128,
+          "friction_utilization": 0.0006500779146929698,
+          "tangent_residual": 5.3025246420000685e-09
+        },
+        {
+          "row": 1,
+          "rod": true,
+          "impulse": [
+            7.559656751e-06,
+            3.779828376e-06,
+            0
+          ],
+          "normal_rhs": -4.789745435e-05,
+          "tangent_rhs": [
+            0.01541829202,
+            0
+          ],
+          "scale": 0.0002008593583,
+          "relative_row_velocity": [
+            0.003055559937,
+            -0.01541829202,
+            0
+          ],
+          "relaxation": 0.5,
+          "friction_utilization": 1.000000000132281,
+          "tangent_residual": 2.4893026710219796e-12
+        },
+        {
+          "row": 2,
+          "rod": true,
+          "impulse": [
+            1.601679855e-06,
+            -2.218918382e-07,
+            0
+          ],
+          "normal_rhs": -4.872097634e-05,
+          "tangent_rhs": [
+            -0.01345113385,
+            0
+          ],
+          "scale": 0.0002009190066,
+          "relative_row_velocity": [
+            0.003100155853,
+            0.01345113385,
+            0
+          ],
+          "relaxation": 0.5,
+          "friction_utilization": 0.2770738952697885,
+          "tangent_residual": 0.002881499859555845
+        }
+      ]
+    },
+    {
+      "iteration": 96,
+      "rows": [
+        {
+          "row": 0,
+          "rod": false,
+          "impulse": [
+            0.009517547674,
+            0,
+            -2.928047707e-06
+          ],
+          "normal_rhs": -1.327134669e-08,
+          "tangent_rhs": [
+            0,
+            4.11700654e-07
+          ],
+          "scale": 0.9891098738,
+          "relative_row_velocity": [
+            0.002435067901,
+            0,
+            -4.11700654e-07
+          ],
+          "relaxation": 0.333530128,
+          "friction_utilization": 0.0006152945711002488,
+          "tangent_residual": 4.117006539999999e-07
+        },
+        {
+          "row": 1,
+          "rod": true,
+          "impulse": [
+            8.047055417e-06,
+            3.479384077e-06,
+            0
+          ],
+          "normal_rhs": 2.718763426e-05,
+          "tangent_rhs": [
+            0.01616296545,
+            0
+          ],
+          "scale": 0.0002008593583,
+          "relative_row_velocity": [
+            0.002980474848,
+            -0.01616296545,
+            0
+          ],
+          "relaxation": 0.5,
+          "friction_utilization": 0.864759566499205,
+          "tangent_residual": 0.0027090778149717913
+        },
+        {
+          "row": 2,
+          "rod": true,
+          "impulse": [
+            1.094052323e-06,
+            -5.470261613e-07,
+            0
+          ],
+          "normal_rhs": -4.16955445e-05,
+          "tangent_rhs": [
+            -0.01268897578,
+            0
+          ],
+          "scale": 0.0002009190066,
+          "relative_row_velocity": [
+            0.003093130421,
+            0.01268897578,
+            0
+          ],
+          "relaxation": 0.5,
+          "friction_utilization": 0.9999999996343867,
+          "tangent_residual": 9.954261991515645e-13
+        }
+      ]
+    },
+    {
+      "iteration": 120,
+      "rows": [
+        {
+          "row": 0,
+          "rod": false,
+          "impulse": [
+            0.009517540224,
+            0,
+            -2.962256531e-06
+          ],
+          "normal_rhs": 3.725290298e-09,
+          "tangent_rhs": [
+            0,
+            2.09636255e-07
+          ],
+          "scale": 0.9891098738,
+          "relative_row_velocity": [
+            0.002435050905,
+            0,
+            -2.09636255e-07
+          ],
+          "relaxation": 0.333530128,
+          "friction_utilization": 0.0006224836378479801,
+          "tangent_residual": 2.0963625500000017e-07
+        },
+        {
+          "row": 1,
+          "rod": true,
+          "impulse": [
+            8.208155123e-06,
+            3.631257186e-06,
+            0
+          ],
+          "normal_rhs": 9.59308818e-06,
+          "tangent_rhs": [
+            0.01585072279,
+            0
+          ],
+          "scale": 0.0002008593583,
+          "relative_row_velocity": [
+            0.002998069394,
+            -0.01585072279,
+            0
+          ],
+          "relaxation": 0.5,
+          "friction_utilization": 0.884792534152988,
+          "tangent_residual": 0.002353987284942947
+        },
+        {
+          "row": 2,
+          "rod": true,
+          "impulse": [
+            9.500212741e-07,
+            -4.750106655e-07,
+            0
+          ],
+          "normal_rhs": -3.028730862e-05,
+          "tangent_rhs": [
+            -0.01299543399,
+            0
+          ],
+          "scale": 0.0002009190066,
+          "relative_row_velocity": [
+            0.003081722185,
+            0.01299543399,
+            0
+          ],
+          "relaxation": 0.5,
+          "friction_utilization": 1.0000000598933956,
+          "tangent_residual": 1.415993463965541e-10
+        }
+      ]
+    },
+    {
+      "iteration": 124,
+      "rows": [
+        {
+          "row": 0,
+          "rod": false,
+          "impulse": [
+            0.009517543018,
+            0,
+            -2.950677299e-06
+          ],
+          "normal_rhs": -2.095475793e-09,
+          "tangent_rhs": [
+            0,
+            2.410826596e-07
+          ],
+          "scale": 0.9891098738,
+          "relative_row_velocity": [
+            0.002435056726,
+            0,
+            -2.410826596e-07
+          ],
+          "relaxation": 0.333530128,
+          "friction_utilization": 0.0006200502153590581,
+          "tangent_residual": 2.4108265959999986e-07
+        },
+        {
+          "row": 1,
+          "rod": true,
+          "impulse": [
+            8.178390999e-06,
+            3.603477126e-06,
+            0
+          ],
+          "normal_rhs": 1.38618052e-05,
+          "tangent_rhs": [
+            0.01590738259,
+            0
+          ],
+          "scale": 0.0002008593583,
+          "relative_row_velocity": [
+            0.002993800677,
+            -0.01590738259,
+            0
+          ],
+          "relaxation": 0.5,
+          "friction_utilization": 0.8812190873340758,
+          "tangent_residual": 0.002418201360449132
+        },
+        {
+          "row": 2,
+          "rod": true,
+          "impulse": [
+            9.759887689e-07,
+            -4.879943845e-07,
+            0
+          ],
+          "normal_rhs": -3.130012192e-05,
+          "tangent_rhs": [
+            -0.01293944009,
+            0
+          ],
+          "scale": 0.0002009190066,
+          "relative_row_velocity": [
+            0.003082734998,
+            0.01293944009,
+            0
+          ],
+          "relaxation": 0.5,
+          "friction_utilization": 1.0000000001024603,
+          "tangent_residual": 2.4885668153142323e-13
+        }
+      ]
+    },
+    {
+      "iteration": 125,
+      "rows": [
+        {
+          "row": 0,
+          "rod": false,
+          "impulse": [
+            0.009517542087,
+            0,
+            -2.871144716e-06
+          ],
+          "normal_rhs": -9.313225746e-10,
+          "tangent_rhs": [
+            0,
+            -3.675416167e-07
+          ],
+          "scale": 0.9891098738,
+          "relative_row_velocity": [
+            0.002435055561,
+            0,
+            3.675416167e-07
+          ],
+          "relaxation": 0.333530128,
+          "friction_utilization": 0.0006033374351812309,
+          "tangent_residual": 3.675416166999999e-07
+        },
+        {
+          "row": 1,
+          "rod": true,
+          "impulse": [
+            8.668266673e-06,
+            3.848354936e-06,
+            0
+          ],
+          "normal_rhs": -2.206978388e-05,
+          "tangent_rhs": [
+            0.01521360409,
+            0
+          ],
+          "scale": 0.0002008593583,
+          "relative_row_velocity": [
+            0.003029732266,
+            -0.01521360409,
+            0
+          ],
+          "relaxation": 0.5,
+          "friction_utilization": 0.8879179843386437,
+          "tangent_residual": 0.0024185002113491236
+        },
+        {
+          "row": 2,
+          "rod": true,
+          "impulse": [
+            4.879943845e-07,
+            -2.439971922e-07,
+            0
+          ],
+          "normal_rhs": -1.67498365e-06,
+          "tangent_rhs": [
+            -0.01363427658,
+            0
+          ],
+          "scale": 0.0002009190066,
+          "relative_row_velocity": [
+            0.00305310986,
+            0.01363427658,
+            0
+          ],
+          "relaxation": 0.5,
+          "friction_utilization": 0.9999999997950795,
+          "tangent_residual": 2.4885668153142323e-13
+        }
+      ]
+    },
+    {
+      "iteration": 126,
+      "rows": [
+        {
+          "row": 0,
+          "rod": false,
+          "impulse": [
+            0.009517542087,
+            0,
+            -2.992396048e-06
+          ],
+          "normal_rhs": -9.080395103e-09,
+          "tangent_rhs": [
+            0,
+            -3.086542222e-07
+          ],
+          "scale": 0.9891098738,
+          "relative_row_velocity": [
+            0.00243506371,
+            0,
+            3.086542222e-07
+          ],
+          "relaxation": 0.333530128,
+          "friction_utilization": 0.0006288169825037728,
+          "tangent_residual": 3.086542222e-07
+        },
+        {
+          "row": 1,
+          "rod": true,
+          "impulse": [
+            7.943199307e-06,
+            3.971599654e-06,
+            0
+          ],
+          "normal_rhs": 2.068118192e-05,
+          "tangent_rhs": [
+            0.01512592658,
+            0
+          ],
+          "scale": 0.0002008593583,
+          "relative_row_velocity": [
+            0.002986981301,
+            -0.01512592658,
+            0
+          ],
+          "relaxation": 0.5,
+          "friction_utilization": 1.000000000125894,
+          "tangent_residual": 2.4893047795444663e-12
+        },
+        {
+          "row": 2,
+          "rod": true,
+          "impulse": [
+            1.209814968e-06,
+            -2.437530497e-07,
+            0
+          ],
+          "normal_rhs": 4.565576091e-05,
+          "tangent_rhs": [
+            -0.01369387843,
+            0
+          ],
+          "scale": 0.0002009190066,
+          "relative_row_velocity": [
+            0.003005779115,
+            0.01369387843,
+            0
+          ],
+          "relaxation": 0.5,
+          "friction_utilization": 0.4029592229346595,
+          "tangent_residual": 0.00179751254205136
+        }
+      ]
+    },
+    {
+      "iteration": 127,
+      "rows": [
+        {
+          "row": 0,
+          "rod": false,
+          "impulse": [
+            0.009517539293,
+            0,
+            -3.094220574e-06
+          ],
+          "normal_rhs": 1.676380634e-08,
+          "tangent_rhs": [
+            0,
+            4.944600391e-07
+          ],
+          "scale": 0.9891098738,
+          "relative_row_velocity": [
+            0.002435037866,
+            0,
+            -4.944600391e-07
+          ],
+          "relaxation": 0.333530128,
+          "friction_utilization": 0.0006502144049514459,
+          "tangent_residual": 4.944600390999999e-07
+        },
+        {
+          "row": 1,
+          "rod": true,
+          "impulse": [
+            7.061714314e-06,
+            3.53085693e-06,
+            0
+          ],
+          "normal_rhs": -3.263656981e-05,
+          "tangent_rhs": [
+            0.01607844047,
+            0
+          ],
+          "scale": 0.0002008593583,
+          "relative_row_velocity": [
+            0.003040299052,
+            -0.01607844047,
+            0
+          ],
+          "relaxation": 0.5,
+          "friction_utilization": 0.9999999357096621,
+          "tangent_residual": 1.1301440051387975e-09
+        },
+        {
+          "row": 2,
+          "rod": true,
+          "impulse": [
+            2.101642849e-06,
+            -4.30985466e-07,
+            0
+          ],
+          "normal_rhs": -9.54431016e-05,
+          "tangent_rhs": [
+            -0.01280050911,
+            0
+          ],
+          "scale": 0.0002009190066,
+          "relative_row_velocity": [
+            0.003146877978,
+            0.01280050911,
+            0
+          ],
+          "relaxation": 0.5,
+          "friction_utilization": 0.4101414911720807,
+          "tangent_residual": 0.0030850040968697476
+        }
+      ]
+    },
+    {
+      "iteration": 128,
+      "rows": [
+        {
+          "row": 0,
+          "rod": false,
+          "impulse": [
+            0.009517544881,
+            0,
+            -2.931099289e-06
+          ],
+          "normal_rhs": -7.217749953e-09,
+          "tangent_rhs": [
+            0,
+            3.425973887e-07
+          ],
+          "scale": 0.9891098738,
+          "relative_row_velocity": [
+            0.002435061848,
+            0,
+            -3.425973887e-07
+          ],
+          "relaxation": 0.333530128,
+          "friction_utilization": 0.0006159360056922647,
+          "tangent_residual": 3.4259738870000006e-07
+        },
+        {
+          "row": 1,
+          "rod": true,
+          "impulse": [
+            8.097846148e-06,
+            3.526103683e-06,
+            0
+          ],
+          "normal_rhs": 1.8134946e-05,
+          "tangent_rhs": [
+            0.01606827043,
+            0
+          ],
+          "scale": 0.0002008593583,
+          "relative_row_velocity": [
+            0.002989527537,
+            -0.01606827043,
+            0
+          ],
+          "relaxation": 0.5,
+          "friction_utilization": 0.8708744568753938,
+          "tangent_residual": 0.002602912781485273
+        },
+        {
+          "row": 2,
+          "rod": true,
+          "impulse": [
+            1.050821425e-06,
+            -5.254107123e-07,
+            0
+          ],
+          "normal_rhs": -4.188669845e-05,
+          "tangent_rhs": [
+            -0.01278324332,
+            0
+          ],
+          "scale": 0.0002009190066,
+          "relative_row_velocity": [
+            0.003093321575,
+            0.01278324332,
+            0
+          ],
+          "relaxation": 0.5,
+          "friction_utilization": 0.9999999996193454,
+          "tangent_residual": 9.954261991515645e-13
+        }
+      ]
+    }
+  ]
+}
