@@ -13,3 +13,8 @@ zero actions, seed 20261108, one repeat and no scheduled resets.
 These tests establish bounded integration only, not learned navigation,
 camera biological validity, collision avoidance, or held-out course completion.
 They run sequentially after the ongoing grasp controls to avoid GPU contention.
+
+Also attempt the existing feeding policy with the new contract and require
+rejection. Save the small 8-frame native replay, including actor observations,
+if the zero-action run succeeds; this is sensor plumbing evidence, not a
+perception or navigation qualification. Do not overwrite earlier attempts.
