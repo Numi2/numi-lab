@@ -1,0 +1,18 @@
+repeat q identical sha256 0774303d67d4ec03f738a9077a558b14b8ac5a983a6d3184f494484ecd824c6e
+repeat v identical sha256 f5e68bcc4af20645d8f3252418aea13ccb5c5af0774367601b90cc040e7d05c5
+repeat scene identical sha256 f845032ce5b1e8878021fd43afcd0835d416c997b2073c27b408162c9d0de058
+repeat status identical sha256 f3791ad7f74dbbf6c28e4a1db7b734ff66041d9fdbc2cd736dee2d59fe6dba9d
+repeat reset identical sha256 3fe7cb897bffd4b08f164c02af17635372c8fe85382b89b17c0a0f9b628fec28
+repeat history identical sha256 d2bd52b4c0fe1408bdd99b7d0bbfd928978d26a475ec0d7e33c96c88f5813769
+repeat actor identical sha256 326c2721b6020a195e23272699c307b91cef3dd90b070debdb36f99181c1f7fb
+repeat inputs identical sha256 326c2721b6020a195e23272699c307b91cef3dd90b070debdb36f99181c1f7fb
+repeat policy identical sha256 e48977a015434e6b6f9ebca84543834fba0bb7f738eae9f0ea647c27615a656e
+repeat actions identical sha256 14bb049336d13a8d9a0a34cff14e0b409e8d697a0cac88da5673b3e3c8b3f8be
+reset 0 0 sample True signal 0.01930353045463562 action 0.00019303530280012637 depth_nonfar 932 feature_nonzero 10 track_nonzero 12 other_signal 0.01356964185833931 physics_error 0
+reset 0 1 sample True signal 0.01356964185833931 action 0.0001356964057777077 depth_nonfar 642 feature_nonzero 10 track_nonzero 12 other_signal 0.01930353045463562 physics_error 0
+reset 14 0 sample False signal 0.0 action 0.0 depth_nonfar 0 feature_nonzero 0 track_nonzero 0 other_signal 0.01278719212859869 physics_error 1
+reset 15 0 sample True signal 0.01986461691558361 action 0.00019864617206621915 depth_nonfar 966 feature_nonzero 10 track_nonzero 12 other_signal 0.014004583470523357 physics_error 0
+reset 27 0 sample False signal 0.0 action 0.0 depth_nonfar 0 feature_nonzero 0 track_nonzero 0 other_signal 0.012322232127189636 physics_error 1
+reset 28 0 sample False signal 0.0 action 0.0 depth_nonfar 0 feature_nonzero 0 track_nonzero 0 other_signal 0.0 physics_error 0
+reset 28 1 sample False signal 0.0 action 0.0 depth_nonfar 0 feature_nonzero 0 track_nonzero 0 other_signal 0.0 physics_error 0
+cpu_gpu_max_abs 2.0505394784930964e-08 nonzero_policy_inputs 54 PASS
