@@ -1,7 +1,12 @@
 #include <metal_stdlib>
 #include "shared.h"
-#include "metalrobo/compensated_geometry_gpu.h"
 using namespace metal;
+// Two-term FP32 geometry; the screen checks its final physical residual independently.
+struct MRCompensatedScalar { float high; float low; };
+inline MRCompensatedScalar sum2(float a,float b){float s=a+b;float x=s-a;return {s,(a-(s-x))+(b-x)};}
+inline MRCompensatedScalar mrCompensatedAdd(MRCompensatedScalar a,MRCompensatedScalar b){auto s=sum2(a.high,b.high);return sum2(s.high,s.low+a.low+b.low);}
+inline MRCompensatedScalar mrCompensatedMultiply(MRCompensatedScalar a,MRCompensatedScalar b){float p=a.high*b.high;return sum2(p,fma(a.high,b.high,-p)+a.high*b.low+a.low*b.high+a.low*b.low);}
+inline MRCompensatedScalar mrCompensatedSqrt(MRCompensatedScalar a){float x=sqrt(a.high);auto v=mrCompensatedMultiply({x,0},{x,0});auto r=mrCompensatedAdd(a,{-v.high,-v.low});return sum2(x,(r.high+r.low)/(2*x));}
 constant uint MAXD=35;
 inline float3 read3(constant float* a,uint i){return float3(a[3*i],a[3*i+1],a[3*i+2]);}
 inline float3 readv(thread const float* a,uint i){return float3(a[3*i],a[3*i+1],a[3*i+2]);}
