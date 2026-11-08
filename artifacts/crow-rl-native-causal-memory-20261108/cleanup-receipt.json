@@ -1,0 +1,27 @@
+{
+  "archive_commit": "916ff86b9916cfd31f701fe489ebd642ef057415",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 298430260 158918880    66% 3495909 1589188800    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 298625992 158723148    66% 3496682 1587231480    0%   /System/Volumes/Data\n",
+  "manifest": "artifacts/crow-rl-native-causal-memory-20261108/manifest.json",
+  "manifest_sha256": "39651128511ef067d73e2f06b23cb3da72946265c940723f0772ca0f167df0e2",
+  "open_handle_checks": [
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/runs/american-crow"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/retained-runtime"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": "build"
+    }
+  ],
+  "remote_commit": "916ff86b9916cfd31f701fe489ebd642ef057415",
+  "removed_files": 714,
+  "removed_logical_bytes": 182157096
+}
