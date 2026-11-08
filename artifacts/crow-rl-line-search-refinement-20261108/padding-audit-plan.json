@@ -1,0 +1,7 @@
+{
+  "native_commands": 0,
+  "prediction": "All unused J rows, biases and successful published impulses are zero; rejected strict output poison remains unchanged.",
+  "reason": "Unused rows do not affect J-transpose residuals. Verify real retained output before considering any scratch initialization change.",
+  "schema": "crow-line-search-padding-audit-plan-v1",
+  "source_sha256": "2e5895b4a913863cb844bf18396d12b9e850293f6c639e5457666f9729403930"
+}
