@@ -1,0 +1,27 @@
+{
+  "excluded_tsv_columns": [
+    "gpu_ms"
+  ],
+  "expected_defined_byte_comparisons": 34,
+  "expected_physical_tsv_records": 576,
+  "limits": "Scoped recovery repeats existing observations. Old hybrid/split-quality controls and source are restored and Git-byte verified but not re-executed. No new scientific qualification, policy/profile promotion or tolerance change.",
+  "manifest": "artifacts/crow-rl-native-drive-ir-20261108/payload/manifest.json",
+  "manifest_sha256": "a58cad23414ea59f916e93b108ae8d8343c4b61c9179274be42dec483c62ed64",
+  "native_commands": 9,
+  "restore_max_bytes": 67108864,
+  "schema": "crow-native-git-recovery-native-drive-ir-v1",
+  "scope": [
+    "original capacity admission rejection",
+    "capacity-fixed crow first-step quality rejection",
+    "old shader zero-gain physical rejection",
+    "repaired 48-condition zero-gain gate",
+    "576 native actuator physical records",
+    "constraint IR owner",
+    "native contact owner",
+    "default crow 640 transitions and ten physical files",
+    "current crow first-step quality rejection"
+  ],
+  "stop": "First unexpected exit, library binding, typed failure, comparison, handle or budget result; preserve all output.",
+  "temporary_budget_bytes": 83886080,
+  "timeout_seconds_each": 120
+}
