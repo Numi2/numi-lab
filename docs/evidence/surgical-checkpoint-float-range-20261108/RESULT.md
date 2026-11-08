@@ -1,0 +1,9 @@
+# Surgical checkpoint float-range admission
+
+The loader now rejects finite double text outside the finite float range before narrowing generalized, needle, and rod state to GPU floats. Double-precision continuation fields retain their prior parsing. This is a parsing-boundary hardening, not a claim that the baseline published an invalid restore: in all nine positive-overflow baseline cases, the later MetalWorld reset validator already rejected the state. The downstream validator remains in place.
+
+On the Apple host, both the integration and main-line native builds passed the static-equilibrium, checkpoint-restore, checkpoint-integrity and checkpoint-hold tests (4/4 each). The expanded integrity test rejects both signs of float overflow for all nine state groups (18 cases), and verifies the valid control and unchanged original checkpoint bytes. The baseline and both candidate instruments additionally used the same saved synthetic fixture and Matter archive: checkpoint SHA-256 `309bed167f2ebbfd584afa7664c90e8b3a0836bb2e0f790c75ad19a38b38b237`; Matter SHA-256 `c167d494ae8430357765771d990458256dc30175e01f2d0419f13f3b9b7514fe`. Nine positive cases moved from later MetalWorld rejection to explicit parse rejection. Outputs and native test logs are retained here.
+
+Main-line source commit: `0eba0b9d2`; tested executable SHA-256: `b9ef660e03add1c53c7795e7d4b4b2a497f7471137ab742ac82bc629daca027d`. Integration source commit: `4644470b0`; tested executable SHA-256: `dce76f2466c156229a3d6f45513911a60e4a32cca934ce1071b5d543b009813d`. Different build directories and source revisions account for separately identified binaries; no performance comparison is claimed.
+
+The fixture is synthetic tissue rest, not the earned tissue-bridge checkpoint. This result does not establish complete owner-state restoration, continuous suturing, knot completion, contact force accuracy, or biological validity. The search for the earned bridge state remains unresolved.
