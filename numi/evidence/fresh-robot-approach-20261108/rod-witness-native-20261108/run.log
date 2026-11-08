@@ -1,0 +1,17 @@
+world_fingerprint=2573094028256544495 rod_pairs=8
+trial=0 phase=init_submit status=0 message=
+trial=0 phase=init_wait status=0 failed=0 message=
+trial=0 phase=continue_submit status=0 message=
+trial=0 phase=continue_wait status=0 failed=0 message=
+trial=1 phase=init_submit status=0 message=
+trial=1 phase=init_wait status=0 failed=0 message=
+trial=1 phase=continue_submit status=0 message=
+trial=1 phase=continue_wait status=0 failed=0 message=
+witness_capacity=32 valid=2 nonzero_impulse=2 independent_repeat=1
+seed_negative world=1 config=1 length=1 node=1 pair=1 collider=1 topology=1 finite=1 geometry=1 flags=1 corrupt=1
+post_submit_readback_fault_rejected=1 status=14 message=no-step seed readback missing, truncated, or mismatched
+no_step_seed status=0 message= valid=1
+seed_occupied_rejected=1
+seeded_changed_config_rejected=1 message=seeded resident configuration changed
+seeded_continuation_match=1 status=0 message=
+resident_rod_witness_no_step_seed=PASS coupled_restoration_claim=0
