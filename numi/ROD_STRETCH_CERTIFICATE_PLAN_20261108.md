@@ -1,0 +1,7 @@
+# Bounded stretch-consistency containment candidate
+
+The net-sweep displacement check can pass while an XPBD stretch multiplier still disagrees with elastic extension. For each edge at the end of a complete sweep, the stretch equation is r = length(x_b−x_a) − L + (L/(EA h^2)) lambda. The corresponding elastic-versus-multiplier force discrepancy has magnitude (EA/L)|r|. A small net displacement by itself does not imply this equation is satisfied.
+
+In an isolated Metal candidate, require both the existing net-correction bound and max |r| <= the existing displacement tolerance before declaring convergence; otherwise continue to the configured iteration limit and reject on exhaustion. Require finite, nondegenerate evaluations. This condition tests only stretch constitutive consistency. It does not by itself certify nodal momentum, bend, twist, attachments, friction, contact or energy, and is not a complete acceptance policy.
+
+Run the retained two-node and three-node fully pinned false-force witnesses, the three free-middle-node cases at the public default, and the existing nine-node Metal rod probe against both the original and candidate shader at fixed settings. Preserve outcomes and require ordinary motion and force gates, not only rejection of the known bad cases. Do not promote on rejection alone. If the certificate rejects valid workloads or fails to prevent the inaccurate publication, retain it as a containment diagnostic and design a better coupled solver/certificate; do not increase iteration budgets or relax physical requirements merely to pass.
