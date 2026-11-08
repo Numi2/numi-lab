@@ -1,0 +1,426 @@
+{
+  "cases": [
+    {
+      "index": 0,
+      "n": 3,
+      "minimum_cosine": 0.9900493765004595,
+      "checks": [
+        {
+          "passed": true,
+          "max_gate_ratio": 1.017677653805093e-05,
+          "max_force_error_N": 2.4637719301499126e-16,
+          "max_torque_error_Nm": 2.0840815533273532e-17
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 1.7878111333838593e-05,
+          "max_force_error_N": 2.306700183547188e-16,
+          "max_torque_error_Nm": 3.6612223663242864e-17
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 1.0733115332201466e-06,
+          "max_force_error_N": 1.0733115332201466e-16,
+          "max_torque_error_Nm": 3.862623267892932e-19
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 2.68332965295925e-07,
+          "max_force_error_N": 2.6833296529592502e-17,
+          "max_torque_error_Nm": 9.633552208945699e-20
+        }
+      ],
+      "symmetry_pass": true,
+      "symmetry_error_J": 5.169878828456423e-26,
+      "negative_detected": true,
+      "passed": true
+    },
+    {
+      "index": 1,
+      "n": 5,
+      "minimum_cosine": 0.6617957843215876,
+      "checks": [
+        {
+          "passed": true,
+          "max_gate_ratio": 0.0002870958613080908,
+          "max_force_error_N": 4.342698215903395e-14,
+          "max_torque_error_Nm": 8.271806125530277e-17
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 0.000626507941378637,
+          "max_force_error_N": 9.476753700944252e-14,
+          "max_torque_error_Nm": 1.4352078943545827e-16
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 5.0713160101224305e-05,
+          "max_force_error_N": 1.4954103891802787e-14,
+          "max_torque_error_Nm": 1.285273136523221e-16
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 1.2681876063450734e-05,
+          "max_force_error_N": 3.7389376839026215e-15,
+          "max_torque_error_Nm": 3.2122721981716926e-17
+        }
+      ],
+      "symmetry_pass": true,
+      "symmetry_error_J": 0.0,
+      "negative_detected": true,
+      "passed": true
+    },
+    {
+      "index": 2,
+      "n": 9,
+      "minimum_cosine": 0.7798654243465131,
+      "checks": [
+        {
+          "passed": true,
+          "max_gate_ratio": 0.0009994508572789729,
+          "max_force_error_N": 2.212706285694777e-13,
+          "max_torque_error_Nm": 7.444625512977249e-16
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 0.0007431206309422212,
+          "max_force_error_N": 8.19575101602049e-14,
+          "max_torque_error_Nm": 7.500308069266318e-16
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 0.0004557635896763608,
+          "max_force_error_N": 3.03412262516592e-13,
+          "max_torque_error_Nm": 2.133075593357767e-16
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 0.00011394079683392771,
+          "max_force_error_N": 7.585252019286952e-14,
+          "max_torque_error_Nm": 5.332917450679605e-17
+        }
+      ],
+      "symmetry_pass": true,
+      "symmetry_error_J": 0.0,
+      "negative_detected": true,
+      "passed": true
+    },
+    {
+      "index": 3,
+      "n": 3,
+      "minimum_cosine": 0.963473707473574,
+      "checks": [
+        {
+          "passed": true,
+          "max_gate_ratio": 3.7481621506309067e-05,
+          "max_force_error_N": 3.748162150630907e-15,
+          "max_torque_error_Nm": 6.462348535570529e-18
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 6.697037963487985e-05,
+          "max_force_error_N": 6.6970379634879856e-15,
+          "max_torque_error_Nm": 3.819987897580111e-18
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 1.65907035109843e-05,
+          "max_force_error_N": 1.65907035109843e-15,
+          "max_torque_error_Nm": 6.643362123376733e-18
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 4.150254514044035e-06,
+          "max_force_error_N": 4.1502545140440354e-16,
+          "max_torque_error_Nm": 1.6606329085104324e-18
+        }
+      ],
+      "symmetry_pass": true,
+      "symmetry_error_J": 4.1359030627651384e-25,
+      "negative_detected": true,
+      "passed": true
+    },
+    {
+      "index": 4,
+      "n": 5,
+      "minimum_cosine": 0.805795291007577,
+      "checks": [
+        {
+          "passed": true,
+          "max_gate_ratio": 0.0006147316913541435,
+          "max_force_error_N": 7.754818242684634e-15,
+          "max_torque_error_Nm": 5.01478246360273e-16
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 0.00035892518647865544,
+          "max_force_error_N": 4.593002817799035e-15,
+          "max_torque_error_Nm": 2.9279941726518535e-16
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 6.065321588000658e-05,
+          "max_force_error_N": 6.065321588000658e-15,
+          "max_torque_error_Nm": 2.3141838850723024e-17
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 1.516403936665343e-05,
+          "max_force_error_N": 1.516403936665343e-15,
+          "max_torque_error_Nm": 5.785521647829121e-18
+        }
+      ],
+      "symmetry_pass": true,
+      "symmetry_error_J": 0.0,
+      "negative_detected": true,
+      "passed": true
+    },
+    {
+      "index": 5,
+      "n": 9,
+      "minimum_cosine": 0.9075323182937494,
+      "checks": [
+        {
+          "passed": true,
+          "max_gate_ratio": 0.0008788792684886939,
+          "max_force_error_N": 1.0236360080343717e-13,
+          "max_torque_error_Nm": 5.997059441009451e-16
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 0.0017155964128395742,
+          "max_force_error_N": 1.7155964128395742e-13,
+          "max_torque_error_Nm": 4.967035679587148e-16
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 0.00023928808830657732,
+          "max_force_error_N": 1.2739079806326967e-13,
+          "max_torque_error_Nm": 1.9590318128493225e-16
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 5.9804563176571653e-05,
+          "max_force_error_N": 3.183129381111808e-14,
+          "max_torque_error_Nm": 4.8952891103661775e-17
+        }
+      ],
+      "symmetry_pass": true,
+      "symmetry_error_J": 0.0,
+      "negative_detected": true,
+      "passed": true
+    },
+    {
+      "index": 6,
+      "n": 3,
+      "minimum_cosine": 0.9791914762865278,
+      "checks": [
+        {
+          "passed": true,
+          "max_gate_ratio": 1.9387045606711586e-05,
+          "max_force_error_N": 1.9387045606711586e-15,
+          "max_torque_error_Nm": 4.200629945697413e-18
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 4.5205305994226185e-06,
+          "max_force_error_N": 4.520530599422619e-16,
+          "max_torque_error_Nm": 2.2161396973505253e-18
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 2.3467872817079737e-05,
+          "max_force_error_N": 2.346787281707974e-15,
+          "max_torque_error_Nm": 1.0911351867896176e-18
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 5.86702448150291e-06,
+          "max_force_error_N": 5.86702448150291e-16,
+          "max_torque_error_Nm": 2.724331755152585e-19
+        }
+      ],
+      "symmetry_pass": true,
+      "symmetry_error_J": 0.0,
+      "negative_detected": true,
+      "passed": true
+    },
+    {
+      "index": 7,
+      "n": 5,
+      "minimum_cosine": 0.931281214771855,
+      "checks": [
+        {
+          "passed": true,
+          "max_gate_ratio": 0.00017319097384051467,
+          "max_force_error_N": 1.7319097384051467e-14,
+          "max_torque_error_Nm": 5.428372769879244e-17
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 0.0003484012102365914,
+          "max_force_error_N": 3.484012102365914e-14,
+          "max_torque_error_Nm": 7.656225510139643e-17
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 7.938650347502934e-05,
+          "max_force_error_N": 9.504377765430397e-15,
+          "max_torque_error_Nm": 4.028459497665829e-17
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 1.9822511348694017e-05,
+          "max_force_error_N": 2.373207382496442e-15,
+          "max_torque_error_Nm": 1.0074304644996616e-17
+        }
+      ],
+      "symmetry_pass": true,
+      "symmetry_error_J": 1.0339757656912846e-25,
+      "negative_detected": true,
+      "passed": true
+    },
+    {
+      "index": 8,
+      "n": 9,
+      "minimum_cosine": 0.9453584525936726,
+      "checks": [
+        {
+          "passed": true,
+          "max_gate_ratio": 0.000992616602714735,
+          "max_force_error_N": 3.665443758503359e-13,
+          "max_torque_error_Nm": 2.1351616105137278e-15
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 0.00042635167766067193,
+          "max_force_error_N": 1.2455518088942788e-13,
+          "max_torque_error_Nm": 1.4271116490422607e-15
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 0.0014131900598372547,
+          "max_force_error_N": 4.907394618580623e-13,
+          "max_torque_error_Nm": 2.0717594738760693e-16
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 0.0003532958800533766,
+          "max_force_error_N": 1.2268551447704163e-13,
+          "max_torque_error_Nm": 5.179172368074579e-17
+        }
+      ],
+      "symmetry_pass": true,
+      "symmetry_error_J": 6.617444900424222e-24,
+      "negative_detected": true,
+      "passed": true
+    },
+    {
+      "index": 9,
+      "n": 3,
+      "minimum_cosine": 0.8980345782141059,
+      "checks": [
+        {
+          "passed": true,
+          "max_gate_ratio": 7.625576235056899e-05,
+          "max_force_error_N": 7.625576235056899e-15,
+          "max_torque_error_Nm": 1.1632227364026952e-17
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 0.0001683594582874248,
+          "max_force_error_N": 1.683594582874248e-14,
+          "max_torque_error_Nm": 1.4050302735212138e-17
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 8.722460835972616e-07,
+          "max_force_error_N": 6.676835144916549e-17,
+          "max_torque_error_Nm": 1.1391114555225401e-18
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 2.1791168390356005e-07,
+          "max_force_error_N": 1.728640720624337e-17,
+          "max_torque_error_Nm": 2.8458218396697795e-19
+        }
+      ],
+      "symmetry_pass": true,
+      "symmetry_error_J": 0.0,
+      "negative_detected": true,
+      "passed": true
+    },
+    {
+      "index": 10,
+      "n": 5,
+      "minimum_cosine": 0.9131303605920643,
+      "checks": [
+        {
+          "passed": true,
+          "max_gate_ratio": 4.652890945610781e-05,
+          "max_force_error_N": 1.0339784126692448e-14,
+          "max_torque_error_Nm": 2.5849394142282115e-17
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 3.830750891296423e-05,
+          "max_force_error_N": 3.8307508912964235e-15,
+          "max_torque_error_Nm": 1.859758194854914e-17
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 2.508277307673532e-05,
+          "max_force_error_N": 6.910658537066539e-15,
+          "max_torque_error_Nm": 4.017253971420788e-17
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 6.2731491684225e-06,
+          "max_force_error_N": 1.7275448188092677e-15,
+          "max_torque_error_Nm": 1.0042485901963845e-17
+        }
+      ],
+      "symmetry_pass": true,
+      "symmetry_error_J": 4.1359030627651384e-25,
+      "negative_detected": true,
+      "passed": true
+    },
+    {
+      "index": 11,
+      "n": 9,
+      "minimum_cosine": 0.9001518197738453,
+      "checks": [
+        {
+          "passed": true,
+          "max_gate_ratio": 0.0004784374694530103,
+          "max_force_error_N": 8.189087534879382e-13,
+          "max_torque_error_Nm": 1.2407709188295415e-15
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 0.0005291061907032487,
+          "max_force_error_N": 3.351451338520962e-13,
+          "max_torque_error_Nm": 1.060459483286303e-15
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 0.0005295187223072052,
+          "max_force_error_N": 1.0881939725858103e-12,
+          "max_torque_error_Nm": 6.459225134664753e-16
+        },
+        {
+          "passed": true,
+          "max_gate_ratio": 0.00013239228556727992,
+          "max_force_error_N": 2.7209292155978327e-13,
+          "max_torque_error_Nm": 1.6151396622684655e-16
+        }
+      ],
+      "symmetry_pass": true,
+      "symmetry_error_J": 9.926167350636332e-24,
+      "negative_detected": true,
+      "passed": true
+    }
+  ],
+  "negative_detected": 12,
+  "all_pass": true
+}
