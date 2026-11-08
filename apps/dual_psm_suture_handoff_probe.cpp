@@ -7121,6 +7121,7 @@ struct Arguments {
     std::string mode;
     bool syntheticSkin = false;
     bool sameResidentControl = false;
+    bool capturePartialOwnerCapsule = false;
     bool robotContactBrake = false;
     bool robotFastOneNewton = false;
     bool robotPunctureOneNewton = false;
@@ -7398,6 +7399,9 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         } else if (argument == "--same-resident-control") {
             require(!result.sameResidentControl, "--same-resident-control specified twice");
             result.sameResidentControl = true;
+        } else if (argument == "--capture-partial-owner-capsule") {
+            require(!result.capturePartialOwnerCapsule, "--capture-partial-owner-capsule specified twice");
+            result.capturePartialOwnerCapsule = true;
         } else if (argument == "--robot-contact-brake") {
             require(
                 !result.robotContactBrake,
@@ -8140,6 +8144,10 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
              result.mode == "--tissue-robot-first-bite-entry-only" &&
              !result.stateOutputDirectory.empty()),
         "same-resident control requires synthetic entry and an output directory"
+    );
+    require(
+        !result.capturePartialOwnerCapsule || result.sameResidentControl,
+        "partial owner capsule requires the synthetic same-resident control"
     );
     require(
         !result.robotContactBrake ||
@@ -9507,6 +9515,102 @@ void writeRigidContactCacheArchive(
         << " rigid_timestep_multiplier="
         << rigidTimestepMultiplier
         << " content_hash=" << header.contentHash << '\n';
+}
+
+// Diagnostic export only. This intentionally has no importer: the captured
+// arrays do not constitute a complete or atomic owner/Matter checkpoint.
+template <typename T>
+void writePartialCapsuleVector(
+    const std::filesystem::path& directory, std::ostream& manifest,
+    const char* name, const std::vector<T>& values
+) {
+    static_assert(std::is_trivially_copyable_v<T>);
+    require(!values.empty() && values.size() <=
+        std::numeric_limits<std::size_t>::max() / sizeof(T),
+        "partial capsule component has invalid size");
+    const std::size_t bytes = values.size() * sizeof(T);
+    require(bytes <= static_cast<std::size_t>(std::numeric_limits<std::streamsize>::max()),
+        "partial capsule component exceeds stream limit");
+    std::ofstream output(directory / name, std::ios::binary | std::ios::trunc);
+    require(output.good(), "could not create partial capsule component");
+    output.write(reinterpret_cast<const char*>(values.data()), static_cast<std::streamsize>(bytes));
+    output.close();
+    require(output.good(), "could not write partial capsule component");
+    std::uint64_t hash = 1469598103934665603ull;
+    appendStateHash(hash, values.data(), bytes);
+    manifest << "component\t" << name << '\t' << values.size() << '\t'
+        << sizeof(T) << '\t' << bytes << '\t' << hash << '\n';
+}
+
+void writePartialOwnerCapsule(
+    const std::filesystem::path& stage, std::string_view phase,
+    std::uint64_t stateStep, std::uint64_t compiledFingerprint,
+    const std::filesystem::path& inputCheckpoint, std::uint64_t inputStep,
+    float timestep, std::uint32_t substeps,
+    const metalrobo::MetalWorldResult& result
+) {
+    require(compiledFingerprint != 0u && stateStep != 0u && inputStep != 0u &&
+        std::filesystem::is_regular_file(inputCheckpoint) && substeps != 0u &&
+        std::isfinite(timestep) && timestep > 0.0f,
+        "partial capsule has invalid compiled identity or timing");
+    const auto tsvName = std::string{phase} + ".tsv";
+    const auto cacheName = std::string{phase} + "-rigid-contact-cache.bin";
+    std::ifstream checkpoint(stage / tsvName);
+    require(checkpoint.good(), "partial capsule checkpoint unavailable");
+    std::string line, matterName;
+    while (std::getline(checkpoint, line)) {
+        constexpr std::string_view prefix = "matter_snapshot\t";
+        if (line.rfind(prefix, 0u) == 0u) {
+            require(matterName.empty(), "duplicate Matter capsule binding");
+            const auto end = line.find('\t', prefix.size());
+            require(end != std::string::npos, "malformed Matter capsule binding");
+            matterName = line.substr(prefix.size(), end - prefix.size());
+        }
+    }
+    require(checkpoint.eof() && !matterName.empty() &&
+        std::filesystem::path(matterName).filename() == matterName,
+        "invalid Matter capsule sidecar binding");
+    const auto temp = stage / "partial-owner-capsule.tmp";
+    const auto destination = stage / "partial-owner-capsule";
+    require(!std::filesystem::exists(temp) && !std::filesystem::exists(destination) &&
+        std::filesystem::create_directory(temp), "partial capsule destination already exists");
+    std::ofstream manifest(temp / "manifest.tsv", std::ios::binary | std::ios::trunc);
+    require(manifest.good(), "could not create partial capsule manifest");
+    manifest << "schema\tnumi.surgical-partial-owner-capsule.v1\n"
+        << "complete\t0\nrestorable\t0\n"
+        << "lineage\tsynthetic_same_resident_input_bound_by_hash\n"
+        << "input_checkpoint_name\t" << inputCheckpoint.filename().string() << '\n'
+        << "input_checkpoint_size\t" << std::filesystem::file_size(inputCheckpoint) << '\n'
+        << "input_checkpoint_fnv64\t" << handoffCheckpointContentHash(inputCheckpoint) << '\n'
+        << "input_state_step\t" << inputStep << '\n'
+        << "compiled_world_fingerprint\t" << compiledFingerprint << '\n'
+        << "accepted_state_step\t" << stateStep << '\n'
+        << "timestep_seconds\t" << std::setprecision(9) << timestep << '\n'
+        << "physics_substeps\t" << substeps << '\n'
+        << "missing\tconvex_cache,reset_state,owner_transaction_state,atomic_matter_reservation,other_unverified_owner_state\n";
+    auto bind = [&](const char* kind, const std::string& name) {
+        const auto path = stage / name;
+        require(std::filesystem::is_regular_file(path), "partial capsule binding missing");
+        manifest << "binding\t" << kind << '\t' << name << '\t'
+            << std::filesystem::file_size(path) << '\t' << handoffCheckpointContentHash(path) << '\n';
+    };
+    bind("checkpoint", tsvName);
+    bind("matter", matterName);
+    bind("rigid_cache", cacheName);
+    writePartialCapsuleVector(temp, manifest, "q.bin", result.finalQ);
+    writePartialCapsuleVector(temp, manifest, "v.bin", result.finalV);
+    writePartialCapsuleVector(temp, manifest, "scene-bodies.bin", result.finalSceneBodies);
+    writePartialCapsuleVector(temp, manifest, "rod-nodes.bin", result.finalRodNodes);
+    writePartialCapsuleVector(temp, manifest, "rod-edges.bin", result.finalRodEdges);
+    writePartialCapsuleVector(temp, manifest, "manifold-headers.bin", result.contactEvidence.manifoldHeaders);
+    writePartialCapsuleVector(temp, manifest, "manifold-points.bin", result.contactEvidence.manifoldPoints);
+    writePartialCapsuleVector(temp, manifest, "manifold-counts.bin", result.contactEvidence.manifoldCounts);
+    writePartialCapsuleVector(temp, manifest, "rod-tool-witnesses.bin", result.contactEvidence.rodToolWitnesses);
+    manifest.close();
+    require(manifest.good(), "could not finish partial capsule manifest");
+    std::filesystem::rename(temp, destination);
+    std::cout << "partial_owner_capsule=ok complete=0 restorable=0 compiled_world_fingerprint="
+        << compiledFingerprint << " state_step=" << stateStep << '\n';
 }
 
 RigidContactCacheArchive readRigidContactCacheArchive(
@@ -17482,6 +17586,7 @@ int main(const int argc, const char* const argv[]) {
                 const bool originalAdvance = tissueRobotFirstBiteContactAdvanceOnly;
                 metalrobo::MetalWorldContext context;
                 metalrobo::MetalWorldResidentState resident;
+                const std::uint64_t initialCapsuleInputStep = resumedTissueCheckpointStep;
                 const std::uint32_t residentStageCount = options.sameResidentControl ? 2u : 1u;
                 for (std::uint32_t residentStage = 0u;
                      residentStage < residentStageCount; ++residentStage) {
@@ -18403,6 +18508,13 @@ int main(const int argc, const char* const argv[]) {
                         robotApproachCadence /
                             stepConfig.physicsSubsteps
                     );
+                }
+                if (options.capturePartialOwnerCapsule) {
+                    require(robotContactProbe, "partial capsule requires contact archive");
+                    writePartialOwnerCapsule(stageOutput, acceptedPhase, acceptedStateStep,
+                        compiled.fingerprint(), options.resumeTissueCheckpointPath,
+                        initialCapsuleInputStep, stepConfig.timestepSeconds,
+                        stepConfig.physicsSubsteps, driven.result);
                 }
                 std::cout << (robotContactProbe
                     ? (channels == 0u
