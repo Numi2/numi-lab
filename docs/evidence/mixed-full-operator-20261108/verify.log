@@ -1,0 +1,6 @@
+analyze.py: passed
+analyze_factor.py: passed
+analyze_direct.py: passed
+scaling.py: passed
+original subtraction-based rigid gate: fails as retained
+recomputed analyses match retained bytes
