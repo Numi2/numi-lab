@@ -1,0 +1,76 @@
+Auto-merging .gitattributes
+CONFLICT (add/add): Merge conflict in .gitattributes
+Auto-merging .gitignore
+CONFLICT (content): Merge conflict in .gitignore
+Auto-merging .numi/commands/window
+CONFLICT (add/add): Merge conflict in .numi/commands/window
+Auto-merging CMakeLists.txt
+CONFLICT (content): Merge conflict in CMakeLists.txt
+Auto-merging README.md
+CONFLICT (content): Merge conflict in README.md
+Auto-merging THIRD_PARTY_NOTICES.md
+Auto-merging apps/NumiTraining.swift
+CONFLICT (add/add): Merge conflict in apps/NumiTraining.swift
+Auto-merging apps/NumiWindow.swift
+CONFLICT (add/add): Merge conflict in apps/NumiWindow.swift
+Auto-merging apps/ai_sapiens_compile.cpp
+CONFLICT (add/add): Merge conflict in apps/ai_sapiens_compile.cpp
+Auto-merging apps/measured_surface_robot_probe.cpp
+CONFLICT (add/add): Merge conflict in apps/measured_surface_robot_probe.cpp
+Auto-merging apps/numi_window_check.swift
+CONFLICT (add/add): Merge conflict in apps/numi_window_check.swift
+Auto-merging apps/task_program_check.cpp
+Auto-merging apps/task_rollout.swift
+CONFLICT (content): Merge conflict in apps/task_rollout.swift
+Auto-merging apps/task_train.swift
+CONFLICT (content): Merge conflict in apps/task_train.swift
+Auto-merging bindings/swift/MetalRoboTaskRollout.swift
+Auto-merging docs/METAL_WORLD.md
+Auto-merging docs/NUMI_CLI.md
+Auto-merging docs/VISUAL_PLATFORM.md
+CONFLICT (content): Merge conflict in docs/VISUAL_PLATFORM.md
+Auto-merging docs/WORLD_ENGINE.md
+Auto-merging include/metalrobo/LearningPacks.hpp
+CONFLICT (content): Merge conflict in include/metalrobo/LearningPacks.hpp
+Auto-merging include/metalrobo/MetalHybridRenderer.hpp
+CONFLICT (content): Merge conflict in include/metalrobo/MetalHybridRenderer.hpp
+Auto-merging include/metalrobo/MetalWorld.hpp
+CONFLICT (content): Merge conflict in include/metalrobo/MetalWorld.hpp
+Auto-merging include/metalrobo/PolicyProgram.hpp
+Auto-merging include/metalrobo/RuntimeAbi.hpp
+CONFLICT (content): Merge conflict in include/metalrobo/RuntimeAbi.hpp
+Auto-merging include/metalrobo/TaskProgram.hpp
+CONFLICT (content): Merge conflict in include/metalrobo/TaskProgram.hpp
+Auto-merging include/metalrobo/c_api.h
+CONFLICT (content): Merge conflict in include/metalrobo/c_api.h
+Auto-merging include/metalrobo/task_program_types.h
+CONFLICT (content): Merge conflict in include/metalrobo/task_program_types.h
+Auto-merging numi/commands/train
+CONFLICT (content): Merge conflict in numi/commands/train
+Auto-merging python/metalrobo/policy_selection.py
+CONFLICT (content): Merge conflict in python/metalrobo/policy_selection.py
+Auto-merging src/apple/VisualAssetCooker.mm
+CONFLICT (content): Merge conflict in src/apple/VisualAssetCooker.mm
+Auto-merging src/c_api.cpp
+CONFLICT (content): Merge conflict in src/c_api.cpp
+Auto-merging src/core/LearningPacks.cpp
+Auto-merging src/core/LocomotionWorld.cpp
+Auto-merging src/core/PolicyProgram.cpp
+Auto-merging src/core/RunProgram.cpp
+Auto-merging src/core/TaskProgram.cpp
+CONFLICT (content): Merge conflict in src/core/TaskProgram.cpp
+Auto-merging src/metal/HybridRenderer.metal
+Auto-merging src/metal/LocomotionTask.metal
+CONFLICT (content): Merge conflict in src/metal/LocomotionTask.metal
+Auto-merging src/metal/MetalHybridRenderer.mm
+CONFLICT (content): Merge conflict in src/metal/MetalHybridRenderer.mm
+Auto-merging src/metal/MetalMeasuredSurfaceMechanics.mm
+CONFLICT (add/add): Merge conflict in src/metal/MetalMeasuredSurfaceMechanics.mm
+Auto-merging src/metal/MetalWorld.mm
+CONFLICT (content): Merge conflict in src/metal/MetalWorld.mm
+Auto-merging tests/numi_cli_test.sh
+Auto-merging tests/numi_human_force_parity_test.cpp
+CONFLICT (add/add): Merge conflict in tests/numi_human_force_parity_test.cpp
+Auto-merging tests/policy_selection_test.py
+CONFLICT (content): Merge conflict in tests/policy_selection_test.py
+Automatic merge failed; fix conflicts and then commit the result.

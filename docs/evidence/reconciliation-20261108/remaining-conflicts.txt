@@ -1,0 +1,7 @@
+README.md
+apps/NumiWindow.swift
+apps/ai_sapiens_compile.cpp
+docs/VISUAL_PLATFORM.md
+include/metalrobo/RuntimeAbi.hpp
+src/apple/VisualAssetCooker.mm
+src/metal/MetalHybridRenderer.mm

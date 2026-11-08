@@ -1,0 +1,4 @@
+252a3882cb532531d9cddbaa9fd5ac88054b255e411d8956ed8ed2912a23ff58  conflict-worktree-markers.tar.gz
+ac845935a52dcbbe9380907cedc0da215f7b23aee9ff99f0a5211327890d01a3  resolved-and-open-worktree-20261108.tar.gz
+23a93013534de68890e916e9b99aab1d9a2d5d5a24d5fb2b13c5147b313c6923  selector-contract-investigation.md
+cdafd0b6094218ba693a40f98f26d4b4e5abfc5a15a46619b16f9788e4beb1c4  remaining-conflicts.txt
