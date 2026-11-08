@@ -129,8 +129,13 @@ def _configuration(
 
 
 def _configuration_record(learner: MLXPolicyLearner) -> str:
+    record = asdict(learner.configuration)
+    # Absence retains the historical algorithm and byte-identical checkpoint
+    # configuration. An explicit new mode is part of the strict restore contract.
+    if record.get("adaptive_kl_mode") == "legacy-pre-step":
+        record.pop("adaptive_kl_mode")
     return json.dumps(
-        asdict(learner.configuration),
+        record,
         sort_keys=True,
         separators=(",", ":"),
         allow_nan=False,
@@ -918,6 +923,8 @@ def _rollout_metrics(rollout: Any) -> dict[str, Any]:
 
 def _serve(arguments: argparse.Namespace) -> int:
     recurrent = read_policy_pack(arguments.policy_pack, library_path=arguments.native_library).actor_memory is not None
+    if not recurrent and arguments.adaptive_kl_mode != "legacy-pre-step":
+        raise ValueError("Decision-group KL adaptation requires a recurrent policy")
     if recurrent:
         from .mlx_recurrent_policy_learning import MLXRecurrentPolicyLearner, MLXRecurrentPPOConfiguration
         if (arguments.motion_pack is not None or arguments.retention_policy_pack is not None
@@ -926,7 +933,8 @@ def _serve(arguments: argparse.Namespace) -> int:
                 or any(value for key,value in vars(arguments).items() if key.startswith("train_actor_"))):
             raise ValueError("Recurrent PPO requires native rewards and its complete bound actor; flat motion/retention/projection modes are unsupported")
         configuration = MLXRecurrentPPOConfiguration(**asdict(_configuration(arguments)),
-            sequence_length=arguments.recurrent_sequence_length)
+            sequence_length=arguments.recurrent_sequence_length,
+            adaptive_kl_mode=arguments.adaptive_kl_mode)
         learner = MLXRecurrentPolicyLearner.from_policy_pack(arguments.policy_pack,
             configuration, library_path=arguments.native_library)
     else:
@@ -1369,6 +1377,8 @@ def _serve(arguments: argparse.Namespace) -> int:
 
 
 def _initialize(arguments: argparse.Namespace) -> int:
+    if arguments.recurrent_hidden_size is None and arguments.adaptive_kl_mode != "legacy-pre-step":
+        raise ValueError("Decision-group KL adaptation requires recurrent initialization")
     if (
         arguments.actor_policy_pack is None and
         (
@@ -1390,7 +1400,8 @@ def _initialize(arguments: argparse.Namespace) -> int:
             raise ValueError("Fresh recurrent initialization cannot import/extend/project a source actor")
         from .mlx_recurrent_policy_learning import MLXRecurrentPolicyLearner, MLXRecurrentPPOConfiguration
         configuration = MLXRecurrentPPOConfiguration(**asdict(_configuration(arguments)),
-            sequence_length=arguments.recurrent_sequence_length)
+            sequence_length=arguments.recurrent_sequence_length,
+            adaptive_kl_mode=arguments.adaptive_kl_mode)
         learner = MLXRecurrentPolicyLearner.initialize(arguments.actor_observations,
             arguments.critic_observations, arguments.actions, arguments.recurrent_hidden_size, configuration,
             maximum_memory_timescale_ticks=arguments.recurrent_memory_timescale_ticks or 0)
@@ -1508,6 +1519,11 @@ def _add_ppo_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--fixed-learning-rate",
         action="store_true",
+    )
+    parser.add_argument(
+        "--adaptive-kl-mode", choices=("legacy-pre-step", "post-step-decision-groups"),
+        default="legacy-pre-step",
+        help="recurrent PPO only: optionally adapt once per update using final conditional decision-group KL",
     )
     parser.add_argument(
         "--minimum-learning-rate",

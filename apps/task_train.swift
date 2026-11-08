@@ -112,6 +112,7 @@ private struct Options {
     var minimumLearningRate = 1.0e-5
     var maximumLearningRate = 1.0e-2
     var fixedLearningRate = false
+    var adaptiveKLMode = "legacy-pre-step"
     var overrideResumedLearningRate = false
     var overrideResumedExploration = false
     var clipRatio = 0.2
@@ -618,6 +619,9 @@ private struct Options {
                 index += 1
             case "--fixed-learning-rate":
                 fixedLearningRate = true
+            case "--adaptive-kl-mode":
+                adaptiveKLMode = try value()
+                index += 1
             case "--override-resumed-learning-rate":
                 overrideResumedLearningRate = true
             case "--override-resumed-exploration":
@@ -705,6 +709,9 @@ private struct Options {
         }
         guard recurrentSequenceLength > 0 else {
             throw MetalRoboTaskRolloutError.invalidShape("--recurrent-sequence-length must be positive.")
+        }
+        if !["legacy-pre-step", "post-step-decision-groups"].contains(adaptiveKLMode) {
+            throw MetalRoboTaskRolloutError.invalidShape("--adaptive-kl-mode must be legacy-pre-step or post-step-decision-groups.")
         }
         if let path = resumeTrainingCheckpoint {
             guard policyPack == nil, learnerState == nil, initializePolicyID == nil else {
@@ -1300,6 +1307,7 @@ private func initializePolicyIfRequested(
         String(options.learnerSeed),
         "--initial-log-standard-deviation",
         String(options.initialLogStandardDeviation),
+        "--adaptive-kl-mode", options.adaptiveKLMode,
     ]
     if let width = options.recurrentHiddenSize {
         arguments.append(contentsOf: ["--recurrent-hidden-size", String(width),
@@ -1437,6 +1445,7 @@ private final class MLXLearnerWorker {
             String(options.minibatchSize),
             "--recurrent-sequence-length",
             String(options.recurrentSequenceLength),
+            "--adaptive-kl-mode", options.adaptiveKLMode,
             "--learning-rate",
             String(options.learningRate),
             "--minimum-learning-rate",
@@ -2423,9 +2432,12 @@ private enum TaskTrainMain {
                     "pre_step_kl_divergence", "post_update_kl_divergence", "gradient_clip_scale",
                     "minimum_gradient_clip_scale", "clipped_actor_gradient_norm",
                     "actor_parameter_delta_norm", "actor_total_parameter_delta_norm",
+                    "post_update_max_decision_group_kl", "learning_rate_used",
+                    "learning_rate_next_update", "learning_rate_adaptation_kl",
                 ]
                 learningUpdateHistory.append(lastLearning.filter {
-                    historyKeys.contains($0.key) || $0.key.hasPrefix("post_update_action_")
+                    historyKeys.contains($0.key) || $0.key.hasPrefix("post_update_action_") ||
+                        $0.key.hasPrefix("post_update_decision_group_")
                 })
                 try context.loadPolicy(
                     at: URL(fileURLWithPath: updatedPolicyPack)

@@ -1905,3 +1905,31 @@ first10 updates match the prior run in all41 model/Adam arrays/metadata and
 checkpoint candidate/rollout bytes. This bounded physics repair supports
 further exploration/update-size work; reliable manipulation, solid-food
 handling, social learning and the lifelong ecological goal remain unfinished.
+
+
+## Optional final-policy learning-rate feedback (2026-11-08)
+
+Recurrent PPO accepts `--adaptive-kl-mode post-step-decision-groups`. The default
+`legacy-pre-step` retains the existing per-minibatch controller and serialized
+checkpoint configuration. The new mode keeps the optimizer rate fixed throughout
+one update, recomputes old-to-final latent Gaussian KL after every optimizer step
+has completed, conditions the joint selected-factor KL on each complete native
+action-selection bitmask, and adapts once for the next update from the largest
+conditional mean. Ordinary packs use one all-action group; padded/absent decisions
+have no authority. In v13 the rare head-plus-beak group is distinct from beak-only
+decisions. Separate per-action head/beak metrics remain available.
+
+The existing rule and bounds apply: above twice target, divide rate by1.5; between
+zero and half target, multiply by1.5. This is feedback, not a hard KL constraint.
+`--fixed-learning-rate` or target0 disables adaptation. New history fields record
+the rate actually used, the next rate, the adaptation statistic and group counts/KL.
+The mode is part of strict learner checkpoint semantics: cross-mode restore is
+rejected even with an explicit learning-rate override. Full-life execution hashes
+still bind the actual imported Python source closure. Flat policies reject this
+mode. No behavioral benefit or promotion follows from meeting a KL target.
+
+`tests/recurrent_adaptive_kl_test.py` independently checks NumPy final Gaussian KL,
+rare joint groups, padding, identical whole-update model/Adam state versus fixed
+rate, bounds, disabled/absent decisions, strict mode restore and exact future
+updates after restart. The actual archived65→66 rollout reproduces all53 model/Adam
+arrays and historical configuration bytes under the unchanged default.

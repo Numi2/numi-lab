@@ -27,11 +27,14 @@ from .native import PolicyDenseLayerArtifact, PolicyGRUMemoryArtifact, write_pol
 @dataclass(frozen=True, slots=True)
 class MLXRecurrentPPOConfiguration(MLXPPOConfiguration):
     sequence_length: int = 32
+    adaptive_kl_mode: str = "legacy-pre-step"
 
     def validate(self) -> None:
         super(MLXRecurrentPPOConfiguration, self).validate()
         if self.sequence_length <= 0 or self.minibatch_size < self.sequence_length:
             raise ValueError("Recurrent PPO requires positive sequence_length <= minibatch_size")
+        if self.adaptive_kl_mode not in ("legacy-pre-step", "post-step-decision-groups"):
+            raise ValueError("Unknown recurrent adaptive KL mode")
 
 
 @dataclass(frozen=True, slots=True)
@@ -425,7 +428,8 @@ class MLXRecurrentPolicyLearner(MLXPolicyLearner):
                     raise FloatingPointError("Recurrent PPO produced nonfinite minibatch metrics")
                 count = int(valid.sum()); weight += count; updates += 1
                 minimum_clip_scale = min(minimum_clip_scale, numeric["gradient_clip_scale"])
-                if self.configuration.adaptive_learning_rate and self.configuration.target_kl is not None:
+                if (self.configuration.adaptive_kl_mode == "legacy-pre-step" and
+                        self.configuration.adaptive_learning_rate and self.configuration.target_kl is not None):
                     lr = float(self.optimizer.learning_rate.item()); kl = numeric["kl_divergence"]
                     if kl > 2*self.configuration.target_kl: lr = max(self.configuration.minimum_learning_rate, lr/1.5)
                     elif 0 < kl < .5*self.configuration.target_kl: lr = min(self.configuration.maximum_learning_rate, lr*1.5)
@@ -440,6 +444,8 @@ class MLXRecurrentPolicyLearner(MLXPolicyLearner):
         post_clip = np.zeros(r.action_count, np.float64)
         factor_counts = np.zeros(r.action_count, np.int64)
         pooled_kl = 0.0; pooled_count = 0
+        group_kl = {}; group_counts = {}
+        learning_rate_used = float(self.optimizer.learning_rate.item())
         final_logstd = mx.clip(self.model.log_standard_deviation, -5, 2)
         for offset in range(0, len(windows), per_batch):
             tables, indices, valid = batch.gather(windows[offset:offset+per_batch], length)
@@ -454,15 +460,34 @@ class MLXRecurrentPolicyLearner(MLXPolicyLearner):
             approx = mx.expm1(log_ratio)-log_ratio
             clip = (mx.abs(mx.expm1(log_ratio))>self.configuration.clip_ratio).astype(mx.float32)
             mx.eval(kl, approx, clip)
+            kl_values = np.array(kl)
             selected = np.broadcast_to(valid[...,None], valid.shape+(r.action_count,)).copy()
             if selections is not None: selected &= selections[indices].astype(bool)
-            post_kl += np.sum(np.where(selected,np.array(kl),0),axis=(0,1),dtype=np.float64)
+            selected_kl = np.where(selected,kl_values,0)
+            post_kl += np.sum(selected_kl,axis=(0,1),dtype=np.float64)
             post_approx += np.sum(np.where(selected,np.array(approx),0),axis=(0,1),dtype=np.float64)
             post_clip += np.sum(np.where(selected,np.array(clip),0),axis=(0,1),dtype=np.float64)
             factor_counts += np.sum(selected,axis=(0,1))
             decisions = np.any(selected,axis=-1)
-            pooled_kl += float(np.sum(np.where(selected,np.array(kl),0),dtype=np.float64))
+            pooled_kl += float(np.sum(selected_kl,dtype=np.float64))
             pooled_count += int(np.count_nonzero(decisions))
+            # Condition on the complete native selection mask, rather than
+            # averaging a rare head choice together with frequent jaw choices.
+            # Ordinary recurrent packs select every action on every real row.
+            if selections is None:
+                masks = None
+                groups = ((1 << r.action_count)-1,)
+            else:
+                masks = np.sum(selected.astype(np.uint32) <<
+                    np.arange(r.action_count,dtype=np.uint32),axis=-1,dtype=np.uint32)
+                groups = np.unique(masks)
+            joint_kl = np.sum(selected_kl,axis=-1,dtype=np.float64)
+            for mask in groups:
+                mask = int(mask)
+                if not mask: continue
+                rows = valid if masks is None else valid & (masks == mask)
+                group_kl[mask] = group_kl.get(mask,0.) + float(np.sum(joint_kl[rows],dtype=np.float64))
+                group_counts[mask] = group_counts.get(mask,0) + int(np.count_nonzero(rows))
         post = {"post_update_kl_divergence": pooled_kl/max(pooled_count,1),
             "minimum_gradient_clip_scale": minimum_clip_scale}
         for action in range(r.action_count):
@@ -471,12 +496,31 @@ class MLXRecurrentPolicyLearner(MLXPolicyLearner):
                 post[f"post_update_action_{action}_kl"] = float(post_kl[action]/factor_counts[action])
                 post[f"post_update_action_{action}_approximate_kl"] = float(post_approx[action]/factor_counts[action])
                 post[f"post_update_action_{action}_clip_fraction"] = float(post_clip[action]/factor_counts[action])
+        for mask,count in group_counts.items():
+            post[f"post_update_decision_group_{mask}_count"] = float(count)
+            post[f"post_update_decision_group_{mask}_kl"] = group_kl[mask]/count
+        post["post_update_max_decision_group_kl"] = max(
+            (group_kl[mask]/count for mask,count in group_counts.items()), default=0.)
         actor_after = dict(tree_flatten({"actor": self.model.actor.trainable_parameters(),
             "log_standard_deviation": self.model.log_standard_deviation}))
         post["actor_total_parameter_delta_norm"] = math.sqrt(sum(float(np.sum(
             np.square(np.array(actor_after[k],dtype=np.float64)-v))) for k,v in actor_before.items()))
         if not all(math.isfinite(value) for value in post.values()):
             raise FloatingPointError("Recurrent PPO final-policy metrics are nonfinite")
+        if self.configuration.adaptive_kl_mode == "post-step-decision-groups":
+            # Every optimizer step above uses one fixed rate. Adapt once for
+            # the *next* update, after measuring the final published policy.
+            rate = learning_rate_used
+            if self.configuration.adaptive_learning_rate and self.configuration.target_kl is not None:
+                kl = post["post_update_max_decision_group_kl"]
+                if kl > 2*self.configuration.target_kl:
+                    rate = max(self.configuration.minimum_learning_rate,rate/1.5)
+                elif 0 < kl < .5*self.configuration.target_kl:
+                    rate = min(self.configuration.maximum_learning_rate,rate*1.5)
+                self.optimizer.learning_rate = rate
+                post["learning_rate_adaptation_kl"] = kl
+            post["learning_rate_used"] = learning_rate_used
+            post["learning_rate_next_update"] = rate
         self.revision += 1
         return {**{key: value/weight for key,value in totals.items()}, **post,
             "pre_step_kl_divergence": totals["kl_divergence"]/weight, "update_seconds": time.perf_counter()-start_time,
