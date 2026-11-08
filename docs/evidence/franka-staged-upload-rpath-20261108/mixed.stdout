@@ -1,0 +1,7 @@
+pre_submit_status=15 published=0 aborts=1 host_refused=1 generation=0
+step_status=16 published=1 success=1 failed=1 statuses=2 contacts=2 actor=492
+world env=0 code=5
+world env=1 code=0
+contact env=0 code=5 raw_required=8
+contact env=1 code=0 raw_required=0
+expected_physics_outcome=1 host_committed=1 generation=1 env_steps=0,1
