@@ -1,0 +1,8 @@
+{
+  "goal_complete": false,
+  "native_commands_max": 6,
+  "production_changed": false,
+  "schema": "crow-grasp-controls-git-recovery-protocol-v1",
+  "scope": "Repeat every executed non-timeout native admission/calibration/physical command from the archived runtime. Compare every physical output, captures, admission/calibration output and both regenerated scientific reports. Hash/mode/nanosecond-mtime verify every original before deletion.",
+  "shared_git_provider_protected": true
+}
