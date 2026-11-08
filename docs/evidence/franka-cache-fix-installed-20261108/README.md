@@ -20,3 +20,8 @@ does not independently validate cache invalidation, physical accuracy,
 learned control, replay, visual UI, or performance. Input closure is not
 established for multi-file inputs, and concurrent dependency changes and
 shared-library or environment identity are not covered by cache identity.
+
+Correction: `metalrobo_world_pack --help` was interpreted as an output path,
+not a help request. It established that the executable loaded and generated a
+pack, not that help worked. The later observation is retained in
+`../clean-sparse-package-20261108/`.

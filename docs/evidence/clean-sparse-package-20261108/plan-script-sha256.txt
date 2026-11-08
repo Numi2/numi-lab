@@ -1,0 +1,3 @@
+188579035169722429fcd98e7bc4b909f5b56898c22c03a6480c7bbfd59d7d39  /Users/numi/numi-franka-clean-build-smoke-20261108/plan.json
+19c0d7a7e6cf5ea7cb344853505264435c16bdbb9c1b9de200a2b7a32736cacf  /Users/numi/numi-franka-clean-build-smoke-20261108/run.py
+e6874b5c36e16609ba3b2e81aed86af7c9cfd004e624287d3eb746b38b7fe7e2  /Users/numi/numi-franka-clean-build-smoke-20261108/postcheck.py

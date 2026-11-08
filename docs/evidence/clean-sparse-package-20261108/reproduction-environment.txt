@@ -1,0 +1,32 @@
+2026-11-08T00:06:57Z
+revision: d9db7f9f30f75c9d54432fee2ad89d0e8f3ef26d
+tracked paths:   119164
+skipped paths: 117191
+source/build/install disk KB:
+80036	/Users/numi/numi-lab-catalog-clean-source-20261108
+222312	/Users/numi/numi-lab-catalog-clean-build-20261108
+117228	/Users/numi/numi-lab-catalog-clean-installed-retry-20261108
+available storage:
+Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on
+/dev/disk3s5   239311296 172166008  18402380    91% 1510517 184023800    1%   /System/Volumes/Data
+source and parent object stores:
+/Users/numi/numi-lab-ccd-20261107/.git/worktrees/numi-lab-catalog-clean-source-20261108
+/Users/numi/numi-lab-ccd-20261107/.git
+sparse/partial clone configuration:
+true
+true
+blob:none
+toolchain:
+ProductName:		macOS
+ProductVersion:		27.0
+BuildVersion:		26A425
+/Library/Developer/CommandLineTools
+/Users/numi/Library/Developer/Toolchains/Metal.xctoolchain/usr/bin/metal
+cmake version 4.4.4
+1.13.2
+swift-driver version: 1.168.6 Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)
+Target: arm64-apple-macosx27.0.0
+training Python:
+3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]
+numpy 2.5.4
+mlx namespace-version-unavailable

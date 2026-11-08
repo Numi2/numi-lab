@@ -33,3 +33,8 @@ environment variables, or transitive inputs, and do not make simultaneous
 mutation atomic. Moving or removing evaluated input files makes status unknown.
 The smoke is not a claim of physical accuracy, learned control, visual UI,
 replay, clean-checkout reproducibility, or performance.
+
+Correction: `metalrobo_world_pack --help` was interpreted as an output path,
+not a help request. It established that the executable loaded and generated a
+pack, not that help worked. The later observation is retained in
+`../clean-sparse-package-20261108/`.

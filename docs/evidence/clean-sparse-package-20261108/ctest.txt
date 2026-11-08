@@ -1,0 +1,7 @@
+Test project /Users/numi/numi-lab-catalog-clean-build-20261108
+    Start 4: metalrobo_numi_policy_status
+1/1 Test #4: metalrobo_numi_policy_status .....   Passed    0.21 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.22 sec

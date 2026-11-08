@@ -1,0 +1,1 @@
+usage: metalrobo_episode_compile <capture.json> <output.mrworld> [--store <directory>] [--no-resume] [--require-hashes]
