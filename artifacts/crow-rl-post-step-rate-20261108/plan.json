@@ -1,0 +1,74 @@
+{
+  "question": "With useful retained head-decision reward credit already verified, does final-policy decision-group KL rate feedback improve unused-seed cue-conditioned choice AND physical intake against fixed rate?",
+  "source_revision": "328ca242255585310ae6b29f53839b1f454d8adb",
+  "initial_policy_sha256": "4dd8fe29b72ccb540170788945dd238c0c11e3b9db3fb0e014393710ceb505a1",
+  "initialization": "Same archived recurrent stochastic policy65 including critic, normalization, action contract and exploration in both arms; fresh Adam for both. This is a new matched experiment, not exact-life resume or a continuation of unequal archived optimizer histories.",
+  "configuration": {
+    "environments": 64,
+    "ticks_per_update": 320,
+    "sequence_length": 320,
+    "minibatch_size": 20480,
+    "epochs": 2,
+    "gamma": 0.999,
+    "lambda": 1.0,
+    "learning_rate": 0.0003,
+    "gradient_clipping": "unchanged combined actor+critic, norm1",
+    "new_mode_in_both_arms": "post-step-decision-groups",
+    "fixed_arm_adaptive_learning_rate": false,
+    "adaptive_arm_adaptive_learning_rate": true
+  },
+  "updates_per_arm": 32,
+  "training_seed": 2651411101,
+  "learner_seed": 2651411102,
+  "minimum_learning_rate": 1e-05,
+  "maximum_learning_rate": 0.01,
+  "target_kl": 0.01,
+  "training_order": [
+    "fixed",
+    "adaptive"
+  ],
+  "training_timeout_seconds": 900,
+  "evaluation_timeout_seconds": 660,
+  "heldout_seed_bases": [
+    2651411901,
+    2651411904,
+    2651411907
+  ],
+  "evaluation_order": [
+    [
+      "initial",
+      "fixed",
+      "adaptive"
+    ],
+    [
+      "adaptive",
+      "initial",
+      "fixed"
+    ],
+    [
+      "fixed",
+      "adaptive",
+      "initial"
+    ]
+  ],
+  "budget": "Exactly2 matched32-update histories (1310720 accepted training transitions), then3 frozen Gaussian policies x9 unused seeds x4 causal arms x64 lanes x320 ticks (2211840 evaluation transitions). No retries, extension, interim selection, reward/exploration change, or further tuning on heldout results. Engineering failure stops dependent execution and makes behavioral trial inconclusive.",
+  "primary_endpoints": [
+    "adaptive versus fixed intact-cue correct-head-side fraction",
+    "adaptive versus fixed intact-cue actual positive-intake fraction"
+  ],
+  "analysis": "All576 paired lifetimes per policy/control; report totals, cue strata, all9 per-seed differences, exact discordant-pair p and two-sided exact sign-flip p on the9 per-seed count differences (512 assignments). Primary success requires BOTH choice and intake absolute gains >=.05, BOTH cluster sign-flip p<=.05, BOTH positive in >=7/9 seeds. Also require adaptive intake greater than frozen initial and causal cue/GRU controls to favor intact. No KL threshold substitutes for behavior. Conditional evidence for this one matched training pair only; independent training replicates and new geometry required for algorithm-level generalization.",
+  "controls": [
+    "initial policy65 frozen",
+    "clear GRU only at40",
+    "absent rendered cue",
+    "swapped rendered cue",
+    "unchanged finite food budgets",
+    "zero failed physics steps",
+    "exact native intervention checks already enforced by the owning causal harness"
+  ],
+  "checkpoint_policy": "Retain final and update31 checkpoints (actual policy revisions96/97), final generating rollout and learner state for actual Git-restored update32 replay; no intermediate full-frame captures or video.",
+  "protected_deployment": "environments/american-crow/action-holds-v1/policies/deployment97.policypack",
+  "protected_deployment_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+  "limits": "Fixed two-port head-reachable fixture, fresh finite independent cued lifetimes. Not free living ecology, solid-food manipulation, general navigation/social learning or biological validity. No deployment promotion in this experiment.",
+  "evidence": "Commit plans before execution; retain exact commands/source/runtime/raw outcomes including failures in content-deduplicated Git archive, verify actual Git bytes and scoped executed recovery before removing raw/duplicate local payloads."
+}
