@@ -1,0 +1,9 @@
+{
+  "commit": "c55197a2fb68d55599606ab0d01c003a1b0343b2",
+  "files": {
+    "docs/NUMERICS.md": "079e6514b4a0ef984030559ca90c00cc4cfe90bf64dbc21bbefcba3eb2a323ba",
+    "src/metal/MetalUnifiedQualitySolver.metal": "523b22e4dbaf50680cc0a46456a34ae6b311a788079d2c345de72445f510d54c"
+  },
+  "policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+  "shared_provider": "/Users/n/MetalRobo-main/.git"
+}

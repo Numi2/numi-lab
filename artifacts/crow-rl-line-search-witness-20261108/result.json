@@ -1,0 +1,16 @@
+{
+  "goal_complete": false,
+  "independent_analysis_only": true,
+  "native_commands": 5,
+  "observations": {
+    "archived_physical_files_exact_per_repeat": 12,
+    "independent_reference_updates": 6,
+    "independent_reference_within_20_updates": true,
+    "owners_passed": true,
+    "rounded_reference_meets_original_gates": true,
+    "status6_first_witness_matches_public": true,
+    "status6_repeated_capture_exact": true,
+    "strict_capture_exact": true
+  },
+  "policy_or_profile_promoted": false
+}

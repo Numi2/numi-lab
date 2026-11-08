@@ -510,8 +510,8 @@ for exact plans, results and recovery provenance.
 
 ## Checked expanded refinement of small quality problems
 
-After the ordinary Newton and adjacent-FP32 work fails to converge, validated
-problems with at most64 velocities can use a separately bounded20-update
+After the ordinary Newton work exhausts its budget or rejects its line search,
+including the adjacent-FP32 attempt where applicable, validated problems with at most64 velocities can use a separately bounded20-update
 two-FP32 Newton refinement when an expanded scratch arena is supplied. Primary
 budgets below20 skip it. Older dispatches with their smaller arenas also skip it.
 The primary budgets and declared tolerances are unchanged; status Newton and

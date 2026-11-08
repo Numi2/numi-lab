@@ -2471,7 +2471,8 @@ inline void mrUnifiedQualitySolveWithWorkspace(
     MRUnifiedQualityStatusGPU next = statuses[problem];
     const uint nv = dispatch.generalizedVelocityCount, rows = dispatch.rowCount, nb = dispatch.blockCount;
     const uint required = mrUnifiedQualityRefinementScratchFloats(nv, rows, nb);
-    if (next.code != MR_UNIFIED_QUALITY_DID_NOT_CONVERGE ||
+    if ((next.code != MR_UNIFIED_QUALITY_DID_NOT_CONVERGE &&
+         next.code != MR_UNIFIED_QUALITY_LINE_SEARCH_FAILED) ||
         required == 0u || dispatch.hessianStride < required ||
         dispatch.maximumNewtonIterations < MR_UNIFIED_QUALITY_MAX_EXPANSION_REFINEMENTS) return;
     const uint base = problem * dispatch.vectorStride;

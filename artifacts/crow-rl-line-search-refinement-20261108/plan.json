@@ -1,0 +1,32 @@
+{
+  "eligibility_only": true,
+  "goal_complete": false,
+  "limits": {
+    "native_component_commands": 30,
+    "per_component_seconds": 30,
+    "raw_bytes": 40000000
+  },
+  "predictions": {
+    "legacy_arena_matches_baseline": true,
+    "new_retained_candidate_cases_pass": 4,
+    "repeated_binary_outputs_exact": true,
+    "strict_substep7_candidate_rejected": true,
+    "substep2_candidate_passed": true
+  },
+  "schema": "crow-line-search-refinement-plan-v1",
+  "sources": {
+    "artifacts/crow-rl-line-search-refinement-20261108/README.md": "6631f6709c95f3b92ea4b4d47ecbb951891ea13eb067aabd9fb2ad5450522675",
+    "artifacts/crow-rl-line-search-refinement-20261108/baseline.json": "0fa969eba0cf1c4618f8b085524d4fa61350fd6d5df1e115ae0391d04bc7ac90",
+    "artifacts/crow-rl-line-search-refinement-20261108/build.py": "2e333b876c7c1e5fe0939a880bad70be1bf7536dc43cb4d60e71b86d9858f3fb",
+    "artifacts/crow-rl-line-search-refinement-20261108/independent.py": "bbc0e802b20c6df3d3f4e6e1a7885aae07b52d077da4818f3f3568cc6f1eaf04",
+    "artifacts/crow-rl-line-search-refinement-20261108/inputs.json": "f1138880605fab6a544a66c19a37e90c9d121c58476e90e72ee678eac748e44e",
+    "artifacts/crow-rl-line-search-refinement-20261108/integration-prepare.py": "80a6c73fefa6fcf2b977aa2e309ec91fb6f3999c9e373593c113d0db04935ef8",
+    "artifacts/crow-rl-line-search-refinement-20261108/integration-run.py": "f907914f492cf579b25c74413896d01083b62695e0af89386d1db60acaa8b447",
+    "artifacts/crow-rl-line-search-refinement-20261108/probe.mm": "f7649c4f9e36e6033248c8f49da992ae1d1c6455345204951c6c555f40111878",
+    "artifacts/crow-rl-line-search-refinement-20261108/run.py": "e4aaa98e29c66f7159c6673da988b16676172eddab2390b2e2f33c8f251a84aa",
+    "docs/NUMERICS.md": "77d99dacb7066ba10ca572ff4924ab590abea264789c1734acd46f17d29ff4c3",
+    "include/metalrobo/unified_quality_shared.h": "a3a4c0dd2aecd9f5e5858051832e5ce962fd45356ac54835ab3ec59d73e48b17",
+    "src/metal/MetalUnifiedQualitySolver.metal": "0e22ddad262a62634165fc5bd45ebe51e02bc14eac16a618d1357b786e3c10f8",
+    "src/metal/UnifiedQualityExpansion.metal.inc": "f2793e69e099b8d850f09c476a08d5f6fa77e773e0565aa6f7c206cc0bf32cc9"
+  }
+}
