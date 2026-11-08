@@ -1,0 +1,700 @@
+{
+  "commit": "1df565e3eefb731b6a6b4f81c9ff1b9ae5a6e989",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 298426436 158922704    66% 3495784 1589227040    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 298430280 158918860    66% 3495922 1589188600    0%   /System/Volumes/Data\n",
+  "omitted_files": [
+    {
+      "bytes": 17580,
+      "git_blob": "49e87a947939090756cdc42d60c3472b5ab8b0b6",
+      "path": "artifacts/crow-rl-adaptive-optimization-20261108/checkout-omission.json"
+    },
+    {
+      "bytes": 212,
+      "git_blob": "6d8c10e81fddad01f9e4b4f8c53930319e9aaa85",
+      "path": "artifacts/crow-rl-adaptive-optimization-20261108/omit-invocation.stderr"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-adaptive-optimization-20261108/omit.stderr"
+    },
+    {
+      "bytes": 144,
+      "git_blob": "aa190569af852c5de460d55087fe90bb2bcf4f3d",
+      "path": "artifacts/crow-rl-adaptive-optimization-20261108/omit.stdout"
+    },
+    {
+      "bytes": 12,
+      "git_blob": "57cdc50305d07f35133f80962644debd6b846bf3",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/.gitattributes"
+    },
+    {
+      "bytes": 4969,
+      "git_blob": "f5b7a1f63fda2d57fafc25a721c069e3747c6f02",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/archive.py"
+    },
+    {
+      "bytes": 357,
+      "git_blob": "64c1d23bbb25470b2a2aea0c7bea694d1a3bbcec",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/03865a2d3093f6fceaf9b5e0e46a11cd315200f4a440b7c92cdadc0b27de66e5.gz"
+    },
+    {
+      "bytes": 7394,
+      "git_blob": "d1f7dd9f44d76310c16c4563123191a666e8b2b9",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/05dd5ad2be373be6ff908b4a2f6d26789f3ae1b20f549ea327f0cc6a3b0e5489.gz"
+    },
+    {
+      "bytes": 264,
+      "git_blob": "cc320730890a3542b86859b7cd312357736bd43a",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/0cb030b4e59067b3e982aa62c244c768989af07e495f4e98a24eeb625e1e3b49.gz"
+    },
+    {
+      "bytes": 251,
+      "git_blob": "c6aa4cfc8b021728adbf62ee4cf210bfe3f6a095",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/0d1aa02a1a9c2e3e6bf975835f8a57559010c62f49962cda4964a6451b8bccb8.gz"
+    },
+    {
+      "bytes": 11581,
+      "git_blob": "4b55221540beb5e5e3f6b516fdff825ee8ad0650",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/0dfb14c621ae80f2a6b08ca12f4e5d89b3e035bafebd1b818ef65c3151ebb210.gz"
+    },
+    {
+      "bytes": 253,
+      "git_blob": "f584c435df480a52ecbd0ac291b58499f4704b71",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/10f5fc7b3a440f0e4aba513ab18fd263611aac3cc50cd6dd6bc197565d2a69b1.gz"
+    },
+    {
+      "bytes": 21832,
+      "git_blob": "bc857f911bab40de9324ae3be3d43478bf6e131c",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/1265be20abfec5f8eb243ec28a69342df713e83ff9ddbe1d3ed48f5212145eea.gz"
+    },
+    {
+      "bytes": 2371,
+      "git_blob": "975c8bb95f70145683c9da48bbef4514be3ccf7f",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/12a24749e50f18c0693b40cba693eda80a182459e8334d5c6d4e1ff658a1c753.gz"
+    },
+    {
+      "bytes": 658,
+      "git_blob": "40d7c841d664bbe43d1389fea11612f735fd69c9",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/14f88a1ced1406ba92e09e81d4006c3d615812cadd6a620a468cdb981ec4e0d3.gz"
+    },
+    {
+      "bytes": 208,
+      "git_blob": "cca745d25c17ea623c9fc892bbcf337e98e4ff14",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/159b81ce1847fab5140ab040d4511d7d5d10d8aab7e26ad957d1ec775bf56c41.gz"
+    },
+    {
+      "bytes": 602,
+      "git_blob": "800ea42b2318b11f296307083f7eca3cda7cce51",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/16894d69c363f788413a6499f222c3507e36108d9c4168e1bb496aa0feafa50b.gz"
+    },
+    {
+      "bytes": 972,
+      "git_blob": "0682d7bb5bdaaac40a9d1edf6fca693ca8c11545",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/16b4d03ec3767ea2ac074cdbd4adc14c18acff44753218a2b9de1f6e1dc2b654.gz"
+    },
+    {
+      "bytes": 1727,
+      "git_blob": "78c096c855f65c8e86c7cbb5e36fc016a38901b3",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/1a3584b0697b3691bf862ee4d1fe50443a41877459b85b6f4375eaa12e08ca50.gz"
+    },
+    {
+      "bytes": 1417,
+      "git_blob": "fe2811f16d7397ce36d64652250afc914eaa840a",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/1a9f797742e1334b905a66d2c4b7473a1e3e264eb440c98d1abe67484288e91d.gz"
+    },
+    {
+      "bytes": 207,
+      "git_blob": "aa27fb99486fd6f2c56a2c07ad73c0c57afcb942",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/20985ded85ef052047bfe261ea5e5f44cd1627586e4f253aed747b2c9f23a652.gz"
+    },
+    {
+      "bytes": 600,
+      "git_blob": "6984a18e54033083f531830a0fd9249d6444ecab",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/2166d8ffaf5bb9b58057e84be9b678d6cf345c64bde4d307659c44581c9e3d84.gz"
+    },
+    {
+      "bytes": 671,
+      "git_blob": "33dcca2e731631bd8179e696f97ad634ff4d1d9e",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/22e9be3c0feb35747f5820f43ff751283059538f5b4899aaedf92992e55daa5b.gz"
+    },
+    {
+      "bytes": 601,
+      "git_blob": "018bfc83de602c36b1fd96ac64b4286a43dee58b",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/2a31199f5057ee143afa8050767ec2b3eaf1d6183adf9831cb91c10a17dbb009.gz"
+    },
+    {
+      "bytes": 601,
+      "git_blob": "34cd5290c54039d3077caf536069d441814319a2",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/2b32e7d94097dac2050a8c46a34b4a9bd572127b4a8c3fe456d2885b5122cc1d.gz"
+    },
+    {
+      "bytes": 27426,
+      "git_blob": "90e9ab343928d5123dcf2609fb58404c81113f51",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/2b4a4399b58c6e2f9f05666e66e4274583038a1ab2249a39e69e75ac8409e076.gz"
+    },
+    {
+      "bytes": 251,
+      "git_blob": "4539a406dcc1481a3ea26b63cce44b7f89ebf1ab",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/2bd241ddc639621d346745dbd256dbacab786c674221461841a6d7111fba5893.gz"
+    },
+    {
+      "bytes": 679,
+      "git_blob": "4f9b0da471c6f7d622ef31f3582d5b9fd37014d5",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/2cd34a13afdcff0530d32a50740d79f187f997c59f8cdbd7c1c9976c848e7a7f.gz"
+    },
+    {
+      "bytes": 250,
+      "git_blob": "1a39199ea335f97664f79a12808863fcf1c04d3f",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/2d0b480859a9980af7acf4efb54305d56ddb23ef41315b56822ea8bf1361f91f.gz"
+    },
+    {
+      "bytes": 600,
+      "git_blob": "7a02b911b7fd812a7fda61aa1b96f49c709bcc30",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/3661d0dd6f02bcdf06e5c403bd4e70331ba94db50876f6a0110fd17070fbccfb.gz"
+    },
+    {
+      "bytes": 93,
+      "git_blob": "f385d2d31c51c87908c9a13d6b330ac58d5add92",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/398715413880fa649a02eaf7abb1ab72d215fcb83dd59e97a9a41a9d7f4f579b.gz"
+    },
+    {
+      "bytes": 601,
+      "git_blob": "a3998886935f81f08b64e7a993190ead510500a2",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/3b7946c7898adec05646081754e3ed7f683570778defafb8ddb3f282dd3ce9e7.gz"
+    },
+    {
+      "bytes": 655,
+      "git_blob": "bd066e643837d3b8628f51419486fb95de72105c",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/3e54473e96c6be3643bb07ef466e9507ff9aa8ad2bb7f3b24f18ce8417be3d78.gz"
+    },
+    {
+      "bytes": 10305,
+      "git_blob": "fd3401334bdda3edb3d654cb2126ae659b13d604",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/48daabcf2a09936ca39fa90d7643c3e10b24d5c31fa536d59b1112fea14c6992.gz"
+    },
+    {
+      "bytes": 7534,
+      "git_blob": "3370c38f2378cf40a830bd814d4a95184beefb15",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/4db7aee88c34d368e935b754570d0c506d36dc0011d910d3cccc14333c47c5bd.gz"
+    },
+    {
+      "bytes": 251,
+      "git_blob": "e886bad1d3f9dae952be6eff2f543e25caef1d54",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/4f80d96659bb8de7b548eba2c56652c6df50b40a27202666050510172e0bd1ad.gz"
+    },
+    {
+      "bytes": 601,
+      "git_blob": "d9f8216094620d97cce050b7790d3b765335f445",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/5243b3a6cdb68ebcc6d64adce9c1b782016e49b3635b853ddb71ee21895f23d7.gz"
+    },
+    {
+      "bytes": 23695,
+      "git_blob": "83f99298057fbc3f90829f22b985ce0cb9ac8698",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/55648139772d9cde9fa96eada568f6c5ac3189f55e6a0501bb25e7537b31ae15.gz"
+    },
+    {
+      "bytes": 136,
+      "git_blob": "faa30f63020832e21fa9bc102f36bef72223e704",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/5df22e90f107ec75ac7690c1fd3a9b84af421e3e92ecd4d6f82a93d23f2525e7.gz"
+    },
+    {
+      "bytes": 474,
+      "git_blob": "a5e74157f18478fc09f388f367e467939c4ab311",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/61d933de1ab7f3ecfcdb8ab5ac137a18ea91a4de4cb934a4f233a16bea38f639.gz"
+    },
+    {
+      "bytes": 208,
+      "git_blob": "3ec3880ca1963e1009f0d8b5011820fadb44de18",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/670ab4cd653a550af8f4e8b9725affb767c502fd82df6549fe48b9be3e9a594d.gz"
+    },
+    {
+      "bytes": 678,
+      "git_blob": "cac955fa89d95bf94847716a4db487d13c0043bc",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/6789060e12a7b256aec48ecbf81303b3ecf1c2c3aa1330d74c1708d85ce4f486.gz"
+    },
+    {
+      "bytes": 251,
+      "git_blob": "ca1caa6b6c3a9b5530eb2607fd9eabd4c0dee32a",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/6daf31873f06bda7ab1f32402b37e6dec20d5bd3238b715b297703bdaf782f00.gz"
+    },
+    {
+      "bytes": 38944,
+      "git_blob": "549824948118c28975d815378fd86ea036f5c369",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/6eab01575e886aa7af260e5cc10cc8bb843232ba08ca1452381481f0e4ad7262.gz"
+    },
+    {
+      "bytes": 252,
+      "git_blob": "5fc5463e927a9ba2168d591e6cc29b8da280ce10",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/6f1b497df695722c6d6affba201434017de894588f905fe4dc5430c3502bb2e0.gz"
+    },
+    {
+      "bytes": 208,
+      "git_blob": "19a87009a6ffb562962b098891dde5458dbb45bd",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/6fdf5ca2b215d97b11e2558ebc07933f92763d539ef3c0000be9886bb6eea488.gz"
+    },
+    {
+      "bytes": 601,
+      "git_blob": "c613d80b98f3e42cdf4720800db1ffa06ad35a49",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/70a8704b5681588b844af42295395584f38148faf09fb68d578d8fff6985a1a4.gz"
+    },
+    {
+      "bytes": 23694,
+      "git_blob": "7857a431a9c1fd73dc2c0e6be5e81a0e23b9694c",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/72ac2214b1c9dd52b30d91da1c484dbfbd61c4bcb3504bf439ba7e46bf1621e7.gz"
+    },
+    {
+      "bytes": 158,
+      "git_blob": "722ac3aa975bd7c594a6d2c2c8a200f23a466172",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/75b439f95db04a16d85e7cf5a51707621229be9778cb894f4d7c3f0d79ce4a44.gz"
+    },
+    {
+      "bytes": 677,
+      "git_blob": "afe073372bccf14e8337276f777f26367d7409e0",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/75e5456d52a068c732d32942d6bd0475a4ac9f1c034e9e9fdfb1d1d8cb3a88a8.gz"
+    },
+    {
+      "bytes": 252,
+      "git_blob": "2d0138fadaef27188501d4c8e454b9db6529daa5",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/7a319d4a83eaecb0dae776e43c4aa775c7463e090d8eac78e9d042940d6f53d2.gz"
+    },
+    {
+      "bytes": 601,
+      "git_blob": "902ef22122a0487e3212851664595a8c54e2d943",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/7ab31ed1148b45a722a59c63690790d8f713ab2d0275dcc9b588d6ae06f2da31.gz"
+    },
+    {
+      "bytes": 21835,
+      "git_blob": "e6d4ba197a0785bd0719b101f8e3b50933c14b8e",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/7d2c6a94ee4ce2a486be95b609b41ddd128177958dce55f764f1e0ee3f7b2f52.gz"
+    },
+    {
+      "bytes": 600,
+      "git_blob": "2f8a254d2b7ac43ed4e66c2dd0e2a4a2ef2687e4",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/7dae051a111d7f465d2f71171c7f82028336427591a9535e879540dadb828901.gz"
+    },
+    {
+      "bytes": 249,
+      "git_blob": "21846934e7a20af19a0db40dfe3e1abaed072e07",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/80fbb1965ac7f059b0f2f2718e6b83ecce15d2b733f89e41782e1ff4f01874af.gz"
+    },
+    {
+      "bytes": 252,
+      "git_blob": "f34426eb3e614123f45f48204eb29cd34fb8c232",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/814c92ed21e030ae82d282acec7c5446e96e6f16fb7153de120f0a3789eef722.gz"
+    },
+    {
+      "bytes": 23693,
+      "git_blob": "d6d726d4370de39deea63b97e2a729d4be5327b4",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/863afa3239720d8572a20d804587513e5a317b59fe11fe7c4e3e6c39413ca185.gz"
+    },
+    {
+      "bytes": 21832,
+      "git_blob": "44234bd3952b356ffc4641f471caab33d1b63e78",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/880f08d299968b6378851bd44be3f64178b0fe2f07935945eaebc35dae6b6b50.gz"
+    },
+    {
+      "bytes": 600,
+      "git_blob": "4c6003046d7ef2649be0619a6df8c15db0de02fe",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/8d8466129fbefa8eba0cc5da11a655d4894cdd9c83322c768868c2bbb5d87382.gz"
+    },
+    {
+      "bytes": 181,
+      "git_blob": "4a1b47bee66132087d2de01fd952b7d4b42211df",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/8db3e182581cbccbba9c568ee4a3bf0372e5aeb6dc374574ffe0de29d4231d39.gz"
+    },
+    {
+      "bytes": 601,
+      "git_blob": "782a8d98906bef45d309cd186439e529e2937acf",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/90c16a2eda455cefccb511b48ad057a0e12cb68f435bb1b05164ebc28837af12.gz"
+    },
+    {
+      "bytes": 202,
+      "git_blob": "4e5b76e6a06ba6f573d1ce313b1ec82c2bf001db",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/90d93eedb2a2f2a05aed0ba54dc5b3ede785654dc58aa2700a9a299cf08a2bce.gz"
+    },
+    {
+      "bytes": 12965,
+      "git_blob": "17eed6b1c0b70d9749043345303ac7253aa6d9d9",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/924f23a936efffc6940e4911983386df34d33cd90969db78ec3b73b8fdfdea47.gz"
+    },
+    {
+      "bytes": 13014,
+      "git_blob": "b048bab999f5b07b9fec3d48440931fc5913ef00",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/938ab3a216229c0ae799522bb8232f19e5440b28b8509d095f32a9a2310fbd25.gz"
+    },
+    {
+      "bytes": 11557,
+      "git_blob": "cf6f989896408839be8c8261156ef2d214b7d1c4",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/97156d7c130d6086dafb63227fc6111a05044a516c8bb724660934a3781baa20.gz"
+    },
+    {
+      "bytes": 201,
+      "git_blob": "3b918988b65f963ece9057b94b544f64a842e6c8",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/9775e96c2598975a5c131da0dd846bdd199afae4e3ada69c764fe6be56f608c0.gz"
+    },
+    {
+      "bytes": 285,
+      "git_blob": "06cf7805d9bb55341076893e15e69acfc63ae348",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/9cf76b46ee61cfed097128c07bcfa781ac4dddbd9e5562eff7e2449a3d2053ca.gz"
+    },
+    {
+      "bytes": 603,
+      "git_blob": "2cbb5306d91d1091cd6b3785ee0518cee644deae",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/9e2733f377645f71bb84bcca7d6a403934daf93183fd25805b18895d70bfdc48.gz"
+    },
+    {
+      "bytes": 20471,
+      "git_blob": "ef220ec8010e34ec2230a7177137500db11331b9",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/a0a85ce79bf7e9ac5bbbbfb91f8c509830cc3f99eebf30d7d3e736ee89197a61.gz"
+    },
+    {
+      "bytes": 600,
+      "git_blob": "5ef65b309191e09ae18362cb76f527d48217f27e",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/a14491621d87163721e84c6fcbe5a3dbbbe0f9e146f9287922a10c6da5a92471.gz"
+    },
+    {
+      "bytes": 600,
+      "git_blob": "c1391a6fc9b7ceeaad2b258731ae70e83eca837f",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/a2bb0999ef2249542ac808df133d9c7afd8a9774cae2c113abff7a3c909a8ee1.gz"
+    },
+    {
+      "bytes": 200,
+      "git_blob": "ef523173339ae487f345de04db9366ea2807baf6",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/a3592b5feb378cf5281deb17a0db81cda1dbc5bded003886e81d1e852bfe8fe6.gz"
+    },
+    {
+      "bytes": 21835,
+      "git_blob": "c566da5aaecdffd304fc6c257b70f9cf4aa63683",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/a89001cb1f502e93a7f2aea2b2a1f1294e4ad9db74c9289bcb66203ce490dc89.gz"
+    },
+    {
+      "bytes": 75,
+      "git_blob": "f0f51e893ff451040b629df1cfc1ceaae019f411",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/ab989847d9c1b35cf71ee5b4303a2f4b216c6b6f901440e13ac97323782b6797.gz"
+    },
+    {
+      "bytes": 601,
+      "git_blob": "681b79dcd9d94488fd30d0621ab34bc89f5c5c8e",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/abca614f2c188a6ee1b9b0dfbc7195f8f6eb22e58bd6519919358b4a9d5f7223.gz"
+    },
+    {
+      "bytes": 20470,
+      "git_blob": "1b3bbde941494a55ed6e4e0d9ac4217dcada1954",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/ac3247682d31235506c3d3548beccdfe88429667b9ba3e974e81e8976848bf2c.gz"
+    },
+    {
+      "bytes": 601,
+      "git_blob": "775aaae87e2007c90ceb8865e54ce6295a533d76",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/add84e66a8ffc844879bbf45d628b61f07024f516dfd830b07179324d76e897c.gz"
+    },
+    {
+      "bytes": 252,
+      "git_blob": "a3e663d3cf507f76422a696032eb74ba8bce17fe",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/ae57807db0be168486c01f81d26b3da30d58f6522e6035fa27ec5438faa5f386.gz"
+    },
+    {
+      "bytes": 252,
+      "git_blob": "0ec454d29ad75df2d15e04082c9c367421793968",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/aefdf1c3a2f52069e6978b2e8e5fdf53c73ea33f2cec3b42f986c1564ed56167.gz"
+    },
+    {
+      "bytes": 207,
+      "git_blob": "6f7b94bf027c44c8f7bbc46c1926e6a35e87f722",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/b1e0887139cb7ecfce86b016c8f332b1a4b6ef122f75457aab42a61469aa5307.gz"
+    },
+    {
+      "bytes": 926,
+      "git_blob": "a1ed5a99e7f22295e00cdf4af14980cf1f273277",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/b3825e5e4c72f91900e0a1bdf7a7ab13c714d09dab51e62c6f80b9367759bc1e.gz"
+    },
+    {
+      "bytes": 513,
+      "git_blob": "241e466b65e8bb4cc76642cbcb6c39efce8b0159",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/b500fa28ef0bea97769f032413155d12ae3e9df72f246c6a79e64f27ecfbd40b.gz"
+    },
+    {
+      "bytes": 669,
+      "git_blob": "c4b2ca69130851c26d524322e4bd21631464d762",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/b8110894e029e849755a959f6a90a67cab218dabed82ed58c25a3cfaa6b8b4a9.gz"
+    },
+    {
+      "bytes": 21846,
+      "git_blob": "8603253ae217903f78b26aa849f4f42789ac65f0",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/bba2852dfd9200d9c919653b70862a6e82c0316b197a1b59465c437ee55e2103.gz"
+    },
+    {
+      "bytes": 600,
+      "git_blob": "6d933d8e92e365871e27cf53e32c70c038e8c83c",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/bd95e3deecf3d693c8049cc6471979ff6deeff9d3715b618b7ca476f919dca71.gz"
+    },
+    {
+      "bytes": 675,
+      "git_blob": "441a0d93a4a1125292a2fb5ccdd89ffb196849bb",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/c2527a049c849c266901f26369e32e2a4756ff7da0dd1842661ff538bb11806a.gz"
+    },
+    {
+      "bytes": 602,
+      "git_blob": "99a2ec42775cdc07275d819493b31e7d3167c669",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/c4fdea7771a3c12411ebbcfec7a54f919543f7e43df1ab6bff33768fab90564c.gz"
+    },
+    {
+      "bytes": 27427,
+      "git_blob": "cb865b2e358d9f0b2744eee59fea7aed47d3cc61",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/c510a049a7e173a738f56647f2d9fd35eb6d0d36bea5ceb47ce2df56db28f2d4.gz"
+    },
+    {
+      "bytes": 11847,
+      "git_blob": "18b79a4fede6f26cf02159492adf6f135ac0d192",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/c77ae9410dfa0b7f7dcacb635180b08420d0b3e94d736605a83314979bb7a980.gz"
+    },
+    {
+      "bytes": 375,
+      "git_blob": "fd241d0f765e260d7224fd4b0751ec061c329d96",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/ccd6f846236003facffce1ecf9e9c9883ed2d4659fa1e36d4d199cfaf8d3df68.gz"
+    },
+    {
+      "bytes": 344,
+      "git_blob": "dc135e686cc57fe633206f7939988bb11c687b7f",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/cd3d5781639e4ebc53b10b1f754ebfcd99a5b5038712ae0429dc0f3d6d0e5ba7.gz"
+    },
+    {
+      "bytes": 602,
+      "git_blob": "ab48e97a94234d8f80ee452ffbd1a2aee1cf90a2",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/d1bab7d24dea61a14bb22500a0c827a8827daa95370ddb0b068956cecc110975.gz"
+    },
+    {
+      "bytes": 23693,
+      "git_blob": "d1d208765ebf1eee3110ed606d3df5c0da0ce3c8",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/d47054a3611af298fb6c37da8a568f9784a66c69c32029ecfc0552335a585bfc.gz"
+    },
+    {
+      "bytes": 157,
+      "git_blob": "c565ce2f4020cfba28a68387fb31762e80a36f64",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/d587717061ac1026f2b06865d8693973a9350c1b4e1781a61bebf81d2812918c.gz"
+    },
+    {
+      "bytes": 209,
+      "git_blob": "7ab2f564a5dfbac5bd6936577510b24995a55b8d",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/d70849682f152c291afa87773284e2bc0e8f86ace0b4289c69268918f47a851c.gz"
+    },
+    {
+      "bytes": 680,
+      "git_blob": "50419f347daccc86691213082653d091580e0cb2",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/d9641082b8be7053947fcf102f49624366a169aae3e6474a2208ed614c1480a6.gz"
+    },
+    {
+      "bytes": 604,
+      "git_blob": "88ec0a542476804b089d4ce2ccfaef47eff20573",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/dbb68b610fa1b64f99f8f60bf81c20a5d88b04545a01132e2692ed0168084b16.gz"
+    },
+    {
+      "bytes": 7587,
+      "git_blob": "17303e76c1fe3c799c29df9e61ca46324dac6cbc",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/dc375f12bce0b34264978c743da9299a6c6c3fe2ec90efb7c6ac4e37b3802756.gz"
+    },
+    {
+      "bytes": 602,
+      "git_blob": "c89a159c55bd7796ad22fb47f07fa9f4ce60b19f",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/df5457d98efc526a9026659e68c85663bc0534effcf60161244d594192292757.gz"
+    },
+    {
+      "bytes": 2453650,
+      "git_blob": "a2f5f36aff0de0093a473c16b49e6eadf8ac122d",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/e05687a843feca4d7537c88e91a601ad564c8bfe1f082d92f8c0576e210b3985.gz"
+    },
+    {
+      "bytes": 683,
+      "git_blob": "ec3f85ed986d6c15ae327edd5e71576f10fddad6",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/e6536efca900f4ac9f9edb4b9eae39e06b32b6278740f0a7e5db87629d249bc5.gz"
+    },
+    {
+      "bytes": 27426,
+      "git_blob": "e565d6860012c2a145abffd27fad0f211f288e6a",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/e6d86db6a0c230860ed5392394623caf8d820ffc3a711c555f6466ef0ceb83db.gz"
+    },
+    {
+      "bytes": 11561,
+      "git_blob": "c9dfdff1c5edde81d7b9a4878098c9cee92fb94d",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/e7903fbfd969a9b86fc3e28718f7cd3a6db6312110002cfdd9135a8503b0e4cf.gz"
+    },
+    {
+      "bytes": 601,
+      "git_blob": "9efc5966816bf6444bd4edeac880b00260baa62f",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/e8633cf27c53501932dbc0dd3dca7c5c64260298dde4c7da712167ac545f0959.gz"
+    },
+    {
+      "bytes": 12960,
+      "git_blob": "a251fbc8a8f3ae253dae1e7080d42fbafabc33ac",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/e959206caa85913f3ce7a8100a0b12f11ab3214942b25825bf7385909d7d765c.gz"
+    },
+    {
+      "bytes": 601,
+      "git_blob": "ffb86d1b895f70ed46e931e64394f36d1cd97765",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/ea7ef28ec4cc7c39426ad8fe0721273a7a13bbb397f0a9459c24c53dc0e42150.gz"
+    },
+    {
+      "bytes": 157,
+      "git_blob": "7cc183c2fcf16d9ef0b8f920d1c9e257098a660f",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/eb7389bd4de474176c077a9bbfb02b24ffc5dff2b2e25144c8dc5f6341991611.gz"
+    },
+    {
+      "bytes": 688,
+      "git_blob": "065e88dfee4558cfeedeaae4d095fb740ae3ed72",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/ebf10c849cc0a3f3e5705e09f181b8c48b8363659d566e2d18565633a1871d55.gz"
+    },
+    {
+      "bytes": 603,
+      "git_blob": "b7a448b847757e82d043386855ac3e8229271150",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/ef03c0e7321304ce32da6c02df9805bae52f494b4b1455beaeffce396886bd25.gz"
+    },
+    {
+      "bytes": 253,
+      "git_blob": "6af2adfe02f3a1ea1fe7771bf8d8b091bac83c42",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/f14460af05cfe08b4967dfa3a1702296a90ef9d8d090b2a6754a14d7ac5f73b4.gz"
+    },
+    {
+      "bytes": 673,
+      "git_blob": "bd77d4e4236dd569cec911737d6d7b179ddd7b33",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/f17b6c7db723b7724a5e5ff08de859173291c915b8b53a5036f234bd1286a6a2.gz"
+    },
+    {
+      "bytes": 2383,
+      "git_blob": "6fd572fdaa2ce31f2808468b997a934f027b003b",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/f284edc2ca658ed6679d851073617ae2127fb0c92ccaeefcde5d6c8cab94b0d5.gz"
+    },
+    {
+      "bytes": 11690,
+      "git_blob": "bcbcd282a71e305ce9ffeb61ea52564363531afd",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/f987ab584f9109b344b2973b2fbc698438a2f4d7c40ab4a6bc0ca2d7b4393f5b.gz"
+    },
+    {
+      "bytes": 172,
+      "git_blob": "8333d0b298f5c425f19d6003145ec02374a6f3b1",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/fa449de8d6e7300484eeb0492a33f9450ddbe650a5d3806f29c3b0d3a6d4b585.gz"
+    },
+    {
+      "bytes": 601,
+      "git_blob": "bc1c6d0d24c499dedd93ffb4f32eb652db73933f",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/fa7607d43155fbe66a4186b14719b3c819353b9f1865b633570b8a7a8fd1930a.gz"
+    },
+    {
+      "bytes": 21833,
+      "git_blob": "97737f99baef2749e1227c878408e5c47776dd5a",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/fcf284d0cd62ed818d8c11cedb523553d3e02340067be0dbc926cf04b0c9ac37.gz"
+    },
+    {
+      "bytes": 389,
+      "git_blob": "188ca5dd3c085753e4cb8d713d82c62906f3379e",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/fd91457783000d0dbf2699b3868d56983c9e5f259a74821d36a57c2f64a28083.gz"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/capture.stderr"
+    },
+    {
+      "bytes": 407,
+      "git_blob": "43e712c0636bfb8e2e9699cf1c1baed17bf0241d",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/capture.stdout"
+    },
+    {
+      "bytes": 418,
+      "git_blob": "76c71d151c66b7ce3becebf3e59cb59665bbd191",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/causal-recovery.command.json"
+    },
+    {
+      "bytes": 22,
+      "git_blob": "a642c235917f2215e320ca11ecb0bc83aba1814a",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/causal-recovery.receipt.json"
+    },
+    {
+      "bytes": 84554,
+      "git_blob": "96818dffa6849020ce1389d0d05429a1b515caf1",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/causal-recovery.stderr"
+    },
+    {
+      "bytes": 85,
+      "git_blob": "2c12ce593a47367b7ba4cf28d2f519da42b8eb10",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/causal-recovery.stdout"
+    },
+    {
+      "bytes": 2152,
+      "git_blob": "e5edaf3b1e1e3ef4b5d547ce06abc7f03ebce5cc",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/identity-oracle.json"
+    },
+    {
+      "bytes": 84289,
+      "git_blob": "86b2ac97ac3b95b27b4feca2bbc778db785edaab",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/identity-oracle.stderr"
+    },
+    {
+      "bytes": 650,
+      "git_blob": "cb6bee69b597ec3a96920017c3f5178b10e764cf",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/identity-review-build.json"
+    },
+    {
+      "bytes": 364,
+      "git_blob": "81dfa6a97428cb8a807ba1f3974a48c667028ed7",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/identity-review.command.json"
+    },
+    {
+      "bytes": 22,
+      "git_blob": "a642c235917f2215e320ca11ecb0bc83aba1814a",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/identity-review.receipt.json"
+    },
+    {
+      "bytes": 84289,
+      "git_blob": "84a3106eb9f6278e2aeb136030a865dd2cb7f53e",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/identity-review.stderr"
+    },
+    {
+      "bytes": 2152,
+      "git_blob": "e5edaf3b1e1e3ef4b5d547ce06abc7f03ebce5cc",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/identity-review.stdout"
+    },
+    {
+      "bytes": 1763,
+      "git_blob": "fc32aa7e3f559e9af26803e14017fec83b163450",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/identity_oracle.mm"
+    },
+    {
+      "bytes": 601,
+      "git_blob": "5b7daa5be5e5244baf6c0e8783e7cbc061ff4d14",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/verification-failure.json"
+    },
+    {
+      "bytes": 463,
+      "git_blob": "de2f251ec11fad38f4929e930bd058a49fb7c428",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/verification-plan.json"
+    },
+    {
+      "bytes": 600,
+      "git_blob": "5f4751cb3bd9fa1308792b7bc068f9a443a3c6a8",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/verification-review-plan.json"
+    },
+    {
+      "bytes": 114698,
+      "git_blob": "b6b89fcb2e42ed924b86ad378a629c9ea65edad6",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/verification-v2.json"
+    },
+    {
+      "bytes": 5414,
+      "git_blob": "083f8e255ca3b44964d5ae3c6adfc480657dd37c",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/verify_recovery.py"
+    },
+    {
+      "bytes": 8471,
+      "git_blob": "263f48eb80cb11a2dfcfd4e82d4df9343d2e30fe",
+      "path": "artifacts/crow-rl-native-causal-memory-20261108/verify_recovery_v2.py"
+    }
+  ],
+  "omitted_logical_bytes": 3428689,
+  "open_handles": 0,
+  "preserved_input_prefixes": [
+    "artifacts/crow-rl-feeding-behavior-20261107/policies/",
+    "artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib",
+    "artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib"
+  ],
+  "remote_commit": "1df565e3eefb731b6a6b4f81c9ff1b9ae5a6e989"
+}
