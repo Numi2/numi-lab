@@ -1,0 +1,7 @@
+Host: ssh numi
+Source commit before native build: 52a3cecf2
+CPU: OPENBLAS_NUM_THREADS=1 /Users/numi/numi-contact-diagnostic-venv-20261107/bin/python active_set_check.py
+Build: python3 build.py
+Baseline: /usr/bin/time -p -o baseline.time /Users/numi/Work/mixed-full-operator-artifacts-20261108/probe /Users/numi/Work/mixed-full-operator-artifacts-20261108/baseline.metallib 2 > baseline.json 2> baseline.stderr
+Candidate: /usr/bin/time -p -o candidate.time /Users/numi/Work/mixed-full-operator-artifacts-20261108/probe "$PWD/candidate.metallib" 2 > candidate.json 2> candidate.stderr
+Analysis: python3 analyze.py
