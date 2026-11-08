@@ -1,0 +1,11 @@
+[0/2] Re-checking globbed directories...
+[1/11] Building OBJCXX object CMakeFiles/metalrobo_object_track_validity_test.dir/tests/visual/object_track_validity.mm.o
+[2/11] Building OBJCXX object CMakeFiles/metalrobo_masked_depth_validity_test.dir/tests/visual/masked_depth_validity.mm.o
+[3/11] Linking OBJCXX executable metalrobo_object_track_validity_test
+[4/11] Linking OBJCXX executable metalrobo_masked_depth_validity_test
+[5/11] Building CXX object CMakeFiles/metalrobo_visual_observation_fingerprint_test.dir/tests/visual/observation_fingerprint.cpp.o
+[6/11] Building CXX object CMakeFiles/metalrobo_masked_depth_hold_fingerprint_test.dir/tests/visual/masked_depth_hold_fingerprint.cpp.o
+[7/11] Linking CXX executable metalrobo_visual_observation_fingerprint_test
+[8/11] Linking CXX executable metalrobo_masked_depth_hold_fingerprint_test
+[9/11] Building CXX object CMakeFiles/metalrobo_object_track_fingerprint_test.dir/tests/visual/object_track_fingerprint.cpp.o
+[10/11] Linking CXX executable metalrobo_object_track_fingerprint_test

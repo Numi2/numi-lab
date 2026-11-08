@@ -1,0 +1,61 @@
+Test project /Users/numi/tracker-world-depth-cmake-20261108
+      Start 186: metalrobo.visual.masked_depth_validity
+ 1/25 Test #186: metalrobo.visual.masked_depth_validity ............   Passed    0.28 sec
+      Start 187: metalrobo.visual.masked_depth_hold_fingerprint
+ 2/25 Test #187: metalrobo.visual.masked_depth_hold_fingerprint ....   Passed    0.20 sec
+      Start 188: metalrobo.visual.object_track_validity
+ 3/25 Test #188: metalrobo.visual.object_track_validity ............   Passed    0.21 sec
+      Start 189: metalrobo.visual.object_track_fingerprint
+ 4/25 Test #189: metalrobo.visual.object_track_fingerprint .........   Passed    0.18 sec
+      Start 190: metalrobo.visual.observation_fingerprint
+ 5/25 Test #190: metalrobo.visual.observation_fingerprint ..........   Passed    0.17 sec
+      Start 191: metalrobo.visual.tracker_stride_fingerprint
+ 6/25 Test #191: metalrobo.visual.tracker_stride_fingerprint .......   Passed    0.01 sec
+      Start 192: metalrobo.visual.world_masked_depth_transaction
+ 7/25 Test #192: metalrobo.visual.world_masked_depth_transaction ...   Passed    0.63 sec
+      Start 193: metalrobo.visual.history_restore_layouts
+ 8/25 Test #193: metalrobo.visual.history_restore_layouts ..........   Passed    0.24 sec
+      Start 194: metalrobo.visual.tracker_encode_retry
+ 9/25 Test #194: metalrobo.visual.tracker_encode_retry .............   Passed    0.27 sec
+      Start 195: metalrobo.visual.world_observation_control
+10/25 Test #195: metalrobo.visual.world_observation_control ........   Passed    0.06 sec
+      Start 196: metalrobo.visual.world_observation_first
+11/25 Test #196: metalrobo.visual.world_observation_first ..........   Passed    0.05 sec
+      Start 197: metalrobo.visual.world_observation_second
+12/25 Test #197: metalrobo.visual.world_observation_second .........   Passed    0.05 sec
+      Start 198: metalrobo.visual.resident_observation_control
+13/25 Test #198: metalrobo.visual.resident_observation_control .....   Passed    0.05 sec
+      Start 199: metalrobo.visual.resident_observation_first
+14/25 Test #199: metalrobo.visual.resident_observation_first .......   Passed    0.05 sec
+      Start 200: metalrobo.visual.resident_observation_second
+15/25 Test #200: metalrobo.visual.resident_observation_second ......   Passed    0.05 sec
+      Start 201: metalrobo.visual.world_step_callback
+16/25 Test #201: metalrobo.visual.world_step_callback ..............   Passed    0.05 sec
+      Start 202: metalrobo.visual.world_step_callback_abort
+17/25 Test #202: metalrobo.visual.world_step_callback_abort ........   Passed    0.05 sec
+      Start 203: metalrobo.visual.history_step_rollback
+18/25 Test #203: metalrobo.visual.history_step_rollback ............   Passed    0.04 sec
+      Start 204: metalrobo.visual.masked_depth_sample_hold
+19/25 Test #204: metalrobo.visual.masked_depth_sample_hold .........   Passed    0.04 sec
+      Start 205: metalrobo.visual.reset_frame_materialized
+20/25 Test #205: metalrobo.visual.reset_frame_materialized .........   Passed    0.05 sec
+      Start 206: metalrobo.visual.reset_frame_fresh
+21/25 Test #206: metalrobo.visual.reset_frame_fresh ................   Passed    0.04 sec
+      Start 207: metalrobo.visual.reset_frame_rollback
+22/25 Test #207: metalrobo.visual.reset_frame_rollback .............   Passed    0.04 sec
+      Start 208: metalrobo.visual.reset_frame_sampled_failure
+23/25 Test #208: metalrobo.visual.reset_frame_sampled_failure ......   Passed    0.04 sec
+      Start 209: metalrobo.visual.reset_frame_direct
+24/25 Test #209: metalrobo.visual.reset_frame_direct ...............   Passed    0.04 sec
+      Start 210: metalrobo.visual.observation_lease
+25/25 Test #210: metalrobo.visual.observation_lease ................   Passed    0.03 sec
+
+100% tests passed out of 25
+
+Label Time Summary:
+metal        =   2.35 sec*proc (21 tests)
+metalrobo    =   2.91 sec*proc (25 tests)
+runtime      =   0.56 sec*proc (4 tests)
+visual       =   2.91 sec*proc (25 tests)
+
+Total Test time (real) =   2.92 sec

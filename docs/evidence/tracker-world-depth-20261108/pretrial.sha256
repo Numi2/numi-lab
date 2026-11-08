@@ -1,0 +1,7 @@
+4375b254afc3ac99e7f5b733b3271f4a702f7f82d46aff35de67db04d1667562  docs/evidence/tracker-world-depth-20261108/PLAN.md
+0737ad7d0ea4db0d650b17377cc9e72e6309967fe1dfae9d5d9e137247e243fc  docs/evidence/tracker-world-depth-20261108/prepare.py
+468a79c82a7b5d6bb23e7c166ea54a77f0ea8448128f8e930c2bac77aba1b9a4  docs/evidence/tracker-world-depth-20261108/world_depth_probe.mm
+02715882edb1b7581d3de991a9098d6eedb353ed4bc0242aa784f3e1bda112f9  docs/evidence/tracker-world-depth-20261108/analyze.py
+3ca1982b9e1cc71af67cfd0a97a70cba33ac08e3d9c1d11da8448e93a6cd3943  /Users/numi/tracker-world-depth-build-20261108/world_depth_probe
+d8bd1d10177b72004f29360e2ec979b4c72ff3b8da2a708dfddfd0aa85e64e61  /Users/numi/numi-reconciliation-build-20261108/lib/libmetalrobo.dylib
+3272d1b3799d29504d7d90b3330f17162a0d6c79e687ef366ca741f8dc8e3f3d  /Users/numi/numi-reconciliation-build-20261108/shaders/MetalRobo.metallib
