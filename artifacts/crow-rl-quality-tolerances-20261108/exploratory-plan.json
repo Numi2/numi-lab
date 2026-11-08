@@ -1,0 +1,29 @@
+{
+  "independent_source_sha256": "6349222af7835d775987bc145c6c4ac8327ff7a4644641641532f6ae4fb3e93e",
+  "inputs": {
+    "api-default": {
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-0-capture.bin",
+      "sha256": "6399bf825f83b883e55f699b877f3cba827bb2501deee85a4a423e8547f39e3a"
+    },
+    "opt6": {
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-0-capture.bin",
+      "sha256": "01862ed69e7cbc99a9ccc4aeba7d6c180ef684fb61bff093078731a42a1f4f4f"
+    },
+    "opt7": {
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-0-capture.bin",
+      "sha256": "915416ed9bedc51bfbbb8fabf2a6c4b1ff3cefea32cbe96dc23876aa09c51272"
+    }
+  },
+  "interpretation": "FP64 convergence and rounded residual are diagnostics. They cannot establish trajectory completion or physical contact quality.",
+  "limits": {
+    "fp64_newton": 80,
+    "new_native_commands": 0
+  },
+  "predictions": {
+    "fp64_reference_converges_80_steps": true,
+    "reference_reprojected_native_residual_relative_error_max": 0.02,
+    "rounded_reference_satisfies_declared_optimality": true
+  },
+  "schema": "crow-quality-tolerances-exploratory-analysis-plan-v1",
+  "scope": "Post-observation numerical diagnosis of three newly exposed retained failures. No native transitions or setting change; no revised primary endpoint."
+}

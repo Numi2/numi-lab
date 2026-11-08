@@ -1,0 +1,17 @@
+{
+  "api_default_accepted_transitions": 0,
+  "api_default_complete": false,
+  "api_default_max_sampled_penetration_m": 0.0,
+  "arms": 5,
+  "goal_complete": false,
+  "limits": "One fixed four-lane surrogate trajectory, two repeats for determinism; sampled control-boundary geometry only; no CCD, biological calibration, feeding or general robustness qualification.",
+  "native_trial_commands": 10,
+  "policy_or_profile_promoted": false,
+  "predictions_supported": {
+    "api_default_physical_completion": false,
+    "repeated_physical_files_exact": true,
+    "strict_failure_reproduced": true
+  },
+  "production_changed": false,
+  "schema": "crow-quality-tolerances-result-v1"
+}

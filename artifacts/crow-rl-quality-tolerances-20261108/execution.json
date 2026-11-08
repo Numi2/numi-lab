@@ -1,0 +1,151 @@
+[
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/crow-fixture",
+      "--calibrate"
+    ],
+    "name": "calibration",
+    "returncode": 0,
+    "seconds": 0.7284195410320535
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/observations/strict-0",
+      "0",
+      "1",
+      "32",
+      "2",
+      "strict"
+    ],
+    "name": "strict-0",
+    "returncode": 1,
+    "seconds": 0.33378225000342354
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/observations/api-default-0",
+      "0",
+      "1",
+      "32",
+      "2",
+      "api-default"
+    ],
+    "name": "api-default-0",
+    "returncode": 1,
+    "seconds": 0.20775041700107977
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/observations/opt7-0",
+      "0",
+      "1",
+      "32",
+      "2",
+      "opt7"
+    ],
+    "name": "opt7-0",
+    "returncode": 1,
+    "seconds": 0.2096765000023879
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/observations/opt5-0",
+      "0",
+      "1",
+      "32",
+      "2",
+      "opt5"
+    ],
+    "name": "opt5-0",
+    "returncode": 1,
+    "seconds": 0.20955591596430168
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/observations/opt6-0",
+      "0",
+      "1",
+      "32",
+      "2",
+      "opt6"
+    ],
+    "name": "opt6-0",
+    "returncode": 1,
+    "seconds": 0.20968879101565108
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/observations/opt6-1",
+      "0",
+      "1",
+      "32",
+      "2",
+      "opt6"
+    ],
+    "name": "opt6-1",
+    "returncode": 1,
+    "seconds": 0.20974666596157476
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/observations/opt5-1",
+      "0",
+      "1",
+      "32",
+      "2",
+      "opt5"
+    ],
+    "name": "opt5-1",
+    "returncode": 1,
+    "seconds": 0.2095899159903638
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/observations/opt7-1",
+      "0",
+      "1",
+      "32",
+      "2",
+      "opt7"
+    ],
+    "name": "opt7-1",
+    "returncode": 1,
+    "seconds": 0.20957766700303182
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/observations/api-default-1",
+      "0",
+      "1",
+      "32",
+      "2",
+      "api-default"
+    ],
+    "name": "api-default-1",
+    "returncode": 1,
+    "seconds": 0.20957354200072587
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/observations/strict-1",
+      "0",
+      "1",
+      "32",
+      "2",
+      "strict"
+    ],
+    "name": "strict-1",
+    "returncode": 1,
+    "seconds": 0.32970250002108514
+  }
+]
