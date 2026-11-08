@@ -6465,6 +6465,13 @@ if(BUILD_TESTING)
         metalrobo.visual.masked_depth_validity
         PROPERTIES LABELS "metalrobo;visual;metal" TIMEOUT 60
     )
+    add_executable(metalrobo_masked_depth_hold_fingerprint_test tests/visual/masked_depth_hold_fingerprint.cpp)
+    target_link_libraries(metalrobo_masked_depth_hold_fingerprint_test PRIVATE metalrobo)
+    add_test(NAME metalrobo.visual.masked_depth_hold_fingerprint
+        COMMAND metalrobo_masked_depth_hold_fingerprint_test read
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/visual/masked_depth_hold_fixtures")
+    set_tests_properties(metalrobo.visual.masked_depth_hold_fingerprint
+        PROPERTIES LABELS "metalrobo;visual;runtime" TIMEOUT 60)
     add_executable(metalrobo_object_track_validity_test tests/visual/object_track_validity.mm)
     target_include_directories(metalrobo_object_track_validity_test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
     target_compile_options(metalrobo_object_track_validity_test PRIVATE -fobjc-arc)

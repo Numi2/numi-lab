@@ -1,0 +1,9 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.6s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/numi/numi-reconciliation-build-20261108
+[0/4] Re-checking globbed directories...
+[1/5] Building CXX object CMakeFiles/metalrobo_masked_depth_hold_fingerprint_test.dir/tests/visual/masked_depth_hold_fingerprint.cpp.o
+[2/5] Linking CXX executable metalrobo_masked_depth_hold_fingerprint_test
