@@ -1,0 +1,21 @@
+{
+  "expected_defined_byte_comparisons": 15,
+  "limits": "Recovery repeats existing conditions only. It does not qualify crow joint motor integration or the lifelong environment.",
+  "manifest": "artifacts/crow-rl-motor-contact-20261108/payload/manifest.json",
+  "manifest_sha256": "995bf24b97426b4afcee04c0fc5ec8dab22e3a992150a80a217c47e9d2a69f45",
+  "native_commands": 7,
+  "restore_max_bytes": 31457280,
+  "schema": "crow-native-git-recovery-motor-contact-v1",
+  "scope": [
+    "original 96-condition split diagnosis",
+    "original empty-factor typed rejection and defined one-row prefix",
+    "factor-fixed momentum validity rejection and 62-row prefix",
+    "tight momentum engineering replay",
+    "144-condition tight joint comparison",
+    "native contact owner",
+    "default crow 640 transitions and all ten physical files"
+  ],
+  "stop": "First unexpected exit, library binding, typed failure, comparison, handle or budget result; preserve all output; no promotion or new scientific observations.",
+  "temporary_budget_bytes": 41943040,
+  "timeout_seconds_each": 120
+}
