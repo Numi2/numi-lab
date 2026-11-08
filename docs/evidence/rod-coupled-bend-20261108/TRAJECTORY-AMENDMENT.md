@@ -1,0 +1,5 @@
+# Fixed-anchor initial-state correction
+
+The first trajectory run completed 30 case-steps, but inspection found that the eight-node case inherited an endpoint target displaced by about 22.36 µm from its initial endpoint. Its first step therefore imposed an initial repositioning even though the plan described fixed hard anchors. The original input, script, trace, results and log are retained under `trajectory-initial-*`; its apparent 30/30 pass is invalid for the declared fixed-anchor fixture. The moving five-node case and microbend control are unaffected by this issue.
+
+Before the next run, set the fixed eight-node case's two anchor targets equal to its original endpoint positions in both arms. Keep all other initial state, solver code, numerical gates, trajectories and stopping limits unchanged. Rerun and repeat the corrected three-case matrix. This is a corrected follow-up after seeing the invalid initial results, not an untouched held-out confirmation. The original failed fixture interpretation remains part of the evidence.
