@@ -1,0 +1,14 @@
+{
+  "production": {
+    "accepted": 30,
+    "accepted_failed": 30,
+    "rejected": 0,
+    "maximum_gradient_disagreement": 1.7825161308114518e-06
+  },
+  "guarded": {
+    "accepted": 22,
+    "accepted_failed": 17,
+    "rejected": 8,
+    "maximum_gradient_disagreement": 1.4396334288089928e-06
+  }
+}
