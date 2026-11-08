@@ -1,0 +1,3 @@
+# Longer free-rod trajectory check
+
+The initial 10-step trajectory reached 91% of the existing 1e-6 m position gate. Before changing any solver or tolerance, repeat the same three trajectories and independently advanced FP64 reference for up to 100 steps each with the original per-step and accumulated-momentum limits. Stop each trajectory at its first failed gate and preserve all output and exact hashes; record requested versus completed steps. Run twice. This is a failure-exposing extension of known cases, not a held-out test or a physical-material validation. If it fails, retain the failure and diagnose accumulation before proposing a correction.
