@@ -1,0 +1,4 @@
+source commit c0c28a626
+probe compile: xcrun clang++ -std=c++20 -O2 -Iinclude docs/evidence/frictionless-active-contact-20261108/probe.cpp -L/Users/numi/numi-reconciliation-build-20261108/lib -lmetalrobo -Wl,-rpath,/Users/numi/numi-reconciliation-build-20261108/lib -o /Users/numi/ccd-active-contact-20261108-probe
+baseline: /Users/numi/ccd-active-contact-20261108-probe /Users/numi/numi-reconciliation-build-20261108/shaders/MetalRobo.metallib
+candidate: /Users/numi/ccd-active-contact-20261108-probe /Users/numi/ccd-active-contact-20261108/candidate.metallib
