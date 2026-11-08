@@ -1,0 +1,461 @@
+{
+  "status": "completed",
+  "accepted_transitions": 491520,
+  "actor_byte_equivalence_verified": true,
+  "results": {
+    "gaussian": {
+      "status": "passed_engineering_controls",
+      "accepted_transitions": 245760,
+      "policy_revision": 97,
+      "stochastic": true,
+      "policy_sha256": "91610c1090ab5b3d4c215e52b184b78abcd4d449a66caa8cdc0e7a392196d039",
+      "lifetimes_per_arm": 192,
+      "intake_lifetimes": [
+        49,
+        24,
+        21,
+        3
+      ],
+      "correct_head_side": [
+        173,
+        111,
+        113,
+        27
+      ],
+      "consumed_micrograms": [
+        1885000,
+        930000,
+        840000,
+        85000
+      ],
+      "learned_memory_qualified": false
+    },
+    "mean": {
+      "status": "passed_engineering_controls",
+      "accepted_transitions": 245760,
+      "policy_revision": 97,
+      "stochastic": false,
+      "policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+      "lifetimes_per_arm": 192,
+      "intake_lifetimes": [
+        192,
+        0,
+        0,
+        0
+      ],
+      "correct_head_side": [
+        192,
+        100,
+        92,
+        0
+      ],
+      "consumed_micrograms": [
+        8140000,
+        0,
+        0,
+        0
+      ],
+      "learned_memory_qualified": false
+    }
+  },
+  "lifelong_goal_complete": false,
+  "qualification_scope": "Fixed head-reachable two-port fixture and sampled allocation/action seeds only; no new geometry, ecology, manipulation or social learning qualification.",
+  "deterministic_scope": "Mean mode has two unique initial head commands across192 tested allocations. These are repeated fixed cue conditions, not192 independent geometric/physical challenges. Do not infer broad reliability confidence bounds from this repetition.",
+  "mean_consumed_micrograms_per_lifetime": 42395.833333333336,
+  "mean_minimum_consumed_micrograms": 40000,
+  "native_causal_controls_passed": true,
+  "deployment_mode_for_this_candidate": "deterministic-mean",
+  "source_commit": "2de99e021c599b9b6635e817f614ef912f2150dd",
+  "mode_analyses": {
+    "gaussian": {
+      "status": "analyzed",
+      "native_engineering_controls_passed": true,
+      "policy_sha256": "91610c1090ab5b3d4c215e52b184b78abcd4d449a66caa8cdc0e7a392196d039",
+      "policy_revision": 97,
+      "stochastic": true,
+      "predeclared_plan": {
+        "primary": "Paired intake and correct-head-side differences between intact and GRU-cleared native lifetimes, corroborated by absent and swapped rendered cues. Exact two-sided discordant-pair binomial tests, alpha0.05; all contrasts and per-seed outcomes reported.",
+        "qualification": "Scope restricted to this fixed geometry, native causal controls, and three previously unused allocation/action seeds. No model update, checkpoint selection, physics or observation contract change. Broader memory/ecology/manipulation/social learning remain unqualified."
+      },
+      "arms": [
+        {
+          "name": "intact",
+          "lifetimes": 192,
+          "intake_lifetimes": 49,
+          "intake_rate": 0.2552083333333333,
+          "intake_Wilson95": [
+            0.19876092091956593,
+            0.3212589943422825
+          ],
+          "correct_head_side": 173,
+          "correct_head_side_rate": 0.9010416666666666,
+          "correct_head_side_Wilson95": [
+            0.8506207684360072,
+            0.9357295831562837
+          ],
+          "consumed_micrograms": 1885000
+        },
+        {
+          "name": "GRU-cleared40",
+          "lifetimes": 192,
+          "intake_lifetimes": 24,
+          "intake_rate": 0.125,
+          "intake_Wilson95": [
+            0.08545671788882409,
+            0.1792546416612415
+          ],
+          "correct_head_side": 111,
+          "correct_head_side_rate": 0.578125,
+          "correct_head_side_Wilson95": [
+            0.5074086558818907,
+            0.6457764775451791
+          ],
+          "consumed_micrograms": 930000
+        },
+        {
+          "name": "cue-absent",
+          "lifetimes": 192,
+          "intake_lifetimes": 21,
+          "intake_rate": 0.109375,
+          "intake_Wilson95": [
+            0.07265855054023301,
+            0.16141578232441864
+          ],
+          "correct_head_side": 113,
+          "correct_head_side_rate": 0.5885416666666666,
+          "correct_head_side_Wilson95": [
+            0.5178627054629683,
+            0.6557471124210439
+          ],
+          "consumed_micrograms": 840000
+        },
+        {
+          "name": "cue-swapped",
+          "lifetimes": 192,
+          "intake_lifetimes": 3,
+          "intake_rate": 0.015625,
+          "intake_Wilson95": [
+            0.005327893387868189,
+            0.04492427936429986
+          ],
+          "correct_head_side": 27,
+          "correct_head_side_rate": 0.140625,
+          "correct_head_side_Wilson95": [
+            0.09847893050423204,
+            0.1968694557312475
+          ],
+          "consumed_micrograms": 85000
+        }
+      ],
+      "paired_intact_vs_controls": {
+        "GRU-cleared40": {
+          "intake": {
+            "intact_only": 49,
+            "control_only": 24,
+            "paired_rate_difference": 0.13020833333333334,
+            "exact_two_sided_p": 0.004626293921895511
+          },
+          "correct_side": {
+            "intact_only": 62,
+            "control_only": 0,
+            "paired_rate_difference": 0.3229166666666667,
+            "exact_two_sided_p": 4.336808689942018e-19
+          }
+        },
+        "cue-absent": {
+          "intake": {
+            "intact_only": 49,
+            "control_only": 21,
+            "paired_rate_difference": 0.14583333333333334,
+            "exact_two_sided_p": 0.0010932449729686132
+          },
+          "correct_side": {
+            "intact_only": 60,
+            "control_only": 0,
+            "paired_rate_difference": 0.3125,
+            "exact_two_sided_p": 1.734723475976807e-18
+          }
+        },
+        "cue-swapped": {
+          "intake": {
+            "intact_only": 49,
+            "control_only": 3,
+            "paired_rate_difference": 0.23958333333333334,
+            "exact_two_sided_p": 1.042677055806962e-11
+          },
+          "correct_side": {
+            "intact_only": 146,
+            "control_only": 0,
+            "paired_rate_difference": 0.7604166666666666,
+            "exact_two_sided_p": 2.2420775429197073e-44
+          }
+        }
+      },
+      "per_seed": [
+        {
+          "seed": 2651213502,
+          "left_allocations": 35,
+          "intake_lifetimes": [
+            13,
+            6,
+            4,
+            2
+          ],
+          "correct_head_side": [
+            60,
+            33,
+            34,
+            9
+          ],
+          "food_micrograms": [
+            510000,
+            240000,
+            175000,
+            65000
+          ]
+        },
+        {
+          "seed": 2651213503,
+          "left_allocations": 27,
+          "intake_lifetimes": [
+            20,
+            8,
+            7,
+            0
+          ],
+          "correct_head_side": [
+            57,
+            35,
+            35,
+            8
+          ],
+          "food_micrograms": [
+            780000,
+            335000,
+            275000,
+            0
+          ]
+        },
+        {
+          "seed": 2651213504,
+          "left_allocations": 30,
+          "intake_lifetimes": [
+            16,
+            10,
+            10,
+            1
+          ],
+          "correct_head_side": [
+            56,
+            43,
+            44,
+            10
+          ],
+          "food_micrograms": [
+            595000,
+            355000,
+            390000,
+            20000
+          ]
+        }
+      ],
+      "learned_causal_memory_qualified_in_fixed_fixture": true,
+      "broader_lifelong_goal_complete": false
+    },
+    "mean": {
+      "status": "analyzed",
+      "native_engineering_controls_passed": true,
+      "policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+      "policy_revision": 97,
+      "stochastic": false,
+      "predeclared_plan": {
+        "primary": "Paired intake and correct-head-side differences between intact and GRU-cleared native lifetimes, corroborated by absent and swapped rendered cues. Exact two-sided discordant-pair binomial tests, alpha0.05; all contrasts and per-seed outcomes reported.",
+        "qualification": "Scope restricted to this fixed geometry, native causal controls, and three previously unused allocation/action seeds. No model update, checkpoint selection, physics or observation contract change. Broader memory/ecology/manipulation/social learning remain unqualified."
+      },
+      "arms": [
+        {
+          "name": "intact",
+          "lifetimes": 192,
+          "intake_lifetimes": 192,
+          "intake_rate": 1.0,
+          "intake_Wilson95": [
+            0.980384853933246,
+            1.0000000000000002
+          ],
+          "correct_head_side": 192,
+          "correct_head_side_rate": 1.0,
+          "correct_head_side_Wilson95": [
+            0.980384853933246,
+            1.0000000000000002
+          ],
+          "consumed_micrograms": 8140000
+        },
+        {
+          "name": "GRU-cleared40",
+          "lifetimes": 192,
+          "intake_lifetimes": 0,
+          "intake_rate": 0.0,
+          "intake_Wilson95": [
+            1.734723475976807e-18,
+            0.01961514606675411
+          ],
+          "correct_head_side": 100,
+          "correct_head_side_rate": 0.5208333333333334,
+          "correct_head_side_Wilson95": [
+            0.4504572635216634,
+            0.590392105392222
+          ],
+          "consumed_micrograms": 0
+        },
+        {
+          "name": "cue-absent",
+          "lifetimes": 192,
+          "intake_lifetimes": 0,
+          "intake_rate": 0.0,
+          "intake_Wilson95": [
+            1.734723475976807e-18,
+            0.01961514606675411
+          ],
+          "correct_head_side": 92,
+          "correct_head_side_rate": 0.4791666666666667,
+          "correct_head_side_Wilson95": [
+            0.40960789460777813,
+            0.5495427364783367
+          ],
+          "consumed_micrograms": 0
+        },
+        {
+          "name": "cue-swapped",
+          "lifetimes": 192,
+          "intake_lifetimes": 0,
+          "intake_rate": 0.0,
+          "intake_Wilson95": [
+            1.734723475976807e-18,
+            0.01961514606675411
+          ],
+          "correct_head_side": 0,
+          "correct_head_side_rate": 0.0,
+          "correct_head_side_Wilson95": [
+            1.734723475976807e-18,
+            0.01961514606675411
+          ],
+          "consumed_micrograms": 0
+        }
+      ],
+      "paired_intact_vs_controls": {
+        "GRU-cleared40": {
+          "intake": {
+            "intact_only": 192,
+            "control_only": 0,
+            "paired_rate_difference": 1.0,
+            "exact_two_sided_p": 3.1861838222649046e-58
+          },
+          "correct_side": {
+            "intact_only": 92,
+            "control_only": 0,
+            "paired_rate_difference": 0.4791666666666667,
+            "exact_two_sided_p": 4.0389678347315804e-28
+          }
+        },
+        "cue-absent": {
+          "intake": {
+            "intact_only": 192,
+            "control_only": 0,
+            "paired_rate_difference": 1.0,
+            "exact_two_sided_p": 3.1861838222649046e-58
+          },
+          "correct_side": {
+            "intact_only": 100,
+            "control_only": 0,
+            "paired_rate_difference": 0.5208333333333334,
+            "exact_two_sided_p": 1.5777218104420236e-30
+          }
+        },
+        "cue-swapped": {
+          "intake": {
+            "intact_only": 192,
+            "control_only": 0,
+            "paired_rate_difference": 1.0,
+            "exact_two_sided_p": 3.1861838222649046e-58
+          },
+          "correct_side": {
+            "intact_only": 192,
+            "control_only": 0,
+            "paired_rate_difference": 1.0,
+            "exact_two_sided_p": 3.1861838222649046e-58
+          }
+        }
+      },
+      "per_seed": [
+        {
+          "seed": 2651213502,
+          "left_allocations": 35,
+          "intake_lifetimes": [
+            64,
+            0,
+            0,
+            0
+          ],
+          "correct_head_side": [
+            64,
+            29,
+            35,
+            0
+          ],
+          "food_micrograms": [
+            2735000,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "seed": 2651213503,
+          "left_allocations": 27,
+          "intake_lifetimes": [
+            64,
+            0,
+            0,
+            0
+          ],
+          "correct_head_side": [
+            64,
+            37,
+            27,
+            0
+          ],
+          "food_micrograms": [
+            2695000,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "seed": 2651213504,
+          "left_allocations": 30,
+          "intake_lifetimes": [
+            64,
+            0,
+            0,
+            0
+          ],
+          "correct_head_side": [
+            64,
+            34,
+            30,
+            0
+          ],
+          "food_micrograms": [
+            2710000,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "learned_causal_memory_qualified_in_fixed_fixture": true,
+      "broader_lifelong_goal_complete": false
+    }
+  }
+}

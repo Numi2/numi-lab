@@ -1,0 +1,3741 @@
+{
+  "base_commit": "2de99e021c599b9b6635e817f614ef912f2150dd",
+  "files": [
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4037,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/5f19d0b618a842e5b617544ea0097ce5cff452801a39ce18dec5860138d1e34d.gz",
+            "sha256": "5f19d0b618a842e5b617544ea0097ce5cff452801a39ce18dec5860138d1e34d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4037,
+      "mode": 420,
+      "mtime_ns": 1794097427815579483,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/actor-equivalence.json",
+      "sha256": "5f19d0b618a842e5b617544ea0097ce5cff452801a39ce18dec5860138d1e34d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 3762,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/ef67bdca6dd567b1dea5260361472153d342fc332911fac7ec1359e93337bdeb.gz",
+            "sha256": "ef67bdca6dd567b1dea5260361472153d342fc332911fac7ec1359e93337bdeb"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 3762,
+      "mode": 420,
+      "mtime_ns": 1794097427779565332,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/analysis-source.py",
+      "sha256": "ef67bdca6dd567b1dea5260361472153d342fc332911fac7ec1359e93337bdeb"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794097670751579983,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/crow-mean-build.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/5df22e90f107ec75ac7690c1fd3a9b84af421e3e92ecd4d6f82a93d23f2525e7.gz"
+      },
+      "bytes": 185,
+      "mode": 420,
+      "mtime_ns": 1794097670751477691,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/crow-mean-build.stdout",
+      "sha256": "5df22e90f107ec75ac7690c1fd3a9b84af421e3e92ecd4d6f82a93d23f2525e7"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4798,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/7685837cd0c80ca2e186e3719d4f6478b79f01c255c0c47a5c17b62d61c57021.gz",
+            "sha256": "7685837cd0c80ca2e186e3719d4f6478b79f01c255c0c47a5c17b62d61c57021"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4798,
+      "mode": 420,
+      "mtime_ns": 1794097670749490021,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/evaluate.py",
+      "sha256": "7685837cd0c80ca2e186e3719d4f6478b79f01c255c0c47a5c17b62d61c57021"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4925,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/e5a34a6ff5094354308838a9cc829870699ed9114eb47db7ee7a9196bba97cf3.gz",
+            "sha256": "e5a34a6ff5094354308838a9cc829870699ed9114eb47db7ee7a9196bba97cf3"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4925,
+      "mode": 420,
+      "mtime_ns": 1794097609015002785,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian.analysis.stdout",
+      "sha256": "e5a34a6ff5094354308838a9cc829870699ed9114eb47db7ee7a9196bba97cf3"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 342,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/1599d6d9d6521c8107f6f00253f5a0d5459a18c62c686f144859513f438c73fb.gz",
+            "sha256": "1599d6d9d6521c8107f6f00253f5a0d5459a18c62c686f144859513f438c73fb"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 342,
+      "mode": 420,
+      "mtime_ns": 1794097427815674816,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian.command.json",
+      "sha256": "1599d6d9d6521c8107f6f00253f5a0d5459a18c62c686f144859513f438c73fb"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-precision-training-20261108/blobs/91610c1090ab5b3d4c215e52b184b78abcd4d449a66caa8cdc0e7a392196d039.gz"
+      },
+      "bytes": 659528,
+      "mode": 420,
+      "mtime_ns": 1794097427808766470,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian.policypack",
+      "sha256": "91610c1090ab5b3d4c215e52b184b78abcd4d449a66caa8cdc0e7a392196d039"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 60,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/8a9511fd28f6f8f5e96f4f97156c31614cc48a9a15511e0941989b46e8f924fb.gz",
+            "sha256": "8a9511fd28f6f8f5e96f4f97156c31614cc48a9a15511e0941989b46e8f924fb"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 60,
+      "mode": 420,
+      "mtime_ns": 1794097486576392491,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian.receipt.json",
+      "sha256": "8a9511fd28f6f8f5e96f4f97156c31614cc48a9a15511e0941989b46e8f924fb"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794097427815738816,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 595,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/21a08e07ebebfacc8843afae713dcb852656ad0fc71ebb83a434d50810b6817a.gz",
+            "sha256": "21a08e07ebebfacc8843afae713dcb852656ad0fc71ebb83a434d50810b6817a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 595,
+      "mode": 420,
+      "mtime_ns": 1794097486553904991,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian.stdout",
+      "sha256": "21a08e07ebebfacc8843afae713dcb852656ad0fc71ebb83a434d50810b6817a"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4797,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/7be65a350049725017413f77a45f7dabd1f2981d1f222622236882afc8c6015c.gz",
+            "sha256": "7be65a350049725017413f77a45f7dabd1f2981d1f222622236882afc8c6015c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4797,
+      "mode": 420,
+      "mtime_ns": 1794097609033803071,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean.analysis.stdout",
+      "sha256": "7be65a350049725017413f77a45f7dabd1f2981d1f222622236882afc8c6015c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 334,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/03d0b2a768a47603547d488e148141b6a9411332fba76744863efe718eb22cf5.gz",
+            "sha256": "03d0b2a768a47603547d488e148141b6a9411332fba76744863efe718eb22cf5"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 334,
+      "mode": 420,
+      "mtime_ns": 1794097486577126159,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean.command.json",
+      "sha256": "03d0b2a768a47603547d488e148141b6a9411332fba76744863efe718eb22cf5"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-precision-training-20261108/blobs/6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389.gz"
+      },
+      "bytes": 602144,
+      "mode": 420,
+      "mtime_ns": 1794097427810805057,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean.policypack",
+      "sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 60,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/0ffeaa5f18b492a21c978cfb5f99ec0be8cf01f5ce9ac01e5343e5acc8bd0b57.gz",
+            "sha256": "0ffeaa5f18b492a21c978cfb5f99ec0be8cf01f5ce9ac01e5343e5acc8bd0b57"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 60,
+      "mode": 420,
+      "mtime_ns": 1794097543716153718,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean.receipt.json",
+      "sha256": "0ffeaa5f18b492a21c978cfb5f99ec0be8cf01f5ce9ac01e5343e5acc8bd0b57"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794097486577254243,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 575,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/189fb51fc2adca646a079f3f0378cdccdb3b0b7ad7d2b5c644fca61d516f667e.gz",
+            "sha256": "189fb51fc2adca646a079f3f0378cdccdb3b0b7ad7d2b5c644fca61d516f667e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 575,
+      "mode": 420,
+      "mtime_ns": 1794097543662789201,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean.stdout",
+      "sha256": "189fb51fc2adca646a079f3f0378cdccdb3b0b7ad7d2b5c644fca61d516f667e"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 751,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/c7c7cb334e3936caf848552f2c571c3f86d8969584a7abac44cabd898d7285e5.gz",
+            "sha256": "c7c7cb334e3936caf848552f2c571c3f86d8969584a7abac44cabd898d7285e5"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 751,
+      "mode": 420,
+      "mtime_ns": 1794097427779678624,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/plan.json",
+      "sha256": "c7c7cb334e3936caf848552f2c571c3f86d8969584a7abac44cabd898d7285e5"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2002,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/c996372cce63d13c9183cfea8d9d9a9d6026907ccf45ccef1ac0589f12df9358.gz",
+            "sha256": "c996372cce63d13c9183cfea8d9d9a9d6026907ccf45ccef1ac0589f12df9358"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2002,
+      "mode": 420,
+      "mtime_ns": 1794097670769022516,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/qualification-summary.json",
+      "sha256": "c996372cce63d13c9183cfea8d9d9a9d6026907ccf45ccef1ac0589f12df9358"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 726,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/a2a743c44b83762f126ea01399e0f882561f28ea2c50d936b71344daf009b85f.gz",
+            "sha256": "a2a743c44b83762f126ea01399e0f882561f28ea2c50d936b71344daf009b85f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 726,
+      "mode": 420,
+      "mtime_ns": 1794097427811511683,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/restoration.json",
+      "sha256": "a2a743c44b83762f126ea01399e0f882561f28ea2c50d936b71344daf009b85f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1343,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/6102bcacecfe270339383b1ebadced46f3b69bed2359debfb35d2f361c90269b.gz",
+            "sha256": "6102bcacecfe270339383b1ebadced46f3b69bed2359debfb35d2f361c90269b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1343,
+      "mode": 420,
+      "mtime_ns": 1794097543717033844,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/summary.json",
+      "sha256": "6102bcacecfe270339383b1ebadced46f3b69bed2359debfb35d2f361c90269b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/398715413880fa649a02eaf7abb1ab72d215fcb83dd59e97a9a41a9d7f4f579b.gz"
+      },
+      "bytes": 85,
+      "mode": 420,
+      "mtime_ns": 1794097543623272711,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/memory-causal.json",
+      "sha256": "398715413880fa649a02eaf7abb1ab72d215fcb83dd59e97a9a41a9d7f4f579b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 752,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/5ef60459a6e9f4793dfda3c22da47326b8507ef805bafadc663a9a6c3ea97cbf.gz",
+            "sha256": "5ef60459a6e9f4793dfda3c22da47326b8507ef805bafadc663a9a6c3ea97cbf"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 752,
+      "mode": 420,
+      "mtime_ns": 1794097543662125492,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/memory-causal.receipt.json",
+      "sha256": "5ef60459a6e9f4793dfda3c22da47326b8507ef805bafadc663a9a6c3ea97cbf"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794097486734085536,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/memory-causal.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 34911,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/950110f34f543168e13ccc6a6ae1b41de215a03f6872b83ac09a6a5055a383f1.gz",
+            "sha256": "950110f34f543168e13ccc6a6ae1b41de215a03f6872b83ac09a6a5055a383f1"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 34911,
+      "mode": 420,
+      "mtime_ns": 1794097486727142273,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/plan.json",
+      "sha256": "950110f34f543168e13ccc6a6ae1b41de215a03f6872b83ac09a6a5055a383f1"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 465,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/a12c102d169e34c7b91bf70a30afc00720ae6f17c8d437bf5454a4ad1b3e7ff5.gz",
+            "sha256": "a12c102d169e34c7b91bf70a30afc00720ae6f17c8d437bf5454a4ad1b3e7ff5"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 465,
+      "mode": 420,
+      "mtime_ns": 1794097543662550284,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/summary.json",
+      "sha256": "a12c102d169e34c7b91bf70a30afc00720ae6f17c8d437bf5454a4ad1b3e7ff5"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/ccd6f846236003facffce1ecf9e9c9883ed2d4659fa1e36d4d199cfaf8d3df68.gz"
+      },
+      "bytes": 562,
+      "mode": 420,
+      "mtime_ns": 1794097609032187526,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/analysis/plan.json",
+      "sha256": "ccd6f846236003facffce1ecf9e9c9883ed2d4659fa1e36d4d199cfaf8d3df68"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4797,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/7be65a350049725017413f77a45f7dabd1f2981d1f222622236882afc8c6015c.gz",
+            "sha256": "7be65a350049725017413f77a45f7dabd1f2981d1f222622236882afc8c6015c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4797,
+      "mode": 420,
+      "mtime_ns": 1794097609033739779,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/analysis/summary.json",
+      "sha256": "7be65a350049725017413f77a45f7dabd1f2981d1f222622236882afc8c6015c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 220,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/7874f940df58b9b79603727900b911ab5bbb8b77437cdc65983a9dfa3396fbc9.gz",
+            "sha256": "7874f940df58b9b79603727900b911ab5bbb8b77437cdc65983a9dfa3396fbc9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 220,
+      "mode": 420,
+      "mtime_ns": 1794097486733916869,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/source-inputs/manifest.json",
+      "sha256": "7874f940df58b9b79603727900b911ab5bbb8b77437cdc65983a9dfa3396fbc9"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794097486733794535,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/source-inputs/tracked.patch",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 805,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/a0e17d26c5e61345fd50acd68626995b36a002f225ce4c1c4a61ea9ca676db9c.gz",
+            "sha256": "a0e17d26c5e61345fd50acd68626995b36a002f225ce4c1c4a61ea9ca676db9c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 805,
+      "mode": 420,
+      "mtime_ns": 1794097486738392252,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/plan.json",
+      "sha256": "a0e17d26c5e61345fd50acd68626995b36a002f225ce4c1c4a61ea9ca676db9c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 355,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/ed2a70f1534ceeac266a62e7fe6f8a6701d851a6b53201d9274ded0e33cea21b.gz",
+            "sha256": "ed2a70f1534ceeac266a62e7fe6f8a6701d851a6b53201d9274ded0e33cea21b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 355,
+      "mode": 420,
+      "mtime_ns": 1794097543623190752,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/summary.json",
+      "sha256": "ed2a70f1534ceeac266a62e7fe6f8a6701d851a6b53201d9274ded0e33cea21b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097505710309313,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm0/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097505710197521,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm0/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 740,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/4674601a138f90e44653b538aa77b654c0ff1cae8bbf9ea7ea3fe8087e942730.gz",
+            "sha256": "4674601a138f90e44653b538aa77b654c0ff1cae8bbf9ea7ea3fe8087e942730"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 740,
+      "mode": 420,
+      "mtime_ns": 1794097505984790618,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm0/cue-pixels.tsv",
+      "sha256": "4674601a138f90e44653b538aa77b654c0ff1cae8bbf9ea7ea3fe8087e942730"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1757,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/175cc7519757da43a2ae9a187eb5c7a282024362b0aaeedad29db9ac87a61133.gz",
+            "sha256": "175cc7519757da43a2ae9a187eb5c7a282024362b0aaeedad29db9ac87a61133"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1757,
+      "mode": 420,
+      "mtime_ns": 1794097510450419594,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm0/lifetimes.tsv",
+      "sha256": "175cc7519757da43a2ae9a187eb5c7a282024362b0aaeedad29db9ac87a61133"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097505710076104,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm0/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097505709929438,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm0/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 328,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/c5e472109b9fcf2025f312e3a244db2d4fcfd9b0d28cf7e8741abda429b117e4.gz",
+            "sha256": "c5e472109b9fcf2025f312e3a244db2d4fcfd9b0d28cf7e8741abda429b117e4"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 328,
+      "mode": 420,
+      "mtime_ns": 1794097510450361385,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm0/summary.json",
+      "sha256": "c5e472109b9fcf2025f312e3a244db2d4fcfd9b0d28cf7e8741abda429b117e4"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1067,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/c894c0fa914e837797f2807b03fac0f649162f00af1faf06c7e715683c6179e6.gz",
+            "sha256": "c894c0fa914e837797f2807b03fac0f649162f00af1faf06c7e715683c6179e6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1067,
+      "mode": 420,
+      "mtime_ns": 1794097505710547480,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm0/visual-scene.json",
+      "sha256": "c894c0fa914e837797f2807b03fac0f649162f00af1faf06c7e715683c6179e6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5264196,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/54d834f56ed978276e2e6ac9123829d0c3fb33a747ec31cdb3c3f60420830a72.gz",
+            "sha256": "54d834f56ed978276e2e6ac9123829d0c3fb33a747ec31cdb3c3f60420830a72"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5264196,
+      "mode": 384,
+      "mtime_ns": 1794097511103649440,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm1/after.world",
+      "sha256": "54d834f56ed978276e2e6ac9123829d0c3fb33a747ec31cdb3c3f60420830a72"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5264196,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/a88dd4d4d689ff39cf6955855cd57b0174eb02d6304a1d660bfc51ad525a0f14.gz",
+            "sha256": "a88dd4d4d689ff39cf6955855cd57b0174eb02d6304a1d660bfc51ad525a0f14"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5264196,
+      "mode": 384,
+      "mtime_ns": 1794097511102085771,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm1/before.world",
+      "sha256": "a88dd4d4d689ff39cf6955855cd57b0174eb02d6304a1d660bfc51ad525a0f14"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097510453922309,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm1/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097510453809434,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm1/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 740,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/4674601a138f90e44653b538aa77b654c0ff1cae8bbf9ea7ea3fe8087e942730.gz",
+            "sha256": "4674601a138f90e44653b538aa77b654c0ff1cae8bbf9ea7ea3fe8087e942730"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 740,
+      "mode": 420,
+      "mtime_ns": 1794097510728109363,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm1/cue-pixels.tsv",
+      "sha256": "4674601a138f90e44653b538aa77b654c0ff1cae8bbf9ea7ea3fe8087e942730"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 185,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/f517a94e12a82c62a5be29f54ba607645838412b49681031f56569d359705981.gz",
+            "sha256": "f517a94e12a82c62a5be29f54ba607645838412b49681031f56569d359705981"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 185,
+      "mode": 420,
+      "mtime_ns": 1794097511106133570,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm1/intervention.json",
+      "sha256": "f517a94e12a82c62a5be29f54ba607645838412b49681031f56569d359705981"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1592,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/d9e5de33c98475661748e0832b20d9487972351ddda45fef5f8a34fb00189ac6.gz",
+            "sha256": "d9e5de33c98475661748e0832b20d9487972351ddda45fef5f8a34fb00189ac6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1592,
+      "mode": 420,
+      "mtime_ns": 1794097515189458414,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm1/lifetimes.tsv",
+      "sha256": "d9e5de33c98475661748e0832b20d9487972351ddda45fef5f8a34fb00189ac6"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097510453684642,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm1/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097510453541975,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm1/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 321,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/866798a6dd330889c76c7dba978058e32a003b553f1f7ab8078c3a5128f2cc9d.gz",
+            "sha256": "866798a6dd330889c76c7dba978058e32a003b553f1f7ab8078c3a5128f2cc9d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 321,
+      "mode": 420,
+      "mtime_ns": 1794097515189424748,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm1/summary.json",
+      "sha256": "866798a6dd330889c76c7dba978058e32a003b553f1f7ab8078c3a5128f2cc9d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1067,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/3fb42cd40053d8e872be5b07e9ad9ed1fac39dedcef63fc92ba21493053b245d.gz",
+            "sha256": "3fb42cd40053d8e872be5b07e9ad9ed1fac39dedcef63fc92ba21493053b245d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1067,
+      "mode": 420,
+      "mtime_ns": 1794097510454160018,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm1/visual-scene.json",
+      "sha256": "3fb42cd40053d8e872be5b07e9ad9ed1fac39dedcef63fc92ba21493053b245d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5264196,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/96b08b50ae1ec8ceaf38528ee26dd2c3e1451c18da98b8ef061bd7255ad8c9b7.gz",
+            "sha256": "96b08b50ae1ec8ceaf38528ee26dd2c3e1451c18da98b8ef061bd7255ad8c9b7"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5264196,
+      "mode": 384,
+      "mtime_ns": 1794097492156485134,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm1/after.world",
+      "sha256": "96b08b50ae1ec8ceaf38528ee26dd2c3e1451c18da98b8ef061bd7255ad8c9b7"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5264196,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/7c17f0eba2b365c5a7bd71a5c74910af861949de308209d443eb9dba783be3a3.gz",
+            "sha256": "7c17f0eba2b365c5a7bd71a5c74910af861949de308209d443eb9dba783be3a3"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5264196,
+      "mode": 384,
+      "mtime_ns": 1794097492154910548,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm1/before.world",
+      "sha256": "7c17f0eba2b365c5a7bd71a5c74910af861949de308209d443eb9dba783be3a3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097491509529174,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm1/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097491509418257,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm1/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 740,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/75eaf93814f25d7b266c959896a94d1afc9de3191fa455db261835393ece27ee.gz",
+            "sha256": "75eaf93814f25d7b266c959896a94d1afc9de3191fa455db261835393ece27ee"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 740,
+      "mode": 420,
+      "mtime_ns": 1794097491783753020,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm1/cue-pixels.tsv",
+      "sha256": "75eaf93814f25d7b266c959896a94d1afc9de3191fa455db261835393ece27ee"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 185,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/8bc5fb039fdb57344a88549673ddedd6f49382e11f1acb1576146e3786d8e84b.gz",
+            "sha256": "8bc5fb039fdb57344a88549673ddedd6f49382e11f1acb1576146e3786d8e84b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 185,
+      "mode": 420,
+      "mtime_ns": 1794097492158764097,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm1/intervention.json",
+      "sha256": "8bc5fb039fdb57344a88549673ddedd6f49382e11f1acb1576146e3786d8e84b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1592,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/7223e136811eee5de256dbfb5f98f0a429d2e49808329124bcaef4666f6702ac.gz",
+            "sha256": "7223e136811eee5de256dbfb5f98f0a429d2e49808329124bcaef4666f6702ac"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1592,
+      "mode": 420,
+      "mtime_ns": 1794097496250912624,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm1/lifetimes.tsv",
+      "sha256": "7223e136811eee5de256dbfb5f98f0a429d2e49808329124bcaef4666f6702ac"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097491509296466,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm1/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097491509150215,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm1/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 321,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/dacf92bdc93b3683afebb107e05e9d1d9c3acb207471f2225074523dfd61aec2.gz",
+            "sha256": "dacf92bdc93b3683afebb107e05e9d1d9c3acb207471f2225074523dfd61aec2"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 321,
+      "mode": 420,
+      "mtime_ns": 1794097496250849166,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm1/summary.json",
+      "sha256": "dacf92bdc93b3683afebb107e05e9d1d9c3acb207471f2225074523dfd61aec2"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1067,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/58258d6f09176ddcbd1c1e003994513fc4af74dfaca7668fe703796b605e0743.gz",
+            "sha256": "58258d6f09176ddcbd1c1e003994513fc4af74dfaca7668fe703796b605e0743"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1067,
+      "mode": 420,
+      "mtime_ns": 1794097491509756383,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm1/visual-scene.json",
+      "sha256": "58258d6f09176ddcbd1c1e003994513fc4af74dfaca7668fe703796b605e0743"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097486739309337,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm0/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097486739197170,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm0/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 740,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/75eaf93814f25d7b266c959896a94d1afc9de3191fa455db261835393ece27ee.gz",
+            "sha256": "75eaf93814f25d7b266c959896a94d1afc9de3191fa455db261835393ece27ee"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 740,
+      "mode": 420,
+      "mtime_ns": 1794097487045102784,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm0/cue-pixels.tsv",
+      "sha256": "75eaf93814f25d7b266c959896a94d1afc9de3191fa455db261835393ece27ee"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1749,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/c5ad40828fdabffcdf8c70fc5233d0039b2659f7bea9533d450f133f95366bca.gz",
+            "sha256": "c5ad40828fdabffcdf8c70fc5233d0039b2659f7bea9533d450f133f95366bca"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1749,
+      "mode": 420,
+      "mtime_ns": 1794097491505986501,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm0/lifetimes.tsv",
+      "sha256": "c5ad40828fdabffcdf8c70fc5233d0039b2659f7bea9533d450f133f95366bca"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097486739069712,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm0/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097486738917878,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm0/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 328,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/fec7c1cdf34fd5ae26c452b25c7843d70b8e3d1b0a44133763966fae0f68c43f.gz",
+            "sha256": "fec7c1cdf34fd5ae26c452b25c7843d70b8e3d1b0a44133763966fae0f68c43f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 328,
+      "mode": 420,
+      "mtime_ns": 1794097491505925418,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm0/summary.json",
+      "sha256": "fec7c1cdf34fd5ae26c452b25c7843d70b8e3d1b0a44133763966fae0f68c43f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1068,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/6cf95414de3267be02be560ba71208607e39a5cb79e1ade15386e0b2a356a324.gz",
+            "sha256": "6cf95414de3267be02be560ba71208607e39a5cb79e1ade15386e0b2a356a324"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1068,
+      "mode": 420,
+      "mtime_ns": 1794097486739540254,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm0/visual-scene.json",
+      "sha256": "6cf95414de3267be02be560ba71208607e39a5cb79e1ade15386e0b2a356a324"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097524676508738,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm0/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097524676391780,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm0/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 740,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/0e3b2c0a357dfa1fbedc964347c00e4fce9bc8b05da9a05a5581e1e8303a3aef.gz",
+            "sha256": "0e3b2c0a357dfa1fbedc964347c00e4fce9bc8b05da9a05a5581e1e8303a3aef"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 740,
+      "mode": 420,
+      "mtime_ns": 1794097524950144459,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm0/cue-pixels.tsv",
+      "sha256": "0e3b2c0a357dfa1fbedc964347c00e4fce9bc8b05da9a05a5581e1e8303a3aef"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1754,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/9f960b19d5834e2272ec7e43d12bbfe4c4a08c998e6172f3010e2e544396c4ee.gz",
+            "sha256": "9f960b19d5834e2272ec7e43d12bbfe4c4a08c998e6172f3010e2e544396c4ee"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1754,
+      "mode": 420,
+      "mtime_ns": 1794097529411137509,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm0/lifetimes.tsv",
+      "sha256": "9f960b19d5834e2272ec7e43d12bbfe4c4a08c998e6172f3010e2e544396c4ee"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097524676261196,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm0/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097524676096196,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm0/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 328,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/2596556b9aef0275161691b68f970936dfa4039022104e16fdb47fc19c23a414.gz",
+            "sha256": "2596556b9aef0275161691b68f970936dfa4039022104e16fdb47fc19c23a414"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 328,
+      "mode": 420,
+      "mtime_ns": 1794097529411099967,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm0/summary.json",
+      "sha256": "2596556b9aef0275161691b68f970936dfa4039022104e16fdb47fc19c23a414"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1068,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/5f1e0b077acf1c20a455cf7b8f035c27e0ea8398ce31a51c8ac333760c651453.gz",
+            "sha256": "5f1e0b077acf1c20a455cf7b8f035c27e0ea8398ce31a51c8ac333760c651453"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1068,
+      "mode": 420,
+      "mtime_ns": 1794097524676768739,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm0/visual-scene.json",
+      "sha256": "5f1e0b077acf1c20a455cf7b8f035c27e0ea8398ce31a51c8ac333760c651453"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5264196,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/df32f45540301282a53038b568fe133cfe6320f9137802f4d82eb5af2c12fbe6.gz",
+            "sha256": "df32f45540301282a53038b568fe133cfe6320f9137802f4d82eb5af2c12fbe6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5264196,
+      "mode": 384,
+      "mtime_ns": 1794097530061824142,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm1/after.world",
+      "sha256": "df32f45540301282a53038b568fe133cfe6320f9137802f4d82eb5af2c12fbe6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5264196,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/9eb530dc229c7499139a2d1501b090ced02aa91fc33988c16f708a003dcbaee0.gz",
+            "sha256": "9eb530dc229c7499139a2d1501b090ced02aa91fc33988c16f708a003dcbaee0"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5264196,
+      "mode": 384,
+      "mtime_ns": 1794097530060310223,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm1/before.world",
+      "sha256": "9eb530dc229c7499139a2d1501b090ced02aa91fc33988c16f708a003dcbaee0"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097529414539599,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm1/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097529414425432,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm1/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 740,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/0e3b2c0a357dfa1fbedc964347c00e4fce9bc8b05da9a05a5581e1e8303a3aef.gz",
+            "sha256": "0e3b2c0a357dfa1fbedc964347c00e4fce9bc8b05da9a05a5581e1e8303a3aef"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 740,
+      "mode": 420,
+      "mtime_ns": 1794097529688472944,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm1/cue-pixels.tsv",
+      "sha256": "0e3b2c0a357dfa1fbedc964347c00e4fce9bc8b05da9a05a5581e1e8303a3aef"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 185,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/bcd2453d8f2c5a5411ba3c9c8707da9f11b95d434788eb7da36f3e087c7eda98.gz",
+            "sha256": "bcd2453d8f2c5a5411ba3c9c8707da9f11b95d434788eb7da36f3e087c7eda98"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 185,
+      "mode": 420,
+      "mtime_ns": 1794097530064050980,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm1/intervention.json",
+      "sha256": "bcd2453d8f2c5a5411ba3c9c8707da9f11b95d434788eb7da36f3e087c7eda98"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1592,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/e6e0a1e6375e1cc482a5a5996fc0e3e26ea13265ea31e1ff506676316685b3ba.gz",
+            "sha256": "e6e0a1e6375e1cc482a5a5996fc0e3e26ea13265ea31e1ff506676316685b3ba"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1592,
+      "mode": 420,
+      "mtime_ns": 1794097534143440400,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm1/lifetimes.tsv",
+      "sha256": "e6e0a1e6375e1cc482a5a5996fc0e3e26ea13265ea31e1ff506676316685b3ba"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097529414308390,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm1/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097529414169765,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm1/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 321,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/305d230eb1127045ff5e72e6273bfbe9244bbcef5ad5b4729d6df9a15ffb5bca.gz",
+            "sha256": "305d230eb1127045ff5e72e6273bfbe9244bbcef5ad5b4729d6df9a15ffb5bca"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 321,
+      "mode": 420,
+      "mtime_ns": 1794097534143384400,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm1/summary.json",
+      "sha256": "305d230eb1127045ff5e72e6273bfbe9244bbcef5ad5b4729d6df9a15ffb5bca"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1064,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/fb38dcfb1f4f0b775458633a852b8b899e7cff748128c4b3596979e95448630e.gz",
+            "sha256": "fb38dcfb1f4f0b775458633a852b8b899e7cff748128c4b3596979e95448630e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1064,
+      "mode": 420,
+      "mtime_ns": 1794097529414767599,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm1/visual-scene.json",
+      "sha256": "fb38dcfb1f4f0b775458633a852b8b899e7cff748128c4b3596979e95448630e"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097519904282731,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm3/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097519904166939,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm3/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 740,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/817b5bc350af34a189b3dc3f916821d1429d2b69808504b0e2cdba610fc6131e.gz",
+            "sha256": "817b5bc350af34a189b3dc3f916821d1429d2b69808504b0e2cdba610fc6131e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 740,
+      "mode": 420,
+      "mtime_ns": 1794097520179144203,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm3/cue-pixels.tsv",
+      "sha256": "817b5bc350af34a189b3dc3f916821d1429d2b69808504b0e2cdba610fc6131e"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1491,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/1ba323d9d74f0287af09f9ae684275ea99faf1c32fd53a13cfcced49f94ba2ff.gz",
+            "sha256": "1ba323d9d74f0287af09f9ae684275ea99faf1c32fd53a13cfcced49f94ba2ff"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1491,
+      "mode": 420,
+      "mtime_ns": 1794097524672919565,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm3/lifetimes.tsv",
+      "sha256": "1ba323d9d74f0287af09f9ae684275ea99faf1c32fd53a13cfcced49f94ba2ff"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097519904049856,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm3/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097519903916230,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm3/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 320,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/e6efaf08b3ba1c0496b1faab294d10be8d9137628d1f987d563f40e33207d043.gz",
+            "sha256": "e6efaf08b3ba1c0496b1faab294d10be8d9137628d1f987d563f40e33207d043"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 320,
+      "mode": 420,
+      "mtime_ns": 1794097524672864648,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm3/summary.json",
+      "sha256": "e6efaf08b3ba1c0496b1faab294d10be8d9137628d1f987d563f40e33207d043"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1068,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/64834374cd00ece0204ab02a09ef7e5b8853f6dd8048edddab8f49656fea8504.gz",
+            "sha256": "64834374cd00ece0204ab02a09ef7e5b8853f6dd8048edddab8f49656fea8504"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1068,
+      "mode": 420,
+      "mtime_ns": 1794097519904508190,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm3/visual-scene.json",
+      "sha256": "64834374cd00ece0204ab02a09ef7e5b8853f6dd8048edddab8f49656fea8504"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097515193096629,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm2/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097515192978963,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm2/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 612,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/bc91b3548958c4bdeb8f11d6bff8a1cd3a8ff5693033542b6423d8417f128d99.gz",
+            "sha256": "bc91b3548958c4bdeb8f11d6bff8a1cd3a8ff5693033542b6423d8417f128d99"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 612,
+      "mode": 420,
+      "mtime_ns": 1794097515466795266,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm2/cue-pixels.tsv",
+      "sha256": "bc91b3548958c4bdeb8f11d6bff8a1cd3a8ff5693033542b6423d8417f128d99"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1400,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/233d0156fa36d765841c026a696ee3642eb62e7ec48c6e3e862d8a01576c6d65.gz",
+            "sha256": "233d0156fa36d765841c026a696ee3642eb62e7ec48c6e3e862d8a01576c6d65"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1400,
+      "mode": 420,
+      "mtime_ns": 1794097519900859766,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm2/lifetimes.tsv",
+      "sha256": "233d0156fa36d765841c026a696ee3642eb62e7ec48c6e3e862d8a01576c6d65"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097515192844754,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm2/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097515192679837,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm2/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 321,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/ffe75ef9aae041ac22c04f3bbb82724c928874e0105b10030a144b8efb2f4874.gz",
+            "sha256": "ffe75ef9aae041ac22c04f3bbb82724c928874e0105b10030a144b8efb2f4874"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 321,
+      "mode": 420,
+      "mtime_ns": 1794097519900820266,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm2/summary.json",
+      "sha256": "ffe75ef9aae041ac22c04f3bbb82724c928874e0105b10030a144b8efb2f4874"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1066,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/ee8e848717f33d3efae5fed6d38f40983c3b13084c9164c7c692a94f12a45830.gz",
+            "sha256": "ee8e848717f33d3efae5fed6d38f40983c3b13084c9164c7c692a94f12a45830"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1066,
+      "mode": 420,
+      "mtime_ns": 1794097515193344630,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213503-arm2/visual-scene.json",
+      "sha256": "ee8e848717f33d3efae5fed6d38f40983c3b13084c9164c7c692a94f12a45830"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097496254490339,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm2/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097496254382797,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm2/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 612,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/b059b6cd6a732424dc2cc062b4db556000597a572f6a289d23405b1c5d400233.gz",
+            "sha256": "b059b6cd6a732424dc2cc062b4db556000597a572f6a289d23405b1c5d400233"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 612,
+      "mode": 420,
+      "mtime_ns": 1794097496527481600,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm2/cue-pixels.tsv",
+      "sha256": "b059b6cd6a732424dc2cc062b4db556000597a572f6a289d23405b1c5d400233"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1400,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/5a09c678ad8fcfaf9857f132d3673de9de2d565c595ed54e66533ca743c4cb6c.gz",
+            "sha256": "5a09c678ad8fcfaf9857f132d3673de9de2d565c595ed54e66533ca743c4cb6c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1400,
+      "mode": 420,
+      "mtime_ns": 1794097500957091133,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm2/lifetimes.tsv",
+      "sha256": "5a09c678ad8fcfaf9857f132d3673de9de2d565c595ed54e66533ca743c4cb6c"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097496254256130,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm2/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097496254106338,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm2/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 321,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/bfabe18ca5fcdbff6a615dcd62f68f9f1e9d1781b33b0de3492a9f360cbb02b6.gz",
+            "sha256": "bfabe18ca5fcdbff6a615dcd62f68f9f1e9d1781b33b0de3492a9f360cbb02b6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 321,
+      "mode": 420,
+      "mtime_ns": 1794097500957024841,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm2/summary.json",
+      "sha256": "bfabe18ca5fcdbff6a615dcd62f68f9f1e9d1781b33b0de3492a9f360cbb02b6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1066,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/aef74260973b08a3aade875eaffd096f38e8e2848833628533051bb7219d42b2.gz",
+            "sha256": "aef74260973b08a3aade875eaffd096f38e8e2848833628533051bb7219d42b2"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1066,
+      "mode": 420,
+      "mtime_ns": 1794097496254735673,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm2/visual-scene.json",
+      "sha256": "aef74260973b08a3aade875eaffd096f38e8e2848833628533051bb7219d42b2"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097500960495223,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm3/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097500960386306,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm3/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 740,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/bbd95ac2132de341dc9a45b44b968b019af8c16227b915a88f7a1101005b4729.gz",
+            "sha256": "bbd95ac2132de341dc9a45b44b968b019af8c16227b915a88f7a1101005b4729"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 740,
+      "mode": 420,
+      "mtime_ns": 1794097501235654529,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm3/cue-pixels.tsv",
+      "sha256": "bbd95ac2132de341dc9a45b44b968b019af8c16227b915a88f7a1101005b4729"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1499,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/d1986af328f1669807cb2230a21621f3e4fcf642cf9505a2fc1005196993f724.gz",
+            "sha256": "d1986af328f1669807cb2230a21621f3e4fcf642cf9505a2fc1005196993f724"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1499,
+      "mode": 420,
+      "mtime_ns": 1794097505706850390,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm3/lifetimes.tsv",
+      "sha256": "d1986af328f1669807cb2230a21621f3e4fcf642cf9505a2fc1005196993f724"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097500960253139,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm3/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097500960111472,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm3/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 320,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/c202e620b56bcd4379770d072f29841d38f67d1ca9e6b0b97b8b7b55aac51491.gz",
+            "sha256": "c202e620b56bcd4379770d072f29841d38f67d1ca9e6b0b97b8b7b55aac51491"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 320,
+      "mode": 420,
+      "mtime_ns": 1794097505706795265,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm3/summary.json",
+      "sha256": "c202e620b56bcd4379770d072f29841d38f67d1ca9e6b0b97b8b7b55aac51491"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1067,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/b8c1f033a92164376f86afc89b417e28253fb9a8246afaabaeb55d6324e1280b.gz",
+            "sha256": "b8c1f033a92164376f86afc89b417e28253fb9a8246afaabaeb55d6324e1280b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1067,
+      "mode": 420,
+      "mtime_ns": 1794097500960769348,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213502-arm3/visual-scene.json",
+      "sha256": "b8c1f033a92164376f86afc89b417e28253fb9a8246afaabaeb55d6324e1280b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097538872536618,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm3/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097538872428702,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm3/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 740,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/76e6bfa7d65f850d305900a2d02d1d793cc6b06c6e6eaafa378ae2c501d743c9.gz",
+            "sha256": "76e6bfa7d65f850d305900a2d02d1d793cc6b06c6e6eaafa378ae2c501d743c9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 740,
+      "mode": 420,
+      "mtime_ns": 1794097539147103257,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm3/cue-pixels.tsv",
+      "sha256": "76e6bfa7d65f850d305900a2d02d1d793cc6b06c6e6eaafa378ae2c501d743c9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1494,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/e12397695313c458603369a1fac8411fe89db8f9a52adccc5969e53a77b1ed9d.gz",
+            "sha256": "e12397695313c458603369a1fac8411fe89db8f9a52adccc5969e53a77b1ed9d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1494,
+      "mode": 420,
+      "mtime_ns": 1794097543620146663,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm3/lifetimes.tsv",
+      "sha256": "e12397695313c458603369a1fac8411fe89db8f9a52adccc5969e53a77b1ed9d"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097538872302160,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm3/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097538872144118,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm3/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 320,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/0234e388ef8f9ed45bddaf063e3d042eeb63e73a7105d5a925f03067ffc871fb.gz",
+            "sha256": "0234e388ef8f9ed45bddaf063e3d042eeb63e73a7105d5a925f03067ffc871fb"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 320,
+      "mode": 420,
+      "mtime_ns": 1794097543620103121,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm3/summary.json",
+      "sha256": "0234e388ef8f9ed45bddaf063e3d042eeb63e73a7105d5a925f03067ffc871fb"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1066,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/ea54d9b4cd2bce750a578e989c54b273b987b21734722bc4bc54318e8f7faf5b.gz",
+            "sha256": "ea54d9b4cd2bce750a578e989c54b273b987b21734722bc4bc54318e8f7faf5b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1066,
+      "mode": 420,
+      "mtime_ns": 1794097538872771327,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm3/visual-scene.json",
+      "sha256": "ea54d9b4cd2bce750a578e989c54b273b987b21734722bc4bc54318e8f7faf5b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097534147070698,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm2/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097534146962323,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm2/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 612,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/22e017cf9d8aa304c7bc31bf27a8075e42b3ebf9471ace3162669cb7db40c414.gz",
+            "sha256": "22e017cf9d8aa304c7bc31bf27a8075e42b3ebf9471ace3162669cb7db40c414"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 612,
+      "mode": 420,
+      "mtime_ns": 1794097534420470418,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm2/cue-pixels.tsv",
+      "sha256": "22e017cf9d8aa304c7bc31bf27a8075e42b3ebf9471ace3162669cb7db40c414"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1400,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/e7e16616fdb5490a888ffa5d109b61ecfaa6c1b19b5924c43e8de14a80a6904c.gz",
+            "sha256": "e7e16616fdb5490a888ffa5d109b61ecfaa6c1b19b5924c43e8de14a80a6904c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1400,
+      "mode": 420,
+      "mtime_ns": 1794097538869069570,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm2/lifetimes.tsv",
+      "sha256": "e7e16616fdb5490a888ffa5d109b61ecfaa6c1b19b5924c43e8de14a80a6904c"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097534146829073,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm2/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097534146678948,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm2/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 321,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/c3d7080627fc70b91bc919f5662dec0f4da93795216a970bdb128b651b7f9c30.gz",
+            "sha256": "c3d7080627fc70b91bc919f5662dec0f4da93795216a970bdb128b651b7f9c30"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 321,
+      "mode": 420,
+      "mtime_ns": 1794097538869026362,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm2/summary.json",
+      "sha256": "c3d7080627fc70b91bc919f5662dec0f4da93795216a970bdb128b651b7f9c30"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1066,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/4ef7fb754e35962225bd2a4232357d09f54928278c2fb53362973f3200f2af24.gz",
+            "sha256": "4ef7fb754e35962225bd2a4232357d09f54928278c2fb53362973f3200f2af24"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1066,
+      "mode": 420,
+      "mtime_ns": 1794097534147317366,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/mean/native-evidence/2651213504-arm2/visual-scene.json",
+      "sha256": "4ef7fb754e35962225bd2a4232357d09f54928278c2fb53362973f3200f2af24"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/398715413880fa649a02eaf7abb1ab72d215fcb83dd59e97a9a41a9d7f4f579b.gz"
+      },
+      "bytes": 85,
+      "mode": 420,
+      "mtime_ns": 1794097486508599239,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/memory-causal.json",
+      "sha256": "398715413880fa649a02eaf7abb1ab72d215fcb83dd59e97a9a41a9d7f4f579b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 760,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/49e3b14bd4ba3d26cfc2bc6541588a54bf1834641a31895b2cce5e4b030fc596.gz",
+            "sha256": "49e3b14bd4ba3d26cfc2bc6541588a54bf1834641a31895b2cce5e4b030fc596"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 760,
+      "mode": 420,
+      "mtime_ns": 1794097486553183406,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/memory-causal.receipt.json",
+      "sha256": "49e3b14bd4ba3d26cfc2bc6541588a54bf1834641a31895b2cce5e4b030fc596"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794097427938606546,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/memory-causal.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 34919,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/df6def9774fc1d0a0a7039d023c74397a1dacdca1a96edb5eac8c4570e93f0c3.gz",
+            "sha256": "df6def9774fc1d0a0a7039d023c74397a1dacdca1a96edb5eac8c4570e93f0c3"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 34919,
+      "mode": 420,
+      "mtime_ns": 1794097427931783409,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/plan.json",
+      "sha256": "df6def9774fc1d0a0a7039d023c74397a1dacdca1a96edb5eac8c4570e93f0c3"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 481,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/ee674f159e65a5b42d256be3ce716d756220e3be26234438026bd4d8f7f7831f.gz",
+            "sha256": "ee674f159e65a5b42d256be3ce716d756220e3be26234438026bd4d8f7f7831f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 481,
+      "mode": 420,
+      "mtime_ns": 1794097486553660365,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/summary.json",
+      "sha256": "ee674f159e65a5b42d256be3ce716d756220e3be26234438026bd4d8f7f7831f"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/ccd6f846236003facffce1ecf9e9c9883ed2d4659fa1e36d4d199cfaf8d3df68.gz"
+      },
+      "bytes": 562,
+      "mode": 420,
+      "mtime_ns": 1794097609013025948,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/analysis/plan.json",
+      "sha256": "ccd6f846236003facffce1ecf9e9c9883ed2d4659fa1e36d4d199cfaf8d3df68"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4925,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/e5a34a6ff5094354308838a9cc829870699ed9114eb47db7ee7a9196bba97cf3.gz",
+            "sha256": "e5a34a6ff5094354308838a9cc829870699ed9114eb47db7ee7a9196bba97cf3"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4925,
+      "mode": 420,
+      "mtime_ns": 1794097609014912035,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/analysis/summary.json",
+      "sha256": "e5a34a6ff5094354308838a9cc829870699ed9114eb47db7ee7a9196bba97cf3"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 220,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/7874f940df58b9b79603727900b911ab5bbb8b77437cdc65983a9dfa3396fbc9.gz",
+            "sha256": "7874f940df58b9b79603727900b911ab5bbb8b77437cdc65983a9dfa3396fbc9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 220,
+      "mode": 420,
+      "mtime_ns": 1794097427938413296,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/source-inputs/manifest.json",
+      "sha256": "7874f940df58b9b79603727900b911ab5bbb8b77437cdc65983a9dfa3396fbc9"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794097427938284629,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/source-inputs/tracked.patch",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 805,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/a0e17d26c5e61345fd50acd68626995b36a002f225ce4c1c4a61ea9ca676db9c.gz",
+            "sha256": "a0e17d26c5e61345fd50acd68626995b36a002f225ce4c1c4a61ea9ca676db9c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 805,
+      "mode": 420,
+      "mtime_ns": 1794097428303062728,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/plan.json",
+      "sha256": "a0e17d26c5e61345fd50acd68626995b36a002f225ce4c1c4a61ea9ca676db9c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 371,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/7d4bc43b13cadff0e17769e6e0a62e41d174415d6e34c1bd7e45ea8e734bb191.gz",
+            "sha256": "7d4bc43b13cadff0e17769e6e0a62e41d174415d6e34c1bd7e45ea8e734bb191"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 371,
+      "mode": 420,
+      "mtime_ns": 1794097486508504947,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/summary.json",
+      "sha256": "7d4bc43b13cadff0e17769e6e0a62e41d174415d6e34c1bd7e45ea8e734bb191"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097447748704758,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm0/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097447748600049,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm0/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 740,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/4674601a138f90e44653b538aa77b654c0ff1cae8bbf9ea7ea3fe8087e942730.gz",
+            "sha256": "4674601a138f90e44653b538aa77b654c0ff1cae8bbf9ea7ea3fe8087e942730"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 740,
+      "mode": 420,
+      "mtime_ns": 1794097448023694397,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm0/cue-pixels.tsv",
+      "sha256": "4674601a138f90e44653b538aa77b654c0ff1cae8bbf9ea7ea3fe8087e942730"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1574,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/15e457084b47698295dd02bc3fc273ae1cabe8ea3cf8e736f77694a38a159a6e.gz",
+            "sha256": "15e457084b47698295dd02bc3fc273ae1cabe8ea3cf8e736f77694a38a159a6e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1574,
+      "mode": 420,
+      "mtime_ns": 1794097452602737502,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm0/lifetimes.tsv",
+      "sha256": "15e457084b47698295dd02bc3fc273ae1cabe8ea3cf8e736f77694a38a159a6e"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097447748477383,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm0/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097447748332465,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm0/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 327,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/5bd11bd24ff659ff5c2cc5cd9e450168d22c41703c60cbb250e4cf4f9fdec98c.gz",
+            "sha256": "5bd11bd24ff659ff5c2cc5cd9e450168d22c41703c60cbb250e4cf4f9fdec98c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 327,
+      "mode": 420,
+      "mtime_ns": 1794097452602691002,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm0/summary.json",
+      "sha256": "5bd11bd24ff659ff5c2cc5cd9e450168d22c41703c60cbb250e4cf4f9fdec98c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1067,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/cb9c734ca67a3da2224fbfcf124a3b643e1fe212128508da89f86524d3d0ca95.gz",
+            "sha256": "cb9c734ca67a3da2224fbfcf124a3b643e1fe212128508da89f86524d3d0ca95"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1067,
+      "mode": 420,
+      "mtime_ns": 1794097447748937008,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm0/visual-scene.json",
+      "sha256": "cb9c734ca67a3da2224fbfcf124a3b643e1fe212128508da89f86524d3d0ca95"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5264196,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/54d834f56ed978276e2e6ac9123829d0c3fb33a747ec31cdb3c3f60420830a72.gz",
+            "sha256": "54d834f56ed978276e2e6ac9123829d0c3fb33a747ec31cdb3c3f60420830a72"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5264196,
+      "mode": 384,
+      "mtime_ns": 1794097453252059633,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm1/after.world",
+      "sha256": "54d834f56ed978276e2e6ac9123829d0c3fb33a747ec31cdb3c3f60420830a72"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5264196,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/a88dd4d4d689ff39cf6955855cd57b0174eb02d6304a1d660bfc51ad525a0f14.gz",
+            "sha256": "a88dd4d4d689ff39cf6955855cd57b0174eb02d6304a1d660bfc51ad525a0f14"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5264196,
+      "mode": 384,
+      "mtime_ns": 1794097453250407921,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm1/before.world",
+      "sha256": "a88dd4d4d689ff39cf6955855cd57b0174eb02d6304a1d660bfc51ad525a0f14"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097452606256175,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm1/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097452606139383,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm1/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 740,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/4674601a138f90e44653b538aa77b654c0ff1cae8bbf9ea7ea3fe8087e942730.gz",
+            "sha256": "4674601a138f90e44653b538aa77b654c0ff1cae8bbf9ea7ea3fe8087e942730"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 740,
+      "mode": 420,
+      "mtime_ns": 1794097452881550440,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm1/cue-pixels.tsv",
+      "sha256": "4674601a138f90e44653b538aa77b654c0ff1cae8bbf9ea7ea3fe8087e942730"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 185,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/f517a94e12a82c62a5be29f54ba607645838412b49681031f56569d359705981.gz",
+            "sha256": "f517a94e12a82c62a5be29f54ba607645838412b49681031f56569d359705981"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 185,
+      "mode": 420,
+      "mtime_ns": 1794097453254568262,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm1/intervention.json",
+      "sha256": "f517a94e12a82c62a5be29f54ba607645838412b49681031f56569d359705981"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1538,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/08a4e3f891adbeb586a4d686f6990caa9395eabe7ed99691d67524443604f22e.gz",
+            "sha256": "08a4e3f891adbeb586a4d686f6990caa9395eabe7ed99691d67524443604f22e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1538,
+      "mode": 420,
+      "mtime_ns": 1794097457439696797,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm1/lifetimes.tsv",
+      "sha256": "08a4e3f891adbeb586a4d686f6990caa9395eabe7ed99691d67524443604f22e"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097452606008716,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm1/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097452605837966,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm1/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 326,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/39e694129eac0f04ce6bd80e64b5c5bdc84c8f6659036c0a44001750ab28cd84.gz",
+            "sha256": "39e694129eac0f04ce6bd80e64b5c5bdc84c8f6659036c0a44001750ab28cd84"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 326,
+      "mode": 420,
+      "mtime_ns": 1794097457439640422,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm1/summary.json",
+      "sha256": "39e694129eac0f04ce6bd80e64b5c5bdc84c8f6659036c0a44001750ab28cd84"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1066,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/cab1301c3b5c4948b23de0a7b2594d17f233bffa54b9bae0537c158373b4a5e2.gz",
+            "sha256": "cab1301c3b5c4948b23de0a7b2594d17f233bffa54b9bae0537c158373b4a5e2"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1066,
+      "mode": 420,
+      "mtime_ns": 1794097452606496092,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm1/visual-scene.json",
+      "sha256": "cab1301c3b5c4948b23de0a7b2594d17f233bffa54b9bae0537c158373b4a5e2"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5264196,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/96b08b50ae1ec8ceaf38528ee26dd2c3e1451c18da98b8ef061bd7255ad8c9b7.gz",
+            "sha256": "96b08b50ae1ec8ceaf38528ee26dd2c3e1451c18da98b8ef061bd7255ad8c9b7"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5264196,
+      "mode": 384,
+      "mtime_ns": 1794097433879538822,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm1/after.world",
+      "sha256": "96b08b50ae1ec8ceaf38528ee26dd2c3e1451c18da98b8ef061bd7255ad8c9b7"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5264196,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/7c17f0eba2b365c5a7bd71a5c74910af861949de308209d443eb9dba783be3a3.gz",
+            "sha256": "7c17f0eba2b365c5a7bd71a5c74910af861949de308209d443eb9dba783be3a3"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5264196,
+      "mode": 384,
+      "mtime_ns": 1794097433877874944,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm1/before.world",
+      "sha256": "7c17f0eba2b365c5a7bd71a5c74910af861949de308209d443eb9dba783be3a3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097433232867571,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm1/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097433232757238,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm1/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 740,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/75eaf93814f25d7b266c959896a94d1afc9de3191fa455db261835393ece27ee.gz",
+            "sha256": "75eaf93814f25d7b266c959896a94d1afc9de3191fa455db261835393ece27ee"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 740,
+      "mode": 420,
+      "mtime_ns": 1794097433507299585,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm1/cue-pixels.tsv",
+      "sha256": "75eaf93814f25d7b266c959896a94d1afc9de3191fa455db261835393ece27ee"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 185,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/8bc5fb039fdb57344a88549673ddedd6f49382e11f1acb1576146e3786d8e84b.gz",
+            "sha256": "8bc5fb039fdb57344a88549673ddedd6f49382e11f1acb1576146e3786d8e84b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 185,
+      "mode": 420,
+      "mtime_ns": 1794097433881787243,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm1/intervention.json",
+      "sha256": "8bc5fb039fdb57344a88549673ddedd6f49382e11f1acb1576146e3786d8e84b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1530,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/9f29c7b418df5ed53851a509161bc3b71e82097f64165bed1d8de6fb57a8fffd.gz",
+            "sha256": "9f29c7b418df5ed53851a509161bc3b71e82097f64165bed1d8de6fb57a8fffd"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1530,
+      "mode": 420,
+      "mtime_ns": 1794097438067433696,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm1/lifetimes.tsv",
+      "sha256": "9f29c7b418df5ed53851a509161bc3b71e82097f64165bed1d8de6fb57a8fffd"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097433232634238,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm1/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097433232484571,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm1/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 326,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/4f8d693d0b5d89dcf790da188219c125bd46cc7827cf3bdab304a359d80c1ae2.gz",
+            "sha256": "4f8d693d0b5d89dcf790da188219c125bd46cc7827cf3bdab304a359d80c1ae2"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 326,
+      "mode": 420,
+      "mtime_ns": 1794097438067379612,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm1/summary.json",
+      "sha256": "4f8d693d0b5d89dcf790da188219c125bd46cc7827cf3bdab304a359d80c1ae2"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1066,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/4478c7dda127761be5079c3277d6d1e842d9a7961068f0b219c6149d0f087b97.gz",
+            "sha256": "4478c7dda127761be5079c3277d6d1e842d9a7961068f0b219c6149d0f087b97"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1066,
+      "mode": 420,
+      "mtime_ns": 1794097433233099280,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm1/visual-scene.json",
+      "sha256": "4478c7dda127761be5079c3277d6d1e842d9a7961068f0b219c6149d0f087b97"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097428306923985,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm0/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097428306537526,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm0/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 740,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/75eaf93814f25d7b266c959896a94d1afc9de3191fa455db261835393ece27ee.gz",
+            "sha256": "75eaf93814f25d7b266c959896a94d1afc9de3191fa455db261835393ece27ee"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 740,
+      "mode": 420,
+      "mtime_ns": 1794097428648528082,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm0/cue-pixels.tsv",
+      "sha256": "75eaf93814f25d7b266c959896a94d1afc9de3191fa455db261835393ece27ee"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1520,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/30247539cf4abb94dc26d46e55482996a2ac80501b9665d3b74a9843fde98184.gz",
+            "sha256": "30247539cf4abb94dc26d46e55482996a2ac80501b9665d3b74a9843fde98184"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1520,
+      "mode": 420,
+      "mtime_ns": 1794097433229346815,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm0/lifetimes.tsv",
+      "sha256": "30247539cf4abb94dc26d46e55482996a2ac80501b9665d3b74a9843fde98184"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097428306120192,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm0/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097428305530482,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm0/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 327,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/0ee9116e29055ed24fb0b28bffefb4bbfdfc21d29d0170f9afeab3968cf05917.gz",
+            "sha256": "0ee9116e29055ed24fb0b28bffefb4bbfdfc21d29d0170f9afeab3968cf05917"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 327,
+      "mode": 420,
+      "mtime_ns": 1794097433229302107,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm0/summary.json",
+      "sha256": "0ee9116e29055ed24fb0b28bffefb4bbfdfc21d29d0170f9afeab3968cf05917"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1066,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/be8c9172454c229025c8c5f076f82b82f82ae6601a17339a22db86cadb7e48c8.gz",
+            "sha256": "be8c9172454c229025c8c5f076f82b82f82ae6601a17339a22db86cadb7e48c8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1066,
+      "mode": 420,
+      "mtime_ns": 1794097428307681320,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm0/visual-scene.json",
+      "sha256": "be8c9172454c229025c8c5f076f82b82f82ae6601a17339a22db86cadb7e48c8"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097467114076596,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm0/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097467113972013,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm0/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 740,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/0e3b2c0a357dfa1fbedc964347c00e4fce9bc8b05da9a05a5581e1e8303a3aef.gz",
+            "sha256": "0e3b2c0a357dfa1fbedc964347c00e4fce9bc8b05da9a05a5581e1e8303a3aef"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 740,
+      "mode": 420,
+      "mtime_ns": 1794097467387490816,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm0/cue-pixels.tsv",
+      "sha256": "0e3b2c0a357dfa1fbedc964347c00e4fce9bc8b05da9a05a5581e1e8303a3aef"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1548,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/40927b87cfaa2e3170a6beb6ff7cbe1e957253c39ed005a730c0107ecc069f70.gz",
+            "sha256": "40927b87cfaa2e3170a6beb6ff7cbe1e957253c39ed005a730c0107ecc069f70"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1548,
+      "mode": 420,
+      "mtime_ns": 1794097471954141522,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm0/lifetimes.tsv",
+      "sha256": "40927b87cfaa2e3170a6beb6ff7cbe1e957253c39ed005a730c0107ecc069f70"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097467113845554,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm0/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097467113699637,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm0/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 327,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/680bf33a829297c4eb2dc5cd04a1296ef72f2056cb5ea8c17f7e3aeeba3ddffc.gz",
+            "sha256": "680bf33a829297c4eb2dc5cd04a1296ef72f2056cb5ea8c17f7e3aeeba3ddffc"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 327,
+      "mode": 420,
+      "mtime_ns": 1794097471954103230,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm0/summary.json",
+      "sha256": "680bf33a829297c4eb2dc5cd04a1296ef72f2056cb5ea8c17f7e3aeeba3ddffc"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1068,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/50b539fabf27059546fe0ffa996576b5bc1affc06caa2a2088844467ddd9cca2.gz",
+            "sha256": "50b539fabf27059546fe0ffa996576b5bc1affc06caa2a2088844467ddd9cca2"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1068,
+      "mode": 420,
+      "mtime_ns": 1794097467114304763,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm0/visual-scene.json",
+      "sha256": "50b539fabf27059546fe0ffa996576b5bc1affc06caa2a2088844467ddd9cca2"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5264196,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/df32f45540301282a53038b568fe133cfe6320f9137802f4d82eb5af2c12fbe6.gz",
+            "sha256": "df32f45540301282a53038b568fe133cfe6320f9137802f4d82eb5af2c12fbe6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5264196,
+      "mode": 384,
+      "mtime_ns": 1794097472605716699,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm1/after.world",
+      "sha256": "df32f45540301282a53038b568fe133cfe6320f9137802f4d82eb5af2c12fbe6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5264196,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/9eb530dc229c7499139a2d1501b090ced02aa91fc33988c16f708a003dcbaee0.gz",
+            "sha256": "9eb530dc229c7499139a2d1501b090ced02aa91fc33988c16f708a003dcbaee0"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5264196,
+      "mode": 384,
+      "mtime_ns": 1794097472604043571,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm1/before.world",
+      "sha256": "9eb530dc229c7499139a2d1501b090ced02aa91fc33988c16f708a003dcbaee0"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097471957568695,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm1/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097471957462070,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm1/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 740,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/0e3b2c0a357dfa1fbedc964347c00e4fce9bc8b05da9a05a5581e1e8303a3aef.gz",
+            "sha256": "0e3b2c0a357dfa1fbedc964347c00e4fce9bc8b05da9a05a5581e1e8303a3aef"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 740,
+      "mode": 420,
+      "mtime_ns": 1794097472232082834,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm1/cue-pixels.tsv",
+      "sha256": "0e3b2c0a357dfa1fbedc964347c00e4fce9bc8b05da9a05a5581e1e8303a3aef"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 185,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/bcd2453d8f2c5a5411ba3c9c8707da9f11b95d434788eb7da36f3e087c7eda98.gz",
+            "sha256": "bcd2453d8f2c5a5411ba3c9c8707da9f11b95d434788eb7da36f3e087c7eda98"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 185,
+      "mode": 420,
+      "mtime_ns": 1794097472608294870,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm1/intervention.json",
+      "sha256": "bcd2453d8f2c5a5411ba3c9c8707da9f11b95d434788eb7da36f3e087c7eda98"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1541,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/cbba0e3bd80a82220db4b977d46c7f4d8fad16dec2c996cd48573f65d131877f.gz",
+            "sha256": "cbba0e3bd80a82220db4b977d46c7f4d8fad16dec2c996cd48573f65d131877f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1541,
+      "mode": 420,
+      "mtime_ns": 1794097476814432944,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm1/lifetimes.tsv",
+      "sha256": "cbba0e3bd80a82220db4b977d46c7f4d8fad16dec2c996cd48573f65d131877f"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097471957338278,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm1/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097471957195070,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm1/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 327,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/69430ebcf03dbcd8f2d9105ccbadf1631c8f81c0d6d4f53842afe0db25895b04.gz",
+            "sha256": "69430ebcf03dbcd8f2d9105ccbadf1631c8f81c0d6d4f53842afe0db25895b04"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 327,
+      "mode": 420,
+      "mtime_ns": 1794097476814392361,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm1/summary.json",
+      "sha256": "69430ebcf03dbcd8f2d9105ccbadf1631c8f81c0d6d4f53842afe0db25895b04"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1068,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/c53a8951b8590fcd319fc64b1aad561d0b0a3854aefd79bcdf334f847668bd48.gz",
+            "sha256": "c53a8951b8590fcd319fc64b1aad561d0b0a3854aefd79bcdf334f847668bd48"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1068,
+      "mode": 420,
+      "mtime_ns": 1794097471957797612,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm1/visual-scene.json",
+      "sha256": "c53a8951b8590fcd319fc64b1aad561d0b0a3854aefd79bcdf334f847668bd48"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097462260692562,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm3/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097462260579270,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm3/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 740,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/817b5bc350af34a189b3dc3f916821d1429d2b69808504b0e2cdba610fc6131e.gz",
+            "sha256": "817b5bc350af34a189b3dc3f916821d1429d2b69808504b0e2cdba610fc6131e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 740,
+      "mode": 420,
+      "mtime_ns": 1794097462535544618,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm3/cue-pixels.tsv",
+      "sha256": "817b5bc350af34a189b3dc3f916821d1429d2b69808504b0e2cdba610fc6131e"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1485,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/0983729051afd3cf0efc7ca5e11b206a3cb1b2c93c95f91e593debc964d8014e.gz",
+            "sha256": "0983729051afd3cf0efc7ca5e11b206a3cb1b2c93c95f91e593debc964d8014e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1485,
+      "mode": 420,
+      "mtime_ns": 1794097467110643882,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm3/lifetimes.tsv",
+      "sha256": "0983729051afd3cf0efc7ca5e11b206a3cb1b2c93c95f91e593debc964d8014e"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097462260451270,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm3/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097462260302228,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm3/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 320,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/740bcf0d0d8759440d2ec4fef561bb879688b5edbe9868ba91f177741e6cdda6.gz",
+            "sha256": "740bcf0d0d8759440d2ec4fef561bb879688b5edbe9868ba91f177741e6cdda6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 320,
+      "mode": 420,
+      "mtime_ns": 1794097467110587798,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm3/summary.json",
+      "sha256": "740bcf0d0d8759440d2ec4fef561bb879688b5edbe9868ba91f177741e6cdda6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1068,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/a2eddb3b64c25ad6314e7e2e2f77a1a54179d8495c77dd2ad8d1ffe6c227aa38.gz",
+            "sha256": "a2eddb3b64c25ad6314e7e2e2f77a1a54179d8495c77dd2ad8d1ffe6c227aa38"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1068,
+      "mode": 420,
+      "mtime_ns": 1794097462260962021,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm3/visual-scene.json",
+      "sha256": "a2eddb3b64c25ad6314e7e2e2f77a1a54179d8495c77dd2ad8d1ffe6c227aa38"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097457443287970,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm2/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097457443161012,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm2/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 612,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/bc91b3548958c4bdeb8f11d6bff8a1cd3a8ff5693033542b6423d8417f128d99.gz",
+            "sha256": "bc91b3548958c4bdeb8f11d6bff8a1cd3a8ff5693033542b6423d8417f128d99"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 612,
+      "mode": 420,
+      "mtime_ns": 1794097457717709900,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm2/cue-pixels.tsv",
+      "sha256": "bc91b3548958c4bdeb8f11d6bff8a1cd3a8ff5693033542b6423d8417f128d99"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1525,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/35277253b83be56f3f5ee3a9cd142a231fa4459a1fa384fedc67d84a7dca151d.gz",
+            "sha256": "35277253b83be56f3f5ee3a9cd142a231fa4459a1fa384fedc67d84a7dca151d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1525,
+      "mode": 420,
+      "mtime_ns": 1794097462257245639,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm2/lifetimes.tsv",
+      "sha256": "35277253b83be56f3f5ee3a9cd142a231fa4459a1fa384fedc67d84a7dca151d"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097457443025511,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm2/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097457442870678,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm2/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 326,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/f30c83200a75d6c432bf1e2955be46b1f40a9ac258879a35e7a7805b7745e353.gz",
+            "sha256": "f30c83200a75d6c432bf1e2955be46b1f40a9ac258879a35e7a7805b7745e353"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 326,
+      "mode": 420,
+      "mtime_ns": 1794097462257205389,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm2/summary.json",
+      "sha256": "f30c83200a75d6c432bf1e2955be46b1f40a9ac258879a35e7a7805b7745e353"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1067,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/52599d8a7985161937b532da2b90baf6a43b5d0308a65b2c91449f0be2818700.gz",
+            "sha256": "52599d8a7985161937b532da2b90baf6a43b5d0308a65b2c91449f0be2818700"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1067,
+      "mode": 420,
+      "mtime_ns": 1794097457443551221,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213503-arm2/visual-scene.json",
+      "sha256": "52599d8a7985161937b532da2b90baf6a43b5d0308a65b2c91449f0be2818700"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097438071044661,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm2/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097438070930494,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm2/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 612,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/b059b6cd6a732424dc2cc062b4db556000597a572f6a289d23405b1c5d400233.gz",
+            "sha256": "b059b6cd6a732424dc2cc062b4db556000597a572f6a289d23405b1c5d400233"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 612,
+      "mode": 420,
+      "mtime_ns": 1794097438345142423,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm2/cue-pixels.tsv",
+      "sha256": "b059b6cd6a732424dc2cc062b4db556000597a572f6a289d23405b1c5d400233"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1513,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/23d38fb294c8594941ed3bcda273e9868f166a34876eda420adb48bc5e22feba.gz",
+            "sha256": "23d38fb294c8594941ed3bcda273e9868f166a34876eda420adb48bc5e22feba"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1513,
+      "mode": 420,
+      "mtime_ns": 1794097442889946089,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm2/lifetimes.tsv",
+      "sha256": "23d38fb294c8594941ed3bcda273e9868f166a34876eda420adb48bc5e22feba"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097438070804452,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm2/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097438070656785,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm2/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 326,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/9679fb17a4658a416ba7c63bb9daf13edede29bc5070ca31f71baf294a50cb8b.gz",
+            "sha256": "9679fb17a4658a416ba7c63bb9daf13edede29bc5070ca31f71baf294a50cb8b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 326,
+      "mode": 420,
+      "mtime_ns": 1794097442889895839,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm2/summary.json",
+      "sha256": "9679fb17a4658a416ba7c63bb9daf13edede29bc5070ca31f71baf294a50cb8b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1067,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/ea87e6d6032b80a0db2b4470453ab9156cafdc07e0e958540fd513f1caa17644.gz",
+            "sha256": "ea87e6d6032b80a0db2b4470453ab9156cafdc07e0e958540fd513f1caa17644"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1067,
+      "mode": 420,
+      "mtime_ns": 1794097438071281828,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm2/visual-scene.json",
+      "sha256": "ea87e6d6032b80a0db2b4470453ab9156cafdc07e0e958540fd513f1caa17644"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097442893406887,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm3/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097442893303678,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm3/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 740,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/bbd95ac2132de341dc9a45b44b968b019af8c16227b915a88f7a1101005b4729.gz",
+            "sha256": "bbd95ac2132de341dc9a45b44b968b019af8c16227b915a88f7a1101005b4729"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 740,
+      "mode": 420,
+      "mtime_ns": 1794097443167890067,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm3/cue-pixels.tsv",
+      "sha256": "bbd95ac2132de341dc9a45b44b968b019af8c16227b915a88f7a1101005b4729"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1494,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/889b8b94132acb4fa7c362c7b2c2da71fbb38d0c8117712f5fc8fa90e3d5f76e.gz",
+            "sha256": "889b8b94132acb4fa7c362c7b2c2da71fbb38d0c8117712f5fc8fa90e3d5f76e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1494,
+      "mode": 420,
+      "mtime_ns": 1794097447745232918,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm3/lifetimes.tsv",
+      "sha256": "889b8b94132acb4fa7c362c7b2c2da71fbb38d0c8117712f5fc8fa90e3d5f76e"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097442893182428,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm3/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097442893039053,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm3/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 324,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/2da8ee600b2247248f88331274970de402cce9d2398eb7f57f08c17cc9dd2216.gz",
+            "sha256": "2da8ee600b2247248f88331274970de402cce9d2398eb7f57f08c17cc9dd2216"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 324,
+      "mode": 420,
+      "mtime_ns": 1794097447745174210,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm3/summary.json",
+      "sha256": "2da8ee600b2247248f88331274970de402cce9d2398eb7f57f08c17cc9dd2216"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1068,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/b8cada9263ec351d198aa243c8c8ca6c2edf8df9a6e886dc8a52613f85666dbf.gz",
+            "sha256": "b8cada9263ec351d198aa243c8c8ca6c2edf8df9a6e886dc8a52613f85666dbf"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1068,
+      "mode": 420,
+      "mtime_ns": 1794097442893642262,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213502-arm3/visual-scene.json",
+      "sha256": "b8cada9263ec351d198aa243c8c8ca6c2edf8df9a6e886dc8a52613f85666dbf"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097481657377959,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm3/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097481657265750,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm3/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 740,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/76e6bfa7d65f850d305900a2d02d1d793cc6b06c6e6eaafa378ae2c501d743c9.gz",
+            "sha256": "76e6bfa7d65f850d305900a2d02d1d793cc6b06c6e6eaafa378ae2c501d743c9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 740,
+      "mode": 420,
+      "mtime_ns": 1794097481932164473,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm3/cue-pixels.tsv",
+      "sha256": "76e6bfa7d65f850d305900a2d02d1d793cc6b06c6e6eaafa378ae2c501d743c9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1493,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/580d84c580f73a5feec8760336a75d2e69565465d3579baf4d3bde101ee1b62e.gz",
+            "sha256": "580d84c580f73a5feec8760336a75d2e69565465d3579baf4d3bde101ee1b62e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1493,
+      "mode": 420,
+      "mtime_ns": 1794097486505500275,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm3/lifetimes.tsv",
+      "sha256": "580d84c580f73a5feec8760336a75d2e69565465d3579baf4d3bde101ee1b62e"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097481657130667,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm3/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097481656982583,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm3/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 325,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/51e3c1de47285a0cd7e9e46eeb5bf2e2e4abf92eff35debb7f9a9ad31c7f66aa.gz",
+            "sha256": "51e3c1de47285a0cd7e9e46eeb5bf2e2e4abf92eff35debb7f9a9ad31c7f66aa"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 325,
+      "mode": 420,
+      "mtime_ns": 1794097486505451900,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm3/summary.json",
+      "sha256": "51e3c1de47285a0cd7e9e46eeb5bf2e2e4abf92eff35debb7f9a9ad31c7f66aa"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1068,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/00f9a6b601e823a33a2fb6d0e39addd28e6568786008559686fa8732f4283cf8.gz",
+            "sha256": "00f9a6b601e823a33a2fb6d0e39addd28e6568786008559686fa8732f4283cf8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1068,
+      "mode": 420,
+      "mtime_ns": 1794097481657652126,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm3/visual-scene.json",
+      "sha256": "00f9a6b601e823a33a2fb6d0e39addd28e6568786008559686fa8732f4283cf8"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097476818018284,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm2/camera_occluder.mrvpack",
+      "sha256": "57f17ad4a5b1d92abe2f7b3b0163292162fe35cc0e3157afff4fbb5f2c8917e3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9.gz"
+      },
+      "bytes": 36864,
+      "mode": 420,
+      "mtime_ns": 1794097476817902784,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm2/camera_target.mrvpack",
+      "sha256": "a0b07b1d79cb8884d3a41b9d942008c650cf92e813d5b9e02966f1aa404c60d9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 612,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/22e017cf9d8aa304c7bc31bf27a8075e42b3ebf9471ace3162669cb7db40c414.gz",
+            "sha256": "22e017cf9d8aa304c7bc31bf27a8075e42b3ebf9471ace3162669cb7db40c414"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 612,
+      "mode": 420,
+      "mtime_ns": 1794097477092179797,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm2/cue-pixels.tsv",
+      "sha256": "22e017cf9d8aa304c7bc31bf27a8075e42b3ebf9471ace3162669cb7db40c414"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1540,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/2f8426031701ae24a071c6f32b5a75627af6b40c87f702f756b2d2270177b3eb.gz",
+            "sha256": "2f8426031701ae24a071c6f32b5a75627af6b40c87f702f756b2d2270177b3eb"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1540,
+      "mode": 420,
+      "mtime_ns": 1794097481653927119,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm2/lifetimes.tsv",
+      "sha256": "2f8426031701ae24a071c6f32b5a75627af6b40c87f702f756b2d2270177b3eb"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b.gz"
+      },
+      "bytes": 32768,
+      "mode": 420,
+      "mtime_ns": 1794097476817776451,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm2/locomotion_ground.mrvpack",
+      "sha256": "96cb14968e5082c0460781e56322844e777dd2c4a24c1308a3740d21fcb4b00b"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cued-foraging-20261107/blobs/3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61.gz"
+      },
+      "bytes": 57344,
+      "mode": 420,
+      "mtime_ns": 1794097476817628325,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm2/robot.mrvpack",
+      "sha256": "3c92eff59b20f12b6918970f945fdd1d4c9609975aca97fb9e8eb35f12d94b61"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 327,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/2efcfdba2af805dd0b240e0268fda7a48671b020cecb82515c74d721ccf41f3b.gz",
+            "sha256": "2efcfdba2af805dd0b240e0268fda7a48671b020cecb82515c74d721ccf41f3b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 327,
+      "mode": 420,
+      "mtime_ns": 1794097481653867661,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm2/summary.json",
+      "sha256": "2efcfdba2af805dd0b240e0268fda7a48671b020cecb82515c74d721ccf41f3b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1066,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/5a03fa2260c2a149195a7a14da72cd54ce2a561658c65abf7a36536d3c775aa4.gz",
+            "sha256": "5a03fa2260c2a149195a7a14da72cd54ce2a561658c65abf7a36536d3c775aa4"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1066,
+      "mode": 420,
+      "mtime_ns": 1794097476818251368,
+      "path": ".numi/runs/american-crow/precision-evaluation-01/gaussian/native-evidence/2651213504-arm2/visual-scene.json",
+      "sha256": "5a03fa2260c2a149195a7a14da72cd54ce2a561658c65abf7a36536d3c775aa4"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 124464,
+            "path": "artifacts/crow-rl-deployment-mean-20261108/blobs/f2964fc24cf688108d878669c457988d89d0b48674d409cf6d74fea532d3a222.gz",
+            "sha256": "f2964fc24cf688108d878669c457988d89d0b48674d409cf6d74fea532d3a222"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 124464,
+      "mode": 493,
+      "mtime_ns": 1794097425229381647,
+      "path": ".numi/retained-runtime/deployment-mean-01/bin/metalrobo_crow_memory_causal_check",
+      "sha256": "f2964fc24cf688108d878669c457988d89d0b48674d409cf6d74fea532d3a222"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-action-holds-20261107/blobs/8a38dfbec7473c62e08ae7598b44e0c9e111df6f40ba7626c1d1143ef115685a.gz"
+      },
+      "bytes": 1025304,
+      "mode": 493,
+      "mtime_ns": 1794096182912455358,
+      "path": ".numi/retained-runtime/deployment-mean-01/bin/metalrobo_task_rollout",
+      "sha256": "8a38dfbec7473c62e08ae7598b44e0c9e111df6f40ba7626c1d1143ef115685a"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-adaptive-optimization-20261108/blobs/a0f3dea290091311815735074668d22f87992efc12b453ee2f3a80f9b5a41bc2.gz"
+      },
+      "bytes": 1012248,
+      "mode": 493,
+      "mtime_ns": 1794096182932285571,
+      "path": ".numi/retained-runtime/deployment-mean-01/bin/metalrobo_task_train",
+      "sha256": "a0f3dea290091311815735074668d22f87992efc12b453ee2f3a80f9b5a41bc2"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-git-recovery-20261107/blobs/9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe.gz"
+      },
+      "bytes": 19391,
+      "mode": 420,
+      "mtime_ns": 1794092869104936745,
+      "path": ".numi/retained-runtime/deployment-mean-01/shaders/GRUMemory.metallib",
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-history-20261108/blobs/d036ae69e16081d352766352614483af0dcc451b0794324edabea4ef4d7d2013.gz"
+      },
+      "bytes": 4199993,
+      "mode": 420,
+      "mtime_ns": 1794092873167695233,
+      "path": ".numi/retained-runtime/deployment-mean-01/shaders/MetalRobo.metallib",
+      "sha256": "d036ae69e16081d352766352614483af0dcc451b0794324edabea4ef4d7d2013"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-git-recovery-20261107/blobs/9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12.gz"
+      },
+      "bytes": 16151,
+      "mode": 420,
+      "mtime_ns": 1794092869103742195,
+      "path": ".numi/retained-runtime/deployment-mean-01/shaders/RetinalStream.metallib",
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/e05687a843feca4d7537c88e91a601ad564c8bfe1f082d92f8c0576e210b3985.gz"
+      },
+      "bytes": 5656912,
+      "mode": 493,
+      "mtime_ns": 1794096181933822593,
+      "path": ".numi/retained-runtime/deployment-mean-01/lib/libmetalrobo.dylib",
+      "sha256": "e05687a843feca4d7537c88e91a601ad564c8bfe1f082d92f8c0576e210b3985"
+    }
+  ],
+  "roots": [
+    ".numi/runs/american-crow",
+    ".numi/retained-runtime"
+  ],
+  "schema": "crow-git-evidence-archive-v1",
+  "summary": {
+    "existing_archive_blobs_indexed": 14412,
+    "files": 260,
+    "new_compressed_bytes": 181863,
+    "source_bytes": 80524221,
+    "unique_file_contents": 132
+  }
+}
