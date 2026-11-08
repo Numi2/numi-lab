@@ -917,6 +917,48 @@
       "adaptive_LR_selected": false,
       "learned_manipulation_qualified": false,
       "next": "Instrument the native box-sphere CCD query/advancement failure, preserve a regression, and validate physics/contact/replay before learning resumes."
+    },
+    "analytic_sphere_box_ccd_distance": {
+      "evidence": "artifacts/crow-rl-ccd-sphere-box-20261108",
+      "source_commit": "941261f4d8b5e9b6e7c4a56bca456362d6e6cd2f",
+      "queries_per_stream": 16384,
+      "old_distance_max_error_m": 0.025976829891801584,
+      "corrected_max_distance_error_m": [
+        1.068153353267487e-07,
+        1.054851351198205e-07,
+        1.3371603189288317e-07
+      ],
+      "corrected_distance_and_witness_controls_passed": true,
+      "corrected_order_symmetry_exact": true,
+      "native_contact_control_accepted_transitions": 7296,
+      "generic_native_contact_regression_passed": true,
+      "fresh_runtime_repair_prediction": "contradicted",
+      "held_out_behavior": "inconclusive_not_run",
+      "planned_updates": 20,
+      "completed_learner_updates": 13,
+      "last_saved_policy_revision": 14,
+      "last_coupled_checkpoint_completed_updates": 10,
+      "last_coupled_checkpoint_ticks_per_lane": 1600,
+      "failure": {
+        "status": 11,
+        "pair": 100,
+        "colliders": [
+          "crow_head/collision",
+          "crow_manipulandum/collision"
+        ],
+        "environment": 26,
+        "local_control": 5,
+        "physics_substep": 14
+      },
+      "Git_restored_native_failure_exact": true,
+      "Git_restored_model_Adam_arrays_exact": 41,
+      "Git_restored_canonical_training_outputs_execution_exact": 3,
+      "process_local_incumbent_execution_exact": false,
+      "process_local_incumbent_difference_explained_and_original_git_bytes_recovered": true,
+      "temporary_recovery_bytes_removed": 294561071,
+      "adaptive_LR_selected": false,
+      "learned_manipulation_qualified": false,
+      "next": "Capture failed projected sweep and event state; require isolated native replay and independent advancement/event regression before another learning trial."
     }
   }
 }

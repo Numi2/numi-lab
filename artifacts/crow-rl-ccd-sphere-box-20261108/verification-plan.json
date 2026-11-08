@@ -1,0 +1,6 @@
+{
+  "prediction": "Four query streams reproduce canonical result bytes. Coupled contact controls reproduce physical arrays, metrics and task streams, with owner-recomputed path-bound checkpoint identities. Coupled checkpoint10 resumes the original remaining10-update command and must reproduce exactly the original pair100/lane26/control5/substep14 failure plus all partial model/Adam tensors/metadata and canonical policies/rollout. Success or a different failure contradicts recovery.",
+  "budget": "Four query streams120s each, one native contact suite timeout600s, one128-lane remaining10-update160-tick training command timeout300s (expected failure after3 completed updates). No retries or tuning. Temporary raw bound1GiB; no video.",
+  "scope": "Same device/OS and external Python/MLX, Git-restored exact executables/library/shaders/sources/assets/curriculum/checkpoint. Reproduction, not new independent behavior evidence.",
+  "measurement_scope": "Record timing and allocator metrics separately; compare causal bytes/tensors and scientific fields exactly."
+}

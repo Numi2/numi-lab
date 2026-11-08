@@ -86,3 +86,21 @@ qualification follows from this study. The protected feeding policy remains
 unchanged. Next work is a minimal native failed-sweep capture and an independent
 conservative-advancement/event regression. The broader lifelong environment
 still requires physical food handling, ecological variation and social learning.
+
+### Observed recovery result and narrower analysis
+
+The strict all-artifact reproduction prediction fails on the incumbent file.
+The worker writes a frozen pre-process baseline from its loaded learner: the
+fresh run starts at revision1 and checkpoint continuation starts at revision11.
+The incumbent is a separate evaluation artifact, unused by the optimizer;
+no deployment selection runs here. Its resumed bytes exactly equal the source
+checkpoint candidate, as the code requires. Original incumbent bytes are also
+restored and verified from Git. No native execution is repeated for reanalysis.
+
+`verification-v2.json` records four exact query streams, all six contact arms'
+physical arrays/metrics/task streams, the exact native failure, three exact
+canonical training outputs and all41model/Adam arrays and metadata. The
+original failed plan and verification remain intact. The narrower result does
+not claim every process-local artifact executes identically. All294,561,071B
+of temporary recovery files were removed after unchanged hash/mode/mtime and
+closed-handle checks.

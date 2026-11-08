@@ -1,0 +1,10 @@
+{
+  "native_execution_repeated": false,
+  "original_prediction_retained": true,
+  "reason": "Strict all-artifact prediction failed on incumbent.policypack. The worker intentionally writes a frozen pre-process baseline from its loaded learner. Fresh process starts at revision1; resumed process starts at checkpoint revision11. Incumbent is a separate evaluation artifact, not used by updates or deployment selection. Verify this exact expected mismatch and restore the original incumbent bytes separately from Git; do not label all canonical artifacts execution-exact.",
+  "original_failure_sha256": "ad4526a6ca4adcd0fd8b68025362a55da8ba84bf13e76100ac3a3600be187834",
+  "original_plan_sha256": "c254ef3b1d83ce72c57782512e24179894b53d6b319c79879b963729781fb9d1",
+  "worker_source_sha256": "6772d2e59ebd58b55e8354da2bb79a79845e5a44889fab36e7f4b5525154ae55",
+  "new_reader_sha256": "d9dc48328cf1eafa8e46cec606923e44f19e591d53d5fb8140defd30050243f5",
+  "criteria": "Same exact native error,41model/Adam arrays and metadata,three canonical causal artifacts, all query/contact controls. Resumed incumbent must exactly equal source checkpoint candidate. Original incumbent separately restored/hash-checked from committed Git."
+}

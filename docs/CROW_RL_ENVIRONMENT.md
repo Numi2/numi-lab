@@ -1839,3 +1839,25 @@ build pass. Exact runtime, all outcomes and Git-executed recovery are retained i
 ## Retained-rollout optimizer audit (2026-11-08)
 
 See `artifacts/crow-rl-optimizer-audit-20261108/README.md` for final-step head/beak KL, actual gamma=.999/lambda=1 return attribution, combined-gradient clipping and exact Adam replay. The new selected-factor post-update metrics are retained in ordinary Swift training history. Legacy KL remains pre-step and the adaptive controller is unchanged. Matched unused-seed Gaussian evaluation improves correct-side choices65→97 (128→169/192), but intake26→37/192 is not conclusive (paired p=.169). No further adaptive-rate trial or optimizer success is selected from KL. Broader lifelong scope remains unfinished.
+
+
+## Sphere–box distance qualification and remaining native rollback (2026-11-08)
+
+`941261f4` routes shared CCD sphere–box queries through the exact primitive
+witness. Old-query distance error reaches25.98mm; corrected candidate,
+confirmation and CMake admission each pass16,384queries with maximum errors
+0.107/0.105/0.134µm, exact swapped-order symmetry and exact native repeat.
+The crow's7,296contact transitions and generic MetalWorld regression pass.
+Original witness-reader and success-marker errors remain preserved beside
+explicit reanalyses without repeating native executions.
+
+A fresh unchanged fixed-rate20-update learner still rolls back after13updates,
+now at head-box/sphere pair100, lane26, local control5/substep14. No held-out
+trial runs; behavior is inconclusive and the complete runtime-repair prediction
+is contradicted. Git-restored checkpoint10 reproduces the exact failure,
+all41model/Adam arrays and three causal canonical outputs. A fourth output,
+the process-local incumbent, differs exactly as worker initialization requires;
+original bytes are separately recovered, and the original strict failed
+verification is retained. Evidence and scoped recovery receipts are in
+`artifacts/crow-rl-ccd-sphere-box-20261108`. Native advancement/event diagnosis
+continues before learning-rate tuning or further behavioral qualification.

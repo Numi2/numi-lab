@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-ccd-sphere-box-20261108/verify_failure_recovery.py", line 120, in <module>
+    if a.file_hash(path)!=record['sha256']:raise RuntimeError('Partial canonical artifact differs: '+name)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Partial canonical artifact differs: incumbent.policypack

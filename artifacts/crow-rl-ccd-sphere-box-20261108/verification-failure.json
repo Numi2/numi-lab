@@ -1,0 +1,4 @@
+{
+  "error": "Partial canonical artifact differs: incumbent.policypack",
+  "type": "RuntimeError"
+}
