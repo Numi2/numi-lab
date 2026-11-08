@@ -1,0 +1,2 @@
+pack_valid=1
+guide failure fixed_root: fixed-root tasks contain an operator that requires floating-root semantics

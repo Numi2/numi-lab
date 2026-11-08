@@ -1,0 +1,6 @@
+pack_valid=1
+guide_schedule=194 reset_schedule=130
+guide_task=e14b692a5d835d50 reset_task=ad5792bb0cdec510
+world_equal=1 obs_equal=1 action_equal=1
+strict=3 variant=0 wrong_source=3
+stale_task=94d9fe4a70d7c642 stale_admission=3 changed_action=1 changed_admission=3
