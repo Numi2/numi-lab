@@ -1,0 +1,110 @@
+[
+  {
+    "object": "21a6f4aa42f2467bfa6b79204d0630d0a8619b4f",
+    "ref": "refs/heads/codex/benchmark-accounting-20261107",
+    "commit": "000572d499cbd5ac46d0fd085476685fb1e25e5e",
+    "path": "tools/evidence/human-rejection-recovery125-20261103/active-cavity-contact-20261103/cooperative-cavity-capture-066/execution-source-snapshots.tar.gz",
+    "ls_tree": "120000 blob 21a6f4aa42f2467bfa6b79204d0630d0a8619b4f\ttools/evidence/human-rejection-recovery125-20261103/active-cavity-contact-20261103/cooperative-cavity-capture-066/execution-source-snapshots.tar.gz",
+    "target": "../source-snapshots/c5f026dcc747d5b1fa43bcf3a122ce0a3ea03e0bd3cd07438cccfb658a69e7c9.tar.gz",
+    "resolved": "tools/evidence/human-rejection-recovery125-20261103/active-cavity-contact-20261103/source-snapshots/c5f026dcc747d5b1fa43bcf3a122ce0a3ea03e0bd3cd07438cccfb658a69e7c9.tar.gz",
+    "target_ls_tree": "100644 blob 4965e42a5014cafac1c9c4d288f3af4188558c56\ttools/evidence/human-rejection-recovery125-20261103/active-cavity-contact-20261103/source-snapshots/c5f026dcc747d5b1fa43bcf3a122ce0a3ea03e0bd3cd07438cccfb658a69e7c9.tar.gz",
+    "target_in_inventory": true,
+    "target_scan_complete": true
+  },
+  {
+    "object": "3b780f73f69d3a8daaafb1c68a31be4bed9b5c35",
+    "ref": "refs/heads/codex/benchmark-accounting-20261107",
+    "commit": "000572d499cbd5ac46d0fd085476685fb1e25e5e",
+    "path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/active-final-combined-057/execution-source-snapshots.tar.gz",
+    "ls_tree": "120000 blob 3b780f73f69d3a8daaafb1c68a31be4bed9b5c35\ttools/evidence/human-rejection-recovery125-20261103/solver-finalization/active-final-combined-057/execution-source-snapshots.tar.gz",
+    "target": "../source-snapshots/e101b1d2c3afd41f9d7af9ef6ae289aa2bdccaa9e4aeaa2ce8fb98b239a85433.tar.gz",
+    "resolved": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/source-snapshots/e101b1d2c3afd41f9d7af9ef6ae289aa2bdccaa9e4aeaa2ce8fb98b239a85433.tar.gz",
+    "target_ls_tree": "100644 blob 9ed7c37cb75eb89fd0c58c8f3a385afeab5f1f69\ttools/evidence/human-rejection-recovery125-20261103/solver-finalization/source-snapshots/e101b1d2c3afd41f9d7af9ef6ae289aa2bdccaa9e4aeaa2ce8fb98b239a85433.tar.gz",
+    "target_in_inventory": true,
+    "target_scan_complete": true
+  },
+  {
+    "object": "3ebb06a2f6f273637091241b716ba97a63903d07",
+    "ref": "refs/heads/codex/benchmark-accounting-20261107",
+    "commit": "000572d499cbd5ac46d0fd085476685fb1e25e5e",
+    "path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/split-contact-combined-055/execution-source-snapshots.tar.gz",
+    "ls_tree": "120000 blob 3ebb06a2f6f273637091241b716ba97a63903d07\ttools/evidence/human-rejection-recovery125-20261103/solver-finalization/split-contact-combined-055/execution-source-snapshots.tar.gz",
+    "target": "../source-snapshots/552a87f36a82149abb8c9f2e6046d496a34169b08d0a3fcbf406bda847b988a6.tar.gz",
+    "resolved": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/source-snapshots/552a87f36a82149abb8c9f2e6046d496a34169b08d0a3fcbf406bda847b988a6.tar.gz",
+    "target_ls_tree": "100644 blob ea4d25d3a0376ae69abb97a9d22a67247d4e38b8\ttools/evidence/human-rejection-recovery125-20261103/solver-finalization/source-snapshots/552a87f36a82149abb8c9f2e6046d496a34169b08d0a3fcbf406bda847b988a6.tar.gz",
+    "target_in_inventory": true,
+    "target_scan_complete": true
+  },
+  {
+    "object": "5f319c1b1059d858676332995ca0bdc66d041054",
+    "ref": "refs/heads/codex/benchmark-accounting-20261107",
+    "commit": "000572d499cbd5ac46d0fd085476685fb1e25e5e",
+    "path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/active-linear-certificate-profile-045/execution-source-snapshots.tar.gz",
+    "ls_tree": "120000 blob 5f319c1b1059d858676332995ca0bdc66d041054\ttools/evidence/human-rejection-recovery125-20261103/solver-finalization/active-linear-certificate-profile-045/execution-source-snapshots.tar.gz",
+    "target": "../source-snapshots/22ae4018093dd5afd8e26a61c54a65a4073fededf3d10e5b0e01ed2a177f6111.tar.gz",
+    "resolved": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/source-snapshots/22ae4018093dd5afd8e26a61c54a65a4073fededf3d10e5b0e01ed2a177f6111.tar.gz",
+    "target_ls_tree": "100644 blob ccb9291654d0892e7a9d03aa0aadf1a92bbc4072\ttools/evidence/human-rejection-recovery125-20261103/solver-finalization/source-snapshots/22ae4018093dd5afd8e26a61c54a65a4073fededf3d10e5b0e01ed2a177f6111.tar.gz",
+    "target_in_inventory": true,
+    "target_scan_complete": true
+  },
+  {
+    "object": "6316e1305991bbe83eceb65dfe4111154cc9b624",
+    "ref": "refs/heads/codex/benchmark-accounting-20261107",
+    "commit": "000572d499cbd5ac46d0fd085476685fb1e25e5e",
+    "path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/completed-linear-builders-063/execution-source-snapshots.tar.gz",
+    "ls_tree": "120000 blob 6316e1305991bbe83eceb65dfe4111154cc9b624\ttools/evidence/human-rejection-recovery125-20261103/solver-finalization/completed-linear-builders-063/execution-source-snapshots.tar.gz",
+    "target": "../source-snapshots/1383efb939059d0fb364d2ca6fa73d8241cf87792571d29a094ef8b845694612.tar.gz",
+    "resolved": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/source-snapshots/1383efb939059d0fb364d2ca6fa73d8241cf87792571d29a094ef8b845694612.tar.gz",
+    "target_ls_tree": "100644 blob 6667a70fb07b030176d0ded1412759d32b51eea0\ttools/evidence/human-rejection-recovery125-20261103/solver-finalization/source-snapshots/1383efb939059d0fb364d2ca6fa73d8241cf87792571d29a094ef8b845694612.tar.gz",
+    "target_in_inventory": true,
+    "target_scan_complete": true
+  },
+  {
+    "object": "81455e82f3603e3d915295bd6360812f20dc62cf",
+    "ref": "refs/heads/codex/benchmark-accounting-20261107",
+    "commit": "000572d499cbd5ac46d0fd085476685fb1e25e5e",
+    "path": "tools/evidence/human-rejection-recovery125-20261103/active-cavity-contact-20261103/completed-incidence-capture-067/execution-source-snapshots.tar.gz",
+    "ls_tree": "120000 blob 81455e82f3603e3d915295bd6360812f20dc62cf\ttools/evidence/human-rejection-recovery125-20261103/active-cavity-contact-20261103/completed-incidence-capture-067/execution-source-snapshots.tar.gz",
+    "target": "../source-snapshots/4bba1b00bb7821f35cbe0e6ebfd38a4d7d929bf37247331f6f4dad5076c3a8d7.tar.gz",
+    "resolved": "tools/evidence/human-rejection-recovery125-20261103/active-cavity-contact-20261103/source-snapshots/4bba1b00bb7821f35cbe0e6ebfd38a4d7d929bf37247331f6f4dad5076c3a8d7.tar.gz",
+    "target_ls_tree": "100644 blob 7eeca0d9d03ae4fe785fe33098875fe57db537b9\ttools/evidence/human-rejection-recovery125-20261103/active-cavity-contact-20261103/source-snapshots/4bba1b00bb7821f35cbe0e6ebfd38a4d7d929bf37247331f6f4dad5076c3a8d7.tar.gz",
+    "target_in_inventory": true,
+    "target_scan_complete": true
+  },
+  {
+    "object": "90b8a43501d67501440a3342e74efdaf29178c71",
+    "ref": "refs/heads/codex/benchmark-accounting-20261107",
+    "commit": "000572d499cbd5ac46d0fd085476685fb1e25e5e",
+    "path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/final-combined-uninstrumented-061/execution-source-snapshots.tar.gz",
+    "ls_tree": "120000 blob 90b8a43501d67501440a3342e74efdaf29178c71\ttools/evidence/human-rejection-recovery125-20261103/solver-finalization/final-combined-uninstrumented-061/execution-source-snapshots.tar.gz",
+    "target": "../source-snapshots/3bcdca7524a37101dcfb5fbc8b752a7ceff5c7f4f4c9e60ee348ee3f39fed2e1.tar.gz",
+    "resolved": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/source-snapshots/3bcdca7524a37101dcfb5fbc8b752a7ceff5c7f4f4c9e60ee348ee3f39fed2e1.tar.gz",
+    "target_ls_tree": "100644 blob 90bd34db97549aae536b8870ab6c03ca20138918\ttools/evidence/human-rejection-recovery125-20261103/solver-finalization/source-snapshots/3bcdca7524a37101dcfb5fbc8b752a7ceff5c7f4f4c9e60ee348ee3f39fed2e1.tar.gz",
+    "target_in_inventory": true,
+    "target_scan_complete": true
+  },
+  {
+    "object": "d3bbf04094d93bd010a1df13f6f251a8aa00c626",
+    "ref": "refs/heads/codex/benchmark-accounting-20261107",
+    "commit": "000572d499cbd5ac46d0fd085476685fb1e25e5e",
+    "path": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/shared-contact-combined-050/execution-source-snapshots.tar.gz",
+    "ls_tree": "120000 blob d3bbf04094d93bd010a1df13f6f251a8aa00c626\ttools/evidence/human-rejection-recovery125-20261103/solver-finalization/shared-contact-combined-050/execution-source-snapshots.tar.gz",
+    "target": "../source-snapshots/e7af71fb3d3fa005c8f75b4480f1905b730436c94a6575bdda15ed13c5eeca50.tar.gz",
+    "resolved": "tools/evidence/human-rejection-recovery125-20261103/solver-finalization/source-snapshots/e7af71fb3d3fa005c8f75b4480f1905b730436c94a6575bdda15ed13c5eeca50.tar.gz",
+    "target_ls_tree": "100644 blob 4b632854ab9545dc380caeeb1ec809a8d4f1f91d\ttools/evidence/human-rejection-recovery125-20261103/solver-finalization/source-snapshots/e7af71fb3d3fa005c8f75b4480f1905b730436c94a6575bdda15ed13c5eeca50.tar.gz",
+    "target_in_inventory": true,
+    "target_scan_complete": true
+  },
+  {
+    "object": "ef4e126811386c0a712f19e92c2532b720186793",
+    "ref": "refs/heads/codex/benchmark-accounting-20261107",
+    "commit": "000572d499cbd5ac46d0fd085476685fb1e25e5e",
+    "path": "tools/evidence/human-rejection-recovery125-20261103/active-cavity-contact-20261103/final-combined-capture-068-retry1/execution-source-snapshots.tar.gz",
+    "ls_tree": "120000 blob ef4e126811386c0a712f19e92c2532b720186793\ttools/evidence/human-rejection-recovery125-20261103/active-cavity-contact-20261103/final-combined-capture-068-retry1/execution-source-snapshots.tar.gz",
+    "target": "../source-snapshots/13a19de36d7423d9c783e7d5c6c39815c201d08a391d1482e7c70f6a8cccfe53.tar.gz",
+    "resolved": "tools/evidence/human-rejection-recovery125-20261103/active-cavity-contact-20261103/source-snapshots/13a19de36d7423d9c783e7d5c6c39815c201d08a391d1482e7c70f6a8cccfe53.tar.gz",
+    "target_ls_tree": "100644 blob 55add899b95c6fa10dbab7d627364e6a0afc9658\ttools/evidence/human-rejection-recovery125-20261103/active-cavity-contact-20261103/source-snapshots/13a19de36d7423d9c783e7d5c6c39815c201d08a391d1482e7c70f6a8cccfe53.tar.gz",
+    "target_in_inventory": true,
+    "target_scan_complete": true
+  }
+]
