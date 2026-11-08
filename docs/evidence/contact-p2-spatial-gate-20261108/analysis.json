@@ -1,0 +1,39 @@
+{
+  "peak_N": 0.09061396501283041,
+  "impulse_Ns": 0.0004110330627858778,
+  "temporal_force_relative": 7.361460789543066e-09,
+  "temporal_impulse_relative": 1.4791603861632532e-09,
+  "temporal_work_relative": 9.254912365168687e-10,
+  "runs": {
+    "coarse": {
+      "shape_pass": true,
+      "min_sampled_gap_m": 9.452159317596562e-05,
+      "min_sampled_J": 0.9661490455278655,
+      "duffy_relative": 7.972188292258546e-11,
+      "order18_relative": 2.707960024330714e-08,
+      "momentum_relative": 7.972597250758261e-14,
+      "energy_relative": 2.872001658638153e-09,
+      "work_balance_relative": 8.586092815748246e-07,
+      "local_mass_solve_relative": 9.584812222559024e-15,
+      "pass": true
+    },
+    "fine": {
+      "shape_pass": true,
+      "min_sampled_gap_m": 9.452159170664382e-05,
+      "min_sampled_J": 0.9661490426253394,
+      "duffy_relative": 7.972004508827736e-11,
+      "order18_relative": 2.7079829206831357e-08,
+      "momentum_relative": 7.801967843096251e-14,
+      "energy_relative": 1.845850037637826e-09,
+      "work_balance_relative": 5.591377071525576e-07,
+      "local_mass_solve_relative": 8.464339970615176e-15,
+      "pass": true
+    }
+  },
+  "numerical_prerequisite_pass": true,
+  "n8_to_n16_spatial": {
+    "force_bin_relative": 0.04908542276465832,
+    "impulse_relative": 0.006694899700922675,
+    "pass": false
+  }
+}
