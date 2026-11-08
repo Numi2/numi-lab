@@ -1,0 +1,3 @@
+[0/2] Re-checking globbed directories...
+[1/3] Building OBJCXX object CMakeFiles/metalrobo_contact_gpu_probe.dir/apps/contact_gpu_probe.mm.o
+[2/3] Linking OBJCXX executable bin/metalrobo_contact_gpu_probe

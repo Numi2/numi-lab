@@ -1,0 +1,1 @@
+device="Apple M6" bodies=3 contacts=2 iterations=48 max_linear_error=7.450581e-08 max_angular_error=1.192093e-07 max_impulse_error=2.980232e-08 max_cone_violation=0.000000e+00 momentum_xy_error=2.215217e-07 friction_impulse=5.143816e-01 tangent_contract=yes arithmetic_rollback=yes status=ok

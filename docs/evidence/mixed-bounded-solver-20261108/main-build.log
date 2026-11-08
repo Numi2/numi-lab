@@ -1,0 +1,57 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.5s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/numi/numi-tracker-step-rollback-build-20261108
+[0/4] Re-checking globbed directories...
+[1/24] Generating shaders/MetalRoboHyperPolicy.metallib
+[2/24] Building CXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[3/24] Generating shaders/MetalRobo.metallib
+/Users/numi/numi-lab-tracker-step-rollback-20261108/src/metal/NumiHumanStand.metal:2696:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns = (equalityColumnsEnd + nv) * nv;
+               ^
+/Users/numi/numi-lab-tracker-step-rollback-20261108/src/metal/NumiHumanStand.metal:2811:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns =
+               ^
+2 warnings generated.
+/Users/numi/numi-lab-tracker-step-rollback-20261108/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/numi/numi-lab-tracker-step-rollback-20261108/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+In file included from /Users/numi/numi-lab-tracker-step-rollback-20261108/src/metal/MujocoMuscleReferenceCompensated.metal:4:
+/Users/numi/numi-lab-tracker-step-rollback-20261108/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/numi/numi-lab-tracker-step-rollback-20261108/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+[4/24] Building CXX object CMakeFiles/metalrobo.dir/src/core/FrankaWorld.cpp.o
+[5/24] Building CXX object CMakeFiles/metalrobo.dir/src/core/RunProgram.cpp.o
+[6/24] Building CXX object CMakeFiles/metalrobo.dir/src/core/VisualPlatform.cpp.o
+[7/24] Building CXX object CMakeFiles/metalrobo.dir/src/core/LocomotionWorld.cpp.o
+[8/24] Building CXX object CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o
+[9/24] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanMuscleEquilibrium.cpp.o
+[10/24] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o
+[11/24] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o
+/Users/numi/numi-lab-tracker-step-rollback-20261108/src/metal/MetalArticulatedOperator.mm:4944:29: warning: 'fastMathEnabled' is deprecated: first deprecated in macOS 15.0 - Use mathMode instead [-Wdeprecated-declarations]
+ 4944 |         standCompileOptions.fastMathEnabled = NO;
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework/Headers/MTLLibrary.h:326:39: note: 'fastMathEnabled' has been explicitly marked deprecated here
+  326 | @property (readwrite, nonatomic) BOOL fastMathEnabled API_DEPRECATED("Use mathMode instead", macos(10.11, 15.0), ios(8.0, 18.0));
+      |                                       ^
+1 warning generated.
+[12/24] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHyperPolicy.mm.o
+[13/24] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o
+[14/24] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalRunInspector.mm.o
+[15/24] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o
+[16/24] Building OBJCXX object CMakeFiles/wave32-status-reduction-test.dir/tests/wave32_status_reduction.mm.o
+[17/24] Building OBJCXX object CMakeFiles/metalrobo_contact_gpu_probe.dir/apps/contact_gpu_probe.mm.o
+[18/24] Linking OBJCXX executable wave32-status-reduction-test
+[19/24] Building CXX object CMakeFiles/metalrobo.dir/src/c_api.cpp.o
+[20/24] Linking CXX shared library lib/libmetalrobo.dylib
+[21/24] Linking OBJCXX executable bin/metalrobo_contact_gpu_probe

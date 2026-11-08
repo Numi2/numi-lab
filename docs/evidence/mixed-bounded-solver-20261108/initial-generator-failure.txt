@@ -1,0 +1,5 @@
+The first invocation of make_candidate.py failed before writing a candidate:
+  AssertionError: 2 at the uniqueness check for the solver-iteration block.
+Two functions contained the same block. The generator was corrected to restrict
+its edits to mrWorldWave32SolvePacket; no native test used the failed source.
+This note transcribes the observed tool output, rather than a captured log file.

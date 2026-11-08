@@ -1,0 +1,23 @@
+{
+  "cases": 60,
+  "bad_count": 0,
+  "bad": [],
+  "counts": {
+    "rejected_cap2": 50,
+    "sweeps_16": 10,
+    "sweeps_24": 1,
+    "sweeps_5": 9,
+    "sweeps_12": 1,
+    "sweeps_8": 2,
+    "sweeps_19": 2,
+    "accepted_cap2": 10,
+    "sweeps_2": 5,
+    "sweeps_64": 30
+  },
+  "max_early_vs_64_generalized_velocity_m_s": 0.0016678068790000004,
+  "max_early_vs_64_rod_velocity_m_s": 0.0025258026999999995,
+  "max_early_vs_64_row_impulse_Ns": 0.0016691680000000542,
+  "max_sliding_angle_rad": 0.00836709115087498,
+  "max_positive_final_tangent_work_J": 1.940811765819935e-30,
+  "max_independent_sphere_velocity_error_m_s": 2.7736268837230682e-08
+}
