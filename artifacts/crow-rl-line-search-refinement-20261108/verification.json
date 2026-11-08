@@ -1,0 +1,41 @@
+{
+  "archive_checks_passed": true,
+  "coupled_observations": {
+    "api_default_complete_640_twice": true,
+    "api_default_penetration_max_m": 1.63651669708e-05,
+    "repeated_api_physical_outputs_exact": true
+  },
+  "coupled_physical_predictions_supported": true,
+  "default_crow_physical_files_exact": 10,
+  "duplicate_checkout_bytes_omitted": 8356174,
+  "duplicate_checkout_files_omitted": 132,
+  "free_gib": 149.70207595825195,
+  "goal_complete": false,
+  "lifelong_environment_qualified": false,
+  "motor_physical_records_exact": 624,
+  "native_recovery_commands": 16,
+  "new_compressed_bytes": 7996229,
+  "observer_does_not_change_archived_physical_outputs": true,
+  "performance_qualified": false,
+  "physical_and_numerical_files_exact": 71,
+  "policy_or_profile_promoted": false,
+  "production_patch_paths": [
+    "docs/NUMERICS.md",
+    "src/metal/MetalUnifiedQualitySolver.metal",
+    "src/metal/QualityFailureCapture.inc"
+  ],
+  "production_source_and_runtime_match_observed_candidate": true,
+  "protected_policy_unchanged": true,
+  "raw_bytes_archived": 30187560,
+  "raw_files_verified_absent": 398,
+  "remote_commit": "6e6b3582886cc82f6ca6381a77020b0b6d4f82b8",
+  "retained_component_predictions_supported": true,
+  "schema": "crow-line-search-final-verification-v1",
+  "shared_git_provider": "/Users/n/MetalRobo-main/.git",
+  "shared_git_provider_protected": true,
+  "temporary_bytes_removed": 69110696,
+  "temporary_files_git_verified_absent": 594,
+  "unique_retained_operator_audits": 6,
+  "unused_row_impulse_audit_passed": true,
+  "verified_commit": "6e6b3582886cc82f6ca6381a77020b0b6d4f82b8"
+}
