@@ -1,0 +1,121 @@
+{
+  "files": [
+    {
+      "path": "/private/tmp/crow-ccd-event-status-archive.stdout",
+      "archive_path": "artifacts/crow-rl-git-recovery-ccd-event-20261108/wrapper-logs/crow-ccd-event-status-archive.stdout",
+      "sha256": "cf70083585c89e35af7124aaf273e13aa87edd8ba2dec769866e7912fa233e8b",
+      "bytes": 444,
+      "mode": 420,
+      "mtime_ns": 1794122315057859029
+    },
+    {
+      "path": "/private/tmp/crow-ccd-event-status-omit.stdout",
+      "archive_path": "artifacts/crow-rl-git-recovery-ccd-event-20261108/wrapper-logs/crow-ccd-event-status-omit.stdout",
+      "sha256": "40a3343b95101d917b9228aa11137ad7fa5bb0f542768143e5735a37ed5b64a4",
+      "bytes": 135,
+      "mode": 420,
+      "mtime_ns": 1794122612403872955
+    },
+    {
+      "path": "/private/tmp/crow-ccd-event-status-prepare.stdout",
+      "archive_path": "artifacts/crow-rl-git-recovery-ccd-event-20261108/wrapper-logs/crow-ccd-event-status-prepare.stdout",
+      "sha256": "5e47c474072f28400fa0dc28c32fca2841f099009d000cc38f3c52ded9c85c24",
+      "bytes": 8858,
+      "mode": 420,
+      "mtime_ns": 1794122055767917445
+    },
+    {
+      "path": "/private/tmp/crow-ccd-event-status-prune.stdout",
+      "archive_path": "artifacts/crow-rl-git-recovery-ccd-event-20261108/wrapper-logs/crow-ccd-event-status-prune.stdout",
+      "sha256": "3584558fb8f30601b477921c511cba8d28de725a5cfb80489070ef3d69bc2289",
+      "bytes": 1296,
+      "mode": 420,
+      "mtime_ns": 1794122590268327823
+    },
+    {
+      "path": "/private/tmp/crow-ccd-event-status-recovery-v2.stdout",
+      "archive_path": "artifacts/crow-rl-git-recovery-ccd-event-20261108/wrapper-logs/crow-ccd-event-status-recovery-v2.stdout",
+      "sha256": "3a3d4da1bc0767a35cbcf18bcaeaab7e42a24a1ab851b76e2f24fb57cd78a0dc",
+      "bytes": 888,
+      "mode": 420,
+      "mtime_ns": 1794122516354537727
+    },
+    {
+      "path": "/private/tmp/crow-ccd-event-status-recovery.stdout",
+      "archive_path": "artifacts/crow-rl-git-recovery-ccd-event-20261108/wrapper-logs/crow-ccd-event-status-recovery.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794122380339268733
+    },
+    {
+      "path": "/private/tmp/crow-ccd-event-status-verify.stdout",
+      "archive_path": "artifacts/crow-rl-git-recovery-ccd-event-20261108/wrapper-logs/crow-ccd-event-status-verify.stdout",
+      "sha256": "f2f69b29decc9363496c57221dee1dd23479119213cb26624cab830e1badc794",
+      "bytes": 198,
+      "mode": 420,
+      "mtime_ns": 1794122380335395190
+    },
+    {
+      "path": "/private/tmp/crow-ccd-event-status-archive.stderr",
+      "archive_path": "artifacts/crow-rl-git-recovery-ccd-event-20261108/wrapper-logs/crow-ccd-event-status-archive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794122293695763493
+    },
+    {
+      "path": "/private/tmp/crow-ccd-event-status-omit.stderr",
+      "archive_path": "artifacts/crow-rl-git-recovery-ccd-event-20261108/wrapper-logs/crow-ccd-event-status-omit.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794122611560811548
+    },
+    {
+      "path": "/private/tmp/crow-ccd-event-status-prepare.stderr",
+      "archive_path": "artifacts/crow-rl-git-recovery-ccd-event-20261108/wrapper-logs/crow-ccd-event-status-prepare.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794122055715971603
+    },
+    {
+      "path": "/private/tmp/crow-ccd-event-status-prune.stderr",
+      "archive_path": "artifacts/crow-rl-git-recovery-ccd-event-20261108/wrapper-logs/crow-ccd-event-status-prune.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794122589357453268
+    },
+    {
+      "path": "/private/tmp/crow-ccd-event-status-recovery-v2.stderr",
+      "archive_path": "artifacts/crow-rl-git-recovery-ccd-event-20261108/wrapper-logs/crow-ccd-event-status-recovery-v2.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794122507836196616
+    },
+    {
+      "path": "/private/tmp/crow-ccd-event-status-recovery.stderr",
+      "archive_path": "artifacts/crow-rl-git-recovery-ccd-event-20261108/wrapper-logs/crow-ccd-event-status-recovery.stderr",
+      "sha256": "e4164c23a947e8828f4283ccf94298be35107b7ffc4ae486fbcb2620f6a86cde",
+      "bytes": 699,
+      "mode": 420,
+      "mtime_ns": 1794122386364576995
+    },
+    {
+      "path": "/private/tmp/crow-ccd-event-status-verify.stderr",
+      "archive_path": "artifacts/crow-rl-git-recovery-ccd-event-20261108/wrapper-logs/crow-ccd-event-status-verify.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794122380128807429
+    }
+  ],
+  "removed_bytes": 12518,
+  "actual_git_byte_verification": true,
+  "open_handles": 0,
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300200468 157148672    66% 3497076 1571486720    0%   /System/Volumes/Data\n",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300200452 157148688    66% 3497062 1571486880    0%   /System/Volumes/Data\n"
+}
