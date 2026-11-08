@@ -1,0 +1,29 @@
+Test project /Users/numi/numi-matter-midpoint-reference-build-20261108
+      Start  1: numi.contact.plane_area
+ 1/12 Test  #1: numi.contact.plane_area ....................   Passed    0.00 sec
+      Start  2: numi.contact.fem_fp64_energy_gradient
+ 2/12 Test  #2: numi.contact.fem_fp64_energy_gradient ......   Passed    0.00 sec
+      Start  3: numi.contact.fem_fp64_midpoint_discrete
+ 3/12 Test  #3: numi.contact.fem_fp64_midpoint_discrete ....   Passed    0.01 sec
+      Start  4: numi.contact.midpoint_balance
+ 4/12 Test  #4: numi.contact.midpoint_balance ..............   Passed    0.00 sec
+      Start  5: numi.contact.midpoint_endpoint_metal
+ 5/12 Test  #5: numi.contact.midpoint_endpoint_metal .......   Passed    0.02 sec
+      Start  6: numi.contact.midpoint_transaction
+ 6/12 Test  #6: numi.contact.midpoint_transaction ..........   Passed    0.00 sec
+      Start  7: numi.contact.fem_fp64_midpoint_reference
+ 7/12 Test  #7: numi.contact.fem_fp64_midpoint_reference ...   Passed    0.16 sec
+      Start  8: numi.contact.physical_policy
+ 8/12 Test  #8: numi.contact.physical_policy ...............   Passed    0.01 sec
+      Start  9: numi.contact.residual_restore
+ 9/12 Test  #9: numi.contact.residual_restore ..............   Passed   16.18 sec
+      Start 10: numi.contact.midpoint_native_transaction
+10/12 Test #10: numi.contact.midpoint_native_transaction ...   Passed    1.82 sec
+      Start 11: numi.contact.midpoint_dynamic_guard
+11/12 Test #11: numi.contact.midpoint_dynamic_guard ........   Passed    0.09 sec
+      Start 12: numi.contact.midpoint_retry_order
+12/12 Test #12: numi.contact.midpoint_retry_order ..........   Passed    0.21 sec
+
+100% tests passed out of 12
+
+Total Test time (real) =  18.51 sec

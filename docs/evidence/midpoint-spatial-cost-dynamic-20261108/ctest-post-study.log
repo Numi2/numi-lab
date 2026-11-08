@@ -1,0 +1,15 @@
+Test project /Users/numi/numi-matter-midpoint-reference-build-20261108
+    Start  1: numi.contact.plane_area
+1/5 Test  #1: numi.contact.plane_area ....................   Passed    0.02 sec
+    Start  2: numi.contact.fem_fp64_energy_gradient
+2/5 Test  #2: numi.contact.fem_fp64_energy_gradient ......   Passed    0.00 sec
+    Start 10: numi.contact.midpoint_native_transaction
+3/5 Test #10: numi.contact.midpoint_native_transaction ...   Passed    1.81 sec
+    Start 11: numi.contact.midpoint_dynamic_guard
+4/5 Test #11: numi.contact.midpoint_dynamic_guard ........   Passed    0.08 sec
+    Start 12: numi.contact.midpoint_retry_order
+5/5 Test #12: numi.contact.midpoint_retry_order ..........   Passed    0.20 sec
+
+100% tests passed out of 5
+
+Total Test time (real) =   2.11 sec

@@ -31,7 +31,7 @@ for n in (2, 4, 8):
                 last = trace['traces'][-1]
                 attempt.update({'failure_status': last['status'],
                     'failure_outer_status': last['outer_status'],
-                    'failure_gap_m': last['gap'], 'failure_contacts': last['contacts'],
+                    'restored_state_gap_m': last['gap'], 'failure_diagnostic_sample_contacts': last['contacts'],
                     'failure_diagnostics': last['status_values']})
             attempts.append(attempt)
         summary[f'n{n}-{arm}'] = {

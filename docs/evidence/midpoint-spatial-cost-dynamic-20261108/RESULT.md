@@ -66,6 +66,8 @@ At 8 divisions backward Euler also found no qualifying step: the 31.25 us rollou
 
 ## Transactions and dynamic owner
 
+The contact test suite passed 12/12 after the study, including the native midpoint, fixed-plane area, retry-order and dynamic-guard tests; see [ctest-all.log](ctest-all.log). These tests do not replace the failed spatial and timestep gates.
+
 For the fixed-plane transaction, a native regression changed the previous
 failure's diagnostic index from 0 to 32 and changed its diagnostic value.
 Both subsequent contacting steps were accepted and produced byte-identical
