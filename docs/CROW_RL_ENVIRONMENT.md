@@ -70,11 +70,56 @@ crow regressions pass with the changed shader.
 The final ordinary two-update8-lane160-tick learner admits2560 samples and emits
 final per-factor KL, joint clip scaling and actual actor Adam displacement.
 No adaptive learning-rate trial or learned manipulation result is selected.
-Whole-life v14 learner/physical checkpoint integration, calibrated solid-food
-pickup/carrying, broader layouts and social learning remain pending. Exact
+Whole-life v14 learner/physical checkpoint integration now passes the bounded
+continuation checks below. Calibrated solid-food pickup/carrying, learned
+manipulation, broader layouts and social learning remain pending. Exact
 runtime, every failed attempt and Git recovery are archived under
 `artifacts/crow-rl-object-push-20261108`. See its report for measured throughput
 and memory; bounded trials do not qualify sustained production performance.
+
+## Coupled object-manipulation life continuation (8 November 2026)
+
+Ordinary v14 Swift rollout and recurrent MLX training now save and restore the
+complete resource-free physical life. Native world/contact/object/RNG/GRU,
+pending/visible retina, next policy, model and Adam state remain coupled. The
+existing `NUMILF01` envelope retains its three component slots, with a required
+empty resource blob for v14. Existing v13 food state remains required. A common
+publication-only lifetime-clock API verifies accepted scheduler accounting;
+resource-free v14 uses the accepted native submission stream, while v13 also
+checks its device resource clock. It adds no per-step readback or host physics.
+
+`tools/numi crow-env object-push-life-admission --output NEW_DIRECTORY` checks
+three uninterrupted47-tick updates against one plus two resumed updates at
+chunks1/8. All five shared boundaries match all41 model/Adam tensors/metadata,
+policy/candidate/rollout bytes and native physical/GRU/retinal components. A
+scripted recurrent fixed-policy160-tick run matches fresh113-tick futures from
+tick47 byte for byte, with zero physics errors and no restore warmup. The object
+moves0.274m in this engineering control; it is not a learned result. Six malformed
+or mismatched restores reject before a new life checkpoint can publish. The
+existing16-lane feeding training probe also passes all original comparisons,
+accepted clocks, food conservation and nine rejection controls.
+
+Use `--checkpoint-life --checkpoint-interval 1 --checkpoint-directory NEW_DIR`
+with ordinary training and `--resume-training-checkpoint COMMITTED_DIR` for a
+fresh process. Keep the exact runtime, sensor and learner recipe; chunk size may
+change. Fixed-policy rollout accepts `--save-life-checkpoint NEW_FILE` and
+`--resume-life-checkpoint FILE`, an exact policy, no scheduled resets and one
+repeat. Accepted lifetime ticks are published explicitly in both CLI results.
+
+A128-lane two-update160-tick run with full life publication after each update
+accepts40960 samples at714.78 transitions/s in57.30s. The two publications take
+0.136s total; MLX peak is577401924B, with zero reported swap or physics errors.
+This is a bounded measurement, not sustained throughput or whole-system memory.
+Each checkpoint directory is131421528B, mostly the generating rollout. The
+380873227B raw performance evidence exceeded its200MiB estimate; the storage
+review records this explicitly. Git archival deduplicates repeated files before
+verified raw cleanup.
+
+All evidence, including the first verifier failure caused by interpreting flat
+feature storage as rows, is retained in `artifacts/crow-rl-object-life-20261108`.
+Corrected analysis reused command/hash-verified successful native runs. These
+checks establish same-device exact-runtime engineering persistence; persistent
+ecological needs, solid-food handling and social learning remain unqualified.
 
 ## Current native history contract (8 November 2026)
 

@@ -1212,6 +1212,7 @@ def main() -> int:
     commands.add_parser("action-holds-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("temporal-history-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("object-push-admission").add_argument("--output", type=Path, required=True)
+    commands.add_parser("object-push-life-admission").add_argument("--output", type=Path, required=True)
     commands.add_parser("prepare-object-push").add_argument("--output", type=Path, required=True)
     causal = commands.add_parser("memory-causal-admission")
     causal.add_argument("--output", type=Path, required=True)
@@ -1570,6 +1571,9 @@ def main() -> int:
                 str(output / "environment")], root, 60)
             if result.get("status") != "passed" or result.get("simulation_steps") != 0 or result.get("actor_features") != 1247 or result.get("critic_features") != 100:
                 raise RuntimeError("Native object-push environment authoring failed")
+        elif args.command == "object-push-life-admission":
+            from .crow_object_life import run
+            result = run(root, output, runtime(root))
         elif args.command == "object-push-admission":
             execute(output, "object-push", [str(runtime(root)["object_push_check"]),
                 str(output / "native-evidence")], root, 600, json_output=False)

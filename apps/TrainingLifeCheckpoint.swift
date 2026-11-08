@@ -112,7 +112,7 @@ struct MetalRoboTrainingLifeCheckpoint: Codable {
         try context.saveLifeCheckpoint(to: directory.appendingPathComponent("life.native"))
         var files: [String: FileRecord] = [:]
         for name in filenames { files[name] = try hash(directory.appendingPathComponent(name)) }
-        let ticks = try context.finiteResourceAccounting().map { $0.accepted_control_ticks }
+        let ticks = try context.acceptedLifetimeControlTicks()
         let result = Self(schema: "numi.training-life-checkpoint.v1", policyRevision: policyRevision,
                           completedUpdates: completedUpdates, acceptedControlTicks: ticks,
                           trainingContract: trainingContract, learnerExecutionIdentity: learnerExecutionIdentity,

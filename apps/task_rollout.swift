@@ -778,11 +778,11 @@ private struct Options {
         }
         if resumeLifeCheckpoint != nil || saveLifeCheckpoint != nil {
             guard birdFlowAmericanCrowJourney,
-                  birdFlowJourneyVariant == .v13RetinalFeeding,
+                  (birdFlowJourneyVariant == .v13RetinalFeeding || birdFlowJourneyVariant == .v14ObjectPush),
                   policyPack != nil, !scheduledResets, repeats == 1
             else {
                 throw MetalRoboTaskRolloutError.invalidShape(
-                    "Life checkpoints require v13, an explicit --policy-pack, --no-scheduled-resets and --repeats 1."
+                    "Life checkpoints require v13/v14, an explicit --policy-pack, --no-scheduled-resets and --repeats 1."
                 )
             }
         }
@@ -4083,6 +4083,10 @@ private enum TaskRolloutMain {
             }
             if let path = options.saveLifeCheckpoint {
                 try context.saveLifeCheckpoint(to: URL(fileURLWithPath: path))
+            }
+            if options.birdFlowAmericanCrowJourney &&
+               (options.birdFlowJourneyVariant == .v13RetinalFeeding || options.birdFlowJourneyVariant == .v14ObjectPush) {
+                output["accepted_lifetime_control_ticks_by_environment"] = try context.acceptedLifetimeControlTicks()
             }
             output["life_checkpoint_restored"] = options.resumeLifeCheckpoint != nil
             output["life_checkpoint_saved"] = options.saveLifeCheckpoint ?? ""

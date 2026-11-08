@@ -719,7 +719,8 @@ MR_API MRTaskRolloutHandle* mr_create_task_rollout_cued_memory_foraging_holds(
 MR_API MRTaskRolloutHandle* mr_create_task_rollout(
     const MRRunManifestC* manifest
 );
-// V13 native life state: world/contact/task/RNG history, retinal queue, food.
+// V13/v14 native life: world/contact/task/RNG/GRU, retinal queue, optional food.
+// Resource-free v14 retains the envelope with an explicitly empty food blob.
 // Caller must exclusively own the handle throughout save/restore.
 // Save requires a successful quiescent resident world and exact native policy.
 // Restore requires a fresh unadvanced handle with that same policy installed.
@@ -738,6 +739,15 @@ MR_API int mr_task_rollout_reset(
 MR_API int mr_task_rollout_evidence_telemetry(
     const MRTaskRolloutHandle* handle,
     MRTaskEvidenceTelemetryC* telemetry
+);
+// Accepted lifetime ticks, independent of episode resets. Supports native
+// finite-resource tasks and the resource-free retinal object-push task, after
+// a successful submission or atomic life restore. Rejected/unadvanced handles
+// fail without modifying output. This is publication-only evidence readback.
+MR_API int mr_task_rollout_copy_lifetime_ticks(
+    const MRTaskRolloutHandle* handle,
+    uint64_t* output,
+    size_t output_count
 );
 // Quiescent accepted resource ledger, one record per environment. This is
 // evidence readback only; no resource or physics state is changed. Calls on

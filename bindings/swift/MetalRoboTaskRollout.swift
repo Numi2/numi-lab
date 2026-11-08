@@ -1631,6 +1631,17 @@ public final class MetalRoboTaskRolloutContext: @unchecked Sendable {
 
     // One publication readback for conservation/behavior evidence. Never part
     // of policy inference or per-control-step observation construction.
+    public func acceptedLifetimeControlTicks() throws -> [UInt64] {
+        var ticks = [UInt64](repeating: 0, count: layout.environmentCount)
+        let status = ticks.withUnsafeMutableBufferPointer {
+            mr_task_rollout_copy_lifetime_ticks(handle, $0.baseAddress, $0.count)
+        }
+        guard status == 0 else {
+            throw MetalRoboTaskRolloutError.native(Self.lastError())
+        }
+        return ticks
+    }
+
     public func finiteResourceAccounting() throws -> [MRTaskResourceAccountingC] {
         var records = [MRTaskResourceAccountingC](repeating: MRTaskResourceAccountingC(),
                                                 count: layout.environmentCount)

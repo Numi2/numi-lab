@@ -81,7 +81,7 @@
     "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-partition-and-pending-frame-fresh-process-restore-controls-passed-including-live-head-renderer",
     "retinal_actor_contract": "native v131251actor/97critic/18actions; live pixel/contract controls;128-lane learning5203transitions/s at382185480B MLX peak; deterministic97 fixed-fixture feeding192/192; ecology and production scaling unqualified",
     "native_working_memory": "native recurrent actor, selected-factor rollout9/PPO and repaired ABI51..54;128-lane53-tensor and native future exact; causal fixed two-cue memory qualified for policies81/97; broader lifelong memory unqualified",
-    "physical_object_manipulation": "estimated native v14 RGB/proprioception object-push fixture; solved-contact/miss/reward/partition/future controls and ordinary recurrent learning passed; learned manipulation, broader geometry/materials and whole-life integration pending"
+    "physical_object_manipulation": "estimated native v14 RGB/proprioception object-push fixture; solved-contact/miss/reward/partition/future controls, ordinary recurrent learning and coupled physical/retinal/GRU/model/Adam life continuation passed; learned manipulation and broader geometry/materials pending"
   },
   "release_requirements": [
     "deterministic accepted-state execution across submission chunks",
@@ -706,7 +706,7 @@
     "maximum_32_64_substep_push_trajectory_difference_m": 0.0048624285551,
     "strict_monotonic_trajectory_convergence_qualified": false,
     "all_development_failures_preserved": true,
-    "coupled_life_learner_checkpoint_supported": false,
+    "coupled_life_learner_checkpoint_supported": true,
     "learned_manipulation_qualified": false,
     "material_calibration_qualified": false,
     "ecological_environment_qualified": false,
@@ -732,6 +732,48 @@
       "learner_metadata_files_exact": 3,
       "scientific_metrics_exact": true,
       "temporary_bytes_removed": 269199820
+    },
+    "coupled_life_continuation": {
+      "evidence": "artifacts/crow-rl-object-life-20261108",
+      "common_life_envelope": "NUMILF01 with required empty v14 resource component",
+      "optimizer_boundaries_compared": 5,
+      "model_Adam_tensors_per_boundary": 41,
+      "two_lane_updates": 3,
+      "ticks_per_update": 47,
+      "fixed_policy_split_tick": 47,
+      "fixed_policy_future_ticks": 113,
+      "fresh_resume_chunks": [
+        1,
+        8
+      ],
+      "physical_GRU_retinal_future_byte_exact": true,
+      "model_Adam_metadata_exact": true,
+      "native_lifetime_ticks_exact": true,
+      "malformed_restore_rejections": 6,
+      "v13_feeding_training_regression_passed": true,
+      "v13_rejection_controls": 9,
+      "first_verifier_failure_preserved": true,
+      "reanalysis_reused_successful_runs": true,
+      "scripted_controller": true,
+      "learned_manipulation_qualified": false,
+      "bounded_performance_with_life_checkpoints": {
+        "environments": 128,
+        "updates": 2,
+        "accepted_training_samples": 40960,
+        "end_to_end_transitions_per_second": 714.7814284314832,
+        "elapsed_seconds": 57.304230875,
+        "life_checkpoint_seconds": 0.1362115,
+        "life_checkpoint_count": 2,
+        "MLX_peak_memory_bytes": 577401924,
+        "MLX_peak_scope": "learner allocations, not whole-system memory",
+        "native_retained_buffer_bytes": 104109234,
+        "native_transient_private_bytes": 76476188,
+        "swap_used_bytes_before_and_after": 0,
+        "physics_rejections": 0,
+        "checkpoint_directory_bytes_each": 131421528,
+        "raw_evidence_estimate_exceeded": true,
+        "sustained_performance_qualified": false
+      }
     }
   }
 }

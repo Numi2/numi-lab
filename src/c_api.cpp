@@ -4077,12 +4077,13 @@ MRTaskRolloutHandle* mr_create_task_rollout_cued_memory_foraging_holds(const MRR
 namespace {
 std::uint64_t lifeCheckpointIdentity(const MRTaskRolloutHandle& h) {
     using namespace metalrobo;
-    checkpoint::require(h.visualRuntime && h.visualRuntime->retinal && h.resourceRuntime &&
+    const bool resourceFreeObject = !h.resourceRuntime && h.taskId=="american_crow_object_push_v14";
+    checkpoint::require(h.visualRuntime && h.visualRuntime->retinal && (h.resourceRuntime || resourceFreeObject) &&
         MR_TASK_PROGRAM_HAS_RETINAL(h.taskProgram.header().articulation.z) && h.stepConfig.policyProgram.valid(),
-        "Life checkpoint requires the native v13 retinal feeding runtime and an exact policy");
+        "Life checkpoint requires native retinal feeding or object push and an exact policy");
     checkpoint::Bytes identity;
     for (const auto value : {h.world.fingerprint(),h.taskProgram.fingerprint(),h.taskProgram.observationFingerprint(),
-        h.taskProgram.actionFingerprint(),h.stepConfig.policyProgram.fingerprint(),h.stepConfig.basePolicyProgram.fingerprint(),h.resourceRuntime->fingerprint(),h.stepConfig.taskSeed,
+        h.taskProgram.actionFingerprint(),h.stepConfig.policyProgram.fingerprint(),h.stepConfig.basePolicyProgram.fingerprint(),h.resourceRuntime ? h.resourceRuntime->fingerprint() : std::uint64_t{0},h.stepConfig.taskSeed,
         std::uint64_t(h.environmentCount)}) checkpoint::append(identity,value);
     const auto digest=checkpoint::digest(identity);std::uint64_t result=0;std::memcpy(&result,digest.data(),sizeof(result));return result;
 }
@@ -4093,7 +4094,8 @@ int mr_task_rollout_save_life_checkpoint(const MRTaskRolloutHandle* handle,const
         const auto identity=lifeCheckpointIdentity(*handle);
         checkpoint::require(!handle->rejectedRetinalBatch && handle->pendingLifeWorld.empty() && handle->residentState.valid(),"Life checkpoint requires admitted successful resident state");
         const auto world=handle->context.checkpointResident(handle->residentState,handle->stepConfig);
-        const auto retina=handle->visualRuntime->retinal->checkpointState();const auto resource=handle->resourceRuntime->checkpointState();
+        const auto retina=handle->visualRuntime->retinal->checkpointState();
+        const auto resource=handle->resourceRuntime ? handle->resourceRuntime->checkpointState() : checkpoint::Bytes{};
         checkpoint::Bytes bytes;checkpoint::append(bytes,handle->submittedControlSteps);checkpoint::append(bytes,handle->completedEnvironmentSteps);
         checkpoint::append(bytes,handle->submissionCount);checkpoint::append(bytes,handle->totalGPUMilliseconds);checkpoint::append(bytes,handle->totalSubmissionMilliseconds);
         checkpoint::appendBlob(bytes,world);checkpoint::appendBlob(bytes,retina);checkpoint::appendBlob(bytes,resource);
@@ -4114,6 +4116,7 @@ int mr_task_rollout_restore_life_checkpoint(MRTaskRolloutHandle* handle,const ch
             completed==steps*handle->environmentCount && std::isfinite(gpu) && gpu>=0 &&
             std::isfinite(submission) && submission>=0,"Invalid life checkpoint host accounting");
         const auto world=reader.blob(),retina=reader.blob(),resource=reader.blob();reader.end();
+        checkpoint::require(bool(handle->resourceRuntime)==!resource.empty(),"Life checkpoint resource component contract mismatch");
         const std::vector<unsigned> masks(handle->environmentCount,0);
         const MetalWorldBatch validation{.environmentCount=handle->environmentCount,.controlStepCount=1,
             .initialQ=handle->resetQ,.initialV=handle->resetV,.resetMasks=masks,.initialSceneBodies=handle->resetSceneBodies};
@@ -4123,15 +4126,17 @@ int mr_task_rollout_restore_life_checkpoint(MRTaskRolloutHandle* handle,const ch
         // Preserve the exact authored resource layout/allocation/life seed.
         // A candidate cue observer must retain the candidate food owner,
         // rather than the live handle's soon-to-be-replaced resource state.
-        auto food=std::make_unique<FiniteResourceContext>(handle->resourceRuntime->deviceView().config);
+        std::unique_ptr<FiniteResourceContext> food;
+        if(handle->resourceRuntime) food=std::make_unique<FiniteResourceContext>(handle->resourceRuntime->deviceView().config);
         const auto& sensor=*handle->run.visualSensorProgram();
         auto visual=compileTaskVisualRuntime(*handle,sensor,true,
             sensor.retinal && !sensor.retinal->resourceCues.empty() ? food.get() : nullptr);
-        visual->retinal->restoreState(retina);food->restoreState(resource);
+        visual->retinal->restoreState(retina);
+        if(food) food->restoreState(resource);
         std::vector<std::byte> pending(world.begin(),world.end());
         handle->visualRuntime=std::move(visual);handle->resourceRuntime=std::move(food);handle->pendingLifeWorld=std::move(pending);
         handle->stepConfig.deviceObservationProgram=handle->visualRuntime->retinal->deviceProgram();
-        handle->stepConfig.devicePhysicsProgram=handle->resourceRuntime->deviceProgram();
+        handle->stepConfig.devicePhysicsProgram=handle->resourceRuntime ? handle->resourceRuntime->deviceProgram() : MetalWorldDevicePhysicsProgram{};
         handle->submittedControlSteps=steps;handle->completedEnvironmentSteps=completed;handle->submissionCount=submissions;
         handle->totalGPUMilliseconds=gpu;handle->totalSubmissionMilliseconds=submission;
     });
@@ -4185,6 +4190,43 @@ int mr_task_rollout_evidence_telemetry(
         telemetry->last_balance_failure_rate = state.lastWindow.z;
         telemetry->last_mean_tracking_per_million =
             state.lastWindow.w;
+    });
+}
+
+int mr_task_rollout_copy_lifetime_ticks(
+    const MRTaskRolloutHandle* handle, uint64_t* output, const size_t output_count
+) {
+    if (!requireTaskRolloutHandle(handle)) return -1;
+    return translateErrors([&] {
+        using namespace metalrobo;
+        checkpoint::require(output && output_count==handle->environmentCount,
+            "Lifetime tick output has the wrong size");
+        checkpoint::require(!handle->rejectedRetinalBatch &&
+            (handle->residentState.valid() || !handle->pendingLifeWorld.empty()) &&
+            handle->submittedControlSteps &&
+            handle->submittedControlSteps<=std::numeric_limits<std::uint64_t>::max()/handle->environmentCount &&
+            handle->completedEnvironmentSteps==handle->submittedControlSteps*handle->environmentCount,
+            "Lifetime ticks require a successful accepted or restored native life");
+        std::vector<std::uint64_t> ticks(output_count);
+        if(handle->resourceRuntime) {
+            const auto states=handle->resourceRuntime->snapshot();
+            checkpoint::require(states.size()==output_count,"Resource lifetime lane count mismatch");
+            for(std::size_t lane=0;lane<states.size();++lane)
+                ticks[lane]=(std::uint64_t(states[lane].clock.y)<<32u)|states[lane].clock.x;
+        } else {
+            // Retinal batches fail closed: any rejected lane invalidates the
+            // handle before these counters publish. The resource-free object
+            // task therefore has one successful stream clock shared by all
+            // lanes, preserved across episode resets and exact life restore.
+            checkpoint::require(handle->taskId=="american_crow_object_push_v14" &&
+                handle->visualRuntime && handle->visualRuntime->retinal,
+                "Resource-free lifetime clock is not admitted for this task");
+            std::fill(ticks.begin(),ticks.end(),handle->submittedControlSteps);
+        }
+        checkpoint::require(std::all_of(ticks.begin(),ticks.end(),[&](auto tick){
+            return tick==handle->submittedControlSteps;
+        }),"Native lifetime clocks disagree with accepted host accounting");
+        std::copy(ticks.begin(),ticks.end(),output);
     });
 }
 

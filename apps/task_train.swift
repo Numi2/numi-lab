@@ -744,14 +744,15 @@ private struct Options {
             )
         }
         if independentCuedLifetimes {
-            guard checkpointLife, visualObservationConfig != nil,
+            guard birdFlowJourneyVariant == .v13RetinalFeeding, checkpointLife, visualObservationConfig != nil,
                   steps >= 256, recurrentSequenceLength == steps else {
                 throw MetalRoboTaskRolloutError.invalidShape(
                     "Independent cued lifetimes require --checkpoint-life, an explicit cued retinal configuration and a full sequence of at least256 ticks.")
             }
         }
         if checkpointLife || trainingResume != nil {
-            guard birdFlowAmericanCrowJourney, birdFlowJourneyVariant == .v13RetinalFeeding,
+            guard birdFlowAmericanCrowJourney,
+                  (birdFlowJourneyVariant == .v13RetinalFeeding || birdFlowJourneyVariant == .v14ObjectPush),
                   !birdFlowJourneyTeacher, basePolicyPack == nil, motionPack == nil,
                   retentionPolicyPack == nil, inspectionScene == nil,
                   (!overrideResumedLearningRate ||
@@ -761,7 +762,7 @@ private struct Options {
                   outputLearnerState != nil
             else {
                 throw MetalRoboTaskRolloutError.invalidShape(
-                    "Life training requires native v13 without teacher, base/retention/motion/inspection or exploration overrides, an explicit --output-learner-state, and checkpoint directory/interval when saving. A learning-rate override is allowed only when starting new independent cued lifetimes, never when restoring a life checkpoint.")
+                    "Life training requires native v13/v14 without teacher, base/retention/motion/inspection or exploration overrides, an explicit --output-learner-state, and checkpoint directory/interval when saving. A learning-rate override is allowed only when starting new independent cued lifetimes, never when restoring a life checkpoint.")
             }
         }
         if let offset = actorObservationExtensionOffset,
@@ -2152,6 +2153,9 @@ private enum TaskTrainMain {
             }
             if let path = options.resumeTrainingCheckpoint {
                 try context.restoreLifeCheckpoint(from: URL(fileURLWithPath: path).appendingPathComponent("life.native"))
+                let nativeTicks = try context.acceptedLifetimeControlTicks()
+                try MetalRoboTrainingLifeCheckpoint.require(nativeTicks == options.trainingResume?.acceptedControlTicks,
+                    "Training checkpoint accepted lifetime clock disagrees with native state.")
             } else {
                 try context.reset(seed: crowPhysicalSeed(options, initialLifeIndex))
             }
@@ -2539,7 +2543,7 @@ private enum TaskTrainMain {
                 throw MetalRoboTaskRolloutError.native("Training published no accepted physical evidence.")
             }
             let finalLayout = context.layout
-            let output: [String: Any] = [
+            var output: [String: Any] = [
                 "operation": "swift_native_policy_training",
                 "scheduler": "swift",
                 "physics": "metal",
@@ -2694,6 +2698,10 @@ private enum TaskTrainMain {
                 "last_learning_update": lastLearning,
                 "learning_update_history": learningUpdateHistory,
             ]
+            if options.birdFlowAmericanCrowJourney &&
+               (options.birdFlowJourneyVariant == .v13RetinalFeeding || options.birdFlowJourneyVariant == .v14ObjectPush) {
+                output["accepted_lifetime_control_ticks_by_environment"] = try context.acceptedLifetimeControlTicks()
+            }
             let data = try JSONSerialization.data(
                 withJSONObject: output,
                 options: [.prettyPrinted, .sortedKeys]

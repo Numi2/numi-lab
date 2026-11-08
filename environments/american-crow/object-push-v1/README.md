@@ -28,8 +28,9 @@ Reward is native accepted-state `exp(-squared_distance/0.01)` to
 `[0.19,0.25,0.257]m`, with mechanical-power and action-rate costs, integrated
 by the50Hz timestep. The target and support were developed on this apparatus;
 they are not held-out geometry. This task currently supplies no persistent
-nutrition/water/energy or social state, and no coupled life/learner checkpoint.
-Native world+retina checkpoint continuation is checked separately.
+nutrition/water/energy or social state. Ordinary coupled life/learner checkpoints
+retain native world/contact/object/RNG/GRU and pending/visible camera state,
+plus model and Adam state, at update boundaries.
 
 ## Use on macmini
 
@@ -38,6 +39,7 @@ From the source checkout:
 ```sh
 cmake --build build --parallel 4
 tools/numi crow-env object-push-admission --output NEW_DIRECTORY
+tools/numi crow-env object-push-life-admission --output NEW_LIFE_DIRECTORY
 tools/numi crow-env prepare-object-push --output ANOTHER_NEW_DIRECTORY
 ```
 
@@ -62,8 +64,18 @@ For a fresh recurrent policy use `build/bin/metalrobo_task_train` with:
 Supply fresh policy, updated/deployment/incumbent policy, rollout and learner
 output paths, native library/metallib and the locked MLX environment as shown in
 the exact archived command. These are engineering admission settings, not a
-selected learning recipe. Ordinary update checkpoints save model/Adam/rollout;
-they do not save the complete v14 physical life.
+selected learning recipe. Add `--checkpoint-life --checkpoint-interval 1` and a
+fresh `--checkpoint-directory` to save complete coupled state. Resume in a fresh
+process with `--resume-training-checkpoint PATH_TO_COMMITTED_DIRECTORY`, the
+exact runtime, sensor inputs and learner configuration. The restored accepted
+lifetime clock must match the manifest before any transition. A changed chunk
+size is supported; a changed learner recipe is rejected.
+
+For fixed-policy continuation, use `--save-life-checkpoint NEW_FILE` and then
+`--resume-life-checkpoint FILE`, with the exact policy, `--no-scheduled-resets`
+and `--repeats 1`. Saving/restoring life skips benchmark warmup. The common
+`NUMILF01` envelope keeps an explicitly empty resource component for this
+resource-free task; it does not invent a nutrition ledger.
 
 ## Evidence and limits
 
@@ -94,3 +106,12 @@ No learned manipulation, transfer, sustainable production performance, or full
 lifelong ecology qualification is claimed. Judge future policies by held-out
 physical task outcomes, using causal perception/memory/contact interventions.
 Do not select a policy or learning rate by KL target attainment.
+
+Coupled continuation evidence is in `artifacts/crow-rl-object-life-20261108`.
+The two-lane engineering probe checks five shared optimizer boundaries, each
+with all41 model/Adam arrays exact, and fresh fixed-policy future streams at
+chunks1/8 from tick47 (including pending camera state and a moving object).
+Six invalid restores reject; the v13 feeding regression retains its food ledger
+and all nine rejection controls. The initial checker treated flat feature
+arrays as sample rows; its failure and source are preserved, and corrected
+analysis reused the original successful runs without repeating them.
