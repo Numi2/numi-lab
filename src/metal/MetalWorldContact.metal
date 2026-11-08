@@ -3995,10 +3995,9 @@ kernel void mr_world_materialize_event_articulation(
     if (contactStatus.code != MR_STEP_SUCCESS) {
         return;
     }
-    const float timestep = eventSegmentDuration(
-        eventStates[environment],
-        mode
-    );
+    const float timestep = mode == MR_CCD_SEGMENT_FULL_MICROSTEP
+        ? dispatch.timestepAndBias.x
+        : eventSegmentDuration(eventStates[environment], mode);
     const uint qBase = environment * dispatch.qStride;
     const uint vBase = environment * dispatch.vStride;
     for (uint coordinate = 0u;
@@ -4121,10 +4120,9 @@ kernel void mr_world_predict_scene_event(
         statuses[environment].code != MR_STEP_SUCCESS) {
         return;
     }
-    const float timestep = eventSegmentDuration(
-        eventStates[environment],
-        mode
-    );
+    const float timestep = mode == MR_CCD_SEGMENT_FULL_MICROSTEP
+        ? dispatch.timestepAndBias.x
+        : eventSegmentDuration(eventStates[environment], mode);
     const uint bodyBase =
         environment * dispatch.bodyStateStride;
     for (uint body = 0u; body < dispatch.bodyCount; ++body) {
@@ -13826,4 +13824,168 @@ kernel void mr_world_publish_unified_quality_queue_status(
             MR_UNIFIED_QUALITY_INVALID_INDEX;
     }
     statuses[environment] = status;
+}
+
+// Smooth torque-limited motor step. Contact impulses are solved later with the
+// physical mass factor; they are not folded into the motor's damping inertia.
+// The physical ABA acceleration and source-state factor remain immutable across
+// remaining-time prediction and selected-time rematerialization.
+kernel void mr_world_bounded_drive_prediction(
+    device const MRMetalWorldDispatchGPU& worldDispatch [[buffer(0)]],
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(1)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(2)]],
+    device const MRDofPropertiesGPU* dofs [[buffer(3)]],
+    device const MRActuatorProfileGPU* profiles [[buffer(4)]],
+    device const float* sourceQ [[buffer(5)]],
+    device const float* sourceV [[buffer(6)]],
+    device const float* freeAcceleration [[buffer(7)]],
+    device const float* factor [[buffer(8)]],
+    device const float* targets [[buffer(9)]],
+    device const float4* controllerParameters [[buffer(10)]],
+    device const MRArticulatedOperatorStatusGPU* operatorStatuses [[buffer(11)]],
+    device MRMetalWorldContactStatusGPU* contactStatuses [[buffer(12)]],
+    device MRMetalWorldStatusGPU* worldStatuses [[buffer(13)]],
+    device const float* baseEffort [[buffer(14)]],
+    device float* effectiveEffort [[buffer(15)]],
+    device float* acceleration [[buffer(16)]],
+    device const MRCCDEventStateGPU* eventStates [[buffer(17)]],
+    constant uint& mode [[buffer(18)]],
+    const uint environment [[threadgroup_position_in_grid]],
+    const uint lane [[thread_index_in_threadgroup]]
+) {
+    constexpr uint capacity = MR_ARTICULATED_ABA_MAX_DOFS;
+    threadgroup float inverse[capacity * capacity];
+    if (environment >= dispatch.environmentCount ||
+        contactStatuses[environment].code != MR_STEP_SUCCESS ||
+        worldStatuses[environment].code != MR_STEP_SUCCESS) {
+        return;
+    }
+    const float h = mode == MR_CCD_SEGMENT_FULL_MICROSTEP
+        ? dispatch.timestepAndBias.x
+        : eventSegmentDuration(eventStates[environment], mode);
+    if (!(h > 0.0f)) {
+        return; // A finished CCD environment must retain its last motor sample.
+    }
+    const uint n = dispatch.nv;
+    const uint vBase = environment * dispatch.vStride;
+    const uint qBase = environment * dispatch.qStride;
+    const uint fBase = environment * dispatch.factorStride;
+    // Every lane makes the same validity decision before collective work.
+    uint invalid = n == 0u || n > capacity || !isfinite(h);
+    for (uint owner = 0u; owner < dispatch.articulationCount; ++owner) {
+        invalid |= operatorStatuses[owner * dispatch.environmentCount + environment].code != MR_ARTICULATED_OPERATOR_SUCCESS;
+    }
+    for (uint i = 0u; i < n && i < capacity; ++i) {
+        invalid |= !(factor[fBase + i*n + i] > 0.0f) ||
+            !isfinite(factor[fBase + i*n + i]) ||
+            !isfinite(freeAcceleration[vBase+i]);
+    }
+    if (invalid != 0u) {
+        if (lane == 0u) {
+            MRMetalWorldContactStatusGPU status = contactStatuses[environment];
+            status.code = MR_STEP_FACTORIZATION_FAILED;
+            contactStatuses[environment] = status;
+        }
+        return;
+    }
+    // Independent triangular solves compute columns of physical M^-1. Each
+    // lane owns one column, including all articulated cross-joint responses.
+    for (uint column=lane; column<n; column+=MR_SIMD_WIDTH) {
+        float y[capacity], x[capacity];
+        for (uint i=0u; i<n; ++i) {
+            float value = i == column ? 1.0f : 0.0f;
+            for (uint j=0u; j<i; ++j) value -= factor[fBase+i*n+j]*y[j];
+            y[i] = value/factor[fBase+i*n+i];
+        }
+        for (uint back=0u; back<n; ++back) {
+            const uint i=n-1u-back;
+            float value=y[i];
+            for (uint j=i+1u; j<n; ++j) value -= factor[fBase+j*n+i]*x[j];
+            x[i]=value/factor[fBase+i*n+i];
+            inverse[i*capacity+column]=x[i];
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane != 0u) return;
+
+    const float4 controller = (worldDispatch.flags & MR_METAL_WORLD_NATIVE_TASK) != 0u
+        ? controllerParameters[environment] : float4(1.0f);
+    float torque[capacity], a[capacity], b[capacity], c[capacity], cap[capacity], friction[capacity];
+    bool valid = all(isfinite(controller)) && all(controller >= 0.0f);
+    for (uint i=0u; i<n; ++i) {
+        const MRDofPropertiesGPU dof = dofs[i];
+        const MRActuatorProfileGPU profile = profiles[i];
+        const float v=sourceV[vBase+i];
+        torque[i]=0.0f; a[i]=freeAcceleration[vBase+i];
+        b[i]=0.0f; c[i]=0.0f; cap[i]=0.0f; friction[i]=0.0f;
+        if ((dof.flags & MR_DOF_FLAG_DRIVE) == 0u || dof.qIndex >= dispatch.nq) continue;
+        float target=targets[pass.controlStep*worldDispatch.effortStepStride+
+            environment*worldDispatch.effortEnvironmentStride+i];
+        if ((dof.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u)
+            target=clamp(target,dof.limits.x,dof.limits.y);
+        const float k=controller.x*dof.drive.x;
+        const float d=controller.y*dof.drive.y;
+        b[i]=controller.w*(k*(target-sourceQ[qBase+dof.qIndex]-h*v)-d*v);
+        c[i]=controller.w*h*fma(h,k,d);
+        const float dry=controller.w*dof.drive.w;
+        if (abs(v)>1.0e-4f) b[i]-=copysign(dry,v);
+        else friction[i]=dry;
+        const float speed=clamp(abs(v)/max(profile.motorAndSpeed.z,1.175494351e-38f),0.0f,1.0f);
+        cap[i]=min(dof.limits.w,profile.transmissionAndEnvelope.z*profile.motorAndSpeed.w*(1.0f-speed));
+        if ((dof.flags & MR_DOF_FLAG_EFFORT_LIMIT) != 0u && dof.limits.w>0.0f)
+            cap[i]=min(cap[i],controller.w*dof.limits.w);
+        valid &= isfinite(b[i]) && isfinite(c[i]) && c[i]>=0.0f &&
+            isfinite(cap[i]) && cap[i]>=0.0f && isfinite(friction[i]) && friction[i]>=0.0f;
+        for (uint j=0u; j<n; ++j) valid &= isfinite(inverse[i*capacity+j]);
+    }
+    float maximumScaledResidual=INFINITY;
+    uint completed=0u;
+    // Box-constrained convex motor solve. With stationary dry friction this
+    // also includes the L1 dead zone. Symmetric coordinate sweeps retain full
+    // inertial coupling; an unsuccessful convergence certificate rejects the
+    // transactional step instead of publishing an approximate motor force.
+    for (uint sweep=0u; valid && sweep<256u; ++sweep) {
+        for (uint visit=0u; visit<2u*n; ++visit) {
+            const uint i=visit<n ? visit : 2u*n-1u-visit;
+            const float diagonal=inverse[i*capacity+i];
+            const float excluding=a[i]-diagonal*torque[i];
+            const float rhs=b[i]-c[i]*excluding;
+            const float shrunk=copysign(max(abs(rhs)-friction[i],0.0f),rhs);
+            const float next=clamp(shrunk/fma(c[i],diagonal,1.0f),-cap[i],cap[i]);
+            const float delta=next-torque[i]; torque[i]=next;
+            for (uint j=0u; j<n; ++j) a[j]=fma(inverse[j*capacity+i],delta,a[j]);
+        }
+        // Reconstruct from immutable free acceleration before evaluating the
+        // certificate, avoiding accumulation drift across many PGS sweeps.
+        for (uint i=0u; i<n; ++i) {
+            float value=freeAcceleration[vBase+i];
+            for (uint j=0u; j<n; ++j) value=fma(inverse[i*capacity+j],torque[j],value);
+            a[i]=value;
+        }
+        maximumScaledResidual=0.0f;
+        for (uint i=0u; i<n; ++i) {
+            const float rhs=b[i]-c[i]*a[i];
+            const float expected=clamp(copysign(max(abs(rhs)-friction[i],0.0f),rhs),-cap[i],cap[i]);
+            const float scaled=abs(expected-torque[i])/max(cap[i],1.0e-6f);
+            valid &= isfinite(a[i]) && isfinite(scaled);
+            maximumScaledResidual=max(maximumScaledResidual,scaled);
+        }
+        completed=sweep+1u;
+        if (valid && maximumScaledResidual<=32.0f*1.1920928955078125e-7f) break;
+    }
+    if (!valid || maximumScaledResidual>32.0f*1.1920928955078125e-7f) {
+        MRMetalWorldContactStatusGPU contact=contactStatuses[environment];
+        contact.code=valid ? MR_STEP_DID_NOT_CONVERGE : MR_STEP_NONFINITE_RESULT;
+        contactStatuses[environment]=contact;
+        MRMetalWorldStatusGPU status=worldStatuses[environment];
+        status.code=contact.code;
+        status.failingSubstep=pass.physicsSubstep;
+        status.diagnostics=float4(maximumScaledResidual,float(completed),h,0.0f);
+        worldStatuses[environment]=status;
+        return;
+    }
+    for (uint i=0u; i<n; ++i) {
+        acceleration[vBase+i]=a[i];
+        effectiveEffort[vBase+i]=baseEffort[vBase+i]+torque[i];
+    }
 }

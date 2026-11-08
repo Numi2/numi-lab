@@ -711,6 +711,9 @@ enum MRMetalWorldFlags : mr_u32 {
     // programs. The shared environment-major wrench arena is cleared and
     // rebuilt before every ABA microstep.
     MR_METAL_WORLD_HAS_BODY_WRENCHES = 1u << 7u,
+    // Refines position-target semantics: solve bounded motor forces before
+    // prediction, with no implicit damping/stiffness in contact inertia.
+    MR_METAL_WORLD_BOUNDED_POSITION_DRIVES = 1u << 8u,
 };
 
 // Immutable strides and dimensions for one environment-major rollout.

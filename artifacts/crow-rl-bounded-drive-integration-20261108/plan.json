@@ -1,0 +1,57 @@
+{
+  "budget": {
+    "native_invocations": 1,
+    "new_trial_output_max_bytes": 1500000,
+    "stop": "One invocation, analyze every declared condition; no retries, tuning, extra seeds or promotion.",
+    "timeout_seconds": 180
+  },
+  "calibration": {
+    "conditions": 128,
+    "constitutive_error": 7.37257477290143e-18,
+    "mass_error": 0
+  },
+  "conditions": {
+    "capacity": "40 independent scalar articulations, CCD disabled/hybrid =2 additional steps,80 component rows; exercises response columns32..39.",
+    "component_rows": 976,
+    "independence": "Manufactured deterministic conditions, no independent biological/learning replicates or population inference.",
+    "one_microstep_native_environments": 514,
+    "paired_grid": "4 mechanism variants x8 states x4 durations x2 actuation modes x2 CCD modes =512 accepted environment steps,896 component rows.",
+    "replication": "First scalar-state sequence reuses exposed earlier diagnosis/bounded conditions. These are engineering regression checks.",
+    "unused_conditions": "Second-joint states, inertial coupling, dry-friction mechanism and full40-DoF configuration have no prior native motor observations.",
+    "variants": [
+      "single scalar hinge",
+      "coupled coaxial two-DoF articulation",
+      "two independent one-DoF articulations",
+      "coupled two-DoF articulation with dry friction"
+    ]
+  },
+  "criteria": {
+    "all_rows_maximum_absolute_velocity_reference_error_rad_s": 2e-06,
+    "all_rows_maximum_q_integration_error_rad": 2e-07,
+    "all_rows_maximum_torque_reference_error_Nm": 1e-07,
+    "bounded_aba_and_contact_mass_implicit_bits": 0,
+    "legacy_aba_and_contact_mass_implicit_bits": 1,
+    "native_rejections": 0
+  },
+  "inputs": {
+    ".numi/retained-runtime/bounded-drive-integration-20261108/libmetalrobo.dylib": "b2ca54cc8f2633ff87623ec05fbd523163486bc31cd483dc311e74cea0b342f2",
+    ".numi/retained-runtime/bounded-drive-integration-20261108/metalrobo/MetalRobo.metallib": "2973c0d0b8a38c2049a502e103a114bf89c4695d8b5ecb7e832ac48a14cc5407",
+    ".numi/retained-runtime/bounded-drive-integration-20261108/probe": "ec0d4b4ce4ddab5dc308860a14ce7315f88be06d9f6eea7485fde08eef1e0517",
+    "CMakeLists.txt": "f615543c695b84cc28e129a2b4d84750db2bd1f9de51954fb315ef7179daa823",
+    "apps/bounded_drive_probe.cpp": "632ca6eff52e8d03b4a9aa52b700f0a2b03a5c19cc09a43a6f9832c0860ac9e6",
+    "build/crow-bounded-drive-integration-build-01/calibration.stdout": "d8a4edeb3b57fc33800738d49c2342c649e45dce841092c1acaa2a462a445b92",
+    "include/metalrobo/MetalWorld.hpp": "ad199761276a688894b73ae0ff680c78263df2cc24bae96e1f637da7d5683e5f",
+    "include/metalrobo/engine_types.h": "ece1429b139a1f570d0a550683b694c42a282be76f58eddba059675df7a31b03",
+    "src/metal/MetalWorld.metal": "3f6ca43d03046b7942804c675be44cbc5ea2ef1dcf388d93cdeda7e447a4c23f",
+    "src/metal/MetalWorld.mm": "a229b271cea02f6e9548f18bedffc049e6f08ba173290a672143909ba280bfe5",
+    "src/metal/MetalWorldContact.metal": "1f43d6bc1b601e0206a6b8738480f62d385794ad2fef709c11abea301abe2978"
+  },
+  "limits": "New native mode initially admits contact graphs with at most40 total generalized velocities. This trial has no geometric contact, motor/contact simultaneous coupling, task energy integration, reset/partition/checkpoint, real crow release, end-to-end throughput or learning qualification.",
+  "model": "Physical ABA acceleration and Cholesky mass include physical armature, no motor damping/stiffness inertia. A native box/L1 coordinate solve produces bounded motor torque and acceleration; source-state mass/free acceleration remain fixed across remaining-time prediction and selected-time solve, each with its own actual duration. CCD position prediction includes smooth motor acceleration. Endpoint contacts use physical mass, and position is not reintegrated across impact.",
+  "parent": "crow-rl-implicit-drive-audit-20261108: native saturation defect confirmed; endpoint-only motor row rejected by hybrid q/torque gates.",
+  "profile_semantics": "Gains, effort limits and source-speed motor envelope unchanged; controller scaling and source-velocity dry friction/dead zone retained. No environment or policy parameters tuned.",
+  "protected_policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+  "question": "Does native smooth bounded motor prediction reproduce the independently solved constitutive equations across scalar/coupled/multiple articulations and CCD modes, while preserving the existing clamp-then-augment mode?",
+  "reference": "Native FP64 mass matrices equal analytic mechanism masses; exhaustive independent five-region active-set enumeration checks coupled bounded motors, including the stationary dry-friction dead zone. Legacy reference solves the original fully augmented mass with pre-clamped command. Forty independent hinges use the calibrated scalar closed form.",
+  "validity": "All514 accepted,976 component rows; r.dispatched/published true, actual Apple GPU device identified; no scene bodies, geometry or external forces in mechanisms. Runtime/shader/executable/input hashes match. Missing native rows or rejection is inconclusive; no automatic rerun."
+}

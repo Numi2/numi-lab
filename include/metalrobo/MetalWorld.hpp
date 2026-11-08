@@ -58,6 +58,9 @@ struct MetalWorldQualityConfig {
 enum class MetalWorldActuationMode : std::uint32_t {
     effort = 0u,
     implicitPositionDrive = 1u,
+    // Torque-limited implicit smooth-force prediction with physical contact
+    // mass. Native prediction refreshes the solve for each CCD segment.
+    boundedPositionDrive = 2u,
 };
 
 enum class MetalWorldCCDMode : std::uint32_t {

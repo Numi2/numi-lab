@@ -4043,3 +4043,10 @@ install(
         licenses/CISST_LICENSE.txt
     DESTINATION share/metalrobo
 )
+
+# Native bounded smooth-motor ownership and independent FP64 constitutive probe.
+add_executable(metalrobo_bounded_drive_probe apps/bounded_drive_probe.cpp)
+target_link_libraries(metalrobo_bounded_drive_probe PRIVATE metalrobo)
+add_dependencies(metalrobo_bounded_drive_probe metalrobo_shaders)
+target_compile_options(metalrobo_bounded_drive_probe PRIVATE -Wall -Wextra -Wpedantic -Werror)
+set_target_properties(metalrobo_bounded_drive_probe PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin" BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")

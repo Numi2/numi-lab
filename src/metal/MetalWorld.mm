@@ -44,7 +44,7 @@
 namespace metalrobo {
 namespace {
 
-constexpr std::size_t kRawBufferCount = 264u;
+constexpr std::size_t kRawBufferCount = 266u;
 constexpr NSUInteger kABAThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kOperatorThreadsPerThreadgroup = 32u;
 constexpr NSUInteger kWorldThreadsPerThreadgroup = 64u;
@@ -368,6 +368,8 @@ enum BufferIndex : std::size_t {
     kPolicyMemoryOutput = 261u,
     kPolicyMemoryBefore = 262u,
     kPolicyMemoryResets = 263u,
+    kDriveFreeAcceleration = 264u,
+    kDriveEffectiveEffort = 265u,
 };
 
 struct BufferRequirement {
@@ -468,6 +470,7 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> parallelMultiABAPipeline = nil;
     __strong id<MTLComputePipelineState> preparePipeline = nil;
     __strong id<MTLComputePipelineState> driveRefreshPipeline = nil;
+    __strong id<MTLComputePipelineState> boundedDrivePipeline = nil;
     __strong id<MTLComputePipelineState> commitPipeline = nil;
     __strong id<MTLComputePipelineState> capturePipeline = nil;
     __strong id<MTLComputePipelineState> operatorPipeline = nil;
@@ -618,6 +621,7 @@ struct MetalWorldContextState {
         boundFactorDispatches;
     MRMetalWorldContactDispatchGPU boundContactDispatch{};
     bool useTaskBodyParameters = false;
+    bool useBoundedDrives = false;
     bool usesFunctionBasedDynamics = false;
     std::uint64_t boundModelFingerprint = 0u;
     std::uint64_t boundTaskFingerprint = 0u;
@@ -2104,6 +2108,14 @@ bool buildRequirements(
             layout.initialVElements,
             requirements.entries[kWorkingEffort]
         ) ||
+        !makeRequirement<float>("bounded drive free acceleration",
+            (layout.dispatch.flags & MR_METAL_WORLD_BOUNDED_POSITION_DRIVES) != 0u
+                ? layout.initialVElements : 0u,
+            requirements.entries[kDriveFreeAcceleration]) ||
+        !makeRequirement<float>("bounded drive effective effort",
+            (layout.dispatch.flags & MR_METAL_WORLD_BOUNDED_POSITION_DRIVES) != 0u
+                ? layout.initialVElements : 0u,
+            requirements.entries[kDriveEffectiveEffort]) ||
         !makeRequirement<MRABABodyWrenchGPU>(
             "external body wrenches",
             (layout.dispatch.flags &
@@ -3697,12 +3709,20 @@ MetalWorldDiagnostics validateAndBuildLayout(
     if (config.actuationMode !=
             MetalWorldActuationMode::effort &&
         config.actuationMode !=
-            MetalWorldActuationMode::implicitPositionDrive) {
+            MetalWorldActuationMode::implicitPositionDrive &&
+        config.actuationMode !=
+            MetalWorldActuationMode::boundedPositionDrive) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::invalidDimensions,
             "unknown MetalWorld actuation mode"
         );
+    }
+    if (config.actuationMode == MetalWorldActuationMode::boundedPositionDrive &&
+        (config.solverMode == MetalWorldSolverMode::freeMotionABA ||
+         world.nv() > MR_ARTICULATED_ABA_MAX_DOFS)) {
+        return reject(std::move(diagnostics), MetalWorldHostStatus::unsupportedTopology,
+            "bounded drives currently require a contact graph with at most 40 generalized velocities");
     }
     const bool nativeTask = config.taskProgram.valid();
     const bool nativePolicy = config.policyProgram.valid();
@@ -4045,8 +4065,9 @@ MetalWorldDiagnostics validateAndBuildLayout(
             !contactMode ||
             (!hasMillardTaskExcitationControls &&
              config.actuationMode !=
-                 MetalWorldActuationMode::
-                     implicitPositionDrive) ||
+                 MetalWorldActuationMode::implicitPositionDrive &&
+             config.actuationMode !=
+                 MetalWorldActuationMode::boundedPositionDrive) ||
             world.rodCount() != 0u ||
             config.taskProgram.worldFingerprint() !=
                 world.fingerprint()
@@ -4206,12 +4227,11 @@ MetalWorldDiagnostics validateAndBuildLayout(
                    MR_METAL_WORLD_HAS_RESETS
                )
              : 0u) |
-        (config.actuationMode ==
-                 MetalWorldActuationMode::
-                     implicitPositionDrive
-             ? static_cast<mr_u32>(
-                   MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES
-               )
+        (config.actuationMode != MetalWorldActuationMode::effort
+             ? static_cast<mr_u32>(MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES)
+             : 0u) |
+        (config.actuationMode == MetalWorldActuationMode::boundedPositionDrive
+             ? static_cast<mr_u32>(MR_METAL_WORLD_BOUNDED_POSITION_DRIVES)
              : 0u) |
         (nativeTask
              ? static_cast<mr_u32>(
@@ -4531,7 +4551,8 @@ MetalWorldDiagnostics validateAndBuildLayout(
         static_cast<mr_u32>(
             world.model().constraintProgram.cones.size()
         );
-    if (config.matrixFreeArticulatedContact &&
+    if (config.actuationMode != MetalWorldActuationMode::boundedPositionDrive &&
+        config.matrixFreeArticulatedContact &&
         config.streamedArticulatedContactResponses &&
         (nativeTask || hasFunctionBasedDynamics) &&
         config.solverMode == MetalWorldSolverMode::temporalCone &&
@@ -4627,8 +4648,8 @@ MetalWorldDiagnostics validateAndBuildLayout(
             ? MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY
             : MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR |
                   (
-                      (dispatch.flags &
-                       MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES) != 0u
+                      config.actuationMode ==
+                          MetalWorldActuationMode::implicitPositionDrive
                       ? MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES
                       : 0u
                   );
@@ -5486,6 +5507,8 @@ NSString* bufferLabel(const std::size_t index) {
         return @"MetalWorld state v A";
     case kWorkingEffort:
         return @"MetalWorld working effort";
+    case kDriveFreeAcceleration: return @"MetalWorld physical free acceleration";
+    case kDriveEffectiveEffort: return @"MetalWorld bounded effective effort";
     case kBodyWrenchPlaceholder:
         return @"MetalWorld external body wrenches";
     case kMulticopterRotors:
@@ -6336,6 +6359,9 @@ MetalWorldDiagnostics initializeContext(
         );
     }
     error = nil;
+    id<MTLComputePipelineState> boundedDrive = makePipeline(
+        device, library, @"mr_world_bounded_drive_prediction", &error);
+    error = nil;
     id<MTLComputePipelineState> commit = makePipeline(
         device,
         library,
@@ -7062,6 +7088,7 @@ MetalWorldDiagnostics initializeContext(
     context.parallelMultiABAPipeline = parallelMultiABA;
     context.preparePipeline = prepare;
     context.driveRefreshPipeline = driveRefresh;
+    context.boundedDrivePipeline = boundedDrive;
     context.commitPipeline = commit;
     context.capturePipeline = capture;
     context.operatorPipeline = operatorPipeline;
@@ -7235,6 +7262,8 @@ std::size_t growthCapacity(
 bool privateTransientBuffer(const std::size_t index) {
     switch (index) {
     case kWorkingEffort:
+    case kDriveFreeAcceleration:
+    case kDriveEffectiveEffort:
     case kMillardResults:
     case kMillardGeneralizedForces:
     case kBodyWrenchPlaceholder:
@@ -9689,6 +9718,8 @@ void uploadBatch(
 
     const std::array scratch{
         kWorkingEffort,
+        kDriveFreeAcceleration,
+        kDriveEffectiveEffort,
         kBodyWrenchPlaceholder,
         kCandidateAcceleration,
         kCandidateV,
@@ -10617,7 +10648,8 @@ bool encodeArticulatedOperator(
     const std::size_t bodyPoseBuffer,
     const std::size_t environmentCount,
     NSString* label,
-    const bool indirectDispatch
+    const bool indirectDispatch,
+    const bool driveFactor = false
 ) {
     id<MTLComputeCommandEncoder> encoder =
         [commandBuffer computeCommandEncoder];
@@ -10653,6 +10685,14 @@ bool encodeArticulatedOperator(
         kDeltaVelocity,
         kOperatorStatuses,
     }};
+    std::vector<MRArticulatedOperatorDispatchGPU> driveDispatches;
+    if (driveFactor) {
+        driveDispatches = context.boundFactorDispatches;
+        for (auto& local : driveDispatches) {
+            local.pointCount = 0u;
+            local.flags = MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR;
+        }
+    }
     const MTLSize threadgroupSize = MTLSizeMake(
         kOperatorThreadsPerThreadgroup,
         1u,
@@ -10798,9 +10838,12 @@ bool encodeArticulatedOperator(
                             MRArticulatedOperatorStatusGPU
                         );
                 }
-                [encoder setBuffer:context.buffers[resource]
-                             offset:offset
-                            atIndex:argument];
+                if (driveFactor && argument == 5u) {
+                    [encoder setBytes:&driveDispatches[owner]
+                        length:sizeof(MRArticulatedOperatorDispatchGPU) atIndex:argument];
+                } else {
+                    [encoder setBuffer:context.buffers[resource] offset:offset atIndex:argument];
+                }
             }
             [encoder
                 setThreadgroupMemoryLength:
@@ -10854,12 +10897,13 @@ bool encodeArticulatedOperator(
         for (NSUInteger argument = 0u;
              argument < composeBuffers.size();
              ++argument) {
-            [compose
-                setBuffer:context.buffers[
-                              composeBuffers[argument]
-                          ]
-                   offset:0u
-                  atIndex:argument];
+            if (driveFactor && argument == 2u) {
+                [compose setBytes:driveDispatches.data()
+                    length:driveDispatches.size()*sizeof(MRArticulatedOperatorDispatchGPU)
+                    atIndex:argument];
+            } else {
+                [compose setBuffer:context.buffers[composeBuffers[argument]] offset:0u atIndex:argument];
+            }
         }
         dispatchWorldThreads(
             compose,
@@ -10873,9 +10917,12 @@ bool encodeArticulatedOperator(
     for (NSUInteger argument = 0u;
          argument < buffers.size();
          ++argument) {
-        [encoder setBuffer:context.buffers[buffers[argument]]
-                     offset:0u
-                    atIndex:argument];
+        if (driveFactor && argument == 5u) {
+            [encoder setBytes:&driveDispatches.front()
+                length:sizeof(MRArticulatedOperatorDispatchGPU) atIndex:argument];
+        } else {
+            [encoder setBuffer:context.buffers[buffers[argument]] offset:0u atIndex:argument];
+        }
     }
     if (context.boundArticulations.empty()) {
         [encoder endEncoding];
@@ -12669,7 +12716,7 @@ bool encodeTaskEffort(
             {1u, kTaskProgramHeader},
             {2u, kTaskProgramArena},
             {4u, vState},
-            {5u, kWorkingEffort},
+            {5u, context.useBoundedDrives ? kDriveEffectiveEffort : kWorkingEffort},
             {6u, kTaskState},
         },
         &pass,
@@ -13518,7 +13565,8 @@ bool encodeABA(
     [encoder setBuffer:context.buffers[kBodyWrenchPlaceholder]
                  offset:bodyWrenchOffset
                 atIndex:9u];
-    [encoder setBuffer:context.buffers[kCandidateAcceleration]
+    [encoder setBuffer:context.buffers[context.useBoundedDrives
+                     ? kDriveFreeAcceleration : kCandidateAcceleration]
                  offset:0u
                 atIndex:10u];
     [encoder setBuffer:context.buffers[kCandidateV]
@@ -15070,6 +15118,51 @@ bool encodeContactCollisionAndSolve(
         );
 }
 
+bool encodeBoundedDrivePrediction(
+    detail::MetalWorldContextState& context,
+    id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass,
+    const std::size_t sourceQ,
+    const std::size_t sourceV,
+    const std::size_t eventStates,
+    const mr_u32 mode,
+    const std::size_t environmentCount,
+    const bool factorize,
+    const bool materialize
+) {
+    if (!context.useBoundedDrives) return true;
+    if (context.boundedDrivePipeline == nil) return false;
+    if (factorize && !encodeArticulatedOperator(
+        context, commandBuffer, kOperatorFactorDispatch, sourceQ,
+        kPointQueries, kBodyPoses, environmentCount,
+        @"MetalWorld physical mass for bounded motors", false, true)) return false;
+    id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
+    if (encoder == nil) return false;
+    encoder.label = @"MetalWorld bounded smooth motor prediction";
+    [encoder setComputePipelineState:context.boundedDrivePipeline];
+    const std::array<std::size_t,18u> buffers{{
+        kWorldDispatch,kContactDispatch,kWorldDispatch,kDofs,kActuatorProfiles,
+        sourceQ,sourceV,kDriveFreeAcceleration,kFactorMatrix,kEffortTrajectory,
+        kTaskControllerParameters,kOperatorStatuses,kContactStatuses,kEnvironmentStatuses,
+        kWorkingEffort,kDriveEffectiveEffort,kCandidateAcceleration,eventStates
+    }};
+    for (NSUInteger index=0u;index<buffers.size();++index) {
+        if (index==2u) [encoder setBytes:&pass length:sizeof(pass) atIndex:index];
+        else [encoder setBuffer:context.buffers[buffers[index]] offset:0u atIndex:index];
+    }
+    [encoder setBytes:&mode length:sizeof(mode) atIndex:18u];
+    [encoder dispatchThreadgroups:MTLSizeMake(environmentCount,1u,1u)
+        threadsPerThreadgroup:MTLSizeMake(MR_SIMD_WIDTH,1u,1u)];
+    [encoder endEncoding];
+    if (!materialize) return true;
+    return encodeContactThreadKernel(context,commandBuffer,
+        context.eventArticulationPipeline,@"MetalWorld bounded motor full-step integration",
+        {{0u,kContactDispatch},{1u,kArticulations},{2u,kJoints},{3u,sourceQ},
+         {4u,sourceV},{5u,kCandidateAcceleration},{6u,eventStates},{7u,kCandidateQ},
+         {8u,kCandidateV},{9u,kABAStatuses},{10u,kContactStatuses}},
+        nullptr,0u,environmentCount,false,0u,&mode,sizeof(mode),11u);
+}
+
 bool encodeHybridContactSubstep(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
@@ -15209,6 +15302,9 @@ bool encodeHybridContactSubstep(
                 articulationCount,
                 environmentCount
             ) ||
+            !encodeBoundedDrivePrediction(context, commandBuffer, pass,
+                eventSourceQ, eventSourceV, eventStateIn, remainingMode,
+                environmentCount, true, false) ||
             !encodeArticulatedOperator(
                 context,
                 commandBuffer,
@@ -15456,6 +15552,9 @@ bool encodeHybridContactSubstep(
                 sizeof(eventPass),
                 7u
             ) ||
+            !encodeBoundedDrivePrediction(context, commandBuffer, pass,
+                eventSourceQ, eventSourceV, eventStateOut, selectedMode,
+                environmentCount, false, false) ||
             !encodeContactThreadKernel(
                 context,
                 commandBuffer,
@@ -20899,6 +20998,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 nativeTask &&
                 config.taskProgram.layout().motionFeatureCount != 0u;
             selectedState->useTaskBodyParameters = nativeTask;
+            selectedState->useBoundedDrives = config.actuationMode == MetalWorldActuationMode::boundedPositionDrive;
             selectedState->stats.memoryPlan =
                 diagnostics.layout.memoryPlan;
             configureActorMemory(*selectedState,config.policyProgram,std::uint32_t(batch.environmentCount),!residentContinuation);
@@ -21344,9 +21444,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                             )
                         ) &&
                         (
-                            config.actuationMode !=
-                                MetalWorldActuationMode::
-                                    implicitPositionDrive ||
+                            config.actuationMode == MetalWorldActuationMode::effort ||
                             encodeDriveRefresh(
                                 *selectedState,
                                 commandBuffer,
@@ -21467,8 +21565,13 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                       batch.environmentCount
                                   ))
                         );
+                    const bool encodedBoundedDrive = encodedABA &&
+                        (useHybridContact || encodeBoundedDrivePrediction(
+                            *selectedState, commandBuffer, pass, sourceQ, sourceV,
+                            kCCDEventStatesA, MR_CCD_SEGMENT_FULL_MICROSTEP,
+                            batch.environmentCount, true, true));
                     const bool encodedRod =
-                        encodedABA &&
+                        encodedBoundedDrive &&
                         (
                             useHybridContact ||
                             encodeRodSubstep(
@@ -21694,7 +21797,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                                 )
                             )
                         );
-                    if (!encodedABA ||
+                    if (!encodedABA || !encodedBoundedDrive ||
                         !encodedRod ||
                         !encodedPublication ||
                         !encodedRodPublication ||

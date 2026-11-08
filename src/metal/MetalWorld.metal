@@ -20,7 +20,8 @@ inline bool validWorldDispatch(
         MR_METAL_WORLD_CONTACTS |
         MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES |
         MR_METAL_WORLD_NATIVE_TASK |
-        MR_METAL_WORLD_HAS_BODY_WRENCHES;
+        MR_METAL_WORLD_HAS_BODY_WRENCHES |
+        MR_METAL_WORLD_BOUNDED_POSITION_DRIVES;
     const uint modeFlags =
         dispatch.flags &
         (MR_METAL_WORLD_FREE_MOTION_ONLY |
@@ -267,6 +268,8 @@ kernel void mr_metal_world_prepare(
                 (1.0f - speedFraction)
         );
         command = clamp(command, -envelope, envelope);
+        if ((dispatch.flags & MR_METAL_WORLD_BOUNDED_POSITION_DRIVES) != 0u)
+            command = 0.0f; // The native predictor owns motor force.
         workingEffort[
             environment * dispatch.effortEnvironmentStride +
             coordinate
@@ -362,7 +365,8 @@ kernel void mr_metal_world_refresh_drives(
         workingEffort[
             environment * dispatch.effortEnvironmentStride +
             coordinate
-        ] = clamp(command, -envelope, envelope);
+        ] = (dispatch.flags & MR_METAL_WORLD_BOUNDED_POSITION_DRIVES) != 0u
+            ? 0.0f : clamp(command, -envelope, envelope);
     }
 }
 
