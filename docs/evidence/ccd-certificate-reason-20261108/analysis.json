@@ -1,0 +1,177 @@
+{
+  "schema": "numi.ccd.certificate-reason.v1",
+  "cases": 12,
+  "trace_records": 96,
+  "comparison_pass": true,
+  "errors": [],
+  "unresolved_records": [
+    {
+      "case": {
+        "limit": 16,
+        "mode": 0,
+        "fixture": 12,
+        "scale": 1
+      },
+      "pass": 1,
+      "status": 11,
+      "reason": "budget",
+      "corner": 0,
+      "normalized_last_node_lower": 0.25,
+      "reported_work": 16
+    },
+    {
+      "case": {
+        "limit": 16,
+        "mode": 0,
+        "fixture": 12,
+        "scale": 1
+      },
+      "pass": 2,
+      "status": 11,
+      "reason": "budget",
+      "corner": 0,
+      "normalized_last_node_lower": 0.25,
+      "reported_work": 16
+    },
+    {
+      "case": {
+        "limit": 16,
+        "mode": 0,
+        "fixture": 12,
+        "scale": 1
+      },
+      "pass": 3,
+      "status": 11,
+      "reason": "budget",
+      "corner": 0,
+      "normalized_last_node_lower": 0.25,
+      "reported_work": 16
+    },
+    {
+      "case": {
+        "limit": 16,
+        "mode": 0,
+        "fixture": 12,
+        "scale": 1
+      },
+      "pass": 1,
+      "status": 11,
+      "reason": "budget",
+      "corner": 0,
+      "normalized_last_node_lower": 0.25,
+      "reported_work": 16
+    },
+    {
+      "case": {
+        "limit": 16,
+        "mode": 0,
+        "fixture": 12,
+        "scale": 1
+      },
+      "pass": 2,
+      "status": 11,
+      "reason": "budget",
+      "corner": 0,
+      "normalized_last_node_lower": 0.25,
+      "reported_work": 16
+    },
+    {
+      "case": {
+        "limit": 16,
+        "mode": 0,
+        "fixture": 12,
+        "scale": 1
+      },
+      "pass": 3,
+      "status": 11,
+      "reason": "budget",
+      "corner": 0,
+      "normalized_last_node_lower": 0.25,
+      "reported_work": 16
+    },
+    {
+      "case": {
+        "limit": 16,
+        "mode": 0,
+        "fixture": 12,
+        "scale": 0.5
+      },
+      "pass": 1,
+      "status": 11,
+      "reason": "budget",
+      "corner": 0,
+      "normalized_last_node_lower": 0.0234375,
+      "reported_work": 16
+    },
+    {
+      "case": {
+        "limit": 16,
+        "mode": 0,
+        "fixture": 12,
+        "scale": 0.5
+      },
+      "pass": 2,
+      "status": 11,
+      "reason": "budget",
+      "corner": 0,
+      "normalized_last_node_lower": 0.0234375,
+      "reported_work": 16
+    },
+    {
+      "case": {
+        "limit": 16,
+        "mode": 0,
+        "fixture": 12,
+        "scale": 0.5
+      },
+      "pass": 3,
+      "status": 11,
+      "reason": "budget",
+      "corner": 0,
+      "normalized_last_node_lower": 0.0234375,
+      "reported_work": 16
+    },
+    {
+      "case": {
+        "limit": 16,
+        "mode": 0,
+        "fixture": 12,
+        "scale": 0.5
+      },
+      "pass": 1,
+      "status": 11,
+      "reason": "budget",
+      "corner": 0,
+      "normalized_last_node_lower": 0.0234375,
+      "reported_work": 16
+    },
+    {
+      "case": {
+        "limit": 16,
+        "mode": 0,
+        "fixture": 12,
+        "scale": 0.5
+      },
+      "pass": 2,
+      "status": 11,
+      "reason": "budget",
+      "corner": 0,
+      "normalized_last_node_lower": 0.0234375,
+      "reported_work": 16
+    },
+    {
+      "case": {
+        "limit": 16,
+        "mode": 0,
+        "fixture": 12,
+        "scale": 0.5
+      },
+      "pass": 3,
+      "status": 11,
+      "reason": "budget",
+      "corner": 0,
+      "normalized_last_node_lower": 0.0234375,
+      "reported_work": 16
+    }
+  ]
+}
