@@ -21,6 +21,18 @@ from metalrobo.policy_selection import (  # noqa: E402
 
 
 class PolicySelectionTest(unittest.TestCase):
+    def test_selection_preserves_initial_reset_without_periodic_resets(self) -> None:
+        arguments = evaluation_arguments(
+            ["--world-pack", "world.mrworld", "--envs", "2", "--steps", "256"],
+            policy_pack=Path("candidate.policypack"),
+            metallib=Path("MetalRobo.metallib"),
+            state_trace=Path("candidate.tsv"),
+            maximum_environments=2,
+            held_out_seed=42,
+        )
+        self.assertIn("--no-periodic-resets", arguments)
+        self.assertNotIn("--no-scheduled-resets", arguments)
+
     def test_catastrophic_get_up_candidate_never_advances(self) -> None:
         incumbent = {
             "task": "supine-get-up",

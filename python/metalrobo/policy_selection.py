@@ -345,6 +345,9 @@ def evaluation_arguments(
             "1",
             "--chunk",
             "1",
+            # Preserve the authored initial reset without interrupting the
+            # held-out episode with the benchmark's periodic reset schedule.
+            "--no-periodic-resets",
             "--seed",
             str(held_out_seed),
             "--metallib",

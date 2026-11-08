@@ -1,0 +1,84 @@
+{
+  "catalog_input_identity": {
+    "arguments": [
+      "--world-pack",
+      "/Users/numi/numi-franka-catalog-binding-smoke-20261108/fixture/world.mrworld",
+      "--task-pack",
+      "/Users/numi/numi-franka-catalog-binding-smoke-20261108/fixture/task.taskpack",
+      "--robot-actuator-pack",
+      "/Users/numi/numi-franka-catalog-binding-smoke-20261108/fixture/actuators.actuatorpack",
+      "--sensor-program-pack",
+      "/Users/numi/numi-franka-catalog-binding-smoke-20261108/fixture/sensors.sensorpack",
+      "--reality-program-pack",
+      "/Users/numi/numi-franka-catalog-binding-smoke-20261108/fixture/reality.realitypack",
+      "--envs",
+      "2",
+      "--steps",
+      "256",
+      "--repeats",
+      "1",
+      "--chunk",
+      "1",
+      "--no-periodic-resets",
+      "--seed",
+      "4081019",
+      "--metallib",
+      "/Users/numi/numi-reconciliation-build-20261108/shaders/MetalRobo.metallib",
+      "--policy-pack",
+      "/Users/numi/numi-reconciliation-qualification-20261108/uninterrupted-policy-eval/workspace/.numi/runs/qualification/incumbent.deployment.policypack",
+      "--state-trace",
+      "/Users/numi/numi-reconciliation-qualification-20261108/uninterrupted-policy-eval/workspace/.numi/runs/qualification/selection/incumbent.state.tsv"
+    ],
+    "complete": true,
+    "cwd": "/Users/numi/numi-reconciliation-qualification-20261108/uninterrupted-policy-eval/workspace",
+    "files": {
+      "--metallib": {
+        "path": "/Users/numi/numi-reconciliation-build-20261108/shaders/MetalRobo.metallib",
+        "sha256": "2b76eaa5d6313cff55e4ff90d10e748c3776095eae1b19ab183f26fa0448c2ae"
+      },
+      "--policy-pack": {
+        "path": "/Users/numi/numi-reconciliation-qualification-20261108/uninterrupted-policy-eval/workspace/.numi/runs/qualification/incumbent.deployment.policypack",
+        "sha256": "a8b453950cb0001a7a367b4c270cc1c645c6328bc8dab7ad2cc4f98371e5bca4"
+      },
+      "--reality-program-pack": {
+        "path": "/Users/numi/numi-franka-catalog-binding-smoke-20261108/fixture/reality.realitypack",
+        "sha256": "e09f0a50365ee18c749b163690cff86e1a15032aa36b4a0932aba46925bec70d"
+      },
+      "--robot-actuator-pack": {
+        "path": "/Users/numi/numi-franka-catalog-binding-smoke-20261108/fixture/actuators.actuatorpack",
+        "sha256": "e14269963ebefaa69eb3ca4a308412e62cfcc9ce68b3c0e2ed69aefef992d91b"
+      },
+      "--sensor-program-pack": {
+        "path": "/Users/numi/numi-franka-catalog-binding-smoke-20261108/fixture/sensors.sensorpack",
+        "sha256": "bdd2fa6da6ee5149f23cf5b9dc10205d982cfca207247cb47d0b8644ca362d06"
+      },
+      "--task-pack": {
+        "path": "/Users/numi/numi-franka-catalog-binding-smoke-20261108/fixture/task.taskpack",
+        "sha256": "c94b7c08249357fcc80888c3fec9437982aac240d46ee5b51a5531543ad87075"
+      },
+      "--world-pack": {
+        "path": "/Users/numi/numi-franka-catalog-binding-smoke-20261108/fixture/world.mrworld",
+        "sha256": "cc4ca3c1e154499019351c8bfc10ab88b76c6e10ab1b79c273904761b9c7610b"
+      },
+      "evaluator": {
+        "path": "/Users/numi/numi-reconciliation-build-20261108/bin/metalrobo_task_rollout",
+        "sha256": "0915715486efdf3fa37eefe7ba0e8dac0e7f40dfdec80841da6fa1e65e21c12e"
+      }
+    },
+    "schema": "numi.catalog-input-identity.v1"
+  },
+  "contract_sha256": "cf872a2dac9e23e0eba98eb74c3c4f65da64af9d1a42ec3a493dd671b3a577ce",
+  "evidence": {
+    "sha256": "6dc8571c9ec5d7db9f38416868a3fd9fccf557d3bd0b2fdcb4783584b0943a22",
+    "size_bytes": 7494
+  },
+  "policy_sha256": "a8b453950cb0001a7a367b4c270cc1c645c6328bc8dab7ad2cc4f98371e5bca4",
+  "schema": "numi.policy-evidence-cache.v2",
+  "state_trace": {
+    "path": "/Users/numi/numi-reconciliation-qualification-20261108/uninterrupted-policy-eval/workspace/.numi/runs/qualification/selection/incumbent.state.tsv",
+    "row_count": 256,
+    "sha256": "7faf86030c4d1e57fad62840dc4e3d71dabb2aeeff0deb0efbe271950afbfd7d",
+    "size_bytes": 133926,
+    "terminal_step": 256
+  }
+}

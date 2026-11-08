@@ -164,6 +164,7 @@ private struct Options {
     var zeroActions = false
     var actionStream: String?
     var scheduledResets = true
+    var periodicResets = true
     var policyPack: String?
     var hyperPolicyPack: String?
     var rolloutPack: String?
@@ -293,6 +294,8 @@ private struct Options {
                 index += 1
             case "--no-scheduled-resets":
                 scheduledResets = false
+            case "--no-periodic-resets":
+                periodicResets = false
             case "--continue-after-termination":
                 disableTaskTerminations = true
             case "--materialize-articulated-contact-responses":
@@ -978,6 +981,7 @@ private func masks(
     startStep: Int,
     stepCount: Int,
     environmentCount: Int,
+    periodicResets: Bool,
     pending: inout [Bool]
 ) -> [UInt32] {
     var result = [UInt32](
@@ -990,7 +994,7 @@ private func masks(
             let requested =
                 (step == 0 && pending[environment]) ||
                 (
-                    globalStep > 0 &&
+                    periodicResets && globalStep > 0 &&
                     (globalStep + 37 * environment) % 257 == 0
                 )
             if requested {
@@ -1300,7 +1304,10 @@ private enum TaskRolloutMain {
             let baseline = context.layout
             var generator = SplitMix64(seed: options.seed)
             var pending = [Bool](
-                repeating: false,
+                // Policy evaluation needs the authored initial state even
+                // when periodic benchmark resets are disabled. Keep the
+                // existing default rollout schedule unchanged on this branch.
+                repeating: options.scheduledResets && !options.periodicResets,
                 count: options.environments
             )
             var globalStep = 0
@@ -1528,6 +1535,7 @@ private enum TaskRolloutMain {
                             startStep: globalStep,
                             stepCount: stepCount,
                             environmentCount: options.environments,
+                            periodicResets: options.periodicResets,
                             pending: &pending
                         )
                         : []
@@ -2524,6 +2532,7 @@ private enum TaskRolloutMain {
                     layout.peakAliasedBytes,
                 "host_requested_resets": totalResets,
                 "scheduled_resets": options.scheduledResets,
+                "periodic_resets": options.periodicResets,
                 "maximum_active_contacts": maximumContacts,
                 "maximum_manifolds": maximumManifolds,
                 "stage_high_water": stageHighWater,

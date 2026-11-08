@@ -1,0 +1,14 @@
+..............................................F
+======================================================================
+FAIL: test_zero_authority_teacher_is_removed_for_student_evaluation (tests.policy_selection_test.PolicySelectionTest.test_zero_authority_teacher_is_removed_for_student_evaluation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-reconciliation-20261108/tests/policy_selection_test.py", line 917, in test_zero_authority_teacher_is_removed_for_student_evaluation
+    self.assertNotIn("--interaction-reset-only", arguments)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '--interaction-reset-only' unexpectedly found in ['--task', 'supine-get-up', '--interaction-pack', 'teacher.interactionpack', '--interaction-clip', 'stand', '--interaction-student-authority', '0', '--interaction-reset-only', '--envs', '256', '--steps', '103', '--repeats', '1', '--chunk', '1', '--no-periodic-resets', '--seed', '42', '--metallib', 'MetalRobo.metallib', '--policy-pack', 'candidate.policypack', '--state-trace', 'candidate.tsv']
+
+----------------------------------------------------------------------
+Ran 47 tests in 1.007s
+
+FAILED (failures=1)

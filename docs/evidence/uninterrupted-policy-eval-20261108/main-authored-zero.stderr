@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-policy-repair-main-20261108/tests/clean_horizon_native_test.py", line 148, in <module>
+    main()
+    ~~~~^^
+  File "/Users/numi/numi-lab-policy-repair-main-20261108/tests/clean_horizon_native_test.py", line 125, in main
+    raise AssertionError(f"authored reset={enabled}: x={x}")
+AssertionError: authored reset=False: x=0.899999976
