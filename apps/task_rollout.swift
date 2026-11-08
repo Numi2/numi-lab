@@ -2747,18 +2747,25 @@ private enum TaskRolloutMain {
                 initialPolicyURL: initialPolicyURL
             )
             DispatchQueue.global(qos: .userInitiated).async {
+                let failed: Bool
                 do {
                     try run(options: options, inspector: inspector)
+                    failed = false
                 } catch {
                     if case MetalRoboRunInspectorError.closed = error {
                         // Closing the window ends its preview run cleanly.
+                        failed = false
                     } else {
                         FileHandle.standardError.write(
                             Data("task_rollout failed: \(error)\n".utf8)
                         )
+                        failed = true
                     }
                 }
                 DispatchQueue.main.async {
+                    if failed {
+                        Darwin.exit(1)
+                    }
                     NSApplication.shared.terminate(nil)
                 }
             }

@@ -1,0 +1,3 @@
+numi window: scene /Users/numi/numi-integrated-installed-smoke-20261108/workspace/.numi/runs/synthetic/diagnostic.json
+numi window: close the window to end the preview run.
+task_rollout failed: one or more WorldPack run owner artifacts failed to load
