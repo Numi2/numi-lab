@@ -1,0 +1,5 @@
+# Final private-only guard passed fresh CTest
+
+A separate fresh CMake/Ninja build of the narrowed private-only candidate completed both registered targets with two low-priority jobs; the full logs and warnings are retained. On 8 November 2026 CTest ran 01:24:37.280741–01:24:38.006982 UTC and passed both `metalrobo.upload_abort.initial` and `metalrobo.upload_abort.nonempty` (2/2). Fresh executables, shader, owner archive, CTest definitions and runner hashes matched before and after.
+
+The predicate now excludes `preferPrivateHeaps=false` as well as Millard, multicopter and device-physics programs. The tests qualify a first-empty-cache callback rejection/retry and an unchanged-populated-model negative/control in private mode, for this exact task and seed. Arena replacement and binding invalidation happen before guard construction; changed already-bound model/program uploads, shared configuration, device command errors after commit, visual history, mixed physics, force accuracy and performance remain unqualified. The preceding broad-predicate regressions and all failed prerequisites remain separate evidence.
