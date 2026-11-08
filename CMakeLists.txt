@@ -3109,6 +3109,17 @@ set_target_properties(
         BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib"
 )
 
+if(BUILD_TESTING)
+    foreach(_rod_case publication_probe axial_reference)
+        add_executable(metalrobo_coupled_rod_${_rod_case}
+            docs/evidence/rod-native-api-20261108/${_rod_case}.mm)
+        target_link_libraries(metalrobo_coupled_rod_${_rod_case} PRIVATE metalrobo)
+        add_dependencies(metalrobo_coupled_rod_${_rod_case} metalrobo_shaders)
+        add_test(NAME coupled_rod_${_rod_case}
+            COMMAND metalrobo_coupled_rod_${_rod_case} "${METALROBO_METALLIB}")
+    endforeach()
+endif()
+
 add_executable(
     metalrobo_surgical_knot_mechanics_probe
     apps/surgical_knot_mechanics_probe.mm

@@ -9,8 +9,10 @@ namespace metalrobo {
 
 // Research API for a single isolated straight-rest isotropic rod with two
 // hard endpoint supports. It does not replace MetalWorld or the XPBD solver.
-// Linear and angular tolerances bound the discrete momentum residual divided
-// by mass and rotational inertia, respectively (m/s and rad/s).
+// Linear and angular tolerances constrain the GPU-computed discrete momentum
+// residual divided by mass and rotational inertia (m/s and rad/s), plus the
+// measured state-conversion error. They are not an independent FP64 residual
+// certificate. Timestep and model coefficients are rounded to FP32 on device.
 struct MetalCoupledRodConfig {
     double timestep = 0.001;
     std::uint32_t maximumIterations = 30u;
