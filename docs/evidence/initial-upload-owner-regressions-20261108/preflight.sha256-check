@@ -1,0 +1,11 @@
+/Users/numi/numi-lab-main-upload-limited-build-20261108/ccd-world: OK
+/Users/numi/numi-lab-main-upload-limited-build-20261108/ccd-kinematic: OK
+/Users/numi/numi-lab-main-upload-limited-build-20261108/MetalRobo.metallib: OK
+/Users/numi/numi-lab-main-upload-limited-build-20261108/owner.a: OK
+shasum: tests/ccd/world/regression.py: No such file or directory
+tests/ccd/world/regression.py: FAILED open or read
+shasum: tests/ccd/world/analyze.py: No such file or directory
+tests/ccd/world/analyze.py: FAILED open or read
+shasum: tests/ccd/world/kinematic_rollback_regression.py: No such file or directory
+tests/ccd/world/kinematic_rollback_regression.py: FAILED open or read
+shasum: WARNING: 3 listed files could not be read
