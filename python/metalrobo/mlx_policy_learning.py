@@ -113,6 +113,10 @@ class NativePolicyRollout:
             raise ValueError("discount must be in [0, 1]")
         if not 0.0 <= gae_lambda <= 1.0:
             raise ValueError("gae_lambda must be in [0, 1]")
+        # Direct API callers must enforce the same physical boundary as the
+        # training worker; a failed step is not a valid PPO transition.
+        if np.any(self.transitions["physics_error"]):
+            raise ValueError("PolicyRolloutPack contains a physics failure")
         steps = self.control_step_count
         environments = self.environment_count
         if rewards is None:

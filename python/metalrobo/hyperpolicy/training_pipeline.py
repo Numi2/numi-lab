@@ -100,8 +100,14 @@ def _teacher_weights(rollout: NativePolicyRollout) -> np.ndarray:
     valid = (
         (transitions["physics_error"] == 0)
         & ((transitions["done"] == 0) | (transitions["timeout"] != 0))
-    ).astype(np.float32)
-    reward_quality = _rank01(transitions["reward"])
+    )
+    weight = np.zeros(valid.shape, dtype=np.float32)
+    if not np.any(valid):
+        return weight
+
+    # A rejected transition must not change the weighting of accepted
+    # transitions indirectly through the rank or tracking normalization.
+    reward_quality = _rank01(transitions["reward"][valid])
     tracking = None
     for identifier in (
         "tracking_score",
@@ -114,20 +120,20 @@ def _teacher_weights(rollout: NativePolicyRollout) -> np.ndarray:
     if tracking is None:
         tracking_quality = reward_quality
     else:
-        finite = np.isfinite(tracking)
-        if not finite.all():
+        if not np.isfinite(tracking).all():
             raise ValueError("rollout tracking outcome is non-finite")
-        minimum = float(np.min(tracking))
-        maximum = float(np.max(tracking))
+        selected = tracking[valid]
+        minimum = float(np.min(selected))
+        maximum = float(np.max(selected))
         tracking_quality = (
-            (tracking - minimum) / max(maximum - minimum, 1.0e-6)
+            (selected - minimum) / max(maximum - minimum, 1.0e-6)
         ).astype(np.float32)
-    weight = valid * np.clip(
+    weight[valid] = np.clip(
         0.10 + 0.55 * tracking_quality + 0.35 * reward_quality,
         0.0,
         1.0,
     )
-    return weight.astype(np.float32)
+    return weight
 
 
 def specialist_batch_from_rollout(
@@ -139,30 +145,34 @@ def specialist_batch_from_rollout(
     if rollout.teacher_actions.size == 0:
         raise ValueError("hyper-policy rollout did not publish executed teacherActions")
     phases = _phase_values(rollout)
-    reference = _sample_rows(
-        motion_policy.reference_phases,
-        motion_policy.reference_actions,
-        phases,
-    )
-    teacher = np.asarray(rollout.teacher_actions, dtype=np.float32).reshape(
-        rollout.sample_count, rollout.action_count
-    )
     if rollout.action_count != configuration.action_count:
         raise ValueError("rollout and hyper-policy action widths differ")
     weights = _teacher_weights(rollout)
-    if not np.any(weights > 0.0):
+    valid = weights > 0.0
+    if not np.any(valid):
         raise ValueError("rollout contains no physically valid teacher sample")
+    # Do not send rejected rows through the actor at all. A zero loss weight
+    # cannot neutralize overflow or NaN produced by processing such a row.
+    selected_phases = phases[valid]
+    reference = _sample_rows(
+        motion_policy.reference_phases,
+        motion_policy.reference_actions,
+        selected_phases,
+    )
+    teacher = np.asarray(rollout.teacher_actions, dtype=np.float32).reshape(
+        rollout.sample_count, rollout.action_count
+    )[valid]
     return SpecialistAdapterBatch(
         knot_phases=motion_policy.knot_phases[None].astype(np.float32),
         knot_mask=np.ones((1, motion_policy.knot_phases.size), dtype=np.float32),
         actor_observations=np.asarray(
             rollout.actor_observations, dtype=np.float32
-        ).reshape(rollout.sample_count, rollout.actor_observation_count),
-        sample_motion_indices=np.zeros(rollout.sample_count, dtype=np.int32),
-        sample_phases=phases,
+        ).reshape(rollout.sample_count, rollout.actor_observation_count)[valid],
+        sample_motion_indices=np.zeros(int(np.count_nonzero(valid)), dtype=np.int32),
+        sample_phases=selected_phases,
         reference_actions=reference,
         teacher_actions=teacher,
-        teacher_weights=weights,
+        teacher_weights=weights[valid],
     )
 
 
@@ -268,6 +278,10 @@ def _pad_motion_batch(
 ) -> HyperPolicySupervisionBatch:
     if not items:
         raise ValueError("meta-training requires at least one motion")
+    # A numerical failure is neither a successful physical rollout nor a
+    # negative physical outcome for the motion-level failure classifier.
+    if any(np.any(item.rollout.transitions["physics_error"]) for item in items):
+        raise ValueError("meta-training rollout contains a physics failure")
     batch = len(items)
     maximum_frames = max(item.motion.frame_count for item in items)
     maximum_knots = max(item.motion.knot_phases.size for item in items)

@@ -1,0 +1,139 @@
+..FFFFFFF.F
+======================================================================
+FAIL: test_empty_valid_and_single_valid (__main__.HyperPolicyPhysicsErrorTest.test_empty_valid_and_single_valid)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/hyper_policy_failure_training_test.py", line 93, in test_empty_valid_and_single_valid
+    self.assertAlmostEqual(float(_teacher_weights(one)[0]), 0.45, places=6)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0.10000000149011612 != 0.45 within 6 places (0.3499999985098839 difference)
+
+======================================================================
+FAIL: test_failed_reward_and_tracking_do_not_change_accepted_weights (__main__.HyperPolicyPhysicsErrorTest.test_failed_reward_and_tracking_do_not_change_accepted_weights)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/hyper_policy_failure_training_test.py", line 69, in test_failed_reward_and_tracking_do_not_change_accepted_weights
+    np.testing.assert_allclose(weights[[0, 2, 3]], changed[[0, 2, 3]])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/numi-window-integration-venv-20261107/lib/python3.13/site-packages/numpy/testing/_private/utils.py", line 1780, in assert_allclose
+    assert_array_compare(compare, actual, desired, err_msg=str(err_msg),
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         verbose=verbose, header=header, equal_nan=equal_nan,
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         strict=strict)
+                         ^^^^^^^^^^^^^^
+  File "/Users/numi/numi-window-integration-venv-20261107/lib/python3.13/site-packages/numpy/testing/_private/utils.py", line 988, in assert_array_compare
+    raise AssertionError(msg)
+AssertionError:
+Not equal to tolerance rtol=1e-07, atol=0
+
+Mismatched elements: 3 / 3 (100%)
+Mismatch at indices:
+ [0]: 0.10000000149011612 (ACTUAL), 0.6493411064147949 (DESIRED)
+ [1]: 0.699999988079071 (ACTUAL), 0.7664470672607422 (DESIRED)
+ [2]: 1.0 (ACTUAL), 0.8833333849906921 (DESIRED)
+Max absolute difference among violations: 0.5493411
+Max relative difference among violations: 0.8459977
+ ACTUAL: array([0.1, 0.7, 1. ], dtype=float32)
+ DESIRED: array([0.649341, 0.766447, 0.883333], dtype=float32)
+
+======================================================================
+FAIL: test_failed_reward_does_not_change_reward_only_ranking (__main__.HyperPolicyPhysicsErrorTest.test_failed_reward_does_not_change_reward_only_ranking)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/hyper_policy_failure_training_test.py", line 76, in test_failed_reward_does_not_change_reward_only_ranking
+    np.testing.assert_allclose(_teacher_weights(first)[[0, 2, 3]],
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                               _teacher_weights(second)[[0, 2, 3]])
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/numi-window-integration-venv-20261107/lib/python3.13/site-packages/numpy/testing/_private/utils.py", line 1780, in assert_allclose
+    assert_array_compare(compare, actual, desired, err_msg=str(err_msg),
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         verbose=verbose, header=header, equal_nan=equal_nan,
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         strict=strict)
+                         ^^^^^^^^^^^^^^
+  File "/Users/numi/numi-window-integration-venv-20261107/lib/python3.13/site-packages/numpy/testing/_private/utils.py", line 988, in assert_array_compare
+    raise AssertionError(msg)
+AssertionError:
+Not equal to tolerance rtol=1e-07, atol=0
+
+Mismatched elements: 2 / 3 (66.7%)
+Mismatch at indices:
+ [1]: 0.699999988079071 (ACTUAL), 0.4000000059604645 (DESIRED)
+ [2]: 1.0 (ACTUAL), 0.699999988079071 (DESIRED)
+Max absolute difference among violations: 0.3
+Max relative difference among violations: 0.74999994
+ ACTUAL: array([0.1, 0.7, 1. ], dtype=float32)
+ DESIRED: array([0.1, 0.4, 0.7], dtype=float32)
+
+======================================================================
+FAIL: test_meta_training_rejects_numerical_failure_as_outcome (__main__.HyperPolicyPhysicsErrorTest.test_meta_training_rejects_numerical_failure_as_outcome)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/hyper_policy_failure_training_test.py", line 242, in test_meta_training_rejects_numerical_failure_as_outcome
+    with self.assertRaisesRegex(ValueError, "physics failure"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_public_policy_batch_rejects_failed_physics (__main__.HyperPolicyPhysicsErrorTest.test_public_policy_batch_rejects_failed_physics)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/hyper_policy_failure_training_test.py", line 237, in test_public_policy_batch_rejects_failed_physics
+    with self.assertRaisesRegex(ValueError, "physics failure"):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_real_specialist_update_ignores_failed_row (__main__.HyperPolicyPhysicsErrorTest.test_real_specialist_update_ignores_failed_row)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/hyper_policy_failure_training_test.py", line 205, in test_real_specialist_update_ignores_failed_row
+    self.assertEqual(first, second)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: {'spe[13 chars]: 0.17074993252754211, 'specialist_action_loss[226 chars]6736} != {'spe[13 chars]: 0.1395154893398285, 'specialist_action_loss'[225 chars]4557}
+Diff is 669 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_specialist_batch_and_mlx_loss_ignore_failed_row (__main__.HyperPolicyPhysicsErrorTest.test_specialist_batch_and_mlx_loss_ignore_failed_row)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/hyper_policy_failure_training_test.py", line 150, in test_specialist_batch_and_mlx_loss_ignore_failed_row
+    self.assertEqual(loss(baseline), loss(changed))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: nan != nan
+
+======================================================================
+FAIL: test_termination_is_excluded_and_timeout_is_included (__main__.HyperPolicyPhysicsErrorTest.test_termination_is_excluded_and_timeout_is_included)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "tests/hyper_policy_failure_training_test.py", line 87, in test_termination_is_excluded_and_timeout_is_included
+    np.testing.assert_allclose(a[[0, 2, 3]], b[[0, 2, 3]])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/numi-window-integration-venv-20261107/lib/python3.13/site-packages/numpy/testing/_private/utils.py", line 1780, in assert_allclose
+    assert_array_compare(compare, actual, desired, err_msg=str(err_msg),
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         verbose=verbose, header=header, equal_nan=equal_nan,
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         strict=strict)
+                         ^^^^^^^^^^^^^^
+  File "/Users/numi/numi-window-integration-venv-20261107/lib/python3.13/site-packages/numpy/testing/_private/utils.py", line 988, in assert_array_compare
+    raise AssertionError(msg)
+AssertionError:
+Not equal to tolerance rtol=1e-07, atol=0
+
+Mismatched elements: 3 / 3 (100%)
+Mismatch at indices:
+ [0]: 0.10000000149011612 (ACTUAL), 0.21666666865348816 (DESIRED)
+ [1]: 0.699999988079071 (ACTUAL), 0.33377349376678467 (DESIRED)
+ [2]: 1.0 (ACTUAL), 0.45066025853157043 (DESIRED)
+Max absolute difference among violations: 0.5493398
+Max relative difference among violations: 1.2189665
+ ACTUAL: array([0.1, 0.7, 1. ], dtype=float32)
+ DESIRED: array([0.216667, 0.333773, 0.45066 ], dtype=float32)
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.010s
+
+FAILED (failures=8)
