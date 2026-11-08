@@ -1,0 +1,17 @@
+{
+  "executions": 12,
+  "fully_passing": 12,
+  "repeated_cases_equal": 6,
+  "case_count": 6,
+  "accepted_steps": 768,
+  "maxima": {
+    "position_m": 9.237055564881302e-13,
+    "velocity_m_s": 9.385698884756266e-09,
+    "force_N": 1.1683778097792974e-08,
+    "work_J": 1.2233821413388754e-13,
+    "local_momentum_m_s": 4.503148774091456e-06,
+    "gradient_disagreement_m_s": 4.085568028611153e-07,
+    "reference_free_row_N": 9.893419417039695e-12
+  }
+}
+failures []

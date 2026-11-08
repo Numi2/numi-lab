@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+clang++ -std=c++20 -O2 -fobjc-arc -I /Users/numi/numi-lab-tracker-step-rollback-20261108/include -I /Users/numi/numi-lab-tracker-step-rollback-20261108/matter/include ../rod-paired-step-20261108/candidate-host.mm trajectory.mm -L /Users/numi/numi-tracker-step-rollback-build-20261108/lib -lmetalrobo -Wl,-rpath,/Users/numi/numi-tracker-step-rollback-build-20261108/lib -framework Foundation -framework Metal -o trajectory
+clang++ -std=c++20 -O2 -fobjc-arc -I /Users/numi/numi-lab-tracker-step-rollback-20261108/include -I /Users/numi/numi-lab-tracker-step-rollback-20261108/matter/include ../rod-paired-step-20261108/candidate-host.mm trajectory-v2.mm -L /Users/numi/numi-tracker-step-rollback-build-20261108/lib -lmetalrobo -Wl,-rpath,/Users/numi/numi-tracker-step-rollback-build-20261108/lib -framework Foundation -framework Metal -o trajectory-v2
