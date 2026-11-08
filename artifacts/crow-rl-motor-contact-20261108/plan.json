@@ -1,0 +1,108 @@
+{
+  "alternative": "The contact-corrected state satisfies the bounded implicit force law; the crow failure has a different mechanism.",
+  "budget": {
+    "artifact_growth_max_bytes": 20000000,
+    "native_commands": 1,
+    "native_states": 96,
+    "timeout_seconds": 120
+  },
+  "calibration": {
+    "conditions": 8,
+    "maximum_mass_error": 0
+  },
+  "command": [
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-20261108/probe",
+    "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-20261108/metalrobo/MetalRobo.metallib",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-build-01/native.tsv"
+  ],
+  "conditions": {
+    "armatures_kg": [
+      0.001,
+      0.002
+    ],
+    "ccd": "disabled",
+    "contact_iterations": 8,
+    "d_Ns_per_m": 8,
+    "force_cap_N": 0.01,
+    "friction": 0,
+    "gap_m": 0,
+    "gravity": [
+      0,
+      0,
+      0
+    ],
+    "h_seconds": [
+      0.00025,
+      0.000625,
+      0.001
+    ],
+    "initial_q_m": 0,
+    "initial_v_m_per_s": 0,
+    "k_N_per_m": 300,
+    "masses_kg": [
+      0.004,
+      0.011
+    ],
+    "sphere_radius_m": 0.01,
+    "target_m": [
+      -2e-05,
+      -5e-05,
+      -0.004,
+      2e-05
+    ],
+    "warm_start": false
+  },
+  "control_order": [
+    "effort collision off/on (48 states)",
+    "bounded collision off (24 states)",
+    "bounded collision on (24 states)"
+  ],
+  "current_model": "Twofold bounded smooth prediction followed by a separate contact solve, source 820b3009.",
+  "dynamic_library": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-20261108/libmetalrobo.dylib",
+  "experimental_unit": "One model/step/target/contact/mode initial condition; lanes and related conditions are not independent replications.",
+  "mechanism_prediction": "For each of six unsaturated into-contact lane-0 conditions, the motor force inferred from independent physical mass and native smooth acceleration differs from the force law at accepted q/v by at least 5% of the law force. Free and continuously saturated controls remain below 1e-7 N absolute force error.",
+  "policy_or_profile_promoted": false,
+  "primary": "abs(applied_force-final_law_force)/abs(final_law_force) on bounded contact lane 0.",
+  "prior_scientific_evidence": "artifacts/crow-rl-bounded-drive-crow-20261108/README.md",
+  "purpose": "Mechanism diagnosis with calibrated native observations; finite deterministic conditions, not biological or learning qualification.",
+  "question": "Does one-way smooth bounded-motor prediction followed by physical-mass contact violate the motor law at accepted constrained state?",
+  "refutation": "Any valid lane-0 contact condition has relative motor-law discrepancy below .05, or any validity/control gate fails (inconclusive instrument rather than support).",
+  "schema": "crow-scientific-plan-v1",
+  "source_and_runtime_sha256": {
+    ".numi/retained-runtime/motor-contact-20261108/libmetalrobo.dylib": "b24ad4015c718e0c688eaf95b4b207ceacafa9f650f20894fefa5581b1698fd5",
+    ".numi/retained-runtime/motor-contact-20261108/metalrobo/MetalRobo.metallib": "6eb48053118d0e54850d21241e499100787de13af84e54e5b48ddc8130876be2",
+    ".numi/retained-runtime/motor-contact-20261108/probe": "481c5c26f306267e87c56ec2aff5c687ea1b286458bbc3e3546211800277ae3e",
+    "CMakeLists.txt": "bc43495b80b53b9d8feb9be952afb2a8c7efe7350cedda8c0049a4164e899769",
+    "apps/motor_contact_probe.cpp": "3991a467d63d148fd8cc492c2822b783756ea7b40694d7735963b8633879c09e",
+    "build/crow-motor-contact-build-01/calibration.stdout": "8223b5bfa4346a29ab7cff7344de59eef4d32734c0ca7d439ff6aeac0b3caaa0"
+  },
+  "stop_rule": "Stop at the first unexpected native status, validity/control failure, timeout or identity mismatch; retain every attempt. No retries of observed conditions as confirmation.",
+  "unused_followup": {
+    "armature_kg": [
+      0.001,
+      0.002
+    ],
+    "h_seconds": [
+      0.000375,
+      0.00075,
+      0.000875
+    ],
+    "mass_kg": [
+      0.007,
+      0.019
+    ],
+    "target_m": [
+      -3e-05,
+      -8e-05,
+      -0.003,
+      3e-05
+    ]
+  },
+  "validity": {
+    "accepted_states": 96,
+    "force_null_positive_controls_N": 1e-07,
+    "momentum_balance_Ns": 2e-09,
+    "no_open_handles_before_capture": true,
+    "q_equals_h_v_m": 2e-09
+  }
+}
