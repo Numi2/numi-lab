@@ -1,0 +1,7 @@
+valid_mixed mismatches=0 env0_confidence=1 env1_confidence=1
+no_depth mismatches=0 env0_confidence=0 env1_confidence=0
+no_frame mismatches=0 env0_confidence=0 env1_confidence=0
+valid_plus_missing_frame mismatches=0 env0_confidence=1 env1_confidence=1
+temporal_step=0 mismatches=0 old=1 newest=1
+temporal_step=1 mismatches=0 old=1 newest=0
+temporal_step=2 mismatches=0 old=0 newest=1

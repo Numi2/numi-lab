@@ -45,7 +45,9 @@ kernel void mr_hybrid_reduce_object_tracks(
     for (uint pixel = lane; pixel < pixelCount; pixel += lanes) {
         const uint source = pixelBase + pixel;
         const float z = depth[source];
-        if (validity[source] == 0u ||
+        const uint requiredValidity =
+            MR_VISUAL_VALIDITY_FRAME | MR_VISUAL_VALIDITY_DEPTH;
+        if ((validity[source] & requiredValidity) != requiredValidity ||
             identities[source].y != binding.identity.x ||
             !(z > 0.0f) || !isfinite(z)) {
             continue;

@@ -795,6 +795,8 @@ int main() {
         require(smallWorlds.sample(kEnvironmentCount, 0x5eed1234ull),
                 "small camera world sample");
         auto boundReferenceScene = boundObjectScene;
+        auto dropoutScene = boundObjectScene;
+        auto dropoutReferenceScene = boundObjectScene;
         metalrobo::MetalHybridRenderer referenceRenderer(boundRendererConfig);
         require(referenceRenderer.compile(std::move(boundReferenceScene),
                     metalrobo::VisualRendererProfileV1::sensorFast(),
@@ -836,6 +838,7 @@ int main() {
         boundConfig.maskedDepthFrameOffsets = {0u, 1u};
         boundConfig.maskedDepthNearMeters = 0.1f;
         boundConfig.maskedDepthFarMeters = 5.0f;
+        auto dropoutConfig = boundConfig;
         metalrobo::MetalHybridObjectTracker boundTracker;
         require(boundTracker.compile(boundRenderer, smallWorlds, std::move(boundConfig)),
                 "bound-object geometric tracker compile");
@@ -912,6 +915,90 @@ int main() {
                     boundHistory[env * kActorFrameSize * kActorHistoryLength] > 0.5f &&
                     selectedPixels > 0,
                     "bound-object tracker requires materialized visible planes");
+        }
+        // Keep the same geometry and transforms, but force camera depth
+        // dropout. Geometry is still present while no depth is measurable.
+        auto dropoutEpisode = smallEpisode;
+        dropoutEpisode.sensors[0].depthDropout = 1.0f;
+        metalrobo::WorldTemplate dropoutTemplate;
+        require(metalrobo::compileEpisodeTwin(
+                    dropoutEpisode, metalrobo::makeFrankaPickPlaceEngineModel(),
+                    dropoutTemplate), "dropout episode compile");
+        metalrobo::WorldFamily dropoutFamily;
+        require(metalrobo::compileWorldFamily(
+                    dropoutTemplate, metalrobo::makeFrankaPickPlaceWorldProgram(),
+                    dropoutFamily), "dropout family compile");
+        metalrobo::MetalWorldFamilyContext dropoutWorlds;
+        require(dropoutWorlds.compile(dropoutFamily, kEnvironmentCount),
+                "dropout world compile");
+        require(dropoutWorlds.sample(kEnvironmentCount, 0x5eed1234ull),
+                "dropout world sample");
+        metalrobo::MetalHybridRenderer dropoutReferenceRenderer(boundRendererConfig);
+        require(dropoutReferenceRenderer.compile(std::move(dropoutReferenceScene),
+                    metalrobo::VisualRendererProfileV1::sensorFast(),
+                    kEnvironmentCount), "dropout reference compile");
+        require(dropoutReferenceRenderer.renderLive(dropoutWorlds, referenceLive, 0u),
+                "dropout reference render");
+        metalrobo::HybridObservationBatch dropoutReference;
+        require(dropoutReferenceRenderer.readback(dropoutReference),
+                "dropout reference readback");
+        for (std::uint32_t env = 0u; env < kEnvironmentCount; ++env) {
+            std::size_t geometry = 0u, validDepth = 0u;
+            for (std::size_t pixel = 0u; pixel < kSmallPixels; ++pixel) {
+                const auto index = env * kSmallPixels + pixel;
+                if (dropoutReference.identities[index].y == boundInstance &&
+                    (dropoutReference.validity[index] & MR_VISUAL_VALIDITY_GEOMETRY)) {
+                    ++geometry;
+                    validDepth += (dropoutReference.validity[index] &
+                                   MR_VISUAL_VALIDITY_DEPTH) != 0u;
+                }
+            }
+            std::cout << "dropout_reference_env=" << env << " geometry=" << geometry
+                      << " valid_depth=" << validDepth << '\n';
+            require(geometry > 0u && validDepth == 0u,
+                    "dropout reference must have geometry without depth");
+        }
+        metalrobo::MetalHybridRenderer dropoutRenderer(boundRendererConfig);
+        require(dropoutRenderer.compile(std::move(dropoutScene),
+                    metalrobo::VisualRendererProfileV1::sensorFast(),
+                    kEnvironmentCount), "dropout tracker renderer compile");
+        metalrobo::MetalHybridObjectTracker dropoutTracker;
+        require(dropoutTracker.compile(dropoutRenderer, dropoutWorlds,
+                                       std::move(dropoutConfig)),
+                "dropout tracker compile");
+        const auto dropoutProgram = dropoutTracker.observationProgram();
+        std::fill_n(static_cast<float*>(boundObservations.contents),
+                    kBoundOffset + trackElements, -5.0f);
+        std::memset(historyBuffer.contents, 0, historyBuffer.length);
+        std::fill_n(static_cast<std::uint32_t*>(resetBuffer.contents),
+                    kEnvironmentCount, 1u);
+        id<MTLCommandBuffer> dropoutCommand = [queue commandBuffer];
+        auto dropoutPass = boundPass;
+        dropoutPass.commandBuffer = (__bridge void*)dropoutCommand;
+        require(dropoutProgram.valid() &&
+                    dropoutProgram.encode(dropoutProgram.context, dropoutPass),
+                "dropout tracker encode");
+        [dropoutCommand commit];
+        [dropoutCommand waitUntilCompleted];
+        require(dropoutCommand.status == MTLCommandBufferStatusCompleted,
+                "dropout tracker completion");
+        const float* dropoutOutput =
+            static_cast<const float*>(boundObservations.contents) + kBoundOffset;
+        const float* dropoutHistory = static_cast<const float*>(historyBuffer.contents);
+        for (std::uint32_t env = 0u; env < kEnvironmentCount; ++env) {
+            const float* frame = dropoutOutput + env * kTrackWidth;
+            const float* history = dropoutHistory +
+                env * kActorFrameSize * kActorHistoryLength;
+            const float* depth = frame + kActorFrameSize * kActorHistoryLength;
+            std::cout << "dropout_env=" << env << " confidence=" << frame[0]
+                      << " history_confidence=" << history[0] << '\n';
+            require(std::all_of(frame, frame + kActorFrameSize * kActorHistoryLength,
+                                [](float value) { return value == 0.0f; }) &&
+                    std::all_of(history, history + kActorFrameSize * kActorHistoryLength,
+                                [](float value) { return value == 0.0f; }) &&
+                    std::all_of(depth, depth + 2u * kSmallPixels,
+                                [](float value) { return value == 1.0f; }),
+                    "dropout produced a spurious object track or depth");
         }
         std::filesystem::remove(authoredPackPath, ignoredAuthoredPackRemoval);
 

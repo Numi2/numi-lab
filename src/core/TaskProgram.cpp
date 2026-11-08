@@ -4515,18 +4515,22 @@ TaskCompileDiagnostics compileTaskProgram(
     // Object tracks use the complete per-environment actor observation
     // stride when actorCurrent or visual suffixes extend compact history.
     // Policies from the old multi-environment layout are incompatible.
-    const bool objectTrackWithExtendedStride =
+    const bool hasObjectTrack = std::ranges::any_of(
+        staged->actorOperators,
+        [](const MRTaskObservationOperatorGPU& operation) {
+            return operation.source.x == MR_TASK_OBSERVE_OBJECT_TRACK;
+        }
+    );
+    if (hasObjectTrack &&
         static_cast<std::uint64_t>(staged->layout.actorFrameSize) *
                 staged->layout.actorHistoryLength !=
-            staged->layout.actorObservationSize &&
-        std::ranges::any_of(
-            staged->actorOperators,
-            [](const MRTaskObservationOperatorGPU& operation) {
-                return operation.source.x == MR_TASK_OBSERVE_OBJECT_TRACK;
-            }
-        );
-    if (objectTrackWithExtendedStride) {
+            staged->layout.actorObservationSize) {
         observationHash.scalar(std::uint32_t{0x4f545301u});
+    }
+    // Object centroids require both a captured frame and measured depth.
+    // All actor object-track policies used the older validity predicate.
+    if (hasObjectTrack) {
+        observationHash.scalar(std::uint32_t{0x4f545602u});
     }
     staged->observationFingerprint = observationHash.finish();
 

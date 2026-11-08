@@ -1,0 +1,7 @@
+retry_sensor_sequence=1
+direct_winner_retry=pass
+bound_env=0 reference_visible=1 actual_visible=1 track=1 history=1 depth_pixels=1
+bound_env=1 reference_visible=2 actual_visible=2 track=1 history=1 depth_pixels=2
+dropout_reference_env=0 geometry=1 valid_depth=0
+dropout_reference_env=1 geometry=2 valid_depth=0
+dropout_env=0 confidence=1 history_confidence=1

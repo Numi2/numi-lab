@@ -1,0 +1,4 @@
+valid_mixed mismatches=24 env0_confidence=1 env1_confidence=1
+no_depth mismatches=32 env0_confidence=1 env1_confidence=1
+no_frame mismatches=32 env0_confidence=1 env1_confidence=1
+valid_plus_missing_frame mismatches=24 env0_confidence=1 env1_confidence=1

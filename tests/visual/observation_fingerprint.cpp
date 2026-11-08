@@ -90,10 +90,7 @@ int main(int argc, char **argv) {
                     policy.contract.observationFingerprint = old.observationFingerprint;
                     std::cout << "mode=" << mode << " test_only_task_rebind=1\n";
                 }
-                if ((mode == 0 &&
-                     old.observationFingerprint != task.observationFingerprint()) ||
-                    (mode != 0 &&
-                     old.observationFingerprint == task.observationFingerprint())) {
+                if (old.observationFingerprint == task.observationFingerprint()) {
                     throw std::runtime_error("observation fingerprint migration gate");
                 }
             }
@@ -109,10 +106,9 @@ int main(int argc, char **argv) {
             if (write && !ps.succeeded())
                 throw std::runtime_error("baseline self compile");
             if (!write &&
-                ((mode == 0 && !ps.succeeded()) ||
-                 (mode != 0 && ps.status != PolicyCompileStatus::incompatibleContract)))
+                ps.status != PolicyCompileStatus::incompatibleContract)
                 throw std::runtime_error("migration gate");
-            if (!write && mode != 0) {
+            if (!write) {
                 bindPolicyPack(policy, task);
                 CompiledPolicyProgram rebound;
                 auto c = compilePolicyProgram(policy, task, rebound);
