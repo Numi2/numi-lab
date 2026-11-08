@@ -1,0 +1,20 @@
+{
+  "archive_commit": "d93d98a89dd9d3a15a78129cb44a6e0d53641e46",
+  "remote_commit": "d93d98a89dd9d3a15a78129cb44a6e0d53641e46",
+  "replay_receipt": "restore-replay.json",
+  "removed_raw_rollouts": [
+    {
+      "path": "build/crow-navigation-prefix-training-01/rollout.bin",
+      "bytes": 50893792,
+      "sha256": "8b5e0f88e5652bd25decb5bfd37a518fbf1e8c1d07de66594f14655fd87d6c08"
+    },
+    {
+      "path": "build/crow-navigation-prefix-unclipped-01/rollout.bin",
+      "bytes": 50893792,
+      "sha256": "b5a67631c163902c40371f9c607346218feeeb867dd15b926646ca064ec33ad9"
+    }
+  ],
+  "temporary_restore_removed": "build/crow-navigation-restore-check-01",
+  "recovery_manifest": "../crow-navigation-20261108-recovery/manifest.json",
+  "note": "Other runtime and model files retained; restore with tools/crow_evidence_archive.py."
+}

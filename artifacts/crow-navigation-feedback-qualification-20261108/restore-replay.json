@@ -1,0 +1,42 @@
+{
+  "restored_policy_sha256": "205e4256ae8178e1d93ca838abc6e83f9cf37e7392ed625f6f6ee855d0f59e25",
+  "expected_policy_sha256": "205e4256ae8178e1d93ca838abc6e83f9cf37e7392ed625f6f6ee855d0f59e25",
+  "same_sha256": true,
+  "replay_matches": {
+    "maximum_waypoints_by_environment": true,
+    "physical_failure_by_environment": true,
+    "safe_completion_by_environment": true,
+    "termination_reason_by_environment": true,
+    "steps_by_environment": true
+  },
+  "failed_environment_steps": 0,
+  "argv": [
+    "/Users/n/Developer/numi-crow-rl-20261107/build/bin/metalrobo_task_rollout",
+    "--birdflow-american-crow-journey",
+    "--birdflow-journey-variant",
+    "v15",
+    "--birdflow-navigation-course",
+    "held-out-a",
+    "--envs",
+    "8",
+    "--steps",
+    "1600",
+    "--repeats",
+    "1",
+    "--chunk",
+    "1",
+    "--physics-substeps",
+    "4",
+    "--seed",
+    "20261109",
+    "--no-scheduled-resets",
+    "--minimum-difficulty-band",
+    "10",
+    "--maximum-difficulty-band",
+    "10",
+    "--policy-pack",
+    "/Users/n/Developer/numi-crow-rl-20261107/build/crow-navigation-restore-check-01/build/crow-navigation-prefix-unclipped-01/updated.policypack.deployment.policypack",
+    "--visual-observation-config",
+    "assets/crow_navigation_course/crow-navigation.active-head.visual-observation.json"
+  ]
+}
