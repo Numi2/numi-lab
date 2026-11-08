@@ -1,0 +1,3646 @@
+{
+  "base_commit": "aeb7927613ac43b372f39b930dd8ec9f8ab50b4d",
+  "files": [
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/91416d391489b37c1c79918c1ec51ad81dbaa26ef99e6536f8a57d9f720cf8d7.gz"
+      },
+      "bytes": 4320928,
+      "mode": 420,
+      "mtime_ns": 1794145481837513944,
+      "path": "build/crow-quality-refinement-build-01/baseline.metallib",
+      "sha256": "91416d391489b37c1c79918c1ec51ad81dbaa26ef99e6536f8a57d9f720cf8d7"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148847766352176,
+      "path": "build/crow-quality-refinement-build-01/build-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 14244,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/0c6d2ef95c0e26863cf372a8cc1cc77ddfda871a8be270aabbd8f3f923a581cf.gz",
+            "sha256": "0c6d2ef95c0e26863cf372a8cc1cc77ddfda871a8be270aabbd8f3f923a581cf"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 14244,
+      "mode": 420,
+      "mtime_ns": 1794148871814851594,
+      "path": "build/crow-quality-refinement-build-01/build-0.stdout",
+      "sha256": "0c6d2ef95c0e26863cf372a8cc1cc77ddfda871a8be270aabbd8f3f923a581cf"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148871816722306,
+      "path": "build/crow-quality-refinement-build-01/build-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148871816688515,
+      "path": "build/crow-quality-refinement-build-01/build-1.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 58616,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/e9ac7d7a82f96def1f2a9deffd52317ef2dc3420335939617e9c18f58e0a21a6.gz",
+            "sha256": "e9ac7d7a82f96def1f2a9deffd52317ef2dc3420335939617e9c18f58e0a21a6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 58616,
+      "mode": 493,
+      "mtime_ns": 1794148872385985044,
+      "path": "build/crow-quality-refinement-build-01/probe",
+      "sha256": "e9ac7d7a82f96def1f2a9deffd52317ef2dc3420335939617e9c18f58e0a21a6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5711408,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/780a369bb9787a62b2110179a196b6281cb2ad14ecba16ada97792f18e9b2b04.gz",
+            "sha256": "780a369bb9787a62b2110179a196b6281cb2ad14ecba16ada97792f18e9b2b04"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5711408,
+      "mode": 493,
+      "mtime_ns": 1794148859433520405,
+      "path": "build/crow-quality-refinement-build-01/runtime/libmetalrobo.dylib",
+      "sha256": "780a369bb9787a62b2110179a196b6281cb2ad14ecba16ada97792f18e9b2b04"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-drive-ir-20261108/payload/blobs/80a77b7789e61262ef09f5a4377106e7f41994ae6774b45a9e1926a2a377646a.gz"
+      },
+      "bytes": 58416,
+      "mode": 493,
+      "mtime_ns": 1794148867217704598,
+      "path": "build/crow-quality-refinement-build-01/runtime/metalrobo_constraint_ir_probe",
+      "sha256": "80a77b7789e61262ef09f5a4377106e7f41994ae6774b45a9e1926a2a377646a"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/df2f144721ff04692399afa7316ca7c88a189689acdbfb4358030ef570c0f687.gz"
+      },
+      "bytes": 55176,
+      "mode": 493,
+      "mtime_ns": 1794148867129285121,
+      "path": "build/crow-quality-refinement-build-01/runtime/metalrobo_metal_unified_quality_probe",
+      "sha256": "df2f144721ff04692399afa7316ca7c88a189689acdbfb4358030ef570c0f687"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/bd0777b062295b4e08a4722124665725cb6842506054d05357a6346a76d39293.gz"
+      },
+      "bytes": 97472,
+      "mode": 493,
+      "mtime_ns": 1794148866205480221,
+      "path": "build/crow-quality-refinement-build-01/runtime/metalrobo_metal_world_contact_probe",
+      "sha256": "bd0777b062295b4e08a4722124665725cb6842506054d05357a6346a76d39293"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-drive-ir-20261108/payload/blobs/746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2.gz"
+      },
+      "bytes": 116464,
+      "mode": 493,
+      "mtime_ns": 1794148867596893312,
+      "path": "build/crow-quality-refinement-build-01/runtime/metalrobo_motor_contact_probe",
+      "sha256": "746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4458096,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/29089d4c0290435dc343e6e6a0984c1be1fd2e9b54192e5f59298ef991b91cda.gz",
+            "sha256": "29089d4c0290435dc343e6e6a0984c1be1fd2e9b54192e5f59298ef991b91cda"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4458096,
+      "mode": 420,
+      "mtime_ns": 1794148852176923320,
+      "path": "build/crow-quality-refinement-build-01/runtime/metalrobo/MetalRobo.metallib",
+      "sha256": "29089d4c0290435dc343e6e6a0984c1be1fd2e9b54192e5f59298ef991b91cda"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148903508311079,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-baseline-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 91,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/28b726e8aa79aa472c4cc3fe6b512af608ce56be7d92a07a26bb219553405c3e.gz",
+            "sha256": "28b726e8aa79aa472c4cc3fe6b512af608ce56be7d92a07a26bb219553405c3e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 91,
+      "mode": 420,
+      "mtime_ns": 1794148903977614899,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-baseline-0.stdout",
+      "sha256": "28b726e8aa79aa472c4cc3fe6b512af608ce56be7d92a07a26bb219553405c3e"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148904003311244,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-baseline-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 93,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/1895ce69d42e16ef9cd5d8741020fd763cfb197bb7e3c2de3e3f6f2daec33e57.gz",
+            "sha256": "1895ce69d42e16ef9cd5d8741020fd763cfb197bb7e3c2de3e3f6f2daec33e57"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 93,
+      "mode": 420,
+      "mtime_ns": 1794148904082590035,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-baseline-1.stdout",
+      "sha256": "1895ce69d42e16ef9cd5d8741020fd763cfb197bb7e3c2de3e3f6f2daec33e57"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148904096488398,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-candidate-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 91,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/785c72a641b5ee62557278ff2003f1eef163c100bcf42e8e27f841909408f067.gz",
+            "sha256": "785c72a641b5ee62557278ff2003f1eef163c100bcf42e8e27f841909408f067"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 91,
+      "mode": 420,
+      "mtime_ns": 1794148907734201002,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-candidate-0.stdout",
+      "sha256": "785c72a641b5ee62557278ff2003f1eef163c100bcf42e8e27f841909408f067"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148907789282118,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-candidate-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 93,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/6a33a4e5bc35810296f7d2f61a385cfeeef6d1984e4918bdb5f6de4550ac1c43.gz",
+            "sha256": "6a33a4e5bc35810296f7d2f61a385cfeeef6d1984e4918bdb5f6de4550ac1c43"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 93,
+      "mode": 420,
+      "mtime_ns": 1794148907879576433,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-candidate-1.stdout",
+      "sha256": "6a33a4e5bc35810296f7d2f61a385cfeeef6d1984e4918bdb5f6de4550ac1c43"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148907939557309,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-legacy-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 91,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/dc3c4374740dd1b316873900b29db9a0d41cfca087106ae52547bbe4172887df.gz",
+            "sha256": "dc3c4374740dd1b316873900b29db9a0d41cfca087106ae52547bbe4172887df"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 91,
+      "mode": 420,
+      "mtime_ns": 1794148908009533747,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-legacy-0.stdout",
+      "sha256": "dc3c4374740dd1b316873900b29db9a0d41cfca087106ae52547bbe4172887df"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148908030375582,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-baseline-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 93,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/acabc6d8e828c3c453625aec6ce461e5354845d56973cf0df6b5599ce9d26b17.gz",
+            "sha256": "acabc6d8e828c3c453625aec6ce461e5354845d56973cf0df6b5599ce9d26b17"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 93,
+      "mode": 420,
+      "mtime_ns": 1794148908116720306,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-baseline-0.stdout",
+      "sha256": "acabc6d8e828c3c453625aec6ce461e5354845d56973cf0df6b5599ce9d26b17"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148908121202107,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-baseline-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 92,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/9ac9ad9ff910e485fcc1398fafeb71af7ba802c0175c4d28b9e71164e655cc42.gz",
+            "sha256": "9ac9ad9ff910e485fcc1398fafeb71af7ba802c0175c4d28b9e71164e655cc42"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 92,
+      "mode": 420,
+      "mtime_ns": 1794148908192829299,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-baseline-1.stdout",
+      "sha256": "9ac9ad9ff910e485fcc1398fafeb71af7ba802c0175c4d28b9e71164e655cc42"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148908211645339,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-candidate-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 93,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/4d31a0a563d10a9ec0e47e77728333e0fc235e0e4df9fdc9032ab8c7ecf59306.gz",
+            "sha256": "4d31a0a563d10a9ec0e47e77728333e0fc235e0e4df9fdc9032ab8c7ecf59306"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 93,
+      "mode": 420,
+      "mtime_ns": 1794148908285793494,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-candidate-0.stdout",
+      "sha256": "4d31a0a563d10a9ec0e47e77728333e0fc235e0e4df9fdc9032ab8c7ecf59306"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148908301661694,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-candidate-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 91,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/1edeb4af4eb65389b543c2090e2cec7e574e5c2ef64c5dce955514b6f1f22160.gz",
+            "sha256": "1edeb4af4eb65389b543c2090e2cec7e574e5c2ef64c5dce955514b6f1f22160"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 91,
+      "mode": 420,
+      "mtime_ns": 1794148908373586637,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-candidate-1.stdout",
+      "sha256": "1edeb4af4eb65389b543c2090e2cec7e574e5c2ef64c5dce955514b6f1f22160"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148908391613759,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-legacy-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 92,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/3a041dccc642b79fb8937d85c00d4385d0252ca4eedd8cfa454d495bcc89bdde.gz",
+            "sha256": "3a041dccc642b79fb8937d85c00d4385d0252ca4eedd8cfa454d495bcc89bdde"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 92,
+      "mode": 420,
+      "mtime_ns": 1794148908450991675,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-legacy-0.stdout",
+      "sha256": "3a041dccc642b79fb8937d85c00d4385d0252ca4eedd8cfa454d495bcc89bdde"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148908481747948,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-baseline-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 93,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/6c697306be8e93203fbdce63f14b8e5642a9f39b50af7852f91d6c52d6a32905.gz",
+            "sha256": "6c697306be8e93203fbdce63f14b8e5642a9f39b50af7852f91d6c52d6a32905"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 93,
+      "mode": 420,
+      "mtime_ns": 1794148908549104215,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-baseline-0.stdout",
+      "sha256": "6c697306be8e93203fbdce63f14b8e5642a9f39b50af7852f91d6c52d6a32905"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148908571806429,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-baseline-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 91,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/5a2440c95f9c7379b6b2cfde03cd0a7a2af68e890a655bd7402179964c743801.gz",
+            "sha256": "5a2440c95f9c7379b6b2cfde03cd0a7a2af68e890a655bd7402179964c743801"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 91,
+      "mode": 420,
+      "mtime_ns": 1794148908643364205,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-baseline-1.stdout",
+      "sha256": "5a2440c95f9c7379b6b2cfde03cd0a7a2af68e890a655bd7402179964c743801"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148908662055369,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-candidate-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 93,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/ca1deb50431593018cfe3f6098ca7d5a9c0f7004471e7960f2a2a2ee1fb17c5b.gz",
+            "sha256": "ca1deb50431593018cfe3f6098ca7d5a9c0f7004471e7960f2a2a2ee1fb17c5b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 93,
+      "mode": 420,
+      "mtime_ns": 1794148908747242340,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-candidate-0.stdout",
+      "sha256": "ca1deb50431593018cfe3f6098ca7d5a9c0f7004471e7960f2a2a2ee1fb17c5b"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148908752145725,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-candidate-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 93,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/81399b70a68b0972c54523a4bc79ed7b24d7c89b72c0323c81f86d59411d57c4.gz",
+            "sha256": "81399b70a68b0972c54523a4bc79ed7b24d7c89b72c0323c81f86d59411d57c4"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 93,
+      "mode": 420,
+      "mtime_ns": 1794148908835015608,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-candidate-1.stdout",
+      "sha256": "81399b70a68b0972c54523a4bc79ed7b24d7c89b72c0323c81f86d59411d57c4"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148908841925956,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-legacy-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 87,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/6031f4be4e54e4349f8521e59a88e52ef7b82316abcb3fa29c32f2fc491540e8.gz",
+            "sha256": "6031f4be4e54e4349f8521e59a88e52ef7b82316abcb3fa29c32f2fc491540e8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 87,
+      "mode": 420,
+      "mtime_ns": 1794148908905390422,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-legacy-0.stdout",
+      "sha256": "6031f4be4e54e4349f8521e59a88e52ef7b82316abcb3fa29c32f2fc491540e8"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148908931884270,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-baseline-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 91,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/b6e9f3934cf624add931e2be8f50328b880b4360f4603d0e2fdd39e0bf62eac9.gz",
+            "sha256": "b6e9f3934cf624add931e2be8f50328b880b4360f4603d0e2fdd39e0bf62eac9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 91,
+      "mode": 420,
+      "mtime_ns": 1794148908983288378,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-baseline-0.stdout",
+      "sha256": "b6e9f3934cf624add931e2be8f50328b880b4360f4603d0e2fdd39e0bf62eac9"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148909021933041,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-baseline-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 93,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/496a5ba8dc7d0a2792a07be66884a4dbf4f2f77ca6bcc5270256f16e8771077b.gz",
+            "sha256": "496a5ba8dc7d0a2792a07be66884a4dbf4f2f77ca6bcc5270256f16e8771077b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 93,
+      "mode": 420,
+      "mtime_ns": 1794148909075140487,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-baseline-1.stdout",
+      "sha256": "496a5ba8dc7d0a2792a07be66884a4dbf4f2f77ca6bcc5270256f16e8771077b"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148909112236148,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-candidate-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 93,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/70184962e8f3727490ad53eac37d9b624cd5c89d48f003681359ecad5e774b38.gz",
+            "sha256": "70184962e8f3727490ad53eac37d9b624cd5c89d48f003681359ecad5e774b38"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 93,
+      "mode": 420,
+      "mtime_ns": 1794148909180564833,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-candidate-0.stdout",
+      "sha256": "70184962e8f3727490ad53eac37d9b624cd5c89d48f003681359ecad5e774b38"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148909203778090,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-candidate-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 93,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/06df8892ef051654677502680fdb7b42049b6e482040ab2130d6a1ca34a14c9b.gz",
+            "sha256": "06df8892ef051654677502680fdb7b42049b6e482040ab2130d6a1ca34a14c9b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 93,
+      "mode": 420,
+      "mtime_ns": 1794148909287168182,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-candidate-1.stdout",
+      "sha256": "06df8892ef051654677502680fdb7b42049b6e482040ab2130d6a1ca34a14c9b"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148909295396575,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-legacy-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 90,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/fed2d0ab86a499253016093b8632c5b99727bdf2bdfa39625a30c14aac09fa8a.gz",
+            "sha256": "fed2d0ab86a499253016093b8632c5b99727bdf2bdfa39625a30c14aac09fa8a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 90,
+      "mode": 420,
+      "mtime_ns": 1794148909359310626,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-legacy-0.stdout",
+      "sha256": "fed2d0ab86a499253016093b8632c5b99727bdf2bdfa39625a30c14aac09fa8a"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148909386750267,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-baseline-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 93,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/7639eb8705934aceb26e7503c27a93f654b10d07a2d2c3a579c97209bd552217.gz",
+            "sha256": "7639eb8705934aceb26e7503c27a93f654b10d07a2d2c3a579c97209bd552217"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 93,
+      "mode": 420,
+      "mtime_ns": 1794148909443707428,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-baseline-0.stdout",
+      "sha256": "7639eb8705934aceb26e7503c27a93f654b10d07a2d2c3a579c97209bd552217"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148909477174749,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-baseline-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 93,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/6b336c5358aa479742ff55ecddc1647aa6c4f125d0204d26ff1de3a6588b9b0a.gz",
+            "sha256": "6b336c5358aa479742ff55ecddc1647aa6c4f125d0204d26ff1de3a6588b9b0a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 93,
+      "mode": 420,
+      "mtime_ns": 1794148909533307408,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-baseline-1.stdout",
+      "sha256": "6b336c5358aa479742ff55ecddc1647aa6c4f125d0204d26ff1de3a6588b9b0a"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148909567693314,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-candidate-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 93,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2c0e77924d0368b7c2bfa741f975aa9fa23d39559e461b216bf21762b29c811f.gz",
+            "sha256": "2c0e77924d0368b7c2bfa741f975aa9fa23d39559e461b216bf21762b29c811f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 93,
+      "mode": 420,
+      "mtime_ns": 1794148909638480088,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-candidate-0.stdout",
+      "sha256": "2c0e77924d0368b7c2bfa741f975aa9fa23d39559e461b216bf21762b29c811f"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148909651859199,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-candidate-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 89,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/df0aeeaf6468d95f02d792fe0fa4272c5fb210b8cd3d3d14c41a31edd01085d7.gz",
+            "sha256": "df0aeeaf6468d95f02d792fe0fa4272c5fb210b8cd3d3d14c41a31edd01085d7"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 89,
+      "mode": 420,
+      "mtime_ns": 1794148909733063120,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-candidate-1.stdout",
+      "sha256": "df0aeeaf6468d95f02d792fe0fa4272c5fb210b8cd3d3d14c41a31edd01085d7"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148909743537934,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-legacy-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 91,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/a738228d651fc945727a14e7cf2c20708cf882ce8e99cc760f8525729cdd6539.gz",
+            "sha256": "a738228d651fc945727a14e7cf2c20708cf882ce8e99cc760f8525729cdd6539"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 91,
+      "mode": 420,
+      "mtime_ns": 1794148909796679629,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-legacy-0.stdout",
+      "sha256": "a738228d651fc945727a14e7cf2c20708cf882ce8e99cc760f8525729cdd6539"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/f14d6f6812fd4855eb7e2f2d76bd12f4c0f06c5bfb9faca23e4bdf2fdbaaa546.gz",
+            "sha256": "f14d6f6812fd4855eb7e2f2d76bd12f4c0f06c5bfb9faca23e4bdf2fdbaaa546"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148904081576492,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-baseline-1/dispatch.bin",
+      "sha256": "f14d6f6812fd4855eb7e2f2d76bd12f4c0f06c5bfb9faca23e4bdf2fdbaaa546"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148904081923867,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-baseline-1/impulse.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/be1516762e3a7aa4260f1848a1e0a54d4f4be07eea85577b1cb54072f5cd877d.gz",
+            "sha256": "be1516762e3a7aa4260f1848a1e0a54d4f4be07eea85577b1cb54072f5cd877d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148904081735409,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-baseline-1/status.bin",
+      "sha256": "be1516762e3a7aa4260f1848a1e0a54d4f4be07eea85577b1cb54072f5cd877d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148904081830576,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-baseline-1/velocity.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/7d175b08aaa0910d982b843584fd429018066c992a428e8edab49495ca0867ec.gz",
+            "sha256": "7d175b08aaa0910d982b843584fd429018066c992a428e8edab49495ca0867ec"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148909796218253,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-legacy-0/dispatch.bin",
+      "sha256": "7d175b08aaa0910d982b843584fd429018066c992a428e8edab49495ca0867ec"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148909796353086,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-legacy-0/impulse.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/0c06a4eb90064fb1db299c1900f62dc69efc1b11afd7383ba843254152ace666.gz"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148909796273545,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-legacy-0/status.bin",
+      "sha256": "0c06a4eb90064fb1db299c1900f62dc69efc1b11afd7383ba843254152ace666"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148909796313086,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-legacy-0/velocity.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595.gz",
+            "sha256": "5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148909443131885,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-baseline-0/dispatch.bin",
+      "sha256": "5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148909443304219,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-baseline-0/impulse.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/0c06a4eb90064fb1db299c1900f62dc69efc1b11afd7383ba843254152ace666.gz"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148909443201510,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-baseline-0/status.bin",
+      "sha256": "0c06a4eb90064fb1db299c1900f62dc69efc1b11afd7383ba843254152ace666"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148909443253761,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-baseline-0/velocity.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/f14d6f6812fd4855eb7e2f2d76bd12f4c0f06c5bfb9faca23e4bdf2fdbaaa546.gz",
+            "sha256": "f14d6f6812fd4855eb7e2f2d76bd12f4c0f06c5bfb9faca23e4bdf2fdbaaa546"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148903975919479,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-baseline-0/dispatch.bin",
+      "sha256": "f14d6f6812fd4855eb7e2f2d76bd12f4c0f06c5bfb9faca23e4bdf2fdbaaa546"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148903976306230,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-baseline-0/impulse.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/be1516762e3a7aa4260f1848a1e0a54d4f4be07eea85577b1cb54072f5cd877d.gz",
+            "sha256": "be1516762e3a7aa4260f1848a1e0a54d4f4be07eea85577b1cb54072f5cd877d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148903976075562,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-baseline-0/status.bin",
+      "sha256": "be1516762e3a7aa4260f1848a1e0a54d4f4be07eea85577b1cb54072f5cd877d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148903976189563,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-baseline-0/velocity.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595.gz",
+            "sha256": "5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148909532700574,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-baseline-1/dispatch.bin",
+      "sha256": "5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148909532891824,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-baseline-1/impulse.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/0c06a4eb90064fb1db299c1900f62dc69efc1b11afd7383ba843254152ace666.gz"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148909532783115,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-baseline-1/status.bin",
+      "sha256": "0c06a4eb90064fb1db299c1900f62dc69efc1b11afd7383ba843254152ace666"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148909532834366,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-baseline-1/velocity.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/5ac9e74a6304385501d5a52b0afb6964ecfc9d77edaf878881fb9fa8cdad84d1.gz",
+            "sha256": "5ac9e74a6304385501d5a52b0afb6964ecfc9d77edaf878881fb9fa8cdad84d1"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908642861162,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-baseline-1/dispatch.bin",
+      "sha256": "5ac9e74a6304385501d5a52b0afb6964ecfc9d77edaf878881fb9fa8cdad84d1"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908643022621,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-baseline-1/impulse.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/6ec766626fa89bf97487f12f3a13d5b733a72d1517239a7133897262446ef1ce.gz",
+            "sha256": "6ec766626fa89bf97487f12f3a13d5b733a72d1517239a7133897262446ef1ce"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908642931120,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-baseline-1/status.bin",
+      "sha256": "6ec766626fa89bf97487f12f3a13d5b733a72d1517239a7133897262446ef1ce"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908642970954,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-baseline-1/velocity.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595.gz",
+            "sha256": "5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148909074550235,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-baseline-1/dispatch.bin",
+      "sha256": "5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/42734f03107eb22c4355909d6fce7260b860499a00df679dcd5991bdf3917990.gz"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148909074724569,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-baseline-1/impulse.f32",
+      "sha256": "42734f03107eb22c4355909d6fce7260b860499a00df679dcd5991bdf3917990"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/a7d4975317757066915bff491f66205773a2ac6281e50f419022c7b0145ea1dc.gz"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148909074620444,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-baseline-1/status.bin",
+      "sha256": "a7d4975317757066915bff491f66205773a2ac6281e50f419022c7b0145ea1dc"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/863767355bc80a3cf0eab64783858c01fbe39bfcbbda33538e3b9e385dee9730.gz",
+            "sha256": "863767355bc80a3cf0eab64783858c01fbe39bfcbbda33538e3b9e385dee9730"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148909074672652,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-baseline-1/velocity.f32",
+      "sha256": "863767355bc80a3cf0eab64783858c01fbe39bfcbbda33538e3b9e385dee9730"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/5ac9e74a6304385501d5a52b0afb6964ecfc9d77edaf878881fb9fa8cdad84d1.gz",
+            "sha256": "5ac9e74a6304385501d5a52b0afb6964ecfc9d77edaf878881fb9fa8cdad84d1"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908548488547,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-baseline-0/dispatch.bin",
+      "sha256": "5ac9e74a6304385501d5a52b0afb6964ecfc9d77edaf878881fb9fa8cdad84d1"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908548699131,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-baseline-0/impulse.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/6ec766626fa89bf97487f12f3a13d5b733a72d1517239a7133897262446ef1ce.gz",
+            "sha256": "6ec766626fa89bf97487f12f3a13d5b733a72d1517239a7133897262446ef1ce"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908548584755,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-baseline-0/status.bin",
+      "sha256": "6ec766626fa89bf97487f12f3a13d5b733a72d1517239a7133897262446ef1ce"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908548649505,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-baseline-0/velocity.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595.gz",
+            "sha256": "5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908982794377,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-baseline-0/dispatch.bin",
+      "sha256": "5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/42734f03107eb22c4355909d6fce7260b860499a00df679dcd5991bdf3917990.gz"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908982948460,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-baseline-0/impulse.f32",
+      "sha256": "42734f03107eb22c4355909d6fce7260b860499a00df679dcd5991bdf3917990"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/a7d4975317757066915bff491f66205773a2ac6281e50f419022c7b0145ea1dc.gz"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908982858543,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-baseline-0/status.bin",
+      "sha256": "a7d4975317757066915bff491f66205773a2ac6281e50f419022c7b0145ea1dc"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/863767355bc80a3cf0eab64783858c01fbe39bfcbbda33538e3b9e385dee9730.gz",
+            "sha256": "863767355bc80a3cf0eab64783858c01fbe39bfcbbda33538e3b9e385dee9730"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908982901835,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-baseline-0/velocity.f32",
+      "sha256": "863767355bc80a3cf0eab64783858c01fbe39bfcbbda33538e3b9e385dee9730"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595.gz",
+            "sha256": "5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148909636623376,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-candidate-0/dispatch.bin",
+      "sha256": "5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148909637163418,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-candidate-0/impulse.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/0c06a4eb90064fb1db299c1900f62dc69efc1b11afd7383ba843254152ace666.gz"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148909636839043,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-candidate-0/status.bin",
+      "sha256": "0c06a4eb90064fb1db299c1900f62dc69efc1b11afd7383ba843254152ace666"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148909637009876,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-candidate-0/velocity.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595.gz",
+            "sha256": "5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148909732482077,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-candidate-1/dispatch.bin",
+      "sha256": "5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148909732672994,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-candidate-1/impulse.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-contact-precision-20261108/payload/blobs/0c06a4eb90064fb1db299c1900f62dc69efc1b11afd7383ba843254152ace666.gz"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148909732568869,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-candidate-1/status.bin",
+      "sha256": "0c06a4eb90064fb1db299c1900f62dc69efc1b11afd7383ba843254152ace666"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148909732624661,
+      "path": "build/crow-quality-refinement-build-01/observations/substep7-candidate-1/velocity.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595.gz",
+            "sha256": "5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148909286218930,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-candidate-1/dispatch.bin",
+      "sha256": "5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/42734f03107eb22c4355909d6fce7260b860499a00df679dcd5991bdf3917990.gz"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148909286521139,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-candidate-1/impulse.f32",
+      "sha256": "42734f03107eb22c4355909d6fce7260b860499a00df679dcd5991bdf3917990"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/a7d4975317757066915bff491f66205773a2ac6281e50f419022c7b0145ea1dc.gz"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148909286339222,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-candidate-1/status.bin",
+      "sha256": "a7d4975317757066915bff491f66205773a2ac6281e50f419022c7b0145ea1dc"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/863767355bc80a3cf0eab64783858c01fbe39bfcbbda33538e3b9e385dee9730.gz",
+            "sha256": "863767355bc80a3cf0eab64783858c01fbe39bfcbbda33538e3b9e385dee9730"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148909286422639,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-candidate-1/velocity.f32",
+      "sha256": "863767355bc80a3cf0eab64783858c01fbe39bfcbbda33538e3b9e385dee9730"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/5ac9e74a6304385501d5a52b0afb6964ecfc9d77edaf878881fb9fa8cdad84d1.gz",
+            "sha256": "5ac9e74a6304385501d5a52b0afb6964ecfc9d77edaf878881fb9fa8cdad84d1"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908746757089,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-candidate-0/dispatch.bin",
+      "sha256": "5ac9e74a6304385501d5a52b0afb6964ecfc9d77edaf878881fb9fa8cdad84d1"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/26d860306108a5c72e751e01c993ac5eaf6fbe4cd4986849760d2678e03011c0.gz",
+            "sha256": "26d860306108a5c72e751e01c993ac5eaf6fbe4cd4986849760d2678e03011c0"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908746903714,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-candidate-0/impulse.f32",
+      "sha256": "26d860306108a5c72e751e01c993ac5eaf6fbe4cd4986849760d2678e03011c0"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/1bd0c267c796a4b03bee9b85130da604a7e48d7256143155a4d8e06fa5af7ae9.gz",
+            "sha256": "1bd0c267c796a4b03bee9b85130da604a7e48d7256143155a4d8e06fa5af7ae9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908746829547,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-candidate-0/status.bin",
+      "sha256": "1bd0c267c796a4b03bee9b85130da604a7e48d7256143155a4d8e06fa5af7ae9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/4ec8775873c764e73469873c05b9ae40a51ab95997e731ce800eefec1cf54acb.gz",
+            "sha256": "4ec8775873c764e73469873c05b9ae40a51ab95997e731ce800eefec1cf54acb"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908746870422,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-candidate-0/velocity.f32",
+      "sha256": "4ec8775873c764e73469873c05b9ae40a51ab95997e731ce800eefec1cf54acb"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595.gz",
+            "sha256": "5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148909178735454,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-candidate-0/dispatch.bin",
+      "sha256": "5e312a5ef14d911a04a9a8b041ea687ea3b99db4d3d9ed5f02520bc6802cb595"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/42734f03107eb22c4355909d6fce7260b860499a00df679dcd5991bdf3917990.gz"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148909179278539,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-candidate-0/impulse.f32",
+      "sha256": "42734f03107eb22c4355909d6fce7260b860499a00df679dcd5991bdf3917990"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/a7d4975317757066915bff491f66205773a2ac6281e50f419022c7b0145ea1dc.gz"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148909178944955,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-candidate-0/status.bin",
+      "sha256": "a7d4975317757066915bff491f66205773a2ac6281e50f419022c7b0145ea1dc"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/863767355bc80a3cf0eab64783858c01fbe39bfcbbda33538e3b9e385dee9730.gz",
+            "sha256": "863767355bc80a3cf0eab64783858c01fbe39bfcbbda33538e3b9e385dee9730"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148909179124914,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-candidate-0/velocity.f32",
+      "sha256": "863767355bc80a3cf0eab64783858c01fbe39bfcbbda33538e3b9e385dee9730"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/5ac9e74a6304385501d5a52b0afb6964ecfc9d77edaf878881fb9fa8cdad84d1.gz",
+            "sha256": "5ac9e74a6304385501d5a52b0afb6964ecfc9d77edaf878881fb9fa8cdad84d1"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908834543898,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-candidate-1/dispatch.bin",
+      "sha256": "5ac9e74a6304385501d5a52b0afb6964ecfc9d77edaf878881fb9fa8cdad84d1"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/26d860306108a5c72e751e01c993ac5eaf6fbe4cd4986849760d2678e03011c0.gz",
+            "sha256": "26d860306108a5c72e751e01c993ac5eaf6fbe4cd4986849760d2678e03011c0"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908834679440,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-candidate-1/impulse.f32",
+      "sha256": "26d860306108a5c72e751e01c993ac5eaf6fbe4cd4986849760d2678e03011c0"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/1bd0c267c796a4b03bee9b85130da604a7e48d7256143155a4d8e06fa5af7ae9.gz",
+            "sha256": "1bd0c267c796a4b03bee9b85130da604a7e48d7256143155a4d8e06fa5af7ae9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908834609482,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-candidate-1/status.bin",
+      "sha256": "1bd0c267c796a4b03bee9b85130da604a7e48d7256143155a4d8e06fa5af7ae9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/4ec8775873c764e73469873c05b9ae40a51ab95997e731ce800eefec1cf54acb.gz",
+            "sha256": "4ec8775873c764e73469873c05b9ae40a51ab95997e731ce800eefec1cf54acb"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908834643857,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-candidate-1/velocity.f32",
+      "sha256": "4ec8775873c764e73469873c05b9ae40a51ab95997e731ce800eefec1cf54acb"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2de3a51b44ba0ecfda6fcd3c21fb5bb497f9712c887928d7c65501b347287f69.gz",
+            "sha256": "2de3a51b44ba0ecfda6fcd3c21fb5bb497f9712c887928d7c65501b347287f69"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908192330381,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-baseline-1/dispatch.bin",
+      "sha256": "2de3a51b44ba0ecfda6fcd3c21fb5bb497f9712c887928d7c65501b347287f69"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908192482965,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-baseline-1/impulse.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/a3b70dff65e7c5f8d49af72574f7e0a317fe343118214894e98c20630e975ffb.gz",
+            "sha256": "a3b70dff65e7c5f8d49af72574f7e0a317fe343118214894e98c20630e975ffb"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908192403423,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-baseline-1/status.bin",
+      "sha256": "a3b70dff65e7c5f8d49af72574f7e0a317fe343118214894e98c20630e975ffb"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908192442256,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-baseline-1/velocity.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/f14d6f6812fd4855eb7e2f2d76bd12f4c0f06c5bfb9faca23e4bdf2fdbaaa546.gz",
+            "sha256": "f14d6f6812fd4855eb7e2f2d76bd12f4c0f06c5bfb9faca23e4bdf2fdbaaa546"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148907879088265,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-candidate-1/dispatch.bin",
+      "sha256": "f14d6f6812fd4855eb7e2f2d76bd12f4c0f06c5bfb9faca23e4bdf2fdbaaa546"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/1b4396f6178797dc6597576b4ef5806381fc83ca8f174cdff66ac6e20853d0e8.gz",
+            "sha256": "1b4396f6178797dc6597576b4ef5806381fc83ca8f174cdff66ac6e20853d0e8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148907879239349,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-candidate-1/impulse.f32",
+      "sha256": "1b4396f6178797dc6597576b4ef5806381fc83ca8f174cdff66ac6e20853d0e8"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/39cce0eb7ff2a513f8c62a74228ba9251aed76504e2a5b1d1c3714244c436adc.gz",
+            "sha256": "39cce0eb7ff2a513f8c62a74228ba9251aed76504e2a5b1d1c3714244c436adc"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148907879162432,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-candidate-1/status.bin",
+      "sha256": "39cce0eb7ff2a513f8c62a74228ba9251aed76504e2a5b1d1c3714244c436adc"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/d768f889cb764a72aa9669cd09058767fea6a9030f0916a583174e8da14e8e0e.gz",
+            "sha256": "d768f889cb764a72aa9669cd09058767fea6a9030f0916a583174e8da14e8e0e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148907879201807,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-candidate-1/velocity.f32",
+      "sha256": "d768f889cb764a72aa9669cd09058767fea6a9030f0916a583174e8da14e8e0e"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/814977f0f97ff88aac3bc4c743df9aef4d98c52190521ff4dfa6e9c29fe0d2d5.gz",
+            "sha256": "814977f0f97ff88aac3bc4c743df9aef4d98c52190521ff4dfa6e9c29fe0d2d5"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908450526174,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-legacy-0/dispatch.bin",
+      "sha256": "814977f0f97ff88aac3bc4c743df9aef4d98c52190521ff4dfa6e9c29fe0d2d5"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908450650633,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-legacy-0/impulse.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/a3b70dff65e7c5f8d49af72574f7e0a317fe343118214894e98c20630e975ffb.gz",
+            "sha256": "a3b70dff65e7c5f8d49af72574f7e0a317fe343118214894e98c20630e975ffb"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908450575424,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-legacy-0/status.bin",
+      "sha256": "a3b70dff65e7c5f8d49af72574f7e0a317fe343118214894e98c20630e975ffb"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908450612924,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-legacy-0/velocity.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/459dc5a28e47e2bda3f5b74f05c019e68e3402cca34efbe34270675c583b9eba.gz",
+            "sha256": "459dc5a28e47e2bda3f5b74f05c019e68e3402cca34efbe34270675c583b9eba"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908904907796,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-legacy-0/dispatch.bin",
+      "sha256": "459dc5a28e47e2bda3f5b74f05c019e68e3402cca34efbe34270675c583b9eba"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908905055838,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-legacy-0/impulse.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/6ec766626fa89bf97487f12f3a13d5b733a72d1517239a7133897262446ef1ce.gz",
+            "sha256": "6ec766626fa89bf97487f12f3a13d5b733a72d1517239a7133897262446ef1ce"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908904971171,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-legacy-0/status.bin",
+      "sha256": "6ec766626fa89bf97487f12f3a13d5b733a72d1517239a7133897262446ef1ce"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908905015046,
+      "path": "build/crow-quality-refinement-build-01/observations/opt7-legacy-0/velocity.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/f14d6f6812fd4855eb7e2f2d76bd12f4c0f06c5bfb9faca23e4bdf2fdbaaa546.gz",
+            "sha256": "f14d6f6812fd4855eb7e2f2d76bd12f4c0f06c5bfb9faca23e4bdf2fdbaaa546"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148907733676126,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-candidate-0/dispatch.bin",
+      "sha256": "f14d6f6812fd4855eb7e2f2d76bd12f4c0f06c5bfb9faca23e4bdf2fdbaaa546"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/1b4396f6178797dc6597576b4ef5806381fc83ca8f174cdff66ac6e20853d0e8.gz",
+            "sha256": "1b4396f6178797dc6597576b4ef5806381fc83ca8f174cdff66ac6e20853d0e8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148907733828585,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-candidate-0/impulse.f32",
+      "sha256": "1b4396f6178797dc6597576b4ef5806381fc83ca8f174cdff66ac6e20853d0e8"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/39cce0eb7ff2a513f8c62a74228ba9251aed76504e2a5b1d1c3714244c436adc.gz",
+            "sha256": "39cce0eb7ff2a513f8c62a74228ba9251aed76504e2a5b1d1c3714244c436adc"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148907733743710,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-candidate-0/status.bin",
+      "sha256": "39cce0eb7ff2a513f8c62a74228ba9251aed76504e2a5b1d1c3714244c436adc"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/d768f889cb764a72aa9669cd09058767fea6a9030f0916a583174e8da14e8e0e.gz",
+            "sha256": "d768f889cb764a72aa9669cd09058767fea6a9030f0916a583174e8da14e8e0e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148907733786335,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-candidate-0/velocity.f32",
+      "sha256": "d768f889cb764a72aa9669cd09058767fea6a9030f0916a583174e8da14e8e0e"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2de3a51b44ba0ecfda6fcd3c21fb5bb497f9712c887928d7c65501b347287f69.gz",
+            "sha256": "2de3a51b44ba0ecfda6fcd3c21fb5bb497f9712c887928d7c65501b347287f69"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908115998554,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-baseline-0/dispatch.bin",
+      "sha256": "2de3a51b44ba0ecfda6fcd3c21fb5bb497f9712c887928d7c65501b347287f69"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908116219471,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-baseline-0/impulse.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/a3b70dff65e7c5f8d49af72574f7e0a317fe343118214894e98c20630e975ffb.gz",
+            "sha256": "a3b70dff65e7c5f8d49af72574f7e0a317fe343118214894e98c20630e975ffb"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908116099846,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-baseline-0/status.bin",
+      "sha256": "a3b70dff65e7c5f8d49af72574f7e0a317fe343118214894e98c20630e975ffb"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908116161430,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-baseline-0/velocity.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/e16e5ddb92fc7f24a34c3d31e630d9b32cf93ccd4134261e8a70a752a5241b6c.gz",
+            "sha256": "e16e5ddb92fc7f24a34c3d31e630d9b32cf93ccd4134261e8a70a752a5241b6c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908008690412,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-legacy-0/dispatch.bin",
+      "sha256": "e16e5ddb92fc7f24a34c3d31e630d9b32cf93ccd4134261e8a70a752a5241b6c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908008953787,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-legacy-0/impulse.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/be1516762e3a7aa4260f1848a1e0a54d4f4be07eea85577b1cb54072f5cd877d.gz",
+            "sha256": "be1516762e3a7aa4260f1848a1e0a54d4f4be07eea85577b1cb54072f5cd877d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908008799829,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-legacy-0/status.bin",
+      "sha256": "be1516762e3a7aa4260f1848a1e0a54d4f4be07eea85577b1cb54072f5cd877d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024.gz",
+            "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908008877787,
+      "path": "build/crow-quality-refinement-build-01/observations/api-default-legacy-0/velocity.f32",
+      "sha256": "2e652737402187555156dd49301fa06874166c59f7c793fd1adae90d696b3024"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2de3a51b44ba0ecfda6fcd3c21fb5bb497f9712c887928d7c65501b347287f69.gz",
+            "sha256": "2de3a51b44ba0ecfda6fcd3c21fb5bb497f9712c887928d7c65501b347287f69"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908373067136,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-candidate-1/dispatch.bin",
+      "sha256": "2de3a51b44ba0ecfda6fcd3c21fb5bb497f9712c887928d7c65501b347287f69"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/25bef383044d1b6b61390c734b1d64b05075c8a01e152e8064ebf82892588613.gz",
+            "sha256": "25bef383044d1b6b61390c734b1d64b05075c8a01e152e8064ebf82892588613"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908373226220,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-candidate-1/impulse.f32",
+      "sha256": "25bef383044d1b6b61390c734b1d64b05075c8a01e152e8064ebf82892588613"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/99bab5436d91d7d9bb8a71c01b6a006c3555a48c686168b5bc60212b6768e0c3.gz",
+            "sha256": "99bab5436d91d7d9bb8a71c01b6a006c3555a48c686168b5bc60212b6768e0c3"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908373137845,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-candidate-1/status.bin",
+      "sha256": "99bab5436d91d7d9bb8a71c01b6a006c3555a48c686168b5bc60212b6768e0c3"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/f17b7cc3145662323def16b36386694d3ba7771010f712bf2ad385176f44cca3.gz",
+            "sha256": "f17b7cc3145662323def16b36386694d3ba7771010f712bf2ad385176f44cca3"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908373176553,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-candidate-1/velocity.f32",
+      "sha256": "f17b7cc3145662323def16b36386694d3ba7771010f712bf2ad385176f44cca3"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/2de3a51b44ba0ecfda6fcd3c21fb5bb497f9712c887928d7c65501b347287f69.gz",
+            "sha256": "2de3a51b44ba0ecfda6fcd3c21fb5bb497f9712c887928d7c65501b347287f69"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908285307410,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-candidate-0/dispatch.bin",
+      "sha256": "2de3a51b44ba0ecfda6fcd3c21fb5bb497f9712c887928d7c65501b347287f69"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/25bef383044d1b6b61390c734b1d64b05075c8a01e152e8064ebf82892588613.gz",
+            "sha256": "25bef383044d1b6b61390c734b1d64b05075c8a01e152e8064ebf82892588613"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908285452494,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-candidate-0/impulse.f32",
+      "sha256": "25bef383044d1b6b61390c734b1d64b05075c8a01e152e8064ebf82892588613"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/99bab5436d91d7d9bb8a71c01b6a006c3555a48c686168b5bc60212b6768e0c3.gz",
+            "sha256": "99bab5436d91d7d9bb8a71c01b6a006c3555a48c686168b5bc60212b6768e0c3"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148908285375577,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-candidate-0/status.bin",
+      "sha256": "99bab5436d91d7d9bb8a71c01b6a006c3555a48c686168b5bc60212b6768e0c3"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/f17b7cc3145662323def16b36386694d3ba7771010f712bf2ad385176f44cca3.gz",
+            "sha256": "f17b7cc3145662323def16b36386694d3ba7771010f712bf2ad385176f44cca3"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148908285413202,
+      "path": "build/crow-quality-refinement-build-01/observations/opt6-candidate-0/velocity.f32",
+      "sha256": "f17b7cc3145662323def16b36386694d3ba7771010f712bf2ad385176f44cca3"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 96,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/7d175b08aaa0910d982b843584fd429018066c992a428e8edab49495ca0867ec.gz",
+            "sha256": "7d175b08aaa0910d982b843584fd429018066c992a428e8edab49495ca0867ec"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148909358698250,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-legacy-0/dispatch.bin",
+      "sha256": "7d175b08aaa0910d982b843584fd429018066c992a428e8edab49495ca0867ec"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/42734f03107eb22c4355909d6fce7260b860499a00df679dcd5991bdf3917990.gz"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148909358892916,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-legacy-0/impulse.f32",
+      "sha256": "42734f03107eb22c4355909d6fce7260b860499a00df679dcd5991bdf3917990"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/a7d4975317757066915bff491f66205773a2ac6281e50f419022c7b0145ea1dc.gz"
+      },
+      "bytes": 96,
+      "mode": 420,
+      "mtime_ns": 1794148909358781958,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-legacy-0/status.bin",
+      "sha256": "a7d4975317757066915bff491f66205773a2ac6281e50f419022c7b0145ea1dc"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1920,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/863767355bc80a3cf0eab64783858c01fbe39bfcbbda33538e3b9e385dee9730.gz",
+            "sha256": "863767355bc80a3cf0eab64783858c01fbe39bfcbbda33538e3b9e385dee9730"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1920,
+      "mode": 420,
+      "mtime_ns": 1794148909358842166,
+      "path": "build/crow-quality-refinement-build-01/observations/substep2-legacy-0/velocity.f32",
+      "sha256": "863767355bc80a3cf0eab64783858c01fbe39bfcbbda33538e3b9e385dee9730"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 86099,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/75c3c0d6456cfe4ca8217ab1ea17c3a3e16824c80f54876f60e136f2e4a1a0d1.gz",
+            "sha256": "75c3c0d6456cfe4ca8217ab1ea17c3a3e16824c80f54876f60e136f2e4a1a0d1"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 86099,
+      "mode": 420,
+      "mtime_ns": 1794149157069453697,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-0.stderr",
+      "sha256": "75c3c0d6456cfe4ca8217ab1ea17c3a3e16824c80f54876f60e136f2e4a1a0d1"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794149153367964626,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-0.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 86099,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/a6834ac8e2f7cf8ee73597034aef1a0948657be4036ee0a2d1d7a3c202ce5ab4.gz",
+            "sha256": "a6834ac8e2f7cf8ee73597034aef1a0948657be4036ee0a2d1d7a3c202ce5ab4"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 86099,
+      "mode": 420,
+      "mtime_ns": 1794149160838814745,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-1.stderr",
+      "sha256": "a6834ac8e2f7cf8ee73597034aef1a0948657be4036ee0a2d1d7a3c202ce5ab4"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794149157121212514,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-1.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84334,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/d5caffdbcb17224a4baaa3540fb2d3740f0e8f2eb1851604652f5962889529a3.gz",
+            "sha256": "d5caffdbcb17224a4baaa3540fb2d3740f0e8f2eb1851604652f5962889529a3"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84334,
+      "mode": 420,
+      "mtime_ns": 1794149132445126361,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/calibration.stderr",
+      "sha256": "d5caffdbcb17224a4baaa3540fb2d3740f0e8f2eb1851604652f5962889529a3"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/2b71af5bc0f5f56fbdaf8055ec1f0425ff60049e10161e5a5d865f0b9c49927a.gz"
+      },
+      "bytes": 245,
+      "mode": 420,
+      "mtime_ns": 1794149132450874123,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/calibration.stdout",
+      "sha256": "2b71af5bc0f5f56fbdaf8055ec1f0425ff60049e10161e5a5d865f0b9c49927a"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84564,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/dc5c9d8e05f14b87b076735e0fdcf5cdc304c5d085937edee26bca6f8e40b6e4.gz",
+            "sha256": "dc5c9d8e05f14b87b076735e0fdcf5cdc304c5d085937edee26bca6f8e40b6e4"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84564,
+      "mode": 420,
+      "mtime_ns": 1794149125188028775,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/contact-owner.stderr",
+      "sha256": "dc5c9d8e05f14b87b076735e0fdcf5cdc304c5d085937edee26bca6f8e40b6e4"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 854,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/8f58792cef301332cae3c3e9536be7672537f81bff58a2be9b84c5736e7287e5.gz",
+            "sha256": "8f58792cef301332cae3c3e9536be7672537f81bff58a2be9b84c5736e7287e5"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 854,
+      "mode": 420,
+      "mtime_ns": 1794149131588348852,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/contact-owner.stdout",
+      "sha256": "8f58792cef301332cae3c3e9536be7672537f81bff58a2be9b84c5736e7287e5"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84721,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/7a44305b76e954a74b66e78c88d4552af8e8e2ae1bcea1d1c590a50f28c61928.gz",
+            "sha256": "7a44305b76e954a74b66e78c88d4552af8e8e2ae1bcea1d1c590a50f28c61928"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84721,
+      "mode": 420,
+      "mtime_ns": 1794149132792334841,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/default.stderr",
+      "sha256": "7a44305b76e954a74b66e78c88d4552af8e8e2ae1bcea1d1c590a50f28c61928"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794149132488393202,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/default.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84312,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/a555be8f5b1bbc0b58a0414e011da74840cf0dd299dcf2bc3395d4fd862c410c.gz",
+            "sha256": "a555be8f5b1bbc0b58a0414e011da74840cf0dd299dcf2bc3395d4fd862c410c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84312,
+      "mode": 420,
+      "mtime_ns": 1794149124881426673,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/ir-owner.stderr",
+      "sha256": "a555be8f5b1bbc0b58a0414e011da74840cf0dd299dcf2bc3395d4fd862c410c"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-git-recovery-native-drive-ir-20261108/constraint-ir-owner.stdout"
+      },
+      "bytes": 406,
+      "mode": 420,
+      "mtime_ns": 1794149124889337023,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/ir-owner.stdout",
+      "sha256": "3d0d4401f8b242a3091cd6d128081c51bf49797bd23edc641d9ecf30202fe3b1"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84558,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/f436d7ab30a4e094b5456b9cd7570e083991bfe5d207a264c140f65ecc8cbac5.gz",
+            "sha256": "f436d7ab30a4e094b5456b9cd7570e083991bfe5d207a264c140f65ecc8cbac5"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84558,
+      "mode": 420,
+      "mtime_ns": 1794149131950670781,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/motor.stderr",
+      "sha256": "f436d7ab30a4e094b5456b9cd7570e083991bfe5d207a264c140f65ecc8cbac5"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-git-recovery-native-drive-ir-20261108/current-native-rows.stdout"
+      },
+      "bytes": 4786,
+      "mode": 420,
+      "mtime_ns": 1794149132051010574,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/motor.stdout",
+      "sha256": "f7b98c4da67c1c8218e3fcf9b3ca5cb88a2f3d05047acdf7c6f0a655476f8cfd"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 194755,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/d1e1ff12f38f4185d69d89efaea40e73fbb2774f4c9241969dab39079e318958.gz",
+            "sha256": "d1e1ff12f38f4185d69d89efaea40e73fbb2774f4c9241969dab39079e318958"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 194755,
+      "mode": 420,
+      "mtime_ns": 1794149132048437443,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/motor.tsv",
+      "sha256": "d1e1ff12f38f4185d69d89efaea40e73fbb2774f4c9241969dab39079e318958"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 98864,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/610ae4c4dc96691c4b3db69c48e1a62a7bcabeecc67b9d3d2d32dbc6eb6fb153.gz",
+            "sha256": "610ae4c4dc96691c4b3db69c48e1a62a7bcabeecc67b9d3d2d32dbc6eb6fb153"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794149153342646906,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/strict-capture.bin",
+      "sha256": "610ae4c4dc96691c4b3db69c48e1a62a7bcabeecc67b9d3d2d32dbc6eb6fb153"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 86070,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/04663b1e99a23f315698bd117da3bc257f22275a2b9e528ba7887dad7ab3a552.gz",
+            "sha256": "04663b1e99a23f315698bd117da3bc257f22275a2b9e528ba7887dad7ab3a552"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 86070,
+      "mode": 420,
+      "mtime_ns": 1794149153344993453,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/strict.stderr",
+      "sha256": "04663b1e99a23f315698bd117da3bc257f22275a2b9e528ba7887dad7ab3a552"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794149149502898420,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/strict.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84566,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/e9e03a2b938dcf49af7203e261252f80197b7dab6c9e5530f30000ed503c27da.gz",
+            "sha256": "e9e03a2b938dcf49af7203e261252f80197b7dab6c9e5530f30000ed503c27da"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84566,
+      "mode": 420,
+      "mtime_ns": 1794149124420112161,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/unified-owner.stderr",
+      "sha256": "e9e03a2b938dcf49af7203e261252f80197b7dab6c9e5530f30000ed503c27da"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 289,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/e334c6726e4caa592b6bc22f2c9e64b72cba5bba6730a32797289536c3ebb692.gz",
+            "sha256": "e334c6726e4caa592b6bc22f2c9e64b72cba5bba6730a32797289536c3ebb692"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 289,
+      "mode": 420,
+      "mtime_ns": 1794149124519741162,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/unified-owner.stdout",
+      "sha256": "e334c6726e4caa592b6bc22f2c9e64b72cba5bba6730a32797289536c3ebb692"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 84558,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/fcb6a3c6032cf358ebfc606774c686ef27151ccff55cf6e82e23909f928c4f3d.gz",
+            "sha256": "fcb6a3c6032cf358ebfc606774c686ef27151ccff55cf6e82e23909f928c4f3d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 84558,
+      "mode": 420,
+      "mtime_ns": 1794149132076989628,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/zero.stderr",
+      "sha256": "fcb6a3c6032cf358ebfc606774c686ef27151ccff55cf6e82e23909f928c4f3d"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-git-recovery-native-drive-ir-20261108/current-zero-gain.stdout"
+      },
+      "bytes": 1073,
+      "mode": 420,
+      "mtime_ns": 1794149132129287780,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/zero.stdout",
+      "sha256": "a6c2ca5f8b59da21cad23a174799c039ffdaaca83bce4b8560d12df87acd5bf9"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-drive-ir-20261108/payload/blobs/d0c101a4720d76f965bd6602badede2e336cda24d58fdd5d9c12ad48a86442d8.gz"
+      },
+      "bytes": 7949,
+      "mode": 420,
+      "mtime_ns": 1794149132129283113,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/zero.tsv",
+      "sha256": "d0c101a4720d76f965bd6602badede2e336cda24d58fdd5d9c12ad48a86442d8"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794149149473262024,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/default/final-q.f32",
+      "sha256": "4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794149149473390524,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/default/final-scene.bin",
+      "sha256": "e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794149149473348482,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/default/final-v.f32",
+      "sha256": "a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7.gz"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794149132785258368,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/default/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794149132785411493,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/default/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794149132785621118,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/default/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794149132785522327,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/default/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 211,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/44966ac0c93d0dc8a06ab6414ab7f946dac047a2e1d70877444457c012e6ee85.gz",
+            "sha256": "44966ac0c93d0dc8a06ab6414ab7f946dac047a2e1d70877444457c012e6ee85"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 211,
+      "mode": 420,
+      "mtime_ns": 1794149149473680025,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/default/runtime.json",
+      "sha256": "44966ac0c93d0dc8a06ab6414ab7f946dac047a2e1d70877444457c012e6ee85"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e.gz"
+      },
+      "bytes": 163840,
+      "mode": 420,
+      "mtime_ns": 1794149149473554233,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/default/scene.bin",
+      "sha256": "097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9.gz"
+      },
+      "bytes": 757,
+      "mode": 420,
+      "mtime_ns": 1794149149473659691,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/default/summary.json",
+      "sha256": "765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921.gz"
+      },
+      "bytes": 141362,
+      "mode": 420,
+      "mtime_ns": 1794149149473687442,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/default/trace.tsv",
+      "sha256": "8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-tolerances-20261108/payload/blobs/c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c.gz"
+      },
+      "bytes": 169,
+      "mode": 420,
+      "mtime_ns": 1794149153378414898,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-0/effective-config.json",
+      "sha256": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1152,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/860e28fbf3fe28f29e77989ab9b230348d7c13c58042c5a61bd0ed55bbc3ecee.gz",
+            "sha256": "860e28fbf3fe28f29e77989ab9b230348d7c13c58042c5a61bd0ed55bbc3ecee"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794149157067728193,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-0/failure-contact-status.bin",
+      "sha256": "860e28fbf3fe28f29e77989ab9b230348d7c13c58042c5a61bd0ed55bbc3ecee"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 368,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/862eb0a3e9d7cf7adac27c1494470a97db68cc0bd7844961a20c61265f939025.gz",
+            "sha256": "862eb0a3e9d7cf7adac27c1494470a97db68cc0bd7844961a20c61265f939025"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794149157067547151,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-0/failure-q.f32",
+      "sha256": "862eb0a3e9d7cf7adac27c1494470a97db68cc0bd7844961a20c61265f939025"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1024,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/34a095ce8d4de4e4605e5e057b9cfd110e2b822e3018b78319bb508eef22dc2d.gz",
+            "sha256": "34a095ce8d4de4e4605e5e057b9cfd110e2b822e3018b78319bb508eef22dc2d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794149157067654943,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-0/failure-scene.bin",
+      "sha256": "34a095ce8d4de4e4605e5e057b9cfd110e2b822e3018b78319bb508eef22dc2d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 352,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/7fc9a10db7e363e3f137851c896fd1997d2aa2c1c3caa1e7eeafef3aa4c1acf5.gz",
+            "sha256": "7fc9a10db7e363e3f137851c896fd1997d2aa2c1c3caa1e7eeafef3aa4c1acf5"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794149157067617651,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-0/failure-v.f32",
+      "sha256": "7fc9a10db7e363e3f137851c896fd1997d2aa2c1c3caa1e7eeafef3aa4c1acf5"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 192,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/826e6d391dced037cb2dae59930751eec67d37745c7d01e57a31b9d1cf3e41ee.gz",
+            "sha256": "826e6d391dced037cb2dae59930751eec67d37745c7d01e57a31b9d1cf3e41ee"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794149157067689402,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-0/failure-world-status.bin",
+      "sha256": "826e6d391dced037cb2dae59930751eec67d37745c7d01e57a31b9d1cf3e41ee"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 178,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/223678d13bcd9b5d167de8dfd28f58613fb2d5f8f8504ba3c0ec9840049170bd.gz",
+            "sha256": "223678d13bcd9b5d167de8dfd28f58613fb2d5f8f8504ba3c0ec9840049170bd"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794149157067770652,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-0/failure.json",
+      "sha256": "223678d13bcd9b5d167de8dfd28f58613fb2d5f8f8504ba3c0ec9840049170bd"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7.gz"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794149153378211773,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-0/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794149153378291439,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-0/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794149153378372773,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-0/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794149153378332606,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-0/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 877,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/312a845ecdbf330536d072261cb8172a1702c18b9ceac5e34b57e4368dfd2a3a.gz",
+            "sha256": "312a845ecdbf330536d072261cb8172a1702c18b9ceac5e34b57e4368dfd2a3a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 877,
+      "mode": 420,
+      "mtime_ns": 1794149157067794110,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-0/trace.tsv",
+      "sha256": "312a845ecdbf330536d072261cb8172a1702c18b9ceac5e34b57e4368dfd2a3a"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-tolerances-20261108/payload/blobs/c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c.gz"
+      },
+      "bytes": 169,
+      "mode": 420,
+      "mtime_ns": 1794149157134366042,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-1/effective-config.json",
+      "sha256": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1152,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/860e28fbf3fe28f29e77989ab9b230348d7c13c58042c5a61bd0ed55bbc3ecee.gz",
+            "sha256": "860e28fbf3fe28f29e77989ab9b230348d7c13c58042c5a61bd0ed55bbc3ecee"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794149160836876074,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-1/failure-contact-status.bin",
+      "sha256": "860e28fbf3fe28f29e77989ab9b230348d7c13c58042c5a61bd0ed55bbc3ecee"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 368,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/862eb0a3e9d7cf7adac27c1494470a97db68cc0bd7844961a20c61265f939025.gz",
+            "sha256": "862eb0a3e9d7cf7adac27c1494470a97db68cc0bd7844961a20c61265f939025"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794149160836678157,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-1/failure-q.f32",
+      "sha256": "862eb0a3e9d7cf7adac27c1494470a97db68cc0bd7844961a20c61265f939025"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1024,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/34a095ce8d4de4e4605e5e057b9cfd110e2b822e3018b78319bb508eef22dc2d.gz",
+            "sha256": "34a095ce8d4de4e4605e5e057b9cfd110e2b822e3018b78319bb508eef22dc2d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794149160836799157,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-1/failure-scene.bin",
+      "sha256": "34a095ce8d4de4e4605e5e057b9cfd110e2b822e3018b78319bb508eef22dc2d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 352,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/7fc9a10db7e363e3f137851c896fd1997d2aa2c1c3caa1e7eeafef3aa4c1acf5.gz",
+            "sha256": "7fc9a10db7e363e3f137851c896fd1997d2aa2c1c3caa1e7eeafef3aa4c1acf5"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794149160836754740,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-1/failure-v.f32",
+      "sha256": "7fc9a10db7e363e3f137851c896fd1997d2aa2c1c3caa1e7eeafef3aa4c1acf5"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 192,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/826e6d391dced037cb2dae59930751eec67d37745c7d01e57a31b9d1cf3e41ee.gz",
+            "sha256": "826e6d391dced037cb2dae59930751eec67d37745c7d01e57a31b9d1cf3e41ee"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794149160836837865,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-1/failure-world-status.bin",
+      "sha256": "826e6d391dced037cb2dae59930751eec67d37745c7d01e57a31b9d1cf3e41ee"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 178,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/223678d13bcd9b5d167de8dfd28f58613fb2d5f8f8504ba3c0ec9840049170bd.gz",
+            "sha256": "223678d13bcd9b5d167de8dfd28f58613fb2d5f8f8504ba3c0ec9840049170bd"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794149160836923407,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-1/failure.json",
+      "sha256": "223678d13bcd9b5d167de8dfd28f58613fb2d5f8f8504ba3c0ec9840049170bd"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7.gz"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794149157134147291,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-1/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794149157134218458,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-1/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794149157134318125,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-1/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794149157134266000,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-1/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 877,
+            "path": "artifacts/crow-rl-quality-refinement-20261108/payload/blobs/312a845ecdbf330536d072261cb8172a1702c18b9ceac5e34b57e4368dfd2a3a.gz",
+            "sha256": "312a845ecdbf330536d072261cb8172a1702c18b9ceac5e34b57e4368dfd2a3a"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 877,
+      "mode": 420,
+      "mtime_ns": 1794149160836945741,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/api-1/trace.tsv",
+      "sha256": "312a845ecdbf330536d072261cb8172a1702c18b9ceac5e34b57e4368dfd2a3a"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-tolerances-20261108/payload/blobs/38181db032058e885c379c6015bdea5b99225340725381dec07694fba1d25b27.gz"
+      },
+      "bytes": 164,
+      "mode": 420,
+      "mtime_ns": 1794149149514163235,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/strict/effective-config.json",
+      "sha256": "38181db032058e885c379c6015bdea5b99225340725381dec07694fba1d25b27"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/672147c6a1822c8882227848139edb8646f7bde085987de79e98828029f37534.gz"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794149153343304074,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/strict/failure-contact-status.bin",
+      "sha256": "672147c6a1822c8882227848139edb8646f7bde085987de79e98828029f37534"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794149153343102824,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/strict/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794149153343209574,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/strict/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794149153343154574,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/strict/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/6c7c369c4f8134f5e6b6584e5bf1b3da87b080b9d8eb58ddc7d352555c41b4af.gz"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794149153343254741,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/strict/failure-world-status.bin",
+      "sha256": "6c7c369c4f8134f5e6b6584e5bf1b3da87b080b9d8eb58ddc7d352555c41b4af"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-drive-ir-20261108/payload/blobs/fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14.gz"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794149153343363574,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/strict/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7.gz"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794149149513936651,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/strict/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794149149514017526,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/strict/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794149149514112151,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/strict/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794149149514065818,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/strict/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-drive-ir-20261108/payload/blobs/0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0.gz"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794149153343385199,
+      "path": "build/crow-quality-refinement-build-01/integration-observations/strict/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-tolerances-20261108/payload/blobs/bf8ad775f9d2f74643432eccd00544d0cc16d1cd74651c22165b7911a9433aeb.gz"
+      },
+      "bytes": 102144,
+      "mode": 493,
+      "mtime_ns": 1794149121289001497,
+      "path": "build/crow-quality-refinement-build-01/reference/crow-fixture",
+      "sha256": "bf8ad775f9d2f74643432eccd00544d0cc16d1cd74651c22165b7911a9433aeb"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-bounded-drive-integration-20261108/payload/blobs/a76e0b2a726b9ab2504b4a55b6d557d10a85feaaf94e4cb580de33103e45c63a.gz"
+      },
+      "bytes": 99776,
+      "mode": 493,
+      "mtime_ns": 1794149121288267246,
+      "path": "build/crow-quality-refinement-build-01/reference/fixture-default",
+      "sha256": "a76e0b2a726b9ab2504b4a55b6d557d10a85feaaf94e4cb580de33103e45c63a"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-cap-curvature-20261108/payload/blobs/921f882417a32aaf3eecda97e45f4ec14657ccabf72d65d80bdaa48d87cc7b0a.gz"
+      },
+      "bytes": 194707,
+      "mode": 420,
+      "mtime_ns": 1794149121281209481,
+      "path": "build/crow-quality-refinement-build-01/reference/motor-gold.tsv",
+      "sha256": "921f882417a32aaf3eecda97e45f4ec14657ccabf72d65d80bdaa48d87cc7b0a"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f.gz"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794149121289190622,
+      "path": "build/crow-quality-refinement-build-01/reference/strict-gold.bin",
+      "sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-drive-ir-20261108/payload/blobs/d0c101a4720d76f965bd6602badede2e336cda24d58fdd5d9c12ad48a86442d8.gz"
+      },
+      "bytes": 7949,
+      "mode": 420,
+      "mtime_ns": 1794149121286176241,
+      "path": "build/crow-quality-refinement-build-01/reference/zero-gold.tsv",
+      "sha256": "d0c101a4720d76f965bd6602badede2e336cda24d58fdd5d9c12ad48a86442d8"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794149121286400992,
+      "path": "build/crow-quality-refinement-build-01/reference/default-gold/final-q.f32",
+      "sha256": "4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794149121286523659,
+      "path": "build/crow-quality-refinement-build-01/reference/default-gold/final-scene.bin",
+      "sha256": "e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794149121286623367,
+      "path": "build/crow-quality-refinement-build-01/reference/default-gold/final-v.f32",
+      "sha256": "a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7.gz"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794149121286723867,
+      "path": "build/crow-quality-refinement-build-01/reference/default-gold/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28.gz"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794149121286818993,
+      "path": "build/crow-quality-refinement-build-01/reference/default-gold/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57.gz"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794149121286901951,
+      "path": "build/crow-quality-refinement-build-01/reference/default-gold/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-event-status-20261108/payload/blobs/627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0.gz"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794149121286986701,
+      "path": "build/crow-quality-refinement-build-01/reference/default-gold/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e.gz"
+      },
+      "bytes": 163840,
+      "mode": 420,
+      "mtime_ns": 1794149121287339577,
+      "path": "build/crow-quality-refinement-build-01/reference/default-gold/scene.bin",
+      "sha256": "097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9.gz"
+      },
+      "bytes": 757,
+      "mode": 420,
+      "mtime_ns": 1794149121287520786,
+      "path": "build/crow-quality-refinement-build-01/reference/default-gold/summary.json",
+      "sha256": "765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921.gz"
+      },
+      "bytes": 141362,
+      "mode": 420,
+      "mtime_ns": 1794149121287912036,
+      "path": "build/crow-quality-refinement-build-01/reference/default-gold/trace.tsv",
+      "sha256": "8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-tolerances-20261108/payload/blobs/6399bf825f83b883e55f699b877f3cba827bb2501deee85a4a423e8547f39e3a.gz"
+      },
+      "bytes": 98864,
+      "mode": 420,
+      "mtime_ns": 1794148736957102663,
+      "path": "build/crow-quality-refinement-build-01/inputs/api-default.bin",
+      "sha256": "6399bf825f83b883e55f699b877f3cba827bb2501deee85a4a423e8547f39e3a"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-tolerances-20261108/payload/blobs/01862ed69e7cbc99a9ccc4aeba7d6c180ef684fb61bff093078731a42a1f4f4f.gz"
+      },
+      "bytes": 98864,
+      "mode": 420,
+      "mtime_ns": 1794148736957458247,
+      "path": "build/crow-quality-refinement-build-01/inputs/opt6.bin",
+      "sha256": "01862ed69e7cbc99a9ccc4aeba7d6c180ef684fb61bff093078731a42a1f4f4f"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-tolerances-20261108/payload/blobs/915416ed9bedc51bfbbb8fabf2a6c4b1ff3cefea32cbe96dc23876aa09c51272.gz"
+      },
+      "bytes": 98864,
+      "mode": 420,
+      "mtime_ns": 1794148736957743623,
+      "path": "build/crow-quality-refinement-build-01/inputs/opt7.bin",
+      "sha256": "915416ed9bedc51bfbbb8fabf2a6c4b1ff3cefea32cbe96dc23876aa09c51272"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/abd531b3e9f580c7f5c208c358e87821c51470d3671367571c8a713f3885b441.gz"
+      },
+      "bytes": 98864,
+      "mode": 420,
+      "mtime_ns": 1794148736963413343,
+      "path": "build/crow-quality-refinement-build-01/inputs/substep2.bin",
+      "sha256": "abd531b3e9f580c7f5c208c358e87821c51470d3671367571c8a713f3885b441"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-quality-representability-20261108/payload/blobs/08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f.gz"
+      },
+      "bytes": 98864,
+      "mode": 420,
+      "mtime_ns": 1794148736963159634,
+      "path": "build/crow-quality-refinement-build-01/inputs/substep7.bin",
+      "sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f"
+    }
+  ],
+  "roots": [
+    "build/crow-quality-refinement-build-01"
+  ],
+  "schema": "crow-git-evidence-archive-v1",
+  "summary": {
+    "existing_archive_blobs_indexed": 20526,
+    "files": 252,
+    "new_compressed_bytes": 5246425,
+    "source_bytes": 17789998,
+    "unique_file_contents": 111
+  }
+}
