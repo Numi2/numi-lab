@@ -1,0 +1,10 @@
+scalar_probe.mm:16:120: warning: 'newLibraryWithFile:error:' is deprecated: first deprecated in macOS 13.0 - Use -newLibraryWithURL:error: instead [-Wdeprecated-declarations]
+   16 |  if(argc!=2)return 2;id<MTLDevice>d=MTLCreateSystemDefaultDevice();if(!d)return 3;NSError*err=nil;id<MTLLibrary>lib=[d newLibraryWithFile:[NSString stringWithUTF8String:argv[1]] error:&err];if(!lib){std::cerr<<err.localizedDescription.UTF8String;return 4;}
+      |                                                                                                                        ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework/Headers/MTLDevice.h:766:1: note: 'newLibraryWithFile:error:' has been explicitly marked deprecated here
+  766 | - (nullable id <MTLLibrary>)newLibraryWithFile:(NSString *)filepath error:(__autoreleasing NSError **)error
+      | ^
+scalar_probe.mm:29:23: error: 'auto' deduced as 'value_type' (aka 'Case') in declaration of 'c' and deduced as 'mr_float4' in declaration of 'o'
+   29 |  for(int i=0;i<N;++i){auto c=cases[i],o=out[i];if(i)std::cout<<",";std::cout<<"{\"id\":"<<i<<",\"scale\":"<<c.scale<<",\"offset\":"<<c.offset<<",\"half\":["<<c.half.x<<","<<c.half.y<<","<<c.half.z<<"],\"q0\":["<<c.q0.x<<","<<c.q0.y<<","<<c.q0.z<<","<<c.q0.w<<"],\"q1\":["<<c.q1.x<<","<<c.q1.y<<","<<c.q1.z<<","<<c.q1.w<<"],\"y0\":"<<c.y0<<",\"y1\":"<<c.y1<<",\"tolerance\":"<<c.tol<<",\"handled\":"<<int(o.x)<<",\"clear\":"<<int(o.y)<<",\"work\":"<<int(o.z)<<",\"lower\":"<<o.w<<"}";}
+      |                       ^      ~~~~~~~~   ~~~~~~
+1 warning and 1 error generated.

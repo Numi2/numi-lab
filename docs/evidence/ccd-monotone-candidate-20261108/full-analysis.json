@@ -1,0 +1,174 @@
+{
+  "schema": "numi.ccd.monotone-hybrid.v1",
+  "trace_on_off_results_equal": true,
+  "repeat_and_exposed_rollback_pass": true,
+  "accepted_segments_geometry_pass": true,
+  "near_miss_gate_pass": true,
+  "thin_impact_completion_gate_pass": true,
+  "normal_residual_gate_pass": false,
+  "mixed_rod_rigid_response_qualified": false,
+  "candidate_promotable": false,
+  "rows": [
+    {
+      "scale": 1,
+      "fixture": 1,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 4.34121322632,
+      "unresponded_swept_hit": false,
+      "residuals": [
+        {
+          "pass": 0,
+          "reported_m_s": 0.4411288202,
+          "reconstructed_m_s": 0.4411288355733874
+        }
+      ]
+    },
+    {
+      "scale": 1,
+      "fixture": 2,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 2.96881222725,
+      "unresponded_swept_hit": false,
+      "residuals": [
+        {
+          "pass": 0,
+          "reported_m_s": 1.788139343e-07,
+          "reconstructed_m_s": 1.7521601863856873e-07
+        }
+      ]
+    },
+    {
+      "scale": 1,
+      "fixture": 12,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 2.62660861015,
+      "unresponded_swept_hit": false,
+      "residuals": [
+        {
+          "pass": 0,
+          "reported_m_s": 2.980232239e-08,
+          "reconstructed_m_s": 2.2387825204805978e-08
+        }
+      ]
+    },
+    {
+      "scale": 1,
+      "fixture": 13,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 0,
+      "unresponded_swept_hit": false,
+      "residuals": []
+    },
+    {
+      "scale": 1,
+      "fixture": 14,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 1.98105728626,
+      "unresponded_swept_hit": false,
+      "residuals": [
+        {
+          "pass": 0,
+          "reported_m_s": 8.940696716e-08,
+          "reconstructed_m_s": 9.23870288049855e-08
+        }
+      ]
+    },
+    {
+      "scale": 1,
+      "fixture": 15,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 0,
+      "unresponded_swept_hit": false,
+      "residuals": []
+    },
+    {
+      "scale": 0.5,
+      "fixture": 1,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 2.34297847748,
+      "unresponded_swept_hit": false,
+      "residuals": [
+        {
+          "pass": 0,
+          "reported_m_s": 7.003545761e-07,
+          "reconstructed_m_s": 7.079641070051323e-07
+        }
+      ]
+    },
+    {
+      "scale": 0.5,
+      "fixture": 2,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 1.48440611362,
+      "unresponded_swept_hit": false,
+      "residuals": [
+        {
+          "pass": 0,
+          "reported_m_s": 8.940696716e-08,
+          "reconstructed_m_s": 8.691174049890726e-08
+        }
+      ]
+    },
+    {
+      "scale": 0.5,
+      "fixture": 12,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 1.31330430508,
+      "unresponded_swept_hit": false,
+      "residuals": [
+        {
+          "pass": 0,
+          "reported_m_s": 1.490116119e-08,
+          "reconstructed_m_s": 1.114391259826597e-08
+        }
+      ]
+    },
+    {
+      "scale": 0.5,
+      "fixture": 13,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 0,
+      "unresponded_swept_hit": false,
+      "residuals": []
+    },
+    {
+      "scale": 0.5,
+      "fixture": 14,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 0.990528643131,
+      "unresponded_swept_hit": false,
+      "residuals": [
+        {
+          "pass": 0,
+          "reported_m_s": 4.470348358e-08,
+          "reconstructed_m_s": 4.614600662700141e-08
+        }
+      ]
+    },
+    {
+      "scale": 0.5,
+      "fixture": 15,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 0,
+      "unresponded_swept_hit": false,
+      "residuals": []
+    }
+  ],
+  "limitations": [
+    "This is an unpromoted certificate and four-contact research solver.",
+    "Only a single floating box over a fixed plane is geometrically observed.",
+    "Complete owner restoration, force accuracy and general mixed contact are not qualified."
+  ]
+}

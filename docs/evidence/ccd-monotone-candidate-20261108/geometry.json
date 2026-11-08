@@ -1,0 +1,251 @@
+{
+  "schema": "numi.ccd.segment-geometry.v1",
+  "accepted_runs": [
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 1,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0005340939757146445,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0005324028958220555
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 0.0005340939757146716,
+          "discrete_acceleration_path_envelope_m": 2.4327832118200926e-09,
+          "whole_interval_lower_bound_m": 0.0005329386997705447
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 2,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00032041751308149735,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0003187128407446023
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 0.00032041751308147025,
+          "discrete_acceleration_path_envelope_m": 6.377548417635988e-11,
+          "whole_interval_lower_bound_m": 0.0003199541674634918
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 12,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 5.8688244212613644e-05,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 5.695233136361204e-05
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 5.868824421264133e-05,
+          "discrete_acceleration_path_envelope_m": 4.270543440842791e-10,
+          "whole_interval_lower_bound_m": 5.7537595524811134e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 13,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0002998902053673928,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002971622355735066
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 14,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00010182745233914311,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00010009566320951051
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 0.00010182745233911541,
+          "discrete_acceleration_path_envelope_m": 3.7135832483166876e-11,
+          "whole_interval_lower_bound_m": 0.00010138116350478351
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 15,
+      "scale": 1,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00029989021529049797,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0002979004127468275
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 1,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0002670469878568416,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00026610144791054603
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 0.0002670469878568416,
+          "discrete_acceleration_path_envelope_m": 2.994437420318162e-10,
+          "whole_interval_lower_bound_m": 0.00026637457782531103
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 2,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00016020875654033492,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.0001592564203718864
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 0.00016020875654032136,
+          "discrete_acceleration_path_envelope_m": 3.188774208817996e-11,
+          "whole_interval_lower_bound_m": 0.00015987708373111907
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 12,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 2.9344122106317193e-05,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 2.837616568181539e-05
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 2.9344122106331037e-05,
+          "discrete_acceleration_path_envelope_m": 2.1352717204213956e-10,
+          "whole_interval_lower_bound_m": 2.866879776220156e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 13,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.00014994510286972835,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014848111797278774
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 14,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 5.0913726169582736e-05,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 4.994783160476544e-05
+        },
+        {
+          "pass": 1,
+          "sample_min_gap_m": 5.091372616956889e-05,
+          "discrete_acceleration_path_envelope_m": 1.8567916241583438e-11,
+          "whole_interval_lower_bound_m": 5.059058175218806e-05
+        }
+      ],
+      "qualified": true
+    },
+    {
+      "limit": 16,
+      "mode": 0,
+      "fixture": 15,
+      "scale": 0.5,
+      "completed_seconds": 0.009999999776,
+      "segments": [
+        {
+          "pass": 0,
+          "sample_min_gap_m": 0.0001499451077018012,
+          "discrete_acceleration_path_envelope_m": 0.0,
+          "whole_interval_lower_bound_m": 0.00014885020642996846
+        }
+      ],
+      "qualified": true
+    }
+  ],
+  "all_accepted_segments_qualified": true,
+  "method": "100001 FP64 endpoint-geodesic/linear samples per literal segment, whole-interval Lipschitz enclosure, H^2/4 discrete acceleration envelope and 0.2 micrometre rounding guard.",
+  "limits": [
+    "This observer is limited to the force-free single floating box fixtures; it does not certify arbitrary articulated link interpolation.",
+    "Rejected-step trial segments are not accepted trajectories."
+  ]
+}

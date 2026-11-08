@@ -1,0 +1,204 @@
+{
+  "schema": "numi.ccd.monotone-hybrid.v1",
+  "trace_on_off_results_equal": true,
+  "repeat_and_exposed_rollback_pass": true,
+  "accepted_segments_geometry_pass": true,
+  "near_miss_gate_pass": true,
+  "thin_impact_completion_gate_pass": false,
+  "normal_residual_gate_pass": false,
+  "mixed_rod_rigid_response_qualified": false,
+  "candidate_promotable": false,
+  "rows": [
+    {
+      "scale": 1,
+      "fixture": 1,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 1.1691454649,
+      "unresponded_swept_hit": false,
+      "residuals": [
+        {
+          "pass": 0,
+          "reported_m_s": 4.305634499,
+          "reconstructed_m_s": 4.30563466653767
+        }
+      ]
+    },
+    {
+      "scale": 1,
+      "fixture": 2,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 0.70533156395,
+      "unresponded_swept_hit": false,
+      "residuals": [
+        {
+          "pass": 0,
+          "reported_m_s": 2.699082136,
+          "reconstructed_m_s": 2.6990820809618965
+        }
+      ]
+    },
+    {
+      "scale": 1,
+      "fixture": 12,
+      "accepted": false,
+      "status": 11,
+      "impulse_Ns": 0,
+      "unresponded_swept_hit": false,
+      "residuals": [
+        {
+          "pass": 0,
+          "reported_m_s": 2.152588606,
+          "reconstructed_m_s": 2.1525885785594023
+        },
+        {
+          "pass": 1,
+          "reported_m_s": 1.815061808,
+          "reconstructed_m_s": 1.8150618305489985
+        }
+      ]
+    },
+    {
+      "scale": 1,
+      "fixture": 13,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 0,
+      "unresponded_swept_hit": false,
+      "residuals": []
+    },
+    {
+      "scale": 1,
+      "fixture": 14,
+      "accepted": false,
+      "status": 9,
+      "impulse_Ns": 0,
+      "unresponded_swept_hit": false,
+      "residuals": [
+        {
+          "pass": 0,
+          "reported_m_s": 1.637661457,
+          "reconstructed_m_s": 1.6376615463512902
+        },
+        {
+          "pass": 1,
+          "reported_m_s": 1.239967227,
+          "reconstructed_m_s": 1.239967230792406
+        },
+        {
+          "pass": 2,
+          "reported_m_s": 1.090721011,
+          "reconstructed_m_s": 1.0907209380034681
+        }
+      ]
+    },
+    {
+      "scale": 1,
+      "fixture": 15,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 0,
+      "unresponded_swept_hit": false,
+      "residuals": []
+    },
+    {
+      "scale": 0.5,
+      "fixture": 1,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 0.666119217873,
+      "unresponded_swept_hit": false,
+      "residuals": [
+        {
+          "pass": 0,
+          "reported_m_s": 2.052065611,
+          "reconstructed_m_s": 2.052065608758214
+        }
+      ]
+    },
+    {
+      "scale": 0.5,
+      "fixture": 2,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 0.408705621958,
+      "unresponded_swept_hit": false,
+      "residuals": [
+        {
+          "pass": 0,
+          "reported_m_s": 1.282279372,
+          "reconstructed_m_s": 1.2822793774469063
+        }
+      ]
+    },
+    {
+      "scale": 0.5,
+      "fixture": 12,
+      "accepted": false,
+      "status": 11,
+      "impulse_Ns": 0,
+      "unresponded_swept_hit": false,
+      "residuals": [
+        {
+          "pass": 0,
+          "reported_m_s": 1.076294303,
+          "reconstructed_m_s": 1.0762942893297012
+        },
+        {
+          "pass": 1,
+          "reported_m_s": 0.9075309038,
+          "reconstructed_m_s": 0.9075309152031317
+        }
+      ]
+    },
+    {
+      "scale": 0.5,
+      "fixture": 13,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 0,
+      "unresponded_swept_hit": false,
+      "residuals": []
+    },
+    {
+      "scale": 0.5,
+      "fixture": 14,
+      "accepted": false,
+      "status": 11,
+      "impulse_Ns": 0,
+      "unresponded_swept_hit": false,
+      "residuals": [
+        {
+          "pass": 0,
+          "reported_m_s": 0.8188307285,
+          "reconstructed_m_s": 0.8188307733376433
+        },
+        {
+          "pass": 1,
+          "reported_m_s": 0.6199836135,
+          "reconstructed_m_s": 0.6199836154619554
+        },
+        {
+          "pass": 2,
+          "reported_m_s": 0.495531112,
+          "reconstructed_m_s": 0.4955311014170062
+        }
+      ]
+    },
+    {
+      "scale": 0.5,
+      "fixture": 15,
+      "accepted": true,
+      "status": 0,
+      "impulse_Ns": 0,
+      "unresponded_swept_hit": false,
+      "residuals": []
+    }
+  ],
+  "limitations": [
+    "This is an unpromoted certificate linked to the main contact solver.",
+    "Only a single floating box over a fixed plane is geometrically observed.",
+    "Complete owner restoration, force accuracy and general mixed contact are not qualified."
+  ]
+}
