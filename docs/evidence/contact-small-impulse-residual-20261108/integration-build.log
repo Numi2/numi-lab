@@ -1,0 +1,36 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.6s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/numi/numi-reconciliation-build-20261108
+[0/4] Re-checking globbed directories...
+[1/10] Generating shaders/MetalRobo.metallib
+/Users/numi/numi-lab-reconciliation-20261108/src/metal/NumiHumanStand.metal:2696:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns = (equalityColumnsEnd + nv) * nv;
+               ^
+/Users/numi/numi-lab-reconciliation-20261108/src/metal/NumiHumanStand.metal:2811:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns =
+               ^
+2 warnings generated.
+/Users/numi/numi-lab-reconciliation-20261108/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/numi/numi-lab-reconciliation-20261108/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+In file included from /Users/numi/numi-lab-reconciliation-20261108/src/metal/MujocoMuscleReferenceCompensated.metal:4:
+/Users/numi/numi-lab-reconciliation-20261108/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/numi/numi-lab-reconciliation-20261108/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+[2/10] Building OBJCXX object CMakeFiles/wave32-status-reduction-test.dir/tests/wave32_status_reduction.mm.o
+[3/10] Linking OBJCXX executable wave32-status-reduction-test
+[4/10] Building CXX object CMakeFiles/metal-world-small-impulse-residual-probe.dir/tests/metal_world_small_impulse_residual.cpp.o
+[5/10] Linking CXX executable metal-world-small-impulse-residual-probe
+[6/10] Building CXX object CMakeFiles/metalrobo_metal_world_contact_probe.dir/apps/metal_world_contact_probe.cpp.o
+[7/10] Linking CXX executable bin/metalrobo_metal_world_contact_probe
