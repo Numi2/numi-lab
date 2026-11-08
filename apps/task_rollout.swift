@@ -2371,6 +2371,11 @@ private enum TaskRolloutMain {
                         options.chunk,
                         options.steps - completed
                     )
+                    if options.finalStateJSON != nil && repeatIndex == options.repeats - 1 &&
+                        completed + stepCount == options.steps {
+                        // Publish the accepted endpoint once; preceding chunks stay resident.
+                        try context.setStateReadback(true)
+                    }
                     let resetBatch = options.scheduledResets
                         ? masks(
                             startStep: globalStep,
