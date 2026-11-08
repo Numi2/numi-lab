@@ -1,3 +1,4 @@
+#include "SutureContactPublication.hpp"
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/HeterogeneousWorld.hpp"
 #include "metalrobo/MatterSnapshotArchive.hpp"
@@ -18230,62 +18231,74 @@ int main(const int argc, const char* const argv[]) {
                      (punctureTipContacts > 0u &&
                       punctureTipAcceptedImpulse >=
                           kPunctureImpulseThresholdNs));
-                require(
-                    matter.available &&
-                        driven.diagnostics.failedStepCount == 0u &&
-                        driven.result.finalSceneBodies.at(0u)
-                                .flagsAndIndices[0] == MR_MOTION_DYNAMIC &&
-                        plannedAdvance >
-                            (tissueRobotFirstBitePunctureMicrostepOnly
-                                ? 1.0e-8 : 1.0e-5) &&
-                        actualAdvance >=
-                            (tissueRobotFirstBitePunctureMicrostepOnly
-                                ? 1.0e-8 : 1.0e-6) &&
-                        actualAdvance <=
-                            (tissueRobotFirstBitePunctureMicrostepOnly
-                                ? plannedAdvance * 2.0 + 1.0e-6
-                                : plannedAdvance + 1.0e-4) &&
-                        bilateral(contacts, 0u) &&
-                        distributedInsertCoverage(contacts, 0u) &&
-                        cleanNeedleInteraction(
-                            contacts, true, false
-                        ) &&
-                        (terminalGrasp || transientPuncture) &&
-                        qualifiedTransitionRod(rod) &&
-                        swageError < kMaximumSwageAttachmentError &&
-                        (robotContactProbe
-                            ? (earnedPuncture ||
-                               (punctureTipContacts > 0u &&
-                                punctureTipNormalImpulse > 0.0 &&
-                                punctureTipAcceptedImpulse > 0.0 &&
-                                tissueReactionImpulse > 0.0)) &&
-                                // Opening a channel requires live tissue
-                                // motion. A restored channel may persist
-                                // without newly measured tissue motion.
-                                (maximumTissueDisplacement > 0.0 ||
-                                 (activeChannels > 0u &&
-                                  channelChainValid)) &&
-                                (activeChannels == 0u
-                                    ? channels == 1u
-                                    : channels >= activeChannels &&
-                                      channels <= activeChannels +
-                                          robotApproachSteps *
-                                              stepConfig.physicsSubsteps) &&
-                                channelGeometryValid && channelChainValid
-                            : channels == 0u &&
-                                finalTissueSeparation >=
-                                    kRobotFirstBiteFreeSpaceMarginM * 0.5) &&
-                        tetrahedra ==
-                            tissueCoupon.metadata.tetrahedronCount &&
-                        removedMass == 0.0 &&
-                        certificatesAccepted &&
-                        std::isfinite(minimumDeterminant) &&
-                        minimumDeterminant > 0.0 &&
-                        std::isfinite(maximumResidual) &&
-                        maximumResidual <=
-                            tissueWorld.mixedSolver.residualTolerances.x,
-                    "resumed robot approach lost its grip, thread, or skin authority"
-                );
+                // Evaluate every publication gate separately so that the
+                // diagnostic remains useful even when an earlier gate fails.
+                const bool gateMatter = matter.available;
+                const bool gateSteps = driven.diagnostics.failedStepCount == 0u;
+                const bool gateDynamic = driven.result.finalSceneBodies.at(0u)
+                    .flagsAndIndices[0] == MR_MOTION_DYNAMIC;
+                const bool gatePlanned = plannedAdvance >
+                    (tissueRobotFirstBitePunctureMicrostepOnly ? 1.0e-8 : 1.0e-5);
+                const bool gateActualMin = actualAdvance >=
+                    (tissueRobotFirstBitePunctureMicrostepOnly ? 1.0e-8 : 1.0e-6);
+                const bool gateActualMax = actualAdvance <=
+                    (tissueRobotFirstBitePunctureMicrostepOnly
+                        ? plannedAdvance * 2.0 + 1.0e-6 : plannedAdvance + 1.0e-4);
+                const bool gateBilateral = bilateral(contacts, 0u);
+                const bool gateCoverage = distributedInsertCoverage(contacts, 0u);
+                const bool gateInteraction = cleanNeedleInteraction(contacts, true, false);
+                const bool gateGrasp = terminalGrasp || transientPuncture;
+                const bool gateRod = qualifiedTransitionRod(rod);
+                const bool gateSwage = swageError < kMaximumSwageAttachmentError;
+                const bool gateContactEvidence = !robotContactProbe || earnedPuncture ||
+                    (punctureTipContacts > 0u && punctureTipNormalImpulse > 0.0 &&
+                     punctureTipAcceptedImpulse > 0.0 && tissueReactionImpulse > 0.0);
+                const bool gateTissueMotion = !robotContactProbe ||
+                    maximumTissueDisplacement > 0.0 ||
+                    (activeChannels > 0u && channelChainValid);
+                const bool gateChannelCount = robotContactProbe
+                    ? sutureChannelCountAdmissible(activeChannels, channels,
+                        robotApproachSteps, stepConfig.physicsSubsteps,
+                        tissueRobotFirstBiteEntryOnly ||
+                            tissueRobotFirstBiteContactAdvanceOnly)
+                    : channels == 0u;
+                const bool gateChannelGeometry = !robotContactProbe || channelGeometryValid;
+                const bool gateChannelChain = !robotContactProbe || channelChainValid;
+                const bool gateClearance = robotContactProbe || finalTissueSeparation >=
+                    kRobotFirstBiteFreeSpaceMarginM * 0.5;
+                const bool gateTetrahedra = tetrahedra == tissueCoupon.metadata.tetrahedronCount;
+                const bool gateRemovedMass = removedMass == 0.0;
+                const bool gateCertificates = certificatesAccepted;
+                const bool gateDeterminant = std::isfinite(minimumDeterminant) &&
+                    minimumDeterminant > 0.0;
+                const bool gateResidual = std::isfinite(maximumResidual) &&
+                    maximumResidual <= tissueWorld.mixedSolver.residualTolerances.x;
+                std::cout << "robot_first_bite_publication_gates"
+                    << " matter=" << gateMatter << " steps=" << gateSteps
+                    << " dynamic=" << gateDynamic << " planned=" << gatePlanned
+                    << " actual_min=" << gateActualMin << " actual_max=" << gateActualMax
+                    << " bilateral=" << gateBilateral << " coverage=" << gateCoverage
+                    << " interaction=" << gateInteraction << " grasp=" << gateGrasp
+                    << " rod=" << gateRod << " swage=" << gateSwage
+                    << " contact_evidence=" << gateContactEvidence
+                    << " tissue_motion=" << gateTissueMotion
+                    << " channel_count=" << gateChannelCount
+                    << " channel_geometry=" << gateChannelGeometry
+                    << " channel_chain=" << gateChannelChain
+                    << " clearance=" << gateClearance << " tetrahedra=" << gateTetrahedra
+                    << " removed_mass=" << gateRemovedMass
+                    << " certificates=" << gateCertificates
+                    << " determinant=" << gateDeterminant << " residual=" << gateResidual
+                    << " earned_puncture=" << earnedPuncture
+                    << " qualified_puncture_contact=" << qualifiedPunctureContact << std::endl;
+                require(gateMatter && gateSteps && gateDynamic && gatePlanned &&
+                    gateActualMin && gateActualMax && gateBilateral && gateCoverage &&
+                    gateInteraction && gateGrasp && gateRod && gateSwage &&
+                    gateContactEvidence && gateTissueMotion && gateChannelCount &&
+                    gateChannelGeometry && gateChannelChain && gateClearance &&
+                    gateTetrahedra && gateRemovedMass && gateCertificates &&
+                    gateDeterminant && gateResidual,
+                    "resumed robot approach lost its grip, thread, or skin authority");
                 const std::string_view acceptedPhase =
                     robotContactProbe
                     ? (channels == 0u
