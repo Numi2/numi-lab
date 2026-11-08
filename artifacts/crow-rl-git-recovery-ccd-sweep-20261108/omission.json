@@ -1,0 +1,1091 @@
+{
+  "commit": "3ffc008c617555460be559500fcdebc79d867a46",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300198308 157150832    66% 3496959 1571508320    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300217260 157131880    66% 3497175 1571318800    0%   /System/Volumes/Data\n",
+  "omitted_files": [
+    {
+      "bytes": 7773,
+      "git_blob": "7542c987763615b1022ac94ba7bf311497f0ea51",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/finalize_archive.py"
+    },
+    {
+      "bytes": 17093,
+      "git_blob": "cd137186f767a68b54a27fa30642549d79f555d6",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/fixture128.mm"
+    },
+    {
+      "bytes": 6163,
+      "git_blob": "a57f02c93ed893e11b234ee2f340efc537ec6d24",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/integrate.py"
+    },
+    {
+      "bytes": 4125,
+      "git_blob": "e298378e660e23ad78fa8e8b9f06bfd781f1857d",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/package_owner.py"
+    },
+    {
+      "bytes": 1235,
+      "git_blob": "3c8069ad43065d612078c5dfb423e08eeec38417",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/packaging-repair-plan.json"
+    },
+    {
+      "bytes": 12,
+      "git_blob": "57cdc50305d07f35133f80962644debd6b846bf3",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/.gitattributes"
+    },
+    {
+      "bytes": 23614,
+      "git_blob": "1f035658733e525f49cc394e19455b6290d87b78",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/010d97a314b996fd60ccef388aac7090e040c8aefdd15d515fb301bb1c66f1a1.gz"
+    },
+    {
+      "bytes": 286,
+      "git_blob": "e44b3ecb0275c716e0b348593219647668d226c4",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/0247c3cfd461504eafc7bf6b0823b0d469456f1f47632a83485933d92c6f4550.gz"
+    },
+    {
+      "bytes": 299,
+      "git_blob": "ead073fab8ab42ceed42ebb70cd88d2733a36e99",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/03e231acb3b6b1901496569d5626496af5d6f01145662bf6e8f80ff8dee601d1.gz"
+    },
+    {
+      "bytes": 101,
+      "git_blob": "94b8b03c30ae0c6243073bcaf2bad4f7e353336a",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/04259ba5cc892c4fd67e41de4178c0701765177603b826e29f3d9dd1ba7edb53.gz"
+    },
+    {
+      "bytes": 25634,
+      "git_blob": "219247063e452411f52f431c8377ccb56776c072",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/060dea56da2eca3b80892fd8decac75072b0be670746883f6ad69fe23ea0e380.gz"
+    },
+    {
+      "bytes": 907,
+      "git_blob": "737f0fea6224878c5fa4591a38b2493d8c4ba2c4",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/06f587eb792e794eb753df89e0f1817c7bd7ee57e6516b6417a7d43803b64e1a.gz"
+    },
+    {
+      "bytes": 425,
+      "git_blob": "689502d968f83a2964e0ac41e7f59ac45b40409a",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/0862f3c92e08378cf211ee3aaf3da21c66fda6081b052a49fdfa831eafe267e3.gz"
+    },
+    {
+      "bytes": 52352,
+      "git_blob": "6d6661e803e4ac9d7fb4a137ea326d97e8bc7c62",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e.gz"
+    },
+    {
+      "bytes": 604,
+      "git_blob": "288f6ac5d7660518580da26e48885436254afed2",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/0db47cd170a810f9cd20f355465f65701128fe6179911caa85006e2bc2892243.gz"
+    },
+    {
+      "bytes": 659,
+      "git_blob": "8f8b027824a2c6275ed0ba6c70a740bd2496ae93",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/0ddd77e6842a27a830faddec05de6aff7236e417d9174da2ce6b521877d3f339.gz"
+    },
+    {
+      "bytes": 754,
+      "git_blob": "bec09b14faa22020f7c50ac8ed383539ec7fcbc3",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/10fab80468fe91b4701239b5354a9c1f4d2dbb3d9a7d0fb01d85075071b40f2e.gz"
+    },
+    {
+      "bytes": 24185,
+      "git_blob": "4346df2751e139042177ce39058a598f81022e6f",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/118e3a68dc39c734c270be8e0b75615d8c145ec0e382ffe024c8ad760ab7f320.gz"
+    },
+    {
+      "bytes": 631,
+      "git_blob": "3a947b397642cfa0adfa867f4275130f824253c8",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/135171ae9761c450c42b78629a05606814cd593f09fed085a811d83b4b1c9bed.gz"
+    },
+    {
+      "bytes": 604,
+      "git_blob": "bc7e7687e9f6870e32c3bb66161b6413faba33c6",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/1408fc1bff72c4e08dec74caaa95866a0622e3db5c506c63ba6f34eda2c0e412.gz"
+    },
+    {
+      "bytes": 3081,
+      "git_blob": "7e46a339a118374a43856d6605c005740945a6c8",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/1764949addf06553ee839c3b5674acc23f2e3f62bbec0a158e96d1789a949081.gz"
+    },
+    {
+      "bytes": 1364,
+      "git_blob": "3fcfc2cb641950e4a92c4c9392869952260fb44b",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/1a924ca81dd25845b9aafcc9b420f4f8ea7ddec419c5b3d20d137127790d7698.gz"
+    },
+    {
+      "bytes": 587635,
+      "git_blob": "98102b69556dec0ebf9bc202ea38a74e67e1b194",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/2397947a0cff3717e01cd37bb477a105094ac5c71f853575ec791c7a3e5478bd.gz"
+    },
+    {
+      "bytes": 37599,
+      "git_blob": "086026d0ac429c7eacac56d1f586846d0225a837",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/25b4d7d0da1b616f8536799d98e889a645c06d609f39ad8eacb589ac0bd6cc45.gz"
+    },
+    {
+      "bytes": 67,
+      "git_blob": "0f90dc9d8d1700d1f52951cfff80ba15694ba0d9",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/28e064efe3f6fe93d379280858d791efc932c39376b45d675554bce76c55d621.gz"
+    },
+    {
+      "bytes": 304,
+      "git_blob": "865582f032be96b7d336000afa15c7193e5fb1da",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/2a5a2044bb595f933e40a04982eb5f19fea34fa8ddb36cdb3a613f49c720b453.gz"
+    },
+    {
+      "bytes": 25567,
+      "git_blob": "54f5b1e263390721dda9841378a5198e450afaa6",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/2a8e4d07bf2103bd84f59c934cabd176c08e8485d8673b78a963ee2f7a9eb1ac.gz"
+    },
+    {
+      "bytes": 170,
+      "git_blob": "11a0da8670a4d7ac095893b417011593b56acaf6",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/2b71af5bc0f5f56fbdaf8055ec1f0425ff60049e10161e5a5d865f0b9c49927a.gz"
+    },
+    {
+      "bytes": 4141,
+      "git_blob": "43e612b048fdb0da7d9afcdb601410e80d3ead5c",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/2ef6c05de12e921b612996d2fe5d8c5b253660d1277853994983760785dac72c.gz"
+    },
+    {
+      "bytes": 19860,
+      "git_blob": "2bce3bd07e4c5b4ae64e8098ab0af70f7778cc90",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/2f1589c5082954194e0ac850cbdba538354f186087a8ff3417964e4f88f1d35e.gz"
+    },
+    {
+      "bytes": 66509,
+      "git_blob": "d7c6a89e4b6f86158ccf1312139c11723f5ff134",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/32c62bb243e9292aca13b94fa4fac4ff6d33f3fb758bae7a151e2d92cc31e559.gz"
+    },
+    {
+      "bytes": 90,
+      "git_blob": "f137517f3b2a8c193fcea4c82320d18bdb838c0b",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/32c72760dba1bea5f8bed554566021f1498650f8cee980ee7f58ef1140de704a.gz"
+    },
+    {
+      "bytes": 375,
+      "git_blob": "d5ce1b2161c0df63d78eca86d950ad06435ff9a1",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/335b30d637820d493fb53be5a11ec16bb91c1fec458dc9c3ab53bee94d2bd0b7.gz"
+    },
+    {
+      "bytes": 24147,
+      "git_blob": "fd2ff141d8c09dc6c7068b5e669455e546a2ac90",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/33a2fa2954519f932a10bed79ed3a1932144bafb1c16878bb891b3b23de4a8bc.gz"
+    },
+    {
+      "bytes": 56372,
+      "git_blob": "798530fef11db48de966959cf3702d9c7a3ca4c7",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/33ecfed7121e8e747d572fe916e26a0e74671689f9e390cb3407092a31dc3135.gz"
+    },
+    {
+      "bytes": 24145,
+      "git_blob": "c43ab9a719b63dfed7714a29284b2d4a52cbee23",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/3833747a55915be68c062cc5076bc45dbafe2d14861ffa55a7d4e22e76ec75c5.gz"
+    },
+    {
+      "bytes": 418,
+      "git_blob": "3e00fead87bdc3fb4cd1b59dabcf1d32fd69232c",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/3c8ba72e79c8045aaf65538e06e3582dcc8e1c0ab641cce7fd59f8901215f1c6.gz"
+    },
+    {
+      "bytes": 273,
+      "git_blob": "9e132206f5f9a1c736522cadb8ff3d4674a7a52a",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/426e9a9ae11ab17982efdb335281e69e2fba800fe514c7957aaea59b481d5dec.gz"
+    },
+    {
+      "bytes": 175,
+      "git_blob": "30935f6c3288857a19b60099e74ddbe54bbd874b",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/42d4454f54e44b45c16ed24dc9811e0b9141a1a404506952caf6f8ea845b2c62.gz"
+    },
+    {
+      "bytes": 44529,
+      "git_blob": "d66b7afa37bfad05d37da17ed6163fccf92ca1ee",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/438ac4a93f96db7f7b1801e7b577d79d88187a07061c6bf3c6a91e1475bc65fc.gz"
+    },
+    {
+      "bytes": 52322,
+      "git_blob": "1cd3d1d9f3adb1d2c6651794ce461fa3c8c2e42e",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/44a5c0bb8155ae6e2400b68454bb1da734bb48b3e9ea5259f4c4b70fd0e4e263.gz"
+    },
+    {
+      "bytes": 500,
+      "git_blob": "117b57ab6d5055299514b2c6eec5e3d7e13cca65",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/46e5e7390496b262f190cec31ea3aa22fc20848e1360d133e86cb65d88d73f6a.gz"
+    },
+    {
+      "bytes": 127,
+      "git_blob": "78722b829d251cff89ec2ce57566189a1efb417d",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/47a87116d79a25987091b10a77d5807de7108686af9ccdbb120786aab27bc535.gz"
+    },
+    {
+      "bytes": 4155,
+      "git_blob": "ad7d6fd51fb5c57bc49b42b1deb70381f0d9df66",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/49cf1ee6f5bdff0a691756f8dc627a3e9e316ed5d0c9da0608921d89069c88c5.gz"
+    },
+    {
+      "bytes": 142,
+      "git_blob": "8b8c779c8c528f7c9cdfe0e2f393d4a93506c873",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/4a4e544cd0814d5566a718d6571a9920cee8cc35396226d1ecf23c538d9c5e48.gz"
+    },
+    {
+      "bytes": 24147,
+      "git_blob": "9de4a7fb0f7b4481e7b2579d388537b1b4006c07",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/4b2c63e09fdee7c65a845511713cee5d72974709d87e90d404692e35b4fe2fb6.gz"
+    },
+    {
+      "bytes": 397,
+      "git_blob": "fd4d56d750f69a699eab7b71b2bc38bf9dae9d63",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/4c03095eb8cad4c2f7fd5e13de79bf0581c10dbe5ff3855d469385e7eedb7484.gz"
+    },
+    {
+      "bytes": 747,
+      "git_blob": "02d009bcbed57f3cf833b1de5e3ec03510312b6a",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/4c342086609b251d7f4a2a690c2a1f0fce272f5b1e6e927b27b7580eca6036e4.gz"
+    },
+    {
+      "bytes": 927,
+      "git_blob": "eaac2fdbdd2787576982f7a2a1de7c3fc7f8c4df",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/4db0dbe631d4f7b05b954767c212b54e2f05037a5e28748eff1d97827f173f4b.gz"
+    },
+    {
+      "bytes": 262,
+      "git_blob": "5f51e2cbd8295d23fe0e3d43a9addee2ed4fe445",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42.gz"
+    },
+    {
+      "bytes": 24054,
+      "git_blob": "9087167b9d066ec8a54ecd2efd95db1aa7dda7b6",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/4e8b561db9ac1049a5a3bb8fe5c146c4ad2b87eb44e4a2c7f81506df1feb0484.gz"
+    },
+    {
+      "bytes": 37180,
+      "git_blob": "95e89f804c02eabe0fda043fb8387642d1ad5719",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/534788e175e6886d42434b8c1f405ac8a23727f7d3b3fcd23225049fb1993b1c.gz"
+    },
+    {
+      "bytes": 809,
+      "git_blob": "02becd722c1f39024b3b7b3900632f90774ed805",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/5350b26d2f4b379cbb26f3428ecf2b8653178f09571382694130c9d41d3650b3.gz"
+    },
+    {
+      "bytes": 807,
+      "git_blob": "31ac3bead00b58674b951d4bc44a47170caa1209",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/5526799088f415bd8fad4a465791b1c52c758c6b052e39ff77ea1bc0ca460f2a.gz"
+    },
+    {
+      "bytes": 4281,
+      "git_blob": "2f98b64b6787b71c8831a890b6d3a26668fd8d12",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/5606a79a7cd381baa9d3b00194b80e56e587f149e47cbe5bb265a236147d4f3e.gz"
+    },
+    {
+      "bytes": 20462,
+      "git_blob": "9bccdd87d9677eab841df6a6ec296cbd136fd497",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/57d3acf7fb4667e80fdeb62c7efc135c2ba1252d3e5371327f68d86ced643361.gz"
+    },
+    {
+      "bytes": 1679,
+      "git_blob": "53b6ad43954e23c3b9ed7e7ea37a43ab8f0ebe2a",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/5813384c425d828632376886651325c5aef1b5d1374172ef6a13c3adf789efac.gz"
+    },
+    {
+      "bytes": 604,
+      "git_blob": "e604cf59b5194d2d761e7ed61e80b58dfadc886e",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/58b4f81439d49974a0e1c56a3cd3f21d6add3e4b25d740244e01f01496c74f53.gz"
+    },
+    {
+      "bytes": 619,
+      "git_blob": "be9b187566fed13cbced76d476800117482811d8",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/5a5cf6333d4f83e44d9abd577798469d87fd23068110134c86ba3702c0bc9e94.gz"
+    },
+    {
+      "bytes": 1362,
+      "git_blob": "d93b6c8c45fd0547948d96073289ca34661afa58",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/5b77c12b4fb528fc60bf5277610edf27456cb112a81a27fb05e2919ecb648771.gz"
+    },
+    {
+      "bytes": 2467943,
+      "git_blob": "30b44eabfadbf0a6a7c28b3603e8b98572505bc3",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/5b8766012ae4da995cbd26e9832ebd7a9bccbfb67e2af2bc72b960e028e2ec5f.gz"
+    },
+    {
+      "bytes": 172,
+      "git_blob": "65a076ccfd82f62419b0cc161b7041af10411d03",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/5d616f6902c4b209caef35714c5299f89aec7e23702400233a96f0c5f924a6cd.gz"
+    },
+    {
+      "bytes": 24061,
+      "git_blob": "15f9655c27000ec98e7663c7cce33f22747d9f47",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/5e04add971be0f76e4af99c9382fdb092b2a7585788007c99b20e4f8807a7fac.gz"
+    },
+    {
+      "bytes": 172,
+      "git_blob": "038528e84a6199bed82a126b3c41e15824b8a14e",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/5eba65b20d22905cd31dce0590c7820b76c1670759122ea3527ec84886e7c4dc.gz"
+    },
+    {
+      "bytes": 2318239,
+      "git_blob": "e446a9049e02116b55a47b04f9b79873b4467ed1",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/6187bb22b96e19d4e15dd8d5eb954348c4f789742f703aa3fe7212a4fd9154ed.gz"
+    },
+    {
+      "bytes": 922,
+      "git_blob": "33bf445c8312b8526faaa6b83930fadf175a4e0c",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/61ca9560639cea52f6677dcba1d006860d1d392e886055784c57981f4fb4dd41.gz"
+    },
+    {
+      "bytes": 5953,
+      "git_blob": "8107d5af8ffa312393ae823ce9520b98bc2277df",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/6201347b092c9744267073428e1f6efcf037e5259b90345846e3cd04e762ef67.gz"
+    },
+    {
+      "bytes": 42428,
+      "git_blob": "3ab6a0a2d279de8996d5d50dda1232130a700e9e",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/620c6ad29e823eeaa63a62a46d8df289e79e88b1f6d4f1119311a376bb68a335.gz"
+    },
+    {
+      "bytes": 918,
+      "git_blob": "cfbfcaac41c53ab110c3932839a659f2c57fce67",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/681b949c69e3551c9f06fe759a27900c2240b255629c42b2e82026be650acafa.gz"
+    },
+    {
+      "bytes": 82465,
+      "git_blob": "2fff6adbd6cd297e2439c9084a132ed713651e87",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/6c876aa487b25866f56c0838fcba3436b74416c2793374f99f21daf1269b94c1.gz"
+    },
+    {
+      "bytes": 487,
+      "git_blob": "51cbadfc8814e2bc059e7803da4dd845d0fceecd",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/6f169c161dff7eb7b597902648296a489e39bdb5db208f8d267df82c122020a1.gz"
+    },
+    {
+      "bytes": 424,
+      "git_blob": "c6ed4d10cd9fabec963ece4943500a49f231f71b",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7352d3e76bebea0649fe8e1aa7c20b04e34631233189b7f1fb046f132bac83f1.gz"
+    },
+    {
+      "bytes": 1059,
+      "git_blob": "ab9569700f43de043cf9f652203b631f789fb3b7",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/73994461b3642074b4b0cb3976ff3315d8da15897e7510f0052aa4825936f4c1.gz"
+    },
+    {
+      "bytes": 2044,
+      "git_blob": "998112eb8320201d17607e6a9d535ab4c7e33140",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/741ad5d8e47b85ca4cab9976f74e7225bc438a783a09cb5acd0038f142e0d644.gz"
+    },
+    {
+      "bytes": 306,
+      "git_blob": "333ac22863c585c853a10f53d8d8438aff70d4e9",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9.gz"
+    },
+    {
+      "bytes": 66516,
+      "git_blob": "1b9a9926b0ff8639215fc65096a9b27849512c6e",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/767a23c5a1228f0a69a18b6699c342d688a76e35d593aee775660f8b2cf5ab60.gz"
+    },
+    {
+      "bytes": 303,
+      "git_blob": "37379d2db9e68eca8f82f9916110fdaacf26c720",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/770f2ad3d74bd22ad31fc9b7617f58fda9656652ae6d1ef87524566c3493b2ca.gz"
+    },
+    {
+      "bytes": 4160,
+      "git_blob": "a1a99b534deb7f45207c31e4667c9979186f9fd4",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/779bb94e9b74a72d711e9a4fb3de01f6074f3acc68c4240999eadd446c239230.gz"
+    },
+    {
+      "bytes": 608,
+      "git_blob": "00e06325c2b7ff97251be974d7b233999e345f7e",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/77cf62624141d27442a878a01fe824c973d1fe058bbe6b18236a9f7a7a2fecce.gz"
+    },
+    {
+      "bytes": 2318233,
+      "git_blob": "f84c9981eec7b0eba5310984f2a49665309301b0",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7cb880bdbe0c9dea27534df48c5ad58b4bb4373ef056d8580334dca8c2b5a8e0.gz"
+    },
+    {
+      "bytes": 2015,
+      "git_blob": "d7aadf58b982a3b4e2d478d55e4c349f3f4dea5a",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7df91cc18467f08947bdaf14335a1c48e442d92f74cd59e4ead839565afbc120.gz"
+    },
+    {
+      "bytes": 98,
+      "git_blob": "237e69753e44da13029ce0e02641279a18884cd6",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57.gz"
+    },
+    {
+      "bytes": 52188,
+      "git_blob": "169d6084609a5c3a6f529220bb2c63264e03e102",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/81b8384f87ddefdd45208b5c165f0b829bc5f2197b27428fc409d92b4b85fe89.gz"
+    },
+    {
+      "bytes": 626,
+      "git_blob": "93ed50243c0ef4b224acd02d1cfe18ae44378231",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/832fecf6438e6010b292ba46657c7a15968310c255a38819078a784a92a9d9bb.gz"
+    },
+    {
+      "bytes": 24185,
+      "git_blob": "5b6021fe795a021d7e04d6e64757d73c90afc3e2",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/83f17b27feb85342799093b71cd127649c68242211cf45eaa11db0fa63e44a68.gz"
+    },
+    {
+      "bytes": 553,
+      "git_blob": "36db0d851a61e82612d965f4271a4c6a9aa6ceae",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/84b2e55f4d09832afc3313f1217972ba86657ac775946a1240a683357f365ed4.gz"
+    },
+    {
+      "bytes": 56928,
+      "git_blob": "5de1f2693a31f616389bb39efc6c0eb1d46a7e1b",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921.gz"
+    },
+    {
+      "bytes": 611,
+      "git_blob": "fcbe89889c4efee5be12d03f607ff7a58ff4d7a5",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/8762585896fd0b7d8b4184c7e6a6df5b28ffd46cdafdf02f1e56fe05d2f016f7.gz"
+    },
+    {
+      "bytes": 176,
+      "git_blob": "bd71351c27ec663eb926c24ea06de5ea2bdc3019",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/87632d0600aacdbe80c5f2b10c0d372d7776d72bdf7417d606e05333a2ca8642.gz"
+    },
+    {
+      "bytes": 19761,
+      "git_blob": "dd7405a24c96b3b73c9d8fdb36863c1346503296",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/877d9873e0ccc38b9d93409b68aae07f3f64924fac09005dfb9e2cab1643bea0.gz"
+    },
+    {
+      "bytes": 1358,
+      "git_blob": "ec0efb5b2cb822b043ae2cd11e909757e80a260b",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/8879696bfd8cc684c4981a2e4809e34c6f35b09e475b40ecc693baf76defaf9c.gz"
+    },
+    {
+      "bytes": 317,
+      "git_blob": "a5ec8b23f95c65ab458f75dd0de4108572bfb6ae",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/8954bacf16b3070b6d8c8fcae84ecd6ef6c6904937e953c32928a2aa99fb614f.gz"
+    },
+    {
+      "bytes": 23971,
+      "git_blob": "4eb56be999e25321903fe2d5f73bb5f8c608d75c",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/8c681fbae38902393b6044d20cc4f46af09c3c83404fe0f4c5f54b3aaf558b5d.gz"
+    },
+    {
+      "bytes": 176,
+      "git_blob": "35019c66ee5662fa4e78f894fe17b6f89756cd02",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/8d8fca5c338d2def460f65dd82c8d2732b37e2ba05ad3caacd13bc8d37c19adf.gz"
+    },
+    {
+      "bytes": 299,
+      "git_blob": "4dd4648e4b7460d13e298525e3dc47bb9c6ef051",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/90b7a4b0a92dbb07fedb51b8a6ec3731bcf3e8e3e8a5093fc0129b67377a4be5.gz"
+    },
+    {
+      "bytes": 744,
+      "git_blob": "5cce763a1474663725476e618defecb7f487e727",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/9182f1c3e19fa6648ed34e0b19e18e80f2df072ef43e307cd81dbf5e8d528053.gz"
+    },
+    {
+      "bytes": 9135,
+      "git_blob": "cdc12e5671cc58794b12a555919bd6c2647841ff",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/91a1d4553ebbd445a9a5ebaa78901ce4a71a6cb9797fd2aa7e299c2ebea95fdb.gz"
+    },
+    {
+      "bytes": 172,
+      "git_blob": "adae3e6dfebe14340689aeda000d0a360e78c483",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/91e9193b3bc157dcd27494bdf24feb5616880cdd996eabb98f82ad1040685100.gz"
+    },
+    {
+      "bytes": 81313,
+      "git_blob": "fcfed2a005a99837e88d536643cec3b081d45a06",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/95e9f7442db989a8e0b1e754aa4f0dfb508fbabe5e334b9562f11dcd0d747cc0.gz"
+    },
+    {
+      "bytes": 24038,
+      "git_blob": "415697b28c9534f7338de8f0f607999cb72cbc2d",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/97c392b8e60ee637ce08326856f4fd510d50a46708445f6491136ba0fa71a520.gz"
+    },
+    {
+      "bytes": 208,
+      "git_blob": "4b111ed48a299210e8eeddbee8e2eda58a383c57",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/97ff198212f1427f7a98575a42a754cbfc774cf816ac54084311fa6e8067b883.gz"
+    },
+    {
+      "bytes": 194,
+      "git_blob": "91e770d877032d27ac68086647b929b1d22b9c74",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/9a1c84a12df6a7b993ff64daae8e606ba66fa4c5c9cd97aeeddc6cc6654e0b9a.gz"
+    },
+    {
+      "bytes": 415,
+      "git_blob": "5f51ebac09f8046a22b6e8ecf07e3fbd36e9d544",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/9b1fadd33cac454231c0ff4ca322447f82cc493a44ae613f4440535da83857b2.gz"
+    },
+    {
+      "bytes": 52430,
+      "git_blob": "83d116b4dbd7bc3bcf8ee6869f399f7261c96ebd",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/9c4874502bbe49db34731f6c26342abddfd9e5d785452e60fdba4e7cb7ba8ec8.gz"
+    },
+    {
+      "bytes": 4232,
+      "git_blob": "783aa31ebd669ed30a4b4f3c8a5d07c8dbd788b1",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/9cae17a792df9f767179bc5a439169d73e3e8e10d3e5a0dbc5e7c8671f54399e.gz"
+    },
+    {
+      "bytes": 305,
+      "git_blob": "835ecd9e8e87ceb88fb8ebc18613026959ab13a0",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/a000ac3d9843f8320cadbbd84df2e2f521f3dc60ebebae62631f6377412b331f.gz"
+    },
+    {
+      "bytes": 1365,
+      "git_blob": "e401f010a3e9a121dff51134f340afa1d708d3be",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/a14a0a9a20b2cfc112c2c64205cc5d88b61bf153592524e293a95c5ed05d1d3a.gz"
+    },
+    {
+      "bytes": 375,
+      "git_blob": "af7498d7858ffc51668404ec10d9c0639c643dcf",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27.gz"
+    },
+    {
+      "bytes": 375,
+      "git_blob": "1c9febf49ddabf1e862cfb0f48277cb1513ca61e",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/a2e4aa40d5bf4a32297ee9bc9653c53e1779a801e4343750e8564d119d048243.gz"
+    },
+    {
+      "bytes": 511,
+      "git_blob": "0a929dcca13b1573ce0fc7b94d97e0feaf413bc3",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/a32539c6fa41153e060c2f4e0e2923126858ac1d78c06af00b43ba0e4132bf0a.gz"
+    },
+    {
+      "bytes": 174,
+      "git_blob": "e49c0327e6fe798e8ea6898da6c4a96529326fc9",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/a46c09c5baf002a79a2076bdb0eefd061df1b402d210ce6008f5851a3ddce9d5.gz"
+    },
+    {
+      "bytes": 262,
+      "git_blob": "2ef64fb3cffcdc62c51e99dcd56507c6b5477ecb",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/a578a6491c006adda83c0b7927a98ebbea024f8ebe7a5d9947a9f9333aa137a5.gz"
+    },
+    {
+      "bytes": 345,
+      "git_blob": "596dde483fb68276e5587943dba7f2e4d4602dea",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/a7f1b19614e5a429746587646fdc1042c2d70ad81ce2acb0f94436f3cd734a52.gz"
+    },
+    {
+      "bytes": 24058,
+      "git_blob": "c52098a5f7f1244ee27c39749f0ec26350df297c",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/a878d7f99f92fbff450298d0cd5c2d322b2f637363176e016b5e3cf31d2fc938.gz"
+    },
+    {
+      "bytes": 4343,
+      "git_blob": "3efe43a6aabd4e84f6ff6f534953144df4d5b8db",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/a9e531eb29b0b864ed62a3172924cabfa1d7047cb47fa58fe437e63087e18884.gz"
+    },
+    {
+      "bytes": 23985,
+      "git_blob": "488d422c3304f73ebdbce59832c058323985f0b0",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/aa58dd975dd8c01e0ed761bb11fb248bd80a289f672f1aa77f90ae7d9fd3346b.gz"
+    },
+    {
+      "bytes": 57,
+      "git_blob": "77f8d33555fcaf8531096ef75890e921e570f62f",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/ad2f634186fb316134a15b96cedc4aa0921c397e7c7c5c22529fb9b7c08ff8c0.gz"
+    },
+    {
+      "bytes": 286,
+      "git_blob": "df6a98f5836e70ff765798ace673d564fcf370ef",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/ad92009d67b46b68214d38596546accfcfb0241f8348261659bc721dc305d078.gz"
+    },
+    {
+      "bytes": 175,
+      "git_blob": "43642ce0300d5696043253d3fa8ecd7e5abe7dad",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/b03e7a811753c67d92ce885bf6406d466892b463eea2d191bdbbd92497b4609c.gz"
+    },
+    {
+      "bytes": 3841,
+      "git_blob": "ac3f5efcfe839f7f9aa89db325a705e434c34ca3",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/b32a3e10491204ff5984b4f3da8d7a1a872baa3be560efd07e8b867c03ebd634.gz"
+    },
+    {
+      "bytes": 287,
+      "git_blob": "4ce91303e82946e0273bbf135f455b311273f66b",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/b3368126125b669aa7cf42740bdcfd8d902ded09b9265bedff7b831199df01a6.gz"
+    },
+    {
+      "bytes": 183,
+      "git_blob": "4a304c58f4bd2f90db2c8f7d1d0210726b6adff1",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/b6e37e3e773b80f5954ca9e474b887c291dcbc4a26045760ed197a57bd9bfdb0.gz"
+    },
+    {
+      "bytes": 375,
+      "git_blob": "1f290db19683e1990a8a956958a6a9567a269e24",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/b757b4068c52f5852c501bbc6f34ded71e391b1b8aef10bfd0dc5f2370f4d16b.gz"
+    },
+    {
+      "bytes": 407,
+      "git_blob": "d81e83050b361e74d0bdf08f1596b42cfb09a306",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/b7b2054bd382bd37d65abcd7c7779ec7d0fce7487d857b30a8851760632d6a70.gz"
+    },
+    {
+      "bytes": 37181,
+      "git_blob": "17cfae6c12cbc0fcbd19cecbcd478cdd1d2e104c",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/b91da2b9c10b7901cbefb2bc11b5134cc742448fdad5f1eb9cdd221a63004909.gz"
+    },
+    {
+      "bytes": 2467945,
+      "git_blob": "69be624a6a321b8d760761f29cdc377b1c288799",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/ba1d935c24ab6bc914d7bcc36176788a1ca7a689c54eb132a5e35b823e6aaa42.gz"
+    },
+    {
+      "bytes": 170,
+      "git_blob": "412c8325923e9c4bdefe91db4955702ce75fe96c",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/bab72f61667f98d0cb59a242143e02b1be1b89f1543c48f67d057b28b7a2f898.gz"
+    },
+    {
+      "bytes": 1363,
+      "git_blob": "edd3a73a4e1c6d96dca8a950ac634e0bfb98cb67",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/bbb5f07f6493e06c98b96758f930b4804e3dc0f3d6ff5e1b2245fa5a52d1797c.gz"
+    },
+    {
+      "bytes": 23615,
+      "git_blob": "fe42880e616171b1276c0a08db0dd10b7118287a",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/bbce3af1af50ea3552d4e804d60e21afa4f725223d4b7e40b0dd482c597c74e3.gz"
+    },
+    {
+      "bytes": 35597,
+      "git_blob": "df1a8f39f88a92017d3f73bba35a5aa7a60ac18f",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/bd0777b062295b4e08a4722124665725cb6842506054d05357a6346a76d39293.gz"
+    },
+    {
+      "bytes": 419,
+      "git_blob": "ba7b45faf3aa11449c36e12ae83776991ad9174e",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/bd38713d3fa1eb99766ea1f5955a6c890ddcfc2a10aaa8b72049933d61000e2c.gz"
+    },
+    {
+      "bytes": 375,
+      "git_blob": "9549f58977f6d306714bc1d9f5ae9df628b87377",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/bd41aaff8d412e48f56a31628f2cf8b2ccd07b69f675677be2c4a476ebd737fc.gz"
+    },
+    {
+      "bytes": 588684,
+      "git_blob": "8d2969d1a4da12caf88d9ef491932e587bb30b12",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/be3eb5abe16f1d7ba0873ac4119a66c7a2f9647d52178e0dd3096d8301983e43.gz"
+    },
+    {
+      "bytes": 871,
+      "git_blob": "7064e85d9cecd923bd74e3b3c85cf3a03d334dc1",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/c1e1dc2a9bb4bb8fb6d906d6059951d2488a1a882158d5bfad70654d238005f4.gz"
+    },
+    {
+      "bytes": 56724,
+      "git_blob": "cba2171a9eba18616d1d8e8baa0f8dda2442586c",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/c4ae12ae4ecf88097709192dce9353021696fa71394c598449b8b864b8fb4b4d.gz"
+    },
+    {
+      "bytes": 1620,
+      "git_blob": "389ebbd42cdfd920e4cfcc96b1288f5c68738bab",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/c51792e5ab43ea27d33c56c8233257c0014d3aebdd6328d0337a2afdc785886a.gz"
+    },
+    {
+      "bytes": 175,
+      "git_blob": "8f894f12eff26743678d5c2c10f665366c850bae",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/c64bb4b14e32f576b1a6735db9ef9987c2ad19e9803cd6de1e0c5456c8e0cc1c.gz"
+    },
+    {
+      "bytes": 23568,
+      "git_blob": "493386323d1676bd89e9da02e3501587369937b6",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/c66fc97bf6972c75458b3c54881a2f31446f0527e4e06a364caf61d12946be74.gz"
+    },
+    {
+      "bytes": 24183,
+      "git_blob": "58749891ccbd55e3a38afd47646f55d01da1afb7",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/ca98a1609fa126cf4dcfd701d9b9a94b2919c6d73160027163b91ac6e505d417.gz"
+    },
+    {
+      "bytes": 375,
+      "git_blob": "9c687c0b858fe6061b7a5ac52e7610d7663c591c",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/caee6525ad10ed4ba6daf2bf203dfc8122395b4b9cfa2c5f93a6cfea752b17de.gz"
+    },
+    {
+      "bytes": 423,
+      "git_blob": "ea5b55a306321152bef1248c060e7d8b7dbfbfa3",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/cfa6ab9cb36253d00d01ef4a9cda4fad5fa93028a17600aad940bb04bf5343c1.gz"
+    },
+    {
+      "bytes": 56001,
+      "git_blob": "86d1dacd652e4a4f1310e52705b76669b5be45e5",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/d30d85a1cfc462064d9666546a3306171d1f316f5ff8b35f1db2aab04cb927b4.gz"
+    },
+    {
+      "bytes": 13157,
+      "git_blob": "6111e40ffa88ca889b6f22f687212f45da7c6917",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/d3dfa492c0e68ac4d2135d8858817ecb8dddac673f9f2381bbbbd2fa2df578cb.gz"
+    },
+    {
+      "bytes": 24085,
+      "git_blob": "470a7009400543fd0eb5c75877ce2903c53a6f3b",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/d3e6a3bd2b082469cc39b8053be6c0a36da252ac4fd07b2886a7ab1df6bd598b.gz"
+    },
+    {
+      "bytes": 751,
+      "git_blob": "574cac297ea5a127eebefc6a5393c072385aa5da",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/d439d03166c96416a67285913757559d113369bd0930e5c74186f83e6aa9e0ec.gz"
+    },
+    {
+      "bytes": 24146,
+      "git_blob": "2bc0486fda83689842188bf26719174244f3a7dc",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/d45b488ac4ba17d13e83fc30c538e00e23e90749c92c4735dd888a991a86bd00.gz"
+    },
+    {
+      "bytes": 178375,
+      "git_blob": "7cb764979f2c419f4197d4082898e06fa43c763d",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/d67006aa795ac752c2d2ffd038f3968f3f2fc769836a8ac5623847ee111efe1a.gz"
+    },
+    {
+      "bytes": 247,
+      "git_blob": "7becd8b6dcfef45388bb58afdbbb4adecd51220b",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/d69c2e15b33e230bc883103992df5d30ac0ae4aca18a4baf9215cdc5c8eb7c24.gz"
+    },
+    {
+      "bytes": 2023,
+      "git_blob": "e059d0fcc2aaf3fe535671befc4bb0fc1592374d",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/d7c1a1554b945447082de746b20c649ea7505dea2a4686d450f72056f811314e.gz"
+    },
+    {
+      "bytes": 24146,
+      "git_blob": "39753cf76ea6d1f2a58359ff5f9ab66a1ae059da",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/da738ebf3d6c20e0d2d4e1d3145cf8e7f66f5869fdc73910263a9165f9e43311.gz"
+    },
+    {
+      "bytes": 620,
+      "git_blob": "85a993900c7f8c1e781869a6ddc1a8a70c68cc39",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/dac7e4cc62ab83ac390fc78b518df2fb6cd3e5d2467b5830e0f8697e72c238db.gz"
+    },
+    {
+      "bytes": 41158,
+      "git_blob": "52ffb151e9a84cae083af4f283ac540a518b749c",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/dd49f64a4393e4f41e7cf7bd37172bc92776f9a33ac331cd1889a0806f7c8be4.gz"
+    },
+    {
+      "bytes": 4737,
+      "git_blob": "f1427bf16b869591e868bc8f4db627f47ba0ecc5",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/dd99f741483ce042023cb253c5213d699695edc781a0caf953ffbd06665e97cc.gz"
+    },
+    {
+      "bytes": 59303,
+      "git_blob": "9e0e23fb2ef35ae9a085c3b207fd119409eec679",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/e03ac417d89a8c47c89f9c5a443d9cc5cafde6cf31a02971b76cace90ec23de4.gz"
+    },
+    {
+      "bytes": 419,
+      "git_blob": "e8c3134320ea94fa82091cb8d37faec9ebac9253",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090.gz"
+    },
+    {
+      "bytes": 4275,
+      "git_blob": "a027a8cd5f61448f6c44d679556ec10f2ad2c686",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/e38563a9da2e918ab4218a878d0884d44693728d0f5c5c20e2dc149959be7e61.gz"
+    },
+    {
+      "bytes": 24448,
+      "git_blob": "e0d5c6b9ba051ad4618d52b6ca4d078ec6850cb1",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/e3de975bea3a0aa6262127acea6d806183881dcd3cec1f7d68fb2b7417dee847.gz"
+    },
+    {
+      "bytes": 24472,
+      "git_blob": "9dfae375c6e3965da4f4bec8df3bc001f8b3a304",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/e5bd01e7f7b006733fc91612f04392a2421c2b39d2ab304aae5e217f2c02ec9a.gz"
+    },
+    {
+      "bytes": 292,
+      "git_blob": "6233666c64a6fb70374dc9746f45e260d8ad5664",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/e76861001c54bf62231c3e40ef03b96ad8442c03e808ff7594446ccdfa180f2f.gz"
+    },
+    {
+      "bytes": 375,
+      "git_blob": "fb9f2f6f677936baad4579be6a5c3cfc8c94aceb",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/e90f384608ba0807a08a58a14467867eb690809d8e7ebac90a0a0b1227cbc195.gz"
+    },
+    {
+      "bytes": 2318236,
+      "git_blob": "1c96f5ccd1be8ebbd8cf5577756a11699be2e8bd",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/ea6fbf5e8365d6332251d27928202911604d3145636454abb2df560900b73372.gz"
+    },
+    {
+      "bytes": 552,
+      "git_blob": "0c53269cf99558a8ed06199ec67e9a2b815afcf3",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/eaeec78542f9a8639642bd953ea80361437c59b6c3dc6defeec8d4e33d0f6440.gz"
+    },
+    {
+      "bytes": 622,
+      "git_blob": "7949cbd781bd84ac025071bedaca26a04f368faa",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/eaf329222249aec63c7801789cc197443e0a422c3ce7fe6325d80a58670520a0.gz"
+    },
+    {
+      "bytes": 23615,
+      "git_blob": "e0abf107e900d3c5d39678af7121eef37a553cd7",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/eb2348803c62f0d1160fe6a2a318e43f4297f10f7f3648283605063ac727e5a6.gz"
+    },
+    {
+      "bytes": 28945,
+      "git_blob": "62327797cad8dfb287f02e00d62a5961fb2e3cad",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/eb322ae04aa177da0f60ddf17fe7d6741e14f93f882bdf08b1f6133b0cac78c2.gz"
+    },
+    {
+      "bytes": 24147,
+      "git_blob": "0f2a6d279121e1442ce8fd79475e560bcfe4486d",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/eb6ff3b55452408d0504ddd6a8a1ac061721e68ca1bda6827e46c778bee7e407.gz"
+    },
+    {
+      "bytes": 193,
+      "git_blob": "2ebee9ee6ba6769c109e12e87dca99114b5e8e77",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/ecb4fd18548da4fc50ee66766532c5cda8991e68d92972dd0f2dea2ec680e78d.gz"
+    },
+    {
+      "bytes": 2318231,
+      "git_blob": "d617cb4aef6b2407d01d9b87d0a2828db09e4034",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/ed200adb0c43f297c93ce82c5b0f2b358ec3099d7822ae6b2a7ab1d92f0c4aed.gz"
+    },
+    {
+      "bytes": 2181,
+      "git_blob": "ad11b6712bcf3844cbbb31f07a3db583e7866cc2",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/efd793957e04ea56f60351ab64b032748a70c17c151291d6ae5273ab31d6d654.gz"
+    },
+    {
+      "bytes": 3842,
+      "git_blob": "b2aed645f6b2e55d6e0e3789726e82f23ecb9985",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f002b1cfbdfa69b6a491e820090079e14ce1b1298b99075e5a02c3b11d6b6bf3.gz"
+    },
+    {
+      "bytes": 174,
+      "git_blob": "9e217b1b6e77ea18c47eefaf59c41378e98e9165",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f07df801866475f9ad5d28f23b2cdbb93f455ab655025fa4dbbaf6bc82568716.gz"
+    },
+    {
+      "bytes": 175,
+      "git_blob": "a08ff99a5e6bf7fe99229f34af1fb321743d8855",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f162e870e094cd40a25f340ec09caa02857ce5ea52de307a8c1ceb10e0db3417.gz"
+    },
+    {
+      "bytes": 87,
+      "git_blob": "a41c9a85e56cdbbdc9a0c068ef83de18b9339bee",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f19dac5937ebbfd4cdacf0d65f5c84459846ffa08e962d1de2a15998f157d5b6.gz"
+    },
+    {
+      "bytes": 416,
+      "git_blob": "eacb36d9e960c5e7c340d64063a186cbc8142c46",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f1c22c2ee51efa201c1a672752d656692173dc3bad5aa71360e417db145f3e84.gz"
+    },
+    {
+      "bytes": 201,
+      "git_blob": "8e0890baf8e1f36ccabe01e32cb6b6a7f6b18702",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7.gz"
+    },
+    {
+      "bytes": 49147,
+      "git_blob": "7d154e4bd2894096738d5ab91749ded666a78a02",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f6175daf35d82f3dc8898f18bb2f0e0c4f46e89d76fb93c1f8a13d04e9a148ba.gz"
+    },
+    {
+      "bytes": 606,
+      "git_blob": "9116cbf84ae09d3fa810321411a0548c35ea61e5",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/f94161cfaad12fe8400d7dd1b752efd790caf3a20c94f40d58d39e85a968cb2b.gz"
+    },
+    {
+      "bytes": 24473,
+      "git_blob": "a3c39e874343d2c1024dc19de9860b70b83e49c7",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/fafc242e0d34da3ff7af2426344f833d3c78cb6cfc54aaa251c55ef11b6422f2.gz"
+    },
+    {
+      "bytes": 4397,
+      "git_blob": "46f7862bcc473f1fc0a8af28f5713444dcb6f018",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/fb451cb349360cfa64a260eeb56b2637f7a29c3a7d3e884348555fed673c7b5a.gz"
+    },
+    {
+      "bytes": 24064,
+      "git_blob": "aefd1986925abf225f74e26765750e922007fd7e",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/fc413984251136ba4683f3e50960bb73f42bfc10227091ab1d6eb63e47a81de1.gz"
+    },
+    {
+      "bytes": 7532,
+      "git_blob": "f6679aa974fe44268c3d0980e89f2ba8441167b6",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/fd306750a90699f99238494ac2b8a8f8c6b25db2fe0b1283bb1f359ef99b3b59.gz"
+    },
+    {
+      "bytes": 588672,
+      "git_blob": "1cbe4592c0428b982cbb5b12da01acf4f79d6e67",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/fdc54b0d342d8e1a19d229aa4271dcd9da85ec39a12c95d649a165cbbee19829.gz"
+    },
+    {
+      "bytes": 176,
+      "git_blob": "24f21a109122b367ed02ba0835fb30b699d4c484",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/blobs/ff79a897168ab1e188c73cbe08ded0d223dba6e7b4e547e9f23d7fb64cf7f9f7.gz"
+    },
+    {
+      "bytes": 270577,
+      "git_blob": "9f42b0160ff1c87bc3faf106595cd4c28a8a5b2e",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/payload/manifest.json"
+    },
+    {
+      "bytes": 2080,
+      "git_blob": "40a87bd010fbe1579d08a221007ef6b4438965c3",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/plan.json"
+    },
+    {
+      "bytes": 2350,
+      "git_blob": "07a81f759f7c780e9cecaaca856aa661ef080254",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/release-analysis-plan.json"
+    },
+    {
+      "bytes": 101796,
+      "git_blob": "5f6df8e598b508b32872af42b50715644af732c4",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/release-analysis.json"
+    },
+    {
+      "bytes": 4081,
+      "git_blob": "44ee55b82e9263e22d7eae4c9647385456fdbc41",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/release_analysis.py"
+    },
+    {
+      "bytes": 1295,
+      "git_blob": "bf1a955b45bfbc0194600508158b45d6a53ec382",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/residual-replay-plan.json"
+    },
+    {
+      "bytes": 8508,
+      "git_blob": "6e75c93d4594b409191f28cc0f50f53630ae102c",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/residual-replay-results.json"
+    },
+    {
+      "bytes": 4834,
+      "git_blob": "1197aa40cc6dc0080de8f5eafc3a907ea1b6e134",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/residual_replay.py"
+    },
+    {
+      "bytes": 10151,
+      "git_blob": "2e30c7ce05af13f1ccf714880a32ecaab2ae7945",
+      "path": "artifacts/crow-rl-ccd-128-integration-20261108/results.json"
+    },
+    {
+      "bytes": 17078,
+      "git_blob": "9fe732fa6004cdb6b40193fb613e2a7b4f6b28e8",
+      "path": "artifacts/crow-rl-ccd-articulated-sweep-20261108/fixture.mm"
+    },
+    {
+      "bytes": 8976,
+      "git_blob": "50c5ae0942ee6a1500c0ac53b0f624990eb0eed5",
+      "path": "artifacts/crow-rl-ccd-articulated-sweep-20261108/landing-diagnostic.json"
+    },
+    {
+      "bytes": 6547,
+      "git_blob": "46e6c2cd8b440aee809688372d42848d9d9eb6cd",
+      "path": "artifacts/crow-rl-ccd-articulated-sweep-20261108/plan.json"
+    },
+    {
+      "bytes": 8615,
+      "git_blob": "660d249aeaf622483da79ca9f46c4210dca0e968",
+      "path": "artifacts/crow-rl-ccd-articulated-sweep-20261108/prepare.py"
+    },
+    {
+      "bytes": 4426,
+      "git_blob": "26c7dca6689a3d6af800efa45c3b438382e36781",
+      "path": "artifacts/crow-rl-ccd-articulated-sweep-20261108/projection.mm"
+    },
+    {
+      "bytes": 1444,
+      "git_blob": "e4b9dcd25a7d29c4103acee45a8ab6a88e3b71d4",
+      "path": "artifacts/crow-rl-ccd-articulated-sweep-20261108/refinement-phases.json"
+    },
+    {
+      "bytes": 1384,
+      "git_blob": "f39a4742c2cd00dc85348f2b8d74fff511515508",
+      "path": "artifacts/crow-rl-ccd-articulated-sweep-20261108/refinement128-plan.json"
+    },
+    {
+      "bytes": 17889,
+      "git_blob": "79336aa87216aecbed2d4222e89dfc288498e4bf",
+      "path": "artifacts/crow-rl-ccd-articulated-sweep-20261108/results.json"
+    },
+    {
+      "bytes": 7019,
+      "git_blob": "21d2bbf9cf92ae0b9190bab6417b98414b216e56",
+      "path": "artifacts/crow-rl-ccd-articulated-sweep-20261108/run.py"
+    },
+    {
+      "bytes": 380,
+      "git_blob": "1c0e54cc5abbb2fcdf52884e8a11d65da5bd8e8f",
+      "path": "artifacts/crow-rl-ccd-contact-time-20261108/calibration.json"
+    },
+    {
+      "bytes": 544,
+      "git_blob": "090cb0d4129871e9aa18239a53473278f53306b0",
+      "path": "artifacts/crow-rl-ccd-contact-time-20261108/failure-analysis-plan.json"
+    },
+    {
+      "bytes": 2616,
+      "git_blob": "0d19ef5ebdf4428fbd3d3c0d8ea6541b41af90cd",
+      "path": "artifacts/crow-rl-ccd-contact-time-20261108/oracle.py"
+    },
+    {
+      "bytes": 4909,
+      "git_blob": "f2c8a947acc3c045279c73a8d5f8aea5fdaec1b6",
+      "path": "artifacts/crow-rl-ccd-contact-time-20261108/plan.json"
+    },
+    {
+      "bytes": 7255,
+      "git_blob": "7ba69225181cd9a243eec84d8b93e7c745e4e1a1",
+      "path": "artifacts/crow-rl-ccd-contact-time-20261108/prepare.py"
+    },
+    {
+      "bytes": 13549,
+      "git_blob": "5b6b653e66ef844185e8b0444ecfc6e3cb0a7f5b",
+      "path": "artifacts/crow-rl-ccd-contact-time-20261108/results.json"
+    },
+    {
+      "bytes": 6172,
+      "git_blob": "d466dc85e600252ce3e4eb9022029349593ce310",
+      "path": "artifacts/crow-rl-ccd-contact-time-20261108/run.py"
+    },
+    {
+      "bytes": 380,
+      "git_blob": "1c0e54cc5abbb2fcdf52884e8a11d65da5bd8e8f",
+      "path": "artifacts/crow-rl-ccd-event-capture-20261108/calibration.json"
+    },
+    {
+      "bytes": 2616,
+      "git_blob": "0d19ef5ebdf4428fbd3d3c0d8ea6541b41af90cd",
+      "path": "artifacts/crow-rl-ccd-event-capture-20261108/oracle.py"
+    },
+    {
+      "bytes": 9112,
+      "git_blob": "0aa0c9c47eff12b778ef9cf98aee9369ea58100a",
+      "path": "artifacts/crow-rl-ccd-event-capture-20261108/plan.json"
+    },
+    {
+      "bytes": 3161,
+      "git_blob": "dde3e1678f269657382244095871852042a9ba28",
+      "path": "artifacts/crow-rl-ccd-event-capture-20261108/preparation.json"
+    },
+    {
+      "bytes": 9628,
+      "git_blob": "f30ebd12eda52cbda6fe9b0402193a26ca2bbaae",
+      "path": "artifacts/crow-rl-ccd-event-capture-20261108/prepare.py"
+    },
+    {
+      "bytes": 16766,
+      "git_blob": "02b9db639afcbcbb5535c2942e571cdbfbec148d",
+      "path": "artifacts/crow-rl-ccd-event-capture-20261108/results.json"
+    },
+    {
+      "bytes": 8114,
+      "git_blob": "3cb45eb216ce107b09817b6c635750c2cbcfb20c",
+      "path": "artifacts/crow-rl-ccd-event-capture-20261108/study.py"
+    }
+  ],
+  "omitted_logical_bytes": 18726379,
+  "open_handles": 0,
+  "preserved_input_prefixes": [
+    "artifacts/crow-rl-feeding-behavior-20261107/policies/",
+    "artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib",
+    "artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib"
+  ],
+  "remote_commit": "3ffc008c617555460be559500fcdebc79d867a46",
+  "status": "omitted"
+}
