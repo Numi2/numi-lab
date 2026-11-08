@@ -1,0 +1,12 @@
+{
+  "compressed_status": 0.0,
+  "control_status": 0.0,
+  "free_node_force_N": 0.0,
+  "output_unchanged": false,
+  "passed": false,
+  "transverse_eigenvalues_N_per_m": [
+    -109.44385212484781,
+    -109.44385212484781,
+    81.10589074055679
+  ]
+}

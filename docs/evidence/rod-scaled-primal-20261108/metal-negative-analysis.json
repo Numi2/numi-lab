@@ -1,0 +1,35 @@
+{
+  "all_pass": true,
+  "cases": [
+    {
+      "case": "control",
+      "output_unchanged": false,
+      "passed": true,
+      "status": 0.0
+    },
+    {
+      "case": "invalid_count",
+      "output_unchanged": true,
+      "passed": true,
+      "status": 4.0
+    },
+    {
+      "case": "degenerate_edge",
+      "output_unchanged": true,
+      "passed": true,
+      "status": 4.0
+    },
+    {
+      "case": "nonfinite_position",
+      "output_unchanged": true,
+      "passed": true,
+      "status": 4.0
+    },
+    {
+      "case": "nonpositive_mass",
+      "output_unchanged": true,
+      "passed": true,
+      "status": 4.0
+    }
+  ]
+}

@@ -1,0 +1,233 @@
+{
+  "all_pass": true,
+  "cases": [
+    {
+      "gpu_status": 0,
+      "index": 0,
+      "iterations": 4,
+      "nodes": 5,
+      "passed": true,
+      "position_error_m": 2.928539310239484e-09,
+      "published_residual_N": 6.760724096901561e-07,
+      "reaction_error_N": {
+        "hard:0": 1.8521929609837407e-08,
+        "hard:4": 1.5371224141617653e-08
+      },
+      "reaction_limit_N": {
+        "hard:0": 0.0008977818537646813,
+        "hard:4": 0.0008977525419773524
+      },
+      "reference_status": "converged"
+    },
+    {
+      "gpu_status": 0,
+      "index": 1,
+      "iterations": 4,
+      "nodes": 9,
+      "passed": true,
+      "position_error_m": 3.968744288808412e-09,
+      "published_residual_N": 1.012841339383404e-06,
+      "reaction_error_N": {
+        "hard:0": 3.349741116450673e-08,
+        "hard:8": 2.983577996463646e-08,
+        "soft:4": 1.4300652189428433e-08
+      },
+      "reaction_limit_N": {
+        "hard:0": 0.0009093435002252564,
+        "hard:8": 0.0008981763740530276,
+        "soft:4": 5.414662509931825e-05
+      },
+      "reference_status": "converged"
+    },
+    {
+      "gpu_status": 0,
+      "index": 2,
+      "iterations": 4,
+      "nodes": 13,
+      "passed": true,
+      "position_error_m": 2.9030209315434214e-09,
+      "published_residual_N": 1.8137673182862465e-06,
+      "reaction_error_N": {
+        "hard:0": 6.247519456153866e-08,
+        "hard:12": 5.4947275518968915e-08
+      },
+      "reaction_limit_N": {
+        "hard:0": 0.0008985318791170192,
+        "hard:12": 0.0008985279657932178
+      },
+      "reference_status": "converged"
+    },
+    {
+      "gpu_status": 0,
+      "index": 3,
+      "iterations": 4,
+      "nodes": 17,
+      "passed": true,
+      "position_error_m": 5.85996862910157e-09,
+      "published_residual_N": 1.047484320303893e-06,
+      "reaction_error_N": {
+        "hard:0": 8.64031709379568e-09,
+        "hard:16": 2.4270451267661074e-09,
+        "soft:8": 1.8427869418611944e-08
+      },
+      "reaction_limit_N": {
+        "hard:0": 0.0009040941165215932,
+        "hard:16": 0.0009369684510141208,
+        "soft:8": 8.814024544534467e-05
+      },
+      "reference_status": "converged"
+    },
+    {
+      "gpu_status": 0,
+      "index": 4,
+      "iterations": 4,
+      "nodes": 5,
+      "passed": true,
+      "position_error_m": 3.536946096848562e-09,
+      "published_residual_N": 2.067391385422985e-07,
+      "reaction_error_N": {
+        "hard:0": 1.4839875708639975e-08,
+        "hard:4": 8.3809037678434e-09
+      },
+      "reaction_limit_N": {
+        "hard:0": 0.0009023847747224742,
+        "hard:4": 0.0009024152645048829
+      },
+      "reference_status": "converged"
+    },
+    {
+      "gpu_status": 0,
+      "index": 5,
+      "iterations": 4,
+      "nodes": 9,
+      "passed": true,
+      "position_error_m": 3.883957561022599e-09,
+      "published_residual_N": 4.2623507482459876e-07,
+      "reaction_error_N": {
+        "hard:0": 2.963791249784296e-08,
+        "hard:8": 3.340112529697766e-08,
+        "soft:4": 1.0414166740926354e-08
+      },
+      "reaction_limit_N": {
+        "hard:0": 0.0008910394179249463,
+        "hard:8": 0.000922745573844035,
+        "soft:4": 5.764181510008356e-05
+      },
+      "reference_status": "converged"
+    },
+    {
+      "gpu_status": 0,
+      "index": 6,
+      "iterations": 5,
+      "nodes": 13,
+      "passed": true,
+      "position_error_m": 5.9539072603032915e-09,
+      "published_residual_N": 6.957296657193498e-07,
+      "reaction_error_N": {
+        "hard:0": 1.2424349968207666e-07,
+        "hard:12": 1.3879617093278236e-07
+      },
+      "reaction_limit_N": {
+        "hard:0": 0.0008861192058979888,
+        "hard:12": 0.0008860654695245794
+      },
+      "reference_status": "converged"
+    },
+    {
+      "gpu_status": 0,
+      "index": 7,
+      "iterations": 4,
+      "nodes": 17,
+      "passed": true,
+      "position_error_m": 5.223846376178738e-09,
+      "published_residual_N": 1.9377154310887558e-06,
+      "reaction_error_N": {
+        "hard:0": 2.0657219849884505e-08,
+        "hard:16": 5.677247422418617e-08,
+        "soft:8": 1.8572176228894308e-08
+      },
+      "reaction_limit_N": {
+        "hard:0": 0.0008852780662432601,
+        "hard:16": 0.0009142675998648963,
+        "soft:8": 4.1642655315629634e-05
+      },
+      "reference_status": "converged"
+    },
+    {
+      "gpu_status": 0,
+      "index": 8,
+      "iterations": 4,
+      "nodes": 5,
+      "passed": true,
+      "position_error_m": 3.8085841837882784e-09,
+      "published_residual_N": 2.8636692868298026e-07,
+      "reaction_error_N": {
+        "hard:0": 2.4638236936302793e-08,
+        "hard:4": 3.169327559103043e-08
+      },
+      "reaction_limit_N": {
+        "hard:0": 0.0008940146425529081,
+        "hard:4": 0.0008941205608086173
+      },
+      "reference_status": "converged"
+    },
+    {
+      "gpu_status": 0,
+      "index": 9,
+      "iterations": 3,
+      "nodes": 9,
+      "passed": true,
+      "position_error_m": 4.288459746492485e-08,
+      "published_residual_N": 9.588793987535593e-07,
+      "reaction_error_N": {
+        "hard:0": 1.7895515839703644e-07,
+        "hard:8": 2.0678124026051933e-07,
+        "soft:4": 8.264547706310108e-08
+      },
+      "reaction_limit_N": {
+        "hard:0": 0.000919981197001281,
+        "hard:8": 0.0008744117318055243,
+        "soft:4": 7.009809186367165e-05
+      },
+      "reference_status": "converged"
+    },
+    {
+      "gpu_status": 0,
+      "index": 10,
+      "iterations": 4,
+      "nodes": 13,
+      "passed": true,
+      "position_error_m": 7.107441825620056e-09,
+      "published_residual_N": 1.2994095494972926e-06,
+      "reaction_error_N": {
+        "hard:0": 4.217291787727189e-08,
+        "hard:12": 4.7063734114285714e-08
+      },
+      "reaction_limit_N": {
+        "hard:0": 0.0009022929635005287,
+        "hard:12": 0.000902333538625345
+      },
+      "reference_status": "converged"
+    },
+    {
+      "gpu_status": 0,
+      "index": 11,
+      "iterations": 4,
+      "nodes": 17,
+      "passed": true,
+      "position_error_m": 6.25521678505666e-09,
+      "published_residual_N": 3.773134490488809e-06,
+      "reaction_error_N": {
+        "hard:0": 8.61971525410099e-08,
+        "hard:16": 6.641849418379703e-08,
+        "soft:8": 1.2561876071828654e-08
+      },
+      "reaction_limit_N": {
+        "hard:0": 0.0009178255440097078,
+        "hard:16": 0.0008906071624805524,
+        "soft:8": 5.893840630633477e-05
+      },
+      "reference_status": "converged"
+    }
+  ]
+}

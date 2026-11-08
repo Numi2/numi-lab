@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-reconciliation-20261108/docs/evidence/rod-scaled-primal-20261108/energy_audit.py", line 7, in <module>
+    fns={};exec(s,fns)
+           ~~~~^^^^^^^
+  File "<string>", line 10
+    exec(source.split('
+                      ^
+SyntaxError: unterminated string literal (detected at line 10)

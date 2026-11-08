@@ -1,0 +1,4 @@
+docs/evidence/rod-scaled-primal-20261108/rod_block_prototype.metal:35:52: error: invalid argument type 'metal::float3x3' (aka 'matrix<float, 3, 3>') to unary expression
+        diag[i]+=tangent;diag[i+1]+=tangent;off[i]=-tangent;
+                                                   ^~~~~~~~
+1 error generated.
