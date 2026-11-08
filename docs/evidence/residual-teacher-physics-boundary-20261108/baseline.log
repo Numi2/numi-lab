@@ -1,0 +1,86 @@
+EEF.....
+======================================================================
+ERROR: test_distillation_rejects_physics_failure_before_ranking_or_training (__main__.SolverResidualTeacherTest.test_distillation_rejects_physics_failure_before_ranking_or_training) (index=(0, 0))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/solver_residual_teacher_test.py", line 143, in test_distillation_rejects_physics_failure_before_ranking_or_training
+    distill_residual_frontier(**args)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/python/metalrobo/solver_residual_teacher.py", line 292, in distill_residual_frontier
+    learner = MLXPolicyLearner.from_policy_pack(
+        policy_pack_path,
+        configuration,
+        library_path=native_library_path,
+    )
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py", line 1234, in _execute_mock_call
+    raise effect
+RuntimeError: learner reached
+
+======================================================================
+ERROR: test_distillation_rejects_physics_failure_before_ranking_or_training (__main__.SolverResidualTeacherTest.test_distillation_rejects_physics_failure_before_ranking_or_training) (index=(1, 1))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/solver_residual_teacher_test.py", line 143, in test_distillation_rejects_physics_failure_before_ranking_or_training
+    distill_residual_frontier(**args)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/python/metalrobo/solver_residual_teacher.py", line 292, in distill_residual_frontier
+    learner = MLXPolicyLearner.from_policy_pack(
+        policy_pack_path,
+        configuration,
+        library_path=native_library_path,
+    )
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py", line 1234, in _execute_mock_call
+    raise effect
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/case.py", line 58, in testPartExecutor
+    yield
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/case.py", line 556, in subTest
+    yield
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/solver_residual_teacher_test.py", line 143, in test_distillation_rejects_physics_failure_before_ranking_or_training
+    distill_residual_frontier(**args)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/python/metalrobo/solver_residual_teacher.py", line 292, in distill_residual_frontier
+    learner = MLXPolicyLearner.from_policy_pack(
+        policy_pack_path,
+        configuration,
+        library_path=native_library_path,
+    )
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py", line 1169, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py", line 1173, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py", line 1234, in _execute_mock_call
+    raise effect
+RuntimeError: learner reached
+
+======================================================================
+FAIL: test_distillation_rejects_physics_failure_before_ranking_or_training (__main__.SolverResidualTeacherTest.test_distillation_rejects_physics_failure_before_ranking_or_training)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/solver_residual_teacher_test.py", line 149, in test_distillation_rejects_physics_failure_before_ranking_or_training
+    learner.assert_called_once()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.16/Frameworks/Python.framework/Versions/3.13/lib/python3.13/unittest/mock.py", line 958, in assert_called_once
+    raise AssertionError(msg)
+AssertionError: Expected 'from_policy_pack' to have been called once. Called 3 times.
+Calls: [call(PosixPath('/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmp7fvpm8ku/source.policy'), MLXPPOConfiguration(update_epochs=1, minibatch_size=4, hidden_sizes=(512, 256, 128), critic_hidden_sizes=None, learning_rate=0.001, clip_ratio=0.2, value_coefficient=0.0, entropy_coefficient=0.0, imagination_distillation_coefficient=1.0, maximum_gradient_norm=1.0, target_kl=None, adaptive_learning_rate=False, minimum_learning_rate=0.001, maximum_learning_rate=0.001, discount=0.99, gae_lambda=0.95, initial_log_standard_deviation=-1.6094379124341003, observation_clip=100.0, seed=1), library_path=None),
+ call(PosixPath('/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmp7fvpm8ku/source.policy'), MLXPPOConfiguration(update_epochs=1, minibatch_size=4, hidden_sizes=(512, 256, 128), critic_hidden_sizes=None, learning_rate=0.001, clip_ratio=0.2, value_coefficient=0.0, entropy_coefficient=0.0, imagination_distillation_coefficient=1.0, maximum_gradient_norm=1.0, target_kl=None, adaptive_learning_rate=False, minimum_learning_rate=0.001, maximum_learning_rate=0.001, discount=0.99, gae_lambda=0.95, initial_log_standard_deviation=-1.6094379124341003, observation_clip=100.0, seed=1), library_path=None),
+ call(PosixPath('/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmp7fvpm8ku/source.policy'), MLXPPOConfiguration(update_epochs=1, minibatch_size=4, hidden_sizes=(512, 256, 128), critic_hidden_sizes=None, learning_rate=0.001, clip_ratio=0.2, value_coefficient=0.0, entropy_coefficient=0.0, imagination_distillation_coefficient=1.0, maximum_gradient_norm=1.0, target_kl=None, adaptive_learning_rate=False, minimum_learning_rate=0.001, maximum_learning_rate=0.001, discount=0.99, gae_lambda=0.95, initial_log_standard_deviation=-1.6094379124341003, observation_clip=100.0, seed=1), library_path=None)].
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.035s
+
+FAILED (failures=1, errors=2)

@@ -234,7 +234,18 @@ def distill_residual_frontier(
         rollout_pack_path,
         library_path=native_library_path,
     )
+    # The per-environment evidence and rank normalizations summarize whole
+    # trajectories. Masking the failed row only in the loss still lets its
+    # reward or aggregate evidence change the weights of accepted samples.
+    # Match the PPO worker until those aggregates have an accepted-only source.
+    if np.any(rollout.transitions["physics_error"]):
+        raise ValueError("PolicyRolloutPack contains a physics failure")
     evidence = json.loads(evidence_path.read_text())
+    evidence_failures = _finite_array(
+        evidence, "physics_error_count_by_environment", rollout.environment_count
+    )
+    if np.any(evidence_failures != 0):
+        raise ValueError("physical evidence contains a physics failure")
     transitions = rollout.transitions.reshape(
         rollout.control_step_count, rollout.environment_count
     )
