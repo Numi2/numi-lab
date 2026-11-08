@@ -1047,6 +1047,9 @@ struct MetalWorldNoStepSeed {
     std::uint64_t worldFingerprint = 0u;
     std::uint64_t configurationFingerprint = 0u;
     std::uint64_t payloadFingerprint = 0u;
+    // Diagnostic fault injection: reject after a completed command at the
+    // existing readback-mismatch gate. It does not simulate a Metal error.
+    bool testOnlyInjectReadbackMismatch = false;
     std::span<const float> q{}, v{};
     std::span<const MRBodyStateGPU> sceneBodies{};
     std::span<const MRManifoldHeaderGPU> manifoldHeaders{};

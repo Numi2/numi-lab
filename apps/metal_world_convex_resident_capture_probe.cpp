@@ -61,6 +61,9 @@ Trial runTrial(const metalrobo::CompiledWorld& world, const std::vector<float>& 
     save(out/("trial"+std::to_string(trial)+"-first-cache.bin"), result.first.contactEvidence.convexCaches);
     save(out/("trial"+std::to_string(trial)+"-first-q.bin"), result.first.finalQ);
     save(out/("trial"+std::to_string(trial)+"-first-v.bin"), result.first.finalV);
+    save(out/("trial"+std::to_string(trial)+"-first-manifold-headers.bin"), result.first.contactEvidence.manifoldHeaders);
+    save(out/("trial"+std::to_string(trial)+"-first-manifold-points.bin"), result.first.contactEvidence.manifoldPoints);
+    save(out/("trial"+std::to_string(trial)+"-first-manifold-counts.bin"), result.first.contactEvidence.manifoldCounts);
     check(first.succeeded() && first.failedStepCount==0 && resident.valid(), "initial state failed");
     metalrobo::MetalWorldBatch next{.environmentCount=1u,.controlStepCount=1u,.efforts=efforts};
     metalrobo::MetalWorldSubmission secondSubmission;
@@ -72,6 +75,9 @@ Trial runTrial(const metalrobo::CompiledWorld& world, const std::vector<float>& 
     save(out/("trial"+std::to_string(trial)+"-second-cache.bin"), result.second.contactEvidence.convexCaches);
     save(out/("trial"+std::to_string(trial)+"-second-q.bin"), result.second.finalQ);
     save(out/("trial"+std::to_string(trial)+"-second-v.bin"), result.second.finalV);
+    save(out/("trial"+std::to_string(trial)+"-second-manifold-headers.bin"), result.second.contactEvidence.manifoldHeaders);
+    save(out/("trial"+std::to_string(trial)+"-second-manifold-points.bin"), result.second.contactEvidence.manifoldPoints);
+    save(out/("trial"+std::to_string(trial)+"-second-manifold-counts.bin"), result.second.contactEvidence.manifoldCounts);
     check(second.succeeded() && second.failedStepCount==0 && resident.valid(), "continued state failed");
     return result;
 }
@@ -107,12 +113,14 @@ int main(int argc, char** argv) {
         const auto* bytes=reinterpret_cast<const unsigned char*>(cache.data());
         const bool populated=!cache.empty() && std::any_of(bytes,bytes+cache.size()*sizeof(MRConvexQueryCacheGPU),[](unsigned char c){return c!=0;});
         const bool hasContact=!a.first.contactStatuses.empty() && a.first.contactStatuses[0].activeContacts>0;
+        const bool populatedManifold=!a.first.contactEvidence.manifoldCounts.empty() && a.first.contactEvidence.manifoldCounts[0]>0;
+        std::cout<<"first_manifold_count="<<(a.first.contactEvidence.manifoldCounts.empty()?0:a.first.contactEvidence.manifoldCounts[0])<<std::endl;
         const bool repeat=equal(a.first.contactEvidence.convexCaches,b.first.contactEvidence.convexCaches) &&
             equal(a.first.finalQ,b.first.finalQ) && equal(a.first.finalV,b.first.finalV) &&
             equal(a.second.contactEvidence.convexCaches,b.second.contactEvidence.convexCaches) &&
             equal(a.second.finalQ,b.second.finalQ) && equal(a.second.finalV,b.second.finalV);
         std::cout<<"cache_count="<<cache.size()<<" populated="<<populated<<" contact="<<hasContact<<" independent_initial_and_continuation_byte_equal="<<repeat<<std::endl;
-        check(populated && hasContact && repeat, "population/contact/repeat gate failed");
+        check(populated && hasContact && repeat && populatedManifold, "population/contact/manifold/repeat gate failed");
         metalrobo::MetalWorldContext seedContext;
         metalrobo::MetalWorldResidentState seeded;
         auto config=fixtureConfig();
@@ -142,6 +150,11 @@ int main(int argc, char** argv) {
         const bool corruptReject=!bad.succeeded() && !seeded.valid();
         std::cout<<"seed_negative_gates world="<<worldReject<<" config="<<configReject<<" length="<<lengthReject<<" corrupt="<<corruptReject<<std::endl;
         check(worldReject && configReject && lengthReject && corruptReject, "no-step negative admission failed");
+        auto fault=seed; fault.testOnlyInjectReadbackMismatch=true;
+        const auto faultResult=seedContext.seedResidentNoStep(world,config,fault,seeded);
+        const bool faultRejected=!faultResult.succeeded() && !seeded.valid();
+        std::cout<<"post_submit_readback_fault_rejected="<<faultRejected<<" status="<<static_cast<int>(faultResult.status)<<" message="<<faultResult.message<<std::endl;
+        check(faultRejected, "post-submit mismatch published a destination");
         const auto admitted=seedContext.seedResidentNoStep(world,config,seed,seeded);
         std::cout<<"no_step_seed status="<<static_cast<int>(admitted.status)<<" message="<<admitted.message<<" valid="<<seeded.valid()<<std::endl;
         check(admitted.succeeded() && seeded.valid(), "no-step seed failed");
@@ -159,9 +172,15 @@ int main(int argc, char** argv) {
         save(out/"seeded-second-cache.bin",restored.contactEvidence.convexCaches);
         save(out/"seeded-second-q.bin",restored.finalQ);
         save(out/"seeded-second-v.bin",restored.finalV);
+        save(out/"seeded-second-manifold-headers.bin",restored.contactEvidence.manifoldHeaders);
+        save(out/"seeded-second-manifold-points.bin",restored.contactEvidence.manifoldPoints);
+        save(out/"seeded-second-manifold-counts.bin",restored.contactEvidence.manifoldCounts);
         const bool matched=completed.succeeded() && completed.failedStepCount==0 &&
             equal(restored.contactEvidence.convexCaches,a.second.contactEvidence.convexCaches) &&
-            equal(restored.finalQ,a.second.finalQ) && equal(restored.finalV,a.second.finalV);
+            equal(restored.finalQ,a.second.finalQ) && equal(restored.finalV,a.second.finalV) &&
+            equal(restored.contactEvidence.manifoldHeaders,a.second.contactEvidence.manifoldHeaders) &&
+            equal(restored.contactEvidence.manifoldPoints,a.second.contactEvidence.manifoldPoints) &&
+            equal(restored.contactEvidence.manifoldCounts,a.second.contactEvidence.manifoldCounts);
         std::cout<<"seeded_continuation_match="<<matched<<" status="<<static_cast<int>(completed.status)<<" message="<<completed.message<<std::endl;
         check(matched, "seeded continuation did not match uninterrupted owner");
         std::cout<<"resident_convex_no_step_seed=PASS coupled_restoration_claim=0"<<std::endl;

@@ -20067,7 +20067,8 @@ MetalWorldDiagnostics MetalWorldContext::seedResidentNoStep(
                     ? selected->readbackBuffers[index] : selected->buffers[index];
                 const std::size_t bytes=requirements.entries[index].logicalBytes;
                 if (bytes != 0u && (buffer == nil || buffer.contents == nullptr || buffer.length < bytes ||
-                    std::memcmp(buffer.contents,sources[i],bytes) != 0))
+                    std::memcmp(buffer.contents,sources[i],bytes) != 0 ||
+                    (seed.testOnlyInjectReadbackMismatch && index == kConvexCaches)))
                     return reject(std::move(diagnostics), MetalWorldHostStatus::metalBufferFailure,
                         "no-step seed readback missing, truncated, or mismatched");
             }
