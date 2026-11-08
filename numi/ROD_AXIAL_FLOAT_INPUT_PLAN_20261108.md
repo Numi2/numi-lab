@@ -1,3 +1,5 @@
 # Separate input quantization from axial solve error
 
 The 16 m failures compared requested double-precision source values to the FP32 owner output. Repeat the same 5/17/128-node and 0/1/16 m matrix with the independent FP64 equations evaluated from values explicitly rounded to the owner's uploaded FP32 representation: position, velocity, prescribed target and velocity, timestep, gravity, rest length, stiffness, and inverse mass. Keep the same state and force gates. This controls input quantization, but final output and the GPU algorithm remain FP32. Compare these results with the unrounded-source run; do not erase or relabel that application-level failure. A pass at rounded inputs is not proof that the original requested geometry was represented accurately.
+
+The first probe terminated before GPU dispatch because it rounded the model rest lengths themselves, which violated the public model's rest-geometry validator. Its failed binary identity and stderr are retained. The corrected probe leaves the model intact for the owner and rounds separate FP64 reference arrays to match the owner's uploaded fields.

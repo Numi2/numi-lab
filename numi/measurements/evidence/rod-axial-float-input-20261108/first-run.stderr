@@ -1,0 +1,1 @@
+libc++abi: terminating due to uncaught exception of type std::invalid_argument: invalid rod model: rod rest length disagrees with rest geometry
