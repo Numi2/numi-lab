@@ -1,0 +1,5 @@
+de6954a0319324713d09638b5d0d6ccce2a9eb4ac0993ab5e1ca624ceeabac40  /Users/numi/Work/mixed-normal-block-artifacts-20261108/candidate.metal
+b777f33f53f431504c49abad93d7bd30b711cc6d6f831d18e95cbf9c6c754795  /Users/numi/numi-lab-reconciliation-20261108/docs/evidence/mixed-pair-tangent-diagnostic-20261108/trace.metal
+cab053783edcdd3118cb3f9df46d7d52163d4c23ba134f55b3cefb33e86e5969  /Users/numi/numi-lab-reconciliation-20261108/docs/evidence/mixed-pair-tangent-diagnostic-20261108/trace.metallib
+9b87295042fd2df02525756fd139ef6a6165ed973965327d84c5cd010aca4b19  /Users/numi/Work/mixed-normal-block-artifacts-20261108/candidate.metallib
+c229732831fcfb0b4ecb4044c9a5411941438783861834ef55183cdf059a64b1  /Users/numi/Work/mixed-full-operator-artifacts-20261108/probe
