@@ -1,0 +1,38 @@
+{
+  "checks": {
+    "momentum_balance_residual_Nm": true,
+    "motor_constitutive_residual_Nm": false,
+    "motor_impulse_bounds_excess": true,
+    "negative_stop_maximum_absolute_impulse": true,
+    "positive_stop_maximum_absolute_velocity": true,
+    "q_integration_error": false,
+    "reference_velocity_error": true
+  },
+  "crow_release_qualified": false,
+  "execution": {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-audit-build-01/bounded-v2-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/implicit-drive-audit-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-audit-build-01/bounded-v2.tsv"
+    ],
+    "exit_code": 0,
+    "seconds": 0.9025217919843271
+  },
+  "limits": "Constant-coefficient one-microstep authored rows at fixed q inputs. Full runtime needs device-side per-segment refresh, real motor envelopes/delays, task/energy attribution, coupled contact qualification and performance testing. No full crow integration claimed.",
+  "loader_lines": [
+    "dyld[20907]: <EDC04BC1-95D9-33A0-BF2D-EEA1308A2E92> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/implicit-drive-audit-20261108/libmetalrobo.dylib"
+  ],
+  "metrics": {
+    "momentum_balance_residual_Nm": 2.44291445926359e-09,
+    "motor_constitutive_residual_Nm": 8.294620567208893e-05,
+    "motor_impulse_bounds_excess": 2.430169780687219e-13,
+    "negative_stop_maximum_absolute_impulse": 0.0,
+    "positive_stop_maximum_absolute_velocity": 6.025881305049552e-08,
+    "q_integration_error": 0.002604169767815634,
+    "reference_velocity_error": 4.088330274321095e-07
+  },
+  "production_integrated": false,
+  "profile_or_policy_promoted": false,
+  "rows": 144,
+  "verdict": "bounded_model_prediction_contradicted"
+}

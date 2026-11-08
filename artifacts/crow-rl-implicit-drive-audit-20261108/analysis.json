@@ -1,0 +1,43 @@
+{
+  "bounded_alternative_accepted_for_production": false,
+  "bounded_alternative_groups": {
+    "ccd_disabled": {
+      "maximums": {
+        "momentum_balance_residual_Nm": 2.44291445926359e-09,
+        "motor_constitutive_residual_Nm": 1.2489881268985814e-09,
+        "motor_impulse_bounds_excess": 2.430169780687219e-13,
+        "q_integration_error": 4.501642253407212e-09,
+        "reference_velocity_error": 4.088330274321095e-07
+      },
+      "rows": 72
+    },
+    "hybrid": {
+      "maximums": {
+        "momentum_balance_residual_Nm": 2.44291445926359e-09,
+        "motor_constitutive_residual_Nm": 8.294620567208893e-05,
+        "motor_impulse_bounds_excess": 2.430169780687219e-13,
+        "q_integration_error": 0.002604169767815634,
+        "reference_velocity_error": 4.088330274321095e-07
+      },
+      "rows": 72
+    }
+  },
+  "limits": "Synthetic fixed-root one-DoF native mechanism, no food, geometry, learned policy or biology claim; no causal attribution of full crow release discrepancy.",
+  "mechanism": {
+    "bounded_row": "Canonical row regularization and bounds reproduce saturated implicit velocity and torque with CCD disabled. This is a component result with fixed coefficients and no geometry.",
+    "current_drive": "Refresh clamps the pre-integration drive command, but ABA and contact inverse mass still add h*D+h*h*K to physical inertia plus armature. Saturated backward-Euler torque is therefore under-realized in this isolated native model.",
+    "hybrid_stage": "The native hybrid graph predicts and materializes q before endpoint contact/constraint impulses, then publishes q and post-impulse v. This ordering preserves position at instantaneous impact; endpoint motor impulse rows are not a drop-in smooth-force model. The prototype omits motors in free prediction and fails the predeclared q and constitutive gates.",
+    "rejected_shortcut": "Do not reintegrate all post-impact velocity across the completed CCD segment: it moves impact geometry and conflates endpoint impulses with forces acting throughout the segment."
+  },
+  "policy_promoted": false,
+  "production_source_changed": false,
+  "remaining_production_requirements": [
+    "Solve bounded motors in native free prediction with physical mass plus authored armature; refresh targets, controller scales, friction, torque-speed envelopes and limits from current state.",
+    "Rematerialize force integration and implicit terms for actual remaining/selected CCD durations, rather than reusing nominal-h acceleration.",
+    "Separate smooth motor impulse accumulation from instantaneous contact impulse response without double application or phantom implicit contact inertia.",
+    "Verify coupled articulated joints and actual geometric contact, active-set changes, checkpoint/reset and submission partition invariance.",
+    "Re-run real crow manipulation at unchanged mechanical and 5mm trajectory-convergence gates; measure end-to-end throughput before promotion."
+  ],
+  "saturation_defect_confirmed": true,
+  "schema": "crow-native-implicit-drive-audit-conclusion-v1"
+}
