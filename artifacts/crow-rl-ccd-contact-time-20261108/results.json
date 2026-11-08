@@ -1,0 +1,291 @@
+{
+  "all_development_physics_accepted": false,
+  "candidate_shader_sha256": "ed200adb0c43f297c93ce82c5b0f2b358ec3099d7822ae6b2a7ab1d92f0c4aed",
+  "candidate_source_sha256": "32c62bb243e9292aca13b94fa4fac4ff6d33f3fb758bae7a151e2d92cc31e559",
+  "captures": {
+    "clamp": {
+      "old_lower_and_new_time": [
+        [
+          0.0,
+          0.00014636928972322494
+        ],
+        [
+          0.0,
+          0.00014636928972322494
+        ]
+      ],
+      "only_lower_time_changes": true,
+      "query_bytes_exact": true
+    },
+    "refinement": {
+      "old_lower_and_new_time": [
+        [
+          0.0,
+          0.0003075965796597302
+        ],
+        [
+          0.0,
+          0.0003075965796597302
+        ]
+      ],
+      "only_lower_time_changes": true,
+      "query_bytes_exact": true
+    }
+  },
+  "checks": {
+    "at_least_one_fixed_box_impact_tested": true,
+    "impact_selected_FP64_gap_bound": true,
+    "only_intended_lower_fields_change": true,
+    "repeat_exact": true,
+    "retained_captures_only_lower_time_changes": true,
+    "zero_unsafe_no_impact": true
+  },
+  "commands": [
+    {
+      "command": [
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metal",
+        "-std=metal4.0",
+        "-O3",
+        "-fno-fast-math",
+        "-I",
+        "/Users/n/Developer/numi-crow-rl-20261107/include",
+        "-c",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/Collision.candidate.metal",
+        "-o",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/candidate.air"
+      ],
+      "exit_code": 0,
+      "name": "compile",
+      "seconds": 0.44040512503124774
+    },
+    {
+      "command": [
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboConstraintSolver.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboQualityContactSolver.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboUnifiedQualitySolver.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboFreeBodyDynamics.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboMulticopterDynamics.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboFlappingWingDynamics.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/candidate.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboDeterministicBroadphase.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboArticulatedOperator.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboMillardMuscleReference.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboMujocoMuscleReference.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboParameterizedArticulatedOperator.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboArticulatedABA.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboFunctionBasedDenseDynamics.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboNumiHumanStand.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboNumiHumanTendonTransfer.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboParameterizedArticulatedABA.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboArticulatedABASmall.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboMultiArticulatedABA.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboParallelArticulatedABA.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboParallelParameterizedArticulatedABA.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboParallelArticulatedABASmall.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboParallelMultiArticulatedABA.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboDiscreteElasticRod.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboGeneralizedConstraints.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboMultiArticulatedContact.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboArticulatedInverseMass.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboOpenSimSpatialTransform.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboMultiArticulatedInverseMass.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboParameterizedMultiArticulatedInverseMass.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboStreamingArticulatedInverseMass.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboWorld.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboWorldContact.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboWorldCompiler.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboLocomotionTask.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboPolicyInference.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboHybridRenderer.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboEnvironmentPrefilter.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboVisualAssetCook.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboTactile.air",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRoboSceneQuery.air",
+        "-o",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/candidate.metallib"
+      ],
+      "exit_code": 0,
+      "name": "link",
+      "seconds": 0.3299454579828307
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/cases-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/baseline.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/cases.bin",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/baseline.bin"
+      ],
+      "exit_code": 0,
+      "name": "baseline",
+      "seconds": 0.36987320805201307
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/cases-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/candidate.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/cases.bin",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/candidate.bin"
+      ],
+      "exit_code": 0,
+      "name": "candidate",
+      "seconds": 14.182707374973688
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/cases-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/candidate.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/cases.bin",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/repeat.bin"
+      ],
+      "exit_code": 0,
+      "name": "repeat",
+      "seconds": 0.047754791972693056
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/sweep-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/baseline.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/query.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/clamp.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/clamp-baseline.bin"
+      ],
+      "exit_code": 0,
+      "name": "clamp-baseline",
+      "seconds": 0.2698710410040803
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/sweep-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/candidate.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/query.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/clamp.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/clamp-candidate.bin"
+      ],
+      "exit_code": 0,
+      "name": "clamp-candidate",
+      "seconds": 0.09001400001579896
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/sweep-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/baseline.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/query.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/refinement.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/refinement-baseline.bin"
+      ],
+      "exit_code": 0,
+      "name": "refinement-baseline",
+      "seconds": 0.04766354098683223
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/sweep-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/candidate.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/query.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/refinement.ccdsweep",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/refinement-candidate.bin"
+      ],
+      "exit_code": 0,
+      "name": "refinement-candidate",
+      "seconds": 0.047924957994837314
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/clamp-physical",
+        "0",
+        "1",
+        "32"
+      ],
+      "exit_code": 1,
+      "name": "clamp-physical",
+      "seconds": 4.254748916020617
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/refinement-physical",
+        "0",
+        "1",
+        "64"
+      ],
+      "exit_code": 0,
+      "name": "refinement-physical",
+      "seconds": 33.13101645797724
+    }
+  ],
+  "grid_component_passed": true,
+  "impacts": 1600,
+  "out_of_bound_selected_FP64_gaps": [],
+  "physical_development_replication": {
+    "clamp": {
+      "actual_loader": [
+        "dyld[14104]: <670E222D-A38C-34FA-BA03-F1E54C6BE11D> /Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/runtime/libmetalrobo.dylib"
+      ],
+      "exit_code": 1,
+      "failure.json": {
+        "failed_steps": 1,
+        "first_failing_lane": 1,
+        "first_failing_local_tick": 0,
+        "first_gpu_status": 11,
+        "host_status": 16,
+        "submission_begin_tick": 33,
+        "submission_ticks": 1,
+        "successful_steps": 3
+      }
+    },
+    "refinement": {
+      "actual_loader": [
+        "dyld[14105]: <670E222D-A38C-34FA-BA03-F1E54C6BE11D> /Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-contact-time-build-01/runtime/libmetalrobo.dylib"
+      ],
+      "exit_code": 0,
+      "summary.json": {
+        "accepted_transitions": 640,
+        "arm": 0,
+        "chunk": 1,
+        "initial_lower_gap_m": 0.000270965672684,
+        "initial_upper_gap_m": 0.000750003106892,
+        "lanes": [
+          {
+            "final_z": 0.00398137792945,
+            "maximum_head_relative_slip_m": 0.00035879509587,
+            "minimum_lift_64_95_m": 0.025767236948,
+            "opposed_contact_samples": 32
+          },
+          {
+            "final_z": 0.00398137792945,
+            "maximum_head_relative_slip_m": 0.000355730985935,
+            "minimum_lift_64_95_m": 0.025905162096,
+            "opposed_contact_samples": 32
+          },
+          {
+            "final_z": 0.00398137839511,
+            "maximum_head_relative_slip_m": 0.000358754775799,
+            "minimum_lift_64_95_m": 0.0254493653774,
+            "opposed_contact_samples": 32
+          },
+          {
+            "final_z": 0.00398137792945,
+            "maximum_head_relative_slip_m": 0.000356220291319,
+            "minimum_lift_64_95_m": 0.0255881845951,
+            "opposed_contact_samples": 32
+          }
+        ],
+        "physics_rejections": 0,
+        "substeps": 64
+      }
+    }
+  },
+  "physics_capability_qualified": false,
+  "prediction_verdict": "Component predictions supported; complete physical prediction contradicted: clamp32 rejects at33, refinement64 completes640 accepted transitions. No production promotion.",
+  "production_replaced": false,
+  "unsafe_no_impact_records": [],
+  "wrong_records": []
+}

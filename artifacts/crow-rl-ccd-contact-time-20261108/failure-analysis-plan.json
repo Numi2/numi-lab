@@ -1,0 +1,6 @@
+{
+  "scope": "Post-trial exploratory analysis of the newly retained clamp failure, no physical retry or changed physics.",
+  "input": "build/crow-ccd-contact-time-build-01/clamp-physical.ccdsweep",
+  "actions": "One native isolated pair replay plus257 native distance queries. Compare stored first candidate exactly; inspect positive selected duration and cursor progress. No tolerance or budget changes.",
+  "interpretation": "The complete160tick physical prediction failed; this analysis cannot turn the partial result into qualification."
+}
