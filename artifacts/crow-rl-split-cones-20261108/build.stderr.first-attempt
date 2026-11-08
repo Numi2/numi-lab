@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-split-cones-20261108/build.py", line 7, in <module>
+    for name,v in plan['sources'].items():assert sha(A/name)==v['sha256']
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

@@ -1,0 +1,15 @@
+{
+  "compiler_invocations": 0,
+  "native_observations": 0,
+  "reason": "Preparation captured its still-open stdout in source seal; final summary changed its hash. First build stopped at input validation before invoking compiler or native dispatch. Original plan and failure preserved. Exclude preparation log streams from immutable source identities; inputs and predictions unchanged.",
+  "removed_log_identities": {
+    "preparation.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "preparation.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

@@ -108,6 +108,7 @@
     "null",
     "invalid-r"
   ],
+  "prebuild_amendment": "Preparation captured its still-open stdout in source seal; final summary changed its hash. First build stopped at input validation before invoking compiler or native dispatch. Original plan and failure preserved. Exclude preparation log streams from immutable source identities; inputs and predictions unchanged.",
   "predictions": {
     "all_seven_regions": true,
     "derivative_scaled_error_max": 2e-10,
@@ -139,14 +140,6 @@
     "independent.py": {
       "bytes": 5272,
       "sha256": "6349222af7835d775987bc145c6c4ac8327ff7a4644641641532f6ae4fb3e93e"
-    },
-    "preparation.stderr": {
-      "bytes": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    },
-    "preparation.stdout": {
-      "bytes": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     "prepare.py": {
       "bytes": 5721,
