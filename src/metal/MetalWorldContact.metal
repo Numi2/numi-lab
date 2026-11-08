@@ -8925,6 +8925,35 @@ inline void mrWorldWave32SolvePacket(
             evaluatedCones[
                 constraintBase + localConstraint
             ];
+        // Interim containment for the final state of a mixed rod and
+        // articulated wave island. Residuals are velocities in m/s; the
+        // scale is the larger of pre-solve and target normal speeds.
+        // This checks normal complementarity, not friction or trajectory CCD.
+        const uint mixedFlags = MR_ISLAND_WORK_HAS_ROD |
+                                MR_ISLAND_WORK_HAS_ARTICULATION;
+        if ((work.flags & mixedFlags) == mixedFlags) {
+            const float pn = contact.impulses.x;
+            const float upper = cone.maximumNormalImpulse;
+            const float tolerance = 1.0e-4f + 0.01f *
+                max(abs(localRows[0].preSolveVelocity),
+                    abs(localRows[0].targetVelocity));
+            const bool finite = isfinite(pn) && isfinite(upper) &&
+                finite3(relative) && isfinite(normalEquation) &&
+                isfinite(localRows[0].preSolveVelocity) &&
+                isfinite(localRows[0].targetVelocity) &&
+                isfinite(localRows[0].regularization);
+            const bool atUpper = upper > 0.0f && pn >= upper-kConeEpsilon;
+            const float violation = atUpper ? max(normalEquation, 0.0f) :
+                (pn > kConeEpsilon ? abs(normalEquation) : max(-normalEquation, 0.0f));
+            const bool validImpulse = pn >= -kConeEpsilon &&
+                !(upper > 0.0f && pn > upper + kConeEpsilon);
+            if (!finite || !validImpulse || violation > tolerance) {
+                localFailure = !finite ? MR_STEP_NONFINITE_RESULT : MR_STEP_DID_NOT_CONVERGE;
+                localFailureConstraint = min(localFailureConstraint, localConstraint);
+                laneFailureRhs = max(laneFailureRhs, violation);
+                laneFailureInverse = max(laneFailureInverse, tolerance);
+            }
+        }
         const float limitU =
             cone.effectiveFrictionU * contact.impulses.x;
         const float limitV =
