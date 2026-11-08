@@ -1,0 +1,38 @@
+diff --git a/Users/numi/numi-lab-skin-suture-restoration/apps/metal_discrete_elastic_rod_probe.mm b/Users/numi/suture-measurements-20261108/ophthalmic/metal-direct-002/existing-path-probe.mm
+index 6d56e79..e43b67d 100644
+--- a/Users/numi/numi-lab-skin-suture-restoration/apps/metal_discrete_elastic_rod_probe.mm
++++ b/Users/numi/suture-measurements-20261108/ophthalmic/metal-direct-002/existing-path-probe.mm
+@@ -190,7 +190,8 @@ double segmentDistance(
+ 
+ } // namespace
+ 
+-int main() {
++int main(int argc, char** argv) {
++    if (argc != 2) return 2;
+     try {
+         constexpr std::size_t environmentCount = 4u;
+         metalrobo::DualPsmNeedleThreadWorldConfig worldConfig;
+@@ -257,6 +258,7 @@ int main() {
+ 
+         metalrobo::MetalDiscreteElasticRodConfig config;
+         config.step = thread.stepConfig;
++        config.metallibPath = argv[1];
+         config.step.gravity = {0.0, 0.0, 0.0};
+         config.step.solverIterations = 256u;
+         config.step.constraintTolerance = 1.0e-5;
+@@ -449,6 +451,7 @@ int main() {
+             crossingStates(environmentCount, crossing);
+         metalrobo::MetalDiscreteElasticRodConfig
+             collisionConfig;
++        collisionConfig.metallibPath = argv[1];
+         collisionConfig.step.gravity = {0.0, 0.0, 0.0};
+         collisionConfig.step.solverIterations = 256u;
+         collisionConfig.step.constraintTolerance = 1.0e-6;
+@@ -831,6 +834,7 @@ int main() {
+             });
+         }
+         metalrobo::MetalDiscreteElasticRodConfig toolConfig;
++        toolConfig.metallibPath = argv[1];
+         toolConfig.step.gravity = {0.0, 0.0, 0.0};
+         toolConfig.step.solverIterations = 64u;
+         toolConfig.step.constraintTolerance = 1.0e-6;
