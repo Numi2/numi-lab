@@ -1,0 +1,49 @@
+{
+  "2e-4": {
+    "published": true,
+    "success_count": 20,
+    "failed_count": 0,
+    "callback_noninvasive": true,
+    "replay": true,
+    "trace_replay": true,
+    "sustained_mixed_steps": 20,
+    "max_normal_residual_m_s": 0.0001990050077,
+    "max_momentum_balance_Ns": 1.7862142841218454e-08,
+    "unknown_external_contact_steps": 0,
+    "force_bins_N": [
+      11.0524071388,
+      9.2759033666,
+      9.51360669,
+      9.6453897658
+    ],
+    "total_ground_impulse_Ns": 0.197436534806,
+    "total_ground_normal_work_est_J": 0.000793978639146351,
+    "total_ground_tangent_work_est_J": -0.0012479814282662155,
+    "first_failure": null,
+    "one_ms_force_error_relative_peak": 0.01577957907505119,
+    "impulse_error_relative": 2.957040023227285e-05,
+    "both_below_0_25_percent": false
+  },
+  "2e-5": {
+    "published": true,
+    "success_count": 7,
+    "failed_count": 13,
+    "callback_noninvasive": true,
+    "replay": true,
+    "trace_replay": true,
+    "sustained_mixed_steps": 7,
+    "max_normal_residual_m_s": 1.899013296e-05,
+    "max_momentum_balance_Ns": 2.3826414993766143e-08,
+    "unknown_external_contact_steps": 0,
+    "force_bins_N": [],
+    "total_ground_impulse_Ns": 0.073656947353,
+    "total_ground_normal_work_est_J": 0.00048384868168436205,
+    "total_ground_tangent_work_est_J": -0.0011620878644227795,
+    "first_failure": {
+      "step": 7,
+      "normal_m_s": 8.645094931e-05,
+      "tangent_m_s": 0.0001255644311
+    },
+    "force_comparison": "undefined: trajectory incomplete"
+  }
+}
