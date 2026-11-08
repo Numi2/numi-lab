@@ -1,0 +1,1 @@
+static and n4 dynamic non-timing outputs reproduced exactly
