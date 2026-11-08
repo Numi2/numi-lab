@@ -1,0 +1,18 @@
+{
+  "all_compared_bytes_exact": true,
+  "byte_exact_comparisons": 41,
+  "executed_commands": 10,
+  "fp64_analysis_commands": 1,
+  "limits": "Scoped replay of existing observations: original diagnostic admission rejection, finite regressions, protected crow captures at one/eight controls, isolated exact native replay, default crow and independent FP64 analysis. Old missing-entry-point shader rejection is byte verified but not re-executed. No new ecological observation or promotion.",
+  "manifest": "artifacts/crow-rl-quality-first-failure-20261108/payload/manifest.json",
+  "manifest_sha256": "1387ff33eea545a4243cfe1b276a4b2b6cd6fdf90a20effa60be4a7be36e1dd6",
+  "native_commands": 9,
+  "native_physical_rows_compared_without_gpu_timing": 576,
+  "new_recovery_blobs": 3,
+  "open_handles": 0,
+  "policy_or_profile_promoted": false,
+  "restored_bytes": 34741071,
+  "restored_files": 157,
+  "temporary_bytes": 35581494,
+  "temporary_files": 201
+}
