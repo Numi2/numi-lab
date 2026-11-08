@@ -1,0 +1,3 @@
+# Metal prototype failure-publication checks
+
+The initial isolated GPU run passed ten synthetic vector cases. Before any further use, preserve its source and output, then test invalid node count, a degenerate edge, nonfinite input, and nonpositive node mass. The prototype must return a nonzero status without modifying the caller-owned position/reaction output bytes, initialized to a sentinel. A valid control must still pass all existing physical gates. Repeat the same binary input twice and compare full outputs. Invalid-input checks and output preservation concern this standalone kernel only; they do not establish production MetalWorld rollback, hidden cache restoration, failure under GPU command loss, or real rod/contact behavior.
