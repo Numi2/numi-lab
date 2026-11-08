@@ -1,0 +1,73 @@
+{"name": "api-default-0", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/split-runtime/probe", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/split-runtime/solver.metallib", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/analysis/api-default-split-input.bin", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/split-observations/api-default-0"], "returncode": 0, "seconds": 0.2701182920136489}
+{"name": "api-default-1", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/split-runtime/probe", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/split-runtime/solver.metallib", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/analysis/api-default-split-input.bin", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/split-observations/api-default-1"], "returncode": 0, "seconds": 0.0925089999800548}
+{"name": "opt6-0", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/split-runtime/probe", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/split-runtime/solver.metallib", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/analysis/opt6-split-input.bin", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/split-observations/opt6-0"], "returncode": 0, "seconds": 0.08548874995904043}
+{"name": "opt6-1", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/split-runtime/probe", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/split-runtime/solver.metallib", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/analysis/opt6-split-input.bin", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/split-observations/opt6-1"], "returncode": 0, "seconds": 0.09051474998705089}
+{"name": "opt7-0", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/split-runtime/probe", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/split-runtime/solver.metallib", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/analysis/opt7-split-input.bin", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/split-observations/opt7-0"], "returncode": 0, "seconds": 0.092413124977611}
+{"name": "opt7-1", "argv": ["/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/split-runtime/probe", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/split-runtime/solver.metallib", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/analysis/opt7-split-input.bin", "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-recovery-01/build/crow-quality-tolerances-build-01/split-observations/opt7-1"], "returncode": 0, "seconds": 0.09060258301906288}
+{
+  "all_predictions_supported": true,
+  "goal_complete": false,
+  "native_commands": 6,
+  "observations": {
+    "native_and_independent_residual_max": 5.0751876388543254e-15,
+    "repeated_binary_outputs_exact": true,
+    "rounded_satisfies_original_declared_optimality": true,
+    "velocity_reference_abs_error_max": 1.918274566969913e-13
+  },
+  "predictions_supported": {
+    "native_and_independent_residual_max": true,
+    "repeated_binary_outputs_exact": true,
+    "rounded_satisfies_original_declared_optimality": true,
+    "velocity_reference_abs_error_max": true
+  },
+  "production_changed": false,
+  "rows": [
+    {
+      "arm": "api-default",
+      "code": 0,
+      "declared_optimality": 9.999999747378752e-06,
+      "final_equilibrated_hessian_condition": 13470.673010856804,
+      "independent_residual": 3.556862528004122e-15,
+      "initial_equilibrated_hessian_condition": 9236.522002789294,
+      "native_backtracks": 11,
+      "native_newton": 5,
+      "native_residual": 4.931582096493305e-15,
+      "reference_velocity_abs_error": 1.7763568394002505e-15,
+      "repeated_binary_exact": true,
+      "rounded_residual": 1.4133210253793225e-08,
+      "rounded_satisfies_declared": true
+    },
+    {
+      "arm": "opt6",
+      "code": 0,
+      "declared_optimality": 9.999999974752427e-07,
+      "final_equilibrated_hessian_condition": 13471.054607335122,
+      "independent_residual": 4.266210029779556e-15,
+      "initial_equilibrated_hessian_condition": 12355.85903767989,
+      "native_backtracks": 3,
+      "native_newton": 2,
+      "native_residual": 5.0751876388543254e-15,
+      "reference_velocity_abs_error": 1.918274566969913e-13,
+      "repeated_binary_exact": true,
+      "rounded_residual": 7.685859038836901e-08,
+      "rounded_satisfies_declared": true
+    },
+    {
+      "arm": "opt7",
+      "code": 0,
+      "declared_optimality": 1.0000000116860974e-07,
+      "final_equilibrated_hessian_condition": 13471.043028537313,
+      "independent_residual": 2.0213732125793114e-15,
+      "initial_equilibrated_hessian_condition": 8253.649355449386,
+      "native_backtracks": 3,
+      "native_newton": 3,
+      "native_residual": 9.008297038003155e-16,
+      "reference_velocity_abs_error": 5.773159728050814e-15,
+      "repeated_binary_exact": true,
+      "rounded_residual": 4.5719306617667654e-08,
+      "rounded_satisfies_declared": true
+    }
+  ],
+  "schema": "crow-quality-tolerances-retained-split-v1"
+}
+

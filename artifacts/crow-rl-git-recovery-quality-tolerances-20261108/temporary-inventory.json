@@ -1,0 +1,4298 @@
+{
+  "files": [
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/c3c787398617d9572162b0d84dd3e3368ddbbe1f3d67494a3a6b3ac7a94f15d2.gz"
+      },
+      "bytes": 4064,
+      "mode": 420,
+      "mtime_ns": 1794148002986740065,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/README.md",
+      "sha256": "c3c787398617d9572162b0d84dd3e3368ddbbe1f3d67494a3a6b3ac7a94f15d2"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/00a5a95ca2e811f07b7f5650f7805e42d51dc62cfa654becdbac731d4eabe5c3.gz"
+      },
+      "bytes": 3400,
+      "mode": 420,
+      "mtime_ns": 1794148002986842939,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/analyze.py",
+      "sha256": "00a5a95ca2e811f07b7f5650f7805e42d51dc62cfa654becdbac731d4eabe5c3"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148002986889688,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/archive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/5e8f4fa5125741d942c9936f860e74fb1df31cdf2529f81b7271c95a86dea2b4.gz"
+      },
+      "bytes": 518,
+      "mode": 420,
+      "mtime_ns": 1794148002986999395,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/archive.stdout",
+      "sha256": "5e8f4fa5125741d942c9936f860e74fb1df31cdf2529f81b7271c95a86dea2b4"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/676b9bfd7bb816fcbd6d04cfc5150ef39a3c5078c83a03fd1b81735dc1feb2d2.gz"
+      },
+      "bytes": 596,
+      "mode": 420,
+      "mtime_ns": 1794148002987102519,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/build-execution.json",
+      "sha256": "676b9bfd7bb816fcbd6d04cfc5150ef39a3c5078c83a03fd1b81735dc1feb2d2"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/2e98fc1fbc49efde960837887d3b887086c0515f500faa969d9ce66e7380d241.gz"
+      },
+      "bytes": 1663,
+      "mode": 420,
+      "mtime_ns": 1794148002987205268,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/build.py",
+      "sha256": "2e98fc1fbc49efde960837887d3b887086c0515f500faa969d9ce66e7380d241"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148002987249850,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/build.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148002987298392,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/build.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/637012b8a999bf42732014f8487a6f2cc54096fd214f950c96a2dcb7d8c7d37d.gz"
+      },
+      "bytes": 21019,
+      "mode": 420,
+      "mtime_ns": 1794148006074384530,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/case-analysis.json",
+      "sha256": "637012b8a999bf42732014f8487a6f2cc54096fd214f950c96a2dcb7d8c7d37d"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/f2e5fb335ddfe533a89be141684385e1669d2ee5be0540f5ff8fffa40372afb1.gz"
+      },
+      "bytes": 20022,
+      "mode": 420,
+      "mtime_ns": 1794148002987589638,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/crow-fixture.mm",
+      "sha256": "f2e5fb335ddfe533a89be141684385e1669d2ee5be0540f5ff8fffa40372afb1"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/0416708a2af6ee91975112d0e048dbce005770ac28aa6e14d5dbd8fc26efa71b.gz"
+      },
+      "bytes": 4943,
+      "mode": 420,
+      "mtime_ns": 1794148006066925117,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/execution.json",
+      "sha256": "0416708a2af6ee91975112d0e048dbce005770ac28aa6e14d5dbd8fc26efa71b"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/755feedc31dbbbc22151bf31e20f4a107a7fb80d4cc3ed61b89c899e3f15cd14.gz"
+      },
+      "bytes": 4838,
+      "mode": 420,
+      "mtime_ns": 1794148006295348287,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/exploratory-analysis.json",
+      "sha256": "755feedc31dbbbc22151bf31e20f4a107a7fb80d4cc3ed61b89c899e3f15cd14"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/35e1e56cd9b697ddcffa077e0ed355e804cdcb7e4b91939d9a32be2dbe5dc49e.gz"
+      },
+      "bytes": 1364,
+      "mode": 420,
+      "mtime_ns": 1794148002987918259,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/exploratory-plan.json",
+      "sha256": "35e1e56cd9b697ddcffa077e0ed355e804cdcb7e4b91939d9a32be2dbe5dc49e"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/9f400ae05cec8032b659909dbcb611e2c16f9129766fdacc0a6fdaa8470e2d7c.gz"
+      },
+      "bytes": 3260,
+      "mode": 420,
+      "mtime_ns": 1794148002988021883,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/explore.py",
+      "sha256": "9f400ae05cec8032b659909dbcb611e2c16f9129766fdacc0a6fdaa8470e2d7c"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148002988065466,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/explore.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/0c978a4b864ca16eb200eaa8521d423c1657582c36c5ef735a4e477547324d30.gz"
+      },
+      "bytes": 3317,
+      "mode": 420,
+      "mtime_ns": 1794148002988187756,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/explore.stdout",
+      "sha256": "0c978a4b864ca16eb200eaa8521d423c1657582c36c5ef735a4e477547324d30"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/6349222af7835d775987bc145c6c4ac8327ff7a4644641641532f6ae4fb3e93e.gz"
+      },
+      "bytes": 5272,
+      "mode": 420,
+      "mtime_ns": 1794148002988269922,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/independent.py",
+      "sha256": "6349222af7835d775987bc145c6c4ac8327ff7a4644641641532f6ae4fb3e93e"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/4484b1924331ffc63e5af1bef0a71ce0d15415e3315a00254c4725cc82e05766.gz"
+      },
+      "bytes": 19050,
+      "mode": 420,
+      "mtime_ns": 1794148002988378046,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/original-fixture.mm",
+      "sha256": "4484b1924331ffc63e5af1bef0a71ce0d15415e3315a00254c4725cc82e05766"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/ff6f6ac90b163c655603ee9a33b3ba92d5c0df4f023557566a5f838b942c9cee.gz"
+      },
+      "bytes": 600,
+      "mode": 420,
+      "mtime_ns": 1794148002988568919,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/physical-interpretation.json",
+      "sha256": "ff6f6ac90b163c655603ee9a33b3ba92d5c0df4f023557566a5f838b942c9cee"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/7f1669cf2b74ebf65de7a9fb5bb7c70aed2b02491172672d9c3298e0c9103a7a.gz"
+      },
+      "bytes": 1214,
+      "mode": 420,
+      "mtime_ns": 1794148002988684042,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/plan.json",
+      "sha256": "7f1669cf2b74ebf65de7a9fb5bb7c70aed2b02491172672d9c3298e0c9103a7a"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/6a2066bcaaf7bb559e230ef0bb39171860b50d38f10cf31467a046d3bf629436.gz"
+      },
+      "bytes": 1206,
+      "mode": 420,
+      "mtime_ns": 1794148002988796124,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/production-seal.json",
+      "sha256": "6a2066bcaaf7bb559e230ef0bb39171860b50d38f10cf31467a046d3bf629436"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/6065dbc68e66789be9e5de192b86953344ae5f60bcfd3ebbebbebb97622f2120.gz"
+      },
+      "bytes": 678,
+      "mode": 420,
+      "mtime_ns": 1794148006074453987,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/result.json",
+      "sha256": "6065dbc68e66789be9e5de192b86953344ae5f60bcfd3ebbebbebb97622f2120"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/29d63cd9245c16537fcb4bdfe1ca61ff7f3fac11fb4712a56c3f52d6a94bd9e5.gz"
+      },
+      "bytes": 2329,
+      "mode": 420,
+      "mtime_ns": 1794148002989026788,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/run.py",
+      "sha256": "29d63cd9245c16537fcb4bdfe1ca61ff7f3fac11fb4712a56c3f52d6a94bd9e5"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148002989069288,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/run.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/0b82f223b602f8af09462ae5cd3723d502c6802069121d17fdbd3c876e8f361c.gz"
+      },
+      "bytes": 3943,
+      "mode": 420,
+      "mtime_ns": 1794148002989184578,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/run.stdout",
+      "sha256": "0b82f223b602f8af09462ae5cd3723d502c6802069121d17fdbd3c876e8f361c"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/7f753e2020deb89957dae9a70fba5a9bd74ea7a1c67e59e636e596d9bdb3f54b.gz"
+      },
+      "bytes": 926,
+      "mode": 420,
+      "mtime_ns": 1794148002989295785,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/runtime.json",
+      "sha256": "7f753e2020deb89957dae9a70fba5a9bd74ea7a1c67e59e636e596d9bdb3f54b"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/a81974c3046a574d6db98e8ba9c30bb492e8a499c6326e2dd13c132f000d2b63.gz"
+      },
+      "bytes": 4463,
+      "mode": 420,
+      "mtime_ns": 1794148007093454817,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/split-execution.json",
+      "sha256": "a81974c3046a574d6db98e8ba9c30bb492e8a499c6326e2dd13c132f000d2b63"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/ee904b4851fb70e2194daef9fa1549cd28986463f4245f15c6d5645f17c56d3b.gz"
+      },
+      "bytes": 1638,
+      "mode": 420,
+      "mtime_ns": 1794148002989522741,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/split-plan-first-attempt.json",
+      "sha256": "ee904b4851fb70e2194daef9fa1549cd28986463f4245f15c6d5645f17c56d3b"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/032d8c12bedc5a4bd491f369d8307b22b7361c46e419f92f847d8735638e826c.gz"
+      },
+      "bytes": 2230,
+      "mode": 420,
+      "mtime_ns": 1794148002989642698,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/split-plan.json",
+      "sha256": "032d8c12bedc5a4bd491f369d8307b22b7361c46e419f92f847d8735638e826c"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148002989689697,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/split-preparation.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148002989743405,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/split-preparation.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/532f669908b3f59fa431542135571cf7eae0d3387e47c0da738ad8c8fd0bb1fa.gz"
+      },
+      "bytes": 1847,
+      "mode": 420,
+      "mtime_ns": 1794148002989854987,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/split-prepare.py",
+      "sha256": "532f669908b3f59fa431542135571cf7eae0d3387e47c0da738ad8c8fd0bb1fa"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/5e8f48ebfce64ec370dde7767f42cce5b6bf39f320b70eecf3054a3c840d7f62.gz"
+      },
+      "bytes": 2439,
+      "mode": 420,
+      "mtime_ns": 1794148007216527299,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/split-result.json",
+      "sha256": "5e8f48ebfce64ec370dde7767f42cce5b6bf39f320b70eecf3054a3c840d7f62"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/94dd173940e171899a9a85294e1498b33b23616f45b0a2a28fe21990db6b7be3.gz"
+      },
+      "bytes": 3462,
+      "mode": 420,
+      "mtime_ns": 1794148002990067401,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/split-run-first-attempt.py",
+      "sha256": "94dd173940e171899a9a85294e1498b33b23616f45b0a2a28fe21990db6b7be3"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/583f35a430226d86dfd842bd5e35459c4b2c2393db4b8f397d57fe3f3ad9e6fb.gz"
+      },
+      "bytes": 3476,
+      "mode": 420,
+      "mtime_ns": 1794148002990176192,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/split-run.py",
+      "sha256": "583f35a430226d86dfd842bd5e35459c4b2c2393db4b8f397d57fe3f3ad9e6fb"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148002990220941,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/split-run.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/1a9c6eb0b9ef6966e1979a2bb0f5e86895bb77271107d28db87763957d0922c6.gz"
+      },
+      "bytes": 325,
+      "mode": 420,
+      "mtime_ns": 1794148002990339690,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/split-run.stderr.first-attempt",
+      "sha256": "1a9c6eb0b9ef6966e1979a2bb0f5e86895bb77271107d28db87763957d0922c6"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/8c0e65025cdad89d7d35d5745934467a734fbc6e2fb1a6b884aba191c36afe07.gz"
+      },
+      "bytes": 5578,
+      "mode": 420,
+      "mtime_ns": 1794148002990447188,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/split-run.stdout",
+      "sha256": "8c0e65025cdad89d7d35d5745934467a734fbc6e2fb1a6b884aba191c36afe07"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148002990491896,
+      "path": "artifacts/crow-rl-quality-tolerances-20261108/split-run.stdout.first-attempt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/api-default-reference-g.f64"
+      },
+      "bytes": 272,
+      "mode": 420,
+      "mtime_ns": 1794148006253071155,
+      "path": "build/crow-quality-tolerances-build-01/analysis/api-default-reference-g.f64",
+      "sha256": "6beb17fafc8c8a91846c9aa261a131986146a1d22cadd6a32fd76c0d02837881"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/api-default-reference-p.f64"
+      },
+      "bytes": 3840,
+      "mode": 420,
+      "mtime_ns": 1794148006253015197,
+      "path": "build/crow-quality-tolerances-build-01/analysis/api-default-reference-p.f64",
+      "sha256": "de952c381d1bba4bd53471be1a9dfb56684cf6fb33b9324bb05fb998a3d03056"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/api-default-reference-v.f64"
+      },
+      "bytes": 272,
+      "mode": 420,
+      "mtime_ns": 1794148006252956281,
+      "path": "build/crow-quality-tolerances-build-01/analysis/api-default-reference-v.f64",
+      "sha256": "d47ba9633ac9216cb8936f3df865ee141f187ae07daa1eb4f34b7e3341699bd2"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/api-default-split-input.bin"
+      },
+      "bytes": 92608,
+      "mode": 420,
+      "mtime_ns": 1794148006201898460,
+      "path": "build/crow-quality-tolerances-build-01/analysis/api-default-split-input.bin",
+      "sha256": "ffd64212875b85943e58079dd9c08faf4546473b0e0052cbc07ab3d21517c0d8"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/opt6-reference-g.f64"
+      },
+      "bytes": 272,
+      "mode": 420,
+      "mtime_ns": 1794148006271490482,
+      "path": "build/crow-quality-tolerances-build-01/analysis/opt6-reference-g.f64",
+      "sha256": "2ac4bd1dc70bf4c0dc339fbeb0e70cbbdd1b527569a2429799cdb694cea26daa"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/opt6-reference-p.f64"
+      },
+      "bytes": 3840,
+      "mode": 420,
+      "mtime_ns": 1794148006271441524,
+      "path": "build/crow-quality-tolerances-build-01/analysis/opt6-reference-p.f64",
+      "sha256": "b2adc3085db75c58a453eb86fb047bd0c503152723d752b840dc275c9eb9885c"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/opt6-reference-v.f64"
+      },
+      "bytes": 272,
+      "mode": 420,
+      "mtime_ns": 1794148006271388692,
+      "path": "build/crow-quality-tolerances-build-01/analysis/opt6-reference-v.f64",
+      "sha256": "f528a74cbde84e6a98a9bd38cd6e92ef78d6b1b3d9023ae7baea0fbbb897934b"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/opt6-split-input.bin"
+      },
+      "bytes": 92608,
+      "mode": 420,
+      "mtime_ns": 1794148006253283069,
+      "path": "build/crow-quality-tolerances-build-01/analysis/opt6-split-input.bin",
+      "sha256": "6a22c81c02c2647475bc7319665ef6cf89d00ec2766dabcc5be0aeb904c6e047"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/opt7-reference-g.f64"
+      },
+      "bytes": 272,
+      "mode": 420,
+      "mtime_ns": 1794148006295214289,
+      "path": "build/crow-quality-tolerances-build-01/analysis/opt7-reference-g.f64",
+      "sha256": "0727085b03ac1a53054ccbbad755fe53ca27bfe96b695a0cebcaa7b4e78448e3"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/opt7-reference-p.f64"
+      },
+      "bytes": 3840,
+      "mode": 420,
+      "mtime_ns": 1794148006295166748,
+      "path": "build/crow-quality-tolerances-build-01/analysis/opt7-reference-p.f64",
+      "sha256": "7abcb4d1881a894bad0781f23bdbca0b236613d8436e5f36c044a44c13b1a0eb"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/opt7-reference-v.f64"
+      },
+      "bytes": 272,
+      "mode": 420,
+      "mtime_ns": 1794148006295118748,
+      "path": "build/crow-quality-tolerances-build-01/analysis/opt7-reference-v.f64",
+      "sha256": "dd681ab24ef95a488db10e331b239064c14a5359bddf5145fb74c33fdf89548d"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/opt7-split-input.bin"
+      },
+      "bytes": 92608,
+      "mode": 420,
+      "mtime_ns": 1794148006271659688,
+      "path": "build/crow-quality-tolerances-build-01/analysis/opt7-split-input.bin",
+      "sha256": "bda485334c51ac0e482414b1837a2858a9106897fad1b10e3e48f9e2a8016729"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147511044117216,
+      "path": "build/crow-quality-tolerances-build-01/build.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147511044077967,
+      "path": "build/crow-quality-tolerances-build-01/build.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/crow-fixture"
+      },
+      "bytes": 102144,
+      "mode": 493,
+      "mtime_ns": 1794147512347894810,
+      "path": "build/crow-quality-tolerances-build-01/crow-fixture",
+      "sha256": "bf8ad775f9d2f74643432eccd00544d0cc16d1cd74651c22165b7911a9433aeb"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/api-default-1/effective-config.json"
+      },
+      "bytes": 169,
+      "mode": 420,
+      "mtime_ns": 1794148004071126674,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-0/effective-config.json",
+      "sha256": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794148004225864328,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-0/failure-contact-status.bin",
+      "sha256": "94edf90647ce0b4ae11d90ceef34e1e5bd6f6fa115a8363d54c08c800c37dbfb"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148004225680622,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-0/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148004225775871,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-0/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148004225729455,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-0/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794148004225819454,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-0/failure-world-status.bin",
+      "sha256": "99b2c25dd33282fe5e03992a02999c5333dd81efee6c0edb9e9a88e74d8bf9be"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794148004225929036,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-0/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794148004070938176,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-0/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148004071012050,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-0/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148004071089799,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-0/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148004071052258,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-0/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794148004225954327,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-0/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/api-default-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794148004225262752,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-0-capture.bin",
+      "sha256": "6399bf825f83b883e55f699b877f3cba827bb2501deee85a4a423e8547f39e3a"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/2acaeb03716cb36da9024d8836a75192155e88dccbc62713e8d811e0ec2c1b1c.gz"
+      },
+      "bytes": 86188,
+      "mode": 420,
+      "mtime_ns": 1794148004227389852,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-0.stderr",
+      "sha256": "2acaeb03716cb36da9024d8836a75192155e88dccbc62713e8d811e0ec2c1b1c"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148004059992429,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-0.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/api-default-1/effective-config.json"
+      },
+      "bytes": 169,
+      "mode": 420,
+      "mtime_ns": 1794148005536578507,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-1/effective-config.json",
+      "sha256": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794148005693320680,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-1/failure-contact-status.bin",
+      "sha256": "94edf90647ce0b4ae11d90ceef34e1e5bd6f6fa115a8363d54c08c800c37dbfb"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148005693134391,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-1/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148005693227306,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-1/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148005693181473,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-1/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794148005693277431,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-1/failure-world-status.bin",
+      "sha256": "99b2c25dd33282fe5e03992a02999c5333dd81efee6c0edb9e9a88e74d8bf9be"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794148005693382263,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-1/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794148005536388759,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-1/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148005536447509,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-1/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148005536535716,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-1/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148005536491342,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-1/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794148005693409596,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-1/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/api-default-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794148005692682979,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-1-capture.bin",
+      "sha256": "6399bf825f83b883e55f699b877f3cba827bb2501deee85a4a423e8547f39e3a"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/b656abf2927241dc24656b8cb68d14d1b2f9aa762c55f33e63dbbd116b417e0a.gz"
+      },
+      "bytes": 86188,
+      "mode": 420,
+      "mtime_ns": 1794148005694836579,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-1.stderr",
+      "sha256": "b656abf2927241dc24656b8cb68d14d1b2f9aa762c55f33e63dbbd116b417e0a"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148005525583969,
+      "path": "build/crow-quality-tolerances-build-01/observations/api-default-1.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/de5aad209c1def39ac5e5db2e3ad1e019e63a22988c5b11636025857be4ad3b9.gz"
+      },
+      "bytes": 84408,
+      "mode": 420,
+      "mtime_ns": 1794148003699418007,
+      "path": "build/crow-quality-tolerances-build-01/observations/calibration.stderr",
+      "sha256": "de5aad209c1def39ac5e5db2e3ad1e019e63a22988c5b11636025857be4ad3b9"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/calibration.stdout"
+      },
+      "bytes": 245,
+      "mode": 420,
+      "mtime_ns": 1794148003707196833,
+      "path": "build/crow-quality-tolerances-build-01/observations/calibration.stdout",
+      "sha256": "2b71af5bc0f5f56fbdaf8055ec1f0425ff60049e10161e5a5d865f0b9c49927a"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/effective-config.json"
+      },
+      "bytes": 162,
+      "mode": 420,
+      "mtime_ns": 1794148004492108391,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-0/effective-config.json",
+      "sha256": "f72cc6b3e0a27e108a42d5347cf0fa268027bf56916a5059ef1dedbf2190d5bc"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794148004650494378,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-0/failure-contact-status.bin",
+      "sha256": "94edf90647ce0b4ae11d90ceef34e1e5bd6f6fa115a8363d54c08c800c37dbfb"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148004650306589,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-0/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148004650406088,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-0/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148004650357422,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-0/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794148004650448796,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-0/failure-world-status.bin",
+      "sha256": "99b2c25dd33282fe5e03992a02999c5333dd81efee6c0edb9e9a88e74d8bf9be"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794148004650554253,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-0/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794148004491914227,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-0/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148004491972184,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-0/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148004492059475,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-0/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148004492016601,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-0/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794148004650575586,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-0/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794148004649852636,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-0-capture.bin",
+      "sha256": "dffad96bd5817ab6b39f7d2a497f8315ab5f77abb6def512dce3049c284c2464"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/f4852d550c9c7a2cfb3de04c61e2a155c7363528601a3e37502cfbf25e307b46.gz"
+      },
+      "bytes": 86188,
+      "mode": 420,
+      "mtime_ns": 1794148004651996528,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-0.stderr",
+      "sha256": "f4852d550c9c7a2cfb3de04c61e2a155c7363528601a3e37502cfbf25e307b46"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148004480776273,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-0.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/effective-config.json"
+      },
+      "bytes": 162,
+      "mode": 420,
+      "mtime_ns": 1794148005122333878,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-1/effective-config.json",
+      "sha256": "f72cc6b3e0a27e108a42d5347cf0fa268027bf56916a5059ef1dedbf2190d5bc"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794148005278923386,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-contact-status.bin",
+      "sha256": "94edf90647ce0b4ae11d90ceef34e1e5bd6f6fa115a8363d54c08c800c37dbfb"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148005278736263,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148005278835262,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148005278784304,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794148005278879387,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-world-status.bin",
+      "sha256": "99b2c25dd33282fe5e03992a02999c5333dd81efee6c0edb9e9a88e74d8bf9be"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794148005278985469,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794148005122146588,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148005122203713,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148005122288962,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148005122245962,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794148005279010302,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794148005278271310,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-1-capture.bin",
+      "sha256": "dffad96bd5817ab6b39f7d2a497f8315ab5f77abb6def512dce3049c284c2464"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/e328e8ea54ff33d4e68cf6aaba63fdae7f69cb482ba52a79ed0562c29d83304c.gz"
+      },
+      "bytes": 86188,
+      "mode": 420,
+      "mtime_ns": 1794148005280457701,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-1.stderr",
+      "sha256": "e328e8ea54ff33d4e68cf6aaba63fdae7f69cb482ba52a79ed0562c29d83304c"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148005111047135,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt5-1.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt6-1/effective-config.json"
+      },
+      "bytes": 162,
+      "mode": 420,
+      "mtime_ns": 1794148004703100098,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-0/effective-config.json",
+      "sha256": "15e8487bbb761a43da9ec6b05ea4cc600e44d23855080f3e041445fbc7350b6f"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt6-1/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794148004850986166,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-0/failure-contact-status.bin",
+      "sha256": "dd0f5e0df7c0aed7286f947a5337bdf5fa6e616aa1d17dc9f988cbc264d14f40"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148004850806377,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-0/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148004850897417,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-0/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148004850852418,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-0/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt6-1/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794148004850943292,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-0/failure-world-status.bin",
+      "sha256": "268fba8e9b4c849d742e8737ebdb2bc64bc1f2e4f179214cffa6707937212cd6"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794148004851043124,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-0/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794148004702856310,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-0/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148004702937725,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-0/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148004703046266,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-0/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148004702989725,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-0/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794148004851066499,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-0/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt6-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794148004850360215,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-0-capture.bin",
+      "sha256": "01862ed69e7cbc99a9ccc4aeba7d6c180ef684fb61bff093078731a42a1f4f4f"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/d3bcf2a2e4fdfea750ccbd6f7e7d07ababc4b9a3852f424fa554dcc24c718705.gz"
+      },
+      "bytes": 86188,
+      "mode": 420,
+      "mtime_ns": 1794148004852462024,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-0.stderr",
+      "sha256": "d3bcf2a2e4fdfea750ccbd6f7e7d07ababc4b9a3852f424fa554dcc24c718705"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148004690904574,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-0.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt6-1/effective-config.json"
+      },
+      "bytes": 162,
+      "mode": 420,
+      "mtime_ns": 1794148004914715090,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-1/effective-config.json",
+      "sha256": "15e8487bbb761a43da9ec6b05ea4cc600e44d23855080f3e041445fbc7350b6f"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt6-1/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794148005082182346,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-1/failure-contact-status.bin",
+      "sha256": "dd0f5e0df7c0aed7286f947a5337bdf5fa6e616aa1d17dc9f988cbc264d14f40"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148005081998223,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-1/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148005082084556,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-1/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148005082040181,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-1/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt6-1/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794148005082132722,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-1/failure-world-status.bin",
+      "sha256": "268fba8e9b4c849d742e8737ebdb2bc64bc1f2e4f179214cffa6707937212cd6"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794148005082235470,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-1/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794148004914481884,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-1/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148004914557258,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-1/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148004914662007,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-1/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148004914610883,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-1/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794148005082260179,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-1/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt6-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794148005081566686,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-1-capture.bin",
+      "sha256": "01862ed69e7cbc99a9ccc4aeba7d6c180ef684fb61bff093078731a42a1f4f4f"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/120b9eeb4f409ed93bcc043af60d0ff11df09f1222ce464474d3676df9cc8a14.gz"
+      },
+      "bytes": 86188,
+      "mode": 420,
+      "mtime_ns": 1794148005083588413,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-1.stderr",
+      "sha256": "120b9eeb4f409ed93bcc043af60d0ff11df09f1222ce464474d3676df9cc8a14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148004902010946,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt6-1.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt7-1/effective-config.json"
+      },
+      "bytes": 162,
+      "mode": 420,
+      "mtime_ns": 1794148004281927591,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-0/effective-config.json",
+      "sha256": "0e7fa25030f4841727e904a7a1dd8b129158743d97487df70ea1ce3ec5f854b7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt7-1/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794148004448474650,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-0/failure-contact-status.bin",
+      "sha256": "f8ff70d3d55a0c75e6ad1dd8d2a979289e3cbc17519542134f94be7fa876606e"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148004448285985,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-0/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148004448387526,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-0/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148004448333027,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-0/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt7-1/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794148004448431525,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-0/failure-world-status.bin",
+      "sha256": "7774d9b7933f94066850a2fe56454ca1996e369bcbe22be37435e46799f6cda8"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794148004448529524,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-0/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794148004281714844,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-0/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148004281781843,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-0/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148004281878634,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-0/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148004281830467,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-0/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794148004448552399,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-0/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt7-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794148004447840366,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-0-capture.bin",
+      "sha256": "915416ed9bedc51bfbbb8fabf2a6c4b1ff3cefea32cbe96dc23876aa09c51272"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/7acd3ed63181e0e7c386b6637564fdd6a45160e9ac39e14fb84c43529d0cdf22.gz"
+      },
+      "bytes": 86191,
+      "mode": 420,
+      "mtime_ns": 1794148004449962508,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-0.stderr",
+      "sha256": "7acd3ed63181e0e7c386b6637564fdd6a45160e9ac39e14fb84c43529d0cdf22"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148004270181728,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-0.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt7-1/effective-config.json"
+      },
+      "bytes": 162,
+      "mode": 420,
+      "mtime_ns": 1794148005334278407,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-1/effective-config.json",
+      "sha256": "0e7fa25030f4841727e904a7a1dd8b129158743d97487df70ea1ce3ec5f854b7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt7-1/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794148005499834269,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-1/failure-contact-status.bin",
+      "sha256": "f8ff70d3d55a0c75e6ad1dd8d2a979289e3cbc17519542134f94be7fa876606e"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148005499650021,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-1/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148005499744937,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-1/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148005499694896,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-1/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt7-1/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794148005499790519,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-1/failure-world-status.bin",
+      "sha256": "7774d9b7933f94066850a2fe56454ca1996e369bcbe22be37435e46799f6cda8"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794148005499892435,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-1/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794148005334028618,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-1/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148005334107493,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-1/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148005334222866,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-1/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148005334157284,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-1/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794148005499913685,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-1/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt7-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794148005499196318,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-1-capture.bin",
+      "sha256": "915416ed9bedc51bfbbb8fabf2a6c4b1ff3cefea32cbe96dc23876aa09c51272"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/b49c2f7c5a5fa75a6bb4271b075185aa007db3e6c6538b3bc04aea30ee3ca05c.gz"
+      },
+      "bytes": 86191,
+      "mode": 420,
+      "mtime_ns": 1794148005501327085,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-1.stderr",
+      "sha256": "b49c2f7c5a5fa75a6bb4271b075185aa007db3e6c6538b3bc04aea30ee3ca05c"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148005322062133,
+      "path": "build/crow-quality-tolerances-build-01/observations/opt7-1.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/strict-0/effective-config.json"
+      },
+      "bytes": 164,
+      "mode": 420,
+      "mtime_ns": 1794148003752139601,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-0/effective-config.json",
+      "sha256": "38181db032058e885c379c6015bdea5b99225340725381dec07694fba1d25b27"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/strict-0/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794148004054994820,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-0/failure-contact-status.bin",
+      "sha256": "672147c6a1822c8882227848139edb8646f7bde085987de79e98828029f37534"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148004054796614,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-0/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148004054899905,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-0/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148004054844322,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-0/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/strict-0/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794148004054948154,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-0/failure-world-status.bin",
+      "sha256": "6c7c369c4f8134f5e6b6584e5bf1b3da87b080b9d8eb58ddc7d352555c41b4af"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794148004055051570,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-0/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794148003751827646,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-0/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148003751917812,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-0/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148003752059018,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-0/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148003751987436,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-0/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794148004055075486,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-0/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/strict-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794148004054365911,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-0-capture.bin",
+      "sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/e08dbf2b210b42944bb6af835536a9331c94eb5a14ea2d005dbfaf8425325e98.gz"
+      },
+      "bytes": 86186,
+      "mode": 420,
+      "mtime_ns": 1794148004056576052,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-0.stderr",
+      "sha256": "e08dbf2b210b42944bb6af835536a9331c94eb5a14ea2d005dbfaf8425325e98"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148003728633041,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-0.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/strict-0/effective-config.json"
+      },
+      "bytes": 164,
+      "mode": 420,
+      "mtime_ns": 1794148005748865866,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-1/effective-config.json",
+      "sha256": "38181db032058e885c379c6015bdea5b99225340725381dec07694fba1d25b27"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/strict-0/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794148006035381734,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-1/failure-contact-status.bin",
+      "sha256": "672147c6a1822c8882227848139edb8646f7bde085987de79e98828029f37534"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148006035191820,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-1/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148006035295902,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-1/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148006035248361,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-1/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/strict-0/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794148006035342985,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-1/failure-world-status.bin",
+      "sha256": "6c7c369c4f8134f5e6b6584e5bf1b3da87b080b9d8eb58ddc7d352555c41b4af"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794148006035446817,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-1/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794148005748611952,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-1/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794148005748693910,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-1/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794148005748815033,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-1/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794148005748760992,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-1/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794148006035472567,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-1/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/strict-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794148006034739783,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-1-capture.bin",
+      "sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/2281321904735c6a00804c5b23ef157b979cefa3c2170325374e9d5a4c13dfa5.gz"
+      },
+      "bytes": 86186,
+      "mode": 420,
+      "mtime_ns": 1794148006036892592,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-1.stderr",
+      "sha256": "2281321904735c6a00804c5b23ef157b979cefa3c2170325374e9d5a4c13dfa5"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148005736892214,
+      "path": "build/crow-quality-tolerances-build-01/observations/strict-1.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/runtime/libmetalrobo.dylib"
+      },
+      "bytes": 5711408,
+      "mode": 493,
+      "mtime_ns": 1794140615665350233,
+      "path": "build/crow-quality-tolerances-build-01/runtime/libmetalrobo.dylib",
+      "sha256": "1368fa931e24c336953fcda6fb904734391f3ebe56063dd53eb237bcc1a3bbc6"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/runtime/metalrobo/MetalRobo.metallib"
+      },
+      "bytes": 4320928,
+      "mode": 420,
+      "mtime_ns": 1794145481837513944,
+      "path": "build/crow-quality-tolerances-build-01/runtime/metalrobo/MetalRobo.metallib",
+      "sha256": "91416d391489b37c1c79918c1ec51ad81dbaa26ef99e6536f8a57d9f720cf8d7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/api-default-1/scratch.f32x2"
+      },
+      "bytes": 64104,
+      "mode": 420,
+      "mtime_ns": 1794148006596825648,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/api-default-0/scratch.f32x2",
+      "sha256": "b18fe2411daeb835e9b78970c3832765c77b3fa46f200b2f9bb74af9a37345f6"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/api-default-1/status.bin"
+      },
+      "bytes": 128,
+      "mode": 420,
+      "mtime_ns": 1794148006596990771,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/api-default-0/status.bin",
+      "sha256": "dd8a9221bfa4e2da5f64d9425cf4949f3179bdd50f30c338a48d9a4f8311fe80"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148006367144450,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/api-default-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/01abc7dd536a21521b6069073e867026fcfbc14802737cea53d421e25bb31026.gz"
+      },
+      "bytes": 83,
+      "mode": 420,
+      "mtime_ns": 1794148006598052508,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/api-default-0.stdout",
+      "sha256": "01abc7dd536a21521b6069073e867026fcfbc14802737cea53d421e25bb31026"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/api-default-1/scratch.f32x2"
+      },
+      "bytes": 64104,
+      "mode": 420,
+      "mtime_ns": 1794148006707141279,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/api-default-1/scratch.f32x2",
+      "sha256": "b18fe2411daeb835e9b78970c3832765c77b3fa46f200b2f9bb74af9a37345f6"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/api-default-1/status.bin"
+      },
+      "bytes": 128,
+      "mode": 420,
+      "mtime_ns": 1794148006707290277,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/api-default-1/status.bin",
+      "sha256": "dd8a9221bfa4e2da5f64d9425cf4949f3179bdd50f30c338a48d9a4f8311fe80"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148006638606411,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/api-default-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/5a1876334d20628fe83a38bc2c40c2b0b0adfbcecb2094483ad4806ea9dd167a.gz"
+      },
+      "bytes": 82,
+      "mode": 420,
+      "mtime_ns": 1794148006708280849,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/api-default-1.stdout",
+      "sha256": "5a1876334d20628fe83a38bc2c40c2b0b0adfbcecb2094483ad4806ea9dd167a"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt6-1/scratch.f32x2"
+      },
+      "bytes": 64104,
+      "mode": 420,
+      "mtime_ns": 1794148006791377380,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/opt6-0/scratch.f32x2",
+      "sha256": "f529a1e7d26efbe0c9484c816efc780d20530b0501c22d91c882578d46425133"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt6-1/status.bin"
+      },
+      "bytes": 128,
+      "mode": 420,
+      "mtime_ns": 1794148006791518587,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/opt6-0/status.bin",
+      "sha256": "557a9afc3457e21d2ee8e648a374b8c079f4149d20dc26cc47830a6b5ac52ab6"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148006731728825,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/opt6-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/87420c2ab5f2c0324f9bd7b3d10aec3ae82f33ba9333f78353ef0570310cdfc1.gz"
+      },
+      "bytes": 84,
+      "mode": 420,
+      "mtime_ns": 1794148006792429493,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/opt6-0.stdout",
+      "sha256": "87420c2ab5f2c0324f9bd7b3d10aec3ae82f33ba9333f78353ef0570310cdfc1"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt6-1/scratch.f32x2"
+      },
+      "bytes": 64104,
+      "mode": 420,
+      "mtime_ns": 1794148006867223246,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/opt6-1/scratch.f32x2",
+      "sha256": "f529a1e7d26efbe0c9484c816efc780d20530b0501c22d91c882578d46425133"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt6-1/status.bin"
+      },
+      "bytes": 128,
+      "mode": 420,
+      "mtime_ns": 1794148006867357536,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/opt6-1/status.bin",
+      "sha256": "557a9afc3457e21d2ee8e648a374b8c079f4149d20dc26cc47830a6b5ac52ab6"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148006817579949,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/opt6-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/09d31ab60465d4ebff256e88e6922b66097ce57d02fe72231afee6f27862c941.gz"
+      },
+      "bytes": 84,
+      "mode": 420,
+      "mtime_ns": 1794148006868264275,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/opt6-1.stdout",
+      "sha256": "09d31ab60465d4ebff256e88e6922b66097ce57d02fe72231afee6f27862c941"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt7-1/scratch.f32x2"
+      },
+      "bytes": 64104,
+      "mode": 420,
+      "mtime_ns": 1794148006982709900,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/opt7-0/scratch.f32x2",
+      "sha256": "3a1679d6566b3dd73ed3cf54f52589227242fd7dd2822bae94baed80f6c91ab1"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt7-1/status.bin"
+      },
+      "bytes": 128,
+      "mode": 420,
+      "mtime_ns": 1794148006982866939,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/opt7-0/status.bin",
+      "sha256": "7f940d779c0d5b102ede3d372487075668c0a85e6443444d1c70bf1e46404cfe"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148006909937998,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/opt7-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/87e31f2308dc868163235a3769f1f00b132e68283492bcf3cf1e9c578b1952fc.gz"
+      },
+      "bytes": 80,
+      "mode": 420,
+      "mtime_ns": 1794148006983863136,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/opt7-0.stdout",
+      "sha256": "87e31f2308dc868163235a3769f1f00b132e68283492bcf3cf1e9c578b1952fc"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt7-1/scratch.f32x2"
+      },
+      "bytes": 64104,
+      "mode": 420,
+      "mtime_ns": 1794148007049252957,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/opt7-1/scratch.f32x2",
+      "sha256": "3a1679d6566b3dd73ed3cf54f52589227242fd7dd2822bae94baed80f6c91ab1"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt7-1/status.bin"
+      },
+      "bytes": 128,
+      "mode": 420,
+      "mtime_ns": 1794148007049377622,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/opt7-1/status.bin",
+      "sha256": "7f940d779c0d5b102ede3d372487075668c0a85e6443444d1c70bf1e46404cfe"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794148007002623292,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/opt7-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "gzip": "artifacts/crow-rl-git-recovery-quality-tolerances-20261108/recovery-blobs/c6f1bd03e2fc929e81101146342395d37065080ef4f4773d190a103b7ef6672e.gz"
+      },
+      "bytes": 84,
+      "mode": 420,
+      "mtime_ns": 1794148007050236154,
+      "path": "build/crow-quality-tolerances-build-01/split-observations/opt7-1.stdout",
+      "sha256": "c6f1bd03e2fc929e81101146342395d37065080ef4f4773d190a103b7ef6672e"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-runtime/probe"
+      },
+      "bytes": 58216,
+      "mode": 493,
+      "mtime_ns": 1794147686585358140,
+      "path": "build/crow-quality-tolerances-build-01/split-runtime/probe",
+      "sha256": "1b35245d3f1e30f68c6d8c68787f3d3f48c60389d8a23cefe7f2840b801b5d02"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-runtime/solver.metallib"
+      },
+      "bytes": 33531,
+      "mode": 420,
+      "mtime_ns": 1794147686585671803,
+      "path": "build/crow-quality-tolerances-build-01/split-runtime/solver.metallib",
+      "sha256": "6b34834a05484be152b963a9ffa0166b2b8ea6b1a296e4d768e46c7c4dc11b8e"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/api-default-reference-g.f64"
+      },
+      "bytes": 272,
+      "mode": 420,
+      "mtime_ns": 1794147616193986418,
+      "path": "original/build/crow-quality-tolerances-build-01/analysis/api-default-reference-g.f64",
+      "sha256": "6beb17fafc8c8a91846c9aa261a131986146a1d22cadd6a32fd76c0d02837881"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/api-default-reference-p.f64"
+      },
+      "bytes": 3840,
+      "mode": 420,
+      "mtime_ns": 1794147616193935627,
+      "path": "original/build/crow-quality-tolerances-build-01/analysis/api-default-reference-p.f64",
+      "sha256": "de952c381d1bba4bd53471be1a9dfb56684cf6fb33b9324bb05fb998a3d03056"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/api-default-reference-v.f64"
+      },
+      "bytes": 272,
+      "mode": 420,
+      "mtime_ns": 1794147616193875586,
+      "path": "original/build/crow-quality-tolerances-build-01/analysis/api-default-reference-v.f64",
+      "sha256": "d47ba9633ac9216cb8936f3df865ee141f187ae07daa1eb4f34b7e3341699bd2"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/api-default-split-input.bin"
+      },
+      "bytes": 92608,
+      "mode": 420,
+      "mtime_ns": 1794147616143816919,
+      "path": "original/build/crow-quality-tolerances-build-01/analysis/api-default-split-input.bin",
+      "sha256": "ffd64212875b85943e58079dd9c08faf4546473b0e0052cbc07ab3d21517c0d8"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/opt6-reference-g.f64"
+      },
+      "bytes": 272,
+      "mode": 420,
+      "mtime_ns": 1794147616212485369,
+      "path": "original/build/crow-quality-tolerances-build-01/analysis/opt6-reference-g.f64",
+      "sha256": "2ac4bd1dc70bf4c0dc339fbeb0e70cbbdd1b527569a2429799cdb694cea26daa"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/opt6-reference-p.f64"
+      },
+      "bytes": 3840,
+      "mode": 420,
+      "mtime_ns": 1794147616212435619,
+      "path": "original/build/crow-quality-tolerances-build-01/analysis/opt6-reference-p.f64",
+      "sha256": "b2adc3085db75c58a453eb86fb047bd0c503152723d752b840dc275c9eb9885c"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/opt6-reference-v.f64"
+      },
+      "bytes": 272,
+      "mode": 420,
+      "mtime_ns": 1794147616212384245,
+      "path": "original/build/crow-quality-tolerances-build-01/analysis/opt6-reference-v.f64",
+      "sha256": "f528a74cbde84e6a98a9bd38cd6e92ef78d6b1b3d9023ae7baea0fbbb897934b"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/opt6-split-input.bin"
+      },
+      "bytes": 92608,
+      "mode": 420,
+      "mtime_ns": 1794147616194197999,
+      "path": "original/build/crow-quality-tolerances-build-01/analysis/opt6-split-input.bin",
+      "sha256": "6a22c81c02c2647475bc7319665ef6cf89d00ec2766dabcc5be0aeb904c6e047"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/opt7-reference-g.f64"
+      },
+      "bytes": 272,
+      "mode": 420,
+      "mtime_ns": 1794147616236336299,
+      "path": "original/build/crow-quality-tolerances-build-01/analysis/opt7-reference-g.f64",
+      "sha256": "0727085b03ac1a53054ccbbad755fe53ca27bfe96b695a0cebcaa7b4e78448e3"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/opt7-reference-p.f64"
+      },
+      "bytes": 3840,
+      "mode": 420,
+      "mtime_ns": 1794147616236287633,
+      "path": "original/build/crow-quality-tolerances-build-01/analysis/opt7-reference-p.f64",
+      "sha256": "7abcb4d1881a894bad0781f23bdbca0b236613d8436e5f36c044a44c13b1a0eb"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/opt7-reference-v.f64"
+      },
+      "bytes": 272,
+      "mode": 420,
+      "mtime_ns": 1794147616236236258,
+      "path": "original/build/crow-quality-tolerances-build-01/analysis/opt7-reference-v.f64",
+      "sha256": "dd681ab24ef95a488db10e331b239064c14a5359bddf5145fb74c33fdf89548d"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/analysis/opt7-split-input.bin"
+      },
+      "bytes": 92608,
+      "mode": 420,
+      "mtime_ns": 1794147616212653575,
+      "path": "original/build/crow-quality-tolerances-build-01/analysis/opt7-split-input.bin",
+      "sha256": "bda485334c51ac0e482414b1837a2858a9106897fad1b10e3e48f9e2a8016729"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147511044117216,
+      "path": "original/build/crow-quality-tolerances-build-01/build.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147511044077967,
+      "path": "original/build/crow-quality-tolerances-build-01/build.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/crow-fixture"
+      },
+      "bytes": 102144,
+      "mode": 493,
+      "mtime_ns": 1794147512347894810,
+      "path": "original/build/crow-quality-tolerances-build-01/crow-fixture",
+      "sha256": "bf8ad775f9d2f74643432eccd00544d0cc16d1cd74651c22165b7911a9433aeb"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/api-default-1/effective-config.json"
+      },
+      "bytes": 169,
+      "mode": 420,
+      "mtime_ns": 1794147531389435796,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-0/effective-config.json",
+      "sha256": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794147531543914954,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-0/failure-contact-status.bin",
+      "sha256": "94edf90647ce0b4ae11d90ceef34e1e5bd6f6fa115a8363d54c08c800c37dbfb"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147531543726873,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-0/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147531543818580,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-0/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147531543777539,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-0/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794147531543867204,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-0/failure-world-status.bin",
+      "sha256": "99b2c25dd33282fe5e03992a02999c5333dd81efee6c0edb9e9a88e74d8bf9be"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794147531543966536,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-0/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794147531389257423,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-0/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147531389318881,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-0/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147531389397838,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-0/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147531389354172,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-0/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794147531543989453,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-0/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/api-default-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794147531543297878,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-0-capture.bin",
+      "sha256": "6399bf825f83b883e55f699b877f3cba827bb2501deee85a4a423e8547f39e3a"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/api-default-0.stderr"
+      },
+      "bytes": 86062,
+      "mode": 420,
+      "mtime_ns": 1794147531545775015,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-0.stderr",
+      "sha256": "d4b5d9a1ff73d7ca712ec13123c348326adec094f031350f1fc0de18fe288bda"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147531378363967,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-0.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/api-default-1/effective-config.json"
+      },
+      "bytes": 169,
+      "mode": 420,
+      "mtime_ns": 1794147532864475310,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-1/effective-config.json",
+      "sha256": "c0598c67c8118f1374424d5056d9defefab4ea90eb6c068d1016199eee89351c"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794147533039423020,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-1/failure-contact-status.bin",
+      "sha256": "94edf90647ce0b4ae11d90ceef34e1e5bd6f6fa115a8363d54c08c800c37dbfb"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147533039238689,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-1/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147533039333563,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-1/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147533039288314,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-1/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794147533039379312,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-1/failure-world-status.bin",
+      "sha256": "99b2c25dd33282fe5e03992a02999c5333dd81efee6c0edb9e9a88e74d8bf9be"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794147533039477770,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-1/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794147532864220479,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-1/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147532864304687,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-1/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147532864415644,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-1/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147532864359186,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-1/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794147533039499894,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-1/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/api-default-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794147533038792361,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-1-capture.bin",
+      "sha256": "6399bf825f83b883e55f699b877f3cba827bb2501deee85a4a423e8547f39e3a"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/api-default-1.stderr"
+      },
+      "bytes": 86062,
+      "mode": 420,
+      "mtime_ns": 1794147533040913086,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-1.stderr",
+      "sha256": "01da6ca98bbdef74be0154d0d20255fcbc65a51398d5a69fae32e149d6a47de3"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147532852759571,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/api-default-1.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/calibration.stderr"
+      },
+      "bytes": 84324,
+      "mode": 420,
+      "mtime_ns": 1794147530972583364,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/calibration.stderr",
+      "sha256": "d6eef41d1279ffa049387e5176504f944541e012df2a34ef49dc24a6ae943fe8"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/calibration.stdout"
+      },
+      "bytes": 245,
+      "mode": 420,
+      "mtime_ns": 1794147530979955195,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/calibration.stdout",
+      "sha256": "2b71af5bc0f5f56fbdaf8055ec1f0425ff60049e10161e5a5d865f0b9c49927a"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/effective-config.json"
+      },
+      "bytes": 162,
+      "mode": 420,
+      "mtime_ns": 1794147531809166862,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-0/effective-config.json",
+      "sha256": "f72cc6b3e0a27e108a42d5347cf0fa268027bf56916a5059ef1dedbf2190d5bc"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794147531980627821,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-0/failure-contact-status.bin",
+      "sha256": "94edf90647ce0b4ae11d90ceef34e1e5bd6f6fa115a8363d54c08c800c37dbfb"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147531980455073,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-0/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147531980534781,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-0/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147531980495364,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-0/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794147531980583488,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-0/failure-world-status.bin",
+      "sha256": "99b2c25dd33282fe5e03992a02999c5333dd81efee6c0edb9e9a88e74d8bf9be"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794147531980684737,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-0/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794147531808967614,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-0/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147531809036405,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-0/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147531809121862,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-0/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147531809078738,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-0/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794147531980707570,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-0/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794147531980046870,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-0-capture.bin",
+      "sha256": "dffad96bd5817ab6b39f7d2a497f8315ab5f77abb6def512dce3049c284c2464"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-0.stderr"
+      },
+      "bytes": 86062,
+      "mode": 420,
+      "mtime_ns": 1794147531982157470,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-0.stderr",
+      "sha256": "79880fa6055f917ec6e6bfa65311fcfe7c85bb7d86523a9453b16f19ec46db46"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147531797881452,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-0.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/effective-config.json"
+      },
+      "bytes": 162,
+      "mode": 420,
+      "mtime_ns": 1794147532442535978,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-1/effective-config.json",
+      "sha256": "f72cc6b3e0a27e108a42d5347cf0fa268027bf56916a5059ef1dedbf2190d5bc"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794147532608201672,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-1/failure-contact-status.bin",
+      "sha256": "94edf90647ce0b4ae11d90ceef34e1e5bd6f6fa115a8363d54c08c800c37dbfb"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147532608017591,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147532608113256,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147532608064174,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794147532608157798,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-1/failure-world-status.bin",
+      "sha256": "99b2c25dd33282fe5e03992a02999c5333dd81efee6c0edb9e9a88e74d8bf9be"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794147532608264630,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794147532442314856,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147532442392147,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-1/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147532442487562,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-1/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147532442442604,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-1/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794147532608285213,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794147532607569888,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-1-capture.bin",
+      "sha256": "dffad96bd5817ab6b39f7d2a497f8315ab5f77abb6def512dce3049c284c2464"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1.stderr"
+      },
+      "bytes": 86062,
+      "mode": 420,
+      "mtime_ns": 1794147532609703405,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-1.stderr",
+      "sha256": "a56c5087761987612cf530ce6270449572f29368efbedba75fe6ed8082863b87"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147532430549243,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt5-1.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt6-1/effective-config.json"
+      },
+      "bytes": 162,
+      "mode": 420,
+      "mtime_ns": 1794147532019342912,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-0/effective-config.json",
+      "sha256": "15e8487bbb761a43da9ec6b05ea4cc600e44d23855080f3e041445fbc7350b6f"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt6-1/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794147532163121985,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-0/failure-contact-status.bin",
+      "sha256": "dd0f5e0df7c0aed7286f947a5337bdf5fa6e616aa1d17dc9f988cbc264d14f40"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147532162954238,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-0/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147532163042820,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-0/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147532163003195,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-0/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt6-1/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794147532163085569,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-0/failure-world-status.bin",
+      "sha256": "268fba8e9b4c849d742e8737ebdb2bc64bc1f2e4f179214cffa6707937212cd6"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794147532163171152,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-0/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794147532019159164,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-0/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147532019211913,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-0/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147532019299329,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-0/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147532019257788,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-0/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794147532163196901,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-0/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt6-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794147532162537576,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-0-capture.bin",
+      "sha256": "01862ed69e7cbc99a9ccc4aeba7d6c180ef684fb61bff093078731a42a1f4f4f"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt6-0.stderr"
+      },
+      "bytes": 86062,
+      "mode": 420,
+      "mtime_ns": 1794147532164620677,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-0.stderr",
+      "sha256": "3a33ea697c77b268b89ec52c620a472d8846f43af35996b1c9c464a20845d667"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147532008466247,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-0.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt6-1/effective-config.json"
+      },
+      "bytes": 162,
+      "mode": 420,
+      "mtime_ns": 1794147532232744674,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-1/effective-config.json",
+      "sha256": "15e8487bbb761a43da9ec6b05ea4cc600e44d23855080f3e041445fbc7350b6f"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt6-1/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794147532387707576,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-1/failure-contact-status.bin",
+      "sha256": "dd0f5e0df7c0aed7286f947a5337bdf5fa6e616aa1d17dc9f988cbc264d14f40"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147532387529411,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-1/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147532387621035,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-1/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147532387581369,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-1/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt6-1/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794147532387668535,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-1/failure-world-status.bin",
+      "sha256": "268fba8e9b4c849d742e8737ebdb2bc64bc1f2e4f179214cffa6707937212cd6"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794147532387770492,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-1/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794147532232504593,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-1/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147532232579509,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-1/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147532232689925,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-1/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147532232636009,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-1/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794147532387791450,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-1/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt6-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794147532387068208,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-1-capture.bin",
+      "sha256": "01862ed69e7cbc99a9ccc4aeba7d6c180ef684fb61bff093078731a42a1f4f4f"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt6-1.stderr"
+      },
+      "bytes": 86062,
+      "mode": 420,
+      "mtime_ns": 1794147532389222433,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-1.stderr",
+      "sha256": "23dab238b05ab325ce23bc5b8cdd1f457e36679995cee972e9982fd0fe6d3871"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147532219548369,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt6-1.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt7-1/effective-config.json"
+      },
+      "bytes": 162,
+      "mode": 420,
+      "mtime_ns": 1794147531599314975,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-0/effective-config.json",
+      "sha256": "0e7fa25030f4841727e904a7a1dd8b129158743d97487df70ea1ce3ec5f854b7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt7-1/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794147531762769944,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-0/failure-contact-status.bin",
+      "sha256": "f8ff70d3d55a0c75e6ad1dd8d2a979289e3cbc17519542134f94be7fa876606e"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147531762578738,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-0/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147531762676320,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-0/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147531762630946,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-0/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt7-1/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794147531762727278,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-0/failure-world-status.bin",
+      "sha256": "7774d9b7933f94066850a2fe56454ca1996e369bcbe22be37435e46799f6cda8"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794147531762831360,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-0/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794147531599084394,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-0/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147531599168185,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-0/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147531599267642,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-0/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147531599215184,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-0/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794147531762856235,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-0/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt7-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794147531762144993,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-0-capture.bin",
+      "sha256": "915416ed9bedc51bfbbb8fabf2a6c4b1ff3cefea32cbe96dc23876aa09c51272"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt7-0.stderr"
+      },
+      "bytes": 86065,
+      "mode": 420,
+      "mtime_ns": 1794147531764334093,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-0.stderr",
+      "sha256": "bc05e420e6a4363896b660f227958db813e46571cbca9ca84e6ddbe31ce05fcd"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147531587098492,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-0.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt7-1/effective-config.json"
+      },
+      "bytes": 162,
+      "mode": 420,
+      "mtime_ns": 1794147532652822569,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-1/effective-config.json",
+      "sha256": "0e7fa25030f4841727e904a7a1dd8b129158743d97487df70ea1ce3ec5f854b7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt7-1/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794147532812372542,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-1/failure-contact-status.bin",
+      "sha256": "f8ff70d3d55a0c75e6ad1dd8d2a979289e3cbc17519542134f94be7fa876606e"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147532812185919,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-1/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147532812284335,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-1/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147532812235252,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-1/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt7-1/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794147532812333126,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-1/failure-world-status.bin",
+      "sha256": "7774d9b7933f94066850a2fe56454ca1996e369bcbe22be37435e46799f6cda8"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794147532812425416,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-1/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794147532652649279,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-1/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147532652706320,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-1/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147532652783694,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-1/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147532652744945,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-1/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794147532812443833,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-1/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt7-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794147532811721716,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-1-capture.bin",
+      "sha256": "915416ed9bedc51bfbbb8fabf2a6c4b1ff3cefea32cbe96dc23876aa09c51272"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt7-1.stderr"
+      },
+      "bytes": 86065,
+      "mode": 420,
+      "mtime_ns": 1794147532813870316,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-1.stderr",
+      "sha256": "c598daadf853e9cc0535e1c4eff6f71cf77278386355c007e25b0a05cd3bd0a0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147532641665115,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/opt7-1.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/strict-0/effective-config.json"
+      },
+      "bytes": 164,
+      "mode": 420,
+      "mtime_ns": 1794147531078819792,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-0/effective-config.json",
+      "sha256": "38181db032058e885c379c6015bdea5b99225340725381dec07694fba1d25b27"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/strict-0/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794147531373778854,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-0/failure-contact-status.bin",
+      "sha256": "672147c6a1822c8882227848139edb8646f7bde085987de79e98828029f37534"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147531373576314,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-0/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147531373673688,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-0/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147531373629814,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-0/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/strict-0/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794147531373727646,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-0/failure-world-status.bin",
+      "sha256": "6c7c369c4f8134f5e6b6584e5bf1b3da87b080b9d8eb58ddc7d352555c41b4af"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794147531373832395,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-0/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794147531078345881,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-0/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147531078518587,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-0/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147531078726877,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-0/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147531078626128,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-0/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794147531373852478,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-0/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/strict-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794147531373102612,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-0-capture.bin",
+      "sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/strict-0.stderr"
+      },
+      "bytes": 86060,
+      "mode": 420,
+      "mtime_ns": 1794147531375286419,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-0.stderr",
+      "sha256": "3a5f832d38e56d8d0ffb37556d2b0980cc66c20855d9d2721f50e219f049abdc"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147531043469954,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-0.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/strict-0/effective-config.json"
+      },
+      "bytes": 164,
+      "mode": 420,
+      "mtime_ns": 1794147533074557194,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-1/effective-config.json",
+      "sha256": "38181db032058e885c379c6015bdea5b99225340725381dec07694fba1d25b27"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/strict-0/failure-contact-status.bin"
+      },
+      "bytes": 1152,
+      "mode": 420,
+      "mtime_ns": 1794147533341015421,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-1/failure-contact-status.bin",
+      "sha256": "672147c6a1822c8882227848139edb8646f7bde085987de79e98828029f37534"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147533340840632,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-1/failure-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147533340931589,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-1/failure-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147533340887673,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-1/failure-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/strict-0/failure-world-status.bin"
+      },
+      "bytes": 192,
+      "mode": 420,
+      "mtime_ns": 1794147533340972755,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-1/failure-world-status.bin",
+      "sha256": "6c7c369c4f8134f5e6b6584e5bf1b3da87b080b9d8eb58ddc7d352555c41b4af"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure.json"
+      },
+      "bytes": 178,
+      "mode": 420,
+      "mtime_ns": 1794147533341075421,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-1/failure.json",
+      "sha256": "fb0290946c7c329596e7d80e2d71f3f1ad2beca33b013883cd1a381782cb9d14"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/initial-geometry.json"
+      },
+      "bytes": 545,
+      "mode": 420,
+      "mtime_ns": 1794147533074349488,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-1/initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-q.f32"
+      },
+      "bytes": 368,
+      "mode": 420,
+      "mtime_ns": 1794147533074416779,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-1/initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-scene.bin"
+      },
+      "bytes": 1024,
+      "mode": 420,
+      "mtime_ns": 1794147533074512653,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-1/initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/failure-v.f32"
+      },
+      "bytes": 352,
+      "mode": 420,
+      "mtime_ns": 1794147533074468237,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-1/initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/opt5-1/trace.tsv"
+      },
+      "bytes": 104,
+      "mode": 420,
+      "mtime_ns": 1794147533341096629,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-1/trace.tsv",
+      "sha256": "0683495ecae84f4fa9e31f9230e6604e57a3863311f98d52750a6fbfec95a8b0"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/strict-0-capture.bin"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794147533340376054,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-1-capture.bin",
+      "sha256": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/observations/strict-1.stderr"
+      },
+      "bytes": 86060,
+      "mode": 420,
+      "mtime_ns": 1794147533342520737,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-1.stderr",
+      "sha256": "aee14fd9b1f076425426f92e79eb2eaa0278d2a8fe5c9a712653466a5956aeea"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147533063819819,
+      "path": "original/build/crow-quality-tolerances-build-01/observations/strict-1.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/runtime/libmetalrobo.dylib"
+      },
+      "bytes": 5711408,
+      "mode": 493,
+      "mtime_ns": 1794140615665350233,
+      "path": "original/build/crow-quality-tolerances-build-01/runtime/libmetalrobo.dylib",
+      "sha256": "1368fa931e24c336953fcda6fb904734391f3ebe56063dd53eb237bcc1a3bbc6"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/runtime/metalrobo/MetalRobo.metallib"
+      },
+      "bytes": 4320928,
+      "mode": 420,
+      "mtime_ns": 1794145481837513944,
+      "path": "original/build/crow-quality-tolerances-build-01/runtime/metalrobo/MetalRobo.metallib",
+      "sha256": "91416d391489b37c1c79918c1ec51ad81dbaa26ef99e6536f8a57d9f720cf8d7"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/api-default-1/scratch.f32x2"
+      },
+      "bytes": 64104,
+      "mode": 420,
+      "mtime_ns": 1794147719616023594,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/api-default-0/scratch.f32x2",
+      "sha256": "b18fe2411daeb835e9b78970c3832765c77b3fa46f200b2f9bb74af9a37345f6"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/api-default-1/status.bin"
+      },
+      "bytes": 128,
+      "mode": 420,
+      "mtime_ns": 1794147719616201925,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/api-default-0/status.bin",
+      "sha256": "dd8a9221bfa4e2da5f64d9425cf4949f3179bdd50f30c338a48d9a4f8311fe80"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147719159038213,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/api-default-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/api-default-0.stdout"
+      },
+      "bytes": 83,
+      "mode": 420,
+      "mtime_ns": 1794147719617395703,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/api-default-0.stdout",
+      "sha256": "495db61ff1ef40ebb6b022c14404c9e50202e0c6cf516e071ec2a554fd080a17"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/api-default-1/scratch.f32x2"
+      },
+      "bytes": 64104,
+      "mode": 420,
+      "mtime_ns": 1794147719716657795,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/api-default-1/scratch.f32x2",
+      "sha256": "b18fe2411daeb835e9b78970c3832765c77b3fa46f200b2f9bb74af9a37345f6"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/api-default-1/status.bin"
+      },
+      "bytes": 128,
+      "mode": 420,
+      "mtime_ns": 1794147719716827919,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/api-default-1/status.bin",
+      "sha256": "dd8a9221bfa4e2da5f64d9425cf4949f3179bdd50f30c338a48d9a4f8311fe80"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147719643255026,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/api-default-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/api-default-1.stdout"
+      },
+      "bytes": 83,
+      "mode": 420,
+      "mtime_ns": 1794147719717894573,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/api-default-1.stdout",
+      "sha256": "4302e522747f567fbdec408383ad866f2d8603163bd8e3183a30f908abe0cfe1"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt6-1/scratch.f32x2"
+      },
+      "bytes": 64104,
+      "mode": 420,
+      "mtime_ns": 1794147719776705554,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/opt6-0/scratch.f32x2",
+      "sha256": "f529a1e7d26efbe0c9484c816efc780d20530b0501c22d91c882578d46425133"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt6-1/status.bin"
+      },
+      "bytes": 128,
+      "mode": 420,
+      "mtime_ns": 1794147719776818011,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/opt6-0/status.bin",
+      "sha256": "557a9afc3457e21d2ee8e648a374b8c079f4149d20dc26cc47830a6b5ac52ab6"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147719736351483,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/opt6-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt6-0.stdout"
+      },
+      "bytes": 82,
+      "mode": 420,
+      "mtime_ns": 1794147719777613418,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/opt6-0.stdout",
+      "sha256": "fce5b6b922ee41f1af982f2efa9a96d594fd5ba5d974fe094fcbb5f9aceadc33"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt6-1/scratch.f32x2"
+      },
+      "bytes": 64104,
+      "mode": 420,
+      "mtime_ns": 1794147719818101696,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/opt6-1/scratch.f32x2",
+      "sha256": "f529a1e7d26efbe0c9484c816efc780d20530b0501c22d91c882578d46425133"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt6-1/status.bin"
+      },
+      "bytes": 128,
+      "mode": 420,
+      "mtime_ns": 1794147719818206612,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/opt6-1/status.bin",
+      "sha256": "557a9afc3457e21d2ee8e648a374b8c079f4149d20dc26cc47830a6b5ac52ab6"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147719785495952,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/opt6-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt6-1.stdout"
+      },
+      "bytes": 83,
+      "mode": 420,
+      "mtime_ns": 1794147719818867729,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/opt6-1.stdout",
+      "sha256": "0c5d87def630497ed5c4499203d5d9a531b2df7207f7c8451ca5ba7130c8425a"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt7-1/scratch.f32x2"
+      },
+      "bytes": 64104,
+      "mode": 420,
+      "mtime_ns": 1794147719871484532,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/opt7-0/scratch.f32x2",
+      "sha256": "3a1679d6566b3dd73ed3cf54f52589227242fd7dd2822bae94baed80f6c91ab1"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt7-1/status.bin"
+      },
+      "bytes": 128,
+      "mode": 420,
+      "mtime_ns": 1794147719871598114,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/opt7-0/status.bin",
+      "sha256": "7f940d779c0d5b102ede3d372487075668c0a85e6443444d1c70bf1e46404cfe"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147719833941387,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/opt7-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt7-0.stdout"
+      },
+      "bytes": 82,
+      "mode": 420,
+      "mtime_ns": 1794147719872223024,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/opt7-0.stdout",
+      "sha256": "99410a5583de3021c6cd177dc281e862124589b52c1e82894792f511bc66596c"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt7-1/scratch.f32x2"
+      },
+      "bytes": 64104,
+      "mode": 420,
+      "mtime_ns": 1794147719919182060,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/opt7-1/scratch.f32x2",
+      "sha256": "3a1679d6566b3dd73ed3cf54f52589227242fd7dd2822bae94baed80f6c91ab1"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt7-1/status.bin"
+      },
+      "bytes": 128,
+      "mode": 420,
+      "mtime_ns": 1794147719919283142,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/opt7-1/status.bin",
+      "sha256": "7f940d779c0d5b102ede3d372487075668c0a85e6443444d1c70bf1e46404cfe"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/build.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794147719882289740,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/opt7-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-observations/opt7-1.stdout"
+      },
+      "bytes": 82,
+      "mode": 420,
+      "mtime_ns": 1794147719919911343,
+      "path": "original/build/crow-quality-tolerances-build-01/split-observations/opt7-1.stdout",
+      "sha256": "c365749c7026bb6e002a5ed7c1eff6d28fa7f5ca4e7bd84e9b94676c54d10173"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-runtime/probe"
+      },
+      "bytes": 58216,
+      "mode": 493,
+      "mtime_ns": 1794147686585358140,
+      "path": "original/build/crow-quality-tolerances-build-01/split-runtime/probe",
+      "sha256": "1b35245d3f1e30f68c6d8c68787f3d3f48c60389d8a23cefe7f2840b801b5d02"
+    },
+    {
+      "backing": {
+        "original": "build/crow-quality-tolerances-build-01/split-runtime/solver.metallib"
+      },
+      "bytes": 33531,
+      "mode": 420,
+      "mtime_ns": 1794147686585671803,
+      "path": "original/build/crow-quality-tolerances-build-01/split-runtime/solver.metallib",
+      "sha256": "6b34834a05484be152b963a9ffa0166b2b8ea6b1a296e4d768e46c7c4dc11b8e"
+    }
+  ],
+  "root": "build/crow-quality-tolerances-recovery-01",
+  "schema": "crow-quality-tolerances-temporary-v1",
+  "source_manifest": "artifacts/crow-rl-quality-tolerances-20261108/payload/manifest.json",
+  "source_manifest_sha256": "af0b048104b552b9076b631bca1c9642fd075bffb549b9e235b96a9e092d467b"
+}

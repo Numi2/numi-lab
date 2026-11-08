@@ -1,0 +1,19 @@
+{
+  "all_passed": true,
+  "goal_complete": false,
+  "manifest_sha256": "af0b048104b552b9076b631bca1c9642fd075bffb549b9e235b96a9e092d467b",
+  "native_commands": 17,
+  "original_files_checked": 195,
+  "physical_and_numerical_files_exact": 154,
+  "production_changed": false,
+  "schema": "crow-quality-tolerances-git-recovery-v1",
+  "scientific_reports_exact": [
+    "case-analysis.json",
+    "result.json",
+    "exploratory-analysis.json",
+    "split-result.json"
+  ],
+  "seconds": 4.3098704580334015,
+  "temporary_bytes": 25921324,
+  "temporary_files": 429
+}
