@@ -1,0 +1,4 @@
+{
+  "swapusage": "vm.swapusage: total = 0.00M  used = 0.00M  free = 0.00M  (encrypted)",
+  "df": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 299967700 157381440    66% 3496761 1573814400    0%   /System/Volumes/Data\n"
+}
