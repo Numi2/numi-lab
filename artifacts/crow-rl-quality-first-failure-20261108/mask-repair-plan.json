@@ -1,0 +1,32 @@
+{
+  "change": "add MR_METAL_WORLD_CAPTURE_QUALITY_FAILURE to world knownFlags",
+  "held_fixed": [
+    "physical model",
+    "source states and target sequence",
+    "h=.02/32",
+    "solver tolerances 1e-10 optimality, 1e-7 feasibility",
+    "20 Newton / existing PCG and line search budgets",
+    "non-hybrid CCD",
+    "protected deployment policy"
+  ],
+  "new_native_budget": 10,
+  "parent_plan_sha256": "d06f703640cbb396d72623d45ffa0115125fbc4fea1a7bd7fc642095b94be4b3",
+  "physical_gates_and_prediction_unchanged": {
+    "default": "640 accepted default transitions; ten physical files exact",
+    "finite_controls": "576 native motor and 48 zero-gain physical records remain exact, GPU timing excluded only for 576; no capture on accepted conditions",
+    "noninterference": "all eleven crow physical/failure files exact against committed previous payload and between capture-off/on",
+    "protected_first_failure": "chunk 8 retains same first captured record as chunk 1 despite later encoded passes",
+    "public_boundary": "world status 11, quality status 7, control 0 substep 2, 20 Newton, 77 PCG, zero accepted transitions",
+    "replay": "isolated native dispatch of captured exact inputs reproduces status and computed failed iterate; unassigned padding identified separately"
+  },
+  "prior_failure_sha256": "5c4d70bc64450409820cec4ad55fd57f63abcd08d7bab8a897629f3d82f24428",
+  "purpose": "engineering instrument repair and replay of existing conditions",
+  "retained_previous_native_commands": 3,
+  "schema": "crow-quality-first-failure-mask-repair-v1",
+  "source_sha256": {
+    "artifacts/crow-rl-quality-first-failure-20261108/analyze_mask_fix.py": "44cadf97db32b9bbafa303fda7d894d94778a6710981c87b9c0f25fa08b2f5a0",
+    "artifacts/crow-rl-quality-first-failure-20261108/run_mask_fix.py": "d4308f380aa5e00a3cca4d13c7de30c221240105a29cc7530dcad32b9baa969c",
+    "src/metal/MetalWorld.metal": "76808bafadbdf8f7a46c61fa3f73f77e571c12fb656a5cb935415b52b2f3838f"
+  },
+  "stopping_rule": "First unexpected build, exit, noninterference, typed boundary, record range or physical comparison; preserve failures before any correction. No learner runs, tuning, promotion or new ecological claim."
+}

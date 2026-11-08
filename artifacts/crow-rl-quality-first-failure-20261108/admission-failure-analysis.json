@@ -1,0 +1,13 @@
+{
+  "failed_command": "native-576",
+  "native_commands_completed": 3,
+  "no_crow_candidate_executed": true,
+  "original_runtime_preserved": ".numi/retained-runtime/quality-first-failure-20261108",
+  "owners_passed": 2,
+  "published_physical_rows": 0,
+  "repair": "Admit only the declared diagnostic flag in the existing world validator; no physical equation, tolerance or iteration change",
+  "schema": "crow-quality-first-failure-mask-admission-v1",
+  "source": "src/metal/MetalWorld.metal validWorldDispatch knownFlags omitted the new inspection bit",
+  "typed_diagnosis": "host=17; status=12 aba=1 successful_substeps=0 failing_substep=invalid",
+  "verdict": "instrument_admission_fault"
+}

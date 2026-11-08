@@ -1,0 +1,45 @@
+[
+  {
+    "capture": "None",
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/quality-first-failure-20261108/ir-probe"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "loader_lines": [
+      "dyld[45297]: <EC4D07BC-49EB-39A9-B592-CDBBA4AC9E35> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/quality-first-failure-20261108/libmetalrobo.dylib"
+    ],
+    "name": "ir-owner",
+    "seconds": 0.734410666
+  },
+  {
+    "capture": "None",
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/quality-first-failure-20261108/contact-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/quality-first-failure-20261108/metalrobo/MetalRobo.metallib"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "loader_lines": [
+      "dyld[45298]: <EC4D07BC-49EB-39A9-B592-CDBBA4AC9E35> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/quality-first-failure-20261108/libmetalrobo.dylib"
+    ],
+    "name": "contact-owner",
+    "seconds": 19.395838708
+  },
+  {
+    "capture": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-first-failure-build-01/accepted-must-not-capture.bin",
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/quality-first-failure-20261108/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/quality-first-failure-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-first-failure-build-01/native.tsv",
+      "--native-drive"
+    ],
+    "exit_code": 1,
+    "expected_exit": 0,
+    "loader_lines": [
+      "dyld[45329]: <EC4D07BC-49EB-39A9-B592-CDBBA4AC9E35> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/quality-first-failure-20261108/libmetalrobo.dylib"
+    ],
+    "name": "native-576",
+    "seconds": 1.5180612499999988
+  }
+]
