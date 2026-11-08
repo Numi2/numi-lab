@@ -177,6 +177,20 @@ overwrites compiled SensorPack observation slots before policy inference. Live
 camera and root poses come from device buffers rather than a static camera
 approximation. One cooperative threadgroup reduces each environment/object
 track and temporal track state remains on the GPU.
+
+For a MetalWorld submission, the tracker reserves itself and its renderer
+while the host encodes the command. A host-side rejection before commit
+restores provisional cadence and frame metadata; a successful commit releases
+the reservation. During the reservation, competing render/encode, readback,
+tracker reset and renderer recompilation requests fail rather than observing or
+overwriting provisional host state. A second tracker cannot acquire the same
+renderer. Borrowed raw buffers and owner lifetime remain the caller's
+responsibility. This is a pre-commit guarantee only: command completion,
+per-environment physical rejection, GPU track/depth history and recurrent
+policy state require separate transaction qualification. Direct callers of
+the observation callback must use its paired begin/finish hooks if they need
+pre-commit abort behavior. The expanded C++ observation-program structure
+requires C++ clients to rebuild against the matching library.
 The same adapter can publish a SensorPack-authored ball-only masked-depth
 contract. Exact authored instance identities select pixels, invalid and
 non-selected pixels become calibrated far depth, and a device-resident ring

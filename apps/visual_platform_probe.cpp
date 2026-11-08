@@ -1,3 +1,6 @@
+#include <fstream>
+#include "metalrobo/RunProgram.hpp"
+#include <cstdlib>
 #include "metalrobo/FrankaWorld.hpp"
 #include "metalrobo/MetalWorldFamily.hpp"
 #include "metalrobo/VisualPlatform.hpp"
@@ -475,6 +478,11 @@ int main() {
         trackerConfig.maskedDepthJitterMeters = 0.15f;
         trackerConfig.maskedDepthNoiseSigmaMeters = 0.03f;
         trackerConfig.maskedDepthEdgeFlickerProbability = 0.15f;
+        if (std::getenv("NUMI_TEST_WORLD_TRANSACTION") != nullptr) {
+            trackerConfig.maskedDepthInstanceIds.clear();
+            trackerConfig.maskedDepthFrameOffsets.clear();
+            trackerConfig.maximumActorHistoryLength = 32u;
+        }
         require(
             tracker.compile(renderer, worlds, std::move(trackerConfig)),
             "device object tracker compile"
@@ -482,6 +490,202 @@ int main() {
         const metalrobo::MetalWorldDeviceObservationProgram
             trackerProgram = tracker.observationProgram();
         require(trackerProgram.valid(), "device object tracker program");
+        if (std::getenv("NUMI_TEST_TRACKER_LEASE") != nullptr) {
+            id<MTLDevice> testDevice = MTLCreateSystemDefaultDevice();
+            id<MTLCommandQueue> testQueue = [testDevice newCommandQueue];
+            id<MTLCommandBuffer> first = [testQueue commandBuffer];
+            id<MTLCommandBuffer> second = [testQueue commandBuffer];
+            require(first != nil && second != nil && trackerProgram.begin && trackerProgram.finish,
+                    "tracker lease setup");
+            auto incomplete = trackerProgram;
+            incomplete.begin = nullptr;
+            require(incomplete.configured() && !incomplete.valid(), "incomplete lease hooks admitted");
+            metalrobo::MetalHybridObjectTracker otherTracker;
+            metalrobo::MetalHybridObjectTrackerConfig otherConfig;
+            otherConfig.capacity = kEnvironmentCount;
+            otherConfig.cameraIndex = 0u;
+            otherConfig.rootBodyIndex = worldTemplate.engineModel.articulations.front().firstBody;
+            otherConfig.maximumActorHistoryLength = kActorHistoryLength;
+            otherConfig.bindings.push_back({
+                .instanceId = observations[0].identities[visibleIndex].y,
+                .actorFrameOffset = 0u,
+                .positionScale = 1.0f,
+                .velocityScale = 1.0f,
+                .minimumVisiblePixels = 1u,
+            });
+            require(otherTracker.compile(renderer, worlds, std::move(otherConfig)), "second tracker compile");
+            const auto otherProgram = otherTracker.observationProgram();
+            id<MTLBuffer> foreignBodies = [testDevice newBufferWithBytes:bodyStates.data()
+                length:bodyStates.size()*sizeof(MRBodyStateGPU) options:MTLResourceStorageModeShared];
+            id<MTLBuffer> foreignReset = [testDevice newBufferWithLength:kEnvironmentCount*sizeof(std::uint32_t)
+                options:MTLResourceStorageModeShared];
+            constexpr std::size_t foreignValues = kEnvironmentCount*kActorFrameSize*kActorHistoryLength;
+            id<MTLBuffer> foreignHistory = [testDevice newBufferWithLength:foreignValues*sizeof(float)
+                options:MTLResourceStorageModeShared];
+            id<MTLBuffer> foreignOutput = [testDevice newBufferWithLength:foreignValues*sizeof(float)
+                options:MTLResourceStorageModeShared];
+            require(foreignBodies && foreignReset && foreignHistory && foreignOutput, "foreign buffers");
+            std::memset(foreignReset.contents, 0, foreignReset.length);
+            std::memset(foreignHistory.contents, 0, foreignHistory.length);
+            std::memset(foreignOutput.contents, 0, foreignOutput.length);
+            metalrobo::MetalWorldDeviceObservationPass foreignPass{
+                .commandBuffer=(__bridge void*)second,
+                .currentBodies=(__bridge void*)foreignBodies,
+                .resetMasks=(__bridge void*)foreignReset,
+                .actorHistory=(__bridge void*)foreignHistory,
+                .actorObservations=(__bridge void*)foreignOutput,
+                .environmentCount=kEnvironmentCount,
+                .bodyCount=static_cast<std::uint32_t>(worldTemplate.engineModel.bodies.size()),
+                .actorFrameSize=kActorFrameSize,
+                .actorHistoryLength=kActorHistoryLength,
+                .actorObservationSize=kActorFrameSize*kActorHistoryLength,
+            };
+            metalrobo::HybridObservationBatch before, after;
+            require(renderer.readback(before), "lease initial readback");
+            require(trackerProgram.begin(trackerProgram.context, (__bridge void*)first), "lease begin");
+            require(!trackerProgram.begin(trackerProgram.context, (__bridge void*)second), "overlapping tracker lease admitted");
+            require(!otherProgram.begin(otherProgram.context, (__bridge void*)second), "shared renderer lease admitted");
+            require(!otherProgram.encode(otherProgram.context, foreignPass), "foreign unleased encode admitted");
+            require(!renderer.readback(after).succeeded(), "provisional renderer metadata was readable");
+            require(!tracker.reset().succeeded(), "tracker reset during lease was admitted");
+            require(!renderer.renderLive(worlds, liveState, 0u).succeeded(), "competing renderer admitted");
+            trackerProgram.finish(trackerProgram.context, (__bridge void*)second, false);
+            require(!tracker.reset().succeeded(), "wrong command released tracker lease");
+            trackerProgram.finish(trackerProgram.context, (__bridge void*)first, false);
+            require(renderer.readback(after), "lease post-abort readback");
+            require(std::memcmp(&before.metadata, &after.metadata, sizeof(before.metadata)) == 0,
+                    "lease abort changed frame metadata");
+            require(trackerProgram.begin(trackerProgram.context, (__bridge void*)second), "tracker lease not released");
+            trackerProgram.finish(trackerProgram.context, (__bridge void*)second, false);
+            require(otherProgram.encode(otherProgram.context, foreignPass), "foreign encode still rejected after release");
+            std::cout << "observation_lease_exclusion_and_abort=pass\n";
+            return 0;
+        }
+        if (std::getenv("NUMI_TEST_WORLD_TRANSACTION") != nullptr) {
+            using namespace metalrobo;
+            RunManifest manifest;
+            manifest.id = "tracker_world_rejection_probe";
+            manifest.robot = *builtinRobotPack("franka_panda");
+            manifest.scene = makeFrankaPickPlaceScenePack();
+            manifest.sensors.id = "franka_default_sensors";
+            manifest.task = makeFrankaPickPlaceTaskPack(manifest.sensors.observation, manifest.reality.reset);
+            manifest.reality.id = "nominal_reality";
+            manifest.profile.id = "franka_probe";
+            manifest.profile.environmentCount = kEnvironmentCount;
+            manifest.profile.controlSteps = 1u;
+            manifest.profile.physicsSubsteps = 4u;
+            manifest.profile.controlTimestepSeconds = 0.02f;
+            manifest.teacher.id = "no_teacher";
+            CompiledRun run;
+            auto compile = compileRun(manifest, run);
+            require(compile.succeeded(), "Franka run compile: " + compile.message);
+            require(run.model().bodies.size() == worldTemplate.engineModel.bodies.size() &&
+                    run.model().bodyNames == worldTemplate.engineModel.bodyNames, "body identity mismatch");
+            for (std::size_t i=0;i<run.model().bodyNames.size();++i) {
+                std::cout << "body_binding " << i << " run=" << run.model().bodyNames[i]
+                          << " visual=" << worldTemplate.engineModel.bodyNames[i] << '\n';
+            }
+
+            const auto& layout=run.task().layout();
+            std::cout << "world_task_frame=" << layout.actorFrameSize << " history=" << layout.actorHistoryLength << " bodies=" << run.model().bodies.size() << '\n';
+            require(layout.actorFrameSize >= 7u && layout.actorHistoryLength <= 32u, "incompatible tracker layout");
+            std::vector<float> q(kEnvironmentCount * run.world().nq()), v(kEnvironmentCount * run.world().nv(), 0.0f);
+            std::vector<MRBodyStateGPU> scene;
+            for (std::uint32_t e=0; e<kEnvironmentCount; ++e) {
+                std::copy(run.model().defaultQ.begin(), run.model().defaultQ.end(), q.begin()+e*run.world().nq());
+                scene.insert(scene.end(), run.defaultSceneBodies().begin(), run.defaultSceneBodies().end());
+            }
+            std::vector<std::uint32_t> resetMasks(2u*kEnvironmentCount, 0u);
+            MetalWorldBatch batch{.environmentCount=kEnvironmentCount, .controlStepCount=1u,
+                .initialQ=q, .initialV=v, .policyRevision=1u,
+                .resetMasks=std::span<const std::uint32_t>{resetMasks.data(), kEnvironmentCount},
+                .initialSceneBodies=scene};
+            const char* rejection = std::getenv("NUMI_TEST_REJECT_ACTION");
+            struct ActionOwner {
+                int rejectStep;
+                MetalHybridRenderer* renderer;
+                MetalHybridObjectTracker* tracker;
+                bool checkedLease = false;
+            } action{rejection == nullptr ? -1 : (std::strcmp(rejection, "second") == 0 ? 1 : 0),
+                     &renderer, &tracker};
+            MetalWorldStepConfig config;
+            config.timestepSeconds=0.02f; config.physicsSubsteps=4u;
+            config.actuationMode=MetalWorldActuationMode::implicitPositionDrive;
+            config.taskProgram=run.task(); config.deviceObservationProgram=trackerProgram;
+            config.deviceActionProgram={.context=&action,
+                .encode=[](void* opaque, const MetalWorldDeviceActionPass& pass) noexcept -> bool {
+                    auto* owner = static_cast<ActionOwner*>(opaque);
+                    HybridObservationBatch blocked;
+                    if (owner->renderer->readback(blocked).succeeded() || owner->tracker->reset().succeeded()) return false;
+                    owner->checkedLease = true;
+                    if (owner->rejectStep == static_cast<int>(pass.controlStep)) return false;
+                    id<MTLCommandBuffer> cb=(__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+                    id<MTLBuffer> actions=(__bridge id<MTLBuffer>)pass.taskActions;
+                    id<MTLBlitCommandEncoder> blit=[cb blitCommandEncoder];
+                    if (!blit || !actions) return false;
+                    [blit fillBuffer:actions range:NSMakeRange(0, actions.length) value:0];
+                    [blit endEncoding]; return true;
+                }, .policyRevision=1u, .taskFingerprint=run.task().fingerprint(), .actionCount=layout.actionCount};
+            config.ccdMode=MetalWorldCCDMode::disabled;
+            MetalWorldContext context;
+            MetalWorldResidentState resident;
+            const bool residentMode = std::getenv("NUMI_TEST_RESIDENT_REJECT") != nullptr;
+            if (residentMode) {
+                const int desiredRejection = action.rejectStep;
+                action.rejectStep = -1;
+                MetalWorldSubmission first;
+                auto firstStatus = context.initializeResidentState(run.world(), batch, config, resident, first);
+                require(firstStatus.succeeded() && first.valid(), "resident setup submit");
+                MetalWorldResult firstResult;
+                firstStatus = first.wait(firstResult);
+                require(firstStatus.succeeded() && firstStatus.failedStepCount == 0u, "resident setup step");
+                action.rejectStep = desiredRejection;
+                batch.initialQ = {}; batch.initialV = {}; batch.initialSceneBodies = {};
+            }
+            if (action.rejectStep >= 0) {
+                MetalWorldResidentState discarded; MetalWorldSubmission rejected;
+                MetalWorldBatch rejectedBatch = batch;
+                if (action.rejectStep == 1) {
+                    rejectedBatch.controlStepCount = 2u;
+                    rejectedBatch.resetMasks = resetMasks;
+                }
+                auto r = residentMode
+                    ? context.submitResident(run.world(),rejectedBatch,config,resident,rejected)
+                    : context.initializeResidentState(run.world(),rejectedBatch,config,discarded,rejected);
+                std::cout << "rejected_submit=" << !r.succeeded() << " ticket=" << rejected.valid() << " message=" << r.message << '\n';
+                require(!r.succeeded() && !rejected.valid() && action.checkedLease &&
+                        r.message.find("device action program rejected") != std::string::npos,
+                        "expected later callback rejection with active lease");
+                action.rejectStep=-1;
+            }
+            MetalWorldSubmission submission;
+            auto r = residentMode
+                ? context.submitResident(run.world(),batch,config,resident,submission)
+                : context.initializeResidentState(run.world(),batch,config,resident,submission);
+            require(r.succeeded() && submission.valid(), "retry submit: " + r.message);
+            MetalWorldResult result; r=submission.wait(result);
+            std::cout << "retry_wait=" << r.succeeded() << " failed_steps=" << r.failedStepCount << " message=" << r.message << '\n';
+            require(r.succeeded() && r.failedStepCount==0u && action.checkedLease, "retry physical step failed");
+            HybridObservationBatch rendered; require(renderer.readback(rendered), "retry frame readback");
+            std::cout << "world_retry_sensor_sequence=" << rendered.metadata.identity.z << '\n';
+            require(rendered.metadata.identity.z==(residentMode ? 1u : 0u),
+                    "rejected world submission advanced sensor sequence");
+            if (const char* prefix = std::getenv("NUMI_TEST_RESULT_PREFIX")) {
+                auto save = [prefix](const char* suffix, const auto& data) {
+                    std::ofstream file(std::string(prefix) + suffix, std::ios::binary | std::ios::trunc);
+                    require(file.good(), "result file open failed");
+                    file.write(reinterpret_cast<const char*>(data.data()),
+                               static_cast<std::streamsize>(data.size()*sizeof(data[0])));
+                    file.close(); require(file.good(), "result file write failed");
+                };
+                save(".q", result.finalQ); save(".v", result.finalV);
+                save(".scene", result.finalSceneBodies); save(".actor", result.actorObservations);
+                save(".status", result.statuses);
+                std::cout << "saved_actor_values=" << result.actorObservations.size() << '\n';
+                require(!result.actorObservations.empty(), "missing actor observations");
+            }
+            return 0;
+        }
 
         id<MTLDevice> device = MTLCreateSystemDefaultDevice();
         id<MTLCommandQueue> queue = [device newCommandQueue];
@@ -740,6 +944,14 @@ int main() {
         [directFirst waitUntilCompleted];
         require(directFirst.status == MTLCommandBufferStatusCompleted,
                 "direct-winner first completion");
+        id<MTLCommandBuffer> directDiscarded = [queue commandBuffer];
+        auto directDiscardedPass = directPass;
+        directDiscardedPass.commandBuffer = (__bridge void*)directDiscarded;
+        require(directProgram.begin(directProgram.context, (__bridge void*)directDiscarded),
+                "direct-winner lease begin");
+        require(directProgram.encode(directProgram.context, directDiscardedPass),
+                "direct-winner provisional encode");
+        directProgram.finish(directProgram.context, (__bridge void*)directDiscarded, false);
         id<MTLCommandBuffer> directRejected = [queue commandBuffer];
         auto directRejectedPass = directPass;
         directRejectedPass.commandBuffer = (__bridge void*)directRejected;

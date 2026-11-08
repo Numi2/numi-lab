@@ -520,16 +520,27 @@ using MetalWorldDeviceObservationEncode = bool (*)(
     const MetalWorldDeviceObservationPass& pass
 );
 
+// Optional pre-commit ownership hooks. A successful begin reserves the
+// observation owner for this command until exactly one finish callback.
+// committed=false means the command will never be committed; committed=true
+// only means it was submitted, not that GPU work or physical steps succeeded.
+using MetalWorldDeviceObservationBegin = bool (*)(void*, void*) noexcept;
+using MetalWorldDeviceObservationFinish = void (*)(void*, void*, bool) noexcept;
+
 struct MetalWorldDeviceObservationProgram {
     void* context = nullptr;
     MetalWorldDeviceObservationEncode encode = nullptr;
+    MetalWorldDeviceObservationBegin begin = nullptr;
+    MetalWorldDeviceObservationFinish finish = nullptr;
 
     [[nodiscard]] bool valid() const noexcept {
-        return context != nullptr && encode != nullptr;
+        return context != nullptr && encode != nullptr &&
+            ((begin == nullptr) == (finish == nullptr));
     }
 
     [[nodiscard]] bool configured() const noexcept {
-        return context != nullptr || encode != nullptr;
+        return context != nullptr || encode != nullptr ||
+            begin != nullptr || finish != nullptr;
     }
 };
 

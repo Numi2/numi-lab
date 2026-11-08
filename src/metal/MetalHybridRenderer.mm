@@ -876,6 +876,8 @@ struct MetalHybridRendererState {
 
     MetalHybridRendererConfig config;
     mutable std::mutex mutex;
+    // Non-owning tracker lease, held only during host command encoding.
+    const void* observationOwner = nullptr;
     bool initialized = false;
     bool compiled = false;
     bool requiresLiveState = false;
@@ -2726,6 +2728,7 @@ struct EncodePassOptions {
     bool interpolateMotion = false;
     bool resourcesResident = false;
     bool bodyBuffersValidated = false;
+    const void* observationOwner = nullptr;
     const HybridDeviceObservationBuffers* outputs = nullptr;
 };
 
@@ -3177,6 +3180,12 @@ MetalHybridRendererDiagnostics encodeLocked(
     MetalHybridRendererDiagnostics diagnostics;
     diagnostics.layout = state.layout;
     diagnostics.deviceName = state.deviceName;
+    if (state.observationOwner != nullptr &&
+        state.observationOwner != options.observationOwner) {
+        return reject(std::move(diagnostics),
+                      MetalHybridRendererStatus::invalidConfiguration,
+                      "visual sensor is reserved by an observation submission");
+    }
     if (!state.compiled) {
         return reject(
             std::move(diagnostics),
@@ -4363,6 +4372,11 @@ MetalHybridRendererDiagnostics encodeReferenceFrameLocked(
     MetalHybridRendererDiagnostics diagnostics;
     diagnostics.layout = state.layout;
     diagnostics.deviceName = state.deviceName;
+    if (state.observationOwner != nullptr) {
+        return reject(std::move(diagnostics),
+                      MetalHybridRendererStatus::invalidConfiguration,
+                      "visual sensor is reserved by an observation submission");
+    }
     if (!state.compiled ||
         !state.rendererProfile.rayQueryVisibility ||
         state.primitiveAccelerationStructures == nil ||
@@ -4921,6 +4935,11 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::compile(
     }
     try {
         const std::lock_guard lock(state_->mutex);
+        if (state_->observationOwner != nullptr) {
+            return reject(std::move(diagnostics),
+                          MetalHybridRendererStatus::invalidConfiguration,
+                          "visual sensor is reserved by an observation submission");
+        }
         std::string reason;
         if (!scene.valid(&reason) || !profile.valid(&reason)) {
             return reject(
@@ -6187,6 +6206,10 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::render(
     }
     try {
         const std::lock_guard lock(state_->mutex);
+        if (state_->observationOwner != nullptr) {
+            return reject({}, MetalHybridRendererStatus::invalidConfiguration,
+                          "visual sensor is reserved by an observation submission");
+        }
         id<MTLCommandBuffer> command =
             [state_->queue commandBuffer];
         if (command == nil) {
@@ -6352,6 +6375,10 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::renderLive(
     }
     try {
         const std::lock_guard lock(state_->mutex);
+        if (state_->observationOwner != nullptr) {
+            return reject({}, MetalHybridRendererStatus::invalidConfiguration,
+                          "visual sensor is reserved by an observation submission");
+        }
         const std::size_t expected =
             static_cast<std::size_t>(
                 liveState.environmentCount
@@ -6535,6 +6562,10 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::encode(
     }
     try {
         const std::lock_guard lock(state_->mutex);
+        if (state_->observationOwner != nullptr) {
+            return reject({}, MetalHybridRendererStatus::invalidConfiguration,
+                          "visual sensor is reserved by an observation submission");
+        }
         HybridComputeEncoder encoder{
             (__bridge id<MTLComputeCommandEncoder>)
                 metalComputeCommandEncoder
@@ -6580,6 +6611,10 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::encodeGraph(
     }
     try {
         const std::lock_guard lock(state_->mutex);
+        if (state_->observationOwner != nullptr) {
+            return reject({}, MetalHybridRendererStatus::invalidConfiguration,
+                          "visual sensor is reserved by an observation submission");
+        }
         if (!callbacks.valid() ||
             state_->rendererProfile.rayQueryVisibility) {
             return reject(
@@ -6741,6 +6776,10 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::encodeFrame(
     }
     try {
         const std::lock_guard lock(state_->mutex);
+        if (state_->observationOwner != nullptr) {
+            return reject({}, MetalHybridRendererStatus::invalidConfiguration,
+                          "visual sensor is reserved by an observation submission");
+        }
         std::string reason;
         if (!motion.valid(&reason) ||
             !state_->compiled ||
@@ -7183,6 +7222,11 @@ MetalHybridRendererDiagnostics MetalHybridRenderer::readback(
     }
     try {
         const std::lock_guard lock(state_->mutex);
+        if (state_->observationOwner != nullptr) {
+            return reject(std::move(diagnostics),
+                          MetalHybridRendererStatus::invalidConfiguration,
+                          "visual sensor is reserved by an observation submission");
+        }
         diagnostics.layout = state_->layout;
         diagnostics.deviceName = state_->deviceName;
         if (!state_->config.retainObservationBuffers) {
@@ -7509,6 +7553,13 @@ void* MetalHybridRenderer::nativeBuffer(
 }
 
 struct MetalHybridObjectTracker::State {
+    std::mutex mutex;
+    void* pendingCommand = nullptr;
+    std::uint64_t savedObservationSequence = 0u;
+    std::uint64_t savedSensorSequence = 0u;
+    MRHybridRenderUniformsGPU savedRenderUniforms{};
+    MRVisualFrameMetadataGPU savedMetadata{};
+    std::uint32_t savedEnvironmentCount = 0u;
     MetalHybridRenderer* renderer = nullptr;
     const MetalWorldFamilyContext* worlds = nullptr;
     MetalHybridObjectTrackerConfig config;
@@ -7550,6 +7601,12 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
     try {
         if (state_ == nullptr) {
             state_ = std::make_unique<State>();
+        }
+        const std::lock_guard trackerLock(state_->mutex);
+        if (state_->pendingCommand != nullptr) {
+            return reject(std::move(diagnostics),
+                          MetalHybridRendererStatus::invalidConfiguration,
+                          "object tracker is reserved by an observation submission");
         }
         const MetalHybridRendererLayout layout = renderer.layout();
         if (renderer.state_ == nullptr ||
@@ -7808,7 +7865,16 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
 MetalHybridRendererDiagnostics MetalHybridObjectTracker::reset() {
     MetalHybridRendererDiagnostics diagnostics{};
     try {
-        if (state_ == nullptr || !state_->compiled ||
+        if (state_ == nullptr) {
+            return reject(std::move(diagnostics), MetalHybridRendererStatus::notCompiled,
+                          "object tracker is not compiled");
+        }
+        const std::lock_guard trackerLock(state_->mutex);
+        if (state_->pendingCommand != nullptr) {
+            return reject(std::move(diagnostics), MetalHybridRendererStatus::invalidConfiguration,
+                          "object tracker is reserved by an observation submission");
+        }
+        if (!state_->compiled ||
             state_->renderer == nullptr || state_->device == nil ||
             state_->history == nil ||
             state_->maskedDepthHistory == nil) {
@@ -7871,14 +7937,60 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::reset() {
     }
 }
 
+bool MetalHybridObjectTracker::beginObservation(void* context, void* command) noexcept {
+    auto* state = static_cast<State*>(context);
+    if (state == nullptr || command == nullptr) return false;
+    try {
+        const std::lock_guard trackerLock(state->mutex);
+        if (!state->compiled || state->pendingCommand != nullptr ||
+            state->renderer == nullptr || state->renderer->state_ == nullptr) return false;
+        auto& renderer = *state->renderer->state_;
+        const std::lock_guard rendererLock(renderer.mutex);
+        if (!renderer.compiled || renderer.observationOwner != nullptr) return false;
+        state->savedObservationSequence = state->observationSequence;
+        state->savedSensorSequence = state->lastSensorSequence;
+        state->savedRenderUniforms = state->maskedDepthRenderUniforms;
+        state->savedMetadata = renderer.activeMetadata;
+        state->savedEnvironmentCount = renderer.activeEnvironmentCount;
+        renderer.observationOwner = state;
+        state->pendingCommand = command;
+        return true;
+    } catch (...) { return false; }
+}
+
+void MetalHybridObjectTracker::finishObservation(void* context, void* command, bool committed) noexcept {
+    auto* state = static_cast<State*>(context);
+    if (state == nullptr) return;
+    try {
+        const std::lock_guard trackerLock(state->mutex);
+        if (state->pendingCommand != command || state->renderer == nullptr ||
+            state->renderer->state_ == nullptr) return;
+        auto& renderer = *state->renderer->state_;
+        const std::lock_guard rendererLock(renderer.mutex);
+        if (renderer.observationOwner != state) return;
+        if (!committed) {
+            state->observationSequence = state->savedObservationSequence;
+            state->lastSensorSequence = state->savedSensorSequence;
+            state->maskedDepthRenderUniforms = state->savedRenderUniforms;
+            renderer.activeMetadata = state->savedMetadata;
+            renderer.activeEnvironmentCount = state->savedEnvironmentCount;
+        }
+        renderer.observationOwner = nullptr;
+        state->pendingCommand = nullptr;
+    } catch (...) {}
+}
+
 bool MetalHybridObjectTracker::encodeObservation(
     void* context,
     const MetalWorldDeviceObservationPass& pass
 ) {
     auto* state = static_cast<State*>(context);
-    if (state == nullptr || !state->compiled ||
-        state->renderer == nullptr || state->worlds == nullptr ||
-        pass.commandBuffer == nullptr || pass.currentBodies == nullptr ||
+    if (state == nullptr) return false;
+    const std::lock_guard trackerLock(state->mutex);
+    if ((state->pendingCommand != nullptr && state->pendingCommand != pass.commandBuffer) ||
+        !state->compiled ||
+        state->renderer == nullptr || state->renderer->state_ == nullptr ||
+        state->worlds == nullptr || pass.commandBuffer == nullptr || pass.currentBodies == nullptr ||
         pass.resetMasks == nullptr || pass.actorHistory == nullptr ||
         pass.actorObservations == nullptr ||
         pass.environmentCount == 0u ||
@@ -7887,6 +7999,13 @@ bool MetalHybridObjectTracker::encodeObservation(
         pass.actorHistoryLength >
             state->config.maximumActorHistoryLength) {
         return false;
+    }
+    {
+        auto& renderer = *state->renderer->state_;
+        const std::lock_guard rendererLock(renderer.mutex);
+        if (renderer.observationOwner != nullptr && renderer.observationOwner != state) {
+            return false;
+        }
     }
     if (!state->config.bindings.empty() &&
         static_cast<std::uint64_t>(pass.actorFrameSize) *
@@ -7993,33 +8112,21 @@ bool MetalHybridObjectTracker::encodeObservation(
     }
     if (sampleSensor) {
         MetalHybridRendererDiagnostics rendered;
-        if (state->directWinnerMaskedDepth) {
+        {
             auto& rendererState = *state->renderer->state_;
             const std::lock_guard lock(rendererState.mutex);
             HybridComputeEncoder encoder{observationEncoder};
             EncodePassOptions options;
             options.currentBodyOffset = liveState.currentBodyOffset;
             options.previousBodyOffset = liveState.previousBodyOffset;
-            options.truthOnly = true;
-            options.geometricWinnersOnly = true;
-            options.encodedUniforms =
-                &candidateRenderUniforms;
-            rendered = encodeLocked(
-                rendererState,
-                *state->worlds,
-                liveState,
-                state->config.cameraIndex,
-                encoder,
-                options
-            );
-            candidateRenderUniforms.shadowBatch.w = 1u;
-        } else {
-            rendered = state->renderer->encode(
-                *state->worlds,
-                liveState,
-                state->config.cameraIndex,
-                (__bridge void*)observationEncoder
-            );
+            options.observationOwner = state->pendingCommand != nullptr ? state : nullptr;
+            options.truthOnly = state->directWinnerMaskedDepth ||
+                rendererState.config.geometricObservationsOnly;
+            options.geometricWinnersOnly = state->directWinnerMaskedDepth;
+            if (state->directWinnerMaskedDepth) options.encodedUniforms = &candidateRenderUniforms;
+            rendered = encodeLocked(rendererState, *state->worlds, liveState,
+                                    state->config.cameraIndex, encoder, options);
+            if (state->directWinnerMaskedDepth) candidateRenderUniforms.shadowBatch.w = 1u;
         }
         if (!rendered.succeeded()) {
             [observationEncoder endEncoding];
@@ -8225,12 +8332,17 @@ bool MetalHybridObjectTracker::encodeObservation(
 
 MetalWorldDeviceObservationProgram
 MetalHybridObjectTracker::observationProgram() noexcept {
-    return state_ != nullptr && state_->compiled
-        ? MetalWorldDeviceObservationProgram{
-              .context = state_.get(),
-              .encode = &MetalHybridObjectTracker::encodeObservation,
-          }
-        : MetalWorldDeviceObservationProgram{};
+    if (state_ == nullptr) return {};
+    try {
+        const std::lock_guard trackerLock(state_->mutex);
+        if (!state_->compiled) return {};
+        return MetalWorldDeviceObservationProgram{
+            .context = state_.get(),
+            .encode = &MetalHybridObjectTracker::encodeObservation,
+            .begin = &MetalHybridObjectTracker::beginObservation,
+            .finish = &MetalHybridObjectTracker::finishObservation,
+        };
+    } catch (...) { return {}; }
 }
 
 const char* metalHybridRendererStatusName(
