@@ -1,0 +1,124 @@
+{
+  "analysis": "Report every lane/arm and all failed predicates. Qualify the complete predefined mechanical gesture only if primary, causal controls and numerical checks all pass. No p-values; no selection or threshold changes. A failed validity gate is inconclusive; valid out-of-prediction outcomes are contradicted.",
+  "budget": {
+    "runs": 6,
+    "stop": "One execution per listed condition. Preserve failures and typed accepted rollback states. No retries, parameter tuning, learned policy promotion or production environment release. Further revision requires a new sealed plan and unused conditions.",
+    "timeout_seconds_each": 180,
+    "transitions": 3840,
+    "trial_output_maximum_bytes": 33554432
+  },
+  "limits": [
+    "Object starts between jaws: ground pickup/approach untested.",
+    "Rigid surrogate is not ingested food; mass transfer/swallowing absent.",
+    "Estimated geometry/friction/actuation lack biological calibration.",
+    "Diagnostic has no retinal-policy/learner/checkpoint continuation qualification.",
+    "Broad lifelong and social environment remains unfinished."
+  ],
+  "model_revision": "Use qualified translating sphere-box CCD correction. Keep crow geometry, rigid surrogate mass/radius/material and clamp/lift gesture. Open jaw to native action+0.6 at96 instead of returning to default0.23rad; the larger opening gives a forward-sloping lower beak under the held head pitch, predicting gravity-driven release. Remove unsupported direct-action world checkpoint request; retain actual physical end states and explicitly qualify no retinal-policy continuation.",
+  "parameters": {
+    "actions": "Pitch0 before32, -0.4 afterward. Clamp jaw-0.35 through95, +0.6 from96; open control jaw0 throughout. All18 other components0. Existing actuator dynamics, native effort limits and root support unchanged.",
+    "control_hz": 50,
+    "default_jaw_rad": 0.23,
+    "initial_pose_design": "From(0.215,0,0.26685), x\u00b10.00025 and z\u00b10.00015 in a full2x2 grid; y is\u00b10.00015 according to x sign. Initial gap checked independently for every lane.",
+    "lanes": 4,
+    "ownership": "Only initial q/v/scene upload, then ordinary resident solved contacts and native action authority. No attachment, latch, teleport, gravity exemption, food ledger or reset.",
+    "seed": 2651511101,
+    "sphere_mass_kg": 0.00025,
+    "sphere_radius_m": 0.004,
+    "ticks": 160
+  },
+  "parent": "artifacts/crow-rl-beak-hold-capture-20261108",
+  "physics_revision": "artifacts/crow-rl-ccd-translation-no-floor-20261108",
+  "prediction": {
+    "32_vs64_maximum_paired_object_position_difference_over_all160ticks_m": 0.005,
+    "chunk1_vs8_final_q_v_scene": "byte exact; no world checkpoint claim",
+    "controls": "Open and disabled-contact arms fail the hold/lift criterion in every matched lane. Disabled contact reports exactly zero jaw/object impulses. Zero object friction is predicted to fail hold/lift; if it succeeds, friction-dependence is contradicted and geometric trapping must be assessed.",
+    "each_positive_lane": {
+      "both_jaw_gaps_ticks128_159_m_at_least": 0.001,
+      "maximum_head_relative_slip_from_tick31_m": 0.005,
+      "maximum_sampled_penetration_ticks0_95_m": 0.0008,
+      "minimum_lift_ticks64_95_m": 0.02,
+      "opposed_normal_impulse_samples_ticks64_95_at_least": 16,
+      "release_drop_by_tick159_from_minimum_hold_height_m": 0.03
+    }
+  },
+  "purpose": "mechanical qualification on four unused initial object poses; predefined motor commands, no learning or biology",
+  "question": "Does physical clamp/lift/release survive four unused initial object poses, matched contact/friction controls, chunk partition and timestep refinement?",
+  "runtime_inputs": {
+    "build/crow-beak-hold-build-02/calibration-with-runtime.jsonl": {
+      "bytes": 175,
+      "sha256": "128b9f8aa02bffd90ccdc724c59b7ad6f74549efe41a492a63b968f047c485bd"
+    },
+    "build/crow-beak-hold-build-02/probe-with-runtime": {
+      "bytes": 99568,
+      "sha256": "ec7148a6454e792cf5ed06a4f92a6aa109a5775a2602528ab4a710234c40371b"
+    },
+    "build/crow-beak-hold-build-02/probe-with-runtime.mm": {
+      "bytes": 15943,
+      "sha256": "604f1b211d9ba28bf3ca04a2551bf5375f2034b4577855a4b7d7479fdd9fb6a7"
+    },
+    "build/crow-beak-hold-build-02/study.py": {
+      "bytes": 7907,
+      "sha256": "4b0fd4c587c5eafa6702fb39d1d359424337fbf1b44375875e193c4c17505641"
+    },
+    "build/lib/libmetalrobo.dylib": {
+      "bytes": 5693648,
+      "sha256": "cdca44609a3cee9747c96895ffff431702d685075621ec5013414910adfba49c"
+    },
+    "build/shaders/MetalRobo.metallib": {
+      "bytes": 4211378,
+      "sha256": "3fe0680c48604b8cd6fef6093381c17952d1242c6feeb325251e625b6ede4830"
+    },
+    "src/metal/Collision.metal": {
+      "bytes": 412074,
+      "sha256": "e20525d52010dae9492db83e03e37171fcda9f92a6ee00194e48bf4d890c5fbd"
+    }
+  },
+  "schema": "crow-native-beak-contact-unused-conditions-v3",
+  "source_commit": "5ea6f94835adb234a41ac1b534634d9a5a86f404",
+  "trials": [
+    {
+      "arm": 0,
+      "chunk": 1,
+      "name": "clamp",
+      "substeps": 32
+    },
+    {
+      "arm": 1,
+      "chunk": 1,
+      "name": "open",
+      "substeps": 32
+    },
+    {
+      "arm": 2,
+      "chunk": 1,
+      "name": "no-contact",
+      "substeps": 32
+    },
+    {
+      "arm": 3,
+      "chunk": 1,
+      "name": "zero-friction",
+      "substeps": 32
+    },
+    {
+      "arm": 0,
+      "chunk": 8,
+      "name": "partition",
+      "substeps": 32
+    },
+    {
+      "arm": 0,
+      "chunk": 1,
+      "name": "refinement",
+      "substeps": 64
+    }
+  ],
+  "validity": [
+    "All six runs and3840transitions accepted with no physical termination or native rejection.",
+    "All four initial signed gaps>20micrometres; all trace values finite.",
+    "Actual native dylib loader and exact shader/source identities pinned.",
+    "Four distinct deterministic physical initial conditions are not independent biological replicates.",
+    "Impulses sample the final microstep only; not integrated full-tick forces."
+  ]
+}
