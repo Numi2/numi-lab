@@ -1,0 +1,80 @@
+{
+  "baseline_equivalent_exposed_fields": true,
+  "replay_and_capture_checks": true,
+  "first_rejected_step_zero_based": 7,
+  "rod_row_observations_including_repeated_rejections": 40,
+  "max_relative_velocity_difference_m_per_s": 6.661710289304623e-10,
+  "max_equation_difference_m_per_s": 6.656710288782501e-10,
+  "first_failure_rows": [
+    {
+      "step": 7,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.011354684800000014,
+        0.9886453152
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.02222831361,
+        -0.9997529387,
+        0
+      ],
+      "relative_normal_fp64": 0.004488213848846132,
+      "relative_normal_gpu": 0.004488213453,
+      "normal_equation_fp64": -8.645055415386783e-05,
+      "normal_equation_gpu": -8.645094931e-05,
+      "relative_error": 3.958461319147899e-10,
+      "equation_error": 3.951561321674556e-10,
+      "impulse": 3.27708176e-06
+    },
+    {
+      "step": 7,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.98507464305,
+        0.01492535695
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.01835702732,
+        -0.9998314977,
+        0
+      ],
+      "relative_normal_fp64": 0.004807184997098491,
+      "relative_normal_gpu": 0.004807184916,
+      "normal_equation_fp64": 7.1401789098491e-05,
+      "normal_equation_gpu": 7.140170783e-05,
+      "relative_error": 8.109849163745464e-11,
+      "equation_error": 8.126849098733825e-11,
+      "impulse": 3.491526513e-06
+    }
+  ],
+  "nodal_inverse_mass_only_proxy": {
+    "matrix": [
+      [
+        1728.913325957702,
+        1720.7962726829287
+      ],
+      [
+        1720.7962726829287,
+        1716.7824239143954
+      ]
+    ],
+    "normalized_off_diagonal": 0.9988153696578101,
+    "omits": [
+      "rotating rod frame and radius",
+      "twist",
+      "implicit elastic rod factor",
+      "rigid-body response",
+      "friction coupling"
+    ]
+  }
+}
