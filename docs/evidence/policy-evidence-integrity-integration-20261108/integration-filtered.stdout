@@ -1,0 +1,6 @@
+Excluded known pre-existing G1 assertion: ['tests.policy_selection_test.PolicySelectionTest.test_zero_authority_teacher_is_removed_for_student_evaluation']
+..................................................
+----------------------------------------------------------------------
+Ran 50 tests in 1.755s
+
+OK

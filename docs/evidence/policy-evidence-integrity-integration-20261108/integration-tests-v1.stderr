@@ -1,0 +1,42 @@
+....................................E.........E..F.
+======================================================================
+ERROR: test_multifile_inputs_bypass_cache_and_missing_dependency_fails (tests.policy_selection_test.PolicySelectionTest.test_multifile_inputs_bypass_cache_and_missing_dependency_fails)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-reconciliation-20261108/tests/policy_selection_test.py", line 1372, in test_multifile_inputs_bypass_cache_and_missing_dependency_fails
+    _evaluate(evaluator, args, evidence)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/numi-lab-reconciliation-20261108/python/metalrobo/policy_selection.py", line 1371, in _evaluate
+    _validate_evaluation_source(arguments, record)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/numi-lab-reconciliation-20261108/python/metalrobo/policy_selection.py", line 650, in _validate_evaluation_source
+    raise ValueError("evaluator world source is missing or invalid")
+ValueError: evaluator world source is missing or invalid
+
+======================================================================
+ERROR: test_world_pack_replacement_and_missing_force_revalidation (tests.policy_selection_test.PolicySelectionTest.test_world_pack_replacement_and_missing_force_revalidation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-reconciliation-20261108/tests/policy_selection_test.py", line 1337, in test_world_pack_replacement_and_missing_force_revalidation
+    _evaluate(evaluator, args, evidence)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/numi-lab-reconciliation-20261108/python/metalrobo/policy_selection.py", line 1371, in _evaluate
+    _validate_evaluation_source(arguments, record)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/numi-lab-reconciliation-20261108/python/metalrobo/policy_selection.py", line 650, in _validate_evaluation_source
+    raise ValueError("evaluator world source is missing or invalid")
+ValueError: evaluator world source is missing or invalid
+
+======================================================================
+FAIL: test_zero_authority_teacher_is_removed_for_student_evaluation (tests.policy_selection_test.PolicySelectionTest.test_zero_authority_teacher_is_removed_for_student_evaluation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-reconciliation-20261108/tests/policy_selection_test.py", line 1003, in test_zero_authority_teacher_is_removed_for_student_evaluation
+    self.assertNotIn("--interaction-reset-only", arguments)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '--interaction-reset-only' unexpectedly found in ['--task', 'supine-get-up', '--interaction-pack', 'teacher.interactionpack', '--interaction-clip', 'stand', '--interaction-student-authority', '0', '--interaction-reset-only', '--envs', '256', '--steps', '103', '--repeats', '1', '--chunk', '1', '--no-periodic-resets', '--seed', '42', '--metallib', 'MetalRobo.metallib', '--policy-pack', 'candidate.policypack', '--state-trace', 'candidate.tsv']
+
+----------------------------------------------------------------------
+Ran 51 tests in 1.942s
+
+FAILED (failures=1, errors=2)

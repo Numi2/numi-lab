@@ -1,0 +1,69 @@
+.......................E......FFEF..
+======================================================================
+ERROR: test_matching_evidence_contract_is_resumable (tests.policy_selection_test.PolicySelectionTest.test_matching_evidence_contract_is_resumable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/policy_selection_test.py", line 982, in test_matching_evidence_contract_is_resumable
+    first = _evaluate(evaluator, arguments, evidence)
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/python/metalrobo/policy_selection.py", line 1113, in _evaluate
+    _validate_evaluation_source(arguments, record)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/python/metalrobo/policy_selection.py", line 526, in _validate_evaluation_source
+    raise ValueError("evaluator world source is missing or invalid")
+ValueError: evaluator world source is missing or invalid
+
+======================================================================
+ERROR: test_world_pack_reward_sign_change_cannot_buy_total_failure (tests.policy_selection_test.PolicySelectionTest.test_world_pack_reward_sign_change_cannot_buy_total_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/policy_selection_test.py", line 664, in test_world_pack_reward_sign_change_cannot_buy_total_failure
+    self.assertLessEqual(decision["selection_score"], 0.0)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.15/3.15.0/Frameworks/Python.framework/Versions/3.15/lib/python3.15/unittest/case.py", line 1325, in assertLessEqual
+    if not a <= b:
+           ^^^^^^
+TypeError: '<=' not supported between instances of 'NoneType' and 'float'
+
+======================================================================
+FAIL: test_world_pack_checkpoints_compare_to_one_incumbent (tests.policy_selection_test.PolicySelectionTest.test_world_pack_checkpoints_compare_to_one_incumbent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/policy_selection_test.py", line 691, in test_world_pack_checkpoints_compare_to_one_incumbent
+    self.assertEqual(champion, "best")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+AssertionError: 'incumbent' != 'best'
+- incumbent
++ best
+
+
+======================================================================
+FAIL: test_world_pack_failed_step_never_advances (tests.policy_selection_test.PolicySelectionTest.test_world_pack_failed_step_never_advances)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/policy_selection_test.py", line 465, in test_world_pack_failed_step_never_advances
+    self.assertIn(
+    ~~~~~~~~~~~~~^
+        "candidate has failed environment steps",
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        decision["regressions"],
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+AssertionError: 'candidate has failed environment steps' not found in ['incumbent clean horizon rate missing', 'candidate clean horizon rate missing']
+
+======================================================================
+FAIL: test_world_pack_selection_uses_authored_task_outcome (tests.policy_selection_test.PolicySelectionTest.test_world_pack_selection_uses_authored_task_outcome)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/policy_selection_test.py", line 437, in test_world_pack_selection_uses_authored_task_outcome
+    self.assertEqual(decision["selected"], "candidate")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'incumbent' != 'candidate'
+- incumbent
++ candidate
+
+
+----------------------------------------------------------------------
+Ran 36 tests in 0.919s
+
+FAILED (failures=3, errors=2)

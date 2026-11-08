@@ -1,0 +1,9 @@
+# Integrated generic policy-evidence guard
+
+The `main` change `c0699b1ab` was merged into the integration branch, preserving the integrated selector cache identity and adding evidence-source validation before cached records are returned. The original [main report](../policy-evidence-integrity-20261108/RESULT.md) documents the defect, validation rules and earlier native attempts.
+
+The full integrated selector/CLI run executed 51 tests: 50 passed and the pre-existing G1 guided reset-only assertion failed exactly as retained before this merge. Its full output is `integration-tests-v2.stderr`. The 50 other tests passed in a separate run that explicitly excluded only that assertion. Two integrated cache-test mock evaluators were updated to emit their actual declared `world_pack` or `urdf` source, as the native rollout does. The first integrated test pass and its two missing-source fixture failures are retained as `integration-tests-v1.stderr`.
+
+The resolved integrated Python selector was also run twice against the same pinned reconciliation native binary/library/metallib, synthetic Franka WorldPack, and retained policies. Both one-environment 16-step runs selected the incumbent, published identical incumbent bytes, left all input hashes unchanged, and produced matching recorded physical counters. This is native workflow evidence, not a trained manipulation, physical accuracy, performance or visible-window qualification. `native-integrated-pretrial-sha256.json` binds the selector and runtime inputs. Full native decisions, traces, and metadata are in `native-integrated-records.tar.gz` without policy binaries.
+
+The GitHub default checkout is not unified by this merge. Continue toward the reproducible-release milestone, broad held-out task qualification and force-qualified mechanics separately. The known G1 assertion was not modified as part of this work.

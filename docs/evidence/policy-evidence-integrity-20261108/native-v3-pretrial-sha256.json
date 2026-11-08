@@ -1,0 +1,13 @@
+{
+  "/Users/numi/numi-autoload-franka-smoke-20261108/fixture/actuators.actuatorpack": "e14269963ebefaa69eb3ca4a308412e62cfcc9ce68b3c0e2ed69aefef992d91b",
+  "/Users/numi/numi-autoload-franka-smoke-20261108/fixture/reality.realitypack": "e09f0a50365ee18c749b163690cff86e1a15032aa36b4a0932aba46925bec70d",
+  "/Users/numi/numi-autoload-franka-smoke-20261108/fixture/sensors.sensorpack": "bdd2fa6da6ee5149f23cf5b9dc10205d982cfca207247cb47d0b8644ca362d06",
+  "/Users/numi/numi-autoload-franka-smoke-20261108/fixture/task.taskpack": "c94b7c08249357fcc80888c3fec9437982aac240d46ee5b51a5531543ad87075",
+  "/Users/numi/numi-autoload-franka-smoke-20261108/fixture/world.mrworld": "cc4ca3c1e154499019351c8bfc10ab88b76c6e10ab1b79c273904761b9c7610b",
+  "/Users/numi/numi-autoload-franka-smoke-20261108/workspace/.numi/runs/window-train-smoke/candidate.deployment.policypack": "94d2effe4748d6e2e1ecd3aed5a11f3f276d9aa218960aac8a188c6f9589655f",
+  "/Users/numi/numi-autoload-franka-smoke-20261108/workspace/.numi/runs/window-train-smoke/incumbent.deployment.policypack": "a8b453950cb0001a7a367b4c270cc1c645c6328bc8dab7ad2cc4f98371e5bca4",
+  "/Users/numi/numi-lab-tracker-step-rollback-20261108/python/metalrobo/policy_selection.py": "4e370a1259950800ad6097897080917ac3b11b5f2a8fad40071db6c3bb56a9ad",
+  "/Users/numi/numi-reconciliation-build-20261108/bin/metalrobo_task_rollout": "ac2a677c287ae73c05e2a6243f88cdf1471027168a8b522643cf4781498f69e7",
+  "/Users/numi/numi-reconciliation-build-20261108/lib/libmetalrobo.dylib": "a0c5c15977eb3a323545a2257572075e6b6ff66b38e2f98a8a40fdd6ec10df09",
+  "/Users/numi/numi-reconciliation-build-20261108/shaders/MetalRobo.metallib": "14779de4a20dcd56ee2fcf615cd1ca37d2af7d76d81c0734f625a25dd2923abf"
+}

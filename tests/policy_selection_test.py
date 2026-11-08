@@ -23,6 +23,19 @@ from metalrobo.policy_selection import (  # noqa: E402
 )
 
 
+def native_generic_fixture(record: dict) -> dict:
+    """Fill native output fields for existing synthetic comparison fixtures."""
+    record = dict(record)
+    counts = record["termination_count_by_environment"]
+    total = record.setdefault("termination_count", sum(counts))
+    record.setdefault("termination_reason_counts", {"3": total} if total else {})
+    record.setdefault("physics_error_count_by_environment", [0] * len(counts))
+    record.setdefault("mean_tracking_score", 0.0)
+    if "velocity" in str(record.get("task", "")):
+        record.setdefault("clean_horizon_environment_rate", 1.0)
+    return record
+
+
 class PolicySelectionTest(unittest.TestCase):
     def test_selection_preserves_initial_reset_without_periodic_resets(self) -> None:
         arguments = evaluation_arguments(
@@ -314,9 +327,11 @@ class PolicySelectionTest(unittest.TestCase):
             "mean_task_reward": 0.0,
             "mean_tracking_score": 0.28,
         }
+        incumbent = native_generic_fixture(incumbent)
         candidate = {
             **incumbent,
             "termination_count": 736,
+            "termination_reason_counts": {"3": 736},
             "termination_count_by_environment": [46] * 16,
             "mean_reward": -0.08,
             "mean_tracking_score": 0.17,
@@ -599,6 +614,7 @@ class PolicySelectionTest(unittest.TestCase):
             "mean_root_height": 0.8,
             "mean_tilt": 0.1,
         }
+        incumbent = native_generic_fixture(incumbent)
         candidate = {
             **incumbent,
             "mean_task_reward": 0.28,
@@ -626,6 +642,7 @@ class PolicySelectionTest(unittest.TestCase):
             "mean_task_reward": 0.1,
             "mean_reward": 0.1,
         }
+        incumbent = native_generic_fixture(incumbent)
         candidate = {
             **incumbent,
             "failed_environment_steps": 1,
@@ -651,6 +668,7 @@ class PolicySelectionTest(unittest.TestCase):
                     "mean_task_reward": 0.1,
                     "mean_reward": 0.1,
                 }
+                incumbent = native_generic_fixture(incumbent)
                 candidate = {
                     **incumbent,
                     "termination_count_by_environment": [1] + [0] * 15,
@@ -674,6 +692,7 @@ class PolicySelectionTest(unittest.TestCase):
             "mean_task_reward": 0.1,
             "mean_reward": 0.1,
         }
+        incumbent = native_generic_fixture(incumbent)
         candidate = {
             **incumbent,
             "termination_count_by_environment": [1] + [0] * 15,
@@ -685,6 +704,69 @@ class PolicySelectionTest(unittest.TestCase):
         decision = compare_evidence(incumbent, candidate)
         self.assertEqual(decision["metrics"]["candidate_physical_failure_rate"], 0)
         self.assertEqual(decision["selected"], "candidate")
+
+    def test_generic_rejects_incomplete_and_inconsistent_evidence(self) -> None:
+        for source in ("world_pack", "urdf"):
+            base = native_generic_fixture({
+                "task": "grasp", "world_source": source,
+                "termination_count_by_environment": [0, 0],
+                "failed_environment_steps": 0,
+                "mean_task_reward": 0.1, "mean_reward": 0.1,
+            })
+            good = {**base, "mean_task_reward": 0.9, "mean_reward": 0.9}
+            self.assertEqual(compare_evidence(base, good)["selected"], "candidate")
+            broken = []
+            for key in ("termination_count", "failed_environment_steps", "termination_reason_counts", "termination_count_by_environment", "physics_error_count_by_environment", "mean_reward"):
+                item = dict(good); del item[key]; broken.append(("missing " + key, item))
+            broken.extend([
+                ("unaccounted termination", {**good, "termination_count_by_environment": [1, 0]}),
+                ("unaccounted reason", {**good, "termination_reason_counts": {"4": 1}}),
+                ("negative counter", {**good, "failed_environment_steps": -1}),
+                ("boolean counter", {**good, "failed_environment_steps": False}),
+                ("empty environments", {**good, "termination_count_by_environment": []}),
+                ("physics dimension", {**good, "physics_error_count_by_environment": [0]}),
+                ("different environments", {**good, "termination_count_by_environment": [0], "physics_error_count_by_environment": [0]}),
+                ("invalid reward", {**good, "mean_reward": float("nan")}),
+                ("bad timeout", {**good, "timeout_count": 1}),
+                ("duplicate reason", {**good, "termination_reason_counts": {"4": 0, 4: 0}}),
+                ("oversized reason", {**good, "termination_reason_counts": {"9" * 5000: 0}}),
+                ("null horizon", {**good, "clean_horizon_environment_rate": None}),
+                ("source mismatch", {**good, "world_source": "other"}),
+                ("task mismatch", {**good, "task": "other"}),
+            ])
+            for label, candidate in broken:
+                with self.subTest(source=source, case=label):
+                    d = compare_evidence(base, candidate)
+                    self.assertEqual(d["selected"], "incumbent")
+                    self.assertFalse(d["candidate_advanced_deployment"])
+                    self.assertFalse(d["metrics"]["evidence_valid"])
+                    self.assertTrue(d["regressions"])
+            velocity = {**base, "task": "velocity", "clean_horizon_environment_rate": 1.0}
+            missing_horizon = dict(velocity); del missing_horizon["clean_horizon_environment_rate"]
+            self.assertEqual(compare_evidence(velocity, missing_horizon)["selected"], "incumbent")
+            missing_incumbent = dict(base); del missing_incumbent["termination_count"]
+            self.assertEqual(compare_evidence(missing_incumbent, good)["selected"], "incumbent")
+
+    def test_generic_physics_error_counter_vetoes_reward(self) -> None:
+        base = native_generic_fixture({"task": "grasp", "world_source": "world_pack",
+            "termination_count_by_environment": [0, 0], "failed_environment_steps": 0,
+            "mean_task_reward": 0.1, "mean_reward": 0.1})
+        candidate = {**base, "mean_task_reward": 0.9, "mean_reward": 0.9,
+                     "physics_error_count_by_environment": [0, 1]}
+        d = compare_evidence(base, candidate)
+        self.assertEqual(d["selected"], "incumbent")
+        self.assertIn("candidate has per-environment physics errors", d["regressions"])
+
+    def test_generic_unknown_termination_reason_remains_a_failure(self) -> None:
+        base = native_generic_fixture({"task": "grasp", "world_source": "world_pack",
+            "termination_count_by_environment": [0, 0], "failed_environment_steps": 0,
+            "mean_task_reward": 0.1, "mean_reward": 0.1})
+        candidate = {**base, "mean_task_reward": 0.9, "mean_reward": 0.9,
+                     "termination_count": 1, "termination_count_by_environment": [1, 0],
+                     "termination_reason_counts": {"99": 1}}
+        d = compare_evidence(base, candidate)
+        self.assertEqual(d["selected"], "incumbent")
+        self.assertEqual(d["metrics"]["candidate_physical_failure_rate"], 0.5)
 
     def test_selector_cli_preserves_incumbent_on_physical_regression(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -706,7 +788,7 @@ class PolicySelectionTest(unittest.TestCase):
                 "print(json.dumps({'task':'grasp','world_source':'world_pack',"
                 "'termination_count_by_environment':([1]+[0]*15 if candidate else [0]*16),"
                 "'termination_count':int(candidate),'termination_reason_counts':({'3':1} if candidate else {}),"
-                "'failed_environment_steps':0,'mean_task_reward':(0.2 if candidate else 0.1),"
+                "'failed_environment_steps':0,'physics_error_count_by_environment':[0]*16,'mean_tracking_score':0,'mean_task_reward':(0.2 if candidate else 0.1),"
                 "'mean_reward':(0.2 if candidate else 0.1)}))\n",
                 encoding="utf-8",
             )
@@ -738,6 +820,7 @@ class PolicySelectionTest(unittest.TestCase):
             "mean_task_reward": 0.1,
             "mean_reward": 0.1,
         }
+        incumbent = native_generic_fixture(incumbent)
         candidate = {
             **incumbent,
             "termination_count_by_environment": [1] + [0] * 15,
@@ -760,10 +843,12 @@ class PolicySelectionTest(unittest.TestCase):
             "mean_reward": -1.0,
             "mean_tracking_score": 0.0,
         }
+        incumbent = native_generic_fixture(incumbent)
         candidate = {
             **incumbent,
             "termination_count_by_environment": [1] * 16,
             "termination_count": 16,
+            "termination_reason_counts": {"3": 16},
             "mean_task_reward": 1.0,
             "mean_reward": 1.0,
             "mean_tracking_score": 1.0,
@@ -781,6 +866,7 @@ class PolicySelectionTest(unittest.TestCase):
             "mean_task_reward": 0.2,
             "mean_reward": 0.2,
         }
+        incumbent = native_generic_fixture(incumbent)
         candidates = {
             "first": {
                 **incumbent,
@@ -1140,7 +1226,7 @@ class PolicySelectionTest(unittest.TestCase):
                 "printf '# step nq=1 scene_bodies=0 scene_stride=13 "
                 "timestep=0.02 environment=0\\n1\\t0\\n' "
                 f"> '{state_trace}'\n"
-                "printf '%s\\n' '{\"task\":\"adult-locomotion\",\"failed_environment_steps\":0}'\n",
+                "printf '%s\\n' '{\"task\":\"adult-locomotion\",\"world_source\":\"bundled\",\"failed_environment_steps\":0}'\n",
                 encoding="utf-8",
             )
             evaluator.chmod(evaluator.stat().st_mode | 0o111)
@@ -1244,7 +1330,7 @@ class PolicySelectionTest(unittest.TestCase):
                 "#!/bin/sh\n" +
                 f"count=0; test -f '{counter}' && count=$(cat '{counter}'); count=$((count+1)); printf '%s' \"$count\" > '{counter}'\n" +
                 f"printf '# step nq=1 scene_bodies=0 scene_stride=13 timestep=0.02 environment=0\\n1\\t0\\n' > '{trace}'\n" +
-                "printf '%s\\n' '{}'\n", encoding="utf-8")
+                "printf '%s\\n' '{\"world_source\":\"world_pack\"}'\n", encoding="utf-8")
             evaluator.chmod(0o755)
             args = ["--world-pack", str(world), "--policy-pack", str(policy),
                     "--metallib", str(shader), "--state-trace", str(trace), "--steps", "1"]
@@ -1279,7 +1365,7 @@ class PolicySelectionTest(unittest.TestCase):
                 "#!/bin/sh\n" + f"test -f '{mesh}' || exit 3\n" +
                 f"count=0; test -f '{counter}' && count=$(cat '{counter}'); count=$((count+1)); printf '%s' \"$count\" > '{counter}'\n" +
                 f"printf '# step nq=1 scene_bodies=0 scene_stride=13 timestep=0.02 environment=0\\n1\\t0\\n' > '{trace}'\n" +
-                "printf '%s\\n' '{}'\n", encoding="utf-8")
+                "printf '%s\\n' '{\"world_source\":\"urdf\"}'\n", encoding="utf-8")
             evaluator.chmod(0o755)
             args = ["--urdf", str(urdf), "--policy-pack", str(policy), "--metallib", str(shader), "--state-trace", str(trace), "--steps", "1"]
             self.assertFalse(_cache_reusable(args))

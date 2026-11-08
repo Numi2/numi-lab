@@ -1,0 +1,16 @@
+# Generic policy promotion requires complete physical evidence
+
+The prior selector treated missing generic failure counters as zero. With a higher-reward WorldPack candidate, it selected the candidate when either its termination total was missing despite a recorded per-environment termination, or its failed-step counter was missing. Both `main` and the integration branch reproduced these counterexamples before the repair; the full decisions are retained in `main-before.jsonl` and `integrated-before.jsonl`.
+
+The repaired generic WorldPack/URDF comparison validates nonnegative integer counters, nonempty and matching environment arrays, agreement between termination totals and both per-environment and reason counts, finite authored scores, and matching task and source identities. A generic velocity comparison also requires a clean-horizon rate. Missing, malformed or inconsistent evidence keeps the incumbent with explicit reasons. A candidate reporting per-environment physics errors cannot advance even if its aggregate failed-step counter says zero. Timeout reason 4 and known success reason 7 retain their existing treatment; unknown reasons count as failures. The native evaluator record must name its world source, and explicit WorldPack/URDF arguments must match it; this check also applies when reading cached evidence.
+
+The native rollout fields in `apps/task_rollout.swift` are the schema basis. Complete records are still required; this change does not infer missing values or establish that evaluator-reported counters are physically correct. It does not qualify a trained policy, calibrated sensors, forces or a task outcome.
+
+## Verification
+
+* The main selector suite and deployment-artifact CLI cases pass: 36 tests, including higher-reward incomplete candidates, inconsistent and malformed counters, missing or mismatched source, explicit physics errors, valid clean promotion, timeout and success controls, and unknown-reason rejection. The CLI checks both the selected decision and deployment bytes while retaining the candidate pack.
+* The previously retained native Franka incumbent/candidate evidence yields exactly the same comparison before and after the change. An explicitly synthetic higher-reward copy also preserves its prior positive decision; it is not measured policy performance.
+* Two fresh 16-step native Franka WorldPack evaluations used the final Python selector with the pinned reconciliation-build evaluator, library, metallib, fixture and retained policies. Each selected the incumbent, wrote the incumbent bytes, and retained unchanged input hashes. Their extracted physical counters and decisions agree. This is a one-environment workflow smoke, not a trained-manipulation or performance claim.
+* The first two native attempts intentionally remain in the evidence: the older relocated evaluator rejected the required `--no-periodic-resets` option, and the selector preserved the incumbent. The matching evaluator was then used without removing the flag.
+
+`PLAN.md`, source/input hashes, test outputs, decision comparisons, native commands and compressed native records are retained here. The integration branch must separately apply the change and rerun its own suite; the default GitHub branch and the fully integrated native product remain separate concerns.
