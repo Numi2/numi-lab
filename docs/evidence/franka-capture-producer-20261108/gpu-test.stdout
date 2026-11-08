@@ -1,0 +1,12 @@
+visible env=0 geometry=992 frame=19200
+visible env=1 geometry=982 frame=19200
+visible env=2 geometry=990 frame=19200
+visible env=3 geometry=922 frame=19200
+capture_render_failure status=11 message=sampled world count, assets, sensor bindings, or camera are incompatible with the visual scene
+failure_published=0 generation=1
+retry_present=1 generation=2
+empty env=0 geometry=0 frame=19200
+empty env=1 geometry=0 frame=19200
+empty env=2 geometry=0 frame=19200
+empty env=3 geometry=0 frame=19200
+empty_present=1 generation=1

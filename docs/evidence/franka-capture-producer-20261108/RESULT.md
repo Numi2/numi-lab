@@ -1,0 +1,7 @@
+# Synchronous real-render capture result
+
+The registered process exited 0 on 2026-11-08 from 00:20:00.773452 to 00:20:01.194616 UTC; all pinned input hashes matched before and after. The four real-rendered visible frames had 922 to 992 geometry-valid pixels and 19,200 frame-valid pixels each. The incompatible five-environment request returned status 11, while the fixture-owned accepted batch and generation remained unchanged at generation 1. The next valid capture completed and published generation 2. Depth, validity, identities and metadata matched the prior visible capture byte-for-byte after excluding the wrapper generation.
+
+A second real renderer captured an off-screen scene. All four completed frames had zero geometry-valid pixels and 19,200 frame-valid pixels; the wrapper published that batch as present. The accepted status came from the actual renderer and readback return statuses, not from the pixels. Raw accepted frames, process outputs, timestamps, comparisons and input hashes are retained.
+
+This test uses a serial fixture-owned wrapper around synchronous whole-batch render and readback; it is not integrated into the task observation owner. The rejected oversized request failed before dispatch, so it does not establish behavior after a GPU command failure or partial writes. Per-environment completion, concurrent calls, physics acceptance, asynchronous transaction publication, physical camera sensing and policy fingerprint compatibility remain unqualified. The synthetic visual scene is not deployment evidence.
