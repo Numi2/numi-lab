@@ -1,0 +1,185 @@
+{
+  "archive_commit": "e92f1a52e12a93ba931fc6832b44cde1c2fb40c5",
+  "inventory": [
+    {
+      "bytes": 1218,
+      "mode": 420,
+      "mtime_ns": 1794134591247970156,
+      "path": "work/contact-coupling/analyze_precision.py",
+      "relative_path": "analyze_precision.py",
+      "sha256": "0f6c3cfd0a420b428de2e6d30572d43982c131cc62ef6bd8a0b1c45e12081e65"
+    },
+    {
+      "bytes": 2663,
+      "mode": 420,
+      "mtime_ns": 1794135013317665860,
+      "path": "work/contact-coupling/cleanup_git_recovery.py",
+      "relative_path": "cleanup_git_recovery.py",
+      "sha256": "3325dde48ad43eb919d2c5e919779f4f9e3f5f11e5764fccacfee66bd3686db1"
+    },
+    {
+      "bytes": 2429,
+      "mode": 420,
+      "mtime_ns": 1794134987319127057,
+      "path": "work/contact-coupling/cleanup_local_recovery.py",
+      "relative_path": "cleanup_local_recovery.py",
+      "sha256": "c5d5bbe407c4fc646964d19bc59a029dacd21e44884aa7a92e08cf3b04d2379a"
+    },
+    {
+      "bytes": 5921,
+      "mode": 420,
+      "mtime_ns": 1794133828670038087,
+      "path": "work/contact-coupling/coupled_function.cpp",
+      "relative_path": "coupled_function.cpp",
+      "sha256": "f7396cbeb2e4bd33c8b5d04ec18b052fa98033fb454593b83f014c058ef070cb"
+    },
+    {
+      "bytes": 6829,
+      "mode": 420,
+      "mtime_ns": 1794134987318333888,
+      "path": "work/contact-coupling/execute_git_recovery.py",
+      "relative_path": "execute_git_recovery.py",
+      "sha256": "624f71eb0d70a07307a3dbfcc5066b5b036f4b15279c8c360837a4d685f66c8c"
+    },
+    {
+      "bytes": 3053,
+      "mode": 420,
+      "mtime_ns": 1794134419355199169,
+      "path": "work/contact-coupling/extend_precision.py",
+      "relative_path": "extend_precision.py",
+      "sha256": "7b361555c65e281e08b9ae54acb60883196756bef3ddedc225d0b6c0e97392d3"
+    },
+    {
+      "bytes": 717,
+      "mode": 420,
+      "mtime_ns": 1794133828675029162,
+      "path": "work/contact-coupling/extend_probe.py",
+      "relative_path": "extend_probe.py",
+      "sha256": "4f08549c7199fc097f297e10eb27bd6d9310036a9d96dc6b98ef03fc1ce07168"
+    },
+    {
+      "bytes": 1739,
+      "mode": 420,
+      "mtime_ns": 1794134200015031220,
+      "path": "work/contact-coupling/fix_quality_factor.py",
+      "relative_path": "fix_quality_factor.py",
+      "sha256": "cfd39b83297fa02cc1140e3b74b2e93f6160b38fedcd04ef0ea6e6b532b77d0e"
+    },
+    {
+      "bytes": 8250,
+      "mode": 420,
+      "mtime_ns": 1794133473914279976,
+      "path": "work/contact-coupling/motor_contact_probe.cpp",
+      "relative_path": "motor_contact_probe.cpp",
+      "sha256": "499e76a63481ccfa69865eac8fa8908ecd642b7631a51e753dbc008bcd71971d"
+    },
+    {
+      "bytes": 8248,
+      "mode": 420,
+      "mtime_ns": 1794133828647121588,
+      "path": "work/contact-coupling/motor_contact_probe_current.cpp",
+      "relative_path": "motor_contact_probe_current.cpp",
+      "sha256": "3991a467d63d148fd8cc492c2822b783756ea7b40694d7735963b8633879c09e"
+    },
+    {
+      "bytes": 4264,
+      "mode": 420,
+      "mtime_ns": 1794133612885260732,
+      "path": "work/contact-coupling/prepare.py",
+      "relative_path": "prepare.py",
+      "sha256": "6bc3e1a0c9877c24a44a0a5a936c1081d82aa2ae34f959d9a84dfb7b4d2c31b2"
+    },
+    {
+      "bytes": 4885,
+      "mode": 420,
+      "mtime_ns": 1794134328919549915,
+      "path": "work/contact-coupling/prepare_factor_fix.py",
+      "relative_path": "prepare_factor_fix.py",
+      "sha256": "49dd363e7590b6db6ec11cb21d8236bb37d09ad78713efae124f032b217d34ce"
+    },
+    {
+      "bytes": 4634,
+      "mode": 420,
+      "mtime_ns": 1794133990259808712,
+      "path": "work/contact-coupling/prepare_ir.py",
+      "relative_path": "prepare_ir.py",
+      "sha256": "23076d2c4e3eab92d7c23a3487403c8e711f5bda04a63c3b8a577b3ff25219fb"
+    },
+    {
+      "bytes": 3612,
+      "mode": 420,
+      "mtime_ns": 1794134511697030856,
+      "path": "work/contact-coupling/prepare_precision.py",
+      "relative_path": "prepare_precision.py",
+      "sha256": "c76656e20652e9554bf3113e4819c0537f95b060eff640892147512159d5a83d"
+    },
+    {
+      "bytes": 2807,
+      "mode": 420,
+      "mtime_ns": 1794133612887026979,
+      "path": "work/contact-coupling/run.py",
+      "relative_path": "run.py",
+      "sha256": "5223708562b534c74c3cd4d988b4b6792fcf3fb205c56317e411096db8d3b8d7"
+    },
+    {
+      "bytes": 3896,
+      "mode": 420,
+      "mtime_ns": 1794134328921462037,
+      "path": "work/contact-coupling/run_factor_fix.py",
+      "relative_path": "run_factor_fix.py",
+      "sha256": "056277c98ecb5749e1c71a5d03686f533384e18a1c21bfe3f7f7090ac3cff1ea"
+    },
+    {
+      "bytes": 3093,
+      "mode": 420,
+      "mtime_ns": 1794133990261601167,
+      "path": "work/contact-coupling/run_ir.py",
+      "relative_path": "run_ir.py",
+      "sha256": "e8f0e2816e2265a0adaf3b95317d6169d2615f78dd07d180ad6784005c2de9a0"
+    },
+    {
+      "bytes": 3935,
+      "mode": 420,
+      "mtime_ns": 1794134511778053456,
+      "path": "work/contact-coupling/run_precision.py",
+      "relative_path": "run_precision.py",
+      "sha256": "bbf776e506023ea427afff8af4056160b9cfd942c40d6bbc08ced9384f2e9902"
+    },
+    {
+      "bytes": 5566,
+      "mode": 420,
+      "mtime_ns": 1794134740701669940,
+      "path": "work/contact-coupling/summarize.py",
+      "relative_path": "summarize.py",
+      "sha256": "a2cd6af3cfac5e64bec893568c28ed78506518a74bf68b1b1c2285d9f4541039"
+    },
+    {
+      "bytes": 1222,
+      "mode": 420,
+      "mtime_ns": 1794133990257794216,
+      "path": "work/contact-coupling/theory.py",
+      "relative_path": "theory.py",
+      "sha256": "a0498e3bdfdf8d908cebb7cc25fa0671a114e92423465ec64491cc9bc619a872"
+    },
+    {
+      "bytes": 1496,
+      "mode": 420,
+      "mtime_ns": 1794134987318792764,
+      "path": "work/contact-coupling/verify_local_recovery.py",
+      "relative_path": "verify_local_recovery.py",
+      "sha256": "82592c2952a9e3b2ecc7c1881fc11bcc1f4c134301ae9131c1bdf8b5cdafbf61"
+    },
+    {
+      "bytes": 5970,
+      "mode": 420,
+      "mtime_ns": 1794135013322275122,
+      "path": "work/motor-contact-local-inventory.json",
+      "sha256": "4e4908244f6726b716a72bf2ae4a2573408b0f08c057a002373e60337585dd66"
+    }
+  ],
+  "inventory_sha256": "4e4908244f6726b716a72bf2ae4a2573408b0f08c057a002373e60337585dd66",
+  "open_handles": 0,
+  "remote_commit": "e92f1a52e12a93ba931fc6832b44cde1c2fb40c5",
+  "removed_files": 22,
+  "removed_logical_bytes": 86447
+}

@@ -1,9 +1,9 @@
 # Joint motor/contact primitive passes physical gates; crow integration remains open
 
-The native slider diagnosis confirms a real one-way split inconsistency. All96
+The native slider diagnosis confirms a real one-way split inconsistency. All 96
 registered conditions are accepted. In six unsaturated contact conditions, motor
-force is13.4415–62.4060% below the force law at accepted q/v. Free and continuously
-saturated controls agree within7.912e-10 N; momentum balances within1.573e-12 Ns.
+force is 13.4415–62.4060% below the force law at accepted q/v. Free and continuously
+saturated controls agree within 7.912e-10 N; momentum balances within 1.573e-12 Ns.
 This identifies the split's inconsistency for the registered implicit step,
 not the complete cause of the hybrid crow's tilt.
 
@@ -22,25 +22,25 @@ TemporalCone keeps the original indirect behavior. The failed free-flight case
 and the native contact owner pass after this fix. Full Release succeeds.
 
 The continued comparison stops on a published fixed-force control whose momentum
-residual is2.16473e-9 Ns, above the frozen2e-9 gate. Tightening invocation-only
-optimality tolerance from1e-7 to1e-10 fixes that engineering replay. Feasibility
+residual is 2.16473e-9 Ns, above the frozen 2e-9 gate. Tightening invocation-only
+optimality tolerance from 1e-7 to 1e-10 fixes that engineering replay. Feasibility
 and all physical gates remain unchanged. No global solver defaults change.
 
 A separately sealed comparison on fresh masses, step sizes and targets accepts
-all144 native conditions. Candidate maximum force-law error is5.507e-10 N,
-maximum momentum residual1.680e-12 Ns, q-hv error1.241e-14 m and contact
-penetration1.426e-10 m. The fixed-force quality control agrees with the original
-split force within1.193e-9 N: changing the contact solver alone does not restore
+all 144 native conditions. Candidate maximum force-law error is 5.507e-10 N,
+maximum momentum residual 1.680e-12 Ns, q-hv error 1.241e-14 m and contact
+penetration 1.426e-10 m. The fixed-force quality control agrees with the original
+split force within 1.193e-9 N: changing the contact solver alone does not restore
 motor feedback. See `precision/analysis.json` and the frozen plans/predictors.
 
 The complete registered benefit prediction is nevertheless **contradicted**:
 one of six primary reference cases is already saturated and passes the absolute
-force gate. Its error is numerical noise, so relative error reduction is96.8784%,
-below the frozen99% requirement. All candidate absolute physical gates pass;
+force gate. Its error is numerical noise, so relative error reduction is 96.8784%,
+below the frozen 99% requirement. All candidate absolute physical gates pass;
 all six primary cases remain in `precision/endpoint-details.json`. This post-trial
 explanation is descriptive and does not replace the failed registered endpoint.
 
-A fresh default640-transition crow replay matches all ten archived initial,
+A fresh default 640-transition crow replay matches all ten archived initial,
 trajectory and final files byte for byte (including the six required state/trace
 files). Protected deployment97 is unchanged. No policy, profile or experimental
 motor mode is promoted.
