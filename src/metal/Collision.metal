@@ -7443,6 +7443,35 @@ kernel void mr_world_resolve_ccd(
             status.firstFailingPair;
         status.firstFailingEventKeyHigh = environment;
     }
+    if ((dispatch.flags & MR_METAL_WORLD_CONTACT_CAPTURE_CCD_FAILURE) != 0u &&
+        status.code == MR_STEP_SUCCESS && storedEventCount != 0u) {
+        const MRCCDPairGPU selected = candidates[candidateBase];
+        const MRCCDEventStateGPU cursor = eventStates[environment];
+        const float timeTolerance = max(dispatch.ccdEventParameters.y, dispatch.ccdParameters.y);
+        const float duration = clamp(selected.intervalAndDistance.x, 0.0f, cursor.time.y);
+        const bool zeroTimeLimit = duration <= timeTolerance &&
+            cursor.zeroTimeReplayCount >= dispatch.maxCCDZeroTimeReplays;
+        const bool advanceLimit = cursor.splitCount + 1u >= dispatch.maxCCDAdvanceSolvePasses &&
+            cursor.time.y - duration > timeTolerance;
+        if (zeroTimeLimit || advanceLimit) {
+            const uint base = dispatch.environmentCount * dispatch.ccdCandidateCapacity +
+                environment * MR_CCD_FAILURE_SNAPSHOT_CANDIDATES;
+            device MRCCDFailureSnapshotGPU& saved =
+                *reinterpret_cast<device MRCCDFailureSnapshotGPU*>(candidates + base);
+            if (saved.validAndStamp.x == 0u) {
+                saved.candidate = selected;
+                saved.sourceA = shapes[selected.colliderA];
+                saved.sourceB = shapes[selected.colliderB];
+                saved.startA = projectedColliders[projectionBase + selected.colliderA];
+                saved.startB = projectedColliders[projectionBase + selected.colliderB];
+                saved.endA = futureProjectedColliders[projectionBase + selected.colliderA];
+                saved.endB = futureProjectedColliders[projectionBase + selected.colliderB];
+                saved.event = cursor;
+                saved.validAndStamp = uint4(MR_CCD_EVENT_FAILURE_SNAPSHOT_TAG,
+                    status.controlStep, status.physicsSubstep, selected.compiledPair);
+            }
+        }
+    }
     statuses[environment] = status;
 }
 

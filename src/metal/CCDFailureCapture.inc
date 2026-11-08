@@ -15,14 +15,22 @@ void captureCCDFailure(
     const auto found = std::find_if(
         result.contactStatuses.begin(), result.contactStatuses.end(),
         [](const MRMetalWorldContactStatusGPU& status) {
-            return status.code == MR_STEP_DID_NOT_CONVERGE &&
+            const bool pairFailure = status.code == MR_STEP_DID_NOT_CONVERGE &&
                 status.firstFailingPair != MR_INVALID_INDEX;
+            const bool eventFailure = (status.code == MR_STEP_DID_NOT_CONVERGE ||
+                status.code == MR_STEP_CCD_EVENT_BUDGET_EXHAUSTED) &&
+                status.firstFailingPair == MR_INVALID_INDEX &&
+                status.firstFailingEventKeyLow != MR_INVALID_INDEX &&
+                status.firstFailingEventKeyHigh == status.environment;
+            return pairFailure || eventFailure;
         }
     );
     if (found == result.contactStatuses.end()) return;
     try {
         const auto& status = *found;
         const auto& dispatch = context.boundContactDispatch;
+        const bool eventFailure = status.firstFailingPair == MR_INVALID_INDEX;
+        const auto failedPair = eventFailure ? status.firstFailingEventKeyLow : status.firstFailingPair;
         const auto index = std::size_t(found - result.contactStatuses.begin());
         if (index >= result.statuses.size() ||
             (dispatch.flags & MR_METAL_WORLD_CONTACT_CAPTURE_CCD_FAILURE) == 0u) {
@@ -34,7 +42,7 @@ void captureCCDFailure(
             throw std::runtime_error("CCD capture world/contact failure boundary differs");
         }
         if (status.environment >= dispatch.environmentCount ||
-            status.firstFailingPair >= dispatch.eligiblePairCount ||
+            failedPair >= dispatch.eligiblePairCount ||
             dispatch.shapeCount > 4096u ||
             dispatch.eligiblePairCount > 4096u ||
             dispatch.ccdCandidateCapacity > 4096u) {
@@ -121,11 +129,16 @@ void captureCCDFailure(
         MRCCDFailureSnapshotGPU saved{};
         if (savedSegment == segments.end()) throw std::runtime_error("missing protected CCD segment");
         std::memcpy(&saved, savedSegment->bytes.data(), sizeof(saved));
-        if (saved.validAndStamp.x != MR_CCD_FAILURE_SNAPSHOT_TAG ||
-            saved.candidate.environment != status.environment ||
-            saved.candidate.compiledPair != status.firstFailingPair ||
-            (saved.candidate.flags & MR_CCD_PAIR_UNRESOLVED) == 0u ||
-            (saved.candidate.flags & MR_CCD_PAIR_SPECULATIVE_FALLBACK) != 0u) {
+        const bool matchingKind = eventFailure
+            ? saved.validAndStamp.x == MR_CCD_EVENT_FAILURE_SNAPSHOT_TAG &&
+                (saved.candidate.flags & MR_CCD_PAIR_HAS_IMPACT) != 0u &&
+                saved.candidate.status == MR_STEP_SUCCESS
+            : saved.validAndStamp.x == MR_CCD_FAILURE_SNAPSHOT_TAG &&
+                (saved.candidate.flags & MR_CCD_PAIR_UNRESOLVED) != 0u &&
+                (saved.candidate.flags & MR_CCD_PAIR_SPECULATIVE_FALLBACK) == 0u;
+        if (!matchingKind || saved.candidate.environment != status.environment ||
+            saved.candidate.compiledPair != failedPair ||
+            world.failingIndex != status.firstFailingPair) {
             throw std::runtime_error("protected CCD record does not match public failure");
         }
         std::vector<std::byte> image;
@@ -136,8 +149,8 @@ void captureCCDFailure(
         };
         constexpr char magic[8] = {'C','C','D','S','N','P','0','1'};
         append(magic, sizeof(magic));
-        const std::uint32_t header[] = {2u, world.environment, world.controlStep,
-            world.failingSubstep, status.firstFailingPair, std::uint32_t(segments.size())};
+        const std::uint32_t header[] = {eventFailure ? 3u : 2u, world.environment, world.controlStep,
+            world.failingSubstep, failedPair, std::uint32_t(segments.size())};
         append(header, sizeof(header));
         for (const auto& segment : segments) {
             append(segment.tag.data(), segment.tag.size());

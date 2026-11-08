@@ -42,7 +42,7 @@ int main(int argc,char** argv){@autoreleasepool{try{
     require(!std::filesystem::exists(argv[4]),"Output must be new");const auto bytes=read(argv[3]);
     require(std::memcmp(bytes.data(),"CCDSNP01",8)==0,"Wrong snapshot magic");
     std::array<unsigned,6> h{};std::memcpy(h.data(),bytes.data()+8,24);
-    require((h[0]==1&&h[5]==9)||(h[0]==2&&h[5]==11),"Unsupported snapshot header");
+    require((h[0]==1&&h[5]==9)||((h[0]==2||h[0]==3)&&h[5]==11),"Unsupported snapshot header");
     std::map<std::string,Bytes> segments;std::size_t offset=32;
     for(unsigned i=0;i<h[5];++i){
         require(offset<=bytes.size()&&bytes.size()-offset>=16,"Truncated segment header");
@@ -63,7 +63,7 @@ int main(int argc,char** argv){@autoreleasepool{try{
     const auto& d=dispatch[0];const auto& s=status[0];
     require(d.shapeCount==shapes.size()&&current.size()==shapes.size()&&future.size()==shapes.size(),"Shape counts differ");
     require(d.eligiblePairCount==pairs.size()&&d.ccdCandidateCapacity==candidates.size(),"Pair counts differ");
-    require(h[1]==s.environment&&h[4]==s.firstFailingPair&&((h[0]==1&&h[2]==s.controlStep&&h[3]==s.physicsSubstep)||h[0]==2),"Failure header differs");
+    require(h[1]==s.environment&&h[4]==(h[0]==3?s.firstFailingEventKeyLow:s.firstFailingPair)&&((h[0]==1&&h[2]==s.controlStep&&h[3]==s.physicsSubstep)||h[0]>=2),"Failure header differs");
     require(h[1]<d.environmentCount&&h[4]<pairs.size()&&s.ccdCandidates<=candidates.size(),"Invalid failure range");
     const auto pair=pairs[h[4]];require(pair.colliderA<shapes.size()&&pair.colliderB<shapes.size(),"Invalid shape indices");
     require((shapes[pair.colliderA].shapeType==MR_SHAPE_BOX&&shapes[pair.colliderB].shapeType==MR_SHAPE_SPHERE)||
@@ -71,15 +71,22 @@ int main(int argc,char** argv){@autoreleasepool{try{
     const MRCCDPairGPU* stored=nullptr;
     for(unsigned i=0;i<s.ccdCandidates;++i)if(candidates[i].compiledPair==h[4])stored=&candidates[i];
     MRCCDFailureSnapshotGPU protectedSnapshot{};
-    if(h[0]==2){
+    if(h[0]>=2){
         const auto saved=typed<MRCCDFailureSnapshotGPU>(segments.at("failed"));
         const auto world=typed<MRMetalWorldStatusGPU>(segments.at("world"));
         require(saved.size()==1&&world.size()==1,"Wrong protected snapshot/world size");
-        require(world[0].code==s.code&&world[0].environment==h[1]&&world[0].controlStep==h[2]&&world[0].failingSubstep==h[3]&&world[0].failingIndex==h[4],"World failure stamp differs");
+        require(world[0].code==s.code&&world[0].environment==h[1]&&world[0].controlStep==h[2]&&world[0].failingSubstep==h[3]&&world[0].failingIndex==s.firstFailingPair,"World failure stamp differs");
         protectedSnapshot=saved[0];const auto& p=protectedSnapshot;
-        require(p.validAndStamp.x==MR_CCD_FAILURE_SNAPSHOT_TAG&&p.candidate.environment==h[1]&&p.candidate.compiledPair==h[4]&&
+        require(p.validAndStamp.x==(h[0]==3?MR_CCD_EVENT_FAILURE_SNAPSHOT_TAG:MR_CCD_FAILURE_SNAPSHOT_TAG)&&p.candidate.environment==h[1]&&p.candidate.compiledPair==h[4]&&
             p.candidate.colliderA==pair.colliderA&&p.candidate.colliderB==pair.colliderB,"Protected candidate identity differs");
-        require((p.candidate.flags&MR_CCD_PAIR_UNRESOLVED)!=0&&(p.candidate.flags&MR_CCD_PAIR_SPECULATIVE_FALLBACK)==0,"Protected record is not unsafe unresolved CCD");
+        if(h[0]==3) {
+            require(s.firstFailingPair==MR_INVALID_INDEX&&s.firstFailingEventKeyHigh==h[1]&&
+                (s.code==MR_STEP_DID_NOT_CONVERGE||s.code==MR_STEP_CCD_EVENT_BUDGET_EXHAUSTED)&&
+                (p.candidate.flags&MR_CCD_PAIR_HAS_IMPACT)!=0&&p.candidate.status==MR_STEP_SUCCESS,
+                "Protected record is not the reported event-budget failure");
+        } else {
+            require((p.candidate.flags&MR_CCD_PAIR_UNRESOLVED)!=0&&(p.candidate.flags&MR_CCD_PAIR_SPECULATIVE_FALLBACK)==0,"Protected record is not unsafe unresolved CCD");
+        }
         shapes[pair.colliderA]=p.sourceA;shapes[pair.colliderB]=p.sourceB;
         current[pair.colliderA]=p.startA;current[pair.colliderB]=p.startB;future[pair.colliderA]=p.endA;future[pair.colliderB]=p.endB;
         a[0]=p.event;stored=&protectedSnapshot.candidate;
@@ -143,7 +150,7 @@ int main(int argc,char** argv){@autoreleasepool{try{
     output.write(static_cast<const char*>(buffers[8].contents),257*sizeof(mr_float4));require(bool(output),"Cannot write replay stream");
     std::cout<<std::setprecision(9)<<"{\"schema\":\"numi.ccd-sweep-probe.v1\",\"header\":[";
     for(unsigned i=0;i<h.size();++i)std::cout<<(i?",":"")<<h[i];
-    std::cout<<"],\"record_source\":\""<<(h[0]==2?"protected-first-failure":"post-submission")<<"\",\"stored_record\":";record(*stored);std::cout<<",\"replay_records\":[";record(replay[0]);std::cout<<',';record(replay[1]);
+    std::cout<<"],\"record_source\":\""<<(h[0]==3?"protected-selected-event":h[0]==2?"protected-first-failure":"post-submission")<<"\",\"stored_record\":";record(*stored);std::cout<<",\"replay_records\":[";record(replay[0]);std::cout<<',';record(replay[1]);
     std::cout<<"],\"stored_record_matches\":["<<(std::memcmp(stored,&replay[0],sizeof(*stored))==0?"true":"false")<<','
       <<(std::memcmp(stored,&replay[1],sizeof(*stored))==0?"true":"false")<<"],\"events\":[";event(a[0]);std::cout<<',';event(b[0]);
     std::cout<<"],\"maximum_CA_iterations\":"<<d.maxConservativeAdvancementIterations<<",\"ccd_parameters\":";floats(d.ccdParameters);

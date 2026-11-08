@@ -1,0 +1,37 @@
+{
+  "base": "974948b1f59e5a16059775554a8ccb474446bc12",
+  "baseline_runtime": {
+    ".numi/retained-runtime/ccd-event-capture-20261108/baseline/CCDSweepProbe.metallib": "2397947a0cff3717e01cd37bb477a105094ac5c71f853575ec791c7a3e5478bd",
+    ".numi/retained-runtime/ccd-event-capture-20261108/baseline/libmetalrobo.dylib": "cdca44609a3cee9747c96895ffff431702d685075621ec5013414910adfba49c",
+    ".numi/retained-runtime/ccd-event-capture-20261108/baseline/metalrobo/MetalRobo.metallib": "b5dbe6bacc93a20ee00c0e63113f80bb91df9cfa529d4a853be961783bde7319",
+    ".numi/retained-runtime/ccd-event-capture-20261108/baseline/sweep-probe": "29a4276b74e0b31410b14eb31b3cb90b53b994f2759b85895009eec7d5584326"
+  },
+  "purpose": "Extend bounded optional failure inspection to the selected zero-time/advance-budget event; no physics, capacity or tolerance changes.",
+  "restored_sources": {
+    "cases-probe": "build/crow-ccd-translation-build-02/cases_probe",
+    "cases.bin": "build/crow-ccd-translation-build-02/cases.bin",
+    "expected-grid.bin": "build/crow-ccd-translation-build-02/integrated-grid.bin",
+    "expected/clamp/failure-contact-status.bin": "build/crow-ccd-event-status-build-01/clamp/failure-contact-status.bin",
+    "expected/clamp/failure-q.f32": "build/crow-ccd-event-status-build-01/clamp/failure-q.f32",
+    "expected/clamp/failure-scene.bin": "build/crow-ccd-event-status-build-01/clamp/failure-scene.bin",
+    "expected/clamp/failure-v.f32": "build/crow-ccd-event-status-build-01/clamp/failure-v.f32",
+    "expected/clamp/failure-world-status.bin": "build/crow-ccd-event-status-build-01/clamp/failure-world-status.bin",
+    "expected/clamp/failure.json": "build/crow-ccd-event-status-build-01/clamp/failure.json",
+    "expected/clamp/trace.tsv": "build/crow-ccd-event-status-build-01/clamp/trace.tsv",
+    "expected/open/final-q.f32": "build/crow-beak-hold-build-02/open/final-q.f32",
+    "expected/open/final-scene.bin": "build/crow-beak-hold-build-02/open/final-scene.bin",
+    "expected/open/final-v.f32": "build/crow-beak-hold-build-02/open/final-v.f32",
+    "expected/open/scene.bin": "build/crow-beak-hold-build-02/open/scene.bin",
+    "expected/open/summary.json": "build/crow-beak-hold-build-02/open/summary.json",
+    "expected/open/trace.tsv": "build/crow-beak-hold-build-02/open/trace.tsv",
+    "expected/refinement/failure-q.f32": "build/crow-beak-hold-build-02/refinement/failure-q.f32",
+    "expected/refinement/failure-scene.bin": "build/crow-beak-hold-build-02/refinement/failure-scene.bin",
+    "expected/refinement/failure-v.f32": "build/crow-beak-hold-build-02/refinement/failure-v.f32",
+    "expected/refinement/failure-world-status.bin": "build/crow-beak-hold-build-02/refinement/failure-world-status.bin",
+    "expected/refinement/failure.json": "build/crow-beak-hold-build-02/refinement/failure.json",
+    "expected/refinement/trace.tsv": "build/crow-beak-hold-build-02/refinement/trace.tsv",
+    "old-replay.bin": "build/crow-ccd-translation-build-02/integrated-clamp.bin",
+    "old.ccdsweep": "build/crow-ccd-translation-build-02/input/clamp.ccdsweep",
+    "probe": "build/crow-beak-hold-build-02/probe-with-runtime"
+  }
+}

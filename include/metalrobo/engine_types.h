@@ -1556,6 +1556,7 @@ typedef struct MR_ALIGN16 MRCCDFailureSnapshotGPU {
 } MRCCDFailureSnapshotGPU;
 enum MRCCDFailureSnapshotConstants : mr_u32 {
     MR_CCD_FAILURE_SNAPSHOT_TAG = 0x43434631u,
+    MR_CCD_EVENT_FAILURE_SNAPSHOT_TAG = 0x43434632u,
     MR_CCD_FAILURE_SNAPSHOT_CANDIDATES = 11u,
 };
 
