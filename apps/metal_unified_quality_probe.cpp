@@ -181,11 +181,61 @@ float verifyCappedNewtonClosure() {
     return maximumOptimality;
 }
 
+// Independent scalar contact oracle: normal support, normal cap and
+// adhesion, with tangential impulses constrained to exactly zero.
+void verifyFrictionlessScalarOracle() {
+    const std::array<float, 9> identity{
+        1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+    const std::array<float, 3> zero{};
+    // initial normal velocity, lower bound, upper bound, expected impulse
+    const std::array<std::array<float, 4>, 3> cases{{
+        {-1.0f, 0.0f, 1.0e20f, 1.0f / 1.2f},
+        {-1.0f, 0.0f, 0.5f, 0.5f},
+        { 1.0f, -0.25f, 1.0e20f, -0.25f},
+    }};
+    for (const auto& c : cases) {
+        const std::array blocks{
+            scalarBlock(0u, 0.2f, c[1], c[2], false, 101u),
+            scalarBlock(1u, 1.0f, 0.0f, 0.0f, false, 102u),
+            scalarBlock(2u, 1.0f, 0.0f, 0.0f, false, 103u),
+        };
+        const std::array<float, 3> freeVelocity{c[0], 0.3f, -0.2f};
+        metalrobo::MetalUnifiedQualityProblem problem;
+        problem.problemCount = 1u;
+        problem.generalizedVelocityCount = 3u;
+        problem.rowCount = 3u;
+        problem.blocks = blocks;
+        problem.dynamics = identity;
+        problem.jacobian = identity;
+        problem.bias = zero;
+        problem.freeVelocity = freeVelocity;
+        problem.warmVelocity = zero;
+        problem.warmImpulses = zero;
+        for (const bool pcg : {false, true}) {
+            metalrobo::MetalUnifiedQualityConfig config;
+            config.optimalityTolerance = 1.0e-6f;
+            config.directMaximumGeneralizedVelocities = pcg ? 1u : 64u;
+            metalrobo::MetalUnifiedQualityResult result;
+            const auto status = metalrobo::solveMetalUnifiedQuality(problem, result, config);
+            require(status.succeeded() && result.impulses.size() == 3u &&
+                        result.velocity.size() == 3u &&
+                        std::abs(result.impulses[0] - c[3]) < 2.0e-5f &&
+                        result.impulses[1] == 0.0f &&
+                        result.impulses[2] == 0.0f &&
+                        std::abs(result.velocity[0] - (c[0] + c[3])) < 2.0e-5f &&
+                        std::abs(result.velocity[1] - freeVelocity[1]) < 2.0e-5f &&
+                        std::abs(result.velocity[2] - freeVelocity[2]) < 2.0e-5f,
+                    "frictionless scalar interval oracle failed: " + status.message);
+        }
+    }
+}
+
 } // namespace
 
 int main() {
     try {
         const float cappedOptimality = verifyCappedNewtonClosure();
+        verifyFrictionlessScalarOracle();
         constexpr std::size_t environments = 2u;
         constexpr std::size_t nv = 12u;
         constexpr std::size_t rows = 15u;
@@ -568,6 +618,7 @@ int main() {
             << " newton=" << maximumNewton
             << " pcg=" << maximumPCG
             << " capped_newton_optimality=" << cappedOptimality
+            << " frictionless_scalar_oracle=ok"
             << " allocated_bytes="
             << directDiagnostics.allocatedBytes
             << " large_rows=" << largeRows
