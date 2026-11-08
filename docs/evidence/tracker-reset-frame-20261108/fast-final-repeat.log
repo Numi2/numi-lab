@@ -1,0 +1,6 @@
+CHECK step=0 frame=0 env0_visible=1 env0_x=0.50244689 env0_far=18511 pixels=19200 features_abs=3.96497989 env1_visible=1 env1_x=0.530237973
+CHECK step=1 frame=1 env0_visible=1 env0_x=0.593514681 env0_far=18493 pixels=19200 features_abs=4.37185812 env1_visible=1 env1_x=0.530177593
+CHECK step=2 frame=2 env0_visible=1 env0_x=0.597817242 env0_far=18473 pixels=19200 features_abs=4.49995136 env1_visible=1 env1_x=0.530442953
+CHECK step=3 frame=3 env0_visible=1 env0_x=0.595570326 env0_far=18518 pixels=19200 features_abs=4.48418808 env1_visible=1 env1_x=0.530884087
+CHECK step=4 frame=4 env0_visible=1 env0_x=0.598130703 env0_far=18499 pixels=19200 features_abs=4.39411545 env1_visible=1 env1_x=0.529533446
+CHECK step=5 frame=5 env0_visible=1 env0_x=0.596044302 env0_far=18490 pixels=19200 features_abs=4.44322824 env1_visible=1 env1_x=0.529902339

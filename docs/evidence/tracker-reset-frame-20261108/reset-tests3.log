@@ -1,0 +1,14 @@
+Test project /Users/numi/numi-tracker-step-rollback-build-20261108
+    Start 185: metalrobo.visual.reset_frame_materialized
+1/2 Test #185: metalrobo.visual.reset_frame_materialized ...   Passed    0.33 sec
+    Start 186: metalrobo.visual.reset_frame_direct
+2/2 Test #186: metalrobo.visual.reset_frame_direct .........   Passed    0.08 sec
+
+100% tests passed out of 2
+
+Label Time Summary:
+metal        =   0.41 sec*proc (2 tests)
+metalrobo    =   0.41 sec*proc (2 tests)
+visual       =   0.41 sec*proc (2 tests)
+
+Total Test time (real) =   0.41 sec
