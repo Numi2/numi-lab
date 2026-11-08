@@ -1,0 +1,9 @@
+{
+  "status": "removed_by_verified_superset",
+  "superset_manifest": "artifacts/crow-rl-ccd-stationary-20261108/manifest.json",
+  "superset_cleanup_receipt": "artifacts/crow-rl-ccd-stationary-20261108/cleanup-receipt.json",
+  "covered_files": 136,
+  "covered_logical_bytes": 276666241,
+  "all_source_identity_and_metadata_fields_exact": true,
+  "coverage_check_revision": "An initial whole-record comparison rejected deduplicated backing encodings (new chunks-gzip versus existing gzip reference). Source path/hash/bytes/mode/mtime records are identical after excluding only the backing representation. Actual Git bytes were verified by the superset prune tool before any deletion."
+}

@@ -59,3 +59,7 @@ updated.policypack; v2 compares its actual candidate/rollout components. Both
 revisions reuse unchanged inputs with no native or optimizer rerun.
 
 Executed minimal recovery is qualified only when `verification.json` passes.
+
+Verified Git recovery passed. The superset manifest validated and removed354
+closed, unchanged raw files (820,527,497 logical bytes), including the protected
+diagnosis stage. See `cleanup-receipt.json`; Git remains authoritative.
