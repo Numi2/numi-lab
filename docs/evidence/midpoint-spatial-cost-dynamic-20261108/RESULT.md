@@ -1,4 +1,4 @@
-# Spatial and accuracy-adjusted midpoint study — 32-division reference in progress
+# Spatial and accuracy-adjusted midpoint study
 
 Native runs are on Apple M6 with the binary and shader hashes in
 [BINARY_INPUTS.sha256](BINARY_INPUTS.sha256). The native physics inputs were
@@ -13,7 +13,7 @@ remain disabled.
 ## The spatial gate failed
 
 The independent FP64 RK4 references passed the prescribed 0.5 versus 0.25 us
-temporal checks at 2, 4, 8 and 16 divisions, with material coefficients,
+temporal checks at 2, 4, 8, 16 and 32 divisions, with material coefficients,
 activation width, physical area coefficient, geometry and duration unchanged.
 Their total nodal reference area was 0.0004 m² at each resolution, within
 floating-point summation error. This temporal check does not establish spatial
@@ -24,13 +24,13 @@ accuracy.
 | 2 to 4 | 92.90% | 56.01% | 20.01% | 29.23% |
 | 4 to 8 | 70.43% | 28.44% | 3.37% | 12.56% |
 | 8 to 16 | 27.24% | 38.45% | 6.66% | 8.32% |
+| 16 to 32 | 12.43% | 48.07% | 0.63% | 3.68% |
 
-Errors are normalized to the finer mesh, with the full cumulative curve
-normalized by its final impulse. Raw 2 us force/impulse traces and the
-[analysis](spatial-analysis.json) and [follow-up](spatial-followup-analysis.json)
+Force-bin errors are the largest absolute bin difference divided by the finer mesh peak binned force; peak and final-impulse errors use the corresponding finer values. The maximum cumulative-impulse error is normalized by the finer final impulse. Raw 2 us force/impulse traces and the
+[analysis](spatial-analysis.json), [16-division follow-up](spatial-followup-analysis.json), and [32-division follow-up](spatial-n32-analysis.json)
 are retained. In particular, the 27-node solution is not a spatially
 converged result, and the finer follow-up did not establish convergence either.
-The cause of the discrepancies remains unproven. A separate preregistered 32-division CPU reference is in progress.
+The cause of the discrepancies remains unproven. The 32-division reference was a separately preregistered CPU-only follow-up; it does not establish native 32-division Matter behavior.
 
 ## Native temporal qualification and timing
 

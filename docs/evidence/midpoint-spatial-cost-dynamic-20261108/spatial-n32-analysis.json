@@ -1,0 +1,28 @@
+{
+  "n32_temporal": {
+    "binned_force": 8.276673045420913e-10,
+    "total_impulse": 1.5176522153915173e-10,
+    "peak_force": 2.9852938305702775e-06,
+    "cumulative_impulse": 1.7385810751880203e-10,
+    "passes": true
+  },
+  "n16_to_32": {
+    "binned_force": 0.12425294155678482,
+    "total_impulse": 0.006280353597719557,
+    "peak_force": 0.4806645125199667,
+    "cumulative_impulse": 0.036822793297802005,
+    "passes": false
+  },
+  "n16_temporal": {
+    "binned_force": 8.624848615706124e-10,
+    "total_impulse": 2.2569252385747084e-10,
+    "peak_force": 6.155757105500837e-06,
+    "cumulative_impulse": 3.652977187518515e-10,
+    "passes": true
+  },
+  "spatial_test_valid": true,
+  "predicted_nonconvergence_confirmed": true,
+  "peak_n32_N": 0.17642067048745907,
+  "impulse_n32_Ns": 0.00041216875036872785,
+  "area_n32_m2": 0.000400000000000006
+}
