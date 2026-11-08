@@ -1,0 +1,603 @@
+{
+  "schema": "numi.ccd.thin-rejection-audit.v1",
+  "archive_sha256": "83c9e8db0fc458db1ab94d0c226faac3e7e74838793cc3d331b7320082e553fb",
+  "cases": [
+    {
+      "limit": 16,
+      "fixture": 1,
+      "scale": 1,
+      "accepted": true,
+      "byte_replay_and_rejection_restored": true,
+      "prior_boundary": null,
+      "failure_boundary": null,
+      "failure_kind": null
+    },
+    {
+      "limit": 16,
+      "fixture": 2,
+      "scale": 1,
+      "accepted": true,
+      "byte_replay_and_rejection_restored": true,
+      "prior_boundary": null,
+      "failure_boundary": null,
+      "failure_kind": null
+    },
+    {
+      "limit": 16,
+      "fixture": 12,
+      "scale": 1,
+      "accepted": false,
+      "byte_replay_and_rejection_restored": true,
+      "prior_boundary": {
+        "pass": 1,
+        "status": 0,
+        "unresolved": 0,
+        "pair_flags": 37,
+        "pair_work": 11,
+        "elapsed_s": 0.006090428215,
+        "remaining_s": 0.003909571562,
+        "support_gap_m": 3.3425476881392454e-05,
+        "contacts": [
+          {
+            "recorded_gap_m": 5.276501179e-05,
+            "recorded_pre_normal_velocity_m_s": -1.722509503,
+            "reported_normal_impulse_N_s": 0.03371554241,
+            "reconstructed_post_normal_velocity_m_s": -1.6486151426351532,
+            "normal_target_floor_m_s": -0.005276501179,
+            "closing_speed_beyond_target_floor_m_s": 1.6433386414561533
+          },
+          {
+            "recorded_gap_m": 5.276501179e-05,
+            "recorded_pre_normal_velocity_m_s": -1.722509503,
+            "reported_normal_impulse_N_s": 0.03371554241,
+            "reconstructed_post_normal_velocity_m_s": -1.6486151401777975,
+            "normal_target_floor_m_s": -0.005276501179,
+            "closing_speed_beyond_target_floor_m_s": 1.6433386389987976
+          }
+        ]
+      },
+      "failure_boundary": {
+        "pass": 2,
+        "status": 11,
+        "unresolved": 1,
+        "pair_flags": 161,
+        "pair_work": 16,
+        "elapsed_s": 0.006090428215,
+        "remaining_s": 0.003909571562,
+        "support_gap_m": 0.0783472531163885,
+        "contacts": [
+          {
+            "recorded_gap_m": 5.276501179e-05,
+            "recorded_pre_normal_velocity_m_s": -1.722509503,
+            "reported_normal_impulse_N_s": 0.03371554241,
+            "reconstructed_post_normal_velocity_m_s": -1.2254923465961096,
+            "normal_target_floor_m_s": -0.005276501179,
+            "closing_speed_beyond_target_floor_m_s": 1.2202158454171097
+          },
+          {
+            "recorded_gap_m": 5.276501179e-05,
+            "recorded_pre_normal_velocity_m_s": -1.722509503,
+            "reported_normal_impulse_N_s": 0.03371554241,
+            "reconstructed_post_normal_velocity_m_s": -1.225492182171522,
+            "normal_target_floor_m_s": -0.005276501179,
+            "closing_speed_beyond_target_floor_m_s": 1.220215680992522
+          }
+        ]
+      },
+      "failure_kind": "unresolved_cast"
+    },
+    {
+      "limit": 16,
+      "fixture": 14,
+      "scale": 1,
+      "accepted": false,
+      "byte_replay_and_rejection_restored": true,
+      "prior_boundary": {
+        "pass": 2,
+        "status": 0,
+        "unresolved": 0,
+        "pair_flags": 37,
+        "pair_work": 11,
+        "elapsed_s": 0.00862513762,
+        "remaining_s": 0.001374862273,
+        "support_gap_m": 2.4037322599687463e-05,
+        "contacts": [
+          {
+            "recorded_gap_m": 4.182755947e-05,
+            "recorded_pre_normal_velocity_m_s": -1.000770092,
+            "reported_normal_impulse_N_s": 0.002539219335,
+            "reconstructed_post_normal_velocity_m_s": -0.9952436242700587,
+            "normal_target_floor_m_s": -0.004182755947,
+            "closing_speed_beyond_target_floor_m_s": 0.9910608683230587
+          },
+          {
+            "recorded_gap_m": 4.182755947e-05,
+            "recorded_pre_normal_velocity_m_s": -1.000770092,
+            "reported_normal_impulse_N_s": 0.002539219335,
+            "reconstructed_post_normal_velocity_m_s": -0.9952436221892166,
+            "normal_target_floor_m_s": -0.004182755947,
+            "closing_speed_beyond_target_floor_m_s": 0.9910608662422166
+          }
+        ]
+      },
+      "failure_boundary": {
+        "pass": 3,
+        "status": 9,
+        "unresolved": 0,
+        "pair_flags": 37,
+        "pair_work": 13,
+        "elapsed_s": 0.008635851555,
+        "remaining_s": 0.001364148222,
+        "support_gap_m": 1.4451024753195068e-05,
+        "contacts": [
+          {
+            "recorded_gap_m": 3.147125244e-05,
+            "recorded_pre_normal_velocity_m_s": -0.9323155284,
+            "reported_normal_impulse_N_s": 0.0002545281313,
+            "reconstructed_post_normal_velocity_m_s": -0.9317635998598458,
+            "normal_target_floor_m_s": -0.0031471252439999996,
+            "closing_speed_beyond_target_floor_m_s": 0.9286164746158458
+          },
+          {
+            "recorded_gap_m": 3.147125244e-05,
+            "recorded_pre_normal_velocity_m_s": -0.9323155284,
+            "reported_normal_impulse_N_s": 0.0002545281313,
+            "reconstructed_post_normal_velocity_m_s": -0.9317635977539066,
+            "normal_target_floor_m_s": -0.0031471252439999996,
+            "closing_speed_beyond_target_floor_m_s": 0.9286164725099066
+          }
+        ]
+      },
+      "failure_kind": "event_budget_exhausted"
+    },
+    {
+      "limit": 128,
+      "fixture": 1,
+      "scale": 1,
+      "accepted": true,
+      "byte_replay_and_rejection_restored": true,
+      "prior_boundary": null,
+      "failure_boundary": null,
+      "failure_kind": null
+    },
+    {
+      "limit": 128,
+      "fixture": 2,
+      "scale": 1,
+      "accepted": true,
+      "byte_replay_and_rejection_restored": true,
+      "prior_boundary": null,
+      "failure_boundary": null,
+      "failure_kind": null
+    },
+    {
+      "limit": 128,
+      "fixture": 12,
+      "scale": 1,
+      "accepted": false,
+      "byte_replay_and_rejection_restored": true,
+      "prior_boundary": {
+        "pass": 1,
+        "status": 0,
+        "unresolved": 0,
+        "pair_flags": 37,
+        "pair_work": 11,
+        "elapsed_s": 0.006090428215,
+        "remaining_s": 0.003909571562,
+        "support_gap_m": 3.3425476881392454e-05,
+        "contacts": [
+          {
+            "recorded_gap_m": 5.276501179e-05,
+            "recorded_pre_normal_velocity_m_s": -1.722509503,
+            "reported_normal_impulse_N_s": 0.03371554241,
+            "reconstructed_post_normal_velocity_m_s": -1.6486151426351532,
+            "normal_target_floor_m_s": -0.005276501179,
+            "closing_speed_beyond_target_floor_m_s": 1.6433386414561533
+          },
+          {
+            "recorded_gap_m": 5.276501179e-05,
+            "recorded_pre_normal_velocity_m_s": -1.722509503,
+            "reported_normal_impulse_N_s": 0.03371554241,
+            "reconstructed_post_normal_velocity_m_s": -1.6486151401777975,
+            "normal_target_floor_m_s": -0.005276501179,
+            "closing_speed_beyond_target_floor_m_s": 1.6433386389987976
+          }
+        ]
+      },
+      "failure_boundary": {
+        "pass": 2,
+        "status": 11,
+        "unresolved": 1,
+        "pair_flags": 161,
+        "pair_work": 43,
+        "elapsed_s": 0.006090428215,
+        "remaining_s": 0.003909571562,
+        "support_gap_m": 0.0783472531163885,
+        "contacts": [
+          {
+            "recorded_gap_m": 5.276501179e-05,
+            "recorded_pre_normal_velocity_m_s": -1.722509503,
+            "reported_normal_impulse_N_s": 0.03371554241,
+            "reconstructed_post_normal_velocity_m_s": -1.2254923465961096,
+            "normal_target_floor_m_s": -0.005276501179,
+            "closing_speed_beyond_target_floor_m_s": 1.2202158454171097
+          },
+          {
+            "recorded_gap_m": 5.276501179e-05,
+            "recorded_pre_normal_velocity_m_s": -1.722509503,
+            "reported_normal_impulse_N_s": 0.03371554241,
+            "reconstructed_post_normal_velocity_m_s": -1.225492182171522,
+            "normal_target_floor_m_s": -0.005276501179,
+            "closing_speed_beyond_target_floor_m_s": 1.220215680992522
+          }
+        ]
+      },
+      "failure_kind": "unresolved_cast"
+    },
+    {
+      "limit": 128,
+      "fixture": 14,
+      "scale": 1,
+      "accepted": false,
+      "byte_replay_and_rejection_restored": true,
+      "prior_boundary": {
+        "pass": 2,
+        "status": 0,
+        "unresolved": 0,
+        "pair_flags": 37,
+        "pair_work": 11,
+        "elapsed_s": 0.00862513762,
+        "remaining_s": 0.001374862273,
+        "support_gap_m": 2.4037322599687463e-05,
+        "contacts": [
+          {
+            "recorded_gap_m": 4.182755947e-05,
+            "recorded_pre_normal_velocity_m_s": -1.000770092,
+            "reported_normal_impulse_N_s": 0.002539219335,
+            "reconstructed_post_normal_velocity_m_s": -0.9952436242700587,
+            "normal_target_floor_m_s": -0.004182755947,
+            "closing_speed_beyond_target_floor_m_s": 0.9910608683230587
+          },
+          {
+            "recorded_gap_m": 4.182755947e-05,
+            "recorded_pre_normal_velocity_m_s": -1.000770092,
+            "reported_normal_impulse_N_s": 0.002539219335,
+            "reconstructed_post_normal_velocity_m_s": -0.9952436221892166,
+            "normal_target_floor_m_s": -0.004182755947,
+            "closing_speed_beyond_target_floor_m_s": 0.9910608662422166
+          }
+        ]
+      },
+      "failure_boundary": {
+        "pass": 3,
+        "status": 9,
+        "unresolved": 0,
+        "pair_flags": 37,
+        "pair_work": 13,
+        "elapsed_s": 0.008635851555,
+        "remaining_s": 0.001364148222,
+        "support_gap_m": 1.4451024753195068e-05,
+        "contacts": [
+          {
+            "recorded_gap_m": 3.147125244e-05,
+            "recorded_pre_normal_velocity_m_s": -0.9323155284,
+            "reported_normal_impulse_N_s": 0.0002545281313,
+            "reconstructed_post_normal_velocity_m_s": -0.9317635998598458,
+            "normal_target_floor_m_s": -0.0031471252439999996,
+            "closing_speed_beyond_target_floor_m_s": 0.9286164746158458
+          },
+          {
+            "recorded_gap_m": 3.147125244e-05,
+            "recorded_pre_normal_velocity_m_s": -0.9323155284,
+            "reported_normal_impulse_N_s": 0.0002545281313,
+            "reconstructed_post_normal_velocity_m_s": -0.9317635977539066,
+            "normal_target_floor_m_s": -0.0031471252439999996,
+            "closing_speed_beyond_target_floor_m_s": 0.9286164725099066
+          }
+        ]
+      },
+      "failure_kind": "event_budget_exhausted"
+    },
+    {
+      "limit": 16,
+      "fixture": 1,
+      "scale": 0.5,
+      "accepted": true,
+      "byte_replay_and_rejection_restored": true,
+      "prior_boundary": null,
+      "failure_boundary": null,
+      "failure_kind": null
+    },
+    {
+      "limit": 16,
+      "fixture": 2,
+      "scale": 0.5,
+      "accepted": true,
+      "byte_replay_and_rejection_restored": true,
+      "prior_boundary": null,
+      "failure_boundary": null,
+      "failure_kind": null
+    },
+    {
+      "limit": 16,
+      "fixture": 12,
+      "scale": 0.5,
+      "accepted": false,
+      "byte_replay_and_rejection_restored": true,
+      "prior_boundary": {
+        "pass": 1,
+        "status": 0,
+        "unresolved": 0,
+        "pair_flags": 37,
+        "pair_work": 13,
+        "elapsed_s": 0.006090428215,
+        "remaining_s": 0.003909571562,
+        "support_gap_m": 1.6712728440705052e-05,
+        "contacts": [
+          {
+            "recorded_gap_m": 2.638250589e-05,
+            "recorded_pre_normal_velocity_m_s": -0.8612547517,
+            "reported_normal_impulse_N_s": 0.0168577712,
+            "reconstructed_post_normal_velocity_m_s": -0.8243075713674551,
+            "normal_target_floor_m_s": -0.002638250589,
+            "closing_speed_beyond_target_floor_m_s": 0.8216693207784551
+          },
+          {
+            "recorded_gap_m": 2.638250589e-05,
+            "recorded_pre_normal_velocity_m_s": -0.8612547517,
+            "reported_normal_impulse_N_s": 0.0168577712,
+            "reconstructed_post_normal_velocity_m_s": -0.8243075701387773,
+            "normal_target_floor_m_s": -0.002638250589,
+            "closing_speed_beyond_target_floor_m_s": 0.8216693195497773
+          }
+        ]
+      },
+      "failure_boundary": {
+        "pass": 2,
+        "status": 11,
+        "unresolved": 1,
+        "pair_flags": 161,
+        "pair_work": 16,
+        "elapsed_s": 0.006090428215,
+        "remaining_s": 0.003909571562,
+        "support_gap_m": 0.03917362650819441,
+        "contacts": [
+          {
+            "recorded_gap_m": 2.638250589e-05,
+            "recorded_pre_normal_velocity_m_s": -0.8612547517,
+            "reported_normal_impulse_N_s": 0.0168577712,
+            "reconstructed_post_normal_velocity_m_s": -0.6127461733237811,
+            "normal_target_floor_m_s": -0.002638250589,
+            "closing_speed_beyond_target_floor_m_s": 0.6101079227347811
+          },
+          {
+            "recorded_gap_m": 2.638250589e-05,
+            "recorded_pre_normal_velocity_m_s": -0.8612547517,
+            "reported_normal_impulse_N_s": 0.0168577712,
+            "reconstructed_post_normal_velocity_m_s": -0.6127460911114873,
+            "normal_target_floor_m_s": -0.002638250589,
+            "closing_speed_beyond_target_floor_m_s": 0.6101078405224872
+          }
+        ]
+      },
+      "failure_kind": "unresolved_cast"
+    },
+    {
+      "limit": 16,
+      "fixture": 14,
+      "scale": 0.5,
+      "accepted": false,
+      "byte_replay_and_rejection_restored": true,
+      "prior_boundary": {
+        "pass": 2,
+        "status": 0,
+        "unresolved": 0,
+        "pair_flags": 37,
+        "pair_work": 16,
+        "elapsed_s": 0.00862513762,
+        "remaining_s": 0.001374862273,
+        "support_gap_m": 1.2018671299853456e-05,
+        "contacts": [
+          {
+            "recorded_gap_m": 2.091377974e-05,
+            "recorded_pre_normal_velocity_m_s": -0.500385046,
+            "reported_normal_impulse_N_s": 0.001269609667,
+            "reconstructed_post_normal_velocity_m_s": -0.4976218121850294,
+            "normal_target_floor_m_s": -0.0020913779739999997,
+            "closing_speed_beyond_target_floor_m_s": 0.4955304342110294
+          },
+          {
+            "recorded_gap_m": 2.091377974e-05,
+            "recorded_pre_normal_velocity_m_s": -0.500385046,
+            "reported_normal_impulse_N_s": 0.001269609667,
+            "reconstructed_post_normal_velocity_m_s": -0.4976218111446083,
+            "normal_target_floor_m_s": -0.0020913779739999997,
+            "closing_speed_beyond_target_floor_m_s": 0.4955304331706083
+          }
+        ]
+      },
+      "failure_boundary": {
+        "pass": 3,
+        "status": 11,
+        "unresolved": 1,
+        "pair_flags": 161,
+        "pair_work": 16,
+        "elapsed_s": 0.00862513762,
+        "remaining_s": 0.001374862273,
+        "support_gap_m": 0.0021093309961695878,
+        "contacts": [
+          {
+            "recorded_gap_m": 2.091377974e-05,
+            "recorded_pre_normal_velocity_m_s": -0.500385046,
+            "reported_normal_impulse_N_s": 0.001269609667,
+            "reconstructed_post_normal_velocity_m_s": -0.4577258021198231,
+            "normal_target_floor_m_s": -0.0020913779739999997,
+            "closing_speed_beyond_target_floor_m_s": 0.4556344241458231
+          },
+          {
+            "recorded_gap_m": 2.091377974e-05,
+            "recorded_pre_normal_velocity_m_s": -0.500385046,
+            "reported_normal_impulse_N_s": 0.001269609667,
+            "reconstructed_post_normal_velocity_m_s": -0.4577257994757315,
+            "normal_target_floor_m_s": -0.0020913779739999997,
+            "closing_speed_beyond_target_floor_m_s": 0.4556344215017315
+          }
+        ]
+      },
+      "failure_kind": "unresolved_cast"
+    },
+    {
+      "limit": 128,
+      "fixture": 1,
+      "scale": 0.5,
+      "accepted": true,
+      "byte_replay_and_rejection_restored": true,
+      "prior_boundary": null,
+      "failure_boundary": null,
+      "failure_kind": null
+    },
+    {
+      "limit": 128,
+      "fixture": 2,
+      "scale": 0.5,
+      "accepted": true,
+      "byte_replay_and_rejection_restored": true,
+      "prior_boundary": null,
+      "failure_boundary": null,
+      "failure_kind": null
+    },
+    {
+      "limit": 128,
+      "fixture": 12,
+      "scale": 0.5,
+      "accepted": false,
+      "byte_replay_and_rejection_restored": true,
+      "prior_boundary": {
+        "pass": 1,
+        "status": 0,
+        "unresolved": 0,
+        "pair_flags": 37,
+        "pair_work": 13,
+        "elapsed_s": 0.006090428215,
+        "remaining_s": 0.003909571562,
+        "support_gap_m": 1.6712728440705052e-05,
+        "contacts": [
+          {
+            "recorded_gap_m": 2.638250589e-05,
+            "recorded_pre_normal_velocity_m_s": -0.8612547517,
+            "reported_normal_impulse_N_s": 0.0168577712,
+            "reconstructed_post_normal_velocity_m_s": -0.8243075713674551,
+            "normal_target_floor_m_s": -0.002638250589,
+            "closing_speed_beyond_target_floor_m_s": 0.8216693207784551
+          },
+          {
+            "recorded_gap_m": 2.638250589e-05,
+            "recorded_pre_normal_velocity_m_s": -0.8612547517,
+            "reported_normal_impulse_N_s": 0.0168577712,
+            "reconstructed_post_normal_velocity_m_s": -0.8243075701387773,
+            "normal_target_floor_m_s": -0.002638250589,
+            "closing_speed_beyond_target_floor_m_s": 0.8216693195497773
+          }
+        ]
+      },
+      "failure_boundary": {
+        "pass": 2,
+        "status": 11,
+        "unresolved": 1,
+        "pair_flags": 161,
+        "pair_work": 39,
+        "elapsed_s": 0.006090428215,
+        "remaining_s": 0.003909571562,
+        "support_gap_m": 0.03917362650819441,
+        "contacts": [
+          {
+            "recorded_gap_m": 2.638250589e-05,
+            "recorded_pre_normal_velocity_m_s": -0.8612547517,
+            "reported_normal_impulse_N_s": 0.0168577712,
+            "reconstructed_post_normal_velocity_m_s": -0.6127461733237811,
+            "normal_target_floor_m_s": -0.002638250589,
+            "closing_speed_beyond_target_floor_m_s": 0.6101079227347811
+          },
+          {
+            "recorded_gap_m": 2.638250589e-05,
+            "recorded_pre_normal_velocity_m_s": -0.8612547517,
+            "reported_normal_impulse_N_s": 0.0168577712,
+            "reconstructed_post_normal_velocity_m_s": -0.6127460911114873,
+            "normal_target_floor_m_s": -0.002638250589,
+            "closing_speed_beyond_target_floor_m_s": 0.6101078405224872
+          }
+        ]
+      },
+      "failure_kind": "unresolved_cast"
+    },
+    {
+      "limit": 128,
+      "fixture": 14,
+      "scale": 0.5,
+      "accepted": false,
+      "byte_replay_and_rejection_restored": true,
+      "prior_boundary": {
+        "pass": 2,
+        "status": 0,
+        "unresolved": 0,
+        "pair_flags": 37,
+        "pair_work": 16,
+        "elapsed_s": 0.00862513762,
+        "remaining_s": 0.001374862273,
+        "support_gap_m": 1.2018671299853456e-05,
+        "contacts": [
+          {
+            "recorded_gap_m": 2.091377974e-05,
+            "recorded_pre_normal_velocity_m_s": -0.500385046,
+            "reported_normal_impulse_N_s": 0.001269609667,
+            "reconstructed_post_normal_velocity_m_s": -0.4976218121850294,
+            "normal_target_floor_m_s": -0.0020913779739999997,
+            "closing_speed_beyond_target_floor_m_s": 0.4955304342110294
+          },
+          {
+            "recorded_gap_m": 2.091377974e-05,
+            "recorded_pre_normal_velocity_m_s": -0.500385046,
+            "reported_normal_impulse_N_s": 0.001269609667,
+            "reconstructed_post_normal_velocity_m_s": -0.4976218111446083,
+            "normal_target_floor_m_s": -0.0020913779739999997,
+            "closing_speed_beyond_target_floor_m_s": 0.4955304331706083
+          }
+        ]
+      },
+      "failure_boundary": {
+        "pass": 3,
+        "status": 11,
+        "unresolved": 1,
+        "pair_flags": 161,
+        "pair_work": 36,
+        "elapsed_s": 0.00862513762,
+        "remaining_s": 0.001374862273,
+        "support_gap_m": 0.0021093309961695878,
+        "contacts": [
+          {
+            "recorded_gap_m": 2.091377974e-05,
+            "recorded_pre_normal_velocity_m_s": -0.500385046,
+            "reported_normal_impulse_N_s": 0.001269609667,
+            "reconstructed_post_normal_velocity_m_s": -0.4577258021198231,
+            "normal_target_floor_m_s": -0.0020913779739999997,
+            "closing_speed_beyond_target_floor_m_s": 0.4556344241458231
+          },
+          {
+            "recorded_gap_m": 2.091377974e-05,
+            "recorded_pre_normal_velocity_m_s": -0.500385046,
+            "reported_normal_impulse_N_s": 0.001269609667,
+            "reconstructed_post_normal_velocity_m_s": -0.4577257994757315,
+            "normal_target_floor_m_s": -0.0020913779739999997,
+            "closing_speed_beyond_target_floor_m_s": 0.4556344215017315
+          }
+        ]
+      },
+      "failure_kind": "unresolved_cast"
+    }
+  ],
+  "limits": [
+    "Reconstructed point velocities use recorded contact midpoint, candidate center and world angular velocity, and assume the plane normal is world +Y.",
+    "The base normal target is -positive gap/0.01 s; evaluator stabilization is nonnegative. The point velocity reconstructed from captured pose and candidate velocity is diagnostic; the trace does not capture evaluated rows or convergence certificates, and rejected trial paths are not published trajectories.",
+    "The trace contains no explicit certificate branch reason, so unresolved casts may not be classified more narrowly solely from pair flags."
+  ]
+}
