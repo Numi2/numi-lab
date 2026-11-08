@@ -185,12 +185,19 @@ the reservation. During the reservation, competing render/encode, readback,
 tracker reset and renderer recompilation requests fail rather than observing or
 overwriting provisional host state. A second tracker cannot acquire the same
 renderer. Borrowed raw buffers and owner lifetime remain the caller's
-responsibility. This is a pre-commit guarantee only: command completion,
-per-environment physical rejection, GPU track/depth history and recurrent
-policy state require separate transaction qualification. Direct callers of
-the observation callback must use its paired begin/finish hooks if they need
-pre-commit abort behavior. The expanded C++ observation-program structure
-requires C++ clients to rebuild against the matching library.
+responsibility. During a MetalWorld rollout, the tracker also snapshots its
+object-track and masked-depth histories before each observation. After the
+physical substeps it restores those histories for each failed environment,
+while successful environments retain their updates. This does not roll back
+the shared host sensor sequence, rendered frames, task actor history, policy
+state or work from a failed GPU command. Recurrent-state and sensor-clock
+transactionality therefore remain unqualified, including for mixed-success
+batches and retried episodes. A committed command releases the host lease
+before GPU completion; callers must still serialize use of the tracker and its
+renderer across in-flight commands. Direct callers using the step-result hook
+must pair it with begin/finish and provide the physical status buffers. C++
+clients must rebuild against the matching observation-program structure and
+shader library.
 The same adapter can publish a SensorPack-authored ball-only masked-depth
 contract. Exact authored instance identities select pixels, invalid and
 non-selected pixels become calibrated far depth, and a device-resident ring

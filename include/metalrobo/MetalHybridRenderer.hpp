@@ -466,6 +466,9 @@ private:
     struct State;
     static bool beginObservation(void*, void*) noexcept;
     static void finishObservation(void*, void*, bool) noexcept;
+    static bool finishPhysicalStep(
+        void*, const MetalWorldDeviceObservationStepResult&
+    );
     static bool encodeObservation(
         void* context,
         const MetalWorldDeviceObservationPass& pass

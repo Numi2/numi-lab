@@ -500,6 +500,10 @@ int main() {
             auto incomplete = trackerProgram;
             incomplete.begin = nullptr;
             require(incomplete.configured() && !incomplete.valid(), "incomplete lease hooks admitted");
+            auto unleasedResult = trackerProgram;
+            unleasedResult.begin = nullptr;
+            unleasedResult.finish = nullptr;
+            require(unleasedResult.configured() && !unleasedResult.valid(), "unleased physical-step callback admitted");
             metalrobo::MetalHybridObjectTracker otherTracker;
             metalrobo::MetalHybridObjectTrackerConfig otherConfig;
             otherConfig.capacity = kEnvironmentCount;
@@ -612,6 +616,34 @@ int main() {
             config.timestepSeconds=0.02f; config.physicsSubsteps=4u;
             config.actuationMode=MetalWorldActuationMode::implicitPositionDrive;
             config.taskProgram=run.task(); config.deviceObservationProgram=trackerProgram;
+            struct StepOwner {
+                MetalWorldDeviceObservationProgram tracker;
+                bool reject = false;
+                std::uint32_t calls = 0u;
+            } stepOwner{trackerProgram, std::getenv("NUMI_TEST_REJECT_AFTER_STEP") != nullptr};
+            const bool checkStep = std::getenv("NUMI_TEST_WORLD_STEP_CALLBACK") != nullptr || stepOwner.reject;
+            if (checkStep) {
+                config.deviceObservationProgram = {
+                    .context = &stepOwner,
+                    .encode = [](void* opaque, const MetalWorldDeviceObservationPass& pass) -> bool {
+                        auto* owner = static_cast<StepOwner*>(opaque);
+                        return owner->tracker.encode(owner->tracker.context, pass);
+                    },
+                    .begin = [](void* opaque, void* command) noexcept -> bool {
+                        auto* owner = static_cast<StepOwner*>(opaque);
+                        return owner->tracker.begin(owner->tracker.context, command);
+                    },
+                    .finish = [](void* opaque, void* command, bool committed) noexcept {
+                        auto* owner = static_cast<StepOwner*>(opaque);
+                        owner->tracker.finish(owner->tracker.context, command, committed);
+                    },
+                    .afterStep = [](void* opaque, const MetalWorldDeviceObservationStepResult& pass) -> bool {
+                        auto* owner = static_cast<StepOwner*>(opaque);
+                        ++owner->calls;
+                        return owner->tracker.afterStep(owner->tracker.context, pass) && !owner->reject;
+                    },
+                };
+            }
             config.deviceActionProgram={.context=&action,
                 .encode=[](void* opaque, const MetalWorldDeviceActionPass& pass) noexcept -> bool {
                     auto* owner = static_cast<ActionOwner*>(opaque);
@@ -658,6 +690,15 @@ int main() {
                         "expected later callback rejection with active lease");
                 action.rejectStep=-1;
             }
+            if (stepOwner.reject) {
+                MetalWorldResidentState discarded; MetalWorldSubmission rejected;
+                const auto failure = context.initializeResidentState(run.world(), batch, config, discarded, rejected);
+                require(!failure.succeeded() && !rejected.valid() && stepOwner.calls == 1u &&
+                        failure.message.find("physical-step outcome") != std::string::npos,
+                        "expected observation step-result rejection");
+                stepOwner.reject = false;
+            }
+            const std::uint32_t priorStepCalls = stepOwner.calls;
             MetalWorldSubmission submission;
             auto r = residentMode
                 ? context.submitResident(run.world(),batch,config,resident,submission)
@@ -666,6 +707,7 @@ int main() {
             MetalWorldResult result; r=submission.wait(result);
             std::cout << "retry_wait=" << r.succeeded() << " failed_steps=" << r.failedStepCount << " message=" << r.message << '\n';
             require(r.succeeded() && r.failedStepCount==0u && action.checkedLease, "retry physical step failed");
+            if (checkStep) require(stepOwner.calls == priorStepCalls + 1u, "physical-step callback did not execute");
             HybridObservationBatch rendered; require(renderer.readback(rendered), "retry frame readback");
             std::cout << "world_retry_sensor_sequence=" << rendered.metadata.identity.z << '\n';
             require(rendered.metadata.identity.z==(residentMode ? 1u : 0u),
@@ -821,6 +863,71 @@ int main() {
             depthFeatures[23u] == 0.0f,
             "device masked-depth reset history is invalid"
         );
+        if (std::getenv("NUMI_TEST_TRACKER_STEP_ROLLBACK") != nullptr) {
+            require(trackerProgram.begin && trackerProgram.finish && trackerProgram.afterStep,
+                    "tracker physical-step hooks missing");
+            const std::vector<float> initial(tracked, tracked + trackElements);
+            auto* bodyValues = static_cast<MRBodyStateGPU*>(bodyBuffer.contents);
+            auto* taskValues = static_cast<MRTaskStateGPU*>(taskStateBuffer.contents);
+            auto* masks = static_cast<std::uint32_t*>(resetBuffer.contents);
+            std::fill_n(masks, kEnvironmentCount, 0u);
+            id<MTLBuffer> statuses = [device newBufferWithLength:
+                kEnvironmentCount * sizeof(MRMetalWorldStatusGPU) options:MTLResourceStorageModeShared];
+            require(statuses != nil, "step status allocation");
+            auto* statusValues = static_cast<MRMetalWorldStatusGPU*>(statuses.contents);
+            std::memset(statusValues, 0, statuses.length);
+            statusValues[0].code = MR_STEP_FACTORIZATION_FAILED;
+            auto observeStep = [&](std::uint32_t episodeStep) {
+                for (std::uint32_t e=0u; e<kEnvironmentCount; ++e) {
+                    bodyValues[static_cast<std::size_t>(e)*worldTemplate.engineModel.bodies.size()+trackedBody].position.x += 0.02f;
+                    taskValues[e].episode.x = episodeStep;
+                }
+                id<MTLCommandBuffer> stepCommand = [queue commandBuffer];
+                require(stepCommand != nil, "step command allocation");
+                trackerPass.commandBuffer = (__bridge void*)stepCommand;
+                require(trackerProgram.begin(trackerProgram.context, trackerPass.commandBuffer), "step begin");
+                require(trackerProgram.encode(trackerProgram.context, trackerPass), "step observation");
+                const metalrobo::MetalWorldDeviceObservationStepResult outcome{
+                    .commandBuffer = trackerPass.commandBuffer,
+                    .worldStatuses = (__bridge void*)statuses,
+                    .contactStatuses = nullptr,
+                    .environmentCount = kEnvironmentCount,
+                    .actorHistoryLength = kActorHistoryLength,
+                    .controlStep = 0u,
+                    .contactMode = false,
+                };
+                require(trackerProgram.afterStep(trackerProgram.context, outcome), "step result");
+                [stepCommand commit];
+                trackerProgram.finish(trackerProgram.context, trackerPass.commandBuffer, true);
+                [stepCommand waitUntilCompleted];
+                require(stepCommand.status == MTLCommandBufferStatusCompleted, "step command completion");
+                const auto* values = static_cast<const float*>(observationBuffer.contents);
+                return std::vector<float>(values, values + trackElements);
+            };
+            const auto middle = observeStep(1u);
+            std::memset(statusValues, 0, statuses.length);
+            const auto next = observeStep(2u);
+            for (std::uint32_t e=0u; e<kEnvironmentCount; ++e) {
+                const std::size_t base = static_cast<std::size_t>(e) * kTrackWidth;
+                const std::size_t initialLast = base + (kActorHistoryLength-1u)*kActorFrameSize;
+                const std::size_t previousLast = base + (kActorHistoryLength-2u)*kActorFrameSize;
+                const auto& expected = e == 0u ? initial : middle;
+                require(std::equal(next.begin()+previousLast, next.begin()+previousLast+4u,
+                                   expected.begin()+initialLast), "object history did not follow per-environment physical status");
+                const std::size_t depthCurrent = base + kActorFrameSize*kActorHistoryLength;
+                const std::size_t depthPrevious = depthCurrent + visualPixels;
+                require(std::equal(next.begin()+depthPrevious, next.begin()+depthPrevious+visualPixels,
+                                   expected.begin()+depthCurrent), "masked-depth history did not follow per-environment physical status");
+            }
+            const std::size_t acceptedLast = kTrackWidth+(kActorHistoryLength-1u)*kActorFrameSize;
+            require(!std::equal(initial.begin()+acceptedLast, initial.begin()+acceptedLast+4u,
+                                middle.begin()+acceptedLast), "accepted object history did not change");
+            const std::size_t acceptedDepth = kTrackWidth+kActorFrameSize*kActorHistoryLength;
+            require(!std::equal(initial.begin()+acceptedDepth, initial.begin()+acceptedDepth+visualPixels,
+                                middle.begin()+acceptedDepth), "accepted depth history did not change");
+            std::cout << "per_environment_object_and_masked_depth_rollback=pass\n";
+            return 0;
+        }
         const std::vector<float> firstDepth(
             currentDepth,
             currentDepth + visualPixels
