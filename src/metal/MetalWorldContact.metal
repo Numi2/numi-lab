@@ -8594,6 +8594,64 @@ inline void mrWorldWave32SolvePacket(
         }
       }
     }
+    // Research: bounded four-row sliding groupings. Verify all local normal
+    // and friction residuals before the proposed iterate can be used.
+    if(blockEligible && blockSlidingEligible && blockCount==4u && !blockFound) {
+      const uint pairs[3][4]={{0u,1u,2u,3u},{0u,2u,1u,3u},{0u,3u,1u,2u}};
+      for(uint pair=0u;pair<3u && !blockFound;++pair) {
+        uint groups[2][2]={{pairs[pair][0],pairs[pair][1]},{pairs[pair][2],pairs[pair][3]}};
+        float M[2][2]={{0.0f,0.0f},{0.0f,0.0f}},rhs[2]={0.0f,0.0f};
+        for(uint g=0u;g<2u;++g) for(uint ai=0u;ai<2u;++ai) {
+          const uint ti=groups[g][ai],ci=blockIds[ti];rhs[g]-=0.5f*blockB[ti];
+          device const MRContactConstraintGPU& target=contacts[constraintBase+ci];
+          device const MREvaluatedConstraintIRRowGPU* tr=evaluatedRows+rowBase+3u*ci;
+          for(uint h=0u;h<2u;++h) for(uint aj=0u;aj<2u;++aj) {
+            const uint sj=groups[h][aj],cj=blockIds[sj];device const MRContactConstraintGPU& source=contacts[constraintBase+cj];
+            device const MREvaluatedConstraintIRRowGPU* sr=evaluatedRows+rowBase+3u*cj;
+            for(uint axis=0u;axis<3u;++axis) {
+              float z=typedNormalCrossContactResponse(ci,cj,axis,target,source,tr[0].direction.xyz,
+                sr[axis].direction.xyz,bodies,pointJacobians,pointJacobianBase,responseColumns,responseBase,
+                dispatch.nv,dispatch.articulationIndex,rodNodes,inverseRodMasses,inverseRodTwistInertias,
+                rodColliders,rodWitnesses,constraintWitnessIndices,constraintBase);
+              if(ci==cj && axis==0u)z+=tr[0].regularization;
+              M[g][h]+=0.25f*blockDirections[sj][axis]*z;
+            }
+          }
+        }
+        const float det=M[0][0]*M[1][1]-M[0][1]*M[1][0];
+        if(!isfinite(det)||abs(det)<1.0e-8f)continue;
+        const float p0=(rhs[0]*M[1][1]-M[0][1]*rhs[1])/det;
+        const float p1=(M[0][0]*rhs[1]-M[1][0]*rhs[0])/det;
+        bool valid=isfinite(p0)&&isfinite(p1)&&p0>kConeEpsilon&&p1>kConeEpsilon;
+        for(uint k=0u;k<4u && valid;++k) {
+          const uint ck=blockIds[k];device const MRContactConstraintGPU& target=contacts[constraintBase+ck];
+          device const MREvaluatedConstraintIRRowGPU* tr=evaluatedRows+rowBase+3u*ck;
+          const float3 rel=typedRelativePointVelocity(ck,target,bodies,dispatch.articulationIndex,
+            pointJacobians,pointJacobianBase,dispatch.nv,articulationVelocity,rodNodes,rodEdges,
+            rodColliders,rodWitnesses,constraintWitnessIndices,constraintBase);
+          float3 residual=float3(dot(tr[0].direction.xyz,rel)-tr[0].targetVelocity,
+            dot(tr[1].direction.xyz,rel)-tr[1].targetVelocity,dot(tr[2].direction.xyz,rel)-tr[2].targetVelocity);
+          for(uint g=0u;g<2u;++g)for(uint aj=0u;aj<2u;++aj) {
+            const uint sj=groups[g][aj],cj=blockIds[sj];device const MRContactConstraintGPU& source=contacts[constraintBase+cj];
+            device const MREvaluatedConstraintIRRowGPU* sr=evaluatedRows+rowBase+3u*cj;
+            const float3 impulse=0.5f*(g==0u?p0:p1)*blockDirections[sj];
+            for(uint x=0u;x<3u;++x)for(uint y=0u;y<3u;++y) {
+              float z=typedNormalCrossContactResponse(ck,cj,y,target,source,tr[x].direction.xyz,sr[y].direction.xyz,
+                bodies,pointJacobians,pointJacobianBase,responseColumns,responseBase,dispatch.nv,dispatch.articulationIndex,
+                rodNodes,inverseRodMasses,inverseRodTwistInertias,rodColliders,rodWitnesses,constraintWitnessIndices,constraintBase);
+              if(ck==cj&&x==y)z+=tr[x].regularization;residual[x]+=impulse[y]*z;
+            }
+          }
+          const bool inFirst=k==groups[0][0]||k==groups[0][1];const float normal=0.5f*(inFirst?p0:p1);
+          const float mu=evaluatedCones[constraintBase+ck].effectiveFrictionU;
+          const float2 tangent=normal*blockDirections[k].yz;const float speed=length(residual.yz);
+          const float2 frictionError=tangent+mu*normal*residual.yz/max(speed,1.0e-5f);
+          valid=finite3(residual)&&abs(residual.x)<=1.0e-6f&&speed>1.0e-5f&&
+            isfinite(frictionError.x)&&isfinite(frictionError.y)&&length(frictionError)<=1.0e-5f+0.001f*mu*normal;
+        }
+        if(valid){blockFound=true;for(uint z=0u;z<2u;++z){blockImpulse[groups[0][z]]=0.5f*p0;blockImpulse[groups[1][z]]=0.5f*p1;}}
+      }
+    }
     // Try equal-weight one/two-contact sticking blocks first. This is a
     // candidate initializer only, verified against every actual row below.
     if(blockEligible) for(uint i=0u;i<blockCount && !blockFound;++i) for(uint j=i;j<blockCount && !blockFound;++j) {
