@@ -1,0 +1,6 @@
+large_id=1 pixels=1114
+retry_sensor_sequence=1
+direct_winner_retry=pass
+independent_geometry=0
+bound_instance=1 geometry=0 pixels=288
+bound_visible=0 bound_track=0 bound_depth_pixels=0

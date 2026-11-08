@@ -360,6 +360,7 @@ int main() {
             authoredVisualScene.renderScene.lightRig.fingerprint;
         auto directScene = authoredVisualScene.renderScene;
         directScene.gaussians.clear();
+        auto boundObjectScene = directScene;
         directScene.fingerprint =
             metalrobo::computeVisualRenderSceneV3Fingerprint(directScene);
         metalrobo::MetalHybridRenderer renderer;
@@ -705,10 +706,6 @@ int main() {
                     metalrobo::VisualRendererProfileV1::sensorFast(),
                     kEnvironmentCount),
                 "direct-winner graph-only renderer compile");
-        std::filesystem::remove(
-            authoredPackPath,
-            ignoredAuthoredPackRemoval
-        );
 
         metalrobo::MetalHybridObjectTrackerConfig directConfig;
         directConfig.capacity = kEnvironmentCount;
@@ -771,6 +768,152 @@ int main() {
                     "direct-winner retry produced invalid depth");
         }
         std::cout << "direct_winner_retry=pass\n";
+
+        // Bound object tracks need materialized depth, identity and validity.
+        // A small geometric sensor must not select the winner-only shortcut.
+        boundObjectScene.fingerprint =
+            metalrobo::computeVisualRenderSceneV3Fingerprint(boundObjectScene);
+        metalrobo::MetalHybridRendererConfig boundRendererConfig;
+        boundRendererConfig.width = 16u;
+        boundRendererConfig.height = 9u;
+        boundRendererConfig.geometricObservationsOnly = true;
+        auto smallEpisode = metalrobo::makeFrankaPickPlaceEpisodeTwin();
+        smallEpisode.sensors[0].width = 16u;
+        smallEpisode.sensors[0].height = 9u;
+        smallEpisode.sensors[0].intrinsics = {14.0f, 10.5f, 8.0f, 4.5f};
+        metalrobo::WorldTemplate smallTemplate;
+        require(metalrobo::compileEpisodeTwin(
+                    smallEpisode, metalrobo::makeFrankaPickPlaceEngineModel(),
+                    smallTemplate), "small camera episode compile");
+        metalrobo::WorldFamily smallFamily;
+        require(metalrobo::compileWorldFamily(
+                    smallTemplate, metalrobo::makeFrankaPickPlaceWorldProgram(),
+                    smallFamily), "small camera family compile");
+        metalrobo::MetalWorldFamilyContext smallWorlds;
+        require(smallWorlds.compile(smallFamily, kEnvironmentCount),
+                "small camera world compile");
+        require(smallWorlds.sample(kEnvironmentCount, 0x5eed1234ull),
+                "small camera world sample");
+        auto boundReferenceScene = boundObjectScene;
+        metalrobo::MetalHybridRenderer referenceRenderer(boundRendererConfig);
+        require(referenceRenderer.compile(std::move(boundReferenceScene),
+                    metalrobo::VisualRendererProfileV1::sensorFast(),
+                    kEnvironmentCount), "bound-object reference renderer compile");
+        auto referenceLive = liveState;
+        referenceLive.currentBodies = std::span<const MRBodyStateGPU>{
+            deviceBodies, bodyStates.size()};
+        referenceLive.previousBodies = referenceLive.currentBodies;
+        require(referenceRenderer.renderLive(smallWorlds, referenceLive, 0u),
+                "bound-object independent reference render");
+        metalrobo::HybridObservationBatch boundReference;
+        require(referenceRenderer.readback(boundReference), "bound-object reference readback");
+        metalrobo::MetalHybridRenderer boundRenderer(boundRendererConfig);
+        require(boundRenderer.compile(
+                    std::move(boundObjectScene),
+                    metalrobo::VisualRendererProfileV1::sensorFast(),
+                    kEnvironmentCount),
+                "bound-object geometric renderer compile");
+        metalrobo::MetalHybridObjectTrackerConfig boundConfig;
+        boundConfig.capacity = kEnvironmentCount;
+        boundConfig.cameraIndex = 0u;
+        boundConfig.rootBodyIndex =
+            worldTemplate.engineModel.articulations.front().firstBody;
+        boundConfig.maximumActorHistoryLength = kActorHistoryLength;
+        boundConfig.timestepSeconds = 0.02f;
+        const std::uint32_t boundInstance = observations[0].identities[visibleIndex].y;
+        boundConfig.bindings.push_back({
+            .instanceId = boundInstance,
+            .actorFrameOffset = 0u,
+            .positionScale = 1.0f,
+            .velocityScale = 1.0f,
+            .minimumVisiblePixels = 1u,
+        });
+        boundConfig.maskedDepthInstanceIds = {boundInstance};
+        boundConfig.maskedDepthWidth = 16u;
+        boundConfig.maskedDepthHeight = 9u;
+        boundConfig.maskedDepthActorFrameOffset =
+            kActorFrameSize * kActorHistoryLength;
+        boundConfig.maskedDepthFrameOffsets = {0u, 1u};
+        boundConfig.maskedDepthNearMeters = 0.1f;
+        boundConfig.maskedDepthFarMeters = 5.0f;
+        metalrobo::MetalHybridObjectTracker boundTracker;
+        require(boundTracker.compile(boundRenderer, smallWorlds, std::move(boundConfig)),
+                "bound-object geometric tracker compile");
+        const auto boundProgram = boundTracker.observationProgram();
+        require(boundProgram.valid(), "bound-object geometric tracker program");
+        constexpr std::size_t kBoundOffset = 13u;
+        id<MTLBuffer> boundObservations = [device
+            newBufferWithLength:(kBoundOffset + trackElements) * sizeof(float)
+                        options:MTLResourceStorageModeShared];
+        require(boundObservations != nil, "bound-object observation allocation");
+        std::fill_n(static_cast<float*>(boundObservations.contents),
+                    kBoundOffset + trackElements, -5.0f);
+        std::memset(historyBuffer.contents, 0, historyBuffer.length);
+        std::fill_n(static_cast<std::uint32_t*>(resetBuffer.contents),
+                    kEnvironmentCount, 1u);
+        id<MTLCommandBuffer> boundCommand = [queue commandBuffer];
+        auto boundPass = trackerPass;
+        boundPass.commandBuffer = (__bridge void*)boundCommand;
+        boundPass.actorObservations = (__bridge void*)boundObservations;
+        boundPass.actorObservationOffsetElements = kBoundOffset;
+        require(boundProgram.encode(boundProgram.context, boundPass),
+                "bound-object geometric tracker encode");
+        [boundCommand commit];
+        [boundCommand waitUntilCompleted];
+        require(boundCommand.status == MTLCommandBufferStatusCompleted,
+                "bound-object geometric tracker completion");
+        metalrobo::HybridObservationBatch boundFrame;
+        require(boundRenderer.readback(boundFrame), "bound-object frame readback");
+        const auto* boundOutputBase = static_cast<const float*>(boundObservations.contents);
+        require(std::all_of(boundOutputBase, boundOutputBase + kBoundOffset,
+                            [](float value) { return value == -5.0f; }),
+                "bound-object output prefix changed");
+        const auto* boundOutput = boundOutputBase + kBoundOffset;
+        const auto* boundHistory = static_cast<const float*>(historyBuffer.contents);
+        constexpr std::size_t kSmallPixels = 16u * 9u;
+        for (std::uint32_t env = 0u; env < kEnvironmentCount; ++env) {
+            std::size_t referenceVisible = 0u;
+            std::size_t actualVisible = 0u;
+            for (std::size_t pixel = 0u; pixel < kSmallPixels; ++pixel) {
+                const auto index = env * kSmallPixels + pixel;
+                const bool expected =
+                    boundReference.identities[index].y == boundInstance &&
+                    (boundReference.validity[index] & MR_VISUAL_VALIDITY_DEPTH) != 0u;
+                const bool actual =
+                    boundFrame.identities[index].y == boundInstance &&
+                    (boundFrame.validity[index] & MR_VISUAL_VALIDITY_DEPTH) != 0u;
+                referenceVisible += expected ? 1u : 0u;
+                actualVisible += actual ? 1u : 0u;
+                require(expected == actual, "bound-object selected-pixel mismatch");
+            }
+            const float* frame = boundOutput + env * kTrackWidth;
+            const float* depth = frame + kActorFrameSize * kActorHistoryLength;
+            const auto selectedPixels = std::count_if(
+                depth, depth + kSmallPixels,
+                [](float value) { return std::isfinite(value) && value < 1.0f; });
+            for (std::size_t pixel = 0u; pixel < kSmallPixels; ++pixel) {
+                const auto index = env * kSmallPixels + pixel;
+                const bool selected = boundFrame.identities[index].y == boundInstance &&
+                    (boundFrame.validity[index] &
+                     (MR_VISUAL_VALIDITY_FRAME | MR_VISUAL_VALIDITY_DEPTH)) ==
+                        (MR_VISUAL_VALIDITY_FRAME | MR_VISUAL_VALIDITY_DEPTH);
+                const float metric = selected
+                    ? std::clamp(boundFrame.depth[index], 0.1f, 5.0f) : 5.0f;
+                const float expected = (metric - 0.1f) / 4.9f;
+                require(std::abs(depth[pixel] - expected) < 2.0e-6f &&
+                            std::abs(depth[kSmallPixels + pixel] - expected) < 2.0e-6f,
+                        "bound-object depth differs from materialized image");
+            }
+            std::cout << "bound_env=" << env << " reference_visible=" << referenceVisible
+                      << " actual_visible=" << actualVisible << " track=" << frame[0]
+                      << " history=" << boundHistory[env * kActorFrameSize * kActorHistoryLength]
+                      << " depth_pixels=" << selectedPixels << '\n';
+            require(referenceVisible > 0u && frame[0] > 0.5f &&
+                    boundHistory[env * kActorFrameSize * kActorHistoryLength] > 0.5f &&
+                    selectedPixels > 0,
+                    "bound-object tracker requires materialized visible planes");
+        }
+        std::filesystem::remove(authoredPackPath, ignoredAuthoredPackRemoval);
 
         metalrobo::VisualSensorProfileV2 sensorProfile;
         sensorProfile.id = "franka.rgbd.reference";

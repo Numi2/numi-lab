@@ -1,0 +1,3 @@
+# Camera precondition correction
+
+The initial small-image fixture failed in both baseline and candidate, with zero geometry pixels even in a separate render. The Franka camera intrinsics are authored for 160x120, so using a 16x9 renderer without scaling focal lengths and principal point places the image center outside the small image. Compile a second world family with the same physical scene and camera pose and intrinsics scaled to 16x9. Use a separate materialized renderer to establish that the selected instance is visible before running the bound tracker. Keep the previous failed logs. The baseline and candidate must both use the corrected fixture, including independent rendering, and the registered visible-track/depth requirements remain unchanged.

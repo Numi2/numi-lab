@@ -7621,7 +7621,7 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
         state_->maskedDepthRenderUniforms = {};
         state_->directWinnerMaskedDepth =
             maskedDepth &&
-            config.bindings.empty() &&
+            state_->config.bindings.empty() &&
             renderer.state_->geometricCompositeEligible &&
             layout.gaussianCount == 0u &&
             static_cast<std::uint64_t>(layout.width) *
@@ -7730,6 +7730,11 @@ bool MetalHybridObjectTracker::encodeObservation(
         pass.actorHistoryLength == 0u ||
         pass.actorHistoryLength >
             state->config.maximumActorHistoryLength) {
+        return false;
+    }
+    if (!state->config.bindings.empty() &&
+        static_cast<std::uint64_t>(pass.actorFrameSize) *
+                pass.actorHistoryLength > pass.actorObservationSize) {
         return false;
     }
     for (const MetalHybridObjectTrackBinding& binding :
@@ -7889,7 +7894,7 @@ bool MetalHybridObjectTracker::encodeObservation(
         {
             static_cast<std::uint32_t>(outputOffset),
             static_cast<std::uint32_t>(outputOffset >> 32u),
-            0u,
+            pass.actorObservationSize,
             0u,
         },
         {
