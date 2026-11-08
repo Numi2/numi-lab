@@ -240,6 +240,7 @@ private struct Options {
     var interactionResetPhaseProbability: Float?
     var interactionResetMaximumPhase: Float?
     var stateTrace: String?
+    var finalStateJSON: String?
     var stateTraceEnvironment = 0
     var crowReplayPack: String?
     var crowNavigationArrivalPack: String?
@@ -510,6 +511,9 @@ private struct Options {
                     )
                 )
                 index += 1
+            case "--final-state-json":
+                finalStateJSON = try value()
+                index += 1
             case "--state-trace":
                 stateTrace = try value()
                 index += 1
@@ -770,6 +774,14 @@ private struct Options {
             throw MetalRoboTaskRolloutError.invalidShape(
                 "envs, steps, repeats, chunk, physics substeps, and velocity iterations must be positive; final velocity iterations must be non-negative."
             )
+        }
+        if let path = finalStateJSON {
+            var isDirectory = ObjCBool(false)
+            guard !path.isEmpty, !FileManager.default.fileExists(atPath: path),
+                  FileManager.default.fileExists(atPath: URL(fileURLWithPath: path).deletingLastPathComponent().path,
+                                                 isDirectory: &isDirectory), isDirectory.boolValue else {
+                throw MetalRoboTaskRolloutError.invalidShape("--final-state-json requires a new file in an existing directory.")
+            }
         }
         if (minimumDifficultyBand == nil) !=
             (maximumDifficultyBand == nil) ||
@@ -3175,6 +3187,35 @@ private enum TaskRolloutMain {
 
             let collectionEnd = clock.now
             let collectionLayout = context.layout
+            if let path = options.finalStateJSON {
+                let names = context.bodyNames
+                let q = try context.finalConfiguration()
+                let v = try context.finalVelocity()
+                let bodies = try context.finalBodyStates()
+                guard names.count == collectionLayout.bodyCount,
+                      Set(names).count == names.count,
+                      q.allSatisfy(\.isFinite), v.allSatisfy(\.isFinite), bodies.allSatisfy(\.isFinite) else {
+                    throw MetalRoboTaskRolloutError.invalidShape("Final accepted state names or numeric values are invalid.")
+                }
+                let payload: [String: Any] = [
+                    "schema": "numi.task-final-state.v1", "task": context.taskID,
+                    "run_fingerprint": String(collectionLayout.runFingerprint),
+                    "world_fingerprint": String(collectionLayout.worldFingerprint),
+                    "task_fingerprint": String(collectionLayout.taskFingerprint),
+                    "environment_count": collectionLayout.environmentCount,
+                    "configuration_count": collectionLayout.configurationCount,
+                    "velocity_count": collectionLayout.velocityCount,
+                    "body_count": collectionLayout.bodyCount, "body_state_width": 13,
+                    "body_names": names, "q": q, "v": v, "body_states": bodies,
+                    "body_state_fields": ["position_x", "position_y", "position_z",
+                        "orientation_x", "orientation_y", "orientation_z", "orientation_w",
+                        "linear_velocity_x", "linear_velocity_y", "linear_velocity_z",
+                        "angular_velocity_x", "angular_velocity_y", "angular_velocity_z"],
+                    "classification": "native accepted final state; world coordinates; not a trajectory",
+                ]
+                try JSONSerialization.data(withJSONObject: payload, options: [.sortedKeys])
+                    .write(to: URL(fileURLWithPath: path), options: [.withoutOverwriting])
+            }
             if let stateTrace = options.stateTrace {
                 try (stateTraceLines.joined(separator: "\n") + "\n")
                     .write(
@@ -3817,6 +3858,7 @@ private enum TaskRolloutMain {
                 "visual_observation_config":
                     options.visualObservationConfig ?? "",
                 "state_trace": options.stateTrace ?? "",
+                "final_state_json": options.finalStateJSON ?? "",
                 "crow_replay_pack": options.crowReplayPack ?? "",
                 "crow_replay_payload_sha256": crowReplayPayloadSHA256,
                 "crow_navigation_arrival_pack":
