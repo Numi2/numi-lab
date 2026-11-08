@@ -1,0 +1,136 @@
+{
+  "analysis": "Independent FP64 accepted-state body kinematics and calibrated sphere/box gaps; calculate same prior physical gates. Paired Euclidean objectxyz max over every tick/lane and five32tick phases. Chunk compare actual final q/v/scene bytes; chunk8 endpoint evidence cannot establish32contact samples. Record wall/GPU/submission time and retained memory, with no standalone speed promotion.",
+  "budget": {
+    "expected_accepted_control_transitions": 6400,
+    "native_invocations": 10,
+    "new_output_max_bytes": 15000000,
+    "stop": "Stop at first native/GPU/host failure or timeout; retain partial observations and mark remaining arms unrun. Mechanical disagreement does not stop subsequent valid controls. No retry, tuning, increased cadence, gain change or promotion.",
+    "timeout_seconds_per_run": 300
+  },
+  "calibration": {
+    "articulation_bodies": 17,
+    "gap_known_values": 3,
+    "initial_invalid_attempt": "First base calibration could not load libmetalrobo; exit-6 before physics, stderr preserved. Supplying explicit DYLD_LIBRARY_PATH fixes the loader; all three host-only calibrations then passed.",
+    "original_minimum_initial_gap_m": 0.00019947613583,
+    "rotated_frame_known_values": 1,
+    "scene_bodies_excluded": 2,
+    "unused_minimum_initial_gap_m": 0.000336754825587
+  },
+  "conditions": {
+    "fixed": "Originalfixture128.mm:160controlticks,dt.02,18actions,head16=-.4 after32,jaw17=-.35 before96,+.6 after; seed2651511101,difficulty0,4+2velocityiterations,hybridCCD. Mode enum alone changes in bounded helper.",
+    "independence": "Four manufactured pose trajectories per run, deterministic paired conditions. Ticks are not independent replicates; no biological or population inference.",
+    "order": "Fixed declared order; no random drift adjustment or optional stopping on mechanical disagreement.",
+    "original_poses": "Exposed engineering regression: xoffset\u00b10.00035m,zoffset\u00b10.00020m,y\u00b10.00010m; authored sphere(.215,0,.26685),radius.004m,mass.00025kg.",
+    "unused_poses": "Unused native validation: xoffset\u00b10.000175m,zoffset\u00b10.000100m,y\u00b10.000150m. Only initial pose changes; no gates/model/gains/actions changed."
+  },
+  "criteria": {
+    "maximum_cadence_position_difference_m": 0.005,
+    "maximum_head_relative_hold_slip_m": 0.005,
+    "maximum_penetration_before96_m": 0.0008,
+    "minimum_gap_over128to159_m": 0.001,
+    "minimum_hold_lift_m": 0.02,
+    "minimum_opposed_samples_of32": 16,
+    "minimum_release_drop_m": 0.03,
+    "native_rejections": 0
+  },
+  "execution_order": [
+    {
+      "arm": 0,
+      "chunk": 1,
+      "executable": "fixture-bounded",
+      "name": "crow-bounded32",
+      "substeps": 32
+    },
+    {
+      "arm": 0,
+      "chunk": 1,
+      "executable": "fixture-bounded",
+      "name": "crow-bounded64",
+      "substeps": 64
+    },
+    {
+      "arm": 0,
+      "chunk": 1,
+      "executable": "fixture-bounded",
+      "name": "crow-bounded128",
+      "substeps": 128
+    },
+    {
+      "arm": 1,
+      "chunk": 1,
+      "executable": "fixture-bounded",
+      "name": "crow-open",
+      "substeps": 32
+    },
+    {
+      "arm": 2,
+      "chunk": 1,
+      "executable": "fixture-bounded",
+      "name": "crow-nocontact",
+      "substeps": 32
+    },
+    {
+      "arm": 3,
+      "chunk": 1,
+      "executable": "fixture-bounded",
+      "name": "crow-frictionless",
+      "substeps": 32
+    },
+    {
+      "arm": 0,
+      "chunk": 8,
+      "executable": "fixture-bounded",
+      "name": "crow-chunk8",
+      "substeps": 32
+    },
+    {
+      "arm": 0,
+      "chunk": 1,
+      "executable": "fixture-unused",
+      "name": "crow-unused64",
+      "substeps": 64
+    },
+    {
+      "arm": 0,
+      "chunk": 1,
+      "executable": "fixture-unused",
+      "name": "crow-unused128",
+      "substeps": 128
+    },
+    {
+      "arm": 0,
+      "chunk": 1,
+      "executable": "fixture-base",
+      "name": "crow-legacy32",
+      "substeps": 32
+    }
+  ],
+  "inputs": {
+    ".numi/retained-runtime/bounded-drive-integration-v2-20261108/libmetalrobo.dylib": "b2ca54cc8f2633ff87623ec05fbd523163486bc31cd483dc311e74cea0b342f2",
+    ".numi/retained-runtime/bounded-drive-integration-v2-20261108/metalrobo/MetalRobo.metallib": "fcf40cc4b0cca1adc40185b5cbbf4f95193472e44949e9559ceeefef375a98b7",
+    "artifacts/crow-rl-bounded-drive-crow-20261108/fixture-base.mm": "c462a9137abaffc7682767784307e5d9ab7c5edcff62f45ad37e418c45d06f3b",
+    "artifacts/crow-rl-bounded-drive-crow-20261108/fixture-bounded.mm": "1add89b112e62626f8ca8fd601be32f956a789c2b4c746bf7c9e61c59a86a720",
+    "artifacts/crow-rl-bounded-drive-crow-20261108/fixture-unused.mm": "9f16ddf23090dad34b3f4cd40efb14407baea94f0cb4dee725654c72379d8cca",
+    "artifacts/crow-rl-bounded-drive-crow-20261108/run_crow.py": "318b533129a2236fe7dd00792c51bf70e08f23fa935fcfb69c70593782ed4483",
+    "build/crow-bounded-drive-integration-build-01/crow-v2-base-calibrate.stdout": "2b71af5bc0f5f56fbdaf8055ec1f0425ff60049e10161e5a5d865f0b9c49927a",
+    "build/crow-bounded-drive-integration-build-01/crow-v2-bounded-calibrate.stdout": "2b71af5bc0f5f56fbdaf8055ec1f0425ff60049e10161e5a5d865f0b9c49927a",
+    "build/crow-bounded-drive-integration-build-01/crow-v2-unused-calibrate.stdout": "a032e3d507cef51d9a6e3587ebc6125ef3c24ac4bc63df8deae8d086f7195fce",
+    "build/crow-bounded-drive-integration-build-01/fixture-base": "a76e0b2a726b9ab2504b4a55b6d557d10a85feaaf94e4cb580de33103e45c63a",
+    "build/crow-bounded-drive-integration-build-01/fixture-bounded": "116dfb25a90cccb35f32400509c0119ac634962be4cb93cd41c805af7a3b49ea",
+    "build/crow-bounded-drive-integration-build-01/fixture-unused": "f6227010b1e255b85892d36af9c35b6cd4057c0d690f5ec7b80361299baef700"
+  },
+  "limitations": "Controlled rigid sphere surrogate, not learned manipulation, food intake, sensor-driven task, checkpoint/reset equivalence, energy integral or biology. Even a pass does not qualify the full environment or end-to-end training performance.",
+  "model": "Native bounded drive computes coupled torque against physical mass before CCD advance, including selected-segment duration; no unconditional motor inertia after torque saturation. Contact impulses use physical mass. The alternative is residual contact/event discretization or motor/contact splitting dominating release.",
+  "parent": "Bounded-drive constitutive v2:514 accepted native microsteps, maximum velocity error4.0883302743e-7rad/s. Prior legacy crow64vs128 release trajectory error62.606512mm >5mm.",
+  "policy_or_profile_promotion": false,
+  "prediction": {
+    "ablations": "All four lanes in each open-beak/no-object-beak-contact/zero-object-friction control fail the hold gate.",
+    "convergence": "Maximum Euclidean object position difference over160ticks x4lanes is <=0.005m for32vs64 and64vs128 original poses, and64vs128 unused poses.",
+    "partition": "Original32 chunk1 andchunk8 finalq/v/scene are byte-identical.",
+    "positive_mechanics": "Every lane at32/64/128 original poses and64/128 unused poses passes all unchanged mechanical gates."
+  },
+  "protected_policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+  "question": "Does the constitutively corrected smooth bounded motor predictor make the actual crow beak grasp/lift/release trajectory converge within the unchanged5mm gate while retaining physical hold, release, contact ablations and chunk invariance?",
+  "source_commit": "74e4e5bac354f0914cee9530b18465c47bfafcd7",
+  "validity": "Exact input hashes,Apple M4 Pro,explicit shader path and DYLD identity required. Completed chunk1 runs have640unique(tick,lane)rows,640acceptedtransitions,zero failed. A rejected or missingnative arm is inconclusive, never evidence for prediction."
+}

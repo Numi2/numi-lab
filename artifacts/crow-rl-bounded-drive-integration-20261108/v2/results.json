@@ -1,0 +1,42 @@
+{
+  "actual_device": "device=Apple M4 Pro",
+  "checks": {
+    "0": true,
+    "1": true
+  },
+  "component_rows": 976,
+  "execution": {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-integration-v2-20261108/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-integration-v2-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/native-v2.tsv"
+    ],
+    "exit_code": 0,
+    "sealed_head": "74e4e5bac354f0914cee9530b18465c47bfafcd7",
+    "seconds": 0.7225627499865368
+  },
+  "full_crow_qualified": false,
+  "groups": {
+    "0": {
+      "component_rows": 448,
+      "mass_flags_match_mode": true,
+      "maximum_q_integration_error": 7.119150935430696e-09,
+      "maximum_torque_reference_error": 1.219172150387915e-09,
+      "maximum_velocity_reference_error": 6.780838801567768e-08
+    },
+    "1": {
+      "component_rows": 528,
+      "mass_flags_match_mode": true,
+      "maximum_q_integration_error": 6.181072764732676e-09,
+      "maximum_torque_reference_error": 2.248500871604442e-09,
+      "maximum_velocity_reference_error": 4.088330274321095e-07
+    }
+  },
+  "limits": "New native mode initially admits contact graphs with at most40 total generalized velocities. This trial has no geometric contact, motor/contact simultaneous coupling, task energy integration, reset/partition/checkpoint, real crow release, end-to-end throughput or learning qualification.",
+  "loader_lines": [
+    "dyld[24739]: <3D5B5EC3-43D7-31E4-9B2B-B74CC3DA24DB> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-integration-v2-20261108/libmetalrobo.dylib"
+  ],
+  "native_microsteps": 514,
+  "policy_or_profile_promoted": false,
+  "verdict": "native_bounded_drive_constitutive_trial_passed"
+}
