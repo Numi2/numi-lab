@@ -1,0 +1,25 @@
+probe.cpp:23:160: error: cannot assign to return value because function 'operator[]' returns a const value
+   23 |   std::vector<float> q=run.model().defaultQ,v(run.world().nv(),0);auto scene=run.defaultSceneBodies();require(scene.size()==4,"scene size");scene[0].position.z+=2;scene[3].position.z+=2;
+      |                                                                                                                                             ~~~~~~~~~~~~~~~~~~~^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/span:536:49: note: function 'operator[]' which returns const-qualified type 'reference' (aka 'const MRBodyStateGPU &') declared here
+  536 |   [[nodiscard]] _LIBCPP_HIDE_FROM_ABI constexpr reference operator[](size_type __idx) const noexcept {
+      |                                                 ^~~~~~~~~
+probe.cpp:23:183: error: cannot assign to return value because function 'operator[]' returns a const value
+   23 |   std::vector<float> q=run.model().defaultQ,v(run.world().nv(),0);auto scene=run.defaultSceneBodies();require(scene.size()==4,"scene size");scene[0].position.z+=2;scene[3].position.z+=2;
+      |                                                                                                                                                                    ~~~~~~~~~~~~~~~~~~~^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/span:536:49: note: function 'operator[]' which returns const-qualified type 'reference' (aka 'const MRBodyStateGPU &') declared here
+  536 |   [[nodiscard]] _LIBCPP_HIDE_FROM_ABI constexpr reference operator[](size_type __idx) const noexcept {
+      |                                                 ^~~~~~~~~
+probe.cpp:25:117: error: field designator 'seed' does not refer to any field in type 'MetalWorldBatch'
+   25 |   for(unsigned n:sizes){std::vector<unsigned> reset(n,0);MetalWorldBatch b{.environmentCount=1,.controlStepCount=n,.seed=17,.policyRevision=1,.resetMasks=reset};if(init){b.initialQ=q;b.initialV=v;b.initialSceneBodies=scene;}
+      |                                                                                                                    ~^~~~~~~
+probe.cpp:27:285: error: no matching member function for call to 'push_back'
+   27 |    std::vector<float> ph,ac,lat,lp;require(policy.copyRolloutTrace(n,1,ph,ac,lat,lp),"trace");require(ph.size()==n && ac.size()==n*l.actionCount,"trace sizes");for(unsigned i=0;i<n;++i){phases.push_back(ph[i]);action0.push_back(ac[i*l.actionCount]);}for(auto x:out.statuses) statuses.push_back(x);for(auto x:out.transitions)terms.push_back(x.termination.z);finalq=out.finalQ;finalv=out.finalV;init=false;
+      |                                                                                                                                                                                                                                                                                    ~~~~~~~~~^~~~~~~~~
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__vector/vector.h:464:60: note: candidate function not viable: no known conversion from 'MRMetalWorldStatusGPU' to 'const value_type' (aka 'const unsigned int') for 1st argument
+  464 |   _LIBCPP_CONSTEXPR_SINCE_CXX20 _LIBCPP_HIDE_FROM_ABI void push_back(const_reference __x) { emplace_back(__x); }
+      |                                                            ^         ~~~~~~~~~~~~~~~~~~~
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__vector/vector.h:466:60: note: candidate function not viable: no known conversion from 'MRMetalWorldStatusGPU' to 'value_type' (aka 'unsigned int') for 1st argument
+  466 |   _LIBCPP_CONSTEXPR_SINCE_CXX20 _LIBCPP_HIDE_FROM_ABI void push_back(value_type&& __x) { emplace_back(std::move(__x)); }
+      |                                                            ^         ~~~~~~~~~~~~~~~~
+4 errors generated.
