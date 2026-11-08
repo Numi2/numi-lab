@@ -1,0 +1,4 @@
+  File "/Users/numi/numi-lab-rod-integrated-coupled-20261108/docs/evidence/rod-coupled-free-20261108/curvature.py", line 22
+    for eps in (0.,1e-6,-1e-6,5e-7,-5e-7): queries.append( .join(format(z,.17g) for z in [r,young,*x,eps]))
+                                                                            ^
+SyntaxError: invalid decimal literal
