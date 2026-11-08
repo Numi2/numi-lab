@@ -6030,6 +6030,23 @@ if(BUILD_TESTING)
             LABELS "metalrobo;matter;surgical;physics;metal;checkpoint"
             TIMEOUT 900
     )
+    find_program(METALROBO_CHECKPOINT_PYTHON NAMES python3)
+    if(METALROBO_CHECKPOINT_PYTHON)
+        add_test(
+            NAME metalrobo.surgical.tissue_checkpoint_integrity
+            COMMAND "${METALROBO_CHECKPOINT_PYTHON}"
+                "${CMAKE_CURRENT_SOURCE_DIR}/tests/surgical_checkpoint_integrity_test.py"
+                $<TARGET_FILE:metalrobo_dual_psm_suture_handoff_probe>
+                "${METALROBO_TISSUE_CHECKPOINT_TEST_STATE_DIRECTORY}/tissue-rest.tsv"
+        )
+        set_tests_properties(
+            metalrobo.surgical.tissue_checkpoint_integrity
+            PROPERTIES
+                FIXTURES_REQUIRED metalrobo_surgical_tissue_checkpoint
+                LABELS "metalrobo;matter;surgical;physics;metal;checkpoint"
+                TIMEOUT 900
+        )
+    endif()
     add_test(
         NAME metalrobo.surgical.tissue_checkpoint_hold
         COMMAND

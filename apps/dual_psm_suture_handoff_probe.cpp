@@ -8218,6 +8218,9 @@ std::uint64_t loadHandoffState(
     std::vector<bool> haveVelocity(nodes.size(), false);
     std::vector<bool> haveEdge(edges.size(), false);
     bool schema = false;
+    bool schemaSeen = false;
+    bool qSeen = false;
+    bool vSeen = false;
     bool matterRequired = false;
     bool matterSeen = false;
     std::filesystem::path matterFilename;
@@ -8233,6 +8236,7 @@ std::uint64_t loadHandoffState(
     bool knotAxisY = false;
     bool knotAxisZ = false;
     bool phase = false;
+    bool phaseSeen = false;
     bool needlePosition = false;
     bool needleOrientation = false;
     bool needleLinearVelocity = false;
@@ -8248,6 +8252,8 @@ std::uint64_t loadHandoffState(
             continue;
         }
         if (fields[0] == "schema") {
+            require(!schemaSeen, "duplicate handoff resume schema");
+            schemaSeen = true;
             schema = fields.size() == 2u &&
                 (fields[1] ==
                      "numi.dual-psm-suture-handoff-state.v2" ||
@@ -8256,9 +8262,14 @@ std::uint64_t loadHandoffState(
             matterRequired = schema && fields[1] ==
                 "numi.dual-psm-suture-handoff-state.v3";
         } else if (fields[0] == "phase") {
+            require(!phaseSeen, "duplicate handoff resume phase");
+            phaseSeen = true;
             phase = fields.size() == 2u && fields[1] == expectedPhase;
         } else if (fields[0] == "step") {
-            require(fields.size() == 2u, "invalid resume step");
+            require(
+                fields.size() == 2u && !haveStep,
+                "invalid or duplicate resume step"
+            );
             stateStep = parseUnsigned64(fields[1], "step");
             haveStep = true;
         } else if (fields[0] == "handoff_staging_completed_steps") {
@@ -8278,6 +8289,9 @@ std::uint64_t loadHandoffState(
             );
             stagingCompletedStepsSeen = true;
         } else if (fields[0] == "q" || fields[0] == "v") {
+            bool& seen = fields[0] == "q" ? qSeen : vSeen;
+            require(!seen, "duplicate handoff generalized state");
+            seen = true;
             std::vector<float>& destination =
                 fields[0] == "q" ? q : v;
             destination.reserve(fields.size() - 1u);
@@ -8287,7 +8301,10 @@ std::uint64_t loadHandoffState(
                 )));
             }
         } else if (fields[0] == "needle_position") {
-            require(fields.size() == 4u, "invalid resume needle position");
+            require(
+                fields.size() == 4u && !needlePosition,
+                "invalid resume needle position"
+            );
             needle.position = {
                 static_cast<float>(parseNumber(fields[1], "needle x")),
                 static_cast<float>(parseNumber(fields[2], "needle y")),
@@ -8296,7 +8313,10 @@ std::uint64_t loadHandoffState(
             };
             needlePosition = true;
         } else if (fields[0] == "needle_orientation_xyzw") {
-            require(fields.size() == 5u, "invalid resume needle orientation");
+            require(
+                fields.size() == 5u && !needleOrientation,
+                "invalid resume needle orientation"
+            );
             needle.orientation = {
                 static_cast<float>(parseNumber(fields[1], "needle qx")),
                 static_cast<float>(parseNumber(fields[2], "needle qy")),
@@ -8305,7 +8325,10 @@ std::uint64_t loadHandoffState(
             };
             needleOrientation = true;
         } else if (fields[0] == "needle_linear_velocity") {
-            require(fields.size() == 4u, "invalid resume needle velocity");
+            require(
+                fields.size() == 4u && !needleLinearVelocity,
+                "invalid resume needle velocity"
+            );
             needle.linearVelocityAndInverseMass.x =
                 static_cast<float>(parseNumber(fields[1], "needle vx"));
             needle.linearVelocityAndInverseMass.y =
@@ -8314,7 +8337,10 @@ std::uint64_t loadHandoffState(
                 static_cast<float>(parseNumber(fields[3], "needle vz"));
             needleLinearVelocity = true;
         } else if (fields[0] == "needle_angular_velocity") {
-            require(fields.size() == 4u, "invalid resume needle angular velocity");
+            require(
+                fields.size() == 4u && !needleAngularVelocity,
+                "invalid resume needle angular velocity"
+            );
             needle.angularVelocity = {
                 static_cast<float>(parseNumber(fields[1], "needle wx")),
                 static_cast<float>(parseNumber(fields[2], "needle wy")),
@@ -8327,6 +8353,11 @@ std::uint64_t loadHandoffState(
             require(fields.size() == 5u, "invalid resume thread node");
             const std::uint32_t index = parseIndex(fields[1], "thread node");
             require(index < nodes.size(), "resume thread node is out of range");
+            require(
+                fields[0] == "thread_position"
+                    ? !havePosition[index] : !haveVelocity[index],
+                "duplicate resume thread node"
+            );
             mr_float4& destination = fields[0] == "thread_position"
                 ? nodes[index].position
                 : nodes[index].velocity;
@@ -8345,6 +8376,7 @@ std::uint64_t loadHandoffState(
             require(fields.size() == 4u, "invalid resume thread twist");
             const std::uint32_t index = parseIndex(fields[1], "thread edge");
             require(index < edges.size(), "resume thread edge is out of range");
+            require(!haveEdge[index], "duplicate resume thread twist");
             edges[index].twistAndRate = {
                 static_cast<float>(parseNumber(fields[2], "thread twist")),
                 static_cast<float>(parseNumber(fields[3], "thread twist rate")),
@@ -8481,6 +8513,21 @@ std::uint64_t loadHandoffState(
             }),
         "handoff resume state is incomplete or has the wrong phase"
     );
+    const bool allEdgesPresent = std::ranges::all_of(
+        haveEdge, [](const bool value) { return value; }
+    );
+    const bool noEdgesPresent = std::ranges::none_of(
+        haveEdge, [](const bool value) { return value; }
+    );
+    require(
+        allEdgesPresent || (!matterRequired && noEdgesPresent),
+        "handoff resume rod twist state is incomplete"
+    );
+    if (!allEdgesPresent) {
+        // Older v2 visual checkpoints may omit all twist records. They do not
+        // carry Matter authority and are not exact coupled checkpoints.
+        std::ranges::fill(edges, MRRodEdgeStateGPU{});
+    }
     const std::uint32_t knotFieldCount =
         static_cast<std::uint32_t>(knotProtocol) +
         static_cast<std::uint32_t>(knotTarget) +
@@ -8528,14 +8575,6 @@ std::uint64_t loadHandoffState(
         }
     } else if (matterSnapshot != nullptr) {
         *matterSnapshot = {};
-    }
-    if (!std::ranges::all_of(haveEdge, [](const bool value) {
-            return value;
-        })) {
-        // v1 artifacts written before twist publication retain the authored
-        // zero material frame. The accepted close state is nearly untwisted;
-        // all newly written artifacts carry the exact edge state.
-        std::ranges::fill(edges, MRRodEdgeStateGPU{});
     }
     const std::uint32_t needleBody = world.sceneBodyIndices.at(0u);
     updateNeedleInverseInertia(world.model.bodies.at(needleBody), needle);
