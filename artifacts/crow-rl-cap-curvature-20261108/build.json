@@ -1,0 +1,107 @@
+[
+  {
+    "name": "metal-old",
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metal",
+      "-std=metal3.1",
+      "-O3",
+      "-fno-fast-math",
+      "-Ibuild/crow-cap-curvature-build-01/old",
+      "-Iinclude",
+      "-c",
+      "artifacts/crow-rl-cap-curvature-20261108/project.metal",
+      "-o",
+      "build/crow-cap-curvature-build-01/old.air"
+    ],
+    "returncode": 0,
+    "seconds": 0.14982858400000001
+  },
+  {
+    "name": "library-old",
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metallib",
+      "build/crow-cap-curvature-build-01/old.air",
+      "-o",
+      "build/crow-cap-curvature-build-01/old.metallib"
+    ],
+    "returncode": 0,
+    "seconds": 0.047498917
+  },
+  {
+    "name": "metal-fixed",
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metal",
+      "-std=metal3.1",
+      "-O3",
+      "-fno-fast-math",
+      "-Ibuild/crow-cap-curvature-build-01/fixed",
+      "-Iinclude",
+      "-c",
+      "artifacts/crow-rl-cap-curvature-20261108/project.metal",
+      "-o",
+      "build/crow-cap-curvature-build-01/fixed.air"
+    ],
+    "returncode": 0,
+    "seconds": 0.147228958
+  },
+  {
+    "name": "library-fixed",
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metallib",
+      "build/crow-cap-curvature-build-01/fixed.air",
+      "-o",
+      "build/crow-cap-curvature-build-01/fixed.metallib"
+    ],
+    "returncode": 0,
+    "seconds": 0.048124624999999976
+  },
+  {
+    "name": "project-probe",
+    "argv": [
+      "xcrun",
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fobjc-arc",
+      "-framework",
+      "Metal",
+      "-framework",
+      "Foundation",
+      "artifacts/crow-rl-cap-curvature-20261108/project.mm",
+      "-o",
+      "build/crow-cap-curvature-build-01/project-probe"
+    ],
+    "returncode": 0,
+    "seconds": 0.5622684579999999
+  },
+  {
+    "name": "closure-probe",
+    "argv": [
+      "xcrun",
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-Iinclude",
+      "artifacts/crow-rl-cap-curvature-20261108/closure.cpp",
+      "-Lbuild/crow-cap-curvature-build-01/runtime",
+      "-lmetalrobo",
+      "-Wl,-rpath,@loader_path/runtime",
+      "-o",
+      "build/crow-cap-curvature-build-01/closure-probe"
+    ],
+    "returncode": 0,
+    "seconds": 0.4499086670000001
+  }
+]

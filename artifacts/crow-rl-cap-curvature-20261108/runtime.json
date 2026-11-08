@@ -1,0 +1,22 @@
+{
+  "files": {
+    "build/crow-cap-curvature-build-01/closure-probe": {
+      "bytes": 40400,
+      "sha256": "866d199a6aa4b06ab04f566067dec5adc92c9d5442036d8f96dbb1a99ba030b8"
+    },
+    "build/crow-cap-curvature-build-01/fixed.metallib": {
+      "bytes": 171587,
+      "sha256": "711675f6b8591b2cfc0e80026ce80194d8bbdbd0be7d6488c6cf04ea88ca51e5"
+    },
+    "build/crow-cap-curvature-build-01/old.metallib": {
+      "bytes": 171587,
+      "sha256": "2fbd001fc69a0499bccb543857c1c65bff1fb91407fbe2b8025e3abf2c3588af"
+    },
+    "build/crow-cap-curvature-build-01/project-probe": {
+      "bytes": 56720,
+      "sha256": "17c64dc5cce1e1ecae0b986b19c06fcd2ba066b354576a9d9893b7f635b2917c"
+    }
+  },
+  "metal_version": "Apple metal version 32023.883 (metalfe-32023.883)\nTarget: air64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /private/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.UbUdZg/Metal.xctoolchain/usr/metal/current/bin\n",
+  "toolchain": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode-26.6.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n"
+}
