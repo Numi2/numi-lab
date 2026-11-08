@@ -86,3 +86,23 @@ J, quadrature, global momentum, local mass-solve, energy and work gates
 passed. This supports using the exact-freefall reconstruction for the full
 comparison; it does not establish spatial force convergence. The n16 pair
 remains unrun pending a coordinated host window.
+
+## n16 concurrent-work resource amendment
+
+Before the n16 pair starts, bind the passing n8 analysis, reconstructed n8
+output and original n8 full reference by SHA-256; a changed hash blocks
+execution. Run each n16 process at nice +10. Keep the registered 4 GiB
+sampled-RSS and 5,400/10,800 s process-group caps. Sample RSS every second;
+sample system memory-free indicator and total swap usage every five seconds,
+logging the complete total-swap report. Stop the process group if two
+consecutive readings show memory-free below 20% or swap use more than
+128 MiB above that process's launch baseline, or immediately if a monitor
+fails. Keep sequential variants and stop on any failure.
+
+The host has 16 GiB unified memory and the onset's sampled n16 peak was
+about 3.06 GiB; concurrent GPU and OS allocations remain uncertain.
+Notify other owners before launch, coordinate small bounded correctness
+work, and stop promptly under these guards. Timing during overlapping
+work is not performance evidence. These thresholds reduce interference
+but do not guarantee that no swapping, contention or transient memory
+pressure occurs between samples.
