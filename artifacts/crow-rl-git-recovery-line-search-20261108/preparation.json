@@ -1,0 +1,5 @@
+{
+  "stage": "Before archive/native recovery",
+  "issue": "Metadata print passed flush into json.dumps after successful final-seal writes",
+  "resolution": "Use completed seals; no duplicate authoring or physical commands. No raw evidence removed."
+}

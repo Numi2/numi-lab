@@ -1,0 +1,11 @@
+{
+  "aliases": {
+    "build/bin/metalrobo_constraint_ir_probe": "build/crow-line-search-refinement-build-01/runtime/metalrobo_constraint_ir_probe",
+    "build/bin/metalrobo_metal_unified_quality_probe": "build/crow-line-search-refinement-build-01/runtime/metalrobo_metal_unified_quality_probe",
+    "build/bin/metalrobo_metal_world_contact_probe": "build/crow-line-search-refinement-build-01/runtime/metalrobo_metal_world_contact_probe",
+    "build/bin/metalrobo_motor_contact_probe": "build/crow-line-search-refinement-build-01/runtime/metalrobo_motor_contact_probe",
+    "build/lib/libmetalrobo.dylib": "build/crow-line-search-refinement-build-01/runtime/libmetalrobo.dylib",
+    "build/shaders/MetalRobo.metallib": "build/crow-line-search-refinement-build-01/runtime/metalrobo/MetalRobo.metallib"
+  },
+  "scope": "Recover exact observed runtime and owning probes; no fresh source rebuild"
+}

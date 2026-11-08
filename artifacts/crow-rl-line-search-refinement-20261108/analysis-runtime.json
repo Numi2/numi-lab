@@ -1,0 +1,7 @@
+{
+  "hardware": "Apple M4 Pro, macmini",
+  "native_transition_owner": "Archived native Metal; Python is independent analysis only",
+  "numpy": "2.5.4",
+  "platform": "macOS-26.6-arm64-arm-64bit-Mach-O",
+  "python": "3.13.14 (main, Jul 23 2026, 14:48:16) [Clang 22.1.3 ]"
+}

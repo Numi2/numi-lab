@@ -1,0 +1,16 @@
+{
+  "all_predictions_supported": true,
+  "goal_complete": false,
+  "native_commands": 2,
+  "observations": {
+    "api_default_complete_640_twice": true,
+    "api_default_penetration_max_m": 1.63651669708e-05,
+    "repeated_api_physical_outputs_exact": true
+  },
+  "policy_or_profile_promoted": false,
+  "predictions_supported": {
+    "api_default_complete_640_twice": true,
+    "api_default_penetration_max_m": true,
+    "repeated_api_physical_outputs_exact": true
+  }
+}
