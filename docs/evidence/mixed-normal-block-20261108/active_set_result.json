@@ -1,0 +1,96 @@
+{
+  "status": "passed",
+  "cases": [
+    {
+      "case": "both",
+      "candidate": [
+        1.0,
+        2.0
+      ],
+      "reference": [
+        1.0,
+        2.0
+      ],
+      "gap": [
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "case": "first",
+      "candidate": [
+        1.0,
+        0.0
+      ],
+      "reference": [
+        1.0,
+        0.0
+      ],
+      "gap": [
+        0.0,
+        0.7
+      ]
+    },
+    {
+      "case": "second",
+      "candidate": [
+        0.0,
+        2.0
+      ],
+      "reference": [
+        0.0,
+        2.0
+      ],
+      "gap": [
+        0.8,
+        0.0
+      ]
+    },
+    {
+      "case": "neither",
+      "candidate": [
+        0.0,
+        0.0
+      ],
+      "reference": [
+        0.0,
+        0.0
+      ],
+      "gap": [
+        1.0,
+        2.0
+      ]
+    },
+    {
+      "case": "captured",
+      "candidate": [
+        0.0,
+        6.8186600401531905e-06
+      ],
+      "reference": [
+        0.0,
+        6.818659897451267e-06
+      ],
+      "gap": [
+        0.00014695308746787844,
+        2.4374725328402125e-10
+      ]
+    },
+    {
+      "case": "near_singular",
+      "result": "rejected"
+    },
+    {
+      "case": "indefinite",
+      "result": "rejected"
+    },
+    {
+      "case": "negative_diagonal",
+      "result": "rejected"
+    },
+    {
+      "case": "nonfinite",
+      "result": "rejected"
+    }
+  ]
+}
