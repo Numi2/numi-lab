@@ -1,0 +1,18 @@
+{
+  "added_file": "metalrobo/RetinalStream.metallib",
+  "budget": {
+    "native_executions": 1,
+    "timeout_seconds": 180
+  },
+  "evidence_for_cause": [
+    "src/metal/RetinalStream.mm defaultLibrary and constructor fileDigest before loading/stepping",
+    "positive-chunk1 is empty; no arm trace exists"
+  ],
+  "prediction": "Missing retinal file is resolved; all unchanged owner controls pass. If they fail, preserve first failure and do not retry.",
+  "preflight_revision": "v1 incorrectly asserted no arm directory; execute creates it before constructing retina. It is empty. v1 stopped before plan sealing, file copy or native invocation; source retained under raw root. v2 asserts the actual empty arm directory.",
+  "purpose": "Repair incomplete retained runtime packaging, then execute unchanged object-push engineering controls once. Preserve the original failure and all physics/convergence thresholds.",
+  "scope": "Packaging repair and native engineering regression, not full crow environmental or biological qualification.",
+  "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12",
+  "source": "build/shaders/RetinalStream.metallib",
+  "source_commit": "b310bfecf28066a49f6cbe127e2a5244133b3bab"
+}

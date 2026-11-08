@@ -1,0 +1,179 @@
+{
+  "admitted128_exit_code": 0,
+  "all640_transitions_accepted": true,
+  "all_fine_mechanical_gates_pass": true,
+  "commands": [
+    {
+      "command": [
+        "clang++",
+        "-std=c++20",
+        "-O3",
+        "-fno-fast-math",
+        "-fobjc-arc",
+        "-I",
+        "/Users/n/Developer/numi-crow-rl-20261107/include",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/fixture128.mm",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/integrated128/libmetalrobo.dylib",
+        "-Wl,-rpath,@loader_path/runtime",
+        "-framework",
+        "Foundation",
+        "-o",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/probe128"
+      ],
+      "exit_code": 0,
+      "name": "compile128",
+      "seconds": 1.3478421660256572
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/probe128",
+        "--calibrate"
+      ],
+      "exit_code": 0,
+      "name": "calibration128",
+      "seconds": 0.7235262499889359
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/projection-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/integrated128/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/integrated-projection.bin"
+      ],
+      "exit_code": 0,
+      "name": "integrated-projection",
+      "seconds": 0.05111479200422764
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/cases-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/integrated128/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/cases.bin",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/integrated-grid.bin"
+      ],
+      "exit_code": 0,
+      "name": "integrated-grid",
+      "seconds": 0.09061908297007903
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/integrated128/contact-probe"
+      ],
+      "exit_code": 0,
+      "name": "integrated-contact",
+      "seconds": 1.1580227499944158
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/probe128",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/integrated32",
+        "0",
+        "1",
+        "32"
+      ],
+      "exit_code": 0,
+      "name": "integrated32",
+      "seconds": 16.745594041014556
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/probe128",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/integrated64",
+        "0",
+        "1",
+        "64"
+      ],
+      "exit_code": 0,
+      "name": "integrated64",
+      "seconds": 33.13379804196302
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/probe128",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/admitted128",
+        "0",
+        "1",
+        "128"
+      ],
+      "exit_code": 0,
+      "name": "admitted128",
+      "seconds": 65.54659791698214
+    }
+  ],
+  "fine_lanes": [
+    {
+      "maximum_penetration_before96_m": 3.96112574322e-05,
+      "maximum_slip_m": 0.00015787837439235162,
+      "mechanical_gates_pass": true,
+      "minimum_lift_m": 0.024271994829,
+      "minimum_release_gap_m": 0.265648087161,
+      "opposed_samples": 32,
+      "release_drop_m": 0.28693414200092004
+    },
+    {
+      "maximum_penetration_before96_m": 2.54124791627e-05,
+      "maximum_slip_m": 0.00015687497687870357,
+      "mechanical_gates_pass": true,
+      "minimum_lift_m": 0.024451136589,
+      "minimum_release_gap_m": 0.265185165459,
+      "opposed_samples": 32,
+      "release_drop_m": 0.28711328329525004
+    },
+    {
+      "maximum_penetration_before96_m": 3.93731441573e-05,
+      "maximum_slip_m": 0.00015914493479610823,
+      "mechanical_gates_pass": true,
+      "minimum_lift_m": 0.023849874735,
+      "minimum_release_gap_m": 0.26568696739,
+      "opposed_samples": 32,
+      "release_drop_m": 0.28691202821225004
+    },
+    {
+      "maximum_penetration_before96_m": 2.53997154775e-05,
+      "maximum_slip_m": 0.00015597546361645424,
+      "mechanical_gates_pass": true,
+      "minimum_lift_m": 0.02403023838999996,
+      "minimum_release_gap_m": 0.265231688222,
+      "opposed_samples": 32,
+      "release_drop_m": 0.28709239140159
+    }
+  ],
+  "host_invalid0_and129_and_GPU128_boundary_passed": true,
+  "initial_object_push_failure": {
+    "cause": "RetinalStream defaultLibrary searches the loaded dylib directory/metalrobo then its parent/shaders. The retained runtime omitted RetinalStream.metallib. Failure precedes native physical stepping; both authored fixture directories exist but no arm trace exists.",
+    "error": [
+      "Checkpoint identity file unavailable"
+    ],
+    "receipt": {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/ccd-event-capture-20261108/integrated128/object-push-check",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/integrated-object-push"
+      ],
+      "exit_code": 1,
+      "name": "integrated-object-push",
+      "seconds": 0.49554662499576807
+    }
+  },
+  "legacy32_and64_complete_trace_final_states_scene_trajectory_and_summary_exact": true,
+  "maximum_64vs128_position_error_m": 0.06260651242386177,
+  "native_contact_regression_passed": true,
+  "native_object_push_regression_passed": false,
+  "phase_errors_m": {
+    "0:31": 0.0010722300388215685,
+    "128:159": 0.027912590912672248,
+    "32:63": 0.0034452792548549816,
+    "64:95": 0.0019588072258509277,
+    "96:127": 0.06260651242386177
+  },
+  "projection_and4096_grid_exact": true,
+  "protected_profile_promoted": false,
+  "refinement5mm_pass": false,
+  "runtime": {
+    ".numi/retained-runtime/ccd-event-capture-20261108/integrated128/CCDSweepProbe.metallib": "fdc54b0d342d8e1a19d229aa4271dcd9da85ec39a12c95d649a165cbbee19829",
+    ".numi/retained-runtime/ccd-event-capture-20261108/integrated128/contact-probe": "bd0777b062295b4e08a4722124665725cb6842506054d05357a6346a76d39293",
+    ".numi/retained-runtime/ccd-event-capture-20261108/integrated128/libmetalrobo.dylib": "5b8766012ae4da995cbd26e9832ebd7a9bccbfb67e2af2bc72b960e028e2ec5f",
+    ".numi/retained-runtime/ccd-event-capture-20261108/integrated128/metalrobo/MetalRobo.metallib": "ea6fbf5e8365d6332251d27928202911604d3145636454abb2df560900b73372",
+    ".numi/retained-runtime/ccd-event-capture-20261108/integrated128/object-push-check": "ba7630d5c0e043a02ad00518e6d0a14b206f344c8adde4de635297f0b8422d93",
+    ".numi/retained-runtime/ccd-event-capture-20261108/integrated128/sweep-probe": "877d9873e0ccc38b9d93409b68aae07f3f64924fac09005dfb9e2cab1643bea0"
+  },
+  "source_commit": "b310bfecf28066a49f6cbe127e2a5244133b3bab"
+}
