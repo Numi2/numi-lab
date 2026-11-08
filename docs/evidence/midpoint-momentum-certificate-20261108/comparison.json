@@ -1,0 +1,9 @@
+{
+  "local_impulse_residual_max_Ns": 1.132262920324223e-12,
+  "global_impulse_residual_max_Ns": 2.250642512635011e-12,
+  "local_and_global_limits_Ns": 5e-10,
+  "force_bin_max_relative_to_peak_reference": 0.0008549363572691734,
+  "total_impulse_relative_error": 0.0001099725736334651,
+  "force_and_impulse_limit": 0.0025,
+  "steps": 640
+}
