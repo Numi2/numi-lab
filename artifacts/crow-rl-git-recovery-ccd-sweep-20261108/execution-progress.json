@@ -1,0 +1,101 @@
+[
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/input/cases-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/runtime/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/input/cases.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/grid4096.bin"
+    ],
+    "exit_code": 0,
+    "name": "grid4096",
+    "seconds": 0.495862916985061
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/input/projection-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/input/baseline.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/projection-baseline.bin"
+    ],
+    "exit_code": 0,
+    "name": "projection-baseline",
+    "seconds": 0.37079075002111495
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/input/projection-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/runtime/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/projection-candidate.bin"
+    ],
+    "exit_code": 0,
+    "name": "projection-candidate",
+    "seconds": 0.0486469580209814
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/runtime/sweep-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/old/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/runtime/CCDSweepProbe.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/input/clamp.ccdsweep",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/capture-clamp.bin"
+    ],
+    "exit_code": 0,
+    "name": "capture-clamp",
+    "seconds": 0.38755366700934246
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/runtime/sweep-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/old/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/runtime/CCDSweepProbe.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/input/refinement.ccdsweep",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/capture-refinement.bin"
+    ],
+    "exit_code": 0,
+    "name": "capture-refinement",
+    "seconds": 0.08999850001418963
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/runtime/contact-probe"
+    ],
+    "exit_code": 0,
+    "name": "native-contact-owner",
+    "seconds": 1.272418792010285
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/runtime/probe128",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/integrated32",
+      "0",
+      "1",
+      "32"
+    ],
+    "exit_code": 0,
+    "name": "integrated32",
+    "seconds": 17.04750187502941
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/runtime/probe128",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/admitted128",
+      "0",
+      "1",
+      "128"
+    ],
+    "exit_code": 0,
+    "name": "admitted128",
+    "seconds": 65.59390974999405
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/old/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-sweep-git-recovery-01/failed32",
+      "0",
+      "1",
+      "32"
+    ],
+    "exit_code": 1,
+    "name": "failed32",
+    "seconds": 4.313483875012025
+  }
+]

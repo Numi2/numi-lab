@@ -1,0 +1,8 @@
+{
+  "initial_failure": "All nine native reexecutions and byte comparisons had passed. Initial temporary cleanup lsof assertion failed before receipt/deletion. Its raw lsof result was not logged, so its cause is unknown. No native rerun is performed.",
+  "new_open_handle_result": {
+    "exit_code": 1,
+    "stderr": "",
+    "stdout": ""
+  }
+}
