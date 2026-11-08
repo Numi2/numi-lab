@@ -507,3 +507,21 @@ identical. The coupled crow still rejects at control zero, physics substep seven
 (previously substep two), so these numerical results do not qualify the complete
 environment. See artifacts/crow-rl-quality-representability-20261108/README.md
 for exact plans, results and recovery provenance.
+
+## Checked expanded refinement of small quality problems
+
+After the ordinary Newton and adjacent-FP32 work fails to converge, validated
+problems with at most64 velocities can use a separately bounded20-update
+two-FP32 Newton refinement when an expanded scratch arena is supplied. Primary
+budgets below20 skip it. Older dispatches with their smaller arenas also skip it.
+The primary budgets and declared tolerances are unchanged; status Newton and
+backtrack totals include refinement work, and solvePath2 identifies acceptance
+through this path. Canonical state, input records and published impulses remain FP32.
+
+The expanded iterate cannot authorize publication. Its velocity is rounded to
+FP32 and reprojected accurately. The existing FP32 evaluator must also accept that
+state. An accurate gradient and feasibility audit of the actual FP32 impulse
+stream supplies a third gate. Each gate must meet the original dispatch
+tolerances; failure preserves the original rejection and output buffers.
+Successful primary solves execute no refinement. This is a numerical contract,
+not contact, biological, learning or throughput qualification.

@@ -311,6 +311,7 @@ set(METALROBO_METALLIB "${METALROBO_SHADER_DIR}/MetalRobo.metallib")
 add_custom_command(
     OUTPUT "${METALROBO_METALLIB}"
     DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/UnifiedQualityExpansion.metal.inc"
         "${METALROBO_MILLARD_MUSCLE_REFERENCE_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/millard_muscle_gpu.h"
         "${METALROBO_MUJOCO_MUSCLE_REFERENCE_SOURCE}"

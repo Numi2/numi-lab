@@ -2496,16 +2496,7 @@ bool buildRequirements(
         ) ||
         !checkedMultiply(
             qualityEnvironments,
-            (
-                (qualityNv <= MR_UNIFIED_QUALITY_MAX_ADJACENT_VELOCITIES ||
-                 (qualityNv <=
-                    layout.qualityDispatch
-                        .directMaximumGeneralizedVelocities &&
-                  qualityRows <=
-                    layout.qualityDispatch.directMaximumRows))
-                ? qualityNv * qualityNv
-                : 1u
-            ),
+            static_cast<std::size_t>(layout.qualityDispatch.hessianStride),
             qualityHessianElements
         )) {
         return false;
@@ -4780,16 +4771,14 @@ MetalWorldDiagnostics validateAndBuildLayout(
             config.quality.directMaximumRows;
         quality.derivativeStride =
             qualityBlockCount * 36u;
-        quality.hessianStride =
+        quality.hessianStride = std::max(
             (generalizedVelocityCount <= MR_UNIFIED_QUALITY_MAX_ADJACENT_VELOCITIES ||
              (generalizedVelocityCount <=
-                    config.quality
-                        .directMaximumGeneralizedVelocities &&
-              qualityRowCount <=
-                    config.quality.directMaximumRows))
-            ? generalizedVelocityCount *
-                  generalizedVelocityCount
-            : 1u;
+                    config.quality.directMaximumGeneralizedVelocities &&
+              qualityRowCount <= config.quality.directMaximumRows))
+                ? generalizedVelocityCount * generalizedVelocityCount : 1u,
+            mrUnifiedQualityRefinementScratchFloats(
+                generalizedVelocityCount, qualityRowCount, qualityBlockCount));
         quality.blockStride = qualityBlockCount;
         quality.tolerances = {
             config.quality.optimalityTolerance,

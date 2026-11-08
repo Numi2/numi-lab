@@ -1,0 +1,34 @@
+{
+  "limits": {
+    "component_native_commands": 25,
+    "per_command_seconds": 30,
+    "raw_bytes": 40000000
+  },
+  "predictions": {
+    "legacy_arena_matches_baseline": true,
+    "new_retained_candidate_cases_pass": 3,
+    "repeated_binary_outputs_exact": true,
+    "strict_substep7_candidate_rejected": true,
+    "substep2_candidate_passed": true
+  },
+  "schema": "crow-quality-refinement-plan-v1",
+  "scope": "Production candidate. Expanded iteration must never authorize publication without rounded-state and published-impulse gates. Scientific qualification and integration/physical/performance phases remain required before promotion.",
+  "sources": {
+    "CMakeLists.txt": "4d1c069563288dd99e7c8d71b0ce808c79a124fd6742cbe662e5a2acf8e0e56c",
+    "artifacts/crow-rl-quality-refinement-20261108/UnifiedQualityExpansion.metal.inc": "f2793e69e099b8d850f09c476a08d5f6fa77e773e0565aa6f7c206cc0bf32cc9",
+    "artifacts/crow-rl-quality-refinement-20261108/baseline.json": "4c7b4c1e55cbd56d9f97930001dad95edc6d48cd905fabc526dbb4eeb527890c",
+    "artifacts/crow-rl-quality-refinement-20261108/build.py": "abe5dbfe383b69e6595bd6fe6ed38f441dcc216063ec70e51c6114821a67bcdc",
+    "artifacts/crow-rl-quality-refinement-20261108/design.json": "d647a6a7ce050f15c6e99826edc0150a45bb9eb3a94257a89f65e92c6fbaeea1",
+    "artifacts/crow-rl-quality-refinement-20261108/independent.py": "6349222af7835d775987bc145c6c4ac8327ff7a4644641641532f6ae4fb3e93e",
+    "artifacts/crow-rl-quality-refinement-20261108/inputs.json": "23b0574754043e9c964a1626d67778cbdfc1bf6a37e927a05ba9cfb59676d255",
+    "artifacts/crow-rl-quality-refinement-20261108/probe.mm": "f7649c4f9e36e6033248c8f49da992ae1d1c6455345204951c6c555f40111878",
+    "artifacts/crow-rl-quality-refinement-20261108/run.py": "aa36a52253598a805571e9ead608c7ed00d9882f4f9946b090e0013dedd390fb",
+    "artifacts/crow-rl-quality-refinement-20261108/wrapper.metal.inc": "03fc1656ab89180a2e9229a3271039e46767b0c2a73a484f2e60dc4fed912a2d",
+    "docs/NUMERICS.md": "079e6514b4a0ef984030559ca90c00cc4cfe90bf64dbc21bbefcba3eb2a323ba",
+    "include/metalrobo/unified_quality_shared.h": "a3a4c0dd2aecd9f5e5858051832e5ce962fd45356ac54835ab3ec59d73e48b17",
+    "src/metal/MetalUnifiedQualitySolver.metal": "d221d54462e3bb9bc82eec914ddfe69e51a000db7b3a30347c5fb94ab3e561b5",
+    "src/metal/MetalUnifiedQualitySolver.mm": "59591e3eb0b9d9a1b36745a8fc828a8be89cee9033aef8523d2152de8c32870c",
+    "src/metal/MetalWorld.mm": "67e9e9c29ae4981e1a841353201c7400b21dcd986dd1f60dba883c23a7b3ba1b",
+    "src/metal/UnifiedQualityExpansion.metal.inc": "f2793e69e099b8d850f09c476a08d5f6fa77e773e0565aa6f7c206cc0bf32cc9"
+  }
+}

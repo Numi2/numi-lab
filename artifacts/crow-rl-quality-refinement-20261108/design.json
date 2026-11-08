@@ -1,0 +1,15 @@
+{
+  "abi_version": 1,
+  "helper_source": "Adapted from sealed split-cones instrument. Triangular dependency updates now run across SIMD32. Rounded state and published impulses require separate audits.",
+  "max_nv": 64,
+  "production_paths": [
+    "CMakeLists.txt",
+    "include/metalrobo/unified_quality_shared.h",
+    "src/metal/MetalUnifiedQualitySolver.metal",
+    "src/metal/MetalUnifiedQualitySolver.mm",
+    "src/metal/MetalWorld.mm",
+    "docs/NUMERICS.md",
+    "src/metal/UnifiedQualityExpansion.metal.inc"
+  ],
+  "refinement_iterations": 20
+}

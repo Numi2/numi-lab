@@ -1,0 +1,12 @@
+{
+  "commit": "9130ce71faae0d84b7191db51fc0d4a019b89552",
+  "files": {
+    "CMakeLists.txt": "bc43495b80b53b9d8feb9be952afb2a8c7efe7350cedda8c0049a4164e899769",
+    "docs/NUMERICS.md": "7026de7302e5da90438e49405e76733cc33e2b9171657a5653c2d13698c7594a",
+    "include/metalrobo/unified_quality_shared.h": "36ee38b144e5490922dc179855338de8eaa1934782a2559e99ff700b7b8b2fef",
+    "src/metal/MetalUnifiedQualitySolver.metal": "48c3ce600907519b28b59e4ba68a549cb518c11d138bf1785c8274f87e9fa427",
+    "src/metal/MetalUnifiedQualitySolver.mm": "701f3cc8d7970bea96eb583de257e5f305d3eaed651de306269c61ed16021c93",
+    "src/metal/MetalWorld.mm": "b3ffe5be3647222c0093ec875d462755d54d79ea16d5135cc9c8236d39fbcaf7"
+  },
+  "metallib_sha256": "91416d391489b37c1c79918c1ec51ad81dbaa26ef99e6536f8a57d9f720cf8d7"
+}

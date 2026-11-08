@@ -493,11 +493,14 @@ MetalUnifiedQualityDiagnostics solveMetalUnifiedQuality(
             problem.generalizedVelocityCount <=
                 config.directMaximumGeneralizedVelocities &&
             problem.rowCount <= config.directMaximumRows;
-        const std::size_t hessianStride =
+        const std::size_t hessianStride = std::max<std::size_t>(
             (directPath || problem.generalizedVelocityCount <=
                 MR_UNIFIED_QUALITY_MAX_ADJACENT_VELOCITIES)
-            ? dynamicsStride
-            : 1u;
+                ? dynamicsStride : 1u,
+            mrUnifiedQualityRefinementScratchFloats(
+                static_cast<std::uint32_t>(problem.generalizedVelocityCount),
+                static_cast<std::uint32_t>(problem.rowCount),
+                static_cast<std::uint32_t>(problem.blocks.size())));
         if (problem.problemCount >
                 std::numeric_limits<std::uint32_t>::max() ||
             problem.generalizedVelocityCount >
