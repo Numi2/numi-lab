@@ -86,3 +86,8 @@ After remote HEAD parity, actual Git verification and zero open handles,
 all1197 archived source files (1450386822logical bytes) were removed;
 see cleanup-receipt.json. The current native build and protected deployment
 remain available.
+
+614 duplicate archive-checkout files (255383944logical bytes) were omitted
+only after actual Git readback and remote parity. Git objects remain reachable;
+receipt: ../crow-rl-git-recovery-post-step-rate-20261108/omission.json.
+Final Data-volume free space is approximately149.9GiB.
