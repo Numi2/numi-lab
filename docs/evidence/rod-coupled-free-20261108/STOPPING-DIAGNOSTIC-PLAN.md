@@ -1,0 +1,3 @@
+# Research solver stopping sensitivity
+
+Compare the original research API configuration, whose linear and angular internal momentum residual tolerances are each 0.00025, to a diagnostic configuration with both set to 0.000025. Keep the same Metal source, the same three initial states and 100-step procedure, the 1e-6 FP64 reference tolerance, and every original physical comparison gate. Rebuild only the probe that supplies the configuration; retain and hash both binaries. Run twice, recording completion, failures and local residuals. Rejected or stalled solves are results; do not change limits or raise iteration budgets. This is a numerical cause diagnostic, not a speed comparison, a default change, or an admission of the research solver into MetalWorld.

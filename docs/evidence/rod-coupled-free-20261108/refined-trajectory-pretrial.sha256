@@ -1,0 +1,8 @@
+0b9d455ec9517af8051abc43177665240d850a62da2c1553a95d819a1193afac  docs/evidence/rod-coupled-free-20261108/REFERENCE-REFINEMENT-PLAN.md
+c3a76b173f9203ec366164bdc26ebbc4f4bef154223bf31933abda34f9240adf  docs/evidence/rod-coupled-free-20261108/free_3d_refined_reference.py
+44930ee1d47915970656977fdeff06e8eb722234741e6cae176e5163bcbc4530  docs/evidence/rod-coupled-free-20261108/refined_trajectory.py
+96447384e3be5efd3277347c7f74ef7f743b55ceba3732853784ce1bfb6f1919  docs/evidence/rod-coupled-free-20261108/free-3d-global-1-inputs.json
+a86644d9e1c88991726e487422f68969fedef562148ef29b42213150affeec40  docs/evidence/rod-coupled-bend-20261108/native-full-energy
+7ab492c853c3a536a51808d8c6148b892497c36230ee4256f81d3e15d9578f05  /Users/numi/rod-native-api-build-20261108/free_3d_probe
+5d043ae978afa222fa7afd6a2a8d89e5014d06cb40569ce1593ff73409828a4b  /Users/numi/numi-rod-integrated-build-20261108/lib/libmetalrobo.dylib
+73b424d9db567373ae42bf0a50d183309ab6ccd7621f44dd1ff877bb9e74ee88  /Users/numi/numi-rod-integrated-build-20261108/shaders/MetalRobo.metallib
