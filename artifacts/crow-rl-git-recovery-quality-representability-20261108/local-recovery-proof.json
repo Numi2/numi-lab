@@ -1,0 +1,166 @@
+{
+  "actual_git_files_verified": 20,
+  "archive_commit": "ad81be491b27c74514041ff01f4c48c987758f43",
+  "controls": [
+    {
+      "bytes": 6453,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/crow-representability-local-inventory.json",
+      "mode": 420,
+      "mtime_ns": 1794140894742659709,
+      "sha256": "13715cc94bba866455d60fa81a4f719d36c2c0dea0bd9c77811b0bb96390c5b5"
+    },
+    {
+      "bytes": 8467,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/quality-representability-recovery.py",
+      "mode": 420,
+      "mtime_ns": 1794141037362661696,
+      "sha256": "87962f946aaf4e74459ed57858fb6c0b435199a3ec5faee0ddea397075e66acf"
+    },
+    {
+      "bytes": 3872,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/cleanup_representability_local.py",
+      "mode": 420,
+      "mtime_ns": 1794141147120607902,
+      "sha256": "de0b490f0dc98e440a1b24e3dfdc151b06851a763c40be7a9bf0a46bf02db00e"
+    }
+  ],
+  "inventory": [
+    {
+      "archive_path": "build/crow-quality-representability-build-01/local-authoring/MetalUnifiedQualitySolver.metal",
+      "bytes": 86448,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/quality-representability/MetalUnifiedQualitySolver.metal",
+      "mode": 420,
+      "mtime_ns": 1794138142000000000,
+      "sha256": "4497c4c45e870de5872995067370ad5af5a39a6ba1527313f6a12c3a9bda36ed"
+    },
+    {
+      "archive_path": "build/crow-quality-representability-build-01/local-authoring/MetalUnifiedQualitySolver.mm",
+      "bytes": 31241,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/quality-representability/MetalUnifiedQualitySolver.mm",
+      "mode": 420,
+      "mtime_ns": 1794050504000000000,
+      "sha256": "613502f0f0c3d8ce15b5b13d7d39fb66fb26def3a3a04c0dba6f2b38aebe4729"
+    },
+    {
+      "archive_path": "build/crow-quality-representability-build-01/local-authoring/MetalWorld.mm",
+      "bytes": 856490,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/quality-representability/MetalWorld.mm",
+      "mode": 420,
+      "mtime_ns": 1794138297000000000,
+      "sha256": "28ac088d4fb20f61fb4854c8c0f13e7bf7267df6eda9e676623782d1d3c6734c"
+    },
+    {
+      "archive_path": "build/crow-quality-representability-build-01/local-authoring/README.md",
+      "bytes": 2832,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/quality-representability/README.md",
+      "mode": 420,
+      "mtime_ns": 1794140839131903653,
+      "sha256": "245832e51e999471fbc3c04e208aaf063d0899911d4be20b674bc400757d74fe"
+    },
+    {
+      "archive_path": "build/crow-quality-representability-build-01/local-authoring/adjacent_neighbor.metal.inc",
+      "bytes": 4097,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/quality-representability/adjacent_neighbor.metal.inc",
+      "mode": 420,
+      "mtime_ns": 1794140494415062898,
+      "sha256": "7d6dbe4f4d262b74d0a8a626009d43a80ec3d5da26a6839d8d6e3a8099c6dd03"
+    },
+    {
+      "archive_path": "build/crow-quality-representability-build-01/local-authoring/adjacent_refinement.metal.inc",
+      "bytes": 3111,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/quality-representability/adjacent_refinement.metal.inc",
+      "mode": 420,
+      "mtime_ns": 1794140494415444486,
+      "sha256": "9ce2a72b09c12de7523e1543ee76a957ff5aad42b4ba82337881139625198c20"
+    },
+    {
+      "archive_path": "build/crow-quality-representability-build-01/local-authoring/apply_refinement.py",
+      "bytes": 2399,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/quality-representability/apply_refinement.py",
+      "mode": 420,
+      "mtime_ns": 1794140494415713364,
+      "sha256": "bb76abbcc1bd763f9a301d7ec3fb85b838672a04a1633634a29eb0c54e2ae737"
+    },
+    {
+      "archive_path": "build/crow-quality-representability-build-01/local-authoring/explore.py",
+      "bytes": 4923,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/quality-representability/explore.py",
+      "mode": 420,
+      "mtime_ns": 1794139819756777193,
+      "sha256": "3ae2bb44836a4465e77bb15db227ff5d1f94548424d4f5687273236f1533ecaa"
+    },
+    {
+      "archive_path": "build/crow-quality-representability-build-01/local-authoring/failed_start_explore.py",
+      "bytes": 4950,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/quality-representability/failed_start_explore.py",
+      "mode": 420,
+      "mtime_ns": 1794140332183954689,
+      "sha256": "e4b80e27e6f4249c0d729113c388b2d73cb9d9f6b48d8552c9abd37c2130a452"
+    },
+    {
+      "archive_path": "build/crow-quality-representability-build-01/local-authoring/fp64_reference.py",
+      "bytes": 8211,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/quality-representability/fp64_reference.py",
+      "mode": 420,
+      "mtime_ns": 1794140744382092661,
+      "sha256": "44cadf97db32b9bbafa303fda7d894d94778a6710981c87b9c0f25fa08b2f5a0"
+    },
+    {
+      "archive_path": "build/crow-quality-representability-build-01/local-authoring/native_trial.py",
+      "bytes": 10470,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/quality-representability/native_trial.py",
+      "mode": 420,
+      "mtime_ns": 1794140588198854256,
+      "sha256": "2f5549857a54f4ffffd2236c420fb542d5ff028602fed5612a2cea58428b897e"
+    },
+    {
+      "archive_path": "build/crow-quality-representability-build-01/local-authoring/prepare_warm_probe.py",
+      "bytes": 2879,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/quality-representability/prepare_warm_probe.py",
+      "mode": 420,
+      "mtime_ns": 1794140055604912993,
+      "sha256": "7b87a3bc62b9e48462885bbb9182d8ba70aac88909a94460e236f02eaaa41525"
+    },
+    {
+      "archive_path": "build/crow-quality-representability-build-01/local-authoring/replay-original.mm",
+      "bytes": 5289,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/quality-representability/replay-original.mm",
+      "mode": 420,
+      "mtime_ns": 1794140012000000000,
+      "sha256": "533df75029f913a4a80ec68ed1b0271387d6fe71d1449821ea00dc42dc9a69f8"
+    },
+    {
+      "archive_path": "build/crow-quality-representability-build-01/local-authoring/substep7_reference.py",
+      "bytes": 8244,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/quality-representability/substep7_reference.py",
+      "mode": 420,
+      "mtime_ns": 1794140744520577930,
+      "sha256": "89f85b795eb8a5d0f1041e00a9a99ccf871636b1dacf6ffd61038565de98d4b0"
+    },
+    {
+      "archive_path": "build/crow-quality-representability-build-01/local-authoring/summarize.py",
+      "bytes": 3067,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/quality-representability/summarize.py",
+      "mode": 420,
+      "mtime_ns": 1794140839131494106,
+      "sha256": "847afaec214ecaee0812f4512d79db95d90ad27a4832c1640eda905a90ecb66a"
+    },
+    {
+      "archive_path": "build/crow-quality-representability-build-01/local-authoring/warm_probe.mm",
+      "bytes": 6591,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/quality-representability/warm_probe.mm",
+      "mode": 420,
+      "mtime_ns": 1794140055714921265,
+      "sha256": "54fbfcb69748fdd783933d6c8bc6df59b2300867a78b69ae89e935ff925bb8cd"
+    },
+    {
+      "archive_path": "build/crow-quality-representability-build-01/local-authoring/warm_validation.py",
+      "bytes": 4129,
+      "local_path": "/Users/home/Documents/Codex/2026-11-07/c/work/quality-representability/warm_validation.py",
+      "mode": 420,
+      "mtime_ns": 1794140286775685542,
+      "sha256": "59a5d048ae99e94eed2263288cd3d781369bdad61fd7ceaa6e9ae514e65c4a02"
+    }
+  ],
+  "remote_commit": "ad81be491b27c74514041ff01f4c48c987758f43"
+}
