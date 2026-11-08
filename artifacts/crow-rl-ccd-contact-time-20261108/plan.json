@@ -1,0 +1,101 @@
+{
+  "budget": {
+    "compile": 1,
+    "grid_executions": 3,
+    "link": 1,
+    "new_raw_max_bytes": 33554432,
+    "pair_replays": 4,
+    "physical_executions": 2,
+    "stop": "One execution per predeclared condition, no retries, additional budget or policy promotion. Preserve all failed predictions. Production replacement requires explicit integration qualification and unused physical confirmation.",
+    "timeout_seconds_each": 180
+  },
+  "controls": [
+    "Unused stationary, initial overlap, literal rotating endpoints, away, grazing, crossing, common translation and sphere spin.",
+    "Native baseline/candidate/repeat; FP64 independent continuous reference.",
+    "Old motor conditions are development replication, not heldout confirmation."
+  ],
+  "inputs": {
+    "build/crow-ccd-contact-time-build-01/Collision.candidate.metal": {
+      "bytes": 414601,
+      "sha256": "32c62bb243e9292aca13b94fa4fac4ff6d33f3fb758bae7a151e2d92cc31e559"
+    },
+    "build/crow-ccd-contact-time-build-01/baseline.metallib": {
+      "bytes": 4213058,
+      "sha256": "6187bb22b96e19d4e15dd8d5eb954348c4f789742f703aa3fe7212a4fd9154ed"
+    },
+    "build/crow-ccd-contact-time-build-01/cases-probe": {
+      "bytes": 57976,
+      "sha256": "8587ecde51ef2182265d13aa2d19efbef0bbdbd59a3cf35d0b97bf3467814057"
+    },
+    "build/crow-ccd-contact-time-build-01/cases.bin": {
+      "bytes": 655364,
+      "sha256": "d67006aa795ac752c2d2ffd038f3968f3f2fc769836a8ac5623847ee111efe1a"
+    },
+    "build/crow-ccd-contact-time-build-01/clamp.ccdsweep": {
+      "bytes": 13344,
+      "sha256": "d7c1a1554b945447082de746b20c649ea7505dea2a4686d450f72056f811314e"
+    },
+    "build/crow-ccd-contact-time-build-01/groups.json": {
+      "bytes": 29955,
+      "sha256": "ecb4fd18548da4fc50ee66766532c5cda8991e68d92972dd0f2dea2ec680e78d"
+    },
+    "build/crow-ccd-contact-time-build-01/link-command.json": {
+      "bytes": 4029,
+      "sha256": "eaeec78542f9a8639642bd953ea80361437c59b6c3dc6defeec8d4e33d0f6440"
+    },
+    "build/crow-ccd-contact-time-build-01/oracle.json": {
+      "bytes": 371226,
+      "sha256": "e03ac417d89a8c47c89f9c5a443d9cc5cafde6cf31a02971b76cace90ec23de4"
+    },
+    "build/crow-ccd-contact-time-build-01/oracle.py": {
+      "bytes": 2616,
+      "sha256": "3880675e23ffc7685b40d2fd276398012cf0b2bd50f72fba231d404f24acd8c1"
+    },
+    "build/crow-ccd-contact-time-build-01/prepare.py": {
+      "bytes": 7255,
+      "sha256": "b132379b027a36eafff52ef1516a1fd097807e0e34349025270b3cf786b00202"
+    },
+    "build/crow-ccd-contact-time-build-01/probe": {
+      "bytes": 99568,
+      "sha256": "ec7148a6454e792cf5ed06a4f92a6aa109a5775a2602528ab4a710234c40371b"
+    },
+    "build/crow-ccd-contact-time-build-01/query.metallib": {
+      "bytes": 949279,
+      "sha256": "be3eb5abe16f1d7ba0873ac4119a66c7a2f9647d52178e0dd3096d8301983e43"
+    },
+    "build/crow-ccd-contact-time-build-01/refinement.ccdsweep": {
+      "bytes": 13344,
+      "sha256": "7df91cc18467f08947bdaf14335a1c48e442d92f74cd59e4ead839565afbc120"
+    },
+    "build/crow-ccd-contact-time-build-01/run.py": {
+      "bytes": 6172,
+      "sha256": "ded24a3a861334b12c74df5333110794ac3258400134845b88a2cf327d94e379"
+    },
+    "build/crow-ccd-contact-time-build-01/sweep-probe": {
+      "bytes": 95704,
+      "sha256": "877d9873e0ccc38b9d93409b68aae07f3f64924fac09005dfb9e2cab1643bea0"
+    },
+    "build/crow-ccd-contact-time-build-01/unchanged-air-identities.json": {
+      "bytes": 6495,
+      "sha256": "efd793957e04ea56f60351ab64b032748a70c17c151291d6ae5273ab31d6d654"
+    }
+  },
+  "orders_per_unit": 2,
+  "parent": "artifacts/crow-rl-ccd-event-capture-20261108",
+  "prediction": {
+    "FP64_gap_at_selected_time_within_existing_tolerance_plusminus_m": 5e-07,
+    "all257_query_bytes_on_each_retained_event_capture_exact": true,
+    "all_nonimpacts_rotating_and_initial_overlap_exact": true,
+    "development_physical_replication": "Both clamp32 and refinement64 reach all160ticks without CCD event-budget rejection. If not, retain failure and classify next cause; component evidence alone does not qualify beak handling.",
+    "fixed_box_impact_lower_equals_unchanged_upper": true,
+    "only_lower_field_changes_on_fixed_box_impacts": true,
+    "repeat_exact": true,
+    "unsafe_successful_no_impact_count": 0
+  },
+  "question": "Can the supporting-plane certified primitive endpoint eliminate zero-time replay without losing or advancing through contact?",
+  "revision": "Only for fixed-orientation translating sphere-box pairs, return the current supporting-plane advancement alpha after its query reaches the existing tolerance, rather than the previous iterate. Keep identical upper endpoint, distance queries, flags, iteration count, controls, contact tolerance and event budgets. Other geometries unchanged.",
+  "seed": 2651522901,
+  "source_base": "1cbdb7a758a361a69ed1c205b7abdfd6ba6b0acf",
+  "units": 2048,
+  "unused_next_seed": 2651523901
+}

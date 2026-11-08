@@ -1,0 +1,10 @@
+{
+  "known_first_contact_alpha_errors": [
+    0.0,
+    1.1102230246251565e-16,
+    2.7755575615628914e-16
+  ],
+  "null_and_initial_overlap_known_values": 2,
+  "passed": true,
+  "scope": "Continuous FP64 ideal linear translation, normalized fixed box quaternion. Float32 native interpolation is compared with a declared 0.5 micrometre ambiguity band; no rotating-box reference."
+}
