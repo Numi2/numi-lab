@@ -55,6 +55,7 @@ public:
 
     [[nodiscard]] bool valid() const noexcept;
     [[nodiscard]] const std::string& deviceName() const noexcept;
+    // Environment rows carry logical policy identity across submissions.
     [[nodiscard]] MetalWorldDeviceActionProgram actionProgram() noexcept;
     // Drop only execution state. Immutable compiled tables and pipelines are
     // retained; the next submission recreates zeroed phase/action buffers.

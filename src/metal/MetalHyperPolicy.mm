@@ -173,6 +173,43 @@ struct MetalHyperPolicyRuntime::State {
     std::uint32_t controlStepCapacity = 0u;
     std::string deviceName;
 
+    // Growth is encoded on a caller-owned command buffer. Preserve the old
+    // allocation until a subsequent serialized call can detect an abort.
+    struct CapacityBuffers {
+        id<MTLBuffer> phase = nil, signatures = nil, contacts = nil;
+        id<MTLBuffer> rank = nil, scratchA = nil, scratchB = nil;
+        id<MTLBuffer> previous = nil, savedPhase = nil, savedPrevious = nil;
+        id<MTLBuffer> phaseTrace = nil, actionTrace = nil, latentTrace = nil, logTrace = nil;
+        std::uint32_t environments = 0u, steps = 0u;
+    };
+    CapacityBuffers beforeGrowth{};
+    id<MTLCommandBuffer> growthCommand = nil;
+
+    CapacityBuffers currentBuffers() const {
+        return {phaseStates, signatures, contactMasks, rankWorkspace, scratchA,
+                scratchB, previousActions, savedPhaseStates, savedPreviousActions,
+                phaseTrajectory, actionTrajectory, latentTrajectory,
+                logProbabilityTrajectory, environmentCapacity, controlStepCapacity};
+    }
+    void installBuffers(const CapacityBuffers& b) {
+        phaseStates=b.phase; signatures=b.signatures; contactMasks=b.contacts;
+        rankWorkspace=b.rank; scratchA=b.scratchA; scratchB=b.scratchB;
+        previousActions=b.previous; savedPhaseStates=b.savedPhase;
+        savedPreviousActions=b.savedPrevious; phaseTrajectory=b.phaseTrace;
+        actionTrajectory=b.actionTrace; latentTrajectory=b.latentTrace;
+        logProbabilityTrajectory=b.logTrace; environmentCapacity=b.environments;
+        controlStepCapacity=b.steps;
+    }
+    void settleGrowth(id<MTLCommandBuffer> commandBuffer) {
+        if (growthCommand == nil || growthCommand == commandBuffer) return;
+        if (growthCommand.status == MTLCommandBufferStatusNotEnqueued ||
+            growthCommand.status == MTLCommandBufferStatusEnqueued) {
+            installBuffers(beforeGrowth);
+        }
+        beforeGrowth = {};
+        growthCommand = nil;
+    }
+
     [[nodiscard]] bool valid() const noexcept {
         return device != nil && library != nil &&
             signaturePipeline != nil && phasePipeline != nil &&
@@ -190,6 +227,7 @@ struct MetalHyperPolicyRuntime::State {
         const std::uint32_t environmentCount,
         const std::uint32_t controlStepCount
     ) {
+        settleGrowth(commandBuffer);
         if (environmentCount <= environmentCapacity &&
             controlStepCount <= controlStepCapacity) {
             return true;
@@ -238,128 +276,77 @@ struct MetalHyperPolicyRuntime::State {
             controlStepCapacity = controlStepCount;
             return true;
         }
+
         const std::uint32_t nextEnvironmentCapacity = std::max(
-            environmentCount, environmentCapacity
-        );
+            environmentCount, environmentCapacity);
         const std::uint32_t nextControlStepCapacity = std::max(
-            controlStepCount, controlStepCapacity
-        );
-        std::uint64_t signatureElements =
-            static_cast<std::uint64_t>(nextEnvironmentCapacity) * header.counts1.z;
-        std::uint64_t workspaceElements =
-            static_cast<std::uint64_t>(nextEnvironmentCapacity) *
-            2u * header.counts1.w;
-        std::uint64_t scratchElements =
-            static_cast<std::uint64_t>(nextEnvironmentCapacity) *
-            maximumActivationWidth;
-        std::uint64_t actionElements =
-            static_cast<std::uint64_t>(nextEnvironmentCapacity) * header.counts0.z;
-        const std::uint64_t phaseElements =
-            static_cast<std::uint64_t>(nextEnvironmentCapacity) *
-            nextControlStepCapacity;
-        const std::uint64_t actionTrajectoryElements = phaseElements *
-            header.counts0.z;
+            controlStepCount, controlStepCapacity);
         constexpr std::uint64_t maximum =
             std::numeric_limits<NSUInteger>::max() / sizeof(float);
-        if (signatureElements > maximum || workspaceElements > maximum ||
-            scratchElements > maximum || actionElements > maximum ||
-            phaseElements > maximum || actionTrajectoryElements > maximum) {
-            return false;
-        }
-        auto makePrivate = [&](std::size_t bytes, NSString* label) {
+        const std::uint64_t signaturesCount =
+            std::uint64_t(nextEnvironmentCapacity) * header.counts1.z;
+        const std::uint64_t workspaceHalf =
+            std::uint64_t(nextEnvironmentCapacity) * header.counts1.w;
+        if (workspaceHalf > maximum / 2u) return false;
+        const std::uint64_t workspaceCount = workspaceHalf * 2u;
+        const std::uint64_t scratchCount =
+            std::uint64_t(nextEnvironmentCapacity) * maximumActivationWidth;
+        const std::uint64_t actionsCount =
+            std::uint64_t(nextEnvironmentCapacity) * header.counts0.z;
+        const std::uint64_t phaseCount =
+            std::uint64_t(nextEnvironmentCapacity) * nextControlStepCapacity;
+        if (header.counts0.z == 0u || signaturesCount > maximum ||
+            workspaceCount > maximum || scratchCount > maximum ||
+            actionsCount > maximum || phaseCount > maximum ||
+            phaseCount > maximum / header.counts0.z) return false;
+        const std::uint64_t traceActions = phaseCount * header.counts0.z;
+        auto make = [&](std::size_t bytes, NSString* label, MTLResourceOptions options) {
             id<MTLBuffer> buffer = [device
                 newBufferWithLength:std::max<std::size_t>(bytes, 16u)
-                            options:MTLResourceStorageModePrivate];
-            if (buffer != nil) {
-                buffer.label = label;
-            }
+                options:options];
+            if (buffer != nil) buffer.label = label;
             return buffer;
         };
-        phaseStates = makePrivate(
-            nextEnvironmentCapacity * sizeof(MRHyperPolicyPhaseStateGPU),
-            @"HyperPolicy phase states"
-        );
-        savedPhaseStates = makePrivate(
-            nextEnvironmentCapacity * sizeof(MRHyperPolicyPhaseStateGPU),
-            @"HyperPolicy saved phase states"
-        );
-        signatures = makePrivate(
-            signatureElements * sizeof(float),
-            @"HyperPolicy live phase signatures"
-        );
-        contactMasks = makePrivate(
-            nextEnvironmentCapacity * sizeof(std::uint32_t),
-            @"HyperPolicy measured contact masks"
-        );
-        rankWorkspace = makePrivate(
-            workspaceElements * sizeof(float),
-            @"HyperPolicy low-rank workspace"
-        );
-        scratchA = makePrivate(
-            scratchElements * sizeof(float),
-            @"HyperPolicy activation scratch A"
-        );
-        scratchB = makePrivate(
-            scratchElements * sizeof(float),
-            @"HyperPolicy activation scratch B"
-        );
-        previousActions = makePrivate(
-            actionElements * sizeof(float),
-            @"HyperPolicy previous task actions"
-        );
-        savedPreviousActions = makePrivate(
-            actionElements * sizeof(float), @"HyperPolicy saved previous actions"
-        );
-        phaseTrajectory = [device
-            newBufferWithLength:std::max<std::size_t>(
-                phaseElements * sizeof(float), 16u
-            )
-            options:MTLResourceStorageModeShared];
-        actionTrajectory = [device
-            newBufferWithLength:std::max<std::size_t>(
-                actionTrajectoryElements * sizeof(float), 16u
-            )
-            options:MTLResourceStorageModeShared];
-        latentTrajectory = [device
-            newBufferWithLength:std::max<std::size_t>(
-                actionTrajectoryElements * sizeof(float), 16u
-            )
-            options:MTLResourceStorageModeShared];
-        logProbabilityTrajectory = [device
-            newBufferWithLength:std::max<std::size_t>(
-                phaseElements * sizeof(float), 16u
-            )
-            options:MTLResourceStorageModeShared];
-        phaseTrajectory.label = @"HyperPolicy rollout phases";
-        actionTrajectory.label = @"HyperPolicy executed actor-coordinate teachers";
-        latentTrajectory.label = @"HyperPolicy sampled actor latents";
-        logProbabilityTrajectory.label = @"HyperPolicy action log probabilities";
-        if (phaseStates == nil || signatures == nil ||
-            contactMasks == nil || rankWorkspace == nil ||
-            scratchA == nil || scratchB == nil ||
-            previousActions == nil || savedPhaseStates == nil ||
-            savedPreviousActions == nil || phaseTrajectory == nil ||
-            actionTrajectory == nil || latentTrajectory == nil ||
-            logProbabilityTrajectory == nil) {
-            return false;
-        }
+        CapacityBuffers next;
+        next.phase=make(std::size_t(nextEnvironmentCapacity)*sizeof(MRHyperPolicyPhaseStateGPU),
+                        @"HyperPolicy phase states", MTLResourceStorageModePrivate);
+        next.savedPhase=make(std::size_t(nextEnvironmentCapacity)*sizeof(MRHyperPolicyPhaseStateGPU),
+                             @"HyperPolicy saved phase states", MTLResourceStorageModePrivate);
+        next.signatures=make(signaturesCount*sizeof(float), @"HyperPolicy live phase signatures", MTLResourceStorageModePrivate);
+        next.contacts=make(std::size_t(nextEnvironmentCapacity)*sizeof(std::uint32_t), @"HyperPolicy measured contact masks", MTLResourceStorageModePrivate);
+        next.rank=make(workspaceCount*sizeof(float), @"HyperPolicy low-rank workspace", MTLResourceStorageModePrivate);
+        next.scratchA=make(scratchCount*sizeof(float), @"HyperPolicy activation scratch A", MTLResourceStorageModePrivate);
+        next.scratchB=make(scratchCount*sizeof(float), @"HyperPolicy activation scratch B", MTLResourceStorageModePrivate);
+        next.previous=make(actionsCount*sizeof(float), @"HyperPolicy previous task actions", MTLResourceStorageModePrivate);
+        next.savedPrevious=make(actionsCount*sizeof(float), @"HyperPolicy saved previous actions", MTLResourceStorageModePrivate);
+        next.phaseTrace=make(phaseCount*sizeof(float), @"HyperPolicy rollout phases", MTLResourceStorageModeShared);
+        next.actionTrace=make(traceActions*sizeof(float), @"HyperPolicy executed actor-coordinate teachers", MTLResourceStorageModeShared);
+        next.latentTrace=make(traceActions*sizeof(float), @"HyperPolicy sampled actor latents", MTLResourceStorageModeShared);
+        next.logTrace=make(phaseCount*sizeof(float), @"HyperPolicy action log probabilities", MTLResourceStorageModeShared);
+        next.environments=nextEnvironmentCapacity; next.steps=nextControlStepCapacity;
+        if (next.phase==nil || next.savedPhase==nil || next.signatures==nil ||
+            next.contacts==nil || next.rank==nil || next.scratchA==nil ||
+            next.scratchB==nil || next.previous==nil || next.savedPrevious==nil ||
+            next.phaseTrace==nil || next.actionTrace==nil || next.latentTrace==nil ||
+            next.logTrace==nil) return false;
         id<MTLBlitCommandEncoder> blit = [commandBuffer blitCommandEncoder];
-        if (blit == nil) {
-            return false;
+        if (blit == nil) return false;
+        for (id<MTLBuffer> buffer in @[next.phase, next.savedPhase, next.signatures,
+                next.contacts, next.rank, next.scratchA, next.scratchB, next.previous,
+                next.savedPrevious, next.phaseTrace, next.actionTrace, next.latentTrace,
+                next.logTrace]) {
+            [blit fillBuffer:buffer range:NSMakeRange(0u, buffer.length) value:0u];
         }
-        for (id<MTLBuffer> buffer in @[
-                phaseStates, signatures, contactMasks, rankWorkspace,
-                scratchA, scratchB, previousActions, savedPhaseStates,
-                savedPreviousActions, phaseTrajectory, actionTrajectory, latentTrajectory,
-                logProbabilityTrajectory
-             ]) {
-            [blit fillBuffer:buffer
-                       range:NSMakeRange(0u, buffer.length)
-                       value:0u];
+        if (environmentCapacity != 0u) {
+            [blit copyFromBuffer:phaseStates sourceOffset:0u toBuffer:next.phase
+                destinationOffset:0u size:std::size_t(environmentCapacity)*sizeof(MRHyperPolicyPhaseStateGPU)];
+            [blit copyFromBuffer:previousActions sourceOffset:0u toBuffer:next.previous
+                destinationOffset:0u size:std::size_t(environmentCapacity)*header.counts0.z*sizeof(float)];
         }
         [blit endEncoding];
-        environmentCapacity = nextEnvironmentCapacity;
-        controlStepCapacity = nextControlStepCapacity;
+        beforeGrowth = currentBuffers();
+        growthCommand = commandBuffer;
+        installBuffers(next);
         return true;
     }
 
@@ -732,6 +719,8 @@ void MetalHyperPolicyRuntime::reset() noexcept {
     }
     try {
         const std::lock_guard lock(state_->mutex);
+        state_->beforeGrowth = {};
+        state_->growthCommand = nil;
         state_->phaseStates = nil;
         state_->signatures = nil;
         state_->contactMasks = nil;
@@ -780,6 +769,7 @@ bool MetalHyperPolicyRuntime::copyRolloutTrace(
         return false;
     }
     const std::lock_guard lock(state_->mutex);
+    state_->settleGrowth(nil);
     if (environmentCount > state_->environmentCapacity ||
         controlStepCount > state_->controlStepCapacity ||
         state_->phaseTrajectory == nil || state_->actionTrajectory == nil ||
