@@ -1,0 +1,10 @@
+{
+  "actual_git_recovery_verified": true,
+  "bytes_removed": 2155427,
+  "exact_hash_mode_mtime": true,
+  "files_removed": 363,
+  "open_handles": 0,
+  "root_absent": true,
+  "schema": "crow-split-cones-recovery-cleanup-v1",
+  "verified_commit": "19a355109805c4d9b3da721a697bc83b0e112d8b"
+}

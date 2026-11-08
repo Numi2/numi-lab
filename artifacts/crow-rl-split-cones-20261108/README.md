@@ -57,3 +57,5 @@ No production source, runtime, numerical tolerance or deployed policy changed.
 The strict coupled crow remains unqualified. Next work must reconcile canonical
 state precision with the public FP32 ABI and qualify end-to-end native behavior
 and performance before promotion.
+
+Executed Git recovery replayed all36 native submissions: all72 status/scratch outputs, case/derivative reports and every scientific result matched exactly. The173 original files (1,028,585 bytes) and363 temporary files (2,155,427 bytes) were verified recoverable from actual Git blobs before exact hash/mode/mtime and zero-handle cleanup. Timing text size and wall time are operational receipt fields; the initial receipt rejection and continuation are preserved. New content-deduplicated archive payload is105,336 compressed bytes. See verification.json for final source/runtime/policy and archive checks.
