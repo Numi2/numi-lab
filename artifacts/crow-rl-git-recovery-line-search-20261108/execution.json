@@ -1,0 +1,82 @@
+[
+  {
+    "name": "observer-api",
+    "returncode": 1,
+    "seconds": 4.470632040989585
+  },
+  {
+    "name": "component-api-default",
+    "returncode": 0,
+    "seconds": 0.4326213750173338
+  },
+  {
+    "name": "component-line-search",
+    "returncode": 0,
+    "seconds": 0.20881929103052244
+  },
+  {
+    "name": "component-opt6",
+    "returncode": 0,
+    "seconds": 0.14731400000164285
+  },
+  {
+    "name": "component-opt7",
+    "returncode": 0,
+    "seconds": 0.14040529204066843
+  },
+  {
+    "name": "component-substep2",
+    "returncode": 0,
+    "seconds": 0.09035420801956207
+  },
+  {
+    "name": "component-substep7",
+    "returncode": 0,
+    "seconds": 0.08985008299350739
+  },
+  {
+    "name": "regression-unified-owner",
+    "returncode": 0,
+    "seconds": 0.5710586250061169
+  },
+  {
+    "name": "regression-ir-owner",
+    "returncode": 0,
+    "seconds": 0.3141014169668779
+  },
+  {
+    "name": "regression-contact-owner",
+    "returncode": 0,
+    "seconds": 0.9067132920026779
+  },
+  {
+    "name": "regression-motor",
+    "returncode": 0,
+    "seconds": 0.4336475839954801
+  },
+  {
+    "name": "regression-zero",
+    "returncode": 0,
+    "seconds": 0.08794050000142306
+  },
+  {
+    "name": "regression-calibration",
+    "returncode": 0,
+    "seconds": 0.21038775000488386
+  },
+  {
+    "name": "regression-default",
+    "returncode": 0,
+    "seconds": 17.053969916014466
+  },
+  {
+    "name": "regression-strict",
+    "returncode": 1,
+    "seconds": 0.330096332996618
+  },
+  {
+    "name": "full-coupled-api",
+    "returncode": 0,
+    "seconds": 377.1005269580055
+  }
+]

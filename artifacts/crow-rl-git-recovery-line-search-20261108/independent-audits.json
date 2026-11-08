@@ -1,0 +1,45 @@
+{
+  "calibration": {
+    "euclidean_closed_form_cases": 5,
+    "passed": true,
+    "weighted_boundary_derivative_max_error": 7.482731101404738e-11
+  },
+  "candidate_cases": [
+    {
+      "gate_passed": true,
+      "name": "api-default",
+      "projected": 1.4133210253793225e-08,
+      "published": 2.661012440874512e-08
+    },
+    {
+      "gate_passed": true,
+      "name": "line-search",
+      "projected": 1.45085725946836e-09,
+      "published": 1.0688740351519458e-09
+    },
+    {
+      "gate_passed": true,
+      "name": "opt6",
+      "projected": 7.685859038836901e-08,
+      "published": 1.1172813898232481e-07
+    },
+    {
+      "gate_passed": true,
+      "name": "opt7",
+      "projected": 4.5719306617667654e-08,
+      "published": 4.699974822306949e-08
+    },
+    {
+      "gate_passed": true,
+      "name": "substep2",
+      "projected": 7.216500344744634e-11,
+      "published": 7.216500344744634e-11
+    },
+    {
+      "name": "substep7",
+      "rejection_unchanged": true
+    }
+  ],
+  "observer_reference_history_exact": true,
+  "observer_rounded_residual": 1.45085725946836e-09
+}

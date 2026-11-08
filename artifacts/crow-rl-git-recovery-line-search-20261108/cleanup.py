@@ -25,5 +25,5 @@ with archive.Objects() as objects:
 for f in inventory['files']:(X/f['path']).unlink()
 for p in sorted([p for p in X.rglob('*') if p.is_dir()],key=lambda p:len(p.parts),reverse=True):p.rmdir()
 X.rmdir()
-write(G/'cleanup.json',dict(schema='crow-quality-refinement-recovery-cleanup-v1',verified_commit=head,files_removed=len(inventory['files']),bytes_removed=sum(f['bytes'] for f in inventory['files']),actual_git_recovery_verified=True,exact_hash_mode_mtime=True,open_handles=0,root_absent=not X.exists()))
+write(G/'cleanup.json',dict(schema='crow-line-search-recovery-cleanup-v1',verified_commit=head,files_removed=len(inventory['files']),bytes_removed=sum(f['bytes'] for f in inventory['files']),actual_git_recovery_verified=True,exact_hash_mode_mtime=True,open_handles=0,root_absent=not X.exists()))
 print((G/'cleanup.json').read_text(),flush=True)

@@ -17,3 +17,11 @@ Two fresh full coupled runs each complete640 accepted transitions with zero phys
 Each full run takes about377s:1.697 transitions/s. The first run spends376.734s in GPU work out of377.060s wall time. Performance is not qualified. A retained line-search problem spends81.0ms in the original failed solve versus95.4ms including checked refinement; these single-dispatch timings are descriptive, not a throughput benchmark or causal isolation of precision.
 
 Two preparation/analysis corrections are preserved: exact-bit symmetry was too strict for2.95e-18 captured rotational-inertia skew (the exact matrix remains in every residual/operator), and inherited legacy comparison had mixed scratch sizes. No tolerance, policy, physics configuration or primary budget was relaxed. The checked candidate and original failure records remain recoverable through Git.
+
+## Git recovery and remaining work
+
+Manifest cf8c0a42d33579919c1b1e57d2a539f897452c58e4c42529eb764c64e5e98bfb binds398 raw files/30,187,560bytes; deduplication added7,996,229compressed bytes. Actual Git restoration checked every original hash, mode and nanosecond mtime. Sixteen scoped native recovery commands reproduced71 physical/numerical files exactly,624 motor physical records, all six unique candidate operators, the observer-only failure, and one complete coupled repeat. Independent FP64 audits reproduce the retained residuals and reference history. The other identical full repeat and the wall-time-limited prefix are fully recovered/hash checked; the timed-out prefix is not claimed to replay deterministically. Recovery executes archived binaries and shaders; it is not a new source rebuild.
+
+An independent audit of all six actual retained outputs verifies all64 unused rows have zero operator/bias and zero published impulses in successful cases, with exact positive-zero bits. The deliberately rejected output poison is unchanged. No scratch-initialization change was needed for these retained cases.
+
+Cleanup and final storage proof are separate Git receipts. The scientific result remains scoped to four normal-condition rigid-sphere poses. Counterfactual grasp arms and feeding still require qualification, followed by broader lifelong tasks. GPU throughput remains inadequate;377s for640 transitions is the measured baseline for future optimization. Policy/profile promotion remains disabled.

@@ -1,0 +1,11 @@
+{"name": "observer-api", "returncode": 1, "seconds": 4.470632040989585}
+{"name": "regression-unified-owner", "returncode": 0, "seconds": 0.5710586250061169}
+{"name": "regression-ir-owner", "returncode": 0, "seconds": 0.3141014169668779}
+{"name": "regression-contact-owner", "returncode": 0, "seconds": 0.9067132920026779}
+{"name": "regression-motor", "returncode": 0, "seconds": 0.4336475839954801}
+{"name": "regression-zero", "returncode": 0, "seconds": 0.08794050000142306}
+{"name": "regression-calibration", "returncode": 0, "seconds": 0.21038775000488386}
+{"name": "regression-default", "returncode": 0, "seconds": 17.053969916014466}
+{"name": "regression-strict", "returncode": 1, "seconds": 0.330096332996618}
+{"name": "full-coupled-api", "returncode": 0, "seconds": 377.1005269580055}
+{"schema": "crow-line-search-git-recovery-v1", "manifest_sha256": "cf8c0a42d33579919c1b1e57d2a539f897452c58e4c42529eb764c64e5e98bfb", "native_commands": 16, "physical_and_numerical_files_exact": 71, "motor_physical_records_exact": 624, "unique_candidate_cases_independently_audited": 6, "observer_reference_history_exact": true, "original_files_git_recovered_and_metadata_checked": 398, "timed_out_prefix_replayed": false, "duplicate_full_coupled_repeats_executed": 1, "original_duplicate_repeats_git_verified": true, "temporary_files": 594, "temporary_bytes": 69110696, "seconds": 402.8380405839998, "all_passed": true, "scope": "Exact archived runtime execution. No fresh Git-source rebuild. One of identical repeats executed; all originals Git/hash/mode/mtime verified.", "goal_complete": false}
