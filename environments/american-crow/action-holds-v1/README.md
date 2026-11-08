@@ -181,3 +181,23 @@ postcue RGB and food allocation; memory clearing changes only the GRU while full
 retina/food state stays exact. The cue controls alter native rendered visibility.
 This supports causal learned memory in this fixed fixture, not reliable feeding
 or general lifelong intelligence. Evidence/recovery: `artifacts/crow-rl-native-causal-memory-20261108`.
+
+## Qualified fixed-fixture deployment97
+
+The canonical `policies/deployment97.policypack` is the deterministic actor mean,
+registered with SHA256 in the project profile. On three fresh allocation seeds,
+it chooses the food side and consumes40000..45000ug in all192 tested allocations.
+Clearing only GRU at40, removing the cue or swapping the rendered cue gives zero
+intakes in every control. The actor, recurrent parameters, normalization and
+semantic/action contracts match the Gaussian publication exactly. Gaussian
+exploration gives49/192 intakes and173/192 correct choices on the same seed set.
+The192 deterministic replicates contain only two initial head commands in a fixed
+two-cue geometry; they do not establish192 independent geometric challenges or
+natural foraging reliability. Evidence: `artifacts/crow-rl-deployment-mean-20261108`.
+
+128-lane learning is admitted at5203 transitions/s and382185480B MLX peak with
+zero swap. The changed population/minibatch/rate recipe prevents a pure scaling
+comparison with earlier64-lane runs. Exact fresh chunk1/8 continuation matches all53
+model/Adam tensors and metadata, policy/rollout bytes and world/retina/food state.
+This closes the fixed-fixture native foraging/memory foundation. Persistent ecology,
+solid-object manipulation and social learning remain the next implementation scope.

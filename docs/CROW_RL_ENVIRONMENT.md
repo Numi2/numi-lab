@@ -18,6 +18,28 @@ current-checkout qualification. Preserve the original BirdFlow estimated crow,
 artifacts, source history, and every negative result. Do not silently migrate
 legacy PolicyPacks to new sensor, action, world, or task semantics.
 
+## Latest verified development frontier (8 November 2026)
+
+The active held-action fixture has a canonical deterministic deployment97 at
+`environments/american-crow/action-holds-v1/policies/deployment97.policypack`.
+It consumes40000..45000ug in192/192 fixed two-cue allocation replicates. GRU-only
+clearing, absent cues and swapped rendered cues each reduce intake to zero.
+Only two initial head commands occur in mean mode; this is a controlled fixed
+fixture, not192 independent geometric challenges or a broad reliability estimate.
+Gaussian exploration gives49/192 intakes and173/192 correct-side choices.
+
+128-lane learning reaches5203 transitions/s at382185480B MLX peak, zero swap and
+no reported physics rejection. Fresh chunk1/8 future matches all53 model/Adam
+tensors/metadata and complete native state. Counter scopes are separate; the
+changed recipe does not establish a pure scaling speedup or whole-system peak.
+The registered project profile links the exact candidate, evidence and limits.
+
+Foraging and causal cue memory now have an executable development foundation.
+Full lifelong completion still requires persistent ecological needs and resources,
+physical solid-object manipulation, social individuals/information, broader
+layouts and sustainable end-to-end performance. The historical dated sections
+below preserve failures and the narrower qualification state at each phase.
+
 ## Current native history contract (8 November 2026)
 
 Current executable task ABIs are51 (base),52 (retinal),53 (memory choice), and54
