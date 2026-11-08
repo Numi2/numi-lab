@@ -773,6 +773,17 @@
         "checkpoint_directory_bytes_each": 131421528,
         "raw_evidence_estimate_exceeded": true,
         "sustained_performance_qualified": false
+      },
+      "Git_recovery": {
+        "status": "passed",
+        "restored_files": 69,
+        "fixed_policy_future_byte_exact": true,
+        "coupled_model_Adam_arrays_exact": 82,
+        "coupled_native_boundaries_exact": 2,
+        "policy_rollout_files_byte_exact": 6,
+        "scientific_metrics_exact": true,
+        "temporary_bytes_removed": 24898132,
+        "reanalysis_reused_original_successful_executions": true
       }
     }
   }

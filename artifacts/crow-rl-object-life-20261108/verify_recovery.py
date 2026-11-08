@@ -1,5 +1,6 @@
 """Exercise fixed-policy and coupled training continuation from actual Git blobs."""
 from pathlib import Path
+import argparse
 import hashlib
 import importlib.util
 import json
@@ -7,6 +8,7 @@ import math
 import os
 import stat
 import struct
+import sys
 import subprocess
 import time
 
@@ -28,24 +30,48 @@ plan={
     'measurement_scope':'Record elapsed time and allocator measurements; exclude those process-dependent quantities from causal byte/tensor/scientific equality.',
     'scope':'Same device/OS and external Python/MLX environment; scripted engineering continuation, not learned manipulation or general ecological qualification.',
 }
-write('verification-plan.json',plan)
+parser=argparse.ArgumentParser()
+parser.add_argument('--verify-existing',action='store_true')
+parser.add_argument('--analysis-name',default='verification-reanalysis')
+args=parser.parse_args()
+reuse=args.verify_existing
+analysis_name=args.analysis_name
+if not analysis_name.replace('-', '').isalnum():raise ValueError('Invalid analysis name')
+plan['execution_mode']='Verify command/hash-validated original successful executions after correcting optional allocator-history fields' if reuse else 'Fresh execution'
+write(analysis_name+'-plan.json' if reuse else 'verification-plan.json',plan)
+if reuse:
+    restoration=json.loads((tmp/'runtime-restoration.json').read_text())
+    for record in restoration['files']:
+        if a.file_hash(tmp/record['path'])!=record['sha256']:
+            raise RuntimeError('Restored Git input changed before reanalysis')
 env={k:v for k,v in os.environ.items() if not k.startswith('DYLD_')}
 env.update(DYLD_PRINT_LIBRARIES='1',METALROBO_LIBRARY=str(tmp/'lib/libmetalrobo.dylib'),
            METALROBO_METALLIB=str(tmp/'shaders/MetalRobo.metallib'),PYTHONPATH=str(tmp/'python'))
 def execute(name,command):
-    write(name+'.command.json',command)
-    started=time.monotonic()
-    p=subprocess.run(command,cwd=tmp,env=env,capture_output=True,text=True,timeout=180)
-    (base/(name+'.stdout')).write_text(p.stdout)
-    (base/(name+'.stderr')).write_text(p.stderr)
-    write(name+'.receipt.json',{'returncode':p.returncode,'wall_seconds':time.monotonic()-started,
-        'stdout_sha256':hashlib.sha256(p.stdout.encode()).hexdigest(),
-        'stderr_sha256':hashlib.sha256(p.stderr.encode()).hexdigest()})
-    if p.returncode:raise RuntimeError('Git-restored execution failed: '+name)
-    loaded=[s for s in p.stderr.splitlines() if s.startswith('dyld[') and 'libmetalrobo.dylib' in s]
+    if reuse:
+        if json.loads((base/(name+'.command.json')).read_text())!=command:
+            raise RuntimeError('Retained recovery command differs: '+name)
+        receipt=json.loads((base/(name+'.receipt.json')).read_text())
+        stdout=(base/(name+'.stdout')).read_text()
+        stderr=(base/(name+'.stderr')).read_text()
+        if (receipt['returncode']!=0 or receipt['stdout_sha256']!=hashlib.sha256(stdout.encode()).hexdigest() or
+            receipt['stderr_sha256']!=hashlib.sha256(stderr.encode()).hexdigest()):
+            raise RuntimeError('Retained recovery execution receipt differs: '+name)
+    else:
+        write(name+'.command.json',command)
+        started=time.monotonic()
+        p=subprocess.run(command,cwd=tmp,env=env,capture_output=True,text=True,timeout=180)
+        stdout,stderr=p.stdout,p.stderr
+        (base/(name+'.stdout')).write_text(stdout)
+        (base/(name+'.stderr')).write_text(stderr)
+        write(name+'.receipt.json',{'returncode':p.returncode,'wall_seconds':time.monotonic()-started,
+            'stdout_sha256':hashlib.sha256(stdout.encode()).hexdigest(),
+            'stderr_sha256':hashlib.sha256(stderr.encode()).hexdigest()})
+        if p.returncode:raise RuntimeError('Git-restored execution failed: '+name)
+    loaded=[s for s in stderr.splitlines() if s.startswith('dyld[') and 'libmetalrobo.dylib' in s]
     if not loaded or any(not s.endswith(str(tmp/'lib/libmetalrobo.dylib')) for s in loaded):
         raise RuntimeError('Wrong recovery library: '+name)
-    v=json.loads(p.stdout)
+    v=json.loads(stdout)
     if v['failed_environment_steps']!=0:raise RuntimeError('Native recovery rejected a transition')
     return v
 def replace(command,flag,value):
@@ -83,7 +109,7 @@ try:
     if parts(tmp/'fixed-future.life')!=parts(tmp/'reference/future.life'):
         raise RuntimeError('Recovered fixed-policy native hidden state differs')
     target=tmp/'training'
-    target.mkdir()
+    target.mkdir(exist_ok=reuse)
     c=list(metadata['training_reference']['command'])
     c[2]=str(tmp/'bin/metalrobo_task_train')
     for flag in ('--updated-policy-pack','--deployment-policy-pack','--incumbent-policy-pack',
@@ -102,8 +128,11 @@ try:
     ignored={'update_seconds','mlx_peak_memory_bytes','mlx_active_memory_bytes','mlx_cache_memory_bytes'}
     for got,want in zip(learning['learning_update_history'],metadata['training_reference']['summary']['learning_update_history'],strict=True):
         got=got.copy();want=want.copy()
-        measurements.append({'original':{k:want[k] for k in ignored},'recovered':{k:got[k] for k in ignored}})
-        for k in ignored:
+        present=ignored & got.keys()
+        if present!=ignored & want.keys() or not {'update_seconds','mlx_peak_memory_bytes'}<=present:
+            raise RuntimeError('Process measurement schema differs')
+        measurements.append({'original':{k:want[k] for k in present},'recovered':{k:got[k] for k in present}})
+        for k in present:
             if not math.isfinite(got[k]) or got[k]<0:raise RuntimeError('Invalid recovered process measurement')
             got.pop(k);want.pop(k)
         if got!=want:raise RuntimeError('Recovered scientific learner metrics differ')
@@ -152,7 +181,7 @@ try:
         p=Path(f['path']);s=p.lstat()
         if s.st_size!=f['bytes'] or s.st_mtime_ns!=f['mtime_ns'] or stat.S_IMODE(s.st_mode)!=f['mode'] or a.file_hash(p)!=f['sha256']:
             raise RuntimeError('Recovery file changed before cleanup')
-    report={'status':'passed','archive_commit':a.git('rev-parse','HEAD').decode().strip(),
+    report={'status':'passed','verification_reuses_completed_executions':reuse,'archive_commit':a.git('rev-parse','HEAD').decode().strip(),
         'results':result,'restoration':json.loads((tmp/'runtime-restoration.json').read_text()),
         'temporary_cleanup':{'status':'validated','files':files,'open_handles':0,
             'removed_logical_bytes':sum(f['bytes'] for f in files)}}
@@ -165,5 +194,5 @@ try:
     print(json.dumps({'status':'passed','model_Adam_arrays_exact':tensors,
         'training_files_byte_exact':len(exact),'temporary_bytes_removed':sum(f['bytes'] for f in files)}))
 except Exception as exc:
-    write('verification-failure.json',{'error':str(exc),'type':type(exc).__name__})
+    write(analysis_name+'-failure.json' if reuse else 'verification-failure.json',{'error':str(exc),'type':type(exc).__name__})
     raise

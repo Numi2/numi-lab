@@ -1,0 +1,4 @@
+{
+  "error": "[Errno 17] File exists: '/private/tmp/crow-object-life-git-recovery-20261108/training'",
+  "type": "FileExistsError"
+}

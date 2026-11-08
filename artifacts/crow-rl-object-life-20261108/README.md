@@ -98,3 +98,14 @@ movement after shared clipping, and retained-rollout head advantage/return
 comparisons. The audited recipe uses gamma0.999/lambda1. No adaptive learning-rate
 trial is selected here. Behavioral selection remains held-out cue-conditioned
 choice and intake, rather than KL target attainment.
+
+Git-restored verification passes:69 restored input/runtime/source files, one
+fixed-policy future rollout, six coupled policy/rollout files,82 model/Adam
+arrays with exact metadata, and both coupled native boundaries match. The
+first recovery analyzer assumed optional active/cache-memory fields existed
+in compact update history; they do not. Its reuse path then rejected an
+already existing output directory. Both failed checkers/plans/logs are preserved
+in `recovery-attempt-01` and `recovery-attempt-02`. Corrected analysis validates
+original commands and stdout/stderr hashes, reuses the two successful native
+executions, compares all scientific fields, and records process-dependent
+measurements separately. No native or learner replay was repeated.

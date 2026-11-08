@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-object-life-20261108/verify_recovery.py", line 105, in <module>
+    measurements.append({'original':{k:want[k] for k in ignored},'recovered':{k:got[k] for k in ignored}})
+                                       ~~~~^^^
+KeyError: 'mlx_active_memory_bytes'

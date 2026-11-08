@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-object-life-20261108/verify_recovery.py", line 105, in <module>
+    target.mkdir()
+    ~~~~~~~~~~~~^^
+  File "/Users/n/.local/share/uv/python/cpython-3.13.14-macos-aarch64-none/lib/python3.13/pathlib/_local.py", line 722, in mkdir
+    os.mkdir(self, mode)
+    ~~~~~~~~^^^^^^^^^^^^
+FileExistsError: [Errno 17] File exists: '/private/tmp/crow-object-life-git-recovery-20261108/training'
