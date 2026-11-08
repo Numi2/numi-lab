@@ -1,0 +1,37 @@
+{
+  "clean_accepted": 10,
+  "injected_accepted": 10,
+  "injected_rejected": 1,
+  "failure_status": 11,
+  "joint_markers": [
+    2,
+    2,
+    2
+  ],
+  "prefix_exact": true,
+  "rejected_exposed_state_unchanged": true,
+  "final_owners_byte_equal": true,
+  "clean_eleven_negative_control_different": true,
+  "owners": {
+    "q": {
+      "bytes": 28,
+      "sha256": "d6c52a4ace8198810f09754ffc337e8b6c7feb541d671af5be3943e4d90abf1e"
+    },
+    "v": {
+      "bytes": 24,
+      "sha256": "9cbf80e6a2b4f30de046c25931424099dd5ff8072cac456ce7963316cf0b715e"
+    },
+    "scene": {
+      "bytes": 128,
+      "sha256": "681873b510994cdc87c8b1b62fa71bb07764440947c48a3628e0be0a543dc3d8"
+    },
+    "rod_nodes": {
+      "bytes": 96,
+      "sha256": "b9afdca9fd8ea277f95ad319aedff3793e1f191f789f0e85b1fc43651fa1bdb9"
+    },
+    "rod_edges": {
+      "bytes": 32,
+      "sha256": "66687aadf862bd776c8fc18b8e9f8e20089714856ee233b3902a591d0d5f2925"
+    }
+  }
+}
