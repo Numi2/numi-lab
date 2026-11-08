@@ -1603,3 +1603,8 @@ Feeding reliability, new geometry, manipulation, social learning and the lifelon
 ecological goal remain unfinished. Eight focused native CTests and full Release
 build pass. Exact runtime, all outcomes and Git-executed recovery are retained in
 `artifacts/crow-rl-native-causal-memory-20261108`; no videos/full rollout captures.
+
+
+## Retained-rollout optimizer audit (2026-11-08)
+
+See `artifacts/crow-rl-optimizer-audit-20261108/README.md` for final-step head/beak KL, actual gamma=.999/lambda=1 return attribution, combined-gradient clipping and exact Adam replay. The new selected-factor post-update metrics are retained in ordinary Swift training history. Legacy KL remains pre-step and the adaptive controller is unchanged. Matched unused-seed Gaussian evaluation improves correct-side choices65→97 (128→169/192), but intake26→37/192 is not conclusive (paired p=.169). No further adaptive-rate trial or optimizer success is selected from KL. Broader lifelong scope remains unfinished.

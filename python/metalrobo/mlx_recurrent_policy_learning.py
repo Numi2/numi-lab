@@ -15,6 +15,7 @@ import time
 import mlx.core as mx
 import mlx.nn as nn
 import mlx.optimizers as optim
+from mlx.utils import tree_flatten
 import numpy as np
 
 from .gru_memory import PARAMETER_NAMES, gru_sequence
@@ -341,7 +342,20 @@ class MLXRecurrentPolicyLearner(MLXPolicyLearner):
         _, metrics["critic_gradient_norm"] = optim.clip_grad_norm(
             {"critic": gradients["critic"]}, self.configuration.maximum_gradient_norm)
         gradients, metrics["gradient_norm"] = optim.clip_grad_norm(gradients, self.configuration.maximum_gradient_norm)
+        # Preserve the optimizer algebra. Report the joint clipping actually
+        # applied, then measure Adam's parameter change (moments make it
+        # different from learning_rate times the clipped gradient).
+        metrics["gradient_clip_scale"] = mx.minimum(1.0,
+            self.configuration.maximum_gradient_norm / (metrics["gradient_norm"] + 1e-6))
+        _, metrics["clipped_actor_gradient_norm"] = optim.clip_grad_norm(
+            {"actor": gradients["actor"], "log_standard_deviation": gradients["log_standard_deviation"]},
+            self.configuration.maximum_gradient_norm)
+        before = dict(tree_flatten({"actor": self.model.actor.trainable_parameters(),
+            "log_standard_deviation": self.model.log_standard_deviation}))
         self.optimizer.update(self.model, gradients)
+        after = dict(tree_flatten({"actor": self.model.actor.trainable_parameters(),
+            "log_standard_deviation": self.model.log_standard_deviation}))
+        metrics["actor_parameter_delta_norm"] = mx.sqrt(sum(mx.sum(mx.square(after[k]-v)) for k,v in before.items()))
         return loss, metrics
 
     def _update_impl(self, batch):
@@ -388,7 +402,10 @@ class MLXRecurrentPolicyLearner(MLXPolicyLearner):
             normalized = np.zeros_like(batch.advantages)
             if chosen.size:
                 normalized[decision] = (chosen-np.mean(chosen))/(np.std(chosen)+1e-8)
-        totals = {}; updates = 0; weight = 0
+        actor_before = {k: np.array(v) for k,v in tree_flatten({
+            "actor": self.model.actor.trainable_parameters(),
+            "log_standard_deviation": self.model.log_standard_deviation})}
+        totals = {}; updates = 0; weight = 0; minimum_clip_scale = 1.0
         start_time = time.perf_counter()
         for epoch in range(self.configuration.update_epochs):
             order = np.random.default_rng(self._permutation_seed(self.configuration.seed, self.revision, epoch)).permutation(len(windows))
@@ -407,6 +424,7 @@ class MLXRecurrentPolicyLearner(MLXPolicyLearner):
                 if not all(math.isfinite(x) for x in numeric.values()):
                     raise FloatingPointError("Recurrent PPO produced nonfinite minibatch metrics")
                 count = int(valid.sum()); weight += count; updates += 1
+                minimum_clip_scale = min(minimum_clip_scale, numeric["gradient_clip_scale"])
                 if self.configuration.adaptive_learning_rate and self.configuration.target_kl is not None:
                     lr = float(self.optimizer.learning_rate.item()); kl = numeric["kl_divergence"]
                     if kl > 2*self.configuration.target_kl: lr = max(self.configuration.minimum_learning_rate, lr/1.5)
@@ -414,8 +432,54 @@ class MLXRecurrentPolicyLearner(MLXPolicyLearner):
                     self.optimizer.learning_rate = lr
                 numeric["learning_rate"] = float(self.optimizer.learning_rate.item())
                 for key, value in numeric.items(): totals[key] = totals.get(key, 0.)+value*count
+        # Audit the final published distribution, after *every* optimizer
+        # step. Factor metrics average only its selected decisions; the rare
+        # head factor cannot be diluted by frequent jaw decisions.
+        post_kl = np.zeros(r.action_count, np.float64)
+        post_approx = np.zeros(r.action_count, np.float64)
+        post_clip = np.zeros(r.action_count, np.float64)
+        factor_counts = np.zeros(r.action_count, np.int64)
+        pooled_kl = 0.0; pooled_count = 0
+        final_logstd = mx.clip(self.model.log_standard_deviation, -5, 2)
+        for offset in range(0, len(windows), per_batch):
+            tables, indices, valid = batch.gather(windows[offset:offset+per_batch], length)
+            means, _ = self.model.actor_mean(mx.array(tables["actor_observations"]),
+                mx.array(tables["initial"]), mx.array(tables["resets"]))
+            old = mx.array(np.where(valid[...,None], old_means[indices], 0))
+            latent = mx.array(tables["latents"])
+            kl = final_logstd-old_logstd + .5*(mx.exp(2*(old_logstd-final_logstd))
+                + mx.square(old-means)*mx.exp(-2*final_logstd)-1)
+            log_ratio = -.5*(mx.square((latent-means)*mx.exp(-final_logstd))
+                - mx.square((latent-old)*mx.exp(-old_logstd)) + 2*(final_logstd-old_logstd))
+            approx = mx.expm1(log_ratio)-log_ratio
+            clip = (mx.abs(mx.expm1(log_ratio))>self.configuration.clip_ratio).astype(mx.float32)
+            mx.eval(kl, approx, clip)
+            selected = np.broadcast_to(valid[...,None], valid.shape+(r.action_count,)).copy()
+            if selections is not None: selected &= selections[indices].astype(bool)
+            post_kl += np.sum(np.where(selected,np.array(kl),0),axis=(0,1),dtype=np.float64)
+            post_approx += np.sum(np.where(selected,np.array(approx),0),axis=(0,1),dtype=np.float64)
+            post_clip += np.sum(np.where(selected,np.array(clip),0),axis=(0,1),dtype=np.float64)
+            factor_counts += np.sum(selected,axis=(0,1))
+            decisions = np.any(selected,axis=-1)
+            pooled_kl += float(np.sum(np.where(selected,np.array(kl),0),dtype=np.float64))
+            pooled_count += int(np.count_nonzero(decisions))
+        post = {"post_update_kl_divergence": pooled_kl/max(pooled_count,1),
+            "minimum_gradient_clip_scale": minimum_clip_scale}
+        for action in range(r.action_count):
+            post[f"post_update_action_{action}_decision_count"] = float(factor_counts[action])
+            if factor_counts[action]:
+                post[f"post_update_action_{action}_kl"] = float(post_kl[action]/factor_counts[action])
+                post[f"post_update_action_{action}_approximate_kl"] = float(post_approx[action]/factor_counts[action])
+                post[f"post_update_action_{action}_clip_fraction"] = float(post_clip[action]/factor_counts[action])
+        actor_after = dict(tree_flatten({"actor": self.model.actor.trainable_parameters(),
+            "log_standard_deviation": self.model.log_standard_deviation}))
+        post["actor_total_parameter_delta_norm"] = math.sqrt(sum(float(np.sum(
+            np.square(np.array(actor_after[k],dtype=np.float64)-v))) for k,v in actor_before.items()))
+        if not all(math.isfinite(value) for value in post.values()):
+            raise FloatingPointError("Recurrent PPO final-policy metrics are nonfinite")
         self.revision += 1
-        return {**{key: value/weight for key,value in totals.items()}, "update_seconds": time.perf_counter()-start_time,
+        return {**{key: value/weight for key,value in totals.items()}, **post,
+            "pre_step_kl_divergence": totals["kl_divergence"]/weight, "update_seconds": time.perf_counter()-start_time,
             "minibatch_updates": float(updates), "policy_revision": float(self.revision),
             "sequence_windows": float(len(windows)), "sequence_length": float(length),
             "real_samples_per_epoch": float(r.sample_count),

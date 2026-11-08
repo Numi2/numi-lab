@@ -648,5 +648,34 @@
     "scope": "Repeated fixed two-cue geometry with3 new allocation seeds, not independent held-out geometries",
     "evidence": "artifacts/crow-rl-deployment-mean-20261108",
     "ecological_environment_qualified": false
+  },
+  "optimizer_diagnostics": {
+    "evidence": "artifacts/crow-rl-optimizer-audit-20261108",
+    "exact_replay_revisions": [
+      65,
+      81,
+      97
+    ],
+    "model_Adam_tensors_per_replay": 53,
+    "actual_discount": 0.999,
+    "actual_GAE_lambda": 1.0,
+    "post_final_step_factor_KL": true,
+    "actual_actor_Adam_displacement": true,
+    "clipping_diagnosis": "No clipping65/81; critic-dominated joint clipping97 changes actor update size and direction. No behavioral claim from clipping counterfactual.",
+    "matched_unused_seed_base": 2651213602,
+    "Gaussian_correct_side_counts": [
+      128,
+      158,
+      169
+    ],
+    "Gaussian_intake_counts": [
+      26,
+      33,
+      37
+    ],
+    "lifetimes_per_policy_arm": 192,
+    "Gaussian_intake_improvement_conclusive": false,
+    "adaptive_learning_rate_causal_benefit_qualified": false,
+    "new_optimizer_trials": 0
   }
 }

@@ -2397,9 +2397,12 @@ private enum TaskTrainMain {
                     "kl_divergence", "approximate_kl", "clip_fraction",
                     "actor_gradient_norm", "critic_gradient_norm", "gradient_norm",
                     "minibatch_updates", "update_seconds",
+                    "pre_step_kl_divergence", "post_update_kl_divergence", "gradient_clip_scale",
+                    "minimum_gradient_clip_scale", "clipped_actor_gradient_norm",
+                    "actor_parameter_delta_norm", "actor_total_parameter_delta_norm",
                 ]
                 learningUpdateHistory.append(lastLearning.filter {
-                    historyKeys.contains($0.key)
+                    historyKeys.contains($0.key) || $0.key.hasPrefix("post_update_action_")
                 })
                 try context.loadPolicy(
                     at: URL(fileURLWithPath: updatedPolicyPack)
