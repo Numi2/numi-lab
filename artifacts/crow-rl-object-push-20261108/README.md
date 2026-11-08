@@ -116,7 +116,7 @@ hash/mode/mtime/closed-handle checks pass. Recovery and cleanup receipts carry
 the observed results. No shared Git provider cleanup or unrelated deletion.
 
 Git recovery passes:74 native files byte-exact,2 path-bound visual manifests
-explained by native owning fingerprints,8 policy/rollout files byte-exact, and
+explained by native owning fingerprints,9 policy/rollout files byte-exact, and
 123 model/Adam arrays across3 learner files with exact metadata/scientific metrics.
 The corrected check reuses the same successful native/learner executions; it
 does not rerun or select a new training result.269199820 temporary bytes are
