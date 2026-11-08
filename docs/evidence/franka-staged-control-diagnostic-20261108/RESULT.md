@@ -1,0 +1,5 @@
+# Control-only diagnostic result
+
+The separately registered control-only process exited 2 on 2026-11-08 from 00:38:22.297196 to 00:38:22.638436 UTC. Input hashes matched before and after. As before, the pre-submit error left the host projection at generation zero and the subsequent actual step returned internal status 17, with two failed steps counted and no published status or actor arrays. The newly captured diagnostic was: GPU published a malformed native task transition.
+
+The validator uses that message for several possible conditions, including nonfinite observation or policy output, nonfinite transition values, a policy revision mismatch, or malformed termination flags. The retained result does not identify which condition applied or why the environments failed. The native policy dispatch selects the installed policy revision when one is present; the original zero batch revision alone is not evidence of a mismatch. No mixed arm was run and no staged-transaction or failure-recovery claim follows.
