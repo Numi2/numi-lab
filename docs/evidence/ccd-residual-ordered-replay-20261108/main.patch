@@ -1,0 +1,11 @@
+--- main.before.metal	2026-11-07 20:20:25
++++ main.candidate.metal	2026-11-07 20:20:25
+@@ -9024,7 +9024,7 @@
+                 maximumImpulseDelta,
+                 maximumNormalResidual,
+                 maximumConeViolation,
+-                0.0f
++                ((work.flags & MR_ISLAND_WORK_HAS_ROD)==0u && maximumNormalResidual>0.002f) ? 1.0f : 0.0f
+             );
+         }
+         waveStatuses[islandBase + islandIndex] = result;

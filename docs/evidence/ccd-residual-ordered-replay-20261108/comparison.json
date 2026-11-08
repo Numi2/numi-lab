@@ -1,0 +1,791 @@
+{
+  "main": [
+    {
+      "scale": 1,
+      "fixture": 1,
+      "control": {
+        "scale": 1,
+        "fixture": 1,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 1.1691454649,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 4.305634499,
+            "reconstructed_m_s": 4.30563466653767
+          }
+        ]
+      },
+      "ordered_replay": {
+        "scale": 1,
+        "fixture": 1,
+        "accepted": false,
+        "status": 11,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 4.123828888,
+            "reconstructed_m_s": 4.1238289550642575
+          }
+        ]
+      }
+    },
+    {
+      "scale": 1,
+      "fixture": 2,
+      "control": {
+        "scale": 1,
+        "fixture": 2,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0.70533156395,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 2.699082136,
+            "reconstructed_m_s": 2.6990820809618965
+          }
+        ]
+      },
+      "ordered_replay": {
+        "scale": 1,
+        "fixture": 2,
+        "accepted": false,
+        "status": 11,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 2.577214003,
+            "reconstructed_m_s": 2.5772140949438382
+          }
+        ]
+      }
+    },
+    {
+      "scale": 1,
+      "fixture": 12,
+      "control": {
+        "scale": 1,
+        "fixture": 12,
+        "accepted": false,
+        "status": 11,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 2.152588606,
+            "reconstructed_m_s": 2.1525885785594023
+          },
+          {
+            "pass": 1,
+            "reported_m_s": 1.815061808,
+            "reconstructed_m_s": 1.8150618305489985
+          }
+        ]
+      },
+      "ordered_replay": {
+        "scale": 1,
+        "fixture": 12,
+        "accepted": false,
+        "status": 9,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 2.152577162,
+            "reconstructed_m_s": 2.152577097216917
+          },
+          {
+            "pass": 1,
+            "reported_m_s": 1.888943553,
+            "reconstructed_m_s": 1.8889435624517965
+          },
+          {
+            "pass": 2,
+            "reported_m_s": 1.794678211,
+            "reconstructed_m_s": 1.7946782782306805
+          }
+        ]
+      }
+    },
+    {
+      "scale": 1,
+      "fixture": 13,
+      "control": {
+        "scale": 1,
+        "fixture": 13,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": []
+      },
+      "ordered_replay": {
+        "scale": 1,
+        "fixture": 13,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": []
+      }
+    },
+    {
+      "scale": 1,
+      "fixture": 14,
+      "control": {
+        "scale": 1,
+        "fixture": 14,
+        "accepted": false,
+        "status": 9,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 1.637661457,
+            "reconstructed_m_s": 1.6376615463512902
+          },
+          {
+            "pass": 1,
+            "reported_m_s": 1.239967227,
+            "reconstructed_m_s": 1.239967230792406
+          },
+          {
+            "pass": 2,
+            "reported_m_s": 1.090721011,
+            "reconstructed_m_s": 1.0907209380034681
+          }
+        ]
+      },
+      "ordered_replay": {
+        "scale": 1,
+        "fixture": 14,
+        "accepted": false,
+        "status": 11,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 1.637653112,
+            "reconstructed_m_s": 1.6376531967603483
+          },
+          {
+            "pass": 1,
+            "reported_m_s": 1.29554832,
+            "reconstructed_m_s": 1.2955483833259396
+          },
+          {
+            "pass": 2,
+            "reported_m_s": 1.156709194,
+            "reconstructed_m_s": 1.1567091640138578
+          }
+        ]
+      }
+    },
+    {
+      "scale": 1,
+      "fixture": 15,
+      "control": {
+        "scale": 1,
+        "fixture": 15,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": []
+      },
+      "ordered_replay": {
+        "scale": 1,
+        "fixture": 15,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": []
+      }
+    },
+    {
+      "scale": 0.5,
+      "fixture": 1,
+      "control": {
+        "scale": 0.5,
+        "fixture": 1,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0.666119217873,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 2.052065611,
+            "reconstructed_m_s": 2.052065608758214
+          }
+        ]
+      },
+      "ordered_replay": {
+        "scale": 0.5,
+        "fixture": 1,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0.666120052338,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 2.052093029,
+            "reconstructed_m_s": 2.0520929361816527
+          }
+        ]
+      }
+    },
+    {
+      "scale": 0.5,
+      "fixture": 2,
+      "control": {
+        "scale": 0.5,
+        "fixture": 2,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0.408705621958,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 1.282279372,
+            "reconstructed_m_s": 1.2822793774469063
+          }
+        ]
+      },
+      "ordered_replay": {
+        "scale": 0.5,
+        "fixture": 2,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0.408708244562,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 1.282289386,
+            "reconstructed_m_s": 1.2822894442464317
+          }
+        ]
+      }
+    },
+    {
+      "scale": 0.5,
+      "fixture": 12,
+      "control": {
+        "scale": 0.5,
+        "fixture": 12,
+        "accepted": false,
+        "status": 11,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 1.076294303,
+            "reconstructed_m_s": 1.0762942893297012
+          },
+          {
+            "pass": 1,
+            "reported_m_s": 0.9075309038,
+            "reconstructed_m_s": 0.9075309152031317
+          }
+        ]
+      },
+      "ordered_replay": {
+        "scale": 0.5,
+        "fixture": 12,
+        "accepted": false,
+        "status": 11,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 1.076288581,
+            "reconstructed_m_s": 1.0762885486084586
+          },
+          {
+            "pass": 1,
+            "reported_m_s": 0.9444717765,
+            "reconstructed_m_s": 0.9444717810642026
+          },
+          {
+            "pass": 2,
+            "reported_m_s": 0.9209415913,
+            "reconstructed_m_s": 0.9209416434995152
+          }
+        ]
+      }
+    },
+    {
+      "scale": 0.5,
+      "fixture": 13,
+      "control": {
+        "scale": 0.5,
+        "fixture": 13,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": []
+      },
+      "ordered_replay": {
+        "scale": 0.5,
+        "fixture": 13,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": []
+      }
+    },
+    {
+      "scale": 0.5,
+      "fixture": 14,
+      "control": {
+        "scale": 0.5,
+        "fixture": 14,
+        "accepted": false,
+        "status": 11,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 0.8188307285,
+            "reconstructed_m_s": 0.8188307733376433
+          },
+          {
+            "pass": 1,
+            "reported_m_s": 0.6199836135,
+            "reconstructed_m_s": 0.6199836154619554
+          },
+          {
+            "pass": 2,
+            "reported_m_s": 0.495531112,
+            "reconstructed_m_s": 0.4955311014170062
+          }
+        ]
+      },
+      "ordered_replay": {
+        "scale": 0.5,
+        "fixture": 14,
+        "accepted": false,
+        "status": 11,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 0.8188265562,
+            "reconstructed_m_s": 0.8188265984921723
+          },
+          {
+            "pass": 1,
+            "reported_m_s": 0.6477741599,
+            "reconstructed_m_s": 0.6477741916889689
+          }
+        ]
+      }
+    },
+    {
+      "scale": 0.5,
+      "fixture": 15,
+      "control": {
+        "scale": 0.5,
+        "fixture": 15,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": []
+      },
+      "ordered_replay": {
+        "scale": 0.5,
+        "fixture": 15,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": []
+      }
+    }
+  ],
+  "four": [
+    {
+      "scale": 1,
+      "fixture": 1,
+      "control": {
+        "scale": 1,
+        "fixture": 1,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 4.34121322632,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 0.4411288202,
+            "reconstructed_m_s": 0.4411288355733874
+          }
+        ]
+      },
+      "ordered_replay": {
+        "scale": 1,
+        "fixture": 1,
+        "accepted": false,
+        "status": 11,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 4.397630692,
+            "reconstructed_m_s": 4.397630430735214
+          }
+        ]
+      }
+    },
+    {
+      "scale": 1,
+      "fixture": 2,
+      "control": {
+        "scale": 1,
+        "fixture": 2,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 2.96881222725,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 1.788139343e-07,
+            "reconstructed_m_s": 1.7521601863856873e-07
+          }
+        ]
+      },
+      "ordered_replay": {
+        "scale": 1,
+        "fixture": 2,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 2.96881222725,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 1.788139343e-07,
+            "reconstructed_m_s": 1.7521601863856873e-07
+          }
+        ]
+      }
+    },
+    {
+      "scale": 1,
+      "fixture": 12,
+      "control": {
+        "scale": 1,
+        "fixture": 12,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 2.62660861015,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 2.980232239e-08,
+            "reconstructed_m_s": 2.2387825204805978e-08
+          }
+        ]
+      },
+      "ordered_replay": {
+        "scale": 1,
+        "fixture": 12,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 2.62660861015,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 2.980232239e-08,
+            "reconstructed_m_s": 2.2387825204805978e-08
+          }
+        ]
+      }
+    },
+    {
+      "scale": 1,
+      "fixture": 13,
+      "control": {
+        "scale": 1,
+        "fixture": 13,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": []
+      },
+      "ordered_replay": {
+        "scale": 1,
+        "fixture": 13,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": []
+      }
+    },
+    {
+      "scale": 1,
+      "fixture": 14,
+      "control": {
+        "scale": 1,
+        "fixture": 14,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 1.98105728626,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 8.940696716e-08,
+            "reconstructed_m_s": 9.23870288049855e-08
+          }
+        ]
+      },
+      "ordered_replay": {
+        "scale": 1,
+        "fixture": 14,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 1.98105728626,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 8.940696716e-08,
+            "reconstructed_m_s": 9.23870288049855e-08
+          }
+        ]
+      }
+    },
+    {
+      "scale": 1,
+      "fixture": 15,
+      "control": {
+        "scale": 1,
+        "fixture": 15,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": []
+      },
+      "ordered_replay": {
+        "scale": 1,
+        "fixture": 15,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": []
+      }
+    },
+    {
+      "scale": 0.5,
+      "fixture": 1,
+      "control": {
+        "scale": 0.5,
+        "fixture": 1,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 2.34297847748,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 7.003545761e-07,
+            "reconstructed_m_s": 7.079641070051323e-07
+          }
+        ]
+      },
+      "ordered_replay": {
+        "scale": 0.5,
+        "fixture": 1,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 2.34297847748,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 7.003545761e-07,
+            "reconstructed_m_s": 7.079641070051323e-07
+          }
+        ]
+      }
+    },
+    {
+      "scale": 0.5,
+      "fixture": 2,
+      "control": {
+        "scale": 0.5,
+        "fixture": 2,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 1.48440611362,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 8.940696716e-08,
+            "reconstructed_m_s": 8.691174049890726e-08
+          }
+        ]
+      },
+      "ordered_replay": {
+        "scale": 0.5,
+        "fixture": 2,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 1.48440611362,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 8.940696716e-08,
+            "reconstructed_m_s": 8.691174049890726e-08
+          }
+        ]
+      }
+    },
+    {
+      "scale": 0.5,
+      "fixture": 12,
+      "control": {
+        "scale": 0.5,
+        "fixture": 12,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 1.31330430508,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 1.490116119e-08,
+            "reconstructed_m_s": 1.114391259826597e-08
+          }
+        ]
+      },
+      "ordered_replay": {
+        "scale": 0.5,
+        "fixture": 12,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 1.31330430508,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 1.490116119e-08,
+            "reconstructed_m_s": 1.114391259826597e-08
+          }
+        ]
+      }
+    },
+    {
+      "scale": 0.5,
+      "fixture": 13,
+      "control": {
+        "scale": 0.5,
+        "fixture": 13,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": []
+      },
+      "ordered_replay": {
+        "scale": 0.5,
+        "fixture": 13,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": []
+      }
+    },
+    {
+      "scale": 0.5,
+      "fixture": 14,
+      "control": {
+        "scale": 0.5,
+        "fixture": 14,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0.990528643131,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 4.470348358e-08,
+            "reconstructed_m_s": 4.614600662700141e-08
+          }
+        ]
+      },
+      "ordered_replay": {
+        "scale": 0.5,
+        "fixture": 14,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0.990528643131,
+        "unresponded_swept_hit": false,
+        "residuals": [
+          {
+            "pass": 0,
+            "reported_m_s": 4.470348358e-08,
+            "reconstructed_m_s": 4.614600662700141e-08
+          }
+        ]
+      }
+    },
+    {
+      "scale": 0.5,
+      "fixture": 15,
+      "control": {
+        "scale": 0.5,
+        "fixture": 15,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": []
+      },
+      "ordered_replay": {
+        "scale": 0.5,
+        "fixture": 15,
+        "accepted": true,
+        "status": 0,
+        "impulse_Ns": 0,
+        "unresponded_swept_hit": false,
+        "residuals": []
+      }
+    }
+  ]
+}
