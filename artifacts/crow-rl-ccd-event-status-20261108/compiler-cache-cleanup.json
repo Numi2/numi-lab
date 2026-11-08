@@ -1,0 +1,23 @@
+{
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300260968 157088172    66% 3497194 1570881720    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300261252 157087888    66% 3497196 1570878880    0%   /System/Volumes/Data\n",
+  "files": [
+    {
+      "bytes": 300560,
+      "mode": 420,
+      "mtime_ns": 1794120957946484370,
+      "path": "build/crow-ccd-translation-build-02/candidate.air",
+      "sha256": "c17a85b2b0c0c0f004efb9608ccae88e0f1a7885e3d9b719bf77061bff7b7dc8"
+    },
+    {
+      "bytes": 6597,
+      "mode": 420,
+      "mtime_ns": 1794120944002141632,
+      "path": "build/crow-ccd-translation-build-02/__pycache__/oracle.cpython-313.pyc",
+      "sha256": "16d0397fa271ffbed5ab46772a90d5dc7dcb2434939fc62ec3f48e2736ed0ec7"
+    }
+  ],
+  "open_handles": 0,
+  "removed_bytes": 307157,
+  "scope": "Closed untracked rebuildable compiler intermediates only; source, executable shaders and native runtime retained."
+}

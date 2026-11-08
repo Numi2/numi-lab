@@ -460,6 +460,14 @@ The implementation uses FP32 barrier arithmetic and conservative CCD. It does
 not claim exact-real arithmetic or a mathematical proof of non-intersection;
 those remain distinct from executable nonpenetration evidence.
 
+The MetalWorld CCD event initializer preserves non-success records across
+later encoded substeps. This retains first-failure event counters through
+transaction rollback. The [native preservation regression](../artifacts/crow-rl-ccd-event-status-20261108/README.md)
+checks complete failed buffers, exact healthy output, a repeated clamp failure,
+a successful physical control and the contact owner regression. Failure
+counters before this correction can have been cleared; zero values alone
+cannot rule out a CCD event-budget failure.
+
 ## Current accuracy boundary
 
 The implemented probes establish internal analytical cases, CPU/Metal
