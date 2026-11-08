@@ -1600,6 +1600,16 @@ endif()
 
 if(BUILD_TESTING)
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_executable(metal-world-small-impulse-residual-probe tests/metal_world_small_impulse_residual.cpp)
+    target_link_libraries(metal-world-small-impulse-residual-probe PRIVATE metalrobo)
+    set_target_properties(metal-world-small-impulse-residual-probe PROPERTIES
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_dependencies(metal-world-small-impulse-residual-probe metalrobo_shaders)
+    add_test(NAME metal_world_small_impulse_residual
+        COMMAND "${Python3_EXECUTABLE}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests/metal_world_small_impulse_residual_test.py"
+            $<TARGET_FILE:metal-world-small-impulse-residual-probe> "${METALROBO_METALLIB}")
+    set_tests_properties(metal_world_small_impulse_residual PROPERTIES LABELS "contact;metal" TIMEOUT 120)
     add_executable(wave32-status-reduction-test tests/wave32_status_reduction.mm)
     target_include_directories(wave32-status-reduction-test PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
     target_link_libraries(wave32-status-reduction-test PRIVATE "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")

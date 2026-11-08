@@ -1,0 +1,13 @@
+Test project /Users/numi/contact-residual-main-build-20261108
+    Start 3: metal_world_small_impulse_residual
+1/2 Test #3: metal_world_small_impulse_residual ...   Passed    1.04 sec
+    Start 4: wave32_status_reduction
+2/2 Test #4: wave32_status_reduction ..............   Passed    0.20 sec
+
+100% tests passed out of 2
+
+Label Time Summary:
+contact    =   1.24 sec*proc (2 tests)
+metal      =   1.24 sec*proc (2 tests)
+
+Total Test time (real) =   1.25 sec

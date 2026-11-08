@@ -1,0 +1,29 @@
+{
+  "1.00000001169e-07": {
+    "cases": 12,
+    "mismatches": 12,
+    "max_error": 1,
+    "max_observed": 0.0,
+    "positive_sub_epsilon_rows": 0,
+    "false_zero_cases": 0,
+    "failures": 12
+  },
+  "9.99999997475e-07": {
+    "cases": 12,
+    "mismatches": 12,
+    "max_error": 1,
+    "max_observed": 0.0,
+    "positive_sub_epsilon_rows": 0,
+    "false_zero_cases": 0,
+    "failures": 12
+  },
+  "1": {
+    "cases": 12,
+    "mismatches": 12,
+    "max_error": 1,
+    "max_observed": 0.0,
+    "positive_sub_epsilon_rows": 0,
+    "false_zero_cases": 0,
+    "failures": 12
+  }
+}

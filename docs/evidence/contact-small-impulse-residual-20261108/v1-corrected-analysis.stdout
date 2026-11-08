@@ -1,0 +1,29 @@
+{
+  "1.00000001169e-07": {
+    "cases": 12,
+    "mismatches": 0,
+    "max_error": 3.431376982554468e-08,
+    "max_observed": 1.8535582702196123,
+    "positive_sub_epsilon_rows": 16,
+    "false_zero_cases": 0,
+    "failures": 0
+  },
+  "9.99999997475e-07": {
+    "cases": 12,
+    "mismatches": 0,
+    "max_error": 5.7489605076455064e-08,
+    "max_observed": 1.853558694223483,
+    "positive_sub_epsilon_rows": 0,
+    "false_zero_cases": 0,
+    "failures": 0
+  },
+  "1": {
+    "cases": 12,
+    "mismatches": 0,
+    "max_error": 5.7059337699172374e-08,
+    "max_observed": 1.8535588037266806,
+    "positive_sub_epsilon_rows": 0,
+    "false_zero_cases": 0,
+    "failures": 0
+  }
+}
