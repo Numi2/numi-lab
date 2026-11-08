@@ -79,8 +79,8 @@
     "social_individuals_and_communication": "pending",
     "weather_and_seasonal_ecology": "pending",
     "retinal_stream_timing": "native-GPU-RGB-cadence-latency-reset-partition-and-pending-frame-fresh-process-restore-controls-passed-including-live-head-renderer",
-    "retinal_actor_contract": "native-v13-1251-actor-97-critic-18-actions; live-pixel-controls-and-C-API-Swift-MLX-update-learner-restore-passed-at16-64-128; visual-learning-and-production-performance-qualification-pending",
-    "native_working_memory": "native recurrent actor and selected-factor rollout9/PPO integrated; corrected ABI51..54 history and64-lane full learner/Adam/life future recovery exact; learned memory behavior and production performance pending"
+    "retinal_actor_contract": "native v131251actor/97critic/18actions; live pixel/contract controls;128-lane learning5203transitions/s at382185480B MLX peak; deterministic97 fixed-fixture feeding192/192; ecology and production scaling unqualified",
+    "native_working_memory": "native recurrent actor, selected-factor rollout9/PPO and repaired ABI51..54;128-lane53-tensor and native future exact; causal fixed two-cue memory qualified for policies81/97; broader lifelong memory unqualified"
   },
   "release_requirements": [
     "deterministic accepted-state execution across submission chunks",
@@ -628,5 +628,25 @@
       "last_KL": 1.2474105460569263e-05,
       "evidence": "artifacts/crow-rl-retinal-normalization-20261108"
     }
+  },
+  "cued_foraging_candidate": {
+    "policy": "environments/american-crow/action-holds-v1/policies/deployment97.policypack",
+    "sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+    "mode": "deterministic-mean",
+    "task": "native ABI54 held-action cued-foraging fixture",
+    "revision": 97,
+    "tested_allocations": 192,
+    "unique_initial_head_commands": 2,
+    "correct_side_allocations": 192,
+    "intake_allocations": 192,
+    "minimum_consumed_micrograms": 40000,
+    "GRU_clear_absent_swapped_intakes": [
+      0,
+      0,
+      0
+    ],
+    "scope": "Repeated fixed two-cue geometry with3 new allocation seeds, not independent held-out geometries",
+    "evidence": "artifacts/crow-rl-deployment-mean-20261108",
+    "ecological_environment_qualified": false
   }
 }
