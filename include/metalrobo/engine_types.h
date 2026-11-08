@@ -786,6 +786,9 @@ typedef struct MR_ALIGN16 MRBoundedDriveFailureGPU {
     float friction[MR_ARTICULATED_ABA_MAX_DOFS];
     float torque[MR_ARTICULATED_ABA_MAX_DOFS];
     float acceleration[MR_ARTICULATED_ABA_MAX_DOFS];
+    // Schema BDF2 retains the internal twofold iterate and reconstruction.
+    float torqueLow[MR_ARTICULATED_ABA_MAX_DOFS];
+    float accelerationLow[MR_ARTICULATED_ABA_MAX_DOFS];
 } MRBoundedDriveFailureGPU;
 
 enum MRMetalWorldContactFlags : mr_u32 {
@@ -1765,7 +1768,7 @@ static_assert(sizeof(MRMLXContactAdapterDispatchGPU) == 32);
 static_assert(sizeof(MRMetalWorldDispatchGPU) == 64);
 static_assert(sizeof(MRMetalWorldPassGPU) == 16);
 static_assert(sizeof(MRMetalWorldStatusGPU) == 48);
-static_assert(sizeof(MRBoundedDriveFailureGPU) == 13968);
+static_assert(sizeof(MRBoundedDriveFailureGPU) == 14288);
 static_assert(sizeof(MRCompiledCollisionPairGPU) == 16);
 static_assert(sizeof(MRMetalWorldContactDispatchGPU) == 304);
 static_assert(sizeof(MRIndirectDispatchArgumentsGPU) == 16);

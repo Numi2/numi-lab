@@ -25,7 +25,7 @@ void captureBoundedDriveFailure(const detail::MetalWorldContextState& context,
         if (command.status!=MTLCommandBufferStatusCompleted)
             throw std::runtime_error("bounded witness readback failed");
         MRBoundedDriveFailureGPU saved{};std::memcpy(&saved,readback.contents,sizeof(saved));
-        if (saved.valid!=0x42444631u || saved.environment!=found->environment ||
+        if (saved.valid!=0x42444632u || saved.environment!=found->environment ||
             saved.controlStep!=found->controlStep || saved.physicsSubstep!=found->failingSubstep ||
             saved.code!=found->code || saved.nv>MR_ARTICULATED_ABA_MAX_DOFS)
             throw std::runtime_error("protected bounded witness does not match public failure");

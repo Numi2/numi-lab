@@ -1,0 +1,27 @@
+{
+  "protected_header": [
+    1111770673,
+    2,
+    0,
+    24,
+    22,
+    0,
+    256,
+    11,
+    0.0006249999860301614,
+    5.778397849098837e-07,
+    0.0,
+    0.0
+  ],
+  "stored_torque_scaled_residual_fp64": 5.778398566876222e-07,
+  "nearest_reference_torque_scaled_residual_fp64": 6.770909519348788e-07,
+  "nearest_tau_vs_captured_tau_Nm": 1.4901161193847656e-08,
+  "captured_tau_vs_ref_Nm": 2.065773374582136e-08,
+  "maximum_velocity_delta_rad_s": 6.688126509428975e-07,
+  "acceleration_reconstruction_error": 0.001878379760455573,
+  "reference_iterations": 11,
+  "reference_residual_Nm": 4.574118861455645e-14,
+  "total_accepted_control_transitions": 215,
+  "failed_transitions": 1,
+  "maximum_observed_penetration_m": 0.00539129177141
+}

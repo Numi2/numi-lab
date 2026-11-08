@@ -37,10 +37,10 @@ inline float2 boundedBox(const float2 a,const float cap) {
     if (boundedSign(boundedAdd(a,float2(cap,0.0f)))<0) return float2(-cap,0.0f);
     return a;
 }
-inline float boundedQuotient(const float2 numerator,const float2 denominator) {
+inline float2 boundedQuotient(const float2 numerator,const float2 denominator) {
     const float q=numerator.x/denominator.x;
     const float2 remainder=boundedAdd(numerator,-boundedMultiply(denominator,q));
-    return q+(remainder.x+remainder.y)/denominator.x;
+    return boundedTwoSum(q,(remainder.x+remainder.y)/denominator.x);
 }
 
 // Smooth torque-limited motor step. Contact impulses are solved later with the
@@ -127,17 +127,17 @@ kernel void mr_world_bounded_drive_prediction(
 
     const float4 controller = (worldDispatch.flags & MR_METAL_WORLD_NATIVE_TASK) != 0u
         ? controllerParameters[environment] : float4(1.0f);
-    threadgroup float b[capacity],c[capacity],cap[capacity],friction[capacity],a[capacity];
+    threadgroup float b[capacity],c[capacity],cap[capacity],friction[capacity],a[capacity],aLow[capacity];
     // Replicated coordinate iterates avoid a threadgroup barrier on every visit.
     // All SIMD lanes contribute to each compensated inverse-response dot product.
-    float torque[capacity];
-    for (uint i=0u;i<n;++i) torque[i]=0.0f;
+    float2 torque[capacity];
+    for (uint i=0u;i<n;++i) torque[i]=float2(0.0f);
     bool valid=all(isfinite(controller)) && all(controller>=0.0f);
     for (uint i=lane;i<n;i+=MR_SIMD_WIDTH) {
         const MRDofPropertiesGPU dof=dofs[i];
         const MRActuatorProfileGPU profile=profiles[i];
         const float v=sourceV[vBase+i];
-        b[i]=0.0f;c[i]=0.0f;cap[i]=0.0f;friction[i]=0.0f;a[i]=freeAcceleration[vBase+i];
+        b[i]=0.0f;c[i]=0.0f;cap[i]=0.0f;friction[i]=0.0f;a[i]=freeAcceleration[vBase+i];aLow[i]=0.0f;
         if ((dof.flags & MR_DOF_FLAG_DRIVE)==0u || dof.qIndex>=dispatch.nq) continue;
         float target=targets[pass.controlStep*worldDispatch.effortStepStride+
             environment*worldDispatch.effortEnvironmentStride+i];
@@ -165,14 +165,14 @@ kernel void mr_world_bounded_drive_prediction(
             const uint i=visit<n ? visit : 2u*n-1u-visit;
             float2 excluding=lane==0u ? float2(freeAcceleration[vBase+i],0.0f) : float2(0.0f);
             for (uint j=lane;j<n;j+=MR_SIMD_WIDTH) if (j!=i)
-                excluding=boundedAdd(excluding,boundedProduct(inverse[i*capacity+j],torque[j]));
+                excluding=boundedAdd(excluding,boundedMultiply(torque[j],inverse[i*capacity+j]));
             for (uint offset=MR_SIMD_WIDTH/2u;offset>0u;offset/=2u)
                 excluding=boundedAdd(excluding,simd_shuffle_down(excluding,offset));
-            float next=0.0f;
+            float2 next=float2(0.0f);
             if (lane==0u) {
                 const float2 rhs=boundedAdd(float2(b[i],0.0f),-boundedMultiply(excluding,c[i]));
                 const float2 denominator=boundedAdd(float2(1.0f,0.0f),boundedProduct(c[i],inverse[i*capacity+i]));
-                next=clamp(boundedQuotient(boundedSoft(rhs,friction[i]),denominator),-cap[i],cap[i]);
+                next=boundedBox(boundedQuotient(boundedSoft(rhs,friction[i]),denominator),cap[i]);
             }
             torque[i]=simd_broadcast_first(next);
         }
@@ -180,13 +180,13 @@ kernel void mr_world_bounded_drive_prediction(
         for (uint i=lane;i<n;i+=MR_SIMD_WIDTH) {
             float2 value=float2(freeAcceleration[vBase+i],0.0f);
             for (uint j=0u;j<n;++j)
-                value=boundedAdd(value,boundedProduct(inverse[i*capacity+j],torque[j]));
-            a[i]=value.x+value.y;
+                value=boundedAdd(value,boundedMultiply(torque[j],inverse[i*capacity+j]));
+            a[i]=value.x;aLow[i]=value.y;
             const float2 rhs=boundedAdd(float2(b[i],0.0f),-boundedMultiply(value,c[i]));
             const float2 expected=boundedBox(boundedSoft(rhs,friction[i]),cap[i]);
-            const float2 difference=boundedAdd(expected,float2(-torque[i],0.0f));
+            const float2 difference=boundedAdd(expected,-torque[i]);
             const float scaled=abs(difference.x+difference.y)/max(cap[i],1.0e-6f);
-            valid &= isfinite(a[i]) && isfinite(scaled);
+            valid &= isfinite(a[i]) && isfinite(aLow[i]) && isfinite(scaled);
             localResidual=max(localResidual,scaled);
         }
         valid=simd_all(valid);maximumScaledResidual=simd_max(localResidual);
@@ -216,14 +216,16 @@ kernel void mr_world_bounded_drive_prediction(
                 saved.freeAcceleration[i]=i<n ? freeAcceleration[vBase+i] : 0.0f;
                 saved.b[i]=i<n ? b[i] : 0.0f;saved.c[i]=i<n ? c[i] : 0.0f;
                 saved.cap[i]=i<n ? cap[i] : 0.0f;saved.friction[i]=i<n ? friction[i] : 0.0f;
-                saved.torque[i]=i<n ? torque[i] : 0.0f;saved.acceleration[i]=i<n ? a[i] : 0.0f;
+                saved.torque[i]=i<n ? torque[i].x : 0.0f;saved.acceleration[i]=i<n ? a[i] : 0.0f;
+                saved.torqueLow[i]=i<n ? torque[i].y : 0.0f;
+                saved.accelerationLow[i]=i<n ? aLow[i] : 0.0f;
             }
-            saved.valid=0x42444631u;
+            saved.valid=0x42444632u;
         }
         return;
     }
     for (uint i=lane;i<n;i+=MR_SIMD_WIDTH) {
-        acceleration[vBase+i]=a[i];effectiveEffort[vBase+i]=baseEffort[vBase+i]+torque[i];
+        acceleration[vBase+i]=a[i]+aLow[i];effectiveEffort[vBase+i]=baseEffort[vBase+i]+(torque[i].x+torque[i].y);
     }
 }
 
@@ -236,9 +238,9 @@ kernel void mr_bounded_drive_certificate_probe(
     if (i>=snapshot.nv) return;
     float2 value=float2(snapshot.freeAcceleration[i],0.0f);
     for (uint j=0u;j<snapshot.nv;++j)
-        value=boundedAdd(value,boundedProduct(snapshot.inverse[i*MR_ARTICULATED_ABA_MAX_DOFS+j],snapshot.torque[j]));
+        value=boundedAdd(value,boundedMultiply(float2(snapshot.torque[j],snapshot.torqueLow[j]),snapshot.inverse[i*MR_ARTICULATED_ABA_MAX_DOFS+j]));
     const float2 rhs=boundedAdd(float2(snapshot.b[i],0.0f),-boundedMultiply(value,snapshot.c[i]));
     const float2 expected=boundedBox(boundedSoft(rhs,snapshot.friction[i]),snapshot.cap[i]);
-    const float2 difference=boundedAdd(expected,float2(-snapshot.torque[i],0.0f));
+    const float2 difference=boundedAdd(expected,-float2(snapshot.torque[i],snapshot.torqueLow[i]));
     output[i]=float4(value.x,value.y,abs(difference.x+difference.y)/max(snapshot.cap[i],1.0e-6f),expected.x+expected.y);
 }

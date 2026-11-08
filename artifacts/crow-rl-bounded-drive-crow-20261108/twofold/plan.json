@@ -1,0 +1,37 @@
+{
+  "budget": {
+    "arithmetic_rows": 22,
+    "maximum_native_environment_steps": 1668,
+    "maximum_new_output_bytes": 3000000,
+    "native_invocations": 4,
+    "stop": "Unexpectednegative,arithmetic/positive/ref/nativefailure stops immediately,retainunrunarms.Noothercadence,retry,tuning,promotion.",
+    "timeout_seconds_each": 300
+  },
+  "evidence_limits": "Manufacturedengineeringregressions andcontrolledrigidspheresurrogate;noingestion,learnedmanipulation,reset/checkpoint,energyintegralorperformancequalification. Numericalsuccesscannotstandinforphysicalgrasp.",
+  "inputs": {
+    ".numi/retained-runtime/bounded-drive-precision-20261108/metalrobo/MetalRobo.metallib": "6b7b0274688c211876709125b047a487b1d7293820348821a7acae5c90ad570e",
+    ".numi/retained-runtime/bounded-drive-twofold-20261108/libmetalrobo.dylib": "b24ad4015c718e0c688eaf95b4b207ceacafa9f650f20894fefa5581b1698fd5",
+    ".numi/retained-runtime/bounded-drive-twofold-20261108/metalrobo/MetalRobo.metallib": "6eb48053118d0e54850d21241e499100787de13af84e54e5b48ddc8130876be2",
+    ".numi/retained-runtime/bounded-drive-twofold-20261108/probe": "5bd31622ca6e50da26f58e9c52a2dd7aa2588b45c711d40c032720cc293ad18f",
+    "apps/bounded_drive_probe.cpp": "fce3c86c27e685dd4261b2f84827308c145fa59353f29b7c8941145b7be602e1",
+    "artifacts/crow-rl-bounded-drive-crow-20261108/twofold/certificate-v2.mm": "073ca74d3ce86eab2d4dbd03214b2cbfa4cd60a76ab0f365e129c7ee5fb25a31",
+    "artifacts/crow-rl-bounded-drive-crow-20261108/twofold/run_twofold.py": "32c8d8965056fd701421895476f9b9e86805965c5447df739271391c9e61d550",
+    "build/crow-bounded-drive-integration-build-01/certificate-v2": "3b2b73fe8531ae30023abce35fcc8dbbcf6758346101ba0ddd6ca8df9b749fa1",
+    "build/crow-bounded-drive-integration-build-01/fixture-bounded": "116dfb25a90cccb35f32400509c0119ac634962be4cb93cd41c805af7a3b49ea",
+    "build/crow-bounded-drive-integration-build-01/precision-v2-crow32.motorsnp": "6edcb6d47502e49c3bcae0aa8a2df471e9f79adf2cd1572d40f341eb4082ea7f",
+    "include/metalrobo/engine_types.h": "455f7a5d4e27f02e10ee8d39be57019dd9b5dae6fe8f503fc8840a4411eb81f2",
+    "src/metal/BoundedDrive.metal": "2948f6b8f6c68a3a51be642e7812331b24f87ab7f49ffec53bfb797f41715120",
+    "src/metal/BoundedDriveFailureCapture.inc": "2b88ad5c125d919cb8e4b659c32b2fc5066902a33a0ad48c58b169e7c6e6593c"
+  },
+  "parent": "5d064697 strictcompile: protectedarithmetic22rowsmatchesFP64toscaled7.0e-14; all514componentsteps pass. Crowmovesfailurefrom21to53,215accepted1rejected. Protectedlane2step24native5.77839785e-7 agreeswithFP64storedtorque5.77839857e-7,above4eps. NearestFP32reference torque6.77090952e-7 also fails; FP64reference11sweeps reaches4.57e-14Nm. Thus this failureisnotcompilerreassociation.",
+  "prediction": {
+    "arithmetic": "Legacyprotected22rowarithmeticstillagreeswithFP64:maxaccelerationerror<=2e-7rad/s2,scaledresidualerror<=1e-9,andnativescaledmax<=4eps.",
+    "crow": "Onlyafterallcontrols pass: original32crow640transitions,zeronativefailure. Mechanicalgatesreportedunchanged,separatefromnumericalacceptance.",
+    "negative_control": "Knownbadshaderfirstbadbatchrejectednativelywithtypedreferencefailure.",
+    "positive_control": "All514steps976rowsmeetunchangedvelocity2e-6,position2e-7,torque1e-7andmassflagsgates."
+  },
+  "promotion": false,
+  "question": "Does retaining low-order torque iterates remove the remaining quantization-related motor-certificate failure without changing the physical law or acceptance gate?",
+  "revision": "Keep both highandlowpartsoftorqueiterate,quotient,accelerationreconstruction. StrictFMA/twofoldarithmetic alreadyvalidated. PublishroundedFP32accelerationandeffortonlyafterinternalcertificate. RetainbothlowpartsinprotectedBDF2snapshot14288bytes; numericalinspectionconvertslegacyBDF1byzeroextendinglowparts. Nativephysics doesnotconsumehostsnapshot.",
+  "unchanged": "Physicalinverse,b/c,caps,friction,gains,source-stateenvelope,256sweeps,4eps,andworldstateFP32. Defaultprofile/policyunchanged."
+}

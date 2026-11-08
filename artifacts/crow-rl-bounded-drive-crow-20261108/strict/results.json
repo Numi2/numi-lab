@@ -1,0 +1,99 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/certificate",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-strict-20261108/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/precision-v2-crow32.motorsnp",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/strict-arithmetic.f32"
+      ],
+      "exit_code": 0,
+      "loader_lines": [
+        "dyld[29554]: <2EDE1C98-62C1-3B80-B182-DA0763DA6B9E> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-strict-20261108/libmetalrobo.dylib"
+      ],
+      "name": "strict-arithmetic",
+      "seconds": 0.7958775419999999
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-strict-20261108/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-precision-20261108/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/strict-negative.tsv"
+      ],
+      "exit_code": 1,
+      "loader_lines": [
+        "dyld[29557]: <2EDE1C98-62C1-3B80-B182-DA0763DA6B9E> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-strict-20261108/libmetalrobo.dylib"
+      ],
+      "name": "strict-negative",
+      "seconds": 0.4391784579999999
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-strict-20261108/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-strict-20261108/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/strict-constitutive.tsv"
+      ],
+      "exit_code": 0,
+      "loader_lines": [
+        "dyld[29562]: <2EDE1C98-62C1-3B80-B182-DA0763DA6B9E> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-strict-20261108/libmetalrobo.dylib"
+      ],
+      "name": "strict-constitutive",
+      "seconds": 0.27015512500000005
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/fixture-bounded",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-integration-build-01/strict-crow32",
+        "0",
+        "1",
+        "32"
+      ],
+      "exit_code": 1,
+      "loader_lines": [
+        "dyld[29564]: <2EDE1C98-62C1-3B80-B182-DA0763DA6B9E> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/bounded-drive-strict-20261108/libmetalrobo.dylib"
+      ],
+      "name": "strict-crow32",
+      "seconds": 11.864895667
+    }
+  ],
+  "full_crow_qualified": false,
+  "native_failure": {
+    "failed_steps": 1,
+    "first_failing_lane": 2,
+    "first_failing_local_tick": 0,
+    "first_gpu_status": 11,
+    "host_status": 16,
+    "submission_begin_tick": 53,
+    "submission_ticks": 1,
+    "successful_steps": 3
+  },
+  "negative_instrument_control": {
+    "mass_flags_match": true,
+    "maximum_q_integration_error_rad": 7.119150935430696e-09,
+    "maximum_torque_error_Nm": 0.006960127807696496,
+    "maximum_velocity_error_rad_s": 2.793199444526414,
+    "pass": false,
+    "rows": 272,
+    "typed_reference_failure": true
+  },
+  "policy_or_profile_promoted": false,
+  "positive_component_control": {
+    "mass_flags_match": true,
+    "maximum_q_integration_error_rad": 7.119150935430696e-09,
+    "maximum_torque_error_Nm": 2.248500871604442e-09,
+    "maximum_velocity_error_rad_s": 4.088330274321095e-07,
+    "pass": true,
+    "rows": 976
+  },
+  "sealed_head": "5d064697590b0b90164cf6830c5ae32543850472",
+  "strict_arithmetic": {
+    "maximum_absolute_scaled_residual_error": 7.001580718573953e-14,
+    "maximum_acceleration_error_rad_s2": 7.275957614183426e-11,
+    "maximum_native_scaled_residual": 8.992038402766411e-08,
+    "maximum_reference_scaled_residual": 8.992038684022911e-08,
+    "old_native_reported_scaled_residual": 1.3969838619232178e-06,
+    "pass": true,
+    "rows": 22
+  },
+  "verdict": "inconclusive_crow_native_failure"
+}
