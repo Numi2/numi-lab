@@ -138,7 +138,7 @@ int main(int argc,char**argv){
   }
   if(argc!=4)throw std::runtime_error("usage: reference divisions h duration");
   int n=std::atoi(argv[1]);double h=std::atof(argv[2]),duration=std::atof(argv[3]);
-  if(n<1||n>16||h<=0||duration!=.01||std::abs(std::round(duration/h)*h-duration)>1e-12
+  if(n<1||n>32||h<=0||duration!=.01||std::abs(std::round(duration/h)*h-duration)>1e-12
      ||std::abs(std::round(.001/h)*h-.001)>1e-12)throw std::runtime_error("invalid arguments");
   Model m(n);State s=m.initial;std::array<double,10> bins{};double minGap=1,peak=0,first=-1,lastForce=0;
   const long requestedStride=std::lround(.000002/h);
