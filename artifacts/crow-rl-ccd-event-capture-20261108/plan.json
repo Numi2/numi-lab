@@ -1,0 +1,201 @@
+{
+  "analysis": "Compare every predeclared byte control before using a selected-event capture. Classify literal quaternion endpoints; use the independently calibrated FP64 translating-sphere/AABB reference only for fixed box orientation. Keep native query records and all rejected observations. Capture failure cannot weaken physics admission.",
+  "budget": {
+    "contact_regressions": 1,
+    "grid_executions": 1,
+    "new_raw_max_bytes": 33554432,
+    "pair_replays": 3,
+    "physical_executions": 3,
+    "stop": "One execution per condition, no retry or physics tuning. Retain mismatches, missing captures and negative hypothesis. Further physics revision requires a new sealed plan and unused confirmation conditions.",
+    "timeout_seconds_each": 180
+  },
+  "inputs": {
+    ".numi/retained-runtime/ccd-event-capture-20261108/candidate/CCDSweepProbe.metallib": {
+      "bytes": 949279,
+      "sha256": "be3eb5abe16f1d7ba0873ac4119a66c7a2f9647d52178e0dd3096d8301983e43"
+    },
+    ".numi/retained-runtime/ccd-event-capture-20261108/candidate/contact-probe": {
+      "bytes": 97472,
+      "sha256": "31f845146c4ae6f11b0b4b201f9b9a3ddf7c19059cb6b99232a081fb8afacee5"
+    },
+    ".numi/retained-runtime/ccd-event-capture-20261108/candidate/libmetalrobo.dylib": {
+      "bytes": 5693648,
+      "sha256": "ba1d935c24ab6bc914d7bcc36176788a1ca7a689c54eb132a5e35b823e6aaa42"
+    },
+    ".numi/retained-runtime/ccd-event-capture-20261108/candidate/metalrobo/MetalRobo.metallib": {
+      "bytes": 4213058,
+      "sha256": "6187bb22b96e19d4e15dd8d5eb954348c4f789742f703aa3fe7212a4fd9154ed"
+    },
+    ".numi/retained-runtime/ccd-event-capture-20261108/candidate/sweep-probe": {
+      "bytes": 95704,
+      "sha256": "877d9873e0ccc38b9d93409b68aae07f3f64924fac09005dfb9e2cab1643bea0"
+    },
+    "apps/ccd_sweep_probe.mm": {
+      "bytes": 14369,
+      "sha256": "1ec13677503e09d6837cf5a049bbfcccfac45ad9b386a31c5b31dd9b6d6fd053"
+    },
+    "build/crow-ccd-event-capture-build-01/cases-probe": {
+      "bytes": 57976,
+      "sha256": "8587ecde51ef2182265d13aa2d19efbef0bbdbd59a3cf35d0b97bf3467814057"
+    },
+    "build/crow-ccd-event-capture-build-01/cases.bin": {
+      "bytes": 1310724,
+      "sha256": "0c12773c50687d150f7b3d0def4d85319c994f80a44c7ed1af3cc1532bf45c05"
+    },
+    "build/crow-ccd-event-capture-build-01/expected-grid.bin": {
+      "bytes": 524288,
+      "sha256": "a3142ab05c7d1e1d7c998cc11ddb77031e256c53114c93b372aa49f902673f11"
+    },
+    "build/crow-ccd-event-capture-build-01/expected-old-replay.bin": {
+      "bytes": 4240,
+      "sha256": "b1691c478d60fd0e0d7fa7d7c2b3c76651dbb669f51aa4b9a0ce3f78f4b34b3e"
+    },
+    "build/crow-ccd-event-capture-build-01/expected/clamp/failure-contact-status.bin": {
+      "bytes": 1152,
+      "sha256": "51e1866239348de88a7dd0b5712f9bd87c531a0ce80fef988492a3dad4d4e967"
+    },
+    "build/crow-ccd-event-capture-build-01/expected/clamp/failure-q.f32": {
+      "bytes": 368,
+      "sha256": "6721066a9251c3bbda29e0ad78e4dc44e6dbf1c82b530ccd0cdfce83e4e995db"
+    },
+    "build/crow-ccd-event-capture-build-01/expected/clamp/failure-scene.bin": {
+      "bytes": 1024,
+      "sha256": "65560cea7be452f51e3ded1a3b317dfd1b98a57cb6edd53df10115e61070a50c"
+    },
+    "build/crow-ccd-event-capture-build-01/expected/clamp/failure-v.f32": {
+      "bytes": 352,
+      "sha256": "92b5c7986bfc0b9728c4d10b5b00f5883aea1630d6bd23afbb50f4cbfbd914ee"
+    },
+    "build/crow-ccd-event-capture-build-01/expected/clamp/failure-world-status.bin": {
+      "bytes": 192,
+      "sha256": "d23759f899245fcdd143ef59bd6c95169fc4aed7934c578f1e697686f0d4bbb6"
+    },
+    "build/crow-ccd-event-capture-build-01/expected/clamp/failure.json": {
+      "bytes": 179,
+      "sha256": "848a64c8ecb6b733326a6bd98e4d729de6d46f2263d86acda12354c0dc581ab6"
+    },
+    "build/crow-ccd-event-capture-build-01/expected/clamp/trace.tsv": {
+      "bytes": 31179,
+      "sha256": "9b6211bfeff54b017d72f1026384ab1718876ac9fbfa9f1e782948c936596b60"
+    },
+    "build/crow-ccd-event-capture-build-01/expected/open/final-q.f32": {
+      "bytes": 368,
+      "sha256": "258c0300a853b33ba4fde122c8c5fbb93341e2f0cbf37e79a11913876b698111"
+    },
+    "build/crow-ccd-event-capture-build-01/expected/open/final-scene.bin": {
+      "bytes": 1024,
+      "sha256": "39a7c2b5bac16fd911c10a97ff4e86cf36ed7db9f0aac700f4baffd5505d1583"
+    },
+    "build/crow-ccd-event-capture-build-01/expected/open/final-v.f32": {
+      "bytes": 352,
+      "sha256": "554bac471201f0376ae3b5c7beb3dd08d1dae17a9bf4abdc4266376c268b3d1e"
+    },
+    "build/crow-ccd-event-capture-build-01/expected/open/scene.bin": {
+      "bytes": 163840,
+      "sha256": "bffa6f412bef1832c839a55c4aa287736b38e25b5b3625216fc607db64a64bc9"
+    },
+    "build/crow-ccd-event-capture-build-01/expected/open/summary.json": {
+      "bytes": 741,
+      "sha256": "75e969adc48e4dee2e7a49134a5121b7ace1d454fd4abbfab2d88ef591e49e87"
+    },
+    "build/crow-ccd-event-capture-build-01/expected/open/trace.tsv": {
+      "bytes": 112104,
+      "sha256": "a07079970c1f185747425e5c67aacf1f223f8fc34a0db2c798a5bcc54174e399"
+    },
+    "build/crow-ccd-event-capture-build-01/expected/refinement/failure-q.f32": {
+      "bytes": 368,
+      "sha256": "41ff7c4ca446b4790059d07ea0875b23deb006754f27dba20c66d7a7edf01293"
+    },
+    "build/crow-ccd-event-capture-build-01/expected/refinement/failure-scene.bin": {
+      "bytes": 1024,
+      "sha256": "268b4429167ce1c29ff0c12f9e532df8203b83dad3f448fefb321ce529d21a83"
+    },
+    "build/crow-ccd-event-capture-build-01/expected/refinement/failure-v.f32": {
+      "bytes": 352,
+      "sha256": "9dcafc7a652e66335460390182c59034489fec2437ce2255a6bee445296cc20b"
+    },
+    "build/crow-ccd-event-capture-build-01/expected/refinement/failure-world-status.bin": {
+      "bytes": 192,
+      "sha256": "53bc276ee6f2b6c46472f5fc67eb290b780c35e9f75d41140a2f43a1553a5605"
+    },
+    "build/crow-ccd-event-capture-build-01/expected/refinement/failure.json": {
+      "bytes": 179,
+      "sha256": "e5079557b9dc943e3fdcfaaeff7d9a5b41bf96dc4e9cea35e3bc5197db84189a"
+    },
+    "build/crow-ccd-event-capture-build-01/expected/refinement/trace.tsv": {
+      "bytes": 93579,
+      "sha256": "f48467a0641ffef01243865730589ec2c3b9ba641f8403592c7e1fb40b54ee02"
+    },
+    "build/crow-ccd-event-capture-build-01/old.ccdsweep": {
+      "bytes": 13344,
+      "sha256": "6c861cdda4886db37534a25d45e5fbdd13db978177f0ea1538d6c9bad4df63d7"
+    },
+    "build/crow-ccd-event-capture-build-01/oracle.py": {
+      "bytes": 2616,
+      "sha256": "3880675e23ffc7685b40d2fd276398012cf0b2bd50f72fba231d404f24acd8c1"
+    },
+    "build/crow-ccd-event-capture-build-01/preparation-attempt-1.py": {
+      "bytes": 9601,
+      "sha256": "1764949addf06553ee839c3b5674acc23f2e3f62bbec0a158e96d1789a949081"
+    },
+    "build/crow-ccd-event-capture-build-01/prepare.py": {
+      "bytes": 9628,
+      "sha256": "50560b82c191a7c2cc4bff4e2b8ed8f528f7b05ac8d160aa0516b079e0c3ad2d"
+    },
+    "build/crow-ccd-event-capture-build-01/probe": {
+      "bytes": 99568,
+      "sha256": "ec7148a6454e792cf5ed06a4f92a6aa109a5775a2602528ab4a710234c40371b"
+    },
+    "build/crow-ccd-event-capture-build-01/study.py": {
+      "bytes": 8114,
+      "sha256": "ec869bde653e8b8183636afa102393bad071bc7d27bd457590cd2a2114517ff4"
+    },
+    "include/metalrobo/engine_types.h": {
+      "bytes": 62579,
+      "sha256": "4ad844afb34410d832942d0a3bbdc52046df3ab20bf08587cc149318ec7a545e"
+    },
+    "src/metal/CCDFailureCapture.inc": {
+      "bytes": 10319,
+      "sha256": "ab0035b281ffbd6fd1a8cd1c37ca000393d0d2b8a6046c0a1105baa70d65eec2"
+    },
+    "src/metal/Collision.metal": {
+      "bytes": 414280,
+      "sha256": "1aa66e13c502f8fc8a4921776ed5ed7d98700c947948c5e58e3b57f2f7a34381"
+    }
+  },
+  "prediction": {
+    "fixed_box_only_FP64_vs_257_native_gap_queries_max_error_m": 5e-07,
+    "hypothesis_not_admission_gate": "Selected lower time is zero despite a positive upper impact time, repeatedly reusing an overly coarse safe endpoint.",
+    "old8192_grid_and_old_unresolved_sweep_exact": true,
+    "selected_event_capture_replays_first_record_exact": true,
+    "successful_open_control_exact": true,
+    "unchanged_trace_rollback_world_stamp_and_available_contact_status": true
+  },
+  "purpose": "Exact replication and instrument qualification of retained event-budget failures. No physics modification, learning or capability promotion.",
+  "runtime_selection": "Native dylib explicitly loaded by DYLD_LIBRARY_PATH; its co-installed metalrobo/MetalRobo.metallib is authoritative. METALROBO_METALLIB is not used.",
+  "source_commit": "e4c1a1f56545b36de26af94b11bcf1960e9ae715",
+  "trials": [
+    {
+      "arm": 0,
+      "chunk": 1,
+      "expected_exit": 1,
+      "name": "clamp",
+      "substeps": 32
+    },
+    {
+      "arm": 0,
+      "chunk": 1,
+      "expected_exit": 1,
+      "name": "refinement",
+      "substeps": 64
+    },
+    {
+      "arm": 1,
+      "chunk": 1,
+      "expected_exit": 0,
+      "name": "open",
+      "substeps": 32
+    }
+  ],
+  "units": "Exact retained4-lane clamp32 and refinement64 failures, open32 control; diagnostic replications, not independent new conditions."
+}
