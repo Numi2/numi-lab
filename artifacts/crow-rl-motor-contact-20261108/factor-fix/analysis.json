@@ -1,0 +1,11 @@
+{
+  "exit_code": 1,
+  "failure": [
+    "dyld[35875]: <6BC19BF9-F698-33D8-BAAC-7EE1D1B745AB> /System/Library/Extensions/AGXMetalG16X.bundle/Contents/MacOS/AGXMetalG16X",
+    "dyld[35875]: <F08F0073-2F35-30D9-9C3E-261CC6B9AF60> /System/Library/PrivateFrameworks/IOGPU.framework/Versions/A/IOGPU",
+    "Coupled force/momentum validity gate failed"
+  ],
+  "failure_command": "joint-unused",
+  "policy_or_profile_promoted": false,
+  "verdict": "contradicted_native_acceptance_or_validity"
+}

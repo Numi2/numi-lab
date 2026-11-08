@@ -1,0 +1,104 @@
+{
+  "budget": {
+    "artifact_growth_max_bytes": 2000000,
+    "new_comparison_native_conditions": 144,
+    "timeouts_seconds_each": 120
+  },
+  "calibration": {
+    "conditions": 24,
+    "maximum_force_mapping_error_N": 6.900300764806078e-10
+  },
+  "classification": "Numerical configuration revision tested on fresh masses, steps and targets; one failed fixed-force control is replayed only as an engineering accuracy check.",
+  "commands": [
+    {
+      "args": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/probe-precision",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-build-01/momentum-replay.tsv",
+        "--momentum-replay"
+      ],
+      "expected_exit": 0,
+      "name": "momentum-replay"
+    },
+    {
+      "args": [
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/probe-precision",
+        "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-build-01/coupled-precision.tsv",
+        "--coupled-precision"
+      ],
+      "expected_exit": 0,
+      "name": "joint-precision"
+    },
+    {
+      "args": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-build-01/fixture-default",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-motor-contact-build-01/default-crow",
+        "0",
+        "1",
+        "32"
+      ],
+      "expected_exit": 0,
+      "name": "default-crow-replay"
+    }
+  ],
+  "comparison": "Three matched arms from the parent, on completely unused finite initial conditions. Earlier partially observed conditions remain in the parent analysis and are not counted as independent confirmation.",
+  "default_reference_manifest": "artifacts/crow-rl-bounded-drive-integration-20261108/payload/manifest.json",
+  "default_reference_manifest_sha256": "5a64d7d4f0443a836723d3c41c8f48a8c32a96b55bc57107f0128c8134c1346f",
+  "default_reference_prefix": "build/crow-bounded-drive-integration-build-01/default-crow32/",
+  "dynamic_library": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/libmetalrobo.dylib",
+  "held_fixed": {
+    "armatures_kg": [
+      0.001,
+      0.002
+    ],
+    "cap_N": 0.01,
+    "ccd": "disabled",
+    "d": 8,
+    "friction": 0.5,
+    "h_seconds": [
+      0.000425,
+      0.000675,
+      0.000925
+    ],
+    "initial_q_v": [
+      0,
+      0
+    ],
+    "k": 300,
+    "masses_kg": [
+      0.009,
+      0.017
+    ],
+    "quality_feasibility_tolerance": 1e-07,
+    "quality_optimality_tolerance": 1e-10,
+    "targets_m": [
+      -4e-05,
+      -7e-05,
+      -0.0025,
+      4e-05
+    ],
+    "warm_start": false
+  },
+  "limits": "Fixed-root1-DoF mechanism only. Motor impulse rows are authored by the probe, not integrated into native crow drive generation. No hybrid CCD, dry-friction, multi-joint, biological, learning or throughput qualification.",
+  "metallib": "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/motor-contact-factor-fix-20261108/metalrobo/MetalRobo.metallib",
+  "parent_analysis_sha256": "a42ba952b1f558dad6e7e124ad5effc900c7d5b210a62bdd6e77c64888721bb8",
+  "parent_plan_sha256": "1f1bf1ab98923755b4bc66de8ea05a83e4b2851fb5d645c80224d68ea7a9a258",
+  "policy_or_profile_promoted": false,
+  "prediction": "All144 paired native conditions accepted; joint motor force-law error<=1e-7 N; momentum<=2e-9 Ns; q-hv<=2e-9 m. Each of6 primary contact conditions reduces motor-law error>=99%. Frozen-force quality control agrees with split applied force<=1e-7 N. Default640-transition crow replay matches6 archived files byte-exact.",
+  "repair": "Keep the quality empty-contact factor fix. Tighten invocation-only optimality tolerance from1e-7 to1e-10 to meet the frozen2e-9 Ns momentum gate. Feasibility tolerance remains1e-7; all physical force/momentum/q gates remain unchanged. No production optimizer or global quality defaults change.",
+  "schema": "crow-scientific-plan-v1",
+  "source_and_runtime_sha256": {
+    ".numi/retained-runtime/motor-contact-factor-fix-20261108/libmetalrobo.dylib": "18caa3e31857028b159c1cd287ac4721c7cd2b3c014885e3871650412f8562d4",
+    ".numi/retained-runtime/motor-contact-factor-fix-20261108/metalrobo/MetalRobo.metallib": "6eb48053118d0e54850d21241e499100787de13af84e54e5b48ddc8130876be2",
+    ".numi/retained-runtime/motor-contact-factor-fix-20261108/probe-precision": "2deeb6824428ac380bb1bb074ac8d4a83f070543a21eca531bf807eab9b721c3",
+    "CMakeLists.txt": "bc43495b80b53b9d8feb9be952afb2a8c7efe7350cedda8c0049a4164e899769",
+    "apps/motor_contact_probe.cpp": "2a0f881adb35859bd26b403ea68205ba6cebe3aec34fc935963524715f3b93d6",
+    "artifacts/crow-rl-motor-contact-20261108/precision/prediction.json": "d4d386efc04eb48c218dfe5bad0b6342fd0c2c53c57c90642421f58370ad16c8",
+    "artifacts/crow-rl-motor-contact-20261108/precision/theory.py": "d94eb7eab74107dd9bebe9c3a3dbd384873ba122cbd227403b28fc5aa581e19d",
+    "build/crow-motor-contact-build-01/fixture-default": "a76e0b2a726b9ab2504b4a55b6d557d10a85feaaf94e4cb580de33103e45c63a",
+    "build/crow-motor-contact-build-01/precision-calibration.stdout": "d1a2336331e65c7d9c864befbea9fdb04a7f61b8401afc77d7aef6250f4dd7b2",
+    "src/metal/MetalWorld.mm": "1a8aba2c7cf8ee5c0b1937ee4ab376a3f9f96eeaaeccab51358f87c7156a758c"
+  },
+  "stop_rule": "Stop on the first unexpected exit, identity failure or validity failure. Retain partial outcomes; no tolerance relaxation or additional exposed conditions."
+}
