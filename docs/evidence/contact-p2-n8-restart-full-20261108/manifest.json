@@ -1,0 +1,28 @@
+{
+  "prediction_commit": "a0255a8ce05df92b5b690217ce2e978f98475e4d",
+  "source_sha256": "f55cb19edb982c0f9fe33bcc309700ba2ba57ab6da8bf9e3d335e9720aa3b8dc",
+  "model_sha256": "726dbf72ff85ceec348df396b6a26c4db90583bc7843d8c8303035d6580f96bb",
+  "reference_sha256": "b92ee66251b0c3f2bf6ca67927f9aa097b5b5b9d76fa72f65c1a93286e21b100",
+  "python_executable": "/private/tmp/numi-fem-py313b-20261107/bin/python",
+  "python_version": "3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]",
+  "numerical_versions": "2.3.4 1.16.3 11.0.0",
+  "baseline_free_percent": 78,
+  "baseline_swap_used_MiB": 2211.31,
+  "baseline_swap_text": "total = 3072.00M  used = 2211.31M  free = 860.69M  (encrypted)",
+  "cmd": [
+    "/usr/bin/nice",
+    "-n",
+    "10",
+    "/private/tmp/numi-fem-py313b-20261107/bin/python",
+    "/Users/numi/numi-lab-contact-reference-20261107/tests/contact/fem_p2_full_restart.py",
+    "8",
+    "fine"
+  ],
+  "exit": 0,
+  "limit_reason": null,
+  "timeout_s": 2400,
+  "rss_limit_kib": 2097152,
+  "peak_rss_kib": 577424,
+  "elapsed_s": 528.2073499590042,
+  "output_sha256": "6a15c215a738a05fc647facf9609cae42c4e03f21ff600fab90dd92c2abbec89"
+}

@@ -71,3 +71,18 @@ The machine has 16 GiB unified memory; prior n16 RSS alone cannot establish
 safe concurrency with native GPU tests. Require an explicitly coordinated
 host window, and do not claim swap-free concurrency without a representative
 pressure and swap measurement.
+
+## n8 reconstruction result
+
+The n8 process exited 0 in 528.21 s, with 577,424 KiB peak sampled RSS
+and no resource stop. The coordinated surgical correctness capture and a
+two-job native build overlapped part of this run, so elapsed time is not
+performance evidence. Actual free-memory and total-swap samples are retained.
+
+The prerequisite passed: maximum force-bin difference from the retained full
+n8 run was 3.02e-8 of the retained n8 peak bin, total impulse difference
+7.15e-9 and work difference 9.10e-8 on the registered scales. Sampled gap,
+J, quadrature, global momentum, local mass-solve, energy and work gates
+passed. This supports using the exact-freefall reconstruction for the full
+comparison; it does not establish spatial force convergence. The n16 pair
+remains unrun pending a coordinated host window.

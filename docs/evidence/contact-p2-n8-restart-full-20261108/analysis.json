@@ -1,0 +1,19 @@
+{
+  "restart_sha256": "6a15c215a738a05fc647facf9609cae42c4e03f21ff600fab90dd92c2abbec89",
+  "reference_sha256": "b92ee66251b0c3f2bf6ca67927f9aa097b5b5b9d76fa72f65c1a93286e21b100",
+  "peak_N": 0.08743226330345472,
+  "impulse_Ns": 0.0004082812376567633,
+  "force_bin_difference_relative": 3.0171392346063204e-08,
+  "impulse_difference_relative": 7.149457418149295e-09,
+  "work_difference_relative": 9.09461685915918e-08,
+  "min_sampled_gap_m": 9.215791009537343e-05,
+  "min_sampled_J": 0.9681417662146141,
+  "duffy_relative": 1.876385923376951e-07,
+  "order18_relative": 0.00012259099827408615,
+  "momentum_relative": 4.647173631438615e-15,
+  "energy_relative": 4.996551103889437e-10,
+  "work_balance_relative": 8.737232572175205e-08,
+  "local_mass_solve_relative": 3.3682023219104568e-15,
+  "shape_pass": true,
+  "prerequisite_pass": true
+}
