@@ -1,0 +1,56 @@
+{
+  "files": [
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 98864,
+            "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/abd531b3e9f580c7f5c208c358e87821c51470d3671367571c8a713f3885b441.gz",
+            "sha256": "abd531b3e9f580c7f5c208c358e87821c51470d3671367571c8a713f3885b441"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 98864,
+      "mode": 384,
+      "mtime_ns": 1794138739494990873,
+      "path": "build/crow-quality-first-failure-build-01/repair-01/capture-one.bin",
+      "sha256": "abd531b3e9f580c7f5c208c358e87821c51470d3671367571c8a713f3885b441"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 272,
+            "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/917ec160b2682da5ae117ce8b9e0032f009c754a1a8177b8462313080cdb4a17.gz",
+            "sha256": "917ec160b2682da5ae117ce8b9e0032f009c754a1a8177b8462313080cdb4a17"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 272,
+      "mode": 420,
+      "mtime_ns": 1794138815556524481,
+      "path": "build/crow-quality-first-failure-build-01/repair-01/fp64-reference-v.f64",
+      "sha256": "917ec160b2682da5ae117ce8b9e0032f009c754a1a8177b8462313080cdb4a17"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 3840,
+            "path": "artifacts/crow-rl-quality-first-failure-20261108/payload/blobs/79d25080e99ddc746a48a4204cd28ce60515beddeb0a7ab414d296f5d0f0c0f8.gz",
+            "sha256": "79d25080e99ddc746a48a4204cd28ce60515beddeb0a7ab414d296f5d0f0c0f8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 3840,
+      "mode": 420,
+      "mtime_ns": 1794138815556611605,
+      "path": "build/crow-quality-first-failure-build-01/repair-01/fp64-reference-impulse.f64",
+      "sha256": "79d25080e99ddc746a48a4204cd28ce60515beddeb0a7ab414d296f5d0f0c0f8"
+    }
+  ],
+  "manifest": "artifacts/crow-rl-quality-first-failure-20261108/payload/manifest.json"
+}

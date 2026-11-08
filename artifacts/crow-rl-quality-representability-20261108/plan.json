@@ -1,0 +1,32 @@
+{
+  "alternatives": [
+    "No representable nearby state reaches the gate",
+    "Representable states exist but ordinary Newton rounding misses them",
+    "FP32 residual evaluation prevents acceptance of a reference-valid state"
+  ],
+  "analysis": [
+    "Rank controlling coordinates and their float32 spacing",
+    "Record nearest reference rounding and mass-equilibrated conditioning",
+    "Search nearest one/two-coordinate floating-point neighbors using the local FP64 Hessian",
+    "Reproject every chosen candidate using the full independent FP64 constitutive equations",
+    "Finding a state below the gate refutes a global representability-floor explanation for this problem; failure to find one does not prove a floor"
+  ],
+  "budget": {
+    "maximum_seconds": 120,
+    "minimum_candidate_residual": 5e-11,
+    "neighbor_ulp_steps": [
+      -1,
+      1
+    ],
+    "raw_input_bytes": 1000000,
+    "single_and_pair_search_iterations": 64
+  },
+  "capture_sha256": "abd531b3e9f580c7f5c208c358e87821c51470d3671367571c8a713f3885b441",
+  "instrument": "Previously calibrated independent FP64 projection, Hessian and residual evaluation; coordinate/pair search is an offline numerical diagnostic, not a physics transition",
+  "native_settings_changed": false,
+  "purpose": "exploratory diagnosis of the exposed first crow quality problem; not new ecological confirmation",
+  "question": "Does a nearby representable FP32 velocity satisfy the unchanged 1e-10 stationarity gate in the exact captured problem?",
+  "schema": "crow-quality-representability-analysis-v1",
+  "scope": "One already exposed 34-velocity problem only. No policy promotion or physical qualification.",
+  "source_reference_sha256": "44cadf97db32b9bbafa303fda7d894d94778a6710981c87b9c0f25fa08b2f5a0"
+}
