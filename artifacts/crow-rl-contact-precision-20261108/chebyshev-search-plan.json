@@ -1,0 +1,14 @@
+{
+  "budget": {
+    "candidates_each_max": 47,
+    "process_seconds": 120,
+    "target_iterations": 32,
+    "velocity_reference_distance_max": 0.001
+  },
+  "limits": "Failure remains inconclusive; no native physics or tolerance change.",
+  "method": "Clip residual targets into the raw 1e-10 box while preserving the exact dual hyperplane; reduced-basis nearest plane and adjacent basis candidates, actual FP32 rounding and full independent reprojection; bounded deterministic residual feedback/dithering",
+  "prediction": "At least one actual FP32 point satisfies the unchanged independently computed 1e-10 scaled stationarity gate",
+  "purpose": "Exposed numerical diagnosis: exploit the exact local dual witness to target maximum-norm stationarity rather than Euclidean nearest-plane distance",
+  "schema": "crow-contact-chebyshev-search-plan-v1",
+  "source_sha256": "2e221dad44389ba7fcb6db41a41d7ae084a2296e9f52252a9fc9a4fc33f029cf"
+}

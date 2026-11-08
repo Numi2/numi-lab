@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "python/.venv/bin/python",
+    "artifacts/crow-rl-contact-precision-20261108/lattice_certificate.py"
+  ],
+  "returncode": 0,
+  "seconds": 0.7501172079999999
+}
