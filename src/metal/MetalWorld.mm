@@ -19951,6 +19951,7 @@ std::uint64_t metalWorldNoStepSeedPayloadFingerprint(const MetalWorldNoStepSeed&
     };
     append(seed.q); append(seed.v); append(seed.sceneBodies);
     append(seed.manifoldHeaders); append(seed.manifoldPoints); append(seed.manifoldCounts); append(seed.convexCaches);
+    append(seed.rodNodes); append(seed.rodEdges); append(seed.rodWitnesses);
     return h == 0u ? 1u : h;
 }
 
@@ -19964,8 +19965,9 @@ MetalWorldDiagnostics MetalWorldContext::seedResidentNoStep(
             "no-step seed requires an empty destination and live context");
     }
     // This is intentionally not a general restore interface. In particular,
-    // no external owner or reset/task/rod history is admitted.
-    if (!world.valid() || world.rodCount() != 0u ||
+    // no external owner or reset/task history is admitted. Rod support is
+    // restricted to the explicit single-rod witness diagnostic below.
+    if (!world.valid() || world.rodCount() > 1u ||
         config.solverMode != MetalWorldSolverMode::temporalCone ||
         config.taskProgram.valid() || config.policyProgram.valid() ||
         config.multicopterProgram.valid() || config.millardProgram.configured() ||
@@ -19973,6 +19975,7 @@ MetalWorldDiagnostics MetalWorldContext::seedResidentNoStep(
         config.devicePhysicsProgram.configured() || config.deviceObservationProgram.configured() ||
         config.inspectionProgram.configured() || config.evaluateFinalPolicy ||
         !config.captureContactEvidence || !config.captureConvexCacheEvidence ||
+        (world.rodCount() != 0u && !config.captureRodWitnessEvidence) ||
         seed.worldFingerprint == 0u || seed.worldFingerprint != world.fingerprint() ||
         seed.configurationFingerprint == 0u ||
         seed.configurationFingerprint != noStepConfigurationFingerprint(config, pool_->slots.front()->config.preferParallelABA) ||
@@ -19986,12 +19989,43 @@ MetalWorldDiagnostics MetalWorldContext::seedResidentNoStep(
                 "no-step convex cache contains nonfinite values");
         }
     }
+    const auto pairs=world.rodToolPairs();
+    const auto colliders=world.rodColliders();
+    if (!validRodStates(world, 1u, seed.rodNodes, seed.rodEdges, false) ||
+        pairs.size() > std::numeric_limits<std::size_t>::max() / MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR ||
+        seed.rodWitnesses.size() != pairs.size() * MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR) {
+        return reject(std::move(diagnostics), MetalWorldHostStatus::invalidDimensions,
+            "no-step rod state or witness capacity mismatch");
+    }
+    constexpr std::uint32_t knownWitnessFlags = MR_ROD_TOOL_WITNESS_VALID |
+        MR_ROD_TOOL_WITNESS_WARM_STARTED | MR_ROD_TOOL_WITNESS_NEW_IMPACT |
+        MR_ROD_TOOL_WITNESS_MESH | MR_ROD_TOOL_WITNESS_HARD_CONVEX;
+    for (std::size_t slot=0u;slot<seed.rodWitnesses.size();++slot) {
+        const auto& w=seed.rodWitnesses[slot];
+        if ((w.featuresAndFlags.w & MR_ROD_TOOL_WITNESS_VALID)==0u) continue;
+        const std::size_t pairIndex=slot/MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR;
+        const auto& pair=pairs[pairIndex];
+        if ((w.featuresAndFlags.w & ~knownWitnessFlags)!=0u ||
+            pair.rodCollider>=colliders.size() || pair.rigidCollider>=world.model().shapes.size() ||
+            w.identity.x!=0u || w.identity.y!=pairIndex || w.identity.z!=pair.rodCollider ||
+            w.identity.w!=pair.rigidCollider ||
+            w.materialAndGeneration.z!=colliders[pair.rodCollider].topologyGeneration ||
+            w.featuresAndFlags.z!=world.model().shapes[pair.rigidCollider].bodyIndex ||
+            !finite(w.rodPointAndWeight) || !finite(w.toolPointAndSeparation) ||
+            !finite(w.normalAndPreSolveVelocity) || !finite(w.tangentUAndTwistJacobian) ||
+            !finite(w.radialAndTwistJacobianV) || !finite(w.impulses) ||
+            w.rodPointAndWeight.w<0.f || w.rodPointAndWeight.w>1.f) {
+            return reject(std::move(diagnostics), MetalWorldHostStatus::invalidDimensions,
+                "no-step rod witness identity, topology or values are invalid");
+        }
+    }
     MetalWorldBatch batch{
         .environmentCount=1u, .controlStepCount=0u,
         .initialQ=seed.q, .initialV=seed.v, .initialSceneBodies=seed.sceneBodies,
         .initialManifoldHeaders=seed.manifoldHeaders,
         .initialManifoldPoints=seed.manifoldPoints,
         .initialManifoldCounts=seed.manifoldCounts,
+        .initialRodNodes=seed.rodNodes, .initialRodEdges=seed.rodEdges,
     };
     RequiredBuffers requirements{};
     try {
@@ -20004,7 +20038,7 @@ MetalWorldDiagnostics MetalWorldContext::seedResidentNoStep(
             seed.manifoldPoints.size() != diagnostics.layout.manifoldPointElements ||
             seed.manifoldCounts.size() != 1u ||
             seed.convexCaches.size() != diagnostics.layout.convexCacheElements ||
-            seed.convexCaches.empty()) {
+            seed.rodWitnesses.size() != requirements.entries[kRodWitnessesA].logicalElements) {
             return reject(std::move(diagnostics), MetalWorldHostStatus::invalidDimensions,
                 "no-step seed has missing or incorrect cache capacities");
         }
@@ -20034,26 +20068,40 @@ MetalWorldDiagnostics MetalWorldContext::seedResidentNoStep(
         @autoreleasepool {
             diagnostics = initializeContext(*selected, std::move(diagnostics));
             if (!diagnostics.succeeded()) return diagnostics;
+            diagnostics = ensureRodPipelines(*selected, world.rodCount()!=0u, std::move(diagnostics));
+            if (!diagnostics.succeeded()) return diagnostics;
             diagnostics = ensureBufferArena(*selected, requirements, std::move(diagnostics));
             if (!diagnostics.succeeded()) return diagnostics;
             id<MTLCommandBuffer> command = [selected->queue commandBuffer];
             if (command == nil) return reject(std::move(diagnostics), MetalWorldHostStatus::metalCommandFailure,
                 "no-step seed could not create command buffer");
             uploadBatch(*selected, command, world, batch, config, diagnostics.layout, requirements, true);
-            if (!encodeResidentStateInitialization(*selected, command, requirements, true, false, false, true))
+            if (!encodeResidentStateInitialization(*selected, command, requirements, true, world.rodCount()!=0u, false, true))
                 return reject(std::move(diagnostics), MetalWorldHostStatus::metalCommandFailure,
                     "no-step seed could not initialize private buffers");
             const auto& convexRequirement = requirements.entries[kConvexCaches];
-            id<MTLBuffer> staging = [selected->device newBufferWithBytes:seed.convexCaches.data()
-                length:convexRequirement.logicalBytes options:MTLResourceStorageModeShared];
+            const auto& witnessRequirement = requirements.entries[kRodWitnessesA];
+            id<MTLBuffer> convexStaging = convexRequirement.logicalBytes == 0u ? nil :
+                [selected->device newBufferWithBytes:seed.convexCaches.data()
+                    length:convexRequirement.logicalBytes options:MTLResourceStorageModeShared];
+            id<MTLBuffer> witnessStaging = witnessRequirement.logicalBytes == 0u ? nil :
+                [selected->device newBufferWithBytes:seed.rodWitnesses.data()
+                    length:witnessRequirement.logicalBytes options:MTLResourceStorageModeShared];
             id<MTLBlitCommandEncoder> blit = [command blitCommandEncoder];
-            if (staging == nil || blit == nil) return reject(std::move(diagnostics), MetalWorldHostStatus::metalBufferFailure,
-                "no-step seed could not stage convex cache");
-            [blit copyFromBuffer:staging sourceOffset:0u toBuffer:selected->buffers[kConvexCaches]
-                destinationOffset:0u size:convexRequirement.logicalBytes];
+            if (blit == nil || (convexRequirement.logicalBytes != 0u && convexStaging == nil) ||
+                (witnessRequirement.logicalBytes != 0u && witnessStaging == nil))
+                return reject(std::move(diagnostics), MetalWorldHostStatus::metalBufferFailure,
+                    "no-step seed could not stage contact caches");
+            if (convexRequirement.logicalBytes != 0u)
+                [blit copyFromBuffer:convexStaging sourceOffset:0u toBuffer:selected->buffers[kConvexCaches]
+                    destinationOffset:0u size:convexRequirement.logicalBytes];
+            if (witnessRequirement.logicalBytes != 0u)
+                [blit copyFromBuffer:witnessStaging sourceOffset:0u toBuffer:selected->buffers[kRodWitnessesA]
+                    destinationOffset:0u size:witnessRequirement.logicalBytes];
             [blit endEncoding];
-            const std::array<std::size_t, 7> indices{
-                kStateQA,kStateVA,kSceneBodiesA,kManifoldHeadersA,kManifoldPointsA,kManifoldCountsA,kConvexCaches};
+            const std::array<std::size_t, 10> indices{
+                kStateQA,kStateVA,kSceneBodiesA,kManifoldHeadersA,kManifoldPointsA,kManifoldCountsA,kConvexCaches,
+                kRodNodesA,kRodEdgesA,kRodWitnessesA};
             diagnostics = encodeReadbacks(*selected, command, requirements, indices, std::move(diagnostics));
             if (!diagnostics.succeeded()) return diagnostics;
             [command commit];
@@ -20061,8 +20109,9 @@ MetalWorldDiagnostics MetalWorldContext::seedResidentNoStep(
             if (command.status != MTLCommandBufferStatusCompleted) return reject(
                 std::move(diagnostics), MetalWorldHostStatus::metalCommandFailure,
                 "no-step seed command failed: " + describeError(command.error));
-            const std::array<const void*,7> sources{seed.q.data(),seed.v.data(),seed.sceneBodies.data(),
-                seed.manifoldHeaders.data(),seed.manifoldPoints.data(),seed.manifoldCounts.data(),seed.convexCaches.data()};
+            const std::array<const void*,10> sources{seed.q.data(),seed.v.data(),seed.sceneBodies.data(),
+                seed.manifoldHeaders.data(),seed.manifoldPoints.data(),seed.manifoldCounts.data(),seed.convexCaches.data(),
+                seed.rodNodes.data(),seed.rodEdges.data(),seed.rodWitnesses.data()};
             for (std::size_t i=0u;i<indices.size();++i) {
                 const auto index=indices[i];
                 id<MTLBuffer> buffer = selected->buffers[index].storageMode == MTLStorageModePrivate
@@ -20070,7 +20119,8 @@ MetalWorldDiagnostics MetalWorldContext::seedResidentNoStep(
                 const std::size_t bytes=requirements.entries[index].logicalBytes;
                 if (bytes != 0u && (buffer == nil || buffer.contents == nullptr || buffer.length < bytes ||
                     std::memcmp(buffer.contents,sources[i],bytes) != 0 ||
-                    (seed.testOnlyInjectReadbackMismatch && index == kConvexCaches)))
+                    (seed.testOnlyInjectReadbackMismatch &&
+                     index == (convexRequirement.logicalBytes != 0u ? kConvexCaches : kRodWitnessesA))))
                     return reject(std::move(diagnostics), MetalWorldHostStatus::metalBufferFailure,
                         "no-step seed readback missing, truncated, or mismatched");
             }

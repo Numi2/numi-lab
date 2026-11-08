@@ -1040,7 +1040,7 @@ private:
     std::shared_ptr<detail::MetalWorldResidentStateData> state_;
 };
 
-// Narrow diagnostic seed contract: one environment, no rods, no Matter or
+// Narrow diagnostic seed contract: one environment, at most one rod, no Matter or
 // other programs, no reset. Captured arrays remain caller-owned during the
 // synchronous operation. A non-empty destination is always rejected.
 struct MetalWorldNoStepSeed {
@@ -1056,6 +1056,9 @@ struct MetalWorldNoStepSeed {
     std::span<const MRManifoldPointGPU> manifoldPoints{};
     std::span<const std::uint32_t> manifoldCounts{};
     std::span<const MRConvexQueryCacheGPU> convexCaches{};
+    std::span<const MRRodNodeStateGPU> rodNodes{};
+    std::span<const MRRodEdgeStateGPU> rodEdges{};
+    std::span<const MRRodToolWitnessGPU> rodWitnesses{};
 };
 
 // Accidental-corruption check, not an authentication primitive.
@@ -1123,7 +1126,7 @@ public:
         MetalWorldSubmission& submission
     );
 
-    // Diagnostic no-step seed for the narrow uncoupled convex fixture. It
+    // Diagnostic no-step seed for the narrow uncoupled contact fixture. It
     // publishes no token until all device uploads are read back byte-exactly.
     [[nodiscard]] MetalWorldDiagnostics seedResidentNoStep(
         const CompiledWorld& world,
