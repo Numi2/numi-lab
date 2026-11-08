@@ -1,0 +1,196 @@
+{
+  "commit": "1574b0ba9019c73b1b46c6b6e63d66c219112fbc",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300213156 157135984    66% 3497116 1571359840    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300213464 157135676    66% 3497153 1571356760    0%   /System/Volumes/Data\n",
+  "omitted_files": [
+    {
+      "bytes": 3383,
+      "git_blob": "258a5863bad97afecf476452646ef7eebf9a62b1",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/bounded-plan.json"
+    },
+    {
+      "bytes": 655,
+      "git_blob": "b600b3c569d54cf5dd69b5a3af250a18d96e9a5a",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/bounded-results.json"
+    },
+    {
+      "bytes": 3879,
+      "git_blob": "5a2d14c7bf2a0d3c3d9db47fe5036d7b6cbbd57b",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/bounded-v2-plan.json"
+    },
+    {
+      "bytes": 1843,
+      "git_blob": "17eca54221c995620bc3270eba1413bd78180084",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/bounded-v2-results.json"
+    },
+    {
+      "bytes": 4388,
+      "git_blob": "de42333a873a5b5536190bf88c17c22a4e9f593f",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/bounded-v2.cpp"
+    },
+    {
+      "bytes": 4307,
+      "git_blob": "8d070c79616d994ae375861c061e77ad01af90d2",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/bounded.cpp"
+    },
+    {
+      "bytes": 12,
+      "git_blob": "57cdc50305d07f35133f80962644debd6b846bf3",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/.gitattributes"
+    },
+    {
+      "bytes": 171,
+      "git_blob": "a033e54a12f7b728c098a82848bf61fea8af1d30",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/055523a181243d7ec1188fd91d7788b7483784e5b88ec42af0627ae0324c83d7.gz"
+    },
+    {
+      "bytes": 74,
+      "git_blob": "a4e72ee7c179370bb6faff5e2df375e48387a284",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/0bc13268a0a443b36ffdf370dddd454f3a8d16d5c40ebc649d08e4a8b7c4d8af.gz"
+    },
+    {
+      "bytes": 9466,
+      "git_blob": "65e6b64d03082bfdc9234b6d2ab7f503690c1b0a",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/1e6d6f94409a364c5de9c1c2434aeb30ffdd2202eda524b44f576f79bb90f97d.gz"
+    },
+    {
+      "bytes": 1181,
+      "git_blob": "501fb25c27bfa18214a6c4d484ad301187068ed8",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/2c0ba958de586172a57611868db3003ff3976af9db58db91910b97025f711ec7.gz"
+    },
+    {
+      "bytes": 3045,
+      "git_blob": "4748ff55aea5e3e3e0018db64200f824dfefc6d2",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/34af3f900b54735a6683452e97e636e831d79d7c12bedb791acb5df60d08bc4b.gz"
+    },
+    {
+      "bytes": 22192,
+      "git_blob": "e817fadedd2e5bcea1a0a5e61119c57aef82b7dd",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/45864553fbf9ec1bcc18fa1e6dc8f88ecb8bf3fe859c31921c87473fe6e5632c.gz"
+    },
+    {
+      "bytes": 24059,
+      "git_blob": "2d3028dfae5cdd565248a2e616ca055722859ef9",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/4970fb9b9680633342a3171903d97f541277a9a5c1a2554887f465eff479a320.gz"
+    },
+    {
+      "bytes": 4686,
+      "git_blob": "08c579f43fac91e8dca6a0660a4aa0ff4b9df7d0",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/4b3676beec35878898daa02cc3e758b8af687bcac03cd68209b4b6a81c2bae53.gz"
+    },
+    {
+      "bytes": 22194,
+      "git_blob": "f41da84ad229637efac7ccde509a663b068c4c66",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/56239540644945aaaf072837a994cef27dfd6dff274d138fc4f5096d7bd4c3cf.gz"
+    },
+    {
+      "bytes": 13684,
+      "git_blob": "96d6cae7a054b72fe0c718676e67892d0e22fc9d",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/58288ac8e8d00c665142e1db621dad15e4f2675d2c1610b92ade33655b6358f9.gz"
+    },
+    {
+      "bytes": 82,
+      "git_blob": "b831f6f3fe33f151ca4e72b5d1c6c1854a6a8214",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/603b91d7a2e1f7c9df0e904ed02393360d1a00b2b4a826e5f579689f63416c53.gz"
+    },
+    {
+      "bytes": 214,
+      "git_blob": "ffe4a02fb93c7ac913e1db6086f296148adcfa68",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/6657e8e7e35ed62a6da42b5334942fb4350a348317093449ec8abdb8f0f03dcd.gz"
+    },
+    {
+      "bytes": 24067,
+      "git_blob": "bf0d236e83338939fee031f002df76bfbea38852",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/6815a1a605cf3ded631e615d8d4f6ef991ec71b8cd0f3fa706d3462406d3e661.gz"
+    },
+    {
+      "bytes": 756,
+      "git_blob": "22cde3ffa0657247f5b559df693141fde460c6dc",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/710dd793f6e9823e639b09811a6d925591b4821b4ebc1c1de23ac715e98812cf.gz"
+    },
+    {
+      "bytes": 218,
+      "git_blob": "967134404b76148d7d6b906f29ed7545dd84c172",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/7270331f6cb1aee3f51acb34ef319e9720c48b0cc11f013c1d5896f6b6b48178.gz"
+    },
+    {
+      "bytes": 24014,
+      "git_blob": "4222cdeb283b6cc22c4f212b4c106213a89bc923",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/74e1735d687b5799a98f13125db72b266b1a6642d2e6b0304f604760c52f4b9c.gz"
+    },
+    {
+      "bytes": 215,
+      "git_blob": "7c5664a83ea2702f3ade82a577f01332bac83c03",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/a6fdd684dfc16b9415e62e15f5714eb2b583fd48de7d87bef6c312f8fb6e5596.gz"
+    },
+    {
+      "bytes": 22129,
+      "git_blob": "982c531caaa7f54b05bbca09ec3539a42b101dbe",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/a7e20329f68ffd1e7c32ae342480dd8c77870188a55c0aa3d2363bad52139a07.gz"
+    },
+    {
+      "bytes": 98,
+      "git_blob": "31ae95670d817cb26f978fd980a53533d5a6ba8f",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/d0bfe3e062efcca1c7510eb9686e5be4e7ac0544132359aa0e9caafc94463258.gz"
+    },
+    {
+      "bytes": 70,
+      "git_blob": "0dd5a49812b616bb93c276dc142332efa92f0ec9",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/d6ca024e0e5e8457304d7da4bf66fcb0d036e5f6ca271130121c51073c59e9db.gz"
+    },
+    {
+      "bytes": 349,
+      "git_blob": "4173f498eaba9ec34aced70ba3f804e2d2fb15c8",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/dc0c51738c69d827160353de152f6ddd08e9f4c2133bdae6d85f4ed5f2935779.gz"
+    },
+    {
+      "bytes": 997,
+      "git_blob": "087000149eee4b3e466a5293f41b697f1fde86b0",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/blobs/ee8a3841f0a15c3aa4a65fa4a1faa58d5425c530d78e05511c5e2a7ac5dc078b.gz"
+    },
+    {
+      "bytes": 22568,
+      "git_blob": "b1156d5d838803cde2f0a5796f0c979c31df231f",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/payload/manifest.json"
+    },
+    {
+      "bytes": 4786,
+      "git_blob": "34045391b215c4d9dec7417caa0121d8926b50fe",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/plan.json"
+    },
+    {
+      "bytes": 6115,
+      "git_blob": "fbf045d50a2aa2bc29b0d4fbb3230ce0dd958b03",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/probe.cpp"
+    },
+    {
+      "bytes": 5641,
+      "git_blob": "fb44e8da87bd5927dfc3d60538a29b74f7ea9ae0",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/results.json"
+    },
+    {
+      "bytes": 7998,
+      "git_blob": "4c028eb9d0699da9c5fbdc75beada1473ba8376e",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/run.py"
+    },
+    {
+      "bytes": 6684,
+      "git_blob": "3f5876eafa5beef75f6c63e07b4b4453271591b3",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/run_bounded.py"
+    },
+    {
+      "bytes": 7329,
+      "git_blob": "027b187055da20cdef7d85a1963fd961cac935b8",
+      "path": "artifacts/crow-rl-implicit-drive-audit-20261108/run_bounded_v2.py"
+    }
+  ],
+  "omitted_logical_bytes": 253549,
+  "open_handles": 0,
+  "preserved_input_prefixes": [
+    "artifacts/crow-rl-feeding-behavior-20261107/policies/",
+    "artifacts/crow-rl-recurrent-actor-20261107/inputs/PolicyABI3.metallib",
+    "artifacts/crow-rl-retinal-contract-20261107/inputs/legacy-MetalRobo.metallib"
+  ],
+  "remote_commit": "1574b0ba9019c73b1b46c6b6e63d66c219112fbc",
+  "status": "omitted"
+}
