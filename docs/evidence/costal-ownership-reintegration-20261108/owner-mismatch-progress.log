@@ -1,0 +1,3 @@
+run 0 exit 1
+run 1 exit 1
+binding/world owner mismatch rejected after candidate fingerprint recomputation

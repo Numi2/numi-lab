@@ -1,0 +1,44 @@
+{
+  "changed_offset": 260,
+  "original_owner": 20,
+  "altered_owner": 25,
+  "binding_sha256": "029453f20775dac7457f83f66ed627ee36ae2e864d97499737ae5045f11cdf36",
+  "runs": [
+    {
+      "command": [
+        "/Users/numi/numi-reconciliation-build-20261108/numi_human_costal_v5_admission_probe",
+        "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/rigid.nhrigid",
+        "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/muscle.nhmyo",
+        "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/support.nhcnt",
+        "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/equality.nheq",
+        "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/retained-visual.mrvpack",
+        "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/retained-vision.json",
+        "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/synthetic.nmatterpack",
+        "/Users/numi/costal-reintegration-20261108/owner-mismatch.nhtbind",
+        "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/synthetic.nhcartilage",
+        "/Users/numi/numi-reconciliation-build-20261108/shaders/MetalRobo.metallib"
+      ],
+      "exit": 1,
+      "stdout": "synthetic=1 nodes=448 tets=112 anchors=448 world=8141185403901143359\nPASS v5 rejects mismatched binding identity status=3\n",
+      "stderr": "v5 synthetic admission FAILED: v5 creation failed status=3\n"
+    },
+    {
+      "command": [
+        "/Users/numi/numi-reconciliation-build-20261108/numi_human_costal_v5_admission_probe",
+        "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/rigid.nhrigid",
+        "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/muscle.nhmyo",
+        "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/support.nhcnt",
+        "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/equality.nheq",
+        "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/retained-visual.mrvpack",
+        "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/retained-vision.json",
+        "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/synthetic.nmatterpack",
+        "/Users/numi/costal-reintegration-20261108/owner-mismatch.nhtbind",
+        "/Users/numi/numi-v5-admission-artifacts-20261107/v5-continuation-aggregate-status-diagnostic/synthetic.nhcartilage",
+        "/Users/numi/numi-reconciliation-build-20261108/shaders/MetalRobo.metallib"
+      ],
+      "exit": 1,
+      "stdout": "synthetic=1 nodes=448 tets=112 anchors=448 world=8141185403901143359\nPASS v5 rejects mismatched binding identity status=3\n",
+      "stderr": "v5 synthetic admission FAILED: v5 creation failed status=3\n"
+    }
+  ]
+}

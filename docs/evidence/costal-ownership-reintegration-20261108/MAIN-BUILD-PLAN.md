@@ -1,0 +1,3 @@
+# Main-source clean-build integration check
+
+Configure a fresh Ninja build from the staged main-source integration, not the previously built combined tree. Build the same Human ownership, v5 admission and four existing Human-Matter regression targets. Run the three CPU CTests and the four existing native CTests, then rerun the synthetic native owner rollback and v5 constructor against the same independently hash-verified fixture. Preserve configuration, build and all failure outputs. This checks compatibility with main-source code; it does not claim an installed clean-machine release or any broader physiological validation. Do not alter original fixtures.
