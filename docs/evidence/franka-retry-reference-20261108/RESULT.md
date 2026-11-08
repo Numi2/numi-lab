@@ -1,0 +1,7 @@
+# Independent retry reference result
+
+The independent control and retry processes both exited 0 on 2026-11-08. Control ran from 00:17:02.407415 to 00:17:02.752980 UTC and retry from 00:17:02.753152 to 00:17:02.798512 UTC. Each satisfied direct-winner and empty-frame prerequisites and completed two accepted steps with both world statuses zero. In the retry arm the induced pre-submit rejection returned -1, invoked one abort and left the captured pre-retry tracker/frame/camera bytes, metadata and cadence unchanged.
+
+After the second accepted step all eleven declared nonempty fields matched byte-for-byte between independently initialized processes: q, v, exposed scene position/orientation/velocity, actor observation and logical actor-history buffer, depth and tracker histories, camera, batch metadata, status and winner words. The comparison contains byte counts and hashes; the raw files and snapshots are retained in raw.tar.gz. Pinned input hashes matched before and after.
+
+This is one deliberately empty-view, zero-policy Franka fixture with two environments and a test-induced failure before submission. It does not establish equivalence of all private physical state, contact history or a nonempty image, and does not qualify command-buffer errors, physical rejection, mixed acceptance, production behavior or completion-owned publication. No general replay or deployment claim is made.
