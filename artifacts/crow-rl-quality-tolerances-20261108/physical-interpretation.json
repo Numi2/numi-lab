@@ -1,0 +1,10 @@
+{
+  "accepted_sampled_states": 0,
+  "all_arms_reject_before_first_control": true,
+  "jaw_penetration_observed": false,
+  "maximum_sampled_penetration_m": null,
+  "no_profile_or_policy_promotion": true,
+  "note": "The raw predeclared analyzer reports 0.0 as the empty-trace max sentinel. There are no accepted control-boundary states, so this is not a penetration measurement or evidence of safe geometry.",
+  "schema": "crow-quality-tolerances-physical-interpretation-v1",
+  "trial_independence": "Two identical repeats of one four-lane fixture; no independent training or biological replication."
+}

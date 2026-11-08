@@ -1,0 +1,68 @@
+[
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/split-runtime/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/split-runtime/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/analysis/api-default-split-input.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/split-observations/api-default-0"
+    ],
+    "name": "api-default-0",
+    "returncode": 0,
+    "seconds": 0.48250595800345764
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/split-runtime/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/split-runtime/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/analysis/api-default-split-input.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/split-observations/api-default-1"
+    ],
+    "name": "api-default-1",
+    "returncode": 0,
+    "seconds": 0.09258608298841864
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/split-runtime/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/split-runtime/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/analysis/opt6-split-input.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/split-observations/opt6-0"
+    ],
+    "name": "opt6-0",
+    "returncode": 0,
+    "seconds": 0.04883770796004683
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/split-runtime/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/split-runtime/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/analysis/opt6-split-input.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/split-observations/opt6-1"
+    ],
+    "name": "opt6-1",
+    "returncode": 0,
+    "seconds": 0.04804250004235655
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/split-runtime/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/split-runtime/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/analysis/opt7-split-input.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/split-observations/opt7-0"
+    ],
+    "name": "opt7-0",
+    "returncode": 0,
+    "seconds": 0.04808054195018485
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/split-runtime/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/split-runtime/solver.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/analysis/opt7-split-input.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-tolerances-build-01/split-observations/opt7-1"
+    ],
+    "name": "opt7-1",
+    "returncode": 0,
+    "seconds": 0.04791220900369808
+  }
+]
