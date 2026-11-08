@@ -1,0 +1,5 @@
+# Fresh CMake and CTest upload-abort qualification
+
+Freshly configure the isolated current-main candidate source with Ninja, then build both registered initial and nonempty upload-abort targets with two low-priority jobs. Retain the build log and warnings. Pin both actual CMake-built executables, shader, owner archive, generated CTest file and registered Python runner. Run CTest only for the two upload-abort tests, serially with their declared 300-second test limits; each runner bounds its two native processes at 120 seconds. Retain output, exit, UTC timestamps, and pre/post identities. The independently retained detailed process matrices show actual statuses and raw bytes; CTest checks the registered build and runner on a clean compilation.
+
+This remains private-storage, first-empty-cache and same-model populated-cache coverage. Shared setup, changed bindings, excluded device-physics/Millard/multicopter programs, mixed histories, command failure after submission, timing and contact accuracy are unqualified. No promotion follows automatically.
