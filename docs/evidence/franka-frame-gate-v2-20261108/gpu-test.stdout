@@ -1,0 +1,6 @@
+direct_winner_enabled=1
+present_empty rc=0 admitted=1 finished=1 world=0,0
+explicit_present=1,1 nonempty_winners=0
+missing rc=-1 admitted=1 rejected=1 finished=1
+history_unchanged=1 sequence=1,1
+recovered rc=0 admitted=2 finished=2 world=0,0
