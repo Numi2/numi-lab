@@ -1,0 +1,19 @@
+{
+  "clang": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode-26.6.0.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "files": {
+    "build/crow-quality-tolerances-build-01/crow-fixture": {
+      "bytes": 102144,
+      "sha256": "bf8ad775f9d2f74643432eccd00544d0cc16d1cd74651c22165b7911a9433aeb"
+    },
+    "build/crow-quality-tolerances-build-01/runtime/libmetalrobo.dylib": {
+      "bytes": 5711408,
+      "sha256": "1368fa931e24c336953fcda6fb904734391f3ebe56063dd53eb237bcc1a3bbc6"
+    },
+    "build/crow-quality-tolerances-build-01/runtime/metalrobo/MetalRobo.metallib": {
+      "bytes": 4320928,
+      "sha256": "91416d391489b37c1c79918c1ec51ad81dbaa26ef99e6536f8a57d9f720cf8d7"
+    }
+  },
+  "plan_sha256": "7f1669cf2b74ebf65de7a9fb5bb7c70aed2b02491172672d9c3298e0c9103a7a",
+  "production_changed": false
+}
