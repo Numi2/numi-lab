@@ -1,0 +1,21 @@
+[
+  {
+    "name": "build_metal",
+    "argv": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metal",
+      "-std=metal3.1",
+      "-O3",
+      "-fno-fast-math",
+      "-Iinclude",
+      "-c",
+      "artifacts/crow-rl-split-precision-20261108/split.metal",
+      "-o",
+      "build/crow-split-precision-build-01/split.air"
+    ],
+    "returncode": 1,
+    "seconds": 0.38058637500000003
+  }
+]

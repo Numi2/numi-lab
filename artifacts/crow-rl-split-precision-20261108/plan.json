@@ -166,6 +166,7 @@
     "substep7_rounded_gate_pass": false,
     "unsupported_boundary_code": 3
   },
+  "pretrial_repair": "Initial Metal build failed because vertex is a reserved shader keyword. Renamed the count variable to vertexCount. No native submission or scientific observation occurred. Original source remains in sealed commit be23ff4c; failed build logs remain retained. The experimental budget and predictions are unchanged.",
   "prior_evidence": {
     "commit": "0f1ed00dbc3d16f3fe0f8dbfc973f313dd432b44",
     "limits": "Local FP32 infeasibility near rounded reference; failed native velocity lies outside certified box.",
@@ -193,8 +194,8 @@
       "sha256": "7cb82a868b90476435d24f5d1aec12e2891aff9992938aa683d8330255764348"
     },
     "split.metal": {
-      "bytes": 7896,
-      "sha256": "b51239b6bfc2aaa8a7d5953741ca6f1ce7657987e1228df5107bd68383844236"
+      "bytes": 7911,
+      "sha256": "71026c6dd8ccb559d28ec41fa10de515ff877dad710dada7f241742d8e840008"
     }
   },
   "stopping": "No retries or extra candidates. First unexpected process/GPU/structural error stops submissions; preserve every failure. Scientific prediction failures retained and analyzed.",

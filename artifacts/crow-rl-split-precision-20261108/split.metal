@@ -59,7 +59,7 @@ inline bool evaluate(
         w[r]=x;p[r]=ds(0);weights[r]=ds(0);
     }
     threadgroup_barrier(mem_flags::mem_device);
-    uint interior=0,vertex=0,scalarfree=0,scalarbound=0,unsupported=0xffffffffu;
+    uint interior=0,vertexCount=0,scalarfree=0,scalarbound=0,unsupported=0xffffffffu;
     for(uint bi=lane;bi<c.blocks;bi+=32) {
         auto b=blocks[bi];uint at=b.layout.x,n=b.layout.y;
         if(b.layout.z==MR_UNIFIED_QUALITY_SCALAR_INTERVAL) {
@@ -81,12 +81,12 @@ inline bool evaluate(
                     DS r=ds(bf(b.regularization0,b.regularization1,k));
                     p[at+k]=neg(divds(w[at+k],r));weights[at+k]=divds(ds(1),r);
                 }++interior;
-            } else if(le(mul(d[0],z[0]),neg(sqrtds(ws)))) {++vertex;}
+            } else if(le(mul(d[0],z[0]),neg(sqrtds(ws)))) {++vertexCount;}
             else unsupported=min(unsupported,bi);
         } else unsupported=min(unsupported,bi);
     }
     unsupported=simd_min(unsupported);
-    uint ni=simd_sum(interior),nz=simd_sum(vertex),nf=simd_sum(scalarfree),nb=simd_sum(scalarbound);
+    uint ni=simd_sum(interior),nz=simd_sum(vertexCount),nf=simd_sum(scalarfree),nb=simd_sum(scalarbound);
     if(lane==0){status[2]=ni;status[3]=nz;status[4]=nf;status[5]=nb;status[6]=unsupported;}
     threadgroup_barrier(mem_flags::mem_device);
     if(unsupported!=0xffffffffu)return false;
