@@ -62,7 +62,7 @@ Evidence execute(const PolicyPack& policy,const std::array<mr_float4,2>& ports,
     applyAmericanCrowMemoryChoiceCurriculum(m.task,64,256,16);m.sensors.deviceVisual=authored.sensor;
     CompiledRun run;check(compileRun(m,run),"Compile causal task");
     CompiledPolicyProgram compiled;check(compilePolicyProgram(policy,run.task(),compiled),"Compile unchanged input policy contract");
-    require(compiled.actorMemory()!=nullptr && compiled.layout().stochastic,"Causal admission requires trained stochastic recurrent policy");
+    require(compiled.actorMemory()!=nullptr,"Causal admission requires a recurrent policy");
     FiniteResourceContext food(authored.resources);
     const auto mode=arm==2 ? RetinalCueEvaluationIntervention::absent : arm==3 ? RetinalCueEvaluationIntervention::swapBinary : RetinalCueEvaluationIntervention::none;
     RetinalObserverContext retina(run,visual.family,visual.manifest,lanes,seed,&food,mode);
@@ -160,7 +160,7 @@ int main(int argc,char** argv) {@autoreleasepool {try {
     const std::filesystem::path out=argv[1];require(std::filesystem::create_directory(out),"Output exists");
     PolicyPack policy;check(readPolicyPack(argv[2],policy),"Read unchanged input policy");
     std::array<mr_float4,2> ports;std::ifstream input(argv[3],std::ios::binary);require(bool(input.read(reinterpret_cast<char*>(ports.data()),sizeof(ports))) && input.peek()==std::char_traits<char>::eof(),"Invalid food ports");
-    std::ofstream(out/"plan.json")<<R"({"budget":"Exactly3 held-out allocation/action seeds x4 matched64-lane320-tick arms=245760 accepted transitions, no learning or retries; bounded tabular evidence, no video/full rollouts","arms":["intact","clear_GRU_only_at40","absent_rendered_cue","swapped_rendered_cue"],"seeds":[)"<<seedBase<<','<<seedBase+1<<','<<seedBase+2<<R"(],"prediction":"Native memory intervention preserves every resident field except GRU, plus complete retina/food bytes. Pre-choice physics/proprioception and postcue RGB agree across arms. Cue interventions change only rendered indicator visibility; trained stochastic policy bytes/contracts are unchanged.","limits":"Fixed head-reachable fixture and allocation/action-seed generalization only; broader geometry, natural ecology, manipulation/social learning and biological fidelity unqualified"})";
+    std::ofstream(out/"plan.json")<<R"({"budget":"Exactly3 held-out allocation/action seeds x4 matched64-lane320-tick arms=245760 accepted transitions, no learning or retries; bounded tabular evidence, no video/full rollouts","arms":["intact","clear_GRU_only_at40","absent_rendered_cue","swapped_rendered_cue"],"seeds":[)"<<seedBase<<','<<seedBase+1<<','<<seedBase+2<<R"(],"prediction":"Native memory intervention preserves every resident field except GRU, plus complete retina/food bytes. Pre-choice physics/proprioception and postcue RGB agree across arms. Cue interventions change only rendered indicator visibility; fixed recurrent policy bytes/contracts are unchanged.","limits":"Fixed head-reachable fixture and allocation/action-seed generalization only; broader geometry, natural ecology, manipulation/social learning and biological fidelity unqualified"})";
     std::array<unsigned,4> intake{},correct{};std::array<std::uint64_t,4> food{};
     for(std::uint64_t offset=0;offset<3;++offset) {
         const auto seed=seedBase+offset;
@@ -175,7 +175,7 @@ int main(int argc,char** argv) {@autoreleasepool {try {
             }
         }
     }
-    std::ofstream report(out/"summary.json");report<<"{\"status\":\"passed_engineering_controls\",\"accepted_transitions\":245760,\"policy_revision\":"<<policy.revision<<",\"policy_sha256\":\""<<hex(checkpoint::fileDigest(argv[2]))<<"\",\"lifetimes_per_arm\":192,\"intake_lifetimes\":[";
+    std::ofstream report(out/"summary.json");report<<"{\"status\":\"passed_engineering_controls\",\"accepted_transitions\":245760,\"policy_revision\":"<<policy.revision<<",\"stochastic\":"<<(!policy.actionLogStandardDeviation.empty() ? "true" : "false")<<",\"policy_sha256\":\""<<hex(checkpoint::fileDigest(argv[2]))<<"\",\"lifetimes_per_arm\":192,\"intake_lifetimes\":[";
     for(unsigned a=0;a<4;++a){if(a)report<<',';report<<intake[a];}report<<"],\"correct_head_side\":[";
     for(unsigned a=0;a<4;++a){if(a)report<<',';report<<correct[a];}report<<"],\"consumed_micrograms\":[";
     for(unsigned a=0;a<4;++a){if(a)report<<',';report<<food[a];}report<<"],\"learned_memory_qualified\":false}\n";
