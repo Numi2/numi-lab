@@ -1,0 +1,5 @@
+# First unseen free 3D check
+
+The preregistered nine-case matrix was run twice from identical inputs and produced identical results. Three 3-node cases completed and passed all original gates. The Metal research API published all six 5-node and 8-node candidates, using one or two regularized steps, but their independent FP64 references did not complete: the reference rejected its starting predictor for nonpositive tangent diagonal or curvature. Those six are unqualified, not passes or demonstrated physics failures. The original reference was deliberately fail-closed and had no globalization. See the complete per-case retained inputs, outputs, reference statuses, pretrial hashes and exit codes.
+
+This reproduces in an independent reference the same general issue seen in the axial predictor: requiring the starting tangent to be positive definite prevents a search toward a potentially stable solution. It does not establish that any published Metal state is correct or stable. The next diagnostic must independently evaluate their accepted states and use an explicitly globalized FP64 reference; retain this failed calibration and do not change the physical gates.

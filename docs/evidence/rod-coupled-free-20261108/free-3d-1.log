@@ -1,0 +1,9 @@
+{"seed": 92101, "passed": true, "error": null, "reference": "converged"}
+{"seed": 92102, "passed": true, "error": null, "reference": "converged"}
+{"seed": 92103, "passed": true, "error": null, "reference": "converged"}
+{"seed": 92104, "passed": false, "error": null, "reference": "nonpositive_curvature"}
+{"seed": 92105, "passed": false, "error": null, "reference": "nonpositive_diagonal"}
+{"seed": 92106, "passed": false, "error": null, "reference": "nonpositive_diagonal"}
+{"seed": 92107, "passed": false, "error": null, "reference": "nonpositive_diagonal"}
+{"seed": 92108, "passed": false, "error": null, "reference": "nonpositive_diagonal"}
+{"seed": 92109, "passed": false, "error": null, "reference": "nonpositive_diagonal"}
