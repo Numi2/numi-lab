@@ -22,3 +22,14 @@ capture before changing event timing. No event budget or tolerance was raised.
 
 This is diagnostic correctness, not completed physical beak qualification.
 The learned policy and protected deployment are unchanged.
+
+All391 captured files (54,139,101 bytes) passed actual Git-object verification.
+Executed Git recovery matches both8192-record CCD revisions, sixteen native
+queries, all four real CCD sweep streams, calibration, and both full failing
+clamp traces/rollback/status records. The first physical recovery attempt was
+rejected: MetalWorld does not consume METALROBO_METALLIB. The corrected recovery
+uses each actual restored dylib with its co-installed metalrobo/MetalRobo.metallib
+shader, verified by exact file hashes and native loader paths. Both physical
+replays then match exactly. The failed attempt and corrected continuation are
+retained; no scientific or physics parameter changed. The43,450,757-byte temporary
+restore was removed only after exact manifest and closed-handle checks.

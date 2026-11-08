@@ -1,0 +1,46 @@
+[
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-current-git-recovery-01/runtime/beak-probe",
+      "--calibrate"
+    ],
+    "exit_code": 0,
+    "name": "coinstalled-calibration",
+    "seconds": 0.43033449997892603
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-current-git-recovery-01/runtime/beak-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-current-git-recovery-01/coinstalled-old-clamp",
+      "0",
+      "1",
+      "32"
+    ],
+    "exit_code": 1,
+    "name": "coinstalled-old-clamp",
+    "seconds": 3.6184837499749847
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-current-git-recovery-01/runtime/beak-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-current-git-recovery-01/coinstalled-event-clamp",
+      "0",
+      "1",
+      "32"
+    ],
+    "exit_code": 1,
+    "name": "coinstalled-event-clamp",
+    "seconds": 3.8314155830303207
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-current-git-recovery-01/runtime/event-probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-current-git-recovery-01/runtime/event.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-current-git-recovery-01/event-new.bin",
+      "preserve"
+    ],
+    "exit_code": 0,
+    "name": "event-initializer",
+    "seconds": 0.3786077499971725
+  }
+]

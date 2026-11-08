@@ -22,13 +22,17 @@ for name in ('clamp','open','zero-friction','refinement'):
 for version,src in [('old',P),('event',E)]:
     for name in ('trace.tsv','failure-q.f32','failure-v.f32','failure-scene.bin','failure-world-status.bin','failure-contact-status.bin','failure.json'):
         sources[f'input/{version}-{name}']=src+'/clamp/'+name
+for version,shader in [('old',N+'/MetalRobo.metallib'),('event',E+'/candidate.metallib')]:
+    sources[f'runtime-{version}/libmetalrobo.dylib']=N+'/libmetalrobo.dylib'
+    sources[f'runtime-{version}/metalrobo/MetalRobo.metallib']=shader
 with a.Objects() as objects:
     for target,source in sources.items():
         f=files[source];p=T/target;p.parent.mkdir(parents=True,exist_ok=True)
         with p.open('xb') as out:
             for block in a.content(f,entries,objects):out.write(block)
         p.chmod(f['mode']);assert a.file_hash(p)==f['sha256']
-env=os.environ.copy();env.update(DYLD_LIBRARY_PATH=str(T/'runtime'),DYLD_PRINT_LIBRARIES='1',METALROBO_METALLIB=str(T/'runtime/production.metallib'))
+env=os.environ.copy();env.pop('METALROBO_METALLIB',None)
+env.update(DYLD_LIBRARY_PATH=str(T/'runtime-old'),DYLD_PRINT_LIBRARIES='1')
 commands=[]
 def run(name,command,expected=0):
     start=time.monotonic()
@@ -45,13 +49,13 @@ for name in ('clamp','open','zero-friction','refinement'):
     exact(f'sweep-{name}.bin',f'input/{name}-expected.bin')
 run('calibration',[T/'runtime/beak-probe','--calibrate']);exact('calibration.stdout','input/calibration.jsonl')
 loaded=[]
-for version,shader in [('old','production.metallib'),('event','event.metallib')]:
-    env['METALROBO_METALLIB']=str(T/'runtime'/shader)
+for version in ('old','event'):
+    env['DYLD_LIBRARY_PATH']=str(T/('runtime-'+version))
     run(version+'-clamp',[T/'runtime/beak-probe',T/(version+'-clamp'),'0','1','32'],1)
     for name in ('trace.tsv','failure-q.f32','failure-v.f32','failure-scene.bin','failure-world-status.bin','failure-contact-status.bin','failure.json'):
         exact(version+'-clamp/'+name,'input/'+version+'-'+name)
     lines=[x for x in (T/f'{version}-clamp.stderr').read_text().splitlines() if x.startswith('dyld[') and 'libmetalrobo.dylib' in x]
-    assert lines and all(x.endswith(str(T/'runtime/libmetalrobo.dylib')) for x in lines)
+    assert lines and all(x.endswith(str(T/('runtime-'+version)/'libmetalrobo.dylib')) for x in lines)
     loaded.extend(lines)
 run('event-initializer',[T/'runtime/event-probe',T/'runtime/event.metallib',T/'event-new.bin','preserve']);exact('event-new.bin','input/event-expected.bin')
 inventory=[{'path':str(p.relative_to(R)),'sha256':a.file_hash(p),'bytes':p.stat().st_size,'mode':stat.S_IMODE(p.stat().st_mode),'mtime_ns':p.stat().st_mtime_ns}
