@@ -18154,7 +18154,13 @@ MetalWorldCompileDiagnostics compileCoupledPositionDrives(
             "native coupled drive model contains no scalar drives");
         const auto ir=compileConstraintIR(sources);
         if (!ir.succeeded()) return rejectCompile(std::move(diagnostics),MetalWorldHostStatus::invalidModel,ir.diagnostics.message);
+        if (count > std::numeric_limits<mr_u32>::max() - model.world.constraintCapacity)
+            return rejectCompile(std::move(diagnostics),MetalWorldHostStatus::arithmeticOverflow,
+                "native drive constraint capacity overflows the model ABI");
         EngineModel staged=model;staged.constraintProgram=ir.ir;
+        // Reserve exactly the new actuator blocks, preserving every original
+        // physical-contact slot instead of consuming the source headroom.
+        staged.world.constraintCapacity += count;
         if (!staged.valid(&reason)) return rejectCompile(std::move(diagnostics),MetalWorldHostStatus::invalidModel,reason);
         diagnostics.fingerprint=engineModelFingerprint(staged);driven=std::move(staged);
         return diagnostics;

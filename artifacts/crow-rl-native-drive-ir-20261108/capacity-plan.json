@@ -1,0 +1,24 @@
+{
+  "budget": {
+    "candidate_transition_ceiling": 640,
+    "raw_evidence_bound_bytes": 67108864,
+    "regression_native_conditions": 576,
+    "timeout_each_seconds": 120
+  },
+  "change": "Add exactly two scalar actuator blocks per driven DoF to the source world constraint capacity, preserving all original contact headroom, with checked overflow. Physical coefficients, targets, quality tolerances and 20-Newton bound remain unchanged.",
+  "engineering_replays": [
+    "576 previously observed native drive cases; compare all physical TSV columns byte-exact, excluding recorded GPU timing.",
+    "Existing native contact owner and default crow640 physical bytes.",
+    "Previously unexecuted joint-quality crow candidate, same frozen physical configuration as original mode2; one attempt up to640transitions."
+  ],
+  "host_checks": 10,
+  "limits": "Engineering correction and replay, not fresh scientific qualification. Split-quality nonconvergence is already observed and remains unresolved; hybrid integration remains rejected.",
+  "prediction": {
+    "candidate_completes_640_transitions": true,
+    "candidate_maximum_jaw_penetration_m": 0.0008,
+    "zero_native_rejections": true,
+    "zero_physical_task_terminations": true
+  },
+  "schema": "crow-native-drive-ir-capacity-repair-v1",
+  "stop": "First unexpected replay difference or native physical gate; one candidate invocation with its first failure retained. No relaxation, retry or policy/profile promotion."
+}

@@ -1,0 +1,23 @@
+{
+  "baseline_prefix_exact": true,
+  "candidate_admission_error": "constraint program exceeds the world block capacity",
+  "candidate_initial_files_missing": true,
+  "candidate_native_transitions": 0,
+  "initial_physical_files_equal_for_modes": [
+    0,
+    1
+  ],
+  "policy_or_profile_promoted": false,
+  "reporting_instrument_failure": "Original runner attempted to compare nonexistent candidate initial files after the host compilation had rejected the candidate. All three native commands are terminal; original runner is preserved unchanged.",
+  "split_quality_control_native_rejection": {
+    "failed_steps": 4,
+    "first_failing_lane": 0,
+    "first_failing_local_tick": 0,
+    "first_gpu_status": 11,
+    "host_status": 16,
+    "submission_begin_tick": 0,
+    "submission_ticks": 1,
+    "successful_steps": 0
+  },
+  "verdict": "contradicted_before_candidate_physics"
+}

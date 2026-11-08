@@ -140,6 +140,9 @@ void calibrateNativeDrive(){
   need(!evaluateConstraintIR(driven.constraintProgram,{},{}).diagnostics.succeeded(),"Host silently evaluated unresolved drive templates");++tests;
   auto invalid=driven.constraintProgram;invalid.rows[0].impulseUpper=2;
   need(!validateConstraintIR(invalid).succeeded(),"Malformed drive interval admitted");++tests;
+  auto compact=original;compact.world.constraintCapacity=1;EngineModel expanded;
+  const auto expandedStatus=compileCoupledPositionDrives(compact,expanded);
+  need(expandedStatus.succeeded()&&expanded.world.constraintCapacity==3,"Native drive templates consumed source contact headroom");++tests;
  }
  std::cout<<"{\"host_checks\":"<<tests<<",\"native_physical_steps\":0}\n";
 }

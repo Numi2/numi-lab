@@ -1,0 +1,105 @@
+[
+  {
+    "diagnostic": [
+      "Crow probe metallib: /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-20261108/metalrobo/MetalRobo.metallib",
+      "dyld[40592]: <6BC19BF9-F698-33D8-BAAC-7EE1D1B745AB> /System/Library/Extensions/AGXMetalG16X.bundle/Contents/MacOS/AGXMetalG16X",
+      "dyld[40592]: <F08F0073-2F35-30D9-9C3E-261CC6B9AF60> /System/Library/PrivateFrameworks/IOGPU.framework/Versions/A/IOGPU",
+      "Physical termination (terminal state retained)"
+    ],
+    "exit_code": 1,
+    "last_recorded_tick": 91,
+    "maximum_recorded_penetration_m": 0.00539132553934,
+    "mode": 0,
+    "native_failure": null,
+    "summary": null,
+    "terminal": {
+      "accepted": 4,
+      "begin_tick": 91,
+      "control_ticks": 1,
+      "device": "Apple M4 Pro",
+      "failed": 0,
+      "host_status": 0,
+      "transition_bytes": 144,
+      "transitions": [
+        {
+          "done": 0,
+          "height": 0.152321249247,
+          "physics_error": 0,
+          "reason": 0,
+          "reward": -1.15868524517e-05,
+          "tilt": 1.19300055504,
+          "timeout": 0
+        },
+        {
+          "done": 0,
+          "height": 0.151635408401,
+          "physics_error": 0,
+          "reason": 0,
+          "reward": -1.26170843942e-05,
+          "tilt": 1.19742035866,
+          "timeout": 0
+        },
+        {
+          "done": 0,
+          "height": 0.154192611575,
+          "physics_error": 0,
+          "reason": 0,
+          "reward": -1.0695288438e-05,
+          "tilt": 1.18060624599,
+          "timeout": 0
+        },
+        {
+          "done": 1,
+          "height": 0.151237353683,
+          "physics_error": 0,
+          "reason": 2,
+          "reward": -1.00001275539,
+          "tilt": 1.20000863075,
+          "timeout": 0
+        }
+      ]
+    },
+    "trace_rows": 368
+  },
+  {
+    "diagnostic": [
+      "Crow probe metallib: /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/native-drive-ir-20261108/metalrobo/MetalRobo.metallib",
+      "dyld[40624]: <6BC19BF9-F698-33D8-BAAC-7EE1D1B745AB> /System/Library/Extensions/AGXMetalG16X.bundle/Contents/MacOS/AGXMetalG16X",
+      "dyld[40624]: <F08F0073-2F35-30D9-9C3E-261CC6B9AF60> /System/Library/PrivateFrameworks/IOGPU.framework/Versions/A/IOGPU",
+      "Complete contact trial: one or more MetalWorld control steps rolled back after a GPU environment failure: status=11 environment=0 control_step=0 aba_status=0 failing_substep=7 failing_index=4294967295 aba_diagnostic_0=0.002328 aba_diagnostic_1=0.646554 aba_diagnostic_2=2379.496338 aba_diagnostic_3=0.000000 contact_status=11 required_pairs=4 pair_capacity=95 required_raw_contacts=10 raw_contact_capacity=256 required_manifolds=4 manifold_capacity=95 required_constraints=10 constraint_capacity=160 failing_constraint=4294967295 failing_stable_key=4294967295,4294967295 diagnostic_0=1.000000 diagnostic_1=0.000000 diagnostic_2=0.002169 diagnostic_3=0.670850 contact_residuals=0.000000,0.000001,0.000000,0.000001 contact_quality_certificates=0.000001,0.000000,0.000000,0.000000 contact_quality_diagnostics=0.000001,0.000000,0.000000,0.029272 solver_iterations=20 quality_newton=20 quality_pcg=196 quality_backtracks=17 quality_path=1 quality_status=7 quality_path=1 quality_block=4294967295 quality_key=4294967295,4294967295,4294967295,4294967295 quality_newton=20 quality_pcg=196 quality_backtracks=17 quality_retries=0 quality_cert0=0.000001,0.000000,0.000000,0.000000 quality_cert1=0.000001,0.000000,0.000000,0.000158 quality_numerics=0.029272,0.000000,0.000000,0.000000"
+    ],
+    "exit_code": 1,
+    "last_recorded_tick": null,
+    "maximum_recorded_penetration_m": null,
+    "mode": 1,
+    "native_failure": {
+      "failed_steps": 4,
+      "first_failing_lane": 0,
+      "first_failing_local_tick": 0,
+      "first_gpu_status": 11,
+      "host_status": 16,
+      "submission_begin_tick": 0,
+      "submission_ticks": 1,
+      "successful_steps": 0
+    },
+    "summary": null,
+    "terminal": null,
+    "trace_rows": 0
+  },
+  {
+    "diagnostic": [
+      "dyld[40626]: move loaded to delayed: FindMyDevice",
+      "dyld[40626]: move loaded to delayed: FMCoreLite",
+      "dyld[40626]: move loaded to delayed: ServiceManagement",
+      "Compile native crow motor templates: constraint program exceeds the world block capacity"
+    ],
+    "exit_code": 1,
+    "last_recorded_tick": null,
+    "maximum_recorded_penetration_m": null,
+    "mode": 2,
+    "native_failure": null,
+    "summary": null,
+    "terminal": null,
+    "trace_rows": 0
+  }
+]
