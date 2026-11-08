@@ -1,0 +1,33 @@
+UpdateCTestConfiguration  from :/Users/numi/numi-matter-midpoint-reference-build-20261108/DartConfiguration.tcl
+Parse Config file:/Users/numi/numi-matter-midpoint-reference-build-20261108/DartConfiguration.tcl
+Test project /Users/numi/numi-matter-midpoint-reference-build-20261108
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 11
+    Start 11: numi.contact.midpoint_retry_order
+
+11: Test command: /Users/numi/numi-matter-midpoint-reference-build-20261108/numi_midpoint_retry_order "/Users/numi/numi-matter-midpoint-reference-build-20261108/NumiMatter.metallib"
+11: Working Directory: /Users/numi/numi-matter-midpoint-reference-build-20261108
+11: Test timeout computed to be: 180
+11: [NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+11: matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+11: matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+11: matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+11: matter_canonical_precision_materials=0 source=compiler_exact_energy_proof tangent_policy=unchanged
+11: matter_mixed_field_smoother_dispatch_count=skipped step=0 count=9216 multiphysics_objects=0 field_boundaries=0
+11: matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=7168 element=2048 environment_count=1
+11: matter_mixed_field_smoother_dispatch_count=skipped step=0 count=9216 multiphysics_objects=0 field_boundaries=0
+11: matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=7168 element=2048 environment_count=1
+11: {"diagnostic_indices":[0,32],"both_accepted":true,"identical_authoritative_state_and_status":true,"nonzero_contact":true}
+1/1 Test #11: numi.contact.midpoint_retry_order ...   Passed    0.51 sec
+
+The following tests passed:
+	numi.contact.midpoint_retry_order
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.51 sec
