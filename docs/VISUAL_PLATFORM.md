@@ -200,6 +200,17 @@ renderer across in-flight commands. Direct callers using the step-result hook
 must pair it with begin/finish and provide the physical status buffers. C++
 clients must rebuild against the matching observation-program structure and
 shader library.
+If an environment resets between scheduled camera captures, the adapter
+invalidates its cached frame until the next capture. In that interval its
+object track reports no visibility and zero position/velocity, and its
+masked depth reports far/no-return with zero derived features. Other
+environments keep their existing cached frames and the batch camera schedule
+is unchanged. If physics fails after a new batch frame was rendered, the
+failed environment's frame is invalidated; without a new render, its prior
+freshness state is restored with tracker history. This guards actor inputs against the previous episode;
+it does not restore renderer pixels or make the shared camera clock
+per-environment.
+
 The same adapter can publish a SensorPack-authored ball-only masked-depth
 contract. Exact authored instance identities select pixels, invalid and
 non-selected pixels become calibrated far depth, and a device-resident ring

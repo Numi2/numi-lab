@@ -83,6 +83,8 @@ int main(int argc, char **argv) {
                 for (unsigned i = 10; i <= 15; ++i)
                     [e setBuffer:b[i] offset:0 atIndex:i];
                 [e setBytes:&ru length:sizeof ru atIndex:16];
+                const std::uint32_t fresh[envs] = {1u, 1u};
+                [e setBytes:fresh length:sizeof fresh atIndex:17];
                 [e dispatchThreadgroups:MTLSizeMake(envs, 1, 1)
                     threadsPerThreadgroup:MTLSizeMake(32, 1, 1)];
                 [e endEncoding];

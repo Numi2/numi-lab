@@ -7411,9 +7411,11 @@ struct MetalHybridObjectTracker::State {
     __strong id<MTLComputePipelineState> pipeline = nil;
     __strong id<MTLComputePipelineState> maskedDepthPipeline = nil;
     __strong id<MTLComputePipelineState> restoreHistoryPipeline = nil;
+    __strong id<MTLComputePipelineState> frameFreshPipeline = nil;
     // Each begun submission owns a backup retained by its command buffer.
     __strong id<MTLBuffer> pendingHistoryBackup = nil;
     __strong id<MTLBuffer> pendingDepthBackup = nil;
+    __strong id<MTLBuffer> pendingFrameFreshBackup = nil;
     __strong id<MTLBuffer> pendingActorBackup = nil;
     __strong id<MTLBuffer> pendingActorSource = nil;
     std::uint32_t pendingFrameSize = 0u;
@@ -7421,10 +7423,12 @@ struct MetalHybridObjectTracker::State {
     std::uint32_t pendingEnvironmentCount = 0u;
     std::uint32_t pendingControlStep = 0u;
     bool pendingStepOpen = false;
+    bool pendingSampledFrame = false;
     __strong id<MTLBuffer> bindings = nil;
     __strong id<MTLBuffer> history = nil;
     __strong id<MTLBuffer> maskedDepthInstances = nil;
     __strong id<MTLBuffer> maskedDepthHistory = nil;
+    __strong id<MTLBuffer> frameFresh = nil;
     MetalHybridRendererLayout rendererLayout{};
     MRHybridRenderUniformsGPU maskedDepthRenderUniforms{};
     std::uint64_t observationSequence = 0u;
@@ -7586,6 +7590,14 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
             return reject(std::move(diagnostics), MetalHybridRendererStatus::metalPipelineFailure,
                 "could not create tracker history restore pipeline: " + describeError(error));
         }
+        id<MTLFunction> freshFunction = [renderer.state_->library
+            newFunctionWithName:@"mr_hybrid_update_frame_freshness"];
+        id<MTLComputePipelineState> freshPipeline = freshFunction == nil
+            ? nil : [device newComputePipelineStateWithFunction:freshFunction error:&error];
+        if (freshPipeline == nil) {
+            return reject(std::move(diagnostics), MetalHybridRendererStatus::metalPipelineFailure,
+                "could not create tracker frame freshness pipeline: " + describeError(error));
+        }
         id<MTLFunction> maskedDepthFunction =
             [renderer.state_->library
                 newFunctionWithName:@"mr_hybrid_masked_depth_history"];
@@ -7648,7 +7660,10 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
                 maskedDepthValues * sizeof(float),
                 kMinimumAllocationBytes
             ) options:MTLResourceStorageModePrivate];
-        if (bindingBuffer == nil || history == nil ||
+        id<MTLBuffer> frameFresh = [device newBufferWithLength:
+            std::max<std::size_t>(std::size_t(config.capacity) * sizeof(std::uint32_t), kMinimumAllocationBytes)
+            options:MTLResourceStorageModePrivate];
+        if (frameFresh == nil || bindingBuffer == nil || history == nil ||
             maskedDepthInstances == nil || maskedDepthHistory == nil) {
             return reject(
                 std::move(diagnostics),
@@ -7667,6 +7682,7 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
                 "could not clear object-track history"
             );
         }
+        [clear fillBuffer:frameFresh range:NSMakeRange(0u, frameFresh.length) value:0u];
         [clear fillBuffer:history
                     range:NSMakeRange(0u, history.length)
                     value:0u];
@@ -7690,6 +7706,8 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::compile(
         state_->pipeline = pipeline;
         state_->maskedDepthPipeline = maskedDepthPipeline;
         state_->restoreHistoryPipeline = restorePipeline;
+        state_->frameFreshPipeline = freshPipeline;
+        state_->frameFresh = frameFresh;
         state_->bindings = bindingBuffer;
         state_->history = history;
         state_->maskedDepthInstances = maskedDepthInstances;
@@ -7741,7 +7759,7 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::reset() {
         if (!state_->compiled ||
             state_->renderer == nullptr || state_->device == nil ||
             state_->history == nil ||
-            state_->maskedDepthHistory == nil) {
+            state_->maskedDepthHistory == nil || state_->frameFresh == nil) {
             return reject(
                 std::move(diagnostics),
                 MetalHybridRendererStatus::notCompiled,
@@ -7760,6 +7778,7 @@ MetalHybridRendererDiagnostics MetalHybridObjectTracker::reset() {
                 "could not begin object-track reset"
             );
         }
+        [clear fillBuffer:state_->frameFresh range:NSMakeRange(0u, state_->frameFresh.length) value:0u];
         [clear fillBuffer:state_->history
                     range:NSMakeRange(0u, state_->history.length)
                     value:0u];
@@ -7815,7 +7834,10 @@ bool MetalHybridObjectTracker::beginObservation(void* context, void* command) no
             newBufferWithLength:state->history.length options:MTLResourceStorageModePrivate];
         id<MTLBuffer> depthBackup = [state->device
             newBufferWithLength:state->maskedDepthHistory.length options:MTLResourceStorageModePrivate];
-        if (historyBackup == nil || depthBackup == nil) return false;
+        id<MTLBuffer> freshBackup = [state->device newBufferWithLength:state->frameFresh.length
+            options:MTLResourceStorageModePrivate];
+        if (historyBackup == nil || depthBackup == nil || freshBackup == nil) return false;
+        state->pendingFrameFreshBackup = freshBackup;
         state->pendingHistoryBackup = historyBackup;
         state->pendingDepthBackup = depthBackup;
         state->savedObservationSequence = state->observationSequence;
@@ -7850,6 +7872,7 @@ void MetalHybridObjectTracker::finishObservation(void* context, void* command, b
         state->pendingCommand = nullptr;
         state->pendingHistoryBackup = nil;
         state->pendingDepthBackup = nil;
+        state->pendingFrameFreshBackup = nil;
         state->pendingActorBackup = nil;
         state->pendingActorSource = nil;
         state->pendingFrameSize = 0u;
@@ -7857,6 +7880,7 @@ void MetalHybridObjectTracker::finishObservation(void* context, void* command, b
         state->pendingEnvironmentCount = 0u;
         state->pendingControlStep = 0u;
         state->pendingStepOpen = false;
+        state->pendingSampledFrame = false;
     } catch (...) {}
 }
 
@@ -7987,7 +8011,8 @@ bool MetalHybridObjectTracker::encodeObservation(
     };
     if (state->pendingCommand != nullptr) {
         state->pendingStepOpen = false;
-        if (state->pendingHistoryBackup == nil || state->pendingDepthBackup == nil) return false;
+        if (state->pendingHistoryBackup == nil || state->pendingDepthBackup == nil ||
+            state->pendingFrameFreshBackup == nil) return false;
         id<MTLBuffer> actorHistory = (__bridge id<MTLBuffer>)pass.actorHistory;
         const std::uint64_t actorStride = std::uint64_t(pass.actorFrameSize) *
             pass.actorHistoryLength;
@@ -8009,6 +8034,8 @@ bool MetalHybridObjectTracker::encodeObservation(
             toBuffer:state->pendingHistoryBackup destinationOffset:0 size:state->history.length];
         [snapshot copyFromBuffer:state->maskedDepthHistory sourceOffset:0
             toBuffer:state->pendingDepthBackup destinationOffset:0 size:state->maskedDepthHistory.length];
+        [snapshot copyFromBuffer:state->frameFresh sourceOffset:0
+            toBuffer:state->pendingFrameFreshBackup destinationOffset:0 size:state->frameFresh.length];
         if (actorBytes != 0u) {
             [snapshot copyFromBuffer:actorHistory sourceOffset:0
                 toBuffer:state->pendingActorBackup destinationOffset:0 size:static_cast<NSUInteger>(actorBytes)];
@@ -8018,6 +8045,7 @@ bool MetalHybridObjectTracker::encodeObservation(
         state->pendingHistoryLength = pass.actorHistoryLength;
         state->pendingEnvironmentCount = pass.environmentCount;
         state->pendingControlStep = pass.controlStep;
+        state->pendingSampledFrame = sampleSensor;
     }
     id<MTLComputeCommandEncoder> observationEncoder =
         [command computeCommandEncoder];
@@ -8047,6 +8075,18 @@ bool MetalHybridObjectTracker::encodeObservation(
             return false;
         }
     }
+    [observationEncoder setComputePipelineState:state->frameFreshPipeline];
+    [observationEncoder setBuffer:state->frameFresh offset:0u atIndex:0u];
+    [observationEncoder setBuffer:(__bridge id<MTLBuffer>)pass.resetMasks offset:0u atIndex:1u];
+    const mr_uint4 freshnessConfig{pass.environmentCount, pass.controlStep, sampleSensor ? 1u : 0u, 0u};
+    [observationEncoder setBytes:&freshnessConfig length:sizeof(freshnessConfig) atIndex:2u];
+    const NSUInteger freshnessWidth = std::min<NSUInteger>(state->frameFreshPipeline.maxTotalThreadsPerThreadgroup, 256u);
+    [observationEncoder dispatchThreads:MTLSizeMake(pass.environmentCount, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(freshnessWidth, 1u, 1u)];
+    // A separate encoder provides an ordering boundary between freshness updates and readers.
+    [observationEncoder endEncoding];
+    observationEncoder = [command computeCommandEncoder];
+    if (observationEncoder == nil) return false;
     const std::uint64_t outputOffset =
         pass.actorObservationOffsetElements;
     const MRHybridObjectTrackUniformsGPU uniforms{
@@ -8109,6 +8149,7 @@ bool MetalHybridObjectTracker::encodeObservation(
             setBytes:&uniforms
               length:sizeof(uniforms)
              atIndex:12u];
+        [observationEncoder setBuffer:state->frameFresh offset:0u atIndex:13u];
         const NSUInteger threads =
             pass.environmentCount * state->config.bindings.size();
         const NSUInteger width = std::min<NSUInteger>(
@@ -8223,6 +8264,7 @@ bool MetalHybridObjectTracker::encodeObservation(
             setBytes:&candidateRenderUniforms
               length:sizeof(candidateRenderUniforms)
              atIndex:16u];
+        [observationEncoder setBuffer:state->frameFresh offset:0u atIndex:17u];
         const NSUInteger width = std::min<NSUInteger>(
             state->maskedDepthPipeline.maxTotalThreadsPerThreadgroup,
             256u
@@ -8254,7 +8296,8 @@ bool MetalHybridObjectTracker::finishPhysicalStep(
     if (!state->compiled || state->pendingCommand != pass.commandBuffer ||
         pass.worldStatuses == nullptr || (pass.contactMode && pass.contactStatuses == nullptr) ||
         state->restoreHistoryPipeline == nil || state->pendingHistoryBackup == nil ||
-        state->pendingDepthBackup == nil || state->pendingActorBackup == nil ||
+        state->pendingDepthBackup == nil || state->pendingFrameFreshBackup == nil ||
+        state->pendingActorBackup == nil ||
         state->pendingActorSource == nil || !state->pendingStepOpen || pass.environmentCount == 0u ||
         pass.controlStep != state->pendingControlStep ||
         pass.environmentCount != state->pendingEnvironmentCount ||
@@ -8288,6 +8331,10 @@ bool MetalHybridObjectTracker::finishPhysicalStep(
     [encoder setBuffer:state->pendingActorSource offset:0u atIndex:7u];
     [encoder setBuffer:state->pendingActorBackup offset:0u atIndex:8u];
     [encoder setBytes:&actorStride length:sizeof(actorStride) atIndex:9u];
+    [encoder setBuffer:state->frameFresh offset:0u atIndex:10u];
+    [encoder setBuffer:state->pendingFrameFreshBackup offset:0u atIndex:11u];
+    const std::uint32_t sampledFrame = state->pendingSampledFrame ? 1u : 0u;
+    [encoder setBytes:&sampledFrame length:sizeof(sampledFrame) atIndex:12u];
     const NSUInteger width = std::min<NSUInteger>(state->restoreHistoryPipeline.maxTotalThreadsPerThreadgroup, 256u);
     [encoder dispatchThreadgroups:MTLSizeMake(pass.environmentCount, 1u, 1u)
         threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
