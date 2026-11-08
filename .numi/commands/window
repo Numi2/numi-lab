@@ -90,6 +90,7 @@ window_option_value() {
 }
 
 window_workspace=${NUMI_WORKSPACE_ROOT:?Run this capability through numi.}
+window_source=${NUMI_LAB_ROOT:-$window_workspace}
 window_build=${NUMI_WINDOW_BUILD_DIR:-"$window_workspace/.numi/window-build"}
 window_scene=${NUMI_WINDOW_SCENE:-}
 window_policy=${NUMI_WINDOW_POLICY:-}
@@ -143,7 +144,7 @@ if [ -n "$window_policy" ] && [ ! -f "$window_policy" ]; then
     exit 2
 fi
 
-cmake -S "$window_workspace" -B "$window_build" \
+cmake -S "$window_source" -B "$window_build" \
     -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
 cmake --build "$window_build" --target metalrobo_task_rollout -j 4
 

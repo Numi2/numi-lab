@@ -59,6 +59,9 @@ numi_command_directories() {
     fi
 
     printf '%s\n' "$NUMI_LAB_ROOT/numi/commands"
+    if [ -f "$NUMI_LAB_ROOT/CMakeLists.txt" ]; then
+        printf '%s\n' "$NUMI_LAB_ROOT/.numi/commands"
+    fi
     printf '%s\n' "$numi_script_dir/../libexec/numi"
 }
 
