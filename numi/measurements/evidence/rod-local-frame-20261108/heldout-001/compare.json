@@ -1,0 +1,74 @@
+{
+  "workbook_sha256": "49a0f7f4875bc6354367c3efd832ec26642355965fe0cae31ffc950280045978",
+  "native_stdout_sha256": "6626e10f04537036fb88caaf845c72c4e1915923ee1c77d1a359520f0290995c",
+  "interval_mm": [
+    2,
+    4
+  ],
+  "threshold": 0.1,
+  "environments": [
+    {
+      "environment": 0,
+      "offset_m": 0,
+      "heldout": [
+        {
+          "specimen": "8-0NS2",
+          "count": 400,
+          "relative_absolute_error": 0.030548525621202974,
+          "passed": true
+        },
+        {
+          "specimen": "8-0NS3",
+          "count": 400,
+          "relative_absolute_error": 0.030183747232211032,
+          "passed": true
+        },
+        {
+          "specimen": "8-0NS4",
+          "count": 401,
+          "relative_absolute_error": 0.017599869742310762,
+          "passed": true
+        },
+        {
+          "specimen": "8-0NS5",
+          "count": 400,
+          "relative_absolute_error": 0.029605487715024085,
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    {
+      "environment": 1,
+      "offset_m": 16,
+      "heldout": [
+        {
+          "specimen": "8-0NS2",
+          "count": 400,
+          "relative_absolute_error": 0.030548525621202974,
+          "passed": true
+        },
+        {
+          "specimen": "8-0NS3",
+          "count": 400,
+          "relative_absolute_error": 0.030183747232211032,
+          "passed": true
+        },
+        {
+          "specimen": "8-0NS4",
+          "count": 401,
+          "relative_absolute_error": 0.017599869742310762,
+          "passed": true
+        },
+        {
+          "specimen": "8-0NS5",
+          "count": 400,
+          "relative_absolute_error": 0.029605487715024085,
+          "passed": true
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "passed": true
+}
