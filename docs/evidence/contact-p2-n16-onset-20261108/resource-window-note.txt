@@ -1,0 +1,4 @@
+Detached Git maintenance and intermittent macOS background processes were active.
+A Human CPU build briefly overlapped the start of the coarse process before pausing.
+The retained wall times describe feasibility under these conditions; they are not
+controlled performance measurements. No GPU work was used by this experiment.

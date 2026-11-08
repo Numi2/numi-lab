@@ -35,3 +35,32 @@ per n=16 run but sparse-factor cost and host load make that uncertain.
 Single-thread BLAS; no GPU; coordinate host use before starting. Full
 trajectory, convergence, production, replay and physical-material claims
 remain open.
+
+## Retained outcome
+
+Both processes exited successfully within their registered caps. The coarse
+run took 261.13 s and peaked at 3,198,608 KiB sampled RSS; the fine run took
+448.35 s and peaked at 3,207,472 KiB. Detached Git maintenance and
+intermittent macOS background processes were active; a Human CPU build briefly
+overlapped the beginning of the coarse run and then paused. These times are
+resource-feasibility observations, not controlled performance measurements.
+No GPU work was used. Raw host snapshots, RSS logs, run manifest, source and
+reference identities, outputs and the analysis script are retained alongside
+this report.
+
+The coarse and fine first-bin means were 0.0246196969191 and
+0.0246196969327 N. Their difference was 1.56e-10 of the n=8 full-trajectory
+peak bin, 0.0874322633035 N, passing the 0.25% temporal gate. Both runs
+passed the registered sampled Duffy-48/64, order-18/64, momentum,
+energy, work, gap and Jacobian checks. The fine minimum sampled gap was
+96.1271 µm and minimum sampled J was 0.975904. The full values and
+normalizations are in analysis.json.
+
+The matched fine n=8 onset mean was 0.0270246912310 N. Its difference from
+n=16 fine was 2.7507% of the n=8 peak, failing the predeclared 0.25% onset
+diagnostic. Fine onset impulses were 2.7024691231e-5 and
+2.4619696933e-5 N s, respectively. These are a single, partial first bin;
+they do not establish whether the original full-duration spatial gate passes
+or fails. Sampled clearance does not certify between-sample clearance. The
+full force-qualified control, deterministic native replay, and physical
+validation remain open.
