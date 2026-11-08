@@ -1,0 +1,19 @@
+{
+  "budget": {
+    "maximum_reductions": 20000,
+    "process_seconds": 120,
+    "rebases": 3,
+    "velocity_distance_from_reference_max": 0.001
+  },
+  "controls": [
+    "Two small unimodular basis/nearest-plane calibrations",
+    "Every candidate must be actual finite FP32 before evaluation"
+  ],
+  "limits": "Failure is inconclusive. This offline diagnostic is neither a native solver nor an ecological result.",
+  "method": "Floating long-double LLL with exact integer unimodular transforms; nearest-plane candidate and +/-1,2 reduced-basis neighbors; round to actual FP32 and fully independently reproject every eligible candidate",
+  "native_settings_changed": false,
+  "prediction": "At least one independently reprojected FP32 point reaches the unchanged 1e-10 gate",
+  "purpose": "Exposed numerical diagnosis: use all-coordinate FP32 lattice geometry to distinguish a local-search limitation from missing representable solutions",
+  "schema": "crow-contact-lattice-search-plan-v1",
+  "source_sha256": "bcf3567dd9964e00465f1682a93a4c7124cee8e333b75cff1efd7321ed7a3b7a"
+}
