@@ -1,0 +1,387 @@
+{
+  "bytes": 11151073,
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300234872 157114268    66% 3497220 1571142680    0%   /System/Volumes/Data\n",
+  "exit": 1,
+  "files": [
+    {
+      "bytes": 5693648,
+      "mode": 493,
+      "mtime_ns": 1794127139298011796,
+      "path": "build/crow-implicit-drive-git-recovery-01/.numi/retained-runtime/implicit-drive-audit-20261108/libmetalrobo.dylib",
+      "sha256": "5b8766012ae4da995cbd26e9832ebd7a9bccbfb67e2af2bc72b960e028e2ec5f"
+    },
+    {
+      "bytes": 4213074,
+      "mode": 420,
+      "mtime_ns": 1794127139306768277,
+      "path": "build/crow-implicit-drive-git-recovery-01/.numi/retained-runtime/implicit-drive-audit-20261108/metalrobo/MetalRobo.metallib",
+      "sha256": "ea6fbf5e8365d6332251d27928202911604d3145636454abb2df560900b73372"
+    },
+    {
+      "bytes": 84666,
+      "mode": 420,
+      "mtime_ns": 1794127140889654257,
+      "path": "build/crow-implicit-drive-git-recovery-01/bounded-v2.stderr",
+      "sha256": "676b0b66cfd89cc00041b60fdbd974f99c0980adaaf82339ef5aca832ebf3021"
+    },
+    {
+      "bytes": 67,
+      "mode": 420,
+      "mtime_ns": 1794127141175191996,
+      "path": "build/crow-implicit-drive-git-recovery-01/bounded-v2.stdout",
+      "sha256": "603b91d7a2e1f7c9df0e904ed02393360d1a00b2b4a826e5f579689f63416c53"
+    },
+    {
+      "bytes": 32838,
+      "mode": 420,
+      "mtime_ns": 1794127141169292091,
+      "path": "build/crow-implicit-drive-git-recovery-01/bounded-v2.tsv",
+      "sha256": "34af3f900b54735a6683452e97e636e831d79d7c12bedb791acb5df60d08bc4b"
+    },
+    {
+      "bytes": 94236,
+      "mode": 420,
+      "mtime_ns": 1794127139307156573,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/analysis.json",
+      "sha256": "4b3676beec35878898daa02cc3e758b8af687bcac03cd68209b4b6a81c2bae53"
+    },
+    {
+      "bytes": 79968,
+      "mode": 493,
+      "mtime_ns": 1794127139307511077,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/bounded-eight-control-compile-only",
+      "sha256": "a7e20329f68ffd1e7c32ae342480dd8c77870188a55c0aa3d2363bad52139a07"
+    },
+    {
+      "bytes": 407,
+      "mode": 420,
+      "mtime_ns": 1794127139307662621,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/bounded-execution.json",
+      "sha256": "6657e8e7e35ed62a6da42b5334942fb4350a348317093449ec8abdb8f0f03dcd"
+    },
+    {
+      "bytes": 79968,
+      "mode": 493,
+      "mtime_ns": 1794127139307954624,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/bounded-probe",
+      "sha256": "45864553fbf9ec1bcc18fa1e6dc8f88ecb8bf3fe859c31921c87473fe6e5632c"
+    },
+    {
+      "bytes": 113728,
+      "mode": 420,
+      "mtime_ns": 1794127139308205628,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/bounded-v2-analysis.json",
+      "sha256": "1e6d6f94409a364c5de9c1c2434aeb30ffdd2202eda524b44f576f79bb90f97d"
+    },
+    {
+      "bytes": 413,
+      "mode": 420,
+      "mtime_ns": 1794127139308331921,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/bounded-v2-execution.json",
+      "sha256": "7270331f6cb1aee3f51acb34ef319e9720c48b0cc11f013c1d5896f6b6b48178"
+    },
+    {
+      "bytes": 79968,
+      "mode": 493,
+      "mtime_ns": 1794127139308603674,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/bounded-v2-probe",
+      "sha256": "56239540644945aaaf072837a994cef27dfd6dff274d138fc4f5096d7bd4c3cf"
+    },
+    {
+      "bytes": 4388,
+      "mode": 420,
+      "mtime_ns": 1794127139308739092,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/bounded-v2.cpp",
+      "sha256": "48186c97ed770e0a523ce310c9e4f8a455150adfb6e2a5cbc7ba79a176120a4c"
+    },
+    {
+      "bytes": 84582,
+      "mode": 420,
+      "mtime_ns": 1794127139309004012,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/bounded-v2.stderr",
+      "sha256": "6815a1a605cf3ded631e615d8d4f6ef991ec71b8cd0f3fa706d3462406d3e661"
+    },
+    {
+      "bytes": 67,
+      "mode": 420,
+      "mtime_ns": 1794127139309186598,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/bounded-v2.stdout",
+      "sha256": "603b91d7a2e1f7c9df0e904ed02393360d1a00b2b4a826e5f579689f63416c53"
+    },
+    {
+      "bytes": 32838,
+      "mode": 420,
+      "mtime_ns": 1794127139309357266,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/bounded-v2.tsv",
+      "sha256": "34af3f900b54735a6683452e97e636e831d79d7c12bedb791acb5df60d08bc4b"
+    },
+    {
+      "bytes": 4307,
+      "mode": 420,
+      "mtime_ns": 1794127139309505185,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/bounded.cpp",
+      "sha256": "88147268c5688dff7db52db00eb04eb1bfc64f9bc1026b40b5ff23b6cd1f5d21"
+    },
+    {
+      "bytes": 84404,
+      "mode": 420,
+      "mtime_ns": 1794127139309769646,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/bounded.stderr",
+      "sha256": "74e1735d687b5799a98f13125db72b266b1a6642d2e6b0304f604760c52f4b9c"
+    },
+    {
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794127139309812688,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/bounded.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 109,
+      "mode": 420,
+      "mtime_ns": 1794127139310751283,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/bounded.tsv",
+      "sha256": "d0bfe3e062efcca1c7510eb9686e5be4e7ac0544132359aa0e9caafc94463258"
+    },
+    {
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794127139310791825,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/calibration.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 198,
+      "mode": 420,
+      "mtime_ns": 1794127139310929077,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/calibration.stdout",
+      "sha256": "055523a181243d7ec1188fd91d7788b7483784e5b88ec42af0627ae0324c83d7"
+    },
+    {
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794127139310965869,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/compile-bounded-v2.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794127139311017620,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/compile-bounded-v2.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794127139311069245,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/compile-bounded-v3.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794127139311127621,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/compile-bounded-v3.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794127139311180080,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/compile-bounded.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794127139311237247,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/compile-bounded.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794127139311292831,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/compile.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794127139311345207,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/compile.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 399,
+      "mode": 420,
+      "mtime_ns": 1794127139311453625,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/execution.json",
+      "sha256": "a6fdd684dfc16b9415e62e15f5714eb2b583fd48de7d87bef6c312f8fb6e5596"
+    },
+    {
+      "bytes": 84571,
+      "mode": 420,
+      "mtime_ns": 1794127139311680170,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/native.stderr",
+      "sha256": "4970fb9b9680633342a3171903d97f541277a9a5c1a2554887f465eff479a320"
+    },
+    {
+      "bytes": 53,
+      "mode": 420,
+      "mtime_ns": 1794127139311773629,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/native.stdout",
+      "sha256": "d6ca024e0e5e8457304d7da4bf66fcb0d036e5f6ca271130121c51073c59e9db"
+    },
+    {
+      "bytes": 18554,
+      "mode": 420,
+      "mtime_ns": 1794127139311892255,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/native.tsv",
+      "sha256": "2c0ba958de586172a57611868db3003ff3976af9db58db91910b97025f711ec7"
+    },
+    {
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794127139311927839,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/numi-context.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2072,
+      "mode": 420,
+      "mtime_ns": 1794127139312047257,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/numi-context.stdout",
+      "sha256": "ee8a3841f0a15c3aa4a65fa4a1faa58d5425c530d78e05511c5e2a7ac5dc078b"
+    },
+    {
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794127139312079549,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/numi-doctor.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 594,
+      "mode": 420,
+      "mtime_ns": 1794127139312187592,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/numi-doctor.stdout",
+      "sha256": "dc0c51738c69d827160353de152f6ddd08e9f4c2133bdae6d85f4ed5f2935779"
+    },
+    {
+      "bytes": 55,
+      "mode": 420,
+      "mtime_ns": 1794127139312277010,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/numi-science-help.stderr",
+      "sha256": "0bc13268a0a443b36ffdf370dddd454f3a8d16d5c40ebc649d08e4a8b7c4d8af"
+    },
+    {
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794127139312309594,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/numi-science-help.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 59176,
+      "mode": 493,
+      "mtime_ns": 1794127139312533638,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/probe",
+      "sha256": "58288ac8e8d00c665142e1db621dad15e4f2675d2c1610b92ade33655b6358f9"
+    },
+    {
+      "bytes": 6115,
+      "mode": 420,
+      "mtime_ns": 1794127139312648306,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/probe.cpp",
+      "sha256": "600ee7c7427ddce4a7d3bf726d009840b7b301de2cb5c101842efcb282ad0143"
+    },
+    {
+      "bytes": 1133,
+      "mode": 420,
+      "mtime_ns": 1794127139312749474,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/provenance.json",
+      "sha256": "710dd793f6e9823e639b09811a6d925591b4821b4ebc1c1de23ac715e98812cf"
+    },
+    {
+      "bytes": 7998,
+      "mode": 420,
+      "mtime_ns": 1794127139312866850,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/run.py",
+      "sha256": "37c3ddf764095e86b1c5219902d3745cda26dd775377ccdabdd3944002e932c0"
+    },
+    {
+      "bytes": 6684,
+      "mode": 420,
+      "mtime_ns": 1794127139312982935,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/run_bounded.py",
+      "sha256": "adc52951c82a04854acf9f1d45e432752a4a8b51cac0ce3f48f16dbfc1c15c95"
+    },
+    {
+      "bytes": 7329,
+      "mode": 420,
+      "mtime_ns": 1794127139313090062,
+      "path": "build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/run_bounded_v2.py",
+      "sha256": "e2f8bcb081ed1acb734c4c13d8785ca7fd8bd7dad1b4a4ff42bb64bfe893ec40"
+    },
+    {
+      "bytes": 84409,
+      "mode": 420,
+      "mtime_ns": 1794127139966304654,
+      "path": "build/crow-implicit-drive-git-recovery-01/calibration.stderr",
+      "sha256": "9be4c80c5fe9bb9d301711ed56ac7b9ad7253e4834adb2ff7e6265b4abf01b9a"
+    },
+    {
+      "bytes": 198,
+      "mode": 420,
+      "mtime_ns": 1794127139972850608,
+      "path": "build/crow-implicit-drive-git-recovery-01/calibration.stdout",
+      "sha256": "055523a181243d7ec1188fd91d7788b7483784e5b88ec42af0627ae0324c83d7"
+    },
+    {
+      "bytes": 84488,
+      "mode": 420,
+      "mtime_ns": 1794127140474714375,
+      "path": "build/crow-implicit-drive-git-recovery-01/invalid-metadata.stderr",
+      "sha256": "e5dca86400a684be074dce58d831787332a7e603eebe61621d7d89f45063361f"
+    },
+    {
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794127140168247134,
+      "path": "build/crow-implicit-drive-git-recovery-01/invalid-metadata.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 109,
+      "mode": 420,
+      "mtime_ns": 1794127140474634374,
+      "path": "build/crow-implicit-drive-git-recovery-01/invalid-metadata.tsv",
+      "sha256": "d0bfe3e062efcca1c7510eb9686e5be4e7ac0544132359aa0e9caafc94463258"
+    },
+    {
+      "bytes": 84655,
+      "mode": 420,
+      "mtime_ns": 1794127140040904347,
+      "path": "build/crow-implicit-drive-git-recovery-01/production.stderr",
+      "sha256": "8c9e8041087b1ff8f19864d484af164b08ff65ed4313d4f4bc0049641b38d679"
+    },
+    {
+      "bytes": 53,
+      "mode": 420,
+      "mtime_ns": 1794127140109935055,
+      "path": "build/crow-implicit-drive-git-recovery-01/production.stdout",
+      "sha256": "d6ca024e0e5e8457304d7da4bf66fcb0d036e5f6ca271130121c51073c59e9db"
+    },
+    {
+      "bytes": 18554,
+      "mode": 420,
+      "mtime_ns": 1794127140105802630,
+      "path": "build/crow-implicit-drive-git-recovery-01/production.tsv",
+      "sha256": "2c0ba958de586172a57611868db3003ff3976af9db58db91910b97025f711ec7"
+    }
+  ],
+  "stderr": "",
+  "stdout": ""
+}

@@ -1,0 +1,76 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/probe",
+        "--calibrate"
+      ],
+      "exit": 0,
+      "id": "calibration",
+      "loader_lines": [
+        "dyld[21484]: <EDC04BC1-95D9-33A0-BF2D-EEA1308A2E92> /Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/.numi/retained-runtime/implicit-drive-audit-20261108/libmetalrobo.dylib"
+      ],
+      "seconds": 0.6850037080002949,
+      "stdout_byte_exact": true
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/.numi/retained-runtime/implicit-drive-audit-20261108/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/production.tsv"
+      ],
+      "exit": 0,
+      "id": "production",
+      "loader_lines": [
+        "dyld[21497]: <EDC04BC1-95D9-33A0-BF2D-EEA1308A2E92> /Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/.numi/retained-runtime/implicit-drive-audit-20261108/libmetalrobo.dylib"
+      ],
+      "rows": 96,
+      "seconds": 0.15130520903039724,
+      "tsv_byte_exact": true,
+      "tsv_sha256": "2c0ba958de586172a57611868db3003ff3976af9db58db91910b97025f711ec7"
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/bounded-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/.numi/retained-runtime/implicit-drive-audit-20261108/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/invalid-metadata.tsv"
+      ],
+      "exit": 1,
+      "id": "invalid-metadata",
+      "loader_lines": [
+        "dyld[21499]: <EDC04BC1-95D9-33A0-BF2D-EEA1308A2E92> /Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/.numi/retained-runtime/implicit-drive-audit-20261108/libmetalrobo.dylib"
+      ],
+      "rows": 0,
+      "seconds": 0.3188328330288641,
+      "tsv_byte_exact": true,
+      "tsv_sha256": "d0bfe3e062efcca1c7510eb9686e5be4e7ac0544132359aa0e9caafc94463258"
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/bounded-v2-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/.numi/retained-runtime/implicit-drive-audit-20261108/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/bounded-v2.tsv"
+      ],
+      "exit": 0,
+      "id": "bounded-v2",
+      "loader_lines": [
+        "dyld[21500]: <EDC04BC1-95D9-33A0-BF2D-EEA1308A2E92> /Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/.numi/retained-runtime/implicit-drive-audit-20261108/libmetalrobo.dylib"
+      ],
+      "rows": 144,
+      "seconds": 0.7124434160068631,
+      "tsv_byte_exact": true,
+      "tsv_sha256": "34af3f900b54735a6683452e97e636e831d79d7c12bedb791acb5df60d08bc4b"
+    }
+  ],
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300223876 157125264    66% 3497160 1571252640    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300234872 157114268    66% 3497220 1571142680    0%   /System/Volumes/Data\n",
+  "invalid_metadata_native_microsteps": 0,
+  "manifest_sha256": "04cc8fa363c16b76edc722bf9e6cb0cc7e6d7931aa060b59f2aec22aca21ad97",
+  "native_microstep_conditions": 240,
+  "open_handles": 0,
+  "removed_temporary_bytes": 11151073,
+  "removed_temporary_files": 54,
+  "scope": "One 96-condition production diagnosis, one 144-condition bounded alternative and invalid-metadata fixture. Does not replay whole crow release, learning, biological or throughput qualification.",
+  "sealed_head": "373033648e9067f567118eaa202973387e905903",
+  "verdict": "executed_git_restored_native_recovery_passed"
+}

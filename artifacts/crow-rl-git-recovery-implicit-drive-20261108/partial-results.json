@@ -1,0 +1,60 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/probe",
+        "--calibrate"
+      ],
+      "exit": 0,
+      "id": "calibration",
+      "loader_lines": [
+        "dyld[21484]: <EDC04BC1-95D9-33A0-BF2D-EEA1308A2E92> /Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/.numi/retained-runtime/implicit-drive-audit-20261108/libmetalrobo.dylib"
+      ],
+      "seconds": 0.6850037080002949,
+      "stdout_byte_exact": true
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/.numi/retained-runtime/implicit-drive-audit-20261108/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/production.tsv"
+      ],
+      "exit": 0,
+      "id": "production",
+      "loader_lines": [
+        "dyld[21497]: <EDC04BC1-95D9-33A0-BF2D-EEA1308A2E92> /Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/.numi/retained-runtime/implicit-drive-audit-20261108/libmetalrobo.dylib"
+      ],
+      "rows": 96,
+      "seconds": 0.15130520903039724,
+      "tsv_byte_exact": true,
+      "tsv_sha256": "2c0ba958de586172a57611868db3003ff3976af9db58db91910b97025f711ec7"
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/bounded-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/.numi/retained-runtime/implicit-drive-audit-20261108/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/invalid-metadata.tsv"
+      ],
+      "exit": 1,
+      "id": "invalid-metadata",
+      "loader_lines": [
+        "dyld[21499]: <EDC04BC1-95D9-33A0-BF2D-EEA1308A2E92> /Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/.numi/retained-runtime/implicit-drive-audit-20261108/libmetalrobo.dylib"
+      ],
+      "rows": 0,
+      "seconds": 0.3188328330288641,
+      "tsv_byte_exact": true,
+      "tsv_sha256": "d0bfe3e062efcca1c7510eb9686e5be4e7ac0544132359aa0e9caafc94463258"
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/build/crow-implicit-drive-audit-build-01/bounded-v2-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/.numi/retained-runtime/implicit-drive-audit-20261108/metalrobo/MetalRobo.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-implicit-drive-git-recovery-01/bounded-v2.tsv"
+      ],
+      "exit": 0,
+      "id": "bounded-v2",
+      "seconds": 0.7124434160068631
+    }
+  ],
+  "sealed_head": "373033648e9067f567118eaa202973387e905903"
+}

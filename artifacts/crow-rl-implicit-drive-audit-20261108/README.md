@@ -85,3 +85,11 @@ Git-restored native replay and cleanup receipts are recorded separately in
 until remote parity, byte verification, executable recovery and closed-handle
 checks succeed. These replays verify numerical reproducibility and recovery;
 they do not add independent scientific observations.
+
+Executed Git-restored recovery passed: calibration stdout and all three native
+TSVs are byte-exact, including the original pre-physics metadata rejection.
+The two successful native invocations reproduce all 240 microstep conditions.
+The 54-file temporary tree (11,151,073 bytes) was inventory/hash/mode/mtime
+validated with zero open handles, then removed. The 43 original source files
+(10,761,036 bytes) are verified from actual committed Git objects; new
+compressed payload is 173,961 bytes through reuse of existing runtime blobs.
