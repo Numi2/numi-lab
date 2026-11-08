@@ -8476,7 +8476,7 @@ inline void mrWorldWave32SolvePacket(
     uint blockIds[4]; float3 blockDirections[4]; float blockB[4];
     float2 blockTangent[4]; float blockN[4][4]; float2 blockT[4][4];
     float blockImpulse[4] = {0.0f,0.0f,0.0f,0.0f}; uint blockCount=0u;
-    bool blockEligible=scaleEligible; bool blockSlidingEligible=true; bool hadWarm=false;
+    bool blockEligible=scaleEligible; bool blockSlidingEligible=true;
     if (blockEligible) {
         for(uint ti=0u;ti<work.tileCount;++ti) {
             const MRContactTileGPU tile=tiles[tileBase+work.firstTile+ti];
@@ -8499,9 +8499,7 @@ inline void mrWorldWave32SolvePacket(
         blockDirections[i]=float3(1.0f,-mu*vt/max(speed,1.0e-4f));
         blockB[i]=dot(rows[0].direction.xyz,rel)-rows[0].targetVelocity;
         blockTangent[i]=vt;
-        hadWarm = hadWarm || preconditioners[constraintBase+ci].row0.w<0.0f;
     }
-    blockEligible = blockEligible && hadWarm;
     if (blockEligible) for(uint i=0u;i<blockCount;++i) {
         const uint ci=blockIds[i];device const MRContactConstraintGPU& target=contacts[constraintBase+ci];
         device const MREvaluatedConstraintIRRowGPU* tr=evaluatedRows+rowBase+3u*ci;
