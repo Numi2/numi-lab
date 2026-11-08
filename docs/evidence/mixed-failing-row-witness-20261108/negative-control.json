@@ -2,11 +2,11 @@
   "corrupt-target": {
     "exit_code": 1,
     "detected": true,
-    "stderr": "Traceback (most recent call last):\n  File \"/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmpt11txd8e/analyze.py\", line 33, in <module>\n    assert maximum_rel<=2e-5 and maximum_eq<=2e-5\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+    "exception": "AssertionError"
   },
   "corrupt-geometry": {
     "exit_code": 1,
     "detected": true,
-    "stderr": "Traceback (most recent call last):\n  File \"/private/var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/tmpyqi6i5ov/analyze.py\", line 18, in <module>\n    base=arms['baseline'];assert all(physical(base)==physical(d) for d in arms.values())\n                                 ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+    "exception": "AssertionError"
   }
 }
