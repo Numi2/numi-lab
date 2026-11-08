@@ -1,0 +1,4 @@
+          cmd LC_RPATH
+      cmdsize 80
+         path /Users/numi/numi-franka-staged-publication-build-20261108/lib (offset 12)
+Load command 28
