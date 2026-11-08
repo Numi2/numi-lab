@@ -1,0 +1,42 @@
+{
+  "files": {
+    "build/bin/metalrobo_constraint_ir_probe": "80a77b7789e61262ef09f5a4377106e7f41994ae6774b45a9e1926a2a377646a",
+    "build/bin/metalrobo_metal_unified_quality_probe": "df2f144721ff04692399afa7316ca7c88a189689acdbfb4358030ef570c0f687",
+    "build/bin/metalrobo_metal_world_contact_probe": "bd0777b062295b4e08a4722124665725cb6842506054d05357a6346a76d39293",
+    "build/bin/metalrobo_motor_contact_probe": "746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2",
+    "build/crow-quality-refinement-build-01/reference/crow-fixture": "bf8ad775f9d2f74643432eccd00544d0cc16d1cd74651c22165b7911a9433aeb",
+    "build/crow-quality-refinement-build-01/reference/default-gold/final-q.f32": "4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42",
+    "build/crow-quality-refinement-build-01/reference/default-gold/final-scene.bin": "e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090",
+    "build/crow-quality-refinement-build-01/reference/default-gold/final-v.f32": "a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27",
+    "build/crow-quality-refinement-build-01/reference/default-gold/initial-geometry.json": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7",
+    "build/crow-quality-refinement-build-01/reference/default-gold/initial-q.f32": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28",
+    "build/crow-quality-refinement-build-01/reference/default-gold/initial-scene.bin": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57",
+    "build/crow-quality-refinement-build-01/reference/default-gold/initial-v.f32": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0",
+    "build/crow-quality-refinement-build-01/reference/default-gold/scene.bin": "097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e",
+    "build/crow-quality-refinement-build-01/reference/default-gold/summary.json": "765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9",
+    "build/crow-quality-refinement-build-01/reference/default-gold/trace.tsv": "8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921",
+    "build/crow-quality-refinement-build-01/reference/fixture-default": "a76e0b2a726b9ab2504b4a55b6d557d10a85feaaf94e4cb580de33103e45c63a",
+    "build/crow-quality-refinement-build-01/reference/motor-gold.tsv": "921f882417a32aaf3eecda97e45f4ec14657ccabf72d65d80bdaa48d87cc7b0a",
+    "build/crow-quality-refinement-build-01/reference/strict-gold.bin": "08bcd99d486addeed6f39b9a265ef35e3208ea8cc884c12d5549830be0108d0f",
+    "build/crow-quality-refinement-build-01/reference/zero-gold.tsv": "d0c101a4720d76f965bd6602badede2e336cda24d58fdd5d9c12ad48a86442d8",
+    "build/crow-quality-refinement-build-01/runtime/libmetalrobo.dylib": "780a369bb9787a62b2110179a196b6281cb2ad14ecba16ada97792f18e9b2b04",
+    "build/crow-quality-refinement-build-01/runtime/metalrobo/MetalRobo.metallib": "29089d4c0290435dc343e6e6a0984c1be1fd2e9b54192e5f59298ef991b91cda"
+  },
+  "limits": {
+    "native_commands": 10,
+    "per_command_seconds": 180,
+    "raw_bytes": 40000000,
+    "total_seconds": 900
+  },
+  "predictions": {
+    "api_default_complete_640_twice": true,
+    "api_default_penetration_max_m": 0.0008,
+    "default_physical_files_exact": 10,
+    "motor_physical_records_exact": 624,
+    "owning_regressions_pass": true,
+    "repeated_api_physical_outputs_exact": true,
+    "strict_capture_diff_only_hessian_stride": true
+  },
+  "schema": "crow-quality-refinement-integration-plan-v1",
+  "scope": "First physical qualification of the production candidate. Same actions/geometry/cadence and API defaults as the rejected trial. No retry, profile/policy promotion or tuning after observation."
+}
