@@ -6670,6 +6670,11 @@ if(BUILD_TESTING)
                 $<TARGET_FILE:metalrobo_visual_platform_probe>)
     set_tests_properties(metalrobo.visual.history_step_rollback
         PROPERTIES LABELS "metalrobo;visual;metal" TIMEOUT 120)
+    add_test(NAME metalrobo.visual.masked_depth_sample_hold
+        COMMAND ${CMAKE_COMMAND} -E env NUMI_TEST_DEPTH_HOLD=1
+                $<TARGET_FILE:metalrobo_visual_platform_probe>)
+    set_tests_properties(metalrobo.visual.masked_depth_sample_hold
+        PROPERTIES LABELS "metalrobo;visual;metal" TIMEOUT 120)
     add_test(NAME metalrobo.visual.reset_frame_materialized
         COMMAND ${CMAKE_COMMAND} -E env NUMI_TEST_RESET_FRAME=1 NUMI_TEST_LONG_RATE=1
                 $<TARGET_FILE:metalrobo_visual_platform_probe>)

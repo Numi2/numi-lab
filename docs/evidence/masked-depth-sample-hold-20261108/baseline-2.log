@@ -1,0 +1,4 @@
+HOLD step=1 sensor=0 changed_pixels=1849
+HOLD step=2 sensor=1 changed_pixels=2037
+HOLD step=3 sensor=1 changed_pixels=1814
+metalrobo_visual_platform_probe: unsampled masked depth changed
