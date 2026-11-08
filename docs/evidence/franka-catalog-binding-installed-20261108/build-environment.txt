@@ -1,0 +1,17 @@
+2026-11-08T00:02:22Z
+Source and checkout:
+d9db7f9f30f75c9d54432fee2ad89d0e8f3ef26d
+true
+true
+blob:none
+  119164
+/Library/Developer/CommandLineTools
+xcode-select: error: tool 'xcodebuild' requires Xcode, but active developer directory '/Library/Developer/CommandLineTools' is a command line tools instance
+/Users/numi/Library/Developer/Toolchains/Metal.xctoolchain/usr/bin/metal
+cmake version 4.4.4
+1.13.2
+Apple Swift version 6.4 (swiftlang-6.4.0.34.1 clang-2100.3.34.1)
+Target: arm64-apple-macosx27.0.0
+training python 3.13.16 (main, Sep 30 2026, 18:57:20) [Clang 21.0.0 (clang-2100.3.34.2)]
+numpy 2.5.4
+mlx namespace version unavailable
