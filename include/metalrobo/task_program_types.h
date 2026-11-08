@@ -92,6 +92,11 @@ enum MRTaskProgramFlags : mr_u32 {
     // inherited WP2 arrival distribution while isolating later steering.
     MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_POST_SECOND_GATE_ADAPTER =
         1u << 24u,
+    // Active-head navigation does not enter the showcase's timed landing
+    // phase. Route completion and landing require separate handling.
+    // Fingerprinted because actuator and teacher semantics change after 27 s.
+    MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_FLIGHT_PHASE =
+        1u << 25u,
     // Active-head navigation keeps route-specific teacher state distinct from
     // generic journey feedback; this changes teacher labels, so fingerprint it.
     MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TEACHER_FEEDBACK =

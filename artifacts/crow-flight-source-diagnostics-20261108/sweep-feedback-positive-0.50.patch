@@ -1,0 +1,130 @@
+diff --git a/src/metal/LocomotionTask.metal b/src/metal/LocomotionTask.metal
+index a096b466..0582d70f 100644
+--- a/src/metal/LocomotionTask.metal
++++ b/src/metal/LocomotionTask.metal
+@@ -4647,7 +4647,7 @@ inline float birdFlowJourneyTeacherAction(
+     const float navigationBankCorrection = navigation
+         ? clamp(
+               -0.70f * headingError + 0.12f * yawRate +
+-                  0.18f * lateralSpeedError,
++                  0.80f * lateralSpeedError,
+               -0.45f,
+               0.45f
+           )
+@@ -4655,7 +4655,7 @@ inline float birdFlowJourneyTeacherAction(
+     const float navigationPitchTarget = navigation
+         ? clamp(
+               0.10f + 0.35f * heightError -
+-                  0.12f * verticalRate,
++                  0.12f * verticalRate - 0.60f * forwardSpeedError,
+               -0.25f,
+               0.25f
+           )
+@@ -4677,7 +4677,7 @@ inline float birdFlowJourneyTeacherAction(
+     if (action == 2u || action == 3u) {
+         if (straightCruise) {
+             const float correction = clamp(
+-                -0.25f * headingError - 0.08f * yawRate,
++                -0.50f * headingError - 0.08f * yawRate,
+                 -0.22f,
+                 0.22f
+             );
+@@ -4940,7 +4940,8 @@ kernel void mr_locomotion_task_apply_actions(
+         // teacher's intentionally neutral post-flight action.
+         const bool avianJourneyLandedActorHandoff =
+             avianJourneyTeacher && state.episode.z >= 9u &&
+-            state.commandExtension.w >= (27.0f / 32.0f);
++            state.commandExtension.w >= (27.0f / 32.0f) &&
++            (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TEACHER_FEEDBACK) == 0u;
+         const bool avianNavigationTeacher =
+             avianJourneyTeacher &&
+             (program.schedule.w &
+@@ -4959,27 +4960,9 @@ kernel void mr_locomotion_task_apply_actions(
+                   0.45f
+               )
+             : 0.0f;
+-        const float navigationTeacherRequested = !avianNavigationTeacher
+-            ? teacherRequested
+-            : action == 0u || action == 4u
+-            ? clamp(
+-                  studentRequested +
+-                      (action == 0u ? 1.0f : 0.5f) *
+-                          navigationWingResidual,
+-                  -1.0f,
+-                  1.0f
+-              )
+-            : action == 1u || action == 5u
+-            ? clamp(
+-                  studentRequested -
+-                      (action == 1u ? 1.0f : 0.5f) *
+-                          navigationWingResidual,
+-                  -1.0f,
+-                  1.0f
+-              )
+-            : action == 13u
+-            ? teacherRequested
+-            : studentRequested;
++        const float navigationTeacherRequested = avianNavigationTeacher && action >= 15u
++            ? studentRequested
++            : teacherRequested;
+         // Keep the training-only teacher active through the final target.
+         // Ending at waypoint four taught an aggressive approach crossing but
+         // handed the student a poor terminal arrival geometry. Autonomous
+@@ -5074,6 +5057,10 @@ kernel void mr_locomotion_task_apply_actions(
+             filterSlot * program.counts0.x +
+             action
+         ];
++        // Diagnostic-only publication of the actual delayed and filtered command.
++        if (avianJourneyTeacher) {
++            teacherActions[actionBase + action] = filtered;
++        }
+         if (binding.actuator.x != MR_TASK_ACTUATOR_JOINT_POSITION &&
+             binding.actuator.x != MR_TASK_ACTUATOR_GRIPPER_POSITION &&
+             binding.actuator.x != MR_TASK_ACTUATOR_FLAPPING_POSITION) {
+@@ -5101,7 +5088,8 @@ kernel void mr_locomotion_task_apply_actions(
+             (state.episode.z == 4u
+                 ? state.commandExtension.w < 0.03125f
+                 : (state.commandExtension.w < 0.15625f ||
+-                   state.commandExtension.w >= 0.84375f));
++                   (state.commandExtension.w >= 0.84375f &&
++                    (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TEACHER_FEEDBACK) == 0u)));
+         const bool avianGroundCurriculum = avianActionSet &&
+             (program.schedule.w &
+              MR_TASK_PROGRAM_AVIAN_GROUND_CURRICULUM) != 0u &&
+@@ -6166,7 +6154,8 @@ kernel void mr_locomotion_task_complete_history2(
+           (avianJourneyTakeoffCruise
+               ? avianJourneyPhase < 0.03125f
+               : (avianJourneyPhase < 0.15625f ||
+-                 avianJourneyPhase >= 0.84375f))));
++                 (avianJourneyPhase >= 0.84375f &&
++                  (program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TEACHER_FEEDBACK) == 0u)))));
+     const bool avianCrowGroundTiltEnvelope =
+         avianGroundCurriculum && avianCurriculumBand == 1u &&
+         (program.schedule.w &
+@@ -6530,6 +6519,26 @@ kernel void mr_locomotion_task_complete_history2(
+             state.commandExtension.xyz = float3(0.0f);
+         }
+     }
++    // Experimental isolated flight-command bench (not a deployment path).
++    // The flight teacher receives fixed bounded commands rather than waypoint
++    // feedback. Modes repeat by lane: straight, left, right, climb, descent.
++    if ((program.schedule.w & MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TEACHER_FEEDBACK) != 0u) {
++        const uint flightMode = environment % 5u;
++        const float seconds = float(state.episode.x + 1u) * dispatch.timing.x;
++        const float turnRate = flightMode == 1u ? 0.03f :
++                               flightMode == 2u ? -0.03f : 0.0f;
++        const float desiredHeading = turnRate * max(seconds - 6.0f, 0.0f);
++        const float currentHeading = atan2(yawBasis.y, yawBasis.x);
++        const float headingError = atan2(sin(desiredHeading-currentHeading),
++                                         cos(desiredHeading-currentHeading));
++        const float ramp = clamp((seconds - 8.0f) / 6.0f, 0.0f, 1.0f);
++        const float desiredHeight = 0.85f +
++            (flightMode == 3u ? 0.30f*ramp : flightMode == 4u ? -0.30f*ramp : 0.0f);
++        state.commandAndPhase.xyz = float3(0.35f, 0.0f, turnRate);
++        state.commandExtension.xyz = float3(headingError, baseAngular.z, yawFrameLinear.x);
++        state.threatGeometry.x = desiredHeight - rootWorldPosition(program, q).z;
++        state.threatTeacher.x = yawFrameLinear.y;
++    }
+     if (avianJourneyTakeoffCruise) {
+         // Feed the next teacher action from accepted state without a host
+         // loop. xyz are heading error, yaw rate, and forward airspeed; w

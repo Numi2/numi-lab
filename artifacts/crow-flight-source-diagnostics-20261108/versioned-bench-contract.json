@@ -1,0 +1,10 @@
+{
+  "old_policy_rejected": true,
+  "actor_weights_identical": true,
+  "old_policy_sha256": "5e46067b21b66e28244a8ac6ae989b0c42405c899eba9b898d6683b0fa8e47c0",
+  "new_policy_sha256": "07971fcbc960e3461421e2685325eb967786462ab97d422a55c916fd58efa2b2",
+  "world": 2538803335211058858,
+  "task": 7798272565569124351,
+  "observation": 12347588443474666224,
+  "action": 13017575468937512255
+}

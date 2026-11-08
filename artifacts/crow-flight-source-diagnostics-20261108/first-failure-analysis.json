@@ -1,0 +1,1167 @@
+{
+  "records": [
+    {
+      "layout": "held-out-a-lane-2",
+      "lane": 0,
+      "reported_control_step": 1528,
+      "pre_step_root_position_m": [
+        -13.0888042,
+        -4.75839472,
+        0.149745673
+      ],
+      "pre_step_roll_pitch_yaw_rad": [
+        -0.006418970342797635,
+        -0.6055472433748084,
+        0.3631258001214815
+      ],
+      "pre_step_root_generalized_linear_velocity_mps": [
+        -0.200882941,
+        -0.0526789762,
+        0.0311145112
+      ],
+      "pre_step_root_generalized_angular_velocity_radps": [
+        -0.0380248427,
+        -0.24086532,
+        -0.025779048
+      ],
+      "filtered_normalized_action_for_failure_step": {
+        "wing.left_flap": 0.191398039,
+        "wing.right_flap": 0.253201276,
+        "wing.left_sweep": 0.0519198999,
+        "wing.right_sweep": -0.0347933918,
+        "wing.left_pronation": 0.145009026,
+        "wing.right_pronation": -0.00273251114,
+        "tail.pitch": -0.00923689641,
+        "leg.left_hip": 0.093776986,
+        "leg.left_knee": -0.109720953,
+        "leg.left_ankle": 0.162523285,
+        "leg.right_hip": -0.120824203,
+        "leg.right_knee": 0.0396101251,
+        "leg.right_ankle": -0.103932232,
+        "tail.yaw_moment": 0.132501766,
+        "body.pitch_moment": -0.16766946,
+        "head.yaw": 0.329733193,
+        "head.pitch": -0.0124577228,
+        "beak.open": 0.109196767
+      },
+      "forbidden_contact_candidates_last_substep": [
+        {
+          "a": 7,
+          "a_name": "crow_tail",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.00250184909,
+          "separation": 0.000832551916
+        }
+      ],
+      "other_last_substep_contacts": [
+        {
+          "a": 10,
+          "a_name": "crow_left_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 4.20021309e-12,
+          "separation": -0.000396852702
+        },
+        {
+          "a": 10,
+          "a_name": "crow_left_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 3.2343678e-13,
+          "separation": -0.000602207379
+        },
+        {
+          "a": 13,
+          "a_name": "crow_right_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 2.55508041e-08,
+          "separation": 0.000138076284
+        },
+        {
+          "a": 13,
+          "a_name": "crow_right_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.0127661219,
+          "separation": -6.72746974e-05
+        }
+      ]
+    },
+    {
+      "layout": "held-out-a-lane-2",
+      "lane": 1,
+      "reported_control_step": 1389,
+      "pre_step_root_position_m": [
+        -30.8650436,
+        -11.1087847,
+        0.152624339
+      ],
+      "pre_step_roll_pitch_yaw_rad": [
+        0.09294179955618921,
+        -0.5811112369478844,
+        0.4143383778374099
+      ],
+      "pre_step_root_generalized_linear_velocity_mps": [
+        -0.279585749,
+        -0.13376461,
+        -0.132704973
+      ],
+      "pre_step_root_generalized_angular_velocity_radps": [
+        0.396162421,
+        -0.601875424,
+        -0.182816491
+      ],
+      "filtered_normalized_action_for_failure_step": {
+        "wing.left_flap": 0.328179657,
+        "wing.right_flap": -0.0263908356,
+        "wing.left_sweep": 0.0554558374,
+        "wing.right_sweep": 0.148261428,
+        "wing.left_pronation": 0.0913025588,
+        "wing.right_pronation": -0.0356039703,
+        "tail.pitch": 0.0640429109,
+        "leg.left_hip": 0.0849628672,
+        "leg.left_knee": -0.277572691,
+        "leg.left_ankle": -0.158083066,
+        "leg.right_hip": 0.0210789796,
+        "leg.right_knee": 0.221370354,
+        "leg.right_ankle": 0.196768537,
+        "tail.yaw_moment": -0.0479507856,
+        "body.pitch_moment": 0.304882169,
+        "head.yaw": 0.147665977,
+        "head.pitch": -0.122156508,
+        "beak.open": -0.112452254
+      },
+      "forbidden_contact_candidates_last_substep": [
+        {
+          "a": 7,
+          "a_name": "crow_tail",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.0625098348,
+          "separation": 0.000165756632
+        }
+      ],
+      "other_last_substep_contacts": [
+        {
+          "a": 10,
+          "a_name": "crow_left_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 5.28260134e-05,
+          "separation": 0.000643362699
+        },
+        {
+          "a": 10,
+          "a_name": "crow_left_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 2.69148132e-27,
+          "separation": 0.00327847083
+        },
+        {
+          "a": 13,
+          "a_name": "crow_right_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.00683908351,
+          "separation": -0.00283259433
+        },
+        {
+          "a": 13,
+          "a_name": "crow_right_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0,
+          "separation": -0.000197383604
+        }
+      ]
+    },
+    {
+      "layout": "held-out-a-lane-2",
+      "lane": 2,
+      "reported_control_step": 708,
+      "pre_step_root_position_m": [
+        3.64163446,
+        0.55875057,
+        0.624969065
+      ],
+      "pre_step_roll_pitch_yaw_rad": [
+        0.92656042040622,
+        0.1934316877710872,
+        0.3401772072447107
+      ],
+      "pre_step_root_generalized_linear_velocity_mps": [
+        0.218791619,
+        -0.0313166045,
+        -0.256479561
+      ],
+      "pre_step_root_generalized_angular_velocity_radps": [
+        -0.0389315672,
+        -0.123195611,
+        0.194889858
+      ],
+      "filtered_normalized_action_for_failure_step": {
+        "wing.left_flap": 0.495463878,
+        "wing.right_flap": -0.376096189,
+        "wing.left_sweep": 0.219999999,
+        "wing.right_sweep": -0.219999999,
+        "wing.left_pronation": 0.381848067,
+        "wing.right_pronation": -0.068151921,
+        "tail.pitch": -0.0821861997,
+        "leg.left_hip": -0.099999994,
+        "leg.left_knee": 0.180000007,
+        "leg.left_ankle": -0.0799999982,
+        "leg.right_hip": -0.099999994,
+        "leg.right_knee": 0.180000007,
+        "leg.right_ankle": -0.0799999982,
+        "tail.yaw_moment": -0.99999994,
+        "body.pitch_moment": -0.332779825,
+        "head.yaw": -0.116740435,
+        "head.pitch": 0.149466336,
+        "beak.open": 0.0311189722
+      },
+      "forbidden_contact_candidates_last_substep": [
+        {
+          "a": 0,
+          "a_name": "crow_body",
+          "b": 21,
+          "b_name": "crow_course_slalom_b",
+          "normal_impulse": 0.0615767911,
+          "separation": 0.000125743449
+        }
+      ],
+      "other_last_substep_contacts": [
+        {
+          "a": 15,
+          "a_name": "crow_head",
+          "b": 21,
+          "b_name": "crow_course_slalom_b",
+          "normal_impulse": 0.000100422796,
+          "separation": 0.000476419926
+        }
+      ]
+    },
+    {
+      "layout": "held-out-a-lane-2",
+      "lane": 3,
+      "reported_control_step": 1367,
+      "pre_step_root_position_m": [
+        -32.8953896,
+        -11.814887,
+        0.192037031
+      ],
+      "pre_step_roll_pitch_yaw_rad": [
+        0.2828591242590037,
+        -0.5772736383957089,
+        0.34467539023598626
+      ],
+      "pre_step_root_generalized_linear_velocity_mps": [
+        -4.36176825,
+        -2.57531667,
+        -3.79262376
+      ],
+      "pre_step_root_generalized_angular_velocity_radps": [
+        -0.916192293,
+        -0.0666288435,
+        -0.465684384
+      ],
+      "filtered_normalized_action_for_failure_step": {
+        "wing.left_flap": 0.278818876,
+        "wing.right_flap": -0.130327344,
+        "wing.left_sweep": -0.00486581028,
+        "wing.right_sweep": -0.0320219062,
+        "wing.left_pronation": 0.0831529722,
+        "wing.right_pronation": 0.0232958384,
+        "tail.pitch": 0.326582164,
+        "leg.left_hip": 0.00551911863,
+        "leg.left_knee": -0.0420412123,
+        "leg.left_ankle": 0.111988857,
+        "leg.right_hip": 0.0843817145,
+        "leg.right_knee": -0.176294863,
+        "leg.right_ankle": -0.0598217398,
+        "tail.yaw_moment": -0.144872338,
+        "body.pitch_moment": 0.99999994,
+        "head.yaw": -0.205570817,
+        "head.pitch": 0.00443595601,
+        "beak.open": -0.07618884
+      },
+      "forbidden_contact_candidates_last_substep": [
+        {
+          "a": 7,
+          "a_name": "crow_tail",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 1.1569351,
+          "separation": -0.0136167435
+        }
+      ],
+      "other_last_substep_contacts": [
+        {
+          "a": 13,
+          "a_name": "crow_right_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 4.50709763e-08,
+          "separation": -0.0019476451
+        }
+      ]
+    },
+    {
+      "layout": "held-out-a-lane-2",
+      "lane": 4,
+      "reported_control_step": 623,
+      "pre_step_root_position_m": [
+        1.50890625,
+        0.159949198,
+        0.628661275
+      ],
+      "pre_step_roll_pitch_yaw_rad": [
+        -0.22089310860628686,
+        0.1617533931485152,
+        0.11111892868656667
+      ],
+      "pre_step_root_generalized_linear_velocity_mps": [
+        0.899702966,
+        1.43112326,
+        0.159755647
+      ],
+      "pre_step_root_generalized_angular_velocity_radps": [
+        0.616735637,
+        0.0494237207,
+        -0.0513492413
+      ],
+      "filtered_normalized_action_for_failure_step": {
+        "wing.left_flap": 0.100751624,
+        "wing.right_flap": -0.185339168,
+        "wing.left_sweep": -0.0358669162,
+        "wing.right_sweep": 0.0358669162,
+        "wing.left_pronation": 0.063481845,
+        "wing.right_pronation": -0.0722674951,
+        "tail.pitch": 0.0255081095,
+        "leg.left_hip": -0.099999994,
+        "leg.left_knee": 0.180000007,
+        "leg.left_ankle": -0.0799999982,
+        "leg.right_hip": -0.099999994,
+        "leg.right_knee": 0.180000007,
+        "leg.right_ankle": -0.0799999982,
+        "tail.yaw_moment": -0.030476829,
+        "body.pitch_moment": 0.121361122,
+        "head.yaw": 0.00749917887,
+        "head.pitch": 0.0045176805,
+        "beak.open": 0.0247342065
+      },
+      "forbidden_contact_candidates_last_substep": [
+        {
+          "a": 5,
+          "a_name": "crow_left_wing",
+          "b": 18,
+          "b_name": "crow_course_gate_left",
+          "normal_impulse": 0.610806227,
+          "separation": 1.8954277e-05
+        }
+      ],
+      "other_last_substep_contacts": []
+    },
+    {
+      "layout": "held-out-a-lane-2",
+      "lane": 5,
+      "reported_control_step": 1580,
+      "pre_step_root_position_m": [
+        -7.57782602,
+        -1.97112226,
+        0.150211051
+      ],
+      "pre_step_roll_pitch_yaw_rad": [
+        0.00024167518139413355,
+        -0.6055300335438816,
+        0.2855396798458504
+      ],
+      "pre_step_root_generalized_linear_velocity_mps": [
+        -0.0621666871,
+        -0.0191841964,
+        -0.0406952687
+      ],
+      "pre_step_root_generalized_angular_velocity_radps": [
+        0.122441754,
+        -0.412299931,
+        0.00735749025
+      ],
+      "filtered_normalized_action_for_failure_step": {
+        "wing.left_flap": 0.192946792,
+        "wing.right_flap": 0.189786136,
+        "wing.left_sweep": -0.00501514645,
+        "wing.right_sweep": -0.0883442163,
+        "wing.left_pronation": -0.227896869,
+        "wing.right_pronation": 0.114153601,
+        "tail.pitch": 0.20715943,
+        "leg.left_hip": 0.161735296,
+        "leg.left_knee": -0.0382806063,
+        "leg.left_ankle": -0.0603193268,
+        "leg.right_hip": -0.26781854,
+        "leg.right_knee": 0.045172479,
+        "leg.right_ankle": 0.181709215,
+        "tail.yaw_moment": -0.141061544,
+        "body.pitch_moment": -0.0113157202,
+        "head.yaw": -0.00813004375,
+        "head.pitch": -0.0658544376,
+        "beak.open": -0.11287161
+      },
+      "forbidden_contact_candidates_last_substep": [
+        {
+          "a": 7,
+          "a_name": "crow_tail",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.00602569431,
+          "separation": 0.000400838791
+        },
+        {
+          "a": 7,
+          "a_name": "crow_tail",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.0058020358,
+          "separation": 0.000398767967
+        }
+      ],
+      "other_last_substep_contacts": [
+        {
+          "a": 10,
+          "a_name": "crow_left_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.00814626738,
+          "separation": -1.39616859e-05
+        },
+        {
+          "a": 10,
+          "a_name": "crow_left_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.00161101343,
+          "separation": -1.36840417e-05
+        },
+        {
+          "a": 13,
+          "a_name": "crow_right_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.001153338,
+          "separation": -1.33890865e-07
+        },
+        {
+          "a": 13,
+          "a_name": "crow_right_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.00550156692,
+          "separation": 1.5120402e-07
+        }
+      ]
+    },
+    {
+      "layout": "held-out-a-lane-2",
+      "lane": 6,
+      "reported_control_step": 704,
+      "pre_step_root_position_m": [
+        2.92110252,
+        -0.119386755,
+        0.649903715
+      ],
+      "pre_step_roll_pitch_yaw_rad": [
+        0.5411061538011893,
+        0.19617777928552207,
+        0.18547486741030733
+      ],
+      "pre_step_root_generalized_linear_velocity_mps": [
+        1.3585068,
+        -2.14455533,
+        -0.0946271941
+      ],
+      "pre_step_root_generalized_angular_velocity_radps": [
+        -1.15490746,
+        -0.177764669,
+        0.173056826
+      ],
+      "filtered_normalized_action_for_failure_step": {
+        "wing.left_flap": -0.168466985,
+        "wing.right_flap": 0.27417019,
+        "wing.left_sweep": 0.0743145645,
+        "wing.right_sweep": -0.0743145645,
+        "wing.left_pronation": -0.152125537,
+        "wing.right_pronation": 0.0563041903,
+        "tail.pitch": 0.0271353517,
+        "leg.left_hip": -0.099999994,
+        "leg.left_knee": 0.180000007,
+        "leg.left_ankle": -0.0799999982,
+        "leg.right_hip": -0.099999994,
+        "leg.right_knee": 0.180000007,
+        "leg.right_ankle": -0.0799999982,
+        "tail.yaw_moment": -0.103993036,
+        "body.pitch_moment": 0.0833212882,
+        "head.yaw": -0.226134136,
+        "head.pitch": -0.166741371,
+        "beak.open": 0.146689206
+      },
+      "forbidden_contact_candidates_last_substep": [
+        {
+          "a": 7,
+          "a_name": "crow_tail",
+          "b": 20,
+          "b_name": "crow_course_slalom_a",
+          "normal_impulse": 0.041676648,
+          "separation": -0.00208339095
+        }
+      ],
+      "other_last_substep_contacts": []
+    },
+    {
+      "layout": "held-out-a-lane-2",
+      "lane": 7,
+      "reported_control_step": 1367,
+      "pre_step_root_position_m": [
+        -32.3002281,
+        -11.801321,
+        0.213159144
+      ],
+      "pre_step_roll_pitch_yaw_rad": [
+        0.2838717428803581,
+        -0.590070510747378,
+        0.33791533543155544
+      ],
+      "pre_step_root_generalized_linear_velocity_mps": [
+        -4.18887281,
+        -2.39063692,
+        -3.90903115
+      ],
+      "pre_step_root_generalized_angular_velocity_radps": [
+        -0.562869966,
+        0.0378944799,
+        -0.289784223
+      ],
+      "filtered_normalized_action_for_failure_step": {
+        "wing.left_flap": 0.372071505,
+        "wing.right_flap": 0.286772132,
+        "wing.left_sweep": 0.0729106367,
+        "wing.right_sweep": 0.0400522277,
+        "wing.left_pronation": 0.0861181989,
+        "wing.right_pronation": 0.0525095016,
+        "tail.pitch": 0.0645580888,
+        "leg.left_hip": -0.0381331295,
+        "leg.left_knee": -0.288368911,
+        "leg.left_ankle": 0.0222830474,
+        "leg.right_hip": -0.0332614444,
+        "leg.right_knee": -0.17985861,
+        "leg.right_ankle": -0.0431455597,
+        "tail.yaw_moment": 0.26576972,
+        "body.pitch_moment": 0.99999994,
+        "head.yaw": -0.258887976,
+        "head.pitch": 0.227233768,
+        "beak.open": 0.150201917
+      },
+      "forbidden_contact_candidates_last_substep": [
+        {
+          "a": 7,
+          "a_name": "crow_tail",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 1.57832694,
+          "separation": -0.0133855585
+        }
+      ],
+      "other_last_substep_contacts": [
+        {
+          "a": 13,
+          "a_name": "crow_right_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.156822443,
+          "separation": -0.00203484995
+        }
+      ]
+    },
+    {
+      "layout": "held-out-b-lane-5",
+      "lane": 0,
+      "reported_control_step": 1263,
+      "pre_step_root_position_m": [
+        -40.1153145,
+        -11.9336586,
+        0.254336596
+      ],
+      "pre_step_roll_pitch_yaw_rad": [
+        0.12233784386164516,
+        -0.6552920284103089,
+        0.32089045413700945
+      ],
+      "pre_step_root_generalized_linear_velocity_mps": [
+        -7.84318638,
+        -3.33635974,
+        -2.1793139
+      ],
+      "pre_step_root_generalized_angular_velocity_radps": [
+        0.0565880686,
+        -0.0640571043,
+        0.036967773
+      ],
+      "filtered_normalized_action_for_failure_step": {
+        "wing.left_flap": 0.5,
+        "wing.right_flap": 0.5,
+        "wing.left_sweep": 0.0336625502,
+        "wing.right_sweep": -0.0336625502,
+        "wing.left_pronation": 0.104086705,
+        "wing.right_pronation": 0.129669353,
+        "tail.pitch": 0.600000024,
+        "leg.left_hip": -0.099999994,
+        "leg.left_knee": 0.180000007,
+        "leg.left_ankle": -0.0799999982,
+        "leg.right_hip": -0.099999994,
+        "leg.right_knee": 0.180000007,
+        "leg.right_ankle": -0.0799999982,
+        "tail.yaw_moment": -0.166867748,
+        "body.pitch_moment": 0.99999994,
+        "head.yaw": 0.107570648,
+        "head.pitch": -0.26122734,
+        "beak.open": 0.0495120585
+      },
+      "forbidden_contact_candidates_last_substep": [
+        {
+          "a": 7,
+          "a_name": "crow_tail",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 1.68448889,
+          "separation": -0.00135373359
+        }
+      ],
+      "other_last_substep_contacts": []
+    },
+    {
+      "layout": "held-out-b-lane-5",
+      "lane": 1,
+      "reported_control_step": 1434,
+      "pre_step_root_position_m": [
+        -21.0509682,
+        -6.87019634,
+        0.148542106
+      ],
+      "pre_step_roll_pitch_yaw_rad": [
+        -0.03986575936382132,
+        -0.6094036755448908,
+        0.27303016612230685
+      ],
+      "pre_step_root_generalized_linear_velocity_mps": [
+        -0.116299577,
+        -0.0176555403,
+        -0.0875316113
+      ],
+      "pre_step_root_generalized_angular_velocity_radps": [
+        0.072457552,
+        -0.515668094,
+        -0.000918990467
+      ],
+      "filtered_normalized_action_for_failure_step": {
+        "wing.left_flap": 0.196447641,
+        "wing.right_flap": 0.0579002798,
+        "wing.left_sweep": 0.303261489,
+        "wing.right_sweep": -0.0638253242,
+        "wing.left_pronation": 0.0566224791,
+        "wing.right_pronation": -0.00155075698,
+        "tail.pitch": 0.0346330218,
+        "leg.left_hip": -0.0780088976,
+        "leg.left_knee": -0.0321776904,
+        "leg.left_ankle": -0.0632868782,
+        "leg.right_hip": -0.0928878188,
+        "leg.right_knee": 0.089191854,
+        "leg.right_ankle": 0.0573378429,
+        "tail.yaw_moment": 0.0167192146,
+        "body.pitch_moment": -0.0355215408,
+        "head.yaw": -0.264405191,
+        "head.pitch": 0.212273732,
+        "beak.open": 0.114950441
+      },
+      "forbidden_contact_candidates_last_substep": [
+        {
+          "a": 7,
+          "a_name": "crow_tail",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.0336912051,
+          "separation": -1.15298135e-05
+        }
+      ],
+      "other_last_substep_contacts": [
+        {
+          "a": 10,
+          "a_name": "crow_left_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0,
+          "separation": 0.00128722831
+        },
+        {
+          "a": 10,
+          "a_name": "crow_left_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 4.19489015e-06,
+          "separation": 0.000134372167
+        },
+        {
+          "a": 13,
+          "a_name": "crow_right_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 2.49220315e-38,
+          "separation": 0.000922756386
+        },
+        {
+          "a": 13,
+          "a_name": "crow_right_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.0132142631,
+          "separation": -0.000230096019
+        }
+      ]
+    },
+    {
+      "layout": "held-out-b-lane-5",
+      "lane": 2,
+      "reported_control_step": 1394,
+      "pre_step_root_position_m": [
+        -29.8565598,
+        -9.09456348,
+        0.135583982
+      ],
+      "pre_step_roll_pitch_yaw_rad": [
+        -0.005262294530637536,
+        -0.6399768454696569,
+        0.3393620895168352
+      ],
+      "pre_step_root_generalized_linear_velocity_mps": [
+        -0.260183513,
+        -0.0896755233,
+        0.156580538
+      ],
+      "pre_step_root_generalized_angular_velocity_radps": [
+        0.411139041,
+        -1.09988832,
+        0.152256116
+      ],
+      "filtered_normalized_action_for_failure_step": {
+        "wing.left_flap": 0.353654891,
+        "wing.right_flap": 0.210886523,
+        "wing.left_sweep": -0.135206476,
+        "wing.right_sweep": 0.134097517,
+        "wing.left_pronation": -0.00839429535,
+        "wing.right_pronation": -0.118014768,
+        "tail.pitch": 0.242362231,
+        "leg.left_hip": 0.182517663,
+        "leg.left_knee": 0.0236112885,
+        "leg.left_ankle": -0.110458478,
+        "leg.right_hip": -0.115937896,
+        "leg.right_knee": 0.345141321,
+        "leg.right_ankle": -0.0280407555,
+        "tail.yaw_moment": -0.177807689,
+        "body.pitch_moment": -0.0205220841,
+        "head.yaw": -0.0624132305,
+        "head.pitch": 0.079074949,
+        "beak.open": -0.125596792
+      },
+      "forbidden_contact_candidates_last_substep": [
+        {
+          "a": 7,
+          "a_name": "crow_tail",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.0169128105,
+          "separation": 9.62209087e-05
+        },
+        {
+          "a": 7,
+          "a_name": "crow_tail",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 1.05351028e-05,
+          "separation": 0.000674662297
+        }
+      ],
+      "other_last_substep_contacts": [
+        {
+          "a": 10,
+          "a_name": "crow_left_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.000648284331,
+          "separation": -0.0084683476
+        },
+        {
+          "a": 10,
+          "a_name": "crow_left_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.0133326715,
+          "separation": -0.00854722876
+        },
+        {
+          "a": 13,
+          "a_name": "crow_right_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 3.47017846e-07,
+          "separation": -0.00740604755
+        },
+        {
+          "a": 13,
+          "a_name": "crow_right_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 1.79954179e-06,
+          "separation": -0.00748492125
+        }
+      ]
+    },
+    {
+      "layout": "held-out-b-lane-5",
+      "lane": 3,
+      "reported_control_step": 1395,
+      "pre_step_root_position_m": [
+        -47.9958954,
+        -16.9154816,
+        0.142139807
+      ],
+      "pre_step_roll_pitch_yaw_rad": [
+        0.005935574556531891,
+        -0.7021895878311,
+        0.5451578741578192
+      ],
+      "pre_step_root_generalized_linear_velocity_mps": [
+        0.0329656452,
+        0.0131672472,
+        -0.0503705181
+      ],
+      "pre_step_root_generalized_angular_velocity_radps": [
+        0.683883786,
+        -0.83989501,
+        -0.135952324
+      ],
+      "filtered_normalized_action_for_failure_step": {
+        "wing.left_flap": 0.4718557,
+        "wing.right_flap": 0.310079753,
+        "wing.left_sweep": -0.400041729,
+        "wing.right_sweep": 0.460449219,
+        "wing.left_pronation": 0.217895269,
+        "wing.right_pronation": -0.171779871,
+        "tail.pitch": 0.695597351,
+        "leg.left_hip": 0.31233421,
+        "leg.left_knee": 0.139076084,
+        "leg.left_ankle": -0.0080353599,
+        "leg.right_hip": -0.0959966108,
+        "leg.right_knee": 0.641059101,
+        "leg.right_ankle": 0.0812553838,
+        "tail.yaw_moment": -0.354155988,
+        "body.pitch_moment": -0.0481484495,
+        "head.yaw": -0.149019435,
+        "head.pitch": 0.213389754,
+        "beak.open": 0.0487865135
+      },
+      "forbidden_contact_candidates_last_substep": [
+        {
+          "a": 7,
+          "a_name": "crow_tail",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 3.47778087e-06,
+          "separation": -0.000242226743
+        },
+        {
+          "a": 7,
+          "a_name": "crow_tail",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0,
+          "separation": 0.00111796416
+        }
+      ],
+      "other_last_substep_contacts": [
+        {
+          "a": 10,
+          "a_name": "crow_left_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.0272725988,
+          "separation": -0.0010091383
+        },
+        {
+          "a": 10,
+          "a_name": "crow_left_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.0035795751,
+          "separation": -0.000823654351
+        }
+      ]
+    },
+    {
+      "layout": "held-out-b-lane-5",
+      "lane": 4,
+      "reported_control_step": 1346,
+      "pre_step_root_position_m": [
+        -45.8510666,
+        -14.7440348,
+        0.213671863
+      ],
+      "pre_step_roll_pitch_yaw_rad": [
+        0.211348371986473,
+        -0.7522775556552618,
+        0.6622278743154202
+      ],
+      "pre_step_root_generalized_linear_velocity_mps": [
+        -6.88899994,
+        -5.57975817,
+        -0.745527923
+      ],
+      "pre_step_root_generalized_angular_velocity_radps": [
+        -0.24919863,
+        0.709321499,
+        0.482287854
+      ],
+      "filtered_normalized_action_for_failure_step": {
+        "wing.left_flap": 0.5,
+        "wing.right_flap": 0.5,
+        "wing.left_sweep": 0.145793378,
+        "wing.right_sweep": -0.145793378,
+        "wing.left_pronation": 0.240846381,
+        "wing.right_pronation": -0.196901292,
+        "tail.pitch": 0.600000024,
+        "leg.left_hip": -0.099999994,
+        "leg.left_knee": 0.180000007,
+        "leg.left_ankle": -0.0799999982,
+        "leg.right_hip": -0.099999994,
+        "leg.right_knee": 0.180000007,
+        "leg.right_ankle": -0.0799999982,
+        "tail.yaw_moment": -0.99999994,
+        "body.pitch_moment": 0.99999994,
+        "head.yaw": 0.210154071,
+        "head.pitch": -0.118437402,
+        "beak.open": -0.002567766
+      },
+      "forbidden_contact_candidates_last_substep": [
+        {
+          "a": 7,
+          "a_name": "crow_tail",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 1.54649007,
+          "separation": -0.00145214901
+        }
+      ],
+      "other_last_substep_contacts": []
+    },
+    {
+      "layout": "held-out-b-lane-5",
+      "lane": 5,
+      "reported_control_step": 594,
+      "pre_step_root_position_m": [
+        1.05463386,
+        -0.215663448,
+        0.590151191
+      ],
+      "pre_step_roll_pitch_yaw_rad": [
+        0.1747529636510778,
+        0.14438837907785285,
+        0.11141653786383895
+      ],
+      "pre_step_root_generalized_linear_velocity_mps": [
+        0.996381879,
+        -1.2927413,
+        0.158557609
+      ],
+      "pre_step_root_generalized_angular_velocity_radps": [
+        -0.102423951,
+        0.0247895271,
+        0.0434550717
+      ],
+      "filtered_normalized_action_for_failure_step": {
+        "wing.left_flap": -0.22516188,
+        "wing.right_flap": 0.238417968,
+        "wing.left_sweep": 0.0037670054,
+        "wing.right_sweep": -0.0037670054,
+        "wing.left_pronation": -0.264068604,
+        "wing.right_pronation": -0.0368851125,
+        "tail.pitch": 0.124188326,
+        "leg.left_hip": -0.099999994,
+        "leg.left_knee": 0.180000007,
+        "leg.left_ankle": -0.0799999982,
+        "leg.right_hip": -0.099999994,
+        "leg.right_knee": 0.180000007,
+        "leg.right_ankle": -0.0799999982,
+        "tail.yaw_moment": 0.37085703,
+        "body.pitch_moment": 0.187290788,
+        "head.yaw": 0.122213788,
+        "head.pitch": -0.2796821,
+        "beak.open": 0.189974874
+      },
+      "forbidden_contact_candidates_last_substep": [
+        {
+          "a": 6,
+          "a_name": "crow_right_wing",
+          "b": 19,
+          "b_name": "crow_course_gate_right",
+          "normal_impulse": 0.744777441,
+          "separation": -0.00421621697
+        }
+      ],
+      "other_last_substep_contacts": []
+    },
+    {
+      "layout": "held-out-b-lane-5",
+      "lane": 6,
+      "reported_control_step": 694,
+      "pre_step_root_position_m": [
+        0.474641263,
+        0.753937602,
+        0.248666629
+      ],
+      "pre_step_roll_pitch_yaw_rad": [
+        -0.850533430097472,
+        0.06520335460614854,
+        -0.07862409597175468
+      ],
+      "pre_step_root_generalized_linear_velocity_mps": [
+        -1.85285461,
+        5.61358356,
+        -0.300743908
+      ],
+      "pre_step_root_generalized_angular_velocity_radps": [
+        2.29509759,
+        0.405570298,
+        -0.601539671
+      ],
+      "filtered_normalized_action_for_failure_step": {
+        "wing.left_flap": 0.5,
+        "wing.right_flap": 0.141568914,
+        "wing.left_sweep": 0.194315776,
+        "wing.right_sweep": -0.194315776,
+        "wing.left_pronation": 0.264335781,
+        "wing.right_pronation": -0.185664192,
+        "tail.pitch": 0.499168336,
+        "leg.left_hip": -0.099999994,
+        "leg.left_knee": 0.180000007,
+        "leg.left_ankle": -0.0799999982,
+        "leg.right_hip": -0.099999994,
+        "leg.right_knee": 0.180000007,
+        "leg.right_ankle": -0.0799999982,
+        "tail.yaw_moment": -0.999987781,
+        "body.pitch_moment": 0.36467877,
+        "head.yaw": -0.125668555,
+        "head.pitch": 0.156518519,
+        "beak.open": 0.17607303
+      },
+      "forbidden_contact_candidates_last_substep": [
+        {
+          "a": 5,
+          "a_name": "crow_left_wing",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.791125774,
+          "separation": -0.000492736115
+        }
+      ],
+      "other_last_substep_contacts": []
+    },
+    {
+      "layout": "held-out-b-lane-5",
+      "lane": 7,
+      "reported_control_step": 1372,
+      "pre_step_root_position_m": [
+        -32.5974731,
+        -9.76327133,
+        0.166336298
+      ],
+      "pre_step_roll_pitch_yaw_rad": [
+        -0.06734660803047976,
+        -0.5210376972297285,
+        0.35445155323966315
+      ],
+      "pre_step_root_generalized_linear_velocity_mps": [
+        -4.4101882,
+        -0.818659246,
+        -2.98329687
+      ],
+      "pre_step_root_generalized_angular_velocity_radps": [
+        -0.110848047,
+        0.165560707,
+        0.00620988384
+      ],
+      "filtered_normalized_action_for_failure_step": {
+        "wing.left_flap": -0.128523409,
+        "wing.right_flap": -0.0504833162,
+        "wing.left_sweep": -0.0352172628,
+        "wing.right_sweep": 0.0599585958,
+        "wing.left_pronation": 0.0849263966,
+        "wing.right_pronation": -0.0603437759,
+        "tail.pitch": 0.128173202,
+        "leg.left_hip": 0.213380948,
+        "leg.left_knee": -0.226422325,
+        "leg.left_ankle": -0.102587745,
+        "leg.right_hip": 0.0703022927,
+        "leg.right_knee": -0.18822512,
+        "leg.right_ankle": -0.196924701,
+        "tail.yaw_moment": -0.033071164,
+        "body.pitch_moment": 0.99999994,
+        "head.yaw": -0.00665588398,
+        "head.pitch": 0.049392648,
+        "beak.open": -0.0959902182
+      },
+      "forbidden_contact_candidates_last_substep": [
+        {
+          "a": 7,
+          "a_name": "crow_tail",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.711817324,
+          "separation": -0.00361403753
+        }
+      ],
+      "other_last_substep_contacts": [
+        {
+          "a": 10,
+          "a_name": "crow_left_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.00592494477,
+          "separation": -0.000631800795
+        },
+        {
+          "a": 10,
+          "a_name": "crow_left_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.00610962138,
+          "separation": -0.00337123941
+        },
+        {
+          "a": 13,
+          "a_name": "crow_right_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.00591495121,
+          "separation": 0.000863418391
+        },
+        {
+          "a": 13,
+          "a_name": "crow_right_foot",
+          "b": 17,
+          "b_name": "locomotion_ground",
+          "normal_impulse": 0.00967307389,
+          "separation": -0.00187601661
+        }
+      ]
+    }
+  ],
+  "caveat": "Final-substep contacts only; a candidate is not proof of the unique first microstep collider. Pre-step state is the previous accepted control step. Filtered normalized actions are actuator inputs, not measured torques."
+}

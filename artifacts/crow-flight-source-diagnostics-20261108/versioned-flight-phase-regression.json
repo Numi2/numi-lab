@@ -1,0 +1,7 @@
+{
+  "lane_zero_1600_step_trace_byte_identical": true,
+  "first_episode_results_identical": true,
+  "failed_environment_steps_old": 0,
+  "failed_environment_steps_new": 0,
+  "scope": "Matches earlier experimental flight-phase fix against versioned compiled implementation with a diagnostic full-flight teacher and obstacle-free v15 scene. Does not qualify the controller."
+}

@@ -4404,7 +4404,8 @@ TaskCompileDiagnostics compileTaskProgram(
     }
     if (pack.id == "american_crow_active_head_navigation_development_v1") {
         staged->header.schedule.w |=
-            MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TEACHER_FEEDBACK;
+            MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TEACHER_FEEDBACK |
+            MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_FLIGHT_PHASE;
     }
     if (threatGroup != MR_INVALID_INDEX) {
         staged->header.schedule.w |=

@@ -4940,7 +4940,9 @@ kernel void mr_locomotion_task_apply_actions(
         // teacher's intentionally neutral post-flight action.
         const bool avianJourneyLandedActorHandoff =
             avianJourneyTeacher && state.episode.z >= 9u &&
-            state.commandExtension.w >= (27.0f / 32.0f);
+            state.commandExtension.w >= (27.0f / 32.0f) &&
+            (program.schedule.w &
+             MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_FLIGHT_PHASE) == 0u;
         const bool avianNavigationTeacher =
             avianJourneyTeacher &&
             (program.schedule.w &
@@ -5101,7 +5103,9 @@ kernel void mr_locomotion_task_apply_actions(
             (state.episode.z == 4u
                 ? state.commandExtension.w < 0.03125f
                 : (state.commandExtension.w < 0.15625f ||
-                   state.commandExtension.w >= 0.84375f));
+                   (state.commandExtension.w >= 0.84375f &&
+                    (program.schedule.w &
+                     MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_FLIGHT_PHASE) == 0u)));
         const bool avianGroundCurriculum = avianActionSet &&
             (program.schedule.w &
              MR_TASK_PROGRAM_AVIAN_GROUND_CURRICULUM) != 0u &&
@@ -6166,7 +6170,9 @@ kernel void mr_locomotion_task_complete_history2(
           (avianJourneyTakeoffCruise
               ? avianJourneyPhase < 0.03125f
               : (avianJourneyPhase < 0.15625f ||
-                 avianJourneyPhase >= 0.84375f))));
+                 (avianJourneyPhase >= 0.84375f &&
+                  (program.schedule.w &
+                   MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_FLIGHT_PHASE) == 0u)))));
     const bool avianCrowGroundTiltEnvelope =
         avianGroundCurriculum && avianCurriculumBand == 1u &&
         (program.schedule.w &
