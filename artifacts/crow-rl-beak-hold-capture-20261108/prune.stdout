@@ -1,0 +1,29 @@
+{"verified_files": 105, "verified_unique_contents": 67, "manifest_sha256": "f42f0fb23d5f920ae4c1bc55e9bd85115749cd1edd3f8dfb4aacfadbc1dd524a", "commit": "df38f601577f6ca62c2d4b31a65d2e230095a027"}
+{
+  "archive_commit": "df38f601577f6ca62c2d4b31a65d2e230095a027",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300149340 157199800    66% 3497970 1571998000    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300165164 157183976    66% 3498094 1571839760    0%   /System/Volumes/Data\n",
+  "manifest": "artifacts/crow-rl-beak-hold-capture-20261108/payload/manifest.json",
+  "manifest_sha256": "f42f0fb23d5f920ae4c1bc55e9bd85115749cd1edd3f8dfb4aacfadbc1dd524a",
+  "open_handle_checks": [
+    {
+      "exists": false,
+      "open_handles": 0,
+      "root": ".numi/runs/american-crow"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": ".numi/retained-runtime"
+    },
+    {
+      "exit_code": 1,
+      "open_handles": 0,
+      "root": "build"
+    }
+  ],
+  "remote_commit": "df38f601577f6ca62c2d4b31a65d2e230095a027",
+  "removed_files": 105,
+  "removed_logical_bytes": 15910215
+}
+
