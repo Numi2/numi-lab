@@ -1,0 +1,18 @@
+{
+  "failed_verification_commit": "a602ee65aa42a79f6dbc6872ee571dd157e28827",
+  "failed_verification_error": "Recovered evidence mismatch: build/crow-bounded-drive-integration-build-01/recover_git.py",
+  "mismatches_before_repair_commit": [
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-git-recovery-bounded-drive-20261108/recover_git.py"
+      },
+      "source": "build/crow-bounded-drive-integration-build-01/recover_git.py"
+    }
+  ],
+  "native_recovery_executed_before_repair": false,
+  "new_instrument_sha256": "7b072a95f12daeda34f4f0d689bc065ae944ff46082576f58507616e2f5d822a",
+  "previous_plan_sha256": "02da7b6e7a4a78544941a1768c66879bcea29d8e6e3a4872d90023dca99a86ee",
+  "restored_backing_sha256": "68665d7d728ead32116346be3dd76835fa09499949c4ef25d61f959190e102d9",
+  "source_deleted": false
+}
