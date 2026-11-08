@@ -1,0 +1,7 @@
+{
+  "purpose": "Repair and qualify the archival path gap without changing any frozen scientific endpoint. Interval31 emits checkpoint96 only; final97 learner/policy/rollout live at the arm root, not a numbered full-life checkpoint.",
+  "budget": "Exactly one native future-update continuation per arm from retained checkpoint96;40960 engineering replay transitions. No retry or new seed; timeout180s each. Original32-update histories and all9 heldout seeds remain frozen.",
+  "prediction": "Actual unchanged runtime + strict source/learner/life/RNG/retina checkpoint96 reproduces original final updated/deployment policy, rollout and model/Adam state byte-exact, while explicitly writing final full-life checkpoint97 with interval1.",
+  "incumbent": "Process-local incumbent is initialized on worker start and is not a scientific endpoint or byte comparison in this continuation.",
+  "scope": "Original-runtime engineering continuation, followed separately by scoped actual Git-restored execution. Not an extra optimizer arm, training extension or algorithm-level replicate."
+}
