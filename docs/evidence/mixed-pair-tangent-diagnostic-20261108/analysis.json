@@ -1,0 +1,104 @@
+{
+  "valid": true,
+  "control_and_trace_match_prior_exposed_state": true,
+  "failed_step": 12,
+  "status": 11,
+  "status_tangent_m_s": 0.002602912718,
+  "cpu_max_tangent_m_s": 0.002602912781485273,
+  "dominant_row": 1,
+  "rows": [
+    {
+      "row": 0,
+      "flags": 2,
+      "kind": "rigid",
+      "normal_impulse_Ns": 0.009517544881,
+      "tangent_impulse_Ns": [
+        0,
+        -2.931099289e-06
+      ],
+      "normal_equation_m_s": 7.217749953e-09,
+      "tangent_rhs_m_s": [
+        0,
+        3.425973887e-07
+      ],
+      "tangent_relative_velocity_m_s": [
+        0,
+        -3.425973887e-07
+      ],
+      "tangent_regularization": [
+        0,
+        0
+      ],
+      "friction": [
+        0.5,
+        0.5
+      ],
+      "cone_utilization": 0.0006159360056922647,
+      "preconditioner": 0.9891098738,
+      "reported_tangent_residual_m_s": 3.425973034e-07,
+      "cpu_tangent_residual_m_s": 3.4259738870000006e-07
+    },
+    {
+      "row": 1,
+      "flags": 10,
+      "kind": "rod",
+      "normal_impulse_Ns": 8.097846148e-06,
+      "tangent_impulse_Ns": [
+        3.526103683e-06,
+        0
+      ],
+      "normal_equation_m_s": -1.8134946e-05,
+      "tangent_rhs_m_s": [
+        0.01606827043,
+        0
+      ],
+      "tangent_relative_velocity_m_s": [
+        -0.01606827043,
+        0
+      ],
+      "tangent_regularization": [
+        0,
+        0
+      ],
+      "friction": [
+        0.5,
+        0.5
+      ],
+      "cone_utilization": 0.8708744568753938,
+      "preconditioner": 0.0002008593583,
+      "reported_tangent_residual_m_s": 0.002602912718,
+      "cpu_tangent_residual_m_s": 0.002602912781485273
+    },
+    {
+      "row": 2,
+      "flags": 10,
+      "kind": "rod",
+      "normal_impulse_Ns": 1.050821425e-06,
+      "tangent_impulse_Ns": [
+        -5.254107123e-07,
+        0
+      ],
+      "normal_equation_m_s": 4.188669845e-05,
+      "tangent_rhs_m_s": [
+        -0.01278324332,
+        0
+      ],
+      "tangent_relative_velocity_m_s": [
+        0.01278324332,
+        0
+      ],
+      "tangent_regularization": [
+        0,
+        0
+      ],
+      "friction": [
+        0.5,
+        0.5
+      ],
+      "cone_utilization": 0.9999999996193454,
+      "preconditioner": 0.0002009190066,
+      "reported_tangent_residual_m_s": 0,
+      "cpu_tangent_residual_m_s": 9.954261991515645e-13
+    }
+  ]
+}

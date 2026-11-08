@@ -1,0 +1,6 @@
+Host: ssh numi
+Source commit before native build: b067e9831
+Build: python3 build.py
+Control: /Users/numi/Work/mixed-full-operator-artifacts-20261108/probe /Users/numi/Work/mixed-normal-block-artifacts-20261108/candidate.metallib 2 > control.json 2> control.stderr
+Trace: /Users/numi/Work/mixed-full-operator-artifacts-20261108/probe "$PWD/trace.metallib" 2 > trace.json 2> trace.stderr
+Analysis: python3 analyze.py
