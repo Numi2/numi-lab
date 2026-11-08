@@ -1,0 +1,6 @@
+gpu_trace case=zero_load iterations=1 max_error=0 net_correction=0
+case=zero_load reference_valid=1 accepted=1 host=success gpu=0 x_ref=0.058793778926163949 x_actual=0.058793779462575912 v_ref=-6.9388939039072284e-15 v_actual=0 force_left_ref=-2.8111062182531437e-16 force_left_actual=0 force_right_ref=-2.8111062182531437e-16 force_right_actual=0 state_gate=1 force_gate=1 passed=1
+gpu_trace case=asymmetric iterations=12 max_error=1.3634562492370605e-06 net_correction=8.9406967163085938e-08
+case=asymmetric reference_valid=1 accepted=1 host=success gpu=0 x_ref=0.058794987598094796 x_actual=0.058795012533664703 v_ref=-1.205012401905202 v_actual=-1.2049860954284668 force_left_ref=4.8966092113021914e-05 force_left_actual=5.8670291764428839e-05 force_right_ref=4.8966092113021914e-05 force_right_actual=3.9259084587683901e-05 state_gate=1 force_gate=0 passed=0
+gpu_trace case=moving iterations=12 max_error=1.3746321201324463e-06 net_correction=8.9406967163085938e-08
+case=moving reference_valid=1 accepted=1 host=success gpu=0 x_ref=0.058794997618413267 x_actual=0.0587950199842453 v_ref=-1.205002381586731 v_actual=-1.2049785852432251 force_left_ref=4.9372038362557374e-05 force_left_actual=5.9156707720831037e-05 force_right_ref=4.9372038362557374e-05 force_right_actual=3.9585454942425713e-05 state_gate=1 force_gate=0 passed=0
