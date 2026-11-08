@@ -1,0 +1,13 @@
+{
+  "archives": 291,
+  "links_skipped": 9,
+  "prior_sha_comparisons": 291,
+  "sha_mismatches": [],
+  "members": 26714,
+  "regular_prefixes": 26023,
+  "schema_matches": 18,
+  "phase_matches": 0,
+  "classification_errors": [],
+  "compressed_bytes": 2820621467,
+  "positive_and_negative_regex_controls": "passed"
+}

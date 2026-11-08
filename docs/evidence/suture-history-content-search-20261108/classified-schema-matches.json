@@ -1,0 +1,257 @@
+{
+  "rows": [
+    {
+      "object": "729dcabedd571338c6005540dbca9c275ddb688b",
+      "archive_paths": [
+        "numi/evidence/fresh-robot-approach-20261108/continuation-001.tar.gz"
+      ],
+      "member": "results/tissue-robot-first-bite-approach.tsv",
+      "bytes": 31943,
+      "sha256": "5a5f9dd59ceb6ffd1c6ed6250ae47515512a73c6ddaac1718f420dd4e30fa1a9",
+      "fields": {
+        "schema": "numi.dual-psm-suture-handoff-state.v3",
+        "phase": "tissue-robot-first-bite-approach",
+        "step": "621"
+      }
+    },
+    {
+      "object": "df91b76c12cf052041cfb2b2d080071875f03330",
+      "archive_paths": [
+        "numi/evidence/fresh-robot-approach-20261108/continuation-002.tar.gz"
+      ],
+      "member": "results/tissue-robot-first-bite-approach.tsv",
+      "bytes": 32085,
+      "sha256": "6bc9d7b9f22705154b804a5517741e2aa15de26a850606e5cd189b079e6a49b2",
+      "fields": {
+        "schema": "numi.dual-psm-suture-handoff-state.v3",
+        "phase": "tissue-robot-first-bite-approach",
+        "step": "1005"
+      }
+    },
+    {
+      "object": "7efa5d3ee03966644d98424c7a1f00c41c488731",
+      "archive_paths": [
+        "numi/evidence/fresh-robot-approach-20261108/continuation-003.tar.gz"
+      ],
+      "member": "results/tissue-robot-first-bite-approach.tsv",
+      "bytes": 32047,
+      "sha256": "3976b859083d35f9ae6b0aa325c15872db77e6442cd724959e98053520d0f128",
+      "fields": {
+        "schema": "numi.dual-psm-suture-handoff-state.v3",
+        "phase": "tissue-robot-first-bite-approach",
+        "step": "1389"
+      }
+    },
+    {
+      "object": "3aecef87311844acdcca07dfbde4c9b07369427a",
+      "archive_paths": [
+        "numi/evidence/fresh-robot-approach-20261108/entry-002-contact-fix.tar.gz"
+      ],
+      "member": "results/tissue-robot-first-bite-contact.tsv",
+      "bytes": 31989,
+      "sha256": "9253d9ab71962cd510ec19c3542273dab63d48b95f15000f57e8c9394afd300a",
+      "fields": {
+        "schema": "numi.dual-psm-suture-handoff-state.v3",
+        "phase": "tissue-robot-first-bite-contact",
+        "step": "1645"
+      }
+    },
+    {
+      "object": "1b7cc96eb8d5e9d3d6148eebb41e7d8131405349",
+      "archive_paths": [
+        "numi/evidence/fresh-robot-approach-20261108/contact-advance-001-partial-state.tar.gz"
+      ],
+      "member": "results/tissue-robot-first-bite-contact.tsv",
+      "bytes": 31938,
+      "sha256": "ba2618cc64a727b544740f0dd48f957d1423521c883143939e02e1ad74bcaf28",
+      "fields": {
+        "schema": "numi.dual-psm-suture-handoff-state.v3",
+        "phase": "tissue-robot-first-bite-contact",
+        "step": "1773"
+      }
+    },
+    {
+      "object": "07406d18300127d8688d40fc74c59d8d5062a49f",
+      "archive_paths": [
+        "numi/evidence/fresh-robot-approach-20261108/contact-advance-002-cache.tar.gz"
+      ],
+      "member": "results/tissue-robot-first-bite-contact.tsv",
+      "bytes": 32062,
+      "sha256": "70e8f45baea75bfaca649a88126ab5b33e2345441e26dcc4eec7d2fafe7eec0e",
+      "fields": {
+        "schema": "numi.dual-psm-suture-handoff-state.v3",
+        "phase": "tissue-robot-first-bite-contact",
+        "step": "1773"
+      }
+    },
+    {
+      "object": "b7cd8a3a7aacb7d6c0109b9c72ae5c97ba2e0be5",
+      "archive_paths": [
+        "numi/evidence/fresh-robot-approach-20261108/same-resident-control-001.tar.gz"
+      ],
+      "member": "results/advance/tissue-robot-first-bite-contact.tsv",
+      "bytes": 32095,
+      "sha256": "21c38887c75df8b619398f4d65086b48017ffb7d3e426735ea83e5abb9528b0a",
+      "fields": {
+        "schema": "numi.dual-psm-suture-handoff-state.v3",
+        "phase": "tissue-robot-first-bite-contact",
+        "step": "1773"
+      }
+    },
+    {
+      "object": "b7cd8a3a7aacb7d6c0109b9c72ae5c97ba2e0be5",
+      "archive_paths": [
+        "numi/evidence/fresh-robot-approach-20261108/same-resident-control-001.tar.gz"
+      ],
+      "member": "results/entry/tissue-robot-first-bite-contact.tsv",
+      "bytes": 31989,
+      "sha256": "9253d9ab71962cd510ec19c3542273dab63d48b95f15000f57e8c9394afd300a",
+      "fields": {
+        "schema": "numi.dual-psm-suture-handoff-state.v3",
+        "phase": "tissue-robot-first-bite-contact",
+        "step": "1645"
+      }
+    },
+    {
+      "object": "68fc3bd91cea3bf9e5948875dd1a09a22a1f217e",
+      "archive_paths": [
+        "numi/evidence/fresh-robot-approach-20261108/rod-witness-readback-001.tar.gz"
+      ],
+      "member": "results/advance/tissue-robot-first-bite-contact.tsv",
+      "bytes": 32095,
+      "sha256": "21c38887c75df8b619398f4d65086b48017ffb7d3e426735ea83e5abb9528b0a",
+      "fields": {
+        "schema": "numi.dual-psm-suture-handoff-state.v3",
+        "phase": "tissue-robot-first-bite-contact",
+        "step": "1773"
+      }
+    },
+    {
+      "object": "68fc3bd91cea3bf9e5948875dd1a09a22a1f217e",
+      "archive_paths": [
+        "numi/evidence/fresh-robot-approach-20261108/rod-witness-readback-001.tar.gz"
+      ],
+      "member": "results/entry/tissue-robot-first-bite-contact.tsv",
+      "bytes": 31989,
+      "sha256": "9253d9ab71962cd510ec19c3542273dab63d48b95f15000f57e8c9394afd300a",
+      "fields": {
+        "schema": "numi.dual-psm-suture-handoff-state.v3",
+        "phase": "tissue-robot-first-bite-contact",
+        "step": "1645"
+      }
+    },
+    {
+      "object": "e48f0c6872c7ad7f4b627a7feeb7452ea31324f3",
+      "archive_paths": [
+        "numi/evidence/fresh-robot-approach-20261108/trajectory-inputs-outputs.tar.gz"
+      ],
+      "member": "results/tissue-robot-first-bite-grip.tsv",
+      "bytes": 31848,
+      "sha256": "e13091a39a91d6070a9727349d852da81391eeda8c3e4fc7242a20627f44590a",
+      "fields": {
+        "schema": "numi.dual-psm-suture-handoff-state.v3",
+        "phase": "tissue-robot-first-bite-grip",
+        "step": "45"
+      }
+    },
+    {
+      "object": "e48f0c6872c7ad7f4b627a7feeb7452ea31324f3",
+      "archive_paths": [
+        "numi/evidence/fresh-robot-approach-20261108/trajectory-inputs-outputs.tar.gz"
+      ],
+      "member": "results/tissue-robot-first-bite-approach.tsv",
+      "bytes": 31823,
+      "sha256": "aae16c75c7a39eb00643a386b601e176cf5faf05e3efe6b93ca532188433bec2",
+      "fields": {
+        "schema": "numi.dual-psm-suture-handoff-state.v3",
+        "phase": "tissue-robot-first-bite-approach",
+        "step": "237"
+      }
+    },
+    {
+      "object": "b154df8dfe61bf393bba59b3d16da3197ae3a365",
+      "archive_paths": [
+        "numi/evidence/fresh-robot-approach-20261108/partial-owner-capsule-001.tar.gz"
+      ],
+      "member": "./tissue-robot-first-bite-approach.tsv",
+      "bytes": 32047,
+      "sha256": "3976b859083d35f9ae6b0aa325c15872db77e6442cd724959e98053520d0f128",
+      "fields": {
+        "schema": "numi.dual-psm-suture-handoff-state.v3",
+        "phase": "tissue-robot-first-bite-approach",
+        "step": "1389"
+      }
+    },
+    {
+      "object": "b154df8dfe61bf393bba59b3d16da3197ae3a365",
+      "archive_paths": [
+        "numi/evidence/fresh-robot-approach-20261108/partial-owner-capsule-001.tar.gz"
+      ],
+      "member": "./results/advance/tissue-robot-first-bite-contact.tsv",
+      "bytes": 32095,
+      "sha256": "21c38887c75df8b619398f4d65086b48017ffb7d3e426735ea83e5abb9528b0a",
+      "fields": {
+        "schema": "numi.dual-psm-suture-handoff-state.v3",
+        "phase": "tissue-robot-first-bite-contact",
+        "step": "1773"
+      }
+    },
+    {
+      "object": "b154df8dfe61bf393bba59b3d16da3197ae3a365",
+      "archive_paths": [
+        "numi/evidence/fresh-robot-approach-20261108/partial-owner-capsule-001.tar.gz"
+      ],
+      "member": "./results/entry/tissue-robot-first-bite-contact.tsv",
+      "bytes": 31989,
+      "sha256": "9253d9ab71962cd510ec19c3542273dab63d48b95f15000f57e8c9394afd300a",
+      "fields": {
+        "schema": "numi.dual-psm-suture-handoff-state.v3",
+        "phase": "tissue-robot-first-bite-contact",
+        "step": "1645"
+      }
+    },
+    {
+      "object": "9fe625693fedebd7d0c37501651a57ac2a0e1272",
+      "archive_paths": [
+        "numi/evidence/fresh-robot-approach-20261108/convex-owner-capture-001.tar.gz"
+      ],
+      "member": "./tissue-robot-first-bite-approach.tsv",
+      "bytes": 32047,
+      "sha256": "3976b859083d35f9ae6b0aa325c15872db77e6442cd724959e98053520d0f128",
+      "fields": {
+        "schema": "numi.dual-psm-suture-handoff-state.v3",
+        "phase": "tissue-robot-first-bite-approach",
+        "step": "1389"
+      }
+    },
+    {
+      "object": "9fe625693fedebd7d0c37501651a57ac2a0e1272",
+      "archive_paths": [
+        "numi/evidence/fresh-robot-approach-20261108/convex-owner-capture-001.tar.gz"
+      ],
+      "member": "./results/advance/tissue-robot-first-bite-contact.tsv",
+      "bytes": 32095,
+      "sha256": "21c38887c75df8b619398f4d65086b48017ffb7d3e426735ea83e5abb9528b0a",
+      "fields": {
+        "schema": "numi.dual-psm-suture-handoff-state.v3",
+        "phase": "tissue-robot-first-bite-contact",
+        "step": "1773"
+      }
+    },
+    {
+      "object": "9fe625693fedebd7d0c37501651a57ac2a0e1272",
+      "archive_paths": [
+        "numi/evidence/fresh-robot-approach-20261108/convex-owner-capture-001.tar.gz"
+      ],
+      "member": "./results/entry/tissue-robot-first-bite-contact.tsv",
+      "bytes": 31989,
+      "sha256": "9253d9ab71962cd510ec19c3542273dab63d48b95f15000f57e8c9394afd300a",
+      "fields": {
+        "schema": "numi.dual-psm-suture-handoff-state.v3",
+        "phase": "tissue-robot-first-bite-contact",
+        "step": "1645"
+      }
+    }
+  ],
+  "errors": []
+}

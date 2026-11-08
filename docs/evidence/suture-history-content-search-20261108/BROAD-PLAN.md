@@ -1,0 +1,3 @@
+# Historical surgery-related names and archives
+
+The phase-name added-path scan found no match, while the blob-only enumeration identified 16,816 missing object IDs. Extend the same no-lazy-fetch added-path scan to every name containing suture, surgery, needle, stitching, or receiver, regardless of extension, and all tracked compressed archives regardless of name. Preserve commit markers and raw output. Compare distinct archive blobs with the 300 branch-tip archive inventory; inspect historical-only surgery-associated archive metadata within explicit size limits before deciding whether to retrieve any unavailable blob. This remains name/provenance triage, not proof the checkpoint does or does not exist.

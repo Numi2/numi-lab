@@ -1,0 +1,3 @@
+# Follow-up: historical path names for missing blobs
+
+The object enumeration completed but listed 16,816 missing object IDs without associated paths, so its negative path result is inadequate for promised blobs. Scan added path names from the reachable history of the same frozen ref set, including merge parents, root commits, and renames treated as add/delete, with no blob content fetch. Retain commit markers and matching phase/checkpoint paths, plus errors and exit status. A missing tree may still hide paths; a match remains only a lead. Inspect a bounded number of relevant candidate blobs and associated archive files after establishing path and provenance. Preserve the first incomplete search and its missing-object list.

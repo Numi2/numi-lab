@@ -1,0 +1,3 @@
+# Search generic historical TSV payloads
+
+The checkpoint writer emits tab-separated schema and phase fields, though files may have been renamed. Enumerate all added or modified `.tsv` paths from the same reachable history, resolve exact blob IDs, and inspect locally available regular blobs up to 8 MiB without lazy fetching. Search for `numi.dual-psm-suture-handoff-state.v3` and `tissue-receiver-bridge-start` independently, reporting availability, lengths, hashes, and matching paths/commits. Record missing or oversized blobs and do not infer absence from those. Do not extract, restore or change any candidate. Subsequent validation must include Matter snapshot identity, all rigid and rod owner state, stage provenance and native replay.
