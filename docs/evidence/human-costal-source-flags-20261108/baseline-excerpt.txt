@@ -1,0 +1,6 @@
+Before compiler correction, the new direct-caller flag regression produced:
+
+    numi_human_costal_cook_ownership ... Failed
+    accepted malformed source attachment flags 3
+
+The test stopped at flags 3; flags 4 was checked after the correction.

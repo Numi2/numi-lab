@@ -1,0 +1,56 @@
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_canonical_precision_materials=0 source=compiler_exact_energy_proof tangent_policy=unchanged
+attempt=0 transaction=18178 generation=1 slot=1 control=47 timestamp_us=4704
+human_node_work_layout tiles=0 nodes=4 active_anchors=2 sparse=1
+human_immutable_contact_storage=shared_upload_owner cpu_staging_released_bytes=0 samples=0 sample_rows_unchanged=1 device_allocated_bytes=55967744 recommended_working_set_bytes=12713115648
+matter_mixed_field_smoother_dispatch_count=skipped step=47 count=630 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=47 node=490 element=140 environment_count=1
+node=0 delta=0,-0.00017029,1.49012e-08
+node=1 delta=7.45058e-09,-0.00017035,1.49012e-08
+node=2 delta=-5.21541e-08,-0.000172734,-5.34505e-05
+node=3 delta=-8.19564e-08,-0.000110447,1.3113e-06
+attachment_row=0 node=0 body=1 raw_reaction_n=-0.00414287,-0.00369722,-0.00176924
+attachment_row=1 node=1 body=2 raw_reaction_n=0.0040943,2.82371e-05,2.04071e-05
+accepted_displacement_m=0.000180815 reaction_l1=0.00582778,0.00409445 generalized_l1=0.00532348 joint6=-0.000102367
+PASS accepted costal owner step=0 displacement_m=0.000180815 reactions_n=0.00582778,0.00409445 synthetic_brain_witness=1
+attempt=1 transaction=18179 generation=2 slot=2 control=48 timestamp_us=8871
+matter_mixed_field_smoother_dispatch_count=skipped step=48 count=630 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=48 node=490 element=140 environment_count=1
+node=0 delta=0,-0.000340641,1.49012e-08
+node=1 delta=2.23517e-08,-0.0003407,1.49012e-08
+node=2 delta=1.11759e-07,-0.000339627,-0.000116557
+node=3 delta=4.47035e-08,-0.000230193,-2.87592e-06
+attachment_row=0 node=0 body=1 raw_reaction_n=-0.000504344,-0.000446525,-0.000505431
+attachment_row=1 node=1 body=2 raw_reaction_n=0.000479609,1.50794e-05,9.56645e-06
+accepted_displacement_m=0.000359071 reaction_l1=0.000842145,0.000479941 generalized_l1=0.000221391 joint6=-2.58352e-06
+PASS accepted costal owner step=1 displacement_m=0.000359071 reactions_n=0.000842145,0.000479941 synthetic_brain_witness=1
+attempt=2 transaction=18180 generation=3 slot=3 control=49 timestamp_us=13038
+matter_mixed_field_smoother_dispatch_count=skipped step=49 count=630 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=49 node=490 element=140 environment_count=1
+node=0 delta=7.45058e-09,-0.000510991,1.49012e-08
+node=1 delta=1.49012e-08,-0.00051105,1.49012e-08
+node=2 delta=4.47035e-08,-0.000515223,-0.000165999
+node=3 delta=-7.45058e-09,-0.000344813,-4.11272e-06
+attachment_row=0 node=0 body=1 raw_reaction_n=-0.000201561,-0.000111627,-0.000121111
+attachment_row=1 node=1 body=2 raw_reaction_n=0.000166537,2.09524e-05,1.38376e-05
+accepted_displacement_m=0.000541304 reaction_l1=0.000260298,0.000168419 generalized_l1=0.00160625 joint6=-1.51912e-05
+PASS accepted costal owner step=2 displacement_m=0.000541304 reactions_n=0.000260298,0.000168419 synthetic_brain_witness=1
+attempt=3 transaction=18181 generation=4 slot=4 control=50 timestamp_us=17205
+matter_mixed_field_smoother_dispatch_count=skipped step=50 count=630 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=50 node=490 element=140 environment_count=1
+node=0 delta=1.49012e-08,-0.000681221,2.98023e-08
+node=1 delta=2.23517e-08,-0.000681341,2.98023e-08
+node=2 delta=3.72529e-08,-0.000691056,-0.000214681
+node=3 delta=-2.23517e-08,-0.000465214,-9.32813e-06
+attachment_row=0 node=0 body=1 raw_reaction_n=-0.000448025,-0.000175646,0.000102172
+attachment_row=1 node=1 body=2 raw_reaction_n=0.000376944,4.59895e-05,2.39346e-05
+accepted_displacement_m=0.000723634 reaction_l1=0.000491952,0.000380493 generalized_l1=0.00302344 joint6=1.84962e-05
+PASS accepted costal owner step=3 displacement_m=0.000723634 reactions_n=0.000491952,0.000380493 synthetic_brain_witness=1
+attempt=4 transaction=18182 generation=5 slot=5 control=51 timestamp_us=21372
+matter_mixed_field_smoother_dispatch_count=skipped step=51 count=630 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=51 node=490 element=140 environment_count=1
+PASS owner physical rejection bytes root/q/v/mujoco=48,644,640,16 transaction=18181 generation=4 token=10427096684596699259
+PASS force-reject attempt=4 transaction=18182 Matter_authority_restored=1 HumanIO_rejected=1
