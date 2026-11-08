@@ -710,6 +710,17 @@ int main() {
                     compiledNavigation.task().layout().criticObservationSize + 9u &&
                 compiledActiveNavigation.task().randomizationOperators().size() ==
                     compiledNavigation.task().randomizationOperators().size() &&
+                compiledActiveNavigation.task().rewardOperators().size() ==
+                    compiledNavigation.task().rewardOperators().size() &&
+                (compiledActiveNavigation.task().header().schedule.w &
+                    (MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY |
+                     MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION |
+                     MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TURN_PREVIEW_SLALOMS |
+                     MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_POST_SECOND_GATE_ADAPTER)) ==
+                    (MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY |
+                     MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION |
+                     MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_TURN_PREVIEW_SLALOMS |
+                     MR_TASK_PROGRAM_AVIAN_CROW_NAVIGATION_POST_SECOND_GATE_ADAPTER) &&
                 compiledActiveNavigation.task().fingerprint() !=
                     compiledNavigation.task().fingerprint() &&
                 compiledActiveNavigation.task().observationFingerprint() !=

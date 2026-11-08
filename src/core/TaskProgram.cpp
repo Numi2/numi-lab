@@ -4328,6 +4328,7 @@ TaskCompileDiagnostics compileTaskProgram(
         pack.id == "birdflow_american_crow_journey_v8_neural" ||
         pack.id == "birdflow_american_crow_journey_v9_visual_neural" ||
         pack.id == "birdflow_american_crow_navigation_v10_world_model" ||
+        pack.id == "american_crow_active_head_navigation_development_v1" ||
         pack.id == "american_crow_embodied_development_v11" ||
         pack.id == "american_crow_feeding_station_v12" ||
         pack.id == "american_crow_retinal_feeding_v13" ||
@@ -4380,13 +4381,15 @@ TaskCompileDiagnostics compileTaskProgram(
     if (pack.id == "birdflow_american_crow_journey_v8_neural" ||
         pack.id == "birdflow_american_crow_journey_v9_visual_neural" ||
         pack.id == "birdflow_american_crow_navigation_v10_world_model" ||
+        pack.id == "american_crow_active_head_navigation_development_v1" ||
         pack.id == "american_crow_embodied_development_v11") {
         // V8 deliberately omits AVIAN_CROW_APPROACH_ENVELOPE. The policy is
         // the sole deployment action authority; the task only records shadow
         // envelope occupancy through direct outcome channels.
         staged->header.schedule.w |= MR_TASK_PROGRAM_AVIAN_CROW_JOURNEY;
     }
-    if (pack.id == "birdflow_american_crow_navigation_v10_world_model") {
+    if (pack.id == "birdflow_american_crow_navigation_v10_world_model" ||
+        pack.id == "american_crow_active_head_navigation_development_v1") {
         // Previewing the outgoing turn at both slaloms changes the task command
         // reference while retaining the authored waypoint geometry, reward,
         // reach radius, and policy action authority. Make that semantic
