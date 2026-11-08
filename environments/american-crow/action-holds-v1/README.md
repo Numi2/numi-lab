@@ -201,3 +201,25 @@ comparison with earlier64-lane runs. Exact fresh chunk1/8 continuation matches a
 model/Adam tensors and metadata, policy/rollout bytes and world/retina/food state.
 This closes the fixed-fixture native foraging/memory foundation. Persistent ecology,
 solid-object manipulation and social learning remain the next implementation scope.
+
+### Retained optimizer audit
+
+`artifacts/crow-rl-optimizer-audit-20261108/README.md` records the actual
+checkpoint settings: gamma0.999, GAE lambda1, sequence320, two PPO epochs,
+max gradient norm1, entropy coefficient0.001 and value coefficient1.
+The audited64-lane updates use a20480sample full batch;128-lane precision
+uses5120sample minibatches. These are explicit retained recipes, not CLI defaults.
+
+The ordinary learner now measures final-policy Gaussian KL separately over
+selected head15 and beak17 decisions, after the last optimizer step. It also
+records the actual clipping scale, clipped actor norm and Adam parameter
+movement. Swift preserves these fields in per-update history. Legacy KL remains
+pre-step; its adaptive controller has not been changed by this measurement fix.
+All53 model/Adam tensors reproduce exactly in each of three retained update pairs.
+
+Matched unused-seed Gaussian choice counts improve128→158→169/192 at revisions
+65/81/97, while intake26→33→37/192 is not a conclusive gain (65→97 paired p=.169).
+The counterfactual actor-clipping branch is diagnostic only. No additional
+adaptive-rate trial or new feeding success is selected from KL-target behavior.
+The registered deterministic97 deployment remains scoped to two fixed cue
+conditions; broader geometry/ecology/manipulation/social learning remain open.
