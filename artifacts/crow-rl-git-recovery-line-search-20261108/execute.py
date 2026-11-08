@@ -22,10 +22,13 @@ with archive.Objects() as objects:
    if path.startswith(root+'/') and len(Path(path).parts)==3:
     p=X/path;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(committed(path))
  def sources(root,old_revision=None):
-  plan=json.loads(committed(root+'/plan.json'));old=archive.tree(old_revision) if old_revision else entries
+  plan=json.loads(committed(root+'/plan.json'))
+  # Result prose may later be appended. Recover the exact frozen source version.
+  old=archive.tree(old_revision or '17cd4b4b')
   for path,h in plan['sources'].items():
-   tree=old if path.startswith('src/metal/') and old_revision else entries
-   raw=objects.read(tree[path][1]);assert sha(raw)==h,(path,sha(raw),h)
+   raw=objects.read(entries[path][1])
+   if sha(raw)!=h:raw=objects.read(old[path][1])
+   assert sha(raw)==h,(path,sha(raw),h)
    p=X/path;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(raw)
  sources(wr,'c55197a2')
  aliases=json.loads(committed(ar+'/runtime-recovery.json'))['aliases']
