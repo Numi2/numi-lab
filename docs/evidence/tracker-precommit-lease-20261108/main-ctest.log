@@ -1,0 +1,33 @@
+Test project /Users/numi/numi-tracker-transaction-build-20261108
+      Start 103: metalrobo.runtime.task_program
+ 1/11 Test #103: metalrobo.runtime.task_program ..................   Passed    2.85 sec
+      Start 104: metalrobo.runtime.run_program
+ 2/11 Test #104: metalrobo.runtime.run_program ...................   Passed    0.17 sec
+      Start 170: metalrobo.visual.object_track_validity
+ 3/11 Test #170: metalrobo.visual.object_track_validity ..........   Passed    0.02 sec
+      Start 174: metalrobo.visual.tracker_encode_retry
+ 4/11 Test #174: metalrobo.visual.tracker_encode_retry ...........   Passed    0.20 sec
+      Start 175: metalrobo.visual.world_observation_control
+ 5/11 Test #175: metalrobo.visual.world_observation_control ......   Passed    0.08 sec
+      Start 176: metalrobo.visual.world_observation_first
+ 6/11 Test #176: metalrobo.visual.world_observation_first ........   Passed    0.07 sec
+      Start 177: metalrobo.visual.world_observation_second
+ 7/11 Test #177: metalrobo.visual.world_observation_second .......   Passed    0.08 sec
+      Start 178: metalrobo.visual.resident_observation_control
+ 8/11 Test #178: metalrobo.visual.resident_observation_control ...   Passed    0.08 sec
+      Start 179: metalrobo.visual.resident_observation_first
+ 9/11 Test #179: metalrobo.visual.resident_observation_first .....   Passed    0.08 sec
+      Start 180: metalrobo.visual.resident_observation_second
+10/11 Test #180: metalrobo.visual.resident_observation_second ....   Passed    0.08 sec
+      Start 181: metalrobo.visual.observation_lease
+11/11 Test #181: metalrobo.visual.observation_lease ..............   Passed    0.06 sec
+
+100% tests passed out of 11
+
+Label Time Summary:
+metal        =   0.74 sec*proc (9 tests)
+metalrobo    =   3.76 sec*proc (11 tests)
+runtime      =   3.02 sec*proc (2 tests)
+visual       =   0.74 sec*proc (9 tests)
+
+Total Test time (real) =   3.76 sec

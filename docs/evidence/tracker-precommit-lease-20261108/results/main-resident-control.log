@@ -1,0 +1,19 @@
+body_binding 0 run=panda_link0 visual=panda_link0
+body_binding 1 run=panda_link1 visual=panda_link1
+body_binding 2 run=panda_link2 visual=panda_link2
+body_binding 3 run=panda_link3 visual=panda_link3
+body_binding 4 run=panda_link4 visual=panda_link4
+body_binding 5 run=panda_link5 visual=panda_link5
+body_binding 6 run=panda_link6 visual=panda_link6
+body_binding 7 run=panda_link7 visual=panda_link7
+body_binding 8 run=panda_hand visual=panda_hand
+body_binding 9 run=panda_leftfinger visual=panda_leftfinger
+body_binding 10 run=panda_rightfinger visual=panda_rightfinger
+body_binding 11 run=pick_object visual=pick_object
+body_binding 12 run=workspace visual=workspace
+body_binding 13 run=target_fixture visual=target_fixture
+body_binding 14 run=clutter visual=clutter
+world_task_frame=34 history=3 bodies=15
+retry_wait=1 failed_steps=0 message=
+world_retry_sensor_sequence=1
+saved_actor_values=204
