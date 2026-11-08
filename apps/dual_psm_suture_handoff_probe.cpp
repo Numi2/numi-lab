@@ -1,4 +1,5 @@
 #include "SutureContactPublication.hpp"
+#include "SutureRigidCacheIdentity.hpp"
 #include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/HeterogeneousWorld.hpp"
 #include "metalrobo/MatterSnapshotArchive.hpp"
@@ -8145,15 +8146,19 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
     require(
         result.resumeRigidContactCachePath.empty() ||
             (result.syntheticSkin &&
-             result.mode ==
-                 "--tissue-robot-first-bite-puncture-microstep-only" &&
+             (result.mode ==
+                  "--tissue-robot-first-bite-puncture-microstep-only" ||
+              (result.mode ==
+                   "--tissue-robot-first-bite-contact-advance-only" &&
+               result.resumeTissueCheckpointPhase ==
+                   "tissue-robot-first-bite-contact")) &&
              (result.resumeTissueCheckpointPhase ==
                   "tissue-robot-first-bite-contact" ||
               result.resumeTissueCheckpointPhase ==
                   "tissue-robot-first-bite-puncture-transient" ||
               result.resumeTissueCheckpointPhase ==
                   "tissue-robot-first-bite-puncture")),
-        "rigid contact cache resume requires the synthetic-skin puncture microstep"
+        "rigid contact cache resume requires synthetic-skin contact advance or puncture microstep"
     );
     require(
         !result.robotPunctureCadenceProvided ||
@@ -17726,6 +17731,15 @@ int main(const int argc, const char* const argv[]) {
                         options.resumeTissueCheckpointPath,
                         resumedTissueCheckpointStep
                     );
+                    require(
+                        sutureRigidCacheTopologyMatches(
+                            std::span<const MRManifoldHeaderGPU>(
+                                initialContactCache->headers.data(),
+                                initialContactCache->counts.at(0u)),
+                            compiled.model().shapes),
+                        "rigid contact cache collider topology or generation mismatch"
+                    );
+                    std::cout << "rigid_contact_cache_topology=ok\n";
                     const std::uint32_t rigidTimestepMultiplier =
                         robotApproachCadence /
                         stepConfig.physicsSubsteps;
