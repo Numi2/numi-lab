@@ -3124,6 +3124,12 @@ if(BUILD_TESTING)
     add_dependencies(metalrobo_coupled_rod_free_reference metalrobo_shaders)
     add_test(NAME coupled_rod_free_reference
         COMMAND metalrobo_coupled_rod_free_reference "${METALROBO_METALLIB}")
+    add_executable(metalrobo_coupled_rod_saddle_reference
+        docs/evidence/rod-coupled-free-20261108/saddle_reference.cpp)
+    target_link_libraries(metalrobo_coupled_rod_saddle_reference PRIVATE metalrobo)
+    add_dependencies(metalrobo_coupled_rod_saddle_reference metalrobo_shaders)
+    add_test(NAME coupled_rod_saddle_reference
+        COMMAND metalrobo_coupled_rod_saddle_reference "${METALROBO_METALLIB}")
 endif()
 
 add_executable(

@@ -32,7 +32,7 @@ int main(int argc,char**argv){
    neg=std::abs(res[0]+std::copysign(.002,res[0]==0?1:res[0]));
    pass=ep<=1e-6&&ev<=.001&&er<=.001&&std::abs(total)<=1e-12&&neg>.001;
   }
-  std::cout<<"radius="<<radius<<" young="<<young<<" h="<<h<<" accepted="<<d.published<<" pass="<<pass<<" position="<<ep<<" velocity="<<ev<<" local="<<er<<" momentum="<<std::abs(total)<<" negative="<<neg<<" status="<<unsigned(d.status)<<" gpu="<<d.firstGPUStatusCode<<" message=["<<d.message<<"]\n";if(!pass)failed++;
+  std::cout<<"radius="<<radius<<" young="<<young<<" h="<<h<<" accepted="<<d.published<<" pass="<<pass<<" position="<<ep<<" velocity="<<ev<<" local="<<er<<" momentum="<<std::abs(total)<<" negative="<<neg<<" shifted="<<(d.published?out.regularizedSteps:0)<<" max_shift="<<(d.published?out.maximumInertiaShift:0)<<" status="<<unsigned(d.status)<<" gpu="<<d.firstGPUStatusCode<<" message=["<<d.message<<"]\n";if(!pass)failed++;
  }
  auto m=makeStraightSutureRod(3,.12);auto s=makeDiscreteElasticRodDefaultState(m);
  MetalCoupledRodConfig c;c.metallibPath=argv[1];c.gravity={-9.81,0,0};MetalCoupledRodResult out;
