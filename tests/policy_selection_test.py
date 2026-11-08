@@ -975,7 +975,7 @@ class PolicySelectionTest(unittest.TestCase):
             decision["improvements"],
         )
 
-    def test_zero_authority_teacher_is_removed_for_student_evaluation(self) -> None:
+    def test_zero_authority_teacher_is_used_only_for_student_reset(self) -> None:
         arguments = evaluation_arguments(
             [
                 "--task",
@@ -992,6 +992,10 @@ class PolicySelectionTest(unittest.TestCase):
                 "0",
                 "--interaction-reset-phase-fraction",
                 "0.8",
+                "--interaction-reset-phase-probability",
+                "0.5",
+                "--interaction-reset-maximum-phase",
+                "0.9",
             ],
             policy_pack=Path("candidate.policypack"),
             metallib=Path("MetalRobo.metallib"),
@@ -1000,12 +1004,18 @@ class PolicySelectionTest(unittest.TestCase):
             held_out_seed=42,
             evaluation_steps=103,
         )
-        self.assertNotIn("--interaction-reset-only", arguments)
+        self.assertEqual(arguments.count("--interaction-reset-only"), 1)
+        pack_index = arguments.index("--interaction-pack")
+        clip_index = arguments.index("--interaction-clip")
+        self.assertEqual(arguments[pack_index + 1], "teacher.interactionpack")
+        self.assertEqual(arguments[clip_index + 1], "stand")
         authority_index = len(arguments) - 1 - arguments[::-1].index(
             "--interaction-student-authority"
         )
         self.assertEqual(arguments[authority_index + 1], "0")
         self.assertNotIn("--interaction-reset-phase-fraction", arguments)
+        self.assertNotIn("--interaction-reset-phase-probability", arguments)
+        self.assertNotIn("--interaction-reset-maximum-phase", arguments)
         environment_index = len(arguments) - 1 - arguments[::-1].index(
             "--envs"
         )
@@ -1014,6 +1024,22 @@ class PolicySelectionTest(unittest.TestCase):
         self.assertEqual(arguments[seed_index + 1], "42")
         steps_index = len(arguments) - 1 - arguments[::-1].index("--steps")
         self.assertEqual(arguments[steps_index + 1], "103")
+
+    def test_zero_authority_reset_only_is_not_duplicated(self) -> None:
+        arguments = evaluation_arguments(
+            [
+                "--interaction-pack", "teacher.interactionpack",
+                "--interaction-student-authority", "0",
+                "--interaction-reset-only",
+            ],
+            policy_pack=Path("candidate.policypack"),
+            metallib=Path("MetalRobo.metallib"),
+            state_trace=Path("candidate.tsv"),
+            maximum_environments=16,
+            held_out_seed=42,
+        )
+        self.assertEqual(arguments.count("--interaction-reset-only"), 1)
+        self.assertEqual(arguments.count("--interaction-student-authority"), 1)
 
     def test_interaction_push_contract_is_preserved_for_evaluation(self) -> None:
         arguments = evaluation_arguments(
