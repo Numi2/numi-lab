@@ -1,0 +1,32 @@
+[
+  {
+    "argv": [
+      "cmake",
+      "--build",
+      "build",
+      "--config",
+      "Release",
+      "-j6"
+    ],
+    "code": 0,
+    "seconds": 4.291556374984793
+  },
+  {
+    "argv": [
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fobjc-arc",
+      "-Iinclude",
+      "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-line-search-refinement-20261108/probe.mm",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "Metal",
+      "-o",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe"
+    ],
+    "code": 0,
+    "seconds": 0.6298674590070732
+  }
+]
