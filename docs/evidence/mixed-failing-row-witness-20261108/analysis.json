@@ -1,0 +1,1082 @@
+{
+  "baseline_equivalent_exposed_fields": true,
+  "replay_and_capture_checks": true,
+  "first_rejected_step_zero_based": 7,
+  "rod_row_observations_including_repeated_rejections": 40,
+  "max_relative_velocity_difference_m_per_s": 6.661710289304623e-10,
+  "max_equation_difference_m_per_s": 6.656710288782501e-10,
+  "first_failure_rows": [
+    {
+      "step": 7,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.011354684800000014,
+        0.9886453152
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.02222831361,
+        -0.9997529387,
+        0
+      ],
+      "relative_normal_fp64": 0.004488213848846132,
+      "relative_normal_gpu": 0.004488213453,
+      "normal_equation_fp64": -8.645055415386783e-05,
+      "normal_equation_gpu": -8.645094931e-05,
+      "relative_error": 3.958461319147899e-10,
+      "equation_error": 3.951561321674556e-10,
+      "impulse": 3.27708176e-06
+    },
+    {
+      "step": 7,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.98507464305,
+        0.01492535695
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.01835702732,
+        -0.9998314977,
+        0
+      ],
+      "relative_normal_fp64": 0.004807184997098491,
+      "relative_normal_gpu": 0.004807184916,
+      "normal_equation_fp64": 7.1401789098491e-05,
+      "normal_equation_gpu": 7.140170783e-05,
+      "relative_error": 8.109849163745464e-11,
+      "equation_error": 8.126849098733825e-11,
+      "impulse": 3.491526513e-06
+    }
+  ],
+  "nodal_inverse_mass_only_proxy": {
+    "matrix": [
+      [
+        1728.913325957702,
+        1720.7962726829287
+      ],
+      [
+        1720.7962726829287,
+        1716.7824239143954
+      ]
+    ],
+    "normalized_off_diagonal": 0.9988153696578101,
+    "omits": [
+      "rotating rod frame and radius",
+      "twist",
+      "implicit elastic rod factor",
+      "rigid-body response",
+      "friction coupling"
+    ]
+  },
+  "rows": [
+    {
+      "step": 0,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0,
+        1
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0,
+        -1,
+        0
+      ],
+      "relative_normal_fp64": 0.011082404289000002,
+      "relative_normal_gpu": 0.01108240429,
+      "normal_equation_fp64": -7.584690999998256e-06,
+      "normal_equation_gpu": -7.584691048e-06,
+      "relative_error": 9.999986949615902e-13,
+      "equation_error": 4.8001744214958095e-14,
+      "impulse": 8.779551536e-06
+    },
+    {
+      "step": 0,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        1,
+        0
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0,
+        -1,
+        0
+      ],
+      "relative_normal_fp64": 0.011082404289000002,
+      "relative_normal_gpu": 0.01108240429,
+      "normal_equation_fp64": -7.584690999998256e-06,
+      "normal_equation_gpu": -7.584691048e-06,
+      "relative_error": 9.999986949615902e-13,
+      "equation_error": 4.8001744214958095e-14,
+      "impulse": 8.779551536e-06
+    },
+    {
+      "step": 1,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.0010755658000000112,
+        0.9989244342
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.003267482389,
+        -0.9999946356,
+        0
+      ],
+      "relative_normal_fp64": 0.007759474611284482,
+      "relative_normal_gpu": 0.007759474684,
+      "normal_equation_fp64": 0.0002033369822844822,
+      "normal_equation_gpu": 0.0002033370547,
+      "relative_error": 7.27155176349914e-11,
+      "equation_error": 7.241551780966249e-11,
+      "impulse": 8.476145341e-10
+    },
+    {
+      "step": 1,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.997151344782,
+        0.002848655218
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.002805100987,
+        -0.9999960661,
+        0
+      ],
+      "relative_normal_fp64": 0.007552379815725543,
+      "relative_normal_gpu": 0.007552380208,
+      "normal_equation_fp64": -1.565778727445708e-05,
+      "normal_equation_gpu": -1.565739512e-05,
+      "relative_error": 3.9227445684103524e-10,
+      "equation_error": 3.9215445708031026e-10,
+      "impulse": 3.51311769e-06
+    },
+    {
+      "step": 2,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.0011494159999999587,
+        0.998850584
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.005392971914,
+        -0.9999854565,
+        0
+      ],
+      "relative_normal_fp64": 0.00759891021326052,
+      "relative_normal_gpu": 0.007598910015,
+      "normal_equation_fp64": 0.00038715518326051974,
+      "normal_equation_gpu": 0.0003871549852,
+      "relative_error": 1.9826051998045324e-10,
+      "equation_error": 1.9806051975356995e-10,
+      "impulse": 5.755154131e-10
+    },
+    {
+      "step": 2,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.994687484577,
+        0.005312515423
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.004604464862,
+        -0.9999893904,
+        0
+      ],
+      "relative_normal_fp64": 0.007244341651999701,
+      "relative_normal_gpu": 0.007244341075,
+      "normal_equation_fp64": -1.3669842000298485e-05,
+      "normal_equation_gpu": -1.367041841e-05,
+      "relative_error": 5.769997014903883e-10,
+      "equation_error": 5.764097015142943e-10,
+      "impulse": 5.708318895e-06
+    },
+    {
+      "step": 3,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.0019814968000000377,
+        0.9980185032
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.008067342453,
+        -0.9999674559,
+        0
+      ],
+      "relative_normal_fp64": 0.007040629241384248,
+      "relative_normal_gpu": 0.007040629163,
+      "normal_equation_fp64": 0.0005117394813842482,
+      "normal_equation_gpu": 0.000511739403,
+      "relative_error": 7.838424787715015e-11,
+      "equation_error": 7.83842482024108e-11,
+      "impulse": 8.99242833e-12
+    },
+    {
+      "step": 3,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.992341910955,
+        0.007658089045
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.006840396672,
+        -0.9999765754,
+        0
+      ],
+      "relative_normal_fp64": 0.006603755899677851,
+      "relative_normal_gpu": 0.006603755988,
+      "normal_equation_fp64": -1.8990221322148955e-05,
+      "normal_equation_gpu": -1.899013296e-05,
+      "relative_error": 8.832214907356084e-11,
+      "equation_error": 8.83621489542743e-11,
+      "impulse": 5.757492545e-06
+    },
+    {
+      "step": 4,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.0034092664999999522,
+        0.9965907335
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.01108785812,
+        -0.9999385476,
+        0
+      ],
+      "relative_normal_fp64": 0.006477786765924683,
+      "relative_normal_gpu": 0.006477786694,
+      "normal_equation_fp64": 0.0005345955279246828,
+      "normal_equation_gpu": 0.000534595456,
+      "relative_error": 7.192468322314571e-11,
+      "equation_error": 7.192468278946484e-11,
+      "impulse": 3.512667316e-14
+    },
+    {
+      "step": 4,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.990197268315,
+        0.009802731685
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.009337392636,
+        -0.999956429,
+        0
+      ],
+      "relative_normal_fp64": 0.006074044968391303,
+      "relative_normal_gpu": 0.006074044853,
+      "normal_equation_fp64": -1.4329214608697557e-05,
+      "normal_equation_gpu": -1.432932913e-05,
+      "relative_error": 1.1539130241600137e-10,
+      "equation_error": 1.1452130244312688e-10,
+      "impulse": 6.100789051e-06
+    },
+    {
+      "step": 5,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.005471885199999971,
+        0.9945281148
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.01446793228,
+        -0.9998953342,
+        0
+      ],
+      "relative_normal_fp64": 0.005795070070868502,
+      "relative_normal_gpu": 0.00579506997,
+      "normal_equation_fp64": 0.0003867685868685026,
+      "normal_equation_gpu": 0.0003867684864,
+      "relative_error": 1.0086850191909358e-10,
+      "equation_error": 1.0046850260373927e-10,
+      "impulse": 2.744271341e-16
+    },
+    {
+      "step": 5,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.98828071449,
+        0.01171928551
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.01209893916,
+        -0.9999268055,
+        0
+      ],
+      "relative_normal_fp64": 0.005575821935171029,
+      "relative_normal_gpu": 0.005575821269,
+      "normal_equation_fp64": -1.677804182897112e-05,
+      "normal_equation_gpu": -1.67787075e-05,
+      "relative_error": 6.661710289304623e-10,
+      "equation_error": 6.656710288782501e-10,
+      "impulse": 6.388550901e-06
+    },
+    {
+      "step": 6,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.008151412000000025,
+        0.991848588
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.0181853734,
+        -0.9998345971,
+        0
+      ],
+      "relative_normal_fp64": 0.005041746853710944,
+      "relative_normal_gpu": 0.005041746888,
+      "normal_equation_fp64": 9.010356171094362e-05,
+      "normal_equation_gpu": 9.010359645e-05,
+      "relative_error": 3.428905596958298e-11,
+      "equation_error": 3.473905638520271e-11,
+      "impulse": 6.638393719e-14
+    },
+    {
+      "step": 6,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.98660620674,
+        0.01339379326
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.015098745,
+        -0.9998859763,
+        0
+      ],
+      "relative_normal_fp64": 0.005146670590624858,
+      "relative_normal_gpu": 0.005146670155,
+      "normal_equation_fp64": 1.3126686248575783e-06,
+      "normal_equation_gpu": 1.312233508e-06,
+      "relative_error": 4.3562485823461783e-10,
+      "equation_error": 4.351168575784421e-10,
+      "impulse": 6.601039786e-06
+    },
+    {
+      "step": 7,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.011354684800000014,
+        0.9886453152
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.02222831361,
+        -0.9997529387,
+        0
+      ],
+      "relative_normal_fp64": 0.004488213848846132,
+      "relative_normal_gpu": 0.004488213453,
+      "normal_equation_fp64": -8.645055415386783e-05,
+      "normal_equation_gpu": -8.645094931e-05,
+      "relative_error": 3.958461319147899e-10,
+      "equation_error": 3.951561321674556e-10,
+      "impulse": 3.27708176e-06
+    },
+    {
+      "step": 7,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.98507464305,
+        0.01492535695
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.01835702732,
+        -0.9998314977,
+        0
+      ],
+      "relative_normal_fp64": 0.004807184997098491,
+      "relative_normal_gpu": 0.004807184916,
+      "normal_equation_fp64": 7.1401789098491e-05,
+      "normal_equation_gpu": 7.140170783e-05,
+      "relative_error": 8.109849163745464e-11,
+      "equation_error": 8.126849098733825e-11,
+      "impulse": 3.491526513e-06
+    },
+    {
+      "step": 8,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.011354684800000014,
+        0.9886453152
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.02222831361,
+        -0.9997529387,
+        0
+      ],
+      "relative_normal_fp64": 0.004488213848846132,
+      "relative_normal_gpu": 0.004488213453,
+      "normal_equation_fp64": -8.645055415386783e-05,
+      "normal_equation_gpu": -8.645094931e-05,
+      "relative_error": 3.958461319147899e-10,
+      "equation_error": 3.951561321674556e-10,
+      "impulse": 3.27708176e-06
+    },
+    {
+      "step": 8,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.98507464305,
+        0.01492535695
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.01835702732,
+        -0.9998314977,
+        0
+      ],
+      "relative_normal_fp64": 0.004807184997098491,
+      "relative_normal_gpu": 0.004807184916,
+      "normal_equation_fp64": 7.1401789098491e-05,
+      "normal_equation_gpu": 7.140170783e-05,
+      "relative_error": 8.109849163745464e-11,
+      "equation_error": 8.126849098733825e-11,
+      "impulse": 3.491526513e-06
+    },
+    {
+      "step": 9,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.011354684800000014,
+        0.9886453152
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.02222831361,
+        -0.9997529387,
+        0
+      ],
+      "relative_normal_fp64": 0.004488213848846132,
+      "relative_normal_gpu": 0.004488213453,
+      "normal_equation_fp64": -8.645055415386783e-05,
+      "normal_equation_gpu": -8.645094931e-05,
+      "relative_error": 3.958461319147899e-10,
+      "equation_error": 3.951561321674556e-10,
+      "impulse": 3.27708176e-06
+    },
+    {
+      "step": 9,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.98507464305,
+        0.01492535695
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.01835702732,
+        -0.9998314977,
+        0
+      ],
+      "relative_normal_fp64": 0.004807184997098491,
+      "relative_normal_gpu": 0.004807184916,
+      "normal_equation_fp64": 7.1401789098491e-05,
+      "normal_equation_gpu": 7.140170783e-05,
+      "relative_error": 8.109849163745464e-11,
+      "equation_error": 8.126849098733825e-11,
+      "impulse": 3.491526513e-06
+    },
+    {
+      "step": 10,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.011354684800000014,
+        0.9886453152
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.02222831361,
+        -0.9997529387,
+        0
+      ],
+      "relative_normal_fp64": 0.004488213848846132,
+      "relative_normal_gpu": 0.004488213453,
+      "normal_equation_fp64": -8.645055415386783e-05,
+      "normal_equation_gpu": -8.645094931e-05,
+      "relative_error": 3.958461319147899e-10,
+      "equation_error": 3.951561321674556e-10,
+      "impulse": 3.27708176e-06
+    },
+    {
+      "step": 10,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.98507464305,
+        0.01492535695
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.01835702732,
+        -0.9998314977,
+        0
+      ],
+      "relative_normal_fp64": 0.004807184997098491,
+      "relative_normal_gpu": 0.004807184916,
+      "normal_equation_fp64": 7.1401789098491e-05,
+      "normal_equation_gpu": 7.140170783e-05,
+      "relative_error": 8.109849163745464e-11,
+      "equation_error": 8.126849098733825e-11,
+      "impulse": 3.491526513e-06
+    },
+    {
+      "step": 11,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.011354684800000014,
+        0.9886453152
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.02222831361,
+        -0.9997529387,
+        0
+      ],
+      "relative_normal_fp64": 0.004488213848846132,
+      "relative_normal_gpu": 0.004488213453,
+      "normal_equation_fp64": -8.645055415386783e-05,
+      "normal_equation_gpu": -8.645094931e-05,
+      "relative_error": 3.958461319147899e-10,
+      "equation_error": 3.951561321674556e-10,
+      "impulse": 3.27708176e-06
+    },
+    {
+      "step": 11,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.98507464305,
+        0.01492535695
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.01835702732,
+        -0.9998314977,
+        0
+      ],
+      "relative_normal_fp64": 0.004807184997098491,
+      "relative_normal_gpu": 0.004807184916,
+      "normal_equation_fp64": 7.1401789098491e-05,
+      "normal_equation_gpu": 7.140170783e-05,
+      "relative_error": 8.109849163745464e-11,
+      "equation_error": 8.126849098733825e-11,
+      "impulse": 3.491526513e-06
+    },
+    {
+      "step": 12,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.011354684800000014,
+        0.9886453152
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.02222831361,
+        -0.9997529387,
+        0
+      ],
+      "relative_normal_fp64": 0.004488213848846132,
+      "relative_normal_gpu": 0.004488213453,
+      "normal_equation_fp64": -8.645055415386783e-05,
+      "normal_equation_gpu": -8.645094931e-05,
+      "relative_error": 3.958461319147899e-10,
+      "equation_error": 3.951561321674556e-10,
+      "impulse": 3.27708176e-06
+    },
+    {
+      "step": 12,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.98507464305,
+        0.01492535695
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.01835702732,
+        -0.9998314977,
+        0
+      ],
+      "relative_normal_fp64": 0.004807184997098491,
+      "relative_normal_gpu": 0.004807184916,
+      "normal_equation_fp64": 7.1401789098491e-05,
+      "normal_equation_gpu": 7.140170783e-05,
+      "relative_error": 8.109849163745464e-11,
+      "equation_error": 8.126849098733825e-11,
+      "impulse": 3.491526513e-06
+    },
+    {
+      "step": 13,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.011354684800000014,
+        0.9886453152
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.02222831361,
+        -0.9997529387,
+        0
+      ],
+      "relative_normal_fp64": 0.004488213848846132,
+      "relative_normal_gpu": 0.004488213453,
+      "normal_equation_fp64": -8.645055415386783e-05,
+      "normal_equation_gpu": -8.645094931e-05,
+      "relative_error": 3.958461319147899e-10,
+      "equation_error": 3.951561321674556e-10,
+      "impulse": 3.27708176e-06
+    },
+    {
+      "step": 13,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.98507464305,
+        0.01492535695
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.01835702732,
+        -0.9998314977,
+        0
+      ],
+      "relative_normal_fp64": 0.004807184997098491,
+      "relative_normal_gpu": 0.004807184916,
+      "normal_equation_fp64": 7.1401789098491e-05,
+      "normal_equation_gpu": 7.140170783e-05,
+      "relative_error": 8.109849163745464e-11,
+      "equation_error": 8.126849098733825e-11,
+      "impulse": 3.491526513e-06
+    },
+    {
+      "step": 14,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.011354684800000014,
+        0.9886453152
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.02222831361,
+        -0.9997529387,
+        0
+      ],
+      "relative_normal_fp64": 0.004488213848846132,
+      "relative_normal_gpu": 0.004488213453,
+      "normal_equation_fp64": -8.645055415386783e-05,
+      "normal_equation_gpu": -8.645094931e-05,
+      "relative_error": 3.958461319147899e-10,
+      "equation_error": 3.951561321674556e-10,
+      "impulse": 3.27708176e-06
+    },
+    {
+      "step": 14,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.98507464305,
+        0.01492535695
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.01835702732,
+        -0.9998314977,
+        0
+      ],
+      "relative_normal_fp64": 0.004807184997098491,
+      "relative_normal_gpu": 0.004807184916,
+      "normal_equation_fp64": 7.1401789098491e-05,
+      "normal_equation_gpu": 7.140170783e-05,
+      "relative_error": 8.109849163745464e-11,
+      "equation_error": 8.126849098733825e-11,
+      "impulse": 3.491526513e-06
+    },
+    {
+      "step": 15,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.011354684800000014,
+        0.9886453152
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.02222831361,
+        -0.9997529387,
+        0
+      ],
+      "relative_normal_fp64": 0.004488213848846132,
+      "relative_normal_gpu": 0.004488213453,
+      "normal_equation_fp64": -8.645055415386783e-05,
+      "normal_equation_gpu": -8.645094931e-05,
+      "relative_error": 3.958461319147899e-10,
+      "equation_error": 3.951561321674556e-10,
+      "impulse": 3.27708176e-06
+    },
+    {
+      "step": 15,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.98507464305,
+        0.01492535695
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.01835702732,
+        -0.9998314977,
+        0
+      ],
+      "relative_normal_fp64": 0.004807184997098491,
+      "relative_normal_gpu": 0.004807184916,
+      "normal_equation_fp64": 7.1401789098491e-05,
+      "normal_equation_gpu": 7.140170783e-05,
+      "relative_error": 8.109849163745464e-11,
+      "equation_error": 8.126849098733825e-11,
+      "impulse": 3.491526513e-06
+    },
+    {
+      "step": 16,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.011354684800000014,
+        0.9886453152
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.02222831361,
+        -0.9997529387,
+        0
+      ],
+      "relative_normal_fp64": 0.004488213848846132,
+      "relative_normal_gpu": 0.004488213453,
+      "normal_equation_fp64": -8.645055415386783e-05,
+      "normal_equation_gpu": -8.645094931e-05,
+      "relative_error": 3.958461319147899e-10,
+      "equation_error": 3.951561321674556e-10,
+      "impulse": 3.27708176e-06
+    },
+    {
+      "step": 16,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.98507464305,
+        0.01492535695
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.01835702732,
+        -0.9998314977,
+        0
+      ],
+      "relative_normal_fp64": 0.004807184997098491,
+      "relative_normal_gpu": 0.004807184916,
+      "normal_equation_fp64": 7.1401789098491e-05,
+      "normal_equation_gpu": 7.140170783e-05,
+      "relative_error": 8.109849163745464e-11,
+      "equation_error": 8.126849098733825e-11,
+      "impulse": 3.491526513e-06
+    },
+    {
+      "step": 17,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.011354684800000014,
+        0.9886453152
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.02222831361,
+        -0.9997529387,
+        0
+      ],
+      "relative_normal_fp64": 0.004488213848846132,
+      "relative_normal_gpu": 0.004488213453,
+      "normal_equation_fp64": -8.645055415386783e-05,
+      "normal_equation_gpu": -8.645094931e-05,
+      "relative_error": 3.958461319147899e-10,
+      "equation_error": 3.951561321674556e-10,
+      "impulse": 3.27708176e-06
+    },
+    {
+      "step": 17,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.98507464305,
+        0.01492535695
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.01835702732,
+        -0.9998314977,
+        0
+      ],
+      "relative_normal_fp64": 0.004807184997098491,
+      "relative_normal_gpu": 0.004807184916,
+      "normal_equation_fp64": 7.1401789098491e-05,
+      "normal_equation_gpu": 7.140170783e-05,
+      "relative_error": 8.109849163745464e-11,
+      "equation_error": 8.126849098733825e-11,
+      "impulse": 3.491526513e-06
+    },
+    {
+      "step": 18,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.011354684800000014,
+        0.9886453152
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.02222831361,
+        -0.9997529387,
+        0
+      ],
+      "relative_normal_fp64": 0.004488213848846132,
+      "relative_normal_gpu": 0.004488213453,
+      "normal_equation_fp64": -8.645055415386783e-05,
+      "normal_equation_gpu": -8.645094931e-05,
+      "relative_error": 3.958461319147899e-10,
+      "equation_error": 3.951561321674556e-10,
+      "impulse": 3.27708176e-06
+    },
+    {
+      "step": 18,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.98507464305,
+        0.01492535695
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.01835702732,
+        -0.9998314977,
+        0
+      ],
+      "relative_normal_fp64": 0.004807184997098491,
+      "relative_normal_gpu": 0.004807184916,
+      "normal_equation_fp64": 7.1401789098491e-05,
+      "normal_equation_gpu": 7.140170783e-05,
+      "relative_error": 8.109849163745464e-11,
+      "equation_error": 8.126849098733825e-11,
+      "impulse": 3.491526513e-06
+    },
+    {
+      "step": 19,
+      "row": 1,
+      "nodes": [
+        0,
+        1
+      ],
+      "weights": [
+        0.011354684800000014,
+        0.9886453152
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        0.02222831361,
+        -0.9997529387,
+        0
+      ],
+      "relative_normal_fp64": 0.004488213848846132,
+      "relative_normal_gpu": 0.004488213453,
+      "normal_equation_fp64": -8.645055415386783e-05,
+      "normal_equation_gpu": -8.645094931e-05,
+      "relative_error": 3.958461319147899e-10,
+      "equation_error": 3.951561321674556e-10,
+      "impulse": 3.27708176e-06
+    },
+    {
+      "step": 19,
+      "row": 2,
+      "nodes": [
+        1,
+        2
+      ],
+      "weights": [
+        0.98507464305,
+        0.01492535695
+      ],
+      "radius": 0.003000000026,
+      "normal": [
+        -0.01835702732,
+        -0.9998314977,
+        0
+      ],
+      "relative_normal_fp64": 0.004807184997098491,
+      "relative_normal_gpu": 0.004807184916,
+      "normal_equation_fp64": 7.1401789098491e-05,
+      "normal_equation_gpu": 7.140170783e-05,
+      "relative_error": 8.109849163745464e-11,
+      "equation_error": 8.126849098733825e-11,
+      "impulse": 3.491526513e-06
+    }
+  ]
+}
