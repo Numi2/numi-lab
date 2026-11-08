@@ -1,0 +1,169 @@
+{
+  "archive_commit": "c448e344eef84fb6520713c3c91af47996508797",
+  "inventory": [
+    {
+      "bytes": 86448,
+      "mode": 420,
+      "mtime_ns": 1794138142817824145,
+      "path": "work/quality-first-failure/MetalUnifiedQualitySolver.metal",
+      "relative_path": "MetalUnifiedQualitySolver.metal",
+      "sha256": "4497c4c45e870de5872995067370ad5af5a39a6ba1527313f6a12c3a9bda36ed"
+    },
+    {
+      "bytes": 44981,
+      "mode": 420,
+      "mtime_ns": 1794138666764061450,
+      "path": "work/quality-first-failure/MetalWorld.metal",
+      "relative_path": "MetalWorld.metal",
+      "sha256": "76808bafadbdf8f7a46c61fa3f73f77e571c12fb656a5cb935415b52b2f3838f"
+    },
+    {
+      "bytes": 856490,
+      "mode": 420,
+      "mtime_ns": 1794138297650055619,
+      "path": "work/quality-first-failure/MetalWorld.mm",
+      "relative_path": "MetalWorld.mm",
+      "sha256": "28ac088d4fb20f61fb4854c8c0f13e7bf7267df6eda9e676623782d1d3c6734c"
+    },
+    {
+      "bytes": 4505,
+      "mode": 420,
+      "mtime_ns": 1794138206985583254,
+      "path": "work/quality-first-failure/QualityFailureCapture.inc",
+      "relative_path": "QualityFailureCapture.inc",
+      "sha256": "13b9b9ddc7a22ac335ace7ba875a8ffc2dd38f329b22f7d2f2ee4df6f8ea295d"
+    },
+    {
+      "bytes": 8201,
+      "mode": 420,
+      "mtime_ns": 1794138605166355764,
+      "path": "work/quality-first-failure/analyze.py",
+      "relative_path": "analyze.py",
+      "sha256": "62e3aed660d3b882f0b426b8842bc040155fe72ca3eccd4c8a532e6e2e1eed66"
+    },
+    {
+      "bytes": 8211,
+      "mode": 420,
+      "mtime_ns": 1794138667191327401,
+      "path": "work/quality-first-failure/analyze_mask_fix.py",
+      "relative_path": "analyze_mask_fix.py",
+      "sha256": "44cadf97db32b9bbafa303fda7d894d94778a6710981c87b9c0f25fa08b2f5a0"
+    },
+    {
+      "bytes": 2679,
+      "mode": 420,
+      "mtime_ns": 1794139183530458306,
+      "path": "work/quality-first-failure/cleanup_git_recovery.py",
+      "relative_path": "cleanup_git_recovery.py",
+      "sha256": "a15d2948aa13e1b53e7ce8963453e547ac01ec464bedf36e1a462c2e5f79b43e"
+    },
+    {
+      "bytes": 2450,
+      "mode": 420,
+      "mtime_ns": 1794139218603895684,
+      "path": "work/quality-first-failure/cleanup_local_recovery.py",
+      "relative_path": "cleanup_local_recovery.py",
+      "sha256": "2e211b436ed103704bcb4f6b7c206796cab39b6c23023e18897e8923f1e210cf"
+    },
+    {
+      "bytes": 4703,
+      "mode": 420,
+      "mtime_ns": 1794138888390509515,
+      "path": "work/quality-first-failure/continue_capture.py",
+      "relative_path": "continue_capture.py",
+      "sha256": "e93d46ea83bd7426ad2e50833f4904298e75b0fdcade1acd6d36c8b92c3e60ed"
+    },
+    {
+      "bytes": 8955,
+      "mode": 420,
+      "mtime_ns": 1794138142414043144,
+      "path": "work/quality-first-failure/edit.py",
+      "relative_path": "edit.py",
+      "sha256": "78cc32e43bb37f8cab810eb9f2eb3515f3c6f90f0564d62fd071eb3211fc831c"
+    },
+    {
+      "bytes": 64189,
+      "mode": 420,
+      "mtime_ns": 1794138142816244084,
+      "path": "work/quality-first-failure/engine_types.h",
+      "relative_path": "engine_types.h",
+      "sha256": "891b9ccd844b0da9210f52d6c86e06823230b9c8be65666fb61d724e5566e495"
+    },
+    {
+      "bytes": 8649,
+      "mode": 420,
+      "mtime_ns": 1794139183530265470,
+      "path": "work/quality-first-failure/execute_git_recovery.py",
+      "relative_path": "execute_git_recovery.py",
+      "sha256": "c2dca1fc9a426f33b4e61a81058bceab79c55b5d9005857cd1d3321fe7783e4d"
+    },
+    {
+      "bytes": 5396,
+      "mode": 420,
+      "mtime_ns": 1794139183393337921,
+      "path": "work/quality-first-failure/prepare_recovery.py",
+      "relative_path": "prepare_recovery.py",
+      "sha256": "e32d2c0ef3ae504de0e16230e39237abf5b99f70fd8da0cbd42e653a0a311f3b"
+    },
+    {
+      "bytes": 7411,
+      "mode": 420,
+      "mtime_ns": 1794137162000000000,
+      "path": "work/quality-first-failure/recovery-template.py",
+      "relative_path": "recovery-template.py",
+      "sha256": "02150c7a919d8436d1bf6a824f902811b2cf2be614dbdb1092c0d1de9c84e952"
+    },
+    {
+      "bytes": 5289,
+      "mode": 420,
+      "mtime_ns": 1794138417978390789,
+      "path": "work/quality-first-failure/replay.mm",
+      "relative_path": "replay.mm",
+      "sha256": "533df75029f913a4a80ec68ed1b0271387d6fe71d1449821ea00dc42dc9a69f8"
+    },
+    {
+      "bytes": 4503,
+      "mode": 420,
+      "mtime_ns": 1794138468218777298,
+      "path": "work/quality-first-failure/run.py",
+      "relative_path": "run.py",
+      "sha256": "dbd3d4a470f351a8bf91b88885be0dd9c7e8ca0e80947068ef6eeb7d8bcaf4ed"
+    },
+    {
+      "bytes": 4578,
+      "mode": 420,
+      "mtime_ns": 1794138667190888521,
+      "path": "work/quality-first-failure/run_mask_fix.py",
+      "relative_path": "run_mask_fix.py",
+      "sha256": "d4308f380aa5e00a3cca4d13c7de30c221240105a29cc7530dcad32b9baa969c"
+    },
+    {
+      "bytes": 1745,
+      "mode": 420,
+      "mtime_ns": 1794138206984274030,
+      "path": "work/quality-first-failure/unified_quality_capture_shared.h",
+      "relative_path": "unified_quality_capture_shared.h",
+      "sha256": "5ee8449a678a25b164b717bede06d02b9e294d3dcec0f10cbd8ae0feeacd7c6c"
+    },
+    {
+      "bytes": 1512,
+      "mode": 420,
+      "mtime_ns": 1794139183530936813,
+      "path": "work/quality-first-failure/verify_local_recovery.py",
+      "relative_path": "verify_local_recovery.py",
+      "sha256": "614db40d96f596037e9ac0f75d7c6ef6c47accad21973fe96828876e8031bbbc"
+    },
+    {
+      "bytes": 5543,
+      "mode": 420,
+      "mtime_ns": 1794139252707708399,
+      "path": "work/quality-first-failure-local-inventory.json",
+      "sha256": "61ab6f57482911b6df8aced96e9a3d3c53d81042ad407b9f204ec3d5d8261f1e"
+    }
+  ],
+  "inventory_sha256": "61ab6f57482911b6df8aced96e9a3d3c53d81042ad407b9f204ec3d5d8261f1e",
+  "open_handles": 0,
+  "remote_commit": "c448e344eef84fb6520713c3c91af47996508797",
+  "removed_files": 20,
+  "removed_logical_bytes": 1136438
+}

@@ -29,3 +29,9 @@ The original admission attempt executed three commands. The repaired study execu
 The crow still rejects its first control. No numerical tolerance, solver iteration budget, physical parameter, policy or production profile was changed or promoted. Next: identify the controlling coordinates and certify quantization/roundoff effects, then test an owning native numerical correction against independent physical residuals. Deterministic initialization of uncovered scratch also remains a correctness task. Multi-joint crow behavior, hybrid contact timing, reliable manipulation and the full lifelong environment remain unqualified.
 
 Raw inputs, exact runtimes, failures, analysis and local drafts are retained through content-deduplicated Git recovery before temporary cleanup.
+
+## Git recovery and storage closure
+
+The [recovery record](../crow-rl-git-recovery-quality-first-failure-20261108/README.md) restores all 157 raw files (34,741,071 bytes) from actual committed Git objects. Nine native commands plus the FP64 analysis pass 41 byte-exact comparisons, including all captured failure files, protected records, reference arrays and analysis report. All 576 physical TSV records match excluding only GPU timing, whose original and replay bytes remain retained.
+
+Pushed HEAD parity, actual Git readback, exact hash/mode/mtime and zero open handles precede deletion. The temporary restored workspace, original raw scope and local drafts were removed. New compressed original payload data totals 7,753,809 bytes; identical existing Git content is reused. The current build and protected deployment policy are retained. The crow remains rejected and the full goal remains incomplete.
