@@ -3,6 +3,106 @@
 #include "metalrobo/ccd_segment_time.metalh"
 using namespace metal;
 
+// Resolve immutable actuator templates to ordinary scalar ConstraintIR rows.
+// For C = strength*(D+h*K), B = strength*K*(target-q0), low-speed dry friction
+// is exactly represented by two interval rows:
+//   p+ = clamp(h*(B-C*v-dry), 0, h*cap)
+//   p- = clamp(h*(B-C*v+dry), -h*cap, 0).
+// Their sum/h is clip(soft(B-C*v,dry),+-cap). At moving source velocity the
+// existing signed-friction convention uses one box row and one fixed-zero row.
+// The generic quality solver jointly solves these rows and physical contacts.
+kernel void mr_world_prepare_coupled_drive_ir(
+    device const MRMetalWorldDispatchGPU& world [[buffer(0)]],
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(1)]],
+    constant MRMetalWorldPassGPU& pass [[buffer(2)]],
+    device const MRDofPropertiesGPU* dofs [[buffer(3)]],
+    device const MRActuatorProfileGPU* profiles [[buffer(4)]],
+    device const float* sourceQ [[buffer(5)]],
+    device const float* sourceV [[buffer(6)]],
+    device const float* targets [[buffer(7)]],
+    device const float4* controllers [[buffer(8)]],
+    device const MRConstraintIRBlockGPU* blocks [[buffer(9)]],
+    device const MRConstraintIREndpointGPU* endpoints [[buffer(10)]],
+    device MRConstraintIRRowGPU* rows [[buffer(11)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(12)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount || statuses[environment].code != MR_STEP_SUCCESS) return;
+    const uint cb=environment*dispatch.constraintStride, rb=environment*dispatch.rowStride;
+    const uint eb=2u*environment*dispatch.constraintStride;
+    const float h=dispatch.timestepAndBias.x;
+    const float4 controller=(world.flags & MR_METAL_WORLD_NATIVE_TASK)!=0u ? controllers[environment] : float4(1.0f);
+    bool valid=isfinite(h) && h>0.0f && all(isfinite(controller)) && all(controller>=0.0f);
+    for (uint b=0u;b<dispatch.authoredConstraintCount && valid;++b) {
+        const MRConstraintIRBlockGPU block=blocks[cb+b];
+        MRConstraintIRRowGPU row=rows[rb+block.rowOffset];
+        if ((row.flags & MR_CONSTRAINT_IR_ROW_POSITION_DRIVE)==0u) continue;
+        const bool negative=(row.flags & MR_CONSTRAINT_IR_ROW_DRIVE_NEGATIVE)!=0u;
+        const MRConstraintIREndpointGPU endpoint=endpoints[eb+block.endpointOffset];
+        const uint i=endpoint.objectIndex;
+        if (block.dimension!=1u || i>=dispatch.nv || endpoint.linkIndex>=dispatch.nq) {valid=false;break;}
+        const MRDofPropertiesGPU dof=dofs[i];
+        const MRActuatorProfileGPU profile=profiles[i];
+        const float q=sourceQ[environment*dispatch.qStride+endpoint.linkIndex];
+        const float v=sourceV[environment*dispatch.vStride+i];
+        float target=targets[pass.controlStep*world.effortStepStride+environment*world.effortEnvironmentStride+i];
+        if ((dof.flags & MR_DOF_FLAG_POSITION_LIMIT)!=0u) target=clamp(target,dof.limits.x,dof.limits.y);
+        const float K=controller.x*dof.drive.x, D=controller.y*dof.drive.y;
+        const float B=controller.w*K*(target-q), C=controller.w*(D+h*K);
+        const float dry=controller.w*dof.drive.w;
+        const float speed=clamp(abs(v)/max(profile.motorAndSpeed.z,1.175494351e-38f),0.0f,1.0f);
+        float cap=min(dof.limits.w,profile.transmissionAndEnvelope.z*profile.motorAndSpeed.w*(1.0f-speed));
+        if ((dof.flags & MR_DOF_FLAG_EFFORT_LIMIT)!=0u && dof.limits.w>0.0f) cap=min(cap,controller.w*dof.limits.w);
+        valid=isfinite(q) && isfinite(v) && isfinite(target) && isfinite(B) && isfinite(C) && C>=0.0f &&
+            isfinite(dry) && dry>=0.0f && isfinite(cap) && cap>=0.0f;
+        if (!valid) break;
+        row.flags=0u;
+        row.targetVelocity=0.0f;row.compliance=h*h;row.impulseLower=row.impulseUpper=0.0f;
+        if (C>0.0f && cap>0.0f) {
+            if (abs(v)>1.0e-4f) {
+                if (!negative) {
+                    row.targetVelocity=(B-copysign(dry,v))/C;row.compliance=h/C;
+                    row.impulseLower=-h*cap;row.impulseUpper=h*cap;
+                }
+            } else {
+                row.targetVelocity=(B+(negative ? dry : -dry))/C;row.compliance=h/C;
+                row.impulseLower=negative ? -h*cap : 0.0f;row.impulseUpper=negative ? 0.0f : h*cap;
+            }
+        }
+        valid=isfinite(row.targetVelocity) && isfinite(row.compliance) && row.compliance>0.0f &&
+            isfinite(row.impulseLower) && isfinite(row.impulseUpper);
+        rows[rb+block.rowOffset]=row;
+    }
+    if (!valid) {MRMetalWorldContactStatusGPU status=statuses[environment];status.code=MR_STEP_NONFINITE_RESULT;statuses[environment]=status;}
+}
+
+// The accepted physical motor effort is the sum of solved interval impulses/h,
+// so native power/reward consumers observe the applied effort after contact.
+kernel void mr_world_resolve_coupled_drive_effort(
+    device const MRMetalWorldContactDispatchGPU& dispatch [[buffer(0)]],
+    device const MRConstraintIRBlockGPU* sourceBlocks [[buffer(1)]],
+    device const MRConstraintIREndpointGPU* sourceEndpoints [[buffer(2)]],
+    device const MRConstraintIRRowGPU* sourceRows [[buffer(3)]],
+    device const MRContactConstraintGPU* contacts [[buffer(4)]],
+    device float* effort [[buffer(5)]],
+    device MRMetalWorldContactStatusGPU* statuses [[buffer(6)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment>=dispatch.environmentCount || statuses[environment].code!=MR_STEP_SUCCESS) return;
+    const uint vb=environment*dispatch.vStride, cb=environment*dispatch.constraintStride;
+    const float h=dispatch.timestepAndBias.x;
+    for (uint i=0u;i<dispatch.nv;++i) effort[vb+i]=0.0f;
+    bool valid=h>0.0f && isfinite(h);
+    for (uint b=0u;b<dispatch.authoredConstraintCount && valid;++b) {
+        const MRConstraintIRBlockGPU block=sourceBlocks[b];
+        if ((sourceRows[block.rowOffset].flags & MR_CONSTRAINT_IR_ROW_POSITION_DRIVE)==0u) continue;
+        const uint i=sourceEndpoints[block.endpointOffset].objectIndex;
+        valid=i<dispatch.nv && isfinite(contacts[cb+b].impulses.x);
+        if (valid) {effort[vb+i]+=contacts[cb+b].impulses.x/h;valid=isfinite(effort[vb+i]);}
+    }
+    if (!valid) {MRMetalWorldContactStatusGPU status=statuses[environment];status.code=MR_STEP_NONFINITE_RESULT;statuses[environment]=status;}
+}
+
 // This translation unit requires -fno-fast-math: two-sum/product residuals
 // are part of the convergence certificate, not algebraic redundancies.
 // Twofold arithmetic is local to the stiff bounded motor solve. The native

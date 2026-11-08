@@ -25,7 +25,9 @@ constexpr std::uint32_t kKnownRowFlags =
     constraintIRRowUnilateral |
     constraintIRRowContactNormal |
     constraintIRRowContactTangent |
-    constraintIRRowContactTorsion;
+    constraintIRRowContactTorsion |
+    constraintIRRowPositionDrive |
+    constraintIRRowDriveNegative;
 constexpr std::uint32_t kKnownEndpointFlags =
     constraintIREndpointRowMask |
     constraintIREndpointQIndexValid;
@@ -781,6 +783,27 @@ ConstraintIRDiagnostics validateConstraintIR(const ConstraintIR& ir) {
                     rowIndex
                 );
             }
+            if ((row.flags & (constraintIRRowPositionDrive | constraintIRRowDriveNegative)) != 0u) {
+                const bool negative = (row.flags & constraintIRRowDriveNegative) != 0u;
+                if (block.endpointCount != 1u) return failure(ConstraintIRStatus::invalidRow,
+                    "native position-drive template requires one endpoint", blockIndex, rowIndex);
+                const auto& endpoint = ir.endpoints[block.endpointOffset];
+                if ((row.flags & constraintIRRowPositionDrive) == 0u ||
+                    row.flags != (constraintIRRowPositionDrive | (negative ? constraintIRRowDriveNegative : 0u)) ||
+                    block.type != MR_CONSTRAINT_BILATERAL || block.dimension != 1u ||
+                    block.endpointCount != 1u || endpoint.jacobianKind != constraintIRJacobianGeneralized ||
+                    endpoint.axis.x != 1.0f ||
+                    (endpoint.flags & constraintIREndpointQIndexValid) == 0u ||
+                    row.positionError != 0.0f || row.targetVelocity != 0.0f ||
+                    row.compliance != 0.0f || row.dissipation != 0.0f ||
+                    row.impulseLower != (negative ? -1.0f : 0.0f) ||
+                    row.impulseUpper != (negative ? 0.0f : 1.0f) ||
+                    block.coneIndex != kConstraintIRInvalidIndex ||
+                    ir.warmImpulses[block.impulseOffset] != 0.0f) {
+                    return failure(ConstraintIRStatus::invalidRow,
+                        "native position-drive template is malformed", blockIndex, rowIndex);
+                }
+            }
             const double directionNorm = norm(xyz(row.direction));
             if (isContact &&
                 std::abs(directionNorm - 1.0) >
@@ -1420,6 +1443,13 @@ ConstraintIREvaluationResult evaluateConstraintIR(
     result.diagnostics = validateConstraintIR(ir);
     if (!result.diagnostics.succeeded()) {
         return result;
+    }
+    for (const auto& row : ir.rows) {
+        if ((row.flags & constraintIRRowPositionDrive) != 0u) {
+            result.diagnostics = failure(ConstraintIRStatus::invalidRow,
+                "native position-drive templates require native target/state preparation");
+            return result;
+        }
     }
     if (!finite(config.timestep) ||
         !finite(config.penetrationSlop) ||

@@ -472,6 +472,8 @@ struct MetalWorldContextState {
     __strong id<MTLComputePipelineState> preparePipeline = nil;
     __strong id<MTLComputePipelineState> driveRefreshPipeline = nil;
     __strong id<MTLComputePipelineState> boundedDrivePipeline = nil;
+    __strong id<MTLComputePipelineState> coupledDrivePreparePipeline = nil;
+    __strong id<MTLComputePipelineState> coupledDriveEffortPipeline = nil;
     __strong id<MTLComputePipelineState> commitPipeline = nil;
     __strong id<MTLComputePipelineState> capturePipeline = nil;
     __strong id<MTLComputePipelineState> operatorPipeline = nil;
@@ -623,6 +625,7 @@ struct MetalWorldContextState {
     MRMetalWorldContactDispatchGPU boundContactDispatch{};
     bool useTaskBodyParameters = false;
     bool useBoundedDrives = false;
+    bool useCoupledDrives = false;
     bool usesFunctionBasedDynamics = false;
     std::uint64_t boundModelFingerprint = 0u;
     std::uint64_t boundTaskFingerprint = 0u;
@@ -3716,7 +3719,8 @@ MetalWorldDiagnostics validateAndBuildLayout(
         config.actuationMode !=
             MetalWorldActuationMode::implicitPositionDrive &&
         config.actuationMode !=
-            MetalWorldActuationMode::boundedPositionDrive) {
+            MetalWorldActuationMode::boundedPositionDrive &&
+        config.actuationMode != MetalWorldActuationMode::coupledPositionDrive) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::invalidDimensions,
@@ -3728,6 +3732,40 @@ MetalWorldDiagnostics validateAndBuildLayout(
          world.nv() > MR_ARTICULATED_ABA_MAX_DOFS)) {
         return reject(std::move(diagnostics), MetalWorldHostStatus::unsupportedTopology,
             "bounded drives currently require a contact graph with at most 40 generalized velocities");
+    }
+    const bool coupledDrives = config.actuationMode == MetalWorldActuationMode::coupledPositionDrive;
+    if (coupledDrives && config.solverMode != MetalWorldSolverMode::qualityNewton) {
+        return reject(std::move(diagnostics), MetalWorldHostStatus::unsupportedSolverMode,
+            "coupled position drives require the joint qualityNewton solve");
+    }
+    std::vector<unsigned> driveTemplates;
+    if (coupledDrives) driveTemplates.resize(2u * world.nv(), 0u);
+    for (const auto& block : world.model().constraintProgram.blocks) {
+        const auto& row = world.model().constraintProgram.rows[block.rowOffset];
+        if ((row.flags & MR_CONSTRAINT_IR_ROW_POSITION_DRIVE) == 0u) continue;
+        if (!coupledDrives) return reject(std::move(diagnostics), MetalWorldHostStatus::unsupportedSolverMode,
+            "native drive templates cannot be used with another actuation mode");
+        const auto& endpoint = world.model().constraintProgram.endpoints[block.endpointOffset];
+        const unsigned i = endpoint.objectIndex;
+        const bool negative = (row.flags & MR_CONSTRAINT_IR_ROW_DRIVE_NEGATIVE) != 0u;
+        if (i >= world.nv() || endpoint.linkIndex != world.model().dofs[i].qIndex ||
+            (world.model().dofs[i].flags & MR_DOF_FLAG_DRIVE) == 0u ||
+            ++driveTemplates[2u*i + unsigned(negative)] != 1u) {
+            return reject(std::move(diagnostics), MetalWorldHostStatus::invalidModel,
+                "native drive templates do not match the scalar drive mechanics");
+        }
+    }
+    if (coupledDrives) {
+        unsigned count = 0u;
+        for (unsigned i=0u; i<world.nv(); ++i) {
+            const bool driven = (world.model().dofs[i].flags & MR_DOF_FLAG_DRIVE) != 0u;
+            if (driven && (driveTemplates[2u*i] != 1u || driveTemplates[2u*i+1u] != 1u))
+                return reject(std::move(diagnostics), MetalWorldHostStatus::invalidModel,
+                    "coupled drives require exactly one positive/negative template per driven DoF");
+            count += unsigned(driven);
+        }
+        if (count == 0u) return reject(std::move(diagnostics), MetalWorldHostStatus::invalidModel,
+            "coupled drives require at least one driven scalar DoF");
     }
     const bool nativeTask = config.taskProgram.valid();
     const bool nativePolicy = config.policyProgram.valid();
@@ -4072,7 +4110,8 @@ MetalWorldDiagnostics validateAndBuildLayout(
              config.actuationMode !=
                  MetalWorldActuationMode::implicitPositionDrive &&
              config.actuationMode !=
-                 MetalWorldActuationMode::boundedPositionDrive) ||
+                 MetalWorldActuationMode::boundedPositionDrive &&
+             config.actuationMode != MetalWorldActuationMode::coupledPositionDrive) ||
             world.rodCount() != 0u ||
             config.taskProgram.worldFingerprint() !=
                 world.fingerprint()
@@ -4235,7 +4274,7 @@ MetalWorldDiagnostics validateAndBuildLayout(
         (config.actuationMode != MetalWorldActuationMode::effort
              ? static_cast<mr_u32>(MR_METAL_WORLD_IMPLICIT_POSITION_DRIVES)
              : 0u) |
-        (config.actuationMode == MetalWorldActuationMode::boundedPositionDrive
+        ((config.actuationMode == MetalWorldActuationMode::boundedPositionDrive || coupledDrives)
              ? static_cast<mr_u32>(MR_METAL_WORLD_BOUNDED_POSITION_DRIVES)
              : 0u) |
         (config.actuationMode == MetalWorldActuationMode::boundedPositionDrive &&
@@ -6372,6 +6411,12 @@ MetalWorldDiagnostics initializeContext(
     id<MTLComputePipelineState> boundedDrive = makePipeline(
         device, library, @"mr_world_bounded_drive_prediction", &error);
     error = nil;
+    id<MTLComputePipelineState> coupledDrivePrepare = makePipeline(
+        device, library, @"mr_world_prepare_coupled_drive_ir", &error);
+    error = nil;
+    id<MTLComputePipelineState> coupledDriveEffort = makePipeline(
+        device, library, @"mr_world_resolve_coupled_drive_effort", &error);
+    error = nil;
     id<MTLComputePipelineState> commit = makePipeline(
         device,
         library,
@@ -7099,6 +7144,8 @@ MetalWorldDiagnostics initializeContext(
     context.preparePipeline = prepare;
     context.driveRefreshPipeline = driveRefresh;
     context.boundedDrivePipeline = boundedDrive;
+    context.coupledDrivePreparePipeline = coupledDrivePrepare;
+    context.coupledDriveEffortPipeline = coupledDriveEffort;
     context.commitPipeline = commit;
     context.capturePipeline = capture;
     context.operatorPipeline = operatorPipeline;
@@ -16257,6 +16304,34 @@ bool encodeUnifiedQualitySolve(
     );
 }
 
+bool encodeCoupledDriveRows(
+    detail::MetalWorldContextState& context, id<MTLCommandBuffer> commandBuffer,
+    const MRMetalWorldPassGPU& pass, const std::size_t sourceQ,
+    const std::size_t sourceV, const std::size_t environmentCount
+) {
+    if (!context.useCoupledDrives) return true;
+    if (context.coupledDrivePreparePipeline == nil) return false;
+    return encodeContactThreadKernel(context, commandBuffer,
+        context.coupledDrivePreparePipeline, @"MetalWorld current-state motor ConstraintIR preparation",
+        {{0u,kWorldDispatch},{1u,kContactDispatch},{3u,kDofs},{4u,kActuatorProfiles},
+         {5u,sourceQ},{6u,sourceV},{7u,kEffortTrajectory},{8u,kTaskControllerParameters},
+         {9u,kIRBlocks},{10u,kIREndpoints},{11u,kIRRows},{12u,kContactStatuses}},
+        &pass,2u,environmentCount);
+}
+
+bool encodeCoupledDriveEffort(
+    detail::MetalWorldContextState& context, id<MTLCommandBuffer> commandBuffer,
+    const std::size_t environmentCount
+) {
+    if (!context.useCoupledDrives) return true;
+    if (context.coupledDriveEffortPipeline == nil) return false;
+    return encodeContactThreadKernel(context, commandBuffer,
+        context.coupledDriveEffortPipeline, @"MetalWorld accepted joint motor effort",
+        {{0u,kContactDispatch},{1u,kAuthoredIRBlocks},{2u,kAuthoredIREndpoints},
+         {3u,kAuthoredIRRows},{4u,kContacts},{5u,kWorkingEffort},{6u,kContactStatuses}},
+        nullptr,0u,environmentCount);
+}
+
 bool encodeContactSubstep(
     detail::MetalWorldContextState& context,
     id<MTLCommandBuffer> commandBuffer,
@@ -16280,6 +16355,7 @@ bool encodeContactSubstep(
     const std::size_t destinationManifoldCounts,
     const bool useWave32,
     const bool useQuality,
+    const std::size_t sourceV,
     const mr_u32 activePairClassMask,
     const bool hasFutureKinematics,
     const bool useHybridCCD,
@@ -16492,6 +16568,7 @@ bool encodeContactSubstep(
                 MR_ROD_GPU_TOOL_WITNESSES_PER_PAIR,
             world.rodCount()
         ) ||
+        !encodeCoupledDriveRows(context, commandBuffer, pass, sourceQ, sourceV, environmentCount) ||
         !encodeContactThreadKernel(
             context,
             commandBuffer,
@@ -16713,6 +16790,7 @@ bool encodeContactSubstep(
                 environmentCount
             )
         ) ||
+        !encodeCoupledDriveEffort(context, commandBuffer, environmentCount) ||
         !encodeRodConstrainedIntegration(
             context,
             commandBuffer,
@@ -18019,6 +18097,70 @@ std::uint64_t engineModelFingerprint(
     const EngineModel& model
 ) noexcept {
     return model.valid(nullptr) ? fingerprint(model) : 0u;
+}
+
+MetalWorldCompileDiagnostics compileCoupledPositionDrives(
+    const EngineModel& model, EngineModel& driven
+) {
+    MetalWorldCompileDiagnostics diagnostics;
+    try {
+        std::string reason;
+        if (!model.valid(&reason)) return rejectCompile(std::move(diagnostics),
+            MetalWorldHostStatus::invalidModel, "invalid source drive mechanics: " + reason);
+        const auto& original = model.constraintProgram;
+        for (const auto& row : original.rows) if ((row.flags & MR_CONSTRAINT_IR_ROW_POSITION_DRIVE) != 0u)
+            return rejectCompile(std::move(diagnostics), MetalWorldHostStatus::invalidModel,
+                "source already contains native drive templates");
+        std::vector<ConstraintIRSourceBlock> sources;
+        sources.reserve(original.blocks.size() + 2u*model.dofs.size());
+        for (const auto& b : original.blocks) {
+            ConstraintIRSourceBlock source;
+            source.key=b.key;source.type=b.type;source.flags=b.flags;
+            source.endpoints=std::span(original.endpoints).subspan(b.endpointOffset,b.endpointCount);
+            source.rows=std::span(original.rows).subspan(b.rowOffset,b.dimension);
+            source.warmImpulses=std::span(original.warmImpulses).subspan(b.impulseOffset,b.dimension);
+            if (b.coneIndex != kConstraintIRInvalidIndex) source.cone=original.cones[b.coneIndex];
+            sources.push_back(source);
+        }
+        std::vector<ConstraintIREndpoint> endpoints(2u*model.dofs.size());
+        std::vector<ConstraintIRRow> rows(2u*model.dofs.size());
+        std::vector<float> warm(2u*model.dofs.size(),0.0f);
+        unsigned count=0u;
+        for (unsigned i=0u;i<model.dofs.size();++i) {
+            const auto& dof=model.dofs[i];
+            if ((dof.flags & MR_DOF_FLAG_DRIVE)==0u) continue;
+            if (dof.qIndex>=model.world.nq) return rejectCompile(std::move(diagnostics),
+                MetalWorldHostStatus::unsupportedTopology,"native drive requires a scalar configuration coordinate");
+            unsigned owner=MR_INVALID_INDEX;
+            for (unsigned a=0u;a<model.articulations.size();++a) {
+                const auto& art=model.articulations[a];
+                if (i>=art.vOffset && i-art.vOffset<art.nv) owner=a;
+            }
+            if (owner==MR_INVALID_INDEX) return rejectCompile(std::move(diagnostics),
+                MetalWorldHostStatus::invalidModel,"native drive has no articulation owner");
+            for (unsigned negative=0u;negative<2u;++negative) {
+                const unsigned j=2u*i+negative;
+                endpoints[j]=makeConstraintIRGeneralizedEndpoint(owner,dof.qIndex,i,0u,1.0f);
+                rows[j].flags=constraintIRRowPositionDrive | (negative ? constraintIRRowDriveNegative : 0u);
+                rows[j].impulseLower=negative ? -1.0f : 0.0f;rows[j].impulseUpper=negative ? 0.0f : 1.0f;
+                ConstraintIRSourceBlock source;source.key.words[0]=0x4e445256u;
+                source.key.words[1]=i;source.key.words[2]=negative;source.key.words[3]=owner;
+                source.type=MR_CONSTRAINT_BILATERAL;source.endpoints=std::span(&endpoints[j],1);
+                source.rows=std::span(&rows[j],1);source.warmImpulses=std::span(&warm[j],1);
+                sources.push_back(source);++count;
+            }
+        }
+        if (!count) return rejectCompile(std::move(diagnostics),MetalWorldHostStatus::invalidModel,
+            "native coupled drive model contains no scalar drives");
+        const auto ir=compileConstraintIR(sources);
+        if (!ir.succeeded()) return rejectCompile(std::move(diagnostics),MetalWorldHostStatus::invalidModel,ir.diagnostics.message);
+        EngineModel staged=model;staged.constraintProgram=ir.ir;
+        if (!staged.valid(&reason)) return rejectCompile(std::move(diagnostics),MetalWorldHostStatus::invalidModel,reason);
+        diagnostics.fingerprint=engineModelFingerprint(staged);driven=std::move(staged);
+        return diagnostics;
+    } catch (const std::exception& e) {
+        return rejectCompile(std::move(diagnostics),MetalWorldHostStatus::internalFailure,e.what());
+    }
 }
 
 MetalWorldCompileDiagnostics compileMetalWorld(
@@ -21016,6 +21158,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 config.taskProgram.layout().motionFeatureCount != 0u;
             selectedState->useTaskBodyParameters = nativeTask;
             selectedState->useBoundedDrives = config.actuationMode == MetalWorldActuationMode::boundedPositionDrive;
+            selectedState->useCoupledDrives = config.actuationMode == MetalWorldActuationMode::coupledPositionDrive;
             selectedState->stats.memoryPlan =
                 diagnostics.layout.memoryPlan;
             configureActorMemory(*selectedState,config.policyProgram,std::uint32_t(batch.environmentCount),!residentContinuation);
@@ -21698,6 +21841,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                               config.solverMode ==
                                   MetalWorldSolverMode::
                                       qualityNewton,
+                              sourceV,
                               activePairClassMask,
                               (
                                   diagnostics.layout

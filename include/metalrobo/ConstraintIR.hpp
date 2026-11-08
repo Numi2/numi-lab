@@ -42,6 +42,8 @@ enum ConstraintIRRowFlags : std::uint32_t {
         MR_CONSTRAINT_IR_ROW_CONTACT_TANGENT,
     constraintIRRowContactTorsion =
         MR_CONSTRAINT_IR_ROW_CONTACT_TORSION,
+    constraintIRRowPositionDrive = MR_CONSTRAINT_IR_ROW_POSITION_DRIVE,
+    constraintIRRowDriveNegative = MR_CONSTRAINT_IR_ROW_DRIVE_NEGATIVE,
 };
 
 enum ConstraintIREndpointRole : std::uint32_t {

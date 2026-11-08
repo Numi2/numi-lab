@@ -1,0 +1,77 @@
+{
+  "budget": {
+    "GPU_batches": 24,
+    "native_conditions": 576,
+    "no_training": true,
+    "no_video": true,
+    "raw_evidence_max_bytes": 67108864,
+    "timeout_seconds": 120
+  },
+  "claim": "Native microstep-bound motor rows jointly satisfy the existing bounded motor constitutive law and physical contact momentum balance.",
+  "conditions": {
+    "D_Nspm": 8,
+    "K_Npm": 300,
+    "armature_kg": [
+      0.001,
+      0.002
+    ],
+    "cap_N": 0.01,
+    "collision": [
+      false,
+      true
+    ],
+    "contact_friction": 0.5,
+    "dry_force_N": [
+      0,
+      0.001
+    ],
+    "h_seconds": [
+      0.00035,
+      0.00055,
+      0.00085
+    ],
+    "mass_kg": [
+      0.006,
+      0.013
+    ],
+    "source_q_m": [
+      -1.5e-05,
+      1e-05
+    ],
+    "source_v_mps": [
+      -0.0002,
+      0,
+      0.0002
+    ],
+    "tangential_generalized_work": 0,
+    "targets_m": [
+      -3e-05,
+      -9e-05,
+      -0.003,
+      3e-05
+    ]
+  },
+  "controls": [
+    "Eight host-only template compilation/duplicate transactional rejection/unresolved CPU evaluation/malformed template checks.",
+    "Full Release build; existing native contact owner; default crow replay bytes before any promotion."
+  ],
+  "limits": "This first native binding study does not qualify coupled multi-joint crow dynamics, dry-friction biology, hybrid impact timing, reset/checkpoint/partition, energy integral or end-to-end learning performance. Hybrid mode remains rejected; no policy/profile promotion.",
+  "model": "One vertical prismatic sphere slider, no gravity/body damping/tangential generalized work. Physical mass plus armature. Canonical scalar intervals prepared natively from source q/v and held target. Native quality solver owns all physical advancement.",
+  "motor_law": "tau=clip(K*(target-q1)-D*v1-sign(v0)*dry,+-cap) for abs(v0)>1e-4; otherwise clip(soft(K*(target-q1)-D*v1,dry),+-cap). Both definitions match the existing bounded-drive convention.",
+  "numerics": {
+    "CCD": "disabled",
+    "physical_substeps": 1,
+    "quality_feasibility_tolerance": 1e-07,
+    "quality_optimality_tolerance": 1e-10,
+    "warmstart": false
+  },
+  "parent_commit": "9cd81f847821ebedd1002d864c42ea330bc8c94b",
+  "prediction": {
+    "accepted_native_conditions": 576,
+    "maximum_force_law_error_N": 1e-07,
+    "maximum_momentum_residual_Ns": 2e-09,
+    "maximum_q_hv_residual_m": 2e-09
+  },
+  "schema": "crow-native-position-drive-ir-v1",
+  "stop": "First native rejection, nonfinite result or unchanged absolute physical gate failure; retain complete accepted batch/prefix and diagnostic logs. No threshold relaxation, retry or promotion."
+}

@@ -13,7 +13,7 @@ namespace {
 void need(bool b,const std::string& s){if(!b)throw std::runtime_error(s);}
 EngineModel model(unsigned variant,bool contact){
  auto m=makeFreeSphereEngineModel();m.name="bounded_motor_contact_reaction";
- const std::array<float,6> masses{.004f,.011f,.007f,.019f,.009f,.017f};
+ const std::array<float,8> masses{.004f,.011f,.007f,.019f,.009f,.017f,.006f,.013f};
  need(variant<masses.size(),"Unknown slider variant");const float mass=masses[variant];
  const float arm=variant%2==0?.001f:.002f;
  auto root=m.bodies[1];root.articulationIndex=0;root.parentBody=root.inboundJoint=MR_INVALID_INDEX;
@@ -128,5 +128,78 @@ void executeCoupled(const char* shader,const char* output,unsigned selection=0){
  }
  const unsigned expected=selection==2||selection==4?1:selection==1?141:144;need(accepted==expected,"Coupled sample budget mismatch");std::cout<<expected<<" accepted native coupled comparison conditions completed\n";
 }
+void calibrateNativeDrive(){
+ unsigned tests=0;
+ for(unsigned variant:{6u,7u}){
+  const auto original=model(variant,false);EngineModel driven;
+  const auto c=compileCoupledPositionDrives(original,driven);need(c.succeeded(),c.message);
+  need(driven.constraintProgram.blocks.size()==2 && driven.constraintProgram.rows.size()==2,"Native template count");
+  need(engineModelFingerprint(original)!=engineModelFingerprint(driven),"Native templates omitted from mechanics identity");++tests;
+  EngineModel sentinel=original;const auto h=engineModelFingerprint(sentinel);
+  need(!compileCoupledPositionDrives(driven,sentinel).succeeded() && engineModelFingerprint(sentinel)==h,"Duplicate template admission not transactional");++tests;
+  need(!evaluateConstraintIR(driven.constraintProgram,{},{}).diagnostics.succeeded(),"Host silently evaluated unresolved drive templates");++tests;
+  auto invalid=driven.constraintProgram;invalid.rows[0].impulseUpper=2;
+  need(!validateConstraintIR(invalid).succeeded(),"Malformed drive interval admitted");++tests;
+ }
+ std::cout<<"{\"host_checks\":"<<tests<<",\"native_physical_steps\":0}\n";
 }
-int main(int argc,char** argv){try{if(argc==2&&std::string(argv[1])=="--calibrate-precision"){calibrateIR(true);return 0;}if(argc==4&&std::string(argv[3])=="--coupled-precision"){executeCoupled(argv[1],argv[2],3);return 0;}if(argc==4&&std::string(argv[3])=="--momentum-replay"){executeCoupled(argv[1],argv[2],4);return 0;}if(argc==4&&std::string(argv[3])=="--coupled-unused"){executeCoupled(argv[1],argv[2],1);return 0;}if(argc==4&&std::string(argv[3])=="--empty-quality-replay"){executeCoupled(argv[1],argv[2],2);return 0;}if(argc==2&&std::string(argv[1])=="--calibrate-ir"){calibrateIR();return 0;}if(argc==4&&std::string(argv[3])=="--coupled"){executeCoupled(argv[1],argv[2]);return 0;}if(argc==2&&std::string(argv[1])=="--calibrate"){calibrate();return 0;}need(argc==3||argc==4,"Usage: motor-contact-probe --calibrate OR METALLIB NEW_TSV [--followup]");need(argc!=4||std::string(argv[3])=="--followup","Unknown selector");execute(argv[1],argv[2],argc==4);return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}
+
+void executeNativeDrive(const char* shader,const char* output){
+ MetalWorldConfig cfg;cfg.metallibPath=shader;MetalWorldContext context(cfg);
+ std::ofstream out(output);need(bool(out),"Cannot create native drive output");
+ out<<std::setprecision(17)<<"variant\tcontact\tdry\tlane\th\tmass\tq0\tv0\ttarget\tq\tv\tmotor_impulse\tcontact_impulse\tforce\tlaw_force\tforce_error\tmomentum_residual\tq_residual\tconstraints\tgpu_ms\n";
+ unsigned accepted=0;double maxForce=0,maxMomentum=0,maxQ=0;
+ for(unsigned variant:{6u,7u})for(float h:{.00035f,.00055f,.00085f})for(bool contact:{false,true})for(float dry:{0.0f,.001f}){
+  auto original=model(variant,contact);original.dofs[0].drive.w=dry;original.materials[0].friction={.5f,.5f,0,0};
+  EngineModel m;const auto prepared=compileCoupledPositionDrives(original,m);need(prepared.succeeded(),prepared.message);
+  const double M=mass(m);CompiledWorld world;const auto c=compileMetalWorld(m,0,world);need(c.succeeded(),c.message);
+  std::vector<float> q,v,target;std::vector<MRBodyStateGPU> scene;
+  for(float q0:{-.000015f,.000010f})for(float v0:{-.0002f,0.0f,.0002f})for(float t:{-.00003f,-.00009f,-.003f,.00003f}){
+   q.push_back(q0);v.push_back(v0);target.push_back(t);MRBodyStateGPU s{};
+   s.position.w=s.orientation.w=1;s.flagsAndIndices[0]=MR_MOTION_STATIC;s.flagsAndIndices[1]=MR_INVALID_INDEX;s.flagsAndIndices[2]=0;scene.push_back(s);
+  }
+  const unsigned N=q.size();need(N==24,"Native drive lane count");
+  MetalWorldBatch batch{.environmentCount=N,.controlStepCount=1,.initialQ=q,.initialV=v,.efforts=target,.initialSceneBodies=scene};
+  MetalWorldStepConfig step;step.timestepSeconds=h;step.physicsSubsteps=1;step.applyBodyDamping=false;
+  step.ccdMode=MetalWorldCCDMode::disabled;step.solverMode=MetalWorldSolverMode::qualityNewton;step.actuationMode=MetalWorldActuationMode::coupledPositionDrive;
+  step.warmStart=false;step.captureContactEvidence=true;step.matrixFreeArticulatedContact=false;step.streamedArticulatedContactResponses=false;
+  step.quality.optimalityTolerance=1e-10f;step.quality.feasibilityTolerance=1e-7f;
+  std::cout<<"begin native variant="<<variant<<" h="<<h<<" contact="<<contact<<" dry="<<dry<<" lanes="<<N<<'\n'<<std::flush;
+  MetalWorldResult r;const auto d=context.run(world,batch,step,r);
+  if(!d.succeeded()){
+   std::cerr<<"Native drive invocation host="<<unsigned(d.status)<<" gpu="<<d.firstGPUStatusCode<<" message="<<d.message<<'\n';
+   for(const auto& s:r.contactStatuses)std::cerr<<"contact_code="<<s.code<<" constraints="<<s.requiredConstraints<<" residual="<<s.residuals.y<<','<<s.residuals.z<<" quality="<<s.qualityDiagnostics.x<<','<<s.qualityDiagnostics.y<<'\n';
+  }
+  need(d.succeeded() && d.successfulStepCount==N && !d.failedStepCount,"Native dynamic drive invocation failed");
+  need(r.finalQ.size()==N&&r.finalV.size()==N&&r.contactStatuses.size()==N,"Missing native dynamic drive result");accepted+=N;
+  const unsigned stride=r.contactEvidence.contacts.size()/N;
+  double batchForce=0,batchMomentum=0,batchQ=0;
+  for(unsigned lane=0;lane<N;++lane){
+   const auto& status=r.contactStatuses[lane];double motor=0,impulse=0;unsigned motors=0;
+   for(unsigned i=0;i<status.requiredConstraints;++i){
+    need(i<stride,"Native drive contact stride overflow");const auto& row=r.contactEvidence.contacts[lane*stride+i];
+    if((row.flags&MR_CONSTRAINT_FLAG_GENERALIZED)!=0u){motor+=row.impulses.x;++motors;continue;}
+    const double sign=row.bodyB==2?1:row.bodyA==2?-1:0;need(sign!=0,"Invalid native drive contact incidence");impulse+=sign*row.normal.y*row.impulses.x;
+   }
+   need(motors==2,"Missing native motor interval rows");
+   double law=300*(double(target[lane])-r.finalQ[lane])-8*r.finalV[lane];
+   if(std::abs(v[lane])>1e-4f)law-=std::copysign(double(dry),double(v[lane]));
+   else law=std::copysign(std::max(std::abs(law)-double(dry),0.0),law);
+   law=std::clamp(law,-double(m.dofs[0].limits.w),double(m.dofs[0].limits.w));
+   const double force=motor/h,error=std::abs(force-law),balance=M*(r.finalV[lane]-double(v[lane]))-motor-impulse;
+   const double qr=r.finalQ[lane]-double(q[lane])-double(h)*r.finalV[lane];
+   out<<variant<<'\t'<<contact<<'\t'<<dry<<'\t'<<lane<<'\t'<<h<<'\t'<<M<<'\t'<<q[lane]<<'\t'<<v[lane]<<'\t'<<target[lane]<<'\t'<<r.finalQ[lane]<<'\t'<<r.finalV[lane]<<'\t'<<motor<<'\t'<<impulse<<'\t'<<force<<'\t'<<law<<'\t'<<error<<'\t'<<balance<<'\t'<<qr<<'\t'<<status.requiredConstraints<<'\t'<<d.gpuElapsedMilliseconds<<'\n';
+   need(std::isfinite(force)&&std::isfinite(law)&&std::isfinite(balance)&&std::isfinite(qr),"Nonfinite native drive measurement");
+   batchForce=std::max(batchForce,error);batchMomentum=std::max(batchMomentum,std::abs(balance));batchQ=std::max(batchQ,std::abs(qr));
+  }
+  out.flush();need(bool(out),"Native drive evidence write failed");
+  maxForce=std::max(maxForce,batchForce);maxMomentum=std::max(maxMomentum,batchMomentum);maxQ=std::max(maxQ,batchQ);
+  std::cout<<std::setprecision(17)<<"accepted="<<N<<" force_error="<<batchForce<<" momentum="<<batchMomentum<<" q_error="<<batchQ<<'\n'<<std::flush;
+  need(batchForce<=1e-7&&batchMomentum<=2e-9&&batchQ<=2e-9,"Native dynamic drive physical gate failed");
+ }
+ need(accepted==576,"Native drive sample budget mismatch");
+ std::cout<<std::setprecision(17)<<"{\"accepted_native_conditions\":"<<accepted<<",\"maximum_force_error_N\":"<<maxForce<<",\"maximum_momentum_error_Ns\":"<<maxMomentum<<",\"maximum_q_hv_error_m\":"<<maxQ<<"}\n";
+}
+
+}
+int main(int argc,char** argv){try{if(argc==2&&std::string(argv[1])=="--native-drive-calibrate"){calibrateNativeDrive();return 0;}if(argc==4&&std::string(argv[3])=="--native-drive"){executeNativeDrive(argv[1],argv[2]);return 0;}if(argc==2&&std::string(argv[1])=="--calibrate-precision"){calibrateIR(true);return 0;}if(argc==4&&std::string(argv[3])=="--coupled-precision"){executeCoupled(argv[1],argv[2],3);return 0;}if(argc==4&&std::string(argv[3])=="--momentum-replay"){executeCoupled(argv[1],argv[2],4);return 0;}if(argc==4&&std::string(argv[3])=="--coupled-unused"){executeCoupled(argv[1],argv[2],1);return 0;}if(argc==4&&std::string(argv[3])=="--empty-quality-replay"){executeCoupled(argv[1],argv[2],2);return 0;}if(argc==2&&std::string(argv[1])=="--calibrate-ir"){calibrateIR();return 0;}if(argc==4&&std::string(argv[3])=="--coupled"){executeCoupled(argv[1],argv[2]);return 0;}if(argc==2&&std::string(argv[1])=="--calibrate"){calibrate();return 0;}need(argc==3||argc==4,"Usage: motor-contact-probe --calibrate OR METALLIB NEW_TSV [--followup]");need(argc!=4||std::string(argv[3])=="--followup","Unknown selector");execute(argv[1],argv[2],argc==4);return 0;}catch(const std::exception&e){std::cerr<<e.what()<<'\n';return 1;}}

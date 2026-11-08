@@ -46,6 +46,11 @@ enum MRConstraintIRRowFlags : mr_u32 {
     MR_CONSTRAINT_IR_ROW_CONTACT_NORMAL = 1u << 2u,
     MR_CONSTRAINT_IR_ROW_CONTACT_TANGENT = 1u << 3u,
     MR_CONSTRAINT_IR_ROW_CONTACT_TORSION = 1u << 4u,
+    // Native actuator templates, resolved from current microstep state before
+    // generic IR evaluation. Two scalar intervals encode the motor dead zone.
+    // Unresolved templates cannot be evaluated by the host reference evaluator.
+    MR_CONSTRAINT_IR_ROW_POSITION_DRIVE = 1u << 5u,
+    MR_CONSTRAINT_IR_ROW_DRIVE_NEGATIVE = 1u << 6u,
 };
 
 enum MRConstraintIREndpointRole : mr_u32 {

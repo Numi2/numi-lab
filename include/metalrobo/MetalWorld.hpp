@@ -62,6 +62,9 @@ enum class MetalWorldActuationMode : std::uint32_t {
     // per CCD segment, with physical contact mass. Contact graphs only, nv<=40.
     // Constitutive checks do not qualify motor/contact coupling or learning.
     boundedPositionDrive = 2u,
+    // Experimental joint motor/contact solve. Requires templates produced by
+    // compileCoupledPositionDrives, qualityNewton and non-hybrid CCD.
+    coupledPositionDrive = 3u,
 };
 
 enum class MetalWorldCCDMode : std::uint32_t {
@@ -246,6 +249,14 @@ private:
     const HeterogeneousWorld& world,
     CompiledWorld& compiled,
     const MetalWorldCapacityProfile& capacities = {}
+);
+
+// Append immutable native position-drive templates transactionally. Source
+// mechanics and authored constraints are preserved. Each driven scalar DoF
+// gets positive/negative interval rows; native microstep preparation binds
+// targets, source q/v, controller gains, dry friction and torque-speed limits.
+[[nodiscard]] MetalWorldCompileDiagnostics compileCoupledPositionDrives(
+    const EngineModel& model, EngineModel& driven
 );
 
 // One submission encodes controlStepCount control steps. initialQ/initialV are
