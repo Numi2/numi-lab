@@ -1,0 +1,13 @@
+Test project /Users/numi/numi-matter-midpoint-reference-build-20261108
+    Start 2: numi.contact.fem_fp64_energy_gradient
+1/4 Test #2: numi.contact.fem_fp64_energy_gradient ......   Passed    0.00 sec
+    Start 3: numi.contact.fem_fp64_midpoint_discrete
+2/4 Test #3: numi.contact.fem_fp64_midpoint_discrete ....   Passed    0.00 sec
+    Start 4: numi.contact.midpoint_transaction
+3/4 Test #4: numi.contact.midpoint_transaction ..........   Passed    0.00 sec
+    Start 5: numi.contact.fem_fp64_midpoint_reference
+4/4 Test #5: numi.contact.fem_fp64_midpoint_reference ...   Passed    0.15 sec
+
+100% tests passed out of 4
+
+Total Test time (real) =   0.16 sec

@@ -1,0 +1,39 @@
+{
+  "original_sha256": "f44ad1ebbcfdbb817a17aafe42617d28961c7ce905e14f3915e01d5f416fd640",
+  "new_sha256": "b9e220f7dd0e18c8a7a5e4d0bc6b96c6f0a67b393e5f57da9f81dc9705882166",
+  "exposed_exact_excluding_timing": true,
+  "differences": [],
+  "force_bins_old_N": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.15763291268646998,
+    0.005662471238562,
+    0.018853580197497697,
+    0.11394301880179,
+    0.06474026323177,
+    0.10425786369871999
+  ],
+  "force_bins_new_N": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.15763291268646998,
+    0.005662471238562,
+    0.018853580197497697,
+    0.11394301880179,
+    0.06474026323177,
+    0.10425786369871999
+  ],
+  "bin_max_abs_difference_N": 0.0,
+  "integrated_impulse_old_Ns": 0.0004650901098548097,
+  "integrated_impulse_new_Ns": 0.0004650901098548097,
+  "complete": true,
+  "transaction_checks": {
+    "identity_mismatch_rejected": true,
+    "forced_rollback_exact": true,
+    "restore_replay": true
+  }
+}

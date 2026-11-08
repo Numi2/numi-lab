@@ -1,0 +1,24 @@
+UpdateCTestConfiguration  from :/Users/numi/numi-matter-midpoint-reference-build-20261108/DartConfiguration.tcl
+Parse Config file:/Users/numi/numi-matter-midpoint-reference-build-20261108/DartConfiguration.tcl
+Test project /Users/numi/numi-matter-midpoint-reference-build-20261108
+Constructing a list of tests
+Done constructing a list of tests
+Updating test list for fixtures
+Added 0 tests to meet fixture requirements
+Checking test dependency graph...
+Checking test dependency graph end
+test 5
+    Start 5: numi.contact.fem_fp64_midpoint_reference
+
+5: Test command: /opt/homebrew/Frameworks/Python.framework/Versions/3.15/bin/python3.15 "/Users/numi/numi-lab-matter-midpoint-reference-20261108/tests/contact/midpoint_regression.py" "/Users/numi/numi-matter-midpoint-reference-build-20261108/numi_contact_fem_fp64_midpoint"
+5: Working Directory: /Users/numi/numi-matter-midpoint-reference-build-20261108
+5: Test timeout computed to be: 1500
+5: CPU midpoint fixed-mesh force/impulse: 0.0008549363572691734 0.0001099725736334651 clearance: 8.709960882784517e-05
+1/1 Test #5: numi.contact.fem_fp64_midpoint_reference ...   Passed    0.16 sec
+
+The following tests passed:
+	numi.contact.fem_fp64_midpoint_reference
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.16 sec
