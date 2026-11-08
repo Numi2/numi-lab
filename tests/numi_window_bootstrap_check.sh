@@ -39,6 +39,37 @@ grep -F -- "$workspace/scene.json" "$root/rollout.log" > /dev/null
 if grep -F 'metalrobo_numi_window_catalog_compile' "$root/cmake.log" >/dev/null; then
     echo "environment scene unnecessarily compiled the built-in catalog" >&2; exit 1
 fi
+# A source checkout and the user's project may be separate directories.
+source_root="$root/source checkout"
+mkdir -p "$source_root" "$workspace/build/unitree_ros/robots/g1_description" \
+    "$workspace/build/franka_description/meshes/robots/fer/collision" \
+    "$workspace/.numi/runs/px4-x500-source/source/models/x500_base/meshes"
+touch "$source_root/CMakeLists.txt" "$workspace/build/unitree_ros/robots/g1_description/g1_29dof.urdf"
+cat > "$build/bin/metalrobo_booster_k1_compile" <<'EOF'
+#!/bin/sh
+printf '%s\n' "$@" > "$NUMI_BOOTSTRAP_BOOSTER_LOG"
+EOF
+cat > "$build/bin/metalrobo_numi_window_catalog_compile" <<'EOF'
+#!/bin/sh
+printf '%s\n' "$@" > "$NUMI_BOOTSTRAP_CATALOG_LOG"
+mkdir -p "$NUMI_WORKSPACE_ROOT/.numi/runs/numi-window-builtins"
+touch "$NUMI_WORKSPACE_ROOT/.numi/runs/numi-window-builtins/franka.numi-window.json"
+EOF
+chmod +x "$build/bin/metalrobo_booster_k1_compile" "$build/bin/metalrobo_numi_window_catalog_compile"
+export NUMI_LAB_ROOT="$source_root" NUMI_BOOTSTRAP_BOOSTER_LOG="$root/booster.log" NUMI_BOOTSTRAP_CATALOG_LOG="$root/catalog.log"
+: > "$root/cmake.log"
+sh "$script" --window-scene "$workspace/scene.json" > "$root/source.out" 2>&1
+grep -F -- "-S $source_root -B $build" "$root/cmake.log" > /dev/null || { echo "rollout configured from the wrong source" >&2; exit 1; }
+: > "$root/cmake.log"
+sh "$script" add booster-k1 --source "$workspace" > "$root/source-add.out" 2>&1
+grep -F -- "-S $source_root -B $build" "$root/cmake.log" > /dev/null || { echo "import configured from the wrong source" >&2; exit 1; }
+grep -F -- "$workspace" "$root/booster.log" > /dev/null
+: > "$root/cmake.log"
+sh "$script" > "$root/source-catalog.out" 2>&1
+grep -F -- "-S $source_root -B $build" "$root/cmake.log" > /dev/null || { echo "catalog configured from the wrong source" >&2; exit 1; }
+grep -F -- "$workspace" "$root/catalog.log" > /dev/null
+# Restore the missing-assets fixture for installed mode.
+rm -rf "$workspace/build" "$workspace/.numi/runs/px4-x500-source" "$workspace/.numi/runs/numi-window-builtins"
 # Installed mode must use the relocated binaries and metallib without CMake.
 installed="$root/installed"
 mkdir -p "$installed/bin" "$installed/lib/metalrobo"

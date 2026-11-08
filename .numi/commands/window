@@ -105,6 +105,7 @@ window_option_value() {
 }
 
 window_workspace=${NUMI_WORKSPACE_ROOT:?Run this capability through numi.}
+window_source=${NUMI_LAB_ROOT:-$window_workspace}
 window_build=${NUMI_WINDOW_BUILD_DIR:-"$window_workspace/.numi/window-build"}
 window_installed=0
 if [ -n "${NUMI_LAB_ROOT:-}" ] && [ ! -f "$NUMI_LAB_ROOT/CMakeLists.txt" ]; then
@@ -173,7 +174,7 @@ if [ "$window_needs_builtins" -eq 1 ] &&
     if [ "$window_installed" -eq 1 ]; then
         window_catalog_compiler="$NUMI_LAB_ROOT/bin/metalrobo_numi_window_catalog_compile"
     else
-        cmake -S "$window_workspace" -B "$window_build" \
+        cmake -S "$window_source" -B "$window_build" \
             -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
         cmake --build "$window_build" \
             --target metalrobo_numi_window_catalog_compile -j 4
@@ -209,7 +210,7 @@ if [ "${1:-}" = "add" ]; then
     if [ "$window_installed" -eq 1 ]; then
         window_booster_compiler="$NUMI_LAB_ROOT/bin/metalrobo_booster_k1_compile"
     else
-        cmake -S "$window_workspace" -B "$window_build" \
+        cmake -S "$window_source" -B "$window_build" \
             -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
         cmake --build "$window_build" --target metalrobo_booster_k1_compile -j 4
         window_booster_compiler="$window_build/bin/metalrobo_booster_k1_compile"
@@ -283,7 +284,7 @@ if [ "$window_installed" -eq 1 ]; then
     window_metallib="$NUMI_LAB_ROOT/lib/metalrobo/MetalRobo.metallib"
     window_contract_check="$NUMI_LAB_ROOT/bin/metalrobo_numi_window_check"
 else
-    cmake -S "$window_workspace" -B "$window_build" \
+    cmake -S "$window_source" -B "$window_build" \
         -G Ninja -DCMAKE_BUILD_TYPE="${NUMI_WINDOW_BUILD_TYPE:-Release}"
     if [ "$window_runtime_check" -eq 1 ]; then
         cmake --build "$window_build" --target \

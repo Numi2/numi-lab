@@ -156,6 +156,13 @@ printf '%s\n' "$numi_context" | grep 'Workspace override.' >/dev/null
 printf '%s\n' "$numi_context" | grep 'Extra capability.' >/dev/null
 printf '%s\n' "$numi_context" | grep '^  residual-teacher  ' >/dev/null
 
+# Source runtime capabilities remain discoverable from an independent project.
+numi_window_description=$(
+    cd "$numi_temp/workspace"
+    NUMI_LAB_ROOT=$numi_repo "$numi_repo/tools/numi" window --numi-describe
+)
+[ -n "$numi_window_description" ]
+
 numi_context_paths=$(
     cd "$numi_temp/workspace"
     NUMI_LAB_ROOT=$numi_repo \
