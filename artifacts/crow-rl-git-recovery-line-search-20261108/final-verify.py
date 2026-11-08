@@ -24,6 +24,7 @@ with archive.Objects() as objects:
  omission=value(gr+'/omission.json');assert omission['status']=='omitted'
  for f in omission['omitted_files']:assert not (R/f['path']).exists() and entries[f['path']][1]==f['git_blob'];objects.read(f['git_blob'])
  q=value(ar+'/qualification-result.json');component=value(ar+'/component-result.json');w=value(wr+'/result.json');bounded=value(ar+'/integration-bounded-result.json')
+ padding=value(ar+'/padding-audit-result.json');assert padding['passed'] and len(padding['cases'])==6
 head=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
 remote=subprocess.check_output(['git','ls-remote','origin','refs/heads/'+archive.BRANCH],text=True).split()[0];assert head==remote
 df=subprocess.check_output(['df','-k','/System/Volumes/Data'],text=True)
@@ -37,5 +38,5 @@ report=dict(schema='crow-line-search-final-verification-v1',verified_commit=head
  coupled_physical_predictions_supported=q['all_predictions_supported'],coupled_observations=q['observations'],
  shared_git_provider=common,shared_git_provider_protected=True,duplicate_checkout_files_omitted=len(omission['omitted_files']),
  duplicate_checkout_bytes_omitted=omission['omitted_logical_bytes'],free_gib=int(df.splitlines()[1].split()[3])/1024**2,
- archive_checks_passed=True,performance_qualified=False,lifelong_environment_qualified=False,goal_complete=False)
+ unused_row_impulse_audit_passed=True,archive_checks_passed=True,performance_qualified=False,lifelong_environment_qualified=False,goal_complete=False)
 (A/'verification.json').write_text(json.dumps(report,indent=2,sort_keys=True)+'\n');print(json.dumps(report),flush=True)

@@ -1,0 +1,65 @@
+{
+  "cases": [
+    {
+      "name": "api-default",
+      "status": 0,
+      "unused_output_bit_patterns": [
+        0
+      ],
+      "unused_output_impulses_zero": true,
+      "unused_rows": 64,
+      "zero_unused_input_operator_and_bias": true
+    },
+    {
+      "name": "line-search",
+      "status": 0,
+      "unused_output_bit_patterns": [
+        0
+      ],
+      "unused_output_impulses_zero": true,
+      "unused_rows": 64,
+      "zero_unused_input_operator_and_bias": true
+    },
+    {
+      "name": "opt6",
+      "status": 0,
+      "unused_output_bit_patterns": [
+        0
+      ],
+      "unused_output_impulses_zero": true,
+      "unused_rows": 64,
+      "zero_unused_input_operator_and_bias": true
+    },
+    {
+      "name": "opt7",
+      "status": 0,
+      "unused_output_bit_patterns": [
+        0
+      ],
+      "unused_output_impulses_zero": true,
+      "unused_rows": 64,
+      "zero_unused_input_operator_and_bias": true
+    },
+    {
+      "name": "substep2",
+      "status": 0,
+      "unused_output_bit_patterns": [
+        0
+      ],
+      "unused_output_impulses_zero": true,
+      "unused_rows": 64,
+      "zero_unused_input_operator_and_bias": true
+    },
+    {
+      "name": "substep7",
+      "rejected_output_poison_preserved": true,
+      "status": 7,
+      "unused_rows": 64,
+      "zero_unused_input_operator_and_bias": true
+    }
+  ],
+  "passed": true,
+  "physical_or_policy_changed": false,
+  "schema": "crow-line-search-padding-audit-v1",
+  "scope": "Six actual retained operators and outputs. No new native commands, no proof about uncaptured future problems."
+}
