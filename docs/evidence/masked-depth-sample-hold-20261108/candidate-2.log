@@ -1,0 +1,3 @@
+HOLD step=1 sensor=0 changed_pixels=0
+HOLD step=2 sensor=1 changed_pixels=2064
+HOLD step=3 sensor=1 changed_pixels=0

@@ -8257,7 +8257,7 @@ bool MetalHybridObjectTracker::encodeObservation(
                 static_cast<float>(
                     state->config.maskedDepthFeatureCount
                 ),
-                0.0f,
+                sampleSensor ? 1.0f : 0.0f,
             },
         };
         observationEncoder.label = @"MetalRobo masked depth history";

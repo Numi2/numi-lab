@@ -1,0 +1,57 @@
+Test project /Users/numi/numi-reconciliation-build-20261108
+      Start 186: metalrobo.visual.masked_depth_validity
+ 1/23 Test #186: metalrobo.visual.masked_depth_validity ..........   Passed    0.04 sec
+      Start 187: metalrobo.visual.object_track_validity
+ 2/23 Test #187: metalrobo.visual.object_track_validity ..........   Passed    0.03 sec
+      Start 188: metalrobo.visual.object_track_fingerprint
+ 3/23 Test #188: metalrobo.visual.object_track_fingerprint .......   Passed    0.00 sec
+      Start 189: metalrobo.visual.observation_fingerprint
+ 4/23 Test #189: metalrobo.visual.observation_fingerprint ........   Passed    0.00 sec
+      Start 190: metalrobo.visual.tracker_stride_fingerprint
+ 5/23 Test #190: metalrobo.visual.tracker_stride_fingerprint .....   Passed    0.00 sec
+      Start 191: metalrobo.visual.history_restore_layouts
+ 6/23 Test #191: metalrobo.visual.history_restore_layouts ........   Passed    0.03 sec
+      Start 192: metalrobo.visual.tracker_encode_retry
+ 7/23 Test #192: metalrobo.visual.tracker_encode_retry ...........   Passed    0.06 sec
+      Start 193: metalrobo.visual.world_observation_control
+ 8/23 Test #193: metalrobo.visual.world_observation_control ......   Passed    0.04 sec
+      Start 194: metalrobo.visual.world_observation_first
+ 9/23 Test #194: metalrobo.visual.world_observation_first ........   Passed    0.04 sec
+      Start 195: metalrobo.visual.world_observation_second
+10/23 Test #195: metalrobo.visual.world_observation_second .......   Passed    0.04 sec
+      Start 196: metalrobo.visual.resident_observation_control
+11/23 Test #196: metalrobo.visual.resident_observation_control ...   Passed    0.05 sec
+      Start 197: metalrobo.visual.resident_observation_first
+12/23 Test #197: metalrobo.visual.resident_observation_first .....   Passed    0.05 sec
+      Start 198: metalrobo.visual.resident_observation_second
+13/23 Test #198: metalrobo.visual.resident_observation_second ....   Passed    0.05 sec
+      Start 199: metalrobo.visual.world_step_callback
+14/23 Test #199: metalrobo.visual.world_step_callback ............   Passed    0.04 sec
+      Start 200: metalrobo.visual.world_step_callback_abort
+15/23 Test #200: metalrobo.visual.world_step_callback_abort ......   Passed    0.04 sec
+      Start 201: metalrobo.visual.history_step_rollback
+16/23 Test #201: metalrobo.visual.history_step_rollback ..........   Passed    0.04 sec
+      Start 202: metalrobo.visual.masked_depth_sample_hold
+17/23 Test #202: metalrobo.visual.masked_depth_sample_hold .......   Passed    0.04 sec
+      Start 203: metalrobo.visual.reset_frame_materialized
+18/23 Test #203: metalrobo.visual.reset_frame_materialized .......   Passed    0.04 sec
+      Start 204: metalrobo.visual.reset_frame_fresh
+19/23 Test #204: metalrobo.visual.reset_frame_fresh ..............   Passed    0.04 sec
+      Start 205: metalrobo.visual.reset_frame_rollback
+20/23 Test #205: metalrobo.visual.reset_frame_rollback ...........   Passed    0.04 sec
+      Start 206: metalrobo.visual.reset_frame_sampled_failure
+21/23 Test #206: metalrobo.visual.reset_frame_sampled_failure ....   Passed    0.04 sec
+      Start 207: metalrobo.visual.reset_frame_direct
+22/23 Test #207: metalrobo.visual.reset_frame_direct .............   Passed    0.03 sec
+      Start 208: metalrobo.visual.observation_lease
+23/23 Test #208: metalrobo.visual.observation_lease ..............   Passed    0.03 sec
+
+100% tests passed out of 23
+
+Label Time Summary:
+metal        =   0.83 sec*proc (20 tests)
+metalrobo    =   0.84 sec*proc (23 tests)
+runtime      =   0.01 sec*proc (3 tests)
+visual       =   0.84 sec*proc (23 tests)
+
+Total Test time (real) =   0.86 sec

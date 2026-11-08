@@ -1,0 +1,29 @@
+valid 4x2 direct=0 selected_bad=0 unselected_bad=0
+missing_frame 4x2 false_near=0 total=16
+mixed_frame 4x2 missing_bad=0 present_bad=0
+invalid 4x2 direct=0 false_near=0 nonfinite=0 total=16
+hold 4x2 direct=0 capacity=3 held=1 fresh_changed=1
+hold_reset 4x2 direct=0 capacity=3 invalid=1 neighbor_held=1
+hold_recovery 4x2 direct=0 capacity=3 recovered=1
+hold 4x2 direct=0 capacity=1 held=1 fresh_changed=1
+hold_reset 4x2 direct=0 capacity=1 invalid=1 neighbor_held=1
+hold_recovery 4x2 direct=0 capacity=1 recovered=1
+valid 20x20 direct=0 selected_bad=0 unselected_bad=0
+missing_frame 20x20 false_near=0 total=800
+mixed_frame 20x20 missing_bad=0 present_bad=0
+invalid 20x20 direct=0 false_near=0 nonfinite=0 total=800
+hold 20x20 direct=0 capacity=3 held=1 fresh_changed=1
+hold_reset 20x20 direct=0 capacity=3 invalid=1 neighbor_held=1
+hold_recovery 20x20 direct=0 capacity=3 recovered=1
+hold 20x20 direct=0 capacity=1 held=1 fresh_changed=1
+hold_reset 20x20 direct=0 capacity=1 invalid=1 neighbor_held=1
+hold_recovery 20x20 direct=0 capacity=1 recovered=1
+valid 4x2 direct=1 selected_bad=0 unselected_bad=0
+invalid 4x2 direct=1 false_near=0 nonfinite=0 total=16
+hold 4x2 direct=1 capacity=3 held=1 fresh_changed=1
+hold_reset 4x2 direct=1 capacity=3 invalid=1 neighbor_held=1
+hold_recovery 4x2 direct=1 capacity=3 recovered=1
+hold 4x2 direct=1 capacity=1 held=1 fresh_changed=1
+hold_reset 4x2 direct=1 capacity=1 invalid=1 neighbor_held=1
+hold_recovery 4x2 direct=1 capacity=1 recovered=1
+failures=0
