@@ -1,0 +1,55 @@
+{
+  "budgets": {
+    "cases": 3,
+    "command_timeout_seconds": 120,
+    "new_output_bytes_max": 5000000
+  },
+  "decision": "Native acceptance of neighbor supports implementing generic native refinement; rejection requires FP32 arithmetic diagnosis before any solver change",
+  "inputs": {
+    "artifacts/crow-rl-quality-representability-20261108/warm_probe.mm": {
+      "bytes": 6591,
+      "sha256": "54fbfcb69748fdd783933d6c8bc6df59b2300867a78b69ae89e935ff925bb8cd"
+    },
+    "artifacts/crow-rl-quality-representability-20261108/warm_validation.py": {
+      "bytes": 4129,
+      "sha256": "59a5d048ae99e94eed2263288cd3d781369bdad61fd7ceaa6e9ae514e65c4a02"
+    },
+    "build/crow-quality-representability-build-01/capture-one.bin": {
+      "bytes": 98864,
+      "sha256": "abd531b3e9f580c7f5c208c358e87821c51470d3671367571c8a713f3885b441"
+    },
+    "build/crow-quality-representability-build-01/neighbor-v.f32": {
+      "bytes": 136,
+      "sha256": "ee4620f6ecac23b3393603c7f914234979106da60658edcf1352d57f756890c8"
+    },
+    "build/crow-quality-representability-build-01/rounded-reference-v.f32": {
+      "bytes": 136,
+      "sha256": "5beb205e91f0efcfa63619f701336d7906816add074b8c8444265067664e7b12"
+    },
+    "build/shaders/MetalRobo.metallib": {
+      "bytes": 4309920,
+      "sha256": "37f2466de50d4c2003dd8aeea4d55a680aaaab0f2ab21f9601f976032d80e675"
+    }
+  },
+  "policy_promoted": false,
+  "predicted": [
+    {
+      "capture_exact": true,
+      "case": "original",
+      "code": 7,
+      "newton": 20,
+      "pcg": 77
+    },
+    {
+      "case": "rounded",
+      "code": 7
+    },
+    {
+      "case": "neighbor",
+      "code": 0,
+      "independent_residual_max": 1e-10
+    }
+  ],
+  "purpose": "Engineering replay of one exposed numerical problem; test native acceptance without editing solver or tolerances",
+  "schema": "crow-quality-native-warm-validation-plan-v1"
+}
