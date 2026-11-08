@@ -12,9 +12,16 @@ candidate=Path("/Users/numi/Work/mixed-joint-contact-v2-artifacts-20261108/joint
 trace=Path("/Users/numi/Work/mixed-joint-contact-v2-artifacts-20261108/trace.metallib")
 lib=Path("/Users/numi/numi-reconciliation-build-20261108/lib/libmetalrobo.dylib")
 assert hashlib.sha256(ref.read_bytes()).hexdigest()=="eb50d360aa00d89390efb52ec8f59637e8b21398b968aab689b2443db1511ccf"
-assert hashlib.sha256(lib.read_bytes()).hexdigest()=="257737dd7b8bfe39a56ff84438849d93e57092e96f2ec97f78182afb70d87e35"
+assert hashlib.sha256(lib.read_bytes()).hexdigest()=="c5bb0e7432a2df5bda2b89c5fecdd66896acf907d4274e61245a8dca97d901f1"
 assert hashlib.sha256(candidate.read_bytes()).hexdigest()==(root/"v2-artifacts.sha256").read_text().splitlines()[2].split()[0]
 assert hashlib.sha256(trace.read_bytes()).hexdigest()==(root/"v2-trace-artifacts.sha256").read_text().splitlines()[2].split()[0]
+def exposed(x):
+ if isinstance(x,dict): return {k:exposed(v) for k,v in x.items() if k not in ("scratch","row_trace")}
+ if isinstance(x,list): return [exposed(v) for v in x]
+ return x
+for fresh,prior in (("fresh-v2.json","v2-joint.json"),("fresh-fixed128.json","fixed128-correct.json")):
+ a=json.loads((root/fresh).read_text()); b=json.loads((root/prior).read_text())
+ assert exposed(a)==exposed(b) and all(a[k] for k in ("capture_noninvasive","repeat","exact_trace"))
 scenarios={
  "reverse": [("m.defaultV[0]=.05f;","m.defaultV[0]=-.035f;")],
  "raised_rod": [("p[1]=.0228;","p[1]=.02315;")],
