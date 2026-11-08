@@ -890,7 +890,7 @@ int main() {
                 const bool failedReset = std::getenv("NUMI_TEST_RESET_ROLLBACK") != nullptr;
                 bool stale=(std::getenv("NUMI_TEST_LONG_RATE") && step>0 && step<5 && !(failedReset && step==2)) ||
                     (std::getenv("NUMI_TEST_SLOW_RATE") && !std::getenv("NUMI_TEST_LONG_RATE") && step==1) ||
-                    (std::getenv("NUMI_TEST_RESET_SAMPLED_FAILURE") && step==3);
+                    (std::getenv("NUMI_TEST_RESET_SAMPLED_FAILURE") && (step==2 || step==3));
                 if (stale) {
                     require(output[last]==0.0f && output[last+1u]==0.0f && env0Far==visualPixels && featureAbs==0.0f,"stale reset frame leaked");
                     for (std::uint32_t h=0;h<kActorHistoryLength;++h)
@@ -930,6 +930,17 @@ int main() {
             require(trackerProgram.begin && trackerProgram.finish && trackerProgram.afterStep,
                     "tracker physical-step hooks missing");
             const std::vector<float> initial(tracked, tracked + trackElements);
+            constexpr std::size_t kOutputPrefix = 13u;
+            constexpr std::size_t kOutputSuffix = 17u;
+            id<MTLBuffer> offsetOutput = [device newBufferWithLength:
+                (kOutputPrefix + trackElements + kOutputSuffix) * sizeof(float)
+                options:MTLResourceStorageModeShared];
+            require(offsetOutput != nil, "offset output allocation");
+            auto* offsetValues = static_cast<float*>(offsetOutput.contents);
+            std::fill_n(offsetValues, kOutputPrefix + trackElements + kOutputSuffix, -73.0f);
+            std::copy(initial.begin(), initial.end(), offsetValues + kOutputPrefix);
+            trackerPass.actorObservations = (__bridge void*)offsetOutput;
+            trackerPass.actorObservationOffsetElements = kOutputPrefix;
             const auto* actorHistoryValues = static_cast<const float*>(historyBuffer.contents);
             const std::size_t actorStride = kActorFrameSize * kActorHistoryLength;
             const std::vector<float> initialHistory(actorHistoryValues, actorHistoryValues + kEnvironmentCount * actorStride);
@@ -952,6 +963,14 @@ int main() {
                 require(stepCommand != nil, "step command allocation");
                 trackerPass.commandBuffer = (__bridge void*)stepCommand;
                 require(trackerProgram.begin(trackerProgram.context, trackerPass.commandBuffer), "step begin");
+                auto outOfRange = trackerPass;
+                outOfRange.actorObservationOffsetElements = kOutputPrefix + trackElements;
+                require(!trackerProgram.encode(trackerProgram.context, outOfRange), "out-of-range actor output admitted");
+                outOfRange.actorObservationOffsetElements = static_cast<std::size_t>(-1);
+                require(!trackerProgram.encode(trackerProgram.context, outOfRange), "overflow actor output admitted");
+                outOfRange = trackerPass;
+                outOfRange.controlStep = 2u;
+                require(!trackerProgram.encode(trackerProgram.context, outOfRange), "out-of-range reset mask admitted");
                 require(trackerProgram.encode(trackerProgram.context, trackerPass), "step observation");
                 const metalrobo::MetalWorldDeviceObservationStepResult outcome{
                     .commandBuffer = trackerPass.commandBuffer,
@@ -975,10 +994,16 @@ int main() {
                 trackerProgram.finish(trackerProgram.context, trackerPass.commandBuffer, true);
                 [stepCommand waitUntilCompleted];
                 require(stepCommand.status == MTLCommandBufferStatusCompleted, "step command completion");
-                const auto* values = static_cast<const float*>(observationBuffer.contents);
+                require(std::all_of(offsetValues, offsetValues + kOutputPrefix, [](float x){return x == -73.0f;}) &&
+                        std::all_of(offsetValues + kOutputPrefix + trackElements,
+                                    offsetValues + kOutputPrefix + trackElements + kOutputSuffix,
+                                    [](float x){return x == -73.0f;}), "actor output canary changed");
+                const auto* values = offsetValues + kOutputPrefix;
                 return std::vector<float>(values, values + trackElements);
             };
             const auto middle = observeStep(1u);
+            require(std::equal(initial.begin(), initial.begin()+kTrackWidth, middle.begin()),
+                    "failed environment actor observation was not restored");
             require(std::equal(initialHistory.begin(), initialHistory.begin()+actorStride, actorHistoryValues),
                     "failed environment actor history was not restored");
             require(!std::equal(initialHistory.begin()+actorStride, initialHistory.end(), actorHistoryValues+actorStride),

@@ -7418,6 +7418,11 @@ struct MetalHybridObjectTracker::State {
     __strong id<MTLBuffer> pendingFrameFreshBackup = nil;
     __strong id<MTLBuffer> pendingActorBackup = nil;
     __strong id<MTLBuffer> pendingActorSource = nil;
+    __strong id<MTLBuffer> pendingOutputBackup = nil;
+    __strong id<MTLBuffer> pendingOutputSource = nil;
+    __strong id<MTLBuffer> pendingResetMasks = nil;
+    std::uint64_t pendingOutputOffset = 0u;
+    std::uint32_t pendingOutputStride = 0u;
     std::uint32_t pendingFrameSize = 0u;
     std::uint32_t pendingHistoryLength = 0u;
     std::uint32_t pendingEnvironmentCount = 0u;
@@ -7875,6 +7880,11 @@ void MetalHybridObjectTracker::finishObservation(void* context, void* command, b
         state->pendingFrameFreshBackup = nil;
         state->pendingActorBackup = nil;
         state->pendingActorSource = nil;
+        state->pendingOutputBackup = nil;
+        state->pendingOutputSource = nil;
+        state->pendingResetMasks = nil;
+        state->pendingOutputOffset = 0u;
+        state->pendingOutputStride = 0u;
         state->pendingFrameSize = 0u;
         state->pendingHistoryLength = 0u;
         state->pendingEnvironmentCount = 0u;
@@ -7918,7 +7928,7 @@ bool MetalHybridObjectTracker::encodeObservation(
     }
     for (const MetalHybridObjectTrackBinding& binding :
          state->config.bindings) {
-        if (binding.actorFrameOffset + 7u > pass.actorFrameSize) {
+        if (std::uint64_t(binding.actorFrameOffset) + 7u > pass.actorFrameSize) {
             return false;
         }
     }
@@ -8017,6 +8027,29 @@ bool MetalHybridObjectTracker::encodeObservation(
         if (state->pendingHistoryBackup == nil || state->pendingDepthBackup == nil ||
             state->pendingFrameFreshBackup == nil) return false;
         id<MTLBuffer> actorHistory = (__bridge id<MTLBuffer>)pass.actorHistory;
+        id<MTLBuffer> actorOutput = (__bridge id<MTLBuffer>)pass.actorObservations;
+        id<MTLBuffer> resetMasks = (__bridge id<MTLBuffer>)pass.resetMasks;
+        const std::uint64_t resetOffset = std::uint64_t(pass.controlStep) * pass.environmentCount;
+        const std::uint64_t resetCapacity = resetMasks.length / sizeof(std::uint32_t);
+        if (resetMasks == nil || resetOffset > resetCapacity ||
+            pass.environmentCount > resetCapacity - resetOffset) return false;
+        const std::uint64_t outputOffset = pass.actorObservationOffsetElements;
+        const std::uint64_t outputCount = std::uint64_t(pass.actorObservationSize) * pass.environmentCount;
+        const std::uint64_t outputCapacity = actorOutput.length / sizeof(float);
+        if (actorOutput == nil || outputOffset > outputCapacity ||
+            outputCount > outputCapacity - outputOffset) return false;
+        const NSUInteger outputBytes = static_cast<NSUInteger>(outputCount * sizeof(float));
+        const NSUInteger outputBackupBytes = std::max<NSUInteger>(outputBytes, sizeof(float));
+        if (state->pendingOutputBackup == nil) {
+            state->pendingOutputBackup = [state->device newBufferWithLength:outputBackupBytes
+                options:MTLResourceStorageModePrivate];
+        }
+        if (state->pendingOutputBackup == nil ||
+            state->pendingOutputBackup.length != outputBackupBytes) return false;
+        state->pendingOutputSource = actorOutput;
+        state->pendingResetMasks = resetMasks;
+        state->pendingOutputOffset = outputOffset;
+        state->pendingOutputStride = pass.actorObservationSize;
         const std::uint64_t actorStride = std::uint64_t(pass.actorFrameSize) *
             pass.actorHistoryLength;
         if (actorHistory == nil || actorStride >
@@ -8042,6 +8075,10 @@ bool MetalHybridObjectTracker::encodeObservation(
         if (actorBytes != 0u) {
             [snapshot copyFromBuffer:actorHistory sourceOffset:0
                 toBuffer:state->pendingActorBackup destinationOffset:0 size:static_cast<NSUInteger>(actorBytes)];
+        }
+        if (outputBytes != 0u) {
+            [snapshot copyFromBuffer:actorOutput sourceOffset:static_cast<NSUInteger>(outputOffset * sizeof(float))
+                toBuffer:state->pendingOutputBackup destinationOffset:0 size:outputBytes];
         }
         [snapshot endEncoding];
         state->pendingFrameSize = pass.actorFrameSize;
@@ -8301,7 +8338,8 @@ bool MetalHybridObjectTracker::finishPhysicalStep(
         state->restoreHistoryPipeline == nil || state->pendingHistoryBackup == nil ||
         state->pendingDepthBackup == nil || state->pendingFrameFreshBackup == nil ||
         state->pendingActorBackup == nil ||
-        state->pendingActorSource == nil || !state->pendingStepOpen || pass.environmentCount == 0u ||
+        state->pendingActorSource == nil || state->pendingOutputBackup == nil ||
+        state->pendingOutputSource == nil || state->pendingResetMasks == nil || !state->pendingStepOpen || pass.environmentCount == 0u ||
         pass.controlStep != state->pendingControlStep ||
         pass.environmentCount != state->pendingEnvironmentCount ||
         pass.actorFrameSize != state->pendingFrameSize ||
@@ -8338,6 +8376,22 @@ bool MetalHybridObjectTracker::finishPhysicalStep(
     [encoder setBuffer:state->pendingFrameFreshBackup offset:0u atIndex:11u];
     const std::uint32_t sampledFrame = state->pendingSampledFrame ? 1u : 0u;
     [encoder setBytes:&sampledFrame length:sizeof(sampledFrame) atIndex:12u];
+    [encoder setBuffer:state->pendingOutputSource offset:0u atIndex:13u];
+    [encoder setBuffer:state->pendingOutputBackup offset:0u atIndex:14u];
+    [encoder setBytes:&state->pendingOutputStride length:sizeof(state->pendingOutputStride) atIndex:15u];
+    [encoder setBytes:&state->pendingOutputOffset length:sizeof(state->pendingOutputOffset) atIndex:16u];
+    [encoder setBuffer:state->pendingResetMasks offset:0u atIndex:17u];
+    [encoder setBuffer:state->bindings offset:0u atIndex:18u];
+    const mr_uint4 resetLayout{pass.actorFrameSize, pass.actorHistoryLength,
+        static_cast<std::uint32_t>(state->config.bindings.size()), pass.controlStep};
+    const bool maskedDepth = !state->config.maskedDepthInstanceIds.empty();
+    const std::uint64_t resetPixels = std::uint64_t(state->config.maskedDepthWidth) *
+        state->config.maskedDepthHeight * state->config.maskedDepthFrameOffsets.size();
+    const mr_uint4 resetDepth{state->config.maskedDepthActorFrameOffset,
+        maskedDepth ? static_cast<std::uint32_t>(resetPixels) : 0u,
+        maskedDepth ? state->config.maskedDepthFeatureCount : 0u, maskedDepth ? 1u : 0u};
+    [encoder setBytes:&resetLayout length:sizeof(resetLayout) atIndex:19u];
+    [encoder setBytes:&resetDepth length:sizeof(resetDepth) atIndex:20u];
     const NSUInteger width = std::min<NSUInteger>(state->restoreHistoryPipeline.maxTotalThreadsPerThreadgroup, 256u);
     [encoder dispatchThreadgroups:MTLSizeMake(pass.environmentCount, 1u, 1u)
         threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];

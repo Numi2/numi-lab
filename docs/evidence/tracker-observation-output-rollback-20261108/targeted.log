@@ -1,0 +1,14 @@
+Test project /Users/numi/contact-residual-main-build-20261108
+    Start 181: metalrobo.visual.history_restore_layouts
+1/2 Test #181: metalrobo.visual.history_restore_layouts ...   Passed    0.34 sec
+    Start 191: metalrobo.visual.history_step_rollback
+2/2 Test #191: metalrobo.visual.history_step_rollback .....   Passed    0.39 sec
+
+100% tests passed out of 2
+
+Label Time Summary:
+metal        =   0.73 sec*proc (2 tests)
+metalrobo    =   0.73 sec*proc (2 tests)
+visual       =   0.73 sec*proc (2 tests)
+
+Total Test time (real) =   0.73 sec

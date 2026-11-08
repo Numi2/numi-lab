@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 
 #include "metalrobo/engine_types.h"
+#include "metalrobo/hybrid_renderer_types.h"
 #include <array>
 #include <cstdint>
 #include <cstring>
@@ -32,6 +33,12 @@ int main(int argc, char** argv) {
                     const std::size_t depthWords = envs * depthCount + 16u;
                     const std::uint32_t actorCount = depthCount == 0u ? 0u : (trackCount == 0u ? 35u : 102u);
                     const std::size_t actorWords = envs * actorCount + 16u;
+                    constexpr std::uint64_t outputOffset = 13u;
+                    const std::uint32_t outputCount = actorCount + 20u;
+                    const std::size_t outputWords = outputOffset + envs * outputCount + 16u;
+                    std::vector<std::uint32_t> outputs(outputWords), oldOutputs(envs * outputCount);
+                    for (std::size_t i=0; i<outputWords; ++i) outputs[i]=0x77000000u+static_cast<std::uint32_t>(i);
+                    for (std::size_t i=0; i<oldOutputs.size(); ++i) oldOutputs[i]=0x88000000u+static_cast<std::uint32_t>(i);
                     std::vector<std::uint32_t> actors(actorWords), oldActors(actorWords);
                     for (std::size_t i=0; i<actorWords; ++i) { actors[i]=0x55000000u+static_cast<std::uint32_t>(i); oldActors[i]=0x66000000u+static_cast<std::uint32_t>(i); }
                     std::vector<std::uint32_t> tracks(trackWords), oldTracks(trackWords);
@@ -56,11 +63,20 @@ int main(int argc, char** argv) {
                     std::array<std::uint32_t, envs> fresh{{1u,1u,1u,1u}}, oldFresh{{oldValue,oldValue,oldValue,oldValue}};
                     id<MTLBuffer> frameFresh=buffer(fresh.data(),sizeof(fresh));
                     id<MTLBuffer> oldFrameFresh=buffer(oldFresh.data(),sizeof(oldFresh));
+                    const std::array<std::uint32_t, envs> resets{{0u,1u,0u,1u}};
+                    MRHybridObjectTrackBindingGPU binding{};
+                    binding.identity.y = 1u;
+                    id<MTLBuffer> resetBuffer=buffer(resets.data(),sizeof(resets));
+                    id<MTLBuffer> bindingBuffer=buffer(&binding,sizeof(binding));
+                    const mr_uint4 resetLayout{8u,2u,1u,0u};
+                    const mr_uint4 resetDepth{16u,2u,2u,1u};
+                    id<MTLBuffer> output=buffer(outputs.data(),outputWords*sizeof(std::uint32_t));
+                    id<MTLBuffer> oldOutput=buffer(oldOutputs.data(),oldOutputs.size()*sizeof(std::uint32_t));
                     id<MTLBuffer> actor=buffer(actors.data(),actorWords*sizeof(std::uint32_t));
                     id<MTLBuffer> oldActor=buffer(oldActors.data(),actorWords*sizeof(std::uint32_t));
                     id<MTLCommandBuffer> command=[queue commandBuffer];
                     id<MTLComputeCommandEncoder> encoder=[command computeCommandEncoder];
-                    if (!t || !ot || !d || !od || !w || !c || !actor || !oldActor || !frameFresh || !oldFrameFresh || !command || !encoder) return 4;
+                    if (!t || !ot || !d || !od || !w || !c || !actor || !oldActor || !output || !oldOutput || !resetBuffer || !bindingBuffer || !frameFresh || !oldFrameFresh || !command || !encoder) return 4;
                     [encoder setComputePipelineState:pipeline];
                     const std::array<id<MTLBuffer>,6> buffers{{t,ot,d,od,w,c}};
                     for (NSUInteger i=0;i<buffers.size();++i) [encoder setBuffer:buffers[i] offset:0 atIndex:i];
@@ -72,6 +88,14 @@ int main(int argc, char** argv) {
                     [encoder setBuffer:frameFresh offset:0 atIndex:10];
                     [encoder setBuffer:oldFrameFresh offset:0 atIndex:11];
                     [encoder setBytes:&sampledFrame length:sizeof(sampledFrame) atIndex:12];
+                    [encoder setBuffer:output offset:0 atIndex:13];
+                    [encoder setBuffer:oldOutput offset:0 atIndex:14];
+                    [encoder setBytes:&outputCount length:sizeof(outputCount) atIndex:15];
+                    [encoder setBytes:&outputOffset length:sizeof(outputOffset) atIndex:16];
+                    [encoder setBuffer:resetBuffer offset:0 atIndex:17];
+                    [encoder setBuffer:bindingBuffer offset:0 atIndex:18];
+                    [encoder setBytes:&resetLayout length:sizeof(resetLayout) atIndex:19];
+                    [encoder setBytes:&resetDepth length:sizeof(resetDepth) atIndex:20];
                     [encoder dispatchThreadgroups:MTLSizeMake(envs,1,1) threadsPerThreadgroup:MTLSizeMake(64,1,1)];
                     [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
                     if (command.status != MTLCommandBufferStatusCompleted) return 5;
@@ -83,6 +107,17 @@ int main(int argc, char** argv) {
                             if (static_cast<const std::uint32_t*>(t.contents)[j] != (failed ? oldTracks[j] : tracks[j])) return 6;
                         }
                         if (static_cast<const std::uint32_t*>(frameFresh.contents)[env] != (failed ? (sampledFrame ? 0u : oldValue) : 1u)) return 10;
+                        for (std::uint32_t i=0; i<outputCount; ++i) {
+                            const std::size_t j=env*outputCount+i;
+                            const auto actual=static_cast<const std::uint32_t*>(output.contents)[outputOffset+j];
+                            auto expected = failed ? oldOutputs[j] : outputs[outputOffset+j];
+                            if (failed && resets[env] != 0u) {
+                                if (i < 16u && i % 8u >= 1u) expected=0u;
+                                if (i >= 16u && i < 18u) expected=0x3f800000u;
+                                if (i >= 18u && i < 20u) expected=0u;
+                            }
+                            if (actual != expected) return 11;
+                        }
                         for (std::uint32_t i=0; i<actorCount; ++i) {
                             const std::size_t j=env*actorCount+i;
                             if (static_cast<const std::uint32_t*>(actor.contents)[j] != (failed ? oldActors[j] : actors[j])) return 9;
@@ -92,6 +127,9 @@ int main(int argc, char** argv) {
                             if (static_cast<const std::uint32_t*>(d.contents)[j] != (failed ? oldDepths[j] : depths[j])) return 7;
                         }
                     }
+                    if (std::memcmp(output.contents, outputs.data(), outputOffset*sizeof(std::uint32_t)) != 0 ||
+                        std::memcmp(static_cast<const std::uint32_t*>(output.contents)+outputOffset+envs*outputCount,
+                            outputs.data()+outputOffset+envs*outputCount,16u*sizeof(std::uint32_t)) != 0) return 12;
                     if (std::memcmp(static_cast<const std::uint32_t*>(t.contents)+envs*trackCount*4u,
                             tracks.data()+envs*trackCount*4u,16u*sizeof(std::uint32_t)) != 0 ||
                         std::memcmp(static_cast<const std::uint32_t*>(d.contents)+envs*depthCount,

@@ -1,0 +1,18 @@
+Test project /Users/numi/contact-residual-main-build-20261108
+    Start 191: metalrobo.visual.history_step_rollback
+1/1 Test #191: metalrobo.visual.history_step_rollback ...***Failed    0.33 sec
+metalrobo_visual_platform_probe: failed environment actor observation was not restored
+
+
+0% tests passed, 1 tests failed out of 1
+
+Label Time Summary:
+metal        =   0.33 sec*proc (1 test)
+metalrobo    =   0.33 sec*proc (1 test)
+visual       =   0.33 sec*proc (1 test)
+
+Total Test time (real) =   0.34 sec
+
+The following tests FAILED:
+	191 - metalrobo.visual.history_step_rollback (Failed)   metal metalrobo visual
+Errors while running CTest

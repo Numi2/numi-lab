@@ -1,0 +1,39 @@
+[0/2] Re-checking globbed directories...
+[1/15] Generating shaders/MetalRobo.metallib
+/Users/numi/numi-lab-tracker-step-rollback-20261108/src/metal/NumiHumanStand.metal:2696:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns = (equalityColumnsEnd + nv) * nv;
+               ^
+/Users/numi/numi-lab-tracker-step-rollback-20261108/src/metal/NumiHumanStand.metal:2811:16: warning: unused variable 'responseColumns' [-Wunused-variable]
+    const uint responseColumns =
+               ^
+2 warnings generated.
+/Users/numi/numi-lab-tracker-step-rollback-20261108/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/numi/numi-lab-tracker-step-rollback-20261108/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+In file included from /Users/numi/numi-lab-tracker-step-rollback-20261108/src/metal/MujocoMuscleReferenceCompensated.metal:4:
+/Users/numi/numi-lab-tracker-step-rollback-20261108/src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/numi/numi-lab-tracker-step-rollback-20261108/src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+[2/15] Building OBJCXX object CMakeFiles/metalrobo_object_track_validity_test.dir/tests/visual/object_track_validity.mm.o
+[3/15] Building OBJCXX object CMakeFiles/metalrobo_masked_depth_validity_test.dir/tests/visual/masked_depth_validity.mm.o
+[4/15] Building CXX object CMakeFiles/metalrobo_visual_observation_fingerprint_test.dir/tests/visual/observation_fingerprint.cpp.o
+[5/15] Building CXX object CMakeFiles/metalrobo_object_track_fingerprint_test.dir/tests/visual/object_track_fingerprint.cpp.o
+[6/15] Linking OBJCXX executable metalrobo_masked_depth_validity_test
+[7/15] Linking OBJCXX executable metalrobo_object_track_validity_test
+[8/15] Building OBJCXX object CMakeFiles/metalrobo_visual_history_restore_probe.dir/tests/visual_history_restore_probe.mm.o
+FAILED: [code=1] CMakeFiles/metalrobo_visual_history_restore_probe.dir/tests/visual_history_restore_probe.mm.o 
+/usr/bin/clang++  -I/Users/numi/numi-lab-tracker-step-rollback-20261108/include -F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -MD -MT CMakeFiles/metalrobo_visual_history_restore_probe.dir/tests/visual_history_restore_probe.mm.o -MF CMakeFiles/metalrobo_visual_history_restore_probe.dir/tests/visual_history_restore_probe.mm.o.d -o CMakeFiles/metalrobo_visual_history_restore_probe.dir/tests/visual_history_restore_probe.mm.o -c /Users/numi/numi-lab-tracker-step-rollback-20261108/tests/visual_history_restore_probe.mm
+/Users/numi/numi-lab-tracker-step-rollback-20261108/tests/visual_history_restore_probe.mm:66:21: error: unknown type name 'MRHybridObjectTrackBindingGPU'
+   66 |                     MRHybridObjectTrackBindingGPU binding{};
+      |                     ^
+1 error generated.
+[9/15] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o
+ninja: build stopped: subcommand failed.

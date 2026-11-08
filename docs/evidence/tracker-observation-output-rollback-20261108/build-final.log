@@ -1,0 +1,7 @@
+[0/2] Re-checking globbed directories...
+[1/7] Linking CXX shared library lib/libmetalrobo.dylib
+[2/7] Linking CXX executable metalrobo_visual_observation_fingerprint_test
+[3/7] Linking CXX executable metalrobo_object_track_fingerprint_test
+[4/7] Linking OBJCXX executable bin/metalrobo_visual_platform_probe
+[5/7] Building OBJCXX object CMakeFiles/metalrobo_visual_history_restore_probe.dir/tests/visual_history_restore_probe.mm.o
+[6/7] Linking OBJCXX executable metalrobo_visual_history_restore_probe
