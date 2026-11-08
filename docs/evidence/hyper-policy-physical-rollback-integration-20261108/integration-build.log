@@ -1,0 +1,41 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.6s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/numi/numi-reconciliation-build-20261108
+[0/4] Re-checking globbed directories...
+[1/30] Generating shaders/MetalRoboHyperPolicy.metallib
+[2/30] Building CXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[3/30] Building CXX object CMakeFiles/metalrobo.dir/src/core/FrankaWorld.cpp.o
+[4/30] Building CXX object CMakeFiles/metalrobo.dir/src/core/VisualPlatform.cpp.o
+[5/30] Building CXX object CMakeFiles/metalrobo.dir/src/core/RunProgram.cpp.o
+[6/30] Building CXX object CMakeFiles/metalrobo.dir/src/core/LocomotionWorld.cpp.o
+[7/30] Building CXX object CMakeFiles/metalrobo.dir/src/core/TaskProgram.cpp.o
+[8/30] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanMuscleEquilibrium.cpp.o
+[9/30] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o
+[10/30] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalMeasuredSurfaceMechanics.mm.o
+[11/30] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHyperPolicy.mm.o
+[12/30] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalArticulatedOperator.mm.o
+/Users/numi/numi-lab-reconciliation-20261108/src/metal/MetalArticulatedOperator.mm:4944:29: warning: 'fastMathEnabled' is deprecated: first deprecated in macOS 15.0 - Use mathMode instead [-Wdeprecated-declarations]
+ 4944 |         standCompileOptions.fastMathEnabled = NO;
+      |                             ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Metal.framework/Headers/MTLLibrary.h:326:39: note: 'fastMathEnabled' has been explicitly marked deprecated here
+  326 | @property (readwrite, nonatomic) BOOL fastMathEnabled API_DEPRECATED("Use mathMode instead", macos(10.11, 15.0), ios(8.0, 18.0));
+      |                                       ^
+1 warning generated.
+[13/30] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalWorld.mm.o
+[14/30] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalRunInspector.mm.o
+[15/30] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHybridRenderer.mm.o
+[16/30] Building OBJCXX object CMakeFiles/hyper-policy-rejection-probe.dir/tests/hyper_policy_rejection_probe.mm.o
+[17/30] Building OBJCXX object CMakeFiles/hyper-policy-restore-test.dir/tests/hyper_policy_restore_test.mm.o
+[18/30] Building CXX object CMakeFiles/metalrobo_run_program_check.dir/apps/run_program_check.cpp.o
+[19/30] Linking OBJCXX executable hyper-policy-restore-test
+[20/30] Building CXX object CMakeFiles/metalrobo.dir/src/c_api.cpp.o
+[21/30] Linking CXX shared library lib/libmetalrobo.dylib
+[22/30] Linking CXX executable bin/metalrobo_run_program_check
+[23/30] Linking OBJCXX executable hyper-policy-rejection-probe
+[24/30] Building OBJCXX object CMakeFiles/hyper-policy-capacity-probe.dir/tests/hyper_policy_capacity_probe.mm.o
+[25/30] Linking OBJCXX executable hyper-policy-capacity-probe
+[26/30] Building OBJCXX object CMakeFiles/metalrobo_visual_platform_probe.dir/apps/visual_platform_probe.cpp.o
+[27/30] Linking OBJCXX executable bin/metalrobo_visual_platform_probe
