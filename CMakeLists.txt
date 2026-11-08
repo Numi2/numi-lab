@@ -3118,6 +3118,12 @@ if(BUILD_TESTING)
         add_test(NAME coupled_rod_${_rod_case}
             COMMAND metalrobo_coupled_rod_${_rod_case} "${METALROBO_METALLIB}")
     endforeach()
+    add_executable(metalrobo_coupled_rod_free_reference
+        docs/evidence/rod-coupled-free-20261108/free_reference.mm)
+    target_link_libraries(metalrobo_coupled_rod_free_reference PRIVATE metalrobo)
+    add_dependencies(metalrobo_coupled_rod_free_reference metalrobo_shaders)
+    add_test(NAME coupled_rod_free_reference
+        COMMAND metalrobo_coupled_rod_free_reference "${METALROBO_METALLIB}")
 endif()
 
 add_executable(

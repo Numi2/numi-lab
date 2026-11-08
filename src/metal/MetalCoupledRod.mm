@@ -62,18 +62,26 @@ MetalDiscreteElasticRodDiagnostics runResearchMetalCoupledRod(
         if (initial.positions.size()!=n || initial.velocities.size()!=n ||
             initial.twists.size()!=n-1 || initial.twistRates.size()!=n-1)
             return fail(MetalDiscreteElasticRodHostStatus::invalidState, "invalid state dimensions");
-        if (attachments.size()!=2 || attachments[0].nodeIndex!=0 || attachments[1].nodeIndex!=n-1 ||
-            attachments[0].compliance!=0. || attachments[1].compliance!=0.)
-            return fail(MetalDiscreteElasticRodHostStatus::invalidAttachment, "two ordered hard endpoint supports required");
+        if (!attachments.empty() &&
+            (attachments.size()!=2 || attachments[0].nodeIndex!=0 || attachments[1].nodeIndex!=n-1 ||
+             attachments[0].compliance!=0. || attachments[1].compliance!=0.))
+            return fail(MetalDiscreteElasticRodHostStatus::invalidAttachment, "zero or two ordered hard endpoint supports required");
         if (!config.maximumIterations || config.metallibPath.empty())
             return fail(MetalDiscreteElasticRodHostStatus::invalidConfiguration, "invalid solver configuration");
         RodInput in{}; in.n=static_cast<unsigned>(n); in.maxIterations=config.maximumIterations;
+        in.fixedEndpoints=attachments.empty() ? 0u : 3u;
         if (!asFloat(config.timestep,in.h,true) || !asFloat(config.linearResidualTolerance,in.linearTolerance,true) ||
             !asFloat(config.angularResidualTolerance,in.angularTolerance,true) ||
             !split(ell,in.ellHigh,in.ellLow) || !(in.ellHigh>0) ||
             !asFloat(model.stretchStiffness[0],in.ea,true) || !asFloat(model.bendStiffness[0],in.ei,true) ||
             !asFloat(model.twistStiffness[0],in.gj,true))
             return fail(MetalDiscreteElasticRodHostStatus::invalidConfiguration, "configuration is not representable in Metal");
+        double gravityConversion=0.0;
+        for (unsigned j=0;j<3;j++) {
+            if (!asFloat(config.gravity[j],in.gravity[j]))
+                return fail(MetalDiscreteElasticRodHostStatus::invalidConfiguration, "gravity is not representable");
+            gravityConversion=std::max(gravityConversion, std::abs(double(in.gravity[j])-config.gravity[j])*double(in.h));
+        }
         const double h=in.h;
         for (std::size_t i=0;i<n;i++) {
             if (!finite3(initial.positions[i]) || !finite3(initial.velocities[i]) ||
@@ -94,7 +102,7 @@ MetalDiscreteElasticRodDiagnostics runResearchMetalCoupledRod(
                 !asFloat(model.edgeRotationalInertias[i],in.inertia[i],true))
                 return fail(MetalDiscreteElasticRodHostStatus::invalidState, "twist or inertia is not representable");
         }
-        for (unsigned k=0;k<2;k++) {
+        for (unsigned k=0;k<attachments.size();k++) {
             const auto& a=attachments[k]; const std::size_t node=k ? n-1 : 0;
             if (!finite3(a.targetPosition) || !finite3(a.targetVelocity))
                 return fail(MetalDiscreteElasticRodHostStatus::invalidAttachment, "nonfinite support");
@@ -140,12 +148,12 @@ MetalDiscreteElasticRodDiagnostics runResearchMetalCoupledRod(
             d.dispatched=true; d.firstFailingEnvironment=0; d.firstGPUStatusCode=MR_ROD_GPU_SUCCESS; return d;
         };
         MetalCoupledRodResult staged; staged.state=initial;
-        double linearConversion=0.0, angularConversion=0.0;
+        double linearConversion=gravityConversion, angularConversion=0.0;
         for (std::size_t i=0;i<n;i++) for (unsigned j=0;j<3;j++) {
             const double delta=double(result.displacement[3*i+j])+double(result.displacementLow[3*i+j]);
             staged.state.positions[i][j]+=delta; staged.state.velocities[i][j]=delta/h;
             const double represented=staged.state.positions[i][j]-initial.positions[i][j];
-            linearConversion=std::max(linearConversion, std::abs(represented-delta)/h + std::abs(double(in.vel[3*i+j])-initial.velocities[i][j]));
+            linearConversion=std::max(linearConversion, std::abs(represented-delta)/h + std::abs(double(in.vel[3*i+j])-initial.velocities[i][j]) + gravityConversion);
             if (!std::isfinite(staged.state.positions[i][j]) || !std::isfinite(staged.state.velocities[i][j]))
                 return publicationFailure();
         }
@@ -161,7 +169,8 @@ MetalDiscreteElasticRodDiagnostics runResearchMetalCoupledRod(
         if (!std::isfinite(linearConversion) || !std::isfinite(angularConversion) ||
             double(result.maxLinear)+linearConversion>in.linearTolerance ||
             double(result.maxAngular)+angularConversion>in.angularTolerance) return publicationFailure();
-        for (unsigned k=0;k<2;k++) {
+        staged.reactionCount=static_cast<std::uint32_t>(attachments.size());
+        for (unsigned k=0;k<attachments.size();k++) {
             auto& reaction=staged.reactions[k]; reaction.nodeIndex=attachments[k].nodeIndex;
             for (unsigned j=0;j<3;j++) {
                 reaction.averageForceOnTarget[j]=result.reaction[3*k+j];

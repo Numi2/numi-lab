@@ -54,26 +54,26 @@ inline bool eval(constant RodInput& in,thread const float* y,thread const float*
   float dgd=-k*(dr*sin(d)+r*cos(d)*dd)+in.gj/ell*dd;
   pairAdd(accum,m+i,{-gd,0});pairAdd(accum,m+i+1,{gd,0});hv[m+i]-=dgd;hv[m+i+1]+=dgd;
  }
- for(uint i=0;i<n;i++)for(uint j=0;j<3;j++){uint x=3*i+j;float s=in.mass[i]/(h*h);auto predicted=mrCompensatedMultiply({h,0},{in.vel[x],0});auto diff=mrCompensatedAdd({y[x],yLow[x]},pairNeg(predicted));pairAdd(accum,x,mrCompensatedMultiply({s,0},diff));hv[x]+=s*direction[x];}
+ for(uint i=0;i<n;i++)for(uint j=0;j<3;j++){uint x=3*i+j;float s=in.mass[i]/(h*h);auto predicted=mrCompensatedAdd(mrCompensatedMultiply({h,0},{in.vel[x],0}),mrCompensatedMultiply(mrCompensatedMultiply({h,0},{h,0}),{in.gravity[j],0}));auto diff=mrCompensatedAdd({y[x],yLow[x]},pairNeg(predicted));pairAdd(accum,x,mrCompensatedMultiply({s,0},diff));hv[x]+=s*direction[x];}
  for(uint i=0;i<n-1;i++){float s=in.inertia[i]/(h*h);pairAdd(accum,m+i,{s*(y[m+i]-in.twist[i]-h*in.omega[i]),0});hv[m+i]+=s*direction[m+i];}
  for(uint i=0;i<4*n-1;i++){g[i]=accum[i].high+accum[i].low;if(!isfinite(g[i])||!isfinite(hv[i]))return false;}
  return true;
 }
 inline float merit(constant RodInput& in,thread const float* g,thread float& lin,thread float& ang){
  uint n=in.n,m=3*n;lin=0;ang=0;
- for(uint i=1;i<n-1;i++)for(uint j=0;j<3;j++)lin=max(lin,abs(g[3*i+j])*in.h/in.mass[i]);
+ for(uint i=0;i<n;i++){if((i==0&&(in.fixedEndpoints&1u))||(i==n-1&&(in.fixedEndpoints&2u)))continue;for(uint j=0;j<3;j++)lin=max(lin,abs(g[3*i+j])*in.h/in.mass[i]);}
  for(uint i=0;i<n-1;i++)ang=max(ang,abs(g[m+i])*in.h/in.inertia[i]);
  return max(lin/in.linearTolerance,ang/in.angularTolerance);
 }
 kernel void mr_research_coupled_rod_step(constant RodInput& in [[buffer(0)]],device RodOutput& out [[buffer(1)]],uint tid [[thread_position_in_grid]]){
  if(tid)return;out.status=1;out.iterations=0;out.backtracks=0;
  uint n=in.n;if(n<3||n>ROD_N)return;uint m=3*n,N=4*n-1,freeN=0;uint fi[MAXD];
- for(uint i=3;i<3*(n-1);i++)fi[freeN++]=i;for(uint i=m;i<N;i++)fi[freeN++]=i;
+ for(uint node=0;node<n;node++){if((node==0&&(in.fixedEndpoints&1u))||(node==n-1&&(in.fixedEndpoints&2u)))continue;for(uint j=0;j<3;j++)fi[freeN++]=3*node+j;}for(uint i=m;i<N;i++)fi[freeN++]=i;
  float y[MAXD],yLow[MAXD],g[MAXD],hv[MAXD],dir[MAXD],mat[MAXD*MAXD],scale[MAXD],rhs[MAXD],candidate[MAXD],candidateLow[MAXD],gt[MAXD],ht[MAXD];
  for(uint i=0;i<MAXD;i++){y[i]=0;yLow[i]=0;dir[i]=0;}
- for(uint i=0;i<n;i++)for(uint j=0;j<3;j++)y[3*i+j]=in.h*in.vel[3*i+j];
+ for(uint i=0;i<n;i++)for(uint j=0;j<3;j++)y[3*i+j]=in.h*(in.vel[3*i+j]+in.h*in.gravity[j]);
  for(uint i=0;i<n-1;i++)y[m+i]=in.twist[i]+in.h*in.omega[i];
- for(uint j=0;j<3;j++){y[j]=in.targetDelta[j];yLow[j]=in.targetDeltaLow[j];y[3*(n-1)+j]=in.targetDelta[3+j];yLow[3*(n-1)+j]=in.targetDeltaLow[3+j];}
+ for(uint j=0;j<3;j++){if(in.fixedEndpoints&1u){y[j]=in.targetDelta[j];yLow[j]=in.targetDeltaLow[j];}if(in.fixedEndpoints&2u){y[3*(n-1)+j]=in.targetDelta[3+j];yLow[3*(n-1)+j]=in.targetDeltaLow[3+j];}}
  for(uint iteration=0;iteration<in.maxIterations;iteration++){
   out.iterations=iteration+1;if(!eval(in,y,yLow,dir,g,hv)){out.status=2;return;}
   float lin,ang;float base=merit(in,g,lin,ang);out.maxLinear=lin;out.maxAngular=ang;
