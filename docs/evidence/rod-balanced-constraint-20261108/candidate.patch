@@ -1,0 +1,31 @@
+diff --git a/src/metal/DiscreteElasticRod.metal b/Users/numi/rod-balanced-candidate-20261108/DiscreteElasticRod.metal
+index 418bf2773..d3c4751ff 100644
+--- a/src/metal/DiscreteElasticRod.metal
++++ b/Users/numi/rod-balanced-candidate-20261108/DiscreteElasticRod.metal
+@@ -2208,6 +2208,26 @@ kernel void mr_discrete_elastic_rod_step(
+             );
+         }
+         threadgroup_barrier(mem_flags::mem_threadgroup);
++        // Research-only: estimate the next stretch projection from the
++        // post-sweep compliant-constraint stationarity residual.
++        for (uint edge = lane; edge < dispatch.edgeCount; edge += laneCount) {
++            const float currentLength = length(positions[edge + 1u] - positions[edge]);
++            const float h = dispatch.gravityAndTimestep.w;
++            const float alpha = restLengths[edge] / stretchStiffness[edge] / (h * h);
++            const float inverseA = inverseMasses[edge];
++            const float inverseB = inverseMasses[edge + 1u];
++            const float denominator = inverseA + inverseB + alpha;
++            const float residual = currentLength - restLengths[edge] +
++                alpha * stretchMultipliers[edge];
++            const float predicted = abs(residual) / denominator * max(inverseA, inverseB);
++            if (!(currentLength > kGeometryFloor) || !(denominator > 0.0f) ||
++                !isfinite(currentLength) || !isfinite(denominator) || !isfinite(predicted)) {
++                recordFailure(failure, MR_ROD_GPU_NONFINITE_RESULT);
++            } else {
++                recordPositiveMaximum(maximumCorrectionBits, predicted);
++            }
++        }
++        threadgroup_barrier(mem_flags::mem_threadgroup);
+         if ((dispatch.flags &
+              MR_ROD_GPU_FLAG_SELF_COLLISION) != 0u) {
+             recordPendingSelfContactCorrection(

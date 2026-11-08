@@ -1,0 +1,2 @@
+repeated outputs identical
+independent reference and FP32 screen repeated exactly; FP32 exit 1 expected

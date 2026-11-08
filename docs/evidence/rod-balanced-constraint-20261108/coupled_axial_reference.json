@@ -1,0 +1,149 @@
+{
+  "all_pass": true,
+  "cases": [
+    {
+      "accepted": true,
+      "condition_number": 5222.971693086836,
+      "middle_position": 0.061,
+      "moving": false,
+      "multiplier_residual_m": 2.3592239273284576e-16,
+      "nodes": 3,
+      "position_error_m": 6.938893903907228e-18,
+      "reaction_error_N": 1.2073675392798577e-15,
+      "reactions": [
+        0.08937911236846145,
+        -0.08937911236846145
+      ],
+      "reference_reactions": [
+        0.08937911236846266,
+        -0.0893791123684621
+      ]
+    },
+    {
+      "accepted": true,
+      "condition_number": 5222.971693086836,
+      "middle_position": 0.06099900798847128,
+      "moving": true,
+      "multiplier_residual_m": 5.065392549852277e-16,
+      "nodes": 3,
+      "position_error_m": 7.632783294297951e-17,
+      "reaction_error_N": 1.304512053934559e-15,
+      "reactions": [
+        0.08933892368974948,
+        -0.08941930104717344
+      ],
+      "reference_reactions": [
+        0.08933892368975078,
+        -0.08941930104717398
+      ]
+    },
+    {
+      "accepted": true,
+      "condition_number": 14667.418493619996,
+      "middle_position": 0.061000000000000325,
+      "moving": false,
+      "multiplier_residual_m": 1.4363510381087963e-15,
+      "nodes": 5,
+      "position_error_m": 6.800116025829084e-16,
+      "reaction_error_N": 1.4863110742169283e-14,
+      "reactions": [
+        0.08937911236847555,
+        -0.08937911236847561
+      ],
+      "reference_reactions": [
+        0.08937911236846069,
+        -0.08937911236846463
+      ]
+    },
+    {
+      "accepted": true,
+      "condition_number": 14667.418493619996,
+      "middle_position": 0.0609995038699202,
+      "moving": true,
+      "multiplier_residual_m": 9.922618282587337e-16,
+      "nodes": 5,
+      "position_error_m": 6.522560269672795e-16,
+      "reaction_error_N": 1.4835355166553654e-14,
+      "reactions": [
+        0.0893590180316441,
+        -0.08939920670530706
+      ],
+      "reference_reactions": [
+        0.08935901803162927,
+        -0.08939920670529522
+      ]
+    },
+    {
+      "accepted": true,
+      "condition_number": 48164.525486511884,
+      "middle_position": 0.060999999999999346,
+      "moving": false,
+      "multiplier_residual_m": 2.2724877535296173e-15,
+      "nodes": 9,
+      "position_error_m": 1.304512053934559e-15,
+      "reaction_error_N": 7.30526750203353e-14,
+      "reactions": [
+        0.08937911236853102,
+        -0.08937911236853094
+      ],
+      "reference_reactions": [
+        0.08937911236846603,
+        -0.08937911236845789
+      ]
+    },
+    {
+      "accepted": true,
+      "condition_number": 48164.525486511884,
+      "middle_position": 0.06099975191941461,
+      "moving": true,
+      "multiplier_residual_m": 1.7763568394002505e-15,
+      "nodes": 9,
+      "position_error_m": 1.3027959275183335e-15,
+      "reaction_error_N": 7.491229858658244e-14,
+      "reactions": [
+        0.08936906520043093,
+        -0.089389159536631
+      ],
+      "reference_reactions": [
+        0.08936906520036615,
+        -0.08938915953655609
+      ]
+    },
+    {
+      "accepted": true,
+      "condition_number": 173299.40035134513,
+      "middle_position": 0.061,
+      "moving": false,
+      "multiplier_residual_m": 5.087943955039975e-15,
+      "nodes": 17,
+      "position_error_m": 5.218048215738236e-15,
+      "reaction_error_N": 1.0411116413422405e-13,
+      "reactions": [
+        0.08937911236837406,
+        -0.08937911236837401
+      ],
+      "reference_reactions": [
+        0.08937911236845592,
+        -0.08937911236847812
+      ]
+    },
+    {
+      "accepted": true,
+      "condition_number": 173299.40035134513,
+      "middle_position": 0.060999875957763496,
+      "moving": true,
+      "multiplier_residual_m": 3.8077180297690916e-15,
+      "nodes": 17,
+      "position_error_m": 4.111294638065033e-15,
+      "reaction_error_N": 1.0105805081650487e-13,
+      "reactions": [
+        0.08937408878436347,
+        -0.08938413595238456
+      ],
+      "reference_reactions": [
+        0.08937408878444589,
+        -0.08938413595248562
+      ]
+    }
+  ]
+}
