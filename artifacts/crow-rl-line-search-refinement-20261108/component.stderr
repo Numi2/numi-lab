@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/Users/n/Developer/numi-crow-rl-20261107/artifacts/crow-rl-line-search-refinement-20261108/run.py", line 52, in <module>
+    assert all(supported.values()), 'Component predictions rejected; stop before physical qualification'
+           ~~~^^^^^^^^^^^^^^^^^^^^
+AssertionError: Component predictions rejected; stop before physical qualification

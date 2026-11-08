@@ -8,10 +8,13 @@ def write(p,x):p.write_text(json.dumps(x,indent=2,sort_keys=True)+'\n')
 plan=json.loads((A/'plan.json').read_text());runtime=json.loads((A/'runtime.json').read_text())
 for path,h in plan['sources'].items():assert sha(R/path)==h
 for path,f in runtime['files'].items():assert sha(R/path)==f['sha256']
-inputs=json.loads((A/'inputs.json').read_text());out=B/'observations';out.mkdir();execution=[]
+inputs=json.loads((A/'inputs.json').read_text());out=B/'observations'
+if '--legacy-controls-only' not in sys.argv:out.mkdir()
+execution=json.loads((A/'component-execution.json').read_text()) if '--legacy-controls-only' in sys.argv else []
 for name,inp in inputs.items():
  assert sha(R/inp['path'])==inp['sha256']
- for arm,repeats,lib,legacy in [('baseline',2,B/'baseline.metallib','0'),('candidate',2,R/'build/shaders/MetalRobo.metallib','0'),('legacy',1,R/'build/shaders/MetalRobo.metallib','1')]:
+ for arm,repeats,lib,legacy in [('baseline',2,B/'baseline.metallib','0'),('candidate',2,R/'build/shaders/MetalRobo.metallib','0'),('legacy',1,R/'build/shaders/MetalRobo.metallib','1'),('baseline-legacy',1,B/'baseline.metallib','1')]:
+  if '--legacy-controls-only' in sys.argv and arm!='baseline-legacy':continue
   for repeat in range(repeats):
    label=f'{name}-{arm}-{repeat}';cmd=[B/'probe',lib,R/inp['path'],out/label,legacy];start=time.monotonic()
    with (out/(label+'.stdout')).open('xb') as stdout,(out/(label+'.stderr')).open('xb') as stderr:
@@ -39,7 +42,7 @@ for name,inp in inputs.items():
   if arm!='legacy':
    exact=all((p/f).read_bytes()==(out/(name+'-'+arm+'-1')/f).read_bytes() for f in ['status.bin','velocity.f32','impulse.f32']);rec['repeat_exact']=exact;same &=exact
   rows.append(rec)
- base=out/(name+'-baseline-0');legacy=out/(name+'-legacy-0')
+ base=out/(name+'-baseline-legacy-0');legacy=out/(name+'-legacy-0')
  preserved &=all((base/f).read_bytes()==(legacy/f).read_bytes() for f in ['status.bin','velocity.f32','impulse.f32'])
 obs=dict(new_retained_candidate_cases_pass=sum(r['code']==0 and r.get('independent_gate_passed',False) for r in rows if r['arm']=='candidate' and r['name'] in ['api-default','opt6','opt7','line-search']),
  strict_substep7_candidate_rejected=all(r['code']==7 and r.get('rejected_outputs_untouched',False) for r in rows if r['arm']=='candidate' and r['name']=='substep7'),

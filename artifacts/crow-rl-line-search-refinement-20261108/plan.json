@@ -1,8 +1,15 @@
 {
+  "comparison_amendment": {
+    "additional_controls": "Six old-shader solves with matching small legacy arena, one per retained input. Compare candidate legacy against baseline legacy exactly.",
+    "first30_result_preserved": true,
+    "native_commands_added": 6,
+    "production_or_tolerances_changed": false,
+    "reason": "Original inherited legacy comparison used expanded-arena baseline, which already refines the three old cases. Comparing that to an intentionally small legacy arena was invalid."
+  },
   "eligibility_only": true,
   "goal_complete": false,
   "limits": {
-    "native_component_commands": 30,
+    "native_component_commands": 36,
     "per_component_seconds": 30,
     "raw_bytes": 40000000
   },
@@ -23,7 +30,7 @@
     "artifacts/crow-rl-line-search-refinement-20261108/integration-prepare.py": "80a6c73fefa6fcf2b977aa2e309ec91fb6f3999c9e373593c113d0db04935ef8",
     "artifacts/crow-rl-line-search-refinement-20261108/integration-run.py": "f907914f492cf579b25c74413896d01083b62695e0af89386d1db60acaa8b447",
     "artifacts/crow-rl-line-search-refinement-20261108/probe.mm": "f7649c4f9e36e6033248c8f49da992ae1d1c6455345204951c6c555f40111878",
-    "artifacts/crow-rl-line-search-refinement-20261108/run.py": "e4aaa98e29c66f7159c6673da988b16676172eddab2390b2e2f33c8f251a84aa",
+    "artifacts/crow-rl-line-search-refinement-20261108/run.py": "452d3e09675bc213be242d0bf45995d742ccda8909d9d1f7ee05f40653c3adfa",
     "docs/NUMERICS.md": "77d99dacb7066ba10ca572ff4924ab590abea264789c1734acd46f17d29ff4c3",
     "include/metalrobo/unified_quality_shared.h": "a3a4c0dd2aecd9f5e5858051832e5ce962fd45356ac54835ab3ec59d73e48b17",
     "src/metal/MetalUnifiedQualitySolver.metal": "0e22ddad262a62634165fc5bd45ebe51e02bc14eac16a618d1357b786e3c10f8",

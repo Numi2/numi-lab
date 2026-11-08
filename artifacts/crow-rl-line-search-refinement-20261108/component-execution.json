@@ -1,0 +1,362 @@
+[
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/baseline.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/api-default.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/api-default-baseline-0",
+      "0"
+    ],
+    "name": "api-default-baseline-0",
+    "returncode": 0,
+    "seconds": 0.5393504170351662
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/baseline.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/api-default.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/api-default-baseline-1",
+      "0"
+    ],
+    "name": "api-default-baseline-1",
+    "returncode": 0,
+    "seconds": 0.15077299997210503
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/api-default.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/api-default-candidate-0",
+      "0"
+    ],
+    "name": "api-default-candidate-0",
+    "returncode": 0,
+    "seconds": 3.6320901250001043
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/api-default.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/api-default-candidate-1",
+      "0"
+    ],
+    "name": "api-default-candidate-1",
+    "returncode": 0,
+    "seconds": 0.08973324997350574
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/api-default.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/api-default-legacy-0",
+      "1"
+    ],
+    "name": "api-default-legacy-0",
+    "returncode": 0,
+    "seconds": 0.0897257499746047
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/baseline.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/line-search.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/line-search-baseline-0",
+      "0"
+    ],
+    "name": "line-search-baseline-0",
+    "returncode": 0,
+    "seconds": 0.14972629200201482
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/baseline.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/line-search.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/line-search-baseline-1",
+      "0"
+    ],
+    "name": "line-search-baseline-1",
+    "returncode": 0,
+    "seconds": 0.0823320000199601
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/line-search.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/line-search-candidate-0",
+      "0"
+    ],
+    "name": "line-search-candidate-0",
+    "returncode": 0,
+    "seconds": 0.14340837497729808
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/line-search.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/line-search-candidate-1",
+      "0"
+    ],
+    "name": "line-search-candidate-1",
+    "returncode": 0,
+    "seconds": 0.14981591602554545
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/line-search.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/line-search-legacy-0",
+      "1"
+    ],
+    "name": "line-search-legacy-0",
+    "returncode": 0,
+    "seconds": 0.08986570796696469
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/baseline.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/opt6.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/opt6-baseline-0",
+      "0"
+    ],
+    "name": "opt6-baseline-0",
+    "returncode": 0,
+    "seconds": 0.0897972080274485
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/baseline.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/opt6.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/opt6-baseline-1",
+      "0"
+    ],
+    "name": "opt6-baseline-1",
+    "returncode": 0,
+    "seconds": 0.08966791705461219
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/opt6.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/opt6-candidate-0",
+      "0"
+    ],
+    "name": "opt6-candidate-0",
+    "returncode": 0,
+    "seconds": 0.08975049998844042
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/opt6.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/opt6-candidate-1",
+      "0"
+    ],
+    "name": "opt6-candidate-1",
+    "returncode": 0,
+    "seconds": 0.08968670904869214
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/opt6.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/opt6-legacy-0",
+      "1"
+    ],
+    "name": "opt6-legacy-0",
+    "returncode": 0,
+    "seconds": 0.08980012504616752
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/baseline.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/opt7.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/opt7-baseline-0",
+      "0"
+    ],
+    "name": "opt7-baseline-0",
+    "returncode": 0,
+    "seconds": 0.08978350000688806
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/baseline.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/opt7.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/opt7-baseline-1",
+      "0"
+    ],
+    "name": "opt7-baseline-1",
+    "returncode": 0,
+    "seconds": 0.08968054200522602
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/opt7.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/opt7-candidate-0",
+      "0"
+    ],
+    "name": "opt7-candidate-0",
+    "returncode": 0,
+    "seconds": 0.14167541702045128
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/opt7.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/opt7-candidate-1",
+      "0"
+    ],
+    "name": "opt7-candidate-1",
+    "returncode": 0,
+    "seconds": 0.15021958301076666
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/opt7.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/opt7-legacy-0",
+      "1"
+    ],
+    "name": "opt7-legacy-0",
+    "returncode": 0,
+    "seconds": 0.1392709169886075
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/baseline.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/substep2.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/substep2-baseline-0",
+      "0"
+    ],
+    "name": "substep2-baseline-0",
+    "returncode": 0,
+    "seconds": 0.09408975002588704
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/baseline.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/substep2.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/substep2-baseline-1",
+      "0"
+    ],
+    "name": "substep2-baseline-1",
+    "returncode": 0,
+    "seconds": 0.09098849998554215
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/substep2.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/substep2-candidate-0",
+      "0"
+    ],
+    "name": "substep2-candidate-0",
+    "returncode": 0,
+    "seconds": 0.09020849998341873
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/substep2.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/substep2-candidate-1",
+      "0"
+    ],
+    "name": "substep2-candidate-1",
+    "returncode": 0,
+    "seconds": 0.08979500003624707
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/substep2.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/substep2-legacy-0",
+      "1"
+    ],
+    "name": "substep2-legacy-0",
+    "returncode": 0,
+    "seconds": 0.08982674998696893
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/baseline.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/substep7.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/substep7-baseline-0",
+      "0"
+    ],
+    "name": "substep7-baseline-0",
+    "returncode": 0,
+    "seconds": 0.08941420802148059
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/baseline.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/substep7.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/substep7-baseline-1",
+      "0"
+    ],
+    "name": "substep7-baseline-1",
+    "returncode": 0,
+    "seconds": 0.09121683397097513
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/substep7.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/substep7-candidate-0",
+      "0"
+    ],
+    "name": "substep7-candidate-0",
+    "returncode": 0,
+    "seconds": 0.09055116702802479
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/substep7.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/substep7-candidate-1",
+      "0"
+    ],
+    "name": "substep7-candidate-1",
+    "returncode": 0,
+    "seconds": 0.09030545799760148
+  },
+  {
+    "argv": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/shaders/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/inputs/substep7.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-line-search-refinement-build-01/observations/substep7-legacy-0",
+      "1"
+    ],
+    "name": "substep7-legacy-0",
+    "returncode": 0,
+    "seconds": 0.09021020802902058
+  }
+]
