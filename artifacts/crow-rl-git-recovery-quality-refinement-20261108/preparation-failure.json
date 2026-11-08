@@ -1,0 +1,4 @@
+{
+  "native_replay_commands": 0,
+  "reason": "Driver-generation guard incorrectly rejected an intended report path expression, before writing execute.py. The following command found no driver. No native replay ran and no recovery workspace was created. Correct generation guard; preserve the failed command logs."
+}
