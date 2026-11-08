@@ -1599,6 +1599,20 @@ if(METALROBO_HAS_SWIFT)
 endif()
 
 if(BUILD_TESTING)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_executable(hyper-policy-capacity-probe tests/hyper_policy_capacity_probe.mm)
+    target_link_libraries(hyper-policy-capacity-probe PRIVATE
+        metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(hyper-policy-capacity-probe PRIVATE -fobjc-arc)
+    set_target_properties(hyper-policy-capacity-probe PROPERTIES
+        BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")
+    add_test(NAME hyper_policy_capacity_continuity
+        COMMAND "${Python3_EXECUTABLE}"
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests/hyper_policy_capacity_test.py"
+            $<TARGET_FILE:hyper-policy-capacity-probe> "${METALROBO_HYPER_POLICY_METALLIB}")
+    set_tests_properties(hyper_policy_capacity_continuity PROPERTIES
+        LABELS "robotics;policy;metal" TIMEOUT 120)
+
     add_executable(numi-human-constraint-response-check
         tests/numi_human_constraint_response_check.mm)
     target_link_libraries(numi-human-constraint-response-check PRIVATE

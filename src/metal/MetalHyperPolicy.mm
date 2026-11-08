@@ -191,6 +191,50 @@ struct MetalHyperPolicyRuntime::State {
             controlStepCount <= controlStepCapacity) {
             return true;
         }
+        // Growing only the rollout trace must not reset the policy's live
+        // phase or rate-limit history. Allocate replacements before publishing
+        // any of them so an allocation failure leaves the previous state usable.
+        if (environmentCount <= environmentCapacity) {
+            constexpr std::uint64_t maximum =
+                std::numeric_limits<NSUInteger>::max() / sizeof(float);
+            const std::uint64_t phaseElements =
+                static_cast<std::uint64_t>(environmentCapacity) *
+                controlStepCount;
+            if (phaseElements > maximum || header.counts0.z == 0u ||
+                phaseElements > maximum / header.counts0.z) {
+                return false;
+            }
+            const std::uint64_t actionElements = phaseElements * header.counts0.z;
+            auto makeTrace = [&](std::uint64_t elements, NSString* label) {
+                id<MTLBuffer> buffer = [device
+                    newBufferWithLength:std::max<std::size_t>(
+                        static_cast<std::size_t>(elements * sizeof(float)), 16u)
+                    options:MTLResourceStorageModeShared];
+                if (buffer != nil) {
+                    buffer.label = label;
+                    std::memset(buffer.contents, 0, buffer.length);
+                }
+                return buffer;
+            };
+            id<MTLBuffer> nextPhase = makeTrace(
+                phaseElements, @"HyperPolicy rollout phases");
+            id<MTLBuffer> nextAction = makeTrace(
+                actionElements, @"HyperPolicy executed actor-coordinate teachers");
+            id<MTLBuffer> nextLatent = makeTrace(
+                actionElements, @"HyperPolicy sampled actor latents");
+            id<MTLBuffer> nextLogProbability = makeTrace(
+                phaseElements, @"HyperPolicy action log probabilities");
+            if (nextPhase == nil || nextAction == nil || nextLatent == nil ||
+                nextLogProbability == nil) {
+                return false;
+            }
+            phaseTrajectory = nextPhase;
+            actionTrajectory = nextAction;
+            latentTrajectory = nextLatent;
+            logProbabilityTrajectory = nextLogProbability;
+            controlStepCapacity = controlStepCount;
+            return true;
+        }
         const std::uint32_t nextEnvironmentCapacity = std::max(
             environmentCount, environmentCapacity
         );

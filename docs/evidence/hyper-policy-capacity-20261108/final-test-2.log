@@ -1,0 +1,12 @@
+Test project /Users/numi/hyper-policy-capacity-build-20261108
+    Start 3: hyper_policy_capacity_continuity
+1/1 Test #3: hyper_policy_capacity_continuity ...   Passed    0.67 sec
+
+100% tests passed out of 1
+
+Label Time Summary:
+metal       =   0.67 sec*proc (1 test)
+policy      =   0.67 sec*proc (1 test)
+robotics    =   0.67 sec*proc (1 test)
+
+Total Test time (real) =   0.68 sec

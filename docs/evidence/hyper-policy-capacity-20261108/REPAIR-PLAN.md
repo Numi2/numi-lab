@@ -1,0 +1,5 @@
+# Scoped trace-capacity repair
+
+The actual resident test shows capacity growth changes phase and rate-limited physical action despite zero reset masks after the initial reset. Fix only control-step trace growth when the environment capacity is already sufficient: allocate the four larger shared trace buffers transactionally while retaining existing GPU phase, previous-action and scratch state. Validate byte-identical phases, physical actions and final q/v across 1+2, 2+1 and 1+1+1, two fresh residents each. Check growth after an abandoned, uncommitted submission and fresh first-use retry, without presenting this as a complete asynchronous policy transaction. Preserve the original evidence, bad action-capture offset and failed build attempts.
+
+Environment-capacity changes, in-flight concurrency, actual GPU execution errors and mixed accepted/rejected physical steps need separate qualification and are not implied by this repair. The implementation must not promote either disabled collision/contact option, change physics or claim trained-policy quality.

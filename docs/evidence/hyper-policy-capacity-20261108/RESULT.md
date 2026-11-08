@@ -1,0 +1,19 @@
+# Stateful policy continuity when rollout trace capacity grows
+
+**Repaired:** growing a MetalHyperPolicy rollout's control-step capacity no longer resets its phase and rate-limiter history when the existing environment capacity is sufficient. This is a scoped policy-continuity repair, not a claim that all policy state is transactional under physics failure.
+
+On `ssh numi`, a real compiled Franka task and deterministic, untrained HyperPolicy ran in one MetalWorld resident. Its authored phase rate produces a 0.02 increment per 20 ms step, and a 0.25/s action-rate limit produces a 0.005 physical-action increment. The task's initial reset is followed by zero reset masks, and all physical steps reported success. Three submission partitions each execute the same three accepted steps:
+
+| Partition | Before repair: phases | Before repair: captured physical action | After repair: both sequences |
+| --- | --- | --- | --- |
+| 1 + 2 | .02, .02, .04 | .005, .005, .010 | .02, .04, .06; .005, .010, .015 |
+| 2 + 1 | .02, .04, .06 | .005, .010, .015 | .02, .04, .06; .005, .010, .015 |
+| 1 + 1 + 1 | .02, .04, .06 | .005, .010, .015 | .02, .04, .06; .005, .010, .015 |
+
+The 1 + 2 baseline also produces different final q/v. The original `ensureCapacity` replaced and zeroed all live buffers whenever either capacity grew. The repair stages only larger shared trajectory buffers when control-step capacity alone grows, then publishes them together; the private phase, previous-action and scratch buffers stay intact. Allocation failure leaves the old buffers in place. No physics, contact law, CCD or action policy equation was changed.
+
+The native regression runs all partitions twice, compares phases, captured actual physical actions, final q/v and scene bytes, and requires successful physical statuses, zero physics errors, and actual reset masks `[1, 0, 0]`. It repeats after an injected host-side callback rejection on fresh initialization and after one accepted step during capacity growth. Each rejection occurs after policy encoding but before the world commits a command buffer, and the subsequent retry matches the control. The same regression fails against the original library at the first grown phase. The CTest `hyper_policy_capacity_continuity` and `metalrobo_run_program_check` pass on the repaired build. This is a small deterministic diagnostic policy, not a trained skill or a performance measurement.
+
+The first action-capture instrument copied offset zero for every step in a multi-step submission. Its misleading output is retained in `capture-baseline.json`; `capture-baseline-fixed.json` and the checked-in regression use the correct control-step offset. Initial build failures and the first rejected runtime construction (an undersized signature) are also retained. The two non-growing baseline partitions were unchanged in the matched candidate run. Native hashes: original library `2c3c88d26e7d141d965b61d5c76826674d42055e4ab8036669879bc3106e585e`, repaired library `2708e8f30c0e92de3d4e520ad6bf268221866347249d6d11641032bc9495c1a4`, HyperPolicy metallib `8d5676406a80a71ea50828fad47e78083892c1bc996299c59253d2a398cdd6d9`, final regression executable `fcb76e715f3bd5f296c29f55f20d9d63b1ca3a04265f6b5db75e0c5706bb2d89`.
+
+The tested fresh-init abort ends with an explicit first-step reset; it does not prove arbitrary uninitialized private GPU state is safe after an abandoned initialization. Increasing **environment** capacity still reallocates live execution buffers and is not covered by this repair. Nor does this test qualify concurrent submissions, real GPU-command failure, acceptance-dependent recurrent-policy restoration, or mixed per-environment physical rejection. Those remain separate follow-up work. The disabled directional CCD and augmented-Lagrangian experiments remain disabled.
