@@ -1,0 +1,19 @@
+{
+  "capture_off_exact_files": 11,
+  "capture_on_exact_physical_and_contact_files": 10,
+  "capture_on_status_records_equal_except_inspection_bit": 4,
+  "captured_bytes": 98864,
+  "continuation_byte_exact_files": 22,
+  "continuation_commands": 4,
+  "default_crow_accepted_transitions": 640,
+  "default_crow_exact_physical_files": 10,
+  "finite_regression_conditions": 624,
+  "goal_complete": false,
+  "isolated_full_record_exact": true,
+  "original_admission_attempt_commands": 3,
+  "physical_tsv_records_exclude_gpu_timing": 576,
+  "policy_or_profile_promoted": false,
+  "protected_first_failure_survives_eight_controls": true,
+  "repair_commands": 6,
+  "verdict": "supported_scoped_instrument_with_explicit_status_metadata"
+}

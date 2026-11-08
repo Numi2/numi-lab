@@ -1,0 +1,28 @@
+{
+  "all_other_status_bytes_exact": true,
+  "only_changed_field": "MRMetalWorldStatusGPU.flags bit 10",
+  "physical_gates_unchanged": true,
+  "raw_byte_prediction": "contradicted_by_expected_inspection_metadata",
+  "records": [
+    {
+      "lane": 0,
+      "new_flags": 1527,
+      "old_flags": 503
+    },
+    {
+      "lane": 1,
+      "new_flags": 1527,
+      "old_flags": 503
+    },
+    {
+      "lane": 2,
+      "new_flags": 1527,
+      "old_flags": 503
+    },
+    {
+      "lane": 3,
+      "new_flags": 1527,
+      "old_flags": 503
+    }
+  ]
+}

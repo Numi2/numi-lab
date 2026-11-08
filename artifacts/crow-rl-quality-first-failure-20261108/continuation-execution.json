@@ -1,0 +1,69 @@
+[
+  {
+    "capture": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-first-failure-build-01/repair-01/capture-eight.bin",
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-first-failure-build-01/repair-01/crow-eight",
+      "0",
+      "8",
+      "32",
+      "2"
+    ],
+    "exit_code": 1,
+    "expected_exit": 1,
+    "loader_lines": [
+      "dyld[45989]: <EC4D07BC-49EB-39A9-B592-CDBBA4AC9E35> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/quality-first-failure-mask-fix-20261108/libmetalrobo.dylib"
+    ],
+    "name": "capture-eight",
+    "seconds": 0.5701714999999999
+  },
+  {
+    "capture": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-first-failure-build-01/repair-01/old-must-not-capture.bin",
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/crow-fixture",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-first-failure-build-01/repair-01/crow-old-shader",
+      "0",
+      "1",
+      "32",
+      "2"
+    ],
+    "exit_code": 1,
+    "expected_exit": 1,
+    "loader_lines": [
+      "dyld[45994]: <EC4D07BC-49EB-39A9-B592-CDBBA4AC9E35> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/quality-first-failure-mask-fix-20261108/libmetalrobo.dylib"
+    ],
+    "name": "old-shader-rejected",
+    "seconds": 0.04805158300000001
+  },
+  {
+    "capture": "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-first-failure-build-01/repair-01/default-must-not-capture.bin",
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-first-failure-build-01/reference/build/crow-native-drive-ir-build-01/fixture-default",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-first-failure-build-01/repair-01/default-crow",
+      "0",
+      "1",
+      "32"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "loader_lines": [
+      "dyld[45998]: <EC4D07BC-49EB-39A9-B592-CDBBA4AC9E35> /Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/quality-first-failure-mask-fix-20261108/libmetalrobo.dylib"
+    ],
+    "name": "default-crow",
+    "seconds": 17.164281916
+  },
+  {
+    "capture": "None",
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-first-failure-build-01/replay",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-first-failure-build-01/repair-01/capture-one.bin",
+      "/Users/n/Developer/numi-crow-rl-20261107/.numi/retained-runtime/quality-first-failure-mask-fix-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-quality-first-failure-build-01/repair-01/replay.bin"
+    ],
+    "exit_code": 0,
+    "expected_exit": 0,
+    "loader_lines": [],
+    "name": "isolated-replay",
+    "seconds": 0.3854857910000007
+  }
+]

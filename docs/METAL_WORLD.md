@@ -219,6 +219,23 @@ constitutive inputs and failed iterate. It never feeds state back into physics,
 the task or the learner. A captured record must reproduce the public failure
 before it can be used to diagnose that failure.
 
+Set METALROBO_QUALITY_FAILURE_CAPTURE to a new file path for opt-in
+inspection of the first completed unified-quality nonconvergence evaluation.
+A separate queued entry point calls the ordinary solver and preserves its
+dispatch, block topology, physical operators, source/warm states and failed
+iterate in a protected per-lane record. The inspection arena is capped at
+16 MiB per batch; incompatible shaders reject before encoding. Early invalid
+dispatch/input failures are not exported by this inspection version.
+
+After completion, the writer requires the saved control/substep, solver
+iterations and certificates to match the public failure. Exclusive creation
+preserves existing files and partial write failures. Success writes nothing.
+Inspection is metadata, never a physical input; its enabled bit appears in the
+public world-status flags. The [first quality-failure study](../artifacts/crow-rl-quality-first-failure-20261108/README.md)
+records exact isolated native replay, first-record preservation across later
+passes, the initial admission/comparison failures and independent FP64 analysis.
+It does not qualify crow dynamics or establish a general FP32 accuracy floor.
+
 The complete horizon is encoded before one command-buffer commit. Normal
 stepping performs no CPU count read, collision/solver fallback, resource
 synchronization, or command-buffer wait between stages or control steps.
