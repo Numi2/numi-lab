@@ -1,4 +1,9 @@
 {
+  "analysis_amendment": {
+    "contract": "Check positive symmetric part and skew <= eps64*max(1,max(abs(A))). Preserve original A in residuals and Newton operators, record skew and bound its gradient effect. No symmetrization of physical or analysis input.",
+    "native_commands_repeated_for_amendment": 0,
+    "reason": "Captured rotational inertia has six unequal off-diagonal entries, max skew 2.95e-18. Prior exact-bit symmetry precondition was too strict."
+  },
   "limits": {
     "native_commands": 5,
     "per_command_seconds": 180,
@@ -18,9 +23,9 @@
     "artifacts/crow-rl-line-search-witness-20261108/README.md": "7ed7c7b51678f032c0a74adb2207b7c1053beb4297a862c95fe03a50c9a01659",
     "artifacts/crow-rl-line-search-witness-20261108/baseline.json": "40ad91e989d125c106141b815819f74dd1de7d7f8e643e9d5eada751deedf00e",
     "artifacts/crow-rl-line-search-witness-20261108/build.py": "23820ae10b14e091dc6ee5363caea3e8babcc6ab69b89077a064a8ff20287e86",
-    "artifacts/crow-rl-line-search-witness-20261108/independent.py": "21ba354839f074f99b63ec8cba53fa8ee6408b41b8c8134345ab16983a1fa1a5",
+    "artifacts/crow-rl-line-search-witness-20261108/independent.py": "bbc0e802b20c6df3d3f4e6e1a7885aae07b52d077da4818f3f3568cc6f1eaf04",
     "artifacts/crow-rl-line-search-witness-20261108/prepare.py": "b11af45b36117362ad85607aa287091e1f6cc8049951e4042339f59d5a9e8125",
-    "artifacts/crow-rl-line-search-witness-20261108/run.py": "c3c72013e3b19362b6003339859498303dc56a88e46f9680bc0247a535ee8d04",
+    "artifacts/crow-rl-line-search-witness-20261108/run.py": "90ad362828c6357ffdf29675128d0cc2882cbe5ff5933ea5f335e66ae5604d14",
     "src/metal/MetalUnifiedQualitySolver.metal": "523b22e4dbaf50680cc0a46456a34ae6b311a788079d2c345de72445f510d54c",
     "src/metal/QualityFailureCapture.inc": "46aebb843a16c1629cbc4b18584b6fe7529aea28b70edfe85504c0ab91039ca7"
   }

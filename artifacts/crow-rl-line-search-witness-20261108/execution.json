@@ -1,0 +1,27 @@
+[
+  {
+    "name": "quality-owner",
+    "returncode": 0,
+    "seconds": 0.7912043750402518
+  },
+  {
+    "name": "contact-owner",
+    "returncode": 0,
+    "seconds": 0.9167046250076964
+  },
+  {
+    "name": "api-0",
+    "returncode": 1,
+    "seconds": 7.620147917012218
+  },
+  {
+    "name": "api-1",
+    "returncode": 1,
+    "seconds": 3.750511957972776
+  },
+  {
+    "name": "strict",
+    "returncode": 1,
+    "seconds": 0.329732708982192
+  }
+]

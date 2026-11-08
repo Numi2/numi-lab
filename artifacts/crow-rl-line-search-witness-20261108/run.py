@@ -1,7 +1,8 @@
 from pathlib import Path
 import hashlib,json,os,struct,subprocess,sys,time
 import numpy as np
-R=Path.cwd();A=R/'artifacts/crow-rl-line-search-witness-20261108';B=R/'build/crow-line-search-witness-build-01';P=B/'reference';O=B/'observations';O.mkdir()
+R=Path.cwd();A=R/'artifacts/crow-rl-line-search-witness-20261108';B=R/'build/crow-line-search-witness-build-01';P=B/'reference';O=B/'observations'
+if '--analysis-only' not in sys.argv:O.mkdir()
 sys.path.insert(0,str(A));import independent as ref
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def write(p,x):p.write_text(json.dumps(x,indent=2,sort_keys=True)+'\n')
@@ -13,17 +14,20 @@ jobs=[('quality-owner',[B/'runtime/quality-owner'],True),('contact-owner',[B/'ru
  ('api-0',[P/'crow-fixture',O/'api-0','0','1','32','2','api-default'],False),
  ('api-1',[P/'crow-fixture',O/'api-1','0','1','32','2','api-default'],False),
  ('strict',[P/'crow-fixture',O/'strict','0','1','32','2','strict'],False)]
-execution=[]
-for name,cmd,success in jobs:
- local=dict(env)
- if name.startswith('api') or name=='strict':local['METALROBO_QUALITY_FAILURE_CAPTURE']=str(O/(name+'-capture.bin'))
- start=time.monotonic()
- with (O/(name+'.stdout')).open('xb') as stdout,(O/(name+'.stderr')).open('xb') as stderr:
-  code=subprocess.run([str(x) for x in cmd],env=local,stdout=stdout,stderr=stderr,timeout=180).returncode
- execution.append(dict(name=name,returncode=code,seconds=time.monotonic()-start));write(A/'execution.json',execution);print(json.dumps(execution[-1]),flush=True)
- assert code in ([0] if success else [1])
- assert any(line.rstrip().endswith(str(B/'runtime/libmetalrobo.dylib')) for line in (O/(name+'.stderr')).read_text().splitlines())
- assert sum(p.stat().st_size for p in B.rglob('*') if p.is_file())<plan['limits']['raw_bytes']
+if '--analysis-only' in sys.argv:
+ execution=json.loads((A/'execution.json').read_text())
+else:
+ execution=[]
+ for name,cmd,success in jobs:
+  local=dict(env)
+  if name.startswith('api') or name=='strict':local['METALROBO_QUALITY_FAILURE_CAPTURE']=str(O/(name+'-capture.bin'))
+  start=time.monotonic()
+  with (O/(name+'.stdout')).open('xb') as stdout,(O/(name+'.stderr')).open('xb') as stderr:
+   code=subprocess.run([str(x) for x in cmd],env=local,stdout=stdout,stderr=stderr,timeout=180).returncode
+  execution.append(dict(name=name,returncode=code,seconds=time.monotonic()-start));write(A/'execution.json',execution);print(json.dumps(execution[-1]),flush=True)
+  assert code in ([0] if success else [1])
+  assert any(line.rstrip().endswith(str(B/'runtime/libmetalrobo.dylib')) for line in (O/(name+'.stderr')).read_text().splitlines())
+  assert sum(p.stat().st_size for p in B.rglob('*') if p.is_file())<plan['limits']['raw_bytes']
 matched={}
 for name in ['api-0','api-1']:
  matched[name]=[p.name for p in (P/'api-gold').iterdir() if p.read_bytes()==(O/name/p.name).read_bytes()]
@@ -53,7 +57,10 @@ analysis=dict(capture_sha256=sha(O/'api-0-capture.bin'),header=list(h),dispatch=
  native_gradient_vs_independent_abs_error=float(np.max(np.abs(grad.astype(float)-q['g']))),
  native_row_velocity_vs_independent_abs_error=float(np.max(np.abs(rowV.astype(float)-q['w']))),
  reference_residual_history=history,reference_feasibility=solution['feas'],reference_rounded_residual=rounded['res'],reference_rounded_feasibility=rounded['feas'],
- reference_velocity_distance_from_failed=float(np.max(np.abs(v-failed))),physical_files_exact=matched)
+ reference_velocity_distance_from_failed=float(np.max(np.abs(v-failed))),physical_files_exact=matched,
+ matrix_max_asymmetry=float(np.max(np.abs(c['A']-c['A'].T))),matrix_symmetric_part_min_eigenvalue=float(np.linalg.eigvalsh((c['A']+c['A'].T)/2)[0]),
+ asymmetric_gradient_bound_at_reference=float(np.linalg.norm((c['A']-c['A'].T)/2,ord=np.inf)*np.max(np.abs(v-c['free']))),
+ original_captured_matrix_preserved=True)
 write(A/'analysis.json',analysis);write(A/'result.json',dict(observations=obs,native_commands=len(execution),goal_complete=False,
  independent_analysis_only=True,policy_or_profile_promoted=False))
 print((A/'result.json').read_text(),flush=True);print((A/'analysis.json').read_text(),flush=True)

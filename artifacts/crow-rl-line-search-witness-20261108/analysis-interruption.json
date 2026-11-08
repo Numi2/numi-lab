@@ -1,0 +1,7 @@
+{
+  "native_commands_completed": 5,
+  "all_old_physical_files_exact": true,
+  "strict_capture_exact": true,
+  "repeat_status6_capture_exact": true,
+  "analysis_stopped_before_reference": "Independent parser validity assertion: inspecting exact symmetry and positive definiteness before solver changes"
+}

@@ -33,7 +33,11 @@ def parse(raw):
   nonlocal offset
   a=np.frombuffer(raw,dtype='<f4',count=n,offset=offset).astype(float);offset+=4*n;return a
  A=take(nv*nv).reshape(nv,nv);J=take(rows*nv).reshape(rows,nv);bias=take(rows);free=take(nv);start=take(nv)
- assert offset==len(raw) and np.array_equal(A,A.T) and np.linalg.eigvalsh(A)[0]>0
+ # Preserve exact captured A in all residuals and Newton operators. Its
+ # symmetric part owns convexity; allow only FP64-roundoff-scale skew.
+ assert offset==len(raw)
+ assert np.max(np.abs(A-A.T))<=np.finfo(float).eps*max(1.,np.max(np.abs(A)))
+ assert np.linalg.eigvalsh((A+A.T)/2)[0]>0
  assert np.isfinite(np.r_[A.ravel(),J.ravel(),bias,free,start]).all()
  return dict(nv=nv,rows=rows,nb=nb,blocks=blocks,A=A,J=J,bias=bias,free=free,start=start,header=h)
 
