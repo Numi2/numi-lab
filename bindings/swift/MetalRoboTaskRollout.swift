@@ -733,6 +733,7 @@ public enum MetalRoboBirdFlowJourneyVariant: UInt32, Sendable {
     case v12FeedingStation = 5
     case v13RetinalFeeding = 6
     case v14ObjectPush = 7
+    case v15ActiveHeadNavigation = 8
 
     public var commandName: String {
         switch self {
@@ -744,6 +745,7 @@ public enum MetalRoboBirdFlowJourneyVariant: UInt32, Sendable {
         case .v12FeedingStation: "v12-feeding-station"
         case .v13RetinalFeeding: "v13-retinal-feeding"
         case .v14ObjectPush: "v14-object-push"
+        case .v15ActiveHeadNavigation: "v15-active-head-navigation"
         }
     }
 
@@ -757,6 +759,7 @@ public enum MetalRoboBirdFlowJourneyVariant: UInt32, Sendable {
         case .v12FeedingStation: "american_crow_feeding_station_v12"
         case .v13RetinalFeeding: "american_crow_retinal_feeding_v13"
         case .v14ObjectPush: "american_crow_object_push_v14"
+        case .v15ActiveHeadNavigation: "american_crow_active_head_navigation_development_v1"
         }
     }
 }

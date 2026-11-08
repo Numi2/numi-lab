@@ -672,7 +672,7 @@ void validateTaskRolloutConfiguration(
         );
     }
     if (config.birdflow_journey_variant >
-        MR_BIRDFLOW_JOURNEY_V14_OBJECT_PUSH) {
+        MR_BIRDFLOW_JOURNEY_V15_ACTIVE_HEAD_NAVIGATION) {
         throw std::invalid_argument(
             "task-rollout BirdFlow journey variant is invalid"
         );
@@ -3358,13 +3358,15 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
                 "American-crow native object push",nullptr).release();
             return;
         }
+        const bool activeNavigation = journey && config->birdflow_journey_variant ==
+            MR_BIRDFLOW_JOURNEY_V15_ACTIVE_HEAD_NAVIGATION;
         const bool feeding=retinal || (journey && config->birdflow_journey_variant==MR_BIRDFLOW_JOURNEY_V12_FEEDING_STATION);
         const bool embodied = journey && (config->birdflow_journey_variant ==
-            MR_BIRDFLOW_JOURNEY_V11_EMBODIED || feeding);
+            MR_BIRDFLOW_JOURNEY_V11_EMBODIED || feeding || activeNavigation);
         if (embodied && config->birdflow_journey_teacher != 0u) {
             throw std::invalid_argument("Active-head variants have no admitted teacher action contract");
         }
-        if (embodied && !retinal && visual_sensor!=nullptr)
+        if (embodied && !retinal && !activeNavigation && visual_sensor!=nullptr)
             throw std::invalid_argument("Active-head variants have no admitted eye-image or presentation contract");
         auto robot = metalrobo::builtinRobotPack(embodied
             ? "american_crow_active_head_estimated_v1"
@@ -3375,9 +3377,9 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             );
         }
         metalrobo::RunManifest manifest;
-        const bool worldModelNavigation = journey &&
+        const bool worldModelNavigation = activeNavigation || (journey &&
             config->birdflow_journey_variant ==
-                MR_BIRDFLOW_JOURNEY_V10_WORLD_MODEL_NAVIGATION;
+                MR_BIRDFLOW_JOURNEY_V10_WORLD_MODEL_NAVIGATION);
         const bool visualNeuralJourney = journey &&
             (config->birdflow_journey_variant ==
                  MR_BIRDFLOW_JOURNEY_V9_VISUAL_NEURAL ||
@@ -3392,8 +3394,14 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
                 "fall back to zero-filled observations"
             );
         }
+        if (activeNavigation && visual_sensor != nullptr &&
+            (visual_sensor->camera_parent_body == nullptr ||
+             std::string_view(visual_sensor->camera_parent_body) != "crow_head")) {
+            throw std::invalid_argument("Active-head navigation requires a head-mounted visual sensor");
+        }
         manifest.id = cueConfig ? "crow_head_camera_geometry_admission" : journey
-            ? retinal ? "american_crow_retinal_feeding_v13_run"
+            ? activeNavigation ? "american_crow_active_head_navigation_development_v1_run"
+            : retinal ? "american_crow_retinal_feeding_v13_run"
             : feeding ? "american_crow_feeding_station_v12_run"
             : embodied ? "american_crow_embodied_development_v11_run"
             : worldModelNavigation
@@ -3409,7 +3417,8 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
             ? metalrobo::makeBirdFlowAmericanCrowNavigationScenePack()
             : metalrobo::makeBirdFlowAmericanCrowFlightScenePack();
         manifest.sensors.id = cueConfig ? "camera_admission_proprioception" : journey
-            ? retinal ? "american_crow_retinal_v13_rgb_proprioception_nutrition"
+            ? activeNavigation ? "american_crow_active_head_navigation_rgbd_sensors"
+            : retinal ? "american_crow_retinal_v13_rgb_proprioception_nutrition"
             : feeding ? "american_crow_feeding_v12_proprioception_and_nutrition"
             : embodied ? "american_crow_embodied_v11_proprioception"
             : worldModelNavigation
@@ -3421,7 +3430,9 @@ static MRTaskRolloutHandle* createBirdFlowAmericanCrowRun(
                 : "birdflow_american_crow_journey_v7_state_sensors"
             : "birdflow_american_crow_estimated_hybrid_state_sensors";
         manifest.task = journey
-            ? retinal ? metalrobo::makeAmericanCrowRetinalFeedingTaskPack(manifest.sensors.observation,manifest.reality.reset,retina)
+            ? activeNavigation ? metalrobo::makeAmericanCrowActiveHeadNavigationTaskPack(
+                manifest.sensors.observation, manifest.reality.reset)
+            : retinal ? metalrobo::makeAmericanCrowRetinalFeedingTaskPack(manifest.sensors.observation,manifest.reality.reset,retina)
             : feeding ? metalrobo::makeAmericanCrowFeedingStationTaskPack(
                 manifest.sensors.observation,manifest.reality.reset)
             : embodied ? metalrobo::makeAmericanCrowEmbodiedTaskPack(
