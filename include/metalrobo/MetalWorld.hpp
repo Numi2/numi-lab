@@ -702,6 +702,8 @@ struct MetalWorldStepConfig {
     bool captureContactEvidence = false;
     // Opt-in, completion-boundary copy of the final accepted rod/tool witness arena.
     bool captureRodWitnessEvidence = false;
+    // Diagnostic completion-boundary readback; does not expose a restore API.
+    bool captureConvexCacheEvidence = false;
     // Full state/trajectory publication is an explicit inspection boundary.
     // Native rollout sessions disable both and retain simulator state on the
     // device while still publishing checked status records.
@@ -819,6 +821,7 @@ struct MetalWorldContactEvidence {
     std::vector<std::uint32_t> manifoldCounts;
     // Full environment-major pair/slot capacity, including invalid slots.
     std::vector<MRRodToolWitnessGPU> rodToolWitnesses;
+    std::vector<MRConvexQueryCacheGPU> convexCaches;
     std::vector<MRContactConstraintGPU> contacts;
     std::vector<MRContactPointMetaGPU> contactMetadata;
     std::vector<MRConstraintIRBlockGPU> blocks;
@@ -898,8 +901,25 @@ struct MetalWorldStatus {
     std::array<float, 4> maximumQualityCertificates{};
 };
 
+struct MetalWorldResidentBoundaryEvidence {
+    bool valid = false;
+    bool supportsReset = false;
+    std::uint64_t worldFingerprint = 0u;
+    std::uint64_t taskFingerprint = 0u;
+    std::uint64_t devicePhysicsFingerprint = 0u;
+    std::uint64_t millardProgramFingerprint = 0u;
+    std::uint64_t taskSeed = 0u;
+    std::uint64_t arenaGeneration = 0u;
+    std::size_t environmentCount = 0u;
+    std::size_t qSelector = 0u, vSelector = 0u, sceneSelector = 0u;
+    std::size_t manifoldHeaderSelector = 0u, manifoldPointSelector = 0u;
+    std::size_t manifoldCountSelector = 0u, rodNodeSelector = 0u;
+    std::size_t rodEdgeSelector = 0u, rodWitnessSelector = 0u;
+};
+
 struct MetalWorldResult {
     MetalWorldLayout layout{};
+    MetalWorldResidentBoundaryEvidence residentBoundary{};
     // Accepted state after the last encoded control step.
     std::vector<float> finalQ;
     std::vector<float> finalV;

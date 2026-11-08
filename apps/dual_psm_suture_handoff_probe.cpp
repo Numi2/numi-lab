@@ -7122,6 +7122,7 @@ struct Arguments {
     bool syntheticSkin = false;
     bool sameResidentControl = false;
     bool capturePartialOwnerCapsule = false;
+    bool captureOwnerBoundaryEvidence = false;
     bool robotContactBrake = false;
     bool robotFastOneNewton = false;
     bool robotPunctureOneNewton = false;
@@ -7402,6 +7403,9 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
         } else if (argument == "--capture-partial-owner-capsule") {
             require(!result.capturePartialOwnerCapsule, "--capture-partial-owner-capsule specified twice");
             result.capturePartialOwnerCapsule = true;
+        } else if (argument == "--capture-owner-boundary-evidence") {
+            require(!result.captureOwnerBoundaryEvidence, "--capture-owner-boundary-evidence specified twice");
+            result.captureOwnerBoundaryEvidence = true;
         } else if (argument == "--robot-contact-brake") {
             require(
                 !result.robotContactBrake,
@@ -8148,6 +8152,10 @@ Arguments parseArguments(const int argc, const char* const argv[]) {
     require(
         !result.capturePartialOwnerCapsule || result.sameResidentControl,
         "partial owner capsule requires the synthetic same-resident control"
+    );
+    require(
+        !result.captureOwnerBoundaryEvidence || result.capturePartialOwnerCapsule,
+        "owner boundary evidence requires partial capsule capture"
     );
     require(
         !result.robotContactBrake ||
@@ -9611,6 +9619,70 @@ void writePartialOwnerCapsule(
     std::filesystem::rename(temp, destination);
     std::cout << "partial_owner_capsule=ok complete=0 restorable=0 compiled_world_fingerprint="
         << compiledFingerprint << " state_step=" << stateStep << '\n';
+}
+
+// Independent evidence bound to a fresh v1 partial capsule. No importer is
+// provided and no atomic cross-owner snapshot is claimed.
+void writeOwnerBoundaryEvidence(
+    const std::filesystem::path& stage, const metalrobo::CompiledWorld& world,
+    const metalrobo::MetalWorldStepConfig& config,
+    const metalrobo::MetalWorldResult& result,
+    const numi::matter::RuntimeStateSnapshot& matter
+) {
+    const auto& owner = result.residentBoundary;
+    require(owner.valid && !owner.supportsReset && owner.environmentCount == 1u &&
+        owner.worldFingerprint == world.fingerprint() && owner.taskFingerprint == 0u &&
+        owner.millardProgramFingerprint == 0u && config.devicePhysicsProgram.valid() &&
+        owner.devicePhysicsFingerprint == config.devicePhysicsProgram.fingerprint &&
+        matter.available && !result.contactEvidence.convexCaches.empty() &&
+        result.contactEvidence.convexCaches.size() == result.layout.convexCacheElements,
+        "unsupported or inconsistent resident boundary identity");
+    const auto previous = stage / "partial-owner-capsule" / "manifest.tsv";
+    require(std::filesystem::is_regular_file(previous), "fresh partial capsule missing");
+    const auto temp = stage / "owner-boundary-evidence.tmp";
+    const auto destination = stage / "owner-boundary-evidence";
+    require(!std::filesystem::exists(temp) && !std::filesystem::exists(destination) &&
+        std::filesystem::create_directory(temp), "boundary evidence destination exists");
+    std::ofstream manifest(temp / "manifest.tsv", std::ios::binary | std::ios::trunc);
+    require(manifest.good(), "could not create boundary evidence manifest");
+    manifest << "schema\tnumi.synthetic-owner-boundary-evidence.v1\n"
+        << "complete\t0\nrestorable\t0\n"
+        << "capture_exclusion\tsingle_thread_private_fixture_after_submission_wait\n"
+        << "prior_capsule_manifest_size\t" << std::filesystem::file_size(previous) << '\n'
+        << "prior_capsule_manifest_fnv64\t" << handoffCheckpointContentHash(previous) << '\n'
+        << "world_fingerprint\t" << owner.worldFingerprint << '\n'
+        << "task_fingerprint\t" << owner.taskFingerprint << '\n'
+        << "device_physics_fingerprint\t" << owner.devicePhysicsFingerprint << '\n'
+        << "matter_source_fingerprint\t" << matter.sourcePhysicsFingerprint << '\n'
+        << "matter_device_fingerprint\t" << matter.deviceProgramFingerprint << '\n'
+        << "millard_fingerprint\t" << owner.millardProgramFingerprint << '\n'
+        << "task_seed\t" << owner.taskSeed << '\n'
+        << "arena_generation\t" << owner.arenaGeneration << '\n'
+        << "environment_count\t" << owner.environmentCount << '\n'
+        << "supports_reset\t" << owner.supportsReset << '\n'
+        << "selectors\t" << owner.qSelector << ',' << owner.vSelector << ','
+        << owner.sceneSelector << ',' << owner.manifoldHeaderSelector << ','
+        << owner.manifoldPointSelector << ',' << owner.manifoldCountSelector << ','
+        << owner.rodNodeSelector << ',' << owner.rodEdgeSelector << ',' << owner.rodWitnessSelector << '\n'
+        << "solver_mode\t" << static_cast<unsigned>(config.solverMode) << '\n'
+        << "actuation_mode\t" << static_cast<unsigned>(config.actuationMode) << '\n'
+        << "ccd_mode\t" << static_cast<unsigned>(config.ccdMode) << '\n'
+        << "velocity_iterations\t" << config.velocityIterations << '\n'
+        << "final_velocity_iterations\t" << config.finalVelocityIterations << '\n'
+        << "max_ccd_iterations\t" << config.maxConservativeAdvancementIterations << '\n'
+        << "rod_contact_outer_iterations\t" << config.rodContactOuterIterations << '\n'
+        << "warm_start\t" << config.warmStart << '\n'
+        << "deterministic\t" << config.deterministic << '\n'
+        << "device_physics_flags\t" << config.devicePhysicsProgram.flags << '\n'
+        << "matter_control_step\t" << matter.controlStep << '\n'
+        << "matter_physics_substep\t" << matter.physicsSubstep << '\n'
+        << "missing\tcomplete_config_identity,reset_state,owner_transaction_state,atomic_matter_reservation,other_unverified_owner_state\n";
+    writePartialCapsuleVector(temp, manifest, "convex-caches.bin", result.contactEvidence.convexCaches);
+    manifest.close();
+    require(manifest.good(), "could not finish boundary evidence manifest");
+    std::filesystem::rename(temp, destination);
+    std::cout << "owner_boundary_evidence=ok complete=0 restorable=0 convex_cache_elements="
+        << result.contactEvidence.convexCaches.size() << " arena_generation=" << owner.arenaGeneration << '\n';
 }
 
 RigidContactCacheArchive readRigidContactCacheArchive(
@@ -17311,6 +17383,7 @@ int main(const int argc, const char* const argv[]) {
         stepConfig.warmStart = true;
         stepConfig.captureContactEvidence = true;
         stepConfig.captureRodWitnessEvidence = options.sameResidentControl;
+        stepConfig.captureConvexCacheEvidence = options.captureOwnerBoundaryEvidence;
         stepConfig.publishFinalState = true;
         stepConfig.publishStateTrajectory = false;
         stepConfig.rodContactOuterIterations = 4u;
@@ -18515,6 +18588,12 @@ int main(const int argc, const char* const argv[]) {
                         compiled.fingerprint(), options.resumeTissueCheckpointPath,
                         initialCapsuleInputStep, stepConfig.timestepSeconds,
                         stepConfig.physicsSubsteps, driven.result);
+                }
+                if (options.captureOwnerBoundaryEvidence) {
+                    // initializePhase/continuePhase synchronously wait; this single-threaded
+                    // fixture owns the Matter runtime and resident exclusively until capture.
+                    require(resident.valid(), "resident is not quiescent at capture boundary");
+                    writeOwnerBoundaryEvidence(stageOutput, compiled, stepConfig, driven.result, matter);
                 }
                 std::cout << (robotContactProbe
                     ? (channels == 0u

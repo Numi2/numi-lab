@@ -739,6 +739,7 @@ struct MetalWorldSubmissionState {
     bool nativeTask = false;
     bool captureContactEvidence = false;
     bool captureRodWitnessEvidence = false;
+    bool captureConvexCacheEvidence = false;
     std::size_t rodWitnessElements = 0u;
     bool publishFinalState = true;
     bool publishStateTrajectory = true;
@@ -3642,6 +3643,11 @@ MetalWorldDiagnostics validateAndBuildLayout(
         (!config.captureContactEvidence || !contactMode || world.rodCount() == 0u)) {
         return reject(std::move(diagnostics), MetalWorldHostStatus::invalidDimensions,
             "rod witness capture requires rod/contact evidence mode");
+    }
+    if (config.captureConvexCacheEvidence &&
+        (!config.captureContactEvidence || !contactMode)) {
+        return reject(std::move(diagnostics), MetalWorldHostStatus::invalidDimensions,
+            "convex cache capture requires contact evidence mode");
     }
     const bool qualityMode =
         config.solverMode == MetalWorldSolverMode::qualityNewton;
@@ -19535,6 +19541,9 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                     if (pending->captureRodWitnessEvidence) {
                         evidence.rodToolWitnesses.resize(pending->rodWitnessElements);
                     }
+                    if (pending->captureConvexCacheEvidence) {
+                        evidence.convexCaches.resize(staged.layout.convexCacheElements);
+                    }
                     evidence.contacts.resize(
                         staged.layout.contactConstraintElements
                     );
@@ -19753,6 +19762,17 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
                         }
                         copyOutput(evidence.rodToolWitnesses, witnessReadback);
                     }
+                    if (pending->captureConvexCacheEvidence) {
+                        id<MTLBuffer> readback = stateOutputBuffer(kConvexCaches);
+                        const std::size_t bytes = evidence.convexCaches.size() * sizeof(MRConvexQueryCacheGPU);
+                        if (bytes != 0u && (readback == nil || readback.contents == nullptr || readback.length < bytes)) {
+                            pending->finishResident(false);
+                            pending->resident.reset();
+                            return reject(std::move(diagnostics), MetalWorldHostStatus::metalBufferFailure,
+                                "convex cache readback is unavailable or truncated");
+                        }
+                        copyOutput(evidence.convexCaches, readback);
+                    }
                     copyOutput(
                         evidence.contacts,
                         stateOutputBuffer(kContacts)
@@ -19809,6 +19829,43 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
             }
         }
 
+        if (pending->captureConvexCacheEvidence) {
+            if (pending->resident == nullptr || pending->context == nullptr) {
+                return reject(std::move(diagnostics), MetalWorldHostStatus::invalidDimensions,
+                    "owner boundary capture requires a resident submission");
+            }
+            const bool identityOk = [&] {
+            const std::lock_guard lock(pending->resident->mutex);
+            const auto& owner = *pending->resident;
+            if (!owner.pending || owner.context != pending->context ||
+                owner.stateArenaGeneration != pending->context->stateArenaGeneration) return false;
+            auto& e = staged.residentBoundary;
+            e.valid = true;
+            e.supportsReset = owner.supportsReset;
+            e.worldFingerprint = owner.worldFingerprint;
+            e.taskFingerprint = owner.taskFingerprint;
+            e.devicePhysicsFingerprint = owner.devicePhysicsFingerprint;
+            e.millardProgramFingerprint = owner.millardProgramFingerprint;
+            e.taskSeed = owner.taskSeed;
+            e.arenaGeneration = owner.stateArenaGeneration;
+            e.environmentCount = owner.environmentCount;
+            e.qSelector = pending->finalQBuffer; e.vSelector = pending->finalVBuffer;
+            e.sceneSelector = pending->finalSceneBuffer;
+            e.manifoldHeaderSelector = pending->finalManifoldHeaderBuffer;
+            e.manifoldPointSelector = pending->finalManifoldPointBuffer;
+            e.manifoldCountSelector = pending->finalManifoldCountBuffer;
+            e.rodNodeSelector = pending->finalRodNodeBuffer;
+            e.rodEdgeSelector = pending->finalRodEdgeBuffer;
+            e.rodWitnessSelector = pending->finalRodWitnessBuffer;
+            return true;
+            }();
+            if (!identityOk) {
+                pending->finishResident(false);
+                pending->resident.reset();
+                return reject(std::move(diagnostics), MetalWorldHostStatus::invalidDimensions,
+                    "resident owner changed during boundary capture");
+            }
+        }
         return validateAndPublish(
             std::move(staged),
             std::move(diagnostics),
@@ -19931,6 +19988,10 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             MetalWorldHostStatus::contextBusy,
             "submission output already owns a live MetalWorld batch"
         );
+    }
+    if (config.captureConvexCacheEvidence && residentState == nullptr) {
+        return reject(std::move(diagnostics), MetalWorldHostStatus::invalidDimensions,
+            "owner boundary capture requires a resident submission");
     }
     if ((residentState == nullptr) &&
         initializeResidentState) {
@@ -21189,6 +21250,9 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             if (config.captureRodWitnessEvidence) {
                 readbackIndices.push_back(sourceRodWitnesses);
             }
+            if (config.captureConvexCacheEvidence) {
+                readbackIndices.push_back(kConvexCaches);
+            }
             if (config.captureContactEvidence) {
                 readbackIndices.push_back(
                     sourceManifoldHeaders
@@ -21265,6 +21329,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
                 config.captureContactEvidence;
             pending->captureRodWitnessEvidence =
                 config.captureRodWitnessEvidence;
+            pending->captureConvexCacheEvidence = config.captureConvexCacheEvidence;
             pending->rodWitnessElements =
                 requirements.entries[sourceRodWitnesses].logicalElements;
             pending->publishFinalState =
