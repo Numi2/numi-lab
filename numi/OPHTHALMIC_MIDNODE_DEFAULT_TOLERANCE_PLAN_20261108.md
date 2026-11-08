@@ -1,0 +1,3 @@
+# Free-middle-node rod at the production default stopping tolerance
+
+The prior strict fixture used 1e-10 m, below the FP32 coordinate spacing near the middle node. Status 4 there does not establish that the same motion rejects at the ordinary setting. Repeat the same three inputs and unchanged independent force and state gates with the public 1e-7 m default and the same 128 iterations. Keep the strict results separately. A successful status is insufficient if its force or state misses the predeclared gate. Pin a separate executable/source and both shader hashes, and retain every result. Do not infer general rod or surgical qualification.
