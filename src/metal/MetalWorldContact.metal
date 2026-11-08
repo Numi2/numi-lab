@@ -8415,7 +8415,7 @@ inline void mrWorldWave32SolvePacket(
     uint blockIds[4]; float3 blockDirections[4]; float blockB[4];
     float2 blockTangent[4]; float blockN[4][4]; float2 blockT[4][4];
     float blockImpulse[4] = {0.0f,0.0f,0.0f,0.0f}; uint blockCount=0u;
-    bool blockEligible=scaleEligible; bool hadWarm=false;
+    bool blockEligible=scaleEligible; bool blockSlidingEligible=true; bool hadWarm=false;
     if (blockEligible) {
         for(uint ti=0u;ti<work.tileCount;++ti) {
             const MRContactTileGPU tile=tiles[tileBase+work.firstTile+ti];
@@ -8433,7 +8433,8 @@ inline void mrWorldWave32SolvePacket(
         const float2 vt=float2(dot(rows[1].direction.xyz,rel)-rows[1].targetVelocity,
                                dot(rows[2].direction.xyz,rel)-rows[2].targetVelocity);
         const float speed=length(vt); const float mu=evaluatedCones[constraintBase+ci].effectiveFrictionU;
-        blockEligible = blockEligible && isfinite(speed) && speed>1.0e-4f;
+        blockEligible = blockEligible && isfinite(speed);
+        blockSlidingEligible = blockSlidingEligible && speed>1.0e-4f;
         blockDirections[i]=float3(1.0f,-mu*vt/max(speed,1.0e-4f));
         blockB[i]=dot(rows[0].direction.xyz,rel)-rows[0].targetVelocity;
         blockTangent[i]=vt;
@@ -8463,7 +8464,69 @@ inline void mrWorldWave32SolvePacket(
     bool blockFound=blockEligible;
     if(blockFound) for(uint i=0u;i<blockCount;++i)
         blockFound=blockFound && isfinite(blockB[i]) && blockB[i]>=0.0f;
-    if (blockEligible) for(uint i=0u;i<blockCount && !blockFound;++i) {
+    // Try equal-weight one/two-contact sticking blocks first. This is a
+    // candidate initializer only, verified against every actual row below.
+    if(blockEligible) for(uint i=0u;i<blockCount && !blockFound;++i) for(uint j=i;j<blockCount && !blockFound;++j) {
+        uint members[2]={i,j};const uint m=i==j?1u:2u;const float weight=1.0f/float(m);
+        float mat[3][3]={{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f}};
+        float rhs[3]={0.0f,0.0f,0.0f};
+        for(uint ai=0u;ai<m;++ai) {
+            const uint ci=blockIds[members[ai]];device const MRContactConstraintGPU& target=contacts[constraintBase+ci];
+            device const MREvaluatedConstraintIRRowGPU* tr=evaluatedRows+rowBase+3u*ci;
+            const float3 rel=typedRelativePointVelocity(ci,target,bodies,dispatch.articulationIndex,
+                pointJacobians,pointJacobianBase,dispatch.nv,articulationVelocity,rodNodes,rodEdges,
+                rodColliders,rodWitnesses,constraintWitnessIndices,constraintBase);
+            for(uint x=0u;x<3u;++x)rhs[x]+=weight*(tr[x].targetVelocity-dot(tr[x].direction.xyz,rel));
+            for(uint aj=0u;aj<m;++aj) {
+                const uint cj=blockIds[members[aj]];device const MRContactConstraintGPU& source=contacts[constraintBase+cj];
+                device const MREvaluatedConstraintIRRowGPU* sr=evaluatedRows+rowBase+3u*cj;
+                for(uint x=0u;x<3u;++x)for(uint y=0u;y<3u;++y) {
+                    float response=typedNormalCrossContactResponse(ci,cj,y,target,source,tr[x].direction.xyz,
+                        sr[y].direction.xyz,bodies,pointJacobians,pointJacobianBase,responseColumns,responseBase,
+                        dispatch.nv,dispatch.articulationIndex,rodNodes,inverseRodMasses,inverseRodTwistInertias,
+                        rodColliders,rodWitnesses,constraintWitnessIndices,constraintBase);
+                    if(ci==cj && x==y)response+=tr[x].regularization;
+                    mat[x][y]+=weight*weight*response;
+                }
+            }
+        }
+        const float det=mat[0][0]*(mat[1][1]*mat[2][2]-mat[1][2]*mat[2][1])-
+            mat[0][1]*(mat[1][0]*mat[2][2]-mat[1][2]*mat[2][0])+
+            mat[0][2]*(mat[1][0]*mat[2][1]-mat[1][1]*mat[2][0]);
+        if(!isfinite(det)||abs(det)<1.0e-10f)continue;
+        float3 p;
+        p.x=(rhs[0]*(mat[1][1]*mat[2][2]-mat[1][2]*mat[2][1])-mat[0][1]*(rhs[1]*mat[2][2]-mat[1][2]*rhs[2])+mat[0][2]*(rhs[1]*mat[2][1]-mat[1][1]*rhs[2]))/det;
+        p.y=(mat[0][0]*(rhs[1]*mat[2][2]-mat[1][2]*rhs[2])-rhs[0]*(mat[1][0]*mat[2][2]-mat[1][2]*mat[2][0])+mat[0][2]*(mat[1][0]*rhs[2]-rhs[1]*mat[2][0]))/det;
+        p.z=(mat[0][0]*(mat[1][1]*rhs[2]-rhs[1]*mat[2][1])-mat[0][1]*(mat[1][0]*rhs[2]-rhs[1]*mat[2][0])+rhs[0]*(mat[1][0]*mat[2][1]-mat[1][1]*mat[2][0]))/det;
+        const float mu=evaluatedCones[constraintBase+blockIds[i]].effectiveFrictionU;
+        bool valid=finite3(p)&&p.x>kConeEpsilon&&length(p.yz)<=mu*p.x;
+        for(uint k=0u;k<blockCount && valid;++k) {
+            const uint ck=blockIds[k];device const MRContactConstraintGPU& target=contacts[constraintBase+ck];
+            device const MREvaluatedConstraintIRRowGPU* tr=evaluatedRows+rowBase+3u*ck;
+            const float3 rel=typedRelativePointVelocity(ck,target,bodies,dispatch.articulationIndex,
+                pointJacobians,pointJacobianBase,dispatch.nv,articulationVelocity,rodNodes,rodEdges,
+                rodColliders,rodWitnesses,constraintWitnessIndices,constraintBase);
+            float3 residual=float3(dot(tr[0].direction.xyz,rel)-tr[0].targetVelocity,
+                dot(tr[1].direction.xyz,rel)-tr[1].targetVelocity,dot(tr[2].direction.xyz,rel)-tr[2].targetVelocity);
+            for(uint aj=0u;aj<m;++aj) {
+                const uint cj=blockIds[members[aj]];device const MRContactConstraintGPU& source=contacts[constraintBase+cj];
+                device const MREvaluatedConstraintIRRowGPU* sr=evaluatedRows+rowBase+3u*cj;
+                for(uint x=0u;x<3u;++x)for(uint y=0u;y<3u;++y) {
+                    float response=typedNormalCrossContactResponse(ck,cj,y,target,source,tr[x].direction.xyz,
+                        sr[y].direction.xyz,bodies,pointJacobians,pointJacobianBase,responseColumns,responseBase,
+                        dispatch.nv,dispatch.articulationIndex,rodNodes,inverseRodMasses,inverseRodTwistInertias,
+                        rodColliders,rodWitnesses,constraintWitnessIndices,constraintBase);
+                    if(ck==cj && x==y)response+=tr[x].regularization;
+                    residual[x]+=weight*p[y]*response;
+                }
+            }
+            const bool active=k==i||(i!=j&&k==j);
+            valid=finite3(residual)&&(active ? abs(residual.x)<=1.0e-6f && length(residual.yz)<=1.0e-6f : residual.x>=-1.0e-6f);
+        }
+        if(valid) { blockFound=true;blockDirections[i]=float3(1.0f,p.yz/p.x);blockImpulse[i]=weight*p.x;
+            if(i!=j){blockDirections[j]=blockDirections[i];blockImpulse[j]=weight*p.x;} }
+    }
+    if (blockEligible && blockSlidingEligible) for(uint i=0u;i<blockCount && !blockFound;++i) {
         for(uint j=i;j<blockCount && !blockFound;++j) {
             float xi=0.0f,xj=0.0f;
             if(i==j) { if(abs(blockN[i][i])<1.0e-8f) continue; xi=-blockB[i]/blockN[i][i]; }
@@ -8701,8 +8764,10 @@ inline void mrWorldWave32SolvePacket(
         bool valid=isfinite(pn)&&finite3(rel)&&isfinite(nr)&&pn>=0.0f;
         if(pn>kConeEpsilon) {
             const float2 error=pt+mu*pn*vt/max(speed,1.0e-4f);
-            valid=valid && abs(nr)<=1.0e-6f && speed>1.0e-4f &&
-                isfinite(error.x)&&isfinite(error.y)&&length(error)<=1.0e-7f+1.0e-3f*mu*pn;
+            const bool sticking=speed<=1.0e-6f && length(pt)<=mu*pn;
+            const bool sliding=speed>1.0e-4f && isfinite(error.x)&&isfinite(error.y)&&
+                length(error)<=1.0e-7f+1.0e-3f*mu*pn;
+            valid=valid && abs(nr)<=1.0e-6f && (sticking||sliding);
         } else valid=valid && nr>=-1.0e-6f && length(pt)<=1.0e-7f;
         blockCertified=blockCertified&&valid;
     }
