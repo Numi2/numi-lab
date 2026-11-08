@@ -94,3 +94,17 @@ actual actor movement after shared actor/critic clipping. The audited recipe is
 gamma0.999/lambda1 with full320-tick sequences. No adaptive learning-rate trial
 is selected. Behavioral selection remains held-out cue-conditioned choice and
 intake.
+
+## Completed Git recovery
+
+The committed-object verifier passed all766 files (433 unique contents), covering
+569355687 raw bytes and adding146517302 compressed bytes. Actual Git restoration
+recovered71 runtime/source/input files,18435530B, in a separate temporary path.
+The curriculum and sensor configuration were relocated for both executions.
+Fresh fixed-policy continuation reproduced future rollout bytes and native
+world/retina/GRU state through lifetime tick345. Fresh coupled learning reproduced
+six canonical policy/rollout files, all82 model/Adam arrays over two boundaries,
+all metadata, native components and scientific learner metrics through tick291.
+Elapsed time and allocator counters were recorded separately. No reanalysis or
+retry was needed for these recovery executions. The exact28168951B temporary
+recovery set was hash/mode/mtime/closed-handle checked and removed.
