@@ -13949,7 +13949,7 @@ kernel void mr_world_bounded_drive_prediction(
             const uint i=visit<n ? visit : 2u*n-1u-visit;
             const float diagonal=inverse[i*capacity+i];
             const float excluding=a[i]-diagonal*torque[i];
-            const float rhs=b[i]-c[i]*excluding;
+            const float rhs=fma(-c[i],excluding,b[i]);
             const float shrunk=copysign(max(abs(rhs)-friction[i],0.0f),rhs);
             const float next=clamp(shrunk/fma(c[i],diagonal,1.0f),-cap[i],cap[i]);
             const float delta=next-torque[i]; torque[i]=next;
@@ -13964,16 +13964,16 @@ kernel void mr_world_bounded_drive_prediction(
         }
         maximumScaledResidual=0.0f;
         for (uint i=0u; i<n; ++i) {
-            const float rhs=b[i]-c[i]*a[i];
+            const float rhs=fma(-c[i],a[i],b[i]);
             const float expected=clamp(copysign(max(abs(rhs)-friction[i],0.0f),rhs),-cap[i],cap[i]);
             const float scaled=abs(expected-torque[i])/max(cap[i],1.0e-6f);
             valid &= isfinite(a[i]) && isfinite(scaled);
             maximumScaledResidual=max(maximumScaledResidual,scaled);
         }
         completed=sweep+1u;
-        if (valid && maximumScaledResidual<=32.0f*1.1920928955078125e-7f) break;
+        if (valid && maximumScaledResidual<=4.0f*1.1920928955078125e-7f) break;
     }
-    if (!valid || maximumScaledResidual>32.0f*1.1920928955078125e-7f) {
+    if (!valid || maximumScaledResidual>4.0f*1.1920928955078125e-7f) {
         MRMetalWorldContactStatusGPU contact=contactStatuses[environment];
         contact.code=valid ? MR_STEP_DID_NOT_CONVERGE : MR_STEP_NONFINITE_RESULT;
         contactStatuses[environment]=contact;

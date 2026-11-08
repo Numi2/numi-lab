@@ -18,17 +18,18 @@ MRBodyPropertiesGPU body(unsigned owner,unsigned parent,unsigned joint,float ine
 EngineModel mechanism(unsigned variant){
     auto m=makeFreeSphereEngineModel();m.name="bounded_drive_native_constitutive_probe";
     m.articulations.clear();m.joints.clear();m.dofs.clear();m.bodies.clear();m.shapes.clear();
-    const unsigned n=variant==0?1:variant==4?40:2;const bool independent=variant==2||variant==4;
+    const unsigned n=variant==0?1:variant==4?40:2;
+    const unsigned treeSize=variant==4?20:variant==2?1:n;
     m.defaultQ.assign(n,0);m.defaultV.assign(n,0);
-    for(unsigned owner=0;owner<(independent?n:1);++owner){
-        MRArticulationGPU a{};a.rootBody=independent?2*owner:0;a.firstBody=a.rootBody;a.rootType=MR_ROOT_FIXED;
-        a.firstJoint=independent?owner:0;a.bodyCount=independent?2:n+1;a.jointCount=independent?1:n;
-        a.nq=a.nv=independent?1:n;a.qOffset=a.vOffset=independent?owner:0;m.articulations.push_back(a);
+    for(unsigned owner=0;owner<n/treeSize;++owner){
+        MRArticulationGPU a{};a.rootBody=owner*(treeSize+1);a.firstBody=a.rootBody;a.rootType=MR_ROOT_FIXED;
+        a.firstJoint=owner*treeSize;a.bodyCount=treeSize+1;a.jointCount=treeSize;
+        a.nq=a.nv=treeSize;a.qOffset=a.vOffset=owner*treeSize;m.articulations.push_back(a);
         m.bodies.push_back(body(owner,MR_INVALID_INDEX,MR_INVALID_INDEX,.01f));
         for(unsigned local=0;local<a.jointCount;++local){
-            const unsigned i=a.firstJoint+local;const unsigned parent=independent?2*owner:local;
+            const unsigned i=a.firstJoint+local;const unsigned parent=variant==4?a.firstBody:a.firstBody+local;
             m.bodies.push_back(body(owner,parent,i,i==0?4e-6f:2.5e-6f));
-            MRJointDescriptorGPU j{};j.parentBody=parent;j.childBody=parent+1;
+            MRJointDescriptorGPU j{};j.parentBody=parent;j.childBody=a.firstBody+local+1;
             j.jointType=MR_JOINT_REVOLUTE;j.nq=j.nv=1;j.qOffset=j.vOffset=i;
             j.axis0={0,0,1,0};j.parentRotation=j.childRotation={0,0,0,1};m.joints.push_back(j);
             MRDofPropertiesGPU d{};d.articulationIndex=owner;d.jointIndex=d.qIndex=d.vIndex=i;
@@ -95,6 +96,7 @@ void calibrate(){double massError=0,kktError=0;unsigned cases=0;
             }++cases;
         }
     }
+    CompiledWorld wide;const auto wideCompiled=compileMetalWorld(mechanism(4),0,wide);need(wideCompiled.succeeded()&&wide.nv()==40,"Wide host instrument calibration failed: "+wideCompiled.message);
     need(massError<1e-14 && kktError<1e-9,"Reference calibration failed");
     std::cout<<std::setprecision(17)<<"{\"mass_error\":"<<massError<<",\"constitutive_error\":"<<kktError<<",\"conditions\":"<<cases<<"}\n";
 }
@@ -131,7 +133,7 @@ void execute(const char* shader,const char* output){
     const MetalWorldBatch wideBatch{.environmentCount=1,.controlStepCount=1,.initialQ=q,.initialV=v,.efforts=target};
     for(unsigned hybrid=0;hybrid<2;++hybrid){MetalWorldStepConfig s;s.timestepSeconds=.02f/32;s.physicsSubsteps=1;s.applyBodyDamping=false;s.solverMode=MetalWorldSolverMode::temporalCone;s.ccdMode=hybrid?MetalWorldCCDMode::hybrid:MetalWorldCCDMode::disabled;s.actuationMode=MetalWorldActuationMode::boundedPositionDrive;
         MetalWorldResult result;const auto r=context.run(wideWorld,wideBatch,s,result);need(r.succeeded()&&r.successfulStepCount==1&&!r.failedStepCount,"40-DoF native prediction failed: "+r.message);++accepted;
-        for(unsigned i=0;i<40;++i){const auto&d=wide.dofs[i];const double inertia=double(wide.bodies[2*i+1].inertiaRow2.z)+d.drive.z;const double h=s.timestepSeconds;
+        for(unsigned i=0;i<40;++i){const auto&d=wide.dofs[i];const double inertia=double(wide.bodies[(i/20)*21+(i%20)+1].inertiaRow2.z)+d.drive.z;const double h=s.timestepSeconds;
             const double rv=std::clamp(h*d.drive.x*target[i]/(inertia+h*d.drive.y+h*h*d.drive.x),-h*d.limits.w/inertia,h*d.limits.w/inertia);
             out<<4<<'\t'<<1<<'\t'<<hybrid<<'\t'<<32<<'\t'<<0<<'\t'<<i<<'\t'<<h<<'\t'<<0<<'\t'<<0<<'\t'<<target[i]<<'\t'<<result.finalQ[i]<<'\t'<<result.finalV[i]<<'\t'<<rv<<'\t'<<inertia*result.finalV[i]/h<<'\t'<<inertia*rv/h<<'\t'<<1<<'\t'<<((r.layout.abaDispatch.flags&MR_ABA_IMPLICIT_DRIVES)!=0)<<'\t'<<((r.layout.factorDispatches.front().flags&MR_ARTICULATED_OPERATOR_IMPLICIT_DRIVES)!=0)<<'\n';
         }
