@@ -12636,8 +12636,12 @@ kernel void mr_world_prepare_unified_quality(
                     vectorBase + 3u * localConstraint + 2u
                 ] = 0.0f;
             } else {
-            if (!(cone.effectiveFrictionU > 0.0f) ||
-                !(cone.effectiveFrictionV > 0.0f) ||
+            const bool frictionless =
+                cone.effectiveFrictionU == 0.0f &&
+                cone.effectiveFrictionV == 0.0f;
+            if ((!frictionless &&
+                 (!(cone.effectiveFrictionU > 0.0f) ||
+                  !(cone.effectiveFrictionV > 0.0f))) ||
                 !isfinite(cone.effectiveFrictionU) ||
                 !isfinite(cone.effectiveFrictionV)) {
                 localFailureKey = min(
@@ -12777,6 +12781,26 @@ kernel void mr_world_prepare_unified_quality(
             warmImpulses[
                 vectorBase + 3u * localConstraint + 2u
             ] = contact.impulses.z;
+            if (frictionless) {
+                // The zero-friction cone is the exact scalar normal interval,
+                // not a small positive-friction approximation. The two
+                // unowned tangential rows are zeroed by evaluateState.
+                qualityBlock.layout = uint4(
+                    3u * localConstraint, 1u,
+                    MR_UNIFIED_QUALITY_SCALAR_INTERVAL,
+                    MR_UNIFIED_QUALITY_BLOCK_REPORT_FLOOR);
+                qualityBlock.scale0 = float4(1.0f);
+                qualityBlock.boundsAndShift = float4(
+                    -cone.adhesionImpulse,
+                    cone.maximumNormalImpulse > 0.0f
+                        ? cone.maximumNormalImpulse
+                        : MR_CONSTRAINT_IR_UNBOUNDED,
+                    0.0f, 0.0f);
+                biasVectors[vectorBase + 3u * localConstraint + 1u] = 0.0f;
+                biasVectors[vectorBase + 3u * localConstraint + 2u] = 0.0f;
+                warmImpulses[vectorBase + 3u * localConstraint + 1u] = 0.0f;
+                warmImpulses[vectorBase + 3u * localConstraint + 2u] = 0.0f;
+            }
             }
         } else {
             for (uint axis = 0u; axis < 3u; ++axis) {

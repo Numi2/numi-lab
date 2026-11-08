@@ -850,6 +850,10 @@ inline bool evaluateState(
             );
         }
         rowVelocity[row] = value;
+        // Scalar blocks occupy one row of a three-row world-contact slot.
+        // Clear every row on each evaluation so unowned tangential rows are
+        // exactly zero, including after reuse of the threadgroup workspace.
+        impulses[row] = 0.0f;
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
 
