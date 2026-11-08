@@ -1,0 +1,8 @@
+{
+  "commit": "516f7d59",
+  "error": "Actual Git verification rejected missing manifest.json in prematurely staged in-progress copy.",
+  "cause": "The source transfer had not yet completed when the first commit was staged.",
+  "repair": "Transfer completed successfully; stage the complete directory, push and repeat actual Git verification before cleanup.",
+  "source_deleted": false,
+  "scientific_or_native_execution": false
+}
