@@ -1,0 +1,21 @@
+{
+  "purpose": "Paired numerical convergence at unused timestep128, same four physical initial conditions and exact candidate model; not new independent biological units.",
+  "parent_failed_gate": "32vs64 max trajectory error0.11816848666123615m exceeds0.005m, principally during landing.",
+  "prediction": {
+    "64vs128_maximum_paired_object_position_difference_all160ticks_m": 0.005,
+    "all640_transitions_accepted": true,
+    "all_four_positive_mechanical_gates": "unchanged20mm lift,5mm slip,16 opposed samples,0.8mm penetration,30mm release drop,1mm release gaps"
+  },
+  "inputs": {
+    "build/crow-ccd-articulated-sweep-build-01/probe": "534788e175e6886d42434b8c1f405ac8a23727f7d3b3fcd23225049fb1993b1c",
+    "build/crow-ccd-articulated-sweep-build-01/runtime/libmetalrobo.dylib": "ba1d935c24ab6bc914d7bcc36176788a1ca7a689c54eb132a5e35b823e6aaa42",
+    "build/crow-ccd-articulated-sweep-build-01/runtime/metalrobo/MetalRobo.metallib": "7cb880bdbe0c9dea27534df48c5ad58b4bb4373ef056d8580334dca8c2b5a8e0",
+    "build/crow-ccd-articulated-sweep-build-01/refinement/trace.tsv": "c4ae12ae4ecf88097709192dce9353021696fa71394c598449b8b864b8fb4b4d"
+  },
+  "budget": {
+    "native_executions": 1,
+    "timeout_seconds": 180,
+    "new_output_max_bytes": 1048576,
+    "stop": "One128-substep execution, no retry, threshold change or physics promotion on a failed or missing gate."
+  }
+}

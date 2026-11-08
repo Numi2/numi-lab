@@ -1,0 +1,508 @@
+{
+  "commands": [
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/projection-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/baseline.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/projection-baseline.bin"
+      ],
+      "exit_code": 0,
+      "name": "projection-baseline",
+      "seconds": 0.33005004201550037
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/projection-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/candidate.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/projection-candidate.bin"
+      ],
+      "exit_code": 0,
+      "name": "projection-candidate",
+      "seconds": 0.1504797909874469
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/projection-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/candidate.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/projection-repeat.bin"
+      ],
+      "exit_code": 0,
+      "name": "projection-repeat",
+      "seconds": 0.023628707975149155
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/cases-probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/candidate.metallib",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/cases.bin",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/grid.bin"
+      ],
+      "exit_code": 0,
+      "name": "grid",
+      "seconds": 0.3784395420225337
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/clamp",
+        "0",
+        "1",
+        "32"
+      ],
+      "exit_code": 0,
+      "name": "clamp",
+      "seconds": 16.724317334010266
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/open",
+        "1",
+        "1",
+        "32"
+      ],
+      "exit_code": 0,
+      "name": "open",
+      "seconds": 16.546923334011808
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/no-contact",
+        "2",
+        "1",
+        "32"
+      ],
+      "exit_code": 0,
+      "name": "no-contact",
+      "seconds": 15.980965459020808
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/zero-friction",
+        "3",
+        "1",
+        "32"
+      ],
+      "exit_code": 0,
+      "name": "zero-friction",
+      "seconds": 16.55110204097582
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/partition",
+        "0",
+        "8",
+        "32"
+      ],
+      "exit_code": 0,
+      "name": "partition",
+      "seconds": 16.28674549999414
+    },
+    {
+      "command": [
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/probe",
+        "/Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/refinement",
+        "0",
+        "1",
+        "64"
+      ],
+      "exit_code": 0,
+      "name": "refinement",
+      "seconds": 33.12841112498427
+    }
+  ],
+  "limits": "Even a complete mechanical gesture is not learned manipulation, ground pickup, ingestion, retinal control or biological calibration.",
+  "maximum_paired_32vs64_position_error_m": 0.11816848666123615,
+  "mechanical_gesture_qualified": false,
+  "physical_capability_qualified": false,
+  "physical_checks": {
+    "all_native_executions_accepted": true,
+    "all_negative_controls_fail_hold": true,
+    "all_values_finite": true,
+    "each_fully_sampled_positive_lane_mechanical_gates": true,
+    "final_chunk_partition_exact": true,
+    "full_trajectory_refinement_within5mm": false
+  },
+  "physical_results": {
+    "clamp": {
+      "actual_loader": [
+        "dyld[14932]: <670E222D-A38C-34FA-BA03-F1E54C6BE11D> /Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/runtime/libmetalrobo.dylib"
+      ],
+      "exit_code": 0,
+      "lanes": [
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": true,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 0.000298498740754,
+          "maximum_slip_m": 0.0007703080195351118,
+          "minimum_lift_m": 0.027559250592999962,
+          "minimum_release_gap_m": 0.241626267183,
+          "opposed_samples": 32,
+          "release_drop_m": 0.29025373049074,
+          "samples": 160
+        },
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": true,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 0.000314114782804,
+          "maximum_slip_m": 0.0007631441335918385,
+          "minimum_lift_m": 0.027765423058999983,
+          "minimum_release_gap_m": 0.241267237967,
+          "opposed_samples": 32,
+          "release_drop_m": 0.29045990249108,
+          "samples": 160
+        },
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": true,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 0.000295075028833,
+          "maximum_slip_m": 0.0007708366453071024,
+          "minimum_lift_m": 0.02713420987099996,
+          "minimum_release_gap_m": 0.24205399553,
+          "opposed_samples": 32,
+          "release_drop_m": 0.29022869653974,
+          "samples": 160
+        },
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": true,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 0.000312396219877,
+          "maximum_slip_m": 0.0007639362746378845,
+          "minimum_lift_m": 0.027341634035000006,
+          "minimum_release_gap_m": 0.241273529861,
+          "opposed_samples": 32,
+          "release_drop_m": 0.29043611930675,
+          "samples": 160
+        }
+      ],
+      "rows": 640
+    },
+    "no-contact": {
+      "actual_loader": [
+        "dyld[14977]: <670E222D-A38C-34FA-BA03-F1E54C6BE11D> /Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/runtime/libmetalrobo.dylib"
+      ],
+      "exit_code": 0,
+      "lanes": [
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": false,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 0.00724582732501,
+          "maximum_slip_m": 16.1143759826597,
+          "minimum_lift_m": -17.972231656274,
+          "minimum_release_gap_m": 32.3727769843,
+          "opposed_samples": 0,
+          "release_drop_m": 31.733840942399997,
+          "samples": 160
+        },
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": false,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 0.007112077835,
+          "maximum_slip_m": 16.114599282920018,
+          "minimum_lift_m": -17.972231656274,
+          "minimum_release_gap_m": 32.3727766957,
+          "opposed_samples": 0,
+          "release_drop_m": 31.733840942399997,
+          "samples": 160
+        },
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": false,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 0.00685319023283,
+          "maximum_slip_m": 16.11434906980778,
+          "minimum_lift_m": -17.972231119845,
+          "minimum_release_gap_m": 32.3723764411,
+          "opposed_samples": 0,
+          "release_drop_m": 31.733840942400004,
+          "samples": 160
+        },
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": false,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 0.00671944074282,
+          "maximum_slip_m": 16.114572370420085,
+          "minimum_lift_m": -17.972231119845,
+          "minimum_release_gap_m": 32.3723761526,
+          "opposed_samples": 0,
+          "release_drop_m": 31.733840942400004,
+          "samples": 160
+        }
+      ],
+      "rows": 640
+    },
+    "open": {
+      "actual_loader": [
+        "dyld[14963]: <670E222D-A38C-34FA-BA03-F1E54C6BE11D> /Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/runtime/libmetalrobo.dylib"
+      ],
+      "exit_code": 0,
+      "lanes": [
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": false,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 6.20333967141e-05,
+          "maximum_slip_m": 0.23201856162207085,
+          "minimum_lift_m": -0.26269447943208,
+          "minimum_release_gap_m": 0.611444154436,
+          "opposed_samples": 0,
+          "release_drop_m": 0.0,
+          "samples": 160
+        },
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": false,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 6.24270507563e-05,
+          "maximum_slip_m": 0.22541172975117788,
+          "minimum_lift_m": -0.26269447896642,
+          "minimum_release_gap_m": 0.600580525451,
+          "opposed_samples": 0,
+          "release_drop_m": 4.656600001429201e-10,
+          "samples": 160
+        },
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": false,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 6.24201156487e-05,
+          "maximum_slip_m": 0.23247245176409156,
+          "minimum_lift_m": -0.26309448620308,
+          "minimum_release_gap_m": 0.612241176656,
+          "opposed_samples": 0,
+          "release_drop_m": -4.656600001429201e-10,
+          "samples": 160
+        },
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": false,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 6.23901572694e-05,
+          "maximum_slip_m": 0.22589025124431694,
+          "minimum_lift_m": -0.26309448620308,
+          "minimum_release_gap_m": 0.601351211052,
+          "opposed_samples": 0,
+          "release_drop_m": -4.656600001429201e-10,
+          "samples": 160
+        }
+      ],
+      "rows": 640
+    },
+    "partition": {
+      "actual_loader": [
+        "dyld[15039]: <670E222D-A38C-34FA-BA03-F1E54C6BE11D> /Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/runtime/libmetalrobo.dylib"
+      ],
+      "exit_code": 0,
+      "lanes": [
+        {
+          "all160ticks": false,
+          "finite": true,
+          "hold_pass": false,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 0.000174926032649,
+          "maximum_slip_m": 0.0007703080195351118,
+          "minimum_lift_m": 0.02828282117799996,
+          "minimum_release_gap_m": 0.267483439601,
+          "opposed_samples": 4,
+          "release_drop_m": 0.29097730107574,
+          "samples": 20
+        },
+        {
+          "all160ticks": false,
+          "finite": true,
+          "hold_pass": false,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 0.000177748594906,
+          "maximum_slip_m": 0.0007631441335918385,
+          "minimum_lift_m": 0.02849435806299999,
+          "minimum_release_gap_m": 0.264803435198,
+          "opposed_samples": 4,
+          "release_drop_m": 0.29118883749508,
+          "samples": 20
+        },
+        {
+          "all160ticks": false,
+          "finite": true,
+          "hold_pass": false,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 0.000174613625792,
+          "maximum_slip_m": 0.0007708366453071024,
+          "minimum_lift_m": 0.027857095002999988,
+          "minimum_release_gap_m": 0.267792448934,
+          "opposed_samples": 4,
+          "release_drop_m": 0.29095158167174,
+          "samples": 20
+        },
+        {
+          "all160ticks": false,
+          "finite": true,
+          "hold_pass": false,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 0.000177465964905,
+          "maximum_slip_m": 0.0007639362746378845,
+          "minimum_lift_m": 0.02806997299199998,
+          "minimum_release_gap_m": 0.265349962271,
+          "opposed_samples": 4,
+          "release_drop_m": 0.29116445826375,
+          "samples": 20
+        }
+      ],
+      "rows": 80
+    },
+    "refinement": {
+      "actual_loader": [
+        "dyld[15053]: <670E222D-A38C-34FA-BA03-F1E54C6BE11D> /Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/runtime/libmetalrobo.dylib"
+      ],
+      "exit_code": 0,
+      "lanes": [
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": true,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 6.41082977692e-05,
+          "maximum_slip_m": 0.00035927790657242,
+          "minimum_lift_m": 0.02579313516599996,
+          "minimum_release_gap_m": 0.239667496724,
+          "opposed_samples": 32,
+          "release_drop_m": 0.28846174804489,
+          "samples": 160
+        },
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": true,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 6.27837964227e-05,
+          "maximum_slip_m": 0.00035518981027399564,
+          "minimum_lift_m": 0.025985777377999952,
+          "minimum_release_gap_m": 0.243378890782,
+          "opposed_samples": 32,
+          "release_drop_m": 0.28865439072254995,
+          "samples": 160
+        },
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": true,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 6.42579303166e-05,
+          "maximum_slip_m": 0.0003597223362618231,
+          "minimum_lift_m": 0.025369763373999987,
+          "minimum_release_gap_m": 0.265513411293,
+          "opposed_samples": 32,
+          "release_drop_m": 0.28843838395521,
+          "samples": 160
+        },
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": true,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 6.27386067411e-05,
+          "maximum_slip_m": 0.0003556683816060331,
+          "minimum_lift_m": 0.025563120841999964,
+          "minimum_release_gap_m": 0.261504385769,
+          "opposed_samples": 32,
+          "release_drop_m": 0.28863174049189,
+          "samples": 160
+        }
+      ],
+      "rows": 640
+    },
+    "zero-friction": {
+      "actual_loader": [
+        "dyld[15012]: <670E222D-A38C-34FA-BA03-F1E54C6BE11D> /Users/n/Developer/numi-crow-rl-20261107/build/crow-ccd-articulated-sweep-build-01/runtime/libmetalrobo.dylib"
+      ],
+      "exit_code": 0,
+      "lanes": [
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": false,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 5.33237507645e-05,
+          "maximum_slip_m": 0.7133169926663586,
+          "minimum_lift_m": -0.26269447756943004,
+          "minimum_release_gap_m": 1.51418409719,
+          "opposed_samples": 0,
+          "release_drop_m": 0.0,
+          "samples": 160
+        },
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": false,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 5.07950693559e-05,
+          "maximum_slip_m": 0.7396505291692188,
+          "minimum_lift_m": -0.26269447803509,
+          "minimum_release_gap_m": 1.56367324962,
+          "opposed_samples": 0,
+          "release_drop_m": 0.0,
+          "samples": 160
+        },
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": false,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 5.8340726087e-05,
+          "maximum_slip_m": 0.702632526680433,
+          "minimum_lift_m": -0.26309448480609,
+          "minimum_release_gap_m": 1.49403245739,
+          "opposed_samples": 0,
+          "release_drop_m": 0.0,
+          "samples": 160
+        },
+        {
+          "all160ticks": true,
+          "finite": true,
+          "hold_pass": false,
+          "last_tick": 159.0,
+          "maximum_penetration_before96_m": 4.27457515532e-05,
+          "maximum_slip_m": 0.7311830529409166,
+          "minimum_lift_m": -0.26309448480609,
+          "minimum_release_gap_m": 1.54770324074,
+          "opposed_samples": 0,
+          "release_drop_m": 0.0,
+          "samples": 160
+        }
+      ],
+      "rows": 640
+    }
+  },
+  "production_replaced": false,
+  "projection_checks": {
+    "baseline_hybrid_motion_omission_demonstrated": true,
+    "contact_time_grid4096_exact": true,
+    "flagged_future_FK_exact": true,
+    "hybrid_own_flag_does_not_change_geometry_or_margin": true,
+    "own_CCD_source_flag_retained": true,
+    "projection_repeat_exact": true,
+    "speculative_margin_matches_known_generalized_speed_envelope": true,
+    "speculative_unflagged_only_margin_changes": true
+  }
+}
