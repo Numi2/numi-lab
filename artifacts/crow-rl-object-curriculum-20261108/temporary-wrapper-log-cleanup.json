@@ -1,0 +1,58 @@
+{
+  "status": "removed",
+  "archive_commit": "b604ff21e6d7d8f7c8318395b232ebcac8bbb9cf",
+  "remote_commit": "b604ff21e6d7d8f7c8318395b232ebcac8bbb9cf",
+  "files": [
+    {
+      "path": "/private/tmp/crow-object-curriculum-archive-20261108.stdout",
+      "git_path": "artifacts/crow-rl-object-curriculum-20261108/capture.stdout",
+      "sha256": "ba59cb4690918e56f55cee9116690b71a03a67c91f40226e07c9789c69734633",
+      "bytes": 559,
+      "mode": 420,
+      "mtime_ns": 1794106524365962424
+    },
+    {
+      "path": "/private/tmp/crow-object-curriculum-archive-20261108.stderr",
+      "git_path": "artifacts/crow-rl-object-curriculum-20261108/capture.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794106502971849461
+    },
+    {
+      "path": "/private/tmp/crow-object-curriculum-prune-20261108.stdout",
+      "git_path": "artifacts/crow-rl-object-curriculum-20261108/raw-cleanup.stdout",
+      "sha256": "485ccb4e124249e82f7c9cfc85cf77f3e0b58d738a325298face77b361b3323a",
+      "bytes": 1289,
+      "mode": 420,
+      "mtime_ns": 1794106668244652351
+    },
+    {
+      "path": "/private/tmp/crow-object-curriculum-prune-20261108.stderr",
+      "git_path": "artifacts/crow-rl-object-curriculum-20261108/raw-cleanup.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794106666609846451
+    },
+    {
+      "path": "/private/tmp/crow-object-curriculum-omit-20261108.stdout",
+      "git_path": "artifacts/crow-rl-object-curriculum-20261108/checkout-omission.stdout",
+      "sha256": "0d7c3de8838322605d59367945b9ab9058ceeb6a9ad4f21df576d8f288fa6f5d",
+      "bytes": 141,
+      "mode": 420,
+      "mtime_ns": 1794106716955302043
+    },
+    {
+      "path": "/private/tmp/crow-object-curriculum-omit-20261108.stderr",
+      "git_path": "artifacts/crow-rl-object-curriculum-20261108/checkout-omission.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794106716072841009
+    }
+  ],
+  "removed_logical_bytes": 1989,
+  "open_handles": 0,
+  "scope": "Six closed capture/prune/omit wrapper log duplicates only; actual committed Git blobs compared before deletion"
+}
