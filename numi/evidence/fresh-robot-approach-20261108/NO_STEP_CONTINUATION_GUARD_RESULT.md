@@ -1,0 +1,7 @@
+# Seeded resident configuration guard
+
+The preregistered rigid synthetic gate passed at source `f878e11d7`, executable SHA-256 `0ad128a2da875569d37926067fddebc81686e712a1a19974fa61310eef71ff84`, library SHA-256 `b13e178e1f9e18fd3da771a42514ac39178ad8053227dfe5a9bcf1c85f68b4d2`. The GPU process exited 0 at 01:17:07 UTC. Archive SHA-256 `273d2440aed8818cf2852a8b8f13cb9d4a23e864ece2d873545fb86008ade2b3` passed independent extraction and all portable hashes.
+
+After a successful seed, changing the solver iteration count caused submission to reject before issuing a ticket, leaving the resident valid. The original configuration then completed, with q, v, populated convex cache, manifold headers, points and counts matching the uninterrupted next step byte-for-byte; those arrays were independently compared from the archive. The prior wrong-world, bad-configuration, truncated/corrupted payload, occupied-destination and synthetic post-completion mismatch checks also passed.
+
+The guarded fingerprint is attached only to residents created through the new narrow diagnostic seed path. This remains a one-environment, no-rod, no-reset, no-Matter result, and does not qualify actual Metal command-buffer error handling, timeouts, longer replay, geometric/force accuracy or atomic coupled restoration. The injected mismatch was not a GPU command error. The synthetic fixture retains its nominal small-overlap limitation; the surgical capsule remains non-restorable.
