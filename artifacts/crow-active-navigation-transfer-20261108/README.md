@@ -8,7 +8,10 @@ before the 600 visual inputs, appends three neutral action outputs, and binds
 the resulting policy to the new native contract. On 16 synthetic mapped inputs,
 all 15 inherited raw output logits matched exactly and all new output logits
 were zero. This is a network projection check, not evidence of physical or
-visual behavioral equivalence: the articulated body and camera differ.
+visual behavioral equivalence: the articulated body and camera differ. A
+subsequent check also found the archived source pack incompatible with the
+current v10 task and observation fingerprints, so matching dimensions alone
+do not establish that the source input semantics match the present task.
 
 Two 8-lane exploratory comparisons, on layouts named held-out-a and held-out-b
 with one seed each, used the full-journey difficulty band 10, 1,600 steps,
