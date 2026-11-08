@@ -1,0 +1,10 @@
+{
+  "actual_git_recovery_verified": true,
+  "bytes_removed": 25921324,
+  "exact_hash_mode_mtime": true,
+  "files_removed": 429,
+  "open_handles": 0,
+  "root_absent": true,
+  "schema": "crow-quality-tolerances-recovery-cleanup-v1",
+  "verified_commit": "0ec965e17d04149b7b1dd46c0763f743a3f18505"
+}

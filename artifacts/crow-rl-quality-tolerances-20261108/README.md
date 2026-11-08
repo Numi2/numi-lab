@@ -61,3 +61,5 @@ certificate at the actual rounded output, compares against the unchanged declare
 tolerances, and preserves transactional rejection when they cannot be met.
 Then the complete physical fixture, reset/replay and end-to-end performance
 must be qualified. The full lifelong crow goal remains unfinished.
+
+Executed Git recovery passes: all17 native commands, four scientific reports and154 physical/numerical files reproduce exactly. Actual Git blobs recover all195 raw files (12,895,149 bytes) and429 temporary files (25,921,324 bytes). Exact hash/mode/mtime and zero-handle checks preceded removal. The content-deduplicated raw archive adds365,548 compressed bytes. Production source, runtime and protected policy remain unchanged; see verification.json for final archive and runtime checks.
