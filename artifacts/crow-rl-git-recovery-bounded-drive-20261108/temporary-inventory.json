@@ -1,0 +1,3586 @@
+[
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-integration-20261108/libmetalrobo.dylib",
+    "bytes": 5694000,
+    "mode": 493,
+    "mtime_ns": 1794128144483105403,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-integration-20261108/libmetalrobo.dylib",
+    "sha256": "b2ca54cc8f2633ff87623ec05fbd523163486bc31cd483dc311e74cea0b342f2"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-integration-20261108/metalrobo/MetalRobo.metallib",
+    "bytes": 4231529,
+    "mode": 420,
+    "mtime_ns": 1794128204212555516,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-integration-20261108/metalrobo/MetalRobo.metallib",
+    "sha256": "2973c0d0b8a38c2049a502e103a114bf89c4695d8b5ecb7e832ac48a14cc5407"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-integration-20261108/probe",
+    "bytes": 76768,
+    "mode": 493,
+    "mtime_ns": 1794128401569145331,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-integration-20261108/probe",
+    "sha256": "ec0d4b4ce4ddab5dc308860a14ce7315f88be06d9f6eea7485fde08eef1e0517"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-integration-20261108/libmetalrobo.dylib",
+    "bytes": 5694000,
+    "mode": 493,
+    "mtime_ns": 1794128144483105403,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-integration-v2-20261108/libmetalrobo.dylib",
+    "sha256": "b2ca54cc8f2633ff87623ec05fbd523163486bc31cd483dc311e74cea0b342f2"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-integration-v2-20261108/metalrobo/MetalRobo.metallib",
+    "bytes": 4231545,
+    "mode": 420,
+    "mtime_ns": 1794128787438177549,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-integration-v2-20261108/metalrobo/MetalRobo.metallib",
+    "sha256": "fcf40cc4b0cca1adc40185b5cbbf4f95193472e44949e9559ceeefef375a98b7"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-witness-20261108/probe",
+    "bytes": 76768,
+    "mode": 493,
+    "mtime_ns": 1794128855938013024,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-integration-v2-20261108/probe",
+    "sha256": "b16fa83771f3fc0820dc2699d66debc7fc0b4bd219128c4af4121ebd7c39b04c"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-witness-20261108/libmetalrobo.dylib",
+    "bytes": 5694000,
+    "mode": 493,
+    "mtime_ns": 1794129912240613911,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-precision-20261108/libmetalrobo.dylib",
+    "sha256": "7f5ce8781fe1cb85d52736b8bcd640484fd8225a612cc9317805e906cbb78d16"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-precision-20261108/metalrobo/MetalRobo.metallib",
+    "bytes": 4236777,
+    "mode": 420,
+    "mtime_ns": 1794130321883975751,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-precision-20261108/metalrobo/MetalRobo.metallib",
+    "sha256": "6b7b0274688c211876709125b047a487b1d7293820348821a7acae5c90ad570e"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-witness-20261108/probe",
+    "bytes": 76768,
+    "mode": 493,
+    "mtime_ns": 1794129912269193046,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-precision-20261108/probe",
+    "sha256": "b16fa83771f3fc0820dc2699d66debc7fc0b4bd219128c4af4121ebd7c39b04c"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-witness-20261108/libmetalrobo.dylib",
+    "bytes": 5694000,
+    "mode": 493,
+    "mtime_ns": 1794129912240613911,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-precision-v2-20261108/libmetalrobo.dylib",
+    "sha256": "7f5ce8781fe1cb85d52736b8bcd640484fd8225a612cc9317805e906cbb78d16"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-precision-v2-20261108/metalrobo/MetalRobo.metallib",
+    "bytes": 4236809,
+    "mode": 420,
+    "mtime_ns": 1794130777988185649,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-precision-v2-20261108/metalrobo/MetalRobo.metallib",
+    "sha256": "70cb955a2177af6a3b458d26853f5fa17b5b961ce5a9eb2fbd98f4543dc7ef00"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-twofold-20261108/probe",
+    "bytes": 77200,
+    "mode": 493,
+    "mtime_ns": 1794130778755584110,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-precision-v2-20261108/probe",
+    "sha256": "5bd31622ca6e50da26f58e9c52a2dd7aa2588b45c711d40c032720cc293ad18f"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-witness-20261108/libmetalrobo.dylib",
+    "bytes": 5694000,
+    "mode": 493,
+    "mtime_ns": 1794131236360700085,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-strict-20261108/libmetalrobo.dylib",
+    "sha256": "7f5ce8781fe1cb85d52736b8bcd640484fd8225a612cc9317805e906cbb78d16"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-strict-20261108/metalrobo/MetalRobo.metallib",
+    "bytes": 4242993,
+    "mode": 420,
+    "mtime_ns": 1794131228058689140,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-strict-20261108/metalrobo/MetalRobo.metallib",
+    "sha256": "5b2ed103a821bf3daee5484f9024b4fb06a011b0935730bccccd08ba86017960"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-twofold-20261108/probe",
+    "bytes": 77200,
+    "mode": 493,
+    "mtime_ns": 1794131236389737799,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-strict-20261108/probe",
+    "sha256": "5bd31622ca6e50da26f58e9c52a2dd7aa2588b45c711d40c032720cc293ad18f"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-twofold-20261108/contact-probe",
+    "bytes": 97472,
+    "mode": 493,
+    "mtime_ns": 1794132057842620133,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-twofold-20261108/contact-probe",
+    "sha256": "bd0777b062295b4e08a4722124665725cb6842506054d05357a6346a76d39293"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-twofold-20261108/libmetalrobo.dylib",
+    "bytes": 5694000,
+    "mode": 493,
+    "mtime_ns": 1794131534172128509,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-twofold-20261108/libmetalrobo.dylib",
+    "sha256": "b24ad4015c718e0c688eaf95b4b207ceacafa9f650f20894fefa5581b1698fd5"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-twofold-20261108/metalrobo/MetalRobo.metallib",
+    "bytes": 4244353,
+    "mode": 420,
+    "mtime_ns": 1794131509801187796,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-twofold-20261108/metalrobo/MetalRobo.metallib",
+    "sha256": "6eb48053118d0e54850d21241e499100787de13af84e54e5b48ddc8130876be2"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-twofold-20261108/metalrobo/RetinalStream.metallib",
+    "bytes": 16151,
+    "mode": 420,
+    "mtime_ns": 1794092869103742195,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-twofold-20261108/metalrobo/RetinalStream.metallib",
+    "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-twofold-20261108/object-push-check",
+    "bytes": 123744,
+    "mode": 493,
+    "mtime_ns": 1794132058633459875,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-twofold-20261108/object-push-check",
+    "sha256": "ba7630d5c0e043a02ad00518e6d0a14b206f344c8adde4de635297f0b8422d93"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-twofold-20261108/probe",
+    "bytes": 77200,
+    "mode": 493,
+    "mtime_ns": 1794131534202684735,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-twofold-20261108/probe",
+    "sha256": "5bd31622ca6e50da26f58e9c52a2dd7aa2588b45c711d40c032720cc293ad18f"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-witness-20261108/libmetalrobo.dylib",
+    "bytes": 5694000,
+    "mode": 493,
+    "mtime_ns": 1794129912240613911,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-witness-20261108/libmetalrobo.dylib",
+    "sha256": "7f5ce8781fe1cb85d52736b8bcd640484fd8225a612cc9317805e906cbb78d16"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-witness-20261108/metalrobo/MetalRobo.metallib",
+    "bytes": 4233273,
+    "mode": 420,
+    "mtime_ns": 1794129873327952105,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-witness-20261108/metalrobo/MetalRobo.metallib",
+    "sha256": "fbe3878c402306838a44eb2b981eb661db7a8cb6bc88dea619e1e5b39b79a9c9"
+  },
+  {
+    "archive_source": ".numi/retained-runtime/bounded-drive-witness-20261108/probe",
+    "bytes": 76768,
+    "mode": 493,
+    "mtime_ns": 1794129912269193046,
+    "path": "build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-witness-20261108/probe",
+    "sha256": "b16fa83771f3fc0820dc2699d66debc7fc0b4bd219128c4af4121ebd7c39b04c"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-arithmetic.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794132776385052043,
+    "path": "build/crow-bounded-drive-git-recovery-01/arithmetic.f32",
+    "sha256": "578596c74c9ad7b2c0c01a14131ae1fabb28be2a1450d1367b37509097c814a9"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/add_failure_snapshot.py",
+    "bytes": 9684,
+    "mode": 420,
+    "mtime_ns": 1794129862732852287,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/add_failure_snapshot.py",
+    "sha256": "530034dcdc910dc5fb9ef5ba2746b64cef9fcb0b13d6ac7e2b079d3671d64ba0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/analysis-v2.json",
+    "bytes": 1876,
+    "mode": 420,
+    "mtime_ns": 1794128909808205903,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/analysis-v2.json",
+    "sha256": "dbfd3b51f34325a1b7bd11248487036b46d9f6ea74b97c2f027759f5cf3ed0a7"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/build-provenance.json",
+    "bytes": 1214,
+    "mode": 420,
+    "mtime_ns": 1794128502447303781,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/build-provenance.json",
+    "sha256": "e7bc4d4fff5e4201343851710cfd0445ff350cb37a47c16eaf65c0e3b26d73f8"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/build-v2-provenance.json",
+    "bytes": 1214,
+    "mode": 420,
+    "mtime_ns": 1794128906511994742,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/build-v2-provenance.json",
+    "sha256": "7e4b2ae542b54c2f05a0f14fb20de422e179fc3016431dbde678af83c40c692f"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794128135987273147,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/build-v2.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/build-v2.stdout",
+    "bytes": 1421,
+    "mode": 420,
+    "mtime_ns": 1794128144513768440,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/build-v2.stdout",
+    "sha256": "decd958fb35915b3844c72626ebd3063960712aa2d962f0636998b99ce8a8ecf"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794128200104718309,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/build-v3.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-build.stdout",
+    "bytes": 44,
+    "mode": 420,
+    "mtime_ns": 1794128204231273784,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/build-v3.stdout",
+    "sha256": "3da6caabf47c20ec6610604b55c56bf344ce1c51e17465160bd52cfe06905148"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794128308383845734,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/build-v4.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/build-v7.stdout",
+    "bytes": 165,
+    "mode": 420,
+    "mtime_ns": 1794128309160505482,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/build-v4.stdout",
+    "sha256": "cea95354dca24f6e6db7e3196bb440b9575c93e64176437cb4b258ec222b6665"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794128400790075261,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/build-v5.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/build-v7.stdout",
+    "bytes": 165,
+    "mode": 420,
+    "mtime_ns": 1794128401570939728,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/build-v5.stdout",
+    "sha256": "cea95354dca24f6e6db7e3196bb440b9575c93e64176437cb4b258ec222b6665"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794128783302599245,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/build-v6.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-v2-build.stdout",
+    "bytes": 209,
+    "mode": 420,
+    "mtime_ns": 1794128788198406412,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/build-v6.stdout",
+    "sha256": "b79416bdf149726fea107b439fecf5ed22aca6a7decf302bafb201513c085631"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794128855174728853,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/build-v7.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/build-v7.stdout",
+    "bytes": 165,
+    "mode": 420,
+    "mtime_ns": 1794128855939696669,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/build-v7.stdout",
+    "sha256": "cea95354dca24f6e6db7e3196bb440b9575c93e64176437cb4b258ec222b6665"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794127836412497077,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/build.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/build.stdout",
+    "bytes": 8729,
+    "mode": 420,
+    "mtime_ns": 1794127864979902467,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/build.stdout",
+    "sha256": "97ec007aef56d0d6e8825314e0071f8e628c89db3456d64bcf13e890d3b7ae52"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794128309161483786,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/calibration-host-v2.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-host-calibration.stdout",
+    "bytes": 78,
+    "mode": 420,
+    "mtime_ns": 1794128309536235559,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/calibration-host-v2.stdout",
+    "sha256": "d8a4edeb3b57fc33800738d49c2342c649e45dce841092c1acaa2a462a445b92"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794128204232378381,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/calibration-initial.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-host-calibration.stdout",
+    "bytes": 78,
+    "mode": 420,
+    "mtime_ns": 1794128204871255384,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/calibration-initial.stdout",
+    "sha256": "d8a4edeb3b57fc33800738d49c2342c649e45dce841092c1acaa2a462a445b92"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/calibration-v2.stderr",
+    "bytes": 115,
+    "mode": 420,
+    "mtime_ns": 1794128788563108493,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/calibration-v2.stderr",
+    "sha256": "09b2acaeee81b576924c5e90ee38891d27b4e377617cf83415ebd36ab67fa4e2"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794128788199297881,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/calibration-v2.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794128855940709432,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/calibration-v3.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-host-calibration.stdout",
+    "bytes": 78,
+    "mode": 420,
+    "mtime_ns": 1794128856316695136,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/calibration-v3.stdout",
+    "sha256": "d8a4edeb3b57fc33800738d49c2342c649e45dce841092c1acaa2a462a445b92"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794128401571933281,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/calibration.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-host-calibration.stdout",
+    "bytes": 78,
+    "mode": 420,
+    "mtime_ns": 1794128401931748374,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/calibration.stdout",
+    "sha256": "d8a4edeb3b57fc33800738d49c2342c649e45dce841092c1acaa2a462a445b92"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/certificate",
+    "bytes": 57560,
+    "mode": 493,
+    "mtime_ns": 1794131289815551500,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/certificate",
+    "sha256": "fc165c2b21f500b1ead4e5bc250e93a1c53aeda96606ac7d7679fad7926b5c02"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794131289293269736,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/certificate-compile.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794131289293221111,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/certificate-compile.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/certificate-v2",
+    "bytes": 57568,
+    "mode": 493,
+    "mtime_ns": 1794131610737755958,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/certificate-v2",
+    "sha256": "3b2b73fe8531ae30023abce35fcc8dbbcf6758346101ba0ddd6ca8df9b749fa1"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794131610216424910,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/certificate-v2-compile.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794131610216384868,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/certificate-v2-compile.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/certificate-v2.mm",
+    "bytes": 3046,
+    "mode": 420,
+    "mtime_ns": 1794131505494856619,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/certificate-v2.mm",
+    "sha256": "073ca74d3ce86eab2d4dbd03214b2cbfa4cd60a76ab0f365e129c7ee5fb25a31"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/certificate.mm",
+    "bytes": 2922,
+    "mode": 420,
+    "mtime_ns": 1794131289005104947,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/certificate.mm",
+    "sha256": "5ba4fcadfbdf1a3777c634deb2b55b19a203f5ac471e10983285634e2967c188"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/cleanup_git_recovery.py",
+    "bytes": 2663,
+    "mode": 420,
+    "mtime_ns": 1794132224941151749,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/cleanup_git_recovery.py",
+    "sha256": "4659a5dfc58908ee4cbe8940f4a24e49a2a3a4e8f1e06d8f94eb276186554b27"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-analysis.json",
+    "bytes": 2350,
+    "mode": 420,
+    "mtime_ns": 1794129513761568925,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-analysis.json",
+    "sha256": "f0e9a0fa3ae709740f88f85c834c101a44e4e2d006dfd95128645a6054ff0665"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-base-calibrate.stderr",
+    "bytes": 497,
+    "mode": 420,
+    "mtime_ns": 1794129382217600723,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-base-calibrate.stderr",
+    "sha256": "6a984337c8b56c132cd3ac5c22f868ed5a4ff6331a34a800b75a6fdc7dea24c2"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794129381851469386,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-base-calibrate.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794129380501112963,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-base-compile.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794129380501044712,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-base-compile.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/failure-contact-status.bin",
+    "bytes": 1152,
+    "mode": 420,
+    "mtime_ns": 1794129513752968279,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-bounded32/failure-contact-status.bin",
+    "sha256": "106a1e1206a8e85c0e43ef72c6ff7d34ddb842318b53538445856fa5b76fc7b0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/failure-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794129513752758777,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-bounded32/failure-q.f32",
+    "sha256": "3ff0f26d5820b0a7c87c260cb5952551b2bf3b3c25a43ac506dfdc380e514f70"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/failure-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794129513752883070,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-bounded32/failure-scene.bin",
+    "sha256": "0502a2a69237c47d06ba2e7548dc76d3990e28386a14d4740768d2286ca5620e"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/failure-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794129513752844653,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-bounded32/failure-v.f32",
+    "sha256": "fc59e6dd95d7049cf7648926cd66a4b5887cc694798fe57ac106e7363518dd39"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-bounded32/failure-world-status.bin",
+    "bytes": 192,
+    "mode": 420,
+    "mtime_ns": 1794129513752925904,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-bounded32/failure-world-status.bin",
+    "sha256": "c1c787fd28efe37b4c320c1987d7e3ef5902baf78e84ca7d2459991b57c2411c"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/failure.json",
+    "bytes": 179,
+    "mode": 420,
+    "mtime_ns": 1794129513753028322,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-bounded32/failure.json",
+    "sha256": "9b451afe39ef99b535a5bd1c6dafa0489e74769e8ce361a7116593a7695fe715"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794129506718256997,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-bounded32/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794129506718336164,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-bounded32/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794129506718422249,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-bounded32/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794129506718381290,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-bounded32/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/trace.tsv",
+    "bytes": 20445,
+    "mode": 420,
+    "mtime_ns": 1794129513753044988,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-bounded32/trace.tsv",
+    "sha256": "2adda3feb8fa359e431a012a5d5ac75e8c33be9ab1083e4c677a9e5e52103bec"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-bounded32.stderr",
+    "bytes": 85656,
+    "mode": 420,
+    "mtime_ns": 1794129513758307718,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-bounded32.stderr",
+    "sha256": "907be1c67c3cdbdb9456e69975a1992ab2d56758f3456bc4ae658ff521bdd1ca"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794129506709324389,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-bounded32.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-execution.json",
+    "bytes": 540,
+    "mode": 420,
+    "mtime_ns": 1794129513761243837,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-execution.json",
+    "sha256": "974423947cf7bd33978ff5b28e7649b799bbeb9e11640cc60f3a1231c3be8fd9"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-motor-failure.motorsnp",
+    "bytes": 13968,
+    "mode": 384,
+    "mtime_ns": 1794130081960849181,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-motor-failure.motorsnp",
+    "sha256": "1571e412c68593863c8d5138f7d88b6d5df9dd796514d552d0dd25739156d48b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-preflight-v2.json",
+    "bytes": 2240,
+    "mode": 420,
+    "mtime_ns": 1794129407155083545,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-preflight-v2.json",
+    "sha256": "ff69ea71ffa5fa28f22f55660c44230acc2dae618a7f14d658fca4c14e9377c5"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-preflight.json",
+    "bytes": 976,
+    "mode": 420,
+    "mtime_ns": 1794129382230782882,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-preflight.json",
+    "sha256": "688879d5ba5b75ba559c5e8977d2d8425d9624074608f3d7bd793f693452f431"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-v2-base-calibrate.stderr",
+    "bytes": 84345,
+    "mode": 420,
+    "mtime_ns": 1794129403756292480,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-v2-base-calibrate.stderr",
+    "sha256": "88fad15f7db013f2f2f85849f6bb819ee70831192be738d5c53ca69ec6daf917"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-v2-bounded-calibrate.stdout",
+    "bytes": 245,
+    "mode": 420,
+    "mtime_ns": 1794129403758567675,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-v2-base-calibrate.stdout",
+    "sha256": "2b71af5bc0f5f56fbdaf8055ec1f0425ff60049e10161e5a5d865f0b9c49927a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-v2-bounded-calibrate.stderr",
+    "bytes": 84348,
+    "mode": 420,
+    "mtime_ns": 1794129405431202738,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-v2-bounded-calibrate.stderr",
+    "sha256": "824e8e392ea9f34339b955eadd4d048464f62e1f7440e7b3a1ecd0088055af31"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-v2-bounded-calibrate.stdout",
+    "bytes": 245,
+    "mode": 420,
+    "mtime_ns": 1794129405438819496,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-v2-bounded-calibrate.stdout",
+    "sha256": "2b71af5bc0f5f56fbdaf8055ec1f0425ff60049e10161e5a5d865f0b9c49927a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794129403760192819,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-v2-bounded-compile.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794129403760158902,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-v2-bounded-compile.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-v2-unused-calibrate.stderr",
+    "bytes": 84347,
+    "mode": 420,
+    "mtime_ns": 1794129407141970803,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-v2-unused-calibrate.stderr",
+    "sha256": "ac0619d30322dbe294559b984cdd28c7e0f075d47054f6962cdf7c958b5a150a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-v2-unused-calibrate.stdout",
+    "bytes": 246,
+    "mode": 420,
+    "mtime_ns": 1794129407147211116,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-v2-unused-calibrate.stdout",
+    "sha256": "a032e3d507cef51d9a6e3587ebc6125ef3c24ac4bc63df8deae8d086f7195fce"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794129405483809872,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-v2-unused-compile.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794129405483565328,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-v2-unused-compile.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/failure-contact-status.bin",
+    "bytes": 1152,
+    "mode": 420,
+    "mtime_ns": 1794130081961574684,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-witness/failure-contact-status.bin",
+    "sha256": "106a1e1206a8e85c0e43ef72c6ff7d34ddb842318b53538445856fa5b76fc7b0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/failure-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794130081961383933,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-witness/failure-q.f32",
+    "sha256": "3ff0f26d5820b0a7c87c260cb5952551b2bf3b3c25a43ac506dfdc380e514f70"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/failure-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794130081961484475,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-witness/failure-scene.bin",
+    "sha256": "0502a2a69237c47d06ba2e7548dc76d3990e28386a14d4740768d2286ca5620e"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/failure-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794130081961433933,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-witness/failure-v.f32",
+    "sha256": "fc59e6dd95d7049cf7648926cd66a4b5887cc694798fe57ac106e7363518dd39"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/failure-world-status.bin",
+    "bytes": 192,
+    "mode": 420,
+    "mtime_ns": 1794130081961529476,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-witness/failure-world-status.bin",
+    "sha256": "a02eb817df2e613f86a0eda13437a8cb5ebdedb8cdc8bfc3ab0126bbbff2b5ec"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/failure.json",
+    "bytes": 179,
+    "mode": 420,
+    "mtime_ns": 1794130081961636934,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-witness/failure.json",
+    "sha256": "9b451afe39ef99b535a5bd1c6dafa0489e74769e8ce361a7116593a7695fe715"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794130074914647151,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-witness/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794130074914738985,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-witness/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794130074914849194,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-witness/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794130074914795902,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-witness/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/trace.tsv",
+    "bytes": 20445,
+    "mode": 420,
+    "mtime_ns": 1794130081961648351,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-witness/trace.tsv",
+    "sha256": "2adda3feb8fa359e431a012a5d5ac75e8c33be9ab1083e4c677a9e5e52103bec"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness.stderr",
+    "bytes": 85696,
+    "mode": 420,
+    "mtime_ns": 1794130081966966835,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-witness.stderr",
+    "sha256": "69cf2778f3443548499dd5e25702a17dad3ef92a608cd6b9a417d0202467a9f1"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794130074898862452,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/crow-witness.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-crow32/final-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794132183755591593,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-crow32/final-q.f32",
+    "sha256": "4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-crow32/final-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794132183755737261,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-crow32/final-scene.bin",
+    "sha256": "e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-crow32/final-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794132183755692136,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-crow32/final-v.f32",
+    "sha256": "a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794132167109397151,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-crow32/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794132167109481068,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-crow32/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794132167109575569,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-crow32/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794132167109530360,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-crow32/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-crow32/runtime.json",
+    "bytes": 211,
+    "mode": 420,
+    "mtime_ns": 1794132183756020055,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-crow32/runtime.json",
+    "sha256": "4db4ef6b8c76f4a935fe4ba8a669e1773b23df2d38796cb893f3d42d98b39f4f"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-crow32/scene.bin",
+    "bytes": 163840,
+    "mode": 420,
+    "mtime_ns": 1794132183755889512,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-crow32/scene.bin",
+    "sha256": "097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-crow32/summary.json",
+    "bytes": 757,
+    "mode": 420,
+    "mtime_ns": 1794132183755989055,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-crow32/summary.json",
+    "sha256": "765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-crow32/trace.tsv",
+    "bytes": 141362,
+    "mode": 420,
+    "mtime_ns": 1794132183756027597,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-crow32/trace.tsv",
+    "sha256": "8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/contact-reward.tsv",
+    "bytes": 100355,
+    "mode": 420,
+    "mtime_ns": 1794132100512318877,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/negative/contact-reward.tsv",
+    "sha256": "9ad5d4592599f50eb007f85959c67f830aa686f0e28f5a87eabfee9f86a810c1"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/negative/final-q.f32",
+    "bytes": 736,
+    "mode": 420,
+    "mtime_ns": 1794132100510613823,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/negative/final-q.f32",
+    "sha256": "8d58bfd2e1a6ca1537a0c369d8ab9f2a021fe9dac25cd985fcbddb026a9b6e97"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/final-scene.bin",
+    "bytes": 3072,
+    "mode": 420,
+    "mtime_ns": 1794132100510704365,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/negative/final-scene.bin",
+    "sha256": "55689b8eee30d7c7cba3c7a1b4e4d6c474418770aa128c9e9b4bf90970ab624e"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/negative/final-v.f32",
+    "bytes": 704,
+    "mode": 420,
+    "mtime_ns": 1794132100510657323,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/negative/final-v.f32",
+    "sha256": "99a97b8bab60caa2e55918ac59d8053dab4977077c6bbc836fa2dcd82638021a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/negative/q-trajectory.f32",
+    "bytes": 117760,
+    "mode": 420,
+    "mtime_ns": 1794132100511197119,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/negative/q-trajectory.f32",
+    "sha256": "c1b2f5190b9e755df58aff9910528dd29230ceee22ddbcf613bdbe4159565bc1"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/negative/retina.bin",
+    "bytes": 197544,
+    "mode": 420,
+    "mtime_ns": 1794132100510547322,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/negative/retina.bin",
+    "sha256": "5e70b3efbf7f0e69c15ce8dbc8603464067e275758382f0c5367df360b3d4a24"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/scene-trajectory.bin",
+    "bytes": 491520,
+    "mode": 420,
+    "mtime_ns": 1794132100511053160,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/negative/scene-trajectory.bin",
+    "sha256": "4147d21a482607c4b25e08b756c7ede602518955df6ad00f158c2e648ede0d5a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/negative/summary.json",
+    "bytes": 1863,
+    "mode": 420,
+    "mtime_ns": 1794132100512305669,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/negative/summary.json",
+    "sha256": "7af1415adb3da52c64a0049288cc46ca296ae8fbe32cb28727c57a3895491495"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/negative/tick48.retina",
+    "bytes": 197544,
+    "mode": 420,
+    "mtime_ns": 1794132100511985583,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/negative/tick48.retina",
+    "sha256": "52d410ac0be0dc714291f224c5f23ca2689044e6e89228986fd5e9f12d82315c"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/negative/tick48.world",
+    "bytes": 664440,
+    "mode": 420,
+    "mtime_ns": 1794132100511801040,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/negative/tick48.world",
+    "sha256": "5f59277f403e371ce6a37e42b4f51203fa5c35d937f142a42edf74ffb6097548"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/negative/v-trajectory.f32",
+    "bytes": 112640,
+    "mode": 420,
+    "mtime_ns": 1794132100511322286,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/negative/v-trajectory.f32",
+    "sha256": "510a135b6bb833c24fc08751b29f68519a264058ba3a19591b0adcb65c2ca1e4"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/negative/world.bin",
+    "bytes": 664440,
+    "mode": 420,
+    "mtime_ns": 1794132100510309987,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/negative/world.bin",
+    "sha256": "d57a74144d12b3627a3af01cb29bcac9e9d5099a6713a1c43846a0951a27a4ab"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/contact-reward.tsv",
+    "bytes": 100355,
+    "mode": 420,
+    "mtime_ns": 1794132118853494970,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/neutral/contact-reward.tsv",
+    "sha256": "9ad5d4592599f50eb007f85959c67f830aa686f0e28f5a87eabfee9f86a810c1"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/neutral/final-q.f32",
+    "bytes": 736,
+    "mode": 420,
+    "mtime_ns": 1794132118851762624,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/neutral/final-q.f32",
+    "sha256": "046ae14ecf7fc53a33263b91904b56676b0611f76f09f9857d6d4baf73cf52f7"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/final-scene.bin",
+    "bytes": 3072,
+    "mode": 420,
+    "mtime_ns": 1794132118851851750,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/neutral/final-scene.bin",
+    "sha256": "55689b8eee30d7c7cba3c7a1b4e4d6c474418770aa128c9e9b4bf90970ab624e"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/neutral/final-v.f32",
+    "bytes": 704,
+    "mode": 420,
+    "mtime_ns": 1794132118851807541,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/neutral/final-v.f32",
+    "sha256": "4ff750f730edc687ce2c68e148131adcf0f65f02fab4744e646510adbe507c8a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/neutral/q-trajectory.f32",
+    "bytes": 117760,
+    "mode": 420,
+    "mtime_ns": 1794132118852352254,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/neutral/q-trajectory.f32",
+    "sha256": "96278d2a5b6aefa082385d8b97524658846ee64eea519ac99b2ac853d32b6ea0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/neutral/retina.bin",
+    "bytes": 197544,
+    "mode": 420,
+    "mtime_ns": 1794132118851676707,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/neutral/retina.bin",
+    "sha256": "b352966481c70ffebd6f6ee64b2df989e893c834f53f1811742bf31eb17e03c8"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/scene-trajectory.bin",
+    "bytes": 491520,
+    "mode": 420,
+    "mtime_ns": 1794132118852220628,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/neutral/scene-trajectory.bin",
+    "sha256": "4147d21a482607c4b25e08b756c7ede602518955df6ad00f158c2e648ede0d5a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/neutral/summary.json",
+    "bytes": 1863,
+    "mode": 420,
+    "mtime_ns": 1794132118853483554,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/neutral/summary.json",
+    "sha256": "7b625a9b7c07de5af056ff205fc01e2b121d4e07387872123c1a127b7d8c1ce0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/neutral/tick48.retina",
+    "bytes": 197544,
+    "mode": 420,
+    "mtime_ns": 1794132118853164301,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/neutral/tick48.retina",
+    "sha256": "eefcd5b203cb14c533e29aa2c977085d5146524c4faf261790950f971b1dc482"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/neutral/tick48.world",
+    "bytes": 664440,
+    "mode": 420,
+    "mtime_ns": 1794132118852968508,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/neutral/tick48.world",
+    "sha256": "3e80bffd2e36698dec1de5e0283d6bf054a0e64c21ef9e3b5f5251093c8ecf26"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/neutral/v-trajectory.f32",
+    "bytes": 112640,
+    "mode": 420,
+    "mtime_ns": 1794132118852474380,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/neutral/v-trajectory.f32",
+    "sha256": "8de764230fe857240ddbf1fe666a3143d37ad050be0c660230907ca86b453359"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/neutral/world.bin",
+    "bytes": 664440,
+    "mode": 420,
+    "mtime_ns": 1794132118851429830,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/neutral/world.bin",
+    "sha256": "a7a6868230a13822175aaeb6483f0a86c563f28be312e7cba72996bfc3cdf9e5"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/contact-reward.tsv",
+    "bytes": 100355,
+    "mode": 420,
+    "mtime_ns": 1794132136792324433,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/contact-reward.tsv",
+    "sha256": "9ad5d4592599f50eb007f85959c67f830aa686f0e28f5a87eabfee9f86a810c1"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/final-q.f32",
+    "bytes": 736,
+    "mode": 420,
+    "mtime_ns": 1794132136790672338,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/final-q.f32",
+    "sha256": "d0dcbdc8630682ac1dcfbdf0659380f67ae48e42ec359aefc2ac8fea38e01b05"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/final-scene.bin",
+    "bytes": 3072,
+    "mode": 420,
+    "mtime_ns": 1794132136790769463,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/final-scene.bin",
+    "sha256": "55689b8eee30d7c7cba3c7a1b4e4d6c474418770aa128c9e9b4bf90970ab624e"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/final-v.f32",
+    "bytes": 704,
+    "mode": 420,
+    "mtime_ns": 1794132136790723338,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/final-v.f32",
+    "sha256": "618eb75558359d64da6afca19d59ea4ed018732cc95f4e9db5d1d2ebcfdf74d6"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/q-trajectory.f32",
+    "bytes": 117760,
+    "mode": 420,
+    "mtime_ns": 1794132136791265467,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/q-trajectory.f32",
+    "sha256": "1979fbddc193a3a1640e1760265ef3a88f29051643b91b273ce0bbc6242de3f3"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/retina.bin",
+    "bytes": 197544,
+    "mode": 420,
+    "mtime_ns": 1794132136790604254,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/retina.bin",
+    "sha256": "855061ce505a0e892e5c548d1550e8ce8c99d0c8d7a6ff31fcbbde8dda24e9e1"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/scene-trajectory.bin",
+    "bytes": 491520,
+    "mode": 420,
+    "mtime_ns": 1794132136791133466,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/scene-trajectory.bin",
+    "sha256": "4147d21a482607c4b25e08b756c7ede602518955df6ad00f158c2e648ede0d5a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/summary.json",
+    "bytes": 1863,
+    "mode": 420,
+    "mtime_ns": 1794132136792315808,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/summary.json",
+    "sha256": "827e794cfc8adaa1698c7302a6aa02802116e4fdb8c275ffa9136fb172ca0219"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/tick48.retina",
+    "bytes": 197544,
+    "mode": 420,
+    "mtime_ns": 1794132136792012639,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/tick48.retina",
+    "sha256": "4d2c5bf3793f8b7bfa9433f62bab5979f7b8b65d36e4ce8da78ae5141b039554"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/tick48.world",
+    "bytes": 592760,
+    "mode": 420,
+    "mtime_ns": 1794132136791813138,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/tick48.world",
+    "sha256": "5fcf4d7982c3d299fc4762f95d6f92a14abaf379273139333e5b0d8a11c5fe0a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/v-trajectory.f32",
+    "bytes": 112640,
+    "mode": 420,
+    "mtime_ns": 1794132136791390134,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/v-trajectory.f32",
+    "sha256": "3245faf38a38e5dd360c3f5c513ef8c88b52a224f27b1f92a5ddb2061dfd089f"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/world.bin",
+    "bytes": 592760,
+    "mode": 420,
+    "mtime_ns": 1794132136790368627,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact/world.bin",
+    "sha256": "3a9d91c6c07845f003ae7c2eea3b53eb7a49ce9693e01d5ef30faf1c7140d4b6"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact-fixture/crow_manipulandum.mrvpack",
+    "bytes": 77824,
+    "mode": 420,
+    "mtime_ns": 1794132063756827028,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact-fixture/crow_manipulandum.mrvpack",
+    "sha256": "69ac186a85fcc38f1e6a0f291393a14e7c81ef6be0e365318eef5787028f51df"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact-fixture/locomotion_ground.mrvpack",
+    "bytes": 32768,
+    "mode": 420,
+    "mtime_ns": 1794132063756082481,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact-fixture/locomotion_ground.mrvpack",
+    "sha256": "454073f6f5b520ba30977d0e786c271b6a8bbe57eab6c86c034f0c340db71c80"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact-fixture/object_support.mrvpack",
+    "bytes": 32768,
+    "mode": 420,
+    "mtime_ns": 1794132063756327274,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact-fixture/object_support.mrvpack",
+    "sha256": "a2b9be4c8be5f0c57b8d37f4919c625dd5282ad4c457b171071ef6365154ba5c"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact-fixture/robot.mrvpack",
+    "bytes": 57344,
+    "mode": 420,
+    "mtime_ns": 1794132063755764353,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact-fixture/robot.mrvpack",
+    "sha256": "5a9c5face007b48e2bc736f50957316879780f500e0de8c1be565acbc2c4820a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact-fixture/visual-scene.json",
+    "bytes": 1066,
+    "mode": 420,
+    "mtime_ns": 1794132063757310490,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/no-crow-contact-fixture/visual-scene.json",
+    "sha256": "a9811ffc40a79d9ad438d32341de628b9a105d9d33f279e984c07499379ea81b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/normal-fixture/crow_manipulandum.mrvpack",
+    "bytes": 77824,
+    "mode": 420,
+    "mtime_ns": 1794132063753298544,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/normal-fixture/crow_manipulandum.mrvpack",
+    "sha256": "cfae7df3cf0bea43180792d53f35f810eeac27b6c65633a1744a6cf74c4a2a6a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/normal-fixture/locomotion_ground.mrvpack",
+    "bytes": 32768,
+    "mode": 420,
+    "mtime_ns": 1794132063752500163,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/normal-fixture/locomotion_ground.mrvpack",
+    "sha256": "4c91c5b21fa169c633e3b9921e7bea811f6172671df246fc4f1d59a6c6bc4882"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/normal-fixture/object_support.mrvpack",
+    "bytes": 32768,
+    "mode": 420,
+    "mtime_ns": 1794132063752790581,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/normal-fixture/object_support.mrvpack",
+    "sha256": "9d2a20355a5b5448fdd655a5e925dfd5de9cc707227e7516c33bca49acb24b9f"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/normal-fixture/robot.mrvpack",
+    "bytes": 57344,
+    "mode": 420,
+    "mtime_ns": 1794132063752155660,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/normal-fixture/robot.mrvpack",
+    "sha256": "04b9cf3b0a17d1b1026e827b84b0083d6f79da6397156eecd973e798a4894dda"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/normal-fixture/visual-scene.json",
+    "bytes": 1067,
+    "mode": 420,
+    "mtime_ns": 1794132063753926048,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/normal-fixture/visual-scene.json",
+    "sha256": "a52d5b4f1ffc5e18fef8f65025947eac322dc78fff29d27f148767b65bf98ef1"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/plan.json",
+    "bytes": 832,
+    "mode": 420,
+    "mtime_ns": 1794132063750371939,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/plan.json",
+    "sha256": "38576dbfaa1b0bff11d2702e145675ab415b07d1bf169b936c00914ad35ee456"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk1/contact-reward.tsv",
+    "bytes": 97363,
+    "mode": 420,
+    "mtime_ns": 1794132082167561007,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk1/contact-reward.tsv",
+    "sha256": "0306e8c66739fde4db0160c22a9e8ee148c8271f5d588472062efd3afb6702cb"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/final-q.f32",
+    "bytes": 736,
+    "mode": 420,
+    "mtime_ns": 1794132082165815495,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk1/final-q.f32",
+    "sha256": "544e77e8966e580a0ab3e29804d9d05e75db423918b39699013898d839f37f3a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/final-scene.bin",
+    "bytes": 3072,
+    "mode": 420,
+    "mtime_ns": 1794132082165902204,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk1/final-scene.bin",
+    "sha256": "ee2856d0520bc332644b3f79241de1c459ed520c8c8df25955f2f35a4c7237c0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/final-v.f32",
+    "bytes": 704,
+    "mode": 420,
+    "mtime_ns": 1794132082165864787,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk1/final-v.f32",
+    "sha256": "c6983a67851e9e80bdfa0928b75a6f2a1ddb14a6837bd16d52c6d482dddd7064"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk1/q-trajectory.f32",
+    "bytes": 117760,
+    "mode": 420,
+    "mtime_ns": 1794132082166397791,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk1/q-trajectory.f32",
+    "sha256": "b918cc99527cbf27f2f88b468290e08352d60754cb186af52156720712ad1c6e"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/retina.bin",
+    "bytes": 197544,
+    "mode": 420,
+    "mtime_ns": 1794132082165737244,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk1/retina.bin",
+    "sha256": "a9878d118bbd8d23edf558957052e376b77fdab080fdff2ecd6337ba1ef1e93e"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk1/scene-trajectory.bin",
+    "bytes": 491520,
+    "mode": 420,
+    "mtime_ns": 1794132082166266040,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk1/scene-trajectory.bin",
+    "sha256": "61a7cbf13c1d93e4a526842edad9c7e95e3dc1d13d9ddb390d6ee585bf8915cd"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk1/summary.json",
+    "bytes": 1998,
+    "mode": 420,
+    "mtime_ns": 1794132082167534341,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk1/summary.json",
+    "sha256": "cf99846b24aa47115487a6b7cc0d63974748c4d68cd122804c546274d40364e2"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk8/tick48.retina",
+    "bytes": 197544,
+    "mode": 420,
+    "mtime_ns": 1794132082167202130,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk1/tick48.retina",
+    "sha256": "92cb698e2764eacfe0bf1abb868cf5aad56c88f469529138fa7d9222637bac21"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk8/tick48.world",
+    "bytes": 664440,
+    "mode": 420,
+    "mtime_ns": 1794132082167004128,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk1/tick48.world",
+    "sha256": "219f3ba02980e9397e76e710753b9acc306555e8693e0740aa06a1f1b3fb032f"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk1/v-trajectory.f32",
+    "bytes": 112640,
+    "mode": 420,
+    "mtime_ns": 1794132082166521458,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk1/v-trajectory.f32",
+    "sha256": "1d90997b87ab5b0369320a74daebd8cea8070ab13d2c0b0979dfaf3bceb8eeee"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/world.bin",
+    "bytes": 664440,
+    "mode": 420,
+    "mtime_ns": 1794132082165476575,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk1/world.bin",
+    "sha256": "ae521842642b5f0aabf4fec8b7f53ecf4c5bdf147f7de1bf44c8548e3d520f69"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/contact-reward.tsv",
+    "bytes": 115,
+    "mode": 420,
+    "mtime_ns": 1794132154596103609,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk8/contact-reward.tsv",
+    "sha256": "eda16ccc33eccd1d4d010ac0f16f877d4f8119c225147ac44e46846233f8a84a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/final-q.f32",
+    "bytes": 736,
+    "mode": 420,
+    "mtime_ns": 1794132154594998476,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk8/final-q.f32",
+    "sha256": "544e77e8966e580a0ab3e29804d9d05e75db423918b39699013898d839f37f3a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/final-scene.bin",
+    "bytes": 3072,
+    "mode": 420,
+    "mtime_ns": 1794132154595084060,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk8/final-scene.bin",
+    "sha256": "ee2856d0520bc332644b3f79241de1c459ed520c8c8df25955f2f35a4c7237c0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/final-v.f32",
+    "bytes": 704,
+    "mode": 420,
+    "mtime_ns": 1794132154595045060,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk8/final-v.f32",
+    "sha256": "c6983a67851e9e80bdfa0928b75a6f2a1ddb14a6837bd16d52c6d482dddd7064"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/retina.bin",
+    "bytes": 197544,
+    "mode": 420,
+    "mtime_ns": 1794132154594923142,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk8/retina.bin",
+    "sha256": "a9878d118bbd8d23edf558957052e376b77fdab080fdff2ecd6337ba1ef1e93e"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk8/summary.json",
+    "bytes": 1847,
+    "mode": 420,
+    "mtime_ns": 1794132154596071609,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk8/summary.json",
+    "sha256": "e372c4a8b412eaa439e56e82b41bf133ed0bf340b6f51ab5d17cf67dd23287fa"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk8/tick48.retina",
+    "bytes": 197544,
+    "mode": 420,
+    "mtime_ns": 1794132154595742690,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk8/tick48.retina",
+    "sha256": "92cb698e2764eacfe0bf1abb868cf5aad56c88f469529138fa7d9222637bac21"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk8/tick48.world",
+    "bytes": 664440,
+    "mode": 420,
+    "mtime_ns": 1794132154595559772,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk8/tick48.world",
+    "sha256": "219f3ba02980e9397e76e710753b9acc306555e8693e0740aa06a1f1b3fb032f"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/world.bin",
+    "bytes": 664440,
+    "mode": 420,
+    "mtime_ns": 1794132154594680140,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/positive-chunk8/world.bin",
+    "sha256": "ae521842642b5f0aabf4fec8b7f53ecf4c5bdf147f7de1bf44c8548e3d520f69"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/contact-reward.tsv",
+    "bytes": 115,
+    "mode": 420,
+    "mtime_ns": 1794132167060671084,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/contact-reward.tsv",
+    "sha256": "eda16ccc33eccd1d4d010ac0f16f877d4f8119c225147ac44e46846233f8a84a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/final-q.f32",
+    "bytes": 736,
+    "mode": 420,
+    "mtime_ns": 1794132167060237247,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/final-q.f32",
+    "sha256": "544e77e8966e580a0ab3e29804d9d05e75db423918b39699013898d839f37f3a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/final-scene.bin",
+    "bytes": 3072,
+    "mode": 420,
+    "mtime_ns": 1794132167060327623,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/final-scene.bin",
+    "sha256": "ee2856d0520bc332644b3f79241de1c459ed520c8c8df25955f2f35a4c7237c0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/final-v.f32",
+    "bytes": 704,
+    "mode": 420,
+    "mtime_ns": 1794132167060285289,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/final-v.f32",
+    "sha256": "c6983a67851e9e80bdfa0928b75a6f2a1ddb14a6837bd16d52c6d482dddd7064"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/retina.bin",
+    "bytes": 197544,
+    "mode": 420,
+    "mtime_ns": 1794132167060161163,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/retina.bin",
+    "sha256": "a9878d118bbd8d23edf558957052e376b77fdab080fdff2ecd6337ba1ef1e93e"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/summary.json",
+    "bytes": 1844,
+    "mode": 420,
+    "mtime_ns": 1794132167060649042,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/summary.json",
+    "sha256": "95ba74401f98a0ec15271f5202ce9468f25841bd662bd1fd3133c57b8a08bef2"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/world.bin",
+    "bytes": 664440,
+    "mode": 420,
+    "mtime_ns": 1794132167059895703,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/restored-tick48/world.bin",
+    "sha256": "ae521842642b5f0aabf4fec8b7f53ecf4c5bdf147f7de1bf44c8548e3d520f69"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-object-push/summary.json",
+    "bytes": 384,
+    "mode": 420,
+    "mtime_ns": 1794132167062255012,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/default-object-push/summary.json",
+    "sha256": "aa4667ec1ee147c35cab2c7af61414364edf040782a08ccd40f752597a72f941"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/edit.py",
+    "bytes": 12989,
+    "mode": 420,
+    "mtime_ns": 1794127836004150840,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/edit.py",
+    "sha256": "75ea84655855e8f72c829a6b678f7554be52beac45990ca52a4a6e7e03fb3d0b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/execution-v2.json",
+    "bytes": 495,
+    "mode": 420,
+    "mtime_ns": 1794128909801756659,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/execution-v2.json",
+    "sha256": "6e62b45231cc1b332483e95416503cb39ed869b6cf881156f045fac5a598c34d"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/execution.json",
+    "bytes": 485,
+    "mode": 420,
+    "mtime_ns": 1794128506349649422,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/execution.json",
+    "sha256": "836d3945c084e01a39c705b76394e796d938d6220f6371a63baad07b6e6d8056"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/extract_strict_motor.py",
+    "bytes": 4354,
+    "mode": 420,
+    "mtime_ns": 1794131223458817550,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/extract_strict_motor.py",
+    "sha256": "a4dc184d0aa49f715a87ec0f46a2673d307004b348a7456ebbade0a899892d1a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/final-default-contact.stderr",
+    "bytes": 84593,
+    "mode": 420,
+    "mtime_ns": 1794132062813545538,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/final-default-contact.stderr",
+    "sha256": "3bdc663540c60d48c480be4802ab0f566a39837ea6507ba710681cec676c2a92"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/final-default-contact.stdout",
+    "bytes": 853,
+    "mode": 420,
+    "mtime_ns": 1794132063399160810,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/final-default-contact.stdout",
+    "sha256": "27b0228dce6ab9d6cd5fa7052c0b7e545e03d46bfb465cbfc63b549ec10f8510"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/final-default-crow32.stderr",
+    "bytes": 84729,
+    "mode": 420,
+    "mtime_ns": 1794132167114601898,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/final-default-crow32.stderr",
+    "sha256": "7f7139ecc9c43a4ae84a9466751d809ff043955106e11e0852a81e76c87e52fe"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794132167097536189,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/final-default-crow32.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/final-default-object-push.stderr",
+    "bytes": 84597,
+    "mode": 420,
+    "mtime_ns": 1794132063764936254,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/final-default-object-push.stderr",
+    "sha256": "3b147123cc8ec1676cb21c37e2619a6d182f48047aa8c7d665a9d0666c591014"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/final-default-object-push.stdout",
+    "bytes": 47,
+    "mode": 420,
+    "mtime_ns": 1794132167062353054,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/final-default-object-push.stdout",
+    "sha256": "b8115638d24194b1c695ad1bc0c42c411d454601b3b567a53dff60c4fa45bfc2"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794132029659990594,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/final-full-release.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/final-full-release.stdout",
+    "bytes": 20484,
+    "mode": 420,
+    "mtime_ns": 1794132062364753899,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/final-full-release.stdout",
+    "sha256": "f59245cfc1651b89fc66e97192310edc2e6264ea3e7157f83095cc3e98a7f928"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/final-integration-analysis.json",
+    "bytes": 4221,
+    "mode": 420,
+    "mtime_ns": 1794132183839943590,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/final-integration-analysis.json",
+    "sha256": "baf915e472e6be17f4377584ab52978a9e854af3262b44742344f18b7f4c0ea8"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/final-integration-execution.json",
+    "bytes": 1154,
+    "mode": 420,
+    "mtime_ns": 1794132183781548410,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/final-integration-execution.json",
+    "sha256": "61980ef73061f497c34d34ae58ae24faec8ce4fe802b2019952d223ad8c301b5"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/fix_simd_and_gate.py",
+    "bytes": 2818,
+    "mode": 420,
+    "mtime_ns": 1794130773578934216,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/fix_simd_and_gate.py",
+    "sha256": "bcd8faf84c23c2c12791c6a74da40bffbc1cee23ef6bb764c171dd817394cf3c"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/fixture-base",
+    "bytes": 99776,
+    "mode": 493,
+    "mtime_ns": 1794129381793210267,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/fixture-base",
+    "sha256": "a76e0b2a726b9ab2504b4a55b6d557d10a85feaaf94e4cb580de33103e45c63a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/fixture-base.mm",
+    "bytes": 17093,
+    "mode": 420,
+    "mtime_ns": 1794129379994688684,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/fixture-base.mm",
+    "sha256": "c462a9137abaffc7682767784307e5d9ab7c5edcff62f45ad37e418c45d06f3b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/fixture-bounded",
+    "bytes": 99776,
+    "mode": 493,
+    "mtime_ns": 1794129405052085579,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/fixture-bounded",
+    "sha256": "116dfb25a90cccb35f32400509c0119ac634962be4cb93cd41c805af7a3b49ea"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/fixture-bounded.mm",
+    "bytes": 17092,
+    "mode": 420,
+    "mtime_ns": 1794129380027192326,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/fixture-bounded.mm",
+    "sha256": "1add89b112e62626f8ca8fd601be32f956a789c2b4c746bf7c9e61c59a86a720"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/fixture-terminal",
+    "bytes": 101312,
+    "mode": 493,
+    "mtime_ns": 1794131860975398638,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/fixture-terminal",
+    "sha256": "33e7c0e20a5e4f08dc7add642842abe66a57b8457efd0779b329753217079a4a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/fixture-terminal.mm",
+    "bytes": 18401,
+    "mode": 420,
+    "mtime_ns": 1794131859662698386,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/fixture-terminal.mm",
+    "sha256": "24b1540f3cbf94fc61769d06acf18b2e68cc5088d50dc008cf56a03cd7e7e374"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/fixture-unused",
+    "bytes": 99776,
+    "mode": 493,
+    "mtime_ns": 1794129406809276287,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/fixture-unused",
+    "sha256": "f6227010b1e255b85892d36af9c35b6cd4057c0d690f5ec7b80361299baef700"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/fixture-unused.mm",
+    "bytes": 17104,
+    "mode": 420,
+    "mtime_ns": 1794129380058304285,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/fixture-unused.mm",
+    "sha256": "9f16ddf23090dad34b3f4cd40efb14407baea94f0cb4dee725654c72379d8cca"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794129030595261992,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/full-release.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/full-release.stdout",
+    "bytes": 20484,
+    "mode": 420,
+    "mtime_ns": 1794129063301336303,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/full-release.stdout",
+    "sha256": "3614bbf366b88b4561afb46e6581e01126cff99c854f70c62c89af2b5cd75978"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/helper.mm",
+    "bytes": 2272,
+    "mode": 420,
+    "mtime_ns": 1794127836077608021,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/helper.mm",
+    "sha256": "719fa2d395e9bb981a455e1e868f08c86d8b02919c7cf30ee50743ed67dddc5a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/kernel.metal",
+    "bytes": 8566,
+    "mode": 420,
+    "mtime_ns": 1794127836034707085,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/kernel.metal",
+    "sha256": "43f29ae521cdfaab1d47e31b3d00ae0b04d80c8e09339d747a866ec6319429bb"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/motor_reference.py",
+    "bytes": 2431,
+    "mode": 420,
+    "mtime_ns": 1794129992389578559,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/motor_reference.py",
+    "sha256": "0a8f9acc13b424905637364fd917a049d0229bb15d6f4aa2b07e9106ff9ae447"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/native-v2.stderr",
+    "bytes": 84599,
+    "mode": 420,
+    "mtime_ns": 1794128909563999039,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/native-v2.stderr",
+    "sha256": "2be5f5d43b445a90a13d1cda5af52d8f1e6c7bfe8fbbe9ff2c5e0cdb88ddce81"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/native-v2.stdout",
+    "bytes": 4879,
+    "mode": 420,
+    "mtime_ns": 1794128909777423157,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/native-v2.stdout",
+    "sha256": "09ef52f68ba6c2f8357f801e723e1c3a541ce1e335e0a6be99016bab70280d8e"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-constitutive.tsv",
+    "bytes": 190703,
+    "mode": 420,
+    "mtime_ns": 1794128909772447847,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/native-v2.tsv",
+    "sha256": "251b4ad249202e8e87caeb1992e70d1ef2f586a126289fba56eba4b5c6bd4a7d"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/native.stderr",
+    "bytes": 84717,
+    "mode": 420,
+    "mtime_ns": 1794128506325591090,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/native.stderr",
+    "sha256": "8f45b69e54752b30d98355f12a7f2b2d94c8dc659247c65fd4861fa6383288a5"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/native.stdout",
+    "bytes": 4824,
+    "mode": 420,
+    "mtime_ns": 1794128506325583299,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/native.stdout",
+    "sha256": "49cb645a3988e90a7af00bf7092b09adf900f75ffba531d88ee74b499b619319"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/native.tsv",
+    "bytes": 176877,
+    "mode": 420,
+    "mtime_ns": 1794128506320876700,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/native.tsv",
+    "sha256": "4db48dcce6c8b04b774d3e0f686a0c4d148644393e2f5ce6da1e48b94eaa5412"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-analysis.json",
+    "bytes": 9772,
+    "mode": 420,
+    "mtime_ns": 1794130637282767781,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-analysis.json",
+    "sha256": "25500e96effaab4808734e4131d6ccb0a109ce281727289403adbebd6e6832a2"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794130317763106765,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-build.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-build.stdout",
+    "bytes": 44,
+    "mode": 420,
+    "mtime_ns": 1794130321902989966,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-build.stdout",
+    "sha256": "3da6caabf47c20ec6610604b55c56bf344ce1c51e17465160bd52cfe06905148"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-constitutive.stderr",
+    "bytes": 84589,
+    "mode": 420,
+    "mtime_ns": 1794130425026049833,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-constitutive.stderr",
+    "sha256": "fff75d12a1de2e7515829109eb57a8158ca8606c7e13c192fc014e51f312dc6f"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-constitutive.stdout",
+    "bytes": 4872,
+    "mode": 420,
+    "mtime_ns": 1794130425226631991,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-constitutive.stdout",
+    "sha256": "aa1667aeea1de3c9b73e353e6205868e62260ba72ba0f69767c0bb0e3567ade6"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-constitutive.tsv",
+    "bytes": 184945,
+    "mode": 420,
+    "mtime_ns": 1794130425220986297,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-constitutive.tsv",
+    "sha256": "da387d9644fdc308cb3a8784926747a2d970c7f9f2ffb627c1e966ed27e28dc5"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-crow32/final-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794130455809735602,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-crow32/final-q.f32",
+    "sha256": "d35c78dadc52503b410c50b7462c9c0ce9312ef9d2e166317a6eb5e317f25f1f"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-crow32/final-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794130455809882228,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-crow32/final-scene.bin",
+    "sha256": "29d1e1e8a85cbf0e55e956491af6a34c30a7bb595d55a866c2b8274b6dc84db4"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-crow32/final-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794130455809832644,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-crow32/final-v.f32",
+    "sha256": "2723333e9259bfaedd7e45683bbe144b57065abb32b6bb25fbec4f57943c5c41"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794130425309445007,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-crow32/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794130425309537633,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-crow32/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794130425309650258,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-crow32/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794130425309592674,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-crow32/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-crow32/runtime.json",
+    "bytes": 211,
+    "mode": 420,
+    "mtime_ns": 1794130455810164021,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-crow32/runtime.json",
+    "sha256": "50aa0337d7d6415595832bcd2382c48b4a87547840d6f29062f6df633ee29c3e"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-crow32/scene.bin",
+    "bytes": 163840,
+    "mode": 420,
+    "mtime_ns": 1794130455810036770,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-crow32/scene.bin",
+    "sha256": "3b79ace5060876e1adcba9491eca32795d731e35edb22082cb4c583a49040160"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-crow32/summary.json",
+    "bytes": 741,
+    "mode": 420,
+    "mtime_ns": 1794130455810140146,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-crow32/summary.json",
+    "sha256": "5680b7cbf1c4a9f4382a539ab96894ff3b5f896af28c8cd1820d796470b4f5eb"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-crow32/trace.tsv",
+    "bytes": 111722,
+    "mode": 420,
+    "mtime_ns": 1794130455810171729,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-crow32/trace.tsv",
+    "sha256": "8214f6ed6abbf84be83ce1cd8e605648634d1203acb657b2b5f08d58193394f5"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-crow32.stderr",
+    "bytes": 84736,
+    "mode": 420,
+    "mtime_ns": 1794130425314774032,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-crow32.stderr",
+    "sha256": "8da287a2d42c04891e8819f6fb30a2e38ed09523a2608d083a438f874c07436a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794130425293825308,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-crow32.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-execution.json",
+    "bytes": 1888,
+    "mode": 420,
+    "mtime_ns": 1794130637276719044,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-execution.json",
+    "sha256": "085583ad44c54cdd725a9bdcc08d845dd04986f1a00bccf6dfe7ea5ae047d30a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794130418737390722,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-host-calibration.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-host-calibration.stdout",
+    "bytes": 78,
+    "mode": 420,
+    "mtime_ns": 1794130419538698386,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-host-calibration.stdout",
+    "sha256": "d8a4edeb3b57fc33800738d49c2342c649e45dce841092c1acaa2a462a445b92"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused128/final-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794130637254553065,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused128/final-q.f32",
+    "sha256": "a161ec7605568bfaf2e91a7f0b0c764e97082346c44a73dc64b5bf5776423b0b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused128/final-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794130637254723899,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused128/final-scene.bin",
+    "sha256": "c0f43415b24b17d29103094e5debfca9d66c2b78b98be267c3b10ed055970f20"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused128/final-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794130637254675857,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused128/final-v.f32",
+    "sha256": "da829e0ebcec468a37adf9b6955dad1e50d180869022265b6fe6dd9e02f463cc"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused128/initial-geometry.json",
+    "bytes": 547,
+    "mode": 420,
+    "mtime_ns": 1794130516542722570,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused128/initial-geometry.json",
+    "sha256": "68fb294940b4c80b02aa8e11f4d7a6281791c4d77d13e82a485811425c134253"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794130516542809820,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused128/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused128/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794130516542911571,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused128/initial-scene.bin",
+    "sha256": "76c5a2f27adcbb6250abccf54d77d3069fac5bc04f6cae47ad93ce4247a35357"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794130516542862654,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused128/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused128/runtime.json",
+    "bytes": 210,
+    "mode": 420,
+    "mtime_ns": 1794130637254997900,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused128/runtime.json",
+    "sha256": "92da87d798b3a3bdb407d19fe516217f4c3ca33c535d4991590079f1f59dc937"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused128/scene.bin",
+    "bytes": 163840,
+    "mode": 420,
+    "mtime_ns": 1794130637254889816,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused128/scene.bin",
+    "sha256": "fe06445588b10484795893a3a510813346344df96c1e3a37f535727f341b27d1"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused128/summary.json",
+    "bytes": 743,
+    "mode": 420,
+    "mtime_ns": 1794130637254982067,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused128/summary.json",
+    "sha256": "b5f6d267730d6b2e4a3dd6b9fdf4c4d52173eb45bac11d507293baa835c0ca10"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused128/trace.tsv",
+    "bytes": 111752,
+    "mode": 420,
+    "mtime_ns": 1794130637255010484,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused128/trace.tsv",
+    "sha256": "7124d72c843e86c12d0a9332aa7eaaad832210f17252ff1c6b308078a493d202"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused128.stderr",
+    "bytes": 84735,
+    "mode": 420,
+    "mtime_ns": 1794130516547477300,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused128.stderr",
+    "sha256": "d405a1855fa322e6095ad4096eacda8ba166c2916c0ba4c7f369bec464ebc7bb"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794130516531329641,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused128.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused64/final-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794130516491587411,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused64/final-q.f32",
+    "sha256": "d32036309c3631478b04d08c49b4c3c48fe0da05c0a19b2d7a22b759358c5676"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused64/final-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794130516491737537,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused64/final-scene.bin",
+    "sha256": "ed369568dd315ae8a737c55c232775ee07dc261a0fe084bb6d55189107945b56"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused64/final-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794130516491691912,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused64/final-v.f32",
+    "sha256": "9fcdfb34a3c19b6bfc8dfd78c459e437aba545494d5c98f403ff8c6ddd94763c"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused128/initial-geometry.json",
+    "bytes": 547,
+    "mode": 420,
+    "mtime_ns": 1794130455836851606,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused64/initial-geometry.json",
+    "sha256": "68fb294940b4c80b02aa8e11f4d7a6281791c4d77d13e82a485811425c134253"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794130455836933814,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused64/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused128/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794130455837030815,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused64/initial-scene.bin",
+    "sha256": "76c5a2f27adcbb6250abccf54d77d3069fac5bc04f6cae47ad93ce4247a35357"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794130455836981606,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused64/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused64/runtime.json",
+    "bytes": 209,
+    "mode": 420,
+    "mtime_ns": 1794130516492013997,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused64/runtime.json",
+    "sha256": "ff080f98767652439f3382d28511ef7129977414be039031ae05bfdc221e5c12"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused64/scene.bin",
+    "bytes": 163840,
+    "mode": 420,
+    "mtime_ns": 1794130516491896288,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused64/scene.bin",
+    "sha256": "fdce09d71b344efbf4e712b06fafc80c31e1a505e08d3cb9a4d5e07285b3098b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused64/summary.json",
+    "bytes": 741,
+    "mode": 420,
+    "mtime_ns": 1794130516491992913,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused64/summary.json",
+    "sha256": "dad9b03d0933742d462b899c458caaab5d57d6dd17081008b50295bc487ed71e"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused64/trace.tsv",
+    "bytes": 111802,
+    "mode": 420,
+    "mtime_ns": 1794130516492021996,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused64/trace.tsv",
+    "sha256": "e48fde373d7dd715b4ba71eb8746e8b2f3ae661ad082cdccd25bf31e8d60b59a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-unused64.stderr",
+    "bytes": 84735,
+    "mode": 420,
+    "mtime_ns": 1794130455841102376,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused64.stderr",
+    "sha256": "b510919f0da39cda8849ad34c5317e87ee76458d66cc41644e045ae51cd62a8a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794130455825739636,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-unused64.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-v2-analysis.json",
+    "bytes": 3114,
+    "mode": 420,
+    "mtime_ns": 1794130952576685414,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-analysis.json",
+    "sha256": "88ff9d3738fd51871c1b48eb57fbb77f6b2d9ada8e817c8e29d1854bb080c3aa"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794130773869124713,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-build.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-v2-build.stdout",
+    "bytes": 209,
+    "mode": 420,
+    "mtime_ns": 1794130778757293827,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-build.stdout",
+    "sha256": "b79416bdf149726fea107b439fecf5ed22aca6a7decf302bafb201513c085631"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-v2-constitutive.stderr",
+    "bytes": 84595,
+    "mode": 420,
+    "mtime_ns": 1794130947546770773,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-constitutive.stderr",
+    "sha256": "ce08b121bbb5018182b48a9cea71d8256dca97f1327f74a33f14393f1bc48f73"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-v2-constitutive.stdout",
+    "bytes": 4866,
+    "mode": 420,
+    "mtime_ns": 1794130947756727787,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-constitutive.stdout",
+    "sha256": "e3694434811851499c61176a4f3035bb3bf30eefdb72fe567075acd43be21608"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-v2-constitutive.tsv",
+    "bytes": 190705,
+    "mode": 420,
+    "mtime_ns": 1794130947751859451,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-constitutive.tsv",
+    "sha256": "cb19bed51c7a10d24dab5d11b5f85af77b4f7463cff86afd8a935921267a661b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-v2-crow32/failure-contact-status.bin",
+    "bytes": 1152,
+    "mode": 420,
+    "mtime_ns": 1794130952536189901,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-crow32/failure-contact-status.bin",
+    "sha256": "6a32088208e6e592adab9a8971105191581b5f8d0cb36fea302d558676198c03"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-v2-crow32/failure-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794130952535996191,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-crow32/failure-q.f32",
+    "sha256": "ca21161c2dac7ad530ea6797d0e4447a48f0f1322501dc2c69e84a12ac7f2ba2"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-v2-crow32/failure-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794130952536097859,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-crow32/failure-scene.bin",
+    "sha256": "d60dbee429e19f4920c2504483df1432131075d2d9be60565458298b93d9f0f8"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-v2-crow32/failure-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794130952536048067,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-crow32/failure-v.f32",
+    "sha256": "43aabf1a135e9fe3afd7a5e7d2515bcf8f3db2a88ed4ca15f9fee7141ae2a641"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-v2-crow32/failure-world-status.bin",
+    "bytes": 192,
+    "mode": 420,
+    "mtime_ns": 1794130952536142609,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-crow32/failure-world-status.bin",
+    "sha256": "5e058ddafd3f4c741b3974ad46c9c9b5852779fe38798e89021bf3a95ddedc65"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-v2-crow32/failure.json",
+    "bytes": 179,
+    "mode": 420,
+    "mtime_ns": 1794130952536246777,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-crow32/failure.json",
+    "sha256": "149901234235b6a4bf4e8da855cc9956464cdad0e929248c41bffe75ae5914cf"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794130947823419137,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-crow32/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794130947823512721,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-crow32/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794130947823619680,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-crow32/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794130947823565096,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-crow32/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-v2-crow32/trace.tsv",
+    "bytes": 20418,
+    "mode": 420,
+    "mtime_ns": 1794130952536259735,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-crow32/trace.tsv",
+    "sha256": "c53f64474b276e8a7e167b7d6e8399e1f7a94abb0f934a6411db4bc2c167e737"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-v2-crow32.motorsnp",
+    "bytes": 13968,
+    "mode": 384,
+    "mtime_ns": 1794130952535471603,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-crow32.motorsnp",
+    "sha256": "6edcb6d47502e49c3bcae0aa8a2df471e9f79adf2cd1572d40f341eb4082ea7f"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-v2-crow32.stderr",
+    "bytes": 85706,
+    "mode": 420,
+    "mtime_ns": 1794130952541536489,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-crow32.stderr",
+    "sha256": "40e21d8bc5b0348532351a8d221a62452474ce2be5577bea5744f48b20196247"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794130947808408335,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-crow32.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-v2-execution.json",
+    "bytes": 1990,
+    "mode": 420,
+    "mtime_ns": 1794130952576350536,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-execution.json",
+    "sha256": "901cb8529e31095a87cb6681255dc92621c36b62b557d70716f46e2e666d20ac"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794130941324421895,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-host-calibration.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-host-calibration.stdout",
+    "bytes": 78,
+    "mode": 420,
+    "mtime_ns": 1794130941987751162,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-host-calibration.stdout",
+    "sha256": "d8a4edeb3b57fc33800738d49c2342c649e45dce841092c1acaa2a462a445b92"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-v2-negative.stderr",
+    "bytes": 84689,
+    "mode": 420,
+    "mtime_ns": 1794130947485450180,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-negative.stderr",
+    "sha256": "b9cf7c72e3af61feeba3e33f0e97be1c8f3d2da7dd8a0eb9015be2001c9b12a0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision-v2-negative.stdout",
+    "bytes": 1883,
+    "mode": 420,
+    "mtime_ns": 1794130947485443846,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-negative.stdout",
+    "sha256": "7cecd8b2700d828fb1a7c5a9085f22fcb888a8a4dfeb694f4c35e1cbf0c2bae4"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-negative.tsv",
+    "bytes": 52475,
+    "mode": 420,
+    "mtime_ns": 1794130947481563061,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-negative.tsv",
+    "sha256": "d8beff7cc05557414e8cfc81f7f6ffd8c521bb4adacdf741411c5b451ceee70b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision_body.metal",
+    "bytes": 6078,
+    "mode": 420,
+    "mtime_ns": 1794130275062203563,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision_body.metal",
+    "sha256": "49b176b96c6be27623fb286fe5b97c2fbe0d6a05028c974a86082ae9195603fe"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/precision_kernel.metal",
+    "bytes": 1597,
+    "mode": 420,
+    "mtime_ns": 1794130275014578921,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision_kernel.metal",
+    "sha256": "a70e09aa18aab320fff5ef46b6aadb8ba7d1e997873cdd242f379f820a4abd22"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/recover_git.py",
+    "bytes": 6879,
+    "mode": 420,
+    "mtime_ns": 1794132160830978699,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/recover_git.py",
+    "sha256": "68665d7d728ead32116346be3dd76835fa09499949c4ef25d61f959190e102d9"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/retain_terminal.py",
+    "bytes": 1714,
+    "mode": 420,
+    "mtime_ns": 1794131859398884568,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/retain_terminal.py",
+    "sha256": "39b030773316e48eb908958b82a64e2a9a6f5790e87977f55558c29ebe5b0d4b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/retain_torque_low.py",
+    "bytes": 4502,
+    "mode": 420,
+    "mtime_ns": 1794131505213243545,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/retain_torque_low.py",
+    "sha256": "51d9c3dc278443084017fcd8ded223281719303d0811cdf1bd7061c24104c353"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/run.py",
+    "bytes": 8743,
+    "mode": 420,
+    "mtime_ns": 1794128502202910289,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/run.py",
+    "sha256": "1442f17d30c685e05067a9615a04ca96863dced595bfbd8081f5b16aa1862f02"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/run_crow.py",
+    "bytes": 6383,
+    "mode": 420,
+    "mtime_ns": 1794129462556156430,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/run_crow.py",
+    "sha256": "318b533129a2236fe7dd00792c51bf70e08f23fa935fcfb69c70593782ed4483"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/run_precision.py",
+    "bytes": 6736,
+    "mode": 420,
+    "mtime_ns": 1794130385389856206,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/run_precision.py",
+    "sha256": "bf2fd6ecb159a781d70e09951039e2bcafe6eb38f325472c561f664b2605334f"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/run_precision_v2.py",
+    "bytes": 5787,
+    "mode": 420,
+    "mtime_ns": 1794130905181267394,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/run_precision_v2.py",
+    "sha256": "55c4578b31ba80409ee5f509b20ef8b6fe27075d1fa6216966a1e6726082ba11"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/run_strict.py",
+    "bytes": 7206,
+    "mode": 420,
+    "mtime_ns": 1794131345006767834,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/run_strict.py",
+    "sha256": "caf16620b2f11c2ea66bc3f46e1e6d8d1290470851edec325d642d9ab70bc6ed"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/run_terminal.py",
+    "bytes": 2410,
+    "mode": 420,
+    "mtime_ns": 1794131919900012359,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/run_terminal.py",
+    "sha256": "29b9c85349e71d56f71570b5d8df4a217f72c9413f20c61f222a8eb1c988a3e5"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/run_twofold.py",
+    "bytes": 7226,
+    "mode": 420,
+    "mtime_ns": 1794131609937125520,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/run_twofold.py",
+    "sha256": "32c8d8965056fd701421895476f9b9e86805965c5447df739271391c9e61d550"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/run_v2.py",
+    "bytes": 9803,
+    "mode": 420,
+    "mtime_ns": 1794128906207279606,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/run_v2.py",
+    "sha256": "e0b3b7aaf27ce2c1675861de8795976a79b093b356a95855e8bee32e4f40dc8c"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/run_witness.py",
+    "bytes": 4797,
+    "mode": 420,
+    "mtime_ns": 1794130042725463430,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/run_witness.py",
+    "sha256": "87b8607c73afd9a62b9ee6fc9f9030bed71232d58be2ed1d3f53500ce09e7213"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-analysis.json",
+    "bytes": 4278,
+    "mode": 420,
+    "mtime_ns": 1794131380926738257,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-analysis.json",
+    "sha256": "1bf32273524fa35466ddaa04e4bd4ede0443f21671ad8ddba50c209e6c2f6aca"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-arithmetic.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794131368291887603,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-arithmetic.f32",
+    "sha256": "578596c74c9ad7b2c0c01a14131ae1fabb28be2a1450d1367b37509097c814a9"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-arithmetic.stderr",
+    "bytes": 84582,
+    "mode": 420,
+    "mtime_ns": 1794131368238648085,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-arithmetic.stderr",
+    "sha256": "f07df8a28297eae56a4c95c419d30c6b00943d33fe717ee395ad848b070b2d27"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-arithmetic.stdout",
+    "bytes": 55,
+    "mode": 420,
+    "mtime_ns": 1794131368292542899,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-arithmetic.stdout",
+    "sha256": "93ca7529af8dca43d84e18826f6286a5e7d412db85d626b547370245374de0e9"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794131223765755561,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-build.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-build.stdout",
+    "bytes": 1758,
+    "mode": 420,
+    "mtime_ns": 1794131236391398520,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-build.stdout",
+    "sha256": "863a3938c57ba8f294b924cfde4cefadeb2acaa7d62b2ad68f91999c1645a6be"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-constitutive.stderr",
+    "bytes": 84583,
+    "mode": 420,
+    "mtime_ns": 1794131368803997167,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-constitutive.stderr",
+    "sha256": "c090ea294ec2efbeb9b8a0ffabca15e0f6e9aba54cd03d9ac9636be69cbc1d49"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-constitutive.stdout",
+    "bytes": 4879,
+    "mode": 420,
+    "mtime_ns": 1794131369031963846,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-constitutive.stdout",
+    "sha256": "7f152ff06ea361b8a607908159877671d62c79fb54550fe7883d6ed3d1502824"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-constitutive.tsv",
+    "bytes": 190877,
+    "mode": 420,
+    "mtime_ns": 1794131369028371861,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-constitutive.tsv",
+    "sha256": "c7d06f579486535ea8492cf7dd9341f0ea619804ef1f8ae3b294163ca24352f1"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/failure-contact-status.bin",
+    "bytes": 1152,
+    "mode": 420,
+    "mtime_ns": 1794131380880487832,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-crow32/failure-contact-status.bin",
+    "sha256": "3d1897310be594e8c90fb46ba9432d9c533cc9d45500a3dcac1ea0cc3e9d039a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/failure-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794131380880301915,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-crow32/failure-q.f32",
+    "sha256": "18c3fe24190766ac399c0bd9fbf071f08ced803f6e1bec32ef35139d7e195194"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/failure-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794131380880397957,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-crow32/failure-scene.bin",
+    "sha256": "0d48ff908fb746f5c43c9ce14aad8eaa7f7b13fc851f113d1df7f7b757bbdc46"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/failure-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794131380880352081,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-crow32/failure-v.f32",
+    "sha256": "a8a4eeebf4075e64723aeddbe3fcac68442226501f3fff31dfad2d7a451b001b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/failure-world-status.bin",
+    "bytes": 192,
+    "mode": 420,
+    "mtime_ns": 1794131380880442249,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-crow32/failure-world-status.bin",
+    "sha256": "abee039b925289b15b8e8b9abb2dbcbca40573470532be5d34d837bfba71c17b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/failure.json",
+    "bytes": 179,
+    "mode": 420,
+    "mtime_ns": 1794131380880547500,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-crow32/failure.json",
+    "sha256": "273a6c471de251ac4a5258131291923df4e2a776b74b526ea0ac711f304a8ff5"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794131369072632021,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-crow32/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794131369072700396,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-crow32/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794131369072800189,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-crow32/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794131369072751605,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-crow32/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/trace.tsv",
+    "bytes": 49930,
+    "mode": 420,
+    "mtime_ns": 1794131380880566250,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-crow32/trace.tsv",
+    "sha256": "e6706d51bd1c560eaeefcc4527064bf56471d8197bd17c58492ebd7729fd5263"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32.motorsnp",
+    "bytes": 13968,
+    "mode": 384,
+    "mtime_ns": 1794131380879797203,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-crow32.motorsnp",
+    "sha256": "767fe80c726b360f54385db38fcaafd406d7ed9fbf208896826abb7fc05d1aa5"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32.stderr",
+    "bytes": 85693,
+    "mode": 420,
+    "mtime_ns": 1794131380885424577,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-crow32.stderr",
+    "sha256": "ecd37df6e2da48941a216cddeafbe41eecb7bf5b20028fc5377e732b4e4c607e"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794131369060852559,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-crow32.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-execution.json",
+    "bytes": 2738,
+    "mode": 420,
+    "mtime_ns": 1794131380926324920,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-execution.json",
+    "sha256": "802242319532d6699f9b3897210db85a432bc8bb02323c6cc9c1c85ddf5bbe07"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-negative.stderr",
+    "bytes": 84677,
+    "mode": 420,
+    "mtime_ns": 1794131368773394400,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-negative.stderr",
+    "sha256": "ab0c2a354611db39e8c7b215de544805aef00aa3b2584dd78ac1358541b73523"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-negative.stdout",
+    "bytes": 1886,
+    "mode": 420,
+    "mtime_ns": 1794131368773382524,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-negative.stdout",
+    "sha256": "5f4ba5428cc86d78d97d7c841802a1bae9352c1a67360d0bd0d13e48b4f70091"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-negative.tsv",
+    "bytes": 52475,
+    "mode": 420,
+    "mtime_ns": 1794131368768038569,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/strict-negative.tsv",
+    "sha256": "d8beff7cc05557414e8cfc81f7f6ffd8c521bb4adacdf741411c5b451ceee70b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-analysis.json",
+    "bytes": 1971,
+    "mode": 420,
+    "mtime_ns": 1794131999388351126,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/terminal-analysis.json",
+    "sha256": "1b7c45cbd2e6175d2bcc0816a7239c2710c12decb227891376c1612f81e7707d"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794131859664355315,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/terminal-compile.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794131859664318357,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/terminal-compile.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794131978991193556,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/terminal-crow32/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794131978991364474,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/terminal-crow32/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794131978991577684,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/terminal-crow32/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794131978991480850,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/terminal-crow32/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-contact-status.bin",
+    "bytes": 1152,
+    "mode": 420,
+    "mtime_ns": 1794131999339022180,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-contact-status.bin",
+    "sha256": "f6462ac5e0810dcd3f840dca81fa500fbe4a84d308f77b10008802353dd74594"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794131999338812428,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-q.f32",
+    "sha256": "245cf6927edf04a09d7372ca8dfa7c0d88069c947dbaeb515254e7910e86a8ca"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794131999338942221,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-scene.bin",
+    "sha256": "1cb963ba385cc0c78b58be8e2f8c63bbb61d738777546c7f2fc6283030bfb6d6"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-transitions.bin",
+    "bytes": 576,
+    "mode": 420,
+    "mtime_ns": 1794131999339058305,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-transitions.bin",
+    "sha256": "bfcfb39293ba720d8852d18d9ff28b9c2830352e010aba458e64421726b70eb8"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794131999338902595,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-v.f32",
+    "sha256": "09b012cc32f574ee869844e30fbd608fe322c0039b6f4346167e1bdf2772a773"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-world-status.bin",
+    "bytes": 192,
+    "mode": 420,
+    "mtime_ns": 1794131999338981804,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-world-status.bin",
+    "sha256": "b15750ba5c5e7b6970ed05c70a1a7ce64069e95af60e283c6e062f9eb265d714"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal.json",
+    "bytes": 634,
+    "mode": 420,
+    "mtime_ns": 1794131999339101555,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal.json",
+    "sha256": "23a299d70497aa32dd9e7aee874e9f59f6e5b00dd9e3839b7f511e265aa8ca96"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-crow32/trace.tsv",
+    "bytes": 84106,
+    "mode": 420,
+    "mtime_ns": 1794131999339129180,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/terminal-crow32/trace.tsv",
+    "sha256": "0c6f18fd1ecb22f6669325b7f2b9ee52edc8875745f1aaff1135126b345e5f75"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-crow32.stderr",
+    "bytes": 84780,
+    "mode": 420,
+    "mtime_ns": 1794131999343168877,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/terminal-crow32.stderr",
+    "sha256": "aef4e73c5b1fcdb2a91906cc940678f79eed30f3727b27b1a3cf471289069b83"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794131978594297925,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/terminal-crow32.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-execution.json",
+    "bytes": 416,
+    "mode": 420,
+    "mtime_ns": 1794131999386220444,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/terminal-execution.json",
+    "sha256": "ddbb2ab7b942368892e720bf9372986616cb1f3d5954f9f2ebb104d09e366fde"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-analysis.json",
+    "bytes": 4036,
+    "mode": 420,
+    "mtime_ns": 1794131637566339441,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-analysis.json",
+    "sha256": "49f02d3dcf31f04057c6dfc97e654e855c112483cbc274180199dfc21726200b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-arithmetic.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794131616478290740,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-arithmetic.f32",
+    "sha256": "578596c74c9ad7b2c0c01a14131ae1fabb28be2a1450d1367b37509097c814a9"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-arithmetic.stderr",
+    "bytes": 84586,
+    "mode": 420,
+    "mtime_ns": 1794131616424579803,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-arithmetic.stderr",
+    "sha256": "d272d0cc4fdf8b8c927e24fc0898d85c8c16412c879c9c0b1ad4f9656c34aa4a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-arithmetic.stdout",
+    "bytes": 55,
+    "mode": 420,
+    "mtime_ns": 1794131616478711493,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-arithmetic.stdout",
+    "sha256": "93ca7529af8dca43d84e18826f6286a5e7d412db85d626b547370245374de0e9"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794131505496536465,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-build.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-build.stdout",
+    "bytes": 8057,
+    "mode": 420,
+    "mtime_ns": 1794131534204360122,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-build.stdout",
+    "sha256": "e7a7d93a51f6e7a81822f8a3cc246d9df827eee39beffc57ce5a4ae782b2f57c"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-constitutive.stderr",
+    "bytes": 84585,
+    "mode": 420,
+    "mtime_ns": 1794131616851058528,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-constitutive.stderr",
+    "sha256": "621141e37f2279596d82a9b77533af6012aabb3702ec481517f62905de213422"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-constitutive.stdout",
+    "bytes": 4866,
+    "mode": 420,
+    "mtime_ns": 1794131617099456565,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-constitutive.stdout",
+    "sha256": "d256f65111ffc1f889327e3cbb1870346627b4d1752aba91c20e8ad7a92a1fe2"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-constitutive.tsv",
+    "bytes": 190875,
+    "mode": 420,
+    "mtime_ns": 1794131617093353270,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-constitutive.tsv",
+    "sha256": "8eb5bbb74fa4a790d7cd953f07a884691108cbc8e98a09360555cd1866d49c8b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794131617184804194,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-crow32/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794131617184901528,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-crow32/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794131617185034445,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-crow32/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794131617184970903,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-crow32/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-crow32/trace.tsv",
+    "bytes": 84106,
+    "mode": 420,
+    "mtime_ns": 1794131637523994962,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-crow32/trace.tsv",
+    "sha256": "0c6f18fd1ecb22f6669325b7f2b9ee52edc8875745f1aaff1135126b345e5f75"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-crow32.stderr",
+    "bytes": 84753,
+    "mode": 420,
+    "mtime_ns": 1794131637528935623,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-crow32.stderr",
+    "sha256": "06dfb0d9d564687e1b8d32b92e06b2b11d052fcf6105897c87a6811054133d34"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794131617165528302,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-crow32.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-execution.json",
+    "bytes": 2747,
+    "mode": 420,
+    "mtime_ns": 1794131637565986813,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-execution.json",
+    "sha256": "56ce9c818dd0c0c92aa16ee982b8c41f66ceceb2003ed6ab787dff94e673c87c"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-negative.stderr",
+    "bytes": 84679,
+    "mode": 420,
+    "mtime_ns": 1794131616774867967,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-negative.stderr",
+    "sha256": "88c9af54a26417149f8cda775bbe8cd44bcfcf661b532f99d59bcc5b9a33de5c"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-negative.stdout",
+    "bytes": 1889,
+    "mode": 420,
+    "mtime_ns": 1794131616774860050,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-negative.stdout",
+    "sha256": "cc4d38dc09a851feff2ccfd37312d3807c9b15b489df71c5a096d7f329a6823b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-negative.tsv",
+    "bytes": 52475,
+    "mode": 420,
+    "mtime_ns": 1794131616770195057,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/twofold-negative.tsv",
+    "sha256": "d8beff7cc05557414e8cfc81f7f6ffd8c521bb4adacdf741411c5b451ceee70b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/verify_integration.py",
+    "bytes": 4351,
+    "mode": 420,
+    "mtime_ns": 1794132021052650070,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/verify_integration.py",
+    "sha256": "914256cad1789fa3b30c4d2ca9e834d54a242ee36e9220b0ca83b5f04f47ee38"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-analysis.json",
+    "bytes": 5799,
+    "mode": 420,
+    "mtime_ns": 1794130082009400452,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/witness-analysis.json",
+    "sha256": "99efe32ee13c85b0cfc3a8b60baf52becaf890b80a07e10f2f6006df3275026f"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794129907637718818,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/witness-build-v2.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-build-v2.stdout",
+    "bytes": 450,
+    "mode": 420,
+    "mtime_ns": 1794129912270895179,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/witness-build-v2.stdout",
+    "sha256": "f54dd1b31ef2cf7afadda0d0e0c855ffb6eeaf809549da59b3754a74d55fcaef"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794129869055644174,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/witness-build.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-build.stdout",
+    "bytes": 9143,
+    "mode": 420,
+    "mtime_ns": 1794129894248779884,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/witness-build.stdout",
+    "sha256": "02efb0e3a9573abdde70192da225c48eb0f6babf23944c9df9af576e1c9bb394"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-constitutive.stderr",
+    "bytes": 84585,
+    "mode": 420,
+    "mtime_ns": 1794130074641505151,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/witness-constitutive.stderr",
+    "sha256": "a8ae98bfc2141dbb3369323efea707e1c786a727a4a062ab6565ec43614d9141"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-constitutive.stdout",
+    "bytes": 4868,
+    "mode": 420,
+    "mtime_ns": 1794130074880537782,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/witness-constitutive.stdout",
+    "sha256": "27ec9189bc36e638dacd0e196dadf4a742b1a95007025fc1a114cd30eb42a1f3"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-constitutive.tsv",
+    "bytes": 190703,
+    "mode": 420,
+    "mtime_ns": 1794130074874603379,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/witness-constitutive.tsv",
+    "sha256": "251b4ad249202e8e87caeb1992e70d1ef2f586a126289fba56eba4b5c6bd4a7d"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-execution.json",
+    "bytes": 984,
+    "mode": 420,
+    "mtime_ns": 1794130081994927050,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/witness-execution.json",
+    "sha256": "7ff70b108b9bc5a17ac9fe46fccae8c9b51a27588bb6f7a1829658e7123ce3c0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794129992710676618,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/witness-host-calibration.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-host-calibration.stdout",
+    "bytes": 78,
+    "mode": 420,
+    "mtime_ns": 1794129993353659326,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/witness-host-calibration.stdout",
+    "sha256": "d8a4edeb3b57fc33800738d49c2342c649e45dce841092c1acaa2a462a445b92"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794130000897505918,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/witness-reference-calibration-v2.stderr",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration-v2.stdout",
+    "bytes": 157,
+    "mode": 420,
+    "mtime_ns": 1794130000955044524,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/witness-reference-calibration-v2.stdout",
+    "sha256": "46d35762661452f694b682782e0a4ffcd000ff1f7c20eb3bed0b0cdf298afee8"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stderr",
+    "bytes": 239,
+    "mode": 420,
+    "mtime_ns": 1794129993418112339,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stderr",
+    "sha256": "7beef2405fdcc068cc3bbd1c3f310681c1495142b1ec4beea604b0b25011193b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "bytes": 0,
+    "mode": 420,
+    "mtime_ns": 1794129993377010186,
+    "path": "build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/witness-reference-calibration.stdout",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794132777395118940,
+    "path": "build/crow-bounded-drive-git-recovery-01/current-terminal/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794132777395283233,
+    "path": "build/crow-bounded-drive-git-recovery-01/current-terminal/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794132777395468234,
+    "path": "build/crow-bounded-drive-git-recovery-01/current-terminal/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794132777395377900,
+    "path": "build/crow-bounded-drive-git-recovery-01/current-terminal/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-contact-status.bin",
+    "bytes": 1152,
+    "mode": 420,
+    "mtime_ns": 1794132797756790940,
+    "path": "build/crow-bounded-drive-git-recovery-01/current-terminal/terminal-contact-status.bin",
+    "sha256": "f6462ac5e0810dcd3f840dca81fa500fbe4a84d308f77b10008802353dd74594"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794132797756570688,
+    "path": "build/crow-bounded-drive-git-recovery-01/current-terminal/terminal-q.f32",
+    "sha256": "245cf6927edf04a09d7372ca8dfa7c0d88069c947dbaeb515254e7910e86a8ca"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794132797756705106,
+    "path": "build/crow-bounded-drive-git-recovery-01/current-terminal/terminal-scene.bin",
+    "sha256": "1cb963ba385cc0c78b58be8e2f8c63bbb61d738777546c7f2fc6283030bfb6d6"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-transitions.bin",
+    "bytes": 576,
+    "mode": 420,
+    "mtime_ns": 1794132797756830315,
+    "path": "build/crow-bounded-drive-git-recovery-01/current-terminal/terminal-transitions.bin",
+    "sha256": "bfcfb39293ba720d8852d18d9ff28b9c2830352e010aba458e64421726b70eb8"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794132797756661356,
+    "path": "build/crow-bounded-drive-git-recovery-01/current-terminal/terminal-v.f32",
+    "sha256": "09b012cc32f574ee869844e30fbd608fe322c0039b6f4346167e1bdf2772a773"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-world-status.bin",
+    "bytes": 192,
+    "mode": 420,
+    "mtime_ns": 1794132797756749565,
+    "path": "build/crow-bounded-drive-git-recovery-01/current-terminal/terminal-world-status.bin",
+    "sha256": "b15750ba5c5e7b6970ed05c70a1a7ce64069e95af60e283c6e062f9eb265d714"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal.json",
+    "bytes": 634,
+    "mode": 420,
+    "mtime_ns": 1794132797756881274,
+    "path": "build/crow-bounded-drive-git-recovery-01/current-terminal/terminal.json",
+    "sha256": "23a299d70497aa32dd9e7aee874e9f59f6e5b00dd9e3839b7f511e265aa8ca96"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/terminal-crow32/trace.tsv",
+    "bytes": 84106,
+    "mode": 420,
+    "mtime_ns": 1794132797756913108,
+    "path": "build/crow-bounded-drive-git-recovery-01/current-terminal/trace.tsv",
+    "sha256": "0c6f18fd1ecb22f6669325b7f2b9ee52edc8875745f1aaff1135126b345e5f75"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-constitutive.tsv",
+    "bytes": 190875,
+    "mode": 420,
+    "mtime_ns": 1794132777045978500,
+    "path": "build/crow-bounded-drive-git-recovery-01/current.tsv",
+    "sha256": "8eb5bbb74fa4a790d7cd953f07a884691108cbc8e98a09360555cd1866d49c8b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-crow32/final-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794132814807556187,
+    "path": "build/crow-bounded-drive-git-recovery-01/default-physical-replay/final-q.f32",
+    "sha256": "4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-crow32/final-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794132814807716105,
+    "path": "build/crow-bounded-drive-git-recovery-01/default-physical-replay/final-scene.bin",
+    "sha256": "e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-crow32/final-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794132814807652604,
+    "path": "build/crow-bounded-drive-git-recovery-01/default-physical-replay/final-v.f32",
+    "sha256": "a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794132798113412063,
+    "path": "build/crow-bounded-drive-git-recovery-01/default-physical-replay/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794132798113592190,
+    "path": "build/crow-bounded-drive-git-recovery-01/default-physical-replay/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794132798113812900,
+    "path": "build/crow-bounded-drive-git-recovery-01/default-physical-replay/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794132798113711024,
+    "path": "build/crow-bounded-drive-git-recovery-01/default-physical-replay/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "bytes": 211,
+    "mode": 420,
+    "mtime_ns": 1794132814808006774,
+    "path": "build/crow-bounded-drive-git-recovery-01/default-physical-replay/runtime.json",
+    "recovery_blob": "artifacts/crow-rl-git-recovery-bounded-drive-20261108/recovery-blobs/7383339476fbe6a064c028f57c9e7a325373a38a2e3143bcc25053665453ed43.gz",
+    "sha256": "7383339476fbe6a064c028f57c9e7a325373a38a2e3143bcc25053665453ed43"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-crow32/scene.bin",
+    "bytes": 163840,
+    "mode": 420,
+    "mtime_ns": 1794132814807878523,
+    "path": "build/crow-bounded-drive-git-recovery-01/default-physical-replay/scene.bin",
+    "sha256": "097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-crow32/summary.json",
+    "bytes": 757,
+    "mode": 420,
+    "mtime_ns": 1794132814807984899,
+    "path": "build/crow-bounded-drive-git-recovery-01/default-physical-replay/summary.json",
+    "sha256": "765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/default-crow32/trace.tsv",
+    "bytes": 141362,
+    "mode": 420,
+    "mtime_ns": 1794132814808014482,
+    "path": "build/crow-bounded-drive-git-recovery-01/default-physical-replay/trace.tsv",
+    "sha256": "8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/twofold-negative.tsv",
+    "bytes": 52475,
+    "mode": 420,
+    "mtime_ns": 1794132776862730837,
+    "path": "build/crow-bounded-drive-git-recovery-01/negative.tsv",
+    "sha256": "d8beff7cc05557414e8cfc81f7f6ffd8c521bb4adacdf741411c5b451ceee70b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/failure-contact-status.bin",
+    "bytes": 1152,
+    "mode": 420,
+    "mtime_ns": 1794132763701616648,
+    "path": "build/crow-bounded-drive-git-recovery-01/original-motor-failure/failure-contact-status.bin",
+    "sha256": "106a1e1206a8e85c0e43ef72c6ff7d34ddb842318b53538445856fa5b76fc7b0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/failure-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794132763701420938,
+    "path": "build/crow-bounded-drive-git-recovery-01/original-motor-failure/failure-q.f32",
+    "sha256": "3ff0f26d5820b0a7c87c260cb5952551b2bf3b3c25a43ac506dfdc380e514f70"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/failure-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794132763701520689,
+    "path": "build/crow-bounded-drive-git-recovery-01/original-motor-failure/failure-scene.bin",
+    "sha256": "0502a2a69237c47d06ba2e7548dc76d3990e28386a14d4740768d2286ca5620e"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/failure-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794132763701473146,
+    "path": "build/crow-bounded-drive-git-recovery-01/original-motor-failure/failure-v.f32",
+    "sha256": "fc59e6dd95d7049cf7648926cd66a4b5887cc694798fe57ac106e7363518dd39"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/failure-world-status.bin",
+    "bytes": 192,
+    "mode": 420,
+    "mtime_ns": 1794132763701569481,
+    "path": "build/crow-bounded-drive-git-recovery-01/original-motor-failure/failure-world-status.bin",
+    "sha256": "a02eb817df2e613f86a0eda13437a8cb5ebdedb8cdc8bfc3ab0126bbbff2b5ec"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/failure.json",
+    "bytes": 179,
+    "mode": 420,
+    "mtime_ns": 1794132763701682106,
+    "path": "build/crow-bounded-drive-git-recovery-01/original-motor-failure/failure.json",
+    "sha256": "9b451afe39ef99b535a5bd1c6dafa0489e74769e8ce361a7116593a7695fe715"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794132756648278131,
+    "path": "build/crow-bounded-drive-git-recovery-01/original-motor-failure/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794132756648435299,
+    "path": "build/crow-bounded-drive-git-recovery-01/original-motor-failure/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794132756648624384,
+    "path": "build/crow-bounded-drive-git-recovery-01/original-motor-failure/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794132756648532842,
+    "path": "build/crow-bounded-drive-git-recovery-01/original-motor-failure/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-witness/trace.tsv",
+    "bytes": 20445,
+    "mode": 420,
+    "mtime_ns": 1794132763701700815,
+    "path": "build/crow-bounded-drive-git-recovery-01/original-motor-failure/trace.tsv",
+    "sha256": "2adda3feb8fa359e431a012a5d5ac75e8c33be9ab1083e4c677a9e5e52103bec"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/crow-motor-failure.motorsnp",
+    "bytes": 13968,
+    "mode": 384,
+    "mtime_ns": 1794132763700892767,
+    "path": "build/crow-bounded-drive-git-recovery-01/original-motor-failure.motorsnp",
+    "sha256": "1571e412c68593863c8d5138f7d88b6d5df9dd796514d552d0dd25739156d48b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/native.tsv",
+    "bytes": 176877,
+    "mode": 420,
+    "mtime_ns": 1794132755296069267,
+    "path": "build/crow-bounded-drive-git-recovery-01/original.tsv",
+    "sha256": "4db48dcce6c8b04b774d3e0f686a0c4d148644393e2f5ce6da1e48b94eaa5412"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/failure-contact-status.bin",
+    "bytes": 1152,
+    "mode": 420,
+    "mtime_ns": 1794132775763235605,
+    "path": "build/crow-bounded-drive-git-recovery-01/strict-quantization-failure/failure-contact-status.bin",
+    "sha256": "3d1897310be594e8c90fb46ba9432d9c533cc9d45500a3dcac1ea0cc3e9d039a"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/failure-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794132775763030353,
+    "path": "build/crow-bounded-drive-git-recovery-01/strict-quantization-failure/failure-q.f32",
+    "sha256": "18c3fe24190766ac399c0bd9fbf071f08ced803f6e1bec32ef35139d7e195194"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/failure-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794132775763143896,
+    "path": "build/crow-bounded-drive-git-recovery-01/strict-quantization-failure/failure-scene.bin",
+    "sha256": "0d48ff908fb746f5c43c9ce14aad8eaa7f7b13fc851f113d1df7f7b757bbdc46"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/failure-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794132775763087646,
+    "path": "build/crow-bounded-drive-git-recovery-01/strict-quantization-failure/failure-v.f32",
+    "sha256": "a8a4eeebf4075e64723aeddbe3fcac68442226501f3fff31dfad2d7a451b001b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/failure-world-status.bin",
+    "bytes": 192,
+    "mode": 420,
+    "mtime_ns": 1794132775763191021,
+    "path": "build/crow-bounded-drive-git-recovery-01/strict-quantization-failure/failure-world-status.bin",
+    "sha256": "abee039b925289b15b8e8b9abb2dbcbca40573470532be5d34d837bfba71c17b"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/failure.json",
+    "bytes": 179,
+    "mode": 420,
+    "mtime_ns": 1794132775763296439,
+    "path": "build/crow-bounded-drive-git-recovery-01/strict-quantization-failure/failure.json",
+    "sha256": "273a6c471de251ac4a5258131291923df4e2a776b74b526ea0ac711f304a8ff5"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-geometry.json",
+    "bytes": 545,
+    "mode": 420,
+    "mtime_ns": 1794132763948139855,
+    "path": "build/crow-bounded-drive-git-recovery-01/strict-quantization-failure/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-q.f32",
+    "bytes": 368,
+    "mode": 420,
+    "mtime_ns": 1794132763948527108,
+    "path": "build/crow-bounded-drive-git-recovery-01/strict-quantization-failure/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-scene.bin",
+    "bytes": 1024,
+    "mode": 420,
+    "mtime_ns": 1794132763948786985,
+    "path": "build/crow-bounded-drive-git-recovery-01/strict-quantization-failure/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-v.f32",
+    "bytes": 352,
+    "mode": 420,
+    "mtime_ns": 1794132763948685526,
+    "path": "build/crow-bounded-drive-git-recovery-01/strict-quantization-failure/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32/trace.tsv",
+    "bytes": 49930,
+    "mode": 420,
+    "mtime_ns": 1794132775763314772,
+    "path": "build/crow-bounded-drive-git-recovery-01/strict-quantization-failure/trace.tsv",
+    "sha256": "e6706d51bd1c560eaeefcc4527064bf56471d8197bd17c58492ebd7729fd5263"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/strict-crow32.motorsnp",
+    "bytes": 13968,
+    "mode": 384,
+    "mtime_ns": 1794132775762510891,
+    "path": "build/crow-bounded-drive-git-recovery-01/strict-quantization-failure.motorsnp",
+    "sha256": "767fe80c726b360f54385db38fcaafd406d7ed9fbf208896826abb7fc05d1aa5"
+  },
+  {
+    "archive_source": "build/crow-bounded-drive-integration-build-01/witness-constitutive.tsv",
+    "bytes": 190703,
+    "mode": 420,
+    "mtime_ns": 1794132755980599578,
+    "path": "build/crow-bounded-drive-git-recovery-01/v2.tsv",
+    "sha256": "251b4ad249202e8e87caeb1992e70d1ef2f586a126289fba56eba4b5c6bd4a7d"
+  }
+]

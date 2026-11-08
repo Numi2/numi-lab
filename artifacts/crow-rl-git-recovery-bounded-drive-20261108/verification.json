@@ -1,0 +1,17 @@
+{
+  "all_compared_bytes_exact": true,
+  "byte_exact_comparisons": 50,
+  "known_bad_shader_rejected_before_further_conditions": true,
+  "limits": "Scoped native recovery, not new scientific observations. Invalid old SIMD crow trajectories and the full object-push regression are Git-byte verified but not re-executed. All original source evidence is restored; exact physical/numerical/failure paths above are replayed.",
+  "manifest": "artifacts/crow-rl-bounded-drive-integration-20261108/payload/manifest.json",
+  "manifest_sha256": "5a64d7d4f0443a836723d3c41c8f48a8c32a96b55bc57107f0128c8134c1346f",
+  "native_commands": 9,
+  "new_recovery_blobs": 1,
+  "new_recovery_compressed_bytes": 175,
+  "open_handles": 0,
+  "policy_or_profile_promoted": false,
+  "restored_bytes": 89518819,
+  "restored_files": 396,
+  "temporary_bytes": 90640420,
+  "temporary_files": 448
+}

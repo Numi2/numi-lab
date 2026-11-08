@@ -1,0 +1,302 @@
+[
+  {
+    "actual": "original.tsv",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/native.tsv",
+    "sha256": "4db48dcce6c8b04b774d3e0f686a0c4d148644393e2f5ce6da1e48b94eaa5412"
+  },
+  {
+    "actual": "v2.tsv",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/native-v2.tsv",
+    "sha256": "251b4ad249202e8e87caeb1992e70d1ef2f586a126289fba56eba4b5c6bd4a7d"
+  },
+  {
+    "actual": "original-motor-failure/failure-contact-status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/crow-witness/failure-contact-status.bin",
+    "sha256": "106a1e1206a8e85c0e43ef72c6ff7d34ddb842318b53538445856fa5b76fc7b0"
+  },
+  {
+    "actual": "original-motor-failure/failure-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/crow-witness/failure-q.f32",
+    "sha256": "3ff0f26d5820b0a7c87c260cb5952551b2bf3b3c25a43ac506dfdc380e514f70"
+  },
+  {
+    "actual": "original-motor-failure/failure-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/crow-witness/failure-scene.bin",
+    "sha256": "0502a2a69237c47d06ba2e7548dc76d3990e28386a14d4740768d2286ca5620e"
+  },
+  {
+    "actual": "original-motor-failure/failure-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/crow-witness/failure-v.f32",
+    "sha256": "fc59e6dd95d7049cf7648926cd66a4b5887cc694798fe57ac106e7363518dd39"
+  },
+  {
+    "actual": "original-motor-failure/failure-world-status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/crow-witness/failure-world-status.bin",
+    "sha256": "a02eb817df2e613f86a0eda13437a8cb5ebdedb8cdc8bfc3ab0126bbbff2b5ec"
+  },
+  {
+    "actual": "original-motor-failure/failure.json",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/crow-witness/failure.json",
+    "sha256": "9b451afe39ef99b535a5bd1c6dafa0489e74769e8ce361a7116593a7695fe715"
+  },
+  {
+    "actual": "original-motor-failure/initial-geometry.json",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/crow-witness/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "actual": "original-motor-failure/initial-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/crow-witness/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "actual": "original-motor-failure/initial-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/crow-witness/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "actual": "original-motor-failure/initial-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/crow-witness/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "actual": "original-motor-failure/trace.tsv",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/crow-witness/trace.tsv",
+    "sha256": "2adda3feb8fa359e431a012a5d5ac75e8c33be9ab1083e4c677a9e5e52103bec"
+  },
+  {
+    "actual": "original-motor-failure.motorsnp",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/crow-motor-failure.motorsnp",
+    "sha256": "1571e412c68593863c8d5138f7d88b6d5df9dd796514d552d0dd25739156d48b"
+  },
+  {
+    "actual": "strict-quantization-failure/failure-contact-status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/strict-crow32/failure-contact-status.bin",
+    "sha256": "3d1897310be594e8c90fb46ba9432d9c533cc9d45500a3dcac1ea0cc3e9d039a"
+  },
+  {
+    "actual": "strict-quantization-failure/failure-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/strict-crow32/failure-q.f32",
+    "sha256": "18c3fe24190766ac399c0bd9fbf071f08ced803f6e1bec32ef35139d7e195194"
+  },
+  {
+    "actual": "strict-quantization-failure/failure-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/strict-crow32/failure-scene.bin",
+    "sha256": "0d48ff908fb746f5c43c9ce14aad8eaa7f7b13fc851f113d1df7f7b757bbdc46"
+  },
+  {
+    "actual": "strict-quantization-failure/failure-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/strict-crow32/failure-v.f32",
+    "sha256": "a8a4eeebf4075e64723aeddbe3fcac68442226501f3fff31dfad2d7a451b001b"
+  },
+  {
+    "actual": "strict-quantization-failure/failure-world-status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/strict-crow32/failure-world-status.bin",
+    "sha256": "abee039b925289b15b8e8b9abb2dbcbca40573470532be5d34d837bfba71c17b"
+  },
+  {
+    "actual": "strict-quantization-failure/failure.json",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/strict-crow32/failure.json",
+    "sha256": "273a6c471de251ac4a5258131291923df4e2a776b74b526ea0ac711f304a8ff5"
+  },
+  {
+    "actual": "strict-quantization-failure/initial-geometry.json",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "actual": "strict-quantization-failure/initial-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "actual": "strict-quantization-failure/initial-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "actual": "strict-quantization-failure/initial-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/strict-crow32/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "actual": "strict-quantization-failure/trace.tsv",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/strict-crow32/trace.tsv",
+    "sha256": "e6706d51bd1c560eaeefcc4527064bf56471d8197bd17c58492ebd7729fd5263"
+  },
+  {
+    "actual": "strict-quantization-failure.motorsnp",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/strict-crow32.motorsnp",
+    "sha256": "767fe80c726b360f54385db38fcaafd406d7ed9fbf208896826abb7fc05d1aa5"
+  },
+  {
+    "actual": "arithmetic.f32",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/twofold-arithmetic.f32",
+    "sha256": "578596c74c9ad7b2c0c01a14131ae1fabb28be2a1450d1367b37509097c814a9"
+  },
+  {
+    "actual": "current.tsv",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/twofold-constitutive.tsv",
+    "sha256": "8eb5bbb74fa4a790d7cd953f07a884691108cbc8e98a09360555cd1866d49c8b"
+  },
+  {
+    "actual": "current-terminal/initial-geometry.json",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/terminal-crow32/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "actual": "current-terminal/initial-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/terminal-crow32/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "actual": "current-terminal/initial-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/terminal-crow32/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "actual": "current-terminal/initial-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/terminal-crow32/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "actual": "current-terminal/terminal-contact-status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-contact-status.bin",
+    "sha256": "f6462ac5e0810dcd3f840dca81fa500fbe4a84d308f77b10008802353dd74594"
+  },
+  {
+    "actual": "current-terminal/terminal-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-q.f32",
+    "sha256": "245cf6927edf04a09d7372ca8dfa7c0d88069c947dbaeb515254e7910e86a8ca"
+  },
+  {
+    "actual": "current-terminal/terminal-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-scene.bin",
+    "sha256": "1cb963ba385cc0c78b58be8e2f8c63bbb61d738777546c7f2fc6283030bfb6d6"
+  },
+  {
+    "actual": "current-terminal/terminal-transitions.bin",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-transitions.bin",
+    "sha256": "bfcfb39293ba720d8852d18d9ff28b9c2830352e010aba458e64421726b70eb8"
+  },
+  {
+    "actual": "current-terminal/terminal-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-v.f32",
+    "sha256": "09b012cc32f574ee869844e30fbd608fe322c0039b6f4346167e1bdf2772a773"
+  },
+  {
+    "actual": "current-terminal/terminal-world-status.bin",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal-world-status.bin",
+    "sha256": "b15750ba5c5e7b6970ed05c70a1a7ce64069e95af60e283c6e062f9eb265d714"
+  },
+  {
+    "actual": "current-terminal/terminal.json",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/terminal-crow32/terminal.json",
+    "sha256": "23a299d70497aa32dd9e7aee874e9f59f6e5b00dd9e3839b7f511e265aa8ca96"
+  },
+  {
+    "actual": "current-terminal/trace.tsv",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/terminal-crow32/trace.tsv",
+    "sha256": "0c6f18fd1ecb22f6669325b7f2b9ee52edc8875745f1aaff1135126b345e5f75"
+  },
+  {
+    "actual": "default-physical-replay/final-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/default-crow32/final-q.f32",
+    "sha256": "4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42"
+  },
+  {
+    "actual": "default-physical-replay/final-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/default-crow32/final-scene.bin",
+    "sha256": "e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090"
+  },
+  {
+    "actual": "default-physical-replay/final-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/default-crow32/final-v.f32",
+    "sha256": "a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27"
+  },
+  {
+    "actual": "default-physical-replay/initial-geometry.json",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/default-crow32/initial-geometry.json",
+    "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+  },
+  {
+    "actual": "default-physical-replay/initial-q.f32",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/default-crow32/initial-q.f32",
+    "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+  },
+  {
+    "actual": "default-physical-replay/initial-scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/default-crow32/initial-scene.bin",
+    "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+  },
+  {
+    "actual": "default-physical-replay/initial-v.f32",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/default-crow32/initial-v.f32",
+    "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+  },
+  {
+    "actual": "default-physical-replay/scene.bin",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/default-crow32/scene.bin",
+    "sha256": "097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e"
+  },
+  {
+    "actual": "default-physical-replay/summary.json",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/default-crow32/summary.json",
+    "sha256": "765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9"
+  },
+  {
+    "actual": "default-physical-replay/trace.tsv",
+    "byte_exact": true,
+    "reference": "build/crow-bounded-drive-integration-build-01/default-crow32/trace.tsv",
+    "sha256": "8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921"
+  }
+]

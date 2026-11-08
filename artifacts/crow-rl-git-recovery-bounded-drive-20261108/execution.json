@@ -1,0 +1,137 @@
+[
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-integration-20261108/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-integration-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/original.tsv"
+    ],
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "loader_lines": [
+      "dyld[32450]: <3D5B5EC3-43D7-31E4-9B2B-B74CC3DA24DB> /Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-integration-20261108/libmetalrobo.dylib"
+    ],
+    "name": "original-capacity-failure",
+    "seconds": 0.883325458
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-integration-v2-20261108/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-integration-v2-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/v2.tsv"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "loader_lines": [
+      "dyld[32459]: <3D5B5EC3-43D7-31E4-9B2B-B74CC3DA24DB> /Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-integration-v2-20261108/libmetalrobo.dylib"
+    ],
+    "name": "v2-constitutive",
+    "seconds": 0.682698083
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/fixture-bounded",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/original-motor-failure",
+      "0",
+      "1",
+      "32"
+    ],
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "loader_lines": [
+      "dyld[32462]: <2EDE1C98-62C1-3B80-B182-DA0763DA6B9E> /Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-witness-20261108/libmetalrobo.dylib"
+    ],
+    "name": "original-motor-failure",
+    "seconds": 7.6656545
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/fixture-bounded",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/strict-quantization-failure",
+      "0",
+      "1",
+      "32"
+    ],
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "loader_lines": [
+      "dyld[32476]: <2EDE1C98-62C1-3B80-B182-DA0763DA6B9E> /Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-strict-20261108/libmetalrobo.dylib"
+    ],
+    "name": "strict-quantization-failure",
+    "seconds": 12.070261625000002
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/certificate-v2",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-twofold-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/precision-v2-crow32.motorsnp",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/arithmetic.f32"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "loader_lines": [
+      "dyld[32496]: <4D68CA38-6DDA-3802-BB55-2A7181993869> /Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-twofold-20261108/libmetalrobo.dylib"
+    ],
+    "name": "current-arithmetic",
+    "seconds": 0.6534023750000024
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-twofold-20261108/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-precision-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/negative.tsv"
+    ],
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "loader_lines": [
+      "dyld[32497]: <4D68CA38-6DDA-3802-BB55-2A7181993869> /Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-twofold-20261108/libmetalrobo.dylib"
+    ],
+    "name": "known-bad-rejection",
+    "seconds": 0.4320348749999994
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-twofold-20261108/probe",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-twofold-20261108/metalrobo/MetalRobo.metallib",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/current.tsv"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "loader_lines": [
+      "dyld[32498]: <4D68CA38-6DDA-3802-BB55-2A7181993869> /Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-twofold-20261108/libmetalrobo.dylib"
+    ],
+    "name": "current-constitutive",
+    "seconds": 0.21084208300000284
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/fixture-terminal",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/current-terminal",
+      "0",
+      "1",
+      "32"
+    ],
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "loader_lines": [
+      "dyld[32499]: <4D68CA38-6DDA-3802-BB55-2A7181993869> /Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-twofold-20261108/libmetalrobo.dylib"
+    ],
+    "name": "current-terminal",
+    "seconds": 20.703816832999998
+  },
+  {
+    "command": [
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/build/crow-bounded-drive-integration-build-01/fixture-base",
+      "/Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/default-physical-replay",
+      "0",
+      "1",
+      "32"
+    ],
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "loader_lines": [
+      "dyld[32526]: <4D68CA38-6DDA-3802-BB55-2A7181993869> /Users/n/Developer/numi-crow-rl-20261107/build/crow-bounded-drive-git-recovery-01/.numi/retained-runtime/bounded-drive-twofold-20261108/libmetalrobo.dylib"
+    ],
+    "name": "default-physical-replay",
+    "seconds": 17.036381583
+  }
+]
