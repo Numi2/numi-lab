@@ -1,0 +1,1474 @@
+{
+  "base_commit": "ce835826a9186d244d79012d7bd9cb4a1bd4f601",
+  "files": [
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 4878,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/44bb7597907677b9a97c53f945e147d382482d9da44bddb7c2dc3cedd7f03b2d.gz",
+            "sha256": "44bb7597907677b9a97c53f945e147d382482d9da44bddb7c2dc3cedd7f03b2d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 4878,
+      "mode": 420,
+      "mtime_ns": 1794097209438779783,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/driver.py",
+      "sha256": "44bb7597907677b9a97c53f945e147d382482d9da44bddb7c2dc3cedd7f03b2d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2447,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/60e96fee792fdd49d88c56b1ee37f9c3f31baae0b30e5a998f942c95accfccf5.gz",
+            "sha256": "60e96fee792fdd49d88c56b1ee37f9c3f31baae0b30e5a998f942c95accfccf5"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2447,
+      "mode": 420,
+      "mtime_ns": 1794097124362456565,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/forbidden-override.command.json",
+      "sha256": "60e96fee792fdd49d88c56b1ee37f9c3f31baae0b30e5a998f942c95accfccf5"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-adaptive-optimization-20261108/blobs/b5a3528eaa60e8afba861cf39320b46c46ac4754162d2ddc10e40bc346ad9055.gz"
+      },
+      "bytes": 59,
+      "mode": 420,
+      "mtime_ns": 1794097124362656649,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/forbidden-override.receipt.json",
+      "sha256": "b5a3528eaa60e8afba861cf39320b46c46ac4754162d2ddc10e40bc346ad9055"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-adaptive-optimization-20261108/blobs/58d841b6fe71223642de539d39134a2a11b4dc0cec200dbff472af28e0fb2de9.gz"
+      },
+      "bytes": 339,
+      "mode": 420,
+      "mtime_ns": 1794097124362603190,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/forbidden-override.stderr",
+      "sha256": "58d841b6fe71223642de539d39134a2a11b4dc0cec200dbff472af28e0fb2de9"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794097124362527649,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/forbidden-override.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 615,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/a12d203de707b4500415aa0c1eb3de87b59ebff1a5fa559ec7f3636385627ceb.gz",
+            "sha256": "a12d203de707b4500415aa0c1eb3de87b59ebff1a5fa559ec7f3636385627ceb"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 615,
+      "mode": 420,
+      "mtime_ns": 1794097124262575170,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/plan.json",
+      "sha256": "a12d203de707b4500415aa0c1eb3de87b59ebff1a5fa559ec7f3636385627ceb"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 31575,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/4add1939038e2d5cbbaaf3f46e2798328de91f8cb789f994d8bbec3756b0bc38.gz",
+            "sha256": "4add1939038e2d5cbbaaf3f46e2798328de91f8cb789f994d8bbec3756b0bc38"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 31575,
+      "mode": 420,
+      "mtime_ns": 1794097141882510161,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/summary.json",
+      "sha256": "4add1939038e2d5cbbaaf3f46e2798328de91f8cb789f994d8bbec3756b0bc38"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2469,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/dae1967272d14a986a40a1469a40ddfffedbede5c221ce681a9b8b3b96089e9d.gz",
+            "sha256": "dae1967272d14a986a40a1469a40ddfffedbede5c221ce681a9b8b3b96089e9d"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2469,
+      "mode": 420,
+      "mtime_ns": 1794097132925421870,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail1.command.json",
+      "sha256": "dae1967272d14a986a40a1469a40ddfffedbede5c221ce681a9b8b3b96089e9d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 59,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/c78a0f5c31dbf25dfeb768b3188063bb1543256c577f7e5aab9e492a106a6ad6.gz",
+            "sha256": "c78a0f5c31dbf25dfeb768b3188063bb1543256c577f7e5aab9e492a106a6ad6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 59,
+      "mode": 420,
+      "mtime_ns": 1794097141697658107,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail1.receipt.json",
+      "sha256": "c78a0f5c31dbf25dfeb768b3188063bb1543256c577f7e5aab9e492a106a6ad6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 186137,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/32ae358df2c5902ed0a8961828ab2be1da79d754ae21488b1d4c7a355543b546.gz",
+            "sha256": "32ae358df2c5902ed0a8961828ab2be1da79d754ae21488b1d4c7a355543b546"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 186137,
+      "mode": 420,
+      "mtime_ns": 1794097141697556274,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail1.stderr",
+      "sha256": "32ae358df2c5902ed0a8961828ab2be1da79d754ae21488b1d4c7a355543b546"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 13723,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/b9e838c5c9f6c3f37ef2cd15a860ce9fa138a550f80db82e2071324ce4b9f7ff.gz",
+            "sha256": "b9e838c5c9f6c3f37ef2cd15a860ce9fa138a550f80db82e2071324ce4b9f7ff"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 13723,
+      "mode": 420,
+      "mtime_ns": 1794097141697468690,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail1.stdout",
+      "sha256": "b9e838c5c9f6c3f37ef2cd15a860ce9fa138a550f80db82e2071324ce4b9f7ff"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2469,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/91929c1dfa22b1ab898f7c65aa60e96fc33e17f5c854dfe7d2ed4d6ed9202300.gz",
+            "sha256": "91929c1dfa22b1ab898f7c65aa60e96fc33e17f5c854dfe7d2ed4d6ed9202300"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2469,
+      "mode": 420,
+      "mtime_ns": 1794097124362822274,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail8.command.json",
+      "sha256": "91929c1dfa22b1ab898f7c65aa60e96fc33e17f5c854dfe7d2ed4d6ed9202300"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 58,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/6d2a31c0fa749d5a3bc740e39e791a936f294cd9f529c5e71ea9a8ffa82978f2.gz",
+            "sha256": "6d2a31c0fa749d5a3bc740e39e791a936f294cd9f529c5e71ea9a8ffa82978f2"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 58,
+      "mode": 420,
+      "mtime_ns": 1794097132925195452,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail8.receipt.json",
+      "sha256": "6d2a31c0fa749d5a3bc740e39e791a936f294cd9f529c5e71ea9a8ffa82978f2"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 186137,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/97016b97321b196bff22576e5414fde77650ec251c6f19948e6816fea3116a8f.gz",
+            "sha256": "97016b97321b196bff22576e5414fde77650ec251c6f19948e6816fea3116a8f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 186137,
+      "mode": 420,
+      "mtime_ns": 1794097132925083577,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail8.stderr",
+      "sha256": "97016b97321b196bff22576e5414fde77650ec251c6f19948e6816fea3116a8f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 13721,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/78d33f13a6624ca3fdf23b38443b8e69929df40290759a4e511353d6035399a0.gz",
+            "sha256": "78d33f13a6624ca3fdf23b38443b8e69929df40290759a4e511353d6035399a0"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 13721,
+      "mode": 420,
+      "mtime_ns": 1794097132924986535,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail8.stdout",
+      "sha256": "78d33f13a6624ca3fdf23b38443b8e69929df40290759a4e511353d6035399a0"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/57dba840f9d7201e2c066e414b19092e66e961250fc989b833827bc6a0856d5c.gz",
+            "sha256": "57dba840f9d7201e2c066e414b19092e66e961250fc989b833827bc6a0856d5c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794097132705532250,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail8/deployment.policypack",
+      "sha256": "57dba840f9d7201e2c066e414b19092e66e961250fc989b833827bc6a0856d5c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389.gz",
+            "sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794097124572978209,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail8/incumbent.policypack",
+      "sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1977365,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/dfca2ca5e0ebbb100e3312db4fe3075c1b254f56f0a258e6a9e3a2d9a215a08b.gz",
+            "sha256": "dfca2ca5e0ebbb100e3312db4fe3075c1b254f56f0a258e6a9e3a2d9a215a08b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1977365,
+      "mode": 420,
+      "mtime_ns": 1794097132707735338,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail8/learner.safetensors",
+      "sha256": "dfca2ca5e0ebbb100e3312db4fe3075c1b254f56f0a258e6a9e3a2d9a215a08b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/305b913905edce6d89bc9be4d2a24ec683d596311d626ee15b6c297761d4fdd7.gz",
+            "sha256": "305b913905edce6d89bc9be4d2a24ec683d596311d626ee15b6c297761d4fdd7"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/a7fbba9643f940481a0887aa227ffdc980b7fdbd81d71f2942ed2bc18e4b35f6.gz",
+            "sha256": "a7fbba9643f940481a0887aa227ffdc980b7fdbd81d71f2942ed2bc18e4b35f6"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/4f24704d980d8a5579aaa4008d126900929c91968d324cb164d67bf4a189f16a.gz",
+            "sha256": "4f24704d980d8a5579aaa4008d126900929c91968d324cb164d67bf4a189f16a"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/7699e24bbb7fda067f99d078e58969cccb68a5672713040a8dbdda27010ad85b.gz",
+            "sha256": "7699e24bbb7fda067f99d078e58969cccb68a5672713040a8dbdda27010ad85b"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/3e0e556b13ca5712d00a88f0b420214c038bd2effdfbe428cd937433d7ecd6f5.gz",
+            "sha256": "3e0e556b13ca5712d00a88f0b420214c038bd2effdfbe428cd937433d7ecd6f5"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/f7c75ab3c7bf0ae6f28cc34b6f82dbfbc9f40a0777543b675c69a022a4c33277.gz",
+            "sha256": "f7c75ab3c7bf0ae6f28cc34b6f82dbfbc9f40a0777543b675c69a022a4c33277"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/47842b88dec5383f55226542cb40b7df8c4f7152074e015931c4f4dac4332745.gz",
+            "sha256": "47842b88dec5383f55226542cb40b7df8c4f7152074e015931c4f4dac4332745"
+          },
+          {
+            "bytes": 3671031,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/4b86a196cf596a99346267e6b1954163469002a555ea1a6285993cd91258673e.gz",
+            "sha256": "4b86a196cf596a99346267e6b1954163469002a555ea1a6285993cd91258673e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 238552055,
+      "mode": 384,
+      "mtime_ns": 1794097131520350034,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail8/training.rolloutpack",
+      "sha256": "fe72472a0ec5b12151db47128388d9feb3eaf3ba0feb867696ebe7359ac7b1cc"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/779b6e8ed3d314a423c9e39055edf2c59d86f5870463346a92234ec76313fce6.gz",
+            "sha256": "779b6e8ed3d314a423c9e39055edf2c59d86f5870463346a92234ec76313fce6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794097132704173039,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail8/updated.policypack",
+      "sha256": "779b6e8ed3d314a423c9e39055edf2c59d86f5870463346a92234ec76313fce6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 64,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/1b418541a9da218182ff5e94bc43342226f35b711dca85447fcf494657ca3252.gz",
+            "sha256": "1b418541a9da218182ff5e94bc43342226f35b711dca85447fcf494657ca3252"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 64,
+      "mode": 384,
+      "mtime_ns": 1794097132842398173,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail8/checkpoints/revision-00000098.trainingcheckpoint/COMMITTED",
+      "sha256": "1b418541a9da218182ff5e94bc43342226f35b711dca85447fcf494657ca3252"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/57dba840f9d7201e2c066e414b19092e66e961250fc989b833827bc6a0856d5c.gz",
+            "sha256": "57dba840f9d7201e2c066e414b19092e66e961250fc989b833827bc6a0856d5c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794097132705532250,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail8/checkpoints/revision-00000098.trainingcheckpoint/candidate.policypack",
+      "sha256": "57dba840f9d7201e2c066e414b19092e66e961250fc989b833827bc6a0856d5c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1977365,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/dfca2ca5e0ebbb100e3312db4fe3075c1b254f56f0a258e6a9e3a2d9a215a08b.gz",
+            "sha256": "dfca2ca5e0ebbb100e3312db4fe3075c1b254f56f0a258e6a9e3a2d9a215a08b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1977365,
+      "mode": 420,
+      "mtime_ns": 1794097132707735338,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail8/checkpoints/revision-00000098.trainingcheckpoint/learner.safetensors",
+      "sha256": "dfca2ca5e0ebbb100e3312db4fe3075c1b254f56f0a258e6a9e3a2d9a215a08b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 13696652,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/03836aba144926f88cdcf7885d9f80604ebc67fff7704be7cb752faae18da9b1.gz",
+            "sha256": "03836aba144926f88cdcf7885d9f80604ebc67fff7704be7cb752faae18da9b1"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 13696652,
+      "mode": 384,
+      "mtime_ns": 1794097132739843023,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail8/checkpoints/revision-00000098.trainingcheckpoint/life.native",
+      "sha256": "03836aba144926f88cdcf7885d9f80604ebc67fff7704be7cb752faae18da9b1"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5971,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/1d7ccb647eb27d8907dc2dc2da2bc11401e6682f595d5fe96d6fcf4772d37d4e.gz",
+            "sha256": "1d7ccb647eb27d8907dc2dc2da2bc11401e6682f595d5fe96d6fcf4772d37d4e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5971,
+      "mode": 384,
+      "mtime_ns": 1794097132842265756,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail8/checkpoints/revision-00000098.trainingcheckpoint/manifest.json",
+      "sha256": "1d7ccb647eb27d8907dc2dc2da2bc11401e6682f595d5fe96d6fcf4772d37d4e"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/779b6e8ed3d314a423c9e39055edf2c59d86f5870463346a92234ec76313fce6.gz",
+            "sha256": "779b6e8ed3d314a423c9e39055edf2c59d86f5870463346a92234ec76313fce6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794097132704173039,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail8/checkpoints/revision-00000098.trainingcheckpoint/policy.policypack",
+      "sha256": "779b6e8ed3d314a423c9e39055edf2c59d86f5870463346a92234ec76313fce6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/305b913905edce6d89bc9be4d2a24ec683d596311d626ee15b6c297761d4fdd7.gz",
+            "sha256": "305b913905edce6d89bc9be4d2a24ec683d596311d626ee15b6c297761d4fdd7"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/a7fbba9643f940481a0887aa227ffdc980b7fdbd81d71f2942ed2bc18e4b35f6.gz",
+            "sha256": "a7fbba9643f940481a0887aa227ffdc980b7fdbd81d71f2942ed2bc18e4b35f6"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/4f24704d980d8a5579aaa4008d126900929c91968d324cb164d67bf4a189f16a.gz",
+            "sha256": "4f24704d980d8a5579aaa4008d126900929c91968d324cb164d67bf4a189f16a"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/7699e24bbb7fda067f99d078e58969cccb68a5672713040a8dbdda27010ad85b.gz",
+            "sha256": "7699e24bbb7fda067f99d078e58969cccb68a5672713040a8dbdda27010ad85b"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/3e0e556b13ca5712d00a88f0b420214c038bd2effdfbe428cd937433d7ecd6f5.gz",
+            "sha256": "3e0e556b13ca5712d00a88f0b420214c038bd2effdfbe428cd937433d7ecd6f5"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/f7c75ab3c7bf0ae6f28cc34b6f82dbfbc9f40a0777543b675c69a022a4c33277.gz",
+            "sha256": "f7c75ab3c7bf0ae6f28cc34b6f82dbfbc9f40a0777543b675c69a022a4c33277"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/47842b88dec5383f55226542cb40b7df8c4f7152074e015931c4f4dac4332745.gz",
+            "sha256": "47842b88dec5383f55226542cb40b7df8c4f7152074e015931c4f4dac4332745"
+          },
+          {
+            "bytes": 3671031,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/4b86a196cf596a99346267e6b1954163469002a555ea1a6285993cd91258673e.gz",
+            "sha256": "4b86a196cf596a99346267e6b1954163469002a555ea1a6285993cd91258673e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 238552055,
+      "mode": 384,
+      "mtime_ns": 1794097131520350034,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail8/checkpoints/revision-00000098.trainingcheckpoint/rollout.rolloutpack",
+      "sha256": "fe72472a0ec5b12151db47128388d9feb3eaf3ba0feb867696ebe7359ac7b1cc"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/57dba840f9d7201e2c066e414b19092e66e961250fc989b833827bc6a0856d5c.gz",
+            "sha256": "57dba840f9d7201e2c066e414b19092e66e961250fc989b833827bc6a0856d5c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794097141472291727,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail1/deployment.policypack",
+      "sha256": "57dba840f9d7201e2c066e414b19092e66e961250fc989b833827bc6a0856d5c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389.gz",
+            "sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794097133138686227,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail1/incumbent.policypack",
+      "sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1977365,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/dfca2ca5e0ebbb100e3312db4fe3075c1b254f56f0a258e6a9e3a2d9a215a08b.gz",
+            "sha256": "dfca2ca5e0ebbb100e3312db4fe3075c1b254f56f0a258e6a9e3a2d9a215a08b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1977365,
+      "mode": 420,
+      "mtime_ns": 1794097141474565356,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail1/learner.safetensors",
+      "sha256": "dfca2ca5e0ebbb100e3312db4fe3075c1b254f56f0a258e6a9e3a2d9a215a08b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/305b913905edce6d89bc9be4d2a24ec683d596311d626ee15b6c297761d4fdd7.gz",
+            "sha256": "305b913905edce6d89bc9be4d2a24ec683d596311d626ee15b6c297761d4fdd7"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/a7fbba9643f940481a0887aa227ffdc980b7fdbd81d71f2942ed2bc18e4b35f6.gz",
+            "sha256": "a7fbba9643f940481a0887aa227ffdc980b7fdbd81d71f2942ed2bc18e4b35f6"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/4f24704d980d8a5579aaa4008d126900929c91968d324cb164d67bf4a189f16a.gz",
+            "sha256": "4f24704d980d8a5579aaa4008d126900929c91968d324cb164d67bf4a189f16a"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/7699e24bbb7fda067f99d078e58969cccb68a5672713040a8dbdda27010ad85b.gz",
+            "sha256": "7699e24bbb7fda067f99d078e58969cccb68a5672713040a8dbdda27010ad85b"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/3e0e556b13ca5712d00a88f0b420214c038bd2effdfbe428cd937433d7ecd6f5.gz",
+            "sha256": "3e0e556b13ca5712d00a88f0b420214c038bd2effdfbe428cd937433d7ecd6f5"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/f7c75ab3c7bf0ae6f28cc34b6f82dbfbc9f40a0777543b675c69a022a4c33277.gz",
+            "sha256": "f7c75ab3c7bf0ae6f28cc34b6f82dbfbc9f40a0777543b675c69a022a4c33277"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/47842b88dec5383f55226542cb40b7df8c4f7152074e015931c4f4dac4332745.gz",
+            "sha256": "47842b88dec5383f55226542cb40b7df8c4f7152074e015931c4f4dac4332745"
+          },
+          {
+            "bytes": 3671031,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/4b86a196cf596a99346267e6b1954163469002a555ea1a6285993cd91258673e.gz",
+            "sha256": "4b86a196cf596a99346267e6b1954163469002a555ea1a6285993cd91258673e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 238552055,
+      "mode": 384,
+      "mtime_ns": 1794097140288070054,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail1/training.rolloutpack",
+      "sha256": "fe72472a0ec5b12151db47128388d9feb3eaf3ba0feb867696ebe7359ac7b1cc"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/779b6e8ed3d314a423c9e39055edf2c59d86f5870463346a92234ec76313fce6.gz",
+            "sha256": "779b6e8ed3d314a423c9e39055edf2c59d86f5870463346a92234ec76313fce6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794097141470947850,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail1/updated.policypack",
+      "sha256": "779b6e8ed3d314a423c9e39055edf2c59d86f5870463346a92234ec76313fce6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 64,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/c3cb18f82f2607b1dcd32fe4bd1e0047003d1a58c4bb96e8ce5d74def3a164f0.gz",
+            "sha256": "c3cb18f82f2607b1dcd32fe4bd1e0047003d1a58c4bb96e8ce5d74def3a164f0"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 64,
+      "mode": 384,
+      "mtime_ns": 1794097141610653819,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail1/checkpoints/revision-00000098.trainingcheckpoint/COMMITTED",
+      "sha256": "c3cb18f82f2607b1dcd32fe4bd1e0047003d1a58c4bb96e8ce5d74def3a164f0"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/57dba840f9d7201e2c066e414b19092e66e961250fc989b833827bc6a0856d5c.gz",
+            "sha256": "57dba840f9d7201e2c066e414b19092e66e961250fc989b833827bc6a0856d5c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794097141472291727,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail1/checkpoints/revision-00000098.trainingcheckpoint/candidate.policypack",
+      "sha256": "57dba840f9d7201e2c066e414b19092e66e961250fc989b833827bc6a0856d5c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1977365,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/dfca2ca5e0ebbb100e3312db4fe3075c1b254f56f0a258e6a9e3a2d9a215a08b.gz",
+            "sha256": "dfca2ca5e0ebbb100e3312db4fe3075c1b254f56f0a258e6a9e3a2d9a215a08b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1977365,
+      "mode": 420,
+      "mtime_ns": 1794097141474565356,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail1/checkpoints/revision-00000098.trainingcheckpoint/learner.safetensors",
+      "sha256": "dfca2ca5e0ebbb100e3312db4fe3075c1b254f56f0a258e6a9e3a2d9a215a08b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 13696652,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/c178eb329afd05744a6678820b9d7550e7ce90cd50f5fecc4ea993fe36e38a1b.gz",
+            "sha256": "c178eb329afd05744a6678820b9d7550e7ce90cd50f5fecc4ea993fe36e38a1b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 13696652,
+      "mode": 384,
+      "mtime_ns": 1794097141507431626,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail1/checkpoints/revision-00000098.trainingcheckpoint/life.native",
+      "sha256": "c178eb329afd05744a6678820b9d7550e7ce90cd50f5fecc4ea993fe36e38a1b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5971,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/0998a920b0b696e71582f206fcb2e7cbc5eab908c52dee19e528f123bcfff06b.gz",
+            "sha256": "0998a920b0b696e71582f206fcb2e7cbc5eab908c52dee19e528f123bcfff06b"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5971,
+      "mode": 384,
+      "mtime_ns": 1794097141610524944,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail1/checkpoints/revision-00000098.trainingcheckpoint/manifest.json",
+      "sha256": "0998a920b0b696e71582f206fcb2e7cbc5eab908c52dee19e528f123bcfff06b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/779b6e8ed3d314a423c9e39055edf2c59d86f5870463346a92234ec76313fce6.gz",
+            "sha256": "779b6e8ed3d314a423c9e39055edf2c59d86f5870463346a92234ec76313fce6"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794097141470947850,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail1/checkpoints/revision-00000098.trainingcheckpoint/policy.policypack",
+      "sha256": "779b6e8ed3d314a423c9e39055edf2c59d86f5870463346a92234ec76313fce6"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/305b913905edce6d89bc9be4d2a24ec683d596311d626ee15b6c297761d4fdd7.gz",
+            "sha256": "305b913905edce6d89bc9be4d2a24ec683d596311d626ee15b6c297761d4fdd7"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/a7fbba9643f940481a0887aa227ffdc980b7fdbd81d71f2942ed2bc18e4b35f6.gz",
+            "sha256": "a7fbba9643f940481a0887aa227ffdc980b7fdbd81d71f2942ed2bc18e4b35f6"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/4f24704d980d8a5579aaa4008d126900929c91968d324cb164d67bf4a189f16a.gz",
+            "sha256": "4f24704d980d8a5579aaa4008d126900929c91968d324cb164d67bf4a189f16a"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/7699e24bbb7fda067f99d078e58969cccb68a5672713040a8dbdda27010ad85b.gz",
+            "sha256": "7699e24bbb7fda067f99d078e58969cccb68a5672713040a8dbdda27010ad85b"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/3e0e556b13ca5712d00a88f0b420214c038bd2effdfbe428cd937433d7ecd6f5.gz",
+            "sha256": "3e0e556b13ca5712d00a88f0b420214c038bd2effdfbe428cd937433d7ecd6f5"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/f7c75ab3c7bf0ae6f28cc34b6f82dbfbc9f40a0777543b675c69a022a4c33277.gz",
+            "sha256": "f7c75ab3c7bf0ae6f28cc34b6f82dbfbc9f40a0777543b675c69a022a4c33277"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/47842b88dec5383f55226542cb40b7df8c4f7152074e015931c4f4dac4332745.gz",
+            "sha256": "47842b88dec5383f55226542cb40b7df8c4f7152074e015931c4f4dac4332745"
+          },
+          {
+            "bytes": 3671031,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/4b86a196cf596a99346267e6b1954163469002a555ea1a6285993cd91258673e.gz",
+            "sha256": "4b86a196cf596a99346267e6b1954163469002a555ea1a6285993cd91258673e"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 238552055,
+      "mode": 384,
+      "mtime_ns": 1794097140288070054,
+      "path": ".numi/runs/american-crow/precision-training-continuation-01/tail1/checkpoints/revision-00000098.trainingcheckpoint/rollout.rolloutpack",
+      "sha256": "fe72472a0ec5b12151db47128388d9feb3eaf3ba0feb867696ebe7359ac7b1cc"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2540,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/bb85bc4f33162cb34d234d89ccd4d71fdb1ed6af1c38e1bc0369e0d1c3cc1f89.gz",
+            "sha256": "bb85bc4f33162cb34d234d89ccd4d71fdb1ed6af1c38e1bc0369e0d1c3cc1f89"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2540,
+      "mode": 420,
+      "mtime_ns": 1794096948781757104,
+      "path": ".numi/runs/american-crow/precision-training-01/command.json",
+      "sha256": "bb85bc4f33162cb34d234d89ccd4d71fdb1ed6af1c38e1bc0369e0d1c3cc1f89"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 190,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/3a576f87d92ab4b3c18317d00402c5e87531c18de7a0f5e2786603eb7ff85022.gz",
+            "sha256": "3a576f87d92ab4b3c18317d00402c5e87531c18de7a0f5e2786603eb7ff85022"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 190,
+      "mode": 420,
+      "mtime_ns": 1794097075396212373,
+      "path": ".numi/runs/american-crow/precision-training-01/df-after.txt",
+      "sha256": "3a576f87d92ab4b3c18317d00402c5e87531c18de7a0f5e2786603eb7ff85022"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 190,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/75b026c12081888bfda9b6c63be2f8d419e1596ac343cf03c6ebe62bba9a3c37.gz",
+            "sha256": "75b026c12081888bfda9b6c63be2f8d419e1596ac343cf03c6ebe62bba9a3c37"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 190,
+      "mode": 420,
+      "mtime_ns": 1794096948781670896,
+      "path": ".numi/runs/american-crow/precision-training-01/df-before.txt",
+      "sha256": "75b026c12081888bfda9b6c63be2f8d419e1596ac343cf03c6ebe62bba9a3c37"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2836,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/40e65d0481e416ef8abf82289fd3d1213ff05fbd3034e29542b1a4e6626e8543.gz",
+            "sha256": "40e65d0481e416ef8abf82289fd3d1213ff05fbd3034e29542b1a4e6626e8543"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2836,
+      "mode": 420,
+      "mtime_ns": 1794097123821189970,
+      "path": ".numi/runs/american-crow/precision-training-01/diagnostic.py",
+      "sha256": "40e65d0481e416ef8abf82289fd3d1213ff05fbd3034e29542b1a4e6626e8543"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794097123822086721,
+      "path": ".numi/runs/american-crow/precision-training-01/diagnostic.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 690,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/2a63d5f9cd91ead1420ff7746289b1e057c569af8ad720c27eb74e1a89e9e350.gz",
+            "sha256": "2a63d5f9cd91ead1420ff7746289b1e057c569af8ad720c27eb74e1a89e9e350"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 690,
+      "mode": 420,
+      "mtime_ns": 1794097124196069837,
+      "path": ".numi/runs/american-crow/precision-training-01/diagnostic.stdout",
+      "sha256": "2a63d5f9cd91ead1420ff7746289b1e057c569af8ad720c27eb74e1a89e9e350"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1454,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/bc6b1c445196beae4f336ef956dd7a86c917d67ba5c5e59da5faeb59f0ab97f9.gz",
+            "sha256": "bc6b1c445196beae4f336ef956dd7a86c917d67ba5c5e59da5faeb59f0ab97f9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1454,
+      "mode": 420,
+      "mtime_ns": 1794096948737457646,
+      "path": ".numi/runs/american-crow/precision-training-01/plan.json",
+      "sha256": "bc6b1c445196beae4f336ef956dd7a86c917d67ba5c5e59da5faeb59f0ab97f9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 60,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/663c6ec0d9832a8e47095e0a522d9c261cbb16c975952f0b4f2bbafdabfe28f9.gz",
+            "sha256": "663c6ec0d9832a8e47095e0a522d9c261cbb16c975952f0b4f2bbafdabfe28f9"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 60,
+      "mode": 420,
+      "mtime_ns": 1794097075389865194,
+      "path": ".numi/runs/american-crow/precision-training-01/receipt.json",
+      "sha256": "663c6ec0d9832a8e47095e0a522d9c261cbb16c975952f0b4f2bbafdabfe28f9"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 702,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/a136e21616cc2288fd659c5dd5d7380f0723fdb0e99d82f8eb8b9f08b49ef4f8.gz",
+            "sha256": "a136e21616cc2288fd659c5dd5d7380f0723fdb0e99d82f8eb8b9f08b49ef4f8"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 702,
+      "mode": 420,
+      "mtime_ns": 1794096948773475589,
+      "path": ".numi/runs/american-crow/precision-training-01/restoration.json",
+      "sha256": "a136e21616cc2288fd659c5dd5d7380f0723fdb0e99d82f8eb8b9f08b49ef4f8"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 186137,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/2af59301fe7aeabf2b9d2ed430f1f15073c5fd1b6dcc1c18efc0c174febf8151.gz",
+            "sha256": "2af59301fe7aeabf2b9d2ed430f1f15073c5fd1b6dcc1c18efc0c174febf8151"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 186137,
+      "mode": 420,
+      "mtime_ns": 1794096956599023306,
+      "path": ".numi/runs/american-crow/precision-training-01/stderr",
+      "sha256": "2af59301fe7aeabf2b9d2ed430f1f15073c5fd1b6dcc1c18efc0c174febf8151"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 89587,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/3562b23d5857dbfa7af3d406daea1beb81ada267c541d1b68e09a838307bc3af.gz",
+            "sha256": "3562b23d5857dbfa7af3d406daea1beb81ada267c541d1b68e09a838307bc3af"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 89587,
+      "mode": 420,
+      "mtime_ns": 1794097075324923906,
+      "path": ".numi/runs/american-crow/precision-training-01/stdout",
+      "sha256": "3562b23d5857dbfa7af3d406daea1beb81ada267c541d1b68e09a838307bc3af"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 2266,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/d68c7878a9226e40d15412550dcf5e8899ab7f11ad50e9751477b069935a4722.gz",
+            "sha256": "d68c7878a9226e40d15412550dcf5e8899ab7f11ad50e9751477b069935a4722"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 2266,
+      "mode": 420,
+      "mtime_ns": 1794097075402126717,
+      "path": ".numi/runs/american-crow/precision-training-01/summary.json",
+      "sha256": "d68c7878a9226e40d15412550dcf5e8899ab7f11ad50e9751477b069935a4722"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 69,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/1dfa16920e52468424954c249b06d2f8691f05e1c170c6f8a9d47f91068c4f8f.gz",
+            "sha256": "1dfa16920e52468424954c249b06d2f8691f05e1c170c6f8a9d47f91068c4f8f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 69,
+      "mode": 420,
+      "mtime_ns": 1794097075393198867,
+      "path": ".numi/runs/american-crow/precision-training-01/swap-after.txt",
+      "sha256": "1dfa16920e52468424954c249b06d2f8691f05e1c170c6f8a9d47f91068c4f8f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 69,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/1dfa16920e52468424954c249b06d2f8691f05e1c170c6f8a9d47f91068c4f8f.gz",
+            "sha256": "1dfa16920e52468424954c249b06d2f8691f05e1c170c6f8a9d47f91068c4f8f"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 69,
+      "mode": 420,
+      "mtime_ns": 1794096948779670100,
+      "path": ".numi/runs/american-crow/precision-training-01/swap-before.txt",
+      "sha256": "1dfa16920e52468424954c249b06d2f8691f05e1c170c6f8a9d47f91068c4f8f"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 7285,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/dd259fd7565a621defa47035246e52023eac67cb56d5232441450274a852cfe5.gz",
+            "sha256": "dd259fd7565a621defa47035246e52023eac67cb56d5232441450274a852cfe5"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 7285,
+      "mode": 420,
+      "mtime_ns": 1794097123818873549,
+      "path": ".numi/runs/american-crow/precision-training-01/train.py",
+      "sha256": "dd259fd7565a621defa47035246e52023eac67cb56d5232441450274a852cfe5"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-adaptive-optimization-20261108/blobs/780be8e48743506e20e16a5642d665d1f8919354f7f93f407ca4abe454d7b728.gz"
+      },
+      "bytes": 1977366,
+      "mode": 420,
+      "mtime_ns": 1794096948772098128,
+      "path": ".numi/runs/american-crow/precision-training-01/input/learner.safetensors",
+      "sha256": "780be8e48743506e20e16a5642d665d1f8919354f7f93f407ca4abe454d7b728"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-adaptive-optimization-20261108/blobs/21de3d792f6aafb4d1fdfdbdd7916f10179321030b31d069ba5f44687d9afbf4.gz"
+      },
+      "bytes": 659528,
+      "mode": 420,
+      "mtime_ns": 1794096948766587493,
+      "path": ".numi/runs/american-crow/precision-training-01/input/policy.policypack",
+      "sha256": "21de3d792f6aafb4d1fdfdbdd7916f10179321030b31d069ba5f44687d9afbf4"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389.gz",
+            "sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794097075116677267,
+      "path": ".numi/runs/american-crow/precision-training-01/training/deployment.policypack",
+      "sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-adaptive-optimization-20261108/blobs/788b112516a72109807abfb17698ad71277475849f8a366758b15027f79a815d.gz"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794096949236783663,
+      "path": ".numi/runs/american-crow/precision-training-01/training/incumbent.policypack",
+      "sha256": "788b112516a72109807abfb17698ad71277475849f8a366758b15027f79a815d"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1977365,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/cd64e5c0b25f00ea48fb7285da3f83c496e33a32e67eefad1eaf1df967ba492c.gz",
+            "sha256": "cd64e5c0b25f00ea48fb7285da3f83c496e33a32e67eefad1eaf1df967ba492c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1977365,
+      "mode": 420,
+      "mtime_ns": 1794097075118764437,
+      "path": ".numi/runs/american-crow/precision-training-01/training/learner.safetensors",
+      "sha256": "cd64e5c0b25f00ea48fb7285da3f83c496e33a32e67eefad1eaf1df967ba492c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/47bbc5f9d1e33d465b0a5e763c564d34550da3970ff12361724c7671c969dc3e.gz",
+            "sha256": "47bbc5f9d1e33d465b0a5e763c564d34550da3970ff12361724c7671c969dc3e"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/fb03780fc05b64fe413645d59609def238c771b3f8bee542fd31f7470db64839.gz",
+            "sha256": "fb03780fc05b64fe413645d59609def238c771b3f8bee542fd31f7470db64839"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/d9df512dea9a7425739ca838313e11d0537e96e2608498474b079489e1c08649.gz",
+            "sha256": "d9df512dea9a7425739ca838313e11d0537e96e2608498474b079489e1c08649"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/d11981de1b589c4d8be258c7492d07e4294865a3b4f24936d0d61580c89ffd84.gz",
+            "sha256": "d11981de1b589c4d8be258c7492d07e4294865a3b4f24936d0d61580c89ffd84"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/46797f39eca3a2ce8261ac3b91a8bd65e64a5ea1e1a3936a3e6212024ebef500.gz",
+            "sha256": "46797f39eca3a2ce8261ac3b91a8bd65e64a5ea1e1a3936a3e6212024ebef500"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/cfcd2c501dde23cc7227acebcfca59cbb849c580ecfd31fdaec44d7088272f90.gz",
+            "sha256": "cfcd2c501dde23cc7227acebcfca59cbb849c580ecfd31fdaec44d7088272f90"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/d8749ae5081407158b7a152dbabbabedf01a65a273eb9809f6edee98945742d7.gz",
+            "sha256": "d8749ae5081407158b7a152dbabbabedf01a65a273eb9809f6edee98945742d7"
+          },
+          {
+            "bytes": 3671031,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/95727e463b457e7920e9d4303961ffdd96dda8bdc510f69d415da52437ceb717.gz",
+            "sha256": "95727e463b457e7920e9d4303961ffdd96dda8bdc510f69d415da52437ceb717"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 238552055,
+      "mode": 384,
+      "mtime_ns": 1794097074058834872,
+      "path": ".numi/runs/american-crow/precision-training-01/training/training.rolloutpack",
+      "sha256": "0f170e05a8276967c7d3d2d2763dfcc054d74d36e0f0635b0c2407f0fb9faef1"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/91610c1090ab5b3d4c215e52b184b78abcd4d449a66caa8cdc0e7a392196d039.gz",
+            "sha256": "91610c1090ab5b3d4c215e52b184b78abcd4d449a66caa8cdc0e7a392196d039"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794097075115301181,
+      "path": ".numi/runs/american-crow/precision-training-01/training/updated.policypack",
+      "sha256": "91610c1090ab5b3d4c215e52b184b78abcd4d449a66caa8cdc0e7a392196d039"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 64,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/a9461dae8d467405d0810ce390c17ea8b21bdd13bbe11bd3ce6f05de95353e74.gz",
+            "sha256": "a9461dae8d467405d0810ce390c17ea8b21bdd13bbe11bd3ce6f05de95353e74"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 64,
+      "mode": 384,
+      "mtime_ns": 1794097075250254350,
+      "path": ".numi/runs/american-crow/precision-training-01/training/checkpoints/revision-00000097.trainingcheckpoint/COMMITTED",
+      "sha256": "a9461dae8d467405d0810ce390c17ea8b21bdd13bbe11bd3ce6f05de95353e74"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 602144,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389.gz",
+            "sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 602144,
+      "mode": 384,
+      "mtime_ns": 1794097075116677267,
+      "path": ".numi/runs/american-crow/precision-training-01/training/checkpoints/revision-00000097.trainingcheckpoint/candidate.policypack",
+      "sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 1977365,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/cd64e5c0b25f00ea48fb7285da3f83c496e33a32e67eefad1eaf1df967ba492c.gz",
+            "sha256": "cd64e5c0b25f00ea48fb7285da3f83c496e33a32e67eefad1eaf1df967ba492c"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 1977365,
+      "mode": 420,
+      "mtime_ns": 1794097075118764437,
+      "path": ".numi/runs/american-crow/precision-training-01/training/checkpoints/revision-00000097.trainingcheckpoint/learner.safetensors",
+      "sha256": "cd64e5c0b25f00ea48fb7285da3f83c496e33a32e67eefad1eaf1df967ba492c"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 13696652,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/255e73d831b00d766cf45c02405a3aa8a52841d944f15b4bc46d2f6081a25955.gz",
+            "sha256": "255e73d831b00d766cf45c02405a3aa8a52841d944f15b4bc46d2f6081a25955"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 13696652,
+      "mode": 384,
+      "mtime_ns": 1794097075147088240,
+      "path": ".numi/runs/american-crow/precision-training-01/training/checkpoints/revision-00000097.trainingcheckpoint/life.native",
+      "sha256": "255e73d831b00d766cf45c02405a3aa8a52841d944f15b4bc46d2f6081a25955"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 5971,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/c7b78fbd45ae0e929b99e5b86befb746c32346f842f54586787aff9cce2e24d7.gz",
+            "sha256": "c7b78fbd45ae0e929b99e5b86befb746c32346f842f54586787aff9cce2e24d7"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 5971,
+      "mode": 384,
+      "mtime_ns": 1794097075250121308,
+      "path": ".numi/runs/american-crow/precision-training-01/training/checkpoints/revision-00000097.trainingcheckpoint/manifest.json",
+      "sha256": "c7b78fbd45ae0e929b99e5b86befb746c32346f842f54586787aff9cce2e24d7"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 659528,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/91610c1090ab5b3d4c215e52b184b78abcd4d449a66caa8cdc0e7a392196d039.gz",
+            "sha256": "91610c1090ab5b3d4c215e52b184b78abcd4d449a66caa8cdc0e7a392196d039"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 659528,
+      "mode": 384,
+      "mtime_ns": 1794097075115301181,
+      "path": ".numi/runs/american-crow/precision-training-01/training/checkpoints/revision-00000097.trainingcheckpoint/policy.policypack",
+      "sha256": "91610c1090ab5b3d4c215e52b184b78abcd4d449a66caa8cdc0e7a392196d039"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/47bbc5f9d1e33d465b0a5e763c564d34550da3970ff12361724c7671c969dc3e.gz",
+            "sha256": "47bbc5f9d1e33d465b0a5e763c564d34550da3970ff12361724c7671c969dc3e"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/fb03780fc05b64fe413645d59609def238c771b3f8bee542fd31f7470db64839.gz",
+            "sha256": "fb03780fc05b64fe413645d59609def238c771b3f8bee542fd31f7470db64839"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/d9df512dea9a7425739ca838313e11d0537e96e2608498474b079489e1c08649.gz",
+            "sha256": "d9df512dea9a7425739ca838313e11d0537e96e2608498474b079489e1c08649"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/d11981de1b589c4d8be258c7492d07e4294865a3b4f24936d0d61580c89ffd84.gz",
+            "sha256": "d11981de1b589c4d8be258c7492d07e4294865a3b4f24936d0d61580c89ffd84"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/46797f39eca3a2ce8261ac3b91a8bd65e64a5ea1e1a3936a3e6212024ebef500.gz",
+            "sha256": "46797f39eca3a2ce8261ac3b91a8bd65e64a5ea1e1a3936a3e6212024ebef500"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/cfcd2c501dde23cc7227acebcfca59cbb849c580ecfd31fdaec44d7088272f90.gz",
+            "sha256": "cfcd2c501dde23cc7227acebcfca59cbb849c580ecfd31fdaec44d7088272f90"
+          },
+          {
+            "bytes": 33554432,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/d8749ae5081407158b7a152dbabbabedf01a65a273eb9809f6edee98945742d7.gz",
+            "sha256": "d8749ae5081407158b7a152dbabbabedf01a65a273eb9809f6edee98945742d7"
+          },
+          {
+            "bytes": 3671031,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/95727e463b457e7920e9d4303961ffdd96dda8bdc510f69d415da52437ceb717.gz",
+            "sha256": "95727e463b457e7920e9d4303961ffdd96dda8bdc510f69d415da52437ceb717"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 238552055,
+      "mode": 384,
+      "mtime_ns": 1794097074058834872,
+      "path": ".numi/runs/american-crow/precision-training-01/training/checkpoints/revision-00000097.trainingcheckpoint/rollout.rolloutpack",
+      "sha256": "0f170e05a8276967c7d3d2d2763dfcc054d74d36e0f0635b0c2407f0fb9faef1"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-adaptive-optimization-20261108/blobs/bcf9f8b64afeae7a73e483db8c5e6dea332815e4b51d55e66e9a8682a8ae177b.gz"
+      },
+      "bytes": 355,
+      "mode": 420,
+      "mtime_ns": 1794097123896831694,
+      "path": ".numi/runs/american-crow/precision-training-01/diagnostic/plan.json",
+      "sha256": "bcf9f8b64afeae7a73e483db8c5e6dea332815e4b51d55e66e9a8682a8ae177b"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 834,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/6820ea893daef117bcb4e0370807828f021efc49b7131f3dc91b631f39a92d91.gz",
+            "sha256": "6820ea893daef117bcb4e0370807828f021efc49b7131f3dc91b631f39a92d91"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 834,
+      "mode": 420,
+      "mtime_ns": 1794097124195991462,
+      "path": ".numi/runs/american-crow/precision-training-01/diagnostic/summary.json",
+      "sha256": "6820ea893daef117bcb4e0370807828f021efc49b7131f3dc91b631f39a92d91"
+    },
+    {
+      "backing": {
+        "encoding": "raw",
+        "path": "artifacts/crow-rl-action-holds-20261107/capture.stderr"
+      },
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794097209441261580,
+      "path": ".numi/runs/american-crow/causal-seed-bounds-01/crow-seed-build.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/5df22e90f107ec75ac7690c1fd3a9b84af421e3e92ecd4d6f82a93d23f2525e7.gz"
+      },
+      "bytes": 185,
+      "mode": 420,
+      "mtime_ns": 1794097209441138788,
+      "path": ".numi/runs/american-crow/causal-seed-bounds-01/crow-seed-build.stdout",
+      "sha256": "5df22e90f107ec75ac7690c1fd3a9b84af421e3e92ecd4d6f82a93d23f2525e7"
+    },
+    {
+      "backing": {
+        "chunks": [
+          {
+            "bytes": 3405,
+            "path": "artifacts/crow-rl-precision-training-20261108/blobs/9f757ce1367090335180d125cdc5190c1ddce7af1e5ca8bbae8fb178bfdc3a27.gz",
+            "sha256": "9f757ce1367090335180d125cdc5190c1ddce7af1e5ca8bbae8fb178bfdc3a27"
+          }
+        ],
+        "encoding": "chunks-gzip"
+      },
+      "bytes": 3405,
+      "mode": 420,
+      "mtime_ns": 1794096946072385954,
+      "path": ".numi/runs/american-crow/causal-seed-bounds-01/summary.json",
+      "sha256": "9f757ce1367090335180d125cdc5190c1ddce7af1e5ca8bbae8fb178bfdc3a27"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-action-holds-20261107/blobs/8a38dfbec7473c62e08ae7598b44e0c9e111df6f40ba7626c1d1143ef115685a.gz"
+      },
+      "bytes": 1025304,
+      "mode": 493,
+      "mtime_ns": 1794096182912455358,
+      "path": ".numi/retained-runtime/precision-training-01/bin/metalrobo_task_rollout",
+      "sha256": "8a38dfbec7473c62e08ae7598b44e0c9e111df6f40ba7626c1d1143ef115685a"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-adaptive-optimization-20261108/blobs/a0f3dea290091311815735074668d22f87992efc12b453ee2f3a80f9b5a41bc2.gz"
+      },
+      "bytes": 1012248,
+      "mode": 493,
+      "mtime_ns": 1794096182932285571,
+      "path": ".numi/retained-runtime/precision-training-01/bin/metalrobo_task_train",
+      "sha256": "a0f3dea290091311815735074668d22f87992efc12b453ee2f3a80f9b5a41bc2"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-git-recovery-20261107/blobs/9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe.gz"
+      },
+      "bytes": 19391,
+      "mode": 420,
+      "mtime_ns": 1794092869104936745,
+      "path": ".numi/retained-runtime/precision-training-01/shaders/GRUMemory.metallib",
+      "sha256": "9fc55e759f9926fcb171fba58361610a9afb179ffa7dd462776686a82bb4ffbe"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-history-20261108/blobs/d036ae69e16081d352766352614483af0dcc451b0794324edabea4ef4d7d2013.gz"
+      },
+      "bytes": 4199993,
+      "mode": 420,
+      "mtime_ns": 1794092873167695233,
+      "path": ".numi/retained-runtime/precision-training-01/shaders/MetalRobo.metallib",
+      "sha256": "d036ae69e16081d352766352614483af0dcc451b0794324edabea4ef4d7d2013"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-git-recovery-20261107/blobs/9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12.gz"
+      },
+      "bytes": 16151,
+      "mode": 420,
+      "mtime_ns": 1794092869103742195,
+      "path": ".numi/retained-runtime/precision-training-01/shaders/RetinalStream.metallib",
+      "sha256": "9b37ac948b8a175eb63be78ceb46d21abeeaa9e966c42b62d2a9fae2d859ea12"
+    },
+    {
+      "backing": {
+        "encoding": "gzip",
+        "path": "artifacts/crow-rl-native-causal-memory-20261108/blobs/e05687a843feca4d7537c88e91a601ad564c8bfe1f082d92f8c0576e210b3985.gz"
+      },
+      "bytes": 5656912,
+      "mode": 493,
+      "mtime_ns": 1794096181933822593,
+      "path": ".numi/retained-runtime/precision-training-01/lib/libmetalrobo.dylib",
+      "sha256": "e05687a843feca4d7537c88e91a601ad564c8bfe1f082d92f8c0576e210b3985"
+    }
+  ],
+  "roots": [
+    ".numi/runs/american-crow",
+    ".numi/retained-runtime"
+  ],
+  "schema": "crow-git-evidence-archive-v1",
+  "summary": {
+    "existing_archive_blobs_indexed": 14334,
+    "files": 79,
+    "new_compressed_bytes": 237471929,
+    "source_bytes": 1508971478,
+    "unique_file_contents": 58
+  }
+}
