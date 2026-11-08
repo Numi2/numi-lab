@@ -1,0 +1,11 @@
+b47c76f25f8855afc68c0a1f896758397490be9a5cd02e53700d767bfa946439  docs/evidence/rod-coupled-metal-paired-20261108/PLAN.md
+3cf105512848cc620420c1d1d4e3f50ed7b99262b51713f8a39a63383a949b54  docs/evidence/rod-coupled-metal-paired-20261108/kernel.metal
+5175d1f3fedc728df29cbc5bd8a37126ae0e543ae3df3deb131d930020532d27  docs/evidence/rod-coupled-metal-paired-20261108/probe.mm
+6b5f7fbcb96436444eec58206dd39b9d8b9d999c6cfa70fb069dc3944bf6f28a  docs/evidence/rod-coupled-metal-paired-20261108/shared.h
+526ba1df3a6a89b0c736c2063054be1a36ff6ae4996795bc07aa47fd519a21c5  docs/evidence/rod-coupled-metal-paired-20261108/build.sh
+4b43905055c95d9a536290aedb0833553e907ba8fbb70047030d995b01f36fe9  docs/evidence/rod-coupled-metal-paired-20261108/run.py
+7550b39655cc88d859e39b44af09b4d770d1597cafeaaace5f1f98c36422857f  /Users/numi/rod-coupled-metal-paired-20261108/probe
+5c9588e097fa4ca36f2399332ea3c39e5164c0ae027b319e76435b21453dddb6  /Users/numi/rod-coupled-metal-paired-20261108/kernel.metallib
+a86644d9e1c88991726e487422f68969fedef562148ef29b42213150affeec40  docs/evidence/rod-coupled-bend-20261108/native-full-energy
+8f788c6f2221dcb77df85667fb9968c7c726a923369498a7723f0684c4c2242d  docs/evidence/rod-coupled-bend-20261108/solve-cases.json
+4e970668508e12b57412a67e72128caea12ed5f31145d3a3e40583b1cd971196  docs/evidence/rod-coupled-bend-20261108/solve-analysis.json
