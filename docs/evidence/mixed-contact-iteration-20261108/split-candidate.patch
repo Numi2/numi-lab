@@ -1,0 +1,50 @@
+--- frictionless-candidate.metal
++++ split-candidate.metal
+@@ -8189,6 +8189,24 @@
+             inverse[2][1],
+             inverse[2][2]
+         );
++        // Isolated research candidate: scalar normal and isotropic tangent steps.
++        const MREvaluatedConstraintIRConeGPU splitCone = evaluatedCones[constraintBase + localConstraint];
++        if (splitCone.effectiveFrictionU == splitCone.effectiveFrictionV &&
++            splitCone.effectiveFrictionU >= 0.0f && splitCone.maximumNormalImpulse <= 0.0f) {
++            float splitScale = 0.0f;
++            for (uint splitRow = 0u; splitRow < 3u; ++splitRow)
++                for (uint splitCol = 0u; splitCol < 3u; ++splitCol)
++                    splitScale = max(splitScale, abs(effective[splitRow][splitCol]));
++            const float splitFloor = kContactMatrixRegularization * splitScale;
++            const float splitNormal = effective[0][0] + splitFloor;
++            const float splitTangent = max(abs(effective[1][1]) + abs(effective[1][2]),
++                                            abs(effective[2][1]) + abs(effective[2][2])) + splitFloor;
++            if (splitNormal > kMatrixFloor && splitTangent > kMatrixFloor &&
++                isfinite(splitNormal) && isfinite(splitTangent)) {
++                preconditioner.row0.w = 1.0f / splitNormal;
++                preconditioner.row1.w = 1.0f / splitTangent;
++            }
++        }
+         preconditioners[
+             constraintBase + localConstraint
+         ] = preconditioner;
+@@ -8614,11 +8632,17 @@
+                 preconditioners[
+                     constraintBase + localConstraint
+                 ];
+-            float3 proposed = previous + float3(
+-                dot(preconditioner.row0.xyz, rhs),
+-                dot(preconditioner.row1.xyz, rhs),
+-                dot(preconditioner.row2.xyz, rhs)
+-            );
++            float3 proposed;
++            if (preconditioner.row0.w > 0.0f && preconditioner.row1.w > 0.0f) {
++                proposed = previous + float3(preconditioner.row0.w * rhs.x,
++                                             preconditioner.row1.w * rhs.y,
++                                             preconditioner.row1.w * rhs.z);
++            } else {
++                proposed = previous + float3(
++                    dot(preconditioner.row0.xyz, rhs),
++                    dot(preconditioner.row1.xyz, rhs),
++                    dot(preconditioner.row2.xyz, rhs));
++            }
+             proposed = projectFrictionCone(
+                 proposed,
+                 evaluatedCones[

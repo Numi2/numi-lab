@@ -1,0 +1,14 @@
+{
+  "trace_preserves_uninstrumented_results": true,
+  "first_iteration_predicted_impulse": 0.333329996733036,
+  "second_iteration_predicted_impulse": 0.5566511796486856,
+  "cases": 42,
+  "all_accepted_and_replayed": true,
+  "frictionless_64_max_residual": 5.960464478e-08,
+  "frictional_64_min_residual": 0.08196626604,
+  "frictional_64_rigid_row_deficits": {
+    "-1": 4.097799999845664e-08,
+    "0": 9.309999993156737e-10,
+    "1": -0.9893063418129999
+  }
+}
