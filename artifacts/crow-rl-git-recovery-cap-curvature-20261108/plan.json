@@ -1,0 +1,25 @@
+{
+  "constitutive_outputs_exact": 8,
+  "contact_owner_excluded_fields": [
+    "gpu_ms",
+    "throughput_gpu_steps_per_s",
+    "throughput_wall_steps_per_s",
+    "gpu_batch_step_p50_ms",
+    "gpu_batch_step_p95_ms",
+    "wall_batch_step_p50_ms",
+    "wall_batch_step_p95_ms",
+    "thermal"
+  ],
+  "coupled_captures": 2,
+  "default_physical_files": 20,
+  "manifest": "artifacts/crow-rl-cap-curvature-20261108/payload/manifest.json",
+  "manifest_sha256": "2144c499c41628bc37c1dfc390934595e727716099289b624906d2eeed773eaa",
+  "motor_physical_records": 1248,
+  "native_commands": 19,
+  "production_baseline": "88e37ae2f0237fa0936ca65bfe90893c80fbbbeb",
+  "restore_max_bytes": 50000000,
+  "schema": "crow-cap-curvature-git-recovery-plan-v1",
+  "scientific_reports": 3,
+  "scope": "Actual Git readback restores all raw evidence; execute both native cap projection/closure arms, both native motor/default/coupled worlds and all three native owners. Compare all scientific reports, defined binaries and physical fields; timings and thermal samples are administrative. Mechanics are compiled into archived fixture/dylib; renderer assets are not used. All originals remain byte exact after execution. Separate no-handle/exact-metadata cleanup only after committed recovery.",
+  "temporary_budget_bytes": 90000000
+}

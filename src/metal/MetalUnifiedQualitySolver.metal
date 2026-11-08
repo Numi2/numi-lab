@@ -659,7 +659,7 @@ inline bool projectConeBlock(
                  column < tangentDimension;
                  ++column) {
                 const float curvature =
-                    capAlpha / radius *
+                    capAlpha *
                     (
                         (row == column ? 1.0f : 0.0f) -
                         unit[row] * unit[column]

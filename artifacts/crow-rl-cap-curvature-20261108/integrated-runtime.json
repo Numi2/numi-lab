@@ -1,0 +1,28 @@
+{
+  "files": {
+    "build/crow-cap-curvature-build-01/integrated/contact-probe": {
+      "bytes": 97472,
+      "sha256": "bd0777b062295b4e08a4722124665725cb6842506054d05357a6346a76d39293"
+    },
+    "build/crow-cap-curvature-build-01/integrated/ir-probe": {
+      "bytes": 58416,
+      "sha256": "80a77b7789e61262ef09f5a4377106e7f41994ae6774b45a9e1926a2a377646a"
+    },
+    "build/crow-cap-curvature-build-01/integrated/libmetalrobo.dylib": {
+      "bytes": 5711408,
+      "sha256": "1368fa931e24c336953fcda6fb904734391f3ebe56063dd53eb237bcc1a3bbc6"
+    },
+    "build/crow-cap-curvature-build-01/integrated/metalrobo/MetalRobo.metallib": {
+      "bytes": 4320928,
+      "sha256": "91416d391489b37c1c79918c1ec51ad81dbaa26ef99e6536f8a57d9f720cf8d7"
+    },
+    "build/crow-cap-curvature-build-01/integrated/motor-probe": {
+      "bytes": 116464,
+      "sha256": "746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2"
+    },
+    "build/crow-cap-curvature-build-01/integrated/unified-probe": {
+      "bytes": 55176,
+      "sha256": "df2f144721ff04692399afa7316ca7c88a189689acdbfb4358030ef570c0f687"
+    }
+  }
+}

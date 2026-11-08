@@ -216,6 +216,17 @@ The contact portfolio has three distinct numerical contracts:
 - a fixed-budget CPU/Metal PGS throughput block with normal, coupled
   two-tangent radial projection, torsional friction, and warm starts.
 
+The Metal generalized-velocity projector handles a normal-impulse cap with a
+diagonal-metric tangential ball projection. Its root parameter satisfies
+y_i = -c_i / (d_i + alpha); the associated norm-constraint multiplier is
+alpha * radius, so tangential KKT curvature is alpha * (I - u u^T).
+It must not divide alpha by the radius again.
+A native direct/PCG regression checks one-update Newton closure near the
+solution at multiple non-unit radii and with adhesion; the
+[capped projection qualification](../artifacts/crow-rl-cap-curvature-20261108/README.md)
+also compares the derivative with an independent FP64 weighted-ball reference.
+This derivative correction leaves the projection and uncapped paths unchanged.
+
 The throughput block is PGS, not temporal Gauss-Seidel: it does not advance
 and relinearize contacts through internal TGS substeps. Rolling resistance is
 explicitly unsupported. One throughput dispatch holds at most 128 contacts.

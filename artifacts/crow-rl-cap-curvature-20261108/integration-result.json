@@ -1,0 +1,90 @@
+{
+  "coupled_rejection_capture_exact": true,
+  "current_runtime": {
+    "build/bin/metalrobo_metal_unified_quality_probe": "df2f144721ff04692399afa7316ca7c88a189689acdbfb4358030ef570c0f687",
+    "build/bin/metalrobo_motor_contact_probe": "746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2",
+    "build/lib/libmetalrobo.dylib": "1368fa931e24c336953fcda6fb904734391f3ebe56063dd53eb237bcc1a3bbc6",
+    "build/shaders/MetalRobo.metallib": "91416d391489b37c1c79918c1ec51ad81dbaa26ef99e6536f8a57d9f720cf8d7"
+  },
+  "default_completed_transitions": 640,
+  "default_physical_files": [
+    {
+      "byte_exact": true,
+      "name": "final-q.f32",
+      "sha256": "4e2e5c58b6a0480f8598fc89078001a646f40c42cad195fb2151ccd03fa2dd42"
+    },
+    {
+      "byte_exact": true,
+      "name": "final-scene.bin",
+      "sha256": "e17303c190a55c2485cf89dc4fedcc213fdcad7b17ed95e0e71affdb3240f090"
+    },
+    {
+      "byte_exact": true,
+      "name": "final-v.f32",
+      "sha256": "a1a1ec18b8e3f9c0dd21a8089e5bb2a7fabc41590a2cbf6d24ccdf2fadfb9a27"
+    },
+    {
+      "byte_exact": true,
+      "name": "initial-geometry.json",
+      "sha256": "f3fbd6a4f092ad15217f903bd9c6019120cf6460ae86334981373554d2035af7"
+    },
+    {
+      "byte_exact": true,
+      "name": "initial-q.f32",
+      "sha256": "012493a2009920bf13b46924788f4473314584704e8857f9bedfd13700e12b28"
+    },
+    {
+      "byte_exact": true,
+      "name": "initial-scene.bin",
+      "sha256": "7e108f9bf6b038494639e99ef211d6fc51f527a33c0aa430c587d4da3563ea57"
+    },
+    {
+      "byte_exact": true,
+      "name": "initial-v.f32",
+      "sha256": "627f6149015f853f26db2f3dffba1b7c30b3b74b87c5cfb9f346c1616e3636d0"
+    },
+    {
+      "byte_exact": true,
+      "name": "scene.bin",
+      "sha256": "097626c065e50e37de0ee98a27615074704765f6106dbcd9ae8c08057557183e"
+    },
+    {
+      "byte_exact": true,
+      "name": "summary.json",
+      "sha256": "765c15edef424eb00d3468993f7c7cd044aac3a3fc5b0104fc7a05649948e9c9"
+    },
+    {
+      "byte_exact": true,
+      "name": "trace.tsv",
+      "sha256": "8507cc679736d3d7685068427e49fe089bcad120a9e709cbdfe56271c9b3c921"
+    }
+  ],
+  "full_release_pass": true,
+  "goal_complete": false,
+  "ir_and_contact_owners_pass": true,
+  "limits": "Production capped derivative correctness fix. No precision-mode or acceptance-tolerance change. Coupled uncapped crow is expected to retain its rejection; broad environment remains unfinished.",
+  "permanent_capped_closure_direct_pcg_pass": true,
+  "physical": [
+    {
+      "case": "motor",
+      "excluded_fields": [
+        "gpu_ms"
+      ],
+      "physical_fields_exact": true,
+      "records": 576
+    },
+    {
+      "case": "zero",
+      "excluded_fields": [],
+      "physical_fields_exact": true,
+      "records": 48
+    }
+  ],
+  "production_source_sha256": {
+    "apps/metal_unified_quality_probe.cpp": "134707f772b22f18e12bd2be43a2c6fd22142ab4f781187ff481e0be7a1004e5",
+    "src/metal/MetalUnifiedQualitySolver.metal": "48c3ce600907519b28b59e4ba68a549cb518c11d138bf1785c8274f87e9fa427"
+  },
+  "protected_policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+  "raw_bytes": 23702359,
+  "schema": "crow-cap-curvature-production-integration-result-v1"
+}

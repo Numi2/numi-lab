@@ -1,0 +1,29 @@
+{
+  "baseline": "88e37ae2f0237fa0936ca65bfe90893c80fbbbeb",
+  "current_runtime": {
+    "build/bin/metalrobo_metal_unified_quality_probe": "df2f144721ff04692399afa7316ca7c88a189689acdbfb4358030ef570c0f687",
+    "build/bin/metalrobo_motor_contact_probe": "746cb30844dcca6937bd22e7c70c6e64af579b5ef3cc87b6fe708a99c607e3f2",
+    "build/lib/libmetalrobo.dylib": "1368fa931e24c336953fcda6fb904734391f3ebe56063dd53eb237bcc1a3bbc6",
+    "build/shaders/MetalRobo.metallib": "91416d391489b37c1c79918c1ec51ad81dbaa26ef99e6536f8a57d9f720cf8d7"
+  },
+  "expected_production_paths": [
+    "src/metal/MetalUnifiedQualitySolver.metal",
+    "apps/metal_unified_quality_probe.cpp",
+    "docs/NUMERICS.md"
+  ],
+  "policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+  "sources": {
+    "apps/metal_unified_quality_probe.cpp": {
+      "bytes": 19717,
+      "sha256": "134707f772b22f18e12bd2be43a2c6fd22142ab4f781187ff481e0be7a1004e5"
+    },
+    "docs/NUMERICS.md": {
+      "bytes": 32997,
+      "sha256": "7026de7302e5da90438e49405e76733cc33e2b9171657a5653c2d13698c7594a"
+    },
+    "src/metal/MetalUnifiedQualitySolver.metal": {
+      "bytes": 93649,
+      "sha256": "48c3ce600907519b28b59e4ba68a549cb518c11d138bf1785c8274f87e9fa427"
+    }
+  }
+}
