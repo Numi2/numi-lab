@@ -1,0 +1,20 @@
+{
+  "active_owned_native_workers": [],
+  "checked_commit": "754755e59df8ad9b8e5239dc1d4ded94bc9b6297",
+  "current_build_hashes_match_tested_runtime": {
+    "build/lib/libmetalrobo.dylib": "b24ad4015c718e0c688eaf95b4b207ceacafa9f650f20894fefa5581b1698fd5",
+    "build/shaders/MetalRobo.metallib": "6eb48053118d0e54850d21241e499100787de13af84e54e5b48ddc8130876be2"
+  },
+  "data_free_gib": 149.82299423217773,
+  "df": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300248344 157100796    66% 3497991 1571007960    0%   /System/Volumes/Data\n",
+  "goal_complete": false,
+  "manifest_sha256": "5a64d7d4f0443a836723d3c41c8f48a8c32a96b55bc57107f0128c8134c1346f",
+  "omitted_archive_checkout_files": 960,
+  "omitted_logical_bytes": 31039583,
+  "post_omission_actual_git_files_verified": 396,
+  "post_omission_unique_contents_verified": 265,
+  "protected_policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+  "raw_and_recovery_directories_absent": true,
+  "remaining_physical_blocker": "Experimental motor mode exceeds tilt and beak penetration gates in the crow fixture; motor/contact coupling requires independent qualification.",
+  "source_changes_after_verified_full_build": "artifacts only"
+}

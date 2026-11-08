@@ -49,3 +49,11 @@ a raw backing script had been edited after capture, and a local transfer was
 staged before it finished. Original backing bytes were restored, the changed
 instrument received a separate filename, and the completed transfer was
 recommitted. The repair and incomplete-stage receipts preserve both failures.
+
+After Git verification and pushed HEAD parity, 960
+duplicate archive checkout files (31039583 logical
+bytes) were omitted. The Git objects remain reachable. Post-omission actual Git
+readback again verified all 396 original files. Current library
+and shader hashes match the tested runtime; no owned native worker remains.
+Mac mini Data-volume free space is approximately 149.8 GiB. See
+`omission.json` and `final-state.json`. The full research goal remains open.
