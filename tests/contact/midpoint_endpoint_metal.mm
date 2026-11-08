@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 #include "numi/matter/shared.h"
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -118,6 +119,80 @@ int main(int argc, const char** argv) {
         }
         std::cout<<test.name<<" result="<<actual<<"\n";
     }
+
+    // Mixed outcomes in one dispatch; FP64 checks evaluate the actual output
+    // limbs, independently of the shader's interval bound.
+    constexpr std::size_t batchSize=257;
+    std::array<NMFEMNodeStateGPU,batchSize> aa{},mm{},ee{},sentinels{};
+    std::array<std::uint32_t,batchSize> rr{};
+    for(std::size_t i=0;i<batchSize;++i) {
+        const float x=float(int(i%13)-6)*.0125f;
+        const float desired=1e-5f+(int(i%9)-4)*.0001f;
+        const float z=(desired-.6f*x)/.8f;
+        aa[i]=node(x,0,z); mm[i]=aa[i];
+        mm[i].referenceDisplacementAndMode.z=float(int(i%7)-3)*.00008f;
+        mm[i].velocityAndInverseMass.x=float(int(i%11)-5)*.02f;
+        std::memset(&sentinels[i],0xa5,sizeof(sentinels[i])); ee[i]=sentinels[i];
+        rr[i]=0xffffffffu;
+    }
+    const auto expectedAA=aa,expectedMM=mm;
+    id<MTLBuffer> ab=[device newBufferWithBytes:aa.data() length:sizeof(aa) options:MTLResourceStorageModeShared];
+    id<MTLBuffer> mb=[device newBufferWithBytes:mm.data() length:sizeof(mm) options:MTLResourceStorageModeShared];
+    id<MTLBuffer> eb=[device newBufferWithBytes:ee.data() length:sizeof(ee) options:MTLResourceStorageModeShared];
+    id<MTLBuffer> rb=[device newBufferWithBytes:rr.data() length:sizeof(rr) options:MTLResourceStorageModeShared];
+    require(ab && mb && eb && rb,"batch allocation failed");
+    const nm_float4 plane{.6f,0,.8f,0}; const float floor=1e-5f;
+    const std::uint32_t batchCount=batchSize;
+    id<MTLCommandBuffer> cmd=[queue commandBuffer];
+    id<MTLComputeCommandEncoder> enc=[cmd computeCommandEncoder];
+    require(enc != nil,"batch encoder unavailable");
+    [enc setComputePipelineState:pipeline];
+    [enc setBytes:&plane length:sizeof(plane) atIndex:0];
+    [enc setBytes:&floor length:sizeof(floor) atIndex:1];
+    [enc setBytes:&batchCount length:sizeof(batchCount) atIndex:2];
+    [enc setBuffer:ab offset:0 atIndex:3]; [enc setBuffer:mb offset:0 atIndex:4];
+    [enc setBuffer:eb offset:0 atIndex:5]; [enc setBuffer:rb offset:0 atIndex:6];
+    [enc dispatchThreads:MTLSizeMake(batchSize,1,1) threadsPerThreadgroup:MTLSizeMake(64,1,1)];
+    [enc endEncoding]; [cmd commit]; [cmd waitUntilCompleted];
+    require(cmd.status==MTLCommandBufferStatusCompleted,"batch command failed");
+    require(std::memcmp(ab.contents,expectedAA.data(),sizeof(aa))==0,"batch accepted mutated");
+    require(std::memcmp(mb.contents,expectedMM.data(),sizeof(mm))==0,"batch midpoint mutated");
+    const auto* ends=static_cast<const NMFEMNodeStateGPU*>(eb.contents);
+    const auto* codes=static_cast<const std::uint32_t*>(rb.contents);
+    unsigned passed=0,rejected=0;
+    for(std::size_t i=0;i<batchSize;++i) {
+        require(codes[i]==0 || codes[i]==2,"batch invalid result");
+        if(codes[i]==2) {
+            ++rejected;
+            require(std::memcmp(&ends[i],&sentinels[i],sizeof(ends[i]))==0,"batch rejected output modified");
+            continue;
+        }
+        ++passed;
+        const auto gap=[&](const NMFEMNodeStateGPU& n) {
+            const double x=double(n.restAndFixed.x)+n.referenceDisplacementAndMode.x+n.referenceDisplacementLow.x;
+            const double y=double(n.restAndFixed.y)+n.referenceDisplacementAndMode.y+n.referenceDisplacementLow.y;
+            const double z=double(n.restAndFixed.z)+n.referenceDisplacementAndMode.z+n.referenceDisplacementLow.z;
+            return double(plane.x)*x+double(plane.y)*y+double(plane.z)*z-double(plane.w);
+        };
+        const double threshold=double(floor)*std::sqrt(double(plane.x)*plane.x+
+            double(plane.y)*plane.y+double(plane.z)*plane.z);
+        require(gap(aa[i])>threshold && gap(ends[i])>threshold,"batch falsely certified crossing");
+        for(int k=0;k<3;++k) {
+            const double old=double(component(aa[i].referenceDisplacementAndMode,k))+
+                component(aa[i].referenceDisplacementLow,k);
+            const double mid=double(component(mm[i].referenceDisplacementAndMode,k))+
+                component(mm[i].referenceDisplacementLow,k);
+            const double end=double(component(ends[i].referenceDisplacementAndMode,k))+
+                component(ends[i].referenceDisplacementLow,k);
+            const double velocity=2*double(component(mm[i].velocityAndInverseMass,k))-
+                component(aa[i].velocityAndInverseMass,k);
+            require(std::abs(end-(2*mid-old))<1e-10,"batch displacement mismatch");
+            require(std::abs(double(component(ends[i].velocityAndInverseMass,k))-velocity)<1e-7,
+                    "batch velocity mismatch");
+        }
+    }
+    require(passed>0 && rejected>0,"batch did not exercise both outcomes");
+    std::cout<<"mixed_batch certified="<<passed<<" rejected="<<rejected<<"\n";
     std::cout<<"device="<<device.name.UTF8String<<" endpoint_cases=12 PASS\n";
     return 0;
  } catch(const std::exception& e) {
