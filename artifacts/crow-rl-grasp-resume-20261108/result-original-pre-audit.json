@@ -1,0 +1,29 @@
+{
+  "all_correctness_gates_passed": false,
+  "all_mechanism_hypotheses_supported": false,
+  "correctness_gates": {
+    "all_arms_complete_640": false,
+    "disconnected_jaw_impulses_zero": true,
+    "enabled_jaw_penetration_bound": true,
+    "frictionless_jaw_tangent_impulses_zero": true,
+    "ground_penetration_bound": true,
+    "normal_physical_files_exact": true
+  },
+  "goal_complete": false,
+  "mechanism_hypotheses_supported": {
+    "disconnected": true,
+    "frictionless": false,
+    "normal": true,
+    "open": true
+  },
+  "native_commands": 3,
+  "observed_held_counts": {
+    "disconnected": 0,
+    "frictionless": null,
+    "normal": 4,
+    "open": 0
+  },
+  "policy_or_profile_promoted": false,
+  "production_changed": false,
+  "schema": "crow-grasp-controls-result-v1"
+}

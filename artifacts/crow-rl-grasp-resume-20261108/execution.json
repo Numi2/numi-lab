@@ -1,0 +1,20 @@
+[
+  {
+    "arm": 2,
+    "name": "disconnected",
+    "returncode": 0,
+    "seconds": 363.9322890829644
+  },
+  {
+    "arm": 3,
+    "name": "frictionless",
+    "returncode": 1,
+    "seconds": 0.14993383298860863
+  },
+  {
+    "arm": 1,
+    "name": "open",
+    "returncode": 0,
+    "seconds": 385.6621577090118
+  }
+]
