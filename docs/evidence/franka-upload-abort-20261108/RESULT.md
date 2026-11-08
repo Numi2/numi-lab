@@ -1,0 +1,7 @@
+# First-upload abort retry result
+
+The independently initialized control and retry processes both exited 0 on 2026-11-08. Control ran from 00:50:28.466142 to 00:50:28.918568 UTC, and retry from 00:50:28.918720 to 00:50:28.963110 UTC. Pinned inputs matched before and after. Both final physical steps published two successful world/contact statuses and zero required raw contacts.
+
+In the retry arm, the very first command was rejected before submission. Its upload bindings were initially all zero; the unsubmitted encoding nevertheless set nonzero model, task and policy fingerprints. The opt-in scope guard restored all four fingerprint values to zero and restored its saved articulation metadata. The next attempt completed and published. Its q, v, actor output, depth and tracker histories, camera state and batch metadata matched the independent no-failure control byte-for-byte; cadence was 1/0 in each. Raw fields, status output, fingerprints and hashes are retained.
+
+Together with the unchanged failure in 4ae8d4863, this supports premature host publication of private-upload bindings as the cause of the first-submission retry failure in this fixture. The guard is isolated research code and disarms after command submission, not GPU completion. Actual post-commit command failure, failed physics, mixed acceptance, recurrent actor state, contact response and production transaction semantics are not qualified. This is one contact-free first-step control, not a mixed-publication result.
