@@ -1,0 +1,39 @@
+{
+  "threshold": 0.0025,
+  "peak_bin_N": 0.08743226330345472,
+  "fine_impulse_Ns": 0.0004082812376567633,
+  "temporal_force": 8.004616990245274e-07,
+  "temporal_impulse": 1.3848964451584738e-07,
+  "runs": {
+    "coarse": {
+      "min_gap_m": 9.21579210078117e-05,
+      "min_J": 0.968141835075932,
+      "duffy_reference_force_relative": 1.8763924271815414e-07,
+      "order18_force_relative": 0.0001225986606387286,
+      "momentum_relative": 8.364912536589507e-15,
+      "energy_drift_relative": 1.696695016445632e-08,
+      "contact_work_balance_relative": 2.992105952792895e-06,
+      "contact_work_scale_J": 2.4077133858799777e-07
+    },
+    "fine": {
+      "min_gap_m": 9.215791440545429e-05,
+      "min_J": 0.9681417568716604,
+      "duffy_reference_force_relative": 1.8764057204978184e-07,
+      "order18_force_relative": 0.00012259094706966038,
+      "momentum_relative": 9.29434726287723e-15,
+      "energy_drift_relative": 4.6021364048276617e-10,
+      "contact_work_balance_relative": 8.102178093940182e-08,
+      "contact_work_scale_J": 2.407705268686959e-07
+    }
+  },
+  "temporal_contact_work": 1.0845750730760645e-05,
+  "temporal_pass": true,
+  "quadrature_pass": true,
+  "other_gates_pass": true,
+  "numerical_prerequisite_pass": true,
+  "n4_to_n8_spatial": {
+    "force_bin_relative": 0.09684719779081555,
+    "impulse_relative": 0.013826532510261788,
+    "pass": false
+  }
+}
