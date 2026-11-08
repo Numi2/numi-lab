@@ -1,0 +1,101 @@
+{
+  "actual_git_bytes_verified": true,
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300148496 157200644    66% 3497896 1572006440    0%   /System/Volumes/Data\n",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 300148504 157200636    66% 3497906 1572006360    0%   /System/Volumes/Data\n",
+  "files": [
+    {
+      "bytes": 485,
+      "git_blob": "e704960989cf0158f358f049ee8ba17825d06fc6",
+      "git_path": "artifacts/crow-rl-beak-hold-capture-20261108/archive.stdout",
+      "mode": 420,
+      "mtime_ns": 1794119798950451408,
+      "path": "/private/tmp/crow-beak-hold-archive.stdout",
+      "sha256": "3b0dc948fe16c9f25bb1469dbfb7435cb7c083cfe4d638ed8d4fae8ec74f997a"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "git_path": "artifacts/crow-rl-beak-hold-capture-20261108/archive.stderr",
+      "mode": 420,
+      "mtime_ns": 1794119771956177058,
+      "path": "/private/tmp/crow-beak-hold-archive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 197,
+      "git_blob": "28262725a0bc3f05045b95a08d370976ff965309",
+      "git_path": "artifacts/crow-rl-beak-hold-capture-20261108/verify.stdout",
+      "mode": 420,
+      "mtime_ns": 1794119822228173821,
+      "path": "/private/tmp/crow-beak-hold-verify.stdout",
+      "sha256": "2da4e25cfc9e541ffc75ab1c95647f528fc32f5975622359b59568bcfbeb4a16"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "git_path": "artifacts/crow-rl-beak-hold-capture-20261108/verify.stderr",
+      "mode": 420,
+      "mtime_ns": 1794119822069361668,
+      "path": "/private/tmp/crow-beak-hold-verify.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 60,
+      "git_blob": "eb7bb707248c5c6e3715f64e4dc13a875d6f3172",
+      "git_path": "artifacts/crow-rl-beak-hold-capture-20261108/recovery.stdout",
+      "mode": 420,
+      "mtime_ns": 1794119935047333711,
+      "path": "/private/tmp/crow-beak-hold-recovery.stdout",
+      "sha256": "cbab3750061e24fc4a6db0f4a7d645a2ba0a35036b2d3ddfbfcd59e149da4219"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "git_path": "artifacts/crow-rl-beak-hold-capture-20261108/recovery.stderr",
+      "mode": 420,
+      "mtime_ns": 1794119922350766603,
+      "path": "/private/tmp/crow-beak-hold-recovery.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1296,
+      "git_blob": "5c8f75a9741f8bacccc25dd5a6be669b061a4d5e",
+      "git_path": "artifacts/crow-rl-beak-hold-capture-20261108/prune.stdout",
+      "mode": 420,
+      "mtime_ns": 1794120075427520128,
+      "path": "/private/tmp/crow-beak-hold-prune.stdout",
+      "sha256": "38bfa4bf500536d50e9b59df9a0b0706b8e24c59db5675b43529431c0ceee956"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "git_path": "artifacts/crow-rl-beak-hold-capture-20261108/prune.stderr",
+      "mode": 420,
+      "mtime_ns": 1794120074582719499,
+      "path": "/private/tmp/crow-beak-hold-prune.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 133,
+      "git_blob": "3f6ec0eb296d47b708c083d88116fcdcf50c4f00",
+      "git_path": "artifacts/crow-rl-git-recovery-beak-hold-20261108/omit.stdout",
+      "mode": 420,
+      "mtime_ns": 1794120104339431100,
+      "path": "/private/tmp/crow-beak-hold-omit.stdout",
+      "sha256": "eab73a5eda49388f7f60d59542c688cfdb0858c353581047e97f88dfefa99424"
+    },
+    {
+      "bytes": 0,
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "git_path": "artifacts/crow-rl-git-recovery-beak-hold-20261108/omit.stderr",
+      "mode": 420,
+      "mtime_ns": 1794120103467525194,
+      "path": "/private/tmp/crow-beak-hold-omit.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "open_handles": 0,
+  "protected_policy_sha256": "6a009417eac3e04831c95f46c24e78f943e825892124b972a58b5ee9eeed0389",
+  "removed_bytes": 2171,
+  "removed_files": 10
+}
