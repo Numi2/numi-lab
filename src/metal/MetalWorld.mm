@@ -740,6 +740,7 @@ struct MetalWorldSubmissionState {
     bool captureContactEvidence = false;
     bool captureRodWitnessEvidence = false;
     bool captureConvexCacheEvidence = false;
+    std::uint64_t configurationFingerprint = 0u;
     std::size_t rodWitnessElements = 0u;
     bool publishFinalState = true;
     bool publishStateTrajectory = true;
@@ -3544,13 +3545,34 @@ bool buildRequirements(
     return true;
 }
 
+// Identity for this intentionally restricted unprogrammed contact fixture.
+std::uint64_t noStepConfigurationFingerprint(const MetalWorldStepConfig& c, bool parallelABA) {
+    std::uint64_t h = kFNVOffset;
+    hashValue(h, parallelABA);
+    hashValue(h, c.timestepSeconds); hashValue(h, c.physicsSubsteps);
+    hashValue(h, c.solverMode); hashValue(h, c.actuationMode);
+    hashValue(h, c.taskSeed); hashValue(h, c.velocityIterations);
+    hashValue(h, c.finalVelocityIterations); hashValue(h, c.ccdMode);
+    hashValue(h, c.maxCCDEvents); hashValue(h, c.maxCCDAdvanceSolvePasses);
+    hashValue(h, c.maxCCDZeroTimeReplays); hashValue(h, c.maxConservativeAdvancementIterations);
+    hashValue(h, c.applyBodyDamping); hashValue(h, c.deterministic); hashValue(h, c.warmStart);
+    hashValue(h, c.matrixFreeArticulatedContact); hashValue(h, c.streamedArticulatedContactResponses);
+    hashValue(h, c.manifoldBreakingSeparation); hashValue(h, c.manifoldBreakingTangential);
+    hashValue(h, c.manifoldMergeDistance); hashValue(h, c.manifoldNormalCosine);
+    hashValue(h, c.ccdMinimumAdvance); hashValue(h, c.ccdTimeTolerance);
+    hashValue(h, c.ccdSimultaneousTolerance); hashValue(h, c.speculativeMarginScale);
+    hashValue(h, c.ccdSpeedEnvelope); hashValue(h, c.rodContactOuterIterations);
+    return h == 0u ? 1u : h;
+}
+
 MetalWorldDiagnostics validateAndBuildLayout(
     const CompiledWorld& world,
     const MetalWorldBatch& batch,
     const MetalWorldStepConfig& config,
     const bool residentContinuation,
     const bool preferParallelABA,
-    RequiredBuffers& requirements
+    RequiredBuffers& requirements,
+    const bool noStepSeed = false
 ) {
     MetalWorldDiagnostics diagnostics{};
     if (!world.valid()) {
@@ -3898,7 +3920,8 @@ MetalWorldDiagnostics validateAndBuildLayout(
         );
     }
     if (batch.environmentCount == 0u ||
-        batch.controlStepCount == 0u) {
+        (!noStepSeed && batch.controlStepCount == 0u) ||
+        (noStepSeed && batch.controlStepCount != 0u)) {
         return reject(
             std::move(diagnostics),
             MetalWorldHostStatus::invalidDimensions,
@@ -19843,6 +19866,7 @@ MetalWorldDiagnostics MetalWorldSubmission::wait(
             e.valid = true;
             e.supportsReset = owner.supportsReset;
             e.worldFingerprint = owner.worldFingerprint;
+            e.configurationFingerprint = pending->configurationFingerprint;
             e.taskFingerprint = owner.taskFingerprint;
             e.devicePhysicsFingerprint = owner.devicePhysicsFingerprint;
             e.millardProgramFingerprint = owner.millardProgramFingerprint;
@@ -19915,6 +19939,154 @@ MetalWorldContext::MetalWorldContext(
 MetalWorldContext& MetalWorldContext::operator=(
     MetalWorldContext&& other
 ) noexcept = default;
+
+std::uint64_t metalWorldNoStepSeedPayloadFingerprint(const MetalWorldNoStepSeed& seed) noexcept {
+    std::uint64_t h = kFNVOffset;
+    hashValue(h, seed.worldFingerprint); hashValue(h, seed.configurationFingerprint);
+    const auto append = [&](auto values) {
+        hashValue(h, values.size());
+        if (!values.empty()) hashBytes(h, values.data(), values.size_bytes());
+    };
+    append(seed.q); append(seed.v); append(seed.sceneBodies);
+    append(seed.manifoldHeaders); append(seed.manifoldPoints); append(seed.manifoldCounts); append(seed.convexCaches);
+    return h == 0u ? 1u : h;
+}
+
+MetalWorldDiagnostics MetalWorldContext::seedResidentNoStep(
+    const CompiledWorld& world, const MetalWorldStepConfig& config,
+    const MetalWorldNoStepSeed& seed, MetalWorldResidentState& destination
+) {
+    MetalWorldDiagnostics diagnostics{};
+    if (pool_ == nullptr || destination.state_ != nullptr) {
+        return reject(std::move(diagnostics), MetalWorldHostStatus::contextBusy,
+            "no-step seed requires an empty destination and live context");
+    }
+    // This is intentionally not a general restore interface. In particular,
+    // no external owner or reset/task/rod history is admitted.
+    if (!world.valid() || world.rodCount() != 0u ||
+        config.solverMode != MetalWorldSolverMode::temporalCone ||
+        config.taskProgram.valid() || config.policyProgram.valid() ||
+        config.multicopterProgram.valid() || config.millardProgram.configured() ||
+        config.millardActivationDynamics.configured() ||
+        config.devicePhysicsProgram.configured() || config.deviceObservationProgram.configured() ||
+        config.inspectionProgram.configured() || config.evaluateFinalPolicy ||
+        !config.captureContactEvidence || !config.captureConvexCacheEvidence ||
+        seed.worldFingerprint == 0u || seed.worldFingerprint != world.fingerprint() ||
+        seed.configurationFingerprint == 0u ||
+        seed.configurationFingerprint != noStepConfigurationFingerprint(config, pool_->slots.front()->config.preferParallelABA) ||
+        seed.payloadFingerprint == 0u || seed.payloadFingerprint != metalWorldNoStepSeedPayloadFingerprint(seed)) {
+        return reject(std::move(diagnostics), MetalWorldHostStatus::invalidDimensions,
+            "unsupported no-step seed or compiled world/configuration identity mismatch");
+    }
+    for (const auto& cache : seed.convexCaches) {
+        if (!finite(cache.separatingAxisAndDistance) || !finite(cache.barycentricWeights)) {
+            return reject(std::move(diagnostics), MetalWorldHostStatus::nonfiniteInput,
+                "no-step convex cache contains nonfinite values");
+        }
+    }
+    MetalWorldBatch batch{
+        .environmentCount=1u, .controlStepCount=0u,
+        .initialQ=seed.q, .initialV=seed.v, .initialSceneBodies=seed.sceneBodies,
+        .initialManifoldHeaders=seed.manifoldHeaders,
+        .initialManifoldPoints=seed.manifoldPoints,
+        .initialManifoldCounts=seed.manifoldCounts,
+    };
+    RequiredBuffers requirements{};
+    try {
+        // This mode only derives/validates the zero-step arena. Normal submit
+        // validation still rejects zero control steps and is never called here.
+        diagnostics = validateAndBuildLayout(world, batch, config, false,
+            pool_->slots.front()->config.preferParallelABA, requirements, true);
+        if (!diagnostics.succeeded()) return diagnostics;
+        if (seed.manifoldHeaders.size() != diagnostics.layout.manifoldHeaderElements ||
+            seed.manifoldPoints.size() != diagnostics.layout.manifoldPointElements ||
+            seed.manifoldCounts.size() != 1u ||
+            seed.convexCaches.size() != diagnostics.layout.convexCacheElements ||
+            seed.convexCaches.empty()) {
+            return reject(std::move(diagnostics), MetalWorldHostStatus::invalidDimensions,
+                "no-step seed has missing or incorrect cache capacities");
+        }
+        std::shared_ptr<detail::MetalWorldContextState> selected;
+        {
+            const std::lock_guard poolLock(pool_->mutex);
+            for (const auto& candidate : pool_->slots) {
+                const std::lock_guard slotLock(candidate->mutex);
+                if (!candidate->inFlight && candidate->residentOwner.expired()) {
+                    candidate->inFlight = true;
+                    candidate->stats.hasInFlightSubmission = true;
+                    selected = candidate;
+                    break;
+                }
+            }
+        }
+        if (selected == nullptr) return reject(std::move(diagnostics), MetalWorldHostStatus::contextBusy,
+            "no free arena for no-step seed");
+        detail::MetalWorldSlotReservation reservation(selected);
+        const std::lock_guard slotLock(selected->mutex);
+        // Encoded immutable uploads are not cached after a failed transaction.
+        struct InvalidateUnpublished {
+            detail::MetalWorldContextState& context;
+            bool published = false;
+            ~InvalidateUnpublished() { if (!published) context.boundModelFingerprint = 0u; }
+        } invalidate{*selected};
+        @autoreleasepool {
+            diagnostics = initializeContext(*selected, std::move(diagnostics));
+            if (!diagnostics.succeeded()) return diagnostics;
+            diagnostics = ensureBufferArena(*selected, requirements, std::move(diagnostics));
+            if (!diagnostics.succeeded()) return diagnostics;
+            id<MTLCommandBuffer> command = [selected->queue commandBuffer];
+            if (command == nil) return reject(std::move(diagnostics), MetalWorldHostStatus::metalCommandFailure,
+                "no-step seed could not create command buffer");
+            uploadBatch(*selected, command, world, batch, config, diagnostics.layout, requirements, true);
+            if (!encodeResidentStateInitialization(*selected, command, requirements, true, false, false, true))
+                return reject(std::move(diagnostics), MetalWorldHostStatus::metalCommandFailure,
+                    "no-step seed could not initialize private buffers");
+            const auto& convexRequirement = requirements.entries[kConvexCaches];
+            id<MTLBuffer> staging = [selected->device newBufferWithBytes:seed.convexCaches.data()
+                length:convexRequirement.logicalBytes options:MTLResourceStorageModeShared];
+            id<MTLBlitCommandEncoder> blit = [command blitCommandEncoder];
+            if (staging == nil || blit == nil) return reject(std::move(diagnostics), MetalWorldHostStatus::metalBufferFailure,
+                "no-step seed could not stage convex cache");
+            [blit copyFromBuffer:staging sourceOffset:0u toBuffer:selected->buffers[kConvexCaches]
+                destinationOffset:0u size:convexRequirement.logicalBytes];
+            [blit endEncoding];
+            const std::array<std::size_t, 7> indices{
+                kStateQA,kStateVA,kSceneBodiesA,kManifoldHeadersA,kManifoldPointsA,kManifoldCountsA,kConvexCaches};
+            diagnostics = encodeReadbacks(*selected, command, requirements, indices, std::move(diagnostics));
+            if (!diagnostics.succeeded()) return diagnostics;
+            [command commit];
+            [command waitUntilCompleted];
+            if (command.status != MTLCommandBufferStatusCompleted) return reject(
+                std::move(diagnostics), MetalWorldHostStatus::metalCommandFailure,
+                "no-step seed command failed: " + describeError(command.error));
+            const std::array<const void*,7> sources{seed.q.data(),seed.v.data(),seed.sceneBodies.data(),
+                seed.manifoldHeaders.data(),seed.manifoldPoints.data(),seed.manifoldCounts.data(),seed.convexCaches.data()};
+            for (std::size_t i=0u;i<indices.size();++i) {
+                const auto index=indices[i];
+                id<MTLBuffer> buffer = selected->buffers[index].storageMode == MTLStorageModePrivate
+                    ? selected->readbackBuffers[index] : selected->buffers[index];
+                const std::size_t bytes=requirements.entries[index].logicalBytes;
+                if (bytes != 0u && (buffer == nil || buffer.contents == nullptr || buffer.length < bytes ||
+                    std::memcmp(buffer.contents,sources[i],bytes) != 0))
+                    return reject(std::move(diagnostics), MetalWorldHostStatus::metalBufferFailure,
+                        "no-step seed readback missing, truncated, or mismatched");
+            }
+            auto owner=std::make_shared<detail::MetalWorldResidentStateData>();
+            owner->ownerPool=pool_; owner->context=selected;
+            owner->worldFingerprint=world.fingerprint(); owner->taskFingerprint=0u;
+            owner->devicePhysicsFingerprint=0u; owner->millardProgramFingerprint=0u;
+            owner->taskSeed=config.taskSeed; owner->environmentCount=1u;
+            owner->stateArenaGeneration=selected->stateArenaGeneration;
+            owner->supportsReset=false; owner->initialized=true; owner->pending=false;
+            selected->residentOwner=owner;
+            destination.state_=std::move(owner);
+            invalidate.published=true;
+        }
+        return diagnostics;
+    } catch (const std::exception& e) {
+        return reject(std::move(diagnostics), MetalWorldHostStatus::internalFailure, e.what());
+    }
+}
 
 MetalWorldDiagnostics MetalWorldContext::submit(
     const CompiledWorld& world,
@@ -21330,6 +21502,7 @@ MetalWorldDiagnostics MetalWorldContext::submitImpl(
             pending->captureRodWitnessEvidence =
                 config.captureRodWitnessEvidence;
             pending->captureConvexCacheEvidence = config.captureConvexCacheEvidence;
+            pending->configurationFingerprint = noStepConfigurationFingerprint(config, selectedState->config.preferParallelABA);
             pending->rodWitnessElements =
                 requirements.entries[sourceRodWitnesses].logicalElements;
             pending->publishFinalState =

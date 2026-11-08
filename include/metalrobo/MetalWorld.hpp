@@ -905,6 +905,7 @@ struct MetalWorldResidentBoundaryEvidence {
     bool valid = false;
     bool supportsReset = false;
     std::uint64_t worldFingerprint = 0u;
+    std::uint64_t configurationFingerprint = 0u;
     std::uint64_t taskFingerprint = 0u;
     std::uint64_t devicePhysicsFingerprint = 0u;
     std::uint64_t millardProgramFingerprint = 0u;
@@ -1039,6 +1040,26 @@ private:
     std::shared_ptr<detail::MetalWorldResidentStateData> state_;
 };
 
+// Narrow diagnostic seed contract: one environment, no rods, no Matter or
+// other programs, no reset. Captured arrays remain caller-owned during the
+// synchronous operation. A non-empty destination is always rejected.
+struct MetalWorldNoStepSeed {
+    std::uint64_t worldFingerprint = 0u;
+    std::uint64_t configurationFingerprint = 0u;
+    std::uint64_t payloadFingerprint = 0u;
+    std::span<const float> q{}, v{};
+    std::span<const MRBodyStateGPU> sceneBodies{};
+    std::span<const MRManifoldHeaderGPU> manifoldHeaders{};
+    std::span<const MRManifoldPointGPU> manifoldPoints{};
+    std::span<const std::uint32_t> manifoldCounts{};
+    std::span<const MRConvexQueryCacheGPU> convexCaches{};
+};
+
+// Accidental-corruption check, not an authentication primitive.
+[[nodiscard]] std::uint64_t metalWorldNoStepSeedPayloadFingerprint(
+    const MetalWorldNoStepSeed& seed
+) noexcept;
+
 // A committed multi-step world graph. submit() snapshots all caller-owned
 // spans before returning. wait() consumes the ticket and publishes one result.
 // Destroying a live ticket waits and discards safely.
@@ -1097,6 +1118,15 @@ public:
         const MetalWorldStepConfig& config,
         MetalWorldResidentState& state,
         MetalWorldSubmission& submission
+    );
+
+    // Diagnostic no-step seed for the narrow uncoupled convex fixture. It
+    // publishes no token until all device uploads are read back byte-exactly.
+    [[nodiscard]] MetalWorldDiagnostics seedResidentNoStep(
+        const CompiledWorld& world,
+        const MetalWorldStepConfig& config,
+        const MetalWorldNoStepSeed& seed,
+        MetalWorldResidentState& destination
     );
 
     // Continues an initialized resident state. initialQ/initialV, initial
