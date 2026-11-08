@@ -4583,6 +4583,10 @@ MetalWorldDiagnostics validateAndBuildLayout(
         contact.flags |=
             MR_METAL_WORLD_CONTACT_HAS_FUTURE_KINEMATICS;
     }
+    const char* ccdCaptureFile = std::getenv("METALROBO_CCD_FAILURE_CAPTURE");
+    if (config.ccdMode == MetalWorldCCDMode::hybrid && ccdCaptureFile != nullptr && ccdCaptureFile[0] != '\0') {
+        contact.flags |= MR_METAL_WORLD_CONTACT_CAPTURE_CCD_FAILURE;
+    }
     contact.timestepAndBias = {
         substepTimestep,
         world.model().world.solverScales.w,
@@ -5012,6 +5016,15 @@ MetalWorldDiagnostics validateAndBuildLayout(
                 MetalWorldHostStatus::arithmeticOverflow,
                 "derived contact-world element-count overflow"
             );
+        }
+        if ((contact.flags & MR_METAL_WORLD_CONTACT_CAPTURE_CCD_FAILURE) != 0u) {
+            std::size_t extra = 0u;
+            if (!checkedMultiply(batch.environmentCount, MR_CCD_FAILURE_SNAPSHOT_CANDIDATES, extra) ||
+                extra > (16u * 1024u * 1024u) / sizeof(MRCCDPairGPU) ||
+                !checkedAdd(layout.ccdPairElements, extra, layout.ccdPairElements)) {
+                return reject(std::move(diagnostics), MetalWorldHostStatus::arithmeticOverflow,
+                    "protected CCD failure inspection allocation exceeds16MiB");
+            }
         }
         layout.resetSceneBodyElements =
             batch.resetMasks.empty()
@@ -5658,10 +5671,15 @@ MetalWorldDiagnostics ensureHybridCCDPipeline(
     detail::MetalWorldContextState& context,
     MetalWorldDiagnostics diagnostics
 ) {
-    if (diagnostics.layout.contactDispatch.ccdMode != MR_WORLD_CCD_HYBRID ||
-        context.ccdPipeline != nil) {
+    if (diagnostics.layout.contactDispatch.ccdMode != MR_WORLD_CCD_HYBRID) {
         return diagnostics;
     }
+    if ((diagnostics.layout.contactDispatch.flags & MR_METAL_WORLD_CONTACT_CAPTURE_CCD_FAILURE) != 0u &&
+        [context.library newFunctionWithName:@"mr_world_ccd_failure_capture_abi_v1"] == nil) {
+        return reject(std::move(diagnostics), MetalWorldHostStatus::metalLibraryFailure,
+            "selected shader lacks protected CCD failure capture capability");
+    }
+    if (context.ccdPipeline != nil) return diagnostics;
     NSError* error = nil;
     id<MTLComputePipelineState> pipeline = makePipeline(
         context.device,

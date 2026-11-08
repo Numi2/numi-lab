@@ -344,18 +344,29 @@ time, and first failing event keys. The current step clusters certified events
 and uses speculative temporal cone solves to consume the complete microstep; literal repeated
 TOI advance/solve/continue publication remains the next collision milestone.
 
-### Optional failed CCD sweep inspection
+### Optional first-failure CCD sweep inspection
 
 Set `METALROBO_CCD_FAILURE_CAPTURE` to a new file path to inspect a rigid
-hybrid-CCD convergence failure after its command buffer completes. The owner
-reads only the first failed lane's projected/current/future shapes, candidate
-records, both event cursors, typed dispatch and public failure status. The
-`CCDSNP01` envelope is limited to1MiB and uses exclusive creation; successful
-submissions write nothing. Inspection never feeds state back into physics or
-policy inputs, and write failure preserves the original rollback diagnosis.
-A post-submission capture becomes evidence for the failing sweep only after
-isolated replay matches the stored candidate and reported failure boundary.
-No tolerance or solver-budget change follows from enabling inspection.
+hybrid-CCD convergence failure. With inspection enabled, each lane reserves
+704bytes after the ordinary logical CCD candidate stream, capped at16MiB
+for the batch. The GPU resolver preserves its first unsafe unresolved pair,
+both source shapes, current/future paired projections and the event cursor;
+later encoded passes cannot overwrite that tail. Normal candidate indices,
+strides and kernel arguments are unchanged. The shader must expose the
+protected-capture capability; incompatible shaders reject before encoding.
+
+After failure, the host writes a<=1MiB `CCDSNP01` version2 envelope with the
+protected record and separate post-submission scratch/world/contact status.
+The header uses the world transaction's failing substep; contact status may
+still carry the previous substep if CCD fails before narrowphase stamps it.
+Exclusive creation prevents overwrites. Successful submissions write nothing,
+and write errors preserve the original rollback diagnosis. Inspection never
+feeds state back into physics, tasks, actors or the learner. Exact isolated
+candidate replay is required before the capture explains a failure.
+
+The earlier version1 post-submission-only capture was rejected: later passes
+had overwritten transient candidate/event data. That negative study remains
+in `artifacts/crow-rl-ccd-postsubmission-capture-20261108`.
 
 ## Native sensors and specialized physics
 

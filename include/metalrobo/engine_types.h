@@ -781,6 +781,8 @@ enum MRMetalWorldContactFlags : mr_u32 {
     // body-wrench arena as ABA. This keeps continuum, typed actuator, and
     // multicopter reactions additive under one clear/write/consume contract.
     MR_METAL_WORLD_CONTACT_BODY_WRENCHES = 1u << 10u,
+    // Optional first-failure inspection; never consumed by physics/tasks.
+    MR_METAL_WORLD_CONTACT_CAPTURE_CCD_FAILURE = 1u << 11u,
 };
 
 // One stable, cooker-produced pair. The pair stream is canonical collider
@@ -1536,6 +1538,28 @@ typedef struct MR_ALIGN16 MRShapeGPU {
     mr_float4 contactRestAndBoundingRadius;
 } MRShapeGPU;
 
+// Optional protected tail of the CCD-candidate allocation. Ordinary candidate
+// indices/strides are unchanged. One first-failure record per environment is
+// protected from later encoded passes until host inspection after completion.
+typedef struct MR_ALIGN16 MRCCDFailureSnapshotGPU {
+    // x publication tag, y contact control stamp, z previous contact substep,
+    // w failed compiled pair. The world transaction owns the current substep.
+    mr_uint4 validAndStamp;
+    MRCCDPairGPU candidate;
+    MRShapeGPU sourceA;
+    MRShapeGPU sourceB;
+    MRProjectedColliderGPU startA;
+    MRProjectedColliderGPU startB;
+    MRProjectedColliderGPU endA;
+    MRProjectedColliderGPU endB;
+    MRCCDEventStateGPU event;
+} MRCCDFailureSnapshotGPU;
+enum MRCCDFailureSnapshotConstants : mr_u32 {
+    MR_CCD_FAILURE_SNAPSHOT_TAG = 0x43434631u,
+    MR_CCD_FAILURE_SNAPSHOT_CANDIDATES = 11u,
+};
+
+
 typedef struct MR_ALIGN16 MRAabbGPU {
     mr_float4 lower;
     mr_float4 upper;
@@ -1732,6 +1756,8 @@ static_assert(sizeof(MRCCDPairGPU) == 64);
 static_assert(sizeof(MRCCDEventStateGPU) == 64);
 static_assert(sizeof(MRCCDImpactClusterGPU) == 48);
 static_assert(sizeof(MRProjectedColliderGPU) == 80);
+static_assert(sizeof(MRCCDFailureSnapshotGPU) == 688);
+static_assert(sizeof(MRCCDFailureSnapshotGPU) <= MR_CCD_FAILURE_SNAPSHOT_CANDIDATES * sizeof(MRCCDPairGPU));
 static_assert(sizeof(MRContactPointMetaGPU) == 48);
 static_assert(sizeof(MRManifoldIRScatterGPU) == 128);
 static_assert(sizeof(MRWorldDynamicNodeGPU) == 64);

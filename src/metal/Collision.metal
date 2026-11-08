@@ -5589,7 +5589,8 @@ inline bool finiteContactDispatch(
         MR_METAL_WORLD_CONTACT_QUALITY |
         MR_METAL_WORLD_CONTACT_BODY_PARAMETERS |
         MR_METAL_WORLD_CONTACT_STREAMED_RESPONSES |
-        MR_METAL_WORLD_CONTACT_BODY_WRENCHES;
+        MR_METAL_WORLD_CONTACT_BODY_WRENCHES |
+        MR_METAL_WORLD_CONTACT_CAPTURE_CCD_FAILURE;
     return
         dispatch.abiVersion ==
             MR_METAL_WORLD_CONTACT_ABI_VERSION &&
@@ -7282,6 +7283,24 @@ kernel void mr_world_resolve_ccd(
                     firstUnsafe,
                     compiledPair
                 );
+                if ((dispatch.flags & MR_METAL_WORLD_CONTACT_CAPTURE_CCD_FAILURE) != 0u) {
+                    const uint base = dispatch.environmentCount * dispatch.ccdCandidateCapacity +
+                        environment * MR_CCD_FAILURE_SNAPSHOT_CANDIDATES;
+                    device MRCCDFailureSnapshotGPU& saved =
+                        *reinterpret_cast<device MRCCDFailureSnapshotGPU*>(candidates + base);
+                    if (saved.validAndStamp.x == 0u) {
+                        saved.candidate = record;
+                        saved.sourceA = sourceA;
+                        saved.sourceB = sourceB;
+                        saved.startA = projectedColliders[projectionBase + pair.colliderA];
+                        saved.startB = projectedColliders[projectionBase + pair.colliderB];
+                        saved.endA = futureProjectedColliders[projectionBase + pair.colliderA];
+                        saved.endB = futureProjectedColliders[projectionBase + pair.colliderB];
+                        saved.event = eventStates[environment];
+                        saved.validAndStamp = uint4(MR_CCD_FAILURE_SNAPSHOT_TAG,
+                            status.controlStep, status.physicsSubstep, compiledPair);
+                    }
+                }
             }
         }
         if (destination >= dispatch.ccdCandidateCapacity) {
@@ -7376,6 +7395,13 @@ kernel void mr_world_resolve_ccd(
         status.firstFailingEventKeyHigh = environment;
     }
     statuses[environment] = status;
+}
+
+// Presence admits the opt-in protected-tail allocation contract. No kernel
+// argument or default candidate layout changes for existing callers.
+kernel void mr_world_ccd_failure_capture_abi_v1(
+    device uint* result [[buffer(0)]], const uint index [[thread_position_in_grid]]) {
+    if (index == 0u) result[0] = 1u;
 }
 
 // Merges procedural rod/tool TOIs into the rigid candidate segment in the same

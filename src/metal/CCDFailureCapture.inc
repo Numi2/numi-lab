@@ -1,7 +1,7 @@
 // Optional, bounded inspection after a failed submission has completed. It
 // never supplies state to physics, tasks, actors or the learner. A captured
-// post-submission sweep is causal evidence only if replay matches its stored
-// CCD record and the public failure boundary.
+// protected GPU first-failure record must replay exactly before it explains
+// the public failure boundary. Ordinary post-submission scratch stays separate.
 namespace {
 void captureCCDFailure(
     const detail::MetalWorldContextState& context,
@@ -23,6 +23,16 @@ void captureCCDFailure(
     try {
         const auto& status = *found;
         const auto& dispatch = context.boundContactDispatch;
+        const auto index = std::size_t(found - result.contactStatuses.begin());
+        if (index >= result.statuses.size() ||
+            (dispatch.flags & MR_METAL_WORLD_CONTACT_CAPTURE_CCD_FAILURE) == 0u) {
+            throw std::runtime_error("protected CCD capture is unavailable");
+        }
+        const auto& world = result.statuses[index];
+        if (world.environment != status.environment || world.code != status.code ||
+            world.failingSubstep == MR_INVALID_INDEX) {
+            throw std::runtime_error("CCD capture world/contact failure boundary differs");
+        }
         if (status.environment >= dispatch.environmentCount ||
             status.firstFailingPair >= dispatch.eligiblePairCount ||
             dispatch.shapeCount > 4096u ||
@@ -53,6 +63,8 @@ void captureCCDFailure(
         std::memcpy(configuration.bytes.data(), &dispatch, sizeof(dispatch));
         auto& failure = add("status", sizeof(status));
         std::memcpy(failure.bytes.data(), &status, sizeof(status));
+        auto& worldFailure = add("world", sizeof(world));
+        std::memcpy(worldFailure.bytes.data(), &world, sizeof(world));
         @autoreleasepool {
             id<MTLCommandBuffer> command = [context.queue commandBuffer];
             id<MTLBlitCommandEncoder> encoder = [command blitCommandEncoder];
@@ -88,6 +100,10 @@ void captureCCDFailure(
                 status.environment * sizeof(MRCCDEventStateGPU), sizeof(MRCCDEventStateGPU));
             copy("eventB", kCCDEventStatesB,
                 status.environment * sizeof(MRCCDEventStateGPU), sizeof(MRCCDEventStateGPU));
+            const std::size_t failureOffset =
+                std::size_t(dispatch.environmentCount) * candidates +
+                std::size_t(status.environment) * MR_CCD_FAILURE_SNAPSHOT_CANDIDATES * sizeof(MRCCDPairGPU);
+            copy("failed", kCCDPairs, failureOffset, sizeof(MRCCDFailureSnapshotGPU));
             [encoder endEncoding];
             [command commit];
             [command waitUntilCompleted];
@@ -100,6 +116,18 @@ void captureCCDFailure(
                 }
             }
         }
+        const auto savedSegment = std::find_if(segments.begin(), segments.end(),
+            [](const Segment& segment) { return std::memcmp(segment.tag.data(), "failed", 6u) == 0; });
+        MRCCDFailureSnapshotGPU saved{};
+        if (savedSegment == segments.end()) throw std::runtime_error("missing protected CCD segment");
+        std::memcpy(&saved, savedSegment->bytes.data(), sizeof(saved));
+        if (saved.validAndStamp.x != MR_CCD_FAILURE_SNAPSHOT_TAG ||
+            saved.candidate.environment != status.environment ||
+            saved.candidate.compiledPair != status.firstFailingPair ||
+            (saved.candidate.flags & MR_CCD_PAIR_UNRESOLVED) == 0u ||
+            (saved.candidate.flags & MR_CCD_PAIR_SPECULATIVE_FALLBACK) != 0u) {
+            throw std::runtime_error("protected CCD record does not match public failure");
+        }
         std::vector<std::byte> image;
         image.reserve(total);
         const auto append = [&](const void* source, const std::size_t size) {
@@ -108,8 +136,8 @@ void captureCCDFailure(
         };
         constexpr char magic[8] = {'C','C','D','S','N','P','0','1'};
         append(magic, sizeof(magic));
-        const std::uint32_t header[] = {1u, status.environment, status.controlStep,
-            status.physicsSubstep, status.firstFailingPair, std::uint32_t(segments.size())};
+        const std::uint32_t header[] = {2u, world.environment, world.controlStep,
+            world.failingSubstep, status.firstFailingPair, std::uint32_t(segments.size())};
         append(header, sizeof(header));
         for (const auto& segment : segments) {
             append(segment.tag.data(), segment.tag.size());
