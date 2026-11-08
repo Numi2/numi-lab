@@ -1,0 +1,202 @@
+{
+  "budget": {
+    "calibration_submissions": 2,
+    "native_submissions": 14,
+    "new_source_bytes_max": 50000,
+    "problem_submissions": 12,
+    "raw_bytes_max": 2000000,
+    "seconds_each": 30
+  },
+  "calibration": {
+    "arithmetic_abs_error_max": 2e-14,
+    "exact_fraction_arithmetic": [
+      "1+2^-30",
+      "subtraction",
+      "(1+2^-24)*(1-2^-24)",
+      "1/10",
+      "1e8+1-1e8",
+      "-7/3"
+    ],
+    "independent_weighted_cone_calibration": "same previously calibrated FP64 reference; rerun five closed-form and weighted derivative checks",
+    "sqrt2_abs_error_max": 2e-14
+  },
+  "cases": [
+    {
+      "blocks": 160,
+      "bytes": 92608,
+      "name": "substep7-split",
+      "nv": 34,
+      "path": "build/crow-split-precision-build-01/substep7-split.input",
+      "rounding": 0,
+      "rows": 480,
+      "sha256": "362cfb847ed103279876ec42eff3270f4a364d511537f12e45bd937e20cc1901"
+    },
+    {
+      "blocks": 160,
+      "bytes": 92608,
+      "name": "substep7-rounded",
+      "nv": 34,
+      "path": "build/crow-split-precision-build-01/substep7-rounded.input",
+      "rounding": 1,
+      "rows": 480,
+      "sha256": "bc895ead68e541923a975b64a86188cfa4d538f86befa9060aa05b093ff52890"
+    },
+    {
+      "blocks": 160,
+      "bytes": 92608,
+      "name": "substep2-split",
+      "nv": 34,
+      "path": "build/crow-split-precision-build-01/substep2-split.input",
+      "rounding": 0,
+      "rows": 480,
+      "sha256": "0c25f3c2f5084042114d4eb27b021660b5db17ab683504d06894d59a2b74ddb8"
+    },
+    {
+      "blocks": 160,
+      "bytes": 92608,
+      "name": "substep2-rounded",
+      "nv": 34,
+      "path": "build/crow-split-precision-build-01/substep2-rounded.input",
+      "rounding": 1,
+      "rows": 480,
+      "sha256": "cf995bbb76095fc67b0e988132f2af59a33879223d55e5e8f550f43ac47dfe03"
+    },
+    {
+      "blocks": 0,
+      "bytes": 64,
+      "name": "null",
+      "nv": 2,
+      "path": "build/crow-split-precision-build-01/null.input",
+      "rounding": 0,
+      "rows": 0,
+      "sha256": "c690b1df0be13a7785db572e549b2c17a2175c28eeb32ea9d49335d80562720c"
+    },
+    {
+      "blocks": 1,
+      "bytes": 312,
+      "name": "spd",
+      "nv": 2,
+      "path": "build/crow-split-precision-build-01/spd.input",
+      "rounding": 0,
+      "rows": 2,
+      "sha256": "fe688c51d909b011a2ce6c84bfc238190d20e6f9be24b3e2a91ea74a134fe9ed"
+    },
+    {
+      "blocks": 0,
+      "bytes": 164,
+      "name": "scalar-bound",
+      "nv": 1,
+      "path": "build/crow-split-precision-build-01/scalar-bound.input",
+      "rounding": 0,
+      "rows": 1,
+      "sha256": "d1c6e9731fb551bf5c2915830e3a791eb30e09fbd6a574ac918a0c8e7ec930fd"
+    },
+    {
+      "blocks": 0,
+      "bytes": 252,
+      "name": "unsupported-boundary",
+      "nv": 3,
+      "path": "build/crow-split-precision-build-01/unsupported-boundary.input",
+      "rounding": 0,
+      "rows": 3,
+      "sha256": "1d7222e1dafe1a5f5724e0347d47d7e66e7bcf41102c5576d7867a39e2d6b912"
+    }
+  ],
+  "commands": {
+    "build_library": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metallib",
+      "build/crow-split-precision-build-01/split.air",
+      "-o",
+      "build/crow-split-precision-build-01/split.metallib"
+    ],
+    "build_metal": [
+      "xcrun",
+      "-sdk",
+      "macosx",
+      "metal",
+      "-std=metal3.1",
+      "-O3",
+      "-fno-fast-math",
+      "-Iinclude",
+      "-c",
+      "artifacts/crow-rl-split-precision-20261108/split.metal",
+      "-o",
+      "build/crow-split-precision-build-01/split.air"
+    ],
+    "build_probe": [
+      "xcrun",
+      "clang++",
+      "-std=c++20",
+      "-O2",
+      "-fobjc-arc",
+      "-framework",
+      "Metal",
+      "-framework",
+      "Foundation",
+      "artifacts/crow-rl-split-precision-20261108/probe.mm",
+      "-o",
+      "build/crow-split-precision-build-01/probe"
+    ],
+    "run": [
+      "/Users/n/Developer/numi-crow-rl-20261107/python/.venv/bin/python",
+      "artifacts/crow-rl-split-precision-20261108/run.py"
+    ]
+  },
+  "experimental_units": "Two already exposed fixed captured problems; synthetic controls. Repeat submissions test determinism, not independence.",
+  "held_fixed": [
+    "compiled FP32 A/J/bias/free/start/block records",
+    "all four Newton updates",
+    "Metal device/compiler",
+    "same arithmetic except state rounding",
+    "existing 1e-10 stationarity target"
+  ],
+  "intervention": "Retain hi/lo state vs discard low part after each identical Newton update.",
+  "limits": "A successful split solve alone cannot qualify canonical FP32 output or coupled world. Production needs an explicit end-to-end representation contract, physical validation and performance assessment; no tolerance relaxation.",
+  "mechanism": "FP32 expansion row sums, projection, dynamics/constraint residual, Hessian, LDL and velocity update. No FP64 or reference state enters the Metal solve.",
+  "predictions": {
+    "calibration_pass": true,
+    "repeated_binary_outputs_exact": true,
+    "split_captures_gate_pass": true,
+    "split_independent_scaled_residual_max": 1e-10,
+    "split_reported_gradient_abs_error_max": 2e-12,
+    "split_velocity_reference_max_error": 1e-10,
+    "substep7_rounded_gate_pass": false,
+    "unsupported_boundary_code": 3
+  },
+  "prior_evidence": {
+    "commit": "0f1ed00dbc3d16f3fe0f8dbfc973f313dd432b44",
+    "limits": "Local FP32 infeasibility near rounded reference; failed native velocity lies outside certified box.",
+    "local_proof": "artifacts/crow-rl-contact-precision-20261108/local-box-proof.json"
+  },
+  "promotion": false,
+  "purpose": "Exposed engineering representation experiment; no physical state advancement or ecological confirmation.",
+  "question": "Can native two-FP32 expansions retain a velocity solution at the existing 1e-10 gate when the same solve rounds each iterate to canonical FP32?",
+  "schema": "crow-native-split-precision-study-v1",
+  "sources": {
+    "independent-reference-source.py": {
+      "bytes": 8244,
+      "sha256": "89f85b795eb8a5d0f1041e00a9a99ccf871636b1dacf6ffd61038565de98d4b0"
+    },
+    "prepare.py": {
+      "bytes": 6367,
+      "sha256": "f4e5e921188776047c014f251310bf04b2143833c44a60f95d75cdb134354d32"
+    },
+    "probe.mm": {
+      "bytes": 4352,
+      "sha256": "1f2e5bbd50b950401b8a6d33071263e2387460226858fd475407159f4bcf27ba"
+    },
+    "run.py": {
+      "bytes": 8085,
+      "sha256": "7cb82a868b90476435d24f5d1aec12e2891aff9992938aa683d8330255764348"
+    },
+    "split.metal": {
+      "bytes": 7896,
+      "sha256": "b51239b6bfc2aaa8a7d5953741ca6f1ce7657987e1228df5107bd68383844236"
+    }
+  },
+  "stopping": "No retries or extra candidates. First unexpected process/GPU/structural error stops submissions; preserve every failure. Scientific prediction failures retained and analyzed.",
+  "supported_instrument_scope": "SPD A, scalar intervals, zero-adhesion uncapped cones in interior/vertex regions. Cone boundary/cap/adhesion returns explicit code3; no substituted projection."
+}
