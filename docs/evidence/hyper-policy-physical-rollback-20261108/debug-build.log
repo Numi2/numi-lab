@@ -1,0 +1,4 @@
+[0/2] Re-checking globbed directories...
+[1/4] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalHyperPolicy.mm.o
+[2/4] Building CXX object CMakeFiles/metalrobo.dir/src/c_api.cpp.o
+[3/4] Linking CXX shared library lib/libmetalrobo.dylib

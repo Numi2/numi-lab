@@ -1,0 +1,38 @@
+Test project /Users/numi/hyper-policy-capacity-build-20261108
+      Start   3: hyper_policy_physical_rejection
+ 1/13 Test   #3: hyper_policy_physical_rejection ................   Passed    0.87 sec
+      Start   4: hyper_policy_restore_statuses
+ 2/13 Test   #4: hyper_policy_restore_statuses ..................   Passed    0.01 sec
+      Start   5: hyper_policy_capacity_continuity
+ 3/13 Test   #5: hyper_policy_capacity_continuity ...............   Passed    0.65 sec
+      Start 178: metalrobo.visual.tracker_encode_retry
+ 4/13 Test #178: metalrobo.visual.tracker_encode_retry ..........   Passed    0.21 sec
+      Start 185: metalrobo.visual.world_step_callback
+ 5/13 Test #185: metalrobo.visual.world_step_callback ...........   Passed    0.07 sec
+      Start 186: metalrobo.visual.world_step_callback_abort
+ 6/13 Test #186: metalrobo.visual.world_step_callback_abort .....   Passed    0.07 sec
+      Start 187: metalrobo.visual.history_step_rollback
+ 7/13 Test #187: metalrobo.visual.history_step_rollback .........   Passed    0.07 sec
+      Start 188: metalrobo.visual.reset_frame_materialized
+ 8/13 Test #188: metalrobo.visual.reset_frame_materialized ......   Passed    0.08 sec
+      Start 189: metalrobo.visual.reset_frame_fresh
+ 9/13 Test #189: metalrobo.visual.reset_frame_fresh .............   Passed    0.08 sec
+      Start 190: metalrobo.visual.reset_frame_rollback
+10/13 Test #190: metalrobo.visual.reset_frame_rollback ..........   Passed    0.08 sec
+      Start 191: metalrobo.visual.reset_frame_sampled_failure
+11/13 Test #191: metalrobo.visual.reset_frame_sampled_failure ...   Passed    0.09 sec
+      Start 192: metalrobo.visual.reset_frame_direct
+12/13 Test #192: metalrobo.visual.reset_frame_direct ............   Passed    0.08 sec
+      Start 193: metalrobo.visual.observation_lease
+13/13 Test #193: metalrobo.visual.observation_lease .............   Passed    0.06 sec
+
+100% tests passed out of 13
+
+Label Time Summary:
+metal        =   2.42 sec*proc (13 tests)
+metalrobo    =   0.89 sec*proc (10 tests)
+policy       =   1.53 sec*proc (3 tests)
+robotics     =   1.53 sec*proc (3 tests)
+visual       =   0.89 sec*proc (10 tests)
+
+Total Test time (real) =   2.42 sec
