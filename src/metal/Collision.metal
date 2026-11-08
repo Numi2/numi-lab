@@ -5884,7 +5884,8 @@ kernel void mr_world_project_swept_colliders(
     const bool exactArticulatedCCD =
         articulated &&
         hasFutureKinematics &&
-        (source.flags & MR_SHAPE_FLAG_ENABLE_CCD) != 0u;
+        (dispatch.ccdMode == MR_WORLD_CCD_HYBRID ||
+         (source.flags & MR_SHAPE_FLAG_ENABLE_CCD) != 0u);
     if (articulated && !exactArticulatedCCD) {
         const float sweepRadius =
             shapeSweepRadius(source, projected);
@@ -5920,7 +5921,7 @@ kernel void mr_world_project_swept_colliders(
             source.contactRestAndBoundingRadius.x +
             speculativeMargin;
         projected.statusAndFlags.z =
-            speculativeMargin > 0.0f ? 1u : 0u;
+            as_type<uint>(speculativeMargin);
         futureProjectedColliders[projectedIndex] = projected;
         return;
     }
@@ -6948,8 +6949,12 @@ MRCCDPairGPU resolveCCDPair(
         if (query.separation <= tolerance) {
             resolved = true;
             record.flags |= MR_CCD_PAIR_HAS_IMPACT;
+            // Each translating primitive advancement is a supporting-plane
+            // lower bound on contact. The new query verifies its endpoint
+            // has reached the existing distance tolerance; the old iterate
+            // can be arbitrarily far back (including zero).
             record.intervalAndDistance.x =
-                previousAlpha * timestep;
+                (translatingSphereBox ? alpha : previousAlpha) * timestep;
             record.intervalAndDistance.y =
                 alpha * timestep;
             record.normalAndIteration.xyz = query.normal;

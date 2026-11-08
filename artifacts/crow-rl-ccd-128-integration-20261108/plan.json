@@ -1,0 +1,27 @@
+{
+  "purpose": "Integrate the verified projection and contact-time correctness repairs, then support actual128-substep numerical qualification. The protected crow deployment/profile is not promoted.",
+  "source_base": "79a6b5df9b17abad9377ec26faa947995537ee11",
+  "previous128_attempt": "Rejected by helper selector before physics; native cap64 also disallowed128. No128 physical observations exist.",
+  "bound_audit": "The max constant appears only in host dimension admission and three GPU dispatch/substep admission checks. No fixed array capacity uses it. Increase to128; preserve default cadences and all CCD event budgets/tolerances.",
+  "inputs": {
+    "src/metal/Collision.metal": "767a23c5a1228f0a69a18b6699c342d688a76e35d593aee775660f8b2cf5ab60",
+    "include/metalrobo/engine_types.h": "d6aade125399cc1dc8a8aa4604a68c4bb63f8a400adbd7f586228e3b57fa9ffd",
+    "apps/metal_world_contact_probe.cpp": "62d605c432eece322b9da84fa06233b885289d1e4b2438a4ba4682dba918e59b",
+    "build/crow-ccd-articulated-sweep-build-01/fixture128.mm": "c462a9137abaffc7682767784307e5d9ab7c5edcff62f45ad37e418c45d06f3b"
+  },
+  "gates": [
+    "Full Release build passes.",
+    "Native owner rejects0 and129, executes all128 committed substeps at the maximum boundary, and passes its existing regressions.",
+    "Integrated projection records and4096 contact-time records are byte exact to the candidate.",
+    "Existing32 and64 complete crow traces, final q/v/scene, scene trajectory and summary bytes match the candidate exactly.",
+    "One128-substep crow execution accepts640 transitions and differs from64 by at most0.005m across all160 paired ticks, with unchanged full mechanical gates.",
+    "Native object-push engineering controls pass."
+  ],
+  "budget": {
+    "legacy_physical_replays": 2,
+    "new128_physical_executions": 1,
+    "owner_regressions": 2,
+    "timeout_seconds_each": 180,
+    "stop": "No retries, threshold changes or deployment promotion after a failed gate. Preserve all failures and raw data; physics convergence remains unproven until the actual gate passes."
+  }
+}

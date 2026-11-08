@@ -176,6 +176,35 @@ int main() {
             .captureContactEvidence = true,
         };
 
+        // Verify the host boundary and actual GPU committed-substep count.
+        const metalrobo::MetalWorldBatch boundaryBatch{
+            .environmentCount = environmentCount,
+            .controlStepCount = 1u,
+            .initialQ = q,
+            .initialV = v,
+            .efforts = std::span<const float>(efforts).first(environmentCount * world.nv()),
+            .initialSceneBodies = scene,
+        };
+        metalrobo::MetalWorldContext boundaryContext;
+        metalrobo::MetalWorldResult boundaryResult;
+        auto boundaryConfig = config;
+        for (const auto invalid : {0u, MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS + 1u}) {
+            boundaryConfig.physicsSubsteps = invalid;
+            const auto rejected = boundaryContext.run(world, boundaryBatch, boundaryConfig, boundaryResult);
+            require(rejected.status == metalrobo::MetalWorldHostStatus::invalidDimensions,
+                "invalid substep boundary was admitted");
+        }
+        boundaryConfig.physicsSubsteps = MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS;
+        const auto boundaryRun = boundaryContext.run(world, boundaryBatch, boundaryConfig, boundaryResult);
+        require(boundaryRun.succeeded() && boundaryRun.failedStepCount == 0u &&
+                boundaryResult.statuses.size() == environmentCount,
+            "maximum substep cadence failed");
+        for (const auto& status : boundaryResult.statuses) {
+            require(status.code == MR_STEP_SUCCESS &&
+                    status.successfulSubsteps == MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS,
+                "GPU did not commit every requested substep");
+        }
+
         metalrobo::MetalWorldContext context;
         metalrobo::MetalWorldResult first;
         const auto firstDiagnostics =

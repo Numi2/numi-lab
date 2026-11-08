@@ -48,7 +48,7 @@
 // control steps, each with a bounded number of ABA physics substeps, without
 // a command-buffer completion or CPU-visible intermediate state.
 #define MR_METAL_WORLD_ABI_VERSION 6u
-#define MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS 64u
+#define MR_METAL_WORLD_MAX_PHYSICS_SUBSTEPS 128u
 #define MR_METAL_WORLD_CONTACT_ABI_VERSION 9u
 #define MR_METAL_WORLD_MANIFOLD_POINT_CAPACITY 4u
 #define MR_METAL_WORLD_RAW_CONTACTS_PER_PAIR 8u
@@ -1098,7 +1098,8 @@ typedef struct MR_ALIGN16 MRCCDImpactClusterGPU {
 // record is produced once per collider, then reused by broadphase and
 // narrowphase instead of reconstructing shape frames for every eligible pair.
 typedef struct MR_ALIGN16 MRProjectedColliderGPU {
-    // projection status, simulation-disabled flag, reserved, reserved.
+    // Projection status, disabled flag, float bits of swept motion margin,
+    // source shape flags when supplied by the projection owner.
     mr_uint4 statusAndFlags;
     // xyz center, w radius.
     mr_float4 centerAndRadius;
