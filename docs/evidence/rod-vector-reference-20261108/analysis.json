@@ -1,0 +1,47 @@
+{
+  "production@0": {
+    "pass": 0,
+    "accepted_failed": 5,
+    "rejected": 13
+  },
+  "production@0.5": {
+    "pass": 0,
+    "accepted_failed": 6,
+    "rejected": 12
+  },
+  "production@100": {
+    "pass": 0,
+    "accepted_failed": 15,
+    "rejected": 3
+  },
+  "prior@0": {
+    "pass": 3,
+    "accepted_failed": 0,
+    "rejected": 15
+  },
+  "prior@0.5": {
+    "pass": 3,
+    "accepted_failed": 0,
+    "rejected": 15
+  },
+  "prior@100": {
+    "pass": 0,
+    "accepted_failed": 3,
+    "rejected": 15
+  },
+  "vector@0": {
+    "pass": 18,
+    "accepted_failed": 0,
+    "rejected": 0
+  },
+  "vector@0.5": {
+    "pass": 18,
+    "accepted_failed": 0,
+    "rejected": 0
+  },
+  "vector@100": {
+    "pass": 4,
+    "accepted_failed": 8,
+    "rejected": 6
+  }
+}

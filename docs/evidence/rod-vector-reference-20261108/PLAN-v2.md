@@ -1,0 +1,9 @@
+# Precision guard and unused rotation follow-up
+
+The first vector candidate passed all 36 axial cases at offsets 0 and 0.5 m but, at 100 m, accepted eight cases that missed an unchanged position, velocity or force gate, passed four and rejected six. Repeats and two unsupported-motion controls matched. This rejects broad promotion and indicates that input/output FP32 resolution can dominate the physical tolerance. Retain all first-study inputs and results.
+
+Before computing the exact candidate, use one times FP32 machine epsilon times the maximum absolute input/anchor coordinate as a conservative coordinate-scale screen. If a geometrically eligible axial case exceeds the configured absolute constraint tolerance, explicitly reject as DID_NOT_CONVERGE before modifying candidate state. This is a heuristic admission bound, not a complete bound on cancellation, reaction-force error, or non-axial geometry; unsupported cases still use the unchanged guarded solver.
+
+Run the same full fixed matrix against this guarded candidate and its prior candidate control, with two repeats. Require 36/36 unchanged small-offset axial force/state passes, no accepted-but-failed axial cases at 100 m, and no changed outcomes for the bent and transverse control cases. Expected large-offset rejections count as incomplete motion, not successes.
+
+In a separate unused-rotation follow-up use three axes normalized from (3,-4,7), (-1,-5,2), and (4,1,-3), with the same three axial cases and offsets 0, 0.5 and 100 m, both candidates and two repeats. Apply exactly the existing gates. Require all small-offset guarded cases to pass and no accepted-but-failed large-offset cases. Retain every output, all rejections, hashes and the rejected v1 analysis; no production changes, performance or general rod qualification. Stop after these declared cases. Any previously examined orientation is replication, not an independent trial.
