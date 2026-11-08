@@ -29,3 +29,32 @@ feedback. Dynamic force-bin and impulse limits stay at 0.25%.
 
 Run one bounded CPU process for at most 180 seconds, one BLAS thread, no GPU.
 Retain all original hashes, per-state forces, projection checks and failures.
+
+## Result
+
+All sampled gaps were positive and each original Duffy-64 force reproduced
+the corresponding trace value exactly. The n=4→8 projection control changed
+force by at most 9.67e-8 of the n=8 peak bin, well under 0.05%.
+
+The opposite n=8→4 projection changed instantaneous force by up to
+**44.67% of the n=8 peak 1 ms force bin** among the six sampled states
+(at 5.0 ms), exceeding the 0.25% diagnostic threshold. At that state the
+original Duffy-64 force was 0.11937 N and the projected-force value
+0.08031 N. This supports a substantial surface-representation effect for
+the observed fine-grid gap field. The operation changes that gap field, so
+it does not apportion or establish the cause of the 9.685% original dynamic
+bin discrepancy; bulk response and contact feedback remain coupled.
+
+Both runs first show contact at the 4.6 ms sample. Their shared theoretical
+free-fall activation is 4.515 ms. At 0.1 ms sampling each shows one episode
+through 10 ms, with impulses 0.000413926 and 0.000408281 N·s, a 1.383%
+difference normalized by n=8. Shorter unobserved separations are possible.
+Order-18 vs Duffy-64 force error at the original n=4 and n=8 snapshots was
+at most 0.01091% and 0.01226% of the corresponding peak bins; this bounds
+instantaneous quadrature discrepancy at those states, not the accumulated
+effect of changing quadrature during a new trajectory.
+
+The [evidence](evidence/contact-p2-surface-projection-20261108/) contains
+all sampled forces, input hashes, onset calculation and exact normalization.
+The original 0.25% dynamic force and impulse qualification gates remain
+unmet.

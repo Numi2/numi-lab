@@ -1,0 +1,36 @@
+{
+  "n8_peak_bin_N": 0.08743226330345472,
+  "free_fall_activation_s": 0.004515236409857309,
+  "directions": {
+    "4_to_8": {
+      "max_projection_difference_relative": 9.666358626101387e-08,
+      "max_reproduction_difference_relative": 0.0,
+      "min_sampled_gap_m": 8.97754445741285e-05
+    },
+    "8_to_4": {
+      "max_projection_difference_relative": 0.44674048047227316,
+      "max_reproduction_difference_relative": 0.0,
+      "min_sampled_gap_m": 9.322500157877173e-05
+    }
+  },
+  "episodes": {
+    "4": [
+      {
+        "first_active_sample_s": 0.0046,
+        "end_sample_s": 0.01,
+        "impulse_between_sample_bounds_Ns": 0.00041392635146255443
+      }
+    ],
+    "8": [
+      {
+        "first_active_sample_s": 0.0046,
+        "end_sample_s": 0.01,
+        "impulse_between_sample_bounds_Ns": 0.0004082812376567633
+      }
+    ]
+  },
+  "control_pass": true,
+  "reproduction_pass": true,
+  "prediction_pass": true,
+  "sampled_episode_impulse_difference_relative": 0.013826532510261788
+}
