@@ -43,3 +43,9 @@ cursor, into storage protected from later passes. Require exact isolated
 candidate replay before an independent advancement/event regression. Preserve
 normal physics, actor inputs, rewards and learning rate. Broader learned food
 manipulation, ecology and social learning remain unfinished.
+
+The committed-object recovery passes: all native/source/checkpoint input bytes
+match, the complete checkpoint COMMITTED/manifest/component checksums match,
+and the restored standalone executable repeats the exact rejection without GPU
+encoding. `verification.json` records the scoped result and exact temporary
+cleanup. The failed sweep remains unqualified.

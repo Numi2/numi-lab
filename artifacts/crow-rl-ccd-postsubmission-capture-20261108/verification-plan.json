@@ -1,0 +1,5 @@
+{
+  "prediction": "Actual Git-restored standalone probe rejects the byte-restored post-submission snapshot with exactly the original exit1/error before GPU work and produces no result file. All restored files and the complete checkpoint COMMITTED/manifest/component hashes match Git.",
+  "budget": "One native probe timeout60s; temporary<=384MiB; no training, simulation, learning-rate trial or retry.",
+  "scope": "Negative measurement reproduction plus complete byte recovery; no causal failing-sweep replay or independently executed full learner recovery."
+}
