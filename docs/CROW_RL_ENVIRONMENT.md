@@ -179,6 +179,55 @@ physical/behavioral checks above cover their declared sampled ranges and
 durations. Material sensitivity, held-out layouts, learned manipulation,
 persistent needs and social learning remain unqualified.
 
+## First object motor-learning trial (8 November 2026)
+
+The optional rollout `--final-state-json NEW_FILE` exports accepted world-coordinate
+body/q/v state for every lane at the final publication boundary. It enables native
+state readback only on the final submission, so preceding chunks remain resident.
+The all-lane coordinates agree with independent FP64 accepted goal-score identities
+within2e-6; lane0 agrees with the existing q/scene trace within1e-7. Neutral33-lane
+chunks1/8 yield identical endpoints and rollout bytes. The overwrite guard rejects
+before native execution. The first exporter omitted endpoint readback for untraced
+chunks; that failed attempt, exact binary and source remain archived. The corrected
+calibration passes15840 native transitions with zero physics rejection.
+
+An unbiased fresh GRU32/encoder32 policy (zero actor output,std.2) trains for16
+updates of160ticks x128lanes at fixed LR.0003,gamma.999,lambda1 and two full-batch
+epochs. It accepts327680 samples at720.876 transitions/s in454.558s, with zero
+failed physics steps. Native/model/Adam/retina/GRU checkpoints8/16 are retained.
+MLX peak is580382152B; retained native buffers104109362B and transient private
+buffers76476188B. These are separate counters, not whole-system peak. A during-run
+snapshot and post-run query report zero swap; no immediately pre-run swap reading
+was captured. The raw trial including calibration is615565252B before its summary,
+within its prospectively declared1GiB bound. Intermediate generating rollouts are
+overwritten by the ordinary trainer as declared, not silently represented as retained.
+
+The prospective physical prediction is **contradicted**. Frozen initial/final
+means on64 unused placement draws have exactly the same accepted object positions:
+mean goal error218.024mm,0/64 within20mm. First actor/critic observations match for
+every paired initial state. Reward rises during training, but the deterministic
+physical outcome does not improve. All joint clip scales remain1; actual actor
+displacements per update are.0339..0846. Head means reach only.00827..08610;
+retained batches8/16 contain no goal visit within20mm (closest score-derived
+distances70.50/25.38mm). No adaptive learning-rate success or learned manipulation
+is selected from these metrics.
+
+A separately preregistered model revision adds.2 solely to the frozen learned
+head output bias, preserving other parameters, GRU, normalization and task binding.
+On32 new paired placements, this intervention moves32/32 objects by>1cm and lowers
+mean goal error218.520→56.979mm;8/32 finish within20mm. Both declared thresholds
+(>=50mm mean improvement and>=75% movement) pass. This identifies insufficient
+mean head amplitude as an immediate bottleneck in this fixture; feedback changes
+can consequently alter other action outputs. It does not qualify a learned policy,
+visual dependence, geometry/material transfer or a larger learning rate.
+
+Source, plans, failures, all frozen candidates, retained rollouts/checkpoints,
+model revision, native endpoints and actual Git recovery are in
+`artifacts/crow-rl-object-learning-20261108`. The next learning comparison should
+continue the fixed-rate learner on fresh episodes and use fresh frozen held-out
+streams; observed placement streams are development evidence. Physical outcomes,+not KL target attainment, decide whether it improves. Full lifelong ecology,
+solid-food handling and social learning remain open.
+
 ## Current native history contract (8 November 2026)
 
 Current executable task ABIs are51 (base),52 (retinal),53 (memory choice), and54

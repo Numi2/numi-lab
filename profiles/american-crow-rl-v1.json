@@ -847,6 +847,39 @@
         "prospective_raw_bound_bytes": 536870912,
         "sustained_throughput_qualified": false
       }
+    },
+    "first_unbiased_motor_learning_trial": {
+      "evidence": "artifacts/crow-rl-object-learning-20261108",
+      "source_command": "python -m metalrobo.crow_object_learning --root ROOT --output NEW_DIR calibration; then training",
+      "final_state_export_flag": "--final-state-json",
+      "final_state_schema": "numi.task-final-state.v1",
+      "native_endpoint_calibration_transitions": 15840,
+      "training_samples": 327680,
+      "training_updates": 16,
+      "environments": 128,
+      "episode_ticks": 160,
+      "fixed_learning_rate": 0.0003,
+      "gamma": 0.999,
+      "lambda": 1,
+      "training_transitions_per_second": 720.8763937731039,
+      "training_elapsed_seconds": 454.557817166,
+      "mlx_peak_bytes": 580382152,
+      "native_failed_steps": 0,
+      "joint_clip_scale_minimum": 1,
+      "held_out_mean_cases": 64,
+      "held_out_initial_successes": 0,
+      "held_out_final_successes": 0,
+      "held_out_mean_goal_error_m_initial_and_final": 0.2180237389541333,
+      "prospective_learning_prediction": "contradicted",
+      "amplitude_control_new_paired_cases": 32,
+      "amplitude_control_bias_offset": 0.2,
+      "amplitude_control_objects_moved_over_1cm": 32,
+      "amplitude_control_goal_error_reduction_m": 0.16154133864695527,
+      "amplitude_control_successes": 8,
+      "amplitude_control_prediction": "supported",
+      "adaptive_LR_selected": false,
+      "learned_manipulation_qualified": false,
+      "next": "fixed-LR continuation on fresh episodes, new held-out physical endpoint comparison; no promotion by KL target"
     }
   }
 }

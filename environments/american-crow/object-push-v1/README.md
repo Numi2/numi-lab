@@ -157,3 +157,21 @@ or a controlled learning speedup comparison.
 This enables repeated motor-learning opportunities in the fixed apparatus.
 Learned visual manipulation and held-out layout/material generalization remain
 unqualified, as do unbroken ecological needs/resources and social learning.
+
+## Physical endpoint export and first learning result
+
+Use `--final-state-json NEW_FILE` on native rollout to publish all-lane accepted
+world-coordinate body/q/v values once at the final boundary. The JSON includes
+body names, field order, dimensions and run/world/task fingerprints. Its parent
+directory must exist and the file must be new. This adds no actor observation or
+physics authority. Native33-lane FP64/trace/chunk/overwrite controls pass.
+
+The first unbiased16-update learning study fails its prospective deterministic
+goal criterion: frozen initial/final means have identical64 held-out endpoints,
+0/64 within20mm. Clip scales are1 and actor updates are nonzero. A separate
+head-output+.2 intervention moves32/32 objects, reduces mean goal error by161.54mm,
+and finishes8/32 within20mm. The intervention is not a learned/deployed policy.
+See `artifacts/crow-rl-object-learning-20261108` and the main environment document
+for commands, retained evidence, exact runtime recovery and limits. Continue
+fixed-LR learning on fresh episodes before selecting an adaptive rate; select
+by physical held-out behavior, not a KL target.
