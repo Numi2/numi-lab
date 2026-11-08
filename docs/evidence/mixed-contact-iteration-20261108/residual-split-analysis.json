@@ -1,0 +1,51 @@
+{
+  "traced_cases_match_original": 42,
+  "frictional_64_max_rows": [
+    {
+      "initial_vn": -1,
+      "normal_equation": 0.08196626604,
+      "normal_impulse": 6.26571782e-05
+    },
+    {
+      "initial_vn": 0,
+      "normal_equation": 0.165546611,
+      "normal_impulse": 0.0001140164532
+    },
+    {
+      "initial_vn": 1,
+      "normal_equation": 0.1196649671,
+      "normal_impulse": 0.0006937418366
+    }
+  ],
+  "split": {
+    "0": {
+      "2": {
+        "max_normal_residual": 0.4533487558,
+        "failed_normal_gate": 2
+      },
+      "16": {
+        "max_normal_residual": 0.001667825505,
+        "failed_normal_gate": 0
+      },
+      "64": {
+        "max_normal_residual": 5.681067705e-08,
+        "failed_normal_gate": 0
+      }
+    },
+    "0.5": {
+      "2": {
+        "max_normal_residual": 0.4533487558,
+        "failed_normal_gate": 2
+      },
+      "16": {
+        "max_normal_residual": 0.001667825505,
+        "failed_normal_gate": 0
+      },
+      "64": {
+        "max_normal_residual": 5.681067705e-08,
+        "failed_normal_gate": 0
+      }
+    }
+  },
+  "split_all_accepted_replayed_momentum_and_cone_checked": true
+}

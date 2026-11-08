@@ -1,0 +1,3 @@
+# Mixed-row residual attribution
+
+The frictional 64-sweep cases retain normal residuals of 0.082–0.166 m/s, although the independently evaluated rigid-plane normal deficit is essentially zero for incoming speeds -1 and 0 m/s. Before changing the solver, instrument the already executed residual calculation to report the signed normal equation and its complementarity contribution for every row. Use the same 42-case zero-gravity sweep and existing unpromoted frictionless candidate. The added diagnostic must leave all previously observed numerical outputs bit-identical. Attribute the maximum to actual rod or rigid rows, record normal impulses and signs, and do not infer physical contact accuracy from this diagnostic alone.
