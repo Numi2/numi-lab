@@ -1,0 +1,58 @@
+{
+  "status": "removed",
+  "archive_commit": "c083e398326aa7852e344e73918e76d1f3acb6f5",
+  "remote_commit": "c083e398326aa7852e344e73918e76d1f3acb6f5",
+  "files": [
+    {
+      "path": "/private/tmp/crow-object-learning-archive-20261108.stdout",
+      "git_path": "artifacts/crow-rl-object-learning-20261108/capture.stdout",
+      "sha256": "1ce71fa73e1e7279e81701c168b389bbb088a0fdd4fc7a2dbc4a1a68f23292e6",
+      "bytes": 597,
+      "mode": 420,
+      "mtime_ns": 1794108290736470349
+    },
+    {
+      "path": "/private/tmp/crow-object-learning-archive-20261108.stderr",
+      "git_path": "artifacts/crow-rl-object-learning-20261108/capture.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794108264850641531
+    },
+    {
+      "path": "/private/tmp/crow-object-learning-prune-20261108.stdout",
+      "git_path": "artifacts/crow-rl-object-learning-20261108/raw-cleanup.stdout",
+      "sha256": "20c979b63eb217da3a3e163e0440dedc6aca7ba8f3df4bdba5780160c40e306f",
+      "bytes": 1287,
+      "mode": 420,
+      "mtime_ns": 1794108902069056015
+    },
+    {
+      "path": "/private/tmp/crow-object-learning-prune-20261108.stderr",
+      "git_path": "artifacts/crow-rl-object-learning-20261108/raw-cleanup.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794108899922537775
+    },
+    {
+      "path": "/private/tmp/crow-object-learning-omit-20261108.stdout",
+      "git_path": "artifacts/crow-rl-object-learning-20261108/checkout-omission.stdout",
+      "sha256": "ec0b09a2d2046b88e18f38cbd39169ab9d9d9520b6c716c1cb5e218347738638",
+      "bytes": 139,
+      "mode": 420,
+      "mtime_ns": 1794108950412792873
+    },
+    {
+      "path": "/private/tmp/crow-object-learning-omit-20261108.stderr",
+      "git_path": "artifacts/crow-rl-object-learning-20261108/checkout-omission.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420,
+      "mtime_ns": 1794108949489216219
+    }
+  ],
+  "removed_logical_bytes": 2023,
+  "open_handles": 0,
+  "scope": "Six closed wrapper-log duplicates; compared against actual committed Git blobs before removal"
+}
