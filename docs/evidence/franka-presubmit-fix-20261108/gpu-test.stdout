@@ -1,0 +1,7 @@
+direct_winner_enabled=1
+present_empty rc=0 admitted=1 finished=1 world=0,0
+explicit_present=1,1 nonempty_winners=0
+finish_reject rc=-1 admitted=2 finished=2
+unchanged_history_and_frames=1 unchanged_metadata=1 unchanged_cadence=1 sequence=1,1 sensor=0,0
+retry rc=0 admitted=3 finished=3 world=0,0
+retry_sequence=2 retry_sensor=1 aborted=1
