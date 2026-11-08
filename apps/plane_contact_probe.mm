@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 #include <CommonCrypto/CommonDigest.h>
 #include "numi/matter/matter.hpp"
+#include "../matter/src/fem_plane_quadrature.hpp"
 #include "metalrobo/engine_types.h"
 #include <algorithm>
 #include <array>
@@ -20,17 +21,41 @@ template<class T> bool bytesEqual(const std::vector<T>& a,const std::vector<T>& 
     return a.size()==b.size()&&(a.empty()||std::memcmp(a.data(),b.data(),a.size()*sizeof(T))==0);
 }
 bool physicalEqual(const numi::matter::RuntimeStateSnapshot& a,const numi::matter::RuntimeStateSnapshot& b){
-    return bytesEqual(a.femNodes,b.femNodes)&&bytesEqual(a.femMaterialState,b.femMaterialState)&&
+    return a.sourcePhysicsFingerprint==b.sourcePhysicsFingerprint &&
+        a.deviceProgramFingerprint==b.deviceProgramFingerprint &&
+        a.allocationGeneration==b.allocationGeneration &&
+        a.learnedWeightRevision==b.learnedWeightRevision &&
+        a.identificationGeneration==b.identificationGeneration &&
+        a.identificationCheckpoint==b.identificationCheckpoint &&
+        a.identificationAdvanced==b.identificationAdvanced &&
+        a.sutureProxyBindingRevision==b.sutureProxyBindingRevision &&
+        a.coupledTimestepMultiplier==b.coupledTimestepMultiplier &&
+        a.coupledTimestepDivisor==b.coupledTimestepDivisor &&
+        a.fgmresIterationBudgetOverride==b.fgmresIterationBudgetOverride &&
+        a.newtonIterationBudgetOverride==b.newtonIterationBudgetOverride &&
+        a.materialStateStride==b.materialStateStride &&
+        bytesEqual(a.particles,b.particles)&&bytesEqual(a.femNodes,b.femNodes)&&
+        bytesEqual(a.particleMaterialState,b.particleMaterialState)&&
+        bytesEqual(a.femMaterialState,b.femMaterialState)&&bytesEqual(a.femFields,b.femFields)&&
+        bytesEqual(a.femTopologyNodes,b.femTopologyNodes)&&
+        bytesEqual(a.femTopologyTetrahedra,b.femTopologyTetrahedra)&&
+        bytesEqual(a.cohesiveFaces,b.cohesiveFaces)&&bytesEqual(a.punctureChannels,b.punctureChannels)&&
         bytesEqual(a.contactHistories,b.contactHistories)&&bytesEqual(a.schedulers,b.schedulers)&&
-        bytesEqual(a.adaptive,b.adaptive)&&bytesEqual(a.femFields,b.femFields)&&
-        bytesEqual(a.topologyStates,b.topologyStates)&&bytesEqual(a.deformableContactHistories,b.deformableContactHistories);
+        bytesEqual(a.adaptive,b.adaptive)&&bytesEqual(a.topologyStates,b.topologyStates)&&
+        bytesEqual(a.deformableContactHistories,b.deformableContactHistories)&&
+        bytesEqual(a.humanSupportHistories,b.humanSupportHistories)&&
+        bytesEqual(a.humanSupportConsequences,b.humanSupportConsequences)&&
+        bytesEqual(a.vascularState,b.vascularState)&&bytesEqual(a.vascularClock,b.vascularClock)&&
+        bytesEqual(a.learnedWeights,b.learnedWeights)&&bytesEqual(a.identification,b.identification)&&
+        bytesEqual(a.environmentParameters,b.environmentParameters)&&
+        bytesEqual(a.sutureProxyEdges,b.sutureProxyEdges);
 }
 
 // Independent FP64 evaluation of the fixture equations, without integration.
 struct FixtureResidual { double l2=0,local=0,kinematic=0,velocity=0; };
 FixtureResidual fixtureResidual(const numi::matter::CompiledWorld& world,
     const numi::matter::RuntimeStateSnapshot& old,
-    const numi::matter::RuntimeStateSnapshot& cur,double timestep) {
+    const numi::matter::RuntimeStateSnapshot& cur,double timestep,bool midpoint) {
     using V=std::array<double,3>;using M=std::array<V,3>;
     const double h=float(timestep),g=float(-9.81);
     std::vector<V> force(cur.femNodes.size());
@@ -46,6 +71,14 @@ FixtureResidual fixtureResidual(const numi::matter::CompiledWorld& world,
                 double(n.referenceDisplacementAndMode.y)+n.referenceDisplacementLow.y,
                 double(n.referenceDisplacementAndMode.z)+n.referenceDisplacementLow.z};
             else x[j]={n.positionAndMass.x,n.positionAndMass.y,n.positionAndMass.z};
+            if(midpoint) {
+                const auto& o=old.femNodes[ids[j]];
+                const V previous=reference ? V{double(o.referenceDisplacementAndMode.x)+o.referenceDisplacementLow.x,
+                    double(o.referenceDisplacementAndMode.y)+o.referenceDisplacementLow.y,
+                    double(o.referenceDisplacementAndMode.z)+o.referenceDisplacementLow.z} :
+                    V{o.positionAndMass.x,o.positionAndMass.y,o.positionAndMass.z};
+                for(int axis=0;axis<3;++axis)x[j][axis]=0.5*(x[j][axis]+previous[axis]);
+            }
         }
         M F{};for(int i=0;i<3;++i)for(int j=0;j<3;++j) {
             F[i][j]=reference&&i==j?1:0;
@@ -77,21 +110,28 @@ FixtureResidual fixtureResidual(const numi::matter::CompiledWorld& world,
     for(unsigned i=0;i<cur.femNodes.size();++i) {
         const auto& a=old.femNodes[i];const auto& b=cur.femNodes[i];
         const double mass=b.positionAndMass.w;
-        const V x={b.positionAndMass.x,b.positionAndMass.y,b.positionAndMass.z};
-        const V y={a.positionAndMass.x,a.positionAndMass.y,a.positionAndMass.z};
+        const bool reference=b.referenceDisplacementAndMode.w==1;
+        const V x=reference ? V{double(b.referenceDisplacementAndMode.x)+b.referenceDisplacementLow.x,
+            double(b.referenceDisplacementAndMode.y)+b.referenceDisplacementLow.y,
+            double(b.referenceDisplacementAndMode.z)+b.referenceDisplacementLow.z} :
+            V{b.positionAndMass.x,b.positionAndMass.y,b.positionAndMass.z};
+        const V y=reference ? V{double(a.referenceDisplacementAndMode.x)+a.referenceDisplacementLow.x,
+            double(a.referenceDisplacementAndMode.y)+a.referenceDisplacementLow.y,
+            double(a.referenceDisplacementAndMode.z)+a.referenceDisplacementLow.z} :
+            V{a.positionAndMass.x,a.positionAndMass.y,a.positionAndMass.z};
         const V v={b.velocityAndInverseMass.x,b.velocityAndInverseMass.y,b.velocityAndInverseMass.z};
         const V u={a.velocityAndInverseMass.x,a.velocityAndInverseMass.y,a.velocityAndInverseMass.z};
         double sum=0;for(int j=0;j<3;++j) {
             const double e=h*(force[i][j]+(j==2?mass*g:0))-mass*(v[j]-u[j])+impulse[i][j];
             sum+=e*e;
-            r.kinematic=std::max(r.kinematic,std::abs(x[j]-y[j]-h*v[j]));
+            r.kinematic=std::max(r.kinematic,std::abs(x[j]-y[j]-h*(midpoint ? .5*(u[j]+v[j]) : v[j])));
             r.velocity=std::max(r.velocity,std::abs(v[j]-u[j]-(j==2?h*g:0)));
         }
         r.l2+=sum;r.local=std::max(r.local,std::sqrt(sum)/(mass*std::abs(g)*h+1e-10));
     }
     r.l2=std::sqrt(r.l2);return r;
 }
-numi::matter::CompiledWorld model(int divisions,double h,double startGap,bool physical,bool freefall,bool reference){
+numi::matter::CompiledWorld model(int divisions,double h,double startGap,bool physical,bool freefall,bool reference,double initialVelocity,double toleranceFactor){
     auto parsed=numi::matter::parseMatter(R"MAT(
 material test_pad {
  parameter density : kg/m^3 = 1100 in [1000,1200];
@@ -118,6 +158,7 @@ material test_pad {
     numi::matter::ObjectSource object;object.name="frictionless_fem_pad";
     object.materialIndex=0;object.mixedFEM=false;object.representation=numi::matter::Representation::fem;
     object.characteristicLength=.02/divisions;object.deformableContact=false;object.deformableSelfContact=false;
+    object.femInitialVelocity={0,0,initialVelocity};
     const auto index=[&](int x,int y,int z){return std::uint32_t((z*(divisions+1)+y)*(divisions+1)+x);};
     for(int z=0;z<=divisions;++z)for(int y=0;y<=divisions;++y)for(int x=0;x<=divisions;++x)
         object.femNodes.push_back({.02*x/divisions,.02*y/divisions,startGap+.02*z/divisions});
@@ -142,7 +183,7 @@ material test_pad {
         const double portion=1100.*.02*.02*.02/(24.*divisions*divisions*divisions);
         for(const auto& tet:object.tetrahedra)for(auto id:tet.nodes)nodalMass[id]+=portion;
         double sum=0.;for(double m:nodalMass)sum+=m*m;
-        source.mixedSolver.mechanicalAbsoluteImpulseTolerance=.00025*9.81*h*(*std::min_element(nodalMass.begin(),nodalMass.end()));
+        source.mixedSolver.mechanicalAbsoluteImpulseTolerance=toleranceFactor*.00025*9.81*h*(*std::min_element(nodalMass.begin(),nodalMass.end()));
         source.mixedSolver.mechanicalRelativeImpulseTolerance=.00225*(*std::min_element(nodalMass.begin(),nodalMass.end()))/std::sqrt(sum);
         source.mixedSolver.mechanicalImpulseScale=9.81*h*std::sqrt(sum);
     }
@@ -157,17 +198,21 @@ int main(int argc,char** argv){
     require(argc>=5,"usage: plane_contact_probe METALLIB timestep steps divisions [ipc|al|ipc_area] [initial-gap] [legacy|physical] [contact|freefall] [world|reference]");
     const double h=std::stod(argv[2]);const int steps=std::stoi(argv[3]),divisions=std::stoi(argv[4]);
     require(h>0&&steps>0&&steps<=10000&&divisions>0&&divisions<=8,"invalid workload");
-    const std::string arm=argc>5?argv[5]:"ipc";require(arm=="ipc"||arm=="al"||arm=="ipc_area","invalid arm");
+    const std::string arm=argc>5?argv[5]:"ipc";require(arm=="ipc"||arm=="al"||arm=="ipc_area"||arm=="ipc_area_midpoint","invalid arm");
     const double startGap=argc>6?std::stod(argv[6]):2.e-4;
     const std::string policy=argc>7?argv[7]:"legacy";
     require(policy=="physical"||policy=="legacy","invalid residual policy");
     const bool freefall=argc>8&&std::string(argv[8])=="freefall";
     const bool reference=argc>9&&std::string(argv[9])=="reference";
-    const auto world=model(divisions,h,startGap,policy=="physical",freefall,reference);
+    const double initialVelocity=argc>11?std::stod(argv[11]):0.;
+    const double toleranceFactor=argc>13?std::stod(argv[13]):1.;
+    require(toleranceFactor>0 && std::isfinite(toleranceFactor),"invalid tolerance factor");
+    const auto world=model(divisions,h,startGap,policy=="physical",freefall,reference,initialVelocity,toleranceFactor);
     numi::matter::Runtime runtime;numi::matter::RuntimeConfiguration config;
     config.metallib=argv[1];config.environmentCount=1;config.captureDiagnostics=true;config.adaptiveTransfer=false;
     config.experimentalFEMPlaneAugmentedLagrangian=arm=="al";
-    config.experimentalFEMPlaneAreaIPC=arm=="ipc_area";
+    config.experimentalFEMPlaneAreaIPC=arm=="ipc_area"||arm=="ipc_area_midpoint";
+    config.experimentalFEMPlaneMidpoint=arm=="ipc_area_midpoint";
     if(argc>10)config.experimentalFEMPlaneAreaIPCK=std::stof(argv[10]);
     std::cerr<<"instrument_world contact_pairs="<<world.dispatch.contactPairCount<<" deformable_capacity="<<world.dispatch.deformableContactCapacity
         <<" rigid_generalized="<<world.dispatch.rigidGeneralizedCapacity<<" mutation="<<world.dispatch.mutationCommandCount
@@ -194,21 +239,52 @@ int main(int argc,char** argv){
         require(command.status==MTLCommandBufferStatusCompleted,"GPU command failed");
         return command.GPUEndTime-command.GPUStartTime;
     };
+    std::vector<float> area;std::string areaError;
+    if(config.experimentalFEMPlaneAreaIPC)
+        require(numi::matter::detail::femFixedPlaneReferenceAreas(world,area,areaError),"area: "+areaError);
     auto initial=runtime.snapshot();require(initial.available,"initial snapshot unavailable");
+    // Optional authored checkpoint perturbation for a transaction rejection test.
+    // It changes only accepted velocity; rest geometry and contact law are untouched.
+    const double compressionRate=argc>12?std::stod(argv[12]):0.;
+    if(compressionRate!=0.) {
+        for(auto& n:initial.femNodes)
+            n.velocityAndInverseMass.z=float(initialVelocity-compressionRate*(double(n.restAndFixed.z)-float(startGap)));
+        const auto set=runtime.restore(initial);require(set.encoded,"restore perturbed initial checkpoint: "+set.message);
+        initial=runtime.snapshot();require(initial.available,"perturbed initial snapshot unavailable");
+    }
     double gpu=0;int accepted=0,rejected=0;double minimumGap=1.e100;bool first=true;
     std::cout<<std::setprecision(12)<<"{\"schema\":\"numi.matter.plane-contact.v1\",\"device\":\""<<device.name.UTF8String
         <<"\",\"arm\":\""<<arm<<"\",\"h\":"<<h<<",\"divisions\":"<<divisions<<",\"initial_gap\":"<<startGap<<",\"nodes\":"<<world.dispatch.femNodeCount
-        <<",\"area_ipc_k_N_per_m5\":"<<(arm=="ipc_area"?config.experimentalFEMPlaneAreaIPCK:0.f)<<",\"residual_policy\":\""<<policy<<"\",\"coordinate_mode\":\""<<(reference?"reference_displacement":"world_position")<<"\",\"freefall_control\":"<<(freefall?"true":"false")<<",\"mechanical_absolute_tolerance_Ns\":"<<world.mixedSolver.contactAcceptance.y<<",\"mechanical_relative_tolerance\":"<<world.mixedSolver.contactAcceptance.z<<",\"mechanical_impulse_scale_Ns\":"<<world.mixedSolver.contactAcceptance.w<<",\"source_fingerprint\":"<<world.physicsFingerprint<<",\"device_fingerprint\":"<<runtime.deviceProgramFingerprint()<<",\"traces\":[";
-    auto previous=initial;double totalWork=0,totalKineticWork=0,maxLawError=0,maxMomentumError=0,maxAcceptedDual=0,maxLocalResidual=0,maxKinematicDefect=0,maxFreefallVelocityDefect=0;
+        <<",\"area_ipc_k_N_per_m5\":"<<(config.experimentalFEMPlaneAreaIPC?config.experimentalFEMPlaneAreaIPCK:0.f)<<",\"residual_policy\":\""<<policy<<"\",\"coordinate_mode\":\""<<(reference?"reference_displacement":"world_position")<<"\",\"freefall_control\":"<<(freefall?"true":"false")<<",\"mechanical_absolute_tolerance_Ns\":"<<world.mixedSolver.contactAcceptance.y<<",\"mechanical_relative_tolerance\":"<<world.mixedSolver.contactAcceptance.z<<",\"mechanical_impulse_scale_Ns\":"<<world.mixedSolver.contactAcceptance.w<<",\"source_fingerprint\":"<<world.physicsFingerprint<<",\"device_fingerprint\":"<<runtime.deviceProgramFingerprint()<<",\"traces\":[";
+    auto previous=initial;bool rejectionRestored=true;
+    double totalWork=0,totalKineticWork=0,maxLawError=0,maxMomentumError=0,maxAcceptedDual=0,maxLocalResidual=0,maxKinematicDefect=0,maxFreefallVelocityDefect=0;
     const auto start=std::chrono::steady_clock::now();
     for(int i=0;i<steps;++i){
         const double timing=step(i);gpu+=timing;auto snap=runtime.snapshot();require(snap.available,"snapshot unavailable");
         const bool ok=!snap.statuses.empty()&&snap.statuses[0].code==NM_STATUS_SUCCESS&&outer->code==MR_STEP_SUCCESS;
-        if(ok)++accepted;else ++rejected;
+        if(ok)++accepted;else { ++rejected; rejectionRestored &= physicalEqual(previous,snap); }
         double low=1.e100,high=-1.e100,force=0,momentum=0,com=0,mass=0;int contacts=0;
         for(const auto& node:snap.femNodes){low=std::min(low,double(node.positionAndMass.z));high=std::max(high,double(node.positionAndMass.z));mass+=node.positionAndMass.w;com+=node.positionAndMass.w*double(node.positionAndMass.z);momentum+=node.positionAndMass.w*double(node.velocityAndInverseMass.z);}
         for(const auto& sample:snap.contactSamples)if(sample.identity.w&NM_CONTACT_VALID){force+=sample.impulseAndNormal.w/h;++contacts;}
         double expectedEnergy=0;
+        if(config.experimentalFEMPlaneAreaIPC) for(const auto& sample:snap.contactSamples) {
+            if(!(sample.identity.w&NM_CONTACT_VALID))continue;
+            const auto i=sample.identity.x-world.dispatch.gridNodeCount;
+            require(i<area.size(),"area law node outside FEM arena");
+            const auto& n=snap.femNodes[i];const auto& o=previous.femNodes[i];
+            const double end=double(n.restAndFixed.z)+n.referenceDisplacementAndMode.z+n.referenceDisplacementLow.z;
+            const double start=double(o.restAndFixed.z)+o.referenceDisplacementAndMode.z+o.referenceDisplacementLow.z;
+            const double gap=config.experimentalFEMPlaneMidpoint ? .5*(start+end) : end;
+            const double width=world.dispatch.numericalLimits.x;
+            const double k=double(float(config.experimentalFEMPlaneAreaIPCK*area[i]));
+            double force=0.;
+            if(gap<width && k>0.) {
+                const double d=std::max(gap,1e-4*width),d2=d*d,off=d2-width*width;
+                force=std::max(0.,2*d*k*(2*off*std::log(d2/(width*width))+off*off/d2));
+            }
+            const double expected=force*float(h);
+            maxLawError=std::max(maxLawError,std::abs(expected-double(sample.impulseAndNormal.w))/std::max(1e-12,expected));
+        }
         if(arm=="al")for(const auto& sample:snap.contactSamples) {
             if(!(sample.identity.w&NM_CONTACT_VALID))continue;
             const double normal=std::max(0.,double(sample.barrier.w)-config.experimentalFEMPlanePenalty*
@@ -231,14 +307,17 @@ int main(int argc,char** argv){
             for(const auto& dual:snap.contactHistories)maxAcceptedDual=std::max(maxAcceptedDual,double(dual.w));
         }
         FixtureResidual independent;
-        if(ok) { independent=fixtureResidual(world,previous,snap,h);maxLocalResidual=std::max(maxLocalResidual,independent.local);maxKinematicDefect=std::max(maxKinematicDefect,independent.kinematic);if(freefall)maxFreefallVelocityDefect=std::max(maxFreefallVelocityDefect,independent.velocity); }
+        if(ok) { independent=fixtureResidual(world,previous,snap,h,config.experimentalFEMPlaneMidpoint);maxLocalResidual=std::max(maxLocalResidual,independent.local);maxKinematicDefect=std::max(maxKinematicDefect,independent.kinematic);if(freefall)maxFreefallVelocityDefect=std::max(maxFreefallVelocityDefect,independent.velocity); }
         double contactWork=0,kineticWork=0;
         if(ok)for(const auto& sample:snap.contactSamples) {
             if(!(sample.identity.w&NM_CONTACT_VALID)||sample.identity.x<world.dispatch.gridNodeCount)continue;
             const auto i=sample.identity.x-world.dispatch.gridNodeCount;require(i<snap.femNodes.size(),"contact node outside FEM arena");
             const auto& a=previous.femNodes[i];const auto& b=snap.femNodes[i];
             const double j[3]={-sample.impulseAndNormal.x,-sample.impulseAndNormal.y,-sample.impulseAndNormal.z};
-            const double dx[3]={b.positionAndMass.x-a.positionAndMass.x,b.positionAndMass.y-a.positionAndMass.y,b.positionAndMass.z-a.positionAndMass.z};
+            const bool reference=b.referenceDisplacementAndMode.w==1;
+            const double dx[3]={reference ? double(b.referenceDisplacementAndMode.x)-a.referenceDisplacementAndMode.x+double(b.referenceDisplacementLow.x)-a.referenceDisplacementLow.x : b.positionAndMass.x-a.positionAndMass.x,
+                reference ? double(b.referenceDisplacementAndMode.y)-a.referenceDisplacementAndMode.y+double(b.referenceDisplacementLow.y)-a.referenceDisplacementLow.y : b.positionAndMass.y-a.positionAndMass.y,
+                reference ? double(b.referenceDisplacementAndMode.z)-a.referenceDisplacementAndMode.z+double(b.referenceDisplacementLow.z)-a.referenceDisplacementLow.z : b.positionAndMass.z-a.positionAndMass.z};
             const double v[3]={double(a.velocityAndInverseMass.x)+b.velocityAndInverseMass.x,double(a.velocityAndInverseMass.y)+b.velocityAndInverseMass.y,double(a.velocityAndInverseMass.z)+b.velocityAndInverseMass.z};
             for(int axis=0;axis<3;++axis){contactWork+=j[axis]*dx[axis]/h;kineticWork+=.5*j[axis]*v[axis];}
         }
@@ -259,17 +338,37 @@ int main(int argc,char** argv){
     const auto continued=runtime.snapshot();const bool replay=physicalEqual(final,continued) && final.controlStep==continued.controlStep && final.physicsSubstep==continued.physicsSubstep && bytesEqual(final.statuses,continued.statuses);
     auto mismatch=initial;mismatch.deviceProgramFingerprint^=1u;
     const bool identityRejected=!runtime.restore(mismatch).encoded;
+    restored=runtime.restore(final);require(restored.encoded,"restore for continuation failed");
+    (void)step(steps);const auto next=runtime.snapshot();
+    restored=runtime.restore(final);require(restored.encoded,"restore for continuation replay failed");
+    (void)step(steps);const auto repeatedNext=runtime.snapshot();
+    const bool continuationReplay=physicalEqual(next,repeatedNext) &&
+        next.controlStep==repeatedNext.controlStep && next.physicsSubstep==repeatedNext.physicsSubstep &&
+        bytesEqual(next.statuses,repeatedNext.statuses);
     restored=runtime.restore(final);require(restored.encoded,"restore for rollback failed");
     const auto beforeRollback=runtime.snapshot();
     (void)step(steps,true);const auto rolled=runtime.snapshot();
-    const bool rollback=physicalEqual(beforeRollback,rolled);
+    const bool rollback=physicalEqual(beforeRollback,rolled) &&
+        beforeRollback.controlStep==rolled.controlStep && beforeRollback.physicsSubstep==rolled.physicsSubstep;
     restored=runtime.restore(initial);require(restored.encoded,"restore before reset failed");
     // Snapshot restore is exercised above with both nodes and persistent duals.
 
     std::cout<<"],\"accepted_steps\":"<<accepted<<",\"rejected_steps\":"<<rejected<<",\"wall_seconds\":"<<wall
         <<",\"contact_work_J\":"<<totalWork<<",\"contact_impulse_midvelocity_work_J\":"<<totalKineticWork<<",\"gpu_seconds\":"<<gpu<<",\"accepted_simulated_seconds\":"<<accepted*h
         <<",\"accepted_simulated_seconds_per_wall_second\":"<<accepted*h/wall<<",\"minimum_gap\":"<<minimumGap
+        <<",\"rejected_state_unchanged\":"<<(rejectionRestored?"true":"false")
+        <<",\"continuation_replay\":"<<(continuationReplay?"true":"false")
+        <<",\"final_nodes\":[";
+    for(size_t i=0;i<final.femNodes.size();++i) {
+        const auto& n=final.femNodes[i];
+        const bool ref=n.referenceDisplacementAndMode.w==1;
+        const double x=ref ? double(n.restAndFixed.x)+n.referenceDisplacementAndMode.x+n.referenceDisplacementLow.x : n.positionAndMass.x;
+        const double y=ref ? double(n.restAndFixed.y)+n.referenceDisplacementAndMode.y+n.referenceDisplacementLow.y : n.positionAndMass.y;
+        const double z=ref ? double(n.restAndFixed.z)+n.referenceDisplacementAndMode.z+n.referenceDisplacementLow.z : n.positionAndMass.z;
+        std::cout<<(i?",":"")<<"["<<x<<","<<y<<","<<z<<","<<n.velocityAndInverseMass.x<<","<<n.velocityAndInverseMass.y<<","<<n.velocityAndInverseMass.z<<"]";
+    }
+    std::cout<<"]"
         <<",\"law_max_relative_error\":"<<maxLawError<<",\"momentum_max_absolute_error_Ns\":"<<maxMomentumError<<",\"independent_max_local_scaled_residual\":"<<maxLocalResidual<<",\"position_velocity_max_defect_m\":"<<maxKinematicDefect<<",\"freefall_velocity_max_defect_mps\":"<<maxFreefallVelocityDefect<<",\"maximum_accepted_multiplier_impulse_Ns\":"<<maxAcceptedDual<<",\"identity_mismatch_rejected\":"<<(identityRejected?"true":"false")<<",\"forced_rollback_exact\":"<<(rollback?"true":"false")<<",\"restore_replay\":"<<(replay?"true":"false")<<"}\n";
-    return rejected||!replay||!rollback||!identityRejected||maxLawError>1e-4||maxMomentumError>1e-7||(policy=="physical"&&maxLocalResidual>.005)?1:0;
+    return rejected||!replay||!continuationReplay||!rollback||!identityRejected||maxLawError>1e-4||maxMomentumError>1e-7||(policy=="physical"&&maxLocalResidual>.005)?1:0;
  }catch(const std::exception& e){std::cerr<<"plane_contact_probe: "<<e.what()<<"\n";return 1;}}
 }

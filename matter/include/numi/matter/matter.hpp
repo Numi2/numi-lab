@@ -1148,6 +1148,8 @@ struct RuntimeConfiguration {
     // k is in N/m^5, d is the authored contactSlop in metres.
     bool experimentalFEMPlaneAreaIPC = false;
     float experimentalFEMPlaneAreaIPCK = 1.0e16f;
+    // Restricted full-transaction midpoint research path, disabled by default.
+    bool experimentalFEMPlaneMidpoint = false;
 };
 
 struct HumanSupportConsequencesView {

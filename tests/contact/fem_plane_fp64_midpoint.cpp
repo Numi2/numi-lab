@@ -173,6 +173,8 @@ int main(int argc,char**argv){
    <<",\"max_nonlinear_residual_m\":"<<worst<<",\"max_newton_iterations\":"<<maxIterations
    <<",\"forced_rejection_left_state_unchanged\":"<<(rejected&&restored?"true":"false")<<",\"force_bins_N\":[";
   for(int i=0;i<10;++i)std::cout<<(i?",":"")<<bins[i];
+  std::cout<<"],\"final_nodes\":[";
+  for(size_t i=0;i<s.x.size();++i) std::cout<<(i?",":"")<<"["<<s.x[i].x<<","<<s.x[i].y<<","<<s.x[i].z<<","<<s.v[i].x<<","<<s.v[i].y<<","<<s.v[i].z<<"]";
   std::cout<<"]}\n";
  }catch(const std::exception& e){std::cerr<<e.what()<<"\n";return 1;}
 }

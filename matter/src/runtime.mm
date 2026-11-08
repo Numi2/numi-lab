@@ -820,6 +820,8 @@ constexpr std::size_t kFEMOperatorFDParameterCaptureValuesPerSlot = 4u;
     hash = mixFingerprint(hash, configuration.adaptiveTransfer ? 1u : 0u);
     hash = mixFingerprint(hash, configuration.coupledCandidateCompensatedTranslation ? 1u : 0u);
     hash = mixFingerprint(hash, configuration.externalCoupledCandidatePointCapacity);
+    if (configuration.experimentalFEMPlaneMidpoint)
+        hash = mixFingerprint(hash, 0x46454d4d49443031ull); // FEMMID01
     if (configuration.experimentalFEMPlaneAreaIPC) {
         hash = mixFingerprint(hash, 0x46454d4152454131ull); // FEMAREA1
         hash = mixFingerprint(hash, detail::hashBytes(
@@ -3306,6 +3308,9 @@ struct Runtime::State {
     bool femDeformableCollisionGapEnabled = false;
     bool femReferenceContactPlaneCCDEnabled = false;
     bool experimentalFEMPlaneAL = false;
+    bool experimentalFEMPlaneMidpoint = false;
+    id<MTLBuffer> femMidpointEndpoint = nil;
+    id<MTLBuffer> femMidpointResults = nil;
     bool femTiledDeformableLimitEnabled = false;
     std::uint32_t femDeformableLimitTileCount = 128u;
     bool femParallelBacktrackingRequested = false;
@@ -5057,6 +5062,37 @@ RuntimeDiagnostics Runtime::initialize(
                         !(area*configuration.experimentalFEMPlaneAreaIPCK>0.0f))) unrepresentableArea=true;
             if (!eligible || badAL || badArea || unrepresentableArea) {
                 diagnostics.message = "experimental FEM plane law requires immutable frictionless reference FEM, a fixed plane, valid physical parameters and planar reference quadrature: "+layoutError;
+                return diagnostics;
+            }
+        }
+        if (configuration.experimentalFEMPlaneMidpoint) {
+            const bool eligible = configuration.experimentalFEMPlaneAreaIPC &&
+                !configuration.experimentalFEMPlaneAugmentedLagrangian &&
+                configuration.captureDiagnostics && world.dispatch.environmentCount == 1u &&
+                world.objects.size() == 1u && world.contact.rigidProxies.size() == 1u &&
+                world.fem.cohesiveFaces.empty() && world.fem.punctureChannels.empty() &&
+                world.learnedMaterials.empty() && world.identification.empty() &&
+                world.vascular.layout.ranges.z == 0u &&
+                world.mixedSolver.contactAcceptance.w > 0.0f &&
+                std::isfinite(world.mixedSolver.contactAcceptance.w) &&
+                std::isfinite(world.mixedSolver.contactAcceptance.y) &&
+                std::isfinite(world.mixedSolver.contactAcceptance.z) &&
+                world.mixedSolver.contactAcceptance.y >= 0.0f &&
+                world.mixedSolver.contactAcceptance.z >= 0.0f &&
+                std::all_of(world.materials.begin(),world.materials.end(),[](const auto& m) {
+                    return m.constitutiveKind == NM_CONSTITUTIVE_NEO_HOOKEAN && m.stateCount == 0u &&
+                        m.dissipationProgram == NM_INVALID_INDEX &&
+                        m.viscousStressProgramOffset == NM_INVALID_INDEX &&
+                        m.viscousTangentProgramOffset == NM_INVALID_INDEX &&
+                        m.implicitResidualProgramOffset == NM_INVALID_INDEX &&
+                        m.implicitJacobianProgramOffset == NM_INVALID_INDEX;
+                }) &&
+                world.contact.rigidProxies[0].localCenterAndRadius.x == 0.0f &&
+                world.contact.rigidProxies[0].localCenterAndRadius.y == 0.0f &&
+                world.contact.rigidProxies[0].localCenterAndRadius.z == 1.0f &&
+                world.contact.rigidProxies[0].localCenterAndRadius.w == 0.0f;
+            if (!eligible || !(0.5f*world.mixedSolver.contactAcceptance.w > 0.0f)) {
+                diagnostics.message = "midpoint research mode requires the restricted stateless one-object FEM-plane fixture and explicit physical residual scales";
                 return diagnostics;
             }
         }
@@ -6821,6 +6857,11 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femNodeRangeStride = static_cast<std::uint32_t>(
             world.fem.nodeRanges.size());
         candidate->mixedSolverValue = world.mixedSolver;
+        if (configuration.experimentalFEMPlaneMidpoint) {
+            // Stage momentum residual is half the full physical impulse residual.
+            candidate->mixedSolverValue.contactAcceptance.y *= 0.5f;
+            candidate->mixedSolverValue.contactAcceptance.w *= 0.5f;
+        }
         candidate->mutationFingerprint = detail::hashBytes(
             world.fem.mutationCommands.data(),
             world.fem.mutationCommands.size() * sizeof(NMMutationCommandGPU)
@@ -7876,6 +7917,7 @@ RuntimeDiagnostics Runtime::initialize(
                 "matter_private_contact_failure_capture=1 failure_only=1\n");
 
         candidate->experimentalFEMPlaneAL = configuration.experimentalFEMPlaneAugmentedLagrangian;
+        candidate->experimentalFEMPlaneMidpoint = configuration.experimentalFEMPlaneMidpoint;
         candidate->automaticIdentification =
             configuration.automaticIdentification;
         candidate->adaptiveTransfer = configuration.adaptiveTransfer;
@@ -8704,6 +8746,10 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_mpm_sort_block_particles",
             "nm_fem_checkpoint",
             "nm_fem_prepare_candidate",
+            "nm_fem_midpoint_reflect_endpoint_scratch",
+            "nm_fem_midpoint_certify_transaction",
+            "nm_fem_midpoint_promote_endpoint",
+            "nm_contact_midpoint_publish_physical",
             "nm_fem_apply_kinematic_targets",
             "nm_fem_human_attachment_drive_candidate",
             "nm_topology_checkpoint",
@@ -10044,6 +10090,9 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
         for (const char* name : kernelNames) {
+            if (!configuration.experimentalFEMPlaneMidpoint &&
+                (std::strncmp(name, "nm_fem_midpoint_", 16u) == 0 ||
+                 std::strcmp(name, "nm_contact_midpoint_publish_physical") == 0)) continue;
             if (!candidate->fgmresCoarseParityDiagnostic &&
                 std::strcmp(name,"nm_fgmres_coarse_parity_diagnostic")==0) continue;
             if (!candidate->fgmresParallelBasePreconditionerEnabled &&
@@ -11396,7 +11445,7 @@ RuntimeDiagnostics Runtime::initialize(
             std::span<const NMVascularClockGPU>(clockInitial), environments,
             valid, candidate->residentBytes);
         candidate->mixedSolver = uploads.one(
-            std::span<const NMMixedSolverGPU>(&world.mixedSolver, 1u),
+            std::span<const NMMixedSolverGPU>(&candidate->mixedSolverValue, 1u),
             valid, candidate->residentBytes);
         const char* canonicalTangentSetting =
             std::getenv("NM_FEM_CANONICAL_NEOHOOKEAN_TANGENT");
@@ -12568,6 +12617,12 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femCandidate = uploads.repeated(
             std::span<const NMFEMNodeStateGPU>(world.fem.nodes),
             environments, valid, candidate->residentBytes);
+        if (configuration.experimentalFEMPlaneMidpoint) {
+            candidate->femMidpointEndpoint = privateScratch<NMFEMNodeStateGPU>(
+                candidate->device, world.fem.nodes.size(), valid, candidate->residentBytes);
+            candidate->femMidpointResults = privateScratch<std::uint32_t>(
+                candidate->device, world.fem.nodes.size(), valid, candidate->residentBytes);
+        }
         candidate->femCheckpoint = uploads.repeated(
             std::span<const NMFEMNodeStateGPU>(world.fem.nodes),
             environments, valid, candidate->residentBytes);
@@ -18843,6 +18898,21 @@ RuntimeDiagnostics Runtime::encodeImpl(
             diagnostics.message = "unknown Matter encode phase";
             return diagnostics;
         }
+        if (state.experimentalFEMPlaneMidpoint &&
+            (request.physicsSubsteps != 1u || request.physicsSubstep != 0u ||
+             request.resetMasks != nullptr || request.resetMaskStepStride != 0u ||
+             request.femExternalForces != nullptr || request.femKinematicTargets != nullptr ||
+             request.humanImplicitSpringCount != 0u || request.mutationCommands != nullptr ||
+             request.mutationCommandCount != 0u || request.cohesiveActivationCommands != nullptr ||
+             request.cohesiveActivationCommandCount != 0u || request.learnedWeightUpdate != nullptr ||
+             request.runIdentification || request.runAdaptiveTransfer || request.enablePreparedState ||
+             request.encodeCoupledCandidate != nullptr || request.encodeAcceptedStepExtension != nullptr ||
+             state.femNewtonTailICBRequested || state.fgmresOperatorICBRequested ||
+             state.fgmresFlatColumnICBRequested || state.fgmresAggregateCycleICBRequested ||
+             state.fgmresPrefixPreconditionerICBRequested || state.fgmresCGS2ICBEnabled)) {
+            diagnostics.message = "midpoint research transaction rejects unsupported owners, edits, multirate and indirect solver paths";
+            return diagnostics;
+        }
         if (request.physicsSubsteps == 0u ||
             request.physicsSubstep >= request.physicsSubsteps) {
             diagnostics.message = "matter physics-substep coordinates are invalid";
@@ -20291,6 +20361,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
         frameDispatch.gravityAndTimestep.y = scaledGravity[1];
         frameDispatch.gravityAndTimestep.z = scaledGravity[2];
         frameDispatch.gravityAndTimestep.w = frameTimestep;
+        NMMatterDispatchGPU midpointDispatch = frameDispatch;
+        midpointDispatch.gravityAndTimestep.w *= 0.5f;
+        bool useMidpointDispatch = false;
         NMBridgeDispatchGPU bridge{};
         bridge.environmentCount = state.dispatch.environmentCount;
         bridge.rigidProxyCount = state.dispatch.rigidProxyCount;
@@ -21155,8 +21228,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
             return true;
         };
         const auto setDispatch = [&]() {
-            [encoder setBytes:&frameDispatch
-                       length:sizeof(frameDispatch)
+            const NMMatterDispatchGPU& selectedDispatch = useMidpointDispatch ? midpointDispatch : frameDispatch;
+            [encoder setBytes:&selectedDispatch
+                       length:sizeof(selectedDispatch)
                       atIndex:0u];
             [encoder setBytes:&state.fgmresLayout
                        length:sizeof(state.fgmresLayout) atIndex:30u];
@@ -30681,6 +30755,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
+            useMidpointDispatch = state.experimentalFEMPlaneMidpoint;
             dispatchThreads("nm_fem_prepare_candidate", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -51972,6 +52047,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     bindPrimalContactArguments(6u);
                     [encoder setBuffer:state.statuses offset:0u atIndex:7u];
                 });
+            if (state.experimentalFEMPlaneMidpoint) {
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                const std::uint32_t count = state.dispatch.contactPairCount;
+                dispatchThreads("nm_contact_midpoint_publish_physical", count, [&] {
+                    [encoder setBytes:&count length:sizeof(count) atIndex:0u];
+                    [encoder setBuffer:state.contactSamples offset:0u atIndex:1u];
+                    [encoder setBuffer:state.contactHistoriesCandidate offset:0u atIndex:2u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:3u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
+            useMidpointDispatch = false;
             dispatchThreads("nm_contact_reduce_rigid", proxyTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.rigidIncidence offset:0u atIndex:1u];
@@ -52046,7 +52133,32 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:13u];
                 [encoder setBuffer:state.statuses offset:0u atIndex:14u];
             });
-            dispatchThreads("nm_fem_integrate", femNodeTotal, [&] {
+            if (state.experimentalFEMPlaneMidpoint) {
+                const std::uint32_t count = state.dispatch.femNodeCount;
+                const float clearance = state.mixedSolverValue.contactAcceptance.x *
+                    frameDispatch.numericalLimits.x;
+                dispatchThreads("nm_fem_midpoint_reflect_endpoint_scratch", count, [&] {
+                    [encoder setBuffer:state.rigidStates offset:0u atIndex:0u];
+                    [encoder setBytes:&clearance length:sizeof(clearance) atIndex:1u];
+                    [encoder setBytes:&count length:sizeof(count) atIndex:2u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femMidpointEndpoint offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femMidpointResults offset:0u atIndex:6u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fem_midpoint_certify_transaction", 1u, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femMidpointEndpoint offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femMidpointResults offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:6u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            } else dispatchThreads("nm_fem_integrate", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                 [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -52064,7 +52176,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
                 [encoder setBuffer:state.instructions offset:0u atIndex:5u];
                 [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
-                [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
+                [encoder setBuffer:(state.experimentalFEMPlaneMidpoint ? state.femMidpointEndpoint : state.femCandidate) offset:0u atIndex:7u];
                 [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
                 [encoder setBuffer:state.schedulers offset:0u atIndex:9u];
                 [encoder setBuffer:state.adaptive offset:0u atIndex:10u];
@@ -52196,7 +52308,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                 [encoder setBuffer:state.objects offset:0u atIndex:2u];
                 [encoder setBuffer:state.femAccepted offset:0u atIndex:3u];
-                [encoder setBuffer:state.femCandidate offset:0u atIndex:4u];
+                [encoder setBuffer:(state.experimentalFEMPlaneMidpoint ? state.femMidpointEndpoint : state.femCandidate) offset:0u atIndex:4u];
                 [encoder setBuffer:state.femFieldsAccepted offset:0u atIndex:5u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:6u];
                 [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:7u];
@@ -52397,6 +52509,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
                 [encoder setBuffer:state.solverCertificates offset:0u atIndex:2u];
             });
+            if (state.experimentalFEMPlaneMidpoint) {
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                const std::uint32_t count = state.dispatch.femNodeCount;
+                dispatchThreads("nm_fem_midpoint_promote_endpoint", count, [&] {
+                    [encoder setBytes:&count length:sizeof(count) atIndex:0u];
+                    [encoder setBuffer:state.femMidpointEndpoint offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:2u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:3u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             dispatchThreads("nm_fem_commit_microstep", femTransactionalTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
